@@ -1,0 +1,489 @@
+import sqlite3
+import json
+import logging
+from typing import List, Dict, Optional, Any
+from pathlib import Path
+
+class DatabaseManager:
+    """
+    Gerencia a persistência local dos dados do projeto usando SQLite.
+    Salva o estado dos elementos identificados (Pilares, Vigas, Lajes).
+    """
+    def __init__(self, db_path: str = "project_data.vision"):
+        self.db_path = db_path
+        self._init_db()
+
+    def _init_db(self):
+        """Cria as tabelas se não existirem."""
+        conn = self._get_conn()
+        cursor = conn.cursor()
+        
+        self._create_tables_if_not_exist(cursor)
+
+        # Migração: Verificar se colunas de projeto existem (caso a tabela já existisse sem elas)
+        self._migrate_db(cursor)
+
+        conn.commit()
+        conn.close()
+
+    def _create_tables_if_not_exist(self, cursor):
+        """Define o schema das tabelas."""
+        # Tabela de Projetos
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS projects (
+                id TEXT PRIMARY KEY,
+                name TEXT,
+                dxf_path TEXT,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        ''')
+        
+        # Tabela de Eventos de Treinamento (Log para Active Learning)
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS training_events (
+                id TEXT PRIMARY KEY,
+                project_id TEXT,
+                type TEXT,        -- 'manual_correction', 'auto_validation'
+                role TEXT,        -- 'pillar_dim', 'beam_name'
+                context_dna_json TEXT, -- Assinatura vetorial do momento
+                target_value TEXT,     -- O valor correto (label)
+                status TEXT,           -- 'valid', 'fail'
+                timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY(project_id) REFERENCES projects(id)
+            )
+        ''')
+
+        # Tabela de Pilares (Schema expandido para IA + Projeto)
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS pillars (
+                id TEXT PRIMARY KEY, 
+                project_id TEXT,
+                name TEXT,
+                type TEXT,
+                area REAL,
+                points_json TEXT,
+                sides_data_json TEXT, 
+                links_json TEXT, 
+                conf_map_json TEXT, 
+                validated_fields_json TEXT, 
+                issues_json TEXT, 
+                is_validated BOOLEAN DEFAULT 0,
+                FOREIGN KEY(project_id) REFERENCES projects(id)
+            )
+        ''')
+        
+        # Tabela de Lajes
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS slabs (
+                id TEXT PRIMARY KEY,
+                project_id TEXT,
+                name TEXT,
+                area REAL,
+                points_json TEXT,
+                FOREIGN KEY(project_id) REFERENCES projects(id)
+            )
+        ''')
+
+        # Tabela de Vigas
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS beams (
+                id TEXT PRIMARY KEY,
+                project_id TEXT,
+                name TEXT,
+                data_json TEXT, 
+                is_validated BOOLEAN DEFAULT 0,
+                FOREIGN KEY(project_id) REFERENCES projects(id)
+            )
+        ''')
+
+    def _migrate_db(self, cursor):
+        """Adiciona colunas necessárias e corrige tipos de dados incompatíveis."""
+        
+        # 1. Verificar tipo da coluna ID na tabela pillars
+        need_recreation = False
+        try:
+            cursor.execute("PRAGMA table_info(pillars)")
+            cols = cursor.fetchall()  # [(cid, name, type, notnull, dflt_value, pk), ...]
+            for c in cols:
+                if c[1] == 'id' and 'INT' in c[2].upper():
+                    logging.warning("Detectado esquema antigo (ID INTEGER). Tabelas serão recriadas.")
+                    need_recreation = True
+                    break
+        except Exception:
+            pass
+
+        if need_recreation:
+            tables = ['pillars', 'slabs', 'beams']
+            for t in tables:
+                try:
+                    cursor.execute(f"ALTER TABLE {t} RENAME TO {t}_backup_legacy")
+                except Exception as e:
+                    logging.warning(f"Erro ao renomear {t}: {e}") # Talvez não exista?
+            
+            # As tabelas serão recriadas pelo _init_db (re-chamada ou fluxo seguinte)
+            # Mas como estamos chamando _migrate no FINAL do _init_db, elas não seriam criadas agora.
+            # Então, devemos criar manualmente ou re-chamar a criação.
+            # O mais simples é deixar o código abaixo tratar colunas ou a próxima execução tratar.
+            # Mas para garantir agora: chame _create_tables(cursor) se extraíssemos a lógica.
+            # Como _init_db é linear, vamos forçar a re-execução da criação:
+            self._create_tables_if_not_exist(cursor) # Extrairemos esse método
+
+
+        tables_to_check = {
+            'pillars': ['project_id', 'links_json', 'conf_map_json', 'validated_fields_json', 'issues_json', 'sides_data_json', 'points_json'],
+            'slabs': ['project_id'],
+            'beams': ['project_id']
+        }
+        
+        for table, columns in tables_to_check.items():
+            # (Código de verificação de colunas existente...)
+            try:
+                cursor.execute(f"PRAGMA table_info({table})")
+                existing_cols = [col[1] for col in cursor.fetchall()]
+                
+                for col in columns:
+                    if col not in existing_cols:
+                        try:
+                            cursor.execute(f"ALTER TABLE {table} ADD COLUMN {col} TEXT")
+                            logging.info(f"Migration: Added column {col} to table {table}")
+                        except Exception as e:
+                            logging.error(f"Migration error on {table}.{col}: {e}")
+            except:
+                pass 
+
+    def _get_conn(self):
+        return sqlite3.connect(self.db_path)
+
+    def create_project(self, name: str, dxf_path: str) -> str:
+        """Cria novo projeto e retorna ID."""
+        import uuid
+        project_id = str(uuid.uuid4())
+        conn = self._get_conn()
+        try:
+            conn.execute('INSERT INTO projects (id, name, dxf_path) VALUES (?, ?, ?)', 
+                        (project_id, name, dxf_path))
+            conn.commit()
+            return project_id
+        except Exception as e:
+            logging.error(f"Erro criar projeto: {e}")
+            return None
+        finally:
+            conn.close()
+
+    def get_projects(self) -> List[Dict]:
+        """Lista projetos recentes."""
+        conn = self._get_conn()
+        conn.row_factory = sqlite3.Row
+        try:
+            cursor = conn.execute('SELECT * FROM projects ORDER BY updated_at DESC')
+            return [dict(r) for r in cursor.fetchall()]
+        finally:
+            conn.close()
+
+    def log_training_event(self, event_data: Dict):
+        """Registra um evento de treinamento."""
+        import uuid
+        conn = self._get_conn()
+        try:
+            conn.execute('''
+                INSERT INTO training_events (id, project_id, type, role, context_dna_json, target_value, status)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
+            ''', (
+                str(uuid.uuid4()),
+                event_data.get('project_id'),
+                event_data.get('type'),
+                event_data.get('role'),
+                json.dumps(event_data.get('dna', [])),
+                event_data.get('value'),
+                event_data.get('status')
+            ))
+            conn.commit()
+        except Exception as e:
+            logging.error(f"Erro log treino: {e}")
+        finally:
+            conn.close()
+
+    def get_training_events(self, project_id: str) -> List[Dict]:
+        """Recupera eventos de treino para um projeto."""
+        conn = self._get_conn()
+        conn.row_factory = sqlite3.Row
+        try:
+            cursor = conn.execute('SELECT * FROM training_events WHERE project_id = ? ORDER BY timestamp DESC', (project_id,))
+            return [dict(r) for r in cursor.fetchall()]
+        except Exception as e:
+            logging.error(f"Erro ao buscar eventos: {e}")
+            return []
+        finally:
+            conn.close()
+
+    def save_pillar(self, p: Dict[str, Any], project_id: str):
+        """Salva ou atualiza um pilar (UPSERT) vinculado a um projeto."""
+        conn = self._get_conn()
+        cursor = conn.cursor()
+        
+        try:
+            # Serialização segura
+            points_json = json.dumps(p.get('points', []))
+            sides_json = json.dumps(p.get('sides_data', {}))
+            links_json = json.dumps(p.get('links', {}))
+            conf_map_json = json.dumps(p.get('confidence_map', {}))
+            val_fields_json = json.dumps(p.get('validated_fields', []))
+            issues_json = json.dumps(p.get('issues', []))
+            
+            p_id = str(p.get('id', ''))
+            
+            cursor.execute('''
+                INSERT INTO pillars (
+                    id, project_id, name, type, area, points_json, sides_data_json, 
+                    links_json, conf_map_json, validated_fields_json, 
+                    issues_json, is_validated
+                )
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                ON CONFLICT(id) DO UPDATE SET
+                    project_id=excluded.project_id,
+                    name=excluded.name,
+                    type=excluded.type,
+                    area=excluded.area,
+                    sides_data_json=excluded.sides_data_json,
+                    links_json=excluded.links_json,
+                    conf_map_json=excluded.conf_map_json,
+                    validated_fields_json=excluded.validated_fields_json,
+                    issues_json=excluded.issues_json,
+                    is_validated=excluded.is_validated
+            ''', (
+                p_id,
+                project_id,
+                p.get('name'), 
+                p.get('type'), 
+                float(p.get('area_val', 0.0)), 
+                points_json, 
+                sides_json,
+                links_json,
+                conf_map_json,
+                val_fields_json,
+                issues_json,
+                1 if p.get('is_validated') else 0
+            ))
+            
+            conn.commit()
+        except Exception as e:
+            logging.error(f"Erro ao salvar pilar no DB: {e}")
+        finally:
+            conn.close()
+
+    def load_pillars(self, project_id: str) -> List[Dict]:
+        """Carrega todos os pilares de um projeto."""
+        conn = self._get_conn()
+        conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
+        
+        pillars = []
+        try:
+            cursor.execute('SELECT * FROM pillars WHERE project_id = ?', (project_id,))
+            rows = cursor.fetchall()
+            
+            for row in rows:
+                p = dict(row)
+                p['points'] = json.loads(p['points_json'])
+                p['sides_data'] = json.loads(p['sides_data_json'])
+                p['links'] = json.loads(p.get('links_json', '{}'))
+                p['confidence_map'] = json.loads(p.get('conf_map_json', '{}'))
+                p['validated_fields'] = json.loads(p.get('validated_fields_json', '[]'))
+                p['issues'] = json.loads(p.get('issues_json', '[]'))
+                p['is_validated'] = bool(p['is_validated'])
+                pillars.append(p)
+        except Exception as e:
+            logging.error(f"Erro ao carregar pilares: {e}")
+        finally:
+            conn.close()
+        return pillars
+
+    def clear_project(self, project_id: str):
+        """Limpa dados de um projeto específico."""
+        conn = self._get_conn()
+        cursor = conn.cursor()
+        cursor.execute('DELETE FROM pillars WHERE project_id = ?', (project_id,))
+        cursor.execute('DELETE FROM slabs WHERE project_id = ?', (project_id,))
+        cursor.execute('DELETE FROM beams WHERE project_id = ?', (project_id,))
+        conn.commit()
+        conn.close()
+
+    def save_slab(self, s: Dict[str, Any], project_id: str):
+        """Salva uma laje vinculada ao projeto."""
+        conn = self._get_conn()
+        cursor = conn.cursor()
+        try:
+            cursor.execute('''
+                INSERT INTO slabs (id, project_id, name, area, points_json)
+                VALUES (?, ?, ?, ?, ?)
+                ON CONFLICT(id) DO UPDATE SET
+                    project_id=excluded.project_id,
+                    name=excluded.name,
+                    area=excluded.area,
+                    points_json=excluded.points_json
+            ''', (
+                s['id'], project_id, s.get('name'), 
+                float(s.get('area', 0.0)), json.dumps(s.get('points', []))
+            ))
+            conn.commit()
+        except Exception as e:
+            logging.error(f"Erro ao salvar laje: {e}")
+        finally:
+            conn.close()
+
+    def load_slabs(self, project_id: str) -> List[Dict]:
+        """Carrega lajes de um projeto."""
+        conn = self._get_conn()
+        conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
+        slabs = []
+        try:
+            cursor.execute('SELECT * FROM slabs WHERE project_id = ?', (project_id,))
+            for row in cursor.fetchall():
+                s = dict(row)
+                s['points'] = json.loads(s['points_json'])
+                slabs.append(s)
+        except Exception as e:
+            logging.error(f"Erro ao carregar lajes: {e}")
+        finally:
+            conn.close()
+        return slabs
+    def save_beam(self, b: Dict[str, Any], project_id: str):
+        """Salva uma viga vinculada ao projeto."""
+        conn = self._get_conn()
+        cursor = conn.cursor()
+        try:
+            cursor.execute('''
+                INSERT INTO beams (id, project_id, name, data_json, is_validated)
+                VALUES (?, ?, ?, ?, ?)
+                ON CONFLICT(id) DO UPDATE SET
+                    project_id=excluded.project_id,
+                    name=excluded.name,
+                    data_json=excluded.data_json,
+                    is_validated=excluded.is_validated
+            ''', (
+                b['id'], project_id, b.get('name'), 
+                json.dumps(b), 1 if b.get('is_validated') else 0
+            ))
+            conn.commit()
+        except Exception as e:
+            logging.error(f"Erro ao salvar viga: {e}")
+        finally:
+            conn.close()
+
+    def load_beams(self, project_id: str) -> List[Dict]:
+        """Carrega vigas de um projeto."""
+        conn = self._get_conn()
+        conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
+        beams = []
+        try:
+            cursor.execute('SELECT * FROM beams WHERE project_id = ?', (project_id,))
+            for row in cursor.fetchall():
+                b = json.loads(row['data_json'])
+                b['is_validated'] = bool(row['is_validated'])
+                beams.append(b)
+        except Exception as e:
+            logging.error(f"Erro ao carregar vigas: {e}")
+        finally:
+            conn.close()
+        return beams
+    def export_project_data(self, project_id: str) -> Dict[str, Any]:
+        """Exporta TODOS os dados de um projeto para um dicionário (Backup/Sharing)."""
+        data = {}
+        
+        # 1. Project Info
+        conn = self._get_conn()
+        conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
+        try:
+            cursor.execute("SELECT * FROM projects WHERE id = ?", (project_id,))
+            row = cursor.fetchone()
+            if row:
+                data['project'] = dict(row)
+            else:
+                return {} # Projeto não encontrado
+        finally:
+            conn.close()
+
+        # 2. Entities
+        data['pillars'] = self.load_pillars(project_id)
+        data['slabs'] = self.load_slabs(project_id)
+        data['beams'] = self.load_beams(project_id)
+        data['training'] = self.get_training_events(project_id)
+        
+        return data
+
+    def import_project_data(self, data: Dict[str, Any]) -> str:
+        """Importa dados de projeto. Atualiza se existir, cria se não."""
+        p_info = data.get('project')
+        if not p_info: return None
+        
+        p_id = p_info['id']
+        conn = self._get_conn()
+        cursor = conn.cursor()
+        
+        try:
+            # 1. Upsert Project
+            cursor.execute('''
+                INSERT INTO projects (id, name, dxf_path, created_at)
+                VALUES (?, ?, ?, ?)
+                ON CONFLICT(id) DO UPDATE SET
+                    name=excluded.name,
+                    dxf_path=excluded.dxf_path
+            ''', (p_id, p_info['name'], p_info['dxf_path'], p_info.get('created_at')))
+            
+            conn.commit() # Commit parcial para garantir ID
+            
+        except Exception as e:
+            logging.error(f"Erro ao importar tabela projeto: {e}")
+            return None
+        finally:
+            conn.close()
+            
+        # 2. Upsert Entities (Usando métodos existentes)
+        for p in data.get('pillars', []):
+            self.save_pillar(p, p_id)
+            
+        for s in data.get('slabs', []):
+            self.save_slab(s, p_id)
+            
+        for b in data.get('beams', []):
+            self.save_beam(b, p_id)
+
+        # 3. Upsert Training Events
+        # Precisamos de um método batch ou loop simples
+        t_events = data.get('training', [])
+        # Como log_training_event gera ID novo ou não tem ID explícito no input do método existente?
+        # log_training_event assume novo evento. Para importação, idealmente manteríamos o histórico.
+        # Mas log_training_event não aceita ID. Vamos inserir direto.
+        self._import_training_events(t_events)
+        
+        return p_id
+
+    def _import_training_events(self, events: List[Dict]):
+        if not events: return
+        conn = self._get_conn()
+        cursor = conn.cursor()
+        try:
+            for e in events:
+                # Verificar se já existe (evitar duplicata exata de timestamp + role + valor)
+                # Simplificação: Inserir ignorando ID (autoincrement/uuid gerado no insert original?)
+                # O schema de training_events tem id?
+                # Vamos olhar o schema. Se tiver ID, usamos replace. Se não, insert.
+                # Assumindo ID existente no dicionário 'e'.
+                
+                keys = list(e.keys())
+                vals = list(e.values())
+                placeholders = ','.join(['?']*len(keys))
+                cols = ','.join(keys)
+                
+                # Tenta INSERT OR IGNORE se tiver ID
+                sql = f"INSERT OR IGNORE INTO training_events ({cols}) VALUES ({placeholders})"
+                cursor.execute(sql, vals)
+            conn.commit()
+        except Exception as e:
+            logging.error(f"Erro ao importar eventos de treino: {e}")
+        finally:
+            conn.close()

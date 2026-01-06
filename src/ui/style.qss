@@ -1,0 +1,137 @@
+/* Vision-Estrutural Premium Dark Theme - Master Edition */
+
+QMainWindow {
+    background-color: #0c0c0c;
+}
+
+QWidget {
+    background-color: #0c0c0c;
+    color: #E0E0E0;
+    font-family: 'Inter', 'Segoe UI', sans-serif;
+}
+
+/* Sidebar e Abas */
+QFrame#Sidebar {
+    background-color: #141414;
+    border-right: 1px solid #222;
+}
+
+QTabWidget::pane {
+    border: 1px solid #222;
+    background-color: #141414;
+    border-radius: 4px;
+}
+
+QTabBar::tab {
+    background-color: #1e1e1e;
+    padding: 12px 24px;
+    border: 1px solid #222;
+    border-bottom: none;
+    margin-right: 2px;
+    color: #888;
+}
+
+QTabBar::tab:selected {
+    background-color: #ffb300;
+    color: #1a1a1a;
+    font-weight: bold;
+}
+
+/* Listas Minimalistas */
+QListWidget {
+    background-color: #141414;
+    border: none;
+    outline: none;
+}
+
+QListWidget::item {
+    padding: 15px;
+    border-bottom: 1px solid #1e1e1e;
+    font-size: 14px;
+}
+
+QListWidget::item:selected {
+    background-color: #1e1e1e;
+    border-left: 5px solid #ffb300;
+    color: #ffb300;
+    font-weight: bold;
+}
+
+/* Glassmorphism e Ficha Técnica */
+QScrollArea {
+    background-color: transparent;
+    border: none;
+}
+
+#HeaderCard {
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #1a1a1a, stop:1 #222);
+    border: 1px solid #333;
+    border-radius: 12px;
+    padding: 5px;
+}
+
+QLineEdit {
+    background-color: #0a0a0a;
+    border: 1px solid #333;
+    padding: 6px 10px;
+    border-radius: 6px;
+    color: #00FF00;
+    font-family: 'Consolas', 'Courier New', monospace;
+}
+
+QLineEdit:focus {
+    border: 1px solid #ffb300;
+}
+
+/* Botões Modernos - Amber Theme */
+QPushButton {
+    background-color: #1e1e1e;
+    color: #ffb300;
+    border: 1px solid #ffb300;
+    padding: 10px 20px;
+    border-radius: 6px;
+    font-weight: bold;
+    font-size: 13px;
+}
+
+QPushButton:hover {
+    background-color: #ffb300;
+    color: #1e1e1e;
+}
+
+QPushButton#Primary {
+    border: 2px solid #ffb300;
+    font-size: 14px;
+}
+
+QPushButton#Success {
+    background: #2E7D32;
+    color: white;
+    border: 1px solid #4CAF50;
+}
+
+QPushButton#Danger {
+    background: #C62828;
+    color: white;
+    border: 1px solid #FF5252;
+}
+
+QPushButton.FieldBtn {
+    padding: 2px 10px;
+    font-size: 10px;
+}
+
+/* Tabelas */
+QTableWidget {
+    background-color: #0a0a0a;
+    gridline-color: #222;
+    border: 1px solid #222;
+    border-radius: 4px;
+}
+
+QHeaderView::section {
+    background-color: #1a1a1a;
+    padding: 8px;
+    border: 1px solid #222;
+    color: #888;
+}
