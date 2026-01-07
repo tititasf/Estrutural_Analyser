@@ -1,8 +1,11 @@
 from PySide6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QListWidget, 
-                               QPushButton, QLabel, QLineEdit, QFileDialog, QMessageBox, QListWidgetItem)
+                               QPushButton, QLabel, QLineEdit, QFileDialog, QMessageBox, 
+                               QListWidgetItem, QTableWidget, QTableWidgetItem, QHeaderView,
+                               QComboBox, QInputDialog, QMenu, QToolButton)
 from PySide6.QtCore import Signal, Qt
 import json
 import os
+from datetime import datetime
 
 class ProjectManager(QWidget):
     project_selected = Signal(str, str, str)  # id, name, dxf_path
@@ -11,6 +14,7 @@ class ProjectManager(QWidget):
         super().__init__()
         self.db = db_manager
         self.setup_ui()
+        self.load_works_combo()
         self.load_projects()
 
     def setup_ui(self):
@@ -18,49 +22,252 @@ class ProjectManager(QWidget):
 
         # Header
         header = QLabel("Gerenciador de Projetos DXF")
-        header.setStyleSheet("font-size: 18px; font-weight: bold; margin-bottom: 10px;")
+        header.setStyleSheet("font-size: 18px; font-weight: bold; margin-bottom: 5px;")
         layout.addWidget(header)
 
-        # List of Projects
-        self.project_list = QListWidget()
-        self.project_list.itemDoubleClicked.connect(self.open_project)
-        layout.addWidget(QLabel("Projetos Recentes:"))
-        layout.addWidget(self.project_list)
+        # --- Work Management Area ---
+        work_layout = QHBoxLayout()
+        work_layout.addWidget(QLabel("Filtrar por Obra:"))
+        
+        self.combo_works = QComboBox()
+        self.combo_works.addItem("Todas as Obras", None)
+        self.combo_works.currentIndexChanged.connect(self.load_projects)
+        work_layout.addWidget(self.combo_works)
+        
+        # Tools Work
+        btn_add_work = QPushButton("➕ Obra")
+        btn_add_work.setToolTip("Criar nova Obra")
+        btn_add_work.clicked.connect(self.add_work)
+        
+        btn_edit_work = QPushButton("✏️")
+        btn_edit_work.setToolTip("Renomear Obra Selecionada")
+        btn_edit_work.clicked.connect(self.rename_current_work)
 
-        # Action Buttons Layout
+        btn_del_work = QPushButton("🗑️")
+        btn_del_work.setToolTip("Excluir Obra (Remove projetos da obra)")
+        btn_del_work.clicked.connect(self.delete_current_work)
+
+        work_layout.addWidget(btn_add_work)
+        work_layout.addWidget(btn_edit_work)
+        work_layout.addWidget(btn_del_work)
+        work_layout.addStretch()
+        
+        layout.addLayout(work_layout)
+
+        # --- Project Table ---
+        self.table = QTableWidget()
+        self.table.setColumnCount(4)
+        self.table.setHorizontalHeaderLabels(["Nome do Projeto", "Obra", "Arquivo DXF", "Ações"])
+        self.table.horizontalHeader().setSectionResizeMode(0, QHeaderView.Stretch)
+        self.table.horizontalHeader().setSectionResizeMode(1, QHeaderView.ResizeToContents)
+        self.table.horizontalHeader().setSectionResizeMode(2, QHeaderView.ResizeToContents)
+        self.table.horizontalHeader().setSectionResizeMode(3, QHeaderView.Fixed)
+        self.table.setColumnWidth(3, 160)
+        self.table.setSelectionBehavior(QTableWidget.SelectRows)
+        self.table.setSelectionMode(QTableWidget.SingleSelection)
+        self.table.cellDoubleClicked.connect(self.on_table_double_click)
+        layout.addWidget(self.table)
+
+        # --- Main Actions ---
         btn_layout = QHBoxLayout()
         
         self.btn_new = QPushButton("Novo Projeto")
         self.btn_new.clicked.connect(self.create_new_project)
+        self.btn_new.setStyleSheet("font-weight: bold; background-color: #007acc; color: white; padding: 6px;")
         btn_layout.addWidget(self.btn_new)
         
         self.btn_import = QPushButton("Importar Backup")
         self.btn_import.clicked.connect(self.import_project)
-        self.btn_import.setStyleSheet("background-color: #2a2a2a; color: #00d4ff; border: 1px dashed #00d4ff;")
         btn_layout.addWidget(self.btn_import)
         
         self.btn_export = QPushButton("Exportar Selecionado")
         self.btn_export.clicked.connect(self.export_project)
-        self.btn_export.setStyleSheet("background-color: #2a2a2a; color: #ffb300; border: 1px solid #ffb300;")
         btn_layout.addWidget(self.btn_export)
-
-        layout.addLayout(btn_layout)
         
         # Open Button
-        self.btn_open = QPushButton("Abrir Projeto Selecionado")
-        self.btn_open.setFixedHeight(40)
-        self.btn_open.setStyleSheet("font-weight: bold; background-color: #007acc; color: white;")
-        self.btn_open.clicked.connect(self.open_project)
-        layout.addWidget(self.btn_open)
+        self.btn_open = QPushButton("Abrir Selecionado")
+        self.btn_open.clicked.connect(self.open_selected_project)
+        btn_layout.addWidget(self.btn_open)
+
+        layout.addLayout(btn_layout)
+
+    def load_works_combo(self):
+        curr_text = self.combo_works.currentText()
+        self.combo_works.blockSignals(True)
+        self.combo_works.clear()
+        self.combo_works.addItem("Todas as Obras", None)
+        
+        works = self.db.get_all_works()
+        for w in works:
+            self.combo_works.addItem(w, w)
+            
+        # Restore selection
+        idx = self.combo_works.findText(curr_text)
+        if idx >= 0:
+            self.combo_works.setCurrentIndex(idx)
+        else:
+            self.combo_works.setCurrentIndex(0)
+            
+        self.combo_works.blockSignals(False)
 
     def load_projects(self):
-        self.project_list.clear()
+        self.table.setRowCount(0)
         projects = self.db.get_projects()
+        
+        filter_work = self.combo_works.currentData() # None = All
+        
+        row = 0
         for p in projects:
-            display_text = f"{p['name']} ({os.path.basename(p['dxf_path'])})"
-            item = QListWidgetItem(display_text)
-            item.setData(Qt.UserRole, p)
-            self.project_list.addItem(item)
+            p_work = p.get('work_name') or "Sem Obra"
+            
+            # Filter
+            if filter_work and p.get('work_name') != filter_work:
+                continue
+
+            self.table.insertRow(row)
+            
+            # Name
+            self.table.setItem(row, 0, QTableWidgetItem(p['name']))
+            # Work
+            self.table.setItem(row, 1, QTableWidgetItem(p_work))
+            # DXF
+            dxf_name = os.path.basename(p['dxf_path']) if p['dxf_path'] else "-"
+            self.table.setItem(row, 2, QTableWidgetItem(dxf_name))
+            
+            # Actions Widget
+            actions_widget = QWidget()
+            h_layout = QHBoxLayout(actions_widget)
+            h_layout.setContentsMargins(2, 2, 2, 2)
+            h_layout.setSpacing(4)
+            
+            # Rename
+            btn_ren = self._make_tool_btn("✏️", "Renomear", lambda checked=False, pid=p['id'], name=p['name']: self.rename_project_action(pid, name))
+            h_layout.addWidget(btn_ren)
+
+            # Move/Group
+            btn_grp = self._make_tool_btn("📂", "Mover/Copiar para Obra", lambda checked=False, pid=p['id']: self.move_copy_project_action(pid))
+            h_layout.addWidget(btn_grp)
+
+            # Delete
+            btn_del = self._make_tool_btn("🗑️", "Excluir", lambda checked=False, pid=p['id'], name=p['name']: self.delete_project_action(pid, name))
+            h_layout.addWidget(btn_del)
+            
+            h_layout.addStretch()
+            self.table.setCellWidget(row, 3, actions_widget)
+            
+            # Store ID in hidden role of first item
+            self.table.item(row, 0).setData(Qt.UserRole, p)
+            
+            row += 1
+
+    def _make_tool_btn(self, icon_text, tooltip, callback):
+        btn = QToolButton()
+        btn.setText(icon_text)
+        btn.setToolTip(tooltip)
+        btn.clicked.connect(callback)
+        btn.setFixedSize(24, 24)
+        return btn
+
+    # --- Actions ---
+
+    def add_work(self):
+        text, ok = QInputDialog.getText(self, "Nova Obra", "Nome da Obra:")
+        if ok and text:
+            # Just create a dummy project? No, databases like this usually only allow works assigned to projects. 
+            # But the user wants to populate the combo BEFORE creating projects.
+            # WORKAROUND: We just add to combo for now, and it will persist only if assigned.
+            # OR we rely on assignment. 
+            # Let's simplify: Just refresh combo? No, if it's based on distinct, we can't create an empty obra easily without a Works table.
+            # But we can allow the user to type the name when creating a project.
+            # Let's fake it: Add to combo manually so they can select it for filtering/creation immediate.
+            if self.combo_works.findText(text) == -1:
+                self.combo_works.addItem(text, text)
+                self.combo_works.setCurrentIndex(self.combo_works.count()-1)
+
+    def rename_current_work(self):
+        current_work = self.combo_works.currentData()
+        if not current_work:
+            QMessageBox.warning(self, "Aviso", "Selecione uma Obra específica para renomear.")
+            return
+            
+        new_name, ok = QInputDialog.getText(self, "Renomear Obra", f"Novo nome para '{current_work}':", text=current_work)
+        if ok and new_name and new_name != current_work:
+            # Update all projects
+            projects = self.db.get_projects()
+            count = 0
+            for p in projects:
+                if p.get('work_name') == current_work:
+                    self.db.update_project_work(p['id'], new_name)
+                    count += 1
+            
+            self.load_works_combo()
+            idx = self.combo_works.findText(new_name)
+            if idx >= 0: self.combo_works.setCurrentIndex(idx)
+            self.load_projects()
+            QMessageBox.information(self, "Sucesso", f"Renomeada obra de {count} projetos.")
+
+    def delete_current_work(self):
+        current_work = self.combo_works.currentData()
+        if not current_work:
+            return
+            
+        reply = QMessageBox.question(self, "Excluir Obra", 
+                                     f"Isso removerá a associação de 'Obra' de todos os projetos em '{current_work}'.\nOs projetos NÃO serão excluídos, apenas ficarão 'Sem Obra'.\nContinuar?",
+                                     QMessageBox.Yes | QMessageBox.No)
+        
+        if reply == QMessageBox.Yes:
+            projects = self.db.get_projects()
+            for p in projects:
+                if p.get('work_name') == current_work:
+                    self.db.update_project_work(p['id'], "") # Remove Obra
+            
+            self.load_works_combo()
+            self.load_projects()
+
+    def rename_project_action(self, pid, old_name):
+        new_name, ok = QInputDialog.getText(self, "Renomear Projeto", "Novo Nome:", text=old_name)
+        if ok and new_name:
+            self.db.rename_project(pid, new_name)
+            self.load_projects()
+
+    def delete_project_action(self, pid, name):
+        reply = QMessageBox.question(self, "Confirmar Exclusão", 
+                                     f"Tem certeza que deseja excluir o projeto '{name}'?\nIsso apagará TODOS os dados (Pilares, Lajes, etc).",
+                                     QMessageBox.Yes | QMessageBox.No)
+        if reply == QMessageBox.Yes:
+            self.db.delete_project_fully(pid)
+            self.load_projects()
+
+    def move_copy_project_action(self, pid):
+        # Dialog to choose Target Work and Action (Move vs Copy)
+        works = self.db.get_all_works()
+        if not works:
+            QMessageBox.warning(self, "Aviso", "Não há obras cadastradas para destino.")
+            return
+
+        item, ok = QInputDialog.getItem(self, "Selecionar Obra de Destino", "Obra:", works, 0, False)
+        if ok and item:
+            # Ask Move or Copy
+            msg = QMessageBox()
+            msg.setWindowTitle("Ação")
+            msg.setText(f"O que deseja fazer com o projeto para '{item}'?")
+            btn_move = msg.addButton("Mover", QMessageBox.ActionRole) # Role 0
+            btn_copy = msg.addButton("Copiar", QMessageBox.ActionRole) # Role 1
+            msg.addButton("Cancelar", QMessageBox.RejectRole)
+            
+            msg.exec_()
+            
+            if msg.clickedButton() == btn_move:
+                self.db.update_project_work(pid, item)
+                self.load_projects()
+            elif msg.clickedButton() == btn_copy:
+                new_pid = self.db.duplicate_project(pid, target_work_name=item)
+                if new_pid:
+                    QMessageBox.information(self, "Sucesso", "Projeto copiado com sucesso!")
+                    self.load_projects()
+                else:
+                    QMessageBox.critical(self, "Erro", "Falha ao copiar projeto.")
+
 
     def create_new_project(self):
         # 1. Select DXF
@@ -71,37 +278,46 @@ class ProjectManager(QWidget):
         # 2. Name Project
         project_name = os.path.splitext(os.path.basename(fname))[0]
         
-        # 3. Create in ID
+        # 3. Create ID
         pid = self.db.create_project(project_name, fname)
         if pid:
+            # Assign current Obra if selected
+            curr_work = self.combo_works.currentData()
+            if curr_work:
+                self.db.update_project_work(pid, curr_work)
+                
             self.load_projects()
-            # Auto-select the new project
             self.project_selected.emit(pid, project_name, fname)
         else:
             QMessageBox.critical(self, "Erro", "Falha ao criar projeto no banco de dados.")
 
-    def open_project(self):
-        item = self.project_list.currentItem()
-        if not item:
-            return
+    def open_selected_project(self):
+        row = self.table.currentRow()
+        if row < 0: return
         
-        p = item.data(Qt.UserRole)
+        p = self.table.item(row, 0).data(Qt.UserRole)
         self.project_selected.emit(p['id'], p['name'], p['dxf_path'])
 
+    def on_table_double_click(self, row, col):
+        if col == 3: return # Actions column
+        self.open_selected_project()
+
     def export_project(self):
-        item = self.project_list.currentItem()
-        if not item:
+        row = self.table.currentRow()
+        if row < 0:
             QMessageBox.warning(self, "Aviso", "Selecione um projeto para exportar.")
             return
 
-        p = item.data(Qt.UserRole)
+        p = self.table.item(row, 0).data(Qt.UserRole)
         data = self.db.export_project_data(p['id'])
         
         if not data:
             QMessageBox.critical(self, "Erro", "Não foi possível recuperar os dados do projeto.")
             return
 
-        fname, _ = QFileDialog.getSaveFileName(self, "Salvar Backup de Projeto", f"{p['name']}_backup.cadproj", "Project Files (*.cadproj *.json)")
+        # Suggested filename
+        safe_name = p['name'].replace(" ", "_").replace("/", "-")
+        fname, _ = QFileDialog.getSaveFileName(self, "Salvar Backup de Projeto", f"{safe_name}_backup.cadproj", "Project Files (*.cadproj *.json)")
         if fname:
             try:
                 with open(fname, 'w', encoding='utf-8') as f:
@@ -112,20 +328,35 @@ class ProjectManager(QWidget):
 
     def import_project(self):
         fname, _ = QFileDialog.getOpenFileName(self, "Importar Backup", "", "Project Files (*.cadproj *.json)")
-        if not fname:
-            return
+        if not fname: return
 
         try:
             with open(fname, 'r', encoding='utf-8') as f:
                 data = json.load(f)
             
+            # --- FEATURE REQUEST: Use document name as saved at time of export ---
+            # DB export saves data['project']['name']. DatabaseManager.import_project_data uses it.
+            # So this is already handled if the export file contains the correct name.
+            # But the user said: "importing... save with the name of the document saved AT THE TIME OF EXPORT"
+            # Yes, data['project']['name'] IS the name at time of export. 
+            # So I just pass data to DB.
+            # However, I should check if the user wants to *override* the imported work name with current UI selection?
+            # User didn't specify that. He said project name.
+            
+            # Additional: Ensure it appears in current "Obra" if one is selected and strict?
+            # Or just import as is? I'll import as is.
+            
+            # Optional: If current Obra filter is active, maybe ask to auto-assign?
+            # I'll stick to raw import.
+            
             p_id = self.db.import_project_data(data)
             
             if p_id:
+                self.load_works_combo() # In case a new work was imported
                 self.load_projects()
-                QMessageBox.information(self, "Sucesso", "Projeto importado com sucesso!")
+                QMessageBox.information(self, "Sucesso", f"Projeto '{data['project']['name']}' importado com sucesso!")
             else:
-                QMessageBox.critical(self, "Erro", "Falha estrutural ao importar projeto (ID inválido ou erro de DB).")
+                QMessageBox.critical(self, "Erro", "Falha estrutural ao importar projeto.")
                 
         except Exception as e:
             QMessageBox.critical(self, "Erro", f"Erro ao ler arquivo de projeto: {e}")

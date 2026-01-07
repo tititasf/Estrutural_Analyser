@@ -457,14 +457,27 @@ class DatabaseManager:
         cursor = conn.cursor()
         
         try:
-            # 1. Upsert Project
+            # 1. Upsert Project (Including Metadata)
             cursor.execute('''
-                INSERT INTO projects (id, name, dxf_path, created_at)
-                VALUES (?, ?, ?, ?)
+                INSERT INTO projects (id, name, dxf_path, work_name, pavement_name, level_arrival, level_exit, created_at)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
                 ON CONFLICT(id) DO UPDATE SET
                     name=excluded.name,
-                    dxf_path=excluded.dxf_path
-            ''', (p_id, p_info['name'], p_info['dxf_path'], p_info.get('created_at')))
+                    dxf_path=excluded.dxf_path,
+                    work_name=excluded.work_name,
+                    pavement_name=excluded.pavement_name,
+                    level_arrival=excluded.level_arrival,
+                    level_exit=excluded.level_exit
+            ''', (
+                p_id, 
+                p_info['name'], 
+                p_info['dxf_path'],
+                p_info.get('work_name', ''),
+                p_info.get('pavement_name', ''),
+                p_info.get('level_arrival', ''),
+                p_info.get('level_exit', ''),
+                p_info.get('created_at')
+            ))
             
             conn.commit() # Commit parcial para garantir ID
             
@@ -485,12 +498,7 @@ class DatabaseManager:
             self.save_beam(b, p_id)
 
         # 3. Upsert Training Events
-        # Precisamos de um método batch ou loop simples
-        t_events = data.get('training', [])
-        # Como log_training_event gera ID novo ou não tem ID explícito no input do método existente?
-        # log_training_event assume novo evento. Para importação, idealmente manteríamos o histórico.
-        # Mas log_training_event não aceita ID. Vamos inserir direto.
-        self._import_training_events(t_events)
+        self._import_training_events(data.get('training', []))
         
         return p_id
 
@@ -500,12 +508,6 @@ class DatabaseManager:
         cursor = conn.cursor()
         try:
             for e in events:
-                # Verificar se já existe (evitar duplicata exata de timestamp + role + valor)
-                # Simplificação: Inserir ignorando ID (autoincrement/uuid gerado no insert original?)
-                # O schema de training_events tem id?
-                # Vamos olhar o schema. Se tiver ID, usamos replace. Se não, insert.
-                # Assumindo ID existente no dicionário 'e'.
-                
                 keys = list(e.keys())
                 vals = list(e.values())
                 placeholders = ','.join(['?']*len(keys))
@@ -519,3 +521,59 @@ class DatabaseManager:
             logging.error(f"Erro ao importar eventos de treino: {e}")
         finally:
             conn.close()
+
+    def delete_project_fully(self, project_id: str):
+        """Remove completamente um projeto e seus dados."""
+        self.clear_project(project_id) # Remove entities
+        
+        conn = self._get_conn()
+        try:
+            conn.execute('DELETE FROM training_events WHERE project_id = ?', (project_id,))
+            conn.execute('DELETE FROM projects WHERE id = ?', (project_id,))
+            conn.commit()
+        finally:
+            conn.close()
+
+    def rename_project(self, project_id: str, new_name: str):
+        """Renomeia um projeto."""
+        conn = self._get_conn()
+        try:
+            conn.execute('UPDATE projects SET name = ? WHERE id = ?', (new_name, project_id))
+            conn.commit()
+        finally:
+            conn.close()
+
+    def update_project_work(self, project_id: str, new_work_name: str):
+        """Move projeto para outra Obra."""
+        conn = self._get_conn()
+        try:
+            conn.execute('UPDATE projects SET work_name = ? WHERE id = ?', (new_work_name, project_id))
+            conn.commit()
+        finally:
+            conn.close()
+
+    def get_all_works(self) -> List[str]:
+        """Retorna lista de todas as Obras cadastradas (distinct)."""
+        conn = self._get_conn()
+        try:
+            cursor = conn.execute('SELECT DISTINCT work_name FROM projects WHERE work_name IS NOT NULL AND work_name != ""')
+            return [r[0] for r in cursor.fetchall()]
+        finally:
+            conn.close()
+
+    def duplicate_project(self, source_pid: str, target_work_name: str = None) -> str:
+        """Duplica um projeto existente."""
+        data = self.export_project_data(source_pid)
+        if not data: return None
+        
+        import uuid
+        new_id = str(uuid.uuid4())
+        
+        # Modify ID and Metadata for new project
+        data['project']['id'] = new_id
+        data['project']['name'] = f"{data['project']['name']} (Cópia)"
+        if target_work_name is not None:
+             data['project']['work_name'] = target_work_name
+             
+        # Import as new
+        return self.import_project_data(data)
