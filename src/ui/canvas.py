@@ -21,7 +21,7 @@ class CADCanvas(QGraphicsView):
         self.setResizeAnchor(QGraphicsView.AnchorUnderMouse)
         
         # Cores (Dark Mode cad-like)
-        self.setBackgroundBrush(QColor(15, 15, 15)) # Preto profundo
+        self.setBackgroundBrush(QColor(40, 40, 40)) # Dark Gray (não preto absoluto)
         
         # Estado
         self.interactive_items = {} # Map ID -> GraphicItem (Generic)

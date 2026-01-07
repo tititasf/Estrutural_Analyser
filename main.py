@@ -79,6 +79,7 @@ class MainWindow(QMainWindow):
         # --- LADO ESQUERDO: GESTÃO DE ITENS ---
         self.left_panel = QWidget()
         self.left_panel.setObjectName("Sidebar")
+        self.left_panel.setStyleSheet("QWidget#Sidebar { background-color: #E6F4F1; color: #333; } QListWidget { background-color: #FFF; color: #000; border: 1px solid #CCC; } QLabel { color: #333; }")
         self.left_panel.setFixedWidth(365)
         left_layout = QVBoxLayout(self.left_panel)
         left_layout.setSpacing(10)
@@ -170,6 +171,12 @@ class MainWindow(QMainWindow):
             # Lista
             layout.addWidget(list_widget)
             
+            # Botão Excluir Item
+            btn_delete = QPushButton("🗑️ Excluir Item")
+            btn_delete.setStyleSheet("background-color: #ffcccc; color: #cc0000; border: 1px solid #ff9999;")
+            btn_delete.clicked.connect(lambda: self.delete_item_action(list_widget, item_type, is_library))
+            layout.addWidget(btn_delete)
+
             # Botão Criar Novo Item (padrão)
             scope_name = "Lib" if is_library else "Análise"
             btn_create = QPushButton(f"➕ Criar Novo Item ({scope_name})")
@@ -315,6 +322,7 @@ class MainWindow(QMainWindow):
         # --- DIREITA: DETALHAMENTO ---
         self.right_panel = QStackedWidget()
         self.right_panel.setMinimumWidth(220)
+        self.right_panel.setStyleSheet("QWidget { background-color: #E6F4F1; color: #333; } QLabel { color: #333; }")
         
         # Pagina 0: Placeholder
         placeholder = QLabel("Selecione um item para ver detalhes\nou inicie a detecção.")
@@ -2094,6 +2102,48 @@ class MainWindow(QMainWindow):
                 print(f"Erro sync evento {ev['id']}: {e}")
             
         self.log(f"✅ Sincronização concluída! {count} exemplos convertidos em vetores.")
+
+    def delete_item_action(self, list_widget, item_type: str, is_library: bool):
+        """Exclui o item selecionado da lista e da memória/banco."""
+        selected_items = list_widget.selectedItems()
+        if not selected_items:
+            QMessageBox.warning(self, "Exclusão", "Selecione um item para excluir.")
+            return
+
+        item = selected_items[0]
+        item_id = item.data(Qt.UserRole)
+        
+        reply = QMessageBox.question(self, "Confirmar Exclusão", 
+                                   f"Tem certeza que deseja excluir este item ({item.text()})?",
+                                   QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+        if reply != QMessageBox.Yes:
+            return
+
+        # 1. Remover da UI
+        row = list_widget.row(item)
+        list_widget.takeItem(row)
+
+        # 2. Remover da Memória (Análise ou Lib)
+        target_list = None
+        if item_type == 'pillar':
+             target_list = self.pillars_found
+        elif item_type == 'beam':
+             target_list = self.beams_found
+        elif item_type == 'slab':
+             target_list = self.slabs_found
+             
+        if target_list is not None:
+            # Remover do dict pelo ID
+            start_count = len(target_list)
+            target_list[:] = [x for x in target_list if x['id'] != item_id]
+            
+            if len(target_list) < start_count:
+                self.log(f"🗑️ Item {item_id} removido da memória.")
+                # Atualizar visualização no Canvas se necessário
+                if item_type == 'pillar':
+                    self.canvas.draw_interactive_pillars(self.pillars_found)
+                elif item_type == 'slab':
+                    self.canvas.draw_slabs(self.slabs_found)
 
     # --- Script Generation Placeholders ---
     def generate_script_pillar_full(self, is_library):
