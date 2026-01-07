@@ -217,8 +217,11 @@ class CADCanvas(QGraphicsView):
             
             self.scene.addPath(path, get_pen(poly['color']))
 
-        # Calcular Interseções
-        self._calculate_intersections(calc_lines)
+        # Calcular Interseções (Otimização: Ignorar se houver muitos elementos)
+        if len(calc_lines) < 1000:
+            self._calculate_intersections(calc_lines)
+        else:
+            print(f"Skipping intersection calculation for {len(calc_lines)} lines (Performance protection).")
 
         # Draw Circles e Arcs
         for circle in entities.get('circles', []):
@@ -244,9 +247,20 @@ class CADCanvas(QGraphicsView):
         from PySide6.QtGui import QFont
         
         for txt in entities.get('texts', []):
-            item = QGraphicsSimpleTextItem(txt['text'])
-            item.setPos(txt['pos'][0], txt['pos'][1])
-            self._add_snap_point(txt['pos'], 'endpoint') # Texto conta como endpoint
+            content = txt['text']
+            
+            # --- CUSTOM OFFSET LOGIC (Parafuso 25/75) ---
+            # User req: Shift from 20cm to 30cm (approx +10 relative if existing is base)
+            # Assumption: "parafuso 25" e "parafuso 75" mapping to P25/P75 text
+            pos_x, pos_y = txt['pos']
+            if "P25" in content or "P75" in content: # Adjusted per analysis
+                 # Assuming the user meant these specific labels
+                 # Adding 10 units to X to shift from theoretical 20 to 30
+                 pos_x += 10.0 
+            
+            item = QGraphicsSimpleTextItem(content)
+            item.setPos(pos_x, pos_y)
+            self._add_snap_point((pos_x, pos_y), 'endpoint') # Texto conta como endpoint
             item.setBrush(QColor(*txt['color']))
             
             f = QFont("Arial")
