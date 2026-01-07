@@ -107,6 +107,7 @@ class SlabTracer:
                     'pos': pos,
                     'points': points,
                     'area': area,
+                    'neighbors': [],
                     'is_detected': found_poly,
                     'type': 'Laje' # Essential for DetailCard identification
                 })

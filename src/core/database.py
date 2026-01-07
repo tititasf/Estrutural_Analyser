@@ -91,8 +91,13 @@ class DatabaseManager:
                 id TEXT PRIMARY KEY,
                 project_id TEXT,
                 name TEXT,
+                type TEXT DEFAULT 'Laje',
                 area REAL,
                 points_json TEXT,
+                links_json TEXT,
+                validated_fields_json TEXT,
+                issues_json TEXT,
+                is_validated BOOLEAN DEFAULT 0,
                 FOREIGN KEY(project_id) REFERENCES projects(id)
             )
         ''')
@@ -104,6 +109,10 @@ class DatabaseManager:
                 project_id TEXT,
                 name TEXT,
                 data_json TEXT, 
+                sides_data_json TEXT,
+                links_json TEXT,
+                validated_fields_json TEXT,
+                issues_json TEXT,
                 is_validated BOOLEAN DEFAULT 0,
                 FOREIGN KEY(project_id) REFERENCES projects(id)
             )
@@ -117,6 +126,25 @@ class DatabaseManager:
             cursor.execute("INSERT OR IGNORE INTO works (name) SELECT DISTINCT work_name FROM projects WHERE work_name IS NOT NULL AND work_name != ''")
         except Exception as e:
             logging.error(f"Error migrating works: {e}")
+
+        # Helper para adicionar colunas de forma segura
+        def add_col(table, col, dtype):
+            try:
+                cursor.execute(f"ALTER TABLE {table} ADD COLUMN {col} {dtype}")
+            except Exception: pass
+
+        # Colunas novas de Lajes (Hierarquia N3)
+        add_col('slabs', 'type', "TEXT DEFAULT 'Laje'")
+        add_col('slabs', 'links_json', 'TEXT')
+        add_col('slabs', 'validated_fields_json', 'TEXT')
+        add_col('slabs', 'issues_json', 'TEXT')
+        add_col('slabs', 'is_validated', 'BOOLEAN DEFAULT 0')
+
+        # Colunas novas de Vigas (Hierarquia N2/N3)
+        add_col('beams', 'sides_data_json', 'TEXT')
+        add_col('beams', 'links_json', 'TEXT')
+        add_col('beams', 'validated_fields_json', 'TEXT')
+        add_col('beams', 'issues_json', 'TEXT')
 
         # ... (rest of migration code)
 
@@ -732,3 +760,19 @@ class DatabaseManager:
              
         # Import as new
         return self.import_project_data(data)
+
+    def log_training_event(self, project_id, type, role, context_dna, target_value, status):
+        """Registra um evento de aprendizado Hierárquico."""
+        conn = self._get_conn()
+        try:
+            import uuid
+            evt_id = str(uuid.uuid4())
+            conn.execute('''
+                INSERT INTO training_events (id, project_id, type, role, context_dna_json, target_value, status)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
+            ''', (evt_id, project_id, type, role, context_dna, target_value, status))
+            conn.commit()
+        except Exception as e:
+            logging.error(f"Erro ao logar training_event: {e}")
+        finally:
+            conn.close()

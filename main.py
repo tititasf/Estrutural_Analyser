@@ -18,6 +18,8 @@ from src.core.geometry_engine import GeometryEngine, ShapeType
 from src.core.text_associator import TextAssociator
 from src.core.slab_tracer import SlabTracer
 from src.core.database import DatabaseManager
+from src.core.memory import HierarchicalMemory
+from src.core.memory import HierarchicalMemory
 from src.core.beam_walker import BeamWalker
 from src.ai.memory_store import MemoryStore
 
@@ -35,11 +37,7 @@ class MainWindow(QMainWindow):
         
         # Estado
         self.db = DatabaseManager() # SQLite persistencia
-        try:
-            self.memory = MemoryStore() # Vector DB
-        except Exception as e:
-            logging.warning(f"Vector DB init error: {e}")
-            self.memory = None
+        self.memory = HierarchicalMemory(self.db)
             
         self.spatial_index = SpatialIndex()
         self.dxf_data = None
@@ -721,6 +719,7 @@ class MainWindow(QMainWindow):
                     'points': list(poly_shape.exterior.coords),
                     'sides_data': PillarPerspectiveMapper.map_sides(unique_points, shape_type, orient),
                     'links': {}, 
+                    'neighbors': [],
                     'beams_visual': [], 
                     'material': 'C30', 'level': 'Pavimento 1'
                 }
@@ -1434,36 +1433,51 @@ class MainWindow(QMainWindow):
                 self.current_card.active_link_dlg.refresh_list()
 
     def _log_training_action(self, item_data, field_id, slot_id, link_obj, status='valid', comment=''):
-        """Auxiliar central para registrar conhecimento validado ou falho."""
+        """Auxiliar central para registrar conhecimento validado ou falho (Hierarchical Memory)."""
         if not self.current_project_id: return
 
-        content = link_obj.get('text', '')
-        if not content and ('points' in link_obj or 'start' in link_obj):
-            content = "GEOMETRY_LINK"
-        
-        # 1. Dados de Contexto (DNA + Posição Relativa)
-        px, py = item_data.get('pos', (0,0))
-        lx, ly = link_obj.get('pos', (px, py))
-        rel_pos = (lx - px, ly - py)
-        dna = self._generate_pilar_dna(item_data)
-        
-        context_data = {
-            'dna': dna,
-            'rel_pos': rel_pos,
-            'pilar_type': item_data.get('format', 'UNKNOWN'),
-            'field_id': field_id,
-            'comment': comment
+        # NIVEL 1: Contexto de Projeto
+        # Idealmente buscaria Work Name e Pavement do DB, aqui simplificamos
+        p_context = {
+            'id': self.current_project_id,
+            'pavement': self.current_project_name, # Fallback
+            'work_name': 'Unknown'
         }
-        
-        event = {
-            'project_id': self.current_project_id,
-            'type': 'user_feedback',
-            'role': slot_id,
-            'dna': context_data,
-            'value': content,
-            'status': status
+
+        # NIVEL 2: Contexto do Item
+        # Prepara geometria bruta (hashable)
+        geo_ref = item_data.get('points') or item_data.get('geometry')
+        i_context = {
+            'type': item_data.get('type', 'UNKNOWN').title(), # Pilar, Viga, Laje
+            'name': item_data.get('name'),
+            'geometry': geo_ref,
+            'neighbors': item_data.get('neighbors', [])
         }
-        self.db.log_training_event(event)
+
+        # NIVEL 3: Contexto do Campo/Vinculo
+        # O "O Que" estamos validando
+        f_context = {
+            'field_name': field_id,
+            'link_type': slot_id, # ex: 'text_link', 'dim_link'
+            'local_geometry': link_obj.get('pos') or link_obj.get('points')
+        }
+
+        # Valor Alvo (Label)
+        # O valor que o usuário confirmou como correto
+        target_val = link_obj.get('text', '')
+        if not target_val and ('points' in link_obj or 'start' in link_obj):
+             target_val = "GEOMETRY_val" # Marcador de geometria válida
+
+        # Enviar para Memória (HierarchicalMemory)
+        if self.memory:
+            self.memory.save_training_event(
+                project_context=p_context,
+                item_context=i_context,
+                field_context=f_context,
+                label=target_val,
+                event_type='user_validation' if status == 'valid' else 'user_rejection'
+            )
+            self.log(f"🧠 Aprendizado registrado: {i_context['type']} {i_context['name']} -> {field_id}")
 
     def on_train_requested(self, field_id, train_data):
         """Registra feedback de treino no banco de dados e opcionalmente propaga."""

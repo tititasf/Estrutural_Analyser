@@ -26,8 +26,10 @@ class BeamTracer:
                 if geometry:
                     beams.append({
                         'name': content,
+                        'type': 'Viga',
                         'pos': pos,
                         'geometry': geometry,
+                        'neighbors': [],
                         'id': f"beam_{content}_{len(beams)}"
                     })
         return beams
