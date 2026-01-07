@@ -1794,21 +1794,28 @@ class MainWindow(QMainWindow):
         self._update_all_lists_ui()
         
         # 3. Atualizar Canvas
+        print("DEBUG: Updating Canvas...")
         self.canvas.clear_interactive()
-        self.canvas.scene.clear() 
-        self.canvas.setup_scene() # Re-add grid, etc
+        
+        # Note: add_dxf_entities does scene.clear() internally
         
         # Redesenhar DXF Background
         if self.dxf_data:
+            print("DEBUG: Drawing DXF entities...")
             self.canvas.add_dxf_entities(self.dxf_data)
+        else:
+            self.canvas.scene.clear()
+            print("DEBUG: No DXF data to draw.")
         
         # Redesenhar Itens Interativos
+        print(f"DEBUG: Drawing {len(self.pillars_found)} pillars...")
         self.canvas.draw_interactive_pillars(self.pillars_found)
         self.canvas.draw_slabs(self.slabs_found)
         # draw_beams if exists
         
         # Resetar visual
         self.right_panel.setCurrentIndex(0) # Placeholder
+        print("DEBUG: Canvas update finished.")
 
     def close_project_tab(self, index):
         """Fecha aba do projeto (mas não apaga do banco)"""
