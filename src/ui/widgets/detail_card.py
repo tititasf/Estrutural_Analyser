@@ -139,7 +139,23 @@ class DetailCard(QWidget):
         conf_indicator.setStyleSheet(f"color: {color}; font-size: 8px; margin-left: 2px;")
         actions_layout.addWidget(conf_indicator)
         
-        if btn_links: actions_layout.addWidget(btn_links)
+        if btn_links: 
+            actions_layout.addWidget(btn_links)
+            
+            # Botão Express Validate (ao lado do link)
+            btn_express = QPushButton("✔")
+            btn_express.setFixedSize(24, 20)
+            btn_express.setProperty("class", "FieldBtn")
+            btn_express.setCursor(Qt.PointingHandCursor)
+            btn_express.setToolTip("Validação Express: Aceita e Treina")
+            # Estilo verde discreto
+            btn_express.setStyleSheet("""
+                QPushButton { color: #4CAF50; border: 1px solid #333; border-radius: 2px; }
+                QPushButton:hover { background: #4CAF50; color: white; border: 1px solid #4CAF50; }
+            """)
+            btn_express.clicked.connect(lambda checked=False, f_id=field_id: self._on_express_validate(f_id))
+            actions_layout.addWidget(btn_express)
+
         if btn_focus: actions_layout.addWidget(btn_focus)
         
         # Se não tiver botões, o frame fica bem pequeno só com indicador
@@ -214,6 +230,50 @@ class DetailCard(QWidget):
             if field_id in validated: validated.remove(field_id)
         self.refresh_validation_styles()
 
+    def _on_express_validate(self, field_id):
+        """Valida o campo imediatamente, enviando para treino"""
+        widget = self.fields.get(field_id)
+        if not widget: return
+        
+        val = ""
+        if isinstance(widget, QLineEdit): val = widget.text()
+        elif isinstance(widget, QComboBox): val = widget.currentText()
+        
+        # Recuperar links existentes para treino
+        links = self.item_data.get('links', {}).get(field_id, {})
+        if isinstance(links, list): links = {'label': links}
+        
+        target_link = None
+        target_slot = 'default'
+        
+        # Busca primeiro link disponível
+        for slot, link_list in links.items():
+            if link_list:
+                target_link = link_list[0]
+                target_slot = slot
+                break
+        
+        if not target_link:
+            # Cria synthetic link se não houver
+            target_link = {
+                'text': val, 
+                'type': 'text', 
+                'pos': self.item_data.get('pos', (0,0)), 
+                'debug': 'Express Validation'
+            }
+            
+        # Emite sinal de treino
+        self.training_requested.emit(field_id, {
+            'slot': target_slot,
+            'link': target_link,
+            'comment': "Expresso: Validado pelo usuário",
+            'status': "valid",
+            'propagate': False
+        })
+        
+        # Marca e atualiza visual
+        self.mark_field_validated(field_id, True)
+        
     def refresh_validation_styles(self):
         """Varre campos e aplica borda verde nos validados"""
         validated_fields = self.item_data.get('validated_fields', [])
@@ -272,14 +332,17 @@ class DetailCard(QWidget):
         
         layout.addWidget(header)
 
-        # --- Seção Específica por Tipo ---
-        elem_type = self.item_data.get('type', '').lower()
-        if 'pilar' in elem_type:
-            self._setup_pilar_complex_view(layout)
-        elif 'viga' in elem_type:
-            self._setup_viga_complex_view(layout)
-        elif 'laje' in elem_type:
-            self._setup_laje_complex_view(layout)
+        # Container para conteúdo dinâmico (Abas que mudam com o formato)
+        self.dynamic_container = QWidget()
+        self.dynamic_layout = QVBoxLayout(self.dynamic_container)
+        self.dynamic_layout.setContentsMargins(0, 0, 0, 0)
+        layout.addWidget(self.dynamic_container)
+
+        # Inicializa conteúdo dinâmico
+        self._refresh_dynamic_content()
+        
+        # Conecta sinal de mudança de formato
+        self.fields['format'].currentTextChanged.connect(self._on_format_changed)
 
         layout.addStretch()
         layout.addLayout(self._create_action_buttons())
@@ -515,3 +578,52 @@ class DetailCard(QWidget):
     def on_invalidate(self):
         self.data_invalidated.emit(self.item_data)
         QMessageBox.warning(self, "IA Training", "Item marcado para revisão manual.")
+
+    def _on_format_changed(self, text):
+        """Reage à mudança no ComboBox de formato"""
+        self.item_data['format'] = text
+        self._refresh_dynamic_content()
+
+    def _refresh_dynamic_content(self):
+        """Reconstrói a área dinâmica baseada no tipo e formato atual"""
+        self._clear_dynamic_content()
+        
+        elem_type = self.item_data.get('type', '').lower()
+        if 'pilar' in elem_type:
+            # Garante que usamos o layout dinâmico
+            self._setup_pilar_complex_view(self.dynamic_layout)
+        elif 'viga' in elem_type:
+            self._setup_viga_complex_view(self.dynamic_layout)
+        elif 'laje' in elem_type:
+            self._setup_laje_complex_view(self.dynamic_layout)
+
+    def _clear_dynamic_content(self):
+        """Remove widgets dinâmicos e limpa referências no self.fields"""
+        # Identifica campos que pertencem ao container dinâmico para remover do self.fields
+        to_remove = []
+        for key, widget in self.fields.items():
+            if self._is_descendant(widget, self.dynamic_container):
+                to_remove.append(key)
+        
+        for k in to_remove:
+            del self.fields[k]
+            
+        # Remove widgets do layout
+        while self.dynamic_layout.count():
+            item = self.dynamic_layout.takeAt(0)
+            if item.widget():
+                item.widget().deleteLater()
+            elif item.layout():
+                # Se for um layout aninhado, precisamos limpar recursivamente ou deletar o item
+                # Layouts em Qt não são widgets, mas items layout.
+                # O ideal é que tudo esteja dentro de widgets.
+                # Como usamos .addWidget(tabs), tabs é um widget.
+                pass
+
+    def _is_descendant(self, widget, ancestor):
+        """Verifica se widget é descendente de ancestor (para limpeza segura)"""
+        p = widget
+        while p:
+            if p == ancestor: return True
+            p = p.parentWidget()
+        return False

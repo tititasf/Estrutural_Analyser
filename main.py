@@ -4,7 +4,7 @@ import logging
 from PySide6.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout, 
                                QHBoxLayout, QPushButton, QFileDialog, QDockWidget, 
                                QTextEdit, QLabel, QStackedWidget, QListWidget,
-                               QListWidgetItem, QTabWidget, QSplitter)
+                               QListWidgetItem, QTabWidget, QSplitter, QLineEdit)
 from PySide6.QtCore import Qt, QSize
 from src.ui.canvas import CADCanvas
 from src.ui.widgets.detail_card import DetailCard
@@ -22,6 +22,9 @@ from src.ai.memory_store import MemoryStore
 
 # Config logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+
+import uuid
+import re
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -96,9 +99,61 @@ class MainWindow(QMainWindow):
         save_load_layout.addWidget(self.btn_save)
         save_load_layout.addWidget(self.btn_load_db)
         
+        # Estado
+        self.interactive_items = {} 
+        self.item_groups = { 
+            'pillar': [],
+            'slab': [],
+            'beam': [],
+            'link': [] 
+        }
+        self.beam_visuals = []      
+        
+        # Modo de Captação e Cache de Projetos
+        self.loaded_projects_cache = {} # { pid: { 'dxf_path':..., 'pillars':..., 'slabs':..., 'beams':..., 'meta': {} } }
+        self.active_project_id = None
+        ctrl_group.addWidget(self.btn_process)
         ctrl_group.addWidget(btn_load)
         ctrl_group.addWidget(self.btn_process)
         ctrl_group.addLayout(save_load_layout)
+        
+        # --- CAMPOS EDITÁVEIS DE METADADOS DO PROJETO ---
+        self.meta_widget = QWidget()
+        meta_layout = QVBoxLayout(self.meta_widget)
+        meta_layout.setContentsMargins(0, 10, 0, 10)
+        
+        # Obra
+        meta_layout.addWidget(QLabel("Nome da Obra:"))
+        self.edit_work_name = QLineEdit()
+        self.edit_work_name.editingFinished.connect(self.save_project_metadata)
+        meta_layout.addWidget(self.edit_work_name)
+        
+        # Pavimento
+        meta_layout.addWidget(QLabel("Nome do Pavimento:"))
+        self.edit_pavement_name = QLineEdit()
+        self.edit_pavement_name.editingFinished.connect(self.save_project_metadata)
+        meta_layout.addWidget(self.edit_pavement_name)
+        
+        # Níveis (Layout Horizontal)
+        lvl_layout = QHBoxLayout()
+        v1 = QVBoxLayout()
+        v1.addWidget(QLabel("Nível Chegada:"))
+        self.edit_level_arr = QLineEdit()
+        self.edit_level_arr.editingFinished.connect(self.save_project_metadata)
+        v1.addWidget(self.edit_level_arr)
+        
+        v2 = QVBoxLayout()
+        v2.addWidget(QLabel("Nível Saída:"))
+        self.edit_level_exit = QLineEdit()
+        self.edit_level_exit.editingFinished.connect(self.save_project_metadata)
+        v2.addWidget(self.edit_level_exit)
+        
+        lvl_layout.addLayout(v1)
+        lvl_layout.addLayout(v2)
+        meta_layout.addLayout(lvl_layout)
+        
+        ctrl_group.addWidget(self.meta_widget)
+        
         left_layout.addLayout(ctrl_group)
         
         
@@ -127,7 +182,15 @@ class MainWindow(QMainWindow):
         self.tabs_analysis_internal.addTab(self.list_slabs, "Lajes")
         self.tabs_analysis_internal.addTab(self.list_issues, "⚠️ Pendências")
         
+        # Conectar mudança de aba interna (Análise) para filtro visual
+        self.tabs_analysis_internal.currentChanged.connect(self._on_analysis_tab_changed)
+        
         analysis_layout.addWidget(self.tabs_analysis_internal)
+
+        # Botão Criar Item (Análise)
+        self.btn_create_analysis = QPushButton("➕ Criar Novo Item (Análise)")
+        self.btn_create_analysis.clicked.connect(lambda: self.create_manual_item(is_library=False))
+        analysis_layout.addWidget(self.btn_create_analysis)
         
         # --- TAB 2: BIBLIOTECA VALIDADA ---
         self.tab_library = QWidget()
@@ -147,7 +210,15 @@ class MainWindow(QMainWindow):
         self.tabs_library_internal.addTab(self.list_beams_valid, "Vigas OK")
         self.tabs_library_internal.addTab(self.list_slabs_valid, "Lajes OK")
         
+        # Conectar mudança de aba interna (Biblioteca) para filtro visual
+        self.tabs_library_internal.currentChanged.connect(self._on_library_tab_changed)
+        
         library_layout.addWidget(self.tabs_library_internal)
+
+        # Botão Criar Item (Biblioteca)
+        self.btn_create_library = QPushButton("➕ Criar Novo Item (Lib)")
+        self.btn_create_library.clicked.connect(lambda: self.create_manual_item(is_library=True))
+        library_layout.addWidget(self.btn_create_library)
         
         # --- TAB 3: DADOS DE TREINO ---
         self.tab_training = TrainingLog(self.db)
@@ -169,13 +240,32 @@ class MainWindow(QMainWindow):
         
         self.splitter.addWidget(self.left_panel)
         
-        # --- CENTRO: CANVAS ---
+        # --- CENTRO: ABAS DE PROJETOS + CANVAS ---
         self.canvas_container = QWidget()
-        canvas_layout = QVBoxLayout(self.canvas_container)
+        
+        # Area de abas de projetos acima do canvas
+        self.project_tabs = QTabWidget()
+        self.project_tabs.setTabsClosable(True)
+        self.project_tabs.tabCloseRequested.connect(self.close_project_tab)
+        self.project_tabs.currentChanged.connect(self.on_project_tab_changed)
+        
+        # Canvas é único, mas reparentado ou limpo? 
+        # Melhor: Canvas é único visualmente, mas seus dados mudam.
+        # As abas do project_tabs são apenas "placeholders" para controle de seleção.
+        # Nós NÃO colocamos o canvas DENTRO da aba, pois o canvas é pesado.
+        # Usamos as abas como uma "Barra de Navegação de Projetos".
+        self.project_tabs.setFixedHeight(30) 
+        self.project_tabs.setStyleSheet("QTabBar::tab { width: 150px; }")
+
+        center_layout = QVBoxLayout(self.canvas_container)
+        center_layout.setContentsMargins(0,0,0,0)
+        center_layout.addWidget(self.project_tabs)
+        
         self.canvas = CADCanvas(self)
         self.canvas.pillar_selected.connect(self.on_canvas_pillar_selected)
-        self.canvas.pick_completed.connect(self.on_pick_completed) # Conexão única centralizada
-        canvas_layout.addWidget(self.canvas)
+        self.canvas.pick_completed.connect(self.on_pick_completed) 
+        
+        center_layout.addWidget(self.canvas)
         self.splitter.addWidget(self.canvas_container)
         
         # --- DIREITA: DETALHAMENTO ---
@@ -197,10 +287,33 @@ class MainWindow(QMainWindow):
         
         self.splitter.addWidget(self.right_panel)
         
-        # Definir proporção inicial: Esquerda (280), Centro (Grande), Direita (260)
-        self.splitter.setSizes([280, 1000, 260])
+        # Definir proporção inicial: Esquerda (280), Centro (Grande), Direita (220)
+        self.splitter.setSizes([280, 1000, 220])
         
         main_layout.addWidget(self.splitter)
+
+    def _on_analysis_tab_changed(self, index):
+        """Filtra visualização no Canvas baseado na aba selecionada (Análise)"""
+        # 0: Pilares, 1: Vigas, 2: Lajes, 3: Issues
+        self._update_canvas_filter(index)
+
+    def _on_library_tab_changed(self, index):
+        """Filtra visualização no Canvas baseado na aba selecionada (Biblioteca)"""
+        # 0: Pilares, 1: Vigas, 2: Lajes
+        self._update_canvas_filter(index)
+
+    def _update_canvas_filter(self, index):
+        if index == 0:
+            self.canvas.set_category_visibility('pillar')
+        elif index == 1:
+            self.canvas.set_category_visibility('beam') # Future
+        elif index == 2:
+            self.canvas.set_category_visibility('slab')
+        else:
+            self.canvas.set_category_visibility('all')
+
+    def create_manual_item(self, is_library=False):
+        pass # Implementar depois
 
     def show_detail(self, data):
         """Exibe o card de detalhes para os dados fornecidos."""
@@ -1051,7 +1164,7 @@ class MainWindow(QMainWindow):
         pilar = next((p for p in self.pillars_found if p['id'] == pillar_id), None)
         if pilar:
             self.show_detail(pilar)
-            self.canvas.focus_on_item(pillar_id)
+            self.canvas.isolate_item(pillar_id, 'pillar') # Isola no Canvas
             self.canvas.draw_focus_beams(pilar.get('beams_visual', []))
         else:
             self.log(f"Erro: Pilar {pillar_id} não encontrado nos dados processados.")
@@ -1069,6 +1182,7 @@ class MainWindow(QMainWindow):
         slab = next((s for s in self.slabs_found if s['id'] == slab_id), None)
         if slab:
             self.show_detail(slab)
+            self.canvas.isolate_item(slab_id, 'slab') # Isola Laje
             # self.canvas.focus_on_geometry(slab['points']) # TODO
 
     def on_canvas_pillar_selected(self, p_id):
@@ -1564,6 +1678,250 @@ class MainWindow(QMainWindow):
         self.proj_mgr.show()
 
     def on_project_selected(self, pid, name, dxf_path):
+        """Callback: Projeto aberto via gerenciador."""
+        self.proj_mgr.close()
+        
+        # Se já existe tab para esse projeto, foca nela
+        for i in range(self.project_tabs.count()):
+            if self.project_tabs.tabBar().tabData(i) == pid:
+                self.project_tabs.setCurrentIndex(i)
+                return
+
+        # Adiciona nova aba
+        self.log(f"Abrindo projeto: {name}...")
+        self.project_tabs.addTab(QWidget(), f"{name}") # Tab vazia apenas para titulo
+        new_idx = self.project_tabs.count() - 1
+        self.project_tabs.tabBar().setTabData(new_idx, pid)
+        self.project_tabs.setTabToolTip(new_idx, dxf_path)
+        
+        # Carrega dados do projeto (DB -> Memória) se não estiver em cache
+        # Carrega dados do projeto (DB -> Memória) se não estiver em cache
+        if pid not in self.loaded_projects_cache:
+            # Tentar carregar DB
+            p_info = self.db.get_project_by_id(pid) 
+            if not p_info:
+                self.log(f"Erro: Projeto {pid} não encontrado no banco.")
+                return
+
+            # Carregar itens do DB
+            pillars = self.db.load_pillars(pid)
+            slabs = self.db.load_slabs(pid)
+            beams = self.db.load_beams(pid)
+            
+            cache_entry = {
+                'id': pid,
+                'name': name,
+                'dxf_path': dxf_path,
+                'pillars': pillars,
+                'slabs': slabs,
+                'beams': beams,
+                'meta': {
+                    'work_name': p_info.get('work_name', ''),
+                    'pavement_name': p_info.get('pavement_name', ''),
+                    'level_arrival': p_info.get('level_arrival', ''),
+                    'level_exit': p_info.get('level_exit', '')
+                },
+                'dxf_data': None # Lazy load DXF geometry
+            }
+            self.loaded_projects_cache[pid] = cache_entry
+            
+            # Carregar DXF Geometria para este projeto (se existir arquivo)
+            if dxf_path and os.path.exists(dxf_path):
+                try:
+                    loaded_dxf = DXFLoader.load_dxf(dxf_path)
+                    cache_entry['dxf_data'] = loaded_dxf
+                except Exception as e:
+                    self.log(f"Erro ao carregar DXF {dxf_path}: {e}")
+
+        # Ativa a aba
+        self.project_tabs.setCurrentIndex(new_idx)
+
+    def on_project_tab_changed(self, index):
+        """Muda o contexto global da aplicação para o projeto da aba selecionada."""
+        if index < 0: return
+        
+        pid = self.project_tabs.tabBar().tabData(index)
+        if not pid or pid not in self.loaded_projects_cache: return
+        
+        # Salva estado do projeto anterior (opcional, se editável em tempo real)
+        # self.save_project_action() # Talvez agressivo demais? Melhor manual.
+        
+        project_data = self.loaded_projects_cache[pid]
+        self.active_project_id = pid
+        self.current_project_id = pid 
+        self.current_project_name = project_data['name']
+        self.current_dxf_path = project_data['dxf_path']
+        
+        self.log(f"Alternando para projeto: {project_data['name']}")
+        
+        # 1. Atualizar Metadados UI
+        meta = project_data['meta']
+        self.edit_work_name.blockSignals(True)
+        self.edit_pavement_name.blockSignals(True)
+        self.edit_level_arr.blockSignals(True)
+        self.edit_level_exit.blockSignals(True)
+        
+        self.edit_work_name.setText(meta.get('work_name', ''))
+        self.edit_pavement_name.setText(meta.get('pavement_name', ''))
+        self.edit_level_arr.setText(meta.get('level_arrival', ''))
+        self.edit_level_exit.setText(meta.get('level_exit', ''))
+        
+        self.edit_work_name.blockSignals(False)
+        self.edit_pavement_name.blockSignals(False)
+        self.edit_level_arr.blockSignals(False)
+        self.edit_level_exit.blockSignals(False)
+        
+        # 2. Atualizar Listas UI
+        self.pillars_found = project_data['pillars']
+        self.slabs_found = project_data['slabs']
+        self.beams_found = project_data['beams'] # Beams ainda incompleto no parser, mas estrutura existe
+        
+        self.dxf_data = project_data['dxf_data'] # Geometria bruta
+
+        self._update_all_lists_ui()
+        
+        # 3. Atualizar Canvas
+        self.canvas.clear_interactive()
+        self.canvas.scene.clear() 
+        self.canvas.setup_scene() # Re-add grid, etc
+        
+        # Redesenhar DXF Background
+        if self.dxf_data:
+            self.canvas.add_dxf_entities(self.dxf_data)
+        
+        # Redesenhar Itens Interativos
+        self.canvas.draw_interactive_pillars(self.pillars_found)
+        self.canvas.draw_slabs(self.slabs_found)
+        # draw_beams if exists
+        
+        # Resetar visual
+        self.right_panel.setCurrentIndex(0) # Placeholder
+
+    def close_project_tab(self, index):
+        """Fecha aba do projeto (mas não apaga do banco)"""
+        if index < 0: return
+        pid = self.project_tabs.tabBar().tabData(index)
+        
+        # Remover do cache de memória para liberar RAM se necessário?
+        # Por enquanto mantemos para reabertura rápida, ou limpamos se for pesada.
+        # Vamos limpar para garantir refresh se reabrir.
+        if pid in self.loaded_projects_cache:
+            del self.loaded_projects_cache[pid]
+            
+        self.project_tabs.removeTab(index)
+        
+        if self.project_tabs.count() == 0:
+            # Limpar tudo
+            self.canvas.scene.clear()
+            self.list_pillars.clear()
+            self.list_beams.clear()
+            self.list_slabs.clear()
+            self.current_project_id = None
+            self.meta_widget.setEnabled(False)
+        
+    def save_project_metadata(self):
+        """Salva as informações de cabeçalho do projeto ativo."""
+        if not self.active_project_id: return
+        
+        meta = {
+            'work_name': self.edit_work_name.text(),
+            'pavement_name': self.edit_pavement_name.text(),
+            'level_arrival': self.edit_level_arr.text(),
+            'level_exit': self.edit_level_exit.text()
+        }
+        
+        # Update Cache
+        if self.active_project_id in self.loaded_projects_cache:
+            self.loaded_projects_cache[self.active_project_id]['meta'] = meta
+            
+        # Update DB
+        self.db.update_project_metadata(self.active_project_id, meta)
+        self.log("Metadados do projeto atualizados.")
+
+    def _update_all_lists_ui(self):
+        """Refresha todas as listas com dados atuais"""
+        self.list_pillars.clear()
+        self.list_pillars_valid.clear()
+        self.list_slabs.clear()
+        self.list_slabs_valid.clear()
+        # Beams...
+        
+        for p in self.pillars_found:
+            status = "✅" if p.get('is_validated') else "❓"
+            if p.get('issues'): status = "⚠️"
+            
+            t = f"{p.get('name', '?')} {status}"
+            item = QListWidgetItem(t)
+            item.setData(Qt.UserRole, p['id'])
+            if p.get('is_validated'): item.setForeground(Qt.green)
+            
+            self.list_pillars.addItem(item)
+            if p.get('is_validated'):
+                self.list_pillars_valid.addItem(QListWidgetItem(item)) # Clone
+                
+        for s in self.slabs_found:
+             t = f"{s.get('name', 'Laje')} ({s.get('area',0):.1f}m²)"
+             item = QListWidgetItem(t)
+             item.setData(Qt.UserRole, s['id'])
+             self.list_slabs.addItem(item)
+    
+    def create_manual_item(self, is_library=False):
+        """Cria um novo item manualmente na lista ativa"""
+        if not self.active_project_id:
+             self.log("⚠️ Abra um projeto para criar itens.")
+             return
+
+        # Identificar qual tipo estamos criando com base na aba visível
+        if is_library:
+             current_idx = self.tabs_library_internal.currentIndex()
+             # 0: Pilar, 1: Viga, 2: Laje
+        else:
+             current_idx = self.tabs_analysis_internal.currentIndex()
+             # 0: Pilar, 1: Viga, 2: Laje
+        
+        # Gerar Item
+        new_id = str(uuid.uuid4())
+        new_item = {
+            'id': new_id,
+            'project_id': self.active_project_id,
+            'manual': True,
+            'is_validated': is_library # Se criado na library, já nasce validado? User decide.
+        }
+        
+        prefix = "ITEM"
+        if current_idx == 0: # Pilar
+            prefix = "P_NEW"
+            new_item['type'] = 'Pilar'
+            target_list_data = self.pillars_found
+            list_widget = self.list_pillars_valid if is_library else self.list_pillars
+        elif current_idx == 1: # Viga
+            prefix = "V_NEW"
+            new_item['type'] = 'Viga'
+            target_list_data = self.beams_found
+            list_widget = self.list_beams_valid if is_library else self.list_beams
+        elif current_idx == 2: # Laje
+            prefix = "L_NEW"
+            new_item['type'] = 'Laje'
+            target_list_data = self.slabs_found
+            list_widget = self.list_slabs_valid if is_library else self.list_slabs
+        else:
+            return 
+
+        # Nome sequencial simples
+        count = len(target_list_data) + 1
+        new_item['name'] = f"{prefix}_{count}"
+        
+        # Adicionar ao cache/memoria
+        target_list_data.append(new_item)
+        
+        # Adicionar UI
+        item_ui = QListWidgetItem(new_item['name'])
+        item_ui.setData(Qt.UserRole, new_id)
+        if new_item['is_validated']: item_ui.setForeground(Qt.green)
+        list_widget.addItem(item_ui)
+        
+        self.show_detail(new_item)
+        self.log(f"Item manual criado: {new_item['name']}")
         """Callback ao selecionar um projeto."""
         self.current_project_id = pid
         self.current_project_name = name

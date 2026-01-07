@@ -34,6 +34,10 @@ class DatabaseManager:
                 id TEXT PRIMARY KEY,
                 name TEXT,
                 dxf_path TEXT,
+                work_name TEXT,
+                pavement_name TEXT,
+                level_arrival TEXT,
+                level_exit TEXT,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
@@ -133,7 +137,8 @@ class DatabaseManager:
         tables_to_check = {
             'pillars': ['project_id', 'links_json', 'conf_map_json', 'validated_fields_json', 'issues_json', 'sides_data_json', 'points_json'],
             'slabs': ['project_id'],
-            'beams': ['project_id']
+            'beams': ['project_id'],
+            'projects': ['work_name', 'pavement_name', 'level_arrival', 'level_exit']
         }
         
         for table, columns in tables_to_check.items():
@@ -151,6 +156,22 @@ class DatabaseManager:
                             logging.error(f"Migration error on {table}.{col}: {e}")
             except:
                 pass 
+
+    def update_project_metadata(self, pid: str, metadata: Dict):
+        """Atualiza metadados do projeto (Obra, Pavimento, Níveis)"""
+        conn = self._get_conn()
+        try:
+            conn.execute('''
+                UPDATE projects 
+                SET work_name=?, pavement_name=?, level_arrival=?, level_exit=?, updated_at=CURRENT_TIMESTAMP
+                WHERE id=?
+            ''', (metadata.get('work_name'), metadata.get('pavement_name'), 
+                  metadata.get('level_arrival'), metadata.get('level_exit'), pid))
+            conn.commit()
+        except Exception as e:
+            logging.error(f"Failed to update metadata for {pid}: {e}")
+        finally:
+            conn.close() 
 
     def _get_conn(self):
         return sqlite3.connect(self.db_path)
@@ -178,6 +199,17 @@ class DatabaseManager:
         try:
             cursor = conn.execute('SELECT * FROM projects ORDER BY updated_at DESC')
             return [dict(r) for r in cursor.fetchall()]
+        finally:
+            conn.close()
+
+    def get_project_by_id(self, project_id: str) -> Optional[Dict]:
+        """Recupera um projeto pelo ID."""
+        conn = self._get_conn()
+        conn.row_factory = sqlite3.Row
+        try:
+            cursor = conn.execute('SELECT * FROM projects WHERE id = ?', (project_id,))
+            row = cursor.fetchone()
+            return dict(row) if row else None
         finally:
             conn.close()
 

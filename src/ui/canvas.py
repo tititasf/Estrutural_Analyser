@@ -24,7 +24,13 @@ class CADCanvas(QGraphicsView):
         self.setBackgroundBrush(QColor(15, 15, 15)) # Preto profundo
         
         # Estado
-        self.interactive_items = {} 
+        self.interactive_items = {} # Map ID -> GraphicItem (Generic)
+        self.item_groups = { # Store lists for bulk visibility toggling
+            'pillar': [],
+            'slab': [],
+            'beam': [],
+            'link': [] # Visual links (texts/lines)
+        }
         self.beam_visuals = []      
         
         # Modo de Captação (Vínculo)
@@ -46,12 +52,54 @@ class CADCanvas(QGraphicsView):
         # Polyline Picking State
         self.pick_poly_points = []
         self.poly_visual = None  # QGraphicsPathItem
+        self.active_isolation = None # Current isolated item ID
 
+    def set_category_visibility(self, category_to_show, show_links=True):
+        """Alterna visibilidade: 'pillar', 'slab', 'beam', 'all'"""
+        self.active_isolation = None
+        
+        # Helper to toggle list
+        def toggle_list(key, visible):
+            for item in self.item_groups.get(key, []):
+                if visible: item.show()
+                else: item.hide()
+                
+        cats = ['pillar', 'slab', 'beam']
+        for c in cats:
+            should_show = (category_to_show == 'all') or (category_to_show == c)
+            toggle_list(c, should_show)
+            
+        # Links cleaning/redraw logic could go here or be handled by main
+        # For now we assume links are child items or part of the visuals handled above?
+        # Actually links usually are drawn on demand. 
+        # But if we have persistent link visuals, we should group them.
+        self.clear_beams() # Limpa destaques temporários
+
+    def isolate_item(self, item_id, category):
+        """Oculta tudo, mostra apenas o item específico e seus vínculos"""
+        self.active_isolation = item_id
+        
+        # Hide all first
+        self.set_category_visibility('none')
+        
+        # Show specific item
+        if item_id in self.interactive_items:
+            self.interactive_items[item_id].show()
+            
+            # Zoom to it
+            item = self.interactive_items[item_id]
+            self.centerOn(item.sceneBoundingRect().center())
+            
     def clear_interactive(self):
         """Limpa apenas os itens de overlay interativo, mantendo o background DXF"""
         for item in self.interactive_items.values():
             self.scene.removeItem(item)
         self.interactive_items.clear()
+        
+        # Clear grouped lists
+        for k in self.item_groups:
+            self.item_groups[k] = []
+            
         self.clear_beams()
 
     def clear_beams(self):
@@ -303,6 +351,7 @@ class CADCanvas(QGraphicsView):
                 
                 self.scene.addItem(item)
                 self.interactive_items[p_data['id']] = item
+                self.item_groups['pillar'].append(item) # Control Group
 
     def update_pillar_visual_status(self, p_id, status, confidence=1.0):
         """Atualiza a cor de um pilar específico em tempo real"""
@@ -317,6 +366,11 @@ class CADCanvas(QGraphicsView):
                 item = SlabGraphicsItem(points, s_data.get('name'), s_data.get('area', 0))
                 item.setZValue(1) # Acima do background, abaixo dos pilares
                 self.scene.addItem(item)
+                
+                # Slabs também precisam ser 'interativos' para isolamento
+                if 'id' in s_data:
+                    self.interactive_items[s_data['id']] = item
+                    self.item_groups['slab'].append(item)
 
     def draw_focus_beams(self, beams_visual_data: list):
         """Desenha vigas APENAS para o foco atual (pilar selecionado)"""
