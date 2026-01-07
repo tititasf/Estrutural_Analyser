@@ -80,47 +80,13 @@ class MainWindow(QMainWindow):
         self.left_panel.setObjectName("Sidebar")
         self.left_panel.setFixedWidth(280)
         left_layout = QVBoxLayout(self.left_panel)
+        left_layout.setSpacing(10)
         
-        # Cabeçalho de Controles
-        ctrl_group = QVBoxLayout()
-        btn_load = QPushButton("📂 Gerenciar Projetos")
-        btn_load.setObjectName("Primary")
-        btn_load.clicked.connect(self.open_project_manager)
-        
-        self.btn_process = QPushButton("🚀 Iniciar Análise Geral")
-        self.btn_process.clicked.connect(self.process_pillars_action)
-        self.btn_process.setEnabled(False)
-        
-        save_load_layout = QHBoxLayout()
-        self.btn_save = QPushButton("Salvar")
-        self.btn_save.clicked.connect(self.save_project_action)
-        self.btn_load_db = QPushButton("Recarregar")
-        self.btn_load_db.clicked.connect(self.load_project_action)
-        save_load_layout.addWidget(self.btn_save)
-        save_load_layout.addWidget(self.btn_load_db)
-        
-        # Estado
-        self.interactive_items = {} 
-        self.item_groups = { 
-            'pillar': [],
-            'slab': [],
-            'beam': [],
-            'link': [] 
-        }
-        self.beam_visuals = []      
-        
-        # Modo de Captação e Cache de Projetos
-        self.loaded_projects_cache = {} # { pid: { 'dxf_path':..., 'pillars':..., 'slabs':..., 'beams':..., 'meta': {} } }
-        self.active_project_id = None
-        ctrl_group.addWidget(self.btn_process)
-        ctrl_group.addWidget(btn_load)
-        ctrl_group.addWidget(self.btn_process)
-        ctrl_group.addLayout(save_load_layout)
-        
-        # --- CAMPOS EDITÁVEIS DE METADADOS DO PROJETO ---
+        # 1. Inputs de Metadados (Topo)
         self.meta_widget = QWidget()
         meta_layout = QVBoxLayout(self.meta_widget)
-        meta_layout.setContentsMargins(0, 10, 0, 10)
+        meta_layout.setContentsMargins(0, 0, 0, 0)
+        meta_layout.setSpacing(5)
         
         # Obra
         meta_layout.addWidget(QLabel("Nome da Obra:"))
@@ -152,12 +118,44 @@ class MainWindow(QMainWindow):
         lvl_layout.addLayout(v2)
         meta_layout.addLayout(lvl_layout)
         
-        ctrl_group.addWidget(self.meta_widget)
+        left_layout.addWidget(self.meta_widget)
+
+        # 2. Botão de Análise (Imediatamente acima do Salvar)
+        self.btn_process = QPushButton("🚀 Iniciar Análise Geral")
+        self.btn_process.setObjectName("Primary") # Destaque visual
+        self.btn_process.clicked.connect(self.process_pillars_action)
+        # self.btn_process.setEnabled(False) # ANTERIORMENTE DESABILITADO - FIX: HABILITADO
+        left_layout.addWidget(self.btn_process)
+
+        # 3. Botão Salvar
+        self.btn_save = QPushButton("Salvar")
+        self.btn_save.setObjectName("Success")
+        self.btn_save.clicked.connect(self.save_project_action)
+        left_layout.addWidget(self.btn_save)
+
+        # 4. Botão Gerenciar Projetos
+        btn_load = QPushButton("📂 Gerenciar Projetos")
+        btn_load.clicked.connect(self.open_project_manager)
+        left_layout.addWidget(btn_load)
+
+        # Estado
+        self.interactive_items = {} 
+        self.item_groups = { 
+            'pillar': [],
+            'slab': [],
+            'beam': [],
+            'link': [] 
+        }
+        self.beam_visuals = []      
         
-        left_layout.addLayout(ctrl_group)
+        # Modo de Captação e Cache de Projetos
+        self.loaded_projects_cache = {} 
+        self.active_project_id = None
         
+        # 5. Separador / Espaço
+        left_layout.addSpacing(10)
         
-        # Abas de Listagem Principal (3 Níveis)
+        # 6. Abas de Listagem Principal (3 Níveis)
         self.main_tabs = QTabWidget()
         
         # --- TAB 1: ANÁLISE ATUAL ---
