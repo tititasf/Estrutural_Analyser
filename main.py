@@ -1692,10 +1692,15 @@ class MainWindow(QMainWindow):
         self.log(f"Abrindo projeto: {name}...")
         print(f"DEBUG: Abrindo projeto {name} (PID: {pid})")
         
-        self.project_tabs.addTab(QWidget(), f"{name}") # Tab vazia apenas para titulo
-        new_idx = self.project_tabs.count() - 1
-        self.project_tabs.tabBar().setTabData(new_idx, pid)
-        self.project_tabs.setTabToolTip(new_idx, dxf_path)
+        # Block signals to prevent premature triggering of currentChanged before data is set
+        self.project_tabs.blockSignals(True)
+        try:
+            self.project_tabs.addTab(QWidget(), f"{name}") 
+            new_idx = self.project_tabs.count() - 1
+            self.project_tabs.tabBar().setTabData(new_idx, pid)
+            self.project_tabs.setTabToolTip(new_idx, dxf_path)
+        finally:
+            self.project_tabs.blockSignals(False)
         
         # Carrega dados do projeto (DB -> Memória) se não estiver em cache
         if pid not in self.loaded_projects_cache:
@@ -1744,10 +1749,11 @@ class MainWindow(QMainWindow):
                     self.log(f"Erro ao carregar DXF {dxf_path}: {e}")
                     print(f"DEBUG: DXF Error: {e}")
 
-        # Ativa a aba
+        # Ativa a aba e Força atualização manual pois bloqueamos o sinal inicial
         print("DEBUG: Switching tab index...")
         self.project_tabs.setCurrentIndex(new_idx)
-        print("DEBUG: Tab switch request sent.")
+        print("DEBUG: Manually calling on_project_tab_changed...")
+        self.on_project_tab_changed(new_idx)
 
     def on_project_tab_changed(self, index):
         """Muda o contexto global da aplicação para o projeto da aba selecionada."""
