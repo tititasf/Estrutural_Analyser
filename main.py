@@ -1751,10 +1751,18 @@ class MainWindow(QMainWindow):
 
     def on_project_tab_changed(self, index):
         """Muda o contexto global da aplicação para o projeto da aba selecionada."""
-        if index < 0: return
+        print(f"DEBUG: on_project_tab_changed triggered with index={index}")
+        if index < 0: 
+            print("DEBUG: Index < 0. Ignoring.")
+            return
         
+        # Verify tabBar data existence
         pid = self.project_tabs.tabBar().tabData(index)
-        if not pid or pid not in self.loaded_projects_cache: return
+        print(f"DEBUG: Retrieved PID from tabData: {pid}")
+
+        if not pid or pid not in self.loaded_projects_cache: 
+            print(f"DEBUG: PID invalid or not in cache. PID={pid}, CacheKeys={list(self.loaded_projects_cache.keys())}")
+            return
         
         # Salva estado do projeto anterior (opcional, se editável em tempo real)
         # self.save_project_action() # Talvez agressivo demais? Melhor manual.
