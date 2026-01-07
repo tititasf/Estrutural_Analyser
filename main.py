@@ -1,5 +1,6 @@
 import sys
 import os
+import json
 import logging
 from PySide6.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout, 
                                QHBoxLayout, QPushButton, QFileDialog, QDockWidget, 
@@ -158,6 +159,60 @@ class MainWindow(QMainWindow):
         # 6. Abas de Listagem Principal (3 Níveis)
         self.main_tabs = QTabWidget()
         
+        # --- Helpers para criar abas com botões específicos ---
+        def create_tab_container(list_widget, item_type: str, is_library: bool):
+            """Cria container com Lista + Botão Criar + Botões Específicos"""
+            container = QWidget()
+            layout = QVBoxLayout(container)
+            layout.setContentsMargins(0,0,0,0)
+            layout.setSpacing(5)
+            
+            # Lista
+            layout.addWidget(list_widget)
+            
+            # Botão Criar Novo Item (padrão)
+            scope_name = "Lib" if is_library else "Análise"
+            btn_create = QPushButton(f"➕ Criar Novo Item ({scope_name})")
+            btn_create.clicked.connect(lambda: self.create_manual_item(is_library=is_library))
+            layout.addWidget(btn_create)
+            
+            # Botões Específicos
+            if item_type == 'pillar':
+                # 3 Botões para Pilares
+                btn_script_full = QPushButton("📜 Gerar Script Pilar Completo")
+                btn_script_full.clicked.connect(lambda: self.generate_script_pillar_full(is_library))
+                layout.addWidget(btn_script_full)
+                
+                btn_script_pav = QPushButton("📜 Gerar Script Pavimento Pilar Completo")
+                btn_script_pav.clicked.connect(lambda: self.generate_script_pavement_pillar(is_library))
+                layout.addWidget(btn_script_pav)
+                
+                btn_export = QPushButton("💾 Exportar Dados dos Pilares (JSON)")
+                btn_export.clicked.connect(lambda: self.export_data_json('pillar', is_library))
+                layout.addWidget(btn_export)
+                
+            elif item_type == 'beam':
+                # 3 Botões para Vigas
+                btn_script_set = QPushButton("📜 Gerar Script Conjunto de Viga Completo")
+                btn_script_set.clicked.connect(lambda: self.generate_script_beam_set(is_library))
+                layout.addWidget(btn_script_set)
+
+                btn_script_pav = QPushButton("📜 Gerar Script Pavimento Vigas Completo")
+                btn_script_pav.clicked.connect(lambda: self.generate_script_pavement_beam(is_library))
+                layout.addWidget(btn_script_pav)
+
+                btn_export = QPushButton("💾 Exportar Dados das Vigas (JSON)")
+                btn_export.clicked.connect(lambda: self.export_data_json('beam', is_library))
+                layout.addWidget(btn_export)
+                
+            elif item_type == 'slab':
+                # 1 Botão para Lajes
+                btn_export = QPushButton("💾 Exportar Dados das Lajes (JSON)")
+                btn_export.clicked.connect(lambda: self.export_data_json('slab', is_library))
+                layout.addWidget(btn_export)
+
+            return container
+
         # --- TAB 1: ANÁLISE ATUAL ---
         self.tab_analysis = QWidget()
         analysis_layout = QVBoxLayout(self.tab_analysis)
@@ -175,20 +230,16 @@ class MainWindow(QMainWindow):
         self.list_slabs.itemClicked.connect(self.on_list_slab_clicked)
         self.list_issues.itemClicked.connect(self.on_issue_clicked)
         
-        self.tabs_analysis_internal.addTab(self.list_pillars, "Pilares")
-        self.tabs_analysis_internal.addTab(self.list_beams, "Vigas")
-        self.tabs_analysis_internal.addTab(self.list_slabs, "Lajes")
-        self.tabs_analysis_internal.addTab(self.list_issues, "⚠️ Pendências")
+        # Adicionar Abas com Containers
+        self.tabs_analysis_internal.addTab(create_tab_container(self.list_pillars, 'pillar', False), "Pilares")
+        self.tabs_analysis_internal.addTab(create_tab_container(self.list_beams, 'beam', False), "Vigas")
+        self.tabs_analysis_internal.addTab(create_tab_container(self.list_slabs, 'slab', False), "Lajes")
+        self.tabs_analysis_internal.addTab(self.list_issues, "⚠️ Pendências") # Issues não tem botões extras solicitados
         
-        # Conectar mudança de aba interna (Análise) para filtro visual
+        # Conectar mudança de aba interna (Análise)
         self.tabs_analysis_internal.currentChanged.connect(self._on_analysis_tab_changed)
         
         analysis_layout.addWidget(self.tabs_analysis_internal)
-
-        # Botão Criar Item (Análise)
-        self.btn_create_analysis = QPushButton("➕ Criar Novo Item (Análise)")
-        self.btn_create_analysis.clicked.connect(lambda: self.create_manual_item(is_library=False))
-        analysis_layout.addWidget(self.btn_create_analysis)
         
         # --- TAB 2: BIBLIOTECA VALIDADA ---
         self.tab_library = QWidget()
@@ -200,24 +251,19 @@ class MainWindow(QMainWindow):
         self.list_beams_valid = QListWidget()
         self.list_slabs_valid = QListWidget()
         
-        # Conectar Sinais (Validado - Read Only/Visual)
+        # Conectar Sinais (Validado)
         self.list_pillars_valid.itemClicked.connect(self.on_list_pillar_clicked)
-        # TODO: Adicionar lógica específica se necessário
         
-        self.tabs_library_internal.addTab(self.list_pillars_valid, "Pilares OK")
-        self.tabs_library_internal.addTab(self.list_beams_valid, "Vigas OK")
-        self.tabs_library_internal.addTab(self.list_slabs_valid, "Lajes OK")
+        # Adicionar Abas com Containers
+        self.tabs_library_internal.addTab(create_tab_container(self.list_pillars_valid, 'pillar', True), "Pilares OK")
+        self.tabs_library_internal.addTab(create_tab_container(self.list_beams_valid, 'beam', True), "Vigas OK")
+        self.tabs_library_internal.addTab(create_tab_container(self.list_slabs_valid, 'slab', True), "Lajes OK")
         
-        # Conectar mudança de aba interna (Biblioteca) para filtro visual
+        # Conectar mudança de aba interna (Biblioteca)
         self.tabs_library_internal.currentChanged.connect(self._on_library_tab_changed)
         
         library_layout.addWidget(self.tabs_library_internal)
 
-        # Botão Criar Item (Biblioteca)
-        self.btn_create_library = QPushButton("➕ Criar Novo Item (Lib)")
-        self.btn_create_library.clicked.connect(lambda: self.create_manual_item(is_library=True))
-        library_layout.addWidget(self.btn_create_library)
-        
         # --- TAB 3: DADOS DE TREINO ---
         self.tab_training = TrainingLog(self.db)
         self.tab_training.sync_requested.connect(self.sync_brain_memory)
@@ -2022,6 +2068,83 @@ class MainWindow(QMainWindow):
                 print(f"Erro sync evento {ev['id']}: {e}")
             
         self.log(f"✅ Sincronização concluída! {count} exemplos convertidos em vetores.")
+
+    # --- Script Generation Placeholders ---
+    def generate_script_pillar_full(self, is_library):
+        self.log(f"📜 [TODO] Gerar Script Pilar Completo (Lib={is_library})")
+        # Implement script generation logic here
+
+    def generate_script_pavement_pillar(self, is_library):
+        self.log(f"📜 [TODO] Gerar Script Pavimento Pilar Completo (Lib={is_library})")
+        # Implement script generation logic here
+
+    def generate_script_beam_set(self, is_library):
+        self.log(f"📜 [TODO] Gerar Script Conjunto de Viga Completo (Lib={is_library})")
+        # Implement script generation logic here
+
+    def generate_script_pavement_beam(self, is_library):
+        self.log(f"📜 [TODO] Gerar Script Pavimento Vigas Completo (Lib={is_library})")
+        # Implement script generation logic here
+
+    def export_data_json(self, item_type, is_library):
+        """Exporta os dados da lista atual para JSON."""
+        # 1. Determinar qual lista ler
+        if is_library:
+            if item_type == 'pillar': list_widget = self.list_pillars_valid
+            elif item_type == 'beam': list_widget = self.list_beams_valid
+            elif item_type == 'slab': list_widget = self.list_slabs_valid
+        else:
+            if item_type == 'pillar': list_widget = self.list_pillars
+            elif item_type == 'beam': list_widget = self.list_beams
+            elif item_type == 'slab': list_widget = self.list_slabs
+            
+        # 2. Coletar IDs da lista
+        ids = []
+        for i in range(list_widget.count()):
+            item = list_widget.item(i)
+            uid = item.data(Qt.UserRole)
+            if uid: ids.append(uid)
+            
+        if not ids:
+            self.log("⚠️ Lista vazia. Nada a exportar.")
+            return
+
+        # 3. Buscar objetos reais (Data Source)
+        # Assumindo que pillars_found, beams_found e slabs_found contêm TUDO (validado ou não)
+        # Se for Library, talvez devêssemos buscar do DB se a lista local estiver incompleta, 
+        # mas a lista local pillars_found deve estar sincronizada.
+        
+        source_data = []
+        if item_type == 'pillar': full_list = self.pillars_found
+        elif item_type == 'beam': full_list = self.beams_found
+        elif item_type == 'slab': full_list = self.slabs_found
+        else: full_list = []
+        
+        # Mapear ID -> Objeto para busca rápida
+        data_map = {item['id']: item for item in full_list}
+        
+        export_list = []
+        for uid in ids:
+            if uid in data_map:
+                export_list.append(data_map[uid])
+            else:
+                # Se não achou na memória (pode acontecer se carregou Lib do DB mas não processou DXF)
+                # Tentar buscar do DB individualmente (lento mas seguro)
+                if item_type == 'pillar': 
+                    # self.db.get_pillar(uid)?? Não temos esse método exposto facilmente
+                    pass
+        
+        self.log(f"💾 Preparando exportação de {len(export_list)} itens...")
+        
+        # 4. Salvar Arquivo
+        file_name, _ = QFileDialog.getSaveFileName(self, f"Exportar {item_type.capitalize()}s", f"export_{item_type}.json", "JSON Files (*.json)")
+        if file_name:
+            try:
+                with open(file_name, 'w', encoding='utf-8') as f:
+                    json.dump(export_list, f, indent=4, ensure_ascii=False)
+                self.log(f"✅ Deu bom! Arquivo salvo em: {file_name}")
+            except Exception as e:
+                self.log(f"❌ Erro ao salvar JSON: {e}")
 
 def main():
     app = QApplication(sys.argv)
