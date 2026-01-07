@@ -650,6 +650,8 @@ class MainWindow(QMainWindow):
         # 1.1 Detect Slabs (Lajes)
         slab_tracer = SlabTracer(self.spatial_index)
         self.slabs_found = slab_tracer.detect_slabs_from_texts(texts)
+        self.log(f"🔎 Lajes detectadas: {len(self.slabs_found)} (Busca por textos L#)")
+        
         for i, s in enumerate(self.slabs_found):
              s_unique_id = f"{self.current_project_id}_l_{i+1}" if self.current_project_id else str(uuid.uuid4())
              s['id'] = s_unique_id
