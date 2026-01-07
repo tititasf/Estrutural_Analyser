@@ -101,7 +101,8 @@ class SlabTracer:
                     'pos': pos,
                     'points': points,
                     'area': area,
-                    'is_detected': found_poly
+                    'is_detected': found_poly,
+                    'type': 'Laje' # Essential for DetailCard identification
                 })
         
         return slabs
