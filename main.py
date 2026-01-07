@@ -647,6 +647,20 @@ class MainWindow(QMainWindow):
             item.setData(Qt.UserRole, b_unique_id)
             self.list_beams.addItem(item)
 
+        # 1.1 Detect Slabs (Lajes)
+        slab_tracer = SlabTracer(self.spatial_index)
+        self.slabs_found = slab_tracer.detect_slabs_from_texts(texts)
+        for i, s in enumerate(self.slabs_found):
+             s_unique_id = f"{self.current_project_id}_l_{i+1}" if self.current_project_id else str(uuid.uuid4())
+             s['id'] = s_unique_id
+             s['id_item'] = f"{i+1:02}"
+             s['project_id'] = self.current_project_id
+             
+             item_text = f"{s['id_item']} | {s['name']}"
+             item = QListWidgetItem(item_text)
+             item.setData(Qt.UserRole, s_unique_id)
+             self.list_slabs.addItem(item)
+
         walker = BeamWalker(self.spatial_index)
         from shapely.geometry import Polygon
         self.pillars_found = []
@@ -1244,13 +1258,23 @@ class MainWindow(QMainWindow):
             return
             
         self.log(f"💾 Salvando projeto {self.current_project_name}...")
+        
+        # Save Pillars
         for p in self.pillars_found:
             self.db.save_pillar(p, self.current_project_id)
-        for s in self.slabs_found:
+        self.log(f"   -> {len(self.pillars_found)} pilares salvos.")
+
+        # Save Slabs
+        slabs = getattr(self, 'slabs_found', [])
+        for s in slabs:
             self.db.save_slab(s, self.current_project_id)
-        if hasattr(self, 'beams_found'):
-            for b in self.beams_found:
-                self.db.save_beam(b, self.current_project_id)
+        self.log(f"   -> {len(slabs)} lajes salvas.")
+
+        # Save Beams
+        beams = getattr(self, 'beams_found', [])
+        for b in beams:
+            self.db.save_beam(b, self.current_project_id)
+        self.log(f"   -> {len(beams)} vigas salvas.")
         
         self.log("✅ Projeto salvo com sucesso!")
 

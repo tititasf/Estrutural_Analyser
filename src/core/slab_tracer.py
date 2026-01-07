@@ -58,3 +58,50 @@ class SlabTracer:
             return None
             
         return None
+
+    def detect_slabs_from_texts(self, texts: List[dict], search_radius: float = 2000.0) -> List[dict]:
+        """
+        Identifica Lajes buscando textos L1, L2... e traçando contorno.
+        """
+        import re
+        slabs = []
+        
+        # Regex para L1, L2, L10, etc. (Case insensitive)
+        slab_pattern = re.compile(r'^[Ll]\d+$')
+        
+        for t in texts:
+            txt = t.get('text', '').strip()
+            if slab_pattern.match(txt):
+                pos = t.get('pos')
+                if not pos: continue
+                
+                # Tentar traçar contorno
+                poly = self.trace_boundary(pos, search_radius)
+                
+                # Se falhar tracing, cria um polígono dummy pequeno ou apenas marca o ponto
+                # Para MVP, se não achar contorno, criamos um placeholder
+                found_poly = bool(poly)
+                points = []
+                area = 0.0
+                
+                if poly:
+                    points = list(poly.exterior.coords)
+                    area = poly.area
+                else:
+                    # Fallback: Quadrado de 50x50 em volta do texto
+                    cx, cy = pos
+                    points = [
+                        (cx-25, cy-25), (cx+25, cy-25),
+                        (cx+25, cy+25), (cx-25, cy+25),
+                        (cx-25, cy-25)
+                    ]
+                
+                slabs.append({
+                    'name': txt.upper(), # L1
+                    'pos': pos,
+                    'points': points,
+                    'area': area,
+                    'is_detected': found_poly
+                })
+        
+        return slabs
