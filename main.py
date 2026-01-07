@@ -1816,6 +1816,8 @@ class MainWindow(QMainWindow):
         # Resetar visual
         self.right_panel.setCurrentIndex(0) # Placeholder
         print("DEBUG: Canvas update finished.")
+        from PySide6.QtWidgets import QApplication
+        QApplication.processEvents() # Force UI refresh
 
     def close_project_tab(self, index):
         """Fecha aba do projeto (mas não apaga do banco)"""
