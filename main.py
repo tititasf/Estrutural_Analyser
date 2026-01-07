@@ -79,7 +79,7 @@ class MainWindow(QMainWindow):
         # --- LADO ESQUERDO: GESTÃO DE ITENS ---
         self.left_panel = QWidget()
         self.left_panel.setObjectName("Sidebar")
-        self.left_panel.setStyleSheet("QWidget#Sidebar { background-color: #E6F4F1; color: #333; } QListWidget { background-color: #FFF; color: #000; border: 1px solid #CCC; } QLabel { color: #333; }")
+        self.left_panel.setStyleSheet("QWidget#Sidebar { background-color: #E0E0E0; color: #333; } QListWidget { background-color: #FFF; color: #000; border: 1px solid #CCC; } QLabel { color: #333; }")
         self.left_panel.setFixedWidth(365)
         left_layout = QVBoxLayout(self.left_panel)
         left_layout.setSpacing(10)
@@ -322,7 +322,7 @@ class MainWindow(QMainWindow):
         # --- DIREITA: DETALHAMENTO ---
         self.right_panel = QStackedWidget()
         self.right_panel.setMinimumWidth(220)
-        self.right_panel.setStyleSheet("QWidget { background-color: #E6F4F1; color: #333; } QLabel { color: #333; }")
+        self.right_panel.setStyleSheet("QWidget { background-color: #E0E0E0; color: #333; } QLabel { color: #333; }")
         
         # Pagina 0: Placeholder
         placeholder = QLabel("Selecione um item para ver detalhes\nou inicie a detecção.")
