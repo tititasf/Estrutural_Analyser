@@ -1688,25 +1688,33 @@ class MainWindow(QMainWindow):
                 return
 
         # Adiciona nova aba
+        # Adiciona nova aba
         self.log(f"Abrindo projeto: {name}...")
+        print(f"DEBUG: Abrindo projeto {name} (PID: {pid})")
+        
         self.project_tabs.addTab(QWidget(), f"{name}") # Tab vazia apenas para titulo
         new_idx = self.project_tabs.count() - 1
         self.project_tabs.tabBar().setTabData(new_idx, pid)
         self.project_tabs.setTabToolTip(new_idx, dxf_path)
         
         # Carrega dados do projeto (DB -> Memória) se não estiver em cache
-        # Carrega dados do projeto (DB -> Memória) se não estiver em cache
         if pid not in self.loaded_projects_cache:
+            print("DEBUG: Carregando do Banco de Dados...")
             # Tentar carregar DB
             p_info = self.db.get_project_by_id(pid) 
             if not p_info:
                 self.log(f"Erro: Projeto {pid} não encontrado no banco.")
+                print("DEBUG: Projeto nao encontrado no DB.")
                 return
 
+            print("DEBUG: Fetching entities...")
             # Carregar itens do DB
             pillars = self.db.load_pillars(pid)
+            print(f"DEBUG: Pilares carregados ({len(pillars)})")
             slabs = self.db.load_slabs(pid)
+            print(f"DEBUG: Lajes carregadas ({len(slabs)})")
             beams = self.db.load_beams(pid)
+            print(f"DEBUG: Vigas carregadas ({len(beams)})")
             
             cache_entry = {
                 'id': pid,
@@ -1728,13 +1736,18 @@ class MainWindow(QMainWindow):
             # Carregar DXF Geometria para este projeto (se existir arquivo)
             if dxf_path and os.path.exists(dxf_path):
                 try:
+                    print(f"DEBUG: Iniciando DXF Loader: {dxf_path}")
                     loaded_dxf = DXFLoader.load_dxf(dxf_path)
+                    print("DEBUG: DXF Loader completado.")
                     cache_entry['dxf_data'] = loaded_dxf
                 except Exception as e:
                     self.log(f"Erro ao carregar DXF {dxf_path}: {e}")
+                    print(f"DEBUG: DXF Error: {e}")
 
         # Ativa a aba
+        print("DEBUG: Switching tab index...")
         self.project_tabs.setCurrentIndex(new_idx)
+        print("DEBUG: Tab switch request sent.")
 
     def on_project_tab_changed(self, index):
         """Muda o contexto global da aplicação para o projeto da aba selecionada."""
