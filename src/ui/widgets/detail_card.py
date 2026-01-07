@@ -350,8 +350,9 @@ class DetailCard(QWidget):
         # Inicializa conteúdo dinâmico
         self._refresh_dynamic_content()
         
-        # Conecta sinal de mudança de formato
-        self.fields['format'].currentTextChanged.connect(self._on_format_changed)
+        # Conecta sinal de mudança de formato (se existir)
+        if 'format' in self.fields:
+            self.fields['format'].currentTextChanged.connect(self._on_format_changed)
 
         layout.addStretch()
         layout.addLayout(self._create_action_buttons())
