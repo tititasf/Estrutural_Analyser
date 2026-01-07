@@ -173,16 +173,13 @@ class ProjectManager(QWidget):
     def add_work(self):
         text, ok = QInputDialog.getText(self, "Nova Obra", "Nome da Obra:")
         if ok and text:
-            # Just create a dummy project? No, databases like this usually only allow works assigned to projects. 
-            # But the user wants to populate the combo BEFORE creating projects.
-            # WORKAROUND: We just add to combo for now, and it will persist only if assigned.
-            # OR we rely on assignment. 
-            # Let's simplify: Just refresh combo? No, if it's based on distinct, we can't create an empty obra easily without a Works table.
-            # But we can allow the user to type the name when creating a project.
-            # Let's fake it: Add to combo manually so they can select it for filtering/creation immediate.
-            if self.combo_works.findText(text) == -1:
-                self.combo_works.addItem(text, text)
-                self.combo_works.setCurrentIndex(self.combo_works.count()-1)
+            self.db.create_work(text)
+            self.load_works_combo()
+            
+            # Select the new work
+            idx = self.combo_works.findText(text)
+            if idx >= 0:
+                self.combo_works.setCurrentIndex(idx)
 
     def rename_current_work(self):
         current_work = self.combo_works.currentData()
@@ -192,19 +189,13 @@ class ProjectManager(QWidget):
             
         new_name, ok = QInputDialog.getText(self, "Renomear Obra", f"Novo nome para '{current_work}':", text=current_work)
         if ok and new_name and new_name != current_work:
-            # Update all projects
-            projects = self.db.get_projects()
-            count = 0
-            for p in projects:
-                if p.get('work_name') == current_work:
-                    self.db.update_project_work(p['id'], new_name)
-                    count += 1
-            
+            self.db.rename_work(current_work, new_name)
             self.load_works_combo()
+            self.load_projects()
+            
+            # Restore selection
             idx = self.combo_works.findText(new_name)
             if idx >= 0: self.combo_works.setCurrentIndex(idx)
-            self.load_projects()
-            QMessageBox.information(self, "Sucesso", f"Renomeada obra de {count} projetos.")
 
     def delete_current_work(self):
         current_work = self.combo_works.currentData()
@@ -212,15 +203,11 @@ class ProjectManager(QWidget):
             return
             
         reply = QMessageBox.question(self, "Excluir Obra", 
-                                     f"Isso removerá a associação de 'Obra' de todos os projetos em '{current_work}'.\nOs projetos NÃO serão excluídos, apenas ficarão 'Sem Obra'.\nContinuar?",
+                                     f"Isso removerá a Obra '{current_work}' e seus projetos ficarão 'Sem Obra'.\nContinuar?",
                                      QMessageBox.Yes | QMessageBox.No)
         
         if reply == QMessageBox.Yes:
-            projects = self.db.get_projects()
-            for p in projects:
-                if p.get('work_name') == current_work:
-                    self.db.update_project_work(p['id'], "") # Remove Obra
-            
+            self.db.delete_work(current_work)
             self.load_works_combo()
             self.load_projects()
 

@@ -28,6 +28,14 @@ class DatabaseManager:
 
     def _create_tables_if_not_exist(self, cursor):
         """Define o schema das tabelas."""
+        # Tabela de Obras (Persistência independente de projetos)
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS works (
+                name TEXT PRIMARY KEY,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        ''')
+
         # Tabela de Projetos
         cursor.execute('''
             CREATE TABLE IF NOT EXISTS projects (
@@ -102,8 +110,126 @@ class DatabaseManager:
         ''')
 
     def _migrate_db(self, cursor):
+        """Adiciona colunas necessárias, corrige tipos e migra dados."""
+        # ... (previous migration code) ...
+        # Migração de Obras existentes em Projetos para a tabela Works
+        try:
+            cursor.execute("INSERT OR IGNORE INTO works (name) SELECT DISTINCT work_name FROM projects WHERE work_name IS NOT NULL AND work_name != ''")
+        except Exception as e:
+            logging.error(f"Error migrating works: {e}")
+
+        # ... (rest of migration code)
+
+    # ... (existing methods) ...
+
+    def create_work(self, name: str):
+        """Cria uma nova Obra vazia."""
+        conn = self._get_conn()
+        try:
+            conn.execute('INSERT OR IGNORE INTO works (name) VALUES (?)', (name,))
+            conn.commit()
+        finally:
+            conn.close()
+
+    def rename_work(self, old_name: str, new_name: str):
+        """Renomeia uma Obra e atualiza referências."""
+        conn = self._get_conn()
+        try:
+            # 1. Update works table
+            conn.execute('UPDATE works SET name = ? WHERE name = ?', (new_name, old_name))
+            # 2. Update projects reference
+            conn.execute('UPDATE projects SET work_name = ? WHERE work_name = ?', (new_name, old_name))
+            conn.commit()
+        finally:
+            conn.close()
+
+    def delete_work(self, name: str):
+        """Exclui uma Obra (seus projetos ficam sem obra)."""
+        conn = self._get_conn()
+        try:
+            # 1. Update projects to remove work ref
+            conn.execute('UPDATE projects SET work_name = "" WHERE work_name = ?', (name,))
+            # 2. Delete from works
+            conn.execute('DELETE FROM works WHERE name = ?', (name,))
+            conn.commit()
+        finally:
+            conn.close()
+
+    def get_all_works(self) -> List[str]:
+        """Retorna lista de todas as Obras cadastradas."""
+        conn = self._get_conn()
+        try:
+            cursor = conn.execute('SELECT name FROM works ORDER BY name ASC')
+            return [r[0] for r in cursor.fetchall()]
+        finally:
+            conn.close()
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS training_events (
+                id TEXT PRIMARY KEY,
+                project_id TEXT,
+                type TEXT,        -- 'manual_correction', 'auto_validation'
+                role TEXT,        -- 'pillar_dim', 'beam_name'
+                context_dna_json TEXT, -- Assinatura vetorial do momento
+                target_value TEXT,     -- O valor correto (label)
+                status TEXT,           -- 'valid', 'fail'
+                timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY(project_id) REFERENCES projects(id)
+            )
+        ''')
+
+        # Tabela de Pilares (Schema expandido para IA + Projeto)
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS pillars (
+                id TEXT PRIMARY KEY, 
+                project_id TEXT,
+                name TEXT,
+                type TEXT,
+                area REAL,
+                points_json TEXT,
+                sides_data_json TEXT, 
+                links_json TEXT, 
+                conf_map_json TEXT, 
+                validated_fields_json TEXT, 
+                issues_json TEXT, 
+                is_validated BOOLEAN DEFAULT 0,
+                FOREIGN KEY(project_id) REFERENCES projects(id)
+            )
+        ''')
+        
+        # Tabela de Lajes
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS slabs (
+                id TEXT PRIMARY KEY,
+                project_id TEXT,
+                name TEXT,
+                area REAL,
+                points_json TEXT,
+                FOREIGN KEY(project_id) REFERENCES projects(id)
+            )
+        ''')
+
+        # Tabela de Vigas
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS beams (
+                id TEXT PRIMARY KEY,
+                project_id TEXT,
+                name TEXT,
+                data_json TEXT, 
+                is_validated BOOLEAN DEFAULT 0,
+                FOREIGN KEY(project_id) REFERENCES projects(id)
+            )
+        ''')
+
+    def _migrate_db(self, cursor):
         """Adiciona colunas necessárias e corrige tipos de dados incompatíveis."""
         
+        # Migração de Obras existentes em Projetos para a tabela Works (Executa primeiro para popular)
+        try:
+            # Seleciona de projects apenas se work_name não for nulo/vazio
+            cursor.execute("INSERT OR IGNORE INTO works (name) SELECT DISTINCT work_name FROM projects WHERE work_name IS NOT NULL AND work_name != ''")
+        except Exception as e:
+            logging.error(f"Error migrating works: {e}")
+
         # 1. Verificar tipo da coluna ID na tabela pillars
         need_recreation = False
         try:
@@ -126,11 +252,6 @@ class DatabaseManager:
                     logging.warning(f"Erro ao renomear {t}: {e}") # Talvez não exista?
             
             # As tabelas serão recriadas pelo _init_db (re-chamada ou fluxo seguinte)
-            # Mas como estamos chamando _migrate no FINAL do _init_db, elas não seriam criadas agora.
-            # Então, devemos criar manualmente ou re-chamar a criação.
-            # O mais simples é deixar o código abaixo tratar colunas ou a próxima execução tratar.
-            # Mas para garantir agora: chame _create_tables(cursor) se extraíssemos a lógica.
-            # Como _init_db é linear, vamos forçar a re-execução da criação:
             self._create_tables_if_not_exist(cursor) # Extrairemos esse método
 
 
@@ -156,6 +277,48 @@ class DatabaseManager:
                             logging.error(f"Migration error on {table}.{col}: {e}")
             except:
                 pass 
+
+    def create_work(self, name: str):
+        """Cria uma nova Obra vazia."""
+        conn = self._get_conn()
+        try:
+            conn.execute('INSERT OR IGNORE INTO works (name) VALUES (?)', (name,))
+            conn.commit()
+        finally:
+            conn.close()
+
+    def rename_work(self, old_name: str, new_name: str):
+        """Renomeia uma Obra e atualiza referências."""
+        conn = self._get_conn()
+        try:
+            # 1. Update works table
+            conn.execute('UPDATE works SET name = ? WHERE name = ?', (new_name, old_name))
+            # 2. Update projects reference
+            conn.execute('UPDATE projects SET work_name = ? WHERE work_name = ?', (new_name, old_name))
+            conn.commit()
+        finally:
+            conn.close()
+
+    def delete_work(self, name: str):
+        """Exclui uma Obra (seus projetos ficam sem obra)."""
+        conn = self._get_conn()
+        try:
+            # 1. Update projects to remove work ref
+            conn.execute('UPDATE projects SET work_name = "" WHERE work_name = ?', (name,))
+            # 2. Delete from works
+            conn.execute('DELETE FROM works WHERE name = ?', (name,))
+            conn.commit()
+        finally:
+            conn.close()
+
+    def get_all_works(self) -> List[str]:
+        """Retorna lista de todas as Obras cadastradas."""
+        conn = self._get_conn()
+        try:
+            cursor = conn.execute('SELECT name FROM works ORDER BY name ASC')
+            return [r[0] for r in cursor.fetchall()]
+        finally:
+            conn.close()
 
     def update_project_metadata(self, pid: str, metadata: Dict):
         """Atualiza metadados do projeto (Obra, Pavimento, Níveis)"""
@@ -552,14 +715,6 @@ class DatabaseManager:
         finally:
             conn.close()
 
-    def get_all_works(self) -> List[str]:
-        """Retorna lista de todas as Obras cadastradas (distinct)."""
-        conn = self._get_conn()
-        try:
-            cursor = conn.execute('SELECT DISTINCT work_name FROM projects WHERE work_name IS NOT NULL AND work_name != ""')
-            return [r[0] for r in cursor.fetchall()]
-        finally:
-            conn.close()
 
     def duplicate_project(self, source_pid: str, target_work_name: str = None) -> str:
         """Duplica um projeto existente."""
