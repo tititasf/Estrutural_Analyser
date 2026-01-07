@@ -850,12 +850,18 @@ class CADCanvas(QGraphicsView):
                 self.set_picking_mode(None)
                 
         super().keyPressEvent(event)
-        zoom_in_factor = 1.25
+    def wheelEvent(self, event):
+        """Zoom in/out com scroll do mouse"""
+        zoom_in_factor = 1.15
         zoom_out_factor = 1 / zoom_in_factor
 
+        # Se houver scroll vertical
         if event.angleDelta().y() > 0:
-            scale = zoom_in_factor
+            zoom_factor = zoom_in_factor
         else:
-            scale = zoom_out_factor
+            zoom_factor = zoom_out_factor
 
-        self.scale(scale, scale)
+        self.scale(zoom_factor, zoom_factor)
+        
+        # Ignora propagação (evita scroll das barras)
+        event.accept()
