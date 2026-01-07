@@ -307,7 +307,10 @@ class DetailCard(QWidget):
         layout.setSpacing(3)
         
         # --- Cabeçalho Dinâmico ---
-        header = QGroupBox("DADOS GERAIS - PILAR")
+        elem_type = self.item_data.get('type', 'Pilar').upper()
+        header_title = f"DADOS GERAIS - {elem_type}"
+        
+        header = QGroupBox(header_title)
         header.setStyleSheet("QGroupBox { font-size: 10px; font-weight: bold; color: #ffb300; border: 1px solid #333; margin-top: 5px; padding-top: 8px; }")
         h_layout = QFormLayout(header)
         h_layout.setContentsMargins(2, 2, 2, 2)
@@ -315,17 +318,26 @@ class DetailCard(QWidget):
         
         self._add_linked_row(h_layout, "Nº Item:", "id_item", "text", show_links=False, show_focus=False)
         self._add_linked_row(h_layout, "Nome:", "name", "text")
-        self._add_linked_row(h_layout, "Dimensão:", "dim", "text")
-        self._add_linked_row(h_layout, "Segmentos:", "pilar_segs", "line", hide_input=True)
         
-        # Formato como uma linha especial no FormLayout
-        self.fields['format'] = QComboBox()
-        self.fields['format'].addItems(["Retangular", "Circular", "Em L", "Em T", "Em U"])
-        self.fields['format'].setCurrentText(self.item_data.get('format', 'Retangular'))
-        self.fields['format'].setFixedHeight(24)
-        self.fields['format'].setStyleSheet("background: #252525; border: 1px solid #444; border-radius: 3px; color: #eee;")
-        
-        h_layout.addRow("Formato:", self.fields['format'])
+        if 'LAJE' in elem_type:
+            # Laje simplificada: Nome e Segmentos apenas
+             self._add_linked_row(h_layout, "Linhas da Área:", "laje_outline_segs", "line", hide_input=True)
+             
+        elif 'VIGA' in elem_type:
+             self._add_linked_row(h_layout, "Dimensão:", "dim", "text")
+             self._add_linked_row(h_layout, "Segmentos:", "viga_segs", "line", hide_input=True)
+             
+        else: # Pilar (default)
+            self._add_linked_row(h_layout, "Dimensão:", "dim", "text")
+            self._add_linked_row(h_layout, "Segmentos:", "pilar_segs", "line", hide_input=True)
+            
+            # Formato (Apenas Pilar)
+            self.fields['format'] = QComboBox()
+            self.fields['format'].addItems(["Retangular", "Circular", "Em L", "Em T", "Em U"])
+            self.fields['format'].setCurrentText(self.item_data.get('format', 'Retangular'))
+            self.fields['format'].setFixedHeight(24)
+            self.fields['format'].setStyleSheet("background: #252525; border: 1px solid #444; border-radius: 3px; color: #eee;")
+            h_layout.addRow("Formato:", self.fields['format'])
         
         layout.addWidget(header)
 
