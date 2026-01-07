@@ -101,17 +101,14 @@ class DetailCard(QWidget):
         row_layout.setContentsMargins(0, 0, 0, 0)
         row_layout.setSpacing(2)
 
-        # 1. Label (Largura fixa pequena)
-        label_text_clean = label_text.replace(":", "")
-        short_labels = {
-            "Nº Item": "Nº", "Dimensão": "Dim", "Segmentos": "Seg", 
-            "Dist. Centro": "Dist", "Dif. Nível": "Dif.N", "H": "H", "Pos.": "Pos"
-        }
-        display_label = short_labels.get(label_text_clean, label_text_clean)
+        # 1. Label (Largura um pouco maior e wrap)
+        # label_text_clean = label_text.replace(":", "") 
+        # (Removendo a limpeza agressiva de texto para manter o sentido, se desejado)
         
-        lbl = QLabel(display_label)
-        lbl.setFixedWidth(35) 
-        lbl.setStyleSheet("font-size: 10px; color: #ccc; font-weight: bold;")
+        lbl = QLabel(label_text)
+        lbl.setFixedWidth(65) # Aumentado de 35 para 65
+        lbl.setWordWrap(True) # Permitir quebra de linha
+        lbl.setStyleSheet("font-size: 9px; color: #ccc; font-weight: bold;")
         lbl.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
         row_layout.addWidget(lbl)
 
@@ -485,15 +482,24 @@ class DetailCard(QWidget):
         tab = QWidget()
         l = QVBoxLayout(tab)
         
-        form = QFormLayout()
-        self._add_linked_row(form, "Identificador:", "laje_name", "text")
-        self._add_linked_row(form, "Espessura:", "laje_h", "text")
-        self._add_linked_row(form, "Nível:", "laje_level", "text")
-        # Campo Geométrico Poly
-        self._add_linked_row(form, "Contorno (Área):", "laje_geom", "poly", hide_input=True)
+        # Grupo único para Laje
+        grp = QGroupBox("Dados da Laje")
+        grp.setStyleSheet("QGroupBox { font-size: 10px; font-weight: bold; border: 1px solid #444; margin-top: 5px; padding-top: 10px; }")
+        form = QFormLayout(grp)
+        form.setSpacing(5)
         
-        l.addLayout(form)
-        tabs.addTab(tab, "Geometria")
+        # 1. Nome (com Vínculo/Zoom)
+        self._add_linked_row(form, "Nome:", "laje_name", "text")
+        
+        # 2. Segmentos da Área (Linhas que definem o polígono) - Vínculo Visual
+        # "NAO NECESSARIAMENTE UM CAMPO de escrever mas uma linha para poder vincular"
+        # Usamos 'line' type para permitir selecionar linhas/polinhas no CAD
+        self._add_linked_row(form, "Segmentos da Área:", "laje_outline_segs", "line", hide_input=True)
+        
+        l.addWidget(grp)
+        l.addStretch() # Empurrar para cima
+        
+        tabs.addTab(tab, "Laje")
         layout.addWidget(tabs)
 
     def _get_initial_value(self, field_id):
