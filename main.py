@@ -82,6 +82,11 @@ class MainWindow(QMainWindow):
         left_layout = QVBoxLayout(self.left_panel)
         left_layout.setSpacing(10)
         
+        # 0. Botão Gerenciar Projetos (Topo)
+        btn_load = QPushButton("📂 Gerenciar Projetos")
+        btn_load.clicked.connect(self.open_project_manager)
+        left_layout.addWidget(btn_load)
+
         # 1. Inputs de Metadados (Topo)
         self.meta_widget = QWidget()
         meta_layout = QVBoxLayout(self.meta_widget)
@@ -132,11 +137,6 @@ class MainWindow(QMainWindow):
         self.btn_save.setObjectName("Success")
         self.btn_save.clicked.connect(self.save_project_action)
         left_layout.addWidget(self.btn_save)
-
-        # 4. Botão Gerenciar Projetos
-        btn_load = QPushButton("📂 Gerenciar Projetos")
-        btn_load.clicked.connect(self.open_project_manager)
-        left_layout.addWidget(btn_load)
 
         # Estado
         self.interactive_items = {} 
