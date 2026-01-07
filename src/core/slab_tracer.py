@@ -66,8 +66,13 @@ class SlabTracer:
         import re
         slabs = []
         
-        # Regex para L1, L2, L10, etc. (Case insensitive)
-        slab_pattern = re.compile(r'^[Ll]\d+$')
+        # Regex mais flexível: L1, L 1, L-1, Laje 1, Laje-1
+        # Captura 'L' ou 'LAJE', opcional separador, e digitos
+        slab_pattern = re.compile(r'^(?:LAJE|L)[\s-]?\d+$', re.IGNORECASE)
+        
+        # Debug: Check text samples
+        sample_texts = [t.get('text', '') for t in texts[:10]]
+        print(f"[DEBUG] SlabTracer checking {len(texts)} texts. Samples: {sample_texts}")
         
         for t in texts:
             txt = t.get('text', '').strip()
@@ -97,6 +102,7 @@ class SlabTracer:
                     ]
                 
                 slabs.append({
+                    'id': f"temp_{len(slabs)}", # Temp ID
                     'name': txt.upper(), # L1
                     'pos': pos,
                     'points': points,
