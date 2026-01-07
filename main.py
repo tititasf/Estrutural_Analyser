@@ -78,7 +78,7 @@ class MainWindow(QMainWindow):
         # --- LADO ESQUERDO: GESTÃO DE ITENS ---
         self.left_panel = QWidget()
         self.left_panel.setObjectName("Sidebar")
-        self.left_panel.setFixedWidth(280)
+        self.left_panel.setFixedWidth(365)
         left_layout = QVBoxLayout(self.left_panel)
         left_layout.setSpacing(10)
         
@@ -285,8 +285,8 @@ class MainWindow(QMainWindow):
         
         self.splitter.addWidget(self.right_panel)
         
-        # Definir proporção inicial: Esquerda (280), Centro (Grande), Direita (220)
-        self.splitter.setSizes([280, 1000, 220])
+        # Definir proporção inicial: Esquerda (365), Centro (Grande), Direita (220)
+        self.splitter.setSizes([365, 1000, 220])
         
         main_layout.addWidget(self.splitter)
 
