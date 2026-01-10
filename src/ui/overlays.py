@@ -134,9 +134,18 @@ class SlabGraphicsItem(QGraphicsPolygonItem):
             poly.append(QPointF(x, y))
         self.setPolygon(poly)
         
+        # Estilos Base
+        self.default_brush = QBrush(QColor(200, 200, 200, 50))
+        self.validated_brush = QBrush(QColor(76, 175, 80, 50))
+        self.default_pen = QPen(QColor(100, 100, 100, 100), 1, Qt.DashLine)
+        self.validated_pen = QPen(QColor(76, 175, 80), 3)
+        self.validated_pen.setCosmetic(True)
+
+        self.is_validated = False
+        
         # Estilo Laje (Transparente, preenchimento suave)
-        self.setBrush(QBrush(QColor(200, 200, 200, 50))) # Cinza claro, muito transparente
-        self.setPen(QPen(QColor(100, 100, 100, 100), 1, Qt.DashLine)) # Borda tracejada
+        self.setBrush(self.default_brush) 
+        self.setPen(self.default_pen)
         
         if label:
             self.setToolTip(f"{label}\nÁrea: {area:.2f}m²") 
@@ -151,4 +160,17 @@ class SlabGraphicsItem(QGraphicsPolygonItem):
             center = poly.boundingRect().center()
             self.text_item.setPos(center.x(), center.y())
             self.text_item.setFlag(QGraphicsItem.ItemIgnoresTransformations)
+
+    def set_validated(self, validated: bool):
+        self.is_validated = validated
+        if validated:
+            self.setBrush(self.validated_brush)
+            self.setPen(self.validated_pen)
+            if hasattr(self, 'text_item'):
+                self.text_item.setBrush(QBrush(QColor(76, 175, 80)))
+        else:
+            self.setBrush(self.default_brush)
+            self.setPen(self.default_pen)
+            if hasattr(self, 'text_item'):
+                 self.text_item.setBrush(QBrush(QColor(200, 200, 200)))
 

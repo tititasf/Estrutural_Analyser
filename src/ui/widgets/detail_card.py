@@ -1,7 +1,8 @@
 from PySide6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel, 
                                 QTabWidget, QTableWidget, QTableWidgetItem, 
                                 QPushButton, QHeaderView, QFrame, QMessageBox,
-                                QLineEdit, QFormLayout, QScrollArea, QComboBox, QGroupBox, QSizePolicy)
+                                QLineEdit, QFormLayout, QScrollArea, QComboBox, QGroupBox, QSizePolicy,
+                                QRadioButton, QCheckBox, QButtonGroup, QGridLayout)
 from PySide6.QtCore import Qt, Signal
 from .link_manager import LinkManager
 
@@ -13,6 +14,7 @@ class DetailCard(QWidget):
     data_validated = Signal(dict)
     data_invalidated = Signal(dict)
     element_focused = Signal(object) # (str para nome ou dict para link direto)
+    element_removed = Signal(dict)   # (dict com slot e link removido)
     pick_requested = Signal(str, str) # (field_id, type)
     focus_requested = Signal(str)    # (field_id) disparado pelo botão de lupa
     research_requested = Signal(str, str) # field_id, slot_id
@@ -20,14 +22,15 @@ class DetailCard(QWidget):
     config_updated = Signal(str, list)      # field_key, slots_config
     
     # Estilos CSS Reutilizáveis
-    STYLE_DEFAULT = "background: #252525; border: 1px solid #444; padding: 1px 4px; border-radius: 3px; color: #eee; font-size: 10px;"
-    STYLE_VALID = "background: #252525; border: 1px solid #00cc66; padding: 1px 4px; border-radius: 3px; color: #eee; font-size: 10px; font-weight: bold;"
+    STYLE_DEFAULT = "background: #252525; border: 1px solid #444; padding: 4px 6px; border-radius: 4px; color: #eee; font-size: 13px;"
+    STYLE_VALID = "background: #252525; border: 1px solid #00cc66; padding: 4px 6px; border-radius: 4px; color: #eee; font-size: 13px; font-weight: bold;"
 
     def __init__(self, item_data: dict, parent=None):
         super().__init__(parent)
         self.item_data = item_data
         self.fields = {} 
         self.indicators = {} 
+        self.embedded_managers = {} 
         self.init_ui()
 
     def _add_linked_row(self, layout, label_text, field_id, pick_type='text', is_combo=False, combo_items=None, 
@@ -65,7 +68,10 @@ class DetailCard(QWidget):
             w.setStyleSheet("color: #666; font-style: italic; font-size: 10px;")
             self.fields[field_id] = w
             
-            # Se já tiver vínculos, mostrar contagem
+            # Tentar carregar valor inicial (se houver extração de texto automática)
+            initial_val = self._get_initial_value(field_id)
+            
+            # Se já tiver vínculos, mostrar contagem (Fallback)
             links = self.item_data.get('links', {}).get(field_id, {})
             count = 0
             if isinstance(links, dict):
@@ -73,24 +79,34 @@ class DetailCard(QWidget):
             elif isinstance(links, list):
                 count = len(links)
                 
-            if count > 0:
+            if initial_val:
+                w.setText(f"Dim: {initial_val}")
+                w.setStyleSheet("color: #00cc66; font-weight: bold; font-size: 10px;")
+            elif count > 0 and isinstance(w, QLabel):
                 w.setText(f"{count} Vínculo(s) Ok")
                 w.setStyleSheet("color: #00cc66; font-weight: bold; font-size: 10px;")
 
+        # Sub-container for the drawer (inline LinkManager)
+        drawer_container = QWidget()
+        drawer_container.hide()
+        drawer_container.setStyleSheet("""
+            QWidget { background: #181818; border-left: 2px solid #00d4ff; margin-bottom: 5px; }
+        """)
+
         if show_links:
             btn_links = QPushButton("🔗")
-            btn_links.setFixedSize(24, 20) # Menor ainda
+            btn_links.setFixedSize(28, 24)
             btn_links.setProperty("class", "FieldBtn")
-            btn_links.setStyleSheet("font-size: 10px; padding: 0px;")
+            btn_links.setStyleSheet("font-size: 12px; padding: 2px;")
             btn_links.setCursor(Qt.PointingHandCursor)
-            btn_links.setToolTip("Gerenciar Vínculos e Classes de IA")
-            btn_links.clicked.connect(lambda checked=False, f_id=field_id, p_type=pick_type: self.open_link_manager(f_id, p_type))
+            btn_links.setToolTip("Gerenciar Vínculos (Expandir)")
+            btn_links.clicked.connect(lambda: self._toggle_link_drawer(field_id, drawer_container))
 
         if show_focus:
             btn_focus = QPushButton("🔍")
-            btn_focus.setFixedSize(24, 20) # Menor ainda
+            btn_focus.setFixedSize(28, 24)
             btn_focus.setProperty("class", "FieldBtn")
-            btn_focus.setStyleSheet("font-size: 10px; padding: 0px;")
+            btn_focus.setStyleSheet("font-size: 12px; padding: 2px;")
             btn_focus.setCursor(Qt.PointingHandCursor)
             btn_focus.setToolTip("Localizar objeto no CAD")
             btn_focus.clicked.connect(lambda checked=False, f_id=field_id: self.focus_requested.emit(f_id))
@@ -106,9 +122,9 @@ class DetailCard(QWidget):
         # (Removendo a limpeza agressiva de texto para manter o sentido, se desejado)
         
         lbl = QLabel(label_text)
-        lbl.setFixedWidth(65) # Aumentado de 35 para 65
+        lbl.setFixedWidth(85) # Aumentado de 65 para 85
         lbl.setWordWrap(True) # Permitir quebra de linha
-        lbl.setStyleSheet("font-size: 9px; color: #ccc; font-weight: bold;")
+        lbl.setStyleSheet("font-size: 11px; color: #ccc; font-weight: bold;")
         lbl.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
         row_layout.addWidget(lbl)
 
@@ -116,7 +132,7 @@ class DetailCard(QWidget):
         # O input vai ocupar todo o espaço que sobrar entre o label e os botões
         if w:
             w.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
-            w.setMinimumWidth(10) # Permite encolher bastante se necessário
+            w.setMinimumWidth(20) # Permite encolher bastante se necessário
             row_layout.addWidget(w, stretch=1)
             
         # 3. Bloco de Ações (Fixo à direita)
@@ -155,11 +171,11 @@ class DetailCard(QWidget):
 
         if btn_focus: actions_layout.addWidget(btn_focus)
         
-        # Se não tiver botões, o frame fica bem pequeno só com indicador
-        # Adicionamos ao layout principal com stretch=0 (fixo)
         row_layout.addWidget(actions_frame)
 
+        # Adiciona a linha principal e o drawer (que começa oculto)
         layout.addRow(row_layout)
+        layout.addRow(drawer_container)
 
     def _on_position_changed(self, field_id, text):
         """Exibe campo de distância se for 'Centro'"""
@@ -171,32 +187,52 @@ class DetailCard(QWidget):
             if not visible: field_widget.setText("0.0")
             field_widget.setVisible(True)
 
-    def open_link_manager(self, field_id, pick_type):
-        """Abre a mini-lista de vínculos do campo usando Slots"""
-        links_dict = self.item_data.setdefault('links', {})
-        # links_dict[field_id] agora é um DICT de slots: { 'label': [...], 'geometry': [...] }
-        current_links = links_dict.setdefault(field_id, {})
-        
-        # Migração sutil caso seja uma lista legada
-        if isinstance(current_links, list):
-            current_links = {'label': current_links}
-            links_dict[field_id] = current_links
-
-        if hasattr(self, 'active_link_dlg') and self.active_link_dlg:
-            self.active_link_dlg.close()
+    def _toggle_link_drawer(self, field_id, container):
+        """Toggles the inline LinkManager drawer"""
+        if container.isVisible():
+            container.hide()
+        else:
+            if container.layout() is None or container.layout().count() == 0:
+                self._load_link_manager_into(field_id, container)
             
-        self.active_link_dlg = LinkManager(field_id, current_links, self)
-        # MainWindow.on_pick_requested agora espera o slot_request formatado, mas precisamos manter o field_id contextualizado
-        self.active_link_dlg.pick_requested.connect(lambda slot_req: self._on_manager_pick_requested(field_id, slot_req))
-        self.active_link_dlg.focus_requested.connect(lambda l: self.element_focused.emit(l)) # Passa o link completo
-        self.active_link_dlg.remove_requested.connect(lambda data: self._remove_link(field_id, data, self.active_link_dlg))
+            # Forçar atualização de dados antes de exibir
+            lm = self.embedded_managers.get(field_id)
+            if lm:
+                links_dict = self.item_data.get('links', {})
+                current_links = links_dict.get(field_id, {})
+                if isinstance(current_links, list): current_links = {'label': current_links}
+                lm.links = current_links
+                lm.refresh_list()
+                
+            container.show()
+
+    def _load_link_manager_into(self, field_id, container):
+        """Instantiates and embeds a LinkManager into the container"""
+        # Ensure layout
+        if not container.layout():
+            layout = QVBoxLayout(container)
+            layout.setContentsMargins(0,0,0,0)
+            layout.setSpacing(0)
         
-        # Novas conexões para curadoria
-        self.active_link_dlg.research_requested.connect(lambda s_id: self.research_requested.emit(field_id, s_id))
-        self.active_link_dlg.training_requested.connect(lambda t_data: self.training_requested.emit(field_id, t_data))
-        self.active_link_dlg.config_changed.connect(lambda k, v: self.config_updated.emit(k, v))
+        # Get links
+        links_dict = self.item_data.get('links', {})
+        current_links = links_dict.get(field_id, {})
+        if isinstance(current_links, list):
+             current_links = {'label': current_links}
+             
+        # Create Manager
+        lm = LinkManager(field_id, current_links, parent=self)
+        self.embedded_managers[field_id] = lm
         
-        self.active_link_dlg.show()
+        # Connect Signals (Similar to original dialog logic)
+        lm.pick_requested.connect(lambda slot_req: self._on_manager_pick_requested(field_id, slot_req))
+        lm.focus_requested.connect(lambda l: self.element_focused.emit(l))
+        lm.remove_requested.connect(lambda data: self._remove_link(field_id, data, lm))
+        lm.research_requested.connect(lambda s_id: self.research_requested.emit(field_id, s_id))
+        lm.training_requested.connect(lambda t_data: self.training_requested.emit(field_id, t_data))
+        lm.config_changed.connect(lambda k, v: self.config_updated.emit(k, v))
+        
+        container.layout().addWidget(lm)
 
     def _on_manager_pick_requested(self, field_id, slot_req):
         """Disparado quando um slot específico pede captura no canvas"""
@@ -210,12 +246,19 @@ class DetailCard(QWidget):
         links_dict = self.item_data.get('links', {})
         field_links = links_dict.get(field_id, {})
         
-        if slot_id in field_links and link in field_links[slot_id]:
-            field_links[slot_id].remove(link)
-            # Remove validação se alterou o vínculo
+        if slot_id in field_links:
+            # Se ainda estiver na lista, remove (caso LinkManager não tenha removido ou seja cópia)
+            if link in field_links[slot_id]:
+                field_links[slot_id].remove(link)
+                
+            # SEMPRE executa limpeza visual e atualização de labels
             if field_id in self.item_data.get('validated_fields', []):
                 self.item_data['validated_fields'].remove(field_id)
-                self.refresh_validation_styles()
+            
+            self.refresh_validation_styles()
+            
+            # Notificar remoção para limpar canvas
+            self.element_removed.emit({'slot': slot_id, 'link': link})
             dlg.refresh_list()
 
     def mark_field_validated(self, field_id, is_valid=True):
@@ -271,17 +314,192 @@ class DetailCard(QWidget):
         # Marca e atualiza visual
         self.mark_field_validated(field_id, True)
         
+    def _add_pilar_opening_group(self, form_layout, label_text, prefix):
+        """Creates a specialized grouped row for Pillar Openings (Clean List)"""
+        # Outer container for the group
+        group_container = QWidget()
+        group_layout = QVBoxLayout(group_container)
+        group_layout.setContentsMargins(0, 5, 0, 5)
+        group_layout.setSpacing(2)
+
+        # Header with Label + Link Button
+        header_widget = QWidget()
+        header_layout = QHBoxLayout(header_widget)
+        header_layout.setContentsMargins(0,0,0,0)
+        
+        lbl = QLabel(label_text)
+        lbl.setStyleSheet("font-size: 11px; color: #00bcd4; font-weight: bold;")
+        
+        # Drawer for Pillar
+        drawer = QWidget()
+        drawer.hide()
+        drawer.setStyleSheet("background: #181818; border-left: 2px solid #00bcd4;")
+
+        btn_link = QPushButton("🔗 Vincular")
+        btn_link.setCursor(Qt.PointingHandCursor)
+        btn_link.setStyleSheet("""
+            QPushButton { border: 1px solid #444; border-radius: 4px; background: #222; color: #aaa; padding: 2px 6px; font-size: 10px; }
+            QPushButton:hover { background: #333; color: white; border-color: #666; }
+        """)
+        btn_link.clicked.connect(lambda: self._toggle_link_drawer(prefix, drawer))
+        
+        btn_focus = QPushButton("🔍")
+        btn_focus.setFixedSize(24, 20)
+        btn_focus.setCursor(Qt.PointingHandCursor)
+        btn_focus.setStyleSheet("background: transparent; border: 1px solid #444; color: #aaa; font-size: 10px;")
+        btn_focus.clicked.connect(lambda checked=False, p=prefix: self.focus_requested.emit(p))
+        
+        header_layout.addWidget(lbl)
+        header_layout.addStretch()
+        header_layout.addWidget(btn_focus)
+        header_layout.addWidget(btn_link)
+        
+        group_layout.addWidget(header_widget)
+        group_layout.addWidget(drawer) # Add drawer here too
+        
+        # Internal Form for Fields (Indented)
+        form_inner_widget = QWidget()
+        form_inner = QFormLayout(form_inner_widget)
+        form_inner.setContentsMargins(10, 0, 0, 0) # Indent
+        form_inner.setSpacing(4)
+        form_inner.setLabelAlignment(Qt.AlignLeft)
+        
+        # Fields: Dist, Larg, Diff
+        # Remove fixed width restrictions for cleaner look
+        f_dist = self._create_sub_field(prefix, "dist", "", 0) 
+        f_larg = self._create_sub_field(prefix, "larg", "", 0)
+        f_diff = self._create_sub_field(prefix, "diff", "", 0)
+        
+        form_inner.addRow("Distância:", f_dist)
+        form_inner.addRow("Largura:", f_larg)
+        form_inner.addRow("Diferença:", f_diff)
+        
+        group_layout.addWidget(form_inner_widget)
+        
+        # Add the whole group as a single row in the main form (spanning both cols)
+        form_layout.addRow(group_container)
+
+    def _add_beam_opening_group(self, form_layout, label_text, prefix):
+        """Creates a specialized grouped row for Beam Openings (Clean List)"""
+        group_container = QWidget()
+        group_layout = QVBoxLayout(group_container)
+        group_layout.setContentsMargins(0, 5, 0, 5)
+        group_layout.setSpacing(2)
+
+        # Header
+        header_widget = QWidget()
+        header_layout = QHBoxLayout(header_widget)
+        header_layout.setContentsMargins(0,0,0,0)
+        
+        lbl = QLabel(label_text)
+        lbl.setStyleSheet("font-size: 11px; color: #00bcd4; font-weight: bold;")
+        
+        # Drawer for Beam
+        drawer = QWidget()
+        drawer.hide()
+        drawer.setStyleSheet("background: #181818; border-left: 2px solid #00bcd4;")
+
+        btn_link = QPushButton("🔗 Vincular")
+        btn_link.setCursor(Qt.PointingHandCursor)
+        btn_link.setStyleSheet("""
+            QPushButton { border: 1px solid #444; border-radius: 4px; background: #222; color: #aaa; padding: 2px 6px; font-size: 10px; }
+            QPushButton:hover { background: #333; color: white; border-color: #666; }
+        """)
+        btn_link.clicked.connect(lambda: self._toggle_link_drawer(prefix, drawer))
+        
+        btn_focus = QPushButton("🔍")
+        btn_focus.setFixedSize(24, 20)
+        btn_focus.setCursor(Qt.PointingHandCursor)
+        btn_focus.setStyleSheet("background: transparent; border: 1px solid #444; color: #aaa; font-size: 10px;")
+        btn_focus.clicked.connect(lambda checked=False, p=prefix: self.focus_requested.emit(p))
+        
+        header_layout.addWidget(lbl)
+        header_layout.addStretch()
+        header_layout.addWidget(btn_focus)
+        header_layout.addWidget(btn_link)
+        
+        group_layout.addWidget(header_widget)
+        group_layout.addWidget(drawer)
+
+        # Internal Form
+        form_inner_widget = QWidget()
+        form_inner = QFormLayout(form_inner_widget)
+        form_inner.setContentsMargins(10, 0, 0, 0) # Indent
+        form_inner.setSpacing(4)
+        form_inner.setLabelAlignment(Qt.AlignLeft)
+
+        # Fields: Larg, Aj.Boca, Prof, Aj.Prof
+        f_larg = self._create_sub_field(prefix, "larg", "", 0)
+        f_aj_b = self._create_sub_field(prefix, "aj_boca", "", 0)
+        f_prof = self._create_sub_field(prefix, "prof", "", 0)
+        f_aj_p = self._create_sub_field(prefix, "aj_prof", "", 0)
+
+        form_inner.addRow("Largura M.:", f_larg)
+        form_inner.addRow("Ajuste Boca:", f_aj_b)
+        form_inner.addRow("Profundid.:", f_prof)
+        form_inner.addRow("Ajuste Prof:", f_aj_p)
+        
+        group_layout.addWidget(form_inner_widget)
+
+        form_layout.addRow(group_container)
+
+    def _create_sub_field(self, prefix, suffix, placeholder, width):
+        """Helper to create sub-fields for complex groups"""
+        full_key = f"{prefix}_{suffix}"
+        
+        default_val = self.item_data.get(full_key, "")
+        
+        f = QLineEdit(str(default_val))
+        if placeholder: f.setPlaceholderText(placeholder)
+        if width > 0:
+            f.setFixedWidth(width)
+        else:
+            f.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
+            
+        f.setStyleSheet(self.STYLE_DEFAULT)
+        f.textChanged.connect(lambda txt: self._on_field_changed(full_key, txt))
+        
+        self.fields[full_key] = f
+        return f
+
+    def _on_field_changed(self, key, value):
+        """Atualiza item_data imediatamente ao digitar"""
+        self.item_data[key] = value
+
     def refresh_validation_styles(self):
-        """Varre campos e aplica borda verde nos validados"""
+        """Varre campos e aplica borda verde nos validados e atualiza contadores de vínculos"""
         validated_fields = self.item_data.get('validated_fields', [])
         for fid, w in self.fields.items():
-            is_valid = fid in validated_fields
-            if is_valid:
-                w.setStyleSheet(self.STYLE_VALID)
-            else:
-                w.setStyleSheet(self.STYLE_DEFAULT)
+            # Skip QButtonGroup (logical container, not visual)
+            if isinstance(w, QButtonGroup):
+                continue
             
-            # Atualizar a bolinha (indicador)
+            is_valid = fid in validated_fields
+            
+            # --- Atualizar Estilo Visual (Bordas/Cores) ---
+            if isinstance(w, (QLineEdit, QComboBox)):
+                if is_valid:
+                    w.setStyleSheet(self.STYLE_VALID)
+                else:
+                    w.setStyleSheet(self.STYLE_DEFAULT)
+            
+            # --- Atualizar Labels de Vínculo (se for hide_input=True) ---
+            elif isinstance(w, QLabel):
+                links = self.item_data.get('links', {}).get(fid, {})
+                count = 0
+                if isinstance(links, dict):
+                    for sl_links in links.values(): count += len(sl_links)
+                elif isinstance(links, list):
+                    count = len(links)
+                
+                if count > 0:
+                    w.setText(f"{count} Vínculo(s) Ok")
+                    w.setStyleSheet("color: #00cc66; font-weight: bold; font-size: 10px;")
+                else:
+                    w.setText("Vínculo Pendente")
+                    w.setStyleSheet("color: #666; font-style: italic; font-size: 10px;")
+
+            # --- Atualizar a bolinha (indicador) ---
             if fid in self.indicators:
                 indicator = self.indicators[fid]
                 if is_valid:
@@ -293,6 +511,16 @@ class DetailCard(QWidget):
                     if conf_score > 0.8: color = "#00c853"
                     elif conf_score > 0.4: color = "#ffd600"
                     indicator.setStyleSheet(f"color: {color}; font-size: 14px; margin-right: 5px;")
+        
+        # --- Atualizar managers embutidos se estiverem abertos ---
+        for fid, lm in self.embedded_managers.items():
+            # Refresh even if not visible to ensure data is ready when opened
+            links_dict = self.item_data.get('links', {})
+            current_links = links_dict.get(fid, {})
+            if isinstance(current_links, list):
+                current_links = {'label': current_links}
+            lm.links = current_links
+            lm.refresh_list()
 
     def init_ui(self):
         main_layout = QVBoxLayout(self)
@@ -308,44 +536,43 @@ class DetailCard(QWidget):
         
         # --- Cabeçalho Dinâmico ---
         elem_type = self.item_data.get('type', 'Pilar').upper()
-        header_title = f"DADOS GERAIS - {elem_type}"
         
-        header = QGroupBox(header_title)
-        header.setStyleSheet("QGroupBox { font-size: 10px; font-weight: bold; color: #ffb300; border: 1px solid #333; margin-top: 5px; padding-top: 8px; }")
-        h_layout = QFormLayout(header)
-        h_layout.setContentsMargins(2, 2, 2, 2)
-        h_layout.setSpacing(1)
-        
-        self._add_linked_row(h_layout, "Nº Item:", "id_item", "text", show_links=False, show_focus=False)
-        self._add_linked_row(h_layout, "Nome:", "name", "text")
-        
-        if 'LAJE' in elem_type:
-            # Laje simplificada: Nome e Segmentos apenas
-             self._add_linked_row(h_layout, "Linhas da Área:", "laje_outline_segs", "line", hide_input=True)
-             
-        elif 'VIGA' in elem_type:
-             self._add_linked_row(h_layout, "Dimensão:", "dim", "text")
-             self._add_linked_row(h_layout, "Segmentos:", "viga_segs", "line", hide_input=True)
-             
-        else: # Pilar (default)
-            self._add_linked_row(h_layout, "Dimensão:", "dim", "text")
-            self._add_linked_row(h_layout, "Segmentos:", "pilar_segs", "line", hide_input=True)
+        # PARA LAJES: O Header é omitido aqui e criado dentro da aba (para ficar abaixo das tabs)
+        if 'LAJE' not in elem_type:
+            header_title = f"DADOS GERAIS - {elem_type}"
             
-            # Formato (Apenas Pilar)
-            self.fields['format'] = QComboBox()
-            self.fields['format'].addItems(["Retangular", "Circular", "Em L", "Em T", "Em U"])
-            self.fields['format'].setCurrentText(self.item_data.get('format', 'Retangular'))
-            self.fields['format'].setFixedHeight(24)
-            self.fields['format'].setStyleSheet("background: #252525; border: 1px solid #444; border-radius: 3px; color: #eee;")
-            h_layout.addRow("Formato:", self.fields['format'])
-        
-        layout.addWidget(header)
+            header = QGroupBox(header_title)
+            header.setStyleSheet("QGroupBox { font-size: 10px; font-weight: bold; color: #ffb300; border: 1px solid #333; margin-top: 5px; padding-top: 8px; }")
+            h_layout = QFormLayout(header)
+            h_layout.setContentsMargins(2, 2, 2, 2)
+            h_layout.setSpacing(1)
+            
+            self._add_linked_row(h_layout, "Nº Item:", "id_item", "text", show_links=False, show_focus=False)
+            self._add_linked_row(h_layout, "Nome:", "name", "text")
+            
+            if 'VIGA' in elem_type:
+                 self._add_linked_row(h_layout, "Dimensão:", "dim", "text")
+                 self._add_linked_row(h_layout, "Segmentos:", "viga_segs", "poly", hide_input=True)
+                 
+            else: # Pilar (default)
+                self._add_linked_row(h_layout, "Dimensão:", "dim", "text")
+                self._add_linked_row(h_layout, "Segmentos:", "pilar_segs", "poly", hide_input=True)
+                
+                # Formato (Apenas Pilar)
+                self.fields['format'] = QComboBox()
+                self.fields['format'].addItems(["Retangular", "Circular", "Em L", "Em T", "Em U"])
+                self.fields['format'].setCurrentText(self.item_data.get('format', 'Retangular'))
+                self.fields['format'].setFixedHeight(24)
+                self.fields['format'].setStyleSheet("background: #252525; border: 1px solid #444; border-radius: 3px; color: #eee;")
+                h_layout.addRow("Formato:", self.fields['format'])
+            
+            layout.addWidget(header)
 
         # Container para conteúdo dinâmico (Abas que mudam com o formato)
         self.dynamic_container = QWidget()
         self.dynamic_layout = QVBoxLayout(self.dynamic_container)
         self.dynamic_layout.setContentsMargins(0, 0, 0, 0)
-        layout.addWidget(self.dynamic_container)
+        layout.addWidget(self.dynamic_container, 1) # Give stretch factor to expand
 
         # Inicializa conteúdo dinâmico
         self._refresh_dynamic_content()
@@ -354,10 +581,101 @@ class DetailCard(QWidget):
         if 'format' in self.fields:
             self.fields['format'].currentTextChanged.connect(self._on_format_changed)
 
-        layout.addStretch()
         layout.addLayout(self._create_action_buttons())
         scroll.setWidget(container)
         main_layout.addWidget(scroll)
+
+    # ... (keeps existing helper methods until _setup_laje_complex_view)
+
+    def _setup_laje_complex_view(self, layout):
+        tabs = QTabWidget()
+        tabs.setStyleSheet("""
+            QTabBar::tab { padding: 8px 20px; font-weight: bold; }
+            QTabWidget::pane { border: 1px solid #444; }
+        """)
+        
+        tab = QWidget()
+        l = QVBoxLayout(tab)
+        l.setSpacing(10)
+        
+        # --- DADOS GERAIS (Exclusivo para Laje aqui dentro) ---
+        grp = QGroupBox("DADOS GERAIS - LAJE")
+        grp.setStyleSheet("QGroupBox { font-size: 11px; font-weight: bold; border: 1px solid #444; margin-top: 5px; padding-top: 10px; color: #00ffcc; }")
+        form = QFormLayout(grp)
+        form.setSpacing(5)
+        
+        # Campos principais movidos para cá
+        self._add_linked_row(form, "Nº Item:", "id_item", "text", show_links=False, show_focus=False)
+        self._add_linked_row(form, "Nome:", "name", "text")
+        self._add_linked_row(form, "Segmentos da Área:", "laje_outline_segs", "poly", hide_input=True)
+        
+        l.addWidget(grp)
+
+        # --- ILHAS ---
+        islands_header = QWidget()
+        ih_layout = QHBoxLayout(islands_header)
+        ih_layout.setContentsMargins(0,10,0,5)
+        
+        islands_label = QLabel("ILHAS / FUROS INTERNOS")
+        islands_label.setStyleSheet("font-size: 11px; font-weight: bold; color: #ffeb3b;")
+        
+        ih_layout.addWidget(islands_label)
+        ih_layout.addStretch()
+        l.addWidget(islands_header)
+
+        islands_container = QWidget()
+        islands_layout = QVBoxLayout(islands_container)
+        islands_layout.setContentsMargins(0,0,0,0)
+        islands_layout.setSpacing(5)
+        l.addWidget(islands_container)
+
+        # Cargas de Ilhas Existentes
+        prefix = "laje_island"
+        existing_indices = set()
+        for key in self.item_data.keys():
+            if key.startswith(f"{prefix}_") and "_segs" in key:
+                try:
+                    parts = key.split('_')
+                    idx = int(parts[2])
+                    existing_indices.add(idx)
+                except: pass
+        
+        # Também checar nos links
+        if 'links' in self.item_data:
+             for key in self.item_data['links'].keys():
+                  if key.startswith(f"{prefix}_") and "_segs" in key:
+                       try:
+                            parts = key.split('_')
+                            idx = int(parts[2])
+                            existing_indices.add(idx)
+                       except: pass
+
+        for i in sorted(list(existing_indices)):
+            self._add_island_pack(islands_layout, i)
+
+        # Botão Adicionar Ilha (Estilo Reforçado)
+        btn_add = QPushButton(" + ADICIONAR SEGMENTOS DE ILHA")
+        btn_add.setFixedHeight(45) # Mais grosso
+        btn_add.setCursor(Qt.PointingHandCursor)
+        btn_add.setStyleSheet("""
+            QPushButton { 
+                background: #333; 
+                border: 2px dashed #ffeb3b; 
+                border-radius: 6px; 
+                color: #ffeb3b; 
+                font-weight: bold;
+                font-size: 12px;
+            }
+            QPushButton:hover { background: #444; border-style: solid; }
+            QPushButton:pressed { background: #555; }
+        """)
+        btn_add.clicked.connect(lambda: self._add_island_pack(islands_layout))
+        
+        l.addWidget(btn_add)
+        l.addStretch() # Empurrar tudo para cima
+        
+        tabs.addTab(tab, "Laje")
+        layout.addWidget(tabs)
 
     def _setup_pilar_complex_view(self, layout):
         tabs = QTabWidget()
@@ -386,7 +704,7 @@ class DetailCard(QWidget):
                 self._add_linked_row(f, "H:", f'p_s{side}_l{i}_h', "text")
                 self._add_linked_row(f, "Nível:", f'p_s{side}_l{i}_v', "text")
                 self._add_linked_row(f, "Pos.:", f'p_s{side}_l{i}_p', "text", is_combo=True, combo_items=["Topo", "Centro", "Fundo"])
-                self._add_linked_row(f, "Dist. Centro:", f'p_s{side}_l{i}_dist_c', "line")
+                self._add_linked_row(f, "Dist. Centro:", f'p_s{side}_l{i}_dist_c', "poly")
                 
                 # Inicialização de visibilidade
                 self._on_position_changed(f'p_s{side}_l{i}_p', self.fields[f'p_s{side}_l{i}_p'].currentText())
@@ -412,9 +730,9 @@ class DetailCard(QWidget):
                 id_pref = f'p_s{side}_v_{cat_id}'
                 self._add_linked_row(vf, "Nome:", f'{id_pref}_n', "text")
                 self._add_linked_row(vf, "Dim.:", f'{id_pref}_d', "text")
-                self._add_linked_row(vf, "Seg.:", f'{id_pref}_segs', "line", hide_input=True)
+                self._add_linked_row(vf, "Seg.:", f'{id_pref}_segs', "poly", hide_input=True)
                 if is_arrival:
-                    self._add_linked_row(vf, "Dist.:", f'{id_pref}_dist', "line")
+                    self._add_linked_row(vf, "Dist.:", f'{id_pref}_dist', "poly")
                 
                 # Profundidade sem link, auto-calculado
                 self._add_linked_row(vf, "Prof.:", f'{id_pref}_prof', "text", show_links=False)
@@ -447,70 +765,515 @@ class DetailCard(QWidget):
             pass
 
     def _setup_viga_complex_view(self, layout):
-        """Implementa detalhamento de Lado A, B e Fundo"""
+        """Implementa detalhamento rigoroso de Lado A, Lado B e Fundo"""
         tabs = QTabWidget()
-        # Definição das abas: (ID suffix, Label, IsBottom)
         sides_config = [('A', 'Lado A', False), ('B', 'Lado B', False), ('Fundo', 'Fundo', True)]
         
         for side, label, is_bottom in sides_config:
             tab = QWidget()
             tab_l = QVBoxLayout(tab)
+            tab_l.setSpacing(15)
+            tab_l.setContentsMargins(5, 5, 5, 5)
             
-            # Info Geral do Lado/Fundo
-            info = QFormLayout()
-            # Campos comuns
-            label_prefix = f"viga_{side.lower()}"
-            self._add_linked_row(info, "Local Inicial:", f'{label_prefix}_ini_name', "text")
-            self._add_linked_row(info, "Local Final:", f'{label_prefix}_end_name', "text")
-            self._add_linked_row(info, "Dimensão:", f'{label_prefix}_dim', "text")
-            
-            if is_bottom:
-                # Fundo: Segmentos como lista (hide input), sem Prof/Diff
-                self._add_linked_row(info, "Segmentos:", f'{label_prefix}_segs', "line", hide_input=True)
-            else:
-                # Lados A/B: Segmentos e Profundidade/Diff
-                self._add_linked_row(info, "Segmentos:", f'{label_prefix}_segs', "line", hide_input=True)
-                self._add_linked_row(info, "Profundidade:", f'{label_prefix}_prof', "text")
-                self._add_linked_row(info, "Dif. Nível:", f'{label_prefix}_diff_v', "text")
-            
-            tab_l.addLayout(info)
-            
-            # Tabela apenas para A e B
+            prefix = f"viga_{side.lower()}"
+
             if not is_bottom:
-                table = QTableWidget(0, 5)
-                table.setHorizontalHeaderLabels(["Início", "Fim", "Tipo", "Tam.", "Laje"])
-                table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
-                self.fields[f'{label_prefix}_table'] = table
-                tab_l.addWidget(table)
+                # Container de Segmentos Rica
+                segs_container = QWidget()
+                segs_layout = QVBoxLayout(segs_container)
+                segs_layout.setContentsMargins(0,0,0,0)
+                segs_layout.setSpacing(15)
+                tab_l.addWidget(segs_container)
                 
-                btn_add = QPushButton("+ Segmento")
-                btn_add.clicked.connect(lambda t=table: t.insertRow(t.rowCount()))
+                # Lógica de Carga:
+                existing_indices = set([1]) # Sempre garanta pelo menos o 1
+                for key in self.item_data.keys():
+                    if key.startswith(f"{prefix}_seg_"):
+                        try:
+                            parts = key.split('_')
+                            idx = int(parts[parts.index('seg') + 1])
+                            existing_indices.add(idx)
+                        except: pass
+                
+                for i in sorted(list(existing_indices)):
+                    self._add_rich_segment_pack(segs_layout, prefix, i)
+                    
+                # Botão Add
+                btn_add = QPushButton(" + Adicionar Segmento Completo")
+                btn_add.setFixedHeight(30)
+                btn_add.setStyleSheet("background: #004444; color: #00ffcc; border: 1px dashed #00ffcc; font-weight: bold; font-size: 11px;")
+                btn_add.setCursor(Qt.PointingHandCursor)
+                btn_add.clicked.connect(lambda checked=False, l=segs_layout, p=prefix: self._add_rich_segment_pack(l, p))
+                tab_l.addWidget(btn_add)
+
+            else:
+                # Layout Dinâmico para Fundo (Segmentos Fundo)
+                segs_container = QWidget()
+                segs_layout = QVBoxLayout(segs_container)
+                segs_layout.setContentsMargins(0,0,0,0)
+                segs_layout.setSpacing(15)
+                tab_l.addWidget(segs_container)
+                
+                # Carga de Segmentos Existentes
+                existing_indices = set([1]) # Sempre garanta pelo menos o 1
+                for key in self.item_data.keys():
+                    if key.startswith(f"{prefix}_seg_"):
+                        try:
+                            parts = key.split('_')
+                            idx = int(parts[parts.index('seg') + 1])
+                            existing_indices.add(idx)
+                        except: pass
+                
+                for i in sorted(list(existing_indices)):
+                    self._add_fundo_segment_pack(segs_layout, prefix, i)
+                
+                # Botão Adicionar Segmento Fundo
+                btn_add = QPushButton(" + Adicionar Segmento Fundo")
+                btn_add.setFixedHeight(30)
+                btn_add.setStyleSheet("background: #440044; color: #ff88ff; border: 1px dashed #ff88ff; font-weight: bold; font-size: 11px;")
+                btn_add.setCursor(Qt.PointingHandCursor)
+                btn_add.clicked.connect(lambda checked=False, l=segs_layout, p=prefix: self._add_fundo_segment_pack(l, p))
                 tab_l.addWidget(btn_add)
             
             tabs.addTab(tab, label)
+            
         layout.addWidget(tabs)
+
+    def _add_rich_segment_pack(self, layout, prefix, idx_override=None):
+        """Cria um Box Completo de Segmento com todos os campos de engenharia"""
+        
+        # Determinar índice
+        if idx_override:
+            idx = idx_override
+        else:
+            # Contagem baseada nos widgets visuais para sequencia logica
+            idx = layout.count() + 1
+            
+        seg_uid = f"{prefix}_seg_{idx}"
+        
+        # Grupo Principal do Segmento
+        pack = QGroupBox(f"Segmento {idx}")
+        # Estilo "Gigante" e visível
+        pack.setStyleSheet("""
+            QGroupBox { 
+                font-size: 12px; 
+                font-weight: bold; 
+                border: 2px solid #555; 
+                border-radius: 6px;
+                margin-top: 10px; 
+                padding-top: 15px; 
+                background: #1e1e1e;
+            }
+            QGroupBox::title {
+                color: #00ffcc;
+                subcontrol-origin: margin;
+                left: 10px;
+                padding: 0 3px 0 3px;
+            }
+        """)
+        
+        # Layout principal do pack
+        main_v = QVBoxLayout(pack)
+        main_v.setSpacing(10)
+        
+        # 1. Campos de Geometria (FormLayout)
+        form_w = QWidget()
+        form = QFormLayout(form_w)
+        form.setSpacing(4)
+        form.setContentsMargins(2,2,2,2)
+        
+        # 1. Comprimento Total (Moved to Top)
+        self._add_linked_row(form, "Comprimento Total:", f'{seg_uid}_comprimento_total', "poly")
+        
+        # 2. Visão de Corte (New - Complex Group)
+        self._add_linked_row(form, "Visão de Corte:", f'{seg_uid}_visao_corte', "group", hide_input=True)
+        
+        # 3. Campos de Vínculo/Localização
+        self._add_linked_row(form, "Local Inicial:", f'{seg_uid}_ini_name', "text", hide_input=True)
+        self._add_linked_row(form, "Local Final:", f'{seg_uid}_end_name', "text", hide_input=True)
+        
+        # 4. Campos Principais
+        self._add_linked_row(form, "Dimensão:", f'{seg_uid}_dim', "text")
+        self._add_linked_row(form, "Nível Viga:", f'{seg_uid}_nivel_viga', "text")
+        self._add_linked_row(form, "Nível Oposto:", f'{seg_uid}_nivel_oposto', "text")
+        
+        # Lajes
+        # Lajes
+        self._add_linked_row(form, "Laje Superior:", f'{seg_uid}_laje_sup', "text", hide_input=True)
+        self._add_linked_row(form, "Laje Central:", f'{seg_uid}_laje_cen', "text", hide_input=True)
+        self._add_linked_row(form, "Laje Inferior:", f'{seg_uid}_laje_inf', "text", hide_input=True)
+        
+        # Alturas
+        self._add_linked_row(form, "Altura H1:", f'{seg_uid}_h1', "text", hide_input=True)
+        self._add_linked_row(form, "Altura H2:", f'{seg_uid}_h2', "text", hide_input=True)
+        
+        # Aberturas
+        self._add_pilar_opening_group(form, "Abert. Pilar Esq:", f'{seg_uid}_abert_pilar_esq')
+        self._add_pilar_opening_group(form, "Abert. Pilar Dir:", f'{seg_uid}_abert_pilar_dir')
+
+        self._add_beam_opening_group(form, "Abert. Viga Top Esq:", f'{seg_uid}_abert_viga_top_esq')
+        self._add_beam_opening_group(form, "Abert. Viga Top Dir:", f'{seg_uid}_abert_viga_top_dir')
+        self._add_beam_opening_group(form, "Abert. Viga Fun Esq:", f'{seg_uid}_abert_viga_fun_esq')
+        self._add_beam_opening_group(form, "Abert. Viga Fun Dir:", f'{seg_uid}_abert_viga_fun_dir')
+        
+        main_v.addWidget(form_w)
+        
+        # 2. Modos de Painel (Radio Groups) - Lado a Lado
+        modes_layout = QHBoxLayout()
+        h1_opts = ["Sarrafo", "Garfo", "Grade"]
+        modes_layout.addWidget(self._create_radio_group("Modo Painel H1", h1_opts, f"{seg_uid}_mode_h1", has_grade_input=True))
+        
+        h2_opts = ["Sarrafo", "Garfo", "Grade"]
+        modes_layout.addWidget(self._create_radio_group("Modo Painel H2", h2_opts, f"{seg_uid}_mode_h2", has_grade_input=True))
+        main_v.addLayout(modes_layout)
+        
+        # 3. Continuidade (Radio)
+        cont_opts = ["Obstáculo", "Viga", "Último Seg."]
+        main_v.addWidget(self._create_radio_group("Continuidade", cont_opts, f"{seg_uid}_continuidade"))
+        
+        # 4. Sarrafos (Checkbox Grid)
+        sarrafos_opts = [
+            ("Vertical Esq H1", "v_e_h1"), ("Pressão Esq H1", "p_e_h1"),
+            ("Vertical Esq H2", "v_e_h2"), ("Pressão Esq H2", "p_e_h2"),
+            ("Vertical Dir H1", "v_d_h1"), ("Pressão Dir H1", "p_d_h1"),
+            ("Vertical Dir H2", "v_d_h2"), ("Pressão Dir H2", "p_d_h2")
+        ]
+        main_v.addWidget(self._create_checkbox_group("Sarrafos Presentes", sarrafos_opts, seg_uid))
+        
+        # Botão Remover (se não for o segmento 1, ou permitir remover todos?)
+        # Geralmente segmento 1 é obrigatório, mas vamos permitir flexibilidade
+        if idx > 1:
+            btn_rem = QPushButton("Remover Este Segmento")
+            btn_rem.setStyleSheet("color: #ff5555; background: transparent; border: 1px solid #ff5555; border-radius: 4px; padding: 4px;")
+            btn_rem.setCursor(Qt.PointingHandCursor)
+            btn_rem.clicked.connect(lambda: self._remove_segment(pack, layout, prefix, idx))
+            main_v.addWidget(btn_rem)
+            
+        layout.addWidget(pack)
+
+    def _add_fundo_segment_pack(self, layout, prefix, idx_override=None):
+        """Cria um Box Completo de Segmento de Fundo"""
+        
+        # Determinar índice
+        if idx_override:
+            idx = idx_override
+        else:
+            idx = layout.count() + 1
+            
+        seg_uid = f"{prefix}_seg_{idx}"
+        
+        # Grupo Principal do Segmento
+        pack = QGroupBox(f"Segmento Fundo {idx}")
+        # Estilo "Gigante" e visível (Mesmo estilo do side)
+        pack.setStyleSheet("""
+            QGroupBox { 
+                font-size: 12px; 
+                font-weight: bold; 
+                border: 2px solid #5544aa; 
+                border-radius: 6px;
+                margin-top: 10px; 
+                padding-top: 15px; 
+                background: #1e1e22;
+            }
+            QGroupBox::title {
+                color: #aa88ff;
+                subcontrol-origin: margin;
+                left: 10px;
+                padding: 0 3px 0 3px;
+            }
+        """)
+        
+        # Layout principal do pack
+        main_v = QVBoxLayout(pack)
+        main_v.setSpacing(10)
+        
+        # 1. Campos de Engenharia (FormLayout)
+        form_w = QWidget()
+        form = QFormLayout(form_w)
+        form.setSpacing(4)
+        form.setContentsMargins(2,2,2,2)
+        
+        # Campos Solicitados
+        self._add_linked_row(form, "Segmentos da Área:", f'{seg_uid}_area_segs', "poly", hide_input=True)
+        self._add_linked_row(form, "Largura Total:", f'{seg_uid}_largura', "text")
+        self._add_linked_row(form, "Comprimento Total:", f'{seg_uid}_comprimento', "poly")
+        self._add_linked_row(form, "Local Inicial:", f'{seg_uid}_local_ini', "text", hide_input=True)
+        self._add_linked_row(form, "Local Final:", f'{seg_uid}_local_fim', "text", hide_input=True)
+        
+        # Aberturas
+        self._add_linked_row(form, "Abert. Topo Dir:", f'{seg_uid}_abert_top_dir', "poly")
+        self._add_linked_row(form, "Abert. Fundo Dir:", f'{seg_uid}_abert_fun_dir', "poly")
+        self._add_linked_row(form, "Abert. Topo Esq:", f'{seg_uid}_abert_top_esq', "poly")
+        self._add_linked_row(form, "Abert. Fundo Esq:", f'{seg_uid}_abert_fun_esq', "poly")
+        self._add_linked_row(form, "Abertura Especial:", f'{seg_uid}_abert_especial', "poly")
+        
+        # Chanfros
+        self._add_linked_row(form, "Chanfro Esq Topo:", f'{seg_uid}_chanfro_esq_top', "poly")
+        self._add_linked_row(form, "Chanfro Esq Fundo:", f'{seg_uid}_chanfro_esq_fun', "poly")
+        self._add_linked_row(form, "Chanfro Dir Topo:", f'{seg_uid}_chanfro_dir_top', "poly")
+        self._add_linked_row(form, "Chanfro Dir Fundo:", f'{seg_uid}_chanfro_dir_fun', "poly")
+        
+        main_v.addWidget(form_w)
+        
+        # 2. Continuidade (Radio)
+        cont_opts_fundo = ["Obstáculo", "Recorte", "Último Seg."]
+        main_v.addWidget(self._create_radio_group("Continuidade (Fundo)", cont_opts_fundo, f"{seg_uid}_continuidade"))
+        
+        # Botão Remover
+        if idx > 1:
+            btn_rem = QPushButton("Remover Este Segmento")
+            btn_rem.setStyleSheet("color: #ff5555; background: transparent; border: 1px solid #ff5555; border-radius: 4px; padding: 4px;")
+            btn_rem.setCursor(Qt.PointingHandCursor)
+            btn_rem.clicked.connect(lambda: self._remove_segment(pack, layout, prefix, idx))
+            main_v.addWidget(btn_rem)
+            
+        layout.addWidget(pack)
+
+    def _add_island_pack(self, layout, idx_override=None):
+        """Cria um Box para segmentos de ilha (furo interno) em lajes"""
+        if idx_override:
+            idx = idx_override
+        else:
+            # Determinar próximo índice baseado no maior índice existente
+            existing_indices = []
+            for i in range(layout.count()):
+                widget = layout.itemAt(i).widget()
+                if isinstance(widget, QGroupBox) and "Ilha" in widget.title():
+                    try:
+                        # Extrai o número do título "Ilha X"
+                        num = int(widget.title().split()[-1])
+                        existing_indices.append(num)
+                    except: pass
+            idx = max(existing_indices) + 1 if existing_indices else 1
+
+        seg_uid = f"laje_island_{idx}_segs"
+        
+        pack = QGroupBox(f"Ilha {idx}")
+        pack.setStyleSheet("""
+            QGroupBox { 
+                font-size: 11px; 
+                font-weight: bold; 
+                border: 1px solid #ffeb3b; 
+                border-radius: 4px;
+                margin-top: 8px; 
+                padding-top: 10px; 
+                background: #2a2a2a; 
+                color: #ffeb3b;
+            }
+        """)
+        v = QVBoxLayout(pack)
+        f = QFormLayout()
+        f.setContentsMargins(5, 5, 5, 5)
+        
+        # Adicionar o campo de vínculo visual (line para múltiplas seleções)
+        self._add_linked_row(f, "Segmentos Ilha:", seg_uid, "poly", hide_input=True)
+        v.addLayout(f)
+        
+        # Botão Remover Ilha
+        btn_rem = QPushButton("Remover Ilha")
+        btn_rem.setStyleSheet("color: #ff5555; background: transparent; border: none; font-size: 10px; text-decoration: underline;")
+        btn_rem.setCursor(Qt.PointingHandCursor)
+        btn_rem.clicked.connect(lambda: self._remove_island(pack, layout, idx))
+        v.addWidget(btn_rem, 0, Qt.AlignRight)
+
+        layout.addWidget(pack)
+
+    def _remove_island(self, widget, layout, idx):
+        """Remove visualmente e limpa referências da ilha"""
+        widget.hide()
+        layout.removeWidget(widget)
+        widget.deleteLater()
+        
+        key = f"laje_island_{idx}_segs"
+        if key in self.fields: del self.fields[key]
+        if key in self.item_data: del self.item_data[key]
+        if 'links' in self.item_data and key in self.item_data['links']:
+            del self.item_data['links'][key]
+
+    def _create_radio_group(self, title, options, key_prefix, has_grade_input=False):
+        """Cria um grupo de opções exclusivas (Sarrafo/Garfo/Grade)"""
+        grp = QGroupBox(title)
+        grp.setStyleSheet("QGroupBox { font-size: 10px; border: 1px solid #444; padding-top: 5px; }")
+        l = QVBoxLayout(grp)
+        l.setSpacing(2)
+        
+        bg = QButtonGroup(grp) # Garante exclusividade lógica
+        self.fields[f"{key_prefix}_bg"] = bg # Mantém ref para não ser garbage collected
+        
+        # Valor atual salvo
+        current_val = self.item_data.get(key_prefix, options[0])
+        
+        for opt in options:
+            rb = QRadioButton(opt)
+            rb.setStyleSheet("QRadioButton { font-size: 10px; color: #ccc; }")
+            if opt == current_val: rb.setChecked(True)
+            bg.addButton(rb)
+            l.addWidget(rb)
+            
+            # Se for opção "Grade" e tiver input ativado
+            if has_grade_input and "Grade" in opt:
+                grade_input = QLineEdit()
+                grade_input.setPlaceholderText("Tam. Grade (cm)")
+                grade_input.setFixedHeight(20)
+                grade_input.setStyleSheet(self.STYLE_DEFAULT)
+                
+                # Chave para salvar tamanho da grade
+                grade_key = f"{key_prefix}_grade_size"
+                self.fields[grade_key] = grade_input
+                grade_input.setText(str(self.item_data.get(grade_key, "")))
+                
+                # Visibilidade condicional
+                grade_input.setVisible(rb.isChecked())
+                rb.toggled.connect(grade_input.setVisible)
+                
+                l.addWidget(grade_input)
+                
+        # Conectar mudança do grupo para atualizar data (opcional, pois validamos no final)
+        # bg.buttonClicked.connect(lambda btn: self.item_data.update({key_prefix: btn.text()}))
+        
+        return grp
+
+    def _create_checkbox_group(self, title, options, key_prefix):
+        """Cria Grid de Checkboxes para Sarrafos"""
+        grp = QGroupBox(title)
+        grp.setStyleSheet("QGroupBox { font-size: 12px; border: 1px solid #444; padding-top: 5px; }")
+        
+        container = QWidget()
+        grid = QHBoxLayout(container) # Divide em 2 colunas verticais
+        col1 = QVBoxLayout(); col2 = QVBoxLayout()
+        col1.setSpacing(2); col2.setSpacing(2)
+        
+        mid = len(options) // 2
+        for i, (label, suffix) in enumerate(options):
+            cb = QCheckBox(label)
+            cb.setStyleSheet("QCheckBox { font-size: 11px; color: #ccc; }")
+            full_key = f"{key_prefix}_chk_{suffix}"
+            self.fields[full_key] = cb
+            
+            if self.item_data.get(full_key, False):
+                cb.setChecked(True)
+                
+            if i < mid: col1.addWidget(cb)
+            else: col2.addWidget(cb)
+            
+        grid.addLayout(col1); grid.addLayout(col2)
+        
+        l = QVBoxLayout(grp)
+        l.setContentsMargins(2, 15, 2, 2)
+        l.addWidget(container)
+        return grp
+
+
+    def _remove_segment(self, widget, layout, prefix, idx):
+        """Remove visualmente e limpa referências"""
+        widget.hide()
+        layout.removeWidget(widget)
+        widget.deleteLater()
+        
+        # Limpar do self.fields para não ser salvo novamente
+        keys_to_remove = [k for k in self.fields.keys() if k.startswith(f"{prefix}_seg_{idx}")]
+        for k in keys_to_remove:
+            del self.fields[k]
+        
+        # Removendo imediatamente do item_data para garantir consistência visual x dados
+        keys_data_remove = [k for k in self.item_data.keys() if k.startswith(f"{prefix}_seg_{idx}")]
+        for k in keys_data_remove:
+            del self.item_data[k]
 
     def _setup_laje_complex_view(self, layout):
         tabs = QTabWidget()
+        tabs.setStyleSheet("""
+            QTabBar::tab { padding: 8px 20px; font-weight: bold; }
+            QTabWidget::pane { border: 1px solid #444; }
+        """)
+        
         tab = QWidget()
         l = QVBoxLayout(tab)
+        l.setSpacing(10)
         
-        # Grupo único para Laje
-        grp = QGroupBox("Dados da Laje")
-        grp.setStyleSheet("QGroupBox { font-size: 10px; font-weight: bold; border: 1px solid #444; margin-top: 5px; padding-top: 10px; }")
+        # --- DADOS GERAIS (Exclusivo para Laje aqui dentro) ---
+        grp = QGroupBox("DADOS GERAIS - LAJE")
+        grp.setStyleSheet("QGroupBox { font-size: 11px; font-weight: bold; border: 1px solid #444; margin-top: 5px; padding-top: 10px; color: #ffb300; }")
         form = QFormLayout(grp)
         form.setSpacing(5)
         
-        # 1. Nome (com Vínculo/Zoom)
-        self._add_linked_row(form, "Nome:", "laje_name", "text")
-        
-        # 2. Segmentos da Área (Linhas que definem o polígono) - Vínculo Visual
-        # "NAO NECESSARIAMENTE UM CAMPO de escrever mas uma linha para poder vincular"
-        # Usamos 'line' type para permitir selecionar linhas/polinhas no CAD
-        self._add_linked_row(form, "Segmentos da Área:", "laje_outline_segs", "line", hide_input=True)
+        # Campos principais movidos para cá (Recriando)
+        self._add_linked_row(form, "Nº Item:", "id_item", "text", show_links=False, show_focus=False)
+        self._add_linked_row(form, "Nome:", "name", "text")
+
+        # Novos campos solicitados: Dimensão e Nível
+        self._add_linked_row(form, "Dimensão:", "laje_dim", "text")
+        self._add_linked_row(form, "Nível (ex: +2.80):", "laje_nivel", "text")
+
+        self._add_linked_row(form, "Segmentos da Área:", "laje_outline_segs", "poly", hide_input=True)
+
+        if "laje_dim" in self.fields:
+             self.fields["laje_dim"].textChanged.connect(lambda t: self._clean_laje_dim_input(t))
         
         l.addWidget(grp)
-        l.addStretch() # Empurrar para cima
+
+        # --- ILHAS ---
+        islands_header = QWidget()
+        ih_layout = QHBoxLayout(islands_header)
+        ih_layout.setContentsMargins(0,10,0,5)
+        
+        islands_label = QLabel("ILHAS / FUROS INTERNOS")
+        islands_label.setStyleSheet("font-size: 11px; font-weight: bold; color: #ffeb3b;")
+        
+        ih_layout.addWidget(islands_label)
+        ih_layout.addStretch()
+        l.addWidget(islands_header)
+
+        islands_container = QWidget()
+        islands_layout = QVBoxLayout(islands_container)
+        islands_layout.setContentsMargins(0,0,0,0)
+        islands_layout.setSpacing(5)
+        l.addWidget(islands_container)
+
+        # Cargas de Ilhas Existentes
+        prefix = "laje_island"
+        existing_indices = set()
+        for key in self.item_data.keys():
+            if key.startswith(f"{prefix}_") and "_segs" in key:
+                try:
+                    parts = key.split('_')
+                    idx = int(parts[2])
+                    existing_indices.add(idx)
+                except: pass
+        
+        # Também checar nos links
+        if 'links' in self.item_data:
+             for key in self.item_data['links'].keys():
+                  if key.startswith(f"{prefix}_") and "_segs" in key:
+                       try:
+                            parts = key.split('_')
+                            idx = int(parts[2])
+                            existing_indices.add(idx)
+                       except: pass
+
+        for i in sorted(list(existing_indices)):
+            self._add_island_pack(islands_layout, i)
+
+        # Botão Adicionar Ilha (Estilo Reforçado)
+        btn_add = QPushButton(" + ADICIONAR SEGMENTOS DE ILHA")
+        btn_add.setFixedHeight(45) # Mais grosso
+        btn_add.setCursor(Qt.PointingHandCursor)
+        btn_add.setStyleSheet("""
+            QPushButton { 
+                background: #333; 
+                border: 2px dashed #ffeb3b; 
+                border-radius: 6px; 
+                color: #ffeb3b; 
+                font-weight: bold;
+                font-size: 12px;
+            }
+            QPushButton:hover { background: #444; border-style: solid; }
+            QPushButton:pressed { background: #555; }
+        """)
+        btn_add.clicked.connect(lambda: self._add_island_pack(islands_layout))
+        
+        l.addWidget(btn_add)
+        l.addStretch() # Empurrar tudo para cima
         
         tabs.addTab(tab, "Laje")
         layout.addWidget(tabs)
@@ -525,9 +1288,11 @@ class DetailCard(QWidget):
             if isinstance(slots, dict):
                  for s_list in slots.values():
                      if s_list and len(s_list) > 0:
-                         return str(s_list[0].get('text', ''))
+                         txt = str(s_list[0].get('text', ''))
+                         if txt.strip(): return txt
             elif isinstance(slots, list) and len(slots) > 0:
-                 return str(slots[0].get('text', ''))
+                 txt = str(slots[0].get('text', ''))
+                 if txt.strip(): return txt
 
         # 2. Prioridade: Flat Key
         if field_id in self.item_data:
@@ -646,3 +1411,19 @@ class DetailCard(QWidget):
             if p == ancestor: return True
             p = p.parentWidget()
         return False
+
+    def _clean_laje_dim_input(self, text):
+        """Limpa entrada de dimensão de laje (ex: 'd=12' -> '12')"""
+        import re
+        # Se tiver d= ou h=, extrai o número
+        match = re.search(r'[dhDH]=\s*(\d+[.,]?\d*)', text)
+        if match:
+             clean_val = match.group(1)
+             # Evita loop infinito
+             current = self.fields['laje_dim'].text()
+             if current != clean_val:
+                  self.fields['laje_dim'].blockSignals(True)
+                  self.fields['laje_dim'].setText(clean_val)
+                  self.fields['laje_dim'].blockSignals(False)
+                  # Atualiza dados
+                  self._on_field_changed('laje_dim', clean_val)

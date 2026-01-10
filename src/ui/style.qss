@@ -135,3 +135,27 @@ QHeaderView::section {
     border: 1px solid #2a2a3e;
     color: #aaa;
 }
+
+/* Menus de Contexto e Dropdowns */
+QMenu {
+    background-color: #16161e;
+    border: 1px solid #00E5FF;
+    color: #E0E0E0;
+    padding: 5px;
+}
+
+QMenu::item {
+    background-color: transparent;
+    padding: 8px 20px;
+}
+
+QMenu::item:selected {
+    background-color: #00E5FF;
+    color: #050510;
+}
+
+QMenu::separator {
+    height: 1px;
+    background: #2a2a3e;
+    margin: 5px 0;
+}

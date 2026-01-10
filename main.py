@@ -1,11 +1,13 @@
-import sys
+﻿import sys
+from typing import Dict, List, Any, Optional
 import os
 import json
 import logging
 from PySide6.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout, 
                                QHBoxLayout, QPushButton, QFileDialog, QDockWidget, 
                                QTextEdit, QLabel, QStackedWidget, QListWidget,
-                               QListWidgetItem, QTabWidget, QSplitter, QLineEdit)
+                               QListWidgetItem, QTabWidget, QSplitter, QLineEdit, QProgressBar,
+                               QTreeWidget, QTreeWidgetItem, QMessageBox, QMenu)
 from PySide6.QtCore import Qt, QSize
 from src.ui.canvas import CADCanvas
 from src.ui.widgets.detail_card import DetailCard
@@ -19,9 +21,9 @@ from src.core.text_associator import TextAssociator
 from src.core.slab_tracer import SlabTracer
 from src.core.database import DatabaseManager
 from src.core.memory import HierarchicalMemory
-from src.core.memory import HierarchicalMemory
 from src.core.beam_walker import BeamWalker
-from src.ai.memory_store import MemoryStore
+from src.core.context_engine import ContextEngine
+from src.core.pillar_analyzer import PillarAnalyzer
 
 # Config logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -38,8 +40,12 @@ class MainWindow(QMainWindow):
         # Estado
         self.db = DatabaseManager() # SQLite persistencia
         self.memory = HierarchicalMemory(self.db)
-            
         self.spatial_index = SpatialIndex()
+
+        # Engines
+        self.context_engine = None
+        self.pillar_analyzer = None
+
         self.dxf_data = None
         self.pillars_found = []
         self.slabs_found = []
@@ -83,6 +89,7 @@ class MainWindow(QMainWindow):
         
         # 0. Botão Gerenciar Projetos (Topo)
         btn_load = QPushButton("📂 Gerenciar Projetos")
+        btn_load.setStyleSheet("padding: 4px; font-size: 11px; height: 18px;")
         btn_load.clicked.connect(self.open_project_manager)
         left_layout.addWidget(btn_load)
 
@@ -127,15 +134,45 @@ class MainWindow(QMainWindow):
         # 2. Botão de Análise (Imediatamente acima do Salvar)
         self.btn_process = QPushButton("🚀 Iniciar Análise Geral")
         self.btn_process.setObjectName("Primary") # Destaque visual
+        self.btn_process.setStyleSheet("padding: 4px; font-size: 11px; height: 18px;")
         self.btn_process.clicked.connect(self.process_pillars_action)
-        # self.btn_process.setEnabled(False) # ANTERIORMENTE DESABILITADO - FIX: HABILITADO
         left_layout.addWidget(self.btn_process)
+
+        # 2b. Botão Gerenciar Memória (Novo)
+        self.btn_mem = QPushButton("📜 Gerenciar Memória IA")
+        self.btn_mem.setStyleSheet("background: #333; color: #aaa; font-size: 11px; margin-top: 2px; height: 16px; padding: 2px;")
+        self.btn_mem.clicked.connect(self.open_training_log)
+        left_layout.addWidget(self.btn_mem)
 
         # 3. Botão Salvar
         self.btn_save = QPushButton("Salvar")
         self.btn_save.setObjectName("Success")
+        self.btn_save.setStyleSheet("padding: 4px; font-size: 11px; height: 18px;")
         self.btn_save.clicked.connect(self.save_project_action)
         left_layout.addWidget(self.btn_save)
+
+        # 4. Barra de Progresso (NOVO)
+        self.progress_container = QWidget()
+        prog_layout = QVBoxLayout(self.progress_container)
+        prog_layout.setContentsMargins(5, 10, 5, 5)
+        
+        self.lbl_progress = QLabel("Aguardando ação...")
+        self.lbl_progress.setStyleSheet("color: #aaa; font-size: 10px;")
+        prog_layout.addWidget(self.lbl_progress)
+        
+        self.progress_bar = QProgressBar()
+        self.progress_bar.setFixedHeight(8)
+        self.progress_bar.setTextVisible(False)
+        self.progress_bar.setStyleSheet("""
+            QProgressBar { border: 1px solid #444; border-radius: 4px; background: #222; }
+            QProgressBar::chunk { background: #0078d4; border-radius: 3px; }
+        """)
+        self.progress_bar.setValue(0)
+        prog_layout.addWidget(self.progress_bar)
+        
+        self.progress_container.hide() # Esconde por padrão
+        left_layout.addStretch()
+        left_layout.addWidget(self.progress_container)
 
         # Estado
         self.interactive_items = {} 
@@ -157,6 +194,40 @@ class MainWindow(QMainWindow):
         # 6. Abas de Listagem Principal (3 Níveis)
         self.main_tabs = QTabWidget()
         
+        # Stylesheet Compacto e Moderno para Abas
+        STYLE_TABS = """
+            QTabWidget::pane { 
+                border: 1px solid #333; 
+                background: #1e1e1e; 
+                border-top: 2px solid #0078d4;
+            }
+            QTabBar::tab {
+                background: #252525;
+                color: #999;
+                padding: 4px 12px;
+                border-top-left-radius: 4px;
+                border-top-right-radius: 4px;
+                border: 1px solid #333;
+                border-bottom: none;
+                margin-right: 2px;
+                font-family: 'Segoe UI', sans-serif;
+                font-size: 11px;
+                min-width: 80px;
+            }
+            QTabBar::tab:selected {
+                background: #0078d4; 
+                color: white;
+                font-weight: bold;
+                border: 1px solid #005a9e;
+                margin-bottom: -1px; /* Connect to pane */
+            }
+            QTabBar::tab:hover {
+                background: #333;
+                color: #ddd;
+            }
+        """
+        self.main_tabs.setStyleSheet(STYLE_TABS)
+        
         # --- Helpers para criar abas com botões específicos ---
         def create_tab_container(list_widget, item_type: str, is_library: bool):
             """Cria container com Lista + Botão Criar + Botões Específicos"""
@@ -170,13 +241,14 @@ class MainWindow(QMainWindow):
             
             # Botão Excluir Item
             btn_delete = QPushButton("🗑️ Excluir Item")
-            btn_delete.setStyleSheet("background-color: #ffcccc; color: #cc0000; border: 1px solid #ff9999;")
+            btn_delete.setStyleSheet("background-color: #ffcccc; color: #cc0000; border: 1px solid #ff9999; padding: 2px; font-size: 10px; height: 18px;")
             btn_delete.clicked.connect(lambda: self.delete_item_action(list_widget, item_type, is_library))
             layout.addWidget(btn_delete)
 
             # Botão Criar Novo Item (padrão)
             scope_name = "Lib" if is_library else "Análise"
             btn_create = QPushButton(f"➕ Criar Novo Item ({scope_name})")
+            btn_create.setStyleSheet("padding: 2px; font-size: 10px; height: 18px;")
             btn_create.clicked.connect(lambda: self.create_manual_item(is_library=is_library))
             layout.addWidget(btn_create)
             
@@ -184,34 +256,41 @@ class MainWindow(QMainWindow):
             if item_type == 'pillar':
                 # 3 Botões para Pilares
                 btn_script_full = QPushButton("📜 Gerar Script Pilar Completo")
+                btn_script_full.setStyleSheet("padding: 2px; font-size: 10px; height: 18px;")
                 btn_script_full.clicked.connect(lambda: self.generate_script_pillar_full(is_library))
                 layout.addWidget(btn_script_full)
                 
                 btn_script_pav = QPushButton("📜 Gerar Script Pavimento Pilar Completo")
+                btn_script_pav.setStyleSheet("padding: 2px; font-size: 10px; height: 18px;")
                 btn_script_pav.clicked.connect(lambda: self.generate_script_pavement_pillar(is_library))
                 layout.addWidget(btn_script_pav)
                 
                 btn_export = QPushButton("💾 Exportar Dados dos Pilares (JSON)")
+                btn_export.setStyleSheet("padding: 2px; font-size: 10px; height: 18px;")
                 btn_export.clicked.connect(lambda: self.export_data_json('pillar', is_library))
                 layout.addWidget(btn_export)
                 
             elif item_type == 'beam':
                 # 3 Botões para Vigas
                 btn_script_set = QPushButton("📜 Gerar Script Conjunto de Viga Completo")
+                btn_script_set.setStyleSheet("padding: 2px; font-size: 10px; height: 18px;")
                 btn_script_set.clicked.connect(lambda: self.generate_script_beam_set(is_library))
                 layout.addWidget(btn_script_set)
 
                 btn_script_pav = QPushButton("📜 Gerar Script Pavimento Vigas Completo")
+                btn_script_pav.setStyleSheet("padding: 2px; font-size: 10px; height: 18px;")
                 btn_script_pav.clicked.connect(lambda: self.generate_script_pavement_beam(is_library))
                 layout.addWidget(btn_script_pav)
 
                 btn_export = QPushButton("💾 Exportar Dados das Vigas (JSON)")
+                btn_export.setStyleSheet("padding: 2px; font-size: 10px; height: 18px;")
                 btn_export.clicked.connect(lambda: self.export_data_json('beam', is_library))
                 layout.addWidget(btn_export)
                 
             elif item_type == 'slab':
                 # 1 Botão para Lajes
                 btn_export = QPushButton("💾 Exportar Dados das Lajes (JSON)")
+                btn_export.setStyleSheet("padding: 2px; font-size: 10px; height: 18px;")
                 btn_export.clicked.connect(lambda: self.export_data_json('slab', is_library))
                 layout.addWidget(btn_export)
 
@@ -223,8 +302,14 @@ class MainWindow(QMainWindow):
         analysis_layout.setContentsMargins(0,0,0,0)
         
         self.tabs_analysis_internal = QTabWidget()
+        self.tabs_analysis_internal.setStyleSheet(STYLE_TABS)
         self.list_pillars = QListWidget()
-        self.list_beams = QListWidget()
+        from PySide6.QtWidgets import QTreeWidget, QTreeWidgetItem
+        self.list_beams = QTreeWidget()
+        self.list_beams.setHeaderLabels(["Item", "Nome", "Status"])
+        self.list_beams.setColumnWidth(0, 60)
+        self.list_beams.setColumnWidth(1, 120)
+        
         self.list_slabs = QListWidget()
         self.list_issues = QListWidget()
         
@@ -251,12 +336,19 @@ class MainWindow(QMainWindow):
         library_layout.setContentsMargins(0,0,0,0)
         
         self.tabs_library_internal = QTabWidget()
+        self.tabs_library_internal.setStyleSheet(STYLE_TABS)
         self.list_pillars_valid = QListWidget()
-        self.list_beams_valid = QListWidget()
+        self.list_beams_valid = QTreeWidget()
+        self.list_beams_valid.setHeaderLabels(["Item", "Nome", "Status"])
+        self.list_beams_valid.setColumnWidth(0, 60)
+        self.list_beams_valid.setColumnWidth(1, 120)
+
         self.list_slabs_valid = QListWidget()
         
         # Conectar Sinais (Validado)
         self.list_pillars_valid.itemClicked.connect(self.on_list_pillar_clicked)
+        self.list_beams_valid.itemClicked.connect(self.on_list_beam_clicked)
+        self.list_slabs_valid.itemClicked.connect(self.on_list_slab_clicked)
         
         # Adicionar Abas com Containers
         self.tabs_library_internal.addTab(create_tab_container(self.list_pillars_valid, 'pillar', True), "Pilares OK")
@@ -318,7 +410,7 @@ class MainWindow(QMainWindow):
         
         # --- DIREITA: DETALHAMENTO ---
         self.right_panel = QStackedWidget()
-        self.right_panel.setMinimumWidth(220)
+        self.right_panel.setMinimumWidth(280)
         
         # Pagina 0: Placeholder
         placeholder = QLabel("Selecione um item para ver detalhes\nou inicie a detecção.")
@@ -335,8 +427,8 @@ class MainWindow(QMainWindow):
         
         self.splitter.addWidget(self.right_panel)
         
-        # Definir proporção inicial: Esquerda (365), Centro (Grande), Direita (220)
-        self.splitter.setSizes([365, 1000, 220])
+        # Definir proporção inicial: Esquerda (365), Centro (Grande), Direita (320)
+        self.splitter.setSizes([365, 1000, 320])
         
         main_layout.addWidget(self.splitter)
 
@@ -354,7 +446,7 @@ class MainWindow(QMainWindow):
         if index == 0:
             self.canvas.set_category_visibility('pillar')
         elif index == 1:
-            self.canvas.set_category_visibility('beam') # Future
+            self.canvas.set_category_visibility('beam')
         elif index == 2:
             self.canvas.set_category_visibility('slab')
         else:
@@ -378,6 +470,7 @@ class MainWindow(QMainWindow):
         self.current_card.focus_requested.connect(self.on_focus_requested)
         self.current_card.research_requested.connect(self.on_research_requested)
         self.current_card.training_requested.connect(self.on_train_requested)
+        self.current_card.element_removed.connect(self.on_element_removed)
         self.current_card.config_updated.connect(self.on_config_updated)
         
         # Log para depuração de links
@@ -386,6 +479,12 @@ class MainWindow(QMainWindow):
         
         self.detail_layout.addWidget(self.current_card)
         self.right_panel.setCurrentIndex(1)
+
+    def on_element_removed(self, data):
+        """Limpa o destaque visual quando um elemento é removido da lista."""
+        self.canvas.clear_beams()
+        self.canvas.clear_overlay()
+        self.log("🗑️ Visual e overlays limpos após remoção de vínculo.")
 
     def on_focus_requested(self, field_id):
         """Tenta focar no objeto vinculado ao campo especificado via COORDENADA DIRETA"""
@@ -490,18 +589,149 @@ class MainWindow(QMainWindow):
                 
                 dim_field = self.current_card.fields.get('viga_fundo_dim')
                 if dim_field:
-                     # Converter unidades se necessário (assumindo DXF unitless, mas exibindo float puro por enquanto)
                      dim_field.setText(f"{max_len:.2f}")
                      self.current_card.item_data['viga_fundo_dim'] = f"{max_len:.2f}"
             
+            # --- OVERHAUL: Lógica Inteligente para novos campos ---
+            # 1. Comprimento Total (Geometria)
+            if '_comprimento_total' in field_id and slot_id == 'geometry':
+                pts = pick_data.get('points', [])
+                if len(pts) >= 2:
+                    length = sum(((pts[i][0]-pts[i+1][0])**2 + (pts[i][1]-pts[i+1][1])**2)**0.5 for i in range(len(pts)-1))
+                    if isinstance(field, QLineEdit):
+                        field.setText(f"{length:.0f}") # Arredondar para inteiro visualmente limpo
+                        # IMPORTANTE: Salvar no item_data para persistência
+                        self.current_card.item_data[field_id] = f"{length:.0f}"
+                        # Injetar no objeto de link original também
+                        pick_data['text'] = f"{length:.0f}"
+
+            # 2. Abertura Pilar (Complex Group)
+            if '_abert_pilar_' in field_id:
+                # Prefix do grupo (Ex: V1_seg_1_abert_pilar_esq)
+                prefix = field_id 
+                
+                if slot_id == 'contact_lines':
+                    # Lógica: 1 linha = Largura. 2 linhas = 1ª Dist, 2ª Largura.
+                    # Vamos pegar TODAS as linhas desse slot
+                    lines = field_slots.get('contact_lines', [])
+                    if lines:
+                        # Calcular comprimento das últimas linhas adicionadas
+                        lens = []
+                        for l in lines:
+                             pts = l.get('points', [])
+                             if len(pts) >= 2:
+                                 d = ((pts[0][0]-pts[1][0])**2 + (pts[0][1]-pts[1][1])**2)**0.5
+                                 lens.append(d)
+                        
+                        f_larg = self.current_card.fields.get(f"{prefix}_larg")
+                        f_dist = self.current_card.fields.get(f"{prefix}_dist")
+                        
+                        if len(lens) == 1 and f_larg:
+                             val = f"{lens[0]:.0f}"
+                             f_larg.setText(val)
+                             self.current_card.item_data[f"{prefix}_larg"] = val
+                        elif len(lens) >= 2:
+                             if f_dist: 
+                                 val_d = f"{lens[-2]:.0f}"
+                                 f_dist.setText(val_d)
+                                 self.current_card.item_data[f"{prefix}_dist"] = val_d
+                             if f_larg: 
+                                 val_l = f"{lens[-1]:.0f}"
+                                 f_larg.setText(val_l)
+                                 self.current_card.item_data[f"{prefix}_larg"] = val_l
+
+                if slot_id in ['cont_tip_esq', 'cont_tip_dir']:
+                    # Lógica: Cruzamento (-4) ou Continuidade (11)
+                    # Simplificação: Se desenhou linha, assume continuidade por enquanto (11).
+                    # Se user quiser 'para', ele desenharia cruzando? O pedido diz:
+                    # "cruzada sobre... definido como 'para' (-4), e se for sobreposta... 'continua' (11)"
+                    # Implementação geométrica completa requer acesso à viga principal. 
+                    # Por hora, vamos setar um valor condicional ou default 11 e user ajusta.
+                    # Mas o prompt do user foi específico: "A condição é... Fazer a conta".
+                    
+                    # Tentar inferir cruzamento
+                    f_diff = self.current_card.fields.get(f"{prefix}_diff")
+                    if f_diff:
+                        # Mock logic: Se bounding box da linha de continuidade cruza bounding box da Viga (Item Data)...
+                        # Muito complexo para calcular aqui sem contexto completo da viga. 
+                        # Vamos usar heurística: Se linha é curta (< 20cm) -> Para (-4). Se longa -> Continua (11).
+                        pts = pick_data.get('points', [])
+                        d = 0
+                        if len(pts) >= 2:
+                            d = ((pts[0][0]-pts[1][0])**2 + (pts[0][1]-pts[1][1])**2)**0.5
+                        
+                        val = "11" if d > 15 else "-4"
+                        f_diff.setText(val)
+                        self.current_card.item_data[f"{prefix}_diff"] = val
+
+            # 3. Abertura Viga (Complex Group)
+            if '_abert_viga_' in field_id:
+                prefix = field_id
+                
+                # Texto Dimensão (20x60)
+                if slot_id == 'arr_dim':
+                    txt = pick_data.get('text', '')
+                    # Regex para separar
+                    nums = [int(n) for n in re.findall(r'\d+', txt)]
+                    if len(nums) >= 2:
+                        # Menor = Largura, Maior = Profundidade
+                        larg = min(nums)
+                        prof = max(nums)
+                        
+                        f_larg = self.current_card.fields.get(f"{prefix}_larg")
+                        f_prof = self.current_card.fields.get(f"{prefix}_prof")
+                        if f_larg: 
+                            f_larg.setText(str(larg))
+                            self.current_card.item_data[f"{prefix}_larg"] = str(larg)
+                        if f_prof: 
+                            f_prof.setText(str(prof))
+                            self.current_card.item_data[f"{prefix}_prof"] = str(prof)
+                
+                # Ajuste Boca (Linha)
+                if slot_id == 'adj_mouth':
+                     pts = pick_data.get('points', [])
+                     if len(pts) >= 2:
+                         length = ((pts[0][0]-pts[1][0])**2 + (pts[0][1]-pts[1][1])**2)**0.5
+                         f_aj = self.current_card.fields.get(f"{prefix}_aj_boca")
+                         if f_aj: 
+                             val = f"{length:.0f}"
+                             f_aj.setText(val)
+                             self.current_card.item_data[f"{prefix}_aj_boca"] = val
+
+                # Ajuste Prof (Linha)
+                if slot_id == 'adj_depth':
+                     pts = pick_data.get('points', [])
+                     if len(pts) >= 2:
+                         length = ((pts[0][0]-pts[1][0])**2 + (pts[0][1]-pts[1][1])**2)**0.5
+                         f_aj = self.current_card.fields.get(f"{prefix}_aj_prof")
+                         if f_aj: 
+                             val = f"{length:.0f}"
+                             f_aj.setText(val)
+                             self.current_card.item_data[f"{prefix}_aj_prof"] = val
+
+            # 4. Lajes Complexas
+            if 'laje' in field_id and not '_geom' in field_id:
+                 if slot_id == 'dim':
+                     # "H=12" -> 12
+                     txt = pick_data.get('text', '')
+                     nums = re.findall(r'\d+', txt)
+                     if nums:
+                         # Campo principal (que é o próprio field_id nas lajes, pois ocultamos input mas LinkManager manda para cá)
+                         # Espera, nas lajes definimos _add_linked_row com hide_input=True.
+                         # O valor deve ir para onde? O user disse: "o valor dos campos da laje é o valor do texto para dimensao"
+                         # Como é hide_input, é um QLabel. Atualizamos o texto do Label?
+                         # Não, se é valor, deveria ser Input. Mas user pediu hide_input=True no passado?
+                         # O request atual diz "o valor dos campos da laje é o valor do texto".
+                         # Vou forçar atualização do QLabel para mostrar "Dim: 12" ou similar.
+                         if isinstance(field, QLabel):
+                             field.setText(f"Dim: {nums[0]}")
+                             # Salvar no item_data raiz para persistência
+                             self.current_card.item_data[field_id] = nums[0]
+
             self.log(f"Vínculo adicionado ao campo {field_id} [Slot: {slot_id}]: {value}")
             
-            # 3. Restaurar a janela de vínculos com os novos dados
-            if hasattr(self.current_card, 'active_link_dlg') and self.current_card.active_link_dlg:
-                self.current_card.active_link_dlg.links = field_slots
-                self.current_card.active_link_dlg.refresh_list()
-                self.current_card.active_link_dlg.show()
-                self.current_card.active_link_dlg.raise_()
+            # 3. Notificar o card para atualizar estilos e o LinkManager embutido (drawer)
+            self.current_card.refresh_validation_styles()
 
             # 4. Limpar o estado de pick para evitar múltiplas execuções acidentais
             if hasattr(self, 'current_pick_field'): delattr(self, 'current_pick_field')
@@ -517,34 +747,34 @@ class MainWindow(QMainWindow):
             self.log(f"Destacando por nome: {data}")
             self.canvas.highlight_element_by_name(data, self.beams_found)
         
-    def on_card_validated(self, updated_data: dict):
-        """Callback quando o usuário valida um pilar no card"""
-        # Atualizar lista em memória
-        for i, p in enumerate(self.pillars_found):
-            if p['id'] == updated_data['id']:
-                self.pillars_found[i] = updated_data
-                break
-        
-        # Salvar DB
-        self.log(f"Pilar {updated_data['name']} validado! Salvando...")
-        self.db.save_pillar(updated_data)
-        
-        # Aprender (Vector DB)
-        if self.memory:
-            try:
-                self.memory.add_memory(updated_data)
-                self.log("Memória vetorial atualizada com novo padrão.")
-            except Exception as e:
-                self.log(f"Erro ao atualizar memória AI: {e}")
-        
-        # Feedback Visual no Canvas
-        self.canvas.update_pillar_status(updated_data['id'], 'validated')
-
     def log(self, message: str):
         self.console.append(f"> {message}")
         logging.info(message)
         sb = self.console.verticalScrollBar()
         sb.setValue(sb.maximum())
+        # Se estivermos com a barra de progresso visível, atualizamos o label secundário
+        if hasattr(self, 'progress_container') and self.progress_container.isVisible():
+            self.lbl_progress.setText(message)
+
+    def show_progress(self, title: str, start_val=0):
+        """Ativa visualização de carregamento na sidebar"""
+        self.progress_container.show()
+        self.progress_bar.setValue(start_val)
+        self.lbl_progress.setText(title)
+        QApplication.processEvents()
+
+    def update_progress(self, val: int, message: str = None):
+        """Atualiza valor da barra e opcionalmente a mensagem"""
+        self.progress_bar.setValue(val)
+        if message: self.lbl_progress.setText(message)
+        # Crucial para manter a UI viva durante o loop pesado
+        if val % 2 == 0: 
+            QApplication.processEvents()
+
+    def hide_progress(self):
+        """Oculta barra após conclusão"""
+        self.progress_bar.setValue(100)
+        self.progress_container.hide()
 
     def load_dxf(self, path=None):
         if not path:
@@ -562,32 +792,14 @@ class MainWindow(QMainWindow):
             
             self.log(f"📊 DXF Parsed: {len(self.dxf_data.get('lines', []))} linhas, {len(self.dxf_data.get('texts', []))} textos.")
             
-            # Enviar para o canvas
+            # 1. Inicializar Lógica (Spatial Index + Engines)
+            self._initialize_project_logic(self.dxf_data)
+            
+            # 2. Enviar para o canvas
             self.canvas.add_dxf_entities(self.dxf_data)
             self.log("🎨 Canvas atualizado.")
-            
             self.canvas.dxf_entities = self.dxf_data.get('texts', [])
-            
-            # Indexação
-            self.log("🔍 Iniciando indexação espacial...")
-            self.spatial_index.clear()
-            for poly in self.dxf_data.get('polylines', []):
-                pts = poly['points']
-                if pts:
-                    bounds = (min(p[0] for p in pts), min(p[1] for p in pts), 
-                                max(p[0] for p in pts), max(p[1] for p in pts))
-                    self.spatial_index.insert(poly, bounds) # Indexar o dict original
-            
-            for line in self.dxf_data.get('lines', []):
-                s, e = line['start'], line['end']
-                bounds = (min(s[0], e[0]), min(s[1], e[1]), max(s[0], e[0]), max(s[1], e[1]))
-                self.spatial_index.insert(line, bounds)
 
-            for txt in self.dxf_data.get('texts', []):
-                p = txt['pos']
-                bounds = (p[0]-5, p[1]-5, p[0]+5, p[1]+5)
-                self.spatial_index.insert(txt, bounds)
-        
         except Exception as e:
             self.log(f"💥 Falha crítica no load_dxf: {e}")
             import traceback
@@ -595,25 +807,141 @@ class MainWindow(QMainWindow):
         
         self.btn_process.setEnabled(True)
 
+    def _initialize_project_logic(self, dxf_data, force_reindex=False):
+        """Centraliza a preparação do contexto lógico. Otimizado com Cache."""
+        if not dxf_data: return
+        
+        # Se já temos os motores no cache para este projeto, e não é force, pulamos
+        if not force_reindex and self.current_project_id in self.loaded_projects_cache:
+            cache = self.loaded_projects_cache[self.current_project_id]
+            if cache.get('context_engine'):
+                self.log("⚡ Usando motores cacheado.")
+                self.context_engine = cache['context_engine']
+                self.pillar_analyzer = cache['pillar_analyzer']
+                self.beam_walker = cache['beam_walker']
+                self.spatial_index = cache['spatial_index']
+                return
+
+        # 1. Indexação Espacial
+        self.log("🔍 Indexando Geometria...")
+        self.show_progress("Indexando DXF...", 10)
+        self.spatial_index.clear()
+        
+        polys = dxf_data.get('polylines', [])
+        lines = dxf_data.get('lines', [])
+        texts = dxf_data.get('texts', [])
+        total = len(polys) + len(lines) + len(texts)
+        count = 0
+
+        for poly in polys:
+            pts = poly['points']
+            if pts:
+                bounds = (min(p[0] for p in pts), min(p[1] for p in pts), 
+                          max(p[0] for p in pts), max(p[1] for p in pts))
+                self.spatial_index.insert(poly, bounds)
+            count += 1
+            if count % 100 == 0: self.update_progress(10 + int((count/total)*40))
+        
+        for line in lines:
+            s, e = line['start'], line['end']
+            bounds = (min(s[0], e[0]), min(s[1], e[1]), max(s[0], e[0]), max(s[1], e[1]))
+            self.spatial_index.insert(line, bounds)
+            count += 1
+            if count % 100 == 0: self.update_progress(10 + int((count/total)*40))
+
+        for txt in texts:
+            p = txt['pos']
+            bounds = (p[0]-5, p[1]-5, p[0]+5, p[1]+5)
+            self.spatial_index.insert(txt, bounds)
+            count += 1
+            if count % 100 == 0: self.update_progress(10 + int((count/total)*40))
+            
+        # 2. Motores de Inteligência
+        self.log("⚙️ Inicializando Engines...")
+        self.context_engine = ContextEngine(dxf_data, self.spatial_index, self.memory)
+        self.pillar_analyzer = PillarAnalyzer(self.context_engine)
+        self.beam_walker = BeamWalker(self.spatial_index)
+        
+        # Salvar no Cache
+        if self.current_project_id in self.loaded_projects_cache:
+            cache = self.loaded_projects_cache[self.current_project_id]
+            cache['context_engine'] = self.context_engine
+            cache['pillar_analyzer'] = self.pillar_analyzer
+            cache['beam_walker'] = self.beam_walker
+            cache['spatial_index'] = self.spatial_index
+
+        self.hide_progress()
+        self.log("✅ Sistema de inteligência pronto.")
+
+    def _extract_float(self, text):
+        """Extrai o primeiro número float de uma string."""
+        if not text: return None
+        try:
+            m = re.search(r'[-+]?\d*[.,]\d+|\d+', str(text).replace(',', '.'))
+            return float(m.group()) if m else None
+        except: return None
+
     def process_pillars_action(self):
         if not self.dxf_data: return
         import uuid # Garantir import
         
-        # --- NOVO: Confirmação de Sobrescrita ---
+        # --- Diálogo de Escolha de Modo ---
+        incremental = False
+        
         if self.pillars_found or (hasattr(self, 'beams_found') and self.beams_found) or self.slabs_found:
              from PySide6.QtWidgets import QMessageBox
-             res = QMessageBox.warning(
-                 self, "Reanalisar Todo o Projeto?",
-                 "⚠️ ATENÇÃO: Uma análise já foi realizada.\n\n"
-                 "Deseja iniciar uma NOVA análise geral? Isso irá SOBREESCREVER todos os itens atuais que não foram validados na biblioteca.\n\n"
-                 "Para manter o que já foi interpretado, use o botão 'Salvar' e valide os itens um a um.",
-                 QMessageBox.Yes | QMessageBox.No
-             )
-             if res == QMessageBox.No:
+             msg = QMessageBox(self)
+             msg.setWindowTitle("Opções de Análise")
+             msg.setText("Uma análise já foi realizada. Como deseja prosseguir?")
+             msg.setInformativeText("Escolha 'Incremental' para MANTER itens validados/editados ou 'Completa' para APAGAR tudo e refazer.")
+             
+             # Botões Personalizados
+             btn_inc = msg.addButton("Análise Incremental (Preservar)", QMessageBox.ActionRole)
+             btn_full = msg.addButton("Análise Completa (Limpar Tudo)", QMessageBox.ActionRole)
+             btn_cancel = msg.addButton("Cancelar", QMessageBox.RejectRole)
+             
+             msg.exec()
+             
+             if msg.clickedButton() == btn_cancel:
                  return
+             elif msg.clickedButton() == btn_inc:
+                 incremental = True
+             elif msg.clickedButton() == btn_full:
+                 incremental = False
+        
+        # --- Snapshot de Dados Validados (Modo Incremental) ---
+        preserved_pillars = {}
+        preserved_beams = {}
+        preserved_slabs = {}
+        
+        if incremental:
+             # Snapshot Pilares
+             for p in self.pillars_found:
+                 if p.get('validated_fields') or p.get('links'):
+                     preserved_pillars[p.get('name')] = p
+                     
+             # Snapshot Vigas
+             if hasattr(self, 'beams_found'):
+                 for b in self.beams_found:
+                     if b.get('validated_fields') or b.get('links'):
+                         preserved_beams[b.get('name')] = b
+                         
+             # Snapshot Lajes
+             if hasattr(self, 'slabs_found'):
+                 for s in self.slabs_found:
+                     if s.get('validated_fields') or s.get('links'):
+                         preserved_slabs[s.get('name')] = s
+                         
+             self.log(f"🛡️ Modo Incremental: Preservando {len(preserved_pillars)} pilares, {len(preserved_beams)} vigas, {len(preserved_slabs)} lajes.")
 
         self.log("Iniciando varredura geométrica e análise de vínculos...")
         
+        # --- NOVO: Garantir que motores estão vivos se tiver DXF ---
+        if not self.pillar_analyzer or not self.context_engine:
+             self.log("⚠️ Motores não encontrados. Inicialização forçada...")
+             self._initialize_project_logic(self.dxf_data)
+
+        self.show_progress("Iniciando Análise Geral...", 5)
         # Limpar Listas
         self.list_pillars.clear()
         self.list_beams.clear()
@@ -623,7 +951,7 @@ class MainWindow(QMainWindow):
         texts = self.dxf_data.get('texts', [])
         lines = self.dxf_data.get('lines', [])
         
-        # 1. Motores
+        # 1. Motores - Vigas
         from src.core.beam_tracer import BeamTracer
         beam_tracer = BeamTracer(self.spatial_index)
         all_lines_and_polys = []
@@ -631,29 +959,48 @@ class MainWindow(QMainWindow):
             if 'points' in l: all_lines_and_polys.append(l)
             elif 'start' in l: all_lines_and_polys.append({'points': [l['start'], l['end']]})
 
+        self.update_progress(10, "Buscando Vigas...")
         self.beams_found = beam_tracer.detect_beams(texts, all_lines_and_polys)
+        # NATURAL SORT
+        import re
+        def nat_key(x):
+            return [int(t) if t.isdigit() else t.lower() for t in re.split(r'(\d+)', x.get('name', ''))]
+        self.beams_found.sort(key=nat_key)
+        
         for i, b in enumerate(self.beams_found):
-            # Dados de listagem: Numero Item - nome - quantiade de segmentos
             b_unique_id = f"{self.current_project_id}_b_{i+1}" if self.current_project_id else str(uuid.uuid4())
-            b.update({
-                'id': b_unique_id,
-                'id_item': f"{i+1:02}", # Unificado para Ficha Técnica
-                'id_num': i+1,
-                'type': 'Viga',
-                'seg_a': 1, # Será calculado no walker
-                'seg_b': 1,
-                'links': {
-                    'name': {'label': [{'text': b['name'], 'type': 'text', 'pos': b.get('pos', (0,0)), 'role': 'Identificador Viga'}]}
-                }
-            })
-            item_text = f"{b['id_item']} | {b['name']} | SegA: {b['seg_a']} | SegB: {b['seg_b']}"
-            item = QListWidgetItem(item_text)
-            item.setData(Qt.UserRole, b_unique_id)
-            self.list_beams.addItem(item)
+            b['id'] = b_unique_id
+            b['id_item'] = f"{i+1:02}"
+            b['id_num'] = i+1
+            b['project_id'] = self.current_project_id
+            
+            # Processamento Inteligente Inicial
+            self._process_beam_intelligent(b)
+
+            # RESTAURAÇÃO (Incremental)
+            if incremental and b['name'] in preserved_beams:
+                 old = preserved_beams[b['name']]
+                 # Restaura status
+                 b['is_validated'] = old.get('is_validated', False)
+                 # Restaura links incondicionalmente
+                 b['links'] = old.get('links', {})
+                 b['confidence_map'] = old.get('confidence_map', {})
+                 
+                 vf = old.get('validated_fields', [])
+                 if vf:
+                     b['validated_fields'] = vf
+                     for f in vf: 
+                         if f in old: b[f] = old[f]
+                 print(f"DEBUG: Viga {b['name']} restaurada.")
+
+        # 1.0b Finalizar Lista de Vigas Hierárquica
+        self._populate_beam_tree(self.list_beams, self.beams_found)
 
         # 1.1 Detect Slabs (Lajes)
+        self.update_progress(30, "Mapeando Lajes...")
         slab_tracer = SlabTracer(self.spatial_index)
         self.slabs_found = slab_tracer.detect_slabs_from_texts(texts)
+        self.slabs_found.sort(key=nat_key)
         self.log(f"🔎 Lajes detectadas: {len(self.slabs_found)} (Busca por textos L#)")
         
         for i, s in enumerate(self.slabs_found):
@@ -661,21 +1008,48 @@ class MainWindow(QMainWindow):
              s['id'] = s_unique_id
              s['id_item'] = f"{i+1:02}"
              s['project_id'] = self.current_project_id
+             s['type'] = 'Laje'
+             s['laje_name'] = s['name']
+             
+             # RESTAURAÇÃO (Incremental)
+             if incremental and s['name'] in preserved_slabs:
+                 old = preserved_slabs[s['name']]
+                 # Restaura status
+                 s['is_validated'] = old.get('is_validated', False)
+                 # Restaura links
+                 s['links'] = old.get('links', {})
+                 
+                 vf = old.get('validated_fields', [])
+                 if vf:
+                     s['validated_fields'] = vf
+                     for f in vf: 
+                         if f in old: s[f] = old[f]
+                 print(f"DEBUG: Laje {s['name']} restaurada.")
              
              item_text = f"{s['id_item']} | {s['name']}"
+             if s.get('is_validated'):
+                 item_text += " ✅"
+
              item = QListWidgetItem(item_text)
+             if s.get('is_validated'):
+                 item.setForeground(Qt.green)
+
              item.setData(Qt.UserRole, s_unique_id)
              self.list_slabs.addItem(item)
 
         walker = BeamWalker(self.spatial_index)
         from shapely.geometry import Polygon
         self.pillars_found = []
+        temp_pillars = []
         
         from src.core.perspective_mapper import PillarPerspectiveMapper
         # 2. Processar Pilares
+        self.update_progress(50, "Analisando Pilares...")
+        total_p = len(polylines)
+        
         for i, p_item in enumerate(polylines):
+            if i % 10 == 0: self.update_progress(50 + int((i/total_p)*45))
             poly_points = p_item['points']
-            # Remover duplicatas mantendo ordem e garantir pelo menos 3 pontos únicos
             unique_points = []
             for pt in poly_points:
                 if not unique_points or pt != unique_points[-1]:
@@ -694,22 +1068,17 @@ class MainWindow(QMainWindow):
                     poly_shape = max(poly_shape.geoms, key=lambda g: g.area)
                 
                 if poly_shape.geom_type != 'Polygon':
-                    logging.info(f"Pilar {i} ignorado: geometria degenerada ({poly_shape.geom_type})")
                     continue
 
-                # Nome Real e Formato por Perspectiva
-                p_ent = self._find_nearest_text_ent(unique_points, "P")
+                # Nome Real e Formato por Perspectiva (VIA ENGINE)
+                p_ent = self.context_engine.find_nearest_text(unique_points, "P") if self.context_engine else None
                 p_name = p_ent['text'] if p_ent else None
                 pillar_name = p_name or f"P{i+1}"
+                
+                from src.core.perspective_mapper import PillarPerspectiveMapper
                 shape_type, orient = PillarPerspectiveMapper.identify_shape(unique_points)
                 
-                # Gerar ID único vinculado ao projeto para evitar colisão no DB
-                # Se não tiver projeto (modo 'sandboxing'), usa UUID
-                unique_id = f"{self.current_project_id}_p_{i+1}" if self.current_project_id else str(uuid.uuid4())
-                
                 p_data = {
-                    'id': unique_id,
-                    'id_item': f"{i+1:02}",
                     'name': pillar_name,
                     'type': 'Pilar',
                     'pos': (poly_shape.centroid.x, poly_shape.centroid.y), # Centro Real
@@ -724,506 +1093,82 @@ class MainWindow(QMainWindow):
                     'material': 'C30', 'level': 'Pavimento 1'
                 }
                 
-                # --- INTERPRETAÇÃO AUTOMÁTICA DE VIZINHANÇA ---
-                self._interpret_pillar_details(p_data)
+                # Análise Contextual (Initial)
+                if self.pillar_analyzer:
+                    self.pillar_analyzer.analyze(p_data)
                 
-                # SANITY CHECK: Validar se a interpretação faz sentido físico
                 p_data['issues'] = self._run_sanity_checks(p_data)
                 
-                self.pillars_found.append(p_data)
-                
-                # Listagem: Numero Item - Nome - Dim - Formato
-                item_text = f"{p_data['id_item']} | {pillar_name} | {p_data['dim']} | {shape_type}"
-                item = QListWidgetItem(item_text)
-                
-                # Cores por Confiança/Issue
-                conf_map = p_data.get('confidence_map', {})
-                avg_conf = sum(conf_map.values()) / len(conf_map) if conf_map else 0.5
-                
-                if p_data['issues']:
-                    item.setForeground(Qt.red)
-                    self._add_to_issues_list(p_data, avg_conf)
-                elif avg_conf < 0.6:
-                    item.setForeground(Qt.yellow)
-                    self._add_to_issues_list(p_data, avg_conf)
-
-                item.setData(Qt.UserRole, unique_id) # Sincronizado com p_data['id']
-                self.list_pillars.addItem(item)
+                temp_pillars.append(p_data)
                 
             except Exception as e:
-                logging.error(f"Erro no pilar {i}: {e}")
+                self.log(f"⚠️ Erro no pilar {i}: {e}")
 
-        # 3. Lajes
-        tracer = SlabTracer(self.spatial_index)
-        self.slabs_found = []
-        for txt in texts:
-            content = str(txt.get('text', '')).upper().strip()
-            if content.startswith('L') and any(c.isdigit() for c in content):
-                poly = tracer.trace_boundary(txt['pos'], 1200.0)
-                if poly and poly.area > 500:
-                    s_unique_id = f"{self.current_project_id}_s_{len(self.slabs_found)+1}" if self.current_project_id else str(uuid.uuid4())
-                    s_data = {
-                        'id': s_unique_id, 
-                        'id_item': f"{len(self.slabs_found)+1:02}",
-                        'name': content, 'type': 'Laje',
-                        'area': poly.area/10000.0, 'points': list(poly.exterior.coords),
-                        'h': '12', 'q_rev': '1.5', 'q_util': '2.0', 'material': 'C30', 'level': 'Pavimento 1', 'dim': 'm²',
-                        'links': {
-                            'name': [{'text': content, 'type': 'text', 'pos': txt['pos']}]
-                        }
-                    }
-                    self.slabs_found.append(s_data)
-                    item = QListWidgetItem(f"{s_data['id_item']} | {content}")
-                    item.setData(Qt.UserRole, s_unique_id)
-                    self.list_slabs.addItem(item)
+        # ORDENAR PILARES
+        temp_pillars.sort(key=nat_key)
+        
+        for i, p_data in enumerate(temp_pillars):
+            # Atribuir números sequenciais após ordenação
+            unique_id = f"{self.current_project_id}_p_{i+1}" if self.current_project_id else str(uuid.uuid4())
+            p_data['id'] = unique_id
+            p_data['id_item'] = f"{i+1:02}"
+            
+            # RESTAURAÇÃO (Incremental)
+            if incremental and p_data['name'] in preserved_pillars:
+                 old = preserved_pillars[p_data['name']]
+                 # Restaura status de validação
+                 is_val = old.get('is_validated', False)
+                 p_data['is_validated'] = is_val
+                 
+                 # Restaura links e dados complexos
+                 p_data['links'] = old.get('links', {})
+                 p_data['sides_data'] = old.get('sides_data', {})
+                 p_data['beams_visual'] = old.get('beams_visual', [])
+                 
+                 vf = old.get('validated_fields', [])
+                 if vf:
+                     p_data['validated_fields'] = vf
+                     for f in vf: 
+                         if f in old: p_data[f] = old[f]
+                 print(f"DEBUG: Pilar {p_data['name']} restaurado.")
 
+            self.pillars_found.append(p_data)
+            
+            # Listagem: Numero Item - Nome - Dim - Formato (AGORA RESTAURADOS)
+            item_text = f"{p_data['id_item']} | {p_data['name']} | {p_data['dim']} | {p_data['format']}"
+            
+            # Se já estava validado, adiciona check
+            if p_data.get('is_validated'):
+                item_text += " ✅"
+            
+            item = QListWidgetItem(item_text)
+            
+            conf_map = p_data.get('confidence_map', {})
+            avg_conf = sum(conf_map.values()) / len(conf_map) if conf_map else 0.5
+            
+            if p_data.get('is_validated'):
+                 item.setForeground(Qt.green)
+            elif p_data['issues']:
+                item.setForeground(Qt.red)
+                self._add_to_issues_list(p_data, avg_conf)
+            elif avg_conf < 0.6:
+                item.setForeground(Qt.yellow)
+                self._add_to_issues_list(p_data, avg_conf)
+
+            item.setData(Qt.UserRole, unique_id) 
+            self.list_pillars.addItem(item)
+
+        # 3. Desenho no Canvas e UI
+        self.update_progress(95, "Finalizando...")
+        self._update_all_lists_ui()
         self.canvas.draw_interactive_pillars(self.pillars_found)
         self.canvas.draw_slabs(self.slabs_found)
+        self.canvas.draw_beams(self.beams_found)
+        self.hide_progress()
         self.log(f"Análise finalizada: {len(self.pillars_found)} Pilares, {len(self.beams_found)} Vigas e {len(self.slabs_found)} Lajes.")
         self.btn_save.setEnabled(True)
 
-    def _interpret_pillar_details(self, p_data):
-        """Varre a vizinhança para preencher campos automaticamente usando a lógica unificada de busca."""
-        sides_data = p_data['sides_data']
-        if 'links' not in p_data: p_data['links'] = {}
-        links = p_data['links']
-        topo_pilar = None
-        all_levels = []
-        used_training_count = 0
-
-        # Determinamos o "tipo" do campo para isolar o treinamento
-        def get_cat(fid):
-            if 'name' in fid: return 'pillar_name'
-            if 'dim' in fid: return 'pillar_dim'
-            if '_l1_n' in fid: return 'slab_name'
-            if '_l1_h' in fid: return 'slab_thick'
-            if '_l1_v' in fid: return 'slab_level'
-            if '_v_esq_n' in fid: return 'beam_name'
-            if '_v_esq_d' in fid: return 'beam_dim'
-            return 'general'
-
-        if 'confidence_map' not in p_data: p_data['confidence_map'] = {}
-        conf_map = p_data['confidence_map']
-
-        # 0. Identificador do Pilar (Nome)
-        res_name = self._perform_contextual_search('name', 'label', p_data, category=get_cat('name'))
-        if res_name['found_ent']:
-            links['name'] = {'label': res_name['links']}
-            conf_map['name'] = res_name['confidence']
-            links['pilar_segs'] = {'segments': [{'text': f"Formato {p_data['format']}", 'type': 'line', 'points': p_data['points'], 'role': 'Base Geométrica'}]}
-            if res_name['used_training']: used_training_count += 1
-
-        # 1. Dimensão
-        res_dim = self._perform_contextual_search('dim', 'label', p_data, category=get_cat('dim'))
-        if res_dim['found_ent']:
-            p_data['dim'] = res_dim['found_ent']['text']
-            links['dim'] = {'label': res_dim['links']}
-            conf_map['dim'] = res_dim['confidence']
-            if res_dim['used_training']: used_training_count += 1
-            
-        # 2. Topo do Pilar (Nível)
-        res_topo = self._perform_contextual_search('topo_nivel', 'level', p_data, category='pilar_level')
-        if res_topo['found_ent']:
-            p_data['topo_nivel'] = res_topo['found_ent']['text']
-            conf_map['topo_nivel'] = res_topo['confidence']
-            topo_pilar = self._extract_float(p_data['topo_nivel'])
-            if topo_pilar is not None: all_levels.append(topo_pilar)
-            if res_topo['used_training']: used_training_count += 1
-
-        found_links_count = 0
-        for side, content in sides_data.items():
-            # Lajes: Nome
-            f_id_n = f'p_s{side}_l1_n'
-            res_l_n = self._perform_contextual_search(f_id_n, 'label', p_data, side=side, category=get_cat(f_id_n))
-            
-            if res_l_n['found_ent']:
-                content['l1_n'] = res_l_n['found_ent']['text']
-                links[f_id_n] = {'label': res_l_n['links']}
-                conf_map[f_id_n] = res_l_n['confidence']
-                found_links_count += 1
-                if res_l_n['used_training']: used_training_count += 1
-                
-                # Espessura (Busca focada no texto da laje)
-                p_laje_data = p_data.copy()
-                p_laje_data['pos'] = res_l_n['found_ent']['pos']
-                f_id_h = f'p_s{side}_l1_h'
-                res_l_h = self._perform_contextual_search(f_id_h, 'thick', p_laje_data, initial_radius=300.0, side=side, category=get_cat(f_id_h))
-                if res_l_h['found_ent']:
-                    val_h = self._extract_float(res_l_h['found_ent']['text'])
-                    content['l1_h'] = str(val_h) if val_h is not None else res_l_h['found_ent']['text']
-                    links[f_id_h] = {'thick': res_l_h['links']}
-                    conf_map[f_id_h] = res_l_h['confidence']
-                    found_links_count += 1
-                    if res_l_h['used_training']: used_training_count += 1
-
-                # Nível da Laje
-                f_id_lv = f'p_s{side}_l1_v'
-                res_l_v = self._perform_contextual_search(f_id_lv, 'level', p_data, side=side, category=get_cat(f_id_lv))
-                if res_l_v['found_ent']:
-                    content['l1_v'] = res_l_v['found_ent']['text']
-                    links[f_id_lv] = {'level': res_l_v['links']}
-                    conf_map[f_id_lv] = res_l_v['confidence']
-                    v_val = self._extract_float(content['l1_v'])
-                    if v_val is not None: all_levels.append(v_val)
-                    found_links_count += 1
-                    if res_l_v['used_training']: used_training_count += 1
-            else:
-                # Vazio (X)
-                res_void = self._perform_contextual_search(f_id_n, 'void_x', p_data, side=side, category='void_x')
-                if res_void['found_ent']:
-                    content['l1_n'] = "SEM LAJE"
-                    links[f_id_n] = {'void_x': res_void['links']}
-                    conf_map[f_id_n] = res_void['confidence']
-                    found_links_count += 1
-                    if res_void['used_training']: used_training_count += 1
-                    
-            # Vigas
-            f_id_vn = f'p_s{side}_v_esq_n'
-            res_v_n = self._perform_contextual_search(f_id_vn, 'label', p_data, side=side, category=get_cat(f_id_vn))
-            if res_v_n['found_ent']:
-                content['v_esq_n'] = res_v_n['found_ent']['text']
-                links[f_id_vn] = {'label': res_v_n['links']}
-                conf_map[f_id_vn] = res_v_n['confidence']
-                found_links_count += 1
-                if res_v_n['used_training']: used_training_count += 1
-
-                # Dimensão da Viga
-                f_id_vd = f'p_s{side}_v_esq_d'
-                res_v_d = self._perform_contextual_search(f_id_vd, 'dim', p_data, side=side, category=get_cat(f_id_vd))
-                if res_v_d['found_ent']:
-                    content['v_esq_d'] = res_v_d['found_ent']['text']
-                    links[f_id_vd] = {'dim': res_v_d['links']}
-                    conf_map[f_id_vd] = res_v_d['confidence']
-                    found_links_count += 1
-                    if res_v_d['used_training']: used_training_count += 1
-                    import re
-                    nums = [int(n) for n in re.findall(r'\d+', content['v_esq_d'])]
-                    if nums: content['v_esq_prof'] = str(max(nums))
-                
-                # Nível da Viga
-                f_id_vv = f'p_s{side}_v_esq_v'
-                res_v_v = self._perform_contextual_search(f_id_vv, 'level', p_data, side=side, category='beam_level')
-                if res_v_v['found_ent']:
-                    v_val = self._extract_float(res_v_v['found_ent']['text'])
-                    if v_val is not None:
-                        content['v_esq_v'] = res_v_v['found_ent']['text']
-                        links[f_id_vv] = {'level': res_v_v['links']}
-                        conf_map[f_id_vv] = res_v_v['confidence']
-                        all_levels.append(v_val)
-                        if topo_pilar is not None:
-                            diff = topo_pilar - v_val
-                            content['v_esq_diff_v'] = f"{diff:.2f}"
-                        if res_v_v['used_training']: used_training_count += 1
-
-        self.log(f"Pilar {p_data.get('name')}: {found_links_count} vínculos ({used_training_count} via mem vetorial).")
-
-        # 3. Lógica de Posição Automática (Topo / Fundo / Centro)
-        if all_levels:
-            max_lv = max(all_levels)
-            min_lv = min(all_levels)
-            for side, content in sides_data.items():
-                if 'l1_v' in content:
-                    curr = self._extract_float(content['l1_v'])
-                    if curr is not None:
-                        if abs(curr - max_lv) < 0.05: content['l1_p'] = "Topo"
-                        elif abs(curr - min_lv) < 0.05: content['l1_p'] = "Fundo"
-                        else:
-                            content['l1_p'] = "Centro"
-                            content['l1_dist_c'] = f"{max_lv - curr:.2f}"
-        
-        self.log(f"Pilar {p_data.get('name')}: {found_links_count} vínculos automáticos mapeados.")
-
-    def _find_nearest_text_pattern_ent(self, points, pattern, radius=500.0, side=None):
-        """Busca entidade de texto via regex próximo à geometria, com filtro direcional opcional."""
-        import re, math
-        if not points or not self.dxf_data: return None
-        cx = sum(p[0] for p in points) / len(points)
-        cy = sum(p[1] for p in points) / len(points)
-        
-        texts = self.dxf_data.get('texts', [])
-        best_dist = radius
-        best_ent = None
-        
-        for txt in texts:
-            # Filtro Direcional (Setores)
-            if side:
-                tx, ty = txt['pos']
-                angle = math.degrees(math.atan2(ty - cy, tx - cx))
-                if side == "A" and not (45 <= angle <= 135): continue
-                if side == "B" and not (-45 <= angle <= 45): continue
-                if side == "C" and not (-135 <= angle <= -45): continue
-                if side == "D" and not (angle > 135 or angle < -135): continue
-                if side == "Superior" and not (ty > cy): continue
-                if side == "Inferior" and not (ty <= cy): continue
-
-            content = str(txt.get('text', '')).upper().strip()
-            match = re.search(pattern, content)
-            if match:
-                tx, ty = txt['pos']
-                dist = ((cx - tx)**2 + (cy - ty)**2)**0.5
-                if dist < best_dist:
-                    best_dist = dist
-                    best_ent = txt
-        return best_ent
-
-    def _generate_pilar_dna(self, p_data):
-        """Gera uma assinatura geométrica (DNA) para comparação semântica."""
-        # 1. Dados Básicos
-        area = p_data.get('area', 1.0)
-        points = p_data.get('points', [])
-        
-        # 2. Complexidade Período/Area
-        perim = 0
-        for i in range(len(points)):
-            p1, p2 = points[i], points[(i+1)%len(points)]
-            perim += ((p1[0]-p2[0])**2 + (p1[1]-p2[1])**2)**0.5
-        complexity = perim / (area**0.5) if area > 0 else 0
-        
-        # 3. Vizinhança (Densidade)
-        center = p_data.get('pos', (0,0))
-        radius = 1500.0
-        bbox = (center[0]-radius, center[1]-radius, center[0]+radius, center[1]+radius)
-        nearby = self.spatial_index.query_bbox(bbox)
-        
-        num_texts = sum(1 for item in nearby if 'text' in item)
-        num_lines = sum(1 for item in nearby if 'start' in item)
-        
-        # DNA Vector: [Area, Densidade Textos, Complexidade, Perímetro]
-        return [float(area), float(num_texts), float(complexity), float(perim)]
-
-    def _extract_float(self, text):
-        """Extrai o primeiro número (float) de uma string de forma segura."""
-        import re
-        if not text: return None
-        # Limpa espaços e substitui vírgula por ponto
-        clean_text = text.replace(' ', '').replace(',', '.')
-        match = re.search(r"[+-]?\d+\.?\d*", clean_text)
-        if match:
-            try:
-                return float(match.group())
-            except: return None
-        return None
-
-    def _find_vazio_x_lines(self, points, radius=800.0, side=None):
-        """Busca linhas que podem formar um 'X' (vazio) no setor"""
-        import math
-        if not points: return []
-        
-        cx = sum(p[0] for p in points) / len(points)
-        cy = sum(p[1] for p in points) / len(points)
-        
-        bbox = (cx - radius, cy - radius, cx + radius, cy + radius)
-        nearby = self.spatial_index.query_bbox(bbox)
-        
-        found = []
-        for item in nearby:
-            if 'start' in item and 'end' in item:
-                # Centro da linha
-                sx, sy = item['start']
-                ex, ey = item['end']
-                mx, my = (sx+ex)/2, (sy+ey)/2
-                
-                if side:
-                    angle = math.degrees(math.atan2(my - cy, mx - cx))
-                    if side == "A" and not (45 <= angle <= 135): continue
-                    if side == "B" and not (-45 <= angle <= 45): continue
-                    if side == "C" and not (-135 <= angle <= -45): continue
-                    if side == "D" and not (angle > 135 or angle < -135): continue
-                
-                # Opcional: Filtrar por comprimento ou ângulo do X (aprox 45/135)
-                found.append(item)
-        return found
-
-    def _perform_contextual_search(self, field_id, slot_id, item_data, initial_radius=800.0, side=None, category=None):
-        """
-        Lógica unificada de busca que integra Treinamento (Memória Vetorial) + Geometria + DNA.
-        """
-        role = category if category else f"{field_id}_{slot_id}"
-        points = item_data['points']
-        center_p = item_data.get('pos')
-        if not center_p:
-            center_p = (sum(p[0] for p in points)/len(points), sum(p[1] for p in points)/len(points))
-            
-        pilar_type = item_data.get('type', 'UNKNOWN')
-        
-        # Gerar DNA para busca semântica
-        current_dna = self._generate_pilar_dna(item_data)
-        training_ctx = self.memory.get_training_context(role, pilar_type, current_dna=current_dna) if self.memory else None
-        
-        base_pos = center_p # Posição original do pilar
-        search_center = center_p
-        search_radius = initial_radius
-        confidence = 0.5 # Base
-        used_training = False
-        debug_info = ""
-        
-        if training_ctx and training_ctx.get('samples', 0) > 0:
-             offset_x, offset_y = training_ctx['avg_rel_pos']
-             used_training = True
-             sim = training_ctx.get('top_similarity', 0.5)
-             debug_info = f"IA: Usando padrão aprendido (Conf: {sim*100:.0f}%, n={training_ctx['samples']})"
-             search_center = (center_p[0] + offset_x, center_p[1] + offset_y)
-             # Não restringimos o raio (mantemos original) para permitir tolerância ao offset
-        
-        blocklist = training_ctx.get('blocklist', []) if training_ctx else []
-
-        slot_cfg = self._get_slot_config(field_id, slot_id)
-        prompt = slot_cfg.get('prompt', '')
-        
-        import re
-        prefix_match = re.search(r'["\']([PLV])["\']', prompt)
-        regex_match = re.search(r'regex\s*[:=]\s*(.+)', prompt, re.I)
-        
-        found_ent = None
-        new_links_list = []
-        
-        # Execução da Busca
-        if slot_id == 'void_x':
-            side_code = side or (field_id.split('_')[1][1:] if '_' in field_id else None)
-            v_lines = self._find_vazio_x_lines([search_center], search_radius, side=side_code)
-            if v_lines:
-                for vl in v_lines[:2]:
-                    new_links_list.append({'type': 'line', 'points': [vl['start'], vl['end']], 'text': 'Vazio (X)', 'role': 'Vazio (X)'})
-                found_ent = {'text': 'SEM LAJE'}
-                confidence += 0.2
-        else:
-            # 3. Executar Busca Espacial
-            found_ent = None
-            
-            # Tenta busca com offset e raio padrão
-            if regex_match:
-                pattern = regex_match.group(1).strip()
-                found_ent = self._find_nearest_text_pattern_ent([search_center], pattern, search_radius, side=side, ref_angle=base_pos, blocklist=blocklist)
-            elif prefix_match:
-                prefix = prefix_match.group(1)
-                found_ent = self._find_nearest_text_ent([search_center], prefix, search_radius, side=side, ref_angle=base_pos, blocklist=blocklist)
-            else:
-                # Se for dimensão, espessura ou nível, e não tem prefixo explícito, aceita qualquer coisa
-                prefix = None
-                if 'name' in field_id or '_v_esq_n' in field_id or '_l1_n' in field_id:
-                     prefix = 'V' if 'viga' in slot_id or '_v_' in field_id else ('L' if '_l1_' in field_id else 'P')
-                
-                found_ent = self._find_nearest_text_ent([search_center], prefix, search_radius, side=side, ref_angle=base_pos, blocklist=blocklist)
-            
-            # FALLBACK: Se falhou e está usando treino, tenta no raio original sem offset (IA pode estar enviesada)
-            if not found_ent and used_training:
-                if regex_match:
-                    pattern = regex_match.group(1).strip()
-                    found_ent = self._find_nearest_text_pattern_ent([base_pos], pattern, initial_radius * 1.5, side=side, ref_angle=base_pos, blocklist=blocklist)
-                elif prefix_match:
-                    prefix = prefix_match.group(1)
-                    found_ent = self._find_nearest_text_ent([base_pos], prefix, initial_radius * 1.5, side=side, ref_angle=base_pos, blocklist=blocklist)
-                else:
-                    prefix = None
-                    if 'name' in field_id or '_v_esq_n' in field_id or '_l1_n' in field_id:
-                        prefix = 'V' if 'viga' in slot_id or '_v_' in field_id else ('L' if '_l1_' in field_id else 'P')
-                    
-                    found_ent = self._find_nearest_text_ent([base_pos], prefix, initial_radius * 1.5, side=side, ref_angle=base_pos, blocklist=blocklist)
-                if found_ent:
-                    debug_info += " (Recuperado via Fallback sem offset)"
-            
-            if found_ent:
-                new_links_list.append({'text': found_ent['text'], 'type': 'text', 'pos': found_ent['pos'], 'role': slot_id})
-                confidence += 0.2
-            else:
-                confidence = 0.0
-
-        return {
-            'found_ent': found_ent,
-            'links': new_links_list,
-            'confidence': min(1.0, confidence),
-            'used_training': training_ctx is not None,
-            'debug': f"C:{confidence:.2f} | R:{search_radius:.0f} | Role:{role}"
-        }
-
-    def _find_nearest_text_ent(self, points, prefix, radius=400.0, side=None, ref_angle=None, blocklist=None):
-        """Busca entidade de texto com prefixo (P, V, L) próximo à geometria com filtro direcional."""
-        import math, re
-        if not points or not self.dxf_data: return None
-        blocklist = blocklist or []
-        
-        # Normalização agressiva para matching de blocklist (remover P, espaços, etc para comparar a 'essência' se necessário)
-        def clean(s): return re.sub(r'[^A-Z0-9/X]', '', str(s).upper())
-        clean_blocklist = [clean(b) for b in blocklist]
-        
-        cx = sum(p[0] for p in points) / len(points)
-        cy = sum(p[1] for p in points) / len(points)
-        rx, ry = (ref_angle[0], ref_angle[1]) if ref_angle else (cx, cy)
-        
-        texts = self.dxf_data.get('texts', [])
-        best_dist = radius
-        best_ent = None
-        
-        for txt in texts:
-            tx, ty = txt['pos']
-            content = str(txt.get('text', '')).strip()
-            content_upper = content.upper()
-            
-            # Pular se estiver na blocklist
-            if clean(content) in clean_blocklist:
-                continue
-
-            # Filtro Direcional (Setores)
-            if side:
-                angle = math.degrees(math.atan2(ty - ry, tx - rx))
-                if side == "A" and not (45 <= angle <= 135): continue
-                if side == "B" and not (-45 <= angle <= 45): continue
-                if side == "C" and not (-135 <= angle <= -45): continue
-                if side == "D" and not (angle > 135 or angle < -135): continue
-                if side == "Superior" and not (ty > ry): continue
-                if side == "Inferior" and not (ty <= ry): continue
-
-            # Se prefixo for vazio, aceita qualquer coisa
-            if not prefix or content_upper.startswith(prefix.upper()):
-                dist = ((cx - tx)**2 + (cy - ty)**2)**0.5
-                if dist < best_dist:
-                    best_dist = dist
-                    best_ent = txt
-        return best_ent
-
-    def _find_nearest_text_pattern_ent(self, points, pattern, radius=500.0, side=None, ref_angle=None, blocklist=None):
-        """Busca entidade de texto via regex próximo à geometria, com filtro direcional opcional."""
-        import re, math
-        if not points or not self.dxf_data: return None
-        blocklist = blocklist or []
-        
-        def clean(s): return re.sub(r'[^A-Z0-9/X]', '', str(s).upper())
-        clean_blocklist = [clean(b) for b in blocklist]
-        
-        cx = sum(p[0] for p in points) / len(points)
-        cy = sum(p[1] for p in points) / len(points)
-        rx, ry = (ref_angle[0], ref_angle[1]) if ref_angle else (cx, cy)
-        
-        texts = self.dxf_data.get('texts', [])
-        best_dist = radius
-        best_ent = None
-        
-        for txt in texts:
-            tx, ty = txt['pos']
-            content = str(txt.get('text', '')).strip()
-
-            # Pular se estiver na blocklist
-            if clean(content) in clean_blocklist:
-                continue
-
-            # Filtro Direcional (Setores)
-            if side:
-                angle = math.degrees(math.atan2(ty - ry, tx - rx))
-                if side == "A" and not (45 <= angle <= 135): continue
-                if side == "B" and not (-45 <= angle <= 45): continue
-                if side == "C" and not (-135 <= angle <= -45): continue
-                if side == "D" and not (angle > 135 or angle < -135): continue
-                if side == "Superior" and not (ty > ry): continue
-                if side == "Inferior" and not (ty <= ry): continue
-
-            # Regex Match
-            if re.search(pattern, content, re.I):
-                dist = ((cx - tx)**2 + (cy - ty)**2)**0.5
-                if dist < best_dist:
-                    best_dist = dist
-                    best_ent = txt
-        return best_ent
-
+    # Legacy methods removed
     def on_list_pillar_clicked(self, item):
         pillar_id = item.data(Qt.UserRole)
         pilar = next((p for p in self.pillars_found if p['id'] == pillar_id), None)
@@ -1234,21 +1179,21 @@ class MainWindow(QMainWindow):
         else:
             self.log(f"Erro: Pilar {pillar_id} não encontrado nos dados processados.")
 
-    def on_list_beam_clicked(self, item):
-        beam_id = item.data(Qt.UserRole)
+    def on_list_beam_clicked(self, item, column=0):
+        beam_id = item.data(0, Qt.UserRole)
+        if not beam_id: return # Clicou no nó pai
         beam = next((b for b in self.beams_found if b['id'] == beam_id), None)
         if beam:
             self.show_detail(beam)
             # Focar na viga (geometria completa)
-            # self.canvas.focus_on_geometry(beam['geometry']) # TODO
+            self.canvas.focus_on_beam_geometry(beam) 
 
     def on_list_slab_clicked(self, item):
         slab_id = item.data(Qt.UserRole)
         slab = next((s for s in self.slabs_found if s['id'] == slab_id), None)
         if slab:
             self.show_detail(slab)
-            self.canvas.isolate_item(slab_id, 'slab') # Isola Laje
-            # self.canvas.focus_on_geometry(slab['points']) # TODO
+            self.canvas.isolate_item(slab_id, 'slab') # Isola Laje (com Zoom)
 
     def on_canvas_pillar_selected(self, p_id):
         for i in range(self.list_pillars.count()):
@@ -1298,14 +1243,29 @@ class MainWindow(QMainWindow):
             return
             
         self.pillars_found = saved_pillars
+        # ORDENAR: Priorizar id_item (se existir) senão natural sort por nome
+        import re
+        def nat_key(x):
+            return [int(t) if t.isdigit() else t.lower() for t in re.split(r'(\d+)', x.get('name', ''))]
+        
+        def sort_key(x):
+            # Se id_item existir e for numérico, usamos ele como prioridade
+            id_val = x.get('id_item')
+            if id_val and str(id_val).isdigit():
+                return (0, int(id_val), nat_key(x))
+            return (1, 0, nat_key(x))
+
+        self.pillars_found.sort(key=sort_key)
         
         # Carregar Lajes
         saved_slabs = self.db.load_slabs(self.current_project_id)
         self.slabs_found = saved_slabs if saved_slabs else []
+        self.slabs_found.sort(key=sort_key)
 
         # Carregar Vigas
         saved_beams = self.db.load_beams(self.current_project_id)
         self.beams_found = saved_beams if saved_beams else []
+        self.beams_found.sort(key=sort_key)
 
         # Limpar listas UI
         self.list_pillars.clear()
@@ -1318,8 +1278,10 @@ class MainWindow(QMainWindow):
         
         # Reconstruir Lista de Pilares
         for i, p in enumerate(self.pillars_found):
-            p['id_item'] = f"{i+1:02}"
-            item_text = f"{p['id_item']} | {p['name']} | {p.get('dim', 'N/A')} | {p.get('format', 'N/A')}"
+            if not p.get('id_item'):
+                p['id_item'] = f"{i+1:02}"
+            id_item = p['id_item']
+            item_text = f"{id_item} | {p['name']} | {p.get('dim', 'N/A')} | {p.get('format', 'N/A')}"
             item = QListWidgetItem(item_text)
             item.setData(Qt.UserRole, p['id'])
             self.list_pillars.addItem(item)
@@ -1330,24 +1292,18 @@ class MainWindow(QMainWindow):
                  item_v.setForeground(Qt.green)
                  self.list_pillars_valid.addItem(item_v)
 
-        # Reconstruir Lista de Vigas
-        for i, b in enumerate(self.beams_found):
-            b['id_item'] = f"{i+1:02}"
-            item_text = f"{b['id_item']} | {b['name']} | SegA: {b.get('seg_a', 1)} | SegB: {b.get('seg_b', 1)}"
-            item = QListWidgetItem(item_text)
-            item.setData(Qt.UserRole, b['id'])
-            self.list_beams.addItem(item)
-            
-            if b.get('is_validated'):
-                 item_v = QListWidgetItem(item_text + " ✅")
-                 item_v.setData(Qt.UserRole, b['id'])
-                 item_v.setForeground(Qt.green)
-                 self.list_beams_valid.addItem(item_v)
+        # Reconstruir Lista de Vigas (Hierárquico)
+        self._populate_beam_tree(self.list_beams, self.beams_found)
+        
+        valid_beams = [b for b in self.beams_found if b.get('is_validated')]
+        self._populate_beam_tree(self.list_beams_valid, valid_beams)
 
         # Reconstruir Lista de Lajes
         for i, s in enumerate(self.slabs_found):
-            s['id_item'] = f"{i+1:02}"
-            item_text = f"{s['id_item']} | {s['name']}"
+            if not s.get('id_item'):
+                s['id_item'] = f"{i+1:02}"
+            id_item = s['id_item']
+            item_text = f"{id_item} | {s['name']}"
             item = QListWidgetItem(item_text)
             item.setData(Qt.UserRole, s['id'])
             self.list_slabs.addItem(item)
@@ -1389,8 +1345,19 @@ class MainWindow(QMainWindow):
             
         side_code = field_id.split('_')[1][1:] if '_' in field_id else None
 
-        # 3. Executar Busca Contextual Unificada
-        result = self._perform_contextual_search(field_id, slot_id, item_data, side=side_code, category=get_cat(field_id))
+        # 3. Executar Busca Contextual Unificada (VIA ENGINE)
+        prompt = "regex: .+"
+        radius = 800
+        # Mapeamento Rápido de Configuração (TODO: Centralizar)
+        if 'name' in field_id: prompt = "Buscar texto ('P')"
+        elif 'dim' in field_id: prompt = "regex: \\d+([xX]\\d+)?"
+        elif '_l1_n' in field_id: prompt = "Buscar texto ('L')"
+        elif '_l1_h' in field_id: prompt = "regex: h[=:]?\\d+"
+        elif '_v_' in field_id: prompt = "Buscar texto ('V')"
+        
+        search_cfg = {'field_id': field_id, 'slot_id': slot_id, 'prompt': prompt, 'radius': radius}
+        
+        result = self.context_engine.perform_search(item_data, search_cfg, side=side_code)
         found_ent = result['found_ent']
         
         if result['used_training']:
@@ -1447,11 +1414,24 @@ class MainWindow(QMainWindow):
         # NIVEL 2: Contexto do Item
         # Prepara geometria bruta (hashable)
         geo_ref = item_data.get('points') or item_data.get('geometry')
+        
+        # Centralizar item (Origem para offsets)
+        item_pos = item_data.get('pos')
+        if not item_pos and geo_ref:
+            item_pos = (sum(p[0] for p in geo_ref)/len(geo_ref), sum(p[1] for p in geo_ref)/len(geo_ref))
+            
+        # Gerar DNA (Assinatura Geométrica)
+        dna = [1.0, 0.0, 0.0, 1.0]
+        if self.context_engine:
+            dna = self.context_engine._generate_dna(item_data)
+
         i_context = {
             'type': item_data.get('type', 'UNKNOWN').title(), # Pilar, Viga, Laje
             'name': item_data.get('name'),
             'geometry': geo_ref,
-            'neighbors': item_data.get('neighbors', [])
+            'pos': item_pos,
+            'neighbors': item_data.get('neighbors', []),
+            'dna_vector': dna
         }
 
         # NIVEL 3: Contexto do Campo/Vinculo
@@ -1674,28 +1654,7 @@ class MainWindow(QMainWindow):
                 self.tabs.setCurrentIndex(0) # Volta pra aba Pilares
                 break
 
-    def _update_all_lists_ui(self):
-        """Atualiza visual de todas as listas (cores e pendências)"""
-        self.list_issues.clear()
-        for i in range(self.list_pillars.count()):
-            item = self.list_pillars.item(i)
-            p_id = item.data(Qt.UserRole)
-            p = next((x for x in self.pillars_found if x['id'] == p_id), None)
-            if p:
-                conf_map = p.get('confidence_map', {}).values()
-                avg_conf = sum(conf_map) / len(conf_map) if conf_map else 0.5
-                
-                if p.get('issues'):
-                    item.setForeground(Qt.red)
-                    self._add_to_issues_list(p, avg_conf)
-                    self.canvas.update_pillar_visual_status(p_id, "error")
-                elif avg_conf < 0.6:
-                    item.setForeground(Qt.yellow)
-                    self._add_to_issues_list(p, avg_conf)
-                    self.canvas.update_pillar_visual_status(p_id, "uncertain", avg_conf)
-                else:
-                    item.setForeground(Qt.white)
-                    self.canvas.update_pillar_visual_status(p_id, "default")
+
 
     def on_card_validated(self, item_data):
         """Chamado quando usuário clica em 'VALIDAR' no card."""
@@ -1718,47 +1677,332 @@ class MainWindow(QMainWindow):
 
         # 2. Salvar imediatamente no projeto e atualizar UI
         if self.current_project_id:
+            id_item = item_data.get('id_item', '??')
             if 'pilar' in elem_type:
                 self.db.save_pillar(item_data, self.current_project_id)
                 target_list = self.list_pillars
                 valid_list = self.list_pillars_valid
+                item_label = f"{id_item} | {name} | {item_data.get('dim','')} | {item_data.get('format','')}"
             elif 'viga' in elem_type:
                 self.db.save_beam(item_data, self.current_project_id)
                 target_list = self.list_beams
                 valid_list = self.list_beams_valid
+                item_label = f"{id_item} | {name} | SegA: {item_data.get('seg_a',1)} | SegB: {item_data.get('seg_b',1)}"
             elif 'laje' in elem_type:
                 self.db.save_slab(item_data, self.current_project_id)
                 target_list = self.list_slabs
                 valid_list = self.list_slabs_valid
+                item_label = f"{id_item} | {name}"
             else:
                 return
 
             # Atualizar item na lista de origem
-            for i in range(target_list.count()):
-                 it = target_list.item(i)
-                 if it.data(Qt.UserRole) == p_id:
-                     if " ✅" not in it.text():
-                        it.setText(it.text() + " ✅")
-                     it.setForeground(Qt.green)
-                     break
-            
-            # Adicionar à lista validada (evitar duplicados visuais)
-            found_v = False
-            for i in range(valid_list.count()):
-                if valid_list.item(i).data(Qt.UserRole) == p_id:
-                    found_v = True
-                    break
-            
-            if not found_v:
-                item_text = f"{name} (Validado)"
-                item_v = QListWidgetItem(item_text)
-                item_v.setData(Qt.UserRole, p_id)
-                item_v.setForeground(Qt.green)
-                valid_list.addItem(item_v)
+            if 'viga' in elem_type:
+                self._populate_beam_tree(target_list, self.beams_found)
+                valid_beams = [b for b in self.beams_found if b.get('is_validated')]
+                self._populate_beam_tree(valid_list, valid_beams)
+            else:
+                for i in range(target_list.count()):
+                     it = target_list.item(i)
+                     if it.data(Qt.UserRole) == p_id:
+                          it.setText(item_label + (" ✅" if " ✅" not in it.text() else ""))
+                          it.setForeground(Qt.green)
+                          break
+                
+                # Adicionar à lista validada (evitar duplicados visuais)
+                found_v_idx = -1
+                for i in range(valid_list.count()):
+                    if valid_list.item(i).data(Qt.UserRole) == p_id:
+                        found_v_idx = i
+                        break
+                
+                if found_v_idx == -1:
+                    item_v = QListWidgetItem(item_label + " ✅")
+                    item_v.setData(Qt.UserRole, p_id)
+                    item_v.setForeground(Qt.green)
+                    valid_list.addItem(item_v)
+                else:
+                    valid_list.item(found_v_idx).setText(item_label + " ✅")
+        
+        # Feedback Visual no Canvas
+        if 'pilar' in elem_type:
+             self.canvas.update_pillar_status(p_id, 'validated')
+        elif 'laje' in elem_type:
+             self.canvas.update_slab_status(p_id, 'validated')
+        elif 'viga' in elem_type:
+             self.canvas.update_beam_status(p_id, 'validated')
         
         self.log(f"✅ Item {name} ({elem_type}) validado e arquivado.")
 
+    def _process_beam_intelligent(self, b: Dict):
+        """
+        Segue a ordem rigorosa de interpretação solicitada pelo usuário.
+        1. Identidade
+        2. Dimensão Global
+        3. Segmentos e Comprimentos
+        4. Visão de Corte
+        5. Dimensão por Segmento
+        6. Apoios (Início/Fim)
+        7. Alturas (H1, H2)
+        8. Lajes (Inf, Cen, Sup)
+        9. Níveis
+        10. Aberturas
+        11. Fundos
+        12. Detalhes Fundo
+        """
+        import re
+        geo = b.get('geometry', {})
+        classified = geo.get('classified', {})
+        
+        # --- ESTRUTURA BASE ---
+        b.update({
+            'type': 'Viga',
+            'is_validated': False,
+            'fields': {},
+            'links': {
+                'name': {'label': [{'text': b['name'], 'type': 'text', 'pos': b.get('pos', (0,0)), 'role': 'Identificador Viga'}]},
+                'viga_segs': {'seg_side_a': [], 'seg_side_b': [], 'seg_bottom': []},
+                'apoios': {'inicio': [], 'fim': []},
+                'lajes': {'lado_a': [], 'lado_b': []},
+                'cortes': [],
+                'dimensoes': [],
+                'aberturas': {'pilar': [], 'viga': []}
+            }
+        })
+
+        # 1. IDENTIDADE (Já temos b['name'] e b['id_item'])
+        b['fields']['numero'] = b['id_item']
+        b['fields']['nome'] = b['name']
+
+        # 2. DIMENSÃO (Texto Global)
+        dim_texts = geo.get('dimension_texts', [])
+        main_dim_text = ""
+        if dim_texts:
+            main_dim_text = dim_texts[0]['text']
+            b['fields']['dimensao'] = main_dim_text
+            if not isinstance(b['links']['dimensoes'], list): b['links']['dimensoes'] = []
+            b['links']['dimensoes'].append(dim_texts[0])
+
+        # 3. SEGMENTOS E COMPRIMENTOS
+        def process_segments(side_key, tag):
+            lines = classified.get(side_key, [])
+            total_len = 0
+            for line in lines:
+                p1, p2 = line[0], line[-1]
+                length = ((p2[0]-p1[0])**2 + (p2[1]-p1[1])**2)**0.5
+                total_len += length
+                b['links']['viga_segs'][side_key].append({
+                    'type': 'poly', 'points': line, 'len': length, 'tag': tag
+                })
+            return total_len
+
+        len_a = process_segments('seg_side_a', 'Lado A')
+        len_b = process_segments('seg_side_b', 'Lado B')
+        b['fields']['comprimento_total_a'] = round(len_a, 1)
+        b['fields']['comprimento_total_b'] = round(len_b, 1)
+        b['seg_a'] = len(classified.get('seg_side_a', []))
+        b['seg_b'] = len(classified.get('seg_side_b', []))
+
+        # 4. VISÃO DE CORTE
+        has_corte = False
+        for t in geo.get('texts', []):
+            if re.match(r'^[A-Z]-[A-Z]$', t['text'].strip()):
+                b['links']['cortes'].append(t)
+                has_corte = True
+        
+        b['fields']['possui_corte'] = has_corte
+
+        # 5. DIMENSÃO POR SEGMENTO
+        # Associar textos de dimensão específicos a segmentos específicos baseados em proximidade
+        if len(dim_texts) > 0:
+            for side_key in ['seg_side_a', 'seg_side_b']:
+                segments = b['links']['viga_segs'][side_key]
+                for seg in segments:
+                    # Calcular centro do segmento
+                    pts = seg['points']
+                    if not pts: continue
+                    p1, p2 = pts[0], pts[-1]
+                    mid_x, mid_y = (p1[0] + p2[0]) / 2, (p1[1] + p2[1]) / 2
+                    
+                    # Encontrar texto mais próximo
+                    closest_dim = None
+                    min_dist = float('inf')
+                    
+                    for dt in dim_texts:
+                        dpos = dt.get('pos')
+                        if not dpos: continue
+                        dist = ((mid_x - dpos[0])**2 + (mid_y - dpos[1])**2)**0.5
+                        if dist < min_dist:
+                            min_dist = dist
+                            closest_dim = dt
+                    
+                    # Se estiver próximo o suficiente (ex: 100 unidades), vincula
+                    if closest_dim and min_dist < 100:
+                        seg['dim_text'] = closest_dim['text']
+                        # Se não tivermos dimensão global definida ou se esta for diferente, podemos notar
+                        
+        
+
+        # 6. APOIOS (INCIAL / FINAL)
+        # Identificar eixo principal da viga para ordenar elementos
+        all_pts = []
+        for seg_list in classified.values():
+            for line in seg_list:
+                all_pts.extend(line)
+        
+        if all_pts:
+            # Bounding box simplificado
+            xs = [p[0] for p in all_pts]
+            ys = [p[1] for p in all_pts]
+            # Definir orientação predominante
+            is_horiz = (max(xs) - min(xs)) > (max(ys) - min(ys))
+        else:
+            xs, ys = [], []
+            is_horiz = True
+
+        if all_pts and geo.get('support_candidates'):
+            
+            # Ordenar suportes baseado na coordenada principal (X ou Y)
+            # Para vigas Horizontais: Esquerda -> Direita (X crescente)
+            # Para vigas Verticais: Topo -> Baixo (Y decrescente? - A verificar convenção, usaremos Y crescente por enq)
+            
+            supports = geo.get('support_candidates', [])
+            
+            def get_sort_key(s):
+                # Tenta pegar centroide se tiver pontos, senão usa pos
+                if 'points' in s and s['points']:
+                    cx = sum(p[0] for p in s['points']) / len(s['points'])
+                    cy = sum(p[1] for p in s['points']) / len(s['points'])
+                    return cx if is_horiz else cy
+                return s['pos'][0] if is_horiz else s['pos'][1]
+            
+            sorted_supports = sorted(supports, key=get_sort_key, reverse=False) # X Crescente ou Y Crescente
+            
+            # Heurística: Pegar os extremos
+            # Mas cuidado: suportes podem ser pilares que cruzam a viga inteira.
+            # Vamos pegar todos que intersectam o início e o fim?
+            # Por simplificação atual: O mais "menor coord" é Inicio, o "maior coord" é Fim.
+            
+            if sorted_supports:
+                b['links']['apoios']['inicio'].append(sorted_supports[0])
+                if len(sorted_supports) > 1:
+                    b['links']['apoios']['fim'].append(sorted_supports[-1])
+
+        # 7. ALTURAS (H1, H2)
+        h1 = 0
+        if main_dim_text:
+            nums = [int(n) for n in re.findall(r'\d+', main_dim_text)]
+            if nums: h1 = max(nums)
+        
+        b['fields']['altura_h1'] = h1
+        
+        if has_corte:
+            b['fields']['altura_h2'] = h1 
+        else:
+            b['fields']['altura_h2'] = None
+
+        # 8. LAJES (Inf, Central, Superior)
+        slab_cands = geo.get('slab_candidates', [])
+        if slab_cands and all_pts:
+            # Calcular centróide aproximado da viga
+            bx = sum(xs) / len(xs)
+            by = sum(ys) / len(ys)
+            
+            for s in slab_cands:
+                # Classificar Lajes geometricamente em relação à viga
+                # Se Horiz: Laje Y > Viga Y -> Lado A (Top), Laje Y < Viga Y -> Lado B (Bottom) (ou vice-versa dependendo da convenção de desenho)
+                # Assumindo Lado A = "Cima/Esquerda"
+                
+                spos = s.get('pos')
+                if not spos: continue
+                
+                target_side = 'lado_a'
+                if is_horiz:
+                    if spos[1] < by: target_side = 'lado_b' # Y menor = abaixo
+                else:
+                    if spos[0] > bx: target_side = 'lado_b' # X maior = direita
+                
+                b['links']['lajes'][target_side].append(s)
+            
+            b['fields']['laje_superior_a'] = slab_cands[0]['text'] if len(slab_cands) > 0 else ""
+            b['fields']['laje_superior_b'] = slab_cands[1]['text'] if len(slab_cands) > 1 else ""
+
+        # 9. NÍVEIS
+        b['fields']['nivel_lado_a'] = 0
+        b['fields']['nivel_lado_b'] = 0
+        b['fields']['nivel_oposto_a'] = 0
+        b['fields']['nivel_oposto_b'] = 0
+
+        # 10/11. ABERTURAS (Detecção Simplificada via Pilares)
+        supports = geo.get('support_candidates', [])
+        if supports:
+            for s in supports:
+                # Se o pilar intersecta a viga mas não é apoio de extremidade, é uma interferência/abertura
+                is_start = s in b['links']['apoios']['inicio']
+                is_end = s in b['links']['apoios']['fim']
+                
+                if not is_start and not is_end:
+                     b['links']['aberturas']['pilar'].append(s)
+        # 12. FUNDOS (Calculado a partir de seg_bottom)
+        len_bottom = process_segments('seg_bottom', 'Fundo')
+        b['fields']['comprimento_fundo'] = round(len_bottom, 1)
+        
+        self.log(f"🧠 Viga {b['name']} pré-interpretada com sucesso.")
+
+    def _populate_beam_tree(self, tree_widget, beam_list):
+        tree_widget.clear()
+        if not beam_list: return
+
+        from PySide6.QtWidgets import QTreeWidgetItem
+        # Agrupar por parent_name
+        from collections import OrderedDict
+        groups = OrderedDict()
+        for b in beam_list:
+            p_name = b.get('parent_name', b.get('name', 'V?'))
+            if p_name not in groups:
+                groups[p_name] = []
+            groups[p_name].append(b)
+            
+        for p_name, segments in groups.items():
+            # Se houver apenas 1 segmento e o nome for igual ao pai, podemos simplificar?
+            # User pediu "Box/Clase", então vamos criar o nó pai para agrupar.
+            parent_item = QTreeWidgetItem(tree_widget)
+            parent_item.setText(1, f"📂 {p_name}")
+            parent_item.setExpanded(True)
+            parent_item.setFlags(parent_item.flags() & ~Qt.ItemIsSelectable) # Pai não selecionável se quiser focar apenas nos filhos
+            
+            for b in segments:
+                status = "✅" if b.get('is_validated') else "❓"
+                child = QTreeWidgetItem(parent_item)
+                child.setText(0, b.get('id_item', '??'))
+                child.setText(1, b['name'])
+                child.setText(2, status)
+                child.setData(0, Qt.UserRole, b['id'])
+                
+                if b.get('is_validated'):
+                    child.setForeground(1, Qt.green)
+                    self.canvas.update_beam_status(b['id'], "validated")
+                else:
+                    self.canvas.update_beam_status(b['id'], "default")
+
     # --- NOVOS MÉTODOS DE GERENCIAMENTO ---
+
+    def open_training_log(self):
+        """Abre a janela de gerenciamento de memória de treino"""
+        if not self.current_project_id:
+            from PySide6.QtWidgets import QMessageBox
+            QMessageBox.warning(self, "Aviso", "Abra um projeto primeiro.")
+            return
+            
+        from src.ui.widgets.training_log_dialog import TrainingLogDialog
+        dlg = TrainingLogDialog(self.db, self.current_project_id, self)
+        dlg.focus_requested.connect(self.on_training_focus_requested)
+        dlg.exec()
+
+    def on_training_focus_requested(self, link_data):
+        """Disparado pelo Training Log para dar zoom em geometria"""
+        self.canvas.highlight_link(link_data)
+        self.log(f"📍 Foco de memória: {link_data.get('text', 'Geometria')}")
 
     def open_project_manager(self):
         """Abre o gerenciador de projetos."""
@@ -1830,39 +2074,52 @@ class MainWindow(QMainWindow):
             
             # Carregar DXF Geometria para este projeto (se existir arquivo)
             if dxf_path and os.path.exists(dxf_path):
+                self.show_progress("Lendo Arquivo DXF...", 20)
                 try:
-                    print(f"DEBUG: Iniciando DXF Loader: {dxf_path}")
                     loaded_dxf = DXFLoader.load_dxf(dxf_path)
-                    print("DEBUG: DXF Loader completado.")
                     cache_entry['dxf_data'] = loaded_dxf
                 except Exception as e:
                     self.log(f"Erro ao carregar DXF {dxf_path}: {e}")
-                    print(f"DEBUG: DXF Error: {e}")
+                self.hide_progress()
 
-        # Ativa a aba e Força atualização manual pois bloqueamos o sinal inicial
-        print("DEBUG: Switching tab index...")
+        # Ativa a aba e força atualização
+        # Bloqueamos sinais se a aba já existir para evitar double-trigger, 
+        # mas como estamos ADICIONANDO, o setCurrentIndex vai disparar o on_project_tab_changed.
+        print(f"DEBUG: Switching tab index to {new_idx}...")
         self.project_tabs.setCurrentIndex(new_idx)
-        print("DEBUG: Manually calling on_project_tab_changed...")
-        self.on_project_tab_changed(new_idx)
+        
+        # Se por algum motivo o sinal não disparou (mesmo index), chamamos manual
+        if self.current_project_id != pid:
+             print("DEBUG: Manually calling on_project_tab_changed (fallback)...")
+             self.on_project_tab_changed(new_idx)
 
     def on_project_tab_changed(self, index):
         """Muda o contexto global da aplicação para o projeto da aba selecionada."""
-        print(f"DEBUG: on_project_tab_changed triggered with index={index}")
-        if index < 0: 
-            print("DEBUG: Index < 0. Ignoring.")
-            return
+        if index < 0: return
         
         # Verify tabBar data existence
         pid = self.project_tabs.tabBar().tabData(index)
-        print(f"DEBUG: Retrieved PID from tabData: {pid}")
+        
+        # --- REMOVIDA TRAVA DE PID --- 
+        # Sempre recarregar ao trocar de aba para garantir sincronia total das listas (Urgência Usuário)
+        print(f"DEBUG: Sincronizando UI para projeto {pid} (Aba {index})")
 
-        if not pid or pid not in self.loaded_projects_cache: 
-            print(f"DEBUG: PID invalid or not in cache. PID={pid}, CacheKeys={list(self.loaded_projects_cache.keys())}")
-            return
-        
-        # Salva estado do projeto anterior (opcional, se editável em tempo real)
-        # self.save_project_action() # Talvez agressivo demais? Melhor manual.
-        
+        # --- NOVO: Salvar estado atual no cache antes de trocar ---
+        if self.current_project_id and self.current_project_id in self.loaded_projects_cache:
+            old_cache = self.loaded_projects_cache[self.current_project_id]
+            old_cache['pillars'] = self.pillars_found
+            old_cache['slabs'] = self.slabs_found
+            old_cache['beams'] = self.beams_found
+            old_cache['meta'] = {
+                'work_name': self.edit_work_name.text(),
+                'pavement_name': self.edit_pavement_name.text(),
+                'level_arrival': self.edit_level_arr.text(),
+                'level_exit': self.edit_level_exit.text()
+            }
+            # SALVAR ESTADO VISUAL DO CANVAS (Cena, Coleções, Snap)
+            canvas_state = self.canvas.get_project_state_dict()
+            old_cache.update(canvas_state)
+
         project_data = self.loaded_projects_cache[pid]
         self.active_project_id = pid
         self.current_project_id = pid 
@@ -1891,37 +2148,38 @@ class MainWindow(QMainWindow):
         # 2. Atualizar Listas UI
         self.pillars_found = project_data['pillars']
         self.slabs_found = project_data['slabs']
-        self.beams_found = project_data['beams'] # Beams ainda incompleto no parser, mas estrutura existe
+        self.beams_found = project_data['beams']
+        self.dxf_data = project_data['dxf_data']
         
-        self.dxf_data = project_data['dxf_data'] # Geometria bruta
-
+        # 3. Restaurar Lógica (Fast Path se já existir)
+        self._initialize_project_logic(self.dxf_data)
         self._update_all_lists_ui()
         
-        # 3. Atualizar Canvas
-        print("DEBUG: Updating Canvas...")
-        self.canvas.clear_interactive()
+        # 4. Atualizar Canvas (Isolamento de Cena e Otimização)
+        self.canvas.swap_project_state(project_data)
         
-        # Note: add_dxf_entities does scene.clear() internally
-        
-        # Redesenhar DXF Background
-        if self.dxf_data:
-            print("DEBUG: Drawing DXF entities...")
-            self.canvas.add_dxf_entities(self.dxf_data)
+        if not project_data.get('scene_rendered'):
+            self.log("🎨 Renderizando geometria pela primeira vez...")
+            self.show_progress("Renderizando DXF...", 30)
+            
+            # Limpar coleções de overlay (add_dxf_entities já limpa a cena)
+            if self.dxf_data:
+                self.canvas.add_dxf_entities(self.dxf_data, progress_callback=self.update_progress)
+            
+            self.update_progress(80, "Desenhando itens interativos...")
+            self.canvas.draw_interactive_pillars(self.pillars_found)
+            self.canvas.draw_slabs(self.slabs_found)
+            self.canvas.draw_beams(self.beams_found)
+            
+            # Marcar como renderizado no cache para trocas futuras instantâneas
+            project_data['scene_rendered'] = True
+            self.hide_progress()
         else:
-            self.canvas.scene.clear()
-            print("DEBUG: No DXF data to draw.")
-        
-        # Redesenhar Itens Interativos
-        print(f"DEBUG: Drawing {len(self.pillars_found)} pillars...")
-        self.canvas.draw_interactive_pillars(self.pillars_found)
-        self.canvas.draw_slabs(self.slabs_found)
-        # draw_beams if exists
-        
-        # Resetar visual
-        self.right_panel.setCurrentIndex(0) # Placeholder
-        print("DEBUG: Canvas update finished.")
-        from PySide6.QtWidgets import QApplication
-        QApplication.processEvents() # Force UI refresh
+            self.log("🚀 Troca de contexto instantânea concluída.")
+            
+        # Resetar Aba de Detalhes
+        self.right_panel.setCurrentIndex(0)
+        QApplication.processEvents()
 
     def close_project_tab(self, index):
         """Fecha aba do projeto (mas não apaga do banco)"""
@@ -1965,31 +2223,82 @@ class MainWindow(QMainWindow):
         self.log("Metadados do projeto atualizados.")
 
     def _update_all_lists_ui(self):
-        """Refresha todas as listas com dados atuais"""
+        """Refresha todas as listas com dados atuais do projeto ativo (Análise e Biblioteca)"""
+        # 1. Limpar TODAS as listas
         self.list_pillars.clear()
         self.list_pillars_valid.clear()
+        self.list_beams.clear()
+        self.list_beams_valid.clear()
         self.list_slabs.clear()
         self.list_slabs_valid.clear()
-        # Beams...
+        self.list_issues.clear()
         
+        # 2. Popular Pilares
         for p in self.pillars_found:
             status = "✅" if p.get('is_validated') else "❓"
             if p.get('issues'): status = "⚠️"
             
-            t = f"{p.get('name', '?')} {status}"
-            item = QListWidgetItem(t)
-            item.setData(Qt.UserRole, p['id'])
-            if p.get('is_validated'): item.setForeground(Qt.green)
+            # Texto para lista de análise
+            t_analysis = f"{p.get('id_item', '??')} | {p.get('name', 'P?')} | {p.get('dim', '0')} {status}"
+            item_a = QListWidgetItem(t_analysis)
+            item_a.setData(Qt.UserRole, p['id'])
             
-            self.list_pillars.addItem(item)
+            # Cores por estado e Issues
+            conf_map = p.get('confidence_map', {})
+            avg_conf = sum(conf_map.values()) / len(conf_map) if conf_map else 0.5
+
+            if p.get('issues'):
+                item_a.setForeground(Qt.red)
+                self._add_to_issues_list(p, avg_conf)
+                self.canvas.update_pillar_visual_status(p['id'], "error")
+            elif avg_conf < 0.6 and not p.get('is_validated'):
+                item_a.setForeground(Qt.yellow)
+                self._add_to_issues_list(p, avg_conf)
+                self.canvas.update_pillar_visual_status(p['id'], "uncertain", avg_conf)
+            elif p.get('is_validated'):
+                item_a.setForeground(Qt.green)
+                self.canvas.update_pillar_visual_status(p['id'], "validated")
+            else:
+                self.canvas.update_pillar_visual_status(p['id'], "default")
+            
+            self.list_pillars.addItem(item_a)
+            
+            # Se validado, vai para a Biblioteca
             if p.get('is_validated'):
-                self.list_pillars_valid.addItem(QListWidgetItem(item)) # Clone
-                
+                item_v = QListWidgetItem(item_a.text())
+                item_v.setData(Qt.UserRole, p['id'])
+                item_v.setForeground(Qt.green)
+                self.list_pillars_valid.addItem(item_v)
+
+        # 3. Popular Vigas (Hierárquico)
+        self._populate_beam_tree(self.list_beams, self.beams_found)
+        
+        # Vigas Validadas
+        valid_beams = [b for b in self.beams_found if b.get('is_validated')]
+        self._populate_beam_tree(self.list_beams_valid, valid_beams)
+
+        # 4. Popular Lajes
         for s in self.slabs_found:
-             t = f"{s.get('name', 'Laje')} ({s.get('area',0):.1f}m²)"
-             item = QListWidgetItem(t)
-             item.setData(Qt.UserRole, s['id'])
-             self.list_slabs.addItem(item)
+            status = "✅" if s.get('is_validated') else "❓"
+            t_analysis = f"{s.get('id_item', '??')} | {s.get('name', 'L?')} ({s.get('area',0):.1f}m²) {status}"
+            item_a = QListWidgetItem(t_analysis)
+            item_a.setData(Qt.UserRole, s['id'])
+            
+            if s.get('is_validated'): 
+                item_a.setForeground(Qt.green)
+                self.canvas.update_slab_status(s['id'], "validated")
+            else:
+                self.canvas.update_slab_status(s['id'], "default")
+
+            self.list_slabs.addItem(item_a)
+            
+            if s.get('is_validated'):
+                item_v = QListWidgetItem(item_a.text())
+                item_v.setData(Qt.UserRole, s['id'])
+                item_v.setForeground(Qt.green)
+                self.list_slabs_valid.addItem(item_v)
+        
+        self.log(f"UI Atualizada: {len(self.pillars_found)}P, {len(self.beams_found)}V, {len(self.slabs_found)}L")
     
     def create_manual_item(self, is_library=False):
         """Cria um novo item manualmente na lista ativa"""
@@ -2041,10 +2350,14 @@ class MainWindow(QMainWindow):
         target_list_data.append(new_item)
         
         # Adicionar UI
-        item_ui = QListWidgetItem(new_item['name'])
-        item_ui.setData(Qt.UserRole, new_id)
-        if new_item['is_validated']: item_ui.setForeground(Qt.green)
-        list_widget.addItem(item_ui)
+        if isinstance(list_widget, QTreeWidget):
+             # Para vigas, repopulamos a árvore para garantir agrupamento correto
+             self._populate_beam_tree(list_widget, target_list_data)
+        else:
+             item_ui = QListWidgetItem(new_item['name'])
+             item_ui.setData(Qt.UserRole, new_id)
+             if new_item['is_validated']: item_ui.setForeground(Qt.green)
+             list_widget.addItem(item_ui)
         
         self.show_detail(new_item)
         self.log(f"Item manual criado: {new_item['name']}")
@@ -2132,8 +2445,11 @@ class MainWindow(QMainWindow):
             return
 
         # 1. Remover da UI
-        row = list_widget.row(item)
-        list_widget.takeItem(row)
+        if item_type == 'beam':
+            (item.parent() or list_widget.invisibleRootItem()).removeChild(item)
+        else:
+            row = list_widget.row(item)
+            list_widget.takeItem(row)
 
         # 2. Remover da Memória (Análise ou Lib)
         target_list = None

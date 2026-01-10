@@ -1,11 +1,11 @@
-from PySide6.QtWidgets import (QDialog, QVBoxLayout, QHBoxLayout, QListWidget, 
+from PySide6.QtWidgets import (QVBoxLayout, QHBoxLayout, QListWidget, 
                                  QListWidgetItem, QPushButton, QLabel, QFrame, QTextEdit, 
                                  QScrollArea, QWidget, QLineEdit, QMessageBox)
 from PySide6.QtCore import Qt, Signal
 
-class LinkManager(QDialog):
+class LinkManager(QWidget):
     """
-    Mini-janela para gerenciamento de vínculos com suporte a Classes (Slots) de objetos.
+    Mini-widget para gerenciamento de vínculos com suporte a Classes (Slots) de objetos.
     Cada slot representa uma informação necessária para o campo.
     """
     focus_requested = Signal(dict)
@@ -15,15 +15,10 @@ class LinkManager(QDialog):
     training_requested = Signal(dict) # {slot, link, comment, status}
     config_changed = Signal(str, list) # field_key, updated_slots_config
 
-    # Configuração de slots por tipo de campo
-    # id: identificador interno do slot
-    # name: Nome amigável da classe
-    # type: 'text' ou 'line'
-    # help: Resumo explicativo da finalidade desta classe
     SLOT_CONFIG = {
         '_l1_n': [
             {'id': 'label', 'name': 'Identificador Laje', 'type': 'text', 'prompt': 'Busque textos "L" + numeral próximo ao pilar.', 'help': 'Texto "Lxx". Define qual painel de laje descarrega aqui.'},
-            {'id': 'void_x', 'name': 'Vazio (X)', 'type': 'geometry', 'prompt': 'Selecione as linhas do "X" que indica vazio.', 'help': 'Marca este setor como "SEM LAJE" (Vazios/Shafts).'}
+            {'id': 'void_x', 'name': 'Vazio (X)', 'type': 'poly', 'prompt': 'Desenhe as linhas do "X" que indica vazio. [Enter] para finalizar.', 'help': 'Marca este setor como "SEM LAJE" (Vazios/Shafts).'}
         ],
         '_l1_h': [
             {'id': 'thick', 'name': 'Texto de Espessura', 'type': 'text', 'prompt': 'Busque padrões "H=" ou "d=" próximo à laje. regex: ([Hd]=?\\d+)', 'help': 'Texto "H=12" ou "d=12". Define a altura da laje.'}
@@ -32,7 +27,7 @@ class LinkManager(QDialog):
             {'id': 'level', 'name': 'Nível da Laje', 'type': 'text', 'prompt': 'Busque cotas de nível (+0.00) próximas. regex: ([+-]\\d+\\.\\d+)', 'help': 'Cota de nível (ex: +3.00). Define a base de apoio.'}
         ],
         '_segs': [ 
-            {'id': 'segments', 'name': 'Geometria Real', 'type': 'geometry', 'prompt': 'Selecione polilinhas ou linhas que definem o contorno.', 'help': 'Linhas/Polilinhas no CAD que representam o corpo do objeto.'}
+            {'id': 'segments', 'name': 'Geometria Real', 'type': 'poly', 'prompt': 'Desenhe as linhas que definem o contorno. [Enter] para finalizar.', 'help': 'Linhas/Polilinhas no CAD que representam o corpo do objeto.'}
         ],
         '_v_': [ 
             {'id': 'label', 'name': 'Identificador Viga', 'type': 'text', 'prompt': 'Busque textos "V" + numeral cruzando o pilar.', 'help': 'Texto "Vxx". Identifica a viga de suporte.'}
@@ -51,32 +46,76 @@ class LinkManager(QDialog):
         ],
         '_dist_c': [
             {'id': 'dist_text', 'name': 'Distância (Texto/Cota)', 'type': 'text', 'prompt': 'Busque texto/cota de distância próximo ao corte. regex: (\\d+[\\.,]?\\d*)', 'help': 'Valor numérico da distância ao centro.'},
-            {'id': 'dist_line', 'name': 'Distância (Linha)', 'type': 'line', 'prompt': 'Desenhe a linha representando a distância.', 'help': 'Linha medida no CAD para extrair o valor.'}
+            {'id': 'dist_line', 'name': 'Distância (Linha)', 'type': 'poly', 'prompt': 'Desenhe a linha representando a distância. [Enter] para finalizar.', 'help': 'Linha medida no CAD para extrair o valor.'}
         ],
         '_diff_v': [
             {'id': 'diff_text', 'name': 'Diferença de Nível (Texto/Cota)', 'type': 'text', 'prompt': 'Busque texto/cota de diferença de nível. regex: ([+-]?\\d+[\\.,]?\\d*)', 'help': 'Valor numérico da diferença de nível.'},
-            {'id': 'diff_line', 'name': 'Diferença de Nível (Linha)', 'type': 'line', 'prompt': 'Desenhe a linha representando a diferença de nível.', 'help': 'Linha medida no CAD para extrair o valor.'}
+            {'id': 'diff_line', 'name': 'Diferença de Nível (Linha)', 'type': 'poly', 'prompt': 'Desenhe a linha representando a diferença de nível. [Enter] para finalizar.', 'help': 'Linha medida no CAD para extrair o valor.'}
         ],
         '_v_esq_segs': [
-            {'id': 'seg_cont', 'name': 'Segmento de Continuação', 'type': 'line', 'prompt': 'Desenhe a linha sobre a viga de continuação (1 segmento).', 'help': 'Referência geométrica da viga que continua do pilar.'}
+            {'id': 'seg_cont', 'name': 'Segmento de Continuação', 'type': 'poly', 'prompt': 'Desenhe os segmentos da viga de continuação. [Enter] para finalizar.', 'help': 'Referência geométrica da viga que continua do pilar.'}
         ],
         '_v_dir_segs': [
-            {'id': 'seg_cont', 'name': 'Segmento de Continuação', 'type': 'line', 'prompt': 'Desenhe a linha sobre a viga de continuação (1 segmento).', 'help': 'Referência geométrica da viga que continua do pilar.'}
+            {'id': 'seg_cont', 'name': 'Segmento de Continuação', 'type': 'poly', 'prompt': 'Desenhe os segmentos da viga de continuação. [Enter] para finalizar.', 'help': 'Referência geométrica da viga que continua do pilar.'}
         ],
         '_v_ch': [
-            {'id': 'seg_1', 'name': 'Segmento Chegada 1', 'type': 'line', 'prompt': 'Desenhe a primeira linha da viga de chegada.', 'help': 'Segmento 1 da viga que chega no pilar.'},
-            {'id': 'seg_2', 'name': 'Segmento Chegada 2', 'type': 'line', 'prompt': 'Desenhe a segunda linha da viga de chegada.', 'help': 'Segmento 2 da viga que chega no pilar.'}
+            {'id': 'seg_1', 'name': 'Segmento Chegada 1', 'type': 'poly', 'prompt': 'Desenhe a primeira linha da viga de chegada. [Enter] para finalizar.', 'help': 'Segmento 1 da viga que chega no pilar.'},
+            {'id': 'seg_2', 'name': 'Segmento Chegada 2', 'type': 'poly', 'prompt': 'Desenhe a segunda linha da viga de chegada. [Enter] para finalizar.', 'help': 'Segmento 2 da viga que chega no pilar.'}
         ],
         '_viga_segs': [
-             {'id': 'main_seg', 'name': 'Segmento Principal', 'type': 'line', 'prompt': 'Desenhe a linha central da viga.', 'help': 'Eixo da viga.'},
-             {'id': 'border_1', 'name': 'Borda 1', 'type': 'line', 'prompt': 'Desenhe a linha de borda 1.', 'help': 'Contorno lateral 1.'},
-             {'id': 'border_2', 'name': 'Borda 2', 'type': 'line', 'prompt': 'Desenhe a linha de borda 2.', 'help': 'Contorno lateral 2.'}
+             {'id': 'seg_side_a', 'name': 'Segmentos Lado A', 'type': 'poly', 'prompt': 'Desenhe os segmentos do Lado A. [Enter] para finalizar.', 'help': 'Linhas do lado A da viga.'},
+             {'id': 'seg_side_b', 'name': 'Segmentos Lado B', 'type': 'poly', 'prompt': 'Desenhe os segmentos do Lado B. [Enter] para finalizar.', 'help': 'Linhas do lado B da viga.'},
+             {'id': 'seg_bottom', 'name': 'Segmentos Fundos', 'type': 'poly', 'prompt': 'Desenhe os segmentos do Fundo. [Enter] para finalizar.', 'help': 'Linhas do fundo da viga.'}
         ],
         '_fundo_segs': [
              {'id': 'contour', 'name': 'Contorno Fundo', 'type': 'poly', 'prompt': 'Desenhe o perímetro do fundo (Polyline). [Enter] para finalizar.', 'help': 'Geometria do fundo da viga.'}
         ],
+        '_location': [
+             {'id': 'label', 'name': 'Texto do Apoio', 'type': 'text', 'prompt': 'Identifique o texto do pilar ou viga de apoio.', 'help': 'Texto (ex: P1 ou V2) que identifica o suporte.'},
+             {'id': 'geometry', 'name': 'Geometria do Apoio', 'type': 'poly', 'prompt': 'Desenhe os segmentos do apoio. [Enter] para finalizar.', 'help': 'Referência visual/geométrica do objeto de apoio.'}
+        ],
         '_laje_geom': [
              {'id': 'contour', 'name': 'Contorno Laje', 'type': 'poly', 'prompt': 'Desenhe o perímetro da laje. [Enter] para finalizar.', 'help': 'Geometria da área da laje.'}
+        ],
+        '_laje_complex': [
+             {'id': 'label', 'name': '1. Nome da Laje', 'type': 'text', 'prompt': 'Busque o texto identificador (Ex: L1).', 'help': 'Identificador da laje.'},
+             {'id': 'dim', 'name': '2. Dimensão (Valor)', 'type': 'text', 'prompt': 'Busque o texto de dimensão (Ex: H=12).', 'help': 'Define o valor do campo.'},
+             {'id': 'cut_view', 'name': '3. Visão de Corte', 'type': 'poly', 'prompt': 'Desenhe a linha de corte/T sobre a viga. [Enter] para finalizar.', 'help': 'Referência visual da posição da laje.'}
+        ],
+        '_height_complex': [
+             {'id': 'dim', 'name': '1. Dimensão (Valor)', 'type': 'text', 'prompt': 'Busque o texto de altura.', 'help': 'Define o valor da altura.'},
+             {'id': 'cut_view', 'name': '2. Visão de Corte', 'type': 'poly', 'prompt': 'Desenhe a referência visual. [Enter] para finalizar.', 'help': 'Referência visual.'}
+        ],
+        '_pilar_opening': [
+             {'id': 'label', 'name': '1. Texto Pilar', 'type': 'text', 'prompt': 'Identifique o nome do pilar.', 'help': 'Identificação do pilar.'},
+             {'id': 'segment', 'name': '2. Segmento Pilar', 'type': 'poly', 'prompt': 'Desenhe o contorno do pilar. [Enter] para finalizar.', 'help': 'Geometria do pilar.'},
+             {'id': 'contact_lines', 'name': '3. Linhas de Contato', 'type': 'poly', 'prompt': 'Desenhe 1 linha (Largura) ou 2 linhas (Dist + Larg) de contato com a viga. [Enter] para finalizar.', 'help': 'Define Distância e Largura.'},
+             {'id': 'cont_tip_esq', 'name': '4. Continuidade (Ponta Esq)', 'type': 'poly', 'prompt': 'Desenhe a linha da viga na esquerda da interseção. [Enter] para finalizar.', 'help': 'Define se continua ou para (lado esq).'},
+             {'id': 'cont_tip_dir', 'name': '5. Continuidade (Ponta Dir)', 'type': 'poly', 'prompt': 'Desenhe a linha da viga na direita da interseção. [Enter] para finalizar.', 'help': 'Define se continua ou para (lado dir).'}
+        ],
+        '_beam_opening': [
+             {'id': 'arr_label', 'name': '1. Nome Viga Chegada', 'type': 'text', 'prompt': 'Identifique o nome da viga que chega.', 'help': 'Identificação da viga.'},
+             {'id': 'arr_geom', 'name': '2. Geometria Viga Chegada', 'type': 'poly', 'prompt': 'Desenhe a viga que chega. [Enter] para finalizar.', 'help': 'Geometria da viga.'},
+             {'id': 'arr_dim', 'name': '3. Dimensões Viga Chegada', 'type': 'text', 'prompt': 'Busque texto tipo 20x60.', 'help': 'Define Largura Boca e Profundidade.'},
+             {'id': 'curr_dim', 'name': '4. Dimensões Viga Atual', 'type': 'text', 'prompt': 'Busque dimensões da viga atual.', 'help': 'Referência cruzada.'},
+             {'id': 'adj_mouth', 'name': '5. Ajuste Boca', 'type': 'poly', 'prompt': 'Desenhe linha de ajuste da boca. [Enter] para finalizar.', 'help': 'Comprimento define ajuste boca.'},
+             {'id': 'adj_depth', 'name': '6. Ajuste Profundidade', 'type': 'poly', 'prompt': 'Desenhe linha de ajuste de profundidade. [Enter] para finalizar.', 'help': 'Comprimento define ajuste profundidade.'}
+        ],
+        '_comprimento_total': [
+             {'id': 'geometry', 'name': 'Linha de Comprimento', 'type': 'poly', 'prompt': 'Desenhe a linha total do vão. [Enter] para finalizar.', 'help': 'Define o valor do comprimento.'}
+        ],
+        '_cut_view_complex': [
+             {'id': 'geometry', 'name': 'Geometria Visão Corte', 'type': 'poly', 'prompt': 'Desenhe as linhas da visão de corte. [Enter] para finalizar.', 'help': 'Geometria visual do corte.'},
+             {'id': 'h1_a', 'name': 'Medida Altura H1 (Lado A)', 'type': 'text', 'prompt': 'Selecione o texto H1 A.', 'help': 'Texto H1 Lado A.'},
+             {'id': 'h1_b', 'name': 'Medida Altura H1 (Lado B)', 'type': 'text', 'prompt': 'Selecione o texto H1 B.', 'help': 'Texto H1 Lado B.'},
+             {'id': 'h2_a', 'name': 'Medida Altura H2 (Lado A)', 'type': 'text', 'prompt': 'Selecione o texto H2 A.', 'help': 'Texto H2 Lado A.'},
+             {'id': 'h2_b', 'name': 'Medida Altura H2 (Lado B)', 'type': 'text', 'prompt': 'Selecione o texto H2 B.', 'help': 'Texto H2 Lado B.'},
+             {'id': 'laje_inf_a', 'name': 'Laje Inferior (Lado A)', 'type': 'text', 'prompt': 'Selecione o texto Laje Inf A.', 'help': 'Texto Laje Inferior A.'},
+             {'id': 'laje_inf_b', 'name': 'Laje Inferior (Lado B)', 'type': 'text', 'prompt': 'Selecione o texto Laje Inf B.', 'help': 'Texto Laje Inferior B.'},
+             {'id': 'laje_cen_a', 'name': 'Laje Central (Lado A)', 'type': 'text', 'prompt': 'Selecione o texto Laje Cen A.', 'help': 'Texto Laje Central A.'},
+             {'id': 'laje_cen_b', 'name': 'Laje Central (Lado B)', 'type': 'text', 'prompt': 'Selecione o texto Laje Cen B.', 'help': 'Texto Laje Central B.'},
+             {'id': 'laje_sup_a', 'name': 'Laje Superior (Lado A)', 'type': 'text', 'prompt': 'Selecione o texto Laje Sup A.', 'help': 'Texto Laje Superior A.'},
+             {'id': 'laje_sup_b', 'name': 'Laje Superior (Lado B)', 'type': 'text', 'prompt': 'Selecione o texto Laje Sup B.', 'help': 'Texto Laje Superior B.'}
         ],
         'default': [
             {'id': 'main', 'name': 'Vínculo Principal', 'type': 'text', 'prompt': 'Identifique o elemento principal no CAD.', 'help': 'Texto ou objeto que define o valor deste campo.'}
@@ -88,15 +127,9 @@ class LinkManager(QDialog):
         self.field_id = field_id
         # links agora é um dicionário: {slot_id: [links...]}
         self.links = current_links if isinstance(current_links, dict) else {}
-        self.setWindowTitle(f"Curadoria: {field_id}")
-        self.setWindowFlags(Qt.Window | Qt.CustomizeWindowHint | Qt.WindowTitleHint | Qt.WindowCloseButtonHint | Qt.WindowStaysOnTopHint)
-        self.setMinimumWidth(480)
-        self.setMinimumHeight(500)
         self.init_ui()
 
-    def _get_slots(self):
-        field_id = self.field_id
-        
+    def _get_slots(self, field_id):
         # Ordem de prioridade: das mais específicas para as mais genéricas
         if '_v_esq_segs' in field_id:
             return self.SLOT_CONFIG['_v_esq_segs']
@@ -105,14 +138,36 @@ class LinkManager(QDialog):
         if '_v_ch' in field_id and '_segs' in field_id:
             return self.SLOT_CONFIG['_v_ch']
         
-        # New: Fundo e Laje Poly
         if 'viga_fundo' in field_id and '_segs' in field_id:
              return self.SLOT_CONFIG['_fundo_segs']
         if 'laje' in field_id and '_geom' in field_id:
              return self.SLOT_CONFIG['_laje_geom']
+        if 'laje' in field_id and '_segs' in field_id:
+             return self.SLOT_CONFIG['_laje_geom']
+
+        if 'laje' in field_id and not '_geom' in field_id:
+             return self.SLOT_CONFIG['_laje_complex']
+        
+        if '_h1' in field_id or '_h2' in field_id:
+             return self.SLOT_CONFIG['_height_complex']
+
+        if '_abert_pilar_' in field_id:
+             return self.SLOT_CONFIG['_pilar_opening']
+
+        if '_abert_viga_' in field_id:
+             return self.SLOT_CONFIG['_beam_opening']
+             
+        if '_comprimento' in field_id:
+             return self.SLOT_CONFIG['_comprimento_total']
+
+        if '_visao_corte' in field_id:
+             return self.SLOT_CONFIG['_cut_view_complex']
 
         if 'viga_' in field_id and '_segs' in field_id:
             return self.SLOT_CONFIG['_viga_segs']
+        
+        if any(x in field_id for x in ['_ini_name', '_end_name', '_local_ini', '_local_fim']):
+            return self.SLOT_CONFIG['_location']
         
         if '_dist_c' in field_id:
             return self.SLOT_CONFIG['_dist_c']
@@ -130,90 +185,108 @@ class LinkManager(QDialog):
 
     def init_ui(self):
         layout = QVBoxLayout(self)
-        layout.setContentsMargins(20, 20, 20, 20)
-        layout.setSpacing(15)
+        layout.setContentsMargins(5, 5, 5, 5)
+        layout.setSpacing(10)
         
         self.setStyleSheet("""
-            QDialog { 
-                background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #1e1e1e, stop:1 #121212); 
-                border: 1px solid #333; 
-                border-radius: 12px; 
+            QWidget { 
+                background-color: #121212;
+                color: #e0e0e0;
             }
-            QLabel { color: #e0e0e0; font-family: 'Segoe UI', sans-serif; }
-            .HeaderLabel { font-size: 14px; font-weight: bold; color: #00d4ff; }
+            QLabel { color: #e0e0e0; font-family: 'Segoe UI', sans-serif; font-size: 12px; }
+            .HeaderLabel { font-size: 14px; font-weight: bold; color: #00d4ff; margin-bottom: 5px; }
             
             QScrollArea { border: none; background: transparent; }
-            .SlotFrame { background: #252525; border: 1px solid #3a3a3a; border-radius: 10px; padding: 12px; margin-bottom: 10px; }
-            .SlotTitle { font-size: 11px; font-weight: bold; color: #00d4ff; letter-spacing: 1px; }
-            .SlotHelp { font-size: 10px; color: #999; font-style: italic; line-height: 1.4; }
             
-            .LinkItem { background: #1a1a1a; border: 1px solid #333; border-radius: 6px; padding: 6px; margin-top: 5px; }
-            .LinkValue { color: #fff; font-size: 12px; font-family: 'Consolas', monospace; }
+            /* SLOT CARD DESIGN */
+            .SlotFrame { 
+                background: #1e1e1e; 
+                border: 1px solid #333; 
+                border-radius: 8px; 
+                padding: 10px; 
+                margin-bottom: 5px; 
+            }
+            .SlotTitle { 
+                font-size: 12px; 
+                font-weight: bold; 
+                color: #fff; 
+                background: transparent; 
+                border: none;
+                padding: 2px;
+            }
+            .SlotInput {
+                background: #252525;
+                color: #aaa;
+                border: 1px solid #333;
+                border-radius: 4px;
+                padding: 4px;
+                font-size: 10px;
+            }
+            
+            /* LINK ITEM CARD DESIGN */
+            .LinkItem { 
+                background: #252525; 
+                border-left: 3px solid #00d4ff; 
+                border-radius: 4px; 
+                padding: 6px; 
+                margin-top: 5px; 
+            }
+            .LinkValue { 
+                color: #fff; 
+                font-weight: bold; 
+                font-size: 11px; 
+                font-family: 'Consolas', monospace; 
+            }
+            
+            /* BUTTONS */
+            QPushButton {
+                border-radius: 4px;
+                font-weight: bold;
+                font-size: 10px;
+                padding: 4px 8px;
+            }
             
             QPushButton.AddBtn { 
-                background: #1e1e1e; color: #ffb300; border: 1px solid #ffb300; border-radius: 6px; 
-                padding: 8px 15px; font-size: 10px; font-weight: bold;
+                background: #222; color: #ffb300; border: 1px dashed #444; 
+                font-size: 11px; padding: 6px; text-align: center;
             }
-            QPushButton.AddBtn:hover { background: #ffb300; color: #1e1e1e; }
-            QPushButton.LineBtn { border: 1px solid #4CAF50; color: #4CAF50; }
-            QPushButton.LineBtn:hover { background: #4CAF50; color: white; }
+            QPushButton.AddBtn:hover { background: #333; color: #ffca28; }
             
-            QPushButton.IconBtn { background: #1e1e1e; border: 1px solid #ffb300; border-radius: 4px; color: #ffb300; }
-            QPushButton.IconBtn:hover { background: #ffb300; color: #1e1e1e; }
-            QPushButton.DelBtn { color: #ff5252; border: 1px solid #ff5252; }
-            QPushButton.DelBtn:hover { background: #ff5252; color: white; }
+            QPushButton.ActionBtn { background: #333; border: none; color: white; }
+            QPushButton.ActionBtn:hover { background: #444; }
             
-            .FeedbackPanel { background: #1a1a1a; border-top: 1px solid #333; padding-top: 10px; margin-top: 10px; }
-            QTextEdit { background: #121212; color: #ddd; border: 1px solid #333; border-radius: 4px; font-size: 10px; }
-            
-            QPushButton.CurationBtn { font-size: 9px; padding: 4px 8px; border-radius: 4px; font-weight: bold; }
-            QPushButton.TrainSuccess { background: #1e1e1e; color: #4CAF50; border: 1px solid #4CAF50; }
-            QPushButton.TrainSuccess:hover { background: #4CAF50; color: white; }
-            QPushButton.TrainFail { background: #1e1e1e; color: #ff5252; border: 1px solid #ff5252; }
-            QPushButton.TrainFail:hover { background: #ff5252; color: white; }
-            QPushButton.ResearchBtn { background: #1e1e1e; color: #ffb300; border: 1px solid #ffb300; }
-            QPushButton.ResearchBtn:hover { background: #ffb300; color: #1e1e1e; }
-        """)
+            QPushButton.DelBtn { background: #333; color: #ff5252; }
+            QPushButton.DelBtn:hover { background: #462525; }
 
-        # Cabeçalho
-        header_lbl = QLabel(f"📍 CURADORIA DE CAMPO: {self.field_id}")
-        header_lbl.setProperty("class", "HeaderLabel")
-        layout.addWidget(header_lbl)
+            /* TRAINING BUTTONS */
+            QPushButton.TrainBtn { background: #222; border: 1px solid #333; }
+            QPushButton.TrainSuccess { color: #4CAF50; }
+            QPushButton.TrainSuccess:hover { background: #1b3a24; border-color: #4CAF50; }
+            QPushButton.TrainFail { color: #ff5252; }
+            QPushButton.TrainFail:hover { background: #3a1b1b; border-color: #ff5252; }
+        """)
 
         # Área de Scroll para os Slots
         scroll = QScrollArea()
         scroll.setWidgetResizable(True)
         container = QWidget()
         scroll_layout = QVBoxLayout(container)
-        scroll_layout.setSpacing(15)
-        scroll_layout.setContentsMargins(0, 0, 10, 0)
+        scroll_layout.setSpacing(10)
+        scroll_layout.setContentsMargins(2, 2, 2, 2)
         
         self.slots_container = scroll_layout
-        
         scroll.setWidget(container)
         layout.addWidget(scroll, 1)
-
-        # Botão para criar novo slot
-        btn_new_slot = QPushButton("➕ ADICIONAR NOVA CLASSE DE VÍNCULO")
-        btn_new_slot.setStyleSheet("""
-            QPushButton { 
-                background: #1a1a1a; color: #00d4ff; border: 1px dashed #00d4ff; 
-                padding: 10px; border-radius: 8px; font-weight: bold; margin-top: 10px;
-            }
-            QPushButton:hover { background: #00d4ff; color: #1a1a1a; }
-        """)
-        btn_new_slot.clicked.connect(self._add_new_slot_template)
-        layout.addWidget(btn_new_slot)
 
         self.refresh_list()
 
     def refresh_list(self):
-        # Limpar slots anteriores
         while self.slots_container.count():
             item = self.slots_container.takeAt(0)
             if item.widget(): item.widget().deleteLater()
 
-        slots = self._get_slots()
+        slots = self._get_slots(self.field_id)
+        
         for slot in slots:
             slot_id = slot['id']
             slot_links = self.links.get(slot_id, [])
@@ -222,142 +295,76 @@ class LinkManager(QDialog):
             slot_frame = QFrame()
             slot_frame.setProperty("class", "SlotFrame")
             sf_layout = QVBoxLayout(slot_frame)
-            sf_layout.setSpacing(12)
+            sf_layout.setSpacing(5)
 
-            # Header do Slot - EDITÁVEL
-            sh_layout = QHBoxLayout()
-            sh_info = QVBoxLayout()
-            
-            # Campo Nome do Slot
-            st_edit = QLineEdit(slot['name'].upper())
-            st_edit.setProperty("class", "SlotTitle")
-            st_edit.setPlaceholderText("NOME DA CLASSE...")
-            sh_info.addWidget(st_edit)
-            
-            # Campo Prompt (IA Hint)
-            prompt_edit = QLineEdit(slot.get('prompt', ''))
-            prompt_edit.setPlaceholderText("PROMPT IA: O que buscar?")
-            prompt_edit.setStyleSheet("background: #1a1a1a; color: #ffb300; font-size: 10px; border: 1px solid #333; padding: 4px;")
-            sh_info.addWidget(prompt_edit)
+            # Header
+            header_layout = QHBoxLayout()
+            st_lbl = QLabel(slot['name'].upper())
+            st_lbl.setProperty("class", "SlotTitle")
+            header_layout.addWidget(st_lbl, 1)
+            sf_layout.addLayout(header_layout)
 
-            # Campo Ajuda (Help)
-            help_edit = QLineEdit(slot.get('help', ''))
-            help_edit.setPlaceholderText("DESCRIÇÃO: Para que serve?")
-            help_edit.setProperty("class", "SlotHelp")
-            help_edit.setStyleSheet("background: #1a1a1a; color: #999; font-size: 10px; border: 1px solid #333; padding: 4px;")
-            sh_info.addWidget(help_edit)
-            
-            # Botões de Ação do Header
-            h_btns = QVBoxLayout()
-            
-            btn_research = QPushButton("🔄 REBUSCAR")
-            btn_research.setToolTip("Pede à IA para tentar localizar o objeto ideal no CAD.")
-            btn_research.setProperty("class", "CurationBtn ResearchBtn")
-            btn_research.setFixedHeight(28)
-            btn_research.setCursor(Qt.PointingHandCursor)
-            btn_research.clicked.connect(lambda checked=False, s_id=slot_id: self.research_requested.emit(s_id))
-            
-            btn_save_def = QPushButton("💾 SALVAR DEFINIÇÃO")
-            btn_save_def.setToolTip("Salva as alterações de Nome, Prompt e Descrição desta classe.")
-            btn_save_def.setStyleSheet("font-size: 8px; color: #888; border: 1px solid #444; padding: 2px;")
-            btn_save_def.clicked.connect(lambda checked=False, s=slot, ne=st_edit, pe=prompt_edit, he=help_edit: 
-                                        self._save_slot_definition(s, ne.text(), pe.text(), he.text()))
-            
-            h_btns.addWidget(btn_research)
-            h_btns.addWidget(btn_save_def)
-            
-            sh_layout.addLayout(sh_info, 1)
-            sh_layout.addLayout(h_btns)
-            sf_layout.addLayout(sh_layout)
-
-            # Lista de Vínculos do Slot
-            if is_empty:
-                empty_lbl = QLabel("Aguardando vínculo desta classe...")
-                empty_lbl.setStyleSheet("color: #666; font-size: 10px; font-style: italic;")
-                sf_layout.addWidget(empty_lbl)
-            else:
-                for idx, link in enumerate(slot_links):
-                    li_frame = QFrame()
-                    li_frame.setProperty("class", "LinkItem")
-                    li_v_layout = QVBoxLayout(li_frame)
+            # Lista de Vínculos
+            if not is_empty:
+                for link in slot_links:
+                    link_frame = QFrame()
+                    link_frame.setProperty("class", "LinkItem")
+                    lf_layout = QHBoxLayout(link_frame)
                     
-                    li_h_layout = QHBoxLayout()
-                    val_text = str(link.get('text', 'ID Geometrico'))
+                    val_text = str(link.get('text', 'Geometria'))
+                    if len(val_text) > 30: val_text = val_text[:27] + "..."
+                    
                     val_lbl = QLabel(val_text)
                     val_lbl.setProperty("class", "LinkValue")
                     
-                    btn_focus = QPushButton("🔍 FOCAR")
-                    btn_focus.setFixedHeight(24)
-                    btn_focus.setProperty("class", "IconBtn FieldBtn")
-                    btn_focus.setCursor(Qt.PointingHandCursor)
+                    btn_focus = QPushButton("🔍")
+                    btn_focus.setProperty("class", "ActionBtn")
+                    btn_focus.setFixedSize(24, 20)
                     btn_focus.clicked.connect(lambda checked=False, l=link: self.focus_requested.emit(l))
                     
-                    btn_del = QPushButton("🗑️ APAGAR")
-                    btn_del.setFixedHeight(24)
-                    btn_del.setProperty("class", "IconBtn DelBtn FieldBtn")
-                    btn_del.setCursor(Qt.PointingHandCursor)
+                    btn_del = QPushButton("❌")
+                    btn_del.setProperty("class", "DelBtn")
+                    btn_del.setFixedSize(24, 20)
                     btn_del.clicked.connect(lambda checked=False, s_id=slot_id, l=link: self._remove_link(s_id, l))
                     
-                    li_h_layout.addWidget(val_lbl, 1)
-                    li_h_layout.addWidget(btn_focus)
-                    li_h_layout.addWidget(btn_del)
-                    li_v_layout.addLayout(li_h_layout)
+                    # New: Training Buttons (Validate and Error)
+                    btn_ok = QPushButton("✔")
+                    btn_ok.setProperty("class", "TrainBtn TrainSuccess")
+                    btn_ok.setFixedSize(24, 20)
+                    btn_ok.setToolTip("Validar/Treinar IA")
+                    btn_ok.clicked.connect(lambda checked=False, s=slot_id, l=link: self.training_requested.emit({
+                        'slot': s, 'link': l, 'comment': 'Validado via Drawer', 'status': 'valid'
+                    }))
 
-                    # --- Painel de Feedback e Treinamento (🧠) ---
-                    feedback = QFrame()
-                    feedback.setProperty("class", "FeedbackPanel")
-                    f_layout = QVBoxLayout(feedback)
-                    f_layout.setSpacing(5)
-                    f_layout.setContentsMargins(0, 5, 0, 0)
+                    btn_err = QPushButton("⚠️")
+                    btn_err.setProperty("class", "TrainBtn TrainFail")
+                    btn_err.setFixedSize(24, 20)
+                    btn_err.setToolTip("Indicar Erro de IA")
+                    btn_err.clicked.connect(lambda checked=False, s=slot_id, l=link: self.training_requested.emit({
+                        'slot': s, 'link': l, 'comment': 'Erro via Drawer', 'status': 'fail'
+                    }))
 
-                    # Badge de Insight Técnico (DNA/Confidence)
-                    dna_badge = QLabel("📊 DNA Insight: Area/Densid. Match | Confiança: 85%")
-                    dna_badge.setStyleSheet("font-size: 8px; color: #00d4ff; background: #1a1a1a; padding: 3px; border-radius: 4px; border: 1px solid #333;")
-                    if 'debug' in link: dna_badge.setText(f"📊 {link['debug']}")
-                    f_layout.addWidget(dna_badge)
-
-                    comment_box = QTextEdit()
-                    comment_box.setPlaceholderText("Por que este vínculo está correto ou errado? (Treina IA)")
-                    comment_box.setFixedHeight(40)
-                    f_layout.addWidget(comment_box)
+                    lf_layout.addWidget(val_lbl, 1)
                     
-                    btns_train = QHBoxLayout()
-                    btn_train_ok = QPushButton("🧠 VALIDAR INTERPRETAÇÃO (TREINAR E SALVAR ITEM NO DXF)")
-                    btn_train_ok.setProperty("class", "CurationBtn TrainSuccess")
-                    btn_train_ok.setCursor(Qt.PointingHandCursor)
-                    btn_train_ok.clicked.connect(lambda checked=False, s=slot_id, l=link, c=comment_box: 
-                                               self._on_train_clicked(s, l, c.toPlainText(), True))
-
-                    # Novo: Botão de Propagação Inteligente
-                    btn_propagate = QPushButton("📡 PROPAGAR")
-                    btn_propagate.setToolTip("Aplica este treino a todos os pilares com DNA similar no projeto.")
-                    btn_propagate.setStyleSheet("""
-                        QPushButton { background: #1a1a1a; color: #ff00ff; border: 1px solid #ff00ff; font-size: 8px; font-weight: bold; }
-                        QPushButton:hover { background: #ff00ff; color: white; }
-                    """)
-                    btn_propagate.setFixedWidth(70)
-                    btn_propagate.clicked.connect(lambda checked=False, s=slot_id, l=link, c=comment_box: 
-                                                self._on_train_clicked(s, l, c.toPlainText(), True, propagate=True))
-
-                    btn_train_no = QPushButton("⚠️ MARCAR FALHA")
-                    btn_train_no.setProperty("class", "CurationBtn TrainFail")
-                    btn_train_no.setCursor(Qt.PointingHandCursor)
-                    btn_train_no.clicked.connect(lambda checked=False, s=slot_id, l=link, c=comment_box: 
-                                               self._on_train_clicked(s, l, c.toPlainText(), False))
+                    # Vertical Action Stack for "Micro Buttons"
+                    actions_v = QVBoxLayout()
+                    actions_v.setSpacing(1)
                     
-                    btns_train.addWidget(btn_train_no)
-                    btns_train.addWidget(btn_train_ok)
-                    btns_train.addWidget(btn_propagate) # Adicionado Propagar
-                    f_layout.addLayout(btns_train)
+                    row1 = QHBoxLayout(); row1.setSpacing(1); row1.setContentsMargins(0,0,0,0)
+                    row1.addWidget(btn_focus); row1.addWidget(btn_del)
                     
-                    li_v_layout.addWidget(feedback)
-                    sf_layout.addWidget(li_frame)
+                    row2 = QHBoxLayout(); row2.setSpacing(1); row2.setContentsMargins(0,0,0,0)
+                    row2.addWidget(btn_ok); row2.addWidget(btn_err)
+                    
+                    actions_v.addLayout(row1)
+                    actions_v.addLayout(row2)
+                    lf_layout.addLayout(actions_v)
+                    
+                    sf_layout.addWidget(link_frame)
 
-            # Botão de Adição específico para este Slot (Sempre visível no fundo)
-            btn_add = QPushButton(f"+ CAPTURAR {slot['name'].upper()}")
+            # Botão Capturar
+            btn_add = QPushButton(f"+ Capturar")
             btn_add.setProperty("class", "AddBtn")
-            if slot['type'] in ['line', 'geometry']: btn_add.setProperty("class", "AddBtn LineBtn")
-            btn_add.setCursor(Qt.PointingHandCursor)
             btn_add.clicked.connect(lambda checked=False, s=slot: self._on_pick_clicked(s))
             sf_layout.addWidget(btn_add)
 
@@ -366,65 +373,19 @@ class LinkManager(QDialog):
         self.slots_container.addStretch()
 
     def _on_pick_clicked(self, slot):
-        self.hide()
-        # Formato: "slot_id|pick_type"
+        # Transmite o pedido de captura para o DetailCard -> MainWindow
         self.pick_requested.emit(f"{slot['id']}|{slot['type']}")
 
     def _remove_link(self, slot_id, link):
+        # Transmite o pedido de remoção
+        self.remove_requested.emit({'slot': slot_id, 'link': link})
+        # O DetailCard deve atualizar o item_data e chamar refresh_list do LM se necessário
+        # Mas para feedback imediato na UI local:
         if slot_id in self.links:
-            self.links[slot_id].remove(link)
-            self.remove_requested.emit({'slot': slot_id, 'link': link})
-            self.refresh_list()
-
-    def _on_train_clicked(self, slot, link, comment, is_valid, propagate=False):
-        status = "valid" if is_valid else "fail"
-        self.training_requested.emit({
-            'slot': slot, 
-            'link': link, 
-            'comment': comment, 
-            'status': status,
-            'propagate': propagate
-        })
-        if not propagate:
-            self.refresh_list()
-        else:
-            from PySide6.QtWidgets import QMessageBox
-            QMessageBox.information(self, "Propagação", "IA analisando pilares similares para propagar este conhecimento...")
+            if link in self.links[slot_id]:
+                self.links[slot_id].remove(link)
+                self.refresh_list()
 
     def _save_slot_definition(self, slot, name, prompt, help_text):
-        """Atualiza a configuração do slot e avisa o sistema para persistir"""
-        slot['name'] = name
-        slot['prompt'] = prompt
-        slot['help'] = help_text
-        
-        # Encontrar qual chave do SLOT_CONFIG estamos editando
-        found_key = 'default'
-        for key in self.SLOT_CONFIG:
-            if key in self.field_id:
-                found_key = key
-                break
-        
-        self.config_changed.emit(found_key, self.SLOT_CONFIG[found_key])
-        from PySide6.QtWidgets import QMessageBox
-        QMessageBox.information(self, "Configuração Salva", f"Classe '{name}' atualizada com sucesso!")
-
-    def _add_new_slot_template(self):
-        """Adiciona um novo slot vazio para configuração"""
-        found_key = 'default'
-        for key in self.SLOT_CONFIG:
-            if key in self.field_id:
-                found_key = key
-                break
-        
-        # Gerar um ID único simples
-        new_id = f"custom_{len(self.SLOT_CONFIG[found_key])}"
-        new_slot = {
-            'id': new_id, 
-            'name': 'NOVA CLASSE', 
-            'type': 'text', 
-            'prompt': 'Descreva o que buscar...', 
-            'help': 'Explique a finalidade...'
-        }
-        
-        self.SLOT_CONFIG[found_key].append(new_slot)
-        self.refresh_list()
+        # Simplificado para o modo embedded
+        pass

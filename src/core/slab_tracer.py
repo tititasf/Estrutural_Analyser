@@ -68,7 +68,7 @@ class SlabTracer:
         
         # Regex mais flexível: L1, L 1, L-1, Laje 1, Laje-1
         # Captura 'L' ou 'LAJE', opcional separador, e digitos
-        slab_pattern = re.compile(r'^(?:LAJE|L)[\s-]?\d+$', re.IGNORECASE)
+        slab_pattern = re.compile(r'^(?:LAJE|L)[\s-]?\d+.*$', re.IGNORECASE)
         
         # Debug: Check text samples
         sample_texts = [t.get('text', '') for t in texts[:10]]

@@ -80,6 +80,7 @@ class DatabaseManager:
                 conf_map_json TEXT, 
                 validated_fields_json TEXT, 
                 issues_json TEXT, 
+                id_item TEXT,
                 is_validated BOOLEAN DEFAULT 0,
                 FOREIGN KEY(project_id) REFERENCES projects(id)
             )
@@ -97,6 +98,7 @@ class DatabaseManager:
                 links_json TEXT,
                 validated_fields_json TEXT,
                 issues_json TEXT,
+                id_item TEXT,
                 is_validated BOOLEAN DEFAULT 0,
                 FOREIGN KEY(project_id) REFERENCES projects(id)
             )
@@ -113,6 +115,7 @@ class DatabaseManager:
                 links_json TEXT,
                 validated_fields_json TEXT,
                 issues_json TEXT,
+                id_item TEXT,
                 is_validated BOOLEAN DEFAULT 0,
                 FOREIGN KEY(project_id) REFERENCES projects(id)
             )
@@ -120,31 +123,48 @@ class DatabaseManager:
 
     def _migrate_db(self, cursor):
         """Adiciona colunas necessárias, corrige tipos e migra dados."""
-        # ... (previous migration code) ...
-        # Migração de Obras existentes em Projetos para a tabela Works
+        logging.info("Checking database migrations...")
+        
+        # Helper para verificar e adicionar colunas
+        def _check_and_add_column(table_name, column_name, column_type):
+            try:
+                # Verificar se a coluna já existe
+                cursor.execute(f"PRAGMA table_info({table_name})")
+                columns = [info[1] for info in cursor.fetchall()]
+                
+                if column_name not in columns:
+                    cursor.execute(f"ALTER TABLE {table_name} ADD COLUMN {column_name} {column_type}")
+                    logging.info(f"✅ Migração: Coluna '{column_name}' adicionada à tabela '{table_name}'.")
+                else:
+                    logging.debug(f"ℹ️ Coluna '{column_name}' já existe em '{table_name}'.")
+            except Exception as e:
+                logging.error(f"❌ Erro na migração ({table_name}.{column_name}): {e}")
+
+        # Migração de Obras existentes
         try:
             cursor.execute("INSERT OR IGNORE INTO works (name) SELECT DISTINCT work_name FROM projects WHERE work_name IS NOT NULL AND work_name != ''")
-        except Exception as e:
-            logging.error(f"Error migrating works: {e}")
+        except Exception as e: pass
 
-        # Helper para adicionar colunas de forma segura
-        def add_col(table, col, dtype):
-            try:
-                cursor.execute(f"ALTER TABLE {table} ADD COLUMN {col} {dtype}")
-            except Exception: pass
-
-        # Colunas novas de Lajes (Hierarquia N3)
-        add_col('slabs', 'type', "TEXT DEFAULT 'Laje'")
-        add_col('slabs', 'links_json', 'TEXT')
-        add_col('slabs', 'validated_fields_json', 'TEXT')
-        add_col('slabs', 'issues_json', 'TEXT')
-        add_col('slabs', 'is_validated', 'BOOLEAN DEFAULT 0')
-
-        # Colunas novas de Vigas (Hierarquia N2/N3)
-        add_col('beams', 'sides_data_json', 'TEXT')
-        add_col('beams', 'links_json', 'TEXT')
-        add_col('beams', 'validated_fields_json', 'TEXT')
-        add_col('beams', 'issues_json', 'TEXT')
+        # --- NOVAS COLUNAS ---
+        
+        # SLABS
+        _check_and_add_column('slabs', 'type', "TEXT DEFAULT 'Laje'")
+        _check_and_add_column('slabs', 'links_json', 'TEXT')
+        _check_and_add_column('slabs', 'validated_fields_json', 'TEXT')
+        _check_and_add_column('slabs', 'issues_json', 'TEXT')
+        _check_and_add_column('slabs', 'is_validated', 'BOOLEAN DEFAULT 0')
+        _check_and_add_column('slabs', 'id_item', 'TEXT')
+        
+        # PILLARS
+        _check_and_add_column('pillars', 'id_item', 'TEXT')
+        
+        # BEAMS
+        _check_and_add_column('beams', 'id_item', 'TEXT')
+        _check_and_add_column('beams', 'sides_data_json', 'TEXT')
+        _check_and_add_column('beams', 'links_json', 'TEXT')
+        _check_and_add_column('beams', 'validated_fields_json', 'TEXT')
+        _check_and_add_column('beams', 'issues_json', 'TEXT')
+        _check_and_add_column('beams', 'is_validated', 'BOOLEAN DEFAULT 0')
 
         # ... (rest of migration code)
 
@@ -248,15 +268,7 @@ class DatabaseManager:
             )
         ''')
 
-    def _migrate_db(self, cursor):
-        """Adiciona colunas necessárias e corrige tipos de dados incompatíveis."""
-        
-        # Migração de Obras existentes em Projetos para a tabela Works (Executa primeiro para popular)
-        try:
-            # Seleciona de projects apenas se work_name não for nulo/vazio
-            cursor.execute("INSERT OR IGNORE INTO works (name) SELECT DISTINCT work_name FROM projects WHERE work_name IS NOT NULL AND work_name != ''")
-        except Exception as e:
-            logging.error(f"Error migrating works: {e}")
+
 
         # 1. Verificar tipo da coluna ID na tabela pillars
         need_recreation = False
@@ -460,9 +472,9 @@ class DatabaseManager:
                 INSERT INTO pillars (
                     id, project_id, name, type, area, points_json, sides_data_json, 
                     links_json, conf_map_json, validated_fields_json, 
-                    issues_json, is_validated
+                    issues_json, id_item, is_validated
                 )
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 ON CONFLICT(id) DO UPDATE SET
                     project_id=excluded.project_id,
                     name=excluded.name,
@@ -473,6 +485,7 @@ class DatabaseManager:
                     conf_map_json=excluded.conf_map_json,
                     validated_fields_json=excluded.validated_fields_json,
                     issues_json=excluded.issues_json,
+                    id_item=excluded.id_item,
                     is_validated=excluded.is_validated
             ''', (
                 p_id,
@@ -486,6 +499,7 @@ class DatabaseManager:
                 conf_map_json,
                 val_fields_json,
                 issues_json,
+                p.get('id_item'),
                 1 if p.get('is_validated') else 0
             ))
             
@@ -514,6 +528,7 @@ class DatabaseManager:
                 p['confidence_map'] = json.loads(p.get('conf_map_json', '{}'))
                 p['validated_fields'] = json.loads(p.get('validated_fields_json', '[]'))
                 p['issues'] = json.loads(p.get('issues_json', '[]'))
+                p['id_item'] = p.get('id_item')
                 p['is_validated'] = bool(p['is_validated'])
                 pillars.append(p)
         except Exception as e:
@@ -538,16 +553,32 @@ class DatabaseManager:
         cursor = conn.cursor()
         try:
             cursor.execute('''
-                INSERT INTO slabs (id, project_id, name, area, points_json)
-                VALUES (?, ?, ?, ?, ?)
+                INSERT INTO slabs (
+                    id, project_id, name, type, area, points_json, 
+                    links_json, validated_fields_json, issues_json, id_item, is_validated
+                )
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 ON CONFLICT(id) DO UPDATE SET
                     project_id=excluded.project_id,
                     name=excluded.name,
+                    type=excluded.type,
                     area=excluded.area,
-                    points_json=excluded.points_json
+                    points_json=excluded.points_json,
+                    links_json=excluded.links_json,
+                    validated_fields_json=excluded.validated_fields_json,
+                    issues_json=excluded.issues_json,
+                    id_item=excluded.id_item,
+                    is_validated=excluded.is_validated
             ''', (
                 s['id'], project_id, s.get('name'), 
-                float(s.get('area', 0.0)), json.dumps(s.get('points', []))
+                s.get('type', 'Laje'),
+                float(s.get('area', 0.0)), 
+                json.dumps(s.get('points', [])),
+                json.dumps(s.get('links', {})),
+                json.dumps(s.get('validated_fields', [])),
+                json.dumps(s.get('issues', [])),
+                s.get('id_item'),
+                1 if s.get('is_validated') else 0
             ))
             conn.commit()
         except Exception as e:
@@ -565,7 +596,12 @@ class DatabaseManager:
             cursor.execute('SELECT * FROM slabs WHERE project_id = ?', (project_id,))
             for row in cursor.fetchall():
                 s = dict(row)
-                s['points'] = json.loads(s['points_json'])
+                s['points'] = json.loads(s.get('points_json', '[]'))
+                s['links'] = json.loads(s.get('links_json', '{}'))
+                s['validated_fields'] = json.loads(s.get('validated_fields_json', '[]'))
+                s['issues'] = json.loads(s.get('issues_json', '[]'))
+                s['id_item'] = s.get('id_item')
+                s['is_validated'] = bool(s.get('is_validated', 0))
                 slabs.append(s)
         except Exception as e:
             logging.error(f"Erro ao carregar lajes: {e}")
@@ -578,16 +614,18 @@ class DatabaseManager:
         cursor = conn.cursor()
         try:
             cursor.execute('''
-                INSERT INTO beams (id, project_id, name, data_json, is_validated)
-                VALUES (?, ?, ?, ?, ?)
+                INSERT INTO beams (id, project_id, name, data_json, id_item, is_validated)
+                VALUES (?, ?, ?, ?, ?, ?)
                 ON CONFLICT(id) DO UPDATE SET
                     project_id=excluded.project_id,
                     name=excluded.name,
                     data_json=excluded.data_json,
+                    id_item=excluded.id_item,
                     is_validated=excluded.is_validated
             ''', (
                 b['id'], project_id, b.get('name'), 
-                json.dumps(b), 1 if b.get('is_validated') else 0
+                json.dumps(b), b.get('id_item'), 
+                1 if b.get('is_validated') else 0
             ))
             conn.commit()
         except Exception as e:
@@ -605,7 +643,17 @@ class DatabaseManager:
             cursor.execute('SELECT * FROM beams WHERE project_id = ?', (project_id,))
             for row in cursor.fetchall():
                 b = json.loads(row['data_json'])
-                b['is_validated'] = bool(row['is_validated'])
+                # Use .get() or explicit check, though sqlite3.Row supports keys
+                # If column missing, row['col'] raises KeyError (No item with that key)
+                try:
+                    b['is_validated'] = bool(row['is_validated'])
+                except (IndexError, KeyError):
+                    b['is_validated'] = False
+                    
+                try:
+                    b['id_item'] = row['id_item']
+                except (IndexError, KeyError):
+                    b['id_item'] = b.get('id_item') # Retain if inside JSON or None
                 beams.append(b)
         except Exception as e:
             logging.error(f"Erro ao carregar vigas: {e}")
@@ -774,5 +822,35 @@ class DatabaseManager:
             conn.commit()
         except Exception as e:
             logging.error(f"Erro ao logar training_event: {e}")
+        finally:
+            conn.close()
+
+    def get_training_events(self, project_id: str) -> List[Dict]:
+        """Retorna todos os eventos de treino (valid e fail) para o projeto."""
+        conn = self._get_conn()
+        try:
+            # Join with projects to get work name if needed, but here we focus on raw events
+            cursor = conn.execute('''
+                SELECT id, type, role, target_value, status, timestamp, context_dna_json 
+                FROM training_events 
+                WHERE project_id = ? 
+                ORDER BY timestamp DESC
+            ''', (project_id,))
+            
+            columns = [c[0] for c in cursor.description]
+            results = []
+            for row in cursor.fetchall():
+                results.append(dict(zip(columns, row)))
+            return results
+        finally:
+            conn.close()
+
+    def delete_training_event(self, event_id: str):
+        """Remove um evento de treino específico (Correção de Erro Humano)."""
+        conn = self._get_conn()
+        try:
+            conn.execute('DELETE FROM training_events WHERE id = ?', (event_id,))
+            conn.commit()
+            logging.info(f"🗑️ Evento de treino {event_id} removido.")
         finally:
             conn.close()
