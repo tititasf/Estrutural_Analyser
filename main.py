@@ -24,7 +24,7 @@ from src.core.memory import HierarchicalMemory
 from src.core.beam_walker import BeamWalker
 from src.core.context_engine import ContextEngine
 from src.core.pillar_analyzer import PillarAnalyzer
-from src.core.dxf_preprocessor import DXFPreprocessor
+
 
 # Config logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -46,13 +46,11 @@ class MainWindow(QMainWindow):
         # Engines
         self.context_engine = None
         self.pillar_analyzer = None
-        self.dxf_preprocessor = None
 
         self.dxf_data = None
         self.pillars_found = []
         self.slabs_found = []
         self.beams_found = []
-        self.contours_found = []
         self.beams_database = [] # Armazena dados de visualização das vigas por pilar
         
         self.current_project_id = None
@@ -136,10 +134,6 @@ class MainWindow(QMainWindow):
         left_layout.addWidget(self.meta_widget)
 
         # 2. Botão de Análise (Imediatamente acima do Salvar)
-        self.btn_pre_process = QPushButton("🛠️ Tratamento Prévio")
-        self.btn_pre_process.setStyleSheet("background: #1a3a5a; color: #80d4ff; padding: 4px; font-size: 11px; height: 18px; border: 1px solid #2a5a8a;")
-        self.btn_pre_process.clicked.connect(self.run_dxf_preprocessor_action)
-        left_layout.addWidget(self.btn_pre_process)
 
         self.btn_process = QPushButton("🚀 Iniciar Análise Geral")
         self.btn_process.setObjectName("Primary") # Destaque visual
@@ -319,21 +313,20 @@ class MainWindow(QMainWindow):
         self.list_beams.setColumnWidth(1, 120)
         
         self.list_slabs = QListWidget()
-        self.list_contours = QListWidget() # Nova lista Contorno
+        self.list_slabs = QListWidget()
         self.list_issues = QListWidget()
         
         # Conectar Sinais (Atual)
         self.list_pillars.itemClicked.connect(self.on_list_pillar_clicked)
         self.list_beams.itemClicked.connect(self.on_list_beam_clicked)
         self.list_slabs.itemClicked.connect(self.on_list_slab_clicked)
-        self.list_contours.itemClicked.connect(self.on_list_contour_clicked)
         self.list_issues.itemClicked.connect(self.on_issue_clicked)
         
         # Adicionar Abas com Containers
         self.tabs_analysis_internal.addTab(create_tab_container(self.list_pillars, 'pillar', False), "Pilares")
         self.tabs_analysis_internal.addTab(create_tab_container(self.list_beams, 'beam', False), "Vigas")
         self.tabs_analysis_internal.addTab(create_tab_container(self.list_slabs, 'slab', False), "Lajes")
-        self.tabs_analysis_internal.addTab(create_tab_container(self.list_contours, 'contour', False), "Contorno") # Nova Aba
+        self.tabs_analysis_internal.addTab(create_tab_container(self.list_slabs, 'slab', False), "Lajes")
         self.tabs_analysis_internal.addTab(self.list_issues, "⚠️ Pendências")
         
         # Conectar mudança de aba interna (Análise)
@@ -355,19 +348,18 @@ class MainWindow(QMainWindow):
         self.list_beams_valid.setColumnWidth(1, 120)
 
         self.list_slabs_valid = QListWidget()
-        self.list_contours_valid = QListWidget() # Nova lista Biblioteca Contorno
+        self.list_slabs_valid = QListWidget()
         
         # Conectar Sinais (Validado)
         self.list_pillars_valid.itemClicked.connect(self.on_list_pillar_clicked)
         self.list_beams_valid.itemClicked.connect(self.on_list_beam_clicked)
         self.list_slabs_valid.itemClicked.connect(self.on_list_slab_clicked)
-        self.list_contours_valid.itemClicked.connect(self.on_list_contour_clicked)
         
         # Adicionar Abas com Containers
         self.tabs_library_internal.addTab(create_tab_container(self.list_pillars_valid, 'pillar', True), "Pilares OK")
         self.tabs_library_internal.addTab(create_tab_container(self.list_beams_valid, 'beam', True), "Vigas OK")
         self.tabs_library_internal.addTab(create_tab_container(self.list_slabs_valid, 'slab', True), "Lajes OK")
-        self.tabs_library_internal.addTab(create_tab_container(self.list_contours_valid, 'contour', True), "Contornos OK") # Nova Aba
+        self.tabs_library_internal.addTab(create_tab_container(self.list_slabs_valid, 'slab', True), "Lajes OK")
         
         # Conectar mudança de aba interna (Biblioteca)
         self.tabs_library_internal.currentChanged.connect(self._on_library_tab_changed)
@@ -527,14 +519,25 @@ class MainWindow(QMainWindow):
 
     def on_pick_requested(self, field_id, slot_request):
         """Ativa o modo de captura no canvas para um slot específico"""
-        # slot_request formato: "id_do_slot|tipo_de_pick"
-        parts = slot_request.split('|')
-        slot_id = parts[0]
-        pick_type = parts[1] if len(parts) > 1 else 'text'
+        # slot_request pode ser string "id_do_slot|tipo_de_pick" ou dict {"slot":..., "type":...}
+        if isinstance(slot_request, dict):
+            slot_id = slot_request.get('slot', 'main')
+            pick_type = slot_request.get('type', 'text')
+        else:
+            parts = str(slot_request).split('|')
+            slot_id = parts[0]
+            pick_type = parts[1] if len(parts) > 1 else 'text'
+        
+        # [FORÇAR] Modo texto para Dimensões
+        if 'dim' in field_id.lower() or 'dim' in slot_id.lower():
+             pick_type = 'text'
         
         self.log(f"Iniciando captura {pick_type} para campo {field_id} [Slot: {slot_id}]...")
         self.current_pick_field = field_id
         self.current_pick_slot = slot_id
+        
+        # Importante: O canvas deve saber o slot_id para emitir corretamente depois se necessário, 
+        # mas MainWindow gerencia o estado.
         self.canvas.set_picking_mode(pick_type, field_id)
 
     def on_pick_completed(self, pick_data):
@@ -551,6 +554,46 @@ class MainWindow(QMainWindow):
             if slot_id == 'void_x':
                 value = "SEM LAJE"
             
+            # 2. Salvar vínculo estruturado no item_data
+            if 'links' not in self.current_card.item_data:
+                self.current_card.item_data['links'] = {}
+            
+            links_dict = self.current_card.item_data['links']
+            if field_id not in links_dict:
+                links_dict[field_id] = {} 
+                
+            # Atualizar ref para garantir que pegamos o dict atualizado se foi modificado acima
+            field_slots = links_dict[field_id] 
+            
+            # Migração de dados legados (Se ainda for uma lista simples)
+            if isinstance(field_slots, list):
+                field_slots = {'label': field_slots}
+                links_dict[field_id] = field_slots
+
+            # NORMALIZAÇÃO DE SLOTS (Para aparecer na lista das classes correctas do LinkManager)
+            if slot_id == 'main':
+                 f_id_lower = field_id.lower()
+                 # 1. Dimensões em Trechos/Segmentos (Pilar -> Viga, etc)
+                 if f_id_lower.endswith('_d'):
+                      slot_id = 'dim'
+                 
+                 # 2. Dimensões Gerais/Cabeçalho
+                 elif 'dim' in f_id_lower or 'espessura' in f_id_lower:
+                      slot_id = 'label'
+                      # Caso especial para slots complexes que usam 'dim' como id (ex: _laje_complex, _height_complex)
+                      if any(x in f_id_lower for x in ['_laje_', '_height_']):
+                           slot_id = 'dim'
+                 
+                 # 3. Nomes e Identificadores
+                 elif 'name' in f_id_lower or 'label' in f_id_lower or field_id == 'id_item':
+                      slot_id = 'label'
+                 
+                 # 4. Geometrias e Contornos
+                 elif any(x in f_id_lower for x in ['geometria', 'outline', 'segs', 'geom']):
+                      slot_id = 'geometry'
+                      if '_laje_geom' in f_id_lower or '_fundo_segs' in f_id_lower: 
+                           slot_id = 'contour'
+
             # Lógica Especial: Viga Manual -> Extensão Inteligente
             # Se for uma viga manual e o pick for linha (geometria principal)
             if (self.current_card.item_data.get('manual') 
@@ -568,14 +611,8 @@ class MainWindow(QMainWindow):
                     length = (dx**2 + dy**2)**0.5
                     
                     if length > 0:
-                        # Meta: Valor Inteiro >= Comprimento Atual + ~10
-                        # Ex: Desenhado 288 -> Meta 300 (Ext 12)
-                        # Ex: Desenhado 295 -> Meta 305/310? Vamos assumir teto simples primeiro.
                         desired_ext = 10.0
                         target_total = math.ceil(length + desired_ext)
-                        
-                        # Se quiser múltiplo de 5: target_total = math.ceil((length + desired_ext)/5) * 5
-                        
                         real_ext_len = target_total - length
                         
                         # Calcular P3 (Fim da Extensão)
@@ -607,6 +644,21 @@ class MainWindow(QMainWindow):
                 except Exception as e:
                     self.log(f"⚠️ Erro ao calcular extensão automática: {e}")
 
+            # ----------------------------------------------------
+            # CORREÇÃO: POPULAR SEGMENTOS DE VIGA (LADO A/B/FUNDO)
+            # ----------------------------------------------------
+            # if field_id.startswith('viga_') or 'seg' in field_id:
+            #      # Reforço na inferência de slots para segmentos
+            #      if not slot_id or slot_id == 'main':
+            #           f_id_lower = field_id.lower()
+            #           if any(x in f_id_lower for x in ['_a_', 'side_a', 'lado_a']): slot_id = 'seg_side_a'
+            #           elif any(x in f_id_lower for x in ['_b_', 'side_b', 'lado_b']): slot_id = 'seg_side_b'
+            #           elif any(x in f_id_lower for x in ['bottom', 'fundo']): slot_id = 'seg_bottom'
+            
+            # Garantir que slot_id não seja 'main' se estivermos em viga_segs (evita poluição)
+            # if field_id == 'viga_segs' and (not slot_id or slot_id == 'main'):
+            #      slot_id = 'seg_side_a' # Default fallback
+
             # 1. Atualizar valor visual
             if isinstance(field, QLineEdit):
                 field.setText(str(value))
@@ -616,21 +668,7 @@ class MainWindow(QMainWindow):
                 field.setText(f"Válido: {value}")
                 field.setStyleSheet("color: #00cc66; font-weight: bold; font-size: 10px;")
             
-            # 2. Salvar vínculo estruturado no item_data
-            if 'links' not in self.current_card.item_data:
-                self.current_card.item_data['links'] = {}
-            
-            links_dict = self.current_card.item_data['links']
-            if field_id not in links_dict:
-                links_dict[field_id] = {} 
-                
-            # Atualizar ref para garantir que pegamos o dict atualizado se foi modificado acima
-            field_slots = links_dict[field_id] 
-            
-            # Migração de dados legados
-            if isinstance(field_slots, list):
-                field_slots = {'label': field_slots}
-                links_dict[field_id] = field_slots
+            # Os vínculos e migrações já foram tratados acima.
 
             if slot_id not in field_slots:
                 field_slots[slot_id] = []
@@ -649,23 +687,27 @@ class MainWindow(QMainWindow):
                 field.setStyleSheet("color: #00cc66; font-weight: bold; font-size: 10px;")
 
             # Lógica Especial: Fundo da Viga - Calcular dimensão pelo maior segmento
-            if field_id == 'viga_fundo_segs':
-                all_segs = []
-                for slot_list in field_slots.values():
-                    all_segs.extend(slot_list)
-                
-                max_len = 0.0
-                for seg in all_segs:
-                    pts = seg.get('points', [])
-                    if len(pts) >= 2:
-                         p1, p2 = pts[0], pts[1]
-                         dist = ((p1[0]-p2[0])**2 + (p1[1]-p2[1])**2)**0.5
-                         if dist > max_len: max_len = dist
-                
-                dim_field = self.current_card.fields.get('viga_fundo_dim')
-                if dim_field:
-                     dim_field.setText(f"{max_len:.2f}")
-                     self.current_card.item_data['viga_fundo_dim'] = f"{max_len:.2f}"
+            if 'seg_bottom' in slot_id or 'viga_fundo' in field_id:
+                all_segs = field_slots.get('seg_bottom', [])
+                if not all_segs and field_id == 'viga_segs':
+                     all_segs = field_slots.get('main', [])
+
+                if all_segs:
+                    total_len = 0.0
+                    for seg in all_segs:
+                        pts = seg.get('points', [])
+                        if len(pts) >= 2:
+                             # Calcular soma de todos os segmentos vinculados
+                             for i in range(len(pts)-1):
+                                 p1, p2 = pts[i], pts[i+1]
+                                 total_len += ((p1[0]-p2[0])**2 + (p1[1]-p2[1])**2)**0.5
+                    
+                    # Atualizar comprimento do fundo se o campo existir
+                    fundo_field_key = 'comprimento_fundo'
+                    self.current_card.item_data[fundo_field_key] = round(total_len, 1)
+                    if fundo_field_key in self.current_card.fields:
+                         self.current_card.fields[fundo_field_key].setText(str(round(total_len, 1)))
+                    self.log(f"📏 Comprimento do Fundo Atualizado: {total_len:.1f}")
             
             # REFRESH GERAL
             # a) Refresh Link Managers Embutidos
@@ -1256,23 +1298,6 @@ class MainWindow(QMainWindow):
             self.log(f"Erro: Pilar {pillar_id} não encontrado nos dados processados.")
 
     # --- CALLBACKS DE LISTAS ---
-    def on_list_contour_clicked(self, item):
-        """Callback: Clique na lista de Contornos (Análise ou Library)."""
-        if not item: return
-        cid = item.data(Qt.UserRole)
-        
-        # 1. Tentar encontrar na lista carregada
-        c_data = next((c for c in getattr(self, 'contours_found', []) if c['id'] == cid), None)
-        
-        # 2. Se não estiver na lista, talvez seja o que acabamos de gerar no pre-processador
-        if not c_data and hasattr(self, 'dxf_preprocessor') and self.dxf_preprocessor and self.dxf_preprocessor.item_data:
-            if self.dxf_preprocessor.item_data.get('id') == cid:
-                c_data = self.dxf_preprocessor.item_data
-                
-        if c_data:
-            self.show_detail(c_data)
-        else:
-            self.log(f"⚠️ Dados do contorno {cid} não encontrados.")
 
     def on_list_beam_clicked(self, item, column=0):
         beam_id = item.data(0, Qt.UserRole)
@@ -1329,17 +1354,7 @@ class MainWindow(QMainWindow):
         for b in beams:
             self.db.save_beam(b, self.current_project_id)
         
-        # 5. Save Contours (Marcos)
-        # A lista oficial é self.contours_found, populada no tratamento prévio ou load
-        if not hasattr(self, 'contours_found'): self.contours_found = []
-
-        contours = self.contours_found
-        for c in contours:
-            # Garantir ID único se não tiver
-            if 'id' not in c: c['id'] = str(uuid.uuid4())
-            self.db.save_contour(c, self.current_project_id)
-            
-        self.log(f"   -> {len(beams)} vigas e {len(contours)} contornos salvos.")
+        self.log(f"   -> {len(beams)} vigas salvas.")
         self.log("✅ Projeto salvo com sucesso!")
 
     def load_project_action(self):
@@ -1353,7 +1368,6 @@ class MainWindow(QMainWindow):
         self.pillars_found = self.db.load_pillars(self.current_project_id) or []
         self.slabs_found = self.db.load_slabs(self.current_project_id) or []
         self.beams_found = self.db.load_beams(self.current_project_id) or []
-        self.contours_found = self.db.load_contours(self.current_project_id) or []
 
         # Ordenar (Funções auxiliares internas)
         import re
@@ -1376,10 +1390,6 @@ class MainWindow(QMainWindow):
             self.canvas.draw_interactive_pillars(self.pillars_found)
             self.canvas.draw_slabs(self.slabs_found)
             self.canvas.draw_beams(self.beams_found)
-            
-            # Contornos (Marcos) - Sempre visíveis
-            for c in getattr(self, 'contours_found', []):
-                self.canvas.draw_marco_dxf(c)
         
         # Sincronizar Listas UI
         self._update_all_lists_ui()
@@ -1388,7 +1398,7 @@ class MainWindow(QMainWindow):
         if self.pillars_found:
             self.show_detail(self.pillars_found[0])
             
-        self.log(f"✅ Projeto restaurado: {len(self.pillars_found)}P, {len(self.beams_found)}V, {len(self.slabs_found)}L, {len(self.contours_found)}C.")
+        self.log(f"✅ Projeto restaurado: {len(self.pillars_found)}P, {len(self.beams_found)}V, {len(self.slabs_found)}L.")
                 
     def on_research_requested(self, field_id, slot_id):
         """Re-executa a busca para o slot usando Treinamento + Prompts. ATUALIZA OS DADOS."""
@@ -1606,20 +1616,30 @@ class MainWindow(QMainWindow):
 
         # 2. Feedback Visual Imediato
         if status == 'valid':
+            # Marcar o link individual como validado
+            link_obj['validated'] = True
+            link_obj.pop('failed', None)
+            
             self.current_card.mark_field_validated(field_id, True)
             self.log(f"👍 Feedback POSITIVO salvo para '{field_id}:{slot_id}'")
             
             # --- NOVO: Se validou o vínculo, valida o item inteiro no DXF ---
             self.on_card_validated(p_data)
-            
-            # 3. Propagação (Radar de Aprendizado)
-            if propagate:
-                self._propagate_training_action(field_id, slot_id, p_data, link_obj)
         else:
+            # Marcar o link individual como falho
+            link_obj['failed'] = True
+            link_obj.pop('validated', None)
+            
             self.current_card.mark_field_validated(field_id, False)
             f = self.current_card.fields.get(field_id)
             if f and hasattr(f, 'clear'): f.clear()
             self.log(f"⚠️ Feedback de FALHA salvo para '{field_id}:{slot_id}'")
+
+        # Forçar refresh do LinkManager se ele estiver aberto
+        if hasattr(self.current_card, 'embedded_managers'):
+            lm = self.current_card.embedded_managers.get(field_id)
+            if lm:
+                lm.refresh_list()
 
         self.tab_training.load_events(self.current_project_id)
 
@@ -1655,6 +1675,9 @@ class MainWindow(QMainWindow):
                 
                 if result['found_ent']:
                     # Aplicar e validar automaticamente
+                    for lk in result['links']:
+                        lk['validated'] = True
+                        
                     target_p.setdefault('links', {})[field_id] = {slot_id: result['links']}
                     target_p.setdefault('validated_fields', [])
                     if field_id not in target_p['validated_fields']:
@@ -1816,6 +1839,8 @@ class MainWindow(QMainWindow):
             # Se for um campo validado e tiver vínculos, registramos como conhecimento "Ground Truth"
             for slot_id, links_list in field_links.items():
                 for lk in links_list:
+                    lk['validated'] = True
+                    lk.pop('failed', None)
                     self._log_training_action(item_data, f_id, slot_id, lk, status='valid', comment='Card Validation')
 
         # 2. Salvar imediatamente no projeto e atualizar UI
@@ -1836,20 +1861,11 @@ class MainWindow(QMainWindow):
                 target_list = self.list_slabs
                 valid_list = self.list_slabs_valid
                 item_label = f"{id_item} | {name}"
-            elif 'marcodxf' in elem_type or 'contorno' in elem_type:
-                self.db.save_contour(item_data, self.current_project_id)
-                
-                # Update memory list
-                existing = next((c for c in getattr(self, 'contours_found', []) if c['id'] == item_data['id']), None)
-                if existing:
-                    existing.update(item_data)
-                else:
-                    if not hasattr(self, 'contours_found'): self.contours_found = []
-                    self.contours_found.append(item_data)
-                
-                self._update_all_lists_ui()
-                self.log("✅ Contorno validado e salvo.")
-                return 
+            elif 'laje' in elem_type:
+                self.db.save_slab(item_data, self.current_project_id)
+                target_list = self.list_slabs
+                valid_list = self.list_slabs_valid
+                item_label = f"{id_item} | {name}"
             else:
                 return
 
@@ -2211,7 +2227,6 @@ class MainWindow(QMainWindow):
             print(f"DEBUG: Lajes carregadas ({len(slabs)})")
             beams = self.db.load_beams(pid)
             print(f"DEBUG: Vigas carregadas ({len(beams)})")
-            contours = self.db.load_contours(pid)
             
             cache_entry = {
                 'id': pid,
@@ -2220,7 +2235,6 @@ class MainWindow(QMainWindow):
                 'pillars': pillars,
                 'slabs': slabs,
                 'beams': beams,
-                'contours': contours,
                 'meta': {
                     'work_name': p_info.get('work_name', ''),
                     'pavement_name': p_info.get('pavement_name', ''),
@@ -2269,7 +2283,6 @@ class MainWindow(QMainWindow):
             old_cache['pillars'] = self.pillars_found
             old_cache['slabs'] = self.slabs_found
             old_cache['beams'] = self.beams_found
-            old_cache['contours'] = getattr(self, 'contours_found', [])
             old_cache['meta'] = {
                 'work_name': self.edit_work_name.text(),
                 'pavement_name': self.edit_pavement_name.text(),
@@ -2309,7 +2322,6 @@ class MainWindow(QMainWindow):
         self.pillars_found = project_data['pillars']
         self.slabs_found = project_data['slabs']
         self.beams_found = project_data['beams']
-        self.contours_found = project_data.get('contours', [])
         self.dxf_data = project_data['dxf_data']
         
         # 3. Restaurar Lógica (Fast Path se já existir)
@@ -2332,9 +2344,9 @@ class MainWindow(QMainWindow):
             self.canvas.draw_slabs(self.slabs_found)
             self.canvas.draw_beams(self.beams_found)
             
-            # Contornos (Marcos)
-            for c in self.contours_found: 
-                self.canvas.draw_marco_dxf(c)
+            self.canvas.draw_interactive_pillars(self.pillars_found)
+            self.canvas.draw_slabs(self.slabs_found)
+            self.canvas.draw_beams(self.beams_found)
             
             # Marcar como renderizado no cache para trocas futuras instantâneas
             project_data['scene_rendered'] = True
@@ -2465,22 +2477,8 @@ class MainWindow(QMainWindow):
                 item_v.setForeground(Qt.green)
                 self.list_slabs_valid.addItem(item_v)
 
-        # 5. Popular Contornos (Marcos)
-        contours = getattr(self, 'contours_found', [])
-        for c in contours:
-            t = f"{c.get('name', 'Contorno')} {('✅' if c.get('is_validated') else '')}"
-            item = QListWidgetItem(t)
-            item.setData(Qt.UserRole, c['id'])
-            if c.get('is_validated'):
-                 item.setForeground(Qt.green)
-            
-            if hasattr(self, 'list_contours'): self.list_contours.addItem(item)
-            
-            if c.get('is_validated') and hasattr(self, 'list_contours_valid'):
-                item_v = item.clone()
-                self.list_contours_valid.addItem(item_v)
         
-        self.log(f"UI Atualizada: {len(self.pillars_found)}P, {len(self.beams_found)}V, {len(self.slabs_found)}L, {len(contours)}C")
+        self.log(f"UI Atualizada: {len(self.pillars_found)}P, {len(self.beams_found)}V, {len(self.slabs_found)}L")
     
     def on_detail_data_changed(self, data):
         """Callback genérico para mudanças nos dados do DetailCard (remoção de links, etc)"""
@@ -2489,9 +2487,6 @@ class MainWindow(QMainWindow):
         item_data = self.current_card.item_data
         itype = item_data.get('type', '').lower()
         
-        # Se for Marco/Contorno, redesenhar imediatamente para refletir mudanças visuais (ex: remoção de extensão)
-        if 'marcodxf' in itype or 'contorno' in itype:
-            self.canvas.draw_marco_dxf(item_data)
 
     def show_detail(self, item_data):
         """Exibe os detalhes do item no painel direito."""
@@ -2509,7 +2504,7 @@ class MainWindow(QMainWindow):
         self.current_card.data_validated.connect(self.on_card_validated)
         self.current_card.element_removed.connect(self.on_detail_data_changed) # Conecta remoção ao refresh visual
         self.current_card.research_requested.connect(self.on_research_requested)
-        self.current_card.element_focused.connect(self.on_focus_requested)
+        self.current_card.element_focused.connect(self.on_element_focused_on_table)
         self.current_card.training_requested.connect(self.on_train_requested)
         
         self.detail_layout.addWidget(self.current_card)
@@ -2517,18 +2512,7 @@ class MainWindow(QMainWindow):
         # Atualizar título do painel (opcional)
         self.right_panel.setCurrentIndex(1)
     
-    def on_pick_requested(self, field_id, type_req):
-        """Inicia modo de picking no canvas solicitado pelo card."""
-        self.current_pick_field = field_id
-        # type_req pode ser 'text', 'line', ou um dict {'slot':...}
-        if isinstance(type_req, dict):
-            self.current_pick_slot = type_req.get('slot', 'default')
-            # Se o slot for específico (ex: 'viga_segs'), o DetailCard já configurou o link manager
-        else:
-            self.current_pick_slot = 'main'
-            
-        self.canvas.set_picking_mode('line') # Força line por enquanto, ou detecta pelo type_req
-        self.log(f"Iniciando captura para: {field_id}")
+
 
     def create_manual_item(self, is_library=False):
         """Cria um novo item manualmente na lista ativa"""

@@ -618,59 +618,6 @@ class DatabaseManager:
         finally:
             conn.close()
 
-    # --- CONTOURS (MARCO / PERÍMETRO) ---
-    def save_contour(self, c: Dict[str, Any], project_id: str):
-        """Salva o objeto de Contorno (Marco) do projeto."""
-        conn = self._get_conn()
-        try:
-            conn.execute('''
-                INSERT INTO contours (
-                    id, project_id, name, data_json, is_validated
-                )
-                VALUES (?, ?, ?, ?, ?)
-                ON CONFLICT(id) DO UPDATE SET
-                    project_id=excluded.project_id,
-                    name=excluded.name,
-                    data_json=excluded.data_json,
-                    is_validated=excluded.is_validated
-            ''', (
-                c.get('id', str(uuid.uuid4())), 
-                project_id, 
-                c.get('name', 'Contorno Principal'), 
-                json.dumps(c), 
-                1 if c.get('is_validated') else 0
-            ))
-            conn.commit()
-        except Exception as e:
-            logging.error(f"Erro ao salvar contorno no DB: {e}")
-        finally:
-            conn.close()
-
-    def load_contours(self, project_id: str) -> List[Dict]:
-        """Carrega os itens de contorno do projeto."""
-        conn = self._get_conn()
-        conn.row_factory = sqlite3.Row
-        try:
-            cursor = conn.execute('SELECT * FROM contours WHERE project_id = ?', (project_id,))
-            rows = cursor.fetchall()
-            valid_rows = []
-            for r in rows:
-                try:
-                    data = json.loads(r['data_json'])
-                    data['id'] = r['id']
-                    valid_rows.append(data)
-                except: pass
-            return valid_rows
-        finally:
-            conn.close()
-
-    def delete_contours_by_project(self, project_id: str):
-        conn = self._get_conn()
-        try:
-            conn.execute("DELETE FROM contours WHERE project_id = ?", (project_id,))
-            conn.commit()
-        finally:
-            conn.close()
 
 
     def load_slabs(self, project_id: str) -> List[Dict]:

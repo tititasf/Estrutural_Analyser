@@ -261,6 +261,20 @@ class LinkManager(QWidget):
                 padding: 6px; 
                 margin-top: 5px; 
             }
+            .LinkItemValidated { 
+                background: #1b3a24; 
+                border-left: 4px solid #4CAF50; 
+                border-radius: 4px; 
+                padding: 6px; 
+                margin-top: 5px; 
+            }
+            .LinkItemFailed { 
+                background: #3a1b1b; 
+                border-left: 4px solid #ff5252; 
+                border-radius: 4px; 
+                padding: 6px; 
+                margin-top: 5px; 
+            }
             .LinkValue { 
                 color: #fff; 
                 font-weight: bold; 
@@ -342,7 +356,16 @@ class LinkManager(QWidget):
             if not is_empty:
                 for link in slot_links:
                     link_frame = QFrame()
-                    link_frame.setProperty("class", "LinkItem")
+                    is_valid = link.get('validated', False)
+                    is_failed = link.get('failed', False)
+                    
+                    if is_valid:
+                        link_frame.setProperty("class", "LinkItemValidated")
+                    elif is_failed:
+                        link_frame.setProperty("class", "LinkItemFailed")
+                    else:
+                        link_frame.setProperty("class", "LinkItem")
+                        
                     lf_layout = QHBoxLayout(link_frame)
                     
                     val_text = str(link.get('text', 'Geometria'))
@@ -366,6 +389,10 @@ class LinkManager(QWidget):
                     btn_ok.setProperty("class", "TrainBtn TrainSuccess")
                     btn_ok.setFixedSize(24, 20)
                     btn_ok.setToolTip("Validar/Treinar IA")
+                    if is_valid: 
+                        btn_ok.setEnabled(False)
+                        btn_ok.setStyleSheet("background: #1b3a24; color: #4CAF50; border: 1px solid #4CAF50;")
+                        
                     btn_ok.clicked.connect(lambda checked=False, s=slot_id, l=link: self.training_requested.emit({
                         'slot': s, 'link': l, 'comment': 'Validado via Drawer', 'status': 'valid'
                     }))
@@ -374,6 +401,10 @@ class LinkManager(QWidget):
                     btn_err.setProperty("class", "TrainBtn TrainFail")
                     btn_err.setFixedSize(24, 20)
                     btn_err.setToolTip("Indicar Erro de IA")
+                    if is_failed:
+                        btn_err.setEnabled(False)
+                        btn_err.setStyleSheet("background: #3a1b1b; color: #ff5252; border: 1px solid #ff5252;")
+                        
                     btn_err.clicked.connect(lambda checked=False, s=slot_id, l=link: self.training_requested.emit({
                         'slot': s, 'link': l, 'comment': 'Erro via Drawer', 'status': 'fail'
                     }))

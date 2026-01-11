@@ -40,6 +40,9 @@ class CADCanvas(QGraphicsView):
         
         # Cores (Dark Mode cad-like)
         self.setBackgroundBrush(QColor(40, 40, 40)) # Dark Gray (não preto absoluto)
+
+        # Corrigir sistema de coordenadas (DXF Y+ é para CIMA, Qt Y+ é para BAIXO)
+        self.scale(1, -1)
         
         # Estado
         self.interactive_items = {} # Map ID -> GraphicItem (Generic)
@@ -50,7 +53,7 @@ class CADCanvas(QGraphicsView):
             'link': [] # Visual links (texts/lines)
         }
         self.beam_visuals = []
-        self.contour_visuals = []      
+        self.beam_visuals = []
         
         # Modo de Captação e Edição
         
@@ -845,60 +848,6 @@ class CADCanvas(QGraphicsView):
                                b_data['end'][0], b_data['end'][1], pen)
             self.beam_visuals.append(line)
 
-    def draw_marco_dxf(self, item_data: dict):
-        """Desenha as linhas azuis de tratamento prévio (Marco/Extensões)"""
-        if not item_data: return
-        
-        # 0. Limpar anteriores para evitar sobreposição
-        for item in self.contour_visuals:
-            try: self.scene.removeItem(item)
-            except: pass
-        self.contour_visuals.clear()
-
-        pen_ext = QPen(QColor(0, 120, 255), 3, Qt.DashLine) 
-        pen_marco = QPen(QColor(0, 150, 255), 4)           
-        pen_ext.setCosmetic(True)
-        pen_marco.setCosmetic(True)
-        
-        # 1. Desenhar Extensões/Vigas a partir dos VÍNCULOS (Editáveis)
-        # Priorizar 'links' pois reflete edições do usuário no DetailCard
-        links_dict = item_data.get('links', {})
-        has_links_visuals = False
-        
-        # Iterar sobre todos os slots de links para encontrar linhas
-        for slot, link_val in links_dict.items():
-            # Pode ser dict (com slots internos) ou list direto (legado/simplificado)
-            # Normalizar para lista de listas
-            lists_to_process = []
-            if isinstance(link_val, dict):
-                lists_to_process.extend(link_val.values())
-            elif isinstance(link_val, list):
-                lists_to_process.append(link_val)
-
-            for link_list in lists_to_process:
-                for lk in link_list:
-                    if isinstance(lk, dict) and lk.get('type') == 'line' and 'points' in lk:
-                        pts = lk['points']
-                        if len(pts) >= 2:
-                            # Escolher Pen baseada no Role/Slot
-                            role = lk.get('role', '').lower()
-                            s_lower = slot.lower()
-                            use_pen = pen_marco if ('uniao' in s_lower or 'union' in role) else pen_ext
-                            
-                            line = self.scene.addLine(pts[0][0], pts[0][1], pts[1][0], pts[1][1], use_pen)
-                            line.setZValue(50)
-                            self.contour_visuals.append(line)
-                            has_links_visuals = True
-        
-        # Fallback: Se não houver links (estado inicial cru), usar vigas_individuais
-        if not has_links_visuals:
-            vigas = item_data.get('vigas_individuais', [])
-            for v in vigas:
-                pts = v.get('points', [])
-                if len(pts) >= 2:
-                    line = self.scene.addLine(pts[0][0], pts[0][1], pts[1][0], pts[1][1], pen_ext)
-                    line.setZValue(50)
-                    self.contour_visuals.append(line)
 
     def highlight_link(self, link):
         """Destaque direto via objeto de vínculo (sem busca)"""
@@ -1553,22 +1502,38 @@ class CADCanvas(QGraphicsView):
 
         # --- PICKING MODES EXISTENTES ---
         if self.picking_mode == 'text':
-            # Buscar texto mais próximo
-            best_text = None
-            min_dist = 5.0 # Raio de clique para texto (precisão extrema)
-            for ent in self.dxf_entities:
-                if 'text' in ent:
-                    p = ent['pos']
-                    dist = ((p[0]-scene_pos.x())**2 + (p[1]-scene_pos.y())**2)**0.5
-                    if dist < min_dist:
-                        min_dist = dist
-                        best_text = ent
+            # 1. Tentar pegar por item na cena (mais preciso que busca por bounding box externa)
+            view_scale = self.transform().m11()
+            aperture = 10 / (view_scale if view_scale > 0 else 1)
+            rect = QRectF(scene_pos.x() - aperture/2, scene_pos.y() - aperture/2, aperture, aperture)
+            items = self.scene.items(rect)
             
-            if best_text:
+            best_text_val = None
+            best_pos = None
+            
+            for i in items:
+                if isinstance(i, QGraphicsSimpleTextItem):
+                    best_text_val = i.text()
+                    best_pos = (i.pos().x(), i.pos().y())
+                    break
+            
+            if not best_text_val:
+                # Fallback: Buscar texto mais próximo nas entidades DXF
+                min_dist = aperture 
+                for ent in self.dxf_entities:
+                    if 'text' in ent:
+                        p = ent['pos']
+                        dist = ((p[0]-scene_pos.x())**2 + (p[1]-scene_pos.y())**2)**0.5
+                        if dist < min_dist:
+                            min_dist = dist
+                            best_text_val = ent['text']
+                            best_pos = ent['pos']
+            
+            if best_text_val:
                 self.pick_completed.emit({
-                    'text': best_text['text'], 
+                    'text': best_text_val, 
                     'type': 'text',
-                    'pos': best_text['pos']
+                    'pos': best_pos
                 })
                 self.set_picking_mode(None)
                 return
@@ -1827,6 +1792,47 @@ class CADCanvas(QGraphicsView):
             return
 
         if key in (Qt.Key_Return, Qt.Key_Enter):
+            # NOVO: Finalizar Picking via ENTER
+            if self.picking_mode:
+                if self.picking_mode == 'line' and self.pick_start:
+                    # Finalizar linha no ponto atual do mouse/snap
+                    cursor_pos = self.mapToScene(self.mapFromGlobal(QCursor.pos()))
+                    snap_data = self.get_snap(cursor_pos)
+                    target_pt = QPointF(*snap_data['pos']) if snap_data else cursor_pos
+                    
+                    if self.ortho_mode:
+                        target_pt = self._apply_ortho(self.pick_start, target_pt)
+                    
+                    final_pos = (target_pt.x(), target_pt.y())
+                    dist = ((self.pick_start.x()-final_pos[0])**2 + (self.pick_start.y()-final_pos[1])**2)**0.5
+                    
+                    self.pick_completed.emit({
+                        'text': f"{dist:.1f}", 
+                        'type': 'line',
+                        'points': [(self.pick_start.x(), self.pick_start.y()), final_pos]
+                    })
+                    self.set_picking_mode(None)
+                    return
+
+                elif self.picking_mode in ('text', 'geometry'):
+                    # Tentar finalizar com o que estiver SELECIONADO ou sob o mouse
+                    selected = self.scene.selectedItems()
+                    if selected:
+                        item = selected[0]
+                        res = None
+                        if isinstance(item, QGraphicsSimpleTextItem):
+                            res = {'text': item.text(), 'type': 'text', 'pos': (item.pos().x(), item.pos().y())}
+                        elif isinstance(item, (QGraphicsLineItem, DXFLineItem)):
+                            p1 = (item.line().p1().x(), item.line().p1().y())
+                            p2 = (item.line().p2().x(), item.line().p2().y())
+                            dist = ((p1[0]-p2[0])**2 + (p1[1]-p2[1])**2)**0.5
+                            res = {'text': f"{dist:.1f}", 'type': 'line', 'points': [p1, p2]}
+                        
+                        if res:
+                            self.pick_completed.emit(res)
+                            self.set_picking_mode(None)
+                            return
+
             if self.edit_mode == 'move' and self.is_moving:
                 self.is_moving = False
                 self.set_edit_mode('select')
