@@ -313,7 +313,6 @@ class MainWindow(QMainWindow):
         self.list_beams.setColumnWidth(1, 120)
         
         self.list_slabs = QListWidget()
-        self.list_slabs = QListWidget()
         self.list_issues = QListWidget()
         
         # Conectar Sinais (Atual)
@@ -325,7 +324,6 @@ class MainWindow(QMainWindow):
         # Adicionar Abas com Containers
         self.tabs_analysis_internal.addTab(create_tab_container(self.list_pillars, 'pillar', False), "Pilares")
         self.tabs_analysis_internal.addTab(create_tab_container(self.list_beams, 'beam', False), "Vigas")
-        self.tabs_analysis_internal.addTab(create_tab_container(self.list_slabs, 'slab', False), "Lajes")
         self.tabs_analysis_internal.addTab(create_tab_container(self.list_slabs, 'slab', False), "Lajes")
         self.tabs_analysis_internal.addTab(self.list_issues, "⚠️ Pendências")
         
@@ -348,7 +346,6 @@ class MainWindow(QMainWindow):
         self.list_beams_valid.setColumnWidth(1, 120)
 
         self.list_slabs_valid = QListWidget()
-        self.list_slabs_valid = QListWidget()
         
         # Conectar Sinais (Validado)
         self.list_pillars_valid.itemClicked.connect(self.on_list_pillar_clicked)
@@ -358,7 +355,6 @@ class MainWindow(QMainWindow):
         # Adicionar Abas com Containers
         self.tabs_library_internal.addTab(create_tab_container(self.list_pillars_valid, 'pillar', True), "Pilares OK")
         self.tabs_library_internal.addTab(create_tab_container(self.list_beams_valid, 'beam', True), "Vigas OK")
-        self.tabs_library_internal.addTab(create_tab_container(self.list_slabs_valid, 'slab', True), "Lajes OK")
         self.tabs_library_internal.addTab(create_tab_container(self.list_slabs_valid, 'slab', True), "Lajes OK")
         
         # Conectar mudança de aba interna (Biblioteca)
@@ -1203,7 +1199,15 @@ class MainWindow(QMainWindow):
                     'dim': f"{int(poly_shape.area)}cm²",
                     'points': list(poly_shape.exterior.coords),
                     'sides_data': PillarPerspectiveMapper.map_sides(unique_points, shape_type, orient),
-                    'links': {}, 
+                    'links': {
+                        'pilar_segs': { # Popula automaticamente o slot 'pilar_segs' (esperado pelo DetailCard)
+                            'main': [{
+                                'type': 'poly',
+                                'points': list(poly_shape.exterior.coords),
+                                'text': 'Geometria Automática'
+                            }]
+                        }
+                    }, 
                     'neighbors': [],
                     'beams_visual': [], 
                     'material': 'C30', 'level': 'Pavimento 1'

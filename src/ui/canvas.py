@@ -899,8 +899,15 @@ class CADCanvas(QGraphicsView):
         from PySide6.QtWidgets import QGraphicsSimpleTextItem
         from PySide6.QtGui import QPainterPath
         
-        # Pen para vínculos salvos (Vermelho para demarcação clara)
-        pen = QPen(QColor(255, 0, 0), 2)
+        # Pen para vínculos salvos (Cor depende do tipo)
+        base_color = QColor(255, 0, 0) # Default Red (Viga)
+        type_str = target.get('type', '').lower()
+        if 'laje' in type_str:
+            base_color = QColor(0, 80, 255) # Azul Forte (mas visível no dark)
+        elif 'pilar' in type_str:
+            base_color = QColor(0, 180, 0) # Verde Escuro
+            
+        pen = QPen(base_color, 2)
         pen.setCosmetic(True)
         
         links = target.get('links', {})
@@ -915,7 +922,7 @@ class CADCanvas(QGraphicsView):
                     if l_type == 'text' and 'pos' in link:
                         t_item = self.scene.addSimpleText(link['text'])
                         t_item.setPos(link['pos'][0], link['pos'][1])
-                        t_item.setBrush(QBrush(QColor(255, 0, 0)))
+                        t_item.setBrush(QBrush(base_color))
                         t_item.setZValue(105)
                         t_item.setFlag(QGraphicsSimpleTextItem.ItemIgnoresTransformations)
                         self.beam_visuals.append(t_item)
@@ -947,77 +954,94 @@ class CADCanvas(QGraphicsView):
         from PySide6.QtGui import QPainterPath
         
         self.clear_beams() 
-        pen = QPen(QColor(255, 0, 0), 3) 
-        pen.setCosmetic(True)
         
         target = next((d for d in data_list if d.get('name') == name), None)
+        
+        # Cor Base
+        base_color = QColor(255, 0, 0) # Default Red
+        if target:
+            t_type = target.get('type', '').lower()
+            if 'laje' in t_type: base_color = QColor(0, 80, 255)
+            elif 'pilar' in t_type: base_color = QColor(0, 180, 0)
+            
+        pen = QPen(base_color, 3) 
+        pen.setCosmetic(True)
         items_to_focus = []
 
-        if target:
-            # Caso especial: Pilar destaca contorno real
-            if target.get('type') == 'Pilar' and 'points' in target:
-                path = QPainterPath()
-                pts = target['points']
-                path.moveTo(pts[0][0], pts[0][1])
-                for p in pts[1:]: path.lineTo(p[0], p[1])
-                path.closeSubpath()
-                item = self.scene.addPath(path, pen)
-                item.setZValue(100)
-                self.beam_visuals.append(item)
-                items_to_focus.append(item)
+        # Flag para saber se temos geometria vinculada (para não desenhar a bruta duplicada)
+        has_geo_links = False
 
-            # Vínculos Genéricos salvos (LinkManager)
+        if target:
+            # 1. Desenhar Vínculos (Links) - Prioridade Máxima
             links = target.get('links', {})
             for field_id, slots in links.items():
-                # slots pode ser uma lista (legado) ou um dicionário de slots
                 slots_to_process = slots.values() if isinstance(slots, dict) else [slots]
                 
                 for link_list in slots_to_process:
                     for link in link_list:
-                        if link.get('type') == 'text':
+                        l_type = link.get('type')
+                        
+                        if l_type == 'text':
                             t_item = self.scene.addSimpleText(link['text'])
                             t_item.setPos(link.get('pos', [0, 0])[0], link.get('pos', [0, 0])[1])
-                            t_item.setBrush(QBrush(QColor(255, 0, 0)))
+                            t_item.setBrush(QBrush(base_color))
                             t_item.setZValue(101)
                             t_item.setFlag(QGraphicsSimpleTextItem.ItemIgnoresTransformations)
                             self.beam_visuals.append(t_item)
                             items_to_focus.append(t_item)
-                        elif link.get('type') == 'line' and 'points' in link:
-                            pts = link['points']
-                            line = self.scene.addLine(pts[0][0], pts[0][1], pts[1][0], pts[1][1], pen)
-                            line.setZValue(100)
-                            self.beam_visuals.append(line)
-                            items_to_focus.append(line)
+                        # Process both lines and generic geometry links
+                        elif l_type in ['line', 'poly', 'geometry', 'circle'] and ('points' in link or 'radius' in link):
+                            has_geo_links = True
+                            
+                            if l_type == 'circle' and 'radius' in link:
+                                r = link['radius']
+                                px, py = link['pos']
+                                item = self.scene.addEllipse(px-r, py-r, r*2, r*2, pen)
+                            else:
+                                pts = link['points']
+                                line_pen = pen # Uses same style
+                                if l_type == 'line': # Line is 2 points
+                                     line = self.scene.addLine(pts[0][0], pts[0][1], pts[1][0], pts[1][1], line_pen)
+                                     line.setZValue(100)
+                                     self.beam_visuals.append(line)
+                                     items_to_focus.append(line)
+                                else: # Poly/Geometry
+                                     path = QPainterPath()
+                                     path.moveTo(pts[0][0], pts[0][1])
+                                     for p in pts[1:]: path.lineTo(p[0], p[1])
+                                     if l_type == 'poly': path.closeSubpath()
+                                     item = self.scene.addPath(path, line_pen)
+                                     item.setZValue(100)
+                                     self.beam_visuals.append(item)
+                                     items_to_focus.append(item)
 
-            geo = target.get('geometry', {})
-            for points in geo.get('lines', []):
-                path = QPainterPath()
-                path.moveTo(points[0][0], points[0][1])
-                for p in points[1:]: path.lineTo(p[0], p[1])
-                item = self.scene.addPath(path, pen)
-                item.setZValue(100)
-                self.beam_visuals.append(item)
-                items_to_focus.append(item)
-                
-            for txt in geo.get('texts', []):
-                t_item = self.scene.addSimpleText(txt['text'])
-                t_item.setPos(txt['pos'][0], txt['pos'][1])
-                t_item.setBrush(QBrush(QColor(255, 0, 0)))
-                t_item.setZValue(101)
-                t_item.setFlag(QGraphicsItem.ItemIgnoresTransformations)
-                self.beam_visuals.append(t_item)
-                items_to_focus.append(t_item)
+            # 2. Desenhar Geometria Item (Desativado conforme solicitação do usuário)
+            # Apenas o que está explicitamente em 'links' deve ser desenhado.
+            # Se o usuário quiser ver a geometria padrão, esta deve ser adicionada aos links
+            # ou o comportamento deve ser revertido.
+            if not has_geo_links:
+                pass 
+                # Código de fallback (target['points'], target['geometry']) REMOVIDO
+                # para garantir que "destaque apenas o que está vinculado".
 
-        # Fallback para textos soltos do DXF
-        for ent in self.dxf_entities:
-            if ent.get('text') == name:
-                t_item = self.scene.addSimpleText(ent['text'])
-                t_item.setPos(ent['pos'][0], ent['pos'][1])
-                t_item.setBrush(QBrush(QColor(255, 0, 0)))
-                t_item.setZValue(101)
-                t_item.setFlag(QGraphicsItem.ItemIgnoresTransformations)
-                self.beam_visuals.append(t_item)
-                items_to_focus.append(t_item)
+        # 3. Fallback: Só busca texto solto no DXF se NÃO ACHOU o target
+        # Mantendo apenas este fallback caso o item nem exista na lista de dados,
+        # mas se o item existe e não tem links, não desenha nada.
+        if not target:
+            for ent in self.dxf_entities:
+                if ent.get('text') == name:
+                    t_item = self.scene.addSimpleText(ent['text'])
+                    t_item.setPos(ent['pos'][0], ent['pos'][1])
+                    t_item.setBrush(QBrush(base_color))
+                    t_item.setZValue(101)
+                    t_item.setFlag(QGraphicsItem.ItemIgnoresTransformations)
+                    self.beam_visuals.append(t_item)
+                    items_to_focus.append(t_item)
+                    t_item.setBrush(QBrush(base_color))
+                    t_item.setZValue(101)
+                    t_item.setFlag(QGraphicsItem.ItemIgnoresTransformations)
+                    self.beam_visuals.append(t_item)
+                    items_to_focus.append(t_item)
 
         if items_to_focus:
             rect = items_to_focus[0].sceneBoundingRect()
