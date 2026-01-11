@@ -1201,7 +1201,7 @@ class MainWindow(QMainWindow):
                     'sides_data': PillarPerspectiveMapper.map_sides(unique_points, shape_type, orient),
                     'links': {
                         'pilar_segs': { # Popula automaticamente o slot 'pilar_segs' (esperado pelo DetailCard)
-                            'main': [{
+                            'segments': [{
                                 'type': 'poly',
                                 'points': list(poly_shape.exterior.coords),
                                 'text': 'Geometria Automática'
@@ -1216,6 +1216,8 @@ class MainWindow(QMainWindow):
                 # Análise Contextual (Initial)
                 if self.pillar_analyzer:
                     self.pillar_analyzer.analyze(p_data)
+                
+
                 
                 p_data['issues'] = self._run_sanity_checks(p_data)
                 
@@ -1240,9 +1242,25 @@ class MainWindow(QMainWindow):
                  is_val = old.get('is_validated', False)
                  p_data['is_validated'] = is_val
                  
-                 # Restaura links e dados complexos
-                 p_data['links'] = old.get('links', {})
-                 p_data['sides_data'] = old.get('sides_data', {})
+                 # Restaura links (Merge: Novos Links + Antigos Validados)
+                 current_links = p_data.get('links', {})
+                 old_links = old.get('links', {})
+                 val_fields = old.get('validated_fields', [])
+                 
+                 for field in val_fields:
+                     if field in old_links:
+                         current_links[field] = old_links[field]
+                 
+                 p_data['links'] = current_links
+
+                 # Dados complexos: Se validado, restaura. Se não, usa novo.
+                 # Como sides_data é derivado, ideal é manter o novo se não validado.
+                 # Mas por compatibilidade, vamos manter lógica híbrida se necessário.
+                 # Por enquanto, restaurando se o pilar estiver validado como um todoou se fizer sentido.
+                 # Na dúvida, se o usuário validou o pilar/item, restauramos.
+                 if is_val:
+                     p_data['sides_data'] = old.get('sides_data', {})
+                 
                  p_data['beams_visual'] = old.get('beams_visual', [])
                  
                  vf = old.get('validated_fields', [])
@@ -1250,7 +1268,7 @@ class MainWindow(QMainWindow):
                      p_data['validated_fields'] = vf
                      for f in vf: 
                          if f in old: p_data[f] = old[f]
-                 print(f"DEBUG: Pilar {p_data['name']} restaurado.")
+                 print(f"DEBUG: Pilar {p_data['name']} restaurado/mergeado.")
 
             self.pillars_found.append(p_data)
             
@@ -1281,6 +1299,10 @@ class MainWindow(QMainWindow):
         # 3. Desenho no Canvas e UI
         self.update_progress(95, "Finalizando...")
         self._update_all_lists_ui()
+        
+        # FIX: Limpa itens visuais anteriores para evitar duplicações (Destaque vermelho obsoleto)
+        self.canvas.clear_interactive()
+        
         self.canvas.draw_interactive_pillars(self.pillars_found)
         self.canvas.draw_slabs(self.slabs_found)
         self.canvas.draw_beams(self.beams_found)

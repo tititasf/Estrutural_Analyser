@@ -30,6 +30,19 @@ class DetailCard(QWidget):
     def __init__(self, item_data: dict, parent=None):
         super().__init__(parent)
         self.item_data = item_data
+        
+        # FIX: Migração de chave legada (segments -> pilar_segs)
+        if self.item_data.get('type') == 'Pilar':
+            l = self.item_data.get('links', {})
+            if l and 'segments' in l and 'pilar_segs' not in l:
+                l['pilar_segs'] = l.pop('segments')
+            
+            # FIX 2: Migração interna (main -> segments) para bater com LinkManager config
+            if l and 'pilar_segs' in l:
+                ps = l['pilar_segs']
+                if 'main' in ps and 'segments' not in ps:
+                    ps['segments'] = ps.pop('main')
+
         self.fields = {} 
         self.indicators = {} 
         self.embedded_managers = {} 
