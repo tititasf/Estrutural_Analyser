@@ -121,6 +121,28 @@ class DatabaseManager:
             )
         ''')
 
+        # Tabela de Pré-processamento (Marco DXF)
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS pre_processing (
+                project_id TEXT PRIMARY KEY,
+                data_json TEXT,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY(project_id) REFERENCES projects(id)
+            )
+        ''')
+        
+        # Tabela de Contornos (Marcos Separados)
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS contours (
+                id TEXT PRIMARY KEY,
+                project_id TEXT,
+                name TEXT,
+                data_json TEXT,
+                is_validated BOOLEAN DEFAULT 0,
+                FOREIGN KEY(project_id) REFERENCES projects(id)
+            )
+        ''')
+
     def _migrate_db(self, cursor):
         """Adiciona colunas necessárias, corrige tipos e migra dados."""
         logging.info("Checking database migrations...")
@@ -537,6 +559,15 @@ class DatabaseManager:
             conn.close()
         return pillars
 
+    def delete_pillar(self, pillar_id: str):
+        """Exclui um pilar específico pelo ID."""
+        conn = self._get_conn()
+        try:
+            conn.execute("DELETE FROM pillars WHERE id = ?", (pillar_id,))
+            conn.commit()
+        finally:
+            conn.close()
+
     def clear_project(self, project_id: str):
         """Limpa dados de um projeto específico."""
         conn = self._get_conn()
@@ -580,11 +611,67 @@ class DatabaseManager:
                 s.get('id_item'),
                 1 if s.get('is_validated') else 0
             ))
+            
             conn.commit()
         except Exception as e:
-            logging.error(f"Erro ao salvar laje: {e}")
+            logging.error(f"Erro ao salvar laje no DB: {e}")
         finally:
             conn.close()
+
+    # --- CONTOURS (MARCO / PERÍMETRO) ---
+    def save_contour(self, c: Dict[str, Any], project_id: str):
+        """Salva o objeto de Contorno (Marco) do projeto."""
+        conn = self._get_conn()
+        try:
+            conn.execute('''
+                INSERT INTO contours (
+                    id, project_id, name, data_json, is_validated
+                )
+                VALUES (?, ?, ?, ?, ?)
+                ON CONFLICT(id) DO UPDATE SET
+                    project_id=excluded.project_id,
+                    name=excluded.name,
+                    data_json=excluded.data_json,
+                    is_validated=excluded.is_validated
+            ''', (
+                c.get('id', str(uuid.uuid4())), 
+                project_id, 
+                c.get('name', 'Contorno Principal'), 
+                json.dumps(c), 
+                1 if c.get('is_validated') else 0
+            ))
+            conn.commit()
+        except Exception as e:
+            logging.error(f"Erro ao salvar contorno no DB: {e}")
+        finally:
+            conn.close()
+
+    def load_contours(self, project_id: str) -> List[Dict]:
+        """Carrega os itens de contorno do projeto."""
+        conn = self._get_conn()
+        conn.row_factory = sqlite3.Row
+        try:
+            cursor = conn.execute('SELECT * FROM contours WHERE project_id = ?', (project_id,))
+            rows = cursor.fetchall()
+            valid_rows = []
+            for r in rows:
+                try:
+                    data = json.loads(r['data_json'])
+                    data['id'] = r['id']
+                    valid_rows.append(data)
+                except: pass
+            return valid_rows
+        finally:
+            conn.close()
+
+    def delete_contours_by_project(self, project_id: str):
+        conn = self._get_conn()
+        try:
+            conn.execute("DELETE FROM contours WHERE project_id = ?", (project_id,))
+            conn.commit()
+        finally:
+            conn.close()
+
 
     def load_slabs(self, project_id: str) -> List[Dict]:
         """Carrega lajes de um projeto."""
@@ -608,6 +695,16 @@ class DatabaseManager:
         finally:
             conn.close()
         return slabs
+
+    def delete_slab(self, slab_id: str):
+        """Exclui uma laje específica pelo ID."""
+        conn = self._get_conn()
+        try:
+            conn.execute("DELETE FROM slabs WHERE id = ?", (slab_id,))
+            conn.commit()
+        finally:
+            conn.close()
+
     def save_beam(self, b: Dict[str, Any], project_id: str):
         """Salva uma viga vinculada ao projeto."""
         conn = self._get_conn()
@@ -660,6 +757,42 @@ class DatabaseManager:
         finally:
             conn.close()
         return beams
+
+    def delete_beam(self, beam_id: str):
+        """Exclui uma viga específica pelo ID."""
+        conn = self._get_conn()
+        try:
+            conn.execute("DELETE FROM beams WHERE id = ?", (beam_id,))
+            conn.commit()
+        finally:
+            conn.close()
+    def save_pre_processing(self, project_id: str, data: Dict):
+        """Salva dados de tratamento prévio (Marco)."""
+        conn = self._get_conn()
+        try:
+            conn.execute('''
+                INSERT INTO pre_processing (project_id, data_json, updated_at)
+                VALUES (?, ?, CURRENT_TIMESTAMP)
+                ON CONFLICT(project_id) DO UPDATE SET
+                    data_json=excluded.data_json,
+                    updated_at=excluded.updated_at
+            ''', (project_id, json.dumps(data)))
+            conn.commit()
+        finally:
+            conn.close()
+
+    def load_pre_processing(self, project_id: str) -> Optional[Dict]:
+        """Carrega dados de tratamento prévio."""
+        conn = self._get_conn()
+        conn.row_factory = sqlite3.Row
+        try:
+            cursor = conn.cursor()
+            cursor.execute('SELECT data_json FROM pre_processing WHERE project_id = ?', (project_id,))
+            row = cursor.fetchone()
+            return json.loads(row['data_json']) if row else None
+        finally:
+            conn.close()
+
     def export_project_data(self, project_id: str) -> Dict[str, Any]:
         """Exporta TODOS os dados de um projeto para um dicionário (Backup/Sharing)."""
         data = {}

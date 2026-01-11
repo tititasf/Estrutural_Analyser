@@ -24,6 +24,7 @@ from src.core.memory import HierarchicalMemory
 from src.core.beam_walker import BeamWalker
 from src.core.context_engine import ContextEngine
 from src.core.pillar_analyzer import PillarAnalyzer
+from src.core.dxf_preprocessor import DXFPreprocessor
 
 # Config logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -45,10 +46,13 @@ class MainWindow(QMainWindow):
         # Engines
         self.context_engine = None
         self.pillar_analyzer = None
+        self.dxf_preprocessor = None
 
         self.dxf_data = None
         self.pillars_found = []
         self.slabs_found = []
+        self.beams_found = []
+        self.contours_found = []
         self.beams_database = [] # Armazena dados de visualização das vigas por pilar
         
         self.current_project_id = None
@@ -132,6 +136,11 @@ class MainWindow(QMainWindow):
         left_layout.addWidget(self.meta_widget)
 
         # 2. Botão de Análise (Imediatamente acima do Salvar)
+        self.btn_pre_process = QPushButton("🛠️ Tratamento Prévio")
+        self.btn_pre_process.setStyleSheet("background: #1a3a5a; color: #80d4ff; padding: 4px; font-size: 11px; height: 18px; border: 1px solid #2a5a8a;")
+        self.btn_pre_process.clicked.connect(self.run_dxf_preprocessor_action)
+        left_layout.addWidget(self.btn_pre_process)
+
         self.btn_process = QPushButton("🚀 Iniciar Análise Geral")
         self.btn_process.setObjectName("Primary") # Destaque visual
         self.btn_process.setStyleSheet("padding: 4px; font-size: 11px; height: 18px;")
@@ -296,7 +305,7 @@ class MainWindow(QMainWindow):
 
             return container
 
-        # --- TAB 1: ANÁLISE ATUAL ---
+        # --- TAB 1: ANÁLISE ATUAL (Pilares, Vigas, Lajes, Contorno, Issues) ---
         self.tab_analysis = QWidget()
         analysis_layout = QVBoxLayout(self.tab_analysis)
         analysis_layout.setContentsMargins(0,0,0,0)
@@ -304,26 +313,28 @@ class MainWindow(QMainWindow):
         self.tabs_analysis_internal = QTabWidget()
         self.tabs_analysis_internal.setStyleSheet(STYLE_TABS)
         self.list_pillars = QListWidget()
-        from PySide6.QtWidgets import QTreeWidget, QTreeWidgetItem
         self.list_beams = QTreeWidget()
         self.list_beams.setHeaderLabels(["Item", "Nome", "Status"])
         self.list_beams.setColumnWidth(0, 60)
         self.list_beams.setColumnWidth(1, 120)
         
         self.list_slabs = QListWidget()
+        self.list_contours = QListWidget() # Nova lista Contorno
         self.list_issues = QListWidget()
         
         # Conectar Sinais (Atual)
         self.list_pillars.itemClicked.connect(self.on_list_pillar_clicked)
         self.list_beams.itemClicked.connect(self.on_list_beam_clicked)
         self.list_slabs.itemClicked.connect(self.on_list_slab_clicked)
+        self.list_contours.itemClicked.connect(self.on_list_contour_clicked)
         self.list_issues.itemClicked.connect(self.on_issue_clicked)
         
         # Adicionar Abas com Containers
         self.tabs_analysis_internal.addTab(create_tab_container(self.list_pillars, 'pillar', False), "Pilares")
         self.tabs_analysis_internal.addTab(create_tab_container(self.list_beams, 'beam', False), "Vigas")
         self.tabs_analysis_internal.addTab(create_tab_container(self.list_slabs, 'slab', False), "Lajes")
-        self.tabs_analysis_internal.addTab(self.list_issues, "⚠️ Pendências") # Issues não tem botões extras solicitados
+        self.tabs_analysis_internal.addTab(create_tab_container(self.list_contours, 'contour', False), "Contorno") # Nova Aba
+        self.tabs_analysis_internal.addTab(self.list_issues, "⚠️ Pendências")
         
         # Conectar mudança de aba interna (Análise)
         self.tabs_analysis_internal.currentChanged.connect(self._on_analysis_tab_changed)
@@ -344,16 +355,19 @@ class MainWindow(QMainWindow):
         self.list_beams_valid.setColumnWidth(1, 120)
 
         self.list_slabs_valid = QListWidget()
+        self.list_contours_valid = QListWidget() # Nova lista Biblioteca Contorno
         
         # Conectar Sinais (Validado)
         self.list_pillars_valid.itemClicked.connect(self.on_list_pillar_clicked)
         self.list_beams_valid.itemClicked.connect(self.on_list_beam_clicked)
         self.list_slabs_valid.itemClicked.connect(self.on_list_slab_clicked)
+        self.list_contours_valid.itemClicked.connect(self.on_list_contour_clicked)
         
         # Adicionar Abas com Containers
         self.tabs_library_internal.addTab(create_tab_container(self.list_pillars_valid, 'pillar', True), "Pilares OK")
         self.tabs_library_internal.addTab(create_tab_container(self.list_beams_valid, 'beam', True), "Vigas OK")
         self.tabs_library_internal.addTab(create_tab_container(self.list_slabs_valid, 'slab', True), "Lajes OK")
+        self.tabs_library_internal.addTab(create_tab_container(self.list_contours_valid, 'contour', True), "Contornos OK") # Nova Aba
         
         # Conectar mudança de aba interna (Biblioteca)
         self.tabs_library_internal.currentChanged.connect(self._on_library_tab_changed)
@@ -495,7 +509,7 @@ class MainWindow(QMainWindow):
         links_data = item_data.get('links', {}).get(field_id, {})
         
         # Prioridade de slots para foco visual
-        for slot in ['label', 'geometry', 'thick', 'level', 'dim', 'dist_text', 'dist_line', 'diff_text', 'diff_line', 'main']:
+        for slot in ['label', 'geometry', 'thick', 'level', 'dim', 'dist_text', 'dist_line', 'diff_text', 'diff_line', 'main', 'default']:
             if slot in links_data and links_data[slot]:
                 link = links_data[slot][0]
                 if 'pos' in link or 'points' in link:
@@ -537,6 +551,62 @@ class MainWindow(QMainWindow):
             if slot_id == 'void_x':
                 value = "SEM LAJE"
             
+            # Lógica Especial: Viga Manual -> Extensão Inteligente
+            # Se for uma viga manual e o pick for linha (geometria principal)
+            if (self.current_card.item_data.get('manual') 
+                and self.current_card.item_data.get('type') == 'Viga'
+                and pick_data.get('type') == 'line'
+                and 'points' in pick_data):
+                
+                try:
+                    import math
+                    pts = pick_data['points']
+                    p1, p2 = pts[0], pts[1]
+                    
+                    # Vetor Diretor
+                    dx, dy = p2[0] - p1[0], p2[1] - p1[1]
+                    length = (dx**2 + dy**2)**0.5
+                    
+                    if length > 0:
+                        # Meta: Valor Inteiro >= Comprimento Atual + ~10
+                        # Ex: Desenhado 288 -> Meta 300 (Ext 12)
+                        # Ex: Desenhado 295 -> Meta 305/310? Vamos assumir teto simples primeiro.
+                        desired_ext = 10.0
+                        target_total = math.ceil(length + desired_ext)
+                        
+                        # Se quiser múltiplo de 5: target_total = math.ceil((length + desired_ext)/5) * 5
+                        
+                        real_ext_len = target_total - length
+                        
+                        # Calcular P3 (Fim da Extensão)
+                        ux, uy = dx/length, dy/length # Unit vector
+                        p3_x = p2[0] + ux * real_ext_len
+                        p3_y = p2[1] + uy * real_ext_len
+                        
+                        # Criar Link da Extensão
+                        ext_link = {
+                            'type': 'line',
+                            'role': 'Adjustment', 
+                            'text': f"{real_ext_len:.1f}",
+                            'points': [(p2[0], p2[1]), (p3_x, p3_y)],
+                            'manual_generated': True
+                        }
+                        
+                        # Adicionar Extensão ao Slot 'adjustment' (Separado do Principal)
+                        if 'adjustment' not in links_dict[field_id]:
+                            links_dict[field_id]['adjustment'] = []
+                            
+                        links_dict[field_id]['adjustment'].append(ext_link)
+                            
+                        # Atualizar Valor Visual para o "Pedacinho" (Extensão)
+                        value = f"{real_ext_len:.1f}"
+                        if isinstance(field, QLabel):
+                            field.setText(f"Ajuste: {value}")
+                        self.log(f"📏 Ajuste Automático: {length:.1f} -> {target_total} (Add {value})")
+
+                except Exception as e:
+                    self.log(f"⚠️ Erro ao calcular extensão automática: {e}")
+
             # 1. Atualizar valor visual
             if isinstance(field, QLineEdit):
                 field.setText(str(value))
@@ -554,7 +624,9 @@ class MainWindow(QMainWindow):
             if field_id not in links_dict:
                 links_dict[field_id] = {} 
                 
-            field_slots = links_dict[field_id]
+            # Atualizar ref para garantir que pegamos o dict atualizado se foi modificado acima
+            field_slots = links_dict[field_id] 
+            
             # Migração de dados legados
             if isinstance(field_slots, list):
                 field_slots = {'label': field_slots}
@@ -570,7 +642,10 @@ class MainWindow(QMainWindow):
             # Atualizar QLabel com contagem real se for o caso
             if isinstance(field, QLabel):
                 total_links = sum(len(lst) for lst in field_slots.values())
-                field.setText(f"{total_links} Vínculo(s) Ok")
+                txt_val = field.text()
+                # Se não foi alterado pela logica de extensao
+                if "Ext:" not in txt_val: 
+                    field.setText(f"{total_links} Vínculo(s) Ok")
                 field.setStyleSheet("color: #00cc66; font-weight: bold; font-size: 10px;")
 
             # Lógica Especial: Fundo da Viga - Calcular dimensão pelo maior segmento
@@ -592,6 +667,23 @@ class MainWindow(QMainWindow):
                      dim_field.setText(f"{max_len:.2f}")
                      self.current_card.item_data['viga_fundo_dim'] = f"{max_len:.2f}"
             
+            # REFRESH GERAL
+            # a) Refresh Link Managers Embutidos
+            if self.current_card and hasattr(self.current_card, 'embedded_managers'):
+                 lm = self.current_card.embedded_managers.get(field_id)
+                 if lm:
+                     lm.links = field_slots # Atualiza dados
+                     lm.refresh_list()
+            
+            # b) Refresh Canvas (Redesenha geometria do item)
+            item_data = self.current_card.item_data
+            itype = item_data.get('type','').lower()
+            if 'marcodxf' in itype or 'contorno' in itype:
+                self.canvas.draw_marco_dxf(item_data)
+            elif 'viga' in itype:
+                # Foca/Desenha geometria da viga atualizada
+                self.canvas.focus_on_beam_geometry(item_data)
+
             # --- OVERHAUL: Lógica Inteligente para novos campos ---
             # 1. Comprimento Total (Geometria)
             if '_comprimento_total' in field_id and slot_id == 'geometry':
@@ -732,8 +824,11 @@ class MainWindow(QMainWindow):
             
             # 3. Notificar o card para atualizar estilos e o LinkManager embutido (drawer)
             self.current_card.refresh_validation_styles()
+            
+            # 4. Redesenhar vínculos para manter a demarcação visual ativa no Canvas
+            self.canvas.draw_item_links(self.current_card.item_data)
 
-            # 4. Limpar o estado de pick para evitar múltiplas execuções acidentais
+            # 5. Limpar o estado de pick para evitar múltiplas execuções acidentais
             if hasattr(self, 'current_pick_field'): delattr(self, 'current_pick_field')
             if hasattr(self, 'current_pick_slot'): delattr(self, 'current_pick_slot')
 
@@ -885,54 +980,33 @@ class MainWindow(QMainWindow):
         if not self.dxf_data: return
         import uuid # Garantir import
         
-        # --- Diálogo de Escolha de Modo ---
-        incremental = False
-        
-        if self.pillars_found or (hasattr(self, 'beams_found') and self.beams_found) or self.slabs_found:
-             from PySide6.QtWidgets import QMessageBox
-             msg = QMessageBox(self)
-             msg.setWindowTitle("Opções de Análise")
-             msg.setText("Uma análise já foi realizada. Como deseja prosseguir?")
-             msg.setInformativeText("Escolha 'Incremental' para MANTER itens validados/editados ou 'Completa' para APAGAR tudo e refazer.")
-             
-             # Botões Personalizados
-             btn_inc = msg.addButton("Análise Incremental (Preservar)", QMessageBox.ActionRole)
-             btn_full = msg.addButton("Análise Completa (Limpar Tudo)", QMessageBox.ActionRole)
-             btn_cancel = msg.addButton("Cancelar", QMessageBox.RejectRole)
-             
-             msg.exec()
-             
-             if msg.clickedButton() == btn_cancel:
-                 return
-             elif msg.clickedButton() == btn_inc:
-                 incremental = True
-             elif msg.clickedButton() == btn_full:
-                 incremental = False
-        
-        # --- Snapshot de Dados Validados (Modo Incremental) ---
+        # --- Snapshot de Dados Validados (Modo Incremental Automático) ---
+        # Agora a análise geral SEMPRE preserva o que está validado/editado.
+        # Para refazer um item do zero, o usuário deve excluí-lo da biblioteca.
+        incremental = True
         preserved_pillars = {}
         preserved_beams = {}
         preserved_slabs = {}
         
-        if incremental:
-             # Snapshot Pilares
-             for p in self.pillars_found:
-                 if p.get('validated_fields') or p.get('links'):
-                     preserved_pillars[p.get('name')] = p
+        # Snapshot Pilares
+        for p in self.pillars_found:
+             if p.get('is_validated') or p.get('validated_fields') or p.get('links'):
+                 preserved_pillars[p.get('name')] = p
+                 
+        # Snapshot Vigas
+        if hasattr(self, 'beams_found'):
+             for b in self.beams_found:
+                 if b.get('is_validated') or b.get('validated_fields') or b.get('links'):
+                     preserved_beams[b.get('name')] = b
                      
-             # Snapshot Vigas
-             if hasattr(self, 'beams_found'):
-                 for b in self.beams_found:
-                     if b.get('validated_fields') or b.get('links'):
-                         preserved_beams[b.get('name')] = b
-                         
-             # Snapshot Lajes
-             if hasattr(self, 'slabs_found'):
-                 for s in self.slabs_found:
-                     if s.get('validated_fields') or s.get('links'):
-                         preserved_slabs[s.get('name')] = s
-                         
-             self.log(f"🛡️ Modo Incremental: Preservando {len(preserved_pillars)} pilares, {len(preserved_beams)} vigas, {len(preserved_slabs)} lajes.")
+        # Snapshot Lajes
+        if hasattr(self, 'slabs_found'):
+             for s in self.slabs_found:
+                 if s.get('is_validated') or s.get('validated_fields') or s.get('links'):
+                     preserved_slabs[s.get('name')] = s
+                     
+        if preserved_pillars or preserved_beams or preserved_slabs:
+             self.log(f"🛡️ Reanálise Incremental: Sincronizando com Biblioteca ({len(preserved_pillars)} P, {len(preserved_beams)} V, {len(preserved_slabs)} L).")
 
         self.log("Iniciando varredura geométrica e análise de vínculos...")
         
@@ -1176,8 +1250,29 @@ class MainWindow(QMainWindow):
             self.show_detail(pilar)
             self.canvas.isolate_item(pillar_id, 'pillar') # Isola no Canvas
             self.canvas.draw_focus_beams(pilar.get('beams_visual', []))
+            # NOVO: Desenha todos os vínculos salvos (Labels, Dimensões, etc)
+            self.canvas.draw_item_links(pilar)
         else:
             self.log(f"Erro: Pilar {pillar_id} não encontrado nos dados processados.")
+
+    # --- CALLBACKS DE LISTAS ---
+    def on_list_contour_clicked(self, item):
+        """Callback: Clique na lista de Contornos (Análise ou Library)."""
+        if not item: return
+        cid = item.data(Qt.UserRole)
+        
+        # 1. Tentar encontrar na lista carregada
+        c_data = next((c for c in getattr(self, 'contours_found', []) if c['id'] == cid), None)
+        
+        # 2. Se não estiver na lista, talvez seja o que acabamos de gerar no pre-processador
+        if not c_data and hasattr(self, 'dxf_preprocessor') and self.dxf_preprocessor and self.dxf_preprocessor.item_data:
+            if self.dxf_preprocessor.item_data.get('id') == cid:
+                c_data = self.dxf_preprocessor.item_data
+                
+        if c_data:
+            self.show_detail(c_data)
+        else:
+            self.log(f"⚠️ Dados do contorno {cid} não encontrados.")
 
     def on_list_beam_clicked(self, item, column=0):
         beam_id = item.data(0, Qt.UserRole)
@@ -1186,7 +1281,9 @@ class MainWindow(QMainWindow):
         if beam:
             self.show_detail(beam)
             # Focar na viga (geometria completa)
-            self.canvas.focus_on_beam_geometry(beam) 
+            self.canvas.focus_on_beam_geometry(beam)
+            # NOVO: Desenhar também os vínculos salvos (Labels, Dimensões, etc)
+            self.canvas.draw_item_links(beam)
 
     def on_list_slab_clicked(self, item):
         slab_id = item.data(Qt.UserRole)
@@ -1194,6 +1291,8 @@ class MainWindow(QMainWindow):
         if slab:
             self.show_detail(slab)
             self.canvas.isolate_item(slab_id, 'slab') # Isola Laje (com Zoom)
+            # NOVO: Desenhar todos os vínculos salvos (Destaque de segmentos, ilhas, etc)
+            self.canvas.draw_item_links(slab)
 
     def on_canvas_pillar_selected(self, p_id):
         for i in range(self.list_pillars.count()):
@@ -1211,23 +1310,36 @@ class MainWindow(QMainWindow):
             
         self.log(f"💾 Salvando projeto {self.current_project_name}...")
         
-        # Save Pillars
+        # 1. Salvar Metadados (se houver, assumindo que update_project_metadata faça isso)
+        self.save_project_metadata() # Usa metodo auxiliar existente se houver, ou implementado separadamente
+
+        # 2. Save Pillars
         for p in self.pillars_found:
             self.db.save_pillar(p, self.current_project_id)
         self.log(f"   -> {len(self.pillars_found)} pilares salvos.")
 
-        # Save Slabs
+        # 3. Save Slabs
         slabs = getattr(self, 'slabs_found', [])
         for s in slabs:
             self.db.save_slab(s, self.current_project_id)
         self.log(f"   -> {len(slabs)} lajes salvas.")
 
-        # Save Beams
+        # 4. Save Beams
         beams = getattr(self, 'beams_found', [])
         for b in beams:
             self.db.save_beam(b, self.current_project_id)
-        self.log(f"   -> {len(beams)} vigas salvas.")
         
+        # 5. Save Contours (Marcos)
+        # A lista oficial é self.contours_found, populada no tratamento prévio ou load
+        if not hasattr(self, 'contours_found'): self.contours_found = []
+
+        contours = self.contours_found
+        for c in contours:
+            # Garantir ID único se não tiver
+            if 'id' not in c: c['id'] = str(uuid.uuid4())
+            self.db.save_contour(c, self.current_project_id)
+            
+        self.log(f"   -> {len(beams)} vigas e {len(contours)} contornos salvos.")
         self.log("✅ Projeto salvo com sucesso!")
 
     def load_project_action(self):
@@ -1237,87 +1349,46 @@ class MainWindow(QMainWindow):
             
         self.log(f"📂 Carregando dados do projeto {self.current_project_name}...")
         
-        saved_pillars = self.db.load_pillars(self.current_project_id)
-        if not saved_pillars:
-            self.log("⚠️ Nenhum dado salvo encontrado para este projeto.")
-            return
-            
-        self.pillars_found = saved_pillars
-        # ORDENAR: Priorizar id_item (se existir) senão natural sort por nome
+        # Carregar do Banco de Dados
+        self.pillars_found = self.db.load_pillars(self.current_project_id) or []
+        self.slabs_found = self.db.load_slabs(self.current_project_id) or []
+        self.beams_found = self.db.load_beams(self.current_project_id) or []
+        self.contours_found = self.db.load_contours(self.current_project_id) or []
+
+        # Ordenar (Funções auxiliares internas)
         import re
         def nat_key(x):
             return [int(t) if t.isdigit() else t.lower() for t in re.split(r'(\d+)', x.get('name', ''))]
         
         def sort_key(x):
-            # Se id_item existir e for numérico, usamos ele como prioridade
             id_val = x.get('id_item')
             if id_val and str(id_val).isdigit():
                 return (0, int(id_val), nat_key(x))
             return (1, 0, nat_key(x))
 
         self.pillars_found.sort(key=sort_key)
-        
-        # Carregar Lajes
-        saved_slabs = self.db.load_slabs(self.current_project_id)
-        self.slabs_found = saved_slabs if saved_slabs else []
         self.slabs_found.sort(key=sort_key)
-
-        # Carregar Vigas
-        saved_beams = self.db.load_beams(self.current_project_id)
-        self.beams_found = saved_beams if saved_beams else []
         self.beams_found.sort(key=sort_key)
+        # Contornos geralmente são poucos, não precisa ordenar complexo
 
-        # Limpar listas UI
-        self.list_pillars.clear()
-        self.list_beams.clear()
-        self.list_slabs.clear()
-        self.list_issues.clear()
-        self.list_pillars_valid.clear()
-        self.list_beams_valid.clear()
-        self.list_slabs_valid.clear()
-        
-        # Reconstruir Lista de Pilares
-        for i, p in enumerate(self.pillars_found):
-            if not p.get('id_item'):
-                p['id_item'] = f"{i+1:02}"
-            id_item = p['id_item']
-            item_text = f"{id_item} | {p['name']} | {p.get('dim', 'N/A')} | {p.get('format', 'N/A')}"
-            item = QListWidgetItem(item_text)
-            item.setData(Qt.UserRole, p['id'])
-            self.list_pillars.addItem(item)
-            
-            if p.get('is_validated'):
-                 item_v = QListWidgetItem(item_text + " ✅")
-                 item_v.setData(Qt.UserRole, p['id'])
-                 item_v.setForeground(Qt.green)
-                 self.list_pillars_valid.addItem(item_v)
-
-        # Reconstruir Lista de Vigas (Hierárquico)
-        self._populate_beam_tree(self.list_beams, self.beams_found)
-        
-        valid_beams = [b for b in self.beams_found if b.get('is_validated')]
-        self._populate_beam_tree(self.list_beams_valid, valid_beams)
-
-        # Reconstruir Lista de Lajes
-        for i, s in enumerate(self.slabs_found):
-            if not s.get('id_item'):
-                s['id_item'] = f"{i+1:02}"
-            id_item = s['id_item']
-            item_text = f"{id_item} | {s['name']}"
-            item = QListWidgetItem(item_text)
-            item.setData(Qt.UserRole, s['id'])
-            self.list_slabs.addItem(item)
-        
         # Desenhar overlays no canvas
-        self.canvas.draw_interactive_pillars(self.pillars_found)
-        self.canvas.draw_slabs(self.slabs_found)
-        
-        # Sincronizar Heatmap e Pendências
-        self._update_all_lists_ui()
-        self.log(f"✅ {len(saved_pillars)} pilares restaurados.")
+        if hasattr(self.canvas, 'scene') and self.canvas.scene:
+            self.canvas.draw_interactive_pillars(self.pillars_found)
+            self.canvas.draw_slabs(self.slabs_found)
+            self.canvas.draw_beams(self.beams_found)
             
+            # Contornos (Marcos) - Sempre visíveis
+            for c in getattr(self, 'contours_found', []):
+                self.canvas.draw_marco_dxf(c)
+        
+        # Sincronizar Listas UI
+        self._update_all_lists_ui()
+        
+        # Detalhe do primeiro item se houver
         if self.pillars_found:
             self.show_detail(self.pillars_found[0])
+            
+        self.log(f"✅ Projeto restaurado: {len(self.pillars_found)}P, {len(self.beams_found)}V, {len(self.slabs_found)}L, {len(self.contours_found)}C.")
                 
     def on_research_requested(self, field_id, slot_id):
         """Re-executa a busca para o slot usando Treinamento + Prompts. ATUALIZA OS DADOS."""
@@ -1459,6 +1530,62 @@ class MainWindow(QMainWindow):
             )
             self.log(f"🧠 Aprendizado registrado: {i_context['type']} {i_context['name']} -> {field_id}")
 
+    def run_dxf_preprocessor_action(self):
+        """Executa o tratamento prévio de vigas/marco do DXF."""
+        if not self.dxf_data:
+            self.log("⚠️ Carregue um DXF primeiro.")
+            return
+
+        self.show_progress("Executando Tratamento Prévio (Marco)...", 20)
+        
+        # Inicializar engine se necessário
+        if not self.dxf_preprocessor:
+            self.dxf_preprocessor = DXFPreprocessor(self.spatial_index, self.memory)
+
+        # Rodar análise
+        results = self.dxf_preprocessor.run_marco_analysis(self.dxf_data, self.current_project_id or "temp")
+        
+        self.update_progress(80, "Desenhando Marco no Canvas...")
+        
+        # 1. Desenhar no Canvas (Linhas azuis)
+        if 'item_data' in results:
+            self.canvas.draw_marco_dxf(results['item_data'])
+        
+        # 2. Registrar o item virtual de Marco se estiver num projeto
+        # Para que o usuário possa ver os vínculos de extensões e unioes
+        if results.get('item_data'):
+            marco_item = results['item_data']
+            
+            # Atualizar Lista Oficial de Contornos
+            if not hasattr(self, 'contours_found'): self.contours_found = []
+            
+            # Remover anterior se houver (assumindo 1 marco por projeto por enquanto)
+            self.contours_found = [c for c in self.contours_found if c['id'] != marco_item['id']]
+            self.contours_found.append(marco_item)
+            
+            # Retrocompatibilidade (se ainda for usado em algum lugar)
+            self.marco_found = [marco_item]
+            
+            # Atualizar UI
+            self._update_all_lists_ui()
+            
+            self.log(f"✅ Tratamento Prévio concluído: {len(results['extensions'])} extensões e {len(results['marco'])} uniões geradas.")
+        
+        self.hide_progress()
+        QMessageBox.information(self, "Tratamento Prévio", 
+                                "Marco do DXF gerado com sucesso!\nVerifique a aba 'Contorno' para detalhes.")
+
+    def show_pre_processing_details(self):
+        """Abre a ficha técnica do Marco do DXF para edição de vínculos."""
+        contours = getattr(self, 'contours_found', [])
+        if contours:
+            self.show_detail(contours[0])
+            # Forçar visualização no canvas
+            self.canvas.draw_marco_dxf(contours[0])
+        else:
+            self.log("⚠️ Nenhum tratamento prévio (Marco) foi gerado ainda. Execute 'Tratamento Prévio' primeiro.")
+            QMessageBox.warning(self, "Detalhes", "Nenhum Marco encontrado. Execute o 'Tratamento Prévio' primeiro.")
+
     def on_train_requested(self, field_id, train_data):
         """Registra feedback de treino no banco de dados e opcionalmente propaga."""
         if not self.current_project_id:
@@ -1581,6 +1708,10 @@ class MainWindow(QMainWindow):
             slots = LinkManager.SLOT_CONFIG['_diff_v']
         elif field_id.startswith('p_s') and '_v_' in field_id and field_id.endswith('_d') and '_beam_dim' in LinkManager.SLOT_CONFIG:
             slots = LinkManager.SLOT_CONFIG['_beam_dim']
+        elif 'laje_dim' in field_id and '_laje_dim' in LinkManager.SLOT_CONFIG:
+            slots = LinkManager.SLOT_CONFIG['_laje_dim']
+        elif 'laje_nivel' in field_id and '_laje_level' in LinkManager.SLOT_CONFIG:
+            slots = LinkManager.SLOT_CONFIG['_laje_level']
         elif field_id.endswith('_dim') and 'dim' in LinkManager.SLOT_CONFIG:
             slots = LinkManager.SLOT_CONFIG['dim']
         else:
@@ -1631,27 +1762,39 @@ class MainWindow(QMainWindow):
 
     def _add_to_issues_list(self, p, conf):
         """Popula a aba de Pendências com elementos suspeitos."""
-        prefix = "❌ ERRO" if p.get('issues') else "⚠️ INCERTO"
-        reason = p['issues'][0] if p.get('issues') else f"Confiança Baixa ({conf*100:.0f}%)"
+        if p.get('type') == 'MarcoDXF':
+            prefix = "🛠️ MARCO"
+            reason = "Tratamento Prévio Gerado"
+        else:
+            prefix = "❌ ERRO" if p.get('issues') else "⚠️ INCERTO"
+            reason = p['issues'][0] if p.get('issues') else f"Confiança Baixa ({conf*100:.0f}%)"
         
         item_text = f"{prefix} | {p['name']} | {reason}"
         item = QListWidgetItem(item_text)
-        item.setData(Qt.UserRole, p['id']) # ID do pilar
+        item.setData(Qt.UserRole, p['id']) # ID do item
         
-        if p.get('issues'): item.setForeground(Qt.red)
+        from PySide6.QtGui import QColor
+        if p.get('type') == 'MarcoDXF': item.setForeground(QColor(0, 150, 255))
+        elif p.get('issues'): item.setForeground(Qt.red)
         else: item.setForeground(Qt.yellow)
         
         self.list_issues.addItem(item)
 
     def on_issue_clicked(self, item):
-        """Ao clicar na pendência, abre o pilar e foca no erro."""
+        """Ao clicar na pendência, abre o item e foca no erro."""
         p_id = item.data(Qt.UserRole)
+        
+        # 0. Verificar se é Marco
+        if hasattr(self, 'marco_found') and self.marco_found and self.marco_found[0]['id'] == p_id:
+            self.show_detail(self.marco_found[0])
+            self.canvas.draw_marco_dxf(self.db.load_pre_processing(self.current_project_id))
+            return
+
         for i in range(self.list_pillars.count()):
             it = self.list_pillars.item(i)
             if it.data(Qt.UserRole) == p_id:
                 self.list_pillars.setCurrentItem(it)
                 self.on_list_pillar_clicked(it)
-                self.tabs.setCurrentIndex(0) # Volta pra aba Pilares
                 break
 
 
@@ -1693,6 +1836,20 @@ class MainWindow(QMainWindow):
                 target_list = self.list_slabs
                 valid_list = self.list_slabs_valid
                 item_label = f"{id_item} | {name}"
+            elif 'marcodxf' in elem_type or 'contorno' in elem_type:
+                self.db.save_contour(item_data, self.current_project_id)
+                
+                # Update memory list
+                existing = next((c for c in getattr(self, 'contours_found', []) if c['id'] == item_data['id']), None)
+                if existing:
+                    existing.update(item_data)
+                else:
+                    if not hasattr(self, 'contours_found'): self.contours_found = []
+                    self.contours_found.append(item_data)
+                
+                self._update_all_lists_ui()
+                self.log("✅ Contorno validado e salvo.")
+                return 
             else:
                 return
 
@@ -2054,6 +2211,7 @@ class MainWindow(QMainWindow):
             print(f"DEBUG: Lajes carregadas ({len(slabs)})")
             beams = self.db.load_beams(pid)
             print(f"DEBUG: Vigas carregadas ({len(beams)})")
+            contours = self.db.load_contours(pid)
             
             cache_entry = {
                 'id': pid,
@@ -2062,6 +2220,7 @@ class MainWindow(QMainWindow):
                 'pillars': pillars,
                 'slabs': slabs,
                 'beams': beams,
+                'contours': contours,
                 'meta': {
                     'work_name': p_info.get('work_name', ''),
                     'pavement_name': p_info.get('pavement_name', ''),
@@ -2110,6 +2269,7 @@ class MainWindow(QMainWindow):
             old_cache['pillars'] = self.pillars_found
             old_cache['slabs'] = self.slabs_found
             old_cache['beams'] = self.beams_found
+            old_cache['contours'] = getattr(self, 'contours_found', [])
             old_cache['meta'] = {
                 'work_name': self.edit_work_name.text(),
                 'pavement_name': self.edit_pavement_name.text(),
@@ -2149,6 +2309,7 @@ class MainWindow(QMainWindow):
         self.pillars_found = project_data['pillars']
         self.slabs_found = project_data['slabs']
         self.beams_found = project_data['beams']
+        self.contours_found = project_data.get('contours', [])
         self.dxf_data = project_data['dxf_data']
         
         # 3. Restaurar Lógica (Fast Path se já existir)
@@ -2170,6 +2331,10 @@ class MainWindow(QMainWindow):
             self.canvas.draw_interactive_pillars(self.pillars_found)
             self.canvas.draw_slabs(self.slabs_found)
             self.canvas.draw_beams(self.beams_found)
+            
+            # Contornos (Marcos)
+            for c in self.contours_found: 
+                self.canvas.draw_marco_dxf(c)
             
             # Marcar como renderizado no cache para trocas futuras instantâneas
             project_data['scene_rendered'] = True
@@ -2232,6 +2397,8 @@ class MainWindow(QMainWindow):
         self.list_slabs.clear()
         self.list_slabs_valid.clear()
         self.list_issues.clear()
+        if hasattr(self, 'list_contours'): self.list_contours.clear()
+        if hasattr(self, 'list_contours_valid'): self.list_contours_valid.clear()
         
         # 2. Popular Pilares
         for p in self.pillars_found:
@@ -2297,9 +2464,72 @@ class MainWindow(QMainWindow):
                 item_v.setData(Qt.UserRole, s['id'])
                 item_v.setForeground(Qt.green)
                 self.list_slabs_valid.addItem(item_v)
+
+        # 5. Popular Contornos (Marcos)
+        contours = getattr(self, 'contours_found', [])
+        for c in contours:
+            t = f"{c.get('name', 'Contorno')} {('✅' if c.get('is_validated') else '')}"
+            item = QListWidgetItem(t)
+            item.setData(Qt.UserRole, c['id'])
+            if c.get('is_validated'):
+                 item.setForeground(Qt.green)
+            
+            if hasattr(self, 'list_contours'): self.list_contours.addItem(item)
+            
+            if c.get('is_validated') and hasattr(self, 'list_contours_valid'):
+                item_v = item.clone()
+                self.list_contours_valid.addItem(item_v)
         
-        self.log(f"UI Atualizada: {len(self.pillars_found)}P, {len(self.beams_found)}V, {len(self.slabs_found)}L")
+        self.log(f"UI Atualizada: {len(self.pillars_found)}P, {len(self.beams_found)}V, {len(self.slabs_found)}L, {len(contours)}C")
     
+    def on_detail_data_changed(self, data):
+        """Callback genérico para mudanças nos dados do DetailCard (remoção de links, etc)"""
+        if not self.current_card: return
+        
+        item_data = self.current_card.item_data
+        itype = item_data.get('type', '').lower()
+        
+        # Se for Marco/Contorno, redesenhar imediatamente para refletir mudanças visuais (ex: remoção de extensão)
+        if 'marcodxf' in itype or 'contorno' in itype:
+            self.canvas.draw_marco_dxf(item_data)
+
+    def show_detail(self, item_data):
+        """Exibe os detalhes do item no painel direito."""
+        # Limpar anterior
+        while self.detail_layout.count():
+            child = self.detail_layout.takeAt(0)
+            if child.widget(): child.widget().deleteLater()
+
+        # Criar novo card
+        self.current_card = DetailCard(item_data)
+        
+        # Conectar Sinais
+        self.current_card.pick_requested.connect(self.on_pick_requested)
+        self.current_card.focus_requested.connect(self.on_focus_requested)
+        self.current_card.data_validated.connect(self.on_card_validated)
+        self.current_card.element_removed.connect(self.on_detail_data_changed) # Conecta remoção ao refresh visual
+        self.current_card.research_requested.connect(self.on_research_requested)
+        self.current_card.element_focused.connect(self.on_focus_requested)
+        self.current_card.training_requested.connect(self.on_train_requested)
+        
+        self.detail_layout.addWidget(self.current_card)
+        
+        # Atualizar título do painel (opcional)
+        self.right_panel.setCurrentIndex(1)
+    
+    def on_pick_requested(self, field_id, type_req):
+        """Inicia modo de picking no canvas solicitado pelo card."""
+        self.current_pick_field = field_id
+        # type_req pode ser 'text', 'line', ou um dict {'slot':...}
+        if isinstance(type_req, dict):
+            self.current_pick_slot = type_req.get('slot', 'default')
+            # Se o slot for específico (ex: 'viga_segs'), o DetailCard já configurou o link manager
+        else:
+            self.current_pick_slot = 'main'
+            
+        self.canvas.set_picking_mode('line') # Força line por enquanto, ou detecta pelo type_req
+        self.log(f"Iniciando captura para: {field_id}")
+
     def create_manual_item(self, is_library=False):
         """Cria um novo item manualmente na lista ativa"""
         if not self.active_project_id:
@@ -2436,7 +2666,11 @@ class MainWindow(QMainWindow):
             return
 
         item = selected_items[0]
-        item_id = item.data(Qt.UserRole)
+        # Correção: Vigas usam QTreeWidget (requer coluna 0), Pilares/Lajes usam QListWidget
+        if item_type == 'beam':
+            item_id = item.data(0, Qt.UserRole)
+        else:
+            item_id = item.data(Qt.UserRole)
         
         reply = QMessageBox.question(self, "Confirmar Exclusão", 
                                    f"Tem certeza que deseja excluir este item ({item.text()})?",
@@ -2444,14 +2678,34 @@ class MainWindow(QMainWindow):
         if reply != QMessageBox.Yes:
             return
 
-        # 1. Remover da UI
-        if item_type == 'beam':
-            (item.parent() or list_widget.invisibleRootItem()).removeChild(item)
-        else:
-            row = list_widget.row(item)
-            list_widget.takeItem(row)
+        # 1. Identificar listas envolvidas para limpeza simultânea
+        lists_to_clean = []
+        if item_type == 'pillar':
+            lists_to_clean = [self.list_pillars, self.list_pillars_valid]
+        elif item_type == 'beam':
+            lists_to_clean = [self.list_beams, self.list_beams_valid]
+        elif item_type == 'slab':
+            lists_to_clean = [self.list_slabs, self.list_slabs_valid]
 
-        # 2. Remover da Memória (Análise ou Lib)
+        # 2. Remover da UI (Ambas as listas: Análise e Biblioteca)
+        for lw in lists_to_clean:
+            if isinstance(lw, QListWidget):
+                for i in range(lw.count()):
+                    it = lw.item(i)
+                    if it and it.data(Qt.UserRole) == item_id:
+                        lw.takeItem(i)
+                        break
+            elif isinstance(lw, QTreeWidget):
+                from PySide6.QtWidgets import QTreeWidgetItemIterator
+                it_tree = QTreeWidgetItemIterator(lw)
+                while it_tree.value():
+                    tree_item = it_tree.value()
+                    if tree_item.data(0, Qt.UserRole) == item_id:
+                        (tree_item.parent() or lw.invisibleRootItem()).removeChild(tree_item)
+                        break
+                    it_tree += 1
+
+        # 3. Remover da Memória (Shared lists)
         target_list = None
         if item_type == 'pillar':
              target_list = self.pillars_found
@@ -2461,17 +2715,28 @@ class MainWindow(QMainWindow):
              target_list = self.slabs_found
              
         if target_list is not None:
-            # Remover do dict pelo ID
             start_count = len(target_list)
             target_list[:] = [x for x in target_list if x['id'] != item_id]
             
             if len(target_list) < start_count:
-                self.log(f"🗑️ Item {item_id} removido da memória.")
-                # Atualizar visualização no Canvas se necessário
+                # 4. Remover do Banco de Dados (Persistência)
+                try:
+                    if item_type == 'pillar':
+                        self.db.delete_pillar(item_id)
+                    elif item_type == 'beam':
+                        self.db.delete_beam(item_id)
+                    elif item_type == 'slab':
+                        self.db.delete_slab(item_id)
+                    self.log(f"🗑️ Item {item_id} removido da memória, das listas e do Banco de Dados.")
+                except Exception as e:
+                    self.log(f"⚠️ Erro ao remover do Banco de Dados: {e}")
+
                 if item_type == 'pillar':
                     self.canvas.draw_interactive_pillars(self.pillars_found)
                 elif item_type == 'slab':
                     self.canvas.draw_slabs(self.slabs_found)
+                elif item_type == 'beam':
+                    self.canvas.draw_beams(self.beams_found)
 
     # --- Script Generation Placeholders ---
     def generate_script_pillar_full(self, is_library):

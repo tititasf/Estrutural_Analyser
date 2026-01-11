@@ -1,3 +1,5 @@
+import uuid
+import math
 from PySide6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel, 
                                 QTabWidget, QTableWidget, QTableWidgetItem, 
                                 QPushButton, QHeaderView, QFrame, QMessageBox,
@@ -465,6 +467,17 @@ class DetailCard(QWidget):
     def _on_field_changed(self, key, value):
         """Atualiza item_data imediatamente ao digitar"""
         self.item_data[key] = value
+        
+        # Sincronização especial para Marco DXF
+        if key.startswith('ext_viga_') and 'vigas_individuais' in self.item_data:
+            v_id = key.replace('ext_viga_', '')
+            for v in self.item_data['vigas_individuais']:
+                if v.get('id') == v_id:
+                    try:
+                        v['extension_len'] = float(value)
+                        v['final_len'] = v['original_len'] + v['extension_len']
+                    except: pass
+                    break
 
     def refresh_validation_styles(self):
         """Varre campos e aplica borda verde nos validados e atualiza contadores de vínculos"""
@@ -537,8 +550,8 @@ class DetailCard(QWidget):
         # --- Cabeçalho Dinâmico ---
         elem_type = self.item_data.get('type', 'Pilar').upper()
         
-        # PARA LAJES: O Header é omitido aqui e criado dentro da aba (para ficar abaixo das tabs)
-        if 'LAJE' not in elem_type:
+        # PARA LAJES ou MARCO: O Header é omitido aqui e criado dentro da aba/view específica
+        if 'LAJE' not in elem_type and 'MARCO' not in elem_type:
             header_title = f"DADOS GERAIS - {elem_type}"
             
             header = QGroupBox(header_title)
@@ -1380,6 +1393,8 @@ class DetailCard(QWidget):
             self._setup_viga_complex_view(self.dynamic_layout)
         elif 'laje' in elem_type:
             self._setup_laje_complex_view(self.dynamic_layout)
+        elif 'marcodxf' in elem_type:
+            self._setup_marco_view(self.dynamic_layout)
 
     def _clear_dynamic_content(self):
         """Remove widgets dinâmicos e limpa referências no self.fields"""
@@ -1427,3 +1442,207 @@ class DetailCard(QWidget):
                   self.fields['laje_dim'].blockSignals(False)
                   # Atualiza dados
                   self._on_field_changed('laje_dim', clean_val)
+
+    def _setup_marco_view(self, layout_container):
+        """View em formato de Tabela (Grid) para o Tratamento Prévio do Marco"""
+        from PySide6.QtWidgets import QGridLayout, QFrame
+        
+        container = QWidget()
+        layout = QVBoxLayout(container)
+        layout.setContentsMargins(5, 5, 5, 5)
+        layout.setSpacing(10)
+        
+        lbl_head = QLabel("🛠️ TRATAMENTO PRÉVIO - PERÍMETRO")
+        lbl_head.setStyleSheet("font-size: 13px; font-weight: bold; color: #00d4ff;")
+        layout.addWidget(lbl_head)
+
+        vigas = self.item_data.get('vigas_individuais', [])
+        
+        if not vigas:
+            layout.addWidget(QLabel("Nenhuma viga de extremidade detectada."))
+        else:
+            # Header da "Tabela"
+            header_frame = QFrame()
+            header_frame.setStyleSheet("background: #222; border-bottom: 1px solid #444;")
+            h_lay = QHBoxLayout(header_frame)
+            h_lay.setContentsMargins(5, 5, 5, 5)
+            
+            lbl_ref = QLabel("Referência"); lbl_ref.setStyleSheet("font-weight: bold; color: #aaa;")
+            lbl_tam = QLabel("Tamanho"); lbl_tam.setStyleSheet("font-weight: bold; color: #aaa;")
+            lbl_lnk = QLabel("Ações"); lbl_lnk.setStyleSheet("font-weight: bold; color: #aaa;")
+            lbl_val = QLabel("Soma (cm)"); lbl_val.setStyleSheet("font-weight: bold; color: #aaa;")
+            
+            h_lay.addWidget(lbl_ref, 2)
+            h_lay.addWidget(lbl_tam, 2)
+            h_lay.addWidget(lbl_lnk, 2) 
+            h_lay.addWidget(lbl_val, 2)
+            layout.addWidget(header_frame)
+
+            # Lista de Itens (Rows)
+            for v in vigas:
+                v_id = v.get('id')
+                field_key = f"ext_viga_{v_id}"
+                
+                row_container = QFrame()
+                row_container.setStyleSheet("border-bottom: 1px solid #222;")
+                row_v_lay = QVBoxLayout(row_container)
+                row_v_lay.setContentsMargins(0, 0, 0, 0)
+                row_v_lay.setSpacing(0)
+                
+                # Linha de Dados
+                data_row = QWidget()
+                dr_lay = QHBoxLayout(data_row)
+                dr_lay.setContentsMargins(5, 4, 5, 4) # Mais margem
+                
+                # 1. Referência
+                lbl_v_id = QLabel(f"Viga_{v_id[:4]}")
+                lbl_v_id.setStyleSheet("color: #ddd; font-weight: bold;")
+                dr_lay.addWidget(lbl_v_id, 2)
+                
+                # 2. Tamanho (Original)
+                dr_lay.addWidget(QLabel(f"{v.get('original_len', 0):.1f}"), 2)
+                
+                # 3. Bloco de Botões (Compacto: Ícones Ajustados)
+                btns_widget = QWidget()
+                btns_lay = QHBoxLayout(btns_widget)
+                btns_lay.setContentsMargins(0, 0, 0, 0)
+                btns_lay.setSpacing(4)
+                
+                drawer = QWidget()
+                drawer.hide()
+                drawer.setStyleSheet("background: #141414; border-left: 3px solid #00d4ff; margin: 2px; border-radius: 2px;")
+                
+                # Botão ZOOM
+                btn_zoom = QPushButton("🔍")
+                btn_zoom.setFixedSize(24, 24)
+                btn_zoom.setCursor(Qt.PointingHandCursor)
+                btn_zoom.setStyleSheet("""
+                    QPushButton { 
+                        background: rgba(60, 60, 60, 180); border: 1px solid #444; border-radius: 3px;
+                        color: #ffca28; font-size: 13px; font-weight: bold; padding: 0px;
+                    }
+                    QPushButton:hover { background: rgba(100, 100, 100, 255); border: 1px solid #ffca28; }
+                """)
+                btn_zoom.clicked.connect(lambda checked=False, f=field_key: self.focus_requested.emit(f))
+                
+                # Botão VINC
+                btn_link = QPushButton("🔗")
+                btn_link.setFixedSize(24, 24)
+                btn_link.setCursor(Qt.PointingHandCursor)
+                btn_link.setStyleSheet("""
+                    QPushButton { 
+                        background: rgba(60, 60, 60, 180); border: 1px solid #444; border-radius: 3px;
+                        color: #00d4ff; font-size: 13px; font-weight: bold; padding: 0px;
+                    }
+                    QPushButton:hover { background: rgba(100, 100, 100, 255); border: 1px solid #00d4ff; }
+                """)
+                btn_link.clicked.connect(lambda checked=False, f=field_key, d=drawer: self._toggle_link_drawer(f, d))
+                
+                # Botão EXCL
+                btn_del = QPushButton("✖")
+                btn_del.setFixedSize(24, 24)
+                btn_del.setCursor(Qt.PointingHandCursor)
+                btn_del.setStyleSheet("""
+                    QPushButton { 
+                        background: rgba(60, 60, 60, 180); border: 1px solid #444; border-radius: 3px;
+                        color: #ff5252; font-size: 13px; font-weight: bold; padding: 0px;
+                    }
+                    QPushButton:hover { background: rgba(220, 50, 50, 255); border: 1px solid #ff5252; }
+                """)
+                btn_del.clicked.connect(lambda checked=False, vid=v_id, cont=row_container: self._remove_marco_row(vid, cont))
+                
+                btns_lay.addWidget(btn_zoom)
+                btns_lay.addWidget(btn_link)
+                btns_lay.addWidget(btn_del)
+                dr_lay.addWidget(btns_widget, 2)
+                
+                # 4. Campo Valor
+                ext_val = v.get('extension_len', 10.0)
+                display_val = "10.0"
+                if isinstance(ext_val, (int, float)):
+                     display_val = f"{ext_val:.1f}"
+                elif isinstance(ext_val, str) and ext_val.replace('.','',1).isdigit():
+                     display_val = ext_val
+                else: 
+                     display_val = "10.0" # Fallback se vier lixo (ex: 'Polyline...')
+
+                val_edit = QLineEdit(display_val)
+                val_edit.setFixedWidth(60)
+                val_edit.setAlignment(Qt.AlignCenter)
+                val_edit.setStyleSheet("""
+                    QLineEdit { 
+                        background: #181818; border: 1px solid #333; color: #00e676; 
+                        font-weight: bold; border-radius: 4px; font-size: 12px; padding: 2px;
+                    }
+                    QLineEdit:focus { border: 1px solid #00e676; background: #202020; }
+                """)
+                val_edit.textChanged.connect(lambda t, k=field_key: self._on_field_changed(k, t))
+                self.fields[field_key] = val_edit
+                
+                dr_lay.addWidget(val_edit, 2)
+                
+                row_v_lay.addWidget(data_row)
+                row_v_lay.addWidget(drawer)
+                layout.addWidget(row_container)
+
+        # Botão Adicionar Nova Viga
+        btn_add = QPushButton("➕ ADICIONAR VIGA MANUAL")
+        btn_add.setStyleSheet("""
+            QPushButton { background: #1a3a5a; color: #00d4ff; border: 1px dashed #00d4ff; padding: 8px; font-weight: bold; margin-top: 10px; border-radius: 4px;}
+            QPushButton:hover { background: #2a5a8a; border-style: solid; }
+        """)
+        btn_add.clicked.connect(self._add_manual_marco_row)
+        layout.addWidget(btn_add)
+
+        # Uniões do Marco (Separado)
+        group_uniao = QGroupBox("FECHAMENTO DO MARCO (UNIÕES PONTAS)")
+        group_uniao.setStyleSheet("QGroupBox { font-size: 11px; font-weight: bold; color: #ffb300; border: 1px solid #333; margin-top: 20px; padding-top: 15px; }")
+        uniao_layout = QFormLayout(group_uniao)
+        self._add_linked_row(uniao_layout, "Uniões Marco:", "unioes_marco", pick_type='poly', hide_input=True)
+        layout.addWidget(group_uniao)
+        
+        layout.addStretch()
+        layout_container.addWidget(container)
+
+    def _remove_marco_row(self, v_id, container):
+        """Remove uma viga da lista de extremidades e limpa seus vínculos"""
+        # Exclusão direta conforme solicitado
+        vigas = self.item_data.get('vigas_individuais', [])
+        self.item_data['vigas_individuais'] = [v for v in vigas if v.get('id') != v_id]
+        
+        # Limpar vínculos do campo
+        field_key = f"ext_viga_{v_id}"
+        if 'links' in self.item_data and field_key in self.item_data['links']:
+            del self.item_data['links'][field_key]
+        
+        if field_key in self.fields:
+            del self.fields[field_key]
+        
+        # Remover widget
+        container.deleteLater()
+        # Removido self.log para evitar AttributeError
+
+    def _add_manual_marco_row(self):
+        """Adiciona manualmente uma nova viga à lista de tratamento prévio"""
+        new_id = str(uuid.uuid4())[:8]
+        new_viga = {
+            'id': new_id,
+            'type': 'line',
+            'points': [],
+            'text': f'Viga_{new_id[:4]}',
+            'original_len': 0.0,
+            'extension_len': 10.0,
+            'final_len': 10.0
+        }
+        
+        if 'vigas_individuais' not in self.item_data:
+            self.item_data['vigas_individuais'] = []
+            
+        self.item_data['vigas_individuais'].append(new_viga)
+        
+        # Iniciar links vazios para ela (Main = Viga Total, Default = Segmento Ajuste)
+        if 'links' not in self.item_data: self.item_data['links'] = {}
+        self.item_data['links'][f"ext_viga_{new_id}"] = {'main': [], 'default': []}
+        
+        # Feedback visual removido para dinamismo
+        self._refresh_dynamic_content() # Recarregar view para mostrar nova linha

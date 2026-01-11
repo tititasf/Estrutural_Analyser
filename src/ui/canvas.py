@@ -49,7 +49,10 @@ class CADCanvas(QGraphicsView):
             'beam': [],
             'link': [] # Visual links (texts/lines)
         }
-        self.beam_visuals = []      
+        self.beam_visuals = []
+        self.contour_visuals = []      
+        
+        # Modo de Captação e Edição
         
         # Modo de Captação e Edição
         self.picking_mode = None    # 'text' | 'line'
@@ -388,7 +391,7 @@ class CADCanvas(QGraphicsView):
         # RECONECTAR SINAL DE SELEÇÃO (Essencial!)
         try:
             self.scene.selectionChanged.disconnect(self._on_selection_changed)
-        except:
+        except (TypeError, RuntimeError):
             pass
         self.scene.selectionChanged.connect(self._on_selection_changed)
         
@@ -491,10 +494,17 @@ class CADCanvas(QGraphicsView):
     def add_dxf_entities(self, entities, progress_callback=None):
         """Renderiza geometria base (linhas, textos, etc) do DXF"""
         self.scene.clear()
+        
+        # Explicitly clear dictionaries to release Python references to C++ items
+        self.snap_markers.clear() 
+        self.interactive_items.clear()
+        
         self.snap_markers = {} # Reset markers
         self.interactive_items = {}
         for k in self.item_groups: self.item_groups[k] = [] # Reset groups
         self.beam_visuals = []
+        self.contour_visuals = []
+        self.snap_points = []
         self.snap_points = []
         self.snap_segments = []
         
@@ -835,6 +845,61 @@ class CADCanvas(QGraphicsView):
                                b_data['end'][0], b_data['end'][1], pen)
             self.beam_visuals.append(line)
 
+    def draw_marco_dxf(self, item_data: dict):
+        """Desenha as linhas azuis de tratamento prévio (Marco/Extensões)"""
+        if not item_data: return
+        
+        # 0. Limpar anteriores para evitar sobreposição
+        for item in self.contour_visuals:
+            try: self.scene.removeItem(item)
+            except: pass
+        self.contour_visuals.clear()
+
+        pen_ext = QPen(QColor(0, 120, 255), 3, Qt.DashLine) 
+        pen_marco = QPen(QColor(0, 150, 255), 4)           
+        pen_ext.setCosmetic(True)
+        pen_marco.setCosmetic(True)
+        
+        # 1. Desenhar Extensões/Vigas a partir dos VÍNCULOS (Editáveis)
+        # Priorizar 'links' pois reflete edições do usuário no DetailCard
+        links_dict = item_data.get('links', {})
+        has_links_visuals = False
+        
+        # Iterar sobre todos os slots de links para encontrar linhas
+        for slot, link_val in links_dict.items():
+            # Pode ser dict (com slots internos) ou list direto (legado/simplificado)
+            # Normalizar para lista de listas
+            lists_to_process = []
+            if isinstance(link_val, dict):
+                lists_to_process.extend(link_val.values())
+            elif isinstance(link_val, list):
+                lists_to_process.append(link_val)
+
+            for link_list in lists_to_process:
+                for lk in link_list:
+                    if isinstance(lk, dict) and lk.get('type') == 'line' and 'points' in lk:
+                        pts = lk['points']
+                        if len(pts) >= 2:
+                            # Escolher Pen baseada no Role/Slot
+                            role = lk.get('role', '').lower()
+                            s_lower = slot.lower()
+                            use_pen = pen_marco if ('uniao' in s_lower or 'union' in role) else pen_ext
+                            
+                            line = self.scene.addLine(pts[0][0], pts[0][1], pts[1][0], pts[1][1], use_pen)
+                            line.setZValue(50)
+                            self.contour_visuals.append(line)
+                            has_links_visuals = True
+        
+        # Fallback: Se não houver links (estado inicial cru), usar vigas_individuais
+        if not has_links_visuals:
+            vigas = item_data.get('vigas_individuais', [])
+            for v in vigas:
+                pts = v.get('points', [])
+                if len(pts) >= 2:
+                    line = self.scene.addLine(pts[0][0], pts[0][1], pts[1][0], pts[1][1], pen_ext)
+                    line.setZValue(50)
+                    self.contour_visuals.append(line)
+
     def highlight_link(self, link):
         """Destaque direto via objeto de vínculo (sem busca)"""
         if not link: return
@@ -877,6 +942,55 @@ class CADCanvas(QGraphicsView):
             rect = item.sceneBoundingRect()
             self.fitInView(rect.adjusted(-margin, -margin, margin, margin), Qt.KeepAspectRatio)
             self.centerOn(rect.center())
+
+    def draw_item_links(self, target):
+        """Desenha persistentemente os vínculos de um item (Pilar, Viga ou Laje)"""
+        if not target: return
+        
+        from PySide6.QtWidgets import QGraphicsSimpleTextItem
+        from PySide6.QtGui import QPainterPath
+        
+        # Pen para vínculos salvos (Vermelho para demarcação clara)
+        pen = QPen(QColor(255, 0, 0), 2)
+        pen.setCosmetic(True)
+        
+        links = target.get('links', {})
+        for field_id, slots in links.items():
+            # slots pode ser uma lista (legado) ou um dicionário de slots
+            slots_to_process = slots.values() if isinstance(slots, dict) else [slots]
+            
+            for link_list in slots_to_process:
+                for link in link_list:
+                    l_type = link.get('type')
+                    # Texto
+                    if l_type == 'text' and 'pos' in link:
+                        t_item = self.scene.addSimpleText(link['text'])
+                        t_item.setPos(link['pos'][0], link['pos'][1])
+                        t_item.setBrush(QBrush(QColor(255, 0, 0)))
+                        t_item.setZValue(105)
+                        t_item.setFlag(QGraphicsSimpleTextItem.ItemIgnoresTransformations)
+                        self.beam_visuals.append(t_item)
+                    # Geometria (Linhas/Polys)
+                    elif (l_type in ['line', 'poly', 'geometry']) and 'points' in link:
+                        pts = link['points']
+                        if len(pts) >= 2:
+                            path = QPainterPath()
+                            path.moveTo(pts[0][0], pts[0][1])
+                            for p in pts[1:]: path.lineTo(p[0], p[1])
+                            
+                            if l_type == 'poly' or (len(pts) > 2 and pts[0] == pts[-1]):
+                                path.closeSubpath()
+                                
+                            item = self.scene.addPath(path, pen)
+                            item.setZValue(104)
+                            self.beam_visuals.append(item)
+                    # Círculos
+                    elif l_type == 'circle' and 'pos' in link and 'radius' in link:
+                        r = link['radius']
+                        px, py = link['pos']
+                        c_item = self.scene.addEllipse(px-r, py-r, r*2, r*2, pen)
+                        c_item.setZValue(104)
+                        self.beam_visuals.append(c_item)
 
     def highlight_element_by_name(self, name, data_list=[]):
         """Destaca itens vinculados em VERMELHO. Se for Pilar, destaca formato."""
@@ -984,19 +1098,27 @@ class CADCanvas(QGraphicsView):
         # Prioridade: Vínculos em 'viga_segs' (Side A, B, Bottom)
         # Fallback: Geometria bruta do tracer
         line_sources = []
+        line_sources = []
         links = beam_data.get('links', {})
-        v_segs = links.get('viga_segs', {})
         
-        if isinstance(v_segs, dict):
-            for slot_id, link_list in v_segs.items():
-                for lk in link_list:
-                    if 'points' in lk:
-                        line_sources.append(lk['points'])
+        # Iterar recursivamente por todos os campos de links para encontrar linhas
+        # Ex: links -> 'viga_segs' (dict) -> 'slot_A' (list) -> link
+        # Ex: links -> '_comprimento_total' (dict) -> 'adjustment' (list) -> link
+        
+        def collect_lines(container):
+            if isinstance(container, dict):
+                for v in container.values(): collect_lines(v)
+            elif isinstance(container, list):
+                for lk in container:
+                     if isinstance(lk, dict) and 'points' in lk and lk.get('type') == 'line':
+                         line_sources.append(lk['points'])
+
+        if links:
+            collect_lines(links)
         
         # Se não houver vínculos manuais ou auto-populados nos slots, usa a geometria bruta
-        # Mas APENAS se o container de slots de viga não existir (fallback p/ itens legados/sem classificação).
-        # Se o container existe mas está vazio, respeitamos a vontade do usuário (não desenha nada).
-        if not line_sources and 'viga_segs' not in links:
+        # Fallback genérico se nada foi encontrado em links
+        if not line_sources:
             line_sources = geo.get('lines', [])
 
         # 2. Adicionar destaques temporários em vermelho (padrão de foco)
@@ -1500,14 +1622,22 @@ class CADCanvas(QGraphicsView):
                 self.temp_text.setFlag(QGraphicsSimpleTextItem.ItemIgnoresTransformations)
             else:
                 # Segundo clique - Finalizar
-                dist = ((self.pick_start.x()-snap_pos[0])**2 + (self.pick_start.y()-snap_pos[1])**2)**0.5
+                
+                # Apply Ortho to the final point if enabled
+                final_pt_obj = QPointF(*snap_pos)
+                if self.ortho_mode or (event.modifiers() & Qt.ShiftModifier):
+                    final_pt_obj = self._apply_ortho(self.pick_start, final_pt_obj)
+                
+                final_pos_tuple = (final_pt_obj.x(), final_pt_obj.y())
+                
+                dist = ((self.pick_start.x()-final_pos_tuple[0])**2 + (self.pick_start.y()-final_pos_tuple[1])**2)**0.5
                 
                 # Overlay Permanente
                 overlay_line = self.scene.addLine(self.pick_start.x(), self.pick_start.y(), 
-                                                snap_pos[0], snap_pos[1],
+                                                final_pos_tuple[0], final_pos_tuple[1],
                                                 QPen(QColor(255, 0, 0), 2))
                 cota_text = self.scene.addSimpleText(f"{dist:.1f}")
-                cota_text.setPos(snap_pos[0], snap_pos[1])
+                cota_text.setPos(final_pos_tuple[0], final_pos_tuple[1])
                 cota_text.setBrush(QBrush(QColor(255, 0, 0)))
                 cota_text.setZValue(101)
                 cota_text.setFlag(QGraphicsItem.ItemIgnoresTransformations)
@@ -1517,7 +1647,7 @@ class CADCanvas(QGraphicsView):
                 self.pick_completed.emit({
                     'text': f"{dist:.1f}", 
                     'type': 'line',
-                    'points': [(self.pick_start.x(), self.pick_start.y()), (snap_pos[0], snap_pos[1])]
+                    'points': [(self.pick_start.x(), self.pick_start.y()), final_pos_tuple]
                 })
                 
                 # Cleanup
@@ -1569,7 +1699,13 @@ class CADCanvas(QGraphicsView):
 
         # OSNAP Visual
         if self.picking_mode or self.edit_mode:
-            for m in self.snap_markers.values(): m.hide()
+            # Hide all markers safely
+            for m in list(self.snap_markers.values()):
+                try:
+                    m.hide()
+                except RuntimeError:
+                    # Object already deleted on C++ side (scene.clear)
+                    pass
             if snap_data:
                 marker = self.snap_markers.get(snap_data['type'], self.snap_markers.get('endpoint'))
                 if marker:
@@ -1627,7 +1763,12 @@ class CADCanvas(QGraphicsView):
 
         # Preview da Linha
         if self.picking_mode == 'line' and self.pick_start:
-            target = snap_pos
+            # Apply Ortho if enabled
+            target_pt = QPointF(*snap_pos)
+            if self.ortho_mode or (event.modifiers() & Qt.ShiftModifier):
+                target_pt = self._apply_ortho(self.pick_start, target_pt)
+            
+            target = (target_pt.x(), target_pt.y())
             self.temp_line.setLine(self.pick_start.x(), self.pick_start.y(), target[0], target[1])
             self.temp_line.setPen(QPen(QColor(255, 255, 0), 0))
             

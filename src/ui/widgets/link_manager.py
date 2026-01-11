@@ -82,6 +82,13 @@ class LinkManager(QWidget):
              {'id': 'dim', 'name': '2. Dimensão (Valor)', 'type': 'text', 'prompt': 'Busque o texto de dimensão (Ex: H=12).', 'help': 'Define o valor do campo.'},
              {'id': 'cut_view', 'name': '3. Visão de Corte', 'type': 'poly', 'prompt': 'Desenhe a linha de corte/T sobre a viga. [Enter] para finalizar.', 'help': 'Referência visual da posição da laje.'}
         ],
+        '_laje_dim': [
+             {'id': 'label', 'name': 'Vínculo de Texto (Dimensão)', 'type': 'text', 'prompt': 'Busque o texto de dimensão (Ex: H=12).', 'help': 'Texto identificador da espessura/dimensão da laje.'}
+        ],
+        '_laje_level': [
+             {'id': 'label', 'name': 'Vínculo Texto (Nível)', 'type': 'text', 'prompt': 'Busque o texto de nível da laje (Ex: +2.80).', 'help': 'Cota de nível da laje.'},
+             {'id': 'cut_view', 'name': 'Visão de Corte (Geometria)', 'type': 'poly', 'prompt': 'Desenhe a referência de visão de corte da viga que contorna a laje. [Enter] para finalizar.', 'help': 'Referência geométrica de viga para definir o nível.'}
+        ],
         '_height_complex': [
              {'id': 'dim', 'name': '1. Dimensão (Valor)', 'type': 'text', 'prompt': 'Busque o texto de altura.', 'help': 'Define o valor da altura.'},
              {'id': 'cut_view', 'name': '2. Visão de Corte', 'type': 'poly', 'prompt': 'Desenhe a referência visual. [Enter] para finalizar.', 'help': 'Referência visual.'}
@@ -102,7 +109,8 @@ class LinkManager(QWidget):
              {'id': 'adj_depth', 'name': '6. Ajuste Profundidade', 'type': 'poly', 'prompt': 'Desenhe linha de ajuste de profundidade. [Enter] para finalizar.', 'help': 'Comprimento define ajuste profundidade.'}
         ],
         '_comprimento_total': [
-             {'id': 'geometry', 'name': 'Linha de Comprimento', 'type': 'poly', 'prompt': 'Desenhe a linha total do vão. [Enter] para finalizar.', 'help': 'Define o valor do comprimento.'}
+             {'id': 'geometry', 'name': 'Linha de Comprimento', 'type': 'poly', 'prompt': 'Desenhe a linha total do vão. [Enter] para finalizar.', 'help': 'Define o valor do comprimento.'},
+             {'id': 'adjustment', 'name': 'Segmento de Ajuste', 'type': 'line', 'prompt': 'Ajuste automático gerado (+10cm).', 'help': 'Extensão automática para valor inteiro.'}
         ],
         '_cut_view_complex': [
              {'id': 'geometry', 'name': 'Geometria Visão Corte', 'type': 'poly', 'prompt': 'Desenhe as linhas da visão de corte. [Enter] para finalizar.', 'help': 'Geometria visual do corte.'},
@@ -116,6 +124,16 @@ class LinkManager(QWidget):
              {'id': 'laje_cen_b', 'name': 'Laje Central (Lado B)', 'type': 'text', 'prompt': 'Selecione o texto Laje Cen B.', 'help': 'Texto Laje Central B.'},
              {'id': 'laje_sup_a', 'name': 'Laje Superior (Lado A)', 'type': 'text', 'prompt': 'Selecione o texto Laje Sup A.', 'help': 'Texto Laje Superior A.'},
              {'id': 'laje_sup_b', 'name': 'Laje Superior (Lado B)', 'type': 'text', 'prompt': 'Selecione o texto Laje Sup B.', 'help': 'Texto Laje Superior B.'}
+        ],
+        '_marco_vigas': [
+             {'id': 'default', 'name': 'Vigas na Extremidade', 'type': 'poly', 'prompt': 'Selecione todos os segmentos de vigas que devem tocar a parede. [Enter] para finalizar.', 'help': 'Linhas/Vigas que o sistema deve estender para criar o marco.'}
+        ],
+        '_marco_extensao': [
+             {'id': 'main', 'name': 'Linha da Viga (Total)', 'type': 'poly', 'prompt': 'Selecione a linha completa da viga para referência de comprimento.', 'help': 'Geometria principal da viga.'},
+             {'id': 'default', 'name': 'Segmento de Ajuste (+-10cm)', 'type': 'poly', 'prompt': 'Desenhe ou selecione as linhas de 10cm de continuação. [Enter] para finalizar.', 'help': 'Segmentos que saem das vigas em direção ao marco.'}
+        ],
+        '_marco_uniao': [
+             {'id': 'default', 'name': 'Uniões do Marco', 'type': 'poly', 'prompt': 'Desenhe as linhas de fechamento do perímetro (Marco). [Enter] para finalizar.', 'help': 'Linhas que conectam as extensões para fechar a obra.'}
         ],
         'default': [
             {'id': 'main', 'name': 'Vínculo Principal', 'type': 'text', 'prompt': 'Identifique o elemento principal no CAD.', 'help': 'Texto ou objeto que define o valor deste campo.'}
@@ -145,6 +163,11 @@ class LinkManager(QWidget):
         if 'laje' in field_id and '_segs' in field_id:
              return self.SLOT_CONFIG['_laje_geom']
 
+        if 'laje_dim' in field_id:
+             return self.SLOT_CONFIG['_laje_dim']
+        if 'laje_nivel' in field_id:
+             return self.SLOT_CONFIG['_laje_level']
+
         if 'laje' in field_id and not '_geom' in field_id:
              return self.SLOT_CONFIG['_laje_complex']
         
@@ -161,7 +184,14 @@ class LinkManager(QWidget):
              return self.SLOT_CONFIG['_comprimento_total']
 
         if '_visao_corte' in field_id:
-             return self.SLOT_CONFIG['_cut_view_complex']
+            return self.SLOT_CONFIG['_cut_view_complex']
+
+        if 'vigas_extremidade' in field_id:
+            return self.SLOT_CONFIG['_marco_vigas']
+        if 'extensoes' in field_id or 'ext_viga_' in field_id:
+            return self.SLOT_CONFIG['_marco_extensao']
+        if 'unioes_marco' in field_id:
+            return self.SLOT_CONFIG['_marco_uniao']
 
         if 'viga_' in field_id and '_segs' in field_id:
             return self.SLOT_CONFIG['_viga_segs']
@@ -281,9 +311,13 @@ class LinkManager(QWidget):
         self.refresh_list()
 
     def refresh_list(self):
-        while self.slots_container.count():
-            item = self.slots_container.takeAt(0)
-            if item.widget(): item.widget().deleteLater()
+        try:
+            if not self.slots_container: return
+            while self.slots_container.count():
+                item = self.slots_container.takeAt(0)
+                if item.widget(): item.widget().deleteLater()
+        except RuntimeError:
+            return # Objeto C++ já foi deletado
 
         slots = self._get_slots(self.field_id)
         
