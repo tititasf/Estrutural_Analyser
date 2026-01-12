@@ -407,6 +407,9 @@ class MainWindow(QMainWindow):
         self.canvas.pillar_selected.connect(self.on_canvas_pillar_selected)
         self.canvas.pick_completed.connect(self.on_pick_completed) 
         
+        # Conectar TrainingLog ao Canvas (agora que ele existe)
+        self.tab_training.focus_requested.connect(self.canvas.highlight_link)
+        
         center_layout.addWidget(self.canvas)
         self.splitter.addWidget(self.canvas_container)
         
@@ -454,41 +457,6 @@ class MainWindow(QMainWindow):
         else:
             self.canvas.set_category_visibility('all')
 
-    def create_manual_item(self, is_library=False):
-        pass # Implementar depois
-
-    def show_detail(self, data):
-        """Exibe o card de detalhes para os dados fornecidos."""
-        # Limpar anterior
-        if self.current_card:
-            self.detail_layout.removeWidget(self.current_card)
-            self.current_card.deleteLater()
-            
-        self.current_card = DetailCard(data)
-        # Conectamos sinais do novo card
-        self.current_card.data_validated.connect(self.on_card_validated)
-        self.current_card.element_focused.connect(self.on_element_focused_on_table)
-        self.current_card.pick_requested.connect(self.on_pick_requested)
-        self.current_card.focus_requested.connect(self.on_focus_requested)
-        self.current_card.research_requested.connect(self.on_research_requested)
-        self.current_card.training_requested.connect(self.on_train_requested)
-        self.current_card.element_removed.connect(self.on_element_removed)
-        self.current_card.config_updated.connect(self.on_config_updated)
-        
-        # Log para depuração de links
-        links = data.get('links', {})
-        self.log(f"Abrindo {data.get('name')}. Vínculos carregados: {list(links.keys())}")
-        
-        self.detail_layout.addWidget(self.current_card)
-        self.right_panel.setCurrentIndex(1)
-
-    def on_element_removed(self, data):
-        """Limpa o destaque visual quando um elemento é removido da lista."""
-        self.canvas.clear_beams()
-        self.canvas.clear_overlay()
-        # Redesenhar vínculos restantes
-        self.on_detail_data_changed()
-        self.log("🗑️ Visual e overlays atualizados após remoção de vínculo.")
 
     def on_focus_requested(self, field_id):
         """Tenta focar no objeto vinculado ao campo especificado via COORDENADA DIRETA"""
@@ -1393,7 +1361,10 @@ class MainWindow(QMainWindow):
         beam = next((b for b in self.beams_found if b['id'] == beam_id), None)
         if beam:
             self.show_detail(beam)
-            # Focar na viga (geometria completa)
+            # 1. Isolar no Canvas (Esconde todas as outras e mostra apenas esta)
+            self.canvas.isolate_item(beam_id, 'beam', apply_zoom=False)
+            
+            # 2. Focar na viga (geometria completa e zoom detalhado)
             self.canvas.focus_on_beam_geometry(beam)
             # NOVO: Desenhar também os vínculos salvos (Labels, Dimensões, etc)
             self.canvas.draw_item_links(beam)
@@ -2457,6 +2428,10 @@ class MainWindow(QMainWindow):
             
         # Resetar Aba de Detalhes
         self.right_panel.setCurrentIndex(0)
+        
+        # 5. Atualizar Aba de Treinamento
+        self.tab_training.load_events(pid)
+        
         QApplication.processEvents()
 
     def close_project_tab(self, index):
@@ -2590,7 +2565,34 @@ class MainWindow(QMainWindow):
         
         # Sincronizar visual no canvas imediatamente (SEM ZOOM AUTOMATICO NA MUDANÇA DE DADOS)
         # AJUSTE 1: Limpar uma vez e desenhar ambos para garantir remoção/atualização real-time
+        
+        # Limpar links persistentes antigos deste item específico
+        item_id = item_data.get('id')
+        if item_id:
+            self.canvas.clear_item_persistent_links(item_id)
+            
         self.canvas.clear_beams()
+        self.canvas.clear_overlay()
+
+        # Log de sanidade nos links
+        all_links = item_data.get('links', {})
+        print(f"[DEBUG_CANVAS] Sincronizando {item_id}. Chaves em links: {list(all_links.keys())}")
+        
+        # Log detalhado para depuração
+        links_count = 0
+        links_dict = item_data.get('links', {})
+        for f in links_dict.values():
+            if isinstance(f, dict): 
+                for s in f.values(): links_count += len(s)
+            elif isinstance(f, list): links_count += len(f)
+        
+        self.log(f"🔄 Sincronizando {itype} (ID: {item_id}). Vínculos restantes: {links_count}")
+
+        # Se houver mudança nos dados (ex: remoção de link), removemos o status de validado 
+        # para forçar o usuário a re-validar o item se necessário.
+        if item_data.get('is_validated') and links_count == 0:
+             item_data['is_validated'] = False
+             self.log(f"⚠️ Item {item_data.get('name')} invalidado devido a falta de vínculos.")
         
         if 'viga' in itype:
             # Passamos clear=False para não destruir o que o outro acabou de desenhar
@@ -2606,11 +2608,21 @@ class MainWindow(QMainWindow):
             self.canvas.draw_item_links(item_data, destination='focus', clear=False)
             # AJUSTE 1 & 3: Atualiza também a visão global (persistente)
             self.canvas.draw_item_links(item_data, destination='slab', clear=False)
-            
+        # AJUSTE: Forçar atualização visual do viewport e da cena do canvas
+        self.canvas.scene().update()
+        self.canvas.viewport().update()
+        self.canvas.update()
+        
         # --- NOVO: Atualizar imediatamente o texto na lista lateral ---
         self._sync_list_item_text(item_data)
         
         self.log(f"Visual e Lista do {itype} sincronizados.")
+
+    def on_element_removed(self, data):
+        """Callback específico para quando um vínculo é removido individualmente."""
+        # Se o data_changed já foi emitido, não precisamos chamar on_detail_data_changed de novo
+        # Mas vamos garantir que o LOG apareça para sabermos que a remoção foi processada.
+        self.log("🗑️ Vínculo removido. Canvas atualizado via sinal de dados.")
 
     def _sync_list_item_text(self, item_data):
         """Atualiza o texto da lista lateral sem reconstruir toda a UI"""
@@ -2639,6 +2651,7 @@ class MainWindow(QMainWindow):
                         item.setText(0, item_data.get('id_item', '??'))
                         item.setText(1, item_data.get('name', 'V?'))
                         item.setText(2, status)
+                        print(f"[_sync_list_item_text] Viga {iid} atualizada com status {status}")
                     it += 1
                     
         elif 'laje' in itype:
@@ -2663,8 +2676,8 @@ class MainWindow(QMainWindow):
         self.current_card.pick_requested.connect(self.on_pick_requested)
         self.current_card.focus_requested.connect(self.on_focus_requested)
         self.current_card.data_validated.connect(self.on_card_validated)
-        self.current_card.element_removed.connect(self.on_detail_data_changed)
-        self.current_card.data_changed.connect(self.on_detail_data_changed) # NOVO: Atualiza lista ao digitar
+        self.current_card.element_removed.connect(self.on_element_removed)
+        self.current_card.data_changed.connect(self.on_detail_data_changed)
         self.current_card.research_requested.connect(self.on_research_requested)
         self.current_card.element_focused.connect(self.on_element_focused_on_table)
         self.current_card.training_requested.connect(self.on_train_requested)

@@ -167,3 +167,54 @@ class HierarchicalMemory:
         """Simplificação de hash geométrico para comparison rápida."""
         if not geometry: return "empty"
         return str(hash(str(geometry)))
+
+    def save_sample(self, sample_data: Dict):
+        """
+        Salva uma amostra diretamente no Vector DB (usado para Sync/Restore de logs).
+        """
+        if not self.collection: return
+        
+        try:
+            # 1. Parse DNA
+            dna_input = sample_data.get('dna')
+            if isinstance(dna_input, str):
+                dna_dict = json.loads(dna_input)
+            else:
+                dna_dict = dna_input or {}
+                
+            # 2. Extract Context
+            item_ctx = dna_dict.get('level_2_item', {})
+            field_ctx = dna_dict.get('level_3_field', {})
+            
+            # 3. Vector (Mock or Real)
+            # Idealmente, aqui usariamos um encoder real. 
+            # Por enquanto, tentamos pegar do JSON ou usamos placeholder.
+            dna_vector = item_ctx.get('dna_vector', [0.1, 0.2, 0.3, 0.4]) 
+            
+            # 4. Metadata
+            rel_pos = sample_data.get('rel_pos')
+            dx, dy = (0.0, 0.0)
+            if rel_pos and isinstance(rel_pos, (list, tuple)) and len(rel_pos) >= 2:
+                dx, dy = float(rel_pos[0]), float(rel_pos[1])
+
+            metadata = {
+                "role": str(sample_data.get('role', 'unknown')),
+                "item_type": str(item_ctx.get('type', 'UNKNOWN')),
+                "field_id": str(field_ctx.get('field_name', 'unknown')),
+                "link_type": str(field_ctx.get('link_type', 'unknown')),
+                "learned_dx": dx,
+                "learned_dy": dy,
+                "status": str(sample_data.get('status', 'valid')),
+                "source": "sync_log"
+            }
+
+            # 5. Add to Chroma
+            import uuid
+            self.collection.add(
+                ids=[str(uuid.uuid4())],
+                embeddings=[dna_vector],
+                metadatas=[metadata],
+                documents=[str(sample_data.get('content', ''))]
+            )
+        except Exception as e:
+            logging.error(f"Erro no save_sample Chroma: {e}")

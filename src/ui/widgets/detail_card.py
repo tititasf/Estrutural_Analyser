@@ -266,7 +266,11 @@ class DetailCard(QWidget):
         links_dict = self.item_data.get('links', {})
         current_links = links_dict.get(field_id, {})
         if isinstance(current_links, list):
-             current_links = {'label': current_links}
+             # CONVERTER E SALVAR: Normaliza para dicionário para manter referência consistente
+             # Isso corrige o bug onde o LinkManager operava num dict temporário e o remove_link falhava
+             normalized_links = {'label': current_links}
+             links_dict[field_id] = normalized_links
+             current_links = normalized_links
              
         # Create Manager
         lm = LinkManager(field_id, current_links, parent=self)
@@ -296,16 +300,29 @@ class DetailCard(QWidget):
         
         if slot_id in field_links:
             # Se ainda estiver na lista, remove (caso LinkManager não tenha removido ou seja cópia)
+            # Se ainda estiver na lista, remove (caso LinkManager não tenha removido ou seja cópia)
             if link in field_links[slot_id]:
                 field_links[slot_id].remove(link)
+            else:
+                 # Fallback: remove por valor (para garantir atualização)
+                 for i, l in enumerate(field_links[slot_id]):
+                     if l == link or (l.get('text') == link.get('text') and l.get('type') == link.get('type') and l.get('pos') == link.get('pos')):
+                         del field_links[slot_id][i]
+                         break
                 
             # SEMPRE executa limpeza visual e atualização de labels
             if field_id in self.item_data.get('validated_fields', []):
                 self.item_data['validated_fields'].remove(field_id)
             
+            # Recalcular is_validated se necessário
+            if not self.item_data.get('validated_fields'):
+                self.item_data['is_validated'] = False
+
+            print(f"[DetailCard] Vínculo removido de {field_id}. Restantes: {len(field_links[slot_id]) if slot_id in field_links else 0}")
             self.refresh_validation_styles()
             
-            # Notificar remoção para limpar canvas
+            # Notificar mudança de dados para sincronizar listas e canvas
+            self.data_changed.emit(self.item_data)
             self.element_removed.emit({'slot': slot_id, 'link': link})
             dlg.refresh_list()
 
@@ -557,6 +574,7 @@ class DetailCard(QWidget):
 
     def refresh_validation_styles(self):
         """Varre campos e aplica borda verde nos validados e atualiza contadores de vínculos"""
+        print(f"[DEBUG_UI] refresh_validation_styles - Campos: {list(self.fields.keys())}")
         validated_fields = self.item_data.get('validated_fields', [])
         for fid, w in self.fields.items():
             # Skip QButtonGroup (logical container, not visual)
@@ -593,7 +611,8 @@ class DetailCard(QWidget):
                     btns['na'].blockSignals(False)
             
             # --- Atualizar Labels de Vínculo (se for hide_input=True) ---
-            elif isinstance(w, QLabel):
+            # INDEPENDENTE de ter botões ou não, se for QLabel, atualiza texto (Caso viga_segs)
+            if isinstance(w, QLabel):
                 if is_na:
                     w.setText("N/A - Não se aplica")
                     w.setStyleSheet("color: #ffd600; font-weight: bold; font-size: 10px; font-style: italic;")
@@ -608,9 +627,11 @@ class DetailCard(QWidget):
                     if count > 0:
                         w.setText(f"{count} Vínculo(s) Ok")
                         w.setStyleSheet("color: #00cc66; font-weight: bold; font-size: 10px;")
+                        print(f"[DetailCard] Label {fid} atualizado para {count} vínculos")
                     else:
                         w.setText("Vínculo Pendente")
                         w.setStyleSheet("color: #666; font-style: italic; font-size: 10px;")
+                        print(f"[DetailCard] Label {fid} atualizado para Vínculo Pendente")
 
             # --- Atualizar a bolinha (indicador) ---
             if fid in self.indicators:
@@ -1748,7 +1769,10 @@ class DetailCard(QWidget):
         
         # Remover widget
         container.deleteLater()
-        # Removido self.log para evitar AttributeError
+        
+        # Sincronizar mudança externamente
+        self.data_changed.emit(self.item_data)
+        self.refresh_validation_styles()
 
     def _add_manual_marco_row(self):
         """Adiciona manualmente uma nova viga à lista de tratamento prévio"""

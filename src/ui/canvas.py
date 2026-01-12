@@ -56,8 +56,6 @@ class CADCanvas(QGraphicsView):
         self.persistent_links = {} # Map item_id -> [link_items] para atualização real-time
         
         # Modo de Captação e Edição
-        
-        # Modo de Captação e Edição
         self.picking_mode = None    # 'text' | 'line'
         self.edit_mode = None       # 'select', 'line', 'text', 'circle', 'dim', 'move'
         self.pick_start = None
@@ -365,16 +363,22 @@ class CADCanvas(QGraphicsView):
 
     def isolate_item(self, item_id, category, apply_zoom=True):
         """Oculta tudo, mostra apenas o item específico e seus vínculos"""
-        self.active_isolation = None
+        self.active_isolation = item_id
         
         # Hide all first
         self.set_category_visibility('none')
         
-        # Show specific item
+        # Show specific item (Label ou Shape interativo)
         if item_id in self.interactive_items:
             item = self.interactive_items[item_id]
             item.show()
             
+            # [NOVO] Também exibir os vínculos persistentes deste item especificamente
+            if item_id in self.persistent_links:
+                for link_item in self.persistent_links[item_id]:
+                    try: link_item.show()
+                    except: pass
+
             # Zoom to it with consistent margin (400px agradável)
             if apply_zoom:
                 rect = item.sceneBoundingRect()
@@ -918,23 +922,19 @@ class CADCanvas(QGraphicsView):
                 margin = 400
                 self.fitInView(item.sceneBoundingRect().marginsAdded(QMarginsF(margin, margin, margin, margin)), Qt.KeepAspectRatio)
                 self.centerOn(item.sceneBoundingRect().center())
-            return item
             
-        if item and apply_zoom:
-            margin = 400
-            self.fitInView(item.sceneBoundingRect().marginsAdded(QMarginsF(margin, margin, margin, margin)), Qt.KeepAspectRatio)
-            self.centerOn(item.sceneBoundingRect().center())
+            if item: self.beam_visuals.append(item)
+            return item
+        
+        if item:
+            self.beam_visuals.append(item)
+            if apply_zoom:
+                margin = 400
+                self.fitInView(item.sceneBoundingRect().marginsAdded(QMarginsF(margin, margin, margin, margin)), Qt.KeepAspectRatio)
+                self.centerOn(item.sceneBoundingRect().center())
         
         return item
 
-    def clear_persistent_links(self, item_id):
-        """Limpa links persistentes de um item específico (para re-desenho real-time)"""
-        if item_id in self.persistent_links:
-            for item in self.persistent_links[item_id]:
-                try:
-                    if self.scene: self.scene.removeItem(item)
-                except: pass
-            del self.persistent_links[item_id]
 
     def draw_item_links(self, target, destination='focus', clear=True):
         """
@@ -948,7 +948,7 @@ class CADCanvas(QGraphicsView):
         
         # Se for para um grupo persistente, primeiro limpa o anterior desse item
         if destination != 'focus' and item_id:
-            self.clear_persistent_links(item_id)
+            self.clear_item_persistent_links(item_id)
         
         from PySide6.QtWidgets import QGraphicsSimpleTextItem
         from PySide6.QtGui import QPainterPath
@@ -975,16 +975,17 @@ class CADCanvas(QGraphicsView):
                     l_type = link.get('type')
                     item = None
                     # Texto
-                    if l_type == 'text' and 'pos' in link:
-                        item = self.scene.addSimpleText(link['text'])
-                        item.setPos(link['pos'][0], link['pos'][1])
+                    if l_type == 'text' and link.get('pos'):
+                        item = self.scene.addSimpleText(link.get('text', ''))
+                        pos = link['pos']
+                        item.setPos(pos[0], pos[1])
                         item.setBrush(QBrush(base_color))
                         item.setZValue(105)
                         item.setFlag(QGraphicsSimpleTextItem.ItemIgnoresTransformations)
                     # Geometria (Linhas/Polys)
-                    elif (l_type in ['line', 'poly', 'geometry']) and 'points' in link:
+                    elif (l_type in ['line', 'poly', 'geometry']) and link.get('points'):
                         pts = link['points']
-                        if len(pts) >= 2:
+                        if pts and len(pts) >= 2:
                             path = QPainterPath()
                             path.moveTo(pts[0][0], pts[0][1])
                             for p in pts[1:]: path.lineTo(p[0], p[1])
@@ -993,7 +994,7 @@ class CADCanvas(QGraphicsView):
                             item = self.scene.addPath(path, pen)
                             item.setZValue(104)
                     # Círculos
-                    elif l_type == 'circle' and 'pos' in link and 'radius' in link:
+                    elif l_type == 'circle' and link.get('pos') and link.get('radius') is not None:
                         r = link['radius']
                         px, py = link['pos']
                         item = self.scene.addEllipse(px-r, py-r, r*2, r*2, pen)
@@ -1125,6 +1126,29 @@ class CADCanvas(QGraphicsView):
             if apply_zoom:
                 self.fitInView(item.boundingRect().marginsAdded(QMarginsF(400, 400, 400, 400)), Qt.KeepAspectRatio)
 
+    def clear_item_persistent_links(self, item_id):
+        """Remove links visuais persistentes de um item específico para evitar 'fantasmas' ao atualizar."""
+        print(f"[DEBUG_CANVAS] clear_item_persistent_links para {item_id}")
+        if item_id in self.persistent_links:
+            items_to_remove = self.persistent_links[item_id]
+            print(f"[DEBUG_CANVAS] Removendo {len(items_to_remove)} itens do item {item_id}")
+            for item in items_to_remove:
+                # Remove da cena
+                try:
+                    if item.scene():
+                        self.scene.removeItem(item)
+                except Exception as e:
+                    print(f"[DEBUG_CANVAS] Erro ao remover item: {e}")
+                
+                # Remove dos grupos de controle
+                for group_key in ['beam', 'link', 'pillar', 'slab']:
+                    if group_key in self.item_groups and item in self.item_groups[group_key]:
+                        self.item_groups[group_key].remove(item)
+                        
+            # Limpa e remove a chave para não acumular
+            del self.persistent_links[item_id]
+            self.scene.update()
+
     def focus_on_beam_geometry(self, beam_data, apply_zoom=True, clear=True):
         """Foca na geometria completa de uma viga (linhas + textos)"""
         if clear: self.clear_beams() # Limpa destaques anteriores
@@ -1186,17 +1210,94 @@ class CADCanvas(QGraphicsView):
              items_to_focus.append(t_item)
 
         if items_to_focus and apply_zoom:
-            rect = items_to_focus[0].sceneBoundingRect()
-            for item in items_to_focus[1:]:
-                rect = rect.united(item.sceneBoundingRect())
+            # Tentar encontrar o texto do nome da viga para focar nele (Zoom Close-up)
+            target_name = str(beam_data.get('name', '')).strip().upper()
+            name_item = None
             
-            # Zoom suave no conjunto de itens da viga (Unificado para 400px)
-            margin = 400
+            # Procurar item de texto que corresponda ao nome da viga
+            for item in items_to_focus:
+                if isinstance(item, QGraphicsSimpleTextItem) and item.text().strip().upper() == target_name:
+                    name_item = item
+                    break
+            
+            if name_item:
+                # Se achou o nome, foca nele com um zoom fixo/agradável
+                self.centerOn(name_item.sceneBoundingRect().center())
+                # Define um scale fixo para ver o texto bem de perto
+                current_scale = self.transform().m11()
+                if current_scale < 2.0: # Se estiver muito longe
+                    self.resetTransform()
+                    self.scale(3.0, -3.0) # Zoom level 3x, Y-up correction
+                else:
+                    # Manter escala atual mas centralizar
+                    pass
+            else:
+                # Fallback: Enquadrar toda a geometria (comportamento antigo)
+                rect = items_to_focus[0].sceneBoundingRect()
+                for item in items_to_focus[1:]:
+                    rect = rect.united(item.sceneBoundingRect())
+                
+                margin = 400
+                self.fitInView(rect.adjusted(-margin, -margin, margin, margin), Qt.KeepAspectRatio)
+                self.centerOn(rect.center())
+                
+        # Caso não tenha geometria complexa, tenta focar no label interativo
+        else:
+             self.focus_on_item(beam_data['id'], apply_zoom)
+
+    def highlight_link(self, link_data, color=None):
+        """Destaca geometria específica vinculada a um evento de treino e foca nela."""
+        self.clear_beams() # Limpa limpezas anteriores
+        
+        items_to_focus = []
+        l_type = link_data.get('type')
+        
+        # Cor customizada ou ciano brilhante padrão
+        target_color = color if color and isinstance(color, QColor) else QColor(0, 255, 255)
+        
+        pen = QPen(target_color, 2)
+        pen.setCosmetic(True)
+        
+        if l_type == 'text' and 'pos' in link_data:
+            item = self.scene.addSimpleText(link_data.get('text', '?'))
+            item.setPos(link_data['pos'][0], link_data['pos'][1])
+            item.setBrush(QBrush(target_color))
+            item.setZValue(205)
+            # Ignora transformações para manter texto legível
+            from PySide6.QtWidgets import QGraphicsSimpleTextItem
+            item.setFlag(QGraphicsSimpleTextItem.ItemIgnoresTransformations)
+            self.beam_visuals.append(item)
+            items_to_focus.append(item)
+            
+        elif l_type == 'point' and 'pos' in link_data:
+             r = 5.0
+             px, py = link_data['pos']
+             item = self.scene.addEllipse(px-r, py-r, r*2, r*2, pen)
+             item.setZValue(205)
+             self.beam_visuals.append(item)
+             items_to_focus.append(item)
+             
+        elif l_type in ('line', 'poly', 'geometry') and 'points' in link_data:
+             pts = link_data['points']
+             if len(pts) >= 2:
+                 path = QPainterPath()
+                 path.moveTo(pts[0][0], pts[0][1])
+                 for p in pts[1:]: path.lineTo(p[0], p[1])
+                 if l_type == 'poly' or l_type == 'geometry': path.closeSubpath()
+                 
+                 item = self.scene.addPath(path, pen)
+                 item.setZValue(205)
+                 self.beam_visuals.append(item)
+                 items_to_focus.append(item)
+        
+        if items_to_focus:
+            rect = items_to_focus[0].sceneBoundingRect()
+            for i in items_to_focus[1:]: rect = rect.united(i.sceneBoundingRect())
+            
+            # Zoom com margem de 300px
+            margin = 300
             self.fitInView(rect.adjusted(-margin, -margin, margin, margin), Qt.KeepAspectRatio)
             self.centerOn(rect.center())
-        # Caso não tenha geometria complexa, tenta focar no label interativo
-        elif beam_data.get('id') in self.interactive_items and apply_zoom:
-            self.focus_on_item(beam_data['id'])
             
     def on_pillar_clicked(self, p_id):
         # Deselecionar outros
@@ -1518,8 +1619,18 @@ class CADCanvas(QGraphicsView):
                     self.scene.removeItem(self.selection_box)
                     self.selection_box = None
                     self.box_start = None
-                
+            return
 
+        elif self.edit_mode == 'line':
+            blue_pen = QPen(QColor(30, 144, 255), 2)
+            if self.pick_start is None:
+                self.pick_start = QPointF(*snap_pos)
+                self.temp_item = self.scene.addLine(snap_pos[0], snap_pos[1], snap_pos[0], snap_pos[1], blue_pen)
+            else:
+                final_pt_obj = QPointF(*snap_pos)
+                if self.ortho_mode:
+                    final_pt_obj = self._apply_ortho(self.pick_start, final_pt_obj)
+                
                 final_pos = (final_pt_obj.x(), final_pt_obj.y())
                 line = self.scene.addLine(self.pick_start.x(), self.pick_start.y(), final_pos[0], final_pos[1], blue_pen)
                 line.setZValue(50)
@@ -1644,46 +1755,6 @@ class CADCanvas(QGraphicsView):
                 })
                 self.set_picking_mode(None)
 
-    def _get_best_entity_under_cursor(self, scene_pos, mode='geometry', aperture=10.0):
-        """Busca a melhor entidade DXF ou interativa sob o cursor para picking"""
-        best_ent = None
-        min_dist = aperture
-        
-        # 1. Tentar por Proximidade nos Meta-Dados DXF
-        for ent in self.dxf_entities:
-            dist = 9999.0
-            if mode == 'text':
-                if 'text' in ent:
-                    p = ent['pos']
-                    dist = ((p[0]-scene_pos.x())**2 + (p[1]-scene_pos.y())**2)**0.5
-            else: # geometry / all
-                if 'points' in ent:
-                    for p in ent['points']:
-                        d = ((p[0]-scene_pos.x())**2 + (p[1]-scene_pos.y())**2)**0.5
-                        if d < dist: dist = d
-                elif 'pos' in ent and 'text' in ent:
-                    p = ent['pos']
-                    dist = ((p[0]-scene_pos.x())**2 + (p[1]-scene_pos.y())**2)**0.5
-                elif 'radius' in ent and ('pos' in ent or 'center' in ent):
-                    p = ent.get('pos', ent.get('center'))
-                    d_center = ((p[0]-scene_pos.x())**2 + (p[1]-scene_pos.y())**2)**0.5
-                    dist = abs(d_center - ent['radius'])
-
-            if dist < min_dist:
-                min_dist = dist
-                best_ent = ent
-
-        if best_ent:
-            return {
-                'type': best_ent.get('type', 'geometry'),
-                'text': best_ent.get('text', 'Entidade CAD'),
-                'pos': best_ent.get('pos', best_ent.get('center')),
-                'points': best_ent.get('points'),
-                'radius': best_ent.get('radius')
-            }
-        return None
-            
-        super().mousePressEvent(event)
 
     def _apply_ortho(self, start, current):
         """Aplica restrição ortogonal se ativa"""
