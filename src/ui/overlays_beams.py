@@ -18,6 +18,12 @@ class BeamGraphicsItem(QGraphicsLineItem):
         self.segments = segments
         self._init_segments()
 
+    def paint(self, painter, option, widget=None):
+        # Desativa visual padrão de seleção do Qt
+        from PySide6.QtWidgets import QStyle
+        option.state &= ~QStyle.State_Selected
+        super().paint(painter, option, widget)
+
     def _init_segments(self):
         """Cria sub-itens para mostrar onde há conflitos e onde há vão livre."""
         # Nota: Simplificando para o MVP, vamos desenhar pequenos marcadores ou mudar cor
@@ -42,7 +48,7 @@ class BeamGraphicsItem(QGraphicsLineItem):
             
             color = QColor(0, 255, 0, 200) # Verde para Vão Livre
             if seg['type'] != 'Vão Livre':
-                color = QColor(255, 0, 0, 255) # Vermelho para Conflito (Pilar/Parede)
+                color = QColor(139, 69, 19, 255) # Marrom para Conflito (Pilar/Parede)
             
             pen = QPen(color, 5)
             pen.setCosmetic(True)

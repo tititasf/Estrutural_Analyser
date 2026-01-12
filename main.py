@@ -486,7 +486,9 @@ class MainWindow(QMainWindow):
         """Limpa o destaque visual quando um elemento é removido da lista."""
         self.canvas.clear_beams()
         self.canvas.clear_overlay()
-        self.log("🗑️ Visual e overlays limpos após remoção de vínculo.")
+        # Redesenhar vínculos restantes
+        self.on_detail_data_changed()
+        self.log("🗑️ Visual e overlays atualizados após remoção de vínculo.")
 
     def on_focus_requested(self, field_id):
         """Tenta focar no objeto vinculado ao campo especificado via COORDENADA DIRETA"""
@@ -528,6 +530,12 @@ class MainWindow(QMainWindow):
         if 'dim' in field_id.lower() or 'dim' in slot_id.lower():
              pick_type = 'text'
         
+        # [FORÇAR] Modo Poly para Geometria de Pilares (Solicitação Usuário: Pontos Sequenciais + Enter)
+        if self.current_card:
+            item_type = self.current_card.item_data.get('type', '').lower()
+            if 'pilar' in item_type and slot_id in ('geometry', 'segments'):
+                pick_type = 'poly'
+        
         self.log(f"Iniciando captura {pick_type} para campo {field_id} [Slot: {slot_id}]...")
         self.current_pick_field = field_id
         self.current_pick_slot = slot_id
@@ -540,6 +548,9 @@ class MainWindow(QMainWindow):
         if self.current_card and hasattr(self, 'current_pick_field'):
             field_id = self.current_pick_field
             slot_id = getattr(self, 'current_pick_slot', 'main')
+            
+            item_data = self.current_card.item_data
+            itype = item_data.get('type', '').lower()
             
             from PySide6.QtWidgets import QLineEdit, QComboBox, QLabel
             field = self.current_card.fields.get(field_id)
@@ -636,9 +647,41 @@ class MainWindow(QMainWindow):
                         if isinstance(field, QLabel):
                             field.setText(f"Ajuste: {value}")
                         self.log(f"📏 Ajuste Automático: {length:.1f} -> {target_total} (Add {value})")
-
                 except Exception as e:
-                    self.log(f"⚠️ Erro ao calcular extensão automática: {e}")
+                    self.log(f"⚠️ Erro no cálculo de ajuste: {e}")
+
+            # --- NOVO: Auto-Popular Geometria Real para Pilares ---
+            # Se for um pilar e estivermos capturando a geometria/segmentos
+            if 'pilar' in itype and slot_id in ('segments', 'geometry'):
+                pts = pick_data.get('points')
+                if not pts and 'pos' in pick_data:
+                    # Se for círculo por exemplo
+                    pos = pick_data['pos']
+                    rad = pick_data.get('radius', 5.0)
+                    pts = [(pos[0]-rad, pos[1]-rad), (pos[0]+rad, pos[1]+rad)]
+                
+                if pts:
+                    min_x = min(p[0] for p in pts)
+                    max_x = max(p[0] for p in pts)
+                    min_y = min(p[1] for p in pts)
+                    max_y = max(p[1] for p in pts)
+                    
+                    # Atualizar rect (P1, P2) no item_data
+                    self.current_card.item_data['rect'] = [min_x, min_y, max_x, max_y]
+                    
+                    # Atualizar dimensão visual (dx x dy)
+                    dx = abs(max_x - min_x)
+                    dy = abs(max_y - min_y)
+                    dim_str = f"{dx:.0f}x{dy:.0f}"
+                    self.current_card.item_data['dim'] = dim_str
+                    
+                    # Se houver campo 'dim' (QLineEdit), atualiza ele também
+                    if 'dim' in self.current_card.fields:
+                         w = self.current_card.fields['dim']
+                         if hasattr(w, 'setText'): w.setText(dim_str)
+                    
+                    print(f"DEBUG: Geometria do Pilar populada: {dim_str} em {self.current_card.item_data['rect']}")
+                    self.log(f"📍 Geometria Real do Pilar capturada: {dim_str}")
 
             # ----------------------------------------------------
             # CORREÇÃO: POPULAR SEGMENTOS DE VIGA (LADO A/B/FUNDO)
@@ -719,8 +762,8 @@ class MainWindow(QMainWindow):
             if 'marcodxf' in itype or 'contorno' in itype:
                 self.canvas.draw_marco_dxf(item_data)
             elif 'viga' in itype:
-                # Foca/Desenha geometria da viga atualizada
-                self.canvas.focus_on_beam_geometry(item_data)
+                # Foca/Desenha geometria da viga atualizada (SEM ZOOM AUTOMATICO NO PICK)
+                self.canvas.focus_on_beam_geometry(item_data, apply_zoom=False)
 
             # --- OVERHAUL: Lógica Inteligente para novos campos ---
             # 1. Comprimento Total (Geometria)
@@ -872,13 +915,23 @@ class MainWindow(QMainWindow):
 
     def on_element_focused_on_table(self, data):
         """Disparado quando user clica num vínculo ou viga na tabela"""
+        from PySide6.QtGui import QColor
         if isinstance(data, dict):
+            # Determinar Cor Base
+            color = QColor(255, 0, 0)
+            if self.current_card:
+                t = self.current_card.item_data.get('type', '').lower()
+                if 'pilar' in t: color = QColor(0, 180, 0)
+                elif 'laje' in t: color = QColor(0, 80, 255)
+                elif 'viga' in t: color = QColor(139, 69, 19)
+                
             # É um objeto de link completo (com coordenadas)
-            self.canvas.highlight_link(data)
+            self.canvas.highlight_link(data, color)
         elif isinstance(data, str) and data != '-':
-            # É apenas o nome (fallback busca nominal)
+            # É apenas o nome (fallback busca nominal em todas as listas)
             self.log(f"Destacando por nome: {data}")
-            self.canvas.highlight_element_by_name(data, self.beams_found)
+            all_items = self.beams_found + self.pillars_found + self.slabs_found
+            self.canvas.highlight_element_by_name(data, all_items)
         
     def log(self, message: str):
         self.console.append(f"> {message}")
@@ -1048,7 +1101,11 @@ class MainWindow(QMainWindow):
 
         self.log("Iniciando varredura geométrica e análise de vínculos...")
         
-        # --- NOVO: Garantir que motores estão vivos se tiver DXF ---
+        # --- NOVO: Limpar seleção para evitar destaques vermelhos residuais (DXF selecionados) ---
+        if self.canvas and self.canvas.scene:
+            self.canvas.scene.clearSelection()
+
+        # --- Garantir que motores estão vivos se tiver DXF ---
         if not self.pillar_analyzer or not self.context_engine:
              self.log("⚠️ Motores não encontrados. Inicialização forçada...")
              self._initialize_project_logic(self.dxf_data)
@@ -1058,6 +1115,11 @@ class MainWindow(QMainWindow):
         self.list_pillars.clear()
         self.list_beams.clear()
         self.list_slabs.clear()
+        
+        # Resetar dados internos
+        self.pillars_found = []
+        self.beams_found = []
+        self.slabs_found = []
         
         polylines = self.dxf_data.get('polylines', [])
         texts = self.dxf_data.get('texts', [])
@@ -1631,10 +1693,17 @@ class MainWindow(QMainWindow):
         if not self.current_card: return
         p_data = self.current_card.item_data
         
+        # Checar se é um caso de N/A (Não se Aplica)
+        is_na = field_id in p_data.get('na_fields', [])
+        
         slot_id = train_data.get('slot', 'main')
-        status = train_data.get('status', 'valid')
+        status = 'na' if is_na else train_data.get('status', 'valid')
         link_obj = train_data.get('link', {})
+        
         comment = train_data.get('comment', '')
+        if is_na:
+            comment = "Campo marcado como Não se Aplica pelo usuário"
+            
         propagate = train_data.get('propagate', False)
 
         # 1. Registrar o Treino Individual
@@ -2178,6 +2247,12 @@ class MainWindow(QMainWindow):
                 child.setText(2, status)
                 child.setData(0, Qt.UserRole, b['id'])
                 
+                # AJUSTE 4: Itens (linhas das vigas) em lightgray para diferenciar das pastas
+                from PySide6.QtGui import QColor
+                gray_color = QColor("#aaaaaa") # Lightgray
+                for col in range(3):
+                    child.setForeground(col, gray_color)
+
                 if b.get('is_validated'):
                     child.setForeground(1, Qt.green)
                     self.canvas.update_beam_status(b['id'], "validated")
@@ -2441,10 +2516,9 @@ class MainWindow(QMainWindow):
         # 2. Popular Pilares
         for p in self.pillars_found:
             status = "✅" if p.get('is_validated') else "❓"
-            if p.get('issues'): status = "⚠️"
-            
-            # Texto para lista de análise
-            t_analysis = f"{p.get('id_item', '??')} | {p.get('name', 'P?')} | {p.get('dim', '0')} {status}"
+            # Texto para lista de análise: numero / nome / dimensao / formato
+            p_format = p.get('format', 'Retangular')
+            t_analysis = f"{p.get('id_item', '??')} | {p.get('name', 'P?')} | {p.get('dim', '0')} | {p_format} {status}"
             item_a = QListWidgetItem(t_analysis)
             item_a.setData(Qt.UserRole, p['id'])
             
@@ -2455,11 +2529,12 @@ class MainWindow(QMainWindow):
             if p.get('issues'):
                 item_a.setForeground(Qt.red)
                 self._add_to_issues_list(p, avg_conf)
-                self.canvas.update_pillar_visual_status(p['id'], "error")
+                # Removido status visual "error" (laranja) do canvas para evitar duplicidade
+                self.canvas.update_pillar_visual_status(p['id'], "default")
             elif avg_conf < 0.6 and not p.get('is_validated'):
                 item_a.setForeground(Qt.yellow)
                 self._add_to_issues_list(p, avg_conf)
-                self.canvas.update_pillar_visual_status(p['id'], "uncertain", avg_conf)
+                self.canvas.update_pillar_visual_status(p['id'], "default")
             elif p.get('is_validated'):
                 item_a.setForeground(Qt.green)
                 self.canvas.update_pillar_visual_status(p['id'], "validated")
@@ -2513,6 +2588,66 @@ class MainWindow(QMainWindow):
         item_data = self.current_card.item_data
         itype = item_data.get('type', '').lower()
         
+        # Sincronizar visual no canvas imediatamente (SEM ZOOM AUTOMATICO NA MUDANÇA DE DADOS)
+        # AJUSTE 1: Limpar uma vez e desenhar ambos para garantir remoção/atualização real-time
+        self.canvas.clear_beams()
+        
+        if 'viga' in itype:
+            # Passamos clear=False para não destruir o que o outro acabou de desenhar
+            self.canvas.focus_on_beam_geometry(item_data, apply_zoom=False, clear=False)
+            self.canvas.draw_item_links(item_data, destination='focus', clear=False)
+            # AJUSTE 1 & 2: Atualiza também a visão global (persistente) para não deixar "fantasmas"
+            self.canvas.draw_item_links(item_data, destination='beam', clear=False)
+        elif 'pilar' in itype:
+            self.canvas.draw_item_links(item_data, destination='focus', clear=False)
+            # Pilares geralmente gerenciam sua própria geometria, mas se houver links extras:
+            self.canvas.draw_item_links(item_data, destination='pillar', clear=False)
+        elif 'laje' in itype:
+            self.canvas.draw_item_links(item_data, destination='focus', clear=False)
+            # AJUSTE 1 & 3: Atualiza também a visão global (persistente)
+            self.canvas.draw_item_links(item_data, destination='slab', clear=False)
+            
+        # --- NOVO: Atualizar imediatamente o texto na lista lateral ---
+        self._sync_list_item_text(item_data)
+        
+        self.log(f"Visual e Lista do {itype} sincronizados.")
+
+    def _sync_list_item_text(self, item_data):
+        """Atualiza o texto da lista lateral sem reconstruir toda a UI"""
+        from PySide6.QtWidgets import QTreeWidgetItemIterator
+        itype = item_data.get('type', '').lower()
+        iid = item_data.get('id')
+        
+        status = "✅" if item_data.get('is_validated') else "❓"
+        if item_data.get('issues'): status = "⚠️"
+        
+        if 'pilar' in itype:
+            p_format = item_data.get('format', 'Retangular')
+            new_text = f"{item_data.get('id_item', '??')} | {item_data.get('name', 'P?')} | {item_data.get('dim', '0')} | {p_format} {status}"
+            for lst in [self.list_pillars, self.list_pillars_valid]:
+                for i in range(lst.count()):
+                    item = lst.item(i)
+                    if item.data(Qt.UserRole) == iid:
+                        item.setText(new_text)
+                        
+        elif 'viga' in itype:
+            for tree in [self.list_beams, self.list_beams_valid]:
+                it = QTreeWidgetItemIterator(tree)
+                while it.value():
+                    item = it.value()
+                    if item.data(0, Qt.UserRole) == iid:
+                        item.setText(0, item_data.get('id_item', '??'))
+                        item.setText(1, item_data.get('name', 'V?'))
+                        item.setText(2, status)
+                    it += 1
+                    
+        elif 'laje' in itype:
+            new_text = f"{item_data.get('id_item', '??')} | {item_data.get('name', 'L?')} ({item_data.get('area',0):.1f}m²) {status}"
+            for lst in [self.list_slabs, self.list_slabs_valid]:
+                for i in range(lst.count()):
+                    item = lst.item(i)
+                    if item.data(Qt.UserRole) == iid:
+                        item.setText(new_text)
 
     def show_detail(self, item_data):
         """Exibe os detalhes do item no painel direito."""
@@ -2528,7 +2663,8 @@ class MainWindow(QMainWindow):
         self.current_card.pick_requested.connect(self.on_pick_requested)
         self.current_card.focus_requested.connect(self.on_focus_requested)
         self.current_card.data_validated.connect(self.on_card_validated)
-        self.current_card.element_removed.connect(self.on_detail_data_changed) # Conecta remoção ao refresh visual
+        self.current_card.element_removed.connect(self.on_detail_data_changed)
+        self.current_card.data_changed.connect(self.on_detail_data_changed) # NOVO: Atualiza lista ao digitar
         self.current_card.research_requested.connect(self.on_research_requested)
         self.current_card.element_focused.connect(self.on_element_focused_on_table)
         self.current_card.training_requested.connect(self.on_train_requested)

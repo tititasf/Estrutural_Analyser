@@ -41,11 +41,8 @@ class PillarGraphicsItem(QGraphicsPolygonItem):
         self.validated_pen = QPen(QColor(76, 175, 80), 3)
         self.validated_pen.setCosmetic(True)
 
-        self.uncertain_pen = QPen(QColor(255, 215, 0), 3) # Gold/Yellow
-        self.uncertain_pen.setCosmetic(True)
-
-        self.error_pen = QPen(QColor(255, 50, 50), 4) # Red
-        self.error_pen.setCosmetic(True)
+        self.uncertain_pen = self.default_pen # Desativado visual laranja/amarelo por solicitação
+        self.error_pen = self.default_pen # Desativado visual laranja/amarelo por solicitação
         
         self.setPen(self.default_pen)
 
@@ -114,6 +111,12 @@ class PillarGraphicsItem(QGraphicsPolygonItem):
     def mousePressEvent(self, event):
         self.proxy.clicked.emit(self.pillar_id)
         super().mousePressEvent(event)
+
+    def paint(self, painter, option, widget=None):
+        # Desativa visual padrão de seleção do Qt (bounding box tracejada)
+        from PySide6.QtWidgets import QStyle
+        option.state &= ~QStyle.State_Selected
+        super().paint(painter, option, widget)
 
     def itemChange(self, change, value):
         if change == QGraphicsItem.ItemSelectedChange:

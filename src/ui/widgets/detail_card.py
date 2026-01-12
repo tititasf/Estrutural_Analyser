@@ -22,10 +22,12 @@ class DetailCard(QWidget):
     research_requested = Signal(str, str) # field_id, slot_id
     training_requested = Signal(str, dict) # field_id, train_data
     config_updated = Signal(str, list)      # field_key, slots_config
+    data_changed = Signal(dict)           # (dict) disparado quando qualquer dado muda (nome, dim, etc)
     
     # Estilos CSS Reutilizáveis
     STYLE_DEFAULT = "background: #252525; border: 1px solid #444; padding: 4px 6px; border-radius: 4px; color: #eee; font-size: 13px;"
     STYLE_VALID = "background: #252525; border: 1px solid #00cc66; padding: 4px 6px; border-radius: 4px; color: #eee; font-size: 13px; font-weight: bold;"
+    STYLE_NA = "background: #333311; border: 1px solid #ffd600; padding: 4px 6px; border-radius: 4px; color: #ffd600; font-size: 13px; font-style: italic;"
 
     def __init__(self, item_data: dict, parent=None):
         super().__init__(parent)
@@ -45,6 +47,7 @@ class DetailCard(QWidget):
 
         self.fields = {} 
         self.indicators = {} 
+        self.action_btns = {} # field_id -> { 'link': btn, 'focus': btn, 'na': btn, 'express': btn }
         self.embedded_managers = {} 
         self.init_ui()
 
@@ -71,6 +74,12 @@ class DetailCard(QWidget):
                 
             w.setStyleSheet(self.STYLE_DEFAULT if field_id not in self.item_data.get('validated_fields', []) else self.STYLE_VALID)
             self.fields[field_id] = w
+            
+            # Conectar mudança imediata para refletir nas listas do MainWindow
+            if is_combo:
+                w.currentTextChanged.connect(lambda txt: self._on_field_changed(field_id, txt))
+            else:
+                w.textChanged.connect(lambda txt: self._on_field_changed(field_id, txt))
             
             # Tentar carregar valor inicial
             initial_val = self._get_initial_value(field_id)
@@ -185,7 +194,31 @@ class DetailCard(QWidget):
             actions_layout.addWidget(btn_express)
 
         if btn_focus: actions_layout.addWidget(btn_focus)
+
+        # Botão N/A (🚫)
+        btn_na = QPushButton("🚫")
+        btn_na.setFixedSize(24, 20)
+        btn_na.setProperty("class", "FieldBtn")
+        btn_na.setCursor(Qt.PointingHandCursor)
+        btn_na.setToolTip("Não se aplica / Omitir")
+        btn_na.setStyleSheet("""
+            QPushButton { color: #f44336; border: 1px solid #333; border-radius: 2px; font-size: 10px; }
+            QPushButton:hover { background: #f44336; color: white; }
+            QPushButton:checked { background: #ffd600; color: #333; border: 1px solid #ffd600; }
+        """)
+        btn_na.setCheckable(True)
+        btn_na.setChecked(field_id in self.item_data.get('na_fields', []))
+        btn_na.clicked.connect(lambda chk, f_id=field_id: self._on_na_clicked(f_id, chk))
+        actions_layout.addWidget(btn_na)
         
+        # Guardar referências para bloqueio reativo
+        self.action_btns[field_id] = {
+            'link': btn_links,
+            'focus': btn_focus,
+            'na': btn_na,
+            'express': btn_express if 'btn_express' in locals() else None
+        }
+
         row_layout.addWidget(actions_frame)
 
         # Adiciona a linha principal e o drawer (que começa oculto)
@@ -193,11 +226,11 @@ class DetailCard(QWidget):
         layout.addRow(drawer_container)
 
     def _on_position_changed(self, field_id, text):
-        """Exibe campo de distância se for 'Centro'"""
+        """Exibe campo de distância se for 'Centro' ou 'Laje central'"""
         dist_field_id = field_id.replace("_p", "_dist_c")
         if dist_field_id in self.fields:
             field_widget = self.fields[dist_field_id]
-            visible = (text == "Centro")
+            visible = (text in ("Centro", "Esquerda", "Direita"))
             field_widget.setEnabled(visible)
             if not visible: field_widget.setText("0.0")
             field_widget.setVisible(True)
@@ -284,6 +317,35 @@ class DetailCard(QWidget):
         else:
             if field_id in validated: validated.remove(field_id)
         self.refresh_validation_styles()
+
+    def _on_na_clicked(self, field_id, checked):
+        """Gerencia o estado 'Não se Aplica' de um campo"""
+        na_fields = self.item_data.setdefault('na_fields', [])
+        
+        if checked:
+            if field_id not in na_fields: na_fields.append(field_id)
+            # Ao marcar N/A, autovalida o campo se não houver vínculos
+            self.mark_field_validated(field_id, True)
+            
+            # Limpar valor se estiver vazio ou com texto padrão
+            widget = self.fields.get(field_id)
+            if widget:
+                if isinstance(widget, QLineEdit) and not widget.text():
+                    widget.setText("N/A")
+                elif isinstance(widget, QComboBox):
+                    # Tenta selecionar N/A se existir, senão só deixa quieto
+                    idx = widget.findText("N/A")
+                    if idx >= 0: widget.setCurrentIndex(idx)
+        else:
+            if field_id in na_fields: na_fields.remove(field_id)
+            # Restaurar valor se era N/A
+            widget = self.fields.get(field_id)
+            if widget:
+                if isinstance(widget, QLineEdit) and widget.text() == "N/A":
+                    widget.setText("")
+        
+        self.refresh_validation_styles()
+        self.data_changed.emit(self.item_data)
 
     def _on_express_validate(self, field_id):
         """Valida o campo imediatamente, enviando para treino"""
@@ -480,6 +542,7 @@ class DetailCard(QWidget):
     def _on_field_changed(self, key, value):
         """Atualiza item_data imediatamente ao digitar"""
         self.item_data[key] = value
+        self.data_changed.emit(self.item_data)
         
         # Sincronização especial para Marco DXF
         if key.startswith('ext_viga_') and 'vigas_individuais' in self.item_data:
@@ -501,34 +564,60 @@ class DetailCard(QWidget):
                 continue
             
             is_valid = fid in validated_fields
+            is_na = fid in self.item_data.get('na_fields', [])
             
             # --- Atualizar Estilo Visual (Bordas/Cores) ---
             if isinstance(w, (QLineEdit, QComboBox)):
-                if is_valid:
+                if is_na:
+                    w.setStyleSheet(self.STYLE_NA)
+                    w.setEnabled(False) # Bloqueia edição direta
+                elif is_valid:
                     w.setStyleSheet(self.STYLE_VALID)
+                    w.setEnabled(True)
                 else:
                     w.setStyleSheet(self.STYLE_DEFAULT)
+                    w.setEnabled(True)
+
+            # --- Bloquear/Desbloquear Botões de Ação ---
+            btns = self.action_btns.get(fid, {})
+            if btns:
+                # Se for N/A, bloqueia Link, Focus e Express
+                for bkey in ['link', 'focus', 'express']:
+                    b = btns.get(bkey)
+                    if b: b.setEnabled(not is_na)
+                
+                # Garantir que o botão N/A reflita o estado (caso venha de carga de dados)
+                if btns.get('na'):
+                    btns['na'].blockSignals(True)
+                    btns['na'].setChecked(is_na)
+                    btns['na'].blockSignals(False)
             
             # --- Atualizar Labels de Vínculo (se for hide_input=True) ---
             elif isinstance(w, QLabel):
-                links = self.item_data.get('links', {}).get(fid, {})
-                count = 0
-                if isinstance(links, dict):
-                    for sl_links in links.values(): count += len(sl_links)
-                elif isinstance(links, list):
-                    count = len(links)
-                
-                if count > 0:
-                    w.setText(f"{count} Vínculo(s) Ok")
-                    w.setStyleSheet("color: #00cc66; font-weight: bold; font-size: 10px;")
+                if is_na:
+                    w.setText("N/A - Não se aplica")
+                    w.setStyleSheet("color: #ffd600; font-weight: bold; font-size: 10px; font-style: italic;")
                 else:
-                    w.setText("Vínculo Pendente")
-                    w.setStyleSheet("color: #666; font-style: italic; font-size: 10px;")
+                    links = self.item_data.get('links', {}).get(fid, {})
+                    count = 0
+                    if isinstance(links, dict):
+                        for sl_links in links.values(): count += len(sl_links)
+                    elif isinstance(links, list):
+                        count = len(links)
+                    
+                    if count > 0:
+                        w.setText(f"{count} Vínculo(s) Ok")
+                        w.setStyleSheet("color: #00cc66; font-weight: bold; font-size: 10px;")
+                    else:
+                        w.setText("Vínculo Pendente")
+                        w.setStyleSheet("color: #666; font-style: italic; font-size: 10px;")
 
             # --- Atualizar a bolinha (indicador) ---
             if fid in self.indicators:
                 indicator = self.indicators[fid]
-                if is_valid:
+                if is_na:
+                    indicator.setStyleSheet("color: #ffd600; font-size: 14px; margin-right: 5px;")
+                elif is_valid:
                     indicator.setStyleSheet("color: #00cc66; font-size: 14px; margin-right: 5px;")
                 else:
                     # Restaurar cor baseada na confiança da IA original
@@ -590,6 +679,7 @@ class DetailCard(QWidget):
                 self.fields['format'].setCurrentText(self.item_data.get('format', 'Retangular'))
                 self.fields['format'].setFixedHeight(24)
                 self.fields['format'].setStyleSheet("background: #252525; border: 1px solid #444; border-radius: 3px; color: #eee;")
+                self.fields['format'].currentTextChanged.connect(lambda txt: self._on_field_changed('format', txt))
                 h_layout.addRow("Formato:", self.fields['format'])
             
             layout.addWidget(header)
@@ -729,8 +819,18 @@ class DetailCard(QWidget):
                 self._add_linked_row(f, "Nome:", f'p_s{side}_l{i}_n', "text")
                 self._add_linked_row(f, "H:", f'p_s{side}_l{i}_h', "text")
                 self._add_linked_row(f, "Nível:", f'p_s{side}_l{i}_v', "text")
-                self._add_linked_row(f, "Pos.:", f'p_s{side}_l{i}_p', "text", is_combo=True, combo_items=["Topo", "Centro", "Fundo"])
+                
+                # Ajuste Laje 2: Pos. -> Laje central e opções Esquerda/Direita
+                if i == 2:
+                    self._add_linked_row(f, "Laje central, Pos:", f'p_s{side}_l{i}_p', "text", is_combo=True, combo_items=["Esquerda", "Direita"])
+                else:
+                    self._add_linked_row(f, "Pos.:", f'p_s{side}_l{i}_p', "text", is_combo=True, combo_items=["Topo", "Centro", "Fundo"])
+                
                 self._add_linked_row(f, "Dist. Centro:", f'p_s{side}_l{i}_dist_c', "poly")
+                
+                # Novo Campo Laje 2: Dist. do Topo
+                if i == 2:
+                    self._add_linked_row(f, "Dist. do Topo:", f'p_s{side}_l{i}_dist_t', "poly") # Usando poly para aceitar linha ou texto
                 
                 # Inicialização de visibilidade
                 self._on_position_changed(f'p_s{side}_l{i}_p', self.fields[f'p_s{side}_l{i}_p'].currentText())
@@ -1315,10 +1415,25 @@ class DetailCard(QWidget):
                  for s_list in slots.values():
                      if s_list and len(s_list) > 0:
                          txt = str(s_list[0].get('text', ''))
-                         if txt.strip(): return txt
+                         if txt.strip(): 
+                             # Somente extrair número se NÃO for campo de nome ou dimensão
+                             is_dim_or_name = "dim" in field_id or "name" in field_id or field_id.endswith("_n") or field_id.endswith("_d")
+                             if not is_dim_or_name:
+                                 import re
+                                 nums = re.findall(r'\d+[.,]?\d*', txt)
+                                 if nums:
+                                     return nums[0].replace(',', '.')
+                             return txt
             elif isinstance(slots, list) and len(slots) > 0:
                  txt = str(slots[0].get('text', ''))
-                 if txt.strip(): return txt
+                 if txt.strip(): 
+                     is_dim_or_name = "dim" in field_id or "name" in field_id or field_id.endswith("_n") or field_id.endswith("_d")
+                     if not is_dim_or_name:
+                         import re
+                         nums = re.findall(r'\d+[.,]?\d*', txt)
+                         if nums:
+                             return nums[0].replace(',', '.')
+                     return txt
 
         # 2. Prioridade: Flat Key
         if field_id in self.item_data:

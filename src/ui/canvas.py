@@ -53,7 +53,7 @@ class CADCanvas(QGraphicsView):
             'link': [] # Visual links (texts/lines)
         }
         self.beam_visuals = []
-        self.beam_visuals = []
+        self.persistent_links = {} # Map item_id -> [link_items] para atualização real-time
         
         # Modo de Captação e Edição
         
@@ -133,8 +133,37 @@ class CADCanvas(QGraphicsView):
                 high_pen = QPen(QColor(255, 0, 0), 10, Qt.SolidLine)
                 high_pen.setCosmetic(True)
                 item.setPen(high_pen)
+                item.setPen(high_pen)
                 item.setZValue(1999) # Quase no topo (abaixo apenas da toolbar/overlays de UI)
                 item.update()
+
+    def _register_new_geometry(self, item, ent_data):
+        """Registra uma nova entidade (criada pelo usuário) nos sistemas de Snap e Metadados"""
+        if not item or not ent_data: return
+        
+        # 1. Adicionar aos metadados para picking de texto/geometria
+        self.dxf_entities.append(ent_data)
+        
+        # 2. Registrar Snaps dependendo do tipo
+        g_type = ent_data.get('type')
+        if g_type == 'line':
+            s, e = ent_data['points']
+            self.snap_segments.append((s, e))
+            # Midpoint
+            mid = ((s[0]+e[0])/2, (s[1]+e[1])/2)
+            self._add_snap_point(mid, 'midpoint')
+            self._add_snap_point(s, 'endpoint')
+            self._add_snap_point(e, 'endpoint')
+        elif g_type == 'circle' or g_type == 'arc':
+            center = ent_data.get('pos', ent_data.get('center'))
+            r = ent_data.get('radius', 0)
+            if center:
+                self._add_snap_point(center, 'center')
+                if r > 0:
+                    self._add_snap_point((center[0]+r, center[1]), 'quadrant')
+                    self._add_snap_point((center[0]-r, center[1]), 'quadrant')
+                    self._add_snap_point((center[0], center[1]+r), 'quadrant')
+                    self._add_snap_point((center[0], center[1]-r), 'quadrant')
 
     def _init_input_overlay(self):
         self.input_label = QLabel(self)
@@ -334,7 +363,7 @@ class CADCanvas(QGraphicsView):
         # But if we have persistent link visuals, we should group them.
         self.clear_beams() # Limpa destaques temporários
 
-    def isolate_item(self, item_id, category):
+    def isolate_item(self, item_id, category, apply_zoom=True):
         """Oculta tudo, mostra apenas o item específico e seus vínculos"""
         self.active_isolation = None
         
@@ -346,11 +375,12 @@ class CADCanvas(QGraphicsView):
             item = self.interactive_items[item_id]
             item.show()
             
-            # Zoom to it with consistent margin
-            rect = item.sceneBoundingRect()
-            margin = 500
-            self.fitInView(rect.adjusted(-margin, -margin, margin, margin), Qt.KeepAspectRatio)
-            self.centerOn(rect.center())
+            # Zoom to it with consistent margin (400px agradável)
+            if apply_zoom:
+                rect = item.sceneBoundingRect()
+                margin = 400
+                self.fitInView(rect.adjusted(-margin, -margin, margin, margin), Qt.KeepAspectRatio)
+                self.centerOn(rect.center())
             
     def clear_interactive(self):
         """Limpa apenas os itens de overlay interativo, mantendo o background DXF"""
@@ -772,16 +802,9 @@ class CADCanvas(QGraphicsView):
                 item.setZValue(10) # Pilares sempre acima
                 item.proxy.clicked.connect(self.on_pillar_clicked)
                 
-                # Aplicar Status Inicial
+                # Aplicar Status Inicial (Apenas Validado vs Default)
                 if p_data.get('is_validated'):
                     item.set_validated(True)
-                elif p_data.get('issues'):
-                    item.set_visual_status("error")
-                else:
-                    conf_map = p_data.get('confidence_map', {})
-                    avg_conf = sum(conf_map.values()) / len(conf_map) if conf_map else 1.0
-                    if avg_conf < 0.6:
-                        item.set_visual_status("uncertain", avg_conf)
                 
                 self.scene.addItem(item)
                 self.interactive_items[p_data['id']] = item
@@ -796,7 +819,7 @@ class CADCanvas(QGraphicsView):
                 pass # Item já deletado
 
     def draw_slabs(self, slabs_data: list):
-        """Desenha lajes identificadas"""
+        """Desenha lajes identificadas e seus vínculos de segmento"""
         for s_data in slabs_data:
             points = s_data.get('points')
             if points:
@@ -808,9 +831,12 @@ class CADCanvas(QGraphicsView):
                 if 'id' in s_data:
                     self.interactive_items[s_data['id']] = item
                     self.item_groups['slab'].append(item)
+                
+                # AJUSTE 3: Desenhar vínculos de segmentos para a visão global
+                self.draw_item_links(s_data, destination='slab', clear=False)
 
     def draw_beams(self, beams_data: list):
-        """Desenha labels de identificação para todas as vigas"""
+        """Desenha labels de identificação para todas as vigas e seus vínculos de segmento"""
         for b_data in beams_data:
             pos = b_data.get('pos')
             if pos:
@@ -836,6 +862,9 @@ class CADCanvas(QGraphicsView):
                 if 'id' in b_data:
                     self.interactive_items[b_data['id']] = item
                     self.item_groups['beam'].append(item)
+                
+                # AJUSTE 2: Desenhar vínculos de segmentos para a visão global
+                self.draw_item_links(b_data, destination='beam', clear=False)
 
     def draw_focus_beams(self, beams_visual_data: list):
         """Desenha vigas APENAS para o foco atual (pilar selecionado)"""
@@ -849,12 +878,13 @@ class CADCanvas(QGraphicsView):
             self.beam_visuals.append(line)
 
 
-    def highlight_link(self, link):
+    def highlight_link(self, link, color=None, apply_zoom=True):
         """Destaque direto via objeto de vínculo (sem busca)"""
         if not link: return
         
         self.clear_beams()
-        pen = QPen(QColor(255, 0, 0), 4) # Red
+        base_color = color if color else QColor(255, 0, 0)
+        pen = QPen(base_color, 4) 
         pen.setCosmetic(True)
         
         item = None
@@ -863,7 +893,7 @@ class CADCanvas(QGraphicsView):
         if l_type == 'text' and 'pos' in link:
             item = self.scene.addSimpleText(link['text'])
             item.setPos(link['pos'][0], link['pos'][1])
-            item.setBrush(QBrush(QColor(255, 0, 0)))
+            item.setBrush(QBrush(base_color))
             item.setZValue(101)
             item.setFlag(QGraphicsSimpleTextItem.ItemIgnoresTransformations)
         elif (l_type == 'line' or l_type == 'poly' or l_type == 'geometry') and 'points' in link:
@@ -884,48 +914,73 @@ class CADCanvas(QGraphicsView):
             px, py = link['pos']
             item = self.scene.addEllipse(px-r, py-r, r*2, r*2, pen)
             item.setZValue(100)
+            if apply_zoom:
+                margin = 400
+                self.fitInView(item.sceneBoundingRect().marginsAdded(QMarginsF(margin, margin, margin, margin)), Qt.KeepAspectRatio)
+                self.centerOn(item.sceneBoundingRect().center())
+            return item
             
-        if item:
-            self.beam_visuals.append(item)
-            margin = 300
-            rect = item.sceneBoundingRect()
-            self.fitInView(rect.adjusted(-margin, -margin, margin, margin), Qt.KeepAspectRatio)
-            self.centerOn(rect.center())
+        if item and apply_zoom:
+            margin = 400
+            self.fitInView(item.sceneBoundingRect().marginsAdded(QMarginsF(margin, margin, margin, margin)), Qt.KeepAspectRatio)
+            self.centerOn(item.sceneBoundingRect().center())
+        
+        return item
 
-    def draw_item_links(self, target):
-        """Desenha persistentemente os vínculos de um item (Pilar, Viga ou Laje)"""
+    def clear_persistent_links(self, item_id):
+        """Limpa links persistentes de um item específico (para re-desenho real-time)"""
+        if item_id in self.persistent_links:
+            for item in self.persistent_links[item_id]:
+                try:
+                    if self.scene: self.scene.removeItem(item)
+                except: pass
+            del self.persistent_links[item_id]
+
+    def draw_item_links(self, target, destination='focus', clear=True):
+        """
+        Desenha os vínculos de um item.
+        destination: 'focus' (beam_visuals), 'beam' (item_groups['beam']), 'slab' (item_groups['slab'])
+        """
         if not target: return
+        item_id = target.get('id')
+        
+        if clear: self.clear_beams() 
+        
+        # Se for para um grupo persistente, primeiro limpa o anterior desse item
+        if destination != 'focus' and item_id:
+            self.clear_persistent_links(item_id)
         
         from PySide6.QtWidgets import QGraphicsSimpleTextItem
         from PySide6.QtGui import QPainterPath
         
         # Pen para vínculos salvos (Cor depende do tipo)
-        base_color = QColor(255, 0, 0) # Default Red (Viga)
+        base_color = QColor(255, 0, 0) # Default Red
         type_str = target.get('type', '').lower()
         if 'laje' in type_str:
-            base_color = QColor(0, 80, 255) # Azul Forte (mas visível no dark)
+            base_color = QColor(0, 80, 255) # Azul Forte
         elif 'pilar' in type_str:
             base_color = QColor(0, 180, 0) # Verde Escuro
+        else:
+             base_color = QColor(139, 69, 19) # Viga = Marrom
             
         pen = QPen(base_color, 2)
         pen.setCosmetic(True)
         
         links = target.get('links', {})
         for field_id, slots in links.items():
-            # slots pode ser uma lista (legado) ou um dicionário de slots
             slots_to_process = slots.values() if isinstance(slots, dict) else [slots]
             
             for link_list in slots_to_process:
                 for link in link_list:
                     l_type = link.get('type')
+                    item = None
                     # Texto
                     if l_type == 'text' and 'pos' in link:
-                        t_item = self.scene.addSimpleText(link['text'])
-                        t_item.setPos(link['pos'][0], link['pos'][1])
-                        t_item.setBrush(QBrush(base_color))
-                        t_item.setZValue(105)
-                        t_item.setFlag(QGraphicsSimpleTextItem.ItemIgnoresTransformations)
-                        self.beam_visuals.append(t_item)
+                        item = self.scene.addSimpleText(link['text'])
+                        item.setPos(link['pos'][0], link['pos'][1])
+                        item.setBrush(QBrush(base_color))
+                        item.setZValue(105)
+                        item.setFlag(QGraphicsSimpleTextItem.ItemIgnoresTransformations)
                     # Geometria (Linhas/Polys)
                     elif (l_type in ['line', 'poly', 'geometry']) and 'points' in link:
                         pts = link['points']
@@ -933,22 +988,29 @@ class CADCanvas(QGraphicsView):
                             path = QPainterPath()
                             path.moveTo(pts[0][0], pts[0][1])
                             for p in pts[1:]: path.lineTo(p[0], p[1])
-                            
                             if l_type == 'poly' or (len(pts) > 2 and pts[0] == pts[-1]):
                                 path.closeSubpath()
-                                
                             item = self.scene.addPath(path, pen)
                             item.setZValue(104)
-                            self.beam_visuals.append(item)
                     # Círculos
                     elif l_type == 'circle' and 'pos' in link and 'radius' in link:
                         r = link['radius']
                         px, py = link['pos']
-                        c_item = self.scene.addEllipse(px-r, py-r, r*2, r*2, pen)
-                        c_item.setZValue(104)
-                        self.beam_visuals.append(c_item)
+                        item = self.scene.addEllipse(px-r, py-r, r*2, r*2, pen)
+                        item.setZValue(104)
 
-    def highlight_element_by_name(self, name, data_list=[]):
+                    if item:
+                        if destination == 'focus':
+                            self.beam_visuals.append(item)
+                        else:
+                            # Adicionar ao grupo persistente (Ajuste 2 e 3)
+                            self.item_groups[destination].append(item)
+                            # Registrar para limpeza individual posterior
+                            if item_id:
+                                if item_id not in self.persistent_links: self.persistent_links[item_id] = []
+                                self.persistent_links[item_id].append(item)
+
+    def highlight_element_by_name(self, name, data_list=[], apply_zoom=True):
         """Destaca itens vinculados em VERMELHO. Se for Pilar, destaca formato."""
         from PySide6.QtWidgets import QGraphicsSimpleTextItem
         from PySide6.QtGui import QPainterPath
@@ -963,6 +1025,7 @@ class CADCanvas(QGraphicsView):
             t_type = target.get('type', '').lower()
             if 'laje' in t_type: base_color = QColor(0, 80, 255)
             elif 'pilar' in t_type: base_color = QColor(0, 180, 0)
+            else: base_color = QColor(139, 69, 19) # Viga = Marrom
             
         pen = QPen(base_color, 3) 
         pen.setCosmetic(True)
@@ -1043,27 +1106,28 @@ class CADCanvas(QGraphicsView):
                     self.beam_visuals.append(t_item)
                     items_to_focus.append(t_item)
 
-        if items_to_focus:
+        if items_to_focus and apply_zoom:
             rect = items_to_focus[0].sceneBoundingRect()
             for item in items_to_focus[1:]:
                 rect = rect.united(item.sceneBoundingRect())
             
-            # Zoom suave no conjunto de itens destacados
-            margin = 500
+            # Zoom suave no conjunto de itens destacados (400px agradável)
+            margin = 400
             self.fitInView(rect.adjusted(-margin, -margin, margin, margin), Qt.KeepAspectRatio)
             self.centerOn(rect.center())
 
-    def focus_on_item(self, item_id: int):
-        """Centraliza e destaca um item"""
+    def focus_on_item(self, item_id: int, apply_zoom=True):
+        """Destaque um pilar interativo enviando ID"""
         if item_id in self.interactive_items:
             item = self.interactive_items[item_id]
-            self.centerOn(item)
-            # Zoom suave no pilar
-            self.fitInView(item.boundingRect().marginsAdded(QMarginsF(300, 300, 300, 300)), Qt.KeepAspectRatio)
+            
+            # Zoom suave no pilar (400px agradável)
+            if apply_zoom:
+                self.fitInView(item.boundingRect().marginsAdded(QMarginsF(400, 400, 400, 400)), Qt.KeepAspectRatio)
 
-    def focus_on_beam_geometry(self, beam_data):
+    def focus_on_beam_geometry(self, beam_data, apply_zoom=True, clear=True):
         """Foca na geometria completa de uma viga (linhas + textos)"""
-        self.clear_beams() # Limpa destaques anteriores
+        if clear: self.clear_beams() # Limpa destaques anteriores
         items_to_focus = []
         geo = beam_data.get('geometry', {})
         
@@ -1094,8 +1158,9 @@ class CADCanvas(QGraphicsView):
         if not line_sources:
             line_sources = geo.get('lines', [])
 
-        # 2. Adicionar destaques temporários em vermelho (padrão de foco)
-        pen = QPen(QColor(255, 0, 0), 4)
+        # 2. Adicionar destaques temporários em MARROM (solicitado: ajuste)
+        brown_color = QColor(139, 69, 19) 
+        pen = QPen(brown_color, 4)
         pen.setCosmetic(True)
         
         # Desenhar linhas filtradas (vínculos ativos ou fallback)
@@ -1114,23 +1179,23 @@ class CADCanvas(QGraphicsView):
              found_text = txt.get('text', 'V?')
              t_item = self.scene.addSimpleText(found_text)
              t_item.setPos(txt['pos'][0], txt['pos'][1])
-             t_item.setBrush(QBrush(QColor(255, 0, 0)))
+             t_item.setBrush(QBrush(brown_color))
              t_item.setZValue(101)
              t_item.setFlag(QGraphicsItem.ItemIgnoresTransformations)
              self.beam_visuals.append(t_item)
              items_to_focus.append(t_item)
 
-        if items_to_focus:
+        if items_to_focus and apply_zoom:
             rect = items_to_focus[0].sceneBoundingRect()
             for item in items_to_focus[1:]:
                 rect = rect.united(item.sceneBoundingRect())
             
-            # Zoom suave no conjunto de itens da viga
-            margin = 800
+            # Zoom suave no conjunto de itens da viga (Unificado para 400px)
+            margin = 400
             self.fitInView(rect.adjusted(-margin, -margin, margin, margin), Qt.KeepAspectRatio)
             self.centerOn(rect.center())
         # Caso não tenha geometria complexa, tenta focar no label interativo
-        elif beam_data.get('id') in self.interactive_items:
+        elif beam_data.get('id') in self.interactive_items and apply_zoom:
             self.focus_on_item(beam_data['id'])
             
     def on_pillar_clicked(self, p_id):
@@ -1429,7 +1494,6 @@ class CADCanvas(QGraphicsView):
                         if item not in self.selected_items:
                             self.selected_items.append(item)
                 
-                # Forçar atualização visual para qualquer mudança
                 self._on_selection_changed()
             else:
                 # Clique em área vazia - Iniciar/Finalizar Box
@@ -1444,38 +1508,35 @@ class CADCanvas(QGraphicsView):
                     rect = QRectF(self.box_start, scene_pos).normalized()
                     path = QPainterPath()
                     path.addRect(rect)
-                    # Usar BoundingRect garante que linhas finas/cosméticas sejam capturadas
                     items = self.scene.items(path, Qt.IntersectsItemBoundingRect, Qt.DescendingOrder, QTransform())
-                    if not (event.modifiers() & Qt.ShiftModifier):
-                        # Se Nao tiver shift, o box ADICIONA (Cumulative logic requested)
-                        pass
-                    
                     for i in items:
-                        # Selecionar itens que sao DXF ou Custom, mesmo sem Flag Selectable
                         if isinstance(i, (DXFLineItem, DXFPathItem, QGraphicsSimpleTextItem, PillarGraphicsItem, SlabGraphicsItem, BeamGraphicsItem)) or (i.flags() & QGraphicsItem.ItemIsSelectable):
                             i.setSelected(True)
                             if i not in self.selected_items: self.selected_items.append(i)
                     
-                    self._on_selection_changed() # Force highlight update
+                    self._on_selection_changed()
                     self.scene.removeItem(self.selection_box)
                     self.selection_box = None
                     self.box_start = None
-            return
+                
 
-        elif self.edit_mode == 'line':
-            blue_pen = QPen(QColor(30, 144, 255), 2)
-            if self.pick_start is None:
-                self.pick_start = QPointF(*snap_pos)
-                self.temp_item = self.scene.addLine(snap_pos[0], snap_pos[1], snap_pos[0], snap_pos[1], blue_pen)
-            else:
-                final_pos = self._apply_ortho(self.pick_start, QPointF(*snap_pos))
-                line = self.scene.addLine(self.pick_start.x(), self.pick_start.y(), final_pos.x(), final_pos.y(), blue_pen)
+                final_pos = (final_pt_obj.x(), final_pt_obj.y())
+                line = self.scene.addLine(self.pick_start.x(), self.pick_start.y(), final_pos[0], final_pos[1], blue_pen)
                 line.setZValue(50)
                 line.setFlag(QGraphicsItem.ItemIsSelectable)
                 self.overlay_items.append(line)
-                self.pick_start = final_pos
+                
+                # [NOVO] Registrar para OSNAP e Metadados
+                ent_data = {
+                    'type': 'line',
+                    'points': [(self.pick_start.x(), self.pick_start.y()), final_pos],
+                    'color': 5 # Blue fallback
+                }
+                self._register_new_geometry(line, ent_data)
+                
+                self.pick_start = final_pt_obj
                 if self.temp_item: self.scene.removeItem(self.temp_item)
-                self.temp_item = self.scene.addLine(final_pos.x(), final_pos.y(), final_pos.x(), final_pos.y(), blue_pen)
+                self.temp_item = self.scene.addLine(final_pos[0], final_pos[1], final_pos[0], final_pos[1], blue_pen)
             return
 
         elif self.edit_mode == 'dim':
@@ -1518,89 +1579,47 @@ class CADCanvas(QGraphicsView):
                 r = math.sqrt((self.pick_start.x()-snap_pos[0])**2 + (self.pick_start.y()-snap_pos[1])**2)
                 circle = self.scene.addEllipse(self.pick_start.x()-r, self.pick_start.y()-r, r*2, r*2, blue_pen)
                 circle.setZValue(50); circle.setFlag(QGraphicsItem.ItemIsSelectable); self.overlay_items.append(circle)
+                
+                # [NOVO] Registrar para OSNAP e Metadados
+                ent_data = {
+                    'type': 'circle',
+                    'center': (self.pick_start.x(), self.pick_start.y()),
+                    'radius': r,
+                    'color': 5
+                }
+                self._register_new_geometry(circle, ent_data)
+                
                 self.pick_start = None
                 if self.temp_item: self.scene.removeItem(self.temp_item); self.temp_item = None
             return
 
         super().mousePressEvent(event)
-
+        
         # --- PICKING MODES EXISTENTES ---
+        if self.picking_mode:
+            self._handle_pick_at(scene_pos)
+    def _handle_pick_at(self, scene_pos):
+        """Lógica comum de processamento de um clique em modo pick"""
+        if not self.picking_mode: return
+
+        # Pegar snap se disponível
+        snap_data = self.get_snap(scene_pos)
+        snap_pos = snap_data['pos'] if snap_data else (scene_pos.x(), scene_pos.y())
+        
         if self.picking_mode == 'text':
-            # 1. Tentar pegar por item na cena (mais preciso que busca por bounding box externa)
-            view_scale = self.transform().m11()
-            aperture = 10 / (view_scale if view_scale > 0 else 1)
-            rect = QRectF(scene_pos.x() - aperture/2, scene_pos.y() - aperture/2, aperture, aperture)
-            items = self.scene.items(rect)
-            
-            best_text_val = None
-            best_pos = None
-            
-            for i in items:
-                if isinstance(i, QGraphicsSimpleTextItem):
-                    best_text_val = i.text()
-                    best_pos = (i.pos().x(), i.pos().y())
-                    break
-            
-            if not best_text_val:
-                # Fallback: Buscar texto mais próximo nas entidades DXF
-                min_dist = aperture 
-                for ent in self.dxf_entities:
-                    if 'text' in ent:
-                        p = ent['pos']
-                        dist = ((p[0]-scene_pos.x())**2 + (p[1]-scene_pos.y())**2)**0.5
-                        if dist < min_dist:
-                            min_dist = dist
-                            best_text_val = ent['text']
-                            best_pos = ent['pos']
-            
-            if best_text_val:
-                self.pick_completed.emit({
-                    'text': best_text_val, 
-                    'type': 'text',
-                    'pos': best_pos
-                })
-                self.set_picking_mode(None)
-                return
+             best_ent = self._get_best_entity_under_cursor(scene_pos, mode='text')
+             if best_ent:
+                 self.pick_completed.emit(best_ent)
+                 self.set_picking_mode(None)
 
         elif self.picking_mode == 'geometry':
-            # Como geometry mode não depende estritamente do OSNAP para selecionar OBJETO, mantemos a busca por proximidade
-            best_ent = None
-            min_dist = 5.0 
-            
-            for ent in self.dxf_entities:
-                dist = 99999.0
-                if 'pos' in ent and 'text' in ent: # Texto
-                    p = ent['pos']
-                    dist = ((p[0]-scene_pos.x())**2 + (p[1]-scene_pos.y())**2)**0.5
-                elif 'points' in ent: # Linha ou Poly
-                    # Distância ao ponto mais próximo da poly (simplificado: aos vértices)
-                    for p in ent['points']:
-                        d = ((p[0]-scene_pos.x())**2 + (p[1]-scene_pos.y())**2)**0.5
-                        if d < dist: dist = d
-                elif 'radius' in ent and ('pos' in ent or 'center' in ent): # Circulo
-                    p = ent.get('pos', ent.get('center'))
-                    d_center = ((p[0]-scene_pos.x())**2 + (p[1]-scene_pos.y())**2)**0.5
-                    dist = abs(d_center - ent['radius']) 
-                
-                if dist < min_dist:
-                    min_dist = dist
-                    best_ent = ent
-            
-            if best_ent:
-                res = {
-                    'type': best_ent.get('type', 'geometry'),
-                    'text': best_ent.get('text', 'Entidade CAD'),
-                    'pos': best_ent.get('pos', best_ent.get('center')),
-                    'points': best_ent.get('points'),
-                    'radius': best_ent.get('radius')
-                }
-                self.pick_completed.emit(res)
-                self.set_picking_mode(None)
-                return
-                
+             best_ent = self._get_best_entity_under_cursor(scene_pos, mode='geometry')
+             if best_ent:
+                 self.pick_completed.emit(best_ent)
+                 self.set_picking_mode(None)
+
         elif self.picking_mode == 'line':
             if self.pick_start is None:
-                # Primeiro clique
                 self.pick_start = QPointF(*snap_pos)
                 self.temp_line = self.scene.addLine(snap_pos[0], snap_pos[1], snap_pos[0], snap_pos[1],
                                                QPen(QColor(0, 255, 255), 2, Qt.DashLine))
@@ -1610,43 +1629,59 @@ class CADCanvas(QGraphicsView):
                 self.temp_line.setZValue(201)
                 self.temp_text.setFlag(QGraphicsSimpleTextItem.ItemIgnoresTransformations)
             else:
-                # Segundo clique - Finalizar
-                
-                # Apply Ortho to the final point if enabled
+                # Finalizar linha
                 final_pt_obj = QPointF(*snap_pos)
-                if self.ortho_mode or (event.modifiers() & Qt.ShiftModifier):
+                if self.ortho_mode:
                     final_pt_obj = self._apply_ortho(self.pick_start, final_pt_obj)
                 
-                final_pos_tuple = (final_pt_obj.x(), final_pt_obj.y())
-                
-                dist = ((self.pick_start.x()-final_pos_tuple[0])**2 + (self.pick_start.y()-final_pos_tuple[1])**2)**0.5
-                
-                # Overlay Permanente
-                overlay_line = self.scene.addLine(self.pick_start.x(), self.pick_start.y(), 
-                                                final_pos_tuple[0], final_pos_tuple[1],
-                                                QPen(QColor(255, 0, 0), 2))
-                cota_text = self.scene.addSimpleText(f"{dist:.1f}")
-                cota_text.setPos(final_pos_tuple[0], final_pos_tuple[1])
-                cota_text.setBrush(QBrush(QColor(255, 0, 0)))
-                cota_text.setZValue(101)
-                cota_text.setFlag(QGraphicsItem.ItemIgnoresTransformations)
-                
-                self.overlay_items.extend([overlay_line, cota_text])
+                final_pos = (final_pt_obj.x(), final_pt_obj.y())
+                dist = ((self.pick_start.x()-final_pos[0])**2 + (self.pick_start.y()-final_pos[1])**2)**0.5
                 
                 self.pick_completed.emit({
                     'text': f"{dist:.1f}", 
                     'type': 'line',
-                    'points': [(self.pick_start.x(), self.pick_start.y()), final_pos_tuple]
+                    'points': [(self.pick_start.x(), self.pick_start.y()), final_pos]
                 })
-                
-                # Cleanup
-                if self.temp_line: self.scene.removeItem(self.temp_line)
-                if self.temp_text: self.scene.removeItem(self.temp_text)
-                self.temp_line = None
-                self.temp_text = None
-                self.pick_start = None
                 self.set_picking_mode(None)
-            return
+
+    def _get_best_entity_under_cursor(self, scene_pos, mode='geometry', aperture=10.0):
+        """Busca a melhor entidade DXF ou interativa sob o cursor para picking"""
+        best_ent = None
+        min_dist = aperture
+        
+        # 1. Tentar por Proximidade nos Meta-Dados DXF
+        for ent in self.dxf_entities:
+            dist = 9999.0
+            if mode == 'text':
+                if 'text' in ent:
+                    p = ent['pos']
+                    dist = ((p[0]-scene_pos.x())**2 + (p[1]-scene_pos.y())**2)**0.5
+            else: # geometry / all
+                if 'points' in ent:
+                    for p in ent['points']:
+                        d = ((p[0]-scene_pos.x())**2 + (p[1]-scene_pos.y())**2)**0.5
+                        if d < dist: dist = d
+                elif 'pos' in ent and 'text' in ent:
+                    p = ent['pos']
+                    dist = ((p[0]-scene_pos.x())**2 + (p[1]-scene_pos.y())**2)**0.5
+                elif 'radius' in ent and ('pos' in ent or 'center' in ent):
+                    p = ent.get('pos', ent.get('center'))
+                    d_center = ((p[0]-scene_pos.x())**2 + (p[1]-scene_pos.y())**2)**0.5
+                    dist = abs(d_center - ent['radius'])
+
+            if dist < min_dist:
+                min_dist = dist
+                best_ent = ent
+
+        if best_ent:
+            return {
+                'type': best_ent.get('type', 'geometry'),
+                'text': best_ent.get('text', 'Entidade CAD'),
+                'pos': best_ent.get('pos', best_ent.get('center')),
+                'points': best_ent.get('points'),
+                'radius': best_ent.get('radius')
+            }
+        return None
             
         super().mousePressEvent(event)
 
@@ -1783,21 +1818,7 @@ class CADCanvas(QGraphicsView):
             super().mouseReleaseEvent(event)
 
     def keyPressEvent(self, event):
-        # 1. Finalizar Poly
-        if self.picking_mode == 'poly' and event.key() in (Qt.Key_Return, Qt.Key_Enter):
-            if len(self.pick_poly_points) >= 2:
-                poly_data = {'text': 'Polyline', 'type': 'poly', 'points': self.pick_poly_points}
-                path = QPainterPath()
-                path.moveTo(*self.pick_poly_points[0])
-                for p in self.pick_poly_points[1:]: path.lineTo(*p)
-                path.closeSubpath()
-                item = self.scene.addPath(path, QPen(QColor(255, 0, 0), 2), QBrush(QColor(255, 0, 0, 50)))
-                self.overlay_items.append(item)
-                self.pick_completed.emit(poly_data)
-                self.set_picking_mode(None)
-            return
-
-        # 2. Atalhos de Ferramentas
+        # 1. Atalhos de Ferramentas
         key = event.key()
         if key == Qt.Key_Escape:
             self.set_edit_mode(None)
@@ -1816,9 +1837,51 @@ class CADCanvas(QGraphicsView):
             return
 
         if key in (Qt.Key_Return, Qt.Key_Enter):
-            # NOVO: Finalizar Picking via ENTER
+            # NOVO: Bloco unificado para finalizar qualquer picking via ENTER
             if self.picking_mode:
-                if self.picking_mode == 'line' and self.pick_start:
+                print(f"DEBUG: Enter pressed in picking_mode={self.picking_mode}")
+                
+                # Caso A: Polyline Drawing
+                if self.picking_mode == 'poly':
+                    if len(self.pick_poly_points) >= 2:
+                        # Finalizar como Polyline
+                        poly_data = {'text': 'Polyline', 'type': 'poly', 'points': self.pick_poly_points}
+                        from PySide6.QtGui import QPainterPath
+                        path = QPainterPath()
+                        path.moveTo(*self.pick_poly_points[0])
+                        for p in self.pick_poly_points[1:]: path.lineTo(*p)
+                        path.closeSubpath()
+                        item = self.scene.addPath(path, QPen(QColor(255, 0, 0), 2), QBrush(QColor(255, 0, 0, 50)))
+                        self.overlay_items.append(item)
+                        print("DEBUG: Finalizing Poly with points")
+                        self.pick_completed.emit(poly_data)
+                        self.set_picking_mode(None)
+                    elif len(self.pick_poly_points) == 1:
+                        # Finalizar como ponto único (fallback)
+                        pt = self.pick_poly_points[0]
+                        print("DEBUG: Finalizing Poly with single point fallback")
+                        self.pick_completed.emit({'text': f"Pt:{pt[0]:.0f},{pt[1]:.0f}", 'type': 'geometry', 'pos': pt})
+                        self.set_picking_mode(None)
+                    else:
+                        # 0 Pontos Clicados: Tentar pegar entidade sob o mouse (Fallback inteligente)
+                        cursor_pos = self.mapToScene(self.mapFromGlobal(QCursor.pos()))
+                        best_ent = self._get_best_entity_under_cursor(cursor_pos)
+                        if best_ent:
+                             print(f"DEBUG: Finalizing Poly with entity fallback: {best_ent.get('type')}")
+                             res = {
+                                'type': best_ent.get('type', 'geometry'),
+                                'text': best_ent.get('text', 'Entidade CAD'),
+                                'pos': best_ent.get('pos', best_ent.get('center')),
+                                'points': best_ent.get('points'),
+                                'radius': best_ent.get('radius')
+                             }
+                             self.pick_completed.emit(res)
+                             self.set_picking_mode(None)
+                        else:
+                             print("DEBUG: Enter ignored - no points and no entity found")
+                    return
+
+                elif self.picking_mode == 'line' and self.pick_start:
                     # Finalizar linha no ponto atual do mouse/snap
                     cursor_pos = self.mapToScene(self.mapFromGlobal(QCursor.pos()))
                     snap_data = self.get_snap(cursor_pos)
@@ -1830,6 +1893,7 @@ class CADCanvas(QGraphicsView):
                     final_pos = (target_pt.x(), target_pt.y())
                     dist = ((self.pick_start.x()-final_pos[0])**2 + (self.pick_start.y()-final_pos[1])**2)**0.5
                     
+                    print(f"DEBUG: Finalizing Line pick with Enter. Dist: {dist:.1f}")
                     self.pick_completed.emit({
                         'text': f"{dist:.1f}", 
                         'type': 'line',
@@ -1840,22 +1904,29 @@ class CADCanvas(QGraphicsView):
 
                 elif self.picking_mode in ('text', 'geometry'):
                     # Tentar finalizar com o que estiver SELECIONADO ou sob o mouse
-                    selected = self.scene.selectedItems()
-                    if selected:
-                        item = selected[0]
-                        res = None
-                        if isinstance(item, QGraphicsSimpleTextItem):
-                            res = {'text': item.text(), 'type': 'text', 'pos': (item.pos().x(), item.pos().y())}
-                        elif isinstance(item, (QGraphicsLineItem, DXFLineItem)):
-                            p1 = (item.line().p1().x(), item.line().p1().y())
-                            p2 = (item.line().p2().x(), item.line().p2().y())
-                            dist = ((p1[0]-p2[0])**2 + (p1[1]-p2[1])**2)**0.5
-                            res = {'text': f"{dist:.1f}", 'type': 'line', 'points': [p1, p2]}
-                        
-                        if res:
-                            self.pick_completed.emit(res)
-                            self.set_picking_mode(None)
-                            return
+                    cursor_pos = self.mapToScene(self.mapFromGlobal(QCursor.pos()))
+                    best_ent = self._get_best_entity_under_cursor(cursor_pos, mode=self.picking_mode)
+                    
+                    # Fallback: Usar o que estiver selecionado na cena se coincidir com o tipo
+                    if not best_ent:
+                        selected = self.scene.selectedItems()
+                        if selected:
+                            item = selected[0]
+                            if self.picking_mode == 'text' and isinstance(item, QGraphicsSimpleTextItem):
+                                best_ent = {'text': item.text(), 'type': 'text', 'pos': (item.pos().x(), item.pos().y())}
+                            elif self.picking_mode == 'geometry':
+                                # Tenta inferir pick_data do item selecionado
+                                if hasattr(item, 'line'):
+                                    p1 = (item.line().p1().x(), item.line().p1().y())
+                                    p2 = (item.line().p2().x(), item.line().p2().y())
+                                    dist = ((p1[0]-p2[0])**2 + (p1[1]-p2[1])**2)**0.5
+                                    best_ent = {'text': f"{dist:.1f}", 'type': 'line', 'points': [p1, p2]}
+                    
+                    if best_ent:
+                        print(f"DEBUG: Finalizing {self.picking_mode} pick with entity/selection")
+                        self.pick_completed.emit(best_ent)
+                        self.set_picking_mode(None)
+                    return
 
             if self.edit_mode == 'move' and self.is_moving:
                 self.is_moving = False
@@ -1925,8 +1996,64 @@ class CADCanvas(QGraphicsView):
                                 self.scene.removeItem(self.temp_item); self.temp_item = None
                          else:
                              self.scene.removeItem(self.temp_item); self.temp_item = None
-
         super().keyPressEvent(event)
+
+    def _get_best_entity_under_cursor(self, scene_pos, mode='geometry', aperture=10.0):
+        """Busca a melhor entidade DXF ou interativa sob o cursor para picking"""
+        # 1. Tentar primeiro por Itens Reais na Cena (Mais preciso para textos da interface)
+        view_scale = self.transform().m11()
+        search_aperture = 20 / (view_scale if view_scale > 0 else 1)
+        rect = QRectF(scene_pos.x() - search_aperture/2, scene_pos.y() - search_aperture/2, search_aperture, search_aperture)
+        items = self.scene.items(rect)
+        
+        for i in items:
+            if mode == 'text' and isinstance(i, QGraphicsSimpleTextItem):
+                return {'text': i.text(), 'type': 'text', 'pos': (i.pos().x(), i.pos().y())}
+            if mode == 'geometry':
+                if isinstance(i, (PillarGraphicsItem, SlabGraphicsItem)):
+                     return {'text': i.item_data.get('name', 'Item'), 'type': 'geometry', 'id': i.item_data.get('id')}
+                if isinstance(i, DXFLineItem):
+                     p1 = (i.line().p1().x(), i.line().p1().y())
+                     p2 = (i.line().p2().x(), i.line().p2().y())
+                     return {'text': f"{i.line().length():.1f}", 'type': 'line', 'points': [p1, p2]}
+
+        # 2. Tentar por Proximidade nos Meta-Dados DXF (Fallback)
+        best_ent = None
+        min_dist = aperture
+        
+        for ent in self.dxf_entities:
+            dist = 9999.0
+            if mode == 'text':
+                if 'text' in ent:
+                    p = ent['pos']
+                    dist = ((p[0]-scene_pos.x())**2 + (p[1]-scene_pos.y())**2)**0.5
+            else: # geometry / all
+                if 'points' in ent:
+                    for p in ent['points']:
+                        d = ((p[0]-scene_pos.x())**2 + (p[1]-scene_pos.y())**2)**0.5
+                        if d < dist: dist = d
+                elif 'pos' in ent and 'text' in ent:
+                    p = ent['pos']
+                    dist = ((p[0]-scene_pos.x())**2 + (p[1]-scene_pos.y())**2)**0.5
+                elif 'radius' in ent and ('pos' in ent or 'center' in ent):
+                    p = ent.get('pos', ent.get('center'))
+                    d_center = ((p[0]-scene_pos.x())**2 + (p[1]-scene_pos.y())**2)**0.5
+                    dist = abs(d_center - ent['radius'])
+
+            if dist < min_dist:
+                min_dist = dist
+                best_ent = ent
+
+        if best_ent:
+            return {
+                'type': best_ent.get('type', 'geometry'),
+                'text': best_ent.get('text', 'Entidade CAD'),
+                'pos': best_ent.get('pos', best_ent.get('center')),
+                'points': best_ent.get('points'),
+                'radius': best_ent.get('radius')
+            }
+        return None
+
     def wheelEvent(self, event):
         """Zoom in/out com scroll do mouse"""
         zoom_in_factor = 1.15
