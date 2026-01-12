@@ -2,6 +2,7 @@ from PySide6.QtWidgets import (QVBoxLayout, QHBoxLayout, QListWidget,
                                  QListWidgetItem, QPushButton, QLabel, QFrame, QTextEdit, 
                                  QScrollArea, QWidget, QLineEdit, QMessageBox)
 from PySide6.QtCore import Qt, Signal
+from src.ui.widgets.interpretation_dialog import InterpretationDialog
 
 class LinkManager(QWidget):
     """
@@ -14,6 +15,7 @@ class LinkManager(QWidget):
     research_requested = Signal(str)  # slot_id
     training_requested = Signal(dict) # {slot, link, comment, status}
     config_changed = Signal(str, list) # field_key, updated_slots_config
+    metadata_changed = Signal(str, str, dict) # slot_id, type="interpretation", data={prompt, patterns}
 
     SLOT_CONFIG = {
         '_l1_n': [
@@ -75,7 +77,8 @@ class LinkManager(QWidget):
              {'id': 'geometry', 'name': 'Geometria do Apoio', 'type': 'poly', 'prompt': 'Desenhe os segmentos do apoio. [Enter] para finalizar.', 'help': 'Referência visual/geométrica do objeto de apoio.'}
         ],
         '_laje_geom': [
-             {'id': 'contour', 'name': 'Contorno Laje', 'type': 'poly', 'prompt': 'Desenhe o perímetro da laje. [Enter] para finalizar.', 'help': 'Geometria da área da laje.'}
+             {'id': 'contour', 'name': 'Contorno Laje', 'type': 'poly', 'prompt': 'Desenhe o perímetro da laje. [Enter] para finalizar.', 'help': 'Geometria da área da laje.', 'patterns': 'Polilinha Fechada (LWPOLYLINE)\nLayer: ARQ_LAJE, CONCRETO\nDeve estar fechada.'},
+             {'id': 'acrescimo_borda', 'name': 'ACRESCIMO DE 10 CM POR ESTAR NO BORDE DA OBRA', 'type': 'poly', 'prompt': 'Desenhe o acréscimo de 10cm na direção do borde. [Enter] para finalizar.', 'help': 'Desenho extra de 10cm na direção do borde se a laje tocar o borde.', 'patterns': 'Linha ou Polilinha\nExtensão de exatos 10cm na direção externa.'}
         ],
         '_laje_complex': [
              {'id': 'label', 'name': '1. Nome da Laje', 'type': 'text', 'prompt': 'Busque o texto identificador (Ex: L1).', 'help': 'Identificador da laje.'},
@@ -83,11 +86,12 @@ class LinkManager(QWidget):
              {'id': 'cut_view', 'name': '3. Visão de Corte', 'type': 'poly', 'prompt': 'Desenhe a linha de corte/T sobre a viga. [Enter] para finalizar.', 'help': 'Referência visual da posição da laje.'}
         ],
         '_laje_dim': [
-             {'id': 'label', 'name': 'Vínculo de Texto (Dimensão)', 'type': 'text', 'prompt': 'Busque o texto de dimensão (Ex: H=12).', 'help': 'Texto identificador da espessura/dimensão da laje.'}
+             {'id': 'label', 'name': 'Vínculo de Texto (Dimensão)', 'type': 'text', 'prompt': 'Busque o texto de dimensão (Ex: H=12).', 'help': 'Texto identificador da espessura/dimensão da laje.', 'patterns': 'REGEX: [HhDd][= :]?\\d+\nExemplos: H=12, d=10, h=15\nLayer: ARQ_TXT_LAJE'}
         ],
         '_laje_level': [
-             {'id': 'label', 'name': 'Vínculo Texto (Nível)', 'type': 'text', 'prompt': 'Busque o texto de nível da laje (Ex: +2.80).', 'help': 'Cota de nível da laje.'},
-             {'id': 'cut_view', 'name': 'Visão de Corte (Geometria)', 'type': 'poly', 'prompt': 'Desenhe a referência de visão de corte da viga que contorna a laje. [Enter] para finalizar.', 'help': 'Referência geométrica de viga para definir o nível.'}
+             {'id': 'label', 'name': 'Vínculo Texto (Nível)', 'type': 'text', 'prompt': 'Busque o texto de nível da laje (Ex: +2.80).', 'help': 'Cota de nível da laje.', 'patterns': 'REGEX: [+-]?\\d+\\.\\d+|[+-]?\\d+\nExemplos: +2.80, 280, N+2.80\nPrioridade: Texto próximo ao centro.'},
+             {'id': 'cut_view_geom', 'name': 'Visão de Corte (Geometria)', 'type': 'poly', 'prompt': 'Desenhe a referência de visão de corte da viga que contorna a laje. [Enter] para finalizar.', 'help': 'Referência geométrica de viga para definir o nível.'},
+             {'id': 'cut_view_text', 'name': 'Visao corte texto', 'type': 'text', 'prompt': 'Busque textos de visão de corte.', 'help': 'Vínculo de texto normal, similar ao nível.', 'patterns': 'Texto indicando corte ou vista.'}
         ],
         '_height_complex': [
              {'id': 'dim', 'name': '1. Dimensão (Valor)', 'type': 'text', 'prompt': 'Busque o texto de altura.', 'help': 'Define o valor da altura.'},
@@ -145,6 +149,7 @@ class LinkManager(QWidget):
         self.field_id = field_id
         # links agora é um dicionário: {slot_id: [links...]}
         self.links = current_links if isinstance(current_links, dict) else {}
+        self.metadata_cache = {}
         self.init_ui()
 
     def _get_slots(self, field_id):
@@ -350,6 +355,19 @@ class LinkManager(QWidget):
             st_lbl = QLabel(slot['name'].upper())
             st_lbl.setProperty("class", "SlotTitle")
             header_layout.addWidget(st_lbl, 1)
+            
+            # Botão Interpretação (Nível de Classe/Slot)
+            btn_interp = QPushButton("📝")
+            btn_interp.setFixedSize(24, 20)
+            btn_interp.setCursor(Qt.PointingHandCursor)
+            btn_interp.setToolTip(f"Detalhamento e Padrões para {slot['name']}")
+            btn_interp.setStyleSheet("""
+                QPushButton { background: transparent; color: #b388ff; border: 1px solid #444; border-radius: 4px; }
+                QPushButton:hover { background: #b388ff; color: white; border: 1px solid #b388ff; }
+            """)
+            btn_interp.clicked.connect(lambda checked=False, s_id=slot_id, s_name=slot['name']: self._open_slot_interpretation(s_id, s_name))
+            header_layout.addWidget(btn_interp)
+
             sf_layout.addLayout(header_layout)
 
             # Lista de Vínculos
@@ -450,6 +468,45 @@ class LinkManager(QWidget):
             if link in self.links[slot_id]:
                 self.links[slot_id].remove(link)
                 self.refresh_list()
+
+    def _open_slot_interpretation(self, slot_id, slot_name):
+        """Abre o diálogo de interpretação para uma CLASSE DE VÍNCULO (Slot) específica"""
+        
+        current_meta = self.metadata_cache.get(slot_id, {})
+        
+        # Fallback to default config if meta is empty
+        default_prompt = ""
+        default_patterns = ""
+        
+        # Encontra a configuração deste slot para pegar os defaults
+        slots = self._get_slots(self.field_id)
+        if slots:
+            for s in slots:
+                if s['id'] == slot_id:
+                    default_prompt = s.get('prompt', "")
+                    default_patterns = s.get('patterns', "")
+                    break
+        
+        current_prompt = current_meta.get('prompt', default_prompt)
+        current_patterns = current_meta.get('patterns', default_patterns)
+        
+        dlg = InterpretationDialog(self, field_label=f"{slot_name} ({slot_id})", 
+                                   current_prompt=current_prompt, 
+                                   current_patterns=current_patterns)
+        
+        if dlg.exec():
+            new_prompt, new_patterns = dlg.get_data()
+            
+            # Atualiza cache local
+            if slot_id not in self.metadata_cache: self.metadata_cache[slot_id] = {}
+            self.metadata_cache[slot_id]['prompt'] = new_prompt
+            self.metadata_cache[slot_id]['patterns'] = new_patterns
+            
+            # Avisa quem coordena (DetailCard) para salvar no JSON do item
+            self.metadata_changed.emit(slot_id, "interpretation", {
+                'prompt': new_prompt,
+                'patterns': new_patterns
+            })
 
     def _save_slot_definition(self, slot, name, prompt, help_text):
         # Simplificado para o modo embedded

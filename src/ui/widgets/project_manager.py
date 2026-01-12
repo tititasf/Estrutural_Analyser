@@ -262,6 +262,34 @@ class ProjectManager(QWidget):
         if not fname:
             return
 
+        # --- INTERNAL REPO LOGIC ---
+        # Garantir que o projeto seja copiado para o repositório interno
+        import shutil
+        repo_dir = os.path.join(os.getcwd(), 'projects_repo')
+        if not os.path.exists(repo_dir):
+            try:
+                os.makedirs(repo_dir)
+            except OSError as e:
+                QMessageBox.critical(self, "Erro", f"Falha ao criar diretório de projetos: {e}")
+                return
+
+        base_name = os.path.basename(fname)
+        target_path = os.path.join(repo_dir, base_name)
+        
+        # Se arquivo já existe, gerar nome único para evitar conflitos silenciosos
+        if os.path.exists(target_path):
+            name, ext = os.path.splitext(base_name)
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            target_path = os.path.join(repo_dir, f"{name}_{timestamp}{ext}")
+
+        try:
+            shutil.copy2(fname, target_path)
+            fname = target_path # Atualiza fname para usar o caminho interno
+        except Exception as e:
+            QMessageBox.critical(self, "Erro", f"Erro ao copiar DXF para o sistema: {e}")
+            return
+        # ---------------------------
+
         # 2. Name Project
         project_name = os.path.splitext(os.path.basename(fname))[0]
         

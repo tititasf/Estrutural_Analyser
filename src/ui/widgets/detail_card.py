@@ -7,6 +7,7 @@ from PySide6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel,
                                 QRadioButton, QCheckBox, QButtonGroup, QGridLayout)
 from PySide6.QtCore import Qt, Signal
 from .link_manager import LinkManager
+from src.ui.widgets.interpretation_dialog import InterpretationDialog
 
 class DetailCard(QWidget):
     """
@@ -284,7 +285,31 @@ class DetailCard(QWidget):
         lm.training_requested.connect(lambda t_data: self.training_requested.emit(field_id, t_data))
         lm.config_changed.connect(lambda k, v: self.config_updated.emit(k, v))
         
+        # --- NOVO: Conectar mudança de metadados de interpretação ---
+        lm.metadata_changed.connect(lambda s_id, t_type, d: self._on_metadata_changed(field_id, s_id, t_type, d))
+        
+        # Injetar metadados existentes para carregar o cache do LM
+        if 'field_metadata' in self.item_data:
+            # Estrutura esperada: item_data['field_metadata'][field_id][slot_id] = {prompt, patterns}
+            field_meta = self.item_data['field_metadata'].get(field_id, {})
+            lm.metadata_cache = field_meta.copy() # Copia simples
+        
         container.layout().addWidget(lm)
+
+    def _on_metadata_changed(self, field_id, slot_id, meta_type, data):
+        """Salva metadados vindos do LinkManager (nível de Slot)"""
+        if 'field_metadata' not in self.item_data:
+            self.item_data['field_metadata'] = {}
+            
+        if field_id not in self.item_data['field_metadata']:
+            self.item_data['field_metadata'][field_id] = {}
+            
+        # Salva especificamente para o slot
+        self.item_data['field_metadata'][field_id][slot_id] = data
+        
+        # Opcional: print debug
+        print(f"[DetailCard] Metadados de {meta_type} atualizados para {field_id} -> {slot_id}")
+        self.data_changed.emit(self.item_data)
 
     def _on_manager_pick_requested(self, field_id, slot_req):
         """Disparado quando um slot específico pede captura no canvas"""
@@ -408,6 +433,9 @@ class DetailCard(QWidget):
         # Marca e atualiza visual
         self.mark_field_validated(field_id, True)
         
+        if self.embedded_managers.get(field_id):
+            return
+
     def _add_pilar_opening_group(self, form_layout, label_text, prefix):
         """Creates a specialized grouped row for Pillar Openings (Clean List)"""
         # Outer container for the group
@@ -598,7 +626,7 @@ class DetailCard(QWidget):
             # --- Bloquear/Desbloquear Botões de Ação ---
             btns = self.action_btns.get(fid, {})
             if btns:
-                # Se for N/A, bloqueia Link, Focus e Express
+                # Se for N/A, bloqueia Link, Focus, Express e Interp
                 for bkey in ['link', 'focus', 'express']:
                     b = btns.get(bkey)
                     if b: b.setEnabled(not is_na)
