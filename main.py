@@ -2576,7 +2576,6 @@ class MainWindow(QMainWindow):
 
         # Log de sanidade nos links
         all_links = item_data.get('links', {})
-        print(f"[DEBUG_CANVAS] Sincronizando {item_id}. Chaves em links: {list(all_links.keys())}")
         
         # Log detalhado para depuração
         links_count = 0
@@ -2609,7 +2608,8 @@ class MainWindow(QMainWindow):
             # AJUSTE 1 & 3: Atualiza também a visão global (persistente)
             self.canvas.draw_item_links(item_data, destination='slab', clear=False)
         # AJUSTE: Forçar atualização visual do viewport e da cena do canvas
-        self.canvas.scene().update()
+        if self.canvas.scene:
+            self.canvas.scene.update()
         self.canvas.viewport().update()
         self.canvas.update()
         

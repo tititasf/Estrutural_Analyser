@@ -574,7 +574,6 @@ class DetailCard(QWidget):
 
     def refresh_validation_styles(self):
         """Varre campos e aplica borda verde nos validados e atualiza contadores de vínculos"""
-        print(f"[DEBUG_UI] refresh_validation_styles - Campos: {list(self.fields.keys())}")
         validated_fields = self.item_data.get('validated_fields', [])
         for fid, w in self.fields.items():
             # Skip QButtonGroup (logical container, not visual)
