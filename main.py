@@ -317,10 +317,18 @@ class MainWindow(QMainWindow):
         self.list_issues = QListWidget()
         
         # Conectar Sinais (Atual)
+        # Conectar Sinais (Atual) - Mouse e Teclado (Setinhas)
         self.list_pillars.itemClicked.connect(self.on_list_pillar_clicked)
+        self.list_pillars.currentItemChanged.connect(lambda curr, prev: self.on_list_pillar_clicked(curr) if curr else None)
+        
         self.list_beams.itemClicked.connect(self.on_list_beam_clicked)
+        self.list_beams.currentItemChanged.connect(lambda curr, prev: self.on_list_beam_clicked(curr, 0) if curr else None)
+        
         self.list_slabs.itemClicked.connect(self.on_list_slab_clicked)
+        self.list_slabs.currentItemChanged.connect(lambda curr, prev: self.on_list_slab_clicked(curr) if curr else None)
+        
         self.list_issues.itemClicked.connect(self.on_issue_clicked)
+        self.list_issues.currentItemChanged.connect(lambda curr, prev: self.on_issue_clicked(curr) if curr else None)
         
         # Adicionar Abas com Containers
         self.tabs_analysis_internal.addTab(create_tab_container(self.list_pillars, 'pillar', False), "Pilares")
@@ -349,9 +357,15 @@ class MainWindow(QMainWindow):
         self.list_slabs_valid = QListWidget()
         
         # Conectar Sinais (Validado)
+        # Conectar Sinais (Validado) - Mouse e Teclado
         self.list_pillars_valid.itemClicked.connect(self.on_list_pillar_clicked)
+        self.list_pillars_valid.currentItemChanged.connect(lambda curr, prev: self.on_list_pillar_clicked(curr) if curr else None)
+        
         self.list_beams_valid.itemClicked.connect(self.on_list_beam_clicked)
+        self.list_beams_valid.currentItemChanged.connect(lambda curr, prev: self.on_list_beam_clicked(curr, 0) if curr else None)
+        
         self.list_slabs_valid.itemClicked.connect(self.on_list_slab_clicked)
+        self.list_slabs_valid.currentItemChanged.connect(lambda curr, prev: self.on_list_slab_clicked(curr) if curr else None)
         
         # Adicionar Abas com Containers
         self.tabs_library_internal.addTab(create_tab_container(self.list_pillars_valid, 'pillar', True), "Pilares OK")
@@ -3052,12 +3066,21 @@ class MainWindow(QMainWindow):
             self.log("📭 Nenhum evento de treino pendente.")
             return
 
-        self.log(f"🧠 Sincronizando {len(events)} eventos com a memória...")
+        total = len(events)
+        self.log(f"🧠 Sincronizando {total} eventos com a memória...")
+        self.show_progress(f"Sincronizando Inteligência ({total})...", 0)
         
         count = 0
         import json
-        for ev in events:
+        from PySide6.QtWidgets import QApplication
+        
+        for i, ev in enumerate(events):
             try:
+                # Update UI a cada iteração (ou a cada X para performance, mas aqui queremos feedback real-time)
+                pct = int((i / total) * 100)
+                self.update_progress(pct, f"Processando evento {i+1}/{total}...")
+                QApplication.processEvents()
+
                 # Decodificar contexto (DNA + RelPos)
                 ctx = json.loads(ev['context_dna_json'])
                 
@@ -3085,6 +3108,7 @@ class MainWindow(QMainWindow):
             except Exception as e:
                 print(f"Erro sync evento {ev['id']}: {e}")
             
+        self.hide_progress()
         self.log(f"✅ Sincronização concluída! {count} exemplos convertidos em vetores.")
 
     def delete_item_action(self, list_widget, item_type: str, is_library: bool):

@@ -717,9 +717,11 @@ class CADCanvas(QGraphicsView):
                 ymin, ymax = ys[idx_low], ys[idx_high]
                 rect = QRectF(xmin, ymin, xmax - xmin, ymax - ymin)
                 
-                margin = (xmax - xmin) * 0.1 # 10% margem
+                # UX: Adicionar 2000 unidades de respiro em todas as direções para melhor navegação
+                margin = 2000.0
                 rect = rect.adjusted(-margin, -margin, margin, margin)
                 
+                self.setSceneRect(rect) # Garante que o scroll considere essa área
                 self.fitInView(rect, Qt.KeepAspectRatio)
             else:
                 self.fitInView(self.scene.itemsBoundingRect(), Qt.KeepAspectRatio)
@@ -1431,7 +1433,7 @@ class CADCanvas(QGraphicsView):
             # Hide all markers
             for m in self.snap_markers.values(): m.hide()
 
-    def get_snap(self, pos, threshold=3):
+    def get_snap(self, pos, threshold=1.2):
         """Retorna o dado de snap mais próximo {pos, type} ou None"""
         best_snap = None
         min_dist = threshold
