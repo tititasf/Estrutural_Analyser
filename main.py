@@ -58,6 +58,9 @@ class MainWindow(QMainWindow):
         self.current_project_name = "Sem Projeto"
         self.current_dxf_path = None
 
+        # Helper Engines
+        self.slab_tracer = SlabTracer(self.spatial_index)
+
         # Carregar Estilo
         self.load_stylesheet()
         
@@ -1206,7 +1209,9 @@ class MainWindow(QMainWindow):
         learned_contour_radius = 2000.0 # Default
         learned_text_radius = 200.0 # Default
         
+        
         has_validated = False
+        search_layers = None
         
         if preserved_slabs:
             potential_layers = []
@@ -1259,6 +1264,7 @@ class MainWindow(QMainWindow):
                             dist = (dx**2 + dy**2)**0.5
                             if dist > max_text_dist: max_text_dist = dist
 
+            search_layers = None
             if potential_layers:
                 from collections import Counter
                 common = Counter(potential_layers).most_common(5)
@@ -1582,6 +1588,38 @@ class MainWindow(QMainWindow):
         self.pillars_found = self.db.load_pillars(self.current_project_id) or []
         self.slabs_found = self.db.load_slabs(self.current_project_id) or []
         self.beams_found = self.db.load_beams(self.current_project_id) or []
+
+        # --- NOVA LÓGICA: Garantir geraçao de extensões de laje se ausentes (Retrocompatibilidade) ---
+        if self.slabs_found:
+            self.log("🔍 Verificando geometria de borda das lajes...")
+            from shapely.geometry import Polygon
+            count_ext_gen = 0
+            for s in self.slabs_found:
+                # Se não tiver extensions no dict raiz OU se o link estiver vazio
+                has_ext_link = False
+                if 'links' in s and 'laje_outline_segs' in s['links']:
+                    if s['links']['laje_outline_segs'].get('acrescimo_borda'):
+                        has_ext_link = True
+                
+                # Se não tem, gera!
+                if not has_ext_link and 'points' in s and s['points']:
+                    try:
+                        poly = Polygon(s['points'])
+                        extensions = self.slab_tracer.detect_extensions(poly)
+                        if extensions:
+                            s['extensions'] = extensions # Guarda no root para salvar depois se quiser
+                            # Injeta no Link
+                            if 'links' not in s: s['links'] = {}
+                            if 'laje_outline_segs' not in s['links']: 
+                                s['links']['laje_outline_segs'] = {'contour': [], 'acrescimo_borda': []}
+                            
+                            s['links']['laje_outline_segs']['acrescimo_borda'] = extensions
+                            count_ext_gen += 1
+                    except Exception as e:
+                        print(f"Erro gerando extensão laje {s.get('name')}: {e}")
+            
+            if count_ext_gen > 0:
+                self.log(f"✨ Extensões geradas para {count_ext_gen} lajes.")
 
         # Ordenar (Funções auxiliares internas)
         import re
@@ -2465,6 +2503,11 @@ class MainWindow(QMainWindow):
                 'role': 'Contorno Automático'
             }
             s['links']['laje_outline_segs']['contour'].append(poly_link)
+        
+        # 4. ACRÉSCIMO DE BORDA (Nova Inteligência)
+        if 'extensions' in s and s['extensions']:
+            for ext in s['extensions']:
+                s['links']['laje_outline_segs']['acrescimo_borda'].append(ext)
 
     def _populate_beam_tree(self, tree_widget, beam_list):
         tree_widget.clear()
