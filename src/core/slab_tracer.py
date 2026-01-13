@@ -187,68 +187,63 @@ class SlabTracer:
 
         generated_extensions = []
         
-        # Iterar arestas
         coords = list(main_poly.exterior.coords)
         if len(coords) < 2: return []
         
-        # Limiar de bloqueio (se bater em algo a menso de X, é interno)
-        # Se bater em algo longe (> 5m), consideramos 'vazio' suficiente para borda?
-        # User disse "se não cruzar nada". Aumentando para 10m para evitar internos.
-        BLOCK_DIST_THRESHOLD = 1000.0 # 10 metros
+        # Remove duplicate last point for indexing ease (LinearRing logic)
+        if coords[0] == coords[-1]:
+            coords = coords[:-1]
+        
+        num_pts = len(coords)
+        if num_pts < 3: return []
+
+        # Parameters
+        BLOCK_DIST_THRESHOLD = 1000.0 # 10m
         EXTENSION_WIDTH = 10.0
         
-        for i in range(len(coords)-1):
+        # 1. Classification Phase
+        # ---------------------
+        edge_status = [] # True=Free, False=Blocked
+        
+        for i in range(num_pts):
             p1 = coords[i]
-            p2 = coords[i+1]
+            p2 = coords[(i+1)%num_pts] # Wrap around
+            
+            # Geometry Check
             edge = LineString([p1, p2])
-            
-            if edge.length < 5.0: continue # Ignorar arestas muito curtas
-            
-            # Calcular Normal Outwards
+            if edge.length < 1.0: 
+                edge_status.append(False) # Too short, ignore/block
+                continue
+                
+            # --- Ray Cast Logic (Reuse V4) ---
             dx = p2[0] - p1[0]
             dy = p2[1] - p1[1]
             length = (dx*dx + dy*dy)**0.5
-            if length == 0: continue
-            
             nx, ny = -dy/length, dx/length
             
-            # Verificar se normal aponta pra fora
+            # Ensure Normal is Outward
             mid = edge.interpolate(0.5, normalized=True)
             check_pt = (mid.x + nx*0.1, mid.y + ny*0.1)
             if main_poly.contains(Point(check_pt)):
-                nx, ny = -nx, -ny # Inverter
+                nx, ny = -nx, -ny
             
-            # Classificar Lado
-            angle_deg = math.degrees(math.atan2(ny, nx)) % 360
-            if 45 <= angle_deg < 135: side = "Norte"
-            elif 135 <= angle_deg < 225: side = "Oeste"
-            elif 225 <= angle_deg < 315: side = "Sul"
-            else: side = "Leste"
-            
-            # Ray Cast (Fan Scan: -10, 0, +10)
+            # Fan Scan
             angles = [0, -10, 10]
             is_blocked = False
-            
-            shortest_hit = float('inf')
-            
-            print(f"[DEBUG] Edge {side} (L={length:.1f}): Checking emptiness...")
             
             for ang in angles:
                 rad = math.radians(ang)
                 rnx = nx * math.cos(rad) - ny * math.sin(rad)
                 rny = nx * math.sin(rad) + ny * math.cos(rad)
                 
-                ray_len = 5000.0 # 50m
-                r_start = (mid.x + rnx*1.0, mid.y + rny*1.0) # Start 1cm away
-                r_end = (r_start[0] + rnx*ray_len, r_start[1] + rny*ray_len)
+                r_start = (mid.x + rnx*1.0, mid.y + rny*1.0)
+                r_end = (r_start[0] + rnx*5000.0, r_start[1] + rny*5000.0)
                 ray_geom = LineString([r_start, r_end])
                 
                 hits = self.spatial_index.query_bbox(ray_geom.bounds)
                 
-                ray_blocked_locally = False
                 for h in hits:
                     h_geom = None
-                    # Simplificado: só geometria serve
                     if isinstance(h, dict):
                         if 'points' in h: h_geom = LineString(h['points'])
                         elif 'start' in h: h_geom = LineString([h['start'], h['end']])
@@ -257,42 +252,122 @@ class SlabTracer:
                     if not h_geom: continue
                     if not ray_geom.intersects(h_geom): continue
                     
-                    # Distancia do hit
-                    dist = Point(r_start).distance(h_geom)
-                    if dist < BLOCK_DIST_THRESHOLD:
-                        ray_blocked_locally = True
-                        shortest_hit = min(shortest_hit, dist)
-                        # print(f"[DEBUG]   Blocked by obstacle at {dist:.1f}")
+                    if Point(r_start).distance(h_geom) < BLOCK_DIST_THRESHOLD:
+                        is_blocked = True
                         break
+                if is_blocked: break
+            
+            edge_status.append(not is_blocked)
+            
+        # 2. Chaining Phase
+        # -----------------
+        # Find continuous sequences of True
+        chains = []
+        if not edge_status: return []
+        
+        # Rotate logic to handle wrap-around easily
+        # Ensure we don't start in the middle of a True chain
+        start_idx = 0
+        if all(edge_status):
+            # Special Case: All Free (Island)
+            chains.append(list(range(num_pts)) + [0]) # Full Loop
+        else:
+            # Shift start_idx to a False (Blocked) to ensure Chain starts cleanly
+            if edge_status[0]:
+                for k in range(num_pts):
+                    if not edge_status[k]:
+                        start_idx = (k + 1) % num_pts
+                        break
+            
+            current_chain = []
+            for k in range(num_pts):
+                idx = (start_idx + k) % num_pts
+                if edge_status[idx]:
+                    if not current_chain:
+                        current_chain.append(idx)
+                    current_chain.append((idx + 1) % num_pts)
+                else:
+                    if current_chain:
+                        chains.append(current_chain)
+                        current_chain = []
+            
+            # Append last chain if exists
+            if current_chain:
+                chains.append(current_chain)
+
+        # 3. Generation Phase (Offset)
+        # ----------------------------
+        for chain_indices in chains:
+            # Extract geometry points
+            pts = [coords[i] for i in chain_indices]
+            if len(pts) < 2: continue
+            
+            line = LineString(pts)
+            
+            # Determining Side for Offset
+            # Shapely's offset_curve:
+            # Positive distance = Left side
+            # Negative distance = Right side
+            # If Polygon is CCW, Outwards is RIGHT (-distance)
+            # We need to verify basic winding or just try.
+            # Usually LinearRing is CCW. So we try -EXTENSION_WIDTH.
+            
+            try:
+                # Try Negative Offset (Right/Outwards for CCW)
+                offset_dist = -EXTENSION_WIDTH
+                offset_line = line.offset_curve(offset_dist, join_style=2) # 2=Mitre
                 
-                if ray_blocked_locally:
-                    is_blocked = True
-                    break # Se um raio bloqueou, a aresta é interna? 
-                          # Ou se TODOS bloquearem? 
-                          # Se tiver parede colada, é interno. Um raio basta pra detectar parede.
-            
-            if is_blocked:
-                print(f"[DEBUG]   Edge BLOCKED (Obstacle at {shortest_hit:.1f}). Internal.")
+                # Validation: Check if offset is actually outside
+                # Take midpoint of offset line
+                test_pt = offset_line.interpolate(0.5, normalized=True)
+                if main_poly.contains(test_pt) or main_poly.distance(test_pt) < 1.0:
+                    # Oops, it went inside. Flip sign.
+                    # This handles CW polygons too.
+                    offset_dist = EXTENSION_WIDTH
+                    offset_line = line.offset_curve(offset_dist, join_style=2)
+                
+                # Construct Polygon
+                # Pts -> ... -> OffsetPts(Reversed) -> Pts[0]
+                
+                # Careful with OffsetCurve output, it might be MultiLineString if complex, 
+                # but for simple chains it should be LineString.
+                if hasattr(offset_line, 'geoms'): # MultiLineString
+                     # Fallback to simple segment processing? 
+                     # Or pick longest? Usually happens if self-intersecting.
+                     # Simplified approach: skip complex stuff or take largest
+                     continue
+                
+                off_coords = list(offset_line.coords)
+                
+                # Ring Construction:
+                # Original Line (A->B->C) + Offset Line Reversed (C'->B'->A') + Close
+                if offset_dist > 0:
+                   # If Positive (Left), offset runs A->B direction? No, offset direction usually matches index.
+                   # Let's trust coords order and reverse one of them to form loop.
+                   pass
+                
+                # Standard Loop: Pts + Reversed(Offset)
+                # Note: offset_curve usually returns points usually in same direction as input
+                final_loop = pts + off_coords[::-1] + [pts[0]]
+                
+                ext_poly = Polygon(final_loop)
+                
+                # Fix self-intersections if any (buffer 0)
+                if not ext_poly.is_valid:
+                    ext_poly = ext_poly.buffer(0)
+
+                generated_extensions.append({
+                    'type': 'poly',
+                    'points': list(ext_poly.exterior.coords),
+                    'role': 'Acrescimo_borda',
+                    'width_est': EXTENSION_WIDTH,
+                    'side': 'Composite' # Generic side
+                })
+                
+            except Exception as e:
+                print(f"[ERROR] Failed to generate offset for chain: {e}")
                 continue
-            
-            # Se chegou aqui, é EXTERNA (Vazio). Gerar Extensão.
-            print(f"[DEBUG]   Edge FREE. Generating Extension width={EXTENSION_WIDTH}")
-            
-            # Criar geometria do acréscimo (Retângulo projetado)
-            # p1 -> p2 -> p2_out -> p1_out -> p1
-            p1_out = (p1[0] + nx*EXTENSION_WIDTH, p1[1] + ny*EXTENSION_WIDTH)
-            p2_out = (p2[0] + nx*EXTENSION_WIDTH, p2[1] + ny*EXTENSION_WIDTH)
-            
-            ext_poly = Polygon([p1, p2, p2_out, p1_out, p1])
-            
-            generated_extensions.append({
-                'type': 'poly',
-                'points': list(ext_poly.exterior.coords),
-                'role': 'Acrescimo_borda',
-                'width_est': EXTENSION_WIDTH,
-                'side': side
-            })
-            
+
         return generated_extensions
 
 
