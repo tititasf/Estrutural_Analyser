@@ -7,7 +7,7 @@ from PySide6.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout,
                                QHBoxLayout, QPushButton, QFileDialog, QDockWidget, 
                                QTextEdit, QLabel, QStackedWidget, QListWidget,
                                QListWidgetItem, QTabWidget, QSplitter, QLineEdit, QProgressBar,
-                               QTreeWidget, QTreeWidgetItem, QMessageBox, QMenu)
+                               QTreeWidget, QTreeWidgetItem, QMessageBox, QMenu, QScrollArea, QFrame)
 from PySide6.QtGui import QColor
 from PySide6.QtCore import Qt, QSize
 from src.ui.canvas import CADCanvas
@@ -425,11 +425,20 @@ class MainWindow(QMainWindow):
         self.right_panel.addWidget(placeholder)
         
         # Pagina 1: Content
+        self.detail_scroll = QScrollArea()
+        self.detail_scroll.setWidgetResizable(True)
+        self.detail_scroll.setFrameShape(QFrame.NoFrame)
+        self.detail_scroll.setStyleSheet("background: transparent; border: none;") # Ensure it blends in
+
         self.detail_container = QWidget()
         self.detail_layout = QVBoxLayout(self.detail_container)
         self.detail_layout.setContentsMargins(0,0,0,0)
+        # Add stretch to push content up if it's small
+        # self.detail_layout.addStretch() 
+        
+        self.detail_scroll.setWidget(self.detail_container)
+        self.right_panel.addWidget(self.detail_scroll)
         self.current_card = None
-        self.right_panel.addWidget(self.detail_container)
         
         self.splitter.addWidget(self.right_panel)
         
@@ -2863,6 +2872,12 @@ class MainWindow(QMainWindow):
         # Se o data_changed já foi emitido, não precisamos chamar on_detail_data_changed de novo
         # Mas vamos garantir que o LOG apareça para sabermos que a remoção foi processada.
         self.log("🗑️ Vínculo removido. Canvas atualizado via sinal de dados.")
+        
+        # 1. Remover destaque amarelo do item Pai (se houver)
+        self.canvas.highlight_item_yellow(None)
+        
+        # 2. Limpar visuais temporários de foco
+        self.canvas.clear_beams()
 
     def _sync_list_item_text(self, item_data):
         """Atualiza o texto da lista lateral sem reconstruir toda a UI"""

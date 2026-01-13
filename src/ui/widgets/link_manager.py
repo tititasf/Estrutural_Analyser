@@ -218,8 +218,8 @@ class LinkManager(QWidget):
 
     def init_ui(self):
         layout = QVBoxLayout(self)
-        layout.setContentsMargins(5, 5, 5, 5)
-        layout.setSpacing(10)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(0)
         
         self.setStyleSheet("""
             QWidget { 
@@ -228,8 +228,6 @@ class LinkManager(QWidget):
             }
             QLabel { color: #e0e0e0; font-family: 'Segoe UI', sans-serif; font-size: 12px; }
             .HeaderLabel { font-size: 14px; font-weight: bold; color: #00d4ff; margin-bottom: 5px; }
-            
-            QScrollArea { border: none; background: transparent; }
             
             /* SLOT CARD DESIGN */
             .SlotFrame { 
@@ -246,14 +244,6 @@ class LinkManager(QWidget):
                 background: transparent; 
                 border: none;
                 padding: 2px;
-            }
-            .SlotInput {
-                background: #252525;
-                color: #aaa;
-                border: 1px solid #333;
-                border-radius: 4px;
-                padding: 4px;
-                font-size: 10px;
             }
             
             /* LINK ITEM CARD DESIGN */
@@ -313,28 +303,28 @@ class LinkManager(QWidget):
             QPushButton.TrainFail:hover { background: #3a1b1b; border-color: #ff5252; }
         """)
 
-        # Área de Scroll para os Slots
-        scroll = QScrollArea()
-        scroll.setWidgetResizable(True)
-        container = QWidget()
-        scroll_layout = QVBoxLayout(container)
-        scroll_layout.setSpacing(10)
-        scroll_layout.setContentsMargins(2, 2, 2, 2)
+        # Container direto (Sem ScrollArea interna)
+        self.slots_container = QVBoxLayout()
+        self.slots_container.setSpacing(10)
+        self.slots_container.setContentsMargins(5, 5, 2, 2)
         
-        self.slots_container = scroll_layout
-        scroll.setWidget(container)
-        layout.addWidget(scroll, 1)
+        layout.addLayout(self.slots_container)
 
         self.refresh_list()
 
     def refresh_list(self):
         try:
-            if not self.slots_container: return
+            if self.slots_container is None: return
+            # Limpar layout (QVBoxLayout)
             while self.slots_container.count():
                 item = self.slots_container.takeAt(0)
-                if item.widget(): item.widget().deleteLater()
+                if item.widget(): 
+                    item.widget().deleteLater()
+                elif item.layout():
+                    # Se houver layouts aninhados, idealmente deletar widgets dentro
+                    pass
         except RuntimeError:
-            return # Objeto C++ já foi deletado
+            return
 
         slots = self._get_slots(self.field_id)
         
@@ -450,6 +440,8 @@ class LinkManager(QWidget):
             sf_layout.addWidget(btn_add)
 
             self.slots_container.addWidget(slot_frame)
+        
+        # self.slots_container.addStretch() # Opcional em VBox direto
         
         self.slots_container.addStretch()
 
