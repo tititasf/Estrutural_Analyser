@@ -159,3 +159,72 @@ QMenu::separator {
     background: #2a2a3e;
     margin: 5px 0;
 }
+
+/* --- UI OVERHAUL SPECIFIC --- */
+
+#TopBar {
+    background-color: #0c0c10;
+    border-bottom: 2px solid #2a2a3e;
+    min-height: 60px;
+}
+
+#TopBar QLabel {
+    color: #E0E0E0;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+#LogoLabel {
+    color: #00E5FF;
+    font-size: 18px;
+    font-weight: bold;
+    padding-left: 10px;
+}
+
+/* Module Navigation Tabs (Top Level) */
+QTabBar#ModuleNav::tab {
+    background-color: transparent;
+    color: #889;
+    padding: 10px 20px;
+    border: none;
+    border-bottom: 2px solid transparent;
+    font-size: 14px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+QTabBar#ModuleNav::tab:selected {
+    color: #00E5FF;
+    border-bottom: 2px solid #00E5FF;
+}
+
+QTabBar#ModuleNav::tab:hover {
+    color: #E0E0E0;
+}
+
+/* Comboboxes Modernos */
+QComboBox {
+    background-color: #16161e;
+    border: 1px solid #2a2a3e;
+    border-radius: 4px;
+    padding: 5px 10px;
+    color: #00E5FF;
+    font-weight: bold;
+    min-width: 150px;
+}
+
+QComboBox::drop-down {
+    subcontrol-origin: padding;
+    subcontrol-position: top right;
+    width: 25px;
+    border-left-width: 1px;
+    border-left-color: #2a2a3e;
+    border-left-style: solid;
+}
+
+QComboBox QAbstractItemView {
+    background-color: #16161e;
+    border: 1px solid #2a2a3e;
+    selection-background-color: #00E5FF;
+    selection-color: #050510;
+}

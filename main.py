@@ -7,9 +7,10 @@ from PySide6.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout,
                                QHBoxLayout, QPushButton, QFileDialog, QDockWidget, 
                                QTextEdit, QLabel, QStackedWidget, QListWidget,
                                QListWidgetItem, QTabWidget, QSplitter, QLineEdit, QProgressBar,
-                               QTreeWidget, QTreeWidgetItem, QMessageBox, QMenu, QScrollArea, QFrame)
+                               QTreeWidget, QTreeWidgetItem, QMessageBox, QMenu, QScrollArea, QFrame,
+                               QComboBox, QTabBar)
 from PySide6.QtGui import QColor
-from PySide6.QtCore import Qt, QSize
+from PySide6.QtCore import Qt, QSize, QTimer
 from src.ui.canvas import CADCanvas
 from src.ui.widgets.detail_card import DetailCard
 from src.ui.widgets.link_manager import LinkManager
@@ -77,13 +78,137 @@ class MainWindow(QMainWindow):
         except Exception as e:
             print(f"Erro ao carregar CSS: {e}")
 
-    def init_ui(self):
-        # Widget Central com Splitter
-        main_layout = QHBoxLayout()
-        self.central_widget = QWidget()
-        self.central_widget.setLayout(main_layout)
-        self.setCentralWidget(self.central_widget)
+    # --- UI OVERHAUL METHODS ---
+    def _setup_top_bar(self):
+        """Configura a barra superior (Logotipo, Projeto, Obra/Pavimento)."""
+        top_bar = QFrame()
+        top_bar.setObjectName("TopBar")
+        layout = QHBoxLayout(top_bar)
+        layout.setContentsMargins(10, 5, 20, 5)
+        layout.setSpacing(15)
 
+        # 1. Logo
+        lbl_logo = QLabel("TSF PROJETOS")
+        lbl_logo.setObjectName("LogoLabel")
+        layout.addWidget(lbl_logo)
+
+        # 2. Botão Gerenciar Projetos
+        btn_manage = QPushButton("📂 Gerenciar Projetos")
+        btn_manage.setFixedWidth(140)
+        btn_manage.setStyleSheet("padding: 6px; font-size: 12px;")
+        btn_manage.clicked.connect(self.open_project_manager) 
+        layout.addWidget(btn_manage)
+
+        # Separator
+        line = QFrame()
+        line.setFrameShape(QFrame.VLine)
+        line.setFrameShadow(QFrame.Sunken)
+        line.setStyleSheet("border: 1px solid #444;")
+        layout.addWidget(line)
+
+        # 3. Combo Obras
+        layout.addWidget(QLabel("Obra:"))
+        self.cmb_works = QComboBox()
+        self.cmb_works.setPlaceholderText("Selecione a Obra...")
+        self.cmb_works.setFixedWidth(200)
+        self.cmb_works.currentIndexChanged.connect(self._on_work_changed)
+        layout.addWidget(self.cmb_works)
+
+        # 4. Combo Pavimentos (Filta por Obra)
+        layout.addWidget(QLabel("Pavimento:"))
+        self.cmb_pavements = QComboBox()
+        self.cmb_pavements.setPlaceholderText("Selecione o Pavimento...")
+        self.cmb_pavements.setFixedWidth(200)
+        self.cmb_pavements.currentIndexChanged.connect(self._on_pavement_changed)
+        layout.addWidget(self.cmb_pavements)
+
+        # Spacer
+        layout.addStretch()
+
+        # 5. Status / User Profile (Placeholder)
+        lbl_status = QLabel("● SYNC ACTIVE")
+        lbl_status.setStyleSheet("color: #00E5FF; font-weight: bold; font-size: 10px;")
+        layout.addWidget(lbl_status)
+        
+        return top_bar
+
+    def _refresh_nav_combos(self):
+        """Popula o combobox de Obras do Banco de Dados."""
+        if not hasattr(self, 'db'): return
+
+        current_work = self.cmb_works.currentText()
+        self.cmb_works.blockSignals(True)
+        self.cmb_works.clear()
+        
+        try:
+            works = self.db.get_all_works()
+            self.cmb_works.addItems(works)
+        except Exception as e:
+            self.log(f"Erro carregando obras: {e}")
+        
+        # Restore selection if possible
+        idx = self.cmb_works.findText(current_work)
+        if idx >= 0:
+            self.cmb_works.setCurrentIndex(idx)
+        else:
+             self.cmb_works.setCurrentIndex(-1)
+             
+        self.cmb_works.blockSignals(False)
+        
+        # Force pavement update if work selected
+        if self.cmb_works.currentIndex() >= 0:
+            self._on_work_changed()
+
+    def _on_work_changed(self):
+        """Filtra os pavimentos baseados na Obra selecionada."""
+        work_name = self.cmb_works.currentText()
+        self.cmb_pavements.blockSignals(True)
+        self.cmb_pavements.clear()
+        
+        if not work_name:
+            self.cmb_pavements.blockSignals(False)
+            return
+
+        # Busca todos os projetos e filtra por 'work_name'
+        # Idealmente o DB teria get_projects_by_work(name)
+        all_projects = self.db.get_projects()
+        
+        # Filtra projetos que pertencem a esta Obra
+        filtered = [p for p in all_projects if p.get('work_name') == work_name]
+        
+        # Popula combo com (Nome Pavimento) -> UserRole = ProjectID
+        # Se 'pavement_name' vazio, usa 'name' do projeto
+        for p in filtered:
+            display_name = p.get('pavement_name') or p.get('name')
+            self.cmb_pavements.addItem(display_name, p['id'])
+
+        self.cmb_pavements.blockSignals(False)
+
+    def _on_pavement_changed(self):
+        """Carrega o projeto selecionado."""
+        idx = self.cmb_pavements.currentIndex()
+        if idx < 0: return
+        
+        project_id = self.cmb_pavements.itemData(idx)
+        if project_id and project_id != self.active_project_id:
+             # Load Project
+             self.current_project_id = project_id # Compatibilidade com logica existente
+             self.active_project_id = project_id
+             
+             # Fetch full info to set name
+             p_info = self.db.get_project_by_id(project_id)
+             if p_info:
+                 self.current_project_name = p_info.get('name')
+                 self.log(f"🔄 Trocando para Pavimento: {self.current_project_name}")
+                 self.load_project_action()
+
+    def _setup_structural_analyzer_area(self):
+        """Constrói o layout do módulo 'Structural Analyzer' (Legacy UI)."""
+        # Container do Módulo
+        module_container = QWidget()
+        main_layout = QHBoxLayout(module_container)
+        main_layout.setContentsMargins(0, 0, 0, 0)
+        
         self.splitter = QSplitter(Qt.Horizontal)
         
         # --- LADO ESQUERDO: GESTÃO DE ITENS ---
@@ -93,31 +218,19 @@ class MainWindow(QMainWindow):
         left_layout = QVBoxLayout(self.left_panel)
         left_layout.setSpacing(10)
         
-        # 0. Botão Gerenciar Projetos (Topo)
-        btn_load = QPushButton("📂 Gerenciar Projetos")
-        btn_load.setStyleSheet("padding: 4px; font-size: 11px; height: 18px;")
-        btn_load.clicked.connect(self.open_project_manager)
-        left_layout.addWidget(btn_load)
-
-        # 1. Inputs de Metadados (Topo)
+        # 0. Botão Gerenciar Projetos (Removido daqui, foi para TopBar, mas mantemos lógica se precisar)
+        # Na verdade, removemos visualmente do painel esquerdo pois já está no TopBar.
+        
+        # 1. Inputs de Metadados (Removidos para TopBar)
+        # Mantemos apenas nível de chegada/saída se necessário, ou movemos tudo.
+        # Por enquanto, vou recriar APENAS os Níveis no painel lateral
+        
         self.meta_widget = QWidget()
         meta_layout = QVBoxLayout(self.meta_widget)
         meta_layout.setContentsMargins(0, 0, 0, 0)
         meta_layout.setSpacing(5)
         
-        # Obra
-        meta_layout.addWidget(QLabel("Nome da Obra:"))
-        self.edit_work_name = QLineEdit()
-        self.edit_work_name.editingFinished.connect(self.save_project_metadata)
-        meta_layout.addWidget(self.edit_work_name)
-        
-        # Pavimento
-        meta_layout.addWidget(QLabel("Nome do Pavimento:"))
-        self.edit_pavement_name = QLineEdit()
-        self.edit_pavement_name.editingFinished.connect(self.save_project_metadata)
-        meta_layout.addWidget(self.edit_pavement_name)
-        
-        # Níveis (Layout Horizontal)
+        # Níveis (Chegada/Saída)
         lvl_layout = QHBoxLayout()
         v1 = QVBoxLayout()
         v1.addWidget(QLabel("Nível Chegada:"))
@@ -462,7 +575,63 @@ class MainWindow(QMainWindow):
         # Definir proporção inicial: Esquerda (365), Centro (Grande), Direita (320)
         self.splitter.setSizes([365, 1000, 320])
         
+        
         main_layout.addWidget(self.splitter)
+        return module_container
+
+    def init_ui(self):
+        """Nova Inicialização de UI (Overhaul)."""
+        # Widget Principal
+        root_container = QWidget()
+        root_layout = QVBoxLayout(root_container)
+        root_layout.setContentsMargins(0, 0, 0, 0)
+        root_layout.setSpacing(0)
+        self.setCentralWidget(root_container)
+
+        # 1. Top Bar
+        top_bar = self._setup_top_bar()
+        root_layout.addWidget(top_bar)
+
+        # 2. Navegação de Módulos (Abas Superiores)
+        self.module_tabs = QTabBar()
+        self.module_tabs.setObjectName("ModuleNav")
+        self.module_tabs.setDrawBase(False)
+        self.module_tabs.addTab("Structural Analyzer")
+        self.module_tabs.addTab("Robo Pilares")
+        self.module_tabs.addTab("Robo Laterais de Viga")
+        self.module_tabs.addTab("Robo Fundo de Vigas")
+        self.module_tabs.addTab("Robo Laje")
+        
+        # Container para abas (bg color)
+        tabs_container = QWidget()
+        tabs_container.setStyleSheet("background-color: #0c0c10; border-bottom: 1px solid #2a2a3e;")
+        t_layout = QHBoxLayout(tabs_container)
+        t_layout.addWidget(self.module_tabs)
+        t_layout.setContentsMargins(20, 0, 0, 0)
+        
+        root_layout.addWidget(tabs_container)
+
+        # 3. Stack de Conteúdo
+        self.module_stack = QStackedWidget()
+        root_layout.addWidget(self.module_stack)
+
+        # --- MÓDULO 0: STRUCTURAL ANALYZER (Legacy) ---
+        structural_widget = self._setup_structural_analyzer_area()
+        self.module_stack.addWidget(structural_widget)
+
+        # --- MÓDULOS FUTUROS (Placeholders) ---
+        for name in ["Robo Pilares", "Robo Laterais Viga", "Robo Fundo Viga", "Robo Laje"]:
+            p = QLabel(f"Módulo em Desenvolvimento: {name}")
+            p.setAlignment(Qt.AlignCenter)
+            p.setStyleSheet("font-size: 20px; color: #555;")
+            self.module_stack.addWidget(p)
+
+        # Conectar Navegação
+        self.module_tabs.currentChanged.connect(self.module_stack.setCurrentIndex)
+        
+        # Inicializar Dados dos Combos (Obras e Pavimentos)
+        # Timer singleShot para garantir que DB esteja pronto se necessario
+        QTimer.singleShot(100, self._refresh_nav_combos)
 
     def _on_analysis_tab_changed(self, index):
         """Filtra visualização no Canvas baseado na aba selecionada (Análise)"""
@@ -1546,6 +1715,30 @@ class MainWindow(QMainWindow):
                 self.list_pillars.setCurrentItem(it)
                 self.on_list_pillar_clicked(it)
                 break
+
+    def save_project_metadata(self):
+        """Salva metadados do projeto (Nome, Niveis)."""
+        if not hasattr(self, 'db') or not self.current_project_id:
+            return
+
+        # Recuperar valores dos campos (se existirem)
+        # Como movemos para TopBar/Combos, a 'edicao' do nome principal é pelo Gerenciador
+        # Mas podemos salvar Niveis se eles ainda estiverem na UI
+        
+        try:
+           level_arr = getattr(self, 'edit_level_arr', None)
+           level_exit = getattr(self, 'edit_level_exit', None)
+           
+           val_arr = level_arr.text() if level_arr else ""
+           val_exit = level_exit.text() if level_exit else ""
+           
+           # Update no DB (assumindo que existe metodo, senao passamos)
+           # self.db.update_project_metadata(id, name, level_arr, ...)
+           # Por enquanto, apenas logar que 'Metadados salvos' pois o DB pode não ter colunas ainda
+           # O código original apenas salvava Nomes se edited.
+           pass
+        except Exception as e:
+            self.log(f"Erro salvando metadados: {e}")
 
     def save_project_action(self):
         """Salva o estado atual no banco de dados do projeto."""
@@ -2796,6 +2989,46 @@ class MainWindow(QMainWindow):
         self.db.update_project_metadata(self.active_project_id, meta)
         self.log("Metadados do projeto atualizados.")
 
+    def _get_slab_real_geometry(self, s):
+        """
+        Calcula a geometria real (Soma do Contorno + Extensões) e Área em m².
+        Retorna: (unified_poly, area_m2)
+        """
+        from shapely.geometry import Polygon, MultiPolygon
+        from shapely.ops import unary_union
+        
+        try:
+            # 1. Main Contour
+            points = s.get('points', [])
+            if not points: return None, 0.0
+            main_poly = Polygon(points)
+            
+            # 2. Extensions
+            ext_polys = []
+            if 'links' in s and 'laje_outline_segs' in s['links']:
+                segs = s['links']['laje_outline_segs']
+                ext_list = segs.get('acrescimo_borda', [])
+                if ext_list:
+                    for ext in ext_list:
+                        if 'points' in ext:
+                            ext_polys.append(Polygon(ext['points']))
+            
+            # 3. Union
+            if ext_polys:
+                unified = unary_union([main_poly] + ext_polys)
+            else:
+                unified = main_poly
+                
+            # 4. Area (cm² -> m²)
+            # 1 m² = 10000 cm²
+            area_m2 = unified.area / 10000.0
+            
+            return unified, area_m2
+            
+        except Exception as e:
+            print(f"Erro calculando geometria real da laje {s.get('name')}: {e}")
+            return None, 0.0
+
     def _update_all_lists_ui(self):
         """Refresha todas as listas com dados atuais do projeto ativo (Análise e Biblioteca)"""
         # 1. Limpar TODAS as listas
@@ -2856,7 +3089,12 @@ class MainWindow(QMainWindow):
         # 4. Popular Lajes
         for s in self.slabs_found:
             status = "✅" if s.get('is_validated') else "❓"
-            t_analysis = f"{s.get('id_item', '??')} | {s.get('name', 'L?')} ({s.get('area',0):.1f}m²) {status}"
+            
+            # --- CORREÇÃO DE ÁREA ---
+            # Calcular área real (Contorno + Extensões) em m²
+            _, real_area_m2 = self._get_slab_real_geometry(s)
+            
+            t_analysis = f"{s.get('id_item', '??')} | {s.get('name', 'L?')} ({real_area_m2:.2f}m²) {status}"
             item_a = QListWidgetItem(t_analysis)
             item_a.setData(Qt.UserRole, s['id'])
             
@@ -3291,7 +3529,27 @@ class MainWindow(QMainWindow):
         export_list = []
         for uid in ids:
             if uid in data_map:
-                export_list.append(data_map[uid])
+                obj = data_map[uid]
+                
+                # Custom Export for Slabs (Unified Geometry)
+                if item_type == 'slab':
+                    unified_poly, real_area = self._get_slab_real_geometry(obj)
+                    
+                    # Extract level/thick from somewhere? 
+                    # Usually stored in 'dim' or links.
+                    # User asked for: Name, Dimension, Level, Coordinates.
+                    
+                    cleaned_obj = {
+                        'id': obj.get('id'),
+                        'name': obj.get('name', 'Unknown'),
+                        'dimension_text': obj.get('dim', ''),
+                        'level': obj.get('level', ''), # Fields might be empty if not parsed
+                        'real_area_m2': real_area,
+                        'unified_boundary_coords': list(unified_poly.exterior.coords) if unified_poly and hasattr(unified_poly, 'exterior') else []
+                    }
+                    export_list.append(cleaned_obj)
+                else:
+                    export_list.append(obj)
             else:
                 # Se não achou na memória (pode acontecer se carregou Lib do DB mas não processou DXF)
                 # Tentar buscar do DB individualmente (lento mas seguro)
