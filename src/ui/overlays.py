@@ -46,6 +46,10 @@ class PillarGraphicsItem(QGraphicsPolygonItem):
         
         self.setPen(self.default_pen)
 
+        # Temp Highlight Support
+        self.temp_highlight_pen = None
+        self.temp_highlight_brush = None
+
         self.visual_status = "default" # "default", "uncertain", "error", "validated"
         self.confidence = 1.0
 
@@ -79,6 +83,12 @@ class PillarGraphicsItem(QGraphicsPolygonItem):
 
     def _apply_current_style(self):
         """Centraliza a lógica de cores para evitar redundância"""
+        if self.temp_highlight_pen:
+            self.setPen(self.temp_highlight_pen)
+            if self.temp_highlight_brush: self.setBrush(self.temp_highlight_brush)
+            else: self.setBrush(self.default_brush)
+            return
+
         if self.isSelected():
             self.setBrush(self.selected_brush)
             self.setPen(self.selected_pen)
@@ -125,6 +135,11 @@ class PillarGraphicsItem(QGraphicsPolygonItem):
             QTimer.singleShot(0, self._apply_current_style)
         return super().itemChange(change, value)
 
+    def set_temp_highlight(self, pen, brush=None):
+        self.temp_highlight_pen = pen
+        self.temp_highlight_brush = brush
+        self._apply_current_style()
+
 class SlabGraphicsItem(QGraphicsPolygonItem):
     """
     Representação visual de uma Laje.
@@ -149,6 +164,9 @@ class SlabGraphicsItem(QGraphicsPolygonItem):
         # Estilo Laje (Transparente, preenchimento suave)
         self.setBrush(self.default_brush) 
         self.setPen(self.default_pen)
+
+        self.temp_highlight_pen = None
+        self.temp_highlight_brush = None
         
         if label:
             self.setToolTip(f"{label}\nÁrea: {area:.2f}m²") 
@@ -166,7 +184,20 @@ class SlabGraphicsItem(QGraphicsPolygonItem):
 
     def set_validated(self, validated: bool):
         self.is_validated = validated
-        if validated:
+        self._apply_style()
+
+    def set_temp_highlight(self, pen, brush=None):
+        self.temp_highlight_pen = pen
+        self.temp_highlight_brush = brush
+        self._apply_style()
+
+    def _apply_style(self):
+        if self.temp_highlight_pen:
+            self.setPen(self.temp_highlight_pen)
+            if self.temp_highlight_brush: self.setBrush(self.temp_highlight_brush)
+            return
+
+        if self.is_validated:
             self.setBrush(self.validated_brush)
             self.setPen(self.validated_pen)
             if hasattr(self, 'text_item'):

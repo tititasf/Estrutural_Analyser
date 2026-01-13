@@ -46,6 +46,7 @@ class CADCanvas(QGraphicsView):
         
         # Estado
         self.interactive_items = {} # Map ID -> GraphicItem (Generic)
+        self.current_yellow_item_id = None
         self.item_groups = { # Store lists for bulk visibility toggling
             'pillar': [],
             'slab': [],
@@ -882,58 +883,64 @@ class CADCanvas(QGraphicsView):
             self.beam_visuals.append(line)
 
 
-    def highlight_link(self, link, color=None, apply_zoom=True):
-        """Destaque direto via objeto de vínculo (sem busca)"""
-        if not link: return
+    def highlight_multiple_links(self, links, color=None, apply_zoom=True):
+        """Destaca múltiplos vínculos simultaneamente e aplica zoom no conjunto"""
+        if not links: return []
         
         self.clear_beams()
         base_color = color if color else QColor(255, 0, 0)
         pen = QPen(base_color, 4) 
         pen.setCosmetic(True)
         
-        item = None
-        l_type = link.get('type')
+        items_created = []
+
+        from PySide6.QtGui import QPainterPath
         
-        if l_type == 'text' and 'pos' in link:
-            item = self.scene.addSimpleText(link['text'])
-            item.setPos(link['pos'][0], link['pos'][1])
-            item.setBrush(QBrush(base_color))
-            item.setZValue(101)
-            item.setFlag(QGraphicsSimpleTextItem.ItemIgnoresTransformations)
-        elif (l_type == 'line' or l_type == 'poly' or l_type == 'geometry') and 'points' in link:
-            from PySide6.QtGui import QPainterPath
-            pts = link['points']
-            if len(pts) >= 2:
-                path = QPainterPath()
-                path.moveTo(pts[0][0], pts[0][1])
-                for p in pts[1:]: path.lineTo(p[0], p[1])
-                # Se for um polígono fechado (ex: retângulo de pilar)
-                if l_type == 'poly' or (len(pts) > 2 and pts[0] == pts[-1]):
-                    path.closeSubpath()
-                
-                item = self.scene.addPath(path, pen)
-                item.setZValue(100)
-        elif l_type == 'circle' and 'pos' in link and 'radius' in link:
-            r = link['radius']
-            px, py = link['pos']
-            item = self.scene.addEllipse(px-r, py-r, r*2, r*2, pen)
-            item.setZValue(100)
-            if apply_zoom:
-                margin = 400
-                self.fitInView(item.sceneBoundingRect().marginsAdded(QMarginsF(margin, margin, margin, margin)), Qt.KeepAspectRatio)
-                self.centerOn(item.sceneBoundingRect().center())
+        for link in links:
+            item = None
+            l_type = link.get('type')
             
-            if item: self.beam_visuals.append(item)
-            return item
-        
-        if item:
-            self.beam_visuals.append(item)
-            if apply_zoom:
-                margin = 400
-                self.fitInView(item.sceneBoundingRect().marginsAdded(QMarginsF(margin, margin, margin, margin)), Qt.KeepAspectRatio)
-                self.centerOn(item.sceneBoundingRect().center())
-        
-        return item
+            if l_type == 'text' and 'pos' in link:
+                item = self.scene.addSimpleText(link['text'])
+                item.setPos(link['pos'][0], link['pos'][1])
+                item.setBrush(QBrush(base_color))
+                item.setZValue(101)
+                item.setFlag(QGraphicsSimpleTextItem.ItemIgnoresTransformations)
+            elif (l_type == 'line' or l_type == 'poly' or l_type == 'geometry') and 'points' in link:
+                pts = link['points']
+                if len(pts) >= 2:
+                    path = QPainterPath()
+                    path.moveTo(pts[0][0], pts[0][1])
+                    for p in pts[1:]: path.lineTo(p[0], p[1])
+                    if l_type == 'poly' or (len(pts) > 2 and pts[0] == pts[-1]):
+                        path.closeSubpath()
+                    
+                    item = self.scene.addPath(path, pen)
+                    item.setZValue(100)
+            elif l_type == 'circle' and 'pos' in link and 'radius' in link:
+                r = link['radius']
+                px, py = link['pos']
+                item = self.scene.addEllipse(px-r, py-r, r*2, r*2, pen)
+                item.setZValue(100)
+            
+            if item:
+                self.beam_visuals.append(item)
+                items_created.append(item)
+
+        if items_created and apply_zoom:
+            rect = items_created[0].sceneBoundingRect()
+            for it in items_created[1:]:
+                rect = rect.united(it.sceneBoundingRect())
+                
+            margin = 400
+            self.fitInView(rect.adjusted(-margin, -margin, margin, margin), Qt.KeepAspectRatio)
+            self.centerOn(rect.center())
+            
+        return items_created
+
+    def highlight_link(self, link, color=None, apply_zoom=True):
+        """Wrapper para único link"""
+        return self.highlight_multiple_links([link], color, apply_zoom)
 
 
     def draw_item_links(self, target, destination='focus', clear=True):
@@ -1117,6 +1124,34 @@ class CADCanvas(QGraphicsView):
             self.fitInView(rect.adjusted(-margin, -margin, margin, margin), Qt.KeepAspectRatio)
             self.centerOn(rect.center())
 
+    def highlight_item_yellow(self, item_id):
+        """Alterna a cor do item selecionado para Amarelo (Foco) e reverte o anterior"""
+        # 1. Reverter anterior
+        if self.current_yellow_item_id and self.current_yellow_item_id != item_id:
+            old_item = self.interactive_items.get(self.current_yellow_item_id)
+            if old_item:
+                if hasattr(old_item, 'set_temp_highlight'):
+                    old_item.set_temp_highlight(None)
+                elif hasattr(old_item, '_orig_brush'):
+                    old_item.setBrush(old_item._orig_brush)
+                    del old_item._orig_brush
+            self.current_yellow_item_id = None
+
+        # 2. Aplicar novo
+        if item_id in self.interactive_items:
+            item = self.interactive_items[item_id]
+            if hasattr(item, 'set_temp_highlight'):
+                yellow_pen = QPen(QColor(255, 255, 0), 4) # Yellow Thick
+                yellow_pen.setCosmetic(True)
+                item.set_temp_highlight(yellow_pen)
+                self.current_yellow_item_id = item_id
+                item.update()
+            elif isinstance(item, QGraphicsSimpleTextItem):
+                if not hasattr(item, '_orig_brush'):
+                    item._orig_brush = item.brush()
+                item.setBrush(QBrush(QColor(255, 255, 0)))
+                self.current_yellow_item_id = item_id
+        
     def focus_on_item(self, item_id: int, apply_zoom=True):
         """Destaque um pilar interativo enviando ID"""
         if item_id in self.interactive_items:

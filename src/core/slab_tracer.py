@@ -66,17 +66,35 @@ class SlabTracer:
         # DXF real pode ter gaps. (MVP: Assumir conexões decentes ou tolerância zero).
         
         try:
-            # Tentar formar polígonos
-            # Para robustez, noding (unary_union) é bom mas lento.
-            # Vamos tentar direto primeiro.
-            polygons = list(polygonize(lines))
+            # TENTATIVA 1: Noding Rápido (assumindo conexões decentes)
+            # unary_union corrige interseções não-nodadas (linhas cruzando sem vertice comum)
+            # É fundamental para DXF onde desenhista pode ter passado linha direto.
+            noded_lines = unary_union(lines) 
+            
+            # polygonize retorna gerador de poligonos
+            polygons = list(polygonize(noded_lines))
             
             target_pt = Point(cx, cy)
             
             # Encontrar qual polígono contém o ponto
+            # Otimização: Ordenar por área (preferir menor polígono fechado que contém o ponto - "sala")
+            # Mas polygonize geralmente retorna poligonos atômicos (faces).
             for poly in polygons:
                 if poly.contains(target_pt):
                     return poly
+            
+            # Se não achou com noding simples, pode ser que o ponto esteja EXATAMENTE na borda?
+            # Ou que linhas tenham gap micrométrico.
+            
+            # TENTATIVA 2: Snap / Buffer (Lento, usar só se falhar 1)
+            # Buffer pequeno pode fechar gaps
+            # Mas cuidado para não fechar passagens reais.
+            # Implementação futura se necessário.
+            
+        except Exception as e:
+            # Falha na geometria
+            print(f"[DEBUG] Trace Error: {e}")
+            return None
                     
         except Exception as e:
             # Falha na geometria

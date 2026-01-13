@@ -8,6 +8,7 @@ from PySide6.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout,
                                QTextEdit, QLabel, QStackedWidget, QListWidget,
                                QListWidgetItem, QTabWidget, QSplitter, QLineEdit, QProgressBar,
                                QTreeWidget, QTreeWidgetItem, QMessageBox, QMenu)
+from PySide6.QtGui import QColor
 from PySide6.QtCore import Qt, QSize
 from src.ui.canvas import CADCanvas
 from src.ui.widgets.detail_card import DetailCard
@@ -466,14 +467,26 @@ class MainWindow(QMainWindow):
         # Buscar nos links estruturados do campo
         links_data = item_data.get('links', {}).get(field_id, {})
         
-        # Prioridade de slots para foco visual
-        for slot in ['label', 'geometry', 'thick', 'level', 'dim', 'dist_text', 'dist_line', 'diff_text', 'diff_line', 'main', 'default']:
-            if slot in links_data and links_data[slot]:
-                link = links_data[slot][0]
-                if 'pos' in link or 'points' in link:
-                    self.canvas.highlight_link(link)
-                    self.log(f"📍 Focando via coordenada direta: {link.get('text', 'Geometria')}")
-                    return
+        # 1. Coletar TODOS os links válidos deste campo (independente do slot)
+        valid_links = []
+        for slot, slot_data in links_data.items():
+            # slot_data pode ser lista de links ou dict de listas? Geralmente lista.
+            if isinstance(slot_data, list):
+                for link in slot_data:
+                    if 'pos' in link or 'points' in link:
+                        valid_links.append(link)
+        
+        if valid_links:
+            # 1. Destacar o Item Pai em Amarelo (Persistente)
+            if 'id' in item_data:
+                self.canvas.highlight_item_yellow(item_data['id'])
+            
+            # 2. Destacar TODOS os Links Específicos em Amarelo (Zoom no conjunto)
+            self.canvas.highlight_multiple_links(valid_links, color=QColor(255, 255, 0))
+            
+            slot_names = list(links_data.keys())
+            self.log(f"📍 Focando {len(valid_links)} vínculos (Slots: {slot_names})")
+            return
 
         # Fallback: Se não houver vínculo mas houver texto no widget, tenta busca nominal
         widget = self.current_card.fields.get(field_id)
@@ -1122,18 +1135,31 @@ class MainWindow(QMainWindow):
             # RESTAURAÇÃO (Incremental)
             if incremental and b['name'] in preserved_beams:
                  old = preserved_beams[b['name']]
-                 # Restaura status
-                 b['is_validated'] = old.get('is_validated', False)
-                 # Restaura links incondicionalmente
-                 b['links'] = old.get('links', {})
-                 b['confidence_map'] = old.get('confidence_map', {})
                  
-                 vf = old.get('validated_fields', [])
-                 if vf:
-                     b['validated_fields'] = vf
-                     for f in vf: 
-                         if f in old: b[f] = old[f]
-                 print(f"DEBUG: Viga {b['name']} restaurada.")
+                 # 1. Se VALIDADO, restaura tudo
+                 if old.get('is_validated', False):
+                     b['is_validated'] = True
+                     b['links'] = old.get('links', {})
+                     b['confidence_map'] = old.get('confidence_map', {})
+                     b['validated_fields'] = old.get('validated_fields', [])
+                     
+                     # Restaura campos em geral
+                     for f, v in old.items():
+                         if f not in ['links', 'confidence_map', 'validated_fields', 'is_validated', 'issues']:
+                            b[f] = v
+                            
+                     print(f"DEBUG: Viga {b['name']} restaurada (VALIDADA).")
+                 
+                 # 2. Se NÃO VALIDADO, NÃO RESTAURA LINKS
+                 else:
+                     # Apenas restaura campos específicos se eles individualmente foram validados
+                     vf = old.get('validated_fields', [])
+                     if vf:
+                         b['validated_fields'] = vf
+                         for f in vf: 
+                             if f in old: b[f] = old[f]
+                     
+                     print(f"DEBUG: Viga {b['name']} re-analisada (Não validada).")
 
         # 1.0b Finalizar Lista de Vigas Hierárquica
         self._populate_beam_tree(self.list_beams, self.beams_found)
@@ -1239,53 +1265,36 @@ class MainWindow(QMainWindow):
              self._process_slab_intelligent(s)
              
              # RESTAURAÇÃO (Incremental Inteligente)
+             # RESTAURAÇÃO (Incremental Inteligente)
              if incremental and s['name'] in preserved_slabs:
                  old = preserved_slabs[s['name']]
                  
-                 # 1. Se VALIDADO, restaura tudo (Prioridade Total ao Estado Antigo)
+                 # 1. Se VALIDADO GLOBALMENTE, restaura tudo
                  if old.get('is_validated', False):
                      s['is_validated'] = True
                      s['links'] = old.get('links', {})
                      s['fields'] = old.get('fields', {}).copy()
-                     # Restaura status de validação dos campos
                      s['validated_fields'] = old.get('validated_fields', [])
+                     print(f"DEBUG: Laje {s['name']} restaurada (VALIDADA).")
                  
-                 # 2. Se NÃO VALIDADO, faz Merge Inteligente
+                 # 2. Se NÃO VALIDADO, NÃO RESTAURA LINKS NEM GEOMETRIA
+                 # Apenas restaura campos específicos se eles individualmente foram validados
                  else:
-                     old_links = old.get('links', {})
-                     new_links = s['links'] # Links acabaram de ser descobertos pela IA
+                     # Não restaura 'links' antigos (Geometria velha vai pro lixo)
+                     # Restaura apenas campos validados manualmente
+                     vf = old.get('validated_fields', [])
+                     if vf:
+                         s['validated_fields'] = vf
+                         # Restaura apenas os fields que estão na lista de validados
+                         old_fields = old.get('fields', {})
+                         for f in vf:
+                             if f in old_fields: s['fields'][f] = old_fields[f]
+                         # Nota: Não restauramos links parciais aqui, pois geometria é link.
+                         # Se o usuário validou um campo de texto (ex: nome), ok.
+                         # Se validou geometria, deveria ter validado a laje toda ou teremos que ter lógica granular de link.
+                         # Assumindo que validação de geometria = validação do item.
                      
-                     matched_links = {}
-                     
-                     # União de slots
-                     all_slots = set(old_links.keys()) | set(new_links.keys())
-                     
-                     for slot in all_slots:
-                         old_items = old_items = old_links.get(slot, [])
-                         new_items = new_items = new_links.get(slot, [])
-                         
-                         # Se o usuário já tinha links manuais (old_items não vazio), mantemos eles.
-                         # Se estava vazio, aceitamos a sugestão da IA (new_items).
-                         if old_items:
-                             matched_links[slot] = old_items
-                         else:
-                             matched_links[slot] = new_items
-                    
-                     s['links'] = matched_links
-                     
-                     # Merge de Fields:
-                     # Se campo antigo existe e não é nulo/vazio, ele vence (possível edição manual)
-                     # Se não, fica o novo detected pela IA
-                     old_fields = old.get('fields', {})
-                     for k, v in old_fields.items():
-                         if v: s['fields'][k] = v
-                 
-                 vf = old.get('validated_fields', [])
-                 if vf:
-                     s['validated_fields'] = vf
-                     for f in vf: 
-                         if f in old: s[f] = old[f]
-                 print(f"DEBUG: Laje {s['name']} restaurada.")
+                     print(f"DEBUG: Laje {s['name']} re-analisada (Não validada).")
              
              item_text = f"{s['id_item']} | {s['name']}"
              if s.get('is_validated'):
@@ -1387,37 +1396,33 @@ class MainWindow(QMainWindow):
             # RESTAURAÇÃO (Incremental)
             if incremental and p_data['name'] in preserved_pillars:
                  old = preserved_pillars[p_data['name']]
-                 # Restaura status de validação
-                 is_val = old.get('is_validated', False)
-                 p_data['is_validated'] = is_val
                  
-                 # Restaura links (Merge: Novos Links + Antigos Validados)
-                 current_links = p_data.get('links', {})
-                 old_links = old.get('links', {})
-                 val_fields = old.get('validated_fields', [])
-                 
-                 for field in val_fields:
-                     if field in old_links:
-                         current_links[field] = old_links[field]
-                 
-                 p_data['links'] = current_links
-
-                 # Dados complexos: Se validado, restaura. Se não, usa novo.
-                 # Como sides_data é derivado, ideal é manter o novo se não validado.
-                 # Mas por compatibilidade, vamos manter lógica híbrida se necessário.
-                 # Por enquanto, restaurando se o pilar estiver validado como um todoou se fizer sentido.
-                 # Na dúvida, se o usuário validou o pilar/item, restauramos.
-                 if is_val:
+                 # 1. Se VALIDADO, restaura tudo
+                 if old.get('is_validated', False):
+                     p_data['is_validated'] = True
+                     p_data['links'] = old.get('links', {})
                      p_data['sides_data'] = old.get('sides_data', {})
+                     p_data['beams_visual'] = old.get('beams_visual', [])
+                     p_data['validated_fields'] = old.get('validated_fields', [])
+                     
+                     # Restaura campos
+                     for f, v in old.items():
+                         if f not in ['links', 'sides_data', 'beams_visual', 'validated_fields', 'is_validated', 'issues']:
+                            p_data[f] = v
+                            
+                     print(f"DEBUG: Pilar {p_data['name']} restaurado (VALIDADO).")
                  
-                 p_data['beams_visual'] = old.get('beams_visual', [])
-                 
-                 vf = old.get('validated_fields', [])
-                 if vf:
-                     p_data['validated_fields'] = vf
-                     for f in vf: 
-                         if f in old: p_data[f] = old[f]
-                 print(f"DEBUG: Pilar {p_data['name']} restaurado/mergeado.")
+                 # 2. Se NÃO VALIDADO, NÃO RESTAURA LINKS/GEOMETRIA
+                 else:
+                     # Apenas restaura campos específicos se eles individualmente foram validados
+                     vf = old.get('validated_fields', [])
+                     if vf:
+                         p_data['validated_fields'] = vf
+                         # Restaura apenas os fields que estão na lista de validados
+                         for f in vf: 
+                             if f in old: p_data[f] = old[f]
+                     
+                     print(f"DEBUG: Pilar {p_data['name']} re-analisado (Não validado).")
 
             self.pillars_found.append(p_data)
             
