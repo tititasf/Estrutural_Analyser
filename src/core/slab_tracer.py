@@ -1,6 +1,6 @@
 from shapely.geometry import Point, LineString, Polygon, MultiLineString
 from shapely.ops import polygonize, unary_union
-from typing import List, Tuple, Optional
+from typing import List, Tuple, Optional, Dict
 import math
 
 class SlabTracer:
@@ -11,9 +11,10 @@ class SlabTracer:
     def __init__(self, spatial_index):
         self.spatial_index = spatial_index
 
-    def trace_boundary(self, start_point: Tuple[float, float], search_radius: float = 1000.0) -> Optional[Polygon]:
+    def trace_boundary(self, start_point: Tuple[float, float], search_radius: float = 1000.0, valid_layers: List[str] = None) -> Optional[Polygon]:
         """
         Encontra o polígono fechado que contém o start_point.
+        valid_layers: Lista de layers permitidos/preferenciais.
         """
         # 1. Coletar linhas candidatas no raio ao redor do ponto
         cx, cy = start_point
@@ -23,14 +24,38 @@ class SlabTracer:
         lines = []
         
         for item in candidates:
-            # Item pode ser polilinha, linha (tupla de pts) ou Polygon
-            # Precisamos de LineStrings
-            if isinstance(item, tuple) and len(item) == 2: # Linha ((x1,y1), (x2,y2))
-                lines.append(LineString(item))
-            elif isinstance(item, list): # Polyline
-                if len(item) > 1:
-                    lines.append(LineString(item))
-            # Ignorar outros poligonos por enquanto ou explodi-los
+            # Item: geometria original ou dict que a envelopa?
+            # O SpatialIndex guarda o objeto original passado no insert.
+            # No DXFLoader modificado, lines/polylines são dicts com 'layer'.
+            
+            geom = None
+            layer = None
+            
+            if isinstance(item, dict):
+                # Se for dict vindo do DXFLoader novo
+                layer = item.get('layer')
+                if 'points' in item: # Polyline
+                    pts = item['points']
+                    if len(pts) > 1: geom = LineString(pts)
+                elif 'start' in item: # Line
+                    geom = LineString([item['start'], item['end']])
+            
+            # Retrocompatibilidade com tupla crua (caso algo mais insira assim)
+            elif isinstance(item, tuple) and len(item) == 2: 
+                geom = LineString(item)
+            elif isinstance(item, list) and len(item) > 1:
+                geom = LineString(item)
+                
+            if geom:
+                # Filtragem por Layer (Inteligência)
+                if valid_layers:
+                    # Se tiver filtro e a linha tiver layer, testamos.
+                    # Se linha não tiver layer (tupla antiga), aceitamos ou rejeitamos? Aceitamos por segurança.
+                    # Mas se tiver layer e não estiver na lista, rejeita.
+                    if layer and layer not in valid_layers:
+                        continue
+                
+                lines.append(geom)
         
         if not lines:
             return None
@@ -59,19 +84,18 @@ class SlabTracer:
             
         return None
 
-    def detect_slabs_from_texts(self, texts: List[dict], search_radius: float = 2000.0) -> List[dict]:
+    def detect_slabs_from_texts(self, texts: List[Dict], search_radius: float = 2000.0, valid_layers: List[str] = None) -> List[Dict]:
         """
-        Identifica Lajes buscando textos L1, L2... e traçando contorno.
+        Varre textos buscando padrões de laje (Lx, Laje X) e tenta traçar limites.
         """
-        import re
         slabs = []
+        import re
+        # Padrão: Começa com L seguido de numero, ou LAJE...
+        # Ex: "L1", "L-2", "LAJE 03"
+        slab_pattern = re.compile(r'^(L|LAJE)\s*[-_]?\s*\d+[a-zA-Z]*$', re.IGNORECASE)
         
-        # Regex mais flexível: L1, L 1, L-1, Laje 1, Laje-1
-        # Captura 'L' ou 'LAJE', opcional separador, e digitos
-        slab_pattern = re.compile(r'^(?:LAJE|L)[\s-]?\d+.*$', re.IGNORECASE)
-        
-        # Debug: Check text samples
-        sample_texts = [t.get('text', '') for t in texts[:10]]
+        # DEBUG
+        sample_texts = [t.get('text') for t in texts[:5]]
         print(f"[DEBUG] SlabTracer checking {len(texts)} texts. Samples: {sample_texts}")
         
         for t in texts:
@@ -81,7 +105,7 @@ class SlabTracer:
                 if not pos: continue
                 
                 # Tentar traçar contorno
-                poly = self.trace_boundary(pos, search_radius)
+                poly = self.trace_boundary(pos, search_radius, valid_layers=valid_layers)
                 
                 # Se falhar tracing, cria um polígono dummy pequeno ou apenas marca o ponto
                 # Para MVP, se não achar contorno, criamos um placeholder

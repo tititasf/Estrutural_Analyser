@@ -1141,7 +1141,89 @@ class MainWindow(QMainWindow):
         # 1.1 Detect Slabs (Lajes)
         self.update_progress(30, "Mapeando Lajes...")
         slab_tracer = SlabTracer(self.spatial_index)
-        self.slabs_found = slab_tracer.detect_slabs_from_texts(texts)
+        
+        # --- LEARNING FROM VALIDATED ---
+        learned_layers = set()
+        learned_dim_layers = set()
+        learned_level_layers = set()
+        learned_contour_radius = 2000.0 # Default
+        learned_text_radius = 200.0 # Default
+        
+        has_validated = False
+        
+        if preserved_slabs:
+            potential_layers = []
+            max_diag = 0.0
+            max_text_dist = 0.0
+            
+            for s_name, s_data in preserved_slabs.items():
+                if s_data.get('is_validated'):
+                    has_validated = True
+                    
+                    # 1. Learn Contour Layers & Radius
+                    links = s_data.get('links', {}).get('laje_outline_segs', {}).get('contour', [])
+                    if links and 'points' in links[0]:
+                        pts = links[0]['points']
+                        
+                        # Radius heuristic (Bounding Box Diagonal)
+                        all_x = [p[0] for p in pts]
+                        all_y = [p[1] for p in pts]
+                        if all_x and all_y:
+                            diag = ((max(all_x)-min(all_x))**2 + (max(all_y)-min(all_y))**2)**0.5
+                            if diag > max_diag: max_diag = diag
+                        
+                        # Layer heuristic
+                        # Tenta achar essa geom no spatial index para ver o layer
+                        for cw_poly in self.dxf_data.get('polylines', []):
+                             if len(cw_poly['points']) == len(pts): # Check rápido
+                                 # (Opcional) Check geometry bounds match
+                                 lay = cw_poly.get('layer')
+                                 if lay: potential_layers.append(lay)
+                    
+                    # 2. Learn Data Layers & Radius (Textos)
+                    # Dimensão
+                    dim_links = s_data.get('links', {}).get('laje_dim', {}).get('label', [])
+                    for dl in dim_links:
+                        if 'layer' in dl: learned_dim_layers.add(dl['layer'])
+                        # Distancia do centro da laje ao texto
+                        if 'pos' in dl and 'pos' in s_data:
+                            dx = dl['pos'][0] - s_data['pos'][0]
+                            dy = dl['pos'][1] - s_data['pos'][1]
+                            dist = (dx**2 + dy**2)**0.5
+                            if dist > max_text_dist: max_text_dist = dist
+
+                    # Nível
+                    lvl_links = s_data.get('links', {}).get('laje_nivel', {}).get('label', [])
+                    for ll in lvl_links:
+                        if 'layer' in ll: learned_level_layers.add(ll['layer'])
+                        if 'pos' in ll and 'pos' in s_data:
+                            dx = ll['pos'][0] - s_data['pos'][0]
+                            dy = ll['pos'][1] - s_data['pos'][1]
+                            dist = (dx**2 + dy**2)**0.5
+                            if dist > max_text_dist: max_text_dist = dist
+
+            if potential_layers:
+                from collections import Counter
+                common = Counter(potential_layers).most_common(5)
+                search_layers = [c[0] for c in common]
+                self.log(f"🧠 Aprendizado Laje: Layers={search_layers}")
+            
+            if max_diag > 0:
+                learned_contour_radius = max_diag * 1.5
+                self.log(f"🧠 Aprendizado Laje: Raio Busca Contorno={learned_contour_radius:.1f}")
+                
+            if max_text_dist > 0:
+                learned_text_radius = max_text_dist * 1.2
+                self.log(f"🧠 Aprendizado Laje: Raio Busca Textos={learned_text_radius:.1f}")
+
+        # Configuração de aprendizado para passar adiante
+        self.slab_learning_config = {
+            'search_radius': learned_text_radius,
+            'dim_layers': list(learned_dim_layers) if learned_dim_layers else None,
+            'level_layers': list(learned_level_layers) if learned_level_layers else None
+        }
+
+        self.slabs_found = slab_tracer.detect_slabs_from_texts(texts, valid_layers=search_layers, search_radius=learned_contour_radius)
         self.slabs_found.sort(key=nat_key)
         self.log(f"🔎 Lajes detectadas: {len(self.slabs_found)} (Busca por textos L#)")
         
@@ -1153,13 +1235,50 @@ class MainWindow(QMainWindow):
              s['type'] = 'Laje'
              s['laje_name'] = s['name']
              
-             # RESTAURAÇÃO (Incremental)
+             # --- PROCESSAMENTO INTELIGENTE ---
+             self._process_slab_intelligent(s)
+             
+             # RESTAURAÇÃO (Incremental Inteligente)
              if incremental and s['name'] in preserved_slabs:
                  old = preserved_slabs[s['name']]
-                 # Restaura status
-                 s['is_validated'] = old.get('is_validated', False)
-                 # Restaura links
-                 s['links'] = old.get('links', {})
+                 
+                 # 1. Se VALIDADO, restaura tudo (Prioridade Total ao Estado Antigo)
+                 if old.get('is_validated', False):
+                     s['is_validated'] = True
+                     s['links'] = old.get('links', {})
+                     s['fields'] = old.get('fields', {}).copy()
+                     # Restaura status de validação dos campos
+                     s['validated_fields'] = old.get('validated_fields', [])
+                 
+                 # 2. Se NÃO VALIDADO, faz Merge Inteligente
+                 else:
+                     old_links = old.get('links', {})
+                     new_links = s['links'] # Links acabaram de ser descobertos pela IA
+                     
+                     matched_links = {}
+                     
+                     # União de slots
+                     all_slots = set(old_links.keys()) | set(new_links.keys())
+                     
+                     for slot in all_slots:
+                         old_items = old_items = old_links.get(slot, [])
+                         new_items = new_items = new_links.get(slot, [])
+                         
+                         # Se o usuário já tinha links manuais (old_items não vazio), mantemos eles.
+                         # Se estava vazio, aceitamos a sugestão da IA (new_items).
+                         if old_items:
+                             matched_links[slot] = old_items
+                         else:
+                             matched_links[slot] = new_items
+                    
+                     s['links'] = matched_links
+                     
+                     # Merge de Fields:
+                     # Se campo antigo existe e não é nulo/vazio, ele vence (possível edição manual)
+                     # Se não, fica o novo detected pela IA
+                     old_fields = old.get('fields', {})
+                     for k, v in old_fields.items():
+                         if v: s['fields'][k] = v
                  
                  vf = old.get('validated_fields', [])
                  if vf:
@@ -2187,6 +2306,122 @@ class MainWindow(QMainWindow):
         b['fields']['comprimento_fundo'] = round(len_bottom, 1)
         
         self.log(f"🧠 Viga {b['name']} pré-interpretada com sucesso.")
+
+    def _process_slab_intelligent(self, s: Dict):
+        """
+        Inteligência para Lajes:
+        1. Identidade (Nome)
+        2. Dimensão (Espessura H=...)
+        3. Nível (Cota +...)
+        4. Geometria (Contorno)
+        """
+        import re
+        
+        # --- ESTRUTURA BASE ---
+        s.update({
+            'type': 'Laje',
+            'is_validated': False,
+            'fields': {},
+            'links': {
+                'name': {'label': [{'text': s['name'], 'type': 'text', 'pos': s.get('pos', (0,0)), 'role': 'Identificador Laje'}]},
+                'laje_dim': {'label': []}, # UI Field: laje_dim
+                'laje_nivel': {'label': [], 'cut_view_geom': [], 'cut_view_text': []}, # UI Field: laje_nivel
+                'laje_outline_segs': {'contour': [], 'acrescimo_borda': []}, # UI Field: laje_outline_segs
+                '_laje_complex': {'label': [], 'dim': [], 'cut_view': []} 
+            }
+        })
+        
+        # 1. IDENTIDADE
+        s['fields']['nome'] = s['name']
+        s['fields']['numero'] = s['id_item']
+
+        # 2. PROCURAR TEXTOS PRÓXIMOS (Dimensão, Nível)
+        pos = s.get('pos')
+        if pos:
+            cx, cy = pos
+            
+            # --- Configurações Aprendidas ---
+            learning = getattr(self, 'slab_learning_config', {})
+            search_radius = learning.get('search_radius', 200.0)
+            learned_dim_layers = learning.get('dim_layers')
+            learned_level_layers = learning.get('level_layers')
+            
+            # Obter candidatos espaciais (Se spatial_index tiver textos seria melhor, 
+            # senão varrida bruta na lista de textos globais - Otimização: Cachear isso se ficar lento)
+            # Assumindo self.dxf_data['texts'] disponível e não muito grande (<5000), força bruta local é ok.
+            
+            candidates = []
+            texts = self.dxf_data.get('texts', [])
+            
+            for t in texts:
+                tx, ty = t.get('pos', (0,0))
+                dist = ((tx-cx)**2 + (ty-cy)**2)**0.5
+                if dist <= search_radius:
+                    candidates.append((t, dist))
+            
+            # Ordenar por proximidade
+            candidates.sort(key=lambda x: x[1])
+            sorted_texts = [x[0] for x in candidates]
+            
+            # --- REGEX PATTERNS ---
+            import re # Garantir import
+            # H=12, d=10, h=15...
+            re_thick = re.compile(r'[HhDd][= :]?\d+', re.IGNORECASE)
+            # +2.80, 280, N+2.80...
+            re_level = re.compile(r'[+-]?\d+\.\d+|[+-]?\d+', re.IGNORECASE) 
+            
+            found_thick = False
+            found_level = False
+            
+            for t in sorted_texts:
+                txt_val = t['text'].strip()
+                t_layer = t.get('layer')
+                
+                # Ignorar o próprio nome da laje (Ex: L1)
+                if txt_val == s['name']: continue
+                
+                # Check Espessura
+                # Se aprendemos layers de dimensão, PRIORIDADE aos layers aprendidos
+                # Senão, aceita regex
+                is_dim_candidate = False
+                if learned_dim_layers and t_layer in learned_dim_layers:
+                     is_dim_candidate = True
+                elif not learned_dim_layers: # Sem aprendizado, confia no regex
+                     is_dim_candidate = True
+
+                if is_dim_candidate and not found_thick and re_thick.search(txt_val):
+                    s['links']['laje_dim']['label'].append(t)
+                    s['fields']['laje_dim'] = txt_val
+                    found_thick = True
+                    continue # Um texto geralmente é uma coisa só
+                
+                # Check Nível (Prioridade menor se parecer espessura ou nome)
+                # Regex de nível é perigoso (pega qualquer numero). 
+                # Refinar: Deve ter sinal ou ponto, ou ser 'N...'
+                is_lvl_candidate = False
+                if learned_level_layers and t_layer in learned_level_layers:
+                     is_lvl_candidate = True
+                elif not learned_level_layers:
+                     is_lvl_candidate = True
+
+                if not found_level and is_lvl_candidate:
+                    # Heurística: Nível tem +, - ou .
+                    if ('+' in txt_val or '-' in txt_val or '.' in txt_val) and re_level.search(txt_val):
+                        s['links']['laje_nivel']['label'].append(t)
+                        s['fields']['laje_nivel'] = txt_val
+                        found_level = True
+                        continue
+
+        # 3. CONTORNO (Geometria já encontrada pelo SlabTracer)
+        if 'points' in s and s['points']:
+            # Criar representação visual do contorno
+            # O LinkManager espera objetos com 'type': 'poly', 'points': ...
+            poly_link = {
+                'type': 'poly',
+                'points': s['points'],
+                'role': 'Contorno Automático'
+            }
+            s['links']['laje_outline_segs']['contour'].append(poly_link)
 
     def _populate_beam_tree(self, tree_widget, beam_list):
         tree_widget.clear()

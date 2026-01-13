@@ -163,15 +163,13 @@ class LinkManager(QWidget):
         
         if 'viga_fundo' in field_id and '_segs' in field_id:
              return self.SLOT_CONFIG['_fundo_segs']
-        if 'laje' in field_id and '_geom' in field_id:
-             return self.SLOT_CONFIG['_laje_geom']
-        if 'laje' in field_id and '_segs' in field_id:
-             return self.SLOT_CONFIG['_laje_geom']
-
-        if 'laje_dim' in field_id:
+        if 'laje_dim' in field_id or ('dim' in field_id and 'laje' in field_id):
              return self.SLOT_CONFIG['_laje_dim']
         if 'laje_nivel' in field_id:
              return self.SLOT_CONFIG['_laje_level']
+        
+        if 'laje' in field_id and ('_geom' in field_id or 'outline' in field_id):
+             return self.SLOT_CONFIG['_laje_geom']
 
         if 'laje' in field_id and not '_geom' in field_id:
              return self.SLOT_CONFIG['_laje_complex']

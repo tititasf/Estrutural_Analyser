@@ -57,6 +57,7 @@ class DXFLoader:
                 self.entities['polylines'].append({
                     'points': points,
                     'is_closed': pl.is_closed,
+                    'layer': pl.dxf.layer,
                     'color': get_color(pl)
                 })
             except Exception as e:
@@ -69,6 +70,7 @@ class DXFLoader:
             self.entities['lines'].append({
                 'start': (s.x, s.y),
                 'end': (e.x, e.y),
+                'layer': line.dxf.layer,
                 'color': get_color(line)
             })
 
@@ -78,6 +80,7 @@ class DXFLoader:
             self.entities['circles'].append({
                 'center': (cp.x, cp.y),
                 'radius': circle.dxf.radius,
+                'layer': circle.dxf.layer,
                 'color': get_color(circle)
             })
             
@@ -88,6 +91,7 @@ class DXFLoader:
                 'radius': arc.dxf.radius,
                 'start_angle': arc.dxf.start_angle,
                 'end_angle': arc.dxf.end_angle,
+                'layer': arc.dxf.layer,
                 'color': get_color(arc)
             })
 
@@ -98,6 +102,7 @@ class DXFLoader:
             self.entities['texts'].append({
                 'text': content, 
                 'pos': (ins.x, ins.y),
+                'layer': text.dxf.layer,
                 'color': get_color(text)
             })
 
