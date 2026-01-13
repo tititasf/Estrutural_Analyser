@@ -1373,6 +1373,7 @@ class CADCanvas(QGraphicsView):
                 pass
 
     def set_picking_mode(self, mode, field_id=""):
+        self.setFocus()
         self.picking_mode = mode
         self.pick_start = None
         if mode: self.edit_mode = None # Cancela modo de edição se entrar em picking
@@ -1491,6 +1492,7 @@ class CADCanvas(QGraphicsView):
         return best_snap
 
     def mousePressEvent(self, event):
+        self.setFocus()
         # 0. Right Click - Deselect Box or Cancel
         if event.button() == Qt.RightButton:
             # Se ja estiver fazendo algo (ex: line), cancela.
@@ -1752,6 +1754,21 @@ class CADCanvas(QGraphicsView):
         snap_data = self.get_snap(scene_pos)
         snap_pos = snap_data['pos'] if snap_data else (scene_pos.x(), scene_pos.y())
         
+        if self.picking_mode == 'poly':
+            self.pick_poly_points.append((snap_pos[0], snap_pos[1]))
+            # Visual feedback
+            if not self.poly_visual:
+                self.poly_visual = QGraphicsPathItem()
+                self.poly_visual.setPen(QPen(QColor(0, 255, 255), 2))
+                self.scene.addItem(self.poly_visual)
+                self.poly_visual.setZValue(200)
+            
+            path = QPainterPath()
+            path.moveTo(*self.pick_poly_points[0])
+            for p in self.pick_poly_points[1:]: path.lineTo(*p)
+            self.poly_visual.setPath(path)
+            return
+
         if self.picking_mode == 'text':
              best_ent = self._get_best_entity_under_cursor(scene_pos, mode='text')
              if best_ent:
@@ -1826,6 +1843,10 @@ class CADCanvas(QGraphicsView):
              if self.deselect_box:
                  self.deselect_box.setRect(QRectF(self.deselect_box_start, scene_pos).normalized())
              return
+
+        # [MOD] Feedback Visual de Entrada Numérica perto do Mouse
+        if hasattr(self, 'input_label') and self.input_label and self.input_label.isVisible():
+            self.input_label.move(event.pos().x() + 20, event.pos().y() + 20)
 
         # OSNAP Visual
         if self.picking_mode or self.edit_mode:
@@ -1924,184 +1945,177 @@ class CADCanvas(QGraphicsView):
             super().mouseReleaseEvent(event)
 
     def keyPressEvent(self, event):
-        # 1. Atalhos de Ferramentas
         key = event.key()
-        if key == Qt.Key_Escape:
-            self.set_edit_mode(None)
-            self.keyboard_buffer = ""
-            self.input_label.hide()
-        elif key == Qt.Key_L: self.set_edit_mode('line')
-        elif key == Qt.Key_C: self.set_edit_mode('circle')
-        elif key == Qt.Key_T: self.set_edit_mode('text')
-        elif key == Qt.Key_D: self.set_edit_mode('dim')
-        elif key == Qt.Key_M: self.set_edit_mode('move')
-        elif key in (Qt.Key_Delete, Qt.Key_Backspace): self._delete_selection()
+        txt = event.text()
         
-        # 3. Atalhos de Ação (Enter/F8)
-        if key == Qt.Key_F8:
-            self.toggle_ortho()
+        # 4. Captura de Números/Pontos para Distância (CAD-Like)
+        has_poly_start = (self.picking_mode == 'poly' and len(self.pick_poly_points) > 0)
+        is_drawing_active = (self.picking_mode == 'line' or self.edit_mode in ('line', 'dim', 'circle')) and self.pick_start
+        is_drawing_active = is_drawing_active or has_poly_start
+
+        # 1. Backspace no Buffer Numérico
+        if key == Qt.Key_Backspace and self.keyboard_buffer:
+             self.keyboard_buffer = self.keyboard_buffer[:-1]
+             if self.keyboard_buffer:
+                  self.input_label.setText(f"Entrada: {self.keyboard_buffer}")
+             else:
+                  self.input_label.hide()
+             return
+
+        # 2. Captura de Números (Se estiver desenhando)
+        if is_drawing_active and (txt.isdigit() or txt == '.'):
+            self.keyboard_buffer += txt
+            label_pref = "Raio: " if self.edit_mode == 'circle' else "Distância: "
+            self.input_label.setText(f"{label_pref}{self.keyboard_buffer}")
+            self.input_label.show()
+            self.input_label.adjustSize()
+            # Posicionar perto do mouse inicial ou cursor atual? Cursor atual é melhor
+            mouse_pos = self.mapFromGlobal(QCursor.pos())
+            self.input_label.move(mouse_pos.x() + 20, mouse_pos.y() + 20)
             return
 
+        # 3. Tecla ENTER
         if key in (Qt.Key_Return, Qt.Key_Enter):
-            # NOVO: Bloco unificado para finalizar qualquer picking via ENTER
-            if self.picking_mode:
-                print(f"DEBUG: Enter pressed in picking_mode={self.picking_mode}")
+            # PRIORIDADE: Usar buffer se existir
+            if self.keyboard_buffer and is_drawing_active:
+                try: val = float(self.keyboard_buffer)
+                except ValueError: val = 0
                 
-                # Caso A: Polyline Drawing
+                # Calcular ponto de destino baseado na distância e direção do mouse
+                cursor_scene = self.mapToScene(self.mapFromGlobal(QCursor.pos()))
+                snap_data = self.get_snap(cursor_scene)
+                target_look_at = QPointF(*snap_data['pos']) if snap_data else cursor_scene
+                
+                # Determinar ponto de partida (Pick Start ou Último ponto da Poly)
+                start_pt = self.pick_start
+                if self.picking_mode == 'poly' and self.pick_poly_points:
+                    start_pt = QPointF(*self.pick_poly_points[-1])
+
+                angle = math.atan2(target_look_at.y() - start_pt.y(), target_look_at.x() - start_pt.x())
+                if self.ortho_mode:
+                    deg = math.degrees(angle) % 360
+                    if (315 <= deg < 360) or (0 <= deg < 45): angle = 0
+                    elif (45 <= deg < 135): angle = math.pi/2
+                    elif (135 <= deg < 225): angle = math.pi
+                    else: angle = 3*math.pi/2
+
+                target_x = start_pt.x() + val * math.cos(angle)
+                target_y = start_pt.y() + val * math.sin(angle)
+                target_pos_obj = QPointF(target_x, target_y)
+                
+                self.keyboard_buffer = ""
+                self.input_label.hide()
+
+                if self.picking_mode == 'poly':
+                    self.pick_poly_points.append((target_x, target_y))
+                    if not self.poly_visual:
+                        self.poly_visual = QGraphicsPathItem()
+                        self.poly_visual.setPen(QPen(QColor(0, 255, 255), 2))
+                        self.scene.addItem(self.poly_visual)
+                        self.poly_visual.setZValue(200)
+                    path = QPainterPath()
+                    path.moveTo(*self.pick_poly_points[0])
+                    for p in self.pick_poly_points[1:]: path.lineTo(*p)
+                    self.poly_visual.setPath(path)
+                    return
+
+                if self.picking_mode == 'line':
+                    self.pick_completed.emit({
+                        'text': f"{val:.1f}", 'type': 'line',
+                        'points': [(self.pick_start.x(), self.pick_start.y()), (target_x, target_y)]
+                    })
+                    self.set_picking_mode(None)
+                elif self.edit_mode == 'circle':
+                    r = val
+                    circle = self.scene.addEllipse(self.pick_start.x()-r, self.pick_start.y()-r, r*2, r*2, QPen(QColor(30, 144, 255), 2))
+                    circle.setZValue(50); circle.setFlag(QGraphicsItem.ItemIsSelectable); self.overlay_items.append(circle)
+                    self._register_new_geometry(circle, {'type': 'circle', 'center': (self.pick_start.x(), self.pick_start.y()), 'radius': r, 'color': 5})
+                    self.pick_start = None
+                elif self.edit_mode == 'line':
+                    line = self.scene.addLine(self.pick_start.x(), self.pick_start.y(), target_x, target_y, QPen(QColor(30, 144, 255), 2))
+                    line.setZValue(50); line.setFlag(QGraphicsItem.ItemIsSelectable); self.overlay_items.append(line)
+                    self._register_new_geometry(line, {'type': 'line', 'points': [(self.pick_start.x(), self.pick_start.y()), (target_x, target_y)], 'color': 5})
+                    self.pick_start = target_pos_obj 
+                elif self.edit_mode == 'dim':
+                    line = self.scene.addLine(self.pick_start.x(), self.pick_start.y(), target_x, target_y, QPen(QColor(255, 50, 50), 1))
+                    mid = QPointF((self.pick_start.x()+target_x)/2, (self.pick_start.y()+target_y)/2)
+                    txt_item = self.scene.addSimpleText(f"{val:.1f}", QFont("Arial", 10))
+                    txt_item.setPos(mid.x(), mid.y()); txt_item.setBrush(QBrush(QColor(255, 50, 50)))
+                    txt_item.setFlag(QGraphicsSimpleTextItem.ItemIgnoresTransformations)
+                    self.overlay_items.extend([line, txt_item])
+                    self.pick_start = None
+                
+                if self.temp_item:
+                    if self.pick_start and self.edit_mode == 'line': 
+                        self.temp_item.setLine(QLineF(self.pick_start, self.pick_start))
+                    else: 
+                        self.scene.removeItem(self.temp_item); self.temp_item = None
+                return
+
+            # SE NÃO HOUVER BUFFER - Ação normal do Enter
+            if self.picking_mode:
                 if self.picking_mode == 'poly':
                     if len(self.pick_poly_points) >= 2:
-                        # Finalizar como Polyline
                         poly_data = {'text': 'Polyline', 'type': 'poly', 'points': self.pick_poly_points}
-                        from PySide6.QtGui import QPainterPath
                         path = QPainterPath()
                         path.moveTo(*self.pick_poly_points[0])
                         for p in self.pick_poly_points[1:]: path.lineTo(*p)
                         path.closeSubpath()
                         item = self.scene.addPath(path, QPen(QColor(255, 0, 0), 2), QBrush(QColor(255, 0, 0, 50)))
                         self.overlay_items.append(item)
-                        print("DEBUG: Finalizing Poly with points")
-                        self.pick_completed.emit(poly_data)
-                        self.set_picking_mode(None)
+                        self.pick_completed.emit(poly_data); self.set_picking_mode(None)
                     elif len(self.pick_poly_points) == 1:
-                        # Finalizar como ponto único (fallback)
                         pt = self.pick_poly_points[0]
-                        print("DEBUG: Finalizing Poly with single point fallback")
-                        self.pick_completed.emit({'text': f"Pt:{pt[0]:.0f},{pt[1]:.0f}", 'type': 'geometry', 'pos': pt})
-                        self.set_picking_mode(None)
+                        self.pick_completed.emit({'text': f"Pt:{pt[0]:.0f},{pt[1]:.0f}", 'type': 'geometry', 'pos': pt}); self.set_picking_mode(None)
                     else:
-                        # 0 Pontos Clicados: Tentar pegar entidade sob o mouse (Fallback inteligente)
                         cursor_pos = self.mapToScene(self.mapFromGlobal(QCursor.pos()))
                         best_ent = self._get_best_entity_under_cursor(cursor_pos)
-                        if best_ent:
-                             print(f"DEBUG: Finalizing Poly with entity fallback: {best_ent.get('type')}")
-                             res = {
-                                'type': best_ent.get('type', 'geometry'),
-                                'text': best_ent.get('text', 'Entidade CAD'),
-                                'pos': best_ent.get('pos', best_ent.get('center')),
-                                'points': best_ent.get('points'),
-                                'radius': best_ent.get('radius')
-                             }
-                             self.pick_completed.emit(res)
-                             self.set_picking_mode(None)
-                        else:
-                             print("DEBUG: Enter ignored - no points and no entity found")
+                        if best_ent: self.pick_completed.emit(best_ent); self.set_picking_mode(None)
                     return
 
                 elif self.picking_mode == 'line' and self.pick_start:
-                    # Finalizar linha no ponto atual do mouse/snap
                     cursor_pos = self.mapToScene(self.mapFromGlobal(QCursor.pos()))
                     snap_data = self.get_snap(cursor_pos)
                     target_pt = QPointF(*snap_data['pos']) if snap_data else cursor_pos
-                    
-                    if self.ortho_mode:
-                        target_pt = self._apply_ortho(self.pick_start, target_pt)
-                    
+                    if self.ortho_mode: target_pt = self._apply_ortho(self.pick_start, target_pt)
                     final_pos = (target_pt.x(), target_pt.y())
                     dist = ((self.pick_start.x()-final_pos[0])**2 + (self.pick_start.y()-final_pos[1])**2)**0.5
-                    
-                    print(f"DEBUG: Finalizing Line pick with Enter. Dist: {dist:.1f}")
-                    self.pick_completed.emit({
-                        'text': f"{dist:.1f}", 
-                        'type': 'line',
-                        'points': [(self.pick_start.x(), self.pick_start.y()), final_pos]
-                    })
+                    self.pick_completed.emit({'text': f"{dist:.1f}", 'type': 'line', 'points': [(self.pick_start.x(), self.pick_start.y()), final_pos]})
                     self.set_picking_mode(None)
                     return
 
                 elif self.picking_mode in ('text', 'geometry'):
-                    # Tentar finalizar com o que estiver SELECIONADO ou sob o mouse
                     cursor_pos = self.mapToScene(self.mapFromGlobal(QCursor.pos()))
                     best_ent = self._get_best_entity_under_cursor(cursor_pos, mode=self.picking_mode)
-                    
-                    # Fallback: Usar o que estiver selecionado na cena se coincidir com o tipo
-                    if not best_ent:
-                        selected = self.scene.selectedItems()
-                        if selected:
-                            item = selected[0]
-                            if self.picking_mode == 'text' and isinstance(item, QGraphicsSimpleTextItem):
-                                best_ent = {'text': item.text(), 'type': 'text', 'pos': (item.pos().x(), item.pos().y())}
-                            elif self.picking_mode == 'geometry':
-                                # Tenta inferir pick_data do item selecionado
-                                if hasattr(item, 'line'):
-                                    p1 = (item.line().p1().x(), item.line().p1().y())
-                                    p2 = (item.line().p2().x(), item.line().p2().y())
-                                    dist = ((p1[0]-p2[0])**2 + (p1[1]-p2[1])**2)**0.5
-                                    best_ent = {'text': f"{dist:.1f}", 'type': 'line', 'points': [p1, p2]}
-                    
                     if best_ent:
-                        print(f"DEBUG: Finalizing {self.picking_mode} pick with entity/selection")
-                        self.pick_completed.emit(best_ent)
-                        self.set_picking_mode(None)
+                        self.pick_completed.emit(best_ent); self.set_picking_mode(None)
                     return
 
             if self.edit_mode == 'move' and self.is_moving:
-                self.is_moving = False
-                self.set_edit_mode('select')
-                return
+                self.is_moving = False; self.set_edit_mode('select'); return
             elif self.edit_mode == 'line' and not self.keyboard_buffer:
-                 self.set_edit_mode('select')
-                 return
+                 self.set_edit_mode('select'); return
 
-        # 4. Entrada Numérica Direcional (CAD-Like) - Linha, Cota, Círculo
-        if self.edit_mode in ('line', 'dim', 'circle') and self.pick_start:
-            text = event.text()
-            if text.isdigit() or text == '.':
-                self.keyboard_buffer += text
-                label_txt = "Raio: " if self.edit_mode == 'circle' else "Distância: "
-                self.input_label.setText(f"{label_txt}{self.keyboard_buffer}")
-                self.input_label.show()
-                self.input_label.adjustSize()
-            elif key in (Qt.Key_Return, Qt.Key_Enter):
-                if self.keyboard_buffer:
-                    val = float(self.keyboard_buffer)
-                    
-                    if self.edit_mode == 'circle':
-                        r = val
-                        blue_pen = QPen(QColor(30, 144, 255), 2)
-                        circle = self.scene.addEllipse(self.pick_start.x()-r, self.pick_start.y()-r, r*2, r*2, blue_pen)
-                        circle.setZValue(50); circle.setFlag(QGraphicsItem.ItemIsSelectable); self.overlay_items.append(circle)
-                        self.pick_start = None # Finaliza círculo
-                    else:
-                        dist = val
-                        # Direção do mouse atual
-                        mouse_scene = self.mapToScene(self.mapFromGlobal(QCursor.pos()))
-                        angle = math.atan2(mouse_scene.y() - self.pick_start.y(), mouse_scene.x() - self.pick_start.x())
-                        
-                        if self.ortho_mode:
-                            deg = math.degrees(angle) % 360
-                            if (315 <= deg < 360) or (0 <= deg < 45): angle = 0
-                            elif (45 <= deg < 135): angle = math.pi/2
-                            elif (135 <= deg < 225): angle = math.pi
-                            else: angle = 3*math.pi/2
+        # 4. Atalhos de Ferramentas e Estado Geral
+        if key == Qt.Key_Escape:
+            self.set_edit_mode(None)
+            self.keyboard_buffer = ""
+            self.input_label.hide()
+            return
 
-                        target_x = self.pick_start.x() + dist * math.cos(angle)
-                        target_y = self.pick_start.y() + dist * math.sin(angle)
-                        target_pos = QPointF(target_x, target_y)
+        if key == Qt.Key_F8:
+            self.toggle_ortho(); return
 
-                        if self.edit_mode == 'line':
-                            line = self.scene.addLine(self.pick_start.x(), self.pick_start.y(), target_x, target_y, QPen(QColor(30, 144, 255), 2))
-                            line.setZValue(50); line.setFlag(QGraphicsItem.ItemIsSelectable); self.overlay_items.append(line)
-                            self.pick_start = target_pos # Continuar da ponta
-                        else: # dim
-                            red_pen = QPen(QColor(255, 50, 50), 1)
-                            line = self.scene.addLine(self.pick_start.x(), self.pick_start.y(), target_x, target_y, red_pen)
-                            mid = QPointF((self.pick_start.x()+target_x)/2, (self.pick_start.y()+target_y)/2)
-                            txt = self.scene.addSimpleText(f"{dist:.1f}", QFont("Arial", 10))
-                            txt.setPos(mid.x(), mid.y()); txt.setBrush(QBrush(QColor(255, 50, 50)))
-                            txt.setZValue(120); txt.setFlag(QGraphicsItem.ItemIgnoresTransformations)
-                            self.overlay_items.extend([line, txt])
-                            self.pick_start = None
-                    
-                    self.keyboard_buffer = ""
-                    self.input_label.hide()
-                    if self.temp_item:
-                         if self.pick_start:
-                            if self.edit_mode == 'line':
-                                self.temp_item.setLine(QLineF(self.pick_start, self.pick_start))
-                            else:
-                                self.scene.removeItem(self.temp_item); self.temp_item = None
-                         else:
-                             self.scene.removeItem(self.temp_item); self.temp_item = None
+        # Atalhos de Edição (Somente se não estiver em picking)
+        if not self.picking_mode:
+            if key == Qt.Key_L: self.set_edit_mode('line'); return
+            if key == Qt.Key_C: self.set_edit_mode('circle'); return
+            if key == Qt.Key_T: self.set_edit_mode('text'); return
+            if key == Qt.Key_D: self.set_edit_mode('dim'); return
+            if key == Qt.Key_M: self.set_edit_mode('move'); return
+            if key in (Qt.Key_Delete, Qt.Key_Backspace): self._delete_selection(); return
+
+        super().keyPressEvent(event)
         super().keyPressEvent(event)
 
     def _get_best_entity_under_cursor(self, scene_pos, mode='geometry', aperture=10.0):
