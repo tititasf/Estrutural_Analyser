@@ -837,6 +837,15 @@ class CADCanvas(QGraphicsView):
                     self.interactive_items[s_data['id']] = item
                     self.item_groups['slab'].append(item)
                 
+                # [NOVO] Registrar Snaps para o corpo da laje
+                if points:
+                    for i, pt in enumerate(points):
+                        self._add_snap_point(pt, 'endpoint')
+                        p_next = points[(i+1) % len(points)]
+                        self.snap_segments.append((pt, p_next))
+                        # Midpoint
+                        self._add_snap_point(((pt[0]+p_next[0])/2, (pt[1]+p_next[1])/2), 'midpoint')
+                
                 # AJUSTE 3: Desenhar vínculos de segmentos para a visão global
                 self.draw_item_links(s_data, destination='slab', clear=False)
 
@@ -993,6 +1002,23 @@ class CADCanvas(QGraphicsView):
                     elif (l_type in ['line', 'poly', 'geometry']) and link.get('points'):
                         pts = link['points']
                         if pts and len(pts) >= 2:
+                            # [NOVO] Registrar Snaps para geometria de vínculo (Contornos, Linhas, etc)
+                            # Permite desenhar "grudado" nos vínculos
+                            if destination != 'focus': # Evita poluir snap com highlights temporários
+                                for i, pt in enumerate(pts):
+                                    self._add_snap_point(pt, 'endpoint') # Pontos
+                                    
+                                    # Segmentos e Midpoints
+                                    if i < len(pts) - 1:
+                                        p_next = pts[i+1]
+                                        self.snap_segments.append((pt, p_next))
+                                        self._add_snap_point(((pt[0]+p_next[0])/2, (pt[1]+p_next[1])/2), 'midpoint')
+                                
+                                # Fechamento se for Poly
+                                if l_type == 'poly' and pts[0] != pts[-1]:
+                                    self.snap_segments.append((pts[-1], pts[0]))
+                                    self._add_snap_point(((pts[-1][0]+pts[0][0])/2, (pts[-1][1]+pts[0][1])/2), 'midpoint')
+
                             path = QPainterPath()
                             path.moveTo(pts[0][0], pts[0][1])
                             for p in pts[1:]: path.lineTo(p[0], p[1])
