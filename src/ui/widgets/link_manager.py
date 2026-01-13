@@ -321,8 +321,13 @@ class LinkManager(QWidget):
                 if item.widget(): 
                     item.widget().deleteLater()
                 elif item.layout():
-                    # Se houver layouts aninhados, idealmente deletar widgets dentro
-                    pass
+                    # Limpeza recursiva para layouts aninhados (h_wrapper_slot)
+                    sub_layout = item.layout()
+                    while sub_layout.count():
+                        sub_item = sub_layout.takeAt(0)
+                        if sub_item.widget(): 
+                            sub_item.widget().deleteLater()
+                    sub_layout.deleteLater()
         except RuntimeError:
             return
 
@@ -342,6 +347,7 @@ class LinkManager(QWidget):
             header_layout = QHBoxLayout()
             st_lbl = QLabel(slot['name'].upper())
             st_lbl.setProperty("class", "SlotTitle")
+            st_lbl.setWordWrap(True)
             header_layout.addWidget(st_lbl, 1)
             
             # Botão Interpretação (Nível de Classe/Slot)
@@ -438,13 +444,21 @@ class LinkManager(QWidget):
             btn_add.setProperty("class", "AddBtn")
             btn_add.clicked.connect(lambda checked=False, s=slot: self._on_pick_clicked(s))
             sf_layout.addWidget(btn_add)
-
+            
             if self.field_id == 'laje_outline_segs':
-                h_wrap = QHBoxLayout()
-                h_wrap.setContentsMargins(0,0,0,0)
-                h_wrap.addWidget(slot_frame, 5) # 50%
-                h_wrap.addStretch(5)            # 50% space
-                self.slots_container.addLayout(h_wrap)
+                h_wrapper_slot = QHBoxLayout()
+                h_wrapper_slot.setContentsMargins(0,0,0,0)
+                
+                # Diferenciar tamanho por tipo de slot (Contorno vs Acrescimo)
+                s_name_lower = slot['name'].lower()
+                if 'acrescimo' in s_name_lower or 'acréscimo' in s_name_lower:
+                     h_wrapper_slot.addWidget(slot_frame, 5)
+                     h_wrapper_slot.addStretch(5)
+                else:
+                     h_wrapper_slot.addWidget(slot_frame, 7)
+                     h_wrapper_slot.addStretch(3)
+                     
+                self.slots_container.addLayout(h_wrapper_slot)
             else:
                 self.slots_container.addWidget(slot_frame)
         

@@ -471,6 +471,14 @@ class MainWindow(QMainWindow):
     def on_focus_requested(self, field_id):
         """Tenta focar no objeto vinculado ao campo especificado via COORDENADA DIRETA"""
         if not self.current_card: return
+        
+        # [FIX] Se receber um objeto de link direto (do LinkManager), foca apenas nele
+        if isinstance(field_id, dict):
+            # É um link individual -> Highlight único
+            self.canvas.highlight_link(field_id, color=QColor(255, 255, 0))
+            self.log(f"📍 Focando vínculo individual via LinkManager")
+            return
+
         item_data = self.current_card.item_data
         
         # Buscar nos links estruturados do campo
@@ -486,9 +494,9 @@ class MainWindow(QMainWindow):
                         valid_links.append(link)
         
         if valid_links:
-            # 1. Destacar o Item Pai em Amarelo (Persistente)
-            if 'id' in item_data:
-                self.canvas.highlight_item_yellow(item_data['id'])
+            # 1. Destacar o Item Pai em Amarelo (Persistente) -> REMOVIDO A PEDIDO DO CLIENTE
+            # if 'id' in item_data:
+            #     self.canvas.highlight_item_yellow(item_data['id'])
             
             # 2. Destacar TODOS os Links Específicos em Amarelo (Zoom no conjunto)
             self.canvas.highlight_multiple_links(valid_links, color=QColor(255, 255, 0))
