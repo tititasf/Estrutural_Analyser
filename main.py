@@ -1823,7 +1823,7 @@ class MainWindow(QMainWindow):
             self.log(f"👍 Feedback POSITIVO salvo para '{field_id}:{slot_id}'")
             
             # --- NOVO: Se validou o vínculo, valida o item inteiro no DXF ---
-            self.on_card_validated(p_data)
+            self.on_card_validated(p_data, retrain_fields=False)
         else:
             # Marcar o link individual como falho
             link_obj['failed'] = True
@@ -1840,7 +1840,7 @@ class MainWindow(QMainWindow):
             if lm:
                 lm.refresh_list()
 
-        self.tab_training.load_events(self.current_project_id)
+        # self.tab_training.load_events(self.current_project_id)
 
     def _propagate_training_action(self, field_id, slot_id, source_pilar, link_obj):
         """Propaga o vínculo aprendido para outros pilares com DNA similar."""
@@ -2021,7 +2021,7 @@ class MainWindow(QMainWindow):
 
 
 
-    def on_card_validated(self, item_data):
+    def on_card_validated(self, item_data, retrain_fields=True):
         """Chamado quando usuário clica em 'VALIDAR' no card."""
         item_data['is_validated'] = True
         p_id = item_data['id']
@@ -2030,17 +2030,18 @@ class MainWindow(QMainWindow):
         
         # 1. Registrar Treino para TODOS os campos validados do item
         # Isso garante que a IA aprenda o layout completo confirmado pelo humano.
-        validated_fields = item_data.get('validated_fields', [])
-        links_dict = item_data.get('links', {})
-        
-        for f_id in validated_fields:
-            field_links = links_dict.get(f_id, {})
-            # Se for um campo validado e tiver vínculos, registramos como conhecimento "Ground Truth"
-            for slot_id, links_list in field_links.items():
-                for lk in links_list:
-                    lk['validated'] = True
-                    lk.pop('failed', None)
-                    self._log_training_action(item_data, f_id, slot_id, lk, status='valid', comment='Card Validation')
+        if retrain_fields:
+            validated_fields = item_data.get('validated_fields', [])
+            links_dict = item_data.get('links', {})
+            
+            for f_id in validated_fields:
+                field_links = links_dict.get(f_id, {})
+                # Se for um campo validado e tiver vínculos, registramos como conhecimento "Ground Truth"
+                for slot_id, links_list in field_links.items():
+                    for lk in links_list:
+                        lk['validated'] = True
+                        lk.pop('failed', None)
+                        self._log_training_action(item_data, f_id, slot_id, lk, status='valid', comment='Card Validation')
 
         # 2. Salvar imediatamente no projeto e atualizar UI
         if self.current_project_id:
@@ -2069,32 +2070,38 @@ class MainWindow(QMainWindow):
                 return
 
             # Atualizar item na lista de origem
-            if 'viga' in elem_type:
-                self._populate_beam_tree(target_list, self.beams_found)
-                valid_beams = [b for b in self.beams_found if b.get('is_validated')]
-                self._populate_beam_tree(valid_list, valid_beams)
-            else:
-                for i in range(target_list.count()):
-                     it = target_list.item(i)
-                     if it.data(Qt.UserRole) == p_id:
-                          it.setText(item_label + (" ✅" if " ✅" not in it.text() else ""))
-                          it.setForeground(Qt.green)
-                          break
-                
-                # Adicionar à lista validada (evitar duplicados visuais)
-                found_v_idx = -1
-                for i in range(valid_list.count()):
-                    if valid_list.item(i).data(Qt.UserRole) == p_id:
-                        found_v_idx = i
-                        break
-                
-                if found_v_idx == -1:
-                    item_v = QListWidgetItem(item_label + " ✅")
-                    item_v.setData(Qt.UserRole, p_id)
-                    item_v.setForeground(Qt.green)
-                    valid_list.addItem(item_v)
+            target_list.setUpdatesEnabled(False)
+            valid_list.setUpdatesEnabled(False)
+            try:
+                if 'viga' in elem_type:
+                    self._populate_beam_tree(target_list, self.beams_found)
+                    valid_beams = [b for b in self.beams_found if b.get('is_validated')]
+                    self._populate_beam_tree(valid_list, valid_beams)
                 else:
-                    valid_list.item(found_v_idx).setText(item_label + " ✅")
+                    for i in range(target_list.count()):
+                         it = target_list.item(i)
+                         if it.data(Qt.UserRole) == p_id:
+                              it.setText(item_label + (" ✅" if " ✅" not in it.text() else ""))
+                              it.setForeground(Qt.green)
+                              break
+                    
+                    # Adicionar à lista validada (evitar duplicados visuais)
+                    found_v_idx = -1
+                    for i in range(valid_list.count()):
+                        if valid_list.item(i).data(Qt.UserRole) == p_id:
+                            found_v_idx = i
+                            break
+                    
+                    if found_v_idx == -1:
+                        item_v = QListWidgetItem(item_label + " ✅")
+                        item_v.setData(Qt.UserRole, p_id)
+                        item_v.setForeground(Qt.green)
+                        valid_list.addItem(item_v)
+                    else:
+                        valid_list.item(found_v_idx).setText(item_label + " ✅")
+            finally:
+                target_list.setUpdatesEnabled(True)
+                valid_list.setUpdatesEnabled(True)
         
         # Feedback Visual no Canvas
         if 'pilar' in elem_type:

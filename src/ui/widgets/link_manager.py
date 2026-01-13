@@ -439,7 +439,14 @@ class LinkManager(QWidget):
             btn_add.clicked.connect(lambda checked=False, s=slot: self._on_pick_clicked(s))
             sf_layout.addWidget(btn_add)
 
-            self.slots_container.addWidget(slot_frame)
+            if self.field_id == 'laje_outline_segs':
+                h_wrap = QHBoxLayout()
+                h_wrap.setContentsMargins(0,0,0,0)
+                h_wrap.addWidget(slot_frame, 5) # 50%
+                h_wrap.addStretch(5)            # 50% space
+                self.slots_container.addLayout(h_wrap)
+            else:
+                self.slots_container.addWidget(slot_frame)
         
         # self.slots_container.addStretch() # Opcional em VBox direto
         
