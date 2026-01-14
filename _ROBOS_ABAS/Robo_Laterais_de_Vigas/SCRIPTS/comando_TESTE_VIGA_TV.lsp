@@ -1,0 +1,5 @@
+;; Comando para executar script SCR automático (Gerado Dinamicamente)
+(defun c:TV ()
+  (command "_SCRIPT" "d:/Users/rvene/Desktop/GITHUB/Automacao_cad/Vigas/A_B/SCRIPTS/TESTE_VIGA_TV.scr")
+  (princ)
+)

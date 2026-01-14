@@ -98,8 +98,90 @@ class CADCanvas(QGraphicsView):
         self._init_cad_toolbar()
         self._init_input_overlay()
         
+    def save_state(self):
+        """Captura o estado atual da cena e dados auxiliares para cache."""
+        return {
+            'scene': self.scene,
+            'transform': self.transform(),
+            'h_scroll': self.horizontalScrollBar().value(),
+            'v_scroll': self.verticalScrollBar().value(),
+            'interactive_items': self.interactive_items,
+            'item_groups': self.item_groups,
+            'dxf_entities': self.dxf_entities,
+            'snap_points': self.snap_points,
+            'snap_segments': self.snap_segments,
+            'persistent_links': self.persistent_links
+        }
+
+    def restore_state(self, state):
+        """Restaura o estado do canvas a partir do cache."""
+        if not state: return
+        
+        # Restaurar Scene
+        self.scene = state['scene']
+        self.setScene(self.scene)
+        
+        # Restaurar Viewport (Zoom/Pan)
+        if 'transform' in state:
+            self.setTransform(state['transform'])
+        if 'h_scroll' in state:
+            self.horizontalScrollBar().setValue(state['h_scroll'])
+        if 'v_scroll' in state:
+            self.verticalScrollBar().setValue(state['v_scroll'])
+            
+        # Restaurar Dados
+        self.interactive_items = state['interactive_items']
+        self.item_groups = state['item_groups']
+        self.dxf_entities = state['dxf_entities']
+        self.snap_points = state['snap_points']
+        self.snap_segments = state['snap_segments']
+        self.persistent_links = state['persistent_links']
+        
+        # Atualizar viewport mapping? (Opcional, talvez reset transform)
+        # self.fitInView(self.scene.itemsBoundingRect(), Qt.KeepAspectRatio)
+        
         # Conectar sinal de mudanca de selecao para realce visual
         self.scene.selectionChanged.connect(self._on_selection_changed)
+    
+    def reset_state(self):
+        """Limpa a cena e reseta referências a objetos C++ para evitar crashes."""
+        # --- CRITICAL FIX: SWAP SCENE INSTEAD OF CLEARING ---
+        # Se usarmos .clear(), destruímos a cena que pode estar cacheada em outra aba.
+        # Ao criar uma NOVA cena, deixamos a antiga intacta (preservada no cache)
+        # e preparamos o canvas para um novo projeto limpo.
+        self.scene = QGraphicsScene(self)
+        self.setScene(self.scene)
+        self.scene.selectionChanged.connect(self._on_selection_changed)
+        
+        # Resetar referências a itens que estavam na cena
+        self.selection_box = None
+        self.box_start = None
+        self.deselect_box = None
+        self.deselect_box_start = None
+        self.poly_visual = None
+        self.snap_markers = {}
+        self.temp_line = None
+        self.temp_text = None
+        self.temp_item = None
+        self.interactive_items = {}
+        self.current_yellow_item_id = None
+        
+        # Resetar listas
+        self.item_groups = {
+            'pillar': [],
+            'slab': [],
+            'beam': [],
+            'link': []
+        }
+        self.dxf_entities = []
+        self.snap_points = []
+        self.snap_segments = []
+        self.persistent_links = {}
+        
+        # Re-inicializar overlays necessários
+        self._init_osnap_markers()
+        self._init_instruction_overlay()
+        self._init_input_overlay()
     
     # Restoring imports and helper methods that might have been lost or displaced
     def _on_selection_changed(self):

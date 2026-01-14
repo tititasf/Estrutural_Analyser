@@ -122,11 +122,59 @@ class MainWindow(QMainWindow):
         self.cmb_pavements.currentIndexChanged.connect(self._on_pavement_changed)
         layout.addWidget(self.cmb_pavements)
 
-        # Spacer
+        # Separator 2
+        line2 = QFrame()
+        line2.setFrameShape(QFrame.VLine)
+        line2.setFrameShadow(QFrame.Sunken)
+        line2.setStyleSheet("border: 1px solid #444;")
+        layout.addWidget(line2)
+
+        # 5. Níveis (Movido do Painel Esquerdo)
+        # Chegada
+        layout.addWidget(QLabel("Nível Cheg.:"))
+        self.edit_level_arr = QLineEdit()
+        self.edit_level_arr.setFixedWidth(60)
+        self.edit_level_arr.setPlaceholderText("0.00")
+        self.edit_level_arr.editingFinished.connect(self.save_project_metadata)
+        layout.addWidget(self.edit_level_arr)
+        
+        # Saída
+        layout.addWidget(QLabel("Nível Saída:"))
+        self.edit_level_exit = QLineEdit()
+        self.edit_level_exit.setFixedWidth(60)
+        self.edit_level_exit.setPlaceholderText("3.00")
+        self.edit_level_exit.editingFinished.connect(self.save_project_metadata)
+        layout.addWidget(self.edit_level_exit)
+
+        # Spacer (Empurra status e progress para direita)
         layout.addStretch()
 
-        # 5. Status / User Profile (Placeholder)
-        lbl_status = QLabel("● SYNC ACTIVE")
+        # 6. Barra de Progresso (Integrada ao Header)
+        self.progress_container = QWidget()
+        prog_layout = QHBoxLayout(self.progress_container)
+        prog_layout.setContentsMargins(0, 0, 0, 0)
+        prog_layout.setSpacing(5)
+        
+        self.lbl_progress = QLabel("Aguardando...")
+        self.lbl_progress.setStyleSheet("color: #aaa; font-size: 10px;")
+        prog_layout.addWidget(self.lbl_progress)
+        
+        self.progress_bar = QProgressBar()
+        self.progress_bar.setFixedWidth(100) # Compacto
+        self.progress_bar.setFixedHeight(8)
+        self.progress_bar.setTextVisible(False)
+        self.progress_bar.setStyleSheet("""
+            QProgressBar { border: 1px solid #444; border-radius: 4px; background: #222; }
+            QProgressBar::chunk { background: #0078d4; border-radius: 3px; }
+        """)
+        pass # Valor inicial 0
+        prog_layout.addWidget(self.progress_bar)
+        
+        self.progress_container.hide() # Esconde por padrão
+        layout.addWidget(self.progress_container)
+
+        # 7. Status / User Profile (Placeholder)
+        lbl_status = QLabel("● SYNC")
         lbl_status.setStyleSheet("color: #00E5FF; font-weight: bold; font-size: 10px;")
         layout.addWidget(lbl_status)
         
@@ -185,28 +233,151 @@ class MainWindow(QMainWindow):
         self.cmb_pavements.blockSignals(False)
 
     def _on_pavement_changed(self):
-        """Carrega o projeto selecionado."""
+        """Carrega o projeto selecionado (ABRE EM ABA)."""
         idx = self.cmb_pavements.currentIndex()
         if idx < 0: return
         
         project_id = self.cmb_pavements.itemData(idx)
-        if project_id and project_id != self.active_project_id:
-             # Load Project
-             self.current_project_id = project_id # Compatibilidade com logica existente
-             self.active_project_id = project_id
-             
-             # Fetch full info to set name
-             p_info = self.db.get_project_by_id(project_id)
-             if p_info:
-                 self.current_project_name = p_info.get('name')
-                 self.log(f"🔄 Trocando para Pavimento: {self.current_project_name}")
-                 self.load_project_action()
+        project_name = self.cmb_pavements.currentText()
+        
+        if project_id:
+             self._open_project_tab(project_id, project_name)
+
+    def _open_project_tab(self, project_id, project_name):
+        """Abre uma nova aba de projeto ou foca na existente."""
+        # Check if already open
+        count = self.project_tabs.count()
+        for i in range(count):
+            pid = self.project_tabs.tabToolTip(i) # Store ID in ToolTip or Data
+            if pid == project_id:
+                self.project_tabs.setCurrentIndex(i)
+                # self._on_project_tab_clicked(i) # Clicked signal usually handles load
+                # But setCurrentIndex doesn't trigger tabBarClicked
+                self._load_project_into_view(project_id)
+                return
+
+        # Create new tab
+        # Create an empty widget as placeholder
+        page = QWidget()
+        idx = self.project_tabs.addTab(page, project_name)
+        pid_str = str(project_id)
+        self.project_tabs.setTabToolTip(idx, pid_str)
+        
+        # Switch to it
+        self.project_tabs.setCurrentIndex(idx)
+        
+        # Force load because addTab (0) triggers currentChanged BEFORE ToolTip is set
+        # This ensures the project loads even for the first tab
+        self._load_project_into_view(pid_str)
+        
+    def _on_project_tab_changed(self, index):
+        """Disparado quando a aba ativa muda."""
+        if index < 0: return
+        project_id = self.project_tabs.tabToolTip(index)
+        
+        # Se for o mesmo já ativo, evita reload desnecessario (mas se for switch de sessao, precisa load)
+        # Active ID track
+        if project_id != self.active_project_id:
+             self._load_project_into_view(project_id)
+
+    def _on_project_tab_close(self, index):
+        """Fecha a aba do projeto."""
+        if index < 0: return
+        # Logic: If I close the current tab, QTabWidget switches to another.
+        # This triggers _on_project_tab_changed automatically.
+        # Just remove.
+        self.project_tabs.removeTab(index)
+        
+        # If no tabs left? Clear UI
+        if self.project_tabs.count() == 0:
+            self.active_project_id = None
+            self.current_project_id = None
+            # TODO: Clear lists to show empty state
+            self.list_pillars.clear()
+            self.list_beams.clear()
+            self.list_slabs.clear()
+            # self.canvas.clear() ?
+            return
+            
+    def _load_project_into_view(self, project_id):
+        """Carrega efetivamente o projeto ID na View Unica (com Cache Swap)."""
+        if str(project_id) == str(self.active_project_id):
+            # Same project, do nothing unless force reload needed
+            return
+
+        # 1. Salvar Estado Anterior (Se houver)
+        if self.active_project_id:
+            old_id = self.active_project_id
+            
+            # Garantir entrada no cache
+            if old_id not in self.loaded_projects_cache:
+                self.loaded_projects_cache[old_id] = {}
+            
+            # Salvar Estado do Canvas (Scene Swap)
+            if hasattr(self.canvas, 'save_state'):
+                 self.loaded_projects_cache[old_id]['canvas_state'] = self.canvas.save_state()
+            
+            # Salvar Listas de Dados (Para restaurar UI sem re-query)
+            self.loaded_projects_cache[old_id]['data'] = {
+                'pillars': self.pillars_found,
+                'beams': self.beams_found,
+                'slabs': self.slabs_found
+            }
+            
+            # Opcional: Salvar no DB mudanças pendentes (Auto-Save)
+            self.save_project_action() 
+        
+        # 2. Set Active
+        self.active_project_id = project_id
+        self.current_project_id = project_id
+        
+        # 3. Tentar Restaurar do Cache (Instant Switch)
+        cache_hit = False
+        if project_id in self.loaded_projects_cache:
+            cache = self.loaded_projects_cache[project_id]
+            
+            # Requisito: Ter estado do canvas E dados
+            if 'canvas_state' in cache and 'data' in cache:
+                self.log(f"⚡ Trocando para aba {project_id} (Instant Cache)...")
+                
+                # Restaurar Canvas
+                if hasattr(self.canvas, 'restore_state'):
+                    self.canvas.restore_state(cache['canvas_state'])
+                
+                # Restaurar Dados Listas
+                data = cache['data']
+                self.pillars_found = data['pillars']
+                self.beams_found = data['beams']
+                self.slabs_found = data['slabs']
+                
+                # Atualizar Listas UI
+                self._update_all_lists_ui()
+                
+                # Atualizar meta info
+                p_info = self.db.get_project_by_id(project_id)
+                if p_info:
+                     self.current_project_name = p_info.get('name')
+                
+                cache_hit = True
+
+        # 4. Se não estava no cache, carregar full (DB + DXF)
+        if not cache_hit:
+            self.load_project_action() # Lógica existente de povoar lists/canvas
 
     def _setup_structural_analyzer_area(self):
         """Constrói o layout do módulo 'Structural Analyzer' (Legacy UI)."""
-        # Container do Módulo
+        
+        # 1. Container Geral do Módulo
         module_container = QWidget()
-        main_layout = QHBoxLayout(module_container)
+        module_layout = QVBoxLayout(module_container)
+        module_layout.setContentsMargins(0, 0, 0, 0)
+        module_layout.setSpacing(0)
+        
+        # (Abas de Projeto movidas para init_ui)
+        
+        # 3. Área de Conteúdo (Persistente - The Splitter)
+        content_area = QWidget()
+        main_layout = QHBoxLayout(content_area) # Layout horizontal para o splitter
         main_layout.setContentsMargins(0, 0, 0, 0)
         
         self.splitter = QSplitter(Qt.Horizontal)
@@ -218,38 +389,16 @@ class MainWindow(QMainWindow):
         left_layout = QVBoxLayout(self.left_panel)
         left_layout.setSpacing(10)
         
+        # (Resto do código do painel esquerdo...)
+        
         # 0. Botão Gerenciar Projetos (Removido daqui, foi para TopBar, mas mantemos lógica se precisar)
         # Na verdade, removemos visualmente do painel esquerdo pois já está no TopBar.
         
         # 1. Inputs de Metadados (Removidos para TopBar)
-        # Mantemos apenas nível de chegada/saída se necessário, ou movemos tudo.
-        # Por enquanto, vou recriar APENAS os Níveis no painel lateral
+        # 1. Widgets Removidos (Movicdos para TopBar)
+        # self.meta_widget (Levels) -> TopBar
+        # self.progress_container -> TopBar
         
-        self.meta_widget = QWidget()
-        meta_layout = QVBoxLayout(self.meta_widget)
-        meta_layout.setContentsMargins(0, 0, 0, 0)
-        meta_layout.setSpacing(5)
-        
-        # Níveis (Chegada/Saída)
-        lvl_layout = QHBoxLayout()
-        v1 = QVBoxLayout()
-        v1.addWidget(QLabel("Nível Chegada:"))
-        self.edit_level_arr = QLineEdit()
-        self.edit_level_arr.editingFinished.connect(self.save_project_metadata)
-        v1.addWidget(self.edit_level_arr)
-        
-        v2 = QVBoxLayout()
-        v2.addWidget(QLabel("Nível Saída:"))
-        self.edit_level_exit = QLineEdit()
-        self.edit_level_exit.editingFinished.connect(self.save_project_metadata)
-        v2.addWidget(self.edit_level_exit)
-        
-        lvl_layout.addLayout(v1)
-        lvl_layout.addLayout(v2)
-        meta_layout.addLayout(lvl_layout)
-        
-        left_layout.addWidget(self.meta_widget)
-
         # 2. Botão de Análise (Imediatamente acima do Salvar)
 
         self.btn_process = QPushButton("🚀 Iniciar Análise Geral")
@@ -258,11 +407,8 @@ class MainWindow(QMainWindow):
         self.btn_process.clicked.connect(self.process_pillars_action)
         left_layout.addWidget(self.btn_process)
 
-        # 2b. Botão Gerenciar Memória (Novo)
-        self.btn_mem = QPushButton("📜 Gerenciar Memória IA")
-        self.btn_mem.setStyleSheet("background: #333; color: #aaa; font-size: 11px; margin-top: 2px; height: 16px; padding: 2px;")
-        self.btn_mem.clicked.connect(self.open_training_log)
-        left_layout.addWidget(self.btn_mem)
+        # 2b. Botão Gerenciar Memória (Removido)
+        # self.btn_mem removed (User request)
 
         # 3. Botão Salvar
         self.btn_save = QPushButton("Salvar")
@@ -271,28 +417,7 @@ class MainWindow(QMainWindow):
         self.btn_save.clicked.connect(self.save_project_action)
         left_layout.addWidget(self.btn_save)
 
-        # 4. Barra de Progresso (NOVO)
-        self.progress_container = QWidget()
-        prog_layout = QVBoxLayout(self.progress_container)
-        prog_layout.setContentsMargins(5, 10, 5, 5)
-        
-        self.lbl_progress = QLabel("Aguardando ação...")
-        self.lbl_progress.setStyleSheet("color: #aaa; font-size: 10px;")
-        prog_layout.addWidget(self.lbl_progress)
-        
-        self.progress_bar = QProgressBar()
-        self.progress_bar.setFixedHeight(8)
-        self.progress_bar.setTextVisible(False)
-        self.progress_bar.setStyleSheet("""
-            QProgressBar { border: 1px solid #444; border-radius: 4px; background: #222; }
-            QProgressBar::chunk { background: #0078d4; border-radius: 3px; }
-        """)
-        self.progress_bar.setValue(0)
-        prog_layout.addWidget(self.progress_bar)
-        
-        self.progress_container.hide() # Esconde por padrão
-        left_layout.addStretch()
-        left_layout.addWidget(self.progress_container)
+        # (Progress Bar removida daqui)
 
         # Estado
         self.interactive_items = {} 
@@ -309,7 +434,7 @@ class MainWindow(QMainWindow):
         self.active_project_id = None
         
         # 5. Separador / Espaço
-        left_layout.addSpacing(10)
+        # left_layout.addSpacing(10) # Reduzido para maximizar lista
         
         # 6. Abas de Listagem Principal (3 Níveis)
         self.main_tabs = QTabWidget()
@@ -359,60 +484,24 @@ class MainWindow(QMainWindow):
             # Lista
             layout.addWidget(list_widget)
             
+            # Botões de Ação Básica
+            h_layout = QHBoxLayout()
+            h_layout.setContentsMargins(0,0,0,0)
+            
             # Botão Excluir Item
             btn_delete = QPushButton("🗑️ Excluir Item")
             btn_delete.setStyleSheet("background-color: #ffcccc; color: #cc0000; border: 1px solid #ff9999; padding: 2px; font-size: 10px; height: 18px;")
             btn_delete.clicked.connect(lambda: self.delete_item_action(list_widget, item_type, is_library))
-            layout.addWidget(btn_delete)
+            h_layout.addWidget(btn_delete)
 
             # Botão Criar Novo Item (padrão)
             scope_name = "Lib" if is_library else "Análise"
             btn_create = QPushButton(f"➕ Criar Novo Item ({scope_name})")
             btn_create.setStyleSheet("padding: 2px; font-size: 10px; height: 18px;")
             btn_create.clicked.connect(lambda: self.create_manual_item(is_library=is_library))
-            layout.addWidget(btn_create)
+            h_layout.addWidget(btn_create)
             
-            # Botões Específicos
-            if item_type == 'pillar':
-                # 3 Botões para Pilares
-                btn_script_full = QPushButton("📜 Gerar Script Pilar Completo")
-                btn_script_full.setStyleSheet("padding: 2px; font-size: 10px; height: 18px;")
-                btn_script_full.clicked.connect(lambda: self.generate_script_pillar_full(is_library))
-                layout.addWidget(btn_script_full)
-                
-                btn_script_pav = QPushButton("📜 Gerar Script Pavimento Pilar Completo")
-                btn_script_pav.setStyleSheet("padding: 2px; font-size: 10px; height: 18px;")
-                btn_script_pav.clicked.connect(lambda: self.generate_script_pavement_pillar(is_library))
-                layout.addWidget(btn_script_pav)
-                
-                btn_export = QPushButton("💾 Exportar Dados dos Pilares (JSON)")
-                btn_export.setStyleSheet("padding: 2px; font-size: 10px; height: 18px;")
-                btn_export.clicked.connect(lambda: self.export_data_json('pillar', is_library))
-                layout.addWidget(btn_export)
-                
-            elif item_type == 'beam':
-                # 3 Botões para Vigas
-                btn_script_set = QPushButton("📜 Gerar Script Conjunto de Viga Completo")
-                btn_script_set.setStyleSheet("padding: 2px; font-size: 10px; height: 18px;")
-                btn_script_set.clicked.connect(lambda: self.generate_script_beam_set(is_library))
-                layout.addWidget(btn_script_set)
-
-                btn_script_pav = QPushButton("📜 Gerar Script Pavimento Vigas Completo")
-                btn_script_pav.setStyleSheet("padding: 2px; font-size: 10px; height: 18px;")
-                btn_script_pav.clicked.connect(lambda: self.generate_script_pavement_beam(is_library))
-                layout.addWidget(btn_script_pav)
-
-                btn_export = QPushButton("💾 Exportar Dados das Vigas (JSON)")
-                btn_export.setStyleSheet("padding: 2px; font-size: 10px; height: 18px;")
-                btn_export.clicked.connect(lambda: self.export_data_json('beam', is_library))
-                layout.addWidget(btn_export)
-                
-            elif item_type == 'slab':
-                # 1 Botão para Lajes
-                btn_export = QPushButton("💾 Exportar Dados das Lajes (JSON)")
-                btn_export.setStyleSheet("padding: 2px; font-size: 10px; height: 18px;")
-                btn_export.clicked.connect(lambda: self.export_data_json('slab', is_library))
-                layout.addWidget(btn_export)
+            layout.addLayout(h_layout)
 
             return container
 
@@ -516,24 +605,13 @@ class MainWindow(QMainWindow):
         # --- CENTRO: ABAS DE PROJETOS + CANVAS ---
         self.canvas_container = QWidget()
         
-        # Area de abas de projetos acima do canvas
-        self.project_tabs = QTabWidget()
-        self.project_tabs.setTabsClosable(True)
-        self.project_tabs.tabCloseRequested.connect(self.close_project_tab)
-        self.project_tabs.currentChanged.connect(self.on_project_tab_changed)
         
-        # Canvas é único, mas reparentado ou limpo? 
-        # Melhor: Canvas é único visualmente, mas seus dados mudam.
-        # As abas do project_tabs são apenas "placeholders" para controle de seleção.
-        # Nós NÃO colocamos o canvas DENTRO da aba, pois o canvas é pesado.
-        # Usamos as abas como uma "Barra de Navegação de Projetos".
-        self.project_tabs.setFixedHeight(30) 
-        self.project_tabs.setStyleSheet("QTabBar::tab { width: 150px; }")
-
         center_layout = QVBoxLayout(self.canvas_container)
         center_layout.setContentsMargins(0,0,0,0)
-        center_layout.addWidget(self.project_tabs)
+        # self.project_tabs removed (moved to init_ui)
         
+        
+        # Canvas é único, mas reparentado ou limpo?
         self.canvas = CADCanvas(self)
         self.canvas.pillar_selected.connect(self.on_canvas_pillar_selected)
         self.canvas.pick_completed.connect(self.on_pick_completed) 
@@ -576,7 +654,12 @@ class MainWindow(QMainWindow):
         self.splitter.setSizes([365, 1000, 320])
         
         
+        
         main_layout.addWidget(self.splitter)
+        
+        # Add content area to module layout
+        module_layout.addWidget(content_area)
+        
         return module_container
 
     def init_ui(self):
@@ -591,6 +674,21 @@ class MainWindow(QMainWindow):
         # 1. Top Bar
         top_bar = self._setup_top_bar()
         root_layout.addWidget(top_bar)
+
+        # 1.5 Abas de Projeto (Contexto Global)
+        # Movemos para cá para ficar ACIMA dos módulos
+        self.project_tabs = QTabWidget()
+        self.project_tabs.setObjectName("ProjectTabs")
+        self.project_tabs.setTabsClosable(True)
+        self.project_tabs.setMovable(True)
+        self.project_tabs.setStyleSheet("background: #0c0c10; border: none;")
+        self.project_tabs.setFixedHeight(35)
+        
+        # Conectar Sinais
+        self.project_tabs.currentChanged.connect(self._on_project_tab_changed)
+        self.project_tabs.tabCloseRequested.connect(self._on_project_tab_close)
+        
+        root_layout.addWidget(self.project_tabs)
 
         # 2. Navegação de Módulos (Abas Superiores)
         self.module_tabs = QTabBar()
@@ -1777,7 +1875,48 @@ class MainWindow(QMainWindow):
             
         self.log(f"📂 Carregando dados do projeto {self.current_project_name}...")
         
-        # Carregar do Banco de Dados
+        # 0. Preparar Canvas
+        if hasattr(self.canvas, 'reset_state'):
+            self.canvas.reset_state()
+        elif hasattr(self.canvas, 'scene'):
+            self.canvas.scene.clear()
+            
+        # 1. Carregar DXF de Fundo (Cache ou Disco)
+        dxf_bg_loaded = False
+        
+        # Tentar Cache
+        if self.current_project_id in self.loaded_projects_cache:
+            cache = self.loaded_projects_cache[self.current_project_id]
+            if cache.get('dxf_data'):
+                self.dxf_data = cache['dxf_data']
+                if hasattr(self.canvas, 'add_dxf_entities'):
+                     self.canvas.add_dxf_entities(self.dxf_data)
+                     dxf_bg_loaded = True
+                     
+        # Se não carregou do cache, tentar do DB (Path)
+        if not dxf_bg_loaded:
+            p_info = self.db.get_project_by_id(self.current_project_id)
+            if p_info and p_info.get('dxf_path'):
+                 dpath = p_info['dxf_path']
+                 import os
+                 if os.path.exists(dpath):
+                     try:
+                         # Reutiliza DXFLoader
+                         from src.core.dxf_loader import DXFLoader
+                         self.dxf_data = DXFLoader.load_dxf(dpath)
+                         if self.dxf_data and hasattr(self.canvas, 'add_dxf_entities'):
+                             self.canvas.add_dxf_entities(self.dxf_data)
+                             
+                             # Atualizar Cache
+                             if self.current_project_id not in self.loaded_projects_cache:
+                                 self.loaded_projects_cache[self.current_project_id] = {}
+                             self.loaded_projects_cache[self.current_project_id]['dxf_data'] = self.dxf_data
+                             
+                             dxf_bg_loaded = True
+                     except Exception as e:
+                         self.log(f"Erro ao carregar DXF de fundo: {e}")
+
+        # 2. Carregar do Banco de Dados (Entidades Inteligentes)
         self.pillars_found = self.db.load_pillars(self.current_project_id) or []
         self.slabs_found = self.db.load_slabs(self.current_project_id) or []
         self.beams_found = self.db.load_beams(self.current_project_id) or []
@@ -2848,105 +2987,12 @@ class MainWindow(QMainWindow):
         self.project_tabs.setCurrentIndex(new_idx)
         
         # Se por algum motivo o sinal não disparou (mesmo index), chamamos manual
+        # Se por algum motivo o sinal não disparou (mesmo index), chamamos manual
         if self.current_project_id != pid:
-             print("DEBUG: Manually calling on_project_tab_changed (fallback)...")
-             self.on_project_tab_changed(new_idx)
+             print("DEBUG: Manually calling _on_project_tab_changed (fallback)...")
+             self._on_project_tab_changed(new_idx)
 
-    def on_project_tab_changed(self, index):
-        """Muda o contexto global da aplicação para o projeto da aba selecionada."""
-        if index < 0: return
-        
-        # Verify tabBar data existence
-        pid = self.project_tabs.tabBar().tabData(index)
-        
-        # --- REMOVIDA TRAVA DE PID --- 
-        # Sempre recarregar ao trocar de aba para garantir sincronia total das listas (Urgência Usuário)
-        print(f"DEBUG: Sincronizando UI para projeto {pid} (Aba {index})")
 
-        # --- NOVO: Salvar estado atual no cache antes de trocar ---
-        if self.current_project_id and self.current_project_id in self.loaded_projects_cache:
-            old_cache = self.loaded_projects_cache[self.current_project_id]
-            old_cache['pillars'] = self.pillars_found
-            old_cache['slabs'] = self.slabs_found
-            old_cache['beams'] = self.beams_found
-            old_cache['meta'] = {
-                'work_name': self.edit_work_name.text(),
-                'pavement_name': self.edit_pavement_name.text(),
-                'level_arrival': self.edit_level_arr.text(),
-                'level_exit': self.edit_level_exit.text()
-            }
-            # SALVAR ESTADO VISUAL DO CANVAS (Cena, Coleções, Snap)
-            canvas_state = self.canvas.get_project_state_dict()
-            old_cache.update(canvas_state)
-
-        project_data = self.loaded_projects_cache[pid]
-        self.active_project_id = pid
-        self.current_project_id = pid 
-        self.current_project_name = project_data['name']
-        self.current_dxf_path = project_data['dxf_path']
-        
-        self.log(f"Alternando para projeto: {project_data['name']}")
-        
-        # 1. Atualizar Metadados UI
-        meta = project_data['meta']
-        self.edit_work_name.blockSignals(True)
-        self.edit_pavement_name.blockSignals(True)
-        self.edit_level_arr.blockSignals(True)
-        self.edit_level_exit.blockSignals(True)
-        
-        self.edit_work_name.setText(meta.get('work_name', ''))
-        self.edit_pavement_name.setText(meta.get('pavement_name', ''))
-        self.edit_level_arr.setText(meta.get('level_arrival', ''))
-        self.edit_level_exit.setText(meta.get('level_exit', ''))
-        
-        self.edit_work_name.blockSignals(False)
-        self.edit_pavement_name.blockSignals(False)
-        self.edit_level_arr.blockSignals(False)
-        self.edit_level_exit.blockSignals(False)
-        
-        # 2. Atualizar Listas UI
-        self.pillars_found = project_data['pillars']
-        self.slabs_found = project_data['slabs']
-        self.beams_found = project_data['beams']
-        self.dxf_data = project_data['dxf_data']
-        
-        # 3. Restaurar Lógica (Fast Path se já existir)
-        self._initialize_project_logic(self.dxf_data)
-        self._update_all_lists_ui()
-        
-        # 4. Atualizar Canvas (Isolamento de Cena e Otimização)
-        self.canvas.swap_project_state(project_data)
-        
-        if not project_data.get('scene_rendered'):
-            self.log("🎨 Renderizando geometria pela primeira vez...")
-            self.show_progress("Renderizando DXF...", 30)
-            
-            # Limpar coleções de overlay (add_dxf_entities já limpa a cena)
-            if self.dxf_data:
-                self.canvas.add_dxf_entities(self.dxf_data, progress_callback=self.update_progress)
-            
-            self.update_progress(80, "Desenhando itens interativos...")
-            self.canvas.draw_interactive_pillars(self.pillars_found)
-            self.canvas.draw_slabs(self.slabs_found)
-            self.canvas.draw_beams(self.beams_found)
-            
-            self.canvas.draw_interactive_pillars(self.pillars_found)
-            self.canvas.draw_slabs(self.slabs_found)
-            self.canvas.draw_beams(self.beams_found)
-            
-            # Marcar como renderizado no cache para trocas futuras instantâneas
-            project_data['scene_rendered'] = True
-            self.hide_progress()
-        else:
-            self.log("🚀 Troca de contexto instantânea concluída.")
-            
-        # Resetar Aba de Detalhes
-        self.right_panel.setCurrentIndex(0)
-        
-        # 5. Atualizar Aba de Treinamento
-        self.tab_training.load_events(pid)
-        
-        QApplication.processEvents()
 
     def close_project_tab(self, index):
         """Fecha aba do projeto (mas não apaga do banco)"""
@@ -2974,20 +3020,20 @@ class MainWindow(QMainWindow):
         """Salva as informações de cabeçalho do projeto ativo."""
         if not self.active_project_id: return
         
-        meta = {
-            'work_name': self.edit_work_name.text(),
-            'pavement_name': self.edit_pavement_name.text(),
-            'level_arrival': self.edit_level_arr.text(),
-            'level_exit': self.edit_level_exit.text()
-        }
+        # Legacy: Widgets edit_work_name/edit_pavement_name foram removidos na nova UI.
+        # A edição de metadados será feita via diálogo "Gerenciar Projetos".
+        # Por enquanto, apenas ignora para evitar crash no Auto-Save.
+        pass
         
-        # Update Cache
-        if self.active_project_id in self.loaded_projects_cache:
-            self.loaded_projects_cache[self.active_project_id]['meta'] = meta
-            
-        # Update DB
-        self.db.update_project_metadata(self.active_project_id, meta)
-        self.log("Metadados do projeto atualizados.")
+        # meta = {
+        #     'work_name': self.cmb_works.currentText(), # Read from Combo
+        #     'pavement_name': self.cmb_pavements.currentText(),
+        #     'level_arrival': "0.00", # TODO: Restaurar inputs se necessário
+        #     'level_exit': "0.00"
+        # }
+        
+        # Update DB (Skip for now to avoid overwriting with defaults)
+        # self.db.update_project_metadata(self.active_project_id, meta)
 
     def _get_slab_real_geometry(self, s):
         """
@@ -3568,6 +3614,29 @@ class MainWindow(QMainWindow):
                 self.log(f"✅ Deu bom! Arquivo salvo em: {file_name}")
             except Exception as e:
                 self.log(f"❌ Erro ao salvar JSON: {e}")
+
+    # --- PROGRESS BAR HELPERS ---
+    def show_progress(self, message, value=0):
+        """Exibe e atualiza a barra de progresso no Header."""
+        if hasattr(self, 'progress_container'):
+            self.progress_container.show()
+            self.lbl_progress.setText(message)
+            self.progress_bar.setValue(value)
+            QApplication.processEvents() # Force update
+
+    def update_progress(self, value, message=None):
+        """Atualiza valor e mensagem da barra de progresso."""
+        if hasattr(self, 'progress_bar'):
+            self.progress_bar.setValue(value)
+            if message:
+                self.lbl_progress.setText(message)
+            QApplication.processEvents()
+
+    def hide_progress(self):
+        """Oculta a barra de progresso."""
+        if hasattr(self, 'progress_container'):
+            self.progress_container.hide()
+            QApplication.processEvents()
 
 def main():
     app = QApplication(sys.argv)

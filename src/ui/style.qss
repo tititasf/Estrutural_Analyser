@@ -228,3 +228,41 @@ QComboBox QAbstractItemView {
     selection-background-color: #00E5FF;
     selection-color: #050510;
 }
+
+/* Project Tabs (Secondary Level) */
+QTabWidget#ProjectTabs::pane {
+    border: none;
+    background: #0c0c10;
+    margin-top: 10px; /* Space from Module Tabs */
+}
+
+QTabWidget#ProjectTabs::tab-bar {
+    left: 20px; /* Align with layout */
+}
+
+QTabBar::tab { /* Generic override if needed, but specific ID is better */
+}
+
+QTabWidget#ProjectTabs > QTabBar::tab {
+    background: #1a1a2e;
+    color: #889;
+    padding: 6px 15px;
+    border-top-left-radius: 6px;
+    border-top-right-radius: 6px;
+    margin-right: 4px;
+    min-width: 100px;
+    font-size: 11px;
+}
+
+QTabWidget#ProjectTabs > QTabBar::tab:selected {
+    background: #2a2a3e; /* Matches top bar or content bg */
+    color: #00E5FF;
+    font-weight: bold;
+    border-bottom: 2px solid #00E5FF;
+}
+
+QTabWidget#ProjectTabs > QTabBar::tab:hover {
+    background: #222;
+    color: #fff;
+}
+
