@@ -1,3 +1,7 @@
+
+# LinkManager.py - Widget para gestão de vínculos
+# Limpo e Organizado
+
 from PySide6.QtWidgets import (QVBoxLayout, QHBoxLayout, QListWidget, 
                                  QListWidgetItem, QPushButton, QLabel, QFrame, QTextEdit, 
                                  QScrollArea, QWidget, QLineEdit, QMessageBox)
@@ -16,6 +20,10 @@ class LinkManager(QWidget):
     training_requested = Signal(dict) # {slot, link, comment, status}
     config_changed = Signal(str, list) # field_key, updated_slots_config
     metadata_changed = Signal(str, str, dict) # slot_id, type="interpretation", data={prompt, patterns}
+    
+    # New Signals for Hierarchy Validation
+    slot_validated = Signal(str) # slot_id
+    slot_na_toggled = Signal(str, bool) # slot_id, is_na
 
     SLOT_CONFIG = {
         '_l1_n': [
@@ -93,6 +101,9 @@ class LinkManager(QWidget):
              {'id': 'cut_view_geom', 'name': 'Visão de Corte (Geometria)', 'type': 'poly', 'prompt': 'Desenhe a referência de visão de corte da viga que contorna a laje. [Enter] para finalizar.', 'help': 'Referência geométrica de viga para definir o nível.'},
              {'id': 'cut_view_text', 'name': 'Visao corte texto', 'type': 'text', 'prompt': 'Busque textos de visão de corte.', 'help': 'Vínculo de texto normal, similar ao nível.', 'patterns': 'Texto indicando corte ou vista.'}
         ],
+        '_laje_islands': [
+             {'id': 'contour', 'name': 'Contorno da Ilha', 'type': 'poly', 'prompt': 'Desenhe o contorno da ilha (polígono fechado). [Enter] para finalizar.', 'help': 'Define a geometria do furo interno.'}
+        ],
         '_height_complex': [
              {'id': 'dim', 'name': '1. Dimensão (Valor)', 'type': 'text', 'prompt': 'Busque o texto de altura.', 'help': 'Define o valor da altura.'},
              {'id': 'cut_view', 'name': '2. Visão de Corte', 'type': 'poly', 'prompt': 'Desenhe a referência visual. [Enter] para finalizar.', 'help': 'Referência visual.'}
@@ -144,11 +155,13 @@ class LinkManager(QWidget):
         ]
     }
 
-    def __init__(self, field_id, current_links, parent=None):
+    def __init__(self, field_id, current_links, na_slots=None, validated_slots=None, parent=None):
         super().__init__(parent)
         self.field_id = field_id
         # links agora é um dicionário: {slot_id: [links...]}
         self.links = current_links if isinstance(current_links, dict) else {}
+        self.na_slots = set(na_slots) if na_slots else set()
+        self.validated_slots = set(validated_slots) if validated_slots else set()
         self.metadata_cache = {}
         self.init_ui()
 
@@ -170,6 +183,9 @@ class LinkManager(QWidget):
         
         if 'laje' in field_id and ('_geom' in field_id or 'outline' in field_id):
              return self.SLOT_CONFIG['_laje_geom']
+        
+        if 'island' in field_id:
+             return self.SLOT_CONFIG['_laje_islands']
 
         if 'laje' in field_id and not '_geom' in field_id:
              return self.SLOT_CONFIG['_laje_complex']
@@ -233,6 +249,13 @@ class LinkManager(QWidget):
             .SlotFrame { 
                 background: #1e1e1e; 
                 border: 1px solid #333; 
+                border-radius: 8px; 
+                padding: 10px; 
+                margin-bottom: 5px; 
+            }
+            .SlotFrameValidated { 
+                background: rgba(0, 230, 118, 0.05); 
+                border: 1px solid #00e676; 
                 border-radius: 8px; 
                 padding: 10px; 
                 margin-bottom: 5px; 
@@ -315,7 +338,14 @@ class LinkManager(QWidget):
     def refresh_list(self):
         try:
             if self.slots_container is None: return
+            
             # Limpar layout (QVBoxLayout)
+            # Check type to avoid 'count' error on Widget
+            if not isinstance(self.slots_container, QVBoxLayout):
+                # Fallback panic mode
+                print(f"[LinkManager] Error: slots_container is {type(self.slots_container)}, expected QVBoxLayout")
+                return
+
             while self.slots_container.count():
                 item = self.slots_container.takeAt(0)
                 if item.widget(): 
@@ -339,7 +369,15 @@ class LinkManager(QWidget):
             is_empty = len(slot_links) == 0
 
             slot_frame = QFrame()
-            slot_frame.setProperty("class", "SlotFrame")
+            
+            # Check if class is "Explicitly Validated"
+            is_class_validated = slot_id in self.validated_slots
+            
+            if is_class_validated:
+                slot_frame.setProperty("class", "SlotFrameValidated")
+            else:
+                slot_frame.setProperty("class", "SlotFrame")
+                
             sf_layout = QVBoxLayout(slot_frame)
             sf_layout.setSpacing(5)
 
@@ -348,9 +386,48 @@ class LinkManager(QWidget):
             st_lbl = QLabel(slot['name'].upper())
             st_lbl.setProperty("class", "SlotTitle")
             st_lbl.setWordWrap(True)
+            
+            # Application of N/A Style to Title
+            is_na_slot = slot_id in self.na_slots
+            if is_na_slot:
+                st_lbl.setStyleSheet("color: #ff5252; text-decoration: line-through;")
+            
             header_layout.addWidget(st_lbl, 1)
             
-            # Botão Interpretação (Nível de Classe/Slot)
+            # --- ACTION BUTTONS (CLASS LEVEL) ---
+            
+            # 1. Validate Class (✔) -> Valida todos os vínculos internos
+            btn_val_class = QPushButton("✔")
+            btn_val_class.setFixedSize(24, 20)
+            btn_val_class.setCursor(Qt.PointingHandCursor)
+            btn_val_class.setToolTip(f"Validar todo o grupo '{slot['name']}'")
+            btn_val_class.setStyleSheet("""
+                QPushButton { background: transparent; color: #00e676; border: 1px solid #333; border-radius: 4px; }
+                QPushButton:hover { background: #00e676; color: #121212; border: 1px solid #00e676; }
+            """)
+            btn_val_class.clicked.connect(lambda checked=False, s_id=slot_id: self.slot_validated.emit(s_id))
+            header_layout.addWidget(btn_val_class)
+            
+            # 2. N/A Class (🚫) -> Marca classe como N/A e limpa vínculos
+            btn_na_class = QPushButton("🚫")
+            btn_na_class.setFixedSize(24, 20)
+            btn_na_class.setCheckable(True)
+            btn_na_class.setChecked(is_na_slot)
+            btn_na_class.setCursor(Qt.PointingHandCursor)
+            btn_na_class.setToolTip(f"Marcar '{slot['name']}' como Não se Aplica")
+            btn_na_class.setStyleSheet(f"""
+                QPushButton {{ 
+                    background: {'#3a1b1b' if is_na_slot else 'transparent'}; 
+                    color: {'#ff5252' if is_na_slot else '#aaa'}; 
+                    border: 1px solid {'#ff5252' if is_na_slot else '#444'}; 
+                    border-radius: 4px; 
+                }}
+                QPushButton:hover {{ background: #ff5252; color: white; }}
+            """)
+            btn_na_class.clicked.connect(lambda checked, s_id=slot_id: self.slot_na_toggled.emit(s_id, checked))
+            header_layout.addWidget(btn_na_class)
+            
+            # 3. Botão Interpretação (Nível de Classe/Slot)
             btn_interp = QPushButton("📝")
             btn_interp.setFixedSize(24, 20)
             btn_interp.setCursor(Qt.PointingHandCursor)

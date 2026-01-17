@@ -170,10 +170,21 @@ class VigaState:
         return state
 
 class AutoCADService(QObject):
+    _instance = None
+    
+    def __new__(cls, *args, **kwargs):
+        if not cls._instance:
+            cls._instance = super(AutoCADService, cls).__new__(cls)
+            cls._instance._initialized = False
+        return cls._instance
+
     def __init__(self):
+        if self._initialized:
+            return
         super().__init__()
         self.ac = None
         self._seq_finalizada = False
+        self._initialized = True
 
     def connect_acad(self):
         """Conecta ao AutoCAD de forma estável, priorizando instância aberta."""
@@ -1800,10 +1811,14 @@ class VigaMainWindow(QMainWindow):
         self.setWindowTitle("Robô das Laterais de Viga - PySide6 Ultimate")
         self.resize(1400, 900)
         
+        
+        self.apply_standalone_style()
+        
         # Apply Dark Theme
         app = QApplication.instance()
-        app.setStyle(QStyleFactory.create("Fusion"))
-        app.setPalette(ModernDarkPalette())
+        # app.setStyle(QStyleFactory.create("Fusion")) # REMOVED: Global style usage
+        # app.setPalette(ModernDarkPalette()) # REMOVED: Global palette usage
+
         
         self.model = VigaState()
         self.recycle_model = None # For comparison in Recycling Mode
@@ -1844,6 +1859,126 @@ class VigaMainWindow(QMainWindow):
         
         # Initial license display (will show Connected if service injected later)
         self.update_license_display()
+
+    def apply_standalone_style(self):
+        """Applies a scoped stylesheet to force a Fusion-like Dark Theme, isolating from Main App."""
+        self.setObjectName("VigaMainWindowFull")
+        
+        # Define scoped styles
+        style = """
+        /* Force standard font */
+        QWidget#VigaMainWindowFull, QWidget#VigaMainWindowFull * {
+            font-family: 'Segoe UI', sans-serif;
+            color: #E0E0E0;
+        }
+        
+        /* Reset Backgrounds */
+        QWidget#VigaMainWindowFull {
+            background-color: #2b2b2b;
+        }
+
+        /* Buttons: Revert to standard Dark/Fusion look */
+        QWidget#VigaMainWindowFull QPushButton {
+            border: 1px solid #555;
+            background-color: #353535;
+            color: #eee;
+            padding: 5px 12px;
+            border-radius: 3px;
+            font-size: 11px;
+            font-weight: normal;
+            min-width: 50px;
+        }
+        QWidget#VigaMainWindowFull QPushButton:hover {
+            background-color: #454545;
+            border-color: #888;
+        }
+        QWidget#VigaMainWindowFull QPushButton:pressed {
+            background-color: #222;
+        }
+        QWidget#VigaMainWindowFull QPushButton:disabled {
+            background-color: #2a2a2a;
+            color: #666;
+            border-color: #333;
+        }
+        
+        /* Specific Override for 'Primary' buttons if used, or just generic */
+        QWidget#VigaMainWindowFull QPushButton[text="Salvar"], 
+        QWidget#VigaMainWindowFull QPushButton[text="Gerar Segmento"] {
+             background-color: #0078d4;
+             border: 1px solid #005a9e;
+             color: white;
+             font-weight: bold;
+        }
+
+        /* Inputs */
+        QWidget#VigaMainWindowFull QLineEdit {
+            background-color: #202020;
+            border: 1px solid #3F3F3F;
+            color: #ddd;
+            padding: 4px;
+            border-radius: 2px;
+            font-family: 'Consolas', monospace;
+        }
+        QWidget#VigaMainWindowFull QLineEdit:focus {
+            border: 1px solid #0078d4;
+        }
+
+        /* ComboBox */
+        QWidget#VigaMainWindowFull QComboBox {
+            background-color: #353535;
+            border: 1px solid #555;
+            padding: 4px;
+            border-radius: 2px;
+        }
+        QWidget#VigaMainWindowFull QComboBox::drop-down {
+            border: none;
+            background: transparent;
+        }
+        
+        /* GroupBox */
+        QWidget#VigaMainWindowFull QGroupBox {
+            border: 1px solid #444;
+            border-radius: 4px;
+            margin-top: 1.2em;
+            font-weight: bold;
+        }
+        QWidget#VigaMainWindowFull QGroupBox::title {
+            subcontrol-origin: margin;
+            subcontrol-position: top left;
+            padding: 0 5px;
+            color: #aaa;
+        }
+        
+        /* Tab Widget (Inner) */
+        QWidget#VigaMainWindowFull QTabWidget::pane {
+            border: 1px solid #333;
+            background: #2b2b2b;
+        }
+        QWidget#VigaMainWindowFull QTabBar::tab {
+            background: #333;
+            color: #aaa;
+            border: 1px solid #222;
+            padding: 6px 12px;
+        }
+        QWidget#VigaMainWindowFull QTabBar::tab:selected {
+            background: #444;
+            color: #fff;
+            border-bottom: 2px solid #0078d4;
+        }
+
+        /* Scrollbars */
+        QWidget#VigaMainWindowFull QScrollBar:vertical {
+            background: #222;
+            width: 10px;
+        }
+        QWidget#VigaMainWindowFull QScrollBar::handle:vertical {
+            background: #555;
+            min-height: 20px;
+            border-radius: 4px;
+        }
+        """
+        self.setStyleSheet(style)
+
 
     def _carregar_config(self):
         """Carrega as configurações do arquivo config.json."""
@@ -3295,10 +3430,42 @@ class VigaMainWindow(QMainWindow):
         # 2: Topo/Dir
         self.bg_h2.buttonToggled.connect(lambda b, c: self.hole_rows[2][3].setChecked(self.rb_h1_2.isChecked()))
         self.hole_rows[2][3].toggled.connect(lambda c: self.rb_h1_2.setChecked(c) if c else self.rb_h2_2.setChecked(True))
-        
         # 3: Fundo/Dir
         self.bg_h3.buttonToggled.connect(lambda b, c: self.hole_rows[3][3].setChecked(self.rb_h1_3.isChecked()))
         self.hole_rows[3][3].toggled.connect(lambda c: self.rb_h1_3.setChecked(c) if c else self.rb_h2_3.setChecked(True))
+
+    def add_obra_external(self, obra_name):
+        """Adds a new work (Obra) programmatically from global sync."""
+        if not obra_name: return
+        
+        # Check if exists in UI
+        idx = self.cmb_obra.findText(obra_name)
+        if idx < 0:
+            self.cmb_obra.addItem(obra_name)
+            
+        # Ensure exists in project_data
+        if obra_name not in self.project_data:
+            self.project_data[obra_name] = {}
+        
+        print(f"Global Sync: Obra '{obra_name}' added/verified in Robo Vigas.")
+
+    def add_pavimento_external(self, obra_name, pav_name):
+        """Adds a new pavement programmatically from global sync."""
+        if not obra_name or not pav_name: return
+        
+        # Ensure Obra Exists First
+        self.add_obra_external(obra_name)
+        
+        # Ensure Pavimento Exists in Data
+        if pav_name not in self.project_data[obra_name]:
+            self.project_data[obra_name][pav_name] = {'vigas': {}, 'metadata': {'in': '', 'out': ''}}
+            print(f"Global Sync: Pavimento '{pav_name}' added to Obra '{obra_name}' in Robo Vigas.")
+        
+        # Update UI if Obra is currently selected
+        if self.cmb_obra.currentText() == obra_name:
+            idx = self.cmb_pav.findText(pav_name)
+            if idx < 0:
+                self.cmb_pav.addItem(pav_name)
 
     def toggle_recycling(self, state):
         if state:
@@ -7443,6 +7610,51 @@ class VigaMainWindow(QMainWindow):
             del self.project_data[self.current_obra][self.current_pavimento]
             self.update_pavimento_combo()
             self.save_session_data()
+
+    def add_global_obra(self, obra_name):
+        """Método para adicionar/selecionar obra via comando externo (Master Sync)"""
+        if not obra_name: return
+        if obra_name not in self.project_data:
+            self.project_data[obra_name] = {}
+            self.update_obra_combo()
+        
+        self.cmb_obra.blockSignals(True)
+        self.cmb_obra.setCurrentText(obra_name)
+        self.current_obra = obra_name
+        self.update_pavimento_combo()
+        self.cmb_obra.blockSignals(False)
+        self.save_session_data()
+
+    def add_global_pavimento(self, obra_name, pav_name):
+        """Método para adicionar/selecionar pavimento via comando externo (Master Sync)"""
+        if not obra_name or not pav_name: return
+        
+        # Garantir obra
+        if obra_name not in self.project_data:
+            self.add_global_obra(obra_name)
+            
+        # Garantir pavimento
+        if pav_name not in self.project_data[obra_name]:
+            import uuid
+            self.project_data[obra_name][pav_name] = {
+                'vigas': {},
+                'metadata': {'in': '', 'out': '', 'segment_classes': ["Lista Geral"]}
+            }
+            self.update_pavimento_combo()
+            
+        # Selecionar
+        self.cmb_obra.blockSignals(True)
+        self.cmb_obra.setCurrentText(obra_name)
+        self.current_obra = obra_name
+        self.cmb_obra.blockSignals(False)
+        
+        self.cmb_pav.blockSignals(True)
+        self.cmb_pav.setCurrentText(pav_name)
+        self.current_pavimento = pav_name
+        self.on_pav_changed(pav_name)
+        self.cmb_pav.blockSignals(False)
+        
+        self.save_session_data()
 
     def copy_pavimento(self):
         """Cria uma cópia idêntica do pavimento selecionado com todos os seus itens."""

@@ -1,4 +1,47 @@
 ﻿import sys
+import os
+# Adicionar caminho do Robo Laterais
+robo_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "_ROBOS_ABAS", "Robo_Laterais_de_Vigas")
+if robo_path not in sys.path:
+    sys.path.append(robo_path)
+
+# Tentar importar o robo
+try:
+    from robo_laterais_viga_pyside import VigaMainWindow
+except ImportError as e:
+    print(f"Erro ao importar Robo Laterais: {e}")
+    VigaMainWindow = None
+
+# Adicionar caminho do Robo Lajes
+robo_lajes_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "_ROBOS_ABAS", "Robo_Lajes")
+if robo_lajes_path not in sys.path:
+    sys.path.append(robo_lajes_path)
+
+# Tufup & Updates
+from tufup.client import Client
+from pathlib import Path
+import requests
+
+# Tentar importar o robo Lajes (laje_src)
+try:
+    from laje_src.ui.main_window import MainWindow as LajeMainWindow
+except ImportError as e:
+    print(f"Erro ao importar Robo Lajes: {e}")
+    LajeMainWindow = None
+
+# Adicionar caminho do Robo Fundos
+robo_fundos_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "_ROBOS_ABAS", "Robo_Fundos_de_Vigas", "compactador-producao")
+if robo_fundos_path not in sys.path:
+    sys.path.append(robo_fundos_path)
+
+# Tentar importar o robo Fundos
+try:
+    from fundo_pyside import FundoMainWindow
+except ImportError as e:
+    print(f"Erro ao importar Robo Fundos: {e}")
+    FundoMainWindow = None
+
+
 from typing import Dict, List, Any, Optional
 import os
 import json
@@ -26,19 +69,37 @@ from src.core.memory import HierarchicalMemory
 from src.core.beam_walker import BeamWalker
 from src.core.context_engine import ContextEngine
 from src.core.pillar_analyzer import PillarAnalyzer
+from src.core.services.auth_service import AuthService
+from src.ui.organisms.login_widget import LoginWidget
+from src.ui.organisms.user_profile_dialog import UserProfileDialog
+from src.core.auth.models import UserProfile
 
+
+
+# Adicionar caminho do Robo Pilares (NOVO) - MOVED down to avoid shadowing 'src'
+robo_pilares_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "_ROBOS_ABAS", "Robo_Pilares", "pilares-atualizado-09-25")
+if robo_pilares_path not in sys.path:
+    sys.path.append(robo_pilares_path)
+
+try:
+    from bootstrap import create_pilares_widget
+except ImportError as e:
+    print(f"Erro ao importar Robo Pilares: {e}")
+    create_pilares_widget = None
 
 # Config logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 import uuid
 import re
+from src import config
 
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Vision-Estrutural AI - Pro Dashboard")
         self.resize(1600, 1000)
+        self.setWindowState(Qt.WindowMaximized)
         
         # Estado
         self.db = DatabaseManager() # SQLite persistencia
@@ -59,6 +120,9 @@ class MainWindow(QMainWindow):
         self.current_project_name = "Sem Projeto"
         self.current_dxf_path = None
 
+        # Perfil do Usuário
+        self.user_profile = None
+
         # Helper Engines
         self.slab_tracer = SlabTracer(self.spatial_index)
 
@@ -73,8 +137,15 @@ class MainWindow(QMainWindow):
 
     def load_stylesheet(self):
         try:
-            with open("src/ui/style.qss", "r") as f:
-                self.setStyleSheet(f.read())
+            # FIX: Caminho absoluto baseado no local do arquivo main.py para evitar erro de diretório
+            base_dir = os.path.dirname(os.path.abspath(__file__))
+            style_path = os.path.join(base_dir, "src", "ui", "style.qss")
+            
+            if os.path.exists(style_path):
+                with open(style_path, "r", encoding="utf-8") as f:
+                    self.setStyleSheet(f.read())
+            else:
+                print(f"[MainWindow] Aviso: Arquivo de estilo não encontrado em {style_path}")
         except Exception as e:
             print(f"Erro ao carregar CSS: {e}")
 
@@ -87,6 +158,10 @@ class MainWindow(QMainWindow):
         layout.setContentsMargins(10, 5, 20, 5)
         layout.setSpacing(15)
 
+        # 0. Logo & Perfil (Esquerda/Direita)
+        self.user_hbox = QHBoxLayout()
+        self.user_hbox.setSpacing(10)
+
         # 1. Logo
         lbl_logo = QLabel("TSF PROJETOS")
         lbl_logo.setObjectName("LogoLabel")
@@ -98,6 +173,7 @@ class MainWindow(QMainWindow):
         btn_manage.setStyleSheet("padding: 6px; font-size: 12px;")
         btn_manage.clicked.connect(self.open_project_manager) 
         layout.addWidget(btn_manage)
+        
 
         # Separator
         line = QFrame()
@@ -173,12 +249,124 @@ class MainWindow(QMainWindow):
         self.progress_container.hide() # Esconde por padrão
         layout.addWidget(self.progress_container)
 
-        # 7. Status / User Profile (Placeholder)
+        # 7. Status / User Profile
         lbl_status = QLabel("● SYNC")
         lbl_status.setStyleSheet("color: #00E5FF; font-weight: bold; font-size: 10px;")
         layout.addWidget(lbl_status)
+
+        # 8. User Button (Direita Extrema)
+        self.btn_user = QPushButton("??")
+        self.btn_user.setObjectName("UserButton")
+        self.btn_user.setFixedWidth(34)
+        self.btn_user.setFixedHeight(34)
+        self.btn_user.setCursor(Qt.PointingHandCursor)
+        self.btn_user.setStyleSheet("""
+            #UserButton {
+                background-color: #333;
+                border: 2px solid #555;
+                border-radius: 17px;
+                color: white;
+                font-weight: bold;
+                font-size: 11px;
+            }
+            #UserButton:hover {
+                background-color: #444;
+                border-color: #00E5FF;
+            }
+        """)
+        self.btn_user.clicked.connect(self.show_user_profile)
+        layout.addWidget(self.btn_user)
         
         return top_bar
+
+    def open_project_manager(self):
+        """Abre o gerenciador de projetos."""
+        if not hasattr(self, 'project_manager'):
+            self.project_manager = ProjectManager(self.db, self.memory)
+            self.project_manager.project_selected.connect(lambda pid, name, path: self._open_project_tab(pid, name))
+            # Sincronização Sinais
+            self.project_manager.obra_created_globally.connect(self.on_global_obra_created)
+            self.project_manager.project_created_globally.connect(self.on_global_project_created)
+            
+        self.project_manager.setWindowState(Qt.WindowMaximized)
+        self.project_manager.show()
+        
+    def on_global_obra_created(self, work_name):
+        self.log(f"🏠 Sincronizando Obra Global: {work_name}")
+        self._refresh_nav_combos()
+        # Sincronização centralizada
+        self.sync_robots_with_master_context(work_name)
+        
+    def on_global_project_created(self, work_name, project_name, project_id=None):
+        self.log(f"🏗️ Sincronizando Projeto/Pavimento Global: {project_name} em {work_name} (ID: {project_id})")
+        self._refresh_nav_combos()
+        # Sincronização centralizada
+        self.sync_robots_with_master_context(work_name, project_name, project_id)
+
+    def sync_robots_with_master_context(self, work_name, pavement_name=None, project_id=None):
+        """Propaga o contexto de Obra e Pavimento para todos os robôs integrados."""
+        if project_id is None:
+             project_id = self.current_project_id
+        
+        self.log(f"🔄 Sincronizando Robôs -> Obra: {work_name}, Pav: {pavement_name}, PID: {project_id}")
+        
+        try:
+            # 1. Robo Laje (Usa sync_context wrapper)
+            if getattr(self, 'robo_laje', None) and hasattr(self.robo_laje, 'sync_context'):
+                 self.robo_laje.sync_context(work_name, pavement_name, project_id=project_id)
+
+            # 2. Robo Viga (Laterais - Usa add_global_*)
+            if getattr(self, 'robo_viga', None):
+                 if pavement_name:
+                     if hasattr(self.robo_viga, 'add_global_pavimento'):
+                        self.robo_viga.add_global_pavimento(work_name, pavement_name)
+                 else:
+                     if hasattr(self.robo_viga, 'add_global_obra'):
+                        self.robo_viga.add_global_obra(work_name)
+
+            # 3. Robo Fundo (Usa sync_context)
+            if getattr(self, 'robo_fundo', None) and hasattr(self.robo_fundo, 'sync_context'):
+                 self.robo_fundo.sync_context(work_name, pavement_name)
+
+            # 4. Robo Pilares (Usa add_global_*)
+            if getattr(self, 'robo_pilares', None):
+                 if pavement_name:
+                     if hasattr(self.robo_pilares, 'add_global_pavimento'):
+                        self.robo_pilares.add_global_pavimento(work_name, pavement_name)
+                 else:
+                     if hasattr(self.robo_pilares, 'add_global_obra'):
+                        self.robo_pilares.add_global_obra(work_name)
+                        
+        except Exception as e:
+            self.log(f"⚠️ Erro parcial na sincronização dos robôs: {e}")
+            import traceback
+            traceback.print_exc()
+
+
+
+    def set_user_context(self, user: UserProfile):
+        """Define o usuário logado e atualiza a UI."""
+        self.user_profile = user
+        if hasattr(self, 'btn_user'):
+            # Iniciais do nome ou email
+            initials = user.full_name[:2].upper() if user.full_name else user.email[:2].upper()
+            self.btn_user.setText(initials)
+            self.btn_user.setToolTip(f"Logado como: {user.email}")
+            
+        print(f"Main Window context set for: {user.email}")
+
+    def show_user_profile(self):
+        """Abre o dialog de perfil."""
+        if not self.user_profile:
+            return
+            
+        dialog = UserProfileDialog(self.user_profile, self)
+        dialog.logout_requested.connect(self.handle_logout_signal)
+        dialog.exec()
+
+    def handle_logout_signal(self):
+        """Reinicia a aplicação para a tela de login."""
+        self.close()
 
     def _refresh_nav_combos(self):
         """Popula o combobox de Obras do Banco de Dados."""
@@ -231,6 +419,9 @@ class MainWindow(QMainWindow):
             self.cmb_pavements.addItem(display_name, p['id'])
 
         self.cmb_pavements.blockSignals(False)
+        
+        # Sincronizar robôs com a Obra
+        self.sync_robots_with_master_context(work_name)
 
     def _on_pavement_changed(self):
         """Carrega o projeto selecionado (ABRE EM ABA)."""
@@ -242,9 +433,22 @@ class MainWindow(QMainWindow):
         
         if project_id:
              self._open_project_tab(project_id, project_name)
+             # Sincronizar robôs com o Pavimento
+             work_name = self.cmb_works.currentText()
+             
+             # --- FIX: Sync Robo Lajes Pavimento ---
+             # Garante que o Robo Lajes selecione ou crie o pavimento correspondente
+             if hasattr(self, 'robo_laje') and self.robo_laje:
+                 if hasattr(self.robo_laje, 'pavimentos_widget'):
+                      self.robo_laje.pavimentos_widget.select_or_create_pavimento(project_name)
+             # --------------------------------------
+             
+             self.sync_robots_with_master_context(work_name, project_name)
 
     def _open_project_tab(self, project_id, project_name):
         """Abre uma nova aba de projeto ou foca na existente."""
+        print(f"DEBUG: _open_project_tab call. PID={project_id}, Name={project_name}")
+        self.log(f"DEBUG: Opening tab for {project_name} ({project_id})")
         # Check if already open
         count = self.project_tabs.count()
         for i in range(count):
@@ -257,17 +461,17 @@ class MainWindow(QMainWindow):
                 return
 
         # Create new tab
-        # Create an empty widget as placeholder
-        page = QWidget()
-        idx = self.project_tabs.addTab(page, project_name)
-        pid_str = str(project_id)
-        self.project_tabs.setTabToolTip(idx, pid_str)
+        self.project_tabs.blockSignals(True) # Evitar sinal prematuro antes do ToolTip ser setado
+        try:
+            page = QWidget()
+            idx = self.project_tabs.addTab(page, project_name)
+            pid_str = str(project_id)
+            self.project_tabs.setTabToolTip(idx, pid_str)
+            self.project_tabs.setCurrentIndex(idx)
+        finally:
+            self.project_tabs.blockSignals(False)
         
-        # Switch to it
-        self.project_tabs.setCurrentIndex(idx)
-        
-        # Force load because addTab (0) triggers currentChanged BEFORE ToolTip is set
-        # This ensures the project loads even for the first tab
+        # Force load explicitly with the correct ID
         self._load_project_into_view(pid_str)
         
     def _on_project_tab_changed(self, index):
@@ -275,6 +479,10 @@ class MainWindow(QMainWindow):
         if index < 0: return
         project_id = self.project_tabs.tabToolTip(index)
         
+        # Ignorar se o ID ainda não estiver setado (evita bug de 'Sem Projeto' durante criação)
+        if not project_id:
+             return
+
         # Se for o mesmo já ativo, evita reload desnecessario (mas se for switch de sessao, precisa load)
         # Active ID track
         if project_id != self.active_project_id:
@@ -301,6 +509,17 @@ class MainWindow(QMainWindow):
             
     def _load_project_into_view(self, project_id):
         """Carrega efetivamente o projeto ID na View Unica (com Cache Swap)."""
+        print(f"DEBUG: _load_project_into_view called with PID={project_id}. Current Name={self.current_project_name}")
+        
+        # FIX: Detect if project_id is a path (Upstream bug) and resolve to real ID
+        if "/" in str(project_id) or "\\" in str(project_id):
+             print(f"DEBUG: PID is a path. Attempting resolution via DB...")
+             p_info = self.db.get_project_by_dxf_path(str(project_id))
+             if p_info:
+                 project_id = p_info['id']
+                 self.current_project_name = p_info.get('name', 'Projeto Recuperado')
+                 print(f"DEBUG: Resolved PID to UUID: {project_id}")
+        
         if str(project_id) == str(self.active_project_id):
             # Same project, do nothing unless force reload needed
             return
@@ -362,7 +581,73 @@ class MainWindow(QMainWindow):
 
         # 4. Se não estava no cache, carregar full (DB + DXF)
         if not cache_hit:
+            # FIX: Isolar cena do projeto anterior criando uma nova para o novo projeto
+            if hasattr(self.canvas, 'reset_for_new_project'):
+                 self.canvas.reset_for_new_project()
+                 
             self.load_project_action() # Lógica existente de povoar lists/canvas
+
+        # 5. Atualizar Top Bar UI para refletir o projeto carregado (Fundamental para sync de abas)
+        self._update_top_bar_UI(project_id)
+
+    def _update_top_bar_UI(self, project_id):
+        """Sincroniza a barra superior (Works/Pavements/Levels) com o projeto atual."""
+        project = self.db.get_project_by_id(project_id)
+        if not project: return
+        
+        # 1. Update Work Combo
+        work_name = project.get('work_name') or ""
+        self.cmb_works.blockSignals(True)
+        if not work_name:
+             self.cmb_works.setCurrentIndex(-1)
+        else:
+             idx = self.cmb_works.findText(work_name)
+             if idx >= 0:
+                 self.cmb_works.setCurrentIndex(idx)
+             else:
+                 # Se a obra não existe no combo (ex: deletada do DB mas projeto ainda a referencia)
+                 self.cmb_works.addItem(work_name)
+                 self.cmb_works.setCurrentIndex(self.cmb_works.count()-1)
+        self.cmb_works.blockSignals(False)
+        
+        # 2. Trigger population of Pavements (ALWAYS, to avoid mixing)
+        self.cmb_pavements.blockSignals(True)
+        self.cmb_pavements.clear()
+        all_projects = self.db.get_projects()
+        # Filtro consistente com o work_name (inclusive se vazio)
+        filtered = [p for p in all_projects if (p.get('work_name') or "") == work_name]
+        for p in filtered:
+            display_name = p.get('pavement_name') or p.get('name')
+            self.cmb_pavements.addItem(display_name, p['id'])
+        self.cmb_pavements.blockSignals(False)
+
+        # 3. Sincronizar robôs com o contexto da aba ativa
+        pavement_name = project.get('pavement_name') or project.get('name')
+        self.sync_robots_with_master_context(work_name, pavement_name)
+
+        # 3. Update Pavement Combo Selection
+        # (Isso garante que o combo mostre o pavimento certo sem disparar load de novo)
+        self.cmb_pavements.blockSignals(True)
+        # Buscar pelo ID do projeto (UserRole) é mais seguro que pelo texto
+        idx_found = -1
+        for i in range(self.cmb_pavements.count()):
+            if str(self.cmb_pavements.itemData(i)) == str(project_id):
+                idx_found = i
+                break
+        
+        if idx_found >= 0:
+            self.cmb_pavements.setCurrentIndex(idx_found)
+        self.cmb_pavements.blockSignals(False)
+
+        # 4. Update Levels
+        self.edit_level_arr.blockSignals(True)
+        self.edit_level_exit.blockSignals(True)
+        
+        self.edit_level_arr.setText(str(project.get('level_arrival') or ''))
+        self.edit_level_exit.setText(str(project.get('level_exit') or ''))
+        
+        self.edit_level_arr.blockSignals(False)
+        self.edit_level_exit.blockSignals(False)
 
     def _setup_structural_analyzer_area(self):
         """Constrói o layout do módulo 'Structural Analyzer' (Legacy UI)."""
@@ -503,6 +788,14 @@ class MainWindow(QMainWindow):
             
             layout.addLayout(h_layout)
 
+            # Botão Sincronizar Robo Laje (apenas para Laje na aba de Análise)
+            if item_type == 'slab' and not is_library:
+                btn_sync_robo = QPushButton("🤖 Sincronizar Robo Laje")
+                btn_sync_robo.setStyleSheet("background-color: #6610f2; color: white; padding: 4px; font-weight: bold; font-size: 10px;")
+                btn_sync_robo.setToolTip("Envia as lajes desta lista para o módulo Robo Lajes, calculando a geometria unificada (Marco + Extensões).")
+                btn_sync_robo.clicked.connect(self.sync_slabs_to_robo_laje_action)
+                layout.addWidget(btn_sync_robo)
+
             return container
 
         # --- TAB 1: ANÁLISE ATUAL (Pilares, Vigas, Lajes, Contorno, Issues) ---
@@ -512,24 +805,38 @@ class MainWindow(QMainWindow):
         
         self.tabs_analysis_internal = QTabWidget()
         self.tabs_analysis_internal.setStyleSheet(STYLE_TABS)
-        self.list_pillars = QListWidget()
+        self.list_pillars = QTreeWidget()
+        self.list_pillars.setHeaderLabels(["Item", "Nome", "Status", "%"])
+        self.list_pillars.setColumnWidth(0, 50)
+        self.list_pillars.setColumnWidth(1, 120)
+        self.list_pillars.setColumnWidth(2, 50)
+        self.list_pillars.setColumnWidth(3, 50)
+
         self.list_beams = QTreeWidget()
-        self.list_beams.setHeaderLabels(["Item", "Nome", "Status"])
-        self.list_beams.setColumnWidth(0, 60)
+        self.list_beams.setHeaderLabels(["Item", "Nome", "Status", "%"])
+        self.list_beams.setColumnWidth(0, 50)
         self.list_beams.setColumnWidth(1, 120)
+        self.list_beams.setColumnWidth(2, 50)
+        self.list_beams.setColumnWidth(3, 50)
         
-        self.list_slabs = QListWidget()
+        self.list_slabs = QTreeWidget()
+        self.list_slabs.setHeaderLabels(["Item", "Nome", "Status", "%"])
+        self.list_slabs.setColumnWidth(0, 50)
+        self.list_slabs.setColumnWidth(1, 120)
+        self.list_slabs.setColumnWidth(2, 50)
+        self.list_slabs.setColumnWidth(3, 50)
+
         self.list_issues = QListWidget()
         
         # Conectar Sinais (Atual)
         # Conectar Sinais (Atual) - Mouse e Teclado (Setinhas)
-        self.list_pillars.itemClicked.connect(self.on_list_pillar_clicked)
+        self.list_pillars.itemClicked.connect(lambda item, col: self.on_list_pillar_clicked(item))
         self.list_pillars.currentItemChanged.connect(lambda curr, prev: self.on_list_pillar_clicked(curr) if curr else None)
         
         self.list_beams.itemClicked.connect(self.on_list_beam_clicked)
         self.list_beams.currentItemChanged.connect(lambda curr, prev: self.on_list_beam_clicked(curr, 0) if curr else None)
         
-        self.list_slabs.itemClicked.connect(self.on_list_slab_clicked)
+        self.list_slabs.itemClicked.connect(lambda item, col: self.on_list_slab_clicked(item))
         self.list_slabs.currentItemChanged.connect(lambda curr, prev: self.on_list_slab_clicked(curr) if curr else None)
         
         self.list_issues.itemClicked.connect(self.on_issue_clicked)
@@ -553,23 +860,37 @@ class MainWindow(QMainWindow):
         
         self.tabs_library_internal = QTabWidget()
         self.tabs_library_internal.setStyleSheet(STYLE_TABS)
-        self.list_pillars_valid = QListWidget()
-        self.list_beams_valid = QTreeWidget()
-        self.list_beams_valid.setHeaderLabels(["Item", "Nome", "Status"])
-        self.list_beams_valid.setColumnWidth(0, 60)
-        self.list_beams_valid.setColumnWidth(1, 120)
+        
+        self.list_pillars_valid = QTreeWidget()
+        self.list_pillars_valid.setHeaderLabels(["Item", "Nome", "Status", "%"])
+        self.list_pillars_valid.setColumnWidth(0, 50)
+        self.list_pillars_valid.setColumnWidth(1, 120)
+        self.list_pillars_valid.setColumnWidth(2, 50)
+        self.list_pillars_valid.setColumnWidth(3, 50)
 
-        self.list_slabs_valid = QListWidget()
+        self.list_beams_valid = QTreeWidget()
+        self.list_beams_valid.setHeaderLabels(["Item", "Nome", "Status", "%"])
+        self.list_beams_valid.setColumnWidth(0, 50)
+        self.list_beams_valid.setColumnWidth(1, 120)
+        self.list_beams_valid.setColumnWidth(2, 50)
+        self.list_beams_valid.setColumnWidth(3, 50)
+
+        self.list_slabs_valid = QTreeWidget()
+        self.list_slabs_valid.setHeaderLabels(["Item", "Nome", "Status", "%"])
+        self.list_slabs_valid.setColumnWidth(0, 50)
+        self.list_slabs_valid.setColumnWidth(1, 120)
+        self.list_slabs_valid.setColumnWidth(2, 50)
+        self.list_slabs_valid.setColumnWidth(3, 50)
         
         # Conectar Sinais (Validado)
         # Conectar Sinais (Validado) - Mouse e Teclado
-        self.list_pillars_valid.itemClicked.connect(self.on_list_pillar_clicked)
+        self.list_pillars_valid.itemClicked.connect(lambda item, col: self.on_list_pillar_clicked(item))
         self.list_pillars_valid.currentItemChanged.connect(lambda curr, prev: self.on_list_pillar_clicked(curr) if curr else None)
         
         self.list_beams_valid.itemClicked.connect(self.on_list_beam_clicked)
         self.list_beams_valid.currentItemChanged.connect(lambda curr, prev: self.on_list_beam_clicked(curr, 0) if curr else None)
         
-        self.list_slabs_valid.itemClicked.connect(self.on_list_slab_clicked)
+        self.list_slabs_valid.itemClicked.connect(lambda item, col: self.on_list_slab_clicked(item))
         self.list_slabs_valid.currentItemChanged.connect(lambda curr, prev: self.on_list_slab_clicked(curr) if curr else None)
         
         # Adicionar Abas com Containers
@@ -662,6 +983,126 @@ class MainWindow(QMainWindow):
         
         return module_container
 
+    def sync_slabs_to_robo_laje_action(self):
+        """Sincroniza as lajes da lista de análise para o Robo Lajes."""
+        # 1. Verificar disponibilidade do Robo
+        if not hasattr(self, 'robo_laje') or not self.robo_laje:
+            from PySide6.QtWidgets import QMessageBox
+            QMessageBox.warning(self, "Erro", "Módulo Robo Lajes não está carregado.")
+            return
+
+        # 2. Verificar Contexto (Obra/Pavimento)
+        # O Robo Laje já deve ter recebido o contexto via sync_robots_with_master_context
+        # Mas vamos garantir pegando do robo_laje.obra_atual
+        
+        obra_robo = self.robo_laje.obra_atual
+        if not obra_robo:
+            from PySide6.QtWidgets import QMessageBox
+            QMessageBox.warning(self, "Aviso", "O Robo Lajes não tem uma Obra selecionada. Selecione uma Obra na barra superior.")
+            return
+            
+        pavimento_nome = self.cmb_pavements.currentText()
+        if not pavimento_nome:
+            from PySide6.QtWidgets import QMessageBox
+            QMessageBox.warning(self, "Aviso", "Selecione um Pavimento na barra superior.")
+            return
+            
+        # Encontrar Pavimento no Robo
+        pavimento_alvo = next((p for p in obra_robo.pavimentos if p.nome == pavimento_nome), None)
+        if not pavimento_alvo:
+            # Tentar criar se não existir (embora o sync automatico devesse ter criado)
+            from laje_src.models.pavimento import Pavimento
+            pavimento_alvo = Pavimento(nome=pavimento_nome)
+            obra_robo.pavimentos.append(pavimento_alvo)
+            # Atualizar lista de pavimentos no robo
+            if hasattr(self.robo_laje, 'pavimentos_widget'):
+                self.robo_laje.pavimentos_widget.update_list()
+                self.robo_laje.pavimentos_widget.select_or_create_pavimento(pavimento_nome)
+
+        # 3. Preparar Dados das Lajes (Structural Analyzer -> Robo Lajes)
+        from laje_src.models.laje import Laje
+        
+        novas_lajes_robo = []
+        
+        # Iterar sobre lajes encontradas na análise
+        count = 0
+        for slab_data in self.slabs_found:
+            name = slab_data.get('name', 'L?')
+            
+            # Extrair número (ex: "L1" -> 1)
+            import re
+            nums = re.findall(r'\d+', name)
+            numero = int(nums[0]) if nums else 0
+            
+            # Calcular Geometria Unificada (Marco + Extensões)
+            # Retorna (Polygon, area_m2)
+            unified_poly, area_m2 = self._get_slab_real_geometry(slab_data)
+            
+            # Converter coordenadas para lista de tuplas [(x,y), ...]
+            coords = []
+            if unified_poly:
+                 if hasattr(unified_poly, 'exterior'):
+                     coords = list(unified_poly.exterior.coords)
+                 # Se for MultiPolygon, pegar o maior
+                 elif unified_poly.geom_type == 'MultiPolygon':
+                     largest = max(unified_poly.geoms, key=lambda a: a.area)
+                     coords = list(largest.exterior.coords)
+            
+            # Criar Objeto Laje do Robo
+            # IMPORTANTE: area_cm2 no Robo é usada para calculos, aqui convertemos m² -> cm²
+            nova_laje = Laje(
+                numero=numero,
+                nome=name,
+                comprimento=0.0, 
+                largura=0.0,
+                pavimento=pavimento_nome,
+                coordenadas=coords,
+                area_cm2=area_m2 * 10000 
+            )
+            
+            novas_lajes_robo.append(nova_laje)
+            count += 1
+
+        if not novas_lajes_robo:
+            from PySide6.QtWidgets import QMessageBox
+            QMessageBox.information(self, "Aviso", "Nenhuma laje encontrada na lista de análise para sincronizar.")
+            return
+
+        # 4. Substituir/Popular no Pavimento Alvo
+        from PySide6.QtWidgets import QMessageBox
+        reply = QMessageBox.question(
+            self, 
+            "Sincronizar Robo Lajes",
+            f"Isso irá SUBSTITUIR todas as lajes do pavimento '{pavimento_nome}' no Robo Lajes \n"
+            f"pelas {count} lajes da Análise Atual.\n\n"
+            "Deseja continuar?",
+            QMessageBox.Yes | QMessageBox.No
+        )
+        
+        if reply == QMessageBox.Yes:
+            pavimento_alvo.lajes = novas_lajes_robo
+            
+            # 5. Atualizar UI do Robo Lajes e Iniciar Automação IA
+            if hasattr(self, 'robo_laje') and self.robo_laje is not None and hasattr(self.robo_laje, 'laje_tab'):
+                # Trocar para a aba do Robo Laje para visualização do processo
+                if hasattr(self, 'module_tabs'):
+                    self.module_tabs.setCurrentIndex(4)
+                if hasattr(self, 'module_stack'):
+                    self.module_stack.setCurrentIndex(4)
+                
+                # Forçar atualização da tabela
+                if hasattr(self.robo_laje, 'pavimentos_widget'):
+                    self.robo_laje.pavimentos_widget.select_or_create_pavimento(pavimento_nome)
+                
+                self.robo_laje.laje_tab.atualizar_tabela_lajes()
+                
+                # Iniciar Processamento IA Automatizado (Linhas + Cotas)
+                self.robo_laje.laje_tab.automate_ai_for_all_lajes()
+                
+            QMessageBox.information(self, "Sucesso", f"{count} lajes sincronizadas e processadas pela IA!")
+
+
+
     def init_ui(self):
         """Nova Inicialização de UI (Overhaul)."""
         # Widget Principal
@@ -717,12 +1158,61 @@ class MainWindow(QMainWindow):
         structural_widget = self._setup_structural_analyzer_area()
         self.module_stack.addWidget(structural_widget)
 
-        # --- MÓDULOS FUTUROS (Placeholders) ---
-        for name in ["Robo Pilares", "Robo Laterais Viga", "Robo Fundo Viga", "Robo Laje"]:
-            p = QLabel(f"Módulo em Desenvolvimento: {name}")
-            p.setAlignment(Qt.AlignCenter)
-            p.setStyleSheet("font-size: 20px; color: #555;")
-            self.module_stack.addWidget(p)
+        # --- MÓDULOS ROBÔS ---
+        
+        # 1. Robo Pilares (INTEGRADO)
+        if create_pilares_widget:
+            try:
+                self.robo_pilares = create_pilares_widget()
+                self.robo_pilares.setWindowFlags(Qt.Widget) # Embed mode
+                self.module_stack.addWidget(self.robo_pilares)
+            except Exception as e:
+                self.module_stack.addWidget(QLabel(f"Erro ao carregar Robo Pilares: {e}"))
+                self.robo_pilares = None
+        else:
+            self.module_stack.addWidget(QLabel("Módulo Robo Pilares não encontrado ou erro de importação."))
+            self.robo_pilares = None
+
+        # 2. Robo Laterais de Viga (INTEGRADO)
+        if VigaMainWindow:
+            try:
+                self.robo_viga = VigaMainWindow()
+                self.robo_viga.setWindowFlags(Qt.Widget) # Embed mode
+                self.module_stack.addWidget(self.robo_viga)
+            except Exception as e:
+                self.module_stack.addWidget(QLabel(f"Erro ao carregar Robo Viga: {e}"))
+                self.robo_viga = None
+        else:
+            self.module_stack.addWidget(QLabel("Robo Viga não encontrado / Erro de importação."))
+            self.robo_viga = None
+
+        # 3. Robo Fundo de Viga (INTEGRADO)
+        if FundoMainWindow:
+            try:
+                self.robo_fundo = FundoMainWindow()
+                self.robo_fundo.setWindowFlags(Qt.Widget) # Embed mode
+                self.module_stack.addWidget(self.robo_fundo)
+            except Exception as e:
+                self.module_stack.addWidget(QLabel(f"Erro ao carregar Robo Fundo: {e}"))
+                self.robo_fundo = None
+        else:
+            self.module_stack.addWidget(QLabel("Robo Fundo não encontrado / Erro de importação."))
+            self.robo_fundo = None
+
+        # 4. Robo Laje (INTEGRADO)
+        if LajeMainWindow:
+            try:
+                self.robo_laje = LajeMainWindow()
+                self.robo_laje.setWindowFlags(Qt.Widget) # Embed mode
+                
+                # Setup session mock/proxy if needed
+                self.module_stack.addWidget(self.robo_laje)
+            except Exception as e:
+                self.module_stack.addWidget(QLabel(f"Erro ao carregar Robo Laje: {e}"))
+                self.robo_laje = None
+        else:
+            self.module_stack.addWidget(QLabel("Robo Laje não encontrado / Erro de importação."))
+            self.robo_laje = None
 
         # Conectar Navegação
         self.module_tabs.currentChanged.connect(self.module_stack.setCurrentIndex)
@@ -734,20 +1224,32 @@ class MainWindow(QMainWindow):
     def _on_analysis_tab_changed(self, index):
         """Filtra visualização no Canvas baseado na aba selecionada (Análise)"""
         # 0: Pilares, 1: Vigas, 2: Lajes, 3: Issues
+        # print(f"[DEBUG_TAB] Analysis Tab Changed to Index: {index}")
         self._update_canvas_filter(index)
 
     def _on_library_tab_changed(self, index):
         """Filtra visualização no Canvas baseado na aba selecionada (Biblioteca)"""
         # 0: Pilares, 1: Vigas, 2: Lajes
+        # print(f"[DEBUG_TAB] Library Tab Changed to Index: {index}")
         self._update_canvas_filter(index)
 
     def _update_canvas_filter(self, index):
+        # print(f"[DEBUG_TAB] Updating Canvas Filter for Index: {index}")
         if index == 0:
             self.canvas.set_category_visibility('pillar')
         elif index == 1:
             self.canvas.set_category_visibility('beam')
+            if hasattr(self, 'beams_found'): self.canvas.draw_beams(self.beams_found)
         elif index == 2:
+            # print(f"[DEBUG_TAB] Setting category visibility to 'slab'")
+            if hasattr(self, 'slabs_found'):
+                 pass # print(f"[DEBUG_TAB] Redrawing {len(self.slabs_found)} slabs") 
+            else:
+                 pass # print(f"[DEBUG_TAB] No slabs_found attribute!") 
+                 
             self.canvas.set_category_visibility('slab')
+            # Forçar redesenho para garantir que todos os vínculos sejam exibidos
+            if hasattr(self, 'slabs_found'): self.canvas.draw_slabs(self.slabs_found)
         else:
             self.canvas.set_category_visibility('all')
 
@@ -1604,12 +2106,12 @@ class MainWindow(QMainWindow):
              if s.get('is_validated'):
                  item_text += " ✅"
 
-             item = QListWidgetItem(item_text)
+             item = QTreeWidgetItem([item_text])
              if s.get('is_validated'):
-                 item.setForeground(Qt.green)
+                 item.setForeground(0, Qt.green)
 
-             item.setData(Qt.UserRole, s_unique_id)
-             self.list_slabs.addItem(item)
+             item.setData(0, Qt.UserRole, s_unique_id)
+             self.list_slabs.addTopLevelItem(item)
 
         walker = BeamWalker(self.spatial_index)
         from shapely.geometry import Polygon
@@ -1730,29 +2232,8 @@ class MainWindow(QMainWindow):
 
             self.pillars_found.append(p_data)
             
-            # Listagem: Numero Item - Nome - Dim - Formato (AGORA RESTAURADOS)
-            item_text = f"{p_data['id_item']} | {p_data['name']} | {p_data['dim']} | {p_data['format']}"
-            
-            # Se já estava validado, adiciona check
-            if p_data.get('is_validated'):
-                item_text += " ✅"
-            
-            item = QListWidgetItem(item_text)
-            
-            conf_map = p_data.get('confidence_map', {})
-            avg_conf = sum(conf_map.values()) / len(conf_map) if conf_map else 0.5
-            
-            if p_data.get('is_validated'):
-                 item.setForeground(Qt.green)
-            elif p_data['issues']:
-                item.setForeground(Qt.red)
-                self._add_to_issues_list(p_data, avg_conf)
-            elif avg_conf < 0.6:
-                item.setForeground(Qt.yellow)
-                self._add_to_issues_list(p_data, avg_conf)
-
-            item.setData(Qt.UserRole, unique_id) 
-            self.list_pillars.addItem(item)
+            # Atualização de UI Delegada para _update_all_lists_ui() no final do loop
+            # Isso evita redundância e duplicação na lista de issues.
 
         # 3. Desenho no Canvas e UI
         self.update_progress(95, "Finalizando...")
@@ -1769,8 +2250,8 @@ class MainWindow(QMainWindow):
         self.btn_save.setEnabled(True)
 
     # Legacy methods removed
-    def on_list_pillar_clicked(self, item):
-        pillar_id = item.data(Qt.UserRole)
+    def on_list_pillar_clicked(self, item, column=0):
+        pillar_id = item.data(0, Qt.UserRole)
         pilar = next((p for p in self.pillars_found if p['id'] == pillar_id), None)
         if pilar:
             self.show_detail(pilar)
@@ -1797,8 +2278,8 @@ class MainWindow(QMainWindow):
             # NOVO: Desenhar também os vínculos salvos (Labels, Dimensões, etc)
             self.canvas.draw_item_links(beam)
 
-    def on_list_slab_clicked(self, item):
-        slab_id = item.data(Qt.UserRole)
+    def on_list_slab_clicked(self, item, column=0):
+        slab_id = item.data(0, Qt.UserRole)
         slab = next((s for s in self.slabs_found if s['id'] == slab_id), None)
         if slab:
             self.show_detail(slab)
@@ -1807,22 +2288,21 @@ class MainWindow(QMainWindow):
             self.canvas.draw_item_links(slab)
 
     def on_canvas_pillar_selected(self, p_id):
-        for i in range(self.list_pillars.count()):
-            it = self.list_pillars.item(i)
-            if it.data(Qt.UserRole) == p_id:
-                self.list_pillars.setCurrentItem(it)
-                self.on_list_pillar_clicked(it)
+        from PySide6.QtWidgets import QTreeWidgetItemIterator
+        it = QTreeWidgetItemIterator(self.list_pillars)
+        while it.value():
+            item = it.value()
+            if item.data(0, Qt.UserRole) == p_id:
+                self.list_pillars.setCurrentItem(item)
+                self.on_list_pillar_clicked(item)
                 break
+            it += 1
 
     def save_project_metadata(self):
         """Salva metadados do projeto (Nome, Niveis)."""
         if not hasattr(self, 'db') or not self.current_project_id:
             return
 
-        # Recuperar valores dos campos (se existirem)
-        # Como movemos para TopBar/Combos, a 'edicao' do nome principal é pelo Gerenciador
-        # Mas podemos salvar Niveis se eles ainda estiverem na UI
-        
         try:
            level_arr = getattr(self, 'edit_level_arr', None)
            level_exit = getattr(self, 'edit_level_exit', None)
@@ -1830,11 +2310,15 @@ class MainWindow(QMainWindow):
            val_arr = level_arr.text() if level_arr else ""
            val_exit = level_exit.text() if level_exit else ""
            
-           # Update no DB (assumindo que existe metodo, senao passamos)
-           # self.db.update_project_metadata(id, name, level_arr, ...)
-           # Por enquanto, apenas logar que 'Metadados salvos' pois o DB pode não ter colunas ainda
-           # O código original apenas salvava Nomes se edited.
-           pass
+           metadata = {
+               'level_arrival': val_arr,
+               'level_exit': val_exit
+           }
+           
+           # Salvar no DB
+           self.db.update_project_metadata(self.current_project_id, metadata)
+           self.log(f"💾 Níveis salvos com sucesso (ARR: {val_arr}, EXIT: {val_exit}).")
+           
         except Exception as e:
             self.log(f"Erro salvando metadados: {e}")
 
@@ -1873,6 +2357,11 @@ class MainWindow(QMainWindow):
         if not self.current_project_id:
             return
             
+        # FIX: Ensure name is consistent
+        if self.current_project_name == "Sem Projeto" and self.current_project_id:
+             p = self.db.get_project_by_id(self.current_project_id)
+             if p: self.current_project_name = p.get('name', 'Projeto Desconhecido')
+
         self.log(f"📂 Carregando dados do projeto {self.current_project_name}...")
         
         # 0. Preparar Canvas
@@ -1882,6 +2371,7 @@ class MainWindow(QMainWindow):
             self.canvas.scene.clear()
             
         # 1. Carregar DXF de Fundo (Cache ou Disco)
+
         dxf_bg_loaded = False
         
         # Tentar Cache
@@ -1916,10 +2406,13 @@ class MainWindow(QMainWindow):
                      except Exception as e:
                          self.log(f"Erro ao carregar DXF de fundo: {e}")
 
+
         # 2. Carregar do Banco de Dados (Entidades Inteligentes)
         self.pillars_found = self.db.load_pillars(self.current_project_id) or []
         self.slabs_found = self.db.load_slabs(self.current_project_id) or []
         self.beams_found = self.db.load_beams(self.current_project_id) or []
+
+
 
         # --- NOVA LÓGICA: Garantir geraçao de extensões de laje se ausentes (Retrocompatibilidade) ---
         if self.slabs_found:
@@ -1927,31 +2420,47 @@ class MainWindow(QMainWindow):
             from shapely.geometry import Polygon
             count_ext_gen = 0
             for s in self.slabs_found:
-                # Se não tiver extensions no dict raiz OU se o link estiver vazio
-                has_ext_link = False
-                if 'links' in s and 'laje_outline_segs' in s['links']:
-                    if s['links']['laje_outline_segs'].get('acrescimo_borda'):
-                        has_ext_link = True
+                if 'links' not in s: s['links'] = {}
                 
-                # Se não tem, gera!
-                if not has_ext_link and 'points' in s and s['points']:
+                # REPARO: Remover chave duplicada 'extensions' se existir
+                if 'extensions' in s: del s['extensions']
+                
+                # Inicializar slot se ausente
+                if 'laje_outline_segs' not in s['links']:
+                     s['links']['laje_outline_segs'] = {'contour': [], 'acrescimo_borda': []}
+                
+                out_segs = s['links']['laje_outline_segs']
+                
+                # 1. Garantir Contorno Principal (Se vazio, criar a partir dos points)
+                # Isso é crucial para o 'draw_slabs' desenhar o fundo branco (SlabGraphicsItem)
+                if not out_segs.get('contour') and 'points' in s and s['points']:
+                     # Criar um link 'poly' representando o corpo principal
+                     out_segs['contour'] = [{
+                         'type': 'poly',
+                         'points': s['points'],
+                         'text': 'Contorno Principal',
+                         'pos': s['points'][0] if len(s['points']) > 0 else (0,0),
+                         'is_generated': True
+                     }]
+                
+                # 2. Garantir Extensões (Se vazio e nunca processado/detectado)
+                # Nota: Se já tiver contour mas acrescimo vazio, assume-se que não tem expansão ou já foi verificado.
+                # Mas aqui forçamos a deteção se a lista estiver literalmente vazia e não tivermos flag de 'checked'.
+                # Para simplificar e evitar reprocessamento pesado, só fazemos se contour foi recém gerado ou explicitamente faltante.
+                if not out_segs.get('acrescimo_borda') and 'points' in s and s['points']:
                     try:
                         poly = Polygon(s['points'])
                         extensions = self.slab_tracer.detect_extensions(poly)
                         if extensions:
-                            s['extensions'] = extensions # Guarda no root para salvar depois se quiser
-                            # Injeta no Link
-                            if 'links' not in s: s['links'] = {}
-                            if 'laje_outline_segs' not in s['links']: 
-                                s['links']['laje_outline_segs'] = {'contour': [], 'acrescimo_borda': []}
-                            
-                            s['links']['laje_outline_segs']['acrescimo_borda'] = extensions
+                            out_segs['acrescimo_borda'] = extensions
                             count_ext_gen += 1
                     except Exception as e:
                         print(f"Erro gerando extensão laje {s.get('name')}: {e}")
             
             if count_ext_gen > 0:
                 self.log(f"✨ Extensões geradas para {count_ext_gen} lajes.")
+
+
 
         # Ordenar (Funções auxiliares internas)
         import re
@@ -1976,6 +2485,7 @@ class MainWindow(QMainWindow):
             self.canvas.draw_beams(self.beams_found)
         
         # Sincronizar Listas UI
+
         self._update_all_lists_ui()
         
         # Detalhe do primeiro item se houver
@@ -1983,6 +2493,8 @@ class MainWindow(QMainWindow):
             self.show_detail(self.pillars_found[0])
             
         self.log(f"✅ Projeto restaurado: {len(self.pillars_found)}P, {len(self.beams_found)}V, {len(self.slabs_found)}L.")
+
+
                 
     def on_research_requested(self, field_id, slot_id):
         """Re-executa a busca para o slot usando Treinamento + Prompts. ATUALIZA OS DADOS."""
@@ -2115,14 +2627,16 @@ class MainWindow(QMainWindow):
 
         # Enviar para Memória (HierarchicalMemory)
         if self.memory:
+            event_type = 'user_validation' if status == 'valid' else ('user_na' if status == 'na' else 'user_rejection')
+            
             self.memory.save_training_event(
                 project_context=p_context,
                 item_context=i_context,
                 field_context=f_context,
-                label=target_val,
-                event_type='user_validation' if status == 'valid' else 'user_rejection'
+                label=target_val if status != 'na' else "N/A",
+                event_type=event_type
             )
-            self.log(f"🧠 Aprendizado registrado: {i_context['type']} {i_context['name']} -> {field_id}")
+            self.log(f"🧠 Aprendizado registrado: {i_context['type']} {i_context['name']} -> {field_id} ({event_type})")
 
     def run_dxf_preprocessor_action(self):
         """Executa o tratamento prévio de vigas/marco do DXF."""
@@ -2211,20 +2725,24 @@ class MainWindow(QMainWindow):
             link_obj['validated'] = True
             link_obj.pop('failed', None)
             
-            self.current_card.mark_field_validated(field_id, True)
+            # (Removido validação automática do campo/item - Hierarquia Direta Mantida)
+            # self.current_card.mark_field_validated(field_id, True)  <-- COMENTADO/REMOVIDO
+            
             self.log(f"👍 Feedback POSITIVO salvo para '{field_id}:{slot_id}'")
             
-            # --- NOVO: Se validou o vínculo, valida o item inteiro no DXF ---
-            self.on_card_validated(p_data, retrain_fields=False)
+            # Apenas atualizar visualmente sem marcar como "Validado Final"
+            self.current_card.refresh_validation_styles()
+            self._update_all_lists_ui()
         else:
             # Marcar o link individual como falho
             link_obj['failed'] = True
             link_obj.pop('validated', None)
             
-            self.current_card.mark_field_validated(field_id, False)
-            f = self.current_card.fields.get(field_id)
-            if f and hasattr(f, 'clear'): f.clear()
+            # (Removido invalidação automática do campo - Hierarquia Direta Mantida)
+            # self.current_card.mark_field_validated(field_id, False) <-- COMENTADO/REMOVIDO
+            
             self.log(f"⚠️ Feedback de FALHA salvo para '{field_id}:{slot_id}'")
+            self.current_card.refresh_validation_styles()
 
         # Forçar refresh do LinkManager se ele estiver aberto
         if hasattr(self.current_card, 'embedded_managers'):
@@ -2453,11 +2971,6 @@ class MainWindow(QMainWindow):
                 target_list = self.list_slabs
                 valid_list = self.list_slabs_valid
                 item_label = f"{id_item} | {name}"
-            elif 'laje' in elem_type:
-                self.db.save_slab(item_data, self.current_project_id)
-                target_list = self.list_slabs
-                valid_list = self.list_slabs_valid
-                item_label = f"{id_item} | {name}"
             else:
                 return
 
@@ -2470,27 +2983,33 @@ class MainWindow(QMainWindow):
                     valid_beams = [b for b in self.beams_found if b.get('is_validated')]
                     self._populate_beam_tree(valid_list, valid_beams)
                 else:
-                    for i in range(target_list.count()):
-                         it = target_list.item(i)
-                         if it.data(Qt.UserRole) == p_id:
-                              it.setText(item_label + (" ✅" if " ✅" not in it.text() else ""))
-                              it.setForeground(Qt.green)
+                    for i in range(target_list.topLevelItemCount()):
+                         it = target_list.topLevelItem(i)
+                         if it.data(0, Qt.UserRole) == p_id:
+                              it.setText(1, item_label + (" ✅" if " ✅" not in it.text(1) else ""))
+                              it.setForeground(0, Qt.green)
+                              it.setForeground(1, Qt.green)
                               break
                     
-                    # Adicionar à lista validada (evitar duplicados visuais)
+                    # Adicionar/Atualizar na lista validada
                     found_v_idx = -1
-                    for i in range(valid_list.count()):
-                        if valid_list.item(i).data(Qt.UserRole) == p_id:
+                    for i in range(valid_list.topLevelItemCount()):
+                        if valid_list.topLevelItem(i).data(0, Qt.UserRole) == p_id:
                             found_v_idx = i
                             break
                     
                     if found_v_idx == -1:
-                        item_v = QListWidgetItem(item_label + " ✅")
-                        item_v.setData(Qt.UserRole, p_id)
-                        item_v.setForeground(Qt.green)
-                        valid_list.addItem(item_v)
+                        from PySide6.QtWidgets import QTreeWidgetItem
+                        item_v = QTreeWidgetItem([elem_type, item_label + " ✅", "Validado", "100%"])
+                        item_v.setData(0, Qt.UserRole, p_id)
+                        item_v.setForeground(0, Qt.green)
+                        item_v.setForeground(1, Qt.green)
+                        valid_list.addTopLevelItem(item_v)
                     else:
-                        valid_list.item(found_v_idx).setText(item_label + " ✅")
+                        it = valid_list.topLevelItem(found_v_idx)
+                        it.setText(1, item_label + " ✅")
+                        it.setForeground(0, Qt.green)
+                        it.setForeground(1, Qt.green)
             finally:
                 target_list.setUpdatesEnabled(True)
                 valid_list.setUpdatesEnabled(True)
@@ -2841,47 +3360,179 @@ class MainWindow(QMainWindow):
             for ext in s['extensions']:
                 s['links']['laje_outline_segs']['acrescimo_borda'].append(ext)
 
+    def _calculate_completion(self, item_data):
+        """Calcula % de completude baseado em campos validados e NA."""
+        itype = item_data.get('type', '').lower()
+        
+        if item_data.get('is_fully_validated'):
+            return 100.0
+
+        v_raw = item_data.get('validated_fields', [])
+        n_raw = item_data.get('na_fields', [])
+        
+        # Garantir sets de strings
+        val_fields = set(v_raw.keys()) if isinstance(v_raw, dict) else set(v_raw)
+        na_fields = set(n_raw.keys()) if isinstance(n_raw, dict) else set(n_raw)
+        
+        # Campos principais concluídos
+        done_fields = val_fields | na_fields
+        total_done = len(done_fields)
+        
+        # Bônus por classes de vínculo (slots) validadas ou N/A
+        v_slots = item_data.get('validated_link_classes', {})
+        n_slots = item_data.get('na_link_classes', {})
+        
+        done_slots_count = 0
+        if isinstance(v_slots, dict):
+            for slots in v_slots.values(): done_slots_count += len(slots)
+        if isinstance(n_slots, dict):
+            for slots in n_slots.values(): done_slots_count += len(slots)
+            
+        # Cada slot concluído conta 0.3 de um campo para dar movimento real ao %
+        total_points = total_done + (done_slots_count * 0.3)
+        
+        # Totais ajustados para garantir que 100% seja atingível
+        # Laje: ~6 campos
+        # Viga: ~15 campos
+        # Pilar: ~25 campos
+        if 'pilar' in itype: total = 25
+        elif 'viga' in itype: total = 15
+        elif 'laje' in itype: total = 6
+        else: total = 8
+        
+        if total <= 0: return 100.0
+        
+        pct = (total_points / total) * 100
+        if pct > 100: pct = 100.0
+        return pct
+
+    def _populate_generic_tree(self, tree_widget, items_list, item_type='pillar'):
+        """Popula QTreeWidget com colunas: Item | Nome | Status | %"""
+        tree_widget.clear()
+        
+        from PySide6.QtWidgets import QTreeWidgetItem
+        from PySide6.QtGui import QColor, QBrush
+        
+        for i, item_data in enumerate(items_list):
+            # 1. Preparar Textos
+            item_id_str = item_data.get('id_item', f"{i+1:02}")
+            name = item_data.get('name', '?')
+            
+            # Info extra no nome
+            if item_type == 'pillar':
+                # Usuário pediu para remover dimensão da lista
+                display_name = name
+            elif item_type == 'slab':
+                area = item_data.get('area', 0.0)
+                # Tentar recalcular area se nao tiver
+                if area == 0:
+                     _, area = self._get_slab_real_geometry(item_data)
+                display_name = f"{name} ({area:.2f}m²)"
+            else:
+                display_name = name
+            
+            # 2. Status
+            status_icon = "❓"
+            # Prioridade Visual:
+            # 1. Fully Validated (Blue) -> Check Completion
+            # 2. Validated (Green) -> Check Completion
+            # 3. Issues (Yellow)
+            
+            if item_data.get('is_fully_validated'): status_icon = "🔵" # Blue Seal
+            elif item_data.get('is_validated'): status_icon = "✅" # Green Seal
+            elif item_data.get('issues'): status_icon = "⚠️"
+            
+            # 3. % Completitude
+            pct = self._calculate_completion(item_data)
+            pct_str = f"{int(pct)}%"
+            
+            # Criar Item Tree
+            tree_item = QTreeWidgetItem(tree_widget)
+            tree_item.setText(0, item_id_str)
+            tree_item.setText(1, display_name)
+            tree_item.setText(2, status_icon)
+            tree_item.setText(3, pct_str)
+            
+            # Setup Data
+            tree_item.setData(0, Qt.UserRole, item_data['id'])
+            
+            # Cores
+            if item_data.get('is_fully_validated'):
+                 tree_item.setForeground(0, QColor("#00d4ff")) # Blue Cyan
+                 tree_item.setForeground(1, QColor("#00d4ff"))
+            elif item_data.get('is_validated'):
+                 tree_item.setForeground(0, Qt.green)
+                 tree_item.setForeground(1, Qt.green)
+            elif item_data.get('issues'):
+                 tree_item.setForeground(0, Qt.red)
+                 tree_item.setForeground(1, Qt.red)
+            else:
+                 tree_item.setForeground(0, QColor("#dddddd"))
+                 tree_item.setForeground(1, QColor("#dddddd"))
+            
+            # Sync Visual Canvas (Opcional, mas bom manter)
+            if item_type == 'pillar':
+                status_code = "validated" if item_data.get('is_validated') else "default"
+                if item_data.get('issues'): status_code = "error" # Não temos "error" visual no pilar, mas ok
+                self.canvas.update_pillar_visual_status(item_data['id'], status_code)
+            elif item_type == 'slab':
+                status_code = "validated" if item_data.get('is_validated') else "default"
+                self.canvas.update_slab_status(item_data['id'], status_code)
+
+
     def _populate_beam_tree(self, tree_widget, beam_list):
         tree_widget.clear()
         if not beam_list: return
-
+        
         from PySide6.QtWidgets import QTreeWidgetItem
+        from PySide6.QtGui import QColor
+
         # Agrupar por parent_name
         from collections import OrderedDict
         groups = OrderedDict()
         for b in beam_list:
             p_name = b.get('parent_name', b.get('name', 'V?'))
             if p_name not in groups:
-                groups[p_name] = []
+                 groups[p_name] = []
             groups[p_name].append(b)
             
         for p_name, segments in groups.items():
-            # Se houver apenas 1 segmento e o nome for igual ao pai, podemos simplificar?
-            # User pediu "Box/Clase", então vamos criar o nó pai para agrupar.
             parent_item = QTreeWidgetItem(tree_widget)
             parent_item.setText(1, f"📂 {p_name}")
             parent_item.setExpanded(True)
-            parent_item.setFlags(parent_item.flags() & ~Qt.ItemIsSelectable) # Pai não selecionável se quiser focar apenas nos filhos
+            parent_item.setFlags(parent_item.flags() & ~Qt.ItemIsSelectable)
             
             for b in segments:
-                status = "✅" if b.get('is_validated') else "❓"
+                # Status
+                status = "❓"
+                if b.get('is_fully_validated'): status = "🔵"
+                elif b.get('is_validated'): status = "✅"
+                elif b.get('issues'): status = "⚠️"
+                
+                # % Completitude
+                pct = self._calculate_completion(b)
+                pct_str = f"{int(pct)}%"
+                
                 child = QTreeWidgetItem(parent_item)
                 child.setText(0, b.get('id_item', '??'))
                 child.setText(1, b['name'])
                 child.setText(2, status)
+                child.setText(3, pct_str)
+                
                 child.setData(0, Qt.UserRole, b['id'])
                 
-                # AJUSTE 4: Itens (linhas das vigas) em lightgray para diferenciar das pastas
-                from PySide6.QtGui import QColor
-                gray_color = QColor("#aaaaaa") # Lightgray
-                for col in range(3):
-                    child.setForeground(col, gray_color)
+                # Cores
+                color = QColor("#aaaaaa")
+                if b.get('is_fully_validated'): color = QColor("#00d4ff")
+                elif b.get('is_validated'): color = Qt.green
+                elif b.get('issues'): color = Qt.red
+                
+                for col in range(4):
+                    child.setForeground(col, color)
 
-                if b.get('is_validated'):
-                    child.setForeground(1, Qt.green)
-                    self.canvas.update_beam_status(b['id'], "validated")
-                else:
-                    self.canvas.update_beam_status(b['id'], "default")
+                # Sync Visual
+                status_code = "validated" if b.get('is_validated') else "default"
+                self.canvas.update_beam_status(b['id'], status_code)
 
     # --- NOVOS MÉTODOS DE GERENCIAMENTO ---
 
@@ -2902,95 +3553,7 @@ class MainWindow(QMainWindow):
         self.canvas.highlight_link(link_data)
         self.log(f"📍 Foco de memória: {link_data.get('text', 'Geometria')}")
 
-    def open_project_manager(self):
-        """Abre o gerenciador de projetos."""
-        self.proj_mgr = ProjectManager(self.db)
-        self.proj_mgr.project_selected.connect(self.on_project_selected)
-        self.proj_mgr.resize(600, 400)
-        self.proj_mgr.show()
 
-    def on_project_selected(self, pid, name, dxf_path):
-        """Callback: Projeto aberto via gerenciador."""
-        self.proj_mgr.close()
-        
-        # Se já existe tab para esse projeto, foca nela
-        for i in range(self.project_tabs.count()):
-            if self.project_tabs.tabBar().tabData(i) == pid:
-                self.project_tabs.setCurrentIndex(i)
-                return
-
-        # Adiciona nova aba
-        # Adiciona nova aba
-        self.log(f"Abrindo projeto: {name}...")
-        print(f"DEBUG: Abrindo projeto {name} (PID: {pid})")
-        
-        # Block signals to prevent premature triggering of currentChanged before data is set
-        self.project_tabs.blockSignals(True)
-        try:
-            self.project_tabs.addTab(QWidget(), f"{name}") 
-            new_idx = self.project_tabs.count() - 1
-            self.project_tabs.tabBar().setTabData(new_idx, pid)
-            self.project_tabs.setTabToolTip(new_idx, dxf_path)
-        finally:
-            self.project_tabs.blockSignals(False)
-        
-        # Carrega dados do projeto (DB -> Memória) se não estiver em cache
-        if pid not in self.loaded_projects_cache:
-            print("DEBUG: Carregando do Banco de Dados...")
-            # Tentar carregar DB
-            p_info = self.db.get_project_by_id(pid) 
-            if not p_info:
-                self.log(f"Erro: Projeto {pid} não encontrado no banco.")
-                print("DEBUG: Projeto nao encontrado no DB.")
-                return
-
-            print("DEBUG: Fetching entities...")
-            # Carregar itens do DB
-            pillars = self.db.load_pillars(pid)
-            print(f"DEBUG: Pilares carregados ({len(pillars)})")
-            slabs = self.db.load_slabs(pid)
-            print(f"DEBUG: Lajes carregadas ({len(slabs)})")
-            beams = self.db.load_beams(pid)
-            print(f"DEBUG: Vigas carregadas ({len(beams)})")
-            
-            cache_entry = {
-                'id': pid,
-                'name': name,
-                'dxf_path': dxf_path,
-                'pillars': pillars,
-                'slabs': slabs,
-                'beams': beams,
-                'meta': {
-                    'work_name': p_info.get('work_name', ''),
-                    'pavement_name': p_info.get('pavement_name', ''),
-                    'level_arrival': p_info.get('level_arrival', ''),
-                    'level_exit': p_info.get('level_exit', '')
-                },
-                'dxf_data': None # Lazy load DXF geometry
-            }
-            self.loaded_projects_cache[pid] = cache_entry
-            
-            # Carregar DXF Geometria para este projeto (se existir arquivo)
-            if dxf_path and os.path.exists(dxf_path):
-                self.show_progress("Lendo Arquivo DXF...", 20)
-                try:
-                    loaded_dxf = DXFLoader.load_dxf(dxf_path)
-                    cache_entry['dxf_data'] = loaded_dxf
-                except Exception as e:
-                    self.log(f"Erro ao carregar DXF {dxf_path}: {e}")
-                self.hide_progress()
-
-        # Ativa a aba e força atualização
-        # Bloqueamos sinais se a aba já existir para evitar double-trigger, 
-        # mas como estamos ADICIONANDO, o setCurrentIndex vai disparar o on_project_tab_changed.
-        print(f"DEBUG: Switching tab index to {new_idx}...")
-        self.project_tabs.setCurrentIndex(new_idx)
-        
-        # Se por algum motivo o sinal não disparou (mesmo index), chamamos manual
-        # Se por algum motivo o sinal não disparou (mesmo index), chamamos manual
-        if self.current_project_id != pid:
-             print("DEBUG: Manually calling _on_project_tab_changed (fallback)...")
-             self._on_project_tab_changed(new_idx)
 
 
 
@@ -3016,114 +3579,92 @@ class MainWindow(QMainWindow):
             self.current_project_id = None
             self.meta_widget.setEnabled(False)
         
-    def save_project_metadata(self):
-        """Salva as informações de cabeçalho do projeto ativo."""
-        if not self.active_project_id: return
-        
-        # Legacy: Widgets edit_work_name/edit_pavement_name foram removidos na nova UI.
-        # A edição de metadados será feita via diálogo "Gerenciar Projetos".
-        # Por enquanto, apenas ignora para evitar crash no Auto-Save.
-        pass
-        
-        # meta = {
-        #     'work_name': self.cmb_works.currentText(), # Read from Combo
-        #     'pavement_name': self.cmb_pavements.currentText(),
-        #     'level_arrival': "0.00", # TODO: Restaurar inputs se necessário
-        #     'level_exit': "0.00"
-        # }
-        
-        # Update DB (Skip for now to avoid overwriting with defaults)
-        # self.db.update_project_metadata(self.active_project_id, meta)
 
     def _get_slab_real_geometry(self, s):
         """
         Calcula a geometria real (Soma do Contorno + Extensões) e Área em m².
+        Prioriza geometria de links (Vínculos de Segmentos) em vez de 'points' originais.
         Retorna: (unified_poly, area_m2)
         """
         from shapely.geometry import Polygon, MultiPolygon
         from shapely.ops import unary_union
         
         try:
-            # 1. Main Contour
+            # 1. Obter Pontos do Contorno Principal (Prioridade para os Vínculos de 'Segmentos')
             points = s.get('points', [])
-            if not points: return None, 0.0
-            main_poly = Polygon(points)
             
-            # 2. Extensions
+            # Verificar se existem vínculos manuais ou reconhecidos no campo de contorno
+            if 'links' in s and 'laje_outline_segs' in s['links']:
+                segs = s['links']['laje_outline_segs']
+                # O slot 'contour' contém a borda principal da laje
+                contour_links = segs.get('contour', [])
+                if contour_links and isinstance(contour_links, list):
+                    # Pegar o primeiro vínculo de geometria que tenha pontos suficientes
+                    for lk in contour_links:
+                        if 'points' in lk and len(lk['points']) >= 3:
+                            points = lk['points']
+                            break
+            
+            if not points: return None, 0.0
+            
+            # Criar Polígono Principal (Tratar erros de auto-intersecção se necessário)
+            try:
+                main_poly = Polygon(points)
+                if not main_poly.is_valid:
+                    main_poly = main_poly.buffer(0)
+            except:
+                return None, 0.0
+            
+            # 2. Somar Extensões (Acréscimos de borda/10cm)
             ext_polys = []
             if 'links' in s and 'laje_outline_segs' in s['links']:
                 segs = s['links']['laje_outline_segs']
                 ext_list = segs.get('acrescimo_borda', [])
-                if ext_list:
+                
+                if isinstance(ext_list, list):
                     for ext in ext_list:
-                        if 'points' in ext:
-                            ext_polys.append(Polygon(ext['points']))
-            
-            # 3. Union
+                        # Considerar extensões que tenham geometria e não estejam marcadas como falhas
+                        if 'points' in ext and len(ext['points']) >= 3 and not ext.get('failed'):
+                            try:
+                                p_ext = Polygon(ext['points'])
+                                if not p_ext.is_valid: p_ext = p_ext.buffer(0)
+                                ext_polys.append(p_ext)
+                            except: continue
+
+            # 3. União das Geometrias
             if ext_polys:
-                unified = unary_union([main_poly] + ext_polys)
+                try:
+                    unified = unary_union([main_poly] + ext_polys)
+                except:
+                    unified = main_poly
             else:
                 unified = main_poly
+            
+            # Se a união resultou em MultiPolygon, garantir que seja válido ou pegar o maior
+            if not unified.is_valid:
+                unified = unified.buffer(0)
                 
-            # 4. Area (cm² -> m²)
-            # 1 m² = 10000 cm²
+            # 4. Cálculo da Área (Coords em cm -> m²)
+            # 1 m² = 10.000 cm²
             area_m2 = unified.area / 10000.0
             
             return unified, area_m2
             
         except Exception as e:
-            print(f"Erro calculando geometria real da laje {s.get('name')}: {e}")
+            print(f"Erro crítico calculando geometria real da laje {s.get('name', '?')}: {e}")
             return None, 0.0
 
     def _update_all_lists_ui(self):
         """Refresha todas as listas com dados atuais do projeto ativo (Análise e Biblioteca)"""
-        # 1. Limpar TODAS as listas
-        self.list_pillars.clear()
-        self.list_pillars_valid.clear()
-        self.list_beams.clear()
-        self.list_beams_valid.clear()
-        self.list_slabs.clear()
-        self.list_slabs_valid.clear()
-        self.list_issues.clear()
-        if hasattr(self, 'list_contours'): self.list_contours.clear()
-        if hasattr(self, 'list_contours_valid'): self.list_contours_valid.clear()
+        # 1. Limpar TODAS as listas (Já feito dentro dos populates, mas ok garantir)
         
         # 2. Popular Pilares
-        for p in self.pillars_found:
-            status = "✅" if p.get('is_validated') else "❓"
-            # Texto para lista de análise: numero / nome / dimensao / formato
-            p_format = p.get('format', 'Retangular')
-            t_analysis = f"{p.get('id_item', '??')} | {p.get('name', 'P?')} | {p.get('dim', '0')} | {p_format} {status}"
-            item_a = QListWidgetItem(t_analysis)
-            item_a.setData(Qt.UserRole, p['id'])
-            
-            # Cores por estado e Issues
-            conf_map = p.get('confidence_map', {})
-            avg_conf = sum(conf_map.values()) / len(conf_map) if conf_map else 0.5
-
-            if p.get('issues'):
-                item_a.setForeground(Qt.red)
-                self._add_to_issues_list(p, avg_conf)
-                # Removido status visual "error" (laranja) do canvas para evitar duplicidade
-                self.canvas.update_pillar_visual_status(p['id'], "default")
-            elif avg_conf < 0.6 and not p.get('is_validated'):
-                item_a.setForeground(Qt.yellow)
-                self._add_to_issues_list(p, avg_conf)
-                self.canvas.update_pillar_visual_status(p['id'], "default")
-            elif p.get('is_validated'):
-                item_a.setForeground(Qt.green)
-                self.canvas.update_pillar_visual_status(p['id'], "validated")
-            else:
-                self.canvas.update_pillar_visual_status(p['id'], "default")
-            
-            self.list_pillars.addItem(item_a)
-            
-            # Se validado, vai para a Biblioteca
-            if p.get('is_validated'):
-                item_v = QListWidgetItem(item_a.text())
-                item_v.setData(Qt.UserRole, p['id'])
-                item_v.setForeground(Qt.green)
-                self.list_pillars_valid.addItem(item_v)
+        # Análise
+        self._populate_generic_tree(self.list_pillars, self.pillars_found, 'pillar')
+        
+        # Biblioteca Validada (Pilares)
+        valid_pillars = [p for p in self.pillars_found if p.get('is_validated')]
+        self._populate_generic_tree(self.list_pillars_valid, valid_pillars, 'pillar')
 
         # 3. Popular Vigas (Hierárquico)
         self._populate_beam_tree(self.list_beams, self.beams_found)
@@ -3133,95 +3674,133 @@ class MainWindow(QMainWindow):
         self._populate_beam_tree(self.list_beams_valid, valid_beams)
 
         # 4. Popular Lajes
-        for s in self.slabs_found:
-            status = "✅" if s.get('is_validated') else "❓"
-            
-            # --- CORREÇÃO DE ÁREA ---
-            # Calcular área real (Contorno + Extensões) em m²
-            _, real_area_m2 = self._get_slab_real_geometry(s)
-            
-            t_analysis = f"{s.get('id_item', '??')} | {s.get('name', 'L?')} ({real_area_m2:.2f}m²) {status}"
-            item_a = QListWidgetItem(t_analysis)
-            item_a.setData(Qt.UserRole, s['id'])
-            
-            if s.get('is_validated'): 
-                item_a.setForeground(Qt.green)
-                self.canvas.update_slab_status(s['id'], "validated")
-            else:
-                self.canvas.update_slab_status(s['id'], "default")
+        # Análise
+        self._populate_generic_tree(self.list_slabs, self.slabs_found, 'slab')
 
-            self.list_slabs.addItem(item_a)
-            
-            if s.get('is_validated'):
-                item_v = QListWidgetItem(item_a.text())
-                item_v.setData(Qt.UserRole, s['id'])
-                item_v.setForeground(Qt.green)
-                self.list_slabs_valid.addItem(item_v)
-
+        # Biblioteca Validada (Lajes)
+        valid_slabs = [s for s in self.slabs_found if s.get('is_validated')]
+        self._populate_generic_tree(self.list_slabs_valid, valid_slabs, 'slab')
         
+        # 5. Contornos / Issues
+        self.list_issues.clear()
+        if hasattr(self, 'list_contours'): self.list_contours.clear()
+        if hasattr(self, 'contours_found'):
+             # Se for usar Tree para Contornos no futuro, adaptar. Por enquanto mantem.
+             pass
+             
+        # Repopular Issues
+        for p in self.pillars_found:
+            conf_map = p.get('confidence_map', {})
+            avg_conf = sum(conf_map.values()) / len(conf_map) if conf_map else 0.5
+            if p.get('issues') or (avg_conf < 0.6 and not p.get('is_validated')):
+                self._add_to_issues_list(p, avg_conf)
+                
         self.log(f"UI Atualizada: {len(self.pillars_found)}P, {len(self.beams_found)}V, {len(self.slabs_found)}L")
+
+        # --- FIX: CANVAS REDRAW PARA REMOVER FANTASMAS ---
+        # Garantir que o canvas mostre exatamente o que está nos dados "healados" (points atualizados)
+        if hasattr(self, 'canvas') and self.canvas:
+             # Redesenha lajes para refletir geometrias atualizadas (sem fantasmas verdes)
+             self.canvas.draw_slabs(self.slabs_found)
+             # Redesenha pilares e vigas também para consistência
+             self.canvas.draw_interactive_pillars(self.pillars_found)
+             self.canvas.draw_beams(self.beams_found)
+        # -------------------------------------------------
     
     def on_detail_data_changed(self, data):
         """Callback genérico para mudanças nos dados do DetailCard (remoção de links, etc)"""
         if not self.current_card: return
         
-        item_data = self.current_card.item_data
-        itype = item_data.get('type', '').lower()
-        
-        # Sincronizar visual no canvas imediatamente (SEM ZOOM AUTOMATICO NA MUDANÇA DE DADOS)
-        # AJUSTE 1: Limpar uma vez e desenhar ambos para garantir remoção/atualização real-time
-        
-        # Limpar links persistentes antigos deste item específico
-        item_id = item_data.get('id')
-        if item_id:
-            self.canvas.clear_item_persistent_links(item_id)
+        try:
+            item_data = self.current_card.item_data
+            itype = item_data.get('type', '').lower()
             
-        self.canvas.clear_beams()
-        self.canvas.clear_overlay()
+            # Sincronizar visual no canvas imediatamente (SEM ZOOM AUTOMATICO NA MUDANÇA DE DADOS)
+            # AJUSTE 1: Limpar uma vez e desenhar ambos para garantir remoção/atualização real-time
+            
+            # Limpar links persistentes antigos deste item específico
+            item_id = item_data.get('id')
+            if item_id:
+                self.canvas.clear_item_persistent_links(item_id)
+                
+            self.canvas.clear_beams()
+            self.canvas.clear_overlay()
+    
+            # Log de sanidade nos links
+            all_links = item_data.get('links', {})
+            
+            # Log detalhado para depuração
+            links_count = 0
+            links_dict = item_data.get('links', {})
+            for f in links_dict.values():
+                if isinstance(f, dict): 
+                    for s in f.values(): links_count += len(s)
+                elif isinstance(f, list): links_count += len(f)
+            
+            self.log(f"🔄 Sincronizando {itype} (ID: {item_id}). Vínculos restantes: {links_count}")
+    
+            # Se houver mudança nos dados (ex: remoção de link), removemos o status de validado 
+            # para forçar o usuário a re-validar o item se necessário.
+            # Mudança Involuntária? (Sanidade)
+            if item_data.get('is_validated') and links_count == 0:
+                 item_data['is_validated'] = False
+                 print(f"[DEBUG HIERARCHY] INVOLUNTARY CHANGE: Item '{item_data.get('name')}' invalidated (Zero links).")
+                 self.log(f"⚠️ Item {item_data.get('name')} invalidado devido a falta de vínculos.")
+            
+            if 'viga' in itype:
+                if self.current_project_id: self.db.save_beam(item_data, self.current_project_id)
+                # Passamos clear=False para não destruir o que o outro acabou de desenhar
+                self.canvas.focus_on_beam_geometry(item_data, apply_zoom=False, clear=False)
+                self.canvas.draw_item_links(item_data, destination='focus', clear=False)
+                # AJUSTE 1 & 2: Atualiza também a visão global (persistente) para não deixar "fantasmas"
+                self.canvas.draw_item_links(item_data, destination='beam', clear=False)
+            elif 'pilar' in itype:
+                if self.current_project_id: self.db.save_pillar(item_data, self.current_project_id)
+                # FIX GHOST: Atualizar geometria se houver vínculo de perímetro vindo da IA
+                self.canvas.update_item_visuals(item_data)
+                self.canvas.draw_item_links(item_data, destination='focus', clear=False)
+                self.canvas.draw_item_links(item_data, destination='pillar', clear=False)
+            elif 'laje' in itype:
+                # FIX GHOST: Re-calcular geometria visual para atualizar o preenchimento cinza (slab fill)
+                # Buscamos a geometria unificada (Contorno + Extensões)
+                unified_poly, _ = self._get_slab_real_geometry(item_data)
+                
+                # Criamos uma cópia temporária para o canvas atualizar o visual sem corromper o source permanentemente
+                visual_data = item_data.copy()
+                if unified_poly and not unified_poly.is_empty:
+                    try:
+                        # Garantir que temos um polígono (pode ser MultiPolygon se houver ilhas/erros)
+                        if unified_poly.geom_type == 'MultiPolygon':
+                            main_p = max(unified_poly.geoms, key=lambda p: p.area)
+                            coords = list(main_p.exterior.coords)
+                        else:
+                            coords = list(unified_poly.exterior.coords)
+                        visual_data['points'] = coords
+                    except: pass
+                
+                if self.current_project_id: self.db.save_slab(item_data, self.current_project_id)
+                
+                # Atualizar Polígono Principal (Cinza) e Texto no Canvas
+                self.canvas.update_item_visuals(visual_data)
+                
+                # Desenhar Vínculos (Azul) - Highlight e Persistente
+                self.canvas.draw_item_links(item_data, destination='focus', clear=False)
+                self.canvas.draw_item_links(item_data, destination='slab', clear=False)
 
-        # Log de sanidade nos links
-        all_links = item_data.get('links', {})
-        
-        # Log detalhado para depuração
-        links_count = 0
-        links_dict = item_data.get('links', {})
-        for f in links_dict.values():
-            if isinstance(f, dict): 
-                for s in f.values(): links_count += len(s)
-            elif isinstance(f, list): links_count += len(f)
-        
-        self.log(f"🔄 Sincronizando {itype} (ID: {item_id}). Vínculos restantes: {links_count}")
-
-        # Se houver mudança nos dados (ex: remoção de link), removemos o status de validado 
-        # para forçar o usuário a re-validar o item se necessário.
-        if item_data.get('is_validated') and links_count == 0:
-             item_data['is_validated'] = False
-             self.log(f"⚠️ Item {item_data.get('name')} invalidado devido a falta de vínculos.")
-        
-        if 'viga' in itype:
-            # Passamos clear=False para não destruir o que o outro acabou de desenhar
-            self.canvas.focus_on_beam_geometry(item_data, apply_zoom=False, clear=False)
-            self.canvas.draw_item_links(item_data, destination='focus', clear=False)
-            # AJUSTE 1 & 2: Atualiza também a visão global (persistente) para não deixar "fantasmas"
-            self.canvas.draw_item_links(item_data, destination='beam', clear=False)
-        elif 'pilar' in itype:
-            self.canvas.draw_item_links(item_data, destination='focus', clear=False)
-            # Pilares geralmente gerenciam sua própria geometria, mas se houver links extras:
-            self.canvas.draw_item_links(item_data, destination='pillar', clear=False)
-        elif 'laje' in itype:
-            self.canvas.draw_item_links(item_data, destination='focus', clear=False)
-            # AJUSTE 1 & 3: Atualiza também a visão global (persistente)
-            self.canvas.draw_item_links(item_data, destination='slab', clear=False)
-        # AJUSTE: Forçar atualização visual do viewport e da cena do canvas
-        if self.canvas.scene:
-            self.canvas.scene.update()
-        self.canvas.viewport().update()
-        self.canvas.update()
-        
-        # --- NOVO: Atualizar imediatamente o texto na lista lateral ---
-        self._sync_list_item_text(item_data)
-        
-        self.log(f"Visual e Lista do {itype} sincronizados.")
+            # AJUSTE: Forçar atualização visual do viewport e da cena do canvas
+            if self.canvas.scene:
+                self.canvas.scene.update()
+            self.canvas.viewport().update()
+            self.canvas.update()
+            
+            # --- NOVO: Atualizar imediatamente o texto na lista lateral ---
+            self._sync_list_item_text(item_data)
+            
+            self.log(f"Visual e Lista do {itype} sincronizados e salvos.")
+        except Exception as e:
+            import traceback
+            self.log(f"❌ Erro em on_detail_data_changed: {e}")
+            print(traceback.format_exc())
 
     def on_element_removed(self, data):
         """Callback específico para quando um vínculo é removido individualmente."""
@@ -3236,42 +3815,58 @@ class MainWindow(QMainWindow):
         self.canvas.clear_beams()
 
     def _sync_list_item_text(self, item_data):
-        """Atualiza o texto da lista lateral sem reconstruir toda a UI"""
+        """Atualiza o texto da lista lateral sem reconstruir toda a UI - Versão Tree"""
         from PySide6.QtWidgets import QTreeWidgetItemIterator
         itype = item_data.get('type', '').lower()
         iid = item_data.get('id')
         
-        status = "✅" if item_data.get('is_validated') else "❓"
-        if item_data.get('issues'): status = "⚠️"
+        status = "❓"
+        if item_data.get('is_fully_validated'): status = "🔵"
+        elif item_data.get('is_validated'): status = "✅"
+        elif item_data.get('issues'): status = "⚠️"
+        
+        # %
+        pct = self._calculate_completion(item_data)
+        pct_str = f"{int(pct)}%"
+        
+        new_name = item_data.get('name', '?')
+        display_name = new_name
         
         if 'pilar' in itype:
-            p_format = item_data.get('format', 'Retangular')
-            new_text = f"{item_data.get('id_item', '??')} | {item_data.get('name', 'P?')} | {item_data.get('dim', '0')} | {p_format} {status}"
-            for lst in [self.list_pillars, self.list_pillars_valid]:
-                for i in range(lst.count()):
-                    item = lst.item(i)
-                    if item.data(Qt.UserRole) == iid:
-                        item.setText(new_text)
-                        
+            info = f"{item_data.get('dim', '0')} | {item_data.get('format', 'Ret')}"
+            display_name = f"{new_name} ({info})"
+            target_lists = [self.list_pillars, self.list_pillars_valid]
         elif 'viga' in itype:
-            for tree in [self.list_beams, self.list_beams_valid]:
-                it = QTreeWidgetItemIterator(tree)
-                while it.value():
-                    item = it.value()
-                    if item.data(0, Qt.UserRole) == iid:
-                        item.setText(0, item_data.get('id_item', '??'))
-                        item.setText(1, item_data.get('name', 'V?'))
-                        item.setText(2, status)
-                        print(f"[_sync_list_item_text] Viga {iid} atualizada com status {status}")
-                    it += 1
-                    
+            target_lists = [self.list_beams, self.list_beams_valid]
         elif 'laje' in itype:
-            new_text = f"{item_data.get('id_item', '??')} | {item_data.get('name', 'L?')} ({item_data.get('area',0):.1f}m²) {status}"
-            for lst in [self.list_slabs, self.list_slabs_valid]:
-                for i in range(lst.count()):
-                    item = lst.item(i)
-                    if item.data(Qt.UserRole) == iid:
-                        item.setText(new_text)
+            area = item_data.get('area', 0.0)
+            if area == 0: _, area = self._get_slab_real_geometry(item_data)
+            display_name = f"{new_name} ({area:.2f}m²)"
+            target_lists = [self.list_slabs, self.list_slabs_valid]
+        else:
+            return
+
+        for tree in target_lists:
+             it = QTreeWidgetItemIterator(tree)
+             while it.value():
+                 item = it.value()
+                 if item.data(0, Qt.UserRole) == iid:
+                     # Atualizar Colunas
+                     # 0: ID (mantem)
+                     item.setText(1, display_name)
+                     item.setText(2, status)
+                     item.setText(3, pct_str)
+                     
+                     # Atualizar cor status
+                     color = None
+                     if item_data.get('is_fully_validated'): color = QColor("#00d4ff")
+                     elif item_data.get('is_validated'): color = Qt.green
+                     elif item_data.get('issues'): color = Qt.red
+                     else: color = QColor("#dddddd")
+                     
+                     for c in range(4):
+                         item.setForeground(c, color)
+                 it += 1
 
     def show_detail(self, item_data):
         """Exibe os detalhes do item no painel direito."""
@@ -3350,14 +3945,13 @@ class MainWindow(QMainWindow):
         target_list_data.append(new_item)
         
         # Adicionar UI
-        if isinstance(list_widget, QTreeWidget):
-             # Para vigas, repopulamos a árvore para garantir agrupamento correto
+        # Adicionar UI
+        if current_idx == 1: # Viga
              self._populate_beam_tree(list_widget, target_list_data)
-        else:
-             item_ui = QListWidgetItem(new_item['name'])
-             item_ui.setData(Qt.UserRole, new_id)
-             if new_item['is_validated']: item_ui.setForeground(Qt.green)
-             list_widget.addItem(item_ui)
+        elif current_idx == 0: # Pilar
+             self._populate_generic_tree(list_widget, target_list_data, 'pillar')
+        elif current_idx == 2: # Laje
+             self._populate_generic_tree(list_widget, target_list_data, 'slab')
         
         self.show_detail(new_item)
         self.log(f"Item manual criado: {new_item['name']}")
@@ -3446,14 +4040,11 @@ class MainWindow(QMainWindow):
             return
 
         item = selected_items[0]
-        # Correção: Vigas usam QTreeWidget (requer coluna 0), Pilares/Lajes usam QListWidget
-        if item_type == 'beam':
-            item_id = item.data(0, Qt.UserRole)
-        else:
-            item_id = item.data(Qt.UserRole)
+        # Agora todos usam QTreeWidget
+        item_id = item.data(0, Qt.UserRole)
         
         reply = QMessageBox.question(self, "Confirmar Exclusão", 
-                                   f"Tem certeza que deseja excluir este item ({item.text()})?",
+                                   f"Tem certeza que deseja excluir este item ({item.text(1)})?",
                                    QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
         if reply != QMessageBox.Yes:
             return
@@ -3468,22 +4059,25 @@ class MainWindow(QMainWindow):
             lists_to_clean = [self.list_slabs, self.list_slabs_valid]
 
         # 2. Remover da UI (Ambas as listas: Análise e Biblioteca)
+        from PySide6.QtWidgets import QTreeWidgetItemIterator
         for lw in lists_to_clean:
-            if isinstance(lw, QListWidget):
-                for i in range(lw.count()):
-                    it = lw.item(i)
-                    if it and it.data(Qt.UserRole) == item_id:
-                        lw.takeItem(i)
-                        break
-            elif isinstance(lw, QTreeWidget):
-                from PySide6.QtWidgets import QTreeWidgetItemIterator
-                it_tree = QTreeWidgetItemIterator(lw)
-                while it_tree.value():
-                    tree_item = it_tree.value()
-                    if tree_item.data(0, Qt.UserRole) == item_id:
-                        (tree_item.parent() or lw.invisibleRootItem()).removeChild(tree_item)
-                        break
-                    it_tree += 1
+            # Tree Widget removal logic
+            it = QTreeWidgetItemIterator(lw)
+            to_remove = []
+            while it.value():
+                x = it.value()
+                if x.data(0, Qt.UserRole) == item_id:
+                     to_remove.append(x)
+                it += 1
+            
+            for r in to_remove:
+                # Remove from parent if exists
+                if r.parent():
+                    r.parent().removeChild(r)
+                else:
+                    # Top level
+                    idx = lw.indexOfTopLevelItem(r)
+                    if idx >= 0: lw.takeTopLevelItem(idx)
 
         # 3. Remover da Memória (Shared lists)
         target_list = None
@@ -3547,12 +4141,15 @@ class MainWindow(QMainWindow):
             elif item_type == 'beam': list_widget = self.list_beams
             elif item_type == 'slab': list_widget = self.list_slabs
             
-        # 2. Coletar IDs da lista
+        # 2. Coletar IDs da lista (Versão Tree)
         ids = []
-        for i in range(list_widget.count()):
-            item = list_widget.item(i)
-            uid = item.data(Qt.UserRole)
+        from PySide6.QtWidgets import QTreeWidgetItemIterator
+        it = QTreeWidgetItemIterator(list_widget)
+        while it.value():
+            item = it.value()
+            uid = item.data(0, Qt.UserRole)
             if uid: ids.append(uid)
+            it += 1
             
         if not ids:
             self.log("⚠️ Lista vazia. Nada a exportar.")
@@ -3641,9 +4238,160 @@ class MainWindow(QMainWindow):
 def main():
     app = QApplication(sys.argv)
     app.setStyle('Fusion')
-    window = MainWindow()
-    window.show()
+    
+    # --- Auth Flow Integration ---
+    auth_service = AuthService()
+
+    # --- Tufup Update Check ---
+    # --- Tufup Update Check ---
+    def run_update_check():
+        """Verifica se há atualizações disponíveis apenas quando rodando como executável."""
+        # Em Nuitka --standalone, sys.frozen não é sempre True da mesma forma que PyInstaller
+        # Mas compilado geralmente não tem .py sources.
+        # Vamos assumir que se importou config e estamos rodando, checamos.
+        # A flag sys.frozen é setada pelo Nuitka também? Sim.
+        
+        if not getattr(sys, 'frozen', False):
+            # print("ℹ️ Modo desenvolvimento: Pulando verificação de update.")
+            return
+
+        print(f"🔍 Verificando atualizações em: {config.UPDATE_BASE_URL}")
+        try:
+            # Pastas necessárias para o Tufup Client
+            # Usando caminhos definidos no config para consistência
+            metadata_dir = config.METADATA_DIR
+            target_dir = config.DOWNLOAD_DIR
+            
+            metadata_dir.mkdir(parents=True, exist_ok=True)
+            target_dir.mkdir(parents=True, exist_ok=True)
+            
+            # Chave pública empacotada
+            # No Nuitka/PyInstaller, precisamos garantir que 'keys/timestamp.pub' esteja ao lado do executável
+            public_key = config.KEYS_DIR / "timestamp.pub"
+            
+            if not public_key.exists():
+                print(f"⚠️ Chave pública não encontrada em: {public_key}")
+                print("   Updates desabilitados por segurança.")
+                return
+
+            # Configura o cliente Tufup
+            client = Client(
+                app_name=config.APP_NAME,
+                current_version=config.APP_VERSION,
+                metadata_dir=str(metadata_dir),
+                metadata_base_url=config.UPDATE_BASE_URL,
+                target_dir=str(target_dir),
+                target_base_url=config.UPDATE_BASE_URL,
+                public_key_path=str(public_key)
+            )
+
+            # Verifica e baixa
+            update_info = client.check_for_updates()
+            if update_info:
+                print("✨ Nova versão encontrada! Preparando download...")
+                
+                # --- CHUNKED DOWNLOAD HANDLER ---
+                # Verifica se o arquivo alvo está dividido em partes no servidor (bypass 50MB limit)
+                # O Tufup não sabe lidar com partes, então baixamos e montamos manualmente antes.
+                try:
+                    target_name = update_info.target_filename # Ex: AgenteCAD-1.0.0.tar.gz
+                    target_path = Path(target_dir) / target_name
+                    base_url = config.UPDATE_BASE_URL
+                    
+                    # Checa se existe a parte 1
+                    import requests
+                    part1_url = f"{base_url}/{target_name}.part1"
+                    print(f"   🔍 Verificando split-download: {part1_url}")
+                    
+                    head = requests.head(part1_url)
+                    if head.status_code == 200:
+                        print("   📦 Download fatiado detectado! Baixando partes...")
+                        with open(target_path, 'wb') as outfile:
+                            part_num = 1
+                            while True:
+                                part_url = f"{base_url}/{target_name}.part{part_num}"
+                                print(f"      ⬇️ Baixando parte {part_num}...", end="")
+                                r = requests.get(part_url, stream=True)
+                                if r.status_code != 200:
+                                    print(" Fim.")
+                                    break
+                                for chunk in r.iter_content(chunk_size=8192):
+                                    outfile.write(chunk)
+                                print(" OK")
+                                part_num += 1
+                        print("   ✅ Reconstrução do arquivo completa.")
+                except Exception as e:
+                    print(f"   ⚠️ Erro no pré-download (tentando normal): {e}")
+                # --------------------------------
+
+                if client.download_and_apply_update():
+                    print("♻️ Update aplicado. Reiniciando...")
+                    # Nuitka restart logic might need specific handling but sys.exit(0) allows wrapper to restart if handled
+                    # Tufup replaces files.
+                    sys.exit(0) 
+            else:
+                print("✅ Sistema atualizado.")
+        except Exception as e:
+            print(f"❌ Falha na verificação de update: {e}")
+
+    # Executa check antes de abrir UI
+    run_update_check()
+    
+    # Reference holder to prevent GC
+    windows = {}
+
+    def start_app(user_profile):
+        # Close login if it exists
+        if 'login' in windows:
+            windows['login'].close()
+            
+        print(f"Starting app for user: {user_profile.email}")
+        
+        # Init Main Window
+        window = MainWindow()
+        window.set_user_context(user_profile)
+        window.setWindowState(Qt.WindowMaximized)
+        window.show()
+        windows['main'] = window
+
+        # If MainWindow closes, and there is no login window, check if we should re-show login
+        def check_restart():
+            if not auth_service.is_authenticated():
+                show_login()
+        
+        window.destroyed.connect(check_restart)
+
+    def show_login():
+        login = LoginWidget()
+        login.login_success.connect(start_app)
+        login.show()
+        windows['login'] = login # Keep ref
+
+    if auth_service.is_authenticated():
+        start_app(auth_service.get_current_user())
+    else:
+        show_login()
+        
     sys.exit(app.exec())
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except Exception as e:
+        import traceback
+        error_msg = traceback.format_exc()
+        try:
+            with open("crash_log.txt", "w", encoding="utf-8") as f:
+                f.write(f"CRITICAL STARTUP ERROR:\n{error_msg}")
+        except:
+            pass # Last resort
+        
+        # Try to show message box if Qt is alive
+        try:
+            from PySide6.QtWidgets import QApplication, QMessageBox
+            if not QApplication.instance():
+                app = QApplication(sys.argv)
+            QMessageBox.critical(None, "Fatal Error", f"Failed to start:\n{e}\n\nCheck crash_log.txt")
+        except:
+            print(error_msg)
+            input("Press Enter to exit...")

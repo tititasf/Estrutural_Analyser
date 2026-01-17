@@ -8345,8 +8345,52 @@
                     ]
                 }
             }
+        },
+        "PAVIMENTOS": {
+            "P-1": {
+                "vigas": {},
+                "metadata": {
+                    "in": "",
+                    "out": "",
+                    "segment_classes": [
+                        "Lista Geral"
+                    ]
+                }
+            },
+            "[CUR] P-3": {
+                "vigas": {},
+                "metadata": {
+                    "in": "",
+                    "out": "",
+                    "segment_classes": [
+                        "Lista Geral"
+                    ]
+                }
+            }
+        },
+        "Teste1": {
+            "Obra_teste_terreo_1": {
+                "vigas": {},
+                "metadata": {
+                    "in": "",
+                    "out": "",
+                    "segment_classes": [
+                        "Lista Geral"
+                    ]
+                }
+            },
+            "P-3": {
+                "vigas": {},
+                "metadata": {
+                    "in": "",
+                    "out": "",
+                    "segment_classes": [
+                        "Lista Geral"
+                    ]
+                }
+            }
         }
     },
-    "last_obra": "ROCONTEC",
-    "last_pavimento": "PAVIMENTO"
+    "last_obra": "Obra 1",
+    "last_pavimento": "1"
 }

@@ -47,7 +47,9 @@ class DatabaseManager:
                 level_arrival TEXT,
                 level_exit TEXT,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                author_name TEXT,
+                sync_status TEXT DEFAULT 'pending'
             )
         ''')
         
@@ -79,6 +81,10 @@ class DatabaseManager:
                 links_json TEXT, 
                 conf_map_json TEXT, 
                 validated_fields_json TEXT, 
+                validated_link_classes_json TEXT,
+                na_fields_json TEXT,
+                na_link_classes_json TEXT,
+                na_reasons_json TEXT,
                 issues_json TEXT, 
                 id_item TEXT,
                 is_validated BOOLEAN DEFAULT 0,
@@ -97,6 +103,10 @@ class DatabaseManager:
                 points_json TEXT,
                 links_json TEXT,
                 validated_fields_json TEXT,
+                validated_link_classes_json TEXT,
+                na_fields_json TEXT,
+                na_link_classes_json TEXT,
+                na_reasons_json TEXT,
                 issues_json TEXT,
                 id_item TEXT,
                 is_validated BOOLEAN DEFAULT 0,
@@ -114,6 +124,10 @@ class DatabaseManager:
                 sides_data_json TEXT,
                 links_json TEXT,
                 validated_fields_json TEXT,
+                validated_link_classes_json TEXT,
+                na_fields_json TEXT,
+                na_link_classes_json TEXT,
+                na_reasons_json TEXT,
                 issues_json TEXT,
                 id_item TEXT,
                 is_validated BOOLEAN DEFAULT 0,
@@ -188,9 +202,15 @@ class DatabaseManager:
         _check_and_add_column('beams', 'issues_json', 'TEXT')
         _check_and_add_column('beams', 'is_validated', 'BOOLEAN DEFAULT 0')
 
-        # ... (rest of migration code)
+        # PROJECTS
+        _check_and_add_column('projects', 'last_sync_at', 'TIMESTAMP')
 
-    # ... (existing methods) ...
+        # GLOBAL N/A AND VALIDATION COLUMNS FOR ALL CORE TABLES
+        for table in ['pillars', 'beams', 'slabs']:
+            _check_and_add_column(table, 'validated_link_classes_json', 'TEXT')
+            _check_and_add_column(table, 'na_fields_json', 'TEXT')
+            _check_and_add_column(table, 'na_link_classes_json', 'TEXT')
+            _check_and_add_column(table, 'na_reasons_json', 'TEXT')
 
     def create_work(self, name: str):
         """Cria uma nova Obra vazia."""
@@ -321,7 +341,7 @@ class DatabaseManager:
             'pillars': ['project_id', 'links_json', 'conf_map_json', 'validated_fields_json', 'issues_json', 'sides_data_json', 'points_json'],
             'slabs': ['project_id'],
             'beams': ['project_id'],
-            'projects': ['work_name', 'pavement_name', 'level_arrival', 'level_exit']
+            'projects': ['work_name', 'pavement_name', 'level_arrival', 'level_exit', 'author_name', 'sync_status']
         }
         
         for table, columns in tables_to_check.items():
@@ -401,14 +421,14 @@ class DatabaseManager:
     def _get_conn(self):
         return sqlite3.connect(self.db_path)
 
-    def create_project(self, name: str, dxf_path: str) -> str:
+    def create_project(self, name: str, dxf_path: str, author_name: str = "Local") -> str:
         """Cria novo projeto e retorna ID."""
         import uuid
         project_id = str(uuid.uuid4())
         conn = self._get_conn()
         try:
-            conn.execute('INSERT INTO projects (id, name, dxf_path) VALUES (?, ?, ?)', 
-                        (project_id, name, dxf_path))
+            conn.execute('INSERT INTO projects (id, name, dxf_path, author_name, sync_status) VALUES (?, ?, ?, ?, ?)', 
+                        (project_id, name, dxf_path, author_name, 'pending'))
             conn.commit()
             return project_id
         except Exception as e:
@@ -418,11 +438,22 @@ class DatabaseManager:
             conn.close()
 
     def get_projects(self) -> List[Dict]:
-        """Lista projetos recentes."""
+        """Lista projetos recentes com estatísticas de itens."""
         conn = self._get_conn()
         conn.row_factory = sqlite3.Row
         try:
-            cursor = conn.execute('SELECT * FROM projects ORDER BY updated_at DESC')
+            sql = """
+            SELECT p.*,
+                (SELECT COUNT(*) FROM pillars WHERE project_id = p.id) as pil_total,
+                (SELECT COUNT(*) FROM pillars WHERE project_id = p.id AND is_validated=1) as pil_valid,
+                (SELECT COUNT(*) FROM beams WHERE project_id = p.id) as beam_total,
+                (SELECT COUNT(*) FROM beams WHERE project_id = p.id AND is_validated=1) as beam_valid,
+                (SELECT COUNT(*) FROM slabs WHERE project_id = p.id) as slab_total,
+                (SELECT COUNT(*) FROM slabs WHERE project_id = p.id AND is_validated=1) as slab_valid
+            FROM projects p 
+            ORDER BY updated_at DESC
+            """
+            cursor = conn.execute(sql)
             return [dict(r) for r in cursor.fetchall()]
         finally:
             conn.close()
@@ -437,6 +468,98 @@ class DatabaseManager:
             return dict(row) if row else None
         finally:
             conn.close()
+
+    def get_project_by_dxf_path(self, dxf_path: str) -> Optional[Dict]:
+        """Recupera um projeto pelo caminho do DXF."""
+        conn = self._get_conn()
+        conn.row_factory = sqlite3.Row
+        try:
+            cursor = conn.execute('SELECT * FROM projects WHERE dxf_path = ?', (dxf_path,))
+            row = cursor.fetchone()
+            return dict(row) if row else None
+        finally:
+            conn.close()
+
+    def update_project_sync_status(self, project_id: str, status: str):
+        """Atualiza estado de sincronização e timestamp de último sync."""
+        conn = self._get_conn()
+        try:
+            # Se status for synced, atualiza last_sync_at
+            if status == 'synced':
+                 cur = conn.execute('UPDATE projects SET sync_status = ?, last_sync_at = CURRENT_TIMESTAMP WHERE id = ?', (status, project_id))
+            else:
+                 # Se for pending (ex: editado), apenas muda status
+                 cur = conn.execute('UPDATE projects SET sync_status = ? WHERE id = ?', (status, project_id))
+            
+            if cur.rowcount == 0:
+                logging.warning(f"⚠️ update_project_sync_status: Nenhuma linha afetada para ID {project_id} (Status: {status}). Verifique se o ID existe.")
+            else:
+                logging.info(f"✅ update_project_sync_status: {cur.rowcount} linhas atualizadas para ID {project_id}.")
+
+            conn.commit()
+        except Exception as e:
+            logging.error(f"Erro ao atualizar status de sync do projeto {project_id}: {e}")
+        finally:
+            conn.close()
+
+    def export_project_data(self, project_id: str) -> Optional[Dict]:
+        """Empacota todos os dados de um projeto para sincronização/backup."""
+        project = self.get_project_by_id(project_id)
+        if not project: return None
+        
+        return {
+            "project": project,
+            "pillars": self.load_pillars(project_id),
+            "beams": self.load_beams(project_id),
+            "slabs": self.load_slabs(project_id),
+            "training": self.get_training_events(project_id)
+        }
+
+    def import_project_data(self, data: Dict) -> Optional[str]:
+        """Importa um pacote de dados completo para o banco local."""
+        p_info = data.get('project')
+        if not p_info: return None
+        
+        # Gera novo ID para evitar conflitos em importações externas
+        new_id = self.create_project(
+            p_info['name'], 
+            p_info['dxf_path'], 
+            p_info.get('author_name', 'Imported')
+        )
+        
+        if not new_id: return None
+
+        # Atualiza metadados
+        self.update_project_metadata(new_id, {
+            'work_name': p_info.get('work_name'),
+            'pavement_name': p_info.get('pavement_name'),
+            'level_arrival': p_info.get('level_arrival'),
+            'level_exit': p_info.get('level_exit')
+        })
+
+        # Salva itens vinculados ao novo ID
+        for p in data.get('pillars', []):
+            p_copy = p.copy()
+            if 'id' in p_copy: del p_copy['id'] # Garante novo ID local se necessário, ou deixa o save_pillar lidar
+            self.save_pillar(p_copy, new_id)
+            
+        for b in data.get('beams', []):
+            b_copy = b.copy()
+            if 'id' in b_copy: del b_copy['id']
+            self.save_beam(b_copy, new_id)
+            
+        for s in data.get('slabs', []):
+            s_copy = s.copy()
+            if 'id' in s_copy: del s_copy['id']
+            self.save_slab(s_copy, new_id)
+            
+        for t in data.get('training', []):
+            t_copy = t.copy()
+            t_copy['project_id'] = new_id
+            if 'id' in t_copy: del t_copy['id']
+            self.log_training_event(t_copy)
+        
+        return new_id
 
     def log_training_event(self, event_data: Dict):
         """Registra um evento de treinamento."""
@@ -486,6 +609,10 @@ class DatabaseManager:
             links_json = json.dumps(p.get('links', {}))
             conf_map_json = json.dumps(p.get('confidence_map', {}))
             val_fields_json = json.dumps(p.get('validated_fields', []))
+            val_links_json = json.dumps(p.get('validated_link_classes', {}))
+            na_fields_json = json.dumps(p.get('na_fields', []))
+            na_links_json = json.dumps(p.get('na_link_classes', {}))
+            na_reasons_json = json.dumps(p.get('na_reasons', {}))
             issues_json = json.dumps(p.get('issues', []))
             
             p_id = str(p.get('id', ''))
@@ -493,10 +620,11 @@ class DatabaseManager:
             cursor.execute('''
                 INSERT INTO pillars (
                     id, project_id, name, type, area, points_json, sides_data_json, 
-                    links_json, conf_map_json, validated_fields_json, 
+                    links_json, conf_map_json, validated_fields_json, validated_link_classes_json,
+                    na_fields_json, na_link_classes_json, na_reasons_json,
                     issues_json, id_item, is_validated
                 )
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 ON CONFLICT(id) DO UPDATE SET
                     project_id=excluded.project_id,
                     name=excluded.name,
@@ -506,6 +634,10 @@ class DatabaseManager:
                     links_json=excluded.links_json,
                     conf_map_json=excluded.conf_map_json,
                     validated_fields_json=excluded.validated_fields_json,
+                    validated_link_classes_json=excluded.validated_link_classes_json,
+                    na_fields_json=excluded.na_fields_json,
+                    na_link_classes_json=excluded.na_link_classes_json,
+                    na_reasons_json=excluded.na_reasons_json,
                     issues_json=excluded.issues_json,
                     id_item=excluded.id_item,
                     is_validated=excluded.is_validated
@@ -520,6 +652,10 @@ class DatabaseManager:
                 links_json,
                 conf_map_json,
                 val_fields_json,
+                val_links_json,
+                na_fields_json,
+                na_links_json,
+                na_reasons_json,
                 issues_json,
                 p.get('id_item'),
                 1 if p.get('is_validated') else 0
@@ -544,12 +680,16 @@ class DatabaseManager:
             
             for row in rows:
                 p = dict(row)
-                p['points'] = json.loads(p['points_json'])
-                p['sides_data'] = json.loads(p['sides_data_json'])
-                p['links'] = json.loads(p.get('links_json', '{}'))
-                p['confidence_map'] = json.loads(p.get('conf_map_json', '{}'))
-                p['validated_fields'] = json.loads(p.get('validated_fields_json', '[]'))
-                p['issues'] = json.loads(p.get('issues_json', '[]'))
+                p['points'] = json.loads(p.get('points_json') or '[]')
+                p['sides_data'] = json.loads(p.get('sides_data_json') or '{}')
+                p['links'] = json.loads(p.get('links_json') or '{}')
+                p['confidence_map'] = json.loads(p.get('conf_map_json') or '{}')
+                p['validated_fields'] = json.loads(p.get('validated_fields_json') or '[]')
+                p['validated_link_classes'] = json.loads(p.get('validated_link_classes_json') or '{}')
+                p['na_fields'] = json.loads(p.get('na_fields_json') or '[]')
+                p['na_link_classes'] = json.loads(p.get('na_link_classes_json') or '{}')
+                p['na_reasons'] = json.loads(p.get('na_reasons_json') or '{}')
+                p['issues'] = json.loads(p.get('issues_json') or '[]')
                 p['id_item'] = p.get('id_item')
                 p['is_validated'] = bool(p['is_validated'])
                 pillars.append(p)
@@ -586,9 +726,11 @@ class DatabaseManager:
             cursor.execute('''
                 INSERT INTO slabs (
                     id, project_id, name, type, area, points_json, 
-                    links_json, validated_fields_json, issues_json, id_item, is_validated
+                    links_json, validated_fields_json, validated_link_classes_json,
+                    na_fields_json, na_link_classes_json, na_reasons_json,
+                    issues_json, id_item, is_validated
                 )
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 ON CONFLICT(id) DO UPDATE SET
                     project_id=excluded.project_id,
                     name=excluded.name,
@@ -597,6 +739,10 @@ class DatabaseManager:
                     points_json=excluded.points_json,
                     links_json=excluded.links_json,
                     validated_fields_json=excluded.validated_fields_json,
+                    validated_link_classes_json=excluded.validated_link_classes_json,
+                    na_fields_json=excluded.na_fields_json,
+                    na_link_classes_json=excluded.na_link_classes_json,
+                    na_reasons_json=excluded.na_reasons_json,
                     issues_json=excluded.issues_json,
                     id_item=excluded.id_item,
                     is_validated=excluded.is_validated
@@ -607,6 +753,10 @@ class DatabaseManager:
                 json.dumps(s.get('points', [])),
                 json.dumps(s.get('links', {})),
                 json.dumps(s.get('validated_fields', [])),
+                json.dumps(s.get('validated_link_classes', {})),
+                json.dumps(s.get('na_fields', [])),
+                json.dumps(s.get('na_link_classes', {})),
+                json.dumps(s.get('na_reasons', {})),
                 json.dumps(s.get('issues', [])),
                 s.get('id_item'),
                 1 if s.get('is_validated') else 0
@@ -630,10 +780,14 @@ class DatabaseManager:
             cursor.execute('SELECT * FROM slabs WHERE project_id = ?', (project_id,))
             for row in cursor.fetchall():
                 s = dict(row)
-                s['points'] = json.loads(s.get('points_json', '[]'))
-                s['links'] = json.loads(s.get('links_json', '{}'))
-                s['validated_fields'] = json.loads(s.get('validated_fields_json', '[]'))
-                s['issues'] = json.loads(s.get('issues_json', '[]'))
+                s['points'] = json.loads(s.get('points_json') or '[]')
+                s['links'] = json.loads(s.get('links_json') or '{}')
+                s['validated_fields'] = json.loads(s.get('validated_fields_json') or '[]')
+                s['validated_link_classes'] = json.loads(s.get('validated_link_classes_json') or '{}')
+                s['na_fields'] = json.loads(s.get('na_fields_json') or '[]')
+                s['na_link_classes'] = json.loads(s.get('na_link_classes_json') or '{}')
+                s['na_reasons'] = json.loads(s.get('na_reasons_json') or '{}')
+                s['issues'] = json.loads(s.get('issues_json') or '[]')
                 s['id_item'] = s.get('id_item')
                 s['is_validated'] = bool(s.get('is_validated', 0))
                 slabs.append(s)
@@ -658,17 +812,33 @@ class DatabaseManager:
         cursor = conn.cursor()
         try:
             cursor.execute('''
-                INSERT INTO beams (id, project_id, name, data_json, id_item, is_validated)
-                VALUES (?, ?, ?, ?, ?, ?)
+                INSERT INTO beams (
+                    id, project_id, name, data_json, 
+                    validated_fields_json, validated_link_classes_json,
+                    na_fields_json, na_link_classes_json, na_reasons_json,
+                    id_item, is_validated
+                )
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 ON CONFLICT(id) DO UPDATE SET
                     project_id=excluded.project_id,
                     name=excluded.name,
                     data_json=excluded.data_json,
+                    validated_fields_json=excluded.validated_fields_json,
+                    validated_link_classes_json=excluded.validated_link_classes_json,
+                    na_fields_json=excluded.na_fields_json,
+                    na_link_classes_json=excluded.na_link_classes_json,
+                    na_reasons_json=excluded.na_reasons_json,
                     id_item=excluded.id_item,
                     is_validated=excluded.is_validated
             ''', (
                 b['id'], project_id, b.get('name'), 
-                json.dumps(b), b.get('id_item'), 
+                json.dumps(b), 
+                json.dumps(b.get('validated_fields', [])),
+                json.dumps(b.get('validated_link_classes', {})),
+                json.dumps(b.get('na_fields', [])),
+                json.dumps(b.get('na_link_classes', {})),
+                json.dumps(b.get('na_reasons', {})),
+                b.get('id_item'), 
                 1 if b.get('is_validated') else 0
             ))
             conn.commit()
@@ -687,17 +857,28 @@ class DatabaseManager:
             cursor.execute('SELECT * FROM beams WHERE project_id = ?', (project_id,))
             for row in cursor.fetchall():
                 b = json.loads(row['data_json'])
-                # Use .get() or explicit check, though sqlite3.Row supports keys
-                # If column missing, row['col'] raises KeyError (No item with that key)
+                # Sincronizar com colunas caso existam (Retrocompatibilidade)
                 try:
                     b['is_validated'] = bool(row['is_validated'])
                 except (IndexError, KeyError):
-                    b['is_validated'] = False
+                    b['is_validated'] = b.get('is_validated', False)
                     
                 try:
                     b['id_item'] = row['id_item']
                 except (IndexError, KeyError):
-                    b['id_item'] = b.get('id_item') # Retain if inside JSON or None
+                    b['id_item'] = b.get('id_item')
+
+                # Carregar campos de validação/NA das colunas dedicadas
+                for col, key in [('validated_fields_json', 'validated_fields'),
+                                 ('validated_link_classes_json', 'validated_link_classes'),
+                                 ('na_fields_json', 'na_fields'),
+                                 ('na_link_classes_json', 'na_link_classes'),
+                                 ('na_reasons_json', 'na_reasons')]:
+                    try:
+                        if row[col]: b[key] = json.loads(row[col])
+                    except (IndexError, KeyError, TypeError):
+                        pass
+                
                 beams.append(b)
         except Exception as e:
             logging.error(f"Erro ao carregar vigas: {e}")
@@ -873,20 +1054,39 @@ class DatabaseManager:
 
 
     def duplicate_project(self, source_pid: str, target_work_name: str = None) -> str:
-        """Duplica um projeto existente."""
+        """Duplica um projeto existente, regenerando IDs de entidades para evitar mixing."""
         data = self.export_project_data(source_pid)
         if not data: return None
         
         import uuid
-        new_id = str(uuid.uuid4())
+        new_project_id = str(uuid.uuid4())
         
-        # Modify ID and Metadata for new project
-        data['project']['id'] = new_id
+        # 1. Trocar ID do Projeto e Nome
+        data['project']['id'] = new_project_id
         data['project']['name'] = f"{data['project']['name']} (Cópia)"
         if target_work_name is not None:
              data['project']['work_name'] = target_work_name
              
-        # Import as new
+        # 2. Regenerar IDs de TODAS as Entidades (Pilares, Vigas, Lajes)
+        # Isso evita que o ON CONFLICT(id) do import 'roube' os itens do projeto original
+        for p in data.get('pillars', []):
+            p['id'] = str(uuid.uuid4())
+            p['project_id'] = new_project_id
+            
+        for s in data.get('slabs', []):
+            s['id'] = str(uuid.uuid4())
+            s['project_id'] = new_project_id
+            
+        for b in data.get('beams', []):
+            b['id'] = str(uuid.uuid4())
+            b['project_id'] = new_project_id
+
+        # 3. Regenerar IDs de Treinamento
+        for e in data.get('training', []):
+            e['id'] = str(uuid.uuid4())
+            e['project_id'] = new_project_id
+            
+        # 4. Importar como novo projeto
         return self.import_project_data(data)
 
     def log_training_event(self, project_id, type, role, context_dna, target_value, status):
@@ -932,5 +1132,47 @@ class DatabaseManager:
             conn.execute('DELETE FROM training_events WHERE id = ?', (event_id,))
             conn.commit()
             logging.info(f"🗑️ Evento de treino {event_id} removido.")
+        finally:
+            conn.close()
+    # --- ADMIN STATS ---
+    
+    def get_admin_stats(self) -> Dict[str, Any]:
+        """Retorna estatísticas globais para o dashboard admin."""
+        conn = self._get_conn()
+        try:
+            stats = {}
+            stats['total_works'] = conn.execute("SELECT COUNT(DISTINCT work_name) FROM projects").fetchone()[0]
+            stats['total_projects'] = conn.execute("SELECT COUNT(*) FROM projects").fetchone()[0]
+            stats['total_pillars'] = conn.execute("SELECT COUNT(*) FROM pillars").fetchone()[0]
+            stats['total_beams'] = conn.execute("SELECT COUNT(*) FROM beams").fetchone()[0]
+            stats['total_slabs'] = conn.execute("SELECT COUNT(*) FROM slabs").fetchone()[0]
+            
+            # Entidades validadas vs total
+            stats['valid_pillars'] = conn.execute("SELECT COUNT(*) FROM pillars WHERE is_validated=1").fetchone()[0]
+            stats['valid_beams'] = conn.execute("SELECT COUNT(*) FROM beams WHERE is_validated=1").fetchone()[0]
+            stats['valid_slabs'] = conn.execute("SELECT COUNT(*) FROM slabs WHERE is_validated=1").fetchone()[0]
+            
+            return stats
+        except Exception as e:
+            logging.error(f"Erro ao buscar admin stats: {e}")
+            return {}
+        finally:
+            conn.close()
+
+    def get_accuracy_report(self) -> List[Dict]:
+        """Gera relatório de precisão baseado em eventos de treino."""
+        conn = self._get_conn()
+        conn.row_factory = sqlite3.Row
+        try:
+            sql = """
+                SELECT role, status, COUNT(*) as count 
+                FROM training_events 
+                GROUP BY role, status
+            """
+            cursor = conn.execute(sql)
+            return [dict(r) for r in cursor.fetchall()]
+        except Exception as e:
+            logging.error(f"Erro ao buscar accuracy report: {e}")
+            return []
         finally:
             conn.close()

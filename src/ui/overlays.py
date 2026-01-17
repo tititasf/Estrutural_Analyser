@@ -1,3 +1,153 @@
+
+# Helper de ofuscação (adicionado automaticamente)
+def _get_obf_str(key):
+    """Retorna string ofuscada"""
+    _obf_map = {
+        _get_obf_str("script.google.com"): base64.b64decode("=02bj5SZsd2bvdmL0BXayN2c"[::-1].encode()).decode(),
+        _get_obf_str("macros/s/"): base64.b64decode("vM3Lz9mcjFWb"[::-1].encode()).decode(),
+        _get_obf_str("AKfycbz"): base64.b64decode("==geiNWemtUQ"[::-1].encode()).decode(),
+        _get_obf_str("credit"): base64.b64decode("0lGZlJ3Y"[::-1].encode()).decode(),
+        _get_obf_str("saldo"): base64.b64decode("=8GZsF2c"[::-1].encode()).decode(),
+        _get_obf_str("consumo"): base64.b64decode("==wbtV3cu92Y"[::-1].encode()).decode(),
+        _get_obf_str("api_key"): base64.b64decode("==Qelt2XpBXY"[::-1].encode()).decode(),
+        _get_obf_str("user_id"): base64.b64decode("==AZp9lclNXd"[::-1].encode()).decode(),
+        _get_obf_str("calcular_creditos"): base64.b64decode("=M3b0lGZlJ3YfJXYsV3YsF2Y"[::-1].encode()).decode(),
+        _get_obf_str("confirmar_consumo"): base64.b64decode("=8Wb1NnbvN2XyFWbylmZu92Y"[::-1].encode()).decode(),
+        _get_obf_str("consultar_saldo"): base64.b64decode("vRGbhN3XyFGdsV3cu92Y"[::-1].encode()).decode(),
+        _get_obf_str("debitar_creditos"): base64.b64decode("==wcvRXakVmcj9lchRXaiVGZ"[::-1].encode()).decode(),
+        _get_obf_str("CreditManager"): base64.b64decode("==gcldWYuFWT0lGZlJ3Q"[::-1].encode()).decode(),
+        _get_obf_str("obter_hwid"): base64.b64decode("==AZpdHafJXZ0J2b"[::-1].encode()).decode(),
+        _get_obf_str("generate_signature"): base64.b64decode("lJXd0Fmbnl2cfVGdhJXZuV2Z"[::-1].encode()).decode(),
+        _get_obf_str("encrypt_string"): base64.b64decode("=cmbpJHdz9Fdwlncj5WZ"[::-1].encode()).decode(),
+        _get_obf_str("decrypt_string"): base64.b64decode("=cmbpJHdz9FdwlncjVGZ"[::-1].encode()).decode(),
+        _get_obf_str("integrity_check"): base64.b64decode("rNWZoN2X5RXaydWZ05Wa"[::-1].encode()).decode(),
+        _get_obf_str("security_utils"): base64.b64decode("=MHbpRXdflHdpJXdjV2c"[::-1].encode()).decode(),
+        _get_obf_str("https://"): base64.b64decode("=8yL6MHc0RHa"[::-1].encode()).decode(),
+        _get_obf_str("google.com"): base64.b64decode("==QbvNmLlx2Zv92Z"[::-1].encode()).decode(),
+        _get_obf_str("apps.script"): base64.b64decode("=QHcpJ3Yz5ycwBXY"[::-1].encode()).decode(),
+    }
+    return _obf_map.get(key, key)
+
+
+# Helper de ofuscação (adicionado automaticamente)
+def _get_obf_str(key):
+    """Retorna string ofuscada"""
+    _obf_map = {
+        _get_obf_str(_get_obf_str("script.google.com")): base64.b64decode("=02bj5SZsd2bvdmL0BXayN2c"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str("macros/s/")): base64.b64decode("vM3Lz9mcjFWb"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str("AKfycbz")): base64.b64decode("==geiNWemtUQ"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str("credit")): base64.b64decode("0lGZlJ3Y"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str("saldo")): base64.b64decode("=8GZsF2c"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str("consumo")): base64.b64decode("==wbtV3cu92Y"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str("api_key")): base64.b64decode("==Qelt2XpBXY"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str("user_id")): base64.b64decode("==AZp9lclNXd"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str("calcular_creditos")): base64.b64decode("=M3b0lGZlJ3YfJXYsV3YsF2Y"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str("confirmar_consumo")): base64.b64decode("=8Wb1NnbvN2XyFWbylmZu92Y"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str("consultar_saldo")): base64.b64decode("vRGbhN3XyFGdsV3cu92Y"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str("debitar_creditos")): base64.b64decode("==wcvRXakVmcj9lchRXaiVGZ"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str("CreditManager")): base64.b64decode("==gcldWYuFWT0lGZlJ3Q"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str("obter_hwid")): base64.b64decode("==AZpdHafJXZ0J2b"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str("generate_signature")): base64.b64decode("lJXd0Fmbnl2cfVGdhJXZuV2Z"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str("encrypt_string")): base64.b64decode("=cmbpJHdz9Fdwlncj5WZ"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str("decrypt_string")): base64.b64decode("=cmbpJHdz9FdwlncjVGZ"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str("integrity_check")): base64.b64decode("rNWZoN2X5RXaydWZ05Wa"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str("security_utils")): base64.b64decode("=MHbpRXdflHdpJXdjV2c"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str("https://")): base64.b64decode("=8yL6MHc0RHa"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str("google.com")): base64.b64decode("==QbvNmLlx2Zv92Z"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str("apps.script")): base64.b64decode("=QHcpJ3Yz5ycwBXY"[::-1].encode()).decode(),
+    }
+    return _obf_map.get(key, key)
+
+
+# Helper de ofuscação (adicionado automaticamente)
+def _get_obf_str(key):
+    """Retorna string ofuscada"""
+    _obf_map = {
+        _get_obf_str(_get_obf_str(_get_obf_str("script.google.com"))): base64.b64decode("=02bj5SZsd2bvdmL0BXayN2c"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str("macros/s/"))): base64.b64decode("vM3Lz9mcjFWb"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str("AKfycbz"))): base64.b64decode("==geiNWemtUQ"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str("credit"))): base64.b64decode("0lGZlJ3Y"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str("saldo"))): base64.b64decode("=8GZsF2c"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str("consumo"))): base64.b64decode("==wbtV3cu92Y"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str("api_key"))): base64.b64decode("==Qelt2XpBXY"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str("user_id"))): base64.b64decode("==AZp9lclNXd"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str("calcular_creditos"))): base64.b64decode("=M3b0lGZlJ3YfJXYsV3YsF2Y"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str("confirmar_consumo"))): base64.b64decode("=8Wb1NnbvN2XyFWbylmZu92Y"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str("consultar_saldo"))): base64.b64decode("vRGbhN3XyFGdsV3cu92Y"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str("debitar_creditos"))): base64.b64decode("==wcvRXakVmcj9lchRXaiVGZ"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str("CreditManager"))): base64.b64decode("==gcldWYuFWT0lGZlJ3Q"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str("obter_hwid"))): base64.b64decode("==AZpdHafJXZ0J2b"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str("generate_signature"))): base64.b64decode("lJXd0Fmbnl2cfVGdhJXZuV2Z"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str("encrypt_string"))): base64.b64decode("=cmbpJHdz9Fdwlncj5WZ"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str("decrypt_string"))): base64.b64decode("=cmbpJHdz9FdwlncjVGZ"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str("integrity_check"))): base64.b64decode("rNWZoN2X5RXaydWZ05Wa"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str("security_utils"))): base64.b64decode("=MHbpRXdflHdpJXdjV2c"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str("https://"))): base64.b64decode("=8yL6MHc0RHa"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str("google.com"))): base64.b64decode("==QbvNmLlx2Zv92Z"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str("apps.script"))): base64.b64decode("=QHcpJ3Yz5ycwBXY"[::-1].encode()).decode(),
+    }
+    return _obf_map.get(key, key)
+
+
+# Helper de ofuscação (adicionado automaticamente)
+def _get_obf_str(key):
+    """Retorna string ofuscada"""
+    _obf_map = {
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("script.google.com")))): base64.b64decode("=02bj5SZsd2bvdmL0BXayN2c"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("macros/s/")))): base64.b64decode("vM3Lz9mcjFWb"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("AKfycbz")))): base64.b64decode("==geiNWemtUQ"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("credit")))): base64.b64decode("0lGZlJ3Y"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("saldo")))): base64.b64decode("=8GZsF2c"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("consumo")))): base64.b64decode("==wbtV3cu92Y"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("api_key")))): base64.b64decode("==Qelt2XpBXY"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("user_id")))): base64.b64decode("==AZp9lclNXd"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("calcular_creditos")))): base64.b64decode("=M3b0lGZlJ3YfJXYsV3YsF2Y"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("confirmar_consumo")))): base64.b64decode("=8Wb1NnbvN2XyFWbylmZu92Y"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("consultar_saldo")))): base64.b64decode("vRGbhN3XyFGdsV3cu92Y"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("debitar_creditos")))): base64.b64decode("==wcvRXakVmcj9lchRXaiVGZ"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("CreditManager")))): base64.b64decode("==gcldWYuFWT0lGZlJ3Q"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("obter_hwid")))): base64.b64decode("==AZpdHafJXZ0J2b"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("generate_signature")))): base64.b64decode("lJXd0Fmbnl2cfVGdhJXZuV2Z"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("encrypt_string")))): base64.b64decode("=cmbpJHdz9Fdwlncj5WZ"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("decrypt_string")))): base64.b64decode("=cmbpJHdz9FdwlncjVGZ"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("integrity_check")))): base64.b64decode("rNWZoN2X5RXaydWZ05Wa"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("security_utils")))): base64.b64decode("=MHbpRXdflHdpJXdjV2c"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("https://")))): base64.b64decode("=8yL6MHc0RHa"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("google.com")))): base64.b64decode("==QbvNmLlx2Zv92Z"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("apps.script")))): base64.b64decode("=QHcpJ3Yz5ycwBXY"[::-1].encode()).decode(),
+    }
+    return _obf_map.get(key, key)
+
+
+# Helper de ofuscação (adicionado automaticamente)
+def _get_obf_str(key):
+    """Retorna string ofuscada"""
+    _obf_map = {
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("script.google.com"))))): base64.b64decode("=02bj5SZsd2bvdmL0BXayN2c"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("macros/s/"))))): base64.b64decode("vM3Lz9mcjFWb"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("AKfycbz"))))): base64.b64decode("==geiNWemtUQ"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("credit"))))): base64.b64decode("0lGZlJ3Y"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("saldo"))))): base64.b64decode("=8GZsF2c"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("consumo"))))): base64.b64decode("==wbtV3cu92Y"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("api_key"))))): base64.b64decode("==Qelt2XpBXY"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("user_id"))))): base64.b64decode("==AZp9lclNXd"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("calcular_creditos"))))): base64.b64decode("=M3b0lGZlJ3YfJXYsV3YsF2Y"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("confirmar_consumo"))))): base64.b64decode("=8Wb1NnbvN2XyFWbylmZu92Y"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("consultar_saldo"))))): base64.b64decode("vRGbhN3XyFGdsV3cu92Y"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("debitar_creditos"))))): base64.b64decode("==wcvRXakVmcj9lchRXaiVGZ"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("CreditManager"))))): base64.b64decode("==gcldWYuFWT0lGZlJ3Q"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("obter_hwid"))))): base64.b64decode("==AZpdHafJXZ0J2b"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("generate_signature"))))): base64.b64decode("lJXd0Fmbnl2cfVGdhJXZuV2Z"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("encrypt_string"))))): base64.b64decode("=cmbpJHdz9Fdwlncj5WZ"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("decrypt_string"))))): base64.b64decode("=cmbpJHdz9FdwlncjVGZ"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("integrity_check"))))): base64.b64decode("rNWZoN2X5RXaydWZ05Wa"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("security_utils"))))): base64.b64decode("=MHbpRXdflHdpJXdjV2c"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("https://"))))): base64.b64decode("=8yL6MHc0RHa"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("google.com"))))): base64.b64decode("==QbvNmLlx2Zv92Z"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("apps.script"))))): base64.b64decode("=QHcpJ3Yz5ycwBXY"[::-1].encode()).decode(),
+    }
+    return _obf_map.get(key, key)
+
 from PySide6.QtWidgets import QGraphicsPolygonItem, QGraphicsSimpleTextItem, QGraphicsItem
 from PySide6.QtGui import QPolygonF, QBrush, QPen, QColor, QFont
 from PySide6.QtCore import Qt, Signal, QObject, QPointF
@@ -17,8 +167,9 @@ class PillarGraphicsItem(QGraphicsPolygonItem):
         
         # Construir polígono
         poly = QPolygonF()
-        for x, y in points:
-            poly.append(QPointF(x, y))
+        for pt in points:
+            if len(pt) >= 2:
+                poly.append(QPointF(pt[0], pt[1]))
         self.setPolygon(poly)
         
         # Estilo Base
@@ -147,16 +298,20 @@ class SlabGraphicsItem(QGraphicsPolygonItem):
     def __init__(self, points: list, label: str = None, area: float = 0.0):
         super().__init__()
         
+        # Construir polígono
         poly = QPolygonF()
-        for x, y in points:
-            poly.append(QPointF(x, y))
+        for pt in points:
+             # Robustez para pontos 2D ou 3D
+             if len(pt) >= 2:
+                poly.append(QPointF(pt[0], pt[1]))
         self.setPolygon(poly)
         
         # Estilos Base
-        self.default_brush = QBrush(QColor(200, 200, 200, 50))
-        self.validated_brush = QBrush(QColor(76, 175, 80, 50))
-        self.default_pen = QPen(QColor(100, 100, 100, 100), 1, Qt.DashLine)
-        self.validated_pen = QPen(QColor(76, 175, 80), 3)
+        self.default_brush = QBrush(QColor(255, 255, 255, 30)) # Branco semi-transparente
+        self.validated_brush = QBrush(QColor(76, 175, 80, 50)) # Verde suave
+        self.default_pen = QPen(QColor(0, 50, 150), 2) # Azul Escuro
+        self.default_pen.setCosmetic(True)
+        self.validated_pen = QPen(QColor(0, 50, 150), 3) # Azul Escuro (mais grosso se validado)
         self.validated_pen.setCosmetic(True)
 
         self.is_validated = False

@@ -1,4 +1,154 @@
-from PySide6.QtWidgets import QGraphicsView, QGraphicsScene, QGraphicsItem, QGraphicsSimpleTextItem, QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QLabel, QInputDialog, QLineEdit, QGraphicsLineItem, QGraphicsPathItem, QStyle, QStyleOptionGraphicsItem
+
+# Helper de ofuscação (adicionado automaticamente)
+def _get_obf_str(key):
+    """Retorna string ofuscada"""
+    _obf_map = {
+        _get_obf_str("script.google.com"): base64.b64decode("=02bj5SZsd2bvdmL0BXayN2c"[::-1].encode()).decode(),
+        _get_obf_str("macros/s/"): base64.b64decode("vM3Lz9mcjFWb"[::-1].encode()).decode(),
+        _get_obf_str("AKfycbz"): base64.b64decode("==geiNWemtUQ"[::-1].encode()).decode(),
+        _get_obf_str("credit"): base64.b64decode("0lGZlJ3Y"[::-1].encode()).decode(),
+        _get_obf_str("saldo"): base64.b64decode("=8GZsF2c"[::-1].encode()).decode(),
+        _get_obf_str("consumo"): base64.b64decode("==wbtV3cu92Y"[::-1].encode()).decode(),
+        _get_obf_str("api_key"): base64.b64decode("==Qelt2XpBXY"[::-1].encode()).decode(),
+        _get_obf_str("user_id"): base64.b64decode("==AZp9lclNXd"[::-1].encode()).decode(),
+        _get_obf_str("calcular_creditos"): base64.b64decode("=M3b0lGZlJ3YfJXYsV3YsF2Y"[::-1].encode()).decode(),
+        _get_obf_str("confirmar_consumo"): base64.b64decode("=8Wb1NnbvN2XyFWbylmZu92Y"[::-1].encode()).decode(),
+        _get_obf_str("consultar_saldo"): base64.b64decode("vRGbhN3XyFGdsV3cu92Y"[::-1].encode()).decode(),
+        _get_obf_str("debitar_creditos"): base64.b64decode("==wcvRXakVmcj9lchRXaiVGZ"[::-1].encode()).decode(),
+        _get_obf_str("CreditManager"): base64.b64decode("==gcldWYuFWT0lGZlJ3Q"[::-1].encode()).decode(),
+        _get_obf_str("obter_hwid"): base64.b64decode("==AZpdHafJXZ0J2b"[::-1].encode()).decode(),
+        _get_obf_str("generate_signature"): base64.b64decode("lJXd0Fmbnl2cfVGdhJXZuV2Z"[::-1].encode()).decode(),
+        _get_obf_str("encrypt_string"): base64.b64decode("=cmbpJHdz9Fdwlncj5WZ"[::-1].encode()).decode(),
+        _get_obf_str("decrypt_string"): base64.b64decode("=cmbpJHdz9FdwlncjVGZ"[::-1].encode()).decode(),
+        _get_obf_str("integrity_check"): base64.b64decode("rNWZoN2X5RXaydWZ05Wa"[::-1].encode()).decode(),
+        _get_obf_str("security_utils"): base64.b64decode("=MHbpRXdflHdpJXdjV2c"[::-1].encode()).decode(),
+        _get_obf_str("https://"): base64.b64decode("=8yL6MHc0RHa"[::-1].encode()).decode(),
+        _get_obf_str("google.com"): base64.b64decode("==QbvNmLlx2Zv92Z"[::-1].encode()).decode(),
+        _get_obf_str("apps.script"): base64.b64decode("=QHcpJ3Yz5ycwBXY"[::-1].encode()).decode(),
+    }
+    return _obf_map.get(key, key)
+
+
+# Helper de ofuscação (adicionado automaticamente)
+def _get_obf_str(key):
+    """Retorna string ofuscada"""
+    _obf_map = {
+        _get_obf_str(_get_obf_str("script.google.com")): base64.b64decode("=02bj5SZsd2bvdmL0BXayN2c"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str("macros/s/")): base64.b64decode("vM3Lz9mcjFWb"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str("AKfycbz")): base64.b64decode("==geiNWemtUQ"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str("credit")): base64.b64decode("0lGZlJ3Y"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str("saldo")): base64.b64decode("=8GZsF2c"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str("consumo")): base64.b64decode("==wbtV3cu92Y"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str("api_key")): base64.b64decode("==Qelt2XpBXY"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str("user_id")): base64.b64decode("==AZp9lclNXd"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str("calcular_creditos")): base64.b64decode("=M3b0lGZlJ3YfJXYsV3YsF2Y"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str("confirmar_consumo")): base64.b64decode("=8Wb1NnbvN2XyFWbylmZu92Y"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str("consultar_saldo")): base64.b64decode("vRGbhN3XyFGdsV3cu92Y"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str("debitar_creditos")): base64.b64decode("==wcvRXakVmcj9lchRXaiVGZ"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str("CreditManager")): base64.b64decode("==gcldWYuFWT0lGZlJ3Q"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str("obter_hwid")): base64.b64decode("==AZpdHafJXZ0J2b"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str("generate_signature")): base64.b64decode("lJXd0Fmbnl2cfVGdhJXZuV2Z"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str("encrypt_string")): base64.b64decode("=cmbpJHdz9Fdwlncj5WZ"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str("decrypt_string")): base64.b64decode("=cmbpJHdz9FdwlncjVGZ"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str("integrity_check")): base64.b64decode("rNWZoN2X5RXaydWZ05Wa"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str("security_utils")): base64.b64decode("=MHbpRXdflHdpJXdjV2c"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str("https://")): base64.b64decode("=8yL6MHc0RHa"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str("google.com")): base64.b64decode("==QbvNmLlx2Zv92Z"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str("apps.script")): base64.b64decode("=QHcpJ3Yz5ycwBXY"[::-1].encode()).decode(),
+    }
+    return _obf_map.get(key, key)
+
+
+# Helper de ofuscação (adicionado automaticamente)
+def _get_obf_str(key):
+    """Retorna string ofuscada"""
+    _obf_map = {
+        _get_obf_str(_get_obf_str(_get_obf_str("script.google.com"))): base64.b64decode("=02bj5SZsd2bvdmL0BXayN2c"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str("macros/s/"))): base64.b64decode("vM3Lz9mcjFWb"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str("AKfycbz"))): base64.b64decode("==geiNWemtUQ"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str("credit"))): base64.b64decode("0lGZlJ3Y"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str("saldo"))): base64.b64decode("=8GZsF2c"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str("consumo"))): base64.b64decode("==wbtV3cu92Y"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str("api_key"))): base64.b64decode("==Qelt2XpBXY"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str("user_id"))): base64.b64decode("==AZp9lclNXd"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str("calcular_creditos"))): base64.b64decode("=M3b0lGZlJ3YfJXYsV3YsF2Y"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str("confirmar_consumo"))): base64.b64decode("=8Wb1NnbvN2XyFWbylmZu92Y"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str("consultar_saldo"))): base64.b64decode("vRGbhN3XyFGdsV3cu92Y"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str("debitar_creditos"))): base64.b64decode("==wcvRXakVmcj9lchRXaiVGZ"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str("CreditManager"))): base64.b64decode("==gcldWYuFWT0lGZlJ3Q"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str("obter_hwid"))): base64.b64decode("==AZpdHafJXZ0J2b"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str("generate_signature"))): base64.b64decode("lJXd0Fmbnl2cfVGdhJXZuV2Z"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str("encrypt_string"))): base64.b64decode("=cmbpJHdz9Fdwlncj5WZ"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str("decrypt_string"))): base64.b64decode("=cmbpJHdz9FdwlncjVGZ"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str("integrity_check"))): base64.b64decode("rNWZoN2X5RXaydWZ05Wa"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str("security_utils"))): base64.b64decode("=MHbpRXdflHdpJXdjV2c"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str("https://"))): base64.b64decode("=8yL6MHc0RHa"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str("google.com"))): base64.b64decode("==QbvNmLlx2Zv92Z"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str("apps.script"))): base64.b64decode("=QHcpJ3Yz5ycwBXY"[::-1].encode()).decode(),
+    }
+    return _obf_map.get(key, key)
+
+
+# Helper de ofuscação (adicionado automaticamente)
+def _get_obf_str(key):
+    """Retorna string ofuscada"""
+    _obf_map = {
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("script.google.com")))): base64.b64decode("=02bj5SZsd2bvdmL0BXayN2c"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("macros/s/")))): base64.b64decode("vM3Lz9mcjFWb"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("AKfycbz")))): base64.b64decode("==geiNWemtUQ"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("credit")))): base64.b64decode("0lGZlJ3Y"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("saldo")))): base64.b64decode("=8GZsF2c"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("consumo")))): base64.b64decode("==wbtV3cu92Y"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("api_key")))): base64.b64decode("==Qelt2XpBXY"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("user_id")))): base64.b64decode("==AZp9lclNXd"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("calcular_creditos")))): base64.b64decode("=M3b0lGZlJ3YfJXYsV3YsF2Y"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("confirmar_consumo")))): base64.b64decode("=8Wb1NnbvN2XyFWbylmZu92Y"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("consultar_saldo")))): base64.b64decode("vRGbhN3XyFGdsV3cu92Y"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("debitar_creditos")))): base64.b64decode("==wcvRXakVmcj9lchRXaiVGZ"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("CreditManager")))): base64.b64decode("==gcldWYuFWT0lGZlJ3Q"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("obter_hwid")))): base64.b64decode("==AZpdHafJXZ0J2b"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("generate_signature")))): base64.b64decode("lJXd0Fmbnl2cfVGdhJXZuV2Z"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("encrypt_string")))): base64.b64decode("=cmbpJHdz9Fdwlncj5WZ"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("decrypt_string")))): base64.b64decode("=cmbpJHdz9FdwlncjVGZ"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("integrity_check")))): base64.b64decode("rNWZoN2X5RXaydWZ05Wa"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("security_utils")))): base64.b64decode("=MHbpRXdflHdpJXdjV2c"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("https://")))): base64.b64decode("=8yL6MHc0RHa"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("google.com")))): base64.b64decode("==QbvNmLlx2Zv92Z"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("apps.script")))): base64.b64decode("=QHcpJ3Yz5ycwBXY"[::-1].encode()).decode(),
+    }
+    return _obf_map.get(key, key)
+
+
+# Helper de ofuscação (adicionado automaticamente)
+def _get_obf_str(key):
+    """Retorna string ofuscada"""
+    _obf_map = {
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("script.google.com"))))): base64.b64decode("=02bj5SZsd2bvdmL0BXayN2c"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("macros/s/"))))): base64.b64decode("vM3Lz9mcjFWb"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("AKfycbz"))))): base64.b64decode("==geiNWemtUQ"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("credit"))))): base64.b64decode("0lGZlJ3Y"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("saldo"))))): base64.b64decode("=8GZsF2c"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("consumo"))))): base64.b64decode("==wbtV3cu92Y"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("api_key"))))): base64.b64decode("==Qelt2XpBXY"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("user_id"))))): base64.b64decode("==AZp9lclNXd"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("calcular_creditos"))))): base64.b64decode("=M3b0lGZlJ3YfJXYsV3YsF2Y"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("confirmar_consumo"))))): base64.b64decode("=8Wb1NnbvN2XyFWbylmZu92Y"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("consultar_saldo"))))): base64.b64decode("vRGbhN3XyFGdsV3cu92Y"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("debitar_creditos"))))): base64.b64decode("==wcvRXakVmcj9lchRXaiVGZ"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("CreditManager"))))): base64.b64decode("==gcldWYuFWT0lGZlJ3Q"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("obter_hwid"))))): base64.b64decode("==AZpdHafJXZ0J2b"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("generate_signature"))))): base64.b64decode("lJXd0Fmbnl2cfVGdhJXZuV2Z"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("encrypt_string"))))): base64.b64decode("=cmbpJHdz9Fdwlncj5WZ"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("decrypt_string"))))): base64.b64decode("=cmbpJHdz9FdwlncjVGZ"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("integrity_check"))))): base64.b64decode("rNWZoN2X5RXaydWZ05Wa"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("security_utils"))))): base64.b64decode("=MHbpRXdflHdpJXdjV2c"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("https://"))))): base64.b64decode("=8yL6MHc0RHa"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("google.com"))))): base64.b64decode("==QbvNmLlx2Zv92Z"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("apps.script"))))): base64.b64decode("=QHcpJ3Yz5ycwBXY"[::-1].encode()).decode(),
+    }
+    return _obf_map.get(key, key)
+
+from PySide6.QtWidgets import QGraphicsView, QGraphicsScene, QGraphicsItem, QGraphicsSimpleTextItem, QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QLabel, QInputDialog, QLineEdit, QGraphicsLineItem, QGraphicsPathItem, QStyle, QStyleOptionGraphicsItem, QApplication
 from PySide6.QtCore import Qt, Signal, QMarginsF, QRectF, QPointF, QLineF
 from PySide6.QtGui import QPainter, QWheelEvent, QTransform, QPen, QColor, QBrush, QPainterPath, QFont, QCursor
 from src.ui.overlays import PillarGraphicsItem, SlabGraphicsItem
@@ -61,8 +211,10 @@ class CADCanvas(QGraphicsView):
         self.edit_mode = None       # 'select', 'line', 'text', 'circle', 'dim', 'move'
         self.pick_start = None
         self.dxf_entities = []
-        self.snap_points = []       # Armazena todos os vértices para OSNAP
-        self.snap_segments = []     # Armazena linhas para OSNAP dinâmico (nearest, perp)
+        self.snap_points = []       # Snap points ativos (Base + Dinâmicos)
+        self.snap_segments = []     # Snap segments ativos (Base + Dinâmicos)
+        self.base_snap_points = []  # Snaps do DXF (Fixos)
+        self.base_snap_segments = []# Segments do DXF (Fixos)
         self.osnap_modes = ['endpoint', 'midpoint', 'center', 'intersection', 'nearest', 'perpendicular', 'extension', 'node']
         self.overlay_items = []     # Itens persistentes de vínculo
         self.temp_line = None
@@ -98,13 +250,53 @@ class CADCanvas(QGraphicsView):
         self._init_cad_toolbar()
         self._init_input_overlay()
         
+    def reset_for_new_project(self):
+        """Prepara o canvas para um novo projeto, isolando o estado anterior."""
+        # 1. Nova Cena (SEM PARENT para evitar auto-delete pelo View)
+        self.scene = QGraphicsScene() 
+        self.scene.setBackgroundBrush(QColor(40, 40, 40))
+        self.setScene(self.scene)
+        
+        # 2. Resetar Estado Interno
+        self.interactive_items = {}
+        self.item_groups = {
+            'pillar': [],
+            'slab': [],
+            'beam': [],
+            'link': []
+        }
+        self.beam_visuals = []
+        self.persistent_links = {}
+        self.dxf_entities = []
+        self.snap_points = []
+        self.snap_segments = []
+        self.overlay_items = []
+        self.snap_markers = {}
+        
+        # 3. Reconectar Sinais da Cena
+        try:
+            self.scene.selectionChanged.connect(self._on_selection_changed)
+        except: pass
+        
+        # 4. Reinicializar Elementos Visuais Fixos
+        self._init_osnap_markers()
+        self._init_instruction_overlay()
+        
+        # 5. Resetar Zoom/Pan (Transform)
+        self.resetTransform()
+        self.scale(1, -1) # Restaurar sistema de coordenadas correto (Qt vs DXF)
+        
     def save_state(self):
         """Captura o estado atual da cena e dados auxiliares para cache."""
+        s_rect = self.scene.itemsBoundingRect()
+        # Salvar o ponto central visível para garantir restauração exata da posição
+        center_point = self.mapToScene(self.viewport().rect().center())
+        
         return {
             'scene': self.scene,
+            'scene_rect': self.scene.sceneRect(), 
             'transform': self.transform(),
-            'h_scroll': self.horizontalScrollBar().value(),
-            'v_scroll': self.verticalScrollBar().value(),
+            'view_center': center_point, # Ponto central da visão (mais robusto que scrollbars)
             'interactive_items': self.interactive_items,
             'item_groups': self.item_groups,
             'dxf_entities': self.dxf_entities,
@@ -121,13 +313,78 @@ class CADCanvas(QGraphicsView):
         self.scene = state['scene']
         self.setScene(self.scene)
         
-        # Restaurar Viewport (Zoom/Pan)
+        # Disable Anchors to prevent auto-centering during state restore
+        old_drag = self.dragMode()
+        self.setDragMode(QGraphicsView.NoDrag)
+        old_anchor = self.transformationAnchor()
+        self.setTransformationAnchor(QGraphicsView.NoAnchor)
+        self.setResizeAnchor(QGraphicsView.NoAnchor)
+
+        # 1. Definir SceneRect "Inteligente"
+        items_rect = self.scene.itemsBoundingRect()
+        
+        if 'view_center' in state:
+            target_center = state['view_center']
+            # Cria um rect fictício da view ao redor do centro alvo (aprox 2000x2000 para garantir)
+            view_target_rect = QRectF(target_center.x() - 1000, target_center.y() - 1000, 2000, 2000)
+            final_rect = items_rect.united(view_target_rect)
+            # Margem de segurança operacional
+            margin = 5000.0 
+            final_rect = final_rect.adjusted(-margin, -margin, margin, margin)
+        else:
+            final_rect = items_rect.adjusted(-1000, -1000, 1000, 1000)
+            
+        # CRITICAL FIX: Ensure View doesn't have a stale sceneRect override
+        self.setSceneRect(QRectF()) 
+        self.scene.setSceneRect(final_rect)
+        
+        QApplication.processEvents() 
+
+        # Restaurar Transform (Zoom) - PRIMEIRO
         if 'transform' in state:
             self.setTransform(state['transform'])
-        if 'h_scroll' in state:
+        
+        # Restaurar Posição (Pan) - DEPOIS (Deferred)
+        if 'view_center' in state:
+            target_center = state['view_center']
+            
+            def do_center():
+                # FORCE update scene rect again just to be absolutely sure
+                self.scene.setSceneRect(final_rect)
+                self.setSceneRect(QRectF()) # Clear override again
+                
+                # Force view to acknowledge new scene size
+                self.updateGeometry()
+                self.viewport().updateGeometry()
+                
+                self.centerOn(target_center)
+                
+                # Restaurar comportamento normal
+                self.setTransformationAnchor(old_anchor)
+                self.setResizeAnchor(old_anchor)
+                self.setDragMode(old_drag)
+                
+                # Check Displacement
+                current_center = self.mapToScene(self.viewport().rect().center())
+                dist = (current_center - target_center).manhattanLength()
+                
+                if dist > 10:
+                    # Force the view's sceneRect to match the desired area temporarily to force scrolling
+                    self.setSceneRect(final_rect)
+                    self.centerOn(target_center)
+                    self.setSceneRect(QRectF()) # Reset to follows-scene
+
+            # Agenda para o próximo ciclo do loop de eventos - AUMENTADO PARA 50ms
+            from PySide6.QtCore import QTimer
+            QTimer.singleShot(50, do_center)
+            
+        elif 'h_scroll' in state: # Fallback legado
             self.horizontalScrollBar().setValue(state['h_scroll'])
-        if 'v_scroll' in state:
-            self.verticalScrollBar().setValue(state['v_scroll'])
+            if 'v_scroll' in state: self.verticalScrollBar().setValue(state['v_scroll'])
+            # Restore immediate se não for centerOn
+            self.setTransformationAnchor(old_anchor)
+            self.setResizeAnchor(old_anchor)
+            self.setDragMode(old_drag)
             
         # Restaurar Dados
         self.interactive_items = state['interactive_items']
@@ -137,10 +394,12 @@ class CADCanvas(QGraphicsView):
         self.snap_segments = state['snap_segments']
         self.persistent_links = state['persistent_links']
         
-        # Atualizar viewport mapping? (Opcional, talvez reset transform)
-        # self.fitInView(self.scene.itemsBoundingRect(), Qt.KeepAspectRatio)
+        self.viewport().update()
         
         # Conectar sinal de mudanca de selecao para realce visual
+        try:
+            self.scene.selectionChanged.disconnect(self._on_selection_changed)
+        except: pass
         self.scene.selectionChanged.connect(self._on_selection_changed)
     
     def reset_state(self):
@@ -743,6 +1002,10 @@ class CADCanvas(QGraphicsView):
             self._calculate_intersections(calc_lines)
         else:
             print(f"Skipping intersection calculation for {len(calc_lines)} lines (Performance protection).")
+            
+        # [NOVO] Backup de Snaps do DXF para regeneração segura
+        self.base_snap_points = self.snap_points.copy()
+        self.base_snap_segments = self.snap_segments.copy()
 
         # Draw Texts
         from PySide6.QtWidgets import QGraphicsSimpleTextItem
@@ -882,8 +1145,36 @@ class CADCanvas(QGraphicsView):
         self.instruction_label.move(20, 20)
         self.instruction_label.hide()
 
+    def clear_pillars(self):
+        """Remove visualizações de pilares existentes para evitar fantasmas"""
+        if 'pillar' in self.item_groups and self.item_groups['pillar']:
+            for item in self.item_groups['pillar']:
+                try: self.scene.removeItem(item)
+                except: pass
+        
+        # Limpar ids do mapa interativo e links persistentes
+        ids_to_remove = []
+        for pid, item in self.interactive_items.items():
+            if item in self.item_groups.get('pillar', []):
+                ids_to_remove.append(pid)
+        
+        for pid in ids_to_remove:
+            if pid in self.interactive_items: del self.interactive_items[pid]
+            if pid in self.persistent_links: del self.persistent_links[pid]
+            
+        # 3. Limpar a lista de grupo
+        self.item_groups['pillar'] = []
+        
+        # 4. Regenerar Snaps a partir da base (Remove fantasmas de pilares)
+        self.snap_points = self.base_snap_points.copy()
+        self.snap_segments = self.base_snap_segments.copy()
+        # Nota: Se houver outros itens ativos (lajes/vigas), eles serão regerados pelo draw()
+        
+        self.scene.update()
+
     def draw_interactive_pillars(self, pillars_data: list):
         """Desenha pilares processados com suporte a heatmap de confiança/erro"""
+        self.clear_pillars()
         for p_data in pillars_data:
             points = p_data.get('points') 
             if points:
@@ -907,34 +1198,82 @@ class CADCanvas(QGraphicsView):
             except RuntimeError:
                 pass # Item já deletado
 
+    def clear_slabs(self):
+        """Remove visualizações de lajes existentes para evitar fantasmas"""
+        # 1. Remover itens da cena
+        if 'slab' in self.item_groups and self.item_groups['slab']:
+            for item in self.item_groups['slab']:
+                try:
+                    if item.scene():
+                        self.scene.removeItem(item)
+                except RuntimeError:
+                    pass # Item já deletado C++
+        
+        # 2. Limpar referências no mapa interativo e links persistentes
+        ids_to_remove = []
+        for pid, item in self.interactive_items.items():
+            if item in self.item_groups.get('slab', []):
+                ids_to_remove.append(pid)
+        
+        for pid in ids_to_remove:
+            if pid in self.interactive_items: del self.interactive_items[pid]
+            if pid in self.persistent_links: del self.persistent_links[pid]
+            
+        # 3. Limpar a lista de grupo
+        self.item_groups['slab'] = []
+        
+        # 4. Regenerar Snaps a partir da base (Remove fantasmas de lajes)
+        self.snap_points = self.base_snap_points.copy()
+        self.snap_segments = self.base_snap_segments.copy()
+        
+        # 5. Force Scene Update (Critical for Ghost removal)
+        self.scene.update()
+
     def draw_slabs(self, slabs_data: list):
-        """Desenha lajes identificadas e seus vínculos de segmento"""
+        """Desenha lajes apenas via seus vínculos de contorno (Unificação de visual)"""
+        # FIX: Limpar lajes anteriores antes de desenhar as novas
+        self.clear_slabs()
+        
         for s_data in slabs_data:
-            points = s_data.get('points')
-            if points:
-                item = SlabGraphicsItem(points, s_data.get('name'), s_data.get('area', 0))
-                item.setZValue(1) # Acima do background, abaixo dos pilares
-                self.scene.addItem(item)
-                
-                # Slabs também precisam ser 'interativos' para isolamento
-                if 'id' in s_data:
-                    self.interactive_items[s_data['id']] = item
-                    self.item_groups['slab'].append(item)
-                
-                # [NOVO] Registrar Snaps para o corpo da laje
-                if points:
-                    for i, pt in enumerate(points):
-                        self._add_snap_point(pt, 'endpoint')
-                        p_next = points[(i+1) % len(points)]
-                        self.snap_segments.append((pt, p_next))
-                        # Midpoint
-                        self._add_snap_point(((pt[0]+p_next[0])/2, (pt[1]+p_next[1])/2), 'midpoint')
-                
-                # AJUSTE 3: Desenhar vínculos de segmentos para a visão global
-                self.draw_item_links(s_data, destination='slab', clear=False)
+            # AJUSTE: O SlabGraphicsItem (Preenchimento Branco) agora é gerado 
+            # DENTRO do draw_item_links se houver um vínculo de 'contour'.
+            # Isso garante que se o vínculo sumir, a área branca suma também.
+            
+            # Registrar a laje para permitir busca/isolamento básico mesmo sem contorno (ainda)
+            # Mas o item real 'interativo' será o contorno criado no draw_item_links.
+            self.draw_item_links(s_data, destination='slab', clear=False)
+            
+        self.scene.update()
+            
+        self.scene.update()
+
+    def clear_beams(self):
+        """Remove visualizações de vigas existentes (labels e links)"""
+        if 'beam' in self.item_groups and self.item_groups['beam']:
+            for item in self.item_groups['beam']:
+                try: self.scene.removeItem(item)
+                except: pass
+        
+        # Limpar Destaques Temporários de Foco
+        for item in getattr(self, 'beam_visuals', []):
+            try: self.scene.removeItem(item)
+            except: pass
+        self.beam_visuals = []
+
+        ids_to_remove = []
+        for pid, item in self.interactive_items.items():
+            if item in self.item_groups.get('beam', []):
+                ids_to_remove.append(pid)
+        for pid in ids_to_remove:
+            if pid in self.interactive_items: del self.interactive_items[pid]
+            if pid in self.persistent_links: del self.persistent_links[pid]
+            
+        self.item_groups['beam'] = []
+        self.scene.update()
 
     def draw_beams(self, beams_data: list):
         """Desenha labels de identificação para todas as vigas e seus vínculos de segmento"""
+        self.clear_beams()
         for b_data in beams_data:
             pos = b_data.get('pos')
             if pos:
@@ -1047,17 +1386,20 @@ class CADCanvas(QGraphicsView):
         if clear: self.clear_beams() 
         
         # Se for para um grupo persistente, primeiro limpa o anterior desse item
-        if destination != 'focus' and item_id:
+        # AJUSTE: Só limpar se clear=True ou se não for slab destination (para evitar flickering em redraw full)
+        if destination != 'focus' and item_id and clear:
             self.clear_item_persistent_links(item_id)
         
         from PySide6.QtWidgets import QGraphicsSimpleTextItem
         from PySide6.QtGui import QPainterPath
         
-        # Pen para vínculos salvos (Cor depende do tipo)
+        # ... (Colors logic remains same) ...
         base_color = QColor(255, 0, 0) # Default Red
         type_str = target.get('type', '').lower()
-        if 'laje' in type_str:
-            base_color = QColor(0, 80, 255) # Azul Forte
+        if target.get('is_validated') and not 'laje' in type_str:
+            base_color = QColor(76, 175, 80) # Verde para Validados (Exceto Laje)
+        elif 'laje' in type_str:
+            base_color = QColor(0, 50, 150) # Azul Escuro (Marco)
         elif 'pilar' in type_str:
             base_color = QColor(0, 180, 0) # Verde Escuro
         else:
@@ -1068,11 +1410,40 @@ class CADCanvas(QGraphicsView):
         
         links = target.get('links', {})
         for field_id, slots in links.items():
-            slots_to_process = slots.values() if isinstance(slots, dict) else [slots]
+            # FILTRO: Para visões globais (slab/beam), focar apenas no contorno/geometria principal
+            # Evita poluição visual de textos de dimensão/nome em todos os itens
+            if destination == 'slab':
+                # print(f"[DEBUG CANVAS] Draw Slab Link Field: {field_id} | Target: {target.get('name')}")
+                if field_id not in ['laje_outline_segs', 'laje_islands']:
+                    continue
+            if destination == 'beam' and field_id != 'viga_segs':
+                continue
+                
+            # Iterate properly to log keys
+            if isinstance(slots, dict):
+                slots_to_process = list(slots.items())
+            else:
+                slots_to_process = [('value', slots)]
             
-            for link_list in slots_to_process:
+            for slot_name, link_list in slots_to_process:
+                # Custom Pen for specific slab slots to highlight them
+                local_pen = pen
+                if destination == 'slab':
+                     if 'acrescimo' in slot_name.lower():
+                          local_pen = QPen(QColor(255, 165, 0), 3) # Laranja para Acréscimos
+                          local_pen.setCosmetic(True)
+                     elif 'island' in slot_name.lower() or 'buraco' in slot_name.lower():
+                          local_pen = QPen(QColor(255, 0, 255), 2) # Magenta para Ilhas
+                          local_pen.setCosmetic(True)
+
+                # if destination == 'slab':
+                #      print(f"[DEBUG CANVAS] Slab {target.get('name')} | Field: {field_id} | Slot: {slot_name} | Links: {len(link_list)}")
                 for link in link_list:
                     l_type = link.get('type')
+                    if not l_type:
+                        # print(f"[DEBUG Canvas] Skipping link in {slot_name}: No Type")
+                        continue
+                    
                     item = None
                     # Texto
                     if l_type == 'text' and link.get('pos'):
@@ -1083,46 +1454,75 @@ class CADCanvas(QGraphicsView):
                         item.setZValue(105)
                         item.setFlag(QGraphicsSimpleTextItem.ItemIgnoresTransformations)
                     # Geometria (Linhas/Polys)
-                    elif (l_type in ['line', 'poly', 'geometry']) and link.get('points'):
+                    elif (l_type in ['line', 'poly', 'geometry']):
+                        if not link.get('points'):
+                             # print(f"[DEBUG Canvas] Skipping link in {slot_name}: Type {l_type} has NO POINTS")
+                             continue
                         pts = link['points']
-                        if pts and len(pts) >= 2:
+                        # Validar pontos (ignorar Z se vier 3D)
+                        if pts and len(pts) > 0:
+                            if len(pts[0]) > 2:
+                                pts = [(p[0], p[1]) for p in pts]
+                            
                             # [NOVO] Registrar Snaps para geometria de vínculo (Contornos, Linhas, etc)
-                            # Permite desenhar "grudado" nos vínculos
-                            if destination != 'focus': # Evita poluir snap com highlights temporários
+                            if destination != 'focus': 
                                 for i, pt in enumerate(pts):
-                                    self._add_snap_point(pt, 'endpoint') # Pontos
-                                    
-                                    # Segmentos e Midpoints
+                                    self._add_snap_point(pt, 'endpoint')
                                     if i < len(pts) - 1:
                                         p_next = pts[i+1]
                                         self.snap_segments.append((pt, p_next))
                                         self._add_snap_point(((pt[0]+p_next[0])/2, (pt[1]+p_next[1])/2), 'midpoint')
                                 
-                                # Fechamento se for Poly
                                 if l_type == 'poly' and pts[0] != pts[-1]:
                                     self.snap_segments.append((pts[-1], pts[0]))
                                     self._add_snap_point(((pts[-1][0]+pts[0][0])/2, (pts[-1][1]+pts[0][1])/2), 'midpoint')
 
-                            path = QPainterPath()
-                            path.moveTo(pts[0][0], pts[0][1])
-                            for p in pts[1:]: path.lineTo(p[0], p[1])
-                            if l_type == 'poly' or (len(pts) > 2 and pts[0] == pts[-1]):
-                                path.closeSubpath()
-                            item = self.scene.addPath(path, pen)
-                            item.setZValue(104)
+                            # --- AJUSTE: Laje usa SlabGraphicsItem para unir Borda + Fundo Branco ---
+                            is_closed = l_type == 'poly' or (len(pts) > 2 and pts[0] == pts[-1])
+                            
+                            # Apenas o CONTORNO vira SlabGraphicsItem. 
+                            # Acréscimos e Ilhas devem ser desenhados como PATHS para respeitar cores customizadas
+                            is_main_contour = slot_name == 'contour'
+                            
+                            if destination == 'slab' and is_closed and is_main_contour:
+                                # print(f"[DEBUG CANVAS] Creating SlabGraphicsItem for {target.get('name')}")
+                                item = SlabGraphicsItem(pts, label=None)
+                                item.set_validated(target.get('is_validated', False))
+                                # Se não estiver validado, forçamos o pen de destaque azul (ou o especificado no loop)
+                                if not target.get('is_validated'):
+                                    item.setPen(local_pen)
+                                item.setZValue(100) # Fundo (atrás dos segmentos)
+                                item.setToolTip(f"Slab: {target.get('name')} ({slot_name})")
+                                self.scene.addItem(item)
+                                # print(f"[DEBUG CANVAS] Added SlabGraphicsItem for {target.get('name')} ({slot_name})")
+                            else:
+                                path = QPainterPath()
+                                path.moveTo(pts[0][0], pts[0][1])
+                                for p in pts[1:]: path.lineTo(p[0], p[1])
+                                if is_closed: path.closeSubpath()
+                                item = self.scene.addPath(path, local_pen)
+                                item.setZValue(105) # Segmentos (na frente do fundo)
+                                # print(f"[DEBUG CANVAS] Added Path for {target.get('name')} ({slot_name}) | Type: {l_type}")
+
                     # Círculos
                     elif l_type == 'circle' and link.get('pos') and link.get('radius') is not None:
                         r = link['radius']
                         px, py = link['pos']
                         item = self.scene.addEllipse(px-r, py-r, r*2, r*2, pen)
                         item.setZValue(104)
+                        # print(f"[DEBUG CANVAS] Added Circle for {target.get('name')} ({slot_name})")
 
                     if item:
                         if destination == 'focus':
                             self.beam_visuals.append(item)
                         else:
-                            # Adicionar ao grupo persistente (Ajuste 2 e 3)
+                            # Adicionar ao grupo persistente
                             self.item_groups[destination].append(item)
+                            
+                            # [NOVO] Registrar como item interativo para isolamento se for o contorno
+                            if destination == 'slab' and item_id and isinstance(item, SlabGraphicsItem):
+                                self.interactive_items[item_id] = item
+                                
                             # Registrar para limpeza individual posterior
                             if item_id:
                                 if item_id not in self.persistent_links: self.persistent_links[item_id] = []
@@ -1141,7 +1541,7 @@ class CADCanvas(QGraphicsView):
         base_color = QColor(255, 0, 0) # Default Red
         if target:
             t_type = target.get('type', '').lower()
-            if 'laje' in t_type: base_color = QColor(0, 80, 255)
+            if 'laje' in t_type: base_color = QColor(0, 50, 150)
             elif 'pilar' in t_type: base_color = QColor(0, 180, 0)
             else: base_color = QColor(139, 69, 19) # Viga = Marrom
             
@@ -1270,6 +1670,31 @@ class CADCanvas(QGraphicsView):
             # Zoom suave no pilar (400px agradável)
             if apply_zoom:
                 self.fitInView(item.boundingRect().marginsAdded(QMarginsF(400, 400, 400, 400)), Qt.KeepAspectRatio)
+
+    def update_item_visuals(self, item_data):
+        """Atualiza a geometria principal do item no canvas (fantasma fix)"""
+        iid = item_data.get('id')
+        if not iid or iid not in self.interactive_items: return
+        
+        item = self.interactive_items[iid]
+        points = item_data.get('points')
+        if not points: return
+        
+        from PySide6.QtGui import QPolygonF
+        from PySide6.QtCore import QPointF
+        
+        poly = QPolygonF()
+        for x, y in points: poly.append(QPointF(x, y))
+        
+        # Se for um item de polígono (Pillar ou Slab)
+        if hasattr(item, 'setPolygon'):
+            item.setPolygon(poly)
+            # Reposicionar texto
+            if hasattr(item, 'text_item'):
+                 center = poly.boundingRect().center()
+                 item.text_item.setPos(center.x(), center.y())
+        
+        self.scene.update()
 
     def clear_item_persistent_links(self, item_id):
         """Remove links visuais persistentes de um item específico para evitar 'fantasmas' ao atualizar."""

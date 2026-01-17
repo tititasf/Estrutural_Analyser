@@ -1,0 +1,31 @@
+[project]
+name = "agente-cad-pyside"
+version = "1.0.0"
+description = "Agente CAD PySide - Structural Analysis App"
+authors = [
+    {name = "User", email = "user@example.com"},
+]
+dependencies = [
+    "PySide6",
+    "ezdxf",
+    "shapely",
+    "chromadb",
+    "numpy",
+    "google-generativeai",
+    "rtree",
+    "supabase",
+    "tufup",
+    "pydantic",
+    "python-dotenv"
+]
+requires-python = ">=3.10"
+
+[tool.tufup]
+app_name = "AgenteCAD"
+# version is taken from project.version usually, or specified here
+# Update URL should be the directory containing the 'repository' folder
+update_url = "CHANGEME_TO_YOUR_SUPABASE_STORAGE_URL/updates/" 
+
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
