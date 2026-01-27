@@ -22,11 +22,14 @@ ferramentas_LOAD_LISP/
 !src/assets/**/*.dwg
 !docs/**/*.dwg
 
+
 # Temporários e Downloads
 *.tmp
 *.crdownload
 *.vision
 test_part1.tmp
+repository/targets/*.tar.gz
+
 
 # Logs e Debugs
 *.log
