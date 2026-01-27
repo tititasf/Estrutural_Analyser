@@ -1,0 +1,108 @@
+{
+    "layers": {
+        "paineis": "Painéis",
+        "sarrafos_verticais": "SARR_2.2x7",
+        "sarrafos_horizontais": "SARR_2.2x7",
+        "sarrafos_horizontais_pequenos": "SARR_2.2x5",
+        "nome_observacoes": "NOMENCLATURA",
+        "textos_laterais": "5",
+        "cotas": "COTA",
+        "laje": "COTA",
+        "sarrafos_verticais_extremidades": "SARR_2.2x7",
+        "sarrafos_verticais_grades": "SARR_2.2x7",
+        "obstaculo": "COTAS",
+        "texto_pontaletes": "ESTRUTURACAO",
+        "parafuso": "BARRA_ANCORAGEM"
+    },
+    "comandos": {
+        "extensor1": "ex2",
+        "extensor2": "Bextend",
+        "app": "APP",
+        "appdel": "appdel",
+        "ABVET": "ABVET",
+        "ABVEF": "ABVEF",
+        "ABFDT": "ABFDT",
+        "ABVDT": "ABVDT",
+        "ABVDTV": "ABVDTV",
+        "ABVDF": "ABVDF",
+        "ABFDF": "ABFDF",
+        "apv2e": "apv2e",
+        "apv2": "apv2",
+        "apv2D": "apv2D",
+        "HHHH": "HHHH",
+        "HH": "HH",
+        "HHH": "HHH",
+        "hatch_amarelo_reap": "HHH"
+    },
+    "opcoes": {
+        "tipo_linha": "PLINE",
+        "parafuso_block": "PAR_ESQ"
+    },
+    "numeracao_blocos": {
+        "ativo": false,
+        "comandos": {
+            "1": "N1",
+            "2": "N2",
+            "3": "N3",
+            "4": "N4",
+            "5": "N5",
+            "6": "N6",
+            "7": "N7",
+            "8": "N8",
+            "9": "N9",
+            "10": "N10",
+            "11": "N11",
+            "12": "N12",
+            "13": "N13",
+            "14": "N14",
+            "15": "N15",
+            "16": "N16",
+            "17": "N17",
+            "18": "N18",
+            "19": "N19",
+            "20": "N20"
+        }
+    },
+    "templates": {
+        "Padrão": {
+            "layers": {
+                "paineis": "Painéis",
+                "sarrafos_verticais": "SARR_2.2x7",
+                "sarrafos_horizontais": "SARR_2.2x7",
+                "sarrafos_horizontais_pequenos": "SARR_2.2x5",
+                "nome_observacoes": "NOMENCLATURA",
+                "textos_laterais": "5",
+                "cotas": "COTA",
+                "laje": "COTA",
+                "sarrafos_verticais_extremidades": "SARR_2.2x7",
+                "sarrafos_verticais_grades": "SARR_2.2x7",
+                "obstaculo": "COTAS",
+                "texto_pontaletes": "ESTRUTURACAO",
+                "parafuso": "BARRA_ANCORAGEM"
+            },
+            "comandos": {
+                "extensor1": "ex2",
+                "extensor2": "Bextend",
+                "app": "APP",
+                "appdel": "appdel",
+                "ABVET": "ABVET",
+                "ABVEF": "ABVEF",
+                "ABFDT": "ABFDT",
+                "ABVDT": "ABVDT",
+                "ABVDTV": "ABVDTV",
+                "ABVDF": "ABVDF",
+                "ABFDF": "ABFDF",
+                "apv2e": "apv2e",
+                "apv2": "apv2",
+                "apv2D": "apv2D",
+                "HHHH": "HHHH",
+                "HH": "HH",
+                "HHH": "HHH",
+                "hatch_amarelo_reap": "HHH"
+            },
+            "opcoes": {
+                "tipo_linha": "PLINE"
+            }
+        }
+    }
+}

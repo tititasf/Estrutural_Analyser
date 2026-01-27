@@ -44,9 +44,9 @@ base_dir = os.path.dirname(os.path.abspath(__file__))
 parent_dir = os.path.dirname(base_dir)
 
 # Caminho do arquivo de dados
-dados_path = os.path.join(parent_dir, "fundos_salvos.pkl")
+dados_path = os.path.join(parent_dir, "fundos_salvos.json")
 if not os.path.exists(dados_path):
-    dados_path = os.path.join(base_dir, "fundos_salvos.pkl")
+    dados_path = os.path.join(base_dir, "fundos_salvos.json")
 
 # Limpar diretórios de build anteriores
 build_dir = os.path.join(base_dir, "build")
@@ -188,7 +188,7 @@ if not args.onefile:
     print(f"📦 Verificando recursos adicionais no diretório '{dest_dir}'...")
     
     # Verificar se o arquivo de dados foi copiado corretamente
-    dados_dest = os.path.join(dest_dir, "fundos_salvos.pkl")
+    dados_dest = os.path.join(dest_dir, "fundos_salvos.json")
     if not os.path.exists(dados_dest):
         print(f"⚠️ Arquivo de dados não encontrado em {dados_dest}. Copiando novamente...")
         try:

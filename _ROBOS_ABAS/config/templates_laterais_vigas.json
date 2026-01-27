@@ -1,0 +1,365 @@
+{
+    "layers": {
+        "paineis": "Painéis",
+        "sarrafos_verticais": "SARRAFO_2_2X7",
+        "sarrafos_horizontais": "SARRAFO_2_2X7",
+        "sarrafos_horizontais_pequenos": "SARRAFO_2_2X7",
+        "nome_observacoes": "NOMENCLATURA",
+        "textos_laterais": "DIVISAO",
+        "cotas": "COTA",
+        "laje": "HACHURACONCRETO",
+        "sarrafos_verticais_extremidades": "SARRAFO_2_2X7",
+        "sarrafos_verticais_grades": "MEIOPONTALETE",
+        "obstaculo": "HACHURACONCRETO",
+        "texto_pontaletes": "ESTRUTURACAO",
+        "parafuso": "BARRA_ANCORAGEM"
+    },
+    "comandos": {
+        "extensor1": "ex2",
+        "extensor2": "Bextend",
+        "app": "APP",
+        "appdel": "appdel",
+        "ABVET": "ABVETINI",
+        "ABVEF": "ABVEFINI",
+        "ABFET": "ABFETINI",
+        "ABFEF": "ABFEFINI",
+        "ABFDT": "ABFDTINI",
+        "ABVDT": "ABVDTINI",
+        "ABVDTV": "ABVDTINI",
+        "ABVDF": "ABVDFINI",
+        "ABFDF": "ABFDFINI",
+        "apv2e": "apv2eini",
+        "apv2": "apv2ini",
+        "apv2D": "apv2Dini",
+        "HHHH": "HHHH2",
+        "HH": "HH",
+        "HHH": "HHHH2",
+        "hatch_amarelo_reap": "HHH"
+    },
+    "opcoes": {
+        "tipo_linha": "MLINE",
+        "parafuso_block": "PAR_ESQ"
+    },
+    "templates": {
+        "Nova": {
+            "layers": {
+                "paineis": "Painéis",
+                "sarrafos_verticais": "SARR_2.2x7",
+                "sarrafos_horizontais": "SARR_2.2x7",
+                "sarrafos_horizontais_pequenos": "SARR_2.2x5",
+                "nome_observacoes": "NOMENCLATURA",
+                "textos_laterais": "5",
+                "cotas": "COTA",
+                "laje": "COTA"
+            },
+            "comandos": {
+                "ABFDF": "ABFDF",
+                "ABFDT": "ABFDT",
+                "ABVDF": "ABVDF",
+                "ABVDT": "ABVDT",
+                "ABVDTV": "ABVDTV",
+                "ABVEF": "ABVEF",
+                "ABVET": "ABVET",
+                "HH": "HH",
+                "HHH": "HHH",
+                "HHHH": "HHHH",
+                "app": "APP",
+                "appdel": "appdel",
+                "apv2": "apv2",
+                "apv2D": "apv2D",
+                "apv2e": "apv2e",
+                "extensor1": "ex2",
+                "extensor2": "Bextend"
+            },
+            "opcoes": {
+                "tipo_linha": "PLINE"
+            }
+        },
+        "INI": {
+            "layers": {
+                "paineis": "Painéis",
+                "sarrafos_verticais": "SARR_2.2x7",
+                "sarrafos_horizontais": "SARR_2.2x7",
+                "sarrafos_horizontais_pequenos": "SARR_2.2x5",
+                "nome_observacoes": "NOMENCLATURA",
+                "textos_laterais": "5",
+                "cotas": "COTA",
+                "laje": "COTA"
+            },
+            "comandos": {
+                "ABFDF": "ABFDF",
+                "ABFDT": "ABFDT",
+                "ABVDF": "ABVDF",
+                "ABVDT": "ABVDT",
+                "ABVDTV": "ABVDTV",
+                "ABVEF": "ABVEF",
+                "ABVET": "ABVET",
+                "HH": "HH",
+                "HHH": "HHH",
+                "HHHH": "HHHH",
+                "app": "APP",
+                "appdel": "appdel",
+                "apv2": "apv2",
+                "apv2D": "apv2D",
+                "apv2e": "apv2e",
+                "extensor1": "ex2",
+                "extensor2": "Bextend"
+            },
+            "opcoes": {
+                "tipo_linha": "MLINE"
+            }
+        },
+        "INI2": {
+            "layers": {
+                "paineis": "Painéis",
+                "sarrafos_verticais": "SARRAFO_2_2X7",
+                "sarrafos_horizontais": "SARRAFO_2_2X7",
+                "sarrafos_horizontais_pequenos": "SARRAFO_2_2X7",
+                "nome_observacoes": "NOMENCLATURA",
+                "textos_laterais": "DIVISAO",
+                "cotas": "COTA",
+                "laje": "HACHURACONCRETO"
+            },
+            "comandos": {
+                "ABFDF": "ABFDF",
+                "ABFDT": "ABFDT",
+                "ABVDF": "ABVDF",
+                "ABVDT": "ABVDT",
+                "ABVDTV": "ABVDTV",
+                "ABVEF": "ABVEF",
+                "ABVET": "ABVET",
+                "HH": "HH",
+                "HHH": "HHH",
+                "HHHH": "HHHH",
+                "app": "APP",
+                "appdel": "appdel",
+                "apv2": "apv2",
+                "apv2D": "apv2D",
+                "apv2e": "apv2e",
+                "extensor1": "ex2",
+                "extensor2": "Bextend"
+            },
+            "opcoes": {
+                "tipo_linha": "MLINE"
+            }
+        },
+        "2": {
+            "layers": {
+                "paineis": "Painéis",
+                "sarrafos_verticais": "SARRAFO_2_2X7",
+                "sarrafos_horizontais": "SARRAFO_2_2X7",
+                "sarrafos_horizontais_pequenos": "SARRAFO_2_2X7",
+                "nome_observacoes": "NOMENCLATURA",
+                "textos_laterais": "DIVISAO",
+                "cotas": "COTA",
+                "laje": "HACHURACONCRETO"
+            },
+            "comandos": {
+                "ABFDF": "ABFDF",
+                "ABFDT": "ABFDT",
+                "ABVDF": "ABVDF",
+                "ABVDT": "ABVDT",
+                "ABVDTV": "ABVDTV",
+                "ABVEF": "ABVEF",
+                "ABVET": "ABVET",
+                "HH": "HH",
+                "HHH": "HHH",
+                "HHHH": "HHHH",
+                "app": "APP",
+                "appdel": "appdel",
+                "apv2": "apv2",
+                "apv2D": "apv2D",
+                "apv2e": "apv2e",
+                "extensor1": "ex2",
+                "extensor2": "Bextend"
+            },
+            "opcoes": {
+                "tipo_linha": "MLINE"
+            }
+        },
+        "3": {
+            "layers": {
+                "paineis": "Painéis",
+                "sarrafos_verticais": "SARRAFO_2_2X7",
+                "sarrafos_horizontais": "SARRAFO_2_2X7",
+                "sarrafos_horizontais_pequenos": "SARRAFO_2_2X7",
+                "nome_observacoes": "NOMENCLATURA",
+                "textos_laterais": "DIVISAO",
+                "cotas": "COTA",
+                "laje": "HACHURACONCRETO",
+                "sarrafos_verticais_extremidades": "SARRAFO_2_2X7",
+                "sarrafos_verticais_grades": "MEIOPONTALETE"
+            },
+            "comandos": {
+                "ABFDF": "ABFDF",
+                "ABFDT": "ABFDT",
+                "ABVDF": "ABVDF",
+                "ABVDT": "ABVDT",
+                "ABVDTV": "ABVDTV",
+                "ABVEF": "ABVEF",
+                "ABVET": "ABVET",
+                "HH": "HH",
+                "HHH": "HHH",
+                "HHHH": "HHHH",
+                "app": "APP",
+                "appdel": "appdel",
+                "apv2": "apv2",
+                "apv2D": "apv2D",
+                "apv2e": "apv2e",
+                "extensor1": "ex2",
+                "extensor2": "Bextend"
+            },
+            "opcoes": {
+                "tipo_linha": "MLINE"
+            }
+        },
+        "4": {
+            "layers": {
+                "paineis": "Painéis",
+                "sarrafos_verticais": "SARRAFO_2_2X7",
+                "sarrafos_horizontais": "SARRAFO_2_2X7",
+                "sarrafos_horizontais_pequenos": "SARRAFO_2_2X7",
+                "nome_observacoes": "NOMENCLATURA",
+                "textos_laterais": "DIVISAO",
+                "cotas": "COTA",
+                "laje": "HACHURACONCRETO",
+                "sarrafos_verticais_extremidades": "SARRAFO_2_2X7",
+                "sarrafos_verticais_grades": "MEIOPONTALETE",
+                "obstaculo": "HACHURACONCRETO",
+                "texto_pontaletes": "ESTRUTURACAO"
+            },
+            "comandos": {
+                "ABFDF": "ABFDF",
+                "ABFDT": "ABFDT",
+                "ABVDF": "ABVDF",
+                "ABVDT": "ABVDT",
+                "ABVDTV": "ABVDTV",
+                "ABVEF": "ABVEF",
+                "ABVET": "ABVET",
+                "HH": "HH",
+                "HHH": "HHHH2",
+                "HHHH": "HHHH2",
+                "app": "APP",
+                "appdel": "appdel",
+                "apv2": "apv2",
+                "apv2D": "apv2D",
+                "apv2e": "apv2e",
+                "extensor1": "ex2",
+                "extensor2": "Bextend",
+                "hatch_amarelo_reap": "HHH"
+            },
+            "opcoes": {
+                "tipo_linha": "MLINE"
+            }
+        },
+        "5": {
+            "layers": {
+                "paineis": "Painéis",
+                "sarrafos_verticais": "SARRAFO_2_2X7",
+                "sarrafos_horizontais": "SARRAFO_2_2X7",
+                "sarrafos_horizontais_pequenos": "SARRAFO_2_2X7",
+                "nome_observacoes": "NOMENCLATURA",
+                "textos_laterais": "DIVISAO",
+                "cotas": "COTA",
+                "laje": "HACHURACONCRETO",
+                "sarrafos_verticais_extremidades": "SARRAFO_2_2X7",
+                "sarrafos_verticais_grades": "MEIOPONTALETE",
+                "obstaculo": "HACHURACONCRETO",
+                "texto_pontaletes": "ESTRUTURACAO",
+                "parafuso": "BARRA_ANCORAGEM"
+            },
+            "comandos": {
+                "ABFDF": "ABFDFINI",
+                "ABFDT": "ABFDTINI",
+                "ABVDF": "ABVDFINI",
+                "ABVDT": "ABVDTINI",
+                "ABVDTV": "ABVDTVINI",
+                "ABVEF": "ABVEFINI",
+                "ABVET": "ABVETINI",
+                "ABFET": "ABFETINI",
+                "ABFEF": "ABFEFINI",
+                "HH": "HH",
+                "HHH": "HHHH2",
+                "HHHH": "HHHH2",
+                "app": "APP",
+                "appdel": "appdel",
+                "apv2": "apv2",
+                "apv2D": "apv2D",
+                "apv2e": "apv2e",
+                "extensor1": "ex2",
+                "extensor2": "Bextend",
+                "hatch_amarelo_reap": "HHH"
+            },
+            "opcoes": {
+                "tipo_linha": "MLINE"
+            }
+        },
+        "6": {
+            "layers": {
+                "paineis": "Painéis",
+                "sarrafos_verticais": "SARRAFO_2_2X7",
+                "sarrafos_horizontais": "SARRAFO_2_2X7",
+                "sarrafos_horizontais_pequenos": "SARRAFO_2_2X7",
+                "nome_observacoes": "NOMENCLATURA",
+                "textos_laterais": "DIVISAO",
+                "cotas": "COTA",
+                "laje": "HACHURACONCRETO",
+                "sarrafos_verticais_extremidades": "SARRAFO_2_2X7",
+                "sarrafos_verticais_grades": "MEIOPONTALETE",
+                "obstaculo": "HACHURACONCRETO",
+                "texto_pontaletes": "ESTRUTURACAO",
+                "parafuso": "BARRA_ANCORAGEM"
+            },
+            "comandos": {
+                "ABFDF": "ABFDFINI",
+                "ABFDT": "ABFDTINI",
+                "ABVDF": "ABVDFINI",
+                "ABVDT": "ABVDTINI",
+                "ABVDTV": "ABVDTVINI",
+                "ABVEF": "ABVEFINI",
+                "ABVET": "ABVETINI",
+                "ABFET": "ABFETINI",
+                "ABFEF": "ABFEFINI",
+                "HH": "HH",
+                "HHH": "HHHH2",
+                "HHHH": "HHHH2",
+                "app": "APP",
+                "appdel": "appdel",
+                "apv2": "apv2",
+                "apv2D": "apv2D",
+                "apv2e": "apv2e",
+                "extensor1": "ex2",
+                "extensor2": "Bextend",
+                "hatch_amarelo_reap": "HHH"
+            },
+            "opcoes": {
+                "tipo_linha": "MLINE"
+            }
+        }
+    },
+    "numeracao_blocos": {
+        "ativo": true,
+        "comandos": {
+            "1": "N1I",
+            "2": "N2I",
+            "3": "N3I",
+            "4": "N4I",
+            "5": "N5I",
+            "6": "N6I",
+            "7": "N7I",
+            "8": "N8I",
+            "9": "N9I",
+            "10": "N10I",
+            "11": "N11I",
+            "12": "N12I",
+            "13": "N13I",
+            "14": "N14I",
+            "15": "N15I",
+            "16": "N16I",
+            "17": "N17I",
+            "18": "N18I",
+            "19": "N19I",
+            "20": "N20I"
+        }
+    }
+}

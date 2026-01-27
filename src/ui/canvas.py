@@ -154,6 +154,8 @@ from PySide6.QtGui import QPainter, QWheelEvent, QTransform, QPen, QColor, QBrus
 from src.ui.overlays import PillarGraphicsItem, SlabGraphicsItem
 from src.ui.overlays_beams import BeamGraphicsItem
 import math
+import os
+import base64
 
 class DXFLineItem(QGraphicsLineItem):
     """Custom Line Item that disables default selection dashed line"""
@@ -176,6 +178,74 @@ class CADCanvas(QGraphicsView):
     pillar_selected = Signal(int)
     pick_completed = Signal(dict) # Retorna dados estruturados do vínculo
 
+
+    def apply_filter(self, filter_type, value):
+        """Aplica filtros de seleção na cena (Instantâneo via Índice)."""
+        # Limpar seleção atual sem disparar sinais pesados
+        self.scene.blockSignals(True)
+        self.scene.clearSelection()
+        
+        target_items = []
+        
+        # Converter apelidos de cor
+        if filter_type == 'color':
+            if value == 'red': value = 1
+            elif value == 'yellow': value = 2
+            elif value == 'green': value = 3
+            elif value == 'blue': value = 5
+        
+        # Busca direta no índice
+        idx = self.filter_indices.get(filter_type, {})
+        target_items = idx.get(value, [])
+        
+        for item in target_items:
+            item.setSelected(True)
+                
+        self.scene.blockSignals(False)
+        # Uma única atualização de UI
+        self.scene.update()
+        self.log(f"Filtro '{filter_type}={value}': {len(target_items)} itens selecionados instantaneamente.")
+        return len(target_items)
+
+    def select_similar(self):
+        """Seleciona itens similares ao(s) item(ns) atualmente selecionado(s)."""
+        selected = self.scene.selectedItems()
+        if not selected: return
+        
+        # Baseado no primeiro item
+        ref_data = selected[0].data(0)
+        if not ref_data: return
+        
+        ref_layer = ref_data.get('layer')
+        ref_type = ref_data.get('type')
+        
+        count = 0
+        for item in self.scene.items():
+            data = item.data(0)
+            if not data: continue
+            
+            if data.get('layer') == ref_layer and data.get('type') == ref_type:
+                item.setSelected(True)
+                count += 1
+        
+        self.log(f"Select Similar: {count} itens identificados.")
+
+    def get_selected_entities(self):
+        """Retorna a lista de dicionários de entidades dos itens selecionados (para exportação)."""
+        entities = []
+        for item in self.scene.selectedItems():
+            data = item.data(0)
+            if data:
+                entities.append(data)
+        return entities
+
+    def delete_selected_entities_from_scene(self):
+        """Remove os itens visuais selecionados (Recorte)."""
+        selected = self.scene.selectedItems()
+        for item in selected:
+            self.scene.removeItem(item)
+            # Opcional: remover da lista interna self.dxf_entities se estiver sincronizando estado
+        return len(selected)
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -249,29 +319,88 @@ class CADCanvas(QGraphicsView):
         self._init_instruction_overlay()
         self._init_cad_toolbar()
         self._init_input_overlay()
+        self._init_loading_overlay()
         
-    def reset_for_new_project(self):
-        """Prepara o canvas para um novo projeto, isolando o estado anterior."""
-        # 1. Nova Cena (SEM PARENT para evitar auto-delete pelo View)
+        # Índices de filtragem (para performance O(1))
+        self.filter_indices = {
+            'layer': {}, # name -> [items]
+            'color': {}, # ACI -> [items]
+            'type': {}   # type -> [items]
+        }
+        self.dxf_metadata = {
+            'layers': set(),
+            'colors': set(),
+            'types': set()
+        }
+
+    def _init_loading_overlay(self):
+        self.loading_label = QLabel(self)
+        self.loading_label.setText("⌛ Carregando DXF...")
+        self.loading_label.setAlignment(Qt.AlignCenter)
+        self.loading_label.setStyleSheet("""
+            background: rgba(0, 0, 0, 180);
+            color: #00d4ff;
+            border: 2px solid #00d4ff;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            padding: 20px;
+        """)
+        self.loading_label.hide()
+
+    def set_loading(self, is_loading):
+        """Exibe ou esconde o overlay de carregamento."""
+        if not hasattr(self, 'loading_label'): return
+        
+        if is_loading:
+            self.loading_label.adjustSize()
+            x = (self.width() - self.loading_label.width()) // 2
+            y = (self.height() - self.loading_label.height()) // 2
+            self.loading_label.move(x, y)
+            self.loading_label.show()
+            self.loading_label.raise_()
+            QApplication.processEvents()
+        else:
+            self.loading_label.hide()
+
+    def reset_state(self):
+        """Limpa a cena e reseta referências."""
+        # 1. Trocar Cena (Garbage Collection da anterior)
+        # Manter sem parent para evitar que o View seja dono restritivo
         self.scene = QGraphicsScene() 
-        self.scene.setBackgroundBrush(QColor(40, 40, 40))
+        self.scene.setBackgroundBrush(QColor(40, 40, 40)) # Definir cor explicitamente na cena
         self.setScene(self.scene)
         
-        # 2. Resetar Estado Interno
+        # 2. Reconectar
+        try:
+            self.scene.selectionChanged.connect(self._on_selection_changed)
+        except: pass
+        
+        # 3. Limpar Variáveis
         self.interactive_items = {}
-        self.item_groups = {
-            'pillar': [],
-            'slab': [],
-            'beam': [],
-            'link': []
-        }
-        self.beam_visuals = []
-        self.persistent_links = {}
+        self.item_groups = {k: [] for k in ['pillar', 'slab', 'beam', 'link']}
         self.dxf_entities = []
         self.snap_points = []
         self.snap_segments = []
-        self.overlay_items = []
+        self.selection_box = None
+        self.temp_item = None
+        self.beam_visuals = []
+        self.persistent_links = {}
         self.snap_markers = {}
+        self.filter_indices = {'layer': {}, 'color': {}, 'type': {}}
+        self.dxf_metadata = {'layers': set(), 'colors': set(), 'types': set()}
+        
+        # 4. Re-inicializar Overlays
+        self._init_osnap_markers()
+        self._init_instruction_overlay()
+        self._init_input_overlay()
+        
+        # 5. Refresh View
+        self.resetTransform()
+        self.scale(1, -1) # Restore Y-up coordinate system
+        self.viewport().update()
+
+
         
         # 3. Reconectar Sinais da Cena
         try:
@@ -671,6 +800,10 @@ class CADCanvas(QGraphicsView):
             self.toolbar.setGeometry(0, 0, self.width(), 42)
         if hasattr(self, 'input_label'):
             self.input_label.move(10, self.height() - 50)
+        if hasattr(self, 'loading_label') and self.loading_label.isVisible():
+            x = (self.width() - self.loading_label.width()) // 2
+            y = (self.height() - self.loading_label.height()) // 2
+            self.loading_label.move(x, y)
 
     def set_category_visibility(self, category_to_show, show_links=True):
         """Alterna visibilidade: 'pillar', 'slab', 'beam', 'all'"""
@@ -887,6 +1020,31 @@ class CADCanvas(QGraphicsView):
         self.snap_points = []
         self.snap_segments = []
         
+        # [NOVO] Índices para filtragem instantânea
+        self.filter_indices = {'layer': {}, 'color': {}, 'type': {}}
+        self.dxf_metadata = {'layers': set(), 'colors': set(), 'types': set()}
+
+        # -------------------------------------------------------------
+        # OTIMIZAÇÃO DE PERFORMANCE (BATCH LOADING)
+        # -------------------------------------------------------------
+        # Desabilitar atualizações visuais e sinais durante a carga
+        prev_update_mode = self.viewportUpdateMode()
+        self.setViewportUpdateMode(QGraphicsView.NoViewportUpdate)
+        self.scene.blockSignals(True)
+
+        def _index_item(it, data, etype):
+            if not it or not data: return
+            lay = data.get('layer', '0')
+            aci = data.get('aci', 256)
+            self.filter_indices['layer'].setdefault(lay, []).append(it)
+            self.filter_indices['color'].setdefault(aci, []).append(it)
+            self.filter_indices['type'].setdefault(etype, []).append(it)
+            self.dxf_metadata['layers'].add(lay)
+            self.dxf_metadata['colors'].add(aci)
+            self.dxf_metadata['types'].add(etype)
+            # Vincular data ao item
+            it.setData(0, data)
+
         # Consolidar todas as entidades para busca/picking
         self.dxf_entities = entities.get('texts', []).copy()
         for l in entities.get('lines', []):
@@ -908,6 +1066,7 @@ class CADCanvas(QGraphicsView):
         
         # Helper para criar Pen a partir de cor DXF
         def get_pen(color_tuple, width=1):
+            if not color_tuple: color_tuple = (200, 200, 200)
             pen = QPen(QColor(*color_tuple), width)
             pen.setCosmetic(True)
             return pen
@@ -928,19 +1087,25 @@ class CADCanvas(QGraphicsView):
 
             if 'start_angle' in circ: # ARC
                 path = QPainterPath()
-                path.arcMoveTo(cx - r, cy - r, r * 2, r * 2, circ['start_angle'])
-                path.arcTo(cx - r, cy - r, r * 2, r * 2, circ['start_angle'], circ['end_angle'] - circ['start_angle'])
+                # Reparar lógica de arco para compatibilidade total
+                # Qt usa graus, ezdxf também.
+                rect = QRectF(cx - r, cy - r, r * 2, r * 2)
+                sa = circ['start_angle']
+                ea = circ['end_angle']
+                span = ea - sa
+                if span < 0: span += 360
+                path.arcMoveTo(rect, sa)
+                path.arcTo(rect, sa, span)
                 item = DXFPathItem(path)
                 item.setPen(get_pen(circ['color']))
                 self.scene.addItem(item)
+                _index_item(item, circ, 'arc')
             else: # CIRCLE
                 from PySide6.QtWidgets import QGraphicsEllipseItem
                 item = self.scene.addEllipse(cx - r, cy - r, r * 2, r * 2, get_pen(circ['color']))
-                # Circle default selection style is box, user complained about lines/polylines. 
-                # If circles also need custom highlight, we need DXFEllipseItem. 
-                # For now applying to lines/polylines as requested.
+                item.setFlag(QGraphicsItem.ItemIsSelectable)
+                _index_item(item, circ, 'circle')
                 
-            item.setFlag(QGraphicsItem.ItemIsSelectable)
             update_prog()
 
         # Draw Lines
@@ -952,6 +1117,7 @@ class CADCanvas(QGraphicsView):
             item.setFlag(QGraphicsItem.ItemIsSelectable) 
             self.snap_segments.append((s, e))
             calc_lines.append(line)
+            _index_item(item, line, 'line')
             
             # Midpoint
             mid = ((s[0]+e[0])/2, (s[1]+e[1])/2)
@@ -961,7 +1127,6 @@ class CADCanvas(QGraphicsView):
             update_prog()
 
         # Draw Polylines
-        
         for poly in entities.get('polylines', []):
             points = poly['points']
             if not points: continue
@@ -995,6 +1160,7 @@ class CADCanvas(QGraphicsView):
             item.setPen(get_pen(poly['color']))
             self.scene.addItem(item)
             item.setFlag(QGraphicsItem.ItemIsSelectable) 
+            _index_item(item, poly, 'lwpolyline')
             update_prog()
 
         # Calcular Interseções (Otimização: Ignorar se houver muitos elementos)
@@ -1033,6 +1199,7 @@ class CADCanvas(QGraphicsView):
             item.setFlag(QGraphicsItem.ItemIsSelectable)
             self.scene.addItem(item)
             self._add_snap_point((pos_x, pos_y), 'node')
+            _index_item(item, txt, 'text')
             update_prog()
             
         self._init_osnap_markers()
@@ -1072,6 +1239,13 @@ class CADCanvas(QGraphicsView):
                 self.fitInView(self.scene.itemsBoundingRect(), Qt.KeepAspectRatio)
         else:
             self.fitInView(self.scene.itemsBoundingRect(), Qt.KeepAspectRatio)
+
+        # -------------------------------------------------------------
+        # RESTAURAR ESTADO APÓS BATCH LOADING
+        # -------------------------------------------------------------
+        self.scene.blockSignals(False)
+        self.setViewportUpdateMode(prev_update_mode)
+        self.update() # Forçar repaint final
 
     def _init_osnap_markers(self):
         """Prepara os marcadores de snap (Quadrado, Triângulo, X)"""

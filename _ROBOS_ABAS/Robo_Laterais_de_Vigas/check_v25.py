@@ -1,9 +1,10 @@
-import pickle
+import json
 import sys
 
 try:
-    with open(r"d:\Users\rvene\Desktop\GITHUB\Automacao_cad\Vigas\fundos_salvos.pkl", "rb") as f:
-        data = pickle.load(f)
+    with open(r"d:\Users\rvene\Desktop\GITHUB\Automacao_cad\Vigas\fundos_salvos.json", 'r', encoding='utf-8') as f:
+
+        data  = json.load(f)
     viga = data.get("25")
     if viga:
         print(f"Alturas: {viga.get('paineis_alturas')}")

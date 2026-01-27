@@ -24,7 +24,7 @@ Script principal para RoboLateraisViga com sistema de licenciamento online.
 - `robo_laterais_viga_limpo233.py`: Contém a classe principal RoboLateraisViga
 - `funcoes_auxiliares.py`: Funções auxiliares para processamento
 - `template_robo.xlsx`: Template Excel para exportação
-- `fundos_salvos.pkl`: Arquivo de dados salvos  
+- `fundos_salvos.json`: Arquivo de dados salvos  
 
 📊 **Resumo Geral**
 Este script é o ponto de entrada principal para o aplicativo RoboLateraisViga com sistema de licenciamento online.

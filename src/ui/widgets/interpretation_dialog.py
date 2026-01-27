@@ -153,10 +153,10 @@ from PySide6.QtWidgets import (QDialog, QVBoxLayout, QLabel, QPlainTextEdit,
 from PySide6.QtCore import Qt
 
 class InterpretationDialog(QDialog):
-    def __init__(self, parent=None, field_label="", current_prompt="", current_patterns=""):
+    def __init__(self, parent=None, field_label="", current_prompt="", current_patterns="", current_patterns_na=""):
         super().__init__(parent)
         self.setWindowTitle(f"Detalhamento e Padrões - {field_label}")
-        self.resize(600, 500)
+        self.resize(600, 600)
         self.setStyleSheet("""
             QDialog {
                 background-color: #2b2b2b;
@@ -200,6 +200,16 @@ class InterpretationDialog(QDialog):
         
         layout.addWidget(lbl_patterns)
         layout.addWidget(self.txt_patterns)
+
+        # --- Padrões de Não Aplicação (NOVO) ---
+        lbl_patterns_na = QLabel("Padrões onde NÃO SE APLICA (Condições de Exclusão):")
+        self.txt_patterns_na = QPlainTextEdit()
+        self.txt_patterns_na.setPlaceholderText("Descreva quando este campo deve ser ignorado ou não se aplica...")
+        self.txt_patterns_na.setPlainText(current_patterns_na)
+        self.txt_patterns_na.setStyleSheet("color: #ffaaaa;") # Leve tom avermelhado para diferenciar/alertar use
+
+        layout.addWidget(lbl_patterns_na)
+        layout.addWidget(self.txt_patterns_na)
         
         # --- Botões ---
         buttons = QDialogButtonBox(QDialogButtonBox.Save | QDialogButtonBox.Cancel)
@@ -208,5 +218,5 @@ class InterpretationDialog(QDialog):
         layout.addWidget(buttons)
 
     def get_data(self):
-        """Retorna (prompt, patterns)"""
-        return self.txt_prompt.toPlainText(), self.txt_patterns.toPlainText()
+        """Retorna (prompt, patterns, patterns_na)"""
+        return self.txt_prompt.toPlainText(), self.txt_patterns.toPlainText(), self.txt_patterns_na.toPlainText()

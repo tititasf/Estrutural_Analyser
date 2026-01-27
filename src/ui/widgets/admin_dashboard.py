@@ -1,162 +1,51 @@
+import base64
+import json
 
-# Helper de ofuscação (adicionado automaticamente)
+# Helper de ofuscação corrigido
 def _get_obf_str(key):
-    """Retorna string ofuscada"""
-    _obf_map = {
-        _get_obf_str("script.google.com"): base64.b64decode("=02bj5SZsd2bvdmL0BXayN2c"[::-1].encode()).decode(),
-        _get_obf_str("macros/s/"): base64.b64decode("vM3Lz9mcjFWb"[::-1].encode()).decode(),
-        _get_obf_str("AKfycbz"): base64.b64decode("==geiNWemtUQ"[::-1].encode()).decode(),
-        _get_obf_str("credit"): base64.b64decode("0lGZlJ3Y"[::-1].encode()).decode(),
-        _get_obf_str("saldo"): base64.b64decode("=8GZsF2c"[::-1].encode()).decode(),
-        _get_obf_str("consumo"): base64.b64decode("==wbtV3cu92Y"[::-1].encode()).decode(),
-        _get_obf_str("api_key"): base64.b64decode("==Qelt2XpBXY"[::-1].encode()).decode(),
-        _get_obf_str("user_id"): base64.b64decode("==AZp9lclNXd"[::-1].encode()).decode(),
-        _get_obf_str("calcular_creditos"): base64.b64decode("=M3b0lGZlJ3YfJXYsV3YsF2Y"[::-1].encode()).decode(),
-        _get_obf_str("confirmar_consumo"): base64.b64decode("=8Wb1NnbvN2XyFWbylmZu92Y"[::-1].encode()).decode(),
-        _get_obf_str("consultar_saldo"): base64.b64decode("vRGbhN3XyFGdsV3cu92Y"[::-1].encode()).decode(),
-        _get_obf_str("debitar_creditos"): base64.b64decode("==wcvRXakVmcj9lchRXaiVGZ"[::-1].encode()).decode(),
-        _get_obf_str("CreditManager"): base64.b64decode("==gcldWYuFWT0lGZlJ3Q"[::-1].encode()).decode(),
-        _get_obf_str("obter_hwid"): base64.b64decode("==AZpdHafJXZ0J2b"[::-1].encode()).decode(),
-        _get_obf_str("generate_signature"): base64.b64decode("lJXd0Fmbnl2cfVGdhJXZuV2Z"[::-1].encode()).decode(),
-        _get_obf_str("encrypt_string"): base64.b64decode("=cmbpJHdz9Fdwlncj5WZ"[::-1].encode()).decode(),
-        _get_obf_str("decrypt_string"): base64.b64decode("=cmbpJHdz9FdwlncjVGZ"[::-1].encode()).decode(),
-        _get_obf_str("integrity_check"): base64.b64decode("rNWZoN2X5RXaydWZ05Wa"[::-1].encode()).decode(),
-        _get_obf_str("security_utils"): base64.b64decode("=MHbpRXdflHdpJXdjV2c"[::-1].encode()).decode(),
-        _get_obf_str("https://"): base64.b64decode("=8yL6MHc0RHa"[::-1].encode()).decode(),
-        _get_obf_str("google.com"): base64.b64decode("==QbvNmLlx2Zv92Z"[::-1].encode()).decode(),
-        _get_obf_str("apps.script"): base64.b64decode("=QHcpJ3Yz5ycwBXY"[::-1].encode()).decode(),
-    }
-    return _obf_map.get(key, key)
+    """Retorna string ofuscada (Versão Corrigida)"""
+    try:
+        _obf_map = {
+            "script.google.com": base64.b64decode("=02bj5SZsd2bvdmL0BXayN2c"[::-1].encode()).decode(),
+            "macros/s/": base64.b64decode("vM3Lz9mcjFWb"[::-1].encode()).decode(),
+            "AKfycbz": base64.b64decode("==geiNWemtUQ"[::-1].encode()).decode(),
+            "credit": base64.b64decode("0lGZlJ3Y"[::-1].encode()).decode(),
+            "saldo": base64.b64decode("=8GZsF2c"[::-1].encode()).decode(),
+            "consumo": base64.b64decode("==wbtV3cu92Y"[::-1].encode()).decode(),
+            "api_key": base64.b64decode("==Qelt2XpBXY"[::-1].encode()).decode(),
+            "user_id": base64.b64decode("==AZp9lclNXd"[::-1].encode()).decode(),
+            "calcular_creditos": base64.b64decode("=M3b0lGZlJ3YfJXYsV3YsF2Y"[::-1].encode()).decode(),
+            "confirmar_consumo": base64.b64decode("=8Wb1NnbvN2XyFWbylmZu92Y"[::-1].encode()).decode(),
+            "consultar_saldo": base64.b64decode("vRGbhN3XyFGdsV3cu92Y"[::-1].encode()).decode(),
+            "debitar_creditos": base64.b64decode("==wcvRXakVmcj9lchRXaiVGZ"[::-1].encode()).decode(),
+            "CreditManager": base64.b64decode("==gcldWYuFWT0lGZlJ3Q"[::-1].encode()).decode(),
+            "obter_hwid": base64.b64decode("==AZpdHafJXZ0J2b"[::-1].encode()).decode(),
+            "generate_signature": base64.b64decode("lJXd0Fmbnl2cfVGdhJXZuV2Z"[::-1].encode()).decode(),
+            "encrypt_string": base64.b64decode("=cmbpJHdz9Fdwlncj5WZ"[::-1].encode()).decode(),
+            "decrypt_string": base64.b64decode("=cmbpJHdz9FdwlncjVGZ"[::-1].encode()).decode(),
+            "integrity_check": base64.b64decode("rNWZoN2X5RXaydWZ05Wa"[::-1].encode()).decode(),
+            "security_utils": base64.b64decode("=MHbpRXdflHdpJXdjV2c"[::-1].encode()).decode(),
+            "https://": base64.b64decode("=8yL6MHc0RHa"[::-1].encode()).decode(),
+            "google.com": base64.b64decode("==QbvNmLlx2Zv92Z"[::-1].encode()).decode(),
+            "apps.script": base64.b64decode("=QHcpJ3Yz5ycwBXY"[::-1].encode()).decode(),
+        }
+        return _obf_map.get(key, key)
+    except Exception:
+        return key
 
-
-# Helper de ofuscação (adicionado automaticamente)
-def _get_obf_str(key):
-    """Retorna string ofuscada"""
-    _obf_map = {
-        _get_obf_str(_get_obf_str("script.google.com")): base64.b64decode("=02bj5SZsd2bvdmL0BXayN2c"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str("macros/s/")): base64.b64decode("vM3Lz9mcjFWb"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str("AKfycbz")): base64.b64decode("==geiNWemtUQ"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str("credit")): base64.b64decode("0lGZlJ3Y"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str("saldo")): base64.b64decode("=8GZsF2c"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str("consumo")): base64.b64decode("==wbtV3cu92Y"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str("api_key")): base64.b64decode("==Qelt2XpBXY"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str("user_id")): base64.b64decode("==AZp9lclNXd"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str("calcular_creditos")): base64.b64decode("=M3b0lGZlJ3YfJXYsV3YsF2Y"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str("confirmar_consumo")): base64.b64decode("=8Wb1NnbvN2XyFWbylmZu92Y"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str("consultar_saldo")): base64.b64decode("vRGbhN3XyFGdsV3cu92Y"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str("debitar_creditos")): base64.b64decode("==wcvRXakVmcj9lchRXaiVGZ"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str("CreditManager")): base64.b64decode("==gcldWYuFWT0lGZlJ3Q"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str("obter_hwid")): base64.b64decode("==AZpdHafJXZ0J2b"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str("generate_signature")): base64.b64decode("lJXd0Fmbnl2cfVGdhJXZuV2Z"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str("encrypt_string")): base64.b64decode("=cmbpJHdz9Fdwlncj5WZ"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str("decrypt_string")): base64.b64decode("=cmbpJHdz9FdwlncjVGZ"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str("integrity_check")): base64.b64decode("rNWZoN2X5RXaydWZ05Wa"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str("security_utils")): base64.b64decode("=MHbpRXdflHdpJXdjV2c"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str("https://")): base64.b64decode("=8yL6MHc0RHa"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str("google.com")): base64.b64decode("==QbvNmLlx2Zv92Z"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str("apps.script")): base64.b64decode("=QHcpJ3Yz5ycwBXY"[::-1].encode()).decode(),
-    }
-    return _obf_map.get(key, key)
-
-
-# Helper de ofuscação (adicionado automaticamente)
-def _get_obf_str(key):
-    """Retorna string ofuscada"""
-    _obf_map = {
-        _get_obf_str(_get_obf_str(_get_obf_str("script.google.com"))): base64.b64decode("=02bj5SZsd2bvdmL0BXayN2c"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str("macros/s/"))): base64.b64decode("vM3Lz9mcjFWb"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str("AKfycbz"))): base64.b64decode("==geiNWemtUQ"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str("credit"))): base64.b64decode("0lGZlJ3Y"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str("saldo"))): base64.b64decode("=8GZsF2c"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str("consumo"))): base64.b64decode("==wbtV3cu92Y"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str("api_key"))): base64.b64decode("==Qelt2XpBXY"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str("user_id"))): base64.b64decode("==AZp9lclNXd"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str("calcular_creditos"))): base64.b64decode("=M3b0lGZlJ3YfJXYsV3YsF2Y"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str("confirmar_consumo"))): base64.b64decode("=8Wb1NnbvN2XyFWbylmZu92Y"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str("consultar_saldo"))): base64.b64decode("vRGbhN3XyFGdsV3cu92Y"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str("debitar_creditos"))): base64.b64decode("==wcvRXakVmcj9lchRXaiVGZ"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str("CreditManager"))): base64.b64decode("==gcldWYuFWT0lGZlJ3Q"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str("obter_hwid"))): base64.b64decode("==AZpdHafJXZ0J2b"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str("generate_signature"))): base64.b64decode("lJXd0Fmbnl2cfVGdhJXZuV2Z"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str("encrypt_string"))): base64.b64decode("=cmbpJHdz9Fdwlncj5WZ"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str("decrypt_string"))): base64.b64decode("=cmbpJHdz9FdwlncjVGZ"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str("integrity_check"))): base64.b64decode("rNWZoN2X5RXaydWZ05Wa"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str("security_utils"))): base64.b64decode("=MHbpRXdflHdpJXdjV2c"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str("https://"))): base64.b64decode("=8yL6MHc0RHa"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str("google.com"))): base64.b64decode("==QbvNmLlx2Zv92Z"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str("apps.script"))): base64.b64decode("=QHcpJ3Yz5ycwBXY"[::-1].encode()).decode(),
-    }
-    return _obf_map.get(key, key)
-
-
-# Helper de ofuscação (adicionado automaticamente)
-def _get_obf_str(key):
-    """Retorna string ofuscada"""
-    _obf_map = {
-        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("script.google.com")))): base64.b64decode("=02bj5SZsd2bvdmL0BXayN2c"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("macros/s/")))): base64.b64decode("vM3Lz9mcjFWb"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("AKfycbz")))): base64.b64decode("==geiNWemtUQ"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("credit")))): base64.b64decode("0lGZlJ3Y"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("saldo")))): base64.b64decode("=8GZsF2c"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("consumo")))): base64.b64decode("==wbtV3cu92Y"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("api_key")))): base64.b64decode("==Qelt2XpBXY"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("user_id")))): base64.b64decode("==AZp9lclNXd"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("calcular_creditos")))): base64.b64decode("=M3b0lGZlJ3YfJXYsV3YsF2Y"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("confirmar_consumo")))): base64.b64decode("=8Wb1NnbvN2XyFWbylmZu92Y"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("consultar_saldo")))): base64.b64decode("vRGbhN3XyFGdsV3cu92Y"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("debitar_creditos")))): base64.b64decode("==wcvRXakVmcj9lchRXaiVGZ"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("CreditManager")))): base64.b64decode("==gcldWYuFWT0lGZlJ3Q"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("obter_hwid")))): base64.b64decode("==AZpdHafJXZ0J2b"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("generate_signature")))): base64.b64decode("lJXd0Fmbnl2cfVGdhJXZuV2Z"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("encrypt_string")))): base64.b64decode("=cmbpJHdz9Fdwlncj5WZ"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("decrypt_string")))): base64.b64decode("=cmbpJHdz9FdwlncjVGZ"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("integrity_check")))): base64.b64decode("rNWZoN2X5RXaydWZ05Wa"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("security_utils")))): base64.b64decode("=MHbpRXdflHdpJXdjV2c"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("https://")))): base64.b64decode("=8yL6MHc0RHa"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("google.com")))): base64.b64decode("==QbvNmLlx2Zv92Z"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("apps.script")))): base64.b64decode("=QHcpJ3Yz5ycwBXY"[::-1].encode()).decode(),
-    }
-    return _obf_map.get(key, key)
-
-
-# Helper de ofuscação (adicionado automaticamente)
-def _get_obf_str(key):
-    """Retorna string ofuscada"""
-    _obf_map = {
-        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("script.google.com"))))): base64.b64decode("=02bj5SZsd2bvdmL0BXayN2c"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("macros/s/"))))): base64.b64decode("vM3Lz9mcjFWb"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("AKfycbz"))))): base64.b64decode("==geiNWemtUQ"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("credit"))))): base64.b64decode("0lGZlJ3Y"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("saldo"))))): base64.b64decode("=8GZsF2c"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("consumo"))))): base64.b64decode("==wbtV3cu92Y"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("api_key"))))): base64.b64decode("==Qelt2XpBXY"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("user_id"))))): base64.b64decode("==AZp9lclNXd"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("calcular_creditos"))))): base64.b64decode("=M3b0lGZlJ3YfJXYsV3YsF2Y"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("confirmar_consumo"))))): base64.b64decode("=8Wb1NnbvN2XyFWbylmZu92Y"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("consultar_saldo"))))): base64.b64decode("vRGbhN3XyFGdsV3cu92Y"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("debitar_creditos"))))): base64.b64decode("==wcvRXakVmcj9lchRXaiVGZ"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("CreditManager"))))): base64.b64decode("==gcldWYuFWT0lGZlJ3Q"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("obter_hwid"))))): base64.b64decode("==AZpdHafJXZ0J2b"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("generate_signature"))))): base64.b64decode("lJXd0Fmbnl2cfVGdhJXZuV2Z"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("encrypt_string"))))): base64.b64decode("=cmbpJHdz9Fdwlncj5WZ"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("decrypt_string"))))): base64.b64decode("=cmbpJHdz9FdwlncjVGZ"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("integrity_check"))))): base64.b64decode("rNWZoN2X5RXaydWZ05Wa"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("security_utils"))))): base64.b64decode("=MHbpRXdflHdpJXdjV2c"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("https://"))))): base64.b64decode("=8yL6MHc0RHa"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("google.com"))))): base64.b64decode("==QbvNmLlx2Zv92Z"[::-1].encode()).decode(),
-        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("apps.script"))))): base64.b64decode("=QHcpJ3Yz5ycwBXY"[::-1].encode()).decode(),
-    }
-    return _obf_map.get(key, key)
 
 import logging
 from typing import Dict, List, Any
 from PySide6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel, 
                                 QFrame, QScrollArea, QTabWidget, QGridLayout, 
-                                QTableWidget, QTableWidgetItem, QHeaderView, QPushButton, QProgressBar)
+                                QTableWidget, QTableWidgetItem, QHeaderView, QPushButton, QProgressBar,
+                                QSplitter, QListWidget, QListWidgetItem, QTextEdit, QMessageBox)
 from PySide6.QtCore import Qt, QSize
 from PySide6.QtCharts import QChart, QChartView, QPieSeries, QBarSeries, QBarSet, QBarCategoryAxis, QValueAxis
 from PySide6.QtGui import QPainter, QLinearGradient, QColor, QGradient
 from src.ui.dialogs.project_details_dialog import ProjectDetailsDialog
+from src.ui.components.project_cards import CuradoriaCard
+from src.ui.widgets.data_pipeline import DataPipelineView
 
 class DashboardCard(QFrame):
     def __init__(self, title: str, value: str, subtext: str = "", color: str = "#007acc"):
@@ -238,66 +127,227 @@ class AdminDashboard(QWidget):
         layout.addWidget(self.tabs)
 
     def setup_curadoria_tab(self):
-        layout = QVBoxLayout(self.curadoria_tab)
+        """Nova UI: Lista de Obras (Esq) | Abas Detalhes (Dir)"""
+        main_layout = QHBoxLayout(self.curadoria_tab)
+        main_layout.setContentsMargins(0,0,0,0)
         
-        info = QLabel("🛡️ Projetos sincronizados pela comunidade para validação e treino global.")
-        info.setStyleSheet("font-style: italic; color: #888; margin-bottom: 5px;")
-        layout.addWidget(info)
+        splitter = QSplitter(Qt.Horizontal)
+        main_layout.addWidget(splitter)
         
-        self.comm_table = QTableWidget()
-        self.comm_table.setColumnCount(9)
-        # Headers Atualizados
-        headers = ["Projeto", "Obra", "Usuário", "Criado em", 
-                   "Itens (Azul / Total)", "Vínculos (Verde / Total)", 
-                   "Treino (Itens)", "Treino (Vínculos)", "Ações"]
-        self.comm_table.setHorizontalHeaderLabels(headers)
+        # --- PAINEL ESQUERDO: Lista de Obras em Nuvem ---
+        self.left_panel = QFrame()
+        self.left_panel.setStyleSheet("background: #1e1e1e; border-right: 1px solid #333;")
+        self.left_panel.setMinimumWidth(250)
+        self.left_panel.setMaximumWidth(350)
         
-        # Ajuste de Colunas (Layout Proporcional)
-        header = self.comm_table.horizontalHeader()
-        header.setSectionResizeMode(QHeaderView.Interactive) # Base
+        left_layout = QVBoxLayout(self.left_panel)
         
-        # 0: Projeto (Pequeno - ResizeToContents)
-        header.setSectionResizeMode(0, QHeaderView.ResizeToContents) 
+        lbl_works = QLabel("Obras em Nuvem")
+        lbl_works.setStyleSheet("font-size: 14px; font-weight: bold; color: #aaa; margin-bottom: 5px;")
+        left_layout.addWidget(lbl_works)
         
-        # 1: Obra (Stretch - Preenche espaço)
-        header.setSectionResizeMode(1, QHeaderView.Stretch)
+        self.list_cloud_works = QListWidget()
+        self.list_cloud_works.setStyleSheet("""
+            QListWidget { background: #252525; border: 1px solid #333; border-radius: 4px; padding: 5px; }
+            QListWidget::item { padding: 10px; color: #ccc; border-bottom: 1px solid #333; }
+            QListWidget::item:selected { background: #007acc; color: white; border-radius: 4px; }
+        """)
+        self.list_cloud_works.itemClicked.connect(self.on_cloud_work_selected)
+        left_layout.addWidget(self.list_cloud_works)
         
-        # 2: Usuário (ResizeToContents)
-        header.setSectionResizeMode(2, QHeaderView.ResizeToContents)
+        btn_layout = QHBoxLayout()
+        self.btn_refresh_cloud = QPushButton("🔄 Atualizar Lista")
+        self.btn_refresh_cloud.setStyleSheet("""
+            QPushButton { background: #333; color: white; border: 1px solid #444; padding: 6px; border-radius: 4px; }
+            QPushButton:hover { background: #444; }
+        """)
+        self.btn_refresh_cloud.clicked.connect(self.load_community_projects)
+        btn_layout.addWidget(self.btn_refresh_cloud)
         
-        # 3: Data (Fixo)
-        self.comm_table.setColumnWidth(3, 110)
+        self.btn_sync_full_work = QPushButton("☁️ Baixar Obra Completa")
+        self.btn_sync_full_work.setToolTip("Baixa todos os itens desta obra para o PC local.")
+        self.btn_sync_full_work.setStyleSheet("""
+            QPushButton { background: #1a324b; color: #00d4ff; border: 1px solid #00d4ff; padding: 6px; border-radius: 4px; font-weight: bold;}
+            QPushButton:hover { background: #00d4ff; color: #000; }
+        """)
+        self.btn_sync_full_work.clicked.connect(self.download_full_work)
+        self.btn_sync_full_work.setVisible(False)
+        btn_layout.addWidget(self.btn_sync_full_work)
         
-        # 4: Itens (Stretch fator 2)
-        header.setSectionResizeMode(4, QHeaderView.Stretch)
-        # 5: Vínculos (Stretch fator 2)
-        header.setSectionResizeMode(5, QHeaderView.Stretch)
+        left_layout.addLayout(btn_layout)
         
-        # 6 & 7: Treino (Stretch fator 1)
-        header.setSectionResizeMode(6, QHeaderView.Stretch)
-        header.setSectionResizeMode(7, QHeaderView.Stretch)
+        # --- PAINEL DIREITO: Abas da Obra Selecionada ---
+        self.right_panel = QWidget()
+        right_layout = QVBoxLayout(self.right_panel)
+        right_layout.setContentsMargins(10, 0, 0, 0)
         
-        # 8: Ações (Fixo)
-        self.comm_table.setColumnWidth(8, 160)
+        # Header da Obra
+        self.lbl_selected_cloud_work = QLabel("Selecione uma Obra")
+        self.lbl_selected_cloud_work.setStyleSheet("font-size: 18px; font-weight: bold; color: white;")
+        right_layout.addWidget(self.lbl_selected_cloud_work)
         
-        layout.addWidget(self.comm_table)
+        # Abas de Detalhes
+        self.work_tabs = QTabWidget()
+        self.work_tabs.setStyleSheet("""
+            QTabWidget::pane { border: 1px solid #333; background: #1a1a1a; }
+            QTabBar::tab { background: #222; color: #888; padding: 8px 16px; margin-right: 2px; }
+            QTabBar::tab:selected { background: #007acc; color: white; }
+        """)
         
-        btn_refresh = QPushButton("🔄 Atualizar Lista de Curadoria")
-        btn_refresh.clicked.connect(self.load_community_projects)
-        layout.addWidget(btn_refresh)
+        # Aba 1: Pavimentos (Cards)
+        self.tab_cloud_projects = QWidget()
+        self.tab_cloud_projects_layout = QVBoxLayout(self.tab_cloud_projects)
+        
+        self.cloud_scroll = QScrollArea()
+        self.cloud_scroll.setWidgetResizable(True)
+        self.cloud_scroll.setStyleSheet("background: transparent; border: none;")
+        
+        self.cloud_cards_container = QWidget()
+        self.cloud_cards_layout = QGridLayout(self.cloud_cards_container)
+        self.cloud_cards_layout.setAlignment(Qt.AlignTop | Qt.AlignLeft)
+        self.cloud_cards_layout.setSpacing(15)
+        
+        self.cloud_scroll.setWidget(self.cloud_cards_container)
+        self.tab_cloud_projects_layout.addWidget(self.cloud_scroll)
+        
+        self.work_tabs.addTab(self.tab_cloud_projects, "🏗️ Pavimentos")
+        
+        # Aba 2: Especificações Técnicas (ReadOnly)
+        self.tab_cloud_specs = QWidget()
+        self.specs_layout = QVBoxLayout(self.tab_cloud_specs)
+        self.txt_cloud_specs = QTextEdit()
+        self.txt_cloud_specs.setReadOnly(True)
+        self.txt_cloud_specs.setStyleSheet("background: #222; color: #ddd; border: 1px solid #333; padding: 10px;")
+        self.txt_cloud_specs.setPlaceholderText("Selecione uma obra para ver as especificações globais.")
+        self.specs_layout.addWidget(self.txt_cloud_specs)
+        self.work_tabs.addTab(self.tab_cloud_specs, "📝 Especificações Técnicas")
+        
+        # Aba 3: Documentos (Lista Simples)
+        self.tab_cloud_docs = QWidget()
+        self.docs_layout = QVBoxLayout(self.tab_cloud_docs)
+        self.list_cloud_docs = QListWidget()
+        self.list_cloud_docs.setStyleSheet("background: #222; color: #ddd; border: 1px solid #333;")
+        self.docs_layout.addWidget(self.list_cloud_docs)
+        self.work_tabs.addTab(self.tab_cloud_docs, "📂 Documentos")
+        
+        right_layout.addWidget(self.work_tabs)
+        
+        splitter.addWidget(self.left_panel)
+        splitter.addWidget(self.right_panel)
+        splitter.setStretchFactor(1, 1)
+
+    def on_cloud_work_selected(self, item):
+        """Ao clicar numa obra na lista da esquerda."""
+        work_name = item.data(Qt.UserRole)
+        self.lbl_selected_cloud_work.setText(f"🏢 {work_name}")
+        self.btn_sync_full_work.setVisible(True)
+        
+        # Filtrar projetos desta obra
+        filtered_projects = [p for p in self.all_cloud_projects 
+                             if p.get('metadata', {}).get('work_name') == work_name]
+        
+        # 1. Popular Cards de Pavimentos
+        for i in reversed(range(self.cloud_cards_layout.count())):
+            widget = self.cloud_cards_layout.itemAt(i).widget()
+            if widget: widget.setParent(None)
+            
+        row, col = 0, 0
+        max_cols = 3
+        
+        aggregated_specs = ""
+        aggregated_docs = []
+        
+        # Primeiro loop para coletar dados e criar cards
+        for p in filtered_projects:
+            card = CuradoriaCard(p)
+            card.train_requested.connect(self.import_for_training)
+            card.details_requested.connect(self.open_project_details)
+            card.sync_requested.connect(self.handle_sync_request)
+            self.cloud_cards_layout.addWidget(card, row, col)
+            col += 1
+            if col >= max_cols:
+                col = 0
+                row += 1
+            
+            # Coletar especificações de pavimentos
+            p_specs = p.get('metadata', {}).get('specifications', '') or ''
+            if p_specs:
+                aggregated_specs += f"--- {p.get('project_name')} ---\n{p_specs}\n\n"
+            
+            # Coletar documentos
+            w_docs = p.get('metadata', {}).get('work_documents', [])
+            for wd in w_docs:
+                if wd not in aggregated_docs: aggregated_docs.append(wd)
+
+        # 2. Popular Specs - Priorizando Informação da Obra
+        work_info_text = "Nenhuma especificação estrutural da obra encontrada."
+        for p in filtered_projects:
+            w_info = p.get('metadata', {}).get('work_info')
+            if w_info:
+                specs = w_info.get('specs') or ""
+                work_info_text = f"📊 ESPECIFICAÇÕES TÉCNICAS DA OBRA:\n"
+                work_info_text += "--------------------------------\n"
+                work_info_text += f"🏗️ PAVIMENTOS: {w_info.get('pavements') or '--'}\n"
+                work_info_text += f"🏢 TORRES: {w_info.get('towers') or '--'}\n"
+                work_info_text += f"🟦 TOTAL PILARES: {w_info.get('total_pilares') or '--'}\n"
+                work_info_text += f"🟩 TOTAL VIGAS: {w_info.get('total_vigas') or '--'}\n"
+                work_info_text += f"🟪 TOTAL LAJES: {w_info.get('total_lajes') or '--'}\n\n"
+                work_info_text += f"📝 NOTAS TÉCNICAS GERAIS:\n{specs if specs else 'Nenhuma nota adicional.'}\n"
+                break
+        
+        self.txt_cloud_specs.setText(work_info_text)
+        
+        if aggregated_specs:
+             self.txt_cloud_specs.append("\n" + "="*40 + "\n📜 NOTAS POR PAVIMENTO:\n\n" + aggregated_specs)
+        
+        # 3. Popular Documentos
+        self.list_cloud_docs.clear()
+        if aggregated_docs:
+            for d in aggregated_docs:
+                self.list_cloud_docs.addItem(f"📄 {d.get('name', 'Sem Nome')} ({d.get('category', 'Geral')})")
+        else:
+             self.list_cloud_docs.addItem("Nenhum documento de obra sincronizado.")
+             self.list_cloud_docs.addItem("Nenhum documento de obra sincronizado.")
+
+    def download_full_work(self):
+        """Baixa a obra completa selecionada."""
+        item = self.list_cloud_works.currentItem()
+        if not item: return
+        work_name = item.data(Qt.UserRole)
+        
+        reply = QMessageBox.question(self, "Baixar Obra Completa", 
+            f"Deseja baixar TODOS os dados da obra '{work_name}'?\nIsso pode sobrescrever dados locais se já existirem.",
+            QMessageBox.Yes | QMessageBox.No)
+            
+        if reply == QMessageBox.Yes:
+            # Reutiliza a lógica de sync individual num loop
+            projects = [p for p in self.all_cloud_projects 
+                        if p.get('metadata', {}).get('work_name') == work_name]
+            
+            success_count = 0
+            for p in projects:
+                # Mockando o objeto project_data para o handler
+                try:
+                    self.handle_sync_request(p)
+                    success_count += 1
+                except Exception as e:
+                    print(f"Erro ao baixar {p.get('project_name')}: {e}")
+            
+            QMessageBox.information(self, "Concluído", f"{success_count}/{len(projects)} itens processados.")
 
     def setup_db_tab(self):
         layout = QVBoxLayout(self.db_tab)
+        layout.setContentsMargins(10, 10, 10, 10)
         
-        # Cards row
-        self.cards_layout = QGridLayout()
-        layout.addLayout(self.cards_layout)
+        # Area de Rolagem para o Pipeline (pode ser longo)
+        scroll = QScrollArea()
+        scroll.setWidgetResizable(True)
+        scroll.setStyleSheet("background: transparent; border: none;")
         
-        # Chart placeholder
-        self.db_chart_view = QChartView()
-        self.db_chart_view.setRenderHint(QPainter.Antialiasing)
-        self.db_chart_view.setStyleSheet("background-color: transparent; border: 1px solid #333; border-radius: 8px;")
-        layout.addWidget(self.db_chart_view)
+        self.pipeline_view = DataPipelineView()
+        scroll.setWidget(self.pipeline_view)
+        
+        layout.addWidget(scroll)
 
     def setup_vector_tab(self):
         layout = QVBoxLayout(self.vector_tab)
@@ -328,47 +378,8 @@ class AdminDashboard(QWidget):
         stats = self.db.get_admin_stats()
         accuracy = self.db.get_accuracy_report()
         
-        # Update DB Cards
-        for i in reversed(range(self.cards_layout.count())):
-            self.cards_layout.itemAt(i).widget().setParent(None)
-            
-        self.cards_layout.addWidget(DashboardCard("Obras Ativas", str(stats.get('total_works', 0))), 0, 0)
-        self.cards_layout.addWidget(DashboardCard("Total Projetos", str(stats.get('total_projects', 0))), 0, 1)
-        self.cards_layout.addWidget(DashboardCard("Pilares", f"{stats.get('valid_pillars')}/{stats.get('total_pillars')}", "Validados"), 0, 2)
-        self.cards_layout.addWidget(DashboardCard("Vigas", f"{stats.get('valid_beams')}/{stats.get('total_beams')}", "Validados", "#28a745"), 1, 0)
-        self.cards_layout.addWidget(DashboardCard("Lajes", f"{stats.get('valid_slabs')}/{stats.get('total_slabs')}", "Validados", "#fd7e14"), 1, 1)
-
-        # Update DB Bars
-        series = QBarSeries()
-        set_total = QBarSet("Total de Itens")
-        set_valid = QBarSet("Validados")
-        
-        set_total.append([stats.get('total_pillars', 0), stats.get('total_beams', 0), stats.get('total_slabs', 0)])
-        set_valid.append([stats.get('valid_pillars', 0), stats.get('valid_beams', 0), stats.get('valid_slabs', 0)])
-        
-        series.append(set_total)
-        series.append(set_valid)
-        
-        chart = QChart()
-        chart.addSeries(series)
-        chart.setTitle("Comparativo de Produção da Comunidade")
-        chart.setAnimationOptions(QChart.SeriesAnimations)
-        
-        categories = ["Pilares", "Vigas", "Lajes"]
-        axis_x = QBarCategoryAxis()
-        axis_x.append(categories)
-        chart.addAxis(axis_x, Qt.AlignBottom)
-        series.attachAxis(axis_x)
-        
-        axis_y = QValueAxis()
-        chart.addAxis(axis_y, Qt.AlignLeft)
-        series.attachAxis(axis_y)
-        
-        chart.setBackgroundVisible(False)
-        chart.setTitleBrush(QColor("#fff"))
-        chart.legend().setLabelColor(QColor("#fff"))
-        
-        self.db_chart_view.setChart(chart)
+        # Update Data Pipeline
+        self.pipeline_view.refresh(stats)
 
         # Update Vector Dashboard
         if self.memory:
@@ -433,75 +444,101 @@ class AdminDashboard(QWidget):
             res = sync.supabase.table("cloud_projects").select("metadata").eq("id", project_id).single().execute()
             current_meta = res.data.get('metadata') or {}
             
-            # 2. Calculate Stats (Items)
-            pillars = current_meta.get('pillars', []) or []
-            beams = current_meta.get('beams', []) or []
-            slabs = current_meta.get('slabs', []) or []
-            
-            all_items = pillars + beams + slabs
-            total_items = len(all_items)
-            
-            # 3. Calculate Stats (Links/Fields)
-            total_links_expected = 0
-            total_links_validated = 0
-            
-            # Blue Items (Fully Validated)
-            fully_valid = 0
-            
-            for item in all_items:
-                # Item Validation (Blue Seal)
-                if item.get('is_fully_validated'):
-                    fully_valid += 1
-                
-                # Link Validation (Green Seal context)
-                # Define expected fields per type
-                # Pillar: ~12, Beam: ~10, Slab: ~6
-                itype = 'pillar' # default
-                if 'section' in item: itype = 'pillar' # heuristic
-                elif 'points' in item: itype = 'slab'
-                else: itype = 'beam'
+            # 2. Calculate Stats using robust helper
+            stats = self._calculate_project_stats(current_meta)
+            print(f"Stats Calculated: {stats}")
 
-                expected = 10 # generic average if unknown
-                if itype == 'pillar': expected = 12
-                elif itype == 'slab': expected = 6
-                elif itype == 'beam': expected = 10
-                
-                total_links_expected += expected
-                
-                # Count validated fields (Keys in 'validated_fields' dict)
-                v_fields = item.get('validated_fields', {})
-                # Count 'na_fields' (Keys in 'na_fields' dict) - New Requirement
-                na_fields = item.get('na_fields', {})
-                
-                # Combine unique keys from both valid and NA (overlap shouldn't happen but set handles it)
-                valid_keys = set(v_fields.keys()) | set(na_fields.keys())
-                total_links_validated += len(valid_keys)
-
-            print(f"Stats: Items={fully_valid}/{total_items}, Links={total_links_validated}/{total_links_expected}")
-
-            # 4. Update Metadata
+            # 3. Update Metadata
             current_meta['last_training_at'] = datetime.now().isoformat()
             
-            # Stats Block
-            current_meta['stats'] = {
-                'total_items': total_items,
-                'blue_items': fully_valid,
-                'total_links': total_links_expected,
-                'green_links': total_links_validated
-            }
-            # Legacy fields for backward compat
-            current_meta['training_items_count'] = total_items
-            current_meta['fully_validated_count'] = fully_valid
+            # Updated Stats Block (New Standard)
+            current_meta['stats'] = stats
             
-            # 5. Push update
+            # Legacy fields for backward compat
+            current_meta['training_items_count'] = stats['total_items']
+            current_meta['fully_validated_count'] = stats['finished_items']
+            current_meta['partially_validated_count'] = stats['started_items']
+            
+            # 4. Push update
             sync.supabase.table("cloud_projects").update({"metadata": current_meta}).eq("id", project_id).execute()
             
             # Refresh UI
             self.load_community_projects()
+            print(f"Training metadata updated for {project_id}")
+            
         except Exception as e:
             print(f"Error importing: {e}")
             import traceback
             traceback.print_exc()
+
+    def _calculate_project_stats(self, meta: dict) -> dict:
+        """
+        Calcula estatísticas detalhadas de progresso para usar nos cards.
+        Retorna: {
+            'total_items', 'started_items', 'finished_items', 
+            'total_links_expected', 'total_links_validated'
+        }
+        """
+        pillars = meta.get('pillars', []) or []
+        beams = meta.get('beams', []) or []
+        slabs = meta.get('slabs', []) or []
+        
+        all_items = pillars + beams + slabs
+        total_items = len(all_items)
+        
+        started_items = 0
+        finished_items = 0
+        
+        total_links_expected = 0
+        total_links_validated = 0
+        
+        for item in all_items:
+            # Heuristic Type Detection & Expected Fields
+            itype = 'pillar'
+            if 'points' in item and 'section' not in item: itype = 'slab'
+            elif 'section' not in item: itype = 'beam'
+            
+            # Estimated Field Counts (se não tiver schema)
+            expected = 10 
+            if itype == 'pillar': expected = 12
+            elif itype == 'slab': expected = 6
+            elif itype == 'beam': expected = 15
+            
+            total_links_expected += expected
+            
+            # Count validated + NA fields
+            v_fields = item.get('validated_fields', {})
+            na_fields = item.get('na_fields', {})
+            
+            # Unique valid/NA keys
+            done_keys = set(v_fields.keys()) | set(na_fields.keys())
+            count_done = len(done_keys)
+            
+            total_links_validated += count_done
+            
+            # Determine Status
+            # Finished: Explicito E todos campos
+            is_explicit_finish = item.get('is_fully_validated', False)
+            
+            # Regra: Se tiver explicitamente marcado como validado OU (se tiver campos suficientes e não for recém criado)
+            # Usuário pediu: "tem todos os campos validados/naose aplica ja configurados considerado ja feito 100%"
+            if is_explicit_finish or count_done >= expected:
+                finished_items += 1
+                # FIX: Legacy items might lack fields but be validated. Force link count to 100%
+                if count_done < expected:
+                    total_links_validated += (expected - count_done) if (expected - count_done) > 0 else 0
+
+            # Inclusive Started: If it has progress OR is finished, it counts as Started
+            if count_done > 0 or is_explicit_finish:
+                started_items += 1
+                
+        return {
+            'total_items': total_items,
+            'started_items': started_items,
+            'finished_items': finished_items,
+            'total_links_expected': total_links_expected,
+            'total_links_validated': total_links_validated
+        }
 
     def _create_progress_bar(self, value: int, total: int, color_full="#00d4ff", color_partial="#28a745"):
         """Helper para criar barra de progresso com texto 'Val / Total'"""
@@ -530,196 +567,57 @@ class AdminDashboard(QWidget):
         return pbar
 
     def load_community_projects(self):
-        """Busca projetos da nuvem para curadoria."""
-        from src.core.services.sync_service import SyncService
-        sync = SyncService()
-        projects = sync.list_community_projects()
+        """Busca projetos da nuvem e agrupa por obras."""
+        self.list_cloud_works.clear()
+        self.btn_sync_full_work.setVisible(False)
+        self.lbl_selected_cloud_work.setText("Selecione uma Obra")
         
-        self.comm_table.setRowCount(0)
-        for row, p in enumerate(projects):
-            self.comm_table.insertRow(row)
-            
-            try:
-                # 0: Nome Projeto
-                p_name = str(p.get('project_name') or p.get('name') or 'Sem Nome')
-                self.comm_table.setItem(row, 0, QTableWidgetItem(p_name))
-                
-                # 1: Obra
-                meta = p.get('metadata', {}) or {}
-                work_name = str(meta.get('work_name') or p.get('work_name') or '-')
-                self.comm_table.setItem(row, 1, QTableWidgetItem(work_name))
-                
-                # 2: User
-                user = str(p.get('created_by') or p.get(_get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("user_id")))))) or '?') # Ideally verify joined name
-                self.comm_table.setItem(row, 2, QTableWidgetItem(user[:8])) # Truncate UUID
-                
-                # 3: Data
-                created = p.get('created_at', '-')[:10]
-                self.comm_table.setItem(row, 3, QTableWidgetItem(created))
-
-                # Stats Analysis (Live Count vs Saved Stats)
-                # Se tiver stats salvos no metadata, usa. Senão, tenta estimar usando o payload JSON (se disponível)
-                stats = meta.get('stats', {})
-                
-                if not stats and ('project_data' in p or 'content' in p):
-                    # Tenta calcular on-the-fly se tivermos o JSON bruto
-                    try:
-                        raw_data = p.get('project_data') or p.get('content')
-                        if isinstance(raw_data, str):
-                            import json
-                            raw_data = json.loads(raw_data)
-                        
-                        if isinstance(raw_data, dict):
-                            _calc_items = 0
-                            _calc_blue = 0
-                            _calc_links_total = 0
-                            _calc_links_valid = 0
-                            
-                            all_items = []
-                            # Aggregate items from known layers/types
-                            if 'pillars' in raw_data: all_items.extend(raw_data['pillars'])
-                            if 'beams' in raw_data: all_items.extend(raw_data['beams'])
-                            if 'slabs' in raw_data: all_items.extend(raw_data['slabs'])
-                            # Legacy structure check
-                            if not all_items and 'layers' in raw_data:
-                                for layer in raw_data['layers'].values():
-                                    all_items.extend(layer.get('items', []))
-                                    
-                            _calc_items = len(all_items)
-                            
-                            for item in all_items:
-                                if item.get('is_fully_validated'): _calc_blue += 1
-                                
-                                # Heuristic Link Count
-                                itype = 'pillar'
-                                if 'section' in item: itype = 'pillar'
-                                elif 'points' in item: itype = 'slab'
-                                else: itype = 'beam'
-
-                                expected = 10
-                                if itype == 'pillar': expected = 12
-                                elif itype == 'slab': expected = 6
-                                elif itype == 'beam': expected = 10
-                                
-                                _calc_links_total += expected
-                                
-                                v_fields = item.get('validated_fields', {})
-                                na_fields = item.get('na_fields', {})
-                                valid_keys = set(v_fields.keys()) | set(na_fields.keys())
-                                _calc_links_valid += len(valid_keys)
-                            
-                            stats = {
-                                'total_items': _calc_items,
-                                'blue_items': _calc_blue,
-                                'total_links': _calc_links_total,
-                                'green_links': _calc_links_valid
-                            }
-                            # Opcional: print para debug
-                            print(f"[AdminDashboard] Calculated stats on-the-fly for {p_name}: {stats}")
-                    except Exception as e:
-                        print(f"[AdminDashboard] Failed to calc stats: {e}")
-
-                # 4: Itens (Azul / Total)
-                total_items = stats.get('total_items', int(meta.get('training_items_count', 0))) # Fallback
-                blue_items = stats.get('blue_items', int(meta.get('fully_validated_count', 0)))
-                
-                self.comm_table.setCellWidget(row, 4, self._create_progress_bar(blue_items, total_items, "#00d4ff", "#007acc"))
-
-                # 5: Vínculos (Verde / Total)
-                total_links = stats.get('total_links', 0)
-                green_links = stats.get('green_links', 0)
-                self.comm_table.setCellWidget(row, 5, self._create_progress_bar(green_links, total_links, "#28a745", "#28a745"))
-
-                # 6 & 7: Treino Nuvem (Itens e Links Treinados)
-                # Como "Treino" é o ato de salvar no Chroma, poderiamos ter uma métrica de "Vetores Gerados".
-                # Por simplificação, vamos replicar os stats salvos (que representam o ultimo Snapshot de treino).
-                
-                # Último Treino (Data) + Snapshot Itens
-                last_train = meta.get('last_training_at', '-')
-                if last_train != '-': 
-                    # Coluna 6: Itens no Snapshot
-                    self.comm_table.setCellWidget(row, 6, self._create_progress_bar(blue_items, total_items, "#6f42c1", "#6f42c1"))
-                    # Coluna 7: Links no Snapshot
-                    self.comm_table.setCellWidget(row, 7, self._create_progress_bar(green_links, total_links, "#6f42c1", "#6f42c1"))
-                else:
-                    self.comm_table.setItem(row, 6, QTableWidgetItem("-"))
-                    self.comm_table.setItem(row, 7, QTableWidgetItem("-"))
-
-                # 8: Ações
-                actions_widget = QWidget()
-                actions_layout = QHBoxLayout(actions_widget)
-                actions_layout.setContentsMargins(2, 2, 2, 2)
-                actions_layout.setSpacing(4)
-
-                btn_import = QPushButton("⬇️ Treinar")
-                btn_import.setStyleSheet("background: #2e7d32; border: 1px solid #444; color: white; font-weight: bold;")
-                btn_import.clicked.connect(lambda checked=False, pid=p['id'], items=total_items: self.import_for_training(pid, items))
-                
-                btn_details = QPushButton("🔍 Ficha")
-                btn_details.setStyleSheet("background: #007acc; border: 1px solid #444; color: white;")
-                btn_details.clicked.connect(lambda checked=False, proj=p: self.open_project_details(proj))
-
-                actions_layout.addWidget(btn_import)
-                actions_layout.addWidget(btn_details)
-                
-                self.comm_table.setCellWidget(row, 8, actions_widget)
-                
-            except Exception as e:
-                print(f"Error row {row}: {e}")
-                continue
-
-        # 1. Update Metadata in Supabase
-        from src.core.services.sync_service import SyncService
-        from datetime import datetime
-        
-    def import_for_training(self, project_id, total_items_fallback):
-        """Simula a importação para treino e atualiza o banco com estatísticas reais."""
-        print(f"Importing project {project_id} for training...")
-        
-        from src.core.services.sync_service import SyncService
-        from datetime import datetime
+        # Limpar cards
+        for i in reversed(range(self.cloud_cards_layout.count())):
+            self.cloud_cards_layout.itemAt(i).widget().setParent(None)
         
         try:
+            from src.core.services.sync_service import SyncService
             sync = SyncService()
-            
-            # 1. Fetch current full metadata
-            res = sync.supabase.table("cloud_projects").select("metadata").eq("id", project_id).single().execute()
-            current_meta = res.data.get('metadata') or {}
-            
-            # 2. Calculate Stats (Blue vs Green vs Total)
-            pillars = current_meta.get('pillars', []) or []
-            beams = current_meta.get('beams', []) or []
-            slabs = current_meta.get('slabs', []) or []
-            
-            all_items = pillars + beams + slabs
-            total_real = len(all_items)
-            
-            # Blue Seal (is_fully_validated == True)
-            fully_valid = sum(1 for i in all_items if i.get('is_fully_validated'))
-            
-            # Green Seal (Not Blue, but has validated_fields)
-            partially_valid = sum(1 for i in all_items if not i.get('is_fully_validated') and i.get('validated_fields'))
-            
-            print(f"Stats Calculated: Total={total_real}, Blue={fully_valid}, Green={partially_valid}")
-
-            # 3. Update Metadata
-            current_meta['last_training_at'] = datetime.now().isoformat()
-            current_meta['training_items_count'] = total_real
-            current_meta['fully_validated_count'] = fully_valid
-            current_meta['partially_validated_count'] = partially_valid
-            
-            # 4. Push update
-            sync.supabase.table("cloud_projects").update({"metadata": current_meta}).eq("id", project_id).execute()
-            
-            # Refresh UI
-            self.load_community_projects()
-            print(f"Training metadata updated for {project_id}")
-            
+            self.all_cloud_projects = sync.list_community_projects()
         except Exception as e:
-            print(f"Failed to import training data: {e}")
-            import traceback
-            traceback.print_exc()
+            print(f"Erro ao buscar projetos da nuvem: {e}")
+            self.all_cloud_projects = []
+            
+        # Agrupar Obras Únicas
+        works = set()
+        for p in self.all_cloud_projects:
+            # Processar Stats (mesma lógica de antes, mantida para garantir cards ricos)
+            self._enrich_project_stats(p)
+            
+            meta = p.get('metadata') or {}
+            w_name = meta.get('work_name') or "Sem Obra"
+            logging.info(f"[DEBUG] Found Cloud Work: {w_name} (Project ID: {p.get('id')})")
+            works.add(w_name)
+            
+        # Popular Lista Esquerda
+        for w in sorted(list(works)):
+            item = QListWidgetItem(f"🏢 {w}")
+            item.setData(Qt.UserRole, w)
+            self.list_cloud_works.addItem(item)
 
+    def _enrich_project_stats(self, p):
+        """Helper para calcular stats se faltarem no JSON."""
+        try:
+            meta = p.get('metadata', {}) or {}
+            p['metadata'] = meta # Ensure exist
+            
+            # Recalculate stats if possible to ensure consistency
+            if 'pillars' in meta or 'beams' in meta or 'slabs' in meta:
+                 meta['stats'] = self._calculate_project_stats(meta)
+            
+            stats = meta.get('stats', {})
+            
+            # Fallback Doc Stats se não vier do servidor
+            if 'doc_stats' not in meta:
+                 meta['doc_stats'] = { "ESTRUTURAL": 0, "DETALHES E VISÕES DE CORTES": 0, "PILARES": 0, "LATERAIS DE VIGAS": 0, "LAJES": 0 }
+        except Exception as e:
+            print(f"Error enriching stats: {e}")
 
     def open_project_details(self, project_data):
         """Abre a ficha técnica do projeto"""
@@ -732,5 +630,81 @@ class AdminDashboard(QWidget):
             dialog.exec()
         except Exception as e:
             print(f"Erro ao abrir ficha técnica: {e}")
+            import traceback
+            traceback.print_exc()
+
+    def handle_sync_request(self, project_data: dict):
+        """
+        Lida com o pedido de 'Sincronizar' (Baixar) do CuradoriaCard.
+        Verifica se o projeto existe localmente. Se não, baixa.
+        Verifica se a Obra existe localmente. Se não, cria.
+        """
+        try:
+            print(f"Iniciando Download/Sync do projeto {project_data.get('id')}...")
+            project_id = project_data.get('id')
+            project_name = project_data.get('project_name')
+            storage_path = project_data.get('storage_path')
+            
+            meta = project_data.get('metadata', {})
+            work_name = meta.get('work_name') or "Sem Obra"
+            client_email = meta.get('user_email')
+            
+            # 1. Verificar se já existe Local
+            local_proj = self.db.get_project_by_id(project_id)
+            if local_proj:
+                print(f"Projeto [{project_name}] já existe localmente (ID: {project_id}).")
+                from PySide6.QtWidgets import QMessageBox
+                QMessageBox.information(self, "Já existe", f"O projeto '{project_name}' já está na sua base local.")
+                return
+
+            print(f"Projeto não encontrado localmente. Baixando de {storage_path}...")
+            
+            # 2. Baixar JSON da Nuvem (SyncService)
+            from src.core.services.sync_service import SyncService
+            sync_service = SyncService()
+            
+            full_data_json = sync_service.download_project(storage_path)
+            
+            if not full_data_json:
+                print(f"Erro: Falha ao baixar ou JSON inválido para {storage_path}")
+                return
+
+            print("Download concluído. Processando estrutura...")
+
+            # 3. Garantir que a Obra Exista Localmente
+            conn = self.db._get_conn()
+            try:
+                cur = conn.execute("SELECT name FROM works WHERE name = ?", (work_name,))
+                if not cur.fetchone():
+                    print(f"Obra '{work_name}' não existe localmente. Criando...")
+                    client_id = None
+                    if client_email:
+                        cur_cli = conn.execute("SELECT id FROM clients WHERE email = ?", (client_email,))
+                        row_cli = cur_cli.fetchone()
+                        if row_cli:
+                            client_id = row_cli[0]
+                    self.db.create_work(work_name, client_id)
+                else:
+                    print(f"Obra '{work_name}' já existe. Vinculando.")
+            finally:
+                conn.close()
+
+            # 4. Importar Projeto Completo (Mantendo ID Original)
+            if 'project' in full_data_json:
+                 full_data_json['project']['id'] = project_id 
+                 full_data_json['project']['work_name'] = work_name
+
+            new_local_id = self.db.import_project_data(full_data_json)
+            
+            if new_local_id == project_id:
+                print(f"Sucesso! Projeto '{project_name}' importado com ID original {new_local_id}")
+                from PySide6.QtWidgets import QMessageBox
+                QMessageBox.information(self, "Sucesso", f"Projeto '{project_name}' baixado com sucesso!")
+                self.load_community_projects()
+            else:
+                print(f"Aviso: Projeto importado mas ID mudou? {new_local_id} != {project_id}")
+
+        except Exception as e:
+            print(f"Erro no fluxo de Download: {e}")
             import traceback
             traceback.print_exc()

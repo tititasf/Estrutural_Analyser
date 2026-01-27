@@ -108,3 +108,92 @@ QLabel#LogoLabel {
 QLabel#StatusOk { color: #4caf50; }
 QLabel#StatusWarning { color: #ffeb3b; }
 QLabel#StatusError { color: #f44336; }
+/* Dashboard Premium Styles */
+#TopBar {
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 #1a1a1a, stop:1 #222225);
+    border-bottom: 1px solid #333;
+}
+
+QTabWidget#ProjectTabs::pane {
+    background: #1a1a1a;
+    border: none;
+}
+
+QTabWidget#SubTabs::pane {
+    background: transparent;
+    border: none;
+}
+
+/* Metric Cards */
+MetricCard {
+    background-color: #1a1a1c;
+    border: 1px solid #2d2d30;
+    border-radius: 12px;
+}
+
+MetricCard:hover {
+    border-color: #0078d4;
+    background-color: #222225;
+}
+
+/* Central de Controle specific */
+#ProfileCard {
+    background-color: #1a1a1c;
+    border: 1px solid #2d2d30;
+    border-radius: 12px;
+}
+
+#SidePanel {
+    background-color: #121212;
+    border-right: 1px solid #2d2d30;
+}
+
+#TableContainer {
+    background-color: #1a1a1c;
+    border: 1px solid #2d2d30;
+    border-radius: 12px;
+}
+
+/* Buttons */
+QPushButton#PrimaryButton {
+    background-color: #0078d4;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    padding: 10px 20px;
+    font-weight: bold;
+}
+
+QPushButton#PrimaryButton:hover {
+    background-color: #0086f0;
+}
+
+QPushButton#PrimarySmall {
+    background-color: #0078d4;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    padding: 5px 12px;
+    font-size: 11px;
+    font-weight: bold;
+}
+
+/* Botões de Campo (Vincular, Zoom, Validar, N/A) */
+.FieldBtn {
+    font-size: 10px;
+    font-weight: bold;
+    border: 1px solid #333;
+    border-radius: 3px;
+    background: #252525;
+}
+
+.FieldBtn:hover {
+    background: #333;
+    border-color: #555;
+}
+
+/* ScrollArea do Detalhe */
+QScrollArea {
+    border: none;
+    background: transparent;
+}

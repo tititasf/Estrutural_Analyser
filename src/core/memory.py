@@ -152,6 +152,7 @@ import json
 import logging
 import uuid
 import os
+import traceback
 from typing import Dict, List, Any, Optional
 
 try:
@@ -216,10 +217,10 @@ class HierarchicalMemory:
         # 2. Persistir no SQLite
         self.db.log_training_event(
             project_id=project_id,
-            type=event_type,
+            event_type=event_type,
             role=role,
-            context_dna=dna_json,
-            target_value=str(label),
+            dna_json=dna_json,
+            target_val=str(label),
             status='valid'
         )
         
@@ -249,9 +250,29 @@ class HierarchicalMemory:
                     documents=[json.dumps(field_context, default=str)]
                 )
             except Exception as e:
-                import traceback
                 logging.error(f"Erro ao indexar no Chroma: {e}")
-                print(traceback.format_exc())
+
+    def remove_training_event(self, project_id: str, role: str, item_type: str):
+        """
+        Remove vetores associados do ChromaDB (Undo).
+        """
+        if not self.local_collection: return
+        
+        try:
+            # Removemos todos que batem com o contexto (Undo Hierárquico)
+            self.local_collection.delete(
+                where={
+                    "$and": [
+                        {"project_id": {"$eq": project_id}},
+                        {"role": {"$eq": role}},
+                        {"item_type": {"$eq": item_type}}
+                    ]
+                }
+            )
+            logging.info(f"🗑️ Vetores removidos da memória: {role} para projeto {project_id}")
+        except Exception as e:
+            logging.error(f"Erro ao remover vetores da memória: {e}")
+            print(traceback.format_exc())
 
     def retrieve_relevant_context(self, role: str, item_type: str, dna_vector: List[float]) -> Dict:
         """
@@ -276,11 +297,15 @@ class HierarchicalMemory:
             (results_local['avg_rel_pos'][1] + results_global['avg_rel_pos'][1]) / 2
         )
         
+        # Merge status: Prioridade Local, senao Global
+        merged_status = results_local.get('predicted_status', 'valid')
+        
         return {
             'avg_rel_pos': avg_pos,
             'samples': results_local['samples'] + results_global['samples'],
             'similarity': max(results_local['similarity'], results_global['similarity']),
-            'blocklist': list(set(results_local.get('blocklist', []) + results_global.get('blocklist', [])))
+            'blocklist': list(set(results_local.get('blocklist', []) + results_global.get('blocklist', []))),
+            'predicted_status': merged_status
         }
 
     def _query_collection(self, collection, role, item_type, dna_vector) -> Optional[Dict]:
@@ -295,18 +320,35 @@ class HierarchicalMemory:
             
             metas = results['metadatas'][0]
             dists = results['distances'][0]
-            valid_samples = [m for m, d in zip(metas, dists) if d < 0.2]
             
-            if not valid_samples: return None
+            # Filtrar por distância razoável
+            valid_samples_all = [(m, d) for m, d in zip(metas, dists) if d < 0.2]
+            if not valid_samples_all: return None
             
-            avg_dx = sum(m.get('learned_dx', 0) for m in valid_samples) / len(valid_samples)
-            avg_dy = sum(m.get('learned_dy', 0) for m in valid_samples) / len(valid_samples)
+            # Contagem de status para decidir se é N/A
+            na_count = sum(1 for m, _ in valid_samples_all if m.get('status') == 'user_na')
+            total_count = len(valid_samples_all)
+            
+            predicted_status = 'valid'
+            if na_count > (total_count / 2):
+                predicted_status = 'na'
+                
+            # Calcular média apenas dos registros válidos (se houver)
+            valid_pos_samples = [m for m, _ in valid_samples_all if m.get('status') != 'user_na']
+            
+            avg_dx = 0
+            avg_dy = 0
+            
+            if valid_pos_samples:
+                avg_dx = sum(m.get('learned_dx', 0) for m in valid_pos_samples) / len(valid_pos_samples)
+                avg_dy = sum(m.get('learned_dy', 0) for m in valid_pos_samples) / len(valid_pos_samples)
             
             return {
                 'avg_rel_pos': (avg_dx, avg_dy),
-                'samples': len(valid_samples),
-                'similarity': 1.0 - (sum(dists[:len(valid_samples)])/len(valid_samples)),
-                'blocklist': []
+                'samples': total_count,
+                'similarity': 1.0 - (sum(dists[:total_count])/total_count),
+                'blocklist': [],
+                'predicted_status': predicted_status
             }
         except Exception:
             return None

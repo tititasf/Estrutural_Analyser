@@ -1,5 +1,17 @@
-﻿import sys
+﻿import numpy as np # Force early initialization for Nuitka standalone
+import sys
 import os
+
+# Configurar encoding UTF-8 para terminal (resolve problemas no Cursor)
+if sys.platform == 'win32':
+    import io
+    # Forçar stdout/stderr para UTF-8
+    if hasattr(sys.stdout, 'reconfigure'):
+        sys.stdout.reconfigure(encoding='utf-8', errors='replace')
+    if hasattr(sys.stderr, 'reconfigure'):
+        sys.stderr.reconfigure(encoding='utf-8', errors='replace')
+    # Configurar variável de ambiente
+    os.environ['PYTHONIOENCODING'] = 'utf-8'
 # Adicionar caminho do Robo Laterais
 robo_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "_ROBOS_ABAS", "Robo_Laterais_de_Vigas")
 if robo_path not in sys.path:
@@ -7,7 +19,7 @@ if robo_path not in sys.path:
 
 # Tentar importar o robo
 try:
-    from robo_laterais_viga_pyside import VigaMainWindow
+    from robo_laterais_viga_pyside import VigaMainWindow  # type: ignore
 except ImportError as e:
     print(f"Erro ao importar Robo Laterais: {e}")
     VigaMainWindow = None
@@ -24,7 +36,7 @@ import requests
 
 # Tentar importar o robo Lajes (laje_src)
 try:
-    from laje_src.ui.main_window import MainWindow as LajeMainWindow
+    from laje_src.ui.main_window import MainWindow as LajeMainWindow  # type: ignore
 except ImportError as e:
     print(f"Erro ao importar Robo Lajes: {e}")
     LajeMainWindow = None
@@ -36,22 +48,31 @@ if robo_fundos_path not in sys.path:
 
 # Tentar importar o robo Fundos
 try:
-    from fundo_pyside import FundoMainWindow
+    from fundo_pyside import FundoMainWindow  # type: ignore
 except ImportError as e:
     print(f"Erro ao importar Robo Fundos: {e}")
     FundoMainWindow = None
 
 
-from typing import Dict, List, Any, Optional
+from typing import Dict, List, Any, Optional, TYPE_CHECKING
 import os
 import json
 import logging
+import sqlite3
+
+if TYPE_CHECKING:
+    # Stub para DXFPreprocessor - classe será implementada futuramente
+    class DXFPreprocessor:
+        def __init__(self, spatial_index: Any, memory: Any) -> None:
+            ...
+        def run_marco_analysis(self, dxf_data: Any, project_id: str) -> Dict[str, Any]:
+            ...
 from PySide6.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout, 
                                QHBoxLayout, QPushButton, QFileDialog, QDockWidget, 
                                QTextEdit, QLabel, QStackedWidget, QListWidget,
                                QListWidgetItem, QTabWidget, QSplitter, QLineEdit, QProgressBar,
                                QTreeWidget, QTreeWidgetItem, QMessageBox, QMenu, QScrollArea, QFrame,
-                               QComboBox, QTabBar)
+                               QComboBox, QTabBar, QRadioButton, QButtonGroup)
 from PySide6.QtGui import QColor
 from PySide6.QtCore import Qt, QSize, QTimer
 from src.ui.canvas import CADCanvas
@@ -73,6 +94,9 @@ from src.core.services.auth_service import AuthService
 from src.ui.organisms.login_widget import LoginWidget
 from src.ui.organisms.user_profile_dialog import UserProfileDialog
 from src.core.auth.models import UserProfile
+from src.ui.modules.diagnostic_hub import DiagnosticHubModule
+from src.ui.modules.comparison_engine import ComparisonEngineModule
+from src.core.services.data_coordinator import get_coordinator
 
 
 
@@ -81,8 +105,13 @@ robo_pilares_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "_R
 if robo_pilares_path not in sys.path:
     sys.path.append(robo_pilares_path)
 
+# Adicionar também o diretório src para imports diretos (models, services, etc.)
+robo_pilares_src_path = os.path.join(robo_pilares_path, "src")
+if robo_pilares_src_path not in sys.path:
+    sys.path.append(robo_pilares_src_path)
+
 try:
-    from bootstrap import create_pilares_widget
+    from bootstrap import create_pilares_widget  # type: ignore
 except ImportError as e:
     print(f"Erro ao importar Robo Pilares: {e}")
     create_pilares_widget = None
@@ -94,6 +123,42 @@ import uuid
 import re
 from src import config
 
+class LicensingProxy:
+    """Proxy para integrar o sistema de licenças central aos robôs legados."""
+    def __init__(self, main_window):
+        self.main_window = main_window
+    
+    @property
+    def user_data(self):
+        user = getattr(self.main_window, 'user_profile', None)
+        if not user: return None
+        return {
+            'nome': user.full_name or user.email,
+            'creditos': getattr(user, 'credits', 0.0)
+        }
+        
+    def consume_credits(self, amount):
+        # Libera por enquanto conforme solicitado ("libera por enquanto")
+        print(f"[LicensingProxy] Consumo de {amount:.2f} m² solicitado. Autorizando gratuitamente.")
+        return True, "Liberado (Modo Temporário)"
+
+    # Interface para o Robo Fundos (credit_manager)
+    def calcular_area_total(self, dados_fundo):
+        try:
+            largura = float(str(dados_fundo.get('largura', 0)).replace(',', '.'))
+            comprimento = float(str(dados_fundo.get('comprimento', 0)).replace(',', '.'))
+            return (largura * comprimento) / 10000.0
+        except: return 0.0
+
+    def consultar_saldo(self, force_refresh=False):
+        data = self.user_data
+        if not data: return False, 0.0
+        return True, data['creditos']
+
+    def debitar_multiplos_fundos(self, fundos_lista):
+        # Libera por enquanto
+        return True, "Débito Liberado (Temporário)"
+
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
@@ -102,8 +167,13 @@ class MainWindow(QMainWindow):
         self.setWindowState(Qt.WindowMaximized)
         
         # Estado
-        self.db = DatabaseManager() # SQLite persistencia
+        # Garantir que o banco seja criado no diretório do main.py
+        main_dir = os.path.dirname(os.path.abspath(__file__))
+        self.base_dir = main_dir
+        db_path = os.path.join(main_dir, "project_data.vision")
+        self.db = DatabaseManager(db_path=db_path) # SQLite persistencia
         self.memory = HierarchicalMemory(self.db)
+        self.auth_service = AuthService() # Initialize AuthService
         self.spatial_index = SpatialIndex()
 
         # Engines
@@ -116,12 +186,16 @@ class MainWindow(QMainWindow):
         self.beams_found = []
         self.beams_database = [] # Armazena dados de visualização das vigas por pilar
         
+        # Cache de Widgets de Item da Árvore para atualização O(1)
+        self.tree_item_map = {} # {item_id: [QTreeWidgetItem, ...]}
+        
         self.current_project_id = None
         self.current_project_name = "Sem Projeto"
         self.current_dxf_path = None
 
         # Perfil do Usuário
         self.user_profile = None
+        self.licensing_proxy = LicensingProxy(self)
 
         # Helper Engines
         self.slab_tracer = SlabTracer(self.spatial_index)
@@ -134,6 +208,7 @@ class MainWindow(QMainWindow):
         
         # Carregar configurações customizadas de vínculos
         self._load_link_configs()
+
 
     def load_stylesheet(self):
         try:
@@ -189,6 +264,13 @@ class MainWindow(QMainWindow):
         self.cmb_works.setFixedWidth(200)
         self.cmb_works.currentIndexChanged.connect(self._on_work_changed)
         layout.addWidget(self.cmb_works)
+
+        # Botão de refresh para debug
+        btn_refresh = QPushButton("🔄")
+        btn_refresh.setToolTip("Atualizar lista de obras")
+        btn_refresh.setFixedSize(30, 25)
+        btn_refresh.clicked.connect(self._refresh_nav_combos)
+        layout.addWidget(btn_refresh)
 
         # 4. Combo Pavimentos (Filta por Obra)
         layout.addWidget(QLabel("Pavimento:"))
@@ -282,11 +364,12 @@ class MainWindow(QMainWindow):
     def open_project_manager(self):
         """Abre o gerenciador de projetos."""
         if not hasattr(self, 'project_manager'):
-            self.project_manager = ProjectManager(self.db, self.memory)
+            self.project_manager = ProjectManager(self.db, self.memory, self.auth_service)
             self.project_manager.project_selected.connect(lambda pid, name, path: self._open_project_tab(pid, name))
             # Sincronização Sinais
             self.project_manager.obra_created_globally.connect(self.on_global_obra_created)
             self.project_manager.project_created_globally.connect(self.on_global_project_created)
+            self.project_manager.request_tab_switch.connect(self.switch_to_tab)
             
         self.project_manager.setWindowState(Qt.WindowMaximized)
         self.project_manager.show()
@@ -294,8 +377,17 @@ class MainWindow(QMainWindow):
     def on_global_obra_created(self, work_name):
         self.log(f"🏠 Sincronizando Obra Global: {work_name}")
         self._refresh_nav_combos()
-        # Sincronização centralizada
-        self.sync_robots_with_master_context(work_name)
+
+    def switch_to_tab(self, index):
+        """Alterna para a aba solicitada (0=Pre, 1=Struc, 2=Pos)"""
+        if hasattr(self, 'tabs') and index < self.tabs.count():
+            self.tabs.setCurrentIndex(index)
+            # Ensure window is front if minimized (optional)
+            self.raise_()
+            self.activateWindow()
+        # Sincronização centralizada - usar obra atual se disponível
+        if hasattr(self, 'current_work_name') and self.current_work_name:
+            self.sync_robots_with_master_context(self.current_work_name)
         
     def on_global_project_created(self, work_name, project_name, project_id=None):
         self.log(f"🏗️ Sincronizando Projeto/Pavimento Global: {project_name} em {work_name} (ID: {project_id})")
@@ -372,12 +464,20 @@ class MainWindow(QMainWindow):
         """Popula o combobox de Obras do Banco de Dados."""
         if not hasattr(self, 'db'): return
 
+        # Sync Legacy Data first
+        # DESABILITADO: Sincronização reversa (Robô -> Banco)
+        # O "gerenciar projetos" é a hierarquia máxima e popula os robôs.
+        # Quando criar passo de reversão, reativar aqui.
+        # self._sync_legacy_works()
+
         current_work = self.cmb_works.currentText()
         self.cmb_works.blockSignals(True)
         self.cmb_works.clear()
         
         try:
             works = self.db.get_all_works()
+            self.log(f"📋 Encontradas {len(works)} obras no banco: {works}")
+            
             self.cmb_works.addItems(works)
         except Exception as e:
             self.log(f"Erro carregando obras: {e}")
@@ -394,6 +494,204 @@ class MainWindow(QMainWindow):
         # Force pavement update if work selected
         if self.cmb_works.currentIndex() >= 0:
             self._on_work_changed()
+    
+    def _debug_works_pavements_documents(self, works: list):
+        """Depura todas as obras, seus pavimentos e documentos."""
+        print("\n" + "="*80)
+        print("🔍 DEBUG: DEPURAÇÃO DE OBRAS, PAVIMENTOS E DOCUMENTOS")
+        print("="*80)
+        
+        # DEBUG: Verificar TODOS os documentos na tabela (independente de vínculo)
+        print("\n📋 VERIFICAÇÃO COMPLETA DA TABELA project_documents:")
+        print("-" * 80)
+        conn = self.db._get_conn()
+        conn.row_factory = sqlite3.Row
+        try:
+            # Verificar estrutura da tabela
+            cursor = conn.execute("PRAGMA table_info(project_documents)")
+            columns = cursor.fetchall()
+            print("  Estrutura da tabela:")
+            for col in columns:
+                print(f"    - {col[1]} ({col[2]})")
+            
+            # Buscar TODOS os documentos
+            cursor = conn.execute("SELECT * FROM project_documents")
+            all_docs = cursor.fetchall()
+            print(f"\n  📊 Total de documentos na tabela: {len(all_docs)}")
+            
+            if all_docs:
+                print("  📄 Documentos encontrados:")
+                for doc in all_docs:
+                    doc_dict = dict(doc)
+                    doc_id = doc_dict.get('id', 'N/A')
+                    doc_name = doc_dict.get('name', 'Sem nome')
+                    project_id = doc_dict.get('project_id') or 'NULL'
+                    work_name = doc_dict.get('work_name') or 'NULL'
+                    file_path = doc_dict.get('file_path') or 'NULL'
+                    print(f"    - {doc_name}")
+                    print(f"      ID: {doc_id}")
+                    print(f"      project_id: {project_id}")
+                    print(f"      work_name: {work_name}")
+                    if file_path and file_path != 'NULL':
+                        print(f"      file_path: {file_path}")
+                        
+                # Verificar especificamente o projeto P-1
+                p1_id = "43b93bed-8af8-473f-9d27-0d99b4d0764a"
+                print(f"\n  🔍 Buscando documentos para P-1 (ID: {p1_id}):")
+                cursor = conn.execute("SELECT * FROM project_documents WHERE project_id = ?", (p1_id,))
+                p1_docs = cursor.fetchall()
+                print(f"    Encontrados: {len(p1_docs)}")
+                if p1_docs:
+                    for doc in p1_docs:
+                        doc_dict = dict(doc)
+                        print(f"      - {doc_dict.get('name', 'Sem nome')} (ID: {doc_dict.get('id', 'N/A')})")
+                else:
+                    print("    ⚠️ Nenhum documento encontrado com project_id = P-1")
+                    
+                # Verificar documentos com work_name = OBRA-TESTE1
+                print(f"\n  🔍 Buscando documentos para OBRA-TESTE1 (work_name):")
+                cursor = conn.execute("SELECT * FROM project_documents WHERE work_name = ?", ('OBRA-TESTE1',))
+                obra_docs = cursor.fetchall()
+                print(f"    Encontrados: {len(obra_docs)}")
+                if obra_docs:
+                    for doc in obra_docs:
+                        doc_dict = dict(doc)
+                        print(f"      - {doc_dict.get('name', 'Sem nome')} (ID: {doc_dict.get('id', 'N/A')}, project_id: {doc_dict.get('project_id', 'NULL')})")
+                else:
+                    print("    ⚠️ Nenhum documento encontrado com work_name = OBRA-TESTE1")
+                    
+                # Verificar documentos sem project_id mas com work_name
+                print(f"\n  🔍 Buscando documentos sem project_id mas com work_name:")
+                cursor = conn.execute("SELECT * FROM project_documents WHERE (project_id IS NULL OR project_id = '') AND work_name IS NOT NULL AND work_name != ''")
+                orphan_docs = cursor.fetchall()
+                print(f"    Encontrados: {len(orphan_docs)}")
+                if orphan_docs:
+                    for doc in orphan_docs:
+                        doc_dict = dict(doc)
+                        print(f"      - {doc_dict.get('name', 'Sem nome')} (work_name: {doc_dict.get('work_name', 'NULL')}, project_id: {doc_dict.get('project_id', 'NULL')})")
+            else:
+                print("  ⚠️ NENHUM documento encontrado na tabela!")
+        except Exception as e:
+            print(f"  ❌ Erro ao verificar documentos: {e}")
+            import traceback
+            traceback.print_exc()
+        finally:
+            conn.close()
+        
+        all_projects = self.db.get_projects()
+        
+        for work_name in works:
+            print(f"\n📁 OBRA: {work_name}")
+            print("-" * 80)
+            
+            # Documentos da obra
+            work_docs = self.db.get_work_documents(work_name)
+            print(f"  📄 Documentos da Obra: {len(work_docs) if work_docs else 0}")
+            if work_docs:
+                for doc in work_docs:
+                    print(f"    - {doc.get('name', 'Sem nome')} (ID: {doc.get('id', 'N/A')})")
+                    if doc.get('file_path'):
+                        print(f"      Caminho: {doc.get('file_path')}")
+            else:
+                print("    ⚠️ Nenhum documento encontrado")
+            
+            # Pavimentos da obra
+            obra_projects = [p for p in all_projects if p.get('work_name') == work_name]
+            print(f"  🏗️ Pavimentos: {len(obra_projects)}")
+            
+            if obra_projects:
+                for proj in obra_projects:
+                    pav_name = proj.get('pavement_name') or proj.get('name', 'Sem nome')
+                    project_id = proj.get('id', 'N/A')
+                    print(f"\n    🏢 PAVIMENTO: {pav_name} (ID: {project_id})")
+                    
+                    # Documentos do pavimento
+                    proj_docs = self.db.get_project_documents(project_id)
+                    print(f"      📄 Documentos: {len(proj_docs) if proj_docs else 0}")
+                    if proj_docs:
+                        for doc in proj_docs:
+                            print(f"        - {doc.get('name', 'Sem nome')} (ID: {doc.get('id', 'N/A')})")
+                            if doc.get('file_path'):
+                                print(f"          Caminho: {doc.get('file_path')}")
+                    else:
+                        print("        ⚠️ Nenhum documento encontrado")
+                    
+                    # Dados do projeto
+                    if hasattr(self.db, 'load_pillars'):
+                        try:
+                            pilares = self.db.load_pillars(project_id)
+                            vigas = self.db.load_beams(project_id) if hasattr(self.db, 'load_beams') else []
+                            lajes = self.db.load_slabs(project_id) if hasattr(self.db, 'load_slabs') else []
+                            print(f"      📊 Dados: {len(pilares) if pilares else 0}P, {len(vigas) if vigas else 0}V, {len(lajes) if lajes else 0}L")
+                        except Exception as e:
+                            print(f"      ⚠️ Erro ao carregar dados: {e}")
+            else:
+                print("    ⚠️ Nenhum pavimento encontrado")
+        
+        print("\n" + "="*80)
+        print("✅ FIM DA DEPURAÇÃO")
+        print("="*80 + "\n")
+
+    def _sync_legacy_works(self):
+        """Sincroniza obras legadas carregadas pelo Robo Pilares para o DB principal."""
+        if not hasattr(self, 'robo_pilares') or not self.robo_pilares:
+            self.log("⚠️ Robo Pilares não disponível para sincronização")
+            return
+
+        try:
+            # Acessar VM do Robo Pilares
+            if hasattr(self.robo_pilares, 'vm'):
+                # Obras legadas carregadas (Lista de ObraModel)
+                legacy_obras = getattr(self.robo_pilares.vm, 'obras_collection', [])
+                self.log(f"🔍 Encontradas {len(legacy_obras)} obras legadas no Robo Pilares")
+                if not legacy_obras:
+                    self.log("⚠️ Nenhuma obra legada encontrada")
+                    return
+                
+                # Cache do estado atual do DB
+                db_works = set(self.db.get_all_works())
+                all_projects = self.db.get_projects()
+                # Lookup: (work_name, pavement_name) -> project_id
+                existing_projs = {}
+                for p in all_projects:
+                    wn = p.get('work_name')
+                    pn = p.get('pavement_name') or p.get('name')
+                    existing_projs[(wn, pn)] = p['id']
+
+                changes_made = False
+
+                for obra in legacy_obras:
+                    # 1. Obra
+                    if obra.nome not in db_works:
+                        self.log(f"📦 Importando Obra Legada: {obra.nome}")
+                        self.db.create_work(obra.nome)
+                        changes_made = True
+
+                    # 2. Pavimentos (Projetos)
+                    if hasattr(obra, 'pavimentos'):
+                        for pav in obra.pavimentos:
+                            key = (obra.nome, pav.nome)
+                            if key not in existing_projs:
+                                # print(f"[SYNC] Criando Projeto Legado: {pav.nome} em {obra.nome}")
+                                new_id = self.db.create_project(
+                                    name=pav.nome,
+                                    dxf_path="", # Não temos path no legado fácil?
+                                    author_name="Legacy Sync"
+                                )
+                                if new_id:
+                                    self.db.update_project_metadata(new_id, {
+                                        'work_name': obra.nome,
+                                        'pavement_name': pav.nome
+                                    })
+                                    changes_made = True
+                
+                if changes_made:
+                    self.log(f"✅ Sincronização de obras legadas concluída")
+                else:
+                    self.log(f"ℹ️ Nenhuma nova obra para sincronizar")
+
+        except Exception as e:
+            print(f"[SYNC ERROR] Falha ao sincronizar legado: {e}")
 
     def _on_work_changed(self):
         """Filtra os pavimentos baseados na Obra selecionada."""
@@ -405,22 +703,20 @@ class MainWindow(QMainWindow):
             self.cmb_pavements.blockSignals(False)
             return
 
+        # Notificar Coordenador Central
+        get_coordinator().set_work(work_name)
+
         # Busca todos os projetos e filtra por 'work_name'
-        # Idealmente o DB teria get_projects_by_work(name)
         all_projects = self.db.get_projects()
         
         # Filtra projetos que pertencem a esta Obra
         filtered = [p for p in all_projects if p.get('work_name') == work_name]
         
-        # Popula combo com (Nome Pavimento) -> UserRole = ProjectID
-        # Se 'pavement_name' vazio, usa 'name' do projeto
         for p in filtered:
             display_name = p.get('pavement_name') or p.get('name')
             self.cmb_pavements.addItem(display_name, p['id'])
 
         self.cmb_pavements.blockSignals(False)
-        
-        # Sincronizar robôs com a Obra
         self.sync_robots_with_master_context(work_name)
 
     def _on_pavement_changed(self):
@@ -430,6 +726,13 @@ class MainWindow(QMainWindow):
         
         project_id = self.cmb_pavements.itemData(idx)
         project_name = self.cmb_pavements.currentText()
+        
+        # Notificar Coordenador Central
+        get_coordinator().set_pavement(project_id, project_name)
+        
+        # Sincronizar robôs
+        work_name = self.cmb_works.currentText()
+        self.sync_robots_with_master_context(work_name, project_name, project_id)
         
         if project_id:
              self._open_project_tab(project_id, project_name)
@@ -585,10 +888,21 @@ class MainWindow(QMainWindow):
             if hasattr(self.canvas, 'reset_for_new_project'):
                  self.canvas.reset_for_new_project()
                  
+            # 4.1. Carregar APENAS dados estruturais do banco principal
+            # NÃO migrar dados dos robôs - cada robô mantém seus próprios dados separados
             self.load_project_action() # Lógica existente de povoar lists/canvas
 
         # 5. Atualizar Top Bar UI para refletir o projeto carregado (Fundamental para sync de abas)
         self._update_top_bar_UI(project_id)
+        
+        # 6. Atualizar documentos no ProjectManager se estiver aberto
+        if hasattr(self, 'project_manager') and self.project_manager:
+            if hasattr(self.project_manager, 'current_project_id') and self.project_manager.current_project_id != project_id:
+                # Se o projeto atual do ProjectManager é diferente, atualizar
+                self.project_manager.current_project_id = project_id
+                if hasattr(self.project_manager, 'refresh_documents'):
+                    self.project_manager.refresh_documents()
+                    self.log(f"📄 Documentos atualizados no ProjectManager para projeto {project_id}")
 
     def _update_top_bar_UI(self, project_id):
         """Sincroniza a barra superior (Works/Pavements/Levels) com o projeto atual."""
@@ -684,6 +998,46 @@ class MainWindow(QMainWindow):
         # self.meta_widget (Levels) -> TopBar
         # self.progress_container -> TopBar
         
+        # 1.5. Round Buttons Gerais - Tipo de Vigas (Visibilidade Constante)
+        h_radio_layout_geral = QHBoxLayout()
+        h_radio_layout_geral.setContentsMargins(0, 0, 0, 5)
+        
+        lbl_radio_geral = QLabel("Tipo Geral de Vigas:")
+        lbl_radio_geral.setStyleSheet("font-size: 10px; color: #ccc; font-weight: bold;")
+        h_radio_layout_geral.addWidget(lbl_radio_geral)
+        
+        self.rb_vigas_passam = QRadioButton("Vigas Passam")
+        self.rb_vigas_passam.setObjectName("rb_vigas_passam")
+        self.rb_vigas_passam.setStyleSheet("QRadioButton { font-size: 10px; color: #ccc; padding: 2px; }")
+        
+        self.rb_vigas_param = QRadioButton("Vigas Param")
+        self.rb_vigas_param.setObjectName("rb_vigas_param")
+        self.rb_vigas_param.setStyleSheet("QRadioButton { font-size: 10px; color: #ccc; padding: 2px; }")
+        
+        # ButtonGroup para garantir seleção única
+        self.btn_group_geral_vigas = QButtonGroup()
+        self.btn_group_geral_vigas.addButton(self.rb_vigas_passam, 0)  # 0 = Passam
+        self.btn_group_geral_vigas.addButton(self.rb_vigas_param, 1)  # 1 = Param
+        
+        # Nenhum selecionado por padrão (permite edição manual individual)
+        self.rb_vigas_passam.setChecked(False)
+        self.rb_vigas_param.setChecked(False)
+        
+        # Conectar mudanças para atualizar todos os itens
+        def on_tipo_geral_changed(checked):
+            if checked:
+                tipo = 'passa' if self.btn_group_geral_vigas.checkedId() == 0 else 'para'
+                self._update_all_beams_tipo_comp(tipo)
+        
+        self.rb_vigas_passam.toggled.connect(on_tipo_geral_changed)
+        self.rb_vigas_param.toggled.connect(on_tipo_geral_changed)
+        
+        h_radio_layout_geral.addWidget(self.rb_vigas_passam)
+        h_radio_layout_geral.addWidget(self.rb_vigas_param)
+        h_radio_layout_geral.addStretch()
+        
+        left_layout.addLayout(h_radio_layout_geral)
+        
         # 2. Botão de Análise (Imediatamente acima do Salvar)
 
         self.btn_process = QPushButton("🚀 Iniciar Análise Geral")
@@ -694,6 +1048,14 @@ class MainWindow(QMainWindow):
 
         # 2b. Botão Gerenciar Memória (Removido)
         # self.btn_mem removed (User request)
+
+        # 2c. Botão Refresh Dados (Manual)
+        self.btn_refresh_data = QPushButton("🔄 Atualizar Listas")
+        self.btn_refresh_data.setObjectName("Secondary")
+        self.btn_refresh_data.setToolTip("Recarregar dados do projeto e atualizar listas (Pillars, Beams, Slabs)")
+        self.btn_refresh_data.setStyleSheet("padding: 4px; font-size: 11px; height: 18px;")
+        self.btn_refresh_data.clicked.connect(self.refresh_lists_action)
+        left_layout.addWidget(self.btn_refresh_data)
 
         # 3. Botão Salvar
         self.btn_save = QPushButton("Salvar")
@@ -796,6 +1158,34 @@ class MainWindow(QMainWindow):
                 btn_sync_robo.clicked.connect(self.sync_slabs_to_robo_laje_action)
                 layout.addWidget(btn_sync_robo)
 
+            # Botão Sincronizar Robo Vigas (apenas para Vigas na aba de Análise)
+            if item_type == 'beam' and not is_library:
+                btn_laterais = QPushButton("🤖 Sincronizar Laterais de Vigas")
+                btn_laterais.setStyleSheet("background-color: #6610f2; color: white; padding: 4px; font-weight: bold; font-size: 10px;")
+                btn_laterais.clicked.connect(self.sync_beams_to_laterais_action)
+                layout.addWidget(btn_laterais)
+
+                btn_fundo = QPushButton("🤖 Sincronizar Fundo de Vigas")
+                btn_fundo.setStyleSheet("background-color: #6610f2; color: white; padding: 4px; font-weight: bold; font-size: 10px;")
+                btn_fundo.clicked.connect(self.sync_beams_to_fundo_action)
+                layout.addWidget(btn_fundo)
+
+            # Botão Sincronizar Robo Pilares (apenas para Pilar na aba de Análise)
+            if item_type == 'pillar' and not is_library:
+                btn_sync_pilar = QPushButton("🤖 Sincronizar Robo Pilares")
+                btn_sync_pilar.setStyleSheet("background-color: #6610f2; color: white; padding: 4px; font-weight: bold; font-size: 10px;")
+                btn_sync_pilar.setToolTip("Envia os pilares desta lista para o módulo Robo Pilares, calculando dimensões e níveis automaticamente.")
+                btn_sync_pilar.clicked.connect(self.sync_pillars_to_robo_pilares_action)
+                layout.addWidget(btn_sync_pilar)
+
+            # Botão Criar Comando LISP (apenas na aba de Análise)
+            if not is_library:
+                btn_create_lisp = QPushButton("📜 Criar Comando LISP")
+                btn_create_lisp.setStyleSheet("background-color: #28a745; color: white; padding: 4px; font-weight: bold; font-size: 10px;")
+                btn_create_lisp.setToolTip("Cria os arquivos comando_LAZ.lsp e script_LAZ.scr para execução no AutoCAD.")
+                btn_create_lisp.clicked.connect(lambda: self._create_laz_command_files())
+                layout.addWidget(btn_create_lisp)
+
             return container
 
         # --- TAB 1: ANÁLISE ATUAL (Pilares, Vigas, Lajes, Contorno, Issues) ---
@@ -806,25 +1196,27 @@ class MainWindow(QMainWindow):
         self.tabs_analysis_internal = QTabWidget()
         self.tabs_analysis_internal.setStyleSheet(STYLE_TABS)
         self.list_pillars = QTreeWidget()
-        self.list_pillars.setHeaderLabels(["Item", "Nome", "Status", "%"])
+        self.list_pillars.setHeaderLabels(["Item", "Nome", "Status"]) 
         self.list_pillars.setColumnWidth(0, 50)
-        self.list_pillars.setColumnWidth(1, 120)
-        self.list_pillars.setColumnWidth(2, 50)
-        self.list_pillars.setColumnWidth(3, 50)
+        self.list_pillars.setColumnWidth(1, 150)
+        self.list_pillars.setColumnWidth(2, 60)
 
         self.list_beams = QTreeWidget()
-        self.list_beams.setHeaderLabels(["Item", "Nome", "Status", "%"])
+        self.list_beams.setHeaderLabels(["Item", "Nome", "Status", "%", "Seg. A", "Seg. B"])
         self.list_beams.setColumnWidth(0, 50)
         self.list_beams.setColumnWidth(1, 120)
-        self.list_beams.setColumnWidth(2, 50)
-        self.list_beams.setColumnWidth(3, 50)
+        self.list_beams.setColumnWidth(2, 60)
+        self.list_beams.setColumnWidth(3, 40)
+        self.list_beams.setColumnWidth(4, 60)
+        self.list_beams.setColumnWidth(5, 60)
         
         self.list_slabs = QTreeWidget()
-        self.list_slabs.setHeaderLabels(["Item", "Nome", "Status", "%"])
+        self.list_slabs.setHeaderLabels(["Item", "Nome", "Status", "%", "Ação"]) # + Ação
         self.list_slabs.setColumnWidth(0, 50)
         self.list_slabs.setColumnWidth(1, 120)
         self.list_slabs.setColumnWidth(2, 50)
         self.list_slabs.setColumnWidth(3, 50)
+        self.list_slabs.setColumnWidth(4, 80)
 
         self.list_issues = QListWidget()
         
@@ -862,21 +1254,22 @@ class MainWindow(QMainWindow):
         self.tabs_library_internal.setStyleSheet(STYLE_TABS)
         
         self.list_pillars_valid = QTreeWidget()
-        self.list_pillars_valid.setHeaderLabels(["Item", "Nome", "Status", "%"])
+        self.list_pillars_valid.setHeaderLabels(["Item", "Nome", "Status"])
         self.list_pillars_valid.setColumnWidth(0, 50)
-        self.list_pillars_valid.setColumnWidth(1, 120)
-        self.list_pillars_valid.setColumnWidth(2, 50)
-        self.list_pillars_valid.setColumnWidth(3, 50)
+        self.list_pillars_valid.setColumnWidth(1, 150)
+        self.list_pillars_valid.setColumnWidth(2, 60)
 
         self.list_beams_valid = QTreeWidget()
-        self.list_beams_valid.setHeaderLabels(["Item", "Nome", "Status", "%"])
+        self.list_beams_valid.setHeaderLabels(["Item", "Nome", "Status", "%", "Seg. A", "Seg. B"])
         self.list_beams_valid.setColumnWidth(0, 50)
         self.list_beams_valid.setColumnWidth(1, 120)
-        self.list_beams_valid.setColumnWidth(2, 50)
-        self.list_beams_valid.setColumnWidth(3, 50)
+        self.list_beams_valid.setColumnWidth(2, 60)
+        self.list_beams_valid.setColumnWidth(3, 40)
+        self.list_beams_valid.setColumnWidth(4, 60)
+        self.list_beams_valid.setColumnWidth(5, 60)
 
         self.list_slabs_valid = QTreeWidget()
-        self.list_slabs_valid.setHeaderLabels(["Item", "Nome", "Status", "%"])
+        self.list_slabs_valid.setHeaderLabels(["Item", "Nome", "Status", "%", "Ação"])
         self.list_slabs_valid.setColumnWidth(0, 50)
         self.list_slabs_valid.setColumnWidth(1, 120)
         self.list_slabs_valid.setColumnWidth(2, 50)
@@ -945,7 +1338,7 @@ class MainWindow(QMainWindow):
         
         # --- DIREITA: DETALHAMENTO ---
         self.right_panel = QStackedWidget()
-        self.right_panel.setMinimumWidth(280)
+        self.right_panel.setMinimumWidth(580)
         
         # Pagina 0: Placeholder
         placeholder = QLabel("Selecione um item para ver detalhes\nou inicie a detecção.")
@@ -971,8 +1364,8 @@ class MainWindow(QMainWindow):
         
         self.splitter.addWidget(self.right_panel)
         
-        # Definir proporção inicial: Esquerda (365), Centro (Grande), Direita (320)
-        self.splitter.setSizes([365, 1000, 320])
+        # Definir proporção inicial: Esquerda (365), Centro (Grande), Direita (670)
+        self.splitter.setSizes([365, 840, 670])
         
         
         
@@ -1007,11 +1400,29 @@ class MainWindow(QMainWindow):
             QMessageBox.warning(self, "Aviso", "Selecione um Pavimento na barra superior.")
             return
             
+        # IMPORTANTE: Garantir que a obra está no combo do robo_laje para ser salva corretamente
+        if hasattr(self.robo_laje, 'obra_control'):
+            obra_no_combo = False
+            for i in range(self.robo_laje.obra_control.obra_combo.count()):
+                obra_combo = self.robo_laje.obra_control.obra_combo.itemData(i)
+                if obra_combo and obra_combo.nome == obra_robo.nome:
+                    # Atualizar obra no combo com a versão atualizada
+                    self.robo_laje.obra_control.obra_combo.setItemData(i, obra_robo)
+                    obra_no_combo = True
+                    break
+            if not obra_no_combo:
+                # Adicionar obra ao combo se não estiver lá
+                self.robo_laje.obra_control.obra_combo.addItem(obra_robo.nome, obra_robo)
+                # Adicionar à lista de obras também
+                if hasattr(self.robo_laje, 'todas_obras'):
+                    if obra_robo not in self.robo_laje.todas_obras:
+                        self.robo_laje.todas_obras.append(obra_robo)
+            
         # Encontrar Pavimento no Robo
         pavimento_alvo = next((p for p in obra_robo.pavimentos if p.nome == pavimento_nome), None)
         if not pavimento_alvo:
             # Tentar criar se não existir (embora o sync automatico devesse ter criado)
-            from laje_src.models.pavimento import Pavimento
+            from laje_src.models.pavimento import Pavimento  # type: ignore
             pavimento_alvo = Pavimento(nome=pavimento_nome)
             obra_robo.pavimentos.append(pavimento_alvo)
             # Atualizar lista de pavimentos no robo
@@ -1020,7 +1431,7 @@ class MainWindow(QMainWindow):
                 self.robo_laje.pavimentos_widget.select_or_create_pavimento(pavimento_nome)
 
         # 3. Preparar Dados das Lajes (Structural Analyzer -> Robo Lajes)
-        from laje_src.models.laje import Laje
+        from laje_src.models.laje import Laje  # type: ignore
         
         novas_lajes_robo = []
         
@@ -1086,9 +1497,9 @@ class MainWindow(QMainWindow):
             if hasattr(self, 'robo_laje') and self.robo_laje is not None and hasattr(self.robo_laje, 'laje_tab'):
                 # Trocar para a aba do Robo Laje para visualização do processo
                 if hasattr(self, 'module_tabs'):
-                    self.module_tabs.setCurrentIndex(4)
+                    self.module_tabs.setCurrentIndex(6)  # Robo Laje é a 7ª aba (índice 6)
                 if hasattr(self, 'module_stack'):
-                    self.module_stack.setCurrentIndex(4)
+                    self.module_stack.setCurrentIndex(6)  # Robo Laje é o 7º módulo (índice 6)
                 
                 # Forçar atualização da tabela
                 if hasattr(self.robo_laje, 'pavimentos_widget'):
@@ -1096,10 +1507,559 @@ class MainWindow(QMainWindow):
                 
                 self.robo_laje.laje_tab.atualizar_tabela_lajes()
                 
+                # SALVAR DADOS IMEDIATAMENTE após sincronização (antes do processamento IA)
+                # Isso garante que as lajes sejam persistidas mesmo se o processamento IA falhar
+                if hasattr(self.robo_laje, 'save_all_obras_auto'):
+                    self.robo_laje.save_all_obras_auto()
+                    print(f"[SYNC] ✅ Dados salvos imediatamente após sincronização de {count} lajes")
+                
+                # Emitir sinal obra_changed para garantir que a UI seja atualizada
+                # Isso também dispara salvamento automático via on_obra_changed
+                if hasattr(self.robo_laje.laje_tab, 'obra_changed'):
+                    self.robo_laje.laje_tab.obra_changed.emit(obra_robo)
+                
                 # Iniciar Processamento IA Automatizado (Linhas + Cotas)
+                # A função automate_ai_for_all_lajes já salva no final
                 self.robo_laje.laje_tab.automate_ai_for_all_lajes()
                 
+                # SALVAR NOVAMENTE após processamento IA (garantia extra)
+                if hasattr(self.robo_laje, 'save_all_obras_auto'):
+                    # Usar QTimer para salvar após um delay, garantindo que o processamento IA termine
+                    from PySide6.QtCore import QTimer
+                    def salvar_apos_ia():
+                        if hasattr(self.robo_laje, 'save_all_obras_auto'):
+                            self.robo_laje.save_all_obras_auto()
+                            print(f"[SYNC] ✅ Dados salvos após processamento IA completo")
+                    QTimer.singleShot(5000, salvar_apos_ia)  # 5 segundos para garantir que tudo termine
+                
             QMessageBox.information(self, "Sucesso", f"{count} lajes sincronizadas e processadas pela IA!")
+
+        self.statusBar.showMessage(f"Sincronização concluída: {count} lajes enviadas.", 5000)
+
+    def sync_beams_to_laterais_action(self):
+        """Sincroniza as vigas da análise para o Robo Laterais."""
+        if not hasattr(self, 'robo_viga') or not self.robo_viga:
+            QMessageBox.warning(self, "Erro", "Módulo Robo Laterais não está carregado.")
+            return
+
+        # Contexto
+        obra_nome = self.cmb_works.currentText()
+        pavimento_nome = self.cmb_pavements.currentText()
+        
+        if not obra_nome or not pavimento_nome:
+            QMessageBox.warning(self, "Aviso", "Selecione Obra e Pavimento.")
+            return
+            
+        # Garantir contexto no robo
+        self.robo_viga.add_global_pavimento(obra_nome, pavimento_nome)
+        
+        # Ordenação Natural (1, 2, ..., 10, 11...)
+        import re
+        def natural_sort_key(s):
+            return [int(text) if text.isdigit() else text.lower()
+                    for text in re.split(r'(\d+)', str(s))]
+
+        # Preparar Lista Ordenada
+        sorted_beams = sorted(self.beams_found, key=lambda x: natural_sort_key(x.get('name', '')))
+        
+        viga_list = []
+        for b in sorted_beams:
+             # Usa id_item (campo Nº Item da ficha) para o número da viga no Robo
+             viga_list.append({
+                 'name': b.get('name'),
+                 'number': b.get('id_item', b.get('name')),
+                 'parent_name': b.get('parent_name', b.get('name', 'V?'))
+             })
+             
+        if not viga_list:
+             QMessageBox.information(self, "Aviso", "Nenhuma viga encontrada na análise.")
+             return
+             
+        res = self.robo_viga.add_viga_bulk(viga_list)
+        # Se retornar um dict, usamos. Se retornar int (legado), tratamos.
+        if isinstance(res, dict):
+            count = res.get('added', 0)
+            skipped = res.get('skipped', 0)
+            msg = f"{count} novas vigas sincronizadas.\n({skipped} vigas já existiam no Robo Laterais)"
+        else:
+            count = res
+            msg = f"{count} novas vigas sincronizadas com Robo Laterais."
+
+        self.log(f"🔗 Sincronização Robo Laterais: {count} novos, {len(viga_list)} total.")
+        QMessageBox.information(self, "Sucesso", msg)
+
+    def _extract_beam_bottom_boundary(self, beam):
+        """
+        Extrai e converte seg_bottom para formato de coordenadas do boundary.
+        PRESERVA TODAS AS DEFORMIDADES (recortes, chanfros, etc.) mantendo todos os pontos.
+        
+        Args:
+            beam: Dicionário da viga com links['viga_segs']['seg_bottom']
+        
+        Returns:
+            Lista plana de coordenadas [x1, y1, x2, y2, ...] ou None se não disponível
+        """
+        links = beam.get('links', {})
+        viga_segs = links.get('viga_segs', {})
+        seg_bottom_list = viga_segs.get('seg_bottom', [])
+        
+        if not seg_bottom_list:
+            return None
+        
+        # Coletar TODOS os pontos de TODOS os segmentos, preservando ordem e deformidades
+        todos_pontos = []
+        for seg in seg_bottom_list:
+            if 'points' in seg and seg['points']:
+                pts = seg['points']
+                # Validar e converter pontos (remover Z se 3D)
+                if len(pts) >= 2:
+                    pts_2d = [(float(p[0]), float(p[1])) for p in pts if len(p) >= 2]
+                    if len(pts_2d) >= 2:
+                        # Adicionar todos os pontos deste segmento
+                        todos_pontos.append(pts_2d)
+        
+        if not todos_pontos:
+            return None
+        
+        # Função auxiliar para verificar se dois pontos são próximos
+        def pontos_proximos(p1, p2, tol=1e-3):
+            """Verifica se dois pontos são próximos (mesmo ponto)"""
+            return abs(p1[0] - p2[0]) < tol and abs(p1[1] - p2[1]) < tol
+        
+        # Se há apenas um segmento, usar diretamente preservando todos os pontos
+        if len(todos_pontos) == 1:
+            pontos = todos_pontos[0]
+        else:
+            # Múltiplos segmentos: unir preservando TODOS os pontos na ordem correta
+            # Estratégia: conectar segmentos mantendo todos os pontos intermediários
+            pontos = todos_pontos[0].copy()
+            restantes = todos_pontos[1:]
+            
+            # Tentar conectar segmentos preservando todos os pontos
+            while restantes:
+                progresso = False
+                for idx, seg in enumerate(restantes):
+                    # Tentar conectar no final da sequência atual
+                    if pontos_proximos(pontos[-1], seg[0]):
+                        # Conectar: adicionar todos os pontos do segmento (exceto o primeiro que já está)
+                        pontos.extend(seg[1:])
+                        restantes.pop(idx)
+                        progresso = True
+                        break
+                    elif pontos_proximos(pontos[-1], seg[-1]):
+                        # Segmento invertido: adicionar todos os pontos na ordem reversa
+                        pontos.extend(reversed(seg[:-1]))
+                        restantes.pop(idx)
+                        progresso = True
+                        break
+                    # Tentar conectar no início da sequência atual
+                    elif pontos_proximos(pontos[0], seg[-1]):
+                        # Conectar no início: adicionar segmento antes do primeiro ponto
+                        pontos = seg[:-1] + pontos
+                        restantes.pop(idx)
+                        progresso = True
+                        break
+                    elif pontos_proximos(pontos[0], seg[0]):
+                        # Segmento invertido no início
+                        pontos = list(reversed(seg[1:])) + pontos
+                        restantes.pop(idx)
+                        progresso = True
+                        break
+                
+                if not progresso:
+                    # Não conseguiu conectar automaticamente
+                    # Adicionar o primeiro segmento restante (pode ser descontínuo, mas preserva geometria)
+                    if restantes:
+                        pontos.extend(restantes[0])
+                        restantes.pop(0)
+                    else:
+                        break
+        
+        if len(pontos) < 3:  # Mínimo para formar polígono
+            return None
+        
+        # Remover APENAS duplicatas consecutivas exatas (preservar deformidades próximas)
+        # Usar tolerância muito pequena para não perder deformidades reais
+        pontos_limpos = [pontos[0]]
+        for i, p in enumerate(pontos[1:], 1):
+            # Só remover se for exatamente o mesmo ponto (tolerância muito pequena)
+            # Isso preserva recortes, chanfros e outras deformidades
+            if not pontos_proximos(p, pontos_limpos[-1], tol=1e-6):
+                pontos_limpos.append(p)
+        
+        # Garantir que está fechado (se primeiro e último não são iguais, fechar)
+        if len(pontos_limpos) >= 3:
+            # Verificar se já está fechado (com tolerância pequena)
+            if not pontos_proximos(pontos_limpos[0], pontos_limpos[-1], tol=1e-6):
+                pontos_limpos.append(pontos_limpos[0])
+        
+        if len(pontos_limpos) < 3:
+            return None
+        
+        # Converter para formato plano [x1, y1, x2, y2, ...] PRESERVANDO TODOS OS PONTOS
+        coords = []
+        for point in pontos_limpos:
+            coords.extend([float(point[0]), float(point[1])])
+        
+        return coords
+
+    def sync_beams_to_fundo_action(self):
+
+        """Sincroniza as vigas da análise para o Robo Fundo."""
+        if not hasattr(self, 'robo_fundo') or not self.robo_fundo:
+            QMessageBox.warning(self, "Erro", "Módulo Robo Fundo não está carregado.")
+            return
+
+        # Contexto
+        obra_nome = self.cmb_works.currentText()
+        pavimento_nome = self.cmb_pavements.currentText()
+        
+        if not obra_nome or not pavimento_nome:
+            QMessageBox.warning(self, "Aviso", "Selecione Obra e Pavimento.")
+            return
+            
+        # Garantir contexto no robo
+        if hasattr(self.robo_fundo, 'sync_context'):
+            self.robo_fundo.sync_context(obra_nome, pavimento_nome)
+        
+        # Ordenação Natural
+        import re
+        def natural_sort_key(s):
+            return [int(text) if text.isdigit() else text.lower()
+                    for text in re.split(r'(\d+)', str(s))]
+
+        # Preparar Lista Ordenada
+        sorted_beams = sorted(self.beams_found, key=lambda x: natural_sort_key(x.get('name', '')))
+
+        if not sorted_beams:
+             QMessageBox.information(self, "Aviso", "Nenhuma viga encontrada na análise.")
+             return
+        
+        # Processar item por item para processar boundary automaticamente
+        count_new = 0
+        count_processed = 0
+        count_skipped = 0
+        
+        # Mostrar progresso
+        self.show_progress("Sincronizando Fundos de Vigas...", 0)
+        total = len(sorted_beams)
+        
+        for idx, b in enumerate(sorted_beams):
+            # Atualizar progresso
+            progress = int((idx / total) * 100)
+            self.update_progress(progress, f"Processando {b.get('name', 'V?')} ({idx+1}/{total})...")
+            
+            # Extrair boundary
+            boundary_coords = self._extract_beam_bottom_boundary(b)
+            
+            # Preparar dados da viga
+            # Garantir que number seja sempre um número, não o nome
+            id_item = b.get('id_item')
+            name = b.get('name', '')
+            
+            # Se id_item não existe ou é igual ao nome, extrair número do nome
+            if not id_item or str(id_item) == str(name):
+                import re
+                nums = re.findall(r'\d+', str(name))
+                number = nums[0] if nums else None
+            else:
+                number = str(id_item)
+            
+            # Se ainda não tem número válido, usar None para que add_viga_with_boundary extraia
+            viga_data = {
+                'name': name,
+                'number': number if number else None,
+                'parent_name': b.get('parent_name', b.get('name', 'V?'))
+            }
+            
+            # Adicionar viga com boundary
+            result = self.robo_fundo.add_viga_with_boundary(viga_data, boundary_coords)
+            
+            if result['success']:
+                if result['processed']:
+                    count_processed += 1
+                    self.log(f"✅ {viga_data['name']}: Criada e boundary processado")
+                else:
+                    if boundary_coords:
+                        self.log(f"⚠️ {viga_data['name']}: Criada mas boundary não processado")
+                    else:
+                        self.log(f"ℹ️ {viga_data['name']}: Criada sem boundary")
+                count_new += 1
+            else:
+                count_skipped += 1
+                self.log(f"⏭️ {viga_data['name']}: {result.get('message', 'Já existe ou erro')}")
+        
+        # Finalizar progresso
+        self.hide_progress()
+        
+        # Resumo
+        msg = f"Sincronização concluída:\n"
+        msg += f"- {count_new} vigas processadas\n"
+        if count_processed > 0:
+            msg += f"- {count_processed} boundaries analisados e preenchidos automaticamente\n"
+        if count_skipped > 0:
+            msg += f"- {count_skipped} vigas já existiam\n"
+        
+        self.log(f"🔗 Sincronização Robo Fundo: {count_new} processadas, {count_processed} com boundary, {count_skipped} já existiam.")
+        QMessageBox.information(self, "Sincronização Concluída", msg)
+
+
+    def sync_pillars_to_robo_pilares_action(self):
+        """Sincroniza os pilares da lista de análise para o Robo Pilares."""
+        # 1. Verificar disponibilidade do Robo
+        if not hasattr(self, 'robo_pilares') or not self.robo_pilares:
+            QMessageBox.warning(self, "Erro", "Módulo Robo Pilares não está carregado.")
+            return
+
+        # 2. Verificar Contexto (Obra/Pavimento)
+        obra_nome = self.cmb_works.currentText()
+        pavimento_nome = self.cmb_pavements.currentText()
+
+        if not obra_nome or not pavimento_nome:
+            QMessageBox.warning(self, "Aviso", "Selecione uma Obra e um Pavimento na barra superior.")
+            return
+
+        # 3. Obter Níveis da UI
+        try:
+            nivel_cheg = float(self.edit_level_arr.text().replace(',', '.') or "0.0")
+            nivel_saida = float(self.edit_level_exit.text().replace(',', '.') or "0.0")
+        except:
+            nivel_cheg = 0.0
+            nivel_saida = 0.0
+
+        altura_pilar = abs(nivel_saida - nivel_cheg)
+
+        # 4. Preparar Dados dos Pilares (Structural Analyzer -> Robo Pilares)
+        # O caminho está configurado no sys.path para pilares-atualizado-09-25/src
+        from models.pilar_model import PilarModel  # type: ignore
+        
+        novos_pilares_robo = []
+        count = 0
+        
+        for p_data in self.pillars_found:
+            name = p_data.get('name', 'P?')
+            
+            # Extrair número (ex: "P22" -> "22")
+            nums = re.findall(r'\d+', name)
+            numero = nums[0] if nums else "0"
+            
+            # ============================================
+            # BUSCAR DIMENSÃO DO VÍNCULO "texto dimensao pilar"
+            # OBRIGATÓRIO: Deve conter 2 números válidos
+            # ============================================
+            comprimento = None
+            largura = None
+            dim_text_valido = None
+            
+            # 1. Buscar no vínculo 'dim' (classe de vínculo "texto dimensao pilar")
+            links = p_data.get('links', {})
+            dim_links = links.get('dim', {})
+            
+            # Tentar acessar o texto do vínculo (pode estar em 'label' ou diretamente)
+            if isinstance(dim_links, dict):
+                # Formato: {'label': [{'text': '30x60'}]}
+                label_list = dim_links.get('label', [])
+                if label_list and len(label_list) > 0:
+                    dim_text_valido = str(label_list[0].get('text', '')).strip()
+            elif isinstance(dim_links, list) and len(dim_links) > 0:
+                # Formato: [{'text': '30x60'}]
+                dim_text_valido = str(dim_links[0].get('text', '')).strip()
+            
+            # 2. Se não encontrou no vínculo, tentar campo 'dim' direto (mas validar)
+            if not dim_text_valido:
+                dim_text_raw = p_data.get('dim', '')
+                if dim_text_raw:
+                    # Verificar se é um texto válido (não área em cm²)
+                    dim_str = str(dim_text_raw).strip()
+                    # Se contém "cm²" ou é só um número, não é válido
+                    if 'cm²' not in dim_str.lower() and not dim_str.replace('.', '').replace(',', '').isdigit():
+                        dim_text_valido = dim_str
+            
+            # 3. Validar e extrair 2 números do texto
+            if dim_text_valido:
+                # Regex para encontrar 2 números (suporta: 30x60, 30/60, (150x20), (30 x 250), etc.)
+                # Remove parênteses e espaços extras
+                dim_clean = dim_text_valido.replace('(', '').replace(')', '').strip()
+                
+                # Buscar padrão: número [separador] número
+                # Separadores aceitos: x, X, /, espaço
+                match = re.search(r'(\d+(?:[.,]\d+)?)\s*[xX/\s]\s*(\d+(?:[.,]\d+)?)', dim_clean)
+                
+                if match:
+                    try:
+                        v1_str = match.group(1).replace(',', '.')
+                        v2_str = match.group(2).replace(',', '.')
+                        v1 = float(v1_str)
+                        v2 = float(v2_str)
+                        
+                        # Validar que são números válidos e positivos
+                        if v1 > 0 and v2 > 0:
+                            comprimento = max(v1, v2)
+                            largura = min(v1, v2)
+                            print(f"[sync_pillars] ✅ Dimensão válida para {name}: {dim_text_valido} → {comprimento}x{largura}")
+                        else:
+                            print(f"[sync_pillars] ⚠️ Dimensão inválida para {name}: números não positivos em '{dim_text_valido}'")
+                    except (ValueError, TypeError) as e:
+                        print(f"[sync_pillars] ⚠️ Erro ao converter dimensão para {name}: '{dim_text_valido}' - {e}")
+                else:
+                    print(f"[sync_pillars] ⚠️ Texto de dimensão não contém 2 números válidos para {name}: '{dim_text_valido}'")
+            else:
+                print(f"[sync_pillars] ⚠️ Nenhum vínculo de dimensão encontrado para {name}")
+
+            # 4. Criar Objeto Pilar do Robo
+            # Se dimensões válidas foram encontradas, usar. Caso contrário, deixar 0.0
+            nova_p = PilarModel(
+                numero=numero,
+                nome=name,
+                comprimento=float(comprimento) if comprimento is not None else 0.0,
+                largura=float(largura) if largura is not None else 0.0,
+                pavimento=pavimento_nome,
+                nivel_chegada=nivel_cheg,
+                nivel_saida=nivel_saida,
+                altura=altura_pilar,
+                modo_distribuicao="NOVA"
+            )
+            
+            # Log informativo se dimensões não foram preenchidas
+            if comprimento is None or largura is None:
+                print(f"[sync_pillars] ℹ️ Pilar {name} criado sem dimensões (apenas número e nome)")
+            
+            # Sincronizar Alturas Detalhadas (h1-h5)
+            # Isso garante que h1 seja 2.0 (se >2m) e o resto distribuído
+            # Só executar se as dimensões foram preenchidas (comprimento > 0)
+            if nova_p.comprimento > 0 and nova_p.largura > 0:
+                try:
+                    # Tentar importar Service (pode não estar no path se rodando isolado, mas main.py configura sys.path)
+                    from services.pilar_service import PilarService  # type: ignore
+                    # 1. Distribuir Altura Total nas Faces (h1..h5)
+                    PilarService.distribute_face_heights(nova_p, altura_pilar)
+                    # 2. Sincronizar Alturas Absolutas (Grades)
+                    PilarService.sync_pilar_heights(nova_p)
+                except ImportError:
+                    print(f"[sync_pillars] Aviso: PilarService não encontrado para distribuir alturas em {name}.")
+                except Exception as e:
+                    print(f"[sync_pillars] Erro ao distribuir alturas no pilar {name}: {e}")
+            else:
+                print(f"[sync_pillars] ⚠️ Pular distribuição de alturas para {name} (dimensões inválidas)")
+            
+            novos_pilares_robo.append(nova_p)
+            count += 1
+
+        if not novos_pilares_robo:
+            QMessageBox.information(self, "Aviso", "Nenhum pilar encontrado na lista de análise para sincronizar.")
+            return
+
+        # 5. Confirmar e Substituir
+        reply = QMessageBox.question(
+            self, 
+            "Sincronizar Robo Pilares",
+            f"Isso irá SUBSTITUIR todos os pilares do pavimento '{pavimento_nome}' no Robo Pilares \n"
+            f"pelos {count} pilares da Análise Atual.\n\n"
+            "Deseja continuar?",
+            QMessageBox.Yes | QMessageBox.No
+        )
+        
+        if reply == QMessageBox.Yes:
+            # Garantir contexto no ViewModel do Robo
+            self.robo_pilares.vm.sync_global_context(obra_nome, pavimento_nome)
+            
+            # Popular Pilares
+            if self.robo_pilares.vm.current_pavimento:
+                # PROCESSAR CADA PILAR INDIVIDUALMENTE, UM POR UM
+                self.robo_pilares.vm.current_pavimento.pilares = novos_pilares_robo
+                
+                # Trocar para a aba do Robo Pilares ANTES de processar
+                self.module_tabs.setCurrentIndex(3)
+                self.module_stack.setCurrentIndex(3)
+                QApplication.processEvents()
+                
+                # Processar cada pilar passo a passo
+                processados = 0
+                total = len(novos_pilares_robo)
+                
+                for idx, pilar in enumerate(novos_pilares_robo):
+                    try:
+                        print(f"\n[sync_pillars] === Processando pilar {idx+1}/{total}: {pilar.nome} ===")
+                        
+                        # PASSO 1: Definir pilar selecionado
+                        print(f"  [1/4] Definindo pilar selecionado...")
+                        self.robo_pilares.vm.selected_pilar = pilar
+                        # Processar eventos múltiplas vezes para garantir atualização
+                        for _ in range(3):
+                            QApplication.processEvents()
+                        
+                        # PASSO 2: Aguardar UI atualizar completamente
+                        print(f"  [2/4] Aguardando UI atualizar...")
+                        from PySide6.QtCore import QTimer
+                        # Usar QTimer para delay não-bloqueante
+                        loop_count = 0
+                        max_loops = 10
+                        while loop_count < max_loops:
+                            QApplication.processEvents()
+                            loop_count += 1
+                        
+                        # PASSO 3: Acionar bindings automáticos
+                        if hasattr(self.robo_pilares, 'form_panel'):
+                            try:
+                                print(f"  [3/4] Acionando cálculos automáticos...")
+                                self.robo_pilares.form_panel.trigger_auto_calculations()
+                                # Processar eventos múltiplas vezes após cálculos
+                                for _ in range(5):
+                                    QApplication.processEvents()
+                                print(f"  ✅ Cálculos automáticos concluídos")
+                            except Exception as e:
+                                print(f"  ⚠️ Erro ao acionar cálculos automáticos: {e}")
+                                import traceback
+                                traceback.print_exc()
+                        
+                        # PASSO 4: Salvar pilar individual
+                        try:
+                            print(f"  [4/4] Salvando pilar...")
+                            if hasattr(self.robo_pilares.vm, 'auto_save_data'):
+                                self.robo_pilares.vm.auto_save_data()
+                                # Processar eventos após salvar
+                                for _ in range(3):
+                                    QApplication.processEvents()
+                                print(f"  ✅ Pilar salvo")
+                            else:
+                                print(f"  ⚠️ Método auto_save_data não encontrado")
+                        except Exception as e:
+                            print(f"  ⚠️ Erro ao salvar pilar: {e}")
+                            import traceback
+                            traceback.print_exc()
+                        
+                        processados += 1
+                        print(f"  ✅✅ Pilar {pilar.nome} processado completamente ({processados}/{total})")
+                        
+                    except Exception as e:
+                        print(f"  ❌❌ Erro ao processar pilar {pilar.nome}: {e}")
+                        import traceback
+                        traceback.print_exc()
+                        continue
+                
+                # Notificar mudança no pavimento após todos os pilares serem processados
+                self.robo_pilares.vm.notify_property_changed("current_pavimento", self.robo_pilares.vm.current_pavimento)
+                QApplication.processEvents()
+                
+                # Selecionar o primeiro pilar para exibição
+                if novos_pilares_robo:
+                    self.robo_pilares.vm.selected_pilar = novos_pilares_robo[0]
+                    QApplication.processEvents()
+                
+                print(f"\n[sync_pillars] === PROCESSAMENTO CONCLUÍDO ===")
+                print(f"  Total processado: {processados}/{count}")
+                
+                QMessageBox.information(
+                    self, 
+                    "Sincronização Concluída", 
+                    f"✅ {processados} de {count} pilares sincronizados e processados com sucesso!\n\n"
+                    f"Cada pilar teve:\n"
+                    f"  • Cálculos automáticos executados\n"
+                    f"  • Alturas distribuídas (h1-h5)\n"
+                    f"  • Parafusos recalculados\n"
+                    f"  • Grades atualizadas\n"
+                    f"  • Dados salvos individualmente"
+                )
 
 
 
@@ -1135,7 +2095,9 @@ class MainWindow(QMainWindow):
         self.module_tabs = QTabBar()
         self.module_tabs.setObjectName("ModuleNav")
         self.module_tabs.setDrawBase(False)
-        self.module_tabs.addTab("Structural Analyzer")
+        self.module_tabs.addTab("Diagnostic Hub (Pré)") # 1. Pre
+        self.module_tabs.addTab("Structural Analyzer")  # 2. Current
+        self.module_tabs.addTab("Comparison Engine (Pós)") # 3. Post (Comparison)
         self.module_tabs.addTab("Robo Pilares")
         self.module_tabs.addTab("Robo Laterais de Viga")
         self.module_tabs.addTab("Robo Fundo de Vigas")
@@ -1154,16 +2116,28 @@ class MainWindow(QMainWindow):
         self.module_stack = QStackedWidget()
         root_layout.addWidget(self.module_stack)
 
-        # --- MÓDULO 0: STRUCTURAL ANALYZER (Legacy) ---
+        # --- MÓDULO 1: DIAGNOSTIC HUB (Novo) ---
+        self.diagnostic_module = DiagnosticHubModule(self.db)
+        self.module_stack.addWidget(self.diagnostic_module)
+        
+        # Inicializar dados da sidebar
+        self.diagnostic_module.sidebar.refresh()
+
+        # --- MÓDULO 2: STRUCTURAL ANALYZER (Legacy) ---
         structural_widget = self._setup_structural_analyzer_area()
         self.module_stack.addWidget(structural_widget)
+
+        # --- MÓDULO 3: COMPARISON ENGINE (Novo) ---
+        self.comparison_module = ComparisonEngineModule()
+        self.module_stack.addWidget(self.comparison_module)
 
         # --- MÓDULOS ROBÔS ---
         
         # 1. Robo Pilares (INTEGRADO)
         if create_pilares_widget:
             try:
-                self.robo_pilares = create_pilares_widget()
+                # Passar DatabaseManager para sincronização com banco principal
+                self.robo_pilares = create_pilares_widget(db_manager=self.db)
                 self.robo_pilares.setWindowFlags(Qt.Widget) # Embed mode
                 self.module_stack.addWidget(self.robo_pilares)
             except Exception as e:
@@ -1177,6 +2151,7 @@ class MainWindow(QMainWindow):
         if VigaMainWindow:
             try:
                 self.robo_viga = VigaMainWindow()
+                self.robo_viga.licensing_service = self.licensing_proxy
                 self.robo_viga.setWindowFlags(Qt.Widget) # Embed mode
                 self.module_stack.addWidget(self.robo_viga)
             except Exception as e:
@@ -1190,6 +2165,8 @@ class MainWindow(QMainWindow):
         if FundoMainWindow:
             try:
                 self.robo_fundo = FundoMainWindow()
+                # Sistema de créditos removido
+                # self.robo_fundo.credit_manager = self.licensing_proxy
                 self.robo_fundo.setWindowFlags(Qt.Widget) # Embed mode
                 self.module_stack.addWidget(self.robo_fundo)
             except Exception as e:
@@ -1219,7 +2196,14 @@ class MainWindow(QMainWindow):
         
         # Inicializar Dados dos Combos (Obras e Pavimentos)
         # Timer singleShot para garantir que DB esteja pronto se necessario
-        QTimer.singleShot(100, self._refresh_nav_combos)
+        QTimer.singleShot(500, self._refresh_nav_combos)
+
+        # Timer adicional para garantir que dados legados sejam carregados
+        # (Robo Pilares pode demorar mais para inicializar)
+        QTimer.singleShot(2000, self._refresh_nav_combos)
+
+        # Timer final para casos extremos
+        QTimer.singleShot(5000, self._refresh_nav_combos)
 
     def _on_analysis_tab_changed(self, index):
         """Filtra visualização no Canvas baseado na aba selecionada (Análise)"""
@@ -1550,10 +2534,23 @@ class MainWindow(QMainWindow):
                 self.canvas.focus_on_beam_geometry(item_data, apply_zoom=False)
 
             # --- OVERHAUL: Lógica Inteligente para novos campos ---
-            # 1. Comprimento Total (Geometria)
+            # 1. Comprimento Total (Geometria) - Campo "para"
             if '_comprimento_total' in field_id and slot_id == 'geometry':
                 pts = pick_data.get('points', [])
                 if len(pts) >= 2:
+                    length = sum(((pts[i][0]-pts[i+1][0])**2 + (pts[i][1]-pts[i+1][1])**2)**0.5 for i in range(len(pts)-1))
+                    if isinstance(field, QLineEdit):
+                        field.setText(f"{length:.0f}") # Arredondar para inteiro visualmente limpo
+                        # IMPORTANTE: Salvar no item_data para persistência
+                        self.current_card.item_data[field_id] = f"{length:.0f}"
+                        # Injetar no objeto de link original também
+                        pick_data['text'] = f"{length:.0f}"
+            
+            # 1b. Comp Total Viga Passa (seg_side_a ou seg_side_b) - Campo "passa"
+            if 'comp_total_passa' in field_id and (slot_id == 'seg_side_a' or slot_id == 'seg_side_b'):
+                pts = pick_data.get('points', [])
+                if len(pts) >= 2:
+                    # Calcular comprimento total da polyline
                     length = sum(((pts[i][0]-pts[i+1][0])**2 + (pts[i][1]-pts[i+1][1])**2)**0.5 for i in range(len(pts)-1))
                     if isinstance(field, QLineEdit):
                         field.setText(f"{length:.0f}") # Arredondar para inteiro visualmente limpo
@@ -1850,6 +2847,24 @@ class MainWindow(QMainWindow):
             m = re.search(r'[-+]?\d*[.,]\d+|\d+', str(text).replace(',', '.'))
             return float(m.group()) if m else None
         except: return None
+
+    def refresh_lists_action(self):
+        """Recarrega os dados do banco e repovoa todas as listas da UI."""
+        if not self.current_project_id:
+            from PySide6.QtWidgets import QMessageBox
+            QMessageBox.warning(self, "Aviso", "Nenhum projeto/pavimento selecionado para atualizar.")
+            return
+            
+        self.log(f"🔄 Atualizando listas do projeto '{self.current_project_name}'...")
+        
+        # O load_project_action já faz:
+        # 1. Sync dos robôs (se faltar algo)
+        # 2. Re-query do DB principal (pillars, beams, slabs)
+        # 3. Re-draw do Canvas
+        # 4. Update de todas as listas na UI
+        self.load_project_action()
+        
+        self.log("✅ Listas de projeto atualizadas com sucesso.")
 
     def process_pillars_action(self):
         if not self.dxf_data: return
@@ -2352,11 +3367,186 @@ class MainWindow(QMainWindow):
         self.log(f"   -> {len(beams)} vigas salvas.")
         self.log("✅ Projeto salvo com sucesso!")
 
+    # --- AUTO-SYNC ROBOTS LOGIC ---
+    def _read_robot_pilares_data(self, pav_nome):
+        path = os.path.join(self.base_dir, "_ROBOS_ABAS", "Robo_Pilares", "pilares-atualizado-09-25", "src", "core", "pilares_salvos.json")
+        if not os.path.exists(path): return []
+        try:
+            with open(path, 'r', encoding='utf-8') as f: data = json.load(f)
+            items = []
+            target = pav_nome.upper()
+            
+            for key, val in data.items():
+                # A chave costuma ser Obra_Pavimento_Numero (ex: "22_Subsolo_1")
+                if target in key.upper():
+                    d = val.get('dados', val)
+                    if isinstance(d, dict):
+                        # Garantir ID único baseado na chave original se o objeto não tiver
+                        d["id"] = val.get('id', key)
+                        d["type"] = "Pilar (Robô)"
+                        # Normalizar nome - GARANTIR STRING
+                        name_val = d.get("name") or d.get("nome") or (f"P{d.get('numero')}" if d.get('numero') else str(key))
+                        d["name"] = str(name_val)
+                        
+                        items.append(d)
+            return items
+        except Exception as e:
+            print(f"Error reading robot pilares: {e}")
+            return []
+
+    def _read_robot_lajes_data(self, pav_nome):
+        items = []
+        seen_names = set()
+        
+        # 1. Caminhos para busca: Projetos e Global (AppData)
+        paths = []
+        
+        # Global AppData
+        app_data_path = os.path.join(os.environ.get("APPDATA", ""), "LajesApp", "obras.json")
+        if os.path.exists(app_data_path):
+            paths.append(app_data_path)
+            
+        # Projects Repo
+        repo_base = os.path.join(self.base_dir, "projects_repo")
+        if os.path.exists(repo_base):
+            for project_id in os.listdir(repo_base):
+                p_path = os.path.join(repo_base, project_id, "laje_data", "obras.json")
+                if os.path.exists(p_path): paths.append(p_path)
+        
+        target_pav = pav_nome.upper()
+        
+        for p_path in paths:
+            try:
+                with open(p_path, 'r', encoding='utf-8') as f:
+                    data = json.load(f)
+                
+                # A estrutura do obras.json de lajes costuma ser:
+                # {"obras": [{"name": "...", "pavimentos": [{"nome": "...", "lajes": [...]}]}]}
+                obras = data.get("obras", []) if isinstance(data, dict) else []
+                
+                for obra in obras:
+                    for pav in obra.get("pavimentos", []):
+                        p_nome = str(pav.get("nome", "")).upper()
+                        # Debug Log para rastrear mismatch
+                        if "P-1" in target_pav or "P-1" in p_nome:
+                             print(f"[DEBUG SYNC] Comparando '{target_pav}' com '{p_nome}'")
+                             
+                        if target_pav in p_nome or p_nome in target_pav:
+                            lajes_list = pav.get("lajes", [])
+                            if lajes_list:
+                                print(f"[DEBUG SYNC] Encontrado {len(lajes_list)} lajes para pavimento '{p_nome}'")
+                            for laje in lajes_list:
+                                if isinstance(laje, dict):
+                                    name = laje.get('nome', laje.get('name'))
+                                    if not name:
+                                        name = f"L_{len(items)+1}"
+                                    
+                                    if name not in seen_names:
+                                        laje["type"] = "Laje (Robô)"
+                                        laje["name"] = str(name)
+                                        # Garantir ID único (Obras.json de lajes pode não ter UUIDs)
+                                        if not laje.get("id"):
+                                             laje["id"] = f"LAJE_{obra.get('name')}_{pav.get('nome')}_{name}"
+                                        items.append(laje)
+                                        seen_names.add(name)
+            except Exception as e:
+                print(f"Error reading robot laje file {p_path}: {e}")
+                continue
+        return items
+
+    def _read_robot_laterais_data(self, pav_nome):
+        path = os.path.join(self.base_dir, "_ROBOS_ABAS", "Robo_Laterais_de_Vigas", "dados_vigas_ultima_sessao.json")
+        if not os.path.exists(path): return []
+        try:
+            with open(path, 'r', encoding='utf-8') as f: data = json.load(f)
+            items = []
+            target = pav_nome.upper()
+            def scan_dict_recursive(current_dict):
+                for key, value in current_dict.items():
+                    if isinstance(value, dict):
+                        if target in key.upper():
+                            if 'vigas' in value and isinstance(value['vigas'], list):
+                                for item in value['vigas']:
+                                    if isinstance(item, dict): 
+                                        item["type"] = "Viga Lateral (Robô)"
+                                        items.append(item)
+                        scan_dict_recursive(value)
+                    elif isinstance(value, list) and target in str(key).upper():
+                        for item in value:
+                            if isinstance(item, dict):
+                                item["type"] = "Viga Lateral (Robô)"
+                                items.append(item)
+            if isinstance(data, dict): scan_dict_recursive(data)
+            return items
+        except: return []
+
+    def _read_robot_fundos_data(self, pav_nome):
+        path = os.path.join(self.base_dir, "_ROBOS_ABAS", "Robo_Fundos_de_Vigas", "compactador-producao", "fundos_salvos.json")
+        if not os.path.exists(path): return []
+        try:
+            with open(path, 'r', encoding='utf-8') as f: data = json.load(f)
+            items = []
+            target = pav_nome.upper()
+            seen = set()
+            for obra_k, obra_v in data.items():
+                if isinstance(obra_v, dict):
+                    for pav_k, pav_v in obra_v.items():
+                        if target in pav_k.upper():
+                            if isinstance(pav_v, dict):
+                                for vk, vv in pav_v.items():
+                                    if isinstance(vv, dict):
+                                        name = vv.get('nome', vv.get('name', vk))
+                                        if name not in seen:
+                                            vv["type"] = "Viga Fundo (Robô)"
+                                            vv["name"] = name
+                                            items.append(vv)
+                                            seen.add(name)
+            return items
+        except: return []
+
+    def _auto_sync_robos_to_db(self, project_id, force=False):
+        """Sincroniza automaticamente dados dos robôs para o analyzer."""
+        p_data = self.db.get_project_by_id(project_id)
+        if not p_data: return
+        pav_nome = p_data.get('pavement_name') or p_data.get('name')
+        if not pav_nome: return
+        
+        self.log(f"🤖 Sync: Verificando dados dos robôs para '{pav_nome}' (Force={force})...")
+        
+        # Sincronizar Pilares
+        if force or not self.db.load_pillars(project_id):
+            items = self._read_robot_pilares_data(pav_nome)
+            for item in items: self.db.save_pillar(item, project_id)
+            if items: self.log(f"   ✅ {len(items)} pilares sincronizados.")
+
+        # Sincronizar Lajes
+        if force or not self.db.load_slabs(project_id):
+            items = self._read_robot_lajes_data(pav_nome)
+            for item in items: self.db.save_slab(item, project_id)
+            if items: self.log(f"   ✅ {len(items)} lajes sincronizadas.")
+
+        # Sincronizar Vigas
+        if force or not self.db.load_beams(project_id):
+            # Laterais
+            lat = self._read_robot_laterais_data(pav_nome)
+            for item in lat: 
+                item['type'] = 'Lateral'
+                self.db.save_beam(item, project_id)
+            # Fundos
+            fun = self._read_robot_fundos_data(pav_nome)
+            for item in fun:
+                item['type'] = 'Fundo'
+                self.db.save_beam(item, project_id)
+            if lat or fun: self.log(f"   ✅ {len(lat)+len(fun)} vigas sincronizadas.")
+
     def load_project_action(self):
         """Carrega e restaura o estado do projeto."""
         if not self.current_project_id:
             return
-            
+        
+        # --- AUTO SYNC FROM ROBOTS ---
+        self._auto_sync_robos_to_db(self.current_project_id)
+        
         # FIX: Ensure name is consistent
         if self.current_project_name == "Sem Projeto" and self.current_project_id:
              p = self.db.get_project_by_id(self.current_project_id)
@@ -2407,12 +3597,15 @@ class MainWindow(QMainWindow):
                          self.log(f"Erro ao carregar DXF de fundo: {e}")
 
 
-        # 2. Carregar do Banco de Dados (Entidades Inteligentes)
+        # 2. Carregar do Banco de Dados (Entidades Inteligentes - APENAS ESTRUTURAIS)
+        # Os dados dos robôs NÃO são migrados para cá, cada robô mantém seus próprios dados
         self.pillars_found = self.db.load_pillars(self.current_project_id) or []
         self.slabs_found = self.db.load_slabs(self.current_project_id) or []
         self.beams_found = self.db.load_beams(self.current_project_id) or []
-
-
+        
+        # Migração automática de dados de vigas (estrutura antiga → nova)
+        for beam in self.beams_found:
+            self._migrate_beam_data(beam)
 
         # --- NOVA LÓGICA: Garantir geraçao de extensões de laje se ausentes (Retrocompatibilidade) ---
         if self.slabs_found:
@@ -2465,7 +3658,9 @@ class MainWindow(QMainWindow):
         # Ordenar (Funções auxiliares internas)
         import re
         def nat_key(x):
-            return [int(t) if t.isdigit() else t.lower() for t in re.split(r'(\d+)', x.get('name', ''))]
+            # FIX: Garantir que o nome seja string e tratar None
+            name = str(x.get('name') or x.get('nome') or '')
+            return [int(t) if t.isdigit() else t.lower() for t in re.split(r'(\d+)', name)]
         
         def sort_key(x):
             id_val = x.get('id_item')
@@ -2532,9 +3727,30 @@ class MainWindow(QMainWindow):
         elif '_l1_h' in field_id: prompt = "regex: h[=:]?\\d+"
         elif '_v_' in field_id: prompt = "Buscar texto ('V')"
         
-        search_cfg = {'field_id': field_id, 'slot_id': slot_id, 'prompt': prompt, 'radius': radius}
+        # Override via Metadados (LinkManager) ou Config
+        patterns_na = ""
+        meta_override = item_data.get('field_metadata', {}).get(field_id, {}).get(slot_id, {})
+        
+        if meta_override.get('prompt'):
+             prompt = meta_override['prompt']
+        if meta_override.get('patterns_na'):
+             patterns_na = meta_override['patterns_na']
+             
+        if not patterns_na:
+             slot_cfg = self._get_slot_config(field_id, slot_id)
+             patterns_na = slot_cfg.get('patterns_na', "")
+        
+        search_cfg = {'field_id': field_id, 'slot_id': slot_id, 'prompt': prompt, 'radius': radius, 'patterns_na': patterns_na}
         
         result = self.context_engine.perform_search(item_data, search_cfg, side=side_code)
+        
+        if result.get('status') == 'na':
+             self.log(f"🚫 {result.get('debug', 'N/A Detectado')}")
+             # Não criamos links se for N/A
+             self.current_card.refresh_validation_styles()
+             self._update_all_lists_ui()
+             return
+
         found_ent = result['found_ent']
         
         if result['used_training']:
@@ -2625,8 +3841,21 @@ class MainWindow(QMainWindow):
         if not target_val and ('points' in link_obj or 'start' in link_obj):
              target_val = "GEOMETRY_val" # Marcador de geometria válida
 
+        # NOVO: Lógica de Remoção (Undo)
+        if status == 'removed':
+            role = f"{i_context['type'].upper()}_{field_id}"
+            if self.memory:
+                self.memory.remove_training_event(self.current_project_id, role, i_context['type'].upper())
+            
+            if hasattr(self, 'db'):
+                self.db.delete_training_event_by_target(self.current_project_id, role, str(target_val))
+            
+            self.log(f"🗑️ Conhecimento removido: {i_context['type']} {i_context['name']} -> {field_id}")
+            return
+
         # Enviar para Memória (HierarchicalMemory)
         if self.memory:
+            role = f"{i_context['type'].upper()}_{field_id}"
             event_type = 'user_validation' if status == 'valid' else ('user_na' if status == 'na' else 'user_rejection')
             
             self.memory.save_training_event(
@@ -2648,7 +3877,15 @@ class MainWindow(QMainWindow):
         
         # Inicializar engine se necessário
         if not self.dxf_preprocessor:
-            self.dxf_preprocessor = DXFPreprocessor(self.spatial_index, self.memory)
+            try:
+                from src.core.dxf_preprocessor import DXFPreprocessor  # type: ignore
+                self.dxf_preprocessor = DXFPreprocessor(self.spatial_index, self.memory)
+            except ImportError:
+                self.log("⚠️ DXFPreprocessor não está disponível. Funcionalidade desabilitada.")
+                QMessageBox.warning(self, "Funcionalidade Indisponível", 
+                                   "O módulo DXFPreprocessor não está implementado ainda.")
+                self.hide_progress()
+                return
 
         # Rodar análise
         results = self.dxf_preprocessor.run_marco_analysis(self.dxf_data, self.current_project_id or "temp")
@@ -2720,13 +3957,16 @@ class MainWindow(QMainWindow):
         self._log_training_action(p_data, field_id, slot_id, link_obj, status, comment)
 
         # 2. Feedback Visual Imediato
-        if status == 'valid':
+        if status == 'removed':
+            link_obj.pop('validated', None)
+            link_obj.pop('failed', None)
+            self.log(f"🔄 Vínculo resetado para '{field_id}:{slot_id}'")
+            self.current_card.refresh_validation_styles()
+            self._update_all_lists_ui()
+        elif status == 'valid':
             # Marcar o link individual como validado
             link_obj['validated'] = True
             link_obj.pop('failed', None)
-            
-            # (Removido validação automática do campo/item - Hierarquia Direta Mantida)
-            # self.current_card.mark_field_validated(field_id, True)  <-- COMENTADO/REMOVIDO
             
             self.log(f"👍 Feedback POSITIVO salvo para '{field_id}:{slot_id}'")
             
@@ -2737,9 +3977,6 @@ class MainWindow(QMainWindow):
             # Marcar o link individual como falho
             link_obj['failed'] = True
             link_obj.pop('validated', None)
-            
-            # (Removido invalidação automática do campo - Hierarquia Direta Mantida)
-            # self.current_card.mark_field_validated(field_id, False) <-- COMENTADO/REMOVIDO
             
             self.log(f"⚠️ Feedback de FALHA salvo para '{field_id}:{slot_id}'")
             self.current_card.refresh_validation_styles()
@@ -2979,9 +4216,15 @@ class MainWindow(QMainWindow):
             valid_list.setUpdatesEnabled(False)
             try:
                 if 'viga' in elem_type:
-                    self._populate_beam_tree(target_list, self.beams_found)
-                    valid_beams = [b for b in self.beams_found if b.get('is_validated')]
-                    self._populate_beam_tree(valid_list, valid_beams)
+                    # Usar _sync_list_item_text que agora é O(1) via cache
+                    self._sync_list_item_text(item_data)
+                    
+                    # Verificar se o item já existe na lista de validados
+                    # Se não existir, aí sim fazemos o populate (ou poderíamos adicionar cirurgicamente)
+                    is_in_valid_list = any(w.treeWidget() == valid_list for w in self.tree_item_map.get(p_id, []))
+                    if not is_in_valid_list:
+                        valid_beams = [b for b in self.beams_found if b.get('is_validated')]
+                        self._populate_beam_tree(valid_list, valid_beams)
                 else:
                     for i in range(target_list.topLevelItemCount()):
                          it = target_list.topLevelItem(i)
@@ -3051,7 +4294,7 @@ class MainWindow(QMainWindow):
             'fields': {},
             'links': {
                 'name': {'label': [{'text': b['name'], 'type': 'text', 'pos': b.get('pos', (0,0)), 'role': 'Identificador Viga'}]},
-                'viga_segs': {'seg_side_a': [], 'seg_side_b': [], 'seg_bottom': []},
+                'viga_segs': {'seg_bottom': []},  # Apenas seg_bottom (seg_side_a e seg_side_b vão para novos campos)
                 'apoios': {'inicio': [], 'fim': []},
                 'lajes': {'lado_a': [], 'lado_b': []},
                 'cortes': [],
@@ -3074,20 +4317,33 @@ class MainWindow(QMainWindow):
             b['links']['dimensoes'].append(dim_texts[0])
 
         # 3. SEGMENTOS E COMPRIMENTOS
-        def process_segments(side_key, tag):
+        # Inicializar novos campos para segmentos laterais (A e B)
+        if 'viga_a_seg_1_comp_total_passa' not in b['links']:
+            b['links']['viga_a_seg_1_comp_total_passa'] = {'seg_side_a': []}
+        if 'viga_b_seg_1_comp_total_passa' not in b['links']:
+            b['links']['viga_b_seg_1_comp_total_passa'] = {'seg_side_b': []}
+        
+        def process_segments(side_key, tag, target_field_key):
             lines = classified.get(side_key, [])
             total_len = 0
             for line in lines:
                 p1, p2 = line[0], line[-1]
                 length = ((p2[0]-p1[0])**2 + (p2[1]-p1[1])**2)**0.5
                 total_len += length
-                b['links']['viga_segs'][side_key].append({
+                # Salvar no campo alvo (ex: viga_segs para fundo, ou viga_a_* para laterais)
+                if target_field_key not in b['links']:
+                    b['links'][target_field_key] = {}
+                
+                slot_key = side_key 
+                if slot_key not in b['links'][target_field_key]:
+                    b['links'][target_field_key][slot_key] = []
+                b['links'][target_field_key][slot_key].append({
                     'type': 'poly', 'points': line, 'len': length, 'tag': tag
                 })
             return total_len
 
-        len_a = process_segments('seg_side_a', 'Lado A')
-        len_b = process_segments('seg_side_b', 'Lado B')
+        len_a = process_segments('seg_side_a', 'Lado A', 'viga_a_seg_1_comp_total_passa')
+        len_b = process_segments('seg_side_b', 'Lado B', 'viga_b_seg_1_comp_total_passa')
         b['fields']['comprimento_total_a'] = round(len_a, 1)
         b['fields']['comprimento_total_b'] = round(len_b, 1)
         b['seg_a'] = len(classified.get('seg_side_a', []))
@@ -3105,8 +4361,14 @@ class MainWindow(QMainWindow):
         # 5. DIMENSÃO POR SEGMENTO
         # Associar textos de dimensão específicos a segmentos específicos baseados em proximidade
         if len(dim_texts) > 0:
-            for side_key in ['seg_side_a', 'seg_side_b']:
-                segments = b['links']['viga_segs'][side_key]
+            # Buscar segmentos dos novos campos
+            seg_side_a_field = 'viga_a_seg_1_comp_total_passa'
+            seg_side_b_field = 'viga_b_seg_1_comp_total_passa'
+            
+            for side_key, field_key in [('seg_side_a', seg_side_a_field), ('seg_side_b', seg_side_b_field)]:
+                if field_key not in b['links']:
+                    continue
+                segments = b['links'][field_key].get(side_key, [])
                 for seg in segments:
                     # Calcular centro do segmento
                     pts = seg['points']
@@ -3234,7 +4496,7 @@ class MainWindow(QMainWindow):
                 if not is_start and not is_end:
                      b['links']['aberturas']['pilar'].append(s)
         # 12. FUNDOS (Calculado a partir de seg_bottom)
-        len_bottom = process_segments('seg_bottom', 'Fundo')
+        len_bottom = process_segments('seg_bottom', 'Fundo', 'viga_segs')
         b['fields']['comprimento_fundo'] = round(len_bottom, 1)
         
         self.log(f"🧠 Viga {b['name']} pré-interpretada com sucesso.")
@@ -3360,25 +4622,140 @@ class MainWindow(QMainWindow):
             for ext in s['extensions']:
                 s['links']['laje_outline_segs']['acrescimo_borda'].append(ext)
 
-    def _calculate_completion(self, item_data):
-        """Calcula % de completude baseado em campos validados e NA."""
-        itype = item_data.get('type', '').lower()
+
+    def _scan_beam_segments(self, item_data):
+        """Retorna contagem de segmentos (A, B, Fundo) baseada nas chaves do item_data."""
+        seg_indices_a = {1}
+        seg_indices_b = {1}
+        seg_indices_fundo = {1}
         
+        for key in item_data.keys():
+            if '_seg_' not in key: continue
+            try:
+                # Ex: viga_a_seg_2_h1
+                parts = key.split('_')
+                if 'seg' in parts:
+                    idx_pos = parts.index('seg') + 1
+                    if idx_pos < len(parts):
+                        idx = int(parts[idx_pos])
+                        if key.startswith('viga_a_'): seg_indices_a.add(idx)
+                        elif key.startswith('viga_b_'): seg_indices_b.add(idx)
+                        elif key.startswith('viga_fundo_'): seg_indices_fundo.add(idx)
+            except: pass
+            
+        return len(seg_indices_a), len(seg_indices_b), len(seg_indices_fundo)
+
+    def _calculate_total_fields(self, item_data):
+        """Calcula o total de campos esperados dinamicamente baseada na estrutura do item."""
+        itype = str(item_data.get('type') or '').lower()
+        
+        if 'viga' in itype:
+            # --- VIGAS ---
+            # Campos Base: name, viga_segs (header), dim (fundo global)
+            # Nota: 'dim' é adicionado no pack de fundo, mas como chave fixa, conta como 1 global.
+            total = 2 
+            
+            # --- Segmentos Laterais (A e B) ---
+            # Campos por segmento:
+            # 1. comprimento_total
+            # 2. comp_total_passa
+            # 3. visao_corte
+            # 4. ini_name
+            # 5. end_name
+            # 6. nivel_viga
+            # 7. nivel_oposto
+            # 8. laje_sup
+            # 9. laje_cen
+            # 10. laje_inf
+            # 11. dim
+            # 12. h1
+            # 13. h2
+            # (ajuste_comprimento é excuido)
+            FIELDS_PER_SIDE_SEG = 13
+            
+            # --- Segmentos Fundo ---
+            # Campos por segmento:
+            # 1. area_segs
+            # 2. largura
+            # 3. comprimento
+            # 4. local_ini
+            # 5. local_fim
+            # 6. abert_especial
+            # 7. chanfro_esq_top
+            # 8. chanfro_esq_fun
+            # 9. chanfro_dir_top
+            # 10. chanfro_dir_fun
+            # (dim é global)
+            FIELDS_PER_BOTTOM_SEG = 10
+            
+            # Contar Segmentos Ativos
+            na, nb, nf = self._scan_beam_segments(item_data)
+            
+            total += na * FIELDS_PER_SIDE_SEG
+            total += nb * FIELDS_PER_SIDE_SEG
+            total += nf * FIELDS_PER_BOTTOM_SEG
+            
+            # Se houver fundo, adiciona 'dim' global
+            if nf > 0:
+                total += 1
+                
+            return total
+            
+        elif 'pilar' in itype:
+            # --- PILARES ---
+            # Header: name, dim, pilar_segs
+            total = 3
+            
+            # Complex View: Shape Based
+            shape = item_data.get('format', 'Retangular')
+            sides = ['A', 'B', 'C', 'D']
+            if shape == "Circular": sides = ["Superior", "Inferior"]
+            elif shape == "Em L": sides = ['A', 'B', 'C', 'D', 'E', 'F']
+            elif shape in ["Em T", "Em U"]: sides = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H']
+            
+            # Campos por Lado:
+            # Laje 1: n, h, v, p, dist_c (5)
+            # Laje 2: n, h, v, p, dist_c, dist_t (6)
+            # Vigas (5 cats): n, d, segs, (dist? 3 sim, 2 nao), prof, diff_v
+            #   Esq/Dir: n(1), d(1), segs(1), prof(0-nolink), diff(1) = 4
+            #   Ch1/2/3: n(1), d(1), segs(1), dist(1), prof(0), diff(1) = 5
+            # Viga Total = 2*4 + 3*5 = 8 + 15 = 23
+            
+            # Total por lado = 5 + 6 + 23 = 34
+            FIELDS_PER_SIDE = 34
+            
+            total += len(sides) * FIELDS_PER_SIDE
+            return total
+            
+        elif 'laje' in itype:
+            # --- LAJES ---
+            # name, laje_dim, laje_nivel, laje_outline_segs, laje_islands
+            return 5
+            
+        return 10 # Default fallback
+
+    def _calculate_completion(self, item_data):
+        """Calcula % de completude dinâmico baseado no total de campos reais."""
+        if not item_data: return 0.0
+        
+        # 1. Se validado globalmente, 100%
         if item_data.get('is_fully_validated'):
             return 100.0
 
+        # 2. Campos Validados ou N/A
         v_raw = item_data.get('validated_fields', [])
         n_raw = item_data.get('na_fields', [])
         
-        # Garantir sets de strings
+        # Garantir sets de strings de IDs únicos
         val_fields = set(v_raw.keys()) if isinstance(v_raw, dict) else set(v_raw)
         na_fields = set(n_raw.keys()) if isinstance(n_raw, dict) else set(n_raw)
         
-        # Campos principais concluídos
+        # Campos principais concluídos (União)
         done_fields = val_fields | na_fields
         total_done = len(done_fields)
         
-        # Bônus por classes de vínculo (slots) validadas ou N/A
+        # 3. Bônus por Slots (Vínculos dentro dos campos)
+        # Cada slot resolvido conta uma fração para dar sensação de progresso
         v_slots = item_data.get('validated_link_classes', {})
         n_slots = item_data.get('na_link_classes', {})
         
@@ -3388,32 +4765,35 @@ class MainWindow(QMainWindow):
         if isinstance(n_slots, dict):
             for slots in n_slots.values(): done_slots_count += len(slots)
             
-        # Cada slot concluído conta 0.3 de um campo para dar movimento real ao %
-        total_points = total_done + (done_slots_count * 0.3)
+        total_points = total_done + (done_slots_count * 0.1) # 0.1 bonus por slot
         
-        # Totais ajustados para garantir que 100% seja atingível
-        # Laje: ~6 campos
-        # Viga: ~15 campos
-        # Pilar: ~25 campos
-        if 'pilar' in itype: total = 25
-        elif 'viga' in itype: total = 15
-        elif 'laje' in itype: total = 6
-        else: total = 8
+        # 4. Total Esperado Dinâmico
+        total_expected = self._calculate_total_fields(item_data)
         
-        if total <= 0: return 100.0
+        if total_expected <= 0: return 100.0
         
-        pct = (total_points / total) * 100
+        pct = (total_points / total_expected) * 100
+        
+        # Clamp 0-100
         if pct > 100: pct = 100.0
+        if pct < 0: pct = 0.0
+        
         return pct
 
     def _populate_generic_tree(self, tree_widget, items_list, item_type='pillar'):
         """Popula QTreeWidget com colunas: Item | Nome | Status | %"""
+        # Limpar cache de itens deste widget específico antes de limpar o widget
+        ids_to_clean = []
+        for iid, widgets in self.tree_item_map.items():
+            self.tree_item_map[iid] = [w for w in widgets if w.treeWidget() != tree_widget]
+        
         tree_widget.clear()
         
         from PySide6.QtWidgets import QTreeWidgetItem
         from PySide6.QtGui import QColor, QBrush
         
         for i, item_data in enumerate(items_list):
+            if not item_data: continue
             # 1. Preparar Textos
             item_id_str = item_data.get('id_item', f"{i+1:02}")
             name = item_data.get('name', '?')
@@ -3448,13 +4828,27 @@ class MainWindow(QMainWindow):
             
             # Criar Item Tree
             tree_item = QTreeWidgetItem(tree_widget)
-            tree_item.setText(0, item_id_str)
-            tree_item.setText(1, display_name)
-            tree_item.setText(2, status_icon)
-            tree_item.setText(3, pct_str)
+            tree_item.setText(0, str(item_id_str))
+            tree_item.setText(1, str(display_name))
+            tree_item.setText(2, str(status_icon))
             
+            # Registrar no Cache para atualização ultra-rápida (Task_04)
+            item_id = item_data.get('id') or item_data.get('id_item') or f"unknown_{i}"
+            if item_id not in self.tree_item_map: self.tree_item_map[item_id] = []
+            self.tree_item_map[item_id].append(tree_item)
+            
+            # 4. Colunas e Botões específicos para Laje (Pilares agora têm apenas 3 colunas fixas)
+            if item_type == 'slab':
+                tree_item.setText(3, str(pct_str))
+                
+                btn_detail = QPushButton("📋 Detalhes")
+                btn_detail.setCursor(Qt.PointingHandCursor)
+                btn_detail.setStyleSheet("background-color: #444; color: white; padding: 2px; border-radius: 3px; font-size: 10px;")
+                btn_detail.clicked.connect(lambda checked=False, d=item_data: self.open_detail_window(d))
+                tree_widget.setItemWidget(tree_item, 4, btn_detail)
+
             # Setup Data
-            tree_item.setData(0, Qt.UserRole, item_data['id'])
+            tree_item.setData(0, Qt.UserRole, item_id)
             
             # Cores
             if item_data.get('is_fully_validated'):
@@ -3481,6 +4875,10 @@ class MainWindow(QMainWindow):
 
 
     def _populate_beam_tree(self, tree_widget, beam_list):
+        # Limpar cache de itens deste widget específico
+        for iid, widgets in self.tree_item_map.items():
+            self.tree_item_map[iid] = [w for w in widgets if w.treeWidget() != tree_widget]
+
         tree_widget.clear()
         if not beam_list: return
         
@@ -3509,17 +4907,28 @@ class MainWindow(QMainWindow):
                 elif b.get('is_validated'): status = "✅"
                 elif b.get('issues'): status = "⚠️"
                 
+                # Segmentos (Reais)
+                na, nb, _ = self._scan_beam_segments(b)
+                
                 # % Completitude
                 pct = self._calculate_completion(b)
                 pct_str = f"{int(pct)}%"
                 
                 child = QTreeWidgetItem(parent_item)
-                child.setText(0, b.get('id_item', '??'))
-                child.setText(1, b['name'])
-                child.setText(2, status)
-                child.setText(3, pct_str)
+                child.setText(0, str(b.get('id_item', '??')))
+                child.setText(1, str(b.get('name', 'V?')))
+                child.setText(2, str(status))
+                child.setText(3, str(pct_str))
+                child.setText(4, str(na))
+                child.setText(5, str(nb))
                 
-                child.setData(0, Qt.UserRole, b['id'])
+                # Registrar no Cache (Task_04)
+                child_id = b.get('id', '')
+                if child_id:
+                    if child_id not in self.tree_item_map: self.tree_item_map[child_id] = []
+                    self.tree_item_map[child_id].append(child)
+
+                child.setData(0, Qt.UserRole, child_id)
                 
                 # Cores
                 color = QColor("#aaaaaa")
@@ -3532,7 +4941,29 @@ class MainWindow(QMainWindow):
 
                 # Sync Visual
                 status_code = "validated" if b.get('is_validated') else "default"
-                self.canvas.update_beam_status(b['id'], status_code)
+                if hasattr(self.canvas, 'update_beam_status'):
+                     self.canvas.update_beam_status(b.get('id', ''), status_code)
+
+                # Sem botão na visualização de vigas, conforme solicitado
+                pass
+
+    def open_detail_window(self, item_data):
+        """Abre a janela de detalhamento completa."""
+        from src.ui.dialogs.detail_dialog import DetailDialog
+        dlg = DetailDialog(item_data, parent=self)
+        
+        # Conectar sinais do card interno (se necessário propagar validações)
+        # O DetailCard dentro do Dialog edita o item_data in-place.
+        # Se validarmos algo lá, queremos atualizar a UI principal aqui.
+        if hasattr(dlg.card, 'data_validated'):
+            dlg.card.data_validated.connect(lambda: self._update_all_lists_ui())
+        if hasattr(dlg.card, 'data_changed'):
+            dlg.card.data_changed.connect(lambda: self.canvas.draw_item_links(item_data)) # Redesenha links
+            
+        dlg.exec_()
+        
+        # Após fechar, garantir refresh
+        self._update_all_lists_ui()
 
     # --- NOVOS MÉTODOS DE GERENCIAMENTO ---
 
@@ -3656,37 +5087,52 @@ class MainWindow(QMainWindow):
 
     def _update_all_lists_ui(self):
         """Refresha todas as listas com dados atuais do projeto ativo (Análise e Biblioteca)"""
+        import re
+        def nat_key(x):
+            # FIX: Garantir string e tratar None (evita crash TypeError no re.split)
+            name = str(x.get('name') or x.get('nome') or '')
+            return [int(t) if t.isdigit() else t.lower() for t in re.split(r'(\d+)', name)]
+
         # 1. Limpar TODAS as listas (Já feito dentro dos populates, mas ok garantir)
         
         # 2. Popular Pilares
+        if hasattr(self, 'pillars_found') and self.pillars_found:
+             self.pillars_found.sort(key=nat_key)
+        
         # Análise
         self._populate_generic_tree(self.list_pillars, self.pillars_found, 'pillar')
         
         # Biblioteca Validada (Pilares)
         valid_pillars = [p for p in self.pillars_found if p.get('is_validated')]
+        valid_pillars.sort(key=nat_key)
         self._populate_generic_tree(self.list_pillars_valid, valid_pillars, 'pillar')
 
         # 3. Popular Vigas (Hierárquico)
+        if hasattr(self, 'beams_found') and self.beams_found:
+             self.beams_found.sort(key=nat_key)
         self._populate_beam_tree(self.list_beams, self.beams_found)
         
         # Vigas Validadas
         valid_beams = [b for b in self.beams_found if b.get('is_validated')]
+        valid_beams.sort(key=nat_key)
         self._populate_beam_tree(self.list_beams_valid, valid_beams)
 
         # 4. Popular Lajes
+        if hasattr(self, 'slabs_found') and self.slabs_found:
+             self.slabs_found.sort(key=nat_key)
         # Análise
         self._populate_generic_tree(self.list_slabs, self.slabs_found, 'slab')
 
         # Biblioteca Validada (Lajes)
         valid_slabs = [s for s in self.slabs_found if s.get('is_validated')]
+        valid_slabs.sort(key=nat_key)
         self._populate_generic_tree(self.list_slabs_valid, valid_slabs, 'slab')
         
         # 5. Contornos / Issues
         self.list_issues.clear()
         if hasattr(self, 'list_contours'): self.list_contours.clear()
-        if hasattr(self, 'contours_found'):
-             # Se for usar Tree para Contornos no futuro, adaptar. Por enquanto mantem.
-             pass
+        
+        self.log(f"📊 Listas UI Atualizadas: {len(self.pillars_found)}P, {len(self.beams_found)}V, {len(self.slabs_found)}L.")
              
         # Repopular Issues
         for p in self.pillars_found:
@@ -3694,6 +5140,11 @@ class MainWindow(QMainWindow):
             avg_conf = sum(conf_map.values()) / len(conf_map) if conf_map else 0.5
             if p.get('issues') or (avg_conf < 0.6 and not p.get('is_validated')):
                 self._add_to_issues_list(p, avg_conf)
+        
+        # --- FIX: Sincronizar Aba de Treinamento ---
+        if hasattr(self, 'tab_training') and self.tab_training:
+             self.tab_training.current_project_id = self.current_project_id
+             self.tab_training.refresh_list()
                 
         self.log(f"UI Atualizada: {len(self.pillars_found)}P, {len(self.beams_found)}V, {len(self.slabs_found)}L")
 
@@ -3705,6 +5156,8 @@ class MainWindow(QMainWindow):
              # Redesenha pilares e vigas também para consistência
              self.canvas.draw_interactive_pillars(self.pillars_found)
              self.canvas.draw_beams(self.beams_found)
+             
+             self._update_canvas_filter(self.module_tabs.currentIndex())
         # -------------------------------------------------
     
     def on_detail_data_changed(self, data):
@@ -3815,10 +5268,14 @@ class MainWindow(QMainWindow):
         self.canvas.clear_beams()
 
     def _sync_list_item_text(self, item_data):
-        """Atualiza o texto da lista lateral sem reconstruir toda a UI - Versão Tree"""
-        from PySide6.QtWidgets import QTreeWidgetItemIterator
+        """Atualiza o texto da lista lateral sem reconstruir toda a UI - Versão O(1) Cache"""
+        # from PySide6.QtWidgets import QTreeWidgetItemIterator # Desnecessário agora
+        from PySide6.QtGui import QColor
         itype = item_data.get('type', '').lower()
         iid = item_data.get('id')
+        
+        if iid not in self.tree_item_map or not self.tree_item_map[iid]:
+            return # Item não está visível em nenhuma lista no momento
         
         status = "❓"
         if item_data.get('is_fully_validated'): status = "🔵"
@@ -3833,43 +5290,198 @@ class MainWindow(QMainWindow):
         display_name = new_name
         
         if 'pilar' in itype:
-            info = f"{item_data.get('dim', '0')} | {item_data.get('format', 'Ret')}"
-            display_name = f"{new_name} ({info})"
-            target_lists = [self.list_pillars, self.list_pillars_valid]
+            # Sincronizado com a lógica de _populate_generic_tree
+            display_name = new_name
         elif 'viga' in itype:
-            target_lists = [self.list_beams, self.list_beams_valid]
+            display_name = new_name
         elif 'laje' in itype:
             area = item_data.get('area', 0.0)
             if area == 0: _, area = self._get_slab_real_geometry(item_data)
             display_name = f"{new_name} ({area:.2f}m²)"
-            target_lists = [self.list_slabs, self.list_slabs_valid]
-        else:
-            return
+        
+        # Atualizar todos os widgets em cache para este ID
+        for item in self.tree_item_map[iid]:
+            try:
+                # Comum a todos: 1: Nome, 2: Status
+                item.setText(1, display_name)
+                item.setText(2, status)
+                
+                # Específico por tipo
+                if 'pillar' in itype:
+                    # Somente colunas 0, 1, 2
+                    pass
+                elif 'viga' in itype:
+                    # 3: %, 4: Seg A, 5: Seg B
+                    na, nb, _ = self._scan_beam_segments(item_data)
+                    item.setText(3, pct_str)
+                    item.setText(4, str(na))
+                    item.setText(5, str(nb))
+                elif 'laje' in itype:
+                    # 3: %, 4: Botão (não muda ao setar texto)
+                    item.setText(3, pct_str)
+                
+                # Atualizar cor status
+                color = QColor("#dddddd")
+                if item_data.get('is_fully_validated'): color = QColor("#00d4ff")
+                elif item_data.get('is_validated'): color = Qt.green
+                elif item_data.get('issues'): color = Qt.red
+                
+                # Colorir dependendo do número de colunas do item
+                max_col = 3 if 'pillar' in itype else 5
+                for c in range(max_col):
+                    item.setForeground(c, color)
+            except RuntimeError:
+                # Widget pode ter sido deletado se a aba mudou rapidamente
+                pass
 
-        for tree in target_lists:
-             it = QTreeWidgetItemIterator(tree)
-             while it.value():
-                 item = it.value()
-                 if item.data(0, Qt.UserRole) == iid:
-                     # Atualizar Colunas
-                     # 0: ID (mantem)
-                     item.setText(1, display_name)
-                     item.setText(2, status)
-                     item.setText(3, pct_str)
-                     
-                     # Atualizar cor status
-                     color = None
-                     if item_data.get('is_fully_validated'): color = QColor("#00d4ff")
-                     elif item_data.get('is_validated'): color = Qt.green
-                     elif item_data.get('issues'): color = Qt.red
-                     else: color = QColor("#dddddd")
-                     
-                     for c in range(4):
-                         item.setForeground(c, color)
-                 it += 1
+    def _migrate_beam_data(self, beam):
+        """
+        Migra dados de vigas da estrutura antiga para a nova estrutura.
+        Move seg_side_a/seg_side_b de viga_segs para novos campos nas abas A/B.
+        Move adjustment de comprimento_total para novos campos de ajuste.
+        """
+        if not beam or beam.get('type', '').lower() != 'viga':
+            return
+        
+        if 'links' not in beam:
+            beam['links'] = {}
+        
+        links = beam['links']
+        needs_migration = False
+        
+        # Verificar se precisa migrar: viga_segs contém seg_side_a ou seg_side_b
+        viga_segs = links.get('viga_segs', {})
+        if isinstance(viga_segs, dict):
+            has_side_a = 'seg_side_a' in viga_segs and viga_segs['seg_side_a']
+            has_side_b = 'seg_side_b' in viga_segs and viga_segs['seg_side_b']
+            
+            if has_side_a or has_side_b:
+                needs_migration = True
+        
+        # Verificar se comprimento_total tem adjustment que precisa ser migrado
+        # Verificar todos os segmentos (viga_a_seg_1, viga_b_seg_1, etc.)
+        for field_key in list(links.keys()):
+            if '_comprimento_total' in field_key:
+                comp_total_links = links.get(field_key, {})
+                if isinstance(comp_total_links, dict) and 'adjustment' in comp_total_links:
+                    if comp_total_links['adjustment']:
+                        needs_migration = True
+                        break
+        
+        if not needs_migration:
+            return
+        
+        # Executar migração
+        migrated = False
+        
+        # 1. Migrar seg_side_a para viga_a_seg_1_comp_total_passa
+        if isinstance(viga_segs, dict) and 'seg_side_a' in viga_segs:
+            seg_side_a_data = viga_segs.get('seg_side_a', [])
+            if seg_side_a_data:
+                # Encontrar ou criar campo para segmento 1 do lado A
+                field_key_a = 'viga_a_seg_1_comp_total_passa'
+                if field_key_a not in links:
+                    links[field_key_a] = {}
+                if 'seg_side_a' not in links[field_key_a]:
+                    links[field_key_a]['seg_side_a'] = []
+                
+                # Mover dados preservando metadata (treino, validação, etc)
+                links[field_key_a]['seg_side_a'] = seg_side_a_data
+                
+                # Remover de viga_segs
+                del viga_segs['seg_side_a']
+                migrated = True
+        
+        # 2. Migrar seg_side_b para viga_b_seg_1_comp_total_passa
+        if isinstance(viga_segs, dict) and 'seg_side_b' in viga_segs:
+            seg_side_b_data = viga_segs.get('seg_side_b', [])
+            if seg_side_b_data:
+                # Encontrar ou criar campo para segmento 1 do lado B
+                field_key_b = 'viga_b_seg_1_comp_total_passa'
+                if field_key_b not in links:
+                    links[field_key_b] = {}
+                if 'seg_side_b' not in links[field_key_b]:
+                    links[field_key_b]['seg_side_b'] = []
+                
+                # Mover dados preservando metadata
+                links[field_key_b]['seg_side_b'] = seg_side_b_data
+                
+                # Remover de viga_segs
+                del viga_segs['seg_side_b']
+                migrated = True
+        
+        # 3. Migrar adjustment de comprimento_total para campos de ajuste
+        # Procurar todos os campos de comprimento_total (pode haver múltiplos segmentos)
+        for field_key in list(links.keys()):
+            if '_comprimento_total' in field_key:
+                comp_total_links = links.get(field_key, {})
+                if isinstance(comp_total_links, dict) and 'adjustment' in comp_total_links:
+                    adjustment_data = comp_total_links.get('adjustment', [])
+                    if adjustment_data:
+                        # Determinar se é lado A ou B baseado no field_key
+                        if 'viga_a_' in field_key:
+                            # Extrair índice do segmento (ex: viga_a_seg_1_comprimento_total -> 1)
+                            try:
+                                parts = field_key.split('_')
+                                seg_idx = parts[parts.index('seg') + 1] if 'seg' in parts else '1'
+                                ajuste_key = f'viga_a_seg_{seg_idx}_ajuste_comprimento'
+                                
+                                if ajuste_key not in links:
+                                    links[ajuste_key] = {}
+                                if 'adjustment' not in links[ajuste_key]:
+                                    links[ajuste_key]['adjustment'] = []
+                                
+                                links[ajuste_key]['adjustment'] = adjustment_data
+                                
+                                # Remover adjustment de comprimento_total
+                                del comp_total_links['adjustment']
+                                migrated = True
+                            except:
+                                pass
+                        elif 'viga_b_' in field_key:
+                            try:
+                                parts = field_key.split('_')
+                                seg_idx = parts[parts.index('seg') + 1] if 'seg' in parts else '1'
+                                ajuste_key = f'viga_b_seg_{seg_idx}_ajuste_comprimento'
+                                
+                                if ajuste_key not in links:
+                                    links[ajuste_key] = {}
+                                if 'adjustment' not in links[ajuste_key]:
+                                    links[ajuste_key]['adjustment'] = []
+                                
+                                links[ajuste_key]['adjustment'] = adjustment_data
+                                
+                                # Remover adjustment de comprimento_total
+                                del comp_total_links['adjustment']
+                                migrated = True
+                            except:
+                                pass
+        
+        # 4. Garantir que viga_segs contenha apenas seg_bottom
+        if isinstance(viga_segs, dict):
+            # Remover qualquer seg_side_a ou seg_side_b que possa ter sobrado
+            if 'seg_side_a' in viga_segs:
+                del viga_segs['seg_side_a']
+            if 'seg_side_b' in viga_segs:
+                del viga_segs['seg_side_b']
+            # Manter apenas seg_bottom (ou criar se não existir)
+            if 'seg_bottom' not in viga_segs:
+                viga_segs['seg_bottom'] = []
+        
+        # Salvar viga migrada de volta ao banco
+        if migrated and self.current_project_id:
+            try:
+                self.db.save_beam(beam, self.current_project_id)
+                self.log(f"✅ Viga {beam.get('name', 'N/A')} migrada automaticamente")
+            except Exception as e:
+                self.log(f"⚠️ Erro ao salvar viga migrada: {e}")
 
     def show_detail(self, item_data):
         """Exibe os detalhes do item no painel direito."""
+        # Migração automática se for viga (antes de exibir)
+        if item_data.get('type', '').lower() == 'viga':
+            self._migrate_beam_data(item_data)
+        
         # Limpar anterior
         while self.detail_layout.count():
             child = self.detail_layout.takeAt(0)
@@ -3887,11 +5499,67 @@ class MainWindow(QMainWindow):
         self.current_card.research_requested.connect(self.on_research_requested)
         self.current_card.element_focused.connect(self.on_element_focused_on_table)
         self.current_card.training_requested.connect(self.on_train_requested)
+        self.current_card.log_requested.connect(self.log)
         
         self.detail_layout.addWidget(self.current_card)
         
         # Atualizar título do painel (opcional)
         self.right_panel.setCurrentIndex(1)
+    
+    def _update_all_beams_tipo_comp(self, tipo: str):
+        """
+        Atualiza todos os round buttons de tipo de comprimento (passa/para) 
+        de todas as vigas para o tipo especificado.
+        tipo: 'passa' ou 'para'
+        """
+        if not self.beams_found:
+            return
+        
+        updated_count = 0
+        
+        # Atualizar todos os beams_found
+        for beam in self.beams_found:
+            if beam.get('type', '').lower() != 'viga':
+                continue
+            
+            # Atualizar todos os segmentos (A e B)
+            # Procurar todos os campos nos links que começam com viga_a_seg_ ou viga_b_seg_
+            links = beam.get('links', {})
+            segmentos_encontrados = set()
+            
+            # Primeiro, identificar todos os segmentos únicos pelos campos nos links
+            for field_key in links.keys():
+                if ('viga_a_seg_' in field_key or 'viga_b_seg_' in field_key) and '_tipo_comp' not in field_key:
+                    # Extrair o seg_uid baseado no field_key
+                    # Ex: viga_a_seg_1_comp_total_passa -> viga_a_seg_1
+                    parts = field_key.split('_')
+                    if len(parts) >= 4 and parts[0] == 'viga' and parts[2] == 'seg':
+                        seg_idx = parts[3]
+                        side = parts[1]  # 'a' ou 'b'
+                        seg_uid = f'viga_{side}_seg_{seg_idx}'
+                        segmentos_encontrados.add(seg_uid)
+            
+            # Atualizar tipo_comp para cada segmento encontrado
+            for seg_uid in segmentos_encontrados:
+                tipo_comp_key = f'{seg_uid}_tipo_comp'
+                beam[tipo_comp_key] = tipo
+                updated_count += 1
+            
+            # Salvar no banco
+            if self.current_project_id:
+                try:
+                    self.db.save_beam(beam, self.current_project_id)
+                except Exception as e:
+                    self.log(f"⚠️ Erro ao salvar viga {beam.get('name', 'N/A')}: {e}")
+        
+        # Atualizar o DetailCard atual se estiver exibindo uma viga
+        if self.current_card and self.current_card.item_data.get('type', '').lower() == 'viga':
+            self.current_card.update_all_tipo_comp_buttons(tipo)
+        
+        # Atualizar todos os DetailCards abertos (se houver múltiplos)
+        # Por enquanto, apenas atualizamos o atual
+        
+        self.log(f"✅ Atualizados {updated_count} segmentos de vigas para tipo '{tipo}'")
     
 
 
@@ -3955,28 +5623,6 @@ class MainWindow(QMainWindow):
         
         self.show_detail(new_item)
         self.log(f"Item manual criado: {new_item['name']}")
-        """Callback ao selecionar um projeto."""
-        self.current_project_id = pid
-        self.current_project_name = name
-        self.current_dxf_path = dxf_path
-        
-        self.setWindowTitle(f"Vision-Estrutural AI - {name}")
-        self.proj_mgr.close()
-        
-        # 1. Carregar DXF (se necessário ou se caminho mudar)
-        if os.path.exists(dxf_path):
-            self.load_dxf(dxf_path) 
-        else:
-             self.log(f"⚠️ Arquivo DXF não encontrado: {dxf_path}")
-
-        # 2. Carregar Estado Salvo (Banco de Dados)
-        self.load_project_action()
-        
-        # 2. Atualizar Tab de Treino
-        self.tab_training.load_events(pid)
-        
-        # 3. Carregar dados processados do DB
-        self.load_project_action()
 
     def sync_brain_memory(self):
         """Sincroniza eventos de treino com o VectorDB."""
@@ -4031,6 +5677,10 @@ class MainWindow(QMainWindow):
             
         self.hide_progress()
         self.log(f"✅ Sincronização concluída! {count} exemplos convertidos em vetores.")
+        
+        # Refresh training list to show updated state (if needed)
+        if hasattr(self, 'tab_training'):
+            self.tab_training.refresh_list()
 
     def delete_item_action(self, list_widget, item_type: str, is_library: bool):
         """Exclui o item selecionado da lista e da memória/banco."""
@@ -4112,22 +5762,293 @@ class MainWindow(QMainWindow):
                 elif item_type == 'beam':
                     self.canvas.draw_beams(self.beams_found)
 
-    # --- Script Generation Placeholders ---
+    def _get_scripts_dir(self):
+        """Retorna o diretório onde os scripts devem ser salvos (SCRIPTS_ROBOS)."""
+        import sys
+        from pathlib import Path
+
+        # Sempre usar SCRIPTS_ROBOS na raiz do projeto
+        if getattr(sys, 'frozen', False):
+            # Modo compilado - usar diretório do executável
+            base_dir = Path(sys.executable).parent
+        else:
+            # Modo desenvolvimento - usar raiz do projeto
+            base_dir = Path(__file__).parent
+
+        scripts_dir = base_dir / "SCRIPTS_ROBOS"
+        scripts_dir.mkdir(parents=True, exist_ok=True)
+        return scripts_dir
+
+    def _get_lisp_dir(self):
+        """Retorna o diretório onde os comandos LISP devem ser salvos."""
+        import sys
+        from pathlib import Path
+
+        # Sempre usar ferramentas_LOAD_LISP na raiz do projeto
+        if getattr(sys, 'frozen', False):
+            # Modo compilado - usar diretório do executável
+            base_dir = Path(sys.executable).parent
+        else:
+            # Modo desenvolvimento - usar raiz do projeto
+            base_dir = Path(__file__).parent
+
+        lisp_dir = base_dir / "ferramentas_LOAD_LISP"
+        lisp_dir.mkdir(parents=True, exist_ok=True)
+        return lisp_dir
+
+    def _create_laz_command_files(self, script_content=None):
+        """Cria os arquivos comando_LAZ.lsp e script_LAZ.scr."""
+        try:
+            lisp_dir = self._get_lisp_dir()
+            scripts_dir = self._get_scripts_dir()
+
+            # Caminho absoluto para o AutoCAD usar
+            scripts_absoluto = str(scripts_dir.as_posix())
+
+            # Criar arquivo comando_LAZ.lsp
+            comando_laz_path = lisp_dir / "comando_LAZ.lsp"
+            with open(comando_laz_path, 'w', encoding='utf-8') as f:
+                f.write('\ufeff')  # BOM UTF-8
+                f.write(";; Comando para executar script SCR LAZ\n")
+                f.write("(defun c:LAZ ()\n")
+                f.write("  (setvar \"filedia\" 0)\n")
+                f.write(f'  (command "_SCRIPT" "{scripts_absoluto}/script_LAZ.scr")\n')
+                f.write("  (setvar \"filedia\" 1)\n")
+                f.write("  (princ)\n")
+                f.write(")\n")
+
+            # Criar arquivo script_LAZ.scr
+            script_laz_path = scripts_dir / "script_LAZ.scr"
+            if script_content:
+                with open(script_laz_path, 'w', encoding='utf-16-le') as f:
+                    f.write('\ufeff')  # BOM UTF-16 LE
+                    f.write(script_content)
+            else:
+                # Criar arquivo vazio se não houver conteúdo
+                with open(script_laz_path, 'w', encoding='utf-16-le') as f:
+                    f.write('\ufeff')  # BOM UTF-16 LE
+
+            self.log(f"✅ Arquivos LAZ criados: {comando_laz_path}, {script_laz_path}")
+            return True
+
+        except Exception as e:
+            self.log(f"❌ Erro ao criar arquivos LAZ: {e}")
+            return False
+
     def generate_script_pillar_full(self, is_library):
-        self.log(f"📜 [TODO] Gerar Script Pilar Completo (Lib={is_library})")
-        # Implement script generation logic here
+        """Gera script completo para todos os pilares da obra."""
+        self.log(f"📜 Gerando Script Pilar Completo (Lib={is_library})")
+
+        # Verificar se Robo Pilares está disponível
+        if not hasattr(self, 'robo_pilares') or not self.robo_pilares:
+            QMessageBox.warning(self, "Erro", "Módulo Robo Pilares não está carregado.")
+            return
+
+        try:
+            # Obter contexto da obra
+            obra_nome = self.cmb_works.currentText()
+            if not obra_nome:
+                QMessageBox.warning(self, "Aviso", "Selecione uma obra na barra superior.")
+                return
+            
+            print("\n" + ("=" * 100))
+            print("[DEBUG-ULTRA-MAIN] ===== INÍCIO generate_script_pillar_full() =====")
+            print(f"[DEBUG-ULTRA-MAIN] obra_nome_ui = {obra_nome!r}")
+            print(f"[DEBUG-ULTRA-MAIN] scripts_dir_app = {self._get_scripts_dir()}")
+            print(f"[DEBUG-ULTRA-MAIN] robo_pilares_loaded = {bool(getattr(self, 'robo_pilares', None))}")
+            print(("=" * 100))
+
+            # Usar o automation service do Robo Pilares
+            if hasattr(self.robo_pilares, 'vm') and hasattr(self.robo_pilares.vm, 'automation_service'):
+                service = self.robo_pilares.vm.automation_service
+                print(f"[DEBUG-ULTRA-MAIN] automation_service = {service} (type={type(service)})")
+
+                # Coletar todos os pavimentos da obra atual
+                obra_model = None
+                for obra in self.robo_pilares.vm.obras:
+                    if obra.nome == obra_nome:
+                        obra_model = obra
+                        break
+
+                if not obra_model or not obra_model.pavimentos:
+                    QMessageBox.warning(self, "Aviso", f"Nenhum pavimento encontrado na obra '{obra_nome}'.")
+                    return
+                
+                print(f"[DEBUG-ULTRA-MAIN] obra_model.nome = {getattr(obra_model, 'nome', None)!r}")
+                print(f"[DEBUG-ULTRA-MAIN] obra_model.pavimentos = {len(getattr(obra_model, 'pavimentos', []) or [])}")
+
+                generated_scripts = []
+                for pavimento in obra_model.pavimentos:
+                    if pavimento.pilares:
+                        print("\n" + ("-" * 100))
+                        print("[DEBUG-ULTRA-MAIN] Chamando generate_full_paviment_orchestration()")
+                        print(f"[DEBUG-ULTRA-MAIN] pavimento.nome = {getattr(pavimento, 'nome', None)!r}")
+                        print(f"[DEBUG-ULTRA-MAIN] pavimento.pilares_count = {len(getattr(pavimento, 'pilares', []) or [])}")
+                        print("-" * 100)
+                        result = service.generate_full_paviment_orchestration(pavimento, obra_model)
+                        print(f"[DEBUG-ULTRA-MAIN] retorno_orquestracao = {result!r}")
+                        if result:
+                            generated_scripts.append(f"Pavimento {pavimento.nome}: {result}")
+
+                if generated_scripts:
+                    self._create_laz_command_files()
+                    QMessageBox.information(self, "Sucesso",
+                        f"Scripts gerados para obra '{obra_nome}':\n\n" +
+                        "\n".join(generated_scripts) +
+                        f"\n\nArquivos salvos em: {self._get_scripts_dir()}")
+                else:
+                    QMessageBox.information(self, "Aviso", "Nenhum script foi gerado.")
+                
+                print("\n" + ("=" * 100))
+                print("[DEBUG-ULTRA-MAIN] ===== FIM generate_script_pillar_full() =====")
+                print(("=" * 100) + "\n")
+            else:
+                QMessageBox.warning(self, "Erro", "Serviço de automação não disponível no Robo Pilares.")
+
+        except Exception as e:
+            self.log(f"❌ Erro ao gerar script completo: {e}")
+            QMessageBox.critical(self, "Erro", f"Erro ao gerar script: {str(e)}")
 
     def generate_script_pavement_pillar(self, is_library):
-        self.log(f"📜 [TODO] Gerar Script Pavimento Pilar Completo (Lib={is_library})")
-        # Implement script generation logic here
+        """Gera script para pilares do pavimento atual."""
+        self.log(f"📜 Gerando Script Pavimento Pilar (Lib={is_library})")
+
+        # Verificar se Robo Pilares está disponível
+        if not hasattr(self, 'robo_pilares') or not self.robo_pilares:
+            QMessageBox.warning(self, "Erro", "Módulo Robo Pilares não está carregado.")
+            return
+
+        try:
+            # Obter contexto
+            obra_nome = self.cmb_works.currentText()
+            pavimento_nome = self.cmb_pavements.currentText()
+
+            if not obra_nome or not pavimento_nome:
+                QMessageBox.warning(self, "Aviso", "Selecione obra e pavimento na barra superior.")
+                return
+            
+            print("\n" + ("=" * 100))
+            print("[DEBUG-ULTRA-MAIN] ===== INÍCIO generate_script_pavement_pillar() =====")
+            print(f"[DEBUG-ULTRA-MAIN] obra_nome_ui = {obra_nome!r}")
+            print(f"[DEBUG-ULTRA-MAIN] pavimento_nome_ui = {pavimento_nome!r}")
+            print(f"[DEBUG-ULTRA-MAIN] scripts_dir_app = {self._get_scripts_dir()}")
+            print(("=" * 100))
+
+            # Usar o automation service do Robo Pilares
+            if hasattr(self.robo_pilares, 'vm') and hasattr(self.robo_pilares.vm, 'automation_service'):
+                service = self.robo_pilares.vm.automation_service
+                print(f"[DEBUG-ULTRA-MAIN] automation_service = {service} (type={type(service)})")
+
+                # Encontrar o pavimento atual
+                current_pavimento = self.robo_pilares.vm.current_pavimento
+                if not current_pavimento:
+                    QMessageBox.warning(self, "Aviso", "Nenhum pavimento selecionado no Robo Pilares.")
+                    return
+                
+                print(f"[DEBUG-ULTRA-MAIN] current_pavimento.nome = {getattr(current_pavimento, 'nome', None)!r}")
+                print(f"[DEBUG-ULTRA-MAIN] current_pavimento.pilares_count = {len(getattr(current_pavimento, 'pilares', []) or [])}")
+
+                # Encontrar a obra
+                obra_model = None
+                for obra in self.robo_pilares.vm.obras:
+                    if obra.nome == obra_nome:
+                        obra_model = obra
+                        break
+
+                if not obra_model:
+                    QMessageBox.warning(self, "Aviso", f"Obra '{obra_nome}' não encontrada.")
+                    return
+                
+                print(f"[DEBUG-ULTRA-MAIN] obra_model.nome = {getattr(obra_model, 'nome', None)!r}")
+
+                # Gerar script para o pavimento
+                print("[DEBUG-ULTRA-MAIN] Chamando generate_full_paviment_orchestration() para o pavimento atual...")
+                result = service.generate_full_paviment_orchestration(current_pavimento, obra_model)
+                print(f"[DEBUG-ULTRA-MAIN] retorno_orquestracao = {result!r}")
+
+                if result:
+                    self._create_laz_command_files()
+                    QMessageBox.information(self, "Sucesso",
+                        f"Script gerado para pavimento '{pavimento_nome}':\n\n{result}\n\n"
+                        f"Arquivos salvos em: {self._get_scripts_dir()}")
+                else:
+                    QMessageBox.information(self, "Aviso", "Nenhum script foi gerado.")
+                
+                print("\n" + ("=" * 100))
+                print("[DEBUG-ULTRA-MAIN] ===== FIM generate_script_pavement_pillar() =====")
+                print(("=" * 100) + "\n")
+            else:
+                QMessageBox.warning(self, "Erro", "Serviço de automação não disponível no Robo Pilares.")
+
+        except Exception as e:
+            self.log(f"❌ Erro ao gerar script do pavimento: {e}")
+            QMessageBox.critical(self, "Erro", f"Erro ao gerar script: {str(e)}")
 
     def generate_script_beam_set(self, is_library):
-        self.log(f"📜 [TODO] Gerar Script Conjunto de Viga Completo (Lib={is_library})")
-        # Implement script generation logic here
+        """Gera script completo para todas as vigas da obra."""
+        self.log(f"📜 Gerando Script Conjunto de Viga Completo (Lib={is_library})")
+
+        # Verificar se Robo Laterais está disponível
+        if not hasattr(self, 'robo_viga') or not self.robo_viga:
+            QMessageBox.warning(self, "Erro", "Módulo Robo Laterais de Viga não está carregado.")
+            return
+
+        try:
+            # Obter contexto da obra
+            obra_nome = self.cmb_works.currentText()
+            if not obra_nome:
+                QMessageBox.warning(self, "Aviso", "Selecione uma obra na barra superior.")
+                return
+
+            # Usar o método generate_conjunto_scripts do Robo de Vigas
+            if hasattr(self.robo_viga, 'generate_conjunto_scripts'):
+                self.robo_viga.generate_conjunto_scripts()
+                self._create_laz_command_files()
+                QMessageBox.information(self, "Sucesso",
+                    f"Script completo gerado para obra '{obra_nome}'.\n\n"
+                    f"Arquivos salvos em: {self._get_scripts_dir()}")
+            else:
+                QMessageBox.warning(self, "Erro", "Método de geração de conjunto não disponível no Robo Laterais de Viga.")
+
+        except Exception as e:
+            self.log(f"❌ Erro ao gerar script de vigas: {e}")
+            QMessageBox.critical(self, "Erro", f"Erro ao gerar script: {str(e)}")
 
     def generate_script_pavement_beam(self, is_library):
-        self.log(f"📜 [TODO] Gerar Script Pavimento Vigas Completo (Lib={is_library})")
-        # Implement script generation logic here
+        """Gera script para vigas do pavimento atual."""
+        self.log(f"📜 Gerando Script Pavimento Vigas (Lib={is_library})")
+
+        # Verificar se Robo Laterais está disponível
+        if not hasattr(self, 'robo_viga') or not self.robo_viga:
+            QMessageBox.warning(self, "Erro", "Módulo Robo Laterais de Viga não está carregado.")
+            return
+
+        try:
+            # Obter contexto
+            obra_nome = self.cmb_works.currentText()
+            pavimento_nome = self.cmb_pavements.currentText()
+
+            if not obra_nome or not pavimento_nome:
+                QMessageBox.warning(self, "Aviso", "Selecione obra e pavimento na barra superior.")
+                return
+
+            # Sincronizar obra e pavimento no Robo de Vigas
+            if hasattr(self.robo_viga, 'add_global_pavimento'):
+                self.robo_viga.add_global_pavimento(obra_nome, pavimento_nome)
+
+            # Usar o método generate_pavimento_scripts do Robo de Vigas
+            if hasattr(self.robo_viga, 'generate_pavimento_scripts'):
+                self.robo_viga.generate_pavimento_scripts()
+                self._create_laz_command_files()
+                QMessageBox.information(self, "Sucesso",
+                    f"Script gerado para pavimento '{pavimento_nome}'.\n\n"
+                    f"Arquivos salvos em: {self._get_scripts_dir()}")
+            else:
+                QMessageBox.warning(self, "Erro", "Método de geração de pavimento não disponível no Robo Laterais de Viga.")
+
+        except Exception as e:
+            self.log(f"❌ Erro ao gerar script do pavimento: {e}")
+            QMessageBox.critical(self, "Erro", f"Erro ao gerar script: {str(e)}")
 
     def export_data_json(self, item_type, is_library):
         """Exporta os dados da lista atual para JSON."""

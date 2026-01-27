@@ -248,7 +248,7 @@ def processar_pasta(pasta):
 def atualizar_comando_combinado(primeiro_arquivo_path):
     comando_path = "C:/Users/rvene/Desktop/Automacao_cad/Vigas/A_B/Ferramentas/TESTE_VIGA_TVTV.scr"
     try:
-        with open(comando_path, 'wb') as f:
+        with open(comando_path, 'w') as f:
             conteudo = "_SCRIPT\n"
             caminho_formatado = primeiro_arquivo_path.replace('\\', '/')
             conteudo += f"{caminho_formatado}\n"

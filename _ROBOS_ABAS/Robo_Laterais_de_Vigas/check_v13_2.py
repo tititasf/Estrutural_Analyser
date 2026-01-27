@@ -1,7 +1,9 @@
-import pickle
+import json
 
-with open(r"d:\Users\rvene\Desktop\GITHUB\Automacao_cad\Vigas\fundos_salvos.pkl", "rb") as f:
-    data = pickle.load(f)
+with open(r"d:\Users\rvene\Desktop\GITHUB\Automacao_cad\Vigas\fundos_salvos.json", 'r', encoding='utf-8') as f:
+
+
+    data  = json.load(f)
 # Search for viga with numero 13.2
 viga = None
 for v in data.values():

@@ -1,11 +1,12 @@
-import pickle
+import json
 import os
 import json
 
-legacy_file = r"d:\Users\rvene\Desktop\GITHUB\Automacao_cad\Vigas\fundos_salvos.pkl"
+legacy_file = r"d:\Users\rvene\Desktop\GITHUB\Automacao_cad\Vigas\fundos_salvos.json"
 if os.path.exists(legacy_file):
-    with open(legacy_file, 'rb') as f:
-        data = pickle.load(f)
+    with open(legacy_file, 'r', encoding='utf-8') as f:
+
+        data  = json.load(f)
     print(f"Total items: {len(data)}")
     
     # Check 5 items

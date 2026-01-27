@@ -206,6 +206,19 @@ class ContextEngine:
         debug_info = ""
         
         if training_ctx and training_ctx.get('samples', 0) > 0:
+             # Check N/A Prediction first
+             if training_ctx.get('predicted_status') == 'na':
+                 used_memory = True
+                 debug_info = f"IA: Predição N/A por Contexto (n={training_ctx['samples']})"
+                 return {
+                    'found_ent': None,
+                    'links': [],
+                    'confidence': 1.0,
+                    'used_training': True,
+                    'debug': debug_info,
+                    'status': 'na'
+                 }
+
              offset_x, offset_y = training_ctx['avg_rel_pos']
              used_memory = True
              sim = training_ctx.get('similarity', 0.5)
@@ -218,6 +231,7 @@ class ContextEngine:
         # 3. Executar Busca
         found_ent = None
         new_links = []
+        is_na_pattern = False
         
         # Caso especial: Vazio (X)
         if slot_id == 'void_x':
@@ -258,9 +272,25 @@ class ContextEngine:
                  if found_ent:
                      debug_info += " (Recuperado via Fallback sem offset)"
 
+            # Check patterns_na
+            patterns_na = search_config.get('patterns_na', '')
+            if found_ent and patterns_na:
+                try:
+                    if re.search(patterns_na, str(found_ent.get('text', '')), re.I):
+                        found_ent = None
+                        new_links = []
+                        is_na_pattern = True
+                        debug_info += " (N/A via Pattern Match)"
+                        confidence = 1.0
+                except Exception as e:
+                    debug_info += f" (Erro regex NA: {e})"
+
             if found_ent:
                 new_links.append({'text': found_ent['text'], 'type': 'text', 'pos': found_ent['pos'], 'role': slot_id})
                 confidence += 0.2
+            elif is_na_pattern:
+                # Se foi explicitamente filtrado como NA, mantemos confiança alta
+                pass
             else:
                 confidence = 0.0
 
@@ -269,7 +299,8 @@ class ContextEngine:
             'links': new_links,
             'confidence': min(1.0, confidence),
             'used_training': used_memory,
-            'debug': debug_info if used_memory else f"C:{confidence:.2f} | R:{search_radius:.0f}"
+            'debug': debug_info if used_memory else f"C:{confidence:.2f} | R:{search_radius:.0f}",
+            'status': 'na' if is_na_pattern else 'valid'
         }
 
     # --- Métodos Auxiliares de Busca ---

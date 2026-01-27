@@ -1,10 +1,8 @@
-
-# LinkManager.py - Widget para gestão de vínculos
-# Limpo e Organizado
-
-from PySide6.QtWidgets import (QVBoxLayout, QHBoxLayout, QListWidget, 
-                                 QListWidgetItem, QPushButton, QLabel, QFrame, QTextEdit, 
-                                 QScrollArea, QWidget, QLineEdit, QMessageBox)
+import json
+import logging
+import uuid
+from PySide6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel, 
+                               QPushButton, QFrame, QScrollArea, QInputDialog, QMessageBox, QLineEdit)
 from PySide6.QtCore import Qt, Signal
 from src.ui.widgets.interpretation_dialog import InterpretationDialog
 
@@ -15,15 +13,16 @@ class LinkManager(QWidget):
     """
     focus_requested = Signal(dict)
     remove_requested = Signal(dict)
-    pick_requested = Signal(str)      # "slot_id|type"
-    research_requested = Signal(str)  # slot_id
+    pick_requested = Signal(str) # slot_id|role
+    research_requested = Signal(str) # slot_id
+    element_removed = Signal(dict)
     training_requested = Signal(dict) # {slot, link, comment, status}
     config_changed = Signal(str, list) # field_key, updated_slots_config
     metadata_changed = Signal(str, str, dict) # slot_id, type="interpretation", data={prompt, patterns}
     
     # New Signals for Hierarchy Validation
-    slot_validated = Signal(str) # slot_id
-    slot_na_toggled = Signal(str, bool) # slot_id, is_na
+    slot_validated = Signal(str, bool) # slot_id, checked
+    slot_na_toggled = Signal(str, bool) # slot_id, checked
 
     SLOT_CONFIG = {
         '_l1_n': [
@@ -73,9 +72,16 @@ class LinkManager(QWidget):
             {'id': 'seg_2', 'name': 'Segmento Chegada 2', 'type': 'poly', 'prompt': 'Desenhe a segunda linha da viga de chegada. [Enter] para finalizar.', 'help': 'Segmento 2 da viga que chega no pilar.'}
         ],
         '_viga_segs': [
-             {'id': 'seg_side_a', 'name': 'Segmentos Lado A', 'type': 'poly', 'prompt': 'Desenhe os segmentos do Lado A. [Enter] para finalizar.', 'help': 'Linhas do lado A da viga.'},
-             {'id': 'seg_side_b', 'name': 'Segmentos Lado B', 'type': 'poly', 'prompt': 'Desenhe os segmentos do Lado B. [Enter] para finalizar.', 'help': 'Linhas do lado B da viga.'},
              {'id': 'seg_bottom', 'name': 'Segmentos Fundos', 'type': 'poly', 'prompt': 'Desenhe os segmentos do Fundo. [Enter] para finalizar.', 'help': 'Linhas do fundo da viga.'}
+        ],
+        '_viga_seg_side_a': [
+             {'id': 'seg_side_a', 'name': 'Segmentos Lado A', 'type': 'poly', 'prompt': 'Desenhe os segmentos do Lado A. [Enter] para finalizar.', 'help': 'Linhas do lado A da viga.'}
+        ],
+        '_viga_seg_side_b': [
+             {'id': 'seg_side_b', 'name': 'Segmentos Lado B', 'type': 'poly', 'prompt': 'Desenhe os segmentos do Lado B. [Enter] para finalizar.', 'help': 'Linhas do lado B da viga.'}
+        ],
+        '_ajuste_comprimento': [
+             {'id': 'adjustment', 'name': 'Segmento de Ajuste', 'type': 'line', 'prompt': 'Ajuste automático gerado (+10cm).', 'help': 'Extensão automática para valor inteiro.'}
         ],
         '_fundo_segs': [
              {'id': 'contour', 'name': 'Contorno Fundo', 'type': 'poly', 'prompt': 'Desenhe o perímetro do fundo (Polyline). [Enter] para finalizar.', 'help': 'Geometria do fundo da viga.'}
@@ -92,6 +98,48 @@ class LinkManager(QWidget):
              {'id': 'label', 'name': '1. Nome da Laje', 'type': 'text', 'prompt': 'Busque o texto identificador (Ex: L1).', 'help': 'Identificador da laje.'},
              {'id': 'dim', 'name': '2. Dimensão (Valor)', 'type': 'text', 'prompt': 'Busque o texto de dimensão (Ex: H=12).', 'help': 'Define o valor do campo.'},
              {'id': 'cut_view', 'name': '3. Visão de Corte', 'type': 'poly', 'prompt': 'Desenhe a linha de corte/T sobre a viga. [Enter] para finalizar.', 'help': 'Referência visual da posição da laje.'}
+        ],
+        '_abert_pilar_esq': [
+             {'id': 'label', 'name': '1. Texto Pilar', 'type': 'text', 'prompt': 'Identifique o nome do pilar.'},
+             {'id': 'segment', 'name': '2. Segmento Pilar', 'type': 'poly', 'prompt': 'Desenhe o contorno do pilar.'},
+             {'id': 'contact_lines', 'name': '3. Linhas Contato', 'type': 'poly', 'prompt': 'Desenhe Dist + Larg contato.'},
+             {'id': 'cont_tip_esq', 'name': '4. Cont. Esq', 'type': 'poly', 'prompt': 'Desenhe continuidade esquerda.'},
+             {'id': 'cont_tip_dir', 'name': '5. Cont. Dir', 'type': 'poly', 'prompt': 'Desenhe continuidade direita.'}
+        ],
+        '_abert_pilar_dir': [
+             {'id': 'label', 'name': '1. Texto Pilar', 'type': 'text', 'prompt': 'Identifique o nome do pilar.'},
+             {'id': 'segment', 'name': '2. Segmento Pilar', 'type': 'poly', 'prompt': 'Desenhe o contorno do pilar.'},
+             {'id': 'contact_lines', 'name': '3. Linhas Contato', 'type': 'poly', 'prompt': 'Desenhe Dist + Larg contato.'},
+             {'id': 'cont_tip_esq', 'name': '4. Cont. Esq', 'type': 'poly', 'prompt': 'Desenhe continuidade esquerda.'},
+             {'id': 'cont_tip_dir', 'name': '5. Cont. Dir', 'type': 'poly', 'prompt': 'Desenhe continuidade direita.'}
+        ],
+        '_abert_viga_top_esq': [
+             {'id': 'arr_label', 'name': '1. Nome Viga', 'type': 'text', 'prompt': 'Nome da viga que chega.'},
+             {'id': 'arr_geom', 'name': '2. Geometria', 'type': 'poly', 'prompt': 'Desenhe a viga que chega.'},
+             {'id': 'arr_dim', 'name': '3. Dimensões', 'type': 'text', 'prompt': 'Busque texto tipo 20x60.'},
+             {'id': 'adj_mouth', 'name': '4. Ajuste Boca', 'type': 'poly', 'prompt': 'Desenhe ajuste boca.'},
+             {'id': 'adj_depth', 'name': '5. Ajuste Prof.', 'type': 'poly', 'prompt': 'Desenhe ajuste profundidade.'}
+        ],
+        '_abert_viga_top_dir': [
+             {'id': 'arr_label', 'name': '1. Nome Viga', 'type': 'text', 'prompt': 'Nome da viga que chega.'},
+             {'id': 'arr_geom', 'name': '2. Geometria', 'type': 'poly', 'prompt': 'Desenhe a viga que chega.'},
+             {'id': 'arr_dim', 'name': '3. Dimensões', 'type': 'text', 'prompt': 'Busque texto tipo 20x60.'},
+             {'id': 'adj_mouth', 'name': '4. Ajuste Boca', 'type': 'poly', 'prompt': 'Desenhe ajuste boca.'},
+             {'id': 'adj_depth', 'name': '5. Ajuste Prof.', 'type': 'poly', 'prompt': 'Desenhe ajuste profundidade.'}
+        ],
+        '_abert_viga_fun_esq': [
+             {'id': 'arr_label', 'name': '1. Nome Viga', 'type': 'text', 'prompt': 'Nome da viga que chega.'},
+             {'id': 'arr_geom', 'name': '2. Geometria', 'type': 'poly', 'prompt': 'Desenhe a viga que chega.'},
+             {'id': 'arr_dim', 'name': '3. Dimensões', 'type': 'text', 'prompt': 'Busque texto tipo 20x60.'},
+             {'id': 'adj_mouth', 'name': '4. Ajuste Boca', 'type': 'poly', 'prompt': 'Desenhe ajuste boca.'},
+             {'id': 'adj_depth', 'name': '5. Ajuste Prof.', 'type': 'poly', 'prompt': 'Desenhe ajuste profundidade.'}
+        ],
+        '_abert_viga_fun_dir': [
+             {'id': 'arr_label', 'name': '1. Nome Viga', 'type': 'text', 'prompt': 'Nome da viga que chega.'},
+             {'id': 'arr_geom', 'name': '2. Geometria', 'type': 'poly', 'prompt': 'Desenhe a viga que chega.'},
+             {'id': 'arr_dim', 'name': '3. Dimensões', 'type': 'text', 'prompt': 'Busque texto tipo 20x60.'},
+             {'id': 'adj_mouth', 'name': '4. Ajuste Boca', 'type': 'poly', 'prompt': 'Desenhe ajuste boca.'},
+             {'id': 'adj_depth', 'name': '5. Ajuste Prof.', 'type': 'poly', 'prompt': 'Desenhe ajuste profundidade.'}
         ],
         '_laje_dim': [
              {'id': 'label', 'name': 'Vínculo de Texto (Dimensão)', 'type': 'text', 'prompt': 'Busque o texto de dimensão (Ex: H=12).', 'help': 'Texto identificador da espessura/dimensão da laje.', 'patterns': 'REGEX: [HhDd][= :]?\\d+\nExemplos: H=12, d=10, h=15\nLayer: ARQ_TXT_LAJE'}
@@ -120,12 +168,11 @@ class LinkManager(QWidget):
              {'id': 'arr_geom', 'name': '2. Geometria Viga Chegada', 'type': 'poly', 'prompt': 'Desenhe a viga que chega. [Enter] para finalizar.', 'help': 'Geometria da viga.'},
              {'id': 'arr_dim', 'name': '3. Dimensões Viga Chegada', 'type': 'text', 'prompt': 'Busque texto tipo 20x60.', 'help': 'Define Largura Boca e Profundidade.'},
              {'id': 'curr_dim', 'name': '4. Dimensões Viga Atual', 'type': 'text', 'prompt': 'Busque dimensões da viga atual.', 'help': 'Referência cruzada.'},
-             {'id': 'adj_mouth', 'name': '5. Ajuste Boca', 'type': 'poly', 'prompt': 'Desenhe linha de ajuste da boca. [Enter] para finalizar.', 'help': 'Comprimento define ajuste boca.'},
-             {'id': 'adj_depth', 'name': '6. Ajuste Profundidade', 'type': 'poly', 'prompt': 'Desenhe linha de ajuste de profundidade. [Enter] para finalizar.', 'help': 'Comprimento define ajuste profundidade.'}
+             {'id': 'adj_mouth', 'name': '5. Ajuste Boca', 'type': 'text', 'mode': 'manual', 'default': '8', 'prompt': 'Valor manual de ajuste da boca.', 'help': 'Valor fixo para ajuste da boca (cm).'},
+             {'id': 'adj_depth', 'name': '6. Ajuste Profundidade', 'type': 'text', 'mode': 'manual', 'default': '4', 'prompt': 'Valor manual de ajuste da profundidade.', 'help': 'Valor fixo para ajuste da profundidade (cm).'}
         ],
         '_comprimento_total': [
-             {'id': 'geometry', 'name': 'Linha de Comprimento', 'type': 'poly', 'prompt': 'Desenhe a linha total do vão. [Enter] para finalizar.', 'help': 'Define o valor do comprimento.'},
-             {'id': 'adjustment', 'name': 'Segmento de Ajuste', 'type': 'line', 'prompt': 'Ajuste automático gerado (+10cm).', 'help': 'Extensão automática para valor inteiro.'}
+             {'id': 'geometry', 'name': 'Linha de Comprimento', 'type': 'poly', 'prompt': 'Desenhe a linha total do vão. [Enter] para finalizar.', 'help': 'Define o valor do comprimento.'}
         ],
         '_cut_view_complex': [
              {'id': 'geometry', 'name': 'Geometria Visão Corte', 'type': 'poly', 'prompt': 'Desenhe as linhas da visão de corte. [Enter] para finalizar.', 'help': 'Geometria visual do corte.'},
@@ -193,14 +240,25 @@ class LinkManager(QWidget):
         if '_h1' in field_id or '_h2' in field_id:
              return self.SLOT_CONFIG['_height_complex']
 
-        if '_abert_pilar_' in field_id:
-             return self.SLOT_CONFIG['_pilar_opening']
+        if '_abert_pilar_esq' in field_id:
+             return self.SLOT_CONFIG['_abert_pilar_esq']
+        if '_abert_pilar_dir' in field_id:
+             return self.SLOT_CONFIG['_abert_pilar_dir']
 
-        if '_abert_viga_' in field_id:
-             return self.SLOT_CONFIG['_beam_opening']
+        if '_abert_viga_top_esq' in field_id:
+             return self.SLOT_CONFIG['_abert_viga_top_esq']
+        if '_abert_viga_top_dir' in field_id:
+             return self.SLOT_CONFIG['_abert_viga_top_dir']
+        if '_abert_viga_fun_esq' in field_id:
+             return self.SLOT_CONFIG['_abert_viga_fun_esq']
+        if '_abert_viga_fun_dir' in field_id:
+             return self.SLOT_CONFIG['_abert_viga_fun_dir']
              
-        if '_comprimento' in field_id:
+        if '_comprimento' in field_id and '_ajuste' not in field_id:
              return self.SLOT_CONFIG['_comprimento_total']
+        
+        if '_ajuste_comprimento' in field_id:
+             return self.SLOT_CONFIG['_ajuste_comprimento']
 
         if '_visao_corte' in field_id:
             return self.SLOT_CONFIG['_cut_view_complex']
@@ -212,6 +270,13 @@ class LinkManager(QWidget):
         if 'unioes_marco' in field_id:
             return self.SLOT_CONFIG['_marco_uniao']
 
+        if 'comp_total_passa' in field_id:
+            # Detectar se é lado A ou B
+            if 'viga_a_' in field_id:
+                return self.SLOT_CONFIG['_viga_seg_side_a']
+            elif 'viga_b_' in field_id:
+                return self.SLOT_CONFIG['_viga_seg_side_b']
+        
         if 'viga_' in field_id and '_segs' in field_id:
             return self.SLOT_CONFIG['_viga_segs']
         
@@ -381,6 +446,57 @@ class LinkManager(QWidget):
             sf_layout = QVBoxLayout(slot_frame)
             sf_layout.setSpacing(5)
 
+            # --- MANUAL MODE RENDER ---
+            if slot.get('mode') == 'manual':
+                # Layout Simplificado para Campos Manuais
+                man_layout = QHBoxLayout()
+                man_layout.setContentsMargins(0, 0, 0, 0)
+                
+                # Titulo
+                lbl_name = QLabel(slot['name'].upper())
+                lbl_name.setStyleSheet("font-weight: bold; color: #aaa; font-size: 11px;")
+                man_layout.addWidget(lbl_name)
+                
+                # Input Valor Manual
+                # Tentar recuperar valor existente nos links ou usar default
+                current_val = slot.get('default', '')
+                if not is_empty and slot_links:
+                    current_val = str(slot_links[0].get('text', current_val))
+                
+                inp_manual = QLineEdit(current_val)
+                inp_manual.setFixedWidth(60)
+                inp_manual.setStyleSheet("""
+                    QLineEdit { 
+                        background: #333; border: 1px solid #555; color: #fff; 
+                        padding: 2px; border-radius: 3px; font-weight: bold;
+                    }
+                    QLineEdit:focus { border: 1px solid #00d4ff; background: #444; }
+                """)
+                
+                # Salvar alteração simulando um link de texto
+                def save_manual_val(text, s_id=slot_id):
+                    # Cria estrutura de link fake para manter compatibilidade
+                    fake_link = {'id': str(uuid.uuid4()), 'type': 'text', 'text': text, 'manual': True}
+                    self.links[s_id] = [fake_link]
+                    # Dispara signals necessários
+                    self.config_changed.emit(self.field_id, []) 
+                
+                inp_manual.textChanged.connect(save_manual_val)
+                man_layout.addWidget(inp_manual)
+                man_layout.addStretch()
+                
+                # Help Icon
+                btn_help = QPushButton("?")
+                btn_help.setFixedSize(20, 20)
+                btn_help.setStyleSheet("border: none; color: #666; font-weight: bold;")
+                btn_help.setToolTip(slot.get('help', ''))
+                man_layout.addWidget(btn_help)
+                
+                sf_layout.addLayout(man_layout)
+                self.slots_container.addWidget(slot_frame)
+                continue # Pula renderização padrão
+
+            # --- STANDARD RENDER ---
             # Header
             header_layout = QHBoxLayout()
             st_lbl = QLabel(slot['name'].upper())
@@ -399,13 +515,23 @@ class LinkManager(QWidget):
             # 1. Validate Class (✔) -> Valida todos os vínculos internos
             btn_val_class = QPushButton("✔")
             btn_val_class.setFixedSize(24, 20)
+            btn_val_class.setCheckable(True)
+            btn_val_class.setChecked(is_class_validated)
             btn_val_class.setCursor(Qt.PointingHandCursor)
-            btn_val_class.setToolTip(f"Validar todo o grupo '{slot['name']}'")
-            btn_val_class.setStyleSheet("""
-                QPushButton { background: transparent; color: #00e676; border: 1px solid #333; border-radius: 4px; }
-                QPushButton:hover { background: #00e676; color: #121212; border: 1px solid #00e676; }
-            """)
-            btn_val_class.clicked.connect(lambda checked=False, s_id=slot_id: self.slot_validated.emit(s_id))
+            btn_val_class.setToolTip(f"Validar todo o grupo '{slot['name']}' (Clique para desfazer)")
+            
+            if is_class_validated:
+                btn_val_class.setStyleSheet("""
+                    QPushButton { background: #1b3a24; color: #00e676; border: 1px solid #00e676; border-radius: 4px; }
+                    QPushButton:hover { background: #00e676; color: white; }
+                """)
+            else:
+                btn_val_class.setStyleSheet("""
+                    QPushButton { background: transparent; color: #00e676; border: 1px solid #333; border-radius: 4px; }
+                    QPushButton:hover { background: #00e676; color: #121212; border: 1px solid #00e676; }
+                """)
+                
+            btn_val_class.clicked.connect(lambda checked, s_id=slot_id: self.slot_validated.emit(s_id, checked))
             header_layout.addWidget(btn_val_class)
             
             # 2. N/A Class (🚫) -> Marca classe como N/A e limpa vínculos
@@ -477,26 +603,24 @@ class LinkManager(QWidget):
                     btn_ok = QPushButton("✔")
                     btn_ok.setProperty("class", "TrainBtn TrainSuccess")
                     btn_ok.setFixedSize(24, 20)
-                    btn_ok.setToolTip("Validar/Treinar IA")
+                    btn_ok.setCheckable(True)
+                    btn_ok.setChecked(is_valid)
+                    btn_ok.setToolTip("Validar/Treinar IA (Clique novamente para desfazer)")
                     if is_valid: 
-                        btn_ok.setEnabled(False)
                         btn_ok.setStyleSheet("background: #1b3a24; color: #4CAF50; border: 1px solid #4CAF50;")
                         
-                    btn_ok.clicked.connect(lambda checked=False, s=slot_id, l=link: self.training_requested.emit({
-                        'slot': s, 'link': l, 'comment': 'Validado via Drawer', 'status': 'valid'
-                    }))
+                    btn_ok.clicked.connect(lambda checked, s=slot_id, l=link: self._handle_training_click(s, l, 'valid'))
 
                     btn_err = QPushButton("⚠️")
                     btn_err.setProperty("class", "TrainBtn TrainFail")
                     btn_err.setFixedSize(24, 20)
-                    btn_err.setToolTip("Indicar Erro de IA")
+                    btn_err.setCheckable(True)
+                    btn_err.setChecked(is_failed)
+                    btn_err.setToolTip("Indicar Erro de IA (Clique novamente para desfazer)")
                     if is_failed:
-                        btn_err.setEnabled(False)
                         btn_err.setStyleSheet("background: #3a1b1b; color: #ff5252; border: 1px solid #ff5252;")
                         
-                    btn_err.clicked.connect(lambda checked=False, s=slot_id, l=link: self.training_requested.emit({
-                        'slot': s, 'link': l, 'comment': 'Erro via Drawer', 'status': 'fail'
-                    }))
+                    btn_err.clicked.connect(lambda checked, s=slot_id, l=link: self._handle_training_click(s, l, 'fail'))
 
                     lf_layout.addWidget(val_lbl, 1)
                     
@@ -557,6 +681,25 @@ class LinkManager(QWidget):
                 self.links[slot_id].remove(link)
                 self.refresh_list()
 
+    def _handle_training_click(self, slot_id, link, target_status):
+        """
+        Gerencia o clique nos botões de treino (OK/Erro) com suporte a Toggle (Undo).
+        """
+        is_already_checked = (target_status == 'valid' and link.get('validated')) or \
+                             (target_status == 'fail' and link.get('failed'))
+        
+        status = 'removed' if is_already_checked else target_status
+        comment = f"Undo: {target_status}" if status == 'removed' else (
+            'Validado via Drawer' if target_status == 'valid' else 'Erro via Drawer'
+        )
+        
+        self.training_requested.emit({
+            'slot': slot_id,
+            'link': link,
+            'comment': comment,
+            'status': status
+        })
+
     def _open_slot_interpretation(self, slot_id, slot_name):
         """Abre o diálogo de interpretação para uma CLASSE DE VÍNCULO (Slot) específica"""
         
@@ -565,6 +708,7 @@ class LinkManager(QWidget):
         # Fallback to default config if meta is empty
         default_prompt = ""
         default_patterns = ""
+        default_patterns_na = ""
         
         # Encontra a configuração deste slot para pegar os defaults
         slots = self._get_slots(self.field_id)
@@ -573,27 +717,32 @@ class LinkManager(QWidget):
                 if s['id'] == slot_id:
                     default_prompt = s.get('prompt', "")
                     default_patterns = s.get('patterns', "")
+                    default_patterns_na = s.get('patterns_na', "")
                     break
         
         current_prompt = current_meta.get('prompt', default_prompt)
         current_patterns = current_meta.get('patterns', default_patterns)
+        current_patterns_na = current_meta.get('patterns_na', default_patterns_na)
         
         dlg = InterpretationDialog(self, field_label=f"{slot_name} ({slot_id})", 
                                    current_prompt=current_prompt, 
-                                   current_patterns=current_patterns)
+                                   current_patterns=current_patterns,
+                                   current_patterns_na=current_patterns_na)
         
         if dlg.exec():
-            new_prompt, new_patterns = dlg.get_data()
+            new_prompt, new_patterns, new_patterns_na = dlg.get_data()
             
             # Atualiza cache local
             if slot_id not in self.metadata_cache: self.metadata_cache[slot_id] = {}
             self.metadata_cache[slot_id]['prompt'] = new_prompt
             self.metadata_cache[slot_id]['patterns'] = new_patterns
+            self.metadata_cache[slot_id]['patterns_na'] = new_patterns_na
             
             # Avisa quem coordena (DetailCard) para salvar no JSON do item
             self.metadata_changed.emit(slot_id, "interpretation", {
                 'prompt': new_prompt,
-                'patterns': new_patterns
+                'patterns': new_patterns,
+                'patterns_na': new_patterns_na
             })
 
     def _save_slot_definition(self, slot, name, prompt, help_text):

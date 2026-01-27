@@ -462,16 +462,64 @@ class TrainingLog(QWidget):
                 child.widget().deleteLater()
         
         if not project_id: return
+        
+        self.btn_sync.setEnabled(True)
 
         events = self.db.get_training_events(project_id)
-        
+        if not events:
+            lbl_empty = QLabel("Nenhum feedback de treino para este projeto.")
+            lbl_empty.setAlignment(Qt.AlignCenter)
+            lbl_empty.setStyleSheet("color: #555; font-style: italic; margin-top: 20px;")
+            self.cards_layout.insertWidget(0, lbl_empty)
+            return
+
+        # --- Agrupamento por Classe ---
+        groups = {}
         for ev in events:
-            card = TrainingEventCard(ev)
-            card.focus_requested.connect(self.focus_requested.emit)
-            card.delete_requested.connect(self.on_delete_requested)
+            try:
+                dna_str = ev.get('context_dna_json', '{}')
+                dna = json.loads(dna_str)
+                # Extrair classe (Pilar, Viga, Laje)
+                item_ctx = dna.get('level_2_item', {}) if isinstance(dna, dict) else {}
+                classe = item_ctx.get('type', 'Outros')
+                if not classe: classe = 'Outros'
+            except:
+                classe = 'Outros'
             
-            # Insert before the stretch item
-            self.cards_layout.insertWidget(self.cards_layout.count()-1, card)
+            if classe not in groups:
+                groups[classe] = []
+            groups[classe].append(ev)
+            
+        # Ordenar classes (Pilar primeiro, depois outros)
+        sorted_classes = sorted(groups.keys(), key=lambda x: (x != 'Pilar', x != 'Viga', x != 'Laje', x))
+        
+        for classe in sorted_classes:
+            # Separador Visual para a Classe
+            header_widget = QWidget()
+            h_layout = QHBoxLayout(header_widget)
+            h_layout.setContentsMargins(0, 5, 0, 2)
+            
+            lbl_header = QLabel(f"📁 {classe.upper()}")
+            lbl_header.setStyleSheet("color: #d63384; font-weight: bold; font-size: 11px; letter-spacing: 1px;")
+            h_layout.addWidget(lbl_header)
+            
+            line = QFrame()
+            line.setFrameShape(QFrame.HLine)
+            line.setStyleSheet("background: #d6338433; height: 1px; border: none;")
+            h_layout.addWidget(line, 1)
+            
+            count_label = QLabel(f"{len(groups[classe])}")
+            count_label.setStyleSheet("color: #777; font-size: 10px; background: #222; padding: 1px 6px; border-radius: 6px;")
+            h_layout.addWidget(count_label)
+            
+            self.cards_layout.insertWidget(self.cards_layout.count()-1, header_widget)
+            
+            # Adicionar Cards da Classe
+            for ev in groups[classe]:
+                card = TrainingEventCard(ev)
+                card.focus_requested.connect(self.focus_requested.emit)
+                card.delete_requested.connect(self.on_delete_requested)
+                self.cards_layout.insertWidget(self.cards_layout.count()-1, card)
 
     def on_delete_requested(self, event_data):
         role = event_data.get('role', 'Item')

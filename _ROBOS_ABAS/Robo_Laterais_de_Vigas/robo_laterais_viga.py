@@ -1,7 +1,7 @@
 import tkinter as tk
 from tkinter import ttk, filedialog, messagebox, simpledialog
 import os
-import pickle
+import json
 import openpyxl
 import win32com.client
 import pythoncom
@@ -2206,17 +2206,19 @@ class FundoProducaoApp(tk.Tk):
     def _carregar_fundos_salvos(self):
         """Carrega os fundos salvos do arquivo."""
         try:
-            if os.path.exists('fundos_salvos.pkl'):
-                with open('fundos_salvos.pkl', 'rb') as f:
-                    self.fundos_salvos = pickle.load(f)
+            if os.path.exists('fundos_salvos.json'):
+                with open('fundos_salvos.json', 'r', encoding='utf-8') as f:
+
+                    self.fundos_salvos  = json.load(f)
                 self._atualizar_lista()
         except Exception as e:
             messagebox.showerror("Erro", f"Erro ao carregar fundos salvos: {str(e)}")
     def _salvar_fundos_salvos(self):
         """Salva os fundos no arquivo."""
         try:
-            with open('fundos_salvos.pkl', 'wb') as f:
-                pickle.dump(self.fundos_salvos, f)
+            with open('fundos_salvos.json', 'w', encoding='utf-8') as f:
+
+                json.dump(self.fundos_salvos, f, indent=4, ensure_ascii=False)
         except Exception as e:
             messagebox.showerror("Erro", f"Erro ao salvar fundos: {str(e)}")
     def _get_checkbox_state(self, numero):
@@ -3548,19 +3550,21 @@ class FundoProducaoApp(tk.Tk):
             'lado': safe_get_str(self.lado_var),
         }
     def _salvar_combinacoes(self):
-        import pickle
+        import json
         try:
-            with open('combinacoes_salvas.pkl', 'wb') as f:
-                pickle.dump(self.combinacoes, f)
+            with open('combinacoes_salvas.json', 'w', encoding='utf-8') as f:
+
+                json.dump(self.combinacoes, f, indent=4, ensure_ascii=False)
         except Exception as e:
             print(f"Erro ao salvar combinações: {e}")
     def _carregar_combinacoes(self):
         import os
-        import pickle
-        if os.path.exists('combinacoes_salvas.pkl'):
+        import json
+        if os.path.exists('combinacoes_salvas.json'):
             try:
-                with open('combinacoes_salvas.pkl', 'rb') as f:
-                    self.combinacoes = pickle.load(f)
+                with open('combinacoes_salvas.json', 'r', encoding='utf-8') as f:
+
+                    self.combinacoes  = json.load(f)
                 self._atualizar_lista_combinacoes()
             except Exception as e:
                 print(f"Erro ao carregar combinações: {e}")

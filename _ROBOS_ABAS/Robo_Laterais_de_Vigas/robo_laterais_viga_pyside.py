@@ -1,6 +1,6 @@
-﻿import sys
+import sys
 import os
-import pickle
+import json
 import json
 import shutil
 import re
@@ -1831,14 +1831,16 @@ class VigaMainWindow(QMainWindow):
         # Definir caminho absoluto adaptável para Dev ou EXE
         if getattr(sys, 'frozen', False):
             self.app_root = os.path.dirname(sys.executable)
-            # No EXE, salvamos os dados e config na mesma pasta do executável
             self.persistence_file = os.path.join(self.app_root, "dados_vigas_ultima_sessao.json")
             self.config_file = os.path.join(self.app_root, "config.json")
+            self.templates_file = os.path.join(self.app_root, "config", "templates_laterais_vigas.json")
         else:
             self.app_root = os.path.dirname(os.path.abspath(__file__))
-            # Em Dev, dados ficam em A_B e config na raiz do projeto (pai de A_B)
             self.persistence_file = os.path.join(self.app_root, "dados_vigas_ultima_sessao.json")
-            self.config_file = os.path.join(os.path.dirname(self.app_root), "config.json")
+            self.config_file = os.path.join(self.app_root, "config.json")
+            # Templates: _ROBOS_ABAS/config/templates_laterais_vigas.json (fonte única)
+            _config_dir = os.path.join(os.path.dirname(self.app_root), "config")
+            self.templates_file = os.path.join(_config_dir, "templates_laterais_vigas.json")
             
         self.config = self._carregar_config()
         
@@ -1981,19 +1983,48 @@ class VigaMainWindow(QMainWindow):
 
 
     def _carregar_config(self):
-        """Carrega as configurações do arquivo config.json."""
+        """Carrega config de config.json. Templates vêm de _ROBOS_ABAS/config/templates_laterais_vigas.json."""
         try:
             defaults = self._obter_config_padrao()
             loaded_config = {}
             if os.path.exists(self.config_file):
                 with open(self.config_file, 'r', encoding='utf-8') as f:
                     loaded_config = json.load(f)
-            
-            # Mesclar loaded_config sobre defaults para preservar configs do usuário mas garantir chaves novas
-            return self._merge_dicts(defaults, loaded_config)
+            config = self._merge_dicts(defaults.copy(), loaded_config)
+            config["templates"] = self._carregar_templates()
+            return config
         except Exception as e:
             print(f"Erro ao carregar configurações: {str(e)}")
             return self._obter_config_padrao()
+
+    def _carregar_templates(self):
+        """Carrega templates de _ROBOS_ABAS/config/templates_laterais_vigas.json."""
+        try:
+            if not os.path.exists(self.templates_file):
+                return {}
+            with open(self.templates_file, 'r', encoding='utf-8') as f:
+                data = json.load(f)
+            t = data.get("templates") or {}
+            return t if isinstance(t, dict) else {}
+        except Exception as e:
+            print(f"Erro ao carregar templates: {e}")
+            return {}
+
+    def _salvar_templates(self, templates_dict):
+        """Salva templates em _ROBOS_ABAS/config/templates_laterais_vigas.json. Preserva layers/comandos/opcoes existentes."""
+        try:
+            data = {}
+            if os.path.exists(self.templates_file):
+                with open(self.templates_file, 'r', encoding='utf-8') as f:
+                    data = json.load(f)
+            if not isinstance(data, dict):
+                data = {}
+            data["templates"] = templates_dict
+            os.makedirs(os.path.dirname(self.templates_file), exist_ok=True)
+            with open(self.templates_file, 'w', encoding='utf-8') as f:
+                json.dump(data, f, indent=4, ensure_ascii=False)
+        except Exception as e:
+            QMessageBox.critical(self, "Erro", f"Erro ao salvar templates: {e}")
 
     def _merge_dicts(self, default, user):
         """Deep merge dictionaries."""
@@ -2056,10 +2087,11 @@ class VigaMainWindow(QMainWindow):
         }
 
     def _salvar_config(self):
-        """Salva as configurações no arquivo config.json."""
+        """Salva configurações no config.json (layers, comandos, opcoes, numeracao). Templates ficam em templates_laterais_vigas.json."""
         try:
+            to_save = {k: v for k, v in self.config.items() if k != "templates"}
             with open(self.config_file, 'w', encoding='utf-8') as f:
-                json.dump(self.config, f, indent=4, ensure_ascii=False)
+                json.dump(to_save, f, indent=4, ensure_ascii=False)
         except Exception as e:
             QMessageBox.critical(self, "Erro", f"Erro ao salvar configurações: {e}")
 
@@ -2345,9 +2377,9 @@ class VigaMainWindow(QMainWindow):
                     "opcoes": {"tipo_linha": self.combo_linetype.currentText()}
                 }
                 self.config["templates"][name] = current_state
-                # Atualiza lista
                 self.list_templates.clear()
                 self.list_templates.addItems(sorted(self.config["templates"].keys()))
+                self._salvar_templates(self.config["templates"])
                 QMessageBox.information(dialog, "Sucesso", f"Template '{name}' salvo!")
 
         def load_selected_template():
@@ -2383,10 +2415,21 @@ class VigaMainWindow(QMainWindow):
             if res == QMessageBox.Yes:
                 del self.config["templates"][name]
                 self.list_templates.takeItem(self.list_templates.row(item))
-                
+                self._salvar_templates(self.config["templates"])
+
         btn_save_tmpl.clicked.connect(save_current_as_template)
         btn_load_tmpl.clicked.connect(load_selected_template)
         btn_del_tmpl.clicked.connect(delete_template)
+
+        def _refresh_templates_list():
+            self.list_templates.clear()
+            self.list_templates.addItems(sorted(self.config.get("templates", {}).keys()))
+
+        def _on_tab_changed(i):
+            if i == 3:
+                _refresh_templates_list()
+
+        tabs.currentChanged.connect(_on_tab_changed)
 
         layout.addWidget(tabs)
         
@@ -4940,8 +4983,19 @@ class VigaMainWindow(QMainWindow):
         data['nome'] = self._sanitize_name(data.get('nome', ''))
         data['obs'] = self._sanitize_name(data.get('obs', ''))
         
-        base_dir = os.path.join(self._get_scripts_root(), "SCRIPTS")
+        # Use o diretório SCRIPTS_ROBOS na raiz do projeto
+        project_root = self._get_project_root()
+        base_dir = os.path.join(project_root, "SCRIPTS_ROBOS")
         out_dir = os.path.join(base_dir, pavimento)
+        
+        # Limpar pasta do pavimento antes de gerar para evitar duplicações
+        if os.path.exists(out_dir):
+            import shutil
+            try:
+                shutil.rmtree(out_dir)
+                print(f"[INFO] Pasta limpa: {out_dir}")
+            except Exception as e:
+                print(f"Aviso: Erro ao limpar pasta {out_dir}: {e}")
         
         if not os.path.exists(out_dir):
             os.makedirs(out_dir)
@@ -4951,29 +5005,33 @@ class VigaMainWindow(QMainWindow):
             return
             
         # --- VERIFICAÇÃO DE LICENÇA (CRÉDITOS) ---
-        if not hasattr(self, 'licensing_service') or not self.licensing_service or not self.licensing_service.user_data:
-            QMessageBox.warning(self, "Modo Offline", "Geração de script bloqueada no modo Offline.\nRealize o login para consumir créditos e gerar scripts.")
-            return
-
-        area_m2 = self.calculate_total_area(self.model)
-        if area_m2 <= 0:
-            # Se não tem área, algo está errado nos dados, mas não vamos barrar se for 0? 
-            # Melhor exigir ao menos uma largura.
-            pass 
-        
-        # Pedir confirmação
-        msg = f"A geração deste script consumirá {area_m2:.2f} m² de créditos.\n\nDeseja continuar?"
-        ret = QMessageBox.question(self, "Consumo de Créditos", msg, QMessageBox.Yes | QMessageBox.No)
-        if ret != QMessageBox.Yes:
-            return
-
-        success, message = self.licensing_service.consume_credits(area_m2)
-        if not success:
-            QMessageBox.critical(self, "Sem Créditos", f"Erro ao consumir créditos: {message}")
-            return
-        
-        # Atualiza interface com créditos restantes
-        self.update_license_display()
+        # DESATIVADO PARA DESENVOLVIMENTO - Sistema de créditos desabilitado temporariamente
+        # TODO: Reativar verificação de créditos quando necessário
+        # area_m2 = self.calculate_total_area(self.model)
+        # has_license = hasattr(self, 'licensing_service') and self.licensing_service and self.licensing_service.user_data
+        # 
+        # if not has_license:
+        #     # Modo Offline - Informar mas permitir
+        #     msg = f"Você está no modo Offline. A geração deste script (aprox. {area_m2:.2f} m²) seria debitada da sua licença.\n\nDeseja continuar com a geração gratuita?"
+        #     ret = QMessageBox.question(self, "Modo Offline", msg, QMessageBox.Yes | QMessageBox.No)
+        #     if ret != QMessageBox.Yes: return
+        # else:
+        #     # Pedir confirmação de consumo real
+        #     msg = f"A geração deste script consumirá {area_m2:.2f} m² de créditos.\n\nDeseja continuar?"
+        #     ret = QMessageBox.question(self, "Consumo de Créditos", msg, QMessageBox.Yes | QMessageBox.No)
+        #     if ret != QMessageBox.Yes:
+        #         return
+        #
+        #     success, message = self.licensing_service.consume_credits(area_m2)
+        #     if not success:
+        #         # Se falhar o consumo, por enquanto liberamos como solicitado pelo usuário ("libera por enquanto")
+        #         msg_fail = f"Aviso: Não foi possível debitar os créditos ({message}).\n\nDeseja gerar o script gratuitamente por enquanto?"
+        #         ret_fail = QMessageBox.question(self, "Saldo Insuficiente", msg_fail, QMessageBox.Yes | QMessageBox.No)
+        #         if ret_fail != QMessageBox.Yes:
+        #             return
+        #     
+        #     # Atualiza interface com créditos restantes (se houve sucesso no consumo)
+        #     self.update_license_display()
 
         try:
             script_text, filepath = generator(data, out_dir)
@@ -5039,6 +5097,7 @@ class VigaMainWindow(QMainWindow):
 
     def _generate_bulk_scripts(self, vigas_dict, folder_name, question_text):
         """Lógica comum para gerar múltiplos scripts em uma pasta, ordenar e combinar."""
+        print(f"📊 [ROBO VIGAS] Iniciando geração bulk - {len(vigas_dict)} vigas encontradas, Pasta: '{folder_name}'")
         self.config = self._carregar_config() # Reload config to ensure latest commands
         count = 0
         generator = self.import_script_generator()
@@ -5051,7 +5110,9 @@ class VigaMainWindow(QMainWindow):
         confirm = QMessageBox.question(self, "Confirmar", question_text, QMessageBox.Yes | QMessageBox.No)
         if confirm != QMessageBox.Yes: return
 
-        base_dir = os.path.join(self._get_scripts_root(), "SCRIPTS")
+        # Use o diretório SCRIPTS_ROBOS na raiz do projeto
+        project_root = self._get_project_root()
+        base_dir = os.path.join(project_root, "SCRIPTS_ROBOS")
         out_dir = os.path.join(base_dir, self._sanitize_name(folder_name) or 'LOTE_VIGAS')
         
         # Limpeza da pasta
@@ -5066,10 +5127,6 @@ class VigaMainWindow(QMainWindow):
             os.makedirs(out_dir)
 
         # --- VERIFICAÇÃO DE LICENÇA (LOTE) ---
-        if not hasattr(self, 'licensing_service') or not self.licensing_service or not self.licensing_service.user_data:
-            QMessageBox.warning(self, "Modo Offline", "Geração de lote bloqueada no modo Offline.\nRealize o login para consumir créditos e gerar scripts.")
-            return
-
         total_lote_m2 = 0.0
         v_items = sorted(vigas_dict.items(), key=lambda x: [int(t) if t.isdigit() else t.lower() for t in re.split(r'(\d+)', str(x[0]))])
         for name, vstate_obj in v_items:
@@ -5079,15 +5136,30 @@ class VigaMainWindow(QMainWindow):
                 v_model = vstate_obj
             total_lote_m2 += self.calculate_total_area(v_model)
 
-        msg = f"A geração deste lote de {len(vigas_dict)} scripts consumirá um total de {total_lote_m2:.2f} m² de créditos.\n\nDeseja continuar?"
-        ret = QMessageBox.question(self, "Consumo de Créditos", msg, QMessageBox.Yes | QMessageBox.No)
-        if ret != QMessageBox.Yes:
-            return
+        has_license = hasattr(self, 'licensing_service') and self.licensing_service and self.licensing_service.user_data
 
-        success, message = self.licensing_service.consume_credits(total_lote_m2)
-        if not success:
-            QMessageBox.critical(self, "Sem Créditos", f"Erro ao consumir créditos: {message}")
-            return
+        if not has_license:
+            # Modo Offline - Informar mas permitir lote
+            msg = f"Você está no modo Offline. A geração deste lote ({len(vigas_dict)} vigas, aprox. {total_lote_m2:.2f} m²) seria debitada da sua licença.\n\nDeseja continuar com a geração gratuita?"
+            ret = QMessageBox.question(self, "Modo Offline", msg, QMessageBox.Yes | QMessageBox.No)
+            if ret != QMessageBox.Yes: return
+        else:
+            # Pedir confirmação de consumo real do lote
+            msg = f"A geração deste lote de {len(vigas_dict)} scripts consumirá um total de {total_lote_m2:.2f} m² de créditos.\n\nDeseja continuar?"
+            ret = QMessageBox.question(self, "Consumo de Créditos", msg, QMessageBox.Yes | QMessageBox.No)
+            if ret != QMessageBox.Yes:
+                return
+
+            success, message = self.licensing_service.consume_credits(total_lote_m2)
+            if not success:
+                # Se falhar o consumo de lote, por enquanto liberamos ("libera por enquanto")
+                msg_fail = f"Aviso: Não foi possível debitar os créditos do lote ({message}).\n\nDeseja gerar o lote gratuitamente por enquanto?"
+                ret_fail = QMessageBox.question(self, "Saldo Insuficiente", msg_fail, QMessageBox.Yes | QMessageBox.No)
+                if ret_fail != QMessageBox.Yes:
+                    return
+            
+            # Atualiza interface com créditos restantes (se houve sucesso no consumo de lote)
+            self.update_license_display()
         
         # Atualiza interface com créditos restantes
         self.update_license_display()
@@ -5103,19 +5175,21 @@ class VigaMainWindow(QMainWindow):
         vc_counter = 1
         
         # Instanciar gerador para acesso ao método de VC
-        gerador_inst = GeradorScriptViga(self.config) 
+        gerador_inst = GeradorScriptViga() 
 
         for name, vstate_obj in v_items:
             if isinstance(vstate_obj, dict):
                 vstate = self._dict_to_state(vstate_obj)
             else:
                 vstate = vstate_obj
-            
+
+            print(f"🔧 [ROBO VIGAS] Processando viga '{name}' - Painéis: {len(vstate.panels) if hasattr(vstate, 'panels') else 'N/A'}")
+
             # Atualiza o modelo com os dados deste item para consistência
             # (opcional se _dict_to_state já faz o trabalho, mas garantimos dicionário completo)
             # Use helper instead of direct to_dict if available or consistent
             # data = vstate.to_dict() # Original uses _vstate_to_script_dict which is better as it prepares fields
-            
+
             data = self._vstate_to_script_dict(vstate)
             
             # --- INJECT PARTNER DATA (BULK) ---
@@ -5253,25 +5327,32 @@ class VigaMainWindow(QMainWindow):
                     print(f"Erro ao tentar gerar VC separado: {ex_vc}")
             # ---------------------------------------
 
-        # 1. Ordenação
+        # 1. Ordenação (reposiciona coordenadas nos SCRs; exige cabeçalho numeracao/largura/altura)
+        pasta_ordenar = os.path.abspath(out_dir)
         try:
             import importlib
             import Ordenador_VIGA
             importlib.reload(Ordenador_VIGA)
-            Ordenador_VIGA.processar_pasta(out_dir)
+            print(f"[ORDENADOR] Processando pasta: {pasta_ordenar}")
+            Ordenador_VIGA.processar_pasta(pasta_ordenar)
         except Exception as e:
             print(f"Aviso ao ordenar: {e}")
+            import traceback
+            traceback.print_exc()
 
-        # 2. Combinação
+        # 2. Combinação (gera Combinados/1.scr, 2.scr, ... e encadeia com _SCRIPT)
         combined_script = None
         try:
             import importlib
             import Combinador_VIGA
             importlib.reload(Combinador_VIGA)
-            Combinador_VIGA.processar_arquivos(out_dir)
+            print(f"[COMBINADOR] Processando pasta: {pasta_ordenar}")
+            Combinador_VIGA.processar_arquivos(pasta_ordenar)
             combined_script = os.path.join(out_dir, "Combinados", "1.scr")
         except Exception as e:
             print(f"Aviso ao combinar: {e}")
+            import traceback
+            traceback.print_exc()
             
         # 3. Sincronização TV
         if combined_script and os.path.exists(combined_script):
@@ -5461,34 +5542,43 @@ class VigaMainWindow(QMainWindow):
         """Retorna a pasta raiz para os scripts, adaptando para ambiente Dev ou EXE."""
         return self.app_root
 
+    def _get_project_root(self):
+        """Retorna a raiz do projeto (onde fica o main.py)."""
+        if getattr(sys, 'frozen', False):
+            # Para executável, assumir que SCRIPTS_ROBOS está no mesmo nível
+            return os.path.dirname(self.app_root)
+        # Em Dev, subir dois níveis: Robo_Laterais_de_Vigas -> _ROBOS_ABAS -> raiz do projeto
+        return os.path.dirname(os.path.dirname(self.app_root))
+
     def action_create_lisp(self):
         """Cria os arquivos .lsp e .scr de infraestrutura com paths dinâmicos (Auto-Configuração)."""
-        base_dir = self._get_scripts_root()
-        scripts_dir = os.path.join(base_dir, "SCRIPTS")
-        if not os.path.exists(scripts_dir):
-            os.makedirs(scripts_dir)
-            
-        lsp_path = os.path.join(scripts_dir, "comando_TESTE_VIGA_TV.lsp")
-        scr_path = os.path.join(scripts_dir, "TESTE_VIGA_TV.scr")
-        
+        # Usar o diretório ferramentas_LOAD_LISP na raiz do projeto
+        project_root = self._get_project_root()
+        lisp_dir = os.path.join(project_root, "ferramentas_LOAD_LISP")
+        if not os.path.exists(lisp_dir):
+            os.makedirs(lisp_dir)
+
+        lsp_path = os.path.join(lisp_dir, "comando_TESTE_VIGA_TV.lsp")
+        scr_path = os.path.join(lisp_dir, "TESTE_VIGA_TV.scr")
+
         # Path para o AutoCAD (usando / para compatibilidade)
         scr_path_cad = scr_path.replace("\\", "/")
-        
+
         lsp_content = f';; Comando para executar script SCR automático (Gerado Dinamicamente)\n(defun c:TV ()\n  (command "_SCRIPT" "{scr_path_cad}")\n  (princ)\n)'
-        
+
         try:
             # Escrever LSP
             with open(lsp_path, 'w', encoding='utf-8') as f:
                 f.write(lsp_content)
-            
+
             # Criar um .scr inicial/vazio se não existir (UTF-16 LE para o CAD)
             if not os.path.exists(scr_path):
                 with open(scr_path, 'w', encoding='utf-16') as f:
                     f.write("; Script de Teste Inicial\n")
-            
-            QMessageBox.information(self, "Sucesso - Infra LISP", 
+
+            QMessageBox.information(self, "Sucesso - Infra LISP",
                 f"Arquivos criados com sucesso!\n\n"
-                f"1. Local: {scripts_dir}\n"
+                f"1. Local: {lisp_dir}\n"
                 f"2. Comado AutoCAD: TV\n\n"
                 f"Arraste o arquivo .lsp para dentro do AutoCAD para ativar o comando.")
         except Exception as e:
@@ -5497,19 +5587,124 @@ class VigaMainWindow(QMainWindow):
     def _update_test_script(self, source_script_path):
         """Atualiza o conteúdo do TESTE_VIGA_TV.scr com o script recém-gerado."""
         try:
-            base_dir = self._get_scripts_root()
-            test_scr_path = os.path.join(base_dir, "SCRIPTS", "TESTE_VIGA_TV.scr")
-            
+            # Usar o diretório ferramentas_LOAD_LISP na raiz do projeto
+            project_root = self._get_project_root()
+            lisp_dir = os.path.join(project_root, "ferramentas_LOAD_LISP")
+            test_scr_path = os.path.join(lisp_dir, "TESTE_VIGA_TV.scr")
+
             # Garante que a pasta existe
-            if not os.path.exists(os.path.dirname(test_scr_path)):
-                os.makedirs(os.path.dirname(test_scr_path))
+            if not os.path.exists(lisp_dir):
+                os.makedirs(lisp_dir)
+
+            # Verifica se o arquivo TESTE_VIGA_TV.scr atual tem conteúdo inválido e limpa se necessário
+            if os.path.exists(test_scr_path):
+                try:
+                    with open(test_scr_path, 'r', encoding='utf-16-le') as f:
+                        current_content = f.read()
+                    # Verifica se tem conteúdo problemático
+                    invalid_content = False
+                    for line in current_content.split('\n'):
+                        if line.strip() in ['ferramentas_LOAD_LISP', 'SCRIPTS_ROBOS'] or line.strip().startswith('c:\\'):
+                            invalid_content = True
+                            break
+
+                    if invalid_content:
+                        print("Aviso: Limpando conteúdo inválido do arquivo TESTE_VIGA_TV.scr")
+                        # Cria um arquivo limpo
+                        with open(test_scr_path, 'w', encoding='utf-16-le') as f:
+                            f.write("; Script de Teste - Atualizado automaticamente\n")
+                except:
+                    pass  # Ignora erros na verificação
+
+            # Verifica se o arquivo fonte existe
+            if not os.path.exists(source_script_path):
+                print(f"Aviso: Arquivo fonte não encontrado: {source_script_path}")
+                return
+
+            # Verifica se é realmente um arquivo SCR
+            if not source_script_path.endswith('.scr'):
+                print(f"Aviso: Arquivo fonte não é SCR: {source_script_path}")
+                return
+
+            # Verifica o tamanho do arquivo fonte (deve ter conteúdo significativo)
+            file_size = os.path.getsize(source_script_path)
+            if file_size < 50:  # Menos de 50 bytes é suspeito
+                print(f"Aviso: Arquivo fonte muito pequeno ({file_size} bytes): {source_script_path}")
+                return
+
+            # Lê o conteúdo do arquivo fonte com tratamento de encoding
+            content = None
+            try:
+                with open(source_script_path, 'r', encoding='utf-16-le') as f:
+                    content = f.read()
+            except UnicodeDecodeError:
+                try:
+                    with open(source_script_path, 'r', encoding='utf-8') as f:
+                        content = f.read()
+                except UnicodeDecodeError:
+                    print(f"Aviso: Encoding não suportado no arquivo fonte: {source_script_path}")
+                    return
+
+            if not content:
+                print(f"Aviso: Arquivo fonte vazio: {source_script_path}")
+                return
+
+            # Validações de conteúdo - PRESERVANDO LINHAS EM BRANCO
+            # Dividir preservando linhas vazias (não usar strip() no conteúdo inteiro)
+            content_lines = content.split('\n')
+            valid_lines = []
+            previous_line_was_script = False  # Flag para detectar comando _SCRIPT
+
+            for i, line in enumerate(content_lines):
+                # Remover apenas \r se houver (preserva linhas vazias)
+                line_clean = line.rstrip('\r')
                 
-            # Copia o conteúdo do script gerado para o script de teste principal
-            shutil.copy2(source_script_path, test_scr_path)
-            print(f"Sync: {os.path.basename(source_script_path)} -> TESTE_VIGA_TV.scr")
-            
+                # Verificar se é linha inválida (apenas linhas não-vazias)
+                is_invalid = False
+                line_stripped = line_clean.strip()
+                
+                # Verificar se a linha anterior era _SCRIPT
+                if i > 0:
+                    prev_line_stripped = content_lines[i-1].rstrip('\r').strip()
+                    previous_line_was_script = (prev_line_stripped == '_SCRIPT')
+                else:
+                    previous_line_was_script = False
+                
+                if line_stripped:  # Se não for vazia
+                    # Filtra linhas inválidas, EXCETO se vier após _SCRIPT (é argumento válido)
+                    if (line_stripped.startswith('ferramentas_LOAD_LISP') or 
+                        line_stripped.startswith('SCRIPTS_ROBOS')):
+                        is_invalid = True
+                    elif line_stripped.startswith('c:\\'):
+                        # Só é inválido se NÃO vier após _SCRIPT
+                        if not previous_line_was_script:
+                            is_invalid = True
+                
+                # Adiciona linha se não for inválida (preserva linhas em branco vazias)
+                if not is_invalid:
+                    # Para linhas vazias, adicionar string vazia; para outras, preservar original
+                    if not line_stripped:
+                        valid_lines.append('')  # Linha vazia
+                    else:
+                        valid_lines.append(line_clean)  # Linha com conteúdo
+
+            if not valid_lines:
+                print(f"Aviso: Nenhuma linha válida encontrada no arquivo fonte: {source_script_path}")
+                return
+
+            # Reconstrói o conteúdo válido preservando linhas em branco
+            valid_content = '\n'.join(valid_lines)
+
+            # Escreve o conteúdo válido no arquivo de teste
+            with open(test_scr_path, 'w', encoding='utf-16-le') as f:
+                f.write(valid_content)
+
+            print(f"[OK] Sync: {os.path.basename(source_script_path)} -> ferramentas_LOAD_LISP/TESTE_VIGA_TV.scr ({len(valid_content)} chars válidos)")
+
         except Exception as e:
-            print(f"Erro ao sincronizar script de teste: {e}")
+            print(f"[ERRO] Erro ao sincronizar script de teste: {e}")
+            import traceback
+            traceback.print_exc()
 
     def _select_names_logic(self):
         """
@@ -7165,8 +7360,8 @@ class VigaMainWindow(QMainWindow):
         if not self.project_data or not has_vigas:
             # Check for legacy pickle file (Absolute Paths)
             base_dir = os.path.dirname(os.path.abspath(__file__))
-            legacy_file = os.path.join(base_dir, "fundos_salvos.pkl")
-            legacy_file_parent = os.path.join(os.path.dirname(base_dir), "fundos_salvos.pkl")
+            legacy_file = os.path.join(base_dir, "fundos_salvos.json")
+            legacy_file_parent = os.path.join(os.path.dirname(base_dir), "fundos_salvos.json")
             
             target_file = None
             if os.path.exists(legacy_file) and os.path.getsize(legacy_file) > 0:
@@ -7178,14 +7373,14 @@ class VigaMainWindow(QMainWindow):
             
             if target_file:
                 try:
-                    with open(target_file, 'rb') as f:
+                    with open(target_file, 'r') as f:
                         # Check file size
                         f.seek(0, 2)
                         size = f.tell()
                         f.seek(0)
                         
                         if size > 0:
-                            old_data = pickle.load(f)
+                            old_data = json.load(f)
                         else:
                             old_data = {}
                     
@@ -7656,6 +7851,50 @@ class VigaMainWindow(QMainWindow):
         
         self.save_session_data()
 
+    def add_viga_bulk(self, viga_list):
+        """Adiciona uma lista de vigas (nome, numero, parent_name) ao pavimento atual se não existirem (Master Sync)."""
+        if not self.current_obra or not self.current_pavimento:
+            return 0
+        
+        pav_data = self.project_data[self.current_obra][self.current_pavimento]
+        vigas_dict = pav_data['vigas']
+        
+        count = 0
+        skipped = 0
+        for v in viga_list:
+            name = v.get('name')
+            p_name = v.get('parent_name', 'Lista Geral')
+            
+            # Se não existir, cria uma VigaState vazia
+            if name and name not in vigas_dict:
+                # Extrair número se não fornecido
+                number = v.get('number')
+                if not number:
+                    import re
+                    nums = re.findall(r'\d+', str(name))
+                    number = nums[0] if nums else "0"
+
+                state = VigaState(
+                    number=str(number),
+                    name=str(name),
+                    floor=self.current_pavimento
+                )
+                # Preservar Classe
+                state.segment_class = p_name
+                
+                vigas_dict[name] = state
+                count += 1
+            else:
+                skipped += 1
+        
+        if count > 0:
+            self.update_vigas_list()
+            self.save_session_data()
+        
+        return {'added': count, 'skipped': skipped}
+
+
+
     def copy_pavimento(self):
         """Cria uma cópia idêntica do pavimento selecionado com todos os seus itens."""
         if not self.current_obra or not self.current_pavimento:
@@ -7823,8 +8062,14 @@ class VigaMainWindow(QMainWindow):
         total_m2 = 0.0
         
         # Draw Classes and Beams
+        # Sort items in class
+        import re
+        def natural_key(text):
+            if not text: return []
+            return [int(c) if c.isdigit() else c.lower() for c in re.split(r'(\d+)', str(text))]
+
         # Ensure "Lista Geral" is processed first if it exists
-        sorted_classes = sorted(self.viga_grouping.keys())
+        sorted_classes = sorted(self.viga_grouping.keys(), key=natural_key)
         if "Lista Geral" in sorted_classes:
             sorted_classes.remove("Lista Geral")
             sorted_classes.insert(0, "Lista Geral")
@@ -7846,11 +8091,6 @@ class VigaMainWindow(QMainWindow):
             class_item.setExpanded(True)
             class_item.setData(0, Qt.UserRole, {"type": "class", "key": cls_name})
             
-            # Sort items in class
-            def natural_key(text):
-                if not text: return []
-                return [int(c) if c.isdigit() else c.lower() for c in re.split(r'(\d+)', str(text))]
-
             reverse = (self.list_sort_order == Qt.DescendingOrder)
             col = self.list_sort_column
             
@@ -7863,6 +8103,7 @@ class VigaMainWindow(QMainWindow):
             else:
                 # Default sorting by name natural
                 v_list.sort(key=lambda x: natural_key(x[0]))
+
             
             for vname, vstate, pav_origin in v_list:
                 # Add to class group
@@ -7948,7 +8189,12 @@ class VigaMainWindow(QMainWindow):
                 grouping[cls].append((viga_name, vstate, pav_name))
 
         # 2. Desenhar na Tree2
-        sorted_classes = sorted(grouping.keys())
+        import re
+        def natural_key(text):
+            if not text: return []
+            return [int(c) if c.isdigit() else c.lower() for c in re.split(r'(\d+)', str(text))]
+
+        sorted_classes = sorted(grouping.keys(), key=natural_key)
         # Mover Lista Geral para o topo
         if "Lista Geral" in sorted_classes:
             sorted_classes.remove("Lista Geral")
@@ -7969,12 +8215,9 @@ class VigaMainWindow(QMainWindow):
             class_item.setFont(0, font)
             class_item.setExpanded(True)
             
-            # Ordenar vigas numericamente
-            def sort_key(x):
-                import re
-                nums = re.findall(r'\d+', x[0])
-                return int(nums[0]) if nums else 0
-            v_list.sort(key=sort_key)
+            # Ordenar vigas naturalmente pelo nome (viga_name = x[0])
+            v_list.sort(key=lambda x: natural_key(x[0]))
+
 
             for vname, vstate, pav_origin in v_list:
                 item = QTreeWidgetItem(class_item)

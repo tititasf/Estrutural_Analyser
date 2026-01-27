@@ -1,6 +1,6 @@
 import sys
 import os
-import pickle
+import json
 import json
 import shutil
 import re
@@ -5813,8 +5813,8 @@ class VigaMainWindow(QMainWindow):
         if not self.project_data or not has_vigas:
             # Check for legacy pickle file (Absolute Paths)
             base_dir = os.path.dirname(os.path.abspath(__file__))
-            legacy_file = os.path.join(base_dir, "fundos_salvos.pkl")
-            legacy_file_parent = os.path.join(os.path.dirname(base_dir), "fundos_salvos.pkl")
+            legacy_file = os.path.join(base_dir, "fundos_salvos.json")
+            legacy_file_parent = os.path.join(os.path.dirname(base_dir), "fundos_salvos.json")
             
             target_file = None
             if os.path.exists(legacy_file) and os.path.getsize(legacy_file) > 0:
@@ -5826,14 +5826,14 @@ class VigaMainWindow(QMainWindow):
             
             if target_file:
                 try:
-                    with open(target_file, 'rb') as f:
+                    with open(target_file, 'r') as f:
                         # Check file size
                         f.seek(0, 2)
                         size = f.tell()
                         f.seek(0)
                         
                         if size > 0:
-                            old_data = pickle.load(f)
+                            old_data = json.load(f)
                         else:
                             old_data = {}
                     

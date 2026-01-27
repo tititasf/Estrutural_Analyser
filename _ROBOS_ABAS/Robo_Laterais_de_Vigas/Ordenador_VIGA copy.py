@@ -287,7 +287,7 @@ def atualizar_comando_combinado(primeiro_arquivo_path):
     
     try:
         # Abre o arquivo em modo de escrita binária para garantir o encoding correto
-        with open(comando_path, 'wb') as f:
+        with open(comando_path, 'w') as f:
             # Prepara o conteúdo
             conteudo = "_SCRIPT\n"
             caminho_formatado = primeiro_arquivo_path.replace('\\', '/')

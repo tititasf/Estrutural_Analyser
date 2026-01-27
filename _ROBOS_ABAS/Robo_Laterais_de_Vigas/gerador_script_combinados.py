@@ -13,8 +13,8 @@ class GeradorScriptCombinados:
         self.config = self._carregar_config()
 
     def _carregar_config(self):
-        """Carrega as configurações do arquivo config.json."""
-        config_file = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "config.json")
+        """Carrega as configurações do arquivo config.json (mesma pasta do Robo_Laterais_de_Vigas)."""
+        config_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), "config.json")
         
         try:
             if os.path.exists(config_file):

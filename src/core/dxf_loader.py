@@ -153,7 +153,7 @@ from typing import List, Dict, Any, Tuple
 import logging
 
 class DXFLoader:
-    def __init__(self, filepath: str):
+    def __init__(self, filepath: str = None):
         self.filepath = filepath
         self.doc = None
         self.msp = None
@@ -164,97 +164,105 @@ class DXFLoader:
             'texts': []
         }
 
+
+
     def load(self) -> bool:
         try:
             self.doc = ezdxf.readfile(self.filepath)
             self.msp = self.doc.modelspace()
-            self._extract_entities()
+            self.entities = {
+                'polylines': [],
+                'lines': [],
+                'circles': [],
+                'texts': []
+            }
+            self._extract_entities(self.msp)
             return True
         except Exception as e:
             logging.error(f"Failed to load DXF: {e}")
-            import traceback
-            traceback.print_exc()
             return False
 
-    def _extract_entities(self):
-        # Mapeamento de cor ezdxf -> RGB (simplificado)
-        def get_color(entity):
+    def _extract_entities(self, container, override_layer=None, override_color=None):
+        """Extrai entidades recursivamente (suporta Blocos/Inserts)."""
+        
+        def get_color_info(entity):
+            if override_color: return override_color, 256
             aci = entity.dxf.color # AutoCAD Color Index
             if aci == 256: # ByLayer
-                layer = self.doc.layers.get(entity.dxf.layer)
-                aci = layer.dxf.color
+                layer_name = override_layer or entity.dxf.layer
+                if layer_name in self.doc.layers:
+                    aci = self.doc.layers.get(layer_name).dxf.color
             
-            # Tabela resumida de cores ACI
             aci_map = {
-                1: (255, 0, 0),    # Red
-                2: (255, 255, 0),  # Yellow
-                3: (0, 255, 0),    # Green
-                4: (0, 255, 255),  # Cyan
-                5: (0, 0, 255),    # Blue
-                6: (255, 0, 255),  # Magenta
-                7: (255, 255, 255) # White/Black
+                1: (255, 0, 0), 2: (255, 255, 0), 3: (0, 255, 0),
+                4: (0, 255, 255), 5: (0, 0, 255), 6: (255, 0, 255),
+                7: (255, 255, 255)
             }
-            return aci_map.get(aci, (200, 200, 200))
+            return aci_map.get(aci, (200, 200, 200)), aci
 
-        # Polylines (LWPOLYLINE e POLYLINE)
-        for pl in self.msp.query('LWPOLYLINE POLYLINE'):
+        # Polylines
+        for pl in container.query('LWPOLYLINE POLYLINE'):
             try:
-                if pl.dxftype() == 'LWPOLYLINE':
-                    points = list(pl.get_points(format='xy'))
-                else:
-                    points = [(v.dxf.location.x, v.dxf.location.y) for v in pl.vertices]
-                
+                pts = list(pl.get_points(format='xy')) if pl.dxftype() == 'LWPOLYLINE' else [(v.dxf.location.x, v.dxf.location.y) for v in pl.vertices]
+                rgb, aci = get_color_info(pl)
                 self.entities['polylines'].append({
-                    'points': points,
-                    'is_closed': pl.is_closed,
-                    'layer': pl.dxf.layer,
-                    'color': get_color(pl)
+                    'points': pts, 'is_closed': pl.is_closed,
+                    'layer': override_layer or pl.dxf.layer, 'color': rgb, 'aci': aci
                 })
-            except Exception as e:
-                logging.warning(f"Erro ao extrair polilinha: {e}")
+            except: pass
 
         # Lines
-        for line in self.msp.query('LINE'):
-            s = line.dxf.start
-            e = line.dxf.end
+        for line in container.query('LINE'):
+            rgb, aci = get_color_info(line)
             self.entities['lines'].append({
-                'start': (s.x, s.y),
-                'end': (e.x, e.y),
-                'layer': line.dxf.layer,
-                'color': get_color(line)
+                'start': (line.dxf.start.x, line.dxf.start.y),
+                'end': (line.dxf.end.x, line.dxf.end.y),
+                'layer': override_layer or line.dxf.layer, 'color': rgb, 'aci': aci
             })
 
         # Circles e Arcs
-        for circle in self.msp.query('CIRCLE'):
-            cp = circle.dxf.center
+        for circle in container.query('CIRCLE'):
+            rgb, aci = get_color_info(circle)
             self.entities['circles'].append({
-                'center': (cp.x, cp.y),
-                'radius': circle.dxf.radius,
-                'layer': circle.dxf.layer,
-                'color': get_color(circle)
+                'center': (circle.dxf.center.x, circle.dxf.center.y), 'radius': circle.dxf.radius,
+                'layer': override_layer or circle.dxf.layer, 'color': rgb, 'aci': aci
             })
             
-        for arc in self.msp.query('ARC'):
-            cp = arc.dxf.center
-            self.entities['circles'].append({ # Arcos tratados como círculos simplificados ou podemos adicionar ARC depois
-                'center': (cp.x, cp.y),
-                'radius': arc.dxf.radius,
-                'start_angle': arc.dxf.start_angle,
-                'end_angle': arc.dxf.end_angle,
-                'layer': arc.dxf.layer,
-                'color': get_color(arc)
+        for arc in container.query('ARC'):
+            rgb, aci = get_color_info(arc)
+            self.entities['circles'].append({
+                'center': (arc.dxf.center.x, arc.dxf.center.y), 'radius': arc.dxf.radius,
+                'start_angle': arc.dxf.start_angle, 'end_angle': arc.dxf.end_angle,
+                'layer': override_layer or arc.dxf.layer, 'color': rgb, 'aci': aci
             })
 
-        # Texts e MTexts
-        for text in self.msp.query('TEXT MTEXT'):
-            content = text.dxf.text if text.dxftype() == 'TEXT' else text.text
-            ins = text.dxf.insert
+        # Texts
+        for text in container.query('TEXT MTEXT'):
+            rgb, aci = get_color_info(text)
+            content = text.dxf.text if text.dxftype() == 'TEXT' else (text.text if hasattr(text, 'text') else text.dxf.text)
             self.entities['texts'].append({
-                'text': content, 
-                'pos': (ins.x, ins.y),
-                'layer': text.dxf.layer,
-                'color': get_color(text)
+                'text': content, 'pos': (text.dxf.insert.x, text.dxf.insert.y),
+                'layer': override_layer or text.dxf.layer, 'color': rgb, 'aci': aci
             })
+            
+        # Dimensions (Very common in structures)
+        # Explode basic dimensions if needed or treat as block
+        for dim in container.query('DIMENSION'):
+            try:
+                g_name = dim.dxf.geometry
+                if g_name in self.doc.blocks:
+                    block = self.doc.blocks.get(g_name)
+                    self._extract_entities(block, override_layer=dim.dxf.layer)
+            except: pass
+
+        # Inserts (Blocks) - Recursive Extraction
+        for insert in container.query('INSERT'):
+            try:
+                block = self.doc.blocks.get(insert.dxf.name)
+                # Note: This is simplified, ignores scale/rotation for now to keep performance
+                # but ensures entities exist in scene
+                self._extract_entities(block, override_layer=insert.dxf.layer)
+            except: pass
 
     @staticmethod
     def load_dxf(path: str) -> Dict:
