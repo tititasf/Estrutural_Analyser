@@ -1,0 +1,153 @@
+{
+  "obras": [
+    {
+      "nome": "Obra 1",
+      "pavimentos": [
+        {
+          "nome": "Térreo",
+          "lajes": [],
+          "fornecimento": "novo",
+          "sobras_paineis": [],
+          "ultimo_reaproveitamento": {},
+          "paineis_utilizados": [],
+          "paineis_passados_adiante": []
+        }
+      ]
+    },
+    {
+      "nome": "Obra 2",
+      "pavimentos": [
+        {
+          "nome": "Pavimento 1",
+          "lajes": [
+            {
+              "numero": 1,
+              "nome": "L1",
+              "comprimento": 600.0,
+              "largura": 400.0,
+              "pavimento": "Pavimento 1",
+              "coordenadas": [
+                [
+                  0,
+                  0
+                ],
+                [
+                  600,
+                  0
+                ],
+                [
+                  600,
+                  400
+                ],
+                [
+                  0,
+                  400
+                ]
+              ],
+              "area_cm2": 240000.0,
+              "linhas_verticais": [
+                122.0,
+                122.0,
+                122.0,
+                122.0,
+                60.0,
+                52.0
+              ],
+              "linhas_horizontais": [],
+              "obstaculos": [],
+              "modo_selecionado": 0,
+              "unioes_nos_bordes": false,
+              "reaproveitamento_dados": {},
+              "sobras_recebidas": [],
+              "excluded_dimensions": [],
+              "manual_dimensions": [],
+              "marco_joined_positions": {
+                "vertical": [],
+                "horizontal": []
+              },
+              "dimension_positions": {}
+            },
+            {
+              "numero": 2,
+              "nome": "L2",
+              "comprimento": 800.0,
+              "largura": 600.0,
+              "pavimento": "Pavimento 1",
+              "coordenadas": [
+                [
+                  0,
+                  0
+                ],
+                [
+                  800,
+                  0
+                ],
+                [
+                  800,
+                  600
+                ],
+                [
+                  400,
+                  600
+                ],
+                [
+                  400,
+                  300
+                ],
+                [
+                  0,
+                  300
+                ]
+              ],
+              "area_cm2": 360000.0,
+              "linhas_verticais": [],
+              "linhas_horizontais": [
+                61.0,
+                61.0,
+                122.0,
+                122.0,
+                122.0
+              ],
+              "obstaculos": [
+                [
+                  [
+                    100,
+                    100
+                  ],
+                  [
+                    200,
+                    100
+                  ],
+                  [
+                    200,
+                    200
+                  ],
+                  [
+                    100,
+                    200
+                  ]
+                ]
+              ],
+              "modo_selecionado": 1,
+              "unioes_nos_bordes": false,
+              "reaproveitamento_dados": {},
+              "sobras_recebidas": [],
+              "excluded_dimensions": [],
+              "manual_dimensions": [],
+              "marco_joined_positions": {
+                "vertical": [],
+                "horizontal": []
+              },
+              "dimension_positions": {}
+            }
+          ],
+          "fornecimento": "novo",
+          "sobras_paineis": [],
+          "ultimo_reaproveitamento": {},
+          "paineis_utilizados": [],
+          "paineis_passados_adiante": []
+        }
+      ]
+    }
+  ]
+}

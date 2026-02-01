@@ -1,0 +1,16 @@
+{
+    "layers": {
+        "texto_nome": "nomenclatura",
+        "texto_pavimento_laje": "nomenclatura",
+        "texto_reaproveitamento": "nomenclatura",
+        "texto_pavimento_laje_reaproveitamento": "nomenclatura",
+        "linhas_paineis": "painéis",
+        "linhas_uniao": "concreto",
+        "cotas": "cota"
+    },
+    "comandos": {
+        "hatch_uniao": "HLAZ",
+        "hatch_reaproveitamento_inteiro": "HH",
+        "hatch_reaproveitamento_corte": "HHH"
+    }
+}
