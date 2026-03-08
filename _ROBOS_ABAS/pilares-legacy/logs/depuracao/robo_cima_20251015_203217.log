@@ -1,0 +1,19 @@
+2025-10-15 20:32:17 | debug_robo_cima | INFO | Iniciando logs de depuração para robo_cima
+2025-10-15 20:32:17 | debug_robo_cima | INFO | Arquivo de log: logs\depuracao\robo_cima_20251015_203217.log
+2025-10-15 20:32:17 | debug_robo_cima | INFO | Iniciando logs de depuração para robo_cima
+2025-10-15 20:32:17 | debug_robo_cima | INFO | Arquivo de log: logs\depuracao\robo_cima_20251015_203217.log
+2025-10-15 20:32:17 | debug_robo_cima | INFO | 
+----------------------------------------
+2025-10-15 20:32:17 | debug_robo_cima | INFO | 📌 DEFINIÇÃO DE GLOBAIS PILAR ESPECIAL
+2025-10-15 20:32:17 | debug_robo_cima | INFO | ----------------------------------------
+2025-10-15 20:32:17 | debug_robo_cima | INFO | ℹ️ 🔄 Recebido para definir: <class 'dict'> com 37 itens
+2025-10-15 20:32:17 | debug_robo_cima | INFO | ℹ️ 🔄 ID do objeto globais recebido: 1978589322048
+2025-10-15 20:32:17 | debug_robo_cima | INFO | ℹ️ 🔄 _globais_pilar_especial ANTES: ID=1978597943552, len=0
+2025-10-15 20:32:17 | debug_robo_cima | INFO | ℹ️ 🔄 _globais_pilar_especial APÓS: ID=1978589322048, len=37
+2025-10-15 20:32:17 | debug_robo_cima | INFO | ℹ️ 🔄 Verificação de igualdade: globais is _globais_pilar_especial = True
+2025-10-15 20:32:17 | debug_robo_cima | INFO | ℹ️ 🔄 Amostra de chaves recebidas: ['pilar1_paia_posicao', 'pilar1_paib_posicao', 'pilar1_gradea_posicao']
+2025-10-15 20:32:17 | debug_robo_cima | INFO | ℹ️ 🔄 Amostra de chaves armazenadas: ['pilar1_paia_posicao', 'pilar1_paib_posicao', 'pilar1_gradea_posicao']
+2025-10-15 20:32:17 | debug_robo_cima | INFO | ℹ️ ✅ Globais do pilar especial definidas: 37 valores
+2025-10-15 20:32:17 | debug_robo_cima | INFO | ℹ️    Tipo: L
+2025-10-15 20:32:17 | debug_robo_cima | INFO | ℹ️    Dimensões: comp_1=100.0, comp_2=120.0
+2025-10-15 20:32:17 | debug_robo_cima | INFO | ℹ️    Larguras: larg_1=20.0, larg_2=30.0

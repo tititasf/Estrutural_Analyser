@@ -1,0 +1,28 @@
+2025-07-19 23:09:46 | INFO     | TestLogger | __init__:77 | DetailedLogger inicializado: TestLogger
+2025-07-19 23:09:46 | INFO     | TestLogger | __init__:78 | Diretório de logs: C:\Users\rvene\Desktop\Automacao_cad\Pilares\pilar4
+2025-07-19 23:09:46 | INFO     | TestLogger | __init__:79 | Nível de logging: DEBUG
+2025-07-19 23:09:46 | INFO     | TestLogger | info:147 | Iniciando teste do DetailedLogger
+2025-07-19 23:09:46 | DEBUG    | TestLogger | debug:140 | Mensagem de debug | Extra: {"test_data": "valor_teste"}
+2025-07-19 23:09:46 | WARNING  | TestLogger | warning:154 | Aviso de teste | Extra: {"warning_type": "test"}
+2025-07-19 23:09:46 | INFO     | TestLogger | info:147 | 🔄 STEP [Inicialização] - START - 23:09:46.279 | Details: {"component": "test"}
+2025-07-19 23:09:46 | INFO     | TestLogger | info:147 | 🔄 STEP [Processamento] - IN_PROGRESS - 23:09:46.280 | Details: {"progress": 50}
+2025-07-19 23:09:46 | INFO     | TestLogger | info:147 | 🔄 STEP [Finalização] - COMPLETED - 23:09:46.280 | Details: {"result": "success"}
+2025-07-19 23:09:46 | DEBUG    | TestLogger | debug:140 | ⏱️ PERFORMANCE [Operação de teste] - 2.500s | Details: {"items_processed": 100}
+2025-07-19 23:09:46 | INFO     | TestLogger | info:147 | ✅ VALIDATION [Excel] - VALID
+2025-07-19 23:09:46 | INFO     | TestLogger | info:147 | ✅ VALIDATION [Script] - INVALID | Issues: 2
+2025-07-19 23:09:46 | DEBUG    | TestLogger | debug:140 |   └─ Issue: Sintaxe incorreta
+2025-07-19 23:09:46 | DEBUG    | TestLogger | debug:140 |   └─ Issue: Comando ausente
+2025-07-19 23:09:46 | INFO     | TestLogger | info:147 | 📁 FILE [READ] test.xlsx - SUCCESS | Details: {"size": 1024}
+2025-07-19 23:09:46 | INFO     | TestLogger | info:147 | 📋 SCRIPT [P1_script] GENERATION - SUCCESS | Metrics: {"lines": 50, "commands": 25}
+2025-07-19 23:09:46 | INFO     | TestLogger | info:147 | 🚀 SESSION START [TEST_SESSION_001]
+2025-07-19 23:09:46 | INFO     | TestLogger | info:147 | 🔄 SESSION [TEST_SESSION_001] Carregar dados - SUCCESS (+0.00s) | Details: {"rows": 100}
+2025-07-19 23:09:46 | INFO     | TestLogger | info:147 | 🔄 SESSION [TEST_SESSION_001] Validar estrutura - SUCCESS (+0.00s) | Details: {"errors": 0}
+2025-07-19 23:09:46 | INFO     | TestLogger | info:147 | 🔄 SESSION [TEST_SESSION_001] Gerar script - SUCCESS (+0.00s) | Details: {"output_size": 2048}
+2025-07-19 23:09:46 | INFO     | TestLogger | info:147 | 🏁 SESSION END [TEST_SESSION_001] - COMPLETED | Duration: 0:00:00.002670 | Operations: 3
+2025-07-19 23:09:46 | ERROR    | TestLogger | error:164 | Erro capturado durante teste | Exception: Erro de teste | Extra: {"context": "test_function"}
+2025-07-19 23:09:46 | ERROR    | TestLogger | error:165 | Traceback: Traceback (most recent call last):
+  File "C:\Users\rvene\Desktop\Automacao_cad\Pilares\pilar4\detailed_logger.py", line 431, in test_detailed_logger
+    raise ValueError("Erro de teste")
+ValueError: Erro de teste
+
+2025-07-19 23:09:46 | INFO     | TestLogger | info:147 | Fechando DetailedLogger

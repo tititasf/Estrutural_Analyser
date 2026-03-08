@@ -1,0 +1,24 @@
+2025-09-16 01:04:21 | debug_pilar_analyzer | INFO | Iniciando logs de depuração para pilar_analyzer
+2025-09-16 01:04:21 | debug_pilar_analyzer | INFO | Arquivo de log: logs\depuracao\pilar_analyzer_20250916_010421.log
+2025-09-16 01:04:21 | debug_pilar_analyzer | INFO | 
+============================================================
+2025-09-16 01:04:21 | debug_pilar_analyzer | INFO | 📋 PILAR ANALYZER - SISTEMA PRINCIPAL
+2025-09-16 01:04:21 | debug_pilar_analyzer | INFO | ============================================================
+2025-09-16 01:04:21 | debug_pilar_analyzer | INFO | ℹ️ 📅 Data/Hora de início: 2025-09-16 01:04:21
+2025-09-16 01:04:21 | debug_pilar_analyzer | INFO | ℹ️ 🚀 Iniciando PilarAnalyzer v3.0.0
+2025-09-16 01:04:21 | debug_pilar_analyzer | INFO | ℹ️ 📁 Diretório atual: c:\Users\rvene\Desktop\PILARES-V-1.0\PILARES\src\core
+2025-09-16 01:04:21 | debug_pilar_analyzer | INFO | ℹ️ ✅ Paths configurados com sucesso
+2025-09-16 01:04:21 | debug_pilar_analyzer | INFO | 
+----------------------------------------
+2025-09-16 01:04:21 | debug_pilar_analyzer | INFO | 📌 SISTEMA DE CRÉDITOS
+2025-09-16 01:04:21 | debug_pilar_analyzer | INFO | ----------------------------------------
+2025-09-16 01:04:21 | debug_pilar_analyzer | INFO | ℹ️ 🔄 Iniciando sistema de créditos...
+2025-09-16 01:04:34 | debug_pilar_analyzer | INFO | ℹ️ Sistema de créditos ativado com sucesso!
+2025-09-16 01:04:34 | debug_pilar_analyzer | INFO | 
+----------------------------------------
+2025-09-16 01:04:34 | debug_pilar_analyzer | INFO | 📌 HUB CENTRAL DA INTERFACE
+2025-09-16 01:04:34 | debug_pilar_analyzer | INFO | ----------------------------------------
+2025-09-16 01:04:34 | debug_pilar_analyzer | INFO | ℹ️ Iniciando hub central da interface...
+2025-09-16 01:04:34 | debug_pilar_analyzer | INFO | ℹ️ 📁 Procurando hub central em: c:\Users\rvene\Desktop\PILARES-V-1.0\PILARES\src\utils\aa_corrigido copy 10.py
+2025-09-16 01:04:34 | debug_pilar_analyzer | INFO | ℹ️ Hub central encontrado: c:\Users\rvene\Desktop\PILARES-V-1.0\PILARES\src\utils\aa_corrigido copy 10.py
+2025-09-16 01:04:34 | debug_pilar_analyzer | INFO | ℹ️ Executando hub central...

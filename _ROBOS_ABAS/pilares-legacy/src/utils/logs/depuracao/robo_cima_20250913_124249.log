@@ -1,0 +1,40 @@
+2025-09-13 12:42:49 | debug_robo_cima | INFO | Iniciando logs de depuração para robo_cima
+2025-09-13 12:42:49 | debug_robo_cima | INFO | Arquivo de log: logs\depuracao\robo_cima_20250913_124249.log
+2025-09-13 12:42:49 | debug_robo_cima | INFO | Captura do console ativada para robo_cima
+2025-09-13 12:42:49 | debug_robo_cima | INFO | 
+============================================================
+2025-09-13 12:42:49 | debug_robo_cima | INFO | [SECTION] EXECUÇÃO UNIFICADA VISAO CIMA
+2025-09-13 12:42:49 | debug_robo_cima | INFO | ============================================================
+2025-09-13 12:42:49 | debug_robo_cima | INFO | [INFO] Iniciando execução unificada
+2025-09-13 12:42:49 | debug_robo_cima | INFO | [CONSOLE] [CIMA_UNIFICADO] ===== INÍCIO DA FUNÇÃO UNIFICADA =====
+2025-09-13 12:42:49 | debug_robo_cima | INFO | [CONSOLE] [CIMA_UNIFICADO] Timestamp: 1757778169.4515207
+2025-09-13 12:42:49 | debug_robo_cima | INFO | [CONSOLE] [CIMA_UNIFICADO] PID: 22672
+2025-09-13 12:42:49 | debug_robo_cima | INFO | [CONSOLE] [ERROR-UNIFICADO] Erro ao processar: No module named 'interfaces.AplicacaoUnificada'
+2025-09-13 12:42:49 | debug_robo_cima | INFO | [CONSOLE] Traceback (most recent call last):
+2025-09-13 12:42:49 | debug_robo_cima | INFO | [CONSOLE] File "c:\Users\rvene\Desktop\PILARES-V-1.0\PILARES\src\interfaces\CIMA_FUNCIONAL_EXCEL.py", line 59, in preencher_campos_e_gerar_scripts_unificada
+    from interfaces.AplicacaoUnificada import AplicacaoUnificada
+2025-09-13 12:42:49 | debug_robo_cima | INFO | [CONSOLE] ModuleNotFoundError: No module named 'interfaces.AplicacaoUnificada'
+2025-09-13 12:42:49 | debug_robo_cima | INFO | [CONSOLE] >>> ✅ Nova função executada com sucesso
+2025-09-13 12:42:49 | debug_robo_cima | INFO | [CONSOLE] [DEBUG CONECTOR] Obtendo item selecionado
+2025-09-13 12:42:49 | debug_robo_cima | INFO | [CONSOLE] [DEBUG CONECTOR] Filtro pavimento: TESTE1
+2025-09-13 12:42:49 | debug_robo_cima | INFO | [CONSOLE] [DEBUG CONECTOR] Seleção na lista: ('I00A',)
+2025-09-13 12:42:49 | debug_robo_cima | INFO | [CONSOLE] [DEBUG CONECTOR] Número do item: 1
+2025-09-13 12:42:49 | debug_robo_cima | INFO | [CONSOLE] [DEBUG CONECTOR] Pavimento do item: TESTE1
+2025-09-13 12:42:49 | debug_robo_cima | INFO | [CONSOLE] [DEBUG CONECTOR] Item selecionado com sucesso: 1 - TESTE1
+2025-09-13 12:42:49 | debug_robo_cima | INFO | [CONSOLE] >>> Pavimento: TESTE1
+2025-09-13 12:42:49 | debug_robo_cima | INFO | [CONSOLE] >>> Nome do item: P1TESTE
+2025-09-13 12:42:49 | debug_robo_cima | INFO | [CONSOLE] >>> Usando script normal
+2025-09-13 12:42:49 | debug_robo_cima | INFO | [CONSOLE] >>> Pasta do pavimento: c:\Users\rvene\Desktop\PILARES-V-1.0\PILARES\output\scripts\TESTE1_CIMA
+2025-09-13 12:42:49 | debug_robo_cima | INFO | [CONSOLE] >>> Caminho do script: c:\Users\rvene\Desktop\PILARES-V-1.0\PILARES\output\scripts\TESTE1_CIMA\P1TESTE_CIMA.scr
+2025-09-13 12:42:49 | debug_robo_cima | INFO | [CONSOLE] >>> ERRO: Script não encontrado!
+2025-09-13 12:42:49 | debug_robo_cima | INFO | [CONSOLE] >>> Verificando se a pasta existe: False
+2025-09-13 12:42:53 | debug_robo_cima | INFO | [CONSOLE] ====================================================================================================
+2025-09-13 12:42:53 | debug_robo_cima | INFO | [CONSOLE] 🔴🔴🔴🔴🔴 [DEBUG] _dcad_item_cima CHAMADA - 2025-09-13 12:42:53.487914
+2025-09-13 12:42:53 | debug_robo_cima | INFO | [CONSOLE] 🔴🔴🔴🔴🔴 [DEBUG] _dcad_item_cima CHAMADA - self: .
+2025-09-13 12:42:53 | debug_robo_cima | INFO | [CONSOLE] 🔴🔴🔴🔴🔴 [DEBUG] _dcad_item_cima CHAMADA - conector_painel: True
+2025-09-13 12:42:53 | debug_robo_cima | INFO | [CONSOLE] 🔴🔴🔴🔴🔴 [DEBUG] ARQUIVO ATUALIZADO - VERSÃO 1.29
+2025-09-13 12:42:53 | debug_robo_cima | INFO | [CONSOLE] ====================================================================================================
+2025-09-13 12:42:53 | debug_robo_cima | INFO | [CONSOLE] [DEBUG] Tentando configurar logger do robô CIMA...
+2025-09-13 12:42:53 | debug_robo_cima | INFO | [CONSOLE] [DEBUG] Importando utils.debug_logger...
+2025-09-13 12:42:53 | debug_robo_cima | INFO | [CONSOLE] [DEBUG] Logger importado com sucesso
+2025-09-13 12:42:53 | debug_robo_cima | INFO | [CONSOLE] [DEBUG] Obtendo instância do logger...

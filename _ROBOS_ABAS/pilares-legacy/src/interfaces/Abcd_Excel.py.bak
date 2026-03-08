@@ -1,0 +1,1230 @@
+import openpyxl
+import os
+import sys
+import time
+import traceback
+
+# Configurar caminhos usando sistema robusto
+def setup_robots_path():
+    """Configura o path para os robôs de forma robusta"""
+    try:
+        from config_paths import ROBOTS_DIR
+        return ROBOTS_DIR
+    except ImportError:
+        # Fallback para nova estrutura
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+        return os.path.abspath(os.path.join(script_dir, "..", "robots"))  # "robots" não "Robos"
+
+robos_dir = setup_robots_path()
+
+# Adicionar diretório dos robôs ao path de forma confiável
+if robos_dir not in sys.path:
+    sys.path.insert(0, robos_dir)
+
+print(f"Diretório de robôs adicionado ao path: {robos_dir}")
+print(f"Path atual: {sys.path}")
+
+# Verificar se o arquivo existe fisicamente
+robo_path = os.path.join(robos_dir, "Robo_Pilar_ABCD.py")
+if not os.path.exists(robo_path):
+    print(f"ERRO: O arquivo Robo_Pilar_ABCD.py não foi encontrado em {robos_dir}")
+    print(f"Arquivos disponíveis no diretório:")
+    for arquivo in os.listdir(robos_dir):
+        print(f"  - {arquivo}")
+    sys.exit(1)
+else:
+    print(f"Arquivo Robo_Pilar_ABCD.py encontrado em: {robo_path}")
+
+# Importar bibliotecas necessárias
+try:
+    # Importar módulos necessários que o Robo_Pilar_ABCD.py usa
+    import tkinter as tk
+    from tkinter import ttk, filedialog, messagebox
+    import logging
+    import matplotlib
+    import matplotlib.pyplot as plt
+    from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+    import math
+    import json
+    from datetime import datetime
+    
+    # Tentar importar win32com.client, mas continuar mesmo se falhar
+    try:
+        import win32com.client
+        import pyautogui
+        print("Módulos win32com e pyautogui importados com sucesso.")
+    except ImportError:
+        print("AVISO: Módulos win32com.client ou pyautogui não estão instalados.")
+        print("Algumas funcionalidades relacionadas ao AutoCAD podem não funcionar.")
+    
+    # Configuração de logging
+    log_file = os.path.join(os.path.dirname(robos_dir), "pilares.log")
+    logging.basicConfig(
+        level=logging.INFO, 
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+        handlers=[
+            logging.FileHandler(log_file), 
+            logging.StreamHandler()
+        ]
+    )
+    
+    # Realizar a importação do módulo Robo_Pilar_ABCD
+    print("Tentando importar AplicacaoUnificada do módulo Robo_Pilar_ABCD...")
+    
+    # Usar importlib para importação mais controlada
+    import importlib.util
+    spec = importlib.util.spec_from_file_location("Robo_Pilar_ABCD", robo_path)
+    robo_module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(robo_module)
+    
+    # Agora extrair a classe AplicacaoUnificada do módulo carregado
+    AplicacaoUnificada = robo_module.AplicacaoUnificada
+    print("Importação realizada com sucesso!")
+    
+except ImportError as e:
+    print(f"Erro ao importar: {e}")
+    traceback.print_exc()
+    sys.exit(1)
+except Exception as e:
+    print(f"Erro desconhecido: {e}")
+    traceback.print_exc()
+    sys.exit(1)
+
+def preencher_campos_e_gerar_scripts(caminho_arquivo_excel, coluna_especifica=None):
+    """
+    Lê os dados da primeira aba de uma planilha Excel, preenche os campos da interface
+    ABCD e gera os scripts .scr correspondentes.
+
+    Args:
+        caminho_arquivo_excel: O caminho para o arquivo Excel.
+        coluna_especifica: A coluna específica a ser processada.
+    """
+
+    try:
+        # Carrega a planilha
+        workbook = openpyxl.load_workbook(caminho_arquivo_excel, data_only=True)
+        sheet = workbook.worksheets[0]  # Obtém a primeira aba
+
+        # Mapeamento de linhas para campos da interface ABCD
+        # Baseado no mapeamento do arquivo aa copy 6
+        linhas_abcd = {
+            'nome': 5,                 # Nome do pilar
+            'pavimento': 4,            # Pavimento
+            'nivel_saida': 9,          # Nível de Saída
+            'nivel_chegada': 10,        # Nível de Chegada
+            'comprimento': 7,          # Comprimento
+            'largura': 8,              # Largura
+            'altura': 13,              # Altura
+            
+            # Painéis
+            'laje_a': 14,              # Laje A
+            'laje_b': 56,              # Laje B
+            'laje_c': 98,              # Laje C
+            'laje_d': 132,             # Laje D
+            
+            # Posições das lajes
+            'posicao_laje_a': 15,      # Posição Laje A
+            'posicao_laje_b': 57,      # Posição Laje B
+            'posicao_laje_c': 99,      # Posição Laje C
+            'posicao_laje_d': 133,     # Posição Laje D
+            
+            # Parafusos
+            'parafuso_p1_p2': 174,  # Atualizado para P1-P2
+            'parafuso_p2_p3': 175,  
+            'parafuso_p3_p4': 176,  
+            'parafuso_p4_p5': 177,  
+            'parafuso_p5_p6': 178,  
+            'parafuso_p6_p7': 179,  
+            'parafuso_p7_p8': 180,  
+            'parafuso_p8_p9': 181,  # Adicionado para P8-P9
+            
+            # Painel A - Larguras e Alturas
+            'largura_1_painel_a': 16,  # Largura 1 A
+            'largura_2_painel_a': 17,  # Largura 2 A
+            'largura_3_painel_a': 18,  # Largura 3 A
+            'altura_5_painel_a': 23,   # Altura 5 A
+            'altura_4_painel_a': 22,   # Altura 4 A
+            'altura_3_painel_a': 21,   # Altura 3 A
+            'altura_2_painel_a': 20,   # Altura 2 A
+            'altura_1_painel_a': 19,   # Altura 1 A
+
+            # Aberturas A Esquerda
+            'abertura_esq1_pos_a': 29,   # Posição Abertura 1 Esquerda A
+            'abertura_esq1_dist_a': 26,  # Distância Abertura 1 Esquerda A
+            'abertura_esq1_larg_a': 28,  # Largura Abertura 1 Esquerda A
+            'abertura_esq1_prof_a': 27,  # Profundidade Abertura 1 Esquerda A
+            'abertura_esq2_pos_a': 33,   # Posição Abertura 2 Esquerda A
+            'abertura_esq2_dist_a': 30,  # Distância Abertura 2 Esquerda A
+            'abertura_esq2_larg_a': 32,  # Largura Abertura 2 Esquerda A
+            'abertura_esq2_prof_a': 31,  # Profundidade Abertura 2 Esquerda A
+
+            # Aberturas A Direita
+            'abertura_dir1_pos_a': 37,   # Posição Abertura 1 Direita A
+            'abertura_dir1_dist_a': 34,  # Distância Abertura 1 Direita A
+            'abertura_dir1_larg_a': 36,  # Largura Abertura 1 Direita A
+            'abertura_dir1_prof_a': 35,  # Profundidade Abertura 1 Direita A
+            'abertura_dir2_pos_a': 41,   # Posição Abertura 2 Direita A
+            'abertura_dir2_dist_a': 38,  # Distância Abertura 2 Direita A
+            'abertura_dir2_larg_a': 40,  # Largura Abertura 2 Direita A
+            'abertura_dir2_prof_a': 39,  # Profundidade Abertura 2 Direita A
+            
+            # Hatch Painel A
+            'hatch_l1_h2_a': 43,
+            'hatch_l1_h3_a': 44,
+            'hatch_l1_h4_a': 45,
+            'hatch_l1_h5_a': 46,
+            'hatch_l2_h2_a': 47,
+            'hatch_l2_h3_a': 48,
+            'hatch_l2_h4_a': 49,
+            'hatch_l2_h5_a': 50,
+            'hatch_l3_h2_a': 51,
+            'hatch_l3_h3_a': 52,
+            'hatch_l3_h4_a': 53,
+            'hatch_l3_h5_a': 54,
+            
+            # Painel B - Larguras e Alturas
+            'largura_1_painel_b': 58,  # Largura 1 B
+            'largura_2_painel_b': 59,  # Largura 2 B
+            'largura_3_painel_b': 60,  # Largura 3 B
+            'altura_5_painel_b': 65,   # Altura 5 B
+            'altura_4_painel_b': 64,   # Altura 4 B
+            'altura_3_painel_b': 63,   # Altura 3 B
+            'altura_2_painel_b': 62,   # Altura 2 B
+            'altura_1_painel_b': 61,   # Altura 1 B
+
+            # Aberturas B Esquerda
+            'abertura_esq1_pos_b': 71,   # Posição Abertura 1 Esquerda B
+            'abertura_esq1_dist_b': 68,  # Distância Abertura 1 Esquerda B
+            'abertura_esq1_larg_b': 70,  # Largura Abertura 1 Esquerda B
+            'abertura_esq1_prof_b': 69,  # Profundidade Abertura 1 Esquerda B
+            'abertura_esq2_pos_b': 75,   # Posição Abertura 2 Esquerda B
+            'abertura_esq2_dist_b': 72,  # Distância Abertura 2 Esquerda B
+            'abertura_esq2_larg_b': 74,  # Largura Abertura 2 Esquerda B
+            'abertura_esq2_prof_b': 73,  # Profundidade Abertura 2 Esquerda B
+
+            # Aberturas B Direita
+            'abertura_dir1_pos_b': 79,   # Posição Abertura 1 Direita B
+            'abertura_dir1_dist_b': 76,  # Distância Abertura 1 Direita B
+            'abertura_dir1_larg_b': 78,  # Largura Abertura 1 Direita B
+            'abertura_dir1_prof_b': 77,  # Profundidade Abertura 1 Direita B
+            'abertura_dir2_pos_b': 83,   # Posição Abertura 2 Direita B
+            'abertura_dir2_dist_b': 80,  # Distância Abertura 2 Direita B
+            'abertura_dir2_larg_b': 82,  # Largura Abertura 2 Direita B
+            'abertura_dir2_prof_b': 81,  # Profundidade Abertura 2 Direita B
+            
+            # Hatch Painel B
+            'hatch_l1_h2_b': 85,
+            'hatch_l1_h3_b': 86,
+            'hatch_l1_h4_b': 87,
+            'hatch_l1_h5_b': 88,
+            'hatch_l2_h2_b': 89,
+            'hatch_l2_h3_b': 90,
+            'hatch_l2_h4_b': 91,
+            'hatch_l2_h5_b': 92,
+            'hatch_l3_h2_b': 93,
+            'hatch_l3_h3_b': 94,
+            'hatch_l3_h4_b': 95,
+            'hatch_l3_h5_b': 96,
+            
+            # Painel C - Larguras e Alturas
+            'largura_1_painel_c': 100,   # Largura 1 C
+            'largura_2_painel_c': 101,   # Largura 2 C
+            'altura_4_painel_c': 105,   # Altura 4 C
+            'altura_3_painel_c': 104,   # Altura 3 C
+            'altura_2_painel_c': 103,   # Altura 2 C
+            'altura_1_painel_c': 102,   # Altura 1 C
+            
+            # Aberturas C Esquerda e Direita
+            'abertura_esq1_dist_c': 108,
+            'abertura_esq1_prof_c': 109,
+            'abertura_esq1_larg_c': 110,
+            'abertura_esq1_pos_c': 111,
+            'abertura_esq2_dist_c': 112,
+            'abertura_esq2_prof_c': 113,
+            'abertura_esq2_larg_c': 114,
+            'abertura_esq2_pos_c': 115,
+            'abertura_dir1_dist_c': 116,
+            'abertura_dir1_prof_c': 117,
+            'abertura_dir1_larg_c': 118,
+            'abertura_dir1_pos_c': 119,
+            'abertura_dir2_dist_c': 120,
+            'abertura_dir2_prof_c': 121,
+            'abertura_dir2_larg_c': 122,
+            'abertura_dir2_pos_c': 123,
+            
+            # Hatch Painel C
+            'hatch_l1_h2_c': 125,
+            'hatch_l1_h3_c': 126,
+            'hatch_l1_h4_c': 127,
+            'hatch_l2_h2_c': 128,
+            'hatch_l2_h3_c': 129,
+            'hatch_l2_h4_c': 130,
+            
+            # Painel D - Larguras e Alturas
+            'largura_1_painel_d': 134,  # Largura 1 D
+            'largura_2_painel_d': 135,  # Largura 2 D
+            'altura_4_painel_d': 139,   # Altura 4 D
+            'altura_3_painel_d': 138,   # Altura 3 D
+            'altura_2_painel_d': 137,   # Altura 2 D
+            'altura_1_painel_d': 136,   # Altura 1 D
+            
+            # Aberturas D Esquerda e Direita
+            'abertura_esq1_pos_d': 145,
+            'abertura_esq1_dist_d': 142,
+            'abertura_esq1_larg_d': 144,
+            'abertura_esq1_prof_d': 143,
+            'abertura_esq2_pos_d': 149,
+            'abertura_esq2_dist_d': 146,
+            'abertura_esq2_larg_d': 148,
+            'abertura_esq2_prof_d': 147,
+            'abertura_dir1_pos_d': 153,
+            'abertura_dir1_dist_d': 150,
+            'abertura_dir1_larg_d': 152,
+            'abertura_dir1_prof_d': 151,
+            'abertura_dir2_pos_d': 157,
+            'abertura_dir2_dist_d': 154,
+            'abertura_dir2_larg_d': 156,
+            'abertura_dir2_prof_d': 155,
+            
+            # Hatch Painel D
+            'hatch_l1_h2_d': 159,
+            'hatch_l1_h3_d': 160,
+            'hatch_l1_h4_d': 161,
+            'hatch_l2_h2_d': 162,
+            'hatch_l2_h3_d': 163,
+            'hatch_l2_h4_d': 164,
+        }
+
+        coluna_base = 'E'  # Coluna inicial para os dados dos pilares
+        coluna_base_idx = ord(coluna_base) - ord('A')
+        colunas_vazias = 0
+        parar_busca = False
+
+        # Função para converter índice numérico para letra de coluna (suporta AA, AB, etc.)
+        def coluna_para_letra(col_idx):
+            letra = ''
+            while col_idx >= 0:
+                letra = chr(ord('A') + (col_idx % 26)) + letra
+                col_idx = col_idx // 26 - 1
+            return letra
+            
+        # Função para converter letra de coluna para índice numérico
+        def letra_para_coluna(letra):
+            col_idx = 0
+            for i, char in enumerate(reversed(letra)):
+                col_idx += (ord(char) - ord('A') + 1) * (26 ** i)
+            return col_idx - 1
+
+        # Se uma coluna específica foi fornecida, processar apenas essa coluna
+        if coluna_especifica:
+            colunas_a_processar = [letra_para_coluna(coluna_especifica)]
+            print(f"Processando apenas a coluna {coluna_especifica}")
+        else:
+            # Caso contrário, iterar por todas as colunas a partir da coluna base
+            colunas_a_processar = range(coluna_base_idx, sheet.max_column)
+            print(f"Processando todas as colunas a partir de {coluna_base}")
+
+        # Itera pelas colunas a processar
+        for col_idx in colunas_a_processar:
+            if parar_busca:
+                break
+
+            coluna = coluna_para_letra(col_idx)
+            
+            # Verifica se a coluna tem um nome de pilar
+            nome_pilar = sheet[f'{coluna}{linhas_abcd["nome"]}'].value
+            if nome_pilar:
+                colunas_vazias = 0  # Reinicia a contagem de colunas vazias
+                
+                # Iniciar a aplicação ABCD
+                app = AplicacaoUnificada()
+                # Acesse o gerador de pilar através da aplicação
+                gerador = app.gerador_pilares
+
+                # 1. Preencher dados básicos
+                print(f"Preenchendo dados básicos para o pilar '{nome_pilar}'")
+                
+                # Nome do pilar
+                valor = sheet[f'{coluna}{linhas_abcd["nome"]}'].value
+                if valor is not None:
+                    print(f"  Preenchendo nome: {valor}")
+                    gerador.campos['nome'].delete(0, 'end')
+                    gerador.campos['nome'].insert(0, valor)
+                
+                # Comprimento
+                valor = sheet[f'{coluna}{linhas_abcd["comprimento"]}'].value
+                if valor is not None:
+                    print(f"  Preenchendo comprimento: {valor}")
+                    gerador.campos['comprimento'].delete(0, 'end')
+                    gerador.campos['comprimento'].insert(0, valor)
+                
+                # Largura
+                valor = sheet[f'{coluna}{linhas_abcd["largura"]}'].value
+                if valor is not None:
+                    print(f"  Preenchendo largura: {valor}")
+                    gerador.campos['largura'].delete(0, 'end')
+                    gerador.campos['largura'].insert(0, valor)
+                
+                # Pavimento
+                valor = sheet[f'{coluna}{linhas_abcd["pavimento"]}'].value
+                if valor is not None:
+                    print(f"  Preenchendo pavimento: {valor}")
+                    gerador.campos['pavimento'].delete(0, 'end')
+                    gerador.campos['pavimento'].insert(0, valor)
+                
+                # Nível de Saída
+                valor_saida = sheet[f'{coluna}{linhas_abcd["nivel_saida"]}'].value
+                if valor_saida is not None:
+                    print(f"  Preenchendo nivel_saida: {valor_saida}")
+                    gerador.campos['nivel_saida'].delete(0, 'end')
+                    gerador.campos['nivel_saida'].insert(0, valor_saida)
+                
+                # Nível de Chegada
+                valor_chegada = sheet[f'{coluna}{linhas_abcd["nivel_chegada"]}'].value
+                if valor_chegada is not None:
+                    print(f"  Preenchendo nivel_chegada: {valor_chegada}")
+                    gerador.campos['nivel_chegada'].delete(0, 'end')
+                    gerador.campos['nivel_chegada'].insert(0, valor_chegada)
+                
+                # Altura (ler do Excel, se não houver, calcular)
+                valor_altura = sheet[f'{coluna}{linhas_abcd["altura"]}'].value
+                if valor_altura is not None:
+                    print(f"  Preenchendo altura: {valor_altura}")
+                    gerador.campos['altura'].delete(0, 'end')
+                    altura_str = str(valor_altura).replace('.', ',')
+                    gerador.campos['altura'].insert(0, altura_str)
+                elif valor_saida is not None and valor_chegada is not None:
+                    altura_calculada = (valor_chegada - valor_saida) * 100
+                    print(f"  Calculando altura automaticamente: {altura_calculada}")
+                    gerador.campos['altura'].delete(0, 'end')
+                    altura_str = str(altura_calculada).replace('.', ',')
+                    gerador.campos['altura'].insert(0, altura_str)
+                else:
+                    print("  AVISO: Campo 'altura' não encontrado e não foi possível calcular automaticamente.")
+
+                # Preencher campos de parafusos
+                print("Preenchendo campos de parafusos...")
+                parafusos_ordem = [
+                    'parafuso_p1_p2',
+                    'parafuso_p2_p3',
+                    'parafuso_p3_p4',
+                    'parafuso_p4_p5',
+                    'parafuso_p5_p6',
+                    'parafuso_p6_p7',
+                    'parafuso_p7_p8',
+                    'parafuso_p8_p9'
+                ]
+                for i, parafuso in enumerate(parafusos_ordem):
+                    if parafuso in linhas_abcd and i < len(gerador.parafuso_entries):
+                        valor = sheet[f'{coluna}{linhas_abcd[parafuso]}'].value
+                        if valor is not None:
+                            gerador.parafuso_entries[i].delete(0, 'end')
+                            gerador.parafuso_entries[i].insert(0, valor)
+                            print(f"  Preenchendo {parafuso}: {valor}")
+                        else:
+                            gerador.parafuso_entries[i].delete(0, 'end')
+                            gerador.parafuso_entries[i].insert(0, "0")
+                            print(f"  {parafuso} vazio, preenchendo com 0")
+
+                # 2. Preencher dados do Painel A
+                print("Preenchendo dados do Painel A...")
+                
+                # Preencher laje para o Painel A
+                valor = sheet[f'{coluna}{linhas_abcd["laje_a"]}'].value
+                if valor is not None:
+                    print(f"  Preenchendo laje_a: {valor}")
+                    gerador.campos['laje_a'].delete(0, 'end')
+                    gerador.campos['laje_a'].insert(0, valor)
+                
+                # Posição da laje A
+                valor = sheet[f'{coluna}{linhas_abcd["posicao_laje_a"]}'].value
+                if valor is not None:
+                    print(f"  Preenchendo posicao_laje_a: {valor}")
+                    gerador.pos_laje_a.set(valor)
+                
+                # Preencher larguras do Painel A
+                valor = sheet[f'{coluna}{linhas_abcd["largura_1_painel_a"]}'].value
+                if valor is not None:
+                    print(f"  Preenchendo largura_1_painel_a: {valor}")
+                    gerador.campos_ab['comp1_a'].delete(0, 'end')
+                    gerador.campos_ab['comp1_a'].insert(0, valor)
+                
+                valor = sheet[f'{coluna}{linhas_abcd["largura_2_painel_a"]}'].value
+                if valor is not None:
+                    print(f"  Preenchendo largura_2_painel_a: {valor}")
+                    gerador.campos_ab['comp2_a'].delete(0, 'end')
+                    gerador.campos_ab['comp2_a'].insert(0, valor)
+                
+                valor = sheet[f'{coluna}{linhas_abcd["largura_3_painel_a"]}'].value
+                if valor is not None:
+                    print(f"  Preenchendo largura_3_painel_a: {valor}")
+                    gerador.campos_ab['comp3_a'].delete(0, 'end')
+                    gerador.campos_ab['comp3_a'].insert(0, valor)
+                
+                # Preencher alturas do Painel A
+                for i in range(1, 6):
+                    campo_excel = f"altura_{i}_painel_a"
+                    if campo_excel in linhas_abcd:
+                        valor = sheet[f'{coluna}{linhas_abcd[campo_excel]}'].value
+                        if valor is not None:
+                            print(f"  Preenchendo {campo_excel}: {valor}")
+                            gerador.campos_altura['a'][i-1].delete(0, 'end')
+                            gerador.campos_altura['a'][i-1].insert(0, valor)
+                # Preencher hatchs do Painel A
+                for i in range(5):  # 5 linhas
+                    for j in range(3):  # 3 colunas
+                        campo_hatch = f"hatch_l{i+1}_h{j+2}_a"
+                        if campo_hatch in linhas_abcd:
+                            valor = sheet[f'{coluna}{linhas_abcd[campo_hatch]}'].value
+                            print(f"[DEBUG] Painel A - {campo_hatch} (linha {linhas_abcd[campo_hatch]}), valor do Excel: {valor}, campo interface: [{i}][{j}]")
+                            if valor is not None:
+                                gerador.hatch_opcoes_a[i][j].set(str(valor))
+                # Preencher hatchs do Painel B
+                for i in range(5):
+                    for j in range(3):
+                        campo_hatch = f"hatch_l{i+1}_h{j+2}_b"
+                        if campo_hatch in linhas_abcd:
+                            valor = sheet[f'{coluna}{linhas_abcd[campo_hatch]}'].value
+                            print(f"[DEBUG] Painel B - {campo_hatch} (linha {linhas_abcd[campo_hatch]}), valor do Excel: {valor}, campo interface: [{i}][{j}]")
+                            if valor is not None:
+                                gerador.hatch_opcoes_b[i][j].set(str(valor))
+                # Preencher hatchs do Painel C
+                for i in range(4):
+                    for j in range(2):
+                        campo_hatch = f"hatch_l{i+1}_h{j+2}_c"
+                        if campo_hatch in linhas_abcd:
+                            valor = sheet[f'{coluna}{linhas_abcd[campo_hatch]}'].value
+                            print(f"[DEBUG] Painel C - {campo_hatch} (linha {linhas_abcd[campo_hatch]}), valor do Excel: {valor}, campo interface: [{i}][{j}]")
+                            if valor is not None:
+                                gerador.hatch_opcoes_c[i][j].set(str(valor))
+                # Preencher hatchs do Painel D
+                for i in range(4):
+                    for j in range(2):
+                        campo_hatch = f"hatch_l{i+1}_h{j+2}_d"
+                        if campo_hatch in linhas_abcd:
+                            valor = sheet[f'{coluna}{linhas_abcd[campo_hatch]}'].value
+                            print(f"[DEBUG] Painel D - {campo_hatch} (linha {linhas_abcd[campo_hatch]}), valor do Excel: {valor}, campo interface: [{i}][{j}]")
+                            if valor is not None:
+                                gerador.hatch_opcoes_d[i][j].set(str(valor))
+                
+                # Abertura A Esquerda 1
+                pos_esq = sheet[f'{coluna}{linhas_abcd["abertura_esq1_pos_a"]}'].value
+                dist_esq = sheet[f'{coluna}{linhas_abcd["abertura_esq1_dist_a"]}'].value
+                larg_esq = sheet[f'{coluna}{linhas_abcd["abertura_esq1_larg_a"]}'].value
+                prof_esq = sheet[f'{coluna}{linhas_abcd["abertura_esq1_prof_a"]}'].value
+                print(f"\nProcessando Abertura A Esquerda 1:")
+                print(f"  Valores lidos do Excel:")
+                print(f"    Posição: {pos_esq} (linha {linhas_abcd['abertura_esq1_pos_a']})")
+                print(f"    Distância: {dist_esq} (linha {linhas_abcd['abertura_esq1_dist_a']})")
+                print(f"    Largura: {larg_esq} (linha {linhas_abcd['abertura_esq1_larg_a']})")
+                print(f"    Profundidade: {prof_esq} (linha {linhas_abcd['abertura_esq1_prof_a']})")
+                
+                # Preencher 0 se o valor for None
+                pos_esq = pos_esq if pos_esq is not None else 0
+                dist_esq = dist_esq if dist_esq is not None else 0
+                larg_esq = larg_esq if larg_esq is not None else 0
+                prof_esq = prof_esq if prof_esq is not None else 0
+                
+                print(f"  Valores após tratamento:")
+                print(f"    Posição: {pos_esq}")
+                print(f"    Distância: {dist_esq}")
+                print(f"    Largura: {larg_esq}")
+                print(f"    Profundidade: {prof_esq}")
+                
+                gerador.campos['abertura_esq1_pos_a'].delete(0, 'end')
+                gerador.campos['abertura_esq1_pos_a'].insert(0, pos_esq)
+                gerador.campos['abertura_esq1_dist_a'].delete(0, 'end')
+                gerador.campos['abertura_esq1_dist_a'].insert(0, dist_esq)
+                gerador.campos['abertura_esq1_larg_a'].delete(0, 'end')
+                gerador.campos['abertura_esq1_larg_a'].insert(0, larg_esq)
+                gerador.campos['abertura_esq1_prof_a'].delete(0, 'end')
+                gerador.campos['abertura_esq1_prof_a'].insert(0, prof_esq)
+                
+                # Abertura A Esquerda 2
+                pos_esq = sheet[f'{coluna}{linhas_abcd["abertura_esq2_pos_a"]}'].value
+                dist_esq = sheet[f'{coluna}{linhas_abcd["abertura_esq2_dist_a"]}'].value
+                larg_esq = sheet[f'{coluna}{linhas_abcd["abertura_esq2_larg_a"]}'].value
+                prof_esq = sheet[f'{coluna}{linhas_abcd["abertura_esq2_prof_a"]}'].value
+                print(f"\nProcessando Abertura A Esquerda 2:")
+                print(f"  Valores lidos do Excel:")
+                print(f"    Posição: {pos_esq} (linha {linhas_abcd['abertura_esq2_pos_a']})")
+                print(f"    Distância: {dist_esq} (linha {linhas_abcd['abertura_esq2_dist_a']})")
+                print(f"    Largura: {larg_esq} (linha {linhas_abcd['abertura_esq2_larg_a']})")
+                print(f"    Profundidade: {prof_esq} (linha {linhas_abcd['abertura_esq2_prof_a']})")
+                
+                # Preencher 0 se o valor for None
+                pos_esq = pos_esq if pos_esq is not None else 0
+                dist_esq = dist_esq if dist_esq is not None else 0
+                larg_esq = larg_esq if larg_esq is not None else 0
+                prof_esq = prof_esq if prof_esq is not None else 0
+                
+                print(f"  Valores após tratamento:")
+                print(f"    Posição: {pos_esq}")
+                print(f"    Distância: {dist_esq}")
+                print(f"    Largura: {larg_esq}")
+                print(f"    Profundidade: {prof_esq}")
+                
+                gerador.campos['abertura_esq2_pos_a'].delete(0, 'end')
+                gerador.campos['abertura_esq2_pos_a'].insert(0, pos_esq)
+                gerador.campos['abertura_esq2_dist_a'].delete(0, 'end')
+                gerador.campos['abertura_esq2_dist_a'].insert(0, dist_esq)
+                gerador.campos['abertura_esq2_larg_a'].delete(0, 'end')
+                gerador.campos['abertura_esq2_larg_a'].insert(0, larg_esq)
+                gerador.campos['abertura_esq2_prof_a'].delete(0, 'end')
+                gerador.campos['abertura_esq2_prof_a'].insert(0, prof_esq)
+                
+                # Abertura A Direita 1
+                pos_dir = sheet[f'{coluna}{linhas_abcd["abertura_dir1_pos_a"]}'].value
+                dist_dir = sheet[f'{coluna}{linhas_abcd["abertura_dir1_dist_a"]}'].value
+                larg_dir = sheet[f'{coluna}{linhas_abcd["abertura_dir1_larg_a"]}'].value
+                prof_dir = sheet[f'{coluna}{linhas_abcd["abertura_dir1_prof_a"]}'].value
+                print(f"\nProcessando Abertura A Direita 1:")
+                print(f"  Valores lidos do Excel:")
+                print(f"    Posição: {pos_dir} (linha {linhas_abcd['abertura_dir1_pos_a']})")
+                print(f"    Distância: {dist_dir} (linha {linhas_abcd['abertura_dir1_dist_a']})")
+                print(f"    Largura: {larg_dir} (linha {linhas_abcd['abertura_dir1_larg_a']})")
+                print(f"    Profundidade: {prof_dir} (linha {linhas_abcd['abertura_dir1_prof_a']})")
+                
+                # Preencher 0 se o valor for None
+                pos_dir = pos_dir if pos_dir is not None else 0
+                dist_dir = dist_dir if dist_dir is not None else 0
+                larg_dir = larg_dir if larg_dir is not None else 0
+                prof_dir = prof_dir if prof_dir is not None else 0
+                
+                print(f"  Valores após tratamento:")
+                print(f"    Posição: {pos_dir}")
+                print(f"    Distância: {dist_dir}")
+                print(f"    Largura: {larg_dir}")
+                print(f"    Profundidade: {prof_dir}")
+                
+                gerador.campos['abertura_dir1_pos_a'].delete(0, 'end')
+                gerador.campos['abertura_dir1_pos_a'].insert(0, pos_dir)
+                gerador.campos['abertura_dir1_dist_a'].delete(0, 'end')
+                gerador.campos['abertura_dir1_dist_a'].insert(0, dist_dir)
+                gerador.campos['abertura_dir1_larg_a'].delete(0, 'end')
+                gerador.campos['abertura_dir1_larg_a'].insert(0, larg_dir)
+                gerador.campos['abertura_dir1_prof_a'].delete(0, 'end')
+                gerador.campos['abertura_dir1_prof_a'].insert(0, prof_dir)
+                
+                # Abertura A Direita 2
+                pos_dir = sheet[f'{coluna}{linhas_abcd["abertura_dir2_pos_a"]}'].value
+                dist_dir = sheet[f'{coluna}{linhas_abcd["abertura_dir2_dist_a"]}'].value
+                larg_dir = sheet[f'{coluna}{linhas_abcd["abertura_dir2_larg_a"]}'].value
+                prof_dir = sheet[f'{coluna}{linhas_abcd["abertura_dir2_prof_a"]}'].value
+                print(f"\nProcessando Abertura A Direita 2:")
+                print(f"  Valores lidos do Excel:")
+                print(f"    Posição: {pos_dir} (linha {linhas_abcd['abertura_dir2_pos_a']})")
+                print(f"    Distância: {dist_dir} (linha {linhas_abcd['abertura_dir2_dist_a']})")
+                print(f"    Largura: {larg_dir} (linha {linhas_abcd['abertura_dir2_larg_a']})")
+                print(f"    Profundidade: {prof_dir} (linha {linhas_abcd['abertura_dir2_prof_a']})")
+                
+                # Preencher 0 se o valor for None
+                pos_dir = pos_dir if pos_dir is not None else 0
+                dist_dir = dist_dir if dist_dir is not None else 0
+                larg_dir = larg_dir if larg_dir is not None else 0
+                prof_dir = prof_dir if prof_dir is not None else 0
+                
+                print(f"  Valores após tratamento:")
+                print(f"    Posição: {pos_dir}")
+                print(f"    Distância: {dist_dir}")
+                print(f"    Largura: {larg_dir}")
+                print(f"    Profundidade: {prof_dir}")
+                
+                gerador.campos['abertura_dir2_pos_a'].delete(0, 'end')
+                gerador.campos['abertura_dir2_pos_a'].insert(0, pos_dir)
+                gerador.campos['abertura_dir2_dist_a'].delete(0, 'end')
+                gerador.campos['abertura_dir2_dist_a'].insert(0, dist_dir)
+                gerador.campos['abertura_dir2_larg_a'].delete(0, 'end')
+                gerador.campos['abertura_dir2_larg_a'].insert(0, larg_dir)
+                gerador.campos['abertura_dir2_prof_a'].delete(0, 'end')
+                gerador.campos['abertura_dir2_prof_a'].insert(0, prof_dir)
+                
+                print("\nProcessamento das aberturas do Painel A concluído!")
+                
+                # 3. Preencher dados do Painel B
+                print("Preenchendo dados do Painel B...")
+                
+                # Preencher laje para o Painel B
+                valor = sheet[f'{coluna}{linhas_abcd["laje_b"]}'].value
+                if valor is not None:
+                    print(f"  Preenchendo laje_b: {valor}")
+                    gerador.campos['laje_b'].delete(0, 'end')
+                    gerador.campos['laje_b'].insert(0, valor)
+                
+                # Posição da laje B
+                valor = sheet[f'{coluna}{linhas_abcd["posicao_laje_b"]}'].value
+                if valor is not None:
+                    print(f"  Preenchendo posicao_laje_b: {valor}")
+                    gerador.pos_laje_b.set(valor)
+                
+                # Preencher larguras do Painel B
+                valor = sheet[f'{coluna}{linhas_abcd["largura_1_painel_b"]}'].value
+                if valor is not None:
+                    print(f"  Preenchendo largura_1_painel_b: {valor}")
+                    gerador.campos_ab['comp1_b'].delete(0, 'end')
+                    gerador.campos_ab['comp1_b'].insert(0, valor)
+                
+                valor = sheet[f'{coluna}{linhas_abcd["largura_2_painel_b"]}'].value
+                if valor is not None:
+                    print(f"  Preenchendo largura_2_painel_b: {valor}")
+                    gerador.campos_ab['comp2_b'].delete(0, 'end')
+                    gerador.campos_ab['comp2_b'].insert(0, valor)
+                
+                valor = sheet[f'{coluna}{linhas_abcd["largura_3_painel_b"]}'].value
+                if valor is not None:
+                    print(f"  Preenchendo largura_3_painel_b: {valor}")
+                    gerador.campos_ab['comp3_b'].delete(0, 'end')
+                    gerador.campos_ab['comp3_b'].insert(0, valor)
+                
+                # Preencher alturas do Painel B
+                for i in range(1, 6):
+                    campo_excel = f"altura_{i}_painel_b"
+                    if campo_excel in linhas_abcd:
+                        valor = sheet[f'{coluna}{linhas_abcd[campo_excel]}'].value
+                        if valor is not None:
+                            print(f"  Preenchendo {campo_excel}: {valor}")
+                            gerador.campos_altura['b'][i-1].delete(0, 'end')
+                            gerador.campos_altura['b'][i-1].insert(0, valor)
+                # Preencher hatchs do Painel B
+                hatchs_b = [
+                    ['hatch_l1_h2_b', 'hatch_l1_h3_b', 'hatch_l1_h4_b', 'hatch_l1_h5_b'],
+                    ['hatch_l2_h2_b', 'hatch_l2_h3_b', 'hatch_l2_h4_b', 'hatch_l2_h5_b'],
+                    ['hatch_l3_h2_b', 'hatch_l3_h3_b', 'hatch_l3_h4_b', 'hatch_l3_h5_b'],
+                ]
+                for i, linha_hatch in enumerate(hatchs_b):
+                    for j, campo_hatch in enumerate(linha_hatch):
+                        if campo_hatch in linhas_abcd:
+                            valor = sheet[f'{coluna}{linhas_abcd[campo_hatch]}'].value
+                            print(f"[DEBUG] Painel B - {campo_hatch} (linha {linhas_abcd[campo_hatch]}), valor do Excel: {valor}, campo interface: [{i}][{j}]")
+                            if valor is not None:
+                                if i < len(gerador.hatch_opcoes_b) and j < len(gerador.hatch_opcoes_b[i]):
+                                    gerador.hatch_opcoes_b[i][j].set(str(valor))
+                                else:
+                                    print(f"[ERRO] Painel B - Campo de hatch [{i}][{j}] não existe na interface!")
+                
+                # Abertura B Esquerda 1
+                pos_esq = sheet[f'{coluna}{linhas_abcd["abertura_esq1_pos_b"]}'].value
+                dist_esq = sheet[f'{coluna}{linhas_abcd["abertura_esq1_dist_b"]}'].value
+                larg_esq = sheet[f'{coluna}{linhas_abcd["abertura_esq1_larg_b"]}'].value
+                prof_esq = sheet[f'{coluna}{linhas_abcd["abertura_esq1_prof_b"]}'].value
+                print(f"\nProcessando Abertura B Esquerda 1:")
+                print(f"  Valores lidos do Excel:")
+                print(f"    Posição: {pos_esq} (linha {linhas_abcd['abertura_esq1_pos_b']})")
+                print(f"    Distância: {dist_esq} (linha {linhas_abcd['abertura_esq1_dist_b']})")
+                print(f"    Largura: {larg_esq} (linha {linhas_abcd['abertura_esq1_larg_b']})")
+                print(f"    Profundidade: {prof_esq} (linha {linhas_abcd['abertura_esq1_prof_b']})")
+                
+                # Preencher 0 se o valor for None
+                pos_esq = pos_esq if pos_esq is not None else 0
+                dist_esq = dist_esq if dist_esq is not None else 0
+                larg_esq = larg_esq if larg_esq is not None else 0
+                prof_esq = prof_esq if prof_esq is not None else 0
+                
+                print(f"  Valores após tratamento:")
+                print(f"    Posição: {pos_esq}")
+                print(f"    Distância: {dist_esq}")
+                print(f"    Largura: {larg_esq}")
+                print(f"    Profundidade: {prof_esq}")
+                
+                gerador.campos['abertura_esq1_pos_b'].delete(0, 'end')
+                gerador.campos['abertura_esq1_pos_b'].insert(0, pos_esq)
+                gerador.campos['abertura_esq1_dist_b'].delete(0, 'end')
+                gerador.campos['abertura_esq1_dist_b'].insert(0, dist_esq)
+                gerador.campos['abertura_esq1_larg_b'].delete(0, 'end')
+                gerador.campos['abertura_esq1_larg_b'].insert(0, larg_esq)
+                gerador.campos['abertura_esq1_prof_b'].delete(0, 'end')
+                gerador.campos['abertura_esq1_prof_b'].insert(0, prof_esq)
+                
+                # Abertura B Esquerda 2
+                pos_esq = sheet[f'{coluna}{linhas_abcd["abertura_esq2_pos_b"]}'].value
+                dist_esq = sheet[f'{coluna}{linhas_abcd["abertura_esq2_dist_b"]}'].value
+                larg_esq = sheet[f'{coluna}{linhas_abcd["abertura_esq2_larg_b"]}'].value
+                prof_esq = sheet[f'{coluna}{linhas_abcd["abertura_esq2_prof_b"]}'].value
+                print(f"\nProcessando Abertura B Esquerda 2:")
+                print(f"  Valores lidos do Excel:")
+                print(f"    Posição: {pos_esq} (linha {linhas_abcd['abertura_esq2_pos_b']})")
+                print(f"    Distância: {dist_esq} (linha {linhas_abcd['abertura_esq2_dist_b']})")
+                print(f"    Largura: {larg_esq} (linha {linhas_abcd['abertura_esq2_larg_b']})")
+                print(f"    Profundidade: {prof_esq} (linha {linhas_abcd['abertura_esq2_prof_b']})")
+                
+                # Preencher 0 se o valor for None
+                pos_esq = pos_esq if pos_esq is not None else 0
+                dist_esq = dist_esq if dist_esq is not None else 0
+                larg_esq = larg_esq if larg_esq is not None else 0
+                prof_esq = prof_esq if prof_esq is not None else 0
+                
+                print(f"  Valores após tratamento:")
+                print(f"    Posição: {pos_esq}")
+                print(f"    Distância: {dist_esq}")
+                print(f"    Largura: {larg_esq}")
+                print(f"    Profundidade: {prof_esq}")
+                
+                gerador.campos['abertura_esq2_pos_b'].delete(0, 'end')
+                gerador.campos['abertura_esq2_pos_b'].insert(0, pos_esq)
+                gerador.campos['abertura_esq2_dist_b'].delete(0, 'end')
+                gerador.campos['abertura_esq2_dist_b'].insert(0, dist_esq)
+                gerador.campos['abertura_esq2_larg_b'].delete(0, 'end')
+                gerador.campos['abertura_esq2_larg_b'].insert(0, larg_esq)
+                gerador.campos['abertura_esq2_prof_b'].delete(0, 'end')
+                gerador.campos['abertura_esq2_prof_b'].insert(0, prof_esq)
+                
+                # Abertura B Direita 1
+                pos_dir = sheet[f'{coluna}{linhas_abcd["abertura_dir1_pos_b"]}'].value
+                dist_dir = sheet[f'{coluna}{linhas_abcd["abertura_dir1_dist_b"]}'].value
+                larg_dir = sheet[f'{coluna}{linhas_abcd["abertura_dir1_larg_b"]}'].value
+                prof_dir = sheet[f'{coluna}{linhas_abcd["abertura_dir1_prof_b"]}'].value
+                print(f"\nProcessando Abertura B Direita 1:")
+                print(f"  Valores lidos do Excel:")
+                print(f"    Posição: {pos_dir} (linha {linhas_abcd['abertura_dir1_pos_b']})")
+                print(f"    Distância: {dist_dir} (linha {linhas_abcd['abertura_dir1_dist_b']})")
+                print(f"    Largura: {larg_dir} (linha {linhas_abcd['abertura_dir1_larg_b']})")
+                print(f"    Profundidade: {prof_dir} (linha {linhas_abcd['abertura_dir1_prof_b']})")
+                
+                # Preencher 0 se o valor for None
+                pos_dir = pos_dir if pos_dir is not None else 0
+                dist_dir = dist_dir if dist_dir is not None else 0
+                larg_dir = larg_dir if larg_dir is not None else 0
+                prof_dir = prof_dir if prof_dir is not None else 0
+                
+                print(f"  Valores após tratamento:")
+                print(f"    Posição: {pos_dir}")
+                print(f"    Distância: {dist_dir}")
+                print(f"    Largura: {larg_dir}")
+                print(f"    Profundidade: {prof_dir}")
+                
+                gerador.campos['abertura_dir1_pos_b'].delete(0, 'end')
+                gerador.campos['abertura_dir1_pos_b'].insert(0, pos_dir)
+                gerador.campos['abertura_dir1_dist_b'].delete(0, 'end')
+                gerador.campos['abertura_dir1_dist_b'].insert(0, dist_dir)
+                gerador.campos['abertura_dir1_larg_b'].delete(0, 'end')
+                gerador.campos['abertura_dir1_larg_b'].insert(0, larg_dir)
+                gerador.campos['abertura_dir1_prof_b'].delete(0, 'end')
+                gerador.campos['abertura_dir1_prof_b'].insert(0, prof_dir)
+                
+                # Abertura B Direita 2
+                pos_dir = sheet[f'{coluna}{linhas_abcd["abertura_dir2_pos_b"]}'].value
+                dist_dir = sheet[f'{coluna}{linhas_abcd["abertura_dir2_dist_b"]}'].value
+                larg_dir = sheet[f'{coluna}{linhas_abcd["abertura_dir2_larg_b"]}'].value
+                prof_dir = sheet[f'{coluna}{linhas_abcd["abertura_dir2_prof_b"]}'].value
+                print(f"\nProcessando Abertura B Direita 2:")
+                print(f"  Valores lidos do Excel:")
+                print(f"    Posição: {pos_dir} (linha {linhas_abcd['abertura_dir2_pos_b']})")
+                print(f"    Distância: {dist_dir} (linha {linhas_abcd['abertura_dir2_dist_b']})")
+                print(f"    Largura: {larg_dir} (linha {linhas_abcd['abertura_dir2_larg_b']})")
+                print(f"    Profundidade: {prof_dir} (linha {linhas_abcd['abertura_dir2_prof_b']})")
+                
+                # Preencher 0 se o valor for None
+                pos_dir = pos_dir if pos_dir is not None else 0
+                dist_dir = dist_dir if dist_dir is not None else 0
+                larg_dir = larg_dir if larg_dir is not None else 0
+                prof_dir = prof_dir if prof_dir is not None else 0
+                
+                print(f"  Valores após tratamento:")
+                print(f"    Posição: {pos_dir}")
+                print(f"    Distância: {dist_dir}")
+                print(f"    Largura: {larg_dir}")
+                print(f"    Profundidade: {prof_dir}")
+                
+                gerador.campos['abertura_dir2_pos_b'].delete(0, 'end')
+                gerador.campos['abertura_dir2_pos_b'].insert(0, pos_dir)
+                gerador.campos['abertura_dir2_dist_b'].delete(0, 'end')
+                gerador.campos['abertura_dir2_dist_b'].insert(0, dist_dir)
+                gerador.campos['abertura_dir2_larg_b'].delete(0, 'end')
+                gerador.campos['abertura_dir2_larg_b'].insert(0, larg_dir)
+                gerador.campos['abertura_dir2_prof_b'].delete(0, 'end')
+                gerador.campos['abertura_dir2_prof_b'].insert(0, prof_dir)
+                
+                print("\nProcessamento das aberturas do Painel B concluído!")
+                
+                # 4. Preencher dados do Painel C
+                print("Preenchendo dados do Painel C...")
+                
+                # Preencher laje para o Painel C
+                valor = sheet[f'{coluna}{linhas_abcd["laje_c"]}'].value
+                if valor is not None:
+                    print(f"  Preenchendo laje_c: {valor}")
+                    gerador.campos['laje_c'].delete(0, 'end')
+                    gerador.campos['laje_c'].insert(0, valor)
+                
+                # Posição da laje C
+                valor = sheet[f'{coluna}{linhas_abcd["posicao_laje_c"]}'].value
+                if valor is not None:
+                    print(f"  Preenchendo posicao_laje_c: {valor}")
+                    gerador.pos_laje_c.set(valor)
+                
+                # Preencher larguras do Painel C
+                valor = sheet[f'{coluna}{linhas_abcd["largura_1_painel_c"]}'].value
+                if valor is not None:
+                    print(f"  Preenchendo largura_1_painel_c: {valor}")
+                    gerador.campos_cd['comp1_c'].delete(0, 'end')
+                    gerador.campos_cd['comp1_c'].insert(0, valor)
+                
+                valor = sheet[f'{coluna}{linhas_abcd["largura_2_painel_c"]}'].value
+                if valor is not None:
+                    print(f"  Preenchendo largura_2_painel_c: {valor}")
+                    gerador.campos_cd['comp2_c'].delete(0, 'end')
+                    gerador.campos_cd['comp2_c'].insert(0, valor)
+                
+                # Preencher alturas do Painel C
+                for i in range(1, 5):  # Painéis C e D têm 4 alturas
+                    campo_excel = f"altura_{i}_painel_c"
+                    if campo_excel in linhas_abcd:
+                        valor = sheet[f'{coluna}{linhas_abcd[campo_excel]}'].value
+                        if valor is not None:
+                            print(f"  Preenchendo {campo_excel}: {valor}")
+                            gerador.campos_altura['c'][i-1].delete(0, 'end')
+                            gerador.campos_altura['c'][i-1].insert(0, valor)
+                # Preencher hatchs do Painel C
+                hatchs_c = [
+                    ['hatch_l1_h2_c', 'hatch_l1_h3_c', 'hatch_l1_h4_c'],
+                    ['hatch_l2_h2_c', 'hatch_l2_h3_c', 'hatch_l2_h4_c'],
+                ]
+                for i, linha_hatch in enumerate(hatchs_c):
+                    for j, campo_hatch in enumerate(linha_hatch):
+                        if campo_hatch in linhas_abcd:
+                            valor = sheet[f'{coluna}{linhas_abcd[campo_hatch]}'].value
+                            print(f"[DEBUG] Painel C - {campo_hatch} (linha {linhas_abcd[campo_hatch]}), valor do Excel: {valor}, campo interface: [{i}][{j}]")
+                            # Protege o acesso ao campo de hatch
+                            if i < len(gerador.hatch_opcoes_c) and j < len(gerador.hatch_opcoes_c[i]):
+                                if valor is not None:
+                                    gerador.hatch_opcoes_c[i][j].set(str(valor))
+                            else:
+                                print(f"[ERRO] Painel C - Campo de hatch [{i}][{j}] não existe na interface!")
+                
+                # Abertura C Esquerda 1
+                pos_esq = sheet[f'{coluna}{linhas_abcd["abertura_esq1_pos_c"]}'].value
+                dist_esq = sheet[f'{coluna}{linhas_abcd["abertura_esq1_dist_c"]}'].value
+                larg_esq = sheet[f'{coluna}{linhas_abcd["abertura_esq1_larg_c"]}'].value
+                prof_esq = sheet[f'{coluna}{linhas_abcd["abertura_esq1_prof_c"]}'].value
+                print(f"  Lendo Abertura Esquerda 1 C:")
+                print(f"    Posição: {pos_esq} (linha {linhas_abcd['abertura_esq1_pos_c']})")
+                print(f"    Distância: {dist_esq} (linha {linhas_abcd['abertura_esq1_dist_c']})")
+                print(f"    Largura: {larg_esq} (linha {linhas_abcd['abertura_esq1_larg_c']})")
+                print(f"    Profundidade: {prof_esq} (linha {linhas_abcd['abertura_esq1_prof_c']})")
+                
+                # Preencher 0 se o valor for None
+                pos_esq = pos_esq if pos_esq is not None else 0
+                dist_esq = dist_esq if dist_esq is not None else 0
+                larg_esq = larg_esq if larg_esq is not None else 0
+                prof_esq = prof_esq if prof_esq is not None else 0
+                
+                print(f"  Preenchendo Abertura Esquerda 1 C:")
+                gerador.campos['abertura_esq1_pos_c'].delete(0, 'end')
+                gerador.campos['abertura_esq1_pos_c'].insert(0, pos_esq)
+                print(f"    Posição preenchida: {pos_esq}")
+                
+                gerador.campos['abertura_esq1_dist_c'].delete(0, 'end')
+                gerador.campos['abertura_esq1_dist_c'].insert(0, dist_esq)
+                print(f"    Distância preenchida: {dist_esq}")
+                
+                gerador.campos['abertura_esq1_larg_c'].delete(0, 'end')
+                gerador.campos['abertura_esq1_larg_c'].insert(0, larg_esq)
+                print(f"    Largura preenchida: {larg_esq}")
+                
+                gerador.campos['abertura_esq1_prof_c'].delete(0, 'end')
+                gerador.campos['abertura_esq1_prof_c'].insert(0, prof_esq)
+                print(f"    Profundidade preenchida: {prof_esq}")
+                
+                # Abertura C Esquerda 2
+                pos_esq = sheet[f'{coluna}{linhas_abcd["abertura_esq2_pos_c"]}'].value
+                dist_esq = sheet[f'{coluna}{linhas_abcd["abertura_esq2_dist_c"]}'].value
+                larg_esq = sheet[f'{coluna}{linhas_abcd["abertura_esq2_larg_c"]}'].value
+                prof_esq = sheet[f'{coluna}{linhas_abcd["abertura_esq2_prof_c"]}'].value
+                if pos_esq is not None:
+                    print(f"  Abertura Esquerda 2 C: Pos={pos_esq}, Dist={dist_esq}, Larg={larg_esq}, Prof={prof_esq}")
+                    gerador.campos['abertura_esq2_pos_c'].delete(0, 'end')
+                    gerador.campos['abertura_esq2_pos_c'].insert(0, pos_esq)
+                    
+                    if dist_esq is not None:
+                        gerador.campos['abertura_esq2_dist_c'].delete(0, 'end')
+                        gerador.campos['abertura_esq2_dist_c'].insert(0, dist_esq)
+                    
+                    if larg_esq is not None:
+                        gerador.campos['abertura_esq2_larg_c'].delete(0, 'end')
+                        gerador.campos['abertura_esq2_larg_c'].insert(0, larg_esq)
+                    
+                    if prof_esq is not None:
+                        gerador.campos['abertura_esq2_prof_c'].delete(0, 'end')
+                        gerador.campos['abertura_esq2_prof_c'].insert(0, prof_esq)
+                
+                # Abertura C Direita 1
+                pos_dir = sheet[f'{coluna}{linhas_abcd["abertura_dir1_pos_c"]}'].value
+                dist_dir = sheet[f'{coluna}{linhas_abcd["abertura_dir1_dist_c"]}'].value
+                larg_dir = sheet[f'{coluna}{linhas_abcd["abertura_dir1_larg_c"]}'].value
+                prof_dir = sheet[f'{coluna}{linhas_abcd["abertura_dir1_prof_c"]}'].value
+                if pos_dir is not None:
+                    print(f"  Abertura Direita 1 C: Pos={pos_dir}, Dist={dist_dir}, Larg={larg_dir}, Prof={prof_dir}")
+                    gerador.campos['abertura_dir1_pos_c'].delete(0, 'end')
+                    gerador.campos['abertura_dir1_pos_c'].insert(0, pos_dir)
+                    
+                    if dist_dir is not None:
+                        gerador.campos['abertura_dir1_dist_c'].delete(0, 'end')
+                        gerador.campos['abertura_dir1_dist_c'].insert(0, dist_dir)
+                    
+                    if larg_dir is not None:
+                        gerador.campos['abertura_dir1_larg_c'].delete(0, 'end')
+                        gerador.campos['abertura_dir1_larg_c'].insert(0, larg_dir)
+                    
+                    if prof_dir is not None:
+                        gerador.campos['abertura_dir1_prof_c'].delete(0, 'end')
+                        gerador.campos['abertura_dir1_prof_c'].insert(0, prof_dir)
+                
+                # Abertura C Direita 2
+                pos_dir = sheet[f'{coluna}{linhas_abcd["abertura_dir2_pos_c"]}'].value
+                dist_dir = sheet[f'{coluna}{linhas_abcd["abertura_dir2_dist_c"]}'].value
+                larg_dir = sheet[f'{coluna}{linhas_abcd["abertura_dir2_larg_c"]}'].value
+                prof_dir = sheet[f'{coluna}{linhas_abcd["abertura_dir2_prof_c"]}'].value
+                if pos_dir is not None:
+                    print(f"  Abertura Direita 2 C: Pos={pos_dir}, Dist={dist_dir}, Larg={larg_dir}, Prof={prof_dir}")
+                    gerador.campos['abertura_dir2_pos_c'].delete(0, 'end')
+                    gerador.campos['abertura_dir2_pos_c'].insert(0, pos_dir)
+                    
+                    if dist_dir is not None:
+                        gerador.campos['abertura_dir2_dist_c'].delete(0, 'end')
+                        gerador.campos['abertura_dir2_dist_c'].insert(0, dist_dir)
+                    
+                    if larg_dir is not None:
+                        gerador.campos['abertura_dir2_larg_c'].delete(0, 'end')
+                        gerador.campos['abertura_dir2_larg_c'].insert(0, larg_dir)
+                    
+                    if prof_dir is not None:
+                        gerador.campos['abertura_dir2_prof_c'].delete(0, 'end')
+                        gerador.campos['abertura_dir2_prof_c'].insert(0, prof_dir)
+                
+                # 5. Preencher dados do Painel D
+                print("Preenchendo dados do Painel D...")
+                
+                # Preencher laje para o Painel D
+                valor = sheet[f'{coluna}{linhas_abcd["laje_d"]}'].value
+                if valor is not None:
+                    print(f"  Preenchendo laje_d: {valor}")
+                    gerador.campos['laje_d'].delete(0, 'end')
+                    gerador.campos['laje_d'].insert(0, valor)
+                
+                # Posição da laje D
+                valor = sheet[f'{coluna}{linhas_abcd["posicao_laje_d"]}'].value
+                if valor is not None:
+                    print(f"  Preenchendo posicao_laje_d: {valor}")
+                    gerador.pos_laje_d.set(valor)
+                
+                # Preencher larguras do Painel D
+                valor = sheet[f'{coluna}{linhas_abcd["largura_1_painel_d"]}'].value
+                if valor is not None:
+                    print(f"  Preenchendo largura_1_painel_d: {valor}")
+                    gerador.campos_cd['comp1_d'].delete(0, 'end')
+                    gerador.campos_cd['comp1_d'].insert(0, valor)
+                
+                valor = sheet[f'{coluna}{linhas_abcd["largura_2_painel_d"]}'].value
+                if valor is not None:
+                    print(f"  Preenchendo largura_2_painel_d: {valor}")
+                    gerador.campos_cd['comp2_d'].delete(0, 'end')
+                    gerador.campos_cd['comp2_d'].insert(0, valor)
+                
+                # Preencher alturas do Painel D
+                for i in range(1, 5):  # Painéis C e D têm 4 alturas
+                    campo_excel = f"altura_{i}_painel_d"
+                    if campo_excel in linhas_abcd:
+                        valor = sheet[f'{coluna}{linhas_abcd[campo_excel]}'].value
+                        if valor is not None:
+                            print(f"  Preenchendo {campo_excel}: {valor}")
+                            gerador.campos_altura['d'][i-1].delete(0, 'end')
+                            gerador.campos_altura['d'][i-1].insert(0, valor)
+                # Preencher hatchs do Painel D
+                hatchs_d = [
+                    ['hatch_l1_h2_d', 'hatch_l1_h3_d', 'hatch_l1_h4_d'],
+                    ['hatch_l2_h2_d', 'hatch_l2_h3_d', 'hatch_l2_h4_d'],
+                ]
+                for i, linha_hatch in enumerate(hatchs_d):
+                    for j, campo_hatch in enumerate(linha_hatch):
+                        if campo_hatch in linhas_abcd:
+                            valor = sheet[f'{coluna}{linhas_abcd[campo_hatch]}'].value
+                            print(f"[DEBUG] Painel D - {campo_hatch} (linha {linhas_abcd[campo_hatch]}), valor do Excel: {valor}, campo interface: [{i}][{j}]")
+                            # Protege o acesso ao campo de hatch
+                            if i < len(gerador.hatch_opcoes_d) and j < len(gerador.hatch_opcoes_d[i]):
+                                if valor is not None:
+                                    gerador.hatch_opcoes_d[i][j].set(str(valor))
+                            else:
+                                print(f"[ERRO] Painel D - Campo de hatch [{i}][{j}] não existe na interface!")
+                
+                # Abertura D Esquerda 1
+                pos_esq = sheet[f'{coluna}{linhas_abcd["abertura_esq1_pos_d"]}'].value
+                dist_esq = sheet[f'{coluna}{linhas_abcd["abertura_esq1_dist_d"]}'].value
+                larg_esq = sheet[f'{coluna}{linhas_abcd["abertura_esq1_larg_d"]}'].value
+                prof_esq = sheet[f'{coluna}{linhas_abcd["abertura_esq1_prof_d"]}'].value
+                print(f"  Lendo Abertura Esquerda 1 D:")
+                print(f"    Posição: {pos_esq} (linha {linhas_abcd['abertura_esq1_pos_d']})")
+                print(f"    Distância: {dist_esq} (linha {linhas_abcd['abertura_esq1_dist_d']})")
+                print(f"    Largura: {larg_esq} (linha {linhas_abcd['abertura_esq1_larg_d']})")
+                print(f"    Profundidade: {prof_esq} (linha {linhas_abcd['abertura_esq1_prof_d']})")
+                
+                # Preencher 0 se o valor for None
+                pos_esq = pos_esq if pos_esq is not None else 0
+                dist_esq = dist_esq if dist_esq is not None else 0
+                larg_esq = larg_esq if larg_esq is not None else 0
+                prof_esq = prof_esq if prof_esq is not None else 0
+                
+                print(f"  Preenchendo Abertura Esquerda 1 D:")
+                gerador.campos['abertura_esq1_pos_d'].delete(0, 'end')
+                gerador.campos['abertura_esq1_pos_d'].insert(0, pos_esq)
+                print(f"    Posição preenchida: {pos_esq}")
+                
+                gerador.campos['abertura_esq1_dist_d'].delete(0, 'end')
+                gerador.campos['abertura_esq1_dist_d'].insert(0, dist_esq)
+                print(f"    Distância preenchida: {dist_esq}")
+                
+                gerador.campos['abertura_esq1_larg_d'].delete(0, 'end')
+                gerador.campos['abertura_esq1_larg_d'].insert(0, larg_esq)
+                print(f"    Largura preenchida: {larg_esq}")
+                
+                gerador.campos['abertura_esq1_prof_d'].delete(0, 'end')
+                gerador.campos['abertura_esq1_prof_d'].insert(0, prof_esq)
+                print(f"    Profundidade preenchida: {prof_esq}")
+                
+                # Abertura D Esquerda 2
+                pos_esq = sheet[f'{coluna}{linhas_abcd["abertura_esq2_pos_d"]}'].value
+                dist_esq = sheet[f'{coluna}{linhas_abcd["abertura_esq2_dist_d"]}'].value
+                larg_esq = sheet[f'{coluna}{linhas_abcd["abertura_esq2_larg_d"]}'].value
+                prof_esq = sheet[f'{coluna}{linhas_abcd["abertura_esq2_prof_d"]}'].value
+                if pos_esq is not None:
+                    print(f"  Abertura Esquerda 2 D: Pos={pos_esq}, Dist={dist_esq}, Larg={larg_esq}, Prof={prof_esq}")
+                    gerador.campos['abertura_esq2_pos_d'].delete(0, 'end')
+                    gerador.campos['abertura_esq2_pos_d'].insert(0, pos_esq)
+                    
+                    if dist_esq is not None:
+                        gerador.campos['abertura_esq2_dist_d'].delete(0, 'end')
+                        gerador.campos['abertura_esq2_dist_d'].insert(0, dist_esq)
+                    
+                    if larg_esq is not None:
+                        gerador.campos['abertura_esq2_larg_d'].delete(0, 'end')
+                        gerador.campos['abertura_esq2_larg_d'].insert(0, larg_esq)
+                    
+                    if prof_esq is not None:
+                        gerador.campos['abertura_esq2_prof_d'].delete(0, 'end')
+                        gerador.campos['abertura_esq2_prof_d'].insert(0, prof_esq)
+                
+                # Abertura D Direita 1
+                pos_dir = sheet[f'{coluna}{linhas_abcd["abertura_dir1_pos_d"]}'].value
+                dist_dir = sheet[f'{coluna}{linhas_abcd["abertura_dir1_dist_d"]}'].value
+                larg_dir = sheet[f'{coluna}{linhas_abcd["abertura_dir1_larg_d"]}'].value
+                prof_dir = sheet[f'{coluna}{linhas_abcd["abertura_dir1_prof_d"]}'].value
+                if pos_dir is not None:
+                    print(f"  Abertura Direita 1 D: Pos={pos_dir}, Dist={dist_dir}, Larg={larg_dir}, Prof={prof_dir}")
+                    gerador.campos['abertura_dir1_pos_d'].delete(0, 'end')
+                    gerador.campos['abertura_dir1_pos_d'].insert(0, pos_dir)
+                    
+                    if dist_dir is not None:
+                        gerador.campos['abertura_dir1_dist_d'].delete(0, 'end')
+                        gerador.campos['abertura_dir1_dist_d'].insert(0, dist_dir)
+                    
+                    if larg_dir is not None:
+                        gerador.campos['abertura_dir1_larg_d'].delete(0, 'end')
+                        gerador.campos['abertura_dir1_larg_d'].insert(0, larg_dir)
+                    
+                    if prof_dir is not None:
+                        gerador.campos['abertura_dir1_prof_d'].delete(0, 'end')
+                        gerador.campos['abertura_dir1_prof_d'].insert(0, prof_dir)
+                
+                # Abertura D Direita 2
+                pos_dir = sheet[f'{coluna}{linhas_abcd["abertura_dir2_pos_d"]}'].value
+                dist_dir = sheet[f'{coluna}{linhas_abcd["abertura_dir2_dist_d"]}'].value
+                larg_dir = sheet[f'{coluna}{linhas_abcd["abertura_dir2_larg_d"]}'].value
+                prof_dir = sheet[f'{coluna}{linhas_abcd["abertura_dir2_prof_d"]}'].value
+                if pos_dir is not None:
+                    print(f"  Abertura Direita 2 D: Pos={pos_dir}, Dist={dist_dir}, Larg={larg_dir}, Prof={prof_dir}")
+                    gerador.campos['abertura_dir2_pos_d'].delete(0, 'end')
+                    gerador.campos['abertura_dir2_pos_d'].insert(0, pos_dir)
+                    
+                    if dist_dir is not None:
+                        gerador.campos['abertura_dir2_dist_d'].delete(0, 'end')
+                        gerador.campos['abertura_dir2_dist_d'].insert(0, dist_dir)
+                    
+                    if larg_dir is not None:
+                        gerador.campos['abertura_dir2_larg_d'].delete(0, 'end')
+                        gerador.campos['abertura_dir2_larg_d'].insert(0, larg_dir)
+                    
+                    if prof_dir is not None:
+                        gerador.campos['abertura_dir2_prof_d'].delete(0, 'end')
+                        gerador.campos['abertura_dir2_prof_d'].insert(0, prof_dir)
+                
+                # 6. Gerar o script diretamente
+                print("Gerando script ABCD...")
+                script_abcd = gerador.gerar_script()
+                
+                # Inicializar variáveis para uso posterior
+                nome_arquivo_base = None
+                nome_arquivo_abcd = None
+                
+                # Verificar se o script foi gerado com sucesso
+                if script_abcd is None:
+                    print("Erro ao gerar o script. Verifique o log para mais detalhes.")
+                else:
+                    # Criar diretórios e salvar o script
+                    diretorio_base = r"C:\Users\rvene\Desktop\Automacao_cad\Pilares\Pastas_SCRIPTS"
+
+                    # Obter o pavimento (linha 3) para usar como nome da pasta
+                    pavimento = sheet[f'{coluna}{linhas_abcd["pavimento"]}'].value
+                    if not pavimento:
+                        pavimento = "SEM_PAVIMENTO"
+
+                    # Formatar o nome da pasta: substituir espaços por "_" e adicionar "_ABCD" (evitar duplicidade)
+                    nome_pasta_pavimento = str(pavimento).replace(" ", "_")
+                    if not nome_pasta_pavimento.upper().endswith("_ABCD"):
+                        nome_pasta_pavimento += "_ABCD"
+
+                    # Criar a pasta do pavimento se não existir
+                    diretorio_pavimento = os.path.join(diretorio_base, nome_pasta_pavimento)
+                    os.makedirs(diretorio_pavimento, exist_ok=True)
+
+                    print(f"Salvando na pasta do pavimento: {diretorio_pavimento}")
+
+                    # Criar nome do arquivo baseado no nome do pilar
+                    nome_arquivo_base = os.path.join(diretorio_pavimento, nome_pilar)
+                    nome_arquivo_abcd = f"{nome_arquivo_base}_ABCD.scr"
+
+                    # Sempre sobrescrever o arquivo, não criar sufixos
+                    with open(nome_arquivo_abcd, "w", encoding="utf-16") as f:
+                        f.write(script_abcd)
+
+                    print(f"Script ABCD gerado para o pilar '{nome_pilar}' no pavimento '{pavimento}':")
+                    print(f"  - {nome_arquivo_abcd}")
+                
+                # Encerra a interface gráfica
+                app.root.destroy()
+
+            else:
+                print(f"Pulando coluna {coluna}: nome do pilar em branco.")
+                colunas_vazias += 1
+                if colunas_vazias >= 10:
+                    print(f"Parando a busca após 10 colunas vazias consecutivas a partir da coluna {coluna}.")
+                    parar_busca = True
+
+        print("Fim do processamento da planilha.")
+
+    except Exception as e:
+        print(f"Erro ao processar a planilha: {e}")
+        traceback.print_exc()
+
+# Exemplo de uso:
+if __name__ == "__main__":
+    import argparse
+    parser = argparse.ArgumentParser(description="Automação ABCD - Geração de Scripts SCR")
+    parser.add_argument("excel", nargs="?", help="Caminho do arquivo Excel")
+    parser.add_argument("colunas", nargs="?", help="Colunas a serem processadas (ex: E,F,G)")
+    parser.add_argument("pavimento", nargs="?", help="Pavimento a ser processado (opcional)")
+    args = parser.parse_args()
+
+    if args.excel:
+        caminho_arquivo_excel = args.excel
+        colunas = args.colunas.split(",") if args.colunas else None
+        pavimento = args.pavimento
+        print(f"[HEADLESS] Processando arquivo: {caminho_arquivo_excel}, colunas: {colunas}, pavimento: {pavimento}")
+        if colunas:
+            for coluna in colunas:
+                print(f"Processando coluna {coluna}")
+                preencher_campos_e_gerar_scripts(caminho_arquivo_excel, coluna_especifica=coluna)
+        else:
+            preencher_campos_e_gerar_scripts(caminho_arquivo_excel)
+        print("Processamento concluído com sucesso!")
+    else:
+        # Modo antigo: interface gráfica
+        pass  # main() removido para evitar erro de variável indefinida

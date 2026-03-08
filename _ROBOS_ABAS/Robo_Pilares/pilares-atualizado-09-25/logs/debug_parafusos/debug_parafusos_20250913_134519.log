@@ -1,0 +1,13 @@
+2025-09-13 13:45:19 | INFO | ================================================================================
+2025-09-13 13:45:19 | INFO | INICIANDO DEBUG DE PARAFUSOS PILAR ESPECIAL 2
+2025-09-13 13:45:19 | INFO | Arquivo de log: logs\debug_parafusos\debug_parafusos_20250913_134519.log
+2025-09-13 13:45:19 | INFO | ================================================================================
+2025-09-13 13:45:19 | INFO | 
+2025-09-13 13:45:19 | INFO | ============================================================
+2025-09-13 13:45:19 | INFO | SEÇÃO: TESTE REAL DE PARAFUSOS
+2025-09-13 13:45:19 | INFO | ============================================================
+2025-09-13 13:45:19 | INFO | [PARAFUSO-INFO] Pilar 1 | Quantidade: 1 | Contexto: Pilar 1 - Parafusos A
+2025-09-13 13:45:19 | INFO | [PARAFUSO-INFO] Distâncias: [38.0]
+2025-09-13 13:45:19 | INFO | [PARAFUSO-INFO] Pilar 2 | Quantidade: 1 | Contexto: Pilar 2 - Parafusos E (corrigido)
+2025-09-13 13:45:19 | INFO | [PARAFUSO-INFO] Distâncias: [73.0, 39.0]
+2025-09-13 13:45:19 | INFO | [CORREÇÃO-PARAFUSO] Pilar 2 | 2 -> 1 | Motivo: Pilar 2 especial - reduzido em 2

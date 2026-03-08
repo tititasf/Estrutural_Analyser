@@ -1,0 +1,16 @@
+(defun c:appdel ( / pt ent)
+  (setvar "CMDECHO" 0)
+  (prompt "\nClique em um ponto sobre o objeto a ser apagado: ")
+  (setq pt (getpoint))
+  (command "_.ZOOM" "C" pt 50)
+  (setq ent (ssget pt))
+  (if ent
+    (progn
+      (command "_.ERASE" ent "")
+      (prompt "\nObjeto apagado.")
+    )
+    (prompt "\nNenhum objeto encontrado nesse ponto.")
+  )
+  (setvar "CMDECHO" 1)
+  (princ)
+)

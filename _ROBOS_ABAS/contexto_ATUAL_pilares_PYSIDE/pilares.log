@@ -1,0 +1,99 @@
+2026-01-23 16:02:21,320 - INFO - Binds configurados para todos os locks
+2026-01-23 16:02:21,328 - INFO - Carregando configurações de layers...
+2026-01-23 16:02:21,333 - INFO - Carregando configurações de blocos...
+2026-01-23 16:02:21,338 - INFO - Carregando opções de desenho...
+2026-01-23 16:02:21,344 - INFO - Configurações carregadas com sucesso!
+2026-01-23 16:02:21,344 - INFO - Aplicação inicializada com sucesso
+2026-01-23 16:02:21,357 - INFO - Posição da laje A atualizada para 4 (PE=300.0, LAJE=0.0, DIV=120)
+2026-01-23 16:02:21,369 - INFO - Posição da laje A atualizada para 4 (PE=300.0, LAJE=0.0, DIV=120)
+2026-01-23 16:02:21,405 - INFO - Posição da laje B atualizada para 4 (PE=300.0, LAJE=0.0, DIV=120)
+2026-01-23 16:02:21,421 - INFO - Posição da laje B atualizada para 4 (PE=300.0, LAJE=0.0, DIV=120)
+2026-01-23 16:02:21,432 - INFO - Posição da laje C atualizada para 3 (PE=300.0, LAJE=0.0, DIV=242)
+2026-01-23 16:02:21,440 - INFO - Posição da laje C atualizada para 3 (PE=300.0, LAJE=0.0, DIV=242)
+2026-01-23 16:02:21,447 - INFO - Posição da laje D atualizada para 3 (PE=300.0, LAJE=0.0, DIV=242)
+2026-01-23 16:02:21,454 - INFO - Posição da laje D atualizada para 3 (PE=300.0, LAJE=0.0, DIV=242)
+2026-01-23 16:02:21,455 - INFO - Altura Painel A: 0.0 cm
+2026-01-23 16:02:21,455 - INFO - Altura Painel A: 0.0 cm
+2026-01-23 16:02:21,455 - INFO - Altura Painel A: 0.0 cm
+2026-01-23 16:02:21,455 - INFO - Altura Painel A: 0.0 cm
+2026-01-23 16:02:21,456 - INFO - Altura Painel A: 0.0 cm
+2026-01-23 16:02:21,456 - INFO - [SCRIPT 1] Laje A para PD: 0.0 cm
+2026-01-23 16:02:21,456 - INFO - PD calculado: 0.0cm (0,00m)
+2026-01-23 16:02:21,456 - INFO - Nível de chegada lido do campo: 3,00
+2026-01-23 16:02:21,457 - INFO - Tipo de moldura configurado: MULDURA
+2026-01-23 16:02:21,457 - INFO - Usando configuração padrão MULDURA
+2026-01-23 16:02:21,457 - INFO - Posições: A(-6920), B(-6498.0), C(-6076.0), D(-5826.0)
+2026-01-23 16:02:21,458 - INFO - Script gerado com sucesso!
+2026-01-23 16:02:21,464 - INFO - Script salvo como: Ptestelegacy_ABCD.scr
+2026-01-23 16:23:44,109 - INFO - Binds configurados para todos os locks
+2026-01-23 16:23:44,121 - INFO - Carregando configurações de layers...
+2026-01-23 16:23:44,130 - INFO - Carregando configurações de blocos...
+2026-01-23 16:23:44,139 - INFO - Carregando opções de desenho...
+2026-01-23 16:23:44,146 - INFO - Configurações carregadas com sucesso!
+2026-01-23 16:23:44,147 - INFO - Aplicação inicializada com sucesso
+2026-01-23 16:23:44,173 - INFO - Posição da laje A atualizada para 4 (PE=300.0, LAJE=0.0, DIV=120)
+2026-01-23 16:23:44,185 - INFO - Posição da laje A atualizada para 4 (PE=300.0, LAJE=0.0, DIV=120)
+2026-01-23 16:23:44,214 - INFO - Posição da laje B atualizada para 4 (PE=300.0, LAJE=0.0, DIV=120)
+2026-01-23 16:23:44,246 - INFO - Posição da laje B atualizada para 4 (PE=300.0, LAJE=0.0, DIV=120)
+2026-01-23 16:23:44,289 - INFO - Posição da laje C atualizada para 3 (PE=300.0, LAJE=0.0, DIV=242)
+2026-01-23 16:23:44,305 - INFO - Posição da laje C atualizada para 3 (PE=300.0, LAJE=0.0, DIV=242)
+2026-01-23 16:23:44,317 - INFO - Posição da laje D atualizada para 3 (PE=300.0, LAJE=0.0, DIV=242)
+2026-01-23 16:23:44,340 - INFO - Posição da laje D atualizada para 3 (PE=300.0, LAJE=0.0, DIV=242)
+2026-01-23 16:23:44,341 - INFO - Nenhuma altura do painel A encontrada, tentando usar altura do pilar
+2026-01-23 16:23:44,341 - INFO - Usando altura do pilar como fallback: 300.0cm distribuída em [2.0, 122.0, 122.0, 54.0, 0.0]
+2026-01-23 16:23:44,341 - INFO - [SCRIPT 1] Laje A para PD: 0.0 cm
+2026-01-23 16:23:44,341 - INFO - PD calculado: 300.0cm (3,00m) - alturas=[2.0, 122.0, 122.0, 54.0, 0.0], laje=0.0
+2026-01-23 16:23:44,341 - INFO - Nível de chegada lido do campo: 3,00
+2026-01-23 16:23:44,342 - INFO - Tipo de moldura configurado: MULDURA
+2026-01-23 16:23:44,342 - INFO - Usando configuração padrão MULDURA
+2026-01-23 16:23:44,342 - INFO - Posições: A(-6920), B(-6498.0), C(-6076.0), D(-5826.0)
+2026-01-23 16:23:44,343 - INFO - Script gerado com sucesso!
+2026-01-23 16:23:44,355 - INFO - Script salvo como: Ptestelegacy_ABCD.scr
+2026-01-23 16:26:24,661 - INFO - Binds configurados para todos os locks
+2026-01-23 16:26:24,670 - INFO - Carregando configurações de layers...
+2026-01-23 16:26:24,675 - INFO - Carregando configurações de blocos...
+2026-01-23 16:26:24,679 - INFO - Carregando opções de desenho...
+2026-01-23 16:26:24,684 - INFO - Configurações carregadas com sucesso!
+2026-01-23 16:26:24,684 - INFO - Aplicação inicializada com sucesso
+2026-01-23 16:26:24,692 - INFO - Posição da laje A atualizada para 4 (PE=300.0, LAJE=0.0, DIV=120)
+2026-01-23 16:26:24,701 - INFO - Posição da laje A atualizada para 4 (PE=300.0, LAJE=0.0, DIV=120)
+2026-01-23 16:26:24,710 - INFO - Posição da laje B atualizada para 4 (PE=300.0, LAJE=0.0, DIV=120)
+2026-01-23 16:26:24,717 - INFO - Posição da laje B atualizada para 4 (PE=300.0, LAJE=0.0, DIV=120)
+2026-01-23 16:26:24,724 - INFO - Posição da laje C atualizada para 3 (PE=300.0, LAJE=0.0, DIV=242)
+2026-01-23 16:26:24,731 - INFO - Posição da laje C atualizada para 3 (PE=300.0, LAJE=0.0, DIV=242)
+2026-01-23 16:26:24,741 - INFO - Posição da laje D atualizada para 3 (PE=300.0, LAJE=0.0, DIV=242)
+2026-01-23 16:26:24,750 - INFO - Posição da laje D atualizada para 3 (PE=300.0, LAJE=0.0, DIV=242)
+2026-01-23 16:26:24,751 - INFO - Nenhuma altura do painel A encontrada, tentando usar altura do pilar
+2026-01-23 16:26:24,751 - INFO - Usando altura do pilar como fallback: 300.0cm distribuída em [2.0, 122.0, 122.0, 54.0, 0.0]
+2026-01-23 16:26:24,752 - INFO - [SCRIPT 1] Laje A para PD: 0.0 cm
+2026-01-23 16:26:24,752 - INFO - PD calculado: 300.0cm (3,00m) - alturas=[2.0, 122.0, 122.0, 54.0, 0.0], laje=0.0
+2026-01-23 16:26:24,752 - INFO - Nível de chegada lido do campo: 3,00
+2026-01-23 16:26:24,752 - INFO - Tipo de moldura configurado: MULDURA
+2026-01-23 16:26:24,752 - INFO - Usando configuração padrão MULDURA
+2026-01-23 16:26:24,752 - INFO - Posições: A(-6920), B(-6498.0), C(-6076.0), D(-5826.0)
+2026-01-23 16:26:24,753 - INFO - Script gerado com sucesso!
+2026-01-23 16:26:24,759 - INFO - Script salvo como: Ptestelegacy_ABCD.scr
+2026-01-23 16:26:58,726 - INFO - Binds configurados para todos os locks
+2026-01-23 16:26:58,731 - INFO - Carregando configurações de layers...
+2026-01-23 16:26:58,736 - INFO - Carregando configurações de blocos...
+2026-01-23 16:26:58,740 - INFO - Carregando opções de desenho...
+2026-01-23 16:26:58,745 - INFO - Configurações carregadas com sucesso!
+2026-01-23 16:26:58,745 - INFO - Aplicação inicializada com sucesso
+2026-01-23 16:26:58,754 - INFO - Posição da laje A atualizada para 4 (PE=300.0, LAJE=0.0, DIV=120)
+2026-01-23 16:26:58,765 - INFO - Posição da laje A atualizada para 4 (PE=300.0, LAJE=0.0, DIV=120)
+2026-01-23 16:26:58,773 - INFO - Posição da laje B atualizada para 4 (PE=300.0, LAJE=0.0, DIV=120)
+2026-01-23 16:26:58,780 - INFO - Posição da laje B atualizada para 4 (PE=300.0, LAJE=0.0, DIV=120)
+2026-01-23 16:26:58,787 - INFO - Posição da laje C atualizada para 3 (PE=300.0, LAJE=0.0, DIV=242)
+2026-01-23 16:26:58,795 - INFO - Posição da laje C atualizada para 3 (PE=300.0, LAJE=0.0, DIV=242)
+2026-01-23 16:26:58,802 - INFO - Posição da laje D atualizada para 3 (PE=300.0, LAJE=0.0, DIV=242)
+2026-01-23 16:26:58,809 - INFO - Posição da laje D atualizada para 3 (PE=300.0, LAJE=0.0, DIV=242)
+2026-01-23 16:26:58,810 - INFO - Nenhuma altura do painel A encontrada, tentando usar altura do pilar
+2026-01-23 16:26:58,810 - INFO - Usando altura do pilar como fallback: 300.0cm distribuída em [2.0, 122.0, 122.0, 54.0, 0.0]
+2026-01-23 16:26:58,810 - INFO - [SCRIPT 1] Laje A para PD: 0.0 cm
+2026-01-23 16:26:58,810 - INFO - PD calculado: 300.0cm (3,00m) - alturas=[2.0, 122.0, 122.0, 54.0, 0.0], laje=0.0
+2026-01-23 16:26:58,810 - INFO - Nível de chegada lido do campo: 3,00
+2026-01-23 16:26:58,810 - INFO - Tipo de moldura configurado: MULDURA
+2026-01-23 16:26:58,811 - INFO - Usando configuração padrão MULDURA
+2026-01-23 16:26:58,811 - INFO - Posições: A(-6920), B(-6498.0), C(-6076.0), D(-5826.0)
+2026-01-23 16:26:58,811 - INFO - Script gerado com sucesso!
+2026-01-23 16:26:58,816 - INFO - Script salvo como: Ptestelegacy_ABCD.scr

@@ -1,0 +1,11 @@
+=== PILAR ANALYZER STARTUP LOG ===
+Timestamp: 2026-01-23 12:48:09
+Frozen: False
+Executable: N/A
+Current dir: c:\Users\Ryzen\Desktop\GITHUB\Agente-cad-PYSIDE\_ROBOS_ABAS\pilares-legacy\src
+Python path: ['c:\\Users\\Ryzen\\Desktop\\GITHUB\\Agente-cad-PYSIDE\\_ROBOS_ABAS\\pilares-legacy\\src', 'c:\\Users\\Ryzen\\Desktop\\GITHUB\\Agente-cad-PYSIDE\\_ROBOS_ABAS\\pilares-legacy', 'C:\\Users\\Ryzen\\AppData\\Local\\Programs\\Python\\Python312\\python312.zip']
+
+Iniciando main()...
+Tentando importar core.pilar_analyzer...
+Import core.pilar_analyzer bem-sucedido
+Executando pilar_main()...

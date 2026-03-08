@@ -1,0 +1,98 @@
+2025-11-08 12:02:33 | debug_robo_cima | INFO | Iniciando logs de depuração para robo_cima
+2025-11-08 12:02:33 | debug_robo_cima | INFO | Arquivo de log: logs\depuracao\robo_cima_20251108_120233.log
+2025-11-08 12:02:34 | debug_robo_cima | INFO | ℹ️ 🔄 Instância do GeradorPilar registrada globalmente
+2025-11-08 12:02:34 | debug_robo_cima | INFO | ℹ️ 🔄 Globais do pilar especial inicializadas
+2025-11-08 12:08:40 | debug_robo_cima | INFO | Iniciando logs de depuração para robo_cima
+2025-11-08 12:08:40 | debug_robo_cima | INFO | Arquivo de log: logs\depuracao\robo_cima_20251108_120840.log
+2025-11-08 12:08:41 | debug_robo_cima | INFO | ℹ️ 🔄 Instância do GeradorPilar registrada globalmente
+2025-11-08 12:08:41 | debug_robo_cima | INFO | ℹ️ 🔄 Globais do pilar especial inicializadas
+2025-11-08 12:08:42 | debug_robo_cima | INFO | 
+============================================================
+2025-11-08 12:08:42 | debug_robo_cima | INFO | 📋 GERAÇÃO DE SCRIPT CIMA
+2025-11-08 12:08:42 | debug_robo_cima | INFO | ============================================================
+2025-11-08 12:08:42 | debug_robo_cima | INFO | ℹ️ 🔄 === INÍCIO DO gerar_script() ===
+2025-11-08 12:08:42 | debug_robo_cima | INFO | ℹ️ 🔄 Estado inicial das globais: ID=1451606086784, len=0
+2025-11-08 12:08:42 | debug_robo_cima | WARNING | ⚠️ _globais_pilar_especial está vazio ou None!
+2025-11-08 12:08:42 | debug_robo_cima | INFO | ℹ️ 🔄 Status pilar_rotacionado no inicio: False
+2025-11-08 12:08:42 | debug_robo_cima | INFO | ℹ️ 🔄 Prestes a chamar _verificar_pilar_especial_ativo()...
+2025-11-08 12:08:42 | debug_robo_cima | INFO | ℹ️ 🔄 Estado das globais ANTES da verificação: False
+2025-11-08 12:08:42 | debug_robo_cima | INFO | 
+----------------------------------------
+2025-11-08 12:08:42 | debug_robo_cima | INFO | 📌 VERIFICAÇÃO DE PILAR ESPECIAL ATIVO
+2025-11-08 12:08:42 | debug_robo_cima | INFO | ----------------------------------------
+2025-11-08 12:08:42 | debug_robo_cima | INFO | ℹ️ 🔄 Verificando se pilar especial está ativo...
+2025-11-08 12:08:42 | debug_robo_cima | INFO | ℹ️ 🔄 Status do checkbox pilar_rotacionado_var: False
+2025-11-08 12:08:42 | debug_robo_cima | INFO | ℹ️ 🔄 Status do checkbox pilar_especial_ativo_var: False
+2025-11-08 12:08:42 | debug_robo_cima | INFO | ℹ️ Pilar especial INATIVO - pilar_rotacionado: False, pilar_especial: False, globais: False, tipo: ''
+2025-11-08 12:08:42 | debug_robo_cima | INFO | ℹ️ 🔄 Resultado da verificação: False
+2025-11-08 12:08:42 | debug_robo_cima | INFO | ℹ️ 🔄 Estado das globais APÓS a verificação: False
+2025-11-08 12:08:42 | debug_robo_cima | INFO | ℹ️ 🔄 Pilar especial ativo: False
+2025-11-08 12:08:42 | debug_robo_cima | INFO | 
+----------------------------------------
+2025-11-08 12:08:42 | debug_robo_cima | INFO | 📌 APLICAÇÃO DE ALTERAÇÕES PILAR ESPECIAL - PAI.B
+2025-11-08 12:08:42 | debug_robo_cima | INFO | ----------------------------------------
+2025-11-08 12:08:42 | debug_robo_cima | INFO | ℹ️ 🔄 Aplicando alterações do pilar especial para PAI.B...
+2025-11-08 12:08:42 | debug_robo_cima | WARNING | ⚠️ Pilar especial INATIVO (sem globais no gerador) - retornando valor original: -51
+2025-11-08 12:08:42 | debug_robo_cima | WARNING | ⚠️ Pilar especial INATIVO (sem globais no gerador) - retornando valor original: 90.0
+2025-11-08 12:08:42 | debug_robo_cima | WARNING | ⚠️ Pilar especial INATIVO (sem globais no gerador) - retornando valor original: 52.0
+2025-11-08 12:08:42 | debug_robo_cima | INFO | ℹ️ 🔄 PAI.B - Posição X: -51 -> -51
+2025-11-08 12:08:42 | debug_robo_cima | INFO | ℹ️ 🔄 PAI.B - Posição Y: 90.0 -> 90.0
+2025-11-08 12:08:42 | debug_robo_cima | INFO | ℹ️ 🔄 PAI.B - Comprimento: 52.0 -> 52.0
+2025-11-08 12:08:42 | debug_robo_cima | WARNING | ⚠️ Pilar especial INATIVO (sem globais no gerador) - retornando valor original: -51
+2025-11-08 12:08:42 | debug_robo_cima | WARNING | ⚠️ Pilar especial INATIVO (sem globais no gerador) - retornando valor original: 70
+2025-11-08 12:08:42 | debug_robo_cima | WARNING | ⚠️ Pilar especial INATIVO (sem globais no gerador) - retornando valor original: 52.0
+2025-11-08 12:08:42 | debug_robo_cima | INFO | ℹ️ [REFERENCIA-DINAMICA] Parede esquerda PAI.A FINAL REAL registrada: -51
+2025-11-08 12:08:42 | debug_robo_cima | WARNING | ⚠️ Pilar especial INATIVO (sem globais no gerador) - retornando valor original: -71
+2025-11-08 12:08:42 | debug_robo_cima | WARNING | ⚠️ Pilar especial INATIVO (sem globais no gerador) - retornando valor original: 92.0
+2025-11-08 12:08:42 | debug_robo_cima | INFO | ℹ️ 🔧 METAL A - posX=-71, posY=61.0, comp=92.0, endX=21.0, largura=7
+2025-11-08 12:08:42 | debug_robo_cima | WARNING | ⚠️ Pilar especial INATIVO (sem globais no gerador) - retornando valor original: -71
+2025-11-08 12:08:42 | debug_robo_cima | WARNING | ⚠️ Pilar especial INATIVO (sem globais no gerador) - retornando valor original: 92.0
+2025-11-08 12:08:42 | debug_robo_cima | INFO | ℹ️ 🔧 METAL B - posX=-71, posY=99.0, comp=92.0, endX=21.0, largura=7
+2025-11-08 12:08:42 | debug_robo_cima | INFO | ℹ️ DEBUG: Valores lidos Grade A - grade1=52.0, grade2=0.0, grade3=0.0, dist1=0.0, dist2=0.0
+2025-11-08 12:08:42 | debug_robo_cima | INFO | ℹ️ DEBUG: Condição Grade A - grade1 > 0: True, grade2 > 0: False, grade3 > 0: False
+2025-11-08 12:08:42 | debug_robo_cima | INFO | ℹ️ DEBUG: Condição Grade A - grade1 > 0 or grade2 > 0 or grade3 > 0: True
+2025-11-08 12:08:42 | debug_robo_cima | INFO | ℹ️ GRA.A usando valores específicos: comprimentos=[52.0, 0.0, 0.0], espacos=[0.0, 0.0]
+2025-11-08 12:08:42 | debug_robo_cima | INFO | 
+----------------------------------------
+2025-11-08 12:08:42 | debug_robo_cima | INFO | 📌 VERIFICAÇÃO DE PILAR ESPECIAL ATIVO
+2025-11-08 12:08:42 | debug_robo_cima | INFO | ----------------------------------------
+2025-11-08 12:08:42 | debug_robo_cima | INFO | ℹ️ 🔄 Verificando se pilar especial está ativo...
+2025-11-08 12:08:42 | debug_robo_cima | INFO | ℹ️ 🔄 Status do checkbox pilar_rotacionado_var: False
+2025-11-08 12:08:42 | debug_robo_cima | INFO | ℹ️ 🔄 Status do checkbox pilar_especial_ativo_var: False
+2025-11-08 12:08:42 | debug_robo_cima | INFO | ℹ️ Pilar especial INATIVO - pilar_rotacionado: False, pilar_especial: False, globais: False, tipo: ''
+2025-11-08 12:08:42 | debug_robo_cima | INFO | ℹ️ DEBUG: Valores lidos Grade B - grade1_grupo2=52.0, grade2_grupo2=0.0, grade3_grupo2=0.0, dist1_grupo2=0.0, dist2_grupo2=0.0
+2025-11-08 12:08:42 | debug_robo_cima | INFO | ℹ️ DEBUG: Condição Grade B - grade1_grupo2 > 0: True, grade2_grupo2 > 0: False, grade3_grupo2 > 0: False
+2025-11-08 12:08:42 | debug_robo_cima | INFO | ℹ️ DEBUG: Condição Grade B - grade1_grupo2 > 0 or grade2_grupo2 > 0 or grade3_grupo2 > 0: True
+2025-11-08 12:08:42 | debug_robo_cima | INFO | ℹ️ GRA.B usando valores específicos: comprimentos=[52.0, 0.0, 0.0], espacos=[0.0, 0.0]
+2025-11-08 12:08:42 | debug_robo_cima | INFO | 
+----------------------------------------
+2025-11-08 12:08:42 | debug_robo_cima | INFO | 📌 VERIFICAÇÃO DE PILAR ESPECIAL ATIVO
+2025-11-08 12:08:42 | debug_robo_cima | INFO | ----------------------------------------
+2025-11-08 12:08:42 | debug_robo_cima | INFO | ℹ️ 🔄 Verificando se pilar especial está ativo...
+2025-11-08 12:08:42 | debug_robo_cima | INFO | ℹ️ 🔄 Status do checkbox pilar_rotacionado_var: False
+2025-11-08 12:08:42 | debug_robo_cima | INFO | ℹ️ 🔄 Status do checkbox pilar_especial_ativo_var: False
+2025-11-08 12:08:42 | debug_robo_cima | INFO | ℹ️ Pilar especial INATIVO - pilar_rotacionado: False, pilar_especial: False, globais: False, tipo: ''
+2025-11-08 12:08:42 | debug_robo_cima | WARNING | ⚠️ Pilar especial INATIVO (sem globais no gerador) - retornando valor original: -52
+2025-11-08 12:08:42 | debug_robo_cima | INFO | 
+----------------------------------------
+2025-11-08 12:08:42 | debug_robo_cima | INFO | 📌 VERIFICAÇÃO DE PILAR ESPECIAL ATIVO
+2025-11-08 12:08:42 | debug_robo_cima | INFO | ----------------------------------------
+2025-11-08 12:08:42 | debug_robo_cima | INFO | ℹ️ 🔄 Verificando se pilar especial está ativo...
+2025-11-08 12:08:42 | debug_robo_cima | INFO | ℹ️ 🔄 Status do checkbox pilar_rotacionado_var: False
+2025-11-08 12:08:42 | debug_robo_cima | INFO | ℹ️ 🔄 Status do checkbox pilar_especial_ativo_var: False
+2025-11-08 12:08:42 | debug_robo_cima | INFO | ℹ️ Pilar especial INATIVO - pilar_rotacionado: False, pilar_especial: False, globais: False, tipo: ''
+2025-11-08 12:08:42 | debug_robo_cima | INFO | 
+----------------------------------------
+2025-11-08 12:08:42 | debug_robo_cima | INFO | 📌 DECISÃO DE COMANDO SCALE/ROTATE
+2025-11-08 12:08:42 | debug_robo_cima | INFO | ----------------------------------------
+2025-11-08 12:08:42 | debug_robo_cima | INFO | ℹ️ 🔄 Verificando qual comando usar (SCALE ou ROTATE)...
+2025-11-08 12:08:42 | debug_robo_cima | INFO | ℹ️ 🔄 Status pilar_rotacionado = False, usar_scale = True
+2025-11-08 12:08:42 | debug_robo_cima | INFO | ℹ️ ✅ Usando _SCALE
+2025-11-08 12:08:42 | debug_robo_cima | INFO | ℹ️ 🔄 Verificando se é pilar especial: False
+2025-11-08 12:08:42 | debug_robo_cima | INFO | ℹ️ ✅ Pilar normal - usando valores padrão no _SCALE
+2025-11-08 12:08:42 | debug_robo_cima | INFO | ℹ️ ✅ Script gerado com sucesso!
+2025-11-08 12:08:42 | debug_robo_cima | INFO | 🔄 Script gerado: Tamanho: 3009 caracteres
+2025-11-08 12:08:42 | debug_robo_cima | INFO | 
+============================================================
+2025-11-08 12:08:42 | debug_robo_cima | INFO | 📋 FIM DA GERAÇÃO DE SCRIPT CIMA
+2025-11-08 12:08:42 | debug_robo_cima | INFO | ============================================================

@@ -1,0 +1,15 @@
+2025-10-10 19:14:58 | debug_pilar_analyzer | INFO | Iniciando logs de depuração para pilar_analyzer
+2025-10-10 19:14:58 | debug_pilar_analyzer | INFO | Arquivo de log: logs\depuracao\pilar_analyzer_20251010_191458.log
+2025-10-10 19:14:58 | debug_pilar_analyzer | INFO | 
+============================================================
+2025-10-10 19:14:58 | debug_pilar_analyzer | INFO | 📋 PILAR ANALYZER - SISTEMA PRINCIPAL
+2025-10-10 19:14:58 | debug_pilar_analyzer | INFO | ============================================================
+2025-10-10 19:14:58 | debug_pilar_analyzer | INFO | ℹ️ 📅 Data/Hora de início: 2025-10-10 19:14:58
+2025-10-10 19:14:58 | debug_pilar_analyzer | INFO | ℹ️ 🚀 Iniciando PilarAnalyzer v3.0.0
+2025-10-10 19:14:58 | debug_pilar_analyzer | INFO | ℹ️ 📁 Diretório atual: C:\Users\rvene\Desktop\pilares-clean-final\src\core
+2025-10-10 19:14:58 | debug_pilar_analyzer | INFO | ℹ️ ✅ Paths configurados com sucesso
+2025-10-10 19:14:58 | debug_pilar_analyzer | INFO | 
+----------------------------------------
+2025-10-10 19:14:58 | debug_pilar_analyzer | INFO | 📌 SISTEMA DE CRÉDITOS
+2025-10-10 19:14:58 | debug_pilar_analyzer | INFO | ----------------------------------------
+2025-10-10 19:14:58 | debug_pilar_analyzer | INFO | ℹ️ 🔄 Iniciando sistema de créditos...

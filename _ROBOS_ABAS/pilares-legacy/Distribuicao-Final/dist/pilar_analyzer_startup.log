@@ -1,0 +1,17 @@
+=== PILAR ANALYZER STARTUP LOG ===
+Timestamp: 2025-11-15 17:12:55
+Frozen: True
+Executable: C:\Users\Ryzen\Desktop\GITHUB\pilares\pilares-atualizado-09-25\Distribuicao-Final\dist\PilarAnalyzer.exe
+Current dir: C:\Users\Ryzen\Desktop\GITHUB\pilares\pilares-atualizado-09-25\Distribuicao-Final\dist
+Python path: ['C:\\Users\\Ryzen\\Desktop\\GITHUB\\pilares\\pilares-atualizado-09-25\\Distribuicao-Final', 'C:\\Users\\Ryzen\\Desktop\\GITHUB\\pilares\\pilares-atualizado-09-25\\Distribuicao-Final\\dist', 'C:\\Users\\Ryzen\\AppData\\Local\\Temp\\_MEI144002\\base_library.zip']
+
+Iniciando main()...
+Ambiente frozen detectado. Executable: C:\Users\Ryzen\Desktop\GITHUB\pilares\pilares-atualizado-09-25\Distribuicao-Final\dist\PilarAnalyzer.exe
+Current dir antes: C:\Users\Ryzen\Desktop\GITHUB\pilares\pilares-atualizado-09-25\Distribuicao-Final\dist
+_MEIPASS encontrado: C:\Users\Ryzen\AppData\Local\Temp\_MEI144002
+Adicionado src (_MEIPASS) ao path: C:\Users\Ryzen\AppData\Local\Temp\_MEI144002\src
+Exe dir: C:\Users\Ryzen\Desktop\GITHUB\pilares\pilares-atualizado-09-25\Distribuicao-Final\dist
+Python path atualizado (primeiros 8): ['C:\\Users\\Ryzen\\AppData\\Local\\Temp\\_MEI144002\\src', 'C:\\Users\\Ryzen\\Desktop\\GITHUB\\pilares\\pilares-atualizado-09-25\\Distribuicao-Final', 'C:\\Users\\Ryzen\\Desktop\\GITHUB\\pilares\\pilares-atualizado-09-25\\Distribuicao-Final\\dist', 'C:\\Users\\Ryzen\\AppData\\Local\\Temp\\_MEI144002\\base_library.zip', 'C:\\Users\\Ryzen\\AppData\\Local\\Temp\\_MEI144002\\lib-dynload', 'C:\\Users\\Ryzen\\AppData\\Local\\Temp\\_MEI144002', 'C:\\Users\\Ryzen\\AppData\\Local\\Temp\\_MEI144002\\win32', 'C:\\Users\\Ryzen\\AppData\\Local\\Temp\\_MEI144002\\pythonwin']
+Tentando importar core.pilar_analyzer...
+Import core.pilar_analyzer bem-sucedido
+Executando pilar_main()...

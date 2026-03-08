@@ -1,0 +1,141 @@
+<?xml version='1.0' encoding='utf8'?>
+<nuitka-compilation-report nuitka_version="2.4.10" nuitka_commercial_version="not installed" completion="exception">
+  <exception exception_type="PermissionError" exception_value="[WinError 32] O arquivo já está sendo usado por outro processo: 'dist_debug\\run.build\\module.pandas.tests.groupby.test_apply.const'">
+Traceback (most recent call last):
+  File "C:\Users\Ryzen\Desktop\GITHUB\pilares\pilares-atualizado-09-25\.venv\Lib\site-packages\nuitka\MainControl.py", line 1155, in main
+    _main()
+  File "C:\Users\Ryzen\Desktop\GITHUB\pilares\pilares-atualizado-09-25\.venv\Lib\site-packages\nuitka\MainControl.py", line 995, in _main
+    main_module = _createMainModule()
+                  ^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Ryzen\Desktop\GITHUB\pilares\pilares-atualizado-09-25\.venv\Lib\site-packages\nuitka\MainControl.py", line 172, in _createMainModule
+    cleanSconsDirectory(source_dir)
+  File "C:\Users\Ryzen\Desktop\GITHUB\pilares\pilares-atualizado-09-25\.venv\Lib\site-packages\nuitka\build\SconsInterface.py", line 445, in cleanSconsDirectory
+    check(path)
+  File "C:\Users\Ryzen\Desktop\GITHUB\pilares\pilares-atualizado-09-25\.venv\Lib\site-packages\nuitka\build\SconsInterface.py", line 441, in check
+    deleteFile(path, must_exist=True)
+  File "C:\Users\Ryzen\Desktop\GITHUB\pilares\pilares-atualizado-09-25\.venv\Lib\site-packages\nuitka\utils\FileOperations.py", line 659, in deleteFile
+    os.unlink(path)
+PermissionError: [WinError 32] O arquivo já está sendo usado por outro processo: 'dist_debug\\run.build\\module.pandas.tests.groupby.test_apply.const'
+</exception>
+  <performance>
+    <memory_usage name="after_launch" value="44470272" />
+  </performance>
+  <data_file name="env.example" source="${cwd}\env.example" size="5100" reason="specified data file 'env.example=env.example' on command line" tags="user,copy" />
+  <data_file name="config\CIMA--INI.json" source="${cwd}\config\CIMA--INI.json" size="390" reason="specified data dir 'config' on command line" tags="user,copy,data-dir-contents" />
+  <data_file name="config\config_abcd.json" source="${cwd}\config\config_abcd.json" size="2000" reason="specified data dir 'config' on command line" tags="user,copy,data-dir-contents" />
+  <data_file name="config\config_cima.json" source="${cwd}\config\config_cima.json" size="1131" reason="specified data dir 'config' on command line" tags="user,copy,data-dir-contents" />
+  <data_file name="config\config_grades.json" source="${cwd}\config\config_grades.json" size="764" reason="specified data dir 'config' on command line" tags="user,copy,data-dir-contents" />
+  <data_file name="config\config_ordenador.json" source="${cwd}\config\config_ordenador.json" size="190" reason="specified data dir 'config' on command line" tags="user,copy,data-dir-contents" />
+  <data_file name="config\configuracao_ordenador_ABCD.json" source="${cwd}\config\configuracao_ordenador_ABCD.json" size="190" reason="specified data dir 'config' on command line" tags="user,copy,data-dir-contents" />
+  <data_file name="config\configuracao_ordenador_CIMA.json" source="${cwd}\config\configuracao_ordenador_CIMA.json" size="190" reason="specified data dir 'config' on command line" tags="user,copy,data-dir-contents" />
+  <data_file name="config\configuracao_ordenador_GRADE.json" source="${cwd}\config\configuracao_ordenador_GRADE.json" size="190" reason="specified data dir 'config' on command line" tags="user,copy,data-dir-contents" />
+  <data_file name="config\controle_desenho_config.json" source="${cwd}\config\controle_desenho_config.json" size="335" reason="specified data dir 'config' on command line" tags="user,copy,data-dir-contents" />
+  <data_file name="config\integrity_check.json" source="${cwd}\config\integrity_check.json" size="376" reason="specified data dir 'config' on command line" tags="user,copy,data-dir-contents" />
+  <data_file name="config\templates_config_cima.json" source="${cwd}\config\templates_config_cima.json" size="6062" reason="specified data dir 'config' on command line" tags="user,copy,data-dir-contents" />
+  <data_file name="config\templates_configuracao_ordenador_ABCD.json" source="${cwd}\config\templates_configuracao_ordenador_ABCD.json" size="21262" reason="specified data dir 'config' on command line" tags="user,copy,data-dir-contents" />
+  <data_file name="config\templates_configuracao_ordenador_CIMA.json" source="${cwd}\config\templates_configuracao_ordenador_CIMA.json" size="4316" reason="specified data dir 'config' on command line" tags="user,copy,data-dir-contents" />
+  <data_file name="config\templates_configuracao_ordenador_GRADE.json" source="${cwd}\config\templates_configuracao_ordenador_GRADE.json" size="1770" reason="specified data dir 'config' on command line" tags="user,copy,data-dir-contents" />
+  <data_file name="config\templates_grades.json" source="${cwd}\config\templates_grades.json" size="2673" reason="specified data dir 'config' on command line" tags="user,copy,data-dir-contents" />
+  <data_file name="config\templates_ordenador_ABCD.json" source="${cwd}\config\templates_ordenador_ABCD.json" size="599" reason="specified data dir 'config' on command line" tags="user,copy,data-dir-contents" />
+  <data_file name="config\templates_ordenador_CIMA.json" source="${cwd}\config\templates_ordenador_CIMA.json" size="597" reason="specified data dir 'config' on command line" tags="user,copy,data-dir-contents" />
+  <data_file name="config\templates_ordenador_GRADE.json" source="${cwd}\config\templates_ordenador_GRADE.json" size="598" reason="specified data dir 'config' on command line" tags="user,copy,data-dir-contents" />
+  <data_file name="config\templates_pilar_abcd.json" source="${cwd}\config\templates_pilar_abcd.json" size="18079" reason="specified data dir 'config' on command line" tags="user,copy,data-dir-contents" />
+  <data_file name="config\teste.json" source="${cwd}\config\teste.json" size="254" reason="specified data dir 'config' on command line" tags="user,copy,data-dir-contents" />
+  <data_file name="config\uni-ABCD.json" source="${cwd}\config\uni-ABCD.json" size="367" reason="specified data dir 'config' on command line" tags="user,copy,data-dir-contents" />
+  <data_file name="templates\MOLDE_PILARES ATUALIZADO.bak" source="${cwd}\templates\MOLDE_PILARES ATUALIZADO.bak" size="6182847" reason="specified data dir 'templates' on command line" tags="user,copy,data-dir-contents" />
+  <data_file name="templates\MOLDE_PILARES ATUALIZADO.dwg" source="${cwd}\templates\MOLDE_PILARES ATUALIZADO.dwg" size="12525014" reason="specified data dir 'templates' on command line" tags="user,copy,data-dir-contents" />
+  <data_file name="templates\MOLDE_PILARES ATUALIZADO2.bak" source="${cwd}\templates\MOLDE_PILARES ATUALIZADO2.bak" size="7637149" reason="specified data dir 'templates' on command line" tags="user,copy,data-dir-contents" />
+  <data_file name="templates\MOLDE_PILARES ATUALIZADO2.dwg" source="${cwd}\templates\MOLDE_PILARES ATUALIZADO2.dwg" size="4084146" reason="specified data dir 'templates' on command line" tags="user,copy,data-dir-contents" />
+  <data_file name="templates\MOLDE_PILARES ATUALIZADO_recover.dwg" source="${cwd}\templates\MOLDE_PILARES ATUALIZADO_recover.dwg" size="0" reason="specified data dir 'templates' on command line" tags="user,copy,data-dir-contents" />
+  <data_file name="templates\molde_visao_cima.dwg" source="${cwd}\templates\molde_visao_cima.dwg" size="0" reason="specified data dir 'templates' on command line" tags="user,copy,data-dir-contents" />
+  <data_file name="ferramentas\ABERTURA_PILAR_VIGA_ABVD.LSP" source="${cwd}\ferramentas\ABERTURA_PILAR_VIGA_ABVD.LSP" size="7370" reason="specified data dir 'ferramentas' on command line" tags="user,copy,data-dir-contents" />
+  <data_file name="ferramentas\comando_TESTEPILAR_TG.lsp" source="${cwd}\ferramentas\comando_TESTEPILAR_TG.lsp" size="199" reason="specified data dir 'ferramentas' on command line" tags="user,copy,data-dir-contents" />
+  <data_file name="ferramentas\comando_TESTEPILAR_TP.lsp" source="${cwd}\ferramentas\comando_TESTEPILAR_TP.lsp" size="182" reason="specified data dir 'ferramentas' on command line" tags="user,copy,data-dir-contents" />
+  <data_file name="ferramentas\comando_TESTEPILAR_TPA.lsp" source="${cwd}\ferramentas\comando_TESTEPILAR_TPA.lsp" size="188" reason="specified data dir 'ferramentas' on command line" tags="user,copy,data-dir-contents" />
+  <data_file name="ferramentas\dim arrendar 25.lsp" source="${cwd}\ferramentas\dim arrendar 25.lsp" size="1728" reason="specified data dir 'ferramentas' on command line" tags="user,copy,data-dir-contents" />
+  <data_file name="ferramentas\dim arrendar_3x.lsp" source="${cwd}\ferramentas\dim arrendar_3x.lsp" size="1732" reason="specified data dir 'ferramentas' on command line" tags="user,copy,data-dir-contents" />
+  <data_file name="ferramentas\Aberturas\ABERTURA_PILAR_VIGA_ABVD.LSP" source="${cwd}\ferramentas\Aberturas\ABERTURA_PILAR_VIGA_ABVD.LSP" size="7380" reason="specified data dir 'ferramentas' on command line" tags="user,copy,data-dir-contents" />
+  <data_file name="ferramentas\Aberturas\ABERTURA_PILAR_VIGA_ABVD12.LSP" source="${cwd}\ferramentas\Aberturas\ABERTURA_PILAR_VIGA_ABVD12.LSP" size="1960" reason="specified data dir 'ferramentas' on command line" tags="user,copy,data-dir-contents" />
+  <data_file name="ferramentas\Aberturas\ABERTURA_PILAR_VIGA_ABVE.LSP" source="${cwd}\ferramentas\Aberturas\ABERTURA_PILAR_VIGA_ABVE.LSP" size="5539" reason="specified data dir 'ferramentas' on command line" tags="user,copy,data-dir-contents" />
+  <data_file name="ferramentas\Aberturas\ABERTURA_PILAR_VIGA_ABVE12.LSP" source="${cwd}\ferramentas\Aberturas\ABERTURA_PILAR_VIGA_ABVE12.LSP" size="1774" reason="specified data dir 'ferramentas' on command line" tags="user,copy,data-dir-contents" />
+  <data_file name="ferramentas\Aberturas\ABERTURA_VIGA_VIGA_ABV.LSP" source="${cwd}\ferramentas\Aberturas\ABERTURA_VIGA_VIGA_ABV.LSP" size="6340" reason="specified data dir 'ferramentas' on command line" tags="user,copy,data-dir-contents" />
+  <data_file name="ferramentas\Aberturas\ABERTURA_VIGA_VIGA_ABVLJ.LSP" source="${cwd}\ferramentas\Aberturas\ABERTURA_VIGA_VIGA_ABVLJ.LSP" size="2224" reason="specified data dir 'ferramentas' on command line" tags="user,copy,data-dir-contents" />
+  <data_file name="ferramentas\Aberturas\ACV.LSP" source="${cwd}\ferramentas\Aberturas\ACV.LSP" size="5735" reason="specified data dir 'ferramentas' on command line" tags="user,copy,data-dir-contents" />
+  <data_file name="ferramentas\Aberturas\APAGADOR FUNCIONAL COMPLETO TUDO-APP copy.LSP" source="${cwd}\ferramentas\Aberturas\APAGADOR FUNCIONAL COMPLETO TUDO-APP copy.LSP" size="2624" reason="specified data dir 'ferramentas' on command line" tags="user,copy,data-dir-contents" />
+  <data_file name="ferramentas\Aberturas\Apagador de ITEM-SELECT-ERASE.LSP" source="${cwd}\ferramentas\Aberturas\Apagador de ITEM-SELECT-ERASE.LSP" size="397" reason="specified data dir 'ferramentas' on command line" tags="user,copy,data-dir-contents" />
+  <data_file name="ferramentas\Aberturas\BREAK2.LSP" source="${cwd}\ferramentas\Aberturas\BREAK2.LSP" size="602" reason="specified data dir 'ferramentas' on command line" tags="user,copy,data-dir-contents" />
+  <data_file name="ferramentas\Aberturas\Extensor de Linha EXTEND copy 2.LSP" source="${cwd}\ferramentas\Aberturas\Extensor de Linha EXTEND copy 2.LSP" size="7462" reason="specified data dir 'ferramentas' on command line" tags="user,copy,data-dir-contents" />
+  <data_file name="ferramentas\Aberturas\Extensor de Linha EXTEND copy.LSP" source="${cwd}\ferramentas\Aberturas\Extensor de Linha EXTEND copy.LSP" size="6586" reason="specified data dir 'ferramentas' on command line" tags="user,copy,data-dir-contents" />
+  <data_file name="ferramentas\Aberturas\Extensor de Linha EXTEND.LSP" source="${cwd}\ferramentas\Aberturas\Extensor de Linha EXTEND.LSP" size="7934" reason="specified data dir 'ferramentas' on command line" tags="user,copy,data-dir-contents" />
+  <data_file name="ferramentas\Aberturas\appLA.LSP" source="${cwd}\ferramentas\Aberturas\appLA.LSP" size="824" reason="specified data dir 'ferramentas' on command line" tags="user,copy,data-dir-contents" />
+  <data_file name="ferramentas\Aberturas\appLAD.LSP" source="${cwd}\ferramentas\Aberturas\appLAD.LSP" size="851" reason="specified data dir 'ferramentas' on command line" tags="user,copy,data-dir-contents" />
+  <data_file name="ferramentas\Aberturas\patriarca\ABERTURA_PILAR_VIGA_ABVD12pt.LSP" source="${cwd}\ferramentas\Aberturas\patriarca\ABERTURA_PILAR_VIGA_ABVD12pt.LSP" size="2250" reason="specified data dir 'ferramentas' on command line" tags="user,copy,data-dir-contents" />
+  <data_file name="ferramentas\Aberturas\patriarca\ABERTURA_PILAR_VIGA_ABVDPT.LSP" source="${cwd}\ferramentas\Aberturas\patriarca\ABERTURA_PILAR_VIGA_ABVDPT.LSP" size="5241" reason="specified data dir 'ferramentas' on command line" tags="user,copy,data-dir-contents" />
+  <data_file name="ferramentas\Aberturas\patriarca\ABERTURA_PILAR_VIGA_ABVE12pt.LSP" source="${cwd}\ferramentas\Aberturas\patriarca\ABERTURA_PILAR_VIGA_ABVE12pt.LSP" size="2049" reason="specified data dir 'ferramentas' on command line" tags="user,copy,data-dir-contents" />
+  <data_file name="ferramentas\Aberturas\patriarca\ABERTURA_PILAR_VIGA_ABVEpt.LSP" source="${cwd}\ferramentas\Aberturas\patriarca\ABERTURA_PILAR_VIGA_ABVEpt.LSP" size="4998" reason="specified data dir 'ferramentas' on command line" tags="user,copy,data-dir-contents" />
+  <data_file name="ferramentas\Aberturas\patriarca\ABERTURA_VIGA_VIGA_ABVLJpt.LSP" source="${cwd}\ferramentas\Aberturas\patriarca\ABERTURA_VIGA_VIGA_ABVLJpt.LSP" size="2506" reason="specified data dir 'ferramentas' on command line" tags="user,copy,data-dir-contents" />
+  <data_file name="ferramentas\Aberturas\patriarca\ABERTURA_VIGA_VIGA_ABVpt.LSP" source="${cwd}\ferramentas\Aberturas\patriarca\ABERTURA_VIGA_VIGA_ABVpt.LSP" size="5447" reason="specified data dir 'ferramentas' on command line" tags="user,copy,data-dir-contents" />
+  <data_file name="ferramentas\Hatchs\Hachura Laje con LAYER - HHHH Manual copy.LSP" source="${cwd}\ferramentas\Hatchs\Hachura Laje con LAYER - HHHH Manual copy.LSP" size="740" reason="specified data dir 'ferramentas' on command line" tags="user,copy,data-dir-contents" />
+  <data_file name="ferramentas\Hatchs\Hachura Laje con LAYER - HHHH2.LSP" source="${cwd}\ferramentas\Hatchs\Hachura Laje con LAYER - HHHH2.LSP" size="745" reason="specified data dir 'ferramentas' on command line" tags="user,copy,data-dir-contents" />
+  <data_file name="ferramentas\Hatchs\Hachura Reciclagem CORTE- HHH Manual.LSP" source="${cwd}\ferramentas\Hatchs\Hachura Reciclagem CORTE- HHH Manual.LSP" size="747" reason="specified data dir 'ferramentas' on command line" tags="user,copy,data-dir-contents" />
+  <data_file name="ferramentas\Hatchs\Hachura Reciclagem Igual- HH Manual.LSP" source="${cwd}\ferramentas\Hatchs\Hachura Reciclagem Igual- HH Manual.LSP" size="771" reason="specified data dir 'ferramentas' on command line" tags="user,copy,data-dir-contents" />
+  <data_file name="ferramentas\Hatchs\Hachura Reciclagem Igual- HP.LSP" source="${cwd}\ferramentas\Hatchs\Hachura Reciclagem Igual- HP.LSP" size="742" reason="specified data dir 'ferramentas' on command line" tags="user,copy,data-dir-contents" />
+  <data_file name="ferramentas\Hatchs\Hachura Reciclagem Igual- HP2.LSP" source="${cwd}\ferramentas\Hatchs\Hachura Reciclagem Igual- HP2.LSP" size="741" reason="specified data dir 'ferramentas' on command line" tags="user,copy,data-dir-contents" />
+  <data_composer blob_size="None" />
+  <command_line>
+    <option value="--standalone" />
+    <option value="--assume-yes-for-downloads" />
+    <option value="--enable-plugin=tk-inter" />
+    <option value="--include-package=pandas" />
+    <option value="--include-package=src" />
+    <option value="--include-data-dir=config=config" />
+    <option value="--include-data-dir=templates=templates" />
+    <option value="--include-data-dir=ferramentas=ferramentas" />
+    <option value="--include-data-files=env.example=env.example" />
+    <option value="--output-dir=dist_debug" />
+    <option value="--nofollow-import-to=tests,pytest" />
+    <option value="--nofollow-import-to=logs,output" />
+    <option value="--company-name=SuaEmpresa" />
+    <option value="--product-name=PilarAnalyzer-Debug" />
+    <option value="--file-version=3.0.0.0" />
+    <option value="--product-version=3.0.0" />
+    <option value="run.py" />
+  </command_line>
+  <plugins>
+    <plugin name="anti-bloat" user_enabled="no" />
+    <plugin name="data-files" user_enabled="no" />
+    <plugin name="delvewheel" user_enabled="no" />
+    <plugin name="dll-files" user_enabled="no" />
+    <plugin name="eventlet" user_enabled="no" />
+    <plugin name="gevent" user_enabled="no" />
+    <plugin name="gi" user_enabled="no" />
+    <plugin name="glfw" user_enabled="no" />
+    <plugin name="implicit-imports" user_enabled="no" />
+    <plugin name="kivy" user_enabled="no" />
+    <plugin name="matplotlib" user_enabled="no" />
+    <plugin name="multiprocessing" user_enabled="no" />
+    <plugin name="options-nanny" user_enabled="no" />
+    <plugin name="pbr-compat" user_enabled="no" />
+    <plugin name="pkg-resources" user_enabled="no" />
+    <plugin name="pywebview" user_enabled="no" />
+    <plugin name="spacy" user_enabled="no" />
+    <plugin name="tk-inter" user_enabled="yes" />
+    <plugin name="transformers" user_enabled="no" />
+  </plugins>
+  <distributions />
+  <python python_exe="${sys.prefix}\Scripts\python.exe" python_flavor="CPython Official" python_version="3.12.1" os_name="Windows" os_release="10" arch_name="x86_64" filesystem_encoding="utf-8">
+    <search_path>
+      <path value="${cwd}" />
+      <path value="${sys.real_prefix}\DLLs" />
+      <path value="${sys.real_prefix}\Lib" />
+      <path value="${sys.real_prefix}" />
+      <path value="${sys.prefix}" />
+      <path value="${sys.prefix}\Lib\site-packages" />
+      <path value="${sys.prefix}\Lib\site-packages\win32" />
+      <path value="${sys.prefix}\Lib\site-packages\win32\lib" />
+      <path value="${sys.prefix}\Lib\site-packages\Pythonwin" />
+      <path value="${sys.prefix}\Lib\site-packages\setuptools\_vendor" />
+    </search_path>
+  </python>
+  <output run_filename="${cwd}\dist_debug\run.dist\run.exe" />
+</nuitka-compilation-report>

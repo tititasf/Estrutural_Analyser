@@ -1,0 +1,6 @@
+2025-07-19 23:09:46 | ERROR    | TestLogger | error:164 | Erro capturado durante teste | Exception: Erro de teste | Extra: {"context": "test_function"}
+2025-07-19 23:09:46 | ERROR    | TestLogger | error:165 | Traceback: Traceback (most recent call last):
+  File "C:\Users\rvene\Desktop\Automacao_cad\Pilares\pilar4\detailed_logger.py", line 431, in test_detailed_logger
+    raise ValueError("Erro de teste")
+ValueError: Erro de teste
+

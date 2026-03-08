@@ -14,6 +14,11 @@ __pycache__/
 *.pyo
 *.pyd
 
-# Build/dist artifacts (Robo_Lajes)
-_ROBOS_ABAS/Robo_Lajes/build/
-_ROBOS_ABAS/Robo_Lajes/dist/
+# Build/dist artifacts (todos ROBOS_ABAS - executaveis e compactados >80MB)
+_ROBOS_ABAS/**/build/
+_ROBOS_ABAS/**/dist/
+_ROBOS_ABAS/**/Distribuicao*/
+_ROBOS_ABAS/**/*.rar
+_ROBOS_ABAS/**/*.zip
+_ROBOS_ABAS/**/*.exe
+_ROBOS_ABAS/**/*.pkg

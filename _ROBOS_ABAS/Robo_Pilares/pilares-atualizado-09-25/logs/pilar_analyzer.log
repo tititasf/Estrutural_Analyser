@@ -1,0 +1,5 @@
+2025-04-15 23:09:21,857 - modulos.pilar_analyzer - WARNING - AVISO: Não foi possível importar de módulos modularizados: cannot import name 'get_text_objects' from 'modulos.autocad_utils' (c:\Users\rvene\Desktop\pilar4\modulos\autocad_utils.py)
+2025-04-15 23:09:21,991 - modulos.pilar_analyzer - INFO - Mapeamento Excel importado com sucesso do arquivo excel_mapping.py
+2025-04-15 23:09:23,956 - modulos.pilar_analyzer - INFO - Iniciando Analisador de Pilares
+2025-04-15 23:09:23,957 - modulos.pilar_analyzer - INFO - >>> Inicializando o mapeamento Excel...
+2025-04-15 23:09:23,957 - modulos.pilar_analyzer - INFO - >>> Usando EXCEL_MAPPING global já definido

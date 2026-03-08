@@ -1,0 +1,11 @@
+=== PILAR ANALYZER STARTUP LOG (run.py) ===
+Timestamp: 2025-11-27 02:03:50
+Frozen: False
+Executable: N/A
+Script: c:\Users\Ryzen\Desktop\GITHUB\pilares\pilares-atualizado-09-25\run.py
+Python path: ['c:\\Users\\Ryzen\\Desktop\\GITHUB\\pilares\\pilares-atualizado-09-25\\src', 'c:\\Users\\Ryzen\\Desktop\\GITHUB\\pilares\\pilares-atualizado-09-25', 'C:\\Users\\Ryzen\\AppData\\Local\\Programs\\Python\\Python312\\python312.zip']
+
+Iniciando main() em run.py...
+Tentando importar src.main...
+Import de src.main bem-sucedido
+Executando pilar_main()...

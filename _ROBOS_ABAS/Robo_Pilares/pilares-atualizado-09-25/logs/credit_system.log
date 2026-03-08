@@ -1,0 +1,112 @@
+2025-07-19 00:13:05,767 - CreditSystem - INFO - Sistema de logging inicializado
+2025-07-19 00:13:08,783 - CreditSystem - ERROR - ERRO - SYSTEM_ERROR: Erro de conexão
+2025-07-19 00:13:08,783 - CreditSystem - ERROR - Detalhes: {
+  "timestamp": "2025-07-19T00:13:08.783901",
+  "operation": "SYSTEM_ERROR",
+  "hwid": "test_hwi",
+  "details": {
+    "error_code": null,
+    "message": "Erro de conex\u00e3o",
+    "details": {}
+  },
+  "error": "Erro de conex\u00e3o"
+}
+2025-07-19 00:13:08,783 - CreditSystem - ERROR - ERRO - SYSTEM_ERROR: Erro de teste
+2025-07-19 00:13:08,799 - CreditSystem - ERROR - Detalhes: {
+  "timestamp": "2025-07-19T00:13:08.783901",
+  "operation": "SYSTEM_ERROR",
+  "hwid": "test_hwi",
+  "details": {
+    "error_code": "TEST_ERROR",
+    "message": "Erro de teste",
+    "details": {
+      "test": "data"
+    }
+  },
+  "error": "Erro de teste"
+}
+2025-07-19 00:13:08,799 - CreditSystem - ERROR - ERRO - SYSTEM_ERROR: Créditos insuficientes
+2025-07-19 00:13:08,799 - CreditSystem - ERROR - Detalhes: {
+  "timestamp": "2025-07-19T00:13:08.799876",
+  "operation": "SYSTEM_ERROR",
+  "hwid": "test_hwi",
+  "details": {
+    "error_code": null,
+    "message": "Cr\u00e9ditos insuficientes",
+    "details": {}
+  },
+  "error": "Cr\u00e9ditos insuficientes"
+}
+2025-07-19 00:13:08,799 - CreditSystem - ERROR - ERRO - SYSTEM_ERROR: Dados inválidos
+2025-07-19 00:13:08,799 - CreditSystem - ERROR - Detalhes: {
+  "timestamp": "2025-07-19T00:13:08.799876",
+  "operation": "SYSTEM_ERROR",
+  "hwid": "test_hwi",
+  "details": {
+    "error_code": null,
+    "message": "Dados inv\u00e1lidos",
+    "details": {}
+  },
+  "error": "Dados inv\u00e1lidos"
+}
+2025-07-19 00:16:18,851 - CreditSystem - INFO - Sistema de logging inicializado
+2025-07-19 00:16:20,630 - CreditSystem - ERROR - ERRO - SYSTEM_ERROR: Erro de conexão
+2025-07-19 00:16:20,630 - CreditSystem - ERROR - Detalhes: {
+  "timestamp": "2025-07-19T00:16:20.630785",
+  "operation": "SYSTEM_ERROR",
+  "hwid": "test_hwi",
+  "details": {
+    "error_code": null,
+    "message": "Erro de conex\u00e3o",
+    "details": {}
+  },
+  "error": "Erro de conex\u00e3o"
+}
+2025-07-19 00:16:20,646 - CreditSystem - ERROR - ERRO - SYSTEM_ERROR: Erro de teste
+2025-07-19 00:16:20,646 - CreditSystem - ERROR - Detalhes: {
+  "timestamp": "2025-07-19T00:16:20.646431",
+  "operation": "SYSTEM_ERROR",
+  "hwid": "test_hwi",
+  "details": {
+    "error_code": "TEST_ERROR",
+    "message": "Erro de teste",
+    "details": {
+      "test": "data"
+    }
+  },
+  "error": "Erro de teste"
+}
+2025-07-19 00:16:20,646 - CreditSystem - ERROR - ERRO - SYSTEM_ERROR: Créditos insuficientes
+2025-07-19 00:16:20,658 - CreditSystem - ERROR - Detalhes: {
+  "timestamp": "2025-07-19T00:16:20.646431",
+  "operation": "SYSTEM_ERROR",
+  "hwid": "test_hwi",
+  "details": {
+    "error_code": null,
+    "message": "Cr\u00e9ditos insuficientes",
+    "details": {}
+  },
+  "error": "Cr\u00e9ditos insuficientes"
+}
+2025-07-19 00:16:20,662 - CreditSystem - ERROR - ERRO - SYSTEM_ERROR: Dados inválidos
+2025-07-19 00:16:20,662 - CreditSystem - ERROR - Detalhes: {
+  "timestamp": "2025-07-19T00:16:20.662152",
+  "operation": "SYSTEM_ERROR",
+  "hwid": "test_hwi",
+  "details": {
+    "error_code": null,
+    "message": "Dados inv\u00e1lidos",
+    "details": {}
+  },
+  "error": "Dados inv\u00e1lidos"
+}
+2025-07-19 00:20:23,011 - CreditSystem - INFO - Sistema de logging inicializado
+2025-07-19 00:21:00,623 - CreditSystem - INFO - Sistema de logging inicializado
+2025-07-19 00:37:21,404 - CreditSystem - INFO - Sistema de logging inicializado
+2025-07-19 00:52:49,862 - CreditSystem - INFO - Sistema de logging inicializado
+2025-07-19 00:59:57,315 - CreditSystem - INFO - Sistema de logging inicializado
+2025-07-19 02:23:02,355 - CreditSystem - INFO - Sistema de logging inicializado
+2025-07-19 03:03:23,984 - CreditSystem - INFO - Sistema de logging inicializado
+2025-07-21 18:41:19,736 - CreditSystem - INFO - Sistema de logging inicializado
+2025-07-23 20:43:42,898 - CreditSystem - INFO - Sistema de logging inicializado
+2025-07-23 21:03:15,898 - CreditSystem - INFO - Sistema de logging inicializado

@@ -1,0 +1,990 @@
+{
+    "15.1": {
+        "numero": "15.1",
+        "nome": "22",
+        "observacoes": null,
+        "pavimento": null,
+        "largura": 235.8149640392221,
+        "altura": 40.48071341966715,
+        "texto_esquerda": "22",
+        "texto_direita": "22",
+        "tipo_distribuicao": "122",
+        "tipo_painel_inicial": "244",
+        "sarrafo_esq": true,
+        "sarrafo_dir": true,
+        "paineis": [
+            235.8149640392221,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "recuos": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "aberturas": [
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                14.3346554314121
+            ]
+        ],
+        "tipo_painel2": "E/T",
+        "comprimento_2": 0.0,
+        "largura_2": 0.0,
+        "p1_2": 0.0,
+        "p2_2": 0.0,
+        "p3_2": 0.0,
+        "recuos_2": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "aberturas_2": [
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ]
+        ]
+    },
+    "TESTE002": {
+        "numero": "TESTE002",
+        "nome": "Teste Interface Round Button",
+        "observacoes": null,
+        "pavimento": "Térreo",
+        "largura": 1000.0,
+        "altura": 800.0,
+        "texto_esquerda": null,
+        "texto_direita": null,
+        "tipo_distribuicao": "307",
+        "tipo_painel_inicial": "244",
+        "sarrafo_esq": true,
+        "sarrafo_dir": true,
+        "paineis": [
+            244.0,
+            244.0,
+            244.0,
+            "244+24.0",
+            0.0,
+            0.0
+        ],
+        "recuos": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "aberturas": [
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ]
+        ],
+        "tipo_painel2": "E/T",
+        "comprimento_2": 0.0,
+        "largura_2": 0.0,
+        "p1_2": 0.0,
+        "p2_2": 0.0,
+        "p3_2": 0.0,
+        "recuos_2": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "aberturas_2": [
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ]
+        ]
+    },
+    "1": {
+        "numero": "1",
+        "nome": "222",
+        "observacoes": "22",
+        "pavimento": "chanfros",
+        "largura": 222.0,
+        "altura": 22.0,
+        "texto_esquerda": null,
+        "texto_direita": null,
+        "tipo_distribuicao": "122",
+        "tipo_painel_inicial": "244",
+        "sarrafo_esq": true,
+        "sarrafo_dir": true,
+        "paineis": [
+            222.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "recuos": [
+            0.0,
+            22.0,
+            0.0,
+            22.0
+        ],
+        "aberturas": [
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ]
+        ],
+        "tipo_painel2": "E/T",
+        "comprimento_2": 0.0,
+        "largura_2": 0.0,
+        "p1_2": 0.0,
+        "p2_2": 0.0,
+        "p3_2": 0.0,
+        "recuos_2": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "aberturas_2": [
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ]
+        ]
+    },
+    "16": {
+        "numero": "16",
+        "nome": "223",
+        "observacoes": null,
+        "pavimento": "Aberturas",
+        "largura": 444.0,
+        "altura": 70.0,
+        "texto_esquerda": "22",
+        "texto_direita": "22",
+        "tipo_distribuicao": "122",
+        "tipo_painel_inicial": "244",
+        "sarrafo_esq": true,
+        "sarrafo_dir": true,
+        "paineis": [
+            244.0,
+            200.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "recuos": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "aberturas": [
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                30.0
+            ],
+            [
+                0.0,
+                30.0
+            ],
+            [
+                0.0,
+                0.0
+            ]
+        ],
+        "tipo_painel2": "E/T",
+        "comprimento_2": 0.0,
+        "largura_2": 0.0,
+        "p1_2": 0.0,
+        "p2_2": 0.0,
+        "p3_2": 0.0,
+        "recuos_2": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "aberturas_2": [
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ]
+        ]
+    },
+    "18": {
+        "numero": "18",
+        "nome": "224",
+        "observacoes": null,
+        "pavimento": "Aberturas",
+        "largura": 444.0,
+        "altura": 70.0,
+        "texto_esquerda": "22",
+        "texto_direita": "22",
+        "tipo_distribuicao": "122",
+        "tipo_painel_inicial": "244",
+        "sarrafo_esq": true,
+        "sarrafo_dir": true,
+        "paineis": [
+            244.0,
+            200.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "recuos": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "aberturas": [
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                30.0
+            ],
+            [
+                0.0,
+                30.0
+            ],
+            [
+                0.0,
+                0.0
+            ]
+        ],
+        "tipo_painel2": "E/T",
+        "comprimento_2": 0.0,
+        "largura_2": 0.0,
+        "p1_2": 0.0,
+        "p2_2": 0.0,
+        "p3_2": 0.0,
+        "recuos_2": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "aberturas_2": [
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ]
+        ]
+    },
+    "3": {
+        "numero": "3",
+        "nome": "222",
+        "observacoes": "22",
+        "pavimento": "chanfros",
+        "largura": 444.0,
+        "altura": 22.0,
+        "texto_esquerda": null,
+        "texto_direita": null,
+        "tipo_distribuicao": "122",
+        "tipo_painel_inicial": "244",
+        "sarrafo_esq": true,
+        "sarrafo_dir": true,
+        "paineis": [
+            244.0,
+            200.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "recuos": [
+            22.0,
+            0.0,
+            22.0,
+            0.0
+        ],
+        "aberturas": [
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ]
+        ],
+        "tipo_painel2": "E/T",
+        "comprimento_2": 0.0,
+        "largura_2": 0.0,
+        "p1_2": 0.0,
+        "p2_2": 0.0,
+        "p3_2": 0.0,
+        "recuos_2": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "aberturas_2": [
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ]
+        ]
+    },
+    "4": {
+        "numero": "4",
+        "nome": "222",
+        "observacoes": "22",
+        "pavimento": "chanfros",
+        "largura": 444.0,
+        "altura": 22.0,
+        "texto_esquerda": null,
+        "texto_direita": null,
+        "tipo_distribuicao": "122",
+        "tipo_painel_inicial": "244",
+        "sarrafo_esq": true,
+        "sarrafo_dir": true,
+        "paineis": [
+            244.0,
+            200.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "recuos": [
+            0.0,
+            22.0,
+            0.0,
+            22.0
+        ],
+        "aberturas": [
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ]
+        ],
+        "tipo_painel2": "E/T",
+        "comprimento_2": 0.0,
+        "largura_2": 0.0,
+        "p1_2": 0.0,
+        "p2_2": 0.0,
+        "p3_2": 0.0,
+        "recuos_2": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "aberturas_2": [
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ]
+        ]
+    },
+    "5": {
+        "numero": "5",
+        "nome": "225",
+        "observacoes": null,
+        "pavimento": "Aberturas",
+        "largura": 193.0,
+        "altura": 30.0,
+        "texto_esquerda": "22",
+        "texto_direita": "22",
+        "tipo_distribuicao": "122",
+        "tipo_painel_inicial": "244",
+        "sarrafo_esq": true,
+        "sarrafo_dir": true,
+        "paineis": [
+            193.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "recuos": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "aberturas": [
+            [
+                0.0,
+                15.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                15.0
+            ]
+        ],
+        "tipo_painel2": "E/T",
+        "comprimento_2": 0.0,
+        "largura_2": 0.0,
+        "p1_2": 0.0,
+        "p2_2": 0.0,
+        "p3_2": 0.0,
+        "recuos_2": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "aberturas_2": [
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ]
+        ]
+    },
+    "8": {
+        "numero": "8",
+        "nome": "222",
+        "observacoes": "22",
+        "pavimento": "chanfros",
+        "largura": 777.0,
+        "altura": 22.0,
+        "texto_esquerda": null,
+        "texto_direita": null,
+        "tipo_distribuicao": "122",
+        "tipo_painel_inicial": "244",
+        "sarrafo_esq": true,
+        "sarrafo_dir": true,
+        "paineis": [
+            244.0,
+            244.0,
+            "122+167.0",
+            0.0,
+            0.0,
+            0.0
+        ],
+        "recuos": [
+            0.0,
+            22.0,
+            0.0,
+            22.0
+        ],
+        "aberturas": [
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ]
+        ],
+        "tipo_painel2": "E/T",
+        "comprimento_2": 0.0,
+        "largura_2": 0.0,
+        "p1_2": 0.0,
+        "p2_2": 0.0,
+        "p3_2": 0.0,
+        "recuos_2": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "aberturas_2": [
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ]
+        ]
+    },
+    "9": {
+        "numero": "9",
+        "nome": "222",
+        "observacoes": "22",
+        "pavimento": "chanfros",
+        "largura": 777.0,
+        "altura": 22.0,
+        "texto_esquerda": null,
+        "texto_direita": null,
+        "tipo_distribuicao": "122",
+        "tipo_painel_inicial": "244",
+        "sarrafo_esq": true,
+        "sarrafo_dir": true,
+        "paineis": [
+            244.0,
+            244.0,
+            "122+167.0",
+            0.0,
+            0.0,
+            0.0
+        ],
+        "recuos": [
+            22.0,
+            0.0,
+            22.0,
+            0.0
+        ],
+        "aberturas": [
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ]
+        ],
+        "tipo_painel2": "E/T",
+        "comprimento_2": 0.0,
+        "largura_2": 0.0,
+        "p1_2": 0.0,
+        "p2_2": 0.0,
+        "p3_2": 0.0,
+        "recuos_2": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "aberturas_2": [
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ]
+        ]
+    },
+    "55": {
+        "numero": "55",
+        "nome": "226",
+        "observacoes": null,
+        "pavimento": "Aberturas",
+        "largura": 193.0,
+        "altura": 30.0,
+        "texto_esquerda": "22",
+        "texto_direita": "22",
+        "tipo_distribuicao": "122",
+        "tipo_painel_inicial": "244",
+        "sarrafo_esq": true,
+        "sarrafo_dir": true,
+        "paineis": [
+            193.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "recuos": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "aberturas": [
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                15.0
+            ],
+            [
+                0.0,
+                15.0
+            ],
+            [
+                0.0,
+                0.0
+            ]
+        ],
+        "tipo_painel2": "E/T",
+        "comprimento_2": 0.0,
+        "largura_2": 0.0,
+        "p1_2": 0.0,
+        "p2_2": 0.0,
+        "p3_2": 0.0,
+        "recuos_2": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "aberturas_2": [
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ]
+        ]
+    },
+    "555": {
+        "numero": "555",
+        "nome": "226",
+        "observacoes": null,
+        "pavimento": "Aberturas",
+        "largura": 193.0,
+        "altura": 30.0,
+        "texto_esquerda": "22",
+        "texto_direita": "22",
+        "tipo_distribuicao": "122",
+        "tipo_painel_inicial": "244",
+        "sarrafo_esq": true,
+        "sarrafo_dir": true,
+        "paineis": [
+            193.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "recuos": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "aberturas": [
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ]
+        ],
+        "tipo_painel2": "E/T",
+        "comprimento_2": 0.0,
+        "largura_2": 0.0,
+        "p1_2": 0.0,
+        "p2_2": 0.0,
+        "p3_2": 0.0,
+        "recuos_2": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "aberturas_2": [
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ]
+        ]
+    },
+    "10": {
+        "numero": "10",
+        "nome": "22",
+        "observacoes": null,
+        "pavimento": "chanfros",
+        "largura": 383.9091690497007,
+        "altura": 55.37207204400329,
+        "texto_esquerda": "22",
+        "texto_direita": "22",
+        "tipo_distribuicao": "122",
+        "tipo_painel_inicial": "244",
+        "sarrafo_esq": true,
+        "sarrafo_dir": true,
+        "paineis": [
+            244.0,
+            139.9091690497007,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "recuos": [
+            93.47511331125861,
+            0.0,
+            10.0,
+            0.0
+        ],
+        "aberturas": [
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ]
+        ],
+        "tipo_painel2": "E/T",
+        "comprimento_2": 0.0,
+        "largura_2": 0.0,
+        "p1_2": 0.0,
+        "p2_2": 0.0,
+        "p3_2": 0.0,
+        "recuos_2": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "aberturas_2": [
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ]
+        ]
+    }
+}

@@ -1,0 +1,9 @@
+2025-09-13 01:22:08 | debug_robo_cima | INFO | Iniciando logs de depuração para robo_cima
+2025-09-13 01:22:08 | debug_robo_cima | INFO | Arquivo de log: logs\depuracao\robo_cima_20250913_012208.log
+2025-09-13 01:22:08 | debug_robo_cima | INFO | 
+============================================================
+2025-09-13 01:22:08 | debug_robo_cima | INFO | 📋 TESTE DEBUG
+2025-09-13 01:22:08 | debug_robo_cima | INFO | ============================================================
+2025-09-13 01:22:08 | debug_robo_cima | INFO | ℹ️ Teste de informação
+2025-09-13 01:22:08 | debug_robo_cima | WARNING | ⚠️ Teste de aviso
+2025-09-13 01:22:08 | debug_robo_cima | ERROR | ❌ Teste de erro

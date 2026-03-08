@@ -1,0 +1,315 @@
+{
+    "NOVA": {
+        "layers": {
+            "paineis": "Painéis",
+            "sarrafos_verticais": "SARR_2.2x7",
+            "sarrafos_horizontais": "SARR_2.2x7",
+            "sarrafos_horizontais_pequenos": "SARR_2.2x5",
+            "nome_observacoes": "NOMENCLATURA",
+            "textos_laterais": "5",
+            "cotas": "COTA"
+        },
+        "comandos": {
+            "extensor1": "ex2",
+            "extensor2": "Bextend",
+            "abertura1": "appFET",
+            "abertura2": "ABFET",
+            "abertura3": "appFEF",
+            "abertura4": "ABFEF",
+            "abertura5": "appFDT",
+            "abertura6": "ABFDT",
+            "abertura7": "appFDF",
+            "abertura8": "aBFDF"
+        },
+        "opcoes": {
+            "tipo_linha": "PLINE"
+        }
+    },
+    "uni2": {
+        "layers": {
+            "paineis": "Painéis",
+            "sarrafos_verticais": "SARR_2_2x5",
+            "sarrafos_horizontais": "Sarrafo_de_pressao",
+            "sarrafos_horizontais_pequenos": "SARR_2.2x5",
+            "nome_observacoes": "0",
+            "textos_laterais": "DIVISAO",
+            "cotas": "cota"
+        },
+        "comandos": {
+            "extensor1": "ex2",
+            "extensor2": "Bextend",
+            "abertura1": "appFET",
+            "abertura2": "ABFET",
+            "abertura3": "appFEF",
+            "abertura4": "ABFEF",
+            "abertura5": "appFDT",
+            "abertura6": "ABFDT",
+            "abertura7": "appFDF",
+            "abertura8": "aBFDF"
+        },
+        "opcoes": {
+            "tipo_linha": "PLINE",
+            "linetype_sarrafo_central": "HIDDEN",
+            "logica_sarrafos": "extremos",
+            "paineis_numeracao": "sim",
+            "blocks": {
+                "block1": "nf1",
+                "block2": "nf2",
+                "block3": "nf3",
+                "block4": "nf4",
+                "block5": "nf5",
+                "block6": "nf6",
+                "block7": "nf7",
+                "block8": "nf8",
+                "block9": "nf9",
+                "block10": "nf10"
+            }
+        }
+    },
+    "INI": {
+        "layers": {
+            "paineis": "Painéis",
+            "sarrafos_verticais": "SARR_2_2x5",
+            "sarrafos_horizontais": "Sarrafo_de_pressao",
+            "sarrafos_horizontais_pequenos": "SARR_2.2x5",
+            "nome_observacoes": "0",
+            "textos_laterais": "DIVISAO",
+            "cotas": "cota"
+        },
+        "comandos": {
+            "extensor1": "ex2",
+            "extensor2": "Bextend",
+            "abertura1": "appFET",
+            "abertura2": "ABFETini",
+            "abertura3": "appFEF",
+            "abertura4": "ABFEFini",
+            "abertura5": "appFDT",
+            "abertura6": "ABFDTini",
+            "abertura7": "appFDF",
+            "abertura8": "aBFDFini"
+        },
+        "opcoes": {
+            "tipo_linha": "PLINE",
+            "linetype_sarrafo_central": "HIDDEN",
+            "logica_sarrafos": "extremos",
+            "paineis_numeracao": "sim",
+            "blocks": {
+                "block1": "nf1",
+                "block2": "nf2",
+                "block3": "nf3",
+                "block4": "nf4",
+                "block5": "nf5",
+                "block6": "nf6",
+                "block7": "nf7",
+                "block8": "nf8",
+                "block9": "nf9",
+                "block10": "nf10"
+            }
+        }
+    },
+    "INI2": {
+        "layers": {
+            "paineis": "Painéis",
+            "sarrafos_verticais": "SARR_2_2x5",
+            "sarrafos_horizontais": "Sarrafo_de_pressao",
+            "sarrafos_horizontais_pequenos": "SARR_2.2x5",
+            "nome_observacoes": "0",
+            "textos_laterais": "DIVISAO",
+            "cotas": "cota"
+        },
+        "comandos": {
+            "extensor1": "ex2",
+            "extensor2": "Bextend",
+            "abertura1": "app",
+            "abertura2": "ABFETini",
+            "abertura3": "app",
+            "abertura4": "ABFEFini",
+            "abertura5": "app",
+            "abertura6": "ABFDTini",
+            "abertura7": "app",
+            "abertura8": "aBFDFini"
+        },
+        "opcoes": {
+            "tipo_linha": "PLINE",
+            "linetype_sarrafo_central": "HIDDEN",
+            "logica_sarrafos": "extremos",
+            "paineis_numeracao": "sim",
+            "blocks": {
+                "block1": "nf1",
+                "block2": "nf2",
+                "block3": "nf3",
+                "block4": "nf4",
+                "block5": "nf5",
+                "block6": "nf6",
+                "block7": "nf7",
+                "block8": "nf8",
+                "block9": "nf9",
+                "block10": "nf10"
+            }
+        }
+    },
+    "INI-3.0": {
+        "layers": {
+            "paineis": "Painéis",
+            "sarrafos_verticais": "SARR_2_2x5",
+            "sarrafos_horizontais": "Sarrafo_de_pressao",
+            "sarrafos_horizontais_pequenos": "SARR_2.2x5",
+            "nome_observacoes": "0",
+            "textos_laterais": "DIVISAO",
+            "cotas": "cota"
+        },
+        "comandos": {
+            "extensor1": "ex2",
+            "extensor2": "Bextend",
+            "abertura1": "appfdt",
+            "abertura2": "ABFETini",
+            "abertura3": "appfdt",
+            "abertura4": "ABFEFini",
+            "abertura5": "appfdt",
+            "abertura6": "ABFDTini",
+            "abertura7": "appfdt",
+            "abertura8": "aBFDFini"
+        },
+        "opcoes": {
+            "tipo_linha": "PLINE",
+            "linetype_sarrafo_central": "HIDDEN",
+            "logica_sarrafos": "extremos",
+            "paineis_numeracao": "sim",
+            "blocks": {
+                "block1": "nf1",
+                "block2": "nf2",
+                "block3": "nf3",
+                "block4": "nf4",
+                "block5": "nf5",
+                "block6": "nf6",
+                "block7": "nf7",
+                "block8": "nf8",
+                "block9": "nf9",
+                "block10": "nf10"
+            }
+        }
+    },
+    "NOVA.3.0": {
+        "layers": {
+            "paineis": "Painéis",
+            "sarrafos_verticais": "SARR_2.2x7",
+            "sarrafos_horizontais": "SARR_2.2x7",
+            "sarrafos_horizontais_pequenos": "SARR_2.2x5",
+            "nome_observacoes": "NOMENCLATURA",
+            "textos_laterais": "5",
+            "cotas": "COTA"
+        },
+        "comandos": {
+            "extensor1": "ex2",
+            "extensor2": "Bextend",
+            "abertura1": "app3",
+            "abertura2": "ABFET",
+            "abertura3": "APP3",
+            "abertura4": "ABFEF",
+            "abertura5": "APP3",
+            "abertura6": "ABFDT",
+            "abertura7": "APP3",
+            "abertura8": "aBFDF"
+        },
+        "opcoes": {
+            "tipo_linha": "PLINE",
+            "linetype_sarrafo_central": "DASHED",
+            "logica_sarrafos": "todos",
+            "paineis_numeracao": "nao",
+            "blocks": {
+                "block1": "nf1",
+                "block2": "nf2",
+                "block3": "nf3",
+                "block4": "nf4",
+                "block5": "nf5",
+                "block6": "nf6",
+                "block7": "nf7",
+                "block8": "nf8",
+                "block9": "nf9",
+                "block10": "nf10"
+            }
+        }
+    },
+    "nova4": {
+        "layers": {
+            "paineis": "Painéis",
+            "sarrafos_verticais": "SARR_2.2x7",
+            "sarrafos_horizontais": "SARR_2.2x7",
+            "sarrafos_horizontais_pequenos": "SARR_2.2x5",
+            "nome_observacoes": "NOMENCLATURA",
+            "textos_laterais": "5",
+            "cotas": "COTA"
+        },
+        "comandos": {
+            "extensor1": "ex2",
+            "extensor2": "Bextend",
+            "abertura1": "app3",
+            "abertura2": "ABFET",
+            "abertura3": "APP3",
+            "abertura4": "ABFEF",
+            "abertura5": "APP3",
+            "abertura6": "ABFDT",
+            "abertura7": "APP3",
+            "abertura8": "aBFDF"
+        },
+        "opcoes": {
+            "tipo_linha": "PLINE",
+            "linetype_sarrafo_central": "Continuous",
+            "logica_sarrafos": "todos",
+            "paineis_numeracao": "nao",
+            "blocks": {
+                "block1": "nf1",
+                "block2": "nf2",
+                "block3": "nf3",
+                "block4": "nf4",
+                "block5": "nf5",
+                "block6": "nf6",
+                "block7": "nf7",
+                "block8": "nf8",
+                "block9": "nf9",
+                "block10": "nf10"
+            }
+        }
+    },
+    "NOVA-NUMERADA": {
+        "layers": {
+            "paineis": "Painéis",
+            "sarrafos_verticais": "SARR_2.2x7",
+            "sarrafos_horizontais": "SARR_2.2x7",
+            "sarrafos_horizontais_pequenos": "SARR_2.2x5",
+            "nome_observacoes": "NOMENCLATURA",
+            "textos_laterais": "5",
+            "cotas": "COTA"
+        },
+        "comandos": {
+            "extensor1": "ex2",
+            "extensor2": "Bextend",
+            "abertura1": "app3",
+            "abertura2": "ABFET",
+            "abertura3": "APP3",
+            "abertura4": "ABFEF",
+            "abertura5": "APP3",
+            "abertura6": "ABFDT",
+            "abertura7": "APP3",
+            "abertura8": "aBFDF"
+        },
+        "opcoes": {
+            "tipo_linha": "PLINE",
+            "linetype_sarrafo_central": "continuous",
+            "logica_sarrafos": "todos",
+            "paineis_numeracao": "sim",
+            "blocks": {
+                "block1": "nf1",
+                "block2": "nf2",
+                "block3": "nf3",
+                "block4": "nf4",
+                "block5": "nf5",
+                "block6": "nf6",
+                "block7": "nf7",
+                "block8": "nf8",
+                "block9": "nf9",
+                "block10": "nf10"
+            }
+        }
+    }
+}

@@ -1,0 +1,21 @@
+2025-09-16 02:45:31 | debug_run_script | INFO | Iniciando logs de depuração para run_script
+2025-09-16 02:45:31 | debug_run_script | INFO | Arquivo de log: logs\depuracao\run_script_20250916_024531.log
+2025-09-16 02:45:31 | debug_run_script | INFO | 
+============================================================
+2025-09-16 02:45:31 | debug_run_script | INFO | 📋 INICIALIZAÇÃO DO PILARANALYZER
+2025-09-16 02:45:31 | debug_run_script | INFO | ============================================================
+2025-09-16 02:45:31 | debug_run_script | INFO | ℹ️ Data/Hora de início: 2025-09-16 02:45:31
+2025-09-16 02:45:31 | debug_run_script | INFO | ℹ️ Diretório do script: c:\Users\rvene\Desktop\PILARES-V-1.0\PILARES
+2025-09-16 02:45:31 | debug_run_script | INFO | ℹ️ Diretório src: c:\Users\rvene\Desktop\PILARES-V-1.0\PILARES\src
+2025-09-16 02:45:31 | debug_run_script | INFO | ℹ️ 🔄 Configurando paths do sistema...
+2025-09-16 02:45:31 | debug_run_script | INFO | ℹ️ ✅ Paths configurados com sucesso
+2025-09-16 02:45:31 | debug_run_script | INFO | 
+----------------------------------------
+2025-09-16 02:45:31 | debug_run_script | INFO | 📌 CARREGAMENTO DE MÓDULOS
+2025-09-16 02:45:31 | debug_run_script | INFO | ----------------------------------------
+2025-09-16 02:45:31 | debug_run_script | INFO | ℹ️ Importando módulo main...
+2025-09-16 02:45:31 | debug_run_script | INFO | ℹ️ Módulos carregados com sucesso!
+2025-09-16 02:45:31 | debug_run_script | INFO | 
+----------------------------------------
+2025-09-16 02:45:31 | debug_run_script | INFO | 📌 EXECUÇÃO DO PILARANALYZER
+2025-09-16 02:45:31 | debug_run_script | INFO | ----------------------------------------

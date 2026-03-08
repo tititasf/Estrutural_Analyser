@@ -1,0 +1,209 @@
+{
+    "project_data": {
+        "Obra 1": {
+            "Pavimento 1": {
+                "vigas": {
+                    "V12B.Ba": {
+                        "number": "1",
+                        "name": "V12B.Ba",
+                        "floor": "-",
+                        "obs": "",
+                        "level_beam": "",
+                        "level_opposite": "",
+                        "level_ceiling": "",
+                        "adjust": "",
+                        "text_left": "",
+                        "text_right": "P17A",
+                        "side": "B",
+                        "continuation": "Proxima Parte",
+                        "segment_class": "Lista Geral",
+                        "combined_faces": [],
+                        "unique_id": "102372f8-4c39-4b17-b9f8-ea5fc55c256e",
+                        "total_width": 183.09,
+                        "total_height": "106",
+                        "bottom": "19",
+                        "height2_global": "0",
+                        "panels": [
+                            {
+                                "width": 183.09,
+                                "height1": "106",
+                                "height2": "0",
+                                "type1": "Grade",
+                                "type2": "Sarrafeado",
+                                "grade_h1": 103.8,
+                                "grade_h2": 0.0,
+                                "slab_top": 14.0,
+                                "slab_bottom": 0.0,
+                                "slab_center": 0.0,
+                                "uid": "OBRA1-X-LISTAGERAL-X-P1-H1",
+                                "uid_h2": "",
+                                "reused_from": "",
+                                "reused_in": "",
+                                "reused_from_h2": "",
+                                "reused_in_h2": "",
+                                "link_saved": false
+                            },
+                            {
+                                "width": 0.0,
+                                "height1": "106",
+                                "height2": "0",
+                                "type1": "Grade",
+                                "type2": "Sarrafeado",
+                                "grade_h1": 103.8,
+                                "grade_h2": 0.0,
+                                "slab_top": 14.0,
+                                "slab_bottom": 0.0,
+                                "slab_center": 0.0,
+                                "uid": "OBRA1-X-LISTAGERAL-X-P2-H1",
+                                "uid_h2": "",
+                                "reused_from": "",
+                                "reused_in": "",
+                                "reused_from_h2": "",
+                                "reused_in_h2": "",
+                                "link_saved": false
+                            },
+                            {
+                                "width": 0.0,
+                                "height1": "106",
+                                "height2": "0",
+                                "type1": "Grade",
+                                "type2": "Sarrafeado",
+                                "grade_h1": 103.8,
+                                "grade_h2": 0.0,
+                                "slab_top": 14.0,
+                                "slab_bottom": 0.0,
+                                "slab_center": 0.0,
+                                "uid": "OBRA1-X-LISTAGERAL-X-P3-H1",
+                                "uid_h2": "",
+                                "reused_from": "",
+                                "reused_in": "",
+                                "reused_from_h2": "",
+                                "reused_in_h2": "",
+                                "link_saved": false
+                            },
+                            {
+                                "width": 0.0,
+                                "height1": "106",
+                                "height2": "0",
+                                "type1": "Grade",
+                                "type2": "Sarrafeado",
+                                "grade_h1": 103.8,
+                                "grade_h2": 0.0,
+                                "slab_top": 14.0,
+                                "slab_bottom": 0.0,
+                                "slab_center": 0.0,
+                                "uid": "OBRA1-X-LISTAGERAL-X-P4-H1",
+                                "uid_h2": "",
+                                "reused_from": "",
+                                "reused_in": "",
+                                "reused_from_h2": "",
+                                "reused_in_h2": "",
+                                "link_saved": false
+                            },
+                            {
+                                "width": 0.0,
+                                "height1": "106",
+                                "height2": "0",
+                                "type1": "Grade",
+                                "type2": "Sarrafeado",
+                                "grade_h1": 103.8,
+                                "grade_h2": 0.0,
+                                "slab_top": 14.0,
+                                "slab_bottom": 0.0,
+                                "slab_center": 0.0,
+                                "uid": "OBRA1-X-LISTAGERAL-X-P5-H1",
+                                "uid_h2": "",
+                                "reused_from": "",
+                                "reused_in": "",
+                                "reused_from_h2": "",
+                                "reused_in_h2": "",
+                                "link_saved": false
+                            },
+                            {
+                                "width": 0.0,
+                                "height1": "106",
+                                "height2": "0",
+                                "type1": "Grade",
+                                "type2": "Sarrafeado",
+                                "grade_h1": 103.8,
+                                "grade_h2": 0.0,
+                                "slab_top": 14.0,
+                                "slab_bottom": 0.0,
+                                "slab_center": 0.0,
+                                "uid": "OBRA1-X-LISTAGERAL-X-P6-H1",
+                                "uid_h2": "",
+                                "reused_from": "",
+                                "reused_in": "",
+                                "reused_from_h2": "",
+                                "reused_in_h2": "",
+                                "link_saved": false
+                            }
+                        ],
+                        "holes": [
+                            {
+                                "dist": 0.0,
+                                "depth": 0.0,
+                                "width": 0.0,
+                                "force_h1": false
+                            },
+                            {
+                                "dist": 0.0,
+                                "depth": 0.0,
+                                "width": 0.0,
+                                "force_h1": false
+                            },
+                            {
+                                "dist": 0.0,
+                                "depth": 0.0,
+                                "width": 0.0,
+                                "force_h1": false
+                            },
+                            {
+                                "dist": 0.0,
+                                "depth": 0.0,
+                                "width": 0.0,
+                                "force_h1": false
+                            }
+                        ],
+                        "sarrafo_left": true,
+                        "sarrafo_right": true,
+                        "sarrafo_h2_left": false,
+                        "sarrafo_h2_right": false,
+                        "pillar_left": {
+                            "dist": 0.0,
+                            "width": 0.0
+                        },
+                        "pillar_right": {
+                            "dist": 0.0,
+                            "width": 0.0
+                        },
+                        "prod_holes": [
+                            false,
+                            false,
+                            false,
+                            false
+                        ],
+                        "prod_force_h1": [
+                            false,
+                            false,
+                            false,
+                            false
+                        ],
+                        "prod_pillar_l": false,
+                        "prod_pillar_r": false,
+                        "prod_viga_nivel": false,
+                        "prod_p1_type": "Grade",
+                        "prod_p2_type": "Sarrafeado",
+                        "area_util": 1.940754
+                    }
+                },
+                "metadata": {
+                    "in": "",
+                    "out": ""
+                }
+            }
+        }
+    },
+    "last_obra": "Obra 1",
+    "last_pavimento": "Pavimento 1"
+}

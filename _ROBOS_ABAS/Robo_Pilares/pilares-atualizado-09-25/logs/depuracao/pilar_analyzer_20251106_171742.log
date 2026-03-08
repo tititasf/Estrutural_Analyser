@@ -1,0 +1,23 @@
+2025-11-06 17:17:42 | debug_pilar_analyzer | INFO | Iniciando logs de depuração para pilar_analyzer
+2025-11-06 17:17:42 | debug_pilar_analyzer | INFO | Arquivo de log: logs\depuracao\pilar_analyzer_20251106_171742.log
+2025-11-06 17:17:42 | debug_pilar_analyzer | INFO | 
+============================================================
+2025-11-06 17:17:42 | debug_pilar_analyzer | INFO | 📋 PILAR ANALYZER - SISTEMA PRINCIPAL
+2025-11-06 17:17:42 | debug_pilar_analyzer | INFO | ============================================================
+2025-11-06 17:17:42 | debug_pilar_analyzer | INFO | ℹ️ 📅 Data/Hora de início: 2025-11-06 17:17:42
+2025-11-06 17:17:42 | debug_pilar_analyzer | INFO | ℹ️ 🚀 Iniciando PilarAnalyzer v3.0.0
+2025-11-06 17:17:42 | debug_pilar_analyzer | INFO | ℹ️ 📁 Diretório atual: c:\Users\Ryzen\Desktop\GITHUB\pilares\pilares-atualizado-09-25\src\core
+2025-11-06 17:17:42 | debug_pilar_analyzer | INFO | ℹ️ ✅ Paths configurados com sucesso
+2025-11-06 17:17:42 | debug_pilar_analyzer | INFO | 
+----------------------------------------
+2025-11-06 17:17:42 | debug_pilar_analyzer | INFO | 📌 SISTEMA DE CRÉDITOS
+2025-11-06 17:17:42 | debug_pilar_analyzer | INFO | ----------------------------------------
+2025-11-06 17:17:42 | debug_pilar_analyzer | INFO | ℹ️ 🔄 Iniciando sistema de créditos...
+2025-11-06 17:17:52 | debug_pilar_analyzer | INFO | ℹ️ ✅ Interface de login finalizada
+2025-11-06 17:17:52 | debug_pilar_analyzer | ERROR | ❌ Login não realizado. Sistema de créditos é obrigatório.
+2025-11-06 17:17:52 | debug_pilar_analyzer | INFO | ℹ️ 🛑 Encerrando PilarAnalyzer - autenticação necessária
+2025-11-06 17:17:55 | debug_pilar_analyzer | INFO | 
+============================================================
+2025-11-06 17:17:55 | debug_pilar_analyzer | INFO | 📋 FINALIZAÇÃO - LOGIN NÃO REALIZADO
+2025-11-06 17:17:55 | debug_pilar_analyzer | INFO | ============================================================
+2025-11-06 17:17:55 | debug_pilar_analyzer | INFO | ℹ️ 🚪 PilarAnalyzer encerrado - usuário cancelou login

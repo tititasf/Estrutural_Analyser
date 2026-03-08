@@ -1,0 +1,4 @@
+2025-12-01 16:28:20 | debug_robo_cima | INFO | Iniciando logs de depuração para robo_cima
+2025-12-01 16:28:20 | debug_robo_cima | INFO | Arquivo de log: logs\depuracao\robo_cima_20251201_162820.log
+2025-12-01 16:28:20 | debug_robo_cima | WARNING | ⚠️ Instancia do GeradorPilar nao disponivel para alterar checkbox
+2025-12-01 16:28:22 | debug_robo_cima | WARNING | ⚠️ Instancia do GeradorPilar nao disponivel para alterar checkbox

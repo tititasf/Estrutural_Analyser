@@ -1,0 +1,18 @@
+=== PILAR ANALYZER STARTUP LOG ===
+Timestamp: 2026-01-16 10:45:51
+Frozen: True
+Executable: C:\Users\Ryzen\Desktop\Github2\pilares\pilares-atualizado-09-25\Distribuicao-pyinstaler-secure\dist\PilarAnalyzer.exe
+Current dir: C:\Users\Ryzen\Desktop\Github2\pilares\pilares-atualizado-09-25\Distribuicao-pyinstaler-secure\dist
+Python path: ['C:\\Users\\Ryzen\\Desktop\\Github2\\pilares\\pilares-atualizado-09-25\\Distribuicao-pyinstaler-secure', 'C:\\Users\\Ryzen\\Desktop\\Github2\\pilares\\pilares-atualizado-09-25\\Distribuicao-pyinstaler-secure\\dist', 'C:\\Users\\Ryzen\\AppData\\Local\\Temp\\_MEI123882\\base_library.zip']
+
+Iniciando main()...
+Ambiente frozen detectado. Executable: C:\Users\Ryzen\Desktop\Github2\pilares\pilares-atualizado-09-25\Distribuicao-pyinstaler-secure\dist\PilarAnalyzer.exe
+Current dir antes: C:\Users\Ryzen\Desktop\Github2\pilares\pilares-atualizado-09-25\Distribuicao-pyinstaler-secure\dist
+_MEIPASS encontrado: C:\Users\Ryzen\AppData\Local\Temp\_MEI123882
+Adicionado src (_MEIPASS) ao path: C:\Users\Ryzen\AppData\Local\Temp\_MEI123882\src
+Exe dir: C:\Users\Ryzen\Desktop\Github2\pilares\pilares-atualizado-09-25\Distribuicao-pyinstaler-secure\dist
+Python path atualizado (primeiros 8): ['C:\\Users\\Ryzen\\AppData\\Local\\Temp\\_MEI123882\\src', 'C:\\Users\\Ryzen\\Desktop\\Github2\\pilares\\pilares-atualizado-09-25\\Distribuicao-pyinstaler-secure', 'C:\\Users\\Ryzen\\Desktop\\Github2\\pilares\\pilares-atualizado-09-25\\Distribuicao-pyinstaler-secure\\dist', 'C:\\Users\\Ryzen\\AppData\\Local\\Temp\\_MEI123882\\base_library.zip', 'C:\\Users\\Ryzen\\AppData\\Local\\Temp\\_MEI123882\\lib-dynload', 'C:\\Users\\Ryzen\\AppData\\Local\\Temp\\_MEI123882', 'C:\\Users\\Ryzen\\AppData\\Local\\Temp\\_MEI123882\\win32', 'C:\\Users\\Ryzen\\AppData\\Local\\Temp\\_MEI123882\\pythonwin']
+Tentando importar core.pilar_analyzer...
+Import core.pilar_analyzer bem-sucedido
+Executando pilar_main()...
+pilar_main() retornou: True

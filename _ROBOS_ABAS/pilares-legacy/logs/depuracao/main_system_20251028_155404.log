@@ -1,0 +1,19 @@
+2025-10-28 15:54:04 | debug_main_system | INFO | Iniciando logs de depuração para main_system
+2025-10-28 15:54:04 | debug_main_system | INFO | Arquivo de log: logs\depuracao\main_system_20251028_155404.log
+2025-10-28 15:54:04 | debug_main_system | INFO | 
+============================================================
+2025-10-28 15:54:04 | debug_main_system | INFO | 📋 SISTEMA PRINCIPAL PILARANALYZER
+2025-10-28 15:54:04 | debug_main_system | INFO | ============================================================
+2025-10-28 15:54:04 | debug_main_system | INFO | ℹ️ Data/Hora de início: 2025-10-28 15:54:04
+2025-10-28 15:54:04 | debug_main_system | INFO | ℹ️ Diretório atual: c:\Users\rvene\Desktop\pilares-clean-final\src
+2025-10-28 15:54:04 | debug_main_system | INFO | ℹ️ Projeto root: c:\Users\rvene\Desktop\pilares-clean-final
+2025-10-28 15:54:04 | debug_main_system | INFO | 
+----------------------------------------
+2025-10-28 15:54:04 | debug_main_system | INFO | 📌 IMPORTAÇÃO DO PILAR_ANALYZER
+2025-10-28 15:54:04 | debug_main_system | INFO | ----------------------------------------
+2025-10-28 15:54:04 | debug_main_system | INFO | ℹ️ 🔄 Importando módulo core.pilar_analyzer...
+2025-10-28 15:54:04 | debug_main_system | INFO | ℹ️ ✅ Módulo pilar_analyzer importado com sucesso!
+2025-10-28 15:54:04 | debug_main_system | INFO | 
+----------------------------------------
+2025-10-28 15:54:04 | debug_main_system | INFO | 📌 EXECUÇÃO DO SISTEMA PRINCIPAL
+2025-10-28 15:54:04 | debug_main_system | INFO | ----------------------------------------

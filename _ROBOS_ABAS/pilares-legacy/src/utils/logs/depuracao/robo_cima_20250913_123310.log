@@ -1,0 +1,550 @@
+2025-09-13 12:33:10 | debug_robo_cima | INFO | Iniciando logs de depuração para robo_cima
+2025-09-13 12:33:10 | debug_robo_cima | INFO | Arquivo de log: logs\depuracao\robo_cima_20250913_123310.log
+2025-09-13 12:33:10 | debug_robo_cima | INFO | Captura do console ativada para robo_cima
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [PARAFUSOS_ESPECIAIS] Instância do gerador não disponível
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [PARAFUSOS_ESPECIAIS] Dados de parafusos especiais transferidos para o gerador via função global
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] Mantendo valores originais após parafusos...
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [DEBUG] Chegou na seção 4 - mantendo valores originais
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] Verificando parafusos do Pilar 2...
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [DEBUG] Chegou na seção 4.5 - parafusos pilar 2
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [PARAFUSOS_PILAR2] 🔍 Usando parafusos especiais E para Pilar 2
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [PARAFUSOS_PILAR2] Parafusos E coletados para Pilar 2: [39.0, 0, 0, 0, 0, 0, 0, 0]
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] Preenchendo grades do Grupo 1 (Grade A)...
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [DEBUG] Chegou na seção 5 - grade grupo 1
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] Desabilitando eventos automáticos...
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] Usando dados recebidos diretamente...
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] Dados grades_grupo1 recebidos: {'grade_1': '105', 'distancia_1': '12', 'grade_2': '105', 'distancia_2': '', 'grade_3': ''}
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] Valores extraídos dos dados (Grupo 1):
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] Grade 1: 105
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] Distância 1: 12
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] Grade 2: 105
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] Distância 2:
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] Grade 3:
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] Preenchendo grade1_entry: 105
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] Preenchendo distancia1_entry: 12
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] Preenchendo grade2_entry: 105
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] Preenchendo distancia2_entry:
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] Preenchendo grade3_entry:
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] Preenchendo detalhes das grades do Grupo 1...
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [DEBUG] Chegou na seção 6 - detalhes grades grupo 1
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [PILARES_ESPECIAIS] 🔍 Pilares especiais detectados, preservando detalhes especiais
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [PILARES_ESPECIAIS] DEBUG: dados_pilar detalhes_grades_especiais = {}
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] Preenchendo detalhe_grade1_1:
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] Preenchendo detalhe_grade1_2:
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] Preenchendo detalhe_grade1_3:
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] Preenchendo detalhe_grade1_4:
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] Preenchendo detalhe_grade1_5:
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] Preenchendo detalhe_grade2_1:
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] Preenchendo detalhe_grade2_2:
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] Preenchendo detalhe_grade2_3:
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] Preenchendo detalhe_grade2_4:
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] Preenchendo detalhe_grade2_5:
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] Preenchendo detalhe_grade3_1:
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] Preenchendo detalhe_grade3_2:
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] Preenchendo detalhe_grade3_3:
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] Preenchendo detalhe_grade3_4:
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] Preenchendo detalhe_grade3_5:
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] Preenchendo Grade Grupo 2...
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [DEBUG] Chegou na seção 7 - grade grupo 2
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] Desabilitando eventos automáticos do Grupo 2...
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] Dados grades_grupo2 recebidos: {'grade_1_grupo2': '105', 'distancia_1_grupo2': '12', 'grade_2_grupo2': '105', 'distancia_2_grupo2': '', 'grade_3_grupo2': ''}
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] Valores extraídos dos dados (Grupo 2):
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] Grade 1 Grupo 2: 105
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] Distância 1 Grupo 2: 12
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] Grade 2 Grupo 2: 105
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] Distância 2 Grupo 2:
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] Grade 3 Grupo 2:
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] Preenchendo grade1_grupo2: 105
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] Preenchendo distancia1_grupo2: 12
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] Preenchendo grade2_grupo2: 105
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] Preenchendo distancia2_grupo2:
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] Preenchendo grade3_grupo2:
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] Preenchendo detalhes das grades do Grupo 2...
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [DEBUG] Chegou na seção 8 - detalhes grades grupo 2
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [PILARES_ESPECIAIS] 🔍 Pilares especiais detectados, preservando detalhes especiais do Grupo 2
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] Preenchendo detalhe_grade1_1_grupo2:
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] Preenchendo detalhe_grade1_2_grupo2:
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] Preenchendo detalhe_grade1_3_grupo2:
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] Preenchendo detalhe_grade1_4_grupo2:
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] Preenchendo detalhe_grade1_5_grupo2:
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] Preenchendo detalhe_grade2_1_grupo2:
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] Preenchendo detalhe_grade2_2_grupo2:
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] Preenchendo detalhe_grade2_3_grupo2:
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] Preenchendo detalhe_grade2_4_grupo2:
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] Preenchendo detalhe_grade2_5_grupo2:
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] Preenchendo detalhe_grade3_1_grupo2:
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] Preenchendo detalhe_grade3_2_grupo2:
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] Preenchendo detalhe_grade3_3_grupo2:
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] Preenchendo detalhe_grade3_4_grupo2:
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] Preenchendo detalhe_grade3_5_grupo2:
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] Mantendo valores preenchidos sem recalcular...
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [DEBUG] Chegou na seção 9 - antes dos pilares especiais
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] >>> DADOS RECEBIDOS NA FUNCAO:
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] >>> dados_pilar completo: {'interface_principal': <funcoes_auxiliares_2.PilarAnalyzer object .>, 'pavimento': 'TESTE1', 'nome': 'P1TESTE', 'comprimento': '200', 'largura': '22', 'parafuso_p1_p2': '56', 'parafuso_p2_p3': '56', 'parafuso_p3_p4': '56', 'parafuso_p4_p5': '56', 'parafuso_p5_p6': '0', 'parafuso_p6_p7': '0', 'parafuso_p7_p8': '0', 'parafuso_p8_p9': '0', 'grades_grupo1': {'grade_1': '105', 'distancia_1': '12', 'grade_2': '105', 'distancia_2': '', 'grade_3': ''}, 'detalhes_grades': {'detalhe_grade1_1': '27', 'detalhe_grade1_2': '26', 'detalhe_grade1_3': '26', 'detalhe_grade1_4': '26', 'detalhe_grade1_5': '0', 'detalhe_grade2_1': '27', 'detalhe_grade2_2': '26', 'detalhe_grade2_3': '26', 'detalhe_grade2_4': '26', 'detalhe_grade2_5': '0', 'detalhe_grade3_1': '', 'detalhe_grade3_2': '', 'detalhe_grade3_3': '', 'detalhe_grade3_4': '', 'detalhe_grade3_5': ''}, 'grades_grupo2': {'grade_1_grupo2': '105', 'distancia_1_grupo2': '12', 'grade_2_grupo2': '105', 'distancia_2_grupo2': '', 'grade_3_grupo2': ''}, 'detalhes_grades_grupo2': {'detalhe_grade1_1_grupo2': '27', 'detalhe_grade1_2_grupo2': '26', 'detalhe_grade1_3_grupo2': '26', 'detalhe_grade1_4_grupo2': '26', 'detalhe_grade1_5_grupo2': '0', 'detalhe_grade2_1_grupo2': '27', 'detalhe_grade2_2_grupo2': '26', 'detalhe_grade2_3_grupo2': '26', 'detalhe_grade2_4_grupo2': '26', 'detalhe_grade2_5_grupo2': '0', 'detalhe_grade3_1_grupo2': '', 'detalhe_grade3_2_grupo2': '', 'detalhe_grade3_3_grupo2': '', 'detalhe_grade3_4_grupo2': '', 'detalhe_grade3_5_grupo2': ''}, 'pilar_especial': {'ativar_pilar_especial': True, 'tipo_pilar_especial': 'L', 'modo_calculo': 'NOVA', 'comprimentos': {'comp_1': '100', 'comp_2': '100', 'comp_3': ''}, 'larguras': {'larg_1': '20', 'larg_2': '10', 'larg_3': ''}, 'distancia': '', 'grades': {'grade_a_1': '60.0', 'grade_a_2': '60.0', 'grade_a_3': '0', 'dist_a_1': '2.4', 'dist_a_2': '0', 'grade_b_1': '99.0', 'grade_b_2': '0', 'grade_b_3': '0', 'dist_b_1': '0', 'dist_b_2': '0', 'grade_e_1': '111.0', 'grade_e_2': '0', 'grade_e_3': '0', 'dist_e_1': '0', 'dist_e_2': '0', 'grade_f_1': '72.6', 'grade_f_2': '0', 'grade_f_3': '0', 'dist_f_1': '0', 'dist_f_2': '0', 'grade_g_1': '0', 'grade_g_2': '0', 'grade_g_3': '0', 'dist_g_1': '0', 'dist_g_2': '0', 'grade_h_1': '0', 'grade_h_2': '0', 'grade_h_3': '0', 'dist_h_1': '0', 'dist_h_2': '0'}, 'detalhes_grades_especiais': {'detalhe_a_1_1': '30', 'detalhe_a_1_2': '30', 'detalhe_a_1_3': '0', 'detalhe_a_1_4': '0', 'detalhe_a_1_5': '0', 'detalhe_a_2_1': '30', 'detalhe_a_2_2': '30', 'detalhe_a_2_3': '0', 'detalhe_a_2_4': '0', 'detalhe_a_2_5': '0', 'detalhe_a_3_1': '0', 'detalhe_a_3_2': '0', 'detalhe_a_3_3': '0', 'detalhe_a_3_4': '0', 'detalhe_a_3_5': '0', 'detalhe_b_1_1': '25', 'detalhe_b_1_2': '25', 'detalhe_b_1_3': '25', 'detalhe_b_1_4': '24', 'detalhe_b_1_5': '0', 'detalhe_b_2_1': '0', 'detalhe_b_2_2': '0', 'detalhe_b_2_3': '0', 'detalhe_b_2_4': '0', 'detalhe_b_2_5': '0', 'detalhe_b_3_1': '0', 'detalhe_b_3_2': '0', 'detalhe_b_3_3': '0', 'detalhe_b_3_4': '0', 'detalhe_b_3_5': '0', 'detalhe_e_1_1': '28', 'detalhe_e_1_2': '28', 'detalhe_e_1_3': '28', 'detalhe_e_1_4': '27', 'detalhe_e_1_5': '0', 'detalhe_e_2_1': '0', 'detalhe_e_2_2': '0', 'detalhe_e_2_3': '0', 'detalhe_e_2_4': '0', 'detalhe_e_2_5': '0', 'detalhe_e_3_1': '0', 'detalhe_e_3_2': '0', 'detalhe_e_3_3': '0', 'detalhe_e_3_4': '0', 'detalhe_e_3_5': '0', 'detalhe_f_1_1': '24', 'detalhe_f_1_2': '24.599999999999994', 'detalhe_f_1_3': '24', 'detalhe_f_1_4': '0', 'detalhe_f_1_5': '0', 'detalhe_f_2_1': '0', 'detalhe_f_2_2': '0', 'detalhe_f_2_3': '0', 'detalhe_f_2_4': '0', 'detalhe_f_2_5': '0', 'detalhe_f_3_1': '0', 'detalhe_f_3_2': '0', 'detalhe_f_3_3': '0', 'detalhe_f_3_4': '0', 'detalhe_f_3_5': '0', 'detalhe_g_1_1': '0', 'detalhe_g_1_2': '0', 'detalhe_g_1_3': '0', 'detalhe_g_1_4': '0', 'detalhe_g_1_5': '0', 'detalhe_g_2_1': '0', 'detalhe_g_2_2': '0', 'detalhe_g_2_3': '0', 'detalhe_g_2_4': '0', 'detalhe_g_2_5': '0', 'detalhe_g_3_1': '0', 'detalhe_g_3_2': '0', 'detalhe_g_3_3': '0', 'detalhe_g_3_4': '0', 'detalhe_g_3_5': '0', 'detalhe_h_1_1': '0', 'detalhe_h_1_2': '0', 'detalhe_h_1_3': '0', 'detalhe_h_1_4': '0', 'detalhe_h_1_5': '0', 'detalhe_h_2_1': '0', 'detalhe_h_2_2': '0', 'detalhe_h_2_3': '0', 'detalhe_h_2_4': '0', 'detalhe_h_2_5': '0', 'detalhe_h_3_1': '0', 'detalhe_h_3_2': '0', 'detalhe_h_3_3': '0', 'detalhe_h_3_4': '0', 'detalhe_h_3_5': '0'}, 'parafusos': {'par_ab': {}, 'par_ef': {}, 'par_gh': {}, 'par_gfh': {}}, 'parafusos_especiais': {'par_a': {'par_a_1': '38', 'par_a_2': '', 'par_a_3': '', 'par_a_4': '', 'par_a_5': '', 'par_a_6': '', 'par_a_7': '', 'par_a_8': '', 'par_a_9': ''}, 'par_b': {'par_b_1': '38', 'par_b_2': '', 'par_b_3': '', 'par_b_4': '', 'par_b_5': '', 'par_b_6': '', 'par_b_7': '', 'par_b_8': '', 'par_b_9': ''}, 'par_e': {'par_e_1': '73', 'par_e_2': '39', 'par_e_3': '', 'par_e_4': '', 'par_e_5': '', 'par_e_6': '', 'par_e_7': '', 'par_e_8': '', 'par_e_9': ''}, 'par_f': {'par_f_1': '35', 'par_f_2': '39', 'par_f_3': '', 'par_f_4': '', 'par_f_5': '', 'par_f_6': '', 'par_f_7': '', 'par_f_8': '', 'par_f_9': ''}, 'par_g': {'par_g_1': '', 'par_g_2': '', 'par_g_3': '', 'par_g_4': '', 'par_g_5': '', 'par_g_6': '', 'par_g_7': '', 'par_g_8': '', 'par_g_9': ''}, 'par_h': {'par_h_1': '', 'par_h_2': '', 'par_h_3': '', 'par_h_4': '', 'par_h_5': '', 'par_h_6': '', 'par_h_7': '', 'par_h_8': '', 'par_h_9': ''}}}, 'ativar_pilar_especial': True, 'tipo_pilar_especial': 'L', 'comp_1': '100', 'comp_2': '100', 'comp_3': '', 'larg_1': '20', 'larg_2': '10', 'larg_3': '', 'parafusos_especiais': {'parafusos_a': [38.0, 0, 0, 0, 0, 0, 0, 0, 0], 'parafusos_e': [39.0, 0, 0, 0, 0, 0, 0, 0]}}
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] >>> grades_grupo1 recebido: {'grade_1': '105', 'distancia_1': '12', 'grade_2': '105', 'distancia_2': '', 'grade_3': ''}
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] >>> grades_grupo2 recebido: {'grade_1_grupo2': '105', 'distancia_1_grupo2': '12', 'grade_2_grupo2': '105', 'distancia_2_grupo2': '', 'grade_3_grupo2': ''}
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] >>> GRADES RECEBIDAS:
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] >>> Grade Grupo 1 (Grade A) - Valores inseridos:
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] grade1_entry: 105
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] distancia1_entry: 12
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] grade2_entry: 105
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] distancia2_entry:
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] grade3_entry:
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] >>> Grade Grupo 2 (Grade B) - Valores inseridos:
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] grade1_grupo2_entry: 105
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] distancia1_grupo2_entry: 12
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] grade2_grupo2_entry: 105
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] distancia2_grupo2_entry:
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] grade3_grupo2_entry:
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] >>> Detalhes Grade Grupo 1 - Primeiros valores:
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] detalhe_grade1_1:
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] detalhe_grade2_1:
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] detalhe_grade3_1:
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] >>> Detalhes Grade Grupo 2 - Primeiros valores:
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] detalhe_grade1_1_grupo2:
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] detalhe_grade2_1_grupo2:
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] detalhe_grade3_1_grupo2:
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] >>> FIM GRADES RECEBIDAS
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] Verificando status do pilar especial...
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] Status atual do checkbox: False
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] Buscando globalmente por instancias com pilar especial...
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] Objeto 1: pilar_especial = True
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] Total de objetos com ativar_pilar_especial encontrados: 1
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] PILAR ESPECIAL ATIVO - Ativando 'Pilar Rotacionado' automaticamente
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] Checkbox ativado diretamente. Novo status: True
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [DEBUG] Verificando se é pilar especial...
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [DEBUG] Chegou na seção de pilares especiais
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [PILARES_ESPECIAIS] Pilar especial ativo: True
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [PILARES_ESPECIAIS] Tipo do valor: <class 'bool'>
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [PILARES_ESPECIAIS] Dados pilar_especial: {'ativar_pilar_especial': True, 'tipo_pilar_especial': 'L', 'modo_calculo': 'NOVA', 'comprimentos': {'comp_1': '100', 'comp_2': '100', 'comp_3': ''}, 'larguras': {'larg_1': '20', 'larg_2': '10', 'larg_3': ''}, 'distancia': '', 'grades': {'grade_a_1': '60.0', 'grade_a_2': '60.0', 'grade_a_3': '0', 'dist_a_1': '2.4', 'dist_a_2': '0', 'grade_b_1': '99.0', 'grade_b_2': '0', 'grade_b_3': '0', 'dist_b_1': '0', 'dist_b_2': '0', 'grade_e_1': '111.0', 'grade_e_2': '0', 'grade_e_3': '0', 'dist_e_1': '0', 'dist_e_2': '0', 'grade_f_1': '72.6', 'grade_f_2': '0', 'grade_f_3': '0', 'dist_f_1': '0', 'dist_f_2': '0', 'grade_g_1': '0', 'grade_g_2': '0', 'grade_g_3': '0', 'dist_g_1': '0', 'dist_g_2': '0', 'grade_h_1': '0', 'grade_h_2': '0', 'grade_h_3': '0', 'dist_h_1': '0', 'dist_h_2': '0'}, 'detalhes_grades_especiais': {'detalhe_a_1_1': '30', 'detalhe_a_1_2': '30', 'detalhe_a_1_3': '0', 'detalhe_a_1_4': '0', 'detalhe_a_1_5': '0', 'detalhe_a_2_1': '30', 'detalhe_a_2_2': '30', 'detalhe_a_2_3': '0', 'detalhe_a_2_4': '0', 'detalhe_a_2_5': '0', 'detalhe_a_3_1': '0', 'detalhe_a_3_2': '0', 'detalhe_a_3_3': '0', 'detalhe_a_3_4': '0', 'detalhe_a_3_5': '0', 'detalhe_b_1_1': '25', 'detalhe_b_1_2': '25', 'detalhe_b_1_3': '25', 'detalhe_b_1_4': '24', 'detalhe_b_1_5': '0', 'detalhe_b_2_1': '0', 'detalhe_b_2_2': '0', 'detalhe_b_2_3': '0', 'detalhe_b_2_4': '0', 'detalhe_b_2_5': '0', 'detalhe_b_3_1': '0', 'detalhe_b_3_2': '0', 'detalhe_b_3_3': '0', 'detalhe_b_3_4': '0', 'detalhe_b_3_5': '0', 'detalhe_e_1_1': '28', 'detalhe_e_1_2': '28', 'detalhe_e_1_3': '28', 'detalhe_e_1_4': '27', 'detalhe_e_1_5': '0', 'detalhe_e_2_1': '0', 'detalhe_e_2_2': '0', 'detalhe_e_2_3': '0', 'detalhe_e_2_4': '0', 'detalhe_e_2_5': '0', 'detalhe_e_3_1': '0', 'detalhe_e_3_2': '0', 'detalhe_e_3_3': '0', 'detalhe_e_3_4': '0', 'detalhe_e_3_5': '0', 'detalhe_f_1_1': '24', 'detalhe_f_1_2': '24.599999999999994', 'detalhe_f_1_3': '24', 'detalhe_f_1_4': '0', 'detalhe_f_1_5': '0', 'detalhe_f_2_1': '0', 'detalhe_f_2_2': '0', 'detalhe_f_2_3': '0', 'detalhe_f_2_4': '0', 'detalhe_f_2_5': '0', 'detalhe_f_3_1': '0', 'detalhe_f_3_2': '0', 'detalhe_f_3_3': '0', 'detalhe_f_3_4': '0', 'detalhe_f_3_5': '0', 'detalhe_g_1_1': '0', 'detalhe_g_1_2': '0', 'detalhe_g_1_3': '0', 'detalhe_g_1_4': '0', 'detalhe_g_1_5': '0', 'detalhe_g_2_1': '0', 'detalhe_g_2_2': '0', 'detalhe_g_2_3': '0', 'detalhe_g_2_4': '0', 'detalhe_g_2_5': '0', 'detalhe_g_3_1': '0', 'detalhe_g_3_2': '0', 'detalhe_g_3_3': '0', 'detalhe_g_3_4': '0', 'detalhe_g_3_5': '0', 'detalhe_h_1_1': '0', 'detalhe_h_1_2': '0', 'detalhe_h_1_3': '0', 'detalhe_h_1_4': '0', 'detalhe_h_1_5': '0', 'detalhe_h_2_1': '0', 'detalhe_h_2_2': '0', 'detalhe_h_2_3': '0', 'detalhe_h_2_4': '0', 'detalhe_h_2_5': '0', 'detalhe_h_3_1': '0', 'detalhe_h_3_2': '0', 'detalhe_h_3_3': '0', 'detalhe_h_3_4': '0', 'detalhe_h_3_5': '0'}, 'parafusos': {'par_ab': {}, 'par_ef': {}, 'par_gh': {}, 'par_gfh': {}}, 'parafusos_especiais': {'par_a': {'par_a_1': '38', 'par_a_2': '', 'par_a_3': '', 'par_a_4': '', 'par_a_5': '', 'par_a_6': '', 'par_a_7': '', 'par_a_8': '', 'par_a_9': ''}, 'par_b': {'par_b_1': '38', 'par_b_2': '', 'par_b_3': '', 'par_b_4': '', 'par_b_5': '', 'par_b_6': '', 'par_b_7': '', 'par_b_8': '', 'par_b_9': ''}, 'par_e': {'par_e_1': '73', 'par_e_2': '39', 'par_e_3': '', 'par_e_4': '', 'par_e_5': '', 'par_e_6': '', 'par_e_7': '', 'par_e_8': '', 'par_e_9': ''}, 'par_f': {'par_f_1': '35', 'par_f_2': '39', 'par_f_3': '', 'par_f_4': '', 'par_f_5': '', 'par_f_6': '', 'par_f_7': '', 'par_f_8': '', 'par_f_9': ''}, 'par_g': {'par_g_1': '', 'par_g_2': '', 'par_g_3': '', 'par_g_4': '', 'par_g_5': '', 'par_g_6': '', 'par_g_7': '', 'par_g_8': '', 'par_g_9': ''}, 'par_h': {'par_h_1': '', 'par_h_2': '', 'par_h_3': '', 'par_h_4': '', 'par_h_5': '', 'par_h_6': '', 'par_h_7': '', 'par_h_8': '', 'par_h_9': ''}}}
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [PILARES_ESPECIAIS] Verificação booleana: True
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [PILARES_ESPECIAIS] Dados coletados: {'ativo': True, 'tipo': 'L', 'comp_1': '100', 'comp_2': '100', 'comp_3': '', 'larg_1': '20', 'larg_2': '10', 'larg_3': ''}
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [PILARES_ESPECIAIS] Calculando globais para pilar tipo L...
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [GLOBAIS] Calculando globais para pilar especial tipo L...
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] Dimensões: comp_1=100, comp_2=100, larg_1=20, larg_2=10
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [GLOBAIS] Globais calculadas para pilar tipo L:
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] Pilar 1 - PAI.A: pos=0, tam=122.0
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] Pilar 1 - PAI.B: pos=0, tam=86.9
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] Pilar 1 - Grade A: pos=0, tam=122.0
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] Pilar 1 - Grade B: pos=0, tam=82.5
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] Pilar 2 - PAI.A: pos=0, tam=131.0
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] Pilar 2 - PAI.B: pos=0, tam=111.0
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] Pilar 2 - Grade A: pos=0, tam=131.0
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] Pilar 2 - Grade B: pos=0, tam=92.5
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [PILARES_ESPECIAIS] Globais calculadas: 37 valores
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [PILARES_ESPECIAIS] Globais definidas no gerador: 37 valores
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [PILARES_ESPECIAIS] Dimensão 1: comp=100, larg=20
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [PILARES_ESPECIAIS] Dimensão 2: comp=100, larg=10
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [PILARES_ESPECIAIS] Total de dimensões válidas: 2
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [DEBUG] Verificando condições: pilar_especial_ativo=True, len(dimensoes_especiais)=2
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [DEBUG] dimensoes_especiais: [{'comprimento': '100', 'largura': '20', 'indice': 1}, {'comprimento': '100', 'largura': '10', 'indice': 2}]
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [PILARES_ESPECIAIS] Gerando 2 scripts para pilar especial...
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [PILARES_ESPECIAIS] Gerando script 1/2...
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [PILARES_ESPECIAIS] Configuração PARTE1: ROTATE=True, SCALE=False, ESPECIAL=False
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [PILARES_ESPECIAIS] Usando dimensões: comp=100, larg=20
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [PILARES_ESPECIAIS] Globais redefinidas no gerador: 37 valores
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [PILARES_ESPECIAIS] Dados de parafusos especiais definidos no gerador: 6 grupos
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [PILARES_ESPECIAIS] Definindo pilar_atual = 1 para _PARTE1
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [PILARES_ESPECIAIS] Aplicando parafusos A para Pilar 1: {'par_a_1': '38', 'par_a_2': '', 'par_a_3': '', 'par_a_4': '', 'par_a_5': '', 'par_a_6': '', 'par_a_7': '', 'par_a_8': '', 'par_a_9': ''}
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] Exception in Tkinter callback
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] Traceback (most recent call last):
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] File "C:\Users\rvene\AppData\Local\Programs\Python\Python313\Lib\tkinter\__init__.py", line 2068, in __call__
+    return self.func(*args)
+           ~~~~~~~~~^^^^^^^
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] TypeError: 'str' object is not callable
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [PILARES_ESPECIAIS] Parafuso 1: 38
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [PILARES_ESPECIAIS] 🎯 PILAR ESPECIAL TIPO 'L' DETECTADO - PREENCHENDO GRADES COM VALORES EXATOS DA ABA
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [PILARES_ESPECIAIS] Grades especiais encontradas: 30 valores
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [PILARES_ESPECIAIS] Detalhes especiais encontrados: 90 valores
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [PILARES_ESPECIAIS] 🔍 DEBUG DETALHADO - Pilar Especial:
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [PILARES_ESPECIAIS]   Nome original: 'P1TESTE'
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [PILARES_ESPECIAIS]   Nome em maiúsculo: 'P1TESTE'
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [PILARES_ESPECIAIS]   Pilar atual: 1
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [PILARES_ESPECIAIS] 🎯 PILAR 1 DETECTADO - Usando Grade A e Grade B
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [PILARES_ESPECIAIS]   Pilar atual: 1
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [PILARES_ESPECIAIS]   Condição executada: pilar_atual == 1 = True
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [PILARES_ESPECIAIS] Grade A (Pilar 1 - Conjunto 1) - VALORES EXATOS DA ABA:
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [PILARES_ESPECIAIS]   grade_1=60.0 (campo grade_a_1)
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [PILARES_ESPECIAIS]   grade_2=60.0 (campo grade_a_2)
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [PILARES_ESPECIAIS]   grade_3=0 (campo grade_a_3)
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [PILARES_ESPECIAIS]   dist_1=2.4 (campo dist_a_1)
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [PILARES_ESPECIAIS]   dist_2=0 (campo dist_a_2)
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [PILARES_ESPECIAIS] Grade B (Pilar 1 - Conjunto 2) - VALORES EXATOS DA ABA:
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [PILARES_ESPECIAIS]   grade_1_grupo2=99.0 (campo grade_b_1)
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [PILARES_ESPECIAIS]   grade_2_grupo2=0 (campo grade_b_2)
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [PILARES_ESPECIAIS]   grade_3_grupo2=0 (campo grade_b_3)
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [PILARES_ESPECIAIS]   dist_1_grupo2=0 (campo dist_b_1)
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [PILARES_ESPECIAIS]   dist_2_grupo2=0 (campo dist_b_2)
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [PILARES_ESPECIAIS] ✅ Pilar 1 - Grades aplicadas ao gerador:
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [PILARES_ESPECIAIS]   Conjunto 1 (Grade A): {'grade_1': '60.0', 'grade_2': '60.0', 'grade_3': '0', 'distancia_1': '2.4', 'distancia_2': '0'}
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [PILARES_ESPECIAIS]   Conjunto 2 (Grade B): {'grade_1_grupo2': '99.0', 'grade_2_grupo2': '0', 'grade_3_grupo2': '0', 'distancia_1_grupo2': '0', 'distancia_2_grupo2': '0'}
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [PILARES_ESPECIAIS]   Detalhes Conjunto 1: 15 valores
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [PILARES_ESPECIAIS]   Detalhes Conjunto 2: 15 valores
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [PILARES_ESPECIAIS] Gerando script para P1TESTE_PARTE1...
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [PILARES_ESPECIAIS] Mantendo valores da aba Pilares Especiais sem recálculo
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [DEBUG] === FUNCAO gerar_script() INICIADA ===
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [DEBUG] Verificando se a funcao esta sendo chamada...
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [DEBUG-GERAR_SCRIPT] === INÍCIO DO gerar_script() ===
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [DEBUG-GERAR_SCRIPT] Estado inicial das globais: ID=1703988382400, len=0
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [DEBUG-GERAR_SCRIPT] _globais_pilar_especial está vazio ou None!
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] DEBUG GERAR_SCRIPT: Status pilar_rotacionado no inicio: True
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [DEBUG-GERAR_SCRIPT] Prestes a chamar _verificar_pilar_especial_ativo()...
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [DEBUG-GERAR_SCRIPT] Estado das globais ANTES da verificação: False
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [CHECKBOX] Status do checkbox pilar_rotacionado_var: True
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [CHECKBOX] Status do checkbox pilar_especial_ativo_var: False
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [GLOBAIS] Globais encontradas: 37 valores, tipo: 'L'
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [OK] Pilar especial ATIVO - pilar_rotacionado: True, pilar_especial: False, globais: True, tipo: L
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [DEBUG-GERAR_SCRIPT] Resultado da verificação: True
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [DEBUG-GERAR_SCRIPT] Estado das globais APÓS a verificação: False
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] DEBUG GERAR_SCRIPT: Pilar especial ativo: True
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [SOLUCAO-DEFINITIVA] Sem alteração para pilar1_paib_posicao - retornando valor original: -51
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [SOLUCAO-DEFINITIVA] Sem alteração para pilar1_paib_posicao - retornando valor original: 90.0
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [SOLUCAO-DEFINITIVA] Aplicando tamanho pilar especial: 122.0 -> 86.9 (pilar1_paib_tamanho)
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [SOLUCAO-DEFINITIVA] Sem alteração para pilar1_paia_posicao - retornando valor original: -51
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [SOLUCAO-DEFINITIVA] Sem alteração para pilar1_paia_posicao - retornando valor original: 70
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [SOLUCAO-DEFINITIVA] Aplicando tamanho pilar especial: 122.0 -> 122.0 (pilar1_paia_tamanho)
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [SOLUCAO-DEFINITIVA] Sem alteração para pilar1_metala_posicao - retornando valor original: -71
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [SOLUCAO-DEFINITIVA] Sem alteração para pilar1_metala_tamanho - retornando valor original: 162.0
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] DEBUG: Valores brutos Grade A - grade1_raw='60.0', grade2_raw='60.0', grade3_raw='0'
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] DEBUG: Valores brutos Grade A - dist1_raw='2.4', dist2_raw='0'
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] DEBUG: Valores lidos Grade A - grade1=60.0, grade2=60.0, grade3=0.0, dist1=2.4, dist2=0.0
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] DEBUG: Condição Grade A - grade1 > 0: True, grade2 > 0: True, grade3 > 0: False
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] DEBUG: Condição Grade A - grade1 > 0 or grade2 > 0 or grade3 > 0: True
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] DEBUG: Verificando Grade A - grade1=60.0, grade2=60.0, grade3=0.0
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] DEBUG: Condição Grade A - grade1 > 0: True, grade2 > 0: True, grade3 > 0: False
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] DEBUG: Condição Grade A - grade1 > 0 or grade2 > 0 or grade3 > 0: True
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] DEBUG: GRA.A usando valores específicos: comprimentos=[60.0, 60.0, 0.0], espacos=[2.4, 0.0]
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] DEBUG: Iniciando desenho Grade A - comprimentos_a=[60.0, 60.0, 0.0], espacos_a=[2.4, 0.0]
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] DEBUG: Config grades_com_sarrafo=sim
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] DEBUG: Processando Grade A 1 - comprimento=60.0, comprimento > 0: True
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] DEBUG: Desenhando Grade A 1 - comprimento=60.0
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] DEBUG: Verificando grades_com_sarrafo para Grade A 1
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] DEBUG: Config grades_com_sarrafo='sim', config_grades == 'sim': True
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [DEBUG] obter_posicoes_blocos_por_detalhes chamada - index_grade=0, is_grade_b=False
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [CHECKBOX] Status do checkbox pilar_rotacionado_var: True
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [CHECKBOX] Status do checkbox pilar_especial_ativo_var: False
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [GLOBAIS] Globais encontradas: 37 valores, tipo: 'L'
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [OK] Pilar especial ATIVO - pilar_rotacionado: True, pilar_especial: False, globais: True, tipo: L
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [DEBUG] Verificação pilar especial: True
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [DEBUG] Pilar especial detectado - usando campos da aba Pilares Especiais
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [DEBUG] Mapeamento: index_grade=0, is_grade_b=False -> letra_grade=a
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [DEBUG] Usando lógica das grades especiais para a
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [DEBUG] Detalhes grupo1 detalhe_grade1_1: '30'
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [DEBUG] Detalhes grupo1 detalhe_grade1_2: '30'
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [DEBUG] Detalhes grupo1 detalhe_grade1_3: '0'
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [DEBUG] Detalhes grupo1 detalhe_grade1_4: '0'
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [DEBUG] Detalhes grupo1 detalhe_grade1_5: '0'
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [DEBUG] Detalhes da aba Pilares Especiais (a): ['30', '30', '0', '0', '0']
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [DEBUG] calcular_posicao_inicial_grade - index_grade=0
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [DEBUG] comprimento_retangulos=[60.0, 60.0, 0.0]
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [DEBUG] espacos=[2.4, 0.0]
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [DEBUG] Posição final calculada: -11
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [DEBUG] Posição inicial calculada: -11
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [DEBUG] Detalhe 0: valor='30'
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [DEBUG] Adicionada posição: 19.0
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [DEBUG] Detalhe 1: valor='30'
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [DEBUG] Adicionada posição: 49.0
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [DEBUG] Detalhe 2: valor='0'
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [DEBUG] Detalhe 3: valor='0'
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [DEBUG] Detalhe 4: valor='0'
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [DEBUG] Posições finais: [-11, 19.0, 49.0]
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [DEBUG-AJUSTE] Grade A - Sem ajuste - j=0, grades_ativas=2, i=0, block_type=sar_gra_a1
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [DEBUG-AJUSTE] Grade A - Aplicando ajuste -1.75cm (central verdadeiro): pos_x=19.0 -> posicao_ajustada=17.25
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [DEBUG-AJUSTE] Grade A - Aplicando ajuste -3.5cm (substituído): pos_x=49.0 -> posicao_ajustada=45.5
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] DEBUG: Processando Grade A 2 - comprimento=60.0, comprimento > 0: True
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] DEBUG: Desenhando Grade A 2 - comprimento=60.0
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] DEBUG: Verificando grades_com_sarrafo para Grade A 2
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] DEBUG: Config grades_com_sarrafo='sim', config_grades == 'sim': True
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [DEBUG] obter_posicoes_blocos_por_detalhes chamada - index_grade=1, is_grade_b=False
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [CHECKBOX] Status do checkbox pilar_rotacionado_var: True
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [CHECKBOX] Status do checkbox pilar_especial_ativo_var: False
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [GLOBAIS] Globais encontradas: 37 valores, tipo: 'L'
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [OK] Pilar especial ATIVO - pilar_rotacionado: True, pilar_especial: False, globais: True, tipo: L
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [DEBUG] Verificação pilar especial: True
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [DEBUG] Pilar especial detectado - usando campos da aba Pilares Especiais
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [DEBUG] Mapeamento: index_grade=1, is_grade_b=False -> letra_grade=e
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [DEBUG] Usando lógica das grades especiais para e
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [DEBUG] Detalhes grupo1 detalhe_grade1_1: '30'
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [DEBUG] Detalhes grupo1 detalhe_grade1_2: '30'
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [DEBUG] Detalhes grupo1 detalhe_grade1_3: '0'
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [DEBUG] Detalhes grupo1 detalhe_grade1_4: '0'
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [DEBUG] Detalhes grupo1 detalhe_grade1_5: '0'
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [DEBUG] Detalhes da aba Pilares Especiais (e): ['30', '30', '0', '0', '0']
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [DEBUG] calcular_posicao_inicial_grade - index_grade=1
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [DEBUG] comprimento_retangulos=[60.0, 60.0, 0.0]
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [DEBUG] espacos=[2.4, 0.0]
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [DEBUG] Após grade 1 (60.0cm): posicao_x=49.0
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [DEBUG] Após espaço 1 (2.4cm): posicao_x=51.4
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [DEBUG] Posição final calculada: 51.4
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [DEBUG] Posição inicial calculada: 51.4
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [DEBUG] Detalhe 0: valor='30'
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [DEBUG] Adicionada posição: 81.4
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [DEBUG] Detalhe 1: valor='30'
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [DEBUG] Adicionada posição: 111.4
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [DEBUG] Detalhe 2: valor='0'
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [DEBUG] Detalhe 3: valor='0'
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [DEBUG] Detalhe 4: valor='0'
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [DEBUG] Posições finais: [51.4, 81.4, 111.4]
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [DEBUG-AJUSTE] Grade A - Sem ajuste - j=0, grades_ativas=2, i=1, block_type=sar_gra_a3
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [DEBUG-AJUSTE] Grade A - Aplicando ajuste -1.75cm (central verdadeiro): pos_x=81.4 -> posicao_ajustada=79.65
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [DEBUG-AJUSTE] Grade A - Sem ajuste - j=2, grades_ativas=2, i=1, block_type=sar_gra_a2
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] DEBUG: Processando Grade A 3 - comprimento=0.0, comprimento > 0: False
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] DEBUG: Valores lidos Grade B - grade1_grupo2=99.0, grade2_grupo2=0.0, grade3_grupo2=0.0, dist1_grupo2=0.0, dist2_grupo2=0.0
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] DEBUG: Condição Grade B - grade1_grupo2 > 0: True, grade2_grupo2 > 0: False, grade3_grupo2 > 0: False
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] DEBUG: Condição Grade B - grade1_grupo2 > 0 or grade2_grupo2 > 0 or grade3_grupo2 > 0: True
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] DEBUG: GRA.B usando valores específicos: comprimentos=[99.0, 0.0, 0.0], espacos=[0.0, 0.0]
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] DEBUG: Iniciando desenho Grade B - comprimentos_b=[99.0, 0.0, 0.0], espacos_b=[0.0, 0.0]
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] DEBUG: Processando Grade B 1 - comprimento=99.0, comprimento > 0: True
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] DEBUG: Desenhando Grade B 1 - comprimento=99.0
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] DEBUG: Verificando grades_com_sarrafo para Grade B 1
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] DEBUG: Config grades_com_sarrafo='sim', config_grades == 'sim': True
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [DEBUG] obter_posicoes_blocos_por_detalhes chamada - index_grade=0, is_grade_b=True
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [CHECKBOX] Status do checkbox pilar_rotacionado_var: True
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [CHECKBOX] Status do checkbox pilar_especial_ativo_var: False
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [GLOBAIS] Globais encontradas: 37 valores, tipo: 'L'
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [OK] Pilar especial ATIVO - pilar_rotacionado: True, pilar_especial: False, globais: True, tipo: L
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [DEBUG] Verificação pilar especial: True
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [DEBUG] Pilar especial detectado - usando campos da aba Pilares Especiais
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [DEBUG] Mapeamento: index_grade=0, is_grade_b=True -> letra_grade=b
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [DEBUG] Usando lógica das grades especiais para b
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [DEBUG] Detalhes grupo2 detalhe_grade1_1_grupo2: '25'
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [DEBUG] Detalhes grupo2 detalhe_grade1_2_grupo2: '25'
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [DEBUG] Detalhes grupo2 detalhe_grade1_3_grupo2: '25'
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [DEBUG] Detalhes grupo2 detalhe_grade1_4_grupo2: '24'
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [DEBUG] Detalhes grupo2 detalhe_grade1_5_grupo2: '0'
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [DEBUG] Detalhes da aba Pilares Especiais (b): ['25', '25', '25', '24', '0']
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [DEBUG] calcular_posicao_inicial_grade - index_grade=0
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [DEBUG] comprimento_retangulos=[60.0, 60.0, 0.0]
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [DEBUG] espacos=[2.4, 0.0]
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [DEBUG] Posição final calculada: -11
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [DEBUG] Posição inicial calculada: -11
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [DEBUG] Detalhe 0: valor='25'
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [DEBUG] Adicionada posição: 14.0
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [DEBUG] Detalhe 1: valor='25'
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [DEBUG] Adicionada posição: 39.0
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [DEBUG] Detalhe 2: valor='25'
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [DEBUG] Adicionada posição: 64.0
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [DEBUG] Detalhe 3: valor='24'
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [DEBUG] Adicionada posição: 88.0
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [DEBUG] Detalhe 4: valor='0'
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [DEBUG] Posições finais: [-11, 14.0, 39.0, 64.0, 88.0]
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [DEBUG-AJUSTE] Grade B - Sem ajuste - j=0, grades_ativas=1, i=0, block_type=sar_gra_b1
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [DEBUG-AJUSTE] Grade B - Aplicando ajuste -1.75cm (central verdadeiro): pos_x=14.0 -> posicao_ajustada=12.25
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [DEBUG-AJUSTE] Grade B - Aplicando ajuste -1.75cm (central verdadeiro): pos_x=39.0 -> posicao_ajustada=37.25
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [DEBUG-AJUSTE] Grade B - Aplicando ajuste -1.75cm (central verdadeiro): pos_x=64.0 -> posicao_ajustada=62.25
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [DEBUG-AJUSTE] Grade B - Sem ajuste - j=4, grades_ativas=1, i=0, block_type=sar_gra_b2
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] DEBUG: Processando Grade B 2 - comprimento=0.0, comprimento > 0: False
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] DEBUG: Processando Grade B 3 - comprimento=0.0, comprimento > 0: False
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [DEBUG] Parafusos especiais A obtidos dos dados globais: [38.0]
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [DEBUG] Total de 1 parafusos especiais A coletados
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [DEBUG]   Parafuso 1: 38.0cm
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [SOLUCAO-DEFINITIVA] Sem alteração para pilar1_parafuso_posicao - retornando valor original: -52
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] DEBUG DECISAO: pilar_rotacionado = True, usar_scale = False
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] DEBUG DECISAO: PILAR ROTACIONADO ATIVO - Usando _ROTATE
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [PILARES_ESPECIAIS] Script salvo: c:\Users\rvene\Desktop\PILARES-V-1.0\PILARES\output\scripts\TESTE1_CIMA\P1TESTE_PARTE1_CIMA.scr
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [PILARES_ESPECIAIS] Gerando script 2/2...
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [PILARES_ESPECIAIS] Configuração PARTE2: ROTATE=False, SCALE=True, ESPECIAL=True
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [PILARES_ESPECIAIS] Usando dimensões: comp=100, larg=10
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [PILARES_ESPECIAIS] Globais redefinidas no gerador: 37 valores
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [PILARES_ESPECIAIS] Dados de parafusos especiais definidos no gerador: 6 grupos
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [PILARES_ESPECIAIS] Definindo pilar_atual = 2 para _PARTE2
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [PILARES_ESPECIAIS] Aplicando parafusos E para Pilar 2: {'par_e_1': '73', 'par_e_2': '39', 'par_e_3': '', 'par_e_4': '', 'par_e_5': '', 'par_e_6': '', 'par_e_7': '', 'par_e_8': '', 'par_e_9': ''}
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [DEBUG] Entry 0: <class 'tkinter.ttk.Entry'>
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [DEBUG] Entry valor_var: <class 'tkinter.StringVar'>
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [DEBUG] Entry valor_var value: PY_VAR100
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] Exception in Tkinter callback
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] Traceback (most recent call last):
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] File "C:\Users\rvene\AppData\Local\Programs\Python\Python313\Lib\tkinter\__init__.py", line 2068, in __call__
+    return self.func(*args)
+           ~~~~~~~~~^^^^^^^
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] TypeError: 'str' object is not callable
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [PILARES_ESPECIAIS] Parafuso 1: 39
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [PILARES_ESPECIAIS] 🎯 PILAR ESPECIAL TIPO 'L' DETECTADO - PREENCHENDO GRADES COM VALORES EXATOS DA ABA
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [PILARES_ESPECIAIS] Grades especiais encontradas: 30 valores
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [PILARES_ESPECIAIS] Detalhes especiais encontrados: 90 valores
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [PILARES_ESPECIAIS] 🔍 DEBUG DETALHADO - Pilar Especial:
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [PILARES_ESPECIAIS]   Nome original: 'P1TESTE'
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [PILARES_ESPECIAIS]   Nome em maiúsculo: 'P1TESTE'
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [PILARES_ESPECIAIS]   Pilar atual: 2
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [PILARES_ESPECIAIS] 🎯 PILAR 2 DETECTADO - Usando Grade E e Grade F
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [PILARES_ESPECIAIS]   Pilar atual: 2
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [PILARES_ESPECIAIS]   Condição executada: pilar_atual == 2 = True
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [PILARES_ESPECIAIS] Grade E (Pilar 2 - Conjunto 1) - VALORES EXATOS DA ABA:
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [PILARES_ESPECIAIS]   grade_1=111.0 (campo grade_e_1)
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [PILARES_ESPECIAIS]   grade_2=0 (campo grade_e_2)
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [PILARES_ESPECIAIS]   grade_3=0 (campo grade_e_3)
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [PILARES_ESPECIAIS]   dist_1=0 (campo dist_e_1)
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [PILARES_ESPECIAIS]   dist_2=0 (campo dist_e_2)
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [PILARES_ESPECIAIS] Grade F (Pilar 2 - Conjunto 2) - VALORES EXATOS DA ABA:
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [PILARES_ESPECIAIS]   grade_1_grupo2=72.6 (campo grade_f_1)
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [PILARES_ESPECIAIS]   grade_2_grupo2=0 (campo grade_f_2)
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [PILARES_ESPECIAIS]   grade_3_grupo2=0 (campo grade_f_3)
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [PILARES_ESPECIAIS]   dist_1_grupo2=0 (campo dist_f_1)
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [PILARES_ESPECIAIS]   dist_2_grupo2=0 (campo dist_f_2)
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [PILARES_ESPECIAIS] ✅ Pilar 2 - Grades aplicadas ao gerador:
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [PILARES_ESPECIAIS]   Conjunto 1 (Grade E): {'grade_1': '111.0', 'grade_2': '0', 'grade_3': '0', 'distancia_1': '0', 'distancia_2': '0'}
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [PILARES_ESPECIAIS]   Conjunto 2 (Grade F): {'grade_1_grupo2': '72.6', 'grade_2_grupo2': '0', 'grade_3_grupo2': '0', 'distancia_1_grupo2': '0', 'distancia_2_grupo2': '0'}
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [PILARES_ESPECIAIS]   Detalhes Conjunto 1: 15 valores
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [PILARES_ESPECIAIS]   Detalhes Conjunto 2: 15 valores
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [PILARES_ESPECIAIS] Gerando script para P1TESTE_PARTE2...
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [PILARES_ESPECIAIS] Mantendo valores da aba Pilares Especiais sem recálculo
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [DEBUG] === FUNCAO gerar_script() INICIADA ===
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [DEBUG] Verificando se a funcao esta sendo chamada...
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [DEBUG-GERAR_SCRIPT] === INÍCIO DO gerar_script() ===
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [DEBUG-GERAR_SCRIPT] Estado inicial das globais: ID=1703988382400, len=0
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [DEBUG-GERAR_SCRIPT] _globais_pilar_especial está vazio ou None!
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] DEBUG GERAR_SCRIPT: Status pilar_rotacionado no inicio: False
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [DEBUG-GERAR_SCRIPT] Prestes a chamar _verificar_pilar_especial_ativo()...
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [DEBUG-GERAR_SCRIPT] Estado das globais ANTES da verificação: False
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [CHECKBOX] Status do checkbox pilar_rotacionado_var: False
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [CHECKBOX] Status do checkbox pilar_especial_ativo_var: True
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [GLOBAIS] Globais encontradas: 37 valores, tipo: 'L'
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [OK] Pilar especial ATIVO - pilar_rotacionado: False, pilar_especial: True, globais: True, tipo: L
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [DEBUG-GERAR_SCRIPT] Resultado da verificação: True
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [DEBUG-GERAR_SCRIPT] Estado das globais APÓS a verificação: False
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] DEBUG GERAR_SCRIPT: Pilar especial ativo: True
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [PILAR-ESPECIAL-L] Coordenada X base ajustada (SEGUNDO PILAR): -40 -> -236
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [PILAR-ESPECIAL-L] Ajuste Y Pilar 2:
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] Deslocamento base: -100.0 + 10.0 = -90.0
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] Ajuste largura 1: 20.0 - 20 = 0.0
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] Ajuste largura 2: -(10.0 - 20) = 10.0
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] Deslocamento total: -80.0
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] Y original: 70 -> Y novo: -10.0
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [PILAR-ESPECIAL-L] Coordenada Y base ajustada (SEGUNDO PILAR): 70 -> -10.0
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [SOLUCAO-DEFINITIVA] Sem alteração para pilar1_paib_posicao - retornando valor original: -247
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [SOLUCAO-DEFINITIVA] Sem alteração para pilar1_paib_posicao - retornando valor original: 0.0
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [SOLUCAO-DEFINITIVA] Aplicando tamanho pilar especial: 122.0 -> 86.9 (pilar1_paib_tamanho)
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [AJUSTE-LARGURA] PAI.B Pilar 2 POSIÇÃO: larg_1=20.0cm, ajuste=-0.0cm
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [AJUSTE-LARGURA] Posição: -248.0 -> -248.0
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [AJUSTE-LARGURA] PAI.B Pilar 2: larg_1=20.0cm, ajuste=+0.0cm
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [AJUSTE-LARGURA] Tamanho: 123.0 -> 123.0
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [SOLUCAO-DEFINITIVA] Sem alteração para pilar1_paia_posicao - retornando valor original: -247
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [SOLUCAO-DEFINITIVA] Sem alteração para pilar1_paia_posicao - retornando valor original: -10.0
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [SOLUCAO-DEFINITIVA] Aplicando tamanho pilar especial: 122.0 -> 122.0 (pilar1_paia_tamanho)
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [AJUSTE-LARGURA] PAI.A Pilar 2 POSIÇÃO: larg_1=20.0cm, ajuste=-0.0cm
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [AJUSTE-LARGURA] Posição: -260.0 -> -260.0
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [AJUSTE-LARGURA] PAI.A Pilar 2: larg_1=20.0cm, ajuste=+0.0cm
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [AJUSTE-LARGURA] Tamanho: 135.0 -> 135.0
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [AJUSTE-LARGURA] Metal A Pilar 2 POSIÇÃO: larg_1=20.0cm, ajuste=-0.0cm
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [AJUSTE-LARGURA] Posição: -271.4 -> -271.4
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [AJUSTE-LARGURA] Metal A Pilar 2: larg_1=20.0cm, ajuste=+0.0cm
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [AJUSTE-LARGURA] Tamanho: 166.4 -> 166.4
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] DEBUG: Valores brutos Grade A - grade1_raw='111.0', grade2_raw='0', grade3_raw='0'
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] DEBUG: Valores brutos Grade A - dist1_raw='0', dist2_raw='0'
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] DEBUG: Valores lidos Grade A - grade1=111.0, grade2=0.0, grade3=0.0, dist1=0.0, dist2=0.0
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] DEBUG: Condição Grade A - grade1 > 0: True, grade2 > 0: False, grade3 > 0: False
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] DEBUG: Condição Grade A - grade1 > 0 or grade2 > 0 or grade3 > 0: True
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] DEBUG: Verificando Grade A - grade1=111.0, grade2=0.0, grade3=0.0
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] DEBUG: Condição Grade A - grade1 > 0: True, grade2 > 0: False, grade3 > 0: False
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] DEBUG: Condição Grade A - grade1 > 0 or grade2 > 0 or grade3 > 0: True
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] DEBUG: GRA.A usando valores específicos: comprimentos=[111.0, 0.0, 0.0], espacos=[0.0, 0.0]
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] DEBUG: Iniciando desenho Grade A - comprimentos_a=[111.0, 0.0, 0.0], espacos_a=[0.0, 0.0]
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] DEBUG: Config grades_com_sarrafo=sim
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] DEBUG: Processando Grade A 1 - comprimento=111.0, comprimento > 0: True
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] DEBUG: Desenhando Grade A 1 - comprimento=111.0
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] DEBUG: Verificando grades_com_sarrafo para Grade A 1
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] DEBUG: Config grades_com_sarrafo='sim', config_grades == 'sim': True
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [DEBUG] obter_posicoes_blocos_por_detalhes chamada - index_grade=0, is_grade_b=False
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [CHECKBOX] Status do checkbox pilar_rotacionado_var: False
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [CHECKBOX] Status do checkbox pilar_especial_ativo_var: True
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [GLOBAIS] Globais encontradas: 37 valores, tipo: 'L'
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [OK] Pilar especial ATIVO - pilar_rotacionado: False, pilar_especial: True, globais: True, tipo: L
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [DEBUG] Verificação pilar especial: True
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [DEBUG] Pilar especial detectado - usando campos da aba Pilares Especiais
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [DEBUG] Mapeamento: index_grade=0, is_grade_b=False -> letra_grade=a
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [DEBUG] Usando lógica das grades especiais para a
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [DEBUG] Detalhes grupo1 detalhe_grade1_1: '28'
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [DEBUG] Detalhes grupo1 detalhe_grade1_2: '28'
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [DEBUG] Detalhes grupo1 detalhe_grade1_3: '28'
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [DEBUG] Detalhes grupo1 detalhe_grade1_4: '27'
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [DEBUG] Detalhes grupo1 detalhe_grade1_5: '0'
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [DEBUG] Detalhes da aba Pilares Especiais (a): ['28', '28', '28', '27', '0']
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [DEBUG] calcular_posicao_inicial_grade - index_grade=0
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [DEBUG] comprimento_retangulos=[111.0, 0.0, 0.0]
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [DEBUG] espacos=[0.0, 0.0]
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [DEBUG] Posição final calculada: -11
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [DEBUG] Posição inicial calculada: -11
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [DEBUG] Detalhe 0: valor='28'
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [DEBUG] Adicionada posição: 17.0
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [DEBUG] Detalhe 1: valor='28'
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [DEBUG] Adicionada posição: 45.0
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [DEBUG] Detalhe 2: valor='28'
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [DEBUG] Adicionada posição: 73.0
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [DEBUG] Detalhe 3: valor='27'
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [DEBUG] Adicionada posição: 100.0
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [DEBUG] Detalhe 4: valor='0'
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [DEBUG] Posições finais: [-11, 17.0, 45.0, 73.0, 100.0]
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [DEBUG-AJUSTE] Grade A - Sem ajuste - j=0, grades_ativas=1, i=0, block_type=sar_gra_a1
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [DEBUG-AJUSTE] Grade A - Aplicando ajuste -1.75cm (central verdadeiro): pos_x=17.0 -> posicao_ajustada=15.25
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [DEBUG-AJUSTE] Grade A - Aplicando ajuste -1.75cm (central verdadeiro): pos_x=45.0 -> posicao_ajustada=43.25
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [DEBUG-AJUSTE] Grade A - Aplicando ajuste -1.75cm (central verdadeiro): pos_x=73.0 -> posicao_ajustada=71.25
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [DEBUG-AJUSTE] Grade A - Sem ajuste - j=4, grades_ativas=1, i=0, block_type=sar_gra_a2
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] DEBUG: Processando Grade A 2 - comprimento=0.0, comprimento > 0: False
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] DEBUG: Processando Grade A 3 - comprimento=0.0, comprimento > 0: False
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] DEBUG: Valores lidos Grade B - grade1_grupo2=72.6, grade2_grupo2=0.0, grade3_grupo2=0.0, dist1_grupo2=0.0, dist2_grupo2=0.0
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] DEBUG: Condição Grade B - grade1_grupo2 > 0: True, grade2_grupo2 > 0: False, grade3_grupo2 > 0: False
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] DEBUG: Condição Grade B - grade1_grupo2 > 0 or grade2_grupo2 > 0 or grade3_grupo2 > 0: True
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] DEBUG: GRA.B usando valores específicos: comprimentos=[72.6, 0.0, 0.0], espacos=[0.0, 0.0]
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] DEBUG: Iniciando desenho Grade B - comprimentos_b=[72.6, 0.0, 0.0], espacos_b=[0.0, 0.0]
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] DEBUG: Processando Grade B 1 - comprimento=72.6, comprimento > 0: True
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] DEBUG: Desenhando Grade B 1 - comprimento=72.6
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] DEBUG: Verificando grades_com_sarrafo para Grade B 1
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] DEBUG: Config grades_com_sarrafo='sim', config_grades == 'sim': True
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [DEBUG] obter_posicoes_blocos_por_detalhes chamada - index_grade=0, is_grade_b=True
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [CHECKBOX] Status do checkbox pilar_rotacionado_var: False
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [CHECKBOX] Status do checkbox pilar_especial_ativo_var: True
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [GLOBAIS] Globais encontradas: 37 valores, tipo: 'L'
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [OK] Pilar especial ATIVO - pilar_rotacionado: False, pilar_especial: True, globais: True, tipo: L
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [DEBUG] Verificação pilar especial: True
+2025-09-13 12:33:10 | debug_robo_cima | INFO | [CONSOLE] [DEBUG] Pilar especial detectado - usando campos da aba Pilares Especiais
+2025-09-13 12:33:11 | debug_robo_cima | INFO | [CONSOLE] [DEBUG] Mapeamento: index_grade=0, is_grade_b=True -> letra_grade=b
+2025-09-13 12:33:11 | debug_robo_cima | INFO | [CONSOLE] [DEBUG] Usando lógica das grades especiais para b
+2025-09-13 12:33:11 | debug_robo_cima | INFO | [CONSOLE] [DEBUG] Detalhes grupo2 detalhe_grade1_1_grupo2: '24'
+2025-09-13 12:33:11 | debug_robo_cima | INFO | [CONSOLE] [DEBUG] Detalhes grupo2 detalhe_grade1_2_grupo2: '24.599999999999994'
+2025-09-13 12:33:11 | debug_robo_cima | INFO | [CONSOLE] [DEBUG] Detalhes grupo2 detalhe_grade1_3_grupo2: '24'
+2025-09-13 12:33:11 | debug_robo_cima | INFO | [CONSOLE] [DEBUG] Detalhes grupo2 detalhe_grade1_4_grupo2: '0'
+2025-09-13 12:33:11 | debug_robo_cima | INFO | [CONSOLE] [DEBUG] Detalhes grupo2 detalhe_grade1_5_grupo2: '0'
+2025-09-13 12:33:11 | debug_robo_cima | INFO | [CONSOLE] [DEBUG] Detalhes da aba Pilares Especiais (b): ['24', '24.599999999999994', '24', '0', '0']
+2025-09-13 12:33:11 | debug_robo_cima | INFO | [CONSOLE] [DEBUG] calcular_posicao_inicial_grade - index_grade=0
+2025-09-13 12:33:11 | debug_robo_cima | INFO | [CONSOLE] [DEBUG] comprimento_retangulos=[111.0, 0.0, 0.0]
+2025-09-13 12:33:11 | debug_robo_cima | INFO | [CONSOLE] [DEBUG] espacos=[0.0, 0.0]
+2025-09-13 12:33:11 | debug_robo_cima | INFO | [CONSOLE] [DEBUG] Posição final calculada: -11
+2025-09-13 12:33:11 | debug_robo_cima | INFO | [CONSOLE] [DEBUG] Posição inicial calculada: -11
+2025-09-13 12:33:11 | debug_robo_cima | INFO | [CONSOLE] [DEBUG] Detalhe 0: valor='24'
+2025-09-13 12:33:11 | debug_robo_cima | INFO | [CONSOLE] [DEBUG] Adicionada posição: 13.0
+2025-09-13 12:33:11 | debug_robo_cima | INFO | [CONSOLE] [DEBUG] Detalhe 1: valor='24.599999999999994'
+2025-09-13 12:33:11 | debug_robo_cima | INFO | [CONSOLE] [DEBUG] Adicionada posição: 37.599999999999994
+2025-09-13 12:33:11 | debug_robo_cima | INFO | [CONSOLE] [DEBUG] Detalhe 2: valor='24'
+2025-09-13 12:33:11 | debug_robo_cima | INFO | [CONSOLE] [DEBUG] Adicionada posição: 61.599999999999994
+2025-09-13 12:33:11 | debug_robo_cima | INFO | [CONSOLE] [DEBUG] Detalhe 3: valor='0'
+2025-09-13 12:33:11 | debug_robo_cima | INFO | [CONSOLE] [DEBUG] Detalhe 4: valor='0'
+2025-09-13 12:33:11 | debug_robo_cima | INFO | [CONSOLE] [DEBUG] Posições finais: [-11, 13.0, 37.599999999999994, 61.599999999999994]
+2025-09-13 12:33:11 | debug_robo_cima | INFO | [CONSOLE] [DEBUG-AJUSTE] Grade B - Sem ajuste - j=0, grades_ativas=1, i=0, block_type=sar_gra_b1
+2025-09-13 12:33:11 | debug_robo_cima | INFO | [CONSOLE] [DEBUG-AJUSTE] Grade B - Aplicando ajuste -1.75cm (central verdadeiro): pos_x=13.0 -> posicao_ajustada=11.25
+2025-09-13 12:33:11 | debug_robo_cima | INFO | [CONSOLE] [DEBUG-AJUSTE] Grade B - Aplicando ajuste -1.75cm (central verdadeiro): pos_x=37.599999999999994 -> posicao_ajustada=35.849999999999994
+2025-09-13 12:33:11 | debug_robo_cima | INFO | [CONSOLE] [DEBUG-AJUSTE] Grade B - Sem ajuste - j=3, grades_ativas=1, i=0, block_type=sar_gra_b2
+2025-09-13 12:33:11 | debug_robo_cima | INFO | [CONSOLE] DEBUG: Processando Grade B 2 - comprimento=0.0, comprimento > 0: False
+2025-09-13 12:33:11 | debug_robo_cima | INFO | [CONSOLE] DEBUG: Processando Grade B 3 - comprimento=0.0, comprimento > 0: False
+2025-09-13 12:33:11 | debug_robo_cima | INFO | [CONSOLE] [DEBUG] Parafusos especiais E obtidos dos dados globais: [73.0, 39.0]
+2025-09-13 12:33:11 | debug_robo_cima | INFO | [CONSOLE] [DEBUG] Total de 2 parafusos especiais E coletados
+2025-09-13 12:33:11 | debug_robo_cima | INFO | [CONSOLE] [DEBUG]   Parafuso 1: 73.0cm
+2025-09-13 12:33:11 | debug_robo_cima | INFO | [CONSOLE] [DEBUG]   Parafuso 2: 39.0cm
+2025-09-13 12:33:11 | debug_robo_cima | INFO | [CONSOLE] [SOLUCAO-DEFINITIVA] Sem alteração para pilar1_parafuso_posicao - retornando valor original: -186.5
+2025-09-13 12:33:11 | debug_robo_cima | INFO | [CONSOLE] DEBUG DECISAO: pilar_rotacionado = False, usar_scale = True
+2025-09-13 12:33:11 | debug_robo_cima | INFO | [CONSOLE] DEBUG DECISAO: Usando _SCALE
+2025-09-13 12:33:11 | debug_robo_cima | INFO | [CONSOLE] DEBUG DECISAO: Pilar especial - usando valores alterados no _SCALE
+2025-09-13 12:33:11 | debug_robo_cima | INFO | [CONSOLE] [PILARES_ESPECIAIS] Script salvo: c:\Users\rvene\Desktop\PILARES-V-1.0\PILARES\output\scripts\TESTE1_CIMA\P1TESTE_PARTE2_CIMA.scr
+2025-09-13 12:33:11 | debug_robo_cima | INFO | [CONSOLE] [PILARES_ESPECIAIS] Configurações restauradas para o padrão
+2025-09-13 12:33:11 | debug_robo_cima | INFO | [CONSOLE] [PILARES_ESPECIAIS] Combinando 2 scripts em um único arquivo...
+2025-09-13 12:33:11 | debug_robo_cima | INFO | [CONSOLE] [PILARES_ESPECIAIS] Script P1TESTE_PARTE1_CIMA.scr adicionado ao combinado
+2025-09-13 12:33:11 | debug_robo_cima | INFO | [CONSOLE] [PILARES_ESPECIAIS] Script P1TESTE_PARTE2_CIMA.scr adicionado ao combinado
+2025-09-13 12:33:11 | debug_robo_cima | INFO | [CONSOLE] [PILARES_ESPECIAIS] Script combinado salvo: c:\Users\rvene\Desktop\PILARES-V-1.0\PILARES\output\scripts\TESTE1_CIMA\P1TESTE_COMBINADO_CIMA.scr
+2025-09-13 12:33:11 | debug_robo_cima | INFO | [CONSOLE] [PILARES_ESPECIAIS] Scripts incluídos: P1TESTE_PARTE1_CIMA.scr, P1TESTE_PARTE2_CIMA.scr
+2025-09-13 12:33:11 | debug_robo_cima | INFO | [CONSOLE] [PILARES_ESPECIAIS] Scripts múltiplos gerados e combinados para pilar especial 'P1TESTE'
+2025-09-13 12:33:11 | debug_robo_cima | INFO | [CONSOLE] [DEBUG-FUNC] Finalizando aplicação VISAO CIMA...
+2025-09-13 12:33:11 | debug_robo_cima | INFO | [CONSOLE] [CIMA_SCRIPT] === PROCESSAMENTO CONCLUÍDO ===
+2025-09-13 12:33:11 | debug_robo_cima | INFO | [CONSOLE] [CIMA_SCRIPT] Duração da função: 1.89 segundos
+2025-09-13 12:33:11 | debug_robo_cima | INFO | [CONSOLE] [CIMA_SCRIPT] Fim da função preencher_campos_diretamente_e_gerar_scripts: 1757777591.1277835
+2025-09-13 12:33:11 | debug_robo_cima | INFO | [CONSOLE] [CIMA_SCRIPT] ===== FIM DA FUNÇÃO preencher_campos_diretamente_e_gerar_scripts =====
+2025-09-13 12:33:11 | debug_robo_cima | INFO | [CONSOLE] Fim do processamento dos dados.
+2025-09-13 12:33:11 | debug_robo_cima | INFO | [CONSOLE] >>> ✅ Nova função executada com sucesso

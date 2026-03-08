@@ -1,0 +1,50 @@
+2025-10-18 14:20:17 | debug_robo_cima | INFO | Iniciando logs de depuração para robo_cima
+2025-10-18 14:20:17 | debug_robo_cima | INFO | Arquivo de log: logs\depuracao\robo_cima_20251018_142017.log
+2025-10-18 14:28:35 | debug_robo_cima | INFO | Iniciando logs de depuração para robo_cima
+2025-10-18 14:28:35 | debug_robo_cima | INFO | Arquivo de log: logs\depuracao\robo_cima_20251018_142835.log
+2025-10-18 14:28:35 | debug_robo_cima | WARNING | ⚠️ Instancia do GeradorPilar nao disponivel para alterar checkbox
+2025-10-18 14:28:54 | debug_robo_cima | WARNING | ⚠️ Instancia do GeradorPilar nao disponivel para alterar checkbox
+2025-10-18 14:31:15 | debug_robo_cima | WARNING | ⚠️ Instancia do GeradorPilar nao disponivel para alterar checkbox
+2025-10-18 14:31:17 | debug_robo_cima | WARNING | ⚠️ Instancia do GeradorPilar nao disponivel para alterar checkbox
+2025-10-18 14:31:18 | debug_robo_cima | WARNING | ⚠️ Instancia do GeradorPilar nao disponivel para alterar checkbox
+2025-10-18 14:31:19 | debug_robo_cima | WARNING | ⚠️ Instancia do GeradorPilar nao disponivel para alterar checkbox
+2025-10-18 14:32:21 | debug_robo_cima | WARNING | ⚠️ Instancia do GeradorPilar nao disponivel para alterar checkbox
+2025-10-18 14:32:21 | debug_robo_cima | WARNING | ⚠️ Instancia do GeradorPilar nao disponivel para alterar checkbox
+2025-10-18 14:34:59 | debug_robo_cima | WARNING | ⚠️ Instancia do GeradorPilar nao disponivel para alterar checkbox
+2025-10-18 14:35:00 | debug_robo_cima | INFO | Iniciando logs de depuração para robo_cima
+2025-10-18 14:35:00 | debug_robo_cima | INFO | Arquivo de log: logs\depuracao\robo_cima_20251018_143500.log
+2025-10-18 14:35:00 | debug_robo_cima | INFO | 
+----------------------------------------
+2025-10-18 14:35:00 | debug_robo_cima | INFO | 📌 DEFINIÇÃO DE GLOBAIS PILAR ESPECIAL
+2025-10-18 14:35:00 | debug_robo_cima | INFO | ----------------------------------------
+2025-10-18 14:35:00 | debug_robo_cima | INFO | ℹ️ 🔄 Recebido para definir: <class 'dict'> com 37 itens
+2025-10-18 14:35:00 | debug_robo_cima | INFO | ℹ️ 🔄 ID do objeto globais recebido: 2867538829760
+2025-10-18 14:35:00 | debug_robo_cima | INFO | ℹ️ 🔄 _globais_pilar_especial ANTES: ID=2867386992384, len=0
+2025-10-18 14:35:00 | debug_robo_cima | INFO | ℹ️ 🔄 _globais_pilar_especial APÓS: ID=2867538829760, len=37
+2025-10-18 14:35:00 | debug_robo_cima | INFO | ℹ️ 🔄 Verificação de igualdade: globais is _globais_pilar_especial = True
+2025-10-18 14:35:00 | debug_robo_cima | INFO | ℹ️ 🔄 Amostra de chaves recebidas: ['pilar1_paia_posicao', 'pilar1_paib_posicao', 'pilar1_gradea_posicao']
+2025-10-18 14:35:00 | debug_robo_cima | INFO | ℹ️ 🔄 Amostra de chaves armazenadas: ['pilar1_paia_posicao', 'pilar1_paib_posicao', 'pilar1_gradea_posicao']
+2025-10-18 14:35:00 | debug_robo_cima | INFO | ℹ️ ✅ Globais do pilar especial definidas: 37 valores
+2025-10-18 14:35:00 | debug_robo_cima | INFO | ℹ️    Tipo: L
+2025-10-18 14:35:00 | debug_robo_cima | INFO | ℹ️    Dimensões: comp_1=200.0, comp_2=200.0
+2025-10-18 14:35:00 | debug_robo_cima | INFO | ℹ️    Larguras: larg_1=40.0, larg_2=20.0
+2025-10-18 14:39:26 | debug_robo_cima | WARNING | ⚠️ Instancia do GeradorPilar nao disponivel para alterar checkbox
+2025-10-18 14:50:02 | debug_robo_cima | WARNING | ⚠️ Instancia do GeradorPilar nao disponivel para alterar checkbox
+2025-10-18 15:05:32 | debug_robo_cima | WARNING | ⚠️ Instancia do GeradorPilar nao disponivel para alterar checkbox
+2025-10-18 15:05:34 | debug_robo_cima | WARNING | ⚠️ Instancia do GeradorPilar nao disponivel para alterar checkbox
+2025-10-18 15:05:37 | debug_robo_cima | INFO | 
+----------------------------------------
+2025-10-18 15:05:37 | debug_robo_cima | INFO | 📌 DEFINIÇÃO DE GLOBAIS PILAR ESPECIAL
+2025-10-18 15:05:37 | debug_robo_cima | INFO | ----------------------------------------
+2025-10-18 15:05:37 | debug_robo_cima | INFO | ℹ️ 🔄 Recebido para definir: <class 'dict'> com 37 itens
+2025-10-18 15:05:37 | debug_robo_cima | INFO | ℹ️ 🔄 ID do objeto globais recebido: 2867568451072
+2025-10-18 15:05:37 | debug_robo_cima | INFO | ℹ️ 🔄 _globais_pilar_especial ANTES: ID=2867538829760, len=37
+2025-10-18 15:05:37 | debug_robo_cima | INFO | ℹ️ 🔄 _globais_pilar_especial APÓS: ID=2867568451072, len=37
+2025-10-18 15:05:37 | debug_robo_cima | INFO | ℹ️ 🔄 Verificação de igualdade: globais is _globais_pilar_especial = True
+2025-10-18 15:05:37 | debug_robo_cima | INFO | ℹ️ 🔄 Amostra de chaves recebidas: ['pilar1_paia_posicao', 'pilar1_paib_posicao', 'pilar1_gradea_posicao']
+2025-10-18 15:05:37 | debug_robo_cima | INFO | ℹ️ 🔄 Amostra de chaves armazenadas: ['pilar1_paia_posicao', 'pilar1_paib_posicao', 'pilar1_gradea_posicao']
+2025-10-18 15:05:37 | debug_robo_cima | INFO | ℹ️ ✅ Globais do pilar especial definidas: 37 valores
+2025-10-18 15:05:37 | debug_robo_cima | INFO | ℹ️    Tipo: L
+2025-10-18 15:05:37 | debug_robo_cima | INFO | ℹ️    Dimensões: comp_1=150.0, comp_2=200.0
+2025-10-18 15:05:37 | debug_robo_cima | INFO | ℹ️    Larguras: larg_1=40.0, larg_2=30.0
+2025-10-18 15:15:48 | debug_robo_cima | WARNING | ⚠️ Instancia do GeradorPilar nao disponivel para alterar checkbox

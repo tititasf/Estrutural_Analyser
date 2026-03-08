@@ -1,0 +1,13 @@
+2025-09-13 01:25:24 | debug_robo_cima | INFO | Iniciando logs de depuração para robo_cima
+2025-09-13 01:25:24 | debug_robo_cima | INFO | Arquivo de log: logs\depuracao\robo_cima_20250913_012524.log
+2025-09-13 01:25:24 | debug_robo_cima | INFO | 
+============================================================
+2025-09-13 01:25:24 | debug_robo_cima | INFO | [SECTION] TESTE LOGGER SEM EMOJIS
+2025-09-13 01:25:24 | debug_robo_cima | INFO | ============================================================
+2025-09-13 01:25:24 | debug_robo_cima | INFO | [INFO] Teste após remoção de emojis
+2025-09-13 01:25:24 | debug_robo_cima | INFO | 
+----------------------------------------
+2025-09-13 01:25:24 | debug_robo_cima | INFO | [SUBSECTION] SUBSECAO TESTE
+2025-09-13 01:25:24 | debug_robo_cima | INFO | ----------------------------------------
+2025-09-13 01:25:24 | debug_robo_cima | WARNING | [WARN] Aviso de teste
+2025-09-13 01:25:24 | debug_robo_cima | ERROR | [ERROR] Erro de teste

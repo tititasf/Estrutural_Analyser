@@ -1,0 +1,11 @@
+2025-10-31 13:08:58 | debug_run_script | INFO | Iniciando logs de depuração para run_script
+2025-10-31 13:08:58 | debug_run_script | INFO | Arquivo de log: logs\depuracao\run_script_20251031_130858.log
+2025-10-31 13:08:58 | debug_run_script | INFO | 
+============================================================
+2025-10-31 13:08:58 | debug_run_script | INFO | 📋 INICIALIZAÇÃO DO PILARANALYZER
+2025-10-31 13:08:58 | debug_run_script | INFO | ============================================================
+2025-10-31 13:08:58 | debug_run_script | INFO | ℹ️ Data/Hora de início: 2025-10-31 13:08:58
+2025-10-31 13:08:58 | debug_run_script | INFO | ℹ️ Diretório do script: C:\Users\Ryzen\Desktop\GITHUB\pilares\PILARE~1\DIST_D~1\RUN~1.DIS
+2025-10-31 13:08:58 | debug_run_script | INFO | ℹ️ Diretório src: C:\Users\Ryzen\Desktop\GITHUB\pilares\PILARE~1\DIST_D~1\RUN~1.DIS\src
+2025-10-31 13:08:58 | debug_run_script | INFO | ℹ️ Ambiente frozen: False
+2025-10-31 13:08:58 | debug_run_script | ERROR | ❌ Diretório 'src' não encontrado em: C:\Users\Ryzen\Desktop\GITHUB\pilares\PILARE~1\DIST_D~1\RUN~1.DIS\src

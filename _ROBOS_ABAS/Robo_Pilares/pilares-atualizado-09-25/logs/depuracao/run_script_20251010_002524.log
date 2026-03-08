@@ -1,0 +1,29 @@
+2025-10-10 00:25:24 | debug_run_script | INFO | Iniciando logs de depuração para run_script
+2025-10-10 00:25:24 | debug_run_script | INFO | Arquivo de log: logs\depuracao\run_script_20251010_002524.log
+2025-10-10 00:25:24 | debug_run_script | INFO | 
+============================================================
+2025-10-10 00:25:24 | debug_run_script | INFO | 📋 INICIALIZAÇÃO DO PILARANALYZER
+2025-10-10 00:25:24 | debug_run_script | INFO | ============================================================
+2025-10-10 00:25:24 | debug_run_script | INFO | ℹ️ Data/Hora de início: 2025-10-10 00:25:24
+2025-10-10 00:25:24 | debug_run_script | INFO | ℹ️ Diretório do script: C:\Users\rvene\Desktop\pilares-clean-final
+2025-10-10 00:25:24 | debug_run_script | INFO | ℹ️ Diretório src: C:\Users\rvene\Desktop\pilares-clean-final\src
+2025-10-10 00:25:24 | debug_run_script | INFO | ℹ️ 🔄 Configurando paths do sistema...
+2025-10-10 00:25:24 | debug_run_script | INFO | ℹ️ ✅ Paths configurados com sucesso
+2025-10-10 00:25:24 | debug_run_script | INFO | 
+----------------------------------------
+2025-10-10 00:25:24 | debug_run_script | INFO | 📌 CARREGAMENTO DE MÓDULOS
+2025-10-10 00:25:24 | debug_run_script | INFO | ----------------------------------------
+2025-10-10 00:25:24 | debug_run_script | INFO | ℹ️ Importando módulo main...
+2025-10-10 00:25:24 | debug_run_script | INFO | ℹ️ Módulos carregados com sucesso!
+2025-10-10 00:25:24 | debug_run_script | INFO | 
+----------------------------------------
+2025-10-10 00:25:24 | debug_run_script | INFO | 📌 EXECUÇÃO DO PILARANALYZER
+2025-10-10 00:25:24 | debug_run_script | INFO | ----------------------------------------
+2025-10-10 00:29:52 | debug_run_script | INFO | ℹ️ ✅ PilarAnalyzer executado com sucesso!
+2025-10-10 00:29:52 | debug_run_script | INFO | ⏱️ Tempo total de execução: 267.660s
+2025-10-10 00:29:52 | debug_run_script | INFO | 
+============================================================
+2025-10-10 00:29:52 | debug_run_script | INFO | 📋 FINALIZAÇÃO
+2025-10-10 00:29:52 | debug_run_script | INFO | ============================================================
+2025-10-10 00:29:52 | debug_run_script | INFO | ℹ️ 📅 Data/Hora de término: 2025-10-10 00:29:52
+2025-10-10 00:29:52 | debug_run_script | INFO | ℹ️ ✅ Script de inicialização concluído com sucesso!

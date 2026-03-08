@@ -1,0 +1,4 @@
+2025-11-23 23:29:44 | debug_robo_cima | INFO | Iniciando logs de depuração para robo_cima
+2025-11-23 23:29:44 | debug_robo_cima | INFO | Arquivo de log: logs\depuracao\robo_cima_20251123_232944.log
+2025-11-23 23:29:46 | debug_robo_cima | INFO | ℹ️ 🔄 Instância do GeradorPilar registrada globalmente
+2025-11-23 23:29:46 | debug_robo_cima | INFO | ℹ️ 🔄 Globais do pilar especial inicializadas

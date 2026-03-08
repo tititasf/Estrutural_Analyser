@@ -1,0 +1,29 @@
+2025-09-13 12:34:18 | debug_run_script | INFO | Iniciando logs de depuração para run_script
+2025-09-13 12:34:18 | debug_run_script | INFO | Arquivo de log: logs\depuracao\run_script_20250913_123418.log
+2025-09-13 12:34:18 | debug_run_script | INFO | 
+============================================================
+2025-09-13 12:34:18 | debug_run_script | INFO | [SECTION] INICIALIZAÇÃO DO PILARANALYZER
+2025-09-13 12:34:18 | debug_run_script | INFO | ============================================================
+2025-09-13 12:34:18 | debug_run_script | INFO | [INFO] Data/Hora de início: 2025-09-13 12:34:18
+2025-09-13 12:34:18 | debug_run_script | INFO | [INFO] Diretório do script: c:\Users\rvene\Desktop\PILARES-V-1.0\PILARES
+2025-09-13 12:34:18 | debug_run_script | INFO | [INFO] Diretório src: c:\Users\rvene\Desktop\PILARES-V-1.0\PILARES\src
+2025-09-13 12:34:18 | debug_run_script | INFO | [INFO] 🔄 Configurando paths do sistema...
+2025-09-13 12:34:18 | debug_run_script | INFO | [INFO] ✅ Paths configurados com sucesso
+2025-09-13 12:34:18 | debug_run_script | INFO | 
+----------------------------------------
+2025-09-13 12:34:18 | debug_run_script | INFO | [SUBSECTION] CARREGAMENTO DE MÓDULOS
+2025-09-13 12:34:18 | debug_run_script | INFO | ----------------------------------------
+2025-09-13 12:34:18 | debug_run_script | INFO | [INFO] Importando módulo main...
+2025-09-13 12:34:18 | debug_run_script | INFO | [INFO] Módulos carregados com sucesso!
+2025-09-13 12:34:18 | debug_run_script | INFO | 
+----------------------------------------
+2025-09-13 12:34:18 | debug_run_script | INFO | [SUBSECTION] EXECUÇÃO DO PILARANALYZER
+2025-09-13 12:34:18 | debug_run_script | INFO | ----------------------------------------
+2025-09-13 12:36:25 | debug_run_script | INFO | [INFO] ✅ PilarAnalyzer executado com sucesso!
+2025-09-13 12:36:25 | debug_run_script | INFO | ⏱️ Tempo total de execução: 127.755s
+2025-09-13 12:36:25 | debug_run_script | INFO | 
+============================================================
+2025-09-13 12:36:25 | debug_run_script | INFO | [SECTION] FINALIZAÇÃO
+2025-09-13 12:36:25 | debug_run_script | INFO | ============================================================
+2025-09-13 12:36:25 | debug_run_script | INFO | [INFO] 📅 Data/Hora de término: 2025-09-13 12:36:25
+2025-09-13 12:36:25 | debug_run_script | INFO | [INFO] ✅ Script de inicialização concluído com sucesso!

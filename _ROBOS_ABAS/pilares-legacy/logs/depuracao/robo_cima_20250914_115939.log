@@ -1,0 +1,28 @@
+2025-09-14 11:59:39 | debug_robo_cima | INFO | Iniciando logs de depuração para robo_cima
+2025-09-14 11:59:39 | debug_robo_cima | INFO | Arquivo de log: logs\depuracao\robo_cima_20250914_115939.log
+2025-09-14 11:59:39 | debug_robo_cima | INFO | ℹ️ 🔄 Instância do GeradorPilar registrada globalmente
+2025-09-14 11:59:39 | debug_robo_cima | INFO | ℹ️ 🔄 Globais do pilar especial inicializadas
+2025-09-14 11:59:40 | debug_robo_cima | INFO | Iniciando logs de depuração para robo_cima
+2025-09-14 11:59:40 | debug_robo_cima | INFO | Arquivo de log: logs\depuracao\robo_cima_20250914_115940.log
+2025-09-14 11:59:40 | debug_robo_cima | INFO | 
+============================================================
+2025-09-14 11:59:40 | debug_robo_cima | INFO | 📋 GERAÇÃO DE SCRIPT CIMA
+2025-09-14 11:59:40 | debug_robo_cima | INFO | ============================================================
+2025-09-14 11:59:40 | debug_robo_cima | INFO | ℹ️ 🔄 === INÍCIO DO gerar_script() ===
+2025-09-14 11:59:40 | debug_robo_cima | INFO | ℹ️ 🔄 Estado inicial das globais: ID=1524030366080, len=0
+2025-09-14 11:59:40 | debug_robo_cima | WARNING | ⚠️ _globais_pilar_especial está vazio ou None!
+2025-09-14 11:59:40 | debug_robo_cima | INFO | ℹ️ 🔄 Status pilar_rotacionado no inicio: True
+2025-09-14 11:59:40 | debug_robo_cima | INFO | ℹ️ 🔄 Prestes a chamar _verificar_pilar_especial_ativo()...
+2025-09-14 11:59:40 | debug_robo_cima | INFO | ℹ️ 🔄 Estado das globais ANTES da verificação: False
+2025-09-14 11:59:40 | debug_robo_cima | INFO | 
+----------------------------------------
+2025-09-14 11:59:40 | debug_robo_cima | INFO | 📌 VERIFICAÇÃO DE PILAR ESPECIAL ATIVO
+2025-09-14 11:59:40 | debug_robo_cima | INFO | ----------------------------------------
+2025-09-14 11:59:40 | debug_robo_cima | INFO | ℹ️ 🔄 Verificando se pilar especial está ativo...
+2025-09-14 11:59:40 | debug_robo_cima | INFO | ℹ️ 🔄 Status do checkbox pilar_rotacionado_var: True
+2025-09-14 11:59:40 | debug_robo_cima | INFO | ℹ️ 🔄 Status do checkbox pilar_especial_ativo_var: False
+2025-09-14 11:59:40 | debug_robo_cima | INFO | ℹ️ 🔄 Globais encontradas: 37 valores, tipo: 'L'
+2025-09-14 11:59:40 | debug_robo_cima | INFO | ℹ️ ✅ Pilar especial ATIVO - pilar_rotacionado: True, pilar_especial: False, globais: True, tipo: L
+2025-09-14 11:59:40 | debug_robo_cima | INFO | ℹ️ 🔄 Resultado da verificação: True
+2025-09-14 11:59:40 | debug_robo_cima | INFO | ℹ️ 🔄 Estado das globais APÓS a verificação: False
+2025-09-14 11:59:41 | debug_robo_cima | INFO | ℹ️ 🔄 Pilar especial ativo: True

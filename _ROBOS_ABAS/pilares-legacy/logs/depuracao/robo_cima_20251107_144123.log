@@ -1,0 +1,61 @@
+2025-11-07 14:41:23 | debug_robo_cima | INFO | Iniciando logs de depuração para robo_cima
+2025-11-07 14:41:23 | debug_robo_cima | INFO | Arquivo de log: logs\depuracao\robo_cima_20251107_144123.log
+2025-11-07 14:41:23 | debug_robo_cima | WARNING | ⚠️ Instancia do GeradorPilar nao disponivel para alterar checkbox
+2025-11-07 14:41:24 | debug_robo_cima | WARNING | ⚠️ Instancia do GeradorPilar nao disponivel para alterar checkbox
+2025-11-07 14:41:54 | debug_robo_cima | WARNING | ⚠️ Instancia do GeradorPilar nao disponivel para alterar checkbox
+2025-11-07 14:41:54 | debug_robo_cima | INFO | Iniciando logs de depuração para robo_cima
+2025-11-07 14:41:54 | debug_robo_cima | INFO | Arquivo de log: logs\depuracao\robo_cima_20251107_144154.log
+2025-11-07 14:41:54 | debug_robo_cima | INFO | 
+----------------------------------------
+2025-11-07 14:41:54 | debug_robo_cima | INFO | 📌 DEFINIÇÃO DE GLOBAIS PILAR ESPECIAL
+2025-11-07 14:41:54 | debug_robo_cima | INFO | ----------------------------------------
+2025-11-07 14:41:54 | debug_robo_cima | INFO | ℹ️ 🔄 Recebido para definir: <class 'dict'> com 37 itens
+2025-11-07 14:41:54 | debug_robo_cima | INFO | ℹ️ 🔄 ID do objeto globais recebido: 2033234258112
+2025-11-07 14:41:54 | debug_robo_cima | INFO | ℹ️ 🔄 _globais_pilar_especial ANTES: ID=2033231846144, len=0
+2025-11-07 14:41:54 | debug_robo_cima | INFO | ℹ️ 🔄 _globais_pilar_especial APÓS: ID=2033234258112, len=37
+2025-11-07 14:41:54 | debug_robo_cima | INFO | ℹ️ 🔄 Verificação de igualdade: globais is _globais_pilar_especial = True
+2025-11-07 14:41:54 | debug_robo_cima | INFO | ℹ️ 🔄 Amostra de chaves recebidas: ['pilar1_paia_posicao', 'pilar1_paib_posicao', 'pilar1_gradea_posicao']
+2025-11-07 14:41:54 | debug_robo_cima | INFO | ℹ️ 🔄 Amostra de chaves armazenadas: ['pilar1_paia_posicao', 'pilar1_paib_posicao', 'pilar1_gradea_posicao']
+2025-11-07 14:41:54 | debug_robo_cima | INFO | ℹ️ ✅ Globais do pilar especial definidas: 37 valores
+2025-11-07 14:41:54 | debug_robo_cima | INFO | ℹ️    Tipo: L
+2025-11-07 14:41:54 | debug_robo_cima | INFO | ℹ️    Dimensões: comp_1=150.0, comp_2=200.0
+2025-11-07 14:41:54 | debug_robo_cima | INFO | ℹ️    Larguras: larg_1=15.0, larg_2=18.0
+2025-11-07 14:41:59 | debug_robo_cima | WARNING | ⚠️ Instancia do GeradorPilar nao disponivel para alterar checkbox
+2025-11-07 14:41:59 | debug_robo_cima | INFO | 
+----------------------------------------
+2025-11-07 14:41:59 | debug_robo_cima | INFO | 📌 DEFINIÇÃO DE GLOBAIS PILAR ESPECIAL
+2025-11-07 14:41:59 | debug_robo_cima | INFO | ----------------------------------------
+2025-11-07 14:41:59 | debug_robo_cima | INFO | ℹ️ 🔄 Recebido para definir: <class 'dict'> com 37 itens
+2025-11-07 14:41:59 | debug_robo_cima | INFO | ℹ️ 🔄 ID do objeto globais recebido: 2033235704640
+2025-11-07 14:41:59 | debug_robo_cima | INFO | ℹ️ 🔄 _globais_pilar_especial ANTES: ID=2033234258112, len=37
+2025-11-07 14:41:59 | debug_robo_cima | INFO | ℹ️ 🔄 _globais_pilar_especial APÓS: ID=2033235704640, len=37
+2025-11-07 14:41:59 | debug_robo_cima | INFO | ℹ️ 🔄 Verificação de igualdade: globais is _globais_pilar_especial = True
+2025-11-07 14:41:59 | debug_robo_cima | INFO | ℹ️ 🔄 Amostra de chaves recebidas: ['pilar1_paia_posicao', 'pilar1_paib_posicao', 'pilar1_gradea_posicao']
+2025-11-07 14:41:59 | debug_robo_cima | INFO | ℹ️ 🔄 Amostra de chaves armazenadas: ['pilar1_paia_posicao', 'pilar1_paib_posicao', 'pilar1_gradea_posicao']
+2025-11-07 14:41:59 | debug_robo_cima | INFO | ℹ️ ✅ Globais do pilar especial definidas: 37 valores
+2025-11-07 14:41:59 | debug_robo_cima | INFO | ℹ️    Tipo: L
+2025-11-07 14:41:59 | debug_robo_cima | INFO | ℹ️    Dimensões: comp_1=150.0, comp_2=200.0
+2025-11-07 14:41:59 | debug_robo_cima | INFO | ℹ️    Larguras: larg_1=15.0, larg_2=18.0
+2025-11-07 14:44:10 | debug_robo_cima | WARNING | ⚠️ Instancia do GeradorPilar nao disponivel para alterar checkbox
+2025-11-07 14:44:11 | debug_robo_cima | WARNING | ⚠️ Instancia do GeradorPilar nao disponivel para alterar checkbox
+2025-11-07 14:44:33 | debug_robo_cima | WARNING | ⚠️ Instancia do GeradorPilar nao disponivel para alterar checkbox
+2025-11-07 14:45:07 | debug_robo_cima | WARNING | ⚠️ Instancia do GeradorPilar nao disponivel para alterar checkbox
+2025-11-07 14:45:13 | debug_robo_cima | WARNING | ⚠️ Instancia do GeradorPilar nao disponivel para alterar checkbox
+2025-11-07 14:45:59 | debug_robo_cima | WARNING | ⚠️ Instancia do GeradorPilar nao disponivel para alterar checkbox
+2025-11-07 14:46:00 | debug_robo_cima | WARNING | ⚠️ Instancia do GeradorPilar nao disponivel para alterar checkbox
+2025-11-07 14:46:01 | debug_robo_cima | WARNING | ⚠️ Instancia do GeradorPilar nao disponivel para alterar checkbox
+2025-11-07 14:51:11 | debug_robo_cima | INFO | 
+----------------------------------------
+2025-11-07 14:51:11 | debug_robo_cima | INFO | 📌 DEFINIÇÃO DE GLOBAIS PILAR ESPECIAL
+2025-11-07 14:51:11 | debug_robo_cima | INFO | ----------------------------------------
+2025-11-07 14:51:11 | debug_robo_cima | INFO | ℹ️ 🔄 Recebido para definir: <class 'dict'> com 37 itens
+2025-11-07 14:51:11 | debug_robo_cima | INFO | ℹ️ 🔄 ID do objeto globais recebido: 2033236985664
+2025-11-07 14:51:11 | debug_robo_cima | INFO | ℹ️ 🔄 _globais_pilar_especial ANTES: ID=2033235704640, len=37
+2025-11-07 14:51:11 | debug_robo_cima | INFO | ℹ️ 🔄 _globais_pilar_especial APÓS: ID=2033236985664, len=37
+2025-11-07 14:51:11 | debug_robo_cima | INFO | ℹ️ 🔄 Verificação de igualdade: globais is _globais_pilar_especial = True
+2025-11-07 14:51:11 | debug_robo_cima | INFO | ℹ️ 🔄 Amostra de chaves recebidas: ['pilar1_paia_posicao', 'pilar1_paib_posicao', 'pilar1_gradea_posicao']
+2025-11-07 14:51:11 | debug_robo_cima | INFO | ℹ️ 🔄 Amostra de chaves armazenadas: ['pilar1_paia_posicao', 'pilar1_paib_posicao', 'pilar1_gradea_posicao']
+2025-11-07 14:51:11 | debug_robo_cima | INFO | ℹ️ ✅ Globais do pilar especial definidas: 37 valores
+2025-11-07 14:51:11 | debug_robo_cima | INFO | ℹ️    Tipo: L
+2025-11-07 14:51:11 | debug_robo_cima | INFO | ℹ️    Dimensões: comp_1=150.0, comp_2=200.0
+2025-11-07 14:51:11 | debug_robo_cima | INFO | ℹ️    Larguras: larg_1=15.0, larg_2=18.0
