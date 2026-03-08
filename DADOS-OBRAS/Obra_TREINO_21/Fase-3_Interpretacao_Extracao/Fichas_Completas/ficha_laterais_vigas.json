@@ -1,0 +1,421 @@
+{
+  "V1": {
+    "id": "V1",
+    "comprimento_cm": 403.0,
+    "altura_lateral_cm": 254.0,
+    "sides": [
+      "A",
+      "B"
+    ],
+    "confidence": 0.84,
+    "fonte_comprimento": "inverse_proximity",
+    "nota": "Extraído do LV DXF via max-COTA proximity"
+  },
+  "V2": {
+    "id": "V2",
+    "comprimento_cm": 1184.5,
+    "altura_lateral_cm": 110.0,
+    "sides": [
+      "A",
+      "B"
+    ],
+    "confidence": 0.84,
+    "fonte_comprimento": "inverse_proximity",
+    "nota": "Extraído do LV DXF via max-COTA proximity"
+  },
+  "V3": {
+    "id": "V3",
+    "comprimento_cm": 712.0,
+    "altura_lateral_cm": 38.0,
+    "sides": [
+      "A",
+      "B"
+    ],
+    "confidence": 0.84,
+    "fonte_comprimento": "inverse_proximity",
+    "nota": "Extraído do LV DXF via max-COTA proximity"
+  },
+  "V4": {
+    "id": "V4",
+    "comprimento_cm": 550.0,
+    "altura_lateral_cm": 38.0,
+    "sides": [
+      "A",
+      "B"
+    ],
+    "confidence": 0.89,
+    "fonte_comprimento": "inverse_proximity",
+    "nota": "Extraído do LV DXF via max-COTA proximity"
+  },
+  "V5": {
+    "id": "V5",
+    "comprimento_cm": 569.0,
+    "altura_lateral_cm": 120.0,
+    "sides": [
+      "A",
+      "B"
+    ],
+    "confidence": 0.84,
+    "fonte_comprimento": "inverse_proximity",
+    "nota": "Extraído do LV DXF via max-COTA proximity"
+  },
+  "V6": {
+    "id": "V6",
+    "comprimento_cm": 591.0,
+    "altura_lateral_cm": 38.0,
+    "sides": [
+      "A",
+      "B"
+    ],
+    "confidence": 0.84,
+    "fonte_comprimento": "inverse_proximity",
+    "nota": "Extraído do LV DXF via max-COTA proximity"
+  },
+  "V7": {
+    "id": "V7",
+    "comprimento_cm": 1205.0,
+    "altura_lateral_cm": 38.0,
+    "sides": [
+      "A",
+      "B"
+    ],
+    "confidence": 0.84,
+    "fonte_comprimento": "inverse_proximity",
+    "nota": "Extraído do LV DXF via max-COTA proximity"
+  },
+  "V8": {
+    "id": "V8",
+    "comprimento_cm": 569.0,
+    "altura_lateral_cm": 38.0,
+    "sides": [
+      "A",
+      "B"
+    ],
+    "confidence": 0.84,
+    "fonte_comprimento": "inverse_proximity",
+    "nota": "Extraído do LV DXF via max-COTA proximity"
+  },
+  "V9": {
+    "id": "V9",
+    "comprimento_cm": 569.0,
+    "altura_lateral_cm": 38.0,
+    "sides": [
+      "A",
+      "B"
+    ],
+    "confidence": 0.89,
+    "fonte_comprimento": "inverse_proximity",
+    "nota": "Extraído do LV DXF via max-COTA proximity"
+  },
+  "V10": {
+    "id": "V10",
+    "comprimento_cm": 588.0,
+    "altura_lateral_cm": 120.0,
+    "sides": [
+      "A",
+      "B"
+    ],
+    "confidence": 0.89,
+    "fonte_comprimento": "inverse_proximity",
+    "nota": "Extraído do LV DXF via max-COTA proximity"
+  },
+  "V11": {
+    "id": "V11",
+    "comprimento_cm": 280.0,
+    "altura_lateral_cm": 276.0,
+    "sides": [
+      "A",
+      "B"
+    ],
+    "confidence": 0.84,
+    "fonte_comprimento": "inverse_proximity",
+    "nota": "Extraído do LV DXF via max-COTA proximity"
+  },
+  "V12": {
+    "id": "V12",
+    "comprimento_cm": 244.0,
+    "altura_lateral_cm": 110.0,
+    "sides": [
+      "A",
+      "B"
+    ],
+    "confidence": 0.79,
+    "fonte_comprimento": "inverse_proximity",
+    "nota": "Extraído do LV DXF via max-COTA proximity"
+  },
+  "V13": {
+    "id": "V13",
+    "comprimento_cm": 588.0,
+    "altura_lateral_cm": 38.0,
+    "sides": [
+      "A",
+      "B"
+    ],
+    "confidence": 0.84,
+    "fonte_comprimento": "inverse_proximity",
+    "nota": "Extraído do LV DXF via max-COTA proximity"
+  },
+  "V14": {
+    "id": "V14",
+    "comprimento_cm": 244.0,
+    "altura_lateral_cm": 294.0,
+    "sides": [
+      "A",
+      "B"
+    ],
+    "confidence": 0.84,
+    "fonte_comprimento": "inverse_proximity",
+    "nota": "Extraído do LV DXF via max-COTA proximity"
+  },
+  "V15": {
+    "id": "V15",
+    "comprimento_cm": 892.5,
+    "altura_lateral_cm": 38.0,
+    "sides": [
+      "A",
+      "B"
+    ],
+    "confidence": 0.84,
+    "fonte_comprimento": "inverse_proximity",
+    "nota": "Extraído do LV DXF via max-COTA proximity"
+  },
+  "V16": {
+    "id": "V16",
+    "comprimento_cm": 244.0,
+    "altura_lateral_cm": 254.0,
+    "sides": [
+      "A",
+      "B"
+    ],
+    "confidence": 0.89,
+    "fonte_comprimento": "inverse_proximity",
+    "nota": "Extraído do LV DXF via max-COTA proximity"
+  },
+  "V17": {
+    "id": "V17",
+    "comprimento_cm": 947.0,
+    "altura_lateral_cm": 276.0,
+    "sides": [
+      "A",
+      "B"
+    ],
+    "confidence": 0.84,
+    "fonte_comprimento": "inverse_proximity",
+    "nota": "Extraído do LV DXF via max-COTA proximity"
+  },
+  "V18": {
+    "id": "V18",
+    "comprimento_cm": 947.0,
+    "altura_lateral_cm": 276.0,
+    "sides": [
+      "A",
+      "B"
+    ],
+    "confidence": 0.84,
+    "fonte_comprimento": "inverse_proximity",
+    "nota": "Extraído do LV DXF via max-COTA proximity"
+  },
+  "V19": {
+    "id": "V19",
+    "comprimento_cm": 550.0,
+    "altura_lateral_cm": 250.0,
+    "sides": [
+      "A",
+      "B"
+    ],
+    "confidence": 0.79,
+    "fonte_comprimento": "inverse_proximity",
+    "nota": "Extraído do LV DXF via max-COTA proximity"
+  },
+  "V20": {
+    "id": "V20",
+    "comprimento_cm": 488.0,
+    "altura_lateral_cm": 38.0,
+    "sides": [
+      "A",
+      "B"
+    ],
+    "confidence": 0.84,
+    "fonte_comprimento": "inverse_proximity",
+    "nota": "Extraído do LV DXF via max-COTA proximity"
+  },
+  "V21": {
+    "id": "V21",
+    "comprimento_cm": 496.0,
+    "altura_lateral_cm": 156.0,
+    "sides": [
+      "A",
+      "B"
+    ],
+    "confidence": 0.84,
+    "fonte_comprimento": "inverse_proximity",
+    "nota": "Extraído do LV DXF via max-COTA proximity"
+  },
+  "V22": {
+    "id": "V22",
+    "comprimento_cm": 558.0,
+    "altura_lateral_cm": 310.0,
+    "sides": [
+      "A",
+      "B"
+    ],
+    "confidence": 0.84,
+    "fonte_comprimento": "inverse_proximity",
+    "nota": "Extraído do LV DXF via max-COTA proximity"
+  },
+  "V23": {
+    "id": "V23",
+    "comprimento_cm": 906.5,
+    "altura_lateral_cm": 38.0,
+    "sides": [
+      "A",
+      "B"
+    ],
+    "confidence": 0.79,
+    "fonte_comprimento": "inverse_proximity",
+    "nota": "Extraído do LV DXF via max-COTA proximity"
+  },
+  "V24": {
+    "id": "V24",
+    "comprimento_cm": 516.0,
+    "altura_lateral_cm": 120.0,
+    "sides": [
+      "A",
+      "B"
+    ],
+    "confidence": 0.84,
+    "fonte_comprimento": "inverse_proximity",
+    "nota": "Extraído do LV DXF via max-COTA proximity"
+  },
+  "V25": {
+    "id": "V25",
+    "comprimento_cm": 516.0,
+    "altura_lateral_cm": 120.0,
+    "sides": [
+      "A",
+      "B"
+    ],
+    "confidence": 0.84,
+    "fonte_comprimento": "inverse_proximity",
+    "nota": "Extraído do LV DXF via max-COTA proximity"
+  },
+  "V26": {
+    "id": "V26",
+    "comprimento_cm": 516.0,
+    "altura_lateral_cm": 120.0,
+    "sides": [
+      "A",
+      "B"
+    ],
+    "confidence": 0.84,
+    "fonte_comprimento": "inverse_proximity",
+    "nota": "Extraído do LV DXF via max-COTA proximity"
+  },
+  "V27": {
+    "id": "V27",
+    "comprimento_cm": 340.0,
+    "altura_lateral_cm": 120.0,
+    "sides": [
+      "A",
+      "B"
+    ],
+    "confidence": 0.84,
+    "fonte_comprimento": "inverse_proximity",
+    "nota": "Extraído do LV DXF via max-COTA proximity"
+  },
+  "V28": {
+    "id": "V28",
+    "comprimento_cm": 180.0,
+    "altura_lateral_cm": 120.0,
+    "sides": [
+      "A",
+      "B"
+    ],
+    "confidence": 0.84,
+    "fonte_comprimento": "inverse_proximity",
+    "nota": "Extraído do LV DXF via max-COTA proximity"
+  },
+  "V29": {
+    "id": "V29",
+    "comprimento_cm": 340.0,
+    "altura_lateral_cm": 120.0,
+    "sides": [
+      "A",
+      "B"
+    ],
+    "confidence": 0.84,
+    "fonte_comprimento": "inverse_proximity",
+    "nota": "Extraído do LV DXF via max-COTA proximity"
+  },
+  "V30": {
+    "id": "V30",
+    "comprimento_cm": 558.0,
+    "altura_lateral_cm": 167.4,
+    "sides": [
+      "A",
+      "B"
+    ],
+    "confidence": 0.84,
+    "fonte_comprimento": "inverse_proximity",
+    "nota": "Extraído do LV DXF via max-COTA proximity"
+  },
+  "V31": {
+    "id": "V31",
+    "comprimento_cm": 338.0,
+    "altura_lateral_cm": 120.0,
+    "sides": [
+      "A",
+      "B"
+    ],
+    "confidence": 0.89,
+    "fonte_comprimento": "inverse_proximity",
+    "nota": "Extraído do LV DXF via max-COTA proximity"
+  },
+  "V32": {
+    "id": "V32",
+    "comprimento_cm": 338.0,
+    "altura_lateral_cm": 38.0,
+    "sides": [
+      "A",
+      "B"
+    ],
+    "confidence": 0.84,
+    "fonte_comprimento": "inverse_proximity",
+    "nota": "Extraído do LV DXF via max-COTA proximity"
+  },
+  "V32A": {
+    "id": "V32A",
+    "comprimento_cm": 536.3,
+    "altura_lateral_cm": 78.0,
+    "sides": [
+      "A",
+      "B"
+    ],
+    "confidence": 0.84,
+    "fonte_comprimento": "inverse_proximity",
+    "nota": "Extraído do LV DXF via max-COTA proximity"
+  },
+  "V3046": {
+    "id": "V3046",
+    "comprimento_cm": null,
+    "altura_lateral_cm": null,
+    "sides": [
+      "B"
+    ],
+    "confidence": 0.25,
+    "fonte_comprimento": "none",
+    "nota": "Sem dados extraídos"
+  },
+  "_meta": {
+    "id": "_meta",
+    "comprimento_cm": null,
+    "altura_lateral_cm": null,
+    "sides": [
+      "A",
+      "B"
+    ],
+    "confidence": 0.0,
+    "fonte_comprimento": "none",
+    "nota": "Sem dados extraídos"
+  }
+}

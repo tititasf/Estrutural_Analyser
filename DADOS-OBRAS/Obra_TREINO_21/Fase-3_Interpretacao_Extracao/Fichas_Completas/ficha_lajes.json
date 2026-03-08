@@ -1,0 +1,311 @@
+{
+  "L1": {
+    "id": "L1",
+    "n_paineis": 0,
+    "area_total_paineis_cm2": null,
+    "dims_paineis": [],
+    "bbox_dxf": null,
+    "pos_label_dxf": [
+      3774.6,
+      2878.1
+    ],
+    "source": "label-only",
+    "confidence": 0.3,
+    "nota": "Label only"
+  },
+  "L2": {
+    "id": "L2",
+    "n_paineis": 0,
+    "area_total_paineis_cm2": null,
+    "dims_paineis": [],
+    "bbox_dxf": null,
+    "pos_label_dxf": [
+      4419.8,
+      2876.9
+    ],
+    "source": "label-only",
+    "confidence": 0.3,
+    "nota": "Label only"
+  },
+  "L3": {
+    "id": "L3",
+    "n_paineis": 0,
+    "area_total_paineis_cm2": null,
+    "dims_paineis": [],
+    "bbox_dxf": null,
+    "pos_label_dxf": [
+      3611.5,
+      2701.7
+    ],
+    "source": "label-only",
+    "confidence": 0.3,
+    "nota": "Label only"
+  },
+  "L4": {
+    "id": "L4",
+    "n_paineis": 0,
+    "area_total_paineis_cm2": null,
+    "dims_paineis": [],
+    "bbox_dxf": null,
+    "pos_label_dxf": [
+      4478.1,
+      2737.4
+    ],
+    "source": "label-only",
+    "confidence": 0.3,
+    "nota": "Label only"
+  },
+  "L5": {
+    "id": "L5",
+    "n_paineis": 0,
+    "area_total_paineis_cm2": null,
+    "dims_paineis": [],
+    "bbox_dxf": null,
+    "pos_label_dxf": [
+      4938.7,
+      2705.2
+    ],
+    "source": "label-only",
+    "confidence": 0.3,
+    "nota": "Label only"
+  },
+  "L6": {
+    "id": "L6",
+    "n_paineis": 0,
+    "area_total_paineis_cm2": null,
+    "dims_paineis": [],
+    "bbox_dxf": null,
+    "pos_label_dxf": [
+      5656.6,
+      2707.2
+    ],
+    "source": "label-only",
+    "confidence": 0.6,
+    "nota": "Label only"
+  },
+  "L7": {
+    "id": "L7",
+    "n_paineis": 4,
+    "area_total_paineis_cm2": 44591.0,
+    "dims_paineis": [
+      "61.0x121.5",
+      "61.0x244.0"
+    ],
+    "bbox_dxf": null,
+    "pos_label_dxf": null,
+    "source": "aux00-panels",
+    "confidence": 0.85,
+    "nota": "4 painéis AUX00 encontrados"
+  },
+  "L8": {
+    "id": "L8",
+    "n_paineis": 0,
+    "area_total_paineis_cm2": null,
+    "dims_paineis": [],
+    "bbox_dxf": null,
+    "pos_label_dxf": [
+      3106.8,
+      2486.7
+    ],
+    "source": "label-only",
+    "confidence": 0.3,
+    "nota": "Label only"
+  },
+  "L9": {
+    "id": "L9",
+    "n_paineis": 4,
+    "area_total_paineis_cm2": 70227.0,
+    "dims_paineis": [
+      "73.5x189.5",
+      "73.5x244.0",
+      "88.5x189.5",
+      "88.5x244.0"
+    ],
+    "bbox_dxf": null,
+    "pos_label_dxf": [
+      3185.6,
+      2484.8
+    ],
+    "source": "aux00-panels",
+    "confidence": 0.85,
+    "nota": "4 painéis AUX00 encontrados"
+  },
+  "L10": {
+    "id": "L10",
+    "n_paineis": 0,
+    "area_total_paineis_cm2": null,
+    "dims_paineis": [],
+    "bbox_dxf": null,
+    "pos_label_dxf": [
+      5507.3,
+      2454.7
+    ],
+    "source": "label-only",
+    "confidence": 0.3,
+    "nota": "Label only"
+  },
+  "L11": {
+    "id": "L11",
+    "n_paineis": 28,
+    "area_total_paineis_cm2": 525670.6,
+    "dims_paineis": [
+      "122.0x143.5",
+      "122.0x244.0",
+      "55.0x121.5",
+      "55.0x244.0",
+      "61.0x244.0"
+    ],
+    "bbox_dxf": null,
+    "pos_label_dxf": [
+      5672.3,
+      2327.4
+    ],
+    "source": "aux00-panels",
+    "confidence": 0.85,
+    "nota": "28 painéis AUX00 encontrados"
+  },
+  "L12": {
+    "id": "L12",
+    "n_paineis": 2,
+    "area_total_paineis_cm2": 52094.0,
+    "dims_paineis": [
+      "122.0x183.0",
+      "122.0x244.0"
+    ],
+    "bbox_dxf": null,
+    "pos_label_dxf": [
+      3660.8,
+      2222.7
+    ],
+    "source": "aux00-panels",
+    "confidence": 0.75,
+    "nota": "2 painéis AUX00 encontrados"
+  },
+  "L13": {
+    "id": "L13",
+    "n_paineis": 2,
+    "area_total_paineis_cm2": 52094.0,
+    "dims_paineis": [
+      "122.0x183.0",
+      "122.0x244.0"
+    ],
+    "bbox_dxf": null,
+    "pos_label_dxf": [
+      4278.6,
+      2232.6
+    ],
+    "source": "aux00-panels",
+    "confidence": 0.75,
+    "nota": "2 painéis AUX00 encontrados"
+  },
+  "L14": {
+    "id": "L14",
+    "n_paineis": 4,
+    "area_total_paineis_cm2": 69357.0,
+    "dims_paineis": [
+      "104.0x122.0",
+      "116.5x122.0",
+      "122.0x244.0"
+    ],
+    "bbox_dxf": null,
+    "pos_label_dxf": [
+      7642.5,
+      2267.1
+    ],
+    "source": "aux00-panels",
+    "confidence": 0.85,
+    "nota": "4 painéis AUX00 encontrados"
+  },
+  "L15": {
+    "id": "L15",
+    "n_paineis": 0,
+    "area_total_paineis_cm2": null,
+    "dims_paineis": [],
+    "bbox_dxf": null,
+    "pos_label_dxf": [
+      3238.5,
+      2029.4
+    ],
+    "source": "label-only",
+    "confidence": 0.3,
+    "nota": "Label only"
+  },
+  "L17": {
+    "id": "L17",
+    "n_paineis": 4,
+    "area_total_paineis_cm2": 70227.0,
+    "dims_paineis": [
+      "73.5x189.5",
+      "73.5x244.0",
+      "88.5x189.5",
+      "88.5x244.0"
+    ],
+    "bbox_dxf": null,
+    "pos_label_dxf": [
+      3333.4,
+      2027.9
+    ],
+    "source": "aux00-panels",
+    "confidence": 0.85,
+    "nota": "4 painéis AUX00 encontrados"
+  },
+  "L18": {
+    "id": "L18",
+    "n_paineis": 2,
+    "area_total_paineis_cm2": 11453.8,
+    "dims_paineis": [
+      "24.5x223.5",
+      "24.5x244.0"
+    ],
+    "bbox_dxf": null,
+    "pos_label_dxf": [
+      3630.9,
+      2029.0
+    ],
+    "source": "aux00-panels",
+    "confidence": 0.75,
+    "nota": "2 painéis AUX00 encontrados"
+  },
+  "L19": {
+    "id": "L19",
+    "n_paineis": 2,
+    "area_total_paineis_cm2": 11453.8,
+    "dims_paineis": [
+      "24.5x223.5",
+      "24.5x244.0"
+    ],
+    "bbox_dxf": null,
+    "pos_label_dxf": [
+      5522.2,
+      2023.5
+    ],
+    "source": "aux00-panels",
+    "confidence": 0.75,
+    "nota": "2 painéis AUX00 encontrados"
+  },
+  "L20": {
+    "id": "L20",
+    "n_paineis": 2,
+    "area_total_paineis_cm2": 11453.8,
+    "dims_paineis": [
+      "24.5x223.5",
+      "24.5x244.0"
+    ],
+    "bbox_dxf": null,
+    "pos_label_dxf": null,
+    "source": "aux00-panels",
+    "confidence": 0.75,
+    "nota": "2 painéis AUX00 encontrados"
+  },
+  "_meta": {
+    "id": "_meta",
+    "n_paineis": 0,
+    "area_total_paineis_cm2": null,
+    "dims_paineis": [],
+    "bbox_dxf": null,
+    "pos_label_dxf": null,
+    "source": "aux00-panels",
+    "confidence": 0.5,
+    "nota": "Label only"
+  }
+}

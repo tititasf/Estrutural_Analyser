@@ -1,0 +1,627 @@
+{
+  "L1": {
+    "id": "L1",
+    "coordenadas": [
+      [
+        0.0,
+        0.0
+      ],
+      [
+        294.5,
+        0.0
+      ],
+      [
+        294.5,
+        294.5
+      ],
+      [
+        0.0,
+        294.5
+      ],
+      [
+        0.0,
+        0.0
+      ]
+    ],
+    "comprimento": 294.5,
+    "largura": 294.5,
+    "confidence": 0.4,
+    "source": "cota-dims",
+    "dims_found": [
+      244.0,
+      244.0,
+      244.0,
+      110.0
+    ]
+  },
+  "L2": {
+    "id": "L2",
+    "coordenadas": [
+      [
+        0.0,
+        0.0
+      ],
+      [
+        294.5,
+        0.0
+      ],
+      [
+        294.5,
+        294.5
+      ],
+      [
+        0.0,
+        294.5
+      ],
+      [
+        0.0,
+        0.0
+      ]
+    ],
+    "comprimento": 294.5,
+    "largura": 294.5,
+    "confidence": 0.4,
+    "source": "cota-dims",
+    "dims_found": [
+      244.0,
+      162.5,
+      244.0,
+      244.0
+    ]
+  },
+  "L3": {
+    "id": "L3",
+    "coordenadas": [
+      [
+        0.0,
+        0.0
+      ],
+      [
+        294.5,
+        0.0
+      ],
+      [
+        294.5,
+        294.5
+      ],
+      [
+        0.0,
+        294.5
+      ],
+      [
+        0.0,
+        0.0
+      ]
+    ],
+    "comprimento": 294.5,
+    "largura": 294.5,
+    "confidence": 0.4,
+    "source": "cota-dims",
+    "dims_found": [
+      244.0,
+      244.0,
+      244.0,
+      147.6
+    ]
+  },
+  "L4": {
+    "id": "L4",
+    "coordenadas": [
+      [
+        0.0,
+        0.0
+      ],
+      [
+        294.5,
+        0.0
+      ],
+      [
+        294.5,
+        294.5
+      ],
+      [
+        0.0,
+        294.5
+      ],
+      [
+        0.0,
+        0.0
+      ]
+    ],
+    "comprimento": 294.5,
+    "largura": 294.5,
+    "confidence": 0.4,
+    "source": "cota-dims",
+    "dims_found": [
+      244.0,
+      122.0,
+      51.5,
+      244.0
+    ]
+  },
+  "L5": {
+    "id": "L5",
+    "coordenadas": [
+      [
+        0.0,
+        0.0
+      ],
+      [
+        294.5,
+        0.0
+      ],
+      [
+        294.5,
+        244.0
+      ],
+      [
+        0.0,
+        244.0
+      ],
+      [
+        0.0,
+        0.0
+      ]
+    ],
+    "comprimento": 294.5,
+    "largura": 244.0,
+    "confidence": 0.4,
+    "source": "cota-dims",
+    "dims_found": [
+      122.0,
+      122.0,
+      244.0,
+      122.0
+    ]
+  },
+  "L6": {
+    "id": "L6",
+    "coordenadas": [
+      [
+        0.0,
+        0.0
+      ],
+      [
+        244.0,
+        0.0
+      ],
+      [
+        244.0,
+        244.0
+      ],
+      [
+        0.0,
+        244.0
+      ],
+      [
+        0.0,
+        0.0
+      ]
+    ],
+    "comprimento": 244.0,
+    "largura": 244.0,
+    "confidence": 0.4,
+    "source": "cota-dims",
+    "dims_found": [
+      72.2,
+      78.5,
+      89.5,
+      153.0
+    ]
+  },
+  "L7": {
+    "id": "L7",
+    "coordenadas": [
+      [
+        0.0,
+        0.0
+      ],
+      [
+        244.0,
+        0.0
+      ],
+      [
+        244.0,
+        182.8
+      ],
+      [
+        0.0,
+        182.8
+      ],
+      [
+        0.0,
+        0.0
+      ]
+    ],
+    "comprimento": 244.0,
+    "largura": 182.8,
+    "confidence": 0.55,
+    "source": "aux00-area-estimate",
+    "n_panels": 4,
+    "total_area_cm2": 44591.0
+  },
+  "L8": {
+    "id": "L8",
+    "coordenadas": [
+      [
+        0.0,
+        0.0
+      ],
+      [
+        294.5,
+        0.0
+      ],
+      [
+        294.5,
+        294.5
+      ],
+      [
+        0.0,
+        294.5
+      ],
+      [
+        0.0,
+        0.0
+      ]
+    ],
+    "comprimento": 294.5,
+    "largura": 294.5,
+    "confidence": 0.4,
+    "source": "cota-dims",
+    "dims_found": [
+      244.0,
+      189.5,
+      244.0,
+      244.0
+    ]
+  },
+  "L9": {
+    "id": "L9",
+    "coordenadas": [
+      [
+        0.0,
+        0.0
+      ],
+      [
+        287.8,
+        0.0
+      ],
+      [
+        287.8,
+        244.0
+      ],
+      [
+        0.0,
+        244.0
+      ],
+      [
+        0.0,
+        0.0
+      ]
+    ],
+    "comprimento": 287.8,
+    "largura": 244.0,
+    "confidence": 0.55,
+    "source": "aux00-area-estimate",
+    "n_panels": 4,
+    "total_area_cm2": 70227.0
+  },
+  "L10": {
+    "id": "L10",
+    "coordenadas": [
+      [
+        0.0,
+        0.0
+      ],
+      [
+        244.0,
+        0.0
+      ],
+      [
+        244.0,
+        244.0
+      ],
+      [
+        0.0,
+        244.0
+      ],
+      [
+        0.0,
+        0.0
+      ]
+    ],
+    "comprimento": 244.0,
+    "largura": 244.0,
+    "confidence": 0.4,
+    "source": "cota-dims",
+    "dims_found": [
+      122.0,
+      76.0,
+      76.5,
+      89.5
+    ]
+  },
+  "L11": {
+    "id": "L11",
+    "coordenadas": [
+      [
+        0.0,
+        0.0
+      ],
+      [
+        2154.4,
+        0.0
+      ],
+      [
+        2154.4,
+        244.0
+      ],
+      [
+        0.0,
+        244.0
+      ],
+      [
+        0.0,
+        0.0
+      ]
+    ],
+    "comprimento": 2154.4,
+    "largura": 244.0,
+    "confidence": 0.55,
+    "source": "aux00-area-estimate",
+    "n_panels": 28,
+    "total_area_cm2": 525671.0
+  },
+  "L12": {
+    "id": "L12",
+    "coordenadas": [
+      [
+        0.0,
+        0.0
+      ],
+      [
+        244.0,
+        0.0
+      ],
+      [
+        244.0,
+        213.5
+      ],
+      [
+        0.0,
+        213.5
+      ],
+      [
+        0.0,
+        0.0
+      ]
+    ],
+    "comprimento": 244.0,
+    "largura": 213.5,
+    "confidence": 0.55,
+    "source": "aux00-area-estimate",
+    "n_panels": 2,
+    "total_area_cm2": 52094.0
+  },
+  "L13": {
+    "id": "L13",
+    "coordenadas": [
+      [
+        0.0,
+        0.0
+      ],
+      [
+        244.0,
+        0.0
+      ],
+      [
+        244.0,
+        213.5
+      ],
+      [
+        0.0,
+        213.5
+      ],
+      [
+        0.0,
+        0.0
+      ]
+    ],
+    "comprimento": 244.0,
+    "largura": 213.5,
+    "confidence": 0.55,
+    "source": "aux00-area-estimate",
+    "n_panels": 2,
+    "total_area_cm2": 52094.0
+  },
+  "L14": {
+    "id": "L14",
+    "coordenadas": [
+      [
+        0.0,
+        0.0
+      ],
+      [
+        284.2,
+        0.0
+      ],
+      [
+        284.2,
+        244.0
+      ],
+      [
+        0.0,
+        244.0
+      ],
+      [
+        0.0,
+        0.0
+      ]
+    ],
+    "comprimento": 284.2,
+    "largura": 244.0,
+    "confidence": 0.55,
+    "source": "aux00-area-estimate",
+    "n_panels": 4,
+    "total_area_cm2": 69357.0
+  },
+  "L15": {
+    "id": "L15",
+    "coordenadas": [
+      [
+        0.0,
+        0.0
+      ],
+      [
+        294.5,
+        0.0
+      ],
+      [
+        294.5,
+        294.5
+      ],
+      [
+        0.0,
+        294.5
+      ],
+      [
+        0.0,
+        0.0
+      ]
+    ],
+    "comprimento": 294.5,
+    "largura": 294.5,
+    "confidence": 0.4,
+    "source": "cota-dims",
+    "dims_found": [
+      57.2,
+      57.2,
+      79.3,
+      175.0
+    ]
+  },
+  "L17": {
+    "id": "L17",
+    "coordenadas": [
+      [
+        0.0,
+        0.0
+      ],
+      [
+        287.8,
+        0.0
+      ],
+      [
+        287.8,
+        244.0
+      ],
+      [
+        0.0,
+        244.0
+      ],
+      [
+        0.0,
+        0.0
+      ]
+    ],
+    "comprimento": 287.8,
+    "largura": 244.0,
+    "confidence": 0.55,
+    "source": "aux00-area-estimate",
+    "n_panels": 4,
+    "total_area_cm2": 70227.0
+  },
+  "L18": {
+    "id": "L18",
+    "coordenadas": [
+      [
+        0.0,
+        0.0
+      ],
+      [
+        244.0,
+        0.0
+      ],
+      [
+        244.0,
+        46.9
+      ],
+      [
+        0.0,
+        46.9
+      ],
+      [
+        0.0,
+        0.0
+      ]
+    ],
+    "comprimento": 244.0,
+    "largura": 46.9,
+    "confidence": 0.55,
+    "source": "aux00-area-estimate",
+    "n_panels": 2,
+    "total_area_cm2": 11454.0
+  },
+  "L19": {
+    "id": "L19",
+    "coordenadas": [
+      [
+        0.0,
+        0.0
+      ],
+      [
+        244.0,
+        0.0
+      ],
+      [
+        244.0,
+        46.9
+      ],
+      [
+        0.0,
+        46.9
+      ],
+      [
+        0.0,
+        0.0
+      ]
+    ],
+    "comprimento": 244.0,
+    "largura": 46.9,
+    "confidence": 0.55,
+    "source": "aux00-area-estimate",
+    "n_panels": 2,
+    "total_area_cm2": 11454.0
+  },
+  "L20": {
+    "id": "L20",
+    "coordenadas": [
+      [
+        0.0,
+        0.0
+      ],
+      [
+        244.0,
+        0.0
+      ],
+      [
+        244.0,
+        46.9
+      ],
+      [
+        0.0,
+        46.9
+      ],
+      [
+        0.0,
+        0.0
+      ]
+    ],
+    "comprimento": 244.0,
+    "largura": 46.9,
+    "confidence": 0.55,
+    "source": "aux00-area-estimate",
+    "n_panels": 2,
+    "total_area_cm2": 11454.0
+  }
+}

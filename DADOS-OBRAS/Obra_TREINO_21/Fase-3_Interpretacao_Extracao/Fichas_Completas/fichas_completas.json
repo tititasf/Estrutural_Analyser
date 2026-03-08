@@ -1,0 +1,1552 @@
+{
+  "fichas_pilares": {
+    "P1": {
+      "id": "P1",
+      "b_cm": 38.0,
+      "h_cm": 60.0,
+      "altura_cm": 652.0,
+      "faces": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "confidence": 0.8,
+      "source_bh": "inverse-proximity",
+      "nota": "B/H via inverse-proximity DXF"
+    },
+    "P9": {
+      "id": "P9",
+      "b_cm": 38.0,
+      "h_cm": 92.0,
+      "altura_cm": 652.0,
+      "faces": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "confidence": 0.7,
+      "source_bh": "inverse-proximity",
+      "nota": "B/H via inverse-proximity DXF"
+    },
+    "P11": {
+      "id": "P11",
+      "b_cm": 50.0,
+      "h_cm": 100.0,
+      "altura_cm": 652.0,
+      "faces": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "confidence": 0.7,
+      "source_bh": "inverse-proximity",
+      "nota": "B/H via inverse-proximity DXF"
+    },
+    "P12": {
+      "id": "P12",
+      "b_cm": 50.0,
+      "h_cm": 100.0,
+      "altura_cm": 652.0,
+      "faces": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "confidence": 0.7,
+      "source_bh": "inverse-proximity",
+      "nota": "B/H via inverse-proximity DXF"
+    },
+    "P13": {
+      "id": "P13",
+      "b_cm": 38.0,
+      "h_cm": 60.0,
+      "altura_cm": 652.0,
+      "faces": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "confidence": 0.4,
+      "source_bh": "proximity-fallback",
+      "nota": "B/H via inverse-proximity DXF"
+    },
+    "P14": {
+      "id": "P14",
+      "b_cm": 38.0,
+      "h_cm": 60.0,
+      "altura_cm": 652.0,
+      "faces": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "confidence": 0.7,
+      "source_bh": "inverse-proximity",
+      "nota": "B/H via inverse-proximity DXF"
+    },
+    "P15": {
+      "id": "P15",
+      "b_cm": 38.0,
+      "h_cm": 50.0,
+      "altura_cm": 652.0,
+      "faces": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "confidence": 0.4,
+      "source_bh": "proximity-fallback",
+      "nota": "B/H via inverse-proximity DXF"
+    },
+    "P16": {
+      "id": "P16",
+      "b_cm": 50.0,
+      "h_cm": 60.0,
+      "altura_cm": 652.0,
+      "faces": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "confidence": 0.4,
+      "source_bh": "proximity-fallback",
+      "nota": "B/H via inverse-proximity DXF"
+    },
+    "P17": {
+      "id": "P17",
+      "b_cm": 38.0,
+      "h_cm": 60.0,
+      "altura_cm": 652.0,
+      "faces": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "confidence": 0.7,
+      "source_bh": "inverse-proximity",
+      "nota": "B/H via inverse-proximity DXF"
+    },
+    "P20": {
+      "id": "P20",
+      "b_cm": 26.0,
+      "h_cm": 50.0,
+      "altura_cm": 652.0,
+      "faces": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "confidence": 0.7,
+      "source_bh": "inverse-proximity",
+      "nota": "B/H via inverse-proximity DXF"
+    },
+    "P21": {
+      "id": "P21",
+      "b_cm": 16.0,
+      "h_cm": 50.0,
+      "altura_cm": 652.0,
+      "faces": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "confidence": 0.7,
+      "source_bh": "inverse-proximity",
+      "nota": "B/H via inverse-proximity DXF"
+    },
+    "P22": {
+      "id": "P22",
+      "b_cm": 16.0,
+      "h_cm": 50.0,
+      "altura_cm": 652.0,
+      "faces": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "confidence": 0.7,
+      "source_bh": "inverse-proximity",
+      "nota": "B/H via inverse-proximity DXF"
+    },
+    "P23": {
+      "id": "P23",
+      "b_cm": 32.0,
+      "h_cm": 50.0,
+      "altura_cm": 652.0,
+      "faces": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "confidence": 0.7,
+      "source_bh": "inverse-proximity",
+      "nota": "B/H via inverse-proximity DXF"
+    },
+    "P24": {
+      "id": "P24",
+      "b_cm": 32.0,
+      "h_cm": 50.0,
+      "altura_cm": 652.0,
+      "faces": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "confidence": 0.7,
+      "source_bh": "inverse-proximity",
+      "nota": "B/H via inverse-proximity DXF"
+    },
+    "P25": {
+      "id": "P25",
+      "b_cm": 60.0,
+      "h_cm": 62.0,
+      "altura_cm": 652.0,
+      "faces": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "confidence": 0.7,
+      "source_bh": "inverse-proximity",
+      "nota": "B/H via inverse-proximity DXF"
+    },
+    "P33": {
+      "id": "P33",
+      "b_cm": 38.0,
+      "h_cm": 50.0,
+      "altura_cm": 652.0,
+      "faces": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "confidence": 0.4,
+      "source_bh": "proximity-fallback",
+      "nota": "B/H via inverse-proximity DXF"
+    },
+    "P34": {
+      "id": "P34",
+      "b_cm": 38.0,
+      "h_cm": 50.0,
+      "altura_cm": 652.0,
+      "faces": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "confidence": 0.4,
+      "source_bh": "proximity-fallback",
+      "nota": "B/H via inverse-proximity DXF"
+    },
+    "P40": {
+      "id": "P40",
+      "b_cm": 38.0,
+      "h_cm": 50.0,
+      "altura_cm": 652.0,
+      "faces": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "confidence": 0.4,
+      "source_bh": "proximity-fallback",
+      "nota": "B/H via inverse-proximity DXF"
+    },
+    "P41": {
+      "id": "P41",
+      "b_cm": 38.0,
+      "h_cm": 50.0,
+      "altura_cm": 652.0,
+      "faces": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "confidence": 0.4,
+      "source_bh": "proximity-fallback",
+      "nota": "B/H via inverse-proximity DXF"
+    },
+    "P42": {
+      "id": "P42",
+      "b_cm": 38.0,
+      "h_cm": 50.0,
+      "altura_cm": 652.0,
+      "faces": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "confidence": 0.4,
+      "source_bh": "proximity-fallback",
+      "nota": "B/H via inverse-proximity DXF"
+    },
+    "P43": {
+      "id": "P43",
+      "b_cm": 38.0,
+      "h_cm": 50.0,
+      "altura_cm": 652.0,
+      "faces": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "confidence": 0.4,
+      "source_bh": "proximity-fallback",
+      "nota": "B/H via inverse-proximity DXF"
+    },
+    "P44": {
+      "id": "P44",
+      "b_cm": 38.0,
+      "h_cm": 50.0,
+      "altura_cm": 652.0,
+      "faces": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "confidence": 0.4,
+      "source_bh": "proximity-fallback",
+      "nota": "B/H via inverse-proximity DXF"
+    },
+    "P45": {
+      "id": "P45",
+      "b_cm": 38.0,
+      "h_cm": 50.0,
+      "altura_cm": 652.0,
+      "faces": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "confidence": 0.4,
+      "source_bh": "proximity-fallback",
+      "nota": "B/H via inverse-proximity DXF"
+    },
+    "P46": {
+      "id": "P46",
+      "b_cm": 38.0,
+      "h_cm": 50.0,
+      "altura_cm": 652.0,
+      "faces": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "confidence": 0.4,
+      "source_bh": "proximity-fallback",
+      "nota": "B/H via inverse-proximity DXF"
+    },
+    "P47": {
+      "id": "P47",
+      "b_cm": 38.0,
+      "h_cm": 50.0,
+      "altura_cm": 652.0,
+      "faces": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "confidence": 0.4,
+      "source_bh": "proximity-fallback",
+      "nota": "B/H via inverse-proximity DXF"
+    },
+    "P48": {
+      "id": "P48",
+      "b_cm": 38.0,
+      "h_cm": 50.0,
+      "altura_cm": 652.0,
+      "faces": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "confidence": 0.4,
+      "source_bh": "proximity-fallback",
+      "nota": "B/H via inverse-proximity DXF"
+    },
+    "P69": {
+      "id": "P69",
+      "b_cm": 38.0,
+      "h_cm": 50.0,
+      "altura_cm": 652.0,
+      "faces": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "confidence": 0.4,
+      "source_bh": "proximity-fallback",
+      "nota": "B/H via inverse-proximity DXF"
+    },
+    "P74": {
+      "id": "P74",
+      "b_cm": 38.0,
+      "h_cm": 50.0,
+      "altura_cm": 652.0,
+      "faces": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "confidence": 0.4,
+      "source_bh": "proximity-fallback",
+      "nota": "B/H via inverse-proximity DXF"
+    },
+    "P75": {
+      "id": "P75",
+      "b_cm": 38.0,
+      "h_cm": 50.0,
+      "altura_cm": 652.0,
+      "faces": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "confidence": 0.4,
+      "source_bh": "proximity-fallback",
+      "nota": "B/H via inverse-proximity DXF"
+    },
+    "P76": {
+      "id": "P76",
+      "b_cm": 38.0,
+      "h_cm": 50.0,
+      "altura_cm": 652.0,
+      "faces": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "confidence": 0.4,
+      "source_bh": "proximity-fallback",
+      "nota": "B/H via inverse-proximity DXF"
+    },
+    "P77": {
+      "id": "P77",
+      "b_cm": 38.0,
+      "h_cm": 50.0,
+      "altura_cm": 652.0,
+      "faces": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "confidence": 0.4,
+      "source_bh": "proximity-fallback",
+      "nota": "B/H via inverse-proximity DXF"
+    },
+    "P78": {
+      "id": "P78",
+      "b_cm": 38.0,
+      "h_cm": 50.0,
+      "altura_cm": 652.0,
+      "faces": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "confidence": 0.4,
+      "source_bh": "proximity-fallback",
+      "nota": "B/H via inverse-proximity DXF"
+    },
+    "P79": {
+      "id": "P79",
+      "b_cm": 38.0,
+      "h_cm": 50.0,
+      "altura_cm": 652.0,
+      "faces": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "confidence": 0.4,
+      "source_bh": "proximity-fallback",
+      "nota": "B/H via inverse-proximity DXF"
+    },
+    "_meta": {
+      "id": "_meta",
+      "b_cm": null,
+      "h_cm": null,
+      "altura_cm": 280.0,
+      "faces": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "confidence": 0.0,
+      "source_bh": "none",
+      "nota": "B/H placeholder"
+    }
+  },
+  "fichas_laterais_vigas": {
+    "V1": {
+      "id": "V1",
+      "comprimento_cm": 403.0,
+      "altura_lateral_cm": 254.0,
+      "sides": [
+        "A",
+        "B"
+      ],
+      "confidence": 0.84,
+      "fonte_comprimento": "inverse_proximity",
+      "nota": "Extraído do LV DXF via max-COTA proximity"
+    },
+    "V2": {
+      "id": "V2",
+      "comprimento_cm": 1184.5,
+      "altura_lateral_cm": 110.0,
+      "sides": [
+        "A",
+        "B"
+      ],
+      "confidence": 0.84,
+      "fonte_comprimento": "inverse_proximity",
+      "nota": "Extraído do LV DXF via max-COTA proximity"
+    },
+    "V3": {
+      "id": "V3",
+      "comprimento_cm": 712.0,
+      "altura_lateral_cm": 38.0,
+      "sides": [
+        "A",
+        "B"
+      ],
+      "confidence": 0.84,
+      "fonte_comprimento": "inverse_proximity",
+      "nota": "Extraído do LV DXF via max-COTA proximity"
+    },
+    "V4": {
+      "id": "V4",
+      "comprimento_cm": 550.0,
+      "altura_lateral_cm": 38.0,
+      "sides": [
+        "A",
+        "B"
+      ],
+      "confidence": 0.89,
+      "fonte_comprimento": "inverse_proximity",
+      "nota": "Extraído do LV DXF via max-COTA proximity"
+    },
+    "V5": {
+      "id": "V5",
+      "comprimento_cm": 569.0,
+      "altura_lateral_cm": 120.0,
+      "sides": [
+        "A",
+        "B"
+      ],
+      "confidence": 0.84,
+      "fonte_comprimento": "inverse_proximity",
+      "nota": "Extraído do LV DXF via max-COTA proximity"
+    },
+    "V6": {
+      "id": "V6",
+      "comprimento_cm": 591.0,
+      "altura_lateral_cm": 38.0,
+      "sides": [
+        "A",
+        "B"
+      ],
+      "confidence": 0.84,
+      "fonte_comprimento": "inverse_proximity",
+      "nota": "Extraído do LV DXF via max-COTA proximity"
+    },
+    "V7": {
+      "id": "V7",
+      "comprimento_cm": 1205.0,
+      "altura_lateral_cm": 38.0,
+      "sides": [
+        "A",
+        "B"
+      ],
+      "confidence": 0.84,
+      "fonte_comprimento": "inverse_proximity",
+      "nota": "Extraído do LV DXF via max-COTA proximity"
+    },
+    "V8": {
+      "id": "V8",
+      "comprimento_cm": 569.0,
+      "altura_lateral_cm": 38.0,
+      "sides": [
+        "A",
+        "B"
+      ],
+      "confidence": 0.84,
+      "fonte_comprimento": "inverse_proximity",
+      "nota": "Extraído do LV DXF via max-COTA proximity"
+    },
+    "V9": {
+      "id": "V9",
+      "comprimento_cm": 569.0,
+      "altura_lateral_cm": 38.0,
+      "sides": [
+        "A",
+        "B"
+      ],
+      "confidence": 0.89,
+      "fonte_comprimento": "inverse_proximity",
+      "nota": "Extraído do LV DXF via max-COTA proximity"
+    },
+    "V10": {
+      "id": "V10",
+      "comprimento_cm": 588.0,
+      "altura_lateral_cm": 120.0,
+      "sides": [
+        "A",
+        "B"
+      ],
+      "confidence": 0.89,
+      "fonte_comprimento": "inverse_proximity",
+      "nota": "Extraído do LV DXF via max-COTA proximity"
+    },
+    "V11": {
+      "id": "V11",
+      "comprimento_cm": 280.0,
+      "altura_lateral_cm": 276.0,
+      "sides": [
+        "A",
+        "B"
+      ],
+      "confidence": 0.84,
+      "fonte_comprimento": "inverse_proximity",
+      "nota": "Extraído do LV DXF via max-COTA proximity"
+    },
+    "V12": {
+      "id": "V12",
+      "comprimento_cm": 244.0,
+      "altura_lateral_cm": 110.0,
+      "sides": [
+        "A",
+        "B"
+      ],
+      "confidence": 0.79,
+      "fonte_comprimento": "inverse_proximity",
+      "nota": "Extraído do LV DXF via max-COTA proximity"
+    },
+    "V13": {
+      "id": "V13",
+      "comprimento_cm": 588.0,
+      "altura_lateral_cm": 38.0,
+      "sides": [
+        "A",
+        "B"
+      ],
+      "confidence": 0.84,
+      "fonte_comprimento": "inverse_proximity",
+      "nota": "Extraído do LV DXF via max-COTA proximity"
+    },
+    "V14": {
+      "id": "V14",
+      "comprimento_cm": 244.0,
+      "altura_lateral_cm": 294.0,
+      "sides": [
+        "A",
+        "B"
+      ],
+      "confidence": 0.84,
+      "fonte_comprimento": "inverse_proximity",
+      "nota": "Extraído do LV DXF via max-COTA proximity"
+    },
+    "V15": {
+      "id": "V15",
+      "comprimento_cm": 892.5,
+      "altura_lateral_cm": 38.0,
+      "sides": [
+        "A",
+        "B"
+      ],
+      "confidence": 0.84,
+      "fonte_comprimento": "inverse_proximity",
+      "nota": "Extraído do LV DXF via max-COTA proximity"
+    },
+    "V16": {
+      "id": "V16",
+      "comprimento_cm": 244.0,
+      "altura_lateral_cm": 254.0,
+      "sides": [
+        "A",
+        "B"
+      ],
+      "confidence": 0.89,
+      "fonte_comprimento": "inverse_proximity",
+      "nota": "Extraído do LV DXF via max-COTA proximity"
+    },
+    "V17": {
+      "id": "V17",
+      "comprimento_cm": 947.0,
+      "altura_lateral_cm": 276.0,
+      "sides": [
+        "A",
+        "B"
+      ],
+      "confidence": 0.84,
+      "fonte_comprimento": "inverse_proximity",
+      "nota": "Extraído do LV DXF via max-COTA proximity"
+    },
+    "V18": {
+      "id": "V18",
+      "comprimento_cm": 947.0,
+      "altura_lateral_cm": 276.0,
+      "sides": [
+        "A",
+        "B"
+      ],
+      "confidence": 0.84,
+      "fonte_comprimento": "inverse_proximity",
+      "nota": "Extraído do LV DXF via max-COTA proximity"
+    },
+    "V19": {
+      "id": "V19",
+      "comprimento_cm": 550.0,
+      "altura_lateral_cm": 250.0,
+      "sides": [
+        "A",
+        "B"
+      ],
+      "confidence": 0.79,
+      "fonte_comprimento": "inverse_proximity",
+      "nota": "Extraído do LV DXF via max-COTA proximity"
+    },
+    "V20": {
+      "id": "V20",
+      "comprimento_cm": 488.0,
+      "altura_lateral_cm": 38.0,
+      "sides": [
+        "A",
+        "B"
+      ],
+      "confidence": 0.84,
+      "fonte_comprimento": "inverse_proximity",
+      "nota": "Extraído do LV DXF via max-COTA proximity"
+    },
+    "V21": {
+      "id": "V21",
+      "comprimento_cm": 496.0,
+      "altura_lateral_cm": 156.0,
+      "sides": [
+        "A",
+        "B"
+      ],
+      "confidence": 0.84,
+      "fonte_comprimento": "inverse_proximity",
+      "nota": "Extraído do LV DXF via max-COTA proximity"
+    },
+    "V22": {
+      "id": "V22",
+      "comprimento_cm": 558.0,
+      "altura_lateral_cm": 310.0,
+      "sides": [
+        "A",
+        "B"
+      ],
+      "confidence": 0.84,
+      "fonte_comprimento": "inverse_proximity",
+      "nota": "Extraído do LV DXF via max-COTA proximity"
+    },
+    "V23": {
+      "id": "V23",
+      "comprimento_cm": 906.5,
+      "altura_lateral_cm": 38.0,
+      "sides": [
+        "A",
+        "B"
+      ],
+      "confidence": 0.79,
+      "fonte_comprimento": "inverse_proximity",
+      "nota": "Extraído do LV DXF via max-COTA proximity"
+    },
+    "V24": {
+      "id": "V24",
+      "comprimento_cm": 516.0,
+      "altura_lateral_cm": 120.0,
+      "sides": [
+        "A",
+        "B"
+      ],
+      "confidence": 0.84,
+      "fonte_comprimento": "inverse_proximity",
+      "nota": "Extraído do LV DXF via max-COTA proximity"
+    },
+    "V25": {
+      "id": "V25",
+      "comprimento_cm": 516.0,
+      "altura_lateral_cm": 120.0,
+      "sides": [
+        "A",
+        "B"
+      ],
+      "confidence": 0.84,
+      "fonte_comprimento": "inverse_proximity",
+      "nota": "Extraído do LV DXF via max-COTA proximity"
+    },
+    "V26": {
+      "id": "V26",
+      "comprimento_cm": 516.0,
+      "altura_lateral_cm": 120.0,
+      "sides": [
+        "A",
+        "B"
+      ],
+      "confidence": 0.84,
+      "fonte_comprimento": "inverse_proximity",
+      "nota": "Extraído do LV DXF via max-COTA proximity"
+    },
+    "V27": {
+      "id": "V27",
+      "comprimento_cm": 340.0,
+      "altura_lateral_cm": 120.0,
+      "sides": [
+        "A",
+        "B"
+      ],
+      "confidence": 0.84,
+      "fonte_comprimento": "inverse_proximity",
+      "nota": "Extraído do LV DXF via max-COTA proximity"
+    },
+    "V28": {
+      "id": "V28",
+      "comprimento_cm": 180.0,
+      "altura_lateral_cm": 120.0,
+      "sides": [
+        "A",
+        "B"
+      ],
+      "confidence": 0.84,
+      "fonte_comprimento": "inverse_proximity",
+      "nota": "Extraído do LV DXF via max-COTA proximity"
+    },
+    "V29": {
+      "id": "V29",
+      "comprimento_cm": 340.0,
+      "altura_lateral_cm": 120.0,
+      "sides": [
+        "A",
+        "B"
+      ],
+      "confidence": 0.84,
+      "fonte_comprimento": "inverse_proximity",
+      "nota": "Extraído do LV DXF via max-COTA proximity"
+    },
+    "V30": {
+      "id": "V30",
+      "comprimento_cm": 558.0,
+      "altura_lateral_cm": 167.4,
+      "sides": [
+        "A",
+        "B"
+      ],
+      "confidence": 0.84,
+      "fonte_comprimento": "inverse_proximity",
+      "nota": "Extraído do LV DXF via max-COTA proximity"
+    },
+    "V31": {
+      "id": "V31",
+      "comprimento_cm": 338.0,
+      "altura_lateral_cm": 120.0,
+      "sides": [
+        "A",
+        "B"
+      ],
+      "confidence": 0.89,
+      "fonte_comprimento": "inverse_proximity",
+      "nota": "Extraído do LV DXF via max-COTA proximity"
+    },
+    "V32": {
+      "id": "V32",
+      "comprimento_cm": 338.0,
+      "altura_lateral_cm": 38.0,
+      "sides": [
+        "A",
+        "B"
+      ],
+      "confidence": 0.84,
+      "fonte_comprimento": "inverse_proximity",
+      "nota": "Extraído do LV DXF via max-COTA proximity"
+    },
+    "V32A": {
+      "id": "V32A",
+      "comprimento_cm": 536.3,
+      "altura_lateral_cm": 78.0,
+      "sides": [
+        "A",
+        "B"
+      ],
+      "confidence": 0.84,
+      "fonte_comprimento": "inverse_proximity",
+      "nota": "Extraído do LV DXF via max-COTA proximity"
+    },
+    "V3046": {
+      "id": "V3046",
+      "comprimento_cm": null,
+      "altura_lateral_cm": null,
+      "sides": [
+        "B"
+      ],
+      "confidence": 0.25,
+      "fonte_comprimento": "none",
+      "nota": "Sem dados extraídos"
+    },
+    "_meta": {
+      "id": "_meta",
+      "comprimento_cm": null,
+      "altura_lateral_cm": null,
+      "sides": [
+        "A",
+        "B"
+      ],
+      "confidence": 0.0,
+      "fonte_comprimento": "none",
+      "nota": "Sem dados extraídos"
+    }
+  },
+  "fichas_fundos_vigas": {
+    "V1": {
+      "id": "V1",
+      "comprimento_cm": 403.0,
+      "garfo_count": 25,
+      "garfo_section": "tipo",
+      "tem_garfo": true,
+      "confidence": 0.9,
+      "nota": "Garfo: 25x (tipo)"
+    },
+    "V2": {
+      "id": "V2",
+      "comprimento_cm": 1184.5,
+      "garfo_count": 25,
+      "garfo_section": "tipo",
+      "tem_garfo": true,
+      "confidence": 0.9,
+      "nota": "Garfo: 25x (tipo)"
+    },
+    "V3": {
+      "id": "V3",
+      "comprimento_cm": 712.0,
+      "garfo_count": 24,
+      "garfo_section": "aditivo",
+      "tem_garfo": true,
+      "confidence": 0.9,
+      "nota": "Garfo: 24x (aditivo)"
+    },
+    "V4": {
+      "id": "V4",
+      "comprimento_cm": 550.0,
+      "garfo_count": 24,
+      "garfo_section": "aditivo",
+      "tem_garfo": true,
+      "confidence": 0.9,
+      "nota": "Garfo: 24x (aditivo)"
+    },
+    "V5": {
+      "id": "V5",
+      "comprimento_cm": 569.0,
+      "garfo_count": 11,
+      "garfo_section": "tipo",
+      "tem_garfo": true,
+      "confidence": 0.9,
+      "nota": "Garfo: 11x (tipo)"
+    },
+    "V6": {
+      "id": "V6",
+      "comprimento_cm": 591.0,
+      "garfo_count": 11,
+      "garfo_section": "aditivo",
+      "tem_garfo": true,
+      "confidence": 0.9,
+      "nota": "Garfo: 11x (aditivo)"
+    },
+    "V7": {
+      "id": "V7",
+      "comprimento_cm": 1205.0,
+      "garfo_count": 0,
+      "garfo_section": "tipo",
+      "tem_garfo": false,
+      "confidence": 0.84,
+      "nota": "Sem garfo EVG"
+    },
+    "V8": {
+      "id": "V8",
+      "comprimento_cm": 569.0,
+      "garfo_count": 0,
+      "garfo_section": "tipo",
+      "tem_garfo": false,
+      "confidence": 0.84,
+      "nota": "Sem garfo EVG"
+    },
+    "V9": {
+      "id": "V9",
+      "comprimento_cm": 569.0,
+      "garfo_count": 10,
+      "garfo_section": "aditivo",
+      "tem_garfo": true,
+      "confidence": 0.9,
+      "nota": "Garfo: 10x (aditivo)"
+    },
+    "V10": {
+      "id": "V10",
+      "comprimento_cm": 588.0,
+      "garfo_count": 11,
+      "garfo_section": "aditivo",
+      "tem_garfo": true,
+      "confidence": 0.9,
+      "nota": "Garfo: 11x (aditivo)"
+    },
+    "V11": {
+      "id": "V11",
+      "comprimento_cm": 280.0,
+      "garfo_count": 24,
+      "garfo_section": "aditivo",
+      "tem_garfo": true,
+      "confidence": 0.9,
+      "nota": "Garfo: 24x (aditivo)"
+    },
+    "V12": {
+      "id": "V12",
+      "comprimento_cm": 244.0,
+      "garfo_count": 28,
+      "garfo_section": "aditivo",
+      "tem_garfo": true,
+      "confidence": 0.9,
+      "nota": "Garfo: 28x (aditivo)"
+    },
+    "V13": {
+      "id": "V13",
+      "comprimento_cm": 588.0,
+      "garfo_count": 11,
+      "garfo_section": "tipo",
+      "tem_garfo": true,
+      "confidence": 0.9,
+      "nota": "Garfo: 11x (tipo)"
+    },
+    "V14": {
+      "id": "V14",
+      "comprimento_cm": 244.0,
+      "garfo_count": 3,
+      "garfo_section": "aditivo",
+      "tem_garfo": true,
+      "confidence": 0.9,
+      "nota": "Garfo: 3x (aditivo)"
+    },
+    "V15": {
+      "id": "V15",
+      "comprimento_cm": 892.5,
+      "garfo_count": 25,
+      "garfo_section": "tipo",
+      "tem_garfo": true,
+      "confidence": 0.9,
+      "nota": "Garfo: 25x (tipo)"
+    },
+    "V16": {
+      "id": "V16",
+      "comprimento_cm": 244.0,
+      "garfo_count": 0,
+      "garfo_section": "tipo",
+      "tem_garfo": false,
+      "confidence": 0.89,
+      "nota": "Sem garfo EVG"
+    },
+    "V17": {
+      "id": "V17",
+      "comprimento_cm": 947.0,
+      "garfo_count": 16,
+      "garfo_section": "aditivo",
+      "tem_garfo": true,
+      "confidence": 0.9,
+      "nota": "Garfo: 16x (aditivo)"
+    },
+    "V18": {
+      "id": "V18",
+      "comprimento_cm": 947.0,
+      "garfo_count": 0,
+      "garfo_section": "tipo",
+      "tem_garfo": false,
+      "confidence": 0.84,
+      "nota": "Sem garfo EVG"
+    },
+    "V19": {
+      "id": "V19",
+      "comprimento_cm": 550.0,
+      "garfo_count": 2,
+      "garfo_section": "aditivo",
+      "tem_garfo": true,
+      "confidence": 0.9,
+      "nota": "Garfo: 2x (aditivo)"
+    },
+    "V20": {
+      "id": "V20",
+      "comprimento_cm": 488.0,
+      "garfo_count": 4,
+      "garfo_section": "aditivo",
+      "tem_garfo": true,
+      "confidence": 0.9,
+      "nota": "Garfo: 4x (aditivo)"
+    },
+    "V21": {
+      "id": "V21",
+      "comprimento_cm": 496.0,
+      "garfo_count": 0,
+      "garfo_section": "tipo",
+      "tem_garfo": false,
+      "confidence": 0.84,
+      "nota": "Sem garfo EVG"
+    },
+    "V22": {
+      "id": "V22",
+      "comprimento_cm": 558.0,
+      "garfo_count": 3,
+      "garfo_section": "aditivo",
+      "tem_garfo": true,
+      "confidence": 0.9,
+      "nota": "Garfo: 3x (aditivo)"
+    },
+    "V23": {
+      "id": "V23",
+      "comprimento_cm": 906.5,
+      "garfo_count": 2,
+      "garfo_section": "aditivo",
+      "tem_garfo": true,
+      "confidence": 0.9,
+      "nota": "Garfo: 2x (aditivo)"
+    },
+    "V24": {
+      "id": "V24",
+      "comprimento_cm": 516.0,
+      "garfo_count": 16,
+      "garfo_section": "aditivo",
+      "tem_garfo": true,
+      "confidence": 0.9,
+      "nota": "Garfo: 16x (aditivo)"
+    },
+    "V25": {
+      "id": "V25",
+      "comprimento_cm": 516.0,
+      "garfo_count": 0,
+      "garfo_section": "tipo",
+      "tem_garfo": false,
+      "confidence": 0.84,
+      "nota": "Sem garfo EVG"
+    },
+    "V26": {
+      "id": "V26",
+      "comprimento_cm": 516.0,
+      "garfo_count": 5,
+      "garfo_section": "aditivo",
+      "tem_garfo": true,
+      "confidence": 0.9,
+      "nota": "Garfo: 5x (aditivo)"
+    },
+    "V27": {
+      "id": "V27",
+      "comprimento_cm": 340.0,
+      "garfo_count": 0,
+      "garfo_section": "tipo",
+      "tem_garfo": false,
+      "confidence": 0.84,
+      "nota": "Sem garfo EVG"
+    },
+    "V28": {
+      "id": "V28",
+      "comprimento_cm": 180.0,
+      "garfo_count": 0,
+      "garfo_section": "tipo",
+      "tem_garfo": false,
+      "confidence": 0.84,
+      "nota": "Sem garfo EVG"
+    },
+    "V29": {
+      "id": "V29",
+      "comprimento_cm": 340.0,
+      "garfo_count": 0,
+      "garfo_section": "tipo",
+      "tem_garfo": false,
+      "confidence": 0.84,
+      "nota": "Sem garfo EVG"
+    },
+    "V30": {
+      "id": "V30",
+      "comprimento_cm": 558.0,
+      "garfo_count": 0,
+      "garfo_section": "tipo",
+      "tem_garfo": false,
+      "confidence": 0.84,
+      "nota": "Sem garfo EVG"
+    },
+    "V31": {
+      "id": "V31",
+      "comprimento_cm": 338.0,
+      "garfo_count": 0,
+      "garfo_section": "tipo",
+      "tem_garfo": false,
+      "confidence": 0.89,
+      "nota": "Sem garfo EVG"
+    },
+    "V32": {
+      "id": "V32",
+      "comprimento_cm": 338.0,
+      "garfo_count": 0,
+      "garfo_section": "tipo",
+      "tem_garfo": false,
+      "confidence": 0.84,
+      "nota": "Sem garfo EVG"
+    },
+    "V32A": {
+      "id": "V32A",
+      "comprimento_cm": 536.3,
+      "garfo_count": 0,
+      "garfo_section": "tipo",
+      "tem_garfo": false,
+      "confidence": 0.84,
+      "nota": "Sem garfo EVG"
+    }
+  },
+  "fichas_lajes": {
+    "L1": {
+      "id": "L1",
+      "n_paineis": 0,
+      "area_total_paineis_cm2": null,
+      "dims_paineis": [],
+      "bbox_dxf": null,
+      "pos_label_dxf": [
+        3774.6,
+        2878.1
+      ],
+      "source": "label-only",
+      "confidence": 0.3,
+      "nota": "Label only"
+    },
+    "L2": {
+      "id": "L2",
+      "n_paineis": 0,
+      "area_total_paineis_cm2": null,
+      "dims_paineis": [],
+      "bbox_dxf": null,
+      "pos_label_dxf": [
+        4419.8,
+        2876.9
+      ],
+      "source": "label-only",
+      "confidence": 0.3,
+      "nota": "Label only"
+    },
+    "L3": {
+      "id": "L3",
+      "n_paineis": 0,
+      "area_total_paineis_cm2": null,
+      "dims_paineis": [],
+      "bbox_dxf": null,
+      "pos_label_dxf": [
+        3611.5,
+        2701.7
+      ],
+      "source": "label-only",
+      "confidence": 0.3,
+      "nota": "Label only"
+    },
+    "L4": {
+      "id": "L4",
+      "n_paineis": 0,
+      "area_total_paineis_cm2": null,
+      "dims_paineis": [],
+      "bbox_dxf": null,
+      "pos_label_dxf": [
+        4478.1,
+        2737.4
+      ],
+      "source": "label-only",
+      "confidence": 0.3,
+      "nota": "Label only"
+    },
+    "L5": {
+      "id": "L5",
+      "n_paineis": 0,
+      "area_total_paineis_cm2": null,
+      "dims_paineis": [],
+      "bbox_dxf": null,
+      "pos_label_dxf": [
+        4938.7,
+        2705.2
+      ],
+      "source": "label-only",
+      "confidence": 0.3,
+      "nota": "Label only"
+    },
+    "L6": {
+      "id": "L6",
+      "n_paineis": 0,
+      "area_total_paineis_cm2": null,
+      "dims_paineis": [],
+      "bbox_dxf": null,
+      "pos_label_dxf": [
+        5656.6,
+        2707.2
+      ],
+      "source": "label-only",
+      "confidence": 0.6,
+      "nota": "Label only"
+    },
+    "L7": {
+      "id": "L7",
+      "n_paineis": 4,
+      "area_total_paineis_cm2": 44591.0,
+      "dims_paineis": [
+        "61.0x121.5",
+        "61.0x244.0"
+      ],
+      "bbox_dxf": null,
+      "pos_label_dxf": null,
+      "source": "aux00-panels",
+      "confidence": 0.85,
+      "nota": "4 painéis AUX00 encontrados"
+    },
+    "L8": {
+      "id": "L8",
+      "n_paineis": 0,
+      "area_total_paineis_cm2": null,
+      "dims_paineis": [],
+      "bbox_dxf": null,
+      "pos_label_dxf": [
+        3106.8,
+        2486.7
+      ],
+      "source": "label-only",
+      "confidence": 0.3,
+      "nota": "Label only"
+    },
+    "L9": {
+      "id": "L9",
+      "n_paineis": 4,
+      "area_total_paineis_cm2": 70227.0,
+      "dims_paineis": [
+        "73.5x189.5",
+        "73.5x244.0",
+        "88.5x189.5",
+        "88.5x244.0"
+      ],
+      "bbox_dxf": null,
+      "pos_label_dxf": [
+        3185.6,
+        2484.8
+      ],
+      "source": "aux00-panels",
+      "confidence": 0.85,
+      "nota": "4 painéis AUX00 encontrados"
+    },
+    "L10": {
+      "id": "L10",
+      "n_paineis": 0,
+      "area_total_paineis_cm2": null,
+      "dims_paineis": [],
+      "bbox_dxf": null,
+      "pos_label_dxf": [
+        5507.3,
+        2454.7
+      ],
+      "source": "label-only",
+      "confidence": 0.3,
+      "nota": "Label only"
+    },
+    "L11": {
+      "id": "L11",
+      "n_paineis": 28,
+      "area_total_paineis_cm2": 525670.6,
+      "dims_paineis": [
+        "122.0x143.5",
+        "122.0x244.0",
+        "55.0x121.5",
+        "55.0x244.0",
+        "61.0x244.0"
+      ],
+      "bbox_dxf": null,
+      "pos_label_dxf": [
+        5672.3,
+        2327.4
+      ],
+      "source": "aux00-panels",
+      "confidence": 0.85,
+      "nota": "28 painéis AUX00 encontrados"
+    },
+    "L12": {
+      "id": "L12",
+      "n_paineis": 2,
+      "area_total_paineis_cm2": 52094.0,
+      "dims_paineis": [
+        "122.0x183.0",
+        "122.0x244.0"
+      ],
+      "bbox_dxf": null,
+      "pos_label_dxf": [
+        3660.8,
+        2222.7
+      ],
+      "source": "aux00-panels",
+      "confidence": 0.75,
+      "nota": "2 painéis AUX00 encontrados"
+    },
+    "L13": {
+      "id": "L13",
+      "n_paineis": 2,
+      "area_total_paineis_cm2": 52094.0,
+      "dims_paineis": [
+        "122.0x183.0",
+        "122.0x244.0"
+      ],
+      "bbox_dxf": null,
+      "pos_label_dxf": [
+        4278.6,
+        2232.6
+      ],
+      "source": "aux00-panels",
+      "confidence": 0.75,
+      "nota": "2 painéis AUX00 encontrados"
+    },
+    "L14": {
+      "id": "L14",
+      "n_paineis": 4,
+      "area_total_paineis_cm2": 69357.0,
+      "dims_paineis": [
+        "104.0x122.0",
+        "116.5x122.0",
+        "122.0x244.0"
+      ],
+      "bbox_dxf": null,
+      "pos_label_dxf": [
+        7642.5,
+        2267.1
+      ],
+      "source": "aux00-panels",
+      "confidence": 0.85,
+      "nota": "4 painéis AUX00 encontrados"
+    },
+    "L15": {
+      "id": "L15",
+      "n_paineis": 0,
+      "area_total_paineis_cm2": null,
+      "dims_paineis": [],
+      "bbox_dxf": null,
+      "pos_label_dxf": [
+        3238.5,
+        2029.4
+      ],
+      "source": "label-only",
+      "confidence": 0.3,
+      "nota": "Label only"
+    },
+    "L17": {
+      "id": "L17",
+      "n_paineis": 4,
+      "area_total_paineis_cm2": 70227.0,
+      "dims_paineis": [
+        "73.5x189.5",
+        "73.5x244.0",
+        "88.5x189.5",
+        "88.5x244.0"
+      ],
+      "bbox_dxf": null,
+      "pos_label_dxf": [
+        3333.4,
+        2027.9
+      ],
+      "source": "aux00-panels",
+      "confidence": 0.85,
+      "nota": "4 painéis AUX00 encontrados"
+    },
+    "L18": {
+      "id": "L18",
+      "n_paineis": 2,
+      "area_total_paineis_cm2": 11453.8,
+      "dims_paineis": [
+        "24.5x223.5",
+        "24.5x244.0"
+      ],
+      "bbox_dxf": null,
+      "pos_label_dxf": [
+        3630.9,
+        2029.0
+      ],
+      "source": "aux00-panels",
+      "confidence": 0.75,
+      "nota": "2 painéis AUX00 encontrados"
+    },
+    "L19": {
+      "id": "L19",
+      "n_paineis": 2,
+      "area_total_paineis_cm2": 11453.8,
+      "dims_paineis": [
+        "24.5x223.5",
+        "24.5x244.0"
+      ],
+      "bbox_dxf": null,
+      "pos_label_dxf": [
+        5522.2,
+        2023.5
+      ],
+      "source": "aux00-panels",
+      "confidence": 0.75,
+      "nota": "2 painéis AUX00 encontrados"
+    },
+    "L20": {
+      "id": "L20",
+      "n_paineis": 2,
+      "area_total_paineis_cm2": 11453.8,
+      "dims_paineis": [
+        "24.5x223.5",
+        "24.5x244.0"
+      ],
+      "bbox_dxf": null,
+      "pos_label_dxf": null,
+      "source": "aux00-panels",
+      "confidence": 0.75,
+      "nota": "2 painéis AUX00 encontrados"
+    },
+    "_meta": {
+      "id": "_meta",
+      "n_paineis": 0,
+      "area_total_paineis_cm2": null,
+      "dims_paineis": [],
+      "bbox_dxf": null,
+      "pos_label_dxf": null,
+      "source": "aux00-panels",
+      "confidence": 0.5,
+      "nota": "Label only"
+    }
+  },
+  "meta": {
+    "pavimento": "12 PAV",
+    "n_pilares": 34,
+    "n_vigas_lateral": 35,
+    "n_vigas_fundo": 33,
+    "n_lajes": 20
+  }
+}

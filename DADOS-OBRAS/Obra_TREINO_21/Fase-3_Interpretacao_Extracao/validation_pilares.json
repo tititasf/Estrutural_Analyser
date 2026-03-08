@@ -1,0 +1,13 @@
+{
+  "pipeline_count": 33,
+  "gt_count": 33,
+  "correct": 33,
+  "hallucinated": [],
+  "missed": [],
+  "hallucination_rate": 0.0,
+  "miss_rate": 0.0,
+  "count_accuracy": 1.0,
+  "score": 1.0,
+  "score_percent": 100.0,
+  "aprovado": true
+}

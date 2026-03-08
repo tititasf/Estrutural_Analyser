@@ -1,0 +1,512 @@
+{
+  "P1": {
+    "id": "P1",
+    "b_cm": 38.0,
+    "h_cm": 60.0,
+    "altura_cm": 652.0,
+    "faces": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "confidence": 0.8,
+    "source_bh": "inverse-proximity",
+    "nota": "B/H via inverse-proximity DXF"
+  },
+  "P9": {
+    "id": "P9",
+    "b_cm": 38.0,
+    "h_cm": 92.0,
+    "altura_cm": 652.0,
+    "faces": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "confidence": 0.7,
+    "source_bh": "inverse-proximity",
+    "nota": "B/H via inverse-proximity DXF"
+  },
+  "P11": {
+    "id": "P11",
+    "b_cm": 50.0,
+    "h_cm": 100.0,
+    "altura_cm": 652.0,
+    "faces": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "confidence": 0.7,
+    "source_bh": "inverse-proximity",
+    "nota": "B/H via inverse-proximity DXF"
+  },
+  "P12": {
+    "id": "P12",
+    "b_cm": 50.0,
+    "h_cm": 100.0,
+    "altura_cm": 652.0,
+    "faces": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "confidence": 0.7,
+    "source_bh": "inverse-proximity",
+    "nota": "B/H via inverse-proximity DXF"
+  },
+  "P13": {
+    "id": "P13",
+    "b_cm": 38.0,
+    "h_cm": 60.0,
+    "altura_cm": 652.0,
+    "faces": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "confidence": 0.4,
+    "source_bh": "proximity-fallback",
+    "nota": "B/H via inverse-proximity DXF"
+  },
+  "P14": {
+    "id": "P14",
+    "b_cm": 38.0,
+    "h_cm": 60.0,
+    "altura_cm": 652.0,
+    "faces": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "confidence": 0.7,
+    "source_bh": "inverse-proximity",
+    "nota": "B/H via inverse-proximity DXF"
+  },
+  "P15": {
+    "id": "P15",
+    "b_cm": 38.0,
+    "h_cm": 50.0,
+    "altura_cm": 652.0,
+    "faces": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "confidence": 0.4,
+    "source_bh": "proximity-fallback",
+    "nota": "B/H via inverse-proximity DXF"
+  },
+  "P16": {
+    "id": "P16",
+    "b_cm": 50.0,
+    "h_cm": 60.0,
+    "altura_cm": 652.0,
+    "faces": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "confidence": 0.4,
+    "source_bh": "proximity-fallback",
+    "nota": "B/H via inverse-proximity DXF"
+  },
+  "P17": {
+    "id": "P17",
+    "b_cm": 38.0,
+    "h_cm": 60.0,
+    "altura_cm": 652.0,
+    "faces": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "confidence": 0.7,
+    "source_bh": "inverse-proximity",
+    "nota": "B/H via inverse-proximity DXF"
+  },
+  "P20": {
+    "id": "P20",
+    "b_cm": 26.0,
+    "h_cm": 50.0,
+    "altura_cm": 652.0,
+    "faces": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "confidence": 0.7,
+    "source_bh": "inverse-proximity",
+    "nota": "B/H via inverse-proximity DXF"
+  },
+  "P21": {
+    "id": "P21",
+    "b_cm": 16.0,
+    "h_cm": 50.0,
+    "altura_cm": 652.0,
+    "faces": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "confidence": 0.7,
+    "source_bh": "inverse-proximity",
+    "nota": "B/H via inverse-proximity DXF"
+  },
+  "P22": {
+    "id": "P22",
+    "b_cm": 16.0,
+    "h_cm": 50.0,
+    "altura_cm": 652.0,
+    "faces": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "confidence": 0.7,
+    "source_bh": "inverse-proximity",
+    "nota": "B/H via inverse-proximity DXF"
+  },
+  "P23": {
+    "id": "P23",
+    "b_cm": 32.0,
+    "h_cm": 50.0,
+    "altura_cm": 652.0,
+    "faces": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "confidence": 0.7,
+    "source_bh": "inverse-proximity",
+    "nota": "B/H via inverse-proximity DXF"
+  },
+  "P24": {
+    "id": "P24",
+    "b_cm": 32.0,
+    "h_cm": 50.0,
+    "altura_cm": 652.0,
+    "faces": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "confidence": 0.7,
+    "source_bh": "inverse-proximity",
+    "nota": "B/H via inverse-proximity DXF"
+  },
+  "P25": {
+    "id": "P25",
+    "b_cm": 60.0,
+    "h_cm": 62.0,
+    "altura_cm": 652.0,
+    "faces": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "confidence": 0.7,
+    "source_bh": "inverse-proximity",
+    "nota": "B/H via inverse-proximity DXF"
+  },
+  "P33": {
+    "id": "P33",
+    "b_cm": 38.0,
+    "h_cm": 50.0,
+    "altura_cm": 652.0,
+    "faces": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "confidence": 0.4,
+    "source_bh": "proximity-fallback",
+    "nota": "B/H via inverse-proximity DXF"
+  },
+  "P34": {
+    "id": "P34",
+    "b_cm": 38.0,
+    "h_cm": 50.0,
+    "altura_cm": 652.0,
+    "faces": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "confidence": 0.4,
+    "source_bh": "proximity-fallback",
+    "nota": "B/H via inverse-proximity DXF"
+  },
+  "P40": {
+    "id": "P40",
+    "b_cm": 38.0,
+    "h_cm": 50.0,
+    "altura_cm": 652.0,
+    "faces": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "confidence": 0.4,
+    "source_bh": "proximity-fallback",
+    "nota": "B/H via inverse-proximity DXF"
+  },
+  "P41": {
+    "id": "P41",
+    "b_cm": 38.0,
+    "h_cm": 50.0,
+    "altura_cm": 652.0,
+    "faces": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "confidence": 0.4,
+    "source_bh": "proximity-fallback",
+    "nota": "B/H via inverse-proximity DXF"
+  },
+  "P42": {
+    "id": "P42",
+    "b_cm": 38.0,
+    "h_cm": 50.0,
+    "altura_cm": 652.0,
+    "faces": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "confidence": 0.4,
+    "source_bh": "proximity-fallback",
+    "nota": "B/H via inverse-proximity DXF"
+  },
+  "P43": {
+    "id": "P43",
+    "b_cm": 38.0,
+    "h_cm": 50.0,
+    "altura_cm": 652.0,
+    "faces": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "confidence": 0.4,
+    "source_bh": "proximity-fallback",
+    "nota": "B/H via inverse-proximity DXF"
+  },
+  "P44": {
+    "id": "P44",
+    "b_cm": 38.0,
+    "h_cm": 50.0,
+    "altura_cm": 652.0,
+    "faces": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "confidence": 0.4,
+    "source_bh": "proximity-fallback",
+    "nota": "B/H via inverse-proximity DXF"
+  },
+  "P45": {
+    "id": "P45",
+    "b_cm": 38.0,
+    "h_cm": 50.0,
+    "altura_cm": 652.0,
+    "faces": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "confidence": 0.4,
+    "source_bh": "proximity-fallback",
+    "nota": "B/H via inverse-proximity DXF"
+  },
+  "P46": {
+    "id": "P46",
+    "b_cm": 38.0,
+    "h_cm": 50.0,
+    "altura_cm": 652.0,
+    "faces": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "confidence": 0.4,
+    "source_bh": "proximity-fallback",
+    "nota": "B/H via inverse-proximity DXF"
+  },
+  "P47": {
+    "id": "P47",
+    "b_cm": 38.0,
+    "h_cm": 50.0,
+    "altura_cm": 652.0,
+    "faces": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "confidence": 0.4,
+    "source_bh": "proximity-fallback",
+    "nota": "B/H via inverse-proximity DXF"
+  },
+  "P48": {
+    "id": "P48",
+    "b_cm": 38.0,
+    "h_cm": 50.0,
+    "altura_cm": 652.0,
+    "faces": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "confidence": 0.4,
+    "source_bh": "proximity-fallback",
+    "nota": "B/H via inverse-proximity DXF"
+  },
+  "P69": {
+    "id": "P69",
+    "b_cm": 38.0,
+    "h_cm": 50.0,
+    "altura_cm": 652.0,
+    "faces": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "confidence": 0.4,
+    "source_bh": "proximity-fallback",
+    "nota": "B/H via inverse-proximity DXF"
+  },
+  "P74": {
+    "id": "P74",
+    "b_cm": 38.0,
+    "h_cm": 50.0,
+    "altura_cm": 652.0,
+    "faces": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "confidence": 0.4,
+    "source_bh": "proximity-fallback",
+    "nota": "B/H via inverse-proximity DXF"
+  },
+  "P75": {
+    "id": "P75",
+    "b_cm": 38.0,
+    "h_cm": 50.0,
+    "altura_cm": 652.0,
+    "faces": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "confidence": 0.4,
+    "source_bh": "proximity-fallback",
+    "nota": "B/H via inverse-proximity DXF"
+  },
+  "P76": {
+    "id": "P76",
+    "b_cm": 38.0,
+    "h_cm": 50.0,
+    "altura_cm": 652.0,
+    "faces": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "confidence": 0.4,
+    "source_bh": "proximity-fallback",
+    "nota": "B/H via inverse-proximity DXF"
+  },
+  "P77": {
+    "id": "P77",
+    "b_cm": 38.0,
+    "h_cm": 50.0,
+    "altura_cm": 652.0,
+    "faces": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "confidence": 0.4,
+    "source_bh": "proximity-fallback",
+    "nota": "B/H via inverse-proximity DXF"
+  },
+  "P78": {
+    "id": "P78",
+    "b_cm": 38.0,
+    "h_cm": 50.0,
+    "altura_cm": 652.0,
+    "faces": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "confidence": 0.4,
+    "source_bh": "proximity-fallback",
+    "nota": "B/H via inverse-proximity DXF"
+  },
+  "P79": {
+    "id": "P79",
+    "b_cm": 38.0,
+    "h_cm": 50.0,
+    "altura_cm": 652.0,
+    "faces": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "confidence": 0.4,
+    "source_bh": "proximity-fallback",
+    "nota": "B/H via inverse-proximity DXF"
+  },
+  "_meta": {
+    "id": "_meta",
+    "b_cm": null,
+    "h_cm": null,
+    "altura_cm": 280.0,
+    "faces": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "confidence": 0.0,
+    "source_bh": "none",
+    "nota": "B/H placeholder"
+  }
+}

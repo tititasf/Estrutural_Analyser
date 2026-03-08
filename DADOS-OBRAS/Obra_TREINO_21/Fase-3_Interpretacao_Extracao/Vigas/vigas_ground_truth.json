@@ -1,0 +1,466 @@
+{
+  "V1": {
+    "b": null,
+    "h": 254.0,
+    "comprimento": 403.0,
+    "confidence": 0.25,
+    "source": "engenharia-reversa-ezdxf",
+    "sides_encontrados": [
+      "A",
+      "B"
+    ],
+    "nota": "Dims requerem verificação manual",
+    "comprimento_source": "lv-dxf-proximity",
+    "h_source": "lv-dxf-cota-secao"
+  },
+  "V2": {
+    "b": null,
+    "h": 110.0,
+    "comprimento": 1184.5,
+    "confidence": 0.25,
+    "source": "engenharia-reversa-ezdxf",
+    "sides_encontrados": [
+      "A",
+      "B"
+    ],
+    "nota": "Dims requerem verificação manual",
+    "comprimento_source": "lv-dxf-proximity",
+    "h_source": "lv-dxf-cota-secao"
+  },
+  "V3": {
+    "b": null,
+    "h": 38.0,
+    "comprimento": 712.0,
+    "confidence": 0.25,
+    "source": "engenharia-reversa-ezdxf",
+    "sides_encontrados": [
+      "A",
+      "B"
+    ],
+    "nota": "Dims requerem verificação manual",
+    "comprimento_source": "lv-dxf-proximity",
+    "h_source": "lv-dxf-cota-secao"
+  },
+  "V4": {
+    "b": null,
+    "h": 38.0,
+    "comprimento": 550.0,
+    "confidence": 0.25,
+    "source": "engenharia-reversa-ezdxf",
+    "sides_encontrados": [
+      "A",
+      "B"
+    ],
+    "nota": "Dims requerem verificação manual",
+    "comprimento_source": "lv-dxf-proximity",
+    "h_source": "lv-dxf-cota-secao"
+  },
+  "V5": {
+    "b": null,
+    "h": 120.0,
+    "comprimento": 569.0,
+    "confidence": 0.25,
+    "source": "engenharia-reversa-ezdxf",
+    "sides_encontrados": [
+      "A",
+      "B"
+    ],
+    "nota": "Dims requerem verificação manual",
+    "comprimento_source": "lv-dxf-proximity",
+    "h_source": "lv-dxf-cota-secao"
+  },
+  "V6": {
+    "b": null,
+    "h": 38.0,
+    "comprimento": 591.0,
+    "confidence": 0.25,
+    "source": "engenharia-reversa-ezdxf",
+    "sides_encontrados": [
+      "A",
+      "B"
+    ],
+    "nota": "Dims requerem verificação manual",
+    "comprimento_source": "lv-dxf-proximity",
+    "h_source": "lv-dxf-cota-secao"
+  },
+  "V7": {
+    "b": null,
+    "h": 38.0,
+    "comprimento": 1205.0,
+    "confidence": 0.25,
+    "source": "engenharia-reversa-ezdxf",
+    "sides_encontrados": [
+      "A",
+      "B"
+    ],
+    "nota": "Dims requerem verificação manual",
+    "comprimento_source": "lv-dxf-proximity",
+    "h_source": "lv-dxf-cota-secao"
+  },
+  "V8": {
+    "b": null,
+    "h": 38.0,
+    "comprimento": 569.0,
+    "confidence": 0.25,
+    "source": "engenharia-reversa-ezdxf",
+    "sides_encontrados": [
+      "A",
+      "B"
+    ],
+    "nota": "Dims requerem verificação manual",
+    "comprimento_source": "lv-dxf-proximity",
+    "h_source": "lv-dxf-cota-secao"
+  },
+  "V9": {
+    "b": null,
+    "h": 38.0,
+    "comprimento": 569.0,
+    "confidence": 0.25,
+    "source": "engenharia-reversa-ezdxf",
+    "sides_encontrados": [
+      "A",
+      "B"
+    ],
+    "nota": "Dims requerem verificação manual",
+    "comprimento_source": "lv-dxf-proximity",
+    "h_source": "lv-dxf-cota-secao"
+  },
+  "V10": {
+    "b": null,
+    "h": 120.0,
+    "comprimento": 588.0,
+    "confidence": 0.25,
+    "source": "engenharia-reversa-ezdxf",
+    "sides_encontrados": [
+      "A",
+      "B"
+    ],
+    "nota": "Dims requerem verificação manual",
+    "comprimento_source": "lv-dxf-proximity",
+    "h_source": "lv-dxf-cota-secao"
+  },
+  "V11": {
+    "b": null,
+    "h": 276.0,
+    "comprimento": 280.0,
+    "confidence": 0.25,
+    "source": "engenharia-reversa-ezdxf",
+    "sides_encontrados": [
+      "A",
+      "B"
+    ],
+    "nota": "Dims requerem verificação manual",
+    "comprimento_source": "lv-dxf-proximity",
+    "h_source": "lv-dxf-cota-secao"
+  },
+  "V12": {
+    "b": null,
+    "h": 110.0,
+    "comprimento": 244.0,
+    "confidence": 0.25,
+    "source": "engenharia-reversa-ezdxf",
+    "sides_encontrados": [
+      "A",
+      "B"
+    ],
+    "nota": "Dims requerem verificação manual",
+    "comprimento_source": "lv-dxf-proximity",
+    "h_source": "lv-dxf-cota-secao"
+  },
+  "V13": {
+    "b": null,
+    "h": 38.0,
+    "comprimento": 588.0,
+    "confidence": 0.25,
+    "source": "engenharia-reversa-ezdxf",
+    "sides_encontrados": [
+      "A",
+      "B"
+    ],
+    "nota": "Dims requerem verificação manual",
+    "comprimento_source": "lv-dxf-proximity",
+    "h_source": "lv-dxf-cota-secao"
+  },
+  "V14": {
+    "b": null,
+    "h": 294.0,
+    "comprimento": 244.0,
+    "confidence": 0.25,
+    "source": "engenharia-reversa-ezdxf",
+    "sides_encontrados": [
+      "A",
+      "B"
+    ],
+    "nota": "Dims requerem verificação manual",
+    "comprimento_source": "lv-dxf-proximity",
+    "h_source": "lv-dxf-cota-secao"
+  },
+  "V15": {
+    "b": null,
+    "h": 38.0,
+    "comprimento": 892.5,
+    "confidence": 0.25,
+    "source": "engenharia-reversa-ezdxf",
+    "sides_encontrados": [
+      "A",
+      "B"
+    ],
+    "nota": "Dims requerem verificação manual",
+    "comprimento_source": "lv-dxf-proximity",
+    "h_source": "lv-dxf-cota-secao"
+  },
+  "V16": {
+    "b": null,
+    "h": 254.0,
+    "comprimento": 244.0,
+    "confidence": 0.25,
+    "source": "engenharia-reversa-ezdxf",
+    "sides_encontrados": [
+      "A",
+      "B"
+    ],
+    "nota": "Dims requerem verificação manual",
+    "comprimento_source": "lv-dxf-proximity",
+    "h_source": "lv-dxf-cota-secao"
+  },
+  "V17": {
+    "b": null,
+    "h": 276.0,
+    "comprimento": 947.0,
+    "confidence": 0.25,
+    "source": "engenharia-reversa-ezdxf",
+    "sides_encontrados": [
+      "A",
+      "B"
+    ],
+    "nota": "Dims requerem verificação manual",
+    "comprimento_source": "lv-dxf-proximity",
+    "h_source": "lv-dxf-cota-secao"
+  },
+  "V18": {
+    "b": null,
+    "h": 276.0,
+    "comprimento": 947.0,
+    "confidence": 0.25,
+    "source": "engenharia-reversa-ezdxf",
+    "sides_encontrados": [
+      "A",
+      "B"
+    ],
+    "nota": "Dims requerem verificação manual",
+    "comprimento_source": "lv-dxf-proximity",
+    "h_source": "lv-dxf-cota-secao"
+  },
+  "V19": {
+    "b": null,
+    "h": 250.0,
+    "comprimento": 550.0,
+    "confidence": 0.25,
+    "source": "engenharia-reversa-ezdxf",
+    "sides_encontrados": [
+      "A",
+      "B"
+    ],
+    "nota": "Dims requerem verificação manual",
+    "comprimento_source": "lv-dxf-proximity",
+    "h_source": "lv-dxf-cota-secao"
+  },
+  "V20": {
+    "b": null,
+    "h": 38.0,
+    "comprimento": 488.0,
+    "confidence": 0.25,
+    "source": "engenharia-reversa-ezdxf",
+    "sides_encontrados": [
+      "A",
+      "B"
+    ],
+    "nota": "Dims requerem verificação manual",
+    "comprimento_source": "lv-dxf-proximity",
+    "h_source": "lv-dxf-cota-secao"
+  },
+  "V21": {
+    "b": null,
+    "h": 156.0,
+    "comprimento": 496.0,
+    "confidence": 0.25,
+    "source": "engenharia-reversa-ezdxf",
+    "sides_encontrados": [
+      "A",
+      "B"
+    ],
+    "nota": "Dims requerem verificação manual",
+    "comprimento_source": "lv-dxf-proximity",
+    "h_source": "lv-dxf-cota-secao"
+  },
+  "V22": {
+    "b": null,
+    "h": 310.0,
+    "comprimento": 558.0,
+    "confidence": 0.25,
+    "source": "engenharia-reversa-ezdxf",
+    "sides_encontrados": [
+      "A",
+      "B"
+    ],
+    "nota": "Dims requerem verificação manual",
+    "comprimento_source": "lv-dxf-proximity",
+    "h_source": "lv-dxf-cota-secao"
+  },
+  "V23": {
+    "b": null,
+    "h": 38.0,
+    "comprimento": 906.5,
+    "confidence": 0.25,
+    "source": "engenharia-reversa-ezdxf",
+    "sides_encontrados": [
+      "A",
+      "B"
+    ],
+    "nota": "Dims requerem verificação manual",
+    "comprimento_source": "lv-dxf-proximity",
+    "h_source": "lv-dxf-cota-secao"
+  },
+  "V24": {
+    "b": null,
+    "h": 120.0,
+    "comprimento": 516.0,
+    "confidence": 0.25,
+    "source": "engenharia-reversa-ezdxf",
+    "sides_encontrados": [
+      "A",
+      "B"
+    ],
+    "nota": "Dims requerem verificação manual",
+    "comprimento_source": "lv-dxf-proximity",
+    "h_source": "lv-dxf-cota-secao"
+  },
+  "V25": {
+    "b": null,
+    "h": 120.0,
+    "comprimento": 516.0,
+    "confidence": 0.25,
+    "source": "engenharia-reversa-ezdxf",
+    "sides_encontrados": [
+      "A",
+      "B"
+    ],
+    "nota": "Dims requerem verificação manual",
+    "comprimento_source": "lv-dxf-proximity",
+    "h_source": "lv-dxf-cota-secao"
+  },
+  "V26": {
+    "b": null,
+    "h": 120.0,
+    "comprimento": 516.0,
+    "confidence": 0.25,
+    "source": "engenharia-reversa-ezdxf",
+    "sides_encontrados": [
+      "A",
+      "B"
+    ],
+    "nota": "Dims requerem verificação manual",
+    "comprimento_source": "lv-dxf-proximity",
+    "h_source": "lv-dxf-cota-secao"
+  },
+  "V27": {
+    "b": null,
+    "h": 120.0,
+    "comprimento": 340.0,
+    "confidence": 0.25,
+    "source": "engenharia-reversa-ezdxf",
+    "sides_encontrados": [
+      "A",
+      "B"
+    ],
+    "nota": "Dims requerem verificação manual",
+    "comprimento_source": "lv-dxf-proximity",
+    "h_source": "lv-dxf-cota-secao"
+  },
+  "V28": {
+    "b": null,
+    "h": 120.0,
+    "comprimento": 180.0,
+    "confidence": 0.25,
+    "source": "engenharia-reversa-ezdxf",
+    "sides_encontrados": [
+      "A",
+      "B"
+    ],
+    "nota": "Dims requerem verificação manual",
+    "comprimento_source": "lv-dxf-proximity",
+    "h_source": "lv-dxf-cota-secao"
+  },
+  "V29": {
+    "b": null,
+    "h": 120.0,
+    "comprimento": 340.0,
+    "confidence": 0.25,
+    "source": "engenharia-reversa-ezdxf",
+    "sides_encontrados": [
+      "A",
+      "B"
+    ],
+    "nota": "Dims requerem verificação manual",
+    "comprimento_source": "lv-dxf-proximity",
+    "h_source": "lv-dxf-cota-secao"
+  },
+  "V30": {
+    "b": null,
+    "h": 167.4,
+    "comprimento": 558.0,
+    "confidence": 0.25,
+    "source": "engenharia-reversa-ezdxf",
+    "sides_encontrados": [
+      "A",
+      "B"
+    ],
+    "nota": "Dims requerem verificação manual",
+    "comprimento_source": "lv-dxf-proximity",
+    "h_source": "lv-dxf-cota-secao"
+  },
+  "V31": {
+    "b": null,
+    "h": 120.0,
+    "comprimento": 338.0,
+    "confidence": 0.25,
+    "source": "engenharia-reversa-ezdxf",
+    "sides_encontrados": [
+      "A",
+      "B"
+    ],
+    "nota": "Dims requerem verificação manual",
+    "comprimento_source": "lv-dxf-proximity",
+    "h_source": "lv-dxf-cota-secao"
+  },
+  "V32": {
+    "b": null,
+    "h": 38.0,
+    "comprimento": 338.0,
+    "confidence": 0.25,
+    "source": "engenharia-reversa-ezdxf",
+    "sides_encontrados": [
+      "A",
+      "B"
+    ],
+    "nota": "Dims requerem verificação manual",
+    "comprimento_source": "lv-dxf-proximity",
+    "h_source": "lv-dxf-cota-secao"
+  },
+  "V3046": {
+    "b": null,
+    "h": null,
+    "comprimento": null,
+    "confidence": 0.25,
+    "source": "engenharia-reversa-ezdxf",
+    "sides_encontrados": [
+      "B"
+    ],
+    "nota": "Dims requerem verificação manual"
+  },
+  "_meta": {
+    "total": 33,
+    "pavimento": "12 PAV",
+    "extraido_em": "2026-03-08"
+  }
+}

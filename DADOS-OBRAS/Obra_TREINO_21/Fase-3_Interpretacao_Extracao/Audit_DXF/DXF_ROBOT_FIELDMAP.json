@@ -1,0 +1,1301 @@
+{
+  "pilar.comprimento_largura": {
+    "source": "PL DXF",
+    "layer": "Cota Seção (2x)",
+    "entity_type": "DIMENSION",
+    "method": "inverse-proximity ao label P{n}.face",
+    "status": "EXTRAIDO",
+    "samples": [
+      {
+        "val": 100.0,
+        "pos": [
+          2565.0,
+          15608.0
+        ]
+      },
+      {
+        "val": 122.0,
+        "pos": [
+          2543.0,
+          15720.0
+        ]
+      },
+      {
+        "val": 61.0,
+        "pos": [
+          2665.0,
+          15697.0
+        ]
+      }
+    ]
+  },
+  "pilar.h1_h5_por_face": {
+    "source": "COMPUTED",
+    "formula": "h1=2, h2=244, h3=resta (para altura=280: h3=34)",
+    "status": "COMPUTADO",
+    "note": "Fórmula legada determinística — não precisa leitura DXF"
+  },
+  "pilar.larg1_3_por_face": {
+    "source": "DEFAULT",
+    "layer": null,
+    "entity_types_found": {},
+    "lwpolylines_found": [],
+    "status": "AUDITADO_ZERO",
+    "note": "Se 0 no motor_fase4.py, o robô calcula automaticamente na UI"
+  },
+  "pilar.par_1_2_a_8_9": {
+    "source": "DEFAULT_ZERO",
+    "layer": null,
+    "entity_types_found": {},
+    "status": "AUDITADO_ZERO",
+    "note": "0 padrão no motor — confirmar se PL DXF tem dados por pilar"
+  },
+  "pilar.grade_1_3": {
+    "source": "DEFAULT_ZERO",
+    "layer": null,
+    "entity_types_found": {},
+    "status": "AUDITADO_ZERO"
+  },
+  "_PL_ALL_LAYERS": {
+    "0": {
+      "count": 442,
+      "types": {
+        "TEXT": 43,
+        "LINE": 205,
+        "ARC": 32,
+        "ELLIPSE": 16,
+        "LEADER": 8,
+        "LWPOLYLINE": 138
+      }
+    },
+    "BARRA ANCORAGEM": {
+      "count": 83,
+      "types": {
+        "ARC": 3,
+        "LWPOLYLINE": 35,
+        "LINE": 45
+      }
+    },
+    "CARIMBO": {
+      "count": 207,
+      "types": {
+        "TEXT": 138,
+        "INSERT": 5,
+        "LINE": 64
+      }
+    },
+    "CHAPA": {
+      "count": 183,
+      "types": {
+        "LWPOLYLINE": 183
+      }
+    },
+    "CONCRETO": {
+      "count": 9,
+      "types": {
+        "LINE": 7,
+        "HATCH": 2
+      }
+    },
+    "COTA": {
+      "count": 1366,
+      "types": {
+        "DIMENSION": 868,
+        "HATCH": 112,
+        "LWPOLYLINE": 54,
+        "LEADER": 106,
+        "LINE": 226
+      }
+    },
+    "Cota Seção (2x)": {
+      "count": 161,
+      "types": {
+        "DIMENSION": 161
+      }
+    },
+    "Demarcação 1": {
+      "count": 4,
+      "types": {
+        "HATCH": 4
+      }
+    },
+    "Demarcação 2": {
+      "count": 7,
+      "types": {
+        "HATCH": 7
+      }
+    },
+    "Folhas": {
+      "count": 15,
+      "types": {
+        "LWPOLYLINE": 5,
+        "TEXT": 10
+      }
+    },
+    "Hachura": {
+      "count": 818,
+      "types": {
+        "HATCH": 412,
+        "LINE": 176,
+        "ARC": 22,
+        "SPLINE": 11,
+        "LWPOLYLINE": 1,
+        "SOLID": 2,
+        "CIRCLE": 1,
+        "INSERT": 193
+      }
+    },
+    "MEIO_PONT": {
+      "count": 236,
+      "types": {
+        "INSERT": 228,
+        "LWPOLYLINE": 8
+      }
+    },
+    "Madeira": {
+      "count": 294,
+      "types": {
+        "LINE": 99,
+        "ELLIPSE": 16,
+        "LWPOLYLINE": 97,
+        "INSERT": 82
+      }
+    },
+    "NIVEL": {
+      "count": 5,
+      "types": {
+        "LINE": 4,
+        "HATCH": 1
+      }
+    },
+    "NOMENCLATURA": {
+      "count": 35,
+      "types": {
+        "MTEXT": 27,
+        "TEXT": 8
+      }
+    },
+    "Nível": {
+      "count": 54,
+      "types": {
+        "LINE": 54
+      }
+    },
+    "Painéis": {
+      "count": 934,
+      "types": {
+        "LWPOLYLINE": 76,
+        "LINE": 855,
+        "DIMENSION": 3
+      }
+    },
+    "Perfil Metálico": {
+      "count": 164,
+      "types": {
+        "LWPOLYLINE": 100,
+        "LINE": 64
+      }
+    },
+    "REAPROVEITAMENTO": {
+      "count": 58,
+      "types": {
+        "HATCH": 58
+      }
+    },
+    "SARRAFO": {
+      "count": 277,
+      "types": {
+        "HATCH": 1,
+        "LWPOLYLINE": 276
+      }
+    },
+    "SARRAFO DE PRESSAO": {
+      "count": 58,
+      "types": {
+        "OLE2FRAME": 1,
+        "MLINE": 1,
+        "INSERT": 56
+      }
+    },
+    "SARR_2.2x10": {
+      "count": 3,
+      "types": {
+        "LINE": 3
+      }
+    },
+    "SARR_2.2x7": {
+      "count": 263,
+      "types": {
+        "LINE": 263
+      }
+    },
+    "Sarrafo de Pressão": {
+      "count": 134,
+      "types": {
+        "LINE": 134
+      }
+    },
+    "TEXTO_GERAL": {
+      "count": 104,
+      "types": {
+        "TEXT": 104
+      }
+    },
+    "Texto Seção": {
+      "count": 140,
+      "types": {
+        "INSERT": 27,
+        "MTEXT": 113
+      }
+    },
+    "cotas": {
+      "count": 2,
+      "types": {
+        "DIMENSION": 2
+      }
+    },
+    "texto": {
+      "count": 106,
+      "types": {
+        "MTEXT": 106
+      }
+    }
+  },
+  "viga.total_height": {
+    "source": "LV DXF",
+    "layer": "Cota Seção (2x)",
+    "entity_type": "DIMENSION",
+    "method": "nearest DIMENSION 20-400cm ao label V{n}.face",
+    "status": "EXTRAIDO",
+    "samples": [
+      {
+        "val": 127.0,
+        "pos": [
+          -8609.0,
+          15540.0
+        ]
+      },
+      {
+        "val": 19.0,
+        "pos": [
+          -8640.0,
+          15297.0
+        ]
+      },
+      {
+        "val": 60.0,
+        "pos": [
+          -4908.0,
+          15521.0
+        ]
+      }
+    ]
+  },
+  "viga.comprimento": {
+    "source": "LV DXF",
+    "layer": "COTA",
+    "entity_type": "DIMENSION",
+    "method": "MAX DIMENSION >= 100cm em raio 800 do label V{n}.A",
+    "status": "EXTRAIDO",
+    "samples": [
+      {
+        "val": 64.43,
+        "pos": [
+          -5434.0,
+          16751.0
+        ]
+      },
+      {
+        "val": 63.28,
+        "pos": [
+          -5370.0,
+          16751.0
+        ]
+      },
+      {
+        "val": 302.46,
+        "pos": [
+          -5068.0,
+          16554.0
+        ]
+      }
+    ]
+  },
+  "viga.holes": {
+    "source": "DEFAULT_ZERO",
+    "layer": null,
+    "entity_types_found": {},
+    "status": "AUDITADO_ZERO"
+  },
+  "_LV_ALL_LAYERS": {
+    "0": {
+      "count": 1071,
+      "types": {
+        "LWPOLYLINE": 17,
+        "TEXT": 16,
+        "LINE": 996,
+        "CIRCLE": 8,
+        "HATCH": 33,
+        "LEADER": 1
+      }
+    },
+    "5": {
+      "count": 164,
+      "types": {
+        "TEXT": 164
+      }
+    },
+    "BARRA DE ANCORAGEM": {
+      "count": 20,
+      "types": {
+        "ARC": 1,
+        "LWPOLYLINE": 10,
+        "LINE": 9
+      }
+    },
+    "CARIMBO": {
+      "count": 302,
+      "types": {
+        "TEXT": 211,
+        "LINE": 82,
+        "CIRCLE": 9
+      }
+    },
+    "CONCRETO": {
+      "count": 203,
+      "types": {
+        "HATCH": 1,
+        "LINE": 136,
+        "LWPOLYLINE": 66
+      }
+    },
+    "COTA": {
+      "count": 1506,
+      "types": {
+        "HATCH": 67,
+        "LWPOLYLINE": 4,
+        "DIMENSION": 1139,
+        "LINE": 296
+      }
+    },
+    "Cota Seção (2x)": {
+      "count": 80,
+      "types": {
+        "DIMENSION": 80
+      }
+    },
+    "Demarcação 1": {
+      "count": 8,
+      "types": {
+        "HATCH": 8
+      }
+    },
+    "Demarcação 2": {
+      "count": 26,
+      "types": {
+        "HATCH": 26
+      }
+    },
+    "Escoras": {
+      "count": 38,
+      "types": {
+        "LINE": 27,
+        "ARC": 4,
+        "DIMENSION": 7
+      }
+    },
+    "Folhas": {
+      "count": 9,
+      "types": {
+        "LWPOLYLINE": 4,
+        "TEXT": 5
+      }
+    },
+    "Forcador": {
+      "count": 61,
+      "types": {
+        "LINE": 37,
+        "LWPOLYLINE": 9,
+        "ARC": 12,
+        "INSERT": 3
+      }
+    },
+    "GARFOS": {
+      "count": 44,
+      "types": {
+        "TEXT": 27,
+        "LINE": 17
+      }
+    },
+    "HACHURA MADEIRAS": {
+      "count": 3,
+      "types": {
+        "HATCH": 3
+      }
+    },
+    "Hachura": {
+      "count": 587,
+      "types": {
+        "HATCH": 535,
+        "LINE": 42,
+        "LEADER": 3,
+        "SOLID": 1,
+        "SPLINE": 6
+      }
+    },
+    "Laje_Perimetro": {
+      "count": 24,
+      "types": {
+        "LWPOLYLINE": 24
+      }
+    },
+    "Madeira": {
+      "count": 458,
+      "types": {
+        "LINE": 16,
+        "LWPOLYLINE": 422,
+        "HATCH": 20
+      }
+    },
+    "NOMENCLATURA": {
+      "count": 1,
+      "types": {
+        "TEXT": 1
+      }
+    },
+    "PONTALETE": {
+      "count": 10,
+      "types": {
+        "TEXT": 10
+      }
+    },
+    "Painéis": {
+      "count": 1292,
+      "types": {
+        "LWPOLYLINE": 237,
+        "LINE": 1043,
+        "LEADER": 5,
+        "MTEXT": 7
+      }
+    },
+    "Perfil Metálico": {
+      "count": 10,
+      "types": {
+        "LWPOLYLINE": 4,
+        "LINE": 4,
+        "HATCH": 2
+      }
+    },
+    "Reaproveitamento": {
+      "count": 132,
+      "types": {
+        "HATCH": 132
+      }
+    },
+    "SARRAFO": {
+      "count": 1,
+      "types": {
+        "LINE": 1
+      }
+    },
+    "SARRAFO DE PRESSAO": {
+      "count": 101,
+      "types": {
+        "OLE2FRAME": 1,
+        "MLINE": 1,
+        "INSERT": 98,
+        "LINE": 1
+      }
+    },
+    "SARR_2.2x10": {
+      "count": 22,
+      "types": {
+        "LINE": 22
+      }
+    },
+    "SARR_2.2x15": {
+      "count": 1,
+      "types": {
+        "LINE": 1
+      }
+    },
+    "SARR_2.2x20": {
+      "count": 1,
+      "types": {
+        "LINE": 1
+      }
+    },
+    "SARR_2.2x6.3": {
+      "count": 1,
+      "types": {
+        "LINE": 1
+      }
+    },
+    "SARR_2.2x7": {
+      "count": 742,
+      "types": {
+        "LINE": 728,
+        "LWPOLYLINE": 14
+      }
+    },
+    "SARR_3.5x10": {
+      "count": 1,
+      "types": {
+        "LINE": 1
+      }
+    },
+    "SARR_3.5x7": {
+      "count": 1735,
+      "types": {
+        "LINE": 1723,
+        "LWPOLYLINE": 12
+      }
+    },
+    "SARR_7x10": {
+      "count": 1,
+      "types": {
+        "LINE": 1
+      }
+    },
+    "SARR_EDITAR": {
+      "count": 1,
+      "types": {
+        "LINE": 1
+      }
+    },
+    "SCO-___-LAJ": {
+      "count": 31,
+      "types": {
+        "LWPOLYLINE": 31
+      }
+    },
+    "Sarr 2.2x7": {
+      "count": 25,
+      "types": {
+        "LINE": 25
+      }
+    },
+    "TENSOR": {
+      "count": 40,
+      "types": {
+        "LINE": 40
+      }
+    },
+    "Texto Seção": {
+      "count": 92,
+      "types": {
+        "INSERT": 31,
+        "TEXT": 61
+      }
+    },
+    "barrote": {
+      "count": 43,
+      "types": {
+        "LWPOLYLINE": 43
+      }
+    },
+    "cotas": {
+      "count": 2,
+      "types": {
+        "DIMENSION": 2
+      }
+    },
+    "detalhes": {
+      "count": 212,
+      "types": {
+        "TEXT": 173,
+        "LINE": 39
+      }
+    },
+    "fundo": {
+      "count": 3,
+      "types": {
+        "HATCH": 3
+      }
+    },
+    "material do compensado": {
+      "count": 17,
+      "types": {
+        "LINE": 17
+      }
+    },
+    "presilha": {
+      "count": 62,
+      "types": {
+        "INSERT": 62
+      }
+    },
+    "texto": {
+      "count": 285,
+      "types": {
+        "TEXT": 2,
+        "MTEXT": 283
+      }
+    }
+  },
+  "viga.total_width_fundo": {
+    "source": "FV DXF",
+    "candidate_layers": {
+      "COTA": [
+        {
+          "val": 7.0,
+          "pos": [
+            5771.0,
+            2281.0
+          ]
+        }
+      ]
+    },
+    "all_dim_samples": {
+      "COTA": [
+        {
+          "val": 2.0,
+          "pos": [
+            5776.0,
+            2410.0
+          ]
+        },
+        {
+          "val": 7.0,
+          "pos": [
+            5771.0,
+            2281.0
+          ]
+        },
+        {
+          "val": 64.43,
+          "pos": [
+            6828.0,
+            2527.0
+          ]
+        },
+        {
+          "val": 63.28,
+          "pos": [
+            6891.0,
+            2527.0
+          ]
+        },
+        {
+          "val": 302.46,
+          "pos": [
+            7194.0,
+            2330.0
+          ]
+        }
+      ],
+      "Painéis": [
+        {
+          "val": 244.0,
+          "pos": [
+            3778.0,
+            878.0
+          ]
+        },
+        {
+          "val": 244.0,
+          "pos": [
+            3776.0,
+            716.0
+          ]
+        },
+        {
+          "val": 122.0,
+          "pos": [
+            3898.0,
+            716.0
+          ]
+        },
+        {
+          "val": 60.0,
+          "pos": [
+            4082.0,
+            742.0
+          ]
+        },
+        {
+          "val": 520.0,
+          "pos": [
+            4052.0,
+            688.0
+          ]
+        }
+      ]
+    },
+    "status": "AUDITADO_PRESENTE",
+    "note": "total_width = espessura da viga (B cm) — procurar DIMENSION < 60cm por viga"
+  },
+  "_FV_ALL_LAYERS": {
+    "0": {
+      "count": 424,
+      "types": {
+        "TEXT": 16,
+        "LWPOLYLINE": 10,
+        "LINE": 356,
+        "CIRCLE": 8,
+        "HATCH": 33,
+        "LEADER": 1
+      }
+    },
+    "5": {
+      "count": 8,
+      "types": {
+        "TEXT": 8
+      }
+    },
+    "BARRA DE ANCORAGEM": {
+      "count": 20,
+      "types": {
+        "ARC": 1,
+        "LWPOLYLINE": 10,
+        "LINE": 9
+      }
+    },
+    "CARIMBO": {
+      "count": 136,
+      "types": {
+        "ATTDEF": 1,
+        "TEXT": 91,
+        "CIRCLE": 9,
+        "LINE": 35
+      }
+    },
+    "CONCRETO": {
+      "count": 3,
+      "types": {
+        "HATCH": 1,
+        "LINE": 2
+      }
+    },
+    "COTA": {
+      "count": 7,
+      "types": {
+        "HATCH": 1,
+        "LWPOLYLINE": 1,
+        "DIMENSION": 5
+      }
+    },
+    "Demarcação 1": {
+      "count": 8,
+      "types": {
+        "HATCH": 8
+      }
+    },
+    "Demarcação 2": {
+      "count": 26,
+      "types": {
+        "HATCH": 26
+      }
+    },
+    "Escoras": {
+      "count": 31,
+      "types": {
+        "LINE": 27,
+        "ARC": 4
+      }
+    },
+    "Folhas": {
+      "count": 9,
+      "types": {
+        "LWPOLYLINE": 4,
+        "TEXT": 5
+      }
+    },
+    "Forcador": {
+      "count": 61,
+      "types": {
+        "LINE": 37,
+        "LWPOLYLINE": 9,
+        "ARC": 12,
+        "INSERT": 3
+      }
+    },
+    "GARFOS": {
+      "count": 44,
+      "types": {
+        "TEXT": 27,
+        "LINE": 17
+      }
+    },
+    "HACHURA MADEIRAS": {
+      "count": 3,
+      "types": {
+        "HATCH": 3
+      }
+    },
+    "Hachura": {
+      "count": 65,
+      "types": {
+        "HATCH": 13,
+        "LINE": 42,
+        "LEADER": 3,
+        "SOLID": 1,
+        "SPLINE": 6
+      }
+    },
+    "Madeira": {
+      "count": 32,
+      "types": {
+        "LINE": 16,
+        "LWPOLYLINE": 11,
+        "HATCH": 5
+      }
+    },
+    "NOMENCLATURA": {
+      "count": 5,
+      "types": {
+        "TEXT": 5
+      }
+    },
+    "Painéis": {
+      "count": 96,
+      "types": {
+        "LWPOLYLINE": 9,
+        "LINE": 46,
+        "DIMENSION": 41
+      }
+    },
+    "Perfil Metálico": {
+      "count": 10,
+      "types": {
+        "LWPOLYLINE": 4,
+        "LINE": 4,
+        "HATCH": 2
+      }
+    },
+    "REAPROVEITAMENTO": {
+      "count": 2,
+      "types": {
+        "HATCH": 2
+      }
+    },
+    "SARRAFO DE PRESSAO": {
+      "count": 7,
+      "types": {
+        "OLE2FRAME": 1,
+        "INSERT": 6
+      }
+    },
+    "SARR_2.2x7": {
+      "count": 99,
+      "types": {
+        "LINE": 99
+      }
+    },
+    "fundo": {
+      "count": 3,
+      "types": {
+        "HATCH": 3
+      }
+    },
+    "material do compensado": {
+      "count": 17,
+      "types": {
+        "LINE": 17
+      }
+    },
+    "texto": {
+      "count": 2,
+      "types": {
+        "TEXT": 2
+      }
+    }
+  },
+  "_FV_SAMPLE_TEXTS": {
+    "0": [
+      "DESCRIÇÃO",
+      "NOME",
+      "DATA",
+      "REVISÃO",
+      "LIBERADO"
+    ],
+    "CARIMBO": [
+      "04",
+      "05",
+      "03",
+      "EMISSÃO INICIAL",
+      "FELIPE"
+    ],
+    "GARFOS": [
+      "ALTURA",
+      "ESPAÇAMENTO",
+      "DE",
+      "VIGAS",
+      "BARROTES"
+    ],
+    "texto": [
+      "SEM MOSQUITO",
+      "DETALHE DE FUNDO"
+    ],
+    "Folhas": [
+      "CLIENTE:",
+      "OBRA:",
+      "PAVIMENTO:",
+      "PROJETO:",
+      "REVISÃO:"
+    ],
+    "5": [
+      "P25",
+      "P75",
+      "P16",
+      "P1",
+      "P24"
+    ],
+    "NOMENCLATURA": [
+      "V19.C",
+      "V22.C",
+      "V12.C",
+      "V2.C",
+      "CONT...V2.C"
+    ]
+  },
+  "laje.coordenadas": {
+    "source": "LJ DXF",
+    "candidate_layers_with_large_lwpoly": {},
+    "all_lwpoly_layers": {
+      "Painéis": [
+        {
+          "n_vertices": 5,
+          "is_closed": false,
+          "bbox_area": 6769.4,
+          "bbox_x": [
+            5631.1,
+            5714.1
+          ],
+          "bbox_y": [
+            2638.0,
+            2728.0
+          ],
+          "insert": [
+            5714.1,
+            2673.0
+          ]
+        },
+        {
+          "n_vertices": 5,
+          "is_closed": false,
+          "bbox_area": 6528.6,
+          "bbox_x": [
+            5631.1,
+            5714.1
+          ],
+          "bbox_y": [
+            2548.5,
+            2638.0
+          ],
+          "insert": [
+            5674.1,
+            2638.0
+          ]
+        },
+        {
+          "n_vertices": 5,
+          "is_closed": false,
+          "bbox_area": 6364.4,
+          "bbox_x": [
+            5714.1,
+            5792.6
+          ],
+          "bbox_y": [
+            2638.0,
+            2728.0
+          ],
+          "insert": [
+            5754.1,
+            2638.0
+          ]
+        }
+      ],
+      "Pilares": [
+        {
+          "n_vertices": 5,
+          "is_closed": false,
+          "bbox_area": 4142.0,
+          "bbox_x": [
+            5792.6,
+            5811.6
+          ],
+          "bbox_y": [
+            2529.0,
+            2747.0
+          ],
+          "insert": [
+            5792.6,
+            2529.0
+          ]
+        },
+        {
+          "n_vertices": 5,
+          "is_closed": false,
+          "bbox_area": 1330.0,
+          "bbox_x": [
+            5223.6,
+            5242.6
+          ],
+          "bbox_y": [
+            2845.0,
+            2915.0
+          ],
+          "insert": [
+            5223.6,
+            2845.0
+          ]
+        },
+        {
+          "n_vertices": 5,
+          "is_closed": false,
+          "bbox_area": 1900.0,
+          "bbox_x": [
+            3272.1,
+            3372.1
+          ],
+          "bbox_y": [
+            2896.0,
+            2915.0
+          ],
+          "insert": [
+            3272.1,
+            2896.0
+          ]
+        }
+      ],
+      "1": [
+        {
+          "n_vertices": 5,
+          "is_closed": false,
+          "bbox_area": 14770.0,
+          "bbox_x": [
+            7371.6,
+            7441.6
+          ],
+          "bbox_y": [
+            2347.0,
+            2558.0
+          ],
+          "insert": [
+            7441.6,
+            2558.0
+          ]
+        },
+        {
+          "n_vertices": 6,
+          "is_closed": false,
+          "bbox_area": 1690.1,
+          "bbox_x": [
+            7234.5,
+            7406.6
+          ],
+          "bbox_y": [
+            2325.5,
+            2391.8
+          ],
+          "insert": [
+            7234.5,
+            2325.5
+          ]
+        },
+        {
+          "n_vertices": 6,
+          "is_closed": false,
+          "bbox_area": 2622.7,
+          "bbox_x": [
+            3144.2,
+            3242.4
+          ],
+          "bbox_y": [
+            1892.1,
+            2025.2
+          ],
+          "insert": [
+            3242.4,
+            1892.1
+          ]
+        }
+      ]
+    },
+    "status": "DESCONHECIDO",
+    "note": "coordenadas = LWPOLYLINE fechada com maior área perto do label L{n}"
+  },
+  "laje.comprimento_largura": {
+    "source": "LJ DXF",
+    "layer": "AUX00",
+    "entity_type": "MTEXT",
+    "method": "parse 'L{n}\\n{dim1}X{dim2}' — dim1 x dim2 em cm",
+    "status": "EXTRAIDO",
+    "samples": [
+      "L11\n94X244",
+      "L11\n94X143.5",
+      "L11\n94X244",
+      "L11\n61X244",
+      "L11\n61X244"
+    ]
+  },
+  "laje.linhas_internas": {
+    "source": "LJ DXF",
+    "line_rich_layers": {
+      "FOLHA": 13,
+      "Painéis": 298,
+      "1": 2098,
+      "2": 15,
+      "3": 8,
+      "SARR_2.2x7": 128
+    },
+    "status": "AUDITADO_PRESENTE",
+    "note": "linhas_verticais computadas cada 100cm; horizontais podem estar em LINE entities"
+  },
+  "_LJ_ALL_LAYERS": {
+    "0": {
+      "count": 4,
+      "types": {
+        "LINE": 4
+      }
+    },
+    "1": {
+      "count": 2297,
+      "types": {
+        "LINE": 2098,
+        "LWPOLYLINE": 137,
+        "CIRCLE": 32,
+        "TEXT": 30
+      }
+    },
+    "2": {
+      "count": 15,
+      "types": {
+        "LINE": 15
+      }
+    },
+    "3": {
+      "count": 170,
+      "types": {
+        "LWPOLYLINE": 13,
+        "CIRCLE": 14,
+        "LINE": 8,
+        "TEXT": 135
+      }
+    },
+    "4": {
+      "count": 76,
+      "types": {
+        "TEXT": 76
+      }
+    },
+    "6": {
+      "count": 38,
+      "types": {
+        "TEXT": 38
+      }
+    },
+    "7": {
+      "count": 1,
+      "types": {
+        "TEXT": 1
+      }
+    },
+    "AUX00": {
+      "count": 66,
+      "types": {
+        "MTEXT": 60,
+        "MULTILEADER": 6
+      }
+    },
+    "CARIMBO": {
+      "count": 11,
+      "types": {
+        "INSERT": 2,
+        "LWPOLYLINE": 1,
+        "TEXT": 8
+      }
+    },
+    "COTA": {
+      "count": 356,
+      "types": {
+        "DIMENSION": 356
+      }
+    },
+    "FOLHA": {
+      "count": 13,
+      "types": {
+        "LINE": 13
+      }
+    },
+    "Hachura": {
+      "count": 31,
+      "types": {
+        "HATCH": 31
+      }
+    },
+    "Painéis": {
+      "count": 335,
+      "types": {
+        "LWPOLYLINE": 37,
+        "LINE": 298
+      }
+    },
+    "Pilares": {
+      "count": 39,
+      "types": {
+        "LWPOLYLINE": 39
+      }
+    },
+    "REAPROVEITAMENTO": {
+      "count": 26,
+      "types": {
+        "HATCH": 26
+      }
+    },
+    "SARR_2.2x7": {
+      "count": 128,
+      "types": {
+        "LINE": 128
+      }
+    }
+  },
+  "_LJ_SAMPLE_TEXTS": {
+    "CARIMBO": [
+      "%%UNOTAS:",
+      "A elaboração deste projeto, foi feito de acordo com base nos projetos estruturai",
+      "da folha PL33-EST-LO-009-12PV-RXX",
+      "%%UOBS:",
+      "* Acertar em obra os paineis que chegam nas Cortinas/Paredes."
+    ],
+    "7": [
+      "12o. PAVIMENTO"
+    ],
+    "4": [
+      "V4a",
+      "V5a",
+      "V8a",
+      "V1a",
+      "V1b"
+    ],
+    "3": [
+      "19/60",
+      "19/60",
+      "14/60",
+      "14/60",
+      "19/60"
+    ],
+    "6": [
+      "P12",
+      "P9",
+      "P1",
+      "P25",
+      "P23"
+    ],
+    "1": [
+      "807.61m",
+      "807.61m",
+      "807.46m",
+      "808.08m",
+      "806.88m"
+    ],
+    "AUX00": [
+      "L11\n94X244",
+      "L11\n94X143.5",
+      "L11\n94X244",
+      "L11\n61X244",
+      "L11\n61X244"
+    ]
+  }
+}

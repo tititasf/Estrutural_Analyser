@@ -1,0 +1,233 @@
+{
+  "V1": {
+    "id": "V1",
+    "largura_cm": 14.0,
+    "confidence": 0.765,
+    "source": "fv-tipo-proximity",
+    "dist": 138.6
+  },
+  "V2": {
+    "id": "V2",
+    "largura_cm": 19.0,
+    "confidence": 0.85,
+    "source": "fv-12pav-proximity",
+    "dist": 59.4
+  },
+  "V3": {
+    "id": "V3",
+    "largura_cm": 14.0,
+    "confidence": 0.765,
+    "source": "fv-tipo-proximity",
+    "dist": 85.0
+  },
+  "V4": {
+    "id": "V4",
+    "largura_cm": 34.0,
+    "confidence": 0.765,
+    "source": "fv-tipo-proximity",
+    "dist": 470.4
+  },
+  "V5": {
+    "id": "V5",
+    "largura_cm": 34.0,
+    "confidence": 0.765,
+    "source": "fv-tipo-proximity",
+    "dist": 282.7
+  },
+  "V6": {
+    "id": "V6",
+    "largura_cm": 14.0,
+    "confidence": 0.765,
+    "source": "fv-tipo-proximity",
+    "dist": 309.3
+  },
+  "V7": {
+    "id": "V7",
+    "largura_cm": 19.0,
+    "confidence": 0.765,
+    "source": "fv-tipo-proximity",
+    "dist": 66.0
+  },
+  "V8": {
+    "id": "V8",
+    "largura_cm": 19.0,
+    "confidence": 0.765,
+    "source": "fv-tipo-proximity",
+    "dist": 69.9
+  },
+  "V9": {
+    "id": "V9",
+    "largura_cm": 14.0,
+    "confidence": 0.765,
+    "source": "fv-tipo-proximity",
+    "dist": 309.3
+  },
+  "V10": {
+    "id": "V10",
+    "largura_cm": 14.0,
+    "confidence": 0.765,
+    "source": "fv-tipo-proximity",
+    "dist": 309.3
+  },
+  "V11": {
+    "id": "V11",
+    "largura_cm": 33.99,
+    "confidence": 0.765,
+    "source": "fv-tipo-proximity",
+    "dist": 238.7
+  },
+  "V12": {
+    "id": "V12",
+    "largura_cm": 19.0,
+    "confidence": 0.85,
+    "source": "fv-12pav-proximity",
+    "dist": 203.9
+  },
+  "V13": {
+    "id": "V13",
+    "largura_cm": 14.0,
+    "confidence": 0.765,
+    "source": "fv-tipo-proximity",
+    "dist": 309.3
+  },
+  "V14": {
+    "id": "V14",
+    "largura_cm": 14.0,
+    "confidence": 0.765,
+    "source": "fv-tipo-proximity",
+    "dist": 23.5
+  },
+  "V15": {
+    "id": "V15",
+    "largura_cm": 25.0,
+    "confidence": 0.765,
+    "source": "fv-tipo-proximity",
+    "dist": 33.9
+  },
+  "V16": {
+    "id": "V16",
+    "largura_cm": 19.0,
+    "confidence": 0.765,
+    "source": "fv-tipo-proximity",
+    "dist": 71.9
+  },
+  "V17": {
+    "id": "V17",
+    "largura_cm": 39.0,
+    "confidence": 0.765,
+    "source": "fv-tipo-proximity",
+    "dist": 154.8
+  },
+  "V18": {
+    "id": "V18",
+    "largura_cm": 19.0,
+    "confidence": 0.765,
+    "source": "fv-tipo-proximity",
+    "dist": 156.5
+  },
+  "V19": {
+    "id": "V19",
+    "largura_cm": 19.0,
+    "confidence": 0.85,
+    "source": "fv-12pav-proximity",
+    "dist": 353.2
+  },
+  "V20": {
+    "id": "V20",
+    "largura_cm": 19.0,
+    "confidence": 0.765,
+    "source": "fv-tipo-proximity",
+    "dist": 62.4
+  },
+  "V21": {
+    "id": "V21",
+    "largura_cm": 19.0,
+    "confidence": 0.765,
+    "source": "fv-tipo-proximity",
+    "dist": 207.6
+  },
+  "V22": {
+    "id": "V22",
+    "largura_cm": 60.0,
+    "confidence": 0.85,
+    "source": "fv-12pav-proximity",
+    "dist": 479.1
+  },
+  "V23": {
+    "id": "V23",
+    "largura_cm": 19.0,
+    "confidence": 0.765,
+    "source": "fv-tipo-proximity",
+    "dist": 38.7
+  },
+  "V24": {
+    "id": "V24",
+    "largura_cm": 19.0,
+    "confidence": 0.765,
+    "source": "fv-tipo-proximity",
+    "dist": 328.3
+  },
+  "V25": {
+    "id": "V25",
+    "largura_cm": 19.0,
+    "confidence": 0.765,
+    "source": "fv-tipo-proximity",
+    "dist": 71.9
+  },
+  "V26": {
+    "id": "V26",
+    "largura_cm": 19.0,
+    "confidence": 0.765,
+    "source": "fv-tipo-proximity",
+    "dist": 281.4
+  },
+  "V27": {
+    "id": "V27",
+    "largura_cm": 19.0,
+    "confidence": 0.765,
+    "source": "fv-tipo-proximity",
+    "dist": 71.9
+  },
+  "V28": {
+    "id": "V28",
+    "largura_cm": 19.0,
+    "confidence": 0.765,
+    "source": "fv-tipo-proximity",
+    "dist": 281.4
+  },
+  "V29": {
+    "id": "V29",
+    "largura_cm": 19.0,
+    "confidence": 0.765,
+    "source": "fv-tipo-proximity",
+    "dist": 39.2
+  },
+  "V30": {
+    "id": "V30",
+    "largura_cm": 19.0,
+    "confidence": 0.765,
+    "source": "fv-tipo-proximity",
+    "dist": 39.2
+  },
+  "V31": {
+    "id": "V31",
+    "largura_cm": 19.0,
+    "confidence": 0.765,
+    "source": "fv-tipo-proximity",
+    "dist": 57.1
+  },
+  "V32": {
+    "id": "V32",
+    "largura_cm": 19.0,
+    "confidence": 0.765,
+    "source": "fv-tipo-proximity",
+    "dist": 227.6
+  },
+  "V32A": {
+    "id": "V32A",
+    "largura_cm": 19.0,
+    "confidence": 0.2,
+    "source": "default-19cm",
+    "note": "Não encontrado em nenhum FV DXF"
+  }
+}

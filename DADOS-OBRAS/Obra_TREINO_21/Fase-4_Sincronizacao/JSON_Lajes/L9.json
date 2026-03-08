@@ -1,0 +1,49 @@
+{
+  "numero": 9,
+  "nome": "L9",
+  "comprimento": 287.8,
+  "largura": 244.0,
+  "pavimento": "12 PAV",
+  "coordenadas": [
+    [
+      0.0,
+      0.0
+    ],
+    [
+      287.8,
+      0.0
+    ],
+    [
+      287.8,
+      244.0
+    ],
+    [
+      0.0,
+      244.0
+    ],
+    [
+      0.0,
+      0.0
+    ]
+  ],
+  "area_cm2": 70223.2,
+  "linhas_verticais": [
+    {
+      "value": 100.0,
+      "is_union": false
+    },
+    {
+      "value": 200.0,
+      "is_union": false
+    },
+    {
+      "value": 287.8,
+      "is_union": false
+    }
+  ],
+  "linhas_horizontais": [],
+  "obstaculos": [],
+  "modo_selecionado": 0,
+  "unioes_nos_bordes": false,
+  "observacoes": ""
+}

@@ -1,0 +1,142 @@
+{
+  "V1": {
+    "id": "V1",
+    "garfo_count": 25,
+    "section": "tipo",
+    "source_dxf": "STOG - NIK SUNSET - ADITIVO - TIPO - EVG - R00_R2018_ASCII_ODA.dxf",
+    "confidence": 0.9
+  },
+  "V2": {
+    "id": "V2",
+    "garfo_count": 25,
+    "section": "tipo",
+    "source_dxf": "STOG - NIK SUNSET - ADITIVO - TIPO - EVG - R00_R2018_ASCII_ODA.dxf",
+    "confidence": 0.9
+  },
+  "V3": {
+    "id": "V3",
+    "garfo_count": 24,
+    "section": "aditivo",
+    "source_dxf": "STOG - NIK SUNSET - ADITIVO - TIPO - EVG - R00_R2018_ASCII_ODA.dxf",
+    "confidence": 0.9
+  },
+  "V4": {
+    "id": "V4",
+    "garfo_count": 24,
+    "section": "aditivo",
+    "source_dxf": "STOG - NIK SUNSET - ADITIVO - TIPO - EVG - R00_R2018_ASCII_ODA.dxf",
+    "confidence": 0.9
+  },
+  "V5": {
+    "id": "V5",
+    "garfo_count": 11,
+    "section": "tipo",
+    "source_dxf": "STOG - NIK SUNSET - ADITIVO - TIPO - EVG - R00_R2018_ASCII_ODA.dxf",
+    "confidence": 0.9
+  },
+  "V6": {
+    "id": "V6",
+    "garfo_count": 11,
+    "section": "aditivo",
+    "source_dxf": "STOG - NIK SUNSET - ADITIVO - TIPO - EVG - R00_R2018_ASCII_ODA.dxf",
+    "confidence": 0.9
+  },
+  "V9": {
+    "id": "V9",
+    "garfo_count": 10,
+    "section": "aditivo",
+    "source_dxf": "STOG - NIK SUNSET - ADITIVO - TIPO - EVG - R00_R2018_ASCII_ODA.dxf",
+    "confidence": 0.9
+  },
+  "V10": {
+    "id": "V10",
+    "garfo_count": 11,
+    "section": "aditivo",
+    "source_dxf": "STOG - NIK SUNSET - ADITIVO - TIPO - EVG - R00_R2018_ASCII_ODA.dxf",
+    "confidence": 0.9
+  },
+  "V11": {
+    "id": "V11",
+    "garfo_count": 24,
+    "section": "aditivo",
+    "source_dxf": "STOG - NIK SUNSET - ADITIVO - TIPO - EVG - R00_R2018_ASCII_ODA.dxf",
+    "confidence": 0.9
+  },
+  "V12": {
+    "id": "V12",
+    "garfo_count": 28,
+    "section": "aditivo",
+    "source_dxf": "STOG - NIK SUNSET - ADITIVO - TIPO - EVG - R00_R2018_ASCII_ODA.dxf",
+    "confidence": 0.9
+  },
+  "V13": {
+    "id": "V13",
+    "garfo_count": 11,
+    "section": "tipo",
+    "source_dxf": "STOG - NIK SUNSET - ADITIVO - TIPO - EVG - R00_R2018_ASCII_ODA.dxf",
+    "confidence": 0.9
+  },
+  "V14": {
+    "id": "V14",
+    "garfo_count": 3,
+    "section": "aditivo",
+    "source_dxf": "STOG - NIK SUNSET - ADITIVO - TIPO - EVG - R00_R2018_ASCII_ODA.dxf",
+    "confidence": 0.9
+  },
+  "V15": {
+    "id": "V15",
+    "garfo_count": 25,
+    "section": "tipo",
+    "source_dxf": "STOG - NIK SUNSET - ADITIVO - TIPO - EVG - R00_R2018_ASCII_ODA.dxf",
+    "confidence": 0.9
+  },
+  "V17": {
+    "id": "V17",
+    "garfo_count": 16,
+    "section": "aditivo",
+    "source_dxf": "STOG - NIK SUNSET - ADITIVO - TIPO - EVG - R00_R2018_ASCII_ODA.dxf",
+    "confidence": 0.9
+  },
+  "V19": {
+    "id": "V19",
+    "garfo_count": 2,
+    "section": "aditivo",
+    "source_dxf": "STOG - NIK SUNSET - ADITIVO - TIPO - EVG - R00_R2018_ASCII_ODA.dxf",
+    "confidence": 0.9
+  },
+  "V20": {
+    "id": "V20",
+    "garfo_count": 4,
+    "section": "aditivo",
+    "source_dxf": "STOG - NIK SUNSET - ADITIVO - TIPO - EVG - R00_R2018_ASCII_ODA.dxf",
+    "confidence": 0.9
+  },
+  "V22": {
+    "id": "V22",
+    "garfo_count": 3,
+    "section": "aditivo",
+    "source_dxf": "STOG - NIK SUNSET - ADITIVO - TIPO - EVG - R00_R2018_ASCII_ODA.dxf",
+    "confidence": 0.9
+  },
+  "V23": {
+    "id": "V23",
+    "garfo_count": 2,
+    "section": "aditivo",
+    "source_dxf": "STOG - NIK SUNSET - ADITIVO - TIPO - EVG - R00_R2018_ASCII_ODA.dxf",
+    "confidence": 0.9
+  },
+  "V24": {
+    "id": "V24",
+    "garfo_count": 16,
+    "section": "aditivo",
+    "source_dxf": "STOG - NIK SUNSET - ADITIVO - TIPO - EVG - R00_R2018_ASCII_ODA.dxf",
+    "confidence": 0.9
+  },
+  "V26": {
+    "id": "V26",
+    "garfo_count": 5,
+    "section": "aditivo",
+    "source_dxf": "STOG - NIK SUNSET - ADITIVO - TIPO - EVG - R00_R2018_ASCII_ODA.dxf",
+    "confidence": 0.9
+  }
+}

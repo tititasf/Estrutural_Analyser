@@ -1,0 +1,49 @@
+{
+  "numero": 1,
+  "nome": "L1",
+  "comprimento": 294.5,
+  "largura": 294.5,
+  "pavimento": "12 PAV",
+  "coordenadas": [
+    [
+      0.0,
+      0.0
+    ],
+    [
+      294.5,
+      0.0
+    ],
+    [
+      294.5,
+      294.5
+    ],
+    [
+      0.0,
+      294.5
+    ],
+    [
+      0.0,
+      0.0
+    ]
+  ],
+  "area_cm2": 86730.2,
+  "linhas_verticais": [
+    {
+      "value": 100.0,
+      "is_union": false
+    },
+    {
+      "value": 200.0,
+      "is_union": false
+    },
+    {
+      "value": 294.5,
+      "is_union": false
+    }
+  ],
+  "linhas_horizontais": [],
+  "obstaculos": [],
+  "modo_selecionado": 0,
+  "unioes_nos_bordes": false,
+  "observacoes": ""
+}
