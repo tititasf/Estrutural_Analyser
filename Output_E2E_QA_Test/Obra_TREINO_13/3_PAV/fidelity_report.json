@@ -1,0 +1,380 @@
+{
+    "obra": "Obra_TREINO_13",
+    "pavimento": "3_PAV",
+    "scores": {
+        "Pilares": {
+            "classe": "PL",
+            "score": 94.3,
+            "layers_ausentes": [],
+            "cores_erradas": [
+                {
+                    "layer": "REGUA-80",
+                    "gerado": 80,
+                    "esperado": 111
+                },
+                {
+                    "layer": "Romaneio",
+                    "gerado": 7,
+                    "esperado": 10
+                },
+                {
+                    "layer": "cotas",
+                    "gerado": 241,
+                    "esperado": 4
+                },
+                {
+                    "layer": "PAINEL",
+                    "gerado": 200,
+                    "esperado": 7
+                },
+                {
+                    "layer": "00-FELIPE",
+                    "gerado": 2,
+                    "esperado": 6
+                },
+                {
+                    "layer": "F-PILARES-S",
+                    "gerado": 251,
+                    "esperado": 170
+                },
+                {
+                    "layer": "va165-sec",
+                    "gerado": 241,
+                    "esperado": 5
+                }
+            ],
+            "metricas": {
+                "layer_score": 40.0,
+                "color_score": 16.31578947368421,
+                "entity_score": 28.0,
+                "hatch_score": 10
+            }
+        },
+        "Vigas_Laterais": {
+            "classe": "LV",
+            "score": 87.2,
+            "layers_ausentes": [],
+            "cores_erradas": [
+                {
+                    "layer": "REGUA-80",
+                    "gerado": 80,
+                    "esperado": 111
+                },
+                {
+                    "layer": "contorno de painel",
+                    "gerado": 200,
+                    "esperado": 7
+                },
+                {
+                    "layer": "PAINEL",
+                    "gerado": 200,
+                    "esperado": 7
+                },
+                {
+                    "layer": "TEXTO PILAR",
+                    "gerado": 7,
+                    "esperado": 3
+                },
+                {
+                    "layer": "va165-sec",
+                    "gerado": 241,
+                    "esperado": 5
+                }
+            ],
+            "metricas": {
+                "layer_score": 40.0,
+                "color_score": 17.22222222222222,
+                "entity_score": 20.0,
+                "hatch_score": 10
+            }
+        },
+        "Vigas_Fundos": {
+            "classe": "FV",
+            "score": 84.8,
+            "layers_ausentes": [
+                "SARR_2.2x10"
+            ],
+            "cores_erradas": [
+                {
+                    "layer": "F-PILARES-M",
+                    "gerado": 251,
+                    "esperado": 170
+                },
+                {
+                    "layer": "F-PILARES-S",
+                    "gerado": 251,
+                    "esperado": 170
+                },
+                {
+                    "layer": "00 - FELIPE",
+                    "gerado": 2,
+                    "esperado": 6
+                }
+            ],
+            "metricas": {
+                "layer_score": 38.57142857142857,
+                "color_score": 17.77777777777778,
+                "entity_score": 18.461538461538463,
+                "hatch_score": 10
+            }
+        },
+        "Lajes": {
+            "classe": "LJ",
+            "score": 50.2,
+            "layers_ausentes": [
+                "F-EIXO",
+                "F-ARM",
+                "SARR_EDITAR",
+                "F-DESNIVEL-5",
+                "F-PILARES-NOME",
+                "F-LAJES-DIM",
+                "F-DESNIVEL-4",
+                "F-BLOCOS",
+                "F-BLOCOS-NOME",
+                "F-LEADER",
+                "SARR_3.5x7",
+                "F-PILARES-DIM",
+                "F-COTAS",
+                "F-DESNIVEL-6",
+                "F-CPENG",
+                "F-AUX-RED",
+                "F-AUX",
+                "F-BLOCOS-HACH",
+                "F-MURETA",
+                "F-TEXTO ESCADA",
+                "F-DESNIVEL-2",
+                "F-NÍVEL-PLANTA",
+                "F-PILARES-N",
+                "F-FURO-PAREDE-TEXTOS",
+                "F-ESCADAS",
+                "F-COTAS-FUROS",
+                "F-DESNIVEL-1",
+                "F-BLOCOS-DIM",
+                "242",
+                "F-TEXTO",
+                "F-LAJES",
+                "F-ESC-PROJ",
+                "F-VIGAS-NOME",
+                "F-VÃO",
+                "F-PILARES-HACH",
+                "F-DESNIVEL-3",
+                "F-CORTE-INDICAÇÃO",
+                "F-REV",
+                "F-LAJES-R",
+                "F-PILARES-NASCE",
+                "F-FURO-PAREDE",
+                "F-VIGAS-DIM",
+                "F-LAJES-NOME",
+                "F-VIGAS"
+            ],
+            "cores_erradas": [
+                {
+                    "layer": "F-SOLIDO-CORTE",
+                    "gerado": 251,
+                    "esperado": 71
+                },
+                {
+                    "layer": "F-CORTE",
+                    "gerado": 251,
+                    "esperado": 4
+                },
+                {
+                    "layer": "F-PILARES-M",
+                    "gerado": 251,
+                    "esperado": 170
+                },
+                {
+                    "layer": "F-PILARES-S",
+                    "gerado": 251,
+                    "esperado": 170
+                },
+                {
+                    "layer": "F-PILARES-V",
+                    "gerado": 251,
+                    "esperado": 170
+                },
+                {
+                    "layer": "00 - FELIPE",
+                    "gerado": 2,
+                    "esperado": 6
+                }
+            ],
+            "metricas": {
+                "layer_score": 10.169491525423728,
+                "color_score": 12.0,
+                "entity_score": 18.0,
+                "hatch_score": 10
+            }
+        },
+        "Garfos": {
+            "classe": "GF",
+            "score": 44.6,
+            "layers_ausentes": [
+                "229",
+                "hachura madeira pontalete",
+                "NOVES-LAJES-NOME",
+                "SARRAFO_2_2X7",
+                "6",
+                "2",
+                "240",
+                "204",
+                "41",
+                "FO-Hachura viga chata ou invertida",
+                "FO-Hachuras das lajes",
+                "220",
+                "NOVES-PILARES",
+                "10",
+                "242",
+                "FO-Hachura pilar que passa",
+                "CYPECABECERA",
+                "FO-Vigas",
+                "PILAR_REF",
+                "COTA_COTAS",
+                "F-VIGAS-NOME",
+                "FO-Cargas de parede",
+                "26",
+                "32",
+                "Layer1",
+                "224",
+                "F-VÃO",
+                "PILAR_HACH",
+                "LJ_DESNIVEL",
+                "28",
+                "TXT_ARMADURAS",
+                "F-VIGAS-DIM",
+                "pontalete vista",
+                "27",
+                "36",
+                "ESC_DEGRAU",
+                "QUAD_BORDA",
+                "5",
+                "F-LAJES-DIM",
+                "FO-Textos das lajes",
+                "Padrão",
+                "COTA_TEXTO",
+                "23",
+                "detalhes",
+                "Sarrafo de pressão",
+                "F-TEXTO ESCADA",
+                "18",
+                "F-DESNIVEL-1",
+                "NOVES-SHAFT",
+                "VIG_DIM_VIGAS",
+                "ESC_LINHA_DE_INTERRUPCAO_DOS_TRAMOS",
+                "ESC_CONTORNO_DA_ESCADA",
+                "211",
+                "228",
+                "F-PILARES-HACH",
+                "F-DESNIVEL-3",
+                "206",
+                "F-SOLIDO-CORTE",
+                "FO-Hachura laje com elevação negativa",
+                "227",
+                "71",
+                "16",
+                "F-LAJES-NOME",
+                "F-VIGAS",
+                "20",
+                "PILAR_DIM",
+                "FOLHA",
+                "NOVES-PILAR-NOME",
+                "COTAS",
+                "madeira",
+                "F-COTAS",
+                "NOVES-VIGA",
+                "161",
+                "25",
+                "223",
+                "PILAR_BETAO",
+                "DEFPOINTS",
+                "LJ_NERV_RETI",
+                "VIG FACES",
+                "250",
+                "F-AUX",
+                "248",
+                "painel",
+                "F-ESCADAS",
+                "VIG_FACES",
+                "F-LAJES",
+                "F-COTAS-FUROS VIGA",
+                "FO-Textos dos pilares",
+                "62",
+                "8",
+                "NOVES-VIGA-NOME",
+                "VIG_REF_VIGAS",
+                "F-CORTE-INDICAÇÃO",
+                "38",
+                "OT_SEC_LAJE",
+                "HACHURA",
+                "resinado",
+                "CARIMBO-LEGENDA",
+                "FO-Hachura pilar que morre",
+                "LJ_SIMB_ABER",
+                "47",
+                "FO-Cortes",
+                "226",
+                "251",
+                "F-PILARES-NOME",
+                "FO-Aberturas",
+                "31",
+                "LJ_SIMB_LAJES",
+                "F-PILARES-DIM",
+                "234",
+                "218",
+                "11",
+                "F-AUX-RED",
+                "F-DESNIVEL-2",
+                "57",
+                "PA_NUM_ALTUR",
+                "160",
+                "21",
+                "F-TEXTO",
+                "PA_DIV_BLO",
+                "ZZZ - FOLHA LYS ENGENHARIA LINHAS",
+                "Textos",
+                "ESC_LINHA_CENTRAL",
+                "37",
+                "F-TEXTO-YELLOW",
+                "PILAR EIXOS",
+                "PILAR_BETAO_APOIDAO",
+                "F-CORTE",
+                "24",
+                "FO-Pilares",
+                "F-PILARES-S",
+                "FORNECIMENTO",
+                "FO-Textos das vigas",
+                "00 - FELIPE"
+            ],
+            "cores_erradas": [
+                {
+                    "layer": "CARIMBO",
+                    "gerado": 255,
+                    "esperado": 7
+                },
+                {
+                    "layer": "3",
+                    "gerado": 3,
+                    "esperado": 7
+                },
+                {
+                    "layer": "1",
+                    "gerado": 1,
+                    "esperado": 3
+                },
+                {
+                    "layer": "4",
+                    "gerado": 4,
+                    "esperado": 3
+                }
+            ],
+            "metricas": {
+                "layer_score": 3.287671232876712,
+                "color_score": 13.333333333333336,
+                "entity_score": 18.0,
+                "hatch_score": 10
+            }
+        }
+    },
+    "global_score": 72.2,
+    "avaliados": 5
+}

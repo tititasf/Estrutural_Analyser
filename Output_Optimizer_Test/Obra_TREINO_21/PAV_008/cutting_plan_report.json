@@ -1,0 +1,10 @@
+{
+    "arquivos_dxf_lidos": 162,
+    "pecas_corte": 0,
+    "area_total_pecas_cm2": 0,
+    "area_total_pecas_m2": 0.0,
+    "chapas_estimadas": 0,
+    "eficiencia_estimada_porcento": 0.0,
+    "dimensao_chapa_cm": "244.0x122.0",
+    "metodo": "Area_Heuristic_15_perc_overhead"
+}

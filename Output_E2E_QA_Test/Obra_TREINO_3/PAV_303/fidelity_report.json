@@ -1,0 +1,155 @@
+{
+    "obra": "Obra_TREINO_3",
+    "pavimento": "PAV_303",
+    "scores": {
+        "Pilares": {
+            "classe": "PL",
+            "score": 93.0,
+            "layers_ausentes": [
+                "00 - FELIPE",
+                "PONTALETE"
+            ],
+            "cores_erradas": [
+                {
+                    "layer": "REGUA-80",
+                    "gerado": 80,
+                    "esperado": 111
+                },
+                {
+                    "layer": "cotas",
+                    "gerado": 241,
+                    "esperado": 4
+                },
+                {
+                    "layer": "PAINEL",
+                    "gerado": 200,
+                    "esperado": 7
+                },
+                {
+                    "layer": "va165-sec",
+                    "gerado": 241,
+                    "esperado": 5
+                }
+            ],
+            "metricas": {
+                "layer_score": 37.57575757575758,
+                "color_score": 17.419354838709676,
+                "entity_score": 28.0,
+                "hatch_score": 10
+            }
+        },
+        "Vigas_Laterais": {
+            "classe": "LV",
+            "score": 88.8,
+            "layers_ausentes": [
+                "TEXTO",
+                "TIRAS REESCORAMENTO",
+                "TRAÇO"
+            ],
+            "cores_erradas": [
+                {
+                    "layer": "REGUA-80",
+                    "gerado": 80,
+                    "esperado": 111
+                },
+                {
+                    "layer": "contorno de painel",
+                    "gerado": 200,
+                    "esperado": 7
+                },
+                {
+                    "layer": "Vigas",
+                    "gerado": 5,
+                    "esperado": 3
+                },
+                {
+                    "layer": "PAINEL",
+                    "gerado": 200,
+                    "esperado": 7
+                },
+                {
+                    "layer": "1",
+                    "gerado": 1,
+                    "esperado": 3
+                },
+                {
+                    "layer": "va165-sec",
+                    "gerado": 241,
+                    "esperado": 5
+                }
+            ],
+            "metricas": {
+                "layer_score": 37.0,
+                "color_score": 16.756756756756758,
+                "entity_score": 25.0,
+                "hatch_score": 10
+            }
+        },
+        "Vigas_Fundos": {
+            "classe": "FV",
+            "score": 84.3,
+            "layers_ausentes": [
+                "TEXTO",
+                "TIRAS REESCORAMENTO",
+                "TRAÇO"
+            ],
+            "cores_erradas": [
+                {
+                    "layer": "Vigas",
+                    "gerado": 5,
+                    "esperado": 3
+                }
+            ],
+            "metricas": {
+                "layer_score": 35.2,
+                "color_score": 19.090909090909093,
+                "entity_score": 20.0,
+                "hatch_score": 10
+            }
+        },
+        "Lajes": {
+            "classe": "LJ",
+            "score": 56.1,
+            "layers_ausentes": [
+                "NOME LAJE",
+                "MTH-TIT1-PILAR",
+                "MTH-SOMBRA25",
+                "MTH-230",
+                "MTH-DIM-PILAR",
+                "MTH-TXT-NOTAS",
+                "MTH-VIGA-INVERTIDA",
+                "MTH-TXT-NEGRITO",
+                "MTH-DIM-VIGA",
+                "MTH-PILAR-MORRE",
+                "MTH-201",
+                "SARRAFO",
+                "MTH-TIT1-VIGA",
+                "MTH-EIXO-217",
+                "MTH-FACE-VIGA",
+                "MTH-242",
+                "MTH-EIXO-215",
+                "MTH-HACHURA-PILAR"
+            ],
+            "cores_erradas": [
+                {
+                    "layer": "MTH-PILAR-SEGUE",
+                    "gerado": 251,
+                    "esperado": 5
+                },
+                {
+                    "layer": "COTA",
+                    "gerado": 241,
+                    "esperado": 2
+                }
+            ],
+            "metricas": {
+                "layer_score": 12.307692307692308,
+                "color_score": 15.0,
+                "entity_score": 18.75,
+                "hatch_score": 10
+            }
+        }
+    },
+    "global_score": 80.6,
+    "avaliados": 4
+}

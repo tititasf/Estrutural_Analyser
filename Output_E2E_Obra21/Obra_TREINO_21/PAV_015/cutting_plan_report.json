@@ -1,0 +1,13 @@
+{
+    "arquivos_dxf_lidos": 21,
+    "pecas_corte": 42,
+    "area_total_pecas_cm2": 274632.0,
+    "area_total_pecas_m2": 27.46,
+    "chapas_estimadas": 11,
+    "eficiencia_estimada_porcento": 83.87,
+    "dimensao_chapa_cm": "244.0x122.0",
+    "metodo_chapas": "Area_Heuristic_15_perc_overhead",
+    "sarrafos_corte": 264,
+    "comprimento_total_sarrafos_m": 68.1,
+    "barras_sarrafo_estimadas_3m": 23
+}

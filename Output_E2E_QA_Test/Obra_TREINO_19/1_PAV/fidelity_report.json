@@ -1,0 +1,187 @@
+{
+    "obra": "Obra_TREINO_19",
+    "pavimento": "1_PAV",
+    "scores": {
+        "Pilares": {
+            "classe": "PL",
+            "score": 82.1,
+            "layers_ausentes": [
+                "233",
+                "220",
+                "EST-SIMB",
+                "213",
+                "PONTALETE",
+                "S-BEAM",
+                "S-COLS",
+                "HACHURACONCRETO",
+                "212",
+                "00 - FELIPE",
+                "Barra de Ancoragem"
+            ],
+            "cores_erradas": [
+                {
+                    "layer": "REGUA-80",
+                    "gerado": 80,
+                    "esperado": 111
+                },
+                {
+                    "layer": "Romaneio",
+                    "gerado": 7,
+                    "esperado": 10
+                },
+                {
+                    "layer": "cotas",
+                    "gerado": 241,
+                    "esperado": 4
+                },
+                {
+                    "layer": "contorno de painel",
+                    "gerado": 200,
+                    "esperado": 7
+                },
+                {
+                    "layer": "PAINEL",
+                    "gerado": 200,
+                    "esperado": 7
+                },
+                {
+                    "layer": "1",
+                    "gerado": 1,
+                    "esperado": 3
+                },
+                {
+                    "layer": "222",
+                    "gerado": 222,
+                    "esperado": 6
+                },
+                {
+                    "layer": "va165-sec",
+                    "gerado": 241,
+                    "esperado": 5
+                }
+            ],
+            "metricas": {
+                "layer_score": 30.434782608695656,
+                "color_score": 15.428571428571429,
+                "entity_score": 26.25,
+                "hatch_score": 10
+            }
+        },
+        "Vigas_Laterais": {
+            "classe": "LV",
+            "score": 84.8,
+            "layers_ausentes": [
+                "00 - FELIPE",
+                "Cotas",
+                "REAPROVEITAMENTO"
+            ],
+            "cores_erradas": [
+                {
+                    "layer": "REGUA-80",
+                    "gerado": 80,
+                    "esperado": 111
+                },
+                {
+                    "layer": "contorno de painel",
+                    "gerado": 200,
+                    "esperado": 7
+                },
+                {
+                    "layer": "PAINEL",
+                    "gerado": 200,
+                    "esperado": 7
+                },
+                {
+                    "layer": "TEXTO PILAR",
+                    "gerado": 7,
+                    "esperado": 3
+                },
+                {
+                    "layer": "Hachura",
+                    "gerado": 251,
+                    "esperado": 253
+                },
+                {
+                    "layer": "CARIMBO-LEGENDA",
+                    "gerado": 7,
+                    "esperado": 75
+                },
+                {
+                    "layer": "1",
+                    "gerado": 1,
+                    "esperado": 3
+                },
+                {
+                    "layer": "va165-sec",
+                    "gerado": 241,
+                    "esperado": 5
+                }
+            ],
+            "metricas": {
+                "layer_score": 37.27272727272727,
+                "color_score": 16.097560975609756,
+                "entity_score": 21.42857142857143,
+                "hatch_score": 10
+            }
+        },
+        "Vigas_Fundos": {
+            "classe": "FV",
+            "score": 86.4,
+            "layers_ausentes": [],
+            "cores_erradas": [
+                {
+                    "layer": "222",
+                    "gerado": 222,
+                    "esperado": 6
+                }
+            ],
+            "metricas": {
+                "layer_score": 40.0,
+                "color_score": 19.285714285714285,
+                "entity_score": 17.142857142857142,
+                "hatch_score": 10
+            }
+        },
+        "Lajes": {
+            "classe": "LJ",
+            "score": 61.0,
+            "layers_ausentes": [
+                "233",
+                "216",
+                "220",
+                "230",
+                "213",
+                "249",
+                "221",
+                "212",
+                "210",
+                "226"
+            ],
+            "cores_erradas": [
+                {
+                    "layer": "COTA",
+                    "gerado": 241,
+                    "esperado": 2
+                },
+                {
+                    "layer": "1",
+                    "gerado": 1,
+                    "esperado": 3
+                },
+                {
+                    "layer": "222",
+                    "gerado": 222,
+                    "esperado": 6
+                }
+            ],
+            "metricas": {
+                "layer_score": 18.94736842105263,
+                "color_score": 13.333333333333336,
+                "entity_score": 18.75,
+                "hatch_score": 10
+            }
+        }
+    },
+    "global_score": 78.6,
+    "avaliados": 4
+}

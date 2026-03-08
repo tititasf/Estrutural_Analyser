@@ -1,0 +1,144 @@
+{
+    "obra": "Obra_TREINO_13",
+    "pavimento": "LOCACAO",
+    "scores": {
+        "Pilares": {
+            "classe": "PL",
+            "score": 94.3,
+            "layers_ausentes": [],
+            "cores_erradas": [
+                {
+                    "layer": "REGUA-80",
+                    "gerado": 80,
+                    "esperado": 111
+                },
+                {
+                    "layer": "Romaneio",
+                    "gerado": 7,
+                    "esperado": 10
+                },
+                {
+                    "layer": "cotas",
+                    "gerado": 241,
+                    "esperado": 4
+                },
+                {
+                    "layer": "PAINEL",
+                    "gerado": 200,
+                    "esperado": 7
+                },
+                {
+                    "layer": "00-FELIPE",
+                    "gerado": 2,
+                    "esperado": 6
+                },
+                {
+                    "layer": "F-PILARES-S",
+                    "gerado": 251,
+                    "esperado": 170
+                },
+                {
+                    "layer": "va165-sec",
+                    "gerado": 241,
+                    "esperado": 5
+                }
+            ],
+            "metricas": {
+                "layer_score": 40.0,
+                "color_score": 16.31578947368421,
+                "entity_score": 28.0,
+                "hatch_score": 10
+            }
+        },
+        "Lajes": {
+            "classe": "LJ",
+            "score": 50.2,
+            "layers_ausentes": [
+                "F-EIXO",
+                "F-ARM",
+                "SARR_EDITAR",
+                "F-DESNIVEL-5",
+                "F-PILARES-NOME",
+                "F-LAJES-DIM",
+                "F-DESNIVEL-4",
+                "F-BLOCOS",
+                "F-BLOCOS-NOME",
+                "F-LEADER",
+                "SARR_3.5x7",
+                "F-PILARES-DIM",
+                "F-COTAS",
+                "F-DESNIVEL-6",
+                "F-CPENG",
+                "F-AUX-RED",
+                "F-AUX",
+                "F-BLOCOS-HACH",
+                "F-MURETA",
+                "F-TEXTO ESCADA",
+                "F-DESNIVEL-2",
+                "F-NÍVEL-PLANTA",
+                "F-PILARES-N",
+                "F-FURO-PAREDE-TEXTOS",
+                "F-ESCADAS",
+                "F-COTAS-FUROS",
+                "F-DESNIVEL-1",
+                "F-BLOCOS-DIM",
+                "242",
+                "F-TEXTO",
+                "F-LAJES",
+                "F-ESC-PROJ",
+                "F-VIGAS-NOME",
+                "F-VÃO",
+                "F-PILARES-HACH",
+                "F-DESNIVEL-3",
+                "F-CORTE-INDICAÇÃO",
+                "F-REV",
+                "F-LAJES-R",
+                "F-PILARES-NASCE",
+                "F-FURO-PAREDE",
+                "F-VIGAS-DIM",
+                "F-LAJES-NOME",
+                "F-VIGAS"
+            ],
+            "cores_erradas": [
+                {
+                    "layer": "F-SOLIDO-CORTE",
+                    "gerado": 251,
+                    "esperado": 71
+                },
+                {
+                    "layer": "F-CORTE",
+                    "gerado": 251,
+                    "esperado": 4
+                },
+                {
+                    "layer": "F-PILARES-M",
+                    "gerado": 251,
+                    "esperado": 170
+                },
+                {
+                    "layer": "F-PILARES-S",
+                    "gerado": 251,
+                    "esperado": 170
+                },
+                {
+                    "layer": "F-PILARES-V",
+                    "gerado": 251,
+                    "esperado": 170
+                },
+                {
+                    "layer": "00 - FELIPE",
+                    "gerado": 2,
+                    "esperado": 6
+                }
+            ],
+            "metricas": {
+                "layer_score": 10.169491525423728,
+                "color_score": 12.0,
+                "entity_score": 18.0,
+                "hatch_score": 10
+            }
+        }
+    },
+    "global_score": 72.2,
+    "avaliados": 2
+}

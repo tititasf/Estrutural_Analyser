@@ -1,0 +1,68 @@
+{
+    "obra": "Obra_TREINO_21",
+    "pavimento": "PAV_008",
+    "scores": {
+        "Pilares": {
+            "classe": "PL",
+            "score": 97.3,
+            "layers_ausentes": [],
+            "cores_erradas": [
+                {
+                    "layer": "cotas",
+                    "gerado": 241,
+                    "esperado": 4
+                }
+            ],
+            "metricas": {
+                "layer_score": 40.0,
+                "color_score": 19.310344827586206,
+                "entity_score": 28.0,
+                "hatch_score": 10
+            }
+        },
+        "Vigas_Laterais": {
+            "classe": "LV",
+            "score": 91.0,
+            "layers_ausentes": [],
+            "cores_erradas": [
+                {
+                    "layer": "cotas",
+                    "gerado": 241,
+                    "esperado": 4
+                }
+            ],
+            "metricas": {
+                "layer_score": 40.0,
+                "color_score": 19.555555555555554,
+                "entity_score": 21.42857142857143,
+                "hatch_score": 10
+            }
+        },
+        "Vigas_Fundos": {
+            "classe": "FV",
+            "score": 88.5,
+            "layers_ausentes": [],
+            "cores_erradas": [],
+            "metricas": {
+                "layer_score": 40.0,
+                "color_score": 20.0,
+                "entity_score": 18.461538461538463,
+                "hatch_score": 10
+            }
+        },
+        "Lajes": {
+            "classe": "LJ",
+            "score": 90.0,
+            "layers_ausentes": [],
+            "cores_erradas": [],
+            "metricas": {
+                "layer_score": 40.0,
+                "color_score": 20.0,
+                "entity_score": 20.0,
+                "hatch_score": 10
+            }
+        }
+    },
+    "global_score": 91.7,
+    "avaliados": 4
+}

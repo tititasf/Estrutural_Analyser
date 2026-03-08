@@ -1,0 +1,26 @@
+{
+    "obra": "Obra_TREINO_21",
+    "pavimento": "PAV_001",
+    "scores": {
+        "Pilares": {
+            "classe": "PL",
+            "score": 97.3,
+            "layers_ausentes": [],
+            "cores_erradas": [
+                {
+                    "layer": "cotas",
+                    "gerado": 241,
+                    "esperado": 4
+                }
+            ],
+            "metricas": {
+                "layer_score": 40.0,
+                "color_score": 19.310344827586206,
+                "entity_score": 28.0,
+                "hatch_score": 10
+            }
+        }
+    },
+    "global_score": 97.3,
+    "avaliados": 1
+}

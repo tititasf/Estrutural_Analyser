@@ -1,0 +1,114 @@
+{
+    "obra": "Obra_TREINO_10",
+    "pavimento": "05_PAV",
+    "scores": {
+        "Vigas_Laterais": {
+            "classe": "LV",
+            "score": 86.4,
+            "layers_ausentes": [
+                "MARCAÇÃO",
+                "CHAPA REAPROV"
+            ],
+            "cores_erradas": [
+                {
+                    "layer": "REGUA-80",
+                    "gerado": 80,
+                    "esperado": 111
+                },
+                {
+                    "layer": "cotas",
+                    "gerado": 241,
+                    "esperado": 4
+                },
+                {
+                    "layer": "contorno de painel",
+                    "gerado": 200,
+                    "esperado": 7
+                },
+                {
+                    "layer": "PAINEL",
+                    "gerado": 200,
+                    "esperado": 7
+                },
+                {
+                    "layer": "va165-sec",
+                    "gerado": 241,
+                    "esperado": 5
+                }
+            ],
+            "metricas": {
+                "layer_score": 38.431372549019606,
+                "color_score": 17.959183673469386,
+                "entity_score": 20.0,
+                "hatch_score": 10
+            }
+        },
+        "Vigas_Fundos": {
+            "classe": "FV",
+            "score": 87.0,
+            "layers_ausentes": [],
+            "cores_erradas": [
+                {
+                    "layer": "Romaneio",
+                    "gerado": 7,
+                    "esperado": 3
+                },
+                {
+                    "layer": "Cotas",
+                    "gerado": 241,
+                    "esperado": 1
+                }
+            ],
+            "metricas": {
+                "layer_score": 40.0,
+                "color_score": 18.51851851851852,
+                "entity_score": 18.461538461538463,
+                "hatch_score": 10
+            }
+        },
+        "Lajes": {
+            "classe": "LJ",
+            "score": 57.8,
+            "layers_ausentes": [
+                "01-FORM",
+                "231",
+                "205",
+                "253",
+                "238",
+                "239",
+                "204",
+                "VIGA",
+                "01TEXT",
+                "220",
+                "250",
+                "219",
+                "200",
+                "233",
+                "228",
+                "car-t01",
+                "210",
+                "216",
+                "230",
+                "VIGAS",
+                "221",
+                "226",
+                "254"
+            ],
+            "cores_erradas": [
+                {
+                    "layer": "222",
+                    "gerado": 222,
+                    "esperado": 6
+                }
+            ],
+            "metricas": {
+                "layer_score": 11.25,
+                "color_score": 17.77777777777778,
+                "entity_score": 18.75,
+                "hatch_score": 10
+            }
+        }
+    },
+    "global_score": 77.1,
+    "avaliados": 3
+}
