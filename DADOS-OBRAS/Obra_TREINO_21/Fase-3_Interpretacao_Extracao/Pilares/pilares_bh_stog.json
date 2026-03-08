@@ -1,0 +1,474 @@
+{
+  "P1": {
+    "b": 38.0,
+    "h": 55.0,
+    "source": "lwpoly-2faces",
+    "confidence": 0.92,
+    "n_gordos": 2,
+    "debug": {
+      "h_rects": [
+        55.0,
+        38.0
+      ],
+      "n_direct": 0,
+      "n_wide": 2
+    }
+  },
+  "P9": {
+    "b": 38.0,
+    "h": 140.0,
+    "source": "lwpoly-w-dim",
+    "confidence": 0.85,
+    "n_gordos": 1,
+    "debug": {
+      "h_rects": [
+        140.0
+      ],
+      "n_direct": 1,
+      "n_wide": 0,
+      "gordo_w": 38.0,
+      "method": "gordo-w-as-B"
+    }
+  },
+  "P11": {
+    "b": 95.0,
+    "h": 95.0,
+    "source": "lwpoly-square",
+    "confidence": 0.6,
+    "n_gordos": 1,
+    "debug": {
+      "h_rects": [
+        95.0
+      ],
+      "n_direct": 0,
+      "n_wide": 1,
+      "gordo_w": 240.0,
+      "dim_freq": {},
+      "fallback": "square-assumed"
+    }
+  },
+  "P12": {
+    "b": 51.0,
+    "h": 51.0,
+    "source": "lwpoly-square",
+    "confidence": 0.6,
+    "n_gordos": 1,
+    "debug": {
+      "h_rects": [
+        51.0
+      ],
+      "n_direct": 0,
+      "n_wide": 1,
+      "gordo_w": 240.0,
+      "dim_freq": {},
+      "fallback": "square-assumed"
+    }
+  },
+  "P13": {
+    "b": 38.0,
+    "h": 120.0,
+    "source": "lwpoly-w-dim",
+    "confidence": 0.85,
+    "n_gordos": 1,
+    "debug": {
+      "h_rects": [
+        120.0
+      ],
+      "n_direct": 1,
+      "n_wide": 0,
+      "gordo_w": 38.0,
+      "method": "gordo-w-as-B"
+    }
+  },
+  "P14": {
+    "b": 38.0,
+    "h": 60.0,
+    "source": "lwpoly+dim-freq",
+    "confidence": 0.83,
+    "n_gordos": 1,
+    "debug": {
+      "h_rects": [
+        38.0
+      ],
+      "n_direct": 0,
+      "n_wide": 1,
+      "gordo_w": 200.0,
+      "dim_freq": {
+        "60.0": 4,
+        "122.0": 2,
+        "120.0": 2,
+        "200.0": 1,
+        "244.0": 1,
+        "38.0": 1
+      },
+      "other_dim_freq": 4
+    }
+  },
+  "P15": {
+    "b": 38.0,
+    "h": 50.0,
+    "source": "prev-inverse-prox",
+    "confidence": 0.32000000000000006,
+    "n_gordos": 0,
+    "debug": {}
+  },
+  "P16": {
+    "b": 38.0,
+    "h": 120.0,
+    "source": "lwpoly-w-dim",
+    "confidence": 0.85,
+    "n_gordos": 1,
+    "debug": {
+      "h_rects": [
+        120.0
+      ],
+      "n_direct": 1,
+      "n_wide": 0,
+      "gordo_w": 38.0,
+      "method": "gordo-w-as-B"
+    }
+  },
+  "P17": {
+    "b": 38.0,
+    "h": 60.0,
+    "source": "lwpoly+dim-freq",
+    "confidence": 0.83,
+    "n_gordos": 1,
+    "debug": {
+      "h_rects": [
+        38.0
+      ],
+      "n_direct": 0,
+      "n_wide": 1,
+      "gordo_w": 200.0,
+      "dim_freq": {
+        "60.0": 4,
+        "122.0": 2,
+        "120.0": 2,
+        "200.0": 1,
+        "244.0": 1,
+        "38.0": 1
+      },
+      "other_dim_freq": 4
+    }
+  },
+  "P20": {
+    "b": 26.0,
+    "h": 50.0,
+    "source": "prev-inverse-prox",
+    "confidence": 0.5599999999999999,
+    "n_gordos": 0,
+    "debug": {}
+  },
+  "P21": {
+    "b": 16.0,
+    "h": 50.0,
+    "source": "prev-inverse-prox",
+    "confidence": 0.5599999999999999,
+    "n_gordos": 0,
+    "debug": {}
+  },
+  "P22": {
+    "b": 16.0,
+    "h": 50.0,
+    "source": "prev-inverse-prox",
+    "confidence": 0.5599999999999999,
+    "n_gordos": 0,
+    "debug": {}
+  },
+  "P23": {
+    "b": 32.0,
+    "h": 50.0,
+    "source": "prev-inverse-prox",
+    "confidence": 0.5599999999999999,
+    "n_gordos": 0,
+    "debug": {}
+  },
+  "P24": {
+    "b": 102.0,
+    "h": 102.0,
+    "source": "lwpoly-square",
+    "confidence": 0.6,
+    "n_gordos": 1,
+    "debug": {
+      "h_rects": [
+        102.0
+      ],
+      "n_direct": 0,
+      "n_wide": 1,
+      "gordo_w": 132.0,
+      "dim_freq": {},
+      "fallback": "square-assumed"
+    }
+  },
+  "P25": {
+    "b": 19.0,
+    "h": 47.0,
+    "source": "lwpoly-w-dim",
+    "confidence": 0.85,
+    "n_gordos": 1,
+    "debug": {
+      "h_rects": [
+        19.0
+      ],
+      "n_direct": 1,
+      "n_wide": 0,
+      "gordo_w": 47.0,
+      "method": "gordo-w-as-B"
+    }
+  },
+  "P33": {
+    "b": 38.0,
+    "h": 120.0,
+    "source": "lwpoly-w-dim",
+    "confidence": 0.85,
+    "n_gordos": 1,
+    "debug": {
+      "h_rects": [
+        120.0
+      ],
+      "n_direct": 1,
+      "n_wide": 0,
+      "gordo_w": 38.0,
+      "method": "gordo-w-as-B"
+    }
+  },
+  "P34": {
+    "b": 80.0,
+    "h": 80.0,
+    "source": "lwpoly-w-dim",
+    "confidence": 0.85,
+    "n_gordos": 1,
+    "debug": {
+      "h_rects": [
+        80.0
+      ],
+      "n_direct": 1,
+      "n_wide": 0,
+      "gordo_w": 80.0,
+      "method": "gordo-w-as-B"
+    }
+  },
+  "P40": {
+    "b": 38.0,
+    "h": 120.0,
+    "source": "lwpoly-w-dim",
+    "confidence": 0.85,
+    "n_gordos": 1,
+    "debug": {
+      "h_rects": [
+        120.0
+      ],
+      "n_direct": 1,
+      "n_wide": 0,
+      "gordo_w": 38.0,
+      "method": "gordo-w-as-B"
+    }
+  },
+  "P41": {
+    "b": 38.0,
+    "h": 120.0,
+    "source": "lwpoly-w-dim",
+    "confidence": 0.85,
+    "n_gordos": 1,
+    "debug": {
+      "h_rects": [
+        120.0
+      ],
+      "n_direct": 1,
+      "n_wide": 0,
+      "gordo_w": 38.0,
+      "method": "gordo-w-as-B"
+    }
+  },
+  "P42": {
+    "b": 38.0,
+    "h": 50.0,
+    "source": "prev-inverse-prox",
+    "confidence": 0.32000000000000006,
+    "n_gordos": 0,
+    "debug": {}
+  },
+  "P43": {
+    "b": 38.0,
+    "h": 50.0,
+    "source": "prev-inverse-prox",
+    "confidence": 0.32000000000000006,
+    "n_gordos": 0,
+    "debug": {}
+  },
+  "P44": {
+    "b": 38.0,
+    "h": 50.0,
+    "source": "prev-inverse-prox",
+    "confidence": 0.32000000000000006,
+    "n_gordos": 0,
+    "debug": {}
+  },
+  "P45": {
+    "b": 38.0,
+    "h": 50.0,
+    "source": "prev-inverse-prox",
+    "confidence": 0.32000000000000006,
+    "n_gordos": 0,
+    "debug": {}
+  },
+  "P46": {
+    "b": 80.0,
+    "h": 80.0,
+    "source": "lwpoly-w-dim",
+    "confidence": 0.85,
+    "n_gordos": 1,
+    "debug": {
+      "h_rects": [
+        80.0
+      ],
+      "n_direct": 1,
+      "n_wide": 0,
+      "gordo_w": 80.0,
+      "method": "gordo-w-as-B"
+    }
+  },
+  "P47": {
+    "b": 80.0,
+    "h": 80.0,
+    "source": "lwpoly-w-dim",
+    "confidence": 0.85,
+    "n_gordos": 1,
+    "debug": {
+      "h_rects": [
+        80.0
+      ],
+      "n_direct": 1,
+      "n_wide": 0,
+      "gordo_w": 80.0,
+      "method": "gordo-w-as-B"
+    }
+  },
+  "P48": {
+    "b": 80.0,
+    "h": 80.0,
+    "source": "lwpoly-w-dim",
+    "confidence": 0.85,
+    "n_gordos": 1,
+    "debug": {
+      "h_rects": [
+        80.0
+      ],
+      "n_direct": 1,
+      "n_wide": 0,
+      "gordo_w": 80.0,
+      "method": "gordo-w-as-B"
+    }
+  },
+  "P69": {
+    "b": 38.0,
+    "h": 120.0,
+    "source": "lwpoly-w-dim",
+    "confidence": 0.85,
+    "n_gordos": 1,
+    "debug": {
+      "h_rects": [
+        120.0
+      ],
+      "n_direct": 1,
+      "n_wide": 0,
+      "gordo_w": 38.0,
+      "method": "gordo-w-as-B"
+    }
+  },
+  "P74": {
+    "b": 38.0,
+    "h": 120.0,
+    "source": "lwpoly-w-dim",
+    "confidence": 0.85,
+    "n_gordos": 1,
+    "debug": {
+      "h_rects": [
+        120.0
+      ],
+      "n_direct": 1,
+      "n_wide": 0,
+      "gordo_w": 38.0,
+      "method": "gordo-w-as-B"
+    }
+  },
+  "P75": {
+    "b": 38.0,
+    "h": 120.0,
+    "source": "lwpoly-w-dim",
+    "confidence": 0.85,
+    "n_gordos": 1,
+    "debug": {
+      "h_rects": [
+        120.0
+      ],
+      "n_direct": 1,
+      "n_wide": 0,
+      "gordo_w": 38.0,
+      "method": "gordo-w-as-B"
+    }
+  },
+  "P76": {
+    "b": 38.0,
+    "h": 120.0,
+    "source": "lwpoly-w-dim",
+    "confidence": 0.85,
+    "n_gordos": 1,
+    "debug": {
+      "h_rects": [
+        120.0
+      ],
+      "n_direct": 1,
+      "n_wide": 0,
+      "gordo_w": 38.0,
+      "method": "gordo-w-as-B"
+    }
+  },
+  "P77": {
+    "b": 38.0,
+    "h": 120.0,
+    "source": "lwpoly-w-dim",
+    "confidence": 0.85,
+    "n_gordos": 1,
+    "debug": {
+      "h_rects": [
+        120.0
+      ],
+      "n_direct": 1,
+      "n_wide": 0,
+      "gordo_w": 38.0,
+      "method": "gordo-w-as-B"
+    }
+  },
+  "P78": {
+    "b": 38.0,
+    "h": 120.0,
+    "source": "lwpoly-w-dim",
+    "confidence": 0.85,
+    "n_gordos": 1,
+    "debug": {
+      "h_rects": [
+        120.0
+      ],
+      "n_direct": 1,
+      "n_wide": 0,
+      "gordo_w": 38.0,
+      "method": "gordo-w-as-B"
+    }
+  },
+  "P79": {
+    "b": 38.0,
+    "h": 50.0,
+    "source": "prev-inverse-prox",
+    "confidence": 0.32000000000000006,
+    "n_gordos": 0,
+    "debug": {}
+  },
+  "_meta": {
+    "total": 32,
+    "pavimento": "12 PAV",
+    "dxf": "STOG - NIK SUNSET - 12º PAVIMENTO - PL - R00_R2018_ASCII_ODA.dxf",
+    "algoritmo": "gordo-nearest-label + dim-cota-secao"
+  }
+}

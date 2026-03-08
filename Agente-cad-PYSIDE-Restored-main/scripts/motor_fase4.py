@@ -170,26 +170,28 @@ class VigaFase4:
 
     def _distribute_panels(self, comprimento: float, altura: float) -> List[PanelData]:
         """
-        Distribui comprimento em 6 slots de panels.
-        Logica simples: paineis de 120cm com resto no ultimo.
+        Distribui comprimento em N slots de panels (sem limite fixo).
+        Paineis de 120cm com resto no ultimo.
+        Fix CAD-6.9: removido limite de 6 panels para vigas longas > 720cm.
         """
         panels = []
         MAX_PANEL_WIDTH = 120.0
+        import math
+        n_panels = max(1, math.ceil(comprimento / MAX_PANEL_WIDTH))
         restante = comprimento
 
-        for i in range(6):
+        for i in range(n_panels):
             if restante <= 0:
-                panels.append(PanelData())
-            else:
-                w = min(restante, MAX_PANEL_WIDTH)
-                restante -= w
-                panels.append(PanelData(
-                    width=round(w, 1),
-                    height1=round(altura, 1),
-                    height2=round(altura, 1),
-                    grade_h1="0",
-                    grade_h2="0"
-                ))
+                break
+            w = min(restante, MAX_PANEL_WIDTH)
+            restante -= w
+            panels.append(PanelData(
+                width=round(w, 1),
+                height1=round(altura, 1),
+                height2=round(altura, 1),
+                grade_h1="0",
+                grade_h2="0"
+            ))
         return panels
 
     def to_dict(self) -> dict:
