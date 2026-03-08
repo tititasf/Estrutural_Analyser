@@ -1,0 +1,207 @@
+
+============================================================
+  FIDELIDADE DXF — Classe PL   ✅ 95.1/100
+============================================================
+  Entidades: gerado=58  |  ref=7580
+
+  ❌ LAYERS AUSENTES no gerado (1):
+      - 00 - FELIPE
+
+  ⚠️  LAYERS EXTRAS no gerado (não estão no ref):
+      + 5
+      + REAPROVEITAMENTO
+
+  Hachuras — gerado: {'ANSI31': 4, 'AR-CONC': 1}  |  ref: {'AR-CONC': 145, 'ANSI31': 425, 'SOLID': 244, 'ANSI37': 45, 'DOTS': 3}
+
+  ❌ TIPOS DE ENTIDADE ausentes no gerado:
+      MTEXT: 181 entidades no ref
+
+  Dimstyles — gerado: ['EZ DXF']  |  ref: ['COTA PAINEL-50', 'Cota Seção interna', 'PAINEL', 'SECAO PILAR', 'SECÇÃO 2']
+
+  Diff de entidades por layer (top 8):
+      COTA                           ref= 1894  gerado=    6  ▼1888
+      Painéis                        ref= 1689  gerado=    4  ▼1685
+      Hachura                        ref= 1074  gerado=    4  ▼1070
+      SARR_2.2x7                     ref=  931  gerado=   24  ▼907
+      Madeira                        ref=  432  gerado=    0  ▼432
+      SARRAFO                        ref=  302  gerado=    0  ▼302
+      CHAPA                          ref=  276  gerado=    0  ▼276
+      Texto Seção                    ref=  181  gerado=    4  ▼177
+
+  Score detalhado:
+    Layers presença : 35/36 = 38.9/40
+    Cores corretas  : 0 erradas = 20.0/20
+    Tipos entidade  : = 26.2/30
+    Hachuras        : presente = 10/10
+============================================================
+
+============================================================
+  FIDELIDADE DXF — Classe LV   ✅ 88.6/100
+============================================================
+  Entidades: gerado=34  |  ref=6670
+
+  ❌ LAYERS AUSENTES no gerado (10):
+      - 00 - FELIPE
+      - BARRA DE ANCORAGEM
+      - CARIMBO-LEGENDA
+      - Cota Seção (2x)
+      - Cotas
+      - HACHURA MADEIRAS
+      - TEXTO PILAR
+      - Texto Qtd Sarr
+      - material do compensado
+      - texto
+
+  ⚠️  LAYERS EXTRAS no gerado (não estão no ref):
+      + 3
+      + 4
+      + 7
+      + 9
+      + NOME DA VIGA
+      + Nível
+      + SARR_2.2x3.5
+      + SARR_2.2x5
+      + Texto Nível
+
+  Hachuras — gerado: {'ANSI31': 2, 'SOLID': 2}  |  ref: {'AR-CONC': 116, 'SOLID': 171, 'ANSI31': 453, 'ANSI37': 1}
+
+  Dimstyles — gerado: ['EZ DXF']  |  ref: ['COTA PAINEL-50', 'COTA PARA DETALHES', 'Cota Seção (2x)', 'Cota Seção interna', 'PAINEL']
+
+  Diff de entidades por layer (top 8):
+      SARR_2.2x7                     ref= 1878  gerado=    8  ▼1870
+      Painéis                        ref= 1504  gerado=   10  ▼1494
+      COTA                           ref= 1393  gerado=    7  ▼1386
+      Hachura                        ref=  492  gerado=    4  ▼488
+      Madeira                        ref=  329  gerado=    0  ▼329
+      5                              ref=  204  gerado=    0  ▼204
+      Texto Seção                    ref=  195  gerado=    0  ▼195
+      REAPROVEITAMENTO               ref=  133  gerado=    0  ▼133
+
+  Score detalhado:
+    Layers presença : 25/35 = 28.6/40
+    Cores corretas  : 0 erradas = 20.0/20
+    Tipos entidade  : = 30.0/30
+    Hachuras        : presente = 10/10
+============================================================
+
+============================================================
+  FIDELIDADE DXF — Classe LJ   ⚠️ 62.9/100
+============================================================
+  Entidades: gerado=5  |  ref=1933
+
+  ❌ LAYERS AUSENTES no gerado (2):
+      - 00 - FELIPE
+      - FOLHA
+
+  ⚠️  LAYERS EXTRAS no gerado (não estão no ref):
+      + Demarcação 1
+      + Demarcação 2
+      + NOMENCLATURA
+      + Nível
+      + Texto Nível
+
+  Hachuras — gerado: NENHUMA  |  ref: {'SOLID': 29, 'ANSI31': 44, 'ANSI37': 8}
+      ❌ Hachuras faltando! Ref usa: {'SOLID': 29, 'ANSI31': 44, 'ANSI37': 8}
+
+  ❌ TIPOS DE ENTIDADE ausentes no gerado:
+      LWPOLYLINE: 226 entidades no ref
+      DIMENSION: 224 entidades no ref
+      HATCH: 81 entidades no ref
+      MTEXT: 18 entidades no ref
+      SOLID: 8 entidades no ref
+
+  ⚠️  Dimstyles do ref: ['COTA PAINEL-50']  |  gerado: NENHUM
+
+  Diff de entidades por layer (top 8):
+      3                              ref= 1265  gerado=    1  ▼1264
+      Painéis                        ref=  338  gerado=    4  ▼334
+      4                              ref=  113  gerado=    0  ▼113
+      7                              ref=   46  gerado=    0  ▼46
+      REAPROVEITAMENTO               ref=   44  gerado=    0  ▼44
+      Hachura                        ref=   37  gerado=    0  ▼37
+      9                              ref=   34  gerado=    0  ▼34
+      1                              ref=   32  gerado=    0  ▼32
+
+  Score detalhado:
+    Layers presença : 12/14 = 34.3/40
+    Cores corretas  : 0 erradas = 20.0/20
+    Tipos entidade  : = 8.6/30
+    Hachuras        : AUSENTE = 0/10
+============================================================
+
+============================================================
+  FIDELIDADE DXF — Classe FV   ✅ 100.0/100
+============================================================
+  Entidades: gerado=10  |  ref=855
+
+  ✅ Todos os 26 layers de referência presentes
+
+  ⚠️  LAYERS EXTRAS no gerado (não estão no ref):
+      + 1
+      + 3
+      + 4
+      + 7
+      + 9
+      + NOME DA VIGA
+      + Nível
+      + SARR_3.5x7
+      + Texto Nível
+      + Texto Seção
+      + Texto de Titulo
+
+  Hachuras — gerado: {'ANSI31': 1}  |  ref: {'ANSI31': 54}
+
+  Dimstyles — gerado: ['EZ DXF']  |  ref: ['COTA PAINEL-50', 'PAINEL']
+
+  Diff de entidades por layer (top 8):
+      SARR_2.2x7                     ref=  299  gerado=    2  ▼297
+      Painéis                        ref=  189  gerado=    4  ▼185
+      COTA                           ref=  151  gerado=    2  ▼149
+      5                              ref=   90  gerado=    0  ▼90
+      REAPROVEITAMENTO               ref=   54  gerado=    1  ▼53
+      NOMENCLATURA                   ref=   37  gerado=    1  ▼36
+      SARR_EDITAR                    ref=   32  gerado=    0  ▼32
+
+  Score detalhado:
+    Layers presença : 26/26 = 40.0/40
+    Cores corretas  : 0 erradas = 20.0/20
+    Tipos entidade  : = 30.0/30
+    Hachuras        : presente = 10/10
+============================================================
+
+============================================================
+  FIDELIDADE DXF — Classe GF   ✅ 90.0/100
+============================================================
+  Entidades: gerado=34  |  ref=2514
+
+  ✅ Todos os 18 layers de referência presentes
+
+  Hachuras — gerado: {'ANSI31': 3}  |  ref: {'ANSI31': 38}
+
+  ❌ TIPOS DE ENTIDADE ausentes no gerado:
+      CIRCLE: 22 entidades no ref
+      INSERT: 16 entidades no ref
+      SOLID: 10 entidades no ref
+
+  Dimstyles — gerado: ['EZ DXF']  |  ref: ['PAINEL', 'SECAO']
+
+  Diff de entidades por layer (top 8):
+      3                              ref= 1493  gerado=    0  ▼1493
+      COTA                           ref=  252  gerado=    6  ▼246
+      TIRAS REESCORAMENTO            ref=  173  gerado=    2  ▼171
+      NOME DA VIGA                   ref=  124  gerado=    6  ▼118
+      4                              ref=  113  gerado=    0  ▼113
+      BARRA_ANCORAGEM                ref=   64  gerado=    3  ▼61
+      VIGAS                          ref=   52  gerado=    1  ▼51
+      7                              ref=   46  gerado=    0  ▼46
+
+  Score detalhado:
+    Layers presença : 18/18 = 40.0/40
+    Cores corretas  : 0 erradas = 20.0/20
+    Tipos entidade  : = 20.0/30
+    Hachuras        : presente = 10/10
+============================================================
+
+============================================================
+  SCORE MÉDIO DE FIDELIDADE: 87.3/100
+============================================================

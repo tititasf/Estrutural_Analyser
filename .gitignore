@@ -1,0 +1,19 @@
+# Large DXF/DWG files from client projects (>80MB - exceeds GitHub limits)
+**/Projetos_Finalizados_para_Engenharia_Reversa/*.dxf
+**/Projetos_Finalizados_para_Engenharia_Reversa/*.dwg
+
+# Large binary release artifacts
+repository/targets/
+
+# Large binary data files
+project_data.vision
+
+# Python bytecode
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Build/dist artifacts (Robo_Lajes)
+_ROBOS_ABAS/Robo_Lajes/build/
+_ROBOS_ABAS/Robo_Lajes/dist/

@@ -1,0 +1,58 @@
+# Requirements para Fases 1 e 2 do Pipeline GAP-5
+# Instalar com: pip install -r requirements-phases.txt
+
+# =============================================================================
+# FASE 1 - INGESTÃO
+# =============================================================================
+
+# DXF - Leitura e processamento de arquivos DXF
+ezdxf>=1.1.0
+
+# PDF - Extração de texto e metadados de PDFs
+pdfminer.six>=20221105
+
+# Visão Computacional - Processamento de imagens/fotos
+opencv-python>=4.8.0
+opencv-python-headless>=4.8.0  # Para servidores sem GUI
+
+# OCR - Reconhecimento de texto em imagens
+pytesseract>=0.3.10
+
+# NumPy - Suporte para OpenCV
+numpy>=1.24.0
+
+# =============================================================================
+# FASE 2 - TRIAGEM
+# =============================================================================
+
+# R-Tree - Índice espacial para busca rápida
+rtree>=1.0.0
+
+# =============================================================================
+# DEPENDÊNCIAS COMUNS
+# =============================================================================
+
+# SQLite já está incluído na biblioteca padrão do Python
+# typing_extensions para tipos avançados (opcional)
+typing-extensions>=4.5.0
+
+# =============================================================================
+# TESTES
+# =============================================================================
+
+pytest>=7.4.0
+pytest-cov>=4.1.0
+
+# =============================================================================
+# NOTA SOBRE TESSERACT OCR (Windows)
+# =============================================================================
+# Para usar o pytesseract, é necessário instalar o Tesseract OCR separadamente:
+#
+# 1. Baixe de: https://github.com/UB-Mannheim/tesseract/wiki
+# 2. Instale em: C:\Program Files\Tesseract-OCR
+# 3. Adicione ao PATH ou configure no código:
+#    pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
+#
+# Para português, instale os dados de idioma:
+# - Durante a instalação, marque "Portuguese (Brazil)"
+# - Ou baixe por separado: por.traineddata

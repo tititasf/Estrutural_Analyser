@@ -1,0 +1,139 @@
+version: "3.9"
+
+# =============================================================================
+# CAD-ANALYZER - Docker Compose
+# Pipeline de Processamento de Projetos Estruturais
+# =============================================================================
+
+services:
+  # -------------------------------------------------------------------------
+  # Serviço Principal: CAD-Analyzer
+  # -------------------------------------------------------------------------
+  cad-analyzer:
+    image: cad-analyzer:3.0.0
+    container_name: cad-analyzer-pipeline
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    
+    # Variáveis de ambiente
+    environment:
+      - CAD_ANALYZER_VERSION=3.0.0
+      - CAD_ANALYZER_ENV=production
+      - PYTHONUNBUFFERED=1
+      - DB_PATH=/app/data/project_data.vision
+      - CACHE_DIR=/app/data/cache
+      - LOG_LEVEL=INFO
+      - MAX_WORKERS=4
+    
+    # Volumes para dados persistentes
+    volumes:
+      # Dados da aplicação
+      - ./data/obras:/app/data/obras:rw
+      - ./data/cache:/app/data/cache:rw
+      - ./data/project_data.vision:/app/data/project_data.vision:rw
+      # Logs
+      - ./logs:/app/logs:rw
+      # Output (DXFs gerados)
+      - ./output:/app/output:rw
+      # Diretório de entrada de obras (opcional)
+      - ./obras_entrada:/app/obras_entrada:ro
+    
+    # Networks
+    networks:
+      - cad-analyzer-network
+    
+    # Health check configurado no Dockerfile
+    healthcheck:
+      test: ["CMD", "python", "-c", "from src.orchestrator.pipeline_orchestrator import PipelineOrchestrator; print('OK')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    
+    # Recursos (limites opcionais)
+    deploy:
+      resources:
+        limits:
+          cpus: "4.0"
+          memory: 4G
+        reservations:
+          cpus: "1.0"
+          memory: 1G
+    
+    # Logging configuration
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    
+    # Commando padrão (pode ser sobrescrito)
+    command: ["--help"]
+
+  # -------------------------------------------------------------------------
+  # Serviço: Worker para Processamento Paralelo (Opcional)
+  # -------------------------------------------------------------------------
+  cad-worker:
+    image: cad-analyzer:3.0.0
+    container_name: cad-analyzer-worker
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    profiles:
+      - worker
+    
+    environment:
+      - CAD_ANALYZER_VERSION=3.0.0
+      - CAD_ANALYZER_ENV=worker
+      - PYTHONUNBUFFERED=1
+      - DB_PATH=/app/data/project_data.vision
+      - WORKER_MODE=true
+    
+    volumes:
+      - ./data/obras:/app/data/obras:rw
+      - ./data/cache:/app/data/cache:rw
+      - ./data/project_data.vision:/app/data/project_data.vision:rw
+      - ./logs:/app/logs:rw
+      - ./output:/app/output:rw
+    
+    networks:
+      - cad-analyzer-network
+    
+    # Scaling: docker compose --profile worker up --scale cad-worker=4
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          cpus: "2.0"
+          memory: 2G
+
+# =============================================================================
+# Networks
+# =============================================================================
+networks:
+  cad-analyzer-network:
+    driver: bridge
+    name: cad-analyzer-network
+
+# =============================================================================
+# Volumes named (opcional, para dados fora do contexto)
+# =============================================================================
+volumes:
+  cad-data:
+    name: cad-analyzer-data
+  cad-cache:
+    name: cad-analyzer-cache
+
+# =============================================================================
+# INSTRUÇÕES DE USO:
+# =============================================================================
+# Start:        docker compose up -d
+# Run pipeline: docker compose run --rm cad-analyzer --obra OBRA_001 --executar-todas
+# Run fase:     docker compose run --rm cad-analyzer --obra OBRA_001 --fase 1
+# Logs:         docker compose logs -f cad-analyzer
+# Scale workers: docker compose --profile worker up --scale cad-worker=4 -d
+# Stop:         docker compose down
+# =============================================================================
