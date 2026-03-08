@@ -1,0 +1,64 @@
+---
+description: Protocolo de Governança, Harmonização e Contextualização de Memória Tri-Nível (Curto, Médio e Longo Prazo)
+alwaysApply: true
+---
+
+# 🧠 Protocolo de Governança de Memória AgenteCAD
+
+Este protocolo define como o Agente deve interagir, atualizar e harmonizar os três níveis de memória do Sistema Operacional Cognitivo Antigravity.
+
+## 1. Definição dos Níveis de Memória
+
+| Nível | Escopo | Armazenamento | Propósito |
+| :--- | :--- | :--- | :--- |
+| **Curto Prazo** | Sessão/Tarefa | RAM / Estado do Agente | Contexto imediato, variáveis de execução, progresso da task atual. |
+| **Médio Prazo** | Projeto (Local) | SQLite / ChromaDB | DNA do projeto, padrões específicos de DXF, histórico de decisões locais. |
+| **Longo Prazo** | Corporativo (Global) | ByteRover Cloud | Padrões universais, arquitetura base, soluções complexas reutilizáveis. |
+
+## 2. Protocolo de Contextualização (Leitura)
+
+**OBRIGATÓRIO** realizar o "Memory Recon" no início de qualquer tarefa complexa:
+
+1.  **Query Longo Prazo (ByteRover)**: Buscar padrões globais ou soluções para o problema atual.
+    -   *Ferramenta*: `mcp_byterover_retrieve_knowledge`
+2.  **Query Médio Prazo (Local)**: Buscar o DNA e contexto do projeto atual.
+    -   *Ferramenta*: Consultar arquivos `.json`, `chroma.sqlite3` ou logs de projeto.
+3.  **Sintetizar Curto Prazo**: Consolidar os achados para definir o estado inicial da tarefa.
+
+## 3. Protocolo de Atualização (Escrita)
+
+A cada checkpoint funcional (Task Done), o agente deve:
+
+-   **Atualizar Médio Prazo**: Se o resultado for específico do projeto (ex: "identificamos que este DXF usa a layer 'VIGAS_OLD'"), registrar localmente.
+-   **Avaliar para Longo Prazo**: Se o resultado for uma solução arquitetural, um bug fix crítico ou um padrão inovador, disparar sincronização Byterover.
+    -   *Trigger*: Seguir `.cursor/rules/byterover-memory-sync.mdc`.
+
+## 4. Protocolo de Harmonização (Sincronização entre Níveis)
+
+A harmonização ocorre para garantir que o conhecimento flua e não se torne obsoleto:
+
+### ⬆️ Promoção (Médio -> Longo)
+- **Critério**: Um padrão identificado em 3 ou mais projetos locais ou uma solução que resolve uma falha sistêmica.
+- **Ação**: Usar `mcp_byterover_store_knowledge` para promover o insight do Médio para o Longo prazo.
+
+### ⬇️ Destilação (Curto -> Médio)
+- **Critério**: Informações de sessão que têm valor para o histórico do projeto (ex: parâmetros de treinamento usados em um modelo local).
+- **Ação**: Registrar no banco de dados local ou arquivos de metadados do projeto.
+
+### 🔄 Alinhamento de Conflitos
+- Se um conhecimento de **Longo Prazo** conflitar com o DNA do **Médio Prazo** (ex: Regra global diz 'Layer A', mas projeto usa 'Layer B'):
+  1.  Respeitar o Médio Prazo para execução.
+  2.  Documentar a exceção na memória de Médio Prazo.
+  3.  Se a exceção for frequente, sugerir atualização da Regra Global (Longo Prazo).
+
+## 5. Instruções Procedimentais para o Agente
+
+- **SEMPRE** que você "mexer" em memória (criar um fato, atualizar um contexto), verifique se isso afeta os níveis superiores ou inferiores.
+- **PROATIVIDADE**: Se detectar que aprendeu algo novo no processo de código, não apenas termine a tarefa. **Curadoria é parte da tarefa**.
+- **MEMÓRIA VETORIAL**: Sempre que realizar um `store`, certifique-se de que as tags e o contexto estão ricos o suficiente para recuperação futura.
+
+## 6. Verificação de Integridade
+
+- **Unit Validation**: O registro foi persistido no nível correto?
+- **Integration Check**: O conhecimento novo está acessível para a próxima query de contextualização?
+- **Fail-Safe**: Se a sincronização cloud falhar, o registro deve ser mantido em Médio Prazo com flag `pending_sync`.

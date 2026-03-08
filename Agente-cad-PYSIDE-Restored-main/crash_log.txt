@@ -1,0 +1,17 @@
+CRITICAL STARTUP ERROR:
+Traceback (most recent call last):
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\main.py", line 6354, in <module>
+    main()
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\main.py", line 6342, in main
+    dummy_user.id = "local_admin_123"
+    ^^^^^^^^^^^^^
+  File "C:\Users\Thierry\AppData\Local\Programs\Python\Python312\Lib\site-packages\pydantic\main.py", line 998, in __setattr__
+    setattr_handler(self, name, value)  # call here to not memo on possibly unknown fields
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Thierry\AppData\Local\Programs\Python\Python312\Lib\site-packages\pydantic\main.py", line 99, in _model_field_setattr_handler
+    model.__pydantic_fields_set__.add(name)
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Thierry\AppData\Local\Programs\Python\Python312\Lib\site-packages\pydantic\main.py", line 988, in __getattr__
+    return super().__getattribute__(item)  # Raises AttributeError if appropriate
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'UserProfile' object has no attribute '__pydantic_fields_set__'. Did you mean: '__pydantic_fields__'?

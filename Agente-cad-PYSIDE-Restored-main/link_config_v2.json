@@ -1,0 +1,81 @@
+{
+    "_l1_n": [
+        {
+            "id": "label",
+            "name": "IDENTIFICADOR LAJE",
+            "type": "text",
+            "prompt": "Busque textos \"L\" + numeral próximo ao pilar. regex: (L\\d+)",
+            "help": "Texto \"Lxx\". Define qual painel de laje descarrega aqui."
+        },
+        {
+            "id": "void_x",
+            "name": "Vazio (X)",
+            "type": "geometry",
+            "prompt": "Selecione as linhas do 'X' que indica vazio.",
+            "help": "Marca este setor como 'SEM LAJE' (Vazios/Shafts)."
+        }
+    ],
+    "_l1_h": [
+        {
+            "id": "thick",
+            "name": "TEXTO DE ESPESSURA",
+            "type": "text",
+            "prompt": "Busque padrões \"H=\" ou \"d=\" próximo à laje. regex: ([Hd]=?\\d+)",
+            "help": "Texto \"H=12\" ou \"d=12\". Define a altura da laje."
+        }
+    ],
+    "_l1_v": [
+        {
+            "id": "level",
+            "name": "Nível da Laje",
+            "type": "text",
+            "prompt": "Busque cotas de nível (+0.00) próximas. regex: ([+-]\\d+\\.\\d+)",
+            "help": "Cota de nível (ex: +3.00). Define a base de apoio."
+        }
+    ],
+    "_segs": [
+        {
+            "id": "segments",
+            "name": "Geometria Real",
+            "type": "geometry",
+            "prompt": "Selecione polilinhas ou linhas que definem o contorno.",
+            "help": "Linhas/Polilinhas no CAD que representam o corpo do objeto."
+        }
+    ],
+    "_v_": [
+        {
+            "id": "label",
+            "name": "Identificador Viga",
+            "type": "text",
+            "prompt": "Busque textos \"V\" + numeral agrupado. regex: (V\\d+)",
+            "help": "Texto \"Vxx\". Identifica a viga de suporte."
+        }
+    ],
+    "name": [
+        {
+            "id": "label",
+            "name": "Identificador Primário",
+            "type": "text",
+            "prompt": "Busque o texto Pxx central ao pilar. regex: (P\\d+)",
+            "help": "O texto \"Pxx\" que identifica o pilar."
+        }
+    ],
+    "dim": [
+        {
+            "id": "label",
+            "name": "TEXTO DE DIMENSAO",
+            "type": "text",
+            "prompt": "Busque seção (ex: 20x50). regex: (\\(?\\d+[\\s]*[xX/][\\s]*\\d+\\)?)",
+            "help": "Texto \"20x50\" que define a seção bruta."
+        }
+    ],
+    "default": [
+        {
+            "id": "main",
+            "name": "Vínculo Principal",
+            "type": "text",
+            "prompt": "Identifique o elemento principal no CAD.",
+            "help": "Texto ou objeto que define o valor deste campo."
+        }
+    ]
+}

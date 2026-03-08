@@ -1,0 +1,247 @@
+name: CAD-Analyzer CI/CD
+
+# =============================================================================
+# GitHub Actions Pipeline para CAD-ANALYZER
+# Lint | Testes | Build Docker | Push para Registry
+# =============================================================================
+
+on:
+  push:
+    branches:
+      - main
+      - master
+      - develop
+    tags:
+      - "v*.*.*"
+  pull_request:
+    branches:
+      - main
+      - master
+      - develop
+  workflow_dispatch:
+    inputs:
+      run_tests:
+        description: "Executar testes"
+        required: false
+        default: "true"
+      build_docker:
+        description: "Build Docker"
+        required: false
+        default: "true"
+
+env:
+  PYTHON_VERSION: "3.14"
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  # ==========================================================================
+  # JOB 1: LINT - Flake8 e Black
+  # ==========================================================================
+  lint:
+    name: Lint (flake8, black)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    
+    steps:
+      - name: Checkout do código
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Configurar Python ${{ env.PYTHON_VERSION }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: "pip"
+      
+      - name: Instalar dependências de lint
+        run: |
+          python -m pip install --upgrade pip
+          pip install flake8 black isort
+      
+      - name: Black - Verificar formatação
+        run: |
+          black --check src/ tests/
+        continue-on-error: true
+      
+      - name: Flake8 - Verificar qualidade do código
+        run: |
+          flake8 src/ tests/ --count --select=E9,F63,F7,F82 --show-source --statistics
+          flake8 src/ tests/ --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+      
+      - name: Isort - Verificar imports
+        run: |
+          isort --check-only src/ tests/
+        continue-on-error: true
+
+  # ==========================================================================
+  # JOB 2: TESTES - Pytest com Coverage
+  # ==========================================================================
+  test:
+    name: Testes (pytest com coverage)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    needs: lint
+    
+    steps:
+      - name: Checkout do código
+        uses: actions/checkout@v4
+      
+      - name: Configurar Python ${{ env.PYTHON_VERSION }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: "pip"
+      
+      - name: Instalar Tesseract OCR (dependência do sistema)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y tesseract-ocr tesseract-ocr-por libtesseract-dev
+      
+      - name: Instalar dependências
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements-phases.txt
+      
+      - name: Executar testes com pytest
+        run: |
+          pytest tests/ -v --cov=src --cov-report=xml --cov-report=html --cov-report=term-missing \
+            --junitxml=pytest-results.xml \
+            -o junit_family=legacy
+      
+      - name: Upload de coverage report
+        uses: codecov/codecov-action@v4
+        with:
+          files: ./coverage.xml
+          flags: unittests
+          name: codecov-cad-analyzer
+          fail_ci_if_error: false
+      
+      - name: Upload de resultados dos testes
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: pytest-results
+          path: |
+            pytest-results.xml
+            htmlcov/
+          retention-days: 7
+
+  # ==========================================================================
+  # JOB 3: BUILD DOCKER - Multi-architecture
+  # ==========================================================================
+  build-docker:
+    name: Build Docker
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    needs: test
+    if: github.event_name != 'pull_request'
+    
+    permissions:
+      contents: read
+      packages: write
+    
+    steps:
+      - name: Checkout do código
+        uses: actions/checkout@v4
+      
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+      
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      
+      - name: Login no Container Registry
+        uses: docker/login-action@v3
+        if: github.event_name != 'pull_request'
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Extrair metadata da imagem
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=sha,format=short
+      
+      - name: Build e push da imagem Docker
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          platforms: linux/amd64,linux/arm64
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          build-args: |
+            BUILD_DATE=${{ github.event.head_commit.timestamp }}
+            VCS_REF=${{ github.sha }}
+      
+      - name: Verificar tamanho da imagem
+        run: |
+          echo "Verificando tamanho da imagem Docker..."
+          docker images ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }} --format "table {{.Repository}}\t{{.Tag}}\t{{.Size}}"
+      
+      - name: Validar tamanho < 500MB
+        run: |
+          SIZE=$(docker images ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest --format "{{.Size}}")
+          echo "Tamanho da imagem: $SIZE"
+          # Nota: Validação informativa, não falha o build
+
+  # ==========================================================================
+  # JOB 4: PUSH PARA REGISTRY - Apenas em tags de release
+  # ==========================================================================
+  push-release:
+    name: Push para Registry (Release)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    needs: build-docker
+    if: startsWith(github.ref, 'refs/tags/v')
+    
+    permissions:
+      contents: write
+      packages: write
+    
+    steps:
+      - name: Checkout do código
+        uses: actions/checkout@v4
+      
+      - name: Download da imagem Docker
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          tags: |
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.ref_name }}
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+          platforms: linux/amd64,linux/arm64
+      
+      - name: Criar Release no GitHub
+        uses: softprops/action-gh-release@v1
+        with:
+          generate_release_notes: true
+          files: |
+            README.md
+            RELEASE_NOTES_v3.0.md
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Notificar sucesso do deploy
+        run: |
+          echo "✅ Release ${{ github.ref_name }} publicado com sucesso!"
+          echo "📦 Imagem Docker: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.ref_name }}"
+
+# =============================================================================
+# FIM DO PIPELINE CI/CD
+# =============================================================================

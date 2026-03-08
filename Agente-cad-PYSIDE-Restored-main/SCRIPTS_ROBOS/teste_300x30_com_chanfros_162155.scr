@@ -1,0 +1,19 @@
+;; Script AutoCAD para Viga 300x30 com Chanfros (V300.1)
+;; Gerado em 2026-01-21 16:21:55
+
+;; Desenhar retângulo da viga
+-LINE
+0,0
+300,0
+300,30
+0,30
+0,0
+
+;; Adicionar texto com o número da viga
+-TEXT
+150.0,15.0
+7.5
+0
+V300.1
+
+;; Finalizar

@@ -1,0 +1,25 @@
+{
+  "timestamp": "20260121_162026",
+  "comparacao": {
+    "teste_200x20_sem_aberturas": {
+      "status": "ERRO",
+      "legacy_len": 0,
+      "nova_len": 0,
+      "legacy": "ERRO: object of type 'bool' has no len()",
+      "nova": "ERRO: 'charmap' codec can't encode character '\\u2713' in position 436: character maps to <undefined>"
+    },
+    "teste_200x20_com_chanfros": {
+      "status": "ERRO",
+      "legacy_len": 0,
+      "nova_len": 0,
+      "legacy": "ERRO: 'charmap' codec can't encode character '\\u2713' in position 436: character maps to <undefined>",
+      "nova": "ERRO: 'charmap' codec can't encode character '\\u2713' in position 436: character maps to <undefined>"
+    }
+  },
+  "resumo": {
+    "total_testes": 2,
+    "identicos": 0,
+    "diferentes": 0,
+    "erros": 2
+  }
+}

@@ -1,0 +1,19 @@
+;; Script AutoCAD para Viga 200x20 Básica (V200.1)
+;; Gerado em 2026-01-21 16:21:55
+
+;; Desenhar retângulo da viga
+-LINE
+0,0
+200,0
+200,20
+0,20
+0,0
+
+;; Adicionar texto com o número da viga
+-TEXT
+100.0,10.0
+5.0
+0
+V200.1
+
+;; Finalizar

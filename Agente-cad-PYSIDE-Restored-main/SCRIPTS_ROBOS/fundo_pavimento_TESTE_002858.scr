@@ -1,0 +1,25 @@
+;; Script AutoCAD - Pavimento TESTE
+;; Gerado em 2026-01-22 00:28:58
+;; Contém todos os fundos do pavimento
+
+ferramentas_LOAD_LISP
+
+;; Fundo 1 - Fundo 1 (200.0x20.0)
+
+;; Desenhar retangulo do fundo
+-LINE
+0,0
+200.0,0
+200.0,20.0
+0,{altura}
+0,0
+
+;; Adicionar texto
+-TEXT
+100.0,10.0
+5.0
+0
+1
+
+;; Fim do script
+(princ "\nScript do pavimento executado com sucesso!")

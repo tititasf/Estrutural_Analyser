@@ -1,0 +1,19 @@
+;; Script AutoCAD para Viga 400x40 com Aberturas (V400.1)
+;; Gerado em 2026-01-21 16:21:55
+
+;; Desenhar retângulo da viga
+-LINE
+0,0
+400,0
+400,40
+0,40
+0,0
+
+;; Adicionar texto com o número da viga
+-TEXT
+200.0,20.0
+10.0
+0
+V400.1
+
+;; Finalizar

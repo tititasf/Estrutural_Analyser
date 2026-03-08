@@ -1,0 +1,12 @@
+;; Script FD - Fundo Desenhar
+;; Comando para desenhar fundos de vigas
+
+ferramentas_LOAD_LISP
+
+;; Mensagem de inicio
+(princ "\n=== SISTEMA DE FUNDOS DE VIGAS ===\n")
+(princ "Comando FD executado com sucesso!\n")
+(princ "Use este comando para desenhar fundos de vigas.\n")
+
+;; Fim do script
+(princ "\nScript FD concluido.\n")
