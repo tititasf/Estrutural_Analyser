@@ -1,0 +1,24 @@
+{
+  "name": "P1",
+  "dim": "20x40",
+  "sides_data": {
+    "A": {
+      "p_sA_l1_n": "L1",
+      "p_sA_l1_h": "12.0",
+      "p_sA_v_ch1_n": "V10",
+      "p_sA_v_ch1_d": "15x40"
+    },
+    "B": {
+      "p_sB_l1_n": "SEM LAJE",
+      "p_sB_v_ch1_n": "V20",
+      "p_sB_v_ch1_d": "20x50"
+    },
+    "C": {
+      "p_sC_l1_n": "L2",
+      "p_sC_l1_h": "10.0"
+    },
+    "D": {
+      "p_sD_l1_n": null
+    }
+  }
+}
