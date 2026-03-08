@@ -1,0 +1,5 @@
+;; Comando para executar script SCR automático (Gerado Dinamicamente)
+(defun c:TV ()
+  (command "_SCRIPT" "c:/Users/Ryzen/Desktop/GITHUB/Agente-cad-PYSIDE/ferramentas_LOAD_LISP/TESTE_VIGA_TV.scr")
+  (princ)
+)
