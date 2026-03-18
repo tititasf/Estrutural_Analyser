@@ -1,78 +1,36 @@
 {
   "number": "2",
   "name": "V2_A",
-  "floor": "12 PAV",
+  "floor": "LAJE TÉCNICA",
   "side": "A",
   "total_width": 19.0,
-  "total_height": "110.0",
+  "total_height": "174.0",
   "panels": [
     {
       "width": 120.0,
-      "height1": 110.0,
-      "height2": 110.0,
+      "height1": 174.0,
+      "height2": 174.0,
       "grade_h1": "0",
       "grade_h2": "0"
     },
     {
       "width": 120.0,
-      "height1": 110.0,
-      "height2": 110.0,
+      "height1": 174.0,
+      "height2": 174.0,
       "grade_h1": "0",
       "grade_h2": "0"
     },
     {
       "width": 120.0,
-      "height1": 110.0,
-      "height2": 110.0,
+      "height1": 174.0,
+      "height2": 174.0,
       "grade_h1": "0",
       "grade_h2": "0"
     },
     {
-      "width": 120.0,
-      "height1": 110.0,
-      "height2": 110.0,
-      "grade_h1": "0",
-      "grade_h2": "0"
-    },
-    {
-      "width": 120.0,
-      "height1": 110.0,
-      "height2": 110.0,
-      "grade_h1": "0",
-      "grade_h2": "0"
-    },
-    {
-      "width": 120.0,
-      "height1": 110.0,
-      "height2": 110.0,
-      "grade_h1": "0",
-      "grade_h2": "0"
-    },
-    {
-      "width": 120.0,
-      "height1": 110.0,
-      "height2": 110.0,
-      "grade_h1": "0",
-      "grade_h2": "0"
-    },
-    {
-      "width": 120.0,
-      "height1": 110.0,
-      "height2": 110.0,
-      "grade_h1": "0",
-      "grade_h2": "0"
-    },
-    {
-      "width": 120.0,
-      "height1": 110.0,
-      "height2": 110.0,
-      "grade_h1": "0",
-      "grade_h2": "0"
-    },
-    {
-      "width": 104.5,
-      "height1": 110.0,
-      "height2": 110.0,
+      "width": 108.0,
+      "height1": 174.0,
+      "height2": 174.0,
       "grade_h1": "0",
       "grade_h2": "0"
     }

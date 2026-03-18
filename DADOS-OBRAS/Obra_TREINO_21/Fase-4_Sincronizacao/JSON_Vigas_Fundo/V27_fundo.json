@@ -1,7 +1,7 @@
 {
   "number": "27",
   "name": "V27_A",
-  "floor": "12 PAV",
+  "floor": "LAJE TÉCNICA",
   "side": "A",
   "total_width": 19.0,
   "total_height": "120.0",
@@ -21,7 +21,7 @@
       "grade_h2": "0"
     },
     {
-      "width": 100.0,
+      "width": 4.0,
       "height1": 120.0,
       "height2": 120.0,
       "grade_h1": "0",

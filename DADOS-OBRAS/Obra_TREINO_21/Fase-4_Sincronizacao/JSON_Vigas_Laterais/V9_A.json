@@ -1,43 +1,29 @@
 {
   "number": "9",
   "name": "V9_A",
-  "floor": "12 PAV",
+  "floor": "LAJE TÉCNICA",
   "side": "A",
   "total_width": 14.0,
-  "total_height": "38.0",
+  "total_height": "120.0",
   "panels": [
     {
       "width": 120.0,
-      "height1": 38.0,
-      "height2": 38.0,
+      "height1": 120.0,
+      "height2": 120.0,
       "grade_h1": "0",
       "grade_h2": "0"
     },
     {
       "width": 120.0,
-      "height1": 38.0,
-      "height2": 38.0,
+      "height1": 120.0,
+      "height2": 120.0,
       "grade_h1": "0",
       "grade_h2": "0"
     },
     {
-      "width": 120.0,
-      "height1": 38.0,
-      "height2": 38.0,
-      "grade_h1": "0",
-      "grade_h2": "0"
-    },
-    {
-      "width": 120.0,
-      "height1": 38.0,
-      "height2": 38.0,
-      "grade_h1": "0",
-      "grade_h2": "0"
-    },
-    {
-      "width": 89.0,
-      "height1": 38.0,
-      "height2": 38.0,
+      "width": 38.0,
+      "height1": 120.0,
+      "height2": 120.0,
       "grade_h1": "0",
       "grade_h2": "0"
     }

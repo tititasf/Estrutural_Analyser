@@ -1,43 +1,43 @@
 {
   "number": "8",
   "name": "V8_B",
-  "floor": "12 PAV",
+  "floor": "LAJE TÉCNICA",
   "side": "B",
   "total_width": 19.0,
-  "total_height": "38.0",
+  "total_height": "120.0",
   "panels": [
     {
       "width": 120.0,
-      "height1": 38.0,
-      "height2": 38.0,
+      "height1": 120.0,
+      "height2": 120.0,
       "grade_h1": "0",
       "grade_h2": "0"
     },
     {
       "width": 120.0,
-      "height1": 38.0,
-      "height2": 38.0,
+      "height1": 120.0,
+      "height2": 120.0,
       "grade_h1": "0",
       "grade_h2": "0"
     },
     {
       "width": 120.0,
-      "height1": 38.0,
-      "height2": 38.0,
+      "height1": 120.0,
+      "height2": 120.0,
       "grade_h1": "0",
       "grade_h2": "0"
     },
     {
       "width": 120.0,
-      "height1": 38.0,
-      "height2": 38.0,
+      "height1": 120.0,
+      "height2": 120.0,
       "grade_h1": "0",
       "grade_h2": "0"
     },
     {
-      "width": 89.0,
-      "height1": 38.0,
-      "height2": 38.0,
+      "width": 5.0,
+      "height1": 120.0,
+      "height2": 120.0,
       "grade_h1": "0",
       "grade_h2": "0"
     }

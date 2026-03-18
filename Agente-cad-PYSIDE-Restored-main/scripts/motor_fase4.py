@@ -319,6 +319,16 @@ class MotorFase4:
             log.warning("Sem fichas de pilares para processar.")
             return {}
 
+        # Carregar assembly data (CAD-7.1) — grade_1, grade_2 por pilar
+        assembly_path = self.fase3_path / "Pilares" / "pilares_assembly.json"
+        assembly_data: Dict[str, Any] = {}
+        if assembly_path.exists():
+            with open(assembly_path, encoding="utf-8") as f:
+                assembly_data = json.load(f)
+            log.info(f"Assembly data carregado: {len(assembly_data)} pilares ({assembly_path.name})")
+        else:
+            log.warning(f"pilares_assembly.json nao encontrado — grades ficarao zeradas")
+
         pilares_salvos = {}
         pav = self.pavimento or "Pavimento"
 
@@ -326,9 +336,9 @@ class MotorFase4:
             if nome.startswith("_"):
                 continue  # Pular _meta
             try:
-                b = float(dados.get("b", 0))
-                h = float(dados.get("h", 0))
-                altura = float(dados.get("altura", self.altura_padrao))
+                b = float(dados.get("b") or 0)
+                h = float(dados.get("h") or 0)
+                altura = float(dados.get("altura") or self.altura_padrao)
 
                 if b <= 0 or h <= 0:
                     log.warning(f"Pilar {nome}: dimensoes invalidas (b={b}, h={h}). Pular.")
@@ -354,6 +364,15 @@ class MotorFase4:
                     modo_distribuicao="NOVA"
                 )
 
+                # Enriquecer com assembly data (CAD-7.1)
+                asm = assembly_data.get(nome, {})
+                if asm:
+                    g1 = asm.get("grade_1")
+                    g2 = asm.get("grade_2")
+                    pilar.grade_1 = float(g1) if g1 is not None else 0.0
+                    pilar.grade_2 = float(g2) if g2 is not None else 0.0
+                    pilar.distancia_1 = 14.0  # default STOG (nao extraivel do DXF PL)
+
                 pilar_dict = pilar.to_dict()
                 pilares_salvos[nome] = pilar_dict
 
@@ -363,7 +382,8 @@ class MotorFase4:
                     json.dump(pilar_dict, f, ensure_ascii=False, indent=2)
 
                 self.stats["pilares"] += 1
-                log.info(f"  ✅ Pilar {nome}: {comprimento}x{largura}cm, h={altura}cm")
+                g1_str = f" grade_1={pilar.grade_1:.0f}" if pilar.grade_1 else ""
+                log.info(f"  ✅ Pilar {nome}: {comprimento}x{largura}cm, h={altura}cm{g1_str}")
 
             except Exception as e:
                 log.error(f"  ❌ Pilar {nome}: {e}")
@@ -398,9 +418,9 @@ class MotorFase4:
             if nome.startswith("_"):
                 continue
             try:
-                b = float(dados.get("b", 0))
-                h = float(dados.get("h", 0))
-                comprimento = float(dados.get("comprimento", 0))
+                b = float(dados.get("b") or 0)
+                h = float(dados.get("h") or 0)
+                comprimento = float(dados.get("comprimento") or 0)
 
                 if b <= 0 or comprimento <= 0:
                     log.warning(f"Viga {nome}: dimensoes invalidas. Pular.")
@@ -475,9 +495,9 @@ class MotorFase4:
             if nome.startswith("_"):
                 continue
             try:
-                comprimento = float(dados.get("comprimento", 0))
-                largura = float(dados.get("largura", 0))
-                area_cm2 = float(dados.get("area_cm2", comprimento * largura))
+                comprimento = float(dados.get("comprimento") or 0)
+                largura = float(dados.get("largura") or 0)
+                area_cm2 = float(dados.get("area_cm2") or (comprimento * largura))
                 coordenadas = dados.get("coordenadas", [])
 
                 if comprimento <= 0 or largura <= 0:
@@ -537,13 +557,137 @@ class MotorFase4:
         return lajes_salvos
 
     # --------------------------------------------------------------------------
+    # OBRAS_SALVAS — formato Robo_Pilares (CAD-7.3)
+    # --------------------------------------------------------------------------
+
+    def _gerar_obras_salvas(self):
+        """Gera obras_salvas.json e pavimentos_lista.json no formato do PilarAnalyzer.exe."""
+        json_dir = self.fase4_path / "JSON_Pilares"
+        pilar_files = sorted(json_dir.glob("P*.json"),
+                             key=lambda p: int(p.stem[1:]) if p.stem[1:].isdigit() else 999)
+        if not pilar_files:
+            log.warning("_gerar_obras_salvas: sem JSON_Pilares, ignorando")
+            return
+
+        pav = self.pavimento or "12 PAV"
+        obra_nome = self.obra_nome
+
+        obras: Dict[str, Any] = {obra_nome: {pav: {}}}
+        FACES = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H']
+
+        def empty_aberturas():
+            ab = {}
+            for side in ("esquerda", "direita"):
+                ab[side] = {str(i): {"distancia": "", "largura": "",
+                                     "profundidade": "", "posicao": "", "tipo": ""}
+                            for i in range(1, 3)}
+            return ab
+
+        for pf in pilar_files:
+            with open(pf, encoding="utf-8") as f:
+                pj = json.load(f)
+
+            numero = str(pj.get("numero", pf.stem[1:]))
+            comprimento = pj.get("comprimento", 0.0)
+            largura = pj.get("largura", 0.0)
+            altura = pj.get("altura", 280.0)
+            g1 = pj.get("grade_1", 0.0)
+            g2 = pj.get("grade_2", 0.0)
+            d1 = pj.get("distancia_1", 14.0)
+
+            # Paineis por face (h1..h5, larg1..3)
+            paineis = {}
+            for face in FACES:
+                larg1 = pj.get(f"larg1_{face}", 0.0)
+                paineis[face] = {
+                    "laje": "",
+                    "posicao_laje": "5",
+                    "larg1": str(int(larg1)) if larg1 else "244",
+                    "larg2": "0", "larg3": "0",
+                    "h1": str(int(pj.get(f"h1_{face}", 0))),
+                    "h2": str(int(pj.get(f"h2_{face}", 0))),
+                    "h3": str(int(pj.get(f"h3_{face}", 0))),
+                    "h4": str(int(pj.get(f"h4_{face}", 0))),
+                    "h5": str(int(pj.get(f"h5_{face}", 0))),
+                    "aberturas": empty_aberturas()
+                }
+
+            dados = {
+                "numero": numero,
+                "nome": pj.get("nome", f"P{numero}"),
+                "obra": obra_nome,
+                "comprimento": str(int(comprimento)),
+                "largura": str(int(largura)),
+                "pavimento": pav,
+                "pavimento_numero": "1",
+                "pavimento_anterior": pav,
+                "nivel_saida": str(self.nivel_saida),
+                "nivel_chegada": str(self.nivel_chegada),
+                "nivel_diferencial": "",
+                "altura": str(int(altura)),
+                "parafusos": {f"par_{i}_{i+1 if i<8 else 9}": "0" for i in range(1, 9)},
+                "grades": {
+                    "grade_1": str(int(g1)) if g1 else "0",
+                    "distancia_1": str(int(d1)) if d1 else "14",
+                    "grade_2": str(int(g2)) if g2 else "",
+                    "distancia_2": "",
+                    "grade_3": ""
+                },
+                "pilar_especial": False,
+                "detalhes_grades": {}, "altura_detalhes_grades": "",
+                "grades_grupo2": {}, "detalhes_grades_grupo2": {},
+                "altura_detalhes_grades_b": "", "ruler_grupo1": {},
+                "paineis": paineis,
+                "modo_calculo": "automatico",
+                "tipo_distribuicao_largura": "padrao",
+                "checkbox_descontar_laje": False,
+                "checkbox_descontar_aberturas": False,
+                "hachura_paineis": False,
+                "m2_total": 0.0
+            }
+            obras[obra_nome][pav][numero] = {
+                "dados": dados,
+                "item_id": f"{numero}_{pav}",
+                "locks": {}
+            }
+
+        out_path = self.fase4_path / "obras_salvas.json"
+        with open(out_path, "w", encoding="utf-8") as f:
+            json.dump(obras, f, ensure_ascii=False, indent=2)
+
+        # pavimentos_lista.json
+        pav_lista = {obra_nome: {"pavimentos": [pav], "pavimentos_data": {
+            pav: {"nome": pav, "numero": "1",
+                  "nivel_chegada": str(self.nivel_chegada),
+                  "nivel_saida": str(self.nivel_saida)}}}}
+        pav_path = self.fase4_path / "pavimentos_lista.json"
+        with open(pav_path, "w", encoding="utf-8") as f:
+            json.dump(pav_lista, f, ensure_ascii=False, indent=2)
+
+        log.info(f"obras_salvas.json: {len(pilar_files)} pilares → {out_path}")
+
+    # --------------------------------------------------------------------------
     # HELPERS
     # --------------------------------------------------------------------------
 
     def _load_fase3_fichas(self, tipo: str, filename: str) -> Dict[str, Any]:
         """Carregar fichas da Fase 3. Tenta paths alternatives."""
-        candidates = [
-            self.fase3_path / tipo / filename,
+        # Nome canônico gerado pelos scripts de extração
+        canonical = {
+            "Pilares": "pilares_bh.json",
+            "Vigas": "vigas_dim.json",
+            "Lajes": "lajes_data.json",
+        }
+        extra = canonical.get(tipo)
+        candidates = []
+        # Para Pilares: pilares_bh.json tem dados corretos por pavimento; pilares.json acumula stale
+        # Para Vigas/Lajes: o arquivo primário (vigas.json, lajes.json) é o integrado correto
+        if tipo == "Pilares" and extra and extra != filename:
+            candidates.append(self.fase3_path / tipo / extra)
+        candidates.append(self.fase3_path / tipo / filename)
+        if tipo != "Pilares" and extra and extra != filename:
+            candidates.append(self.fase3_path / tipo / extra)
+        candidates += [
             self.fase3_path / f"Dados_Interpretacao_{tipo}" / filename,
             self.fase3_path / filename.replace(".json", f"_{tipo.lower()}.json"),
         ]
@@ -563,6 +707,9 @@ class MotorFase4:
         self.process_pilares()
         self.process_vigas()
         self.process_lajes()
+
+        # Gerar obras_salvas.json no formato do robô (CAD-7.3)
+        self._gerar_obras_salvas()
 
         log.info(f"=== RESULTADO: {self.stats['pilares']} pilares, {self.stats['vigas']} vigas, {self.stats['lajes']} lajes | {self.stats['errors']} erros ===")
 

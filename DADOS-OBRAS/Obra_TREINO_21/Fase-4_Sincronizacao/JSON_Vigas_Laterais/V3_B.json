@@ -1,50 +1,36 @@
 {
   "number": "3",
   "name": "V3_B",
-  "floor": "12 PAV",
+  "floor": "LAJE TÉCNICA",
   "side": "B",
   "total_width": 14.0,
-  "total_height": "38.0",
+  "total_height": "108.0",
   "panels": [
     {
       "width": 120.0,
-      "height1": 38.0,
-      "height2": 38.0,
+      "height1": 108.0,
+      "height2": 108.0,
       "grade_h1": "0",
       "grade_h2": "0"
     },
     {
       "width": 120.0,
-      "height1": 38.0,
-      "height2": 38.0,
+      "height1": 108.0,
+      "height2": 108.0,
       "grade_h1": "0",
       "grade_h2": "0"
     },
     {
       "width": 120.0,
-      "height1": 38.0,
-      "height2": 38.0,
+      "height1": 108.0,
+      "height2": 108.0,
       "grade_h1": "0",
       "grade_h2": "0"
     },
     {
-      "width": 120.0,
-      "height1": 38.0,
-      "height2": 38.0,
-      "grade_h1": "0",
-      "grade_h2": "0"
-    },
-    {
-      "width": 120.0,
-      "height1": 38.0,
-      "height2": 38.0,
-      "grade_h1": "0",
-      "grade_h2": "0"
-    },
-    {
-      "width": 112.0,
-      "height1": 38.0,
-      "height2": 38.0,
+      "width": 108.0,
+      "height1": 108.0,
+      "height2": 108.0,
       "grade_h1": "0",
       "grade_h2": "0"
     }

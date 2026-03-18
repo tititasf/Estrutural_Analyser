@@ -176,8 +176,8 @@ def comparar_pilares(dxf_dir: Path, bh_json: dict, tol: float) -> dict:
             resultados[pid] = {"status": "SEM_REF", "metricas": metricas}
             continue
 
-        ref_b = float(ref.get("b", 0))
-        ref_h = float(ref.get("h", 0))
+        ref_b = float(ref.get("b") or 0)
+        ref_h = float(ref.get("h") or 0)
         gen_h = metricas["h_pilar"]
         gen_b = metricas["b_pilar"]
 
@@ -232,9 +232,9 @@ def comparar_vigas(dxf_dir: Path, vigas_json: dict, tol: float) -> dict:
             resultados[vid] = {"status": "SEM_REF", "metricas": metricas}
             continue
 
-        ref_b = float(ref.get("b", 0))
-        ref_h = float(ref.get("h", 0))
-        ref_L = float(ref.get("comprimento", 0))
+        ref_b = float(ref.get("b") or 0)
+        ref_h = float(ref.get("h") or 0)
+        ref_L = float(ref.get("comprimento") or 0)
 
         gen_L = metricas["comprimento"]
         gen_h = metricas["h"]
@@ -289,8 +289,8 @@ def comparar_lajes(dxf_dir: Path, lajes_json: dict, tol: float) -> dict:
             resultados[lid] = {"status": "SEM_REF", "metricas": metricas}
             continue
 
-        ref_c = float(ref.get("comprimento", 0))
-        ref_l = float(ref.get("largura", 0))
+        ref_c = float(ref.get("comprimento") or 0)
+        ref_l = float(ref.get("largura") or 0)
         gen_c = metricas["comprimento"]
         gen_l = metricas["largura"]
 

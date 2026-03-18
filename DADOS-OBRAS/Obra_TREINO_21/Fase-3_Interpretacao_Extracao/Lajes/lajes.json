@@ -571,7 +571,6 @@
   },
   "_meta": {
     "total": 18,
-    "pavimento": "12 PAV",
     "integrado_em": "2026-03-08",
     "fontes": [
       "lajes_poligono.json"

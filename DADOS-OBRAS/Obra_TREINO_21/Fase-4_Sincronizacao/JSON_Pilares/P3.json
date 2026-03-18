@@ -1,10 +1,10 @@
 {
   "numero": "3",
   "nome": "P3",
-  "comprimento": 60.0,
-  "largura": 25.0,
+  "comprimento": 90.0,
+  "largura": 38.0,
   "altura": 280.0,
-  "pavimento": "12 PAV",
+  "pavimento": "LAJE TÉCNICA",
   "nivel_chegada": 0.0,
   "nivel_saida": 280.0,
   "modo_distribuicao": "NOVA",

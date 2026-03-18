@@ -1,8 +1,8 @@
 {
   "V1": {
     "b": 14.0,
-    "h": 254.0,
-    "comprimento": 403.0,
+    "h": 174.0,
+    "comprimento": 468.0,
     "confidence": 0.802,
     "source": "vigas_dim+fv-tipo-proximity",
     "sides": [
@@ -12,8 +12,8 @@
   },
   "V2": {
     "b": 19.0,
-    "h": 110.0,
-    "comprimento": 1184.5,
+    "h": 174.0,
+    "comprimento": 468.0,
     "confidence": 0.845,
     "source": "vigas_dim+fv-12pav-proximity",
     "sides": [
@@ -23,9 +23,9 @@
   },
   "V3": {
     "b": 14.0,
-    "h": 38.0,
-    "comprimento": 712.0,
-    "confidence": 0.802,
+    "h": 108.0,
+    "comprimento": 468.0,
+    "confidence": 0.778,
     "source": "vigas_dim+fv-tipo-proximity",
     "sides": [
       "A",
@@ -34,9 +34,9 @@
   },
   "V4": {
     "b": 34.0,
-    "h": 38.0,
-    "comprimento": 550.0,
-    "confidence": 0.828,
+    "h": 108.0,
+    "comprimento": 1142.5,
+    "confidence": 0.802,
     "source": "vigas_dim+fv-tipo-proximity",
     "sides": [
       "A",
@@ -45,8 +45,8 @@
   },
   "V5": {
     "b": 34.0,
-    "h": 120.0,
-    "comprimento": 569.0,
+    "h": 38.0,
+    "comprimento": 976.0,
     "confidence": 0.802,
     "source": "vigas_dim+fv-tipo-proximity",
     "sides": [
@@ -56,8 +56,8 @@
   },
   "V6": {
     "b": 14.0,
-    "h": 38.0,
-    "comprimento": 591.0,
+    "h": 120.0,
+    "comprimento": 468.0,
     "confidence": 0.802,
     "source": "vigas_dim+fv-tipo-proximity",
     "sides": [
@@ -67,8 +67,8 @@
   },
   "V7": {
     "b": 19.0,
-    "h": 38.0,
-    "comprimento": 1205.0,
+    "h": 120.0,
+    "comprimento": 1142.5,
     "confidence": 0.802,
     "source": "vigas_dim+fv-tipo-proximity",
     "sides": [
@@ -78,8 +78,8 @@
   },
   "V8": {
     "b": 19.0,
-    "h": 38.0,
-    "comprimento": 569.0,
+    "h": 120.0,
+    "comprimento": 485.0,
     "confidence": 0.802,
     "source": "vigas_dim+fv-tipo-proximity",
     "sides": [
@@ -89,8 +89,8 @@
   },
   "V9": {
     "b": 14.0,
-    "h": 38.0,
-    "comprimento": 569.0,
+    "h": 120.0,
+    "comprimento": 278.0,
     "confidence": 0.828,
     "source": "vigas_dim+fv-tipo-proximity",
     "sides": [
@@ -100,9 +100,9 @@
   },
   "V10": {
     "b": 14.0,
-    "h": 120.0,
+    "h": 38.0,
     "comprimento": 588.0,
-    "confidence": 0.828,
+    "confidence": 0.802,
     "source": "vigas_dim+fv-tipo-proximity",
     "sides": [
       "A",
@@ -111,9 +111,9 @@
   },
   "V11": {
     "b": 33.99,
-    "h": 276.0,
-    "comprimento": 280.0,
-    "confidence": 0.802,
+    "h": 38.0,
+    "comprimento": 588.0,
+    "confidence": 0.828,
     "source": "vigas_dim+fv-tipo-proximity",
     "sides": [
       "A",
@@ -122,9 +122,9 @@
   },
   "V12": {
     "b": 19.0,
-    "h": 110.0,
-    "comprimento": 244.0,
-    "confidence": 0.82,
+    "h": 38.0,
+    "comprimento": 973.0,
+    "confidence": 0.845,
     "source": "vigas_dim+fv-12pav-proximity",
     "sides": [
       "A",
@@ -134,8 +134,8 @@
   "V13": {
     "b": 14.0,
     "h": 38.0,
-    "comprimento": 588.0,
-    "confidence": 0.802,
+    "comprimento": 973.0,
+    "confidence": 0.828,
     "source": "vigas_dim+fv-tipo-proximity",
     "sides": [
       "A",
@@ -144,9 +144,9 @@
   },
   "V14": {
     "b": 14.0,
-    "h": 294.0,
-    "comprimento": 244.0,
-    "confidence": 0.802,
+    "h": 38.0,
+    "comprimento": 550.0,
+    "confidence": 0.828,
     "source": "vigas_dim+fv-tipo-proximity",
     "sides": [
       "A",
@@ -155,8 +155,8 @@
   },
   "V15": {
     "b": 25.0,
-    "h": 38.0,
-    "comprimento": 892.5,
+    "h": 174.0,
+    "comprimento": 952.5,
     "confidence": 0.802,
     "source": "vigas_dim+fv-tipo-proximity",
     "sides": [
@@ -166,9 +166,9 @@
   },
   "V16": {
     "b": 19.0,
-    "h": 254.0,
-    "comprimento": 244.0,
-    "confidence": 0.828,
+    "h": 174.0,
+    "comprimento": 680.5,
+    "confidence": 0.802,
     "source": "vigas_dim+fv-tipo-proximity",
     "sides": [
       "A",
@@ -177,8 +177,8 @@
   },
   "V17": {
     "b": 39.0,
-    "h": 276.0,
-    "comprimento": 947.0,
+    "h": 38.0,
+    "comprimento": 434.0,
     "confidence": 0.802,
     "source": "vigas_dim+fv-tipo-proximity",
     "sides": [
@@ -188,8 +188,8 @@
   },
   "V18": {
     "b": 19.0,
-    "h": 276.0,
-    "comprimento": 947.0,
+    "h": 120.0,
+    "comprimento": 550.0,
     "confidence": 0.802,
     "source": "vigas_dim+fv-tipo-proximity",
     "sides": [
@@ -199,9 +199,9 @@
   },
   "V19": {
     "b": 19.0,
-    "h": 250.0,
-    "comprimento": 550.0,
-    "confidence": 0.82,
+    "h": 120.0,
+    "comprimento": 434.0,
+    "confidence": 0.87,
     "source": "vigas_dim+fv-12pav-proximity",
     "sides": [
       "A",
@@ -211,8 +211,8 @@
   "V20": {
     "b": 19.0,
     "h": 38.0,
-    "comprimento": 488.0,
-    "confidence": 0.802,
+    "comprimento": 374.0,
+    "confidence": 0.828,
     "source": "vigas_dim+fv-tipo-proximity",
     "sides": [
       "A",
@@ -221,8 +221,8 @@
   },
   "V21": {
     "b": 19.0,
-    "h": 156.0,
-    "comprimento": 496.0,
+    "h": 120.0,
+    "comprimento": 244.0,
     "confidence": 0.802,
     "source": "vigas_dim+fv-tipo-proximity",
     "sides": [
@@ -232,9 +232,9 @@
   },
   "V22": {
     "b": 60.0,
-    "h": 310.0,
-    "comprimento": 558.0,
-    "confidence": 0.845,
+    "h": 120.0,
+    "comprimento": 180.0,
+    "confidence": 0.87,
     "source": "vigas_dim+fv-12pav-proximity",
     "sides": [
       "A",
@@ -243,9 +243,9 @@
   },
   "V23": {
     "b": 19.0,
-    "h": 38.0,
-    "comprimento": 906.5,
-    "confidence": 0.778,
+    "h": 120.0,
+    "comprimento": 374.0,
+    "confidence": 0.828,
     "source": "vigas_dim+fv-tipo-proximity",
     "sides": [
       "A",
@@ -254,8 +254,8 @@
   },
   "V24": {
     "b": 19.0,
-    "h": 120.0,
-    "comprimento": 516.0,
+    "h": 38.0,
+    "comprimento": 374.0,
     "confidence": 0.802,
     "source": "vigas_dim+fv-tipo-proximity",
     "sides": [
@@ -266,8 +266,8 @@
   "V25": {
     "b": 19.0,
     "h": 120.0,
-    "comprimento": 516.0,
-    "confidence": 0.802,
+    "comprimento": 244.0,
+    "confidence": 0.778,
     "source": "vigas_dim+fv-tipo-proximity",
     "sides": [
       "A",
@@ -277,7 +277,7 @@
   "V26": {
     "b": 19.0,
     "h": 120.0,
-    "comprimento": 516.0,
+    "comprimento": 244.0,
     "confidence": 0.802,
     "source": "vigas_dim+fv-tipo-proximity",
     "sides": [
@@ -288,7 +288,7 @@
   "V27": {
     "b": 19.0,
     "h": 120.0,
-    "comprimento": 340.0,
+    "comprimento": 244.0,
     "confidence": 0.802,
     "source": "vigas_dim+fv-tipo-proximity",
     "sides": [
@@ -299,8 +299,8 @@
   "V28": {
     "b": 19.0,
     "h": 120.0,
-    "comprimento": 180.0,
-    "confidence": 0.802,
+    "comprimento": 674.0,
+    "confidence": 0.778,
     "source": "vigas_dim+fv-tipo-proximity",
     "sides": [
       "A",
@@ -309,30 +309,8 @@
   },
   "V29": {
     "b": 19.0,
-    "h": 120.0,
-    "comprimento": 340.0,
-    "confidence": 0.802,
-    "source": "vigas_dim+fv-tipo-proximity",
-    "sides": [
-      "A",
-      "B"
-    ]
-  },
-  "V30": {
-    "b": 19.0,
-    "h": 167.4,
-    "comprimento": 558.0,
-    "confidence": 0.802,
-    "source": "vigas_dim+fv-tipo-proximity",
-    "sides": [
-      "A",
-      "B"
-    ]
-  },
-  "V31": {
-    "b": 19.0,
-    "h": 120.0,
-    "comprimento": 338.0,
+    "h": 38.0,
+    "comprimento": 434.0,
     "confidence": 0.828,
     "source": "vigas_dim+fv-tipo-proximity",
     "sides": [
@@ -340,31 +318,19 @@
       "B"
     ]
   },
-  "V32": {
-    "b": 19.0,
+  "V13B": {
+    "b": 15.0,
     "h": 38.0,
-    "comprimento": 338.0,
-    "confidence": 0.802,
-    "source": "vigas_dim+fv-tipo-proximity",
-    "sides": [
-      "A",
-      "B"
-    ]
-  },
-  "V32A": {
-    "b": 19.0,
-    "h": 78.0,
-    "comprimento": 536.3,
-    "confidence": 0.52,
-    "source": "vigas_dim+default-19cm",
+    "comprimento": 588.0,
+    "confidence": 0.645,
+    "source": "vigas_dim+default",
     "sides": [
       "A",
       "B"
     ]
   },
   "_meta": {
-    "total": 32,
-    "pavimento": "12 PAV",
+    "total": 29,
     "integrado_em": "2026-03-08",
     "fontes": [
       "vigas_dim.json",

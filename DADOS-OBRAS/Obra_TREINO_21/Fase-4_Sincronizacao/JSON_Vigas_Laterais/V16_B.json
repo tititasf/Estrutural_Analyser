@@ -1,29 +1,50 @@
 {
   "number": "16",
   "name": "V16_B",
-  "floor": "12 PAV",
+  "floor": "LAJE TÉCNICA",
   "side": "B",
   "total_width": 19.0,
-  "total_height": "254.0",
+  "total_height": "174.0",
   "panels": [
     {
       "width": 120.0,
-      "height1": 254.0,
-      "height2": 254.0,
+      "height1": 174.0,
+      "height2": 174.0,
       "grade_h1": "0",
       "grade_h2": "0"
     },
     {
       "width": 120.0,
-      "height1": 254.0,
-      "height2": 254.0,
+      "height1": 174.0,
+      "height2": 174.0,
       "grade_h1": "0",
       "grade_h2": "0"
     },
     {
-      "width": 4.0,
-      "height1": 254.0,
-      "height2": 254.0,
+      "width": 120.0,
+      "height1": 174.0,
+      "height2": 174.0,
+      "grade_h1": "0",
+      "grade_h2": "0"
+    },
+    {
+      "width": 120.0,
+      "height1": 174.0,
+      "height2": 174.0,
+      "grade_h1": "0",
+      "grade_h2": "0"
+    },
+    {
+      "width": 120.0,
+      "height1": 174.0,
+      "height2": 174.0,
+      "grade_h1": "0",
+      "grade_h2": "0"
+    },
+    {
+      "width": 80.5,
+      "height1": 174.0,
+      "height2": 174.0,
       "grade_h1": "0",
       "grade_h2": "0"
     }

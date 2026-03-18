@@ -1,0 +1,322 @@
+[
+  {
+    "obra": "Obra_TREINO_11",
+    "projeto": "NOVA-SCHWARTZ-GWT",
+    "pavimento": "GWT-1SS",
+    "viga": "V103-V110",
+    "secao": "(19x58)",
+    "insert_x": 130959.5,
+    "insert_y": 33973.7,
+    "dxf_source": "NOVA-SCHWARTZ-GWT-1SS-LV-R00_R2018_ASCII_ODA.dxf",
+    "zone": {
+      "y_top": 34053.7,
+      "y_bot": 32825.1,
+      "x_left": null,
+      "x_right": 131738.1
+    }
+  },
+  {
+    "obra": "Obra_TREINO_11",
+    "projeto": "NOVA-SCHWARTZ-GWT",
+    "pavimento": "GWT-1SS",
+    "viga": "V104",
+    "secao": "(25x58)",
+    "insert_x": 132516.7,
+    "insert_y": 33973.7,
+    "dxf_source": "NOVA-SCHWARTZ-GWT-1SS-LV-R00_R2018_ASCII_ODA.dxf",
+    "zone": {
+      "y_top": 34053.7,
+      "y_bot": 32825.1,
+      "x_left": 131738.1,
+      "x_right": 133316.5
+    }
+  },
+  {
+    "obra": "Obra_TREINO_11",
+    "projeto": "NOVA-SCHWARTZ-GWT",
+    "pavimento": "GWT-1SS",
+    "viga": "V105",
+    "secao": "(var.)",
+    "insert_x": 134116.2,
+    "insert_y": 33973.7,
+    "dxf_source": "NOVA-SCHWARTZ-GWT-1SS-LV-R00_R2018_ASCII_ODA.dxf",
+    "zone": {
+      "y_top": 34053.7,
+      "y_bot": 32825.1,
+      "x_left": 133316.5,
+      "x_right": null
+    }
+  },
+  {
+    "obra": "Obra_TREINO_11",
+    "projeto": "NOVA-SCHWARTZ-GWT",
+    "pavimento": "GWT-1SS",
+    "viga": "V106-V107",
+    "secao": "(10x45)",
+    "insert_x": 129314.5,
+    "insert_y": 32825.1,
+    "dxf_source": "NOVA-SCHWARTZ-GWT-1SS-LV-R00_R2018_ASCII_ODA.dxf",
+    "zone": {
+      "y_top": 32905.1,
+      "y_bot": 31676.6,
+      "x_left": null,
+      "x_right": 129522.1
+    }
+  },
+  {
+    "obra": "Obra_TREINO_11",
+    "projeto": "NOVA-SCHWARTZ-GWT",
+    "pavimento": "GWT-1SS",
+    "viga": "V114-V115",
+    "secao": "(19x58)",
+    "insert_x": 129729.6,
+    "insert_y": 32825.1,
+    "dxf_source": "NOVA-SCHWARTZ-GWT-1SS-LV-R00_R2018_ASCII_ODA.dxf",
+    "zone": {
+      "y_top": 32905.1,
+      "y_bot": 31676.6,
+      "x_left": 129522.1,
+      "x_right": 130330.6
+    }
+  },
+  {
+    "obra": "Obra_TREINO_11",
+    "projeto": "NOVA-SCHWARTZ-GWT",
+    "pavimento": "GWT-1SS",
+    "viga": "V108",
+    "secao": "(25x58)",
+    "insert_x": 130931.7,
+    "insert_y": 32825.1,
+    "dxf_source": "NOVA-SCHWARTZ-GWT-1SS-LV-R00_R2018_ASCII_ODA.dxf",
+    "zone": {
+      "y_top": 32905.1,
+      "y_bot": 31676.6,
+      "x_left": 130330.6,
+      "x_right": 131722.2
+    }
+  },
+  {
+    "obra": "Obra_TREINO_11",
+    "projeto": "NOVA-SCHWARTZ-GWT",
+    "pavimento": "GWT-1SS",
+    "viga": "V111-V113",
+    "secao": "(19x58)",
+    "insert_x": 132512.7,
+    "insert_y": 32825.1,
+    "dxf_source": "NOVA-SCHWARTZ-GWT-1SS-LV-R00_R2018_ASCII_ODA.dxf",
+    "zone": {
+      "y_top": 32905.1,
+      "y_bot": 31676.6,
+      "x_left": 131722.2,
+      "x_right": 133307.2
+    }
+  },
+  {
+    "obra": "Obra_TREINO_11",
+    "projeto": "NOVA-SCHWARTZ-GWT",
+    "pavimento": "GWT-1SS",
+    "viga": "V112",
+    "secao": "(25x58)",
+    "insert_x": 134101.7,
+    "insert_y": 32825.1,
+    "dxf_source": "NOVA-SCHWARTZ-GWT-1SS-LV-R00_R2018_ASCII_ODA.dxf",
+    "zone": {
+      "y_top": 32905.1,
+      "y_bot": 31676.6,
+      "x_left": 133307.2,
+      "x_right": null
+    }
+  },
+  {
+    "obra": "Obra_TREINO_11",
+    "projeto": "NOVA-SCHWARTZ-GWT",
+    "pavimento": "GWT-1SS",
+    "viga": "V116",
+    "secao": "(19x62)",
+    "insert_x": 129315.1,
+    "insert_y": 31676.6,
+    "dxf_source": "NOVA-SCHWARTZ-GWT-1SS-LV-R00_R2018_ASCII_ODA.dxf",
+    "zone": {
+      "y_top": 31756.6,
+      "y_bot": 30528.0,
+      "x_left": null,
+      "x_right": 130097.6
+    }
+  },
+  {
+    "obra": "Obra_TREINO_11",
+    "projeto": "NOVA-SCHWARTZ-GWT",
+    "pavimento": "GWT-1SS",
+    "viga": "V117",
+    "secao": "(25x58)",
+    "insert_x": 130880.0,
+    "insert_y": 31676.6,
+    "dxf_source": "NOVA-SCHWARTZ-GWT-1SS-LV-R00_R2018_ASCII_ODA.dxf",
+    "zone": {
+      "y_top": 31756.6,
+      "y_bot": 30528.0,
+      "x_left": 130097.6,
+      "x_right": 131698.4
+    }
+  },
+  {
+    "obra": "Obra_TREINO_11",
+    "projeto": "NOVA-SCHWARTZ-GWT",
+    "pavimento": "GWT-1SS",
+    "viga": "V118",
+    "secao": "(25x58)",
+    "insert_x": 132516.7,
+    "insert_y": 31676.6,
+    "dxf_source": "NOVA-SCHWARTZ-GWT-1SS-LV-R00_R2018_ASCII_ODA.dxf",
+    "zone": {
+      "y_top": 31756.6,
+      "y_bot": 30528.0,
+      "x_left": 131698.4,
+      "x_right": null
+    }
+  },
+  {
+    "obra": "Obra_TREINO_11",
+    "projeto": "NOVA-SCHWARTZ-GWT",
+    "pavimento": "GWT-1SS",
+    "viga": "V119",
+    "secao": "(19x58)",
+    "insert_x": 129356.9,
+    "insert_y": 30528.0,
+    "dxf_source": "NOVA-SCHWARTZ-GWT-1SS-LV-R00_R2018_ASCII_ODA.dxf",
+    "zone": {
+      "y_top": 30608.0,
+      "y_bot": 29379.4,
+      "x_left": null,
+      "x_right": 129681.0
+    }
+  },
+  {
+    "obra": "Obra_TREINO_11",
+    "projeto": "NOVA-SCHWARTZ-GWT",
+    "pavimento": "GWT-1SS",
+    "viga": "V129-V130",
+    "secao": "(19x58)",
+    "insert_x": 130005.1,
+    "insert_y": 30528.0,
+    "dxf_source": "NOVA-SCHWARTZ-GWT-1SS-LV-R00_R2018_ASCII_ODA.dxf",
+    "zone": {
+      "y_top": 30608.0,
+      "y_bot": 29379.4,
+      "x_left": 129681.0,
+      "x_right": 130453.8
+    }
+  },
+  {
+    "obra": "Obra_TREINO_11",
+    "projeto": "NOVA-SCHWARTZ-GWT",
+    "pavimento": "GWT-1SS",
+    "viga": "V120",
+    "secao": "(19x79)",
+    "insert_x": 130902.5,
+    "insert_y": 30528.0,
+    "dxf_source": "NOVA-SCHWARTZ-GWT-1SS-LV-R00_R2018_ASCII_ODA.dxf",
+    "zone": {
+      "y_top": 30608.0,
+      "y_bot": 29379.4,
+      "x_left": 130453.8,
+      "x_right": 131709.6
+    }
+  },
+  {
+    "obra": "Obra_TREINO_11",
+    "projeto": "NOVA-SCHWARTZ-GWT",
+    "pavimento": "GWT-1SS",
+    "viga": "V121",
+    "secao": "(19x97)",
+    "insert_x": 132516.7,
+    "insert_y": 30528.0,
+    "dxf_source": "NOVA-SCHWARTZ-GWT-1SS-LV-R00_R2018_ASCII_ODA.dxf",
+    "zone": {
+      "y_top": 30608.0,
+      "y_bot": 29379.4,
+      "x_left": 131709.6,
+      "x_right": 133309.2
+    }
+  },
+  {
+    "obra": "Obra_TREINO_11",
+    "projeto": "NOVA-SCHWARTZ-GWT",
+    "pavimento": "GWT-1SS",
+    "viga": "V122-V131",
+    "secao": "(19x58)",
+    "insert_x": 134101.7,
+    "insert_y": 30528.0,
+    "dxf_source": "NOVA-SCHWARTZ-GWT-1SS-LV-R00_R2018_ASCII_ODA.dxf",
+    "zone": {
+      "y_top": 30608.0,
+      "y_bot": 29379.4,
+      "x_left": 133309.2,
+      "x_right": null
+    }
+  },
+  {
+    "obra": "Obra_TREINO_11",
+    "projeto": "NOVA-SCHWARTZ-GWT",
+    "pavimento": "GWT-1SS",
+    "viga": "V123",
+    "secao": "(19x58)",
+    "insert_x": 129329.2,
+    "insert_y": 29379.4,
+    "dxf_source": "NOVA-SCHWARTZ-GWT-1SS-LV-R00_R2018_ASCII_ODA.dxf",
+    "zone": {
+      "y_top": 29459.4,
+      "y_bot": 28230.8,
+      "x_left": null,
+      "x_right": 130109.0
+    }
+  },
+  {
+    "obra": "Obra_TREINO_11",
+    "projeto": "NOVA-SCHWARTZ-GWT",
+    "pavimento": "GWT-1SS",
+    "viga": "V127",
+    "secao": "(25x58)",
+    "insert_x": 130888.8,
+    "insert_y": 29379.4,
+    "dxf_source": "NOVA-SCHWARTZ-GWT-1SS-LV-R00_R2018_ASCII_ODA.dxf",
+    "zone": {
+      "y_top": 29459.4,
+      "y_bot": 28230.8,
+      "x_left": 130109.0,
+      "x_right": 132476.7
+    }
+  },
+  {
+    "obra": "Obra_TREINO_11",
+    "projeto": "NOVA-SCHWARTZ-GWT",
+    "pavimento": "GWT-1SS",
+    "viga": "V132",
+    "secao": "(25x58)",
+    "insert_x": 134064.6,
+    "insert_y": 29379.4,
+    "dxf_source": "NOVA-SCHWARTZ-GWT-1SS-LV-R00_R2018_ASCII_ODA.dxf",
+    "zone": {
+      "y_top": 29459.4,
+      "y_bot": 28230.8,
+      "x_left": 132476.7,
+      "x_right": null
+    }
+  },
+  {
+    "obra": "Obra_TREINO_11",
+    "projeto": "NOVA-SCHWARTZ-GWT",
+    "pavimento": "GWT-1SS",
+    "viga": "V134",
+    "secao": "(25x58)",
+    "insert_x": 130894.6,
+    "insert_y": 28230.8,
+    "dxf_source": "NOVA-SCHWARTZ-GWT-1SS-LV-R00_R2018_ASCII_ODA.dxf",
+    "zone": {
+      "y_top": 28310.8,
+      "y_bot": 27230.8,
+      "x_left": null,
+      "x_right": null
+    }
+  }
+]

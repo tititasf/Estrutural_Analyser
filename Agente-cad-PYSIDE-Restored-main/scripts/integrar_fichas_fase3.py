@@ -31,14 +31,16 @@ def main():
     vigas_out_path   = fase3 / "Vigas" / "vigas.json"
 
     if not vigas_dim_path.exists():
-        print(f"  ERRO: vigas_dim.json nao encontrado em {vigas_dim_path}")
-        sys.exit(1)
-    if not vigas_larg_path.exists():
-        print(f"  ERRO: vigas_largura.json nao encontrado em {vigas_larg_path}")
-        sys.exit(1)
-
-    vigas_dim  = json.loads(vigas_dim_path.read_text(encoding='utf-8'))
-    vigas_larg = json.loads(vigas_larg_path.read_text(encoding='utf-8'))
+        print(f"  SKIP: vigas_dim.json nao encontrado, pulando vigas")
+        vigas_dim = {}
+        vigas_larg = {}
+    else:
+        vigas_dim = json.loads(vigas_dim_path.read_text(encoding='utf-8'))
+        if vigas_larg_path.exists():
+            vigas_larg = json.loads(vigas_larg_path.read_text(encoding='utf-8'))
+        else:
+            print(f"  AVISO: vigas_largura.json nao encontrado — usando b=15cm (default)")
+            vigas_larg = {}
 
     vigas_merged = {}
     for vid, dim_data in vigas_dim.items():
@@ -46,9 +48,9 @@ def main():
             continue
         larg_data = vigas_larg.get(vid, {})
 
-        h = float(dim_data.get("altura_lateral_cm", 0))   # Altura lateral = h da viga
-        b = float(larg_data.get("largura_cm", 15.0))      # Largura = b (espessura)
-        comprimento = float(dim_data.get("comprimento_cm", 0))
+        h = float(dim_data.get("altura_lateral_cm") or 0)   # Altura lateral = h da viga
+        b = float(larg_data.get("largura_cm") or 15.0)      # Largura = b (espessura)
+        comprimento = float(dim_data.get("comprimento_cm") or 0)
 
         if h <= 0:
             print(f"  AVISO: Viga {vid}: altura_lateral=0, usando h=40")
@@ -70,7 +72,6 @@ def main():
 
     vigas_merged["_meta"] = {
         "total": len(vigas_merged) - 1,  # -1 for _meta
-        "pavimento": "12 PAV",
         "integrado_em": "2026-03-08",
         "fontes": ["vigas_dim.json", "vigas_largura.json"]
     }
@@ -89,11 +90,34 @@ def main():
     lajes_poly_path = fase3 / "Lajes" / "lajes_poligono.json"
     lajes_out_path  = fase3 / "Lajes" / "lajes.json"
 
-    if not lajes_poly_path.exists():
-        print(f"  ERRO: lajes_poligono.json nao encontrado. Execute CAD-6.3 primeiro.")
-        sys.exit(1)
-
-    lajes_poly = json.loads(lajes_poly_path.read_text(encoding='utf-8'))
+    # Aceitar lajes_poligono.json ou lajes_data.json como fallback
+    lajes_data_path = fase3 / "Lajes" / "lajes_data.json"
+    if lajes_poly_path.exists():
+        lajes_poly = json.loads(lajes_poly_path.read_text(encoding='utf-8'))
+        fonte_lajes = "lajes_poligono.json"
+    elif lajes_data_path.exists():
+        print(f"  AVISO: lajes_poligono.json nao encontrado, usando lajes_data.json")
+        raw = json.loads(lajes_data_path.read_text(encoding='utf-8'))
+        # Converter formato lajes_data para formato poligono
+        lajes_poly = {}
+        for lid, d in raw.items():
+            if lid.startswith("_"):
+                continue
+            mp = d.get("maior_painel", {})
+            comp = float(mp.get("dim1", 0) or 0)
+            larg = float(mp.get("dim2", 0) or 0)
+            lajes_poly[lid] = {
+                "comprimento": comp,
+                "largura": larg,
+                "coordenadas": d.get("coordenadas", []),
+                "confidence": d.get("confidence", 0.5),
+                "source": d.get("source", "lajes_data"),
+            }
+        fonte_lajes = "lajes_data.json"
+    else:
+        print(f"  SKIP: nenhuma fonte de lajes encontrada, pulando")
+        lajes_poly = {}
+        fonte_lajes = "nenhum"
 
     lajes_merged = {}
     for lid, poly_data in lajes_poly.items():
@@ -122,9 +146,8 @@ def main():
 
     lajes_merged["_meta"] = {
         "total": len(lajes_merged) - 1,
-        "pavimento": "12 PAV",
         "integrado_em": "2026-03-08",
-        "fontes": ["lajes_poligono.json"]
+        "fontes": [fonte_lajes]
     }
 
     with open(lajes_out_path, "w", encoding="utf-8") as f:

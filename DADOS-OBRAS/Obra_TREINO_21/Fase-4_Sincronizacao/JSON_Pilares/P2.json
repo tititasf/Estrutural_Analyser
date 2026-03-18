@@ -1,10 +1,10 @@
 {
   "numero": "2",
   "nome": "P2",
-  "comprimento": 50.0,
-  "largura": 20.0,
+  "comprimento": 95.9,
+  "largura": 38.0,
   "altura": 280.0,
-  "pavimento": "12 PAV",
+  "pavimento": "LAJE TÉCNICA",
   "nivel_chegada": 0.0,
   "nivel_saida": 280.0,
   "modo_distribuicao": "NOVA",

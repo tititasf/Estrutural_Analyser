@@ -41,6 +41,21 @@ def _find_dxf(rev_dir: Path, pattern: str) -> Path | None:
     return None
 
 
+def _dxf_from_discovery(obra: Path, pavimento: str, tipo: str) -> Path | None:
+    """Busca caminho DXF exato no dxf_discovery.json por obra/pavimento/tipo."""
+    disc = obra.parent / "dxf_discovery.json"
+    if not disc.exists():
+        return None
+    try:
+        import json as _json
+        with open(disc, encoding='utf-8') as f:
+            d = _json.load(f)
+        p = d.get(obra.name, {}).get(pavimento, {}).get(tipo)
+        return Path(p) if p else None
+    except Exception:
+        return None
+
+
 def dist2d(p1, p2) -> float:
     return math.sqrt((p1[0] - p2[0]) ** 2 + (p1[1] - p2[1]) ** 2)
 
@@ -100,30 +115,19 @@ def classify_bh(val1: float, val2: float, angle1=None, angle2=None) -> dict:
     return {"b": round(b_val, 1), "h": round(h_val, 1)}
 
 
-def extract_pilar_positions(msp, ezdxf) -> dict:
-    """
-    Extrai posicoes dos pilares do layer "Texto Secao".
-    Retorna: {pid: {"positions": [(x,y),...], "faces": set()}}
-    """
+def _extract_pilar_ids_from_entities(msp, layer_check_fn) -> dict:
+    """Helper: extrai IDs de pilares de entidades TEXT/MTEXT cujo layer passa no check."""
     pilar_data = {}
-    target_layers = {"Texto Se", "TEXTO SECAO", "TEXTO_SECAO"}
-
     for e in msp:
-        if e.dxftype() != 'MTEXT':
+        if e.dxftype() not in ('MTEXT', 'TEXT'):
             continue
-        layer = e.dxf.layer
-        if not any(tl in layer.upper() for tl in {"TEXTO SE", "TEXTO_SE", "SECAO"}):
+        if not layer_check_fn(e.dxf.layer):
             continue
-
         try:
-            txt = e.plain_text().strip()
+            txt = e.plain_text().strip() if e.dxftype() == 'MTEXT' else e.dxf.text.strip()
         except Exception:
-            try:
-                txt = e.dxf.text.strip()
-            except Exception:
-                continue
-
-        matches = re.findall(r'[Pp](\d+)\.([A-H])', txt)
+            continue
+        matches = re.findall(r'[Pp](\d+)[._]([A-H])', txt)
         for num, face in matches:
             pid = f'P{num}'
             if pid not in pilar_data:
@@ -133,10 +137,51 @@ def extract_pilar_positions(msp, ezdxf) -> dict:
                 pos = e.dxf.insert
                 pilar_data[pid]['positions'].append((pos.x, pos.y))
             except Exception:
-                try:
-                    pos = e.dxf.attachment_point
-                except Exception:
-                    pass
+                pass
+    return pilar_data
+
+
+def extract_pilar_positions(msp, ezdxf) -> dict:
+    """
+    Extrai posicoes dos pilares (MTEXT ou TEXT).
+
+    Estrategia 1: Layer "Texto Secao" (Obra_TREINO_21, 22, 13, etc.)
+    Estrategia 2 (fallback): Layer "NOMENCLATURA" (Obra_TREINO_6)
+    Estrategia 3 (fallback): Layer "0" (Obra_TREINO_3, catch-all)
+
+    Retorna: {pid: {"positions": [(x,y),...], "faces": set()}}
+    """
+    # Estrategia 1: layers que contem "TEXTO SE" ou "SECAO"
+    pilar_data = _extract_pilar_ids_from_entities(
+        msp,
+        lambda layer: any(tl in layer.upper() for tl in {"TEXTO SE", "TEXTO_SE", "SECAO"})
+    )
+
+    # Estrategia 2: layer NOMENCLATURA (se strategy 1 insuficiente)
+    if len(pilar_data) < 3:
+        fallback = _extract_pilar_ids_from_entities(
+            msp,
+            lambda layer: layer.upper() == 'NOMENCLATURA'
+        )
+        for pid, data in fallback.items():
+            if pid not in pilar_data:
+                pilar_data[pid] = data
+            else:
+                pilar_data[pid]['positions'].extend(data['positions'])
+                pilar_data[pid]['faces'].update(data['faces'])
+
+    # Estrategia 3: layer "0" (catch-all para obras com layer padrao)
+    if len(pilar_data) < 3:
+        fallback = _extract_pilar_ids_from_entities(
+            msp,
+            lambda layer: layer == '0'
+        )
+        for pid, data in fallback.items():
+            if pid not in pilar_data:
+                pilar_data[pid] = data
+            else:
+                pilar_data[pid]['positions'].extend(data['positions'])
+                pilar_data[pid]['faces'].update(data['faces'])
 
     return pilar_data
 
@@ -161,50 +206,52 @@ def extract_dimensions(msp) -> list:
 
     Filtro: layer exato + range 14-100cm
     """
-    dims = []
-
-    for e in msp:
-        if e.dxftype() != 'DIMENSION':
-            continue
-        layer = e.dxf.layer
-
-        # Apenas o layer especifico de secao (contem B e H dos pilares)
-        # O layer tem acentuacao: "Cota Se��o (2x)" pode variar por encoding
-        layer_upper = layer.upper()
-        is_secao = ("COTA SE" in layer_upper and "2X" in layer_upper)
-
-        if not is_secao:
-            continue
-
-        try:
-            val = round(abs(e.get_measurement()), 1)
-        except Exception:
-            try:
-                txt = str(e.dxf.text).strip()
-                val_match = re.search(r'(\d+\.?\d*)', txt)
-                val = float(val_match.group(1)) if val_match else None
-            except Exception:
+    def _extract_dims_from_layer_check(layer_check_fn):
+        """Helper: extrai DIMENSION de entidades cujo layer passa no check."""
+        result = []
+        for e in msp:
+            if e.dxftype() != 'DIMENSION':
                 continue
+            layer = e.dxf.layer
+            if not layer_check_fn(layer.upper()):
+                continue
+            try:
+                val = round(abs(e.get_measurement()), 1)
+            except Exception:
+                try:
+                    txt = str(e.dxf.text).strip()
+                    val_match = re.search(r'(\d+\.?\d*)', txt)
+                    val = float(val_match.group(1)) if val_match else None
+                except Exception:
+                    continue
+            if val is None:
+                continue
+            # Range valido para B/H de pilar (14cm min, 100cm max)
+            if val < 14 or val > 100:
+                continue
+            center = get_dimension_center(e)
+            if center is None:
+                continue
+            angle = get_dimension_angle(e)
+            result.append({
+                'center': center,
+                'value': val,
+                'angle': angle,
+                'layer': layer
+            })
+        return result
 
-        if val is None:
-            continue
+    # Estrategia 1: Layer "Cota Secao (2x)" (Obra_TREINO_21 e obras padrao)
+    dims = _extract_dims_from_layer_check(
+        lambda lu: ("COTA SE" in lu and "2X" in lu)
+    )
 
-        # Range valido para B/H de pilar estrutural (14cm minimo estrutural, 100cm maximo pratico)
-        # Valores > 100 sao alturas de paineis, nao B/H da secao
-        if val < 14 or val > 100:
-            continue
-
-        center = get_dimension_center(e)
-        if center is None:
-            continue
-
-        angle = get_dimension_angle(e)
-        dims.append({
-            'center': center,
-            'value': val,
-            'angle': angle,
-            'layer': layer
-        })
+    # Estrategia 2 (fallback): Layer "COTA" generico quando Secao nao tem dados suficientes
+    if len(dims) < 10:
+        dims_cota = _extract_dims_from_layer_check(
+            lambda lu: lu in ("COTA", "COTAS") or (lu == "COTA" or lu == "COTAS")
+        )
+        dims = dims + dims_cota
 
     return dims
 
@@ -295,8 +342,11 @@ def run(obra_path: str, pavimento: str, max_dist: float = 300.0) -> None:
         print(f"[ERROR] Diretorio nao encontrado: {rev_dir}")
         sys.exit(1)
 
-    # Encontrar PL DXF
-    pl_dxf = _find_dxf(rev_dir, "- PL -") or _find_dxf(rev_dir, "PL -") or _find_dxf(rev_dir, "PL_")
+    # Encontrar PL DXF (discovery primeiro, depois glob)
+    pl_dxf = (_dxf_from_discovery(obra, pavimento, 'PL')
+              or _find_dxf(rev_dir, "- PL -")
+              or _find_dxf(rev_dir, "PL -")
+              or _find_dxf(rev_dir, "PL_"))
     if not pl_dxf:
         print(f"[ERROR] PL DXF nao encontrado em {rev_dir}")
         print("  Procurando qualquer DXF disponivel...")

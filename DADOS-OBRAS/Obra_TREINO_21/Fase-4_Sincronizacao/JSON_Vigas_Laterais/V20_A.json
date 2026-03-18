@@ -1,7 +1,7 @@
 {
   "number": "20",
   "name": "V20_A",
-  "floor": "12 PAV",
+  "floor": "LAJE TÉCNICA",
   "side": "A",
   "total_width": 19.0,
   "total_height": "38.0",
@@ -28,14 +28,7 @@
       "grade_h2": "0"
     },
     {
-      "width": 120.0,
-      "height1": 38.0,
-      "height2": 38.0,
-      "grade_h1": "0",
-      "grade_h2": "0"
-    },
-    {
-      "width": 8.0,
+      "width": 14.0,
       "height1": 38.0,
       "height2": 38.0,
       "grade_h1": "0",

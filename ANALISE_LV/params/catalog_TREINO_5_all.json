@@ -1,0 +1,1266 @@
+[
+  {
+    "obra": "Obra_TREINO_5",
+    "projeto": "NOVA-DURSO-EMBRAMACO",
+    "pavimento": "EMBRAMACO-1PV",
+    "viga": "V201",
+    "secao": "(19x60)",
+    "insert_x": 8585.6,
+    "insert_y": 27650.3,
+    "dxf_source": "NOVA-D´URSO-EMBRAMACO-1PV-LV-R00_R2018_ASCII_ODA.dxf",
+    "zone": {
+      "y_top": 27730.3,
+      "y_bot": 26434.0,
+      "x_left": null,
+      "x_right": 9984.2
+    }
+  },
+  {
+    "obra": "Obra_TREINO_5",
+    "projeto": "NOVA-DURSO-EMBRAMACO",
+    "pavimento": "EMBRAMACO-1PV",
+    "viga": "V202",
+    "secao": "(19x50)",
+    "insert_x": 11382.8,
+    "insert_y": 27631.9,
+    "dxf_source": "NOVA-D´URSO-EMBRAMACO-1PV-LV-R00_R2018_ASCII_ODA.dxf",
+    "zone": {
+      "y_top": 27730.3,
+      "y_bot": 26434.0,
+      "x_left": 9984.2,
+      "x_right": 11717.8
+    }
+  },
+  {
+    "obra": "Obra_TREINO_5",
+    "projeto": "NOVA-DURSO-EMBRAMACO",
+    "pavimento": "EMBRAMACO-1PV",
+    "viga": "V210-V213",
+    "secao": "(19x50)",
+    "insert_x": 12052.8,
+    "insert_y": 27631.9,
+    "dxf_source": "NOVA-D´URSO-EMBRAMACO-1PV-LV-R00_R2018_ASCII_ODA.dxf",
+    "zone": {
+      "y_top": 27730.3,
+      "y_bot": 26434.0,
+      "x_left": 11717.8,
+      "x_right": null
+    }
+  },
+  {
+    "obra": "Obra_TREINO_5",
+    "projeto": "NOVA-DURSO-EMBRAMACO",
+    "pavimento": "EMBRAMACO-1PV",
+    "viga": "V203",
+    "secao": "(19x60)",
+    "insert_x": 6432.6,
+    "insert_y": 26434.0,
+    "dxf_source": "NOVA-D´URSO-EMBRAMACO-1PV-LV-R00_R2018_ASCII_ODA.dxf",
+    "zone": {
+      "y_top": 26514.0,
+      "y_bot": 26037.3,
+      "x_left": null,
+      "x_right": 7241.6
+    }
+  },
+  {
+    "obra": "Obra_TREINO_5",
+    "projeto": "NOVA-DURSO-EMBRAMACO",
+    "pavimento": "EMBRAMACO-1PV",
+    "viga": "V205",
+    "secao": "(25x70)",
+    "insert_x": 8050.6,
+    "insert_y": 26434.0,
+    "dxf_source": "NOVA-D´URSO-EMBRAMACO-1PV-LV-R00_R2018_ASCII_ODA.dxf",
+    "zone": {
+      "y_top": 26514.0,
+      "y_bot": 26037.3,
+      "x_left": 7241.6,
+      "x_right": 8848.0
+    }
+  },
+  {
+    "obra": "Obra_TREINO_5",
+    "projeto": "NOVA-DURSO-EMBRAMACO",
+    "pavimento": "EMBRAMACO-1PV",
+    "viga": "V207",
+    "secao": "(25x80)",
+    "insert_x": 9645.3,
+    "insert_y": 26434.0,
+    "dxf_source": "NOVA-D´URSO-EMBRAMACO-1PV-LV-R00_R2018_ASCII_ODA.dxf",
+    "zone": {
+      "y_top": 26514.0,
+      "y_bot": 26037.3,
+      "x_left": 8848.0,
+      "x_right": 10433.0
+    }
+  },
+  {
+    "obra": "Obra_TREINO_5",
+    "projeto": "NOVA-DURSO-EMBRAMACO",
+    "pavimento": "EMBRAMACO-1PV",
+    "viga": "V208",
+    "secao": "(25x70)",
+    "insert_x": 11220.6,
+    "insert_y": 26434.0,
+    "dxf_source": "NOVA-D´URSO-EMBRAMACO-1PV-LV-R00_R2018_ASCII_ODA.dxf",
+    "zone": {
+      "y_top": 26514.0,
+      "y_bot": 26037.3,
+      "x_left": 10433.0,
+      "x_right": null
+    }
+  },
+  {
+    "obra": "Obra_TREINO_5",
+    "projeto": "NOVA-DURSO-EMBRAMACO",
+    "pavimento": "EMBRAMACO-1PV",
+    "viga": "V206",
+    "secao": "(25x60)",
+    "insert_x": 8056.7,
+    "insert_y": 26037.3,
+    "dxf_source": "NOVA-D´URSO-EMBRAMACO-1PV-LV-R00_R2018_ASCII_ODA.dxf",
+    "zone": {
+      "y_top": 26117.3,
+      "y_bot": 25285.4,
+      "x_left": null,
+      "x_right": null
+    }
+  },
+  {
+    "obra": "Obra_TREINO_5",
+    "projeto": "NOVA-DURSO-EMBRAMACO",
+    "pavimento": "EMBRAMACO-1PV",
+    "viga": "V209",
+    "secao": "(25x80)",
+    "insert_x": 6486.4,
+    "insert_y": 25285.4,
+    "dxf_source": "NOVA-D´URSO-EMBRAMACO-1PV-LV-R00_R2018_ASCII_ODA.dxf",
+    "zone": {
+      "y_top": 25365.4,
+      "y_bot": 24136.8,
+      "x_left": null,
+      "x_right": 8078.1
+    }
+  },
+  {
+    "obra": "Obra_TREINO_5",
+    "projeto": "NOVA-DURSO-EMBRAMACO",
+    "pavimento": "EMBRAMACO-1PV",
+    "viga": "V211",
+    "secao": "(25x80)",
+    "insert_x": 9669.9,
+    "insert_y": 25285.4,
+    "dxf_source": "NOVA-D´URSO-EMBRAMACO-1PV-LV-R00_R2018_ASCII_ODA.dxf",
+    "zone": {
+      "y_top": 25365.4,
+      "y_bot": 24136.8,
+      "x_left": 8078.1,
+      "x_right": 10530.0
+    }
+  },
+  {
+    "obra": "Obra_TREINO_5",
+    "projeto": "NOVA-DURSO-EMBRAMACO",
+    "pavimento": "EMBRAMACO-1PV",
+    "viga": "V212",
+    "secao": "(19x60)",
+    "insert_x": 11390.2,
+    "insert_y": 25285.4,
+    "dxf_source": "NOVA-D´URSO-EMBRAMACO-1PV-LV-R00_R2018_ASCII_ODA.dxf",
+    "zone": {
+      "y_top": 25365.4,
+      "y_bot": 24136.8,
+      "x_left": 10530.0,
+      "x_right": 11743.3
+    }
+  },
+  {
+    "obra": "Obra_TREINO_5",
+    "projeto": "NOVA-DURSO-EMBRAMACO",
+    "pavimento": "EMBRAMACO-1PV",
+    "viga": "V214 - V215",
+    "secao": "(25x40)",
+    "insert_x": 12096.4,
+    "insert_y": 25285.4,
+    "dxf_source": "NOVA-D´URSO-EMBRAMACO-1PV-LV-R00_R2018_ASCII_ODA.dxf",
+    "zone": {
+      "y_top": 25365.4,
+      "y_bot": 24136.8,
+      "x_left": 11743.3,
+      "x_right": null
+    }
+  },
+  {
+    "obra": "Obra_TREINO_5",
+    "projeto": "NOVA-DURSO-EMBRAMACO",
+    "pavimento": "EMBRAMACO-1PV",
+    "viga": "V216",
+    "secao": "(25x80)",
+    "insert_x": 6534.4,
+    "insert_y": 24136.8,
+    "dxf_source": "NOVA-D´URSO-EMBRAMACO-1PV-LV-R00_R2018_ASCII_ODA.dxf",
+    "zone": {
+      "y_top": 24216.8,
+      "y_bot": 23136.8,
+      "x_left": null,
+      "x_right": 8097.3
+    }
+  },
+  {
+    "obra": "Obra_TREINO_5",
+    "projeto": "NOVA-DURSO-EMBRAMACO",
+    "pavimento": "EMBRAMACO-1PV",
+    "viga": "V217",
+    "secao": "(25x60)",
+    "insert_x": 9660.3,
+    "insert_y": 24136.8,
+    "dxf_source": "NOVA-D´URSO-EMBRAMACO-1PV-LV-R00_R2018_ASCII_ODA.dxf",
+    "zone": {
+      "y_top": 24216.8,
+      "y_bot": 23136.8,
+      "x_left": 8097.3,
+      "x_right": null
+    }
+  },
+  {
+    "obra": "Obra_TREINO_5",
+    "projeto": "NOVA-DURSO-EMBRAMACO",
+    "pavimento": "EMBRAMACO-2PV",
+    "viga": "V301",
+    "secao": "(19x60)",
+    "insert_x": 8585.6,
+    "insert_y": 27650.3,
+    "dxf_source": "NOVA-D´URSO-EMBRAMACO-2PV-LV-R00_R2018_ASCII_ODA.dxf",
+    "zone": {
+      "y_top": 27730.3,
+      "y_bot": 26434.0,
+      "x_left": null,
+      "x_right": 9917.5
+    }
+  },
+  {
+    "obra": "Obra_TREINO_5",
+    "projeto": "NOVA-DURSO-EMBRAMACO",
+    "pavimento": "EMBRAMACO-2PV",
+    "viga": "V302",
+    "secao": "(19x40)",
+    "insert_x": 11249.4,
+    "insert_y": 27631.9,
+    "dxf_source": "NOVA-D´URSO-EMBRAMACO-2PV-LV-R00_R2018_ASCII_ODA.dxf",
+    "zone": {
+      "y_top": 27730.3,
+      "y_bot": 26434.0,
+      "x_left": 9917.5,
+      "x_right": 11411.5
+    }
+  },
+  {
+    "obra": "Obra_TREINO_5",
+    "projeto": "NOVA-DURSO-EMBRAMACO",
+    "pavimento": "EMBRAMACO-2PV",
+    "viga": "V311",
+    "secao": "(19x50)",
+    "insert_x": 11573.6,
+    "insert_y": 27631.9,
+    "dxf_source": "NOVA-D´URSO-EMBRAMACO-2PV-LV-R00_R2018_ASCII_ODA.dxf",
+    "zone": {
+      "y_top": 27730.3,
+      "y_bot": 26434.0,
+      "x_left": 11411.5,
+      "x_right": 11813.2
+    }
+  },
+  {
+    "obra": "Obra_TREINO_5",
+    "projeto": "NOVA-DURSO-EMBRAMACO",
+    "pavimento": "EMBRAMACO-2PV",
+    "viga": "V315",
+    "secao": "(19x50)",
+    "insert_x": 12052.8,
+    "insert_y": 27631.9,
+    "dxf_source": "NOVA-D´URSO-EMBRAMACO-2PV-LV-R00_R2018_ASCII_ODA.dxf",
+    "zone": {
+      "y_top": 27730.3,
+      "y_bot": 26434.0,
+      "x_left": 11813.2,
+      "x_right": null
+    }
+  },
+  {
+    "obra": "Obra_TREINO_5",
+    "projeto": "NOVA-DURSO-EMBRAMACO",
+    "pavimento": "EMBRAMACO-2PV",
+    "viga": "V303",
+    "secao": "(19x60)",
+    "insert_x": 6432.6,
+    "insert_y": 26434.0,
+    "dxf_source": "NOVA-D´URSO-EMBRAMACO-2PV-LV-R00_R2018_ASCII_ODA.dxf",
+    "zone": {
+      "y_top": 26514.0,
+      "y_bot": 26037.3,
+      "x_left": null,
+      "x_right": 7241.6
+    }
+  },
+  {
+    "obra": "Obra_TREINO_5",
+    "projeto": "NOVA-DURSO-EMBRAMACO",
+    "pavimento": "EMBRAMACO-2PV",
+    "viga": "V304",
+    "secao": "(25x70)",
+    "insert_x": 8050.6,
+    "insert_y": 26434.0,
+    "dxf_source": "NOVA-D´URSO-EMBRAMACO-2PV-LV-R00_R2018_ASCII_ODA.dxf",
+    "zone": {
+      "y_top": 26514.0,
+      "y_bot": 26037.3,
+      "x_left": 7241.6,
+      "x_right": 8848.0
+    }
+  },
+  {
+    "obra": "Obra_TREINO_5",
+    "projeto": "NOVA-DURSO-EMBRAMACO",
+    "pavimento": "EMBRAMACO-2PV",
+    "viga": "V306",
+    "secao": "(25x80)",
+    "insert_x": 9645.3,
+    "insert_y": 26434.0,
+    "dxf_source": "NOVA-D´URSO-EMBRAMACO-2PV-LV-R00_R2018_ASCII_ODA.dxf",
+    "zone": {
+      "y_top": 26514.0,
+      "y_bot": 26037.3,
+      "x_left": 8848.0,
+      "x_right": 10433.0
+    }
+  },
+  {
+    "obra": "Obra_TREINO_5",
+    "projeto": "NOVA-DURSO-EMBRAMACO",
+    "pavimento": "EMBRAMACO-2PV",
+    "viga": "V307",
+    "secao": "(25x70)",
+    "insert_x": 11220.6,
+    "insert_y": 26434.0,
+    "dxf_source": "NOVA-D´URSO-EMBRAMACO-2PV-LV-R00_R2018_ASCII_ODA.dxf",
+    "zone": {
+      "y_top": 26514.0,
+      "y_bot": 26037.3,
+      "x_left": 10433.0,
+      "x_right": null
+    }
+  },
+  {
+    "obra": "Obra_TREINO_5",
+    "projeto": "NOVA-DURSO-EMBRAMACO",
+    "pavimento": "EMBRAMACO-2PV",
+    "viga": "V305",
+    "secao": "(25x60)",
+    "insert_x": 8056.7,
+    "insert_y": 26037.3,
+    "dxf_source": "NOVA-D´URSO-EMBRAMACO-2PV-LV-R00_R2018_ASCII_ODA.dxf",
+    "zone": {
+      "y_top": 26117.3,
+      "y_bot": 25285.4,
+      "x_left": null,
+      "x_right": null
+    }
+  },
+  {
+    "obra": "Obra_TREINO_5",
+    "projeto": "NOVA-DURSO-EMBRAMACO",
+    "pavimento": "EMBRAMACO-2PV",
+    "viga": "V310",
+    "secao": "(25x80)",
+    "insert_x": 6486.4,
+    "insert_y": 25285.4,
+    "dxf_source": "NOVA-D´URSO-EMBRAMACO-2PV-LV-R00_R2018_ASCII_ODA.dxf",
+    "zone": {
+      "y_top": 25365.4,
+      "y_bot": 24136.8,
+      "x_left": null,
+      "x_right": 8078.1
+    }
+  },
+  {
+    "obra": "Obra_TREINO_5",
+    "projeto": "NOVA-DURSO-EMBRAMACO",
+    "pavimento": "EMBRAMACO-2PV",
+    "viga": "V313",
+    "secao": "(25x80)",
+    "insert_x": 9669.9,
+    "insert_y": 25285.4,
+    "dxf_source": "NOVA-D´URSO-EMBRAMACO-2PV-LV-R00_R2018_ASCII_ODA.dxf",
+    "zone": {
+      "y_top": 25365.4,
+      "y_bot": 24136.8,
+      "x_left": 8078.1,
+      "x_right": 10459.4
+    }
+  },
+  {
+    "obra": "Obra_TREINO_5",
+    "projeto": "NOVA-DURSO-EMBRAMACO",
+    "pavimento": "EMBRAMACO-2PV",
+    "viga": "V312",
+    "secao": "(19x40)",
+    "insert_x": 11248.9,
+    "insert_y": 25285.4,
+    "dxf_source": "NOVA-D´URSO-EMBRAMACO-2PV-LV-R00_R2018_ASCII_ODA.dxf",
+    "zone": {
+      "y_top": 25365.4,
+      "y_bot": 24136.8,
+      "x_left": 10459.4,
+      "x_right": 11401.4
+    }
+  },
+  {
+    "obra": "Obra_TREINO_5",
+    "projeto": "NOVA-DURSO-EMBRAMACO",
+    "pavimento": "EMBRAMACO-2PV",
+    "viga": "V314",
+    "secao": "(19x40)",
+    "insert_x": 11553.9,
+    "insert_y": 25285.4,
+    "dxf_source": "NOVA-D´URSO-EMBRAMACO-2PV-LV-R00_R2018_ASCII_ODA.dxf",
+    "zone": {
+      "y_top": 25365.4,
+      "y_bot": 24136.8,
+      "x_left": 11401.4,
+      "x_right": 11825.1
+    }
+  },
+  {
+    "obra": "Obra_TREINO_5",
+    "projeto": "NOVA-DURSO-EMBRAMACO",
+    "pavimento": "EMBRAMACO-2PV",
+    "viga": "V316",
+    "secao": "(25x60)",
+    "insert_x": 12096.4,
+    "insert_y": 25285.4,
+    "dxf_source": "NOVA-D´URSO-EMBRAMACO-2PV-LV-R00_R2018_ASCII_ODA.dxf",
+    "zone": {
+      "y_top": 25365.4,
+      "y_bot": 24136.8,
+      "x_left": 11825.1,
+      "x_right": null
+    }
+  },
+  {
+    "obra": "Obra_TREINO_5",
+    "projeto": "NOVA-DURSO-EMBRAMACO",
+    "pavimento": "EMBRAMACO-2PV",
+    "viga": "V317",
+    "secao": "(25x80)",
+    "insert_x": 6534.4,
+    "insert_y": 24136.8,
+    "dxf_source": "NOVA-D´URSO-EMBRAMACO-2PV-LV-R00_R2018_ASCII_ODA.dxf",
+    "zone": {
+      "y_top": 24216.8,
+      "y_bot": 23677.2,
+      "x_left": null,
+      "x_right": 8097.3
+    }
+  },
+  {
+    "obra": "Obra_TREINO_5",
+    "projeto": "NOVA-DURSO-EMBRAMACO",
+    "pavimento": "EMBRAMACO-2PV",
+    "viga": "V318",
+    "secao": "(25x70)",
+    "insert_x": 9660.3,
+    "insert_y": 24136.8,
+    "dxf_source": "NOVA-D´URSO-EMBRAMACO-2PV-LV-R00_R2018_ASCII_ODA.dxf",
+    "zone": {
+      "y_top": 24216.8,
+      "y_bot": 23677.2,
+      "x_left": 8097.3,
+      "x_right": null
+    }
+  },
+  {
+    "obra": "Obra_TREINO_5",
+    "projeto": "NOVA-DURSO-EMBRAMACO",
+    "pavimento": "EMBRAMACO-2PV",
+    "viga": "V317.C",
+    "secao": "",
+    "insert_x": 8872.4,
+    "insert_y": 23677.2,
+    "dxf_source": "NOVA-D´URSO-EMBRAMACO-2PV-LV-R00_R2018_ASCII_ODA.dxf",
+    "zone": {
+      "y_top": 23757.2,
+      "y_bot": 22677.2,
+      "x_left": null,
+      "x_right": null
+    }
+  },
+  {
+    "obra": "Obra_TREINO_5",
+    "projeto": "NOVA-DURSO-EMBRAMACO",
+    "pavimento": "EMBRAMACO-N300-500",
+    "viga": "V301",
+    "secao": "(19x40)",
+    "insert_x": 8043.0,
+    "insert_y": 27582.5,
+    "dxf_source": "NOVA-D´URSO-EMBRAMACO-N300-500-LV-R01_R2018_ASCII_ODA.dxf",
+    "zone": {
+      "y_top": 27662.5,
+      "y_bot": 26434.0,
+      "x_left": null,
+      "x_right": 9669.7
+    }
+  },
+  {
+    "obra": "Obra_TREINO_5",
+    "projeto": "NOVA-DURSO-EMBRAMACO",
+    "pavimento": "EMBRAMACO-N300-500",
+    "viga": "V302",
+    "secao": "(19x40)",
+    "insert_x": 11296.4,
+    "insert_y": 27582.5,
+    "dxf_source": "NOVA-D´URSO-EMBRAMACO-N300-500-LV-R01_R2018_ASCII_ODA.dxf",
+    "zone": {
+      "y_top": 27662.5,
+      "y_bot": 26434.0,
+      "x_left": 9669.7,
+      "x_right": null
+    }
+  },
+  {
+    "obra": "Obra_TREINO_5",
+    "projeto": "NOVA-DURSO-EMBRAMACO",
+    "pavimento": "EMBRAMACO-N300-500",
+    "viga": "V303",
+    "secao": "(19x40)",
+    "insert_x": 6511.3,
+    "insert_y": 26434.0,
+    "dxf_source": "NOVA-D´URSO-EMBRAMACO-N300-500-LV-R01_R2018_ASCII_ODA.dxf",
+    "zone": {
+      "y_top": 26514.0,
+      "y_bot": 25285.4,
+      "x_left": null,
+      "x_right": 6856.1
+    }
+  },
+  {
+    "obra": "Obra_TREINO_5",
+    "projeto": "NOVA-DURSO-EMBRAMACO",
+    "pavimento": "EMBRAMACO-N300-500",
+    "viga": "V304",
+    "secao": "(19x40)",
+    "insert_x": 7201.0,
+    "insert_y": 26434.0,
+    "dxf_source": "NOVA-D´URSO-EMBRAMACO-N300-500-LV-R01_R2018_ASCII_ODA.dxf",
+    "zone": {
+      "y_top": 26514.0,
+      "y_bot": 25285.4,
+      "x_left": 6856.1,
+      "x_right": 7622.0
+    }
+  },
+  {
+    "obra": "Obra_TREINO_5",
+    "projeto": "NOVA-DURSO-EMBRAMACO",
+    "pavimento": "EMBRAMACO-N300-500",
+    "viga": "V305",
+    "secao": "(19x40)",
+    "insert_x": 8043.0,
+    "insert_y": 26434.0,
+    "dxf_source": "NOVA-D´URSO-EMBRAMACO-N300-500-LV-R01_R2018_ASCII_ODA.dxf",
+    "zone": {
+      "y_top": 26514.0,
+      "y_bot": 25285.4,
+      "x_left": 7622.0,
+      "x_right": 9628.0
+    }
+  },
+  {
+    "obra": "Obra_TREINO_5",
+    "projeto": "NOVA-DURSO-EMBRAMACO",
+    "pavimento": "EMBRAMACO-N300-500",
+    "viga": "V308",
+    "secao": "(19x40)",
+    "insert_x": 11213.0,
+    "insert_y": 26434.0,
+    "dxf_source": "NOVA-D´URSO-EMBRAMACO-N300-500-LV-R01_R2018_ASCII_ODA.dxf",
+    "zone": {
+      "y_top": 26514.0,
+      "y_bot": 25285.4,
+      "x_left": 9628.0,
+      "x_right": null
+    }
+  },
+  {
+    "obra": "Obra_TREINO_5",
+    "projeto": "NOVA-DURSO-EMBRAMACO",
+    "pavimento": "EMBRAMACO-N300-500",
+    "viga": "V309",
+    "secao": "(19x40)",
+    "insert_x": 8043.0,
+    "insert_y": 25285.4,
+    "dxf_source": "NOVA-D´URSO-EMBRAMACO-N300-500-LV-R01_R2018_ASCII_ODA.dxf",
+    "zone": {
+      "y_top": 25365.4,
+      "y_bot": 24136.8,
+      "x_left": null,
+      "x_right": 9628.0
+    }
+  },
+  {
+    "obra": "Obra_TREINO_5",
+    "projeto": "NOVA-DURSO-EMBRAMACO",
+    "pavimento": "EMBRAMACO-N300-500",
+    "viga": "V310",
+    "secao": "(19x40)",
+    "insert_x": 11213.0,
+    "insert_y": 25285.4,
+    "dxf_source": "NOVA-D´URSO-EMBRAMACO-N300-500-LV-R01_R2018_ASCII_ODA.dxf",
+    "zone": {
+      "y_top": 25365.4,
+      "y_bot": 24136.8,
+      "x_left": 9628.0,
+      "x_right": null
+    }
+  },
+  {
+    "obra": "Obra_TREINO_5",
+    "projeto": "NOVA-DURSO-EMBRAMACO",
+    "pavimento": "EMBRAMACO-N300-500",
+    "viga": "V311",
+    "secao": "(19x40)",
+    "insert_x": 6444.5,
+    "insert_y": 24136.8,
+    "dxf_source": "NOVA-D´URSO-EMBRAMACO-N300-500-LV-R01_R2018_ASCII_ODA.dxf",
+    "zone": {
+      "y_top": 24216.8,
+      "y_bot": 23014.7,
+      "x_left": null,
+      "x_right": 7343.7
+    }
+  },
+  {
+    "obra": "Obra_TREINO_5",
+    "projeto": "NOVA-DURSO-EMBRAMACO",
+    "pavimento": "EMBRAMACO-N300-500",
+    "viga": "V312 - V317",
+    "secao": "(19x40)",
+    "insert_x": 8242.9,
+    "insert_y": 24136.8,
+    "dxf_source": "NOVA-D´URSO-EMBRAMACO-N300-500-LV-R01_R2018_ASCII_ODA.dxf",
+    "zone": {
+      "y_top": 24216.8,
+      "y_bot": 23014.7,
+      "x_left": 7343.7,
+      "x_right": 8585.4
+    }
+  },
+  {
+    "obra": "Obra_TREINO_5",
+    "projeto": "NOVA-DURSO-EMBRAMACO",
+    "pavimento": "EMBRAMACO-N300-500",
+    "viga": "V314",
+    "secao": "(19x40)",
+    "insert_x": 8927.9,
+    "insert_y": 24136.8,
+    "dxf_source": "NOVA-D´URSO-EMBRAMACO-N300-500-LV-R01_R2018_ASCII_ODA.dxf",
+    "zone": {
+      "y_top": 24216.8,
+      "y_bot": 23014.7,
+      "x_left": 8585.4,
+      "x_right": 9296.4
+    }
+  },
+  {
+    "obra": "Obra_TREINO_5",
+    "projeto": "NOVA-DURSO-EMBRAMACO",
+    "pavimento": "EMBRAMACO-N300-500",
+    "viga": "V313",
+    "secao": "(19x40)",
+    "insert_x": 9664.9,
+    "insert_y": 24136.8,
+    "dxf_source": "NOVA-D´URSO-EMBRAMACO-N300-500-LV-R01_R2018_ASCII_ODA.dxf",
+    "zone": {
+      "y_top": 24216.8,
+      "y_bot": 23014.7,
+      "x_left": 9296.4,
+      "x_right": 10710.2
+    }
+  },
+  {
+    "obra": "Obra_TREINO_5",
+    "projeto": "NOVA-DURSO-EMBRAMACO",
+    "pavimento": "EMBRAMACO-N300-500",
+    "viga": "V315",
+    "secao": "(19x40)",
+    "insert_x": 11755.6,
+    "insert_y": 24136.8,
+    "dxf_source": "NOVA-D´URSO-EMBRAMACO-N300-500-LV-R01_R2018_ASCII_ODA.dxf",
+    "zone": {
+      "y_top": 24216.8,
+      "y_bot": 23014.7,
+      "x_left": 10710.2,
+      "x_right": null
+    }
+  },
+  {
+    "obra": "Obra_TREINO_5",
+    "projeto": "NOVA-DURSO-EMBRAMACO",
+    "pavimento": "EMBRAMACO-N300-500",
+    "viga": "V401 - V402",
+    "secao": "V403 - V404",
+    "insert_x": 11316.3,
+    "insert_y": 23014.7,
+    "dxf_source": "NOVA-D´URSO-EMBRAMACO-N300-500-LV-R01_R2018_ASCII_ODA.dxf",
+    "zone": {
+      "y_top": 23094.7,
+      "y_bot": 21988.2,
+      "x_left": 10470.2,
+      "x_right": null
+    }
+  },
+  {
+    "obra": "Obra_TREINO_5",
+    "projeto": "NOVA-DURSO-EMBRAMACO",
+    "pavimento": "EMBRAMACO-N300-500",
+    "viga": "V316",
+    "secao": "(19x40)",
+    "insert_x": 6499.6,
+    "insert_y": 22988.2,
+    "dxf_source": "NOVA-D´URSO-EMBRAMACO-N300-500-LV-R01_R2018_ASCII_ODA.dxf",
+    "zone": {
+      "y_top": 23094.7,
+      "y_bot": 21988.2,
+      "x_left": null,
+      "x_right": 7269.4
+    }
+  },
+  {
+    "obra": "Obra_TREINO_5",
+    "projeto": "NOVA-DURSO-EMBRAMACO",
+    "pavimento": "EMBRAMACO-N300-500",
+    "viga": "V318",
+    "secao": "(19x40)",
+    "insert_x": 8039.1,
+    "insert_y": 22988.2,
+    "dxf_source": "NOVA-D´URSO-EMBRAMACO-N300-500-LV-R01_R2018_ASCII_ODA.dxf",
+    "zone": {
+      "y_top": 23094.7,
+      "y_bot": 21988.2,
+      "x_left": 7269.4,
+      "x_right": 8831.6
+    }
+  },
+  {
+    "obra": "Obra_TREINO_5",
+    "projeto": "NOVA-DURSO-EMBRAMACO",
+    "pavimento": "EMBRAMACO-N300-500",
+    "viga": "V319",
+    "secao": "(19x40)",
+    "insert_x": 9624.1,
+    "insert_y": 22988.2,
+    "dxf_source": "NOVA-D´URSO-EMBRAMACO-N300-500-LV-R01_R2018_ASCII_ODA.dxf",
+    "zone": {
+      "y_top": 23094.7,
+      "y_bot": 21988.2,
+      "x_left": 8831.6,
+      "x_right": 10470.2
+    }
+  },
+  {
+    "obra": "Obra_TREINO_5",
+    "projeto": "NOVA-DURSO-EMBRAMACO",
+    "pavimento": "EMBRAMACO-PLA-RES",
+    "viga": "V401",
+    "secao": "(25x50)",
+    "insert_x": 11755.6,
+    "insert_y": 27650.3,
+    "dxf_source": "NOVA-D´URSO-EMBRAMACO-PLA-RES-LV-R00_R2018_ASCII_ODA.dxf",
+    "zone": {
+      "y_top": 27730.3,
+      "y_bot": 26483.4,
+      "x_left": 10691.7,
+      "x_right": null
+    }
+  },
+  {
+    "obra": "Obra_TREINO_5",
+    "projeto": "NOVA-DURSO-EMBRAMACO",
+    "pavimento": "EMBRAMACO-PLA-RES",
+    "viga": "V1 - V3",
+    "secao": "(19x19)",
+    "insert_x": 8042.8,
+    "insert_y": 27582.5,
+    "dxf_source": "NOVA-D´URSO-EMBRAMACO-PLA-RES-LV-R00_R2018_ASCII_ODA.dxf",
+    "zone": {
+      "y_top": 27730.3,
+      "y_bot": 26483.4,
+      "x_left": null,
+      "x_right": 8835.3
+    }
+  },
+  {
+    "obra": "Obra_TREINO_5",
+    "projeto": "NOVA-DURSO-EMBRAMACO",
+    "pavimento": "EMBRAMACO-PLA-RES",
+    "viga": "V5 - V6 - V2 - V4",
+    "secao": "(19x19)",
+    "insert_x": 9627.8,
+    "insert_y": 27582.5,
+    "dxf_source": "NOVA-D´URSO-EMBRAMACO-PLA-RES-LV-R00_R2018_ASCII_ODA.dxf",
+    "zone": {
+      "y_top": 27730.3,
+      "y_bot": 26483.4,
+      "x_left": 8835.3,
+      "x_right": 10691.7
+    }
+  },
+  {
+    "obra": "Obra_TREINO_5",
+    "projeto": "NOVA-DURSO-EMBRAMACO",
+    "pavimento": "EMBRAMACO-PLA-RES",
+    "viga": "V402 - V403",
+    "secao": "(19x40)",
+    "insert_x": 6566.2,
+    "insert_y": 26483.4,
+    "dxf_source": "NOVA-D´URSO-EMBRAMACO-PLA-RES-LV-R00_R2018_ASCII_ODA.dxf",
+    "zone": {
+      "y_top": 26563.4,
+      "y_bot": 26041.7,
+      "x_left": null,
+      "x_right": 6865.3
+    }
+  },
+  {
+    "obra": "Obra_TREINO_5",
+    "projeto": "NOVA-DURSO-EMBRAMACO",
+    "pavimento": "EMBRAMACO-PLA-RES",
+    "viga": "V404",
+    "secao": "(19x40)",
+    "insert_x": 7164.4,
+    "insert_y": 26483.4,
+    "dxf_source": "NOVA-D´URSO-EMBRAMACO-PLA-RES-LV-R00_R2018_ASCII_ODA.dxf",
+    "zone": {
+      "y_top": 26563.4,
+      "y_bot": 26041.7,
+      "x_left": 6865.3,
+      "x_right": 7616.5
+    }
+  },
+  {
+    "obra": "Obra_TREINO_5",
+    "projeto": "NOVA-DURSO-EMBRAMACO",
+    "pavimento": "EMBRAMACO-PLA-RES",
+    "viga": "V405",
+    "secao": "(19x60)",
+    "insert_x": 8068.6,
+    "insert_y": 26483.4,
+    "dxf_source": "NOVA-D´URSO-EMBRAMACO-PLA-RES-LV-R00_R2018_ASCII_ODA.dxf",
+    "zone": {
+      "y_top": 26563.4,
+      "y_bot": 26041.7,
+      "x_left": 7616.5,
+      "x_right": 8863.5
+    }
+  },
+  {
+    "obra": "Obra_TREINO_5",
+    "projeto": "NOVA-DURSO-EMBRAMACO",
+    "pavimento": "EMBRAMACO-PLA-RES",
+    "viga": "V408",
+    "secao": "(25x50)",
+    "insert_x": 9658.5,
+    "insert_y": 26434.0,
+    "dxf_source": "NOVA-D´URSO-EMBRAMACO-PLA-RES-LV-R00_R2018_ASCII_ODA.dxf",
+    "zone": {
+      "y_top": 26563.4,
+      "y_bot": 26041.7,
+      "x_left": 8863.5,
+      "x_right": null
+    }
+  },
+  {
+    "obra": "Obra_TREINO_5",
+    "projeto": "NOVA-DURSO-EMBRAMACO",
+    "pavimento": "EMBRAMACO-PLA-RES",
+    "viga": "V409",
+    "secao": "(19x50)",
+    "insert_x": 8068.6,
+    "insert_y": 26041.7,
+    "dxf_source": "NOVA-D´URSO-EMBRAMACO-PLA-RES-LV-R00_R2018_ASCII_ODA.dxf",
+    "zone": {
+      "y_top": 26121.7,
+      "y_bot": 25334.8,
+      "x_left": null,
+      "x_right": null
+    }
+  },
+  {
+    "obra": "Obra_TREINO_5",
+    "projeto": "NOVA-DURSO-EMBRAMACO",
+    "pavimento": "EMBRAMACO-PLA-RES",
+    "viga": "V410",
+    "secao": "(19x50)",
+    "insert_x": 6573.9,
+    "insert_y": 25334.8,
+    "dxf_source": "NOVA-D´URSO-EMBRAMACO-PLA-RES-LV-R00_R2018_ASCII_ODA.dxf",
+    "zone": {
+      "y_top": 25414.8,
+      "y_bot": 24332.6,
+      "x_left": null,
+      "x_right": 7313.7
+    }
+  },
+  {
+    "obra": "Obra_TREINO_5",
+    "projeto": "NOVA-DURSO-EMBRAMACO",
+    "pavimento": "EMBRAMACO-PLA-RES",
+    "viga": "V411",
+    "secao": "(25x50)",
+    "insert_x": 8053.5,
+    "insert_y": 25332.6,
+    "dxf_source": "NOVA-D´URSO-EMBRAMACO-PLA-RES-LV-R00_R2018_ASCII_ODA.dxf",
+    "zone": {
+      "y_top": 25414.8,
+      "y_bot": 24332.6,
+      "x_left": 7313.7,
+      "x_right": null
+    }
+  },
+  {
+    "obra": "Obra_TREINO_5",
+    "projeto": "NOVA-DURSO-EMBRAMACO",
+    "pavimento": "EMBRAMACO-TER",
+    "viga": "V201",
+    "secao": "(19x60)",
+    "insert_x": 8043.0,
+    "insert_y": 27582.5,
+    "dxf_source": "NOVA-D´URSO-EMBRAMACO-TER-LV-R02_R2018_ASCII_ODA.dxf",
+    "zone": {
+      "y_top": 27662.5,
+      "y_bot": 26434.0,
+      "x_left": null,
+      "x_right": null
+    }
+  },
+  {
+    "obra": "Obra_TREINO_5",
+    "projeto": "NOVA-DURSO-EMBRAMACO",
+    "pavimento": "EMBRAMACO-TER",
+    "viga": "V202",
+    "secao": "(19x60)",
+    "insert_x": 6478.2,
+    "insert_y": 26434.0,
+    "dxf_source": "NOVA-D´URSO-EMBRAMACO-TER-LV-R02_R2018_ASCII_ODA.dxf",
+    "zone": {
+      "y_top": 26514.0,
+      "y_bot": 25285.4,
+      "x_left": null,
+      "x_right": 8080.8
+    }
+  },
+  {
+    "obra": "Obra_TREINO_5",
+    "projeto": "NOVA-DURSO-EMBRAMACO",
+    "pavimento": "EMBRAMACO-TER",
+    "viga": "V203",
+    "secao": "(19x30)",
+    "insert_x": 9683.4,
+    "insert_y": 26434.0,
+    "dxf_source": "NOVA-D´URSO-EMBRAMACO-TER-LV-R02_R2018_ASCII_ODA.dxf",
+    "zone": {
+      "y_top": 26514.0,
+      "y_bot": 25285.4,
+      "x_left": 8080.8,
+      "x_right": 10011.3
+    }
+  },
+  {
+    "obra": "Obra_TREINO_5",
+    "projeto": "NOVA-DURSO-EMBRAMACO",
+    "pavimento": "EMBRAMACO-TER",
+    "viga": "V205",
+    "secao": "(19x60)",
+    "insert_x": 10339.2,
+    "insert_y": 26434.0,
+    "dxf_source": "NOVA-D´URSO-EMBRAMACO-TER-LV-R02_R2018_ASCII_ODA.dxf",
+    "zone": {
+      "y_top": 26514.0,
+      "y_bot": 25285.4,
+      "x_left": 10011.3,
+      "x_right": 10781.2
+    }
+  },
+  {
+    "obra": "Obra_TREINO_5",
+    "projeto": "NOVA-DURSO-EMBRAMACO",
+    "pavimento": "EMBRAMACO-TER",
+    "viga": "V204",
+    "secao": "(30x60)",
+    "insert_x": 11223.1,
+    "insert_y": 26434.0,
+    "dxf_source": "NOVA-D´URSO-EMBRAMACO-TER-LV-R02_R2018_ASCII_ODA.dxf",
+    "zone": {
+      "y_top": 26514.0,
+      "y_bot": 25285.4,
+      "x_left": 10781.2,
+      "x_right": null
+    }
+  },
+  {
+    "obra": "Obra_TREINO_5",
+    "projeto": "NOVA-DURSO-EMBRAMACO",
+    "pavimento": "EMBRAMACO-TER",
+    "viga": "V206",
+    "secao": "(30x60)",
+    "insert_x": 6466.8,
+    "insert_y": 25285.4,
+    "dxf_source": "NOVA-D´URSO-EMBRAMACO-TER-LV-R02_R2018_ASCII_ODA.dxf",
+    "zone": {
+      "y_top": 25365.4,
+      "y_bot": 24136.8,
+      "x_left": null,
+      "x_right": 7256.3
+    }
+  },
+  {
+    "obra": "Obra_TREINO_5",
+    "projeto": "NOVA-DURSO-EMBRAMACO",
+    "pavimento": "EMBRAMACO-TER",
+    "viga": "V207",
+    "secao": "(19x60)",
+    "insert_x": 8045.8,
+    "insert_y": 25285.4,
+    "dxf_source": "NOVA-D´URSO-EMBRAMACO-TER-LV-R02_R2018_ASCII_ODA.dxf",
+    "zone": {
+      "y_top": 25365.4,
+      "y_bot": 24136.8,
+      "x_left": 7256.3,
+      "x_right": 9641.1
+    }
+  },
+  {
+    "obra": "Obra_TREINO_5",
+    "projeto": "NOVA-DURSO-EMBRAMACO",
+    "pavimento": "EMBRAMACO-TER",
+    "viga": "V208",
+    "secao": "(19x40)",
+    "insert_x": 11236.4,
+    "insert_y": 25285.4,
+    "dxf_source": "NOVA-D´URSO-EMBRAMACO-TER-LV-R02_R2018_ASCII_ODA.dxf",
+    "zone": {
+      "y_top": 25365.4,
+      "y_bot": 24136.8,
+      "x_left": 9641.1,
+      "x_right": null
+    }
+  },
+  {
+    "obra": "Obra_TREINO_5",
+    "projeto": "NOVA-DURSO-EMBRAMACO",
+    "pavimento": "EMBRAMACO-TER",
+    "viga": "V209",
+    "secao": "(19x40)",
+    "insert_x": 8587.2,
+    "insert_y": 24136.8,
+    "dxf_source": "NOVA-D´URSO-EMBRAMACO-TER-LV-R02_R2018_ASCII_ODA.dxf",
+    "zone": {
+      "y_top": 24216.8,
+      "y_bot": 22988.2,
+      "x_left": null,
+      "x_right": 9128.4
+    }
+  },
+  {
+    "obra": "Obra_TREINO_5",
+    "projeto": "NOVA-DURSO-EMBRAMACO",
+    "pavimento": "EMBRAMACO-TER",
+    "viga": "V210",
+    "secao": "(19x40)",
+    "insert_x": 9669.5,
+    "insert_y": 24136.8,
+    "dxf_source": "NOVA-D´URSO-EMBRAMACO-TER-LV-R02_R2018_ASCII_ODA.dxf",
+    "zone": {
+      "y_top": 24216.8,
+      "y_bot": 22988.2,
+      "x_left": 9128.4,
+      "x_right": null
+    }
+  },
+  {
+    "obra": "Obra_TREINO_5",
+    "projeto": "NOVA-DURSO-EMBRAMACO",
+    "pavimento": "EMBRAMACO-TER",
+    "viga": "V227",
+    "secao": "(19x60)",
+    "insert_x": 6447.3,
+    "insert_y": 22988.2,
+    "dxf_source": "NOVA-D´URSO-EMBRAMACO-TER-LV-R02_R2018_ASCII_ODA.dxf",
+    "zone": {
+      "y_top": 23068.2,
+      "y_bot": 21839.7,
+      "x_left": null,
+      "x_right": 7250.2
+    }
+  },
+  {
+    "obra": "Obra_TREINO_5",
+    "projeto": "NOVA-DURSO-EMBRAMACO",
+    "pavimento": "EMBRAMACO-TER",
+    "viga": "V231",
+    "secao": "(19x60)",
+    "insert_x": 8053.1,
+    "insert_y": 22988.2,
+    "dxf_source": "NOVA-D´URSO-EMBRAMACO-TER-LV-R02_R2018_ASCII_ODA.dxf",
+    "zone": {
+      "y_top": 23068.2,
+      "y_bot": 21839.7,
+      "x_left": 7250.2,
+      "x_right": 8932.4
+    }
+  },
+  {
+    "obra": "Obra_TREINO_5",
+    "projeto": "NOVA-DURSO-EMBRAMACO",
+    "pavimento": "EMBRAMACO-TER",
+    "viga": "V234 - V244",
+    "secao": "(19x60)",
+    "insert_x": 9811.7,
+    "insert_y": 22988.2,
+    "dxf_source": "NOVA-D´URSO-EMBRAMACO-TER-LV-R02_R2018_ASCII_ODA.dxf",
+    "zone": {
+      "y_top": 23068.2,
+      "y_bot": 21839.7,
+      "x_left": 8932.4,
+      "x_right": 10157.0
+    }
+  },
+  {
+    "obra": "Obra_TREINO_5",
+    "projeto": "NOVA-DURSO-EMBRAMACO",
+    "pavimento": "EMBRAMACO-TER",
+    "viga": "V239",
+    "secao": "(19x30)",
+    "insert_x": 10502.2,
+    "insert_y": 22988.2,
+    "dxf_source": "NOVA-D´URSO-EMBRAMACO-TER-LV-R02_R2018_ASCII_ODA.dxf",
+    "zone": {
+      "y_top": 23068.2,
+      "y_bot": 21839.7,
+      "x_left": 10157.0,
+      "x_right": 10892.4
+    }
+  },
+  {
+    "obra": "Obra_TREINO_5",
+    "projeto": "NOVA-DURSO-EMBRAMACO",
+    "pavimento": "EMBRAMACO-TER",
+    "viga": "V236",
+    "secao": "(19x60)",
+    "insert_x": 11282.6,
+    "insert_y": 22988.2,
+    "dxf_source": "NOVA-D´URSO-EMBRAMACO-TER-LV-R02_R2018_ASCII_ODA.dxf",
+    "zone": {
+      "y_top": 23068.2,
+      "y_bot": 21839.7,
+      "x_left": 10892.4,
+      "x_right": null
+    }
+  },
+  {
+    "obra": "Obra_TREINO_5",
+    "projeto": "NOVA-DURSO-EMBRAMACO",
+    "pavimento": "EMBRAMACO-TER",
+    "viga": "V243",
+    "secao": "(19x60)",
+    "insert_x": 6514.1,
+    "insert_y": 21839.7,
+    "dxf_source": "NOVA-D´URSO-EMBRAMACO-TER-LV-R02_R2018_ASCII_ODA.dxf",
+    "zone": {
+      "y_top": 21919.7,
+      "y_bot": 21379.2,
+      "x_left": null,
+      "x_right": 7372.9
+    }
+  },
+  {
+    "obra": "Obra_TREINO_5",
+    "projeto": "NOVA-DURSO-EMBRAMACO",
+    "pavimento": "EMBRAMACO-TER",
+    "viga": "V238",
+    "secao": "(19x40)",
+    "insert_x": 8231.6,
+    "insert_y": 21839.7,
+    "dxf_source": "NOVA-D´URSO-EMBRAMACO-TER-LV-R02_R2018_ASCII_ODA.dxf",
+    "zone": {
+      "y_top": 21919.7,
+      "y_bot": 21379.2,
+      "x_left": 7372.9,
+      "x_right": 8572.6
+    }
+  },
+  {
+    "obra": "Obra_TREINO_5",
+    "projeto": "NOVA-DURSO-EMBRAMACO",
+    "pavimento": "EMBRAMACO-TER",
+    "viga": "V248",
+    "secao": "(19x40)",
+    "insert_x": 8913.6,
+    "insert_y": 21839.7,
+    "dxf_source": "NOVA-D´URSO-EMBRAMACO-TER-LV-R02_R2018_ASCII_ODA.dxf",
+    "zone": {
+      "y_top": 21919.7,
+      "y_bot": 21379.2,
+      "x_left": 8572.6,
+      "x_right": 9279.9
+    }
+  },
+  {
+    "obra": "Obra_TREINO_5",
+    "projeto": "NOVA-DURSO-EMBRAMACO",
+    "pavimento": "EMBRAMACO-TER",
+    "viga": "V246",
+    "secao": "(19x60)",
+    "insert_x": 9646.1,
+    "insert_y": 21839.7,
+    "dxf_source": "NOVA-D´URSO-EMBRAMACO-TER-LV-R02_R2018_ASCII_ODA.dxf",
+    "zone": {
+      "y_top": 21919.7,
+      "y_bot": 21379.2,
+      "x_left": 9279.9,
+      "x_right": 10424.0
+    }
+  },
+  {
+    "obra": "Obra_TREINO_5",
+    "projeto": "NOVA-DURSO-EMBRAMACO",
+    "pavimento": "EMBRAMACO-TER",
+    "viga": "V249",
+    "secao": "(19x60)",
+    "insert_x": 11201.8,
+    "insert_y": 21839.7,
+    "dxf_source": "NOVA-D´URSO-EMBRAMACO-TER-LV-R02_R2018_ASCII_ODA.dxf",
+    "zone": {
+      "y_top": 21919.7,
+      "y_bot": 21379.2,
+      "x_left": 10424.0,
+      "x_right": null
+    }
+  },
+  {
+    "obra": "Obra_TREINO_5",
+    "projeto": "NOVA-DURSO-EMBRAMACO",
+    "pavimento": "EMBRAMACO-TER",
+    "viga": "V238.b",
+    "secao": "",
+    "insert_x": 7972.4,
+    "insert_y": 21379.2,
+    "dxf_source": "NOVA-D´URSO-EMBRAMACO-TER-LV-R02_R2018_ASCII_ODA.dxf",
+    "zone": {
+      "y_top": 21459.2,
+      "y_bot": 20379.2,
+      "x_left": null,
+      "x_right": null
+    }
+  }
+]

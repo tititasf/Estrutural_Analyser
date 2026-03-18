@@ -1,9 +1,9 @@
 {
   "obra": "Obra_TREINO_21",
-  "pavimento": "12 PAV",
+  "pavimento": "LAJE TÉCNICA",
   "stats": {
-    "pilares": 33,
-    "vigas": 33,
+    "pilares": 32,
+    "vigas": 30,
     "lajes": 19,
     "errors": 0
   },

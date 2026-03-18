@@ -1,13 +1,21 @@
 {
-  "pipeline_count": 33,
+  "pipeline_count": 40,
   "gt_count": 33,
   "correct": 33,
-  "hallucinated": [],
+  "hallucinated": [
+    "P2",
+    "P3",
+    "P4",
+    "P5",
+    "P6",
+    "P7",
+    "P8"
+  ],
   "missed": [],
-  "hallucination_rate": 0.0,
+  "hallucination_rate": 0.175,
   "miss_rate": 0.0,
   "count_accuracy": 1.0,
-  "score": 1.0,
-  "score_percent": 100.0,
+  "score": 0.9125,
+  "score_percent": 91.2,
   "aprovado": true
 }

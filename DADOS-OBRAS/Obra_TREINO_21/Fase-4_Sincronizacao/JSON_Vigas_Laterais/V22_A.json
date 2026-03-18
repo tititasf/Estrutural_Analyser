@@ -1,43 +1,22 @@
 {
   "number": "22",
   "name": "V22_A",
-  "floor": "12 PAV",
+  "floor": "LAJE TÉCNICA",
   "side": "A",
   "total_width": 60.0,
-  "total_height": "310.0",
+  "total_height": "120.0",
   "panels": [
     {
       "width": 120.0,
-      "height1": 310.0,
-      "height2": 310.0,
+      "height1": 120.0,
+      "height2": 120.0,
       "grade_h1": "0",
       "grade_h2": "0"
     },
     {
-      "width": 120.0,
-      "height1": 310.0,
-      "height2": 310.0,
-      "grade_h1": "0",
-      "grade_h2": "0"
-    },
-    {
-      "width": 120.0,
-      "height1": 310.0,
-      "height2": 310.0,
-      "grade_h1": "0",
-      "grade_h2": "0"
-    },
-    {
-      "width": 120.0,
-      "height1": 310.0,
-      "height2": 310.0,
-      "grade_h1": "0",
-      "grade_h2": "0"
-    },
-    {
-      "width": 78.0,
-      "height1": 310.0,
-      "height2": 310.0,
+      "width": 60.0,
+      "height1": 120.0,
+      "height2": 120.0,
       "grade_h1": "0",
       "grade_h2": "0"
     }

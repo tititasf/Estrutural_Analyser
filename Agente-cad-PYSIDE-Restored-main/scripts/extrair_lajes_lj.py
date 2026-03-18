@@ -44,6 +44,21 @@ def _find_dxf(rev_dir: Path, pattern: str) -> Path | None:
     return None
 
 
+def _dxf_from_discovery(obra: Path, pavimento: str, tipo: str) -> Path | None:
+    """Busca caminho DXF exato no dxf_discovery.json por obra/pavimento/tipo."""
+    import json as _json
+    disc = obra.parent / "dxf_discovery.json"
+    if not disc.exists():
+        return None
+    try:
+        with open(disc, encoding='utf-8') as f:
+            d = _json.load(f)
+        p = d.get(obra.name, {}).get(pavimento, {}).get(tipo)
+        return Path(p) if p else None
+    except Exception:
+        return None
+
+
 def parse_aux00_code(txt: str) -> dict | None:
     """
     Parseia codigo AUX00 no formato "L{n}^J{dim1}X{dim2}" ou "L{n}^{tipo}{dim1}X{dim2}".
@@ -109,13 +124,27 @@ def extract_laje_labels_with_dims(msp) -> dict:
     2. Coletar todos os paineis AUX00 por laje -> agregar posicoes e dimensoes
     3. Para cada laje: calcular bounding box dos paineis como area aproximada
     """
-    # Labels simples (layer "4")
+    # Labels simples — varios layers usados por diferentes obras
+    # Obra_TREINO_21: layers '4','3','2' | Obra_TREINO_22: layer 'L-N' | outros: 'L-D','LAJE'
+    # Obra_TREINO_11: layer 'EST-LAJE-TEXT' | Obra_TREINO_16: layer 'A-FLOR-IDEN'
+    # Obra_TREINO_13: layer 'F-LAJES-NOME'
+    # Obra_TREINO_9: layer '10' | Obra_TREINO_6: layer '44' | Obra_TREINO_19: layer '226'
+    # Obra_TREINO_3: layer 'NOME LAJE' | Obra_TREINO_8: layer 'ES-LAJE-NOME'
+    LABEL_LAYERS_EXACT = {'4', '3', '2', '10', '44', '226', 'L-N', 'L-D', 'LAJE', 'LAJES', 'NOME', 'NOME LAJE'}
+    # Substrings para match parcial (case-insensitive)
+    LABEL_LAYER_SUBSTRINGS = {'EST-LAJE', 'FLOR-IDEN', 'LAJE-IDEN', 'LAJE-TEXT', 'LAJES-NOME', 'LAJE-NOME', 'F-LAJES', 'ES-LAJE'}
     labels_pos = {}  # lid -> lista de posicoes
     for e in msp:
         if e.dxftype() not in ('TEXT', 'MTEXT'):
             continue
         layer = e.dxf.layer
-        if layer not in ('4', '3', '2'):  # layers com labels de laje
+        layer_upper = layer.upper()
+        is_label_layer = (layer in LABEL_LAYERS_EXACT or
+                          layer_upper in {ll.upper() for ll in LABEL_LAYERS_EXACT} or
+                          re.match(r'^L-[ND]$', layer, re.IGNORECASE) or
+                          layer_upper in ('LAJE', 'LAJES', 'NOME') or
+                          any(sub in layer_upper for sub in LABEL_LAYER_SUBSTRINGS))
+        if not is_label_layer:
             continue
         try:
             if e.dxftype() == 'MTEXT':
@@ -363,7 +392,10 @@ def run(obra_path: str, pavimento: str) -> None:
         print(f"[ERROR] Diretorio nao encontrado: {rev_dir}")
         sys.exit(1)
 
-    lj_dxf = _find_dxf(rev_dir, "- LJ -") or _find_dxf(rev_dir, "LJ -") or _find_dxf(rev_dir, "LJ_")
+    lj_dxf = (_dxf_from_discovery(obra, pavimento, 'LJ')
+              or _find_dxf(rev_dir, "- LJ -")
+              or _find_dxf(rev_dir, "LJ -")
+              or _find_dxf(rev_dir, "LJ_"))
     if not lj_dxf:
         print(f"[ERROR] LJ DXF nao encontrado em {rev_dir}")
         dxfs = list(rev_dir.glob("*.DXF")) + list(rev_dir.glob("*.dxf"))

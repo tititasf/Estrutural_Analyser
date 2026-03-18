@@ -68,6 +68,111 @@ def validate(pipeline_ids: set, gt_ids: set) -> dict:
     }
 
 
+def validate_bh(obra_path: str) -> None:
+    """
+    Validação dimensional B/H — compara pilares_bh.json (DIMENSION proximity)
+    contra pilares_bh_stog.json (LWPOLYLINE gordo — não-circular).
+    """
+    obra = Path(obra_path)
+    fase3 = obra / "Fase-3_Interpretacao_Extracao" / "Pilares"
+    bh_path = fase3 / "pilares_bh.json"
+    stog_path = fase3 / "pilares_bh_stog.json"
+
+    if not bh_path.exists():
+        print(f"[ERROR] pilares_bh.json nao encontrado: {bh_path}")
+        sys.exit(1)
+    if not stog_path.exists():
+        print(f"[ERROR] pilares_bh_stog.json nao encontrado (execute extrair_secoes_stog_pl.py)")
+        sys.exit(1)
+
+    bh_data = load_json(bh_path)
+    stog_data = load_json(stog_path)
+
+    print(f"[INFO] === validar_score_pipeline.py | B/H Dimensional ===")
+    print(f"[INFO] Pipeline:  {bh_path.name} ({len(bh_data)} pilares)")
+    print(f"[INFO] GT (STOG): {stog_path.name} ({len(stog_data)} pilares)")
+
+    TOLERANCE = 0.10  # 10% de tolerância para B/H
+    total = 0
+    passed = 0
+    failed = []
+    skipped = []
+
+    for pid, stog in stog_data.items():
+        b_gt = stog.get("b") or stog.get("B")
+        h_gt = stog.get("h") or stog.get("H")
+        if b_gt is None or h_gt is None:
+            skipped.append(pid)
+            continue
+        try:
+            b_gt = float(b_gt)
+            h_gt = float(h_gt)
+        except (ValueError, TypeError):
+            skipped.append(pid)
+            continue
+
+        if pid not in bh_data:
+            failed.append(f"{pid}: MISSING no pipeline")
+            total += 1
+            continue
+
+        bh = bh_data[pid]
+        b_p = bh.get("b") or bh.get("B")
+        h_p = bh.get("h") or bh.get("H")
+        if b_p is None or h_p is None:
+            failed.append(f"{pid}: b/h null no pipeline")
+            total += 1
+            continue
+
+        try:
+            b_p = float(b_p); h_p = float(h_p)
+        except (ValueError, TypeError):
+            failed.append(f"{pid}: valores invalidos")
+            total += 1
+            continue
+
+        total += 1
+        b_ok = abs(b_p - b_gt) / max(b_gt, 1) <= TOLERANCE
+        h_ok = abs(h_p - h_gt) / max(h_gt, 1) <= TOLERANCE
+
+        if b_ok and h_ok:
+            passed += 1
+        else:
+            details = []
+            if not b_ok:
+                details.append(f"b={b_p:.0f} vs GT={b_gt:.0f}")
+            if not h_ok:
+                details.append(f"h={h_p:.0f} vs GT={h_gt:.0f}")
+            failed.append(f"{pid}: {', '.join(details)}")
+
+    score = passed / total if total > 0 else 0.0
+    aprovado = score >= 0.70
+
+    print(f"\n[RESULTADO] B/H DIMENSIONAL (tolerância {TOLERANCE:.0%})")
+    print(f"  Total validados: {total}")
+    print(f"  Skipped (sem GT): {len(skipped)}")
+    print(f"  Corretos: {passed}")
+    print(f"  Falhos:   {len(failed)}")
+    for f in failed[:10]:
+        print(f"    ❌ {f}")
+    if len(skipped) > 0:
+        print(f"  Skipped: {skipped}")
+    print(f"\n  SCORE B/H:  {score:.1%} ({passed}/{total})")
+    status = "APROVADO (>=70%)" if aprovado else "REPROVADO (meta: >= 70%)"
+    print(f"  STATUS:     {status}")
+
+    result = {
+        "total": total, "passed": passed, "failed_count": len(failed),
+        "skipped": len(skipped), "score": round(score, 4),
+        "score_percent": round(score * 100, 1), "aprovado": aprovado,
+        "tolerance": TOLERANCE, "failures": failed
+    }
+    out_path = obra / "Fase-3_Interpretacao_Extracao" / "validation_bh.json"
+    with open(out_path, "w", encoding="utf-8") as f:
+        json.dump(result, f, indent=2, ensure_ascii=False)
+    print(f"\n[INFO] Resultado salvo: {out_path}")
+
+
 def run(obra_path: str, elemento: str) -> None:
     obra = Path(obra_path)
     fase3 = obra / "Fase-3_Interpretacao_Extracao"
@@ -133,10 +238,13 @@ def main():
     parser = argparse.ArgumentParser(description='Valida score do pipeline contra ground truth')
     parser.add_argument('--obra', required=True, help='Path para o diretório da obra')
     parser.add_argument('--elemento', default='pilares',
-                        choices=['pilares', 'vigas', 'lajes'],
-                        help='Tipo de elemento a validar')
+                        choices=['pilares', 'vigas', 'lajes', 'bh'],
+                        help='Tipo de validação: pilares|vigas|lajes (IDs) ou bh (dimensional)')
     args = parser.parse_args()
-    run(args.obra, args.elemento)
+    if args.elemento == 'bh':
+        validate_bh(args.obra)
+    else:
+        run(args.obra, args.elemento)
 
 
 if __name__ == '__main__':

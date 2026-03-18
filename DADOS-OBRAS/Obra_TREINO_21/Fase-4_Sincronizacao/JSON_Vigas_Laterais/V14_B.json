@@ -1,29 +1,43 @@
 {
   "number": "14",
   "name": "V14_B",
-  "floor": "12 PAV",
+  "floor": "LAJE TÉCNICA",
   "side": "B",
   "total_width": 14.0,
-  "total_height": "294.0",
+  "total_height": "38.0",
   "panels": [
     {
       "width": 120.0,
-      "height1": 294.0,
-      "height2": 294.0,
+      "height1": 38.0,
+      "height2": 38.0,
       "grade_h1": "0",
       "grade_h2": "0"
     },
     {
       "width": 120.0,
-      "height1": 294.0,
-      "height2": 294.0,
+      "height1": 38.0,
+      "height2": 38.0,
       "grade_h1": "0",
       "grade_h2": "0"
     },
     {
-      "width": 4.0,
-      "height1": 294.0,
-      "height2": 294.0,
+      "width": 120.0,
+      "height1": 38.0,
+      "height2": 38.0,
+      "grade_h1": "0",
+      "grade_h2": "0"
+    },
+    {
+      "width": 120.0,
+      "height1": 38.0,
+      "height2": 38.0,
+      "grade_h1": "0",
+      "grade_h2": "0"
+    },
+    {
+      "width": 70.0,
+      "height1": 38.0,
+      "height2": 38.0,
       "grade_h1": "0",
       "grade_h2": "0"
     }
