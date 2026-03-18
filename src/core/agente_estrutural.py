@@ -419,10 +419,36 @@ class ExtratorDXF:
                 if hasattr(entity, 'is_closed'):
                     is_closed = entity.is_closed
 
+                # Sprint-C: extrair bulges para deteccao de pilar cambotado
+                bulges = []
+                has_arcs = False
+                try:
+                    if etype == 'LWPOLYLINE':
+                        bulges = [
+                            float(p[4]) if len(p) > 4 else 0.0
+                            for p in entity.get_points('xyzsb')
+                        ]
+                    elif etype == 'POLYLINE':
+                        bulges = [
+                            float(getattr(v.dxf, 'bulge', 0.0))
+                            for v in entity.vertices
+                        ]
+                    has_arcs = any(abs(b) > 0.01 for b in bulges)
+                    max_bulge = max((abs(b) for b in bulges), default=0.0)
+                    arc_segments = sum(1 for b in bulges if abs(b) > 0.01)
+                except Exception:
+                    bulges = []
+                    max_bulge = 0.0
+                    arc_segments = 0
+
                 polylines.append({
                     'points': pts,
                     'closed': is_closed,
                     'layer': layer,
+                    'bulges': bulges,
+                    'has_arcs': has_arcs,
+                    'max_bulge': max_bulge if has_arcs else 0.0,
+                    'arc_segments': arc_segments,
                 })
 
             # --- LINE ---
