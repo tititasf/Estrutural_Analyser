@@ -708,11 +708,60 @@ class MotorFase4:
     # Processamento principal
     # ------------------------------------------------------------------
 
+    @staticmethod
+    def carregar_pe_direito_pi(
+        db_path: str,
+        work_name: str,
+        pavimento_nome: str = '',
+    ) -> Optional[float]:
+        """
+        Sprint-D: Busca pe_direito real (em cm) da tabela pavimento_pi.
+
+        Args:
+            db_path: Caminho para o SQLite (project_data.vision)
+            work_name: Nome da obra (work_name no DB)
+            pavimento_nome: Nome do pavimento (fuzzy match, opcional)
+
+        Returns:
+            Pe direito em cm ou None se nao encontrado.
+        """
+        try:
+            import sqlite3 as _sqlite3
+            conn = _sqlite3.connect(str(db_path))
+            rows = conn.execute(
+                """
+                SELECT pp.pe_direito FROM pavimento_pi pp
+                JOIN projects p ON pp.project_id = p.id
+                WHERE p.work_name = ?
+                ORDER BY pp.created_at DESC
+                """,
+                (work_name,),
+            ).fetchall()
+            conn.close()
+            if not rows:
+                return None
+            # Tentar match por nome do pavimento
+            if pavimento_nome:
+                pav_upper = pavimento_nome.upper()
+                for row in rows:
+                    if row[1] and pav_upper in str(row[1]).upper():
+                        val = row[0]
+                        if val:
+                            return float(val) / 10.0  # mm -> cm
+            # Fallback: primeiro resultado
+            val = rows[0][0]
+            if val:
+                return float(val) / 10.0  # mm -> cm
+        except Exception as ex:
+            logger.warning(f"Erro ao buscar pe_direito_pi para {work_name}: {ex}")
+        return None
+
     def processar_pavimento(
         self,
         kb,
         pavimento: str,
         pe_direito: Optional[float] = None,
+        db_path: Optional[str] = None,
     ) -> CalculationResult:
         """
         Calculo completo para um pavimento.
@@ -723,11 +772,24 @@ class MotorFase4:
         Args:
             kb: ObraKnowledge com entities do pavimento
             pavimento: Nome do pavimento
-            pe_direito: Pe direito (opcional)
+            pe_direito: Pe direito (opcional -- se None, tenta pi_data ou usa default)
+            db_path: Caminho DB para busca de pe_direito_pi (Sprint-D)
 
         Returns:
             CalculationResult com todas as configs
         """
+        # Sprint-D: usar pe_direito real do PI se disponivel
+        if pe_direito is None and db_path:
+            work_name = getattr(kb, 'obra_root', '') or getattr(kb, 'work_name', '')
+            if work_name:
+                pd_real = self.carregar_pe_direito_pi(db_path, work_name, pavimento)
+                if pd_real:
+                    logger.info(
+                        f"  [PI] pe_direito_real={pd_real:.1f}cm "
+                        f"(override default {self.pe_direito}cm)"
+                    )
+                    pe_direito = pd_real
+
         if self._use_transformation_engine and self._transformation_engine:
             return self._process_with_transformation_engine(kb, pavimento, pe_direito)
         return self._processar_pavimento_legacy(kb, pavimento, pe_direito)
