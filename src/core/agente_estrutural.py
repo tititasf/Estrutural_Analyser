@@ -47,10 +47,24 @@ logger = logging.getLogger(__name__)
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 # Regex patterns for structural element names
-RE_PILAR = re.compile(r'^P\.?\d+[A-Z]?\b', re.IGNORECASE)
-RE_VIGA = re.compile(r'^(V|BA|VB|VT|VC)\.?\d+', re.IGNORECASE)
+# Sprint-B: expandir variacoes P-1, P1.1, PC1, P.1 (pilar_name 32.8% -> >60%)
+RE_PILAR = re.compile(
+    r'^(PC?\.?-?\d+([A-Z]|\.\d+|-\d+)?|P-\d+[A-Z]?)$',
+    re.IGNORECASE,
+)
+RE_VIGA = re.compile(
+    r'^(V|BA|VB|VT|VC)\.?-?\d+([A-Z]|\.\d+|/\d+)?$',
+    re.IGNORECASE,
+)
 RE_LAJE_H = re.compile(r'h\s*[=:]\s*([\d,.]+)', re.IGNORECASE)
-RE_DIM = re.compile(r'^(\d{1,3})\s*[xX*]\s*(\d{1,3})$')
+# Sprint-B: dim aceita espacos, separadores x/X/*/x e multilinha (viga_dim 46.4% -> >70%)
+RE_DIM = re.compile(
+    r'(\d{1,3})\s*[xX*\/]\s*(\d{1,3})',
+)
+RE_DIM_BH = re.compile(
+    r'b\s*=\s*(\d{1,3}).*?h\s*=\s*(\d{1,3})',
+    re.IGNORECASE | re.DOTALL,
+)
 
 # Search radii (DXF units, typically mm)
 PILAR_SEARCH_RADIUS = 800.0
@@ -317,8 +331,25 @@ class ExtratorDXF:
                     text = getattr(entity.dxf, 'text', '').strip()
                     ip = getattr(entity.dxf, 'insert', None)
                 else:
-                    text = entity.plain_mtext() if hasattr(entity, 'plain_mtext') else ''
-                    text = text.strip()
+                    # Sprint-B fix: plain_mtext() nao existe em todas versoes ezdxf
+                    text = ''
+                    for method_name in ('plain_text', 'plain_mtext'):
+                        try:
+                            fn = getattr(entity, method_name, None)
+                            if callable(fn):
+                                result = fn()
+                                if result:
+                                    text = str(result).strip()
+                                    break
+                        except Exception:
+                            pass
+                    if not text:
+                        try:
+                            raw = getattr(entity.dxf, 'text', '') or ''
+                            text = re.sub(r'\\[A-Za-z][^;]*;', '', str(raw))
+                            text = re.sub(r'\\[\\{}|]', '', text).strip()
+                        except Exception:
+                            pass
                     ip = getattr(entity.dxf, 'insert', None)
 
                 if not text or not ip:
@@ -343,17 +374,23 @@ class ExtratorDXF:
                 elif RE_VIGA.match(text_upper):
                     vigas_txt.append(txt_entry)
 
-                # Dimension pattern: NNxNN
-                dim_match = RE_DIM.match(text_upper)
-                if dim_match:
-                    val_l = float(dim_match.group(1))
-                    val_a = float(dim_match.group(2))
-                    dims.append(DimText(
-                        x=x, y=y,
-                        text=text,
-                        valor=val_l,
-                        is_dim=True,
-                    ))
+                # Dimension pattern: NNxNN, NN/NN, b=NN h=NN (Sprint-B: MTEXT multilinha)
+                # Testar cada linha do texto (MTEXT pode ter \n)
+                text_lines = text.replace('\r', '').split('\n')
+                for tline in text_lines:
+                    dim_match = RE_DIM.search(tline)
+                    if not dim_match:
+                        dim_match = RE_DIM_BH.search(text)  # span multiplas linhas
+                    if dim_match:
+                        val_l = float(dim_match.group(1))
+                        val_a = float(dim_match.group(2))
+                        dims.append(DimText(
+                            x=x, y=y,
+                            text=text,
+                            valor=val_l,
+                            is_dim=True,
+                        ))
+                        break
 
                 # Laje/espessura: h=N or text starting with L
                 h_match = RE_LAJE_H.search(text)
