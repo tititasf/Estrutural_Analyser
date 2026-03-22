@@ -1,0 +1,33 @@
+{
+  "numero": 0,
+  "nome": "L24",
+  "pavimento": "TIPO",
+  "linhas_verticais": [],
+  "linhas_horizontais": [],
+  "obstaculos": [],
+  "comprimento": 129.0,
+  "largura": 459.0,
+  "coordenadas": [
+    [
+      0.0,
+      0.0
+    ],
+    [
+      129.0,
+      0.0
+    ],
+    [
+      129.0,
+      459.0
+    ],
+    [
+      0.0,
+      459.0
+    ],
+    [
+      0.0,
+      0.0
+    ]
+  ],
+  "area_cm2": 59211.0
+}

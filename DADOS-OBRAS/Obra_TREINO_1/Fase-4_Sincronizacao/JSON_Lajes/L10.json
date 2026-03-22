@@ -1,0 +1,33 @@
+{
+  "numero": 0,
+  "nome": "L10",
+  "pavimento": "TIPO",
+  "linhas_verticais": [],
+  "linhas_horizontais": [],
+  "obstaculos": [],
+  "comprimento": 418.0,
+  "largura": 423.0,
+  "coordenadas": [
+    [
+      0.0,
+      0.0
+    ],
+    [
+      418.0,
+      0.0
+    ],
+    [
+      418.0,
+      423.0
+    ],
+    [
+      0.0,
+      423.0
+    ],
+    [
+      0.0,
+      0.0
+    ]
+  ],
+  "area_cm2": 176814.0
+}

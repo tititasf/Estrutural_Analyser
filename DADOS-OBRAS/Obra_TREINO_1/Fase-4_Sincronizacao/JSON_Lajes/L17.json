@@ -1,0 +1,33 @@
+{
+  "numero": 0,
+  "nome": "L17",
+  "pavimento": "TIPO",
+  "linhas_verticais": [],
+  "linhas_horizontais": [],
+  "obstaculos": [],
+  "comprimento": 1887.0,
+  "largura": 152.0,
+  "coordenadas": [
+    [
+      0.0,
+      0.0
+    ],
+    [
+      1887.0,
+      0.0
+    ],
+    [
+      1887.0,
+      152.0
+    ],
+    [
+      0.0,
+      152.0
+    ],
+    [
+      0.0,
+      0.0
+    ]
+  ],
+  "area_cm2": 286824.0
+}

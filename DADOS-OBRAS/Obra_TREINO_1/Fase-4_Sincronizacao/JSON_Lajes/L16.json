@@ -1,0 +1,33 @@
+{
+  "numero": 0,
+  "nome": "L16",
+  "pavimento": "TIPO",
+  "linhas_verticais": [],
+  "linhas_horizontais": [],
+  "obstaculos": [],
+  "comprimento": 405.5,
+  "largura": 423.0,
+  "coordenadas": [
+    [
+      0.0,
+      0.0
+    ],
+    [
+      405.5,
+      0.0
+    ],
+    [
+      405.5,
+      423.0
+    ],
+    [
+      0.0,
+      423.0
+    ],
+    [
+      0.0,
+      0.0
+    ]
+  ],
+  "area_cm2": 171526.5
+}

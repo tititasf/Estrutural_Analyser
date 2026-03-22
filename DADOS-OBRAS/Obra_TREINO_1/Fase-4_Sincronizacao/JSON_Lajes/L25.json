@@ -1,0 +1,33 @@
+{
+  "numero": 0,
+  "nome": "L25",
+  "pavimento": "TIPO",
+  "linhas_verticais": [],
+  "linhas_horizontais": [],
+  "obstaculos": [],
+  "comprimento": 233.8,
+  "largura": 423.0,
+  "coordenadas": [
+    [
+      0.0,
+      0.0
+    ],
+    [
+      233.8,
+      0.0
+    ],
+    [
+      233.8,
+      423.0
+    ],
+    [
+      0.0,
+      423.0
+    ],
+    [
+      0.0,
+      0.0
+    ]
+  ],
+  "area_cm2": 98897.40000000001
+}

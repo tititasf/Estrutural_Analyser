@@ -4,9 +4,11 @@ extrair_poligono_lajes.py - Extrai coordenadas (poligono) das lajes do LJ DXF.
 
 Fontes (prioridade):
   1. LJ DXF layer "1" LWPOLYLINE - poligono real por proximidade ao label
-  2. AUX00 bounding box de posicoes de paineis (deduplicados)
-  3. COTA DIMENSION mais proxima ao label para obter dims
-  4. Default: retangulo 100x100
+  2. Paineis grid: H lines (comp) + V dim chains (larg) do layer Paineis
+  3. Paineis dim chain: H dim chain (comp) + V dim chain (larg) quando H line falha
+  4. AUX00 bounding box de posicoes de paineis (deduplicados)
+  5. COTA DIMENSION mais proxima ao label para obter dims
+  6. Default: retangulo 100x100
 
 Story: CAD-6.3
 Usage: python scripts/extrair_poligono_lajes.py --obra PATH
@@ -29,6 +31,9 @@ MAX_SHEET_AREA = 300000.0 # Area maxima plausivel de uma laje
 DIM_MIN        = 50.0     # Dim minima para laje (cm)
 DIM_MAX        = 3000.0   # Dim maxima para laje (cm)
 MIN_LAJE_DIM   = 200.0    # Dimensao minima aceitavel para uma laje (cm)
+MIN_PANEL_DIM  = 50.0     # Dimensao minima de painel para considerar (cm)
+JUNTA_MAX      = 40.0     # Dimensao maxima de junta (nao contar como painel)
+H_LINE_MIN_LEN = 100.0    # Comprimento minimo de H line no layer Paineis
 
 
 # --- Utilidades ---------------------------------------------------------------
@@ -243,6 +248,225 @@ def match_poly(label_pos: tuple, polys: list, used: set, radius: float) -> dict 
     return candidates[0][1]
 
 
+# --- Paineis grid extraction --------------------------------------------------
+def extract_paineis_hlines(msp) -> list:
+    """Extrai LINEs horizontais do layer Paineis (len > H_LINE_MIN_LEN)."""
+    result = []
+    for e in msp:
+        if e.dxftype() != "LINE": continue
+        try:
+            layer = e.dxf.layer
+        except Exception:
+            continue
+        if "Pain" not in layer and "pain" not in layer and "PAIN" not in layer:
+            continue
+        sx, sy = e.dxf.start.x, e.dxf.start.y
+        ex, ey = e.dxf.end.x, e.dxf.end.y
+        if abs(ey - sy) >= 2: continue  # not horizontal
+        x_lo = min(sx, ex); x_hi = max(sx, ex)
+        length = x_hi - x_lo
+        if length < H_LINE_MIN_LEN: continue
+        result.append({"xlo": x_lo, "xhi": x_hi, "y": round((sy+ey)/2, 1), "len": round(length, 1)})
+    return result
+
+
+def extract_paineis_dims(msp) -> list:
+    """Extrai DIMENSIONs do layer Paineis com orientacao e endpoints."""
+    result = []
+    for e in msp:
+        if e.dxftype() != "DIMENSION": continue
+        try:
+            layer = e.dxf.layer
+        except Exception:
+            continue
+        if "Pain" not in layer and "pain" not in layer and "PAIN" not in layer:
+            continue
+        try:
+            val = round(e.dxf.actual_measurement, 1)
+            p2 = (e.dxf.defpoint2.x, e.dxf.defpoint2.y)
+            p3 = (e.dxf.defpoint3.x, e.dxf.defpoint3.y)
+            dx = abs(p2[0]-p3[0]); dy = abs(p2[1]-p3[1])
+            orient = "H" if dx > dy else "V"
+            result.append({
+                "val": val, "p2": p2, "p3": p3, "orient": orient,
+                "xlo": min(p2[0], p3[0]), "xhi": max(p2[0], p3[0]),
+                "ylo": min(p2[1], p3[1]), "yhi": max(p2[1], p3[1]),
+                "xmid": (p2[0]+p3[0])/2, "ymid": (p2[1]+p3[1])/2,
+            })
+        except Exception:
+            continue
+    return result
+
+
+def find_containing_hline(lx, ly, h_lines):
+    """Find the Paineis H line whose X range contains lx, closest in Y."""
+    containing = [h for h in h_lines if h["xlo"] - 5 <= lx <= h["xhi"] + 5]
+    if not containing:
+        return None
+    containing.sort(key=lambda h: abs(h["y"] - ly))
+    return containing[0]
+
+
+def chain_vdims_for_laje(lx, ly, hline, all_dims):
+    """
+    Chain vertical DIMENSIONs within the laje column (hline X range).
+    Start from the V dim closest to the label, then expand by stacking.
+    Only include dims with val >= MIN_PANEL_DIM to skip juntas.
+    """
+    col_vdims = [d for d in all_dims
+                 if d["orient"] == "V"
+                 and d["val"] >= MIN_PANEL_DIM
+                 and d["xlo"] >= hline["xlo"] - 30
+                 and d["xhi"] <= hline["xhi"] + 30]
+
+    if not col_vdims:
+        return 0, []
+
+    # Sort by distance of Y-center to label Y
+    col_vdims.sort(key=lambda d: abs((d["ylo"]+d["yhi"])/2 - ly))
+
+    # Start from closest, chain by stacking
+    seed = col_vdims[0]
+    chain_ylo = seed["ylo"]
+    chain_yhi = seed["yhi"]
+    used = {id(seed)}
+    chain_vals = [seed["val"]]
+
+    changed = True
+    while changed:
+        changed = False
+        for d in col_vdims:
+            if id(d) in used:
+                continue
+            # Stacks on top?
+            if abs(d["ylo"] - chain_yhi) < 5:
+                chain_yhi = d["yhi"]
+                used.add(id(d))
+                chain_vals.append(d["val"])
+                changed = True
+            # Stacks on bottom?
+            elif abs(d["yhi"] - chain_ylo) < 5:
+                chain_ylo = d["ylo"]
+                used.add(id(d))
+                chain_vals.insert(0, d["val"])
+                changed = True
+
+    return round(sum(chain_vals), 1), chain_vals
+
+
+def chain_hdims_for_laje(lx, ly, all_dims, y_tolerance=250):
+    """
+    Chain horizontal DIMENSIONs to compute laje comprimento.
+    Find H dims near the label, chain by connecting endpoints left-to-right.
+    Only include dims with val >= MIN_PANEL_DIM.
+    """
+    # Find H dims on same row (Y within tolerance)
+    row_dims = []
+    for d in all_dims:
+        if d["orient"] != "H": continue
+        if d["val"] < MIN_PANEL_DIM: continue
+        if abs(d["ymid"] - ly) > y_tolerance: continue
+        row_dims.append(d)
+
+    if not row_dims:
+        return 0, []
+
+    row_dims.sort(key=lambda d: d["xlo"])
+
+    # Find the dim containing or closest to lx
+    containing = [d for d in row_dims if d["xlo"] <= lx + 10 and d["xhi"] >= lx - 10]
+    if not containing:
+        # Pick closest to lx
+        containing = sorted(row_dims, key=lambda d: abs(d["xmid"] - lx))[:1]
+    if not containing:
+        return 0, []
+
+    seed = containing[0]
+    chain = [seed]
+    seed_y = seed["ymid"]
+
+    # Expand right
+    cur_x = seed["xhi"]
+    for _ in range(20):
+        nxt = [d for d in row_dims
+               if abs(d["xlo"] - cur_x) < 5
+               and abs(d["ymid"] - seed_y) < 5
+               and d not in chain]
+        if not nxt: break
+        best = min(nxt, key=lambda d: abs(d["xlo"] - cur_x))
+        chain.append(best)
+        cur_x = best["xhi"]
+
+    # Expand left
+    cur_x = seed["xlo"]
+    for _ in range(20):
+        nxt = [d for d in row_dims
+               if abs(d["xhi"] - cur_x) < 5
+               and abs(d["ymid"] - seed_y) < 5
+               and d not in chain]
+        if not nxt: break
+        best = min(nxt, key=lambda d: abs(d["xhi"] - cur_x))
+        chain.insert(0, best)
+        cur_x = best["xlo"]
+
+    total_w = round(sum(d["val"] for d in chain), 1)
+    return total_w, chain
+
+
+def paineis_grid_dims(lx, ly, h_lines, all_dims):
+    """
+    Primary method: use Paineis H line for comp + V dim chain for larg.
+    Returns (comp, larg, chain_h_vals, chain_v_vals) or None if not found.
+    """
+    hline = find_containing_hline(lx, ly, h_lines)
+    if not hline:
+        return None
+
+    comp = round(hline["len"], 1)
+
+    # Check if this H line is implausibly large (e.g. structural line spanning whole building)
+    # A single laje should not be wider than ~600cm typically
+    if comp > 800:
+        return None  # Skip, will use dim chain fallback
+
+    larg, v_chain = chain_vdims_for_laje(lx, ly, hline, all_dims)
+
+    if comp >= MIN_LAJE_DIM and larg >= MIN_PANEL_DIM:
+        return comp, larg, [], v_chain
+
+    return None
+
+
+def paineis_dimchain_dims(lx, ly, h_lines, all_dims):
+    """
+    Fallback: use H dim chain for comp + V dim chain for larg.
+    For lajes where the H line is missing or implausibly large.
+    Returns (comp, larg, h_chain_vals, v_chain_vals) or None.
+    """
+    comp, h_chain = chain_hdims_for_laje(lx, ly, all_dims)
+    h_vals = [d["val"] if isinstance(d, dict) else d for d in h_chain]
+
+    # For larg: create synthetic hline from the H chain span to scope V dim search
+    if h_chain:
+        synth_hline = {"xlo": lx - comp/2 - 50, "xhi": lx + comp/2 + 50}
+        larg, v_chain = chain_vdims_for_laje(lx, ly, synth_hline, all_dims)
+    else:
+        larg = 0
+        v_chain = []
+
+    if comp >= MIN_PANEL_DIM and larg >= MIN_PANEL_DIM:
+        return comp, larg, h_vals, v_chain
+
+    # Last resort: try with V dims using a wide search
+    if comp >= MIN_PANEL_DIM and larg < MIN_PANEL_DIM:
+        wide_hline = {"xlo": lx - 500, "xhi": lx + 500}
+        larg, v_chain = chain_vdims_for_laje(lx, ly, wide_hline, all_dims)
+        if larg >= MIN_PANEL_DIM:
+            return comp, larg, h_vals, v_chain
+
+    return None
+
+
 # --- Main ---------------------------------------------------------------------
 def main():
     parser = argparse.ArgumentParser(description='Extrair poligono das lajes LJ DXF')
@@ -289,13 +513,38 @@ def main():
     cota_dims = extract_cota_dims(msp)
     print(f" {len(cota_dims)} dims no range {DIM_MIN}-{DIM_MAX}cm")
 
-    # 5. Processar cada laje
+    # 5. Paineis grid
+    print("Paineis H lines...", end="", flush=True)
+    paineis_hlines = extract_paineis_hlines(msp)
+    print(f" {len(paineis_hlines)} lines (len>{H_LINE_MIN_LEN})")
+
+    print("Paineis DIMENSIONs...", end="", flush=True)
+    paineis_dims = extract_paineis_dims(msp)
+    print(f" {len(paineis_dims)} dims ({sum(1 for d in paineis_dims if d['orient']=='H')} H, {sum(1 for d in paineis_dims if d['orient']=='V')} V)")
+
+    # 6. Processar cada laje
     all_lids = sorted(set(list(aux00.keys()) + list(labels.keys())),
                       key=lambda x: (len(x), x))
     print(f"\nProcessando {len(all_lids)} lajes...")
 
     result = {}
     used_polys = set()
+
+    # Determine which lajes are AUX00-only (no TEXT label on proper label layers 4/6/NOMENCLATURA)
+    # Extract labels from layer 4 specifically for this check
+    labels_layer4 = set()
+    for e in msp:
+        if e.dxftype() not in ("TEXT", "MTEXT"): continue
+        try:
+            lyr = e.dxf.layer
+            if lyr not in ("4", "6", "NOMENCLATURA"): continue
+            txt = e.plain_text().strip() if e.dxftype() == "MTEXT" else e.dxf.text.strip()
+        except Exception: continue
+        for line in txt.split('\n'):
+            m = re.fullmatch(r'L(\d+[A-Z]?)', line.strip(), re.IGNORECASE)
+            if m:
+                labels_layer4.add("L" + m.group(1).upper())
+    aux00_only = set(aux00.keys()) - labels_layer4
 
     for lid in all_lids:
         lpos = label_pos.get(lid)
@@ -320,7 +569,54 @@ def main():
                     result[lid] = entry; continue
                 # Poligono muito pequeno — descartar e usar proximo metodo
 
-        # -- B: AUX00 estimativa por area total dos paineis --
+        # -- A2: AUX00 FIRST for AUX00-only lajes (scattered panel positions unreliable for grid) --
+        if lid in aux00_only and panels:
+            coords, comp, larg = panels_to_area_estimate(panels)
+            if coords and comp >= DIM_MIN:
+                total_a = sum(p["dim1"]*p["dim2"] for p in panels if p.get("dim1") and p.get("dim2"))
+                entry.update({
+                    "coordenadas": coords, "comprimento": comp, "largura": larg,
+                    "confidence": 0.55, "source": "aux00-area-estimate",
+                    "n_panels": len(panels),
+                    "total_area_cm2": round(total_a, 0)
+                })
+                result[lid] = entry; continue
+
+        # -- B: Paineis grid (H line comp + V dim chain larg) --
+        if lpos and paineis_hlines and paineis_dims:
+            grid_result = paineis_grid_dims(lpos[0], lpos[1], paineis_hlines, paineis_dims)
+            if grid_result:
+                comp, larg, h_chain, v_chain = grid_result
+                coords = rect_coords(comp, larg)
+                entry.update({
+                    "coordenadas": coords, "comprimento": comp, "largura": larg,
+                    "confidence": 0.70, "source": "paineis-grid",
+                    "v_chain": v_chain,
+                })
+                result[lid] = entry; continue
+
+        # -- B2: Paineis dim chain fallback (when H line missing or too large) --
+        if lpos and paineis_dims:
+            chain_result = paineis_dimchain_dims(lpos[0], lpos[1], paineis_hlines, paineis_dims)
+            if chain_result:
+                comp, larg, h_chain, v_chain = chain_result
+                coords = rect_coords(comp, larg)
+                h_vals = []
+                if h_chain:
+                    for item in h_chain:
+                        if isinstance(item, dict):
+                            h_vals.append(item.get("val", 0))
+                        else:
+                            h_vals.append(item)
+                entry.update({
+                    "coordenadas": coords, "comprimento": comp, "largura": larg,
+                    "confidence": 0.60, "source": "paineis-dimchain",
+                    "h_chain": h_vals,
+                    "v_chain": v_chain,
+                })
+                result[lid] = entry; continue
+
+        # -- C: AUX00 estimativa por area total dos paineis --
         if panels:
             coords, comp, larg = panels_to_area_estimate(panels)
             if coords and comp >= DIM_MIN:
@@ -333,7 +629,7 @@ def main():
                 })
                 result[lid] = entry; continue
 
-        # -- C: COTA DIMENSIONs proximas --
+        # -- D: COTA DIMENSIONs proximas --
         if lpos and cota_dims:
             near_vals = find_dims_near_label(lpos, cota_dims, radius=2000.0)
             comp, larg = dims_to_comp_larg(near_vals)
@@ -355,7 +651,7 @@ def main():
         })
         result[lid] = entry
 
-    # 6. Salvar
+    # 7. Salvar
     out_path = (Path(args.output) if args.output
                 else obra_path / "Fase-3_Interpretacao_Extracao" / "Lajes" / "lajes_poligono.json")
     out_path.parent.mkdir(parents=True, exist_ok=True)
@@ -370,7 +666,14 @@ def main():
     print(f"\n=== RESULTADO ===")
     print(f"  Total lajes: {len(result)}")
     for s, c in sorted(src_counts.items()):
-        tag = {"lj-layer1-poly":"(alta)","aux00-bbox-pos":"(media)","cota-dims":"(media-baixa)","default":"(baixa)"}.get(s,"")
+        tag = {
+            "lj-layer1-poly": "(alta)",
+            "paineis-grid": "(alta)",
+            "paineis-dimchain": "(media-alta)",
+            "aux00-area-estimate": "(media)",
+            "cota-dims": "(media-baixa)",
+            "default": "(baixa)"
+        }.get(s, "")
         print(f"  [{s}]: {c} {tag}")
     print(f"  Output: {out_path}")
 

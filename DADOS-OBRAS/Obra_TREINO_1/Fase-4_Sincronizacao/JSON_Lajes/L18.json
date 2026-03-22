@@ -1,0 +1,33 @@
+{
+  "numero": 0,
+  "nome": "L18",
+  "pavimento": "TIPO",
+  "linhas_verticais": [],
+  "linhas_horizontais": [],
+  "obstaculos": [],
+  "comprimento": 405.5,
+  "largura": 558.1,
+  "coordenadas": [
+    [
+      0.0,
+      0.0
+    ],
+    [
+      405.5,
+      0.0
+    ],
+    [
+      405.5,
+      558.1
+    ],
+    [
+      0.0,
+      558.1
+    ],
+    [
+      0.0,
+      0.0
+    ]
+  ],
+  "area_cm2": 226309.55000000002
+}
