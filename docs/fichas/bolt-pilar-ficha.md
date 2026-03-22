@@ -2,8 +2,9 @@
 
 **Sistema:** CAD-ANALYZER v2.0
 **Robô:** Bolt — Especialista em Pilares (Pilar Robot)
-**Responsável:** Fase 5 do Pipeline CAD-ANALYZER
-**Versão do Documento:** 1.0 | 2026-03-18
+**Responsável:** Fase 6 do Pipeline CAD-ANALYZER (Execução CAD)
+**Versão do Documento:** 2.0 | 2026-03-22
+**Gerador STOG:** `gerar_pl_dxf_stog.py` (ezdxf, sem AutoCAD)
 
 ---
 
@@ -12,10 +13,134 @@
 | Atributo | Valor |
 |----------|-------|
 | **Nome** | Bolt |
-| **Função** | Geração automatica de DXF de formas de pilar |
-| **Escopo** | Pilares de concreto armado — seção quadrada/retangular |
+| **Função** | Geração de DXF STOG-quality de formas de pilar — CIMA + Faces ABCD + Grades |
+| **Escopo** | Pilares retangulares, cambotados e especiais (L/T/U) — até 8 faces (A-H) |
 | **Norma** | NBR 7190 (madeira), NBR 14931 (concretagem), NBR 6118 (concreto) |
-| **Arquivo de Config** | `_ROBOS_ABAS/Robo_Pilares/pilares-atualizado-09-25/config/config_abcd.json` |
+| **Gerador** | `gerar_pl_dxf_stog.py` (pilares) |
+| **JSON Fonte** | `Fase-4_Sincronizacao/JSON_Pilares/P*.json` |
+
+---
+
+## 1.5. POSIÇÃO NO PIPELINE CAD-ANALYZER
+
+```
+Fase-1  Ingestão DXF STOG             → DXFs originais (PL, LV, FV, LJ, EVG)
+Fase-2  Classificação Elementos        → Identificação P11, P32A, PC-1...
+Fase-3  Extração Parâmetros            → extrair_bh_pilares.py → b, h por pilar
+Fase-4  Sincronização JSON             → JSON_Pilares/P*.json (faces ABCD)
+         ↓
+[BOLT ENTRA AQUI]
+         ↓
+Fase-6  Execução CAD                   → gerar_pl_dxf_stog.py → PL_stog_{ts}.dxf
+                                          Preview PNG automático
+         ↓
+Fase-7  Comparação / Validação         → comparar_bh_stog_vs_gerado.py
+```
+
+![Pipeline de extração de pilares — 11 etapas (DXF → JSON)](imgs/pipeline_pilares.png)
+
+## 1.6. CONTEXTO ESTRUTURAL — TIPOS DE PILAR
+
+![Seção transversal — pilar retangular P17 vs pilar cambotado PC-1](imgs/pilar_secao.png)
+
+![Ficha estrutural P11 — 4 faces (A/B/C/D), B=46cm, H=56cm](elementos/ficha_Obra_TREINO_1_pilar_P11.png)
+
+## 1.7. AS 3 ABAS DO ROBÔ (CIMA + ABCD + GRADES)
+
+O robô original gera **3 scripts SCR independentes** por pilar:
+
+| Aba | Diretório SCR | Conteúdo | Status Gerador |
+|-----|---------------|----------|----------------|
+| **CIMA** | `P1_CIMA/` | Seção transversal (vista de cima do pilar) | ✅ Implementado |
+| **ABCD** | `P1_ABCD/` | Faces A/B/C/D (elevação lateral com painéis) | ✅ Implementado |
+| **GRADES** | `P1_GRADES/` | Pontaletes + sarrafos + perfis metálicos + furação | ❌ NÃO IMPLEMENTADO |
+
+## 1.8. O QUE SÃO GRADES (Definição Física)
+
+**Grade** = conjunto de **pontaletes metálicos** (tubos de aço) que formam uma cinta ao redor da fôrma do pilar:
+
+```
+Componentes físicos:
+  PONTALETE         — barra metálica vertical (tubo circular) → sustenta painéis
+  MEIO PONTALETE    — pontalete de comprimento reduzido
+  Perfil Metálico   — perfil horizontal (gravata) que amarra pontaletes
+  Parafusos         — fixam pontaletes entre si e ao perfil (par_1_2 a par_8_9)
+
+Cada pilar pode ter até 3 grades por grupo (2 grupos):
+  grade_1, distancia_1    → Grade 1: comprimento pontalete + espaço até grade 2
+  grade_2, distancia_2    → Grade 2
+  grade_3                 → Grade 3 (última, sem distância)
+
+No DXF STOG, as grades se manifestam como:
+  - Blocos INSERT: PONTALETE (176×) e MEIO PONTALETE (226×) — layer Madeira
+  - Retângulos: SARR_2.2x7 (931 entities!) — sarrafos verticais/horizontais
+  - Retângulos: Perfil Metálico (150×) — gravatas
+  - Blocos: GRA-E e GRA-D — triângulos de grade nos cantos
+```
+
+## 1.9. JSON PILARES — SCHEMA COMPLETO
+
+```
+Campos básicos:    numero, nome, comprimento, largura, altura, pavimento
+Níveis:            nivel_chegada, nivel_saida, nivel_diferencial
+Modo:              modo_distribuicao ("NOVA" | "INI")
+
+Parafusos:         par_1_2 a par_8_9 (distâncias entre pares de furos)
+Grades:            grade_1, distancia_1, grade_2, distancia_2, grade_3
+Grades grupo 2:    grade_1_grupo2, distancia_1_grupo2, ..., grade_3_grupo2
+Detalhes grade:    detalhe_grade{1-3}_{1-5} + altura_detalhe_{1-3}_{1-5}
+
+Por face (A-H):    h1_X a h5_X (alturas segmentos)
+                   larg1_X a larg3_X (larguras painéis)
+                   laje_X, posicao_laje_X (passagem de laje)
+                   hachura_l{1-3}_h{2-5}_X (tipo hachura por célula)
+
+Aberturas/face:    distancia_esq_1_X, largura_esq_1_X, profundidade_esq_1_X
+                   (2 por lado × 2 lados = 4 aberturas por face)
+
+Pilar especial:    pilar_especial_ativo, tipo ("L"|"T"|"U")
+                   comp_1/2/3, larg_1/2/3
+                   grade_a_1..grade_h_3 (grades por face)
+                   par_esp_a_{1-9}..par_esp_h_{1-9}
+```
+
+## 1.10. LAYERS STOG REAL vs GERADOR
+
+| Layer STOG Real | Entities | Gerador | Status |
+|-----------------|----------|---------|--------|
+| `Paineis` | 1689 | ✅ Presente | OK |
+| `Hachura` | 528 | ✅ Presente | OK |
+| `Madeira` | 504 | ✅ Presente | OK |
+| `CHAPA` | 276 | ✅ Presente | OK |
+| `Perfil Metalico` | 150 | ✅ Presente | OK |
+| `SARRAFO` | 302 | ✅ Presente | OK |
+| `COTA` | 1502 | ✅ Presente | OK |
+| `Nivel` | 74 | ✅ Presente | OK |
+| **`SARR_2.2x7`** | **931** | ❌ Ausente | **FALTA — crítico** |
+| `SARR_2.2x10` | 48 | ❌ Ausente | FALTA |
+| `SARR_3.5x7` | 33 | ❌ Ausente | FALTA |
+| `SARR_7x7` | 34 | ❌ Ausente | FALTA |
+| `MEIO_PONT` | 59 | ❌ Ausente | FALTA |
+| `NOMENCLATURA` | 64 | ✅ Presente (Sprint 1) | OK |
+| `Texto Secao` | 181 | ✅ Presente (Sprint 1) | OK |
+| `COTAS FURACAO` | (layer exists) | ✅ Presente (Sprint 3) | OK — cruzes (+) nos pontaletes |
+| `NIVEL 1/2 PAV` | 37-116 | ❌ Ausente | FALTA (Sprint 4) |
+
+> **Progresso:** 10 de 13 layers implementados. Restam 3: MEIO_PONT, NIVEL 1/2 PAV, BARRA ANCORAGEM.
+
+## 1.11. BLOCOS INSERT DO STOG REAL (ausentes no gerador)
+
+| Bloco | Qtd | Composição | Descrição |
+|-------|-----|-----------|-----------|
+| `C` | 240 | 81 LINE + 13 ARC | Hachura de concreto |
+| `PONTALETE` | 176 | 1 POLY + 3 ARC + 3 LINE | Pontalete completo (tubo circular) |
+| `MEIO PONTALETE` | 226 | 1 POLY + 3 ARC + 3 LINE | Meio pontalete |
+| `titulo1` | 35 | 3 ATTDEF + 1 LINE | Título com atributos dinâmicos |
+| `GRA-E / GRA-D` | -- | Triângulos | Grade esquerda/direita |
+
+> O gerador NÃO cria blocos INSERT — usa apenas primitivas (LWPOLYLINE, HATCH, MTEXT).
+
+![PL STOG — vista completa com grades, pontaletes e sarrafos](chk_pl_pg03_full.png)
 
 ---
 
@@ -130,6 +255,8 @@ específicos de cada projeto. Bolt depende da validação humana (Serra + Mestre
 
 ---
 
+![Layers do pilar — o que cada layer contém (Painéis, NOMENCLATURA, COTA, SARRAFO)](imgs/pilar_layers.png)
+
 ## 5. SEMÂNTICA — O QUE É UM PILAR NO DXF
 
 ```
@@ -188,7 +315,46 @@ DXF de Entrada
 
 ---
 
-## 7. PROBLEMAS CONHECIDOS E LIMITAÇÕES
+![PL STOG — vista completa do DXF gerado (grid 4 colunas × N linhas)](chk_pl_pg03_full.png)
+
+## 7. COMANDO DE GERAÇÃO PL
+
+```bash
+# Geração PL STOG (todos os pilares de uma obra)
+python scripts/gerar_pl_dxf_stog.py \
+  --obra D:/Agente-cad-PYSIDE/DADOS-OBRAS/Obra_TREINO_1
+
+# Limitar pilares (debug rápido)
+python scripts/gerar_pl_dxf_stog.py \
+  --obra D:/Agente-cad-PYSIDE/DADOS-OBRAS/Obra_TREINO_1 \
+  --max 5
+
+# Output: Fase-6_Execucao_CAD/PL_stog_{timestamp}.dxf
+#         Fase-6_Execucao_CAD/PL_stog_quality.png
+```
+
+![PL STOG quality preview — output do gerador](../../DADOS-OBRAS/Obra_TREINO_1/Fase-6_Execucao_CAD/PL_stog_quality.png)
+
+---
+
+## 8. GAPS CRÍTICOS: GERADOR vs STOG REAL
+
+| # | Gap | Impacto | Status |
+|---|-----|---------|--------|
+| G1 | **Aba GRADES** | CRÍTICO | ✅ IMPLEMENTADO Sprint 2 — blocos INSERT + SARR_2.2x7 + grades básicas |
+| G2 | **Blocos PONTALETE** | CRÍTICO | ✅ IMPLEMENTADO Sprint 2 — 7 entities (POLY+ARC+LINE) replicadas do STOG |
+| G3 | **Layers tipados sarrafo** | ALTO | ✅ IMPLEMENTADO Sprint 1 — 4 layers SARR distintos |
+| G4 | **COTAS FURAÇÃO** | ALTO | ✅ IMPLEMENTADO Sprint 3 — cruzes (+) via par_1_2..par_8_9 |
+| G5 | **Detalhes de grade** | ALTO | ⚠️ PARCIAL — lógica básica, falta ler detalhe_grade{1-3}_{1-5} completos |
+| G6 | **NOMENCLATURA** | MÉDIO | ✅ IMPLEMENTADO Sprint 1 — 21 texts |
+| G7 | **Nível Pavimento** | MÉDIO | ⚠️ PENDENTE Sprint 4 |
+| G8 | **LEADER entities** | MÉDIO | ⚠️ PENDENTE Sprint 4 |
+| G9 | **Faces E-H** | BAIXO | ⚠️ PENDENTE Sprint 4 |
+| G10 | **Ingestão grades** | BAIXO | ✅ IMPLEMENTADO Sprint 3 — `extrair_grades_pl.py` extrai de 7 DXFs STOG |
+
+---
+
+## 9. PROBLEMAS CONHECIDOS E LIMITAÇÕES
 
 | Problema | Causa | Mitigação |
 |----------|-------|-----------|
@@ -212,5 +378,5 @@ Cobertura média:            3.8%
 
 ---
 
-*Ficha técnica Bolt v1.0 | CAD-ANALYZER | Diana Corporação Senciente*
-*Gerada automaticamente em 2026-03-18 | Revisar a cada evolução de versão*
+*Ficha técnica Bolt v3.0 | CAD-ANALYZER | Diana Corporação Senciente*
+*Atualizada em 2026-03-22 | v3: Grades, furação, JSON schema completo, 13 layers ausentes, 10 gaps, blocos INSERT*

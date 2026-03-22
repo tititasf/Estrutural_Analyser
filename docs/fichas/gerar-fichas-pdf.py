@@ -31,7 +31,8 @@ def gerar_pdf_reportlab(md_path: Path, pdf_path: Path):
         from reportlab.lib.units import cm
         from reportlab.lib import colors
         from reportlab.platypus import (
-            SimpleDocTemplate, Paragraph, Spacer, Preformatted, Table, TableStyle
+            SimpleDocTemplate, Paragraph, Spacer, Preformatted, Table, TableStyle,
+            Image as RLImage
         )
         from reportlab.lib.enums import TA_LEFT, TA_CENTER
     except ImportError:
@@ -61,11 +62,17 @@ def gerar_pdf_reportlab(md_path: Path, pdf_path: Path):
                                  borderColor=colors.HexColor('#dddddd'),
                                  borderWidth=1, borderPadding=6)
 
+    caption_style = ParagraphStyle('Caption', parent=styles['Normal'],
+                                    fontSize=8, textColor=colors.HexColor('#555555'),
+                                    alignment=TA_CENTER, spaceBefore=2, spaceAfter=8)
+
     story = []
     in_code_block = False
     code_lines = []
     table_lines = []
     in_table = False
+    import re
+    _img_re = re.compile(r'!\[([^\]]*)\]\(([^)]+)\)')
 
     def flush_code():
         if code_lines:
@@ -134,6 +141,43 @@ def gerar_pdf_reportlab(md_path: Path, pdf_path: Path):
             if in_table:
                 flush_table()
                 in_table = False
+
+        # Images: ![caption](path)
+        m = _img_re.match(line.strip())
+        if m:
+            caption, img_path = m.group(1), m.group(2)
+            # Resolve relative to md_path directory
+            p = Path(img_path) if Path(img_path).is_absolute() else md_path.parent / img_path
+            if p.exists():
+                max_w = A4[0] - 4*cm
+                max_h = A4[1] * 0.55  # max 55% da altura da página
+                try:
+                    # Get actual dimensions to compute aspect ratio
+                    try:
+                        from PIL import Image as PILImage
+                        with PILImage.open(str(p)) as pil:
+                            iw, ih = pil.size
+                    except Exception:
+                        iw, ih = 1200, 800  # fallback ratio
+                    # Scale to fit max_w, then check height
+                    scale = max_w / iw
+                    draw_w = max_w
+                    draw_h = ih * scale
+                    if draw_h > max_h:
+                        scale = max_h / ih
+                        draw_w = iw * scale
+                        draw_h = max_h
+                    img = RLImage(str(p), width=draw_w, height=draw_h)
+                    img.hAlign = 'CENTER'
+                    story.append(img)
+                    if caption:
+                        story.append(Paragraph(caption, caption_style))
+                    story.append(Spacer(1, 8))
+                except Exception as e:
+                    story.append(Paragraph(f'[Imagem: {p.name} — erro: {e}]', caption_style))
+            else:
+                story.append(Paragraph(f'[Imagem nao encontrada: {img_path}]', caption_style))
+            continue
 
         # Headers
         if line.startswith('# ') and not line.startswith('## '):

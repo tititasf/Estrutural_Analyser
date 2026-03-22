@@ -2,8 +2,9 @@
 
 **Sistema:** CAD-ANALYZER v2.0
 **Robô:** Slab — Especialista em Lajes (Slab Robot)
-**Responsável:** Fase 5 do Pipeline CAD-ANALYZER
-**Versão do Documento:** 1.0 | 2026-03-18
+**Responsável:** Fase 6 do Pipeline CAD-ANALYZER (Execução CAD)
+**Versão do Documento:** 2.0 | 2026-03-22
+**Gerador STOG:** `gerar_lj_dxf_stog.py` (ezdxf, sem AutoCAD)
 
 ---
 
@@ -12,11 +13,82 @@
 | Atributo | Valor |
 |----------|-------|
 | **Nome** | Slab |
-| **Função** | Geração automática de DXF de escoramento e forma de laje |
-| **Escopo** | Lajes de concreto armado — escoramento, painéis, vigotas/barrotes |
+| **Função** | Geração de DXF STOG-quality de escoramento e forma de laje |
+| **Escopo** | Lajes de concreto armado — escoramento, painéis, vigotas/barrotes, pontaletes |
 | **Norma** | NBR 6118 (concreto), NBR 14931 (concretagem), NR-18 (segurança em obras) |
-| **Arquivo de Config** | `_ROBOS_ABAS/Robo_Lajes/laje_src/config/app_config.json` |
-| **Learning DB** | `_ROBOS_ABAS/Robo_Lajes/laje_src/data/learning_map.db` |
+| **Gerador** | `gerar_lj_dxf_stog.py` (lajes) |
+| **JSON Fonte** | `Fase-4_Sincronizacao/JSON_Lajes/L*.json` |
+
+---
+
+## 1.5. POSIÇÃO NO PIPELINE CAD-ANALYZER
+
+```
+DXF Estrutural Bruto (TMC-EST-*.dwg)
+    ↓
+DXF STOG LJ Real (eng. reversa MANUAL pelo engenheiro no AutoCAD)
+    ↓
+Fase-1  Ingestão DXF STOG             → *LJ*.dxf (7 arquivos por obra)
+Fase-3  Extração Parâmetros            → extrair_lajes_lj.py (AUX00 + labels)
+                                          extrair_poligono_lajes.py (polígono + dims)
+Fase-4  Sincronização JSON             → JSON_Lajes/L*.json
+         ↓
+[SLAB ENTRA AQUI — 2 caminhos]
+         ↓
+Caminho A: gerar_lj_dxf_stog.py       → LJ_stog_{ts}.dxf (grid de cards)
+Caminho B: Robô PySide (SmartPanner)   → .scr → AutoCAD → DXF nativo
+         ↓
+Fase-7  comparar_lajes_stog_vs_gerado.py → validação (meta 75%)
+```
+
+> **Nota:** O Robô PySide (`Robo_Lajes/`) usa SmartPanner + Groq/Gemini + AutoCAD COM.
+> O gerador STOG (`gerar_lj_dxf_stog.py`) é o caminho autônomo (sem AutoCAD).
+
+## 1.6. CONTEXTO ESTRUTURAL — ANATOMIA DA LAJE
+
+![Anatomia da laje no DXF — contorno, espessura h, abertura (Vazio), pilar, viga](imgs/laje_contorno.png)
+
+![Ficha estrutural L101 — 100x100cm, painéis 2x1, h=14cm](elementos/ficha_Obra_TREINO_1_laje_L101.png)
+
+## 1.7. MODELO DE DADOS DO ROBÔ ORIGINAL (PySide)
+
+```python
+class Laje:
+    numero: int                    # ID numérico
+    nome: str                      # "L11", "L2A"
+    comprimento: float             # dim X (cm)
+    largura: float                 # dim Y (cm)
+    pavimento: str                 # "TÉRREO", "12 PAV"
+    coordenadas: list              # [[x,y], ...] polígono fechado
+    area_cm2: float
+    linhas_verticais: list         # [{"value": 100.0, "is_union": false}, ...]
+    linhas_horizontais: list       # [{"value": 50.0, "is_union": true}, ...]
+    obstaculos: list               # retângulos de obstáculo
+    modo_selecionado: int          # 0=auto, 1=manual
+    reaproveitamento_dados: dict   # dados de reaproveitamento entre pavimentos
+    sobras_recebidas: list         # painéis sobra recebidos do pavimento anterior
+```
+
+## 1.8. SmartPanner — Motor de Distribuição de Painéis
+
+```
+Constantes de engenharia (engenharia reversa do Robô):
+  Painel padrão maior:  244 cm
+  Painel padrão médio:  122 cm
+  Painel padrão menor:   60 cm
+  GAP união (sarrafo):   20 cm (pref), range 15-30
+  Limiar eixo menor:    200 cm
+  Sobra mínima:          60 cm
+
+Algoritmos (em ordem de prioridade):
+  1. _distribute_244_rule(L)      — preenche 244, se sobra < 60 troca último por 122
+  2. _distribute_minor_axis(L)    — se < 200cm, lógica especial
+  3. _distribute_elastic(L, obs)  — painéis 122/60 com uniões 0-30cm
+  4. _try_align_deformity(L, obs) — alinha com borda de obstáculo
+  5. _distribute_greedy_fallback() — fallback: 122 + gap 20
+
+LayoutLearner: KNN (sklearn) + Groq/Gemini para sugerir layout
+```
 
 ---
 
@@ -50,6 +122,54 @@ Slab usa o **SlabTracer** para:
 ```
 lajes_{obra}_{pavimento}.dxf  — DXF com escoramento de todas as lajes do pavimento
 ```
+
+---
+
+## 2.5. JSON FASE-4 — SCHEMA COMPLETO (LJ)
+
+```json
+{
+  "numero": 11,
+  "nome": "L11",
+  "comprimento": 2154.4,        // dimensão X em cm
+  "largura": 244.0,             // dimensão Y em cm
+  "pavimento": "LAJE TÉCNICA",
+  "coordenadas": [              // polígono fechado (primeiro = último ponto)
+    [0.0, 0.0], [2154.4, 0.0], [2154.4, 244.0], [0.0, 244.0], [0.0, 0.0]
+  ],
+  "area_cm2": 525673.6,
+  "linhas_verticais": [         // divisões verticais (pontaletes/sarrafos)
+    {"value": 100.0, "is_union": false},   // value = posição X em cm
+    {"value": 200.0, "is_union": true}     // is_union = sarrafo de pressão (junção)
+  ],
+  "linhas_horizontais": [],     // divisões horizontais (mesmo formato)
+  "obstaculos": [],             // obstáculos retangulares dentro da laje
+  "modo_selecionado": 0,        // 0=auto, 1=manual
+  "unioes_nos_bordes": false,
+  "observacoes": ""
+}
+```
+
+> **Nota:** Obra_TREINO_1 tem JSONs default (100×100). Dados reais em Obra_TREINO_21 (19 lajes).
+
+## 2.6. LAYERS STOG REAL vs GERADOR
+
+| Layer STOG Real | ACI | Conteúdo Real | Layer Gerador | Status |
+|-----------------|-----|---------------|---------------|--------|
+| `3` (verde) | 3 | Contornos, sarrafos, textos dim (501 LINE + 181 POLY + 141 TEXT) | -- | FALTANDO |
+| `4` (ciano) | 4 | Labels L{n}, V{n}, P{n} | -- | FALTANDO |
+| `7` (branco) | 7 | Pilares (retângulos 19×66, 24×80) | -- | FALTANDO |
+| `9` | 9 | Marcadores SOLID (triângulos) + escoras (LINEs densas) | -- | FALTANDO |
+| `1` (vermelho) | 1 | X cruzado = painel com reaproveitamento | -- | FALTANDO |
+| `AUX00` | 7 | MTEXT "L{n}\n{dim1}X{dim2}\nc/rec." | -- | FALTANDO |
+| `Painéis` | 200 | LWPOLYLINE contorno + DIMENSION cotas | `Painéis` (200) | OK |
+| `Hachura` | 251 | HATCH SOLID fill | `Hachura` (251) | OK |
+| `REAPROVEITAMENTO` | 251 | HATCH por laje reutilizada | Definido, não usado | FALTANDO lógica |
+| `SARRAFO DE PRESSÃO` | 251 | Linhas de pressão | `SARRAFO DE PRESSAO` (251) | OK |
+| `CARIMBO` | 255 | Carimbo | `CARIMBO` (255) | OK |
+| `Folhas` | 255 | Bordas | `Folhas` (255) | OK |
+
+> **Gap crítico:** 6 layers do STOG real não existem no gerador (3, 4, 7, 9, 1, AUX00)
 
 ---
 
@@ -274,7 +394,42 @@ Campo crítico sem solução:  Laje_name (51 valores únicos, projeto-específic
 
 ---
 
-## 12. RECOMENDAÇÕES DE MELHORIA (Athena — CEO-PLANEJAMENTO)
+## 11.5. GAPS CRÍTICOS: GERADOR STOG vs STOG REAL
+
+| Gap | Impacto | Descrição |
+|-----|---------|-----------|
+| SmartPanner não integrado | ALTO | Gerador só plota linhas do JSON — não calcula distribuição 244/122/60 |
+| Reaproveitamento ignorado | ALTO | Modelo tem `sobras_recebidas`, `reaproveitamento_dados` — gerador ignora |
+| AUX00 MTEXT ausente | ALTO | STOG real tem "L{n}\n{dim}X{dim}\nc/rec." — essencial p/ rastreabilidade |
+| 6 layers faltando | MÉDIO | Layers 3,4,7,9,1,AUX00 do STOG real não existem no gerador |
+| Layout grid vs planta | MÉDIO | STOG real = planta posicional (coordenadas absolutas); gerador = grid cards |
+| Obstáculos | MÉDIO | JSON suporta `obstaculos[]` mas gerador ignora |
+| Pilares na laje | MÉDIO | STOG real tem retângulos de pilares (layer 7); gerador não posiciona |
+| Dados default | BAIXO | Obra_TREINO_1 tem JSONs 100×100 (não populados pela extração) |
+
+---
+
+## 12. COMANDO DE GERAÇÃO LJ
+
+```bash
+# Geração LJ STOG (todas as lajes de uma obra)
+python scripts/gerar_lj_dxf_stog.py \
+  --obra D:/Agente-cad-PYSIDE/DADOS-OBRAS/Obra_TREINO_1
+
+# Limitar lajes (debug rápido)
+python scripts/gerar_lj_dxf_stog.py \
+  --obra D:/Agente-cad-PYSIDE/DADOS-OBRAS/Obra_TREINO_1 \
+  --max 5
+
+# Output: Fase-6_Execucao_CAD/LJ_stog_{timestamp}.dxf
+#         Fase-6_Execucao_CAD/LJ_stog_quality.png
+```
+
+![LJ STOG quality preview — output do gerador](../../DADOS-OBRAS/Obra_TREINO_1/Fase-6_Execucao_CAD/LJ_stog_quality.png)
+
+---
+
+## 13. RECOMENDAÇÕES DE MELHORIA (Athena — CEO-PLANEJAMENTO)
 
 1. **Laje_name:** Implementar busca de texto no DXF por regex `L\d+[A-Za-z]?` dentro da
    bbox expandida da laje. Oferecer os 3 textos mais próximos como sugestões ao usuário.
@@ -290,5 +445,5 @@ Campo crítico sem solução:  Laje_name (51 valores únicos, projeto-específic
 
 ---
 
-*Ficha técnica Slab v1.0 | CAD-ANALYZER | Diana Corporação Senciente*
-*Gerada automaticamente em 2026-03-18 | Revisar a cada evolução de versão*
+*Ficha técnica Slab v3.0 | CAD-ANALYZER | Diana Corporação Senciente*
+*Atualizada em 2026-03-22 | v3: SmartPanner, JSON schema, layers STOG real vs gerado, gaps, modelo Laje*
