@@ -96,7 +96,7 @@ LAYERS = {
     'Texto Seção':        7,
     'Cota Seção (2x)':  241,
     'texto':              7,
-    'Reaproveitamento': 251,  # hachura ANSI31 nos painéis (padrão STOG)
+    'REAPROVEITAMENTO': 251,  # hachura ANSI31 nos painéis (padrão STOG)
 }
 
 
@@ -726,7 +726,7 @@ def draw_lv_face(msp, x0, y0, panels, h, nome_face,
 
         # Reaproveitamento hatch (ANSI31 escala 1.0) — padrão STOG: cobre painel inteiro
         _rpts = [(x_cur, y0), (x_cur+pw, y0), (x_cur+pw, y0+h), (x_cur, y0+h)]
-        _rh = msp.add_hatch(dxfattribs={'layer': 'Reaproveitamento'})
+        _rh = msp.add_hatch(dxfattribs={'layer': 'REAPROVEITAMENTO'})
         _rh.set_pattern_fill('ANSI31', scale=1.0)
         _rh.paths.add_polyline_path(_rpts, is_closed=True)
 
