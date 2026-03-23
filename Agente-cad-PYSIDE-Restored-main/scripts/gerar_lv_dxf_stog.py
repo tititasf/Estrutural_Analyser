@@ -382,7 +382,8 @@ def dim_h_lateral(msp, x_right, y0, h):
 # Detalhe de seção transversal
 # ──────────────────────────────────────────────────────────────────────────────
 
-def draw_section_detail(msp, x_center, y0, b, h, viga_nome='', b_alma=19):
+def draw_section_detail(msp, x_center, y0, b, h, viga_nome='', b_alma=19,
+                        h_A=None, h_B=None):
     """Detalhe de seção transversal — TODOS os elementos STOG (eng. reversa DXF V22).
 
     y0      = base de Madeira/Painéis = topo do barrote
@@ -390,6 +391,8 @@ def draw_section_detail(msp, x_center, y0, b, h, viga_nome='', b_alma=19):
     b       = largura da laje/flange
     h       = altura da seção de concreto
     b_alma  = largura da alma (para título, default 19cm)
+    h_A     = altura real Face A (painel esquerdo) — se None, usa h+8
+    h_B     = altura real Face B (painel direito) — se None, usa max(h-20,...)
     """
     CAP_H = 4.4   # altura das caps/bases (confirmado DXF)
 
@@ -403,9 +406,11 @@ def draw_section_detail(msp, x_center, y0, b, h, viga_nome='', b_alma=19):
     x_mr_r = x_center + 42   # Madeira R direita
     x_fr   = x_center + 24 + b  # flange right (varia com b)
 
-    h_left      = h + 8                       # altura Madeira/Painéis LEFT
-    h_flange_bot = max(h - 16, CAP_H + 5)    # offset y do canto inferior direito da flange
-    h_right     = max(h - 20, h_flange_bot)  # Madeira RIGHT ≥ flange_bot (vigas pequenas)
+    # Alturas devem refletir as faces A e B para coerência visual
+    h_left      = h_A if h_A is not None else (h + 8)
+    h_flange_bot = max(h - 16, CAP_H + 5)
+    h_right     = h_B if h_B is not None else max(h - 20, h_flange_bot)
+    h_right     = max(h_right, h_flange_bot)  # nunca menor que flange
 
     la = {'layer': 'Madeira'}
     lp = {'layer': 'Painéis'}
@@ -724,11 +729,9 @@ def draw_lv_face(msp, x0, y0, panels, h, nome_face,
         # Contorno externo do painel
         draw_panel_lines(msp, x_cur, y0, pw, h)
 
-        # Reaproveitamento hatch (ANSI31 escala 1.0) — padrão STOG: cobre painel inteiro
-        _rpts = [(x_cur, y0), (x_cur+pw, y0), (x_cur+pw, y0+h), (x_cur, y0+h)]
-        _rh = msp.add_hatch(dxfattribs={'layer': 'REAPROVEITAMENTO'})
-        _rh.set_pattern_fill('ANSI31', scale=1.0)
-        _rh.paths.add_polyline_path(_rpts, is_closed=True)
+        # Reaproveitamento hatch — APENAS quando painel é reuso (não em todos)
+        # Por enquanto, desativado — será ativado quando JSON tiver campo 'reuse'
+        # O hatch que SEMPRE aparece é o das lajes (SCO-___-LAJ) — já implementado acima
 
         if has_laje_central and lc_h_d > 0.5:
             # Laje central: retângulo fechado + hachura ANSI31 (bylayer como STOG)
@@ -956,7 +959,8 @@ def draw_viga_lateral(msp, x_origin, y_top, viga_nome,
     h_sect = h_section if h_section else h_A
     y0_sect = y_top - h_A
     draw_section_detail(msp, x_sect_center, y0_sect, b, h_sect,
-                        viga_nome=viga_nome, b_alma=b_alma)
+                        viga_nome=viga_nome, b_alma=b_alma,
+                        h_A=h_A, h_B=h_B)
 
     y0_A = y_top - h_A
     draw_lv_face(msp, x_A, y0_A, panels_A, h_A, f'{viga_nome}.A',
