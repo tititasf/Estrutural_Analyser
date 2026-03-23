@@ -224,27 +224,34 @@ def draw_cima(msp, cx, cy, comp, larg, g1, nome, tipo_especial=None,
     tp = T_PERFIL * CIMA_SCALE
     te = T_EXT    * CIMA_SCALE
 
-    # 1. Núcleo do pilar (concreto) — COTA layer (AR-CONC)
+    # 1. Núcleo do pilar (concreto) — dupla hachura (COTA + Hachura)
     hatch_rect(msp, cx-hc, cy-hl, comp, larg, 'COTA', 'AR-CONC', scale=2.5)
+    hatch_rect(msp, cx-hc, cy-hl, comp, larg, 'Hachura', 'AR-CONC', scale=3.0)
     rect(msp, cx-hc, cy-hl, comp, larg, 'Painéis', lw=35)
 
     # 2. Chapas compensadas em todas as 4 faces (externas ao núcleo)
     # Chapas face A e C (horizontais, cobrindo comp + chapa B/D)
     rect(msp, cx-hc-tc, cy-hl-tc, comp+2*tc, tc, 'CHAPA', lw=18)  # Face A chapa
+    hatch_rect(msp, cx-hc-tc, cy-hl-tc, comp+2*tc, tc, 'Hachura', 'ANSI31', scale=1.5)
     rect(msp, cx-hc-tc, cy+hl,     comp+2*tc, tc, 'CHAPA', lw=18)  # Face C chapa
+    hatch_rect(msp, cx-hc-tc, cy+hl, comp+2*tc, tc, 'Hachura', 'ANSI31', scale=1.5)
     # Chapas face B e D (verticais)
     rect(msp, cx-hc-tc, cy-hl,    tc, larg, 'CHAPA', lw=18)  # Face B chapa
+    hatch_rect(msp, cx-hc-tc, cy-hl, tc, larg, 'Hachura', 'ANSI31', scale=1.5)
     rect(msp, cx+hc,    cy-hl,    tc, larg, 'CHAPA', lw=18)  # Face D chapa
+    hatch_rect(msp, cx+hc, cy-hl, tc, larg, 'Hachura', 'ANSI31', scale=1.5)
 
-    # 3. Sarrafos de madeira (externos às chapas)
+    # 3. Sarrafos de madeira (externos às chapas) + hachura ANSI31
     sw2 = SW * CIMA_SCALE
-    # Madeira face A e C (horizontais — mais largos pois cobrem as extremidades)
     ext = tc + tm
     rect(msp, cx-hc-ext, cy-hl-tc-tm, comp+2*ext, tm, 'Madeira', lw=18)  # Face A
+    hatch_rect(msp, cx-hc-ext, cy-hl-tc-tm, comp+2*ext, tm, 'Hachura', 'ANSI31', scale=1.0)
     rect(msp, cx-hc-ext, cy+hl+tc,    comp+2*ext, tm, 'Madeira', lw=18)  # Face C
-    # Madeira face B e D (verticais — apenas ao longo do pilar)
+    hatch_rect(msp, cx-hc-ext, cy+hl+tc, comp+2*ext, tm, 'Hachura', 'ANSI31', scale=1.0)
     rect(msp, cx-hc-tc-tm, cy-hl,   tm, larg, 'Madeira', lw=18)   # Face B
+    hatch_rect(msp, cx-hc-tc-tm, cy-hl, tm, larg, 'Hachura', 'ANSI31', scale=1.0)
     rect(msp, cx+hc+tc,    cy-hl,   tm, larg, 'Madeira', lw=18)   # Face D
+    hatch_rect(msp, cx+hc+tc, cy-hl, tm, larg, 'Hachura', 'ANSI31', scale=1.0)
 
     # 4. Perfis metálicos (gravatas) — 2 pares horizontal/vertical
     gx0 = cx - hc - ext - tp - te
@@ -604,8 +611,7 @@ def generate_card(msp, pj, card_x, card_y, folha_num=1, obra_nome=''):
 
             fx_iter += face_w + FACE_GAP
 
-        # ── COTAS FURAÇÃO (marcas de furo nos pontaletes) ────────────────────
-        # Parafusos par_1_2..par_8_9: distâncias entre furos consecutivos
+        # ── COTAS FURAÇÃO (marcas de furo nos pontaletes — todas as faces) ──
         par_keys = ['par_1_2','par_2_3','par_3_4','par_4_5','par_5_6','par_6_7','par_7_8','par_8_9']
         par_vals = []
         for pk in par_keys:
@@ -617,26 +623,19 @@ def generate_card(msp, pj, card_x, card_y, folha_num=1, obra_nome=''):
             if fv > 0:
                 par_vals.append(fv)
         if par_vals:
-            # Furos ao longo do pontalete esquerdo (vertical)
-            pont_x = face_a_x - 4.5  # centro do pontalete (7/2 = 3.5, offset -8+3.5)
-            y_furo = face_a_y
-            cross_r = 1.5  # raio da cruz de furo
-            for pv in par_vals:
-                y_furo += pv * FACE_H_SCALE
-                # Cruz (+) no layer COTAS FURACAO
-                msp.add_line((pont_x - cross_r, y_furo), (pont_x + cross_r, y_furo),
-                             dxfattribs={'layer': 'COTAS FURACAO', 'lineweight': 13})
-                msp.add_line((pont_x, y_furo - cross_r), (pont_x, y_furo + cross_r),
-                             dxfattribs={'layer': 'COTAS FURACAO', 'lineweight': 13})
-            # Furos no pontalete direito (espelhado)
-            pont_x_r = face_a_x + face_a_w + 4.5
-            y_furo = face_a_y
-            for pv in par_vals:
-                y_furo += pv * FACE_H_SCALE
-                msp.add_line((pont_x_r - cross_r, y_furo), (pont_x_r + cross_r, y_furo),
-                             dxfattribs={'layer': 'COTAS FURACAO', 'lineweight': 13})
-                msp.add_line((pont_x_r, y_furo - cross_r), (pont_x_r, y_furo + cross_r),
-                             dxfattribs={'layer': 'COTAS FURACAO', 'lineweight': 13})
+            cross_r = 1.5
+            # Desenhar furação na face A (primeira face)
+            fa_x = div_x + FACE_PAD_X
+            fa_y = face_y_bot
+            fa_w = fw.get('A', 30)
+            for pont_x in [fa_x - 4.5, fa_x + fa_w + 4.5]:
+                y_furo = fa_y
+                for pv in par_vals:
+                    y_furo += pv * FACE_H_SCALE
+                    msp.add_line((pont_x - cross_r, y_furo), (pont_x + cross_r, y_furo),
+                                 dxfattribs={'layer': 'COTAS FURACAO', 'lineweight': 13})
+                    msp.add_line((pont_x, y_furo - cross_r), (pont_x, y_furo + cross_r),
+                                 dxfattribs={'layer': 'COTAS FURACAO', 'lineweight': 13})
 
     return CARD_W, CARD_H
 

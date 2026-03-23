@@ -2,8 +2,8 @@
   {
     "label": "PL (ALIMONTI - PARAISO - TIPO - 3° AO 12° PAV.- PL - R00.dxf vs PL_stog_quality.dxf)",
     "real_total": 6829,
-    "gen_total": 3675,
-    "ratio": 0.54,
+    "gen_total": 4200,
+    "ratio": 0.62,
     "layers": [
       {
         "layer": "0",
@@ -41,6 +41,13 @@
         "status": "OK"
       },
       {
+        "layer": "COTAS FURACAO",
+        "real": 0,
+        "gen": 336,
+        "ratio": 0,
+        "status": "NEW"
+      },
+      {
         "layer": "Folhas",
         "real": 0,
         "gen": 105,
@@ -50,9 +57,9 @@
       {
         "layer": "Hachura",
         "real": 964,
-        "gen": 84,
-        "ratio": 0.09,
-        "status": "MISS"
+        "gen": 273,
+        "ratio": 0.28,
+        "status": "OK"
       },
       {
         "layer": "MEIO_PONT",
@@ -206,6 +213,420 @@
       "PONTALETE": 168,
       "MEIO PONTALETE": 168
     },
+    "verdict": "PASS"
+  },
+  {
+    "label": "LJ (ALIMONTI - PARAISO - TIPO - 3° AO 12° PAV.- LJ - R00.dxf vs LJ_stog_quality.dxf)",
+    "real_total": 1412,
+    "gen_total": 1915,
+    "ratio": 1.36,
+    "layers": [
+      {
+        "layer": "0",
+        "real": 6,
+        "gen": 0,
+        "ratio": 0.0,
+        "status": "MISS"
+      },
+      {
+        "layer": "1",
+        "real": 10,
+        "gen": 0,
+        "ratio": 0.0,
+        "status": "MISS"
+      },
+      {
+        "layer": "3",
+        "real": 827,
+        "gen": 197,
+        "ratio": 0.24,
+        "status": "OK"
+      },
+      {
+        "layer": "4",
+        "real": 99,
+        "gen": 55,
+        "ratio": 0.56,
+        "status": "OK"
+      },
+      {
+        "layer": "7",
+        "real": 35,
+        "gen": 132,
+        "ratio": 3.77,
+        "status": "OK"
+      },
+      {
+        "layer": "9",
+        "real": 33,
+        "gen": 110,
+        "ratio": 3.33,
+        "status": "OK"
+      },
+      {
+        "layer": "AUX00",
+        "real": 10,
+        "gen": 175,
+        "ratio": 17.5,
+        "status": "OK"
+      },
+      {
+        "layer": "CARIMBO",
+        "real": 0,
+        "gen": 165,
+        "ratio": 0,
+        "status": "NEW"
+      },
+      {
+        "layer": "COTA",
+        "real": 0,
+        "gen": 110,
+        "ratio": 0,
+        "status": "NEW"
+      },
+      {
+        "layer": "Folhas",
+        "real": 0,
+        "gen": 110,
+        "ratio": 0,
+        "status": "NEW"
+      },
+      {
+        "layer": "Hachura",
+        "real": 29,
+        "gen": 55,
+        "ratio": 1.9,
+        "status": "OK"
+      },
+      {
+        "layer": "Painéis",
+        "real": 336,
+        "gen": 393,
+        "ratio": 1.17,
+        "status": "OK"
+      },
+      {
+        "layer": "Pilares",
+        "real": 0,
+        "gen": 242,
+        "ratio": 0,
+        "status": "NEW"
+      },
+      {
+        "layer": "REAPROVEITAMENTO",
+        "real": 27,
+        "gen": 0,
+        "ratio": 0.0,
+        "status": "MISS"
+      },
+      {
+        "layer": "SARRAFO DE PRESSAO",
+        "real": 0,
+        "gen": 116,
+        "ratio": 0,
+        "status": "NEW"
+      },
+      {
+        "layer": "TEXTO_GERAL",
+        "real": 0,
+        "gen": 55,
+        "ratio": 0,
+        "status": "NEW"
+      }
+    ],
+    "real_inserts": {},
+    "gen_inserts": {},
+    "verdict": "PASS"
+  },
+  {
+    "label": "LV (ALIMONTI - PARAISO - TIPO - 3° AO 12° PAV.- LV - R00.dxf vs LV_stog_095745.dxf)",
+    "real_total": 5358,
+    "gen_total": 8237,
+    "ratio": 1.54,
+    "layers": [
+      {
+        "layer": "0",
+        "real": 0,
+        "gen": 560,
+        "ratio": 0,
+        "status": "NEW"
+      },
+      {
+        "layer": "5",
+        "real": 195,
+        "gen": 536,
+        "ratio": 2.75,
+        "status": "OK"
+      },
+      {
+        "layer": "CARIMBO",
+        "real": 21,
+        "gen": 12,
+        "ratio": 0.57,
+        "status": "OK"
+      },
+      {
+        "layer": "CONCRETO",
+        "real": 37,
+        "gen": 35,
+        "ratio": 0.95,
+        "status": "OK"
+      },
+      {
+        "layer": "COTA",
+        "real": 1398,
+        "gen": 1380,
+        "ratio": 0.99,
+        "status": "OK"
+      },
+      {
+        "layer": "Cota Seção (2x)",
+        "real": 70,
+        "gen": 35,
+        "ratio": 0.5,
+        "status": "OK"
+      },
+      {
+        "layer": "Cotas",
+        "real": 5,
+        "gen": 0,
+        "ratio": 0.0,
+        "status": "MISS"
+      },
+      {
+        "layer": "Folhas",
+        "real": 0,
+        "gen": 4,
+        "ratio": 0,
+        "status": "NEW"
+      },
+      {
+        "layer": "Hachura",
+        "real": 444,
+        "gen": 385,
+        "ratio": 0.87,
+        "status": "OK"
+      },
+      {
+        "layer": "Madeira",
+        "real": 293,
+        "gen": 315,
+        "ratio": 1.08,
+        "status": "OK"
+      },
+      {
+        "layer": "NOMENCLATURA",
+        "real": 44,
+        "gen": 70,
+        "ratio": 1.59,
+        "status": "OK"
+      },
+      {
+        "layer": "Painéis",
+        "real": 925,
+        "gen": 1428,
+        "ratio": 1.54,
+        "status": "OK"
+      },
+      {
+        "layer": "REAPROVEITAMENTO",
+        "real": 159,
+        "gen": 0,
+        "ratio": 0.0,
+        "status": "MISS"
+      },
+      {
+        "layer": "Reaproveitamento",
+        "real": 0,
+        "gen": 270,
+        "ratio": 0,
+        "status": "NEW"
+      },
+      {
+        "layer": "SARRAFO DE PRESSAO",
+        "real": 21,
+        "gen": 0,
+        "ratio": 0.0,
+        "status": "MISS"
+      },
+      {
+        "layer": "SARR_2.2x7",
+        "real": 1371,
+        "gen": 403,
+        "ratio": 0.29,
+        "status": "OK"
+      },
+      {
+        "layer": "SARR_3.5x7",
+        "real": 105,
+        "gen": 1584,
+        "ratio": 15.09,
+        "status": "OK"
+      },
+      {
+        "layer": "SARR_EDITAR",
+        "real": 33,
+        "gen": 0,
+        "ratio": 0.0,
+        "status": "MISS"
+      },
+      {
+        "layer": "SCO-___-LAJ",
+        "real": 0,
+        "gen": 577,
+        "ratio": 0,
+        "status": "NEW"
+      },
+      {
+        "layer": "TENSOR",
+        "real": 0,
+        "gen": 35,
+        "ratio": 0,
+        "status": "NEW"
+      },
+      {
+        "layer": "TEXTO PILAR",
+        "real": 5,
+        "gen": 0,
+        "ratio": 0.0,
+        "status": "MISS"
+      },
+      {
+        "layer": "Texto Seção",
+        "real": 116,
+        "gen": 70,
+        "ratio": 0.6,
+        "status": "OK"
+      },
+      {
+        "layer": "barrote",
+        "real": 0,
+        "gen": 35,
+        "ratio": 0,
+        "status": "NEW"
+      },
+      {
+        "layer": "detalhes",
+        "real": 116,
+        "gen": 105,
+        "ratio": 0.91,
+        "status": "OK"
+      },
+      {
+        "layer": "presilha",
+        "real": 0,
+        "gen": 140,
+        "ratio": 0,
+        "status": "NEW"
+      },
+      {
+        "layer": "texto",
+        "real": 0,
+        "gen": 258,
+        "ratio": 0,
+        "status": "NEW"
+      }
+    ],
+    "real_inserts": {
+      "9999999999": 21,
+      "titulo1": 33
+    },
+    "gen_inserts": {},
+    "verdict": "PASS"
+  },
+  {
+    "label": "FV (ALIMONTI - PARAISO - TIPO - 3° AO 12° PAV.- FV - R00.dxf vs FV_stog_quality.dxf)",
+    "real_total": 694,
+    "gen_total": 686,
+    "ratio": 0.99,
+    "layers": [
+      {
+        "layer": "0",
+        "real": 2,
+        "gen": 0,
+        "ratio": 0.0,
+        "status": "MISS"
+      },
+      {
+        "layer": "00 - FELIPE",
+        "real": 2,
+        "gen": 0,
+        "ratio": 0.0,
+        "status": "MISS"
+      },
+      {
+        "layer": "5",
+        "real": 78,
+        "gen": 68,
+        "ratio": 0.87,
+        "status": "OK"
+      },
+      {
+        "layer": "CARIMBO",
+        "real": 9,
+        "gen": 14,
+        "ratio": 1.56,
+        "status": "OK"
+      },
+      {
+        "layer": "COTA",
+        "real": 128,
+        "gen": 128,
+        "ratio": 1.0,
+        "status": "OK"
+      },
+      {
+        "layer": "Escoras",
+        "real": 0,
+        "gen": 171,
+        "ratio": 0,
+        "status": "NEW"
+      },
+      {
+        "layer": "Folhas",
+        "real": 0,
+        "gen": 4,
+        "ratio": 0,
+        "status": "NEW"
+      },
+      {
+        "layer": "NOMENCLATURA",
+        "real": 30,
+        "gen": 33,
+        "ratio": 1.1,
+        "status": "OK"
+      },
+      {
+        "layer": "Painéis",
+        "real": 172,
+        "gen": 68,
+        "ratio": 0.4,
+        "status": "OK"
+      },
+      {
+        "layer": "REAPROVEITAMENTO",
+        "real": 0,
+        "gen": 68,
+        "ratio": 0,
+        "status": "NEW"
+      },
+      {
+        "layer": "SARR_2.2x7",
+        "real": 239,
+        "gen": 132,
+        "ratio": 0.55,
+        "status": "OK"
+      },
+      {
+        "layer": "SARR_EDITAR",
+        "real": 34,
+        "gen": 0,
+        "ratio": 0.0,
+        "status": "MISS"
+      }
+    ],
+    "real_inserts": {},
+    "gen_inserts": {},
     "verdict": "PASS"
   }
 ]

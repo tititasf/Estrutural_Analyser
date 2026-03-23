@@ -225,6 +225,21 @@ def draw_laje_card(msp, lj_data, card_x, card_y, scale):
         ph = PONTALETE_W * scale
         rect(msp, lx, ly + yh - ph/2, w_s, ph, layer_line, lw=lw_val)
 
+    # ── Painéis individuais (LWPOLYLINE no layer Painéis — STOG: 336) ──────────
+    # Divide o polígono da laje em retângulos usando linhas V e H
+    v_vals = sorted(float(v.get('value', 0)) for v in lv)
+    h_vals = sorted(float(h.get('value', 0)) for h in lh)
+    x_edges = [0.0] + v_vals + [comprimento]
+    y_edges = [0.0] + h_vals + [largura]
+    for i in range(len(x_edges) - 1):
+        for j in range(len(y_edges) - 1):
+            px0 = lx + x_edges[i] * scale
+            py0 = ly + y_edges[j] * scale
+            pw = (x_edges[i+1] - x_edges[i]) * scale
+            ph = (y_edges[j+1] - y_edges[j]) * scale
+            if pw > 1 and ph > 1:
+                rect(msp, px0, py0, pw, ph, 'Painéis', lw=18)
+
     # ── AUX00 MTEXT (dados de painel — padrão STOG) ────────────────────────────
     # Calcular segmentos entre linhas verticais
     v_positions = sorted(float(v.get('value', 0)) for v in lv)
