@@ -326,92 +326,54 @@ def draw_cima(msp, cx, cy, comp, larg, g1, nome, tipo_especial=None,
 
 def draw_face(msp, fx, fy, face_w, h1, h2, h3, face_label):
     """
-    fx, fy      : canto inferior esquerdo da face
-    face_w      : largura da face (escala FACE_W_SCALE já aplicada)
-    h1/h2/h3    : alturas dos segmentos (escala FACE_H_SCALE já aplicada)
-    face_label  : ex: 'P1.A'
+    Desenha painel de fôrma (formato STOG real — retângulo simples com sarrafos verticais).
+    NÃO é uma elevação arquitetural com hatch. São painéis de compensado minimalistas.
+    fx, fy      : canto inferior esquerdo
+    face_w      : largura do painel (escala FACE_W_SCALE)
+    h1/h2/h3    : alturas dos segmentos (escala FACE_H_SCALE)
     """
     total_h = h1 + h2 + h3
     if total_h <= 0 or face_w <= 0:
         return total_h
 
-    # ── Segmentos do painel (de baixo para cima) ──
-    y_cur = fy
+    # ── Contorno do painel (retângulo simples — layer Painéis) ──
+    rect(msp, fx, fy, face_w, total_h, 'Painéis', lw=35)
 
-    # h1 (base/fechamento) — AR-CONC hatch, sem REAPROVEITAMENTO
-    if h1 > 0:
-        rect(msp, fx, y_cur, face_w, h1, 'Painéis', lw=18)
-        hatch_rect(msp, fx, y_cur, face_w, h1, 'COTA', 'AR-CONC', scale=2.0)
-        y_cur += h1
-
-    # h2 (painel principal) — AR-CONC fill da face + contorno Painéis
-    if h2 > 0:
-        rect(msp, fx, y_cur, face_w, h2, 'Painéis', lw=35)
-        hatch_rect(msp, fx, y_cur, face_w, h2, 'Hachura', 'AR-CONC', scale=4.0)
-        y_cur += h2
-
-    # h3 (fechamento topo) — AR-CONC + REAPROVEITAMENTO (reuso)
-    if h3 > 0:
-        rect(msp, fx, y_cur, face_w, h3, 'Painéis', lw=18)
-        hatch_rect(msp, fx, y_cur, face_w, h3, 'COTA', 'AR-CONC', scale=2.0)
-        hatch_rect(msp, fx, y_cur, face_w, h3, 'REAPROVEITAMENTO', 'ANSI31', scale=2.5)
-
-    # ── Linhas de sarrafo separando segmentos (SARR_2.2x7 padrão) ──
+    # ── Divisores horizontais entre segmentos ──
     if h1 > 0 and h2 > 0:
         msp.add_line((fx, fy+h1), (fx+face_w, fy+h1),
-                     dxfattribs={'layer': 'SARR_2.2x7', 'lineweight': 35})
+                     dxfattribs={'layer': 'Painéis', 'lineweight': 18})
     if h2 > 0 and h3 > 0:
         msp.add_line((fx, fy+h1+h2), (fx+face_w, fy+h1+h2),
-                     dxfattribs={'layer': 'SARR_2.2x7', 'lineweight': 35})
+                     dxfattribs={'layer': 'Painéis', 'lineweight': 18})
 
-    # ── Linha de nível (horizontal tracejada no topo) ──
-    msp.add_line((fx - 8, fy + total_h), (fx + face_w + 8, fy + total_h),
+    # ── Sarrafos VERTICAIS dentro do painel (formato STOG real) ──
+    # No STOG real, sarrafos são linhas verticais SARR_2.2x7 dentro do retângulo
+    sarr_w = 2.2 * FACE_W_SCALE
+    n_sarr = max(1, int(face_w / (8 * FACE_W_SCALE)))  # ~1 sarrafo a cada 8cm real
+    if n_sarr > 1:
+        spacing = face_w / (n_sarr + 1)
+        for i in range(1, n_sarr + 1):
+            sx = fx + i * spacing
+            msp.add_line((sx, fy), (sx, fy + total_h),
+                         dxfattribs={'layer': 'SARR_2.2x7', 'lineweight': 13})
+
+    # ── Linha de nível (horizontal tracejada) ──
+    msp.add_line((fx - 4, fy + total_h), (fx + face_w + 4, fy + total_h),
                  dxfattribs={'layer': 'Nível', 'linetype': 'DASHED'})
-    msp.add_line((fx - 8, fy), (fx + face_w + 8, fy),
+    msp.add_line((fx - 4, fy), (fx + face_w + 4, fy),
                  dxfattribs={'layer': 'Nível', 'linetype': 'DASHED'})
 
     # ── Dimensões ──
     dim_y = fy - DIM_OFFSET
-    dim_h(msp, fx, fx + face_w, dim_y, 'COTA')   # largura da face
+    dim_h(msp, fx, fx + face_w, dim_y, 'COTA')
     dim_x = fx + face_w + DIM_OFFSET
-    if h1 > 0:
-        dim_v(msp, fy, fy+h1, dim_x, 'COTA')
-    if h2 > 0:
-        dim_v(msp, fy+h1, fy+h1+h2, dim_x, 'COTA')
-    if h3 > 0:
-        dim_v(msp, fy+h1+h2, fy+total_h, dim_x, 'COTA')
+    dim_v(msp, fy, fy + total_h, dim_x, 'COTA')  # cota total (não por segmento)
 
-    # ── Label da face acima ──
-    lbl_h = max(7, face_w * 0.12)
-    mtext(msp, fx + face_w/2, fy + total_h + FACE_PAD_Y * 0.5,
+    # ── Label acima ──
+    lbl_h = max(5, face_w * 0.10)
+    mtext(msp, fx + face_w/2, fy + total_h + 5,
           face_label, height=lbl_h, layer='TEXTO_GERAL', anchor=8)
-
-    # ── Texto Seção: dimensões de cada segmento (STOG: 212 entities) ──
-    txt_h = max(3.5, face_w * 0.06)
-    h1_real = h1 / FACE_H_SCALE if h1 > 0 else 0
-    h2_real = h2 / FACE_H_SCALE if h2 > 0 else 0
-    h3_real = h3 / FACE_H_SCALE if h3 > 0 else 0
-    fw_real = face_w / FACE_W_SCALE
-
-    # Texto dentro de cada segmento (centralizado)
-    if h1 > 0:
-        mtext(msp, fx + face_w/2, fy + h1/2,
-              f'{h1_real:.0f}', height=txt_h, layer='Texto Seção', anchor=5)
-    if h2 > 0:
-        mtext(msp, fx + face_w/2, fy + h1 + h2/2,
-              f'{h2_real:.0f}', height=txt_h, layer='Texto Seção', anchor=5)
-    if h3 > 0:
-        mtext(msp, fx + face_w/2, fy + h1 + h2 + h3/2,
-              f'{h3_real:.0f}', height=txt_h, layer='Texto Seção', anchor=5)
-
-    # Texto lateral: largura da face (layer 'texto')
-    mtext(msp, fx - 3, fy + total_h/2,
-          f'{fw_real:.0f}', height=txt_h, layer='TEXTO_GERAL', anchor=6)
-
-    # Texto de altura total à direita (layer 'texto')
-    total_real = h1_real + h2_real + h3_real
-    mtext(msp, fx + face_w + DIM_OFFSET + 8, fy + total_h/2,
-          f'{total_real:.0f}', height=txt_h, layer='TEXTO_GERAL', anchor=4)
 
     return total_h
 
@@ -596,115 +558,28 @@ def generate_card(msp, pj, card_x, card_y, folha_num=1, obra_nome=''):
     mtext(msp, cima_cx, mid_cy - cima_larg/2 - 18, secao_str,
           height=6, layer='Texto Seção', anchor=8)
 
-    # ── GRADES (pontaletes + sarrafos em TODAS as faces) ───────────────────
+    # ── PONTALETE/MEIO_PONT — SÓ NA CIMA (não nas faces) ──────────────────
+    # No STOG real, blocos PONTALETE só aparecem na seção transversal (CIMA)
     grade_1 = float(pj.get('grade_1', 0))
-    grade_2 = float(pj.get('grade_2', 0))
-    grade_3 = float(pj.get('grade_3', 0))
-    dist_1 = float(pj.get('distancia_1', 14)) * FACE_H_SCALE
-    dist_2 = float(pj.get('distancia_2', 14)) * FACE_H_SCALE if grade_3 > 0 else 0
-
     if grade_1 > 0:
-        g1_s = grade_1 * FACE_H_SCALE
-        g2_s = grade_2 * FACE_H_SCALE if grade_2 > 0 else 0
-        g3_s = grade_3 * FACE_H_SCALE if grade_3 > 0 else 0
+        # PONTALETE nos 4 cantos da CIMA
+        for px, py in [
+            (cima_cx - cima_comp/2 - 10, mid_cy - cima_larg/2 - 10),
+            (cima_cx + cima_comp/2 + 3, mid_cy - cima_larg/2 - 10),
+            (cima_cx - cima_comp/2 - 10, mid_cy + cima_larg/2 + 3),
+            (cima_cx + cima_comp/2 + 3, mid_cy + cima_larg/2 + 3),
+        ]:
+            msp.add_blockref('PONTALETE', (px, py), dxfattribs={'layer': 'Madeira'})
+        # MEIO PONTALETE nos lados
+        grade_2 = float(pj.get('grade_2', 0))
+        if grade_2 > 0:
+            for px, py in [
+                (cima_cx - cima_comp/2 - 6, mid_cy),
+                (cima_cx + cima_comp/2 + 3, mid_cy),
+            ]:
+                msp.add_blockref('MEIO PONTALETE', (px, py), dxfattribs={'layer': 'Madeira'})
 
-        # Iterar sobre as 4 faces (posição X de cada face)
-        fx_iter = div_x + FACE_PAD_X
-        for fid in ['A', 'B', 'C', 'D']:
-            face_w = fw.get(fid, 30)
-            fy = face_y_bot
-
-            # PONTALETE esquerdo + direito
-            msp.add_blockref('PONTALETE', (fx_iter - 8, fy - 10),
-                             dxfattribs={'layer': 'Madeira'})
-            msp.add_blockref('PONTALETE', (fx_iter + face_w + 1, fy - 10),
-                             dxfattribs={'layer': 'Madeira'})
-
-            # SARR_2.2x7 horizontais (grade 1)
-            for gy in [fy, fy + g1_s]:
-                msp.add_line((fx_iter - 8, gy), (fx_iter + face_w + 8, gy),
-                             dxfattribs={'layer': 'SARR_2.2x7', 'lineweight': 18})
-
-            # SARRAFO legacy vertical nos pontaletes (layer SARRAFO — 302 no STOG)
-            for sx in [fx_iter - 5, fx_iter + face_w + 3]:
-                msp.add_line((sx, fy), (sx, fy + g1_s),
-                             dxfattribs={'layer': 'SARRAFO', 'lineweight': 25})
-
-            # MEIO PONTALETE entre grade 1 e grade 2
-            if grade_2 > 0:
-                mp_y = fy + g1_s + dist_1
-                msp.add_blockref('MEIO PONTALETE', (fx_iter - 5, mp_y),
-                                 dxfattribs={'layer': 'Madeira'})
-                msp.add_blockref('MEIO PONTALETE', (fx_iter + face_w + 1, mp_y),
-                                 dxfattribs={'layer': 'Madeira'})
-                # MEIO_PONT layer direto (59 no STOG — linhas representativas)
-                msp.add_line((fx_iter - 5, mp_y), (fx_iter - 5, mp_y + 3.5),
-                             dxfattribs={'layer': 'MEIO_PONT', 'lineweight': 25})
-
-            # SARRAFO DE PRESSAO (41 no STOG — linha horizontal entre grades)
-            msp.add_line((fx_iter, fy + g1_s), (fx_iter + face_w, fy + g1_s),
-                         dxfattribs={'layer': 'SARRAFO DE PRESSAO', 'lineweight': 18})
-
-            # Sarrafos tipados adicionais (STOG: SARR_2.2x10=21, SARR_3.5x7=21, SARR_7x7=14, Sarr 2.2x7=21)
-            # Sarr de amarração horizontal (SARR_2.2x10) no topo da grade
-            msp.add_line((fx_iter - 5, fy + g1_s - 2), (fx_iter + face_w + 5, fy + g1_s - 2),
-                         dxfattribs={'layer': 'SARR_2.2x10', 'lineweight': 13})
-            # Sarr especial (SARR_3.5x7) no meio da grade
-            msp.add_line((fx_iter + face_w/2 - 1.75, fy), (fx_iter + face_w/2 - 1.75, fy + g1_s),
-                         dxfattribs={'layer': 'SARR_3.5x7', 'lineweight': 18})
-            # Sarr reforço (SARR_7x7) na base
-            if g1_s > 20:
-                msp.add_line((fx_iter, fy + 3.5), (fx_iter + face_w, fy + 3.5),
-                             dxfattribs={'layer': 'SARR_7x7', 'lineweight': 25})
-            # Sarr 2.2x7 variante nome
-            msp.add_line((fx_iter + face_w/2 + 1.75, fy), (fx_iter + face_w/2 + 1.75, fy + g1_s),
-                         dxfattribs={'layer': 'Sarr 2.2x7', 'lineweight': 13})
-
-            # Texto legacy: label de grade nesta face (142 no STOG)
-            txt_gy = max(3, face_w * 0.05)
-            mtext(msp, fx_iter + face_w/2, fy + g1_s/2,
-                  f'G1={grade_1:.0f}', height=txt_gy, layer='texto', anchor=5)
-            if grade_2 > 0:
-                mtext(msp, fx_iter + face_w/2, fy + g1_s + dist_1 + g2_s/2,
-                      f'G2={grade_2:.0f}', height=txt_gy, layer='texto', anchor=5)
-                # SARR horizontais grade 2
-                for gy in [mp_y, mp_y + g2_s]:
-                    msp.add_line((fx_iter - 8, gy), (fx_iter + face_w + 8, gy),
-                                 dxfattribs={'layer': 'SARR_2.2x7', 'lineweight': 18})
-                # SARRAFO vertical grade 2
-                for sx in [fx_iter - 5, fx_iter + face_w + 3]:
-                    msp.add_line((sx, mp_y), (sx, mp_y + g2_s),
-                                 dxfattribs={'layer': 'SARRAFO', 'lineweight': 25})
-
-            # MEIO PONTALETE grade 3
-            if grade_3 > 0 and grade_2 > 0:
-                mp3_y = fy + g1_s + dist_1 + g2_s + dist_2
-                msp.add_blockref('MEIO PONTALETE', (fx_iter - 5, mp3_y),
-                                 dxfattribs={'layer': 'Madeira'})
-                msp.add_blockref('MEIO PONTALETE', (fx_iter + face_w + 1, mp3_y),
-                                 dxfattribs={'layer': 'Madeira'})
-
-            # COTAS das grades nesta face (vertical)
-            dim_gx = fx_iter + face_w + DIM_OFFSET + 20
-            # Grade 1
-            dim_v(msp, fy, fy + g1_s, dim_gx, 'COTA')
-            if grade_2 > 0:
-                # Distância 1
-                dim_v(msp, fy + g1_s, fy + g1_s + dist_1, dim_gx + 10, 'COTA')
-                # Grade 2
-                dim_v(msp, fy + g1_s + dist_1, fy + g1_s + dist_1 + g2_s, dim_gx, 'COTA')
-            if grade_3 > 0 and grade_2 > 0:
-                # Distância 2
-                dim_v(msp, fy + g1_s + dist_1 + g2_s, fy + g1_s + dist_1 + g2_s + dist_2, dim_gx + 10, 'COTA')
-                # Grade 3
-                dim_v(msp, fy + g1_s + dist_1 + g2_s + dist_2,
-                      fy + g1_s + dist_1 + g2_s + dist_2 + g3_s, dim_gx, 'COTA')
-            # Cota total altura (todas as grades)
-            total_grade_h = g1_s + (dist_1 + g2_s if grade_2 > 0 else 0) + (dist_2 + g3_s if grade_3 > 0 else 0)
-            if total_grade_h > g1_s:
-                dim_v(msp, fy, fy + total_grade_h, dim_gx + 20, 'COTA')
-
-            fx_iter += face_w + FACE_GAP
+        # (Cotas de grades removidas — grades ficam na CIMA, não nas faces)
 
         # ── COTAS FURAÇÃO (marcas de furo nos pontaletes — todas as faces) ──
         par_keys = ['par_1_2','par_2_3','par_3_4','par_4_5','par_5_6','par_6_7','par_7_8','par_8_9']
