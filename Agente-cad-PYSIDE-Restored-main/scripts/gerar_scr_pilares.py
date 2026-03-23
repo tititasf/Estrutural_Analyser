@@ -142,12 +142,11 @@ def gerar_scr_cima(comp, larg, nome='P1'):
         (-hc-pont_offset, hl+pont_offset-7),
         (hc+pont_offset-7, hl+pont_offset-7),
     ]:
-        lines.append('_INSERT')
+        lines.append('-INSERT')        # -INSERT (com hifen — formato SCR robot)
         lines.append('PONT')
         lines.append(f'{px:.1f},{py:.1f}')
-        lines.append('1')   # X scale
-        lines.append('1')   # Y scale
-        lines.append('0')   # rotation
+        lines.append('1')             # scale (uniforme)
+        lines.append('0')             # rotation
         lines.append(';')
 
     # Labels A/B/C/D — layer NOMENCLATURA (ACI 7 no MOLDE)
