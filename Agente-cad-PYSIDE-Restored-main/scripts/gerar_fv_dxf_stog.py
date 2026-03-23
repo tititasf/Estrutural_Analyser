@@ -111,19 +111,24 @@ def panel_poly(msp, x0, y0, w, h):
 
 def _sarr_h_offsets(b):
     """Calcula offsets Y das linhas horizontais SARR dado o b da viga (cm).
-    Engenharia reversa: b=14→[5,9], b=19→[7,12], b=24→[7,17],
-                        b=45→[7,19,26,38], b=100→[7,23,30,46,53,69,76,93]
+    Engenharia reversa STOG real:
+      b<19: sem linhas horizontais (apenas verticais em draw_sarr)
+      b=19→[7,12], b=24→[7,17], b=27→[7,20]
+      b=45→[7,19,26,38], b=100→[7,23,30,46,53,69,76,93]
     """
-    sarr_h = 7 if b >= 19 else 5
+    sarr_h = 7  # STOG real usa sarr_h=7 para TODOS os b (bug anterior: usava 5 para b<19)
+    if b < 2 * sarr_h + 1:
+        return []  # b muito pequeno — sem horizontais (só verticais)
+
     n_interior = max(0, int((b - 2 * sarr_h) / (SARR_MAX_GAP + sarr_h)))
     n_gaps     = n_interior + 1
     gap_size   = (b - (n_interior + 2) * sarr_h) / n_gaps
 
     offsets = [sarr_h]
     for _ in range(n_interior):
-        offsets.append(offsets[-1] + gap_size)    # fundo do sarrafo interior
-        offsets.append(offsets[-1] + sarr_h)      # topo do sarrafo interior
-    offsets.append(b - sarr_h)                    # fundo do sarrafo superior
+        offsets.append(offsets[-1] + gap_size)
+        offsets.append(offsets[-1] + sarr_h)
+    offsets.append(b - sarr_h)
     return offsets
 
 
@@ -265,11 +270,13 @@ def dim_viga_b(msp, x_right, y0, b):
         pass
 
 
-def draw_viga(msp, x0, y0, panels_json, viga_b, viga_nome):
+def draw_viga(msp, x0, y0, panels_json, viga_b, viga_nome,
+              pillar_left=None, pillar_right=None, holes=None):
     """
     Desenha uma viga fundo a partir de x0, y0 (canto inf-esq do 1º painel).
     panels_json: lista de dicts com 'width' (JSON original — comprimento preservado).
-    Aplica distribuição inteligente STOG (módulo 244cm) sobre o comprimento total.
+    pillar_left/right: dict com {active, width, length} — chanfros
+    holes: lista de 4 dicts [{active, width, height, position}] — aberturas
     Retorna comprimento total da viga.
     """
     comprimento = sum(float(p.get('width', 0)) for p in panels_json)
@@ -283,11 +290,8 @@ def draw_viga(msp, x0, y0, panels_json, viga_b, viga_nome):
     x_cur = x0
     for pw in panel_widths:
         panel_poly(msp, x_cur, y0, pw, viga_b)
-        # Reaproveitamento hatch (ANSI31 escala 1.0) — padrão STOG
-        rpts = [(x_cur, y0), (x_cur+pw, y0), (x_cur+pw, y0+viga_b), (x_cur, y0+viga_b)]
-        rh = msp.add_hatch(dxfattribs={'layer': 'REAPROVEITAMENTO'})
-        rh.set_pattern_fill('ANSI31', scale=1.0)
-        rh.paths.add_polyline_path(rpts, is_closed=True)
+        # Reaproveitamento — APENAS quando painel é reuso (desativado por padrão)
+        # Será ativado quando JSON tiver campo 'reuse' por painel
         x_cur += pw
 
     # ── Linhas SARR_2.2x7 (sarrafo interno) ───────────────────────────────
@@ -319,6 +323,58 @@ def draw_viga(msp, x0, y0, panels_json, viga_b, viga_nome):
 
     # ── Cota b vertical — lado direito ────────────────────────────────────
     dim_viga_b(msp, x0 + comprimento, y0, viga_b)
+
+    # ── Chanfros (pillar_left/right) — retângulo hachurado na borda ──────
+    if pillar_left and pillar_left.get('active'):
+        pl_w = float(pillar_left.get('width', 0)) or 25
+        pl_l = float(pillar_left.get('length', 0)) or viga_b
+        # Retângulo chanfro esquerdo (DASHED + hachura ANSI31)
+        pts = [(x0, y0), (x0 + pl_w, y0), (x0 + pl_w, y0 + pl_l), (x0, y0 + pl_l)]
+        msp.add_lwpolyline(pts, close=True,
+                           dxfattribs={'layer': 'Painéis', 'linetype': 'DASHED', 'lineweight': 25})
+        h = msp.add_hatch(dxfattribs={'layer': 'COTA'})
+        h.set_pattern_fill('ANSI31', scale=0.5)
+        h.paths.add_polyline_path(pts, is_closed=True)
+        add_text(msp, x0 + pl_w/2, y0 + pl_l/2, 'PILAR', 5, '5', halign=1, valign=2)
+
+    if pillar_right and pillar_right.get('active'):
+        pr_w = float(pillar_right.get('width', 0)) or 25
+        pr_l = float(pillar_right.get('length', 0)) or viga_b
+        rx = x0 + comprimento - pr_w
+        pts = [(rx, y0), (rx + pr_w, y0), (rx + pr_w, y0 + pr_l), (rx, y0 + pr_l)]
+        msp.add_lwpolyline(pts, close=True,
+                           dxfattribs={'layer': 'Painéis', 'linetype': 'DASHED', 'lineweight': 25})
+        h = msp.add_hatch(dxfattribs={'layer': 'COTA'})
+        h.set_pattern_fill('ANSI31', scale=0.5)
+        h.paths.add_polyline_path(pts, is_closed=True)
+        add_text(msp, rx + pr_w/2, y0 + pr_l/2, 'PILAR', 5, '5', halign=1, valign=2)
+
+    # ── Aberturas (holes) — retângulos DASHED nos 4 cantos ──────────────
+    if holes:
+        for i, hole in enumerate(holes):
+            if not hole.get('active'):
+                continue
+            hw = float(hole.get('width', 0))
+            hh = float(hole.get('height', 0))
+            hp = float(hole.get('position', 0))
+            if hw <= 0 or hh <= 0:
+                continue
+            # Posição: 0=topo-esq, 1=fundo-esq, 2=topo-dir, 3=fundo-dir
+            if i == 0:    # topo-esq
+                hx, hy = x0 + hp, y0 + viga_b - hh
+            elif i == 1:  # fundo-esq
+                hx, hy = x0 + hp, y0
+            elif i == 2:  # topo-dir
+                hx, hy = x0 + comprimento - hp - hw, y0 + viga_b - hh
+            else:         # fundo-dir
+                hx, hy = x0 + comprimento - hp - hw, y0
+            pts = [(hx, hy), (hx+hw, hy), (hx+hw, hy+hh), (hx, hy+hh)]
+            msp.add_lwpolyline(pts, close=True,
+                               dxfattribs={'layer': 'Painéis', 'linetype': 'DASHED', 'lineweight': 18})
+            ah = msp.add_hatch(dxfattribs={'layer': 'COTA'})
+            ah.set_pattern_fill('ANSI31', scale=0.3)
+            ah.paths.add_polyline_path(pts, is_closed=True)
+            add_text(msp, hx+hw/2, hy+hh/2, f'{hw:.0f}x{hh:.0f}', 4, '5', halign=1, valign=2)
 
     return comprimento
 
@@ -388,7 +444,12 @@ def main():
         panels = d.get('panels', [])
         comp   = sum(float(p.get('width', 0)) for p in panels)
         if comp > 0 and viga_b > 0:
-            vigas.append({'nome': vname, 'b': viga_b, 'comp': comp, 'panels': panels})
+            vigas.append({
+                'nome': vname, 'b': viga_b, 'comp': comp, 'panels': panels,
+                'pillar_left': d.get('pillar_left'),
+                'pillar_right': d.get('pillar_right'),
+                'holes': d.get('holes'),
+            })
 
     # ── Ordenar e empacotar em fileiras ──────────────────────────────────────
     vigas.sort(key=lambda v: (-v['b'], -v['comp']))
@@ -427,7 +488,9 @@ def main():
             # Desenhar alinhando topo de cada viga ao topo da fileira
             # (vigas com b menor ficam alinhadas ao topo)
             vy0 = y_row_bottom + (max_b - v['b'])   # alinha topo
-            draw_viga(msp, x_cursor, vy0, v['panels'], v['b'], v['nome'])
+            draw_viga(msp, x_cursor, vy0, v['panels'], v['b'], v['nome'],
+                      pillar_left=v.get('pillar_left'), pillar_right=v.get('pillar_right'),
+                      holes=v.get('holes'))
             print(f'  {v["nome"]:8s}: {v["comp"]:.0f}x{v["b"]:.0f}cm  row={row_idx}')
             x_cursor += v['comp'] + GAP_VIGAS
 
