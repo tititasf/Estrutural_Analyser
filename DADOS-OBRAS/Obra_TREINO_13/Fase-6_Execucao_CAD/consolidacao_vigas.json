@@ -1,0 +1,28 @@
+{
+  "lv_consolidados": 46,
+  "fv_consolidados": 46,
+  "sem_ancora": [
+    "V1501",
+    "V1503",
+    "V1505",
+    "V1506",
+    "V1514",
+    "V1521",
+    "V1526",
+    "V1527",
+    "V1528",
+    "V1530",
+    "V1531",
+    "V1532",
+    "V1540",
+    "V1541",
+    "V1542",
+    "V1544",
+    "V1546",
+    "V1603",
+    "V1626"
+  ],
+  "lv_output": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_13\\Fase-6_Execucao_CAD\\LV_gerado.dxf",
+  "fv_output": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_13\\Fase-6_Execucao_CAD\\FV_gerado.dxf",
+  "aprovado": true
+}

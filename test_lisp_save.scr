@@ -1,0 +1,18 @@
+_PLINE
+0,0
+100,0
+100,50
+0,50
+C
+
+_CIRCLE
+50,25
+20
+
+_ZOOM
+E
+
+(command "_SAVEAS" "DXF" "" "D:\Agente-cad-PYSIDE\test_via_lisp.dxf")
+
+_QUIT
+Y

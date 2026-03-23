@@ -1,0 +1,41 @@
+{
+  "numero": 14,
+  "nome": "L14",
+  "comprimento": 100.0,
+  "largura": 100.0,
+  "pavimento": "SANTA CRUZ-TER",
+  "coordenadas": [
+    [
+      191900.2,
+      40189.6
+    ],
+    [
+      191886.2,
+      40189.6
+    ],
+    [
+      191886.2,
+      40149.6
+    ],
+    [
+      191900.2,
+      40149.6
+    ],
+    [
+      191900.2,
+      40189.6
+    ]
+  ],
+  "area_cm2": 10000.0,
+  "linhas_verticais": [
+    {
+      "value": 100.0,
+      "is_union": false
+    }
+  ],
+  "linhas_horizontais": [],
+  "obstaculos": [],
+  "modo_selecionado": 0,
+  "unioes_nos_bordes": false,
+  "observacoes": ""
+}

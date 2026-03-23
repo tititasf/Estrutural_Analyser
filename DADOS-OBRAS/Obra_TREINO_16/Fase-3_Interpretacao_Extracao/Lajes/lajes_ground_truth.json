@@ -1,0 +1,241 @@
+{
+  "L2": {
+    "comprimento": null,
+    "largura": null,
+    "coordenadas": [
+      [
+        190711.8,
+        39967.2
+      ],
+      [
+        191055.3,
+        39967.2
+      ],
+      [
+        191055.3,
+        39927.2
+      ],
+      [
+        190711.8,
+        39927.2
+      ]
+    ],
+    "area_cm2": null,
+    "confidence": 0.25,
+    "source": "engenharia-reversa-ezdxf",
+    "nota": "Dims requerem verificação manual"
+  },
+  "L3": {
+    "comprimento": null,
+    "largura": null,
+    "coordenadas": [
+      [
+        191113.0,
+        40100.7
+      ],
+      [
+        192069.3,
+        40100.7
+      ],
+      [
+        192069.3,
+        40140.7
+      ],
+      [
+        191113.0,
+        40140.7
+      ]
+    ],
+    "area_cm2": null,
+    "confidence": 0.25,
+    "source": "engenharia-reversa-ezdxf",
+    "nota": "Dims requerem verificação manual"
+  },
+  "L4": {
+    "comprimento": null,
+    "largura": null,
+    "coordenadas": [
+      [
+        193785.3,
+        40140.7
+      ],
+      [
+        192606.3,
+        40140.7
+      ],
+      [
+        192606.3,
+        40100.7
+      ],
+      [
+        193785.3,
+        40100.7
+      ]
+    ],
+    "area_cm2": null,
+    "confidence": 0.25,
+    "source": "engenharia-reversa-ezdxf",
+    "nota": "Dims requerem verificação manual"
+  },
+  "L5": {
+    "comprimento": null,
+    "largura": null,
+    "coordenadas": [
+      [
+        193785.3,
+        40140.7
+      ],
+      [
+        192606.3,
+        40140.7
+      ],
+      [
+        192606.3,
+        40100.7
+      ],
+      [
+        193785.3,
+        40100.7
+      ]
+    ],
+    "area_cm2": null,
+    "confidence": 0.25,
+    "source": "engenharia-reversa-ezdxf",
+    "nota": "Dims requerem verificação manual"
+  },
+  "L6": {
+    "comprimento": null,
+    "largura": null,
+    "coordenadas": [
+      [
+        193785.3,
+        40140.7
+      ],
+      [
+        192606.3,
+        40140.7
+      ],
+      [
+        192606.3,
+        40100.7
+      ],
+      [
+        193785.3,
+        40100.7
+      ]
+    ],
+    "area_cm2": null,
+    "confidence": 0.25,
+    "source": "engenharia-reversa-ezdxf",
+    "nota": "Dims requerem verificação manual"
+  },
+  "L7": {
+    "comprimento": null,
+    "largura": null,
+    "coordenadas": [
+      [
+        191894.0,
+        38477.7
+      ],
+      [
+        190715.0,
+        38477.7
+      ],
+      [
+        190715.0,
+        38437.7
+      ],
+      [
+        191894.0,
+        38437.7
+      ]
+    ],
+    "area_cm2": null,
+    "confidence": 0.25,
+    "source": "engenharia-reversa-ezdxf",
+    "nota": "Dims requerem verificação manual"
+  },
+  "L8": {
+    "comprimento": null,
+    "largura": null,
+    "coordenadas": [
+      [
+        191894.0,
+        38477.7
+      ],
+      [
+        190715.0,
+        38477.7
+      ],
+      [
+        190715.0,
+        38437.7
+      ],
+      [
+        191894.0,
+        38437.7
+      ]
+    ],
+    "area_cm2": null,
+    "confidence": 0.25,
+    "source": "engenharia-reversa-ezdxf",
+    "nota": "Dims requerem verificação manual"
+  },
+  "L9": {
+    "comprimento": null,
+    "largura": null,
+    "coordenadas": [
+      [
+        192431.3,
+        38437.7
+      ],
+      [
+        193387.5,
+        38437.7
+      ],
+      [
+        193387.5,
+        38477.7
+      ],
+      [
+        192431.3,
+        38477.7
+      ]
+    ],
+    "area_cm2": null,
+    "confidence": 0.25,
+    "source": "engenharia-reversa-ezdxf",
+    "nota": "Dims requerem verificação manual"
+  },
+  "L10": {
+    "comprimento": null,
+    "largura": null,
+    "coordenadas": [
+      [
+        192431.3,
+        38437.7
+      ],
+      [
+        193387.5,
+        38437.7
+      ],
+      [
+        193387.5,
+        38477.7
+      ],
+      [
+        192431.3,
+        38477.7
+      ]
+    ],
+    "area_cm2": null,
+    "confidence": 0.25,
+    "source": "engenharia-reversa-ezdxf",
+    "nota": "Dims requerem verificação manual"
+  },
+  "_meta": {
+    "total": 9,
+    "pavimento": "VALDIR NIEMEYER-TP2",
+    "extraido_em": "2026-03-09"
+  }
+}

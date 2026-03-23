@@ -1,0 +1,53 @@
+{
+  "obra": "Obra_TREINO_1",
+  "pavimento": "TÉRREO",
+  "elementos": {
+    "pilares": {
+      "tipo": "pilares",
+      "gt_count": 22,
+      "gerado_count": 21,
+      "correct": 21,
+      "hallucinated": [],
+      "missed": [
+        "P30"
+      ],
+      "id_match": 0.9545,
+      "hallucination_rate": 0.0,
+      "count_match": 0.9545,
+      "score": 0.9727,
+      "score_percent": 97.3,
+      "aprovado": true
+    },
+    "vigas": {
+      "tipo": "vigas",
+      "gt_count": 31,
+      "gerado_count": 31,
+      "correct": 31,
+      "hallucinated": [],
+      "missed": [],
+      "id_match": 1.0,
+      "hallucination_rate": 0.0,
+      "count_match": 1.0,
+      "score": 1.0,
+      "score_percent": 100.0,
+      "aprovado": true
+    },
+    "lajes": {
+      "tipo": "lajes",
+      "gt_count": 22,
+      "gerado_count": 22,
+      "correct": 22,
+      "hallucinated": [],
+      "missed": [],
+      "id_match": 1.0,
+      "hallucination_rate": 0.0,
+      "count_match": 1.0,
+      "score": 1.0,
+      "score_percent": 100.0,
+      "aprovado": true
+    }
+  },
+  "score_global": 0.9891,
+  "score_global_percent": 98.9,
+  "aprovado": true
+}

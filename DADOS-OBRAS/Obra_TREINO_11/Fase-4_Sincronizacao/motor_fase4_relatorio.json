@@ -1,0 +1,11 @@
+{
+  "obra": "Obra_TREINO_11",
+  "pavimento": "GWT-TIP",
+  "stats": {
+    "pilares": 26,
+    "vigas": 28,
+    "lajes": 12,
+    "errors": 0
+  },
+  "output_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_11\\Fase-4_Sincronizacao"
+}

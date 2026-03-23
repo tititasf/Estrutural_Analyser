@@ -1,0 +1,11 @@
+{
+  "obra": "Obra_TREINO_9",
+  "pavimento": "TORRE 2 - TÉRREO - PERIFERIA",
+  "stats": {
+    "pilares": 15,
+    "vigas": 17,
+    "lajes": 27,
+    "errors": 0
+  },
+  "output_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_9\\Fase-4_Sincronizacao"
+}

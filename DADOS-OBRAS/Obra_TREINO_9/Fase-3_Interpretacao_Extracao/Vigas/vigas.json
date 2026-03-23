@@ -1,0 +1,197 @@
+{
+  "V302": {
+    "b": 15.0,
+    "h": 120.0,
+    "comprimento": 279.5,
+    "confidence": 0.695,
+    "source": "vigas_dim+default",
+    "sides": [
+      "A",
+      "B"
+    ]
+  },
+  "V303": {
+    "b": 15.0,
+    "h": 120.0,
+    "comprimento": 244.0,
+    "confidence": 0.695,
+    "source": "vigas_dim+default",
+    "sides": [
+      "A",
+      "B"
+    ]
+  },
+  "V307": {
+    "b": 15.0,
+    "h": 120.0,
+    "comprimento": 244.0,
+    "confidence": 0.695,
+    "source": "vigas_dim+default",
+    "sides": [
+      "A",
+      "B"
+    ]
+  },
+  "V309": {
+    "b": 15.0,
+    "h": 120.0,
+    "comprimento": 244.0,
+    "confidence": 0.695,
+    "source": "vigas_dim+default",
+    "sides": [
+      "A",
+      "B"
+    ]
+  },
+  "V312": {
+    "b": 15.0,
+    "h": 120.0,
+    "comprimento": 244.0,
+    "confidence": 0.695,
+    "source": "vigas_dim+default",
+    "sides": [
+      "A",
+      "B"
+    ]
+  },
+  "V316": {
+    "b": 15.0,
+    "h": 120.0,
+    "comprimento": 244.0,
+    "confidence": 0.695,
+    "source": "vigas_dim+default",
+    "sides": [
+      "A",
+      "B"
+    ]
+  },
+  "V320": {
+    "b": 15.0,
+    "h": 120.0,
+    "comprimento": 244.0,
+    "confidence": 0.695,
+    "source": "vigas_dim+default",
+    "sides": [
+      "A",
+      "B"
+    ]
+  },
+  "V323": {
+    "b": 15.0,
+    "h": 120.0,
+    "comprimento": 244.0,
+    "confidence": 0.67,
+    "source": "vigas_dim+default",
+    "sides": [
+      "A",
+      "B"
+    ]
+  },
+  "V324": {
+    "b": 15.0,
+    "h": 120.0,
+    "comprimento": 244.0,
+    "confidence": 0.695,
+    "source": "vigas_dim+default",
+    "sides": [
+      "A",
+      "B"
+    ]
+  },
+  "V327": {
+    "b": 15.0,
+    "h": 120.0,
+    "comprimento": 441.0,
+    "confidence": 0.67,
+    "source": "vigas_dim+default",
+    "sides": [
+      "A",
+      "B"
+    ]
+  },
+  "V330": {
+    "b": 15.0,
+    "h": 120.0,
+    "comprimento": 441.0,
+    "confidence": 0.67,
+    "source": "vigas_dim+default",
+    "sides": [
+      "A",
+      "B"
+    ]
+  },
+  "V331": {
+    "b": 15.0,
+    "h": 120.0,
+    "comprimento": 279.5,
+    "confidence": 0.695,
+    "source": "vigas_dim+default",
+    "sides": [
+      "A",
+      "B"
+    ]
+  },
+  "V333": {
+    "b": 15.0,
+    "h": 120.0,
+    "comprimento": 742.0,
+    "confidence": 0.67,
+    "source": "vigas_dim+default",
+    "sides": [
+      "A",
+      "B"
+    ]
+  },
+  "V334": {
+    "b": 15.0,
+    "h": 60.0,
+    "comprimento": 750.0,
+    "confidence": 0.695,
+    "source": "vigas_dim+default",
+    "sides": [
+      "A",
+      "B"
+    ]
+  },
+  "V335": {
+    "b": 15.0,
+    "h": 120.0,
+    "comprimento": 279.5,
+    "confidence": 0.695,
+    "source": "vigas_dim+default",
+    "sides": [
+      "A",
+      "B"
+    ]
+  },
+  "V336": {
+    "b": 15.0,
+    "h": 38.0,
+    "comprimento": 279.5,
+    "confidence": 0.695,
+    "source": "vigas_dim+default",
+    "sides": [
+      "A",
+      "B"
+    ]
+  },
+  "V337": {
+    "b": 15.0,
+    "h": 120.0,
+    "comprimento": 279.5,
+    "confidence": 0.645,
+    "source": "vigas_dim+default",
+    "sides": [
+      "A",
+      "B"
+    ]
+  },
+  "_meta": {
+    "total": 16,
+    "integrado_em": "2026-03-08",
+    "fontes": [
+      "vigas_dim.json",
+      "vigas_largura.json"
+    ]
+  }
+}

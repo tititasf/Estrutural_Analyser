@@ -37,6 +37,20 @@ MotorFase4         = getattr(motor_mod, 'MotorFase4', None)
 QualityVerifier    = getattr(qv_mod, 'QualityVerifier', None)
 TextProximitySearch = getattr(tps_mod, 'TextProximitySearch', None)
 
+# ── RAG Imports (graceful degradation) ─────────────────────────────────────
+_RAG_OK = False
+try:
+    _SCRIPTS_DIR = Path(__file__).parent
+    if str(_SCRIPTS_DIR) not in sys.path:
+        sys.path.insert(0, str(_SCRIPTS_DIR))
+    from rag_anomaly_detector import AnomalyDetector
+    from rag_pre_stog_gate    import PreStogGate, carregar_elementos_fase3
+    _RAG_OK = True
+except Exception as _e_rag:
+    AnomalyDetector       = None
+    PreStogGate           = None
+    carregar_elementos_fase3 = None
+
 # ── Helpers de DB ───────────────────────────────────────────────────────────
 
 def load_obra_data(conn, work_name: str) -> dict:
@@ -279,6 +293,19 @@ def ceo_audit_score(resultados: list) -> dict:
     return {'dimensoes': dims, 'score_100': round(score_100, 1)}
 
 
+# ── RAG Gate Score Helper ─────────────────────────────────────────────────────
+
+def _rag_gate_score(rag_results: list) -> float:
+    """
+    Converte resultados do PreStogGate em score 0.0-1.0.
+      PASS = 1.0 | SKIP = 0.7 (sem dados) | FAIL = 0.0
+    """
+    if not rag_results:
+        return 0.5  # sem dados RAG
+    pesos = {'PASS': 1.0, 'SKIP': 0.7, 'FAIL': 0.0}
+    return sum(pesos.get(r.gate, 0) for r in rag_results) / len(rag_results)
+
+
 # ── Main ─────────────────────────────────────────────────────────────────────
 
 def main():
@@ -330,6 +357,43 @@ def main():
         print("Nenhum resultado.")
         return
 
+    # ── RAG Anomaly Gate ─────────────────────────────────────────────────────
+    rag_gate_results = []
+    print("\n" + "=" * 75)
+    if _RAG_OK and DADOS_DIR.exists():
+        gate = PreStogGate()
+        print("[RAG ANOMALY GATE]")
+        print(f"  {'Status':<7} {'Obra':<28} {'Elem':>5} {'Blk':>4} {'Warn':>5} {'ScoreM':>7}")
+        print("  " + "-" * 62)
+        for obra in obras:
+            try:
+                gr = gate.run(obra, obras_dir=DADOS_DIR)
+                rag_gate_results.append(gr)
+                tag = {'PASS': '[PASS]', 'FAIL': '[FAIL]', 'SKIP': '[SKIP]'}.get(gr.gate, '[?]')
+                score_m = ''
+                if gr.anomaly_report and gr.anomaly_report.scores:
+                    score_m = f"{gr.anomaly_report.score_medio:.3f}"
+                print(
+                    f"  {tag} {obra:<27} "
+                    f"n={gr.n_elementos:>3} "
+                    f"b={gr.n_bloqueados:>2} "
+                    f"w={gr.n_avisos:>3} "
+                    f"anom={score_m}"
+                )
+            except Exception as ex_rag:
+                print(f"  [ERR] {obra}: {ex_rag}")
+
+        n_pass = sum(1 for g in rag_gate_results if g.gate == 'PASS')
+        n_fail = sum(1 for g in rag_gate_results if g.gate == 'FAIL')
+        n_skip = sum(1 for g in rag_gate_results if g.gate == 'SKIP')
+        rag_score_global = _rag_gate_score(rag_gate_results)
+        print(f"\n  RAG Gate: PASS={n_pass} FAIL={n_fail} SKIP={n_skip} "
+              f"| Score={rag_score_global:.1%}")
+    else:
+        reason = "rag_anomaly_detector nao disponivel" if not _RAG_OK else f"DADOS-OBRAS nao encontrado: {DADOS_DIR}"
+        print(f"[RAG ANOMALY GATE] AUSENTE ({reason})")
+        rag_score_global = None
+
     # Score CEO-AUDIT
     audit = ceo_audit_score(resultados)
     dims = audit.get('dimensoes', {})
@@ -353,6 +417,11 @@ def main():
         v = dims.get(dk, 0)
         bar = '#' * int(v * 10)
         print(f"  {dk} {label:28} {v*10:4.1f}/10  [{bar:<10}]")
+
+    # D_RAG — Validação semântica (bônus, separado dos 10 dims)
+    if rag_score_global is not None:
+        bar_rag = '#' * int(rag_score_global * 10)
+        print(f"  D_RAG {'RAG Anomaly Gate':28} {rag_score_global*10:4.1f}/10  [{bar_rag:<10}]  (bonus)")
 
     print(f"\n  SCORE TOTAL: {score_total:.1f}/100")
     meta = 85.0

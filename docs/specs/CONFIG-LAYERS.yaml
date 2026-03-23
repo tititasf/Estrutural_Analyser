@@ -1,0 +1,426 @@
+# CONFIG-LAYERS.yaml — Configuração de Layers CAD-ANALYZER
+# Fonte: dxf_reverso_analise.json + agente_estrutural.py
+# Versão: 1.0.0 | Data: 2026-03-19
+# Uso: normalizar layers de qualquer firma para canonical names
+#
+# Algoritmo de família (agente_estrutural._detect_family):
+#   METHODUS → qualquer layer com prefixo "MTH-"
+#   EBERICK  → >15% dos layers com prefixo "TX"
+#   TQS      → >30% dos layers são numéricos (^\d+$)
+#   BIM      → layers descritivos (CONCRETO, PAINEI, BEAM, etc.) — PADRÃO
+
+meta:
+  version: "1.0.0"
+  date: "2026-03-19"
+  total_layers_mapped: 85
+  families: [BIM, TQS, METHODUS, EBERICK]
+  encoding_note: |
+    Arquivos DXF podem ser salvos em CP1252 (Windows) ou UTF-8.
+    Layers com acentos (Painéis, Vázio, Demarcação) podem chegar corrompidos.
+    Sempre normalizar com: unicodedata.normalize('NFKD', s).encode('ascii','ignore').decode().upper()
+
+# ---------------------------------------------------------------------------
+# DETECÇÃO DE FAMÍLIA
+# ---------------------------------------------------------------------------
+family_detection:
+  METHODUS:
+    rule: "any layer starts with 'MTH-'"
+    example_layers: ["MTH-PILAR", "MTH-VIGA", "MTH-LAJE"]
+  EBERICK:
+    rule: ">15% of layers start with 'TX'"
+    example_layers: ["TX_COL", "TX_BEAM", "TX_SLAB"]
+  TQS:
+    rule: ">30% of layers match /^\\d+$/"
+    example_layers: ["1", "2", "3", "S-COLS", "S-BEAM"]
+  BIM:
+    rule: "any layer contains BIM keywords"
+    keywords: [CONCRETO, PAINEI, BEAM, COLUMN, SLAB, PILAR, VIGA, LAJE, "F-", "S-"]
+    default: true  # fallback para obras sem família clara
+
+# ---------------------------------------------------------------------------
+# LAYERS — PILARES (elemento PL)
+# ---------------------------------------------------------------------------
+pilares:
+
+  ELEMENT_LABEL:
+    description: "Textos com IDs de elementos (P1, V1, L1)"
+    aliases:
+      - NOMENCLATURA       # 14/14 arquivos PL — canônico ALIMONTI
+      - TEXTO_GERAL        # 13/14 — alternativo
+      - texto              # 14/14 — genérico
+      - "00 - FELIPE"      # 7/14 — firma específica
+      - EST-PILAR-TEXT     # LJ — textos de pilar na planta de laje
+      - EST-LAJE-TEXT      # LJ — textos de laje
+    families: [BIM, TQS, METHODUS, EBERICK]
+    confidence: HIGH
+    entities_used: [TEXT, MTEXT]
+
+  PANEL_GEOMETRY:
+    description: "Contorno dos painéis de fôrma (LWPOLYLINE fechada)"
+    aliases:
+      - "Painéis"          # canônico — com acento (pode vir corrompido)
+      - PAINEIS            # sem acento — normalizado
+      - "Pain?is"          # corrompido CP1252
+      - PAINEL             # singular
+      - Paneis             # sem acento alternativo
+    families: [BIM]
+    confidence: HIGH
+    entities_used: [LWPOLYLINE]
+    note: "Encoding fix necessário: normalize_layer('Painéis') == 'PAINEIS'"
+
+  WOOD_BATTEN:
+    description: "Sarrafos genéricos de madeira"
+    aliases:
+      - SARRAFO            # 14/14
+      - "SARRAFO DE PRESSAO" # dashed — sarrafo de pressão
+      - "Sarrafo de Pressão" # com acento — alias
+      - SARRAFO_PRESSAO    # sem espaço
+    families: [BIM]
+    confidence: HIGH
+    entities_used: [LWPOLYLINE, LINE]
+
+  BATTEN_2x7:
+    description: "Sarrafo 2,2x7 cm — mais comum"
+    aliases:
+      - SARR_2.2x7         # 14/14
+      - "Sarr 2.2x7"       # 11/14 — com espaço
+    families: [BIM]
+    confidence: HIGH
+
+  BATTEN_2x10:
+    description: "Sarrafo 2,2x10 cm"
+    aliases:
+      - SARR_2.2x10
+      - SARR_2.2x15
+      - SARR_2.2x20
+    families: [BIM]
+    confidence: HIGH
+
+  BATTEN_3x7:
+    description: "Sarrafo 3,5x7 cm"
+    aliases:
+      - SARR_3.5x7
+      - SARR_3.5x10
+    families: [BIM]
+    confidence: HIGH
+
+  BATTEN_7x7:
+    description: "Sarrafo 7x7 cm — cantos de pilar"
+    aliases:
+      - SARR_7x7
+      - SARR_7x10
+    families: [BIM]
+    confidence: HIGH
+
+  PLATE_GEOMETRY:
+    description: "Chapas de compensado"
+    aliases:
+      - CHAPA              # 13/14
+    families: [BIM]
+    confidence: HIGH
+
+  ANCHOR_BAR_PL:
+    description: "Barras de ancoragem — formato pilar"
+    aliases:
+      - "BARRA ANCORAGEM"  # 14/14 em PL
+    families: [BIM]
+    confidence: HIGH
+    note: "DIFERENTE de 'BARRA DE ANCORAGEM' em LV — mesmo significado, nome diferente!"
+
+  ELEVATION_MARK:
+    description: "Marcações de nível (cota Z)"
+    aliases:
+      - NIVEL              # 14/14
+      - "Nível"            # com acento
+      - "N?vel"            # corrompido
+      - "NIVEL 1° PAV."
+      - "NIVEL 2° PAV."
+      - "Texto Nível"
+    families: [BIM]
+    confidence: HIGH
+    entities_used: [TEXT, MTEXT]
+
+  DIMENSION_LINES:
+    description: "Linhas e textos de cotas — ignorados na extração"
+    aliases:
+      - COTA               # 14/14
+      - cotas              # 13/14
+      - "Cota Seção (2x)"
+      - "COTAS FURAÇ"
+    families: [BIM]
+    confidence: N/A
+    robot_uses: false
+
+  SECTION_TEXT:
+    description: "Textos com dimensões de seção transversal (20x50, b=20 h=50)"
+    aliases:
+      - "Texto Seção"      # 13/14
+      - "Texto de Titulo"  # 13/14
+      - "Texto Qtd Sarr"   # 13/14
+    families: [BIM]
+    confidence: HIGH
+    entities_used: [TEXT, MTEXT]
+
+  PROP_LAYER:
+    description: "Pontaletes direto em layer (alternativo a INSERT)"
+    aliases:
+      - PONTALETE          # 5/14
+      - "1-2 PONTALETE"
+      - MEIO_PONT          # 11/14
+    families: [BIM]
+    confidence: MEDIUM
+
+  CLAMP_LAYER:
+    description: "Gravatas e abraçadeiras metálicas"
+    aliases:
+      - GRAVATA            # 5/14
+    families: [BIM]
+    confidence: MEDIUM
+
+  TQS_COLUMN:
+    description: "Pilar em família TQS (layers numéricos)"
+    aliases:
+      - S-COLS             # 2/14
+      - "1"                # 2/14 — layer numérico TQS
+      - "2"
+      - "3"
+    families: [TQS]
+    confidence: MEDIUM
+
+  TQS_BEAM:
+    description: "Viga em família TQS"
+    aliases:
+      - S-BEAM             # 2/14
+    families: [TQS]
+    confidence: MEDIUM
+
+  PILLAR_FACE:
+    description: "Faces do pilar por orientação"
+    aliases:
+      - "F-PILARES-S"      # Face Sul — 3/14
+    families: [BIM]
+    confidence: LOW
+
+# ---------------------------------------------------------------------------
+# LAYERS — VIGAS (elemento LV)
+# ---------------------------------------------------------------------------
+vigas:
+
+  BEAM_BOTTOM:
+    description: "Fundo de Viga (FV) — elemento crítico"
+    aliases:
+      - fundo              # 14/14 LV — canônico
+      - FUNDOS             # 2/14
+      - "Fundo da Viga"
+      - "fundo viga"
+    families: [BIM]
+    confidence: HIGH
+    entities_used: [LINE, LWPOLYLINE]
+    critical: true
+    note: "Distingue LV (Painéis) de FV (fundo) — diferença estrutural fundamental"
+
+  SHORING:
+    description: "Escoras de apoio de viga"
+    aliases:
+      - Escoras            # 14/14
+      - "Escora de Viga"   # 1/14
+    families: [BIM]
+    confidence: HIGH
+
+  FORK_METAL:
+    description: "Garfos metálicos HT20CT"
+    aliases:
+      - GARFOS             # 14/14
+    families: [BIM]
+    confidence: HIGH
+    entities_used: [INSERT, LINE]
+
+  CLAMP_METAL:
+    description: "Presilhas metálicas"
+    aliases:
+      - presilha           # 14/14 LV
+      - Presilha           # alias capitalizado
+      - PRESILHA
+    families: [BIM]
+    confidence: HIGH
+
+  ANCHOR_BAR_LV:
+    description: "Barras de ancoragem — formato viga"
+    aliases:
+      - "BARRA DE ANCORAGEM"  # 14/14 em LV
+    families: [BIM]
+    confidence: HIGH
+    note: "DIFERENTE de 'BARRA ANCORAGEM' em PL — mesmo significado!"
+
+  SPACER:
+    description: "Espaçadores da viga"
+    aliases:
+      - Forcador           # 14/14
+    families: [BIM]
+    confidence: HIGH
+
+  PLYWOOD_MATERIAL:
+    description: "Material do compensado (anotações)"
+    aliases:
+      - "material do compensado"  # 14/14
+    families: [BIM]
+    confidence: MEDIUM
+    robot_uses: false
+
+  SLAB_INTERFACE:
+    description: "Interface laje-viga (onde laje apoia na viga)"
+    aliases:
+      - "SCO-___-LAJ"      # 14/14
+    families: [BIM]
+    confidence: HIGH
+
+  BATTEN_BEAM:
+    description: "Barrotes da viga"
+    aliases:
+      - barrote            # 14/14
+    families: [BIM]
+    confidence: HIGH
+
+  DETAIL_LAYER:
+    description: "Detalhes construtivos — geralmente ignorados"
+    aliases:
+      - detalhes           # 14/14
+    families: [BIM]
+    confidence: LOW
+    robot_uses: false
+
+# ---------------------------------------------------------------------------
+# LAYERS — LAJES (elemento LJ)
+# ---------------------------------------------------------------------------
+lajes:
+
+  SLAB_TEXT:
+    description: "Textos com IDs de lajes (L1, L2…)"
+    aliases:
+      - EST-LAJE-TEXT      # principal em LJ
+      - NOMENCLATURA       # alternativo
+      - EST-TEXT           # genérico
+    families: [BIM]
+    confidence: HIGH
+    entities_used: [TEXT, MTEXT]
+
+  PILLAR_CUTOUT:
+    description: "Recortes de pilares no contorno da laje"
+    aliases:
+      - Pilares            # layer Pilares na planta de laje
+      - EST-PILAR          # símbolo estrutural
+      - EST-PILAR-CUT      # contorno de corte
+    families: [BIM]
+    confidence: HIGH
+    entities_used: [LWPOLYLINE]
+
+  BEAM_INTERFACE_LJ:
+    description: "Interface de vigas na laje"
+    aliases:
+      - VIGAS              # layer VIGAS na planta de laje
+      - EST-VIGA           # símbolo estrutural
+      - EST-VIGA-TEXT      # texto de viga
+    families: [BIM]
+    confidence: HIGH
+
+  REUSE_STATUS:
+    description: "Estado de reaproveitamento de painéis"
+    aliases:
+      - REAPROVEITAMENTO
+    families: [BIM]
+    confidence: HIGH
+    entities_used: [LWPOLYLINE, TEXT]
+    values: [BOM, REGULAR, RUIM, DESCARTE]
+
+  VOID_OPENING:
+    description: "Vazios e aberturas na laje — ENCODING CRÍTICO"
+    aliases:
+      - "Vázio"            # com acento — pode corromper
+      - Vazio              # sem acento
+      - "V?zio"            # CP1252 corrompido
+      - ABERTURA
+      - ABERTURAS
+      - BURACO
+      - VOID
+    families: [BIM]
+    confidence: HIGH
+    entities_used: [LWPOLYLINE]
+    encoding_warning: true
+    note: "Sempre usar normalize_layer() antes de comparar"
+
+  STRUCTURAL_SYMBOL:
+    description: "Símbolos estruturais gerais"
+    aliases:
+      - EST-SIMB
+      - "EST-SIMB-Spot Elevations"
+    families: [BIM]
+    confidence: LOW
+
+  PILLAR_TEXT:
+    description: "Textos de pilares na planta de laje"
+    aliases:
+      - EST-PILAR-TEXT
+    families: [BIM]
+    confidence: MEDIUM
+
+  SLAB_SPOT:
+    description: "Spot elevations e cotas de nível na laje"
+    aliases:
+      - "EST-SIMB-Spot Elevations"
+    families: [BIM]
+    confidence: MEDIUM
+
+# ---------------------------------------------------------------------------
+# LAYERS UNIVERSAIS (presentes em todos os elementos)
+# ---------------------------------------------------------------------------
+universal:
+
+  TITLE_BLOCK:
+    description: "Carimbo do projeto — sempre ignorado"
+    aliases:
+      - CARIMBO
+    robot_uses: false
+
+  SHEET_BORDER:
+    description: "Borda da folha"
+    aliases:
+      - Folhas
+      - FOLHA
+    robot_uses: false
+
+  CONCRETE_FILL:
+    description: "Hachura de concreto — ignorada"
+    aliases:
+      - CONCRETO
+    robot_uses: false
+
+  HATCH_GENERAL:
+    description: "Hachuras gerais — ignoradas"
+    aliases:
+      - Hachura
+      - "HACHURA MADEIRAS"
+      - HACHURACONCRETO
+    robot_uses: false
+
+  DEFAULT:
+    description: "Layer 0 padrão — geometria genérica"
+    aliases:
+      - "0"
+    confidence: LOW
+
+# ---------------------------------------------------------------------------
+# CÓDIGO PYTHON — normalize_layer()
+# ---------------------------------------------------------------------------
+# Incluir em qualquer módulo que compare layer names:
+#
+# import unicodedata
+# def normalize_layer(name: str) -> str:
+#     """Normaliza layer name para comparação insensível a acentos e case."""
+#     nfkd = unicodedata.normalize('NFKD', str(name))
+#     ascii_only = nfkd.encode('ascii', 'ignore').decode()
+#     return ascii_only.upper().strip()
+#
+# # Uso:
+# norm = normalize_layer
+# if norm(layer) in (norm('Painéis'), 'PAINEIS', 'PAINEL'):
+#     element_type = 'PANEL_GEOMETRY'

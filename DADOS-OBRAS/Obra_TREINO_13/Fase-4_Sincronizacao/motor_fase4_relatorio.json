@@ -1,0 +1,11 @@
+{
+  "obra": "Obra_TREINO_13",
+  "pavimento": "TIPO",
+  "stats": {
+    "pilares": 24,
+    "vigas": 46,
+    "lajes": 32,
+    "errors": 0
+  },
+  "output_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_13\\Fase-4_Sincronizacao"
+}

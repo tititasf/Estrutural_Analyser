@@ -1,0 +1,41 @@
+{
+  "numero": 1510,
+  "nome": "L1510",
+  "comprimento": 100.0,
+  "largura": 100.0,
+  "pavimento": "TIPO",
+  "coordenadas": [
+    [
+      0.0,
+      0.0
+    ],
+    [
+      100.0,
+      0.0
+    ],
+    [
+      100.0,
+      100.0
+    ],
+    [
+      0.0,
+      100.0
+    ],
+    [
+      0.0,
+      0.0
+    ]
+  ],
+  "area_cm2": 10000.0,
+  "linhas_verticais": [
+    {
+      "value": 100.0,
+      "is_union": false
+    }
+  ],
+  "linhas_horizontais": [],
+  "obstaculos": [],
+  "modo_selecionado": 0,
+  "unioes_nos_bordes": false,
+  "observacoes": ""
+}

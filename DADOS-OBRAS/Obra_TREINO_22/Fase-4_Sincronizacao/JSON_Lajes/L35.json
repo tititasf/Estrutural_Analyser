@@ -1,0 +1,45 @@
+{
+  "numero": 35,
+  "nome": "L35",
+  "comprimento": 122.0,
+  "largura": 244.0,
+  "pavimento": "2 PAV",
+  "coordenadas": [
+    [
+      4750.5,
+      848.9
+    ],
+    [
+      4769.5,
+      848.9
+    ],
+    [
+      4769.5,
+      943.9
+    ],
+    [
+      4750.5,
+      943.9
+    ],
+    [
+      4750.5,
+      848.9
+    ]
+  ],
+  "area_cm2": 29768.0,
+  "linhas_verticais": [
+    {
+      "value": 100.0,
+      "is_union": false
+    },
+    {
+      "value": 122.0,
+      "is_union": false
+    }
+  ],
+  "linhas_horizontais": [],
+  "obstaculos": [],
+  "modo_selecionado": 0,
+  "unioes_nos_bordes": false,
+  "observacoes": ""
+}

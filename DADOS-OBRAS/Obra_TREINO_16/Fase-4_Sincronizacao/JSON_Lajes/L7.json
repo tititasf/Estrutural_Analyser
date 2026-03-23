@@ -1,0 +1,37 @@
+{
+  "numero": 7,
+  "nome": "L7",
+  "comprimento": 100.0,
+  "largura": 100.0,
+  "pavimento": "VALDIR NIEMEYER-TP2",
+  "coordenadas": [
+    [
+      191894.0,
+      38477.7
+    ],
+    [
+      190715.0,
+      38477.7
+    ],
+    [
+      190715.0,
+      38437.7
+    ],
+    [
+      191894.0,
+      38437.7
+    ]
+  ],
+  "area_cm2": 10000.0,
+  "linhas_verticais": [
+    {
+      "value": 100.0,
+      "is_union": false
+    }
+  ],
+  "linhas_horizontais": [],
+  "obstaculos": [],
+  "modo_selecionado": 0,
+  "unioes_nos_bordes": false,
+  "observacoes": ""
+}

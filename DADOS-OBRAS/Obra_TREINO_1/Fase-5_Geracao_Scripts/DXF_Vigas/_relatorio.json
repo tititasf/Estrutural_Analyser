@@ -1,0 +1,320 @@
+{
+  "_meta": {
+    "total": 31,
+    "erros": 0,
+    "pavimento": "TÉRREO",
+    "output_dir": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-5_Geracao_Scripts\\DXF_Vigas"
+  },
+  "vigas": {
+    "V101": {
+      "vid": "V101",
+      "b": 15.0,
+      "h": 120.0,
+      "comprimento": 518.0,
+      "n_paineis_a": 5,
+      "n_paineis_b": 5,
+      "n_paineis_fundo": 5,
+      "path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-5_Geracao_Scripts\\DXF_Vigas\\V101.dxf"
+    },
+    "V102": {
+      "vid": "V102",
+      "b": 15.0,
+      "h": 120.0,
+      "comprimento": 336.6,
+      "n_paineis_a": 3,
+      "n_paineis_b": 3,
+      "n_paineis_fundo": 3,
+      "path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-5_Geracao_Scripts\\DXF_Vigas\\V102.dxf"
+    },
+    "V103": {
+      "vid": "V103",
+      "b": 15.0,
+      "h": 120.0,
+      "comprimento": 244.0,
+      "n_paineis_a": 3,
+      "n_paineis_b": 3,
+      "n_paineis_fundo": 3,
+      "path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-5_Geracao_Scripts\\DXF_Vigas\\V103.dxf"
+    },
+    "V104": {
+      "vid": "V104",
+      "b": 15.0,
+      "h": 120.0,
+      "comprimento": 369.0,
+      "n_paineis_a": 4,
+      "n_paineis_b": 4,
+      "n_paineis_fundo": 4,
+      "path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-5_Geracao_Scripts\\DXF_Vigas\\V104.dxf"
+    },
+    "V105": {
+      "vid": "V105",
+      "b": 15.0,
+      "h": 38.0,
+      "comprimento": 717.0,
+      "n_paineis_a": 6,
+      "n_paineis_b": 6,
+      "n_paineis_fundo": 6,
+      "path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-5_Geracao_Scripts\\DXF_Vigas\\V105.dxf"
+    },
+    "V106": {
+      "vid": "V106",
+      "b": 15.0,
+      "h": 38.0,
+      "comprimento": 717.0,
+      "n_paineis_a": 6,
+      "n_paineis_b": 6,
+      "n_paineis_fundo": 6,
+      "path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-5_Geracao_Scripts\\DXF_Vigas\\V106.dxf"
+    },
+    "V107": {
+      "vid": "V107",
+      "b": 15.0,
+      "h": 120.0,
+      "comprimento": 369.0,
+      "n_paineis_a": 4,
+      "n_paineis_b": 4,
+      "n_paineis_fundo": 4,
+      "path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-5_Geracao_Scripts\\DXF_Vigas\\V107.dxf"
+    },
+    "V108": {
+      "vid": "V108",
+      "b": 15.0,
+      "h": 120.0,
+      "comprimento": 358.0,
+      "n_paineis_a": 3,
+      "n_paineis_b": 3,
+      "n_paineis_fundo": 3,
+      "path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-5_Geracao_Scripts\\DXF_Vigas\\V108.dxf"
+    },
+    "V109": {
+      "vid": "V109",
+      "b": 15.0,
+      "h": 38.0,
+      "comprimento": 237.0,
+      "n_paineis_a": 2,
+      "n_paineis_b": 2,
+      "n_paineis_fundo": 2,
+      "path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-5_Geracao_Scripts\\DXF_Vigas\\V109.dxf"
+    },
+    "V110": {
+      "vid": "V110",
+      "b": 15.0,
+      "h": 370.0,
+      "comprimento": 578.0,
+      "n_paineis_a": 5,
+      "n_paineis_b": 5,
+      "n_paineis_fundo": 5,
+      "path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-5_Geracao_Scripts\\DXF_Vigas\\V110.dxf"
+    },
+    "V111": {
+      "vid": "V111",
+      "b": 15.0,
+      "h": 38.0,
+      "comprimento": 407.5,
+      "n_paineis_a": 4,
+      "n_paineis_b": 4,
+      "n_paineis_fundo": 4,
+      "path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-5_Geracao_Scripts\\DXF_Vigas\\V111.dxf"
+    },
+    "V112": {
+      "vid": "V112",
+      "b": 15.0,
+      "h": 370.0,
+      "comprimento": 578.0,
+      "n_paineis_a": 5,
+      "n_paineis_b": 5,
+      "n_paineis_fundo": 5,
+      "path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-5_Geracao_Scripts\\DXF_Vigas\\V112.dxf"
+    },
+    "V114": {
+      "vid": "V114",
+      "b": 15.0,
+      "h": 38.0,
+      "comprimento": 469.0,
+      "n_paineis_a": 4,
+      "n_paineis_b": 4,
+      "n_paineis_fundo": 4,
+      "path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-5_Geracao_Scripts\\DXF_Vigas\\V114.dxf"
+    },
+    "V115": {
+      "vid": "V115",
+      "b": 15.0,
+      "h": 38.0,
+      "comprimento": 469.0,
+      "n_paineis_a": 4,
+      "n_paineis_b": 4,
+      "n_paineis_fundo": 4,
+      "path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-5_Geracao_Scripts\\DXF_Vigas\\V115.dxf"
+    },
+    "V116": {
+      "vid": "V116",
+      "b": 15.0,
+      "h": 38.0,
+      "comprimento": 469.0,
+      "n_paineis_a": 4,
+      "n_paineis_b": 4,
+      "n_paineis_fundo": 4,
+      "path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-5_Geracao_Scripts\\DXF_Vigas\\V116.dxf"
+    },
+    "V117": {
+      "vid": "V117",
+      "b": 15.0,
+      "h": 48.0,
+      "comprimento": 440.0,
+      "n_paineis_a": 4,
+      "n_paineis_b": 4,
+      "n_paineis_fundo": 4,
+      "path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-5_Geracao_Scripts\\DXF_Vigas\\V117.dxf"
+    },
+    "V118": {
+      "vid": "V118",
+      "b": 15.0,
+      "h": 38.0,
+      "comprimento": 440.0,
+      "n_paineis_a": 4,
+      "n_paineis_b": 4,
+      "n_paineis_fundo": 4,
+      "path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-5_Geracao_Scripts\\DXF_Vigas\\V118.dxf"
+    },
+    "V119": {
+      "vid": "V119",
+      "b": 15.0,
+      "h": 38.0,
+      "comprimento": 444.5,
+      "n_paineis_a": 4,
+      "n_paineis_b": 4,
+      "n_paineis_fundo": 4,
+      "path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-5_Geracao_Scripts\\DXF_Vigas\\V119.dxf"
+    },
+    "V120": {
+      "vid": "V120",
+      "b": 15.0,
+      "h": 120.0,
+      "comprimento": 578.0,
+      "n_paineis_a": 5,
+      "n_paineis_b": 5,
+      "n_paineis_fundo": 5,
+      "path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-5_Geracao_Scripts\\DXF_Vigas\\V120.dxf"
+    },
+    "V121": {
+      "vid": "V121",
+      "b": 15.0,
+      "h": 100.0,
+      "comprimento": 444.5,
+      "n_paineis_a": 4,
+      "n_paineis_b": 4,
+      "n_paineis_fundo": 4,
+      "path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-5_Geracao_Scripts\\DXF_Vigas\\V121.dxf"
+    },
+    "V123": {
+      "vid": "V123",
+      "b": 15.0,
+      "h": 120.0,
+      "comprimento": 425.0,
+      "n_paineis_a": 4,
+      "n_paineis_b": 4,
+      "n_paineis_fundo": 4,
+      "path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-5_Geracao_Scripts\\DXF_Vigas\\V123.dxf"
+    },
+    "V124": {
+      "vid": "V124",
+      "b": 15.0,
+      "h": 120.0,
+      "comprimento": 648.0,
+      "n_paineis_a": 6,
+      "n_paineis_b": 6,
+      "n_paineis_fundo": 6,
+      "path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-5_Geracao_Scripts\\DXF_Vigas\\V124.dxf"
+    },
+    "V125": {
+      "vid": "V125",
+      "b": 15.0,
+      "h": 120.0,
+      "comprimento": 445.0,
+      "n_paineis_a": 4,
+      "n_paineis_b": 4,
+      "n_paineis_fundo": 4,
+      "path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-5_Geracao_Scripts\\DXF_Vigas\\V125.dxf"
+    },
+    "V126": {
+      "vid": "V126",
+      "b": 15.0,
+      "h": 38.0,
+      "comprimento": 618.0,
+      "n_paineis_a": 6,
+      "n_paineis_b": 6,
+      "n_paineis_fundo": 6,
+      "path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-5_Geracao_Scripts\\DXF_Vigas\\V126.dxf"
+    },
+    "V127": {
+      "vid": "V127",
+      "b": 15.0,
+      "h": 38.0,
+      "comprimento": 444.0,
+      "n_paineis_a": 4,
+      "n_paineis_b": 4,
+      "n_paineis_fundo": 4,
+      "path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-5_Geracao_Scripts\\DXF_Vigas\\V127.dxf"
+    },
+    "V128": {
+      "vid": "V128",
+      "b": 15.0,
+      "h": 38.0,
+      "comprimento": 444.0,
+      "n_paineis_a": 4,
+      "n_paineis_b": 4,
+      "n_paineis_fundo": 4,
+      "path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-5_Geracao_Scripts\\DXF_Vigas\\V128.dxf"
+    },
+    "V129": {
+      "vid": "V129",
+      "b": 15.0,
+      "h": 38.0,
+      "comprimento": 302.0,
+      "n_paineis_a": 3,
+      "n_paineis_b": 3,
+      "n_paineis_fundo": 3,
+      "path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-5_Geracao_Scripts\\DXF_Vigas\\V129.dxf"
+    },
+    "V130": {
+      "vid": "V130",
+      "b": 15.0,
+      "h": 38.0,
+      "comprimento": 202.0,
+      "n_paineis_a": 2,
+      "n_paineis_b": 2,
+      "n_paineis_fundo": 2,
+      "path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-5_Geracao_Scripts\\DXF_Vigas\\V130.dxf"
+    },
+    "V131": {
+      "vid": "V131",
+      "b": 15.0,
+      "h": 28.0,
+      "comprimento": 251.0,
+      "n_paineis_a": 3,
+      "n_paineis_b": 3,
+      "n_paineis_fundo": 3,
+      "path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-5_Geracao_Scripts\\DXF_Vigas\\V131.dxf"
+    },
+    "V132": {
+      "vid": "V132",
+      "b": 15.0,
+      "h": 38.0,
+      "comprimento": 482.0,
+      "n_paineis_a": 5,
+      "n_paineis_b": 5,
+      "n_paineis_fundo": 5,
+      "path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-5_Geracao_Scripts\\DXF_Vigas\\V132.dxf"
+    },
+    "V133": {
+      "vid": "V133",
+      "b": 15.0,
+      "h": 120.0,
+      "comprimento": 445.0,
+      "n_paineis_a": 4,
+      "n_paineis_b": 4,
+      "n_paineis_fundo": 4,
+      "path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-5_Geracao_Scripts\\DXF_Vigas\\V133.dxf"
+    }
+  }
+}

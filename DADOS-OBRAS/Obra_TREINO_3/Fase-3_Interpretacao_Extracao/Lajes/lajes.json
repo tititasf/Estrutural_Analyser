@@ -1,0 +1,489 @@
+{
+  "L5": {
+    "comprimento": 100.0,
+    "largura": 100.0,
+    "coordenadas": [
+      [
+        0.0,
+        0.0
+      ],
+      [
+        100.0,
+        0.0
+      ],
+      [
+        100.0,
+        100.0
+      ],
+      [
+        0.0,
+        100.0
+      ],
+      [
+        0.0,
+        0.0
+      ]
+    ],
+    "area_cm2": 10000.0,
+    "confidence": 0.3,
+    "source": "label-only",
+    "modo_selecionado": 0
+  },
+  "L6": {
+    "comprimento": 100.0,
+    "largura": 100.0,
+    "coordenadas": [
+      [
+        0.0,
+        0.0
+      ],
+      [
+        100.0,
+        0.0
+      ],
+      [
+        100.0,
+        100.0
+      ],
+      [
+        0.0,
+        100.0
+      ],
+      [
+        0.0,
+        0.0
+      ]
+    ],
+    "area_cm2": 10000.0,
+    "confidence": 0.3,
+    "source": "label-only",
+    "modo_selecionado": 0
+  },
+  "L7": {
+    "comprimento": 100.0,
+    "largura": 100.0,
+    "coordenadas": [
+      [
+        0.0,
+        0.0
+      ],
+      [
+        100.0,
+        0.0
+      ],
+      [
+        100.0,
+        100.0
+      ],
+      [
+        0.0,
+        100.0
+      ],
+      [
+        0.0,
+        0.0
+      ]
+    ],
+    "area_cm2": 10000.0,
+    "confidence": 0.3,
+    "source": "label-only",
+    "modo_selecionado": 0
+  },
+  "L8": {
+    "comprimento": 100.0,
+    "largura": 100.0,
+    "coordenadas": [
+      [
+        0.0,
+        0.0
+      ],
+      [
+        100.0,
+        0.0
+      ],
+      [
+        100.0,
+        100.0
+      ],
+      [
+        0.0,
+        100.0
+      ],
+      [
+        0.0,
+        0.0
+      ]
+    ],
+    "area_cm2": 10000.0,
+    "confidence": 0.3,
+    "source": "label-only",
+    "modo_selecionado": 0
+  },
+  "L14": {
+    "comprimento": 100.0,
+    "largura": 100.0,
+    "coordenadas": [
+      [
+        0.0,
+        0.0
+      ],
+      [
+        100.0,
+        0.0
+      ],
+      [
+        100.0,
+        100.0
+      ],
+      [
+        0.0,
+        100.0
+      ],
+      [
+        0.0,
+        0.0
+      ]
+    ],
+    "area_cm2": 10000.0,
+    "confidence": 0.3,
+    "source": "label-only",
+    "modo_selecionado": 0
+  },
+  "L15": {
+    "comprimento": 100.0,
+    "largura": 100.0,
+    "coordenadas": [
+      [
+        0.0,
+        0.0
+      ],
+      [
+        100.0,
+        0.0
+      ],
+      [
+        100.0,
+        100.0
+      ],
+      [
+        0.0,
+        100.0
+      ],
+      [
+        0.0,
+        0.0
+      ]
+    ],
+    "area_cm2": 10000.0,
+    "confidence": 0.3,
+    "source": "label-only",
+    "modo_selecionado": 0
+  },
+  "L16": {
+    "comprimento": 100.0,
+    "largura": 100.0,
+    "coordenadas": [
+      [
+        0.0,
+        0.0
+      ],
+      [
+        100.0,
+        0.0
+      ],
+      [
+        100.0,
+        100.0
+      ],
+      [
+        0.0,
+        100.0
+      ],
+      [
+        0.0,
+        0.0
+      ]
+    ],
+    "area_cm2": 10000.0,
+    "confidence": 0.3,
+    "source": "label-only",
+    "modo_selecionado": 0
+  },
+  "L17": {
+    "comprimento": 100.0,
+    "largura": 100.0,
+    "coordenadas": [
+      [
+        0.0,
+        0.0
+      ],
+      [
+        100.0,
+        0.0
+      ],
+      [
+        100.0,
+        100.0
+      ],
+      [
+        0.0,
+        100.0
+      ],
+      [
+        0.0,
+        0.0
+      ]
+    ],
+    "area_cm2": 10000.0,
+    "confidence": 0.3,
+    "source": "label-only",
+    "modo_selecionado": 0
+  },
+  "L26": {
+    "comprimento": 100.0,
+    "largura": 100.0,
+    "coordenadas": [
+      [
+        0.0,
+        0.0
+      ],
+      [
+        100.0,
+        0.0
+      ],
+      [
+        100.0,
+        100.0
+      ],
+      [
+        0.0,
+        100.0
+      ],
+      [
+        0.0,
+        0.0
+      ]
+    ],
+    "area_cm2": 10000.0,
+    "confidence": 0.3,
+    "source": "label-only",
+    "modo_selecionado": 0
+  },
+  "L27": {
+    "comprimento": 100.0,
+    "largura": 100.0,
+    "coordenadas": [
+      [
+        0.0,
+        0.0
+      ],
+      [
+        100.0,
+        0.0
+      ],
+      [
+        100.0,
+        100.0
+      ],
+      [
+        0.0,
+        100.0
+      ],
+      [
+        0.0,
+        0.0
+      ]
+    ],
+    "area_cm2": 10000.0,
+    "confidence": 0.3,
+    "source": "label-only",
+    "modo_selecionado": 0
+  },
+  "L28": {
+    "comprimento": 100.0,
+    "largura": 100.0,
+    "coordenadas": [
+      [
+        0.0,
+        0.0
+      ],
+      [
+        100.0,
+        0.0
+      ],
+      [
+        100.0,
+        100.0
+      ],
+      [
+        0.0,
+        100.0
+      ],
+      [
+        0.0,
+        0.0
+      ]
+    ],
+    "area_cm2": 10000.0,
+    "confidence": 0.3,
+    "source": "label-only",
+    "modo_selecionado": 0
+  },
+  "L29": {
+    "comprimento": 100.0,
+    "largura": 100.0,
+    "coordenadas": [
+      [
+        0.0,
+        0.0
+      ],
+      [
+        100.0,
+        0.0
+      ],
+      [
+        100.0,
+        100.0
+      ],
+      [
+        0.0,
+        100.0
+      ],
+      [
+        0.0,
+        0.0
+      ]
+    ],
+    "area_cm2": 10000.0,
+    "confidence": 0.3,
+    "source": "label-only",
+    "modo_selecionado": 0
+  },
+  "L30": {
+    "comprimento": 100.0,
+    "largura": 100.0,
+    "coordenadas": [
+      [
+        0.0,
+        0.0
+      ],
+      [
+        100.0,
+        0.0
+      ],
+      [
+        100.0,
+        100.0
+      ],
+      [
+        0.0,
+        100.0
+      ],
+      [
+        0.0,
+        0.0
+      ]
+    ],
+    "area_cm2": 10000.0,
+    "confidence": 0.3,
+    "source": "label-only",
+    "modo_selecionado": 0
+  },
+  "L31": {
+    "comprimento": 100.0,
+    "largura": 100.0,
+    "coordenadas": [
+      [
+        0.0,
+        0.0
+      ],
+      [
+        100.0,
+        0.0
+      ],
+      [
+        100.0,
+        100.0
+      ],
+      [
+        0.0,
+        100.0
+      ],
+      [
+        0.0,
+        0.0
+      ]
+    ],
+    "area_cm2": 10000.0,
+    "confidence": 0.3,
+    "source": "label-only",
+    "modo_selecionado": 0
+  },
+  "L32": {
+    "comprimento": 100.0,
+    "largura": 100.0,
+    "coordenadas": [
+      [
+        0.0,
+        0.0
+      ],
+      [
+        100.0,
+        0.0
+      ],
+      [
+        100.0,
+        100.0
+      ],
+      [
+        0.0,
+        100.0
+      ],
+      [
+        0.0,
+        0.0
+      ]
+    ],
+    "area_cm2": 10000.0,
+    "confidence": 0.3,
+    "source": "label-only",
+    "modo_selecionado": 0
+  },
+  "L34": {
+    "comprimento": 100.0,
+    "largura": 100.0,
+    "coordenadas": [
+      [
+        0.0,
+        0.0
+      ],
+      [
+        100.0,
+        0.0
+      ],
+      [
+        100.0,
+        100.0
+      ],
+      [
+        0.0,
+        100.0
+      ],
+      [
+        0.0,
+        0.0
+      ]
+    ],
+    "area_cm2": 10000.0,
+    "confidence": 0.3,
+    "source": "label-only",
+    "modo_selecionado": 0
+  },
+  "_meta": {
+    "total": 15,
+    "integrado_em": "2026-03-08",
+    "fontes": [
+      "lajes_data.json"
+    ]
+  }
+}

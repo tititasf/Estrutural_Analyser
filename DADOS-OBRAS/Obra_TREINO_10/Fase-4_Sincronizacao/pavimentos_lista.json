@@ -1,0 +1,15 @@
+{
+  "Obra_TREINO_10": {
+    "pavimentos": [
+      "2SS - TRECHO 1"
+    ],
+    "pavimentos_data": {
+      "2SS - TRECHO 1": {
+        "nome": "2SS - TRECHO 1",
+        "numero": "1",
+        "nivel_chegada": "0.0",
+        "nivel_saida": "280.0"
+      }
+    }
+  }
+}

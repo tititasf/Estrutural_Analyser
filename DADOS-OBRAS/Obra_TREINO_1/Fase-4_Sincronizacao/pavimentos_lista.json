@@ -1,0 +1,15 @@
+{
+  "Obra_TREINO_1": {
+    "pavimentos": [
+      "TÉRREO"
+    ],
+    "pavimentos_data": {
+      "TÉRREO": {
+        "nome": "TÉRREO",
+        "numero": "1",
+        "nivel_chegada": "0.0",
+        "nivel_saida": "280.0"
+      }
+    }
+  }
+}

@@ -38,6 +38,20 @@ from collections import defaultdict
 from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional, Tuple
 
+# ── RAG Validation (graceful degradation se módulos ausentes) ────────────────
+try:
+    _SCRIPTS = os.path.join(os.path.dirname(__file__), '..', '..', 'scripts')
+    if _SCRIPTS not in sys.path:
+        sys.path.insert(0, os.path.abspath(_SCRIPTS))
+    from rag_plausibility import PlausibilityChecker as _PlausibilityChecker
+    from rag_validator    import StructuralValidator  as _StructuralValidator
+    _rag_plaus     = _PlausibilityChecker()
+    _rag_validator = _StructuralValidator()
+    _RAG_OK        = True
+except Exception as _rag_err:
+    _RAG_OK = False
+    logging.getLogger(__name__).debug(f"RAG modules not available: {_rag_err}")
+
 logger = logging.getLogger(__name__)
 
 # ---------------------------------------------------------------------------
@@ -1821,7 +1835,39 @@ class AgenteEstrutural:
         for lid, laje in grafo.lajes.items():
             interpretacoes[lid] = interpretador.interpretar_laje(laje)
 
-        # --- Phase 3.5: Claude Checkpoint (optional) ---
+        # --- Phase 3.5: RAG Validation ---
+        if _RAG_OK:
+            _rag_problemas = []
+            for pid, pilar in grafo.pilares.items():
+                dados_rag = {'b': pilar.dim_l, 'h': pilar.dim_a}
+                val = _rag_validator.validate('pilar', pilar.name or pid, dados_rag, obra)
+                if val.bloqueado:
+                    msg = f"RAG-BLOCK pilar {pilar.name}: " + "; ".join(str(a) for a in val.alertas)
+                    _rag_problemas.append(msg)
+                    logger.warning(msg)
+                plaus = _rag_plaus.check(pilar.name or pid, 'pilar', dados_rag, obra)
+                if plaus.acao in ('REVISAR', 'REJEITAR') and not val.bloqueado:
+                    interpretacoes[pid]['_rag_nota'] = plaus.nota_rag
+                    interpretacoes[pid]['_rag_sim']  = plaus.similarity
+
+            for vid, viga in grafo.vigas.items():
+                dados_rag = {'b': viga.dim_l, 'h': viga.dim_a, 'comprimento': viga.dim_str}
+                plaus = _rag_plaus.check(viga.name or vid, 'viga', dados_rag, obra)
+                if plaus.acao in ('REVISAR', 'REJEITAR'):
+                    interpretacoes[vid]['_rag_nota'] = plaus.nota_rag
+
+            for lid, laje in grafo.lajes.items():
+                dados_rag = {'h_val': laje.h_val}
+                plaus = _rag_plaus.check(laje.name or lid, 'laje', dados_rag, obra)
+                if plaus.acao in ('REVISAR', 'REJEITAR'):
+                    interpretacoes[lid]['_rag_nota'] = plaus.nota_rag
+
+            if _rag_problemas:
+                interpretador.problemas.extend(_rag_problemas)
+            logger.debug(f"RAG Phase 3.5 done: {len(grafo.pilares)} pilares, "
+                         f"{len(grafo.vigas)} vigas, {len(grafo.lajes)} lajes checked")
+
+        # --- Phase 3.6: Claude Checkpoint (optional) ---
         if self.use_claude:
             checkpoint = ClaudeCheckpoint()
             correcoes = checkpoint.consultar(

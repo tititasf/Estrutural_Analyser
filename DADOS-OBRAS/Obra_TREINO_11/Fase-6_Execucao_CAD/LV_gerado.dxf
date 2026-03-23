@@ -1,0 +1,13508 @@
+  0
+SECTION
+  2
+HEADER
+  9
+$ACADVER
+  1
+AC1024
+  9
+$ACADMAINTVER
+ 70
+6
+  9
+$DWGCODEPAGE
+  3
+ANSI_1252
+  9
+$LASTSAVEDBY
+  1
+ezdxf
+  9
+$INSBASE
+ 10
+0.0
+ 20
+0.0
+ 30
+0.0
+  9
+$EXTMIN
+ 10
+1e+20
+ 20
+1e+20
+ 30
+1e+20
+  9
+$EXTMAX
+ 10
+-1e+20
+ 20
+-1e+20
+ 30
+-1e+20
+  9
+$LIMMIN
+ 10
+0.0
+ 20
+0.0
+  9
+$LIMMAX
+ 10
+420.0
+ 20
+297.0
+  9
+$ORTHOMODE
+ 70
+0
+  9
+$REGENMODE
+ 70
+1
+  9
+$FILLMODE
+ 70
+1
+  9
+$QTEXTMODE
+ 70
+0
+  9
+$MIRRTEXT
+ 70
+1
+  9
+$LTSCALE
+ 40
+1.0
+  9
+$ATTMODE
+ 70
+1
+  9
+$TEXTSIZE
+ 40
+2.5
+  9
+$TRACEWID
+ 40
+1.0
+  9
+$TEXTSTYLE
+  7
+Standard
+  9
+$CLAYER
+  8
+0
+  9
+$CELTYPE
+  6
+ByLayer
+  9
+$CECOLOR
+ 62
+256
+  9
+$CELTSCALE
+ 40
+1.0
+  9
+$DISPSILH
+ 70
+0
+  9
+$DIMSCALE
+ 40
+1.0
+  9
+$DIMASZ
+ 40
+2.5
+  9
+$DIMEXO
+ 40
+0.625
+  9
+$DIMDLI
+ 40
+3.75
+  9
+$DIMRND
+ 40
+0.0
+  9
+$DIMDLE
+ 40
+0.0
+  9
+$DIMEXE
+ 40
+1.25
+  9
+$DIMTP
+ 40
+0.0
+  9
+$DIMTM
+ 40
+0.0
+  9
+$DIMTXT
+ 40
+2.5
+  9
+$DIMCEN
+ 40
+2.5
+  9
+$DIMTSZ
+ 40
+0.0
+  9
+$DIMTOL
+ 70
+0
+  9
+$DIMLIM
+ 70
+0
+  9
+$DIMTIH
+ 70
+0
+  9
+$DIMTOH
+ 70
+0
+  9
+$DIMSE1
+ 70
+0
+  9
+$DIMSE2
+ 70
+0
+  9
+$DIMTAD
+ 70
+1
+  9
+$DIMZIN
+ 70
+8
+  9
+$DIMBLK
+  1
+
+  9
+$DIMASO
+ 70
+1
+  9
+$DIMSHO
+ 70
+1
+  9
+$DIMPOST
+  1
+
+  9
+$DIMAPOST
+  1
+
+  9
+$DIMALT
+ 70
+0
+  9
+$DIMALTD
+ 70
+3
+  9
+$DIMALTF
+ 40
+0.03937007874
+  9
+$DIMLFAC
+ 40
+1.0
+  9
+$DIMTOFL
+ 70
+1
+  9
+$DIMTVP
+ 40
+0.0
+  9
+$DIMTIX
+ 70
+0
+  9
+$DIMSOXD
+ 70
+0
+  9
+$DIMSAH
+ 70
+0
+  9
+$DIMBLK1
+  1
+
+  9
+$DIMBLK2
+  1
+
+  9
+$DIMSTYLE
+  2
+ISO-25
+  9
+$DIMCLRD
+ 70
+0
+  9
+$DIMCLRE
+ 70
+0
+  9
+$DIMCLRT
+ 70
+0
+  9
+$DIMTFAC
+ 40
+1.0
+  9
+$DIMGAP
+ 40
+0.625
+  9
+$DIMJUST
+ 70
+0
+  9
+$DIMSD1
+ 70
+0
+  9
+$DIMSD2
+ 70
+0
+  9
+$DIMTOLJ
+ 70
+0
+  9
+$DIMTZIN
+ 70
+8
+  9
+$DIMALTZ
+ 70
+0
+  9
+$DIMALTTZ
+ 70
+0
+  9
+$DIMUPT
+ 70
+0
+  9
+$DIMDEC
+ 70
+2
+  9
+$DIMTDEC
+ 70
+2
+  9
+$DIMALTU
+ 70
+2
+  9
+$DIMALTTD
+ 70
+3
+  9
+$DIMTXSTY
+  7
+Standard
+  9
+$DIMAUNIT
+ 70
+0
+  9
+$DIMADEC
+ 70
+0
+  9
+$DIMALTRND
+ 40
+0.0
+  9
+$DIMAZIN
+ 70
+0
+  9
+$DIMDSEP
+ 70
+44
+  9
+$DIMATFIT
+ 70
+3
+  9
+$DIMFRAC
+ 70
+0
+  9
+$DIMLDRBLK
+  1
+
+  9
+$DIMLUNIT
+ 70
+2
+  9
+$DIMLWD
+ 70
+-2
+  9
+$DIMLWE
+ 70
+-2
+  9
+$DIMTMOVE
+ 70
+0
+  9
+$DIMFXL
+ 40
+1.0
+  9
+$DIMFXLON
+ 70
+0
+  9
+$DIMJOGANG
+ 40
+0.785398163397
+  9
+$DIMTFILL
+ 70
+0
+  9
+$DIMTFILLCLR
+ 70
+0
+  9
+$DIMARCSYM
+ 70
+0
+  9
+$DIMLTYPE
+  6
+
+  9
+$DIMLTEX1
+  6
+
+  9
+$DIMLTEX2
+  6
+
+  9
+$DIMTXTDIRECTION
+ 70
+0
+  9
+$LUNITS
+ 70
+2
+  9
+$LUPREC
+ 70
+4
+  9
+$SKETCHINC
+ 40
+1.0
+  9
+$FILLETRAD
+ 40
+10.0
+  9
+$AUNITS
+ 70
+0
+  9
+$AUPREC
+ 70
+2
+  9
+$MENU
+  1
+.
+  9
+$ELEVATION
+ 40
+0.0
+  9
+$PELEVATION
+ 40
+0.0
+  9
+$THICKNESS
+ 40
+0.0
+  9
+$LIMCHECK
+ 70
+0
+  9
+$CHAMFERA
+ 40
+0.0
+  9
+$CHAMFERB
+ 40
+0.0
+  9
+$CHAMFERC
+ 40
+0.0
+  9
+$CHAMFERD
+ 40
+0.0
+  9
+$SKPOLY
+ 70
+0
+  9
+$TDCREATE
+ 40
+2461109.2930208333
+  9
+$TDUCREATE
+ 40
+2458532.153996898
+  9
+$TDUPDATE
+ 40
+2461109.2930324073
+  9
+$TDUUPDATE
+ 40
+2458532.1544311
+  9
+$TDINDWG
+ 40
+0.0
+  9
+$TDUSRTIMER
+ 40
+0.0
+  9
+$USRTIMER
+ 70
+1
+  9
+$ANGBASE
+ 50
+0.0
+  9
+$ANGDIR
+ 70
+0
+  9
+$PDMODE
+ 70
+0
+  9
+$PDSIZE
+ 40
+0.0
+  9
+$PLINEWID
+ 40
+0.0
+  9
+$SPLFRAME
+ 70
+0
+  9
+$SPLINETYPE
+ 70
+6
+  9
+$SPLINESEGS
+ 70
+8
+  9
+$HANDSEED
+  5
+195
+  9
+$SURFTAB1
+ 70
+6
+  9
+$SURFTAB2
+ 70
+6
+  9
+$SURFTYPE
+ 70
+6
+  9
+$SURFU
+ 70
+6
+  9
+$SURFV
+ 70
+6
+  9
+$UCSBASE
+  2
+
+  9
+$UCSNAME
+  2
+
+  9
+$UCSORG
+ 10
+0.0
+ 20
+0.0
+ 30
+0.0
+  9
+$UCSXDIR
+ 10
+1.0
+ 20
+0.0
+ 30
+0.0
+  9
+$UCSYDIR
+ 10
+0.0
+ 20
+1.0
+ 30
+0.0
+  9
+$UCSORTHOREF
+  2
+
+  9
+$UCSORTHOVIEW
+ 70
+0
+  9
+$UCSORGTOP
+ 10
+0.0
+ 20
+0.0
+ 30
+0.0
+  9
+$UCSORGBOTTOM
+ 10
+0.0
+ 20
+0.0
+ 30
+0.0
+  9
+$UCSORGLEFT
+ 10
+0.0
+ 20
+0.0
+ 30
+0.0
+  9
+$UCSORGRIGHT
+ 10
+0.0
+ 20
+0.0
+ 30
+0.0
+  9
+$UCSORGFRONT
+ 10
+0.0
+ 20
+0.0
+ 30
+0.0
+  9
+$UCSORGBACK
+ 10
+0.0
+ 20
+0.0
+ 30
+0.0
+  9
+$PUCSBASE
+  2
+
+  9
+$PUCSNAME
+  2
+
+  9
+$PUCSORG
+ 10
+0.0
+ 20
+0.0
+ 30
+0.0
+  9
+$PUCSXDIR
+ 10
+1.0
+ 20
+0.0
+ 30
+0.0
+  9
+$PUCSYDIR
+ 10
+0.0
+ 20
+1.0
+ 30
+0.0
+  9
+$PUCSORTHOREF
+  2
+
+  9
+$PUCSORTHOVIEW
+ 70
+0
+  9
+$PUCSORGTOP
+ 10
+0.0
+ 20
+0.0
+ 30
+0.0
+  9
+$PUCSORGBOTTOM
+ 10
+0.0
+ 20
+0.0
+ 30
+0.0
+  9
+$PUCSORGLEFT
+ 10
+0.0
+ 20
+0.0
+ 30
+0.0
+  9
+$PUCSORGRIGHT
+ 10
+0.0
+ 20
+0.0
+ 30
+0.0
+  9
+$PUCSORGFRONT
+ 10
+0.0
+ 20
+0.0
+ 30
+0.0
+  9
+$PUCSORGBACK
+ 10
+0.0
+ 20
+0.0
+ 30
+0.0
+  9
+$USERI1
+ 70
+0
+  9
+$USERI2
+ 70
+0
+  9
+$USERI3
+ 70
+0
+  9
+$USERI4
+ 70
+0
+  9
+$USERI5
+ 70
+0
+  9
+$USERR1
+ 40
+0.0
+  9
+$USERR2
+ 40
+0.0
+  9
+$USERR3
+ 40
+0.0
+  9
+$USERR4
+ 40
+0.0
+  9
+$USERR5
+ 40
+0.0
+  9
+$WORLDVIEW
+ 70
+1
+  9
+$SHADEDGE
+ 70
+3
+  9
+$SHADEDIF
+ 70
+70
+  9
+$TILEMODE
+ 70
+1
+  9
+$MAXACTVP
+ 70
+64
+  9
+$PINSBASE
+ 10
+0.0
+ 20
+0.0
+ 30
+0.0
+  9
+$PLIMCHECK
+ 70
+0
+  9
+$PEXTMIN
+ 10
+1e+20
+ 20
+1e+20
+ 30
+1e+20
+  9
+$PEXTMAX
+ 10
+-1e+20
+ 20
+-1e+20
+ 30
+-1e+20
+  9
+$PLIMMIN
+ 10
+0.0
+ 20
+0.0
+  9
+$PLIMMAX
+ 10
+420.0
+ 20
+297.0
+  9
+$UNITMODE
+ 70
+0
+  9
+$VISRETAIN
+ 70
+1
+  9
+$PLINEGEN
+ 70
+0
+  9
+$PSLTSCALE
+ 70
+1
+  9
+$TREEDEPTH
+ 70
+3020
+  9
+$CMLSTYLE
+  2
+Standard
+  9
+$CMLJUST
+ 70
+0
+  9
+$CMLSCALE
+ 40
+20.0
+  9
+$PROXYGRAPHICS
+ 70
+1
+  9
+$MEASUREMENT
+ 70
+1
+  9
+$CELWEIGHT
+370
+-1
+  9
+$ENDCAPS
+280
+0
+  9
+$JOINSTYLE
+280
+0
+  9
+$LWDISPLAY
+290
+0
+  9
+$INSUNITS
+ 70
+6
+  9
+$HYPERLINKBASE
+  1
+
+  9
+$STYLESHEET
+  1
+
+  9
+$XEDIT
+290
+1
+  9
+$CEPSNTYPE
+380
+0
+  9
+$PSTYLEMODE
+290
+1
+  9
+$FINGERPRINTGUID
+  2
+{A0A08813-F0C7-4966-8663-A3BD80C1D91B}
+  9
+$VERSIONGUID
+  2
+{A1A6E277-1FF7-44AB-9F00-E614CFC70183}
+  9
+$EXTNAMES
+290
+1
+  9
+$PSVPSCALE
+ 40
+0.0
+  9
+$OLESTARTUP
+290
+0
+  9
+$SORTENTS
+280
+127
+  9
+$INDEXCTL
+280
+0
+  9
+$HIDETEXT
+280
+1
+  9
+$XCLIPFRAME
+280
+1
+  9
+$HALOGAP
+280
+0
+  9
+$OBSCOLOR
+ 70
+257
+  9
+$OBSLTYPE
+280
+0
+  9
+$INTERSECTIONDISPLAY
+280
+0
+  9
+$INTERSECTIONCOLOR
+ 70
+257
+  9
+$DIMASSOC
+280
+2
+  9
+$PROJECTNAME
+  1
+
+  9
+$CAMERADISPLAY
+290
+0
+  9
+$LENSLENGTH
+ 40
+50.0
+  9
+$CAMERAHEIGHT
+ 40
+0.0
+  9
+$STEPSPERSEC
+ 40
+24.0
+  9
+$STEPSIZE
+ 40
+100.0
+  9
+$3DDWFPREC
+ 40
+2.0
+  9
+$PSOLWIDTH
+ 40
+0.005
+  9
+$PSOLHEIGHT
+ 40
+0.08
+  9
+$LOFTANG1
+ 40
+1.570796326795
+  9
+$LOFTANG2
+ 40
+1.570796326795
+  9
+$LOFTMAG1
+ 40
+0.0
+  9
+$LOFTMAG2
+ 40
+0.0
+  9
+$LOFTPARAM
+ 70
+7
+  9
+$LOFTNORMALS
+280
+1
+  9
+$LATITUDE
+ 40
+37.795
+  9
+$LONGITUDE
+ 40
+-122.394
+  9
+$NORTHDIRECTION
+ 40
+0.0
+  9
+$TIMEZONE
+ 70
+-8000
+  9
+$LIGHTGLYPHDISPLAY
+280
+1
+  9
+$TILEMODELIGHTSYNCH
+280
+1
+  9
+$CMATERIAL
+347
+20
+  9
+$SOLIDHIST
+280
+0
+  9
+$SHOWHIST
+280
+1
+  9
+$DWFFRAME
+280
+2
+  9
+$DGNFRAME
+280
+2
+  9
+$REALWORLDSCALE
+290
+1
+  9
+$INTERFERECOLOR
+ 62
+256
+  9
+$CSHADOW
+280
+0
+  9
+$SHADOWPLANELOCATION
+ 40
+0.0
+  0
+ENDSEC
+  0
+SECTION
+  2
+CLASSES
+  0
+CLASS
+  1
+ACDBDICTIONARYWDFLT
+  2
+AcDbDictionaryWithDefault
+  3
+ObjectDBX Classes
+ 90
+0
+ 91
+0
+280
+0
+281
+0
+  0
+CLASS
+  1
+SUN
+  2
+AcDbSun
+  3
+SCENEOE
+ 90
+1153
+ 91
+0
+280
+0
+281
+0
+  0
+CLASS
+  1
+VISUALSTYLE
+  2
+AcDbVisualStyle
+  3
+ObjectDBX Classes
+ 90
+4095
+ 91
+0
+280
+0
+281
+0
+  0
+CLASS
+  1
+MATERIAL
+  2
+AcDbMaterial
+  3
+ObjectDBX Classes
+ 90
+1153
+ 91
+0
+280
+0
+281
+0
+  0
+CLASS
+  1
+SCALE
+  2
+AcDbScale
+  3
+ObjectDBX Classes
+ 90
+1153
+ 91
+0
+280
+0
+281
+0
+  0
+CLASS
+  1
+TABLESTYLE
+  2
+AcDbTableStyle
+  3
+ObjectDBX Classes
+ 90
+4095
+ 91
+0
+280
+0
+281
+0
+  0
+CLASS
+  1
+MLEADERSTYLE
+  2
+AcDbMLeaderStyle
+  3
+ACDB_MLEADERSTYLE_CLASS
+ 90
+4095
+ 91
+0
+280
+0
+281
+0
+  0
+CLASS
+  1
+DICTIONARYVAR
+  2
+AcDbDictionaryVar
+  3
+ObjectDBX Classes
+ 90
+0
+ 91
+0
+280
+0
+281
+0
+  0
+CLASS
+  1
+CELLSTYLEMAP
+  2
+AcDbCellStyleMap
+  3
+ObjectDBX Classes
+ 90
+1152
+ 91
+0
+280
+0
+281
+0
+  0
+CLASS
+  1
+MENTALRAYRENDERSETTINGS
+  2
+AcDbMentalRayRenderSettings
+  3
+SCENEOE
+ 90
+1024
+ 91
+0
+280
+0
+281
+0
+  0
+CLASS
+  1
+ACDBDETAILVIEWSTYLE
+  2
+AcDbDetailViewStyle
+  3
+ObjectDBX Classes
+ 90
+1025
+ 91
+0
+280
+0
+281
+0
+  0
+CLASS
+  1
+ACDBSECTIONVIEWSTYLE
+  2
+AcDbSectionViewStyle
+  3
+ObjectDBX Classes
+ 90
+1025
+ 91
+0
+280
+0
+281
+0
+  0
+CLASS
+  1
+RASTERVARIABLES
+  2
+AcDbRasterVariables
+  3
+ISM
+ 90
+0
+ 91
+0
+280
+0
+281
+0
+  0
+CLASS
+  1
+ACDBPLACEHOLDER
+  2
+AcDbPlaceHolder
+  3
+ObjectDBX Classes
+ 90
+0
+ 91
+0
+280
+0
+281
+0
+  0
+CLASS
+  1
+LAYOUT
+  2
+AcDbLayout
+  3
+ObjectDBX Classes
+ 90
+0
+ 91
+0
+280
+0
+281
+0
+  0
+ENDSEC
+  0
+SECTION
+  2
+TABLES
+  0
+TABLE
+  2
+VPORT
+  5
+8
+330
+0
+100
+AcDbSymbolTable
+ 70
+1
+  0
+VPORT
+  5
+23
+330
+8
+100
+AcDbSymbolTableRecord
+100
+AcDbViewportTableRecord
+  2
+*Active
+ 70
+0
+ 10
+0.0
+ 20
+0.0
+ 11
+1.0
+ 21
+1.0
+ 12
+0.0
+ 22
+0.0
+ 13
+0.0
+ 23
+0.0
+ 14
+0.5
+ 24
+0.5
+ 15
+0.5
+ 25
+0.5
+ 16
+0.0
+ 26
+0.0
+ 36
+1.0
+ 17
+0.0
+ 27
+0.0
+ 37
+0.0
+ 40
+1000.0
+ 41
+1.34
+ 42
+50.0
+ 43
+0.0
+ 44
+0.0
+ 50
+0.0
+ 51
+0.0
+ 71
+0
+ 72
+1000
+ 73
+1
+ 74
+3
+ 75
+0
+ 76
+0
+ 77
+0
+ 78
+0
+281
+0
+ 65
+0
+146
+0.0
+  0
+ENDTAB
+  0
+TABLE
+  2
+LTYPE
+  5
+2
+330
+0
+100
+AcDbSymbolTable
+ 70
+3
+  0
+LTYPE
+  5
+24
+330
+2
+100
+AcDbSymbolTableRecord
+100
+AcDbLinetypeTableRecord
+  2
+ByBlock
+ 70
+0
+  3
+
+ 72
+65
+ 73
+0
+ 40
+0.0
+  0
+LTYPE
+  5
+25
+330
+2
+100
+AcDbSymbolTableRecord
+100
+AcDbLinetypeTableRecord
+  2
+ByLayer
+ 70
+0
+  3
+
+ 72
+65
+ 73
+0
+ 40
+0.0
+  0
+LTYPE
+  5
+26
+330
+2
+100
+AcDbSymbolTableRecord
+100
+AcDbLinetypeTableRecord
+  2
+Continuous
+ 70
+0
+  3
+
+ 72
+65
+ 73
+0
+ 40
+0.0
+  0
+ENDTAB
+  0
+TABLE
+  2
+LAYER
+  5
+1
+330
+0
+100
+AcDbSymbolTable
+ 70
+2
+  0
+LAYER
+  5
+27
+330
+1
+100
+AcDbSymbolTableRecord
+100
+AcDbLayerTableRecord
+  2
+0
+ 70
+0
+ 62
+7
+  6
+Continuous
+370
+-3
+390
+13
+347
+21
+  0
+LAYER
+  5
+28
+330
+1
+100
+AcDbSymbolTableRecord
+100
+AcDbLayerTableRecord
+  2
+Defpoints
+ 70
+0
+ 62
+7
+  6
+Continuous
+290
+0
+370
+-3
+390
+13
+347
+21
+  0
+ENDTAB
+  0
+TABLE
+  2
+STYLE
+  5
+5
+330
+0
+100
+AcDbSymbolTable
+ 70
+1
+  0
+STYLE
+  5
+29
+330
+5
+100
+AcDbSymbolTableRecord
+100
+AcDbTextStyleTableRecord
+  2
+Standard
+ 70
+0
+ 40
+0.0
+ 41
+1.0
+ 50
+0.0
+ 71
+0
+ 42
+2.5
+  3
+txt
+  4
+
+  0
+ENDTAB
+  0
+TABLE
+  2
+VIEW
+  5
+7
+330
+0
+100
+AcDbSymbolTable
+ 70
+0
+  0
+ENDTAB
+  0
+TABLE
+  2
+UCS
+  5
+6
+330
+0
+100
+AcDbSymbolTable
+ 70
+0
+  0
+ENDTAB
+  0
+TABLE
+  2
+APPID
+  5
+3
+330
+0
+100
+AcDbSymbolTable
+ 70
+3
+  0
+APPID
+  5
+2A
+330
+3
+100
+AcDbSymbolTableRecord
+100
+AcDbRegAppTableRecord
+  2
+ACAD
+ 70
+0
+  0
+APPID
+  5
+192
+330
+3
+100
+AcDbSymbolTableRecord
+100
+AcDbRegAppTableRecord
+  2
+HATCHBACKGROUNDCOLOR
+ 70
+0
+  0
+APPID
+  5
+193
+330
+3
+100
+AcDbSymbolTableRecord
+100
+AcDbRegAppTableRecord
+  2
+EZDXF
+ 70
+0
+  0
+ENDTAB
+  0
+TABLE
+  2
+DIMSTYLE
+  5
+4
+330
+0
+100
+AcDbSymbolTable
+ 70
+1
+100
+AcDbDimStyleTable
+  0
+DIMSTYLE
+105
+2B
+330
+4
+100
+AcDbSymbolTableRecord
+100
+AcDbDimStyleTableRecord
+  2
+Standard
+ 70
+0
+ 40
+1.0
+ 41
+2.5
+ 42
+0.625
+ 43
+3.75
+ 44
+1.25
+ 45
+0.0
+ 46
+0.0
+ 47
+0.0
+ 48
+0.0
+ 49
+2.5
+140
+2.5
+141
+2.5
+142
+0.0
+143
+0.03937007874
+144
+1.0
+145
+0.0
+146
+1.0
+147
+0.625
+148
+0.0
+ 69
+0
+ 70
+0
+ 71
+0
+ 72
+0
+ 73
+0
+ 74
+0
+ 75
+0
+ 76
+0
+ 77
+1
+ 78
+8
+ 79
+3
+170
+0
+171
+3
+172
+1
+173
+0
+174
+0
+175
+0
+176
+0
+177
+0
+178
+0
+179
+2
+271
+2
+272
+2
+273
+2
+274
+3
+275
+0
+276
+0
+277
+2
+278
+44
+279
+0
+280
+0
+281
+0
+282
+0
+283
+0
+284
+8
+285
+0
+286
+0
+288
+0
+289
+3
+290
+0
+371
+-2
+372
+-2
+  0
+ENDTAB
+  0
+TABLE
+  2
+BLOCK_RECORD
+  5
+9
+330
+0
+100
+AcDbSymbolTable
+ 70
+2
+  0
+BLOCK_RECORD
+  5
+17
+330
+9
+100
+AcDbSymbolTableRecord
+100
+AcDbBlockTableRecord
+  2
+*Model_Space
+340
+1A
+ 70
+0
+280
+1
+281
+0
+  0
+BLOCK_RECORD
+  5
+1B
+330
+9
+100
+AcDbSymbolTableRecord
+100
+AcDbBlockTableRecord
+  2
+*Paper_Space
+340
+1E
+ 70
+0
+280
+1
+281
+0
+  0
+ENDTAB
+  0
+ENDSEC
+  0
+SECTION
+  2
+BLOCKS
+  0
+BLOCK
+  5
+18
+330
+17
+100
+AcDbEntity
+  8
+0
+100
+AcDbBlockBegin
+  2
+*Model_Space
+ 70
+0
+ 10
+0.0
+ 20
+0.0
+ 30
+0.0
+  3
+*Model_Space
+  1
+
+  0
+ENDBLK
+  5
+19
+330
+17
+100
+AcDbEntity
+  8
+0
+100
+AcDbBlockEnd
+  0
+BLOCK
+  5
+1C
+330
+1B
+100
+AcDbEntity
+  8
+0
+100
+AcDbBlockBegin
+  2
+*Paper_Space
+ 70
+0
+ 10
+0.0
+ 20
+0.0
+ 30
+0.0
+  3
+*Paper_Space
+  1
+
+  0
+ENDBLK
+  5
+1D
+330
+1B
+100
+AcDbEntity
+  8
+0
+100
+AcDbBlockEnd
+  0
+ENDSEC
+  0
+SECTION
+  2
+ENTITIES
+  0
+LWPOLYLINE
+  5
+2F
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+15644.61
+ 20
+21016.07
+ 10
+15764.61
+ 20
+21016.07
+ 10
+15764.61
+ 20
+21056.07
+ 10
+15644.61
+ 20
+21056.07
+  0
+LWPOLYLINE
+  5
+30
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+15764.61
+ 20
+21016.07
+ 10
+15884.61
+ 20
+21016.07
+ 10
+15884.61
+ 20
+21056.07
+ 10
+15764.61
+ 20
+21056.07
+  0
+LWPOLYLINE
+  5
+31
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+15884.61
+ 20
+21016.07
+ 10
+15968.61
+ 20
+21016.07
+ 10
+15968.61
+ 20
+21056.07
+ 10
+15884.61
+ 20
+21056.07
+  0
+MTEXT
+  5
+32
+330
+17
+100
+AcDbEntity
+  8
+Texto Secao
+100
+AcDbMText
+ 10
+15806.61
+ 20
+21001.07
+ 30
+0.0
+ 40
+8.0
+ 71
+1
+  1
+V402_A
+  0
+LWPOLYLINE
+  5
+33
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+15644.61
+ 20
+21096.07
+ 10
+15764.61
+ 20
+21096.07
+ 10
+15764.61
+ 20
+21136.07
+ 10
+15644.61
+ 20
+21136.07
+  0
+LWPOLYLINE
+  5
+34
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+15764.61
+ 20
+21096.07
+ 10
+15884.61
+ 20
+21096.07
+ 10
+15884.61
+ 20
+21136.07
+ 10
+15764.61
+ 20
+21136.07
+  0
+LWPOLYLINE
+  5
+35
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+15884.61
+ 20
+21096.07
+ 10
+15968.61
+ 20
+21096.07
+ 10
+15968.61
+ 20
+21136.07
+ 10
+15884.61
+ 20
+21136.07
+  0
+MTEXT
+  5
+36
+330
+17
+100
+AcDbEntity
+  8
+Texto Secao
+100
+AcDbMText
+ 10
+15806.61
+ 20
+21081.07
+ 30
+0.0
+ 40
+8.0
+ 71
+1
+  1
+V402_B
+  0
+LWPOLYLINE
+  5
+37
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+15644.61
+ 20
+21176.07
+ 10
+15764.61
+ 20
+21176.07
+ 10
+15764.61
+ 20
+21216.07
+ 10
+15644.61
+ 20
+21216.07
+  0
+LWPOLYLINE
+  5
+38
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+15764.61
+ 20
+21176.07
+ 10
+15884.61
+ 20
+21176.07
+ 10
+15884.61
+ 20
+21216.07
+ 10
+15764.61
+ 20
+21216.07
+  0
+LWPOLYLINE
+  5
+39
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+15884.61
+ 20
+21176.07
+ 10
+15968.61
+ 20
+21176.07
+ 10
+15968.61
+ 20
+21216.07
+ 10
+15884.61
+ 20
+21216.07
+  0
+MTEXT
+  5
+3A
+330
+17
+100
+AcDbEntity
+  8
+Texto Secao
+100
+AcDbMText
+ 10
+15806.61
+ 20
+21161.07
+ 30
+0.0
+ 40
+8.0
+ 71
+1
+  1
+V402_Fundo
+  0
+MTEXT
+  5
+3B
+330
+17
+100
+AcDbEntity
+  8
+NOMENCLATURA
+100
+AcDbMText
+ 10
+15644.61
+ 20
+21256.07
+ 30
+0.0
+ 40
+9.0
+ 71
+1
+  1
+GWT-TIP - V402  b=15cm  h=40cm  L=324cm
+  0
+LWPOLYLINE
+  5
+3C
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+16076.43
+ 20
+24621.47
+ 10
+16196.43
+ 20
+24621.47
+ 10
+16196.43
+ 20
+24661.47
+ 10
+16076.43
+ 20
+24661.47
+  0
+LWPOLYLINE
+  5
+3D
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+16196.43
+ 20
+24621.47
+ 10
+16316.43
+ 20
+24621.47
+ 10
+16316.43
+ 20
+24661.47
+ 10
+16196.43
+ 20
+24661.47
+  0
+LWPOLYLINE
+  5
+3E
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+16316.43
+ 20
+24621.47
+ 10
+16400.43
+ 20
+24621.47
+ 10
+16400.43
+ 20
+24661.47
+ 10
+16316.43
+ 20
+24661.47
+  0
+MTEXT
+  5
+3F
+330
+17
+100
+AcDbEntity
+  8
+Texto Secao
+100
+AcDbMText
+ 10
+16238.43
+ 20
+24606.47
+ 30
+0.0
+ 40
+8.0
+ 71
+1
+  1
+V501_A
+  0
+LWPOLYLINE
+  5
+40
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+16076.43
+ 20
+24701.47
+ 10
+16196.43
+ 20
+24701.47
+ 10
+16196.43
+ 20
+24741.47
+ 10
+16076.43
+ 20
+24741.47
+  0
+LWPOLYLINE
+  5
+41
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+16196.43
+ 20
+24701.47
+ 10
+16316.43
+ 20
+24701.47
+ 10
+16316.43
+ 20
+24741.47
+ 10
+16196.43
+ 20
+24741.47
+  0
+LWPOLYLINE
+  5
+42
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+16316.43
+ 20
+24701.47
+ 10
+16400.43
+ 20
+24701.47
+ 10
+16400.43
+ 20
+24741.47
+ 10
+16316.43
+ 20
+24741.47
+  0
+MTEXT
+  5
+43
+330
+17
+100
+AcDbEntity
+  8
+Texto Secao
+100
+AcDbMText
+ 10
+16238.43
+ 20
+24686.47
+ 30
+0.0
+ 40
+8.0
+ 71
+1
+  1
+V501_B
+  0
+LWPOLYLINE
+  5
+44
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+16076.43
+ 20
+24781.47
+ 10
+16196.43
+ 20
+24781.47
+ 10
+16196.43
+ 20
+24821.47
+ 10
+16076.43
+ 20
+24821.47
+  0
+LWPOLYLINE
+  5
+45
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+16196.43
+ 20
+24781.47
+ 10
+16316.43
+ 20
+24781.47
+ 10
+16316.43
+ 20
+24821.47
+ 10
+16196.43
+ 20
+24821.47
+  0
+LWPOLYLINE
+  5
+46
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+16316.43
+ 20
+24781.47
+ 10
+16400.43
+ 20
+24781.47
+ 10
+16400.43
+ 20
+24821.47
+ 10
+16316.43
+ 20
+24821.47
+  0
+MTEXT
+  5
+47
+330
+17
+100
+AcDbEntity
+  8
+Texto Secao
+100
+AcDbMText
+ 10
+16238.43
+ 20
+24766.47
+ 30
+0.0
+ 40
+8.0
+ 71
+1
+  1
+V501_Fundo
+  0
+MTEXT
+  5
+48
+330
+17
+100
+AcDbEntity
+  8
+NOMENCLATURA
+100
+AcDbMText
+ 10
+16076.43
+ 20
+24861.47
+ 30
+0.0
+ 40
+9.0
+ 71
+1
+  1
+GWT-TIP - V501  b=15cm  h=40cm  L=324cm
+  0
+LWPOLYLINE
+  5
+49
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+15401.1
+ 20
+22822.61
+ 10
+15521.1
+ 20
+22822.61
+ 10
+15521.1
+ 20
+22862.61
+ 10
+15401.1
+ 20
+22862.61
+  0
+LWPOLYLINE
+  5
+4A
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+15521.1
+ 20
+22822.61
+ 10
+15641.1
+ 20
+22822.61
+ 10
+15641.1
+ 20
+22862.61
+ 10
+15521.1
+ 20
+22862.61
+  0
+LWPOLYLINE
+  5
+4B
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+15641.1
+ 20
+22822.61
+ 10
+15657.1
+ 20
+22822.61
+ 10
+15657.1
+ 20
+22862.61
+ 10
+15641.1
+ 20
+22862.61
+  0
+MTEXT
+  5
+4C
+330
+17
+100
+AcDbEntity
+  8
+Texto Secao
+100
+AcDbMText
+ 10
+15529.1
+ 20
+22807.61
+ 30
+0.0
+ 40
+8.0
+ 71
+1
+  1
+V502_A
+  0
+LWPOLYLINE
+  5
+4D
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+15401.1
+ 20
+22902.61
+ 10
+15521.1
+ 20
+22902.61
+ 10
+15521.1
+ 20
+22942.61
+ 10
+15401.1
+ 20
+22942.61
+  0
+LWPOLYLINE
+  5
+4E
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+15521.1
+ 20
+22902.61
+ 10
+15641.1
+ 20
+22902.61
+ 10
+15641.1
+ 20
+22942.61
+ 10
+15521.1
+ 20
+22942.61
+  0
+LWPOLYLINE
+  5
+4F
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+15641.1
+ 20
+22902.61
+ 10
+15657.1
+ 20
+22902.61
+ 10
+15657.1
+ 20
+22942.61
+ 10
+15641.1
+ 20
+22942.61
+  0
+MTEXT
+  5
+50
+330
+17
+100
+AcDbEntity
+  8
+Texto Secao
+100
+AcDbMText
+ 10
+15529.1
+ 20
+22887.61
+ 30
+0.0
+ 40
+8.0
+ 71
+1
+  1
+V502_B
+  0
+LWPOLYLINE
+  5
+51
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+15401.1
+ 20
+22982.61
+ 10
+15521.1
+ 20
+22982.61
+ 10
+15521.1
+ 20
+23022.61
+ 10
+15401.1
+ 20
+23022.61
+  0
+LWPOLYLINE
+  5
+52
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+15521.1
+ 20
+22982.61
+ 10
+15641.1
+ 20
+22982.61
+ 10
+15641.1
+ 20
+23022.61
+ 10
+15521.1
+ 20
+23022.61
+  0
+LWPOLYLINE
+  5
+53
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+15641.1
+ 20
+22982.61
+ 10
+15657.1
+ 20
+22982.61
+ 10
+15657.1
+ 20
+23022.61
+ 10
+15641.1
+ 20
+23022.61
+  0
+MTEXT
+  5
+54
+330
+17
+100
+AcDbEntity
+  8
+Texto Secao
+100
+AcDbMText
+ 10
+15529.1
+ 20
+22967.61
+ 30
+0.0
+ 40
+8.0
+ 71
+1
+  1
+V502_Fundo
+  0
+MTEXT
+  5
+55
+330
+17
+100
+AcDbEntity
+  8
+NOMENCLATURA
+100
+AcDbMText
+ 10
+15401.1
+ 20
+23062.61
+ 30
+0.0
+ 40
+9.0
+ 71
+1
+  1
+GWT-TIP - V502  b=15cm  h=40cm  L=256cm
+  0
+LWPOLYLINE
+  5
+56
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+15769.24
+ 20
+24386.43
+ 10
+15889.24
+ 20
+24386.43
+ 10
+15889.24
+ 20
+24426.43
+ 10
+15769.24
+ 20
+24426.43
+  0
+LWPOLYLINE
+  5
+57
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+15889.24
+ 20
+24386.43
+ 10
+16002.74
+ 20
+24386.43
+ 10
+16002.74
+ 20
+24426.43
+ 10
+15889.24
+ 20
+24426.43
+  0
+MTEXT
+  5
+58
+330
+17
+100
+AcDbEntity
+  8
+Texto Secao
+100
+AcDbMText
+ 10
+15885.99
+ 20
+24371.43
+ 30
+0.0
+ 40
+8.0
+ 71
+1
+  1
+V503_A
+  0
+LWPOLYLINE
+  5
+59
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+15769.24
+ 20
+24466.43
+ 10
+15889.24
+ 20
+24466.43
+ 10
+15889.24
+ 20
+24506.43
+ 10
+15769.24
+ 20
+24506.43
+  0
+LWPOLYLINE
+  5
+5A
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+15889.24
+ 20
+24466.43
+ 10
+16002.74
+ 20
+24466.43
+ 10
+16002.74
+ 20
+24506.43
+ 10
+15889.24
+ 20
+24506.43
+  0
+MTEXT
+  5
+5B
+330
+17
+100
+AcDbEntity
+  8
+Texto Secao
+100
+AcDbMText
+ 10
+15885.99
+ 20
+24451.43
+ 30
+0.0
+ 40
+8.0
+ 71
+1
+  1
+V503_B
+  0
+LWPOLYLINE
+  5
+5C
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+15769.24
+ 20
+24546.43
+ 10
+15889.24
+ 20
+24546.43
+ 10
+15889.24
+ 20
+24586.43
+ 10
+15769.24
+ 20
+24586.43
+  0
+LWPOLYLINE
+  5
+5D
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+15889.24
+ 20
+24546.43
+ 10
+16002.74
+ 20
+24546.43
+ 10
+16002.74
+ 20
+24586.43
+ 10
+15889.24
+ 20
+24586.43
+  0
+MTEXT
+  5
+5E
+330
+17
+100
+AcDbEntity
+  8
+Texto Secao
+100
+AcDbMText
+ 10
+15885.99
+ 20
+24531.43
+ 30
+0.0
+ 40
+8.0
+ 71
+1
+  1
+V503_Fundo
+  0
+MTEXT
+  5
+5F
+330
+17
+100
+AcDbEntity
+  8
+NOMENCLATURA
+100
+AcDbMText
+ 10
+15769.24
+ 20
+24626.43
+ 30
+0.0
+ 40
+9.0
+ 71
+1
+  1
+GWT-TIP - V503  b=15cm  h=40cm  L=234cm
+  0
+LWPOLYLINE
+  5
+60
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+-123.5
+ 20
+-100.0
+ 10
+-3.5
+ 20
+-100.0
+ 10
+-3.5
+ 20
+-60.0
+ 10
+-123.5
+ 20
+-60.0
+  0
+LWPOLYLINE
+  5
+61
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+-3.5
+ 20
+-100.0
+ 10
+116.5
+ 20
+-100.0
+ 10
+116.5
+ 20
+-60.0
+ 10
+-3.5
+ 20
+-60.0
+  0
+LWPOLYLINE
+  5
+62
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+116.5
+ 20
+-100.0
+ 10
+123.5
+ 20
+-100.0
+ 10
+123.5
+ 20
+-60.0
+ 10
+116.5
+ 20
+-60.0
+  0
+MTEXT
+  5
+63
+330
+17
+100
+AcDbEntity
+  8
+Texto Secao
+100
+AcDbMText
+ 10
+0.0
+ 20
+-115.0
+ 30
+0.0
+ 40
+8.0
+ 71
+1
+  1
+V504_A
+  0
+LWPOLYLINE
+  5
+64
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+-123.5
+ 20
+-20.0
+ 10
+-3.5
+ 20
+-20.0
+ 10
+-3.5
+ 20
+20.0
+ 10
+-123.5
+ 20
+20.0
+  0
+LWPOLYLINE
+  5
+65
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+-3.5
+ 20
+-20.0
+ 10
+116.5
+ 20
+-20.0
+ 10
+116.5
+ 20
+20.0
+ 10
+-3.5
+ 20
+20.0
+  0
+LWPOLYLINE
+  5
+66
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+116.5
+ 20
+-20.0
+ 10
+123.5
+ 20
+-20.0
+ 10
+123.5
+ 20
+20.0
+ 10
+116.5
+ 20
+20.0
+  0
+MTEXT
+  5
+67
+330
+17
+100
+AcDbEntity
+  8
+Texto Secao
+100
+AcDbMText
+ 10
+0.0
+ 20
+-35.0
+ 30
+0.0
+ 40
+8.0
+ 71
+1
+  1
+V504_B
+  0
+LWPOLYLINE
+  5
+68
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+-123.5
+ 20
+60.0
+ 10
+-3.5
+ 20
+60.0
+ 10
+-3.5
+ 20
+100.0
+ 10
+-123.5
+ 20
+100.0
+  0
+LWPOLYLINE
+  5
+69
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+-3.5
+ 20
+60.0
+ 10
+116.5
+ 20
+60.0
+ 10
+116.5
+ 20
+100.0
+ 10
+-3.5
+ 20
+100.0
+  0
+LWPOLYLINE
+  5
+6A
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+116.5
+ 20
+60.0
+ 10
+123.5
+ 20
+60.0
+ 10
+123.5
+ 20
+100.0
+ 10
+116.5
+ 20
+100.0
+  0
+MTEXT
+  5
+6B
+330
+17
+100
+AcDbEntity
+  8
+Texto Secao
+100
+AcDbMText
+ 10
+0.0
+ 20
+45.0
+ 30
+0.0
+ 40
+8.0
+ 71
+1
+  1
+V504_Fundo
+  0
+MTEXT
+  5
+6C
+330
+17
+100
+AcDbEntity
+  8
+NOMENCLATURA
+100
+AcDbMText
+ 10
+-123.5
+ 20
+140.0
+ 30
+0.0
+ 40
+9.0
+ 71
+1
+  1
+GWT-TIP - V504  b=15cm  h=40cm  L=247cm
+  0
+LWPOLYLINE
+  5
+6D
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+-123.0
+ 20
+-700.0
+ 10
+-3.0
+ 20
+-700.0
+ 10
+-3.0
+ 20
+-660.0
+ 10
+-123.0
+ 20
+-660.0
+  0
+LWPOLYLINE
+  5
+6E
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+-3.0
+ 20
+-700.0
+ 10
+117.0
+ 20
+-700.0
+ 10
+117.0
+ 20
+-660.0
+ 10
+-3.0
+ 20
+-660.0
+  0
+LWPOLYLINE
+  5
+6F
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+117.0
+ 20
+-700.0
+ 10
+123.0
+ 20
+-700.0
+ 10
+123.0
+ 20
+-660.0
+ 10
+117.0
+ 20
+-660.0
+  0
+MTEXT
+  5
+70
+330
+17
+100
+AcDbEntity
+  8
+Texto Secao
+100
+AcDbMText
+ 10
+0.0
+ 20
+-715.0
+ 30
+0.0
+ 40
+8.0
+ 71
+1
+  1
+V505_A
+  0
+LWPOLYLINE
+  5
+71
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+-123.0
+ 20
+-620.0
+ 10
+-3.0
+ 20
+-620.0
+ 10
+-3.0
+ 20
+-580.0
+ 10
+-123.0
+ 20
+-580.0
+  0
+LWPOLYLINE
+  5
+72
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+-3.0
+ 20
+-620.0
+ 10
+117.0
+ 20
+-620.0
+ 10
+117.0
+ 20
+-580.0
+ 10
+-3.0
+ 20
+-580.0
+  0
+LWPOLYLINE
+  5
+73
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+117.0
+ 20
+-620.0
+ 10
+123.0
+ 20
+-620.0
+ 10
+123.0
+ 20
+-580.0
+ 10
+117.0
+ 20
+-580.0
+  0
+MTEXT
+  5
+74
+330
+17
+100
+AcDbEntity
+  8
+Texto Secao
+100
+AcDbMText
+ 10
+0.0
+ 20
+-635.0
+ 30
+0.0
+ 40
+8.0
+ 71
+1
+  1
+V505_B
+  0
+LWPOLYLINE
+  5
+75
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+-123.0
+ 20
+-540.0
+ 10
+-3.0
+ 20
+-540.0
+ 10
+-3.0
+ 20
+-500.0
+ 10
+-123.0
+ 20
+-500.0
+  0
+LWPOLYLINE
+  5
+76
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+-3.0
+ 20
+-540.0
+ 10
+117.0
+ 20
+-540.0
+ 10
+117.0
+ 20
+-500.0
+ 10
+-3.0
+ 20
+-500.0
+  0
+LWPOLYLINE
+  5
+77
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+117.0
+ 20
+-540.0
+ 10
+123.0
+ 20
+-540.0
+ 10
+123.0
+ 20
+-500.0
+ 10
+117.0
+ 20
+-500.0
+  0
+MTEXT
+  5
+78
+330
+17
+100
+AcDbEntity
+  8
+Texto Secao
+100
+AcDbMText
+ 10
+0.0
+ 20
+-555.0
+ 30
+0.0
+ 40
+8.0
+ 71
+1
+  1
+V505_Fundo
+  0
+MTEXT
+  5
+79
+330
+17
+100
+AcDbEntity
+  8
+NOMENCLATURA
+100
+AcDbMText
+ 10
+-123.0
+ 20
+-460.0
+ 30
+0.0
+ 40
+9.0
+ 71
+1
+  1
+GWT-TIP - V505  b=15cm  h=40cm  L=246cm
+  0
+LWPOLYLINE
+  5
+7A
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+-123.0
+ 20
+-1300.0
+ 10
+-3.0
+ 20
+-1300.0
+ 10
+-3.0
+ 20
+-1260.0
+ 10
+-123.0
+ 20
+-1260.0
+  0
+LWPOLYLINE
+  5
+7B
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+-3.0
+ 20
+-1300.0
+ 10
+117.0
+ 20
+-1300.0
+ 10
+117.0
+ 20
+-1260.0
+ 10
+-3.0
+ 20
+-1260.0
+  0
+LWPOLYLINE
+  5
+7C
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+117.0
+ 20
+-1300.0
+ 10
+123.0
+ 20
+-1300.0
+ 10
+123.0
+ 20
+-1260.0
+ 10
+117.0
+ 20
+-1260.0
+  0
+MTEXT
+  5
+7D
+330
+17
+100
+AcDbEntity
+  8
+Texto Secao
+100
+AcDbMText
+ 10
+0.0
+ 20
+-1315.0
+ 30
+0.0
+ 40
+8.0
+ 71
+1
+  1
+V506_A
+  0
+LWPOLYLINE
+  5
+7E
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+-123.0
+ 20
+-1220.0
+ 10
+-3.0
+ 20
+-1220.0
+ 10
+-3.0
+ 20
+-1180.0
+ 10
+-123.0
+ 20
+-1180.0
+  0
+LWPOLYLINE
+  5
+7F
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+-3.0
+ 20
+-1220.0
+ 10
+117.0
+ 20
+-1220.0
+ 10
+117.0
+ 20
+-1180.0
+ 10
+-3.0
+ 20
+-1180.0
+  0
+LWPOLYLINE
+  5
+80
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+117.0
+ 20
+-1220.0
+ 10
+123.0
+ 20
+-1220.0
+ 10
+123.0
+ 20
+-1180.0
+ 10
+117.0
+ 20
+-1180.0
+  0
+MTEXT
+  5
+81
+330
+17
+100
+AcDbEntity
+  8
+Texto Secao
+100
+AcDbMText
+ 10
+0.0
+ 20
+-1235.0
+ 30
+0.0
+ 40
+8.0
+ 71
+1
+  1
+V506_B
+  0
+LWPOLYLINE
+  5
+82
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+-123.0
+ 20
+-1140.0
+ 10
+-3.0
+ 20
+-1140.0
+ 10
+-3.0
+ 20
+-1100.0
+ 10
+-123.0
+ 20
+-1100.0
+  0
+LWPOLYLINE
+  5
+83
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+-3.0
+ 20
+-1140.0
+ 10
+117.0
+ 20
+-1140.0
+ 10
+117.0
+ 20
+-1100.0
+ 10
+-3.0
+ 20
+-1100.0
+  0
+LWPOLYLINE
+  5
+84
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+117.0
+ 20
+-1140.0
+ 10
+123.0
+ 20
+-1140.0
+ 10
+123.0
+ 20
+-1100.0
+ 10
+117.0
+ 20
+-1100.0
+  0
+MTEXT
+  5
+85
+330
+17
+100
+AcDbEntity
+  8
+Texto Secao
+100
+AcDbMText
+ 10
+0.0
+ 20
+-1155.0
+ 30
+0.0
+ 40
+8.0
+ 71
+1
+  1
+V506_Fundo
+  0
+MTEXT
+  5
+86
+330
+17
+100
+AcDbEntity
+  8
+NOMENCLATURA
+100
+AcDbMText
+ 10
+-123.0
+ 20
+-1060.0
+ 30
+0.0
+ 40
+9.0
+ 71
+1
+  1
+GWT-TIP - V506  b=15cm  h=40cm  L=246cm
+  0
+LWPOLYLINE
+  5
+87
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+-123.0
+ 20
+-1900.0
+ 10
+-3.0
+ 20
+-1900.0
+ 10
+-3.0
+ 20
+-1860.0
+ 10
+-123.0
+ 20
+-1860.0
+  0
+LWPOLYLINE
+  5
+88
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+-3.0
+ 20
+-1900.0
+ 10
+117.0
+ 20
+-1900.0
+ 10
+117.0
+ 20
+-1860.0
+ 10
+-3.0
+ 20
+-1860.0
+  0
+LWPOLYLINE
+  5
+89
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+117.0
+ 20
+-1900.0
+ 10
+123.0
+ 20
+-1900.0
+ 10
+123.0
+ 20
+-1860.0
+ 10
+117.0
+ 20
+-1860.0
+  0
+MTEXT
+  5
+8A
+330
+17
+100
+AcDbEntity
+  8
+Texto Secao
+100
+AcDbMText
+ 10
+0.0
+ 20
+-1915.0
+ 30
+0.0
+ 40
+8.0
+ 71
+1
+  1
+V506A_A
+  0
+LWPOLYLINE
+  5
+8B
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+-123.0
+ 20
+-1820.0
+ 10
+-3.0
+ 20
+-1820.0
+ 10
+-3.0
+ 20
+-1780.0
+ 10
+-123.0
+ 20
+-1780.0
+  0
+LWPOLYLINE
+  5
+8C
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+-3.0
+ 20
+-1820.0
+ 10
+117.0
+ 20
+-1820.0
+ 10
+117.0
+ 20
+-1780.0
+ 10
+-3.0
+ 20
+-1780.0
+  0
+LWPOLYLINE
+  5
+8D
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+117.0
+ 20
+-1820.0
+ 10
+123.0
+ 20
+-1820.0
+ 10
+123.0
+ 20
+-1780.0
+ 10
+117.0
+ 20
+-1780.0
+  0
+MTEXT
+  5
+8E
+330
+17
+100
+AcDbEntity
+  8
+Texto Secao
+100
+AcDbMText
+ 10
+0.0
+ 20
+-1835.0
+ 30
+0.0
+ 40
+8.0
+ 71
+1
+  1
+V506A_B
+  0
+LWPOLYLINE
+  5
+8F
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+-123.0
+ 20
+-1740.0
+ 10
+-3.0
+ 20
+-1740.0
+ 10
+-3.0
+ 20
+-1700.0
+ 10
+-123.0
+ 20
+-1700.0
+  0
+LWPOLYLINE
+  5
+90
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+-3.0
+ 20
+-1740.0
+ 10
+117.0
+ 20
+-1740.0
+ 10
+117.0
+ 20
+-1700.0
+ 10
+-3.0
+ 20
+-1700.0
+  0
+LWPOLYLINE
+  5
+91
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+117.0
+ 20
+-1740.0
+ 10
+123.0
+ 20
+-1740.0
+ 10
+123.0
+ 20
+-1700.0
+ 10
+117.0
+ 20
+-1700.0
+  0
+MTEXT
+  5
+92
+330
+17
+100
+AcDbEntity
+  8
+Texto Secao
+100
+AcDbMText
+ 10
+0.0
+ 20
+-1755.0
+ 30
+0.0
+ 40
+8.0
+ 71
+1
+  1
+V506A_Fundo
+  0
+MTEXT
+  5
+93
+330
+17
+100
+AcDbEntity
+  8
+NOMENCLATURA
+100
+AcDbMText
+ 10
+-123.0
+ 20
+-1660.0
+ 30
+0.0
+ 40
+9.0
+ 71
+1
+  1
+GWT-TIP - V506A  b=15cm  h=40cm  L=246cm
+  0
+LWPOLYLINE
+  5
+94
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+15385.95
+ 20
+24475.28
+ 10
+15505.95
+ 20
+24475.28
+ 10
+15505.95
+ 20
+24515.28
+ 10
+15385.95
+ 20
+24515.28
+  0
+LWPOLYLINE
+  5
+95
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+15505.95
+ 20
+24475.28
+ 10
+15619.45
+ 20
+24475.28
+ 10
+15619.45
+ 20
+24515.28
+ 10
+15505.95
+ 20
+24515.28
+  0
+MTEXT
+  5
+96
+330
+17
+100
+AcDbEntity
+  8
+Texto Secao
+100
+AcDbMText
+ 10
+15502.7
+ 20
+24460.28
+ 30
+0.0
+ 40
+8.0
+ 71
+1
+  1
+V507_A
+  0
+LWPOLYLINE
+  5
+97
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+15385.95
+ 20
+24555.28
+ 10
+15505.95
+ 20
+24555.28
+ 10
+15505.95
+ 20
+24595.28
+ 10
+15385.95
+ 20
+24595.28
+  0
+LWPOLYLINE
+  5
+98
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+15505.95
+ 20
+24555.28
+ 10
+15619.45
+ 20
+24555.28
+ 10
+15619.45
+ 20
+24595.28
+ 10
+15505.95
+ 20
+24595.28
+  0
+MTEXT
+  5
+99
+330
+17
+100
+AcDbEntity
+  8
+Texto Secao
+100
+AcDbMText
+ 10
+15502.7
+ 20
+24540.28
+ 30
+0.0
+ 40
+8.0
+ 71
+1
+  1
+V507_B
+  0
+LWPOLYLINE
+  5
+9A
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+15385.95
+ 20
+24635.28
+ 10
+15505.95
+ 20
+24635.28
+ 10
+15505.95
+ 20
+24675.28
+ 10
+15385.95
+ 20
+24675.28
+  0
+LWPOLYLINE
+  5
+9B
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+15505.95
+ 20
+24635.28
+ 10
+15619.45
+ 20
+24635.28
+ 10
+15619.45
+ 20
+24675.28
+ 10
+15505.95
+ 20
+24675.28
+  0
+MTEXT
+  5
+9C
+330
+17
+100
+AcDbEntity
+  8
+Texto Secao
+100
+AcDbMText
+ 10
+15502.7
+ 20
+24620.28
+ 30
+0.0
+ 40
+8.0
+ 71
+1
+  1
+V507_Fundo
+  0
+MTEXT
+  5
+9D
+330
+17
+100
+AcDbEntity
+  8
+NOMENCLATURA
+100
+AcDbMText
+ 10
+15385.95
+ 20
+24715.28
+ 30
+0.0
+ 40
+9.0
+ 71
+1
+  1
+GWT-TIP - V507  b=15cm  h=40cm  L=234cm
+  0
+LWPOLYLINE
+  5
+9E
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+18694.23
+ 20
+22449.07
+ 10
+18814.23
+ 20
+22449.07
+ 10
+18814.23
+ 20
+22489.07
+ 10
+18694.23
+ 20
+22489.07
+  0
+LWPOLYLINE
+  5
+9F
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+18814.23
+ 20
+22449.07
+ 10
+18934.23
+ 20
+22449.07
+ 10
+18934.23
+ 20
+22489.07
+ 10
+18814.23
+ 20
+22489.07
+  0
+LWPOLYLINE
+  5
+A0
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+18934.23
+ 20
+22449.07
+ 10
+18938.23
+ 20
+22449.07
+ 10
+18938.23
+ 20
+22489.07
+ 10
+18934.23
+ 20
+22489.07
+  0
+MTEXT
+  5
+A1
+330
+17
+100
+AcDbEntity
+  8
+Texto Secao
+100
+AcDbMText
+ 10
+18816.23
+ 20
+22434.07
+ 30
+0.0
+ 40
+8.0
+ 71
+1
+  1
+V508_A
+  0
+LWPOLYLINE
+  5
+A2
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+18694.23
+ 20
+22529.07
+ 10
+18814.23
+ 20
+22529.07
+ 10
+18814.23
+ 20
+22569.07
+ 10
+18694.23
+ 20
+22569.07
+  0
+LWPOLYLINE
+  5
+A3
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+18814.23
+ 20
+22529.07
+ 10
+18934.23
+ 20
+22529.07
+ 10
+18934.23
+ 20
+22569.07
+ 10
+18814.23
+ 20
+22569.07
+  0
+LWPOLYLINE
+  5
+A4
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+18934.23
+ 20
+22529.07
+ 10
+18938.23
+ 20
+22529.07
+ 10
+18938.23
+ 20
+22569.07
+ 10
+18934.23
+ 20
+22569.07
+  0
+MTEXT
+  5
+A5
+330
+17
+100
+AcDbEntity
+  8
+Texto Secao
+100
+AcDbMText
+ 10
+18816.23
+ 20
+22514.07
+ 30
+0.0
+ 40
+8.0
+ 71
+1
+  1
+V508_B
+  0
+LWPOLYLINE
+  5
+A6
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+18694.23
+ 20
+22609.07
+ 10
+18814.23
+ 20
+22609.07
+ 10
+18814.23
+ 20
+22649.07
+ 10
+18694.23
+ 20
+22649.07
+  0
+LWPOLYLINE
+  5
+A7
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+18814.23
+ 20
+22609.07
+ 10
+18934.23
+ 20
+22609.07
+ 10
+18934.23
+ 20
+22649.07
+ 10
+18814.23
+ 20
+22649.07
+  0
+LWPOLYLINE
+  5
+A8
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+18934.23
+ 20
+22609.07
+ 10
+18938.23
+ 20
+22609.07
+ 10
+18938.23
+ 20
+22649.07
+ 10
+18934.23
+ 20
+22649.07
+  0
+MTEXT
+  5
+A9
+330
+17
+100
+AcDbEntity
+  8
+Texto Secao
+100
+AcDbMText
+ 10
+18816.23
+ 20
+22594.07
+ 30
+0.0
+ 40
+8.0
+ 71
+1
+  1
+V508_Fundo
+  0
+MTEXT
+  5
+AA
+330
+17
+100
+AcDbEntity
+  8
+NOMENCLATURA
+100
+AcDbMText
+ 10
+18694.23
+ 20
+22689.07
+ 30
+0.0
+ 40
+9.0
+ 71
+1
+  1
+GWT-TIP - V508  b=15cm  h=40cm  L=244cm
+  0
+LWPOLYLINE
+  5
+AB
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+18604.43
+ 20
+24671.1
+ 10
+18724.43
+ 20
+24671.1
+ 10
+18724.43
+ 20
+24711.1
+ 10
+18604.43
+ 20
+24711.1
+  0
+LWPOLYLINE
+  5
+AC
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+18724.43
+ 20
+24671.1
+ 10
+18844.43
+ 20
+24671.1
+ 10
+18844.43
+ 20
+24711.1
+ 10
+18724.43
+ 20
+24711.1
+  0
+LWPOLYLINE
+  5
+AD
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+18844.43
+ 20
+24671.1
+ 10
+18848.43
+ 20
+24671.1
+ 10
+18848.43
+ 20
+24711.1
+ 10
+18844.43
+ 20
+24711.1
+  0
+MTEXT
+  5
+AE
+330
+17
+100
+AcDbEntity
+  8
+Texto Secao
+100
+AcDbMText
+ 10
+18726.43
+ 20
+24656.1
+ 30
+0.0
+ 40
+8.0
+ 71
+1
+  1
+V509_A
+  0
+LWPOLYLINE
+  5
+AF
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+18604.43
+ 20
+24751.1
+ 10
+18724.43
+ 20
+24751.1
+ 10
+18724.43
+ 20
+24791.1
+ 10
+18604.43
+ 20
+24791.1
+  0
+LWPOLYLINE
+  5
+B0
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+18724.43
+ 20
+24751.1
+ 10
+18844.43
+ 20
+24751.1
+ 10
+18844.43
+ 20
+24791.1
+ 10
+18724.43
+ 20
+24791.1
+  0
+LWPOLYLINE
+  5
+B1
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+18844.43
+ 20
+24751.1
+ 10
+18848.43
+ 20
+24751.1
+ 10
+18848.43
+ 20
+24791.1
+ 10
+18844.43
+ 20
+24791.1
+  0
+MTEXT
+  5
+B2
+330
+17
+100
+AcDbEntity
+  8
+Texto Secao
+100
+AcDbMText
+ 10
+18726.43
+ 20
+24736.1
+ 30
+0.0
+ 40
+8.0
+ 71
+1
+  1
+V509_B
+  0
+LWPOLYLINE
+  5
+B3
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+18604.43
+ 20
+24831.1
+ 10
+18724.43
+ 20
+24831.1
+ 10
+18724.43
+ 20
+24871.1
+ 10
+18604.43
+ 20
+24871.1
+  0
+LWPOLYLINE
+  5
+B4
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+18724.43
+ 20
+24831.1
+ 10
+18844.43
+ 20
+24831.1
+ 10
+18844.43
+ 20
+24871.1
+ 10
+18724.43
+ 20
+24871.1
+  0
+LWPOLYLINE
+  5
+B5
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+18844.43
+ 20
+24831.1
+ 10
+18848.43
+ 20
+24831.1
+ 10
+18848.43
+ 20
+24871.1
+ 10
+18844.43
+ 20
+24871.1
+  0
+MTEXT
+  5
+B6
+330
+17
+100
+AcDbEntity
+  8
+Texto Secao
+100
+AcDbMText
+ 10
+18726.43
+ 20
+24816.1
+ 30
+0.0
+ 40
+8.0
+ 71
+1
+  1
+V509_Fundo
+  0
+MTEXT
+  5
+B7
+330
+17
+100
+AcDbEntity
+  8
+NOMENCLATURA
+100
+AcDbMText
+ 10
+18604.43
+ 20
+24911.1
+ 30
+0.0
+ 40
+9.0
+ 71
+1
+  1
+GWT-TIP - V509  b=15cm  h=40cm  L=244cm
+  0
+LWPOLYLINE
+  5
+B8
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+-140.75
+ 20
+-2500.0
+ 10
+-20.75
+ 20
+-2500.0
+ 10
+-20.75
+ 20
+-2460.0
+ 10
+-140.75
+ 20
+-2460.0
+  0
+LWPOLYLINE
+  5
+B9
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+-20.75
+ 20
+-2500.0
+ 10
+99.25
+ 20
+-2500.0
+ 10
+99.25
+ 20
+-2460.0
+ 10
+-20.75
+ 20
+-2460.0
+  0
+LWPOLYLINE
+  5
+BA
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+99.25
+ 20
+-2500.0
+ 10
+140.75
+ 20
+-2500.0
+ 10
+140.75
+ 20
+-2460.0
+ 10
+99.25
+ 20
+-2460.0
+  0
+MTEXT
+  5
+BB
+330
+17
+100
+AcDbEntity
+  8
+Texto Secao
+100
+AcDbMText
+ 10
+0.0
+ 20
+-2515.0
+ 30
+0.0
+ 40
+8.0
+ 71
+1
+  1
+V510_A
+  0
+LWPOLYLINE
+  5
+BC
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+-140.75
+ 20
+-2420.0
+ 10
+-20.75
+ 20
+-2420.0
+ 10
+-20.75
+ 20
+-2380.0
+ 10
+-140.75
+ 20
+-2380.0
+  0
+LWPOLYLINE
+  5
+BD
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+-20.75
+ 20
+-2420.0
+ 10
+99.25
+ 20
+-2420.0
+ 10
+99.25
+ 20
+-2380.0
+ 10
+-20.75
+ 20
+-2380.0
+  0
+LWPOLYLINE
+  5
+BE
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+99.25
+ 20
+-2420.0
+ 10
+140.75
+ 20
+-2420.0
+ 10
+140.75
+ 20
+-2380.0
+ 10
+99.25
+ 20
+-2380.0
+  0
+MTEXT
+  5
+BF
+330
+17
+100
+AcDbEntity
+  8
+Texto Secao
+100
+AcDbMText
+ 10
+0.0
+ 20
+-2435.0
+ 30
+0.0
+ 40
+8.0
+ 71
+1
+  1
+V510_B
+  0
+LWPOLYLINE
+  5
+C0
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+-140.75
+ 20
+-2340.0
+ 10
+-20.75
+ 20
+-2340.0
+ 10
+-20.75
+ 20
+-2300.0
+ 10
+-140.75
+ 20
+-2300.0
+  0
+LWPOLYLINE
+  5
+C1
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+-20.75
+ 20
+-2340.0
+ 10
+99.25
+ 20
+-2340.0
+ 10
+99.25
+ 20
+-2300.0
+ 10
+-20.75
+ 20
+-2300.0
+  0
+LWPOLYLINE
+  5
+C2
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+99.25
+ 20
+-2340.0
+ 10
+140.75
+ 20
+-2340.0
+ 10
+140.75
+ 20
+-2300.0
+ 10
+99.25
+ 20
+-2300.0
+  0
+MTEXT
+  5
+C3
+330
+17
+100
+AcDbEntity
+  8
+Texto Secao
+100
+AcDbMText
+ 10
+0.0
+ 20
+-2355.0
+ 30
+0.0
+ 40
+8.0
+ 71
+1
+  1
+V510_Fundo
+  0
+MTEXT
+  5
+C4
+330
+17
+100
+AcDbEntity
+  8
+NOMENCLATURA
+100
+AcDbMText
+ 10
+-140.75
+ 20
+-2260.0
+ 30
+0.0
+ 40
+9.0
+ 71
+1
+  1
+GWT-TIP - V510  b=15cm  h=40cm  L=282cm
+  0
+LWPOLYLINE
+  5
+C5
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+15431.19
+ 20
+23549.52
+ 10
+15551.19
+ 20
+23549.52
+ 10
+15551.19
+ 20
+23589.52
+ 10
+15431.19
+ 20
+23589.52
+  0
+LWPOLYLINE
+  5
+C6
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+15551.19
+ 20
+23549.52
+ 10
+15671.19
+ 20
+23549.52
+ 10
+15671.19
+ 20
+23589.52
+ 10
+15551.19
+ 20
+23589.52
+  0
+LWPOLYLINE
+  5
+C7
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+15671.19
+ 20
+23549.52
+ 10
+15755.19
+ 20
+23549.52
+ 10
+15755.19
+ 20
+23589.52
+ 10
+15671.19
+ 20
+23589.52
+  0
+MTEXT
+  5
+C8
+330
+17
+100
+AcDbEntity
+  8
+Texto Secao
+100
+AcDbMText
+ 10
+15593.19
+ 20
+23534.52
+ 30
+0.0
+ 40
+8.0
+ 71
+1
+  1
+V511_A
+  0
+LWPOLYLINE
+  5
+C9
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+15431.19
+ 20
+23629.52
+ 10
+15551.19
+ 20
+23629.52
+ 10
+15551.19
+ 20
+23669.52
+ 10
+15431.19
+ 20
+23669.52
+  0
+LWPOLYLINE
+  5
+CA
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+15551.19
+ 20
+23629.52
+ 10
+15671.19
+ 20
+23629.52
+ 10
+15671.19
+ 20
+23669.52
+ 10
+15551.19
+ 20
+23669.52
+  0
+LWPOLYLINE
+  5
+CB
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+15671.19
+ 20
+23629.52
+ 10
+15755.19
+ 20
+23629.52
+ 10
+15755.19
+ 20
+23669.52
+ 10
+15671.19
+ 20
+23669.52
+  0
+MTEXT
+  5
+CC
+330
+17
+100
+AcDbEntity
+  8
+Texto Secao
+100
+AcDbMText
+ 10
+15593.19
+ 20
+23614.52
+ 30
+0.0
+ 40
+8.0
+ 71
+1
+  1
+V511_B
+  0
+LWPOLYLINE
+  5
+CD
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+15431.19
+ 20
+23709.52
+ 10
+15551.19
+ 20
+23709.52
+ 10
+15551.19
+ 20
+23749.52
+ 10
+15431.19
+ 20
+23749.52
+  0
+LWPOLYLINE
+  5
+CE
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+15551.19
+ 20
+23709.52
+ 10
+15671.19
+ 20
+23709.52
+ 10
+15671.19
+ 20
+23749.52
+ 10
+15551.19
+ 20
+23749.52
+  0
+LWPOLYLINE
+  5
+CF
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+15671.19
+ 20
+23709.52
+ 10
+15755.19
+ 20
+23709.52
+ 10
+15755.19
+ 20
+23749.52
+ 10
+15671.19
+ 20
+23749.52
+  0
+MTEXT
+  5
+D0
+330
+17
+100
+AcDbEntity
+  8
+Texto Secao
+100
+AcDbMText
+ 10
+15593.19
+ 20
+23694.52
+ 30
+0.0
+ 40
+8.0
+ 71
+1
+  1
+V511_Fundo
+  0
+MTEXT
+  5
+D1
+330
+17
+100
+AcDbEntity
+  8
+NOMENCLATURA
+100
+AcDbMText
+ 10
+15431.19
+ 20
+23789.52
+ 30
+0.0
+ 40
+9.0
+ 71
+1
+  1
+GWT-TIP - V511  b=15cm  h=40cm  L=324cm
+  0
+LWPOLYLINE
+  5
+D2
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+15267.4
+ 20
+26703.46
+ 10
+15387.4
+ 20
+26703.46
+ 10
+15387.4
+ 20
+26743.46
+ 10
+15267.4
+ 20
+26743.46
+  0
+LWPOLYLINE
+  5
+D3
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+15387.4
+ 20
+26703.46
+ 10
+15507.4
+ 20
+26703.46
+ 10
+15507.4
+ 20
+26743.46
+ 10
+15387.4
+ 20
+26743.46
+  0
+LWPOLYLINE
+  5
+D4
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+15507.4
+ 20
+26703.46
+ 10
+15591.4
+ 20
+26703.46
+ 10
+15591.4
+ 20
+26743.46
+ 10
+15507.4
+ 20
+26743.46
+  0
+MTEXT
+  5
+D5
+330
+17
+100
+AcDbEntity
+  8
+Texto Secao
+100
+AcDbMText
+ 10
+15429.4
+ 20
+26688.46
+ 30
+0.0
+ 40
+8.0
+ 71
+1
+  1
+V512_A
+  0
+LWPOLYLINE
+  5
+D6
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+15267.4
+ 20
+26783.46
+ 10
+15387.4
+ 20
+26783.46
+ 10
+15387.4
+ 20
+26823.46
+ 10
+15267.4
+ 20
+26823.46
+  0
+LWPOLYLINE
+  5
+D7
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+15387.4
+ 20
+26783.46
+ 10
+15507.4
+ 20
+26783.46
+ 10
+15507.4
+ 20
+26823.46
+ 10
+15387.4
+ 20
+26823.46
+  0
+LWPOLYLINE
+  5
+D8
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+15507.4
+ 20
+26783.46
+ 10
+15591.4
+ 20
+26783.46
+ 10
+15591.4
+ 20
+26823.46
+ 10
+15507.4
+ 20
+26823.46
+  0
+MTEXT
+  5
+D9
+330
+17
+100
+AcDbEntity
+  8
+Texto Secao
+100
+AcDbMText
+ 10
+15429.4
+ 20
+26768.46
+ 30
+0.0
+ 40
+8.0
+ 71
+1
+  1
+V512_B
+  0
+LWPOLYLINE
+  5
+DA
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+15267.4
+ 20
+26863.46
+ 10
+15387.4
+ 20
+26863.46
+ 10
+15387.4
+ 20
+26903.46
+ 10
+15267.4
+ 20
+26903.46
+  0
+LWPOLYLINE
+  5
+DB
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+15387.4
+ 20
+26863.46
+ 10
+15507.4
+ 20
+26863.46
+ 10
+15507.4
+ 20
+26903.46
+ 10
+15387.4
+ 20
+26903.46
+  0
+LWPOLYLINE
+  5
+DC
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+15507.4
+ 20
+26863.46
+ 10
+15591.4
+ 20
+26863.46
+ 10
+15591.4
+ 20
+26903.46
+ 10
+15507.4
+ 20
+26903.46
+  0
+MTEXT
+  5
+DD
+330
+17
+100
+AcDbEntity
+  8
+Texto Secao
+100
+AcDbMText
+ 10
+15429.4
+ 20
+26848.46
+ 30
+0.0
+ 40
+8.0
+ 71
+1
+  1
+V512_Fundo
+  0
+MTEXT
+  5
+DE
+330
+17
+100
+AcDbEntity
+  8
+NOMENCLATURA
+100
+AcDbMText
+ 10
+15267.4
+ 20
+26943.46
+ 30
+0.0
+ 40
+9.0
+ 71
+1
+  1
+GWT-TIP - V512  b=15cm  h=40cm  L=324cm
+  0
+LWPOLYLINE
+  5
+DF
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+15423.9
+ 20
+27670.75
+ 10
+15543.9
+ 20
+27670.75
+ 10
+15543.9
+ 20
+27710.75
+ 10
+15423.9
+ 20
+27710.75
+  0
+LWPOLYLINE
+  5
+E0
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+15543.9
+ 20
+27670.75
+ 10
+15663.9
+ 20
+27670.75
+ 10
+15663.9
+ 20
+27710.75
+ 10
+15543.9
+ 20
+27710.75
+  0
+LWPOLYLINE
+  5
+E1
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+15663.9
+ 20
+27670.75
+ 10
+15667.9
+ 20
+27670.75
+ 10
+15667.9
+ 20
+27710.75
+ 10
+15663.9
+ 20
+27710.75
+  0
+MTEXT
+  5
+E2
+330
+17
+100
+AcDbEntity
+  8
+Texto Secao
+100
+AcDbMText
+ 10
+15545.9
+ 20
+27655.75
+ 30
+0.0
+ 40
+8.0
+ 71
+1
+  1
+V513_A
+  0
+LWPOLYLINE
+  5
+E3
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+15423.9
+ 20
+27750.75
+ 10
+15543.9
+ 20
+27750.75
+ 10
+15543.9
+ 20
+27790.75
+ 10
+15423.9
+ 20
+27790.75
+  0
+LWPOLYLINE
+  5
+E4
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+15543.9
+ 20
+27750.75
+ 10
+15663.9
+ 20
+27750.75
+ 10
+15663.9
+ 20
+27790.75
+ 10
+15543.9
+ 20
+27790.75
+  0
+LWPOLYLINE
+  5
+E5
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+15663.9
+ 20
+27750.75
+ 10
+15667.9
+ 20
+27750.75
+ 10
+15667.9
+ 20
+27790.75
+ 10
+15663.9
+ 20
+27790.75
+  0
+MTEXT
+  5
+E6
+330
+17
+100
+AcDbEntity
+  8
+Texto Secao
+100
+AcDbMText
+ 10
+15545.9
+ 20
+27735.75
+ 30
+0.0
+ 40
+8.0
+ 71
+1
+  1
+V513_B
+  0
+LWPOLYLINE
+  5
+E7
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+15423.9
+ 20
+27830.75
+ 10
+15543.9
+ 20
+27830.75
+ 10
+15543.9
+ 20
+27870.75
+ 10
+15423.9
+ 20
+27870.75
+  0
+LWPOLYLINE
+  5
+E8
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+15543.9
+ 20
+27830.75
+ 10
+15663.9
+ 20
+27830.75
+ 10
+15663.9
+ 20
+27870.75
+ 10
+15543.9
+ 20
+27870.75
+  0
+LWPOLYLINE
+  5
+E9
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+15663.9
+ 20
+27830.75
+ 10
+15667.9
+ 20
+27830.75
+ 10
+15667.9
+ 20
+27870.75
+ 10
+15663.9
+ 20
+27870.75
+  0
+MTEXT
+  5
+EA
+330
+17
+100
+AcDbEntity
+  8
+Texto Secao
+100
+AcDbMText
+ 10
+15545.9
+ 20
+27815.75
+ 30
+0.0
+ 40
+8.0
+ 71
+1
+  1
+V513_Fundo
+  0
+MTEXT
+  5
+EB
+330
+17
+100
+AcDbEntity
+  8
+NOMENCLATURA
+100
+AcDbMText
+ 10
+15423.9
+ 20
+27910.75
+ 30
+0.0
+ 40
+9.0
+ 71
+1
+  1
+GWT-TIP - V513  b=15cm  h=40cm  L=244cm
+  0
+LWPOLYLINE
+  5
+EC
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+14312.86
+ 20
+25609.01
+ 10
+14432.86
+ 20
+25609.01
+ 10
+14432.86
+ 20
+25649.01
+ 10
+14312.86
+ 20
+25649.01
+  0
+LWPOLYLINE
+  5
+ED
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+14432.86
+ 20
+25609.01
+ 10
+14552.86
+ 20
+25609.01
+ 10
+14552.86
+ 20
+25649.01
+ 10
+14432.86
+ 20
+25649.01
+  0
+LWPOLYLINE
+  5
+EE
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+14552.86
+ 20
+25609.01
+ 10
+14636.86
+ 20
+25609.01
+ 10
+14636.86
+ 20
+25649.01
+ 10
+14552.86
+ 20
+25649.01
+  0
+MTEXT
+  5
+EF
+330
+17
+100
+AcDbEntity
+  8
+Texto Secao
+100
+AcDbMText
+ 10
+14474.86
+ 20
+25594.01
+ 30
+0.0
+ 40
+8.0
+ 71
+1
+  1
+V514_A
+  0
+LWPOLYLINE
+  5
+F0
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+14312.86
+ 20
+25689.01
+ 10
+14432.86
+ 20
+25689.01
+ 10
+14432.86
+ 20
+25729.01
+ 10
+14312.86
+ 20
+25729.01
+  0
+LWPOLYLINE
+  5
+F1
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+14432.86
+ 20
+25689.01
+ 10
+14552.86
+ 20
+25689.01
+ 10
+14552.86
+ 20
+25729.01
+ 10
+14432.86
+ 20
+25729.01
+  0
+LWPOLYLINE
+  5
+F2
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+14552.86
+ 20
+25689.01
+ 10
+14636.86
+ 20
+25689.01
+ 10
+14636.86
+ 20
+25729.01
+ 10
+14552.86
+ 20
+25729.01
+  0
+MTEXT
+  5
+F3
+330
+17
+100
+AcDbEntity
+  8
+Texto Secao
+100
+AcDbMText
+ 10
+14474.86
+ 20
+25674.01
+ 30
+0.0
+ 40
+8.0
+ 71
+1
+  1
+V514_B
+  0
+LWPOLYLINE
+  5
+F4
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+14312.86
+ 20
+25769.01
+ 10
+14432.86
+ 20
+25769.01
+ 10
+14432.86
+ 20
+25809.01
+ 10
+14312.86
+ 20
+25809.01
+  0
+LWPOLYLINE
+  5
+F5
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+14432.86
+ 20
+25769.01
+ 10
+14552.86
+ 20
+25769.01
+ 10
+14552.86
+ 20
+25809.01
+ 10
+14432.86
+ 20
+25809.01
+  0
+LWPOLYLINE
+  5
+F6
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+14552.86
+ 20
+25769.01
+ 10
+14636.86
+ 20
+25769.01
+ 10
+14636.86
+ 20
+25809.01
+ 10
+14552.86
+ 20
+25809.01
+  0
+MTEXT
+  5
+F7
+330
+17
+100
+AcDbEntity
+  8
+Texto Secao
+100
+AcDbMText
+ 10
+14474.86
+ 20
+25754.01
+ 30
+0.0
+ 40
+8.0
+ 71
+1
+  1
+V514_Fundo
+  0
+MTEXT
+  5
+F8
+330
+17
+100
+AcDbEntity
+  8
+NOMENCLATURA
+100
+AcDbMText
+ 10
+14312.86
+ 20
+25849.01
+ 30
+0.0
+ 40
+9.0
+ 71
+1
+  1
+GWT-TIP - V514  b=15cm  h=40cm  L=324cm
+  0
+LWPOLYLINE
+  5
+F9
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+14741.38
+ 20
+24987.38
+ 10
+14861.38
+ 20
+24987.38
+ 10
+14861.38
+ 20
+25027.38
+ 10
+14741.38
+ 20
+25027.38
+  0
+LWPOLYLINE
+  5
+FA
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+14861.38
+ 20
+24987.38
+ 10
+14981.38
+ 20
+24987.38
+ 10
+14981.38
+ 20
+25027.38
+ 10
+14861.38
+ 20
+25027.38
+  0
+LWPOLYLINE
+  5
+FB
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+14981.38
+ 20
+24987.38
+ 10
+14987.38
+ 20
+24987.38
+ 10
+14987.38
+ 20
+25027.38
+ 10
+14981.38
+ 20
+25027.38
+  0
+MTEXT
+  5
+FC
+330
+17
+100
+AcDbEntity
+  8
+Texto Secao
+100
+AcDbMText
+ 10
+14864.38
+ 20
+24972.38
+ 30
+0.0
+ 40
+8.0
+ 71
+1
+  1
+V516_A
+  0
+LWPOLYLINE
+  5
+FD
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+14741.38
+ 20
+25067.38
+ 10
+14861.38
+ 20
+25067.38
+ 10
+14861.38
+ 20
+25107.38
+ 10
+14741.38
+ 20
+25107.38
+  0
+LWPOLYLINE
+  5
+FE
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+14861.38
+ 20
+25067.38
+ 10
+14981.38
+ 20
+25067.38
+ 10
+14981.38
+ 20
+25107.38
+ 10
+14861.38
+ 20
+25107.38
+  0
+LWPOLYLINE
+  5
+FF
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+14981.38
+ 20
+25067.38
+ 10
+14987.38
+ 20
+25067.38
+ 10
+14987.38
+ 20
+25107.38
+ 10
+14981.38
+ 20
+25107.38
+  0
+MTEXT
+  5
+100
+330
+17
+100
+AcDbEntity
+  8
+Texto Secao
+100
+AcDbMText
+ 10
+14864.38
+ 20
+25052.38
+ 30
+0.0
+ 40
+8.0
+ 71
+1
+  1
+V516_B
+  0
+LWPOLYLINE
+  5
+101
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+14741.38
+ 20
+25147.38
+ 10
+14861.38
+ 20
+25147.38
+ 10
+14861.38
+ 20
+25187.38
+ 10
+14741.38
+ 20
+25187.38
+  0
+LWPOLYLINE
+  5
+102
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+14861.38
+ 20
+25147.38
+ 10
+14981.38
+ 20
+25147.38
+ 10
+14981.38
+ 20
+25187.38
+ 10
+14861.38
+ 20
+25187.38
+  0
+LWPOLYLINE
+  5
+103
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+14981.38
+ 20
+25147.38
+ 10
+14987.38
+ 20
+25147.38
+ 10
+14987.38
+ 20
+25187.38
+ 10
+14981.38
+ 20
+25187.38
+  0
+MTEXT
+  5
+104
+330
+17
+100
+AcDbEntity
+  8
+Texto Secao
+100
+AcDbMText
+ 10
+14864.38
+ 20
+25132.38
+ 30
+0.0
+ 40
+8.0
+ 71
+1
+  1
+V516_Fundo
+  0
+MTEXT
+  5
+105
+330
+17
+100
+AcDbEntity
+  8
+NOMENCLATURA
+100
+AcDbMText
+ 10
+14741.38
+ 20
+25227.38
+ 30
+0.0
+ 40
+9.0
+ 71
+1
+  1
+GWT-TIP - V516  b=15cm  h=40cm  L=246cm
+  0
+LWPOLYLINE
+  5
+106
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+14936.21
+ 20
+26620.35
+ 10
+15056.21
+ 20
+26620.35
+ 10
+15056.21
+ 20
+26660.35
+ 10
+14936.21
+ 20
+26660.35
+  0
+LWPOLYLINE
+  5
+107
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+15056.21
+ 20
+26620.35
+ 10
+15176.21
+ 20
+26620.35
+ 10
+15176.21
+ 20
+26660.35
+ 10
+15056.21
+ 20
+26660.35
+  0
+LWPOLYLINE
+  5
+108
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+15176.21
+ 20
+26620.35
+ 10
+15180.21
+ 20
+26620.35
+ 10
+15180.21
+ 20
+26660.35
+ 10
+15176.21
+ 20
+26660.35
+  0
+MTEXT
+  5
+109
+330
+17
+100
+AcDbEntity
+  8
+Texto Secao
+100
+AcDbMText
+ 10
+15058.21
+ 20
+26605.35
+ 30
+0.0
+ 40
+8.0
+ 71
+1
+  1
+V517_A
+  0
+LWPOLYLINE
+  5
+10A
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+14936.21
+ 20
+26700.35
+ 10
+15056.21
+ 20
+26700.35
+ 10
+15056.21
+ 20
+26740.35
+ 10
+14936.21
+ 20
+26740.35
+  0
+LWPOLYLINE
+  5
+10B
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+15056.21
+ 20
+26700.35
+ 10
+15176.21
+ 20
+26700.35
+ 10
+15176.21
+ 20
+26740.35
+ 10
+15056.21
+ 20
+26740.35
+  0
+LWPOLYLINE
+  5
+10C
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+15176.21
+ 20
+26700.35
+ 10
+15180.21
+ 20
+26700.35
+ 10
+15180.21
+ 20
+26740.35
+ 10
+15176.21
+ 20
+26740.35
+  0
+MTEXT
+  5
+10D
+330
+17
+100
+AcDbEntity
+  8
+Texto Secao
+100
+AcDbMText
+ 10
+15058.21
+ 20
+26685.35
+ 30
+0.0
+ 40
+8.0
+ 71
+1
+  1
+V517_B
+  0
+LWPOLYLINE
+  5
+10E
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+14936.21
+ 20
+26780.35
+ 10
+15056.21
+ 20
+26780.35
+ 10
+15056.21
+ 20
+26820.35
+ 10
+14936.21
+ 20
+26820.35
+  0
+LWPOLYLINE
+  5
+10F
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+15056.21
+ 20
+26780.35
+ 10
+15176.21
+ 20
+26780.35
+ 10
+15176.21
+ 20
+26820.35
+ 10
+15056.21
+ 20
+26820.35
+  0
+LWPOLYLINE
+  5
+110
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+15176.21
+ 20
+26780.35
+ 10
+15180.21
+ 20
+26780.35
+ 10
+15180.21
+ 20
+26820.35
+ 10
+15176.21
+ 20
+26820.35
+  0
+MTEXT
+  5
+111
+330
+17
+100
+AcDbEntity
+  8
+Texto Secao
+100
+AcDbMText
+ 10
+15058.21
+ 20
+26765.35
+ 30
+0.0
+ 40
+8.0
+ 71
+1
+  1
+V517_Fundo
+  0
+MTEXT
+  5
+112
+330
+17
+100
+AcDbEntity
+  8
+NOMENCLATURA
+100
+AcDbMText
+ 10
+14936.21
+ 20
+26860.35
+ 30
+0.0
+ 40
+9.0
+ 71
+1
+  1
+GWT-TIP - V517  b=15cm  h=40cm  L=244cm
+  0
+LWPOLYLINE
+  5
+113
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+-146.25
+ 20
+-3100.0
+ 10
+-26.25
+ 20
+-3100.0
+ 10
+-26.25
+ 20
+-3060.0
+ 10
+-146.25
+ 20
+-3060.0
+  0
+LWPOLYLINE
+  5
+114
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+-26.25
+ 20
+-3100.0
+ 10
+93.75
+ 20
+-3100.0
+ 10
+93.75
+ 20
+-3060.0
+ 10
+-26.25
+ 20
+-3060.0
+  0
+LWPOLYLINE
+  5
+115
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+93.75
+ 20
+-3100.0
+ 10
+146.25
+ 20
+-3100.0
+ 10
+146.25
+ 20
+-3060.0
+ 10
+93.75
+ 20
+-3060.0
+  0
+MTEXT
+  5
+116
+330
+17
+100
+AcDbEntity
+  8
+Texto Secao
+100
+AcDbMText
+ 10
+0.0
+ 20
+-3115.0
+ 30
+0.0
+ 40
+8.0
+ 71
+1
+  1
+V518_A
+  0
+LWPOLYLINE
+  5
+117
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+-146.25
+ 20
+-3020.0
+ 10
+-26.25
+ 20
+-3020.0
+ 10
+-26.25
+ 20
+-2980.0
+ 10
+-146.25
+ 20
+-2980.0
+  0
+LWPOLYLINE
+  5
+118
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+-26.25
+ 20
+-3020.0
+ 10
+93.75
+ 20
+-3020.0
+ 10
+93.75
+ 20
+-2980.0
+ 10
+-26.25
+ 20
+-2980.0
+  0
+LWPOLYLINE
+  5
+119
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+93.75
+ 20
+-3020.0
+ 10
+146.25
+ 20
+-3020.0
+ 10
+146.25
+ 20
+-2980.0
+ 10
+93.75
+ 20
+-2980.0
+  0
+MTEXT
+  5
+11A
+330
+17
+100
+AcDbEntity
+  8
+Texto Secao
+100
+AcDbMText
+ 10
+0.0
+ 20
+-3035.0
+ 30
+0.0
+ 40
+8.0
+ 71
+1
+  1
+V518_B
+  0
+LWPOLYLINE
+  5
+11B
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+-146.25
+ 20
+-2940.0
+ 10
+-26.25
+ 20
+-2940.0
+ 10
+-26.25
+ 20
+-2900.0
+ 10
+-146.25
+ 20
+-2900.0
+  0
+LWPOLYLINE
+  5
+11C
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+-26.25
+ 20
+-2940.0
+ 10
+93.75
+ 20
+-2940.0
+ 10
+93.75
+ 20
+-2900.0
+ 10
+-26.25
+ 20
+-2900.0
+  0
+LWPOLYLINE
+  5
+11D
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+93.75
+ 20
+-2940.0
+ 10
+146.25
+ 20
+-2940.0
+ 10
+146.25
+ 20
+-2900.0
+ 10
+93.75
+ 20
+-2900.0
+  0
+MTEXT
+  5
+11E
+330
+17
+100
+AcDbEntity
+  8
+Texto Secao
+100
+AcDbMText
+ 10
+0.0
+ 20
+-2955.0
+ 30
+0.0
+ 40
+8.0
+ 71
+1
+  1
+V518_Fundo
+  0
+MTEXT
+  5
+11F
+330
+17
+100
+AcDbEntity
+  8
+NOMENCLATURA
+100
+AcDbMText
+ 10
+-146.25
+ 20
+-2860.0
+ 30
+0.0
+ 40
+9.0
+ 71
+1
+  1
+GWT-TIP - V518  b=15cm  h=40cm  L=292cm
+  0
+LWPOLYLINE
+  5
+120
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+-146.25
+ 20
+-3700.0
+ 10
+-26.25
+ 20
+-3700.0
+ 10
+-26.25
+ 20
+-3660.0
+ 10
+-146.25
+ 20
+-3660.0
+  0
+LWPOLYLINE
+  5
+121
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+-26.25
+ 20
+-3700.0
+ 10
+93.75
+ 20
+-3700.0
+ 10
+93.75
+ 20
+-3660.0
+ 10
+-26.25
+ 20
+-3660.0
+  0
+LWPOLYLINE
+  5
+122
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+93.75
+ 20
+-3700.0
+ 10
+146.25
+ 20
+-3700.0
+ 10
+146.25
+ 20
+-3660.0
+ 10
+93.75
+ 20
+-3660.0
+  0
+MTEXT
+  5
+123
+330
+17
+100
+AcDbEntity
+  8
+Texto Secao
+100
+AcDbMText
+ 10
+0.0
+ 20
+-3715.0
+ 30
+0.0
+ 40
+8.0
+ 71
+1
+  1
+V519_A
+  0
+LWPOLYLINE
+  5
+124
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+-146.25
+ 20
+-3620.0
+ 10
+-26.25
+ 20
+-3620.0
+ 10
+-26.25
+ 20
+-3580.0
+ 10
+-146.25
+ 20
+-3580.0
+  0
+LWPOLYLINE
+  5
+125
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+-26.25
+ 20
+-3620.0
+ 10
+93.75
+ 20
+-3620.0
+ 10
+93.75
+ 20
+-3580.0
+ 10
+-26.25
+ 20
+-3580.0
+  0
+LWPOLYLINE
+  5
+126
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+93.75
+ 20
+-3620.0
+ 10
+146.25
+ 20
+-3620.0
+ 10
+146.25
+ 20
+-3580.0
+ 10
+93.75
+ 20
+-3580.0
+  0
+MTEXT
+  5
+127
+330
+17
+100
+AcDbEntity
+  8
+Texto Secao
+100
+AcDbMText
+ 10
+0.0
+ 20
+-3635.0
+ 30
+0.0
+ 40
+8.0
+ 71
+1
+  1
+V519_B
+  0
+LWPOLYLINE
+  5
+128
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+-146.25
+ 20
+-3540.0
+ 10
+-26.25
+ 20
+-3540.0
+ 10
+-26.25
+ 20
+-3500.0
+ 10
+-146.25
+ 20
+-3500.0
+  0
+LWPOLYLINE
+  5
+129
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+-26.25
+ 20
+-3540.0
+ 10
+93.75
+ 20
+-3540.0
+ 10
+93.75
+ 20
+-3500.0
+ 10
+-26.25
+ 20
+-3500.0
+  0
+LWPOLYLINE
+  5
+12A
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+93.75
+ 20
+-3540.0
+ 10
+146.25
+ 20
+-3540.0
+ 10
+146.25
+ 20
+-3500.0
+ 10
+93.75
+ 20
+-3500.0
+  0
+MTEXT
+  5
+12B
+330
+17
+100
+AcDbEntity
+  8
+Texto Secao
+100
+AcDbMText
+ 10
+0.0
+ 20
+-3555.0
+ 30
+0.0
+ 40
+8.0
+ 71
+1
+  1
+V519_Fundo
+  0
+MTEXT
+  5
+12C
+330
+17
+100
+AcDbEntity
+  8
+NOMENCLATURA
+100
+AcDbMText
+ 10
+-146.25
+ 20
+-3460.0
+ 30
+0.0
+ 40
+9.0
+ 71
+1
+  1
+GWT-TIP - V519  b=15cm  h=40cm  L=292cm
+  0
+LWPOLYLINE
+  5
+12D
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+18957.4
+ 20
+26960.36
+ 10
+19077.4
+ 20
+26960.36
+ 10
+19077.4
+ 20
+27000.36
+ 10
+18957.4
+ 20
+27000.36
+  0
+LWPOLYLINE
+  5
+12E
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+19077.4
+ 20
+26960.36
+ 10
+19197.4
+ 20
+26960.36
+ 10
+19197.4
+ 20
+27000.36
+ 10
+19077.4
+ 20
+27000.36
+  0
+LWPOLYLINE
+  5
+12F
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+19197.4
+ 20
+26960.36
+ 10
+19203.4
+ 20
+26960.36
+ 10
+19203.4
+ 20
+27000.36
+ 10
+19197.4
+ 20
+27000.36
+  0
+MTEXT
+  5
+130
+330
+17
+100
+AcDbEntity
+  8
+Texto Secao
+100
+AcDbMText
+ 10
+19080.4
+ 20
+26945.36
+ 30
+0.0
+ 40
+8.0
+ 71
+1
+  1
+V520_A
+  0
+LWPOLYLINE
+  5
+131
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+18957.4
+ 20
+27040.36
+ 10
+19077.4
+ 20
+27040.36
+ 10
+19077.4
+ 20
+27080.36
+ 10
+18957.4
+ 20
+27080.36
+  0
+LWPOLYLINE
+  5
+132
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+19077.4
+ 20
+27040.36
+ 10
+19197.4
+ 20
+27040.36
+ 10
+19197.4
+ 20
+27080.36
+ 10
+19077.4
+ 20
+27080.36
+  0
+LWPOLYLINE
+  5
+133
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+19197.4
+ 20
+27040.36
+ 10
+19203.4
+ 20
+27040.36
+ 10
+19203.4
+ 20
+27080.36
+ 10
+19197.4
+ 20
+27080.36
+  0
+MTEXT
+  5
+134
+330
+17
+100
+AcDbEntity
+  8
+Texto Secao
+100
+AcDbMText
+ 10
+19080.4
+ 20
+27025.36
+ 30
+0.0
+ 40
+8.0
+ 71
+1
+  1
+V520_B
+  0
+LWPOLYLINE
+  5
+135
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+18957.4
+ 20
+27120.36
+ 10
+19077.4
+ 20
+27120.36
+ 10
+19077.4
+ 20
+27160.36
+ 10
+18957.4
+ 20
+27160.36
+  0
+LWPOLYLINE
+  5
+136
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+19077.4
+ 20
+27120.36
+ 10
+19197.4
+ 20
+27120.36
+ 10
+19197.4
+ 20
+27160.36
+ 10
+19077.4
+ 20
+27160.36
+  0
+LWPOLYLINE
+  5
+137
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+19197.4
+ 20
+27120.36
+ 10
+19203.4
+ 20
+27120.36
+ 10
+19203.4
+ 20
+27160.36
+ 10
+19197.4
+ 20
+27160.36
+  0
+MTEXT
+  5
+138
+330
+17
+100
+AcDbEntity
+  8
+Texto Secao
+100
+AcDbMText
+ 10
+19080.4
+ 20
+27105.36
+ 30
+0.0
+ 40
+8.0
+ 71
+1
+  1
+V520_Fundo
+  0
+MTEXT
+  5
+139
+330
+17
+100
+AcDbEntity
+  8
+NOMENCLATURA
+100
+AcDbMText
+ 10
+18957.4
+ 20
+27200.36
+ 30
+0.0
+ 40
+9.0
+ 71
+1
+  1
+GWT-TIP - V520  b=15cm  h=40cm  L=246cm
+  0
+LWPOLYLINE
+  5
+13A
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+-141.25
+ 20
+-4300.0
+ 10
+-21.25
+ 20
+-4300.0
+ 10
+-21.25
+ 20
+-4260.0
+ 10
+-141.25
+ 20
+-4260.0
+  0
+LWPOLYLINE
+  5
+13B
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+-21.25
+ 20
+-4300.0
+ 10
+98.75
+ 20
+-4300.0
+ 10
+98.75
+ 20
+-4260.0
+ 10
+-21.25
+ 20
+-4260.0
+  0
+LWPOLYLINE
+  5
+13C
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+98.75
+ 20
+-4300.0
+ 10
+141.25
+ 20
+-4300.0
+ 10
+141.25
+ 20
+-4260.0
+ 10
+98.75
+ 20
+-4260.0
+  0
+MTEXT
+  5
+13D
+330
+17
+100
+AcDbEntity
+  8
+Texto Secao
+100
+AcDbMText
+ 10
+0.0
+ 20
+-4315.0
+ 30
+0.0
+ 40
+8.0
+ 71
+1
+  1
+V521_A
+  0
+LWPOLYLINE
+  5
+13E
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+-141.25
+ 20
+-4220.0
+ 10
+-21.25
+ 20
+-4220.0
+ 10
+-21.25
+ 20
+-4180.0
+ 10
+-141.25
+ 20
+-4180.0
+  0
+LWPOLYLINE
+  5
+13F
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+-21.25
+ 20
+-4220.0
+ 10
+98.75
+ 20
+-4220.0
+ 10
+98.75
+ 20
+-4180.0
+ 10
+-21.25
+ 20
+-4180.0
+  0
+LWPOLYLINE
+  5
+140
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+98.75
+ 20
+-4220.0
+ 10
+141.25
+ 20
+-4220.0
+ 10
+141.25
+ 20
+-4180.0
+ 10
+98.75
+ 20
+-4180.0
+  0
+MTEXT
+  5
+141
+330
+17
+100
+AcDbEntity
+  8
+Texto Secao
+100
+AcDbMText
+ 10
+0.0
+ 20
+-4235.0
+ 30
+0.0
+ 40
+8.0
+ 71
+1
+  1
+V521_B
+  0
+LWPOLYLINE
+  5
+142
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+-141.25
+ 20
+-4140.0
+ 10
+-21.25
+ 20
+-4140.0
+ 10
+-21.25
+ 20
+-4100.0
+ 10
+-141.25
+ 20
+-4100.0
+  0
+LWPOLYLINE
+  5
+143
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+-21.25
+ 20
+-4140.0
+ 10
+98.75
+ 20
+-4140.0
+ 10
+98.75
+ 20
+-4100.0
+ 10
+-21.25
+ 20
+-4100.0
+  0
+LWPOLYLINE
+  5
+144
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+98.75
+ 20
+-4140.0
+ 10
+141.25
+ 20
+-4140.0
+ 10
+141.25
+ 20
+-4100.0
+ 10
+98.75
+ 20
+-4100.0
+  0
+MTEXT
+  5
+145
+330
+17
+100
+AcDbEntity
+  8
+Texto Secao
+100
+AcDbMText
+ 10
+0.0
+ 20
+-4155.0
+ 30
+0.0
+ 40
+8.0
+ 71
+1
+  1
+V521_Fundo
+  0
+MTEXT
+  5
+146
+330
+17
+100
+AcDbEntity
+  8
+NOMENCLATURA
+100
+AcDbMText
+ 10
+-141.25
+ 20
+-4060.0
+ 30
+0.0
+ 40
+9.0
+ 71
+1
+  1
+GWT-TIP - V521  b=15cm  h=40cm  L=282cm
+  0
+LWPOLYLINE
+  5
+147
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+-123.0
+ 20
+-4900.0
+ 10
+-3.0
+ 20
+-4900.0
+ 10
+-3.0
+ 20
+-4860.0
+ 10
+-123.0
+ 20
+-4860.0
+  0
+LWPOLYLINE
+  5
+148
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+-3.0
+ 20
+-4900.0
+ 10
+117.0
+ 20
+-4900.0
+ 10
+117.0
+ 20
+-4860.0
+ 10
+-3.0
+ 20
+-4860.0
+  0
+LWPOLYLINE
+  5
+149
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+117.0
+ 20
+-4900.0
+ 10
+123.0
+ 20
+-4900.0
+ 10
+123.0
+ 20
+-4860.0
+ 10
+117.0
+ 20
+-4860.0
+  0
+MTEXT
+  5
+14A
+330
+17
+100
+AcDbEntity
+  8
+Texto Secao
+100
+AcDbMText
+ 10
+0.0
+ 20
+-4915.0
+ 30
+0.0
+ 40
+8.0
+ 71
+1
+  1
+V522_A
+  0
+LWPOLYLINE
+  5
+14B
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+-123.0
+ 20
+-4820.0
+ 10
+-3.0
+ 20
+-4820.0
+ 10
+-3.0
+ 20
+-4780.0
+ 10
+-123.0
+ 20
+-4780.0
+  0
+LWPOLYLINE
+  5
+14C
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+-3.0
+ 20
+-4820.0
+ 10
+117.0
+ 20
+-4820.0
+ 10
+117.0
+ 20
+-4780.0
+ 10
+-3.0
+ 20
+-4780.0
+  0
+LWPOLYLINE
+  5
+14D
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+117.0
+ 20
+-4820.0
+ 10
+123.0
+ 20
+-4820.0
+ 10
+123.0
+ 20
+-4780.0
+ 10
+117.0
+ 20
+-4780.0
+  0
+MTEXT
+  5
+14E
+330
+17
+100
+AcDbEntity
+  8
+Texto Secao
+100
+AcDbMText
+ 10
+0.0
+ 20
+-4835.0
+ 30
+0.0
+ 40
+8.0
+ 71
+1
+  1
+V522_B
+  0
+LWPOLYLINE
+  5
+14F
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+-123.0
+ 20
+-4740.0
+ 10
+-3.0
+ 20
+-4740.0
+ 10
+-3.0
+ 20
+-4700.0
+ 10
+-123.0
+ 20
+-4700.0
+  0
+LWPOLYLINE
+  5
+150
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+-3.0
+ 20
+-4740.0
+ 10
+117.0
+ 20
+-4740.0
+ 10
+117.0
+ 20
+-4700.0
+ 10
+-3.0
+ 20
+-4700.0
+  0
+LWPOLYLINE
+  5
+151
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+117.0
+ 20
+-4740.0
+ 10
+123.0
+ 20
+-4740.0
+ 10
+123.0
+ 20
+-4700.0
+ 10
+117.0
+ 20
+-4700.0
+  0
+MTEXT
+  5
+152
+330
+17
+100
+AcDbEntity
+  8
+Texto Secao
+100
+AcDbMText
+ 10
+0.0
+ 20
+-4755.0
+ 30
+0.0
+ 40
+8.0
+ 71
+1
+  1
+V522_Fundo
+  0
+MTEXT
+  5
+153
+330
+17
+100
+AcDbEntity
+  8
+NOMENCLATURA
+100
+AcDbMText
+ 10
+-123.0
+ 20
+-4660.0
+ 30
+0.0
+ 40
+9.0
+ 71
+1
+  1
+GWT-TIP - V522  b=15cm  h=40cm  L=246cm
+  0
+LWPOLYLINE
+  5
+154
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+-123.0
+ 20
+-5500.0
+ 10
+-3.0
+ 20
+-5500.0
+ 10
+-3.0
+ 20
+-5460.0
+ 10
+-123.0
+ 20
+-5460.0
+  0
+LWPOLYLINE
+  5
+155
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+-3.0
+ 20
+-5500.0
+ 10
+117.0
+ 20
+-5500.0
+ 10
+117.0
+ 20
+-5460.0
+ 10
+-3.0
+ 20
+-5460.0
+  0
+LWPOLYLINE
+  5
+156
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+117.0
+ 20
+-5500.0
+ 10
+123.0
+ 20
+-5500.0
+ 10
+123.0
+ 20
+-5460.0
+ 10
+117.0
+ 20
+-5460.0
+  0
+MTEXT
+  5
+157
+330
+17
+100
+AcDbEntity
+  8
+Texto Secao
+100
+AcDbMText
+ 10
+0.0
+ 20
+-5515.0
+ 30
+0.0
+ 40
+8.0
+ 71
+1
+  1
+V523_A
+  0
+LWPOLYLINE
+  5
+158
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+-123.0
+ 20
+-5420.0
+ 10
+-3.0
+ 20
+-5420.0
+ 10
+-3.0
+ 20
+-5380.0
+ 10
+-123.0
+ 20
+-5380.0
+  0
+LWPOLYLINE
+  5
+159
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+-3.0
+ 20
+-5420.0
+ 10
+117.0
+ 20
+-5420.0
+ 10
+117.0
+ 20
+-5380.0
+ 10
+-3.0
+ 20
+-5380.0
+  0
+LWPOLYLINE
+  5
+15A
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+117.0
+ 20
+-5420.0
+ 10
+123.0
+ 20
+-5420.0
+ 10
+123.0
+ 20
+-5380.0
+ 10
+117.0
+ 20
+-5380.0
+  0
+MTEXT
+  5
+15B
+330
+17
+100
+AcDbEntity
+  8
+Texto Secao
+100
+AcDbMText
+ 10
+0.0
+ 20
+-5435.0
+ 30
+0.0
+ 40
+8.0
+ 71
+1
+  1
+V523_B
+  0
+LWPOLYLINE
+  5
+15C
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+-123.0
+ 20
+-5340.0
+ 10
+-3.0
+ 20
+-5340.0
+ 10
+-3.0
+ 20
+-5300.0
+ 10
+-123.0
+ 20
+-5300.0
+  0
+LWPOLYLINE
+  5
+15D
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+-3.0
+ 20
+-5340.0
+ 10
+117.0
+ 20
+-5340.0
+ 10
+117.0
+ 20
+-5300.0
+ 10
+-3.0
+ 20
+-5300.0
+  0
+LWPOLYLINE
+  5
+15E
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+117.0
+ 20
+-5340.0
+ 10
+123.0
+ 20
+-5340.0
+ 10
+123.0
+ 20
+-5300.0
+ 10
+117.0
+ 20
+-5300.0
+  0
+MTEXT
+  5
+15F
+330
+17
+100
+AcDbEntity
+  8
+Texto Secao
+100
+AcDbMText
+ 10
+0.0
+ 20
+-5355.0
+ 30
+0.0
+ 40
+8.0
+ 71
+1
+  1
+V523_Fundo
+  0
+MTEXT
+  5
+160
+330
+17
+100
+AcDbEntity
+  8
+NOMENCLATURA
+100
+AcDbMText
+ 10
+-123.0
+ 20
+-5260.0
+ 30
+0.0
+ 40
+9.0
+ 71
+1
+  1
+GWT-TIP - V523  b=15cm  h=40cm  L=246cm
+  0
+LWPOLYLINE
+  5
+161
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+15381.79
+ 20
+26628.43
+ 10
+15501.79
+ 20
+26628.43
+ 10
+15501.79
+ 20
+26668.43
+ 10
+15381.79
+ 20
+26668.43
+  0
+LWPOLYLINE
+  5
+162
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+15501.79
+ 20
+26628.43
+ 10
+15614.79
+ 20
+26628.43
+ 10
+15614.79
+ 20
+26668.43
+ 10
+15501.79
+ 20
+26668.43
+  0
+MTEXT
+  5
+163
+330
+17
+100
+AcDbEntity
+  8
+Texto Secao
+100
+AcDbMText
+ 10
+15498.29
+ 20
+26613.43
+ 30
+0.0
+ 40
+8.0
+ 71
+1
+  1
+V524_A
+  0
+LWPOLYLINE
+  5
+164
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+15381.79
+ 20
+26708.43
+ 10
+15501.79
+ 20
+26708.43
+ 10
+15501.79
+ 20
+26748.43
+ 10
+15381.79
+ 20
+26748.43
+  0
+LWPOLYLINE
+  5
+165
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+15501.79
+ 20
+26708.43
+ 10
+15614.79
+ 20
+26708.43
+ 10
+15614.79
+ 20
+26748.43
+ 10
+15501.79
+ 20
+26748.43
+  0
+MTEXT
+  5
+166
+330
+17
+100
+AcDbEntity
+  8
+Texto Secao
+100
+AcDbMText
+ 10
+15498.29
+ 20
+26693.43
+ 30
+0.0
+ 40
+8.0
+ 71
+1
+  1
+V524_B
+  0
+LWPOLYLINE
+  5
+167
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+15381.79
+ 20
+26788.43
+ 10
+15501.79
+ 20
+26788.43
+ 10
+15501.79
+ 20
+26828.43
+ 10
+15381.79
+ 20
+26828.43
+  0
+LWPOLYLINE
+  5
+168
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+15501.79
+ 20
+26788.43
+ 10
+15614.79
+ 20
+26788.43
+ 10
+15614.79
+ 20
+26828.43
+ 10
+15501.79
+ 20
+26828.43
+  0
+MTEXT
+  5
+169
+330
+17
+100
+AcDbEntity
+  8
+Texto Secao
+100
+AcDbMText
+ 10
+15498.29
+ 20
+26773.43
+ 30
+0.0
+ 40
+8.0
+ 71
+1
+  1
+V524_Fundo
+  0
+MTEXT
+  5
+16A
+330
+17
+100
+AcDbEntity
+  8
+NOMENCLATURA
+100
+AcDbMText
+ 10
+15381.79
+ 20
+26868.43
+ 30
+0.0
+ 40
+9.0
+ 71
+1
+  1
+GWT-TIP - V524  b=15cm  h=40cm  L=233cm
+  0
+LWPOLYLINE
+  5
+16B
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+19121.04
+ 20
+25946.94
+ 10
+19241.04
+ 20
+25946.94
+ 10
+19241.04
+ 20
+25986.94
+ 10
+19121.04
+ 20
+25986.94
+  0
+LWPOLYLINE
+  5
+16C
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+19241.04
+ 20
+25946.94
+ 10
+19361.04
+ 20
+25946.94
+ 10
+19361.04
+ 20
+25986.94
+ 10
+19241.04
+ 20
+25986.94
+  0
+LWPOLYLINE
+  5
+16D
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+19361.04
+ 20
+25946.94
+ 10
+19445.04
+ 20
+25946.94
+ 10
+19445.04
+ 20
+25986.94
+ 10
+19361.04
+ 20
+25986.94
+  0
+MTEXT
+  5
+16E
+330
+17
+100
+AcDbEntity
+  8
+Texto Secao
+100
+AcDbMText
+ 10
+19283.04
+ 20
+25931.94
+ 30
+0.0
+ 40
+8.0
+ 71
+1
+  1
+V525_A
+  0
+LWPOLYLINE
+  5
+16F
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+19121.04
+ 20
+26026.94
+ 10
+19241.04
+ 20
+26026.94
+ 10
+19241.04
+ 20
+26066.94
+ 10
+19121.04
+ 20
+26066.94
+  0
+LWPOLYLINE
+  5
+170
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+19241.04
+ 20
+26026.94
+ 10
+19361.04
+ 20
+26026.94
+ 10
+19361.04
+ 20
+26066.94
+ 10
+19241.04
+ 20
+26066.94
+  0
+LWPOLYLINE
+  5
+171
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+19361.04
+ 20
+26026.94
+ 10
+19445.04
+ 20
+26026.94
+ 10
+19445.04
+ 20
+26066.94
+ 10
+19361.04
+ 20
+26066.94
+  0
+MTEXT
+  5
+172
+330
+17
+100
+AcDbEntity
+  8
+Texto Secao
+100
+AcDbMText
+ 10
+19283.04
+ 20
+26011.94
+ 30
+0.0
+ 40
+8.0
+ 71
+1
+  1
+V525_B
+  0
+LWPOLYLINE
+  5
+173
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+19121.04
+ 20
+26106.94
+ 10
+19241.04
+ 20
+26106.94
+ 10
+19241.04
+ 20
+26146.94
+ 10
+19121.04
+ 20
+26146.94
+  0
+LWPOLYLINE
+  5
+174
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+19241.04
+ 20
+26106.94
+ 10
+19361.04
+ 20
+26106.94
+ 10
+19361.04
+ 20
+26146.94
+ 10
+19241.04
+ 20
+26146.94
+  0
+LWPOLYLINE
+  5
+175
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+19361.04
+ 20
+26106.94
+ 10
+19445.04
+ 20
+26106.94
+ 10
+19445.04
+ 20
+26146.94
+ 10
+19361.04
+ 20
+26146.94
+  0
+MTEXT
+  5
+176
+330
+17
+100
+AcDbEntity
+  8
+Texto Secao
+100
+AcDbMText
+ 10
+19283.04
+ 20
+26091.94
+ 30
+0.0
+ 40
+8.0
+ 71
+1
+  1
+V525_Fundo
+  0
+MTEXT
+  5
+177
+330
+17
+100
+AcDbEntity
+  8
+NOMENCLATURA
+100
+AcDbMText
+ 10
+19121.04
+ 20
+26186.94
+ 30
+0.0
+ 40
+9.0
+ 71
+1
+  1
+GWT-TIP - V525  b=15cm  h=40cm  L=324cm
+  0
+LWPOLYLINE
+  5
+178
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+-162.0
+ 20
+-6100.0
+ 10
+-42.0
+ 20
+-6100.0
+ 10
+-42.0
+ 20
+-6060.0
+ 10
+-162.0
+ 20
+-6060.0
+  0
+LWPOLYLINE
+  5
+179
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+-42.0
+ 20
+-6100.0
+ 10
+78.0
+ 20
+-6100.0
+ 10
+78.0
+ 20
+-6060.0
+ 10
+-42.0
+ 20
+-6060.0
+  0
+LWPOLYLINE
+  5
+17A
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+78.0
+ 20
+-6100.0
+ 10
+162.0
+ 20
+-6100.0
+ 10
+162.0
+ 20
+-6060.0
+ 10
+78.0
+ 20
+-6060.0
+  0
+MTEXT
+  5
+17B
+330
+17
+100
+AcDbEntity
+  8
+Texto Secao
+100
+AcDbMText
+ 10
+0.0
+ 20
+-6115.0
+ 30
+0.0
+ 40
+8.0
+ 71
+1
+  1
+V526_A
+  0
+LWPOLYLINE
+  5
+17C
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+-162.0
+ 20
+-6020.0
+ 10
+-42.0
+ 20
+-6020.0
+ 10
+-42.0
+ 20
+-5980.0
+ 10
+-162.0
+ 20
+-5980.0
+  0
+LWPOLYLINE
+  5
+17D
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+-42.0
+ 20
+-6020.0
+ 10
+78.0
+ 20
+-6020.0
+ 10
+78.0
+ 20
+-5980.0
+ 10
+-42.0
+ 20
+-5980.0
+  0
+LWPOLYLINE
+  5
+17E
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+78.0
+ 20
+-6020.0
+ 10
+162.0
+ 20
+-6020.0
+ 10
+162.0
+ 20
+-5980.0
+ 10
+78.0
+ 20
+-5980.0
+  0
+MTEXT
+  5
+17F
+330
+17
+100
+AcDbEntity
+  8
+Texto Secao
+100
+AcDbMText
+ 10
+0.0
+ 20
+-6035.0
+ 30
+0.0
+ 40
+8.0
+ 71
+1
+  1
+V526_B
+  0
+LWPOLYLINE
+  5
+180
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+-162.0
+ 20
+-5940.0
+ 10
+-42.0
+ 20
+-5940.0
+ 10
+-42.0
+ 20
+-5900.0
+ 10
+-162.0
+ 20
+-5900.0
+  0
+LWPOLYLINE
+  5
+181
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+-42.0
+ 20
+-5940.0
+ 10
+78.0
+ 20
+-5940.0
+ 10
+78.0
+ 20
+-5900.0
+ 10
+-42.0
+ 20
+-5900.0
+  0
+LWPOLYLINE
+  5
+182
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+78.0
+ 20
+-5940.0
+ 10
+162.0
+ 20
+-5940.0
+ 10
+162.0
+ 20
+-5900.0
+ 10
+78.0
+ 20
+-5900.0
+  0
+MTEXT
+  5
+183
+330
+17
+100
+AcDbEntity
+  8
+Texto Secao
+100
+AcDbMText
+ 10
+0.0
+ 20
+-5955.0
+ 30
+0.0
+ 40
+8.0
+ 71
+1
+  1
+V526_Fundo
+  0
+MTEXT
+  5
+184
+330
+17
+100
+AcDbEntity
+  8
+NOMENCLATURA
+100
+AcDbMText
+ 10
+-162.0
+ 20
+-5860.0
+ 30
+0.0
+ 40
+9.0
+ 71
+1
+  1
+GWT-TIP - V526  b=15cm  h=40cm  L=324cm
+  0
+LWPOLYLINE
+  5
+185
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+17182.93
+ 20
+28341.74
+ 10
+17302.93
+ 20
+28341.74
+ 10
+17302.93
+ 20
+28381.74
+ 10
+17182.93
+ 20
+28381.74
+  0
+LWPOLYLINE
+  5
+186
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+17302.93
+ 20
+28341.74
+ 10
+17422.93
+ 20
+28341.74
+ 10
+17422.93
+ 20
+28381.74
+ 10
+17302.93
+ 20
+28381.74
+  0
+LWPOLYLINE
+  5
+187
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+17422.93
+ 20
+28341.74
+ 10
+17438.93
+ 20
+28341.74
+ 10
+17438.93
+ 20
+28381.74
+ 10
+17422.93
+ 20
+28381.74
+  0
+MTEXT
+  5
+188
+330
+17
+100
+AcDbEntity
+  8
+Texto Secao
+100
+AcDbMText
+ 10
+17310.93
+ 20
+28326.74
+ 30
+0.0
+ 40
+8.0
+ 71
+1
+  1
+V529_A
+  0
+LWPOLYLINE
+  5
+189
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+17182.93
+ 20
+28421.74
+ 10
+17302.93
+ 20
+28421.74
+ 10
+17302.93
+ 20
+28461.74
+ 10
+17182.93
+ 20
+28461.74
+  0
+LWPOLYLINE
+  5
+18A
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+17302.93
+ 20
+28421.74
+ 10
+17422.93
+ 20
+28421.74
+ 10
+17422.93
+ 20
+28461.74
+ 10
+17302.93
+ 20
+28461.74
+  0
+LWPOLYLINE
+  5
+18B
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+17422.93
+ 20
+28421.74
+ 10
+17438.93
+ 20
+28421.74
+ 10
+17438.93
+ 20
+28461.74
+ 10
+17422.93
+ 20
+28461.74
+  0
+MTEXT
+  5
+18C
+330
+17
+100
+AcDbEntity
+  8
+Texto Secao
+100
+AcDbMText
+ 10
+17310.93
+ 20
+28406.74
+ 30
+0.0
+ 40
+8.0
+ 71
+1
+  1
+V529_B
+  0
+LWPOLYLINE
+  5
+18D
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+17182.93
+ 20
+28501.74
+ 10
+17302.93
+ 20
+28501.74
+ 10
+17302.93
+ 20
+28541.74
+ 10
+17182.93
+ 20
+28541.74
+  0
+LWPOLYLINE
+  5
+18E
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+17302.93
+ 20
+28501.74
+ 10
+17422.93
+ 20
+28501.74
+ 10
+17422.93
+ 20
+28541.74
+ 10
+17302.93
+ 20
+28541.74
+  0
+LWPOLYLINE
+  5
+18F
+330
+17
+100
+AcDbEntity
+  8
+Paineis
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+17422.93
+ 20
+28501.74
+ 10
+17438.93
+ 20
+28501.74
+ 10
+17438.93
+ 20
+28541.74
+ 10
+17422.93
+ 20
+28541.74
+  0
+MTEXT
+  5
+190
+330
+17
+100
+AcDbEntity
+  8
+Texto Secao
+100
+AcDbMText
+ 10
+17310.93
+ 20
+28486.74
+ 30
+0.0
+ 40
+8.0
+ 71
+1
+  1
+V529_Fundo
+  0
+MTEXT
+  5
+191
+330
+17
+100
+AcDbEntity
+  8
+NOMENCLATURA
+100
+AcDbMText
+ 10
+17182.93
+ 20
+28581.74
+ 30
+0.0
+ 40
+9.0
+ 71
+1
+  1
+GWT-TIP - V529  b=15cm  h=40cm  L=256cm
+  0
+ENDSEC
+  0
+SECTION
+  2
+OBJECTS
+  0
+DICTIONARY
+  5
+A
+330
+0
+100
+AcDbDictionary
+281
+1
+  3
+ACAD_COLOR
+350
+B
+  3
+ACAD_GROUP
+350
+C
+  3
+ACAD_LAYOUT
+350
+D
+  3
+ACAD_MATERIAL
+350
+E
+  3
+ACAD_MLEADERSTYLE
+350
+F
+  3
+ACAD_MLINESTYLE
+350
+10
+  3
+ACAD_PLOTSETTINGS
+350
+11
+  3
+ACAD_PLOTSTYLENAME
+350
+12
+  3
+ACAD_SCALELIST
+350
+14
+  3
+ACAD_TABLESTYLE
+350
+15
+  3
+ACAD_VISUALSTYLE
+350
+16
+  3
+EZDXF_META
+350
+2D
+  0
+DICTIONARY
+  5
+B
+330
+A
+100
+AcDbDictionary
+281
+1
+  0
+DICTIONARY
+  5
+C
+330
+A
+100
+AcDbDictionary
+281
+1
+  0
+DICTIONARY
+  5
+D
+330
+A
+100
+AcDbDictionary
+281
+1
+  3
+Model
+350
+1A
+  3
+Layout1
+350
+1E
+  0
+DICTIONARY
+  5
+E
+330
+A
+100
+AcDbDictionary
+281
+1
+  3
+ByBlock
+350
+1F
+  3
+ByLayer
+350
+20
+  3
+Global
+350
+21
+  0
+DICTIONARY
+  5
+F
+330
+A
+100
+AcDbDictionary
+281
+1
+  3
+Standard
+350
+2C
+  0
+DICTIONARY
+  5
+10
+330
+A
+100
+AcDbDictionary
+281
+1
+  3
+Standard
+350
+22
+  0
+DICTIONARY
+  5
+11
+330
+A
+100
+AcDbDictionary
+281
+1
+  0
+ACDBDICTIONARYWDFLT
+  5
+12
+330
+A
+100
+AcDbDictionary
+281
+1
+  3
+Normal
+350
+13
+100
+AcDbDictionaryWithDefault
+340
+13
+  0
+ACDBPLACEHOLDER
+  5
+13
+330
+12
+  0
+DICTIONARY
+  5
+14
+330
+A
+100
+AcDbDictionary
+281
+1
+  0
+DICTIONARY
+  5
+15
+330
+A
+100
+AcDbDictionary
+281
+1
+  0
+DICTIONARY
+  5
+16
+330
+A
+100
+AcDbDictionary
+281
+1
+  0
+LAYOUT
+  5
+1A
+330
+D
+100
+AcDbPlotSettings
+  1
+
+  4
+A3
+  6
+
+ 40
+7.5
+ 41
+20.0
+ 42
+7.5
+ 43
+20.0
+ 44
+420.0
+ 45
+297.0
+ 46
+0.0
+ 47
+0.0
+ 48
+0.0
+ 49
+0.0
+140
+0.0
+141
+0.0
+142
+1.0
+143
+1.0
+ 70
+1024
+ 72
+1
+ 73
+0
+ 74
+5
+  7
+
+ 75
+16
+ 76
+0
+ 77
+2
+ 78
+300
+147
+1.0
+148
+0.0
+149
+0.0
+100
+AcDbLayout
+  1
+Model
+ 70
+1
+ 71
+0
+ 10
+0.0
+ 20
+0.0
+ 11
+420.0
+ 21
+297.0
+ 12
+0.0
+ 22
+0.0
+ 32
+0.0
+ 14
+1e+20
+ 24
+1e+20
+ 34
+1e+20
+ 15
+-1e+20
+ 25
+-1e+20
+ 35
+-1e+20
+146
+0.0
+ 13
+0.0
+ 23
+0.0
+ 33
+0.0
+ 16
+1.0
+ 26
+0.0
+ 36
+0.0
+ 17
+0.0
+ 27
+1.0
+ 37
+0.0
+ 76
+1
+330
+17
+  0
+LAYOUT
+  5
+1E
+330
+D
+100
+AcDbPlotSettings
+  1
+
+  4
+A3
+  6
+
+ 40
+7.5
+ 41
+20.0
+ 42
+7.5
+ 43
+20.0
+ 44
+420.0
+ 45
+297.0
+ 46
+0.0
+ 47
+0.0
+ 48
+0.0
+ 49
+0.0
+140
+0.0
+141
+0.0
+142
+1.0
+143
+1.0
+ 70
+0
+ 72
+1
+ 73
+0
+ 74
+5
+  7
+
+ 75
+16
+ 76
+0
+ 77
+2
+ 78
+300
+147
+1.0
+148
+0.0
+149
+0.0
+100
+AcDbLayout
+  1
+Layout1
+ 70
+1
+ 71
+1
+ 10
+0.0
+ 20
+0.0
+ 11
+420.0
+ 21
+297.0
+ 12
+0.0
+ 22
+0.0
+ 32
+0.0
+ 14
+1e+20
+ 24
+1e+20
+ 34
+1e+20
+ 15
+-1e+20
+ 25
+-1e+20
+ 35
+-1e+20
+146
+0.0
+ 13
+0.0
+ 23
+0.0
+ 33
+0.0
+ 16
+1.0
+ 26
+0.0
+ 36
+0.0
+ 17
+0.0
+ 27
+1.0
+ 37
+0.0
+ 76
+1
+330
+1B
+  0
+MATERIAL
+  5
+1F
+102
+{ACAD_REACTORS
+330
+E
+102
+}
+330
+E
+100
+AcDbMaterial
+  1
+ByBlock
+  2
+
+ 70
+0
+ 40
+1.0
+ 71
+1
+ 41
+1.0
+ 91
+-1023410177
+ 42
+1.0
+ 72
+1
+  3
+
+ 73
+1
+ 74
+1
+ 75
+1
+ 44
+0.5
+ 73
+0
+ 45
+1.0
+ 46
+1.0
+ 77
+1
+  4
+
+ 78
+1
+ 79
+1
+170
+1
+ 48
+1.0
+171
+1
+  6
+
+172
+1
+173
+1
+174
+1
+140
+1.0
+141
+1.0
+175
+1
+  7
+
+176
+1
+177
+1
+178
+1
+143
+1.0
+179
+1
+  8
+
+270
+1
+271
+1
+272
+1
+145
+1.0
+146
+1.0
+273
+1
+  9
+
+274
+1
+275
+1
+276
+1
+ 42
+1.0
+ 72
+1
+  3
+
+ 73
+1
+ 74
+1
+ 75
+1
+ 94
+63
+  0
+MATERIAL
+  5
+20
+102
+{ACAD_REACTORS
+330
+E
+102
+}
+330
+E
+100
+AcDbMaterial
+  1
+ByLayer
+  2
+
+ 70
+0
+ 40
+1.0
+ 71
+1
+ 41
+1.0
+ 91
+-1023410177
+ 42
+1.0
+ 72
+1
+  3
+
+ 73
+1
+ 74
+1
+ 75
+1
+ 44
+0.5
+ 73
+0
+ 45
+1.0
+ 46
+1.0
+ 77
+1
+  4
+
+ 78
+1
+ 79
+1
+170
+1
+ 48
+1.0
+171
+1
+  6
+
+172
+1
+173
+1
+174
+1
+140
+1.0
+141
+1.0
+175
+1
+  7
+
+176
+1
+177
+1
+178
+1
+143
+1.0
+179
+1
+  8
+
+270
+1
+271
+1
+272
+1
+145
+1.0
+146
+1.0
+273
+1
+  9
+
+274
+1
+275
+1
+276
+1
+ 42
+1.0
+ 72
+1
+  3
+
+ 73
+1
+ 74
+1
+ 75
+1
+ 94
+63
+  0
+MATERIAL
+  5
+21
+102
+{ACAD_REACTORS
+330
+E
+102
+}
+330
+E
+100
+AcDbMaterial
+  1
+Global
+  2
+
+ 70
+0
+ 40
+1.0
+ 71
+1
+ 41
+1.0
+ 91
+-1023410177
+ 42
+1.0
+ 72
+1
+  3
+
+ 73
+1
+ 74
+1
+ 75
+1
+ 44
+0.5
+ 73
+0
+ 45
+1.0
+ 46
+1.0
+ 77
+1
+  4
+
+ 78
+1
+ 79
+1
+170
+1
+ 48
+1.0
+171
+1
+  6
+
+172
+1
+173
+1
+174
+1
+140
+1.0
+141
+1.0
+175
+1
+  7
+
+176
+1
+177
+1
+178
+1
+143
+1.0
+179
+1
+  8
+
+270
+1
+271
+1
+272
+1
+145
+1.0
+146
+1.0
+273
+1
+  9
+
+274
+1
+275
+1
+276
+1
+ 42
+1.0
+ 72
+1
+  3
+
+ 73
+1
+ 74
+1
+ 75
+1
+ 94
+63
+  0
+MLINESTYLE
+  5
+22
+102
+{ACAD_REACTORS
+330
+10
+102
+}
+330
+10
+100
+AcDbMlineStyle
+  2
+Standard
+ 70
+0
+  3
+
+ 62
+256
+ 51
+90.0
+ 52
+90.0
+ 71
+2
+ 49
+0.5
+ 62
+256
+  6
+BYLAYER
+ 49
+-0.5
+ 62
+256
+  6
+BYLAYER
+  0
+MLEADERSTYLE
+  5
+2C
+102
+{ACAD_REACTORS
+330
+F
+102
+}
+330
+F
+100
+AcDbMLeaderStyle
+179
+2
+170
+2
+171
+1
+172
+0
+ 90
+2
+ 40
+0.0
+ 41
+0.0
+173
+1
+ 91
+-1056964608
+ 92
+-2
+290
+1
+ 42
+2.0
+291
+1
+ 43
+8.0
+  3
+Standard
+ 44
+4.0
+300
+
+342
+29
+174
+1
+175
+1
+176
+0
+178
+1
+ 93
+-1056964608
+ 45
+4.0
+292
+0
+297
+0
+ 46
+4.0
+ 94
+-1056964608
+ 47
+1.0
+ 49
+1.0
+140
+1.0
+294
+1
+141
+0.0
+177
+0
+142
+1.0
+295
+0
+296
+0
+143
+3.75
+271
+0
+272
+9
+273
+9
+  0
+DICTIONARY
+  5
+2D
+330
+A
+100
+AcDbDictionary
+280
+1
+281
+1
+  3
+CREATED_BY_EZDXF
+350
+2E
+  3
+WRITTEN_BY_EZDXF
+350
+194
+  0
+DICTIONARYVAR
+  5
+2E
+330
+2D
+100
+DictionaryVariables
+280
+0
+  1
+1.4.3 @ 2026-03-09T10:01:57.949647+00:00
+  0
+DICTIONARYVAR
+  5
+194
+330
+2D
+100
+DictionaryVariables
+280
+0
+  1
+1.4.3 @ 2026-03-09T10:01:58.203619+00:00
+  0
+ENDSEC
+  0
+EOF

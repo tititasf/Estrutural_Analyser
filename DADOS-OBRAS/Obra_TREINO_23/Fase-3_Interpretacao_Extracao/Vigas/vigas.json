@@ -1,0 +1,241 @@
+{
+  "V12": {
+    "b": 15.0,
+    "h": 40.0,
+    "comprimento": 350.0,
+    "confidence": 0.69,
+    "source": "vigas_dim+default",
+    "sides": [
+      "A",
+      "B"
+    ]
+  },
+  "V28": {
+    "b": 15.0,
+    "h": 40.0,
+    "comprimento": 310.0,
+    "confidence": 0.69,
+    "source": "vigas_dim+default",
+    "sides": [
+      "A",
+      "B"
+    ]
+  },
+  "V101": {
+    "b": 15.0,
+    "h": 40.0,
+    "comprimento": 156.5,
+    "confidence": 0.69,
+    "source": "vigas_dim+default",
+    "sides": [
+      "A",
+      "B"
+    ]
+  },
+  "V102": {
+    "b": 15.0,
+    "h": 40.0,
+    "comprimento": 244.0,
+    "confidence": 0.69,
+    "source": "vigas_dim+default",
+    "sides": [
+      "A",
+      "B"
+    ]
+  },
+  "V104": {
+    "b": 15.0,
+    "h": 40.0,
+    "comprimento": 244.0,
+    "confidence": 0.69,
+    "source": "vigas_dim+default",
+    "sides": [
+      "A",
+      "B"
+    ]
+  },
+  "V105": {
+    "b": 15.0,
+    "h": 40.0,
+    "comprimento": 180.0,
+    "confidence": 0.64,
+    "source": "vigas_dim+default",
+    "sides": [
+      "A",
+      "B"
+    ]
+  },
+  "V106": {
+    "b": 15.0,
+    "h": 40.0,
+    "comprimento": 244.0,
+    "confidence": 0.64,
+    "source": "vigas_dim+default",
+    "sides": [
+      "A",
+      "B"
+    ]
+  },
+  "V107": {
+    "b": 15.0,
+    "h": 40.0,
+    "comprimento": 246.0,
+    "confidence": 0.64,
+    "source": "vigas_dim+default",
+    "sides": [
+      "A",
+      "B"
+    ]
+  },
+  "V108": {
+    "b": 15.0,
+    "h": 40.0,
+    "comprimento": 244.0,
+    "confidence": 0.64,
+    "source": "vigas_dim+default",
+    "sides": [
+      "A",
+      "B"
+    ]
+  },
+  "V109": {
+    "b": 15.0,
+    "h": 40.0,
+    "comprimento": 244.0,
+    "confidence": 0.64,
+    "source": "vigas_dim+default",
+    "sides": [
+      "A",
+      "B"
+    ]
+  },
+  "V110": {
+    "b": 15.0,
+    "h": 40.0,
+    "comprimento": 244.0,
+    "confidence": 0.69,
+    "source": "vigas_dim+default",
+    "sides": [
+      "A",
+      "B"
+    ]
+  },
+  "V111": {
+    "b": 15.0,
+    "h": 40.0,
+    "comprimento": 246.0,
+    "confidence": 0.69,
+    "source": "vigas_dim+default",
+    "sides": [
+      "A",
+      "B"
+    ]
+  },
+  "V112": {
+    "b": 15.0,
+    "h": 40.0,
+    "comprimento": 244.0,
+    "confidence": 0.69,
+    "source": "vigas_dim+default",
+    "sides": [
+      "A",
+      "B"
+    ]
+  },
+  "V201": {
+    "b": 15.0,
+    "h": 40.0,
+    "comprimento": 244.0,
+    "confidence": 0.64,
+    "source": "vigas_dim+default",
+    "sides": [
+      "A",
+      "B"
+    ]
+  },
+  "V202": {
+    "b": 15.0,
+    "h": 40.0,
+    "comprimento": 244.0,
+    "confidence": 0.64,
+    "source": "vigas_dim+default",
+    "sides": [
+      "A",
+      "B"
+    ]
+  },
+  "V203": {
+    "b": 15.0,
+    "h": 40.0,
+    "comprimento": 198.5,
+    "confidence": 0.69,
+    "source": "vigas_dim+default",
+    "sides": [
+      "A",
+      "B"
+    ]
+  },
+  "V204": {
+    "b": 15.0,
+    "h": 40.0,
+    "comprimento": 240.5,
+    "confidence": 0.64,
+    "source": "vigas_dim+default",
+    "sides": [
+      "A",
+      "B"
+    ]
+  },
+  "V205": {
+    "b": 15.0,
+    "h": 40.0,
+    "comprimento": 240.5,
+    "confidence": 0.64,
+    "source": "vigas_dim+default",
+    "sides": [
+      "A",
+      "B"
+    ]
+  },
+  "V206": {
+    "b": 15.0,
+    "h": 40.0,
+    "comprimento": 240.5,
+    "confidence": 0.64,
+    "source": "vigas_dim+default",
+    "sides": [
+      "A",
+      "B"
+    ]
+  },
+  "V207": {
+    "b": 15.0,
+    "h": 40.0,
+    "comprimento": 240.5,
+    "confidence": 0.64,
+    "source": "vigas_dim+default",
+    "sides": [
+      "A",
+      "B"
+    ]
+  },
+  "V301": {
+    "b": 15.0,
+    "h": 40.0,
+    "comprimento": 194.0,
+    "confidence": 0.69,
+    "source": "vigas_dim+default",
+    "sides": [
+      "A",
+      "B"
+    ]
+  },
+  "_meta": {
+    "total": 20,
+    "integrado_em": "2026-03-08",
+    "fontes": [
+      "vigas_dim.json",
+      "vigas_largura.json"
+    ]
+  }
+}

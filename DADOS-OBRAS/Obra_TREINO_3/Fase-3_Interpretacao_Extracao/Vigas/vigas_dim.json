@@ -1,0 +1,431 @@
+{
+  "V1": {
+    "id": "V1",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 120.0,
+    "altura_conf": 0.8,
+    "comprimento_cm": 122.0,
+    "comprimento_conf": 0.88,
+    "comprimento_source": "inverse_proximity",
+    "confidence": 0.84
+  },
+  "V2": {
+    "id": "V2",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 120.0,
+    "altura_conf": 0.8,
+    "comprimento_cm": 122.0,
+    "comprimento_conf": 0.88,
+    "comprimento_source": "inverse_proximity",
+    "confidence": 0.84
+  },
+  "V3": {
+    "id": "V3",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 120.0,
+    "altura_conf": 0.8,
+    "comprimento_cm": 122.0,
+    "comprimento_conf": 0.88,
+    "comprimento_source": "inverse_proximity",
+    "confidence": 0.84
+  },
+  "V4": {
+    "id": "V4",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 120.0,
+    "altura_conf": 0.8,
+    "comprimento_cm": 122.0,
+    "comprimento_conf": 0.88,
+    "comprimento_source": "inverse_proximity",
+    "confidence": 0.84
+  },
+  "V5": {
+    "id": "V5",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 120.0,
+    "altura_conf": 0.8,
+    "comprimento_cm": 122.0,
+    "comprimento_conf": 0.88,
+    "comprimento_source": "inverse_proximity",
+    "confidence": 0.84
+  },
+  "V6": {
+    "id": "V6",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 120.0,
+    "altura_conf": 0.8,
+    "comprimento_cm": 122.0,
+    "comprimento_conf": 0.88,
+    "comprimento_source": "inverse_proximity",
+    "confidence": 0.84
+  },
+  "V7": {
+    "id": "V7",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 120.0,
+    "altura_conf": 0.8,
+    "comprimento_cm": 122.0,
+    "comprimento_conf": 0.88,
+    "comprimento_source": "inverse_proximity",
+    "confidence": 0.84
+  },
+  "V8": {
+    "id": "V8",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 120.0,
+    "altura_conf": 0.8,
+    "comprimento_cm": 122.0,
+    "comprimento_conf": 0.88,
+    "comprimento_source": "inverse_proximity",
+    "confidence": 0.84
+  },
+  "V9": {
+    "id": "V9",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 120.0,
+    "altura_conf": 0.8,
+    "comprimento_cm": 122.0,
+    "comprimento_conf": 0.88,
+    "comprimento_source": "inverse_proximity",
+    "confidence": 0.84
+  },
+  "V10": {
+    "id": "V10",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 120.0,
+    "altura_conf": 0.8,
+    "comprimento_cm": 122.0,
+    "comprimento_conf": 0.88,
+    "comprimento_source": "inverse_proximity",
+    "confidence": 0.84
+  },
+  "V11": {
+    "id": "V11",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 120.0,
+    "altura_conf": 0.8,
+    "comprimento_cm": 122.0,
+    "comprimento_conf": 0.88,
+    "comprimento_source": "inverse_proximity",
+    "confidence": 0.84
+  },
+  "V203": {
+    "id": "V203",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 50.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 637.0,
+    "comprimento_conf": 0.88,
+    "comprimento_source": "inverse_proximity",
+    "confidence": 0.89
+  },
+  "V208": {
+    "id": "V208",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 60.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 730.0,
+    "comprimento_conf": 0.88,
+    "comprimento_source": "inverse_proximity",
+    "confidence": 0.89
+  },
+  "V273": {
+    "id": "V273",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 60.0,
+    "altura_conf": 0.8,
+    "comprimento_cm": 474.0,
+    "comprimento_conf": 0.88,
+    "comprimento_source": "inverse_proximity",
+    "confidence": 0.84
+  },
+  "V301": {
+    "id": "V301",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 40.0,
+    "altura_conf": 0.8,
+    "comprimento_cm": 637.5,
+    "comprimento_conf": 0.78,
+    "comprimento_source": "inverse_proximity",
+    "confidence": 0.79
+  },
+  "V302": {
+    "id": "V302",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 62.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 646.0,
+    "comprimento_conf": 0.78,
+    "comprimento_source": "inverse_proximity",
+    "confidence": 0.84
+  },
+  "V306": {
+    "id": "V306",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 40.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 637.5,
+    "comprimento_conf": 0.88,
+    "comprimento_source": "inverse_proximity",
+    "confidence": 0.89
+  },
+  "V372": {
+    "id": "V372",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 60.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 474.0,
+    "comprimento_conf": 0.88,
+    "comprimento_source": "inverse_proximity",
+    "confidence": 0.89
+  },
+  "V377": {
+    "id": "V377",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 60.0,
+    "altura_conf": 0.8,
+    "comprimento_cm": 474.0,
+    "comprimento_conf": 0.88,
+    "comprimento_source": "inverse_proximity",
+    "confidence": 0.84
+  },
+  "V386": {
+    "id": "V386",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 60.0,
+    "altura_conf": 0.8,
+    "comprimento_cm": 474.0,
+    "comprimento_conf": 0.78,
+    "comprimento_source": "inverse_proximity",
+    "confidence": 0.79
+  },
+  "V391": {
+    "id": "V391",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 60.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 474.0,
+    "comprimento_conf": 0.88,
+    "comprimento_source": "inverse_proximity",
+    "confidence": 0.89
+  },
+  "V399": {
+    "id": "V399",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 120.0,
+    "altura_conf": 0.8,
+    "comprimento_cm": 474.0,
+    "comprimento_conf": 0.78,
+    "comprimento_source": "inverse_proximity",
+    "confidence": 0.79
+  },
+  "V301A": {
+    "id": "V301A",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 120.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 730.0,
+    "comprimento_conf": 0.88,
+    "comprimento_source": "inverse_proximity",
+    "confidence": 0.89
+  },
+  "V302A": {
+    "id": "V302A",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 120.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 730.0,
+    "comprimento_conf": 0.78,
+    "comprimento_source": "inverse_proximity",
+    "confidence": 0.84
+  },
+  "V306A": {
+    "id": "V306A",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 40.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 730.0,
+    "comprimento_conf": 0.78,
+    "comprimento_source": "inverse_proximity",
+    "confidence": 0.84
+  },
+  "V372A": {
+    "id": "V372A",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 62.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 646.0,
+    "comprimento_conf": 0.78,
+    "comprimento_source": "inverse_proximity",
+    "confidence": 0.84
+  },
+  "V377A": {
+    "id": "V377A",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 62.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 646.0,
+    "comprimento_conf": 0.88,
+    "comprimento_source": "inverse_proximity",
+    "confidence": 0.89
+  },
+  "V380A": {
+    "id": "V380A",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 40.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 480.0,
+    "comprimento_conf": 0.88,
+    "comprimento_source": "inverse_proximity",
+    "confidence": 0.89
+  },
+  "V386A": {
+    "id": "V386A",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 62.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 548.0,
+    "comprimento_conf": 0.88,
+    "comprimento_source": "inverse_proximity",
+    "confidence": 0.89
+  },
+  "V391A": {
+    "id": "V391A",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 56.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 548.0,
+    "comprimento_conf": 0.78,
+    "comprimento_source": "inverse_proximity",
+    "confidence": 0.84
+  },
+  "V393A": {
+    "id": "V393A",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 40.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 480.0,
+    "comprimento_conf": 0.88,
+    "comprimento_source": "inverse_proximity",
+    "confidence": 0.89
+  },
+  "V396A": {
+    "id": "V396A",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 50.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 496.0,
+    "comprimento_conf": 0.88,
+    "comprimento_source": "inverse_proximity",
+    "confidence": 0.89
+  },
+  "V399A": {
+    "id": "V399A",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 50.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 637.0,
+    "comprimento_conf": 0.78,
+    "comprimento_source": "inverse_proximity",
+    "confidence": 0.84
+  }
+}

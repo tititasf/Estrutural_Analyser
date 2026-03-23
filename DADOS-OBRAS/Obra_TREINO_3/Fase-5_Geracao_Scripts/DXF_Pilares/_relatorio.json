@@ -1,0 +1,90 @@
+{
+  "_meta": {
+    "total": 10,
+    "erros": 0,
+    "pavimento": "RES.DIAMOND - TÉRREO - PERIFERIA - TORRE 1 - S04A",
+    "output_dir": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_3\\Fase-5_Geracao_Scripts\\DXF_Pilares"
+  },
+  "pilares": {
+    "P106": {
+      "pid": "P106",
+      "b": 30.0,
+      "h": 82.0,
+      "n_paineis": 12,
+      "total_height": 280.0,
+      "path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_3\\Fase-5_Geracao_Scripts\\DXF_Pilares\\P106.dxf"
+    },
+    "P107": {
+      "pid": "P107",
+      "b": 20.0,
+      "h": 82.0,
+      "n_paineis": 12,
+      "total_height": 280.0,
+      "path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_3\\Fase-5_Geracao_Scripts\\DXF_Pilares\\P107.dxf"
+    },
+    "P108": {
+      "pid": "P108",
+      "b": 20.0,
+      "h": 82.0,
+      "n_paineis": 12,
+      "total_height": 280.0,
+      "path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_3\\Fase-5_Geracao_Scripts\\DXF_Pilares\\P108.dxf"
+    },
+    "P109": {
+      "pid": "P109",
+      "b": 20.0,
+      "h": 82.0,
+      "n_paineis": 12,
+      "total_height": 280.0,
+      "path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_3\\Fase-5_Geracao_Scripts\\DXF_Pilares\\P109.dxf"
+    },
+    "P116": {
+      "pid": "P116",
+      "b": 20.0,
+      "h": 40.0,
+      "n_paineis": 12,
+      "total_height": 280.0,
+      "path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_3\\Fase-5_Geracao_Scripts\\DXF_Pilares\\P116.dxf"
+    },
+    "P117": {
+      "pid": "P117",
+      "b": 20.0,
+      "h": 82.0,
+      "n_paineis": 12,
+      "total_height": 280.0,
+      "path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_3\\Fase-5_Geracao_Scripts\\DXF_Pilares\\P117.dxf"
+    },
+    "P118": {
+      "pid": "P118",
+      "b": 20.0,
+      "h": 82.0,
+      "n_paineis": 12,
+      "total_height": 280.0,
+      "path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_3\\Fase-5_Geracao_Scripts\\DXF_Pilares\\P118.dxf"
+    },
+    "P119": {
+      "pid": "P119",
+      "b": 20.0,
+      "h": 82.0,
+      "n_paineis": 12,
+      "total_height": 280.0,
+      "path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_3\\Fase-5_Geracao_Scripts\\DXF_Pilares\\P119.dxf"
+    },
+    "P122": {
+      "pid": "P122",
+      "b": 31.0,
+      "h": 62.0,
+      "n_paineis": 12,
+      "total_height": 280.0,
+      "path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_3\\Fase-5_Geracao_Scripts\\DXF_Pilares\\P122.dxf"
+    },
+    "P123": {
+      "pid": "P123",
+      "b": 25.0,
+      "h": 60.0,
+      "n_paineis": 12,
+      "total_height": 280.0,
+      "path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_3\\Fase-5_Geracao_Scripts\\DXF_Pilares\\P123.dxf"
+    }
+  }
+}

@@ -1,0 +1,242 @@
+{
+  "P16": {
+    "b": null,
+    "h": null,
+    "altura": 652.0,
+    "confidence": 0.3,
+    "source": "engenharia-reversa-ezdxf",
+    "faces_encontradas": [
+      "B"
+    ],
+    "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente"
+  },
+  "P314": {
+    "b": 19.0,
+    "h": 36.0,
+    "altura": 652.0,
+    "confidence": 0.9,
+    "source": "engenharia-reversa-ezdxf",
+    "faces_encontradas": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "bh_source": "inverse-proximity"
+  },
+  "P315": {
+    "b": 19.0,
+    "h": 82.0,
+    "altura": 652.0,
+    "confidence": 0.4,
+    "source": "engenharia-reversa-ezdxf",
+    "faces_encontradas": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "bh_source": "proximity-fallback"
+  },
+  "P317": {
+    "b": 19.0,
+    "h": 34.0,
+    "altura": 652.0,
+    "confidence": 0.9,
+    "source": "engenharia-reversa-ezdxf",
+    "faces_encontradas": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "bh_source": "inverse-proximity"
+  },
+  "P318": {
+    "b": 19.0,
+    "h": 82.0,
+    "altura": 652.0,
+    "confidence": 0.4,
+    "source": "engenharia-reversa-ezdxf",
+    "faces_encontradas": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "bh_source": "proximity-fallback"
+  },
+  "P319": {
+    "b": 19.0,
+    "h": 82.0,
+    "altura": 652.0,
+    "confidence": 0.4,
+    "source": "engenharia-reversa-ezdxf",
+    "faces_encontradas": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "bh_source": "proximity-fallback"
+  },
+  "P320": {
+    "b": 34.0,
+    "h": 82.0,
+    "altura": 652.0,
+    "confidence": 0.4,
+    "source": "engenharia-reversa-ezdxf",
+    "faces_encontradas": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "bh_source": "proximity-fallback"
+  },
+  "P324": {
+    "b": 36.0,
+    "h": 82.0,
+    "altura": 652.0,
+    "confidence": 0.9,
+    "source": "engenharia-reversa-ezdxf",
+    "faces_encontradas": [
+      "A"
+    ],
+    "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "bh_source": "inverse-proximity"
+  },
+  "P325": {
+    "b": 19.0,
+    "h": 82.0,
+    "altura": 652.0,
+    "confidence": 0.4,
+    "source": "engenharia-reversa-ezdxf",
+    "faces_encontradas": [
+      "A"
+    ],
+    "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "bh_source": "proximity-fallback"
+  },
+  "P326": {
+    "b": 34.0,
+    "h": 82.0,
+    "altura": 652.0,
+    "confidence": 0.4,
+    "source": "engenharia-reversa-ezdxf",
+    "faces_encontradas": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "bh_source": "proximity-fallback"
+  },
+  "P330": {
+    "b": 19.0,
+    "h": 82.0,
+    "altura": 652.0,
+    "confidence": 0.9,
+    "source": "engenharia-reversa-ezdxf",
+    "faces_encontradas": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "bh_source": "inverse-proximity"
+  },
+  "P331": {
+    "b": 19.0,
+    "h": 82.0,
+    "altura": 652.0,
+    "confidence": 0.4,
+    "source": "engenharia-reversa-ezdxf",
+    "faces_encontradas": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "bh_source": "proximity-fallback"
+  },
+  "P332": {
+    "b": 34.0,
+    "h": 82.0,
+    "altura": 652.0,
+    "confidence": 0.9,
+    "source": "engenharia-reversa-ezdxf",
+    "faces_encontradas": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "bh_source": "inverse-proximity"
+  },
+  "P338": {
+    "b": 19.0,
+    "h": 82.0,
+    "altura": 652.0,
+    "confidence": 0.4,
+    "source": "engenharia-reversa-ezdxf",
+    "faces_encontradas": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "bh_source": "proximity-fallback"
+  },
+  "P339": {
+    "b": 19.0,
+    "h": 82.0,
+    "altura": 652.0,
+    "confidence": 0.4,
+    "source": "engenharia-reversa-ezdxf",
+    "faces_encontradas": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "bh_source": "proximity-fallback"
+  },
+  "P340": {
+    "b": 34.0,
+    "h": 82.0,
+    "altura": 652.0,
+    "confidence": 0.4,
+    "source": "engenharia-reversa-ezdxf",
+    "faces_encontradas": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "bh_source": "proximity-fallback"
+  },
+  "_meta": {
+    "total": 16,
+    "obra": "engenharia-reversa",
+    "pavimento": "TORRE 2 - TÉRREO - PERIFERIA",
+    "pe_direito_cm": 652.0,
+    "extraido_em": "2026-03-09",
+    "confidence_nota": "IDs=ALTA | altura=MEDIA | B/H=BAIXA(requer revisao)",
+    "bh_extraidos": 15,
+    "bh_atualizado_em": "2026-03-09"
+  }
+}

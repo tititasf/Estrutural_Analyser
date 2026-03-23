@@ -1,0 +1,243 @@
+{
+  "L2": {
+    "comprimento": 100.0,
+    "largura": 100.0,
+    "coordenadas": [
+      [
+        190711.8,
+        39967.2
+      ],
+      [
+        191055.3,
+        39967.2
+      ],
+      [
+        191055.3,
+        39927.2
+      ],
+      [
+        190711.8,
+        39927.2
+      ]
+    ],
+    "area_cm2": 10000.0,
+    "confidence": 0.6,
+    "source": "label-only",
+    "modo_selecionado": 0
+  },
+  "L3": {
+    "comprimento": 100.0,
+    "largura": 100.0,
+    "coordenadas": [
+      [
+        191113.0,
+        40100.7
+      ],
+      [
+        192069.3,
+        40100.7
+      ],
+      [
+        192069.3,
+        40140.7
+      ],
+      [
+        191113.0,
+        40140.7
+      ]
+    ],
+    "area_cm2": 10000.0,
+    "confidence": 0.6,
+    "source": "label-only",
+    "modo_selecionado": 0
+  },
+  "L4": {
+    "comprimento": 100.0,
+    "largura": 100.0,
+    "coordenadas": [
+      [
+        193785.3,
+        40140.7
+      ],
+      [
+        192606.3,
+        40140.7
+      ],
+      [
+        192606.3,
+        40100.7
+      ],
+      [
+        193785.3,
+        40100.7
+      ]
+    ],
+    "area_cm2": 10000.0,
+    "confidence": 0.6,
+    "source": "label-only",
+    "modo_selecionado": 0
+  },
+  "L5": {
+    "comprimento": 100.0,
+    "largura": 100.0,
+    "coordenadas": [
+      [
+        193785.3,
+        40140.7
+      ],
+      [
+        192606.3,
+        40140.7
+      ],
+      [
+        192606.3,
+        40100.7
+      ],
+      [
+        193785.3,
+        40100.7
+      ]
+    ],
+    "area_cm2": 10000.0,
+    "confidence": 0.6,
+    "source": "label-only",
+    "modo_selecionado": 0
+  },
+  "L6": {
+    "comprimento": 100.0,
+    "largura": 100.0,
+    "coordenadas": [
+      [
+        193785.3,
+        40140.7
+      ],
+      [
+        192606.3,
+        40140.7
+      ],
+      [
+        192606.3,
+        40100.7
+      ],
+      [
+        193785.3,
+        40100.7
+      ]
+    ],
+    "area_cm2": 10000.0,
+    "confidence": 0.6,
+    "source": "label-only",
+    "modo_selecionado": 0
+  },
+  "L7": {
+    "comprimento": 100.0,
+    "largura": 100.0,
+    "coordenadas": [
+      [
+        191894.0,
+        38477.7
+      ],
+      [
+        190715.0,
+        38477.7
+      ],
+      [
+        190715.0,
+        38437.7
+      ],
+      [
+        191894.0,
+        38437.7
+      ]
+    ],
+    "area_cm2": 10000.0,
+    "confidence": 0.6,
+    "source": "label-only",
+    "modo_selecionado": 0
+  },
+  "L8": {
+    "comprimento": 100.0,
+    "largura": 100.0,
+    "coordenadas": [
+      [
+        191894.0,
+        38477.7
+      ],
+      [
+        190715.0,
+        38477.7
+      ],
+      [
+        190715.0,
+        38437.7
+      ],
+      [
+        191894.0,
+        38437.7
+      ]
+    ],
+    "area_cm2": 10000.0,
+    "confidence": 0.6,
+    "source": "label-only",
+    "modo_selecionado": 0
+  },
+  "L9": {
+    "comprimento": 100.0,
+    "largura": 100.0,
+    "coordenadas": [
+      [
+        192431.3,
+        38437.7
+      ],
+      [
+        193387.5,
+        38437.7
+      ],
+      [
+        193387.5,
+        38477.7
+      ],
+      [
+        192431.3,
+        38477.7
+      ]
+    ],
+    "area_cm2": 10000.0,
+    "confidence": 0.6,
+    "source": "label-only",
+    "modo_selecionado": 0
+  },
+  "L10": {
+    "comprimento": 100.0,
+    "largura": 100.0,
+    "coordenadas": [
+      [
+        192431.3,
+        38437.7
+      ],
+      [
+        193387.5,
+        38437.7
+      ],
+      [
+        193387.5,
+        38477.7
+      ],
+      [
+        192431.3,
+        38477.7
+      ]
+    ],
+    "area_cm2": 10000.0,
+    "confidence": 0.6,
+    "source": "label-only",
+    "modo_selecionado": 0
+  },
+  "_meta": {
+    "total": 8,
+    "integrado_em": "2026-03-08",
+    "fontes": [
+      "lajes_data.json"
+    ]
+  }
+}

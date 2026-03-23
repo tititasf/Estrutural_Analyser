@@ -1,0 +1,15 @@
+{
+  "TREINO_21": {
+    "pavimentos": [
+      "LAJE TÉCNICA"
+    ],
+    "pavimentos_data": {
+      "LAJE TÉCNICA": {
+        "nome": "LAJE TÉCNICA",
+        "numero": "1",
+        "nivel_chegada": "0.0",
+        "nivel_saida": "280.0"
+      }
+    }
+  }
+}

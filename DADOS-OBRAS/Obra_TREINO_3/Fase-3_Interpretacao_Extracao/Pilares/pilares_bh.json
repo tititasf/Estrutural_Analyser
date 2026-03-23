@@ -1,0 +1,98 @@
+{
+  "P106": {
+    "b": 30.0,
+    "h": 82.0,
+    "confidence": 0.9,
+    "source": "inverse-proximity",
+    "dims_assignadas": 7,
+    "dist_d1": 48.8,
+    "dist_d2": 306.1
+  },
+  "P107": {
+    "b": 20.0,
+    "h": 82.0,
+    "confidence": 0.4,
+    "source": "proximity-fallback",
+    "dist_d1": 48.8,
+    "dist_d2": 249.0
+  },
+  "P108": {
+    "b": 20.0,
+    "h": 82.0,
+    "confidence": 0.4,
+    "source": "proximity-fallback",
+    "dist_d1": 48.8,
+    "dist_d2": 249.0
+  },
+  "P109": {
+    "b": 20.0,
+    "h": 82.0,
+    "confidence": 0.4,
+    "source": "proximity-fallback",
+    "dist_d1": 48.8,
+    "dist_d2": 249.0
+  },
+  "P116": {
+    "b": 20.0,
+    "h": 40.0,
+    "confidence": 0.9,
+    "source": "inverse-proximity",
+    "dims_assignadas": 14,
+    "dist_d1": 225.2,
+    "dist_d2": 366.2
+  },
+  "P117": {
+    "b": 20.0,
+    "h": 82.0,
+    "confidence": 0.4,
+    "source": "proximity-fallback",
+    "dist_d1": 65.7,
+    "dist_d2": 225.2
+  },
+  "P118": {
+    "b": 20.0,
+    "h": 82.0,
+    "confidence": 0.4,
+    "source": "proximity-fallback",
+    "dist_d1": 65.7,
+    "dist_d2": 225.2
+  },
+  "P119": {
+    "b": 20.0,
+    "h": 82.0,
+    "confidence": 0.4,
+    "source": "proximity-fallback",
+    "dist_d1": 65.7,
+    "dist_d2": 225.2
+  },
+  "P122": {
+    "b": 31.0,
+    "h": 62.0,
+    "confidence": 0.9,
+    "source": "inverse-proximity",
+    "dims_assignadas": 26,
+    "dist_d1": 70.2,
+    "dist_d2": 219.7
+  },
+  "P123": {
+    "b": 25.0,
+    "h": 60.0,
+    "confidence": 0.9,
+    "source": "inverse-proximity",
+    "dims_assignadas": 27,
+    "dist_d1": 90.4,
+    "dist_d2": 237.2
+  },
+  "_meta": {
+    "total": 10,
+    "extraidos_bh_completo": 10,
+    "extraidos_parcial": 0,
+    "sem_dados": 0,
+    "cobertura_pct": 100.0,
+    "max_dist": 300.0,
+    "obra": "Obra_TREINO_3",
+    "pavimento": "RES.DIAMOND - TÉRREO - PERIFERIA - TORRE 1 - S04A",
+    "extraido_em": "2026-03-09",
+    "algoritmo": "dimension-proximity-matching"
+  }
+}

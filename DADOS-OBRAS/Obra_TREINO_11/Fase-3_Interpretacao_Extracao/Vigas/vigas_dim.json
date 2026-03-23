@@ -1,0 +1,366 @@
+{
+  "V402": {
+    "id": "V402",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": null,
+    "altura_conf": null,
+    "comprimento_cm": 324.0,
+    "comprimento_conf": 0.78,
+    "comprimento_source": "inverse_proximity",
+    "confidence": 0.78
+  },
+  "V501": {
+    "id": "V501",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": null,
+    "altura_conf": null,
+    "comprimento_cm": 324.0,
+    "comprimento_conf": 0.88,
+    "comprimento_source": "inverse_proximity",
+    "confidence": 0.88
+  },
+  "V502": {
+    "id": "V502",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": null,
+    "altura_conf": null,
+    "comprimento_cm": 256.0,
+    "comprimento_conf": 0.88,
+    "comprimento_source": "inverse_proximity",
+    "confidence": 0.88
+  },
+  "V503": {
+    "id": "V503",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": null,
+    "altura_conf": null,
+    "comprimento_cm": 233.5,
+    "comprimento_conf": 0.88,
+    "comprimento_source": "inverse_proximity",
+    "confidence": 0.88
+  },
+  "V504": {
+    "id": "V504",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": null,
+    "altura_conf": null,
+    "comprimento_cm": 247.0,
+    "comprimento_conf": 0.78,
+    "comprimento_source": "inverse_proximity",
+    "confidence": 0.78
+  },
+  "V505": {
+    "id": "V505",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": null,
+    "altura_conf": null,
+    "comprimento_cm": 246.0,
+    "comprimento_conf": 0.78,
+    "comprimento_source": "inverse_proximity",
+    "confidence": 0.78
+  },
+  "V506": {
+    "id": "V506",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": null,
+    "altura_conf": null,
+    "comprimento_cm": 246.0,
+    "comprimento_conf": 0.78,
+    "comprimento_source": "inverse_proximity",
+    "confidence": 0.78
+  },
+  "V507": {
+    "id": "V507",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": null,
+    "altura_conf": null,
+    "comprimento_cm": 233.5,
+    "comprimento_conf": 0.78,
+    "comprimento_source": "inverse_proximity",
+    "confidence": 0.78
+  },
+  "V508": {
+    "id": "V508",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": null,
+    "altura_conf": null,
+    "comprimento_cm": 244.0,
+    "comprimento_conf": 0.78,
+    "comprimento_source": "inverse_proximity",
+    "confidence": 0.78
+  },
+  "V509": {
+    "id": "V509",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": null,
+    "altura_conf": null,
+    "comprimento_cm": 244.0,
+    "comprimento_conf": 0.78,
+    "comprimento_source": "inverse_proximity",
+    "confidence": 0.78
+  },
+  "V510": {
+    "id": "V510",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": null,
+    "altura_conf": null,
+    "comprimento_cm": 281.5,
+    "comprimento_conf": 0.88,
+    "comprimento_source": "inverse_proximity",
+    "confidence": 0.88
+  },
+  "V511": {
+    "id": "V511",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": null,
+    "altura_conf": null,
+    "comprimento_cm": 324.0,
+    "comprimento_conf": 0.88,
+    "comprimento_source": "inverse_proximity",
+    "confidence": 0.88
+  },
+  "V512": {
+    "id": "V512",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": null,
+    "altura_conf": null,
+    "comprimento_cm": 324.0,
+    "comprimento_conf": 0.88,
+    "comprimento_source": "inverse_proximity",
+    "confidence": 0.88
+  },
+  "V513": {
+    "id": "V513",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": null,
+    "altura_conf": null,
+    "comprimento_cm": 244.0,
+    "comprimento_conf": 0.78,
+    "comprimento_source": "inverse_proximity",
+    "confidence": 0.78
+  },
+  "V514": {
+    "id": "V514",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": null,
+    "altura_conf": null,
+    "comprimento_cm": 324.0,
+    "comprimento_conf": 0.78,
+    "comprimento_source": "inverse_proximity",
+    "confidence": 0.78
+  },
+  "V516": {
+    "id": "V516",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": null,
+    "altura_conf": null,
+    "comprimento_cm": 246.0,
+    "comprimento_conf": 0.78,
+    "comprimento_source": "inverse_proximity",
+    "confidence": 0.78
+  },
+  "V517": {
+    "id": "V517",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": null,
+    "altura_conf": null,
+    "comprimento_cm": 244.0,
+    "comprimento_conf": 0.78,
+    "comprimento_source": "inverse_proximity",
+    "confidence": 0.78
+  },
+  "V518": {
+    "id": "V518",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": null,
+    "altura_conf": null,
+    "comprimento_cm": 292.5,
+    "comprimento_conf": 0.78,
+    "comprimento_source": "inverse_proximity",
+    "confidence": 0.78
+  },
+  "V519": {
+    "id": "V519",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": null,
+    "altura_conf": null,
+    "comprimento_cm": 292.5,
+    "comprimento_conf": 0.78,
+    "comprimento_source": "inverse_proximity",
+    "confidence": 0.78
+  },
+  "V520": {
+    "id": "V520",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": null,
+    "altura_conf": null,
+    "comprimento_cm": 246.0,
+    "comprimento_conf": 0.78,
+    "comprimento_source": "inverse_proximity",
+    "confidence": 0.78
+  },
+  "V521": {
+    "id": "V521",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": null,
+    "altura_conf": null,
+    "comprimento_cm": 282.5,
+    "comprimento_conf": 0.88,
+    "comprimento_source": "inverse_proximity",
+    "confidence": 0.88
+  },
+  "V522": {
+    "id": "V522",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": null,
+    "altura_conf": null,
+    "comprimento_cm": 246.0,
+    "comprimento_conf": 0.78,
+    "comprimento_source": "inverse_proximity",
+    "confidence": 0.78
+  },
+  "V523": {
+    "id": "V523",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": null,
+    "altura_conf": null,
+    "comprimento_cm": 246.0,
+    "comprimento_conf": 0.78,
+    "comprimento_source": "inverse_proximity",
+    "confidence": 0.78
+  },
+  "V524": {
+    "id": "V524",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": null,
+    "altura_conf": null,
+    "comprimento_cm": 233.0,
+    "comprimento_conf": 0.78,
+    "comprimento_source": "inverse_proximity",
+    "confidence": 0.78
+  },
+  "V525": {
+    "id": "V525",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": null,
+    "altura_conf": null,
+    "comprimento_cm": 324.0,
+    "comprimento_conf": 0.88,
+    "comprimento_source": "inverse_proximity",
+    "confidence": 0.88
+  },
+  "V526": {
+    "id": "V526",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": null,
+    "altura_conf": null,
+    "comprimento_cm": 324.0,
+    "comprimento_conf": 0.88,
+    "comprimento_source": "inverse_proximity",
+    "confidence": 0.88
+  },
+  "V529": {
+    "id": "V529",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": null,
+    "altura_conf": null,
+    "comprimento_cm": 256.0,
+    "comprimento_conf": 0.78,
+    "comprimento_source": "inverse_proximity",
+    "confidence": 0.78
+  },
+  "V506A": {
+    "id": "V506A",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": null,
+    "altura_conf": null,
+    "comprimento_cm": 246.0,
+    "comprimento_conf": 0.78,
+    "comprimento_source": "inverse_proximity",
+    "confidence": 0.78
+  }
+}

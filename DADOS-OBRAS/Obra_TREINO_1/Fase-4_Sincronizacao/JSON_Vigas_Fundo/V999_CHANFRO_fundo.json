@@ -1,0 +1,22 @@
+{
+    "number": "999",
+    "name": "V999_CHANFRO",
+    "floor": "TÉRREO",
+    "side": "A",
+    "total_width": 20.0,
+    "total_height": "180.0",
+    "panels": [
+        {"width": 90.0, "height1": 20.0, "height2": 20.0, "grade_h1": "0", "grade_h2": "0"},
+        {"width": 90.0, "height1": 20.0, "height2": 20.0, "grade_h1": "0", "grade_h2": "0"}
+    ],
+    "holes": [
+        {"active": false, "width": 0.0, "height": 0.0, "position": 0.0},
+        {"active": false, "width": 0.0, "height": 0.0, "position": 0.0},
+        {"active": false, "width": 0.0, "height": 0.0, "position": 0.0},
+        {"active": false, "width": 0.0, "height": 0.0, "position": 0.0}
+    ],
+    "pillar_left":  {"active": true,  "width": 20.0, "length": 25.0},
+    "pillar_right": {"active": true,  "width": 20.0, "length": 25.0},
+    "sarrafo_left_id": 0,
+    "sarrafo_right_id": 0
+}

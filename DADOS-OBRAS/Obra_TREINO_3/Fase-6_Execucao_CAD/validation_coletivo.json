@@ -1,0 +1,51 @@
+{
+  "obra": "Obra_TREINO_3",
+  "pavimento": "RES.DIAMOND - TÉRREO - PERIFERIA - TORRE 1 - S04A",
+  "elementos": {
+    "pilares": {
+      "tipo": "pilares",
+      "gt_count": 10,
+      "gerado_count": 10,
+      "correct": 10,
+      "hallucinated": [],
+      "missed": [],
+      "id_match": 1.0,
+      "hallucination_rate": 0.0,
+      "count_match": 1.0,
+      "score": 1.0,
+      "score_percent": 100.0,
+      "aprovado": true
+    },
+    "vigas": {
+      "tipo": "vigas",
+      "gt_count": 33,
+      "gerado_count": 33,
+      "correct": 33,
+      "hallucinated": [],
+      "missed": [],
+      "id_match": 1.0,
+      "hallucination_rate": 0.0,
+      "count_match": 1.0,
+      "score": 1.0,
+      "score_percent": 100.0,
+      "aprovado": true
+    },
+    "lajes": {
+      "tipo": "lajes",
+      "gt_count": 16,
+      "gerado_count": 16,
+      "correct": 16,
+      "hallucinated": [],
+      "missed": [],
+      "id_match": 1.0,
+      "hallucination_rate": 0.0,
+      "count_match": 1.0,
+      "score": 1.0,
+      "score_percent": 100.0,
+      "aprovado": true
+    }
+  },
+  "score_global": 1.0,
+  "score_global_percent": 100.0,
+  "aprovado": true
+}

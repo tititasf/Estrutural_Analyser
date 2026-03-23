@@ -1,0 +1,11 @@
+{
+  "obra": "Obra_TREINO_16",
+  "pavimento": "VALDIR NIEMEYER-TP2",
+  "stats": {
+    "pilares": 10,
+    "vigas": 39,
+    "lajes": 9,
+    "errors": 0
+  },
+  "output_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_16\\Fase-4_Sincronizacao"
+}

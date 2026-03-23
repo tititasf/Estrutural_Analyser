@@ -1,0 +1,293 @@
+{
+  "PL": {
+    "entities_stog": {
+      "ARC": 57,
+      "CIRCLE": 1,
+      "DIMENSION": 1034,
+      "ELLIPSE": 32,
+      "HATCH": 597,
+      "INSERT": 591,
+      "LEADER": 114,
+      "LINE": 2199,
+      "LWPOLYLINE": 973,
+      "MLINE": 1,
+      "MTEXT": 246,
+      "OLE2FRAME": 1,
+      "SOLID": 2,
+      "SPLINE": 11,
+      "TEXT": 303
+    },
+    "entities_gen": {
+      "LWPOLYLINE": 384,
+      "MTEXT": 192
+    },
+    "layers_stog_count": 28,
+    "layers_gen_count": 4,
+    "missing_layers": [
+      "0",
+      "BARRA ANCORAGEM",
+      "CARIMBO",
+      "CHAPA",
+      "CONCRETO",
+      "COTA",
+      "Cota Seção (2x)",
+      "Demarcação 1",
+      "Demarcação 2",
+      "Folhas",
+      "Hachura",
+      "MEIO_PONT",
+      "Madeira",
+      "NIVEL",
+      "Nível",
+      "Painéis",
+      "Perfil Metálico",
+      "REAPROVEITAMENTO",
+      "SARRAFO",
+      "SARRAFO DE PRESSAO",
+      "SARR_2.2x10",
+      "SARR_2.2x7",
+      "Sarrafo de Pressão",
+      "TEXTO_GERAL",
+      "Texto Seção",
+      "cotas",
+      "texto"
+    ],
+    "extra_layers": [
+      "Cota Secao (2x)",
+      "Paineis",
+      "Texto Secao"
+    ],
+    "extents_stog": {
+      "xmin": -97330.8110682814,
+      "xmax": 7048.667289529276,
+      "ymin": -34287.7764361906,
+      "ymax": 17032.48018602831,
+      "width_cm": 104379.47835781067,
+      "height_cm": 51320.25662221891
+    },
+    "extents_gen": {
+      "xmin": 1727.32,
+      "xmax": 5956.66,
+      "ymin": 10583.72,
+      "ymax": 15654.3,
+      "width_cm": 4229.34,
+      "height_cm": 5070.58
+    }
+  },
+  "LV": {
+    "entities_stog": {
+      "ARC": 17,
+      "CIRCLE": 17,
+      "DIMENSION": 1228,
+      "HATCH": 830,
+      "INSERT": 194,
+      "LEADER": 9,
+      "LINE": 5307,
+      "LWPOLYLINE": 897,
+      "MLINE": 1,
+      "MTEXT": 290,
+      "OLE2FRAME": 1,
+      "SOLID": 1,
+      "SPLINE": 6,
+      "TEXT": 670
+    },
+    "entities_gen": {
+      "LWPOLYLINE": 462,
+      "MTEXT": 120
+    },
+    "layers_stog_count": 44,
+    "layers_gen_count": 3,
+    "missing_layers": [
+      "0",
+      "5",
+      "BARRA DE ANCORAGEM",
+      "CARIMBO",
+      "CONCRETO",
+      "COTA",
+      "Cota Seção (2x)",
+      "Demarcação 1",
+      "Demarcação 2",
+      "Escoras",
+      "Folhas",
+      "Forcador",
+      "GARFOS",
+      "HACHURA MADEIRAS",
+      "Hachura",
+      "Laje_Perimetro",
+      "Madeira",
+      "PONTALETE",
+      "Painéis",
+      "Perfil Metálico",
+      "Reaproveitamento",
+      "SARRAFO",
+      "SARRAFO DE PRESSAO",
+      "SARR_2.2x10",
+      "SARR_2.2x15",
+      "SARR_2.2x20",
+      "SARR_2.2x6.3",
+      "SARR_2.2x7",
+      "SARR_3.5x10",
+      "SARR_3.5x7",
+      "SARR_7x10",
+      "SARR_EDITAR",
+      "SCO-___-LAJ",
+      "Sarr 2.2x7",
+      "TENSOR",
+      "Texto Seção",
+      "barrote",
+      "cotas",
+      "detalhes",
+      "fundo",
+      "material do compensado",
+      "presilha",
+      "texto"
+    ],
+    "extra_layers": [
+      "Paineis",
+      "Texto Secao"
+    ],
+    "extents_stog": {
+      "xmin": -108587.2610683769,
+      "xmax": -1189.311914341621,
+      "ymin": -45961.78010518839,
+      "ymax": 17234.91859779915,
+      "width_cm": 107397.94915403528,
+      "height_cm": 63196.69870298754
+    },
+    "extents_gen": {
+      "xmin": -10264.42,
+      "xmax": 337.0,
+      "ymin": -1435.0,
+      "ymax": 13449.83,
+      "width_cm": 10601.42,
+      "height_cm": 14884.83
+    }
+  },
+  "FV": {
+    "entities_stog": {
+      "ARC": 17,
+      "ATTDEF": 1,
+      "CIRCLE": 17,
+      "DIMENSION": 46,
+      "HATCH": 97,
+      "INSERT": 9,
+      "LEADER": 4,
+      "LINE": 707,
+      "LWPOLYLINE": 58,
+      "OLE2FRAME": 1,
+      "SOLID": 1,
+      "SPLINE": 6,
+      "TEXT": 154
+    },
+    "entities_gen": {
+      "LWPOLYLINE": 462,
+      "MTEXT": 120
+    },
+    "layers_stog_count": 24,
+    "layers_gen_count": 3,
+    "missing_layers": [
+      "0",
+      "5",
+      "BARRA DE ANCORAGEM",
+      "CARIMBO",
+      "CONCRETO",
+      "COTA",
+      "Demarcação 1",
+      "Demarcação 2",
+      "Escoras",
+      "Folhas",
+      "Forcador",
+      "GARFOS",
+      "HACHURA MADEIRAS",
+      "Hachura",
+      "Madeira",
+      "Painéis",
+      "Perfil Metálico",
+      "REAPROVEITAMENTO",
+      "SARRAFO DE PRESSAO",
+      "SARR_2.2x7",
+      "fundo",
+      "material do compensado",
+      "texto"
+    ],
+    "extra_layers": [
+      "Paineis",
+      "Texto Secao"
+    ],
+    "extents_stog": {
+      "xmin": -96325.68105012723,
+      "xmax": 7979.349997612931,
+      "ymin": -33768.15418435806,
+      "ymax": 2620.626037933978,
+      "width_cm": 104305.03104774015,
+      "height_cm": 36388.78022229204
+    },
+    "extents_gen": {
+      "xmin": -10264.42,
+      "xmax": 337.0,
+      "ymin": -3435.0,
+      "ymax": 11449.83,
+      "width_cm": 10601.42,
+      "height_cm": 14884.83
+    }
+  },
+  "LJ": {
+    "entities_stog": {
+      "CIRCLE": 46,
+      "DIMENSION": 356,
+      "HATCH": 57,
+      "INSERT": 2,
+      "LINE": 2564,
+      "LWPOLYLINE": 227,
+      "MTEXT": 60,
+      "MULTILEADER": 6,
+      "TEXT": 288
+    },
+    "entities_gen": {
+      "LWPOLYLINE": 95,
+      "MTEXT": 38
+    },
+    "layers_stog_count": 16,
+    "layers_gen_count": 4,
+    "missing_layers": [
+      "0",
+      "1",
+      "2",
+      "3",
+      "4",
+      "6",
+      "7",
+      "AUX00",
+      "CARIMBO",
+      "COTA",
+      "FOLHA",
+      "Hachura",
+      "Painéis",
+      "Pilares",
+      "REAPROVEITAMENTO",
+      "SARR_2.2x7"
+    ],
+    "extra_layers": [
+      "Contorno",
+      "NOMENCLATURA",
+      "Paineis",
+      "Texto Secao"
+    ],
+    "extents_stog": {
+      "xmin": -93970.3317713537,
+      "xmax": 8815.051170181723,
+      "ymin": -118001.5468786705,
+      "ymax": 3945.970923208663,
+      "width_cm": 102785.38294153541,
+      "height_cm": 121947.51780187916
+    },
+    "extents_gen": {
+      "xmin": 2778.03,
+      "xmax": 7753.620000000001,
+      "ymin": 2023.11,
+      "ymax": 3207.41,
+      "width_cm": 4975.59,
+      "height_cm": 1184.3
+    }
+  }
+}

@@ -1,0 +1,57 @@
+{
+  "obra": "Obra_TREINO_6",
+  "pavimento": "JFC-TIP",
+  "elementos": {
+    "pilares": {
+      "tipo": "pilares",
+      "gt_count": 21,
+      "gerado_count": 20,
+      "correct": 20,
+      "hallucinated": [],
+      "missed": [
+        "P21"
+      ],
+      "id_match": 0.9524,
+      "hallucination_rate": 0.0,
+      "count_match": 0.9524,
+      "score": 0.9714,
+      "score_percent": 97.1,
+      "aprovado": true
+    },
+    "vigas": {
+      "tipo": "vigas",
+      "gt_count": 35,
+      "gerado_count": 35,
+      "correct": 35,
+      "hallucinated": [],
+      "missed": [],
+      "id_match": 1.0,
+      "hallucination_rate": 0.0,
+      "count_match": 1.0,
+      "score": 1.0,
+      "score_percent": 100.0,
+      "aprovado": true
+    },
+    "lajes": {
+      "tipo": "lajes",
+      "gt_count": 14,
+      "gerado_count": 11,
+      "correct": 11,
+      "hallucinated": [],
+      "missed": [
+        "L12",
+        "L13",
+        "L16"
+      ],
+      "id_match": 0.7857,
+      "hallucination_rate": 0.0,
+      "count_match": 0.7857,
+      "score": 0.8714,
+      "score_percent": 87.1,
+      "aprovado": false
+    }
+  },
+  "score_global": 0.9564,
+  "score_global_percent": 95.6,
+  "aprovado": true
+}

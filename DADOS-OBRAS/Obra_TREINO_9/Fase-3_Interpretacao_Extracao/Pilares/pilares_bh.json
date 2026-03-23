@@ -1,0 +1,139 @@
+{
+  "P314": {
+    "b": 19.0,
+    "h": 36.0,
+    "confidence": 0.9,
+    "source": "inverse-proximity",
+    "dims_assignadas": 8,
+    "dist_d1": 168.7,
+    "dist_d2": 278.5
+  },
+  "P315": {
+    "b": 19.0,
+    "h": 82.0,
+    "confidence": 0.4,
+    "source": "proximity-fallback",
+    "dist_d1": 107.3,
+    "dist_d2": 168.7
+  },
+  "P317": {
+    "b": 19.0,
+    "h": 34.0,
+    "confidence": 0.9,
+    "source": "inverse-proximity",
+    "dims_assignadas": 3,
+    "dist_d1": 124.6,
+    "dist_d2": 168.7
+  },
+  "P318": {
+    "b": 19.0,
+    "h": 82.0,
+    "confidence": 0.4,
+    "source": "proximity-fallback",
+    "dist_d1": 107.3,
+    "dist_d2": 168.7
+  },
+  "P319": {
+    "b": 19.0,
+    "h": 82.0,
+    "confidence": 0.4,
+    "source": "proximity-fallback",
+    "dist_d1": 107.3,
+    "dist_d2": 168.7
+  },
+  "P320": {
+    "b": 34.0,
+    "h": 82.0,
+    "confidence": 0.4,
+    "source": "proximity-fallback",
+    "dist_d1": 107.3,
+    "dist_d2": 124.6
+  },
+  "P324": {
+    "b": 36.0,
+    "h": 82.0,
+    "confidence": 0.9,
+    "source": "inverse-proximity",
+    "dims_assignadas": 15,
+    "dist_d1": 89.7,
+    "dist_d2": 306.3
+  },
+  "P325": {
+    "b": 19.0,
+    "h": 82.0,
+    "confidence": 0.4,
+    "source": "proximity-fallback",
+    "dist_d1": 89.7,
+    "dist_d2": 188.3
+  },
+  "P326": {
+    "b": 34.0,
+    "h": 82.0,
+    "confidence": 0.4,
+    "source": "proximity-fallback",
+    "dist_d1": 107.3,
+    "dist_d2": 124.6
+  },
+  "P330": {
+    "b": 19.0,
+    "h": 82.0,
+    "confidence": 0.9,
+    "source": "inverse-proximity",
+    "dims_assignadas": 18,
+    "dist_d1": 107.3,
+    "dist_d2": 168.7
+  },
+  "P331": {
+    "b": 19.0,
+    "h": 82.0,
+    "confidence": 0.4,
+    "source": "proximity-fallback",
+    "dist_d1": 107.3,
+    "dist_d2": 168.7
+  },
+  "P332": {
+    "b": 34.0,
+    "h": 82.0,
+    "confidence": 0.9,
+    "source": "inverse-proximity",
+    "dims_assignadas": 12,
+    "dist_d1": 89.7,
+    "dist_d2": 202.2
+  },
+  "P338": {
+    "b": 19.0,
+    "h": 82.0,
+    "confidence": 0.4,
+    "source": "proximity-fallback",
+    "dist_d1": 107.3,
+    "dist_d2": 168.7
+  },
+  "P339": {
+    "b": 19.0,
+    "h": 82.0,
+    "confidence": 0.4,
+    "source": "proximity-fallback",
+    "dist_d1": 107.3,
+    "dist_d2": 168.7
+  },
+  "P340": {
+    "b": 34.0,
+    "h": 82.0,
+    "confidence": 0.4,
+    "source": "proximity-fallback",
+    "dist_d1": 89.7,
+    "dist_d2": 131.2
+  },
+  "_meta": {
+    "total": 15,
+    "extraidos_bh_completo": 15,
+    "extraidos_parcial": 0,
+    "sem_dados": 0,
+    "cobertura_pct": 100.0,
+    "max_dist": 300.0,
+    "obra": "Obra_TREINO_9",
+    "pavimento": "TORRE 2 - TÉRREO - PERIFERIA",
+    "extraido_em": "2026-03-09",
+    "algoritmo": "dimension-proximity-matching"
+  }
+}

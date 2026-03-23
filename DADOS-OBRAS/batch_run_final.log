@@ -1,0 +1,3397 @@
+[INFO] === engenharia_reversa_dxf.py | Obra: Obra_TREINO_1 | Pav: 1 PAV ===
+[INFO] Diretório: D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-1_Ingestao\Projetos_Finalizados_para_Engenharia_Reversa
+[INFO] Usando caminhos do dxf_discovery.json para pav '1 PAV'
+[INFO] PL DXF: ALIMONTI - PARAISO - 1° PAV.- PL - R00.dxf
+[INFO] Pilares extraídos: 38 IDs | Pé Direito: Nonecm -> D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-3_Interpretacao_Extracao\Pilares\pilares_ground_truth.json
+[INFO] LV DXF: ALIMONTI - PARAISO - 1° PAV.- LV - R00.dxf
+[INFO] Vigas extraídas: 52 IDs -> D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-3_Interpretacao_Extracao\Vigas\vigas_ground_truth.json
+[INFO] LJ DXF: ALIMONTI - PARAISO - 1° PAV.- LJ - R01.dxf
+[INFO] Lajes extraídas: 29 IDs -> D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-3_Interpretacao_Extracao\Lajes\lajes_ground_truth.json
+[INFO] === RESULTADO: 38 pilares (ground truth) ===
+[INFO] NOTA: IDs e count são CONFIÁVEIS. B/H requerem revisão manual ou análise visual.
+[INFO] Ground truth salvo em: D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-3_Interpretacao_Extracao
+[INFO] === extrair_bh_pilares.py | Obra_TREINO_1 | 1 PAV ===
+[INFO] PL DXF: ALIMONTI - PARAISO - 1° PAV.- PL - R00.dxf
+[INFO] Max distancia proximity: 300.0 unidades DXF
+[INFO] Lendo DXF (pode demorar para arquivos grandes)...
+[INFO] DXF carregado: 8742 entidades
+[INFO] Extraindo posicoes dos pilares (layer Texto Secao)...
+[INFO] Pilares encontrados: 38
+[INFO] Extraindo DIMENSION entities (layers de cota)...
+[INFO] DIMENSIONs de cota encontradas: 860
+[INFO] Inverse proximity: 860 dims assignadas a 38 pilares
+
+[RESULTADO] Extracao B/H de Pilares
+  Total pilares:      38
+  B+H completos:      37 (97.4%)
+  Apenas H:           1
+  Sem dados:          0
+
+[INFO] Salvo em: D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-3_Interpretacao_Extracao\Pilares\pilares_bh.json
+[INFO] pilares_ground_truth.json atualizado: 37 pilares com B/H
+
+[AMOSTRA] Primeiros 5 pilares extraidos:
+  P1: B=60.0cm, H=74.0cm, conf=80%
+  P2: B=45.0cm, H=67.0cm, conf=40%
+  P3: B=48.0cm, H=56.0cm, conf=80%
+  P4: B=42.0cm, H=97.0cm, conf=90%
+  P5: B=46.0cm, H=56.0cm, conf=90%
+DXF: ALIMONTI - PARAISO - 1° PAV.- LV - R00.dxf
+  Labels encontrados: 48 vigas
+  Cota Seção (2x): 98 dims
+  COTA: 1056 dims
+
+=== RESULTADO ===
+  Total vigas: 48
+  Com altura_lateral: 48/48
+  Com comprimento: 48/48
+  Com ambos: 48/48
+  Confiança média: 86%
+  Output: D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-3_Interpretacao_Extracao\Vigas\vigas_dim.json
+
+Viga     Alt(cm)    Comp(cm)     Conf     Sides
+-------------------------------------------------------
+V102     120        208          84%      C
+V105     38         717          84%      A+B
+V117     48         244          79%      A+B
+V123     38         717          84%      A+B
+V124     38         572          84%      A+B
+V125     38         717          84%      A+B
+V129     38         717          79%      A+B
+V201     120        1220         84%      A+B
+V202     120        376          89%      B
+V203     260        568          84%      A+B
+V204     120        613          84%      A+B
+V205     38         630          84%      A+B
+V206     48         244          89%      A+B
+V207     120        608          89%      A+B
+V208     260        572          84%      A+B
+V209     38         572          84%      A+B
+V210     38         726          84%      A+B
+V211     28         199          89%      A+B
+V212     38         451          84%      A+B
+V213     38         570          84%      A+B
+V214     38         570          89%      A+B
+V215     54         388          89%      A+B+D
+V216     38         386          84%      A+B
+V217     38         1094         84%      A+B
+V218     38         732          89%      A+B
+V219     38         1009         84%      A+B
+V220     38         461          84%      A+B
+V221     48         398          84%      A+B
+V222     38         398          89%      A+B
+V223     38         444          89%      A+B
+V224     38         440          89%      A+B
+V225     120        434          79%      A+B
+V227     38         440          84%      A+B
+V228     38         402          89%      A+B
+V229     260        446          84%      A+B
+V230     48         402          84%      A+B
+V231     38         451          84%      A+B
+V232     120        455          84%      A+B
+V233     38         455          89%      A+B
+V234     38         630          89%      A+B
+V235     38         455          89%      A+B
+V236     38         180          89%      A+B
+V237     38         180          89%      A+B
+V238     38         180          84%      A+B
+V239     28         688          84%      A+B
+V241     38         688          89%      A+B
+V242     120        462          84%      A+B
+V243     38         320          89%      A+B
+[INFO] === extrair_lajes_lj.py | Obra_TREINO_1 | 1 PAV ===
+[INFO] LJ DXF: ALIMONTI - PARAISO - 1° PAV.- LJ - R01.dxf
+[INFO] Lendo DXF...
+[INFO] 1392 entidades
+[INFO] Extraindo labels e codigos de lajes...
+[DEBUG] Labels encontrados: ['L201', 'L202', 'L203', 'L204', 'L205', 'L206', 'L207', 'L208', 'L209', 'L210', 'L211', 'L212', 'L213', 'L214', 'L215', 'L251', 'L252']
+[DEBUG] Lajes com paineis AUX00: ['L101', 'L102', 'L103', 'L104', 'L109', 'L111', 'L112', 'L115', 'L117', 'L118', 'L119', 'L121']
+[INFO] Lajes encontradas: 29
+[INFO] Construindo fichas com coordenadas...
+
+[RESULTADO] Extracao de Lajes
+  Total lajes:        29
+  Com dimensoes:      0
+  Com coordenadas:    4
+
+[INFO] Salvo em: D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-3_Interpretacao_Extracao\Lajes\lajes_data.json
+[INFO] lajes_ground_truth.json atualizado: 0 lajes com dimensoes
+
+[AMOSTRA] Primeiras lajes:
+  L101: NonexNonecm | area=Nonecm2 | coords=0pts | conf=75%
+  L102: NonexNonecm | area=Nonecm2 | coords=0pts | conf=85%
+  L103: NonexNonecm | area=Nonecm2 | coords=0pts | conf=75%
+  L104: NonexNonecm | area=Nonecm2 | coords=5pts | conf=85%
+  L109: NonexNonecm | area=Nonecm2 | coords=0pts | conf=85%
+  L111: NonexNonecm | area=Nonecm2 | coords=0pts | conf=85%
+  L112: NonexNonecm | area=Nonecm2 | coords=0pts | conf=75%
+  L115: NonexNonecm | area=Nonecm2 | coords=0pts | conf=75%
+ERRO: Nenhum EVG DXF encontrado em D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1
+C:\Python314\python.exe: can't open file 'D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\extrair_largura_vigas.py': [Errno 2] No such file or directory
+usage: extrair_assembly_pl.py [-h] --obra OBRA [--pav PAV] [--output OUTPUT]
+extrair_assembly_pl.py: error: unrecognized arguments: --pavimento 1 PAV
+=== VIGAS ===
+  AVISO: vigas_largura.json nao encontrado — usando b=15cm (default)
+  vigas.json atualizado: 48 vigas
+    V102: b=15.0cm h=120.0cm L=208.0cm
+    V105: b=15.0cm h=38.0cm L=717.0cm
+    V117: b=15.0cm h=48.0cm L=244.0cm
+    V123: b=15.0cm h=38.0cm L=717.0cm
+    V124: b=15.0cm h=38.0cm L=571.5cm
+    V125: b=15.0cm h=38.0cm L=717.0cm
+    V129: b=15.0cm h=38.0cm L=717.0cm
+    V201: b=15.0cm h=120.0cm L=1220.0cm
+    V202: b=15.0cm h=120.0cm L=376.0cm
+    V203: b=15.0cm h=260.0cm L=567.5cm
+    V204: b=15.0cm h=120.0cm L=613.0cm
+    V205: b=15.0cm h=38.0cm L=630.0cm
+    V206: b=15.0cm h=48.0cm L=244.0cm
+    V207: b=15.0cm h=120.0cm L=608.0cm
+    V208: b=15.0cm h=260.0cm L=571.5cm
+    V209: b=15.0cm h=38.0cm L=571.5cm
+    V210: b=15.0cm h=38.0cm L=726.0cm
+    V211: b=15.0cm h=28.0cm L=199.0cm
+    V212: b=15.0cm h=38.0cm L=451.0cm
+    V213: b=15.0cm h=38.0cm L=570.0cm
+    V214: b=15.0cm h=38.0cm L=570.0cm
+    V215: b=15.0cm h=54.0cm L=388.0cm
+    V216: b=15.0cm h=38.0cm L=386.0cm
+    V217: b=15.0cm h=38.0cm L=1093.8cm
+    V218: b=15.0cm h=38.0cm L=732.0cm
+    V219: b=15.0cm h=38.0cm L=1008.7cm
+    V220: b=15.0cm h=38.0cm L=461.0cm
+    V221: b=15.0cm h=48.0cm L=398.0cm
+    V222: b=15.0cm h=38.0cm L=398.0cm
+    V223: b=15.0cm h=38.0cm L=444.5cm
+    V224: b=15.0cm h=38.0cm L=440.0cm
+    V225: b=15.0cm h=120.0cm L=434.0cm
+    V227: b=15.0cm h=38.0cm L=440.0cm
+    V228: b=15.0cm h=38.0cm L=402.0cm
+    V229: b=15.0cm h=260.0cm L=446.5cm
+    V230: b=15.0cm h=48.0cm L=402.0cm
+    V231: b=15.0cm h=38.0cm L=451.0cm
+    V232: b=15.0cm h=120.0cm L=455.0cm
+    V233: b=15.0cm h=38.0cm L=455.0cm
+    V234: b=15.0cm h=38.0cm L=630.0cm
+    V235: b=15.0cm h=38.0cm L=455.0cm
+    V236: b=15.0cm h=38.0cm L=180.0cm
+    V237: b=15.0cm h=38.0cm L=180.0cm
+    V238: b=15.0cm h=38.0cm L=180.0cm
+    V239: b=15.0cm h=28.0cm L=688.0cm
+    V241: b=15.0cm h=38.0cm L=688.0cm
+    V242: b=15.0cm h=120.0cm L=462.0cm
+    V243: b=15.0cm h=38.0cm L=319.5cm
+
+=== LAJES ===
+  AVISO: lajes_poligono.json nao encontrado, usando lajes_data.json
+  AVISO: Laje L201: dimensoes invalidas, usando 100x100
+  AVISO: Laje L202: dimensoes invalidas, usando 100x100
+  AVISO: Laje L203: dimensoes invalidas, usando 100x100
+  AVISO: Laje L204: dimensoes invalidas, usando 100x100
+  AVISO: Laje L205: dimensoes invalidas, usando 100x100
+  AVISO: Laje L206: dimensoes invalidas, usando 100x100
+  AVISO: Laje L207: dimensoes invalidas, usando 100x100
+  AVISO: Laje L208: dimensoes invalidas, usando 100x100
+  AVISO: Laje L209: dimensoes invalidas, usando 100x100
+  AVISO: Laje L210: dimensoes invalidas, usando 100x100
+  AVISO: Laje L211: dimensoes invalidas, usando 100x100
+  AVISO: Laje L212: dimensoes invalidas, usando 100x100
+  AVISO: Laje L213: dimensoes invalidas, usando 100x100
+  AVISO: Laje L214: dimensoes invalidas, usando 100x100
+  AVISO: Laje L215: dimensoes invalidas, usando 100x100
+  AVISO: Laje L251: dimensoes invalidas, usando 100x100
+  AVISO: Laje L252: dimensoes invalidas, usando 100x100
+  lajes.json atualizado: 29 lajes
+    L101: 244.0x122.0cm area=29768 [aux00-panels]
+    L102: 244.0x122.0cm area=29768 [aux00-panels]
+    L103: 178.0x122.0cm area=21716 [aux00-panels]
+    L104: 244.0x122.0cm area=29768 [aux00-panels]
+    L109: 244.0x60.5cm area=14762 [aux00-panels]
+    L111: 244.0x122.0cm area=29768 [aux00-panels]
+    L112: 91.5x91.5cm area=8372 [aux00-panels]
+    L115: 244.0x122.0cm area=29768 [aux00-panels]
+    L117: 229.0x122.0cm area=27938 [aux00-panels]
+    L118: 244.0x122.0cm area=29768 [aux00-panels]
+    L119: 244.0x122.0cm area=29768 [aux00-panels]
+    L121: 190.0x68.5cm area=13015 [aux00-panels]
+    L201: 100.0x100.0cm area=10000 [label-only]
+    L202: 100.0x100.0cm area=10000 [label-only]
+    L203: 100.0x100.0cm area=10000 [label-only]
+    L204: 100.0x100.0cm area=10000 [label-only]
+    L205: 100.0x100.0cm area=10000 [label-only]
+    L206: 100.0x100.0cm area=10000 [label-only]
+    L207: 100.0x100.0cm area=10000 [label-only]
+    L208: 100.0x100.0cm area=10000 [label-only]
+    L209: 100.0x100.0cm area=10000 [label-only]
+    L210: 100.0x100.0cm area=10000 [label-only]
+    L211: 100.0x100.0cm area=10000 [label-only]
+    L212: 100.0x100.0cm area=10000 [label-only]
+    L213: 100.0x100.0cm area=10000 [label-only]
+    L214: 100.0x100.0cm area=10000 [label-only]
+    L215: 100.0x100.0cm area=10000 [label-only]
+    L251: 100.0x100.0cm area=10000 [label-only]
+    L252: 100.0x100.0cm area=10000 [label-only]
+
+=== INTEGRACAO COMPLETA: 48 vigas + 29 lajes ===
+  Proximos passos: python scripts/motor_fase4.py --obra D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1
+[INFO] === motor_fase4.py | Obra: Obra_TREINO_1 | Pav: 1 PAV ===
+[INFO] Carregado: D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-3_Interpretacao_Extracao\Pilares\pilares_bh.json (39 itens)
+[WARNING] pilares_assembly.json nao encontrado — grades ficarao zeradas
+[INFO]   \u2705 Pilar P1: 74.0x60.0cm, h=280.0cm
+[INFO]   \u2705 Pilar P2: 67.0x45.0cm, h=280.0cm
+[INFO]   \u2705 Pilar P3: 56.0x48.0cm, h=280.0cm
+[INFO]   \u2705 Pilar P4: 97.0x42.0cm, h=280.0cm
+[INFO]   \u2705 Pilar P5: 56.0x46.0cm, h=280.0cm
+[INFO]   \u2705 Pilar P6: 45.0x20.0cm, h=280.0cm
+[INFO]   \u2705 Pilar P7: 94.0x66.0cm, h=280.0cm
+[INFO]   \u2705 Pilar P8: 90.0x67.0cm, h=280.0cm
+[INFO]   \u2705 Pilar P9: 56.0x38.0cm, h=280.0cm
+[INFO]   \u2705 Pilar P10: 100.0x65.0cm, h=280.0cm
+[INFO]   \u2705 Pilar P11: 97.0x30.0cm, h=280.0cm
+[INFO]   \u2705 Pilar P12: 92.0x24.0cm, h=280.0cm
+[INFO]   \u2705 Pilar P13: 92.0x24.0cm, h=280.0cm
+[INFO]   \u2705 Pilar P15: 67.0x24.0cm, h=280.0cm
+[INFO]   \u2705 Pilar P16: 94.0x24.0cm, h=280.0cm
+[INFO]   \u2705 Pilar P17: 97.0x30.0cm, h=280.0cm
+[INFO]   \u2705 Pilar P18: 97.0x72.0cm, h=280.0cm
+[INFO]   \u2705 Pilar P19: 97.0x30.0cm, h=280.0cm
+[INFO]   \u2705 Pilar P20: 50.0x24.0cm, h=280.0cm
+[INFO]   \u2705 Pilar P21: 24.0x19.0cm, h=280.0cm
+[INFO]   \u2705 Pilar P23: 67.0x45.0cm, h=280.0cm
+[INFO]   \u2705 Pilar P24: 43.0x19.0cm, h=280.0cm
+[INFO]   \u2705 Pilar P25: 97.0x34.0cm, h=280.0cm
+[INFO]   \u2705 Pilar P26: 81.0x19.0cm, h=280.0cm
+[INFO]   \u2705 Pilar P27: 81.0x19.0cm, h=280.0cm
+[INFO]   \u2705 Pilar P28: 60.0x37.0cm, h=280.0cm
+[INFO]   \u2705 Pilar P29: 97.0x80.0cm, h=280.0cm
+[INFO]   \u2705 Pilar P30: 92.0x82.0cm, h=280.0cm
+[INFO]   \u2705 Pilar P31: 82.0x38.0cm, h=280.0cm
+[INFO]   \u2705 Pilar P32: 44.0x27.0cm, h=280.0cm
+[INFO]   \u2705 Pilar P33: 64.0x44.0cm, h=280.0cm
+[INFO]   \u2705 Pilar P34: 82.0x19.0cm, h=280.0cm
+[INFO]   \u2705 Pilar P35: 44.0x41.0cm, h=280.0cm
+[WARNING] Pilar P61: dimensoes invalidas (b=0.0, h=26.0). Pular.
+[INFO]   \u2705 Pilar P62: 98.0x64.0cm, h=280.0cm
+[INFO]   \u2705 Pilar P101: 82.0x24.0cm, h=280.0cm
+[INFO]   \u2705 Pilar P102: 82.0x24.0cm, h=280.0cm
+[INFO]   \u2705 Pilar P103: 82.0x19.0cm, h=280.0cm
+[INFO] Pilares: 37 processados -> D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-4_Sincronizacao\pilares_salvos.json
+[INFO] Carregado: D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-3_Interpretacao_Extracao\Vigas\vigas.json (49 itens)
+[INFO]   \u2705 Viga V102: b=15.0cm, h=120.0cm, L=208.0cm -> A+B
+[INFO]   \u2705 Viga V105: b=15.0cm, h=38.0cm, L=717.0cm -> A+B
+[INFO]   \u2705 Viga V117: b=15.0cm, h=48.0cm, L=244.0cm -> A+B
+[INFO]   \u2705 Viga V123: b=15.0cm, h=38.0cm, L=717.0cm -> A+B
+[INFO]   \u2705 Viga V124: b=15.0cm, h=38.0cm, L=571.5cm -> A+B
+[INFO]   \u2705 Viga V125: b=15.0cm, h=38.0cm, L=717.0cm -> A+B
+[INFO]   \u2705 Viga V129: b=15.0cm, h=38.0cm, L=717.0cm -> A+B
+[INFO]   \u2705 Viga V201: b=15.0cm, h=120.0cm, L=1220.0cm -> A+B
+[INFO]   \u2705 Viga V202: b=15.0cm, h=120.0cm, L=376.0cm -> A+B
+[INFO]   \u2705 Viga V203: b=15.0cm, h=260.0cm, L=567.5cm -> A+B
+[INFO]   \u2705 Viga V204: b=15.0cm, h=120.0cm, L=613.0cm -> A+B
+[INFO]   \u2705 Viga V205: b=15.0cm, h=38.0cm, L=630.0cm -> A+B
+[INFO]   \u2705 Viga V206: b=15.0cm, h=48.0cm, L=244.0cm -> A+B
+[INFO]   \u2705 Viga V207: b=15.0cm, h=120.0cm, L=608.0cm -> A+B
+[INFO]   \u2705 Viga V208: b=15.0cm, h=260.0cm, L=571.5cm -> A+B
+[INFO]   \u2705 Viga V209: b=15.0cm, h=38.0cm, L=571.5cm -> A+B
+[INFO]   \u2705 Viga V210: b=15.0cm, h=38.0cm, L=726.0cm -> A+B
+[INFO]   \u2705 Viga V211: b=15.0cm, h=28.0cm, L=199.0cm -> A+B
+[INFO]   \u2705 Viga V212: b=15.0cm, h=38.0cm, L=451.0cm -> A+B
+[INFO]   \u2705 Viga V213: b=15.0cm, h=38.0cm, L=570.0cm -> A+B
+[INFO]   \u2705 Viga V214: b=15.0cm, h=38.0cm, L=570.0cm -> A+B
+[INFO]   \u2705 Viga V215: b=15.0cm, h=54.0cm, L=388.0cm -> A+B
+[INFO]   \u2705 Viga V216: b=15.0cm, h=38.0cm, L=386.0cm -> A+B
+[INFO]   \u2705 Viga V217: b=15.0cm, h=38.0cm, L=1093.8cm -> A+B
+[INFO]   \u2705 Viga V218: b=15.0cm, h=38.0cm, L=732.0cm -> A+B
+[INFO]   \u2705 Viga V219: b=15.0cm, h=38.0cm, L=1008.7cm -> A+B
+[INFO]   \u2705 Viga V220: b=15.0cm, h=38.0cm, L=461.0cm -> A+B
+[INFO]   \u2705 Viga V221: b=15.0cm, h=48.0cm, L=398.0cm -> A+B
+[INFO]   \u2705 Viga V222: b=15.0cm, h=38.0cm, L=398.0cm -> A+B
+[INFO]   \u2705 Viga V223: b=15.0cm, h=38.0cm, L=444.5cm -> A+B
+[INFO]   \u2705 Viga V224: b=15.0cm, h=38.0cm, L=440.0cm -> A+B
+[INFO]   \u2705 Viga V225: b=15.0cm, h=120.0cm, L=434.0cm -> A+B
+[INFO]   \u2705 Viga V227: b=15.0cm, h=38.0cm, L=440.0cm -> A+B
+[INFO]   \u2705 Viga V228: b=15.0cm, h=38.0cm, L=402.0cm -> A+B
+[INFO]   \u2705 Viga V229: b=15.0cm, h=260.0cm, L=446.5cm -> A+B
+[INFO]   \u2705 Viga V230: b=15.0cm, h=48.0cm, L=402.0cm -> A+B
+[INFO]   \u2705 Viga V231: b=15.0cm, h=38.0cm, L=451.0cm -> A+B
+[INFO]   \u2705 Viga V232: b=15.0cm, h=120.0cm, L=455.0cm -> A+B
+[INFO]   \u2705 Viga V233: b=15.0cm, h=38.0cm, L=455.0cm -> A+B
+[INFO]   \u2705 Viga V234: b=15.0cm, h=38.0cm, L=630.0cm -> A+B
+[INFO]   \u2705 Viga V235: b=15.0cm, h=38.0cm, L=455.0cm -> A+B
+[INFO]   \u2705 Viga V236: b=15.0cm, h=38.0cm, L=180.0cm -> A+B
+[INFO]   \u2705 Viga V237: b=15.0cm, h=38.0cm, L=180.0cm -> A+B
+[INFO]   \u2705 Viga V238: b=15.0cm, h=38.0cm, L=180.0cm -> A+B
+[INFO]   \u2705 Viga V239: b=15.0cm, h=28.0cm, L=688.0cm -> A+B
+[INFO]   \u2705 Viga V241: b=15.0cm, h=38.0cm, L=688.0cm -> A+B
+[INFO]   \u2705 Viga V242: b=15.0cm, h=120.0cm, L=462.0cm -> A+B
+[INFO]   \u2705 Viga V243: b=15.0cm, h=38.0cm, L=319.5cm -> A+B
+[INFO] Vigas: 48 processadas -> D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-4_Sincronizacao\vigas_salvas.json
+[INFO] Carregado: D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-3_Interpretacao_Extracao\Lajes\lajes.json (30 itens)
+[INFO]   \u2705 Laje L101: 244.0x122.0cm, 3 cortes
+[INFO]   \u2705 Laje L102: 244.0x122.0cm, 3 cortes
+[INFO]   \u2705 Laje L103: 178.0x122.0cm, 2 cortes
+[INFO]   \u2705 Laje L104: 244.0x122.0cm, 3 cortes
+[INFO]   \u2705 Laje L109: 244.0x60.5cm, 3 cortes
+[INFO]   \u2705 Laje L111: 244.0x122.0cm, 3 cortes
+[INFO]   \u2705 Laje L112: 91.5x91.5cm, 1 cortes
+[INFO]   \u2705 Laje L115: 244.0x122.0cm, 3 cortes
+[INFO]   \u2705 Laje L117: 229.0x122.0cm, 3 cortes
+[INFO]   \u2705 Laje L118: 244.0x122.0cm, 3 cortes
+[INFO]   \u2705 Laje L119: 244.0x122.0cm, 3 cortes
+[INFO]   \u2705 Laje L121: 190.0x68.5cm, 2 cortes
+[INFO]   \u2705 Laje L201: 100.0x100.0cm, 1 cortes
+[INFO]   \u2705 Laje L202: 100.0x100.0cm, 1 cortes
+[INFO]   \u2705 Laje L203: 100.0x100.0cm, 1 cortes
+[INFO]   \u2705 Laje L204: 100.0x100.0cm, 1 cortes
+[INFO]   \u2705 Laje L205: 100.0x100.0cm, 1 cortes
+[INFO]   \u2705 Laje L206: 100.0x100.0cm, 1 cortes
+[INFO]   \u2705 Laje L207: 100.0x100.0cm, 1 cortes
+[INFO]   \u2705 Laje L208: 100.0x100.0cm, 1 cortes
+[INFO]   \u2705 Laje L209: 100.0x100.0cm, 1 cortes
+[INFO]   \u2705 Laje L210: 100.0x100.0cm, 1 cortes
+[INFO]   \u2705 Laje L211: 100.0x100.0cm, 1 cortes
+[INFO]   \u2705 Laje L212: 100.0x100.0cm, 1 cortes
+[INFO]   \u2705 Laje L213: 100.0x100.0cm, 1 cortes
+[INFO]   \u2705 Laje L214: 100.0x100.0cm, 1 cortes
+[INFO]   \u2705 Laje L215: 100.0x100.0cm, 1 cortes
+[INFO]   \u2705 Laje L251: 100.0x100.0cm, 1 cortes
+[INFO]   \u2705 Laje L252: 100.0x100.0cm, 1 cortes
+[INFO] Lajes: 29 processadas -> D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-4_Sincronizacao\lajes_salvas.json
+[INFO] obras_salvas.json: 37 pilares \u2192 D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-4_Sincronizacao\obras_salvas.json
+[INFO] === RESULTADO: 37 pilares, 48 vigas, 29 lajes | 0 erros ===
+  pilares_bh.json: 39 pilares
+
+=== GERANDO DXF PILARES (37 pilares) ===
+  P1: b=60 h=74 paineis=12 alt=280cm [BH-extraido]
+  P10: b=65 h=100 paineis=12 alt=280cm [BH-extraido]
+  P101: b=24 h=82 paineis=12 alt=280cm [BH-extraido]
+  P102: b=24 h=82 paineis=12 alt=280cm [BH-extraido]
+  P103: b=19 h=82 paineis=12 alt=280cm [BH-extraido]
+  P11: b=30 h=97 paineis=12 alt=280cm [BH-extraido]
+  P12: b=24 h=92 paineis=12 alt=280cm [BH-extraido]
+  P13: b=24 h=92 paineis=12 alt=280cm [BH-extraido]
+  P15: b=24 h=67 paineis=12 alt=280cm [BH-extraido]
+  P16: b=24 h=94 paineis=12 alt=280cm [BH-extraido]
+  P17: b=30 h=97 paineis=12 alt=280cm [BH-extraido]
+  P18: b=72 h=97 paineis=12 alt=280cm [BH-extraido]
+  P19: b=30 h=97 paineis=12 alt=280cm [BH-extraido]
+  P2: b=45 h=67 paineis=12 alt=280cm [BH-extraido]
+  P20: b=24 h=50 paineis=12 alt=280cm [BH-extraido]
+  P21: b=19 h=24 paineis=12 alt=280cm [BH-extraido]
+  P23: b=45 h=67 paineis=12 alt=280cm [BH-extraido]
+  P24: b=19 h=43 paineis=12 alt=280cm [BH-extraido]
+  P25: b=34 h=97 paineis=12 alt=280cm [BH-extraido]
+  P26: b=19 h=81 paineis=12 alt=280cm [BH-extraido]
+  P27: b=19 h=81 paineis=12 alt=280cm [BH-extraido]
+  P28: b=37 h=60 paineis=12 alt=280cm [BH-extraido]
+  P29: b=80 h=97 paineis=12 alt=280cm [BH-extraido]
+  P3: b=48 h=56 paineis=12 alt=280cm [BH-extraido]
+  P30: b=82 h=92 paineis=12 alt=280cm [BH-extraido]
+  P31: b=38 h=82 paineis=12 alt=280cm [BH-extraido]
+  P32: b=27 h=44 paineis=12 alt=280cm [BH-extraido]
+  P33: b=44 h=64 paineis=12 alt=280cm [BH-extraido]
+  P34: b=19 h=82 paineis=12 alt=280cm [BH-extraido]
+  P35: b=41 h=44 paineis=12 alt=280cm [BH-extraido]
+  P4: b=42 h=97 paineis=12 alt=280cm [BH-extraido]
+  P5: b=46 h=56 paineis=12 alt=280cm [BH-extraido]
+  P6: b=20 h=45 paineis=12 alt=280cm [BH-extraido]
+  P62: b=64 h=98 paineis=12 alt=280cm [BH-extraido]
+  P7: b=66 h=94 paineis=12 alt=280cm [BH-extraido]
+  P8: b=67 h=90 paineis=12 alt=280cm [BH-extraido]
+  P9: b=38 h=56 paineis=12 alt=280cm [BH-extraido]
+
+=== RESULTADO: 37 DXFs gerados | 0 erros ===
+  Relatorio: D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-5_Geracao_Scripts\DXF_Pilares\_relatorio.json
+  DXFs em: D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-5_Geracao_Scripts\DXF_Pilares
+
+  Proximo: python scripts/comparar_dxf_pilares.py --obra D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1
+
+=== GERANDO DXF VIGAS (48 vigas) ===
+  V102: b=15 h=120 L=208cm | paineis A=2 B=2 F=2
+  V105: b=15 h=38 L=717cm | paineis A=6 B=6 F=6
+  V117: b=15 h=48 L=244cm | paineis A=3 B=3 F=3
+  V123: b=15 h=38 L=717cm | paineis A=6 B=6 F=6
+  V124: b=15 h=38 L=572cm | paineis A=5 B=5 F=5
+  V125: b=15 h=38 L=717cm | paineis A=6 B=6 F=6
+  V129: b=15 h=38 L=717cm | paineis A=6 B=6 F=6
+  V201: b=15 h=120 L=1220cm | paineis A=11 B=11 F=11
+  V202: b=15 h=120 L=376cm | paineis A=4 B=4 F=4
+  V203: b=15 h=260 L=568cm | paineis A=5 B=5 F=5
+  V204: b=15 h=120 L=613cm | paineis A=6 B=6 F=6
+  V205: b=15 h=38 L=630cm | paineis A=6 B=6 F=6
+  V206: b=15 h=48 L=244cm | paineis A=3 B=3 F=3
+  V207: b=15 h=120 L=608cm | paineis A=6 B=6 F=6
+  V208: b=15 h=260 L=572cm | paineis A=5 B=5 F=5
+  V209: b=15 h=38 L=572cm | paineis A=5 B=5 F=5
+  V210: b=15 h=38 L=726cm | paineis A=7 B=7 F=7
+  V211: b=15 h=28 L=199cm | paineis A=2 B=2 F=2
+  V212: b=15 h=38 L=451cm | paineis A=4 B=4 F=4
+  V213: b=15 h=38 L=570cm | paineis A=5 B=5 F=5
+  V214: b=15 h=38 L=570cm | paineis A=5 B=5 F=5
+  V215: b=15 h=54 L=388cm | paineis A=4 B=4 F=4
+  V216: b=15 h=38 L=386cm | paineis A=4 B=4 F=4
+  V217: b=15 h=38 L=1094cm | paineis A=10 B=10 F=10
+  V218: b=15 h=38 L=732cm | paineis A=7 B=7 F=7
+  V219: b=15 h=38 L=1009cm | paineis A=9 B=9 F=9
+  V220: b=15 h=38 L=461cm | paineis A=4 B=4 F=4
+  V221: b=15 h=48 L=398cm | paineis A=4 B=4 F=4
+  V222: b=15 h=38 L=398cm | paineis A=4 B=4 F=4
+  V223: b=15 h=38 L=444cm | paineis A=4 B=4 F=4
+  V224: b=15 h=38 L=440cm | paineis A=4 B=4 F=4
+  V225: b=15 h=120 L=434cm | paineis A=4 B=4 F=4
+  V227: b=15 h=38 L=440cm | paineis A=4 B=4 F=4
+  V228: b=15 h=38 L=402cm | paineis A=4 B=4 F=4
+  V229: b=15 h=260 L=446cm | paineis A=4 B=4 F=4
+  V230: b=15 h=48 L=402cm | paineis A=4 B=4 F=4
+  V231: b=15 h=38 L=451cm | paineis A=4 B=4 F=4
+  V232: b=15 h=120 L=455cm | paineis A=4 B=4 F=4
+  V233: b=15 h=38 L=455cm | paineis A=4 B=4 F=4
+  V234: b=15 h=38 L=630cm | paineis A=6 B=6 F=6
+  V235: b=15 h=38 L=455cm | paineis A=4 B=4 F=4
+  V236: b=15 h=38 L=180cm | paineis A=2 B=2 F=2
+  V237: b=15 h=38 L=180cm | paineis A=2 B=2 F=2
+  V238: b=15 h=38 L=180cm | paineis A=2 B=2 F=2
+  V239: b=15 h=28 L=688cm | paineis A=6 B=6 F=6
+  V241: b=15 h=38 L=688cm | paineis A=6 B=6 F=6
+  V242: b=15 h=120 L=462cm | paineis A=4 B=4 F=4
+  V243: b=15 h=38 L=320cm | paineis A=3 B=3 F=3
+
+=== RESULTADO: 48 DXFs gerados | 0 erros ===
+  Relatorio: D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-5_Geracao_Scripts\DXF_Vigas\_relatorio.json
+  DXFs em: D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-5_Geracao_Scripts\DXF_Vigas
+
+  Proximo: python scripts/comparar_dxf_vigas.py --obra D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1
+
+=== GERANDO DXF LAJES (29 lajes) ===
+  L101: 244.0x122.0cm paineis=4x1 area=29768cm2
+  L102: 244.0x122.0cm paineis=4x1 area=29768cm2
+  L103: 178.0x122.0cm paineis=3x1 area=21716cm2
+  L104: 244.0x122.0cm paineis=4x1 area=29768cm2
+  L109: 244.0x60.5cm paineis=4x1 area=14762cm2
+  L111: 244.0x122.0cm paineis=4x1 area=29768cm2
+  L112: 91.5x91.5cm paineis=2x1 area=8372cm2
+  L115: 244.0x122.0cm paineis=4x1 area=29768cm2
+  L117: 229.0x122.0cm paineis=4x1 area=27938cm2
+  L118: 244.0x122.0cm paineis=4x1 area=29768cm2
+  L119: 244.0x122.0cm paineis=4x1 area=29768cm2
+  L121: 190.0x68.5cm paineis=3x1 area=13015cm2
+  L201: 100.0x100.0cm paineis=2x1 area=10000cm2
+  L202: 100.0x100.0cm paineis=2x1 area=10000cm2
+  L203: 100.0x100.0cm paineis=2x1 area=10000cm2
+  L204: 100.0x100.0cm paineis=2x1 area=10000cm2
+  L205: 100.0x100.0cm paineis=2x1 area=10000cm2
+  L206: 100.0x100.0cm paineis=2x1 area=10000cm2
+  L207: 100.0x100.0cm paineis=2x1 area=10000cm2
+  L208: 100.0x100.0cm paineis=2x1 area=10000cm2
+  L209: 100.0x100.0cm paineis=2x1 area=10000cm2
+  L210: 100.0x100.0cm paineis=2x1 area=10000cm2
+  L211: 100.0x100.0cm paineis=2x1 area=10000cm2
+  L212: 100.0x100.0cm paineis=2x1 area=10000cm2
+  L213: 100.0x100.0cm paineis=2x1 area=10000cm2
+  L214: 100.0x100.0cm paineis=2x1 area=10000cm2
+  L215: 100.0x100.0cm paineis=2x1 area=10000cm2
+  L251: 100.0x100.0cm paineis=2x1 area=10000cm2
+  L252: 100.0x100.0cm paineis=2x1 area=10000cm2
+
+=== RESULTADO: 29 DXFs gerados | 0 erros ===
+  Relatorio: D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-5_Geracao_Scripts\DXF_Lajes\_relatorio.json
+  DXFs em: D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-5_Geracao_Scripts\DXF_Lajes
+
+  Proximo: python scripts/comparar_dxf.py --obra D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1
+
+=== COMPARADOR DXF vs. GROUND TRUTH (tol=5.0%) ===
+
+--- PILARES ---
+  Match rate: 100.0% (37/37)
+  Erro médio: 0.0%
+
+--- VIGAS ---
+  Match rate: 100.0% (48/48)
+  Erro médio: 0.0%
+
+--- LAJES ---
+  Match rate: 86.2% (25/29)
+  Erro médio: 9.6%
+  DIFF L104: ref 244.0x122.0 | gen 24.0x98.0 | err=54.9%
+  DIFF L208: ref 100.0x100.0 | gen 24.0x98.0 | err=39.0%
+  DIFF L251: ref 100.0x100.0 | gen 140.4x61.2 | err=39.6%
+  DIFF L252: ref 100.0x100.0 | gen 0.0x289.2 | err=144.6%
+
+=== SCORE GERAL: 95.4% (PASS | meta: 75.0%) ===
+  Pilares: 100.0% | Vigas: 100.0% | Lajes: 86.2%
+
+  Relatorio: D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-5_Geracao_Scripts\_relatorio_comparacao.json
+[INFO] === extrair_ancoras_dxf.py | Obra_TREINO_1 | 1 PAV ===
+[INFO] PL DXF: ALIMONTI - PARAISO - 1° PAV.- PL - R00.dxf
+[INFO] Pilares: 38 ancoras extraidas do PL DXF
+[INFO] Salvo: D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-3_Interpretacao_Extracao\ancoras_pilares.json (38 pilares)
+[INFO] LV DXF: ALIMONTI - PARAISO - 1° PAV.- LV - R00.dxf
+[INFO] Vigas: 40 ancoras extraidas do LV DXF
+[INFO] Salvo: D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-3_Interpretacao_Extracao\ancoras_vigas.json (40 vigas)
+[INFO] LJ DXF: ALIMONTI - PARAISO - 1° PAV.- LJ - R01.dxf
+[INFO] Lajes: 29 ancoras extraidas do LJ DXF
+[INFO] Salvo: D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-3_Interpretacao_Extracao\ancoras_lajes.json (29 lajes)
+
+[RESULTADO]
+  Pilares: 38 ancoras
+  Vigas:   40 ancoras
+  Lajes:   29 ancoras
+
+  STATUS: OK (cobertura suficiente)
+[INFO] === consolidar_dxf_pilares.py | Obra_TREINO_1 | 12 PAV ===
+  P1: ancora=(6329,10794) offset=(6150,10654) [18 ents]
+  P2: ancora=(7389,10781) offset=(7232,10641) [18 ents]
+  P3: ancora=(8520,10793) offset=(8371,10653) [18 ents]
+  P4: ancora=(5341,10012) offset=(5157,9872) [18 ents]
+  P5: ancora=(6411,9998) offset=(6264,9858) [18 ents]
+  P6: ancora=(7343,10838) offset=(7233,10698) [18 ents]
+  P7: ancora=(8520,9969) offset=(8315,9829) [18 ents]
+  P8: ancora=(5397,9261) offset=(5195,9121) [18 ents]
+  P9: ancora=(6550,9255) offset=(6411,9115) [18 ents]
+  P10: ancora=(8231,3499) offset=(8021,3359) [18 ents]
+  P11: ancora=(8734,12121) offset=(8562,11981) [18 ents]
+  P12: ancora=(3969,10973) offset=(3808,10833) [18 ents]
+  P13: ancora=(5567,10973) offset=(5406,10833) [18 ents]
+  P15: ancora=(7137,10973) offset=(7001,10833) [18 ents]
+  P16: ancora=(8728,10973) offset=(8565,10833) [18 ents]
+  P17: ancora=(3985,9824) offset=(3813,9684) [18 ents]
+  P18: ancora=(5554,9824) offset=(5340,9684) [18 ents]
+  P19: ancora=(7149,9824) offset=(6977,9684) [18 ents]
+  P20: ancora=(8737,9824) offset=(8618,9684) [18 ents]
+  P21: ancora=(3969,8676) offset=(3881,8536) [18 ents]
+  P23: ancora=(5552,8676) offset=(5395,8536) [18 ents]
+  P24: ancora=(7108,8675) offset=(7001,8535) [18 ents]
+  P25: ancora=(8575,6935) offset=(8399,6795) [18 ents]
+  P26: ancora=(5996,7527) offset=(5851,7387) [18 ents]
+  P27: ancora=(4397,6379) offset=(4252,6239) [18 ents]
+  P28: ancora=(7676,5428) offset=(7534,5288) [18 ents]
+  P29: ancora=(8425,5408) offset=(8203,5268) [18 ents]
+  P30: ancora=(4968,4892) offset=(4749,4752) [18 ents]
+  P31: ancora=(6195,4882) offset=(6030,4742) [18 ents]
+  P32: ancora=(7504,4887) offset=(7388,4747) [18 ents]
+  P33: ancora=(8660,4645) offset=(8507,4505) [18 ents]
+  P34: ancora=(5403,3858) offset=(5257,3718) [18 ents]
+  P35: ancora=(6459,3843) offset=(6329,3703) [18 ents]
+  P62: ancora=(6793,3506) offset=(6586,3366) [18 ents]
+  P101: ancora=(3972,2933) offset=(3821,2793) [18 ents]
+  P102: ancora=(5557,2933) offset=(5406,2793) [18 ents]
+  P103: ancora=(7145,2933) offset=(6999,2793) [18 ents]
+
+[RESULTADO]
+  Pilares consolidados: 37/37
+  Output: D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-6_Execucao_CAD\PL_gerado.dxf
+  Validação: 666 entidades no PL_gerado.dxf
+  Relatório: D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-6_Execucao_CAD\consolidacao_pilares.json
+[INFO] === consolidar_dxf_vigas.py | Obra_TREINO_1 ===
+  V102: ancora=(0,0) [10 ents]
+  V105: ancora=(7977,10377) [22 ents]
+  V117: ancora=(0,-600) [13 ents]
+  V123: ancora=(0,-1200) [22 ents]
+  V124: ancora=(0,-1800) [19 ents]
+  V125: ancora=(0,-2400) [22 ents]
+  V129: ancora=(0,-3000) [22 ents]
+  V201: ancora=(8016,11454) [37 ents]
+  V202: ancora=(8022,11134) [16 ents]
+  V203: ancora=(4895,10305) [19 ents]
+  V204: ancora=(6394,10348) [22 ents]
+  V205: ancora=(0,-3600) [22 ents]
+  V206: ancora=(3222,9072) [13 ents]
+  V207: ancora=(4813,9146) [22 ents]
+  V208: ancora=(6480,9157) [19 ents]
+  V209: ancora=(7640,8914) [19 ents]
+  V210: ancora=(8114,8900) [25 ents]
+  V211: ancora=(2888,7796) [10 ents]
+  V212: ancora=(3215,7765) [16 ents]
+  V213: ancora=(3583,7763) [19 ents]
+  V214: ancora=(4461,7781) [19 ents]
+  V215: ancora=(5252,7807) [16 ents]
+  V216: ancora=(6087,7776) [16 ents]
+  V217: ancora=(7817,7776) [34 ents]
+  V218: ancora=(3028,6628) [25 ents]
+  V219: ancora=(4496,6628) [31 ents]
+  V220: ancora=(6018,6628) [16 ents]
+  V221: ancora=(6909,6619) [16 ents]
+  V222: ancora=(7603,6628) [16 ents]
+  V223: ancora=(8366,6595) [16 ents]
+  V224: ancora=(2863,5465) [16 ents]
+  V225: ancora=(4508,5346) [16 ents]
+  V227: ancora=(3570,5437) [16 ents]
+  V228: ancora=(7601,5425) [16 ents]
+  V229: ancora=(3394,4586) [16 ents]
+  V230: ancora=(8378,5455) [16 ents]
+  V231: ancora=(0,-4200) [16 ents]
+  V232: ancora=(5011,4556) [16 ents]
+  V233: ancora=(6401,4453) [16 ents]
+  V234: ancora=(7593,4324) [22 ents]
+  V235: ancora=(8299,4349) [16 ents]
+  V236: ancora=(2890,3221) [10 ents]
+  V237: ancora=(3316,3208) [10 ents]
+  V238: ancora=(3834,3221) [10 ents]
+  V239: ancora=(4508,3184) [22 ents]
+  V241: ancora=(5011,3177) [22 ents]
+  V242: ancora=(4821,11526) [16 ents]
+  V243: ancora=(6408,3184) [13 ents]
+
+[RESULTADO]
+  LV_gerado.dxf: 48 vigas (879 entidades)
+  FV_gerado.dxf: 48 vigas offset (879 entidades)
+  Sem ancora: ['V102', 'V117', 'V123', 'V124', 'V125', 'V129', 'V205', 'V231']
+[INFO] === consolidar_dxf_lajes.py | Obra_TREINO_1 ===
+  L101: ancora=(4456,2048) [6 ents]
+  L102: ancora=(4494,1943) [6 ents]
+  L103: ancora=(4333,1838) [5 ents]
+  L104: ancora=(4538,2327) [6 ents]
+  L109: ancora=(4927,2225) [6 ents]
+  L111: ancora=(4681,2388) [6 ents]
+  L112: ancora=(4315,2322) [4 ents]
+  L115: ancora=(4607,2282) [6 ents]
+  L117: ancora=(3779,2829) [6 ents]
+  L118: ancora=(4178,2681) [6 ents]
+  L119: ancora=(4858,2429) [6 ents]
+  L121: ancora=(5224,2068) [5 ents]
+  L201: ancora=(3824,2659) [4 ents]
+  L202: ancora=(4138,2656) [4 ents]
+  L203: ancora=(4415,2645) [4 ents]
+  L204: ancora=(4701,2699) [4 ents]
+  L205: ancora=(5111,2561) [4 ents]
+  L206: ancora=(5583,2485) [4 ents]
+  L207: ancora=(5971,2427) [4 ents]
+  L208: ancora=(4538,2339) [4 ents]
+  L209: ancora=(5176,2251) [4 ents]
+  L210: ancora=(5715,2260) [4 ents]
+  L211: ancora=(3819,2112) [4 ents]
+  L212: ancora=(4127,2008) [4 ents]
+  L213: ancora=(4492,1946) [4 ents]
+  L214: ancora=(5225,1869) [4 ents]
+  L215: ancora=(5442,1988) [4 ents]
+  L251: ancora=(3343,3256) [4 ents]
+  L252: ancora=(3289,3042) [4 ents]
+
+[RESULTADO]
+  Lajes consolidadas: 29/29
+  LJ_gerado.dxf: 136 entidades
+  Output: D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-6_Execucao_CAD\LJ_gerado.dxf
+[INFO] === validar_dxf_coletivo.py | Obra_TREINO_1 | 1 PAV ===
+
+  [PILARES]
+    GT: 38 | Gerado: 37 | Corretos: 37
+    id_match: 97.4% | hallucination: 0.0%
+    SCORE: 98.4% — APROVADO
+    Missing: ['P61']
+
+  [VIGAS]
+    GT: 52 | Gerado: 48 | Corretos: 48
+    id_match: 92.3% | hallucination: 0.0%
+    SCORE: 95.4% — APROVADO
+    Missing: ['V104', 'V107', 'V115', 'V121']
+
+  [LAJES]
+    GT: 29 | Gerado: 29 | Corretos: 29
+    id_match: 100.0% | hallucination: 0.0%
+    SCORE: 100.0% — APROVADO
+
+[RESULTADO GLOBAL]
+  Score global: 97.8%
+  Status: APROVADO (>=90%)
+
+[INFO] Salvo: D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-6_Execucao_CAD\validation_coletivo.json
+[INFO] Processando 37 pilares \u2192 obras_salvas.json
+[INFO]   P1: 74x60cm grade_1=0
+[INFO]   P2: 67x45cm grade_1=0
+[INFO]   P3: 56x48cm grade_1=0
+[INFO]   P4: 97x42cm grade_1=0
+[INFO]   P5: 56x46cm grade_1=0
+[INFO]   P6: 45x20cm grade_1=0
+[INFO]   P7: 94x66cm grade_1=0
+[INFO]   P8: 90x67cm grade_1=0
+[INFO]   P9: 56x38cm grade_1=0
+[INFO]   P10: 100x65cm grade_1=0
+[INFO]   P11: 97x30cm grade_1=0
+[INFO]   P12: 92x24cm grade_1=0
+[INFO]   P13: 92x24cm grade_1=0
+[INFO]   P15: 67x24cm grade_1=0
+[INFO]   P16: 94x24cm grade_1=0
+[INFO]   P17: 97x30cm grade_1=0
+[INFO]   P18: 97x72cm grade_1=0
+[INFO]   P19: 97x30cm grade_1=0
+[INFO]   P20: 50x24cm grade_1=0
+[INFO]   P21: 24x19cm grade_1=0
+[INFO]   P23: 67x45cm grade_1=0
+[INFO]   P24: 43x19cm grade_1=0
+[INFO]   P25: 97x34cm grade_1=0
+[INFO]   P26: 81x19cm grade_1=0
+[INFO]   P27: 81x19cm grade_1=0
+[INFO]   P28: 60x37cm grade_1=0
+[INFO]   P29: 97x80cm grade_1=0
+[INFO]   P30: 92x82cm grade_1=0
+[INFO]   P31: 82x38cm grade_1=0
+[INFO]   P32: 44x27cm grade_1=0
+[INFO]   P33: 64x44cm grade_1=0
+[INFO]   P34: 82x19cm grade_1=0
+[INFO]   P35: 44x41cm grade_1=0
+[INFO]   P62: 98x64cm grade_1=0
+[INFO]   P101: 82x24cm grade_1=0
+[INFO]   P102: 82x24cm grade_1=0
+[INFO]   P103: 82x19cm grade_1=0
+[INFO] \u2705 obras_salvas.json gerado: 37 pilares \u2192 D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-4_Sincronizacao\obras_salvas.json
+[INFO] \u2705 pavimentos_lista.json gerado \u2192 D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-4_Sincronizacao\pavimentos_lista.json
+
+============================================================
+PIPELINE E2E — Obra_TREINO_1 | 1 PAV
+============================================================
+
+[FASE 1] Descoberta de DXFs
+  [SKIP] dxf_discovery.json ja existe e contem Obra_TREINO_1
+
+[FASE 2] Engenharia Reversa (Ground Truth)
+  [RUN] engenharia_reversa_dxf.py ...
+        -> OK (9.0s)
+
+[FASE 3] Extração Dimensional
+  [RUN] extrair_bh_pilares.py ...
+        -> OK (3.1s)
+  [RUN] extrair_vigas_lv.py ...
+        -> OK (2.5s)
+  [RUN] extrair_lajes_lj.py ...
+        -> OK (0.9s)
+  [RUN] extrair_garfos_evg.py ...
+        -> FALHOU (code 1) (0.6s)
+  [RUN] extrair_largura_vigas.py ...
+        -> FALHOU (code 2) (0.0s)
+  [RUN] extrair_assembly_pl.py ...
+        -> FALHOU (code 2) (0.6s)
+  [RUN] integrar_fichas_fase3.py ...
+        -> OK (0.1s)
+
+[FASE 4] Motor Fase 4 (Transformacao Fase-3 -> Fase-4)
+  [CLEAN] Removendo 37 JSONs antigos de JSON_Pilares/
+  [CLEAN] Removendo 96 JSONs antigos de JSON_Vigas_Laterais/
+  [CLEAN] Removendo 48 JSONs antigos de JSON_Vigas_Fundo/
+  [CLEAN] Removendo 29 JSONs antigos de JSON_Lajes/
+  [RUN] motor_fase4.py ...
+        -> OK (0.3s)
+
+[FASE 5] Geração DXF Individual
+  [CLEAN] Removendo 37 DXFs antigos de DXF_Pilares/
+  [CLEAN] Removendo 48 DXFs antigos de DXF_Vigas/
+  [CLEAN] Removendo 29 DXFs antigos de DXF_Lajes/
+  [RUN] gerar_dxf_pilares.py ...
+        -> OK (0.9s)
+  [RUN] gerar_dxf_vigas.py ...
+        -> OK (1.0s)
+  [RUN] gerar_dxf_lajes.py ...
+        -> OK (1.3s)
+
+[FASE 5b] Comparação DXF Individual vs STOG
+  [RUN] comparar_dxf.py ...
+        -> OK (2.7s)
+
+[FASE 6] Extração de Âncoras (coords absolutas)
+  [RUN] extrair_ancoras_dxf.py ...
+        -> OK (5.0s)
+
+[FASE 7] Consolidação DXF Coletivo
+  [RUN] consolidar_dxf_pilares.py ...
+        -> OK (1.6s)
+  [RUN] consolidar_dxf_vigas.py ...
+        -> OK (2.0s)
+  [RUN] consolidar_dxf_lajes.py ...
+        -> OK (0.9s)
+
+[FASE 8] Validação DXF Coletivo
+  [RUN] validar_dxf_coletivo.py ...
+        -> OK (0.7s)
+
+[FASE 9] Geração obras_salvas.json (formato robô)
+  [RUN] gerar_obras_salvas.py ...
+        -> OK (0.2s)
+
+============================================================
+PIPELINE CONCLUÍDO — APROVADO
+  Score coletivo: 97.8%
+  Relatório: D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-8_Revisao_Entrega\pipeline_report.json
+============================================================
+
+[INFO] === engenharia_reversa_dxf.py | Obra: Obra_TREINO_1 | Pav: 13 PAV ===
+[INFO] Diretório: D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-1_Ingestao\Projetos_Finalizados_para_Engenharia_Reversa
+[INFO] Usando caminhos do dxf_discovery.json para pav '13 PAV'
+[INFO] PL DXF: ALIMONTI - PARAISO - 13° PAV.- PL - R00.dxf
+[INFO] Pilares extraídos: 35 IDs | Pé Direito: Nonecm -> D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-3_Interpretacao_Extracao\Pilares\pilares_ground_truth.json
+[INFO] LV DXF: ALIMONTI - PARAISO - 13° PAV.- LV - R00.dxf
+Traceback (most recent call last):
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\scripts\engenharia_reversa_dxf.py", line 390, in <module>
+    main()
+    ~~~~^^
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\scripts\engenharia_reversa_dxf.py", line 386, in main
+    run(args.obra, args.pavimento)
+    ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\scripts\engenharia_reversa_dxf.py", line 343, in run
+    vigas_gt = build_vigas_ground_truth(viga_data, pavimento)
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\scripts\engenharia_reversa_dxf.py", line 245, in build_vigas_ground_truth
+    for vid in sorted(viga_data.keys(), key=lambda x: int(x[1:])):
+               ~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\scripts\engenharia_reversa_dxf.py", line 245, in <lambda>
+    for vid in sorted(viga_data.keys(), key=lambda x: int(x[1:])):
+                                                      ~~~^^^^^^^
+ValueError: invalid literal for int() with base 10: '309A'
+[INFO] === extrair_bh_pilares.py | Obra_TREINO_1 | 13 PAV ===
+[INFO] PL DXF: ALIMONTI - PARAISO - 13° PAV.- PL - R00.dxf
+[INFO] Max distancia proximity: 300.0 unidades DXF
+[INFO] Lendo DXF (pode demorar para arquivos grandes)...
+[INFO] DXF carregado: 7580 entidades
+[INFO] Extraindo posicoes dos pilares (layer Texto Secao)...
+[INFO] Pilares encontrados: 35
+[INFO] Extraindo DIMENSION entities (layers de cota)...
+[INFO] DIMENSIONs de cota encontradas: 588
+[INFO] Inverse proximity: 588 dims assignadas a 35 pilares
+
+[RESULTADO] Extracao B/H de Pilares
+  Total pilares:      35
+  B+H completos:      35 (100.0%)
+  Apenas H:           0
+  Sem dados:          0
+
+[INFO] Salvo em: D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-3_Interpretacao_Extracao\Pilares\pilares_bh.json
+[INFO] pilares_ground_truth.json atualizado: 35 pilares com B/H
+
+[AMOSTRA] Primeiros 5 pilares extraidos:
+  P1: B=19.0cm, H=88.0cm, conf=90%
+  P2: B=19.0cm, H=88.0cm, conf=90%
+  P3: B=19.0cm, H=88.0cm, conf=90%
+  P4: B=19.0cm, H=88.0cm, conf=90%
+  P5: B=19.0cm, H=88.0cm, conf=90%
+DXF: ALIMONTI - PARAISO - 13° PAV.- LV - R00.dxf
+  Labels encontrados: 33 vigas
+  Cota Seção (2x): 76 dims
+  COTA: 986 dims
+
+=== RESULTADO ===
+  Total vigas: 33
+  Com altura_lateral: 33/33
+  Com comprimento: 33/33
+  Com ambos: 33/33
+  Confiança média: 86%
+  Output: D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-3_Interpretacao_Extracao\Vigas\vigas_dim.json
+
+Viga     Alt(cm)    Comp(cm)     Conf     Sides
+-------------------------------------------------------
+V7       38         415          89%      A+B
+V13      38         415          89%      A+B
+V301     110        418          84%      A+B
+V302     110        244          84%      A+B
+V303     110        418          89%      A+B
+V304     38         578          84%      A+B
+V305     38         722          84%      A+B
+V306     110        418          84%      A+B
+V308     38         684          89%      A+B
+V309     38         570          89%      A+B
+V310     100        277          84%      A+B
+V311     38         415          89%      A+B
+V312     240        418          84%      A+B
+V314     240        415          89%      A+B
+V315     38         415          89%      A+B
+V316     240        718          84%      A+B
+V317     38         415          89%      A+B
+V318     240        415          89%      A+B
+V319     38         415          89%      A+B
+V320     240        415          84%      A+B
+V321     38         455          84%      A+B
+V322     240        415          84%      A+B
+V323     38         455          89%      A+B
+V324     38         248          84%      A+B
+V325     240        415          84%      A+B
+V326     38         307          89%      A+B
+V327     28         307          84%      A+B
+V328     28         474          84%      A+B
+V329     38         474          89%      A+B
+V330     240        455          84%      A+B
+V331     28         244          84%      B
+V332     38         415          89%      A+B
+V309A    110        570          84%      A+B
+[INFO] === extrair_lajes_lj.py | Obra_TREINO_1 | 13 PAV ===
+[INFO] LJ DXF: ALIMONTI - PARAISO - 13° PAV.- LJ - R00.dxf
+[INFO] Lendo DXF...
+[INFO] 1933 entidades
+[INFO] Extraindo labels e codigos de lajes...
+[DEBUG] Labels encontrados: ['L301', 'L302', 'L303', 'L304', 'L305', 'L306', 'L307', 'L308', 'L309', 'L310', 'L311', 'L312', 'L313', 'L314', 'L315', 'L316', 'L317', 'L318', 'L319', 'L320', 'L321', 'L322', 'L323', 'L324', 'L325', 'L326', 'L327', 'L328', 'L329', 'L330', 'L331']
+[DEBUG] Lajes com paineis AUX00: ['L10', 'L11', 'L12', 'L13', 'L14', 'L15', 'L16', 'L9']
+[INFO] Lajes encontradas: 39
+[INFO] Construindo fichas com coordenadas...
+
+[RESULTADO] Extracao de Lajes
+  Total lajes:        39
+  Com dimensoes:      0
+  Com coordenadas:    3
+
+[INFO] Salvo em: D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-3_Interpretacao_Extracao\Lajes\lajes_data.json
+[INFO] lajes_ground_truth.json atualizado: 0 lajes com dimensoes
+
+[AMOSTRA] Primeiras lajes:
+  L9: NonexNonecm | area=Nonecm2 | coords=0pts | conf=75%
+  L10: NonexNonecm | area=Nonecm2 | coords=0pts | conf=75%
+  L11: NonexNonecm | area=Nonecm2 | coords=0pts | conf=75%
+  L12: NonexNonecm | area=Nonecm2 | coords=0pts | conf=75%
+  L13: NonexNonecm | area=Nonecm2 | coords=0pts | conf=75%
+  L14: NonexNonecm | area=Nonecm2 | coords=5pts | conf=75%
+  L15: NonexNonecm | area=Nonecm2 | coords=5pts | conf=75%
+  L16: NonexNonecm | area=Nonecm2 | coords=0pts | conf=85%
+ERRO: Nenhum EVG DXF encontrado em D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1
+C:\Python314\python.exe: can't open file 'D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\extrair_largura_vigas.py': [Errno 2] No such file or directory
+usage: extrair_assembly_pl.py [-h] --obra OBRA [--pav PAV] [--output OUTPUT]
+extrair_assembly_pl.py: error: unrecognized arguments: --pavimento 13 PAV
+=== VIGAS ===
+  AVISO: vigas_largura.json nao encontrado — usando b=15cm (default)
+  vigas.json atualizado: 33 vigas
+    V7: b=15.0cm h=38.0cm L=415.0cm
+    V13: b=15.0cm h=38.0cm L=415.0cm
+    V301: b=15.0cm h=110.0cm L=418.0cm
+    V302: b=15.0cm h=110.0cm L=244.0cm
+    V303: b=15.0cm h=110.0cm L=418.0cm
+    V304: b=15.0cm h=38.0cm L=578.0cm
+    V305: b=15.0cm h=38.0cm L=722.0cm
+    V306: b=15.0cm h=110.0cm L=418.0cm
+    V308: b=15.0cm h=38.0cm L=684.5cm
+    V309: b=15.0cm h=38.0cm L=570.0cm
+    V310: b=15.0cm h=100.0cm L=277.0cm
+    V311: b=15.0cm h=38.0cm L=415.0cm
+    V312: b=15.0cm h=240.0cm L=418.0cm
+    V314: b=15.0cm h=240.0cm L=415.0cm
+    V315: b=15.0cm h=38.0cm L=415.0cm
+    V316: b=15.0cm h=240.0cm L=718.0cm
+    V317: b=15.0cm h=38.0cm L=415.0cm
+    V318: b=15.0cm h=240.0cm L=415.0cm
+    V319: b=15.0cm h=38.0cm L=415.0cm
+    V320: b=15.0cm h=240.0cm L=415.0cm
+    V321: b=15.0cm h=38.0cm L=455.0cm
+    V322: b=15.0cm h=240.0cm L=415.0cm
+    V323: b=15.0cm h=38.0cm L=455.0cm
+    V324: b=15.0cm h=38.0cm L=248.0cm
+    V325: b=15.0cm h=240.0cm L=415.0cm
+    V326: b=15.0cm h=38.0cm L=307.0cm
+    V327: b=15.0cm h=28.0cm L=307.0cm
+    V328: b=15.0cm h=28.0cm L=474.0cm
+    V329: b=15.0cm h=38.0cm L=474.0cm
+    V330: b=15.0cm h=240.0cm L=455.0cm
+    V331: b=15.0cm h=28.0cm L=244.0cm
+    V332: b=15.0cm h=38.0cm L=415.0cm
+    V309A: b=15.0cm h=110.0cm L=570.0cm
+
+=== LAJES ===
+  AVISO: lajes_poligono.json nao encontrado, usando lajes_data.json
+  AVISO: Laje L301: dimensoes invalidas, usando 100x100
+  AVISO: Laje L302: dimensoes invalidas, usando 100x100
+  AVISO: Laje L303: dimensoes invalidas, usando 100x100
+  AVISO: Laje L304: dimensoes invalidas, usando 100x100
+  AVISO: Laje L305: dimensoes invalidas, usando 100x100
+  AVISO: Laje L306: dimensoes invalidas, usando 100x100
+  AVISO: Laje L307: dimensoes invalidas, usando 100x100
+  AVISO: Laje L308: dimensoes invalidas, usando 100x100
+  AVISO: Laje L309: dimensoes invalidas, usando 100x100
+  AVISO: Laje L310: dimensoes invalidas, usando 100x100
+  AVISO: Laje L311: dimensoes invalidas, usando 100x100
+  AVISO: Laje L312: dimensoes invalidas, usando 100x100
+  AVISO: Laje L313: dimensoes invalidas, usando 100x100
+  AVISO: Laje L314: dimensoes invalidas, usando 100x100
+  AVISO: Laje L315: dimensoes invalidas, usando 100x100
+  AVISO: Laje L316: dimensoes invalidas, usando 100x100
+  AVISO: Laje L317: dimensoes invalidas, usando 100x100
+  AVISO: Laje L318: dimensoes invalidas, usando 100x100
+  AVISO: Laje L319: dimensoes invalidas, usando 100x100
+  AVISO: Laje L320: dimensoes invalidas, usando 100x100
+  AVISO: Laje L321: dimensoes invalidas, usando 100x100
+  AVISO: Laje L322: dimensoes invalidas, usando 100x100
+  AVISO: Laje L323: dimensoes invalidas, usando 100x100
+  AVISO: Laje L324: dimensoes invalidas, usando 100x100
+  AVISO: Laje L325: dimensoes invalidas, usando 100x100
+  AVISO: Laje L326: dimensoes invalidas, usando 100x100
+  AVISO: Laje L327: dimensoes invalidas, usando 100x100
+  AVISO: Laje L328: dimensoes invalidas, usando 100x100
+  AVISO: Laje L329: dimensoes invalidas, usando 100x100
+  AVISO: Laje L330: dimensoes invalidas, usando 100x100
+  AVISO: Laje L331: dimensoes invalidas, usando 100x100
+  lajes.json atualizado: 39 lajes
+    L9: 244.0x122.0cm area=29768 [aux00-panels]
+    L10: 244.0x122.0cm area=29768 [aux00-panels]
+    L11: 244.0x122.0cm area=29768 [aux00-panels]
+    L12: 244.0x122.0cm area=29768 [aux00-panels]
+    L13: 244.0x122.0cm area=29768 [aux00-panels]
+    L14: 244.0x122.0cm area=29768 [aux00-panels]
+    L15: 244.0x122.0cm area=29768 [aux00-panels]
+    L16: 244.0x122.0cm area=29768 [aux00-panels]
+    L301: 100.0x100.0cm area=10000 [label-only]
+    L302: 100.0x100.0cm area=10000 [label-only]
+    L303: 100.0x100.0cm area=10000 [label-only]
+    L304: 100.0x100.0cm area=10000 [label-only]
+    L305: 100.0x100.0cm area=10000 [label-only]
+    L306: 100.0x100.0cm area=10000 [label-only]
+    L307: 100.0x100.0cm area=10000 [label-only]
+    L308: 100.0x100.0cm area=10000 [label-only]
+    L309: 100.0x100.0cm area=10000 [label-only]
+    L310: 100.0x100.0cm area=10000 [label-only]
+    L311: 100.0x100.0cm area=10000 [label-only]
+    L312: 100.0x100.0cm area=10000 [label-only]
+    L313: 100.0x100.0cm area=10000 [label-only]
+    L314: 100.0x100.0cm area=10000 [label-only]
+    L315: 100.0x100.0cm area=10000 [label-only]
+    L316: 100.0x100.0cm area=10000 [label-only]
+    L317: 100.0x100.0cm area=10000 [label-only]
+    L318: 100.0x100.0cm area=10000 [label-only]
+    L319: 100.0x100.0cm area=10000 [label-only]
+    L320: 100.0x100.0cm area=10000 [label-only]
+    L321: 100.0x100.0cm area=10000 [label-only]
+    L322: 100.0x100.0cm area=10000 [label-only]
+    L323: 100.0x100.0cm area=10000 [label-only]
+    L324: 100.0x100.0cm area=10000 [label-only]
+    L325: 100.0x100.0cm area=10000 [label-only]
+    L326: 100.0x100.0cm area=10000 [label-only]
+    L327: 100.0x100.0cm area=10000 [label-only]
+    L328: 100.0x100.0cm area=10000 [label-only]
+    L329: 100.0x100.0cm area=10000 [label-only]
+    L330: 100.0x100.0cm area=10000 [label-only]
+    L331: 100.0x100.0cm area=10000 [label-only]
+
+=== INTEGRACAO COMPLETA: 33 vigas + 39 lajes ===
+  Proximos passos: python scripts/motor_fase4.py --obra D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1
+[INFO] === motor_fase4.py | Obra: Obra_TREINO_1 | Pav: 13 PAV ===
+[INFO] Carregado: D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-3_Interpretacao_Extracao\Pilares\pilares_bh.json (36 itens)
+[WARNING] pilares_assembly.json nao encontrado — grades ficarao zeradas
+[INFO]   \u2705 Pilar P1: 88.0x19.0cm, h=280.0cm
+[INFO]   \u2705 Pilar P2: 88.0x19.0cm, h=280.0cm
+[INFO]   \u2705 Pilar P3: 88.0x19.0cm, h=280.0cm
+[INFO]   \u2705 Pilar P4: 88.0x19.0cm, h=280.0cm
+[INFO]   \u2705 Pilar P5: 88.0x19.0cm, h=280.0cm
+[INFO]   \u2705 Pilar P6: 88.0x19.0cm, h=280.0cm
+[INFO]   \u2705 Pilar P7: 88.0x19.0cm, h=280.0cm
+[INFO]   \u2705 Pilar P8: 88.0x19.0cm, h=280.0cm
+[INFO]   \u2705 Pilar P9: 97.0x19.0cm, h=280.0cm
+[INFO]   \u2705 Pilar P10: 82.0x73.0cm, h=280.0cm
+[INFO]   \u2705 Pilar P11: 73.0x19.0cm, h=280.0cm
+[INFO]   \u2705 Pilar P12: 73.0x19.0cm, h=280.0cm
+[INFO]   \u2705 Pilar P13: 73.0x19.0cm, h=280.0cm
+[INFO]   \u2705 Pilar P14: 73.0x19.0cm, h=280.0cm
+[INFO]   \u2705 Pilar P15: 73.0x19.0cm, h=280.0cm
+[INFO]   \u2705 Pilar P16: 73.0x19.0cm, h=280.0cm
+[INFO]   \u2705 Pilar P17: 73.0x19.0cm, h=280.0cm
+[INFO]   \u2705 Pilar P18: 97.0x19.0cm, h=280.0cm
+[INFO]   \u2705 Pilar P19: 97.0x19.0cm, h=280.0cm
+[INFO]   \u2705 Pilar P20: 97.0x19.0cm, h=280.0cm
+[INFO]   \u2705 Pilar P21: 97.0x19.0cm, h=280.0cm
+[INFO]   \u2705 Pilar P22: 97.0x19.0cm, h=280.0cm
+[INFO]   \u2705 Pilar P23: 97.0x19.0cm, h=280.0cm
+[INFO]   \u2705 Pilar P24: 97.0x19.0cm, h=280.0cm
+[INFO]   \u2705 Pilar P25: 82.0x19.0cm, h=280.0cm
+[INFO]   \u2705 Pilar P26: 54.0x52.0cm, h=280.0cm
+[INFO]   \u2705 Pilar P27: 81.0x19.0cm, h=280.0cm
+[INFO]   \u2705 Pilar P28: 97.0x24.0cm, h=280.0cm
+[INFO]   \u2705 Pilar P29: 88.0x24.0cm, h=280.0cm
+[INFO]   \u2705 Pilar P30: 88.0x24.0cm, h=280.0cm
+[INFO]   \u2705 Pilar P31: 88.0x24.0cm, h=280.0cm
+[INFO]   \u2705 Pilar P32: 88.0x24.0cm, h=280.0cm
+[INFO]   \u2705 Pilar P33: 97.0x19.0cm, h=280.0cm
+[INFO]   \u2705 Pilar P34: 82.0x19.0cm, h=280.0cm
+[INFO]   \u2705 Pilar P35: 82.0x19.0cm, h=280.0cm
+[INFO] Pilares: 35 processados -> D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-4_Sincronizacao\pilares_salvos.json
+[INFO] Carregado: D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-3_Interpretacao_Extracao\Vigas\vigas.json (34 itens)
+[INFO]   \u2705 Viga V7: b=15.0cm, h=38.0cm, L=415.0cm -> A+B
+[INFO]   \u2705 Viga V13: b=15.0cm, h=38.0cm, L=415.0cm -> A+B
+[INFO]   \u2705 Viga V301: b=15.0cm, h=110.0cm, L=418.0cm -> A+B
+[INFO]   \u2705 Viga V302: b=15.0cm, h=110.0cm, L=244.0cm -> A+B
+[INFO]   \u2705 Viga V303: b=15.0cm, h=110.0cm, L=418.0cm -> A+B
+[INFO]   \u2705 Viga V304: b=15.0cm, h=38.0cm, L=578.0cm -> A+B
+[INFO]   \u2705 Viga V305: b=15.0cm, h=38.0cm, L=722.0cm -> A+B
+[INFO]   \u2705 Viga V306: b=15.0cm, h=110.0cm, L=418.0cm -> A+B
+[INFO]   \u2705 Viga V308: b=15.0cm, h=38.0cm, L=684.5cm -> A+B
+[INFO]   \u2705 Viga V309: b=15.0cm, h=38.0cm, L=570.0cm -> A+B
+[INFO]   \u2705 Viga V310: b=15.0cm, h=100.0cm, L=277.0cm -> A+B
+[INFO]   \u2705 Viga V311: b=15.0cm, h=38.0cm, L=415.0cm -> A+B
+[INFO]   \u2705 Viga V312: b=15.0cm, h=240.0cm, L=418.0cm -> A+B
+[INFO]   \u2705 Viga V314: b=15.0cm, h=240.0cm, L=415.0cm -> A+B
+[INFO]   \u2705 Viga V315: b=15.0cm, h=38.0cm, L=415.0cm -> A+B
+[INFO]   \u2705 Viga V316: b=15.0cm, h=240.0cm, L=718.0cm -> A+B
+[INFO]   \u2705 Viga V317: b=15.0cm, h=38.0cm, L=415.0cm -> A+B
+[INFO]   \u2705 Viga V318: b=15.0cm, h=240.0cm, L=415.0cm -> A+B
+[INFO]   \u2705 Viga V319: b=15.0cm, h=38.0cm, L=415.0cm -> A+B
+[INFO]   \u2705 Viga V320: b=15.0cm, h=240.0cm, L=415.0cm -> A+B
+[INFO]   \u2705 Viga V321: b=15.0cm, h=38.0cm, L=455.0cm -> A+B
+[INFO]   \u2705 Viga V322: b=15.0cm, h=240.0cm, L=415.0cm -> A+B
+[INFO]   \u2705 Viga V323: b=15.0cm, h=38.0cm, L=455.0cm -> A+B
+[INFO]   \u2705 Viga V324: b=15.0cm, h=38.0cm, L=248.0cm -> A+B
+[INFO]   \u2705 Viga V325: b=15.0cm, h=240.0cm, L=415.0cm -> A+B
+[INFO]   \u2705 Viga V326: b=15.0cm, h=38.0cm, L=307.0cm -> A+B
+[INFO]   \u2705 Viga V327: b=15.0cm, h=28.0cm, L=307.0cm -> A+B
+[INFO]   \u2705 Viga V328: b=15.0cm, h=28.0cm, L=474.0cm -> A+B
+[INFO]   \u2705 Viga V329: b=15.0cm, h=38.0cm, L=474.0cm -> A+B
+[INFO]   \u2705 Viga V330: b=15.0cm, h=240.0cm, L=455.0cm -> A+B
+[INFO]   \u2705 Viga V331: b=15.0cm, h=28.0cm, L=244.0cm -> A+B
+[INFO]   \u2705 Viga V332: b=15.0cm, h=38.0cm, L=415.0cm -> A+B
+[INFO]   \u2705 Viga V309A: b=15.0cm, h=110.0cm, L=570.0cm -> A+B
+[INFO] Vigas: 33 processadas -> D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-4_Sincronizacao\vigas_salvas.json
+[INFO] Carregado: D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-3_Interpretacao_Extracao\Lajes\lajes.json (40 itens)
+[INFO]   \u2705 Laje L9: 244.0x122.0cm, 3 cortes
+[INFO]   \u2705 Laje L10: 244.0x122.0cm, 3 cortes
+[INFO]   \u2705 Laje L11: 244.0x122.0cm, 3 cortes
+[INFO]   \u2705 Laje L12: 244.0x122.0cm, 3 cortes
+[INFO]   \u2705 Laje L13: 244.0x122.0cm, 3 cortes
+[INFO]   \u2705 Laje L14: 244.0x122.0cm, 3 cortes
+[INFO]   \u2705 Laje L15: 244.0x122.0cm, 3 cortes
+[INFO]   \u2705 Laje L16: 244.0x122.0cm, 3 cortes
+[INFO]   \u2705 Laje L301: 100.0x100.0cm, 1 cortes
+[INFO]   \u2705 Laje L302: 100.0x100.0cm, 1 cortes
+[INFO]   \u2705 Laje L303: 100.0x100.0cm, 1 cortes
+[INFO]   \u2705 Laje L304: 100.0x100.0cm, 1 cortes
+[INFO]   \u2705 Laje L305: 100.0x100.0cm, 1 cortes
+[INFO]   \u2705 Laje L306: 100.0x100.0cm, 1 cortes
+[INFO]   \u2705 Laje L307: 100.0x100.0cm, 1 cortes
+[INFO]   \u2705 Laje L308: 100.0x100.0cm, 1 cortes
+[INFO]   \u2705 Laje L309: 100.0x100.0cm, 1 cortes
+[INFO]   \u2705 Laje L310: 100.0x100.0cm, 1 cortes
+[INFO]   \u2705 Laje L311: 100.0x100.0cm, 1 cortes
+[INFO]   \u2705 Laje L312: 100.0x100.0cm, 1 cortes
+[INFO]   \u2705 Laje L313: 100.0x100.0cm, 1 cortes
+[INFO]   \u2705 Laje L314: 100.0x100.0cm, 1 cortes
+[INFO]   \u2705 Laje L315: 100.0x100.0cm, 1 cortes
+[INFO]   \u2705 Laje L316: 100.0x100.0cm, 1 cortes
+[INFO]   \u2705 Laje L317: 100.0x100.0cm, 1 cortes
+[INFO]   \u2705 Laje L318: 100.0x100.0cm, 1 cortes
+[INFO]   \u2705 Laje L319: 100.0x100.0cm, 1 cortes
+[INFO]   \u2705 Laje L320: 100.0x100.0cm, 1 cortes
+[INFO]   \u2705 Laje L321: 100.0x100.0cm, 1 cortes
+[INFO]   \u2705 Laje L322: 100.0x100.0cm, 1 cortes
+[INFO]   \u2705 Laje L323: 100.0x100.0cm, 1 cortes
+[INFO]   \u2705 Laje L324: 100.0x100.0cm, 1 cortes
+[INFO]   \u2705 Laje L325: 100.0x100.0cm, 1 cortes
+[INFO]   \u2705 Laje L326: 100.0x100.0cm, 1 cortes
+[INFO]   \u2705 Laje L327: 100.0x100.0cm, 1 cortes
+[INFO]   \u2705 Laje L328: 100.0x100.0cm, 1 cortes
+[INFO]   \u2705 Laje L329: 100.0x100.0cm, 1 cortes
+[INFO]   \u2705 Laje L330: 100.0x100.0cm, 1 cortes
+[INFO]   \u2705 Laje L331: 100.0x100.0cm, 1 cortes
+[INFO] Lajes: 39 processadas -> D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-4_Sincronizacao\lajes_salvas.json
+[INFO] obras_salvas.json: 35 pilares \u2192 D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-4_Sincronizacao\obras_salvas.json
+[INFO] === RESULTADO: 35 pilares, 33 vigas, 39 lajes | 0 erros ===
+  pilares_bh.json: 36 pilares
+
+=== GERANDO DXF PILARES (35 pilares) ===
+  P1: b=19 h=88 paineis=12 alt=280cm [BH-extraido]
+  P10: b=73 h=82 paineis=12 alt=280cm [BH-extraido]
+  P11: b=19 h=73 paineis=12 alt=280cm [BH-extraido]
+  P12: b=19 h=73 paineis=12 alt=280cm [BH-extraido]
+  P13: b=19 h=73 paineis=12 alt=280cm [BH-extraido]
+  P14: b=19 h=73 paineis=12 alt=280cm [BH-extraido]
+  P15: b=19 h=73 paineis=12 alt=280cm [BH-extraido]
+  P16: b=19 h=73 paineis=12 alt=280cm [BH-extraido]
+  P17: b=19 h=73 paineis=12 alt=280cm [BH-extraido]
+  P18: b=19 h=97 paineis=12 alt=280cm [BH-extraido]
+  P19: b=19 h=97 paineis=12 alt=280cm [BH-extraido]
+  P2: b=19 h=88 paineis=12 alt=280cm [BH-extraido]
+  P20: b=19 h=97 paineis=12 alt=280cm [BH-extraido]
+  P21: b=19 h=97 paineis=12 alt=280cm [BH-extraido]
+  P22: b=19 h=97 paineis=12 alt=280cm [BH-extraido]
+  P23: b=19 h=97 paineis=12 alt=280cm [BH-extraido]
+  P24: b=19 h=97 paineis=12 alt=280cm [BH-extraido]
+  P25: b=19 h=82 paineis=12 alt=280cm [BH-extraido]
+  P26: b=52 h=54 paineis=12 alt=280cm [BH-extraido]
+  P27: b=19 h=81 paineis=12 alt=280cm [BH-extraido]
+  P28: b=24 h=97 paineis=12 alt=280cm [BH-extraido]
+  P29: b=24 h=88 paineis=12 alt=280cm [BH-extraido]
+  P3: b=19 h=88 paineis=12 alt=280cm [BH-extraido]
+  P30: b=24 h=88 paineis=12 alt=280cm [BH-extraido]
+  P31: b=24 h=88 paineis=12 alt=280cm [BH-extraido]
+  P32: b=24 h=88 paineis=12 alt=280cm [BH-extraido]
+  P33: b=19 h=97 paineis=12 alt=280cm [BH-extraido]
+  P34: b=19 h=82 paineis=12 alt=280cm [BH-extraido]
+  P35: b=19 h=82 paineis=12 alt=280cm [BH-extraido]
+  P4: b=19 h=88 paineis=12 alt=280cm [BH-extraido]
+  P5: b=19 h=88 paineis=12 alt=280cm [BH-extraido]
+  P6: b=19 h=88 paineis=12 alt=280cm [BH-extraido]
+  P7: b=19 h=88 paineis=12 alt=280cm [BH-extraido]
+  P8: b=19 h=88 paineis=12 alt=280cm [BH-extraido]
+  P9: b=19 h=97 paineis=12 alt=280cm [BH-extraido]
+
+=== RESULTADO: 35 DXFs gerados | 0 erros ===
+  Relatorio: D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-5_Geracao_Scripts\DXF_Pilares\_relatorio.json
+  DXFs em: D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-5_Geracao_Scripts\DXF_Pilares
+
+  Proximo: python scripts/comparar_dxf_pilares.py --obra D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1
+
+=== GERANDO DXF VIGAS (33 vigas) ===
+  V7: b=15 h=38 L=415cm | paineis A=4 B=4 F=4
+  V13: b=15 h=38 L=415cm | paineis A=4 B=4 F=4
+  V301: b=15 h=110 L=418cm | paineis A=4 B=4 F=4
+  V302: b=15 h=110 L=244cm | paineis A=3 B=3 F=3
+  V303: b=15 h=110 L=418cm | paineis A=4 B=4 F=4
+  V304: b=15 h=38 L=578cm | paineis A=5 B=5 F=5
+  V305: b=15 h=38 L=722cm | paineis A=7 B=7 F=7
+  V306: b=15 h=110 L=418cm | paineis A=4 B=4 F=4
+  V308: b=15 h=38 L=684cm | paineis A=6 B=6 F=6
+  V309: b=15 h=38 L=570cm | paineis A=5 B=5 F=5
+  V310: b=15 h=100 L=277cm | paineis A=3 B=3 F=3
+  V311: b=15 h=38 L=415cm | paineis A=4 B=4 F=4
+  V312: b=15 h=240 L=418cm | paineis A=4 B=4 F=4
+  V314: b=15 h=240 L=415cm | paineis A=4 B=4 F=4
+  V315: b=15 h=38 L=415cm | paineis A=4 B=4 F=4
+  V316: b=15 h=240 L=718cm | paineis A=6 B=6 F=6
+  V317: b=15 h=38 L=415cm | paineis A=4 B=4 F=4
+  V318: b=15 h=240 L=415cm | paineis A=4 B=4 F=4
+  V319: b=15 h=38 L=415cm | paineis A=4 B=4 F=4
+  V320: b=15 h=240 L=415cm | paineis A=4 B=4 F=4
+  V321: b=15 h=38 L=455cm | paineis A=4 B=4 F=4
+  V322: b=15 h=240 L=415cm | paineis A=4 B=4 F=4
+  V323: b=15 h=38 L=455cm | paineis A=4 B=4 F=4
+  V324: b=15 h=38 L=248cm | paineis A=3 B=3 F=3
+  V325: b=15 h=240 L=415cm | paineis A=4 B=4 F=4
+  V326: b=15 h=38 L=307cm | paineis A=3 B=3 F=3
+  V327: b=15 h=28 L=307cm | paineis A=3 B=3 F=3
+  V328: b=15 h=28 L=474cm | paineis A=4 B=4 F=4
+  V329: b=15 h=38 L=474cm | paineis A=4 B=4 F=4
+  V330: b=15 h=240 L=455cm | paineis A=4 B=4 F=4
+  V331: b=15 h=28 L=244cm | paineis A=3 B=3 F=3
+  V332: b=15 h=38 L=415cm | paineis A=4 B=4 F=4
+  V309A: b=15 h=110 L=570cm | paineis A=5 B=5 F=5
+
+=== RESULTADO: 33 DXFs gerados | 0 erros ===
+  Relatorio: D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-5_Geracao_Scripts\DXF_Vigas\_relatorio.json
+  DXFs em: D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-5_Geracao_Scripts\DXF_Vigas
+
+  Proximo: python scripts/comparar_dxf_vigas.py --obra D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1
+
+=== GERANDO DXF LAJES (39 lajes) ===
+  L9: 244.0x122.0cm paineis=4x1 area=29768cm2
+  L10: 244.0x122.0cm paineis=4x1 area=29768cm2
+  L11: 244.0x122.0cm paineis=4x1 area=29768cm2
+  L12: 244.0x122.0cm paineis=4x1 area=29768cm2
+  L13: 244.0x122.0cm paineis=4x1 area=29768cm2
+  L14: 244.0x122.0cm paineis=4x1 area=29768cm2
+  L15: 244.0x122.0cm paineis=4x1 area=29768cm2
+  L16: 244.0x122.0cm paineis=4x1 area=29768cm2
+  L301: 100.0x100.0cm paineis=2x1 area=10000cm2
+  L302: 100.0x100.0cm paineis=2x1 area=10000cm2
+  L303: 100.0x100.0cm paineis=2x1 area=10000cm2
+  L304: 100.0x100.0cm paineis=2x1 area=10000cm2
+  L305: 100.0x100.0cm paineis=2x1 area=10000cm2
+  L306: 100.0x100.0cm paineis=2x1 area=10000cm2
+  L307: 100.0x100.0cm paineis=2x1 area=10000cm2
+  L308: 100.0x100.0cm paineis=2x1 area=10000cm2
+  L309: 100.0x100.0cm paineis=2x1 area=10000cm2
+  L310: 100.0x100.0cm paineis=2x1 area=10000cm2
+  L311: 100.0x100.0cm paineis=2x1 area=10000cm2
+  L312: 100.0x100.0cm paineis=2x1 area=10000cm2
+  L313: 100.0x100.0cm paineis=2x1 area=10000cm2
+  L314: 100.0x100.0cm paineis=2x1 area=10000cm2
+  L315: 100.0x100.0cm paineis=2x1 area=10000cm2
+  L316: 100.0x100.0cm paineis=2x1 area=10000cm2
+  L317: 100.0x100.0cm paineis=2x1 area=10000cm2
+  L318: 100.0x100.0cm paineis=2x1 area=10000cm2
+  L319: 100.0x100.0cm paineis=2x1 area=10000cm2
+  L320: 100.0x100.0cm paineis=2x1 area=10000cm2
+  L321: 100.0x100.0cm paineis=2x1 area=10000cm2
+  L322: 100.0x100.0cm paineis=2x1 area=10000cm2
+  L323: 100.0x100.0cm paineis=2x1 area=10000cm2
+  L324: 100.0x100.0cm paineis=2x1 area=10000cm2
+  L325: 100.0x100.0cm paineis=2x1 area=10000cm2
+  L326: 100.0x100.0cm paineis=2x1 area=10000cm2
+  L327: 100.0x100.0cm paineis=2x1 area=10000cm2
+  L328: 100.0x100.0cm paineis=2x1 area=10000cm2
+  L329: 100.0x100.0cm paineis=2x1 area=10000cm2
+  L330: 100.0x100.0cm paineis=2x1 area=10000cm2
+  L331: 100.0x100.0cm paineis=2x1 area=10000cm2
+
+=== RESULTADO: 39 DXFs gerados | 0 erros ===
+  Relatorio: D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-5_Geracao_Scripts\DXF_Lajes\_relatorio.json
+  DXFs em: D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-5_Geracao_Scripts\DXF_Lajes
+
+  Proximo: python scripts/comparar_dxf.py --obra D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1
+
+=== COMPARADOR DXF vs. GROUND TRUTH (tol=5.0%) ===
+
+--- PILARES ---
+  Match rate: 100.0% (35/35)
+  Erro médio: 0.0%
+
+--- VIGAS ---
+  Match rate: 100.0% (33/33)
+  Erro médio: 0.0%
+
+--- LAJES ---
+  Match rate: 92.3% (36/39)
+  Erro médio: 3.9%
+  DIFF L14: ref 244.0x122.0 | gen 19.0x100.0 | err=55.1%
+  DIFF L15: ref 244.0x122.0 | gen 19.0x100.0 | err=55.1%
+  DIFF L317: ref 100.0x100.0 | gen 19.0x104.0 | err=42.5%
+
+=== SCORE GERAL: 97.4% (PASS | meta: 75.0%) ===
+  Pilares: 100.0% | Vigas: 100.0% | Lajes: 92.3%
+
+  Relatorio: D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-5_Geracao_Scripts\_relatorio_comparacao.json
+[INFO] === extrair_ancoras_dxf.py | Obra_TREINO_1 | 13 PAV ===
+[INFO] PL DXF: ALIMONTI - PARAISO - 13° PAV.- PL - R00.dxf
+[INFO] Pilares: 35 ancoras extraidas do PL DXF
+[INFO] Salvo: D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-3_Interpretacao_Extracao\ancoras_pilares.json (35 pilares)
+[INFO] LV DXF: ALIMONTI - PARAISO - 13° PAV.- LV - R00.dxf
+[INFO] Vigas: 31 ancoras extraidas do LV DXF
+[INFO] Salvo: D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-3_Interpretacao_Extracao\ancoras_vigas.json (31 vigas)
+[INFO] LJ DXF: ALIMONTI - PARAISO - 13° PAV.- LJ - R00.dxf
+[INFO] Lajes: 39 ancoras extraidas do LJ DXF
+[INFO] Salvo: D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-3_Interpretacao_Extracao\ancoras_lajes.json (39 lajes)
+
+[RESULTADO]
+  Pilares: 35 ancoras
+  Vigas:   31 ancoras
+  Lajes:   39 ancoras
+
+  STATUS: OK (cobertura suficiente)
+[INFO] === consolidar_dxf_pilares.py | Obra_TREINO_1 | 12 PAV ===
+  P1: ancora=(5358,12203) offset=(5206,12063) [18 ents]
+  P2: ancora=(6943,12203) offset=(6791,12063) [18 ents]
+  P3: ancora=(8528,12203) offset=(8376,12063) [18 ents]
+  P4: ancora=(3760,11053) offset=(3608,10913) [18 ents]
+  P5: ancora=(5365,11053) offset=(5213,10913) [18 ents]
+  P6: ancora=(6943,11053) offset=(6791,10913) [18 ents]
+  P7: ancora=(8528,11053) offset=(8376,10913) [18 ents]
+  P8: ancora=(3759,9905) offset=(3607,9765) [18 ents]
+  P9: ancora=(5349,9905) offset=(5188,9765) [18 ents]
+  P10: ancora=(6951,9905) offset=(6751,9765) [18 ents]
+  P11: ancora=(8522,9906) offset=(8386,9766) [18 ents]
+  P12: ancora=(3751,8758) offset=(3614,8618) [18 ents]
+  P13: ancora=(5349,8758) offset=(5212,8618) [18 ents]
+  P14: ancora=(6934,8758) offset=(6797,8618) [18 ents]
+  P15: ancora=(8519,8758) offset=(8382,8618) [18 ents]
+  P16: ancora=(3751,7609) offset=(3614,7469) [18 ents]
+  P17: ancora=(5332,7609) offset=(5196,7469) [18 ents]
+  P18: ancora=(6671,7582) offset=(6510,7442) [18 ents]
+  P19: ancora=(8531,7608) offset=(8370,7468) [18 ents]
+  P20: ancora=(3763,6459) offset=(3602,6319) [18 ents]
+  P21: ancora=(5361,6459) offset=(5200,6319) [18 ents]
+  P22: ancora=(6946,6459) offset=(6785,6319) [18 ents]
+  P23: ancora=(8524,6459) offset=(8363,6319) [18 ents]
+  P24: ancora=(3763,5310) offset=(3602,5170) [18 ents]
+  P25: ancora=(5361,5310) offset=(5215,5170) [18 ents]
+  P26: ancora=(6850,4929) offset=(6699,4789) [18 ents]
+  P27: ancora=(7356,4164) offset=(7211,4024) [18 ents]
+  P28: ancora=(3793,3015) offset=(3627,2875) [18 ents]
+  P29: ancora=(5344,3015) offset=(5187,2875) [18 ents]
+  P30: ancora=(6929,3015) offset=(6772,2875) [18 ents]
+  P31: ancora=(8514,3015) offset=(8357,2875) [18 ents]
+  P32: ancora=(3759,1866) offset=(3602,1726) [18 ents]
+  P33: ancora=(5341,1865) offset=(5180,1725) [18 ents]
+  P34: ancora=(6933,1865) offset=(6787,1725) [18 ents]
+  P35: ancora=(8518,1865) offset=(8372,1725) [18 ents]
+
+[RESULTADO]
+  Pilares consolidados: 35/35
+  Output: D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-6_Execucao_CAD\PL_gerado.dxf
+  Validação: 630 entidades no PL_gerado.dxf
+  Relatório: D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-6_Execucao_CAD\consolidacao_pilares.json
+[INFO] === consolidar_dxf_vigas.py | Obra_TREINO_1 ===
+  V7: ancora=(0,0) [16 ents]
+  V13: ancora=(6747,4555) [16 ents]
+  V301: ancora=(5483,8282) [16 ents]
+  V302: ancora=(3898,7144) [13 ents]
+  V303: ancora=(7059,7130) [16 ents]
+  V304: ancora=(2252,5654) [19 ents]
+  V305: ancora=(3637,5665) [25 ents]
+  V306: ancora=(5485,5997) [16 ents]
+  V308: ancora=(2195,4530) [22 ents]
+  V309: ancora=(0,-600) [19 ents]
+  V309A: ancora=(3860,4858) [19 ents]
+  V310: ancora=(3992,4333) [13 ents]
+  V311: ancora=(5148,4537) [16 ents]
+  V312: ancora=(5925,4719) [16 ents]
+  V314: ancora=(7485,4719) [16 ents]
+  V315: ancora=(1987,3389) [16 ents]
+  V316: ancora=(2755,3570) [22 ents]
+  V317: ancora=(3580,3376) [16 ents]
+  V318: ancora=(4315,3570) [16 ents]
+  V319: ancora=(5159,3389) [16 ents]
+  V320: ancora=(5925,3570) [16 ents]
+  V321: ancora=(6832,3406) [16 ents]
+  V322: ancora=(2303,2421) [16 ents]
+  V323: ancora=(7531,3399) [16 ents]
+  V324: ancora=(3050,2247) [13 ents]
+  V325: ancora=(3866,2450) [16 ents]
+  V326: ancora=(4598,2247) [13 ents]
+  V327: ancora=(5176,2247) [13 ents]
+  V328: ancora=(5569,2247) [16 ents]
+  V329: ancora=(6223,2224) [16 ents]
+  V330: ancora=(7299,2440) [16 ents]
+  V331: ancora=(2099,1001) [13 ents]
+  V332: ancora=(2646,1078) [16 ents]
+
+[RESULTADO]
+  LV_gerado.dxf: 33 vigas (540 entidades)
+  FV_gerado.dxf: 33 vigas offset (540 entidades)
+  Sem ancora: ['V7', 'V309']
+[INFO] === consolidar_dxf_lajes.py | Obra_TREINO_1 ===
+  L9: ancora=(2875,2437) [6 ents]
+  L10: ancora=(3299,2437) [6 ents]
+  L11: ancora=(3736,2437) [6 ents]
+  L12: ancora=(4173,2437) [6 ents]
+  L13: ancora=(4610,2437) [6 ents]
+  L14: ancora=(5061,2437) [6 ents]
+  L15: ancora=(5498,2437) [6 ents]
+  L16: ancora=(5937,2501) [6 ents]
+  L301: ancora=(2918,2754) [4 ents]
+  L302: ancora=(3361,2695) [4 ents]
+  L303: ancora=(3790,2695) [4 ents]
+  L304: ancora=(4224,2695) [4 ents]
+  L305: ancora=(4658,2695) [4 ents]
+  L306: ancora=(5088,2694) [4 ents]
+  L307: ancora=(5530,2758) [4 ents]
+  L308: ancora=(5930,2694) [4 ents]
+  L309: ancora=(2924,2430) [4 ents]
+  L310: ancora=(3344,2429) [4 ents]
+  L311: ancora=(3802,2489) [4 ents]
+  L312: ancora=(4226,2506) [4 ents]
+  L313: ancora=(4674,2488) [4 ents]
+  L314: ancora=(5086,2425) [4 ents]
+  L315: ancora=(5535,2428) [4 ents]
+  L316: ancora=(5937,2459) [4 ents]
+  L317: ancora=(6098,2706) [4 ents]
+  L318: ancora=(4213,2138) [4 ents]
+  L319: ancora=(2913,1885) [4 ents]
+  L320: ancora=(3348,1865) [4 ents]
+  L321: ancora=(3792,1870) [4 ents]
+  L322: ancora=(4212,1869) [4 ents]
+  L323: ancora=(4670,1868) [4 ents]
+  L324: ancora=(5089,1872) [4 ents]
+  L325: ancora=(5385,1774) [4 ents]
+  L326: ancora=(3029,1618) [4 ents]
+  L327: ancora=(3315,1630) [4 ents]
+  L328: ancora=(3818,1632) [4 ents]
+  L329: ancora=(4256,1597) [4 ents]
+  L330: ancora=(4629,1596) [4 ents]
+  L331: ancora=(5130,1596) [4 ents]
+
+[RESULTADO]
+  Lajes consolidadas: 39/39
+  LJ_gerado.dxf: 172 entidades
+  Output: D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-6_Execucao_CAD\LJ_gerado.dxf
+[INFO] === validar_dxf_coletivo.py | Obra_TREINO_1 | 13 PAV ===
+
+  [PILARES]
+    GT: 35 | Gerado: 35 | Corretos: 35
+    id_match: 100.0% | hallucination: 0.0%
+    SCORE: 100.0% — APROVADO
+
+  [VIGAS]
+    GT: 52 | Gerado: 33 | Corretos: 0
+    id_match: 0.0% | hallucination: 100.0%
+    SCORE: 0.0% — REPROVADO
+    Missing: ['V102', 'V104', 'V105', 'V107', 'V115', 'V117', 'V121', 'V123', 'V124', 'V125']
+
+  [LAJES]
+    GT: 29 | Gerado: 39 | Corretos: 0
+    id_match: 0.0% | hallucination: 100.0%
+    SCORE: 0.0% — REPROVADO
+    Missing: ['L101', 'L102', 'L103', 'L104', 'L109', 'L111', 'L112', 'L115', 'L117', 'L118']
+
+[RESULTADO GLOBAL]
+  Score global: 40.0%
+  Status: REPROVADO (meta: >=90%)
+
+[INFO] Salvo: D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-6_Execucao_CAD\validation_coletivo.json
+[INFO] Processando 35 pilares \u2192 obras_salvas.json
+[INFO]   P1: 88x19cm grade_1=0
+[INFO]   P2: 88x19cm grade_1=0
+[INFO]   P3: 88x19cm grade_1=0
+[INFO]   P4: 88x19cm grade_1=0
+[INFO]   P5: 88x19cm grade_1=0
+[INFO]   P6: 88x19cm grade_1=0
+[INFO]   P7: 88x19cm grade_1=0
+[INFO]   P8: 88x19cm grade_1=0
+[INFO]   P9: 97x19cm grade_1=0
+[INFO]   P10: 82x73cm grade_1=0
+[INFO]   P11: 73x19cm grade_1=0
+[INFO]   P12: 73x19cm grade_1=0
+[INFO]   P13: 73x19cm grade_1=0
+[INFO]   P14: 73x19cm grade_1=0
+[INFO]   P15: 73x19cm grade_1=0
+[INFO]   P16: 73x19cm grade_1=0
+[INFO]   P17: 73x19cm grade_1=0
+[INFO]   P18: 97x19cm grade_1=0
+[INFO]   P19: 97x19cm grade_1=0
+[INFO]   P20: 97x19cm grade_1=0
+[INFO]   P21: 97x19cm grade_1=0
+[INFO]   P22: 97x19cm grade_1=0
+[INFO]   P23: 97x19cm grade_1=0
+[INFO]   P24: 97x19cm grade_1=0
+[INFO]   P25: 82x19cm grade_1=0
+[INFO]   P26: 54x52cm grade_1=0
+[INFO]   P27: 81x19cm grade_1=0
+[INFO]   P28: 97x24cm grade_1=0
+[INFO]   P29: 88x24cm grade_1=0
+[INFO]   P30: 88x24cm grade_1=0
+[INFO]   P31: 88x24cm grade_1=0
+[INFO]   P32: 88x24cm grade_1=0
+[INFO]   P33: 97x19cm grade_1=0
+[INFO]   P34: 82x19cm grade_1=0
+[INFO]   P35: 82x19cm grade_1=0
+[INFO] \u2705 obras_salvas.json gerado: 35 pilares \u2192 D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-4_Sincronizacao\obras_salvas.json
+[INFO] \u2705 pavimentos_lista.json gerado \u2192 D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-4_Sincronizacao\pavimentos_lista.json
+
+============================================================
+PIPELINE E2E — Obra_TREINO_1 | 13 PAV
+============================================================
+
+[FASE 1] Descoberta de DXFs
+  [SKIP] dxf_discovery.json ja existe e contem Obra_TREINO_1
+
+[FASE 2] Engenharia Reversa (Ground Truth)
+  [RUN] engenharia_reversa_dxf.py ...
+        -> FALHOU (code 1) (6.7s)
+
+[FASE 3] Extração Dimensional
+  [RUN] extrair_bh_pilares.py ...
+        -> OK (2.8s)
+  [RUN] extrair_vigas_lv.py ...
+        -> OK (2.4s)
+  [RUN] extrair_lajes_lj.py ...
+        -> OK (1.2s)
+  [RUN] extrair_garfos_evg.py ...
+        -> FALHOU (code 1) (0.5s)
+  [RUN] extrair_largura_vigas.py ...
+        -> FALHOU (code 2) (0.5s)
+  [RUN] extrair_assembly_pl.py ...
+        -> FALHOU (code 2) (0.6s)
+  [RUN] integrar_fichas_fase3.py ...
+        -> OK (0.1s)
+
+[FASE 4] Motor Fase 4 (Transformacao Fase-3 -> Fase-4)
+  [CLEAN] Removendo 37 JSONs antigos de JSON_Pilares/
+  [CLEAN] Removendo 96 JSONs antigos de JSON_Vigas_Laterais/
+  [CLEAN] Removendo 48 JSONs antigos de JSON_Vigas_Fundo/
+  [CLEAN] Removendo 29 JSONs antigos de JSON_Lajes/
+  [RUN] motor_fase4.py ...
+        -> OK (0.2s)
+
+[FASE 5] Geração DXF Individual
+  [CLEAN] Removendo 37 DXFs antigos de DXF_Pilares/
+  [CLEAN] Removendo 48 DXFs antigos de DXF_Vigas/
+  [CLEAN] Removendo 29 DXFs antigos de DXF_Lajes/
+  [RUN] gerar_dxf_pilares.py ...
+        -> OK (0.9s)
+  [RUN] gerar_dxf_vigas.py ...
+        -> OK (0.9s)
+  [RUN] gerar_dxf_lajes.py ...
+        -> OK (0.8s)
+
+[FASE 5b] Comparação DXF Individual vs STOG
+  [RUN] comparar_dxf.py ...
+        -> OK (2.7s)
+
+[FASE 6] Extração de Âncoras (coords absolutas)
+  [RUN] extrair_ancoras_dxf.py ...
+        -> OK (5.8s)
+
+[FASE 7] Consolidação DXF Coletivo
+  [RUN] consolidar_dxf_pilares.py ...
+        -> OK (6.0s)
+  [RUN] consolidar_dxf_vigas.py ...
+        -> OK (3.3s)
+  [RUN] consolidar_dxf_lajes.py ...
+        -> OK (1.3s)
+
+[FASE 8] Validação DXF Coletivo
+  [RUN] validar_dxf_coletivo.py ...
+        -> OK (7.7s)
+
+[FASE 9] Geração obras_salvas.json (formato robô)
+  [RUN] gerar_obras_salvas.py ...
+        -> OK (0.3s)
+
+============================================================
+PIPELINE CONCLUÍDO — REPROVADO
+  Score coletivo: 40.0%
+  Fases com falha: ['eng_reversa']
+  Relatório: D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-8_Revisao_Entrega\pipeline_report.json
+============================================================
+
+[INFO] === engenharia_reversa_dxf.py | Obra: Obra_TREINO_1 | Pav: 14 PAV ===
+[INFO] Diretório: D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-1_Ingestao\Projetos_Finalizados_para_Engenharia_Reversa
+[INFO] Usando caminhos do dxf_discovery.json para pav '14 PAV'
+[INFO] PL DXF: ALIMONTI - PARAISO - 14° PAV.- PL - R00.dxf
+[INFO] Pilares extraídos: 35 IDs | Pé Direito: Nonecm -> D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-3_Interpretacao_Extracao\Pilares\pilares_ground_truth.json
+[INFO] LV DXF: ALIMONTI - PARAISO - 14° PAV.- LV - R00.dxf
+[INFO] Vigas extraídas: 47 IDs -> D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-3_Interpretacao_Extracao\Vigas\vigas_ground_truth.json
+[INFO] LJ DXF: ALIMONTI - PARAISO - 14° PAV.- LJ - R00.dxf
+[INFO] Lajes extraídas: 33 IDs -> D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-3_Interpretacao_Extracao\Lajes\lajes_ground_truth.json
+[INFO] === RESULTADO: 35 pilares (ground truth) ===
+[INFO] NOTA: IDs e count são CONFIÁVEIS. B/H requerem revisão manual ou análise visual.
+[INFO] Ground truth salvo em: D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-3_Interpretacao_Extracao
+[INFO] === extrair_bh_pilares.py | Obra_TREINO_1 | 14 PAV ===
+[INFO] PL DXF: ALIMONTI - PARAISO - 14° PAV.- PL - R00.dxf
+[INFO] Max distancia proximity: 300.0 unidades DXF
+[INFO] Lendo DXF (pode demorar para arquivos grandes)...
+[INFO] DXF carregado: 6412 entidades
+[INFO] Extraindo posicoes dos pilares (layer Texto Secao)...
+[INFO] Pilares encontrados: 35
+[INFO] Extraindo DIMENSION entities (layers de cota)...
+[INFO] DIMENSIONs de cota encontradas: 558
+[INFO] Inverse proximity: 558 dims assignadas a 35 pilares
+
+[RESULTADO] Extracao B/H de Pilares
+  Total pilares:      35
+  B+H completos:      34 (97.1%)
+  Apenas H:           1
+  Sem dados:          0
+
+[INFO] Salvo em: D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-3_Interpretacao_Extracao\Pilares\pilares_bh.json
+[INFO] pilares_ground_truth.json atualizado: 34 pilares com B/H
+
+[AMOSTRA] Primeiros 5 pilares extraidos:
+  P10: B=73.0cm, H=82.0cm, conf=90%
+  P11: B=19.0cm, H=73.0cm, conf=90%
+  P12: B=19.0cm, H=73.0cm, conf=90%
+  P14: B=19.0cm, H=73.0cm, conf=90%
+  P16: B=19.0cm, H=73.0cm, conf=90%
+DXF: ALIMONTI - PARAISO - 14° PAV.- LV - R00.dxf
+  Labels encontrados: 26 vigas
+  Cota Seção (2x): 68 dims
+  COTA: 876 dims
+
+=== RESULTADO ===
+  Total vigas: 26
+  Com altura_lateral: 26/26
+  Com comprimento: 26/26
+  Com ambos: 26/26
+  Confiança média: 87%
+  Output: D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-3_Interpretacao_Extracao\Vigas\vigas_dim.json
+
+Viga     Alt(cm)    Comp(cm)     Conf     Sides
+-------------------------------------------------------
+V401     110        244          89%      A+B
+V402     110        244          89%      A+B
+V403     110        418          89%      A+B
+V404     38         578          84%      A+B
+V405     38         570          84%      A+B
+V407     110        855          84%      A+B
+V408     38         684          89%      A+B
+V409     38         570          89%      A+B
+V410     110        570          84%      A+B
+V411     100        277          84%      A+B
+V412     38         415          89%      A+B
+V413     38         415          89%      A+B
+V414     38         415          89%      A+B
+V415     38         415          89%      A+B
+V416     38         415          89%      A+B
+V417     38         303          89%      A+B
+V418     38         415          89%      A+B
+V419     38         455          84%      A+B
+V420     38         455          89%      A+B
+V421     38         455          89%      A+B
+V422     38         303          89%      A+B
+V423     38         303          84%      A+B
+V424     28         260          89%      A+B
+V425     28         474          84%      A+B
+V426     38         422          84%      A+B
+V427     110        244          84%      A+B
+[INFO] === extrair_lajes_lj.py | Obra_TREINO_1 | 14 PAV ===
+[INFO] LJ DXF: ALIMONTI - PARAISO - 14° PAV.- LJ - R00.dxf
+[INFO] Lendo DXF...
+[INFO] 1679 entidades
+[INFO] Extraindo labels e codigos de lajes...
+[DEBUG] Labels encontrados: ['L401', 'L402', 'L403', 'L404', 'L405', 'L406', 'L407', 'L408', 'L409', 'L410', 'L411', 'L412', 'L413', 'L414', 'L415', 'L416', 'L417', 'L418', 'L419', 'L420', 'L421', 'L422']
+[DEBUG] Lajes com paineis AUX00: ['L301', 'L302', 'L303', 'L304', 'L305', 'L306', 'L307', 'L308', 'L309', 'L312', 'L316']
+[INFO] Lajes encontradas: 33
+[INFO] Construindo fichas com coordenadas...
+
+[RESULTADO] Extracao de Lajes
+  Total lajes:        33
+  Com dimensoes:      0
+  Com coordenadas:    6
+
+[INFO] Salvo em: D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-3_Interpretacao_Extracao\Lajes\lajes_data.json
+[INFO] lajes_ground_truth.json atualizado: 0 lajes com dimensoes
+
+[AMOSTRA] Primeiras lajes:
+  L301: NonexNonecm | area=Nonecm2 | coords=5pts | conf=75%
+  L302: NonexNonecm | area=Nonecm2 | coords=5pts | conf=75%
+  L303: NonexNonecm | area=Nonecm2 | coords=0pts | conf=75%
+  L304: NonexNonecm | area=Nonecm2 | coords=0pts | conf=75%
+  L305: NonexNonecm | area=Nonecm2 | coords=0pts | conf=75%
+  L306: NonexNonecm | area=Nonecm2 | coords=0pts | conf=75%
+  L307: NonexNonecm | area=Nonecm2 | coords=0pts | conf=75%
+  L308: NonexNonecm | area=Nonecm2 | coords=0pts | conf=75%
+ERRO: Nenhum EVG DXF encontrado em D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1
+C:\Python314\python.exe: can't open file 'D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\extrair_largura_vigas.py': [Errno 2] No such file or directory
+usage: extrair_assembly_pl.py [-h] --obra OBRA [--pav PAV] [--output OUTPUT]
+extrair_assembly_pl.py: error: unrecognized arguments: --pavimento 14 PAV
+=== VIGAS ===
+  AVISO: vigas_largura.json nao encontrado — usando b=15cm (default)
+  vigas.json atualizado: 26 vigas
+    V401: b=15.0cm h=110.0cm L=244.0cm
+    V402: b=15.0cm h=110.0cm L=244.0cm
+    V403: b=15.0cm h=110.0cm L=418.0cm
+    V404: b=15.0cm h=38.0cm L=578.0cm
+    V405: b=15.0cm h=38.0cm L=570.0cm
+    V407: b=15.0cm h=110.0cm L=855.0cm
+    V408: b=15.0cm h=38.0cm L=684.5cm
+    V409: b=15.0cm h=38.0cm L=570.0cm
+    V410: b=15.0cm h=110.0cm L=570.0cm
+    V411: b=15.0cm h=100.0cm L=277.0cm
+    V412: b=15.0cm h=38.0cm L=415.0cm
+    V413: b=15.0cm h=38.0cm L=415.0cm
+    V414: b=15.0cm h=38.0cm L=415.0cm
+    V415: b=15.0cm h=38.0cm L=415.0cm
+    V416: b=15.0cm h=38.0cm L=415.0cm
+    V417: b=15.0cm h=38.0cm L=303.0cm
+    V418: b=15.0cm h=38.0cm L=415.0cm
+    V419: b=15.0cm h=38.0cm L=455.0cm
+    V420: b=15.0cm h=38.0cm L=455.0cm
+    V421: b=15.0cm h=38.0cm L=455.0cm
+    V422: b=15.0cm h=38.0cm L=303.0cm
+    V423: b=15.0cm h=38.0cm L=303.0cm
+    V424: b=15.0cm h=28.0cm L=260.0cm
+    V425: b=15.0cm h=28.0cm L=474.0cm
+    V426: b=15.0cm h=38.0cm L=422.0cm
+    V427: b=15.0cm h=110.0cm L=244.0cm
+
+=== LAJES ===
+  AVISO: lajes_poligono.json nao encontrado, usando lajes_data.json
+  AVISO: Laje L401: dimensoes invalidas, usando 100x100
+  AVISO: Laje L402: dimensoes invalidas, usando 100x100
+  AVISO: Laje L403: dimensoes invalidas, usando 100x100
+  AVISO: Laje L404: dimensoes invalidas, usando 100x100
+  AVISO: Laje L405: dimensoes invalidas, usando 100x100
+  AVISO: Laje L406: dimensoes invalidas, usando 100x100
+  AVISO: Laje L407: dimensoes invalidas, usando 100x100
+  AVISO: Laje L408: dimensoes invalidas, usando 100x100
+  AVISO: Laje L409: dimensoes invalidas, usando 100x100
+  AVISO: Laje L410: dimensoes invalidas, usando 100x100
+  AVISO: Laje L411: dimensoes invalidas, usando 100x100
+  AVISO: Laje L412: dimensoes invalidas, usando 100x100
+  AVISO: Laje L413: dimensoes invalidas, usando 100x100
+  AVISO: Laje L414: dimensoes invalidas, usando 100x100
+  AVISO: Laje L415: dimensoes invalidas, usando 100x100
+  AVISO: Laje L416: dimensoes invalidas, usando 100x100
+  AVISO: Laje L417: dimensoes invalidas, usando 100x100
+  AVISO: Laje L418: dimensoes invalidas, usando 100x100
+  AVISO: Laje L419: dimensoes invalidas, usando 100x100
+  AVISO: Laje L420: dimensoes invalidas, usando 100x100
+  AVISO: Laje L421: dimensoes invalidas, usando 100x100
+  AVISO: Laje L422: dimensoes invalidas, usando 100x100
+  lajes.json atualizado: 33 lajes
+    L301: 244.0x102.0cm area=24888 [aux00-panels]
+    L302: 244.0x102.0cm area=24888 [aux00-panels]
+    L303: 244.0x102.0cm area=24888 [aux00-panels]
+    L304: 174.0x102.0cm area=17748 [aux00-panels]
+    L305: 174.0x102.0cm area=17748 [aux00-panels]
+    L306: 174.0x102.0cm area=17748 [aux00-panels]
+    L307: 174.0x102.0cm area=17748 [aux00-panels]
+    L308: 167.0x102.0cm area=17034 [aux00-panels]
+    L309: 161.5x122.0cm area=19703 [aux00-panels]
+    L312: 174.0x122.0cm area=21228 [aux00-panels]
+    L316: 244.0x122.0cm area=29768 [aux00-panels]
+    L401: 100.0x100.0cm area=10000 [label-only]
+    L402: 100.0x100.0cm area=10000 [label-only]
+    L403: 100.0x100.0cm area=10000 [label-only]
+    L404: 100.0x100.0cm area=10000 [label-only]
+    L405: 100.0x100.0cm area=10000 [label-only]
+    L406: 100.0x100.0cm area=10000 [label-only]
+    L407: 100.0x100.0cm area=10000 [label-only]
+    L408: 100.0x100.0cm area=10000 [label-only]
+    L409: 100.0x100.0cm area=10000 [label-only]
+    L410: 100.0x100.0cm area=10000 [label-only]
+    L411: 100.0x100.0cm area=10000 [label-only]
+    L412: 100.0x100.0cm area=10000 [label-only]
+    L413: 100.0x100.0cm area=10000 [label-only]
+    L414: 100.0x100.0cm area=10000 [label-only]
+    L415: 100.0x100.0cm area=10000 [label-only]
+    L416: 100.0x100.0cm area=10000 [label-only]
+    L417: 100.0x100.0cm area=10000 [label-only]
+    L418: 100.0x100.0cm area=10000 [label-only]
+    L419: 100.0x100.0cm area=10000 [label-only]
+    L420: 100.0x100.0cm area=10000 [label-only]
+    L421: 100.0x100.0cm area=10000 [label-only]
+    L422: 100.0x100.0cm area=10000 [label-only]
+
+=== INTEGRACAO COMPLETA: 26 vigas + 33 lajes ===
+  Proximos passos: python scripts/motor_fase4.py --obra D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1
+[INFO] === motor_fase4.py | Obra: Obra_TREINO_1 | Pav: 14 PAV ===
+[INFO] Carregado: D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-3_Interpretacao_Extracao\Pilares\pilares_bh.json (36 itens)
+[WARNING] pilares_assembly.json nao encontrado — grades ficarao zeradas
+[INFO]   \u2705 Pilar P10: 82.0x73.0cm, h=280.0cm
+[INFO]   \u2705 Pilar P11: 73.0x19.0cm, h=280.0cm
+[INFO]   \u2705 Pilar P12: 73.0x19.0cm, h=280.0cm
+[INFO]   \u2705 Pilar P14: 73.0x19.0cm, h=280.0cm
+[INFO]   \u2705 Pilar P16: 73.0x19.0cm, h=280.0cm
+[INFO]   \u2705 Pilar P17: 73.0x19.0cm, h=280.0cm
+[INFO]   \u2705 Pilar P18: 26.0x19.0cm, h=280.0cm
+[INFO]   \u2705 Pilar P19: 97.0x19.0cm, h=280.0cm
+[INFO]   \u2705 Pilar P20: 97.0x19.0cm, h=280.0cm
+[INFO]   \u2705 Pilar P21: 97.0x19.0cm, h=280.0cm
+[INFO]   \u2705 Pilar P22: 97.0x19.0cm, h=280.0cm
+[INFO]   \u2705 Pilar P23: 97.0x19.0cm, h=280.0cm
+[INFO]   \u2705 Pilar P24: 97.0x19.0cm, h=280.0cm
+[INFO]   \u2705 Pilar P25: 82.0x19.0cm, h=280.0cm
+[INFO]   \u2705 Pilar P26: 81.0x19.0cm, h=280.0cm
+[INFO]   \u2705 Pilar P27: 54.0x27.6cm, h=280.0cm
+[INFO]   \u2705 Pilar P28: 97.0x24.0cm, h=280.0cm
+[INFO]   \u2705 Pilar P29: 88.0x24.0cm, h=280.0cm
+[INFO]   \u2705 Pilar P30: 88.0x24.0cm, h=280.0cm
+[INFO]   \u2705 Pilar P31: 88.0x24.0cm, h=280.0cm
+[INFO]   \u2705 Pilar P32: 88.0x24.0cm, h=280.0cm
+[INFO]   \u2705 Pilar P33: 97.0x19.0cm, h=280.0cm
+[INFO]   \u2705 Pilar P34: 82.0x19.0cm, h=280.0cm
+[INFO]   \u2705 Pilar P35: 82.0x19.0cm, h=280.0cm
+[INFO]   \u2705 Pilar P41: 59.0x48.0cm, h=280.0cm
+[WARNING] Pilar P42: dimensoes invalidas (b=0.0, h=72.0). Pular.
+[INFO]   \u2705 Pilar P43: 72.0x48.0cm, h=280.0cm
+[INFO]   \u2705 Pilar P44: 72.0x59.0cm, h=280.0cm
+[INFO]   \u2705 Pilar P45: 72.0x19.0cm, h=280.0cm
+[INFO]   \u2705 Pilar P46: 72.0x19.0cm, h=280.0cm
+[INFO]   \u2705 Pilar P47: 59.0x19.0cm, h=280.0cm
+[INFO]   \u2705 Pilar P48: 72.0x19.0cm, h=280.0cm
+[INFO]   \u2705 Pilar P49: 100.0x95.0cm, h=280.0cm
+[INFO]   \u2705 Pilar P50: 72.0x19.0cm, h=280.0cm
+[INFO]   \u2705 Pilar P51: 95.0x65.0cm, h=280.0cm
+[INFO] Pilares: 34 processados -> D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-4_Sincronizacao\pilares_salvos.json
+[INFO] Carregado: D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-3_Interpretacao_Extracao\Vigas\vigas.json (27 itens)
+[INFO]   \u2705 Viga V401: b=15.0cm, h=110.0cm, L=244.0cm -> A+B
+[INFO]   \u2705 Viga V402: b=15.0cm, h=110.0cm, L=244.0cm -> A+B
+[INFO]   \u2705 Viga V403: b=15.0cm, h=110.0cm, L=418.0cm -> A+B
+[INFO]   \u2705 Viga V404: b=15.0cm, h=38.0cm, L=578.0cm -> A+B
+[INFO]   \u2705 Viga V405: b=15.0cm, h=38.0cm, L=570.0cm -> A+B
+[INFO]   \u2705 Viga V407: b=15.0cm, h=110.0cm, L=855.0cm -> A+B
+[INFO]   \u2705 Viga V408: b=15.0cm, h=38.0cm, L=684.5cm -> A+B
+[INFO]   \u2705 Viga V409: b=15.0cm, h=38.0cm, L=570.0cm -> A+B
+[INFO]   \u2705 Viga V410: b=15.0cm, h=110.0cm, L=570.0cm -> A+B
+[INFO]   \u2705 Viga V411: b=15.0cm, h=100.0cm, L=277.0cm -> A+B
+[INFO]   \u2705 Viga V412: b=15.0cm, h=38.0cm, L=415.0cm -> A+B
+[INFO]   \u2705 Viga V413: b=15.0cm, h=38.0cm, L=415.0cm -> A+B
+[INFO]   \u2705 Viga V414: b=15.0cm, h=38.0cm, L=415.0cm -> A+B
+[INFO]   \u2705 Viga V415: b=15.0cm, h=38.0cm, L=415.0cm -> A+B
+[INFO]   \u2705 Viga V416: b=15.0cm, h=38.0cm, L=415.0cm -> A+B
+[INFO]   \u2705 Viga V417: b=15.0cm, h=38.0cm, L=303.0cm -> A+B
+[INFO]   \u2705 Viga V418: b=15.0cm, h=38.0cm, L=415.0cm -> A+B
+[INFO]   \u2705 Viga V419: b=15.0cm, h=38.0cm, L=455.0cm -> A+B
+[INFO]   \u2705 Viga V420: b=15.0cm, h=38.0cm, L=455.0cm -> A+B
+[INFO]   \u2705 Viga V421: b=15.0cm, h=38.0cm, L=455.0cm -> A+B
+[INFO]   \u2705 Viga V422: b=15.0cm, h=38.0cm, L=303.0cm -> A+B
+[INFO]   \u2705 Viga V423: b=15.0cm, h=38.0cm, L=303.0cm -> A+B
+[INFO]   \u2705 Viga V424: b=15.0cm, h=28.0cm, L=260.0cm -> A+B
+[INFO]   \u2705 Viga V425: b=15.0cm, h=28.0cm, L=474.0cm -> A+B
+[INFO]   \u2705 Viga V426: b=15.0cm, h=38.0cm, L=422.0cm -> A+B
+[INFO]   \u2705 Viga V427: b=15.0cm, h=110.0cm, L=244.0cm -> A+B
+[INFO] Vigas: 26 processadas -> D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-4_Sincronizacao\vigas_salvas.json
+[INFO] Carregado: D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-3_Interpretacao_Extracao\Lajes\lajes.json (34 itens)
+[INFO]   \u2705 Laje L301: 244.0x102.0cm, 3 cortes
+[INFO]   \u2705 Laje L302: 244.0x102.0cm, 3 cortes
+[INFO]   \u2705 Laje L303: 244.0x102.0cm, 3 cortes
+[INFO]   \u2705 Laje L304: 174.0x102.0cm, 2 cortes
+[INFO]   \u2705 Laje L305: 174.0x102.0cm, 2 cortes
+[INFO]   \u2705 Laje L306: 174.0x102.0cm, 2 cortes
+[INFO]   \u2705 Laje L307: 174.0x102.0cm, 2 cortes
+[INFO]   \u2705 Laje L308: 167.0x102.0cm, 2 cortes
+[INFO]   \u2705 Laje L309: 161.5x122.0cm, 2 cortes
+[INFO]   \u2705 Laje L312: 174.0x122.0cm, 2 cortes
+[INFO]   \u2705 Laje L316: 244.0x122.0cm, 3 cortes
+[INFO]   \u2705 Laje L401: 100.0x100.0cm, 1 cortes
+[INFO]   \u2705 Laje L402: 100.0x100.0cm, 1 cortes
+[INFO]   \u2705 Laje L403: 100.0x100.0cm, 1 cortes
+[INFO]   \u2705 Laje L404: 100.0x100.0cm, 1 cortes
+[INFO]   \u2705 Laje L405: 100.0x100.0cm, 1 cortes
+[INFO]   \u2705 Laje L406: 100.0x100.0cm, 1 cortes
+[INFO]   \u2705 Laje L407: 100.0x100.0cm, 1 cortes
+[INFO]   \u2705 Laje L408: 100.0x100.0cm, 1 cortes
+[INFO]   \u2705 Laje L409: 100.0x100.0cm, 1 cortes
+[INFO]   \u2705 Laje L410: 100.0x100.0cm, 1 cortes
+[INFO]   \u2705 Laje L411: 100.0x100.0cm, 1 cortes
+[INFO]   \u2705 Laje L412: 100.0x100.0cm, 1 cortes
+[INFO]   \u2705 Laje L413: 100.0x100.0cm, 1 cortes
+[INFO]   \u2705 Laje L414: 100.0x100.0cm, 1 cortes
+[INFO]   \u2705 Laje L415: 100.0x100.0cm, 1 cortes
+[INFO]   \u2705 Laje L416: 100.0x100.0cm, 1 cortes
+[INFO]   \u2705 Laje L417: 100.0x100.0cm, 1 cortes
+[INFO]   \u2705 Laje L418: 100.0x100.0cm, 1 cortes
+[INFO]   \u2705 Laje L419: 100.0x100.0cm, 1 cortes
+[INFO]   \u2705 Laje L420: 100.0x100.0cm, 1 cortes
+[INFO]   \u2705 Laje L421: 100.0x100.0cm, 1 cortes
+[INFO]   \u2705 Laje L422: 100.0x100.0cm, 1 cortes
+[INFO] Lajes: 33 processadas -> D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-4_Sincronizacao\lajes_salvas.json
+[INFO] obras_salvas.json: 34 pilares \u2192 D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-4_Sincronizacao\obras_salvas.json
+[INFO] === RESULTADO: 34 pilares, 26 vigas, 33 lajes | 0 erros ===
+  pilares_bh.json: 36 pilares
+
+=== GERANDO DXF PILARES (34 pilares) ===
+  P10: b=73 h=82 paineis=12 alt=280cm [BH-extraido]
+  P11: b=19 h=73 paineis=12 alt=280cm [BH-extraido]
+  P12: b=19 h=73 paineis=12 alt=280cm [BH-extraido]
+  P14: b=19 h=73 paineis=12 alt=280cm [BH-extraido]
+  P16: b=19 h=73 paineis=12 alt=280cm [BH-extraido]
+  P17: b=19 h=73 paineis=12 alt=280cm [BH-extraido]
+  P18: b=19 h=26 paineis=12 alt=280cm [BH-extraido]
+  P19: b=19 h=97 paineis=12 alt=280cm [BH-extraido]
+  P20: b=19 h=97 paineis=12 alt=280cm [BH-extraido]
+  P21: b=19 h=97 paineis=12 alt=280cm [BH-extraido]
+  P22: b=19 h=97 paineis=12 alt=280cm [BH-extraido]
+  P23: b=19 h=97 paineis=12 alt=280cm [BH-extraido]
+  P24: b=19 h=97 paineis=12 alt=280cm [BH-extraido]
+  P25: b=19 h=82 paineis=12 alt=280cm [BH-extraido]
+  P26: b=19 h=81 paineis=12 alt=280cm [BH-extraido]
+  P27: b=28 h=54 paineis=12 alt=280cm [BH-extraido]
+  P28: b=24 h=97 paineis=12 alt=280cm [BH-extraido]
+  P29: b=24 h=88 paineis=12 alt=280cm [BH-extraido]
+  P30: b=24 h=88 paineis=12 alt=280cm [BH-extraido]
+  P31: b=24 h=88 paineis=12 alt=280cm [BH-extraido]
+  P32: b=24 h=88 paineis=12 alt=280cm [BH-extraido]
+  P33: b=19 h=97 paineis=12 alt=280cm [BH-extraido]
+  P34: b=19 h=82 paineis=12 alt=280cm [BH-extraido]
+  P35: b=19 h=82 paineis=12 alt=280cm [BH-extraido]
+  P41: b=48 h=59 paineis=12 alt=280cm [BH-extraido]
+  P43: b=48 h=72 paineis=12 alt=280cm [BH-extraido]
+  P44: b=59 h=72 paineis=12 alt=280cm [BH-extraido]
+  P45: b=19 h=72 paineis=12 alt=280cm [BH-extraido]
+  P46: b=19 h=72 paineis=12 alt=280cm [BH-extraido]
+  P47: b=19 h=59 paineis=12 alt=280cm [BH-extraido]
+  P48: b=19 h=72 paineis=12 alt=280cm [BH-extraido]
+  P49: b=95 h=100 paineis=12 alt=280cm [BH-extraido]
+  P50: b=19 h=72 paineis=12 alt=280cm [BH-extraido]
+  P51: b=65 h=95 paineis=12 alt=280cm [BH-extraido]
+
+=== RESULTADO: 34 DXFs gerados | 0 erros ===
+  Relatorio: D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-5_Geracao_Scripts\DXF_Pilares\_relatorio.json
+  DXFs em: D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-5_Geracao_Scripts\DXF_Pilares
+
+  Proximo: python scripts/comparar_dxf_pilares.py --obra D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1
+
+=== GERANDO DXF VIGAS (26 vigas) ===
+  V401: b=15 h=110 L=244cm | paineis A=3 B=3 F=3
+  V402: b=15 h=110 L=244cm | paineis A=3 B=3 F=3
+  V403: b=15 h=110 L=418cm | paineis A=4 B=4 F=4
+  V404: b=15 h=38 L=578cm | paineis A=5 B=5 F=5
+  V405: b=15 h=38 L=570cm | paineis A=5 B=5 F=5
+  V407: b=15 h=110 L=855cm | paineis A=8 B=8 F=8
+  V408: b=15 h=38 L=684cm | paineis A=6 B=6 F=6
+  V409: b=15 h=38 L=570cm | paineis A=5 B=5 F=5
+  V410: b=15 h=110 L=570cm | paineis A=5 B=5 F=5
+  V411: b=15 h=100 L=277cm | paineis A=3 B=3 F=3
+  V412: b=15 h=38 L=415cm | paineis A=4 B=4 F=4
+  V413: b=15 h=38 L=415cm | paineis A=4 B=4 F=4
+  V414: b=15 h=38 L=415cm | paineis A=4 B=4 F=4
+  V415: b=15 h=38 L=415cm | paineis A=4 B=4 F=4
+  V416: b=15 h=38 L=415cm | paineis A=4 B=4 F=4
+  V417: b=15 h=38 L=303cm | paineis A=3 B=3 F=3
+  V418: b=15 h=38 L=415cm | paineis A=4 B=4 F=4
+  V419: b=15 h=38 L=455cm | paineis A=4 B=4 F=4
+  V420: b=15 h=38 L=455cm | paineis A=4 B=4 F=4
+  V421: b=15 h=38 L=455cm | paineis A=4 B=4 F=4
+  V422: b=15 h=38 L=303cm | paineis A=3 B=3 F=3
+  V423: b=15 h=38 L=303cm | paineis A=3 B=3 F=3
+  V424: b=15 h=28 L=260cm | paineis A=3 B=3 F=3
+  V425: b=15 h=28 L=474cm | paineis A=4 B=4 F=4
+  V426: b=15 h=38 L=422cm | paineis A=4 B=4 F=4
+  V427: b=15 h=110 L=244cm | paineis A=3 B=3 F=3
+
+=== RESULTADO: 26 DXFs gerados | 0 erros ===
+  Relatorio: D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-5_Geracao_Scripts\DXF_Vigas\_relatorio.json
+  DXFs em: D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-5_Geracao_Scripts\DXF_Vigas
+
+  Proximo: python scripts/comparar_dxf_vigas.py --obra D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1
+
+=== GERANDO DXF LAJES (33 lajes) ===
+  L301: 244.0x102.0cm paineis=4x1 area=24888cm2
+  L302: 244.0x102.0cm paineis=4x1 area=24888cm2
+  L303: 244.0x102.0cm paineis=4x1 area=24888cm2
+  L304: 174.0x102.0cm paineis=3x1 area=17748cm2
+  L305: 174.0x102.0cm paineis=3x1 area=17748cm2
+  L306: 174.0x102.0cm paineis=3x1 area=17748cm2
+  L307: 174.0x102.0cm paineis=3x1 area=17748cm2
+  L308: 167.0x102.0cm paineis=3x1 area=17034cm2
+  L309: 161.5x122.0cm paineis=3x1 area=19703cm2
+  L312: 174.0x122.0cm paineis=3x1 area=21228cm2
+  L316: 244.0x122.0cm paineis=4x1 area=29768cm2
+  L401: 100.0x100.0cm paineis=2x1 area=10000cm2
+  L402: 100.0x100.0cm paineis=2x1 area=10000cm2
+  L403: 100.0x100.0cm paineis=2x1 area=10000cm2
+  L404: 100.0x100.0cm paineis=2x1 area=10000cm2
+  L405: 100.0x100.0cm paineis=2x1 area=10000cm2
+  L406: 100.0x100.0cm paineis=2x1 area=10000cm2
+  L407: 100.0x100.0cm paineis=2x1 area=10000cm2
+  L408: 100.0x100.0cm paineis=2x1 area=10000cm2
+  L409: 100.0x100.0cm paineis=2x1 area=10000cm2
+  L410: 100.0x100.0cm paineis=2x1 area=10000cm2
+  L411: 100.0x100.0cm paineis=2x1 area=10000cm2
+  L412: 100.0x100.0cm paineis=2x1 area=10000cm2
+  L413: 100.0x100.0cm paineis=2x1 area=10000cm2
+  L414: 100.0x100.0cm paineis=2x1 area=10000cm2
+  L415: 100.0x100.0cm paineis=2x1 area=10000cm2
+  L416: 100.0x100.0cm paineis=2x1 area=10000cm2
+  L417: 100.0x100.0cm paineis=2x1 area=10000cm2
+  L418: 100.0x100.0cm paineis=2x1 area=10000cm2
+  L419: 100.0x100.0cm paineis=2x1 area=10000cm2
+  L420: 100.0x100.0cm paineis=2x1 area=10000cm2
+  L421: 100.0x100.0cm paineis=2x1 area=10000cm2
+  L422: 100.0x100.0cm paineis=2x1 area=10000cm2
+
+=== RESULTADO: 33 DXFs gerados | 0 erros ===
+  Relatorio: D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-5_Geracao_Scripts\DXF_Lajes\_relatorio.json
+  DXFs em: D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-5_Geracao_Scripts\DXF_Lajes
+
+  Proximo: python scripts/comparar_dxf.py --obra D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1
+
+=== COMPARADOR DXF vs. GROUND TRUTH (tol=5.0%) ===
+
+--- PILARES ---
+  Match rate: 100.0% (34/34)
+  Erro médio: 0.0%
+
+--- VIGAS ---
+  Match rate: 100.0% (26/26)
+  Erro médio: 0.0%
+
+--- LAJES ---
+  Match rate: 81.8% (27/33)
+  Erro médio: 12.5%
+  DIFF L301: ref 244.0x102.0 | gen 19.0x50.0 | err=71.6%
+  DIFF L302: ref 244.0x102.0 | gen 50.0x19.0 | err=80.4%
+  DIFF L312: ref 174.0x122.0 | gen 50.0x19.0 | err=77.8%
+  DIFF L406: ref 100.0x100.0 | gen 50.0x19.0 | err=65.5%
+  DIFF L407: ref 100.0x100.0 | gen 50.0x19.0 | err=65.5%
+  DIFF L408: ref 100.0x100.0 | gen 120.0x19.0 | err=50.5%
+
+=== SCORE GERAL: 93.9% (PASS | meta: 75.0%) ===
+  Pilares: 100.0% | Vigas: 100.0% | Lajes: 81.8%
+
+  Relatorio: D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-5_Geracao_Scripts\_relatorio_comparacao.json
+[INFO] === extrair_ancoras_dxf.py | Obra_TREINO_1 | 14 PAV ===
+[INFO] PL DXF: ALIMONTI - PARAISO - 14° PAV.- PL - R00.dxf
+[INFO] Pilares: 35 ancoras extraidas do PL DXF
+[INFO] Salvo: D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-3_Interpretacao_Extracao\ancoras_pilares.json (35 pilares)
+[INFO] LV DXF: ALIMONTI - PARAISO - 14° PAV.- LV - R00.dxf
+[INFO] Vigas: 25 ancoras extraidas do LV DXF
+[INFO] Salvo: D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-3_Interpretacao_Extracao\ancoras_vigas.json (25 vigas)
+[INFO] LJ DXF: ALIMONTI - PARAISO - 14° PAV.- LJ - R00.dxf
+[INFO] Lajes: 33 ancoras extraidas do LJ DXF
+[INFO] Salvo: D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-3_Interpretacao_Extracao\ancoras_lajes.json (33 lajes)
+
+[RESULTADO]
+  Pilares: 35 ancoras
+  Vigas:   25 ancoras
+  Lajes:   33 ancoras
+
+  STATUS: OK (cobertura suficiente)
+[INFO] === consolidar_dxf_pilares.py | Obra_TREINO_1 | 12 PAV ===
+  P10: ancora=(5039,8599) offset=(4839,8459) [18 ents]
+  P11: ancora=(6610,8600) offset=(6473,8460) [18 ents]
+  P12: ancora=(8192,8600) offset=(8055,8460) [18 ents]
+  P14: ancora=(3424,7452) offset=(3287,7312) [18 ents]
+  P16: ancora=(5029,7452) offset=(4892,7312) [18 ents]
+  P17: ancora=(6590,7452) offset=(6453,7312) [18 ents]
+  P18: ancora=(8195,7452) offset=(8105,7312) [18 ents]
+  P19: ancora=(3435,6302) offset=(3274,6162) [18 ents]
+  P20: ancora=(5034,6302) offset=(4873,6162) [18 ents]
+  P21: ancora=(6640,6302) offset=(6479,6162) [18 ents]
+  P22: ancora=(8204,6302) offset=(8043,6162) [18 ents]
+  P23: ancora=(3428,5153) offset=(3267,5013) [18 ents]
+  P24: ancora=(5034,5153) offset=(4873,5013) [18 ents]
+  P25: ancora=(6619,5153) offset=(6473,5013) [18 ents]
+  P26: ancora=(3859,4006) offset=(3714,3866) [18 ents]
+  P27: ancora=(6510,3623) offset=(6383,3483) [18 ents]
+  P28: ancora=(5064,2857) offset=(4898,2717) [18 ents]
+  P29: ancora=(6615,2857) offset=(6458,2717) [18 ents]
+  P30: ancora=(8200,2857) offset=(8043,2717) [18 ents]
+  P31: ancora=(3432,1709) offset=(3275,1569) [18 ents]
+  P32: ancora=(5030,1709) offset=(4873,1569) [18 ents]
+  P33: ancora=(6612,1707) offset=(6451,1567) [18 ents]
+  P34: ancora=(8204,1707) offset=(8058,1567) [18 ents]
+  P35: ancora=(3435,559) offset=(3289,419) [18 ents]
+  P41: ancora=(4636,389) offset=(4484,249) [18 ents]
+  P43: ancora=(5935,385) offset=(5770,245) [18 ents]
+  P44: ancora=(4099,-33) offset=(3923,-173) [18 ents]
+  P45: ancora=(4784,384) offset=(4648,244) [18 ents]
+  P46: ancora=(4098,-72) offset=(3962,-212) [18 ents]
+  P47: ancora=(6992,378) offset=(6869,238) [18 ents]
+  P48: ancora=(4097,-113) offset=(3961,-253) [18 ents]
+  P49: ancora=(4023,-381) offset=(3783,-521) [18 ents]
+  P50: ancora=(4641,327) offset=(4505,187) [18 ents]
+  P51: ancora=(4097,-193) offset=(3892,-333) [18 ents]
+
+[RESULTADO]
+  Pilares consolidados: 34/34
+  Output: D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-6_Execucao_CAD\PL_gerado.dxf
+  Validação: 612 entidades no PL_gerado.dxf
+  Relatório: D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-6_Execucao_CAD\consolidacao_pilares.json
+[INFO] === consolidar_dxf_vigas.py | Obra_TREINO_1 ===
+  V401: ancora=(6693,6971) [13 ents]
+  V402: ancora=(3483,5830) [13 ents]
+  V403: ancora=(6692,5816) [16 ents]
+  V404: ancora=(8224,5488) [19 ents]
+  V405: ancora=(3270,4351) [19 ents]
+  V407: ancora=(5118,4683) [28 ents]
+  V408: ancora=(8167,4364) [22 ents]
+  V409: ancora=(0,0) [19 ents]
+  V410: ancora=(3503,3531) [19 ents]
+  V411: ancora=(3625,3019) [13 ents]
+  V412: ancora=(4889,3223) [16 ents]
+  V413: ancora=(6453,3240) [16 ents]
+  V414: ancora=(7216,3222) [16 ents]
+  V415: ancora=(8007,3223) [16 ents]
+  V416: ancora=(8710,3211) [16 ents]
+  V417: ancora=(3306,2063) [13 ents]
+  V418: ancora=(3989,2075) [16 ents]
+  V419: ancora=(4879,2092) [16 ents]
+  V420: ancora=(6432,2079) [16 ents]
+  V421: ancora=(5578,2085) [16 ents]
+  V422: ancora=(7014,2082) [13 ents]
+  V423: ancora=(7413,2082) [13 ents]
+  V424: ancora=(7979,2082) [13 ents]
+  V425: ancora=(8372,2082) [16 ents]
+  V426: ancora=(3550,882) [16 ents]
+  V427: ancora=(9019,1982) [13 ents]
+
+[RESULTADO]
+  LV_gerado.dxf: 26 vigas (422 entidades)
+  FV_gerado.dxf: 26 vigas offset (422 entidades)
+  Sem ancora: ['V409']
+[INFO] === consolidar_dxf_lajes.py | Obra_TREINO_1 ===
+  L301: ancora=(4194,2476) [6 ents]
+  L302: ancora=(4538,2476) [6 ents]
+  L303: ancora=(4798,2476) [6 ents]
+  L304: ancora=(4895,2592) [5 ents]
+  L305: ancora=(3329,2592) [5 ents]
+  L306: ancora=(3501,2592) [5 ents]
+  L307: ancora=(2974,2592) [5 ents]
+  L308: ancora=(3147,2592) [5 ents]
+  L309: ancora=(5649,2363) [5 ents]
+  L312: ancora=(5511,2363) [5 ents]
+  L316: ancora=(4874,2465) [6 ents]
+  L401: ancora=(3134,2568) [4 ents]
+  L402: ancora=(3489,2574) [4 ents]
+  L403: ancora=(4847,2567) [4 ents]
+  L404: ancora=(5241,2570) [4 ents]
+  L405: ancora=(2795,2358) [4 ents]
+  L406: ancora=(3724,2357) [4 ents]
+  L407: ancora=(4585,2363) [4 ents]
+  L408: ancora=(5416,2354) [4 ents]
+  L409: ancora=(4696,2091) [4 ents]
+  L410: ancora=(2621,1812) [4 ents]
+  L411: ancora=(3051,1790) [4 ents]
+  L412: ancora=(3488,1793) [4 ents]
+  L413: ancora=(3911,1790) [4 ents]
+  L414: ancora=(4314,1791) [4 ents]
+  L415: ancora=(4806,1807) [4 ents]
+  L416: ancora=(5087,1733) [4 ents]
+  L417: ancora=(2717,1538) [4 ents]
+  L418: ancora=(3055,1530) [4 ents]
+  L419: ancora=(3480,1529) [4 ents]
+  L420: ancora=(3929,1530) [4 ents]
+  L421: ancora=(4309,1525) [4 ents]
+  L422: ancora=(4795,1529) [4 ents]
+
+[RESULTADO]
+  Lajes consolidadas: 33/33
+  LJ_gerado.dxf: 147 entidades
+  Output: D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-6_Execucao_CAD\LJ_gerado.dxf
+[INFO] === validar_dxf_coletivo.py | Obra_TREINO_1 | 14 PAV ===
+
+  [PILARES]
+    GT: 35 | Gerado: 34 | Corretos: 34
+    id_match: 97.1% | hallucination: 0.0%
+    SCORE: 98.3% — APROVADO
+    Missing: ['P42']
+
+  [VIGAS]
+    GT: 47 | Gerado: 26 | Corretos: 26
+    id_match: 55.3% | hallucination: 0.0%
+    SCORE: 73.2% — REPROVADO
+    Missing: ['V10', 'V301', 'V302', 'V303', 'V306', 'V307', 'V308', 'V309', 'V311', 'V313']
+
+  [LAJES]
+    GT: 33 | Gerado: 33 | Corretos: 33
+    id_match: 100.0% | hallucination: 0.0%
+    SCORE: 100.0% — APROVADO
+
+[RESULTADO GLOBAL]
+  Score global: 89.9%
+  Status: REPROVADO (meta: >=90%)
+
+[INFO] Salvo: D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-6_Execucao_CAD\validation_coletivo.json
+[INFO] Processando 34 pilares \u2192 obras_salvas.json
+[INFO]   P10: 82x73cm grade_1=0
+[INFO]   P11: 73x19cm grade_1=0
+[INFO]   P12: 73x19cm grade_1=0
+[INFO]   P14: 73x19cm grade_1=0
+[INFO]   P16: 73x19cm grade_1=0
+[INFO]   P17: 73x19cm grade_1=0
+[INFO]   P18: 26x19cm grade_1=0
+[INFO]   P19: 97x19cm grade_1=0
+[INFO]   P20: 97x19cm grade_1=0
+[INFO]   P21: 97x19cm grade_1=0
+[INFO]   P22: 97x19cm grade_1=0
+[INFO]   P23: 97x19cm grade_1=0
+[INFO]   P24: 97x19cm grade_1=0
+[INFO]   P25: 82x19cm grade_1=0
+[INFO]   P26: 81x19cm grade_1=0
+[INFO]   P27: 54x27cm grade_1=0
+[INFO]   P28: 97x24cm grade_1=0
+[INFO]   P29: 88x24cm grade_1=0
+[INFO]   P30: 88x24cm grade_1=0
+[INFO]   P31: 88x24cm grade_1=0
+[INFO]   P32: 88x24cm grade_1=0
+[INFO]   P33: 97x19cm grade_1=0
+[INFO]   P34: 82x19cm grade_1=0
+[INFO]   P35: 82x19cm grade_1=0
+[INFO]   P41: 59x48cm grade_1=0
+[INFO]   P43: 72x48cm grade_1=0
+[INFO]   P44: 72x59cm grade_1=0
+[INFO]   P45: 72x19cm grade_1=0
+[INFO]   P46: 72x19cm grade_1=0
+[INFO]   P47: 59x19cm grade_1=0
+[INFO]   P48: 72x19cm grade_1=0
+[INFO]   P49: 100x95cm grade_1=0
+[INFO]   P50: 72x19cm grade_1=0
+[INFO]   P51: 95x65cm grade_1=0
+[INFO] \u2705 obras_salvas.json gerado: 34 pilares \u2192 D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-4_Sincronizacao\obras_salvas.json
+[INFO] \u2705 pavimentos_lista.json gerado \u2192 D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-4_Sincronizacao\pavimentos_lista.json
+
+============================================================
+PIPELINE E2E — Obra_TREINO_1 | 14 PAV
+============================================================
+
+[FASE 1] Descoberta de DXFs
+  [SKIP] dxf_discovery.json ja existe e contem Obra_TREINO_1
+
+[FASE 2] Engenharia Reversa (Ground Truth)
+  [RUN] engenharia_reversa_dxf.py ...
+        -> OK (7.7s)
+
+[FASE 3] Extração Dimensional
+  [RUN] extrair_bh_pilares.py ...
+        -> OK (2.4s)
+  [RUN] extrair_vigas_lv.py ...
+        -> OK (3.5s)
+  [RUN] extrair_lajes_lj.py ...
+        -> OK (1.0s)
+  [RUN] extrair_garfos_evg.py ...
+        -> FALHOU (code 1) (0.6s)
+  [RUN] extrair_largura_vigas.py ...
+        -> FALHOU (code 2) (0.0s)
+  [RUN] extrair_assembly_pl.py ...
+        -> FALHOU (code 2) (0.6s)
+  [RUN] integrar_fichas_fase3.py ...
+        -> OK (0.1s)
+
+[FASE 4] Motor Fase 4 (Transformacao Fase-3 -> Fase-4)
+  [CLEAN] Removendo 35 JSONs antigos de JSON_Pilares/
+  [CLEAN] Removendo 66 JSONs antigos de JSON_Vigas_Laterais/
+  [CLEAN] Removendo 33 JSONs antigos de JSON_Vigas_Fundo/
+  [CLEAN] Removendo 39 JSONs antigos de JSON_Lajes/
+  [RUN] motor_fase4.py ...
+        -> OK (0.2s)
+
+[FASE 5] Geração DXF Individual
+  [CLEAN] Removendo 35 DXFs antigos de DXF_Pilares/
+  [CLEAN] Removendo 33 DXFs antigos de DXF_Vigas/
+  [CLEAN] Removendo 39 DXFs antigos de DXF_Lajes/
+  [RUN] gerar_dxf_pilares.py ...
+        -> OK (0.9s)
+  [RUN] gerar_dxf_vigas.py ...
+        -> OK (0.9s)
+  [RUN] gerar_dxf_lajes.py ...
+        -> OK (0.9s)
+
+[FASE 5b] Comparação DXF Individual vs STOG
+  [RUN] comparar_dxf.py ...
+        -> OK (2.2s)
+
+[FASE 6] Extração de Âncoras (coords absolutas)
+  [RUN] extrair_ancoras_dxf.py ...
+        -> OK (5.8s)
+
+[FASE 7] Consolidação DXF Coletivo
+  [RUN] consolidar_dxf_pilares.py ...
+        -> OK (1.7s)
+  [RUN] consolidar_dxf_vigas.py ...
+        -> OK (1.7s)
+  [RUN] consolidar_dxf_lajes.py ...
+        -> OK (2.2s)
+
+[FASE 8] Validação DXF Coletivo
+  [RUN] validar_dxf_coletivo.py ...
+        -> OK (3.0s)
+
+[FASE 9] Geração obras_salvas.json (formato robô)
+  [RUN] gerar_obras_salvas.py ...
+        -> OK (0.4s)
+
+============================================================
+PIPELINE CONCLUÍDO — PARCIAL
+  Score coletivo: 89.9%
+  Relatório: D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-8_Revisao_Entrega\pipeline_report.json
+============================================================
+
+[INFO] === engenharia_reversa_dxf.py | Obra: Obra_TREINO_1 | Pav: 2 PAV ===
+[INFO] Diretório: D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-1_Ingestao\Projetos_Finalizados_para_Engenharia_Reversa
+[INFO] Usando caminhos do dxf_discovery.json para pav '2 PAV'
+[INFO] PL DXF: ALIMONTI - PARAISO - 2° PAV.- PL - R00.dxf
+[INFO] Pilares extraídos: 35 IDs | Pé Direito: Nonecm -> D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-3_Interpretacao_Extracao\Pilares\pilares_ground_truth.json
+[INFO] LV DXF: ALIMONTI - PARAISO - 2° PAV.- LV - R00.dxf
+[INFO] Vigas extraídas: 31 IDs -> D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-3_Interpretacao_Extracao\Vigas\vigas_ground_truth.json
+[INFO] LJ DXF: ALIMONTI - PARAISO - 2° PAV.- LJ - R00.dxf
+[INFO] Lajes extraídas: 49 IDs -> D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-3_Interpretacao_Extracao\Lajes\lajes_ground_truth.json
+[INFO] === RESULTADO: 35 pilares (ground truth) ===
+[INFO] NOTA: IDs e count são CONFIÁVEIS. B/H requerem revisão manual ou análise visual.
+[INFO] Ground truth salvo em: D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-3_Interpretacao_Extracao
+[INFO] === extrair_bh_pilares.py | Obra_TREINO_1 | 2 PAV ===
+[INFO] PL DXF: ALIMONTI - PARAISO - 2° PAV.- PL - R00.dxf
+[INFO] Max distancia proximity: 300.0 unidades DXF
+[INFO] Lendo DXF (pode demorar para arquivos grandes)...
+Traceback (most recent call last):
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\scripts\extrair_bh_pilares.py", line 580, in <module>
+    main()
+    ~~~~^^
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\scripts\extrair_bh_pilares.py", line 576, in main
+    run(args.obra, args.pavimento, args.max_dist)
+    ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\scripts\extrair_bh_pilares.py", line 364, in run
+    doc = ezdxf.readfile(str(pl_dxf))
+  File "C:\Users\Thierry\AppData\Roaming\Python\Python314\site-packages\ezdxf\filemanagement.py", line 154, in readfile
+    doc = read(fp)
+  File "C:\Users\Thierry\AppData\Roaming\Python\Python314\site-packages\ezdxf\filemanagement.py", line 95, in read
+    return Drawing.read(stream)
+           ~~~~~~~~~~~~^^^^^^^^
+  File "C:\Users\Thierry\AppData\Roaming\Python\Python314\site-packages\ezdxf\document.py", line 350, in read
+    return cls.load(tag_loader)
+           ~~~~~~~~^^^^^^^^^^^^
+  File "C:\Users\Thierry\AppData\Roaming\Python\Python314\site-packages\ezdxf\document.py", line 365, in load
+    doc._load(tag_loader)
+    ~~~~~~~~~^^^^^^^^^^^^
+  File "C:\Users\Thierry\AppData\Roaming\Python\Python314\site-packages\ezdxf\document.py", line 381, in _load
+    self._load_section_dict(sections)
+    ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "C:\Users\Thierry\AppData\Roaming\Python\Python314\site-packages\ezdxf\document.py", line 407, in _load_section_dict
+    loader.load_and_bind_dxf_content(sections, self)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "C:\Users\Thierry\AppData\Roaming\Python\Python314\site-packages\ezdxf\lldxf\loader.py", line 147, in load_and_bind_dxf_content
+    for index, entity in enumerate(load_dxf_entities(section, doc)):
+                         ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Thierry\AppData\Roaming\Python\Python314\site-packages\ezdxf\lldxf\loader.py", line 138, in load_dxf_entities
+    yield factory.load(ExtendedTags(entity), doc)
+                       ~~~~~~~~~~~~^^^^^^^^
+  File "C:\Users\Thierry\AppData\Roaming\Python\Python314\site-packages\ezdxf\lldxf\extendedtags.py", line 64, in __init__
+    self._setup(iter(tags))
+    ~~~~~~~~~~~^^^^^^^^^^^^
+  File "C:\Users\Thierry\AppData\Roaming\Python\Python314\site-packages\ezdxf\lldxf\extendedtags.py", line 312, in _setup
+    tag = collect_subclass(tag)
+  File "C:\Users\Thierry\AppData\Roaming\Python\Python314\site-packages\ezdxf\lldxf\extendedtags.py", line 220, in collect_subclass
+    data.append(tag)
+    ~~~~~~~~~~~^^^^^
+MemoryError
+DXF: ALIMONTI - PARAISO - 2° PAV.- LV - R00.dxf
+  Labels encontrados: 31 vigas
+  Cota Seção (2x): 84 dims
+  COTA: 627 dims
+
+=== RESULTADO ===
+  Total vigas: 31
+  Com altura_lateral: 31/31
+  Com comprimento: 31/31
+  Com ambos: 31/31
+  Confiança média: 87%
+  Output: D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-3_Interpretacao_Extracao\Vigas\vigas_dim.json
+
+Viga     Alt(cm)    Comp(cm)     Conf     Sides
+-------------------------------------------------------
+V51      110        406          84%      A+B
+V52      110        246          89%      A+B
+V53      110        244          84%      A+B
+V54      38         244          89%      A+B
+V55      38         244          89%      A+B
+V56      110        244          79%      A+B
+V57      110        246          89%      A+B
+V58      38         244          89%      A+B
+V59      110        246          89%      A+B
+V60      100        246          89%      A+B
+V61      38         244          84%      A+B
+V62      38         244          84%      A+B
+V63      38         246          89%      A+B
+V64      38         246          84%      A+B
+V65      38         244          89%      A+B
+V66      38         334          89%      A+B
+V67      38         246          89%      A+B
+V68      38         246          89%      A+B
+V69      38         182          89%      A+B
+V70      38         182          84%      A+B
+V71      38         244          89%      A+B
+V72      38         244          84%      A+B
+V73      38         244          89%      A+B
+V74      38         244          89%      A+B
+V75      38         244          89%      A+B
+V76      38         244          84%      A+B
+V77      28         244          84%      A+B
+V78      38         244          89%      A+B
+V79      38         244          84%      A+B
+V80      38         244          89%      A+B
+V81      28         244          84%      B
+[INFO] === extrair_lajes_lj.py | Obra_TREINO_1 | 2 PAV ===
+[INFO] LJ DXF: ALIMONTI - PARAISO - 2° PAV.- LJ - R00.dxf
+[INFO] Lendo DXF...
+[INFO] 1961 entidades
+[INFO] Extraindo labels e codigos de lajes...
+[DEBUG] Labels encontrados: ['L51', 'L52', 'L53', 'L54', 'L55', 'L56', 'L57', 'L58', 'L59', 'L60', 'L61', 'L62', 'L63', 'L64', 'L65', 'L66', 'L67', 'L68', 'L69', 'L70', 'L71', 'L72', 'L73', 'L74', 'L75', 'L76', 'L77', 'L78', 'L79', 'L80']
+[DEBUG] Lajes com paineis AUX00: ['L101', 'L102', 'L112', 'L114', 'L115', 'L118', 'L122', 'L201', 'L202', 'L203', 'L204', 'L205', 'L206', 'L208', 'L209', 'L210', 'L211', 'L212', 'L213']
+[INFO] Lajes encontradas: 49
+[INFO] Construindo fichas com coordenadas...
+
+[RESULTADO] Extracao de Lajes
+  Total lajes:        49
+  Com dimensoes:      0
+  Com coordenadas:    6
+
+[INFO] Salvo em: D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-3_Interpretacao_Extracao\Lajes\lajes_data.json
+[INFO] lajes_ground_truth.json atualizado: 0 lajes com dimensoes
+
+[AMOSTRA] Primeiras lajes:
+  L51: NonexNonecm | area=Nonecm2 | coords=0pts | conf=30%
+  L52: NonexNonecm | area=Nonecm2 | coords=0pts | conf=30%
+  L53: NonexNonecm | area=Nonecm2 | coords=0pts | conf=30%
+  L54: NonexNonecm | area=Nonecm2 | coords=0pts | conf=30%
+  L55: NonexNonecm | area=Nonecm2 | coords=0pts | conf=30%
+  L56: NonexNonecm | area=Nonecm2 | coords=0pts | conf=30%
+  L57: NonexNonecm | area=Nonecm2 | coords=0pts | conf=30%
+  L58: NonexNonecm | area=Nonecm2 | coords=0pts | conf=30%
+ERRO: Nenhum EVG DXF encontrado em D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1
+C:\Python314\python.exe: can't open file 'D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\extrair_largura_vigas.py': [Errno 2] No such file or directory
+usage: extrair_assembly_pl.py [-h] --obra OBRA [--pav PAV] [--output OUTPUT]
+extrair_assembly_pl.py: error: unrecognized arguments: --pavimento 2 PAV
+=== VIGAS ===
+  AVISO: vigas_largura.json nao encontrado — usando b=15cm (default)
+  vigas.json atualizado: 31 vigas
+    V51: b=15.0cm h=110.0cm L=405.5cm
+    V52: b=15.0cm h=110.0cm L=246.0cm
+    V53: b=15.0cm h=110.0cm L=244.0cm
+    V54: b=15.0cm h=38.0cm L=244.0cm
+    V55: b=15.0cm h=38.0cm L=244.0cm
+    V56: b=15.0cm h=110.0cm L=244.0cm
+    V57: b=15.0cm h=110.0cm L=246.0cm
+    V58: b=15.0cm h=38.0cm L=244.0cm
+    V59: b=15.0cm h=110.0cm L=246.0cm
+    V60: b=15.0cm h=100.0cm L=246.0cm
+    V61: b=15.0cm h=38.0cm L=244.0cm
+    V62: b=15.0cm h=38.0cm L=244.0cm
+    V63: b=15.0cm h=38.0cm L=246.0cm
+    V64: b=15.0cm h=38.0cm L=246.0cm
+    V65: b=15.0cm h=38.0cm L=244.0cm
+    V66: b=15.0cm h=38.0cm L=334.0cm
+    V67: b=15.0cm h=38.0cm L=246.0cm
+    V68: b=15.0cm h=38.0cm L=246.0cm
+    V69: b=15.0cm h=38.0cm L=182.0cm
+    V70: b=15.0cm h=38.0cm L=182.0cm
+    V71: b=15.0cm h=38.0cm L=244.0cm
+    V72: b=15.0cm h=38.0cm L=244.0cm
+    V73: b=15.0cm h=38.0cm L=244.0cm
+    V74: b=15.0cm h=38.0cm L=244.0cm
+    V75: b=15.0cm h=38.0cm L=244.0cm
+    V76: b=15.0cm h=38.0cm L=244.0cm
+    V77: b=15.0cm h=28.0cm L=244.0cm
+    V78: b=15.0cm h=38.0cm L=244.0cm
+    V79: b=15.0cm h=38.0cm L=244.0cm
+    V80: b=15.0cm h=38.0cm L=244.0cm
+    V81: b=15.0cm h=28.0cm L=244.0cm
+
+=== LAJES ===
+  AVISO: lajes_poligono.json nao encontrado, usando lajes_data.json
+  AVISO: Laje L51: dimensoes invalidas, usando 100x100
+  AVISO: Laje L52: dimensoes invalidas, usando 100x100
+  AVISO: Laje L53: dimensoes invalidas, usando 100x100
+  AVISO: Laje L54: dimensoes invalidas, usando 100x100
+  AVISO: Laje L55: dimensoes invalidas, usando 100x100
+  AVISO: Laje L56: dimensoes invalidas, usando 100x100
+  AVISO: Laje L57: dimensoes invalidas, usando 100x100
+  AVISO: Laje L58: dimensoes invalidas, usando 100x100
+  AVISO: Laje L59: dimensoes invalidas, usando 100x100
+  AVISO: Laje L60: dimensoes invalidas, usando 100x100
+  AVISO: Laje L61: dimensoes invalidas, usando 100x100
+  AVISO: Laje L62: dimensoes invalidas, usando 100x100
+  AVISO: Laje L63: dimensoes invalidas, usando 100x100
+  AVISO: Laje L64: dimensoes invalidas, usando 100x100
+  AVISO: Laje L65: dimensoes invalidas, usando 100x100
+  AVISO: Laje L66: dimensoes invalidas, usando 100x100
+  AVISO: Laje L67: dimensoes invalidas, usando 100x100
+  AVISO: Laje L68: dimensoes invalidas, usando 100x100
+  AVISO: Laje L69: dimensoes invalidas, usando 100x100
+  AVISO: Laje L70: dimensoes invalidas, usando 100x100
+  AVISO: Laje L71: dimensoes invalidas, usando 100x100
+  AVISO: Laje L72: dimensoes invalidas, usando 100x100
+  AVISO: Laje L73: dimensoes invalidas, usando 100x100
+  AVISO: Laje L74: dimensoes invalidas, usando 100x100
+  AVISO: Laje L75: dimensoes invalidas, usando 100x100
+  AVISO: Laje L76: dimensoes invalidas, usando 100x100
+  AVISO: Laje L77: dimensoes invalidas, usando 100x100
+  AVISO: Laje L78: dimensoes invalidas, usando 100x100
+  AVISO: Laje L79: dimensoes invalidas, usando 100x100
+  AVISO: Laje L80: dimensoes invalidas, usando 100x100
+  lajes.json atualizado: 49 lajes
+    L51: 100.0x100.0cm area=10000 [label-only]
+    L52: 100.0x100.0cm area=10000 [label-only]
+    L53: 100.0x100.0cm area=10000 [label-only]
+    L54: 100.0x100.0cm area=10000 [label-only]
+    L55: 100.0x100.0cm area=10000 [label-only]
+    L56: 100.0x100.0cm area=10000 [label-only]
+    L57: 100.0x100.0cm area=10000 [label-only]
+    L58: 100.0x100.0cm area=10000 [label-only]
+    L59: 100.0x100.0cm area=10000 [label-only]
+    L60: 100.0x100.0cm area=10000 [label-only]
+    L61: 100.0x100.0cm area=10000 [label-only]
+    L62: 100.0x100.0cm area=10000 [label-only]
+    L63: 100.0x100.0cm area=10000 [label-only]
+    L64: 100.0x100.0cm area=10000 [label-only]
+    L65: 100.0x100.0cm area=10000 [label-only]
+    L66: 100.0x100.0cm area=10000 [label-only]
+    L67: 100.0x100.0cm area=10000 [label-only]
+    L68: 100.0x100.0cm area=10000 [label-only]
+    L69: 100.0x100.0cm area=10000 [label-only]
+    L70: 100.0x100.0cm area=10000 [label-only]
+    L71: 100.0x100.0cm area=10000 [label-only]
+    L72: 100.0x100.0cm area=10000 [label-only]
+    L73: 100.0x100.0cm area=10000 [label-only]
+    L74: 100.0x100.0cm area=10000 [label-only]
+    L75: 100.0x100.0cm area=10000 [label-only]
+    L76: 100.0x100.0cm area=10000 [label-only]
+    L77: 100.0x100.0cm area=10000 [label-only]
+    L78: 100.0x100.0cm area=10000 [label-only]
+    L79: 100.0x100.0cm area=10000 [label-only]
+    L80: 100.0x100.0cm area=10000 [label-only]
+    L101: 244.0x122.0cm area=29768 [aux00-panels]
+    L102: 244.0x122.0cm area=29768 [aux00-panels]
+    L112: 91.5x91.5cm area=8372 [aux00-panels]
+    L114: 244.0x122.0cm area=29768 [aux00-panels]
+    L115: 244.0x122.0cm area=29768 [aux00-panels]
+    L118: 244.0x122.0cm area=29768 [aux00-panels]
+    L122: 244.0x122.0cm area=29768 [aux00-panels]
+    L201: 244.0x122.0cm area=29768 [aux00-panels]
+    L202: 244.0x122.0cm area=29768 [aux00-panels]
+    L203: 244.0x91.0cm area=22204 [aux00-panels]
+    L204: 244.0x122.0cm area=29768 [aux00-panels]
+    L205: 244.0x122.0cm area=29768 [aux00-panels]
+    L206: 244.0x122.0cm area=29768 [aux00-panels]
+    L208: 244.0x83.5cm area=20374 [aux00-panels]
+    L209: 244.0x104.5cm area=25498 [aux00-panels]
+    L210: 244.0x122.0cm area=29768 [aux00-panels]
+    L211: 244.0x122.0cm area=29768 [aux00-panels]
+    L212: 244.0x122.0cm area=29768 [aux00-panels]
+    L213: 244.0x122.0cm area=29768 [aux00-panels]
+
+=== INTEGRACAO COMPLETA: 31 vigas + 49 lajes ===
+  Proximos passos: python scripts/motor_fase4.py --obra D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1
+[INFO] === motor_fase4.py | Obra: Obra_TREINO_1 | Pav: 2 PAV ===
+[INFO] Carregado: D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-3_Interpretacao_Extracao\Pilares\pilares_bh.json (36 itens)
+[WARNING] pilares_assembly.json nao encontrado — grades ficarao zeradas
+[INFO]   \u2705 Pilar P10: 82.0x73.0cm, h=280.0cm
+[INFO]   \u2705 Pilar P11: 73.0x19.0cm, h=280.0cm
+[INFO]   \u2705 Pilar P12: 73.0x19.0cm, h=280.0cm
+[INFO]   \u2705 Pilar P14: 73.0x19.0cm, h=280.0cm
+[INFO]   \u2705 Pilar P16: 73.0x19.0cm, h=280.0cm
+[INFO]   \u2705 Pilar P17: 73.0x19.0cm, h=280.0cm
+[INFO]   \u2705 Pilar P18: 26.0x19.0cm, h=280.0cm
+[INFO]   \u2705 Pilar P19: 97.0x19.0cm, h=280.0cm
+[INFO]   \u2705 Pilar P20: 97.0x19.0cm, h=280.0cm
+[INFO]   \u2705 Pilar P21: 97.0x19.0cm, h=280.0cm
+[INFO]   \u2705 Pilar P22: 97.0x19.0cm, h=280.0cm
+[INFO]   \u2705 Pilar P23: 97.0x19.0cm, h=280.0cm
+[INFO]   \u2705 Pilar P24: 97.0x19.0cm, h=280.0cm
+[INFO]   \u2705 Pilar P25: 82.0x19.0cm, h=280.0cm
+[INFO]   \u2705 Pilar P26: 81.0x19.0cm, h=280.0cm
+[INFO]   \u2705 Pilar P27: 54.0x27.6cm, h=280.0cm
+[INFO]   \u2705 Pilar P28: 97.0x24.0cm, h=280.0cm
+[INFO]   \u2705 Pilar P29: 88.0x24.0cm, h=280.0cm
+[INFO]   \u2705 Pilar P30: 88.0x24.0cm, h=280.0cm
+[INFO]   \u2705 Pilar P31: 88.0x24.0cm, h=280.0cm
+[INFO]   \u2705 Pilar P32: 88.0x24.0cm, h=280.0cm
+[INFO]   \u2705 Pilar P33: 97.0x19.0cm, h=280.0cm
+[INFO]   \u2705 Pilar P34: 82.0x19.0cm, h=280.0cm
+[INFO]   \u2705 Pilar P35: 82.0x19.0cm, h=280.0cm
+[INFO]   \u2705 Pilar P41: 59.0x48.0cm, h=280.0cm
+[WARNING] Pilar P42: dimensoes invalidas (b=0.0, h=72.0). Pular.
+[INFO]   \u2705 Pilar P43: 72.0x48.0cm, h=280.0cm
+[INFO]   \u2705 Pilar P44: 72.0x59.0cm, h=280.0cm
+[INFO]   \u2705 Pilar P45: 72.0x19.0cm, h=280.0cm
+[INFO]   \u2705 Pilar P46: 72.0x19.0cm, h=280.0cm
+[INFO]   \u2705 Pilar P47: 59.0x19.0cm, h=280.0cm
+[INFO]   \u2705 Pilar P48: 72.0x19.0cm, h=280.0cm
+[INFO]   \u2705 Pilar P49: 100.0x95.0cm, h=280.0cm
+[INFO]   \u2705 Pilar P50: 72.0x19.0cm, h=280.0cm
+[INFO]   \u2705 Pilar P51: 95.0x65.0cm, h=280.0cm
+[INFO] Pilares: 34 processados -> D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-4_Sincronizacao\pilares_salvos.json
+[INFO] Carregado: D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-3_Interpretacao_Extracao\Vigas\vigas.json (32 itens)
+[INFO]   \u2705 Viga V51: b=15.0cm, h=110.0cm, L=405.5cm -> A+B
+[INFO]   \u2705 Viga V52: b=15.0cm, h=110.0cm, L=246.0cm -> A+B
+[INFO]   \u2705 Viga V53: b=15.0cm, h=110.0cm, L=244.0cm -> A+B
+[INFO]   \u2705 Viga V54: b=15.0cm, h=38.0cm, L=244.0cm -> A+B
+[INFO]   \u2705 Viga V55: b=15.0cm, h=38.0cm, L=244.0cm -> A+B
+[INFO]   \u2705 Viga V56: b=15.0cm, h=110.0cm, L=244.0cm -> A+B
+[INFO]   \u2705 Viga V57: b=15.0cm, h=110.0cm, L=246.0cm -> A+B
+[INFO]   \u2705 Viga V58: b=15.0cm, h=38.0cm, L=244.0cm -> A+B
+[INFO]   \u2705 Viga V59: b=15.0cm, h=110.0cm, L=246.0cm -> A+B
+[INFO]   \u2705 Viga V60: b=15.0cm, h=100.0cm, L=246.0cm -> A+B
+[INFO]   \u2705 Viga V61: b=15.0cm, h=38.0cm, L=244.0cm -> A+B
+[INFO]   \u2705 Viga V62: b=15.0cm, h=38.0cm, L=244.0cm -> A+B
+[INFO]   \u2705 Viga V63: b=15.0cm, h=38.0cm, L=246.0cm -> A+B
+[INFO]   \u2705 Viga V64: b=15.0cm, h=38.0cm, L=246.0cm -> A+B
+[INFO]   \u2705 Viga V65: b=15.0cm, h=38.0cm, L=244.0cm -> A+B
+[INFO]   \u2705 Viga V66: b=15.0cm, h=38.0cm, L=334.0cm -> A+B
+[INFO]   \u2705 Viga V67: b=15.0cm, h=38.0cm, L=246.0cm -> A+B
+[INFO]   \u2705 Viga V68: b=15.0cm, h=38.0cm, L=246.0cm -> A+B
+[INFO]   \u2705 Viga V69: b=15.0cm, h=38.0cm, L=182.0cm -> A+B
+[INFO]   \u2705 Viga V70: b=15.0cm, h=38.0cm, L=182.0cm -> A+B
+[INFO]   \u2705 Viga V71: b=15.0cm, h=38.0cm, L=244.0cm -> A+B
+[INFO]   \u2705 Viga V72: b=15.0cm, h=38.0cm, L=244.0cm -> A+B
+[INFO]   \u2705 Viga V73: b=15.0cm, h=38.0cm, L=244.0cm -> A+B
+[INFO]   \u2705 Viga V74: b=15.0cm, h=38.0cm, L=244.0cm -> A+B
+[INFO]   \u2705 Viga V75: b=15.0cm, h=38.0cm, L=244.0cm -> A+B
+[INFO]   \u2705 Viga V76: b=15.0cm, h=38.0cm, L=244.0cm -> A+B
+[INFO]   \u2705 Viga V77: b=15.0cm, h=28.0cm, L=244.0cm -> A+B
+[INFO]   \u2705 Viga V78: b=15.0cm, h=38.0cm, L=244.0cm -> A+B
+[INFO]   \u2705 Viga V79: b=15.0cm, h=38.0cm, L=244.0cm -> A+B
+[INFO]   \u2705 Viga V80: b=15.0cm, h=38.0cm, L=244.0cm -> A+B
+[INFO]   \u2705 Viga V81: b=15.0cm, h=28.0cm, L=244.0cm -> A+B
+[INFO] Vigas: 31 processadas -> D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-4_Sincronizacao\vigas_salvas.json
+[INFO] Carregado: D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-3_Interpretacao_Extracao\Lajes\lajes.json (50 itens)
+[INFO]   \u2705 Laje L51: 100.0x100.0cm, 1 cortes
+[INFO]   \u2705 Laje L52: 100.0x100.0cm, 1 cortes
+[INFO]   \u2705 Laje L53: 100.0x100.0cm, 1 cortes
+[INFO]   \u2705 Laje L54: 100.0x100.0cm, 1 cortes
+[INFO]   \u2705 Laje L55: 100.0x100.0cm, 1 cortes
+[INFO]   \u2705 Laje L56: 100.0x100.0cm, 1 cortes
+[INFO]   \u2705 Laje L57: 100.0x100.0cm, 1 cortes
+[INFO]   \u2705 Laje L58: 100.0x100.0cm, 1 cortes
+[INFO]   \u2705 Laje L59: 100.0x100.0cm, 1 cortes
+[INFO]   \u2705 Laje L60: 100.0x100.0cm, 1 cortes
+[INFO]   \u2705 Laje L61: 100.0x100.0cm, 1 cortes
+[INFO]   \u2705 Laje L62: 100.0x100.0cm, 1 cortes
+[INFO]   \u2705 Laje L63: 100.0x100.0cm, 1 cortes
+[INFO]   \u2705 Laje L64: 100.0x100.0cm, 1 cortes
+[INFO]   \u2705 Laje L65: 100.0x100.0cm, 1 cortes
+[INFO]   \u2705 Laje L66: 100.0x100.0cm, 1 cortes
+[INFO]   \u2705 Laje L67: 100.0x100.0cm, 1 cortes
+[INFO]   \u2705 Laje L68: 100.0x100.0cm, 1 cortes
+[INFO]   \u2705 Laje L69: 100.0x100.0cm, 1 cortes
+[INFO]   \u2705 Laje L70: 100.0x100.0cm, 1 cortes
+[INFO]   \u2705 Laje L71: 100.0x100.0cm, 1 cortes
+[INFO]   \u2705 Laje L72: 100.0x100.0cm, 1 cortes
+[INFO]   \u2705 Laje L73: 100.0x100.0cm, 1 cortes
+[INFO]   \u2705 Laje L74: 100.0x100.0cm, 1 cortes
+[INFO]   \u2705 Laje L75: 100.0x100.0cm, 1 cortes
+[INFO]   \u2705 Laje L76: 100.0x100.0cm, 1 cortes
+[INFO]   \u2705 Laje L77: 100.0x100.0cm, 1 cortes
+[INFO]   \u2705 Laje L78: 100.0x100.0cm, 1 cortes
+[INFO]   \u2705 Laje L79: 100.0x100.0cm, 1 cortes
+[INFO]   \u2705 Laje L80: 100.0x100.0cm, 1 cortes
+[INFO]   \u2705 Laje L101: 244.0x122.0cm, 3 cortes
+[INFO]   \u2705 Laje L102: 244.0x122.0cm, 3 cortes
+[INFO]   \u2705 Laje L112: 91.5x91.5cm, 1 cortes
+[INFO]   \u2705 Laje L114: 244.0x122.0cm, 3 cortes
+[INFO]   \u2705 Laje L115: 244.0x122.0cm, 3 cortes
+[INFO]   \u2705 Laje L118: 244.0x122.0cm, 3 cortes
+[INFO]   \u2705 Laje L122: 244.0x122.0cm, 3 cortes
+[INFO]   \u2705 Laje L201: 244.0x122.0cm, 3 cortes
+[INFO]   \u2705 Laje L202: 244.0x122.0cm, 3 cortes
+[INFO]   \u2705 Laje L203: 244.0x91.0cm, 3 cortes
+[INFO]   \u2705 Laje L204: 244.0x122.0cm, 3 cortes
+[INFO]   \u2705 Laje L205: 244.0x122.0cm, 3 cortes
+[INFO]   \u2705 Laje L206: 244.0x122.0cm, 3 cortes
+[INFO]   \u2705 Laje L208: 244.0x83.5cm, 3 cortes
+[INFO]   \u2705 Laje L209: 244.0x104.5cm, 3 cortes
+[INFO]   \u2705 Laje L210: 244.0x122.0cm, 3 cortes
+[INFO]   \u2705 Laje L211: 244.0x122.0cm, 3 cortes
+[INFO]   \u2705 Laje L212: 244.0x122.0cm, 3 cortes
+[INFO]   \u2705 Laje L213: 244.0x122.0cm, 3 cortes
+[INFO] Lajes: 49 processadas -> D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-4_Sincronizacao\lajes_salvas.json
+[INFO] obras_salvas.json: 34 pilares \u2192 D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-4_Sincronizacao\obras_salvas.json
+[INFO] === RESULTADO: 34 pilares, 31 vigas, 49 lajes | 0 erros ===
+  pilares_bh.json: 36 pilares
+
+=== GERANDO DXF PILARES (34 pilares) ===
+  P10: b=73 h=82 paineis=12 alt=280cm [BH-extraido]
+  P11: b=19 h=73 paineis=12 alt=280cm [BH-extraido]
+  P12: b=19 h=73 paineis=12 alt=280cm [BH-extraido]
+  P14: b=19 h=73 paineis=12 alt=280cm [BH-extraido]
+  P16: b=19 h=73 paineis=12 alt=280cm [BH-extraido]
+  P17: b=19 h=73 paineis=12 alt=280cm [BH-extraido]
+  P18: b=19 h=26 paineis=12 alt=280cm [BH-extraido]
+  P19: b=19 h=97 paineis=12 alt=280cm [BH-extraido]
+  P20: b=19 h=97 paineis=12 alt=280cm [BH-extraido]
+  P21: b=19 h=97 paineis=12 alt=280cm [BH-extraido]
+  P22: b=19 h=97 paineis=12 alt=280cm [BH-extraido]
+  P23: b=19 h=97 paineis=12 alt=280cm [BH-extraido]
+  P24: b=19 h=97 paineis=12 alt=280cm [BH-extraido]
+  P25: b=19 h=82 paineis=12 alt=280cm [BH-extraido]
+  P26: b=19 h=81 paineis=12 alt=280cm [BH-extraido]
+  P27: b=28 h=54 paineis=12 alt=280cm [BH-extraido]
+  P28: b=24 h=97 paineis=12 alt=280cm [BH-extraido]
+  P29: b=24 h=88 paineis=12 alt=280cm [BH-extraido]
+  P30: b=24 h=88 paineis=12 alt=280cm [BH-extraido]
+  P31: b=24 h=88 paineis=12 alt=280cm [BH-extraido]
+  P32: b=24 h=88 paineis=12 alt=280cm [BH-extraido]
+  P33: b=19 h=97 paineis=12 alt=280cm [BH-extraido]
+  P34: b=19 h=82 paineis=12 alt=280cm [BH-extraido]
+  P35: b=19 h=82 paineis=12 alt=280cm [BH-extraido]
+  P41: b=48 h=59 paineis=12 alt=280cm [BH-extraido]
+  P43: b=48 h=72 paineis=12 alt=280cm [BH-extraido]
+  P44: b=59 h=72 paineis=12 alt=280cm [BH-extraido]
+  P45: b=19 h=72 paineis=12 alt=280cm [BH-extraido]
+  P46: b=19 h=72 paineis=12 alt=280cm [BH-extraido]
+  P47: b=19 h=59 paineis=12 alt=280cm [BH-extraido]
+  P48: b=19 h=72 paineis=12 alt=280cm [BH-extraido]
+  P49: b=95 h=100 paineis=12 alt=280cm [BH-extraido]
+  P50: b=19 h=72 paineis=12 alt=280cm [BH-extraido]
+  P51: b=65 h=95 paineis=12 alt=280cm [BH-extraido]
+
+=== RESULTADO: 34 DXFs gerados | 0 erros ===
+  Relatorio: D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-5_Geracao_Scripts\DXF_Pilares\_relatorio.json
+  DXFs em: D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-5_Geracao_Scripts\DXF_Pilares
+
+  Proximo: python scripts/comparar_dxf_pilares.py --obra D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1
+
+=== GERANDO DXF VIGAS (31 vigas) ===
+  V51: b=15 h=110 L=406cm | paineis A=4 B=4 F=4
+  V52: b=15 h=110 L=246cm | paineis A=3 B=3 F=3
+  V53: b=15 h=110 L=244cm | paineis A=3 B=3 F=3
+  V54: b=15 h=38 L=244cm | paineis A=3 B=3 F=3
+  V55: b=15 h=38 L=244cm | paineis A=3 B=3 F=3
+  V56: b=15 h=110 L=244cm | paineis A=3 B=3 F=3
+  V57: b=15 h=110 L=246cm | paineis A=3 B=3 F=3
+  V58: b=15 h=38 L=244cm | paineis A=3 B=3 F=3
+  V59: b=15 h=110 L=246cm | paineis A=3 B=3 F=3
+  V60: b=15 h=100 L=246cm | paineis A=3 B=3 F=3
+  V61: b=15 h=38 L=244cm | paineis A=3 B=3 F=3
+  V62: b=15 h=38 L=244cm | paineis A=3 B=3 F=3
+  V63: b=15 h=38 L=246cm | paineis A=3 B=3 F=3
+  V64: b=15 h=38 L=246cm | paineis A=3 B=3 F=3
+  V65: b=15 h=38 L=244cm | paineis A=3 B=3 F=3
+  V66: b=15 h=38 L=334cm | paineis A=3 B=3 F=3
+  V67: b=15 h=38 L=246cm | paineis A=3 B=3 F=3
+  V68: b=15 h=38 L=246cm | paineis A=3 B=3 F=3
+  V69: b=15 h=38 L=182cm | paineis A=2 B=2 F=2
+  V70: b=15 h=38 L=182cm | paineis A=2 B=2 F=2
+  V71: b=15 h=38 L=244cm | paineis A=3 B=3 F=3
+  V72: b=15 h=38 L=244cm | paineis A=3 B=3 F=3
+  V73: b=15 h=38 L=244cm | paineis A=3 B=3 F=3
+  V74: b=15 h=38 L=244cm | paineis A=3 B=3 F=3
+  V75: b=15 h=38 L=244cm | paineis A=3 B=3 F=3
+  V76: b=15 h=38 L=244cm | paineis A=3 B=3 F=3
+  V77: b=15 h=28 L=244cm | paineis A=3 B=3 F=3
+  V78: b=15 h=38 L=244cm | paineis A=3 B=3 F=3
+  V79: b=15 h=38 L=244cm | paineis A=3 B=3 F=3
+  V80: b=15 h=38 L=244cm | paineis A=3 B=3 F=3
+  V81: b=15 h=28 L=244cm | paineis A=3 B=3 F=3
+
+=== RESULTADO: 31 DXFs gerados | 0 erros ===
+  Relatorio: D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-5_Geracao_Scripts\DXF_Vigas\_relatorio.json
+  DXFs em: D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-5_Geracao_Scripts\DXF_Vigas
+
+  Proximo: python scripts/comparar_dxf_vigas.py --obra D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1
+
+=== GERANDO DXF LAJES (49 lajes) ===
+  L51: 100.0x100.0cm paineis=2x1 area=10000cm2
+  L52: 100.0x100.0cm paineis=2x1 area=10000cm2
+  L53: 100.0x100.0cm paineis=2x1 area=10000cm2
+  L54: 100.0x100.0cm paineis=2x1 area=10000cm2
+  L55: 100.0x100.0cm paineis=2x1 area=10000cm2
+  L56: 100.0x100.0cm paineis=2x1 area=10000cm2
+  L57: 100.0x100.0cm paineis=2x1 area=10000cm2
+  L58: 100.0x100.0cm paineis=2x1 area=10000cm2
+  L59: 100.0x100.0cm paineis=2x1 area=10000cm2
+  L60: 100.0x100.0cm paineis=2x1 area=10000cm2
+  L61: 100.0x100.0cm paineis=2x1 area=10000cm2
+  L62: 100.0x100.0cm paineis=2x1 area=10000cm2
+  L63: 100.0x100.0cm paineis=2x1 area=10000cm2
+  L64: 100.0x100.0cm paineis=2x1 area=10000cm2
+  L65: 100.0x100.0cm paineis=2x1 area=10000cm2
+  L66: 100.0x100.0cm paineis=2x1 area=10000cm2
+  L67: 100.0x100.0cm paineis=2x1 area=10000cm2
+  L68: 100.0x100.0cm paineis=2x1 area=10000cm2
+  L69: 100.0x100.0cm paineis=2x1 area=10000cm2
+  L70: 100.0x100.0cm paineis=2x1 area=10000cm2
+  L71: 100.0x100.0cm paineis=2x1 area=10000cm2
+  L72: 100.0x100.0cm paineis=2x1 area=10000cm2
+  L73: 100.0x100.0cm paineis=2x1 area=10000cm2
+  L74: 100.0x100.0cm paineis=2x1 area=10000cm2
+  L75: 100.0x100.0cm paineis=2x1 area=10000cm2
+  L76: 100.0x100.0cm paineis=2x1 area=10000cm2
+  L77: 100.0x100.0cm paineis=2x1 area=10000cm2
+  L78: 100.0x100.0cm paineis=2x1 area=10000cm2
+  L79: 100.0x100.0cm paineis=2x1 area=10000cm2
+  L80: 100.0x100.0cm paineis=2x1 area=10000cm2
+  L101: 244.0x122.0cm paineis=4x1 area=29768cm2
+  L102: 244.0x122.0cm paineis=4x1 area=29768cm2
+  L112: 91.5x91.5cm paineis=2x1 area=8372cm2
+  L114: 244.0x122.0cm paineis=4x1 area=29768cm2
+  L115: 244.0x122.0cm paineis=4x1 area=29768cm2
+  L118: 244.0x122.0cm paineis=4x1 area=29768cm2
+  L122: 244.0x122.0cm paineis=4x1 area=29768cm2
+  L201: 244.0x122.0cm paineis=4x1 area=29768cm2
+  L202: 244.0x122.0cm paineis=4x1 area=29768cm2
+  L203: 244.0x91.0cm paineis=4x1 area=22204cm2
+  L204: 244.0x122.0cm paineis=4x1 area=29768cm2
+  L205: 244.0x122.0cm paineis=4x1 area=29768cm2
+  L206: 244.0x122.0cm paineis=4x1 area=29768cm2
+  L208: 244.0x83.5cm paineis=4x1 area=20374cm2
+  L209: 244.0x104.5cm paineis=4x1 area=25498cm2
+  L210: 244.0x122.0cm paineis=4x1 area=29768cm2
+  L211: 244.0x122.0cm paineis=4x1 area=29768cm2
+  L212: 244.0x122.0cm paineis=4x1 area=29768cm2
+  L213: 244.0x122.0cm paineis=4x1 area=29768cm2
+
+=== RESULTADO: 49 DXFs gerados | 0 erros ===
+  Relatorio: D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-5_Geracao_Scripts\DXF_Lajes\_relatorio.json
+  DXFs em: D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-5_Geracao_Scripts\DXF_Lajes
+
+  Proximo: python scripts/comparar_dxf.py --obra D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1
+
+=== COMPARADOR DXF vs. GROUND TRUTH (tol=5.0%) ===
+
+--- PILARES ---
+  Match rate: 100.0% (34/34)
+  Erro médio: 0.0%
+
+--- VIGAS ---
+  Match rate: 100.0% (31/31)
+  Erro médio: 0.0%
+
+--- LAJES ---
+  Match rate: 87.8% (43/49)
+  Erro médio: 7.9%
+  DIFF L64: ref 100.0x100.0 | gen 13.0x45.0 | err=71.0%
+  DIFF L68: ref 100.0x100.0 | gen 11.0x60.0 | err=64.5%
+  DIFF L112: ref 91.5x91.5 | gen 80.0x5.5 | err=53.3%
+  DIFF L208: ref 244.0x83.5 | gen 25.5x24.0 | err=80.4%
+  DIFF L212: ref 244.0x122.0 | gen 80.0x110.0 | err=38.5%
+  DIFF L213: ref 244.0x122.0 | gen 13.0x45.0 | err=78.9%
+
+=== SCORE GERAL: 95.9% (PASS | meta: 75.0%) ===
+  Pilares: 100.0% | Vigas: 100.0% | Lajes: 87.8%
+
+  Relatorio: D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-5_Geracao_Scripts\_relatorio_comparacao.json
+[INFO] === extrair_ancoras_dxf.py | Obra_TREINO_1 | 2 PAV ===
+[INFO] PL DXF: ALIMONTI - PARAISO - 2° PAV.- PL - R00.dxf
+Traceback (most recent call last):
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\scripts\extrair_ancoras_dxf.py", line 395, in <module>
+    main()
+    ~~~~^^
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\scripts\extrair_ancoras_dxf.py", line 391, in main
+    run(args.obra, args.pavimento, disc)
+    ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\scripts\extrair_ancoras_dxf.py", line 327, in run
+    ancoras_pilares = extrair_ancoras_pilares(pl_path)
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\scripts\extrair_ancoras_dxf.py", line 85, in extrair_ancoras_pilares
+    doc = ezdxf.readfile(pl_dxf_path)
+  File "C:\Users\Thierry\AppData\Roaming\Python\Python314\site-packages\ezdxf\filemanagement.py", line 154, in readfile
+    doc = read(fp)
+  File "C:\Users\Thierry\AppData\Roaming\Python\Python314\site-packages\ezdxf\filemanagement.py", line 95, in read
+    return Drawing.read(stream)
+           ~~~~~~~~~~~~^^^^^^^^
+  File "C:\Users\Thierry\AppData\Roaming\Python\Python314\site-packages\ezdxf\document.py", line 350, in read
+    return cls.load(tag_loader)
+           ~~~~~~~~^^^^^^^^^^^^
+  File "C:\Users\Thierry\AppData\Roaming\Python\Python314\site-packages\ezdxf\document.py", line 365, in load
+    doc._load(tag_loader)
+    ~~~~~~~~~^^^^^^^^^^^^
+  File "C:\Users\Thierry\AppData\Roaming\Python\Python314\site-packages\ezdxf\document.py", line 378, in _load
+    sections = loader.load_dxf_structure(tagger)
+  File "C:\Users\Thierry\AppData\Roaming\Python\Python314\site-packages\ezdxf\lldxf\loader.py", line 91, in load_dxf_structure
+    for entity in group_tags(tagger):
+                  ~~~~~~~~~~^^^^^^^^
+  File "C:\Users\Thierry\AppData\Roaming\Python\Python314\site-packages\ezdxf\lldxf\tags.py", line 321, in group_tags
+    for tag in tags:
+               ^^^^
+  File "C:\Users\Thierry\AppData\Roaming\Python\Python314\site-packages\ezdxf\lldxf\tagger.py", line 290, in tag_compiler
+    x = next(tags)
+  File "C:\Users\Thierry\AppData\Roaming\Python\Python314\site-packages\ezdxf\lldxf\tagger.py", line 122, in ascii_tags_loader
+    value: str = readline()
+                 ~~~~~~~~^^
+MemoryError
+Traceback (most recent call last):
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\scripts\consolidar_dxf_pilares.py", line 25, in <module>
+    import ezdxf
+  File "C:\Users\Thierry\AppData\Roaming\Python\Python314\site-packages\ezdxf\__init__.py", line 36, in <module>
+    from ezdxf.filemanagement import readzip, new, read, readfile, decode_base64
+  File "C:\Users\Thierry\AppData\Roaming\Python\Python314\site-packages\ezdxf\filemanagement.py", line 10, in <module>
+    from ezdxf.tools.standards import setup_drawing
+  File "C:\Users\Thierry\AppData\Roaming\Python\Python314\site-packages\ezdxf\tools\standards.py", line 8, in <module>
+    from ezdxf.render.arrows import ARROWS
+  File "C:\Users\Thierry\AppData\Roaming\Python\Python314\site-packages\ezdxf\render\__init__.py", line 20, in <module>
+    from .mleader import (
+    ...<9 lines>...
+    )
+  File "C:\Users\Thierry\AppData\Roaming\Python\Python314\site-packages\ezdxf\render\mleader.py", line 35, in <module>
+    from ezdxf.entities import factory
+  File "C:\Users\Thierry\AppData\Roaming\Python\Python314\site-packages\ezdxf\entities\__init__.py", line 55, in <module>
+    from .polyline import Polyline, Polyface, Polymesh, MeshVertexCache
+  File "<frozen importlib._bootstrap>", line 1371, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1342, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 938, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 755, in exec_module
+  File "<frozen importlib._bootstrap_external>", line 851, in get_code
+  File "<frozen importlib._bootstrap_external>", line 951, in get_data
+MemoryError
+Traceback (most recent call last):
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\scripts\consolidar_dxf_vigas.py", line 25, in <module>
+    import ezdxf
+  File "C:\Users\Thierry\AppData\Roaming\Python\Python314\site-packages\ezdxf\__init__.py", line 35, in <module>
+    from ezdxf.lldxf.validator import is_dxf_file, is_dxf_stream
+  File "C:\Users\Thierry\AppData\Roaming\Python\Python314\site-packages\ezdxf\lldxf\validator.py", line 28, in <module>
+    from .tagger import ascii_tags_loader, binary_tags_loader
+  File "C:\Users\Thierry\AppData\Roaming\Python\Python314\site-packages\ezdxf\lldxf\tagger.py", line 6, in <module>
+    from .types import (
+    ...<12 lines>...
+    )
+  File "C:\Users\Thierry\AppData\Roaming\Python\Python314\site-packages\ezdxf\lldxf\types.py", line 27, in <module>
+    from ezdxf.math import Vec3
+  File "C:\Users\Thierry\AppData\Roaming\Python\Python314\site-packages\ezdxf\math\__init__.py", line 8, in <module>
+    from ._ctypes import *
+  File "C:\Users\Thierry\AppData\Roaming\Python\Python314\site-packages\ezdxf\math\_ctypes.py", line 79, in <module>
+    from ._matrix44 import Matrix44
+  File "C:\Users\Thierry\AppData\Roaming\Python\Python314\site-packages\ezdxf\math\_matrix44.py", line 10, in <module>
+    import numpy as np
+  File "C:\Users\Thierry\AppData\Roaming\Python\Python314\site-packages\numpy\__init__.py", line 156, in <module>
+    from . import polynomial
+  File "C:\Users\Thierry\AppData\Roaming\Python\Python314\site-packages\numpy\polynomial\__init__.py", line 117, in <module>
+    from .chebyshev import Chebyshev
+  File "<frozen importlib._bootstrap>", line 1371, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1342, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 938, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 755, in exec_module
+  File "<frozen importlib._bootstrap_external>", line 851, in get_code
+  File "<frozen importlib._bootstrap_external>", line 950, in get_data
+MemoryError
+Traceback (most recent call last):
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\scripts\consolidar_dxf_lajes.py", line 23, in <module>
+    import ezdxf
+  File "C:\Users\Thierry\AppData\Roaming\Python\Python314\site-packages\ezdxf\__init__.py", line 35, in <module>
+    from ezdxf.lldxf.validator import is_dxf_file, is_dxf_stream
+  File "C:\Users\Thierry\AppData\Roaming\Python\Python314\site-packages\ezdxf\lldxf\validator.py", line 5, in <module>
+    import logging
+  File "C:\Python314\Lib\logging\__init__.py", line 26, in <module>
+    import sys, os, time, io, re, traceback, warnings, weakref, collections.abc
+  File "C:\Python314\Lib\traceback.py", line 13, in <module>
+    import _colorize
+  File "C:\Python314\Lib\_colorize.py", line 201, in <module>
+    @dataclass(frozen=True)
+     ~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Python314\Lib\dataclasses.py", line 1432, in wrap
+    return _process_class(cls, init, repr, eq, order, unsafe_hash,
+                          frozen, match_args, kw_only, slots,
+                          weakref_slot)
+  File "C:\Python314\Lib\dataclasses.py", line 1215, in _process_class
+    func_builder.add_fns_to_class(cls)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "C:\Python314\Lib\dataclasses.py", line 506, in add_fns_to_class
+    exec(txt, self.globals, ns)
+    ~~~~^^^^^^^^^^^^^^^^^^^^^^^
+SystemError: error return without exception set
+[INFO] === validar_dxf_coletivo.py | Obra_TREINO_1 | 2 PAV ===
+
+  [PILARES]
+    GT: 35 | Gerado: 34 | Corretos: 24
+    id_match: 68.6% | hallucination: 29.4%
+    SCORE: 69.4% — REPROVADO
+    Missing: ['P1', 'P13', 'P15', 'P2', 'P3', 'P4', 'P5', 'P6', 'P7', 'P8']
+
+  [VIGAS]
+    GT: 31 | Gerado: 26 | Corretos: 0
+    id_match: 0.0% | hallucination: 100.0%
+    SCORE: 0.0% — REPROVADO
+    Missing: ['V51', 'V52', 'V53', 'V54', 'V55', 'V56', 'V57', 'V58', 'V59', 'V60']
+
+  [LAJES]
+    GT: 49 | Gerado: 33 | Corretos: 0
+    id_match: 0.0% | hallucination: 100.0%
+    SCORE: 0.0% — REPROVADO
+    Missing: ['L101', 'L102', 'L112', 'L114', 'L115', 'L118', 'L122', 'L201', 'L202', 'L203']
+
+[RESULTADO GLOBAL]
+  Score global: 27.8%
+  Status: REPROVADO (meta: >=90%)
+
+[INFO] Salvo: D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-6_Execucao_CAD\validation_coletivo.json
+[INFO] Processando 34 pilares \u2192 obras_salvas.json
+[INFO]   P10: 82x73cm grade_1=0
+[INFO]   P11: 73x19cm grade_1=0
+[INFO]   P12: 73x19cm grade_1=0
+[INFO]   P14: 73x19cm grade_1=0
+[INFO]   P16: 73x19cm grade_1=0
+[INFO]   P17: 73x19cm grade_1=0
+[INFO]   P18: 26x19cm grade_1=0
+[INFO]   P19: 97x19cm grade_1=0
+[INFO]   P20: 97x19cm grade_1=0
+[INFO]   P21: 97x19cm grade_1=0
+[INFO]   P22: 97x19cm grade_1=0
+[INFO]   P23: 97x19cm grade_1=0
+[INFO]   P24: 97x19cm grade_1=0
+[INFO]   P25: 82x19cm grade_1=0
+[INFO]   P26: 81x19cm grade_1=0
+[INFO]   P27: 54x27cm grade_1=0
+[INFO]   P28: 97x24cm grade_1=0
+[INFO]   P29: 88x24cm grade_1=0
+[INFO]   P30: 88x24cm grade_1=0
+[INFO]   P31: 88x24cm grade_1=0
+[INFO]   P32: 88x24cm grade_1=0
+[INFO]   P33: 97x19cm grade_1=0
+[INFO]   P34: 82x19cm grade_1=0
+[INFO]   P35: 82x19cm grade_1=0
+[INFO]   P41: 59x48cm grade_1=0
+[INFO]   P43: 72x48cm grade_1=0
+[INFO]   P44: 72x59cm grade_1=0
+[INFO]   P45: 72x19cm grade_1=0
+[INFO]   P46: 72x19cm grade_1=0
+[INFO]   P47: 59x19cm grade_1=0
+[INFO]   P48: 72x19cm grade_1=0
+[INFO]   P49: 100x95cm grade_1=0
+[INFO]   P50: 72x19cm grade_1=0
+[INFO]   P51: 95x65cm grade_1=0
+[INFO] \u2705 obras_salvas.json gerado: 34 pilares \u2192 D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-4_Sincronizacao\obras_salvas.json
+[INFO] \u2705 pavimentos_lista.json gerado \u2192 D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-4_Sincronizacao\pavimentos_lista.json
+
+============================================================
+PIPELINE E2E — Obra_TREINO_1 | 2 PAV
+============================================================
+
+[FASE 1] Descoberta de DXFs
+  [SKIP] dxf_discovery.json ja existe e contem Obra_TREINO_1
+
+[FASE 2] Engenharia Reversa (Ground Truth)
+  [RUN] engenharia_reversa_dxf.py ...
+        -> OK (12.4s)
+
+[FASE 3] Extração Dimensional
+  [RUN] extrair_bh_pilares.py ...
+        -> FALHOU (code 1) (3.8s)
+  [RUN] extrair_vigas_lv.py ...
+        -> OK (2.6s)
+  [RUN] extrair_lajes_lj.py ...
+        -> OK (1.2s)
+  [RUN] extrair_garfos_evg.py ...
+        -> FALHOU (code 1) (0.6s)
+  [RUN] extrair_largura_vigas.py ...
+        -> FALHOU (code 2) (0.0s)
+  [RUN] extrair_assembly_pl.py ...
+        -> FALHOU (code 2) (0.6s)
+  [RUN] integrar_fichas_fase3.py ...
+        -> OK (0.1s)
+
+[FASE 4] Motor Fase 4 (Transformacao Fase-3 -> Fase-4)
+  [CLEAN] Removendo 34 JSONs antigos de JSON_Pilares/
+  [CLEAN] Removendo 52 JSONs antigos de JSON_Vigas_Laterais/
+  [CLEAN] Removendo 26 JSONs antigos de JSON_Vigas_Fundo/
+  [CLEAN] Removendo 33 JSONs antigos de JSON_Lajes/
+  [RUN] motor_fase4.py ...
+        -> OK (0.2s)
+
+[FASE 5] Geração DXF Individual
+  [CLEAN] Removendo 34 DXFs antigos de DXF_Pilares/
+  [CLEAN] Removendo 26 DXFs antigos de DXF_Vigas/
+  [CLEAN] Removendo 33 DXFs antigos de DXF_Lajes/
+  [RUN] gerar_dxf_pilares.py ...
+        -> OK (0.8s)
+  [RUN] gerar_dxf_vigas.py ...
+        -> OK (0.9s)
+  [RUN] gerar_dxf_lajes.py ...
+        -> OK (1.0s)
+
+[FASE 5b] Comparação DXF Individual vs STOG
+  [RUN] comparar_dxf.py ...
+        -> OK (2.6s)
+
+[FASE 6] Extração de Âncoras (coords absolutas)
+  [RUN] extrair_ancoras_dxf.py ...
+        -> FALHOU (code 1) (3.8s)
+
+[FASE 7] Consolidação DXF Coletivo
+  [RUN] consolidar_dxf_pilares.py ...
+        -> FALHOU (code 1) (0.7s)
+  [RUN] consolidar_dxf_vigas.py ...
+        -> FALHOU (code 1) (0.4s)
+  [RUN] consolidar_dxf_lajes.py ...
+        -> FALHOU (code 1) (1.0s)
+
+[FASE 8] Validação DXF Coletivo
+  [RUN] validar_dxf_coletivo.py ...
+        -> OK (0.7s)
+
+[FASE 9] Geração obras_salvas.json (formato robô)
+  [RUN] gerar_obras_salvas.py ...
+        -> OK (0.1s)
+
+============================================================
+PIPELINE CONCLUÍDO — REPROVADO
+  Score coletivo: 27.8%
+  Fases com falha: ['ancoras']
+  Relatório: D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-8_Revisao_Entrega\pipeline_report.json
+============================================================
+
+[INFO] === engenharia_reversa_dxf.py | Obra: Obra_TREINO_1 | Pav: TIPO - 3 AO 12 PAV ===
+[INFO] Diretório: D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-1_Ingestao\Projetos_Finalizados_para_Engenharia_Reversa
+[INFO] Usando caminhos do dxf_discovery.json para pav 'TIPO - 3 AO 12 PAV'
+[INFO] PL DXF: ALIMONTI - PARAISO - TIPO - 3° AO 12° PAV.- PL - R00.dxf
+Traceback (most recent call last):
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\scripts\engenharia_reversa_dxf.py", line 390, in <module>
+    main()
+    ~~~~^^
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\scripts\engenharia_reversa_dxf.py", line 386, in main
+    run(args.obra, args.pavimento)
+    ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\scripts\engenharia_reversa_dxf.py", line 325, in run
+    pe_direito = _extract_pe_direito_from_pl(pl_dxf, ezdxf)
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\scripts\engenharia_reversa_dxf.py", line 121, in _extract_pe_direito_from_pl
+    doc = ezdxf.readfile(str(dxf_path))
+  File "C:\Users\Thierry\AppData\Roaming\Python\Python314\site-packages\ezdxf\filemanagement.py", line 154, in readfile
+    doc = read(fp)
+  File "C:\Users\Thierry\AppData\Roaming\Python\Python314\site-packages\ezdxf\filemanagement.py", line 95, in read
+    return Drawing.read(stream)
+           ~~~~~~~~~~~~^^^^^^^^
+  File "C:\Users\Thierry\AppData\Roaming\Python\Python314\site-packages\ezdxf\document.py", line 350, in read
+    return cls.load(tag_loader)
+           ~~~~~~~~^^^^^^^^^^^^
+  File "C:\Users\Thierry\AppData\Roaming\Python\Python314\site-packages\ezdxf\document.py", line 365, in load
+    doc._load(tag_loader)
+    ~~~~~~~~~^^^^^^^^^^^^
+  File "C:\Users\Thierry\AppData\Roaming\Python\Python314\site-packages\ezdxf\document.py", line 381, in _load
+    self._load_section_dict(sections)
+    ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "C:\Users\Thierry\AppData\Roaming\Python\Python314\site-packages\ezdxf\document.py", line 407, in _load_section_dict
+    loader.load_and_bind_dxf_content(sections, self)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "C:\Users\Thierry\AppData\Roaming\Python\Python314\site-packages\ezdxf\lldxf\loader.py", line 156, in load_and_bind_dxf_content
+    factory.bind(entity, doc)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\Thierry\AppData\Roaming\Python\Python314\site-packages\ezdxf\entities\factory.py", line 89, in bind
+    doc.entitydb.add(entity)
+    ~~~~~~~~~~~~~~~~^^^^^^^^
+  File "C:\Users\Thierry\AppData\Roaming\Python\Python314\site-packages\ezdxf\entitydb.py", line 169, in add
+    self[handle] = entity
+    ~~~~^^^^^^^^
+  File "C:\Users\Thierry\AppData\Roaming\Python\Python314\site-packages\ezdxf\entitydb.py", line 95, in __setitem__
+    self._database[handle] = entity
+    ~~~~~~~~~~~~~~^^^^^^^^
+MemoryError
+[INFO] === extrair_bh_pilares.py | Obra_TREINO_1 | TIPO - 3 AO 12 PAV ===
+[INFO] PL DXF: ALIMONTI - PARAISO - TIPO - 3° AO 12° PAV.- PL - R00.dxf
+[INFO] Max distancia proximity: 300.0 unidades DXF
+[INFO] Lendo DXF (pode demorar para arquivos grandes)...
+Traceback (most recent call last):
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\scripts\extrair_bh_pilares.py", line 580, in <module>
+    main()
+    ~~~~^^
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\scripts\extrair_bh_pilares.py", line 576, in main
+    run(args.obra, args.pavimento, args.max_dist)
+    ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\scripts\extrair_bh_pilares.py", line 364, in run
+    doc = ezdxf.readfile(str(pl_dxf))
+  File "C:\Users\Thierry\AppData\Roaming\Python\Python314\site-packages\ezdxf\filemanagement.py", line 154, in readfile
+    doc = read(fp)
+  File "C:\Users\Thierry\AppData\Roaming\Python\Python314\site-packages\ezdxf\filemanagement.py", line 95, in read
+    return Drawing.read(stream)
+           ~~~~~~~~~~~~^^^^^^^^
+  File "C:\Users\Thierry\AppData\Roaming\Python\Python314\site-packages\ezdxf\document.py", line 350, in read
+    return cls.load(tag_loader)
+           ~~~~~~~~^^^^^^^^^^^^
+  File "C:\Users\Thierry\AppData\Roaming\Python\Python314\site-packages\ezdxf\document.py", line 365, in load
+    doc._load(tag_loader)
+    ~~~~~~~~~^^^^^^^^^^^^
+  File "C:\Users\Thierry\AppData\Roaming\Python\Python314\site-packages\ezdxf\document.py", line 378, in _load
+    sections = loader.load_dxf_structure(tagger)
+  File "C:\Users\Thierry\AppData\Roaming\Python\Python314\site-packages\ezdxf\lldxf\loader.py", line 126, in load_dxf_structure
+    section.append(entity)
+    ~~~~~~~~~~~~~~^^^^^^^^
+MemoryError
+Traceback (most recent call last):
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\scripts\extrair_vigas_lv.py", line 13, in <module>
+    import ezdxf
+  File "C:\Users\Thierry\AppData\Roaming\Python\Python314\site-packages\ezdxf\__init__.py", line 36, in <module>
+    from ezdxf.filemanagement import readzip, new, read, readfile, decode_base64
+  File "C:\Users\Thierry\AppData\Roaming\Python\Python314\site-packages\ezdxf\filemanagement.py", line 10, in <module>
+    from ezdxf.tools.standards import setup_drawing
+  File "C:\Users\Thierry\AppData\Roaming\Python\Python314\site-packages\ezdxf\tools\standards.py", line 8, in <module>
+    from ezdxf.render.arrows import ARROWS
+  File "C:\Users\Thierry\AppData\Roaming\Python\Python314\site-packages\ezdxf\render\__init__.py", line 20, in <module>
+    from .mleader import (
+    ...<9 lines>...
+    )
+  File "C:\Users\Thierry\AppData\Roaming\Python\Python314\site-packages\ezdxf\render\mleader.py", line 35, in <module>
+    from ezdxf.entities import factory
+  File "C:\Users\Thierry\AppData\Roaming\Python\Python314\site-packages\ezdxf\entities\__init__.py", line 31, in <module>
+    from .acad_proxy_entity import ACADProxyEntity
+  File "C:\Users\Thierry\AppData\Roaming\Python\Python314\site-packages\ezdxf\entities\acad_proxy_entity.py", line 7, in <module>
+    from ezdxf.query import EntityQuery
+  File "C:\Users\Thierry\AppData\Roaming\Python\Python314\site-packages\ezdxf\query.py", line 21, in <module>
+    from ezdxf.queryparser import EntityQueryParser
+  File "C:\Users\Thierry\AppData\Roaming\Python\Python314\site-packages\ezdxf\queryparser.py", line 44, in <module>
+    from pyparsing import *
+  File "C:\Users\Thierry\AppData\Roaming\Python\Python314\site-packages\pyparsing\__init__.py", line 147, in <module>
+    from .actions import *
+  File "<frozen importlib._bootstrap>", line 1371, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1342, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 938, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 755, in exec_module
+  File "<frozen importlib._bootstrap_external>", line 851, in get_code
+  File "<frozen importlib._bootstrap_external>", line 950, in get_data
+MemoryError
+Traceback (most recent call last):
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\scripts\extrair_lajes_lj.py", line 494, in <module>
+    main()
+    ~~~~^^
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\scripts\extrair_lajes_lj.py", line 490, in main
+    run(args.obra, args.pavimento)
+    ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\scripts\extrair_lajes_lj.py", line 382, in run
+    ezdxf = _load_ezdxf()
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\scripts\extrair_lajes_lj.py", line 33, in _load_ezdxf
+    import ezdxf
+  File "C:\Users\Thierry\AppData\Roaming\Python\Python314\site-packages\ezdxf\__init__.py", line 35, in <module>
+    from ezdxf.lldxf.validator import is_dxf_file, is_dxf_stream
+  File "C:\Users\Thierry\AppData\Roaming\Python\Python314\site-packages\ezdxf\lldxf\validator.py", line 28, in <module>
+    from .tagger import ascii_tags_loader, binary_tags_loader
+  File "C:\Users\Thierry\AppData\Roaming\Python\Python314\site-packages\ezdxf\lldxf\tagger.py", line 6, in <module>
+    from .types import (
+    ...<12 lines>...
+    )
+  File "C:\Users\Thierry\AppData\Roaming\Python\Python314\site-packages\ezdxf\lldxf\types.py", line 27, in <module>
+    from ezdxf.math import Vec3
+  File "C:\Users\Thierry\AppData\Roaming\Python\Python314\site-packages\ezdxf\math\__init__.py", line 8, in <module>
+    from ._ctypes import *
+  File "C:\Users\Thierry\AppData\Roaming\Python\Python314\site-packages\ezdxf\math\_ctypes.py", line 79, in <module>
+    from ._matrix44 import Matrix44
+  File "C:\Users\Thierry\AppData\Roaming\Python\Python314\site-packages\ezdxf\math\_matrix44.py", line 10, in <module>
+    import numpy as np
+  File "C:\Users\Thierry\AppData\Roaming\Python\Python314\site-packages\numpy\__init__.py", line 130, in <module>
+    from numpy.__config__ import show as show_config
+  File "C:\Users\Thierry\AppData\Roaming\Python\Python314\site-packages\numpy\__config__.py", line 4, in <module>
+    from numpy.core._multiarray_umath import (
+    ...<3 lines>...
+    )
+  File "C:\Users\Thierry\AppData\Roaming\Python\Python314\site-packages\numpy\core\__init__.py", line 92, in <module>
+    from . import einsumfunc
+  File "<frozen importlib._bootstrap>", line 1371, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1342, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 938, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 755, in exec_module
+  File "<frozen importlib._bootstrap_external>", line 851, in get_code
+  File "<frozen importlib._bootstrap_external>", line 950, in get_data
+MemoryError
+Traceback (most recent call last):
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\scripts\extrair_garfos_evg.py", line 19, in <module>
+    import ezdxf
+  File "C:\Users\Thierry\AppData\Roaming\Python\Python314\site-packages\ezdxf\__init__.py", line 33, in <module>
+    from ezdxf.enums import InsertUnits
+  File "C:\Users\Thierry\AppData\Roaming\Python\Python314\site-packages\ezdxf\enums.py", line 4, in <module>
+    from ezdxf.lldxf import const
+  File "<frozen importlib._bootstrap>", line 1371, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1342, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 938, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 755, in exec_module
+  File "<frozen importlib._bootstrap_external>", line 851, in get_code
+  File "<frozen importlib._bootstrap_external>", line 950, in get_data
+MemoryError
+C:\Python314\python.exe: can't open file 'D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\scripts\\extrair_largura_vigas.py': [Errno 2] No such file or directory
+object address  : 000002D16FDBDF00
+object refcount : 3
+object type     : 00007FF94C268860
+object type name: MemoryError
+object repr     : MemoryError()
+lost sys.stderr
+
+============================================================
+PIPELINE E2E — Obra_TREINO_1 | TIPO - 3 AO 12 PAV
+============================================================
+
+[FASE 1] Descoberta de DXFs
+  [SKIP] dxf_discovery.json ja existe e contem Obra_TREINO_1
+
+[FASE 2] Engenharia Reversa (Ground Truth)
+  [RUN] engenharia_reversa_dxf.py ...
+        -> FALHOU (code 1) (4.2s)
+
+[FASE 3] Extração Dimensional
+  [RUN] extrair_bh_pilares.py ...
+        -> FALHOU (code 1) (2.9s)
+  [RUN] extrair_vigas_lv.py ...
+        -> FALHOU (code 1) (0.6s)
+  [RUN] extrair_lajes_lj.py ...
+        -> FALHOU (code 1) (0.5s)
+  [RUN] extrair_garfos_evg.py ...
+        -> FALHOU (code 1) (0.6s)
+  [RUN] extrair_largura_vigas.py ...
+        -> FALHOU (code 2) (0.1s)
+  [RUN] extrair_assembly_pl.py ...
+        -> FALHOU (code 1) (0.6s)
+  [RUN] integrar_fichas_fase3.py ...
+        -> FALHOU (code 3221225773) (0.0s)
+
+[FASE 4] Motor Fase 4 (Transformacao Fase-3 -> Fase-4)
+  [CLEAN] Removendo 34 JSONs antigos de JSON_Pilares/
+  [CLEAN] Removendo 62 JSONs antigos de JSON_Vigas_Laterais/
+  [CLEAN] Removendo 31 JSONs antigos de JSON_Vigas_Fundo/
+  [CLEAN] Removendo 49 JSONs antigos de JSON_Lajes/
+  [RUN] motor_fase4.py ...
+        -> FALHOU (code 3221225773) (0.0s)
+
+[FASE 5] Geração DXF Individual
+  [CLEAN] Removendo 34 DXFs antigos de DXF_Pilares/
+  [CLEAN] Removendo 31 DXFs antigos de DXF_Vigas/
+  [CLEAN] Removendo 49 DXFs antigos de DXF_Lajes/
+  [RUN] gerar_dxf_pilares.py ...
+        -> FALHOU (code 3221225773) (0.0s)
+  [RUN] gerar_dxf_vigas.py ...
+        -> ERRO: [WinError 1455] O arquivo de paginação é muito pequeno para que esta operação seja concluída
+  [RUN] gerar_dxf_lajes.py ...
+        -> FALHOU (code 3221225773) (0.0s)
+
+[FASE 5b] Comparação DXF Individual vs STOG
+  [RUN] comparar_dxf.py ...
+        -> FALHOU (code 3221225773) (0.0s)
+
+[FASE 6] Extração de Âncoras (coords absolutas)
+  [RUN] extrair_ancoras_dxf.py ...
+        -> ERRO: [WinError 1455] O arquivo de paginação é muito pequeno para que esta operação seja concluída
+
+[FASE 7] Consolidação DXF Coletivo
+  [RUN] consolidar_dxf_pilares.py ...
+        -> FALHOU (code 3221225773) (0.0s)
+  [RUN] consolidar_dxf_vigas.py ...
+        -> FALHOU (code 3221225773) (0.0s)
+  [RUN] consolidar_dxf_lajes.py ...
+        -> FALHOU (code 3221225773) (0.0s)
+
+[FASE 8] Validação DXF Coletivo
+  [RUN] validar_dxf_coletivo.py ...
+        -> FALHOU (code 3221225773) (0.0s)
+
+[FASE 9] Geração obras_salvas.json (formato robô)
+  [RUN] gerar_obras_salvas.py ...
+        -> FALHOU (code 3221225794) (0.0s)
+
+============================================================
+PIPELINE CONCLUÍDO — REPROVADO
+  Score coletivo: 27.8%
+  Fases com falha: ['eng_reversa', 'motor_fase4', 'ancoras', 'validacao_coletivo', 'obras_salvas']
+  Relatório: D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-8_Revisao_Entrega\pipeline_report.json
+============================================================
+
+Traceback (most recent call last):
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\scripts\pipeline_e2e.py", line 323, in <module>
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\scripts\pipeline_e2e.py", line 304, in main
+    parser = argparse.ArgumentParser(description='Orquestrador E2E do pipeline CAD-ANALYZER')
+  File "C:\Python314\Lib\argparse.py", line 1914, in __init__
+    self.add_argument(
+  File "C:\Python314\Lib\argparse.py", line 1553, in add_argument
+    formatter = self._get_validation_formatter()
+  File "C:\Python314\Lib\argparse.py", line 2735, in _get_validation_formatter
+    self._cached_formatter = self._get_formatter()
+  File "C:\Python314\Lib\argparse.py", line 2727, in _get_formatter
+    formatter = self.formatter_class(prog=self.prog)
+  File "C:\Python314\Lib\argparse.py", line 174, in __init__
+    import shutil
+  File "<frozen importlib._bootstrap>", line 1371, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1342, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 938, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 755, in exec_module
+  File "<frozen importlib._bootstrap_external>", line 851, in get_code
+  File "<frozen importlib._bootstrap_external>", line 950, in get_data
+object address  : 000002080B63DF00
+object refcount : 3
+object type     : 00007FF94C268860
+object type name: MemoryError
+object repr     : MemoryError()
+lost sys.stderr

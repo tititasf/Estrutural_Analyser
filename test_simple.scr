@@ -1,0 +1,5 @@
+_PLINE 0,0 100,0 100,50 0,50 C
+_CIRCLE 50,25 20
+_ZOOM E
+-SAVEAS DXF  D:\Agente-cad-PYSIDE\test_output.dxf
+_QUIT Y

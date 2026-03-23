@@ -1,0 +1,11 @@
+{
+  "obra": "Obra_TREINO_23",
+  "pavimento": "SANTA CRUZ-TER",
+  "stats": {
+    "pilares": 18,
+    "vigas": 21,
+    "lajes": 16,
+    "errors": 0
+  },
+  "output_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_23\\Fase-4_Sincronizacao"
+}

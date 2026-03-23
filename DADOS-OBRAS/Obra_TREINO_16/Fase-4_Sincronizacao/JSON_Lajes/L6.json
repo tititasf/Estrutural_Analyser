@@ -1,0 +1,37 @@
+{
+  "numero": 6,
+  "nome": "L6",
+  "comprimento": 100.0,
+  "largura": 100.0,
+  "pavimento": "VALDIR NIEMEYER-TP2",
+  "coordenadas": [
+    [
+      193785.3,
+      40140.7
+    ],
+    [
+      192606.3,
+      40140.7
+    ],
+    [
+      192606.3,
+      40100.7
+    ],
+    [
+      193785.3,
+      40100.7
+    ]
+  ],
+  "area_cm2": 10000.0,
+  "linhas_verticais": [
+    {
+      "value": 100.0,
+      "is_union": false
+    }
+  ],
+  "linhas_horizontais": [],
+  "obstaculos": [],
+  "modo_selecionado": 0,
+  "unioes_nos_bordes": false,
+  "observacoes": ""
+}

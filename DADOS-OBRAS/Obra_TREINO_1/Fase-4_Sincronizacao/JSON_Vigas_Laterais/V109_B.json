@@ -1,0 +1,62 @@
+{
+  "number": "109",
+  "name": "V109_B",
+  "floor": "TÉRREO",
+  "side": "B",
+  "total_width": 15.0,
+  "total_height": "38.0",
+  "panels": [
+    {
+      "width": 120.0,
+      "height1": 38.0,
+      "height2": 38.0,
+      "grade_h1": "0",
+      "grade_h2": "0"
+    },
+    {
+      "width": 117.0,
+      "height1": 38.0,
+      "height2": 38.0,
+      "grade_h1": "0",
+      "grade_h2": "0"
+    }
+  ],
+  "holes": [
+    {
+      "active": false,
+      "width": 0.0,
+      "height": 0.0,
+      "position": 0.0
+    },
+    {
+      "active": false,
+      "width": 0.0,
+      "height": 0.0,
+      "position": 0.0
+    },
+    {
+      "active": false,
+      "width": 0.0,
+      "height": 0.0,
+      "position": 0.0
+    },
+    {
+      "active": false,
+      "width": 0.0,
+      "height": 0.0,
+      "position": 0.0
+    }
+  ],
+  "pillar_left": {
+    "active": false,
+    "width": 0.0,
+    "length": 0.0
+  },
+  "pillar_right": {
+    "active": false,
+    "width": 0.0,
+    "length": 0.0
+  },
+  "sarrafo_left_id": 0,
+  "sarrafo_right_id": 0
+}

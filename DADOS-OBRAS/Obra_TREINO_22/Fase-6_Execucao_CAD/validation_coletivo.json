@@ -1,0 +1,51 @@
+{
+  "obra": "Obra_TREINO_22",
+  "pavimento": "2 PAV",
+  "elementos": {
+    "pilares": {
+      "tipo": "pilares",
+      "gt_count": 19,
+      "gerado_count": 19,
+      "correct": 19,
+      "hallucinated": [],
+      "missed": [],
+      "id_match": 1.0,
+      "hallucination_rate": 0.0,
+      "count_match": 1.0,
+      "score": 1.0,
+      "score_percent": 100.0,
+      "aprovado": true
+    },
+    "vigas": {
+      "tipo": "vigas",
+      "gt_count": 41,
+      "gerado_count": 41,
+      "correct": 41,
+      "hallucinated": [],
+      "missed": [],
+      "id_match": 1.0,
+      "hallucination_rate": 0.0,
+      "count_match": 1.0,
+      "score": 1.0,
+      "score_percent": 100.0,
+      "aprovado": true
+    },
+    "lajes": {
+      "tipo": "lajes",
+      "gt_count": 36,
+      "gerado_count": 36,
+      "correct": 36,
+      "hallucinated": [],
+      "missed": [],
+      "id_match": 1.0,
+      "hallucination_rate": 0.0,
+      "count_match": 1.0,
+      "score": 1.0,
+      "score_percent": 100.0,
+      "aprovado": true
+    }
+  },
+  "score_global": 1.0,
+  "score_global_percent": 100.0,
+  "aprovado": true
+}
