@@ -384,33 +384,108 @@ def main():
 
     # ── MODO PLANTA: posiciona lajes em coordenadas absolutas ────────────────
     if args.mode == 'planta':
+        import importlib.util, os as _os
+        _sp_path = _os.path.join(_os.path.dirname(_os.path.abspath(args.obra + '/../scripts/smart_panner.py')),
+                                  'Agente-cad-PYSIDE-Restored-main', 'scripts', 'smart_panner.py')
+        if not _os.path.exists(_sp_path):
+            _sp_path = _os.path.join(_os.path.dirname(__file__), 'smart_panner.py')
+        _spec = importlib.util.spec_from_file_location('smart_panner', _sp_path)
+        _mod = importlib.util.module_from_spec(_spec)
+        _spec.loader.exec_module(_mod)
+        sp_distribute = _mod.distribute_panels
+
         for idx, lj_file in enumerate(lj_files):
             lj_data = json.load(open(lj_file, encoding='utf-8'))
             nome = lj_data.get('nome', lj_file.stem)
             coords = lj_data.get('coordenadas', [])
             comp = float(lj_data.get('comprimento', 0))
             larg = float(lj_data.get('largura', 0))
+            lv = lj_data.get('linhas_verticais', [])
+            lh = lj_data.get('linhas_horizontais', [])
 
-            if len(coords) >= 3 and comp > 100:
-                # Usar coordenadas reais (sem escala — posição absoluta)
+            if comp <= 100:
+                print(f'  [{idx+1:2d}] {nome}: SKIP (sem dims reais)')
+                continue
+
+            # SmartPanner se sem linhas
+            if not lv and not lh:
+                smart = sp_distribute(comp, larg)
+                lv = smart['linhas_verticais']
+                lh = smart['linhas_horizontais']
+
+            # Base position from coords or offset grid
+            if len(coords) >= 3:
+                x0 = min(c[0] for c in coords)
+                y0 = min(c[1] for c in coords)
                 pts = [(c[0], c[1]) for c in coords]
-                msp.add_lwpolyline(pts, close=True,
-                                   dxfattribs={'layer': 'Painéis', 'lineweight': 35})
-                msp.add_lwpolyline(pts, close=True,
-                                   dxfattribs={'layer': '3', 'lineweight': 18})
-                try:
-                    h = msp.add_hatch(dxfattribs={'layer': 'Hachura'})
-                    h.set_solid_fill()
-                    h.paths.add_polyline_path(pts, is_closed=True)
-                except Exception:
-                    pass
-                # Label no centróide
-                cx = sum(p[0] for p in pts) / len(pts)
-                cy = sum(p[1] for p in pts) / len(pts)
-                label(msp, cx, cy, nome, height=12, layer='4', anchor=5)
-                print(f'  [{idx+1:2d}] {nome}: {comp:.0f}×{larg:.0f}cm  pos=({cx:.0f},{cy:.0f})')
             else:
-                print(f'  [{idx+1:2d}] {nome}: SKIP (sem coordenadas reais)')
+                x0 = (idx % 4) * (comp + 100)
+                y0 = (idx // 4) * (larg + 100)
+                pts = [(x0, y0), (x0+comp, y0), (x0+comp, y0+larg), (x0, y0+larg)]
+
+            # Contorno laje (layer 3 verde)
+            msp.add_lwpolyline(pts, close=True,
+                               dxfattribs={'layer': '3', 'lineweight': 25})
+            # Hachura SOLID fill
+            try:
+                hh = msp.add_hatch(dxfattribs={'layer': 'Hachura'})
+                hh.set_solid_fill()
+                hh.paths.add_polyline_path(pts, is_closed=True)
+            except Exception:
+                pass
+
+            # Label L{n} centrado (layer 4 ciano)
+            cx = x0 + comp / 2
+            cy = y0 + larg / 2
+            label(msp, cx, cy, nome, height=10, layer='4', anchor=5)
+
+            # ── Divisões de painéis (linhas verticais/horizontais no layer Painéis) ──
+            for lv_item in lv:
+                xv = float(lv_item.get('value', 0))
+                is_union = lv_item.get('is_union', False)
+                # Linha de divisão
+                msp.add_line((x0 + xv, y0), (x0 + xv, y0 + larg),
+                             dxfattribs={'layer': 'Painéis', 'lineweight': 18})
+                # Se sarrafo de pressão: linha dupla (~20cm gap)
+                if is_union:
+                    msp.add_line((x0 + xv + 20, y0), (x0 + xv + 20, y0 + larg),
+                                 dxfattribs={'layer': 'SARRAFO DE PRESSAO', 'lineweight': 13})
+
+            for lh_item in lh:
+                yh = float(lh_item.get('value', 0))
+                is_union = lh_item.get('is_union', False)
+                msp.add_line((x0, y0 + yh), (x0 + comp, y0 + yh),
+                             dxfattribs={'layer': 'Painéis', 'lineweight': 18})
+                if is_union:
+                    msp.add_line((x0, y0 + yh + 20), (x0 + comp, y0 + yh + 20),
+                                 dxfattribs={'layer': 'SARRAFO DE PRESSAO', 'lineweight': 13})
+
+            # ── Cotas de painéis (DIMENSION entre divisões) ──
+            v_positions = sorted(float(v.get('value', 0)) for v in lv)
+            x_edges = [0.0] + v_positions + [comp]
+            for i in range(len(x_edges) - 1):
+                pw = x_edges[i+1] - x_edges[i]
+                if pw > 1:
+                    try:
+                        d = msp.add_linear_dim(
+                            base=(x0 + x_edges[i], y0 - 30),
+                            p1=(x0 + x_edges[i], y0),
+                            p2=(x0 + x_edges[i+1], y0),
+                            angle=0, dxfattribs={'layer': 'Painéis'})
+                        d.render()
+                    except Exception:
+                        pass
+
+            # AUX00 MTEXT por segmento
+            for i in range(len(x_edges) - 1):
+                pw = x_edges[i+1] - x_edges[i]
+                if pw > 1:
+                    msp.add_mtext(
+                        f'{nome}\\P{pw:.0f}X{larg:.0f}',
+                        dxfattribs={'layer': 'AUX00', 'insert': (x0 + (x_edges[i]+x_edges[i+1])/2, cy),
+                                    'char_height': 6, 'attachment_point': 5})
+
+            print(f'  [{idx+1:2d}] {nome}: {comp:.0f}×{larg:.0f}cm  pos=({x0:.0f},{y0:.0f})  panels={len(x_edges)-1}')
 
         out_dxf = out_dir / 'LJ_stog_planta.dxf'
         doc.saveas(str(out_dxf))
