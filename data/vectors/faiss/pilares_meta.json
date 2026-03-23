@@ -1,0 +1,5385 @@
+[
+  {
+    "text": "Pilar P11, Obra: Obra_TREINO_1, Pavimento: 1_PAV, b=46.0cm h=56.0cm altura=280.0cm, confidence=0.9, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P11",
+    "obra": "Obra_TREINO_1",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 46.0,
+      "h": 56.0,
+      "altura": 280.0,
+      "confidence": 0.9,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 0
+  },
+  {
+    "text": "Pilar P12, Obra: Obra_TREINO_1, Pavimento: 1_PAV, b=19.0cm h=64.0cm altura=280.0cm, confidence=0.9, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P12",
+    "obra": "Obra_TREINO_1",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 19.0,
+      "h": 64.0,
+      "altura": 280.0,
+      "confidence": 0.9,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 1
+  },
+  {
+    "text": "Pilar P13, Obra: Obra_TREINO_1, Pavimento: 1_PAV, b=24.0cm h=64.0cm altura=280.0cm, confidence=0.9, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P13",
+    "obra": "Obra_TREINO_1",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 24.0,
+      "h": 64.0,
+      "altura": 280.0,
+      "confidence": 0.9,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 2
+  },
+  {
+    "text": "Pilar P15, Obra: Obra_TREINO_1, Pavimento: 1_PAV, b=25.5cm h=34.0cm altura=280.0cm, confidence=0.8, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P15",
+    "obra": "Obra_TREINO_1",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 25.5,
+      "h": 34.0,
+      "altura": 280.0,
+      "confidence": 0.8,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 3
+  },
+  {
+    "text": "Pilar P16, Obra: Obra_TREINO_1, Pavimento: 1_PAV, b=16.0cm h=24.0cm altura=280.0cm, confidence=0.4, source=engenharia-reversa-ezdxf, bh_source=proximity-fallback, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P16",
+    "obra": "Obra_TREINO_1",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 16.0,
+      "h": 24.0,
+      "altura": 280.0,
+      "confidence": 0.4,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "proximity-fallback"
+    },
+    "faiss_id": 4
+  },
+  {
+    "text": "Pilar P17, Obra: Obra_TREINO_1, Pavimento: 1_PAV, b=19.0cm h=24.0cm altura=280.0cm, confidence=0.4, source=engenharia-reversa-ezdxf, bh_source=proximity-fallback, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P17",
+    "obra": "Obra_TREINO_1",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 19.0,
+      "h": 24.0,
+      "altura": 280.0,
+      "confidence": 0.4,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "proximity-fallback"
+    },
+    "faiss_id": 5
+  },
+  {
+    "text": "Pilar P18, Obra: Obra_TREINO_1, Pavimento: 1_PAV, b=34.0cm h=54.0cm altura=280.0cm, confidence=0.8, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P18",
+    "obra": "Obra_TREINO_1",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 34.0,
+      "h": 54.0,
+      "altura": 280.0,
+      "confidence": 0.8,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 6
+  },
+  {
+    "text": "Pilar P19, Obra: Obra_TREINO_1, Pavimento: 1_PAV, b=27.6cm h=54.0cm altura=280.0cm, confidence=0.9, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P19",
+    "obra": "Obra_TREINO_1",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 27.6,
+      "h": 54.0,
+      "altura": 280.0,
+      "confidence": 0.9,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 7
+  },
+  {
+    "text": "Pilar P20, Obra: Obra_TREINO_1, Pavimento: 1_PAV, b=16.0cm h=54.0cm altura=280.0cm, confidence=0.4, source=engenharia-reversa-ezdxf, bh_source=proximity-fallback, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P20",
+    "obra": "Obra_TREINO_1",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 16.0,
+      "h": 54.0,
+      "altura": 280.0,
+      "confidence": 0.4,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "proximity-fallback"
+    },
+    "faiss_id": 8
+  },
+  {
+    "text": "Pilar P21, Obra: Obra_TREINO_1, Pavimento: 1_PAV, b=16.0cm h=19.0cm altura=280.0cm, confidence=0.8, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P21",
+    "obra": "Obra_TREINO_1",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 16.0,
+      "h": 19.0,
+      "altura": 280.0,
+      "confidence": 0.8,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 9
+  },
+  {
+    "text": "Pilar P23, Obra: Obra_TREINO_1, Pavimento: 1_PAV, b=17.0cm h=64.0cm altura=280.0cm, confidence=0.8, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P23",
+    "obra": "Obra_TREINO_1",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 17.0,
+      "h": 64.0,
+      "altura": 280.0,
+      "confidence": 0.8,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 10
+  },
+  {
+    "text": "Pilar P24, Obra: Obra_TREINO_1, Pavimento: 1_PAV, b=16.0cm h=19.0cm altura=280.0cm, confidence=0.9, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[A B D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P24",
+    "obra": "Obra_TREINO_1",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 16.0,
+      "h": 19.0,
+      "altura": 280.0,
+      "confidence": 0.9,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 11
+  },
+  {
+    "text": "Pilar P26, Obra: Obra_TREINO_1, Pavimento: 1_PAV, b=46.0cm h=56.0cm altura=280.0cm, confidence=0.8, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[A B C D E F], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P26",
+    "obra": "Obra_TREINO_1",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 46.0,
+      "h": 56.0,
+      "altura": 280.0,
+      "confidence": 0.8,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D",
+        "E",
+        "F"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 12
+  },
+  {
+    "text": "Pilar P27, Obra: Obra_TREINO_1, Pavimento: 1_PAV, b=16.0cm h=50.0cm altura=280.0cm, confidence=0.9, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[A B C D E F], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P27",
+    "obra": "Obra_TREINO_1",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 16.0,
+      "h": 50.0,
+      "altura": 280.0,
+      "confidence": 0.9,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D",
+        "E",
+        "F"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 13
+  },
+  {
+    "text": "Pilar P28, Obra: Obra_TREINO_1, Pavimento: 1_PAV, b=48.0cm h=65.0cm altura=280.0cm, confidence=0.9, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[A B C], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P28",
+    "obra": "Obra_TREINO_1",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 48.0,
+      "h": 65.0,
+      "altura": 280.0,
+      "confidence": 0.9,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 14
+  },
+  {
+    "text": "Pilar P29, Obra: Obra_TREINO_1, Pavimento: 1_PAV, b=19.0cm h=64.0cm altura=280.0cm, confidence=0.9, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[A B C F], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P29",
+    "obra": "Obra_TREINO_1",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 19.0,
+      "h": 64.0,
+      "altura": 280.0,
+      "confidence": 0.9,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "F"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 15
+  },
+  {
+    "text": "Pilar P30, Obra: Obra_TREINO_1, Pavimento: 1_PAV, b=?cm h=?cm altura=280.0cm, confidence=0.3, source=engenharia-reversa-ezdxf, bh_source=, faces=[B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P30",
+    "obra": "Obra_TREINO_1",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": null,
+      "h": null,
+      "altura": 280.0,
+      "confidence": 0.3,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente"
+    },
+    "faiss_id": 16
+  },
+  {
+    "text": "Pilar P31, Obra: Obra_TREINO_1, Pavimento: 1_PAV, b=18.5cm h=50.0cm altura=280.0cm, confidence=0.9, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P31",
+    "obra": "Obra_TREINO_1",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 18.5,
+      "h": 50.0,
+      "altura": 280.0,
+      "confidence": 0.9,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 17
+  },
+  {
+    "text": "Pilar P32, Obra: Obra_TREINO_1, Pavimento: 1_PAV, b=18.5cm h=92.0cm altura=280.0cm, confidence=0.9, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P32",
+    "obra": "Obra_TREINO_1",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 18.5,
+      "h": 92.0,
+      "altura": 280.0,
+      "confidence": 0.9,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 18
+  },
+  {
+    "text": "Pilar P101, Obra: Obra_TREINO_1, Pavimento: 1_PAV, b=24.0cm h=65.0cm altura=280.0cm, confidence=0.8, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P101",
+    "obra": "Obra_TREINO_1",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 24.0,
+      "h": 65.0,
+      "altura": 280.0,
+      "confidence": 0.8,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 19
+  },
+  {
+    "text": "Pilar P102, Obra: Obra_TREINO_1, Pavimento: 1_PAV, b=24.0cm h=82.0cm altura=280.0cm, confidence=0.8, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P102",
+    "obra": "Obra_TREINO_1",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 24.0,
+      "h": 82.0,
+      "altura": 280.0,
+      "confidence": 0.8,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 20
+  },
+  {
+    "text": "Pilar P103, Obra: Obra_TREINO_1, Pavimento: 1_PAV, b=24.0cm h=56.0cm altura=280.0cm, confidence=0.8, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P103",
+    "obra": "Obra_TREINO_1",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 24.0,
+      "h": 56.0,
+      "altura": 280.0,
+      "confidence": 0.8,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 21
+  },
+  {
+    "text": "Pilar _meta, Obra: Obra_TREINO_1, Pavimento: 1_PAV, b=?cm h=?cm altura=?cm, confidence=?, source=, bh_source=, faces=[], nota=",
+    "tipo": "pilar",
+    "id": "_meta",
+    "obra": "Obra_TREINO_1",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "total": 22,
+      "obra": "engenharia-reversa",
+      "pavimento": "TÉRREO",
+      "pe_direito_cm": null,
+      "extraido_em": "2026-03-09",
+      "confidence_nota": "IDs=ALTA | altura=MEDIA | B/H=BAIXA(requer revisao)",
+      "bh_extraidos": 21,
+      "bh_atualizado_em": "2026-03-09"
+    },
+    "faiss_id": 22
+  },
+  {
+    "text": "Pilar P23, Obra: Obra_TREINO_10, Pavimento: 1_PAV, b=40.0cm h=92.0cm altura=652.0cm, confidence=0.9, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P23",
+    "obra": "Obra_TREINO_10",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 40.0,
+      "h": 92.0,
+      "altura": 652.0,
+      "confidence": 0.9,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 111
+  },
+  {
+    "text": "Pilar P24, Obra: Obra_TREINO_10, Pavimento: 1_PAV, b=40.0cm h=92.0cm altura=652.0cm, confidence=0.9, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P24",
+    "obra": "Obra_TREINO_10",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 40.0,
+      "h": 92.0,
+      "altura": 652.0,
+      "confidence": 0.9,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 112
+  },
+  {
+    "text": "Pilar P25, Obra: Obra_TREINO_10, Pavimento: 1_PAV, b=19.0cm h=64.0cm altura=652.0cm, confidence=0.8, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[A B C D E F], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P25",
+    "obra": "Obra_TREINO_10",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 19.0,
+      "h": 64.0,
+      "altura": 652.0,
+      "confidence": 0.8,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D",
+        "E",
+        "F"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 113
+  },
+  {
+    "text": "Pilar P26, Obra: Obra_TREINO_10, Pavimento: 1_PAV, b=19.0cm h=64.0cm altura=652.0cm, confidence=0.8, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[A B C D E F], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P26",
+    "obra": "Obra_TREINO_10",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 19.0,
+      "h": 64.0,
+      "altura": 652.0,
+      "confidence": 0.8,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D",
+        "E",
+        "F"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 114
+  },
+  {
+    "text": "Pilar P27, Obra: Obra_TREINO_10, Pavimento: 1_PAV, b=40.0cm h=92.0cm altura=652.0cm, confidence=0.9, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P27",
+    "obra": "Obra_TREINO_10",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 40.0,
+      "h": 92.0,
+      "altura": 652.0,
+      "confidence": 0.9,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 115
+  },
+  {
+    "text": "Pilar P28, Obra: Obra_TREINO_10, Pavimento: 1_PAV, b=40.0cm h=92.0cm altura=652.0cm, confidence=0.9, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P28",
+    "obra": "Obra_TREINO_10",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 40.0,
+      "h": 92.0,
+      "altura": 652.0,
+      "confidence": 0.9,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 116
+  },
+  {
+    "text": "Pilar P44, Obra: Obra_TREINO_10, Pavimento: 1_PAV, b=40.0cm h=71.0cm altura=652.0cm, confidence=0.9, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P44",
+    "obra": "Obra_TREINO_10",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 40.0,
+      "h": 71.0,
+      "altura": 652.0,
+      "confidence": 0.9,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 117
+  },
+  {
+    "text": "Pilar P45, Obra: Obra_TREINO_10, Pavimento: 1_PAV, b=27.0cm h=36.0cm altura=652.0cm, confidence=0.8, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P45",
+    "obra": "Obra_TREINO_10",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 27.0,
+      "h": 36.0,
+      "altura": 652.0,
+      "confidence": 0.8,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 118
+  },
+  {
+    "text": "Pilar P46, Obra: Obra_TREINO_10, Pavimento: 1_PAV, b=40.0cm h=53.0cm altura=652.0cm, confidence=0.9, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P46",
+    "obra": "Obra_TREINO_10",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 40.0,
+      "h": 53.0,
+      "altura": 652.0,
+      "confidence": 0.9,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 119
+  },
+  {
+    "text": "Pilar P47, Obra: Obra_TREINO_10, Pavimento: 1_PAV, b=40.0cm h=53.0cm altura=652.0cm, confidence=0.9, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P47",
+    "obra": "Obra_TREINO_10",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 40.0,
+      "h": 53.0,
+      "altura": 652.0,
+      "confidence": 0.9,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 120
+  },
+  {
+    "text": "Pilar P48, Obra: Obra_TREINO_10, Pavimento: 1_PAV, b=40.0cm h=92.0cm altura=652.0cm, confidence=0.9, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[A B C], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P48",
+    "obra": "Obra_TREINO_10",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 40.0,
+      "h": 92.0,
+      "altura": 652.0,
+      "confidence": 0.9,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 121
+  },
+  {
+    "text": "Pilar P61, Obra: Obra_TREINO_10, Pavimento: 1_PAV, b=62.0cm h=92.0cm altura=652.0cm, confidence=0.9, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P61",
+    "obra": "Obra_TREINO_10",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 62.0,
+      "h": 92.0,
+      "altura": 652.0,
+      "confidence": 0.9,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 122
+  },
+  {
+    "text": "Pilar P62, Obra: Obra_TREINO_10, Pavimento: 1_PAV, b=40.0cm h=42.0cm altura=652.0cm, confidence=0.9, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P62",
+    "obra": "Obra_TREINO_10",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 40.0,
+      "h": 42.0,
+      "altura": 652.0,
+      "confidence": 0.9,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 123
+  },
+  {
+    "text": "Pilar P63, Obra: Obra_TREINO_10, Pavimento: 1_PAV, b=40.0cm h=92.0cm altura=652.0cm, confidence=0.9, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P63",
+    "obra": "Obra_TREINO_10",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 40.0,
+      "h": 92.0,
+      "altura": 652.0,
+      "confidence": 0.9,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 124
+  },
+  {
+    "text": "Pilar P64, Obra: Obra_TREINO_10, Pavimento: 1_PAV, b=40.0cm h=92.0cm altura=652.0cm, confidence=0.9, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P64",
+    "obra": "Obra_TREINO_10",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 40.0,
+      "h": 92.0,
+      "altura": 652.0,
+      "confidence": 0.9,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 125
+  },
+  {
+    "text": "Pilar P65, Obra: Obra_TREINO_10, Pavimento: 1_PAV, b=40.0cm h=92.0cm altura=652.0cm, confidence=0.9, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P65",
+    "obra": "Obra_TREINO_10",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 40.0,
+      "h": 92.0,
+      "altura": 652.0,
+      "confidence": 0.9,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 126
+  },
+  {
+    "text": "Pilar P66, Obra: Obra_TREINO_10, Pavimento: 1_PAV, b=40.0cm h=82.0cm altura=652.0cm, confidence=0.9, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P66",
+    "obra": "Obra_TREINO_10",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 40.0,
+      "h": 82.0,
+      "altura": 652.0,
+      "confidence": 0.9,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 127
+  },
+  {
+    "text": "Pilar _meta, Obra: Obra_TREINO_10, Pavimento: 1_PAV, b=?cm h=?cm altura=?cm, confidence=?, source=, bh_source=, faces=[], nota=",
+    "tipo": "pilar",
+    "id": "_meta",
+    "obra": "Obra_TREINO_10",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "total": 17,
+      "obra": "engenharia-reversa",
+      "pavimento": "2SS - TRECHO 1",
+      "pe_direito_cm": 652.0,
+      "extraido_em": "2026-03-09",
+      "confidence_nota": "IDs=ALTA | altura=MEDIA | B/H=BAIXA(requer revisao)",
+      "bh_extraidos": 17,
+      "bh_atualizado_em": "2026-03-09"
+    },
+    "faiss_id": 128
+  },
+  {
+    "text": "Pilar P1, Obra: Obra_TREINO_11, Pavimento: 1_PAV, b=19.0cm h=38.0cm altura=652.0cm, confidence=0.9, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P1",
+    "obra": "Obra_TREINO_11",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 19.0,
+      "h": 38.0,
+      "altura": 652.0,
+      "confidence": 0.9,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 151
+  },
+  {
+    "text": "Pilar P2, Obra: Obra_TREINO_11, Pavimento: 1_PAV, b=38.0cm h=91.0cm altura=652.0cm, confidence=0.9, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P2",
+    "obra": "Obra_TREINO_11",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 38.0,
+      "h": 91.0,
+      "altura": 652.0,
+      "confidence": 0.9,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 152
+  },
+  {
+    "text": "Pilar P3, Obra: Obra_TREINO_11, Pavimento: 1_PAV, b=45.0cm h=89.5cm altura=652.0cm, confidence=0.9, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P3",
+    "obra": "Obra_TREINO_11",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 45.0,
+      "h": 89.5,
+      "altura": 652.0,
+      "confidence": 0.9,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 153
+  },
+  {
+    "text": "Pilar P4, Obra: Obra_TREINO_11, Pavimento: 1_PAV, b=49.0cm h=76.0cm altura=652.0cm, confidence=0.9, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P4",
+    "obra": "Obra_TREINO_11",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 49.0,
+      "h": 76.0,
+      "altura": 652.0,
+      "confidence": 0.9,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 154
+  },
+  {
+    "text": "Pilar P5, Obra: Obra_TREINO_11, Pavimento: 1_PAV, b=49.0cm h=76.0cm altura=652.0cm, confidence=0.9, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P5",
+    "obra": "Obra_TREINO_11",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 49.0,
+      "h": 76.0,
+      "altura": 652.0,
+      "confidence": 0.9,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 155
+  },
+  {
+    "text": "Pilar P6, Obra: Obra_TREINO_11, Pavimento: 1_PAV, b=49.0cm h=76.0cm altura=652.0cm, confidence=0.9, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P6",
+    "obra": "Obra_TREINO_11",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 49.0,
+      "h": 76.0,
+      "altura": 652.0,
+      "confidence": 0.9,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 156
+  },
+  {
+    "text": "Pilar P7, Obra: Obra_TREINO_11, Pavimento: 1_PAV, b=34.0cm h=76.0cm altura=652.0cm, confidence=0.9, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P7",
+    "obra": "Obra_TREINO_11",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 34.0,
+      "h": 76.0,
+      "altura": 652.0,
+      "confidence": 0.9,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 157
+  },
+  {
+    "text": "Pilar P8, Obra: Obra_TREINO_11, Pavimento: 1_PAV, b=38.0cm h=91.0cm altura=652.0cm, confidence=0.9, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P8",
+    "obra": "Obra_TREINO_11",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 38.0,
+      "h": 91.0,
+      "altura": 652.0,
+      "confidence": 0.9,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 158
+  },
+  {
+    "text": "Pilar P9, Obra: Obra_TREINO_11, Pavimento: 1_PAV, b=19.0cm h=91.0cm altura=652.0cm, confidence=0.9, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P9",
+    "obra": "Obra_TREINO_11",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 19.0,
+      "h": 91.0,
+      "altura": 652.0,
+      "confidence": 0.9,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 159
+  },
+  {
+    "text": "Pilar P10, Obra: Obra_TREINO_11, Pavimento: 1_PAV, b=19.0cm h=83.0cm altura=652.0cm, confidence=0.9, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P10",
+    "obra": "Obra_TREINO_11",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 19.0,
+      "h": 83.0,
+      "altura": 652.0,
+      "confidence": 0.9,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 160
+  },
+  {
+    "text": "Pilar P11, Obra: Obra_TREINO_11, Pavimento: 1_PAV, b=19.0cm h=61.0cm altura=652.0cm, confidence=0.9, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P11",
+    "obra": "Obra_TREINO_11",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 19.0,
+      "h": 61.0,
+      "altura": 652.0,
+      "confidence": 0.9,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 161
+  },
+  {
+    "text": "Pilar P12, Obra: Obra_TREINO_11, Pavimento: 1_PAV, b=19.0cm h=60.0cm altura=652.0cm, confidence=0.9, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P12",
+    "obra": "Obra_TREINO_11",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 19.0,
+      "h": 60.0,
+      "altura": 652.0,
+      "confidence": 0.9,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 162
+  },
+  {
+    "text": "Pilar P13, Obra: Obra_TREINO_11, Pavimento: 1_PAV, b=19.0cm h=70.0cm altura=652.0cm, confidence=0.9, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P13",
+    "obra": "Obra_TREINO_11",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 19.0,
+      "h": 70.0,
+      "altura": 652.0,
+      "confidence": 0.9,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 163
+  },
+  {
+    "text": "Pilar P14, Obra: Obra_TREINO_11, Pavimento: 1_PAV, b=38.0cm h=91.0cm altura=652.0cm, confidence=0.9, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P14",
+    "obra": "Obra_TREINO_11",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 38.0,
+      "h": 91.0,
+      "altura": 652.0,
+      "confidence": 0.9,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 164
+  },
+  {
+    "text": "Pilar P15, Obra: Obra_TREINO_11, Pavimento: 1_PAV, b=19.0cm h=44.0cm altura=652.0cm, confidence=0.9, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P15",
+    "obra": "Obra_TREINO_11",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 19.0,
+      "h": 44.0,
+      "altura": 652.0,
+      "confidence": 0.9,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 165
+  },
+  {
+    "text": "Pilar P16, Obra: Obra_TREINO_11, Pavimento: 1_PAV, b=17.0cm h=35.0cm altura=652.0cm, confidence=0.9, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P16",
+    "obra": "Obra_TREINO_11",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 17.0,
+      "h": 35.0,
+      "altura": 652.0,
+      "confidence": 0.9,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 166
+  },
+  {
+    "text": "Pilar P17, Obra: Obra_TREINO_11, Pavimento: 1_PAV, b=19.0cm h=97.0cm altura=652.0cm, confidence=0.9, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P17",
+    "obra": "Obra_TREINO_11",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 19.0,
+      "h": 97.0,
+      "altura": 652.0,
+      "confidence": 0.9,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 167
+  },
+  {
+    "text": "Pilar P18, Obra: Obra_TREINO_11, Pavimento: 1_PAV, b=19.0cm h=25.0cm altura=652.0cm, confidence=0.9, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P18",
+    "obra": "Obra_TREINO_11",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 19.0,
+      "h": 25.0,
+      "altura": 652.0,
+      "confidence": 0.9,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 168
+  },
+  {
+    "text": "Pilar P19, Obra: Obra_TREINO_11, Pavimento: 1_PAV, b=38.0cm h=81.0cm altura=652.0cm, confidence=0.9, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P19",
+    "obra": "Obra_TREINO_11",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 38.0,
+      "h": 81.0,
+      "altura": 652.0,
+      "confidence": 0.9,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 169
+  },
+  {
+    "text": "Pilar P20, Obra: Obra_TREINO_11, Pavimento: 1_PAV, b=38.0cm h=91.0cm altura=652.0cm, confidence=0.9, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P20",
+    "obra": "Obra_TREINO_11",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 38.0,
+      "h": 91.0,
+      "altura": 652.0,
+      "confidence": 0.9,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 170
+  },
+  {
+    "text": "Pilar P21, Obra: Obra_TREINO_11, Pavimento: 1_PAV, b=41.5cm h=91.0cm altura=652.0cm, confidence=0.9, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P21",
+    "obra": "Obra_TREINO_11",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 41.5,
+      "h": 91.0,
+      "altura": 652.0,
+      "confidence": 0.9,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 171
+  },
+  {
+    "text": "Pilar P22, Obra: Obra_TREINO_11, Pavimento: 1_PAV, b=34.0cm h=76.0cm altura=652.0cm, confidence=0.9, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P22",
+    "obra": "Obra_TREINO_11",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 34.0,
+      "h": 76.0,
+      "altura": 652.0,
+      "confidence": 0.9,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 172
+  },
+  {
+    "text": "Pilar P23, Obra: Obra_TREINO_11, Pavimento: 1_PAV, b=49.0cm h=76.0cm altura=652.0cm, confidence=0.9, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P23",
+    "obra": "Obra_TREINO_11",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 49.0,
+      "h": 76.0,
+      "altura": 652.0,
+      "confidence": 0.9,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 173
+  },
+  {
+    "text": "Pilar P24, Obra: Obra_TREINO_11, Pavimento: 1_PAV, b=30.0cm h=49.0cm altura=652.0cm, confidence=0.9, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P24",
+    "obra": "Obra_TREINO_11",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 30.0,
+      "h": 49.0,
+      "altura": 652.0,
+      "confidence": 0.9,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 174
+  },
+  {
+    "text": "Pilar P25, Obra: Obra_TREINO_11, Pavimento: 1_PAV, b=30.0cm h=76.0cm altura=652.0cm, confidence=0.9, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P25",
+    "obra": "Obra_TREINO_11",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 30.0,
+      "h": 76.0,
+      "altura": 652.0,
+      "confidence": 0.9,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 175
+  },
+  {
+    "text": "Pilar P26, Obra: Obra_TREINO_11, Pavimento: 1_PAV, b=34.0cm h=76.0cm altura=652.0cm, confidence=0.9, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P26",
+    "obra": "Obra_TREINO_11",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 34.0,
+      "h": 76.0,
+      "altura": 652.0,
+      "confidence": 0.9,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 176
+  },
+  {
+    "text": "Pilar _meta, Obra: Obra_TREINO_11, Pavimento: 1_PAV, b=?cm h=?cm altura=?cm, confidence=?, source=, bh_source=, faces=[], nota=",
+    "tipo": "pilar",
+    "id": "_meta",
+    "obra": "Obra_TREINO_11",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "total": 26,
+      "obra": "engenharia-reversa",
+      "pavimento": "GWT-TIP",
+      "pe_direito_cm": 652.0,
+      "extraido_em": "2026-03-09",
+      "confidence_nota": "IDs=ALTA | altura=MEDIA | B/H=BAIXA(requer revisao)",
+      "bh_extraidos": 26,
+      "bh_atualizado_em": "2026-03-09"
+    },
+    "faiss_id": 177
+  },
+  {
+    "text": "Pilar P2, Obra: Obra_TREINO_13, Pavimento: 1_PAV, b=41.0cm h=64.0cm altura=652.0cm, confidence=0.9, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P2",
+    "obra": "Obra_TREINO_13",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 41.0,
+      "h": 64.0,
+      "altura": 652.0,
+      "confidence": 0.9,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 220
+  },
+  {
+    "text": "Pilar P3, Obra: Obra_TREINO_13, Pavimento: 1_PAV, b=45.0cm h=64.0cm altura=652.0cm, confidence=0.9, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P3",
+    "obra": "Obra_TREINO_13",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 45.0,
+      "h": 64.0,
+      "altura": 652.0,
+      "confidence": 0.9,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 221
+  },
+  {
+    "text": "Pilar P4, Obra: Obra_TREINO_13, Pavimento: 1_PAV, b=18.0cm h=70.0cm altura=652.0cm, confidence=0.9, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P4",
+    "obra": "Obra_TREINO_13",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 18.0,
+      "h": 70.0,
+      "altura": 652.0,
+      "confidence": 0.9,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 222
+  },
+  {
+    "text": "Pilar P5, Obra: Obra_TREINO_13, Pavimento: 1_PAV, b=49.0cm h=71.0cm altura=652.0cm, confidence=0.9, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P5",
+    "obra": "Obra_TREINO_13",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 49.0,
+      "h": 71.0,
+      "altura": 652.0,
+      "confidence": 0.9,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 223
+  },
+  {
+    "text": "Pilar P6, Obra: Obra_TREINO_13, Pavimento: 1_PAV, b=19.0cm h=64.0cm altura=652.0cm, confidence=0.9, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P6",
+    "obra": "Obra_TREINO_13",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 19.0,
+      "h": 64.0,
+      "altura": 652.0,
+      "confidence": 0.9,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 224
+  },
+  {
+    "text": "Pilar P8, Obra: Obra_TREINO_13, Pavimento: 1_PAV, b=19.0cm h=42.0cm altura=652.0cm, confidence=0.9, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P8",
+    "obra": "Obra_TREINO_13",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 19.0,
+      "h": 42.0,
+      "altura": 652.0,
+      "confidence": 0.9,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 225
+  },
+  {
+    "text": "Pilar P9, Obra: Obra_TREINO_13, Pavimento: 1_PAV, b=44.0cm h=46.0cm altura=652.0cm, confidence=0.9, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P9",
+    "obra": "Obra_TREINO_13",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 44.0,
+      "h": 46.0,
+      "altura": 652.0,
+      "confidence": 0.9,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 226
+  },
+  {
+    "text": "Pilar P10, Obra: Obra_TREINO_13, Pavimento: 1_PAV, b=43.0cm h=44.0cm altura=652.0cm, confidence=0.9, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[A B C D E F G H], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P10",
+    "obra": "Obra_TREINO_13",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 43.0,
+      "h": 44.0,
+      "altura": 652.0,
+      "confidence": 0.9,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D",
+        "E",
+        "F",
+        "G",
+        "H"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 227
+  },
+  {
+    "text": "Pilar P11, Obra: Obra_TREINO_13, Pavimento: 1_PAV, b=19.0cm h=46.0cm altura=652.0cm, confidence=0.9, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[A B C D E F G H], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P11",
+    "obra": "Obra_TREINO_13",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 19.0,
+      "h": 46.0,
+      "altura": 652.0,
+      "confidence": 0.9,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D",
+        "E",
+        "F",
+        "G",
+        "H"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 228
+  },
+  {
+    "text": "Pilar P12, Obra: Obra_TREINO_13, Pavimento: 1_PAV, b=21.0cm h=78.0cm altura=652.0cm, confidence=0.9, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P12",
+    "obra": "Obra_TREINO_13",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 21.0,
+      "h": 78.0,
+      "altura": 652.0,
+      "confidence": 0.9,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 229
+  },
+  {
+    "text": "Pilar P13, Obra: Obra_TREINO_13, Pavimento: 1_PAV, b=46.0cm h=70.0cm altura=652.0cm, confidence=0.9, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[A B C], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P13",
+    "obra": "Obra_TREINO_13",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 46.0,
+      "h": 70.0,
+      "altura": 652.0,
+      "confidence": 0.9,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 230
+  },
+  {
+    "text": "Pilar P14, Obra: Obra_TREINO_13, Pavimento: 1_PAV, b=16.0cm h=46.0cm altura=652.0cm, confidence=0.9, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P14",
+    "obra": "Obra_TREINO_13",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 16.0,
+      "h": 46.0,
+      "altura": 652.0,
+      "confidence": 0.9,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 231
+  },
+  {
+    "text": "Pilar P15, Obra: Obra_TREINO_13, Pavimento: 1_PAV, b=43.0cm h=47.0cm altura=652.0cm, confidence=0.9, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P15",
+    "obra": "Obra_TREINO_13",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 43.0,
+      "h": 47.0,
+      "altura": 652.0,
+      "confidence": 0.9,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 232
+  },
+  {
+    "text": "Pilar P16, Obra: Obra_TREINO_13, Pavimento: 1_PAV, b=17.0cm h=93.0cm altura=652.0cm, confidence=0.9, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P16",
+    "obra": "Obra_TREINO_13",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 17.0,
+      "h": 93.0,
+      "altura": 652.0,
+      "confidence": 0.9,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 233
+  },
+  {
+    "text": "Pilar P17, Obra: Obra_TREINO_13, Pavimento: 1_PAV, b=77.0cm h=100.0cm altura=652.0cm, confidence=0.9, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P17",
+    "obra": "Obra_TREINO_13",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 77.0,
+      "h": 100.0,
+      "altura": 652.0,
+      "confidence": 0.9,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 234
+  },
+  {
+    "text": "Pilar P18, Obra: Obra_TREINO_13, Pavimento: 1_PAV, b=14.0cm h=50.0cm altura=652.0cm, confidence=0.9, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[A B C D E F], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P18",
+    "obra": "Obra_TREINO_13",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 14.0,
+      "h": 50.0,
+      "altura": 652.0,
+      "confidence": 0.9,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D",
+        "E",
+        "F"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 235
+  },
+  {
+    "text": "Pilar P19, Obra: Obra_TREINO_13, Pavimento: 1_PAV, b=19.0cm h=64.0cm altura=652.0cm, confidence=0.9, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P19",
+    "obra": "Obra_TREINO_13",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 19.0,
+      "h": 64.0,
+      "altura": 652.0,
+      "confidence": 0.9,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 236
+  },
+  {
+    "text": "Pilar P20, Obra: Obra_TREINO_13, Pavimento: 1_PAV, b=16.0cm h=44.0cm altura=652.0cm, confidence=0.7, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[A B C D E F], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P20",
+    "obra": "Obra_TREINO_13",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 16.0,
+      "h": 44.0,
+      "altura": 652.0,
+      "confidence": 0.7,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D",
+        "E",
+        "F"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 237
+  },
+  {
+    "text": "Pilar P21, Obra: Obra_TREINO_13, Pavimento: 1_PAV, b=19.0cm h=60.0cm altura=652.0cm, confidence=0.9, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[A B D E F], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P21",
+    "obra": "Obra_TREINO_13",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 19.0,
+      "h": 60.0,
+      "altura": 652.0,
+      "confidence": 0.9,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "D",
+        "E",
+        "F"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 238
+  },
+  {
+    "text": "Pilar P24, Obra: Obra_TREINO_13, Pavimento: 1_PAV, b=50.0cm h=96.0cm altura=652.0cm, confidence=0.9, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P24",
+    "obra": "Obra_TREINO_13",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 50.0,
+      "h": 96.0,
+      "altura": 652.0,
+      "confidence": 0.9,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 239
+  },
+  {
+    "text": "Pilar P25, Obra: Obra_TREINO_13, Pavimento: 1_PAV, b=45.0cm h=96.0cm altura=652.0cm, confidence=0.9, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P25",
+    "obra": "Obra_TREINO_13",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 45.0,
+      "h": 96.0,
+      "altura": 652.0,
+      "confidence": 0.9,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 240
+  },
+  {
+    "text": "Pilar P26, Obra: Obra_TREINO_13, Pavimento: 1_PAV, b=40.0cm h=47.0cm altura=652.0cm, confidence=0.9, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[A B C], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P26",
+    "obra": "Obra_TREINO_13",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 40.0,
+      "h": 47.0,
+      "altura": 652.0,
+      "confidence": 0.9,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 241
+  },
+  {
+    "text": "Pilar P27, Obra: Obra_TREINO_13, Pavimento: 1_PAV, b=19.0cm h=38.0cm altura=652.0cm, confidence=0.9, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P27",
+    "obra": "Obra_TREINO_13",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 19.0,
+      "h": 38.0,
+      "altura": 652.0,
+      "confidence": 0.9,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 242
+  },
+  {
+    "text": "Pilar P41, Obra: Obra_TREINO_13, Pavimento: 1_PAV, b=50.0cm h=54.0cm altura=652.0cm, confidence=0.9, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P41",
+    "obra": "Obra_TREINO_13",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 50.0,
+      "h": 54.0,
+      "altura": 652.0,
+      "confidence": 0.9,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 243
+  },
+  {
+    "text": "Pilar _meta, Obra: Obra_TREINO_13, Pavimento: 1_PAV, b=?cm h=?cm altura=?cm, confidence=?, source=, bh_source=, faces=[], nota=",
+    "tipo": "pilar",
+    "id": "_meta",
+    "obra": "Obra_TREINO_13",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "total": 24,
+      "obra": "engenharia-reversa",
+      "pavimento": "TIPO",
+      "pe_direito_cm": 652.0,
+      "extraido_em": "2026-03-09",
+      "confidence_nota": "IDs=ALTA | altura=MEDIA | B/H=BAIXA(requer revisao)",
+      "bh_extraidos": 24,
+      "bh_atualizado_em": "2026-03-09"
+    },
+    "faiss_id": 244
+  },
+  {
+    "text": "Pilar P7, Obra: Obra_TREINO_16, Pavimento: 1_PAV, b=67.0cm h=97.0cm altura=652.0cm, confidence=0.9, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P7",
+    "obra": "Obra_TREINO_16",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 67.0,
+      "h": 97.0,
+      "altura": 652.0,
+      "confidence": 0.9,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 325
+  },
+  {
+    "text": "Pilar P8, Obra: Obra_TREINO_16, Pavimento: 1_PAV, b=40.0cm h=53.0cm altura=652.0cm, confidence=0.9, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P8",
+    "obra": "Obra_TREINO_16",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 40.0,
+      "h": 53.0,
+      "altura": 652.0,
+      "confidence": 0.9,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 326
+  },
+  {
+    "text": "Pilar P10, Obra: Obra_TREINO_16, Pavimento: 1_PAV, b=67.0cm h=97.0cm altura=652.0cm, confidence=0.9, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P10",
+    "obra": "Obra_TREINO_16",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 67.0,
+      "h": 97.0,
+      "altura": 652.0,
+      "confidence": 0.9,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 327
+  },
+  {
+    "text": "Pilar P11, Obra: Obra_TREINO_16, Pavimento: 1_PAV, b=67.0cm h=97.0cm altura=652.0cm, confidence=0.4, source=engenharia-reversa-ezdxf, bh_source=proximity-fallback, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P11",
+    "obra": "Obra_TREINO_16",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 67.0,
+      "h": 97.0,
+      "altura": 652.0,
+      "confidence": 0.4,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "proximity-fallback"
+    },
+    "faiss_id": 328
+  },
+  {
+    "text": "Pilar P14, Obra: Obra_TREINO_16, Pavimento: 1_PAV, b=19.0cm h=97.0cm altura=652.0cm, confidence=0.9, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P14",
+    "obra": "Obra_TREINO_16",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 19.0,
+      "h": 97.0,
+      "altura": 652.0,
+      "confidence": 0.9,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 329
+  },
+  {
+    "text": "Pilar P15, Obra: Obra_TREINO_16, Pavimento: 1_PAV, b=19.0cm h=97.0cm altura=652.0cm, confidence=0.4, source=engenharia-reversa-ezdxf, bh_source=proximity-fallback, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P15",
+    "obra": "Obra_TREINO_16",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 19.0,
+      "h": 97.0,
+      "altura": 652.0,
+      "confidence": 0.4,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "proximity-fallback"
+    },
+    "faiss_id": 330
+  },
+  {
+    "text": "Pilar P16, Obra: Obra_TREINO_16, Pavimento: 1_PAV, b=52.0cm h=97.0cm altura=652.0cm, confidence=0.9, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P16",
+    "obra": "Obra_TREINO_16",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 52.0,
+      "h": 97.0,
+      "altura": 652.0,
+      "confidence": 0.9,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 331
+  },
+  {
+    "text": "Pilar P17, Obra: Obra_TREINO_16, Pavimento: 1_PAV, b=40.0cm h=53.0cm altura=652.0cm, confidence=0.4, source=engenharia-reversa-ezdxf, bh_source=proximity-fallback, faces=[A B], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P17",
+    "obra": "Obra_TREINO_16",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 40.0,
+      "h": 53.0,
+      "altura": 652.0,
+      "confidence": 0.4,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "proximity-fallback"
+    },
+    "faiss_id": 332
+  },
+  {
+    "text": "Pilar P18, Obra: Obra_TREINO_16, Pavimento: 1_PAV, b=19.0cm h=97.0cm altura=652.0cm, confidence=0.9, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[A B], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P18",
+    "obra": "Obra_TREINO_16",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 19.0,
+      "h": 97.0,
+      "altura": 652.0,
+      "confidence": 0.9,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 333
+  },
+  {
+    "text": "Pilar P140, Obra: Obra_TREINO_16, Pavimento: 1_PAV, b=19.0cm h=67.0cm altura=652.0cm, confidence=0.9, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[A B C D E F], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P140",
+    "obra": "Obra_TREINO_16",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 19.0,
+      "h": 67.0,
+      "altura": 652.0,
+      "confidence": 0.9,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D",
+        "E",
+        "F"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 334
+  },
+  {
+    "text": "Pilar _meta, Obra: Obra_TREINO_16, Pavimento: 1_PAV, b=?cm h=?cm altura=?cm, confidence=?, source=, bh_source=, faces=[], nota=",
+    "tipo": "pilar",
+    "id": "_meta",
+    "obra": "Obra_TREINO_16",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "total": 10,
+      "obra": "engenharia-reversa",
+      "pavimento": "VALDIR NIEMEYER-TP2",
+      "pe_direito_cm": 652.0,
+      "extraido_em": "2026-03-09",
+      "confidence_nota": "IDs=ALTA | altura=MEDIA | B/H=BAIXA(requer revisao)",
+      "bh_extraidos": 10,
+      "bh_atualizado_em": "2026-03-09"
+    },
+    "faiss_id": 335
+  },
+  {
+    "text": "Pilar P1, Obra: Obra_TREINO_21, Pavimento: 1_PAV, b=38.0cm h=60.0cm altura=652.0cm, confidence=0.7, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P1",
+    "obra": "Obra_TREINO_21",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 38.0,
+      "h": 60.0,
+      "altura": 652.0,
+      "confidence": 0.7,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 386
+  },
+  {
+    "text": "Pilar P2, Obra: Obra_TREINO_21, Pavimento: 1_PAV, b=38.0cm h=95.9cm altura=652.0cm, confidence=0.7, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P2",
+    "obra": "Obra_TREINO_21",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 38.0,
+      "h": 95.9,
+      "altura": 652.0,
+      "confidence": 0.7,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 387
+  },
+  {
+    "text": "Pilar P3, Obra: Obra_TREINO_21, Pavimento: 1_PAV, b=38.0cm h=90.0cm altura=652.0cm, confidence=0.7, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P3",
+    "obra": "Obra_TREINO_21",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 38.0,
+      "h": 90.0,
+      "altura": 652.0,
+      "confidence": 0.7,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 388
+  },
+  {
+    "text": "Pilar P4, Obra: Obra_TREINO_21, Pavimento: 1_PAV, b=38.0cm h=90.0cm altura=652.0cm, confidence=0.4, source=engenharia-reversa-ezdxf, bh_source=proximity-fallback, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P4",
+    "obra": "Obra_TREINO_21",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 38.0,
+      "h": 90.0,
+      "altura": 652.0,
+      "confidence": 0.4,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "proximity-fallback"
+    },
+    "faiss_id": 389
+  },
+  {
+    "text": "Pilar P5, Obra: Obra_TREINO_21, Pavimento: 1_PAV, b=38.0cm h=90.0cm altura=652.0cm, confidence=0.4, source=engenharia-reversa-ezdxf, bh_source=proximity-fallback, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P5",
+    "obra": "Obra_TREINO_21",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 38.0,
+      "h": 90.0,
+      "altura": 652.0,
+      "confidence": 0.4,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "proximity-fallback"
+    },
+    "faiss_id": 390
+  },
+  {
+    "text": "Pilar P6, Obra: Obra_TREINO_21, Pavimento: 1_PAV, b=38.0cm h=90.0cm altura=652.0cm, confidence=0.4, source=engenharia-reversa-ezdxf, bh_source=proximity-fallback, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P6",
+    "obra": "Obra_TREINO_21",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 38.0,
+      "h": 90.0,
+      "altura": 652.0,
+      "confidence": 0.4,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "proximity-fallback"
+    },
+    "faiss_id": 391
+  },
+  {
+    "text": "Pilar P7, Obra: Obra_TREINO_21, Pavimento: 1_PAV, b=38.0cm h=95.9cm altura=652.0cm, confidence=0.7, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P7",
+    "obra": "Obra_TREINO_21",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 38.0,
+      "h": 95.9,
+      "altura": 652.0,
+      "confidence": 0.7,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 392
+  },
+  {
+    "text": "Pilar P8, Obra: Obra_TREINO_21, Pavimento: 1_PAV, b=38.0cm h=60.0cm altura=652.0cm, confidence=0.7, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P8",
+    "obra": "Obra_TREINO_21",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 38.0,
+      "h": 60.0,
+      "altura": 652.0,
+      "confidence": 0.7,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 393
+  },
+  {
+    "text": "Pilar P9, Obra: Obra_TREINO_21, Pavimento: 1_PAV, b=38.0cm h=92.0cm altura=652.0cm, confidence=0.7, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P9",
+    "obra": "Obra_TREINO_21",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 38.0,
+      "h": 92.0,
+      "altura": 652.0,
+      "confidence": 0.7,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 394
+  },
+  {
+    "text": "Pilar P10, Obra: Obra_TREINO_21, Pavimento: 1_PAV, b=38.0cm h=92.0cm altura=652.0cm, confidence=0.7, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[A C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P10",
+    "obra": "Obra_TREINO_21",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 38.0,
+      "h": 92.0,
+      "altura": 652.0,
+      "confidence": 0.7,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 395
+  },
+  {
+    "text": "Pilar P11, Obra: Obra_TREINO_21, Pavimento: 1_PAV, b=50.0cm h=100.0cm altura=652.0cm, confidence=0.7, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P11",
+    "obra": "Obra_TREINO_21",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 50.0,
+      "h": 100.0,
+      "altura": 652.0,
+      "confidence": 0.7,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 396
+  },
+  {
+    "text": "Pilar P12, Obra: Obra_TREINO_21, Pavimento: 1_PAV, b=38.0cm h=100.0cm altura=652.0cm, confidence=0.8, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P12",
+    "obra": "Obra_TREINO_21",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 38.0,
+      "h": 100.0,
+      "altura": 652.0,
+      "confidence": 0.8,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 397
+  },
+  {
+    "text": "Pilar P13, Obra: Obra_TREINO_21, Pavimento: 1_PAV, b=38.0cm h=60.0cm altura=652.0cm, confidence=0.7, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P13",
+    "obra": "Obra_TREINO_21",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 38.0,
+      "h": 60.0,
+      "altura": 652.0,
+      "confidence": 0.7,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 398
+  },
+  {
+    "text": "Pilar P14, Obra: Obra_TREINO_21, Pavimento: 1_PAV, b=38.0cm h=60.0cm altura=652.0cm, confidence=0.7, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P14",
+    "obra": "Obra_TREINO_21",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 38.0,
+      "h": 60.0,
+      "altura": 652.0,
+      "confidence": 0.7,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 399
+  },
+  {
+    "text": "Pilar P15, Obra: Obra_TREINO_21, Pavimento: 1_PAV, b=26.0cm h=50.0cm altura=652.0cm, confidence=0.7, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P15",
+    "obra": "Obra_TREINO_21",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 26.0,
+      "h": 50.0,
+      "altura": 652.0,
+      "confidence": 0.7,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 400
+  },
+  {
+    "text": "Pilar P16, Obra: Obra_TREINO_21, Pavimento: 1_PAV, b=38.0cm h=60.0cm altura=652.0cm, confidence=0.7, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P16",
+    "obra": "Obra_TREINO_21",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 38.0,
+      "h": 60.0,
+      "altura": 652.0,
+      "confidence": 0.7,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 401
+  },
+  {
+    "text": "Pilar P17, Obra: Obra_TREINO_21, Pavimento: 1_PAV, b=38.0cm h=60.0cm altura=652.0cm, confidence=0.7, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P17",
+    "obra": "Obra_TREINO_21",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 38.0,
+      "h": 60.0,
+      "altura": 652.0,
+      "confidence": 0.7,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 402
+  },
+  {
+    "text": "Pilar P18, Obra: Obra_TREINO_21, Pavimento: 1_PAV, b=38.0cm h=60.0cm altura=652.0cm, confidence=0.7, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P18",
+    "obra": "Obra_TREINO_21",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 38.0,
+      "h": 60.0,
+      "altura": 652.0,
+      "confidence": 0.7,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 403
+  },
+  {
+    "text": "Pilar P19, Obra: Obra_TREINO_21, Pavimento: 1_PAV, b=38.0cm h=60.0cm altura=652.0cm, confidence=0.7, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P19",
+    "obra": "Obra_TREINO_21",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 38.0,
+      "h": 60.0,
+      "altura": 652.0,
+      "confidence": 0.7,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 404
+  },
+  {
+    "text": "Pilar P20, Obra: Obra_TREINO_21, Pavimento: 1_PAV, b=26.0cm h=50.0cm altura=652.0cm, confidence=0.7, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P20",
+    "obra": "Obra_TREINO_21",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 26.0,
+      "h": 50.0,
+      "altura": 652.0,
+      "confidence": 0.7,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 405
+  },
+  {
+    "text": "Pilar P21, Obra: Obra_TREINO_21, Pavimento: 1_PAV, b=50.0cm h=100.0cm altura=652.0cm, confidence=0.7, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P21",
+    "obra": "Obra_TREINO_21",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 50.0,
+      "h": 100.0,
+      "altura": 652.0,
+      "confidence": 0.7,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 406
+  },
+  {
+    "text": "Pilar P22, Obra: Obra_TREINO_21, Pavimento: 1_PAV, b=16.0cm h=50.0cm altura=652.0cm, confidence=0.7, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P22",
+    "obra": "Obra_TREINO_21",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 16.0,
+      "h": 50.0,
+      "altura": 652.0,
+      "confidence": 0.7,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 407
+  },
+  {
+    "text": "Pilar P23, Obra: Obra_TREINO_21, Pavimento: 1_PAV, b=32.0cm h=50.0cm altura=652.0cm, confidence=0.7, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P23",
+    "obra": "Obra_TREINO_21",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 32.0,
+      "h": 50.0,
+      "altura": 652.0,
+      "confidence": 0.7,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 408
+  },
+  {
+    "text": "Pilar P24, Obra: Obra_TREINO_21, Pavimento: 1_PAV, b=32.0cm h=50.0cm altura=652.0cm, confidence=0.7, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P24",
+    "obra": "Obra_TREINO_21",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 32.0,
+      "h": 50.0,
+      "altura": 652.0,
+      "confidence": 0.7,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 409
+  },
+  {
+    "text": "Pilar P25, Obra: Obra_TREINO_21, Pavimento: 1_PAV, b=52.0cm h=62.0cm altura=652.0cm, confidence=0.7, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P25",
+    "obra": "Obra_TREINO_21",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 52.0,
+      "h": 62.0,
+      "altura": 652.0,
+      "confidence": 0.7,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 410
+  },
+  {
+    "text": "Pilar P26, Obra: Obra_TREINO_21, Pavimento: 1_PAV, b=38.0cm h=60.0cm altura=652.0cm, confidence=0.7, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P26",
+    "obra": "Obra_TREINO_21",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 38.0,
+      "h": 60.0,
+      "altura": 652.0,
+      "confidence": 0.7,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 411
+  },
+  {
+    "text": "Pilar P27, Obra: Obra_TREINO_21, Pavimento: 1_PAV, b=38.0cm h=95.9cm altura=652.0cm, confidence=0.4, source=engenharia-reversa-ezdxf, bh_source=proximity-fallback, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P27",
+    "obra": "Obra_TREINO_21",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 38.0,
+      "h": 95.9,
+      "altura": 652.0,
+      "confidence": 0.4,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "proximity-fallback"
+    },
+    "faiss_id": 412
+  },
+  {
+    "text": "Pilar P28, Obra: Obra_TREINO_21, Pavimento: 1_PAV, b=38.0cm h=90.0cm altura=652.0cm, confidence=0.4, source=engenharia-reversa-ezdxf, bh_source=proximity-fallback, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P28",
+    "obra": "Obra_TREINO_21",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 38.0,
+      "h": 90.0,
+      "altura": 652.0,
+      "confidence": 0.4,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "proximity-fallback"
+    },
+    "faiss_id": 413
+  },
+  {
+    "text": "Pilar P29, Obra: Obra_TREINO_21, Pavimento: 1_PAV, b=38.0cm h=90.0cm altura=652.0cm, confidence=0.4, source=engenharia-reversa-ezdxf, bh_source=proximity-fallback, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P29",
+    "obra": "Obra_TREINO_21",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 38.0,
+      "h": 90.0,
+      "altura": 652.0,
+      "confidence": 0.4,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "proximity-fallback"
+    },
+    "faiss_id": 414
+  },
+  {
+    "text": "Pilar P30, Obra: Obra_TREINO_21, Pavimento: 1_PAV, b=38.0cm h=90.0cm altura=652.0cm, confidence=0.4, source=engenharia-reversa-ezdxf, bh_source=proximity-fallback, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P30",
+    "obra": "Obra_TREINO_21",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 38.0,
+      "h": 90.0,
+      "altura": 652.0,
+      "confidence": 0.4,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "proximity-fallback"
+    },
+    "faiss_id": 415
+  },
+  {
+    "text": "Pilar P31, Obra: Obra_TREINO_21, Pavimento: 1_PAV, b=38.0cm h=90.0cm altura=652.0cm, confidence=0.4, source=engenharia-reversa-ezdxf, bh_source=proximity-fallback, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P31",
+    "obra": "Obra_TREINO_21",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 38.0,
+      "h": 90.0,
+      "altura": 652.0,
+      "confidence": 0.4,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "proximity-fallback"
+    },
+    "faiss_id": 416
+  },
+  {
+    "text": "Pilar P32, Obra: Obra_TREINO_21, Pavimento: 1_PAV, b=38.0cm h=95.9cm altura=652.0cm, confidence=0.7, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P32",
+    "obra": "Obra_TREINO_21",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 38.0,
+      "h": 95.9,
+      "altura": 652.0,
+      "confidence": 0.7,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 417
+  },
+  {
+    "text": "Pilar _meta, Obra: Obra_TREINO_21, Pavimento: 1_PAV, b=?cm h=?cm altura=?cm, confidence=?, source=, bh_source=, faces=[], nota=",
+    "tipo": "pilar",
+    "id": "_meta",
+    "obra": "Obra_TREINO_21",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "total": 32,
+      "obra": "engenharia-reversa",
+      "pavimento": "LAJE TÉCNICA",
+      "pe_direito_cm": 652.0,
+      "extraido_em": "2026-03-09",
+      "confidence_nota": "IDs=ALTA | altura=MEDIA | B/H=BAIXA(requer revisao)",
+      "bh_extraidos": 32,
+      "bh_atualizado_em": "2026-03-09"
+    },
+    "faiss_id": 418
+  },
+  {
+    "text": "Pilar P1, Obra: Obra_TREINO_22, Pavimento: 1_PAV, b=48.0cm h=60.0cm altura=652.0cm, confidence=0.7, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P1",
+    "obra": "Obra_TREINO_22",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 48.0,
+      "h": 60.0,
+      "altura": 652.0,
+      "confidence": 0.7,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 475
+  },
+  {
+    "text": "Pilar P2, Obra: Obra_TREINO_22, Pavimento: 1_PAV, b=38.0cm h=60.0cm altura=652.0cm, confidence=0.7, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P2",
+    "obra": "Obra_TREINO_22",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 38.0,
+      "h": 60.0,
+      "altura": 652.0,
+      "confidence": 0.7,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 476
+  },
+  {
+    "text": "Pilar P3, Obra: Obra_TREINO_22, Pavimento: 1_PAV, b=38.0cm h=60.0cm altura=652.0cm, confidence=0.7, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P3",
+    "obra": "Obra_TREINO_22",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 38.0,
+      "h": 60.0,
+      "altura": 652.0,
+      "confidence": 0.7,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 477
+  },
+  {
+    "text": "Pilar P4, Obra: Obra_TREINO_22, Pavimento: 1_PAV, b=42.0cm h=44.0cm altura=652.0cm, confidence=0.7, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[A C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P4",
+    "obra": "Obra_TREINO_22",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 42.0,
+      "h": 44.0,
+      "altura": 652.0,
+      "confidence": 0.7,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 478
+  },
+  {
+    "text": "Pilar P6, Obra: Obra_TREINO_22, Pavimento: 1_PAV, b=42.0cm h=44.0cm altura=652.0cm, confidence=0.8, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P6",
+    "obra": "Obra_TREINO_22",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 42.0,
+      "h": 44.0,
+      "altura": 652.0,
+      "confidence": 0.8,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 479
+  },
+  {
+    "text": "Pilar P7, Obra: Obra_TREINO_22, Pavimento: 1_PAV, b=38.0cm h=58.0cm altura=652.0cm, confidence=0.7, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P7",
+    "obra": "Obra_TREINO_22",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 38.0,
+      "h": 58.0,
+      "altura": 652.0,
+      "confidence": 0.7,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 480
+  },
+  {
+    "text": "Pilar P8, Obra: Obra_TREINO_22, Pavimento: 1_PAV, b=38.0cm h=95.9cm altura=652.0cm, confidence=0.7, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P8",
+    "obra": "Obra_TREINO_22",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 38.0,
+      "h": 95.9,
+      "altura": 652.0,
+      "confidence": 0.7,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 481
+  },
+  {
+    "text": "Pilar P9, Obra: Obra_TREINO_22, Pavimento: 1_PAV, b=48.0cm h=60.0cm altura=652.0cm, confidence=0.7, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P9",
+    "obra": "Obra_TREINO_22",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 48.0,
+      "h": 60.0,
+      "altura": 652.0,
+      "confidence": 0.7,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 482
+  },
+  {
+    "text": "Pilar P10, Obra: Obra_TREINO_22, Pavimento: 1_PAV, b=38.0cm h=58.0cm altura=652.0cm, confidence=0.7, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P10",
+    "obra": "Obra_TREINO_22",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 38.0,
+      "h": 58.0,
+      "altura": 652.0,
+      "confidence": 0.7,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 483
+  },
+  {
+    "text": "Pilar P11, Obra: Obra_TREINO_22, Pavimento: 1_PAV, b=38.0cm h=58.0cm altura=652.0cm, confidence=0.7, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P11",
+    "obra": "Obra_TREINO_22",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 38.0,
+      "h": 58.0,
+      "altura": 652.0,
+      "confidence": 0.7,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 484
+  },
+  {
+    "text": "Pilar P12, Obra: Obra_TREINO_22, Pavimento: 1_PAV, b=42.0cm h=44.0cm altura=652.0cm, confidence=0.7, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P12",
+    "obra": "Obra_TREINO_22",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 42.0,
+      "h": 44.0,
+      "altura": 652.0,
+      "confidence": 0.7,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 485
+  },
+  {
+    "text": "Pilar P13, Obra: Obra_TREINO_22, Pavimento: 1_PAV, b=38.0cm h=95.9cm altura=652.0cm, confidence=0.7, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P13",
+    "obra": "Obra_TREINO_22",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 38.0,
+      "h": 95.9,
+      "altura": 652.0,
+      "confidence": 0.7,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 486
+  },
+  {
+    "text": "Pilar P14, Obra: Obra_TREINO_22, Pavimento: 1_PAV, b=48.0cm h=60.0cm altura=652.0cm, confidence=0.7, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P14",
+    "obra": "Obra_TREINO_22",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 48.0,
+      "h": 60.0,
+      "altura": 652.0,
+      "confidence": 0.7,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 487
+  },
+  {
+    "text": "Pilar P15, Obra: Obra_TREINO_22, Pavimento: 1_PAV, b=24.0cm h=50.0cm altura=652.0cm, confidence=0.7, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P15",
+    "obra": "Obra_TREINO_22",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 24.0,
+      "h": 50.0,
+      "altura": 652.0,
+      "confidence": 0.7,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 488
+  },
+  {
+    "text": "Pilar P16, Obra: Obra_TREINO_22, Pavimento: 1_PAV, b=38.0cm h=95.9cm altura=652.0cm, confidence=0.7, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P16",
+    "obra": "Obra_TREINO_22",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 38.0,
+      "h": 95.9,
+      "altura": 652.0,
+      "confidence": 0.7,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 489
+  },
+  {
+    "text": "Pilar P17, Obra: Obra_TREINO_22, Pavimento: 1_PAV, b=38.0cm h=58.0cm altura=652.0cm, confidence=0.7, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P17",
+    "obra": "Obra_TREINO_22",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 38.0,
+      "h": 58.0,
+      "altura": 652.0,
+      "confidence": 0.7,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 490
+  },
+  {
+    "text": "Pilar P18, Obra: Obra_TREINO_22, Pavimento: 1_PAV, b=58.0cm h=60.0cm altura=652.0cm, confidence=0.7, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P18",
+    "obra": "Obra_TREINO_22",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 58.0,
+      "h": 60.0,
+      "altura": 652.0,
+      "confidence": 0.7,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 491
+  },
+  {
+    "text": "Pilar P19, Obra: Obra_TREINO_22, Pavimento: 1_PAV, b=38.0cm h=58.0cm altura=652.0cm, confidence=0.7, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P19",
+    "obra": "Obra_TREINO_22",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 38.0,
+      "h": 58.0,
+      "altura": 652.0,
+      "confidence": 0.7,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 492
+  },
+  {
+    "text": "Pilar P20, Obra: Obra_TREINO_22, Pavimento: 1_PAV, b=38.0cm h=58.0cm altura=652.0cm, confidence=0.7, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P20",
+    "obra": "Obra_TREINO_22",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 38.0,
+      "h": 58.0,
+      "altura": 652.0,
+      "confidence": 0.7,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 493
+  },
+  {
+    "text": "Pilar _meta, Obra: Obra_TREINO_22, Pavimento: 1_PAV, b=?cm h=?cm altura=?cm, confidence=?, source=, bh_source=, faces=[], nota=",
+    "tipo": "pilar",
+    "id": "_meta",
+    "obra": "Obra_TREINO_22",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "total": 19,
+      "obra": "engenharia-reversa",
+      "pavimento": "2 PAV",
+      "pe_direito_cm": 652.0,
+      "extraido_em": "2026-03-09",
+      "confidence_nota": "IDs=ALTA | altura=MEDIA | B/H=BAIXA(requer revisao)",
+      "bh_extraidos": 19,
+      "bh_atualizado_em": "2026-03-09"
+    },
+    "faiss_id": 494
+  },
+  {
+    "text": "Pilar P101, Obra: Obra_TREINO_23, Pavimento: 1_PAV, b=64.0cm h=66.0cm altura=652.0cm, confidence=0.9, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[A B C], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P101",
+    "obra": "Obra_TREINO_23",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 64.0,
+      "h": 66.0,
+      "altura": 652.0,
+      "confidence": 0.9,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 574
+  },
+  {
+    "text": "Pilar P102, Obra: Obra_TREINO_23, Pavimento: 1_PAV, b=?cm h=?cm altura=652.0cm, confidence=0.3, source=engenharia-reversa-ezdxf, bh_source=, faces=[A D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P102",
+    "obra": "Obra_TREINO_23",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": null,
+      "h": null,
+      "altura": 652.0,
+      "confidence": 0.3,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente"
+    },
+    "faiss_id": 575
+  },
+  {
+    "text": "Pilar P103, Obra: Obra_TREINO_23, Pavimento: 1_PAV, b=27.0cm h=52.0cm altura=652.0cm, confidence=0.4, source=engenharia-reversa-ezdxf, bh_source=proximity-fallback, faces=[A B C], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P103",
+    "obra": "Obra_TREINO_23",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 27.0,
+      "h": 52.0,
+      "altura": 652.0,
+      "confidence": 0.4,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "proximity-fallback"
+    },
+    "faiss_id": 576
+  },
+  {
+    "text": "Pilar P105, Obra: Obra_TREINO_23, Pavimento: 1_PAV, b=32.0cm h=41.0cm altura=652.0cm, confidence=0.9, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[A B], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P105",
+    "obra": "Obra_TREINO_23",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 32.0,
+      "h": 41.0,
+      "altura": 652.0,
+      "confidence": 0.9,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 577
+  },
+  {
+    "text": "Pilar P202, Obra: Obra_TREINO_23, Pavimento: 1_PAV, b=50.0cm h=52.0cm altura=652.0cm, confidence=0.9, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[A], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P202",
+    "obra": "Obra_TREINO_23",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 50.0,
+      "h": 52.0,
+      "altura": 652.0,
+      "confidence": 0.9,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 578
+  },
+  {
+    "text": "Pilar P203, Obra: Obra_TREINO_23, Pavimento: 1_PAV, b=50.0cm h=52.0cm altura=652.0cm, confidence=0.4, source=engenharia-reversa-ezdxf, bh_source=proximity-fallback, faces=[A], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P203",
+    "obra": "Obra_TREINO_23",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 50.0,
+      "h": 52.0,
+      "altura": 652.0,
+      "confidence": 0.4,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "proximity-fallback"
+    },
+    "faiss_id": 579
+  },
+  {
+    "text": "Pilar P204, Obra: Obra_TREINO_23, Pavimento: 1_PAV, b=50.0cm h=52.0cm altura=652.0cm, confidence=0.4, source=engenharia-reversa-ezdxf, bh_source=proximity-fallback, faces=[B], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P204",
+    "obra": "Obra_TREINO_23",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 50.0,
+      "h": 52.0,
+      "altura": 652.0,
+      "confidence": 0.4,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "B"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "proximity-fallback"
+    },
+    "faiss_id": 580
+  },
+  {
+    "text": "Pilar P205, Obra: Obra_TREINO_23, Pavimento: 1_PAV, b=51.0cm h=76.0cm altura=652.0cm, confidence=0.9, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[A B], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P205",
+    "obra": "Obra_TREINO_23",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 51.0,
+      "h": 76.0,
+      "altura": 652.0,
+      "confidence": 0.9,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 581
+  },
+  {
+    "text": "Pilar P206, Obra: Obra_TREINO_23, Pavimento: 1_PAV, b=52.0cm h=54.0cm altura=652.0cm, confidence=0.9, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[A], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P206",
+    "obra": "Obra_TREINO_23",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 52.0,
+      "h": 54.0,
+      "altura": 652.0,
+      "confidence": 0.9,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 582
+  },
+  {
+    "text": "Pilar P208, Obra: Obra_TREINO_23, Pavimento: 1_PAV, b=?cm h=?cm altura=652.0cm, confidence=0.3, source=engenharia-reversa-ezdxf, bh_source=, faces=[B], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P208",
+    "obra": "Obra_TREINO_23",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": null,
+      "h": null,
+      "altura": 652.0,
+      "confidence": 0.3,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "B"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente"
+    },
+    "faiss_id": 583
+  },
+  {
+    "text": "Pilar P307, Obra: Obra_TREINO_23, Pavimento: 1_PAV, b=94.0cm h=97.0cm altura=652.0cm, confidence=0.9, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[A B D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P307",
+    "obra": "Obra_TREINO_23",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 94.0,
+      "h": 97.0,
+      "altura": 652.0,
+      "confidence": 0.9,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 584
+  },
+  {
+    "text": "Pilar P308, Obra: Obra_TREINO_23, Pavimento: 1_PAV, b=20.0cm h=97.0cm altura=652.0cm, confidence=0.9, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P308",
+    "obra": "Obra_TREINO_23",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 20.0,
+      "h": 97.0,
+      "altura": 652.0,
+      "confidence": 0.9,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 585
+  },
+  {
+    "text": "Pilar P309, Obra: Obra_TREINO_23, Pavimento: 1_PAV, b=25.0cm h=94.0cm altura=652.0cm, confidence=0.9, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P309",
+    "obra": "Obra_TREINO_23",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 25.0,
+      "h": 94.0,
+      "altura": 652.0,
+      "confidence": 0.9,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 586
+  },
+  {
+    "text": "Pilar P310, Obra: Obra_TREINO_23, Pavimento: 1_PAV, b=25.0cm h=32.0cm altura=652.0cm, confidence=0.9, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P310",
+    "obra": "Obra_TREINO_23",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 25.0,
+      "h": 32.0,
+      "altura": 652.0,
+      "confidence": 0.9,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 587
+  },
+  {
+    "text": "Pilar P311, Obra: Obra_TREINO_23, Pavimento: 1_PAV, b=25.0cm h=27.0cm altura=652.0cm, confidence=0.9, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P311",
+    "obra": "Obra_TREINO_23",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 25.0,
+      "h": 27.0,
+      "altura": 652.0,
+      "confidence": 0.9,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 588
+  },
+  {
+    "text": "Pilar P601, Obra: Obra_TREINO_23, Pavimento: 1_PAV, b=14.0cm h=69.4cm altura=652.0cm, confidence=0.9, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P601",
+    "obra": "Obra_TREINO_23",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 14.0,
+      "h": 69.4,
+      "altura": 652.0,
+      "confidence": 0.9,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 589
+  },
+  {
+    "text": "Pilar P602, Obra: Obra_TREINO_23, Pavimento: 1_PAV, b=61.0cm h=85.0cm altura=652.0cm, confidence=0.9, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[A B], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P602",
+    "obra": "Obra_TREINO_23",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 61.0,
+      "h": 85.0,
+      "altura": 652.0,
+      "confidence": 0.9,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 590
+  },
+  {
+    "text": "Pilar P603, Obra: Obra_TREINO_23, Pavimento: 1_PAV, b=16.5cm h=33.5cm altura=652.0cm, confidence=0.9, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P603",
+    "obra": "Obra_TREINO_23",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 16.5,
+      "h": 33.5,
+      "altura": 652.0,
+      "confidence": 0.9,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 591
+  },
+  {
+    "text": "Pilar P604, Obra: Obra_TREINO_23, Pavimento: 1_PAV, b=14.0cm h=61.0cm altura=652.0cm, confidence=0.9, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P604",
+    "obra": "Obra_TREINO_23",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 14.0,
+      "h": 61.0,
+      "altura": 652.0,
+      "confidence": 0.9,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 592
+  },
+  {
+    "text": "Pilar P606, Obra: Obra_TREINO_23, Pavimento: 1_PAV, b=14.0cm h=61.0cm altura=652.0cm, confidence=0.9, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P606",
+    "obra": "Obra_TREINO_23",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 14.0,
+      "h": 61.0,
+      "altura": 652.0,
+      "confidence": 0.9,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 593
+  },
+  {
+    "text": "Pilar _meta, Obra: Obra_TREINO_23, Pavimento: 1_PAV, b=?cm h=?cm altura=?cm, confidence=?, source=, bh_source=, faces=[], nota=",
+    "tipo": "pilar",
+    "id": "_meta",
+    "obra": "Obra_TREINO_23",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "total": 20,
+      "obra": "engenharia-reversa",
+      "pavimento": "SANTA CRUZ-TER",
+      "pe_direito_cm": 652.0,
+      "extraido_em": "2026-03-09",
+      "confidence_nota": "IDs=ALTA | altura=MEDIA | B/H=BAIXA(requer revisao)",
+      "bh_extraidos": 18,
+      "bh_atualizado_em": "2026-03-09"
+    },
+    "faiss_id": 594
+  },
+  {
+    "text": "Pilar P106, Obra: Obra_TREINO_3, Pavimento: 1_PAV, b=30.0cm h=82.0cm altura=652.0cm, confidence=0.9, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P106",
+    "obra": "Obra_TREINO_3",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 30.0,
+      "h": 82.0,
+      "altura": 652.0,
+      "confidence": 0.9,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 634
+  },
+  {
+    "text": "Pilar P107, Obra: Obra_TREINO_3, Pavimento: 1_PAV, b=20.0cm h=82.0cm altura=652.0cm, confidence=0.4, source=engenharia-reversa-ezdxf, bh_source=proximity-fallback, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P107",
+    "obra": "Obra_TREINO_3",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 20.0,
+      "h": 82.0,
+      "altura": 652.0,
+      "confidence": 0.4,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "proximity-fallback"
+    },
+    "faiss_id": 635
+  },
+  {
+    "text": "Pilar P108, Obra: Obra_TREINO_3, Pavimento: 1_PAV, b=20.0cm h=82.0cm altura=652.0cm, confidence=0.4, source=engenharia-reversa-ezdxf, bh_source=proximity-fallback, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P108",
+    "obra": "Obra_TREINO_3",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 20.0,
+      "h": 82.0,
+      "altura": 652.0,
+      "confidence": 0.4,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "proximity-fallback"
+    },
+    "faiss_id": 636
+  },
+  {
+    "text": "Pilar P109, Obra: Obra_TREINO_3, Pavimento: 1_PAV, b=20.0cm h=82.0cm altura=652.0cm, confidence=0.4, source=engenharia-reversa-ezdxf, bh_source=proximity-fallback, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P109",
+    "obra": "Obra_TREINO_3",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 20.0,
+      "h": 82.0,
+      "altura": 652.0,
+      "confidence": 0.4,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "proximity-fallback"
+    },
+    "faiss_id": 637
+  },
+  {
+    "text": "Pilar P116, Obra: Obra_TREINO_3, Pavimento: 1_PAV, b=20.0cm h=40.0cm altura=652.0cm, confidence=0.9, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P116",
+    "obra": "Obra_TREINO_3",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 20.0,
+      "h": 40.0,
+      "altura": 652.0,
+      "confidence": 0.9,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 638
+  },
+  {
+    "text": "Pilar P117, Obra: Obra_TREINO_3, Pavimento: 1_PAV, b=20.0cm h=82.0cm altura=652.0cm, confidence=0.4, source=engenharia-reversa-ezdxf, bh_source=proximity-fallback, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P117",
+    "obra": "Obra_TREINO_3",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 20.0,
+      "h": 82.0,
+      "altura": 652.0,
+      "confidence": 0.4,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "proximity-fallback"
+    },
+    "faiss_id": 639
+  },
+  {
+    "text": "Pilar P118, Obra: Obra_TREINO_3, Pavimento: 1_PAV, b=20.0cm h=82.0cm altura=652.0cm, confidence=0.4, source=engenharia-reversa-ezdxf, bh_source=proximity-fallback, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P118",
+    "obra": "Obra_TREINO_3",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 20.0,
+      "h": 82.0,
+      "altura": 652.0,
+      "confidence": 0.4,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "proximity-fallback"
+    },
+    "faiss_id": 640
+  },
+  {
+    "text": "Pilar P119, Obra: Obra_TREINO_3, Pavimento: 1_PAV, b=20.0cm h=82.0cm altura=652.0cm, confidence=0.4, source=engenharia-reversa-ezdxf, bh_source=proximity-fallback, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P119",
+    "obra": "Obra_TREINO_3",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 20.0,
+      "h": 82.0,
+      "altura": 652.0,
+      "confidence": 0.4,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "proximity-fallback"
+    },
+    "faiss_id": 641
+  },
+  {
+    "text": "Pilar P122, Obra: Obra_TREINO_3, Pavimento: 1_PAV, b=31.0cm h=62.0cm altura=652.0cm, confidence=0.9, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[A B C], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P122",
+    "obra": "Obra_TREINO_3",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 31.0,
+      "h": 62.0,
+      "altura": 652.0,
+      "confidence": 0.9,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 642
+  },
+  {
+    "text": "Pilar P123, Obra: Obra_TREINO_3, Pavimento: 1_PAV, b=25.0cm h=60.0cm altura=652.0cm, confidence=0.9, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P123",
+    "obra": "Obra_TREINO_3",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 25.0,
+      "h": 60.0,
+      "altura": 652.0,
+      "confidence": 0.9,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 643
+  },
+  {
+    "text": "Pilar _meta, Obra: Obra_TREINO_3, Pavimento: 1_PAV, b=?cm h=?cm altura=?cm, confidence=?, source=, bh_source=, faces=[], nota=",
+    "tipo": "pilar",
+    "id": "_meta",
+    "obra": "Obra_TREINO_3",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "total": 10,
+      "obra": "engenharia-reversa",
+      "pavimento": "RES.DIAMOND - TÉRREO - PERIFERIA - TORRE 1 - S04A",
+      "pe_direito_cm": 652.0,
+      "extraido_em": "2026-03-09",
+      "confidence_nota": "IDs=ALTA | altura=MEDIA | B/H=BAIXA(requer revisao)",
+      "bh_extraidos": 10,
+      "bh_atualizado_em": "2026-03-09"
+    },
+    "faiss_id": 644
+  },
+  {
+    "text": "Pilar P1, Obra: Obra_TREINO_6, Pavimento: 1_PAV, b=19.0cm h=59.0cm altura=652.0cm, confidence=0.9, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P1",
+    "obra": "Obra_TREINO_6",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 19.0,
+      "h": 59.0,
+      "altura": 652.0,
+      "confidence": 0.9,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 696
+  },
+  {
+    "text": "Pilar P2, Obra: Obra_TREINO_6, Pavimento: 1_PAV, b=20.0cm h=59.0cm altura=652.0cm, confidence=0.7, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P2",
+    "obra": "Obra_TREINO_6",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 20.0,
+      "h": 59.0,
+      "altura": 652.0,
+      "confidence": 0.7,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 697
+  },
+  {
+    "text": "Pilar P3, Obra: Obra_TREINO_6, Pavimento: 1_PAV, b=19.0cm h=67.0cm altura=652.0cm, confidence=0.9, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P3",
+    "obra": "Obra_TREINO_6",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 19.0,
+      "h": 67.0,
+      "altura": 652.0,
+      "confidence": 0.9,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 698
+  },
+  {
+    "text": "Pilar P4, Obra: Obra_TREINO_6, Pavimento: 1_PAV, b=19.0cm h=67.0cm altura=652.0cm, confidence=0.9, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P4",
+    "obra": "Obra_TREINO_6",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 19.0,
+      "h": 67.0,
+      "altura": 652.0,
+      "confidence": 0.9,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 699
+  },
+  {
+    "text": "Pilar P5, Obra: Obra_TREINO_6, Pavimento: 1_PAV, b=88.0cm h=97.0cm altura=652.0cm, confidence=0.9, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P5",
+    "obra": "Obra_TREINO_6",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 88.0,
+      "h": 97.0,
+      "altura": 652.0,
+      "confidence": 0.9,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 700
+  },
+  {
+    "text": "Pilar P6, Obra: Obra_TREINO_6, Pavimento: 1_PAV, b=88.0cm h=97.0cm altura=652.0cm, confidence=0.9, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P6",
+    "obra": "Obra_TREINO_6",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 88.0,
+      "h": 97.0,
+      "altura": 652.0,
+      "confidence": 0.9,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 701
+  },
+  {
+    "text": "Pilar P7, Obra: Obra_TREINO_6, Pavimento: 1_PAV, b=88.0cm h=97.0cm altura=652.0cm, confidence=0.9, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P7",
+    "obra": "Obra_TREINO_6",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 88.0,
+      "h": 97.0,
+      "altura": 652.0,
+      "confidence": 0.9,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 702
+  },
+  {
+    "text": "Pilar P8, Obra: Obra_TREINO_6, Pavimento: 1_PAV, b=19.0cm h=59.0cm altura=652.0cm, confidence=0.9, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P8",
+    "obra": "Obra_TREINO_6",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 19.0,
+      "h": 59.0,
+      "altura": 652.0,
+      "confidence": 0.9,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 703
+  },
+  {
+    "text": "Pilar P9, Obra: Obra_TREINO_6, Pavimento: 1_PAV, b=88.0cm h=97.0cm altura=652.0cm, confidence=0.9, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P9",
+    "obra": "Obra_TREINO_6",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 88.0,
+      "h": 97.0,
+      "altura": 652.0,
+      "confidence": 0.9,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 704
+  },
+  {
+    "text": "Pilar P10, Obra: Obra_TREINO_6, Pavimento: 1_PAV, b=77.0cm h=88.0cm altura=652.0cm, confidence=0.9, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P10",
+    "obra": "Obra_TREINO_6",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 77.0,
+      "h": 88.0,
+      "altura": 652.0,
+      "confidence": 0.9,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 705
+  },
+  {
+    "text": "Pilar P11, Obra: Obra_TREINO_6, Pavimento: 1_PAV, b=88.0cm h=97.0cm altura=652.0cm, confidence=0.4, source=engenharia-reversa-ezdxf, bh_source=proximity-fallback, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P11",
+    "obra": "Obra_TREINO_6",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 88.0,
+      "h": 97.0,
+      "altura": 652.0,
+      "confidence": 0.4,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "proximity-fallback"
+    },
+    "faiss_id": 706
+  },
+  {
+    "text": "Pilar P12, Obra: Obra_TREINO_6, Pavimento: 1_PAV, b=68.0cm h=82.0cm altura=652.0cm, confidence=0.9, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P12",
+    "obra": "Obra_TREINO_6",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 68.0,
+      "h": 82.0,
+      "altura": 652.0,
+      "confidence": 0.9,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 707
+  },
+  {
+    "text": "Pilar P13, Obra: Obra_TREINO_6, Pavimento: 1_PAV, b=88.0cm h=97.0cm altura=652.0cm, confidence=0.4, source=engenharia-reversa-ezdxf, bh_source=proximity-fallback, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P13",
+    "obra": "Obra_TREINO_6",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 88.0,
+      "h": 97.0,
+      "altura": 652.0,
+      "confidence": 0.4,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "proximity-fallback"
+    },
+    "faiss_id": 708
+  },
+  {
+    "text": "Pilar P14, Obra: Obra_TREINO_6, Pavimento: 1_PAV, b=68.0cm h=82.0cm altura=652.0cm, confidence=0.4, source=engenharia-reversa-ezdxf, bh_source=proximity-fallback, faces=[B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P14",
+    "obra": "Obra_TREINO_6",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 68.0,
+      "h": 82.0,
+      "altura": 652.0,
+      "confidence": 0.4,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "proximity-fallback"
+    },
+    "faiss_id": 709
+  },
+  {
+    "text": "Pilar P15, Obra: Obra_TREINO_6, Pavimento: 1_PAV, b=88.0cm h=97.0cm altura=652.0cm, confidence=0.4, source=engenharia-reversa-ezdxf, bh_source=proximity-fallback, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P15",
+    "obra": "Obra_TREINO_6",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 88.0,
+      "h": 97.0,
+      "altura": 652.0,
+      "confidence": 0.4,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "proximity-fallback"
+    },
+    "faiss_id": 710
+  },
+  {
+    "text": "Pilar P17, Obra: Obra_TREINO_6, Pavimento: 1_PAV, b=19.0cm h=88.0cm altura=652.0cm, confidence=0.4, source=engenharia-reversa-ezdxf, bh_source=proximity-fallback, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P17",
+    "obra": "Obra_TREINO_6",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 19.0,
+      "h": 88.0,
+      "altura": 652.0,
+      "confidence": 0.4,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "proximity-fallback"
+    },
+    "faiss_id": 711
+  },
+  {
+    "text": "Pilar P18, Obra: Obra_TREINO_6, Pavimento: 1_PAV, b=19.0cm h=88.0cm altura=652.0cm, confidence=0.9, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P18",
+    "obra": "Obra_TREINO_6",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 19.0,
+      "h": 88.0,
+      "altura": 652.0,
+      "confidence": 0.9,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 712
+  },
+  {
+    "text": "Pilar P19, Obra: Obra_TREINO_6, Pavimento: 1_PAV, b=68.0cm h=82.0cm altura=652.0cm, confidence=0.9, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P19",
+    "obra": "Obra_TREINO_6",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 68.0,
+      "h": 82.0,
+      "altura": 652.0,
+      "confidence": 0.9,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 713
+  },
+  {
+    "text": "Pilar P20, Obra: Obra_TREINO_6, Pavimento: 1_PAV, b=88.0cm h=97.0cm altura=652.0cm, confidence=0.9, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P20",
+    "obra": "Obra_TREINO_6",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 88.0,
+      "h": 97.0,
+      "altura": 652.0,
+      "confidence": 0.9,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 714
+  },
+  {
+    "text": "Pilar P21, Obra: Obra_TREINO_6, Pavimento: 1_PAV, b=?cm h=?cm altura=652.0cm, confidence=0.3, source=engenharia-reversa-ezdxf, bh_source=, faces=[A C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P21",
+    "obra": "Obra_TREINO_6",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": null,
+      "h": null,
+      "altura": 652.0,
+      "confidence": 0.3,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente"
+    },
+    "faiss_id": 715
+  },
+  {
+    "text": "Pilar P22, Obra: Obra_TREINO_6, Pavimento: 1_PAV, b=68.0cm h=82.0cm altura=652.0cm, confidence=0.4, source=engenharia-reversa-ezdxf, bh_source=proximity-fallback, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P22",
+    "obra": "Obra_TREINO_6",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 68.0,
+      "h": 82.0,
+      "altura": 652.0,
+      "confidence": 0.4,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "proximity-fallback"
+    },
+    "faiss_id": 716
+  },
+  {
+    "text": "Pilar _meta, Obra: Obra_TREINO_6, Pavimento: 1_PAV, b=?cm h=?cm altura=?cm, confidence=?, source=, bh_source=, faces=[], nota=",
+    "tipo": "pilar",
+    "id": "_meta",
+    "obra": "Obra_TREINO_6",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "total": 21,
+      "obra": "engenharia-reversa",
+      "pavimento": "JFC-TIP",
+      "pe_direito_cm": 652.0,
+      "extraido_em": "2026-03-09",
+      "confidence_nota": "IDs=ALTA | altura=MEDIA | B/H=BAIXA(requer revisao)",
+      "bh_extraidos": 20,
+      "bh_atualizado_em": "2026-03-09"
+    },
+    "faiss_id": 717
+  },
+  {
+    "text": "Pilar P16, Obra: Obra_TREINO_9, Pavimento: 1_PAV, b=?cm h=?cm altura=652.0cm, confidence=0.3, source=engenharia-reversa-ezdxf, bh_source=, faces=[B], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P16",
+    "obra": "Obra_TREINO_9",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": null,
+      "h": null,
+      "altura": 652.0,
+      "confidence": 0.3,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "B"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente"
+    },
+    "faiss_id": 769
+  },
+  {
+    "text": "Pilar P314, Obra: Obra_TREINO_9, Pavimento: 1_PAV, b=19.0cm h=36.0cm altura=652.0cm, confidence=0.9, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P314",
+    "obra": "Obra_TREINO_9",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 19.0,
+      "h": 36.0,
+      "altura": 652.0,
+      "confidence": 0.9,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 770
+  },
+  {
+    "text": "Pilar P315, Obra: Obra_TREINO_9, Pavimento: 1_PAV, b=19.0cm h=82.0cm altura=652.0cm, confidence=0.4, source=engenharia-reversa-ezdxf, bh_source=proximity-fallback, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P315",
+    "obra": "Obra_TREINO_9",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 19.0,
+      "h": 82.0,
+      "altura": 652.0,
+      "confidence": 0.4,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "proximity-fallback"
+    },
+    "faiss_id": 771
+  },
+  {
+    "text": "Pilar P317, Obra: Obra_TREINO_9, Pavimento: 1_PAV, b=19.0cm h=34.0cm altura=652.0cm, confidence=0.9, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P317",
+    "obra": "Obra_TREINO_9",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 19.0,
+      "h": 34.0,
+      "altura": 652.0,
+      "confidence": 0.9,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 772
+  },
+  {
+    "text": "Pilar P318, Obra: Obra_TREINO_9, Pavimento: 1_PAV, b=19.0cm h=82.0cm altura=652.0cm, confidence=0.4, source=engenharia-reversa-ezdxf, bh_source=proximity-fallback, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P318",
+    "obra": "Obra_TREINO_9",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 19.0,
+      "h": 82.0,
+      "altura": 652.0,
+      "confidence": 0.4,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "proximity-fallback"
+    },
+    "faiss_id": 773
+  },
+  {
+    "text": "Pilar P319, Obra: Obra_TREINO_9, Pavimento: 1_PAV, b=19.0cm h=82.0cm altura=652.0cm, confidence=0.4, source=engenharia-reversa-ezdxf, bh_source=proximity-fallback, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P319",
+    "obra": "Obra_TREINO_9",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 19.0,
+      "h": 82.0,
+      "altura": 652.0,
+      "confidence": 0.4,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "proximity-fallback"
+    },
+    "faiss_id": 774
+  },
+  {
+    "text": "Pilar P320, Obra: Obra_TREINO_9, Pavimento: 1_PAV, b=34.0cm h=82.0cm altura=652.0cm, confidence=0.4, source=engenharia-reversa-ezdxf, bh_source=proximity-fallback, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P320",
+    "obra": "Obra_TREINO_9",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 34.0,
+      "h": 82.0,
+      "altura": 652.0,
+      "confidence": 0.4,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "proximity-fallback"
+    },
+    "faiss_id": 775
+  },
+  {
+    "text": "Pilar P324, Obra: Obra_TREINO_9, Pavimento: 1_PAV, b=36.0cm h=82.0cm altura=652.0cm, confidence=0.9, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[A], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P324",
+    "obra": "Obra_TREINO_9",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 36.0,
+      "h": 82.0,
+      "altura": 652.0,
+      "confidence": 0.9,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 776
+  },
+  {
+    "text": "Pilar P325, Obra: Obra_TREINO_9, Pavimento: 1_PAV, b=19.0cm h=82.0cm altura=652.0cm, confidence=0.4, source=engenharia-reversa-ezdxf, bh_source=proximity-fallback, faces=[A], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P325",
+    "obra": "Obra_TREINO_9",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 19.0,
+      "h": 82.0,
+      "altura": 652.0,
+      "confidence": 0.4,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "proximity-fallback"
+    },
+    "faiss_id": 777
+  },
+  {
+    "text": "Pilar P326, Obra: Obra_TREINO_9, Pavimento: 1_PAV, b=34.0cm h=82.0cm altura=652.0cm, confidence=0.4, source=engenharia-reversa-ezdxf, bh_source=proximity-fallback, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P326",
+    "obra": "Obra_TREINO_9",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 34.0,
+      "h": 82.0,
+      "altura": 652.0,
+      "confidence": 0.4,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "proximity-fallback"
+    },
+    "faiss_id": 778
+  },
+  {
+    "text": "Pilar P330, Obra: Obra_TREINO_9, Pavimento: 1_PAV, b=19.0cm h=82.0cm altura=652.0cm, confidence=0.9, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P330",
+    "obra": "Obra_TREINO_9",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 19.0,
+      "h": 82.0,
+      "altura": 652.0,
+      "confidence": 0.9,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 779
+  },
+  {
+    "text": "Pilar P331, Obra: Obra_TREINO_9, Pavimento: 1_PAV, b=19.0cm h=82.0cm altura=652.0cm, confidence=0.4, source=engenharia-reversa-ezdxf, bh_source=proximity-fallback, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P331",
+    "obra": "Obra_TREINO_9",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 19.0,
+      "h": 82.0,
+      "altura": 652.0,
+      "confidence": 0.4,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "proximity-fallback"
+    },
+    "faiss_id": 780
+  },
+  {
+    "text": "Pilar P332, Obra: Obra_TREINO_9, Pavimento: 1_PAV, b=34.0cm h=82.0cm altura=652.0cm, confidence=0.9, source=engenharia-reversa-ezdxf, bh_source=inverse-proximity, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P332",
+    "obra": "Obra_TREINO_9",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 34.0,
+      "h": 82.0,
+      "altura": 652.0,
+      "confidence": 0.9,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "inverse-proximity"
+    },
+    "faiss_id": 781
+  },
+  {
+    "text": "Pilar P338, Obra: Obra_TREINO_9, Pavimento: 1_PAV, b=19.0cm h=82.0cm altura=652.0cm, confidence=0.4, source=engenharia-reversa-ezdxf, bh_source=proximity-fallback, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P338",
+    "obra": "Obra_TREINO_9",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 19.0,
+      "h": 82.0,
+      "altura": 652.0,
+      "confidence": 0.4,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "proximity-fallback"
+    },
+    "faiss_id": 782
+  },
+  {
+    "text": "Pilar P339, Obra: Obra_TREINO_9, Pavimento: 1_PAV, b=19.0cm h=82.0cm altura=652.0cm, confidence=0.4, source=engenharia-reversa-ezdxf, bh_source=proximity-fallback, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P339",
+    "obra": "Obra_TREINO_9",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 19.0,
+      "h": 82.0,
+      "altura": 652.0,
+      "confidence": 0.4,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "proximity-fallback"
+    },
+    "faiss_id": 783
+  },
+  {
+    "text": "Pilar P340, Obra: Obra_TREINO_9, Pavimento: 1_PAV, b=34.0cm h=82.0cm altura=652.0cm, confidence=0.4, source=engenharia-reversa-ezdxf, bh_source=proximity-fallback, faces=[A B C D], nota=B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "tipo": "pilar",
+    "id": "P340",
+    "obra": "Obra_TREINO_9",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "b": 34.0,
+      "h": 82.0,
+      "altura": 652.0,
+      "confidence": 0.4,
+      "source": "engenharia-reversa-ezdxf",
+      "faces_encontradas": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+      "bh_source": "proximity-fallback"
+    },
+    "faiss_id": 784
+  },
+  {
+    "text": "Pilar _meta, Obra: Obra_TREINO_9, Pavimento: 1_PAV, b=?cm h=?cm altura=?cm, confidence=?, source=, bh_source=, faces=[], nota=",
+    "tipo": "pilar",
+    "id": "_meta",
+    "obra": "Obra_TREINO_9",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "pilares_ground_truth.json",
+    "dados": {
+      "total": 16,
+      "obra": "engenharia-reversa",
+      "pavimento": "TORRE 2 - TÉRREO - PERIFERIA",
+      "pe_direito_cm": 652.0,
+      "extraido_em": "2026-03-09",
+      "confidence_nota": "IDs=ALTA | altura=MEDIA | B/H=BAIXA(requer revisao)",
+      "bh_extraidos": 15,
+      "bh_atualizado_em": "2026-03-09"
+    },
+    "faiss_id": 785
+  }
+]

@@ -349,6 +349,33 @@ def draw_face(msp, fx, fy, face_w, h1, h2, h3, face_label):
     mtext(msp, fx + face_w/2, fy + total_h + FACE_PAD_Y * 0.5,
           face_label, height=lbl_h, layer='TEXTO_GERAL', anchor=8)
 
+    # ── Texto Seção: dimensões de cada segmento (STOG: 212 entities) ──
+    txt_h = max(3.5, face_w * 0.06)
+    h1_real = h1 / FACE_H_SCALE if h1 > 0 else 0
+    h2_real = h2 / FACE_H_SCALE if h2 > 0 else 0
+    h3_real = h3 / FACE_H_SCALE if h3 > 0 else 0
+    fw_real = face_w / FACE_W_SCALE
+
+    # Texto dentro de cada segmento (centralizado)
+    if h1 > 0:
+        mtext(msp, fx + face_w/2, fy + h1/2,
+              f'{h1_real:.0f}', height=txt_h, layer='Texto Seção', anchor=5)
+    if h2 > 0:
+        mtext(msp, fx + face_w/2, fy + h1 + h2/2,
+              f'{h2_real:.0f}', height=txt_h, layer='Texto Seção', anchor=5)
+    if h3 > 0:
+        mtext(msp, fx + face_w/2, fy + h1 + h2 + h3/2,
+              f'{h3_real:.0f}', height=txt_h, layer='Texto Seção', anchor=5)
+
+    # Texto lateral: largura da face (layer 'texto')
+    mtext(msp, fx - 3, fy + total_h/2,
+          f'{fw_real:.0f}', height=txt_h, layer='TEXTO_GERAL', anchor=6)
+
+    # Texto de altura total à direita (layer 'texto')
+    total_real = h1_real + h2_real + h3_real
+    mtext(msp, fx + face_w + DIM_OFFSET + 8, fy + total_h/2,
+          f'{total_real:.0f}', height=txt_h, layer='TEXTO_GERAL', anchor=4)
+
     return total_h
 
 

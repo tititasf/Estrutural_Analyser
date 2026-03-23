@@ -1,0 +1,121 @@
+{
+  "ingestoes": [
+    {
+      "obra": "Obra_TREINO_1",
+      "data": "2026-03-22T21:47:06.136186",
+      "elementos": {
+        "pilar": 23,
+        "viga": 32,
+        "laje": 56
+      },
+      "total": 111
+    },
+    {
+      "obra": "Obra_TREINO_10",
+      "data": "2026-03-22T21:47:06.505976",
+      "elementos": {
+        "pilar": 18,
+        "viga": 21,
+        "laje": 1
+      },
+      "total": 40
+    },
+    {
+      "obra": "Obra_TREINO_11",
+      "data": "2026-03-22T21:47:07.087725",
+      "elementos": {
+        "pilar": 27,
+        "viga": 29,
+        "laje": 13
+      },
+      "total": 69
+    },
+    {
+      "obra": "Obra_TREINO_13",
+      "data": "2026-03-22T21:47:07.940045",
+      "elementos": {
+        "pilar": 25,
+        "viga": 47,
+        "laje": 33
+      },
+      "total": 105
+    },
+    {
+      "obra": "Obra_TREINO_16",
+      "data": "2026-03-22T21:47:08.507992",
+      "elementos": {
+        "pilar": 11,
+        "viga": 40,
+        "laje": 10
+      },
+      "total": 61
+    },
+    {
+      "obra": "Obra_TREINO_21",
+      "data": "2026-03-22T21:47:09.262464",
+      "elementos": {
+        "pilar": 33,
+        "viga": 30,
+        "laje": 26
+      },
+      "total": 89
+    },
+    {
+      "obra": "Obra_TREINO_22",
+      "data": "2026-03-22T21:47:10.045748",
+      "elementos": {
+        "pilar": 20,
+        "viga": 42,
+        "laje": 37
+      },
+      "total": 99
+    },
+    {
+      "obra": "Obra_TREINO_23",
+      "data": "2026-03-22T21:47:10.616991",
+      "elementos": {
+        "pilar": 21,
+        "viga": 22,
+        "laje": 17
+      },
+      "total": 60
+    },
+    {
+      "obra": "Obra_TREINO_3",
+      "data": "2026-03-22T21:47:11.125247",
+      "elementos": {
+        "pilar": 11,
+        "viga": 34,
+        "laje": 17
+      },
+      "total": 62
+    },
+    {
+      "obra": "Obra_TREINO_6",
+      "data": "2026-03-22T21:47:11.731291",
+      "elementos": {
+        "pilar": 22,
+        "viga": 36,
+        "laje": 15
+      },
+      "total": 73
+    },
+    {
+      "obra": "Obra_TREINO_9",
+      "data": "2026-03-22T21:47:12.368500",
+      "elementos": {
+        "pilar": 17,
+        "viga": 18,
+        "laje": 28
+      },
+      "total": 63
+    }
+  ],
+  "total": {
+    "pilares": 228,
+    "vigas": 351,
+    "lajes": 253,
+    "geral": 832
+  },
+  "ultima_atualizacao": "2026-03-22T21:47:12.368539"
+}

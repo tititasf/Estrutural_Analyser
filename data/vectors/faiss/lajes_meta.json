@@ -1,0 +1,6884 @@
+[
+  {
+    "text": "Laje L101, Obra: Obra_TREINO_1, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=0, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L101",
+    "obra": "Obra_TREINO_1",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 55
+  },
+  {
+    "text": "Laje L102, Obra: Obra_TREINO_1, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=0, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L102",
+    "obra": "Obra_TREINO_1",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 56
+  },
+  {
+    "text": "Laje L103, Obra: Obra_TREINO_1, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=0, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L103",
+    "obra": "Obra_TREINO_1",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 57
+  },
+  {
+    "text": "Laje L104, Obra: Obra_TREINO_1, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=0, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L104",
+    "obra": "Obra_TREINO_1",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 58
+  },
+  {
+    "text": "Laje L105, Obra: Obra_TREINO_1, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=0, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L105",
+    "obra": "Obra_TREINO_1",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 59
+  },
+  {
+    "text": "Laje L106, Obra: Obra_TREINO_1, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=0, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L106",
+    "obra": "Obra_TREINO_1",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 60
+  },
+  {
+    "text": "Laje L107, Obra: Obra_TREINO_1, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=0, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L107",
+    "obra": "Obra_TREINO_1",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 61
+  },
+  {
+    "text": "Laje L108, Obra: Obra_TREINO_1, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=0, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L108",
+    "obra": "Obra_TREINO_1",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 62
+  },
+  {
+    "text": "Laje L109, Obra: Obra_TREINO_1, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=0, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L109",
+    "obra": "Obra_TREINO_1",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 63
+  },
+  {
+    "text": "Laje L110, Obra: Obra_TREINO_1, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=0, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L110",
+    "obra": "Obra_TREINO_1",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 64
+  },
+  {
+    "text": "Laje L111, Obra: Obra_TREINO_1, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=0, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L111",
+    "obra": "Obra_TREINO_1",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 65
+  },
+  {
+    "text": "Laje L112, Obra: Obra_TREINO_1, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=0, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L112",
+    "obra": "Obra_TREINO_1",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 66
+  },
+  {
+    "text": "Laje L113, Obra: Obra_TREINO_1, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=0, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L113",
+    "obra": "Obra_TREINO_1",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 67
+  },
+  {
+    "text": "Laje L114, Obra: Obra_TREINO_1, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=0, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L114",
+    "obra": "Obra_TREINO_1",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 68
+  },
+  {
+    "text": "Laje L115, Obra: Obra_TREINO_1, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=0, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L115",
+    "obra": "Obra_TREINO_1",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 69
+  },
+  {
+    "text": "Laje L116, Obra: Obra_TREINO_1, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=0, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L116",
+    "obra": "Obra_TREINO_1",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 70
+  },
+  {
+    "text": "Laje L117, Obra: Obra_TREINO_1, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=0, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L117",
+    "obra": "Obra_TREINO_1",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 71
+  },
+  {
+    "text": "Laje L118, Obra: Obra_TREINO_1, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=0, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L118",
+    "obra": "Obra_TREINO_1",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 72
+  },
+  {
+    "text": "Laje L119, Obra: Obra_TREINO_1, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=0, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L119",
+    "obra": "Obra_TREINO_1",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 73
+  },
+  {
+    "text": "Laje L120, Obra: Obra_TREINO_1, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=0, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L120",
+    "obra": "Obra_TREINO_1",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 74
+  },
+  {
+    "text": "Laje L121, Obra: Obra_TREINO_1, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=0, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L121",
+    "obra": "Obra_TREINO_1",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 75
+  },
+  {
+    "text": "Laje L122, Obra: Obra_TREINO_1, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=0, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L122",
+    "obra": "Obra_TREINO_1",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 76
+  },
+  {
+    "text": "Laje _meta, Obra: Obra_TREINO_1, Pavimento: 1_PAV, comprimento=?cm largura=?cm area=?cm2, confidence=?, source=, modo=, n_vertices=0, nota=",
+    "tipo": "laje",
+    "id": "_meta",
+    "obra": "Obra_TREINO_1",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "total": 22,
+      "pavimento": "TÉRREO",
+      "extraido_em": "2026-03-09"
+    },
+    "faiss_id": 77
+  },
+  {
+    "text": "Laje L1, Obra: Obra_TREINO_1, Pavimento: TIPO, comprimento=405.5cm largura=423.0cm area=171526.5cm2, confidence=?, source=, modo=, n_vertices=5, nota=",
+    "tipo": "laje",
+    "id": "L1",
+    "obra": "Obra_TREINO_1",
+    "pavimento": "TIPO",
+    "arquivo_fonte": "L1.json",
+    "dados": {
+      "numero": 0,
+      "nome": "L1",
+      "pavimento": "TIPO",
+      "linhas_verticais": [],
+      "linhas_horizontais": [],
+      "obstaculos": [],
+      "comprimento": 405.5,
+      "largura": 423.0,
+      "coordenadas": [
+        [
+          0.0,
+          0.0
+        ],
+        [
+          405.5,
+          0.0
+        ],
+        [
+          405.5,
+          423.0
+        ],
+        [
+          0.0,
+          423.0
+        ],
+        [
+          0.0,
+          0.0
+        ]
+      ],
+      "area_cm2": 171526.5
+    },
+    "faiss_id": 78
+  },
+  {
+    "text": "Laje L10, Obra: Obra_TREINO_1, Pavimento: TIPO, comprimento=418.0cm largura=423.0cm area=176814.0cm2, confidence=?, source=, modo=, n_vertices=5, nota=",
+    "tipo": "laje",
+    "id": "L10",
+    "obra": "Obra_TREINO_1",
+    "pavimento": "TIPO",
+    "arquivo_fonte": "L10.json",
+    "dados": {
+      "numero": 0,
+      "nome": "L10",
+      "pavimento": "TIPO",
+      "linhas_verticais": [],
+      "linhas_horizontais": [],
+      "obstaculos": [],
+      "comprimento": 418.0,
+      "largura": 423.0,
+      "coordenadas": [
+        [
+          0.0,
+          0.0
+        ],
+        [
+          418.0,
+          0.0
+        ],
+        [
+          418.0,
+          423.0
+        ],
+        [
+          0.0,
+          423.0
+        ],
+        [
+          0.0,
+          0.0
+        ]
+      ],
+      "area_cm2": 176814.0
+    },
+    "faiss_id": 79
+  },
+  {
+    "text": "Laje L11, Obra: Obra_TREINO_1, Pavimento: TIPO, comprimento=418.0cm largura=423.0cm area=176814.0cm2, confidence=?, source=, modo=, n_vertices=5, nota=",
+    "tipo": "laje",
+    "id": "L11",
+    "obra": "Obra_TREINO_1",
+    "pavimento": "TIPO",
+    "arquivo_fonte": "L11.json",
+    "dados": {
+      "numero": 0,
+      "nome": "L11",
+      "pavimento": "TIPO",
+      "linhas_verticais": [],
+      "linhas_horizontais": [],
+      "obstaculos": [],
+      "comprimento": 418.0,
+      "largura": 423.0,
+      "coordenadas": [
+        [
+          0.0,
+          0.0
+        ],
+        [
+          418.0,
+          0.0
+        ],
+        [
+          418.0,
+          423.0
+        ],
+        [
+          0.0,
+          423.0
+        ],
+        [
+          0.0,
+          0.0
+        ]
+      ],
+      "area_cm2": 176814.0
+    },
+    "faiss_id": 80
+  },
+  {
+    "text": "Laje L12, Obra: Obra_TREINO_1, Pavimento: TIPO, comprimento=418.0cm largura=423.0cm area=176814.0cm2, confidence=?, source=, modo=, n_vertices=5, nota=",
+    "tipo": "laje",
+    "id": "L12",
+    "obra": "Obra_TREINO_1",
+    "pavimento": "TIPO",
+    "arquivo_fonte": "L12.json",
+    "dados": {
+      "numero": 0,
+      "nome": "L12",
+      "pavimento": "TIPO",
+      "linhas_verticais": [],
+      "linhas_horizontais": [],
+      "obstaculos": [],
+      "comprimento": 418.0,
+      "largura": 423.0,
+      "coordenadas": [
+        [
+          0.0,
+          0.0
+        ],
+        [
+          418.0,
+          0.0
+        ],
+        [
+          418.0,
+          423.0
+        ],
+        [
+          0.0,
+          423.0
+        ],
+        [
+          0.0,
+          0.0
+        ]
+      ],
+      "area_cm2": 176814.0
+    },
+    "faiss_id": 81
+  },
+  {
+    "text": "Laje L13, Obra: Obra_TREINO_1, Pavimento: TIPO, comprimento=418.0cm largura=423.0cm area=176814.0cm2, confidence=?, source=, modo=, n_vertices=5, nota=",
+    "tipo": "laje",
+    "id": "L13",
+    "obra": "Obra_TREINO_1",
+    "pavimento": "TIPO",
+    "arquivo_fonte": "L13.json",
+    "dados": {
+      "numero": 0,
+      "nome": "L13",
+      "pavimento": "TIPO",
+      "linhas_verticais": [],
+      "linhas_horizontais": [],
+      "obstaculos": [],
+      "comprimento": 418.0,
+      "largura": 423.0,
+      "coordenadas": [
+        [
+          0.0,
+          0.0
+        ],
+        [
+          418.0,
+          0.0
+        ],
+        [
+          418.0,
+          423.0
+        ],
+        [
+          0.0,
+          423.0
+        ],
+        [
+          0.0,
+          0.0
+        ]
+      ],
+      "area_cm2": 176814.0
+    },
+    "faiss_id": 82
+  },
+  {
+    "text": "Laje L14, Obra: Obra_TREINO_1, Pavimento: TIPO, comprimento=418.0cm largura=423.0cm area=176814.0cm2, confidence=?, source=, modo=, n_vertices=5, nota=",
+    "tipo": "laje",
+    "id": "L14",
+    "obra": "Obra_TREINO_1",
+    "pavimento": "TIPO",
+    "arquivo_fonte": "L14.json",
+    "dados": {
+      "numero": 0,
+      "nome": "L14",
+      "pavimento": "TIPO",
+      "linhas_verticais": [],
+      "linhas_horizontais": [],
+      "obstaculos": [],
+      "comprimento": 418.0,
+      "largura": 423.0,
+      "coordenadas": [
+        [
+          0.0,
+          0.0
+        ],
+        [
+          418.0,
+          0.0
+        ],
+        [
+          418.0,
+          423.0
+        ],
+        [
+          0.0,
+          423.0
+        ],
+        [
+          0.0,
+          0.0
+        ]
+      ],
+      "area_cm2": 176814.0
+    },
+    "faiss_id": 83
+  },
+  {
+    "text": "Laje L15, Obra: Obra_TREINO_1, Pavimento: TIPO, comprimento=418.0cm largura=423.0cm area=176814.0cm2, confidence=?, source=, modo=, n_vertices=5, nota=",
+    "tipo": "laje",
+    "id": "L15",
+    "obra": "Obra_TREINO_1",
+    "pavimento": "TIPO",
+    "arquivo_fonte": "L15.json",
+    "dados": {
+      "numero": 0,
+      "nome": "L15",
+      "pavimento": "TIPO",
+      "linhas_verticais": [],
+      "linhas_horizontais": [],
+      "obstaculos": [],
+      "comprimento": 418.0,
+      "largura": 423.0,
+      "coordenadas": [
+        [
+          0.0,
+          0.0
+        ],
+        [
+          418.0,
+          0.0
+        ],
+        [
+          418.0,
+          423.0
+        ],
+        [
+          0.0,
+          423.0
+        ],
+        [
+          0.0,
+          0.0
+        ]
+      ],
+      "area_cm2": 176814.0
+    },
+    "faiss_id": 84
+  },
+  {
+    "text": "Laje L16, Obra: Obra_TREINO_1, Pavimento: TIPO, comprimento=405.5cm largura=423.0cm area=171526.5cm2, confidence=?, source=, modo=, n_vertices=5, nota=",
+    "tipo": "laje",
+    "id": "L16",
+    "obra": "Obra_TREINO_1",
+    "pavimento": "TIPO",
+    "arquivo_fonte": "L16.json",
+    "dados": {
+      "numero": 0,
+      "nome": "L16",
+      "pavimento": "TIPO",
+      "linhas_verticais": [],
+      "linhas_horizontais": [],
+      "obstaculos": [],
+      "comprimento": 405.5,
+      "largura": 423.0,
+      "coordenadas": [
+        [
+          0.0,
+          0.0
+        ],
+        [
+          405.5,
+          0.0
+        ],
+        [
+          405.5,
+          423.0
+        ],
+        [
+          0.0,
+          423.0
+        ],
+        [
+          0.0,
+          0.0
+        ]
+      ],
+      "area_cm2": 171526.5
+    },
+    "faiss_id": 85
+  },
+  {
+    "text": "Laje L17, Obra: Obra_TREINO_1, Pavimento: TIPO, comprimento=1887.0cm largura=152.0cm area=286824.0cm2, confidence=?, source=, modo=, n_vertices=5, nota=",
+    "tipo": "laje",
+    "id": "L17",
+    "obra": "Obra_TREINO_1",
+    "pavimento": "TIPO",
+    "arquivo_fonte": "L17.json",
+    "dados": {
+      "numero": 0,
+      "nome": "L17",
+      "pavimento": "TIPO",
+      "linhas_verticais": [],
+      "linhas_horizontais": [],
+      "obstaculos": [],
+      "comprimento": 1887.0,
+      "largura": 152.0,
+      "coordenadas": [
+        [
+          0.0,
+          0.0
+        ],
+        [
+          1887.0,
+          0.0
+        ],
+        [
+          1887.0,
+          152.0
+        ],
+        [
+          0.0,
+          152.0
+        ],
+        [
+          0.0,
+          0.0
+        ]
+      ],
+      "area_cm2": 286824.0
+    },
+    "faiss_id": 86
+  },
+  {
+    "text": "Laje L18, Obra: Obra_TREINO_1, Pavimento: TIPO, comprimento=405.5cm largura=558.1cm area=226309.55000000002cm2, confidence=?, source=, modo=, n_vertices=5, nota=",
+    "tipo": "laje",
+    "id": "L18",
+    "obra": "Obra_TREINO_1",
+    "pavimento": "TIPO",
+    "arquivo_fonte": "L18.json",
+    "dados": {
+      "numero": 0,
+      "nome": "L18",
+      "pavimento": "TIPO",
+      "linhas_verticais": [],
+      "linhas_horizontais": [],
+      "obstaculos": [],
+      "comprimento": 405.5,
+      "largura": 558.1,
+      "coordenadas": [
+        [
+          0.0,
+          0.0
+        ],
+        [
+          405.5,
+          0.0
+        ],
+        [
+          405.5,
+          558.1
+        ],
+        [
+          0.0,
+          558.1
+        ],
+        [
+          0.0,
+          0.0
+        ]
+      ],
+      "area_cm2": 226309.55000000002
+    },
+    "faiss_id": 87
+  },
+  {
+    "text": "Laje L19, Obra: Obra_TREINO_1, Pavimento: TIPO, comprimento=418.0cm largura=423.0cm area=176814.0cm2, confidence=?, source=, modo=, n_vertices=5, nota=",
+    "tipo": "laje",
+    "id": "L19",
+    "obra": "Obra_TREINO_1",
+    "pavimento": "TIPO",
+    "arquivo_fonte": "L19.json",
+    "dados": {
+      "numero": 0,
+      "nome": "L19",
+      "pavimento": "TIPO",
+      "linhas_verticais": [],
+      "linhas_horizontais": [],
+      "obstaculos": [],
+      "comprimento": 418.0,
+      "largura": 423.0,
+      "coordenadas": [
+        [
+          0.0,
+          0.0
+        ],
+        [
+          418.0,
+          0.0
+        ],
+        [
+          418.0,
+          423.0
+        ],
+        [
+          0.0,
+          423.0
+        ],
+        [
+          0.0,
+          0.0
+        ]
+      ],
+      "area_cm2": 176814.0
+    },
+    "faiss_id": 88
+  },
+  {
+    "text": "Laje L2, Obra: Obra_TREINO_1, Pavimento: TIPO, comprimento=418.0cm largura=423.0cm area=176814.0cm2, confidence=?, source=, modo=, n_vertices=5, nota=",
+    "tipo": "laje",
+    "id": "L2",
+    "obra": "Obra_TREINO_1",
+    "pavimento": "TIPO",
+    "arquivo_fonte": "L2.json",
+    "dados": {
+      "numero": 0,
+      "nome": "L2",
+      "pavimento": "TIPO",
+      "linhas_verticais": [],
+      "linhas_horizontais": [],
+      "obstaculos": [],
+      "comprimento": 418.0,
+      "largura": 423.0,
+      "coordenadas": [
+        [
+          0.0,
+          0.0
+        ],
+        [
+          418.0,
+          0.0
+        ],
+        [
+          418.0,
+          423.0
+        ],
+        [
+          0.0,
+          423.0
+        ],
+        [
+          0.0,
+          0.0
+        ]
+      ],
+      "area_cm2": 176814.0
+    },
+    "faiss_id": 89
+  },
+  {
+    "text": "Laje L20, Obra: Obra_TREINO_1, Pavimento: TIPO, comprimento=418.0cm largura=423.0cm area=176814.0cm2, confidence=?, source=, modo=, n_vertices=5, nota=",
+    "tipo": "laje",
+    "id": "L20",
+    "obra": "Obra_TREINO_1",
+    "pavimento": "TIPO",
+    "arquivo_fonte": "L20.json",
+    "dados": {
+      "numero": 0,
+      "nome": "L20",
+      "pavimento": "TIPO",
+      "linhas_verticais": [],
+      "linhas_horizontais": [],
+      "obstaculos": [],
+      "comprimento": 418.0,
+      "largura": 423.0,
+      "coordenadas": [
+        [
+          0.0,
+          0.0
+        ],
+        [
+          418.0,
+          0.0
+        ],
+        [
+          418.0,
+          423.0
+        ],
+        [
+          0.0,
+          423.0
+        ],
+        [
+          0.0,
+          0.0
+        ]
+      ],
+      "area_cm2": 176814.0
+    },
+    "faiss_id": 90
+  },
+  {
+    "text": "Laje L21, Obra: Obra_TREINO_1, Pavimento: TIPO, comprimento=418.0cm largura=423.0cm area=176814.0cm2, confidence=?, source=, modo=, n_vertices=5, nota=",
+    "tipo": "laje",
+    "id": "L21",
+    "obra": "Obra_TREINO_1",
+    "pavimento": "TIPO",
+    "arquivo_fonte": "L21.json",
+    "dados": {
+      "numero": 0,
+      "nome": "L21",
+      "pavimento": "TIPO",
+      "linhas_verticais": [],
+      "linhas_horizontais": [],
+      "obstaculos": [],
+      "comprimento": 418.0,
+      "largura": 423.0,
+      "coordenadas": [
+        [
+          0.0,
+          0.0
+        ],
+        [
+          418.0,
+          0.0
+        ],
+        [
+          418.0,
+          423.0
+        ],
+        [
+          0.0,
+          423.0
+        ],
+        [
+          0.0,
+          0.0
+        ]
+      ],
+      "area_cm2": 176814.0
+    },
+    "faiss_id": 91
+  },
+  {
+    "text": "Laje L22, Obra: Obra_TREINO_1, Pavimento: TIPO, comprimento=418.0cm largura=423.0cm area=176814.0cm2, confidence=?, source=, modo=, n_vertices=5, nota=",
+    "tipo": "laje",
+    "id": "L22",
+    "obra": "Obra_TREINO_1",
+    "pavimento": "TIPO",
+    "arquivo_fonte": "L22.json",
+    "dados": {
+      "numero": 0,
+      "nome": "L22",
+      "pavimento": "TIPO",
+      "linhas_verticais": [],
+      "linhas_horizontais": [],
+      "obstaculos": [],
+      "comprimento": 418.0,
+      "largura": 423.0,
+      "coordenadas": [
+        [
+          0.0,
+          0.0
+        ],
+        [
+          418.0,
+          0.0
+        ],
+        [
+          418.0,
+          423.0
+        ],
+        [
+          0.0,
+          423.0
+        ],
+        [
+          0.0,
+          0.0
+        ]
+      ],
+      "area_cm2": 176814.0
+    },
+    "faiss_id": 92
+  },
+  {
+    "text": "Laje L23, Obra: Obra_TREINO_1, Pavimento: TIPO, comprimento=418.0cm largura=423.0cm area=176814.0cm2, confidence=?, source=, modo=, n_vertices=5, nota=",
+    "tipo": "laje",
+    "id": "L23",
+    "obra": "Obra_TREINO_1",
+    "pavimento": "TIPO",
+    "arquivo_fonte": "L23.json",
+    "dados": {
+      "numero": 0,
+      "nome": "L23",
+      "pavimento": "TIPO",
+      "linhas_verticais": [],
+      "linhas_horizontais": [],
+      "obstaculos": [],
+      "comprimento": 418.0,
+      "largura": 423.0,
+      "coordenadas": [
+        [
+          0.0,
+          0.0
+        ],
+        [
+          418.0,
+          0.0
+        ],
+        [
+          418.0,
+          423.0
+        ],
+        [
+          0.0,
+          423.0
+        ],
+        [
+          0.0,
+          0.0
+        ]
+      ],
+      "area_cm2": 176814.0
+    },
+    "faiss_id": 93
+  },
+  {
+    "text": "Laje L24, Obra: Obra_TREINO_1, Pavimento: TIPO, comprimento=129.0cm largura=459.0cm area=59211.0cm2, confidence=?, source=, modo=, n_vertices=5, nota=",
+    "tipo": "laje",
+    "id": "L24",
+    "obra": "Obra_TREINO_1",
+    "pavimento": "TIPO",
+    "arquivo_fonte": "L24.json",
+    "dados": {
+      "numero": 0,
+      "nome": "L24",
+      "pavimento": "TIPO",
+      "linhas_verticais": [],
+      "linhas_horizontais": [],
+      "obstaculos": [],
+      "comprimento": 129.0,
+      "largura": 459.0,
+      "coordenadas": [
+        [
+          0.0,
+          0.0
+        ],
+        [
+          129.0,
+          0.0
+        ],
+        [
+          129.0,
+          459.0
+        ],
+        [
+          0.0,
+          459.0
+        ],
+        [
+          0.0,
+          0.0
+        ]
+      ],
+      "area_cm2": 59211.0
+    },
+    "faiss_id": 94
+  },
+  {
+    "text": "Laje L25, Obra: Obra_TREINO_1, Pavimento: TIPO, comprimento=233.8cm largura=423.0cm area=98897.40000000001cm2, confidence=?, source=, modo=, n_vertices=5, nota=",
+    "tipo": "laje",
+    "id": "L25",
+    "obra": "Obra_TREINO_1",
+    "pavimento": "TIPO",
+    "arquivo_fonte": "L25.json",
+    "dados": {
+      "numero": 0,
+      "nome": "L25",
+      "pavimento": "TIPO",
+      "linhas_verticais": [],
+      "linhas_horizontais": [],
+      "obstaculos": [],
+      "comprimento": 233.8,
+      "largura": 423.0,
+      "coordenadas": [
+        [
+          0.0,
+          0.0
+        ],
+        [
+          233.8,
+          0.0
+        ],
+        [
+          233.8,
+          423.0
+        ],
+        [
+          0.0,
+          423.0
+        ],
+        [
+          0.0,
+          0.0
+        ]
+      ],
+      "area_cm2": 98897.40000000001
+    },
+    "faiss_id": 95
+  },
+  {
+    "text": "Laje L26, Obra: Obra_TREINO_1, Pavimento: TIPO, comprimento=413.0cm largura=423.0cm area=174699.0cm2, confidence=?, source=, modo=, n_vertices=5, nota=",
+    "tipo": "laje",
+    "id": "L26",
+    "obra": "Obra_TREINO_1",
+    "pavimento": "TIPO",
+    "arquivo_fonte": "L26.json",
+    "dados": {
+      "numero": 0,
+      "nome": "L26",
+      "pavimento": "TIPO",
+      "linhas_verticais": [],
+      "linhas_horizontais": [],
+      "obstaculos": [],
+      "comprimento": 413.0,
+      "largura": 423.0,
+      "coordenadas": [
+        [
+          0.0,
+          0.0
+        ],
+        [
+          413.0,
+          0.0
+        ],
+        [
+          413.0,
+          423.0
+        ],
+        [
+          0.0,
+          423.0
+        ],
+        [
+          0.0,
+          0.0
+        ]
+      ],
+      "area_cm2": 174699.0
+    },
+    "faiss_id": 96
+  },
+  {
+    "text": "Laje L27, Obra: Obra_TREINO_1, Pavimento: TIPO, comprimento=413.0cm largura=423.0cm area=174699.0cm2, confidence=?, source=, modo=, n_vertices=5, nota=",
+    "tipo": "laje",
+    "id": "L27",
+    "obra": "Obra_TREINO_1",
+    "pavimento": "TIPO",
+    "arquivo_fonte": "L27.json",
+    "dados": {
+      "numero": 0,
+      "nome": "L27",
+      "pavimento": "TIPO",
+      "linhas_verticais": [],
+      "linhas_horizontais": [],
+      "obstaculos": [],
+      "comprimento": 413.0,
+      "largura": 423.0,
+      "coordenadas": [
+        [
+          0.0,
+          0.0
+        ],
+        [
+          413.0,
+          0.0
+        ],
+        [
+          413.0,
+          423.0
+        ],
+        [
+          0.0,
+          423.0
+        ],
+        [
+          0.0,
+          0.0
+        ]
+      ],
+      "area_cm2": 174699.0
+    },
+    "faiss_id": 97
+  },
+  {
+    "text": "Laje L28, Obra: Obra_TREINO_1, Pavimento: TIPO, comprimento=413.0cm largura=423.0cm area=174699.0cm2, confidence=?, source=, modo=, n_vertices=5, nota=",
+    "tipo": "laje",
+    "id": "L28",
+    "obra": "Obra_TREINO_1",
+    "pavimento": "TIPO",
+    "arquivo_fonte": "L28.json",
+    "dados": {
+      "numero": 0,
+      "nome": "L28",
+      "pavimento": "TIPO",
+      "linhas_verticais": [],
+      "linhas_horizontais": [],
+      "obstaculos": [],
+      "comprimento": 413.0,
+      "largura": 423.0,
+      "coordenadas": [
+        [
+          0.0,
+          0.0
+        ],
+        [
+          413.0,
+          0.0
+        ],
+        [
+          413.0,
+          423.0
+        ],
+        [
+          0.0,
+          423.0
+        ],
+        [
+          0.0,
+          0.0
+        ]
+      ],
+      "area_cm2": 174699.0
+    },
+    "faiss_id": 98
+  },
+  {
+    "text": "Laje L29, Obra: Obra_TREINO_1, Pavimento: TIPO, comprimento=413.0cm largura=423.0cm area=174699.0cm2, confidence=?, source=, modo=, n_vertices=5, nota=",
+    "tipo": "laje",
+    "id": "L29",
+    "obra": "Obra_TREINO_1",
+    "pavimento": "TIPO",
+    "arquivo_fonte": "L29.json",
+    "dados": {
+      "numero": 0,
+      "nome": "L29",
+      "pavimento": "TIPO",
+      "linhas_verticais": [],
+      "linhas_horizontais": [],
+      "obstaculos": [],
+      "comprimento": 413.0,
+      "largura": 423.0,
+      "coordenadas": [
+        [
+          0.0,
+          0.0
+        ],
+        [
+          413.0,
+          0.0
+        ],
+        [
+          413.0,
+          423.0
+        ],
+        [
+          0.0,
+          423.0
+        ],
+        [
+          0.0,
+          0.0
+        ]
+      ],
+      "area_cm2": 174699.0
+    },
+    "faiss_id": 99
+  },
+  {
+    "text": "Laje L3, Obra: Obra_TREINO_1, Pavimento: TIPO, comprimento=418.0cm largura=423.0cm area=176814.0cm2, confidence=?, source=, modo=, n_vertices=5, nota=",
+    "tipo": "laje",
+    "id": "L3",
+    "obra": "Obra_TREINO_1",
+    "pavimento": "TIPO",
+    "arquivo_fonte": "L3.json",
+    "dados": {
+      "numero": 0,
+      "nome": "L3",
+      "pavimento": "TIPO",
+      "linhas_verticais": [],
+      "linhas_horizontais": [],
+      "obstaculos": [],
+      "comprimento": 418.0,
+      "largura": 423.0,
+      "coordenadas": [
+        [
+          0.0,
+          0.0
+        ],
+        [
+          418.0,
+          0.0
+        ],
+        [
+          418.0,
+          423.0
+        ],
+        [
+          0.0,
+          423.0
+        ],
+        [
+          0.0,
+          0.0
+        ]
+      ],
+      "area_cm2": 176814.0
+    },
+    "faiss_id": 100
+  },
+  {
+    "text": "Laje L30, Obra: Obra_TREINO_1, Pavimento: TIPO, comprimento=415.5cm largura=423.0cm area=175756.5cm2, confidence=?, source=, modo=, n_vertices=5, nota=",
+    "tipo": "laje",
+    "id": "L30",
+    "obra": "Obra_TREINO_1",
+    "pavimento": "TIPO",
+    "arquivo_fonte": "L30.json",
+    "dados": {
+      "numero": 0,
+      "nome": "L30",
+      "pavimento": "TIPO",
+      "linhas_verticais": [],
+      "linhas_horizontais": [],
+      "obstaculos": [],
+      "comprimento": 415.5,
+      "largura": 423.0,
+      "coordenadas": [
+        [
+          0.0,
+          0.0
+        ],
+        [
+          415.5,
+          0.0
+        ],
+        [
+          415.5,
+          423.0
+        ],
+        [
+          0.0,
+          423.0
+        ],
+        [
+          0.0,
+          0.0
+        ]
+      ],
+      "area_cm2": 175756.5
+    },
+    "faiss_id": 101
+  },
+  {
+    "text": "Laje L4, Obra: Obra_TREINO_1, Pavimento: TIPO, comprimento=418.0cm largura=423.0cm area=176814.0cm2, confidence=?, source=, modo=, n_vertices=5, nota=",
+    "tipo": "laje",
+    "id": "L4",
+    "obra": "Obra_TREINO_1",
+    "pavimento": "TIPO",
+    "arquivo_fonte": "L4.json",
+    "dados": {
+      "numero": 0,
+      "nome": "L4",
+      "pavimento": "TIPO",
+      "linhas_verticais": [],
+      "linhas_horizontais": [],
+      "obstaculos": [],
+      "comprimento": 418.0,
+      "largura": 423.0,
+      "coordenadas": [
+        [
+          0.0,
+          0.0
+        ],
+        [
+          418.0,
+          0.0
+        ],
+        [
+          418.0,
+          423.0
+        ],
+        [
+          0.0,
+          423.0
+        ],
+        [
+          0.0,
+          0.0
+        ]
+      ],
+      "area_cm2": 176814.0
+    },
+    "faiss_id": 102
+  },
+  {
+    "text": "Laje L5, Obra: Obra_TREINO_1, Pavimento: TIPO, comprimento=418.0cm largura=423.0cm area=176814.0cm2, confidence=?, source=, modo=, n_vertices=5, nota=",
+    "tipo": "laje",
+    "id": "L5",
+    "obra": "Obra_TREINO_1",
+    "pavimento": "TIPO",
+    "arquivo_fonte": "L5.json",
+    "dados": {
+      "numero": 0,
+      "nome": "L5",
+      "pavimento": "TIPO",
+      "linhas_verticais": [],
+      "linhas_horizontais": [],
+      "obstaculos": [],
+      "comprimento": 418.0,
+      "largura": 423.0,
+      "coordenadas": [
+        [
+          0.0,
+          0.0
+        ],
+        [
+          418.0,
+          0.0
+        ],
+        [
+          418.0,
+          423.0
+        ],
+        [
+          0.0,
+          423.0
+        ],
+        [
+          0.0,
+          0.0
+        ]
+      ],
+      "area_cm2": 176814.0
+    },
+    "faiss_id": 103
+  },
+  {
+    "text": "Laje L6, Obra: Obra_TREINO_1, Pavimento: TIPO, comprimento=418.0cm largura=423.0cm area=176814.0cm2, confidence=?, source=, modo=, n_vertices=5, nota=",
+    "tipo": "laje",
+    "id": "L6",
+    "obra": "Obra_TREINO_1",
+    "pavimento": "TIPO",
+    "arquivo_fonte": "L6.json",
+    "dados": {
+      "numero": 0,
+      "nome": "L6",
+      "pavimento": "TIPO",
+      "linhas_verticais": [],
+      "linhas_horizontais": [],
+      "obstaculos": [],
+      "comprimento": 418.0,
+      "largura": 423.0,
+      "coordenadas": [
+        [
+          0.0,
+          0.0
+        ],
+        [
+          418.0,
+          0.0
+        ],
+        [
+          418.0,
+          423.0
+        ],
+        [
+          0.0,
+          423.0
+        ],
+        [
+          0.0,
+          0.0
+        ]
+      ],
+      "area_cm2": 176814.0
+    },
+    "faiss_id": 104
+  },
+  {
+    "text": "Laje L63, Obra: Obra_TREINO_1, Pavimento: TIPO, comprimento=423.0cm largura=244.0cm area=103212.0cm2, confidence=?, source=, modo=, n_vertices=5, nota=",
+    "tipo": "laje",
+    "id": "L63",
+    "obra": "Obra_TREINO_1",
+    "pavimento": "TIPO",
+    "arquivo_fonte": "L63.json",
+    "dados": {
+      "numero": 0,
+      "nome": "L63",
+      "pavimento": "TIPO",
+      "comprimento": 423.0,
+      "largura": 244.0,
+      "coordenadas": [
+        [
+          0.0,
+          0.0
+        ],
+        [
+          423.0,
+          0.0
+        ],
+        [
+          423.0,
+          244.0
+        ],
+        [
+          0.0,
+          244.0
+        ],
+        [
+          0.0,
+          0.0
+        ]
+      ],
+      "area_cm2": 103212.0
+    },
+    "faiss_id": 105
+  },
+  {
+    "text": "Laje L64, Obra: Obra_TREINO_1, Pavimento: TIPO, comprimento=423.0cm largura=244.0cm area=103212.0cm2, confidence=?, source=, modo=, n_vertices=5, nota=",
+    "tipo": "laje",
+    "id": "L64",
+    "obra": "Obra_TREINO_1",
+    "pavimento": "TIPO",
+    "arquivo_fonte": "L64.json",
+    "dados": {
+      "numero": 0,
+      "nome": "L64",
+      "pavimento": "TIPO",
+      "comprimento": 423.0,
+      "largura": 244.0,
+      "coordenadas": [
+        [
+          0.0,
+          0.0
+        ],
+        [
+          423.0,
+          0.0
+        ],
+        [
+          423.0,
+          244.0
+        ],
+        [
+          0.0,
+          244.0
+        ],
+        [
+          0.0,
+          0.0
+        ]
+      ],
+      "area_cm2": 103212.0
+    },
+    "faiss_id": 106
+  },
+  {
+    "text": "Laje L7, Obra: Obra_TREINO_1, Pavimento: TIPO, comprimento=418.0cm largura=423.0cm area=176814.0cm2, confidence=?, source=, modo=, n_vertices=5, nota=",
+    "tipo": "laje",
+    "id": "L7",
+    "obra": "Obra_TREINO_1",
+    "pavimento": "TIPO",
+    "arquivo_fonte": "L7.json",
+    "dados": {
+      "numero": 0,
+      "nome": "L7",
+      "pavimento": "TIPO",
+      "linhas_verticais": [],
+      "linhas_horizontais": [],
+      "obstaculos": [],
+      "comprimento": 418.0,
+      "largura": 423.0,
+      "coordenadas": [
+        [
+          0.0,
+          0.0
+        ],
+        [
+          418.0,
+          0.0
+        ],
+        [
+          418.0,
+          423.0
+        ],
+        [
+          0.0,
+          423.0
+        ],
+        [
+          0.0,
+          0.0
+        ]
+      ],
+      "area_cm2": 176814.0
+    },
+    "faiss_id": 107
+  },
+  {
+    "text": "Laje L71, Obra: Obra_TREINO_1, Pavimento: TIPO, comprimento=244.0cm largura=244.0cm area=59536.0cm2, confidence=?, source=, modo=, n_vertices=5, nota=",
+    "tipo": "laje",
+    "id": "L71",
+    "obra": "Obra_TREINO_1",
+    "pavimento": "TIPO",
+    "arquivo_fonte": "L71.json",
+    "dados": {
+      "numero": 0,
+      "nome": "L71",
+      "pavimento": "TIPO",
+      "comprimento": 244.0,
+      "largura": 244.0,
+      "coordenadas": [
+        [
+          0.0,
+          0.0
+        ],
+        [
+          244.0,
+          0.0
+        ],
+        [
+          244.0,
+          244.0
+        ],
+        [
+          0.0,
+          244.0
+        ],
+        [
+          0.0,
+          0.0
+        ]
+      ],
+      "area_cm2": 59536.0
+    },
+    "faiss_id": 108
+  },
+  {
+    "text": "Laje L8, Obra: Obra_TREINO_1, Pavimento: TIPO, comprimento=405.5cm largura=423.0cm area=171526.5cm2, confidence=?, source=, modo=, n_vertices=5, nota=",
+    "tipo": "laje",
+    "id": "L8",
+    "obra": "Obra_TREINO_1",
+    "pavimento": "TIPO",
+    "arquivo_fonte": "L8.json",
+    "dados": {
+      "numero": 0,
+      "nome": "L8",
+      "pavimento": "TIPO",
+      "linhas_verticais": [],
+      "linhas_horizontais": [],
+      "obstaculos": [],
+      "comprimento": 405.5,
+      "largura": 423.0,
+      "coordenadas": [
+        [
+          0.0,
+          0.0
+        ],
+        [
+          405.5,
+          0.0
+        ],
+        [
+          405.5,
+          423.0
+        ],
+        [
+          0.0,
+          423.0
+        ],
+        [
+          0.0,
+          0.0
+        ]
+      ],
+      "area_cm2": 171526.5
+    },
+    "faiss_id": 109
+  },
+  {
+    "text": "Laje L9, Obra: Obra_TREINO_1, Pavimento: TIPO, comprimento=405.5cm largura=423.0cm area=171526.5cm2, confidence=?, source=, modo=, n_vertices=5, nota=",
+    "tipo": "laje",
+    "id": "L9",
+    "obra": "Obra_TREINO_1",
+    "pavimento": "TIPO",
+    "arquivo_fonte": "L9.json",
+    "dados": {
+      "numero": 0,
+      "nome": "L9",
+      "pavimento": "TIPO",
+      "linhas_verticais": [],
+      "linhas_horizontais": [],
+      "obstaculos": [],
+      "comprimento": 405.5,
+      "largura": 423.0,
+      "coordenadas": [
+        [
+          0.0,
+          0.0
+        ],
+        [
+          405.5,
+          0.0
+        ],
+        [
+          405.5,
+          423.0
+        ],
+        [
+          0.0,
+          423.0
+        ],
+        [
+          0.0,
+          0.0
+        ]
+      ],
+      "area_cm2": 171526.5
+    },
+    "faiss_id": 110
+  },
+  {
+    "text": "Laje _meta, Obra: Obra_TREINO_10, Pavimento: 1_PAV, comprimento=?cm largura=?cm area=?cm2, confidence=?, source=, modo=, n_vertices=0, nota=",
+    "tipo": "laje",
+    "id": "_meta",
+    "obra": "Obra_TREINO_10",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes.json",
+    "dados": {
+      "total": -1,
+      "integrado_em": "2026-03-08",
+      "fontes": [
+        "nenhum"
+      ]
+    },
+    "faiss_id": 150
+  },
+  {
+    "text": "Laje L1, Obra: Obra_TREINO_11, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=0, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L1",
+    "obra": "Obra_TREINO_11",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 207
+  },
+  {
+    "text": "Laje L2, Obra: Obra_TREINO_11, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=0, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L2",
+    "obra": "Obra_TREINO_11",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 208
+  },
+  {
+    "text": "Laje L3, Obra: Obra_TREINO_11, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=0, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L3",
+    "obra": "Obra_TREINO_11",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 209
+  },
+  {
+    "text": "Laje L4, Obra: Obra_TREINO_11, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=0, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L4",
+    "obra": "Obra_TREINO_11",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 210
+  },
+  {
+    "text": "Laje L5, Obra: Obra_TREINO_11, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=0, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L5",
+    "obra": "Obra_TREINO_11",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 211
+  },
+  {
+    "text": "Laje L6, Obra: Obra_TREINO_11, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=0, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L6",
+    "obra": "Obra_TREINO_11",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 212
+  },
+  {
+    "text": "Laje L7, Obra: Obra_TREINO_11, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=0, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L7",
+    "obra": "Obra_TREINO_11",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 213
+  },
+  {
+    "text": "Laje L8, Obra: Obra_TREINO_11, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=0, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L8",
+    "obra": "Obra_TREINO_11",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 214
+  },
+  {
+    "text": "Laje L9, Obra: Obra_TREINO_11, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=0, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L9",
+    "obra": "Obra_TREINO_11",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 215
+  },
+  {
+    "text": "Laje L10, Obra: Obra_TREINO_11, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=0, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L10",
+    "obra": "Obra_TREINO_11",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 216
+  },
+  {
+    "text": "Laje L11, Obra: Obra_TREINO_11, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=4, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L11",
+    "obra": "Obra_TREINO_11",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [
+        [
+          12958.3,
+          8535.1
+        ],
+        [
+          13068.8,
+          8535.1
+        ],
+        [
+          13068.8,
+          8512.8
+        ],
+        [
+          12958.3,
+          8512.8
+        ]
+      ],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 217
+  },
+  {
+    "text": "Laje L12, Obra: Obra_TREINO_11, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=0, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L12",
+    "obra": "Obra_TREINO_11",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 218
+  },
+  {
+    "text": "Laje _meta, Obra: Obra_TREINO_11, Pavimento: 1_PAV, comprimento=?cm largura=?cm area=?cm2, confidence=?, source=, modo=, n_vertices=0, nota=",
+    "tipo": "laje",
+    "id": "_meta",
+    "obra": "Obra_TREINO_11",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "total": 12,
+      "pavimento": "GWT-TIP",
+      "extraido_em": "2026-03-09"
+    },
+    "faiss_id": 219
+  },
+  {
+    "text": "Laje L1501, Obra: Obra_TREINO_13, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=0, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L1501",
+    "obra": "Obra_TREINO_13",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 292
+  },
+  {
+    "text": "Laje L1502, Obra: Obra_TREINO_13, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=0, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L1502",
+    "obra": "Obra_TREINO_13",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 293
+  },
+  {
+    "text": "Laje L1503, Obra: Obra_TREINO_13, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=4, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L1503",
+    "obra": "Obra_TREINO_13",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [
+        [
+          3575.2,
+          2230.9
+        ],
+        [
+          5861.2,
+          2230.9
+        ],
+        [
+          5861.2,
+          2290.9
+        ],
+        [
+          3575.2,
+          2290.9
+        ]
+      ],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 294
+  },
+  {
+    "text": "Laje L1504, Obra: Obra_TREINO_13, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=0, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L1504",
+    "obra": "Obra_TREINO_13",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 295
+  },
+  {
+    "text": "Laje L1505, Obra: Obra_TREINO_13, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=0, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L1505",
+    "obra": "Obra_TREINO_13",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 296
+  },
+  {
+    "text": "Laje L1506, Obra: Obra_TREINO_13, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=0, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L1506",
+    "obra": "Obra_TREINO_13",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 297
+  },
+  {
+    "text": "Laje L1507, Obra: Obra_TREINO_13, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=0, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L1507",
+    "obra": "Obra_TREINO_13",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 298
+  },
+  {
+    "text": "Laje L1508, Obra: Obra_TREINO_13, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=0, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L1508",
+    "obra": "Obra_TREINO_13",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 299
+  },
+  {
+    "text": "Laje L1509, Obra: Obra_TREINO_13, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=0, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L1509",
+    "obra": "Obra_TREINO_13",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 300
+  },
+  {
+    "text": "Laje L1510, Obra: Obra_TREINO_13, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=0, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L1510",
+    "obra": "Obra_TREINO_13",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 301
+  },
+  {
+    "text": "Laje L1511, Obra: Obra_TREINO_13, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=0, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L1511",
+    "obra": "Obra_TREINO_13",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 302
+  },
+  {
+    "text": "Laje L1512, Obra: Obra_TREINO_13, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=0, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L1512",
+    "obra": "Obra_TREINO_13",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 303
+  },
+  {
+    "text": "Laje L1513, Obra: Obra_TREINO_13, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=0, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L1513",
+    "obra": "Obra_TREINO_13",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 304
+  },
+  {
+    "text": "Laje L1514, Obra: Obra_TREINO_13, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=0, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L1514",
+    "obra": "Obra_TREINO_13",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 305
+  },
+  {
+    "text": "Laje L1515, Obra: Obra_TREINO_13, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=0, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L1515",
+    "obra": "Obra_TREINO_13",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 306
+  },
+  {
+    "text": "Laje L1516, Obra: Obra_TREINO_13, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=0, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L1516",
+    "obra": "Obra_TREINO_13",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 307
+  },
+  {
+    "text": "Laje L1517, Obra: Obra_TREINO_13, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=4, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L1517",
+    "obra": "Obra_TREINO_13",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [
+        [
+          6290.2,
+          855.4
+        ],
+        [
+          6051.2,
+          855.4
+        ],
+        [
+          6051.2,
+          788.9
+        ],
+        [
+          6290.2,
+          788.9
+        ]
+      ],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 308
+  },
+  {
+    "text": "Laje L1518, Obra: Obra_TREINO_13, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=0, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L1518",
+    "obra": "Obra_TREINO_13",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 309
+  },
+  {
+    "text": "Laje L1519, Obra: Obra_TREINO_13, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=0, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L1519",
+    "obra": "Obra_TREINO_13",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 310
+  },
+  {
+    "text": "Laje L1520, Obra: Obra_TREINO_13, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=0, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L1520",
+    "obra": "Obra_TREINO_13",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 311
+  },
+  {
+    "text": "Laje L1521, Obra: Obra_TREINO_13, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=0, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L1521",
+    "obra": "Obra_TREINO_13",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 312
+  },
+  {
+    "text": "Laje L1522, Obra: Obra_TREINO_13, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=0, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L1522",
+    "obra": "Obra_TREINO_13",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 313
+  },
+  {
+    "text": "Laje L1523, Obra: Obra_TREINO_13, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=5, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L1523",
+    "obra": "Obra_TREINO_13",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [
+        [
+          3578.2,
+          1027.4
+        ],
+        [
+          3777.2,
+          1027.4
+        ],
+        [
+          3777.2,
+          1046.4
+        ],
+        [
+          3578.2,
+          1046.4
+        ],
+        [
+          3578.2,
+          1027.4
+        ]
+      ],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 314
+  },
+  {
+    "text": "Laje L1524, Obra: Obra_TREINO_13, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=9, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L1524",
+    "obra": "Obra_TREINO_13",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [
+        [
+          5074.2,
+          857.4
+        ],
+        [
+          5074.2,
+          1002.4
+        ],
+        [
+          5045.7,
+          1002.4
+        ],
+        [
+          5045.7,
+          1142.4
+        ],
+        [
+          5053.2,
+          1142.4
+        ],
+        [
+          5053.2,
+          1307.4
+        ],
+        [
+          4814.2,
+          1307.4
+        ],
+        [
+          4814.2,
+          857.4
+        ],
+        [
+          5074.2,
+          857.4
+        ]
+      ],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 315
+  },
+  {
+    "text": "Laje L1525, Obra: Obra_TREINO_13, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=0, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L1525",
+    "obra": "Obra_TREINO_13",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 316
+  },
+  {
+    "text": "Laje L1526, Obra: Obra_TREINO_13, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=0, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L1526",
+    "obra": "Obra_TREINO_13",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 317
+  },
+  {
+    "text": "Laje L1527, Obra: Obra_TREINO_13, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=0, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L1527",
+    "obra": "Obra_TREINO_13",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 318
+  },
+  {
+    "text": "Laje L1528, Obra: Obra_TREINO_13, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=0, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L1528",
+    "obra": "Obra_TREINO_13",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 319
+  },
+  {
+    "text": "Laje L1529, Obra: Obra_TREINO_13, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=0, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L1529",
+    "obra": "Obra_TREINO_13",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 320
+  },
+  {
+    "text": "Laje L1530, Obra: Obra_TREINO_13, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=0, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L1530",
+    "obra": "Obra_TREINO_13",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 321
+  },
+  {
+    "text": "Laje L1531, Obra: Obra_TREINO_13, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=0, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L1531",
+    "obra": "Obra_TREINO_13",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 322
+  },
+  {
+    "text": "Laje L1532, Obra: Obra_TREINO_13, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=0, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L1532",
+    "obra": "Obra_TREINO_13",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 323
+  },
+  {
+    "text": "Laje _meta, Obra: Obra_TREINO_13, Pavimento: 1_PAV, comprimento=?cm largura=?cm area=?cm2, confidence=?, source=, modo=, n_vertices=0, nota=",
+    "tipo": "laje",
+    "id": "_meta",
+    "obra": "Obra_TREINO_13",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "total": 32,
+      "pavimento": "TIPO",
+      "extraido_em": "2026-03-09"
+    },
+    "faiss_id": 324
+  },
+  {
+    "text": "Laje L2, Obra: Obra_TREINO_16, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=4, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L2",
+    "obra": "Obra_TREINO_16",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [
+        [
+          190711.8,
+          39967.2
+        ],
+        [
+          191055.3,
+          39967.2
+        ],
+        [
+          191055.3,
+          39927.2
+        ],
+        [
+          190711.8,
+          39927.2
+        ]
+      ],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 376
+  },
+  {
+    "text": "Laje L3, Obra: Obra_TREINO_16, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=4, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L3",
+    "obra": "Obra_TREINO_16",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [
+        [
+          191113.0,
+          40100.7
+        ],
+        [
+          192069.3,
+          40100.7
+        ],
+        [
+          192069.3,
+          40140.7
+        ],
+        [
+          191113.0,
+          40140.7
+        ]
+      ],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 377
+  },
+  {
+    "text": "Laje L4, Obra: Obra_TREINO_16, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=4, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L4",
+    "obra": "Obra_TREINO_16",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [
+        [
+          193785.3,
+          40140.7
+        ],
+        [
+          192606.3,
+          40140.7
+        ],
+        [
+          192606.3,
+          40100.7
+        ],
+        [
+          193785.3,
+          40100.7
+        ]
+      ],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 378
+  },
+  {
+    "text": "Laje L5, Obra: Obra_TREINO_16, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=4, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L5",
+    "obra": "Obra_TREINO_16",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [
+        [
+          193785.3,
+          40140.7
+        ],
+        [
+          192606.3,
+          40140.7
+        ],
+        [
+          192606.3,
+          40100.7
+        ],
+        [
+          193785.3,
+          40100.7
+        ]
+      ],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 379
+  },
+  {
+    "text": "Laje L6, Obra: Obra_TREINO_16, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=4, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L6",
+    "obra": "Obra_TREINO_16",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [
+        [
+          193785.3,
+          40140.7
+        ],
+        [
+          192606.3,
+          40140.7
+        ],
+        [
+          192606.3,
+          40100.7
+        ],
+        [
+          193785.3,
+          40100.7
+        ]
+      ],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 380
+  },
+  {
+    "text": "Laje L7, Obra: Obra_TREINO_16, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=4, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L7",
+    "obra": "Obra_TREINO_16",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [
+        [
+          191894.0,
+          38477.7
+        ],
+        [
+          190715.0,
+          38477.7
+        ],
+        [
+          190715.0,
+          38437.7
+        ],
+        [
+          191894.0,
+          38437.7
+        ]
+      ],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 381
+  },
+  {
+    "text": "Laje L8, Obra: Obra_TREINO_16, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=4, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L8",
+    "obra": "Obra_TREINO_16",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [
+        [
+          191894.0,
+          38477.7
+        ],
+        [
+          190715.0,
+          38477.7
+        ],
+        [
+          190715.0,
+          38437.7
+        ],
+        [
+          191894.0,
+          38437.7
+        ]
+      ],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 382
+  },
+  {
+    "text": "Laje L9, Obra: Obra_TREINO_16, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=4, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L9",
+    "obra": "Obra_TREINO_16",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [
+        [
+          192431.3,
+          38437.7
+        ],
+        [
+          193387.5,
+          38437.7
+        ],
+        [
+          193387.5,
+          38477.7
+        ],
+        [
+          192431.3,
+          38477.7
+        ]
+      ],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 383
+  },
+  {
+    "text": "Laje L10, Obra: Obra_TREINO_16, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=4, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L10",
+    "obra": "Obra_TREINO_16",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [
+        [
+          192431.3,
+          38437.7
+        ],
+        [
+          193387.5,
+          38437.7
+        ],
+        [
+          193387.5,
+          38477.7
+        ],
+        [
+          192431.3,
+          38477.7
+        ]
+      ],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 384
+  },
+  {
+    "text": "Laje _meta, Obra: Obra_TREINO_16, Pavimento: 1_PAV, comprimento=?cm largura=?cm area=?cm2, confidence=?, source=, modo=, n_vertices=0, nota=",
+    "tipo": "laje",
+    "id": "_meta",
+    "obra": "Obra_TREINO_16",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "total": 9,
+      "pavimento": "VALDIR NIEMEYER-TP2",
+      "extraido_em": "2026-03-09"
+    },
+    "faiss_id": 385
+  },
+  {
+    "text": "Laje L16, Obra: Obra_TREINO_21, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=0, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L16",
+    "obra": "Obra_TREINO_21",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 449
+  },
+  {
+    "text": "Laje L21, Obra: Obra_TREINO_21, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=0, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L21",
+    "obra": "Obra_TREINO_21",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 450
+  },
+  {
+    "text": "Laje L22, Obra: Obra_TREINO_21, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=0, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L22",
+    "obra": "Obra_TREINO_21",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 451
+  },
+  {
+    "text": "Laje L23, Obra: Obra_TREINO_21, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=0, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L23",
+    "obra": "Obra_TREINO_21",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 452
+  },
+  {
+    "text": "Laje L24, Obra: Obra_TREINO_21, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=5, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L24",
+    "obra": "Obra_TREINO_21",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [
+        [
+          2735.2,
+          2436.1
+        ],
+        [
+          2815.8,
+          2436.1
+        ],
+        [
+          2803.4,
+          2434.5
+        ],
+        [
+          2815.8,
+          2436.1
+        ],
+        [
+          2803.4,
+          2437.7
+        ]
+      ],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 453
+  },
+  {
+    "text": "Laje L25, Obra: Obra_TREINO_21, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=5, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L25",
+    "obra": "Obra_TREINO_21",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [
+        [
+          7806.8,
+          2377.4
+        ],
+        [
+          7726.2,
+          2377.4
+        ],
+        [
+          7738.6,
+          2379.0
+        ],
+        [
+          7726.2,
+          2377.4
+        ],
+        [
+          7738.6,
+          2375.7
+        ]
+      ],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 454
+  },
+  {
+    "text": "Laje _meta, Obra: Obra_TREINO_21, Pavimento: 1_PAV, comprimento=?cm largura=?cm area=?cm2, confidence=?, source=, modo=, n_vertices=0, nota=",
+    "tipo": "laje",
+    "id": "_meta",
+    "obra": "Obra_TREINO_21",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "total": 25,
+      "pavimento": "LAJE TÉCNICA",
+      "extraido_em": "2026-03-09"
+    },
+    "faiss_id": 455
+  },
+  {
+    "text": "Laje L1, Obra: Obra_TREINO_21, Pavimento: LAJE TÉCNICA, comprimento=294.5cm largura=294.5cm area=86730.2cm2, confidence=?, source=, modo=0, n_vertices=5, nota=",
+    "tipo": "laje",
+    "id": "L1",
+    "obra": "Obra_TREINO_21",
+    "pavimento": "LAJE TÉCNICA",
+    "arquivo_fonte": "L1.json",
+    "dados": {
+      "numero": 1,
+      "nome": "L1",
+      "comprimento": 294.5,
+      "largura": 294.5,
+      "pavimento": "LAJE TÉCNICA",
+      "coordenadas": [
+        [
+          0.0,
+          0.0
+        ],
+        [
+          294.5,
+          0.0
+        ],
+        [
+          294.5,
+          294.5
+        ],
+        [
+          0.0,
+          294.5
+        ],
+        [
+          0.0,
+          0.0
+        ]
+      ],
+      "area_cm2": 86730.2,
+      "linhas_verticais": [
+        {
+          "value": 100.0,
+          "is_union": false
+        },
+        {
+          "value": 200.0,
+          "is_union": false
+        },
+        {
+          "value": 294.5,
+          "is_union": false
+        }
+      ],
+      "linhas_horizontais": [],
+      "obstaculos": [],
+      "modo_selecionado": 0,
+      "unioes_nos_bordes": false,
+      "observacoes": ""
+    },
+    "faiss_id": 456
+  },
+  {
+    "text": "Laje L10, Obra: Obra_TREINO_21, Pavimento: LAJE TÉCNICA, comprimento=244.0cm largura=244.0cm area=59536.0cm2, confidence=?, source=, modo=0, n_vertices=5, nota=",
+    "tipo": "laje",
+    "id": "L10",
+    "obra": "Obra_TREINO_21",
+    "pavimento": "LAJE TÉCNICA",
+    "arquivo_fonte": "L10.json",
+    "dados": {
+      "numero": 10,
+      "nome": "L10",
+      "comprimento": 244.0,
+      "largura": 244.0,
+      "pavimento": "LAJE TÉCNICA",
+      "coordenadas": [
+        [
+          0.0,
+          0.0
+        ],
+        [
+          244.0,
+          0.0
+        ],
+        [
+          244.0,
+          244.0
+        ],
+        [
+          0.0,
+          244.0
+        ],
+        [
+          0.0,
+          0.0
+        ]
+      ],
+      "area_cm2": 59536.0,
+      "linhas_verticais": [
+        {
+          "value": 100.0,
+          "is_union": false
+        },
+        {
+          "value": 200.0,
+          "is_union": false
+        },
+        {
+          "value": 244.0,
+          "is_union": false
+        }
+      ],
+      "linhas_horizontais": [],
+      "obstaculos": [],
+      "modo_selecionado": 0,
+      "unioes_nos_bordes": false,
+      "observacoes": ""
+    },
+    "faiss_id": 457
+  },
+  {
+    "text": "Laje L11, Obra: Obra_TREINO_21, Pavimento: LAJE TÉCNICA, comprimento=2154.4cm largura=244.0cm area=525673.6cm2, confidence=?, source=, modo=0, n_vertices=5, nota=",
+    "tipo": "laje",
+    "id": "L11",
+    "obra": "Obra_TREINO_21",
+    "pavimento": "LAJE TÉCNICA",
+    "arquivo_fonte": "L11.json",
+    "dados": {
+      "numero": 11,
+      "nome": "L11",
+      "comprimento": 2154.4,
+      "largura": 244.0,
+      "pavimento": "LAJE TÉCNICA",
+      "coordenadas": [
+        [
+          0.0,
+          0.0
+        ],
+        [
+          2154.4,
+          0.0
+        ],
+        [
+          2154.4,
+          244.0
+        ],
+        [
+          0.0,
+          244.0
+        ],
+        [
+          0.0,
+          0.0
+        ]
+      ],
+      "area_cm2": 525673.6,
+      "linhas_verticais": [
+        {
+          "value": 100.0,
+          "is_union": false
+        },
+        {
+          "value": 200.0,
+          "is_union": false
+        },
+        {
+          "value": 300.0,
+          "is_union": false
+        },
+        {
+          "value": 400.0,
+          "is_union": false
+        },
+        {
+          "value": 500.0,
+          "is_union": false
+        },
+        {
+          "value": 600.0,
+          "is_union": false
+        },
+        {
+          "value": 700.0,
+          "is_union": false
+        },
+        {
+          "value": 800.0,
+          "is_union": false
+        },
+        {
+          "value": 900.0,
+          "is_union": false
+        },
+        {
+          "value": 1000.0,
+          "is_union": false
+        },
+        {
+          "value": 1100.0,
+          "is_union": false
+        },
+        {
+          "value": 1200.0,
+          "is_union": false
+        },
+        {
+          "value": 1300.0,
+          "is_union": false
+        },
+        {
+          "value": 1400.0,
+          "is_union": false
+        },
+        {
+          "value": 1500.0,
+          "is_union": false
+        },
+        {
+          "value": 1600.0,
+          "is_union": false
+        },
+        {
+          "value": 1700.0,
+          "is_union": false
+        },
+        {
+          "value": 1800.0,
+          "is_union": false
+        },
+        {
+          "value": 1900.0,
+          "is_union": false
+        },
+        {
+          "value": 2000.0,
+          "is_union": false
+        },
+        {
+          "value": 2100.0,
+          "is_union": false
+        },
+        {
+          "value": 2154.4,
+          "is_union": false
+        }
+      ],
+      "linhas_horizontais": [],
+      "obstaculos": [],
+      "modo_selecionado": 0,
+      "unioes_nos_bordes": false,
+      "observacoes": ""
+    },
+    "faiss_id": 458
+  },
+  {
+    "text": "Laje L12, Obra: Obra_TREINO_21, Pavimento: LAJE TÉCNICA, comprimento=244.0cm largura=213.5cm area=52094.0cm2, confidence=?, source=, modo=0, n_vertices=5, nota=",
+    "tipo": "laje",
+    "id": "L12",
+    "obra": "Obra_TREINO_21",
+    "pavimento": "LAJE TÉCNICA",
+    "arquivo_fonte": "L12.json",
+    "dados": {
+      "numero": 12,
+      "nome": "L12",
+      "comprimento": 244.0,
+      "largura": 213.5,
+      "pavimento": "LAJE TÉCNICA",
+      "coordenadas": [
+        [
+          0.0,
+          0.0
+        ],
+        [
+          244.0,
+          0.0
+        ],
+        [
+          244.0,
+          213.5
+        ],
+        [
+          0.0,
+          213.5
+        ],
+        [
+          0.0,
+          0.0
+        ]
+      ],
+      "area_cm2": 52094.0,
+      "linhas_verticais": [
+        {
+          "value": 100.0,
+          "is_union": false
+        },
+        {
+          "value": 200.0,
+          "is_union": false
+        },
+        {
+          "value": 244.0,
+          "is_union": false
+        }
+      ],
+      "linhas_horizontais": [],
+      "obstaculos": [],
+      "modo_selecionado": 0,
+      "unioes_nos_bordes": false,
+      "observacoes": ""
+    },
+    "faiss_id": 459
+  },
+  {
+    "text": "Laje L13, Obra: Obra_TREINO_21, Pavimento: LAJE TÉCNICA, comprimento=244.0cm largura=213.5cm area=52094.0cm2, confidence=?, source=, modo=0, n_vertices=5, nota=",
+    "tipo": "laje",
+    "id": "L13",
+    "obra": "Obra_TREINO_21",
+    "pavimento": "LAJE TÉCNICA",
+    "arquivo_fonte": "L13.json",
+    "dados": {
+      "numero": 13,
+      "nome": "L13",
+      "comprimento": 244.0,
+      "largura": 213.5,
+      "pavimento": "LAJE TÉCNICA",
+      "coordenadas": [
+        [
+          0.0,
+          0.0
+        ],
+        [
+          244.0,
+          0.0
+        ],
+        [
+          244.0,
+          213.5
+        ],
+        [
+          0.0,
+          213.5
+        ],
+        [
+          0.0,
+          0.0
+        ]
+      ],
+      "area_cm2": 52094.0,
+      "linhas_verticais": [
+        {
+          "value": 100.0,
+          "is_union": false
+        },
+        {
+          "value": 200.0,
+          "is_union": false
+        },
+        {
+          "value": 244.0,
+          "is_union": false
+        }
+      ],
+      "linhas_horizontais": [],
+      "obstaculos": [],
+      "modo_selecionado": 0,
+      "unioes_nos_bordes": false,
+      "observacoes": ""
+    },
+    "faiss_id": 460
+  },
+  {
+    "text": "Laje L14, Obra: Obra_TREINO_21, Pavimento: LAJE TÉCNICA, comprimento=284.2cm largura=244.0cm area=69344.8cm2, confidence=?, source=, modo=0, n_vertices=5, nota=",
+    "tipo": "laje",
+    "id": "L14",
+    "obra": "Obra_TREINO_21",
+    "pavimento": "LAJE TÉCNICA",
+    "arquivo_fonte": "L14.json",
+    "dados": {
+      "numero": 14,
+      "nome": "L14",
+      "comprimento": 284.2,
+      "largura": 244.0,
+      "pavimento": "LAJE TÉCNICA",
+      "coordenadas": [
+        [
+          0.0,
+          0.0
+        ],
+        [
+          284.2,
+          0.0
+        ],
+        [
+          284.2,
+          244.0
+        ],
+        [
+          0.0,
+          244.0
+        ],
+        [
+          0.0,
+          0.0
+        ]
+      ],
+      "area_cm2": 69344.8,
+      "linhas_verticais": [
+        {
+          "value": 100.0,
+          "is_union": false
+        },
+        {
+          "value": 200.0,
+          "is_union": false
+        },
+        {
+          "value": 284.2,
+          "is_union": false
+        }
+      ],
+      "linhas_horizontais": [],
+      "obstaculos": [],
+      "modo_selecionado": 0,
+      "unioes_nos_bordes": false,
+      "observacoes": ""
+    },
+    "faiss_id": 461
+  },
+  {
+    "text": "Laje L15, Obra: Obra_TREINO_21, Pavimento: LAJE TÉCNICA, comprimento=294.5cm largura=294.5cm area=86730.2cm2, confidence=?, source=, modo=0, n_vertices=5, nota=",
+    "tipo": "laje",
+    "id": "L15",
+    "obra": "Obra_TREINO_21",
+    "pavimento": "LAJE TÉCNICA",
+    "arquivo_fonte": "L15.json",
+    "dados": {
+      "numero": 15,
+      "nome": "L15",
+      "comprimento": 294.5,
+      "largura": 294.5,
+      "pavimento": "LAJE TÉCNICA",
+      "coordenadas": [
+        [
+          0.0,
+          0.0
+        ],
+        [
+          294.5,
+          0.0
+        ],
+        [
+          294.5,
+          294.5
+        ],
+        [
+          0.0,
+          294.5
+        ],
+        [
+          0.0,
+          0.0
+        ]
+      ],
+      "area_cm2": 86730.2,
+      "linhas_verticais": [
+        {
+          "value": 100.0,
+          "is_union": false
+        },
+        {
+          "value": 200.0,
+          "is_union": false
+        },
+        {
+          "value": 294.5,
+          "is_union": false
+        }
+      ],
+      "linhas_horizontais": [],
+      "obstaculos": [],
+      "modo_selecionado": 0,
+      "unioes_nos_bordes": false,
+      "observacoes": ""
+    },
+    "faiss_id": 462
+  },
+  {
+    "text": "Laje L17, Obra: Obra_TREINO_21, Pavimento: LAJE TÉCNICA, comprimento=287.8cm largura=244.0cm area=70223.2cm2, confidence=?, source=, modo=0, n_vertices=5, nota=",
+    "tipo": "laje",
+    "id": "L17",
+    "obra": "Obra_TREINO_21",
+    "pavimento": "LAJE TÉCNICA",
+    "arquivo_fonte": "L17.json",
+    "dados": {
+      "numero": 17,
+      "nome": "L17",
+      "comprimento": 287.8,
+      "largura": 244.0,
+      "pavimento": "LAJE TÉCNICA",
+      "coordenadas": [
+        [
+          0.0,
+          0.0
+        ],
+        [
+          287.8,
+          0.0
+        ],
+        [
+          287.8,
+          244.0
+        ],
+        [
+          0.0,
+          244.0
+        ],
+        [
+          0.0,
+          0.0
+        ]
+      ],
+      "area_cm2": 70223.2,
+      "linhas_verticais": [
+        {
+          "value": 100.0,
+          "is_union": false
+        },
+        {
+          "value": 200.0,
+          "is_union": false
+        },
+        {
+          "value": 287.8,
+          "is_union": false
+        }
+      ],
+      "linhas_horizontais": [],
+      "obstaculos": [],
+      "modo_selecionado": 0,
+      "unioes_nos_bordes": false,
+      "observacoes": ""
+    },
+    "faiss_id": 463
+  },
+  {
+    "text": "Laje L18, Obra: Obra_TREINO_21, Pavimento: LAJE TÉCNICA, comprimento=244.0cm largura=46.9cm area=11443.6cm2, confidence=?, source=, modo=0, n_vertices=5, nota=",
+    "tipo": "laje",
+    "id": "L18",
+    "obra": "Obra_TREINO_21",
+    "pavimento": "LAJE TÉCNICA",
+    "arquivo_fonte": "L18.json",
+    "dados": {
+      "numero": 18,
+      "nome": "L18",
+      "comprimento": 244.0,
+      "largura": 46.9,
+      "pavimento": "LAJE TÉCNICA",
+      "coordenadas": [
+        [
+          0.0,
+          0.0
+        ],
+        [
+          244.0,
+          0.0
+        ],
+        [
+          244.0,
+          46.9
+        ],
+        [
+          0.0,
+          46.9
+        ],
+        [
+          0.0,
+          0.0
+        ]
+      ],
+      "area_cm2": 11443.6,
+      "linhas_verticais": [
+        {
+          "value": 100.0,
+          "is_union": false
+        },
+        {
+          "value": 200.0,
+          "is_union": false
+        },
+        {
+          "value": 244.0,
+          "is_union": false
+        }
+      ],
+      "linhas_horizontais": [],
+      "obstaculos": [],
+      "modo_selecionado": 0,
+      "unioes_nos_bordes": false,
+      "observacoes": ""
+    },
+    "faiss_id": 464
+  },
+  {
+    "text": "Laje L19, Obra: Obra_TREINO_21, Pavimento: LAJE TÉCNICA, comprimento=244.0cm largura=46.9cm area=11443.6cm2, confidence=?, source=, modo=0, n_vertices=5, nota=",
+    "tipo": "laje",
+    "id": "L19",
+    "obra": "Obra_TREINO_21",
+    "pavimento": "LAJE TÉCNICA",
+    "arquivo_fonte": "L19.json",
+    "dados": {
+      "numero": 19,
+      "nome": "L19",
+      "comprimento": 244.0,
+      "largura": 46.9,
+      "pavimento": "LAJE TÉCNICA",
+      "coordenadas": [
+        [
+          0.0,
+          0.0
+        ],
+        [
+          244.0,
+          0.0
+        ],
+        [
+          244.0,
+          46.9
+        ],
+        [
+          0.0,
+          46.9
+        ],
+        [
+          0.0,
+          0.0
+        ]
+      ],
+      "area_cm2": 11443.6,
+      "linhas_verticais": [
+        {
+          "value": 100.0,
+          "is_union": false
+        },
+        {
+          "value": 200.0,
+          "is_union": false
+        },
+        {
+          "value": 244.0,
+          "is_union": false
+        }
+      ],
+      "linhas_horizontais": [],
+      "obstaculos": [],
+      "modo_selecionado": 0,
+      "unioes_nos_bordes": false,
+      "observacoes": ""
+    },
+    "faiss_id": 465
+  },
+  {
+    "text": "Laje L2, Obra: Obra_TREINO_21, Pavimento: LAJE TÉCNICA, comprimento=294.5cm largura=294.5cm area=86730.2cm2, confidence=?, source=, modo=0, n_vertices=5, nota=",
+    "tipo": "laje",
+    "id": "L2",
+    "obra": "Obra_TREINO_21",
+    "pavimento": "LAJE TÉCNICA",
+    "arquivo_fonte": "L2.json",
+    "dados": {
+      "numero": 2,
+      "nome": "L2",
+      "comprimento": 294.5,
+      "largura": 294.5,
+      "pavimento": "LAJE TÉCNICA",
+      "coordenadas": [
+        [
+          0.0,
+          0.0
+        ],
+        [
+          294.5,
+          0.0
+        ],
+        [
+          294.5,
+          294.5
+        ],
+        [
+          0.0,
+          294.5
+        ],
+        [
+          0.0,
+          0.0
+        ]
+      ],
+      "area_cm2": 86730.2,
+      "linhas_verticais": [
+        {
+          "value": 100.0,
+          "is_union": false
+        },
+        {
+          "value": 200.0,
+          "is_union": false
+        },
+        {
+          "value": 294.5,
+          "is_union": false
+        }
+      ],
+      "linhas_horizontais": [],
+      "obstaculos": [],
+      "modo_selecionado": 0,
+      "unioes_nos_bordes": false,
+      "observacoes": ""
+    },
+    "faiss_id": 466
+  },
+  {
+    "text": "Laje L20, Obra: Obra_TREINO_21, Pavimento: LAJE TÉCNICA, comprimento=244.0cm largura=46.9cm area=11443.6cm2, confidence=?, source=, modo=0, n_vertices=5, nota=",
+    "tipo": "laje",
+    "id": "L20",
+    "obra": "Obra_TREINO_21",
+    "pavimento": "LAJE TÉCNICA",
+    "arquivo_fonte": "L20.json",
+    "dados": {
+      "numero": 20,
+      "nome": "L20",
+      "comprimento": 244.0,
+      "largura": 46.9,
+      "pavimento": "LAJE TÉCNICA",
+      "coordenadas": [
+        [
+          0.0,
+          0.0
+        ],
+        [
+          244.0,
+          0.0
+        ],
+        [
+          244.0,
+          46.9
+        ],
+        [
+          0.0,
+          46.9
+        ],
+        [
+          0.0,
+          0.0
+        ]
+      ],
+      "area_cm2": 11443.6,
+      "linhas_verticais": [
+        {
+          "value": 100.0,
+          "is_union": false
+        },
+        {
+          "value": 200.0,
+          "is_union": false
+        },
+        {
+          "value": 244.0,
+          "is_union": false
+        }
+      ],
+      "linhas_horizontais": [],
+      "obstaculos": [],
+      "modo_selecionado": 0,
+      "unioes_nos_bordes": false,
+      "observacoes": ""
+    },
+    "faiss_id": 467
+  },
+  {
+    "text": "Laje L3, Obra: Obra_TREINO_21, Pavimento: LAJE TÉCNICA, comprimento=294.5cm largura=294.5cm area=86730.2cm2, confidence=?, source=, modo=0, n_vertices=5, nota=",
+    "tipo": "laje",
+    "id": "L3",
+    "obra": "Obra_TREINO_21",
+    "pavimento": "LAJE TÉCNICA",
+    "arquivo_fonte": "L3.json",
+    "dados": {
+      "numero": 3,
+      "nome": "L3",
+      "comprimento": 294.5,
+      "largura": 294.5,
+      "pavimento": "LAJE TÉCNICA",
+      "coordenadas": [
+        [
+          0.0,
+          0.0
+        ],
+        [
+          294.5,
+          0.0
+        ],
+        [
+          294.5,
+          294.5
+        ],
+        [
+          0.0,
+          294.5
+        ],
+        [
+          0.0,
+          0.0
+        ]
+      ],
+      "area_cm2": 86730.2,
+      "linhas_verticais": [
+        {
+          "value": 100.0,
+          "is_union": false
+        },
+        {
+          "value": 200.0,
+          "is_union": false
+        },
+        {
+          "value": 294.5,
+          "is_union": false
+        }
+      ],
+      "linhas_horizontais": [],
+      "obstaculos": [],
+      "modo_selecionado": 0,
+      "unioes_nos_bordes": false,
+      "observacoes": ""
+    },
+    "faiss_id": 468
+  },
+  {
+    "text": "Laje L4, Obra: Obra_TREINO_21, Pavimento: LAJE TÉCNICA, comprimento=294.5cm largura=294.5cm area=86730.2cm2, confidence=?, source=, modo=0, n_vertices=5, nota=",
+    "tipo": "laje",
+    "id": "L4",
+    "obra": "Obra_TREINO_21",
+    "pavimento": "LAJE TÉCNICA",
+    "arquivo_fonte": "L4.json",
+    "dados": {
+      "numero": 4,
+      "nome": "L4",
+      "comprimento": 294.5,
+      "largura": 294.5,
+      "pavimento": "LAJE TÉCNICA",
+      "coordenadas": [
+        [
+          0.0,
+          0.0
+        ],
+        [
+          294.5,
+          0.0
+        ],
+        [
+          294.5,
+          294.5
+        ],
+        [
+          0.0,
+          294.5
+        ],
+        [
+          0.0,
+          0.0
+        ]
+      ],
+      "area_cm2": 86730.2,
+      "linhas_verticais": [
+        {
+          "value": 100.0,
+          "is_union": false
+        },
+        {
+          "value": 200.0,
+          "is_union": false
+        },
+        {
+          "value": 294.5,
+          "is_union": false
+        }
+      ],
+      "linhas_horizontais": [],
+      "obstaculos": [],
+      "modo_selecionado": 0,
+      "unioes_nos_bordes": false,
+      "observacoes": ""
+    },
+    "faiss_id": 469
+  },
+  {
+    "text": "Laje L5, Obra: Obra_TREINO_21, Pavimento: LAJE TÉCNICA, comprimento=294.5cm largura=244.0cm area=71858.0cm2, confidence=?, source=, modo=0, n_vertices=5, nota=",
+    "tipo": "laje",
+    "id": "L5",
+    "obra": "Obra_TREINO_21",
+    "pavimento": "LAJE TÉCNICA",
+    "arquivo_fonte": "L5.json",
+    "dados": {
+      "numero": 5,
+      "nome": "L5",
+      "comprimento": 294.5,
+      "largura": 244.0,
+      "pavimento": "LAJE TÉCNICA",
+      "coordenadas": [
+        [
+          0.0,
+          0.0
+        ],
+        [
+          294.5,
+          0.0
+        ],
+        [
+          294.5,
+          244.0
+        ],
+        [
+          0.0,
+          244.0
+        ],
+        [
+          0.0,
+          0.0
+        ]
+      ],
+      "area_cm2": 71858.0,
+      "linhas_verticais": [
+        {
+          "value": 100.0,
+          "is_union": false
+        },
+        {
+          "value": 200.0,
+          "is_union": false
+        },
+        {
+          "value": 294.5,
+          "is_union": false
+        }
+      ],
+      "linhas_horizontais": [],
+      "obstaculos": [],
+      "modo_selecionado": 0,
+      "unioes_nos_bordes": false,
+      "observacoes": ""
+    },
+    "faiss_id": 470
+  },
+  {
+    "text": "Laje L6, Obra: Obra_TREINO_21, Pavimento: LAJE TÉCNICA, comprimento=244.0cm largura=244.0cm area=59536.0cm2, confidence=?, source=, modo=0, n_vertices=5, nota=",
+    "tipo": "laje",
+    "id": "L6",
+    "obra": "Obra_TREINO_21",
+    "pavimento": "LAJE TÉCNICA",
+    "arquivo_fonte": "L6.json",
+    "dados": {
+      "numero": 6,
+      "nome": "L6",
+      "comprimento": 244.0,
+      "largura": 244.0,
+      "pavimento": "LAJE TÉCNICA",
+      "coordenadas": [
+        [
+          0.0,
+          0.0
+        ],
+        [
+          244.0,
+          0.0
+        ],
+        [
+          244.0,
+          244.0
+        ],
+        [
+          0.0,
+          244.0
+        ],
+        [
+          0.0,
+          0.0
+        ]
+      ],
+      "area_cm2": 59536.0,
+      "linhas_verticais": [
+        {
+          "value": 100.0,
+          "is_union": false
+        },
+        {
+          "value": 200.0,
+          "is_union": false
+        },
+        {
+          "value": 244.0,
+          "is_union": false
+        }
+      ],
+      "linhas_horizontais": [],
+      "obstaculos": [],
+      "modo_selecionado": 0,
+      "unioes_nos_bordes": false,
+      "observacoes": ""
+    },
+    "faiss_id": 471
+  },
+  {
+    "text": "Laje L7, Obra: Obra_TREINO_21, Pavimento: LAJE TÉCNICA, comprimento=244.0cm largura=182.8cm area=44603.2cm2, confidence=?, source=, modo=0, n_vertices=5, nota=",
+    "tipo": "laje",
+    "id": "L7",
+    "obra": "Obra_TREINO_21",
+    "pavimento": "LAJE TÉCNICA",
+    "arquivo_fonte": "L7.json",
+    "dados": {
+      "numero": 7,
+      "nome": "L7",
+      "comprimento": 244.0,
+      "largura": 182.8,
+      "pavimento": "LAJE TÉCNICA",
+      "coordenadas": [
+        [
+          0.0,
+          0.0
+        ],
+        [
+          244.0,
+          0.0
+        ],
+        [
+          244.0,
+          182.8
+        ],
+        [
+          0.0,
+          182.8
+        ],
+        [
+          0.0,
+          0.0
+        ]
+      ],
+      "area_cm2": 44603.2,
+      "linhas_verticais": [
+        {
+          "value": 100.0,
+          "is_union": false
+        },
+        {
+          "value": 200.0,
+          "is_union": false
+        },
+        {
+          "value": 244.0,
+          "is_union": false
+        }
+      ],
+      "linhas_horizontais": [],
+      "obstaculos": [],
+      "modo_selecionado": 0,
+      "unioes_nos_bordes": false,
+      "observacoes": ""
+    },
+    "faiss_id": 472
+  },
+  {
+    "text": "Laje L8, Obra: Obra_TREINO_21, Pavimento: LAJE TÉCNICA, comprimento=294.5cm largura=294.5cm area=86730.2cm2, confidence=?, source=, modo=0, n_vertices=5, nota=",
+    "tipo": "laje",
+    "id": "L8",
+    "obra": "Obra_TREINO_21",
+    "pavimento": "LAJE TÉCNICA",
+    "arquivo_fonte": "L8.json",
+    "dados": {
+      "numero": 8,
+      "nome": "L8",
+      "comprimento": 294.5,
+      "largura": 294.5,
+      "pavimento": "LAJE TÉCNICA",
+      "coordenadas": [
+        [
+          0.0,
+          0.0
+        ],
+        [
+          294.5,
+          0.0
+        ],
+        [
+          294.5,
+          294.5
+        ],
+        [
+          0.0,
+          294.5
+        ],
+        [
+          0.0,
+          0.0
+        ]
+      ],
+      "area_cm2": 86730.2,
+      "linhas_verticais": [
+        {
+          "value": 100.0,
+          "is_union": false
+        },
+        {
+          "value": 200.0,
+          "is_union": false
+        },
+        {
+          "value": 294.5,
+          "is_union": false
+        }
+      ],
+      "linhas_horizontais": [],
+      "obstaculos": [],
+      "modo_selecionado": 0,
+      "unioes_nos_bordes": false,
+      "observacoes": ""
+    },
+    "faiss_id": 473
+  },
+  {
+    "text": "Laje L9, Obra: Obra_TREINO_21, Pavimento: LAJE TÉCNICA, comprimento=287.8cm largura=244.0cm area=70223.2cm2, confidence=?, source=, modo=0, n_vertices=5, nota=",
+    "tipo": "laje",
+    "id": "L9",
+    "obra": "Obra_TREINO_21",
+    "pavimento": "LAJE TÉCNICA",
+    "arquivo_fonte": "L9.json",
+    "dados": {
+      "numero": 9,
+      "nome": "L9",
+      "comprimento": 287.8,
+      "largura": 244.0,
+      "pavimento": "LAJE TÉCNICA",
+      "coordenadas": [
+        [
+          0.0,
+          0.0
+        ],
+        [
+          287.8,
+          0.0
+        ],
+        [
+          287.8,
+          244.0
+        ],
+        [
+          0.0,
+          244.0
+        ],
+        [
+          0.0,
+          0.0
+        ]
+      ],
+      "area_cm2": 70223.2,
+      "linhas_verticais": [
+        {
+          "value": 100.0,
+          "is_union": false
+        },
+        {
+          "value": 200.0,
+          "is_union": false
+        },
+        {
+          "value": 287.8,
+          "is_union": false
+        }
+      ],
+      "linhas_horizontais": [],
+      "obstaculos": [],
+      "modo_selecionado": 0,
+      "unioes_nos_bordes": false,
+      "observacoes": ""
+    },
+    "faiss_id": 474
+  },
+  {
+    "text": "Laje L1, Obra: Obra_TREINO_22, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=0, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L1",
+    "obra": "Obra_TREINO_22",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 537
+  },
+  {
+    "text": "Laje L2, Obra: Obra_TREINO_22, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=0, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L2",
+    "obra": "Obra_TREINO_22",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 538
+  },
+  {
+    "text": "Laje L3, Obra: Obra_TREINO_22, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=0, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L3",
+    "obra": "Obra_TREINO_22",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 539
+  },
+  {
+    "text": "Laje L4, Obra: Obra_TREINO_22, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=0, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L4",
+    "obra": "Obra_TREINO_22",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 540
+  },
+  {
+    "text": "Laje L5, Obra: Obra_TREINO_22, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=0, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L5",
+    "obra": "Obra_TREINO_22",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 541
+  },
+  {
+    "text": "Laje L6, Obra: Obra_TREINO_22, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=0, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L6",
+    "obra": "Obra_TREINO_22",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 542
+  },
+  {
+    "text": "Laje L7, Obra: Obra_TREINO_22, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=0, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L7",
+    "obra": "Obra_TREINO_22",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 543
+  },
+  {
+    "text": "Laje L8, Obra: Obra_TREINO_22, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=0, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L8",
+    "obra": "Obra_TREINO_22",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 544
+  },
+  {
+    "text": "Laje L9, Obra: Obra_TREINO_22, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=0, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L9",
+    "obra": "Obra_TREINO_22",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 545
+  },
+  {
+    "text": "Laje L11, Obra: Obra_TREINO_22, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=0, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L11",
+    "obra": "Obra_TREINO_22",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 546
+  },
+  {
+    "text": "Laje L12, Obra: Obra_TREINO_22, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=0, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L12",
+    "obra": "Obra_TREINO_22",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 547
+  },
+  {
+    "text": "Laje L13, Obra: Obra_TREINO_22, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=0, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L13",
+    "obra": "Obra_TREINO_22",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 548
+  },
+  {
+    "text": "Laje L14, Obra: Obra_TREINO_22, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=0, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L14",
+    "obra": "Obra_TREINO_22",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 549
+  },
+  {
+    "text": "Laje L15, Obra: Obra_TREINO_22, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=0, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L15",
+    "obra": "Obra_TREINO_22",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 550
+  },
+  {
+    "text": "Laje L16, Obra: Obra_TREINO_22, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=0, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L16",
+    "obra": "Obra_TREINO_22",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 551
+  },
+  {
+    "text": "Laje L17, Obra: Obra_TREINO_22, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=0, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L17",
+    "obra": "Obra_TREINO_22",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 552
+  },
+  {
+    "text": "Laje L18, Obra: Obra_TREINO_22, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=0, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L18",
+    "obra": "Obra_TREINO_22",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 553
+  },
+  {
+    "text": "Laje L19, Obra: Obra_TREINO_22, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=0, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L19",
+    "obra": "Obra_TREINO_22",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 554
+  },
+  {
+    "text": "Laje L20, Obra: Obra_TREINO_22, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=0, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L20",
+    "obra": "Obra_TREINO_22",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 555
+  },
+  {
+    "text": "Laje L21, Obra: Obra_TREINO_22, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=0, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L21",
+    "obra": "Obra_TREINO_22",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 556
+  },
+  {
+    "text": "Laje L22, Obra: Obra_TREINO_22, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=0, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L22",
+    "obra": "Obra_TREINO_22",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 557
+  },
+  {
+    "text": "Laje L23, Obra: Obra_TREINO_22, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=0, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L23",
+    "obra": "Obra_TREINO_22",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 558
+  },
+  {
+    "text": "Laje L24, Obra: Obra_TREINO_22, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=0, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L24",
+    "obra": "Obra_TREINO_22",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 559
+  },
+  {
+    "text": "Laje L25, Obra: Obra_TREINO_22, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=0, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L25",
+    "obra": "Obra_TREINO_22",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 560
+  },
+  {
+    "text": "Laje L26, Obra: Obra_TREINO_22, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=0, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L26",
+    "obra": "Obra_TREINO_22",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 561
+  },
+  {
+    "text": "Laje L27, Obra: Obra_TREINO_22, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=0, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L27",
+    "obra": "Obra_TREINO_22",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 562
+  },
+  {
+    "text": "Laje L28, Obra: Obra_TREINO_22, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=0, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L28",
+    "obra": "Obra_TREINO_22",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 563
+  },
+  {
+    "text": "Laje L29, Obra: Obra_TREINO_22, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=0, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L29",
+    "obra": "Obra_TREINO_22",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 564
+  },
+  {
+    "text": "Laje L30, Obra: Obra_TREINO_22, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=0, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L30",
+    "obra": "Obra_TREINO_22",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 565
+  },
+  {
+    "text": "Laje L31, Obra: Obra_TREINO_22, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=0, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L31",
+    "obra": "Obra_TREINO_22",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 566
+  },
+  {
+    "text": "Laje L32, Obra: Obra_TREINO_22, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=0, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L32",
+    "obra": "Obra_TREINO_22",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 567
+  },
+  {
+    "text": "Laje L33, Obra: Obra_TREINO_22, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=0, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L33",
+    "obra": "Obra_TREINO_22",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 568
+  },
+  {
+    "text": "Laje L301, Obra: Obra_TREINO_22, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=0, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L301",
+    "obra": "Obra_TREINO_22",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 569
+  },
+  {
+    "text": "Laje _meta, Obra: Obra_TREINO_22, Pavimento: 1_PAV, comprimento=?cm largura=?cm area=?cm2, confidence=?, source=, modo=, n_vertices=0, nota=",
+    "tipo": "laje",
+    "id": "_meta",
+    "obra": "Obra_TREINO_22",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "total": 36,
+      "pavimento": "2 PAV",
+      "extraido_em": "2026-03-09"
+    },
+    "faiss_id": 570
+  },
+  {
+    "text": "Laje L10, Obra: Obra_TREINO_22, Pavimento: 2 PAV, comprimento=115.5cm largura=122.0cm area=14091.0cm2, confidence=?, source=, modo=0, n_vertices=5, nota=",
+    "tipo": "laje",
+    "id": "L10",
+    "obra": "Obra_TREINO_22",
+    "pavimento": "2 PAV",
+    "arquivo_fonte": "L10.json",
+    "dados": {
+      "numero": 10,
+      "nome": "L10",
+      "comprimento": 115.5,
+      "largura": 122.0,
+      "pavimento": "2 PAV",
+      "coordenadas": [
+        [
+          0.0,
+          0.0
+        ],
+        [
+          115.5,
+          0.0
+        ],
+        [
+          115.5,
+          122.0
+        ],
+        [
+          0.0,
+          122.0
+        ],
+        [
+          0.0,
+          0.0
+        ]
+      ],
+      "area_cm2": 14091.0,
+      "linhas_verticais": [
+        {
+          "value": 100.0,
+          "is_union": false
+        },
+        {
+          "value": 115.5,
+          "is_union": false
+        }
+      ],
+      "linhas_horizontais": [],
+      "obstaculos": [],
+      "modo_selecionado": 0,
+      "unioes_nos_bordes": false,
+      "observacoes": ""
+    },
+    "faiss_id": 571
+  },
+  {
+    "text": "Laje L35, Obra: Obra_TREINO_22, Pavimento: 2 PAV, comprimento=122.0cm largura=244.0cm area=29768.0cm2, confidence=?, source=, modo=0, n_vertices=5, nota=",
+    "tipo": "laje",
+    "id": "L35",
+    "obra": "Obra_TREINO_22",
+    "pavimento": "2 PAV",
+    "arquivo_fonte": "L35.json",
+    "dados": {
+      "numero": 35,
+      "nome": "L35",
+      "comprimento": 122.0,
+      "largura": 244.0,
+      "pavimento": "2 PAV",
+      "coordenadas": [
+        [
+          4750.5,
+          848.9
+        ],
+        [
+          4769.5,
+          848.9
+        ],
+        [
+          4769.5,
+          943.9
+        ],
+        [
+          4750.5,
+          943.9
+        ],
+        [
+          4750.5,
+          848.9
+        ]
+      ],
+      "area_cm2": 29768.0,
+      "linhas_verticais": [
+        {
+          "value": 100.0,
+          "is_union": false
+        },
+        {
+          "value": 122.0,
+          "is_union": false
+        }
+      ],
+      "linhas_horizontais": [],
+      "obstaculos": [],
+      "modo_selecionado": 0,
+      "unioes_nos_bordes": false,
+      "observacoes": ""
+    },
+    "faiss_id": 572
+  },
+  {
+    "text": "Laje L39, Obra: Obra_TREINO_22, Pavimento: 2 PAV, comprimento=122.0cm largura=122.0cm area=14884.0cm2, confidence=?, source=, modo=0, n_vertices=5, nota=",
+    "tipo": "laje",
+    "id": "L39",
+    "obra": "Obra_TREINO_22",
+    "pavimento": "2 PAV",
+    "arquivo_fonte": "L39.json",
+    "dados": {
+      "numero": 39,
+      "nome": "L39",
+      "comprimento": 122.0,
+      "largura": 122.0,
+      "pavimento": "2 PAV",
+      "coordenadas": [
+        [
+          0.0,
+          0.0
+        ],
+        [
+          122.0,
+          0.0
+        ],
+        [
+          122.0,
+          122.0
+        ],
+        [
+          0.0,
+          122.0
+        ],
+        [
+          0.0,
+          0.0
+        ]
+      ],
+      "area_cm2": 14884.0,
+      "linhas_verticais": [
+        {
+          "value": 100.0,
+          "is_union": false
+        },
+        {
+          "value": 122.0,
+          "is_union": false
+        }
+      ],
+      "linhas_horizontais": [],
+      "obstaculos": [],
+      "modo_selecionado": 0,
+      "unioes_nos_bordes": false,
+      "observacoes": ""
+    },
+    "faiss_id": 573
+  },
+  {
+    "text": "Laje L1, Obra: Obra_TREINO_23, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=5, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L1",
+    "obra": "Obra_TREINO_23",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [
+        [
+          191684.7,
+          39804.6
+        ],
+        [
+          191684.7,
+          39785.6
+        ],
+        [
+          191744.7,
+          39785.6
+        ],
+        [
+          191744.7,
+          39804.6
+        ],
+        [
+          191684.7,
+          39804.6
+        ]
+      ],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 617
+  },
+  {
+    "text": "Laje L2, Obra: Obra_TREINO_23, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=0, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L2",
+    "obra": "Obra_TREINO_23",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 618
+  },
+  {
+    "text": "Laje L3, Obra: Obra_TREINO_23, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=5, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L3",
+    "obra": "Obra_TREINO_23",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [
+        [
+          192323.2,
+          39838.6
+        ],
+        [
+          192323.2,
+          39804.6
+        ],
+        [
+          192309.2,
+          39804.6
+        ],
+        [
+          192309.2,
+          39838.6
+        ],
+        [
+          192323.2,
+          39838.6
+        ]
+      ],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 619
+  },
+  {
+    "text": "Laje L4, Obra: Obra_TREINO_23, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=5, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L4",
+    "obra": "Obra_TREINO_23",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [
+        [
+          192674.2,
+          39668.6
+        ],
+        [
+          192674.2,
+          39629.6
+        ],
+        [
+          192688.2,
+          39629.6
+        ],
+        [
+          192688.2,
+          39668.6
+        ],
+        [
+          192674.2,
+          39668.6
+        ]
+      ],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 620
+  },
+  {
+    "text": "Laje L5, Obra: Obra_TREINO_23, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=5, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L5",
+    "obra": "Obra_TREINO_23",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [
+        [
+          193053.2,
+          39688.6
+        ],
+        [
+          193053.2,
+          39649.6
+        ],
+        [
+          193039.2,
+          39649.6
+        ],
+        [
+          193039.2,
+          39688.6
+        ],
+        [
+          193053.2,
+          39688.6
+        ]
+      ],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 621
+  },
+  {
+    "text": "Laje L6, Obra: Obra_TREINO_23, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=5, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L6",
+    "obra": "Obra_TREINO_23",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [
+        [
+          193463.2,
+          39728.6
+        ],
+        [
+          193463.2,
+          39689.6
+        ],
+        [
+          193449.2,
+          39689.6
+        ],
+        [
+          193449.2,
+          39728.6
+        ],
+        [
+          193463.2,
+          39728.6
+        ]
+      ],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 622
+  },
+  {
+    "text": "Laje L7, Obra: Obra_TREINO_23, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=0, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L7",
+    "obra": "Obra_TREINO_23",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 623
+  },
+  {
+    "text": "Laje L8, Obra: Obra_TREINO_23, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=5, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L8",
+    "obra": "Obra_TREINO_23",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [
+        [
+          191833.7,
+          39034.1
+        ],
+        [
+          191858.7,
+          39034.1
+        ],
+        [
+          191858.7,
+          39129.1
+        ],
+        [
+          191833.7,
+          39129.1
+        ],
+        [
+          191833.7,
+          39034.1
+        ]
+      ],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 624
+  },
+  {
+    "text": "Laje L9, Obra: Obra_TREINO_23, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=13, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L9",
+    "obra": "Obra_TREINO_23",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [
+        [
+          192103.2,
+          39098.6
+        ],
+        [
+          192258.2,
+          39098.6
+        ],
+        [
+          192258.2,
+          39093.6
+        ],
+        [
+          192269.2,
+          39093.6
+        ],
+        [
+          192269.2,
+          38559.4
+        ],
+        [
+          192258.2,
+          38559.4
+        ],
+        [
+          192258.2,
+          38538.4
+        ],
+        [
+          191861.2,
+          38538.4
+        ],
+        [
+          191861.2,
+          38544.4
+        ],
+        [
+          191858.7,
+          38544.4
+        ],
+        [
+          191858.7,
+          39034.1
+        ],
+        [
+          192103.2,
+          39034.1
+        ],
+        [
+          192103.2,
+          39098.6
+        ]
+      ],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 625
+  },
+  {
+    "text": "Laje L10, Obra: Obra_TREINO_23, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=5, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L10",
+    "obra": "Obra_TREINO_23",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [
+        [
+          192455.7,
+          38901.1
+        ],
+        [
+          192421.7,
+          38901.1
+        ],
+        [
+          192421.7,
+          38887.1
+        ],
+        [
+          192455.7,
+          38887.1
+        ],
+        [
+          192455.7,
+          38901.1
+        ]
+      ],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 626
+  },
+  {
+    "text": "Laje L11, Obra: Obra_TREINO_23, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=5, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L11",
+    "obra": "Obra_TREINO_23",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [
+        [
+          192648.2,
+          38834.6
+        ],
+        [
+          192648.2,
+          38873.6
+        ],
+        [
+          192634.2,
+          38873.6
+        ],
+        [
+          192634.2,
+          38834.6
+        ],
+        [
+          192648.2,
+          38834.6
+        ]
+      ],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 627
+  },
+  {
+    "text": "Laje L12, Obra: Obra_TREINO_23, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=5, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L12",
+    "obra": "Obra_TREINO_23",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [
+        [
+          193053.2,
+          38868.6
+        ],
+        [
+          193053.2,
+          38829.6
+        ],
+        [
+          193039.2,
+          38829.6
+        ],
+        [
+          193039.2,
+          38868.6
+        ],
+        [
+          193053.2,
+          38868.6
+        ]
+      ],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 628
+  },
+  {
+    "text": "Laje L13, Obra: Obra_TREINO_23, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=5, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L13",
+    "obra": "Obra_TREINO_23",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [
+        [
+          193463.2,
+          38829.6
+        ],
+        [
+          193463.2,
+          38868.6
+        ],
+        [
+          193449.2,
+          38868.6
+        ],
+        [
+          193449.2,
+          38829.6
+        ],
+        [
+          193463.2,
+          38829.6
+        ]
+      ],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 629
+  },
+  {
+    "text": "Laje L14, Obra: Obra_TREINO_23, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=5, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L14",
+    "obra": "Obra_TREINO_23",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [
+        [
+          191900.2,
+          40189.6
+        ],
+        [
+          191886.2,
+          40189.6
+        ],
+        [
+          191886.2,
+          40149.6
+        ],
+        [
+          191900.2,
+          40149.6
+        ],
+        [
+          191900.2,
+          40189.6
+        ]
+      ],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 630
+  },
+  {
+    "text": "Laje L103, Obra: Obra_TREINO_23, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=5, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L103",
+    "obra": "Obra_TREINO_23",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [
+        [
+          193369.2,
+          38533.6
+        ],
+        [
+          193408.2,
+          38533.6
+        ],
+        [
+          193408.2,
+          38519.6
+        ],
+        [
+          193369.2,
+          38519.6
+        ],
+        [
+          193369.2,
+          38533.6
+        ]
+      ],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 631
+  },
+  {
+    "text": "Laje L104, Obra: Obra_TREINO_23, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=4, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L104",
+    "obra": "Obra_TREINO_23",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [
+        [
+          193687.6,
+          38398.6
+        ],
+        [
+          193727.6,
+          38398.6
+        ],
+        [
+          193727.6,
+          38384.6
+        ],
+        [
+          193687.6,
+          38384.6
+        ]
+      ],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 632
+  },
+  {
+    "text": "Laje _meta, Obra: Obra_TREINO_23, Pavimento: 1_PAV, comprimento=?cm largura=?cm area=?cm2, confidence=?, source=, modo=, n_vertices=0, nota=",
+    "tipo": "laje",
+    "id": "_meta",
+    "obra": "Obra_TREINO_23",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "total": 16,
+      "pavimento": "SANTA CRUZ-TER",
+      "extraido_em": "2026-03-09"
+    },
+    "faiss_id": 633
+  },
+  {
+    "text": "Laje L5, Obra: Obra_TREINO_3, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=0, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L5",
+    "obra": "Obra_TREINO_3",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 679
+  },
+  {
+    "text": "Laje L6, Obra: Obra_TREINO_3, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=0, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L6",
+    "obra": "Obra_TREINO_3",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 680
+  },
+  {
+    "text": "Laje L7, Obra: Obra_TREINO_3, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=0, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L7",
+    "obra": "Obra_TREINO_3",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 681
+  },
+  {
+    "text": "Laje L8, Obra: Obra_TREINO_3, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=0, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L8",
+    "obra": "Obra_TREINO_3",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 682
+  },
+  {
+    "text": "Laje L14, Obra: Obra_TREINO_3, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=0, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L14",
+    "obra": "Obra_TREINO_3",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 683
+  },
+  {
+    "text": "Laje L15, Obra: Obra_TREINO_3, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=0, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L15",
+    "obra": "Obra_TREINO_3",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 684
+  },
+  {
+    "text": "Laje L16, Obra: Obra_TREINO_3, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=0, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L16",
+    "obra": "Obra_TREINO_3",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 685
+  },
+  {
+    "text": "Laje L17, Obra: Obra_TREINO_3, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=0, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L17",
+    "obra": "Obra_TREINO_3",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 686
+  },
+  {
+    "text": "Laje L26, Obra: Obra_TREINO_3, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=0, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L26",
+    "obra": "Obra_TREINO_3",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 687
+  },
+  {
+    "text": "Laje L27, Obra: Obra_TREINO_3, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=0, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L27",
+    "obra": "Obra_TREINO_3",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 688
+  },
+  {
+    "text": "Laje L28, Obra: Obra_TREINO_3, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=0, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L28",
+    "obra": "Obra_TREINO_3",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 689
+  },
+  {
+    "text": "Laje L29, Obra: Obra_TREINO_3, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=0, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L29",
+    "obra": "Obra_TREINO_3",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 690
+  },
+  {
+    "text": "Laje L30, Obra: Obra_TREINO_3, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=0, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L30",
+    "obra": "Obra_TREINO_3",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 691
+  },
+  {
+    "text": "Laje L31, Obra: Obra_TREINO_3, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=0, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L31",
+    "obra": "Obra_TREINO_3",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 692
+  },
+  {
+    "text": "Laje L32, Obra: Obra_TREINO_3, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=0, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L32",
+    "obra": "Obra_TREINO_3",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 693
+  },
+  {
+    "text": "Laje L34, Obra: Obra_TREINO_3, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=0, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L34",
+    "obra": "Obra_TREINO_3",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 694
+  },
+  {
+    "text": "Laje _meta, Obra: Obra_TREINO_3, Pavimento: 1_PAV, comprimento=?cm largura=?cm area=?cm2, confidence=?, source=, modo=, n_vertices=0, nota=",
+    "tipo": "laje",
+    "id": "_meta",
+    "obra": "Obra_TREINO_3",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "total": 16,
+      "pavimento": "RES.DIAMOND - TÉRREO - PERIFERIA - TORRE 1 - S04A",
+      "extraido_em": "2026-03-09"
+    },
+    "faiss_id": 695
+  },
+  {
+    "text": "Laje L1, Obra: Obra_TREINO_6, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=0, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L1",
+    "obra": "Obra_TREINO_6",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 754
+  },
+  {
+    "text": "Laje L2, Obra: Obra_TREINO_6, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=0, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L2",
+    "obra": "Obra_TREINO_6",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 755
+  },
+  {
+    "text": "Laje L3, Obra: Obra_TREINO_6, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=0, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L3",
+    "obra": "Obra_TREINO_6",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 756
+  },
+  {
+    "text": "Laje L4, Obra: Obra_TREINO_6, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=0, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L4",
+    "obra": "Obra_TREINO_6",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 757
+  },
+  {
+    "text": "Laje L5, Obra: Obra_TREINO_6, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=0, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L5",
+    "obra": "Obra_TREINO_6",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 758
+  },
+  {
+    "text": "Laje L6, Obra: Obra_TREINO_6, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=0, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L6",
+    "obra": "Obra_TREINO_6",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 759
+  },
+  {
+    "text": "Laje L7, Obra: Obra_TREINO_6, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=0, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L7",
+    "obra": "Obra_TREINO_6",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 760
+  },
+  {
+    "text": "Laje L8, Obra: Obra_TREINO_6, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=0, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L8",
+    "obra": "Obra_TREINO_6",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 761
+  },
+  {
+    "text": "Laje L9, Obra: Obra_TREINO_6, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=0, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L9",
+    "obra": "Obra_TREINO_6",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 762
+  },
+  {
+    "text": "Laje L10, Obra: Obra_TREINO_6, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=0, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L10",
+    "obra": "Obra_TREINO_6",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 763
+  },
+  {
+    "text": "Laje L12, Obra: Obra_TREINO_6, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=0, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L12",
+    "obra": "Obra_TREINO_6",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 764
+  },
+  {
+    "text": "Laje L13, Obra: Obra_TREINO_6, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=0, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L13",
+    "obra": "Obra_TREINO_6",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 765
+  },
+  {
+    "text": "Laje L14, Obra: Obra_TREINO_6, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=4, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L14",
+    "obra": "Obra_TREINO_6",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [
+        [
+          4571.7,
+          1880.4
+        ],
+        [
+          4067.7,
+          1880.4
+        ],
+        [
+          4067.7,
+          1805.4
+        ],
+        [
+          4571.7,
+          1805.4
+        ]
+      ],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 766
+  },
+  {
+    "text": "Laje L16, Obra: Obra_TREINO_6, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=0, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L16",
+    "obra": "Obra_TREINO_6",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 767
+  },
+  {
+    "text": "Laje _meta, Obra: Obra_TREINO_6, Pavimento: 1_PAV, comprimento=?cm largura=?cm area=?cm2, confidence=?, source=, modo=, n_vertices=0, nota=",
+    "tipo": "laje",
+    "id": "_meta",
+    "obra": "Obra_TREINO_6",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "total": 14,
+      "pavimento": "JFC-TIP",
+      "extraido_em": "2026-03-09"
+    },
+    "faiss_id": 768
+  },
+  {
+    "text": "Laje L311, Obra: Obra_TREINO_9, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=0, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L311",
+    "obra": "Obra_TREINO_9",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 804
+  },
+  {
+    "text": "Laje L315, Obra: Obra_TREINO_9, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=0, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L315",
+    "obra": "Obra_TREINO_9",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 805
+  },
+  {
+    "text": "Laje L318, Obra: Obra_TREINO_9, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=0, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L318",
+    "obra": "Obra_TREINO_9",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 806
+  },
+  {
+    "text": "Laje L319, Obra: Obra_TREINO_9, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=0, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L319",
+    "obra": "Obra_TREINO_9",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 807
+  },
+  {
+    "text": "Laje L320, Obra: Obra_TREINO_9, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=0, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L320",
+    "obra": "Obra_TREINO_9",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 808
+  },
+  {
+    "text": "Laje L321, Obra: Obra_TREINO_9, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=0, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L321",
+    "obra": "Obra_TREINO_9",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 809
+  },
+  {
+    "text": "Laje L324, Obra: Obra_TREINO_9, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=0, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L324",
+    "obra": "Obra_TREINO_9",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 810
+  },
+  {
+    "text": "Laje L325, Obra: Obra_TREINO_9, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=0, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L325",
+    "obra": "Obra_TREINO_9",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 811
+  },
+  {
+    "text": "Laje L328, Obra: Obra_TREINO_9, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=0, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L328",
+    "obra": "Obra_TREINO_9",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 812
+  },
+  {
+    "text": "Laje L329, Obra: Obra_TREINO_9, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=0, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L329",
+    "obra": "Obra_TREINO_9",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 813
+  },
+  {
+    "text": "Laje L330, Obra: Obra_TREINO_9, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=0, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L330",
+    "obra": "Obra_TREINO_9",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 814
+  },
+  {
+    "text": "Laje L336, Obra: Obra_TREINO_9, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=0, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L336",
+    "obra": "Obra_TREINO_9",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 815
+  },
+  {
+    "text": "Laje L343, Obra: Obra_TREINO_9, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=0, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L343",
+    "obra": "Obra_TREINO_9",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 816
+  },
+  {
+    "text": "Laje L344, Obra: Obra_TREINO_9, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=0, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L344",
+    "obra": "Obra_TREINO_9",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 817
+  },
+  {
+    "text": "Laje L345, Obra: Obra_TREINO_9, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=0, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L345",
+    "obra": "Obra_TREINO_9",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 818
+  },
+  {
+    "text": "Laje L354, Obra: Obra_TREINO_9, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=0, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L354",
+    "obra": "Obra_TREINO_9",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 819
+  },
+  {
+    "text": "Laje L355, Obra: Obra_TREINO_9, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=0, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L355",
+    "obra": "Obra_TREINO_9",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 820
+  },
+  {
+    "text": "Laje L358, Obra: Obra_TREINO_9, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=0, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L358",
+    "obra": "Obra_TREINO_9",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 821
+  },
+  {
+    "text": "Laje L359, Obra: Obra_TREINO_9, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=0, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L359",
+    "obra": "Obra_TREINO_9",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 822
+  },
+  {
+    "text": "Laje L360, Obra: Obra_TREINO_9, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=0, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L360",
+    "obra": "Obra_TREINO_9",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 823
+  },
+  {
+    "text": "Laje L361, Obra: Obra_TREINO_9, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=0, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L361",
+    "obra": "Obra_TREINO_9",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 824
+  },
+  {
+    "text": "Laje L365, Obra: Obra_TREINO_9, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=0, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L365",
+    "obra": "Obra_TREINO_9",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 825
+  },
+  {
+    "text": "Laje L366, Obra: Obra_TREINO_9, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=0, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L366",
+    "obra": "Obra_TREINO_9",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 826
+  },
+  {
+    "text": "Laje L367, Obra: Obra_TREINO_9, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=0, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L367",
+    "obra": "Obra_TREINO_9",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 827
+  },
+  {
+    "text": "Laje L368, Obra: Obra_TREINO_9, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=0, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L368",
+    "obra": "Obra_TREINO_9",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 828
+  },
+  {
+    "text": "Laje L369, Obra: Obra_TREINO_9, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=0, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L369",
+    "obra": "Obra_TREINO_9",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 829
+  },
+  {
+    "text": "Laje L370, Obra: Obra_TREINO_9, Pavimento: 1_PAV, comprimento=Nonecm largura=Nonecm area=Nonecm2, confidence=0.25, source=engenharia-reversa-ezdxf, modo=, n_vertices=0, nota=Dims requerem verificação manual",
+    "tipo": "laje",
+    "id": "L370",
+    "obra": "Obra_TREINO_9",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "comprimento": null,
+      "largura": null,
+      "coordenadas": [],
+      "area_cm2": null,
+      "confidence": 0.25,
+      "source": "engenharia-reversa-ezdxf",
+      "nota": "Dims requerem verificação manual"
+    },
+    "faiss_id": 830
+  },
+  {
+    "text": "Laje _meta, Obra: Obra_TREINO_9, Pavimento: 1_PAV, comprimento=?cm largura=?cm area=?cm2, confidence=?, source=, modo=, n_vertices=0, nota=",
+    "tipo": "laje",
+    "id": "_meta",
+    "obra": "Obra_TREINO_9",
+    "pavimento": "1_PAV",
+    "arquivo_fonte": "lajes_ground_truth.json",
+    "dados": {
+      "total": 27,
+      "pavimento": "TORRE 2 - TÉRREO - PERIFERIA",
+      "extraido_em": "2026-03-09"
+    },
+    "faiss_id": 831
+  }
+]

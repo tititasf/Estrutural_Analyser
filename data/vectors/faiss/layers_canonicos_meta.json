@@ -1,0 +1,456 @@
+[
+  {
+    "canonical": "ELEMENT_LABEL",
+    "elemento": "pilar",
+    "description": "Textos com IDs de elementos (P1, V1, L1)",
+    "aliases": [
+      "NOMENCLATURA",
+      "TEXTO_GERAL",
+      "texto",
+      "00 - FELIPE",
+      "EST-PILAR-TEXT",
+      "EST-LAJE-TEXT"
+    ],
+    "robot_uses": true,
+    "text": "ELEMENT_LABEL | Textos com IDs de elementos (P1, V1, L1) | aliases: NOMENCLATURA TEXTO_GERAL TEXTO 00 - FELIPE EST-PILAR-TEXT EST-LAJE-TEXT | elemento pilar"
+  },
+  {
+    "canonical": "PANEL_GEOMETRY",
+    "elemento": "pilar",
+    "description": "Contorno dos painéis de fôrma (LWPOLYLINE fechada)",
+    "aliases": [
+      "Painéis",
+      "PAINEIS",
+      "Pain?is",
+      "PAINEL",
+      "Paneis"
+    ],
+    "robot_uses": true,
+    "text": "PANEL_GEOMETRY | Contorno dos painéis de fôrma (LWPOLYLINE fechada) | aliases: PAINEIS PAINEIS PAIN?IS PAINEL PANEIS | elemento pilar"
+  },
+  {
+    "canonical": "WOOD_BATTEN",
+    "elemento": "pilar",
+    "description": "Sarrafos genéricos de madeira",
+    "aliases": [
+      "SARRAFO",
+      "SARRAFO DE PRESSAO",
+      "Sarrafo de Pressão",
+      "SARRAFO_PRESSAO"
+    ],
+    "robot_uses": true,
+    "text": "WOOD_BATTEN | Sarrafos genéricos de madeira | aliases: SARRAFO SARRAFO DE PRESSAO SARRAFO DE PRESSAO SARRAFO_PRESSAO | elemento pilar"
+  },
+  {
+    "canonical": "BATTEN_2x7",
+    "elemento": "pilar",
+    "description": "Sarrafo 2,2x7 cm — mais comum",
+    "aliases": [
+      "SARR_2.2x7",
+      "Sarr 2.2x7"
+    ],
+    "robot_uses": true,
+    "text": "BATTEN_2x7 | Sarrafo 2,2x7 cm — mais comum | aliases: SARR_2.2X7 SARR 2.2X7 | elemento pilar"
+  },
+  {
+    "canonical": "BATTEN_2x10",
+    "elemento": "pilar",
+    "description": "Sarrafo 2,2x10 cm",
+    "aliases": [
+      "SARR_2.2x10",
+      "SARR_2.2x15",
+      "SARR_2.2x20"
+    ],
+    "robot_uses": true,
+    "text": "BATTEN_2x10 | Sarrafo 2,2x10 cm | aliases: SARR_2.2X10 SARR_2.2X15 SARR_2.2X20 | elemento pilar"
+  },
+  {
+    "canonical": "BATTEN_3x7",
+    "elemento": "pilar",
+    "description": "Sarrafo 3,5x7 cm",
+    "aliases": [
+      "SARR_3.5x7",
+      "SARR_3.5x10"
+    ],
+    "robot_uses": true,
+    "text": "BATTEN_3x7 | Sarrafo 3,5x7 cm | aliases: SARR_3.5X7 SARR_3.5X10 | elemento pilar"
+  },
+  {
+    "canonical": "BATTEN_7x7",
+    "elemento": "pilar",
+    "description": "Sarrafo 7x7 cm — cantos de pilar",
+    "aliases": [
+      "SARR_7x7",
+      "SARR_7x10"
+    ],
+    "robot_uses": true,
+    "text": "BATTEN_7x7 | Sarrafo 7x7 cm — cantos de pilar | aliases: SARR_7X7 SARR_7X10 | elemento pilar"
+  },
+  {
+    "canonical": "PLATE_GEOMETRY",
+    "elemento": "pilar",
+    "description": "Chapas de compensado",
+    "aliases": [
+      "CHAPA"
+    ],
+    "robot_uses": true,
+    "text": "PLATE_GEOMETRY | Chapas de compensado | aliases: CHAPA | elemento pilar"
+  },
+  {
+    "canonical": "ANCHOR_BAR_PL",
+    "elemento": "pilar",
+    "description": "Barras de ancoragem — formato pilar",
+    "aliases": [
+      "BARRA ANCORAGEM"
+    ],
+    "robot_uses": true,
+    "text": "ANCHOR_BAR_PL | Barras de ancoragem — formato pilar | aliases: BARRA ANCORAGEM | elemento pilar"
+  },
+  {
+    "canonical": "ELEVATION_MARK",
+    "elemento": "pilar",
+    "description": "Marcações de nível (cota Z)",
+    "aliases": [
+      "NIVEL",
+      "Nível",
+      "N?vel",
+      "NIVEL 1° PAV.",
+      "NIVEL 2° PAV.",
+      "Texto Nível"
+    ],
+    "robot_uses": true,
+    "text": "ELEVATION_MARK | Marcações de nível (cota Z) | aliases: NIVEL NIVEL N?VEL NIVEL 1 PAV. NIVEL 2 PAV. TEXTO NIVEL | elemento pilar"
+  },
+  {
+    "canonical": "DIMENSION_LINES",
+    "elemento": "pilar",
+    "description": "Linhas e textos de cotas — ignorados na extração",
+    "aliases": [
+      "COTA",
+      "cotas",
+      "Cota Seção (2x)",
+      "COTAS FURAÇ"
+    ],
+    "robot_uses": false,
+    "text": "DIMENSION_LINES | Linhas e textos de cotas — ignorados na extração | aliases: COTA COTAS COTA SECAO (2X) COTAS FURAC | elemento pilar"
+  },
+  {
+    "canonical": "SECTION_TEXT",
+    "elemento": "pilar",
+    "description": "Textos com dimensões de seção transversal (20x50, b=20 h=50)",
+    "aliases": [
+      "Texto Seção",
+      "Texto de Titulo",
+      "Texto Qtd Sarr"
+    ],
+    "robot_uses": true,
+    "text": "SECTION_TEXT | Textos com dimensões de seção transversal (20x50, b=20 h=50) | aliases: TEXTO SECAO TEXTO DE TITULO TEXTO QTD SARR | elemento pilar"
+  },
+  {
+    "canonical": "PROP_LAYER",
+    "elemento": "pilar",
+    "description": "Pontaletes direto em layer (alternativo a INSERT)",
+    "aliases": [
+      "PONTALETE",
+      "1-2 PONTALETE",
+      "MEIO_PONT"
+    ],
+    "robot_uses": true,
+    "text": "PROP_LAYER | Pontaletes direto em layer (alternativo a INSERT) | aliases: PONTALETE 1-2 PONTALETE MEIO_PONT | elemento pilar"
+  },
+  {
+    "canonical": "CLAMP_LAYER",
+    "elemento": "pilar",
+    "description": "Gravatas e abraçadeiras metálicas",
+    "aliases": [
+      "GRAVATA"
+    ],
+    "robot_uses": true,
+    "text": "CLAMP_LAYER | Gravatas e abraçadeiras metálicas | aliases: GRAVATA | elemento pilar"
+  },
+  {
+    "canonical": "TQS_COLUMN",
+    "elemento": "pilar",
+    "description": "Pilar em família TQS (layers numéricos)",
+    "aliases": [
+      "S-COLS",
+      "1",
+      "2",
+      "3"
+    ],
+    "robot_uses": true,
+    "text": "TQS_COLUMN | Pilar em família TQS (layers numéricos) | aliases: S-COLS 1 2 3 | elemento pilar"
+  },
+  {
+    "canonical": "TQS_BEAM",
+    "elemento": "pilar",
+    "description": "Viga em família TQS",
+    "aliases": [
+      "S-BEAM"
+    ],
+    "robot_uses": true,
+    "text": "TQS_BEAM | Viga em família TQS | aliases: S-BEAM | elemento pilar"
+  },
+  {
+    "canonical": "PILLAR_FACE",
+    "elemento": "pilar",
+    "description": "Faces do pilar por orientação",
+    "aliases": [
+      "F-PILARES-S"
+    ],
+    "robot_uses": true,
+    "text": "PILLAR_FACE | Faces do pilar por orientação | aliases: F-PILARES-S | elemento pilar"
+  },
+  {
+    "canonical": "BEAM_BOTTOM",
+    "elemento": "viga",
+    "description": "Fundo de Viga (FV) — elemento crítico",
+    "aliases": [
+      "fundo",
+      "FUNDOS",
+      "Fundo da Viga",
+      "fundo viga"
+    ],
+    "robot_uses": true,
+    "text": "BEAM_BOTTOM | Fundo de Viga (FV) — elemento crítico | aliases: FUNDO FUNDOS FUNDO DA VIGA FUNDO VIGA | elemento viga"
+  },
+  {
+    "canonical": "SHORING",
+    "elemento": "viga",
+    "description": "Escoras de apoio de viga",
+    "aliases": [
+      "Escoras",
+      "Escora de Viga"
+    ],
+    "robot_uses": true,
+    "text": "SHORING | Escoras de apoio de viga | aliases: ESCORAS ESCORA DE VIGA | elemento viga"
+  },
+  {
+    "canonical": "FORK_METAL",
+    "elemento": "viga",
+    "description": "Garfos metálicos HT20CT",
+    "aliases": [
+      "GARFOS"
+    ],
+    "robot_uses": true,
+    "text": "FORK_METAL | Garfos metálicos HT20CT | aliases: GARFOS | elemento viga"
+  },
+  {
+    "canonical": "CLAMP_METAL",
+    "elemento": "viga",
+    "description": "Presilhas metálicas",
+    "aliases": [
+      "presilha",
+      "Presilha",
+      "PRESILHA"
+    ],
+    "robot_uses": true,
+    "text": "CLAMP_METAL | Presilhas metálicas | aliases: PRESILHA PRESILHA PRESILHA | elemento viga"
+  },
+  {
+    "canonical": "ANCHOR_BAR_LV",
+    "elemento": "viga",
+    "description": "Barras de ancoragem — formato viga",
+    "aliases": [
+      "BARRA DE ANCORAGEM"
+    ],
+    "robot_uses": true,
+    "text": "ANCHOR_BAR_LV | Barras de ancoragem — formato viga | aliases: BARRA DE ANCORAGEM | elemento viga"
+  },
+  {
+    "canonical": "SPACER",
+    "elemento": "viga",
+    "description": "Espaçadores da viga",
+    "aliases": [
+      "Forcador"
+    ],
+    "robot_uses": true,
+    "text": "SPACER | Espaçadores da viga | aliases: FORCADOR | elemento viga"
+  },
+  {
+    "canonical": "PLYWOOD_MATERIAL",
+    "elemento": "viga",
+    "description": "Material do compensado (anotações)",
+    "aliases": [
+      "material do compensado"
+    ],
+    "robot_uses": false,
+    "text": "PLYWOOD_MATERIAL | Material do compensado (anotações) | aliases: MATERIAL DO COMPENSADO | elemento viga"
+  },
+  {
+    "canonical": "SLAB_INTERFACE",
+    "elemento": "viga",
+    "description": "Interface laje-viga (onde laje apoia na viga)",
+    "aliases": [
+      "SCO-___-LAJ"
+    ],
+    "robot_uses": true,
+    "text": "SLAB_INTERFACE | Interface laje-viga (onde laje apoia na viga) | aliases: SCO-___-LAJ | elemento viga"
+  },
+  {
+    "canonical": "BATTEN_BEAM",
+    "elemento": "viga",
+    "description": "Barrotes da viga",
+    "aliases": [
+      "barrote"
+    ],
+    "robot_uses": true,
+    "text": "BATTEN_BEAM | Barrotes da viga | aliases: BARROTE | elemento viga"
+  },
+  {
+    "canonical": "DETAIL_LAYER",
+    "elemento": "viga",
+    "description": "Detalhes construtivos — geralmente ignorados",
+    "aliases": [
+      "detalhes"
+    ],
+    "robot_uses": false,
+    "text": "DETAIL_LAYER | Detalhes construtivos — geralmente ignorados | aliases: DETALHES | elemento viga"
+  },
+  {
+    "canonical": "SLAB_TEXT",
+    "elemento": "laje",
+    "description": "Textos com IDs de lajes (L1, L2…)",
+    "aliases": [
+      "EST-LAJE-TEXT",
+      "NOMENCLATURA",
+      "EST-TEXT"
+    ],
+    "robot_uses": true,
+    "text": "SLAB_TEXT | Textos com IDs de lajes (L1, L2…) | aliases: EST-LAJE-TEXT NOMENCLATURA EST-TEXT | elemento laje"
+  },
+  {
+    "canonical": "PILLAR_CUTOUT",
+    "elemento": "laje",
+    "description": "Recortes de pilares no contorno da laje",
+    "aliases": [
+      "Pilares",
+      "EST-PILAR",
+      "EST-PILAR-CUT"
+    ],
+    "robot_uses": true,
+    "text": "PILLAR_CUTOUT | Recortes de pilares no contorno da laje | aliases: PILARES EST-PILAR EST-PILAR-CUT | elemento laje"
+  },
+  {
+    "canonical": "BEAM_INTERFACE_LJ",
+    "elemento": "laje",
+    "description": "Interface de vigas na laje",
+    "aliases": [
+      "VIGAS",
+      "EST-VIGA",
+      "EST-VIGA-TEXT"
+    ],
+    "robot_uses": true,
+    "text": "BEAM_INTERFACE_LJ | Interface de vigas na laje | aliases: VIGAS EST-VIGA EST-VIGA-TEXT | elemento laje"
+  },
+  {
+    "canonical": "REUSE_STATUS",
+    "elemento": "laje",
+    "description": "Estado de reaproveitamento de painéis",
+    "aliases": [
+      "REAPROVEITAMENTO"
+    ],
+    "robot_uses": true,
+    "text": "REUSE_STATUS | Estado de reaproveitamento de painéis | aliases: REAPROVEITAMENTO | elemento laje"
+  },
+  {
+    "canonical": "VOID_OPENING",
+    "elemento": "laje",
+    "description": "Vazios e aberturas na laje — ENCODING CRÍTICO",
+    "aliases": [
+      "Vázio",
+      "Vazio",
+      "V?zio",
+      "ABERTURA",
+      "ABERTURAS",
+      "BURACO",
+      "VOID"
+    ],
+    "robot_uses": true,
+    "text": "VOID_OPENING | Vazios e aberturas na laje — ENCODING CRÍTICO | aliases: VAZIO VAZIO V?ZIO ABERTURA ABERTURAS BURACO VOID | elemento laje"
+  },
+  {
+    "canonical": "STRUCTURAL_SYMBOL",
+    "elemento": "laje",
+    "description": "Símbolos estruturais gerais",
+    "aliases": [
+      "EST-SIMB",
+      "EST-SIMB-Spot Elevations"
+    ],
+    "robot_uses": true,
+    "text": "STRUCTURAL_SYMBOL | Símbolos estruturais gerais | aliases: EST-SIMB EST-SIMB-SPOT ELEVATIONS | elemento laje"
+  },
+  {
+    "canonical": "PILLAR_TEXT",
+    "elemento": "laje",
+    "description": "Textos de pilares na planta de laje",
+    "aliases": [
+      "EST-PILAR-TEXT"
+    ],
+    "robot_uses": true,
+    "text": "PILLAR_TEXT | Textos de pilares na planta de laje | aliases: EST-PILAR-TEXT | elemento laje"
+  },
+  {
+    "canonical": "SLAB_SPOT",
+    "elemento": "laje",
+    "description": "Spot elevations e cotas de nível na laje",
+    "aliases": [
+      "EST-SIMB-Spot Elevations"
+    ],
+    "robot_uses": true,
+    "text": "SLAB_SPOT | Spot elevations e cotas de nível na laje | aliases: EST-SIMB-SPOT ELEVATIONS | elemento laje"
+  },
+  {
+    "canonical": "TITLE_BLOCK",
+    "elemento": "universal",
+    "description": "Carimbo do projeto — sempre ignorado",
+    "aliases": [
+      "CARIMBO"
+    ],
+    "robot_uses": false,
+    "text": "TITLE_BLOCK | Carimbo do projeto — sempre ignorado | aliases: CARIMBO | elemento universal"
+  },
+  {
+    "canonical": "SHEET_BORDER",
+    "elemento": "universal",
+    "description": "Borda da folha",
+    "aliases": [
+      "Folhas",
+      "FOLHA"
+    ],
+    "robot_uses": false,
+    "text": "SHEET_BORDER | Borda da folha | aliases: FOLHAS FOLHA | elemento universal"
+  },
+  {
+    "canonical": "CONCRETE_FILL",
+    "elemento": "universal",
+    "description": "Hachura de concreto — ignorada",
+    "aliases": [
+      "CONCRETO"
+    ],
+    "robot_uses": false,
+    "text": "CONCRETE_FILL | Hachura de concreto — ignorada | aliases: CONCRETO | elemento universal"
+  },
+  {
+    "canonical": "HATCH_GENERAL",
+    "elemento": "universal",
+    "description": "Hachuras gerais — ignoradas",
+    "aliases": [
+      "Hachura",
+      "HACHURA MADEIRAS",
+      "HACHURACONCRETO"
+    ],
+    "robot_uses": false,
+    "text": "HATCH_GENERAL | Hachuras gerais — ignoradas | aliases: HACHURA HACHURA MADEIRAS HACHURACONCRETO | elemento universal"
+  },
+  {
+    "canonical": "DEFAULT",
+    "elemento": "universal",
+    "description": "Layer 0 padrão — geometria genérica",
+    "aliases": [
+      "0"
+    ],
+    "robot_uses": true,
+    "text": "DEFAULT | Layer 0 padrão — geometria genérica | aliases: 0 | elemento universal"
+  }
+]
