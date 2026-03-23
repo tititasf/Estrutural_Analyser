@@ -3902,8 +3902,20 @@ break2
 
     def gerar_paineis(self, larguras_especiais=None):
         try:
+            # FIX: Adicionar aliases lowercase para dicts que usam uppercase keys
+            for key_upper in list(self.campos_altura.keys()):
+                self.campos_altura[key_upper.lower()] = self.campos_altura[key_upper]
+            if hasattr(self, 'campos_ab'):
+                for key_upper in list(self.campos_ab.keys()):
+                    if key_upper != key_upper.lower():
+                        self.campos_ab[key_upper.lower()] = self.campos_ab[key_upper]
+            if hasattr(self, 'campos_cd'):
+                for key_upper in list(self.campos_cd.keys()):
+                    if key_upper != key_upper.lower():
+                        self.campos_cd[key_upper.lower()] = self.campos_cd[key_upper]
+
             script = self.criar_cabecalho()
-            
+
             # CORREÇÃO: Reler valores AQUI para garantir valores atualizados (Script 2)
             altura = self.converter_para_float(self.campos['altura'].get())
             comprimento = self.converter_para_float(self.campos['comprimento'].get())
@@ -3988,9 +4000,10 @@ S
                 ('d', x_d, y_d)
             ]:
                 try:
-                    # Obter dados do painel
+                    # Obter dados do painel (uppercase key para match com campos_altura)
                     alturas = []
-                    for campo in self.campos_altura[tipo_painel]:
+                    tipo_key = tipo_painel.upper()
+                    for campo in self.campos_altura[tipo_key]:
                         valor = campo.get().strip()
                         if valor:
                             try:
