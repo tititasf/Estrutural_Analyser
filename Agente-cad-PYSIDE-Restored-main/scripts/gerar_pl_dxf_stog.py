@@ -108,6 +108,19 @@ def setup_doc():
         blk.add_line((0,0),(3.5,0.87), dxfattribs={'layer': 'Madeira'})
         blk.add_line((0,0),(2.71,7), dxfattribs={'layer': 'Madeira'})
 
+    # ── Bloco C (hachura concreto — eng. reversa STOG, simplificado) ──────────
+    if 'C' not in doc.blocks:
+        blk = doc.blocks.new(name='C')
+        import math
+        # Pattern de linhas diagonais simulando AR-CONC (5.9×6.4 unidades)
+        for i in range(8):
+            y = -3.2 + i * 0.9
+            blk.add_line((0, y), (5.9, y + 2.5), dxfattribs={'layer': 'Hachura'})
+        for i in range(6):
+            x = i * 1.0
+            blk.add_arc(center=(x, 0), radius=1.5, start_angle=30+i*20, end_angle=150+i*10,
+                        dxfattribs={'layer': 'Hachura'})
+
     return doc
 
 
@@ -224,10 +237,17 @@ def draw_cima(msp, cx, cy, comp, larg, g1, nome, tipo_especial=None,
     tp = T_PERFIL * CIMA_SCALE
     te = T_EXT    * CIMA_SCALE
 
-    # 1. Núcleo do pilar (concreto) — dupla hachura (COTA + Hachura)
+    # 1. Núcleo do pilar (concreto) — hachura + bloco C (STOG: 240 INSERTs)
     hatch_rect(msp, cx-hc, cy-hl, comp, larg, 'COTA', 'AR-CONC', scale=2.5)
-    hatch_rect(msp, cx-hc, cy-hl, comp, larg, 'Hachura', 'AR-CONC', scale=3.0)
     rect(msp, cx-hc, cy-hl, comp, larg, 'Painéis', lw=35)
+    # Blocos C (hachura detalhada concreto — 4 cantos + centro como STOG)
+    c_scale = max(1.0, min(comp, larg) / 6.0)
+    for dx, dy, sx in [(0, 0, c_scale), (comp, 0, -c_scale),
+                        (0, larg, -c_scale), (comp, larg, c_scale),
+                        (comp/2, larg/2, c_scale)]:
+        msp.add_blockref('C', (cx - hc + dx, cy - hl + dy),
+                         dxfattribs={'layer': 'Hachura',
+                                     'xscale': sx, 'yscale': c_scale})
 
     # 2. Chapas compensadas em todas as 4 faces (externas ao núcleo)
     # Chapas face A e C (horizontais, cobrindo comp + chapa B/D)
@@ -279,11 +299,15 @@ def draw_cima(msp, cx, cy, comp, larg, g1, nome, tipo_especial=None,
     mtext(msp, cx,           cy + offy, 'C', height=face_lbl_h, layer='TEXTO_GERAL', anchor=2)
     mtext(msp, cx + offx,    cy,        'D', height=face_lbl_h, layer='TEXTO_GERAL', anchor=4)
 
-    # 7. Dimensões da seção
+    # 7. Dimensões da seção (múltiplas cotas — padrão STOG ~30/pilar)
     cota_y = cy - hl - tc - tm - tp - DIM_OFFSET
     dim_h(msp, cx-hc, cx+hc, cota_y, 'COTA')                         # comprimento pilar
+    dim_h(msp, cx-hc-tc, cx+hc+tc, cota_y - 12, 'COTA')              # comp + chapas
+    dim_h(msp, cx-hc-ext, cx+hc+ext, cota_y - 24, 'COTA')            # comp + chapas + madeira
     cota_x = cx + hc + ext + tp + te + DIM_OFFSET
     dim_v(msp, cy-hl, cy+hl, cota_x, 'COTA')                         # largura pilar
+    dim_v(msp, cy-hl-tc, cy+hl+tc, cota_x + 12, 'COTA')              # larg + chapas
+    dim_v(msp, cy-hl-tc-tm, cy+hl+tc+tm, cota_x + 24, 'COTA')        # larg + chapas + madeira
 
     # 8. Seção (comp×larg) no centro — discreta, sem dominar
     secao = f'{comp/CIMA_SCALE:.0f}x{larg/CIMA_SCALE:.0f}'
@@ -608,6 +632,26 @@ def generate_card(msp, pj, card_x, card_y, folha_num=1, obra_nome=''):
                                  dxfattribs={'layer': 'Madeira'})
                 msp.add_blockref('MEIO PONTALETE', (fx_iter + face_w + 1, mp3_y),
                                  dxfattribs={'layer': 'Madeira'})
+
+            # COTAS das grades nesta face (vertical)
+            dim_gx = fx_iter + face_w + DIM_OFFSET + 20
+            # Grade 1
+            dim_v(msp, fy, fy + g1_s, dim_gx, 'COTA')
+            if grade_2 > 0:
+                # Distância 1
+                dim_v(msp, fy + g1_s, fy + g1_s + dist_1, dim_gx + 10, 'COTA')
+                # Grade 2
+                dim_v(msp, fy + g1_s + dist_1, fy + g1_s + dist_1 + g2_s, dim_gx, 'COTA')
+            if grade_3 > 0 and grade_2 > 0:
+                # Distância 2
+                dim_v(msp, fy + g1_s + dist_1 + g2_s, fy + g1_s + dist_1 + g2_s + dist_2, dim_gx + 10, 'COTA')
+                # Grade 3
+                dim_v(msp, fy + g1_s + dist_1 + g2_s + dist_2,
+                      fy + g1_s + dist_1 + g2_s + dist_2 + g3_s, dim_gx, 'COTA')
+            # Cota total altura (todas as grades)
+            total_grade_h = g1_s + (dist_1 + g2_s if grade_2 > 0 else 0) + (dist_2 + g3_s if grade_3 > 0 else 0)
+            if total_grade_h > g1_s:
+                dim_v(msp, fy, fy + total_grade_h, dim_gx + 20, 'COTA')
 
             fx_iter += face_w + FACE_GAP
 
