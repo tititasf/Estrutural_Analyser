@@ -3272,6 +3272,22 @@ def preencher_campos_diretamente_e_gerar_scripts(dados_pilar):
             if hasattr(gerador, 'campos') and f'laje_{painel_dest}' in gerador.campos:
                 preencher_campo_com_trigger(gerador.campos[f'laje_{painel_dest}'], laje_valor)
 
+        # 3.5. Preencher alturas h1-h5 nos campos_altura (ESSENCIAL para gerar_paineis)
+        for face_upper in ['A', 'B', 'C', 'D']:
+            face_lower = face_upper.lower()
+            campos_alt = gerador.campos_altura.get(face_upper, gerador.campos_altura.get(face_lower, []))
+            for idx in range(5):
+                h_key = f'h{idx+1}_{face_upper}'
+                h_val = dados_pilar.get(h_key, 0)
+                if idx < len(campos_alt):
+                    campo = campos_alt[idx]
+                    if hasattr(campo, 'delete'):
+                        campo.delete(0, 'end')
+                    if hasattr(campo, 'insert'):
+                        val_str = f"{float(h_val):.2f}".replace('.', ',') if h_val else "0,00"
+                        campo.insert(0, val_str)
+            print(f"  [ALTURAS] Face {face_upper}: h1={dados_pilar.get(f'h1_{face_upper}',0)}, h2={dados_pilar.get(f'h2_{face_upper}',0)}, h3={dados_pilar.get(f'h3_{face_upper}',0)}")
+
         # 4. Gerar Script
         print("[DEBUG-FUNC] Chamando gerador.salvar_script()...")
         
