@@ -62,6 +62,12 @@ LAYERS = {
     'COTAS FURACAO':      16,   # marcas de furos de parafuso nos pontaletes
     'NOMENCLATURA':       7,   # nome do pilar na lateral
     'Texto Seção':        7,   # textos descritivos na seção
+    'texto':              7,   # textos legacy (142 no STOG real)
+    'MEIO_PONT':         40,   # meio-pontalete entities diretas (59 no STOG)
+    'SARRAFO DE PRESSAO': 42,  # sarrafos de pressão (41 no STOG)
+    'NIVEL 2° PAV.':    160,   # nível do pavimento (38 no STOG)
+    'Sarr 2.2x7':        40,   # variante layer name (21 no STOG)
+    'CONCRETO':          251,   # concreto entity (2 no STOG)
     'Folhas':           255,
     'CARIMBO':          255,
     'TEXTO_GERAL':        7,
@@ -541,6 +547,21 @@ def generate_card(msp, pj, card_x, card_y, folha_num=1, obra_nome=''):
     mtext(msp, card_x + cima_area_w * 0.45, titulo_y + TITULO_H * 0.25,
           secao_str, height=7, layer='TEXTO_GERAL', anchor=5)
 
+    # ── NIVEL pavimento (38 no STOG — linha tracejada horizontal na base) ──
+    nivel_y = card_y + CARIMBO_H + 5
+    msp.add_line((card_x, nivel_y), (card_x + CARD_W, nivel_y),
+                 dxfattribs={'layer': 'NIVEL 2° PAV.', 'linetype': 'DASHED', 'lineweight': 13})
+    mtext(msp, card_x + 3, nivel_y + 2, f'Niv. {pj.get("nivel_chegada", "?")}',
+          height=4, layer='NIVEL 2° PAV.', anchor=1)
+
+    # ── CONCRETO entity (2 no STOG — contorno do núcleo na CIMA) ──
+    # Adicionado como LWPOLYLINE no layer CONCRETO
+    hc_r = comp * CIMA_SCALE / 2
+    hl_r = larg * CIMA_SCALE / 2
+    mid_cy_approx = card_y + CARIMBO_H + (titulo_y - card_y - CARIMBO_H) / 2
+    cima_cx_approx = card_x + cima_area_w / 2
+    rect(msp, cima_cx_approx - hc_r, mid_cy_approx - hl_r, comp * CIMA_SCALE, larg * CIMA_SCALE, 'CONCRETO', lw=50)
+
     # ── Linha divisória CIMA / FACES ──────────────────────────────────────────
     div_x = card_x + cima_area_w
     mid_y0 = card_y + CARIMBO_H
@@ -616,6 +637,36 @@ def generate_card(msp, pj, card_x, card_y, folha_num=1, obra_nome=''):
                                  dxfattribs={'layer': 'Madeira'})
                 msp.add_blockref('MEIO PONTALETE', (fx_iter + face_w + 1, mp_y),
                                  dxfattribs={'layer': 'Madeira'})
+                # MEIO_PONT layer direto (59 no STOG — linhas representativas)
+                msp.add_line((fx_iter - 5, mp_y), (fx_iter - 5, mp_y + 3.5),
+                             dxfattribs={'layer': 'MEIO_PONT', 'lineweight': 25})
+
+            # SARRAFO DE PRESSAO (41 no STOG — linha horizontal entre grades)
+            msp.add_line((fx_iter, fy + g1_s), (fx_iter + face_w, fy + g1_s),
+                         dxfattribs={'layer': 'SARRAFO DE PRESSAO', 'lineweight': 18})
+
+            # Sarrafos tipados adicionais (STOG: SARR_2.2x10=21, SARR_3.5x7=21, SARR_7x7=14, Sarr 2.2x7=21)
+            # Sarr de amarração horizontal (SARR_2.2x10) no topo da grade
+            msp.add_line((fx_iter - 5, fy + g1_s - 2), (fx_iter + face_w + 5, fy + g1_s - 2),
+                         dxfattribs={'layer': 'SARR_2.2x10', 'lineweight': 13})
+            # Sarr especial (SARR_3.5x7) no meio da grade
+            msp.add_line((fx_iter + face_w/2 - 1.75, fy), (fx_iter + face_w/2 - 1.75, fy + g1_s),
+                         dxfattribs={'layer': 'SARR_3.5x7', 'lineweight': 18})
+            # Sarr reforço (SARR_7x7) na base
+            if g1_s > 20:
+                msp.add_line((fx_iter, fy + 3.5), (fx_iter + face_w, fy + 3.5),
+                             dxfattribs={'layer': 'SARR_7x7', 'lineweight': 25})
+            # Sarr 2.2x7 variante nome
+            msp.add_line((fx_iter + face_w/2 + 1.75, fy), (fx_iter + face_w/2 + 1.75, fy + g1_s),
+                         dxfattribs={'layer': 'Sarr 2.2x7', 'lineweight': 13})
+
+            # Texto legacy: label de grade nesta face (142 no STOG)
+            txt_gy = max(3, face_w * 0.05)
+            mtext(msp, fx_iter + face_w/2, fy + g1_s/2,
+                  f'G1={grade_1:.0f}', height=txt_gy, layer='texto', anchor=5)
+            if grade_2 > 0:
+                mtext(msp, fx_iter + face_w/2, fy + g1_s + dist_1 + g2_s/2,
+                      f'G2={grade_2:.0f}', height=txt_gy, layer='texto', anchor=5)
                 # SARR horizontais grade 2
                 for gy in [mp_y, mp_y + g2_s]:
                     msp.add_line((fx_iter - 8, gy), (fx_iter + face_w + 8, gy),

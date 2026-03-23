@@ -2,8 +2,8 @@
   {
     "label": "PL (ALIMONTI - PARAISO - TIPO - 3° AO 12° PAV.- PL - R00.dxf vs PL_stog_quality.dxf)",
     "real_total": 6829,
-    "gen_total": 4200,
-    "ratio": 0.62,
+    "gen_total": 5439,
+    "ratio": 0.8,
     "layers": [
       {
         "layer": "0",
@@ -29,15 +29,15 @@
       {
         "layer": "CONCRETO",
         "real": 2,
-        "gen": 0,
-        "ratio": 0.0,
-        "status": "MISS"
+        "gen": 21,
+        "ratio": 10.5,
+        "status": "OK"
       },
       {
         "layer": "COTA",
         "real": 1983,
-        "gen": 588,
-        "ratio": 0.3,
+        "gen": 1008,
+        "ratio": 0.51,
         "status": "OK"
       },
       {
@@ -57,16 +57,16 @@
       {
         "layer": "Hachura",
         "real": 964,
-        "gen": 273,
-        "ratio": 0.28,
+        "gen": 357,
+        "ratio": 0.37,
         "status": "OK"
       },
       {
         "layer": "MEIO_PONT",
         "real": 59,
-        "gen": 0,
-        "ratio": 0.0,
-        "status": "MISS"
+        "gen": 84,
+        "ratio": 1.42,
+        "status": "OK"
       },
       {
         "layer": "Madeira",
@@ -78,9 +78,9 @@
       {
         "layer": "NIVEL 2° PAV.",
         "real": 38,
-        "gen": 0,
-        "ratio": 0.0,
-        "status": "MISS"
+        "gen": 42,
+        "ratio": 1.11,
+        "status": "OK"
       },
       {
         "layer": "NOMENCLATURA",
@@ -127,16 +127,16 @@
       {
         "layer": "SARRAFO DE PRESSAO",
         "real": 41,
-        "gen": 0,
-        "ratio": 0.0,
-        "status": "MISS"
+        "gen": 84,
+        "ratio": 2.05,
+        "status": "OK"
       },
       {
         "layer": "SARR_2.2x10",
         "real": 21,
-        "gen": 0,
-        "ratio": 0.0,
-        "status": "MISS"
+        "gen": 84,
+        "ratio": 4.0,
+        "status": "OK"
       },
       {
         "layer": "SARR_2.2x7",
@@ -148,16 +148,16 @@
       {
         "layer": "SARR_3.5x7",
         "real": 21,
-        "gen": 0,
-        "ratio": 0.0,
-        "status": "MISS"
+        "gen": 84,
+        "ratio": 4.0,
+        "status": "OK"
       },
       {
         "layer": "SARR_7x7",
         "real": 14,
-        "gen": 0,
-        "ratio": 0.0,
-        "status": "MISS"
+        "gen": 84,
+        "ratio": 6.0,
+        "status": "OK"
       },
       {
         "layer": "SARR_EDITAR",
@@ -169,9 +169,9 @@
       {
         "layer": "Sarr 2.2x7",
         "real": 21,
-        "gen": 0,
-        "ratio": 0.0,
-        "status": "MISS"
+        "gen": 84,
+        "ratio": 4.0,
+        "status": "OK"
       },
       {
         "layer": "TEXTO_GERAL",
@@ -197,9 +197,9 @@
       {
         "layer": "texto",
         "real": 142,
-        "gen": 0,
-        "ratio": 0.0,
-        "status": "MISS"
+        "gen": 168,
+        "ratio": 1.18,
+        "status": "OK"
       }
     ],
     "real_inserts": {
@@ -210,6 +210,7 @@
       "MEIO PONTALETE": 224
     },
     "gen_inserts": {
+      "C": 105,
       "PONTALETE": 168,
       "MEIO PONTALETE": 168
     },
