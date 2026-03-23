@@ -37,23 +37,22 @@ def gerar_scr_cima(comp, larg, nome='P1'):
     lines.append('FILEDIA')
     lines.append('0')
 
-    # Layer setup
-    for layer in ['hachura-chapa', 'Paineis', 'Madeira', 'CHAPA', 'Perfil Metalico', 'COTA']:
-        lines.append('_LAYER')
-        lines.append('S')
-        lines.append(layer)
-        lines.append('')
-        lines.append(';')
+    # Usar layer hachura-chapa como layer inicial (existe no MOLDE template NOVA)
+    lines.append('_LAYER')
+    lines.append('S')
+    lines.append('hachura-chapa')
+    lines.append('')
+    lines.append(';')
 
     # Zoom center
     lines.append('_ZOOM')
     lines.append(f'C 0,{larg/2:.1f} {max(comp,larg)*2}')
     lines.append(';')
 
-    # Concreto core (PLINE fechada)
+    # Concreto core (PLINE fechada) — layer CONCRETO (ACI 251 no MOLDE)
     lines.append('_LAYER')
     lines.append('S')
-    lines.append('Paineis')
+    lines.append('CONCRETO')
     lines.append('')
     lines.append(';')
     lines.append('_PLINE')
@@ -64,10 +63,10 @@ def gerar_scr_cima(comp, larg, nome='P1'):
     lines.append('C')
     lines.append(';')
 
-    # Chapas (4 faces)
+    # Chapas (4 faces) — layer hachura-chapa (ACI 233 no MOLDE)
     lines.append('_LAYER')
     lines.append('S')
-    lines.append('CHAPA')
+    lines.append('hachura-chapa')
     lines.append('')
     lines.append(';')
     # Face A (inferior)
@@ -113,28 +112,94 @@ def gerar_scr_cima(comp, larg, nome='P1'):
         lines.append('C')
         lines.append(';')
 
-    # Labels A/B/C/D
+    # Perfis metalicos (gravatas) — layer Perfil Metalico (ACI 224 no MOLDE)
     lines.append('_LAYER')
     lines.append('S')
-    lines.append('COTA')
+    lines.append('Perfil Metalico')
     lines.append('')
     lines.append(';')
-    offx = hc + ext + 8
-    offy = hl + ext + 8
+    tp = 1.5
+    gw = comp + 2*ext + 2*tp
+    for gy in [-hl-tc-tm-tp, hl+tc+tm]:
+        lines.append('_PLINE')
+        lines.append(f'{-hc-ext-tp:.1f},{gy:.1f}')
+        lines.append(f'{-hc-ext-tp+gw:.1f},{gy:.1f}')
+        lines.append(f'{-hc-ext-tp+gw:.1f},{gy+tp:.1f}')
+        lines.append(f'{-hc-ext-tp:.1f},{gy+tp:.1f}')
+        lines.append('C')
+        lines.append(';')
+
+    # PONTALETE blocks (INSERT do bloco PONT do MOLDE — 15 entities)
+    lines.append('_LAYER')
+    lines.append('S')
+    lines.append('PONTALETE')
+    lines.append('')
+    lines.append(';')
+    pont_offset = ext + tp + 3
+    for px, py in [
+        (-hc-pont_offset, -hl-pont_offset),
+        (hc+pont_offset-7, -hl-pont_offset),
+        (-hc-pont_offset, hl+pont_offset-7),
+        (hc+pont_offset-7, hl+pont_offset-7),
+    ]:
+        lines.append('_INSERT')
+        lines.append('PONT')
+        lines.append(f'{px:.1f},{py:.1f}')
+        lines.append('1')   # X scale
+        lines.append('1')   # Y scale
+        lines.append('0')   # rotation
+        lines.append(';')
+
+    # Labels A/B/C/D — layer NOMENCLATURA (ACI 7 no MOLDE)
+    lines.append('_LAYER')
+    lines.append('S')
+    lines.append('NOMENCLATURA')
+    lines.append('')
+    lines.append(';')
+    offx = hc + ext + tp + 15
+    offy = hl + ext + tp + 15
     for txt, x, y in [('A', 0, -offy), ('B', -offx, 0), ('C', 0, offy), ('D', offx, 0)]:
         lines.append('_TEXT')
         lines.append(f'{x:.1f},{y:.1f}')
-        lines.append('5')  # height
-        lines.append('0')  # angle
+        lines.append('5')
+        lines.append('0')
         lines.append(txt)
         lines.append(';')
 
-    # Nome
+    # Nome do pilar — layer texto (ACI 7 no MOLDE)
+    lines.append('_LAYER')
+    lines.append('S')
+    lines.append('texto')
+    lines.append('')
+    lines.append(';')
     lines.append('_TEXT')
     lines.append(f'0,{offy+10:.1f}')
     lines.append('8')
     lines.append('0')
     lines.append(f'{nome} ({comp:.0f}x{larg:.0f})')
+    lines.append(';')
+
+    # Cotas — dimstyle CIMA-NOVA-X2 (do MOLDE)
+    lines.append('-DIMSTYLE')
+    lines.append('restore')
+    lines.append('CIMA-NOVA-X2')
+    lines.append(';')
+    lines.append('_LAYER')
+    lines.append('S')
+    lines.append('COTA')
+    lines.append('')
+    lines.append(';')
+    # Cota horizontal (comprimento)
+    lines.append('_DIMLINEAR')
+    lines.append(f'{-hc:.1f},{-hl-ext-tp-5:.1f}')
+    lines.append(f'{hc:.1f},{-hl-ext-tp-5:.1f}')
+    lines.append(f'0,{-hl-ext-tp-15:.1f}')
+    lines.append(';')
+    # Cota vertical (largura)
+    lines.append('_DIMLINEAR')
+    lines.append(f'{hc+ext+tp+5:.1f},{-hl:.1f}')
+    lines.append(f'{hc+ext+tp+5:.1f},{hl:.1f}')
+    lines.append(f'{hc+ext+tp+15:.1f},0')
     lines.append(';')
 
     lines.append('_ZOOM')
