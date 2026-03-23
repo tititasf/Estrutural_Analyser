@@ -517,33 +517,65 @@ def generate_card(msp, pj, card_x, card_y, folha_num=1, obra_nome=''):
     mtext(msp, cima_cx, mid_cy - cima_larg/2 - 18, secao_str,
           height=6, layer='Texto Seção', anchor=8)
 
-    # ── GRADES (pontaletes + sarrafos ao longo da face A) ────────────────────
-    # Desenha pontaletes INSERT na base da face A (simplificado: face A = frontal)
+    # ── GRADES (pontaletes + sarrafos em TODAS as faces) ───────────────────
     grade_1 = float(pj.get('grade_1', 0))
     grade_2 = float(pj.get('grade_2', 0))
+    grade_3 = float(pj.get('grade_3', 0))
+    dist_1 = float(pj.get('distancia_1', 14)) * FACE_H_SCALE
+    dist_2 = float(pj.get('distancia_2', 14)) * FACE_H_SCALE if grade_3 > 0 else 0
+
     if grade_1 > 0:
-        # Face A base position
-        face_a_x = div_x + FACE_PAD_X
-        face_a_y = face_y_bot
-        face_a_w = fw.get('A', 30)
-        # Pontalete esquerdo (INSERT bloco)
-        msp.add_blockref('PONTALETE', (face_a_x - 8, face_a_y - 10),
-                         dxfattribs={'layer': 'Madeira'})
-        # Pontalete direito
-        msp.add_blockref('PONTALETE', (face_a_x + face_a_w + 1, face_a_y - 10),
-                         dxfattribs={'layer': 'Madeira'})
-        # Sarrafos SARR_2.2x7 horizontais entre pontaletes (grade_1 = altura)
         g1_s = grade_1 * FACE_H_SCALE
-        for gy in [face_a_y, face_a_y + g1_s]:
-            msp.add_line((face_a_x - 8, gy), (face_a_x + face_a_w + 8, gy),
-                         dxfattribs={'layer': 'SARR_2.2x7', 'lineweight': 18})
-        # Meio pontalete se grade_2
-        if grade_2 > 0:
-            g2_y = face_a_y + g1_s + float(pj.get('distancia_1', 20)) * FACE_H_SCALE
-            msp.add_blockref('MEIO PONTALETE', (face_a_x - 5, g2_y),
+        g2_s = grade_2 * FACE_H_SCALE if grade_2 > 0 else 0
+        g3_s = grade_3 * FACE_H_SCALE if grade_3 > 0 else 0
+
+        # Iterar sobre as 4 faces (posição X de cada face)
+        fx_iter = div_x + FACE_PAD_X
+        for fid in ['A', 'B', 'C', 'D']:
+            face_w = fw.get(fid, 30)
+            fy = face_y_bot
+
+            # PONTALETE esquerdo + direito
+            msp.add_blockref('PONTALETE', (fx_iter - 8, fy - 10),
                              dxfattribs={'layer': 'Madeira'})
-            msp.add_blockref('MEIO PONTALETE', (face_a_x + face_a_w + 1, g2_y),
+            msp.add_blockref('PONTALETE', (fx_iter + face_w + 1, fy - 10),
                              dxfattribs={'layer': 'Madeira'})
+
+            # SARR_2.2x7 horizontais (grade 1)
+            for gy in [fy, fy + g1_s]:
+                msp.add_line((fx_iter - 8, gy), (fx_iter + face_w + 8, gy),
+                             dxfattribs={'layer': 'SARR_2.2x7', 'lineweight': 18})
+
+            # SARRAFO legacy vertical nos pontaletes (layer SARRAFO — 302 no STOG)
+            for sx in [fx_iter - 5, fx_iter + face_w + 3]:
+                msp.add_line((sx, fy), (sx, fy + g1_s),
+                             dxfattribs={'layer': 'SARRAFO', 'lineweight': 25})
+
+            # MEIO PONTALETE entre grade 1 e grade 2
+            if grade_2 > 0:
+                mp_y = fy + g1_s + dist_1
+                msp.add_blockref('MEIO PONTALETE', (fx_iter - 5, mp_y),
+                                 dxfattribs={'layer': 'Madeira'})
+                msp.add_blockref('MEIO PONTALETE', (fx_iter + face_w + 1, mp_y),
+                                 dxfattribs={'layer': 'Madeira'})
+                # SARR horizontais grade 2
+                for gy in [mp_y, mp_y + g2_s]:
+                    msp.add_line((fx_iter - 8, gy), (fx_iter + face_w + 8, gy),
+                                 dxfattribs={'layer': 'SARR_2.2x7', 'lineweight': 18})
+                # SARRAFO vertical grade 2
+                for sx in [fx_iter - 5, fx_iter + face_w + 3]:
+                    msp.add_line((sx, mp_y), (sx, mp_y + g2_s),
+                                 dxfattribs={'layer': 'SARRAFO', 'lineweight': 25})
+
+            # MEIO PONTALETE grade 3
+            if grade_3 > 0 and grade_2 > 0:
+                mp3_y = fy + g1_s + dist_1 + g2_s + dist_2
+                msp.add_blockref('MEIO PONTALETE', (fx_iter - 5, mp3_y),
+                                 dxfattribs={'layer': 'Madeira'})
+                msp.add_blockref('MEIO PONTALETE', (fx_iter + face_w + 1, mp3_y),
+                                 dxfattribs={'layer': 'Madeira'})
+
+            fx_iter += face_w + FACE_GAP
 
         # ── COTAS FURAÇÃO (marcas de furo nos pontaletes) ────────────────────
         # Parafusos par_1_2..par_8_9: distâncias entre furos consecutivos
