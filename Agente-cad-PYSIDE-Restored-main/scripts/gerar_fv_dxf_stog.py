@@ -2,77 +2,93 @@
 """
 gerar_fv_dxf_stog.py — Gerador STOG-quality FV DXF (Vigas Fundo, sem AutoCAD)
 ===============================================================================
-Layout idêntico ao STOG FV original (engenharia reversa dos DXFs):
-  - Cada painel = LWPOLYLINE individual (sem fill — só outline)
-  - Painéis adjacentes de uma viga = gap 0 (tocando)
-  - Gap entre vigas na mesma fileira ≈ 27 cm
-  - NOMENCLATURA 9 cm acima do topo da viga ("V22.C")
-  - Dimensões COTA 37 cm abaixo do fundo (painéis individuais)
-  - Cota total viga 69 cm abaixo do fundo
-  - Cota b vertical 28 cm à direita da viga
-  - IDs de painel (layer '5') centralizados DENTRO de cada painel
-  - Fileiras agrupadas por b decrescente, max 1250 cm por fileira
-  - Gap entre fileiras ≈ 95 cm (do topo da inferior ao fundo da superior)
-  - 2 blocos Folhas 1485×1050 no topo (identicos ao STOG)
+Refactored based on real SCR anatomy (cad-scr-anatomy-lajes-fv.md):
+  - Layers: Paineis (LWPOLYLINE panels + LINE dividers), NOMENCLATURA, 5, SARR_2.2x7, COTA
+  - Sarrafos per-panel: horizontal lines broken at panel dividers
+    - First panel: sarrafos start at x0+7 (recuo offset)
+    - Last panel: sarrafos end at xend-7
+    - Intermediate panels: full span between dividers
+  - Side labels: rotated TEXT "ESQ" and "DIR" on layer 5
+  - Panel numbering: nf1-nf10 INSERT blocks at center of each panel (layer COTA)
+  - NOMENCLATURA: -STYLE Standard, height 12, rotation 0, viga name + obs
+  - Panel dividers: vertical LINEs on Paineis layer between adjacent panels
 
 Uso:
-  python scripts/gerar_fv_dxf_stog.py --obra DADOS-OBRAS/Obra_TREINO_21
+  python scripts/gerar_fv_dxf_stog.py --obra DADOS-OBRAS/Obra_TREINO_1
 """
 import sys, io
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
-import json, argparse, re
+import json, argparse, re, math
 from pathlib import Path
 import ezdxf
 
-# ── Constantes (calibradas nos DXFs STOG) ──────────────────────────────────
-GAP_VIGAS       = 47     # gap entre vigas na mesma fileira (cm) [+20 sobre original 27]
-GAP_ROW         = 115    # gap viga_top_inferior → viga_bottom_superior (cm) [+20 sobre original 95]
-NOM_ABOVE       = 9      # y = viga_top + NOM_ABOVE para NOMENCLATURA
-DIM_BELOW       = 37     # y = viga_bottom - DIM_BELOW para cotas de painéis individuais (calibrado STOG)
-DIM_TOTAL_BELOW = 69     # y = viga_bottom - DIM_TOTAL_BELOW para cota total da viga (STOG: 68.7)
-DIM_B_RIGHT     = 28     # x = viga_right + DIM_B_RIGHT para cota b vertical (STOG: ~28)
-NOM_H           = 16.5   # altura texto NOMENCLATURA
-PID_H           = 12.0   # altura texto panel-ID (layer '5') — centralizado dentro do painel
+# -- Constants (calibrated from STOG DXFs) ------------------------------------
+GAP_VIGAS       = 47     # gap between vigas in same row (cm)
+GAP_ROW         = 115    # gap viga_top_inferior -> viga_bottom_superior (cm)
+NOM_ABOVE       = 9      # y = viga_top + NOM_ABOVE for NOMENCLATURA
+NOM_H           = 12.0   # NOMENCLATURA text height (SCR: -STYLE Standard, height 12)
+DIM_BELOW       = 37     # y = viga_bottom - DIM_BELOW for individual panel dims
+DIM_TOTAL_BELOW = 69     # y = viga_bottom - DIM_TOTAL_BELOW for total viga dim
+DIM_B_RIGHT     = 28     # x = viga_right + DIM_B_RIGHT for vertical b dim
+PID_H           = 12.0   # panel-ID text height (layer '5')
+SARR_RECUO      = 7      # recuo offset for sarrafos from viga edges (cm)
 
-# ── Distribuição inteligente de painéis (eng. reversa STOG) ───────────────────
-# NIK SUNSET: 244cm = painel duplo padrão (380 ocorrências vs 53 de 122)
-# Algoritmo: preenche com 244, último painel = resto (min 30cm)
-# Se resto < PAINEL_MIN → agrega no painel anterior
-PAINEL_MODULO   = 244    # largura do painel duplo padrão STOG (cm)
-PAINEL_MODULO_H = 122    # metade — painel simples STOG (cm)
-PAINEL_MIN      = 30     # largura mínima de painel (abaixo → agrega no anterior)
-MAX_ROW_W       = 1250   # largura máxima por fileira (cm)
+# -- Panel distribution (eng. reversa STOG) -----------------------------------
+PAINEL_MODULO   = 244    # standard panel width (cm)
+PAINEL_MIN      = 30     # minimum panel width
+MAX_ROW_W       = 1250   # maximum row width (cm)
 CARD_W          = 1485
 CARD_H          = 1050
 CARD_IN_DX      = 75
 CARD_IN_DY      = 40
-CARD_GAP        = 100    # gap entre os 2 cards
-CARD_Y_GAP      = 200    # gap entre topo das vigas e fundo dos cards
-SARR_LAYER      = 'SARR_2.2x7'   # layer das linhas de sarrafo interno
-SARR_MAX_GAP    = 21     # gap máximo entre faixas de sarrafo (cm)
+CARD_GAP        = 100
+CARD_Y_GAP      = 200
+SARR_LAYER      = 'SARR_2.2x7'
+SARR_MAX_GAP    = 21     # max gap between sarrafo bands (cm)
 
-# ── Layers STOG-idênticos ───────────────────────────────────────────────────
+# -- Layers (matching real STOG FV DXF) ---------------------------------------
 LAYERS = {
-    'Painéis':              200,
-    'COTA':                 241,
-    'NOMENCLATURA':           7,
-    '5':                      5,
-    'Folhas':               255,
-    'CARIMBO':              255,
-    'fundo':                100,
-    'Madeira':              126,
-    'SARRAFO DE PRESSAO':   251,
-    'SARR_2.2x7':            40,
-    'SARR_EDITAR':          141,
-    'Perfil Metálico':      224,
-    'REAPROVEITAMENTO':     251,
-    'Demarcação 1':         251,
-    'Demarcação 2':         254,
-    'Hachura':              251,
-    'Escoras':              224,
-    'Defpoints':              7,
-    '0':                      7,
+    'Pain\u00e9is':             200,    # Paineis with accent (real STOG uses this)
+    'COTA':                     241,
+    'NOMENCLATURA':               7,
+    '5':                          5,
+    'Folhas':                   255,
+    'CARIMBO':                  255,
+    'fundo':                    100,
+    'Madeira':                  126,
+    'SARRAFO DE PRESSAO':       251,
+    'SARR_2.2x7':                40,
+    'SARR_EDITAR':              141,
+    'Perfil Met\u00e1lico':     224,
+    'REAPROVEITAMENTO':         251,
+    'Demarca\u00e7\u00e3o 1':   251,
+    'Demarca\u00e7\u00e3o 2':   254,
+    'Hachura':                  251,
+    'Escoras':                  224,
+    'Defpoints':                  7,
+    '0':                          7,
 }
+
+# Layer name constant (avoids encoding issues in code)
+LY_PAINEIS = 'Pain\u00e9is'
+
+
+def create_nf_blocks(doc, max_n=10):
+    """Create nf1..nf10 block definitions: circle with number inside."""
+    radius = 6.0
+    for i in range(1, max_n + 1):
+        bname = f'nf{i}'
+        if bname in doc.blocks:
+            continue
+        blk = doc.blocks.new(bname)
+        blk.add_circle((0, 0), radius, dxfattribs={'layer': '0'})
+        blk.add_text(str(i), dxfattribs={
+            'insert': (0, 0),
+            'height': 7.0,
+            'layer': '0',
+            'halign': 1,   # center
+            'valign': 2,   # middle
+        }).dxf.align_point = (0, 0)
 
 
 def setup_doc():
@@ -82,43 +98,54 @@ def setup_doc():
         if lname not in doc.layers:
             doc.layers.add(lname, color=color)
 
-    # ── Dimstyle PAINEL (idêntico ao STOG NIK SUNSET) ─────────────────────
-    # Engenharia reversa: _Oblique ticks, cor=4 (cyan), texto acima da linha
+    # Ensure 'Standard' text style exists
+    if 'Standard' not in doc.styles:
+        doc.styles.new('Standard')
+
+    # Dimstyle PAINEL (identical to STOG NIK SUNSET)
     if 'PAINEL' not in doc.dimstyles:
         ds = doc.dimstyles.new('PAINEL')
     else:
         ds = doc.dimstyles.get('PAINEL')
-    ds.set_arrows('OBLIQUE', 'OBLIQUE')     # traço oblíquo (não seta) — idêntico ao _Oblique do STOG
-    ds.dxf.dimasz  = 3.0    # tamanho do tick
-    ds.dxf.dimtxt  = 10.0   # altura do texto
-    ds.dxf.dimgap  = 3.0    # gap texto ↔ linha
-    ds.dxf.dimexe  = 3.0    # extensão acima da dim line
-    ds.dxf.dimexo  = 3.0    # offset da linha de extensão
-    ds.dxf.dimclrd = 4      # cor linha de cota (cyan ACI 4)
-    ds.dxf.dimclrt = 240    # cor texto
-    ds.dxf.dimclre = 4      # cor linhas de extensão
-    ds.dxf.dimtad  = 1      # texto ACIMA da linha
-    ds.dxf.dimtih  = 0      # texto segue ângulo da dim
+    ds.set_arrows('OBLIQUE', 'OBLIQUE')
+    ds.dxf.dimasz  = 3.0
+    ds.dxf.dimtxt  = 10.0
+    ds.dxf.dimgap  = 3.0
+    ds.dxf.dimexe  = 3.0
+    ds.dxf.dimexo  = 3.0
+    ds.dxf.dimclrd = 4
+    ds.dxf.dimclrt = 240
+    ds.dxf.dimclre = 4
+    ds.dxf.dimtad  = 1
+    ds.dxf.dimtih  = 0
+
+    # Create nf1..nf10 blocks
+    create_nf_blocks(doc)
 
     return doc
 
 
 def panel_poly(msp, x0, y0, w, h):
-    """Desenha um painel como LWPOLYLINE (outline, sem fill) na layer Painéis."""
+    """Draw a panel as closed LWPOLYLINE on Paineis layer."""
     pts = [(x0, y0), (x0+w, y0), (x0+w, y0+h), (x0, y0+h)]
-    msp.add_lwpolyline(pts, close=True, dxfattribs={'layer': 'Painéis', 'lineweight': -1})
+    msp.add_lwpolyline(pts, close=True, dxfattribs={'layer': LY_PAINEIS, 'lineweight': -1})
+
+
+def panel_divider(msp, x, y0, b):
+    """Draw vertical LINE divider between adjacent panels on Paineis layer."""
+    msp.add_line((x, y0), (x, y0 + b), dxfattribs={'layer': LY_PAINEIS})
 
 
 def _sarr_h_offsets(b):
-    """Calcula offsets Y das linhas horizontais SARR dado o b da viga (cm).
-    Engenharia reversa STOG real:
-      b<19: sem linhas horizontais (apenas verticais em draw_sarr)
-      b=19→[7,12], b=24→[7,17], b=27→[7,20]
-      b=45→[7,19,26,38], b=100→[7,23,30,46,53,69,76,93]
+    """Compute Y-offsets for horizontal sarrafo lines given beam b (cm).
+    Real STOG pattern: sarr_h=7 always.
+      b<15: no horizontals
+      b=19 -> [7, 12], b=24 -> [7, 17], b=27 -> [7, 20]
+      b=45 -> [7, 19, 26, 38]
     """
-    sarr_h = 7  # STOG real usa sarr_h=7 para TODOS os b (bug anterior: usava 5 para b<19)
+    sarr_h = 7
     if b < 2 * sarr_h + 1:
-        return []  # b muito pequeno — sem horizontais (só verticais)
+        return []
 
     n_interior = max(0, int((b - 2 * sarr_h) / (SARR_MAX_GAP + sarr_h)))
     n_gaps     = n_interior + 1
@@ -132,45 +159,86 @@ def _sarr_h_offsets(b):
     return offsets
 
 
-def draw_sarr(msp, x0, y0, b, total_width):
-    """Desenha as linhas SARR_2.2x7 (sarrafo interno) dentro da viga.
-    Geometria calibrada nos DXFs STOG ALIMONTI 1 PAV FV:
-      - Linhas verticais com inset sarr_h em cada borda lateral
-      - Linhas horizontais nos offsets do padrão de sarrafo
+def draw_sarr(msp, x0, y0, b, panel_widths):
+    """Draw SARR_2.2x7 lines per-panel (real SCR anatomy).
+
+    Vertical sarrafos: one pair per VIGA at x0+7 and x0+totalWidth-7.
+    Horizontal sarrafos: drawn per-panel segment, broken at dividers.
+      - First panel: from x0+7 to first divider
+      - Last panel: from last divider to xend-7
+      - Intermediate panels: from left divider to right divider (full span)
+
+    This matches the real STOG pattern where `ex2` extend command clips
+    sarrafo lines to panel boundaries.
     """
-    sarr_h = 7 if b >= 19 else 5
-    xl = x0 + sarr_h
-    xr = x0 + total_width - sarr_h
+    total_width = sum(panel_widths)
+    if total_width <= 0 or b <= 0:
+        return
+
+    layer = SARR_LAYER
+    xl = x0 + SARR_RECUO           # left vertical sarrafo x
+    xr = x0 + total_width - SARR_RECUO  # right vertical sarrafo x
     if xr <= xl:
         return
-    layer = SARR_LAYER
-    # Verticais nas bordas laterais
+
+    # Vertical sarrafos at viga edges (one pair per viga)
     msp.add_line((xl, y0), (xl, y0 + b), dxfattribs={'layer': layer})
     msp.add_line((xr, y0), (xr, y0 + b), dxfattribs={'layer': layer})
-    # Horizontais nas faixas de sarrafo
-    for offset in _sarr_h_offsets(b):
-        msp.add_line((xl, y0 + offset), (xr, y0 + offset), dxfattribs={'layer': layer})
+
+    # Horizontal sarrafos: per-panel segments
+    h_offsets = _sarr_h_offsets(b)
+    if not h_offsets:
+        return
+
+    # Compute panel boundaries (x-coordinates of left/right edges)
+    n_panels = len(panel_widths)
+    x_cur = x0
+    panel_edges = []   # list of (x_left, x_right) for each panel
+    for pw in panel_widths:
+        panel_edges.append((x_cur, x_cur + pw))
+        x_cur += pw
+
+    for idx, (px_left, px_right) in enumerate(panel_edges):
+        # Determine horizontal sarrafo x-range for this panel
+        if idx == 0:
+            # First panel: start at recuo offset (x0 + 7)
+            hx_left = x0 + SARR_RECUO
+        else:
+            # Intermediate/last: start at panel left edge (divider)
+            hx_left = px_left
+
+        if idx == n_panels - 1:
+            # Last panel: end at recuo offset (xend - 7)
+            hx_right = x0 + total_width - SARR_RECUO
+        else:
+            # First/intermediate: end at panel right edge (divider)
+            hx_right = px_right
+
+        if hx_right <= hx_left:
+            continue
+
+        for offset in h_offsets:
+            msp.add_line(
+                (hx_left, y0 + offset),
+                (hx_right, y0 + offset),
+                dxfattribs={'layer': layer}
+            )
 
 
 def draw_escoras(msp, x0, y0, comprimento):
-    """Desenha escoras (support legs) como círculos abaixo da viga FV.
-    Posição: y0 - 15 (abaixo do fundo da viga).
-    Distribuição: uma em cada extremidade (x0+7, x0+L-7) + intermediárias a cada ~100cm.
-    """
-    ESCORA_R = 3        # raio do círculo (cm)
-    ESCORA_Y = y0 - 15  # 15cm abaixo do fundo da viga
-    INSET = 7           # recuo das extremidades (cm)
-    SPACING = 100       # espaçamento máximo entre escoras (cm)
+    """Draw escoras (support legs) as circles below the viga FV."""
+    ESCORA_R = 3
+    ESCORA_Y = y0 - 15
+    INSET = 7
+    SPACING = 100
 
     x_start = x0 + INSET
     x_end = x0 + comprimento - INSET
     if x_end <= x_start:
-        # Viga muito curta — uma escora no centro
         msp.add_circle((x0 + comprimento / 2, ESCORA_Y), ESCORA_R,
                         dxfattribs={'layer': 'Escoras'})
         return
 
-    # Calcular posições: extremidades + intermediárias
     span = x_end - x_start
     n_intervals = max(1, round(span / SPACING))
     step = span / n_intervals
@@ -181,13 +249,11 @@ def draw_escoras(msp, x0, y0, comprimento):
 
 
 def compute_panels(comprimento):
-    """Distribui comprimento em painéis STOG padrão (engenharia reversa NIK SUNSET).
-    Padrão detectado: módulo 244cm (painel duplo) domina com 380 ocorrências.
-    Regras:
-      - Se comprimento <= PAINEL_MODULO: 1 painel = comprimento
-      - Caso contrário: n painéis de 244 + resto
-      - Se resto < PAINEL_MIN: agrega no último painel de 244 → (244+resto)
-    Retorna lista de larguras (float).
+    """Distribute length into STOG standard panels (244cm module).
+    Rules:
+      - If length <= 244: 1 panel = length
+      - Otherwise: n panels of 244 + remainder
+      - If remainder < 30: merge into last full panel
     """
     L = float(comprimento)
     if L <= 0:
@@ -199,15 +265,16 @@ def compute_panels(comprimento):
     if rem < 0.5:
         return [float(PAINEL_MODULO)] * n_full
     elif rem < PAINEL_MIN:
-        # Resto muito pequeno: agrega no último painel completo
         return [float(PAINEL_MODULO)] * (n_full - 1) + [float(PAINEL_MODULO) + rem]
     else:
         return [float(PAINEL_MODULO)] * n_full + [rem]
 
 
-def add_text(msp, x, y, text, height, layer, halign=0, valign=0):
-    """Adiciona texto. halign: 0=esq, 1=centro, 2=dir. valign: 0=base, 2=meio."""
-    attribs = {'insert': (x, y), 'height': height, 'layer': layer}
+def add_text(msp, x, y, text, height, layer, halign=0, valign=0, rotation=0, style='Standard'):
+    """Add TEXT entity. halign: 0=left, 1=center, 2=right. valign: 0=base, 2=middle."""
+    attribs = {'insert': (x, y), 'height': height, 'layer': layer, 'style': style}
+    if rotation:
+        attribs['rotation'] = rotation
     if halign or valign:
         attribs['halign'] = halign
         attribs['valign'] = valign
@@ -216,7 +283,7 @@ def add_text(msp, x, y, text, height, layer, halign=0, valign=0):
 
 
 def dim_panel(msp, x0, x1, y_base):
-    """Cota horizontal individual de painel — 1º nível (y_base − DIM_BELOW)."""
+    """Horizontal dim for individual panel -- 1st level (y_base - DIM_BELOW)."""
     try:
         d = msp.add_linear_dim(
             base=(x0, y_base - DIM_BELOW),
@@ -232,9 +299,7 @@ def dim_panel(msp, x0, x1, y_base):
 
 
 def dim_viga_total(msp, x0, x1, y_base):
-    """Cota horizontal total da viga — 2º nível (y_base − DIM_TOTAL_BELOW).
-    Engenharia reversa STOG NIK SUNSET: V22 base_y=2094.1 → offset=68.7cm.
-    """
+    """Horizontal dim for total viga -- 2nd level (y_base - DIM_TOTAL_BELOW)."""
     try:
         d = msp.add_linear_dim(
             base=(x0, y_base - DIM_TOTAL_BELOW),
@@ -250,9 +315,7 @@ def dim_viga_total(msp, x0, x1, y_base):
 
 
 def dim_viga_b(msp, x_right, y0, b):
-    """Cota vertical do b da viga — lado direito (x_right + DIM_B_RIGHT).
-    Engenharia reversa STOG NIK SUNSET: defpoint offset ≈ +28cm à direita.
-    """
+    """Vertical dim for viga b -- right side (x_right + DIM_B_RIGHT)."""
     if b <= 0:
         return
     try:
@@ -271,67 +334,105 @@ def dim_viga_b(msp, x_right, y0, b):
 
 
 def draw_viga(msp, x0, y0, panels_json, viga_b, viga_nome,
-              pillar_left=None, pillar_right=None, holes=None):
+              pillar_left=None, pillar_right=None, holes=None, obs=''):
     """
-    Desenha uma viga fundo a partir de x0, y0 (canto inf-esq do 1º painel).
-    panels_json: lista de dicts com 'width' (JSON original — comprimento preservado).
-    pillar_left/right: dict com {active, width, length} — chanfros
-    holes: lista de 4 dicts [{active, width, height, position}] — aberturas
-    Retorna comprimento total da viga.
+    Draw a fundo de viga (FV) starting at x0, y0 (lower-left corner).
+
+    SCR anatomy layers:
+      - Paineis: panel outlines (LWPOLYLINE) + dividers (LINE)
+      - NOMENCLATURA: beam name text (height 12, style Standard)
+      - 5: side labels ESQ/DIR (rotated 90) + panel IDs
+      - SARR_2.2x7: sarrafo lines (per-panel horizontal + per-viga vertical)
+      - COTA: dimensions + nf block inserts
+
+    Returns total length of the viga.
     """
     comprimento = sum(float(p.get('width', 0)) for p in panels_json)
     if comprimento <= 0 or viga_b <= 0:
         return comprimento
 
-    # ── Distribuição inteligente de painéis (STOG 244cm) ──────────────────
+    # -- Panel distribution (STOG 244cm module) --------------------------------
     panel_widths = compute_panels(comprimento)
 
-    # ── Painéis individuais (outline) + Reaproveitamento hatch ─────────────
+    # -- Panel outlines (LWPOLYLINE) -------------------------------------------
     x_cur = x0
     for pw in panel_widths:
         panel_poly(msp, x_cur, y0, pw, viga_b)
-        # Reaproveitamento — APENAS quando painel é reuso (desativado por padrão)
-        # Será ativado quando JSON tiver campo 'reuse' por painel
         x_cur += pw
 
-    # ── Linhas SARR_2.2x7 (sarrafo interno) ───────────────────────────────
-    draw_sarr(msp, x0, y0, viga_b, comprimento)
-
-    # ── Escoras (support legs) abaixo da viga ────────────────────────────
-    draw_escoras(msp, x0, y0, comprimento)
-
-    # ── NOMENCLATURA acima do topo da viga ────────────────────────────────
-    add_text(msp, x0 + 3, y0 + viga_b + NOM_ABOVE, f'{viga_nome}.C', NOM_H, 'NOMENCLATURA')
-
-    # ── IDs de painel DENTRO de cada painel (centralizados) ───────────────
+    # -- Panel dividers (vertical LINEs between adjacent panels) ---------------
     x_cur = x0
     for i, pw in enumerate(panel_widths):
-        cx = x_cur + pw / 2          # centro X do painel
-        cy = y0 + viga_b / 2         # centro Y do painel (meio da altura b)
-        add_text(msp, cx, cy, str(i + 1), PID_H, '5', halign=1, valign=2)
+        x_cur += pw
+        if i < len(panel_widths) - 1:
+            panel_divider(msp, x_cur, y0, viga_b)
+
+    # -- SARR_2.2x7 (per-panel sarrafo lines) ---------------------------------
+    draw_sarr(msp, x0, y0, viga_b, panel_widths)
+
+    # -- Escoras below viga ----------------------------------------------------
+    draw_escoras(msp, x0, y0, comprimento)
+
+    # -- NOMENCLATURA text (SCR: -STYLE Standard, height 12, rotation 0) ------
+    nom_text = f'{viga_nome}.C'
+    if obs:
+        nom_text = f'{nom_text} {obs}'
+    add_text(msp, x0 + 3, y0 + viga_b + NOM_ABOVE, nom_text,
+             NOM_H, 'NOMENCLATURA', style='Standard')
+
+    # -- Side labels ESQ/DIR on layer 5 (rotated 90 degrees) ------------------
+    side_label_h = 8.0
+    # ESQ at left edge, vertically centered
+    esq_x = x0 - 5
+    esq_y = y0 + viga_b / 2
+    add_text(msp, esq_x, esq_y, 'ESQ', side_label_h, '5',
+             halign=1, valign=2, rotation=90)
+    # DIR at right edge, vertically centered
+    dir_x = x0 + comprimento + 5
+    dir_y = y0 + viga_b / 2
+    add_text(msp, dir_x, dir_y, 'DIR', side_label_h, '5',
+             halign=1, valign=2, rotation=90)
+
+    # -- Panel numbering: nf INSERT blocks at panel centers (layer COTA) ------
+    x_cur = x0
+    for i, pw in enumerate(panel_widths):
+        cx = x_cur + pw / 2
+        cy = y0 + viga_b / 2
+        nf_idx = i + 1
+        bname = f'nf{min(nf_idx, 10)}'
+        msp.add_blockref(bname, (cx, cy), dxfattribs={'layer': 'COTA'})
         x_cur += pw
 
-    # ── Cotas individuais de painéis — 1º nível ───────────────────────────
+    # -- Panel IDs as TEXT on layer 5 (centered inside each panel) ------------
+    x_cur = x0
+    for i, pw in enumerate(panel_widths):
+        cx = x_cur + pw / 2
+        cy = y0 + viga_b / 2
+        # Offset slightly below the nf block to avoid overlap
+        cy_text = cy - 10 if viga_b > 25 else cy
+        add_text(msp, cx, cy_text, str(i + 1), PID_H, '5', halign=1, valign=2)
+        x_cur += pw
+
+    # -- Individual panel dims -- 1st level ------------------------------------
     x_cur = x0
     for pw in panel_widths:
         dim_panel(msp, x_cur, x_cur + pw, y0)
         x_cur += pw
 
-    # ── Cota total da viga — 2º nível ─────────────────────────────────────
+    # -- Total viga dim -- 2nd level -------------------------------------------
     if len(panel_widths) > 1:
         dim_viga_total(msp, x0, x0 + comprimento, y0)
 
-    # ── Cota b vertical — lado direito ────────────────────────────────────
+    # -- Vertical b dim -- right side ------------------------------------------
     dim_viga_b(msp, x0 + comprimento, y0, viga_b)
 
-    # ── Chanfros (pillar_left/right) — retângulo hachurado na borda ──────
+    # -- Chanfros (pillar_left/right) ------------------------------------------
     if pillar_left and pillar_left.get('active'):
         pl_w = float(pillar_left.get('width', 0)) or 25
         pl_l = float(pillar_left.get('length', 0)) or viga_b
-        # Retângulo chanfro esquerdo (DASHED + hachura ANSI31)
         pts = [(x0, y0), (x0 + pl_w, y0), (x0 + pl_w, y0 + pl_l), (x0, y0 + pl_l)]
         msp.add_lwpolyline(pts, close=True,
-                           dxfattribs={'layer': 'Painéis', 'linetype': 'DASHED', 'lineweight': 25})
+                           dxfattribs={'layer': LY_PAINEIS, 'linetype': 'DASHED', 'lineweight': 25})
         h = msp.add_hatch(dxfattribs={'layer': 'COTA'})
         h.set_pattern_fill('ANSI31', scale=0.5)
         h.paths.add_polyline_path(pts, is_closed=True)
@@ -343,13 +444,13 @@ def draw_viga(msp, x0, y0, panels_json, viga_b, viga_nome,
         rx = x0 + comprimento - pr_w
         pts = [(rx, y0), (rx + pr_w, y0), (rx + pr_w, y0 + pr_l), (rx, y0 + pr_l)]
         msp.add_lwpolyline(pts, close=True,
-                           dxfattribs={'layer': 'Painéis', 'linetype': 'DASHED', 'lineweight': 25})
+                           dxfattribs={'layer': LY_PAINEIS, 'linetype': 'DASHED', 'lineweight': 25})
         h = msp.add_hatch(dxfattribs={'layer': 'COTA'})
         h.set_pattern_fill('ANSI31', scale=0.5)
         h.paths.add_polyline_path(pts, is_closed=True)
         add_text(msp, rx + pr_w/2, y0 + pr_l/2, 'PILAR', 5, '5', halign=1, valign=2)
 
-    # ── Aberturas (holes) — retângulos DASHED nos 4 cantos ──────────────
+    # -- Holes (openings) at 4 corners -----------------------------------------
     if holes:
         for i, hole in enumerate(holes):
             if not hole.get('active'):
@@ -359,18 +460,17 @@ def draw_viga(msp, x0, y0, panels_json, viga_b, viga_nome,
             hp = float(hole.get('position', 0))
             if hw <= 0 or hh <= 0:
                 continue
-            # Posição: 0=topo-esq, 1=fundo-esq, 2=topo-dir, 3=fundo-dir
-            if i == 0:    # topo-esq
+            if i == 0:    # top-left
                 hx, hy = x0 + hp, y0 + viga_b - hh
-            elif i == 1:  # fundo-esq
+            elif i == 1:  # bottom-left
                 hx, hy = x0 + hp, y0
-            elif i == 2:  # topo-dir
+            elif i == 2:  # top-right
                 hx, hy = x0 + comprimento - hp - hw, y0 + viga_b - hh
-            else:         # fundo-dir
+            else:         # bottom-right
                 hx, hy = x0 + comprimento - hp - hw, y0
             pts = [(hx, hy), (hx+hw, hy), (hx+hw, hy+hh), (hx, hy+hh)]
             msp.add_lwpolyline(pts, close=True,
-                               dxfattribs={'layer': 'Painéis', 'linetype': 'DASHED', 'lineweight': 18})
+                               dxfattribs={'layer': LY_PAINEIS, 'linetype': 'DASHED', 'lineweight': 18})
             ah = msp.add_hatch(dxfattribs={'layer': 'COTA'})
             ah.set_pattern_fill('ANSI31', scale=0.3)
             ah.paths.add_polyline_path(pts, is_closed=True)
@@ -380,23 +480,19 @@ def draw_viga(msp, x0, y0, panels_json, viga_b, viga_nome,
 
 
 def draw_cards(msp, x0, y_bottom, obra_nome='', pav=''):
-    """Desenha 2 blocos Folhas 1485×1050 (borda dupla + texto carimbo)."""
+    """Draw 2 Folhas cards 1485x1050 (double border + carimbo text)."""
     for i in range(2):
         cx = x0 + i * (CARD_W + CARD_GAP)
         cy = y_bottom
-        # Borda externa
         pts = [(cx, cy), (cx+CARD_W, cy), (cx+CARD_W, cy+CARD_H), (cx, cy+CARD_H)]
         msp.add_lwpolyline(pts, close=True, dxfattribs={'layer': 'Folhas', 'lineweight': 50})
-        # Borda interna
         cx2 = cx + CARD_IN_DX; cy2 = cy + CARD_IN_DY
         w2 = CARD_W - 2*CARD_IN_DX; h2 = CARD_H - 2*CARD_IN_DY
         pts2 = [(cx2, cy2), (cx2+w2, cy2), (cx2+w2, cy2+h2), (cx2, cy2+h2)]
         msp.add_lwpolyline(pts2, close=True, dxfattribs={'layer': 'Folhas', 'lineweight': 25})
-        # Linha carimbo
         cab_h = 80
         msp.add_line((cx, cy+cab_h), (cx+CARD_W, cy+cab_h),
                      dxfattribs={'layer': 'CARIMBO', 'lineweight': 35})
-        # Textos
         mid_x = cx + CARD_W/2
         for txt, ty, th in [
             ('NOVA SISTEMAS CONSTRUTIVOS', cy+cab_h/2+30, 14),
@@ -406,7 +502,6 @@ def draw_cards(msp, x0, y_bottom, obra_nome='', pav=''):
             ('FUNDO DE VIGAS',             cy+cab_h/2-39, 14),
         ]:
             msp.add_text(txt, dxfattribs={'insert': (mid_x, ty), 'height': th, 'layer': 'CARIMBO'})
-        # Número da folha
         msp.add_text(str(i+1), dxfattribs={
             'insert': (cx+CARD_W-60, cy+cab_h/2), 'height': 40, 'layer': 'CARIMBO'})
 
@@ -435,7 +530,7 @@ def main():
     if not fv_files:
         print(f'[ERRO] Nenhum V*_fundo.json em {fv_dir}'); return
 
-    # ── Carregar vigas ────────────────────────────────────────────────────────
+    # -- Load vigas ------------------------------------------------------------
     vigas = []
     for f in fv_files:
         d      = json.load(open(f, encoding='utf-8'))
@@ -449,9 +544,10 @@ def main():
                 'pillar_left': d.get('pillar_left'),
                 'pillar_right': d.get('pillar_right'),
                 'holes': d.get('holes'),
+                'obs': d.get('observations', ''),
             })
 
-    # ── Ordenar e empacotar em fileiras ──────────────────────────────────────
+    # -- Sort and pack into rows -----------------------------------------------
     vigas.sort(key=lambda v: (-v['b'], -v['comp']))
 
     rows = []
@@ -465,40 +561,35 @@ def main():
     if cur_row:
         rows.append(cur_row)
 
-    print(f'Processando {len(vigas)} vigas → {len(rows)} fileiras')
+    print(f'Processando {len(vigas)} vigas -> {len(rows)} fileiras')
 
     doc = setup_doc()
     msp = doc.modelspace()
 
-    # ── Desenhar vigas ────────────────────────────────────────────────────────
-    # Fileira 0: topo → y_cursor começa em 0 e decresce (vigas crescem para baixo)
-    # Convenção: cards acima de y=CARD_Y_GAP; vigas abaixo de y=0
-
-    y_cursor = 0.0       # fundo da primeira fileira (bottom do row mais acima)
+    # -- Draw vigas ------------------------------------------------------------
+    y_cursor = 0.0
     y_min    = 0.0
 
     for row_idx, row in enumerate(rows):
         max_b = max(v['b'] for v in row)
-        # y_top desta fileira = y_cursor (vai "para cima" = maior y)
-        # y_bottom = y_cursor - max_b
         y_row_bottom = y_cursor - max_b
 
         x_cursor = 0.0
         for v in row:
-            # Desenhar alinhando topo de cada viga ao topo da fileira
-            # (vigas com b menor ficam alinhadas ao topo)
-            vy0 = y_row_bottom + (max_b - v['b'])   # alinha topo
+            vy0 = y_row_bottom + (max_b - v['b'])
             draw_viga(msp, x_cursor, vy0, v['panels'], v['b'], v['nome'],
-                      pillar_left=v.get('pillar_left'), pillar_right=v.get('pillar_right'),
-                      holes=v.get('holes'))
+                      pillar_left=v.get('pillar_left'),
+                      pillar_right=v.get('pillar_right'),
+                      holes=v.get('holes'),
+                      obs=v.get('obs', ''))
             print(f'  {v["nome"]:8s}: {v["comp"]:.0f}x{v["b"]:.0f}cm  row={row_idx}')
             x_cursor += v['comp'] + GAP_VIGAS
 
-        y_min = y_row_bottom - DIM_TOTAL_BELOW - 20  # espaço abaixo para cotas (IDs agora internos)
-        y_cursor = y_row_bottom - GAP_ROW       # próxima fileira abaixo
+        y_min = y_row_bottom - DIM_TOTAL_BELOW - 20
+        y_cursor = y_row_bottom - GAP_ROW
 
-    # ── 2 cards Folhas acima das vigas ────────────────────────────────────────
-    card_y = CARD_Y_GAP          # fundo dos cards
+    # -- Cards above vigas -----------------------------------------------------
+    card_y = CARD_Y_GAP
     obra_nome = obra_path.name.replace('_', ' ')
     draw_cards(msp, 0, card_y, obra_nome=obra_nome)
 
@@ -506,7 +597,7 @@ def main():
     doc.saveas(str(out_dxf))
     print(f'\nDXF: {out_dxf}')
 
-    # ── PNG preview ───────────────────────────────────────────────────────────
+    # -- PNG preview -----------------------------------------------------------
     try:
         import matplotlib; matplotlib.use('Agg')
         import matplotlib.pyplot as plt
@@ -519,14 +610,12 @@ def main():
 
         fig, axes = plt.subplots(1, 2, figsize=(26, 10), facecolor='#0a0a14')
         views = [
-            # Primeiras 5 fileiras
             ((-30, min(1400, x_max)),
              (-first_row_b - GAP_ROW*5 - 100, 60),
-             f'Fileiras 0..4 — detalhe'),
-            # Vista completa
+             f'Fileiras 0..4 -- detalhe'),
             ((-30, max(x_max, CARD_W*2+CARD_GAP+50)),
              (y_min - 50, y_all_max),
-             f'Vista completa — {len(vigas)} vigas | {len(rows)} fileiras'),
+             f'Vista completa -- {len(vigas)} vigas | {len(rows)} fileiras'),
         ]
         for ax, (xlim, ylim, title) in zip(axes, views):
             ax.set_facecolor('#0a0a14')
