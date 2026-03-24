@@ -2,24 +2,18 @@
 """
 gerar_lv_dxf_stog.py — Gerador STOG-quality LV DXF (Vigas Laterais, sem AutoCAD)
 ==================================================================================
-Layout idêntico ao STOG LV original (engenharia reversa dos DXFs NIK SUNSET):
-  - 4 LINE entities por painel (layer Painéis) — NOT LWPOLYLINE como no FV
-  - SARR_3.5x7: pares de linhas VERTICAIS cobrindo h_lateral
-    Padrão DXF: [inset=15cm] [antes/depois de cada divisor] [inset=15cm da direita]
-  - Faces A e B lado a lado em X (mesmo Y base), detalhe de seção à esquerda
-  - NOMENCLATURA 9cm acima do topo de cada face
-  - COTA painéis individuais (1º nível, DIM_BELOW=37)
-  - COTA total da viga (2º nível, DIM_TOTAL_BELOW=60)
-  - COTA h_lateral vertical à direita (DIM_H_RIGHT=28)
-  - Módulo painel LV = 122cm (eng. reversa: 122+58=180 para V22)
-  - Vigas empilhadas verticalmente (1 linha por viga), ordenadas por b desc
-  - Detalhe de seção transversal simplificado à esquerda de cada viga
+Refactored based on real SCR anatomy (cad-scr-anatomy-lv.md):
+  - Sarrafo distribution by panel height (h<15, 15-30, 30-80, >=80)
+  - Grade mode: horizontal SARR_2.2x7 + vertical SARR_2.2x3.5 legs
+  - Visao de Corte with MLINE-style sarrafos, BARRA_ANCORAGEM, blocks
+  - 7cm inset on first/last panels for horizontal sarrafos
+  - Correct layers: SARR_2.2x7, SARR_2.2x5, SARR_2.2x3.5, SARRAFO_2_2X7,
+    BARRA_ANCORAGEM, HACHURACONCRETO
 
 JSON input (Fase-4_Sincronizacao/JSON_Vigas_Laterais/V*_A.json):
-  total_width  = b   (largura da seção transversal, cm)
-  total_height = h   (altura lateral dos painéis, cm)
+  total_width  = b   (largura da secao transversal, cm)
+  total_height = h   (altura lateral dos paineis, cm)
   panels[].width = comprimento de cada segmento de painel original
-  comprimento total = sum(p.width)
 
 Uso:
   python scripts/gerar_lv_dxf_stog.py --obra DADOS-OBRAS/Obra_TREINO_21
@@ -33,35 +27,29 @@ import ezdxf
 
 # ── Constantes de layout (calibradas nos DXFs STOG) ────────────────────────
 GAP_ROW_LV     = 100    # gap vertical entre linhas de vigas (cm)
-NOM_ABOVE      = 9      # y = painel_top + NOM_ABOVE → NOMENCLATURA
-DIM_BELOW      = 37     # y = painel_bottom - DIM_BELOW → cotas painéis individuais
-DIM_TOTAL_BELOW= 60     # y = painel_bottom - DIM_TOTAL_BELOW → cota total
-DIM_H_RIGHT    = 28     # x = painel_right + DIM_H_RIGHT → cota h_lateral vertical
+NOM_ABOVE      = 9      # y = painel_top + NOM_ABOVE -> NOMENCLATURA
+DIM_BELOW      = 37     # y = painel_bottom - DIM_BELOW -> cotas paineis individuais
+DIM_TOTAL_BELOW= 60     # y = painel_bottom - DIM_TOTAL_BELOW -> cota total
+DIM_H_RIGHT    = 28     # x = painel_right + DIM_H_RIGHT -> cota h_lateral vertical
 GAP_AB         = 50     # gap horizontal entre Face A (right) e Face B (left)
 NOM_H          = 16.5   # altura texto NOMENCLATURA
 PID_H          = 12.0   # altura texto panel-ID interno
 
-# ── Módulo de painéis LV (engenharia reversa NIK SUNSET Laje Técnica) ───────
-# V22: comprimento=180cm = 122+58 → módulo 122cm (metade do módulo FV 244)
-PAINEL_MODULO_LV = 122   # módulo painel lateral STOG (cm)
-PAINEL_MIN_LV    = 30    # largura mínima de painel (abaixo → agrega no anterior)
+# ── Modulo de paineis LV (engenharia reversa NIK SUNSET Laje Tecnica) ───────
+PAINEL_MODULO_LV = 122   # modulo painel lateral STOG (cm)
+PAINEL_MIN_LV    = 30    # largura minima de painel (abaixo -> agrega no anterior)
 
-# ── SARR_3.5x7 — linhas verticais na vista lateral ─────────────────────────
-# Eng. reversa V22 NIK SUNSET Laje Técnica (DXF confirmado):
-#   Cada par: linha OUTER full-h, linha INNER altura h-2.2, bottom connector
-#   Pares: [inset=15, inset+3.5] borda esq; [div-3.5,div]+[div,div+3.5] divisores;
-#          [L-18.5,L-15] borda dir
-#   SARR_2.2x7: single vertical a 7cm de cada fim; horizontal a y=h-2.2
+# ── Sarrafo constants from SCR anatomy ────────────────────────────────────────
 LV_SARR_LAYER  = 'SARR_3.5x7'
 LV_SARR_W      = 3.5    # largura de cada sarrafo (cm)
-LV_SARR_INSET  = 15.0   # inset das bordas extremas (cm)
-LV_SARR_END    = 7.0    # inset dos sarrafos simples SARR_2.2x7 das extremidades (cm)
+LV_SARR_INSET  = 15.0   # inset das bordas extremas para SARR_3.5x7 (cm)
+SARR_INSET_H   = 7.0    # inset from panel edge for horizontal sarrafos on first/last panels
 
-# ── Detalhe de seção transversal ─────────────────────────────────────────────
-SECT_W         = 160    # largura reservada para o detalhe de seção (cm)
-SECT_GAP       = 30     # gap entre seção e Face A
-SECT_PANEL_W   = 4      # espessura do painel na seção (Painéis layer)
-SECT_BOARD_W   = 14     # espessura tábua externa (Madeira layer)
+# ── Detalhe de secao transversal ─────────────────────────────────────────────
+SECT_W         = 160    # largura reservada para o detalhe de secao (cm)
+SECT_GAP       = 30     # gap entre secao e Face A
+SECT_PANEL_W   = 4      # espessura do painel na secao (Paineis layer)
+SECT_BOARD_W   = 14     # espessura tabua externa (Madeira layer)
 
 # ── Cards de folha ───────────────────────────────────────────────────────────
 CARD_W     = 1485
@@ -79,8 +67,10 @@ LAYERS = {
     '5':                  5,
     'Folhas':           255,
     'CARIMBO':          255,
-    LV_SARR_LAYER:       81,   # SARR_3.5x7 — cor confirmada no DXF STOG
+    LV_SARR_LAYER:       81,   # SARR_3.5x7
     'SARR_2.2x7':        40,
+    'SARR_2.2x5':        40,
+    'SARR_2.2x3.5':      40,
     'CONCRETO':         251,
     'Hachura':          251,
     'Madeira':          126,
@@ -96,7 +86,12 @@ LAYERS = {
     'Texto Seção':        7,
     'Cota Seção (2x)':  241,
     'texto':              7,
-    'REAPROVEITAMENTO': 251,  # hachura ANSI31 nos painéis (padrão STOG)
+    'REAPROVEITAMENTO': 251,
+    # VC-specific layers from SCR anatomy
+    'SARRAFO_2_2X7':     40,
+    'BARRA_ANCORAGEM':  126,
+    'HACHURACONCRETO':  251,
+    'ESTRUTURACAO':       7,
 }
 
 
@@ -111,58 +106,72 @@ def setup_doc():
         if lname not in doc.layers:
             doc.layers.add(lname, color=color)
 
-    # Dimstyle PAINEL — idêntico ao FV aprovado (eng. reversa NIK SUNSET)
+    # Dimstyle PAINEL
     if 'PAINEL' not in doc.dimstyles:
         ds = doc.dimstyles.new('PAINEL')
     else:
         ds = doc.dimstyles.get('PAINEL')
-    ds.set_arrows('OBLIQUE', 'OBLIQUE')   # traço oblíquo (não seta)
-    ds.dxf.dimasz  = 3.0    # tamanho do tick
-    ds.dxf.dimtxt  = 10.0   # altura do texto de cota
-    ds.dxf.dimgap  = 3.0    # gap texto ↔ linha
-    ds.dxf.dimexe  = 3.0    # extensão acima da dim line
-    ds.dxf.dimexo  = 3.0    # offset da linha de extensão
-    ds.dxf.dimclrd = 4      # cor linha de cota (cyan ACI 4)
-    ds.dxf.dimclrt = 240    # cor texto
-    ds.dxf.dimclre = 4      # cor linhas de extensão
-    ds.dxf.dimtad  = 1      # texto ACIMA da linha
-    ds.dxf.dimtih  = 0      # texto segue ângulo
+    ds.set_arrows('OBLIQUE', 'OBLIQUE')
+    ds.dxf.dimasz  = 3.0
+    ds.dxf.dimtxt  = 10.0
+    ds.dxf.dimgap  = 3.0
+    ds.dxf.dimexe  = 3.0
+    ds.dxf.dimexo  = 3.0
+    ds.dxf.dimclrd = 4
+    ds.dxf.dimclrt = 240
+    ds.dxf.dimclre = 4
+    ds.dxf.dimtad  = 1
+    ds.dxf.dimtih  = 0
 
-    # Dimstyle SECAO2X — para cota de seção com texto 2x maior
+    # Dimstyle SECAO2X
     if 'SECAO2X' not in doc.dimstyles:
         ds2 = doc.dimstyles.new('SECAO2X')
     else:
         ds2 = doc.dimstyles.get('SECAO2X')
     ds2.set_arrows('OBLIQUE', 'OBLIQUE')
-    ds2.dxf.dimasz  = 5.0    # STOG real: 5.0
-    ds2.dxf.dimtxt  = 7.0    # STOG real: 7.0 (não 16 — era estimativa)
-    ds2.dxf.dimgap  = 2.0    # STOG real: 2.0
-    ds2.dxf.dimexe  = 3.0    # STOG real: 3.0
-    ds2.dxf.dimexo  = 3.0    # STOG real: 3.0
-    ds2.dxf.dimclrd = 4      # STOG real: 4 (cyan)
-    ds2.dxf.dimclrt = 1      # STOG real: 1 (vermelho — não 240)
-    ds2.dxf.dimclre = 4      # STOG real: 4
-    ds2.dxf.dimtad  = 3      # STOG real: 3 (above with leader)
+    ds2.dxf.dimasz  = 5.0
+    ds2.dxf.dimtxt  = 7.0
+    ds2.dxf.dimgap  = 2.0
+    ds2.dxf.dimexe  = 3.0
+    ds2.dxf.dimexo  = 3.0
+    ds2.dxf.dimclrd = 4
+    ds2.dxf.dimclrt = 1
+    ds2.dxf.dimclre = 4
+    ds2.dxf.dimtad  = 3
     ds2.dxf.dimtih  = 0
+
+    # Block definitions for VC (Visao de Corte)
+    _define_vc_blocks(doc)
 
     return doc
 
 
+def _define_vc_blocks(doc):
+    """Define block references used in Visao de Corte (VC) SCR anatomy."""
+    block_names = ['PAR_ESQ', 'PAR_FUNDO_ESQ', 'PAR_FUNDO_DIR',
+                   'par_int_esq', 'par_int_dir']
+    for bname in block_names:
+        if bname not in doc.blocks:
+            blk = doc.blocks.new(name=bname)
+            # Simple screw/bolt representation: cross mark 2cm
+            sz = 1.0
+            blk.add_line((-sz, -sz), (sz, sz), dxfattribs={'layer': '0'})
+            blk.add_line((-sz, sz), (sz, -sz), dxfattribs={'layer': '0'})
+
+
 # ──────────────────────────────────────────────────────────────────────────────
-# Distribuição de painéis LV
+# Distribuicao de paineis LV
 # ──────────────────────────────────────────────────────────────────────────────
 
 def extract_panels_from_json(panels_json, laje_central_alt_global=0.0):
-    """Extrai dados reais dos painéis do JSON.
-    Retorna lista de dicts: [{width, height1, height2, grade_h1, grade_h2, laje_central_alt}, ...]
-    laje_central_alt_global: valor da raiz do JSON (propagado para todos os painéis).
+    """Extrai dados reais dos paineis do JSON.
+    Retorna lista de dicts: [{width, height1, height2, grade_h1, grade_h2, laje_central_alt, reuse, panel_type}, ...]
     """
     panels = []
     for p in (panels_json or []):
         w = float(p.get('width', 0))
         if w <= 0:
             continue
-        # laje_central_alt: por painel (override) ou global da raiz do JSON
         lca = float(p.get('laje_central_alt', laje_central_alt_global) or laje_central_alt_global)
         panels.append({
             'width':            w,
@@ -171,6 +180,8 @@ def extract_panels_from_json(panels_json, laje_central_alt_global=0.0):
             'grade_h1':         float(p.get('grade_h1', 0) or 0),
             'grade_h2':         float(p.get('grade_h2', 0) or 0),
             'laje_central_alt': lca,
+            'reuse':            bool(p.get('reuse', False)),
+            'panel_type':       str(p.get('panel_type', 'Sarrafeado')),
         })
     return panels
 
@@ -197,144 +208,169 @@ def draw_panel_lines(msp, x0, y0, pw, h):
     msp.add_line((x0+pw, y0),   (x0+pw, y0+h), dxfattribs=a)   # right
 
 
-def draw_sarr_lv(msp, x0, y0, h, panel_widths):
-    """SARR para uma face LV — padrão confirmado eng. reversa V22 DXF STOG.
+# ──────────────────────────────────────────────────────────────────────────────
+# Sarrafo distribution by height (SCR anatomy rules)
+# ──────────────────────────────────────────────────────────────────────────────
 
-    SARR_2.2x7 (layer='SARR_2.2x7'):
-      - Single vertical a x=7cm do fim esquerdo (full h)
-      - Single vertical a x=L-7cm do fim direito (full h)
-      - Horizontal a y=h-2.2 dentro de cada seção de painel (entre pares 3.5x7)
+def _get_sarrafo_positions(h):
+    """Return (layer_name, sarrafo_width, positions_from_bottom) based on panel height h.
 
-    SARR_3.5x7 (layer='SARR_3.5x7', cor 81):
-      Cada par [xl, xr=xl+3.5]:
-        - Linha outer (mais perto do fim/divisor): full h
-        - Linha inner (mais perto do interior): h-2.2 (top cortado 2.2cm)
-        - Linha bottom connector a y=y0 ligando xl-xr
-      Posições:
-        - Borda esq: [inset=15, 18.5] — outer=x=15 (full h), inner=x=18.5 (h-2.2)
-        - Antes de cada divisor: [div-3.5, div] — outer=div, inner=div-3.5
-        - Após divisor: [div, div+3.5] — outer=div (full h), inner=div+3.5 (h-2.2)
-        - Borda dir: [L-18.5, L-15] — inner=L-18.5 (h-2.2), outer=L-15 (full h)
+    SCR anatomy rules:
+      h < 15cm:  2x SARR_2.2x5 at 5cm from edges
+      h 15-30:   2x SARR_2.2x7 at 7cm from edges
+      h 30-80:   4x SARR_2.2x7 at 7cm edges + center +/- 3.5cm
+      h >= 80:   8x SARR_2.2x7 at 7cm edges + center +/- 3.5 + quarter +/- 3.5
+    """
+    if h < 15:
+        layer = 'SARR_2.2x5'
+        sw = 5.0
+        positions = [5.0, h - 5.0]
+    elif h < 30:
+        layer = 'SARR_2.2x7'
+        sw = 7.0
+        positions = [7.0, h - 7.0]
+    elif h < 80:
+        layer = 'SARR_2.2x7'
+        sw = 7.0
+        center = h / 2.0
+        positions = [7.0, center - 3.5, center + 3.5, h - 7.0]
+    else:
+        layer = 'SARR_2.2x7'
+        sw = 7.0
+        center = h / 2.0
+        quarter = h / 4.0
+        three_q = 3 * h / 4.0
+        positions = [
+            7.0,
+            quarter - 3.5, quarter + 3.5,
+            center - 3.5, center + 3.5,
+            three_q - 3.5, three_q + 3.5,
+            h - 7.0,
+        ]
+    # Remove duplicate or out-of-range positions
+    positions = sorted(set(p for p in positions if 0.5 < p < h - 0.5))
+    return layer, sw, positions
+
+
+def draw_sarrafos_by_height(msp, x0, y0, h, pw, layer, sarr_w, positions,
+                            is_first, is_last):
+    """Draw horizontal sarrafo rectangles for a single panel.
+
+    Each sarrafo is a rectangle sarr_w tall (2.2cm), spanning the panel width.
+    On first panel: 7cm inset from left edge.
+    On last panel: 7cm inset from right edge.
+    """
+    x_left = x0 + (SARR_INSET_H if is_first else 0)
+    x_right = x0 + pw - (SARR_INSET_H if is_last else 0)
+    if x_right <= x_left + 1.0:
+        return
+
+    for y_pos in positions:
+        # Sarrafo rectangle: 2.2cm tall, centered at y_pos
+        y_bot = y0 + y_pos - 1.1
+        y_top = y0 + y_pos + 1.1
+        # Draw as 4 lines (matching LINE entity style of STOG)
+        a = {'layer': layer}
+        msp.add_line((x_left, y_bot), (x_right, y_bot), dxfattribs=a)  # bottom
+        msp.add_line((x_left, y_top), (x_right, y_top), dxfattribs=a)  # top
+        msp.add_line((x_left, y_bot), (x_left, y_top), dxfattribs=a)   # left
+        msp.add_line((x_right, y_bot), (x_right, y_top), dxfattribs=a) # right
+
+
+def draw_sarr_lv_vertical_pairs(msp, x0, y0, h, panel_widths):
+    """SARR_3.5x7 vertical pairs at outer edges ONLY.
+
+    SCR anatomy calibration: the real STOG has very few SARR_3.5x7 entities
+    (~105 for 22 vigas = ~2-3 per face). Only outer edge pairs are drawn;
+    divisor-zone sarrafos are handled by the horizontal sarrafo distribution.
     """
     L = sum(panel_widths)
     s35 = LV_SARR_LAYER    # 'SARR_3.5x7'
-    s22 = 'SARR_2.2x7'
-    h_inner = h - 2.2      # altura das linhas internas
+    h_inner = h - 2.2
 
-    def line35(x_abs, h_use):
-        """Linha vertical SARR_3.5x7."""
-        msp.add_line((x_abs, y0), (x_abs, y0 + h_use), dxfattribs={'layer': s35})
-
-    def bot35(xl_abs, xr_abs):
-        """Bottom connector horizontal SARR_3.5x7."""
-        msp.add_line((xl_abs, y0), (xr_abs, y0), dxfattribs={'layer': s35})
-
-    def line22v(x_abs, h_use=None):
-        """Linha vertical SARR_2.2x7."""
-        top = y0 + (h if h_use is None else h_use)
-        msp.add_line((x_abs, y0), (x_abs, top), dxfattribs={'layer': s22})
-
-    def line22h(xa, xb):
-        """Linha horizontal SARR_2.2x7 a y=h-2.2."""
-        msp.add_line((xa, y0 + h_inner), (xb, y0 + h_inner), dxfattribs={'layer': s22})
-
-    def draw_pair_left_edge(xl):
-        """Par na borda esquerda: outer=xl (full h), inner=xl+sarr_w (h-2.2)."""
-        xr = xl + LV_SARR_W
-        if xr > L + 0.1: return
-        line35(x0 + xl, h)           # outer (esquerda) full h
-        line35(x0 + xr, h_inner)     # inner (direita) h-2.2
-        bot35(x0 + xl, x0 + xr)
-
-    def draw_pair_right_edge(xr):
-        """Par na borda direita: inner=xr-sarr_w (h-2.2), outer=xr (full h)."""
-        xl = xr - LV_SARR_W
-        if xl < -0.1: return
-        line35(x0 + xl, h_inner)     # inner (esquerda) h-2.2
-        line35(x0 + xr, h)           # outer (direita) full h
-        bot35(x0 + xl, x0 + xr)
-
-    def draw_pair_before_div(div):
-        """Par antes do divisor: [div-3.5, div] — outer=div (full h)."""
-        xl = div - LV_SARR_W
-        xr = div
-        if xl < -0.1: return
-        line35(x0 + xl, h_inner)     # inner h-2.2
-        line35(x0 + xr, h)           # outer (flush com divisor) full h
-        bot35(x0 + xl, x0 + xr)
-
-    def draw_pair_after_div(div):
-        """Par após divisor: [div, div+3.5] — outer=div (full h)."""
-        xl = div
-        xr = div + LV_SARR_W
-        if xr > L + 0.1: return
-        line35(x0 + xl, h)           # outer (flush com divisor) full h
-        line35(x0 + xr, h_inner)     # inner h-2.2
-        bot35(x0 + xl, x0 + xr)
-
-    # ── Guard: skip sarrafos se face inteira menor que 2×inset ─────────────
     if L < 2 * LV_SARR_INSET:
         return
 
-    # ── SARR_2.2x7 single verticals nas extremidades ──────────────────────
-    if L > LV_SARR_END:
-        line22v(x0 + LV_SARR_END)          # 7cm da esquerda
-        line22v(x0 + L - LV_SARR_END)      # 7cm da direita
+    def line35(x_abs, h_use):
+        msp.add_line((x_abs, y0), (x_abs, y0 + h_use), dxfattribs={'layer': s35})
 
-    # ── SARR_3.5x7 pares ──────────────────────────────────────────────────
-    # Borda esquerda
-    draw_pair_left_edge(LV_SARR_INSET)
+    def bot35(xl_abs, xr_abs):
+        msp.add_line((xl_abs, y0), (xr_abs, y0), dxfattribs={'layer': s35})
 
-    # Divisores: par antes + par após (skip se segmento < 2×inset)
-    dividers = []
-    xd = 0.0
-    for pw in panel_widths[:-1]:
-        xd += pw
-        dividers.append(xd)
+    # Left edge pair: [15, 18.5]
+    xl = x0 + LV_SARR_INSET
+    xr = xl + LV_SARR_W
+    if xr < x0 + L + 0.1:
+        line35(xl, h)
+        line35(xr, h_inner)
+        bot35(xl, xr)
 
-    prev_x = 0.0
-    for div in dividers:
-        seg_w = div - prev_x
-        if seg_w >= 2 * LV_SARR_INSET:
-            draw_pair_before_div(div)
-        draw_pair_after_div(div)
-        prev_x = div
-    # Guard último segmento (entre último divisor e borda direita)
-    last_seg = L - prev_x if dividers else L
+    # Right edge pair: [L-18.5, L-15]
+    xr = x0 + L - LV_SARR_INSET
+    xl = xr - LV_SARR_W
+    if xl > x0 - 0.1:
+        line35(xl, h_inner)
+        line35(xr, h)
+        bot35(xl, xr)
 
-    # Borda direita (skip se último segmento muito estreito)
-    if last_seg >= 2 * LV_SARR_INSET:
-        draw_pair_right_edge(L - LV_SARR_INSET)
 
-    # ── SARR_2.2x7 horizontal a y=h-2.2 (dentro de cada seção de painel) ──
-    # Fronteiras das seções: [0] + [div-3.5 para cada div] + [L]
-    # Horizontal de [esq_do_par_esq] a [dir_do_par_dir] de cada seção
-    # Seção 0: de inset (borda esq outer) até primeiro divisor ou borda dir
-    section_rights = [div for div in dividers] + [L]  # right boundary de cada seção
-    section_lefts  = [0.0] + [div for div in dividers]  # left boundary
+def draw_grade_mode(msp, x_cur, y_grade_top, pw, grade_h,
+                    is_first, is_last):
+    """Draw grade (Grade panel type) elements.
 
-    for i, (sl, sr) in enumerate(zip(section_lefts, section_rights)):
-        # left boundary de sarrafo nesta seção
-        if i == 0:
-            xa = LV_SARR_INSET          # left outer do par esquerdo
-        else:
-            xa = sl                     # divisor (right outer do par após)
-        # right boundary desta seção
-        if i == len(section_lefts) - 1:
-            xb = L - LV_SARR_INSET     # right outer do par direito
-        else:
-            xb = sr                    # vai até o divisor (união)
+    Grade mode anatomy from SCR:
+    - Horizontal rectangle 2.2cm tall at top (layer SARR_2.2x7)
+    - Two vertical rectangles 3.5cm wide descending (layer SARR_2.2x3.5)
+    - Height = grade_h - 2.2, inset 15cm from edges
+    """
+    if grade_h <= 2.2:
+        return
 
-        if xb - xa > 1.0:
-            line22h(x0 + xa, x0 + xb)
+    # Horizontal bar at top: full panel width, 2.2cm tall
+    x_gi = x_cur + (SARR_INSET_H if is_first else 0)
+    x_gf = x_cur + pw - (SARR_INSET_H if is_last else 0)
+    if x_gf <= x_gi:
+        return
+
+    # Horizontal rect (SARR_2.2x7 layer)
+    a22 = {'layer': 'SARR_2.2x7'}
+    msp.add_line((x_gi, y_grade_top - 2.2), (x_gf, y_grade_top - 2.2), dxfattribs=a22)
+    msp.add_line((x_gi, y_grade_top),       (x_gf, y_grade_top),       dxfattribs=a22)
+    msp.add_line((x_gi, y_grade_top - 2.2), (x_gi, y_grade_top),       dxfattribs=a22)
+    msp.add_line((x_gf, y_grade_top - 2.2), (x_gf, y_grade_top),       dxfattribs=a22)
+
+    # Vertical legs (SARR_2.2x3.5 layer)
+    leg_h = grade_h - 2.2
+    leg_w = 3.5
+    inset_leg = 15.0  # 15cm inset from edges
+    a35 = {'layer': 'SARR_2.2x3.5'}
+
+    y_leg_top = y_grade_top - 2.2
+    y_leg_bot = y_leg_top - leg_h
+
+    # Left leg
+    xl = x_cur + inset_leg
+    if xl + leg_w < x_cur + pw:
+        msp.add_line((xl, y_leg_bot), (xl + leg_w, y_leg_bot), dxfattribs=a35)
+        msp.add_line((xl, y_leg_top), (xl + leg_w, y_leg_top), dxfattribs=a35)
+        msp.add_line((xl, y_leg_bot), (xl, y_leg_top),         dxfattribs=a35)
+        msp.add_line((xl + leg_w, y_leg_bot), (xl + leg_w, y_leg_top), dxfattribs=a35)
+
+    # Right leg
+    xr = x_cur + pw - inset_leg - leg_w
+    if xr > x_cur:
+        msp.add_line((xr, y_leg_bot), (xr + leg_w, y_leg_bot), dxfattribs=a35)
+        msp.add_line((xr, y_leg_top), (xr + leg_w, y_leg_top), dxfattribs=a35)
+        msp.add_line((xr, y_leg_bot), (xr, y_leg_top),         dxfattribs=a35)
+        msp.add_line((xr + leg_w, y_leg_bot), (xr + leg_w, y_leg_top), dxfattribs=a35)
 
 
 # ──────────────────────────────────────────────────────────────────────────────
-# Cotas (dimensões)
+# Cotas (dimensoes)
 # ──────────────────────────────────────────────────────────────────────────────
 
 def dim_panel_lv(msp, x0, x1, y_base):
-    """Cota horizontal de painel individual — 1º nível."""
+    """Cota horizontal de painel individual -- 1o nivel."""
     try:
         d = msp.add_linear_dim(
             base=(x0, y_base - DIM_BELOW),
@@ -348,7 +384,7 @@ def dim_panel_lv(msp, x0, x1, y_base):
 
 
 def dim_total_lv(msp, x0, x1, y_base):
-    """Cota horizontal total da face — 2º nível."""
+    """Cota horizontal total da face -- 2o nivel."""
     try:
         d = msp.add_linear_dim(
             base=(x0, y_base - DIM_TOTAL_BELOW),
@@ -362,7 +398,7 @@ def dim_total_lv(msp, x0, x1, y_base):
 
 
 def dim_h_lateral(msp, x_right, y0, h):
-    """Cota vertical de h_lateral — lado direito."""
+    """Cota vertical de h_lateral -- lado direito."""
     if h <= 0:
         return
     try:
@@ -379,45 +415,43 @@ def dim_h_lateral(msp, x_right, y0, h):
 
 
 # ──────────────────────────────────────────────────────────────────────────────
-# Detalhe de seção transversal
+# Detalhe de secao transversal (Visao de Corte)
 # ──────────────────────────────────────────────────────────────────────────────
 
 def draw_section_detail(msp, x_center, y0, b, h, viga_nome='', b_alma=19,
                         h_A=None, h_B=None):
-    """Detalhe de seção transversal — TODOS os elementos STOG (eng. reversa DXF V22).
+    """Detalhe de secao transversal -- ALL STOG elements (eng. reversa DXF V22).
 
-    y0      = base de Madeira/Painéis = topo do barrote
-    x_center= centro horizontal do barrote
-    b       = largura da laje/flange
-    h       = altura da seção de concreto
-    b_alma  = largura da alma (para título, default 19cm)
-    h_A     = altura real Face A (painel esquerdo) — se None, usa h+8
-    h_B     = altura real Face B (painel direito) — se None, usa max(h-20,...)
+    Enhanced with SCR anatomy VC elements:
+    - MLINE-style double lines for sarrafos (pairs 4.4cm apart) on SARRAFO_2_2X7
+    - BARRA_ANCORAGEM rectangles connecting faces
+    - Block inserts: PAR_ESQ, PAR_FUNDO_ESQ, PAR_FUNDO_DIR, par_int_esq, par_int_dir
+    - HACHURACONCRETO between faces
     """
-    CAP_H = 4.4   # altura das caps/bases (confirmado DXF)
+    CAP_H = 4.4
 
-    # ── Âncoras X fixas (confirmadas DXF V22) ────────────────────────────
-    x_ml_l = x_center - 32   # Madeira L esquerda
-    x_ml_r = x_center - 18   # Madeira L direita / Painéis L esquerda
-    x_pl_r = x_center - 14   # Painéis L dir = concreto left (x_cl)
+    # X anchors (confirmed DXF V22)
+    x_ml_l = x_center - 32   # Madeira L left
+    x_ml_r = x_center - 18   # Madeira L right / Paineis L left
+    x_pl_r = x_center - 14   # Paineis L right = concreto left (x_cl)
     x_cl   = x_center - 14   # concreto left
     x_wr   = x_center + 24   # web right (x_cl + 38)
-    x_pr_r = x_center + 28   # Painéis R direita
-    x_mr_r = x_center + 42   # Madeira R direita
-    x_fr   = x_center + 24 + b  # flange right (varia com b)
+    x_pr_r = x_center + 28   # Paineis R right
+    x_mr_r = x_center + 42   # Madeira R right
+    x_fr   = x_center + 24 + b  # flange right (varies with b)
 
-    # Alturas devem refletir as faces A e B para coerência visual
+    # Heights reflect faces A and B
     h_left      = h_A if h_A is not None else (h + 8)
     h_flange_bot = max(h - 16, CAP_H + 5)
     h_right     = h_B if h_B is not None else max(h - 20, h_flange_bot)
-    h_right     = max(h_right, h_flange_bot)  # nunca menor que flange
+    h_right     = max(h_right, h_flange_bot)
 
     la = {'layer': 'Madeira'}
     lp = {'layer': 'Painéis'}
     l0 = {'layer': '0'}
 
     # ═══════════════════════════════════════════════════════════════════════
-    # 1. BARROTE (layer 'barrote') — base horizontal
+    # 1. BARROTE (layer 'barrote') -- base horizontal
     # ═══════════════════════════════════════════════════════════════════════
     bw2 = (140 + b) / 2
     msp.add_lwpolyline(
@@ -427,7 +461,7 @@ def draw_section_detail(msp, x_center, y0, b, h, viga_nome='', b_alma=19,
     )
 
     # ═══════════════════════════════════════════════════════════════════════
-    # 2. SCO-___-LAJ (layer 'SCO-LAJ') — strip no topo do barrote
+    # 2. SCO-___-LAJ (layer 'SCO-LAJ') -- strip on top of barrote
     # ═══════════════════════════════════════════════════════════════════════
     sco_l = x_center - bw2 + 19
     sco_r = x_center + bw2 - 9
@@ -437,70 +471,70 @@ def draw_section_detail(msp, x_center, y0, b, h, viga_nome='', b_alma=19,
     )
 
     # ═══════════════════════════════════════════════════════════════════════
-    # 3. MADEIRA — 9 LWPOLYLINEs (boards + caps + bases)
+    # 3. MADEIRA -- 9 LWPOLYLINEs (boards + caps + bases)
     # ═══════════════════════════════════════════════════════════════════════
-    # 3a. Madeira LEFT main board (14cm × h+8)
+    # 3a. Madeira LEFT main board (14cm x h_left)
     msp.add_lwpolyline(
         [(x_ml_l, y0), (x_ml_r, y0), (x_ml_r, y0+h_left), (x_ml_l, y0+h_left)],
         close=True, dxfattribs=la)
-    # 3b. Madeira RIGHT main board (14cm × h-20)
+    # 3b. Madeira RIGHT main board
     msp.add_lwpolyline(
         [(x_pr_r, y0), (x_mr_r, y0), (x_mr_r, y0+h_right), (x_pr_r, y0+h_right)],
         close=True, dxfattribs=la)
-    # 3c. LEFT base plate (20cm × 4.4cm, extends left from board)
+    # 3c. LEFT base plate (20cm x 4.4cm)
     msp.add_lwpolyline(
         [(x_ml_l-20, y0), (x_ml_l, y0), (x_ml_l, y0+CAP_H), (x_ml_l-20, y0+CAP_H)],
         close=True, dxfattribs=la)
-    # 3d. RIGHT base plate (20cm × 4.4cm, extends right from board)
+    # 3d. RIGHT base plate (20cm x 4.4cm)
     msp.add_lwpolyline(
         [(x_mr_r, y0), (x_mr_r+20, y0), (x_mr_r+20, y0+CAP_H), (x_mr_r, y0+CAP_H)],
         close=True, dxfattribs=la)
-    # 3e. LEFT board bottom cap (14cm × 4.4cm)
+    # 3e. LEFT board bottom cap (14cm x 4.4cm)
     msp.add_lwpolyline(
         [(x_ml_l, y0), (x_ml_r, y0), (x_ml_r, y0+CAP_H), (x_ml_l, y0+CAP_H)],
         close=True, dxfattribs=la)
-    # 3f. LEFT board top cap (14cm × 4.4cm)
+    # 3f. LEFT board top cap
     msp.add_lwpolyline(
         [(x_ml_l, y0+h_left-CAP_H), (x_ml_r, y0+h_left-CAP_H),
          (x_ml_r, y0+h_left),       (x_ml_l, y0+h_left)],
         close=True, dxfattribs=la)
-    # 3g. RIGHT board top cap (14cm × 4.4cm)
+    # 3g. RIGHT board top cap
     msp.add_lwpolyline(
         [(x_pr_r, y0+h_right-CAP_H), (x_mr_r, y0+h_right-CAP_H),
          (x_mr_r, y0+h_right),       (x_pr_r, y0+h_right)],
         close=True, dxfattribs=la)
-    # 3h. Concrete-left base (10cm × 4.4cm, supports concrete web base)
+    # 3h. Concrete-left base (10cm x 4.4cm)
     msp.add_lwpolyline(
         [(x_cl, y0), (x_cl+10, y0), (x_cl+10, y0+CAP_H), (x_cl, y0+CAP_H)],
         close=True, dxfattribs=la)
-    # 3i. Web-right base (10cm × 4.4cm, supports concrete web base)
+    # 3i. Web-right base (10cm x 4.4cm)
     msp.add_lwpolyline(
         [(x_wr-10, y0), (x_wr, y0), (x_wr, y0+CAP_H), (x_wr-10, y0+CAP_H)],
         close=True, dxfattribs=la)
 
     # ═══════════════════════════════════════════════════════════════════════
-    # 4. PAINÉIS — 4 LWPOLYLINEs
+    # 4. PAINEIS -- 4 LWPOLYLINEs
     # ═══════════════════════════════════════════════════════════════════════
-    # 4a. Painéis LEFT (4cm × h+8)
+    # 4a. Paineis LEFT (4cm x h_left)
     msp.add_lwpolyline(
         [(x_ml_r, y0), (x_pl_r, y0), (x_pl_r, y0+h_left), (x_ml_r, y0+h_left)],
         close=True, dxfattribs=lp)
-    # 4b. Painéis RIGHT (4cm × h-20)
+    # 4b. Paineis RIGHT (4cm x h_right)
     msp.add_lwpolyline(
         [(x_wr, y0), (x_pr_r, y0), (x_pr_r, y0+h_right), (x_wr, y0+h_right)],
         close=True, dxfattribs=lp)
-    # 4c. Painéis HORIZONTAL — tira base da flange (b × ~4cm)
+    # 4c. Paineis HORIZONTAL -- flange strip
     msp.add_lwpolyline(
         [(x_wr, y0+h_right),        (x_fr, y0+h_right),
          (x_fr, y0+h_flange_bot),   (x_wr, y0+h_flange_bot)],
         close=True, dxfattribs=lp)
-    # 4d. Painéis BOTTOM STRIP — base do concreto (38cm × 3.6cm)
+    # 4d. Paineis BOTTOM STRIP -- base (38cm x 3.6cm)
     msp.add_lwpolyline(
         [(x_cl, y0+CAP_H), (x_wr, y0+CAP_H), (x_wr, y0+8), (x_cl, y0+8)],
         close=True, dxfattribs=lp)
 
     # ═══════════════════════════════════════════════════════════════════════
-    # 5. CONCRETO em L (layer 'CONCRETO') — polígono 6 vértices
+    # 5. CONCRETO em L (layer 'CONCRETO') -- 6-vertex polygon
     # ═══════════════════════════════════════════════════════════════════════
     conc_pts = [
         (x_cl, y0+8),             (x_cl, y0+h+8),
@@ -508,13 +542,13 @@ def draw_section_detail(msp, x_center, y0, b, h, viga_nome='', b_alma=19,
         (x_wr, y0+h_flange_bot),  (x_wr, y0+8),
     ]
     msp.add_lwpolyline(conc_pts, close=True, dxfattribs={'layer': 'CONCRETO'})
-    # Hachura concreto (ANSI31, escala sutil como STOG — layer COTA bylayer)
+    # Hachura concreto
     hatch = msp.add_hatch(dxfattribs={'layer': 'COTA'})
     hatch.set_pattern_fill('ANSI31', scale=0.4)
     hatch.paths.add_polyline_path(conc_pts, is_closed=True)
 
     # ═══════════════════════════════════════════════════════════════════════
-    # 6. TENSOR linha + holders detalhados (16 LINEs layer '0')
+    # 6. TENSOR + holders (layer 'TENSOR' / '0')
     # ═══════════════════════════════════════════════════════════════════════
     y_tensor = y0 + 50
     msp.add_line(
@@ -522,31 +556,25 @@ def draw_section_detail(msp, x_center, y0, b, h, viga_nome='', b_alma=19,
         dxfattribs={'layer': 'TENSOR'}
     )
 
-    # Tensor holders — brackets complexos (eng. reversa 16 LINEs layer '0')
-    # LEFT holder: rect [xc-52, xc-22] × [y0+44, y0+56] + inner slot + tab
     lx1, lx2 = x_center - 52, x_center - 22
-    # RIGHT holder: rect [x_mr_r, x_mr_r+30] × [y0+44, y0+56] + inner slot + tab
     rx1, rx2 = x_mr_r, x_mr_r + 30
     yt, yb = y0 + 56, y0 + 44
-    yi1, yi2 = y0 + 51, y0 + 49   # inner slot (2cm gap for tensor rod)
+    yi1, yi2 = y0 + 51, y0 + 49
 
     for (a1, a2, tab_dir) in [(lx1, lx2, -1), (rx1, rx2, +1)]:
-        # Outer rectangle (3 sides: top, bottom, outer vertical)
-        msp.add_line((a1, yt), (a2, yt), dxfattribs=l0)        # top
-        msp.add_line((a1, yb), (a2, yb), dxfattribs=l0)        # bottom
+        msp.add_line((a1, yt), (a2, yt), dxfattribs=l0)
+        msp.add_line((a1, yb), (a2, yb), dxfattribs=l0)
         outer_x = a1 if tab_dir == -1 else a2
-        msp.add_line((outer_x, yt), (outer_x, yb), dxfattribs=l0)  # outer vertical
-        # Inner slot (2 horizontal lines at y0+49, y0+51)
-        msp.add_line((a1, yi2), (a2, yi2), dxfattribs=l0)      # inner top
-        msp.add_line((a1, yi1), (a2, yi1), dxfattribs=l0)      # inner bottom
-        # Tab (presilha-like extension, 2cm × 6cm)
+        msp.add_line((outer_x, yt), (outer_x, yb), dxfattribs=l0)
+        msp.add_line((a1, yi2), (a2, yi2), dxfattribs=l0)
+        msp.add_line((a1, yi1), (a2, yi1), dxfattribs=l0)
         tx = outer_x + tab_dir * 2
-        msp.add_line((outer_x, y0+47), (tx, y0+47), dxfattribs=l0)  # tab bottom
-        msp.add_line((tx, y0+53), (tx, y0+47), dxfattribs=l0)       # tab vertical
-        msp.add_line((outer_x, y0+53), (tx, y0+53), dxfattribs=l0)  # tab top
+        msp.add_line((outer_x, y0+47), (tx, y0+47), dxfattribs=l0)
+        msp.add_line((tx, y0+53), (tx, y0+47), dxfattribs=l0)
+        msp.add_line((outer_x, y0+53), (tx, y0+53), dxfattribs=l0)
 
     # ═══════════════════════════════════════════════════════════════════════
-    # 7. PRESILHA — aproximadas como linhas cruzadas (layer 'presilha')
+    # 7. PRESILHA (layer 'presilha')
     # ═══════════════════════════════════════════════════════════════════════
     lpr = {'layer': 'presilha'}
     for px in [x_center - 65, x_center + 75]:
@@ -555,7 +583,7 @@ def draw_section_detail(msp, x_center, y0, b, h, viga_nome='', b_alma=19,
         msp.add_line((px-sz, y0-8+sz), (px+sz, y0-8-sz), dxfattribs=lpr)
 
     # ═══════════════════════════════════════════════════════════════════════
-    # 7b. HATCHING — Wood (ANSI31) + Panel solid fills (STOG reference: 7+4)
+    # 7b. HATCHING -- Wood (ANSI31) + Panel solid fills
     # ═══════════════════════════════════════════════════════════════════════
     def _hatch_rect(x1, y1, x2, y2, pattern='ANSI31', scale=0.5,
                     layer='Hachura', color=None):
@@ -567,49 +595,111 @@ def draw_section_detail(msp, x_center, y0, b, h, viga_nome='', b_alma=19,
         ht.paths.add_polyline_path(
             [(x1,y1),(x2,y1),(x2,y2),(x1,y2)], is_closed=True)
 
-    # Wood boards ANSI31 hatching (7 fills — eng. reversa STOG)
-    _hatch_rect(x_ml_l, y0, x_ml_r, y0+h_left)                       # Left main board
-    _hatch_rect(x_pr_r, y0, x_mr_r, y0+h_right)                      # Right main board
-    _hatch_rect(x_ml_l-20, y0, x_ml_l, y0+CAP_H)                     # Left base plate
-    _hatch_rect(x_mr_r, y0, x_mr_r+20, y0+CAP_H)                     # Right base plate
-    _hatch_rect(x_ml_l, y0+h_left-CAP_H, x_ml_r, y0+h_left)          # Left top cap
-    _hatch_rect(x_pr_r, y0+h_right-CAP_H, x_mr_r, y0+h_right)        # Right top cap
-    _hatch_rect(x_cl, y0, x_cl+10, y0+CAP_H)                          # CL base support
+    # Wood boards ANSI31 hatching (7 fills)
+    _hatch_rect(x_ml_l, y0, x_ml_r, y0+h_left)
+    _hatch_rect(x_pr_r, y0, x_mr_r, y0+h_right)
+    _hatch_rect(x_ml_l-20, y0, x_ml_l, y0+CAP_H)
+    _hatch_rect(x_mr_r, y0, x_mr_r+20, y0+CAP_H)
+    _hatch_rect(x_ml_l, y0+h_left-CAP_H, x_ml_r, y0+h_left)
+    _hatch_rect(x_pr_r, y0+h_right-CAP_H, x_mr_r, y0+h_right)
+    _hatch_rect(x_cl, y0, x_cl+10, y0+CAP_H)
 
-    # Panel solid fills (4 fills — STOG)
+    # Panel solid fills (4 fills)
     _hatch_rect(x_ml_r, y0, x_pl_r, y0+h_left, 'SOLID', 1.0, color=253)
     _hatch_rect(x_wr, y0, x_pr_r, y0+h_right, 'SOLID', 1.0, color=253)
     _hatch_rect(x_wr, y0+h_right, x_fr, y0+h-16, 'SOLID', 1.0, color=253)
     _hatch_rect(x_cl, y0+CAP_H, x_wr, y0+8, 'SOLID', 1.0, color=253)
 
     # ═══════════════════════════════════════════════════════════════════════
-    # 8. TEXTOS 'detalhes' — labels a, b, c (layer 'detalhes')
+    # 8. MLINE-style sarrafos in VC (SARRAFO_2_2X7 layer)
+    #    SCR anatomy: _MLINE SAR3 style, scale 4.400 -> pairs of lines 4.4cm apart
+    # ═══════════════════════════════════════════════════════════════════════
+    sar_vc = {'layer': 'SARRAFO_2_2X7'}
+    # Get sarrafo positions for each face
+    _, _, positions_A = _get_sarrafo_positions(h_left)
+    _, _, positions_B = _get_sarrafo_positions(h_right)
+
+    # Face A sarrafos (left panel in VC): vertical double lines at each sarrafo y
+    # MLINE style: two vertical lines 4.4cm apart (panel width)
+    for y_pos in positions_A:
+        y_sarr = y0 + y_pos
+        # Double line pair spanning panel thickness (x_ml_r to x_pl_r = 4cm)
+        msp.add_line((x_ml_r, y_sarr - 2.2), (x_ml_r, y_sarr + 2.2), dxfattribs=sar_vc)
+        msp.add_line((x_pl_r, y_sarr - 2.2), (x_pl_r, y_sarr + 2.2), dxfattribs=sar_vc)
+        msp.add_line((x_ml_r, y_sarr - 2.2), (x_pl_r, y_sarr - 2.2), dxfattribs=sar_vc)
+        msp.add_line((x_ml_r, y_sarr + 2.2), (x_pl_r, y_sarr + 2.2), dxfattribs=sar_vc)
+
+    # Face B sarrafos (right panel in VC)
+    for y_pos in positions_B:
+        y_sarr = y0 + y_pos
+        msp.add_line((x_wr, y_sarr - 2.2), (x_wr, y_sarr + 2.2), dxfattribs=sar_vc)
+        msp.add_line((x_pr_r, y_sarr - 2.2), (x_pr_r, y_sarr + 2.2), dxfattribs=sar_vc)
+        msp.add_line((x_wr, y_sarr - 2.2), (x_pr_r, y_sarr - 2.2), dxfattribs=sar_vc)
+        msp.add_line((x_wr, y_sarr + 2.2), (x_pr_r, y_sarr + 2.2), dxfattribs=sar_vc)
+
+    # ═══════════════════════════════════════════════════════════════════════
+    # 9. BARRA_ANCORAGEM rectangles connecting faces A and B
+    # ═══════════════════════════════════════════════════════════════════════
+    ba_layer = {'layer': 'BARRA_ANCORAGEM'}
+    # Anchor bars at ~1/3 and ~2/3 of the shorter height
+    h_min = min(h_left, h_right)
+    bar_positions = [h_min * 0.33, h_min * 0.67]
+    bar_h = 2.0  # bar height
+    for bp in bar_positions:
+        yb = y0 + bp - bar_h / 2
+        yt_bar = y0 + bp + bar_h / 2
+        # Spans from Face A panel right edge to Face B panel left edge
+        msp.add_line((x_pl_r, yb), (x_wr, yb), dxfattribs=ba_layer)
+        msp.add_line((x_pl_r, yt_bar), (x_wr, yt_bar), dxfattribs=ba_layer)
+        msp.add_line((x_pl_r, yb), (x_pl_r, yt_bar), dxfattribs=ba_layer)
+        msp.add_line((x_wr, yb), (x_wr, yt_bar), dxfattribs=ba_layer)
+
+    # ═══════════════════════════════════════════════════════════════════════
+    # 10. Block inserts: PAR_ESQ, PAR_FUNDO_ESQ, PAR_FUNDO_DIR, par_int_esq, par_int_dir
+    # ═══════════════════════════════════════════════════════════════════════
+    # Screw/bolt positions from SCR anatomy
+    mid_h = y0 + h_min / 2
+    msp.add_blockref('PAR_ESQ', (x_ml_r, mid_h), dxfattribs={'layer': 'Painéis'})
+    msp.add_blockref('PAR_FUNDO_ESQ', (x_pl_r, y0 + 10), dxfattribs={'layer': 'Painéis'})
+    msp.add_blockref('PAR_FUNDO_DIR', (x_wr, y0 + 10), dxfattribs={'layer': 'Painéis'})
+    msp.add_blockref('par_int_esq', (x_pl_r, mid_h + 10), dxfattribs={'layer': 'Painéis'})
+    msp.add_blockref('par_int_dir', (x_wr, mid_h + 10), dxfattribs={'layer': 'Painéis'})
+
+    # ═══════════════════════════════════════════════════════════════════════
+    # 11. HACHURACONCRETO -- hatched region between faces
+    # ═══════════════════════════════════════════════════════════════════════
+    hc_layer = {'layer': 'HACHURACONCRETO'}
+    # Rectangle between panel inner edges, from CAP_H to min height
+    hc_pts = [(x_pl_r, y0+CAP_H), (x_wr, y0+CAP_H),
+              (x_wr, y0+h_min), (x_pl_r, y0+h_min)]
+    msp.add_lwpolyline(hc_pts, close=True, dxfattribs=hc_layer)
+    ht_hc = msp.add_hatch(dxfattribs={'layer': 'HACHURACONCRETO'})
+    ht_hc.set_pattern_fill('ANSI31', scale=0.3)
+    ht_hc.paths.add_polyline_path(hc_pts, is_closed=True)
+
+    # ═══════════════════════════════════════════════════════════════════════
+    # 12. TEXTOS 'detalhes' (layer 'detalhes')
     # ═══════════════════════════════════════════════════════════════════════
     add_text(msp, x_center - 29, y0 + 27.3, 'a', 9.6, 'detalhes')
     add_text(msp, x_center + 31, y0 + 27.3, 'b', 9.6, 'detalhes')
     add_text(msp, x_center - 4,  y0 + 10.5, 'c', 9.6, 'detalhes')
 
     # ═══════════════════════════════════════════════════════════════════════
-    # 9. TEXTO SEÇÃO — título no topo (layer 'Texto Seção')
+    # 13. TEXTO SECAO -- title (layer 'Texto Secao')
     # ═══════════════════════════════════════════════════════════════════════
     if viga_nome:
         add_text(msp, x_center + 15, y0 + h + 8, f'{viga_nome}.A',
                  13.0, 'Texto Seção')
-        # Título (bxh) — STOG: "V22 (19x60)"
-        # b_alma: para vigas retangulares = b (correto).
-        # Para vigas L (flange > web), b_alma vem do JSON = flange width.
-        # Sem dado de alma no JSON → mostrar b_alma × h_section.
         add_text(msp, x_center - 10, y0 + h + 24,
                  f'{viga_nome} ({int(b_alma)}x{int(h)})',
                  10.0, 'Texto Seção')
 
     # ═══════════════════════════════════════════════════════════════════════
-    # 10. DIMENSÕES — 6 cotas da seção transversal (eng. reversa DXF V22)
+    # 14. DIMENSOES -- 6 cotas da secao transversal
     # ═══════════════════════════════════════════════════════════════════════
-    dim_x_right = x_fr + 43   # posição X das cotas do lado direito
+    dim_x_right = x_fr + 43
 
     def add_dim_v(p1, p2, base_x, layer='COTA', style='PAINEL'):
-        """Adiciona cota vertical."""
         try:
             d = msp.add_linear_dim(
                 base=(base_x, p1[1]), p1=p1, p2=p2,
@@ -619,7 +709,6 @@ def draw_section_detail(msp, x_center, y0, b, h, viga_nome='', b_alma=19,
             pass
 
     def add_dim_h(p1, p2, base_y, layer='COTA', style='PAINEL'):
-        """Adiciona cota horizontal."""
         try:
             d = msp.add_linear_dim(
                 base=(p1[0], base_y), p1=p1, p2=p2,
@@ -628,24 +717,19 @@ def draw_section_detail(msp, x_center, y0, b, h, viga_nome='', b_alma=19,
         except Exception:
             pass
 
-    # 10a. Full LEFT height (128cm = h+8): y0 to y0+h+8 — far left
-    add_dim_v((x_ml_l-20, y0), (x_ml_l, y0+h_left),
-              x_center - 108)
-    # 10b. Concrete height (h): y0+8 to y0+h+8 — layer 'Cota Seção (2x)'
+    # 14a. Full LEFT height
+    add_dim_v((x_ml_l-20, y0), (x_ml_l, y0+h_left), x_center - 108)
+    # 14b. Concrete height
     add_dim_v((x_cl, y0+8), (x_cl, y0+h+8),
               x_center + 18, layer='Cota Seção (2x)', style='SECAO2X')
-    # 10c. Tensor height (50cm): y0 to y0+50 — right side
-    add_dim_v((x_mr_r, y0), (x_mr_r, y0+50),
-              x_fr + 3)
-    # 10d. Madeira RIGHT height (h-20): y0 to y0+h-20 — far right
-    add_dim_v((x_mr_r, y0), (x_mr_r, y0+h_right),
-              dim_x_right)
-    # 10e. Flange height: y0+h_flange_bot to y0+h+8 — far right
-    add_dim_v((x_fr, y0+h_flange_bot), (x_fr, y0+h+8),
-              dim_x_right)
-    # 10f. Web width (38cm): x_cl to x_wr — horizontal at bottom
-    add_dim_h((x_cl, y0), (x_wr, y0),
-              y0 - 45)
+    # 14c. Tensor height
+    add_dim_v((x_mr_r, y0), (x_mr_r, y0+50), x_fr + 3)
+    # 14d. Madeira RIGHT height
+    add_dim_v((x_mr_r, y0), (x_mr_r, y0+h_right), dim_x_right)
+    # 14e. Flange height
+    add_dim_v((x_fr, y0+h_flange_bot), (x_fr, y0+h+8), dim_x_right)
+    # 14f. Web width (38cm)
+    add_dim_h((x_cl, y0), (x_wr, y0), y0 - 45)
 
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -655,8 +739,8 @@ def draw_section_detail(msp, x_center, y0, b, h, viga_nome='', b_alma=19,
 def draw_lv_face(msp, x0, y0, panels, h, nome_face,
                  holes=None, pillar_left=None, pillar_right=None,
                  laje_sup=7.0, laje_inf=7.0):
-    """Desenha uma face (A ou B) da viga lateral — todos elementos visuais.
-    panels: lista de dicts [{width, height1, height2, grade_h1, grade_h2}, ...]
+    """Desenha uma face (A ou B) da viga lateral -- todos elementos visuais.
+    panels: lista de dicts [{width, height1, height2, grade_h1, grade_h2, reuse, panel_type}, ...]
     holes: lista de aberturas [{active, width, height, position}, ...]
     pillar_left/right: dict {active, width, length}
     laje_sup/inf: alturas default de laje superior/inferior (cm)
@@ -668,8 +752,7 @@ def draw_lv_face(msp, x0, y0, panels, h, nome_face,
     if comprimento <= 0 or h <= 0:
         return comprimento
 
-    # ── 1. LAJE INFERIOR — retângulo fechado com hachura POR PAINEL ─────
-    # STOG: hatches em layer COTA com cor bylayer (256), padrão sutil
+    # ── 1. LAJE INFERIOR -- retangulo fechado com hachura POR PAINEL ─────
     if laje_inf > 0:
         x_cur = x0
         for p in panels:
@@ -683,7 +766,7 @@ def draw_lv_face(msp, x0, y0, panels, h, nome_face,
             ht.paths.add_polyline_path(pts, is_closed=True)
             x_cur += pw
 
-    # ── 2. LAJE SUPERIOR — retângulo fechado com hachura POR PAINEL ─────
+    # ── 2. LAJE SUPERIOR -- retangulo fechado com hachura POR PAINEL ─────
     if laje_sup > 0:
         x_cur = x0
         for p in panels:
@@ -697,7 +780,7 @@ def draw_lv_face(msp, x0, y0, panels, h, nome_face,
             ht.paths.add_polyline_path(pts, is_closed=True)
             x_cur += pw
 
-    # ── 3. Contornos dos painéis + lajes centrais + grade ───────────────
+    # ── 3. Contornos dos paineis + lajes centrais + grades + sarrafos ───
     x_cur = x0
     for idx, p in enumerate(panels):
         pw = p['width']
@@ -707,11 +790,13 @@ def draw_lv_face(msp, x0, y0, panels, h, nome_face,
         gh2 = p['grade_h2']
         is_first = (idx == 0)
         is_last  = (idx == n - 1)
+        panel_type = p.get('panel_type', 'Sarrafeado')
+        is_reuse = p.get('reuse', False)
 
         lc_alt = p.get('laje_central_alt', 0)
         has_laje_central = (lc_alt > 0) or (h1 > 0 and h2 > 0 and abs(h1 - h2) > 0.5)
 
-        # Posições em espaço de desenho: escala proporcional quando dims reais > altura da face
+        # Positions in drawing space: scale proportionally when real dims > face height
         if lc_alt > 0:
             total_real = h1 + lc_alt + h2
             if total_real > 0:
@@ -724,17 +809,21 @@ def draw_lv_face(msp, x0, y0, panels, h, nome_face,
             h1_d   = h1
             lc_h_d = h - h1 - (h - h2) if h2 < h else h - h1
         else:
-            h1_d, lc_h_d = h, 0  # usado apenas para posicionamento de grade abaixo
+            h1_d, lc_h_d = h, 0
 
         # Contorno externo do painel
         draw_panel_lines(msp, x_cur, y0, pw, h)
 
-        # Reaproveitamento hatch — APENAS quando painel é reuso (não em todos)
-        # Por enquanto, desativado — será ativado quando JSON tiver campo 'reuse'
-        # O hatch que SEMPRE aparece é o das lajes (SCO-___-LAJ) — já implementado acima
+        # REAPROVEITAMENTO hatch -- only when panel has reuse flag
+        if is_reuse:
+            pts_reuse = [(x_cur, y0), (x_cur+pw, y0),
+                         (x_cur+pw, y0+h), (x_cur, y0+h)]
+            ht_r = msp.add_hatch(dxfattribs={'layer': 'REAPROVEITAMENTO'})
+            ht_r.set_pattern_fill('ANSI31', scale=0.8)
+            ht_r.paths.add_polyline_path(pts_reuse, is_closed=True)
 
         if has_laje_central and lc_h_d > 0.5:
-            # Laje central: retângulo fechado + hachura ANSI31 (bylayer como STOG)
+            # Laje central: retangulo fechado + hachura ANSI31
             laje_y = y0 + h1_d
             pts_lc = [(x_cur, laje_y), (x_cur+pw, laje_y),
                       (x_cur+pw, laje_y+lc_h_d), (x_cur, laje_y+lc_h_d)]
@@ -744,61 +833,45 @@ def draw_lv_face(msp, x0, y0, panels, h, nome_face,
             ht.set_pattern_fill('ANSI31', scale=0.5)
             ht.paths.add_polyline_path(pts_lc, is_closed=True)
 
-        # Grade H1
-        if gh1 > 0:
-            y_grade = y0 + h1_d if has_laje_central else y0 + h
-            gh = 2.2
-            x_gi = x_cur + (15 if is_first else 0)
-            x_gf = x_cur + pw - (15 if is_last else 0)
-            if x_gf > x_gi:
-                msp.add_lwpolyline(
-                    [(x_gi, y_grade-gh), (x_gf, y_grade-gh),
-                     (x_gf, y_grade), (x_gi, y_grade)],
-                    close=True, dxfattribs={'layer': 'SARR_2.2x7'})
-                leg_w, leg_h = 3.5, min(gh1, h1_d if has_laje_central else h)
-                msp.add_lwpolyline(
-                    [(x_gi, y_grade-gh), (x_gi+leg_w, y_grade-gh),
-                     (x_gi+leg_w, y_grade-gh-leg_h), (x_gi, y_grade-gh-leg_h)],
-                    close=True, dxfattribs={'layer': 'SARR_3.5x7'})
-                msp.add_lwpolyline(
-                    [(x_gf-leg_w, y_grade-gh), (x_gf, y_grade-gh),
-                     (x_gf, y_grade-gh-leg_h), (x_gf-leg_w, y_grade-gh-leg_h)],
-                    close=True, dxfattribs={'layer': 'SARR_3.5x7'})
+        # ── Sarrafos / Grades for H1 zone ──────────────────────────────
+        h1_zone = h1_d if has_laje_central else h
+        if panel_type == 'Grade' and gh1 > 0:
+            # Grade mode
+            y_grade_top = y0 + h1_zone if has_laje_central else y0 + h
+            draw_grade_mode(msp, x_cur, y_grade_top, pw, gh1, is_first, is_last)
+        else:
+            # Standard sarrafo mode: horizontal sarrafos by height
+            sarr_layer, sarr_w, positions = _get_sarrafo_positions(h1_zone)
+            draw_sarrafos_by_height(msp, x_cur, y0, h1_zone, pw,
+                                    sarr_layer, sarr_w, positions,
+                                    is_first, is_last)
 
-        # Grade H2 (só com laje central)
-        if gh2 > 0 and has_laje_central:
-            y_grade2 = y0 + h
-            gh = 2.2
-            x_gi = x_cur + (15 if is_first else 0)
-            x_gf = x_cur + pw - (15 if is_last else 0)
-            if x_gf > x_gi:
-                msp.add_lwpolyline(
-                    [(x_gi, y_grade2-gh), (x_gf, y_grade2-gh),
-                     (x_gf, y_grade2), (x_gi, y_grade2)],
-                    close=True, dxfattribs={'layer': 'SARR_2.2x7'})
-                leg_w, leg_h = 3.5, min(gh2, h2)
-                msp.add_lwpolyline(
-                    [(x_gi, y_grade2-gh), (x_gi+leg_w, y_grade2-gh),
-                     (x_gi+leg_w, y_grade2-gh-leg_h), (x_gi, y_grade2-gh-leg_h)],
-                    close=True, dxfattribs={'layer': 'SARR_3.5x7'})
-                msp.add_lwpolyline(
-                    [(x_gf-leg_w, y_grade2-gh), (x_gf, y_grade2-gh),
-                     (x_gf, y_grade2-gh-leg_h), (x_gf-leg_w, y_grade2-gh-leg_h)],
-                    close=True, dxfattribs={'layer': 'SARR_3.5x7'})
+        # ── Sarrafos / Grades for H2 zone (only with laje central) ────
+        if has_laje_central and lc_h_d > 0.5:
+            h2_zone = h - h1_d - lc_h_d
+            y0_h2 = y0 + h1_d + lc_h_d
+            if h2_zone > 2:
+                if panel_type == 'Grade' and gh2 > 0:
+                    draw_grade_mode(msp, x_cur, y0_h2 + h2_zone, pw, gh2,
+                                    is_first, is_last)
+                else:
+                    sarr_layer2, sarr_w2, positions2 = _get_sarrafo_positions(h2_zone)
+                    draw_sarrafos_by_height(msp, x_cur, y0_h2, h2_zone, pw,
+                                            sarr_layer2, sarr_w2, positions2,
+                                            is_first, is_last)
 
-        # Divisor entre painéis
+        # Divisor entre paineis
         if not is_last:
             msp.add_line((x_cur+pw, y0), (x_cur+pw, y0+h),
                          dxfattribs={'layer': 'Painéis'})
 
         x_cur += pw
 
-    # ── 4. SARR_3.5x7 — pares de linhas verticais + conectores ──────────
-    draw_sarr_lv(msp, x0, y0, h, panel_widths)
+    # ── 4. SARR_3.5x7 -- vertical pairs at edges and divisors ──────────
+    draw_sarr_lv_vertical_pairs(msp, x0, y0, h, panel_widths)
 
-    # ── 5. PILARES/OBSTÁCULOS — retângulos hachurados nas bordas ─────────
+    # ── 5. PILARES/OBSTACULOS -- retangulos hachurados nas bordas ─────────
     def _draw_pillar(px, py, pw_p, ph_p):
-        """Pilar como retângulo ANSI31 hachurado (rosa no robô → hachura no DXF)."""
         pts = [(px, py), (px+pw_p, py), (px+pw_p, py+ph_p), (px, py+ph_p)]
         msp.add_lwpolyline(pts, close=True,
                            dxfattribs={'layer': 'Painéis', 'linetype': 'DASHED'})
@@ -852,9 +925,7 @@ def draw_lv_face(msp, x0, y0, panels, h, nome_face,
         dim_total_lv(msp, x0, x0 + comprimento, y0)
 
     # ── 9. COTAS VERTICAIS SEGMENTADAS (Laje Inf + Altura + Laje Sup) ────
-    # Lado esquerdo (primeiro painel)
     def _dim_seg_v(x_base, segments, side='left'):
-        """Cotas verticais segmentadas — robô pattern."""
         x_dim = x_base - DIM_H_RIGHT if side == 'left' else x_base + DIM_H_RIGHT
         y_cur = y0 - laje_inf
         for label, seg_h in segments:
@@ -875,7 +946,6 @@ def draw_lv_face(msp, x0, y0, panels, h, nome_face,
     h1_0, h2_0 = p0['height1'], p0['height2']
     lc_alt_0 = p0.get('laje_central_alt', 0)
     has_lc = (lc_alt_0 > 0) or (h1_0 > 0 and h2_0 > 0 and abs(h1_0 - h2_0) > 0.5)
-    # Calcular alturas em espaço de desenho para as cotas segmentadas
     if lc_alt_0 > 0:
         total_real_0 = h1_0 + lc_alt_0 + h2_0
         _s0 = h / total_real_0 if (total_real_0 > h and total_real_0 > 0) else 1.0
@@ -895,11 +965,11 @@ def draw_lv_face(msp, x0, y0, panels, h, nome_face,
     ]
     _dim_seg_v(x0, seg_left, 'left')
 
-    # Lado direito (último painel) — cota total
+    # Lado direito (ultimo painel) -- cota total
     dim_h_lateral(msp, x0 + comprimento, y0 - laje_inf,
                   h + laje_inf + laje_sup)
 
-    # ── 10. ABERTURAS — retângulos fechados + hachura diagonal ────────────
+    # ── 10. ABERTURAS -- retangulos fechados + hachura diagonal ────────────
     if holes:
         xr = x0 + comprimento
         for i, hole in enumerate(holes):
@@ -910,7 +980,6 @@ def draw_lv_face(msp, x0, y0, panels, h, nome_face,
             hdist = float(hole.get('position', 0))
             if hw <= 0 or hh <= 0:
                 continue
-            # 4 cantos: 0=sup-esq, 1=inf-esq, 2=sup-dir, 3=inf-dir
             if i == 0:    hx, hy = x0, y0 + h - hdist - hh
             elif i == 1:  hx, hy = x0, y0 + hdist
             elif i == 2:  hx, hy = xr - hw, y0 + h - hdist - hh
@@ -929,7 +998,7 @@ def draw_lv_face(msp, x0, y0, panels, h, nome_face,
 
 
 # ──────────────────────────────────────────────────────────────────────────────
-# Viga lateral completa (seção + Face A + Face B)
+# Viga lateral completa (secao + Face A + Face B)
 # ──────────────────────────────────────────────────────────────────────────────
 
 def draw_viga_lateral(msp, x_origin, y_top, viga_nome,
@@ -940,22 +1009,17 @@ def draw_viga_lateral(msp, x_origin, y_top, viga_nome,
                       pillar_left_B=None, pillar_right_B=None,
                       laje_sup=7.0, laje_inf=7.0):
     """Desenha uma viga lateral completa em uma linha horizontal.
-    Posições: [Seção] [SECT_GAP] [Face A] [GAP_AB] [Face B]
-    panels_A/panels_B: listas de dicts do JSON (larguras reais, alturas por painel).
-    y_top: coordenada Y do topo dos painéis (base = y_top - h).
-    Retorna (x_max, y_min) para tracking de limites.
+    Positions: [Secao] [SECT_GAP] [Face A] [GAP_AB] [Face B]
     """
     h = max(h_A, h_B, 1.0)
     comp_A = sum(p['width'] for p in panels_A)
     comp_B = sum(p['width'] for p in panels_B)
     comprimento = max(comp_A, comp_B, 1.0)
 
-    # Espaço dinâmico para seção (80cm extra à esquerda conforme STOG)
     sect_total = max(SECT_W + SECT_GAP, int(b) + 178)
     x_A = x_origin + sect_total
     x_sect_center = max(x_origin + 40, x_A - 124 - int(b))
 
-    # Seção usa h_section (altura real do concreto), não h_A (altura do painel)
     h_sect = h_section if h_section else h_A
     y0_sect = y_top - h_A
     draw_section_detail(msp, x_sect_center, y0_sect, b, h_sect,
@@ -985,7 +1049,7 @@ def draw_viga_lateral(msp, x_origin, y_top, viga_nome,
 # ──────────────────────────────────────────────────────────────────────────────
 
 def draw_cards(msp, x0, y_bottom, obra_nome=''):
-    """Desenha 2 blocos Folhas 1485×1050 (bordas + carimbo)."""
+    """Desenha 2 blocos Folhas 1485x1050 (bordas + carimbo)."""
     for i in range(2):
         cx = x0 + i * (CARD_W + CARD_GAP)
         cy = y_bottom
@@ -1022,7 +1086,7 @@ def main():
     parser.add_argument('--obra', required=True,
                         help='Caminho da obra (ex: DADOS-OBRAS/Obra_TREINO_21)')
     parser.add_argument('--max', type=int, default=999,
-                        help='Máximo de vigas a processar')
+                        help='Maximo de vigas a processar')
     parser.add_argument('--simulate', action='store_true',
                         help='Injeta dados de teste na 1a viga (aberturas, pilares, h1!=h2)')
     args = parser.parse_args()
@@ -1049,47 +1113,35 @@ def main():
 
     vigas = []
     for af in a_files:
-        # Nome base: V22_A → V22, V13B_A → V13B
         vname = re.sub(r'_A$', '', af.stem)
         bf    = af.parent / f'{vname}_B.json'
 
         da = json.load(open(af, encoding='utf-8'))
         db = json.load(open(bf, encoding='utf-8')) if bf.exists() else da
 
-        # b (largura da flange/mesa): prioridade vigas_salvas → JSON total_width
         b = float(vigas_salvas.get(vname, {}).get('b', da.get('total_width', 14)))
-        # b_alma (largura da alma para título): JSON total_width
         b_alma = float(da.get('total_width', b))
 
-        # Comprimento: soma dos widths dos painéis
         comp_A = sum(float(p.get('width', 0)) for p in da.get('panels', []))
         comp_B = sum(float(p.get('width', 0)) for p in db.get('panels', []))
         comprimento = max(comp_A, comp_B, 1.0)
 
-        # h_section: altura da seção de concreto = vigas_salvas.h / 2
-        # (vigas_salvas.h = altura total de fôrma; seção = metade)
-        # V22: h_salvas=120 → h_section=60 → STOG mostra (19x60) ✓
         h_raw = float(vigas_salvas.get(vname, {}).get('h', da.get('total_height', 38)))
         h_section = h_raw / 2.0
-        # STOG panel heights derivados da seção: Face A = h_section + 4, Face B = h_section - 10
-        h_A = h_section + 4   # painel A (lado da flange/laje) = mais alto
-        h_B = max(h_section - 10, 10)  # painel B (lado do web/tensor) = mais baixo, min 10cm
+        h_A = h_section + 4
+        h_B = max(h_section - 10, 10)
 
-        # Extrair painéis reais do JSON (larguras REAIS, não módulo fixo)
-        # Propagar laje_central_alt da raiz do JSON para cada painel
         lca_A = float(da.get('laje_central_alt', 0) or 0)
         lca_B = float(db.get('laje_central_alt', 0) or 0)
         panels_A = extract_panels_from_json(da.get('panels', []), lca_A)
         panels_B = extract_panels_from_json(db.get('panels', []), lca_B)
 
-        # Extrair pilares/obstáculos do JSON
         pl_A = da.get('pillar_left', {})
         pr_A = da.get('pillar_right', {})
         pl_B = db.get('pillar_left', {})
         pr_B = db.get('pillar_right', {})
 
         if comprimento > 0 and (h_A > 0 or h_B > 0) and (panels_A or panels_B):
-            # Se falta um lado, usar o outro como fallback
             if not panels_A:
                 panels_A = panels_B
             if not panels_B:
@@ -1111,37 +1163,30 @@ def main():
             })
 
     if not vigas:
-        print('[ERRO] Nenhuma viga válida encontrada'); return
+        print('[ERRO] Nenhuma viga valida encontrada'); return
 
-    # ── Injetar dados de simulação na 1ª viga (--simulate) ─────────────
+    # ── Injetar dados de simulacao na 1a viga (--simulate) ─────────────
     if args.simulate and vigas:
         v0 = vigas[0]
         print(f'[SIMULATE] Injetando dados de teste em {v0["nome"]}')
-        # Aberturas: 4 cantos com tamanhos diferentes
         v0['holes_A'] = [
-            {'active': True, 'width': 15, 'height': 10, 'position': 5},   # sup-esq
-            {'active': True, 'width': 12, 'height': 8,  'position': 3},   # inf-esq
-            {'active': True, 'width': 15, 'height': 10, 'position': 5},   # sup-dir
-            {'active': True, 'width': 12, 'height': 8,  'position': 3},   # inf-dir
+            {'active': True, 'width': 15, 'height': 10, 'position': 5},
+            {'active': True, 'width': 12, 'height': 8,  'position': 3},
+            {'active': True, 'width': 15, 'height': 10, 'position': 5},
+            {'active': True, 'width': 12, 'height': 8,  'position': 3},
         ]
-        # Pilares/obstáculos
         v0['pl_A'] = {'active': True, 'width': 20, 'length': 10}
         v0['pr_A'] = {'active': True, 'width': 25, 'length': 15}
-        # h1 != h2 no segundo painel (laje central)
         if len(v0['panels_A']) >= 2:
             v0['panels_A'][1]['height1'] = v0['h_A'] * 0.6
             v0['panels_A'][1]['height2'] = v0['h_A'] * 0.8
 
-    # Ordenar por b desc, comprimento desc (igual ao FV)
     vigas.sort(key=lambda v: (-v['b'], -v['comp']))
-    print(f'Processando {len(vigas)} vigas laterais → LV_stog_quality.dxf')
+    print(f'Processando {len(vigas)} vigas laterais -> LV_stog_quality.dxf')
 
     doc = setup_doc()
     msp = doc.modelspace()
 
-    # ── Posicionamento ──────────────────────────────────────────────────────
-    # Vigas empilhadas de cima para baixo (y_top decresce a cada viga)
-    # Primeira viga: topo em y=0, base em y=-h_max
     y_cursor    = 0.0
     x_max_all   = 0.0
     y_min_all   = 0.0
@@ -1156,7 +1201,6 @@ def main():
         n_panels = max(len(panels_A), len(panels_B))
         pw_list = [f"{p['width']:.0f}" for p in panels_A]
 
-        # y_top para esta viga: topos alinhados ao y_cursor
         x_max, y_min = draw_viga_lateral(
             msp,
             x_origin  = 0.0,
@@ -1179,12 +1223,11 @@ def main():
 
         print(f'  {v["nome"]:8s}: comp={v["comp"]:.0f}cm  '
               f'h_A={v["h_A"]:.0f}  h_B={v["h_B"]:.0f}  '
-              f'b={v["b"]:.0f}  painéis={n_panels}  widths=[{",".join(pw_list)}]')
+              f'b={v["b"]:.0f}  paineis={n_panels}  widths=[{",".join(pw_list)}]')
 
         x_max_all = max(x_max_all, x_max)
         y_min_all = min(y_min_all, y_min)
 
-        # Próxima viga: desce h_max + NOM_ABOVE + DIM_TOTAL_BELOW + GAP_ROW_LV
         y_cursor -= h_max + NOM_ABOVE + DIM_TOTAL_BELOW + GAP_ROW_LV
 
     # ── Cards de folha acima das vigas ─────────────────────────────────────
@@ -1209,21 +1252,18 @@ def main():
         from ezdxf.addons.drawing import RenderContext, Frontend
         from ezdxf.addons.drawing.matplotlib import MatplotlibBackend
 
-        # Estimar primeira viga para zoom de detalhe
         v0 = vigas[0]
         h0 = max(v0['h_A'], v0['h_B'])
         y_first_bot = -(h0 + DIM_TOTAL_BELOW + 20)
 
         fig, axes = plt.subplots(1, 2, figsize=(28, 12), facecolor='#0a0a14')
         views = [
-            # Primeiras 4 vigas
             ((-50, min(x_max_all + 50, 3000)),
              (y_cursor + (len(vigas)-4)*(h0+GAP_ROW_LV) - 50, 60),
-             f'Detalhe — primeiras vigas'),
-            # Vista completa
+             f'Detalhe -- primeiras vigas'),
             ((-50, max(x_max_all + 50, CARD_W*2 + CARD_GAP + 100)),
              (y_min_all - 50, CARD_Y_GAP + CARD_H + 50),
-             f'Vista completa — {len(vigas)} vigas'),
+             f'Vista completa -- {len(vigas)} vigas'),
         ]
         for ax, (xlim, ylim, title) in zip(axes, views):
             ax.set_facecolor('#0a0a14')
