@@ -1,0 +1,117 @@
+{
+  "timestamp": "2026-04-30T18:17:39.315540+00:00",
+  "obras": {
+    "Obra_TREINO_21": {
+      "pavimentos_processados": [
+        "LAJE TÉCNICA"
+      ],
+      "score_fidelidade": {
+        "LAJE TÉCNICA": 65.7
+      },
+      "certificado": true,
+      "ultima_execucao": "2026-04-30T18:17:38.724284+00:00"
+    },
+    "Obra_TREINO_1": {
+      "pavimentos_processados": [
+        "TÉRREO"
+      ],
+      "score_fidelidade": {
+        "TÉRREO": 67.6
+      },
+      "certificado": true,
+      "ultima_execucao": "2026-04-30T18:17:34.510942+00:00"
+    },
+    "Obra_TREINO_3": {
+      "pavimentos_processados": [
+        "RES.DIAMOND - TÉRREO - PERIFERIA - TORRE 1 - S04A"
+      ],
+      "score_fidelidade": {
+        "RES.DIAMOND - TÉRREO - PERIFERIA - TORRE 1 - S04A": 41.5
+      },
+      "certificado": true,
+      "ultima_execucao": "2026-04-30T18:17:35.140494+00:00"
+    },
+    "Obra_TREINO_6": {
+      "pavimentos_processados": [
+        "JFC-TIP"
+      ],
+      "score_fidelidade": {
+        "JFC-TIP": 37.1
+      },
+      "certificado": true,
+      "ultima_execucao": "2026-04-30T18:17:35.729757+00:00"
+    },
+    "Obra_TREINO_9": {
+      "pavimentos_processados": [
+        "TORRE 2 - TÉRREO - PERIFERIA"
+      ],
+      "score_fidelidade": {
+        "TORRE 2 - TÉRREO - PERIFERIA": 36.8
+      },
+      "certificado": true,
+      "ultima_execucao": "2026-04-30T18:17:36.385913+00:00"
+    },
+    "Obra_TREINO_10": {
+      "pavimentos_processados": [
+        "2SS - TRECHO 1"
+      ],
+      "score_fidelidade": {
+        "2SS - TRECHO 1": 26.9
+      },
+      "certificado": true,
+      "ultima_execucao": "2026-04-30T18:17:37.007891+00:00"
+    },
+    "Obra_TREINO_11": {
+      "pavimentos_processados": [
+        "GWT-TIP"
+      ],
+      "score_fidelidade": {
+        "GWT-TIP": 39.3
+      },
+      "certificado": true,
+      "ultima_execucao": "2026-04-30T18:17:37.574337+00:00"
+    },
+    "Obra_TREINO_13": {
+      "pavimentos_processados": [
+        "TIPO"
+      ],
+      "score_fidelidade": {
+        "TIPO": 37.6
+      },
+      "certificado": true,
+      "ultima_execucao": "2026-04-30T18:17:38.138542+00:00"
+    },
+    "Obra_TREINO_16": {
+      "pavimentos_processados": [
+        "VALDIR NIEMEYER-TP2"
+      ],
+      "score_fidelidade": {
+        "VALDIR NIEMEYER-TP2": 41.7
+      },
+      "certificado": true,
+      "ultima_execucao": "2026-04-30T18:14:56.601625+00:00"
+    },
+    "Obra_TREINO_22": {
+      "pavimentos_processados": [
+        "2 PAV"
+      ],
+      "score_fidelidade": {
+        "2 PAV": 44.7
+      },
+      "certificado": true,
+      "ultima_execucao": "2026-04-30T18:17:39.315527+00:00"
+    },
+    "Obra_TREINO_23": {
+      "pavimentos_processados": [
+        "SANTA CRUZ-TER"
+      ],
+      "score_fidelidade": {
+        "SANTA CRUZ-TER": 42.7
+      },
+      "certificado": false,
+      "ultima_execucao": "2026-04-30T18:14:56.958934+00:00"
+    }
+  },
+  "total_obras": 11,
+  "total_certificadas": 10
+}
