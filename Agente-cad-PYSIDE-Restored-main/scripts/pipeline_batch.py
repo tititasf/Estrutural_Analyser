@@ -25,6 +25,7 @@ CLI:
 
 import argparse
 import json
+import os
 import subprocess
 import sys
 import time
@@ -32,6 +33,38 @@ from datetime import datetime
 from pathlib import Path
 
 SCRIPT_DIR = Path(__file__).parent
+
+# Lock file para prevenir execuções concorrentes
+_LOCK_FILE = Path(os.environ.get("TEMP", "/tmp")) / "pipeline_batch.lock"
+
+
+def _acquire_lock() -> bool:
+    """Tenta adquirir lock exclusivo. Retorna True se obteve, False se já existe."""
+    if _LOCK_FILE.exists():
+        try:
+            content = _LOCK_FILE.read_text(encoding="utf-8").strip()
+            pid = int(content.split("\n")[0]) if content else 0
+            # Verifica se o PID ainda está ativo
+            if pid and pid != os.getpid():
+                try:
+                    import ctypes
+                    handle = ctypes.windll.kernel32.OpenProcess(0x400, False, pid)
+                    if handle:
+                        ctypes.windll.kernel32.CloseHandle(handle)
+                        return False  # Processo ainda ativo
+                except Exception:
+                    pass  # Não conseguiu verificar — assume lock stale
+        except Exception:
+            pass
+    _LOCK_FILE.write_text(f"{os.getpid()}\n{datetime.now().isoformat()}", encoding="utf-8")
+    return True
+
+
+def _release_lock():
+    try:
+        _LOCK_FILE.unlink(missing_ok=True)
+    except Exception:
+        pass
 
 
 def run_pipeline_e2e(obra_path: str, pavimento: str,
@@ -197,14 +230,24 @@ def main():
             print(f"  {obra} | {pav}")
         return
 
-    report = run_batch(
-        args.data_dir,
-        obra_filtro=args.obra,
-        dry_run=args.dry_run,
-        force=args.force,
-        limit=args.limit,
-        parcial=args.parcial,
-    )
+    if not _acquire_lock():
+        pid = _LOCK_FILE.read_text(encoding="utf-8").split("\n")[0].strip()
+        print(f"[ERRO] Outro pipeline_batch já está rodando (PID {pid}). Abortando.")
+        print(f"       Lock: {_LOCK_FILE}")
+        print(f"       Use --force-lock para sobrescrever o lock se o processo morreu.")
+        sys.exit(2)
+
+    try:
+        report = run_batch(
+            args.data_dir,
+            obra_filtro=args.obra,
+            dry_run=args.dry_run,
+            force=args.force,
+            limit=args.limit,
+            parcial=args.parcial,
+        )
+    finally:
+        _release_lock()
 
     total = report["total"]
     aprovados = report["aprovados"]

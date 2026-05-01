@@ -124,7 +124,8 @@ def main():
     parser = argparse.ArgumentParser(description='Extrair largura B das vigas do FV DXF')
     parser.add_argument('--obra', required=True)
     parser.add_argument('--output', default=None)
-    args = parser.parse_args()
+    parser.add_argument('--pavimento', default=None, help='Pavimento (ignorado aqui)')
+    args, _ = parser.parse_known_args()
 
     obra_path = Path(args.obra)
     fv_path = find_fv_dxf(obra_path)

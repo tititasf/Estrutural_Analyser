@@ -438,7 +438,8 @@ def main():
     parser.add_argument("--obra", required=True, help="Path da obra (ex: DADOS-OBRAS/Obra_TREINO_21)")
     parser.add_argument("--pav", default="12", help="Hint do pavimento para selecao do DXF (default: 12)")
     parser.add_argument("--output", default=None, help="Path alternativo para output JSON")
-    args = parser.parse_args()
+    parser.add_argument("--pavimento", default=None, help="Pavimento (alias para --pav, ignorado aqui)")
+    args, _ = parser.parse_known_args()
 
     obra_path = Path(args.obra)
     if not obra_path.exists():

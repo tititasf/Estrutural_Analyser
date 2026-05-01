@@ -128,8 +128,9 @@ def run_pipeline(obra_path: str, pavimento: str, dry_run: bool = False,
             ("extrair_bh_pilares.py", []),
             ("extrair_vigas_lv.py", []),
             ("extrair_lajes_lj.py", []),
+            ("extrair_poligono_lajes.py", []),
             ("extrair_garfos_evg.py", []),
-            ("extrair_largura_vigas.py", []),
+            ("extrair_largura_vigas_fv.py", []),
             ("extrair_assembly_pl.py", []),
         ]:
             run_script(script, ["--obra", str(obra), "--pavimento", pavimento] + extra_args, dry_run)
