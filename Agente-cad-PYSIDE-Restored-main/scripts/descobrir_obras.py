@@ -42,46 +42,66 @@ def parse_dxf_nome(nome_arquivo: str):
     """
     Extrai (pav_nome, tipo) do nome de arquivo DXF.
 
-    Padrão STOG: {empresa} - {obra} - {pavimento}[.- ]{tipo} - R{rev}[_sufixo]
+    Padrão STOG: {empresa} - {obra} - {pavimento}[.- ]{tipo}[- R{rev}][- sufixo...]
+    O TIPO é o âncora: tudo antes dele (exceto empresa/obra) é o pavimento.
 
-    Variações do separador entre pav e tipo:
-      " - " (canônico):   "12° PAVIMENTO - PL - R00"
-      ".- " (com ponto):  "12° PAV.- PL - R00"
+    Variações suportadas:
+      Canônico:    "STOG - OBRA - 12 PAV - PL - R00"
+      Extra sufixo:"ZAMBETA - LUXOR - 1PV - FV - R00 - 1°ETAPA"
+      Prefixo rev: "QUATTRI - IND - 1° SUBOLO - PL - PROJEÇÃO - R00"
 
     Retorna (pav_nome, tipo) ou (None, None) se não parsear.
     """
-    # Remover extensão
-    stem = Path(nome_arquivo).stem  # sem .dxf
+    stem = Path(nome_arquivo).stem
 
     # Remover sufixo de versão ODA: "_R2018_ASCII_ODA", "_R2010_ASCII" etc
     stem = re.sub(r'_R\d{4}[_A-Z]+$', '', stem)
 
-    # Regex de extração: captura tudo antes do tipo DXF + revisão
-    # Tipos conhecidos: PL, LV, FV, FD, LJ, EVG, GF
     tipos_re = '|'.join(t for aliases in DXF_TYPES.values() for t in aliases)
-    # Suporta separadores: " - ", ".- ", ". - "
-    pattern = rf'^(STOG|ALIMONTI|STOG_|\w+)\s*-\s*(.+?)\s*-\s*(.+?)\s*[-\.]+\s*({tipos_re})\s*-\s*(R\d+)$'
-    m = re.match(pattern, stem, re.IGNORECASE)
-    if not m:
-        # Tentar padrão mais simples: qualquer prefixo - pav - tipo - rev
-        pattern2 = rf'^.+?\s*-\s*(.+?)\s*[-\.]+\s*({tipos_re})\s*-\s*(R\d+)$'
-        m2 = re.match(pattern2, stem, re.IGNORECASE)
-        if not m2:
-            return None, None
-        pav_raw = m2.group(1).strip().rstrip('.')
-        tipo_raw = m2.group(2).strip().upper()
-    else:
-        pav_raw = m.group(3).strip().rstrip('.')
-        tipo_raw = m.group(4).strip().upper()
 
-    # Normalizar tipo
+    # Estratégia: localizar o TIPO como âncora fixa no meio do nome.
+    # Padrão: {prefixo} SEP {tipo} SEP {sufixo_opcional}
+    # Prefixo = empresa + obra + pavimento (os dois primeiros tokens são empresa-obra)
+    # Separador: " - " ou ".- " ou ". - "
+    sep = r'\s*[-\.]+\s*'
+    anchor = rf'(?<={sep}|^)({tipos_re})(?={sep}|$)'
+
+    # Dividir o stem por " - " para obter tokens
+    tokens = re.split(r'\s+-\s+', stem)
+    if len(tokens) < 3:
+        return None, None
+
+    # Procurar o token que é um TIPO conhecido
     tipo = None
-    for t, aliases in DXF_TYPES.items():
-        if tipo_raw in aliases:
-            tipo = t
+    tipo_idx = None
+    for i, tok in enumerate(tokens):
+        tok_up = tok.strip().upper()
+        for t, aliases in DXF_TYPES.items():
+            if tok_up in aliases:
+                tipo = t
+                tipo_idx = i
+                break
+        if tipo:
             break
 
-    if tipo is None:
+    if tipo is None or tipo_idx is None:
+        return None, None
+
+    # Pavimento = tokens entre o 2º e o tipo (tokens[2..tipo_idx-1])
+    # tokens[0] = empresa, tokens[1] = obra (ou obra parte 1)
+    # Para nomes com empresa de 1 palavra: pav = tokens[2:tipo_idx]
+    # Para nomes com empresa multi-palavra: pegar tudo entre tokens[1] e tipo
+    # Heurística: se tipo_idx >= 3, pav = tokens[2:tipo_idx]
+    #             se tipo_idx == 2, pav = tokens[1:tipo_idx] (empresa+obra colado)
+    if tipo_idx >= 3:
+        pav_parts = tokens[2:tipo_idx]
+    elif tipo_idx == 2:
+        pav_parts = tokens[1:tipo_idx]
+    else:
+        return None, None
+
+    pav_raw = ' - '.join(p.strip() for p in pav_parts).rstrip('.')
+    if not pav_raw:
         return None, None
 
     # Normalizar pav_nome: padronizar graus e abreviações

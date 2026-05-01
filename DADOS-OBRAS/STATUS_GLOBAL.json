@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-04-30T18:17:39.315540+00:00",
+  "timestamp": "2026-05-01T01:00:08.117287+00:00",
   "obras": {
     "Obra_TREINO_21": {
       "pavimentos_processados": [
@@ -110,8 +110,28 @@
       },
       "certificado": false,
       "ultima_execucao": "2026-04-30T18:14:56.958934+00:00"
+    },
+    "Obra_TREINO_18": {
+      "pavimentos_processados": [
+        "1PV"
+      ],
+      "score_fidelidade": {
+        "1PV": 28.1
+      },
+      "certificado": false,
+      "ultima_execucao": "2026-05-01T00:59:59.835894+00:00"
+    },
+    "Obra_TREINO_19": {
+      "pavimentos_processados": [
+        "1 SUBOLO"
+      ],
+      "score_fidelidade": {
+        "1 SUBOLO": 26.4
+      },
+      "certificado": true,
+      "ultima_execucao": "2026-05-01T01:00:08.117272+00:00"
     }
   },
-  "total_obras": 11,
-  "total_certificadas": 10
+  "total_obras": 13,
+  "total_certificadas": 11
 }
