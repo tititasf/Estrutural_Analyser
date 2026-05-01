@@ -27,12 +27,13 @@ from pathlib import Path
 # Tipos de DXF e seus aliases
 # Aliases não-STOG: PI=pilar (→PL), VI=viga (→LV), LA=laje (→LJ),
 #                   LVI=detalhe viga (→LV), PLC=planta laje concreto (→LJ)
+#                   VG=vigas gerais (→LV), CB=cobertura/viga (→LV)
 DXF_TYPES = {
-    'PL':  ['PL', 'PI'],          # PI = Pilar (obras NOVA/TOLEDO)
-    'LV':  ['LV', 'VI', 'LVI'],   # VI = Viga; LVI = detalhe
-    'FV':  ['FV', 'FD'],           # FD = Forma Detalhada
-    'LJ':  ['LJ', 'LA', 'PLC'],   # LA = Laje; PLC = Planta Laje Concreto
-    'EVG': ['EVG', 'GF'],          # GF = Garfos em algumas obras
+    'PL':  ['PL', 'PI'],               # PI = Pilar (obras NOVA/TOLEDO)
+    'LV':  ['LV', 'VI', 'LVI', 'VG', 'CB'],  # VG = Vigas Gerais (ROCONTEC); CB = Cobertura/Vigas
+    'FV':  ['FV', 'FD'],               # FD = Forma Detalhada
+    'LJ':  ['LJ', 'LA', 'PLC'],        # LA = Laje; PLC = Planta Laje Concreto
+    'EVG': ['EVG', 'GF'],              # GF = Garfos em algumas obras
 }
 
 # DXFs prioritários (mínimo para processar um pavimento)
