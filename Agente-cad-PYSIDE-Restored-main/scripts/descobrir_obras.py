@@ -25,12 +25,14 @@ from collections import defaultdict
 from pathlib import Path
 
 # Tipos de DXF e seus aliases
+# Aliases não-STOG: PI=pilar (→PL), VI=viga (→LV), LA=laje (→LJ),
+#                   LVI=detalhe viga (→LV), PLC=planta laje concreto (→LJ)
 DXF_TYPES = {
-    'PL':  ['PL'],
-    'LV':  ['LV'],
-    'FV':  ['FV', 'FD'],
-    'LJ':  ['LJ'],
-    'EVG': ['EVG', 'GF'],  # GF = Garfos em algumas obras
+    'PL':  ['PL', 'PI'],          # PI = Pilar (obras NOVA/TOLEDO)
+    'LV':  ['LV', 'VI', 'LVI'],   # VI = Viga; LVI = detalhe
+    'FV':  ['FV', 'FD'],           # FD = Forma Detalhada
+    'LJ':  ['LJ', 'LA', 'PLC'],   # LA = Laje; PLC = Planta Laje Concreto
+    'EVG': ['EVG', 'GF'],          # GF = Garfos em algumas obras
 }
 
 # DXFs prioritários (mínimo para processar um pavimento)
@@ -46,9 +48,10 @@ def parse_dxf_nome(nome_arquivo: str):
     O TIPO é o âncora: tudo antes dele (exceto empresa/obra) é o pavimento.
 
     Variações suportadas:
-      Canônico:    "STOG - OBRA - 12 PAV - PL - R00"
-      Extra sufixo:"ZAMBETA - LUXOR - 1PV - FV - R00 - 1°ETAPA"
-      Prefixo rev: "QUATTRI - IND - 1° SUBOLO - PL - PROJEÇÃO - R00"
+      Canônico:      "STOG - OBRA - 12 PAV - PL - R00"        (sep = " - ")
+      Bare-dash:     "NOVA-DURSO-EMBRAMACO-1PV-PL-R02"        (sep = "-")
+      Extra sufixo:  "ZAMBETA - LUXOR - 1PV - FV - R00 - ETAPA"
+      Prefixo rev:   "QUATTRI - IND - 1° SUBOLO - PL - PROJEÇÃO - R00"
 
     Retorna (pav_nome, tipo) ou (None, None) se não parsear.
     """
@@ -57,17 +60,14 @@ def parse_dxf_nome(nome_arquivo: str):
     # Remover sufixo de versão ODA: "_R2018_ASCII_ODA", "_R2010_ASCII" etc
     stem = re.sub(r'_R\d{4}[_A-Z]+$', '', stem)
 
-    tipos_re = '|'.join(t for aliases in DXF_TYPES.values() for t in aliases)
+    # Normalizar ".- " → " - " (ex: "12° PAV.- FV" → "12° PAV - FV")
+    stem_norm = re.sub(r'\.-\s+', ' - ', stem)
 
-    # Estratégia: localizar o TIPO como âncora fixa no meio do nome.
-    # Padrão: {prefixo} SEP {tipo} SEP {sufixo_opcional}
-    # Prefixo = empresa + obra + pavimento (os dois primeiros tokens são empresa-obra)
-    # Separador: " - " ou ".- " ou ". - "
-    sep = r'\s*[-\.]+\s*'
-    anchor = rf'(?<={sep}|^)({tipos_re})(?={sep}|$)'
-
-    # Dividir o stem por " - " para obter tokens
-    tokens = re.split(r'\s+-\s+', stem)
+    # Tentar separador " - " (STOG padrão) primeiro; fallback para "-" simples
+    tokens = re.split(r'\s+-\s+', stem_norm)
+    if len(tokens) < 3:
+        # Fallback: separador bare "-" (ex: "NOVA-EMPRESA-1PV-PL-R00")
+        tokens = stem.split('-')
     if len(tokens) < 3:
         return None, None
 
@@ -127,6 +127,9 @@ def _normalizar_pav(pav_raw: str) -> str:
 
     # Remover espaços duplos
     pav = re.sub(r'\s+', ' ', pav).strip()
+
+    # Colar número+PAV/PV sem espaço: "1 PAV" → "1PAV", "2 PV" → "2PV"
+    pav = re.sub(r'(\d)\s+(PAV|PV)\b', r'\1\2', pav, flags=re.IGNORECASE)
 
     return pav.upper()
 

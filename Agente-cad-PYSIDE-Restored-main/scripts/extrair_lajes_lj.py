@@ -130,11 +130,49 @@ def extract_laje_labels_with_dims(msp) -> dict:
     # Obra_TREINO_13: layer 'F-LAJES-NOME'
     # Obra_TREINO_9: layer '10' | Obra_TREINO_6: layer '44' | Obra_TREINO_19: layer '226'
     # Obra_TREINO_3: layer 'NOME LAJE' | Obra_TREINO_8: layer 'ES-LAJE-NOME'
+    # Obra_TREINO_18: layer 'MTH-TIT1-VIGA' (sistema MTH/MasterHouse)
+    # Obra_TREINO_14: layer 'FO-TEXTO-LAJES' (sistema FO/NOVA-STOG)
     LABEL_LAYERS_EXACT = {'4', '3', '2', '10', '44', '226', 'L-N', 'L-D', 'LAJE', 'LAJES', 'NOME', 'NOME LAJE'}
     # Substrings para match parcial (case-insensitive)
-    LABEL_LAYER_SUBSTRINGS = {'EST-LAJE', 'FLOR-IDEN', 'LAJE-IDEN', 'LAJE-TEXT', 'LAJES-NOME', 'LAJE-NOME', 'F-LAJES', 'ES-LAJE'}
+    LABEL_LAYER_SUBSTRINGS = {'EST-LAJE', 'FLOR-IDEN', 'LAJE-IDEN', 'LAJE-TEXT', 'LAJES-NOME', 'LAJE-NOME',
+                               'F-LAJES', 'ES-LAJE', 'MTH-TIT1', 'TEXTO-LAJE'}
+
+    # Auto-detect: se nenhum layer conhecido contiver IDs L{n}, varrer todos os layers
+    # e identificar qual contém mais IDs L{n} (heurística para clientes com layers custom)
+    # Suporta variantes: L{n}, L.{n} (ponto), L{n}A (sufixo letra)
+    _LAJE_ID_PAT = re.compile(r'^L\.?\d+[A-Z]?$', re.IGNORECASE)
+
+    def _auto_detect_label_layer(msp_entities) -> set:
+        counts = {}
+        for e in msp_entities:
+            if e.dxftype() not in ('TEXT', 'MTEXT'):
+                continue
+            try:
+                txt = (e.plain_text() if e.dxftype() == 'MTEXT' else (e.dxf.text or '')).strip()
+            except Exception:
+                continue
+            if _LAJE_ID_PAT.match(txt):
+                counts[e.dxf.layer] = counts.get(e.dxf.layer, 0) + 1
+        if not counts:
+            return set()
+        max_count = max(counts.values())
+        return {lay for lay, n in counts.items() if n >= max(1, max_count * 0.5)}
     labels_pos = {}  # lid -> lista de posicoes
-    for e in msp:
+
+    # Primeira passagem com layers conhecidos; se vazio, auto-detectar
+    _msp_list = list(msp)
+    _known_hits = sum(
+        1 for e in _msp_list
+        if e.dxftype() in ('TEXT', 'MTEXT') and (
+            e.dxf.layer in LABEL_LAYERS_EXACT or
+            any(sub in e.dxf.layer.upper() for sub in LABEL_LAYER_SUBSTRINGS)
+        )
+    )
+    _extra_layers = _auto_detect_label_layer(_msp_list) if _known_hits == 0 else set()
+    if _extra_layers:
+        print(f"  [AUTO-DETECT] Layers de laje detectados automaticamente: {_extra_layers}")
+
+    for e in _msp_list:
         if e.dxftype() not in ('TEXT', 'MTEXT'):
             continue
         layer = e.dxf.layer
@@ -143,7 +181,8 @@ def extract_laje_labels_with_dims(msp) -> dict:
                           layer_upper in {ll.upper() for ll in LABEL_LAYERS_EXACT} or
                           re.match(r'^L-[ND]$', layer, re.IGNORECASE) or
                           layer_upper in ('LAJE', 'LAJES', 'NOME') or
-                          any(sub in layer_upper for sub in LABEL_LAYER_SUBSTRINGS))
+                          any(sub in layer_upper for sub in LABEL_LAYER_SUBSTRINGS) or
+                          layer in _extra_layers)
         if not is_label_layer:
             continue
         try:
@@ -154,9 +193,9 @@ def extract_laje_labels_with_dims(msp) -> dict:
         except Exception:
             continue
 
-        m = re.match(r'^L(\d+)$', txt, re.IGNORECASE)
+        m = re.match(r'^L\.?(\d+[A-Za-z]?)$', txt, re.IGNORECASE)
         if m:
-            lid = f'L{m.group(1)}'
+            lid = f'L{m.group(1).upper()}'
             try:
                 pos = (e.dxf.insert.x, e.dxf.insert.y)
             except Exception:
@@ -219,7 +258,12 @@ def extract_laje_labels_with_dims(msp) -> dict:
     todas_lajes = set(labels_pos.keys()) | set(paineis_por_laje.keys())
     result = {}
 
-    for lid in sorted(todas_lajes, key=lambda x: int(x[1:])):
+    def _laje_sort_key(x):
+        """Ordena IDs como L1, L10, L305, L326A — suporta sufixo alfanumérico."""
+        m = re.match(r'^L\.?(\d+)([A-Za-z]?)$', x, re.IGNORECASE)
+        return (int(m.group(1)), m.group(2)) if m else (0, x)
+
+    for lid in sorted(todas_lajes, key=_laje_sort_key):
         pos_label = labels_pos.get(lid, [None])[0]
         paineis = paineis_por_laje.get(lid, [])
 
@@ -303,7 +347,10 @@ def build_fichas(labels_data: dict, msp, pavimento: str) -> dict:
     """
     fichas = {}
 
-    for lid in sorted(labels_data.keys(), key=lambda x: int(x[1:])):
+    def _lsort(x):
+        m = re.match(r'^L\.?(\d+)([A-Za-z]?)$', x, re.IGNORECASE)
+        return (int(m.group(1)), m.group(2)) if m else (0, x)
+    for lid in sorted(labels_data.keys(), key=_lsort):
         info = labels_data[lid]
         pos_label = info.get('pos_label')
         pos_paineis = info.get('pos_paineis', [])
@@ -471,7 +518,10 @@ def run(obra_path: str, pavimento: str) -> None:
     # Amostra
     print(f"\n[AMOSTRA] Primeiras lajes:")
     count = 0
-    for lid in sorted([k for k in fichas if not k.startswith('_')], key=lambda x: int(x[1:])):
+    def _lsort2(x):
+        m = re.match(r'^L\.?(\d+)([A-Za-z]?)$', x, re.IGNORECASE)
+        return (int(m.group(1)), m.group(2)) if m else (0, x)
+    for lid in sorted([k for k in fichas if not k.startswith('_')], key=_lsort2):
         v = fichas[lid]
         if not isinstance(v, dict):
             continue

@@ -335,8 +335,9 @@ def _extract_laje_ids_from_lj(dxf_path: Path, ezdxf=None) -> dict:
         # Pular textos que são referências cruzadas ("VEM DA L{n}")
         if _CROSS_REF.search(txt):
             continue
-        for num in re.findall(r'\b[Ll](\d+)\b', txt):
-            lid = f'L{num}'
+        # Suporta L{n}, L.{n} (ponto), L{n}A (sufixo letra) — ex: L305, L.305, L326A
+        for m in re.finditer(r'\b[Ll]\.?(\d+[A-Za-z]?)\b', txt):
+            lid = f'L{m.group(1).upper()}'
             if lid not in laje_data:
                 laje_data[lid] = {}
 

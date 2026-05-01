@@ -72,9 +72,11 @@ def load_discovery(data_dir: Path) -> dict:
         return json.load(f)
 
 
-def coletar_targets(discovery: dict, obra_filtro: str = None) -> list:
+def coletar_targets(discovery: dict, obra_filtro: str = None, parcial: bool = False) -> list:
     """
-    Retorna lista de (obra_path, pavimento) para pavimentos completos (PL+LV+LJ).
+    Retorna lista de (obra_path, pavimento) para pavimentos com PL.
+    parcial=False (padrão): exige PL+LV+LJ
+    parcial=True: aceita qualquer pavimento com PL (mínimo)
     """
     targets = []
     for obra_nome, pav_map in discovery.items():
@@ -84,19 +86,22 @@ def coletar_targets(discovery: dict, obra_filtro: str = None) -> list:
             pl = tipos.get("PL")
             lv = tipos.get("LV")
             lj = tipos.get("LJ")
-            if pl and lv and lj:
-                # Inferir obra_path a partir do path do DXF PL
-                obra_path = str(Path(pl).parent.parent.parent)
-                targets.append((obra_nome, pav, obra_path))
+            if not pl:
+                continue
+            if not parcial and not (lv and lj):
+                continue
+            # Inferir obra_path a partir do path do DXF PL
+            obra_path = str(Path(pl).parent.parent.parent)
+            targets.append((obra_nome, pav, obra_path))
     return sorted(targets, key=lambda t: (t[0], t[1]))
 
 
 def run_batch(data_dir: str, obra_filtro: str = None,
               dry_run: bool = False, force: bool = False,
-              limit: int = 0) -> dict:
+              limit: int = 0, parcial: bool = False) -> dict:
     data_path = Path(data_dir).resolve()
     discovery = load_discovery(data_path)
-    targets = coletar_targets(discovery, obra_filtro)
+    targets = coletar_targets(discovery, obra_filtro, parcial=parcial)
 
     if limit > 0:
         targets = targets[:limit]
@@ -179,6 +184,8 @@ def main():
                         help='Limitar a N obras (0 = sem limite)')
     parser.add_argument('--list', action='store_true',
                         help='Apenas listar targets sem executar')
+    parser.add_argument('--parcial', action='store_true',
+                        help='Aceitar pavimentos com só PL (sem exigir LV+LJ)')
     args = parser.parse_args()
 
     if args.list:
@@ -196,6 +203,7 @@ def main():
         dry_run=args.dry_run,
         force=args.force,
         limit=args.limit,
+        parcial=args.parcial,
     )
 
     total = report["total"]
