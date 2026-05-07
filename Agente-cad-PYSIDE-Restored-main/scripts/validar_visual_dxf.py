@@ -848,6 +848,52 @@ def validar_tipo(
     return resultado
 
 
+# ─── Estabilidade: rodar N vezes e tomar mediana ──────────────────────────────
+
+def validar_tipo_estavel(
+    tipo, dxf_stog, dxf_gen, pav_out, client, model, n_tiles, verbose, n_runs=1
+) -> dict:
+    """
+    Roda validar_tipo n_runs vezes e retorna resultado com mediana de score_final.
+    Reduz variância LLM (±10pp observado) para scores estáveis.
+    """
+    if n_runs <= 1:
+        return validar_tipo(tipo, dxf_stog, dxf_gen, pav_out, client, model, n_tiles, verbose)
+
+    resultados = []
+    scores = []
+    for run_i in range(n_runs):
+        if verbose:
+            print(f"    [Run {run_i+1}/{n_runs}]")
+        try:
+            r = validar_tipo(tipo, dxf_stog, dxf_gen, pav_out, client, model, n_tiles, verbose=False)
+            sf = r.get("score_final")
+            if isinstance(sf, (int, float)):
+                scores.append(sf)
+            resultados.append(r)
+        except Exception as e:
+            if verbose:
+                print(f"    [Run {run_i+1}] ERRO: {e}")
+
+    if not resultados:
+        return validar_tipo(tipo, dxf_stog, dxf_gen, pav_out, client, model, n_tiles, verbose)
+
+    # Mediana do score_final
+    scores.sort()
+    n = len(scores)
+    mediana = scores[n // 2] if n % 2 == 1 else round((scores[n//2-1] + scores[n//2]) / 2, 1)
+
+    # Usar o resultado mais próximo da mediana como representativo
+    melhor = min(resultados, key=lambda r: abs((r.get("score_final") or 0) - mediana))
+    melhor["score_final_mediana"] = mediana
+    melhor["n_runs"] = n_runs
+    melhor["scores_runs"] = scores
+    if verbose:
+        status = "✅" if mediana >= 85 else ("⚠️" if mediana >= 70 else "❌")
+        print(f"    {status} Score MEDIANA [{tipo}]: {mediana}/100  runs={scores}")
+    return melhor
+
+
 # ─── Core: validar um pavimento ───────────────────────────────────────────────
 
 def validar_pavimento(
@@ -861,6 +907,7 @@ def validar_pavimento(
     n_tiles: int = TILES_DEFAULT,
     tipos: list = None,
     verbose: bool = True,
+    n_runs: int = 1,
 ) -> dict:
     """Valida todos os tipos disponíveis de um pavimento."""
     obra_dir = data_dir / obra_nome
@@ -894,11 +941,17 @@ def validar_pavimento(
                 print(f"  [{tipo}] DXF gerado não encontrado (Fase-6/{GERADO_NOMES[tipo]}) — skip")
             continue
 
-        res_tipo = validar_tipo(
-            tipo, dxf_stog, dxf_gen, pav_out,
-            client=client, model=model, n_tiles=n_tiles, verbose=verbose,
-        )
-        resultados_tipo[tipo] = res_tipo
+        try:
+            res_tipo = validar_tipo_estavel(
+                tipo, dxf_stog, dxf_gen, pav_out,
+                client=client, model=model, n_tiles=n_tiles, verbose=verbose,
+                n_runs=n_runs,
+            )
+            resultados_tipo[tipo] = res_tipo
+        except Exception as e:
+            if verbose:
+                print(f"  [{tipo}] ERRO em validar_tipo: {e}")
+            resultados_tipo[tipo] = {"erro": str(e), "score_final": None}
 
     # Score global do pavimento
     scores_pav = [r["score_final"] for r in resultados_tipo.values()
@@ -945,6 +998,7 @@ def main():
     parser.add_argument("--todos-pavimentos", action="store_true", help="Validar todos os pavimentos da obra")
     parser.add_argument("--all-obras", action="store_true", help="Validar TODAS as obras (1 pav representativo por obra)")
     parser.add_argument("--obras",    default=None,  help="Subset de obras separadas por vírgula (ex: Obra_TREINO_21,Obra_TREINO_14)")
+    parser.add_argument("--n-runs",   default=1, type=int, help="Rodar N vezes e tomar mediana (estabilidade LLM, default: 1)")
     parser.add_argument("--quiet",    action="store_true", help="Menos output")
     args = parser.parse_args()
 
@@ -1049,7 +1103,7 @@ def main():
                 res = validar_pavimento(
                     obra_nome, pav_nome, discovery, data_dir, out_dir,
                     client=client, model=args.model, n_tiles=args.tiles,
-                    tipos=tipos, verbose=verbose,
+                    tipos=tipos, verbose=verbose, n_runs=args.n_runs,
                 )
                 resumo_global[obra_nome] = {
                     "pavimento": pav_nome,
@@ -1102,7 +1156,7 @@ def main():
             res = validar_pavimento(
                 obra_nome, pav, discovery, data_dir, out_dir,
                 client=client, model=args.model, n_tiles=args.tiles,
-                tipos=tipos, verbose=verbose,
+                tipos=tipos, verbose=verbose, n_runs=args.n_runs,
             )
             resultados_finais[pav] = res
     else:
@@ -1125,7 +1179,7 @@ def main():
         res = validar_pavimento(
             obra_nome, pav_nome, discovery, data_dir, out_dir,
             client=client, model=args.model, n_tiles=args.tiles,
-            tipos=tipos, verbose=verbose,
+            tipos=tipos, verbose=verbose, n_runs=args.n_runs,
         )
         resultados_finais[pav_nome] = res
 
