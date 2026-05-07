@@ -108,14 +108,72 @@ def draw_face(msp, pid: str, face: str, x0: float, y0: float,
     })
 
 
+def _ensure_dimstyle(doc):
+    """Cria dimstyle COTA se nao existir."""
+    if "COTA" not in doc.dimstyles:
+        ds = doc.dimstyles.new("COTA")
+        ds.dxf.dimtxt = 7.0
+        ds.dxf.dimasz = 3.5
+        ds.dxf.dimscale = 1.0
+        ds.dxf.dimexo = 2.0
+        ds.dxf.dimexe = 2.0
+        ds.dxf.dimgap = 1.5
+        ds.dxf.dimdec = 1
+        ds.dxf.dimrnd = 0
+        ds.dxf.dimclrd = 3   # green arrows (ACI 3)
+        ds.dxf.dimclre = 3
+        ds.dxf.dimclrt = 3
+
+
 def draw_bh_dimension(msp, x0: float, y_top: float,
-                      b_val: float, h_val: float, x_extent: float):
-    """Adiciona dimensao B x H na layer Cota Secao (2x)."""
-    # Texto simples com B x H (substitui DIMENSION real por clareza)
+                      b_val: float, h_val: float, x_extent: float,
+                      face_dims: dict = None):
+    """
+    Adiciona cotas reais (DIMENSION) na layer COTA e texto B×H na Cota Secao (2x).
+    face_dims: {face: width} para desenhar dimensao de cada face individualmente.
+    """
+    _ensure_dimstyle(msp.doc)
+
+    # Dimensao horizontal total (largura de todas as faces)
+    dim_y = y_top + 30.0
+    try:
+        d = msp.add_linear_dim(
+            base=(x0, dim_y),
+            p1=(x0, y_top),
+            p2=(x0 + x_extent, y_top),
+            angle=0,
+            dimstyle="COTA",
+            dxfattribs={"layer": "COTA"}
+        )
+        d.render()
+    except Exception:
+        pass
+
+    # Dimensao de cada face individualmente (larguras B e H)
+    if face_dims:
+        x_cur = x0
+        for face in ["A", "B", "C", "D"]:
+            fw = face_dims.get(face, 0)
+            if fw > 0:
+                try:
+                    d = msp.add_linear_dim(
+                        base=(x_cur, dim_y + 20.0),
+                        p1=(x_cur, y_top),
+                        p2=(x_cur + fw, y_top),
+                        angle=0,
+                        dimstyle="COTA",
+                        dxfattribs={"layer": "COTA"}
+                    )
+                    d.render()
+                except Exception:
+                    pass
+                x_cur += fw + GAP_ENTRE_FACES
+
+    # Texto B×H como referencia textual
     label = f"B={b_val:.0f}cm  H={h_val:.0f}cm"
     msp.add_mtext(label, dxfattribs={
         "layer": "Cota Secao (2x)",
-        "insert": (x0, y_top + 25.0, 0),
+        "insert": (x0, y_top + 55.0, 0),
         "char_height": 8.0,
         "width": x_extent + 20.0,
         "attachment_point": 5,
@@ -142,8 +200,9 @@ def gerar_dxf_pilar(pid: str, json4: dict, bh: dict,
     Returns dict com: pid, b, h, n_paineis, path
     """
     # B/H: usa pilares_bh.json se disponivel, senao default
-    b = float(bh.get("b", B_DEFAULT))
-    h = float(bh.get("h", H_DEFAULT))
+    # Nota: bh.get("b", B_DEFAULT) nao funciona quando valor e None (key existe mas valor None)
+    b = float(bh.get("b") or B_DEFAULT)
+    h = float(bh.get("h") or H_DEFAULT)
     if b <= 0: b = B_DEFAULT
     if h <= 0: h = H_DEFAULT
 
@@ -175,7 +234,7 @@ def gerar_dxf_pilar(pid: str, json4: dict, bh: dict,
     total_width = x_cursor - GAP_ENTRE_FACES
     total_height = sum(h_values(json4, "A"))  # height from face A
 
-    draw_bh_dimension(msp, 0.0, total_height, b, h, total_width)
+    draw_bh_dimension(msp, 0.0, total_height, b, h, total_width, face_dims=face_dims)
     draw_nomenclature(msp, 0.0, total_height, pid, pav)
 
     output_path.parent.mkdir(parents=True, exist_ok=True)

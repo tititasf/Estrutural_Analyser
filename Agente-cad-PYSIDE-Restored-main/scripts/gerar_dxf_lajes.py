@@ -35,10 +35,27 @@ def setup_layers(doc):
         ("Texto Secao",     COR_TEXTO),
         ("NOMENCLATURA",    COR_TEXTO),
         ("Obstaculos",      COR_OBST),
+        ("COTA",            3),  # verde (ACI 3)
+        ("AUX00",           COR_TEXTO),
     ]
     for name, color in defs:
         if name not in doc.layers:
             doc.layers.new(name).color = color
+
+    # Dimstyle para cotas das lajes
+    if "COTA_LJ" not in doc.dimstyles:
+        ds = doc.dimstyles.new("COTA_LJ")
+        ds.dxf.dimtxt = 7.0
+        ds.dxf.dimasz = 3.5
+        ds.dxf.dimscale = 1.0
+        ds.dxf.dimexo = 2.0
+        ds.dxf.dimexe = 2.0
+        ds.dxf.dimgap = 1.5
+        ds.dxf.dimdec = 1
+        ds.dxf.dimrnd = 0
+        ds.dxf.dimclrd = 3
+        ds.dxf.dimclre = 3
+        ds.dxf.dimclrt = 3
 
 
 def draw_polygon(msp, coords: list, layer: str):
@@ -113,21 +130,74 @@ def gerar_dxf_laje(lid: str, data: dict, output_path: Path, pav: str) -> dict:
             pline = msp.add_lwpolyline(pts, close=True)
             pline.dxf.layer = "Obstaculos"
 
-    # Label
+    # Espessura da laje
+    esp = float(data.get('espessura', data.get('altura', 12)) or 12)
+
+    # Label + espessura no centro
     cx = comp / 2.0
     cy = larg / 2.0
-    msp.add_mtext(lid, dxfattribs={
+    msp.add_mtext(f"{lid}\\Pe={esp:.0f}cm", dxfattribs={
         "layer": "Texto Secao",
         "insert": (cx, cy, 0),
-        "char_height": max(10.0, comp * 0.05),
+        "char_height": max(8.0, comp * 0.04),
         "width": comp,
         "attachment_point": 5,
     })
 
-    # Dimensoes
+    # AUX00 por painel (dimensoes + espessura)
+    xs = sorted(set([0.0] + [float(l["value"]) for l in linhas_v]))
+    ys = sorted(set([0.0] + [float(l["value"]) for l in linhas_h]))
+    if not xs or xs[-1] < comp:
+        xs.append(comp)
+    if not ys or ys[-1] < larg:
+        ys.append(larg)
+    for i in range(len(xs) - 1):
+        sw = xs[i+1] - xs[i]
+        for j in range(len(ys) - 1):
+            sh = ys[j+1] - ys[j]
+            if sw > 1 and sh > 1:
+                aux = f'\\pxqc;{lid}^J{sw:.0f}X{sh:.0f}^Jc/rec.^Je={esp:.0f}cm'
+                msp.add_mtext(aux, dxfattribs={
+                    "layer": "AUX00",
+                    "insert": (xs[i] + sw/2, ys[j] + sh/2, 0),
+                    "char_height": 6.0,
+                    "width": sw,
+                    "attachment_point": 5,
+                })
+
+    # DIMENSION entities (cotas horizontais e verticais)
+    dim_y = -25.0
+    try:
+        d = msp.add_linear_dim(
+            base=(0.0, dim_y), p1=(0.0, 0.0), p2=(comp, 0.0),
+            angle=0, dimstyle="COTA_LJ", dxfattribs={"layer": "COTA"})
+        d.render()
+    except Exception:
+        pass
+    dim_x = comp + 20.0
+    try:
+        d = msp.add_linear_dim(
+            base=(dim_x, 0.0), p1=(comp, 0.0), p2=(comp, larg),
+            angle=90, dimstyle="COTA_LJ", dxfattribs={"layer": "COTA"})
+        d.render()
+    except Exception:
+        pass
+    # Cotas por painel
+    for i in range(len(xs) - 1):
+        sw = xs[i+1] - xs[i]
+        if sw > 1:
+            try:
+                d = msp.add_linear_dim(
+                    base=(xs[i], dim_y - 20), p1=(xs[i], 0.0), p2=(xs[i+1], 0.0),
+                    angle=0, dimstyle="COTA_LJ", dxfattribs={"layer": "COTA"})
+                d.render()
+            except Exception:
+                pass
+
+    # Dimensoes e header
     n_paineis_v = len(linhas_v) + 1 if linhas_v else 1
     n_paineis_h = len(linhas_h) + 1 if linhas_h else 1
-    header = f"{pav} - {lid}  {comp:.1f}x{larg:.1f}cm  paineis: {n_paineis_v}x{n_paineis_h}"
+    header = f"{pav} - {lid}  {comp:.0f}x{larg:.0f}cm  e={esp:.0f}cm  paineis: {n_paineis_v}x{n_paineis_h}"
     msp.add_mtext(header, dxfattribs={
         "layer": "NOMENCLATURA",
         "insert": (0.0, larg + 30.0, 0),

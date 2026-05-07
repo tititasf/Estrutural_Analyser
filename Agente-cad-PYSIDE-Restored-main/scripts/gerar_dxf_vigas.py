@@ -37,10 +37,25 @@ def setup_layers(doc):
         ("Texto Secao",     COR_TEXTO),
         ("NOMENCLATURA",    COR_TEXTO),
         ("Cota Secao (2x)", COR_COTA),
+        ("COTA",            COR_COTA),
     ]
     for name, color in defs:
         if name not in doc.layers:
             doc.layers.new(name).color = color
+
+    if "COTA_VIG" not in doc.dimstyles:
+        ds = doc.dimstyles.new("COTA_VIG")
+        ds.dxf.dimtxt = 7.0
+        ds.dxf.dimasz = 3.5
+        ds.dxf.dimscale = 1.0
+        ds.dxf.dimexo = 2.0
+        ds.dxf.dimexe = 2.0
+        ds.dxf.dimgap = 1.5
+        ds.dxf.dimdec = 1
+        ds.dxf.dimrnd = 0
+        ds.dxf.dimclrd = 3
+        ds.dxf.dimclre = 3
+        ds.dxf.dimclrt = 3
 
 
 def panels_from_json(data: dict) -> list:
@@ -52,6 +67,46 @@ def panels_from_json(data: dict) -> list:
         if w > 0 and h > 0:
             result.append((w, h))
     return result
+
+
+def add_vista_dims(msp, panels: list, x0: float, y0: float, y_max: float):
+    """Adiciona DIMENSION entities para uma vista de viga."""
+    if not panels:
+        return
+    total_w = sum(pw for pw, ph in panels)
+    dim_y = y0 - 22.0
+    # Dimensao total horizontal
+    try:
+        d = msp.add_linear_dim(
+            base=(x0, dim_y), p1=(x0, y0), p2=(x0 + total_w, y0),
+            angle=0, dimstyle="COTA_VIG", dxfattribs={"layer": "COTA"})
+        d.render()
+    except Exception:
+        pass
+    # Dimensao por painel (segmentos individuais)
+    x = x0
+    dim_y2 = y0 - 38.0
+    for pw, ph in panels:
+        if pw > 1:
+            try:
+                d = msp.add_linear_dim(
+                    base=(x, dim_y2), p1=(x, y0), p2=(x + pw, y0),
+                    angle=0, dimstyle="COTA_VIG", dxfattribs={"layer": "COTA"})
+                d.render()
+            except Exception:
+                pass
+        x += pw
+    # Dimensao vertical (altura vista)
+    if panels[0][1] > 1:
+        dim_x = x0 + total_w + 15.0
+        try:
+            d = msp.add_linear_dim(
+                base=(dim_x, y0), p1=(x0 + total_w, y0),
+                p2=(x0 + total_w, y_max),
+                angle=90, dimstyle="COTA_VIG", dxfattribs={"layer": "COTA"})
+            d.render()
+        except Exception:
+            pass
 
 
 def draw_vista(msp, panels: list, x0: float, y0: float, label: str):
@@ -102,6 +157,7 @@ def gerar_dxf_viga(vid: str, data_a: dict, data_b: dict, data_fundo: dict,
     # Vista Lateral A
     if panels_a:
         x_max_a, y_max_a = draw_vista(msp, panels_a, 0.0, y_cursor, f"{vid}_A")
+        add_vista_dims(msp, panels_a, 0.0, y_cursor, y_max_a)
         y_cursor = y_max_a + GAP_ENTRE_VISTAS
     else:
         x_max_a = 0.0
@@ -109,6 +165,7 @@ def gerar_dxf_viga(vid: str, data_a: dict, data_b: dict, data_fundo: dict,
     # Vista Lateral B
     if panels_b:
         x_max_b, y_max_b = draw_vista(msp, panels_b, 0.0, y_cursor, f"{vid}_B")
+        add_vista_dims(msp, panels_b, 0.0, y_cursor, y_max_b)
         y_cursor = y_max_b + GAP_ENTRE_VISTAS
     else:
         x_max_b = 0.0
@@ -116,6 +173,7 @@ def gerar_dxf_viga(vid: str, data_a: dict, data_b: dict, data_fundo: dict,
     # Vista Fundo
     if panels_fundo:
         x_max_c, y_max_c = draw_vista(msp, panels_fundo, 0.0, y_cursor, f"{vid}_Fundo")
+        add_vista_dims(msp, panels_fundo, 0.0, y_cursor, y_max_c)
         y_cursor = y_max_c + GAP_ENTRE_VISTAS
     else:
         x_max_c = 0.0

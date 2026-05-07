@@ -413,8 +413,13 @@ def draw_laje_planta(msp, lj_data, distribute_panels_fn):
                 continue
             seg_cx = x0 + (x_edges[i] + x_edges[i+1]) / 2
             seg_cy = y0 + (h_edges[j] + h_edges[j+1]) / 2
-            # STOG format: \pxqc;L{n}^J{dim}X{dim}^Jc/rec.
-            aux_text = f'\\pxqc;{nome}^J{seg_w:.0f}X{seg_h:.0f}^Jc/rec.'
+            # STOG format: \pxqc;L{n}^J{dim}X{dim}^Jc/rec.^Je=Xcm
+            esp = lj_data.get('espessura', lj_data.get('altura', 12))
+            try:
+                esp = float(esp) if esp else 12.0
+            except (ValueError, TypeError):
+                esp = 12.0
+            aux_text = f'\\pxqc;{nome}^J{seg_w:.0f}X{seg_h:.0f}^Jc/rec.^Je={esp:.0f}cm'
             add_mtext_aux(msp, seg_cx, seg_cy, aux_text, height=8.0)
 
     # ---- Layer 3: dim texts for pilar sizes (e.g. "19/50") ----
