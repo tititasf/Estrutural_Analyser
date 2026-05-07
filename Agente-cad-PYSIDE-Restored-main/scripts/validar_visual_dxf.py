@@ -934,7 +934,7 @@ def main():
     parser = argparse.ArgumentParser(
         description="Validação visual autônoma: STOG vs Gerado (Claude Vision)"
     )
-    parser.add_argument("--obra",     required=True, help="Nome da obra (ex: Obra_TREINO_21)")
+    parser.add_argument("--obra",     default=None,  help="Nome da obra (ex: Obra_TREINO_21)")
     parser.add_argument("--pav",      default=None,  help="Nome do pavimento (ex: 12PAV)")
     parser.add_argument("--tipo",     default=None,  choices=["PL","LV","FV","LJ"], help="Validar só este tipo")
     parser.add_argument("--data-dir", default=str(DATA_DIR_DEFAULT), help="Diretório DADOS-OBRAS/")
@@ -943,8 +943,13 @@ def main():
     parser.add_argument("--model",    default=VISION_MODEL, help=f"Modelo Claude (default: {VISION_MODEL})")
     parser.add_argument("--sem-api",  action="store_true", help="Pular análise API (só estrutural)")
     parser.add_argument("--todos-pavimentos", action="store_true", help="Validar todos os pavimentos da obra")
+    parser.add_argument("--all-obras", action="store_true", help="Validar TODAS as obras (1 pav representativo por obra)")
+    parser.add_argument("--obras",    default=None,  help="Subset de obras separadas por vírgula (ex: Obra_TREINO_21,Obra_TREINO_14)")
     parser.add_argument("--quiet",    action="store_true", help="Menos output")
     args = parser.parse_args()
+
+    if not args.all_obras and not args.obra and not args.obras:
+        parser.error("Especifique --obra, --obras ou --all-obras")
 
     verbose = not args.quiet
     data_dir = Path(args.data_dir)
@@ -958,11 +963,13 @@ def main():
         print(f"[ERRO] {e}")
         sys.exit(1)
 
+    # Validar obra quando em modo single
     obra_nome = args.obra
-    if obra_nome not in discovery:
-        print(f"[ERRO] Obra '{obra_nome}' não encontrada no discovery.")
-        print(f"       Obras disponíveis: {list(discovery.keys())[:5]}...")
-        sys.exit(1)
+    if not args.all_obras and not args.obras:
+        if obra_nome not in discovery:
+            print(f"[ERRO] Obra '{obra_nome}' não encontrada no discovery.")
+            print(f"       Obras disponíveis: {list(discovery.keys())[:5]}...")
+            sys.exit(1)
 
     # Configurar API — prioridade: NVIDIA NIM → Anthropic → sem-api
     client = None
@@ -1000,7 +1007,89 @@ def main():
 
     tipos = [args.tipo] if args.tipo else None
 
-    # Validar
+    # ─── Modo --all-obras ou --obras ──────────────────────────────────────────
+    if args.all_obras or args.obras:
+        if args.obras:
+            obras_lista = [o.strip() for o in args.obras.split(",") if o.strip()]
+            obras_lista = [o for o in obras_lista if o in discovery]
+        else:
+            obras_lista = sorted(discovery.keys())
+
+        print(f"[INFO] Batch: {len(obras_lista)} obras a validar")
+        resumo_global = {}
+
+        for obra_nome in obras_lista:
+            # Escolher pav representativo: TIPO > 12PAV > primeiro disponível
+            pavimentos = list(discovery[obra_nome].keys())
+            pav_nome = (
+                next((p for p in pavimentos if p.upper() in ["TIPO", "TIP"]), None)
+                or next((p for p in pavimentos if "12" in p), None)
+                or (pavimentos[0] if pavimentos else None)
+            )
+            if not pav_nome:
+                resumo_global[obra_nome] = {"erro": "sem pavimentos"}
+                continue
+
+            # Verificar se tem Fase-6 DXFs gerados
+            obra_dir = data_dir / obra_nome
+            tem_gerados = any(
+                (obra_dir / "Fase-6_Execucao_CAD" / GERADO_NOMES[t]).exists()
+                for t in TIPOS_DXF
+            )
+            if not tem_gerados:
+                print(f"\n[SKIP] {obra_nome}: sem DXFs gerados em Fase-6")
+                resumo_global[obra_nome] = {"erro": "sem_gerados"}
+                continue
+
+            print(f"\n{'='*70}")
+            print(f"  OBRA: {obra_nome} | PAV: {pav_nome}")
+            print(f"{'='*70}")
+
+            try:
+                res = validar_pavimento(
+                    obra_nome, pav_nome, discovery, data_dir, out_dir,
+                    client=client, model=args.model, n_tiles=args.tiles,
+                    tipos=tipos, verbose=verbose,
+                )
+                resumo_global[obra_nome] = {
+                    "pavimento": pav_nome,
+                    "score": res.get("score_pavimento"),
+                    "tipos": res.get("tipos_validados", []),
+                }
+            except Exception as e:
+                print(f"  [ERRO] {obra_nome}: {e}")
+                resumo_global[obra_nome] = {"erro": str(e)}
+
+        # Salvar resumo global
+        out_dir.mkdir(parents=True, exist_ok=True)
+        resumo_path = out_dir / "resumo_all_obras.json"
+        resumo_path.write_text(
+            json.dumps(resumo_global, indent=2, ensure_ascii=False),
+            encoding="utf-8"
+        )
+
+        print(f"\n{'='*70}")
+        print(f"  RESUMO GLOBAL — {len(obras_lista)} obras")
+        print(f"{'='*70}")
+        scores = []
+        for obra, r in resumo_global.items():
+            sc = r.get("score")
+            if sc is not None:
+                scores.append(sc)
+                status = "✅" if sc >= 85 else ("⚠️" if sc >= 70 else "❌")
+                tipos_ok = "+".join(r.get("tipos", []))
+                pav = r.get("pavimento", "?")
+                print(f"  {status} {obra:<30} pav={pav:<15} score={sc}  [{tipos_ok}]")
+            else:
+                print(f"  ⛔ {obra:<30} {r.get('erro','?')}")
+        if scores:
+            media = round(sum(scores) / len(scores), 1)
+            print(f"\n  MÉDIA GLOBAL: {media}/100 ({len(scores)} obras com score)")
+        print(f"\n  Resumo: {resumo_path}")
+        return
+
+    # ─── Modo single-obra ─────────────────────────────────────────────────────
+    obra_nome = args.obra
     resultados_finais = {}
 
     if args.todos_pavimentos:
