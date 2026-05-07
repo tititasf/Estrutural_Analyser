@@ -256,6 +256,32 @@ def run_pipeline(obra_path: str, pavimento: str, dry_run: bool = False,
         print(f"  [SKIP] obras_salvas.json já existe")
         results["fases"]["obras_salvas"] = "SKIP"
 
+    # ── Fase 10: Validação Visual Autônoma (NVIDIA NIM) ───────────
+    if not dry_run:
+        print("\n[FASE 10] Validação Visual Autônoma (NVIDIA NIM)")
+        pav_arg = pavimento or "TIPO"
+        ok_vis = run_script("validar_visual_dxf.py", [
+            "--obra", obra_nome,
+            "--pav", pav_arg,
+            "--quiet",
+        ], dry_run)
+        results["fases"]["validacao_visual"] = "OK" if ok_vis else "SKIP"
+
+        # Carregar score visual se disponível
+        pav_safe = pav_arg.replace(' ', '_').replace('/', '-')
+        vis_json_path = Path("D:/Agente-cad-PYSIDE/validacao_visual") / obra_nome / pav_safe / "validation_visual.json"
+        if vis_json_path.exists():
+            with open(vis_json_path, encoding='utf-8') as f:
+                vis_data = json.load(f)
+            results["scores"]["visual"] = {
+                "score_pavimento": vis_data.get("score_pavimento"),
+                "tipos": vis_data.get("tipos_validados", []),
+            }
+            print(f"  [VIS] Score visual: {vis_data.get('score_pavimento')}/100")
+    else:
+        print(f"  [DRY-RUN] validar_visual_dxf.py --obra {obra_nome} --pav {pavimento}")
+        results["fases"]["validacao_visual"] = "DRY"
+
     # ── Carregar scores ────────────────────────────────────────
     coletivo_json = fase6 / "validation_coletivo.json"
     if coletivo_json.exists():
@@ -273,9 +299,10 @@ def run_pipeline(obra_path: str, pavimento: str, dry_run: bool = False,
     score_g = results["scores"].get("coletivo", {}).get("global", 0) or 0
     fases_falhou = [f for f, s in results["fases"].items() if s == "FALHOU"]
 
-    if not fases_falhou and score_g >= 95:
+    score_vis = results.get("scores", {}).get("visual", {}).get("score_pavimento") or 0
+    if not fases_falhou and score_g >= 95 and score_vis >= 85:
         results["status"] = "APROVADO"
-    elif score_g >= 80:
+    elif score_g >= 80 or score_vis >= 80:
         results["status"] = "PARCIAL"
     else:
         results["status"] = "REPROVADO"
