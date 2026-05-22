@@ -28,7 +28,13 @@ def _pav_slug(pavimento: str) -> str:
 
 
 def run_certify(obra_path: str, pavimento: str) -> dict:
-    """Executa certificar_obra.py com diretório de saída específico por pavimento."""
+    """Executa certificar_obra.py com diretório de saída específico por pavimento.
+
+    NÃO usa --run-all para evitar que relatorio_fidelidade.py sobrescreva
+    Fase-7/fidelidade_*.json com dados do pavimento errado quando múltiplos
+    pavimentos da mesma obra são certificados em sequência.
+    A fidelidade já foi calculada pelo pipeline_e2e.py imediatamente após o run.
+    """
     slug = _pav_slug(pavimento)
     out_dir = Path(obra_path) / "Fase-8_Revisao_Entrega" / f"cert_{slug}"
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -37,7 +43,7 @@ def run_certify(obra_path: str, pavimento: str) -> dict:
         str(SCRIPT_DIR / "certificar_obra.py"),
         "--obra", obra_path,
         "--pavimento", pavimento,
-        "--run-all",
+        # SEM --run-all: usa relatorio_fidelidade.json existente (gerado pelo pipeline_e2e.py)
         "--out-dir", str(out_dir),
     ]
     try:

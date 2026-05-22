@@ -1,27 +1,27 @@
 {
   "Obra_TREINO_1": {
-    "1 PAV": {
-      "PL": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\ALIMONTI - PARAISO - 1° PAV.- PL - R00.dxf",
-      "LV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\ALIMONTI - PARAISO - 1° PAV.- LV - R00.dxf",
-      "FV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\ALIMONTI - PARAISO - 1° PAV.- FV - R00.dxf",
-      "LJ": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\ALIMONTI - PARAISO - 1° PAV.- LJ - R01.dxf",
-      "EVG": null
-    },
-    "13 PAV": {
+    "13PAV": {
       "PL": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\ALIMONTI - PARAISO - 13° PAV.- PL - R00.dxf",
       "LV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\ALIMONTI - PARAISO - 13° PAV.- LV - R00.dxf",
       "FV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\ALIMONTI - PARAISO - 13° PAV.- FV - R00.dxf",
       "LJ": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\ALIMONTI - PARAISO - 13° PAV.- LJ - R00.dxf",
       "EVG": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\ALIMONTI - PARAISO - 13° PAV.- GF - R00.dxf"
     },
-    "14 PAV": {
+    "14PAV": {
       "PL": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\ALIMONTI - PARAISO - 14° PAV.- PL - R00.dxf",
       "LV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\ALIMONTI - PARAISO - 14° PAV.- LV - R00.dxf",
       "FV": null,
       "LJ": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\ALIMONTI - PARAISO - 14° PAV.- LJ - R00.dxf",
       "EVG": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\ALIMONTI - PARAISO - 14° PAV.- GF - R00.dxf"
     },
-    "2 PAV": {
+    "1PAV": {
+      "PL": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\ALIMONTI - PARAISO - 1° PAV.- PL - R00.dxf",
+      "LV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\ALIMONTI - PARAISO - 1° PAV.- LV - R00.dxf",
+      "FV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\ALIMONTI - PARAISO - 1° PAV.- FV - R00.dxf",
+      "LJ": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\ALIMONTI - PARAISO - 1° PAV.- LJ - R01.dxf",
+      "EVG": null
+    },
+    "2PAV": {
       "PL": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\ALIMONTI - PARAISO - 2° PAV.- PL - R00.dxf",
       "LV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\ALIMONTI - PARAISO - 2° PAV.- LV - R00.dxf",
       "FV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\ALIMONTI - PARAISO - 2° PAV.- FV - R00.dxf",
@@ -29,20 +29,13 @@
       "EVG": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\ALIMONTI - PARAISO - 2° PAV.- GF - R00.dxf"
     },
     "PARAISO - COBERTURA - DECK": {
-      "PL": null,
+      "PL": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA - ALIMONTI - PARAISO - COBERTURA E DECK - PL - R00.dxf",
       "LV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA - ALIMONTI - PARAISO - COBERTURA - DECK - LV - R00.dxf",
       "FV": null,
       "LJ": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA - ALIMONTI - PARAISO - COBERTURA - DECK - LJ - R00.dxf",
       "EVG": null
     },
-    "PARAISO - COBERTURA E DECK": {
-      "PL": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA - ALIMONTI - PARAISO - COBERTURA E DECK - PL - R00.dxf",
-      "LV": null,
-      "FV": null,
-      "LJ": null,
-      "EVG": null
-    },
-    "TIPO - 3 AO 12 PAV": {
+    "TIPO - 3 AO 12PAV": {
       "PL": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\ALIMONTI - PARAISO - TIPO - 3° AO 12° PAV.- PL - R00.dxf",
       "LV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\ALIMONTI - PARAISO - TIPO - 3° AO 12° PAV.- LV - R00.dxf",
       "FV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\ALIMONTI - PARAISO - TIPO - 3° AO 12° PAV.- FV - R00.dxf",
@@ -58,16 +51,16 @@
     }
   },
   "Obra_TREINO_10": {
-    "1 PAV": {
-      "PL": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_10\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\ROCONTEC - HOSPITAL ASSUNÇÃO-1° PAV.- PL- R01_R2018_ASCII_ODA.dxf",
-      "LV": null,
+    "1PAV": {
+      "PL": null,
+      "LV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_10\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\ROCONTEC - HOSPITAL ASSUNÇÃO - 1° PAV. - VG - R01_R2018_ASCII_ODA.dxf",
       "FV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_10\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\ROCONTEC - HOSPITAL ASSUNÇÃO - 1° PAV.- FV - R00_R2018_ASCII_ODA.dxf",
       "LJ": null,
       "EVG": null
     },
     "1SS - TRECHO 1": {
       "PL": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_10\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\ROCONTEC - HOSPITAL ASSUNÇÃO -  1°SS - TRECHO 1- PL- R00_R2018_ASCII_ODA.dxf",
-      "LV": null,
+      "LV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_10\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\ROCONTEC - HOSPITAL ASSUNÇÃO -  1°SS - TRECHO 1- CB- R00_R2018_ASCII_ODA.dxf",
       "FV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_10\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\ROCONTEC - HOSPITAL ASSUNÇÃO - 1°SS - TRECHO 1 - FV - R00_R2018_ASCII_ODA.dxf",
       "LJ": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_10\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\ROCONTEC - HOSPITAL ASSUNÇÃO -  1°SS - TRECHO 1- LJ- R00_R2018_ASCII_ODA.dxf",
       "EVG": null
@@ -93,11 +86,18 @@
       "LJ": null,
       "EVG": null
     },
-    "2 PAV": {
-      "PL": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_10\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\ROCONTEC - HOSPITAL ASSUNÇÃO-2° PAV.- PL- R00_R2018_ASCII_ODA.dxf",
-      "LV": null,
+    "2PAV": {
+      "PL": null,
+      "LV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_10\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\ROCONTEC - HOSPITAL ASSUNÇÃO - 2° PAV - VG - R00_R2018_ASCII_ODA.dxf",
       "FV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_10\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\ROCONTEC - HOSPITAL ASSUNÇÃO - 2° PAV.- FV - R00_R2018_ASCII_ODA.dxf",
       "LJ": null,
+      "EVG": null
+    },
+    "2SS": {
+      "PL": null,
+      "LV": null,
+      "FV": null,
+      "LJ": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_10\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\ROCONTEC - HOSPITAL ASSUNÇÃO - 2°SS - LJ- R00 - ETAPA 1 -  ANDAMENTO_R2018_ASCII_ODA.dxf",
       "EVG": null
     },
     "2SS - TRECHO 1": {
@@ -121,59 +121,80 @@
       "LJ": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_10\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\ROCONTEC - HOSPITAL ASSUNÇÃO - 2°SS - TRECHO 3- LJ - R00_R2018_ASCII_ODA.dxf",
       "EVG": null
     },
-    "3 PAV": {
-      "PL": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_10\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\ROCONTEC - HOSPITAL ASSUNÇÃO-3° PAV.- PL- R00_R2018_ASCII_ODA.dxf",
+    "3PAV": {
+      "PL": null,
       "LV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_10\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\ROCONTEC - HOSPITAL ASSUNÇÃO - 3° PAV.- LV - R01_R2018_ASCII_ODA.dxf",
       "FV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_10\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\ROCONTEC - HOSPITAL ASSUNÇÃO - 3° PAV.- FV - R00_R2018_ASCII_ODA.dxf",
       "LJ": null,
       "EVG": null
     },
-    "4 PAV": {
+    "4PAV": {
       "PL": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_10\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\ROCONTEC - HOSPITAL ASSUNÇÃO - 4° PAV.- PL- R00_R2018_ASCII_ODA.dxf",
       "LV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_10\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\ROCONTEC - HOSPITAL ASSUNÇÃO - 4° PAV.- LV - R00_R2018_ASCII_ODA.dxf",
       "FV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_10\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\ROCONTEC - HOSPITAL ASSUNÇÃO - 4° PAV.- FV - R00_R2018_ASCII_ODA.dxf",
       "LJ": null,
       "EVG": null
     },
-    "5 PAV": {
+    "5PAV": {
       "PL": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_10\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\ROCONTEC - HOSPITAL ASSUNÇÃO - 5° PAV.- PL- R00_R2018_ASCII_ODA.dxf",
       "LV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_10\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\ROCONTEC - HOSPITAL ASSUNÇÃO - 5° PAV.- LV - R00_R2018_ASCII_ODA.dxf",
       "FV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_10\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\ROCONTEC - HOSPITAL ASSUNÇÃO - 5° PAV.- FV - R00_R2018_ASCII_ODA.dxf",
       "LJ": null,
       "EVG": null
     },
-    "6 PAV": {
+    "6PAV": {
       "PL": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_10\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\ROCONTEC - HOSPITAL ASSUNÇÃO - 6° PAV.- PL- R00_R2018_ASCII_ODA.dxf",
       "LV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_10\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\ROCONTEC - HOSPITAL ASSUNÇÃO - 6° PAV.- LV - R00_R2018_ASCII_ODA.dxf",
       "FV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_10\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\ROCONTEC - HOSPITAL ASSUNÇÃO - 6° PAV.- FV - R00_R2018_ASCII_ODA.dxf",
       "LJ": null,
       "EVG": null
     },
-    "7 E 8 PAV": {
+    "7 E 8PAV": {
       "PL": null,
       "LV": null,
       "FV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_10\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\ROCONTEC - HOSPITAL ASSUNÇÃO - 7° E 8° PAV.- FV - R00_R2018_ASCII_ODA.dxf",
       "LJ": null,
       "EVG": null
     },
-    "7 PAV": {
+    "7PAV": {
       "PL": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_10\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\ROCONTEC - HOSPITAL ASSUNÇÃO - 7° PAV.- PL- R00_R2018_ASCII_ODA.dxf",
       "LV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_10\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\ROCONTEC - HOSPITAL ASSUNÇÃO - 7° PAV.- LV - R00_R2018_ASCII_ODA.dxf",
       "FV": null,
       "LJ": null,
       "EVG": null
     },
-    "8 E 9 PAV": {
+    "8 E 9PAV": {
       "PL": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_10\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\ROCONTEC - HOSPITAL ASSUNÇÃO - 8° E 9° PAV.- PL- R00_R2018_ASCII_ODA.dxf",
       "LV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_10\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\ROCONTEC - HOSPITAL ASSUNÇÃO - 8° E 9° PAV.- LV - R00_R2018_ASCII_ODA.dxf",
       "FV": null,
       "LJ": null,
       "EVG": null
     },
-    "9 PAV": {
+    "9PAV": {
       "PL": null,
       "LV": null,
       "FV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_10\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\ROCONTEC - HOSPITAL ASSUNÇÃO - 9° PAV.- FV - R00_R2018_ASCII_ODA.dxf",
+      "LJ": null,
+      "EVG": null
+    },
+    "HOSPITAL ASSUNÇÃO-1PAV": {
+      "PL": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_10\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\ROCONTEC - HOSPITAL ASSUNÇÃO-1° PAV.- PL- R01_R2018_ASCII_ODA.dxf",
+      "LV": null,
+      "FV": null,
+      "LJ": null,
+      "EVG": null
+    },
+    "HOSPITAL ASSUNÇÃO-2PAV": {
+      "PL": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_10\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\ROCONTEC - HOSPITAL ASSUNÇÃO-2° PAV.- PL- R00_R2018_ASCII_ODA.dxf",
+      "LV": null,
+      "FV": null,
+      "LJ": null,
+      "EVG": null
+    },
+    "HOSPITAL ASSUNÇÃO-3PAV": {
+      "PL": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_10\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\ROCONTEC - HOSPITAL ASSUNÇÃO-3° PAV.- PL- R00_R2018_ASCII_ODA.dxf",
+      "LV": null,
+      "FV": null,
       "LJ": null,
       "EVG": null
     },
@@ -200,28 +221,28 @@
     },
     "TRECHO 3 - 1SS": {
       "PL": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_10\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\ROCONTEC - HOSPITAL ASSUNÇÃO - TRECHO 3 - 1°SS - PL- R00_R2018_ASCII_ODA.dxf",
-      "LV": null,
-      "FV": null,
-      "LJ": null,
+      "LV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_10\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\ROCONTEC - HOSPITAL ASSUNÇÃO - TRECHO 3 - 1°SS - CB - R00_R2018_ASCII_ODA.dxf",
+      "FV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_10\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\ROCONTEC - HOSPITAL ASSUNÇÃO - 1°SS - TRECHO 3 - FV - R00_R2018_ASCII_ODA.dxf",
+      "LJ": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_10\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\ROCONTEC - HOSPITAL ASSUNÇÃO - 1°SS - TRECHO 3- LJ - R00_R2018_ASCII_ODA.dxf",
       "EVG": null
     },
     "TRECHO 3 - 2SS": {
       "PL": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_10\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\ROCONTEC - HOSPITAL ASSUNÇÃO - TRECHO 3 - 2°SS - PL- R01_R2018_ASCII_ODA.dxf",
-      "LV": null,
-      "FV": null,
-      "LJ": null,
+      "LV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_10\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\ROCONTEC - HOSPITAL ASSUNÇÃO - TRECHO 3 - 2°SS - CB - R01_R2018_ASCII_ODA.dxf",
+      "FV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_10\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\ROCONTEC - HOSPITAL ASSUNÇÃO - 2°SS - TRECHO 3- FV - R01_R2018_ASCII_ODA.dxf",
+      "LJ": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_10\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\ROCONTEC - HOSPITAL ASSUNÇÃO - 2°SS - TRECHO 3- LJ - R00_R2018_ASCII_ODA.dxf",
       "EVG": null
     },
     "TRECHO 3 - TÉRREO": {
       "PL": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_10\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\ROCONTEC - HOSPITAL ASSUNÇÃO - TRECHO 3 - TÉRREO - PL- R00_R2018_ASCII_ODA.dxf",
-      "LV": null,
+      "LV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_10\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\ROCONTEC - HOSPITAL ASSUNÇÃO - TRECHO 3 - TÉRREO - CB - R00_R2018_ASCII_ODA.dxf",
       "FV": null,
       "LJ": null,
       "EVG": null
     },
     "TÉRREO - TRECHO 1": {
       "PL": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_10\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\ROCONTEC - HOSPITAL ASSUNÇÃO -  TÉRREO - TRECHO 1- PL- R00_R2018_ASCII_ODA.dxf",
-      "LV": null,
+      "LV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_10\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\ROCONTEC - HOSPITAL ASSUNÇÃO -  TÉRREO - TRECHO 1- VG - R01_R2018_ASCII_ODA.dxf",
       "FV": null,
       "LJ": null,
       "EVG": null
@@ -232,73 +253,80 @@
       "FV": null,
       "LJ": null,
       "EVG": null
+    },
+    "TÉRREO - TRECHO 3": {
+      "PL": null,
+      "LV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_10\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\ROCONTEC - HOSPITAL ASSUNÇÃO -  TÉRREO - TRECHO 3- VG - R00_R2018_ASCII_ODA.dxf",
+      "FV": null,
+      "LJ": null,
+      "EVG": null
     }
   },
   "Obra_TREINO_11": {
-    "GWT-1PV": {
+    "GWT - 1PV": {
       "PL": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_11\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA-SCHWARTZ-GWT-1PV-PL-R00_R2018_ASCII_ODA.dxf",
       "LV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_11\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA-SCHWARTZ-GWT-1PV-LV-R00_R2018_ASCII_ODA.dxf",
       "FV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_11\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA-SCHWARTZ-GWT-1PV-FV-R00_R2018_ASCII_ODA.dxf",
       "LJ": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_11\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA-SCHWARTZ-GWT-1PV-LJ-R00_R2018_ASCII_ODA.dxf",
       "EVG": null
     },
-    "GWT-1SS": {
+    "GWT - 1SS": {
       "PL": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_11\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA-SCHWARTZ-GWT-1SS-PL-R01_R2018_ASCII_ODA.dxf",
       "LV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_11\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA-SCHWARTZ-GWT-1SS-LV-R00_R2018_ASCII_ODA.dxf",
       "FV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_11\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA-SCHWARTZ-GWT-1SS-FV-R00_R2018_ASCII_ODA.dxf",
       "LJ": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_11\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA-SCHWARTZ-GWT-1SS-LJ-R00_R2018_ASCII_ODA.dxf",
       "EVG": null
     },
-    "GWT-2PV": {
+    "GWT - 2PV": {
       "PL": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_11\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA-SCHWARTZ-GWT-2PV-PL-R00_R2018_ASCII_ODA.dxf",
       "LV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_11\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA-SCHWARTZ-GWT-2PV-LV-R00_R2018_ASCII_ODA.dxf",
       "FV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_11\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA-SCHWARTZ-GWT-2PV-FV-R00_R2018_ASCII_ODA.dxf",
       "LJ": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_11\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA-SCHWARTZ-GWT-2PV-LJ-R00_R2018_ASCII_ODA.dxf",
       "EVG": null
     },
-    "GWT-5PV": {
+    "GWT - 5PV": {
       "PL": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_11\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA-SCHWARTZ-GWT-5PV-PL-R00_R2018_ASCII_ODA.dxf",
-      "LV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_11\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA-SCHWARTZ-GWT-5PV-LV-R00_R2018_ASCII_ODA.dxf",
+      "LV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_11\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA-SCHWARTZ-GWT-5PV-LV-R00_RECOVER_R2018_ASCII_ODA.dxf",
       "FV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_11\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA-SCHWARTZ-GWT-5PV-FV-R00_R2018_ASCII_ODA.dxf",
       "LJ": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_11\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA-SCHWARTZ-GWT-5PV-LJ-R00_R2018_ASCII_ODA.dxf",
       "EVG": null
     },
-    "GWT-6PV": {
+    "GWT - 6PV": {
       "PL": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_11\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA-SCHWARTZ-GWT-6PV-PL-R00_R2018_ASCII_ODA.dxf",
       "LV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_11\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA-SCHWARTZ-GWT-6PV-LV-R00_R2018_ASCII_ODA.dxf",
       "FV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_11\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA-SCHWARTZ-GWT-6PV-FV-R00_R2018_ASCII_ODA.dxf",
       "LJ": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_11\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA-SCHWARTZ-GWT-6PV-LJ-R00_R2018_ASCII_ODA.dxf",
       "EVG": null
     },
-    "GWT-BCE": {
+    "GWT - BCE": {
       "PL": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_11\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA-SCHWARTZ-GWT-BCE-PL-R00_R2018_ASCII_ODA.dxf",
-      "LV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_11\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA-SCHWARTZ-GWT-BCE-LV-R00_R2018_ASCII_ODA.dxf",
+      "LV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_11\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA-SCHWARTZ-GWT-BCE-LV-R00_RECOVER_R2018_ASCII_ODA.dxf",
       "FV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_11\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA-SCHWARTZ-GWT-BCE-FV-R00_R2018_ASCII_ODA.dxf",
       "LJ": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_11\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA-SCHWARTZ-GWT-BCE-LJ-R00_R2018_ASCII_ODA.dxf",
       "EVG": null
     },
-    "GWT-BCE-PER": {
+    "GWT - BCE - PER": {
       "PL": null,
       "LV": null,
       "FV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_11\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA-SCHWARTZ-GWT-BCE-PER-FV-R00_R2018_ASCII_ODA.dxf",
       "LJ": null,
       "EVG": null
     },
-    "GWT-TER": {
+    "GWT - TER": {
       "PL": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_11\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA-SCHWARTZ-GWT-TER-PL-R00_R2018_ASCII_ODA.dxf",
-      "LV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_11\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA-SCHWARTZ-GWT-TER-LV-R00_R2018_ASCII_ODA.dxf",
+      "LV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_11\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA-SCHWARTZ-GWT-TER-LV-R00_RECOVER_R2018_ASCII_ODA.dxf",
       "FV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_11\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA-SCHWARTZ-GWT-TER-FV-R00_R2018_ASCII_ODA.dxf",
       "LJ": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_11\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA-SCHWARTZ-GWT-TER-LJ-R00_R2018_ASCII_ODA.dxf",
       "EVG": null
     },
-    "GWT-TIP": {
+    "GWT - TIP": {
       "PL": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_11\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA-SCHWARTZ-GWT-TIP-PL-R01_R2018_ASCII_ODA.dxf",
       "LV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_11\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA-SCHWARTZ-GWT-TIP-LV-R00_R2018_ASCII_ODA.dxf",
       "FV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_11\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA-SCHWARTZ-GWT-TIP-FV-R00_R2018_ASCII_ODA.dxf",
       "LJ": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_11\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA-SCHWARTZ-GWT-TIP-LJ-R00_R2018_ASCII_ODA.dxf",
       "EVG": null
     },
-    "GWT-TRI-TRII-1SS": {
+    "GWT - TRI - TRII - 1SS": {
       "PL": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_11\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA-SCHWARTZ-GWT-TRI-TRII-1SS-PL-R00_R2018_ASCII_ODA.dxf",
       "LV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_11\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA-SCHWARTZ-GWT-TRI-TRII-1SS-LV-R00_R2018_ASCII_ODA.dxf",
       "FV": null,
@@ -414,95 +442,109 @@
     }
   },
   "Obra_TREINO_14": {
-    "ARRAIA-1PAV": {
-      "PL": null,
-      "LV": null,
+    "ARRAIA - 1PAV": {
+      "PL": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_14\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA-STOG-ARRAIA-1PAV-PI-R00_R2018_ASCII_ODA.dxf",
+      "LV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_14\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA-STOG-ARRAIA-1PAV-VI-R00_R2018_ASCII_ODA.dxf",
       "FV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_14\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA-STOG-ARRAIA-1PAV-FV-R00_R2018_ASCII_ODA.dxf",
-      "LJ": null,
+      "LJ": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_14\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA-STOG-ARRAIA-1PAV-LA-R00_R2018_ASCII_ODA.dxf",
       "EVG": null
     },
-    "ARRAIA-2PAV": {
+    "ARRAIA - 1PV": {
       "PL": null,
       "LV": null,
+      "FV": null,
+      "LJ": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_14\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA-STOG-ARRAIA-1PV-PLC-R00_R2018_ASCII_ODA.dxf",
+      "EVG": null
+    },
+    "ARRAIA - 2PAV": {
+      "PL": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_14\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA-STOG-ARRAIA-2PAV-PI-R00_R2018_ASCII_ODA.dxf",
+      "LV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_14\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA-STOG-ARRAIA-2PAV-VI-R00_R2018_ASCII_ODA.dxf",
       "FV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_14\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA-STOG-ARRAIA-2PAV-FV-R00_R2018_ASCII_ODA.dxf",
-      "LJ": null,
+      "LJ": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_14\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA-STOG-ARRAIA-2PAV-LA-R00_R2018_ASCII_ODA.dxf",
       "EVG": null
     }
   },
   "Obra_TREINO_15": {
-    "IPEROIG-TIP": {
+    "IPEROIG - TIP": {
       "PL": null,
       "LV": null,
       "FV": null,
       "LJ": null,
       "EVG": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_15\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA-TOLEDO-IPEROIG-TIP-GF-R00_R2018_ASCII_ODA.dxf"
     },
-    "LO-6PV": {
-      "PL": null,
-      "LV": null,
+    "LO - 6PV": {
+      "PL": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_15\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\TOLEDO-IPEROIG-LO-6PV-PI-R00_R2018_ASCII_ODA.dxf",
+      "LV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_15\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\TOLEDO-IPEROIG-LO-6PV-TIP-DINF-LV-R00_R2018_ASCII_ODA.dxf",
       "FV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_15\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\TOLEDO-IPEROIG-LO-6PV-FV-R01_R2018_ASCII_ODA.dxf",
-      "LJ": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_15\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\TOLEDO-IPEROIG-LO-6PV-LJ-R00_R2018_ASCII_ODA.dxf",
+      "LJ": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_15\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\TOLEDO-IPEROIG-LO-6ºPV-LA-R00_R2018_ASCII_ODA.dxf",
       "EVG": null
     },
-    "LO-6PV-TIP-DINF": {
+    "LO - 6PV - TIP - DINF": {
       "PL": null,
       "LV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_15\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\TOLEDO-IPEROIG-LO-6PV-TIP-DINF-LV-R00_R2018_ASCII_ODA.dxf",
       "FV": null,
       "LJ": null,
       "EVG": null
     },
-    "LO-DINF": {
+    "LO - 6PV - TP - DINF": {
+      "PL": null,
+      "LV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_15\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\TOLEDO-IPEROIG-LO-6PV-TP-DINF-LVI-R00_R2018_ASCII_ODA.dxf",
+      "FV": null,
+      "LJ": null,
+      "EVG": null
+    },
+    "LO - DINF": {
       "PL": null,
       "LV": null,
       "FV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_15\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\TOLEDO-IPEROIG-LO-DINF-FV-R00_R2018_ASCII_ODA.dxf",
       "LJ": null,
       "EVG": null
     },
-    "LO-TIP": {
+    "LO - TIP": {
       "PL": null,
       "LV": null,
       "FV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_15\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\TOLEDO-IPEROIG-LO-TIP-FV-R00_R2018_ASCII_ODA.dxf",
-      "LJ": null,
+      "LJ": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_15\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\TOLEDO-IPEROIG-LO-TIP-LA-R00_R2018_ASCII_ODA.dxf",
       "EVG": null
     },
-    "LO-TIP-DINF": {
-      "PL": null,
-      "LV": null,
+    "LO - TIP - DINF": {
+      "PL": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_15\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\TOLEDO-IPEROIG-LO-TIP-DINF-PI-R00_R2018_ASCII_ODA.dxf",
+      "LV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_15\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\TOLEDO-IPEROIG-LO-6PV-TIP-DINF-LV-R00_R2018_ASCII_ODA.dxf",
       "FV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_15\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\TOLEDO-IPEROIG-LO-TIP-DINF-FV-R00_R2018_ASCII_ODA.dxf",
       "LJ": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_15\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\TOLEDO-IPEROIG-LO-TIP-DINF-LJ-R00_R2018_ASCII_ODA.dxf",
       "EVG": null
     }
   },
   "Obra_TREINO_16": {
-    "VALDIR NIEMEYER-1PV": {
+    "VALDIR NIEMEYER - 1PV": {
       "PL": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_16\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA-TRISUL-VALDIR NIEMEYER-1PV-PL-R02_R2018_ASCII_ODA.dxf",
       "LV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_16\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA-TRISUL-VALDIR NIEMEYER-1PV-LV-R00_R2018_ASCII_ODA.dxf",
       "FV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_16\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA-TRISUL-VALDIR NIEMEYER-1PV-FV-R00_R2018_ASCII_ODA.dxf",
       "LJ": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_16\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA-TRISUL-VALDIR NIEMEYER-1PV-LJ-R00_R2018_ASCII_ODA.dxf",
       "EVG": null
     },
-    "VALDIR NIEMEYER-4PV": {
+    "VALDIR NIEMEYER - 4PV": {
       "PL": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_16\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA-TRISUL-VALDIR NIEMEYER-4PV-PL-R00_R2018_ASCII_ODA.dxf",
       "LV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_16\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA-TRISUL-VALDIR NIEMEYER-4PV-LV-R00_R2018_ASCII_ODA.dxf",
       "FV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_16\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA-TRISUL-VALDIR NIEMEYER-4PV-FV-R00_R2018_ASCII_ODA.dxf",
       "LJ": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_16\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA-TRISUL-VALDIR NIEMEYER-4PV-LJ-R00_R2018_ASCII_ODA.dxf",
       "EVG": null
     },
-    "VALDIR NIEMEYER-TER": {
+    "VALDIR NIEMEYER - TER": {
       "PL": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_16\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA-TRISUL-VALDIR NIEMEYER-TER-PL-R00_R2018_ASCII_ODA.dxf",
       "LV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_16\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA-TRISUL-VALDIR NIEMEYER-TER-LV-R00_R2018_ASCII_ODA.dxf",
       "FV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_16\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA-TRISUL-VALDIR NIEMEYER-TER-FV-R00_R2018_ASCII_ODA.dxf",
       "LJ": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_16\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA-TRISUL-VALDIR NIEMEYER-TER-LJ-R00_R2018_ASCII_ODA.dxf",
       "EVG": null
     },
-    "VALDIR NIEMEYER-TP1": {
+    "VALDIR NIEMEYER - TP1": {
       "PL": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_16\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA-TRISUL-VALDIR NIEMEYER-TP1-PL-R00_R2018_ASCII_ODA.dxf",
       "LV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_16\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA-TRISUL-VALDIR NIEMEYER-TP1-LV-R00_R2018_ASCII_ODA.dxf",
       "FV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_16\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA-TRISUL-VALDIR NIEMEYER-TP1-FV-R00_R2018_ASCII_ODA.dxf",
       "LJ": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_16\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA-TRISUL-VALDIR NIEMEYER-TP1-LJ-R00_R2018_ASCII_ODA.dxf",
       "EVG": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_16\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA-TRISUL-VALDIR NIEMEYER-TP1-GF-R00_R2018_ASCII_ODA.dxf"
     },
-    "VALDIR NIEMEYER-TP2": {
+    "VALDIR NIEMEYER - TP2": {
       "PL": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_16\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA-TRISUL-VALDIR NIEMEYER-TP2-PL-R00_R2018_ASCII_ODA.dxf",
       "LV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_16\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA-TRISUL-VALDIR NIEMEYER-TP2-LV-R00_R2018_ASCII_ODA.dxf",
       "FV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_16\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA-TRISUL-VALDIR NIEMEYER-TP2-FV-R00_R2018_ASCII_ODA.dxf",
@@ -511,14 +553,21 @@
     }
   },
   "Obra_TREINO_17": {
-    "METROCASA9 DE JULHO-1PV": {
+    "METROCASA9 DE JULHO - 1PV": {
       "PL": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_17\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA-UNITÁ-METROCASA9 DE JULHO-1PV-PL-R00_R2018_ASCII_ODA.dxf",
       "LV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_17\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA-UNITÁ-METROCASA9 DE JULHO-1PV-LV-R00_R2018_ASCII_ODA.dxf",
       "FV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_17\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA-UNITÁ-METROCASA9 DE JULHO-1PV-FV-R00_R2018_ASCII_ODA.dxf",
-      "LJ": null,
+      "LJ": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_17\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA-UNITÁ-METROCASA9 DE JULHO-1PV-LA-R00_R2018_ASCII_ODA.dxf",
       "EVG": null
     },
-    "METROCASA9 DE JULHO-TER": {
+    "METROCASA9 DE JULHO - 2AO15PV": {
+      "PL": null,
+      "LV": null,
+      "FV": null,
+      "LJ": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_17\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA-UNITÁ-METROCASA9 DE JULHO-2°AO15°PV-LA-R00_R2018_ASCII_ODA.dxf",
+      "EVG": null
+    },
+    "METROCASA9 DE JULHO - TER": {
       "PL": null,
       "LV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_17\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA-UNITÁ-METROCASA9 DE JULHO-TER-LV-R01_R2018_ASCII_ODA.dxf",
       "FV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_17\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA-UNITÁ-METROCASA9 DE JULHO-TER-FV-R00_R2018_ASCII_ODA.dxf",
@@ -526,7 +575,65 @@
       "EVG": null
     }
   },
+  "Obra_TREINO_18": {
+    "1PV": {
+      "PL": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_18\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\ZAMBETA - LUXOR - 1PV - PL - R01 - 2°ETAPA_R2018_ASCII_ODA.dxf",
+      "LV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_18\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\ZAMBETA - LUXOR - 1PV - LV - R00 - 2°ETAPA_R2018_ASCII_ODA.dxf",
+      "FV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_18\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\ZAMBETA - LUXOR - 1PV - FV - R00 - 2°ETAPA_R2018_ASCII_ODA.dxf",
+      "LJ": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_18\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\ZAMBETA - LUXOR - 1PV - LJ - R00 - 2°ETAPA_R2018_ASCII_ODA.dxf",
+      "EVG": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_18\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\ZAMBETA - LUXOR - 1PV - GF - R00 - 2°ETAPA_R2018_ASCII_ODA.dxf"
+    },
+    "2PV": {
+      "PL": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_18\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\ZAMBETA - LUXOR - 2PV - PL - R00 - 2°ETAPA_R2018_ASCII_ODA.dxf",
+      "LV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_18\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\ZAMBETA - LUXOR - 2PV - LV - R00 - 2°ETAPA - R01_R2018_ASCII_ODA.dxf",
+      "FV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_18\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\ZAMBETA - LUXOR - 2PV - FV - R00 - 2°ETAPA_R2018_ASCII_ODA.dxf",
+      "LJ": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_18\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\ZAMBETA - LUXOR - 2PV - LJ - R00 - 2°ETAPA_R2018_ASCII_ODA.dxf",
+      "EVG": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_18\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\ZAMBETA - LUXOR - 2PV - GF - R00 - 2°ETAPA_R2018_ASCII_ODA.dxf"
+    },
+    "TPIMPAR": {
+      "PL": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_18\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\ZAMBETA - LUXOR - TPIMPAR - PL - R00 - 2°ETAPA_R2018_ASCII_ODA.dxf",
+      "LV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_18\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\ZAMBETA - LUXOR - TPIMPAR - LV - R00 - 2°ETAPA_R2018_ASCII_ODA.dxf",
+      "FV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_18\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\ZAMBETA - LUXOR - TPIMPAR - FV - R00 - 2°ETAPA_R2018_ASCII_ODA.dxf",
+      "LJ": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_18\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\ZAMBETA - LUXOR - TPIMPAR - LJ - R00 - 2°ETAPA_R2018_ASCII_ODA.dxf",
+      "EVG": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_18\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\ZAMBETA - LUXOR - TPIMPAR - GF - R00 - 1°ETAPA_R2018_ASCII_ODA.dxf"
+    },
+    "TPPAR": {
+      "PL": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_18\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\ZAMBETA - LUXOR - TPPAR - PL - R00 - 2°ETAPA_R2018_ASCII_ODA.dxf",
+      "LV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_18\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\ZAMBETA - LUXOR - TPPAR - LV - R00 - 2°ETAPA_R2018_ASCII_ODA.dxf",
+      "FV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_18\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\ZAMBETA - LUXOR - TPPAR - FV - R00 - 2°ETAPA_R2018_ASCII_ODA.dxf",
+      "LJ": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_18\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\ZAMBETA - LUXOR - TPPAR - LJ - R00 - 2°ETAPA_R2018_ASCII_ODA.dxf",
+      "EVG": null
+    }
+  },
   "Obra_TREINO_19": {
+    "1 SUBOLO": {
+      "PL": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_19\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\STOG- INDIANOPOLIS - 1° SUBOLO - PL - PERIFERIA - R00_R2018_ASCII_ODA.dxf",
+      "LV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_19\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\QUATTRI - INDIANOPOLIS - 1° SUBOLO - LV - PROJEÇÃO - R00_R2018_ASCII_ODA.dxf",
+      "FV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_19\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\QUATTRI - INDIANOPOLIS - 1° SUBOLO - FV - PROJEÇÃO - R00_R2018_ASCII_ODA.dxf",
+      "LJ": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_19\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\QUATTRI - INDIANOPOLIS - 1° SUBOLO - LJ - PROJEÇÃO - R00_R2018_ASCII_ODA.dxf",
+      "EVG": null
+    },
+    "1 SUBOLO - TRECHO 1": {
+      "PL": null,
+      "LV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_19\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\STOG - INDIANOPOLIS - 1° SUBOLO - TRECHO 1 - LV - PERIFERIA - R00_R2018_ASCII_ODA.dxf",
+      "FV": null,
+      "LJ": null,
+      "EVG": null
+    },
+    "1 SUBOLO - TRECHO 3": {
+      "PL": null,
+      "LV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_19\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\STOG - INDIANOPOLIS - 1° SUBOLO - TRECHO 3 - LV - PERIFERIA - R00_R2018_ASCII_ODA.dxf",
+      "FV": null,
+      "LJ": null,
+      "EVG": null
+    },
+    "1 SUBSOLO": {
+      "PL": null,
+      "LV": null,
+      "FV": null,
+      "LJ": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_19\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\STOG- INDIANOPOLIS-1° SUBSOLO-LJ-TRECHO III-PERIFERIA-R00_R2018_ASCII_ODA.dxf",
+      "EVG": null
+    },
     "PROJEÇÃO - TÉRREO": {
       "PL": null,
       "LV": null,
@@ -536,48 +643,48 @@
     }
   },
   "Obra_TREINO_20": {
-    "ITAQUERA III-1PV": {
+    "ITAQUERA III - 1PAV": {
+      "PL": null,
+      "LV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_20\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA-UNITÁ-ITAQUERA III-1PAV-LV-R00_R2018_ASCII_ODA.dxf",
+      "FV": null,
+      "LJ": null,
+      "EVG": null
+    },
+    "ITAQUERA III - 1PV": {
       "PL": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_20\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA-UNITÁ-ITAQUERA III-1PV-PL-R00_R2018_ASCII_ODA.dxf",
       "LV": null,
-      "FV": null,
-      "LJ": null,
+      "FV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_20\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA-UNITÁ-ITAQUERA III-1PV-FV-R00_R2018_ASCII_ODA.dxf",
+      "LJ": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_20\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA-UNITÁ-ITAQUERA III-1PV-LJ-R00_R2018_ASCII_ODA.dxf",
       "EVG": null
     },
-    "ITAQUERA III-IF1": {
+    "ITAQUERA III - IF1": {
       "PL": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_20\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA-UNITÁ-ITAQUERA III-IF1-PL-R00_R2018_ASCII_ODA.dxf",
-      "LV": null,
-      "FV": null,
-      "LJ": null,
+      "LV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_20\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA-UNITÁ-ITAQUERA III-IF1-LV-R00_R2018_ASCII_ODA.dxf",
+      "FV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_20\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA-UNITÁ-ITAQUERA III-IF1-FV-R00_R2018_ASCII_ODA.dxf",
+      "LJ": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_20\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA-UNITÁ-ITAQUERA III-IF1-LJ-R00_R2018_ASCII_ODA.dxf",
       "EVG": null
     },
-    "ITAQUERA III-TER": {
+    "ITAQUERA III - TER": {
       "PL": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_20\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA-UNITÁ-ITAQUERA III-TER-PL-R00_R2018_ASCII_ODA.dxf",
-      "LV": null,
-      "FV": null,
-      "LJ": null,
+      "LV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_20\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA-UNITÁ-ITAQUERA III-TER-LV-R00_R2018_ASCII_ODA.dxf",
+      "FV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_20\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA-UNITÁ-ITAQUERA III-TER-FV-R00_R2018_ASCII_ODA.dxf",
+      "LJ": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_20\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA-UNITÁ-ITAQUERA III-TER-LJ-R00_R2018_ASCII_ODA.dxf",
       "EVG": null
     }
   },
   "Obra_TREINO_21": {
-    "1 PAV": {
-      "PL": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_21\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\STOG - NIK SUNSET - 1° PAV.- PL - R00_R2018_ASCII_ODA.dxf",
-      "LV": null,
-      "FV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_21\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\STOG - NIK SUNSET - 1° PAV.- FV - R00_R2018_ASCII_ODA.dxf",
-      "LJ": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_21\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\STOG - NIK SUNSET - 1° PAV.- LJ - R00_R2018_ASCII_ODA.dxf",
-      "EVG": null
-    },
-    "12 PAV": {
+    "12PAV": {
       "PL": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_21\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\STOG - NIK SUNSET - 12º PAVIMENTO - PL - R00_R2018_ASCII_ODA.dxf",
       "LV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_21\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\STOG - NIK SUNSET - 12º PAVIMENTO - LV - R00_R2018_ASCII_ODA.dxf",
       "FV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_21\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\STOG - NIK SUNSET - 12° PAV.- FV - R00_R2018_ASCII_ODA.dxf",
       "LJ": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_21\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\STOG - NIK SUNSET - 12° PAV.- LJ - R00_R2018_ASCII_ODA.dxf",
       "EVG": null
     },
-    "2 PAV": {
-      "PL": null,
-      "LV": null,
-      "FV": null,
-      "LJ": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_21\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\STOG - NIK SUNSET - 2° PAV.- LJ - R00_R2018_ASCII_ODA.dxf",
+    "1PAV": {
+      "PL": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_21\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\STOG - NIK SUNSET - 1° PAV.- PL - R00_R2018_ASCII_ODA.dxf",
+      "LV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_21\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\STOG - NIK SUNSET - 1° PAV.- LV - R00_R2018_ASCII_ODA.dxf",
+      "FV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_21\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\STOG - NIK SUNSET - 1° PAV.- FV - R00_R2018_ASCII_ODA.dxf",
+      "LJ": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_21\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\STOG - NIK SUNSET - 1° PAV.- LJ - R00_R2018_ASCII_ODA.dxf",
       "EVG": null
     },
     "2, 3 E PAV. TIPO": {
@@ -587,7 +694,14 @@
       "LJ": null,
       "EVG": null
     },
-    "3 PAV": {
+    "2PAV": {
+      "PL": null,
+      "LV": null,
+      "FV": null,
+      "LJ": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_21\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\STOG - NIK SUNSET - 2° PAV.- LJ - R00_R2018_ASCII_ODA.dxf",
+      "EVG": null
+    },
+    "3PAV": {
       "PL": null,
       "LV": null,
       "FV": null,
@@ -608,7 +722,7 @@
       "LJ": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_21\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\STOG - NIK SUNSET - LAJE TÉCNICA- LJ - R00_R2018_ASCII_ODA.dxf",
       "EVG": null
     },
-    "TIPO 4 AO 11 PAV": {
+    "TIPO 4 AO 11PAV": {
       "PL": null,
       "LV": null,
       "FV": null,
@@ -617,70 +731,70 @@
     }
   },
   "Obra_TREINO_22": {
-    "1 PAV": {
+    "1PAV": {
       "PL": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_22\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\STOG - NURBAN - 1° PAV.- PL - R00_R2018_ASCII_ODA.dxf",
       "LV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_22\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\STOG - NURBAN - 1° PAV.- LV - R00_R2018_ASCII_ODA.dxf",
       "FV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_22\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\STOG - NURBAN - 1° PAV.- FV - R00_R2018_ASCII_ODA.dxf",
       "LJ": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_22\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\STOG - NURBAN - 1° PAV.- LJ - R00_R2018_ASCII_ODA.dxf",
       "EVG": null
     },
-    "2 PAV": {
+    "2PAV": {
       "PL": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_22\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\STOG - NURBAN - 2° PAV.- PL - R00_R2018_ASCII_ODA.dxf",
       "LV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_22\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\STOG - NURBAN - 2° PAV.- LV - R00_R2018_ASCII_ODA.dxf",
       "FV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_22\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\STOG - NURBAN - 2° PAV.- FV - R00_R2018_ASCII_ODA.dxf",
       "LJ": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_22\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\STOG - NURBAN - 2° PAV.- LJ - R00_R2018_ASCII_ODA.dxf",
       "EVG": null
     },
-    "3 AO 8 PAV": {
+    "3 AO 8PAV": {
       "PL": null,
       "LV": null,
       "FV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_22\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\STOG - NURBAN - 3° AO 8° PAV.- FV - R00_R2018_ASCII_ODA.dxf",
       "LJ": null,
       "EVG": null
     },
-    "3 PAV": {
+    "3PAV": {
       "PL": null,
       "LV": null,
       "FV": null,
       "LJ": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_22\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\STOG - NURBAN - 3° PAV.- LJ - R00_R2018_ASCII_ODA.dxf",
       "EVG": null
     },
-    "3 PAV. AO 8 PAV": {
+    "3PAV. AO 8PAV": {
       "PL": null,
       "LV": null,
       "FV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_22\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\STOG - NURBAN - 3° PAV. AO 8° PAV.- FV - R01_R2018_ASCII_ODA.dxf",
       "LJ": null,
       "EVG": null
     },
-    "3 PAV. AO BARRILETE": {
+    "3PAV. AO BARRILETE": {
       "PL": null,
       "LV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_22\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\STOG - NURBAN - 3° PAV. AO BARRILETE - LV - R01_R2018_ASCII_ODA.dxf",
       "FV": null,
       "LJ": null,
       "EVG": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_22\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\STOG - NURBAN - 3° PAV. AO BARRILETE - EVG - R01_R2018_ASCII_ODA.dxf"
     },
-    "4 PAV": {
+    "4PAV": {
       "PL": null,
       "LV": null,
       "FV": null,
       "LJ": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_22\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\STOG - NURBAN - 4° PAV.- LJ - R00_R2018_ASCII_ODA.dxf",
       "EVG": null
     },
-    "5 PAV": {
+    "5PAV": {
       "PL": null,
       "LV": null,
       "FV": null,
       "LJ": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_22\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\STOG - NURBAN - 5° PAV.- LJ - R00_R2018_ASCII_ODA.dxf",
       "EVG": null
     },
-    "6, 7 E 8 PAV": {
+    "6, 7 E 8PAV": {
       "PL": null,
       "LV": null,
       "FV": null,
       "LJ": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_22\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\STOG - NURBAN -  6°, 7° E 8° PAV.- LJ - R00_R2018_ASCII_ODA.dxf",
       "EVG": null
     },
-    "9 AO 12 PAV": {
+    "9 AO 12PAV": {
       "PL": null,
       "LV": null,
       "FV": null,
@@ -689,21 +803,21 @@
     }
   },
   "Obra_TREINO_23": {
-    "SANTA CRUZ-1PV": {
+    "SANTA CRUZ - 1PV": {
       "PL": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_23\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA-UNITÁ-SANTA CRUZ-1PV-PL-R00_R2018_ASCII_ODA.dxf",
       "LV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_23\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA-UNITÁ-SANTA CRUZ-1PV-LV-R00_R2018_ASCII_ODA.dxf",
       "FV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_23\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA-UNITÁ-SANTA CRUZ-1PV-FV-R00_R2018_ASCII_ODA.dxf",
       "LJ": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_23\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA-UNITÁ-SANTA CRUZ-1PV-LJ-R00_R2018_ASCII_ODA.dxf",
       "EVG": null
     },
-    "SANTA CRUZ-INF2": {
+    "SANTA CRUZ - INF2": {
       "PL": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_23\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA-UNITÁ-SANTA CRUZ-INF2-PL-R00_R2018_ASCII_ODA.dxf",
       "LV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_23\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA-UNITÁ-SANTA CRUZ-INF2-LV-R00_R2018_ASCII_ODA.dxf",
       "FV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_23\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA-UNITÁ-SANTA CRUZ-INF2-FV-R00_R2018_ASCII_ODA.dxf",
       "LJ": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_23\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA-UNITÁ-SANTA CRUZ-INF2-LJ-R00_R2018_ASCII_ODA.dxf",
       "EVG": null
     },
-    "SANTA CRUZ-TER": {
+    "SANTA CRUZ - TER": {
       "PL": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_23\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA-UNITÁ-SANTA CRUZ-TER-PL-R00_R2018_ASCII_ODA.dxf",
       "LV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_23\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA-UNITÁ-SANTA CRUZ-TER-LV-R00_R2018_ASCII_ODA.dxf",
       "FV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_23\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA-UNITÁ-SANTA CRUZ-TER-FV-R00_R2018_ASCII_ODA.dxf",
@@ -712,100 +826,268 @@
     }
   },
   "Obra_TREINO_3": {
-    "RES.DIAMOND - 1 SUB - PERIFERIA - TORRE 1 - S01A": {
+    "1 SUB - PERIFERIA - TORRE 1 - S01A": {
       "PL": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_3\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA -CAPREM - RES.DIAMOND - 1° SUB - PERIFERIA - TORRE 1 - S01A - PL - R00_R2018_ASCII_ODA.dxf",
       "LV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_3\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA - CAPREM - RES.DIAMOND - 1° SUB - PERIFERIA - TORRE 1 - S01A - LV - R00_R2018_ASCII_ODA.dxf",
       "FV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_3\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA - CAPREM - RES.DIAMOND -  1° SUB - PERIFERIA - TORRE 1 - S01A - FV - R00_R2018_ASCII_ODA.dxf",
       "LJ": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_3\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA -CAPREM - RES.DIAMOND - 1° SUB - PERIFERIA - TORRE 1 - S01A - LJ - R00_R2018_ASCII_ODA.dxf",
       "EVG": null
     },
-    "RES.DIAMOND - 1 SUB - PERIFERIA - TORRE 1 - S02A": {
+    "1 SUB - PERIFERIA - TORRE 1 - S02A": {
       "PL": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_3\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA -CAPREM - RES.DIAMOND - 1° SUB - PERIFERIA - TORRE 1 - S02A - PL - R00_R2018_ASCII_ODA.dxf",
       "LV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_3\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA - CAPREM - RES.DIAMOND - 1° SUB - PERIFERIA - TORRE 1 - S02A - LV - R00_R2018_ASCII_ODA.dxf",
       "FV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_3\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA - CAPREM - RES.DIAMOND -  1° SUB - PERIFERIA - TORRE 1 - S02A - FV - R00_R2018_ASCII_ODA.dxf",
       "LJ": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_3\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA -CAPREM - RES.DIAMOND - 1° SUB - PERIFERIA - TORRE 1 - S02A - LJ - R00_R2018_ASCII_ODA.dxf",
       "EVG": null
     },
-    "RES.DIAMOND - 1 SUB - PERIFERIA - TORRE 1 - S03A": {
+    "1 SUB - PERIFERIA - TORRE 1 - S03A": {
       "PL": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_3\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA -CAPREM - RES.DIAMOND - 1° SUB - PERIFERIA - TORRE 1 - S03A - PL - R00_R2018_ASCII_ODA.dxf",
       "LV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_3\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA - CAPREM - RES.DIAMOND - 1° SUB - PERIFERIA - TORRE 1 - S03A - LV - R00_R2018_ASCII_ODA.dxf",
       "FV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_3\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA - CAPREM - RES.DIAMOND -  1° SUB - PERIFERIA - TORRE 1 - S03A - FV - R00_R2018_ASCII_ODA.dxf",
       "LJ": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_3\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA -CAPREM - RES.DIAMOND - 1° SUB - PERIFERIA - TORRE 1 - S03A - LJ - R00_R2018_ASCII_ODA.dxf",
       "EVG": null
     },
-    "RES.DIAMOND - 1 SUB - PERIFERIA - TORRE 1 - S04A": {
+    "1 SUB - PERIFERIA - TORRE 1 - S04A": {
       "PL": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_3\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA -CAPREM - RES.DIAMOND - 1° SUB - PERIFERIA - TORRE 1 - S04A - PL - R00_R2018_ASCII_ODA.dxf",
       "LV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_3\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA - CAPREM - RES.DIAMOND - 1° SUB - PERIFERIA - TORRE 1 - S04A - LV - R00_R2018_ASCII_ODA.dxf",
       "FV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_3\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA - CAPREM - RES.DIAMOND -  1° SUB - PERIFERIA - TORRE 1 - S04A - FV - R00_R2018_ASCII_ODA.dxf",
       "LJ": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_3\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA -CAPREM - RES.DIAMOND - 1° SUB - PERIFERIA - TORRE 1 - S04A - LJ - R00_R2018_ASCII_ODA.dxf",
       "EVG": null
     },
-    "RES.DIAMOND - TORRE 1 - TIPO 14 AO 17 PAV": {
+    "1 SUBOLO - TB": {
+      "PL": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_3\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA -CAPREM - RES.DIAMOND - 1° SUBOLO - TB - PL - PROJEÇÃO - R00_R2018_ASCII_ODA.dxf",
+      "LV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_3\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA - CAPREM - RES.DIAMOND - 1° SUBOLO - TB - LV - PROJEÇÃO - R00_R2018_ASCII_ODA.dxf",
+      "FV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_3\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA - CAPREM - RES.DIAMOND - 1° SUBOLO - TB - FV - PROJEÇÃO - R00_R2018_ASCII_ODA.dxf",
+      "LJ": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_3\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA -CAPREM - RES.DIAMOND - 1° SUBOLO - TB - LJ - PROJEÇÃO - R00_R2018_ASCII_ODA.dxf",
+      "EVG": null
+    },
+    "RES.DIAMOND - 1 SUB - PERIFERIA - TORRE 1 - S01A": {
+      "PL": null,
+      "LV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_3\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA - CAPREM - RES.DIAMOND - 1° SUB - PERIFERIA - TORRE 1 - S01A - LV - R00_R2018_ASCII_ODA.dxf",
+      "FV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_3\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA - CAPREM - RES.DIAMOND -  1° SUB - PERIFERIA - TORRE 1 - S01A - FV - R00_R2018_ASCII_ODA.dxf",
+      "LJ": null,
+      "EVG": null
+    },
+    "RES.DIAMOND - 1 SUB - PERIFERIA - TORRE 1 - S02A": {
+      "PL": null,
+      "LV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_3\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA - CAPREM - RES.DIAMOND - 1° SUB - PERIFERIA - TORRE 1 - S02A - LV - R00_R2018_ASCII_ODA.dxf",
+      "FV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_3\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA - CAPREM - RES.DIAMOND -  1° SUB - PERIFERIA - TORRE 1 - S02A - FV - R00_R2018_ASCII_ODA.dxf",
+      "LJ": null,
+      "EVG": null
+    },
+    "RES.DIAMOND - 1 SUB - PERIFERIA - TORRE 1 - S03A": {
+      "PL": null,
+      "LV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_3\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA - CAPREM - RES.DIAMOND - 1° SUB - PERIFERIA - TORRE 1 - S03A - LV - R00_R2018_ASCII_ODA.dxf",
+      "FV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_3\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA - CAPREM - RES.DIAMOND -  1° SUB - PERIFERIA - TORRE 1 - S03A - FV - R00_R2018_ASCII_ODA.dxf",
+      "LJ": null,
+      "EVG": null
+    },
+    "RES.DIAMOND - 1 SUB - PERIFERIA - TORRE 1 - S04A": {
+      "PL": null,
+      "LV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_3\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA - CAPREM - RES.DIAMOND - 1° SUB - PERIFERIA - TORRE 1 - S04A - LV - R00_R2018_ASCII_ODA.dxf",
+      "FV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_3\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA - CAPREM - RES.DIAMOND -  1° SUB - PERIFERIA - TORRE 1 - S04A - FV - R00_R2018_ASCII_ODA.dxf",
+      "LJ": null,
+      "EVG": null
+    },
+    "RES.DIAMOND - 1 SUBOLO": {
+      "PL": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_3\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA - CAPREM - RES.DIAMOND - 1° SUBOLO - PL - PROJEÇÃO - R00_R2018_ASCII_ODA.dxf",
+      "LV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_3\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA - CAPREM - RES.DIAMOND - 1° SUBOLO - LV - PROJEÇÃO - R00_R2018_ASCII_ODA.dxf",
+      "FV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_3\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA - CAPREM - RES.DIAMOND - 1° SUBOLO - FV - PROJEÇÃO - R00_R2018_ASCII_ODA.dxf",
+      "LJ": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_3\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA - CAPREM - RES.DIAMOND - 1° SUBOLO - LJ - PROJEÇÃO - R00_R2018_ASCII_ODA.dxf",
+      "EVG": null
+    },
+    "RES.DIAMOND - 1 SUBOLO - TB": {
+      "PL": null,
+      "LV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_3\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA - CAPREM - RES.DIAMOND - 1° SUBOLO - TB - LV - PROJEÇÃO - R00_R2018_ASCII_ODA.dxf",
+      "FV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_3\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA - CAPREM - RES.DIAMOND - 1° SUBOLO - TB - FV - PROJEÇÃO - R00_R2018_ASCII_ODA.dxf",
+      "LJ": null,
+      "EVG": null
+    },
+    "RES.DIAMOND - TORRE 1 - TIPO 14 AO 17PAV": {
+      "PL": null,
+      "LV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_3\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA - CAPREM - RES.DIAMOND - TORRE 1 - TIPO 14° AO 17° PAV. -  LV - R00_R2018_ASCII_ODA.dxf",
+      "FV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_3\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA - CAPREM - RES.DIAMOND - TORRE 1 - TIPO 14° AO 17° PAV. - FV - R00_R2018_ASCII_ODA.dxf",
+      "LJ": null,
+      "EVG": null
+    },
+    "RES.DIAMOND - TORRE 2 - TIPO 2 AO 13PAV": {
+      "PL": null,
+      "LV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_3\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA - CAPREM - RES.DIAMOND - TORRE 2 - TIPO 2° AO 13° PAV.-  LV - PROJEÇÃO - R00_R2018_ASCII_ODA.dxf",
+      "FV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_3\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA - CAPREM - RES.DIAMOND - TORRE 2 - TIPO 2° AO 13° PAV.- FV - PROJEÇÃO - R00_R2018_ASCII_ODA.dxf",
+      "LJ": null,
+      "EVG": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_3\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA - CAPREM - RES.DIAMOND - TORRE 2 - TIPO 2° AO 13° PAV.-  GF - PROJEÇÃO - R00_R2018_ASCII_ODA.dxf"
+    },
+    "RES.DIAMOND - TORRE A - 1PAV": {
+      "PL": null,
+      "LV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_3\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA - CAPREM - RES.DIAMOND - TORRE A - 1° PAV.-  LV - PROJEÇÃO - R00_R2018_ASCII_ODA.dxf",
+      "FV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_3\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA - CAPREM - RES.DIAMOND - TORRE A - 1° PAV.- FV - PROJEÇÃO - R00_R2018_ASCII_ODA.dxf",
+      "LJ": null,
+      "EVG": null
+    },
+    "RES.DIAMOND - TORRE A - TIPO 2 AO 13PAV": {
+      "PL": null,
+      "LV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_3\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA - CAPREM - RES.DIAMOND - TORRE A - TIPO 2° AO 13° PAV.-  LV - PROJEÇÃO - R00_R2018_ASCII_ODA.dxf",
+      "FV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_3\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA - CAPREM - RES.DIAMOND - TORRE A - TIPO 2° AO 13° PAV.- FV - PROJEÇÃO - R00_R2018_ASCII_ODA.dxf",
+      "LJ": null,
+      "EVG": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_3\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA - CAPREM - RES.DIAMOND - TORRE A - TIPO 2° AO 13° PAV.-  GF - PROJEÇÃO - R00_R2018_ASCII_ODA.dxf"
+    },
+    "RES.DIAMOND - TORRE A - TÉRREO": {
+      "PL": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_3\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA - CAPREM - RES.DIAMOND - TORRE A - TÉRREO - PL - PROJEÇÃO - R00_R2018_ASCII_ODA.dxf",
+      "LV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_3\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA - CAPREM - RES.DIAMOND - TORRE A - TÉRREO -  LV - PROJEÇÃO - R00_R2018_ASCII_ODA.dxf",
+      "FV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_3\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA - CAPREM - RES.DIAMOND - TORRE A - TÉRREO - FV - PROJEÇÃO - R00_R2018_ASCII_ODA.dxf",
+      "LJ": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_3\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA - CAPREM - RES.DIAMOND - TORRE A - TÉRREO -  LJ - PROJEÇÃO - R00_R2018_ASCII_ODA.dxf",
+      "EVG": null
+    },
+    "RES.DIAMOND - TORRE B - 1PAV": {
+      "PL": null,
+      "LV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_3\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA - CAPREM - RES.DIAMOND - TORRE B - 1° PAV.-  LV - PROJEÇÃO - R00_R2018_ASCII_ODA.dxf",
+      "FV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_3\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA - CAPREM - RES.DIAMOND - TORRE B - 1° PAV.- FV - PROJEÇÃO - R00_R2018_ASCII_ODA.dxf",
+      "LJ": null,
+      "EVG": null
+    },
+    "RES.DIAMOND - TÉRREO - PERIFERIA - TORRE 1 - S01A": {
+      "PL": null,
+      "LV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_3\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA - CAPREM - RES.DIAMOND - TÉRREO - PERIFERIA - TORRE 1 - S01A - LV - R00_R2018_ASCII_ODA.dxf",
+      "FV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_3\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA - CAPREM - RES.DIAMOND -  TÉRREO - PERIFERIA - TORRE 1 - S01A - FV - R00_R2018_ASCII_ODA.dxf",
+      "LJ": null,
+      "EVG": null
+    },
+    "RES.DIAMOND - TÉRREO - PERIFERIA - TORRE 1 - S02A": {
+      "PL": null,
+      "LV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_3\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA - CAPREM - RES.DIAMOND - TÉRREO - PERIFERIA - TORRE 1 - S02A - LV - R00_R2018_ASCII_ODA.dxf",
+      "FV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_3\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA - CAPREM - RES.DIAMOND -  TÉRREO - PERIFERIA - TORRE 1 - S02A - FV - R00_R2018_ASCII_ODA.dxf",
+      "LJ": null,
+      "EVG": null
+    },
+    "RES.DIAMOND - TÉRREO - PERIFERIA - TORRE 1 - S03A": {
+      "PL": null,
+      "LV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_3\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA - CAPREM - RES.DIAMOND - TÉRREO - PERIFERIA - TORRE 1 - S03A - LV - R00_R2018_ASCII_ODA.dxf",
+      "FV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_3\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA - CAPREM - RES.DIAMOND -  TÉRREO - PERIFERIA - TORRE 1 - S03A - FV - R00_R2018_ASCII_ODA.dxf",
+      "LJ": null,
+      "EVG": null
+    },
+    "RES.DIAMOND - TÉRREO - PERIFERIA - TORRE 1 - S04A": {
+      "PL": null,
+      "LV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_3\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA - CAPREM - RES.DIAMOND - TÉRREO - PERIFERIA - TORRE 1 - S04A - LV - R00_R2018_ASCII_ODA.dxf",
+      "FV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_3\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA - CAPREM - RES.DIAMOND - TÉRREO - PERIFERIA - TORRE 1 - S04A - FV - R00_R2018_ASCII_ODA.dxf",
+      "LJ": null,
+      "EVG": null
+    },
+    "RES.DIAMOND - TÉRREO - T2": {
+      "PL": null,
+      "LV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_3\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA - CAPREM - RES.DIAMOND - TÉRREO - T2 - LV - PROJEÇÃO - R00_R2018_ASCII_ODA.dxf",
+      "FV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_3\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA - CAPREM - RES.DIAMOND - TÉRREO - T2 - FV - PROJEÇÃO - R00_R2018_ASCII_ODA.dxf",
+      "LJ": null,
+      "EVG": null
+    },
+    "TORRE 1 - TIPO 14 AO 17PAV": {
       "PL": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_3\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA -CAPREM - RES.DIAMOND - TORRE 1 - TIPO 14° AO 17° PAV. - PL  - R00_R2018_ASCII_ODA.dxf",
       "LV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_3\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA - CAPREM - RES.DIAMOND - TORRE 1 - TIPO 14° AO 17° PAV. -  LV - R00_R2018_ASCII_ODA.dxf",
       "FV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_3\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA - CAPREM - RES.DIAMOND - TORRE 1 - TIPO 14° AO 17° PAV. - FV - R00_R2018_ASCII_ODA.dxf",
       "LJ": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_3\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA -CAPREM - RES.DIAMOND - TORRE 1 - TIPO 14° AO 17° PAV. - LJ  - R00_R2018_ASCII_ODA.dxf",
       "EVG": null
     },
-    "RES.DIAMOND - TÉRREO - PERIFERIA - TORRE 1 - S01A": {
+    "TORRE 2 - TIPO 2 AO 13PAV": {
+      "PL": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_3\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA -CAPREM - RES.DIAMOND - TORRE 2 - TIPO 2° AO 13° PAV.- PL - PROJEÇÃO - R00_R2018_ASCII_ODA.dxf",
+      "LV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_3\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA - CAPREM - RES.DIAMOND - TORRE 2 - TIPO 2° AO 13° PAV.-  LV - PROJEÇÃO - R00_R2018_ASCII_ODA.dxf",
+      "FV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_3\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA - CAPREM - RES.DIAMOND - TORRE 2 - TIPO 2° AO 13° PAV.- FV - PROJEÇÃO - R00_R2018_ASCII_ODA.dxf",
+      "LJ": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_3\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA -CAPREM - RES.DIAMOND - TORRE 2 - TIPO 2° AO 13° PAV.- LJ - PROJEÇÃO - R00_R2018_ASCII_ODA.dxf",
+      "EVG": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_3\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA - CAPREM - RES.DIAMOND - TORRE 2 - TIPO 2° AO 13° PAV.-  GF - PROJEÇÃO - R00_R2018_ASCII_ODA.dxf"
+    },
+    "TORRE A - 1PAV": {
+      "PL": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_3\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA -CAPREM - RES.DIAMOND - TORRE A - 1° PAV.- PL - PROJEÇÃO - R00_R2018_ASCII_ODA.dxf",
+      "LV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_3\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA - CAPREM - RES.DIAMOND - TORRE A - 1° PAV.-  LV - PROJEÇÃO - R00_R2018_ASCII_ODA.dxf",
+      "FV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_3\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA - CAPREM - RES.DIAMOND - TORRE A - 1° PAV.- FV - PROJEÇÃO - R00_R2018_ASCII_ODA.dxf",
+      "LJ": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_3\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA -CAPREM - RES.DIAMOND - TORRE A - 1° PAV.- LJ - PROJEÇÃO - R00_R2018_ASCII_ODA.dxf",
+      "EVG": null
+    },
+    "TORRE A - TIPO 2 AO 13PAV": {
+      "PL": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_3\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA -CAPREM - RES.DIAMOND - TORRE A - TIPO 2° AO 13° PAV.- PL - PROJEÇÃO - R00_R2018_ASCII_ODA.dxf",
+      "LV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_3\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA - CAPREM - RES.DIAMOND - TORRE A - TIPO 2° AO 13° PAV.-  LV - PROJEÇÃO - R00_R2018_ASCII_ODA.dxf",
+      "FV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_3\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA - CAPREM - RES.DIAMOND - TORRE A - TIPO 2° AO 13° PAV.- FV - PROJEÇÃO - R00_R2018_ASCII_ODA.dxf",
+      "LJ": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_3\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA -CAPREM - RES.DIAMOND - TORRE A - TIPO 2° AO 13° PAV.- LJ - PROJEÇÃO - R00_R2018_ASCII_ODA.dxf",
+      "EVG": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_3\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA - CAPREM - RES.DIAMOND - TORRE A - TIPO 2° AO 13° PAV.-  GF - PROJEÇÃO - R00_R2018_ASCII_ODA.dxf"
+    },
+    "TORRE B - 1PAV": {
+      "PL": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_3\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA -CAPREM - RES.DIAMOND - TORRE B - 1° PAV.- PL - PROJEÇÃO - R00_R2018_ASCII_ODA.dxf",
+      "LV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_3\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA - CAPREM - RES.DIAMOND - TORRE B - 1° PAV.-  LV - PROJEÇÃO - R00_R2018_ASCII_ODA.dxf",
+      "FV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_3\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA - CAPREM - RES.DIAMOND - TORRE B - 1° PAV.- FV - PROJEÇÃO - R00_R2018_ASCII_ODA.dxf",
+      "LJ": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_3\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA -CAPREM - RES.DIAMOND - TORRE B - 1° PAV.- LJ - PROJEÇÃO - R00_R2018_ASCII_ODA.dxf",
+      "EVG": null
+    },
+    "TÉRREO - PERIFERIA - TORRE 1 - S01A": {
       "PL": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_3\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA -CAPREM - RES.DIAMOND - TÉRREO - PERIFERIA - TORRE 1 - S01A - PL - R00_R2018_ASCII_ODA.dxf",
       "LV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_3\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA - CAPREM - RES.DIAMOND - TÉRREO - PERIFERIA - TORRE 1 - S01A - LV - R00_R2018_ASCII_ODA.dxf",
       "FV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_3\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA - CAPREM - RES.DIAMOND -  TÉRREO - PERIFERIA - TORRE 1 - S01A - FV - R00_R2018_ASCII_ODA.dxf",
       "LJ": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_3\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA -CAPREM - RES.DIAMOND - TÉRREO - PERIFERIA - TORRE 1 - S01A - LJ - R00_R2018_ASCII_ODA.dxf",
       "EVG": null
     },
-    "RES.DIAMOND - TÉRREO - PERIFERIA - TORRE 1 - S02A": {
+    "TÉRREO - PERIFERIA - TORRE 1 - S02A": {
       "PL": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_3\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA -CAPREM - RES.DIAMOND - TÉRREO - PERIFERIA - TORRE 1 - S02A - PL - R00_R2018_ASCII_ODA.dxf",
       "LV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_3\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA - CAPREM - RES.DIAMOND - TÉRREO - PERIFERIA - TORRE 1 - S02A - LV - R00_R2018_ASCII_ODA.dxf",
       "FV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_3\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA - CAPREM - RES.DIAMOND -  TÉRREO - PERIFERIA - TORRE 1 - S02A - FV - R00_R2018_ASCII_ODA.dxf",
       "LJ": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_3\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA -CAPREM - RES.DIAMOND - TÉRREO - PERIFERIA - TORRE 1 - S02A - LJ - R00_R2018_ASCII_ODA.dxf",
       "EVG": null
     },
-    "RES.DIAMOND - TÉRREO - PERIFERIA - TORRE 1 - S03A": {
+    "TÉRREO - PERIFERIA - TORRE 1 - S03A": {
       "PL": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_3\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA -CAPREM - RES.DIAMOND - TÉRREO - PERIFERIA - TORRE 1 - S03A - PL - R00_R2018_ASCII_ODA.dxf",
       "LV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_3\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA - CAPREM - RES.DIAMOND - TÉRREO - PERIFERIA - TORRE 1 - S03A - LV - R00_R2018_ASCII_ODA.dxf",
       "FV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_3\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA - CAPREM - RES.DIAMOND -  TÉRREO - PERIFERIA - TORRE 1 - S03A - FV - R00_R2018_ASCII_ODA.dxf",
       "LJ": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_3\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA -CAPREM - RES.DIAMOND - TÉRREO - PERIFERIA - TORRE 1 - S03A - LJ - R00_R2018_ASCII_ODA.dxf",
       "EVG": null
     },
-    "RES.DIAMOND - TÉRREO - PERIFERIA - TORRE 1 - S04A": {
+    "TÉRREO - PERIFERIA - TORRE 1 - S04A": {
       "PL": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_3\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA -CAPREM - RES.DIAMOND - TÉRREO - PERIFERIA - TORRE 1 - S04A - PL - R00_R2018_ASCII_ODA.dxf",
       "LV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_3\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA - CAPREM - RES.DIAMOND - TÉRREO - PERIFERIA - TORRE 1 - S04A - LV - R00_R2018_ASCII_ODA.dxf",
       "FV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_3\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA - CAPREM - RES.DIAMOND - TÉRREO - PERIFERIA - TORRE 1 - S04A - FV - R00_R2018_ASCII_ODA.dxf",
       "LJ": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_3\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA -CAPREM - RES.DIAMOND - TÉRREO - PERIFERIA - TORRE 1 - S04A - LJ - R00_R2018_ASCII_ODA.dxf",
       "EVG": null
+    },
+    "TÉRREO - T2": {
+      "PL": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_3\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA -CAPREM - RES.DIAMOND - TÉRREO - T2 - PL - PROJEÇÃO - R00_R2018_ASCII_ODA.dxf",
+      "LV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_3\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA - CAPREM - RES.DIAMOND - TÉRREO - T2 - LV - PROJEÇÃO - R00_R2018_ASCII_ODA.dxf",
+      "FV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_3\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA - CAPREM - RES.DIAMOND - TÉRREO - T2 - FV - PROJEÇÃO - R00_R2018_ASCII_ODA.dxf",
+      "LJ": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_3\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA -CAPREM - RES.DIAMOND - TÉRREO - T2 - LJ - PROJEÇÃO - R00_R2018_ASCII_ODA.dxf",
+      "EVG": null
     }
   },
   "Obra_TREINO_5": {
-    "EMBRAMACO-1PV": {
+    "EMBRAMACO - 1PV": {
       "PL": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_5\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA-D´URSO-EMBRAMACO-1PV-PL-R02_R2018_ASCII_ODA.dxf",
       "LV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_5\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA-D´URSO-EMBRAMACO-1PV-LV-R00_R2018_ASCII_ODA.dxf",
       "FV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_5\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA-D´URSO-EMBRAMACO-1PV-FV-R01_R2018_ASCII_ODA.dxf",
       "LJ": null,
       "EVG": null
     },
-    "EMBRAMACO-2PV": {
+    "EMBRAMACO - 2PV": {
       "PL": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_5\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA-D´URSO-EMBRAMACO-2PV-PL-R00_R2018_ASCII_ODA.dxf",
       "LV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_5\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA-D´URSO-EMBRAMACO-2PV-LV-R00_R2018_ASCII_ODA.dxf",
       "FV": null,
       "LJ": null,
       "EVG": null
     },
-    "EMBRAMACO-N300-500": {
+    "EMBRAMACO - N300": {
+      "PL": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_5\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA-D´URSO-EMBRAMACO-N300-PL-R00-REAPROVEITAMENTO_R2018_ASCII_ODA.dxf",
+      "LV": null,
+      "FV": null,
+      "LJ": null,
+      "EVG": null
+    },
+    "EMBRAMACO - N300 - 500": {
       "PL": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_5\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA-D´URSO-EMBRAMACO-N300-500-PL-R00_R2018_ASCII_ODA.dxf",
       "LV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_5\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA-D´URSO-EMBRAMACO-N300-500-LV-R01_R2018_ASCII_ODA.dxf",
       "FV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_5\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA-D´URSO-EMBRAMACO-N300-500-FV-R00_R2018_ASCII_ODA.dxf",
       "LJ": null,
       "EVG": null
     },
-    "EMBRAMACO-PLA-RES": {
+    "EMBRAMACO - PLA - RES": {
       "PL": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_5\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA-D´URSO-EMBRAMACO-PLA-RES-PL-R00_R2018_ASCII_ODA.dxf",
       "LV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_5\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA-D´URSO-EMBRAMACO-PLA-RES-LV-R00_R2018_ASCII_ODA.dxf",
       "FV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_5\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA-D´URSO-EMBRAMACO-PLA-RES-FV-R00_R2018_ASCII_ODA.dxf",
       "LJ": null,
       "EVG": null
     },
-    "EMBRAMACO-TER": {
+    "EMBRAMACO - TER": {
       "PL": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_5\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA-D´URSO-EMBRAMACO-TER-PL-R01_R2018_ASCII_ODA.dxf",
       "LV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_5\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA-D´URSO-EMBRAMACO-TER-LV-R02_R2018_ASCII_ODA.dxf",
       "FV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_5\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA-D´URSO-EMBRAMACO-TER-FV-R00_R2018_ASCII_ODA.dxf",
@@ -814,42 +1096,42 @@
     }
   },
   "Obra_TREINO_6": {
-    "JFC-10PV": {
+    "JFC - 10PV": {
       "PL": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_6\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA-FYP-JFC-10PV-PL-R00_R2018_ASCII_ODA.dxf",
       "LV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_6\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA-FYP-JFC-10PV-LV-R00_R2018_ASCII_ODA.dxf",
       "FV": null,
       "LJ": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_6\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA-FYP-JFC-10PV-LJ-R00_R2018_ASCII_ODA.dxf",
       "EVG": null
     },
-    "JFC-11PV": {
+    "JFC - 11PV": {
       "PL": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_6\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA-FYP-JFC-11PV-PL-R00_R2018_ASCII_ODA.dxf",
       "LV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_6\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA-FYP-JFC-11PV-LV-R00_R2018_ASCII_ODA.dxf",
       "FV": null,
       "LJ": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_6\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA-FYP-JFC-11PV-LJ-R00_R2018_ASCII_ODA.dxf",
       "EVG": null
     },
-    "JFC-12PV": {
+    "JFC - 12PV": {
       "PL": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_6\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA-FYP-JFC-12PV-PL-R00_R2018_ASCII_ODA.dxf",
       "LV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_6\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA-FYP-JFC-12PV-LV-R00_R2018_ASCII_ODA.dxf",
       "FV": null,
       "LJ": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_6\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA-FYP-JFC-12PV-LJ-R00_R2018_ASCII_ODA.dxf",
       "EVG": null
     },
-    "JFC-1PV": {
+    "JFC - 1PV": {
       "PL": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_6\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA-FYP-JFC-1PV-PL-R01_R2018_ASCII_ODA.dxf",
       "LV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_6\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA-FYP-JFC-1PV-LV-R00_R2018_ASCII_ODA.dxf",
       "FV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_6\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA-FYP-JFC-1PV-FV-R00_R2018_ASCII_ODA.dxf",
       "LJ": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_6\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA-FYP-JFC-1PV-LJ-R00_R2018_ASCII_ODA.dxf",
       "EVG": null
     },
-    "JFC-ATC": {
+    "JFC - ATC": {
       "PL": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_6\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA-FYP-JFC-ATC-PL-R00_R2018_ASCII_ODA.dxf",
       "LV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_6\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA-FYP-JFC-ATC-LV-R00_R2018_ASCII_ODA.dxf",
       "FV": null,
       "LJ": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_6\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA-FYP-JFC-ATC-LJ-R00_R2018_ASCII_ODA.dxf",
       "EVG": null
     },
-    "JFC-TIP": {
+    "JFC - TIP": {
       "PL": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_6\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA-FYP-JFC-TIP-PL-R00_R2018_ASCII_ODA.dxf",
       "LV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_6\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA-FYP-JFC-TIP-LV-R00_R2018_ASCII_ODA.dxf",
       "FV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_6\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA-FYP-JFC-TIP-FV-R00_R2018_ASCII_ODA.dxf",
@@ -858,18 +1140,11 @@
     }
   },
   "Obra_TREINO_8": {
-    "IONEJI - T1 - 1 PAV": {
-      "PL": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_8\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\P4 - CASA 8 - IONEJI - T1 - 1º PAV. - PL - R00_R2018_ASCII_ODA.dxf",
-      "LV": null,
-      "FV": null,
-      "LJ": null,
-      "EVG": null
-    },
     "IONEJI - T1 - 1PAV": {
-      "PL": null,
-      "LV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_8\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\P4 - CASA 8 - IONEJI - T1 - 1°PAV - LV - R00_R2018_ASCII_ODA.dxf",
-      "FV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_8\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\P4 - CASA 8 - IONEJI - T1 - 1°PAV - FV - R00_R2018_ASCII_ODA.dxf",
-      "LJ": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_8\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\P4 - CASA 8 - IONEJI - T1 - 1°PAV - LJ - R00_R2018_ASCII_ODA.dxf",
+      "PL": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_8\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\P4 - CASA 8 - IONEJI - T1 - 1º PAV. - PL - R00_R2018_ASCII_ODA.dxf",
+      "LV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_8\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\P4-CASA 8-IONEJI-T1-1PAV-LV-R00_R2018_ASCII_ODA.dxf",
+      "FV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_8\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\P4-CASA 8-IONEJI-T1-1PAV-FV-R00_R2018_ASCII_ODA.dxf",
+      "LJ": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_8\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\P4-CASA 8-IONEJI-T1-1PAV-LJ-R00_R2018_ASCII_ODA.dxf",
       "EVG": null
     },
     "IONEJI - T1 - 2PAV": {
@@ -879,14 +1154,7 @@
       "LJ": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_8\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\P4 - CASA 8 - IONEJI - T1 - 2°PAV - LJ - R00_R2018_ASCII_ODA.dxf",
       "EVG": null
     },
-    "IONEJI-T1-1PAV": {
-      "PL": null,
-      "LV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_8\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\P4-CASA 8-IONEJI-T1-1PAV-LV-R00_R2018_ASCII_ODA.dxf",
-      "FV": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_8\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\P4-CASA 8-IONEJI-T1-1PAV-FV-R00_R2018_ASCII_ODA.dxf",
-      "LJ": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_8\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\P4-CASA 8-IONEJI-T1-1PAV-LJ-R00_R2018_ASCII_ODA.dxf",
-      "EVG": null
-    },
-    "IONEJI-T2-1PAV": {
+    "IONEJI - T2 - 1PAV": {
       "PL": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_8\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\P4-CASA 8-IONEJI-T2-1PAV-PL-R00_R2018_ASCII_ODA.dxf",
       "LV": null,
       "FV": null,
@@ -937,7 +1205,7 @@
       "LJ": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_9\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\RB2 - CITTA DI LUCCA - TORRE 2 - 1°PAVIMENTO - LJ - R00_R2018_ASCII_ODA.dxf",
       "EVG": null
     },
-    "TORRE 2 - 2 PAV": {
+    "TORRE 2 - 2PAV": {
       "PL": null,
       "LV": null,
       "FV": null,

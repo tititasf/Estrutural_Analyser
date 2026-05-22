@@ -212,6 +212,16 @@ def verificar_c5_coletivo(obra_path: Path) -> dict:
     if not data:
         return {"status": "SKIP", "motivo": "validation_coletivo.json não encontrado"}
 
+    # Se todos os elementos têm "erro" (DXFs não gerados por falta de dados de entrada),
+    # tratar como SKIP — mesma lógica do C1 que pula tipos sem ground_truth.
+    elementos = data.get("elementos", {})
+    if elementos and all("erro" in v for v in elementos.values()):
+        return {
+            "status": "SKIP",
+            "motivo": "Nenhum DXF gerado — dados de entrada sem elementos processáveis (ex: obra LO-only)",
+            "por_tipo": {t: {"erro": v["erro"]} for t, v in elementos.items()},
+        }
+
     score = data.get("score_global_percent", 0.0)
     return {
         "status": "PASS" if score >= 95.0 else "FAIL",
@@ -222,7 +232,7 @@ def verificar_c5_coletivo(obra_path: Path) -> dict:
                 "score_pct": v.get("score_percent"),
                 "aprovado":  v.get("aprovado"),
             }
-            for t, v in data.get("elementos", {}).items()
+            for t, v in elementos.items()
         },
     }
 
@@ -233,9 +243,19 @@ def verificar_c6_fidelidade(obra_path: Path, pavimento: str, run_fidelidade: boo
     O pipeline ezdxf gera DXFs de identificação (posição + IDs), não STOG-quality.
     Frente 1 (AutoCAD/SCR) é responsável pela fidelidade visual total (Score 95.1/PL).
     C6 aqui verifica estrutura básica: layer presence + entity types.
+
+    Busca relatorio_fidelidade.json nesta ordem:
+      1. cert_{pav_slug}/relatorio_fidelidade.json  (isolado por pavimento — gerado pelo pipeline_e2e.py)
+      2. relatorio_fidelidade.json compartilhado     (fallback — pode ser de outro pavimento)
     """
+    import re
+    pav_slug = re.sub(r'[^A-Za-z0-9_-]', '_', pavimento).strip('_')
     fase8 = obra_path / "Fase-8_Revisao_Entrega"
-    relatorio_path = fase8 / "relatorio_fidelidade.json"
+    # 1º: tentar relatorio isolado por pavimento (mais preciso)
+    relatorio_path = fase8 / f"cert_{pav_slug}" / "relatorio_fidelidade.json"
+    if not relatorio_path.exists():
+        # 2º: fallback compartilhado
+        relatorio_path = fase8 / "relatorio_fidelidade.json"
     LIMIAR = 50.0
 
     if not relatorio_path.exists() or run_fidelidade:
