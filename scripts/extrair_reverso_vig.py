@@ -195,8 +195,8 @@ def extrair_lv(lv_path):
 
         # Pilares nas extremidades
         nearby_pilares = [p for p in pilar_refs
-                          if bbox_xmin-200 <= p['pos'][0] <= bbox_xmax+200
-                          and bbox_ymin-200 <= p['pos'][1] <= bbox_ymax+200]
+                          if bbox_xmin-400 <= p['pos'][0] <= bbox_xmax+400
+                          and bbox_ymin-400 <= p['pos'][1] <= bbox_ymax+400]
         nearby_pilares.sort(key=lambda p: p['pos'][0])
         pillar_left = nearby_pilares[0]['text'] if nearby_pilares else None
         pillar_right = nearby_pilares[-1]['text'] if len(nearby_pilares) >= 2 else None

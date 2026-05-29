@@ -78,7 +78,7 @@
       ],
       "n_paineis": 6,
       "pillar_left": "P18",
-      "pillar_right": "P9",
+      "pillar_right": "P19",
       "_n_dims_h": 10,
       "_bbox_w": 651.0,
       "_bbox_h": 294.9
@@ -98,7 +98,7 @@
       ],
       "n_paineis": 6,
       "pillar_left": "P18",
-      "pillar_right": "P9",
+      "pillar_right": "P19",
       "_n_dims_h": 10,
       "_bbox_w": 651.0,
       "_bbox_h": 294.9
@@ -234,7 +234,7 @@
         132.0
       ],
       "n_paineis": 4,
-      "pillar_left": "P2",
+      "pillar_left": "P5",
       "pillar_right": "P8",
       "_n_dims_h": 9,
       "_bbox_w": 484.0,
@@ -252,7 +252,7 @@
         132.0
       ],
       "n_paineis": 4,
-      "pillar_left": "P2",
+      "pillar_left": "P5",
       "pillar_right": "P8",
       "_n_dims_h": 9,
       "_bbox_w": 484.0,
@@ -1514,8 +1514,8 @@
         55.0
       ],
       "n_paineis": 31,
-      "pillar_left": "P1",
-      "pillar_right": null,
+      "pillar_left": "P5",
+      "pillar_right": "P1",
       "_n_dims_h": 44,
       "_bbox_w": 803.0,
       "_bbox_h": 636.0

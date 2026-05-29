@@ -88,11 +88,11 @@
           "pct": null
         },
         "pillar_left": {
-          "rev": "P101",
+          "rev": "P4",
           "status": "REV_ONLY"
         },
         "pillar_right": {
-          "rev": "P103",
+          "rev": "P4",
           "status": "REV_ONLY"
         }
       }
@@ -136,7 +136,7 @@
           "pct": null
         },
         "pillar_left": {
-          "rev": "P1",
+          "rev": "P2",
           "status": "REV_ONLY"
         },
         "pillar_right": {
@@ -184,8 +184,8 @@
           "pct": null
         },
         "pillar_left": {
-          "rev": null,
-          "status": "AUSENTE"
+          "rev": "P4",
+          "status": "REV_ONLY"
         },
         "pillar_right": {
           "rev": null,
@@ -236,7 +236,7 @@
           "status": "REV_ONLY"
         },
         "pillar_right": {
-          "rev": "P11",
+          "rev": "P12",
           "status": "REV_ONLY"
         }
       }
@@ -376,8 +376,8 @@
           "pct": null
         },
         "pillar_left": {
-          "rev": null,
-          "status": "AUSENTE"
+          "rev": "P25",
+          "status": "REV_ONLY"
         },
         "pillar_right": {
           "rev": null,
@@ -472,7 +472,7 @@
           "pct": null
         },
         "pillar_left": {
-          "rev": "P26",
+          "rev": "P4",
           "status": "REV_ONLY"
         },
         "pillar_right": {
@@ -1288,7 +1288,7 @@
           "pct": null
         },
         "pillar_left": {
-          "rev": "P9",
+          "rev": "P4",
           "status": "REV_ONLY"
         },
         "pillar_right": {

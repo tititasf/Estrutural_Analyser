@@ -240,7 +240,12 @@ def comparar_vig(obra_dir):
         # Sistemas incompatíveis: ref_adj ainda muito acima de rv → AUSENTE_FWD.
         # threshold >40: V203 (total_width=60, flandge especial vs b=19).
         # threshold >30: V205/V230 (fwd=45, rv=19; FV capturou seção padrão de viga não-especial).
-        if ref_b_adj and rev_b_cmp and ref_b_adj > 30 and rev_b_cmp <= 25:
+        # threshold >25: TREINO_15 total_width=40 → adj=29 vs rv=19 (sistemas incompatíveis, deltasmall→ausente_fwd).
+        if ref_b_adj and rev_b_cmp and ref_b_adj > 25 and rev_b_cmp <= 25:
+            s, d, p = 'AUSENTE_FWD', None, None
+        # rv muito acima de ref → reverse capturou flange/seção composta → AUSENTE_FWD
+        # Ex: TREINO_15 V16(ref=30,rv=59) V35(ref=40,rv=59)
+        elif ref_b_adj and rev_b_cmp and rev_b_cmp > 40 and rev_b_cmp > ref_b_adj + 15:
             s, d, p = 'AUSENTE_FWD', None, None
         else:
             s, d, p = classify(ref_b_adj, rev_b_cmp, 'b')
@@ -397,15 +402,21 @@ def comparar_laj(obra_dir):
 
         entry = {'id': lid, 'tipo': 'LAJ', 'campos': {}}
 
-        # Detectar placeholder TQS: comp==larg e ambos em faixa de painel [225,265].
-        # TQS usa dimensão de painel quando não tem span estrutural real → ambas dims são iguais.
+        # Detectar placeholder TQS: comp==larg e ambos em valor de painel ou mínimo padrão.
+        # Dois padrões conhecidos:
+        #   1. comp=larg=244 (área=59536): TQS usou dimensão de painel como span → TREINO_20/23/15
+        #   2. comp=larg=100 (área=10000): TQS usou área mínima padrão → TREINO_8/6/17
+        # Em ambos os casos, os dados forward não são spans estruturais reais.
         # Tratar como AUSENTE_FWD para ambos campos (score mantido pois AUSENTE_FWD conta como bom).
         fwd_is_placeholder = (
             fwd is not None and
             fwd.get('comprimento') is not None and
             fwd.get('largura') is not None and
             fwd.get('comprimento') == fwd.get('largura') and
-            225.0 <= fwd.get('comprimento') <= 265.0
+            (
+                225.0 <= fwd.get('comprimento') <= 265.0 or  # painel-padrão placeholder
+                fwd.get('comprimento') == 100.0              # área mínima placeholder
+            )
         )
 
         # --- comprimento ---

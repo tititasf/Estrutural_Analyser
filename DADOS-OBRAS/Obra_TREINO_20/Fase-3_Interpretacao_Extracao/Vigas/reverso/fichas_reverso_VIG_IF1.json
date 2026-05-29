@@ -85,7 +85,7 @@
       ],
       "n_paineis": 7,
       "pillar_left": "P1",
-      "pillar_right": "P303",
+      "pillar_right": "P3",
       "_n_dims_h": 11,
       "_bbox_w": 1125.0,
       "_bbox_h": 278.3
@@ -106,7 +106,7 @@
       ],
       "n_paineis": 7,
       "pillar_left": "P1",
-      "pillar_right": "P303",
+      "pillar_right": "P3",
       "_n_dims_h": 11,
       "_bbox_w": 1125.0,
       "_bbox_h": 278.3
@@ -499,7 +499,7 @@
       ],
       "n_paineis": 11,
       "pillar_left": "P401",
-      "pillar_right": "P401",
+      "pillar_right": "P403",
       "_n_dims_h": 15,
       "_bbox_w": 571.0,
       "_bbox_h": 412.5
@@ -548,7 +548,7 @@
       ],
       "n_paineis": 11,
       "pillar_left": "P401",
-      "pillar_right": "P401",
+      "pillar_right": "P403",
       "_n_dims_h": 15,
       "_bbox_w": 571.0,
       "_bbox_h": 412.5
@@ -610,7 +610,7 @@
       ],
       "n_paineis": 24,
       "pillar_left": "P401",
-      "pillar_right": "P402",
+      "pillar_right": "P503",
       "_n_dims_h": 29,
       "_bbox_w": 1293.0,
       "_bbox_h": 412.5
@@ -648,7 +648,7 @@
       ],
       "n_paineis": 24,
       "pillar_left": "P401",
-      "pillar_right": "P402",
+      "pillar_right": "P503",
       "_n_dims_h": 29,
       "_bbox_w": 1293.0,
       "_bbox_h": 412.5
@@ -698,7 +698,7 @@
         56.0
       ],
       "n_paineis": 15,
-      "pillar_left": "P402",
+      "pillar_left": "P401",
       "pillar_right": "P503",
       "_n_dims_h": 19,
       "_bbox_w": 1212.0,
@@ -727,7 +727,7 @@
         56.0
       ],
       "n_paineis": 15,
-      "pillar_left": "P402",
+      "pillar_left": "P401",
       "pillar_right": "P503",
       "_n_dims_h": 19,
       "_bbox_w": 1212.0,
@@ -834,8 +834,8 @@
         56.0
       ],
       "n_paineis": 19,
-      "pillar_left": "P401",
-      "pillar_right": "P501",
+      "pillar_left": "P403",
+      "pillar_right": "P504",
       "_n_dims_h": 23,
       "_bbox_w": 1243.0,
       "_bbox_h": 399.3
@@ -886,7 +886,7 @@
         56.0
       ],
       "n_paineis": 15,
-      "pillar_left": "P501",
+      "pillar_left": "P404",
       "pillar_right": "P501",
       "_n_dims_h": 20,
       "_bbox_w": 1083.0,
@@ -915,7 +915,7 @@
         56.0
       ],
       "n_paineis": 15,
-      "pillar_left": "P501",
+      "pillar_left": "P404",
       "pillar_right": "P501",
       "_n_dims_h": 20,
       "_bbox_w": 1083.0,

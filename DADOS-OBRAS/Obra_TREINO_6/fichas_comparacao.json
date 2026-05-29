@@ -188,7 +188,7 @@
           "status": "REV_ONLY"
         },
         "pillar_right": {
-          "rev": "P9",
+          "rev": "P19",
           "status": "REV_ONLY"
         }
       }
@@ -376,7 +376,7 @@
           "pct": 0.0
         },
         "pillar_left": {
-          "rev": "P2",
+          "rev": "P5",
           "status": "REV_ONLY"
         },
         "pillar_right": {
@@ -616,12 +616,12 @@
           "pct": null
         },
         "pillar_left": {
-          "rev": null,
-          "status": "AUSENTE"
+          "rev": "P17",
+          "status": "REV_ONLY"
         },
         "pillar_right": {
-          "rev": null,
-          "status": "AUSENTE"
+          "rev": "P19",
+          "status": "REV_ONLY"
         }
       }
     },
@@ -712,12 +712,12 @@
           "pct": null
         },
         "pillar_left": {
-          "rev": null,
-          "status": "AUSENTE"
+          "rev": "P17",
+          "status": "REV_ONLY"
         },
         "pillar_right": {
-          "rev": null,
-          "status": "AUSENTE"
+          "rev": "P19",
+          "status": "REV_ONLY"
         }
       }
     },
@@ -1720,11 +1720,11 @@
           "pct": null
         },
         "pillar_left": {
-          "rev": "P9",
+          "rev": "P17",
           "status": "REV_ONLY"
         },
         "pillar_right": {
-          "rev": "P104",
+          "rev": "P21",
           "status": "REV_ONLY"
         }
       }
@@ -2396,7 +2396,7 @@
           "status": "REV_ONLY"
         },
         "pillar_right": {
-          "rev": "P9",
+          "rev": "P19",
           "status": "REV_ONLY"
         }
       }
@@ -2584,7 +2584,7 @@
           "pct": 0.0
         },
         "pillar_left": {
-          "rev": "P2",
+          "rev": "P5",
           "status": "REV_ONLY"
         },
         "pillar_right": {
@@ -3884,7 +3884,7 @@
           "status": "REV_ONLY"
         },
         "pillar_right": {
-          "rev": "P9",
+          "rev": "P17",
           "status": "REV_ONLY"
         }
       }
@@ -3928,7 +3928,7 @@
           "pct": null
         },
         "pillar_left": {
-          "rev": "P2",
+          "rev": "P5",
           "status": "REV_ONLY"
         },
         "pillar_right": {
@@ -4076,7 +4076,7 @@
           "status": "REV_ONLY"
         },
         "pillar_right": {
-          "rev": "P9",
+          "rev": "P17",
           "status": "REV_ONLY"
         }
       }
@@ -4796,7 +4796,7 @@
           "status": "REV_ONLY"
         },
         "pillar_right": {
-          "rev": "P9",
+          "rev": "P12",
           "status": "REV_ONLY"
         }
       }
@@ -4840,7 +4840,7 @@
           "pct": null
         },
         "pillar_left": {
-          "rev": "P2",
+          "rev": "P6",
           "status": "REV_ONLY"
         },
         "pillar_right": {
@@ -5036,7 +5036,7 @@
           "status": "REV_ONLY"
         },
         "pillar_right": {
-          "rev": "P50",
+          "rev": "P34",
           "status": "REV_ONLY"
         }
       }
@@ -5084,7 +5084,7 @@
           "status": "REV_ONLY"
         },
         "pillar_right": {
-          "rev": "P50",
+          "rev": "P34",
           "status": "REV_ONLY"
         }
       }
@@ -5800,11 +5800,11 @@
           "pct": null
         },
         "pillar_left": {
-          "rev": "P13",
+          "rev": "P5",
           "status": "REV_ONLY"
         },
         "pillar_right": {
-          "rev": "P14",
+          "rev": "P2",
           "status": "REV_ONLY"
         }
       }
@@ -5848,11 +5848,11 @@
           "pct": null
         },
         "pillar_left": {
-          "rev": "P13",
+          "rev": "P5",
           "status": "REV_ONLY"
         },
         "pillar_right": {
-          "rev": "P14",
+          "rev": "P2",
           "status": "REV_ONLY"
         }
       }
@@ -5944,11 +5944,11 @@
           "pct": null
         },
         "pillar_left": {
-          "rev": "P19",
+          "rev": "P22",
           "status": "REV_ONLY"
         },
         "pillar_right": {
-          "rev": "P12",
+          "rev": "P21",
           "status": "REV_ONLY"
         }
       }
@@ -6040,11 +6040,11 @@
           "pct": null
         },
         "pillar_left": {
-          "rev": "P14",
+          "rev": "P13",
           "status": "REV_ONLY"
         },
         "pillar_right": {
-          "rev": "P21",
+          "rev": "P14",
           "status": "REV_ONLY"
         }
       }
@@ -6092,7 +6092,7 @@
           "status": "REV_ONLY"
         },
         "pillar_right": {
-          "rev": "P1",
+          "rev": "P9",
           "status": "REV_ONLY"
         }
       }
@@ -6136,7 +6136,7 @@
           "pct": null
         },
         "pillar_left": {
-          "rev": "P13",
+          "rev": "P5",
           "status": "REV_ONLY"
         },
         "pillar_right": {
@@ -6280,11 +6280,11 @@
           "pct": null
         },
         "pillar_left": {
-          "rev": "P19",
+          "rev": "P22",
           "status": "REV_ONLY"
         },
         "pillar_right": {
-          "rev": "P12",
+          "rev": "P21",
           "status": "REV_ONLY"
         }
       }
@@ -7192,8 +7192,8 @@
           "pct": null
         },
         "pillar_left": {
-          "rev": null,
-          "status": "AUSENTE"
+          "rev": "P5",
+          "status": "REV_ONLY"
         },
         "pillar_right": {
           "rev": null,
@@ -7388,7 +7388,7 @@
           "status": "REV_ONLY"
         },
         "pillar_right": {
-          "rev": "P2",
+          "rev": "P19",
           "status": "REV_ONLY"
         }
       }
@@ -7432,7 +7432,7 @@
           "pct": null
         },
         "pillar_left": {
-          "rev": "P2",
+          "rev": "P3",
           "status": "REV_ONLY"
         },
         "pillar_right": {
@@ -7688,17 +7688,17 @@
       "tipo": "LAJ",
       "campos": {
         "comprimento": {
-          "fwd": 100.0,
+          "fwd": null,
           "rev": 244.0,
           "rev_adj": 200.0,
-          "status": "REV_ONLY",
+          "status": "AUSENTE_FWD",
           "delta_cm": null,
           "pct": null
         },
         "largura": {
-          "fwd": 100.0,
+          "fwd": null,
           "rev": 195.0,
-          "status": "REV_ONLY",
+          "status": "AUSENTE_FWD",
           "delta_cm": null,
           "pct": null
         },
@@ -7719,15 +7719,15 @@
       "tipo": "LAJ",
       "campos": {
         "comprimento": {
-          "fwd": 100.0,
+          "fwd": null,
           "rev": 244.0,
           "rev_adj": 200.0,
-          "status": "REV_ONLY",
+          "status": "AUSENTE_FWD",
           "delta_cm": null,
           "pct": null
         },
         "largura": {
-          "fwd": 100.0,
+          "fwd": null,
           "rev": 244.0,
           "status": "AUSENTE_FWD",
           "delta_cm": null,
@@ -7750,15 +7750,15 @@
       "tipo": "LAJ",
       "campos": {
         "comprimento": {
-          "fwd": 100.0,
+          "fwd": null,
           "rev": 244.0,
           "rev_adj": 200.0,
-          "status": "REV_ONLY",
+          "status": "AUSENTE_FWD",
           "delta_cm": null,
           "pct": null
         },
         "largura": {
-          "fwd": 100.0,
+          "fwd": null,
           "rev": 244.0,
           "status": "AUSENTE_FWD",
           "delta_cm": null,
@@ -7781,17 +7781,17 @@
       "tipo": "LAJ",
       "campos": {
         "comprimento": {
-          "fwd": 100.0,
+          "fwd": null,
           "rev": 244.0,
           "rev_adj": 200.0,
-          "status": "REV_ONLY",
+          "status": "AUSENTE_FWD",
           "delta_cm": null,
           "pct": null
         },
         "largura": {
-          "fwd": 100.0,
+          "fwd": null,
           "rev": 122.0,
-          "status": "REV_ONLY",
+          "status": "AUSENTE_FWD",
           "delta_cm": null,
           "pct": null
         },
@@ -7812,15 +7812,15 @@
       "tipo": "LAJ",
       "campos": {
         "comprimento": {
-          "fwd": 100.0,
+          "fwd": null,
           "rev": 244.0,
           "rev_adj": 200.0,
-          "status": "REV_ONLY",
+          "status": "AUSENTE_FWD",
           "delta_cm": null,
           "pct": null
         },
         "largura": {
-          "fwd": 100.0,
+          "fwd": null,
           "rev": 223.0,
           "status": "AUSENTE_FWD",
           "delta_cm": null,
@@ -7843,17 +7843,17 @@
       "tipo": "LAJ",
       "campos": {
         "comprimento": {
-          "fwd": 100.0,
+          "fwd": null,
           "rev": 223.0,
           "rev_adj": 179.0,
-          "status": "REV_ONLY",
+          "status": "AUSENTE_FWD",
           "delta_cm": null,
           "pct": null
         },
         "largura": {
-          "fwd": 100.0,
+          "fwd": null,
           "rev": 122.0,
-          "status": "REV_ONLY",
+          "status": "AUSENTE_FWD",
           "delta_cm": null,
           "pct": null
         },
@@ -7874,17 +7874,17 @@
       "tipo": "LAJ",
       "campos": {
         "comprimento": {
-          "fwd": 100.0,
+          "fwd": null,
           "rev": 244.0,
           "rev_adj": 200.0,
-          "status": "REV_ONLY",
+          "status": "AUSENTE_FWD",
           "delta_cm": null,
           "pct": null
         },
         "largura": {
-          "fwd": 100.0,
+          "fwd": null,
           "rev": 122.0,
-          "status": "REV_ONLY",
+          "status": "AUSENTE_FWD",
           "delta_cm": null,
           "pct": null
         },
@@ -7905,15 +7905,15 @@
       "tipo": "LAJ",
       "campos": {
         "comprimento": {
-          "fwd": 100.0,
+          "fwd": null,
           "rev": 244.0,
           "rev_adj": 200.0,
-          "status": "REV_ONLY",
+          "status": "AUSENTE_FWD",
           "delta_cm": null,
           "pct": null
         },
         "largura": {
-          "fwd": 100.0,
+          "fwd": null,
           "rev": 244.0,
           "status": "AUSENTE_FWD",
           "delta_cm": null,
@@ -7936,17 +7936,17 @@
       "tipo": "LAJ",
       "campos": {
         "comprimento": {
-          "fwd": 100.0,
+          "fwd": null,
           "rev": 244.0,
           "rev_adj": 200.0,
-          "status": "REV_ONLY",
+          "status": "AUSENTE_FWD",
           "delta_cm": null,
           "pct": null
         },
         "largura": {
-          "fwd": 100.0,
+          "fwd": null,
           "rev": 122.0,
-          "status": "REV_ONLY",
+          "status": "AUSENTE_FWD",
           "delta_cm": null,
           "pct": null
         },
@@ -7967,15 +7967,15 @@
       "tipo": "LAJ",
       "campos": {
         "comprimento": {
-          "fwd": 100.0,
+          "fwd": null,
           "rev": 244.0,
           "rev_adj": 200.0,
-          "status": "REV_ONLY",
+          "status": "AUSENTE_FWD",
           "delta_cm": null,
           "pct": null
         },
         "largura": {
-          "fwd": 100.0,
+          "fwd": null,
           "rev": 244.0,
           "status": "AUSENTE_FWD",
           "delta_cm": null,
@@ -8029,17 +8029,17 @@
       "tipo": "LAJ",
       "campos": {
         "comprimento": {
-          "fwd": 100.0,
+          "fwd": null,
           "rev": 244.0,
           "rev_adj": 200.0,
-          "status": "REV_ONLY",
+          "status": "AUSENTE_FWD",
           "delta_cm": null,
           "pct": null
         },
         "largura": {
-          "fwd": 100.0,
+          "fwd": null,
           "rev": 195.0,
-          "status": "REV_ONLY",
+          "status": "AUSENTE_FWD",
           "delta_cm": null,
           "pct": null
         },
@@ -8060,17 +8060,17 @@
       "tipo": "LAJ",
       "campos": {
         "comprimento": {
-          "fwd": 100.0,
+          "fwd": null,
           "rev": 144.0,
           "rev_adj": 100.0,
-          "status": "DELTA_MED",
-          "delta_cm": 44.0,
-          "pct": 30.6
+          "status": "AUSENTE_FWD",
+          "delta_cm": null,
+          "pct": null
         },
         "largura": {
-          "fwd": 100.0,
+          "fwd": null,
           "rev": null,
-          "status": "AUSENTE_REV",
+          "status": "AUSENTE_AMBOS",
           "delta_cm": null,
           "pct": null
         },
@@ -8091,15 +8091,15 @@
       "tipo": "LAJ",
       "campos": {
         "comprimento": {
-          "fwd": 100.0,
+          "fwd": null,
           "rev": 244.0,
           "rev_adj": 200.0,
-          "status": "REV_ONLY",
+          "status": "AUSENTE_FWD",
           "delta_cm": null,
           "pct": null
         },
         "largura": {
-          "fwd": 100.0,
+          "fwd": null,
           "rev": 244.0,
           "status": "AUSENTE_FWD",
           "delta_cm": null,
@@ -8153,15 +8153,15 @@
       "tipo": "LAJ",
       "campos": {
         "comprimento": {
-          "fwd": 100.0,
+          "fwd": null,
           "rev": 244.0,
           "rev_adj": 200.0,
-          "status": "REV_ONLY",
+          "status": "AUSENTE_FWD",
           "delta_cm": null,
           "pct": null
         },
         "largura": {
-          "fwd": 100.0,
+          "fwd": null,
           "rev": 244.0,
           "status": "AUSENTE_FWD",
           "delta_cm": null,

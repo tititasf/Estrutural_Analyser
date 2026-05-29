@@ -188,7 +188,7 @@
           "status": "REV_ONLY"
         },
         "pillar_right": {
-          "rev": "P303",
+          "rev": "P3",
           "status": "REV_ONLY"
         }
       }
@@ -680,7 +680,7 @@
         "b": {
           "fwd": null,
           "p4": null,
-          "rev": 14.0,
+          "rev": 20.0,
           "status": "AUSENTE_FWD",
           "delta_cm": null,
           "pct": null
@@ -705,19 +705,19 @@
         },
         "n_paineis_A": {
           "p4": null,
-          "rev_raw": 5,
-          "rev_filtered_gt30": 5,
-          "status": "AUSENTE_FWD",
+          "rev_raw": null,
+          "rev_filtered_gt30": null,
+          "status": "AUSENTE_AMBOS",
           "delta_cm": null,
           "pct": null
         },
         "pillar_left": {
-          "rev": "P303",
-          "status": "REV_ONLY"
+          "rev": null,
+          "status": "AUSENTE"
         },
         "pillar_right": {
-          "rev": "P303",
-          "status": "REV_ONLY"
+          "rev": null,
+          "status": "AUSENTE"
         }
       }
     },
@@ -764,7 +764,7 @@
           "status": "REV_ONLY"
         },
         "pillar_right": {
-          "rev": "P201",
+          "rev": "P1",
           "status": "REV_ONLY"
         }
       }
@@ -1100,7 +1100,7 @@
           "status": "REV_ONLY"
         },
         "pillar_right": {
-          "rev": "P206",
+          "rev": "P2",
           "status": "REV_ONLY"
         }
       }
@@ -1160,16 +1160,16 @@
         "b": {
           "fwd": 21.98,
           "p4": 21.98,
-          "rev": null,
-          "status": "AUSENTE_REV",
-          "delta_cm": null,
-          "pct": null
+          "rev": 14.0,
+          "status": "DELTA_SMALL",
+          "delta_cm": 8.0,
+          "pct": 36.3
         },
         "h": {
           "fwd": 40.0,
           "p4": 40.0,
-          "rev": null,
-          "rev_secao": null,
+          "rev": 0,
+          "rev_secao": 0,
           "rev_used": null,
           "status": "AUSENTE_REV",
           "delta_cm": null,
@@ -1178,8 +1178,8 @@
         "comprimento": {
           "fwd_vigas_json": 341.0,
           "p4_sum_panels": 341.0,
-          "rev": null,
-          "status": "AUSENTE_REV",
+          "rev": 171.0,
+          "status": "AUSENTE_FWD",
           "delta_cm": null,
           "pct": null
         },
@@ -1208,16 +1208,16 @@
         "b": {
           "fwd": 21.98,
           "p4": 21.98,
-          "rev": null,
-          "status": "AUSENTE_REV",
-          "delta_cm": null,
-          "pct": null
+          "rev": 14.0,
+          "status": "DELTA_SMALL",
+          "delta_cm": 8.0,
+          "pct": 36.3
         },
         "h": {
           "fwd": 40.0,
           "p4": 40.0,
-          "rev": null,
-          "rev_secao": null,
+          "rev": 0,
+          "rev_secao": 0,
           "rev_used": null,
           "status": "AUSENTE_REV",
           "delta_cm": null,
@@ -1226,10 +1226,10 @@
         "comprimento": {
           "fwd_vigas_json": 341.0,
           "p4_sum_panels": 341.0,
-          "rev": null,
-          "status": "AUSENTE_REV",
-          "delta_cm": null,
-          "pct": null
+          "rev": 341.0,
+          "status": "MATCH",
+          "delta_cm": 0.0,
+          "pct": 0.0
         },
         "n_paineis_A": {
           "p4": 3,
@@ -1256,10 +1256,10 @@
         "b": {
           "fwd": 13.98,
           "p4": 13.98,
-          "rev": 0,
-          "status": "AUSENTE_REV",
-          "delta_cm": null,
-          "pct": null
+          "rev": 30.0,
+          "status": "DELTA_MED",
+          "delta_cm": 16.0,
+          "pct": 53.4
         },
         "h": {
           "fwd": 40.0,
@@ -1384,11 +1384,11 @@
           "pct": null
         },
         "pillar_left": {
-          "rev": "P3",
+          "rev": "P2",
           "status": "REV_ONLY"
         },
         "pillar_right": {
-          "rev": "P303",
+          "rev": "P203",
           "status": "REV_ONLY"
         }
       }
@@ -1484,7 +1484,7 @@
           "status": "REV_ONLY"
         },
         "pillar_right": {
-          "rev": "P401",
+          "rev": "P403",
           "status": "REV_ONLY"
         }
       }
@@ -1532,7 +1532,7 @@
           "status": "REV_ONLY"
         },
         "pillar_right": {
-          "rev": "P402",
+          "rev": "P503",
           "status": "REV_ONLY"
         }
       }
@@ -1576,7 +1576,7 @@
           "pct": null
         },
         "pillar_left": {
-          "rev": "P402",
+          "rev": "P401",
           "status": "REV_ONLY"
         },
         "pillar_right": {
@@ -1768,7 +1768,7 @@
           "pct": null
         },
         "pillar_left": {
-          "rev": "P501",
+          "rev": "P404",
           "status": "REV_ONLY"
         },
         "pillar_right": {

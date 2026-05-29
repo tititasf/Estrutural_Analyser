@@ -328,7 +328,7 @@
           "pct": null
         },
         "pillar_left": {
-          "rev": "P6",
+          "rev": "P3",
           "status": "REV_ONLY"
         },
         "pillar_right": {
@@ -1768,11 +1768,11 @@
           "pct": null
         },
         "pillar_left": {
-          "rev": "P102",
+          "rev": "P101",
           "status": "REV_ONLY"
         },
         "pillar_right": {
-          "rev": "P104",
+          "rev": "P101",
           "status": "REV_ONLY"
         }
       }
@@ -1820,7 +1820,7 @@
           "status": "REV_ONLY"
         },
         "pillar_right": {
-          "rev": "P107",
+          "rev": "P105",
           "status": "REV_ONLY"
         }
       }
@@ -1864,7 +1864,7 @@
           "pct": null
         },
         "pillar_left": {
-          "rev": "P107",
+          "rev": "P108",
           "status": "REV_ONLY"
         },
         "pillar_right": {
@@ -2008,7 +2008,7 @@
           "pct": null
         },
         "pillar_left": {
-          "rev": "P6",
+          "rev": "P4",
           "status": "REV_ONLY"
         },
         "pillar_right": {
@@ -2248,7 +2248,7 @@
           "pct": null
         },
         "pillar_left": {
-          "rev": "P11",
+          "rev": "P3",
           "status": "REV_ONLY"
         },
         "pillar_right": {
@@ -2776,7 +2776,7 @@
           "pct": null
         },
         "pillar_left": {
-          "rev": "P15",
+          "rev": "P105",
           "status": "REV_ONLY"
         },
         "pillar_right": {
@@ -2920,7 +2920,7 @@
           "pct": null
         },
         "pillar_left": {
-          "rev": "P10",
+          "rev": "P3",
           "status": "REV_ONLY"
         },
         "pillar_right": {
@@ -3304,7 +3304,7 @@
           "pct": null
         },
         "pillar_left": {
-          "rev": "P6",
+          "rev": "P108",
           "status": "REV_ONLY"
         },
         "pillar_right": {
@@ -3596,7 +3596,7 @@
           "status": "REV_ONLY"
         },
         "pillar_right": {
-          "rev": "P5",
+          "rev": "P6",
           "status": "REV_ONLY"
         }
       }
@@ -3832,11 +3832,11 @@
           "pct": null
         },
         "pillar_left": {
-          "rev": "P4",
+          "rev": "P6",
           "status": "REV_ONLY"
         },
         "pillar_right": {
-          "rev": "P15",
+          "rev": "P5",
           "status": "REV_ONLY"
         }
       }
@@ -3928,12 +3928,12 @@
           "pct": null
         },
         "pillar_left": {
-          "rev": null,
-          "status": "AUSENTE"
+          "rev": "P21",
+          "status": "REV_ONLY"
         },
         "pillar_right": {
-          "rev": null,
-          "status": "AUSENTE"
+          "rev": "P22",
+          "status": "REV_ONLY"
         }
       }
     },
@@ -4028,7 +4028,7 @@
           "status": "REV_ONLY"
         },
         "pillar_right": {
-          "rev": "P4",
+          "rev": "P215",
           "status": "REV_ONLY"
         }
       }
@@ -4360,7 +4360,7 @@
           "pct": null
         },
         "pillar_left": {
-          "rev": "P9",
+          "rev": "P220",
           "status": "REV_ONLY"
         },
         "pillar_right": {
@@ -4936,7 +4936,7 @@
           "pct": null
         },
         "pillar_left": {
-          "rev": "P25",
+          "rev": "P5",
           "status": "REV_ONLY"
         },
         "pillar_right": {
@@ -5080,7 +5080,7 @@
           "pct": null
         },
         "pillar_left": {
-          "rev": "P14",
+          "rev": "P1",
           "status": "REV_ONLY"
         },
         "pillar_right": {
@@ -5176,8 +5176,8 @@
           "pct": null
         },
         "pillar_left": {
-          "rev": null,
-          "status": "AUSENTE"
+          "rev": "P14",
+          "status": "REV_ONLY"
         },
         "pillar_right": {
           "rev": null,
@@ -5276,8 +5276,8 @@
           "status": "REV_ONLY"
         },
         "pillar_right": {
-          "rev": null,
-          "status": "AUSENTE"
+          "rev": "P2",
+          "status": "REV_ONLY"
         }
       }
     },
@@ -5320,8 +5320,8 @@
           "pct": null
         },
         "pillar_left": {
-          "rev": null,
-          "status": "AUSENTE"
+          "rev": "P6",
+          "status": "REV_ONLY"
         },
         "pillar_right": {
           "rev": null,
@@ -5708,7 +5708,7 @@
           "status": "REV_ONLY"
         },
         "pillar_right": {
-          "rev": "P17",
+          "rev": "P16",
           "status": "REV_ONLY"
         }
       }
@@ -5756,7 +5756,7 @@
           "status": "REV_ONLY"
         },
         "pillar_right": {
-          "rev": "P23",
+          "rev": "P22",
           "status": "REV_ONLY"
         }
       }
@@ -5804,8 +5804,8 @@
           "status": "REV_ONLY"
         },
         "pillar_right": {
-          "rev": null,
-          "status": "AUSENTE"
+          "rev": "P17",
+          "status": "REV_ONLY"
         }
       }
     },
@@ -6188,7 +6188,7 @@
           "status": "REV_ONLY"
         },
         "pillar_right": {
-          "rev": "P15",
+          "rev": "P10",
           "status": "REV_ONLY"
         }
       }
@@ -6668,8 +6668,8 @@
           "status": "REV_ONLY"
         },
         "pillar_right": {
-          "rev": null,
-          "status": "AUSENTE"
+          "rev": "P2",
+          "status": "REV_ONLY"
         }
       }
     },
@@ -6865,54 +6865,6 @@
         }
       }
     },
-    "V506A": {
-      "id": "V506A",
-      "tipo": "VIG",
-      "campos": {
-        "b": {
-          "fwd": 30.0,
-          "p4": 30.0,
-          "rev": null,
-          "status": "AUSENTE_REV",
-          "delta_cm": null,
-          "pct": null
-        },
-        "h": {
-          "fwd": 40.0,
-          "p4": 40.0,
-          "rev": null,
-          "rev_secao": null,
-          "rev_used": null,
-          "status": "AUSENTE_REV",
-          "delta_cm": null,
-          "pct": null
-        },
-        "comprimento": {
-          "fwd_vigas_json": 246.0,
-          "p4_sum_panels": 246.0,
-          "rev": null,
-          "status": "AUSENTE_REV",
-          "delta_cm": null,
-          "pct": null
-        },
-        "n_paineis_A": {
-          "p4": 3,
-          "rev_raw": null,
-          "rev_filtered_gt30": null,
-          "status": "AUSENTE_REV",
-          "delta_cm": null,
-          "pct": null
-        },
-        "pillar_left": {
-          "rev": null,
-          "status": "AUSENTE"
-        },
-        "pillar_right": {
-          "rev": null,
-          "status": "AUSENTE"
-        }
-      }
-    },
     "V506": {
       "id": "V506",
       "tipo": "VIG",
@@ -6942,6 +6894,54 @@
           "status": "MATCH",
           "delta_cm": 0.0,
           "pct": 0.0
+        },
+        "n_paineis_A": {
+          "p4": 3,
+          "rev_raw": null,
+          "rev_filtered_gt30": null,
+          "status": "AUSENTE_REV",
+          "delta_cm": null,
+          "pct": null
+        },
+        "pillar_left": {
+          "rev": null,
+          "status": "AUSENTE"
+        },
+        "pillar_right": {
+          "rev": null,
+          "status": "AUSENTE"
+        }
+      }
+    },
+    "V506A": {
+      "id": "V506A",
+      "tipo": "VIG",
+      "campos": {
+        "b": {
+          "fwd": 30.0,
+          "p4": 30.0,
+          "rev": null,
+          "status": "AUSENTE_REV",
+          "delta_cm": null,
+          "pct": null
+        },
+        "h": {
+          "fwd": 40.0,
+          "p4": 40.0,
+          "rev": null,
+          "rev_secao": null,
+          "rev_used": null,
+          "status": "AUSENTE_REV",
+          "delta_cm": null,
+          "pct": null
+        },
+        "comprimento": {
+          "fwd_vigas_json": 246.0,
+          "p4_sum_panels": 246.0,
+          "rev": null,
+          "status": "AUSENTE_REV",
+          "delta_cm": null,
+          "pct": null
         },
         "n_paineis_A": {
           "p4": 3,
@@ -7240,11 +7240,11 @@
           "pct": null
         },
         "pillar_left": {
-          "rev": "P23",
+          "rev": "P21",
           "status": "REV_ONLY"
         },
         "pillar_right": {
-          "rev": "P25",
+          "rev": "P23",
           "status": "REV_ONLY"
         }
       }
@@ -7484,7 +7484,7 @@
           "status": "REV_ONLY"
         },
         "pillar_right": {
-          "rev": "P2",
+          "rev": "P9",
           "status": "REV_ONLY"
         }
       }
@@ -7964,8 +7964,8 @@
           "status": "REV_ONLY"
         },
         "pillar_right": {
-          "rev": null,
-          "status": "AUSENTE"
+          "rev": "P2",
+          "status": "REV_ONLY"
         }
       }
     },
@@ -8488,11 +8488,11 @@
           "pct": null
         },
         "pillar_left": {
-          "rev": "P23",
+          "rev": "P21",
           "status": "REV_ONLY"
         },
         "pillar_right": {
-          "rev": "P25",
+          "rev": "P23",
           "status": "REV_ONLY"
         }
       }
@@ -8780,7 +8780,7 @@
           "status": "REV_ONLY"
         },
         "pillar_right": {
-          "rev": "P2",
+          "rev": "P9",
           "status": "REV_ONLY"
         }
       }
@@ -9308,8 +9308,8 @@
           "status": "REV_ONLY"
         },
         "pillar_right": {
-          "rev": null,
-          "status": "AUSENTE"
+          "rev": "P2",
+          "status": "REV_ONLY"
         }
       }
     },
@@ -9644,7 +9644,7 @@
           "status": "REV_ONLY"
         },
         "pillar_right": {
-          "rev": "P701",
+          "rev": "P17",
           "status": "REV_ONLY"
         }
       }
@@ -9832,11 +9832,11 @@
           "pct": null
         },
         "pillar_left": {
-          "rev": "P23",
+          "rev": "P21",
           "status": "REV_ONLY"
         },
         "pillar_right": {
-          "rev": "P25",
+          "rev": "P26",
           "status": "REV_ONLY"
         }
       }
@@ -10124,7 +10124,7 @@
           "status": "REV_ONLY"
         },
         "pillar_right": {
-          "rev": "P2",
+          "rev": "P9",
           "status": "REV_ONLY"
         }
       }
@@ -10508,7 +10508,7 @@
           "status": "REV_ONLY"
         },
         "pillar_right": {
-          "rev": "P7",
+          "rev": "P13",
           "status": "REV_ONLY"
         }
       }

@@ -1,0 +1,463 @@
+{
+  "L301": {
+    "nome": "L301",
+    "comprimento_total": 0.0,
+    "largura_total": 0.0,
+    "nivel_delta": 10,
+    "n_paineis": 0,
+    "pavimentos": [
+      "1PV"
+    ],
+    "_sources": {
+      "1PV": {
+        "comprimento_total": 0.0,
+        "largura_total": 0.0,
+        "nivel_delta": 10
+      }
+    }
+  },
+  "L1": {
+    "nome": "L1",
+    "comprimento_total": 244.0,
+    "largura_total": 122.0,
+    "nivel_delta": 12,
+    "n_paineis": 8,
+    "pavimentos": [
+      "1PV",
+      "TER"
+    ],
+    "_sources": {
+      "1PV": {
+        "comprimento_total": 122.0,
+        "largura_total": 88.0,
+        "nivel_delta": 12
+      },
+      "TER": {
+        "comprimento_total": 244.0,
+        "largura_total": 122.0,
+        "nivel_delta": 12
+      }
+    }
+  },
+  "L3": {
+    "nome": "L3",
+    "comprimento_total": 244.0,
+    "largura_total": 122.0,
+    "nivel_delta": 12,
+    "n_paineis": 8,
+    "pavimentos": [
+      "1PV",
+      "INF2",
+      "TER"
+    ],
+    "_sources": {
+      "1PV": {
+        "comprimento_total": 244.0,
+        "largura_total": 122.0,
+        "nivel_delta": 12
+      },
+      "INF2": {
+        "comprimento_total": 244.0,
+        "largura_total": 122.0,
+        "nivel_delta": 12
+      },
+      "TER": {
+        "comprimento_total": 122.0,
+        "largura_total": 88.0,
+        "nivel_delta": 12
+      }
+    }
+  },
+  "L4": {
+    "nome": "L4",
+    "comprimento_total": 244.0,
+    "largura_total": 122.0,
+    "nivel_delta": 12,
+    "n_paineis": 7,
+    "pavimentos": [
+      "1PV",
+      "INF2",
+      "TER"
+    ],
+    "_sources": {
+      "1PV": {
+        "comprimento_total": 244.0,
+        "largura_total": 122.0,
+        "nivel_delta": 12
+      },
+      "INF2": {
+        "comprimento_total": 244.0,
+        "largura_total": 122.0,
+        "nivel_delta": 12
+      },
+      "TER": {
+        "comprimento_total": 244.0,
+        "largura_total": 122.0,
+        "nivel_delta": 12
+      }
+    }
+  },
+  "L6": {
+    "nome": "L6",
+    "comprimento_total": 244.0,
+    "largura_total": 0.0,
+    "nivel_delta": 12,
+    "n_paineis": 2,
+    "pavimentos": [
+      "1PV",
+      "INF2",
+      "TER"
+    ],
+    "_sources": {
+      "1PV": {
+        "comprimento_total": 244.0,
+        "largura_total": 0.0,
+        "nivel_delta": 12
+      },
+      "INF2": {
+        "comprimento_total": 244.0,
+        "largura_total": 0.0,
+        "nivel_delta": 12
+      },
+      "TER": {
+        "comprimento_total": 244.0,
+        "largura_total": 0.0,
+        "nivel_delta": 12
+      }
+    }
+  },
+  "L5": {
+    "nome": "L5",
+    "comprimento_total": 244.0,
+    "largura_total": 122.0,
+    "nivel_delta": 12,
+    "n_paineis": 7,
+    "pavimentos": [
+      "1PV",
+      "INF2",
+      "TER"
+    ],
+    "_sources": {
+      "1PV": {
+        "comprimento_total": 244.0,
+        "largura_total": 122.0,
+        "nivel_delta": 12
+      },
+      "INF2": {
+        "comprimento_total": 244.0,
+        "largura_total": 122.0,
+        "nivel_delta": 12
+      },
+      "TER": {
+        "comprimento_total": 244.0,
+        "largura_total": 122.0,
+        "nivel_delta": 12
+      }
+    }
+  },
+  "L2": {
+    "nome": "L2",
+    "comprimento_total": 244.0,
+    "largura_total": 122.0,
+    "nivel_delta": 12,
+    "n_paineis": 11,
+    "pavimentos": [
+      "1PV",
+      "INF2",
+      "TER"
+    ],
+    "_sources": {
+      "1PV": {
+        "comprimento_total": 244.0,
+        "largura_total": 122.0,
+        "nivel_delta": 12
+      },
+      "INF2": {
+        "comprimento_total": 244.0,
+        "largura_total": 122.0,
+        "nivel_delta": 12
+      },
+      "TER": {
+        "comprimento_total": 244.0,
+        "largura_total": 122.0,
+        "nivel_delta": 12
+      }
+    }
+  },
+  "L7": {
+    "nome": "L7",
+    "comprimento_total": 0.0,
+    "largura_total": 0.0,
+    "nivel_delta": 12,
+    "n_paineis": 0,
+    "pavimentos": [
+      "1PV",
+      "INF2",
+      "TER"
+    ],
+    "_sources": {
+      "1PV": {
+        "comprimento_total": 0.0,
+        "largura_total": 0.0,
+        "nivel_delta": 12
+      },
+      "INF2": {
+        "comprimento_total": 0.0,
+        "largura_total": 0.0,
+        "nivel_delta": 12
+      },
+      "TER": {
+        "comprimento_total": 0.0,
+        "largura_total": 0.0,
+        "nivel_delta": 12
+      }
+    }
+  },
+  "L10": {
+    "nome": "L10",
+    "comprimento_total": 0.0,
+    "largura_total": 0.0,
+    "nivel_delta": 12,
+    "n_paineis": 0,
+    "pavimentos": [
+      "1PV",
+      "INF2",
+      "TER"
+    ],
+    "_sources": {
+      "1PV": {
+        "comprimento_total": 0.0,
+        "largura_total": 0.0,
+        "nivel_delta": 12
+      },
+      "INF2": {
+        "comprimento_total": 0.0,
+        "largura_total": 0.0,
+        "nivel_delta": 12
+      },
+      "TER": {
+        "comprimento_total": 0.0,
+        "largura_total": 0.0,
+        "nivel_delta": 12
+      }
+    }
+  },
+  "L8": {
+    "nome": "L8",
+    "comprimento_total": 0.0,
+    "largura_total": 0.0,
+    "nivel_delta": 12,
+    "n_paineis": 0,
+    "pavimentos": [
+      "1PV",
+      "TER"
+    ],
+    "_sources": {
+      "1PV": {
+        "comprimento_total": 0.0,
+        "largura_total": 0.0,
+        "nivel_delta": 12
+      },
+      "TER": {
+        "comprimento_total": 0.0,
+        "largura_total": 0.0,
+        "nivel_delta": 12
+      }
+    }
+  },
+  "L9": {
+    "nome": "L9",
+    "comprimento_total": 0.0,
+    "largura_total": 0.0,
+    "nivel_delta": 12,
+    "n_paineis": 0,
+    "pavimentos": [
+      "1PV",
+      "TER"
+    ],
+    "_sources": {
+      "1PV": {
+        "comprimento_total": 0.0,
+        "largura_total": 0.0,
+        "nivel_delta": 12
+      },
+      "TER": {
+        "comprimento_total": 0.0,
+        "largura_total": 0.0,
+        "nivel_delta": 12
+      }
+    }
+  },
+  "L11": {
+    "nome": "L11",
+    "comprimento_total": 0.0,
+    "largura_total": 0.0,
+    "nivel_delta": 12,
+    "n_paineis": 0,
+    "pavimentos": [
+      "1PV",
+      "INF2",
+      "TER"
+    ],
+    "_sources": {
+      "1PV": {
+        "comprimento_total": 0.0,
+        "largura_total": 0.0,
+        "nivel_delta": 12
+      },
+      "INF2": {
+        "comprimento_total": 0.0,
+        "largura_total": 0.0,
+        "nivel_delta": 12
+      },
+      "TER": {
+        "comprimento_total": 0.0,
+        "largura_total": 0.0,
+        "nivel_delta": 12
+      }
+    }
+  },
+  "L13": {
+    "nome": "L13",
+    "comprimento_total": 0.0,
+    "largura_total": 0.0,
+    "nivel_delta": 12,
+    "n_paineis": 0,
+    "pavimentos": [
+      "1PV",
+      "INF2",
+      "TER"
+    ],
+    "_sources": {
+      "1PV": {
+        "comprimento_total": 0.0,
+        "largura_total": 0.0,
+        "nivel_delta": 12
+      },
+      "INF2": {
+        "comprimento_total": 0.0,
+        "largura_total": 0.0,
+        "nivel_delta": 12
+      },
+      "TER": {
+        "comprimento_total": 0.0,
+        "largura_total": 0.0,
+        "nivel_delta": 12
+      }
+    }
+  },
+  "L12": {
+    "nome": "L12",
+    "comprimento_total": 0.0,
+    "largura_total": 0.0,
+    "nivel_delta": 12,
+    "n_paineis": 0,
+    "pavimentos": [
+      "1PV",
+      "INF2",
+      "TER"
+    ],
+    "_sources": {
+      "1PV": {
+        "comprimento_total": 0.0,
+        "largura_total": 0.0,
+        "nivel_delta": 12
+      },
+      "INF2": {
+        "comprimento_total": 0.0,
+        "largura_total": 0.0,
+        "nivel_delta": 12
+      },
+      "TER": {
+        "comprimento_total": 0.0,
+        "largura_total": 0.0,
+        "nivel_delta": 12
+      }
+    }
+  },
+  "L101": {
+    "nome": "L101",
+    "comprimento_total": 0.0,
+    "largura_total": 0.0,
+    "nivel_delta": 14,
+    "n_paineis": 0,
+    "pavimentos": [
+      "INF2"
+    ],
+    "_sources": {
+      "INF2": {
+        "comprimento_total": 0.0,
+        "largura_total": 0.0,
+        "nivel_delta": 14
+      }
+    }
+  },
+  "L102": {
+    "nome": "L102",
+    "comprimento_total": 0.0,
+    "largura_total": 0.0,
+    "nivel_delta": 14,
+    "n_paineis": 0,
+    "pavimentos": [
+      "INF2"
+    ],
+    "_sources": {
+      "INF2": {
+        "comprimento_total": 0.0,
+        "largura_total": 0.0,
+        "nivel_delta": 14
+      }
+    }
+  },
+  "L14": {
+    "nome": "L14",
+    "comprimento_total": 0.0,
+    "largura_total": 0.0,
+    "nivel_delta": 12,
+    "n_paineis": 0,
+    "pavimentos": [
+      "TER"
+    ],
+    "_sources": {
+      "TER": {
+        "comprimento_total": 0.0,
+        "largura_total": 0.0,
+        "nivel_delta": 12
+      }
+    }
+  },
+  "L103": {
+    "nome": "L103",
+    "comprimento_total": 0.0,
+    "largura_total": 0.0,
+    "nivel_delta": 14,
+    "n_paineis": 0,
+    "pavimentos": [
+      "TER"
+    ],
+    "_sources": {
+      "TER": {
+        "comprimento_total": 0.0,
+        "largura_total": 0.0,
+        "nivel_delta": 14
+      }
+    }
+  },
+  "L104": {
+    "nome": "L104",
+    "comprimento_total": 0.0,
+    "largura_total": 0.0,
+    "nivel_delta": 14,
+    "n_paineis": 0,
+    "pavimentos": [
+      "TER"
+    ],
+    "_sources": {
+      "TER": {
+        "comprimento_total": 0.0,
+        "largura_total": 0.0,
+        "nivel_delta": 14
+      }
+    }
+  }
+}

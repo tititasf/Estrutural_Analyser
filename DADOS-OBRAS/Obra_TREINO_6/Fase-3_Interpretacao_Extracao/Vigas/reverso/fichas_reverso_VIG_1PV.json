@@ -74,7 +74,7 @@
       ],
       "n_paineis": 4,
       "pillar_left": "P18",
-      "pillar_right": "P9",
+      "pillar_right": "P19",
       "_n_dims_h": 8,
       "_bbox_w": 651.0,
       "_bbox_h": 329.9
@@ -92,7 +92,7 @@
       ],
       "n_paineis": 4,
       "pillar_left": "P18",
-      "pillar_right": "P9",
+      "pillar_right": "P19",
       "_n_dims_h": 8,
       "_bbox_w": 651.0,
       "_bbox_h": 329.9
@@ -256,7 +256,7 @@
         132.0
       ],
       "n_paineis": 4,
-      "pillar_left": "P2",
+      "pillar_left": "P5",
       "pillar_right": "P8",
       "_n_dims_h": 8,
       "_bbox_w": 476.0,
@@ -274,7 +274,7 @@
         132.0
       ],
       "n_paineis": 4,
-      "pillar_left": "P2",
+      "pillar_left": "P5",
       "pillar_right": "P8",
       "_n_dims_h": 8,
       "_bbox_w": 476.0,
@@ -536,8 +536,8 @@
         59.0
       ],
       "n_paineis": 10,
-      "pillar_left": null,
-      "pillar_right": null,
+      "pillar_left": "P17",
+      "pillar_right": "P19",
       "_n_dims_h": 14,
       "_bbox_w": 476.0,
       "_bbox_h": 421.5
@@ -565,8 +565,8 @@
         59.0
       ],
       "n_paineis": 15,
-      "pillar_left": null,
-      "pillar_right": null,
+      "pillar_left": "P17",
+      "pillar_right": "P19",
       "_n_dims_h": 20,
       "_bbox_w": 476.0,
       "_bbox_h": 615.6
@@ -644,8 +644,8 @@
         59.0
       ],
       "n_paineis": 15,
-      "pillar_left": null,
-      "pillar_right": null,
+      "pillar_left": "P17",
+      "pillar_right": "P19",
       "_n_dims_h": 20,
       "_bbox_w": 476.0,
       "_bbox_h": 615.6
@@ -673,8 +673,8 @@
         59.0
       ],
       "n_paineis": 15,
-      "pillar_left": null,
-      "pillar_right": null,
+      "pillar_left": "P17",
+      "pillar_right": "P19",
       "_n_dims_h": 20,
       "_bbox_w": 476.0,
       "_bbox_h": 615.6
@@ -1415,7 +1415,7 @@
         72.0
       ],
       "n_paineis": 7,
-      "pillar_left": null,
+      "pillar_left": "P3",
       "pillar_right": null,
       "_n_dims_h": 9,
       "_bbox_w": 764.0,
@@ -1931,8 +1931,8 @@
         54.0
       ],
       "n_paineis": 20,
-      "pillar_left": "P9",
-      "pillar_right": "P104",
+      "pillar_left": "P17",
+      "pillar_right": "P21",
       "_n_dims_h": 35,
       "_bbox_w": 856.0,
       "_bbox_h": 1151.7

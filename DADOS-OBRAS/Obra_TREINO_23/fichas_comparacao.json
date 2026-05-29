@@ -808,7 +808,7 @@
           "pct": null
         },
         "pillar_left": {
-          "rev": "P410",
+          "rev": "P411",
           "status": "REV_ONLY"
         },
         "pillar_right": {
@@ -856,12 +856,12 @@
           "pct": 40.0
         },
         "pillar_left": {
-          "rev": null,
-          "status": "AUSENTE"
+          "rev": "P605",
+          "status": "REV_ONLY"
         },
         "pillar_right": {
-          "rev": null,
-          "status": "AUSENTE"
+          "rev": "P606",
+          "status": "REV_ONLY"
         }
       }
     },
@@ -952,12 +952,12 @@
           "pct": null
         },
         "pillar_left": {
-          "rev": null,
-          "status": "AUSENTE"
+          "rev": "P605",
+          "status": "REV_ONLY"
         },
         "pillar_right": {
-          "rev": null,
-          "status": "AUSENTE"
+          "rev": "P605",
+          "status": "REV_ONLY"
         }
       }
     },
@@ -1432,11 +1432,11 @@
           "pct": null
         },
         "pillar_left": {
-          "rev": "P606",
+          "rev": "P605",
           "status": "REV_ONLY"
         },
         "pillar_right": {
-          "rev": "P103",
+          "rev": "P308",
           "status": "REV_ONLY"
         }
       }
@@ -1649,37 +1649,6 @@
         }
       }
     },
-    "L2A": {
-      "id": "L2A",
-      "tipo": "LAJ",
-      "campos": {
-        "comprimento": {
-          "fwd": null,
-          "rev": null,
-          "rev_adj": null,
-          "status": "AUSENTE_AMBOS",
-          "delta_cm": null,
-          "pct": null
-        },
-        "largura": {
-          "fwd": null,
-          "rev": null,
-          "status": "AUSENTE_AMBOS",
-          "delta_cm": null,
-          "pct": null
-        },
-        "n_paineis": {
-          "fwd": null,
-          "rev": null,
-          "status": "AUSENTE"
-        },
-        "nivel_delta": {
-          "fwd": null,
-          "rev": null,
-          "status": "AUSENTE"
-        }
-      }
-    },
     "L2": {
       "id": "L2",
       "tipo": "LAJ",
@@ -1708,6 +1677,37 @@
           "fwd": null,
           "rev": 12,
           "status": "REV_ONLY"
+        }
+      }
+    },
+    "L2A": {
+      "id": "L2A",
+      "tipo": "LAJ",
+      "campos": {
+        "comprimento": {
+          "fwd": null,
+          "rev": null,
+          "rev_adj": null,
+          "status": "AUSENTE_AMBOS",
+          "delta_cm": null,
+          "pct": null
+        },
+        "largura": {
+          "fwd": null,
+          "rev": null,
+          "status": "AUSENTE_AMBOS",
+          "delta_cm": null,
+          "pct": null
+        },
+        "n_paineis": {
+          "fwd": null,
+          "rev": null,
+          "status": "AUSENTE"
+        },
+        "nivel_delta": {
+          "fwd": null,
+          "rev": null,
+          "status": "AUSENTE"
         }
       }
     },

@@ -328,7 +328,7 @@
           "pct": null
         },
         "pillar_left": {
-          "rev": "P259",
+          "rev": "P265",
           "status": "REV_ONLY"
         },
         "pillar_right": {
@@ -428,7 +428,7 @@
           "status": "REV_ONLY"
         },
         "pillar_right": {
-          "rev": "P294",
+          "rev": "P295",
           "status": "REV_ONLY"
         }
       }
@@ -476,7 +476,7 @@
           "status": "REV_ONLY"
         },
         "pillar_right": {
-          "rev": "P299",
+          "rev": "P303",
           "status": "REV_ONLY"
         }
       }
@@ -520,11 +520,11 @@
           "pct": 100.0
         },
         "pillar_left": {
-          "rev": "P298",
+          "rev": "P251",
           "status": "REV_ONLY"
         },
         "pillar_right": {
-          "rev": "P296",
+          "rev": "P276",
           "status": "REV_ONLY"
         }
       }
@@ -572,7 +572,7 @@
           "status": "REV_ONLY"
         },
         "pillar_right": {
-          "rev": "P311",
+          "rev": "P318",
           "status": "REV_ONLY"
         }
       }
@@ -668,7 +668,7 @@
           "status": "REV_ONLY"
         },
         "pillar_right": {
-          "rev": "P341",
+          "rev": "P330",
           "status": "REV_ONLY"
         }
       }
@@ -712,11 +712,11 @@
           "pct": null
         },
         "pillar_left": {
-          "rev": "P315",
+          "rev": "P297",
           "status": "REV_ONLY"
         },
         "pillar_right": {
-          "rev": "P218",
+          "rev": "P323",
           "status": "REV_ONLY"
         }
       }
@@ -764,7 +764,7 @@
           "status": "REV_ONLY"
         },
         "pillar_right": {
-          "rev": "P282",
+          "rev": "P219",
           "status": "REV_ONLY"
         }
       }
@@ -860,7 +860,7 @@
           "status": "REV_ONLY"
         },
         "pillar_right": {
-          "rev": "P317",
+          "rev": "P283",
           "status": "REV_ONLY"
         }
       }
@@ -956,7 +956,7 @@
           "status": "REV_ONLY"
         },
         "pillar_right": {
-          "rev": "P220",
+          "rev": "P318",
           "status": "REV_ONLY"
         }
       }
@@ -1004,7 +1004,7 @@
           "status": "REV_ONLY"
         },
         "pillar_right": {
-          "rev": "P284",
+          "rev": "P254",
           "status": "REV_ONLY"
         }
       }
@@ -1048,11 +1048,11 @@
           "pct": null
         },
         "pillar_left": {
-          "rev": "P318",
+          "rev": "P284",
           "status": "REV_ONLY"
         },
         "pillar_right": {
-          "rev": "P221",
+          "rev": "P319",
           "status": "REV_ONLY"
         }
       }
@@ -1096,7 +1096,7 @@
           "pct": null
         },
         "pillar_left": {
-          "rev": "P221",
+          "rev": "P318",
           "status": "REV_ONLY"
         },
         "pillar_right": {
@@ -1148,7 +1148,7 @@
           "status": "REV_ONLY"
         },
         "pillar_right": {
-          "rev": "P222",
+          "rev": "P320",
           "status": "REV_ONLY"
         }
       }
@@ -1196,7 +1196,7 @@
           "status": "REV_ONLY"
         },
         "pillar_right": {
-          "rev": "P286",
+          "rev": "P256",
           "status": "REV_ONLY"
         }
       }
@@ -1288,11 +1288,11 @@
           "pct": null
         },
         "pillar_left": {
-          "rev": "P223",
+          "rev": "P320",
           "status": "REV_ONLY"
         },
         "pillar_right": {
-          "rev": "P287",
+          "rev": "P257",
           "status": "REV_ONLY"
         }
       }
@@ -1340,7 +1340,7 @@
           "status": "REV_ONLY"
         },
         "pillar_right": {
-          "rev": "P224",
+          "rev": "P288",
           "status": "REV_ONLY"
         }
       }
@@ -1388,7 +1388,7 @@
           "status": "REV_ONLY"
         },
         "pillar_right": {
-          "rev": "P288",
+          "rev": "P258",
           "status": "REV_ONLY"
         }
       }
@@ -1480,7 +1480,7 @@
           "pct": null
         },
         "pillar_left": {
-          "rev": "P225",
+          "rev": "P288",
           "status": "REV_ONLY"
         },
         "pillar_right": {
@@ -1532,7 +1532,7 @@
           "status": "REV_ONLY"
         },
         "pillar_right": {
-          "rev": "P226",
+          "rev": "P324",
           "status": "REV_ONLY"
         }
       }
@@ -1580,7 +1580,7 @@
           "status": "REV_ONLY"
         },
         "pillar_right": {
-          "rev": "P290",
+          "rev": "P260",
           "status": "REV_ONLY"
         }
       }
@@ -1628,7 +1628,7 @@
           "status": "REV_ONLY"
         },
         "pillar_right": {
-          "rev": "P227",
+          "rev": "P325",
           "status": "REV_ONLY"
         }
       }
@@ -1672,11 +1672,11 @@
           "pct": null
         },
         "pillar_left": {
-          "rev": "P227",
+          "rev": "P324",
           "status": "REV_ONLY"
         },
         "pillar_right": {
-          "rev": "P291",
+          "rev": "P261",
           "status": "REV_ONLY"
         }
       }
@@ -1724,7 +1724,7 @@
           "status": "REV_ONLY"
         },
         "pillar_right": {
-          "rev": "P228",
+          "rev": "P326",
           "status": "REV_ONLY"
         }
       }
@@ -1768,11 +1768,11 @@
           "pct": null
         },
         "pillar_left": {
-          "rev": "P228",
+          "rev": "P325",
           "status": "REV_ONLY"
         },
         "pillar_right": {
-          "rev": "P292",
+          "rev": "P262",
           "status": "REV_ONLY"
         }
       }
@@ -1820,7 +1820,7 @@
           "status": "REV_ONLY"
         },
         "pillar_right": {
-          "rev": "P229",
+          "rev": "P327",
           "status": "REV_ONLY"
         }
       }
@@ -1864,7 +1864,7 @@
           "pct": null
         },
         "pillar_left": {
-          "rev": "P229",
+          "rev": "P326",
           "status": "REV_ONLY"
         },
         "pillar_right": {
@@ -1964,7 +1964,7 @@
           "status": "REV_ONLY"
         },
         "pillar_right": {
-          "rev": "P294",
+          "rev": "P264",
           "status": "REV_ONLY"
         }
       }
@@ -2012,7 +2012,7 @@
           "status": "REV_ONLY"
         },
         "pillar_right": {
-          "rev": "P329",
+          "rev": "P275",
           "status": "REV_ONLY"
         }
       }
@@ -2248,11 +2248,11 @@
           "pct": null
         },
         "pillar_left": {
-          "rev": "P295",
+          "rev": "P265",
           "status": "REV_ONLY"
         },
         "pillar_right": {
-          "rev": "P275",
+          "rev": "P276",
           "status": "REV_ONLY"
         }
       }
@@ -2296,7 +2296,7 @@
           "pct": null
         },
         "pillar_left": {
-          "rev": "P244",
+          "rev": "P329",
           "status": "REV_ONLY"
         },
         "pillar_right": {
@@ -2392,11 +2392,11 @@
           "pct": null
         },
         "pillar_left": {
-          "rev": "P313",
+          "rev": "P276",
           "status": "REV_ONLY"
         },
         "pillar_right": {
-          "rev": "P299",
+          "rev": "P266",
           "status": "REV_ONLY"
         }
       }
@@ -2444,7 +2444,7 @@
           "status": "REV_ONLY"
         },
         "pillar_right": {
-          "rev": "P233",
+          "rev": "P333",
           "status": "REV_ONLY"
         }
       }
@@ -2488,7 +2488,7 @@
           "pct": null
         },
         "pillar_left": {
-          "rev": "P233",
+          "rev": "P332",
           "status": "REV_ONLY"
         },
         "pillar_right": {
@@ -2536,7 +2536,7 @@
           "pct": null
         },
         "pillar_left": {
-          "rev": "P300",
+          "rev": "P266",
           "status": "REV_ONLY"
         },
         "pillar_right": {
@@ -2553,9 +2553,9 @@
           "fwd": 41.0,
           "p4": 41.0,
           "rev": 25.0,
-          "status": "MATCH",
-          "delta_cm": 5.0,
-          "pct": 16.7
+          "status": "AUSENTE_FWD",
+          "delta_cm": null,
+          "pct": null
         },
         "h": {
           "fwd": 50.0,
@@ -2588,7 +2588,7 @@
           "status": "REV_ONLY"
         },
         "pillar_right": {
-          "rev": "P268",
+          "rev": "P235",
           "status": "REV_ONLY"
         }
       }
@@ -2649,9 +2649,9 @@
           "fwd": 28.0,
           "p4": 28.0,
           "rev": 25.0,
-          "status": "MATCH",
-          "delta_cm": 3.0,
-          "pct": 10.7
+          "status": "AUSENTE_FWD",
+          "delta_cm": null,
+          "pct": null
         },
         "h": {
           "fwd": 50.0,
@@ -2684,7 +2684,7 @@
           "status": "REV_ONLY"
         },
         "pillar_right": {
-          "rev": "P335",
+          "rev": "P236",
           "status": "REV_ONLY"
         }
       }
@@ -2732,7 +2732,7 @@
           "status": "REV_ONLY"
         },
         "pillar_right": {
-          "rev": "P269",
+          "rev": "P303",
           "status": "REV_ONLY"
         }
       }
@@ -2824,11 +2824,11 @@
           "pct": null
         },
         "pillar_left": {
-          "rev": "P336",
+          "rev": "P236",
           "status": "REV_ONLY"
         },
         "pillar_right": {
-          "rev": "P237",
+          "rev": "P337",
           "status": "REV_ONLY"
         }
       }
@@ -2876,7 +2876,7 @@
           "status": "REV_ONLY"
         },
         "pillar_right": {
-          "rev": "P304",
+          "rev": "P270",
           "status": "REV_ONLY"
         }
       }
@@ -2920,11 +2920,11 @@
           "pct": null
         },
         "pillar_left": {
-          "rev": "P304",
+          "rev": "P237",
           "status": "REV_ONLY"
         },
         "pillar_right": {
-          "rev": "P238",
+          "rev": "P338",
           "status": "REV_ONLY"
         }
       }
@@ -2968,7 +2968,7 @@
           "pct": null
         },
         "pillar_left": {
-          "rev": "P270",
+          "rev": "P238",
           "status": "REV_ONLY"
         },
         "pillar_right": {
@@ -3016,7 +3016,7 @@
           "pct": null
         },
         "pillar_left": {
-          "rev": "P305",
+          "rev": "P270",
           "status": "REV_ONLY"
         },
         "pillar_right": {
@@ -3164,7 +3164,7 @@
           "status": "REV_ONLY"
         },
         "pillar_right": {
-          "rev": "P340",
+          "rev": "P307",
           "status": "REV_ONLY"
         }
       }
@@ -3356,7 +3356,7 @@
           "status": "REV_ONLY"
         },
         "pillar_right": {
-          "rev": "P308",
+          "rev": "P341",
           "status": "REV_ONLY"
         }
       }
@@ -3404,7 +3404,7 @@
           "status": "REV_ONLY"
         },
         "pillar_right": {
-          "rev": "P311",
+          "rev": "P296",
           "status": "REV_ONLY"
         }
       }
@@ -3452,7 +3452,7 @@
           "status": "REV_ONLY"
         },
         "pillar_right": {
-          "rev": "P232",
+          "rev": "P223",
           "status": "REV_ONLY"
         }
       }
@@ -3464,17 +3464,17 @@
       "tipo": "LAJ",
       "campos": {
         "comprimento": {
-          "fwd": 100.0,
+          "fwd": null,
           "rev": null,
           "rev_adj": null,
-          "status": "AUSENTE_REV",
+          "status": "AUSENTE_AMBOS",
           "delta_cm": null,
           "pct": null
         },
         "largura": {
-          "fwd": 100.0,
+          "fwd": null,
           "rev": null,
-          "status": "AUSENTE_REV",
+          "status": "AUSENTE_AMBOS",
           "delta_cm": null,
           "pct": null
         },
@@ -3495,17 +3495,17 @@
       "tipo": "LAJ",
       "campos": {
         "comprimento": {
-          "fwd": 100.0,
+          "fwd": null,
           "rev": null,
           "rev_adj": null,
-          "status": "AUSENTE_REV",
+          "status": "AUSENTE_AMBOS",
           "delta_cm": null,
           "pct": null
         },
         "largura": {
-          "fwd": 100.0,
+          "fwd": null,
           "rev": null,
-          "status": "AUSENTE_REV",
+          "status": "AUSENTE_AMBOS",
           "delta_cm": null,
           "pct": null
         },
@@ -3526,17 +3526,17 @@
       "tipo": "LAJ",
       "campos": {
         "comprimento": {
-          "fwd": 100.0,
+          "fwd": null,
           "rev": null,
           "rev_adj": null,
-          "status": "AUSENTE_REV",
+          "status": "AUSENTE_AMBOS",
           "delta_cm": null,
           "pct": null
         },
         "largura": {
-          "fwd": 100.0,
+          "fwd": null,
           "rev": null,
-          "status": "AUSENTE_REV",
+          "status": "AUSENTE_AMBOS",
           "delta_cm": null,
           "pct": null
         },
@@ -3557,17 +3557,17 @@
       "tipo": "LAJ",
       "campos": {
         "comprimento": {
-          "fwd": 100.0,
+          "fwd": null,
           "rev": null,
           "rev_adj": null,
-          "status": "AUSENTE_REV",
+          "status": "AUSENTE_AMBOS",
           "delta_cm": null,
           "pct": null
         },
         "largura": {
-          "fwd": 100.0,
+          "fwd": null,
           "rev": null,
-          "status": "AUSENTE_REV",
+          "status": "AUSENTE_AMBOS",
           "delta_cm": null,
           "pct": null
         },
@@ -3588,17 +3588,17 @@
       "tipo": "LAJ",
       "campos": {
         "comprimento": {
-          "fwd": 100.0,
+          "fwd": null,
           "rev": null,
           "rev_adj": null,
-          "status": "AUSENTE_REV",
+          "status": "AUSENTE_AMBOS",
           "delta_cm": null,
           "pct": null
         },
         "largura": {
-          "fwd": 100.0,
+          "fwd": null,
           "rev": null,
-          "status": "AUSENTE_REV",
+          "status": "AUSENTE_AMBOS",
           "delta_cm": null,
           "pct": null
         },
@@ -3619,17 +3619,17 @@
       "tipo": "LAJ",
       "campos": {
         "comprimento": {
-          "fwd": 100.0,
+          "fwd": null,
           "rev": null,
           "rev_adj": null,
-          "status": "AUSENTE_REV",
+          "status": "AUSENTE_AMBOS",
           "delta_cm": null,
           "pct": null
         },
         "largura": {
-          "fwd": 100.0,
+          "fwd": null,
           "rev": null,
-          "status": "AUSENTE_REV",
+          "status": "AUSENTE_AMBOS",
           "delta_cm": null,
           "pct": null
         },
@@ -3650,17 +3650,17 @@
       "tipo": "LAJ",
       "campos": {
         "comprimento": {
-          "fwd": 100.0,
+          "fwd": null,
           "rev": null,
           "rev_adj": null,
-          "status": "AUSENTE_REV",
+          "status": "AUSENTE_AMBOS",
           "delta_cm": null,
           "pct": null
         },
         "largura": {
-          "fwd": 100.0,
+          "fwd": null,
           "rev": null,
-          "status": "AUSENTE_REV",
+          "status": "AUSENTE_AMBOS",
           "delta_cm": null,
           "pct": null
         },
@@ -3681,17 +3681,17 @@
       "tipo": "LAJ",
       "campos": {
         "comprimento": {
-          "fwd": 100.0,
+          "fwd": null,
           "rev": null,
           "rev_adj": null,
-          "status": "AUSENTE_REV",
+          "status": "AUSENTE_AMBOS",
           "delta_cm": null,
           "pct": null
         },
         "largura": {
-          "fwd": 100.0,
+          "fwd": null,
           "rev": null,
-          "status": "AUSENTE_REV",
+          "status": "AUSENTE_AMBOS",
           "delta_cm": null,
           "pct": null
         },
@@ -3712,17 +3712,17 @@
       "tipo": "LAJ",
       "campos": {
         "comprimento": {
-          "fwd": 100.0,
+          "fwd": null,
           "rev": null,
           "rev_adj": null,
-          "status": "AUSENTE_REV",
+          "status": "AUSENTE_AMBOS",
           "delta_cm": null,
           "pct": null
         },
         "largura": {
-          "fwd": 100.0,
+          "fwd": null,
           "rev": null,
-          "status": "AUSENTE_REV",
+          "status": "AUSENTE_AMBOS",
           "delta_cm": null,
           "pct": null
         },
@@ -3743,17 +3743,17 @@
       "tipo": "LAJ",
       "campos": {
         "comprimento": {
-          "fwd": 100.0,
+          "fwd": null,
           "rev": null,
           "rev_adj": null,
-          "status": "AUSENTE_REV",
+          "status": "AUSENTE_AMBOS",
           "delta_cm": null,
           "pct": null
         },
         "largura": {
-          "fwd": 100.0,
+          "fwd": null,
           "rev": null,
-          "status": "AUSENTE_REV",
+          "status": "AUSENTE_AMBOS",
           "delta_cm": null,
           "pct": null
         },
@@ -3774,17 +3774,17 @@
       "tipo": "LAJ",
       "campos": {
         "comprimento": {
-          "fwd": 100.0,
+          "fwd": null,
           "rev": null,
           "rev_adj": null,
-          "status": "AUSENTE_REV",
+          "status": "AUSENTE_AMBOS",
           "delta_cm": null,
           "pct": null
         },
         "largura": {
-          "fwd": 100.0,
+          "fwd": null,
           "rev": null,
-          "status": "AUSENTE_REV",
+          "status": "AUSENTE_AMBOS",
           "delta_cm": null,
           "pct": null
         },
@@ -3805,17 +3805,17 @@
       "tipo": "LAJ",
       "campos": {
         "comprimento": {
-          "fwd": 100.0,
+          "fwd": null,
           "rev": null,
           "rev_adj": null,
-          "status": "AUSENTE_REV",
+          "status": "AUSENTE_AMBOS",
           "delta_cm": null,
           "pct": null
         },
         "largura": {
-          "fwd": 100.0,
+          "fwd": null,
           "rev": null,
-          "status": "AUSENTE_REV",
+          "status": "AUSENTE_AMBOS",
           "delta_cm": null,
           "pct": null
         },
@@ -3836,17 +3836,17 @@
       "tipo": "LAJ",
       "campos": {
         "comprimento": {
-          "fwd": 100.0,
+          "fwd": null,
           "rev": null,
           "rev_adj": null,
-          "status": "AUSENTE_REV",
+          "status": "AUSENTE_AMBOS",
           "delta_cm": null,
           "pct": null
         },
         "largura": {
-          "fwd": 100.0,
+          "fwd": null,
           "rev": null,
-          "status": "AUSENTE_REV",
+          "status": "AUSENTE_AMBOS",
           "delta_cm": null,
           "pct": null
         },
@@ -3867,17 +3867,17 @@
       "tipo": "LAJ",
       "campos": {
         "comprimento": {
-          "fwd": 100.0,
+          "fwd": null,
           "rev": null,
           "rev_adj": null,
-          "status": "AUSENTE_REV",
+          "status": "AUSENTE_AMBOS",
           "delta_cm": null,
           "pct": null
         },
         "largura": {
-          "fwd": 100.0,
+          "fwd": null,
           "rev": null,
-          "status": "AUSENTE_REV",
+          "status": "AUSENTE_AMBOS",
           "delta_cm": null,
           "pct": null
         },
@@ -3898,17 +3898,17 @@
       "tipo": "LAJ",
       "campos": {
         "comprimento": {
-          "fwd": 100.0,
+          "fwd": null,
           "rev": null,
           "rev_adj": null,
-          "status": "AUSENTE_REV",
+          "status": "AUSENTE_AMBOS",
           "delta_cm": null,
           "pct": null
         },
         "largura": {
-          "fwd": 100.0,
+          "fwd": null,
           "rev": null,
-          "status": "AUSENTE_REV",
+          "status": "AUSENTE_AMBOS",
           "delta_cm": null,
           "pct": null
         },
@@ -3929,17 +3929,17 @@
       "tipo": "LAJ",
       "campos": {
         "comprimento": {
-          "fwd": 100.0,
+          "fwd": null,
           "rev": null,
           "rev_adj": null,
-          "status": "AUSENTE_REV",
+          "status": "AUSENTE_AMBOS",
           "delta_cm": null,
           "pct": null
         },
         "largura": {
-          "fwd": 100.0,
+          "fwd": null,
           "rev": null,
-          "status": "AUSENTE_REV",
+          "status": "AUSENTE_AMBOS",
           "delta_cm": null,
           "pct": null
         },
@@ -3960,17 +3960,17 @@
       "tipo": "LAJ",
       "campos": {
         "comprimento": {
-          "fwd": 100.0,
+          "fwd": null,
           "rev": null,
           "rev_adj": null,
-          "status": "AUSENTE_REV",
+          "status": "AUSENTE_AMBOS",
           "delta_cm": null,
           "pct": null
         },
         "largura": {
-          "fwd": 100.0,
+          "fwd": null,
           "rev": null,
-          "status": "AUSENTE_REV",
+          "status": "AUSENTE_AMBOS",
           "delta_cm": null,
           "pct": null
         },
@@ -3991,17 +3991,17 @@
       "tipo": "LAJ",
       "campos": {
         "comprimento": {
-          "fwd": 100.0,
+          "fwd": null,
           "rev": null,
           "rev_adj": null,
-          "status": "AUSENTE_REV",
+          "status": "AUSENTE_AMBOS",
           "delta_cm": null,
           "pct": null
         },
         "largura": {
-          "fwd": 100.0,
+          "fwd": null,
           "rev": null,
-          "status": "AUSENTE_REV",
+          "status": "AUSENTE_AMBOS",
           "delta_cm": null,
           "pct": null
         },
@@ -4022,17 +4022,17 @@
       "tipo": "LAJ",
       "campos": {
         "comprimento": {
-          "fwd": 100.0,
+          "fwd": null,
           "rev": null,
           "rev_adj": null,
-          "status": "AUSENTE_REV",
+          "status": "AUSENTE_AMBOS",
           "delta_cm": null,
           "pct": null
         },
         "largura": {
-          "fwd": 100.0,
+          "fwd": null,
           "rev": null,
-          "status": "AUSENTE_REV",
+          "status": "AUSENTE_AMBOS",
           "delta_cm": null,
           "pct": null
         },
@@ -4053,17 +4053,17 @@
       "tipo": "LAJ",
       "campos": {
         "comprimento": {
-          "fwd": 100.0,
+          "fwd": null,
           "rev": null,
           "rev_adj": null,
-          "status": "AUSENTE_REV",
+          "status": "AUSENTE_AMBOS",
           "delta_cm": null,
           "pct": null
         },
         "largura": {
-          "fwd": 100.0,
+          "fwd": null,
           "rev": null,
-          "status": "AUSENTE_REV",
+          "status": "AUSENTE_AMBOS",
           "delta_cm": null,
           "pct": null
         },
@@ -4084,17 +4084,17 @@
       "tipo": "LAJ",
       "campos": {
         "comprimento": {
-          "fwd": 100.0,
+          "fwd": null,
           "rev": null,
           "rev_adj": null,
-          "status": "AUSENTE_REV",
+          "status": "AUSENTE_AMBOS",
           "delta_cm": null,
           "pct": null
         },
         "largura": {
-          "fwd": 100.0,
+          "fwd": null,
           "rev": null,
-          "status": "AUSENTE_REV",
+          "status": "AUSENTE_AMBOS",
           "delta_cm": null,
           "pct": null
         },
@@ -4115,17 +4115,17 @@
       "tipo": "LAJ",
       "campos": {
         "comprimento": {
-          "fwd": 100.0,
+          "fwd": null,
           "rev": null,
           "rev_adj": null,
-          "status": "AUSENTE_REV",
+          "status": "AUSENTE_AMBOS",
           "delta_cm": null,
           "pct": null
         },
         "largura": {
-          "fwd": 100.0,
+          "fwd": null,
           "rev": null,
-          "status": "AUSENTE_REV",
+          "status": "AUSENTE_AMBOS",
           "delta_cm": null,
           "pct": null
         },
@@ -4146,17 +4146,17 @@
       "tipo": "LAJ",
       "campos": {
         "comprimento": {
-          "fwd": 100.0,
+          "fwd": null,
           "rev": null,
           "rev_adj": null,
-          "status": "AUSENTE_REV",
+          "status": "AUSENTE_AMBOS",
           "delta_cm": null,
           "pct": null
         },
         "largura": {
-          "fwd": 100.0,
+          "fwd": null,
           "rev": null,
-          "status": "AUSENTE_REV",
+          "status": "AUSENTE_AMBOS",
           "delta_cm": null,
           "pct": null
         },
@@ -4177,17 +4177,17 @@
       "tipo": "LAJ",
       "campos": {
         "comprimento": {
-          "fwd": 100.0,
+          "fwd": null,
           "rev": null,
           "rev_adj": null,
-          "status": "AUSENTE_REV",
+          "status": "AUSENTE_AMBOS",
           "delta_cm": null,
           "pct": null
         },
         "largura": {
-          "fwd": 100.0,
+          "fwd": null,
           "rev": null,
-          "status": "AUSENTE_REV",
+          "status": "AUSENTE_AMBOS",
           "delta_cm": null,
           "pct": null
         },
@@ -4208,17 +4208,17 @@
       "tipo": "LAJ",
       "campos": {
         "comprimento": {
-          "fwd": 100.0,
+          "fwd": null,
           "rev": null,
           "rev_adj": null,
-          "status": "AUSENTE_REV",
+          "status": "AUSENTE_AMBOS",
           "delta_cm": null,
           "pct": null
         },
         "largura": {
-          "fwd": 100.0,
+          "fwd": null,
           "rev": null,
-          "status": "AUSENTE_REV",
+          "status": "AUSENTE_AMBOS",
           "delta_cm": null,
           "pct": null
         },
@@ -4239,17 +4239,17 @@
       "tipo": "LAJ",
       "campos": {
         "comprimento": {
-          "fwd": 100.0,
+          "fwd": null,
           "rev": null,
           "rev_adj": null,
-          "status": "AUSENTE_REV",
+          "status": "AUSENTE_AMBOS",
           "delta_cm": null,
           "pct": null
         },
         "largura": {
-          "fwd": 100.0,
+          "fwd": null,
           "rev": null,
-          "status": "AUSENTE_REV",
+          "status": "AUSENTE_AMBOS",
           "delta_cm": null,
           "pct": null
         },
@@ -4270,17 +4270,17 @@
       "tipo": "LAJ",
       "campos": {
         "comprimento": {
-          "fwd": 100.0,
+          "fwd": null,
           "rev": null,
           "rev_adj": null,
-          "status": "AUSENTE_REV",
+          "status": "AUSENTE_AMBOS",
           "delta_cm": null,
           "pct": null
         },
         "largura": {
-          "fwd": 100.0,
+          "fwd": null,
           "rev": null,
-          "status": "AUSENTE_REV",
+          "status": "AUSENTE_AMBOS",
           "delta_cm": null,
           "pct": null
         },
@@ -4301,17 +4301,17 @@
       "tipo": "LAJ",
       "campos": {
         "comprimento": {
-          "fwd": 100.0,
+          "fwd": null,
           "rev": null,
           "rev_adj": null,
-          "status": "AUSENTE_REV",
+          "status": "AUSENTE_AMBOS",
           "delta_cm": null,
           "pct": null
         },
         "largura": {
-          "fwd": 100.0,
+          "fwd": null,
           "rev": null,
-          "status": "AUSENTE_REV",
+          "status": "AUSENTE_AMBOS",
           "delta_cm": null,
           "pct": null
         },
@@ -4332,17 +4332,17 @@
       "tipo": "LAJ",
       "campos": {
         "comprimento": {
-          "fwd": 100.0,
+          "fwd": null,
           "rev": null,
           "rev_adj": null,
-          "status": "AUSENTE_REV",
+          "status": "AUSENTE_AMBOS",
           "delta_cm": null,
           "pct": null
         },
         "largura": {
-          "fwd": 100.0,
+          "fwd": null,
           "rev": null,
-          "status": "AUSENTE_REV",
+          "status": "AUSENTE_AMBOS",
           "delta_cm": null,
           "pct": null
         },
@@ -4363,17 +4363,17 @@
       "tipo": "LAJ",
       "campos": {
         "comprimento": {
-          "fwd": 100.0,
+          "fwd": null,
           "rev": null,
           "rev_adj": null,
-          "status": "AUSENTE_REV",
+          "status": "AUSENTE_AMBOS",
           "delta_cm": null,
           "pct": null
         },
         "largura": {
-          "fwd": 100.0,
+          "fwd": null,
           "rev": null,
-          "status": "AUSENTE_REV",
+          "status": "AUSENTE_AMBOS",
           "delta_cm": null,
           "pct": null
         },
@@ -4394,17 +4394,17 @@
       "tipo": "LAJ",
       "campos": {
         "comprimento": {
-          "fwd": 100.0,
+          "fwd": null,
           "rev": null,
           "rev_adj": null,
-          "status": "AUSENTE_REV",
+          "status": "AUSENTE_AMBOS",
           "delta_cm": null,
           "pct": null
         },
         "largura": {
-          "fwd": 100.0,
+          "fwd": null,
           "rev": null,
-          "status": "AUSENTE_REV",
+          "status": "AUSENTE_AMBOS",
           "delta_cm": null,
           "pct": null
         },
@@ -4425,17 +4425,17 @@
       "tipo": "LAJ",
       "campos": {
         "comprimento": {
-          "fwd": 100.0,
+          "fwd": null,
           "rev": null,
           "rev_adj": null,
-          "status": "AUSENTE_REV",
+          "status": "AUSENTE_AMBOS",
           "delta_cm": null,
           "pct": null
         },
         "largura": {
-          "fwd": 100.0,
+          "fwd": null,
           "rev": null,
-          "status": "AUSENTE_REV",
+          "status": "AUSENTE_AMBOS",
           "delta_cm": null,
           "pct": null
         },
@@ -4456,17 +4456,17 @@
       "tipo": "LAJ",
       "campos": {
         "comprimento": {
-          "fwd": 100.0,
+          "fwd": null,
           "rev": null,
           "rev_adj": null,
-          "status": "AUSENTE_REV",
+          "status": "AUSENTE_AMBOS",
           "delta_cm": null,
           "pct": null
         },
         "largura": {
-          "fwd": 100.0,
+          "fwd": null,
           "rev": null,
-          "status": "AUSENTE_REV",
+          "status": "AUSENTE_AMBOS",
           "delta_cm": null,
           "pct": null
         },
@@ -4487,17 +4487,17 @@
       "tipo": "LAJ",
       "campos": {
         "comprimento": {
-          "fwd": 100.0,
+          "fwd": null,
           "rev": null,
           "rev_adj": null,
-          "status": "AUSENTE_REV",
+          "status": "AUSENTE_AMBOS",
           "delta_cm": null,
           "pct": null
         },
         "largura": {
-          "fwd": 100.0,
+          "fwd": null,
           "rev": null,
-          "status": "AUSENTE_REV",
+          "status": "AUSENTE_AMBOS",
           "delta_cm": null,
           "pct": null
         },
@@ -4518,17 +4518,17 @@
       "tipo": "LAJ",
       "campos": {
         "comprimento": {
-          "fwd": 100.0,
+          "fwd": null,
           "rev": null,
           "rev_adj": null,
-          "status": "AUSENTE_REV",
+          "status": "AUSENTE_AMBOS",
           "delta_cm": null,
           "pct": null
         },
         "largura": {
-          "fwd": 100.0,
+          "fwd": null,
           "rev": null,
-          "status": "AUSENTE_REV",
+          "status": "AUSENTE_AMBOS",
           "delta_cm": null,
           "pct": null
         },
@@ -4549,17 +4549,17 @@
       "tipo": "LAJ",
       "campos": {
         "comprimento": {
-          "fwd": 100.0,
+          "fwd": null,
           "rev": null,
           "rev_adj": null,
-          "status": "AUSENTE_REV",
+          "status": "AUSENTE_AMBOS",
           "delta_cm": null,
           "pct": null
         },
         "largura": {
-          "fwd": 100.0,
+          "fwd": null,
           "rev": null,
-          "status": "AUSENTE_REV",
+          "status": "AUSENTE_AMBOS",
           "delta_cm": null,
           "pct": null
         },
@@ -4580,17 +4580,17 @@
       "tipo": "LAJ",
       "campos": {
         "comprimento": {
-          "fwd": 100.0,
+          "fwd": null,
           "rev": null,
           "rev_adj": null,
-          "status": "AUSENTE_REV",
+          "status": "AUSENTE_AMBOS",
           "delta_cm": null,
           "pct": null
         },
         "largura": {
-          "fwd": 100.0,
+          "fwd": null,
           "rev": null,
-          "status": "AUSENTE_REV",
+          "status": "AUSENTE_AMBOS",
           "delta_cm": null,
           "pct": null
         },
@@ -4611,17 +4611,17 @@
       "tipo": "LAJ",
       "campos": {
         "comprimento": {
-          "fwd": 100.0,
+          "fwd": null,
           "rev": null,
           "rev_adj": null,
-          "status": "AUSENTE_REV",
+          "status": "AUSENTE_AMBOS",
           "delta_cm": null,
           "pct": null
         },
         "largura": {
-          "fwd": 100.0,
+          "fwd": null,
           "rev": null,
-          "status": "AUSENTE_REV",
+          "status": "AUSENTE_AMBOS",
           "delta_cm": null,
           "pct": null
         },
@@ -4642,17 +4642,17 @@
       "tipo": "LAJ",
       "campos": {
         "comprimento": {
-          "fwd": 100.0,
+          "fwd": null,
           "rev": null,
           "rev_adj": null,
-          "status": "AUSENTE_REV",
+          "status": "AUSENTE_AMBOS",
           "delta_cm": null,
           "pct": null
         },
         "largura": {
-          "fwd": 100.0,
+          "fwd": null,
           "rev": null,
-          "status": "AUSENTE_REV",
+          "status": "AUSENTE_AMBOS",
           "delta_cm": null,
           "pct": null
         },
@@ -4673,17 +4673,17 @@
       "tipo": "LAJ",
       "campos": {
         "comprimento": {
-          "fwd": 100.0,
+          "fwd": null,
           "rev": null,
           "rev_adj": null,
-          "status": "AUSENTE_REV",
+          "status": "AUSENTE_AMBOS",
           "delta_cm": null,
           "pct": null
         },
         "largura": {
-          "fwd": 100.0,
+          "fwd": null,
           "rev": null,
-          "status": "AUSENTE_REV",
+          "status": "AUSENTE_AMBOS",
           "delta_cm": null,
           "pct": null
         },
@@ -4704,17 +4704,17 @@
       "tipo": "LAJ",
       "campos": {
         "comprimento": {
-          "fwd": 100.0,
+          "fwd": null,
           "rev": null,
           "rev_adj": null,
-          "status": "AUSENTE_REV",
+          "status": "AUSENTE_AMBOS",
           "delta_cm": null,
           "pct": null
         },
         "largura": {
-          "fwd": 100.0,
+          "fwd": null,
           "rev": null,
-          "status": "AUSENTE_REV",
+          "status": "AUSENTE_AMBOS",
           "delta_cm": null,
           "pct": null
         },
@@ -4735,17 +4735,17 @@
       "tipo": "LAJ",
       "campos": {
         "comprimento": {
-          "fwd": 100.0,
+          "fwd": null,
           "rev": null,
           "rev_adj": null,
-          "status": "AUSENTE_REV",
+          "status": "AUSENTE_AMBOS",
           "delta_cm": null,
           "pct": null
         },
         "largura": {
-          "fwd": 100.0,
+          "fwd": null,
           "rev": null,
-          "status": "AUSENTE_REV",
+          "status": "AUSENTE_AMBOS",
           "delta_cm": null,
           "pct": null
         },
@@ -4766,17 +4766,17 @@
       "tipo": "LAJ",
       "campos": {
         "comprimento": {
-          "fwd": 100.0,
+          "fwd": null,
           "rev": null,
           "rev_adj": null,
-          "status": "AUSENTE_REV",
+          "status": "AUSENTE_AMBOS",
           "delta_cm": null,
           "pct": null
         },
         "largura": {
-          "fwd": 100.0,
+          "fwd": null,
           "rev": null,
-          "status": "AUSENTE_REV",
+          "status": "AUSENTE_AMBOS",
           "delta_cm": null,
           "pct": null
         },
@@ -4797,17 +4797,17 @@
       "tipo": "LAJ",
       "campos": {
         "comprimento": {
-          "fwd": 100.0,
+          "fwd": null,
           "rev": null,
           "rev_adj": null,
-          "status": "AUSENTE_REV",
+          "status": "AUSENTE_AMBOS",
           "delta_cm": null,
           "pct": null
         },
         "largura": {
-          "fwd": 100.0,
+          "fwd": null,
           "rev": null,
-          "status": "AUSENTE_REV",
+          "status": "AUSENTE_AMBOS",
           "delta_cm": null,
           "pct": null
         },
@@ -4828,17 +4828,17 @@
       "tipo": "LAJ",
       "campos": {
         "comprimento": {
-          "fwd": 100.0,
+          "fwd": null,
           "rev": null,
           "rev_adj": null,
-          "status": "AUSENTE_REV",
+          "status": "AUSENTE_AMBOS",
           "delta_cm": null,
           "pct": null
         },
         "largura": {
-          "fwd": 100.0,
+          "fwd": null,
           "rev": null,
-          "status": "AUSENTE_REV",
+          "status": "AUSENTE_AMBOS",
           "delta_cm": null,
           "pct": null
         },
@@ -4859,17 +4859,17 @@
       "tipo": "LAJ",
       "campos": {
         "comprimento": {
-          "fwd": 100.0,
+          "fwd": null,
           "rev": null,
           "rev_adj": null,
-          "status": "AUSENTE_REV",
+          "status": "AUSENTE_AMBOS",
           "delta_cm": null,
           "pct": null
         },
         "largura": {
-          "fwd": 100.0,
+          "fwd": null,
           "rev": null,
-          "status": "AUSENTE_REV",
+          "status": "AUSENTE_AMBOS",
           "delta_cm": null,
           "pct": null
         },
@@ -4890,17 +4890,17 @@
       "tipo": "LAJ",
       "campos": {
         "comprimento": {
-          "fwd": 100.0,
+          "fwd": null,
           "rev": null,
           "rev_adj": null,
-          "status": "AUSENTE_REV",
+          "status": "AUSENTE_AMBOS",
           "delta_cm": null,
           "pct": null
         },
         "largura": {
-          "fwd": 100.0,
+          "fwd": null,
           "rev": null,
-          "status": "AUSENTE_REV",
+          "status": "AUSENTE_AMBOS",
           "delta_cm": null,
           "pct": null
         },
@@ -4921,17 +4921,17 @@
       "tipo": "LAJ",
       "campos": {
         "comprimento": {
-          "fwd": 100.0,
+          "fwd": null,
           "rev": null,
           "rev_adj": null,
-          "status": "AUSENTE_REV",
+          "status": "AUSENTE_AMBOS",
           "delta_cm": null,
           "pct": null
         },
         "largura": {
-          "fwd": 100.0,
+          "fwd": null,
           "rev": null,
-          "status": "AUSENTE_REV",
+          "status": "AUSENTE_AMBOS",
           "delta_cm": null,
           "pct": null
         },
@@ -4952,17 +4952,17 @@
       "tipo": "LAJ",
       "campos": {
         "comprimento": {
-          "fwd": 100.0,
+          "fwd": null,
           "rev": null,
           "rev_adj": null,
-          "status": "AUSENTE_REV",
+          "status": "AUSENTE_AMBOS",
           "delta_cm": null,
           "pct": null
         },
         "largura": {
-          "fwd": 100.0,
+          "fwd": null,
           "rev": null,
-          "status": "AUSENTE_REV",
+          "status": "AUSENTE_AMBOS",
           "delta_cm": null,
           "pct": null
         },
@@ -4983,17 +4983,17 @@
       "tipo": "LAJ",
       "campos": {
         "comprimento": {
-          "fwd": 100.0,
+          "fwd": null,
           "rev": null,
           "rev_adj": null,
-          "status": "AUSENTE_REV",
+          "status": "AUSENTE_AMBOS",
           "delta_cm": null,
           "pct": null
         },
         "largura": {
-          "fwd": 100.0,
+          "fwd": null,
           "rev": null,
-          "status": "AUSENTE_REV",
+          "status": "AUSENTE_AMBOS",
           "delta_cm": null,
           "pct": null
         },
@@ -5014,17 +5014,17 @@
       "tipo": "LAJ",
       "campos": {
         "comprimento": {
-          "fwd": 100.0,
+          "fwd": null,
           "rev": null,
           "rev_adj": null,
-          "status": "AUSENTE_REV",
+          "status": "AUSENTE_AMBOS",
           "delta_cm": null,
           "pct": null
         },
         "largura": {
-          "fwd": 100.0,
+          "fwd": null,
           "rev": null,
-          "status": "AUSENTE_REV",
+          "status": "AUSENTE_AMBOS",
           "delta_cm": null,
           "pct": null
         },
@@ -5045,17 +5045,17 @@
       "tipo": "LAJ",
       "campos": {
         "comprimento": {
-          "fwd": 100.0,
+          "fwd": null,
           "rev": null,
           "rev_adj": null,
-          "status": "AUSENTE_REV",
+          "status": "AUSENTE_AMBOS",
           "delta_cm": null,
           "pct": null
         },
         "largura": {
-          "fwd": 100.0,
+          "fwd": null,
           "rev": null,
-          "status": "AUSENTE_REV",
+          "status": "AUSENTE_AMBOS",
           "delta_cm": null,
           "pct": null
         },
@@ -5076,17 +5076,17 @@
       "tipo": "LAJ",
       "campos": {
         "comprimento": {
-          "fwd": 100.0,
+          "fwd": null,
           "rev": null,
           "rev_adj": null,
-          "status": "AUSENTE_REV",
+          "status": "AUSENTE_AMBOS",
           "delta_cm": null,
           "pct": null
         },
         "largura": {
-          "fwd": 100.0,
+          "fwd": null,
           "rev": null,
-          "status": "AUSENTE_REV",
+          "status": "AUSENTE_AMBOS",
           "delta_cm": null,
           "pct": null
         },
@@ -5107,17 +5107,17 @@
       "tipo": "LAJ",
       "campos": {
         "comprimento": {
-          "fwd": 100.0,
+          "fwd": null,
           "rev": null,
           "rev_adj": null,
-          "status": "AUSENTE_REV",
+          "status": "AUSENTE_AMBOS",
           "delta_cm": null,
           "pct": null
         },
         "largura": {
-          "fwd": 100.0,
+          "fwd": null,
           "rev": null,
-          "status": "AUSENTE_REV",
+          "status": "AUSENTE_AMBOS",
           "delta_cm": null,
           "pct": null
         },
@@ -5138,17 +5138,17 @@
       "tipo": "LAJ",
       "campos": {
         "comprimento": {
-          "fwd": 100.0,
+          "fwd": null,
           "rev": null,
           "rev_adj": null,
-          "status": "AUSENTE_REV",
+          "status": "AUSENTE_AMBOS",
           "delta_cm": null,
           "pct": null
         },
         "largura": {
-          "fwd": 100.0,
+          "fwd": null,
           "rev": null,
-          "status": "AUSENTE_REV",
+          "status": "AUSENTE_AMBOS",
           "delta_cm": null,
           "pct": null
         },
@@ -5169,17 +5169,17 @@
       "tipo": "LAJ",
       "campos": {
         "comprimento": {
-          "fwd": 100.0,
+          "fwd": null,
           "rev": null,
           "rev_adj": null,
-          "status": "AUSENTE_REV",
+          "status": "AUSENTE_AMBOS",
           "delta_cm": null,
           "pct": null
         },
         "largura": {
-          "fwd": 100.0,
+          "fwd": null,
           "rev": null,
-          "status": "AUSENTE_REV",
+          "status": "AUSENTE_AMBOS",
           "delta_cm": null,
           "pct": null
         },
@@ -5200,17 +5200,17 @@
       "tipo": "LAJ",
       "campos": {
         "comprimento": {
-          "fwd": 100.0,
+          "fwd": null,
           "rev": null,
           "rev_adj": null,
-          "status": "AUSENTE_REV",
+          "status": "AUSENTE_AMBOS",
           "delta_cm": null,
           "pct": null
         },
         "largura": {
-          "fwd": 100.0,
+          "fwd": null,
           "rev": null,
-          "status": "AUSENTE_REV",
+          "status": "AUSENTE_AMBOS",
           "delta_cm": null,
           "pct": null
         },
@@ -5231,17 +5231,17 @@
       "tipo": "LAJ",
       "campos": {
         "comprimento": {
-          "fwd": 100.0,
+          "fwd": null,
           "rev": null,
           "rev_adj": null,
-          "status": "AUSENTE_REV",
+          "status": "AUSENTE_AMBOS",
           "delta_cm": null,
           "pct": null
         },
         "largura": {
-          "fwd": 100.0,
+          "fwd": null,
           "rev": null,
-          "status": "AUSENTE_REV",
+          "status": "AUSENTE_AMBOS",
           "delta_cm": null,
           "pct": null
         },
@@ -5293,17 +5293,17 @@
       "tipo": "LAJ",
       "campos": {
         "comprimento": {
-          "fwd": 100.0,
+          "fwd": null,
           "rev": null,
           "rev_adj": null,
-          "status": "AUSENTE_REV",
+          "status": "AUSENTE_AMBOS",
           "delta_cm": null,
           "pct": null
         },
         "largura": {
-          "fwd": 100.0,
+          "fwd": null,
           "rev": null,
-          "status": "AUSENTE_REV",
+          "status": "AUSENTE_AMBOS",
           "delta_cm": null,
           "pct": null
         },
@@ -5324,17 +5324,17 @@
       "tipo": "LAJ",
       "campos": {
         "comprimento": {
-          "fwd": 100.0,
+          "fwd": null,
           "rev": null,
           "rev_adj": null,
-          "status": "AUSENTE_REV",
+          "status": "AUSENTE_AMBOS",
           "delta_cm": null,
           "pct": null
         },
         "largura": {
-          "fwd": 100.0,
+          "fwd": null,
           "rev": null,
-          "status": "AUSENTE_REV",
+          "status": "AUSENTE_AMBOS",
           "delta_cm": null,
           "pct": null
         },
@@ -5355,17 +5355,17 @@
       "tipo": "LAJ",
       "campos": {
         "comprimento": {
-          "fwd": 100.0,
+          "fwd": null,
           "rev": null,
           "rev_adj": null,
-          "status": "AUSENTE_REV",
+          "status": "AUSENTE_AMBOS",
           "delta_cm": null,
           "pct": null
         },
         "largura": {
-          "fwd": 100.0,
+          "fwd": null,
           "rev": null,
-          "status": "AUSENTE_REV",
+          "status": "AUSENTE_AMBOS",
           "delta_cm": null,
           "pct": null
         },
@@ -6130,17 +6130,17 @@
       "tipo": "LAJ",
       "campos": {
         "comprimento": {
-          "fwd": 100.0,
+          "fwd": null,
           "rev": null,
           "rev_adj": null,
-          "status": "AUSENTE_REV",
+          "status": "AUSENTE_AMBOS",
           "delta_cm": null,
           "pct": null
         },
         "largura": {
-          "fwd": 100.0,
+          "fwd": null,
           "rev": null,
-          "status": "AUSENTE_REV",
+          "status": "AUSENTE_AMBOS",
           "delta_cm": null,
           "pct": null
         },
@@ -7029,17 +7029,17 @@
       "tipo": "LAJ",
       "campos": {
         "comprimento": {
-          "fwd": 100.0,
+          "fwd": null,
           "rev": null,
           "rev_adj": null,
-          "status": "AUSENTE_REV",
+          "status": "AUSENTE_AMBOS",
           "delta_cm": null,
           "pct": null
         },
         "largura": {
-          "fwd": 100.0,
+          "fwd": null,
           "rev": null,
-          "status": "AUSENTE_REV",
+          "status": "AUSENTE_AMBOS",
           "delta_cm": null,
           "pct": null
         },
@@ -7060,17 +7060,17 @@
       "tipo": "LAJ",
       "campos": {
         "comprimento": {
-          "fwd": 100.0,
+          "fwd": null,
           "rev": null,
           "rev_adj": null,
-          "status": "AUSENTE_REV",
+          "status": "AUSENTE_AMBOS",
           "delta_cm": null,
           "pct": null
         },
         "largura": {
-          "fwd": 100.0,
+          "fwd": null,
           "rev": null,
-          "status": "AUSENTE_REV",
+          "status": "AUSENTE_AMBOS",
           "delta_cm": null,
           "pct": null
         },
@@ -7091,17 +7091,17 @@
       "tipo": "LAJ",
       "campos": {
         "comprimento": {
-          "fwd": 100.0,
+          "fwd": null,
           "rev": null,
           "rev_adj": null,
-          "status": "AUSENTE_REV",
+          "status": "AUSENTE_AMBOS",
           "delta_cm": null,
           "pct": null
         },
         "largura": {
-          "fwd": 100.0,
+          "fwd": null,
           "rev": null,
-          "status": "AUSENTE_REV",
+          "status": "AUSENTE_AMBOS",
           "delta_cm": null,
           "pct": null
         },

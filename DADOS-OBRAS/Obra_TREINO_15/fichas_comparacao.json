@@ -49,8 +49,8 @@
         }
       }
     },
-    "V1C": {
-      "id": "V1C",
+    "V1A": {
+      "id": "V1A",
       "tipo": "VIG",
       "campos": {
         "b": {
@@ -62,8 +62,8 @@
           "pct": null
         },
         "h": {
-          "fwd": 126.0,
-          "p4": 126.0,
+          "fwd": 60.0,
+          "p4": 60.0,
           "rev": null,
           "rev_secao": null,
           "rev_used": null,
@@ -72,8 +72,8 @@
           "pct": null
         },
         "comprimento": {
-          "fwd_vigas_json": 260.5,
-          "p4_sum_panels": 260.5,
+          "fwd_vigas_json": 279.5,
+          "p4_sum_panels": 279.5,
           "rev": null,
           "status": "AUSENTE_REV",
           "delta_cm": null,
@@ -145,8 +145,8 @@
         }
       }
     },
-    "V1A": {
-      "id": "V1A",
+    "V1C": {
+      "id": "V1C",
       "tipo": "VIG",
       "campos": {
         "b": {
@@ -158,8 +158,8 @@
           "pct": null
         },
         "h": {
-          "fwd": 60.0,
-          "p4": 60.0,
+          "fwd": 126.0,
+          "p4": 126.0,
           "rev": null,
           "rev_secao": null,
           "rev_used": null,
@@ -168,8 +168,8 @@
           "pct": null
         },
         "comprimento": {
-          "fwd_vigas_json": 279.5,
-          "p4_sum_panels": 279.5,
+          "fwd_vigas_json": 260.5,
+          "p4_sum_panels": 260.5,
           "rev": null,
           "status": "AUSENTE_REV",
           "delta_cm": null,
@@ -393,9 +393,9 @@
           "fwd": 40.0,
           "p4": 40.0,
           "rev": 19.0,
-          "status": "DELTA_SMALL",
-          "delta_cm": 10.0,
-          "pct": 34.5
+          "status": "AUSENTE_FWD",
+          "delta_cm": null,
+          "pct": null
         },
         "h": {
           "fwd": 126.0,
@@ -537,9 +537,9 @@
           "fwd": 40.0,
           "p4": 40.0,
           "rev": 19.0,
-          "status": "DELTA_SMALL",
-          "delta_cm": 10.0,
-          "pct": 34.5
+          "status": "AUSENTE_FWD",
+          "delta_cm": null,
+          "pct": null
         },
         "h": {
           "fwd": 150.0,
@@ -633,9 +633,9 @@
           "fwd": 40.0,
           "p4": 40.0,
           "rev": 19.0,
-          "status": "DELTA_SMALL",
-          "delta_cm": 10.0,
-          "pct": 34.5
+          "status": "AUSENTE_FWD",
+          "delta_cm": null,
+          "pct": null
         },
         "h": {
           "fwd": 150.0,
@@ -681,9 +681,9 @@
           "fwd": 40.0,
           "p4": 40.0,
           "rev": 19.0,
-          "status": "DELTA_SMALL",
-          "delta_cm": 10.0,
-          "pct": 34.5
+          "status": "AUSENTE_FWD",
+          "delta_cm": null,
+          "pct": null
         },
         "h": {
           "fwd": 150.0,
@@ -729,9 +729,9 @@
           "fwd": 40.0,
           "p4": 40.0,
           "rev": 19.0,
-          "status": "DELTA_SMALL",
-          "delta_cm": 10.0,
-          "pct": 34.5
+          "status": "AUSENTE_FWD",
+          "delta_cm": null,
+          "pct": null
         },
         "h": {
           "fwd": 116.0,
@@ -777,9 +777,9 @@
           "fwd": 40.0,
           "p4": 40.0,
           "rev": 14.0,
-          "status": "DELTA_SMALL",
-          "delta_cm": 15.0,
-          "pct": 51.7
+          "status": "AUSENTE_FWD",
+          "delta_cm": null,
+          "pct": null
         },
         "h": {
           "fwd": 116.0,
@@ -904,7 +904,7 @@
           "pct": null
         },
         "pillar_left": {
-          "rev": "P20",
+          "rev": "P11",
           "status": "REV_ONLY"
         },
         "pillar_right": {
@@ -921,9 +921,9 @@
           "fwd": 30.0,
           "p4": 30.0,
           "rev": 59.0,
-          "status": "DELTA_MED",
-          "delta_cm": 29.0,
-          "pct": 49.2
+          "status": "AUSENTE_FWD",
+          "delta_cm": null,
+          "pct": null
         },
         "h": {
           "fwd": 150.0,
@@ -1288,7 +1288,7 @@
           "pct": null
         },
         "pillar_left": {
-          "rev": "P11",
+          "rev": "P9",
           "status": "REV_ONLY"
         },
         "pillar_right": {
@@ -1353,9 +1353,9 @@
           "fwd": 40.0,
           "p4": 40.0,
           "rev": 14.0,
-          "status": "DELTA_SMALL",
-          "delta_cm": 15.0,
-          "pct": 51.7
+          "status": "AUSENTE_FWD",
+          "delta_cm": null,
+          "pct": null
         },
         "h": {
           "fwd": 126.0,
@@ -1449,9 +1449,9 @@
           "fwd": 40.0,
           "p4": 40.0,
           "rev": 14.0,
-          "status": "DELTA_SMALL",
-          "delta_cm": 15.0,
-          "pct": 51.7
+          "status": "AUSENTE_FWD",
+          "delta_cm": null,
+          "pct": null
         },
         "h": {
           "fwd": 138.0,
@@ -1497,9 +1497,9 @@
           "fwd": 40.0,
           "p4": 40.0,
           "rev": 19.0,
-          "status": "DELTA_SMALL",
-          "delta_cm": 10.0,
-          "pct": 34.5
+          "status": "AUSENTE_FWD",
+          "delta_cm": null,
+          "pct": null
         },
         "h": {
           "fwd": 286.0,
@@ -1545,9 +1545,9 @@
           "fwd": 40.0,
           "p4": 40.0,
           "rev": 14.0,
-          "status": "DELTA_SMALL",
-          "delta_cm": 15.0,
-          "pct": 51.7
+          "status": "AUSENTE_FWD",
+          "delta_cm": null,
+          "pct": null
         },
         "h": {
           "fwd": 174.0,
@@ -1633,54 +1633,6 @@
         }
       }
     },
-    "V30": {
-      "id": "V30",
-      "tipo": "VIG",
-      "campos": {
-        "b": {
-          "fwd": 19.0,
-          "p4": 19.0,
-          "rev": 14.0,
-          "status": "MATCH",
-          "delta_cm": 5.0,
-          "pct": 26.3
-        },
-        "h": {
-          "fwd": 126.0,
-          "p4": 126.0,
-          "rev": 67.0,
-          "rev_secao": 63.0,
-          "rev_used": 67.0,
-          "status": "AUSENTE_FWD",
-          "delta_cm": null,
-          "pct": null
-        },
-        "comprimento": {
-          "fwd_vigas_json": 244.0,
-          "p4_sum_panels": 244.0,
-          "rev": 244.0,
-          "status": "MATCH",
-          "delta_cm": 0.0,
-          "pct": 0.0
-        },
-        "n_paineis_A": {
-          "p4": 3,
-          "rev_raw": 7,
-          "rev_filtered_gt30": 7,
-          "status": "REV_ONLY",
-          "delta_cm": null,
-          "pct": null
-        },
-        "pillar_left": {
-          "rev": null,
-          "status": "AUSENTE"
-        },
-        "pillar_right": {
-          "rev": null,
-          "status": "AUSENTE"
-        }
-      }
-    },
     "V30A": {
       "id": "V30A",
       "tipo": "VIG",
@@ -1726,6 +1678,54 @@
         "pillar_right": {
           "rev": null,
           "status": "AUSENTE"
+        }
+      }
+    },
+    "V30": {
+      "id": "V30",
+      "tipo": "VIG",
+      "campos": {
+        "b": {
+          "fwd": 19.0,
+          "p4": 19.0,
+          "rev": 14.0,
+          "status": "MATCH",
+          "delta_cm": 5.0,
+          "pct": 26.3
+        },
+        "h": {
+          "fwd": 126.0,
+          "p4": 126.0,
+          "rev": 67.0,
+          "rev_secao": 63.0,
+          "rev_used": 67.0,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null,
+          "pct": null
+        },
+        "comprimento": {
+          "fwd_vigas_json": 244.0,
+          "p4_sum_panels": 244.0,
+          "rev": 244.0,
+          "status": "MATCH",
+          "delta_cm": 0.0,
+          "pct": 0.0
+        },
+        "n_paineis_A": {
+          "p4": 3,
+          "rev_raw": 7,
+          "rev_filtered_gt30": 7,
+          "status": "REV_ONLY",
+          "delta_cm": null,
+          "pct": null
+        },
+        "pillar_left": {
+          "rev": "P7",
+          "status": "REV_ONLY"
+        },
+        "pillar_right": {
+          "rev": "P2",
+          "status": "REV_ONLY"
         }
       }
     },
@@ -1785,9 +1785,9 @@
           "fwd": 40.0,
           "p4": 40.0,
           "rev": 19.0,
-          "status": "DELTA_SMALL",
-          "delta_cm": 10.0,
-          "pct": 34.5
+          "status": "AUSENTE_FWD",
+          "delta_cm": null,
+          "pct": null
         },
         "h": {
           "fwd": 126.0,
@@ -1833,9 +1833,9 @@
           "fwd": 40.0,
           "p4": 40.0,
           "rev": 19.0,
-          "status": "DELTA_SMALL",
-          "delta_cm": 10.0,
-          "pct": 34.5
+          "status": "AUSENTE_FWD",
+          "delta_cm": null,
+          "pct": null
         },
         "h": {
           "fwd": 198.0,
@@ -1929,9 +1929,9 @@
           "fwd": 40.0,
           "p4": 40.0,
           "rev": 59.0,
-          "status": "DELTA_MED",
-          "delta_cm": 19.0,
-          "pct": 32.2
+          "status": "AUSENTE_FWD",
+          "delta_cm": null,
+          "pct": null
         },
         "h": {
           "fwd": 150.0,

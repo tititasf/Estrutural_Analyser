@@ -1,4 +1,68 @@
 {
+  "V205": {
+    "nome": "V205",
+    "fundo": {
+      "b": 20.0,
+      "comprimento_total": 173.0,
+      "paineis": [],
+      "n_paineis": 0,
+      "_n_dims_h": 3,
+      "_y_band": [
+        33702,
+        33952
+      ]
+    },
+    "comprimento_cm": 173.0,
+    "altura_cm": 0,
+    "b": 20.0,
+    "h_secao": 0,
+    "has_lv": false,
+    "has_fv": true
+  },
+  "V301": {
+    "nome": "V301",
+    "fundo": {
+      "b": 14.0,
+      "comprimento_total": 171.0,
+      "paineis": [],
+      "n_paineis": 0,
+      "_n_dims_h": 3,
+      "_y_band": [
+        34029,
+        34129
+      ]
+    },
+    "comprimento_cm": 171.0,
+    "altura_cm": 0,
+    "b": 14.0,
+    "h_secao": 0,
+    "has_lv": false,
+    "has_fv": true
+  },
+  "V302": {
+    "nome": "V302",
+    "fundo": {
+      "b": 14.0,
+      "comprimento_total": 341.0,
+      "paineis": [
+        244.0,
+        171.0,
+        97.0
+      ],
+      "n_paineis": 3,
+      "_n_dims_h": 5,
+      "_y_band": [
+        33994,
+        34129
+      ]
+    },
+    "comprimento_cm": 341.0,
+    "altura_cm": 0,
+    "b": 14.0,
+    "h_secao": 0,
+    "has_lv": false,
+    "has_fv": true
+  },
   "V303": {
     "nome": "V303",
     "lado_A": {
@@ -51,12 +115,29 @@
       "_bbox_w": 1068.0,
       "_bbox_h": 324.1
     },
+    "fundo": {
+      "b": 30.0,
+      "comprimento_total": 341.0,
+      "paineis": [
+        244.0,
+        173.0,
+        171.0,
+        168.0,
+        97.0
+      ],
+      "n_paineis": 5,
+      "_n_dims_h": 11,
+      "_y_band": [
+        34029,
+        34279
+      ]
+    },
     "comprimento_cm": 371.0,
     "altura_cm": 62.0,
-    "b": 0,
+    "b": 30.0,
     "h_secao": 0,
     "has_lv": true,
-    "has_fv": false
+    "has_fv": true
   },
   "V304": {
     "nome": "V304",
@@ -149,8 +230,8 @@
         55.0
       ],
       "n_paineis": 10,
-      "pillar_left": "P3",
-      "pillar_right": "P303",
+      "pillar_left": "P2",
+      "pillar_right": "P203",
       "_n_dims_h": 19,
       "_bbox_w": 1044.0,
       "_bbox_h": 283.4
@@ -173,8 +254,8 @@
         55.0
       ],
       "n_paineis": 10,
-      "pillar_left": "P3",
-      "pillar_right": "P303",
+      "pillar_left": "P2",
+      "pillar_right": "P203",
       "_n_dims_h": 19,
       "_bbox_w": 1044.0,
       "_bbox_h": 283.4

@@ -424,7 +424,7 @@
           "pct": null
         },
         "pillar_left": {
-          "rev": "P7",
+          "rev": "P5",
           "status": "REV_ONLY"
         },
         "pillar_right": {
@@ -568,11 +568,11 @@
           "pct": null
         },
         "pillar_left": {
-          "rev": "P6",
+          "rev": "P15",
           "status": "REV_ONLY"
         },
         "pillar_right": {
-          "rev": "P31",
+          "rev": "P7",
           "status": "REV_ONLY"
         }
       }
@@ -616,7 +616,7 @@
           "pct": null
         },
         "pillar_left": {
-          "rev": "P33",
+          "rev": "P6",
           "status": "REV_ONLY"
         },
         "pillar_right": {
@@ -664,11 +664,11 @@
           "pct": null
         },
         "pillar_left": {
-          "rev": "P4",
+          "rev": "P9",
           "status": "REV_ONLY"
         },
         "pillar_right": {
-          "rev": "P4",
+          "rev": "P13",
           "status": "REV_ONLY"
         }
       }
@@ -808,7 +808,7 @@
           "pct": null
         },
         "pillar_left": {
-          "rev": "P7",
+          "rev": "P5",
           "status": "REV_ONLY"
         },
         "pillar_right": {
@@ -1144,11 +1144,11 @@
           "pct": null
         },
         "pillar_left": {
-          "rev": "P33",
+          "rev": "P19",
           "status": "REV_ONLY"
         },
         "pillar_right": {
-          "rev": "P25",
+          "rev": "P13",
           "status": "REV_ONLY"
         }
       }
@@ -1292,7 +1292,7 @@
           "status": "REV_ONLY"
         },
         "pillar_right": {
-          "rev": "P36",
+          "rev": "P71",
           "status": "REV_ONLY"
         }
       }
@@ -1432,11 +1432,11 @@
           "pct": null
         },
         "pillar_left": {
-          "rev": "P46",
+          "rev": "P17",
           "status": "REV_ONLY"
         },
         "pillar_right": {
-          "rev": "P51",
+          "rev": "P3",
           "status": "REV_ONLY"
         }
       }
@@ -1628,7 +1628,7 @@
           "status": "REV_ONLY"
         },
         "pillar_right": {
-          "rev": "P16",
+          "rev": "P26",
           "status": "REV_ONLY"
         }
       }
@@ -1724,7 +1724,7 @@
           "status": "REV_ONLY"
         },
         "pillar_right": {
-          "rev": "P31",
+          "rev": "P37",
           "status": "REV_ONLY"
         }
       }
@@ -1816,7 +1816,7 @@
           "pct": null
         },
         "pillar_left": {
-          "rev": "P7",
+          "rev": "P5",
           "status": "REV_ONLY"
         },
         "pillar_right": {
@@ -1912,11 +1912,11 @@
           "pct": null
         },
         "pillar_left": {
-          "rev": "P6",
+          "rev": "P15",
           "status": "REV_ONLY"
         },
         "pillar_right": {
-          "rev": "P33",
+          "rev": "P7",
           "status": "REV_ONLY"
         }
       }
@@ -1960,7 +1960,7 @@
           "pct": null
         },
         "pillar_left": {
-          "rev": "P33",
+          "rev": "P6",
           "status": "REV_ONLY"
         },
         "pillar_right": {
@@ -2008,7 +2008,7 @@
           "pct": null
         },
         "pillar_left": {
-          "rev": "P4",
+          "rev": "P9",
           "status": "REV_ONLY"
         },
         "pillar_right": {
@@ -2152,11 +2152,11 @@
           "pct": null
         },
         "pillar_left": {
-          "rev": "P43",
+          "rev": "P39",
           "status": "REV_ONLY"
         },
         "pillar_right": {
-          "rev": "P100",
+          "rev": "P48",
           "status": "REV_ONLY"
         }
       }
@@ -2248,7 +2248,7 @@
           "pct": null
         },
         "pillar_left": {
-          "rev": "P7",
+          "rev": "P5",
           "status": "REV_ONLY"
         },
         "pillar_right": {
@@ -2344,7 +2344,7 @@
           "pct": null
         },
         "pillar_left": {
-          "rev": "P25",
+          "rev": "P34",
           "status": "REV_ONLY"
         },
         "pillar_right": {
@@ -2584,11 +2584,11 @@
           "pct": null
         },
         "pillar_left": {
-          "rev": "P33",
+          "rev": "P19",
           "status": "REV_ONLY"
         },
         "pillar_right": {
-          "rev": "P25",
+          "rev": "P5",
           "status": "REV_ONLY"
         }
       }
@@ -2636,7 +2636,7 @@
           "status": "REV_ONLY"
         },
         "pillar_right": {
-          "rev": "P37",
+          "rev": "P24",
           "status": "REV_ONLY"
         }
       }
