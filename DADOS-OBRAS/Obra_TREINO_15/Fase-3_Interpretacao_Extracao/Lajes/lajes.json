@@ -1,4 +1,34 @@
 {
+  "L1": {
+    "comprimento": 266.5,
+    "largura": 244.0,
+    "coordenadas": [
+      [
+        0.0,
+        0.0
+      ],
+      [
+        266.5,
+        0.0
+      ],
+      [
+        266.5,
+        244.0
+      ],
+      [
+        0.0,
+        244.0
+      ],
+      [
+        0.0,
+        0.0
+      ]
+    ],
+    "area_cm2": 65026.0,
+    "confidence": 0.7,
+    "source": "paineis-grid",
+    "modo_selecionado": 0
+  },
   "L2": {
     "comprimento": 244.0,
     "largura": 244.0,
@@ -30,7 +60,7 @@
     "modo_selecionado": 0
   },
   "L3": {
-    "comprimento": 244.0,
+    "comprimento": 501.5,
     "largura": 244.0,
     "coordenadas": [
       [
@@ -38,11 +68,11 @@
         0.0
       ],
       [
-        244.0,
+        501.5,
         0.0
       ],
       [
-        244.0,
+        501.5,
         244.0
       ],
       [
@@ -54,9 +84,9 @@
         0.0
       ]
     ],
-    "area_cm2": 59536.0,
-    "confidence": 0.4,
-    "source": "cota-dims",
+    "area_cm2": 122366.0,
+    "confidence": 0.7,
+    "source": "paineis-grid",
     "modo_selecionado": 0
   },
   "L4": {
@@ -240,6 +270,66 @@
     "modo_selecionado": 0
   },
   "L10": {
+    "comprimento": 91.5,
+    "largura": 244.0,
+    "coordenadas": [
+      [
+        0.0,
+        0.0
+      ],
+      [
+        91.5,
+        0.0
+      ],
+      [
+        91.5,
+        244.0
+      ],
+      [
+        0.0,
+        244.0
+      ],
+      [
+        0.0,
+        0.0
+      ]
+    ],
+    "area_cm2": 22326.0,
+    "confidence": 0.6,
+    "source": "paineis-dimchain",
+    "modo_selecionado": 0
+  },
+  "L11": {
+    "comprimento": 91.5,
+    "largura": 244.0,
+    "coordenadas": [
+      [
+        0.0,
+        0.0
+      ],
+      [
+        91.5,
+        0.0
+      ],
+      [
+        91.5,
+        244.0
+      ],
+      [
+        0.0,
+        244.0
+      ],
+      [
+        0.0,
+        0.0
+      ]
+    ],
+    "area_cm2": 22326.0,
+    "confidence": 0.6,
+    "source": "paineis-dimchain",
+    "modo_selecionado": 0
+  },
+  "L12": {
     "comprimento": 244.0,
     "largura": 244.0,
     "coordenadas": [
@@ -269,7 +359,7 @@
     "source": "cota-dims",
     "modo_selecionado": 0
   },
-  "L6A": {
+  "L13": {
     "comprimento": 244.0,
     "largura": 244.0,
     "coordenadas": [
@@ -299,7 +389,97 @@
     "source": "cota-dims",
     "modo_selecionado": 0
   },
-  "L6B": {
+  "L14": {
+    "comprimento": 244.0,
+    "largura": 244.0,
+    "coordenadas": [
+      [
+        0.0,
+        0.0
+      ],
+      [
+        244.0,
+        0.0
+      ],
+      [
+        244.0,
+        244.0
+      ],
+      [
+        0.0,
+        244.0
+      ],
+      [
+        0.0,
+        0.0
+      ]
+    ],
+    "area_cm2": 59536.0,
+    "confidence": 0.4,
+    "source": "cota-dims",
+    "modo_selecionado": 0
+  },
+  "L15": {
+    "comprimento": 244.0,
+    "largura": 244.0,
+    "coordenadas": [
+      [
+        0.0,
+        0.0
+      ],
+      [
+        244.0,
+        0.0
+      ],
+      [
+        244.0,
+        244.0
+      ],
+      [
+        0.0,
+        244.0
+      ],
+      [
+        0.0,
+        0.0
+      ]
+    ],
+    "area_cm2": 59536.0,
+    "confidence": 0.4,
+    "source": "cota-dims",
+    "modo_selecionado": 0
+  },
+  "L16": {
+    "comprimento": 244.0,
+    "largura": 244.0,
+    "coordenadas": [
+      [
+        0.0,
+        0.0
+      ],
+      [
+        244.0,
+        0.0
+      ],
+      [
+        244.0,
+        244.0
+      ],
+      [
+        0.0,
+        244.0
+      ],
+      [
+        0.0,
+        0.0
+      ]
+    ],
+    "area_cm2": 59536.0,
+    "confidence": 0.4,
+    "source": "cota-dims",
+    "modo_selecionado": 0
+  },
+  "L17": {
     "comprimento": 244.0,
     "largura": 244.0,
     "coordenadas": [
@@ -330,7 +510,7 @@
     "modo_selecionado": 0
   },
   "_meta": {
-    "total": 10,
+    "total": 16,
     "integrado_em": "2026-03-08",
     "fontes": [
       "lajes_poligono.json"

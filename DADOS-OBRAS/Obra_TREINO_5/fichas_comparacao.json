@@ -360,12 +360,12 @@
           "pct": null
         },
         "comprimento": {
-          "fwd_vigas_json": 244.0,
+          "fwd_vigas_json": 333.0,
           "p4_sum_panels": 244.0,
           "rev": 333.0,
-          "status": "AUSENTE_FWD",
-          "delta_cm": null,
-          "pct": null
+          "status": "MATCH",
+          "delta_cm": 0.0,
+          "pct": 0.0
         },
         "n_paineis_A": {
           "p4": 3,
@@ -408,12 +408,12 @@
           "pct": null
         },
         "comprimento": {
-          "fwd_vigas_json": 244.0,
+          "fwd_vigas_json": 293.0,
           "p4_sum_panels": 244.0,
           "rev": 293.0,
-          "status": "AUSENTE_FWD",
-          "delta_cm": null,
-          "pct": null
+          "status": "MATCH",
+          "delta_cm": 0.0,
+          "pct": 0.0
         },
         "n_paineis_A": {
           "p4": 3,
@@ -456,12 +456,12 @@
           "pct": null
         },
         "comprimento": {
-          "fwd_vigas_json": 244.0,
+          "fwd_vigas_json": 279.5,
           "p4_sum_panels": 244.0,
           "rev": 279.5,
-          "status": "AUSENTE_FWD",
-          "delta_cm": null,
-          "pct": null
+          "status": "MATCH",
+          "delta_cm": 0.0,
+          "pct": 0.0
         },
         "n_paineis_A": {
           "p4": 3,
@@ -552,12 +552,12 @@
           "pct": null
         },
         "comprimento": {
-          "fwd_vigas_json": 244.0,
+          "fwd_vigas_json": 275.0,
           "p4_sum_panels": 244.0,
           "rev": 275.0,
-          "status": "AUSENTE_FWD",
-          "delta_cm": null,
-          "pct": null
+          "status": "MATCH",
+          "delta_cm": 0.0,
+          "pct": 0.0
         },
         "n_paineis_A": {
           "p4": 3,
@@ -600,12 +600,12 @@
           "pct": null
         },
         "comprimento": {
-          "fwd_vigas_json": 244.0,
+          "fwd_vigas_json": 275.0,
           "p4_sum_panels": 244.0,
           "rev": 275.0,
-          "status": "AUSENTE_FWD",
-          "delta_cm": null,
-          "pct": null
+          "status": "MATCH",
+          "delta_cm": 0.0,
+          "pct": 0.0
         },
         "n_paineis_A": {
           "p4": 3,
@@ -648,12 +648,12 @@
           "pct": null
         },
         "comprimento": {
-          "fwd_vigas_json": 1001.0,
+          "fwd_vigas_json": 289.0,
           "p4_sum_panels": 1001.0,
           "rev": 289.0,
-          "status": "AUSENTE_FWD",
-          "delta_cm": null,
-          "pct": null
+          "status": "MATCH",
+          "delta_cm": 0.0,
+          "pct": 0.0
         },
         "n_paineis_A": {
           "p4": 9,
@@ -696,12 +696,12 @@
           "pct": null
         },
         "comprimento": {
-          "fwd_vigas_json": 244.0,
+          "fwd_vigas_json": 333.0,
           "p4_sum_panels": 244.0,
           "rev": 333.0,
-          "status": "AUSENTE_FWD",
-          "delta_cm": null,
-          "pct": null
+          "status": "MATCH",
+          "delta_cm": 0.0,
+          "pct": 0.0
         },
         "n_paineis_A": {
           "p4": 3,
@@ -744,12 +744,12 @@
           "pct": null
         },
         "comprimento": {
-          "fwd_vigas_json": 1001.0,
+          "fwd_vigas_json": 299.0,
           "p4_sum_panels": 1001.0,
           "rev": 299.0,
-          "status": "AUSENTE_FWD",
-          "delta_cm": null,
-          "pct": null
+          "status": "MATCH",
+          "delta_cm": 0.0,
+          "pct": 0.0
         },
         "n_paineis_A": {
           "p4": 9,
@@ -792,12 +792,12 @@
           "pct": null
         },
         "comprimento": {
-          "fwd_vigas_json": 269.0,
+          "fwd_vigas_json": 288.0,
           "p4_sum_panels": 269.0,
           "rev": 288.0,
-          "status": "DELTA_MED",
-          "delta_cm": 19.0,
-          "pct": 6.6
+          "status": "MATCH",
+          "delta_cm": 0.0,
+          "pct": 0.0
         },
         "n_paineis_A": {
           "p4": 3,
@@ -1224,12 +1224,12 @@
           "pct": null
         },
         "comprimento": {
-          "fwd_vigas_json": 244.0,
+          "fwd_vigas_json": 308.0,
           "p4_sum_panels": 244.0,
           "rev": 308.0,
-          "status": "AUSENTE_FWD",
-          "delta_cm": null,
-          "pct": null
+          "status": "MATCH",
+          "delta_cm": 0.0,
+          "pct": 0.0
         },
         "n_paineis_A": {
           "p4": 3,
@@ -1272,12 +1272,12 @@
           "pct": null
         },
         "comprimento": {
-          "fwd_vigas_json": 244.0,
+          "fwd_vigas_json": 308.0,
           "p4_sum_panels": 244.0,
           "rev": 308.0,
-          "status": "AUSENTE_FWD",
-          "delta_cm": null,
-          "pct": null
+          "status": "MATCH",
+          "delta_cm": 0.0,
+          "pct": 0.0
         },
         "n_paineis_A": {
           "p4": 3,
@@ -1320,12 +1320,12 @@
           "pct": null
         },
         "comprimento": {
-          "fwd_vigas_json": 244.0,
+          "fwd_vigas_json": 316.0,
           "p4_sum_panels": 244.0,
           "rev": 316.0,
-          "status": "AUSENTE_FWD",
-          "delta_cm": null,
-          "pct": null
+          "status": "MATCH",
+          "delta_cm": 0.0,
+          "pct": 0.0
         },
         "n_paineis_A": {
           "p4": 3,
@@ -1368,12 +1368,12 @@
           "pct": null
         },
         "comprimento": {
-          "fwd_vigas_json": 787.0,
+          "fwd_vigas_json": 299.0,
           "p4_sum_panels": 787.0,
           "rev": 299.0,
-          "status": "AUSENTE_FWD",
-          "delta_cm": null,
-          "pct": null
+          "status": "MATCH",
+          "delta_cm": 0.0,
+          "pct": 0.0
         },
         "n_paineis_A": {
           "p4": 7,
@@ -1416,12 +1416,12 @@
           "pct": null
         },
         "comprimento": {
-          "fwd_vigas_json": 295.0,
+          "fwd_vigas_json": 283.0,
           "p4_sum_panels": 295.0,
           "rev": 283.0,
-          "status": "DELTA_SMALL",
-          "delta_cm": 12.0,
-          "pct": 4.1
+          "status": "MATCH",
+          "delta_cm": 0.0,
+          "pct": 0.0
         },
         "n_paineis_A": {
           "p4": 3,
@@ -1560,12 +1560,12 @@
           "pct": null
         },
         "comprimento": {
-          "fwd_vigas_json": 244.0,
+          "fwd_vigas_json": 316.0,
           "p4_sum_panels": 244.0,
           "rev": 316.0,
-          "status": "AUSENTE_FWD",
-          "delta_cm": null,
-          "pct": null
+          "status": "MATCH",
+          "delta_cm": 0.0,
+          "pct": 0.0
         },
         "n_paineis_A": {
           "p4": 3,
@@ -1656,12 +1656,12 @@
           "pct": 9.1
         },
         "comprimento": {
-          "fwd_vigas_json": 308.0,
+          "fwd_vigas_json": 283.0,
           "p4_sum_panels": 308.0,
           "rev": 283.0,
-          "status": "AUSENTE_FWD",
-          "delta_cm": null,
-          "pct": null
+          "status": "MATCH",
+          "delta_cm": 0.0,
+          "pct": 0.0
         },
         "n_paineis_A": {
           "p4": 3,
@@ -1704,12 +1704,12 @@
           "pct": null
         },
         "comprimento": {
-          "fwd_vigas_json": 317.0,
+          "fwd_vigas_json": 279.0,
           "p4_sum_panels": 317.0,
           "rev": 279.0,
-          "status": "AUSENTE_FWD",
-          "delta_cm": null,
-          "pct": null
+          "status": "MATCH",
+          "delta_cm": 0.0,
+          "pct": 0.0
         },
         "n_paineis_A": {
           "p4": 3,
@@ -1896,12 +1896,12 @@
           "pct": 9.1
         },
         "comprimento": {
-          "fwd_vigas_json": 244.0,
+          "fwd_vigas_json": 275.0,
           "p4_sum_panels": 244.0,
           "rev": 275.0,
-          "status": "AUSENTE_FWD",
-          "delta_cm": null,
-          "pct": null
+          "status": "MATCH",
+          "delta_cm": 0.0,
+          "pct": 0.0
         },
         "n_paineis_A": {
           "p4": 3,
@@ -1944,12 +1944,12 @@
           "pct": 9.1
         },
         "comprimento": {
-          "fwd_vigas_json": 244.0,
+          "fwd_vigas_json": 289.0,
           "p4_sum_panels": 244.0,
           "rev": 289.0,
-          "status": "AUSENTE_FWD",
-          "delta_cm": null,
-          "pct": null
+          "status": "MATCH",
+          "delta_cm": 0.0,
+          "pct": 0.0
         },
         "n_paineis_A": {
           "p4": 3,
@@ -2088,12 +2088,12 @@
           "pct": 2.5
         },
         "comprimento": {
-          "fwd_vigas_json": 246.0,
+          "fwd_vigas_json": 293.0,
           "p4_sum_panels": 246.0,
           "rev": 293.0,
-          "status": "AUSENTE_FWD",
-          "delta_cm": null,
-          "pct": null
+          "status": "MATCH",
+          "delta_cm": 0.0,
+          "pct": 0.0
         },
         "n_paineis_A": {
           "p4": 3,
@@ -2136,12 +2136,12 @@
           "pct": 9.1
         },
         "comprimento": {
-          "fwd_vigas_json": 244.0,
+          "fwd_vigas_json": 246.0,
           "p4_sum_panels": 244.0,
           "rev": 246.0,
           "status": "MATCH",
-          "delta_cm": 2.0,
-          "pct": 0.8
+          "delta_cm": 0.0,
+          "pct": 0.0
         },
         "n_paineis_A": {
           "p4": 3,
@@ -2184,7 +2184,7 @@
           "pct": 9.1
         },
         "comprimento": {
-          "fwd_vigas_json": 269.0,
+          "fwd_vigas_json": 657.5,
           "p4_sum_panels": 269.0,
           "rev": 657.5,
           "status": "AUSENTE_FWD",
@@ -2232,12 +2232,12 @@
           "pct": 9.1
         },
         "comprimento": {
-          "fwd_vigas_json": 244.0,
+          "fwd_vigas_json": 289.0,
           "p4_sum_panels": 244.0,
           "rev": 289.0,
-          "status": "AUSENTE_FWD",
-          "delta_cm": null,
-          "pct": null
+          "status": "MATCH",
+          "delta_cm": 0.0,
+          "pct": 0.0
         },
         "n_paineis_A": {
           "p4": 3,
@@ -2280,12 +2280,12 @@
           "pct": null
         },
         "comprimento": {
-          "fwd_vigas_json": 244.0,
+          "fwd_vigas_json": 305.0,
           "p4_sum_panels": 244.0,
           "rev": 305.0,
-          "status": "AUSENTE_FWD",
-          "delta_cm": null,
-          "pct": null
+          "status": "MATCH",
+          "delta_cm": 0.0,
+          "pct": 0.0
         },
         "n_paineis_A": {
           "p4": 3,
@@ -2424,12 +2424,12 @@
           "pct": 9.1
         },
         "comprimento": {
-          "fwd_vigas_json": 244.0,
+          "fwd_vigas_json": 317.0,
           "p4_sum_panels": 244.0,
           "rev": 317.0,
-          "status": "AUSENTE_FWD",
-          "delta_cm": null,
-          "pct": null
+          "status": "MATCH",
+          "delta_cm": 0.0,
+          "pct": 0.0
         },
         "n_paineis_A": {
           "p4": 3,
@@ -2520,7 +2520,7 @@
           "pct": null
         },
         "comprimento": {
-          "fwd_vigas_json": 244.0,
+          "fwd_vigas_json": 657.5,
           "p4_sum_panels": 244.0,
           "rev": 657.5,
           "status": "AUSENTE_FWD",

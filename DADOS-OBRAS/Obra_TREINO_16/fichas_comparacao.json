@@ -72,12 +72,12 @@
           "pct": null
         },
         "comprimento": {
-          "fwd_vigas_json": 302.0,
+          "fwd_vigas_json": 244.0,
           "p4_sum_panels": 302.0,
           "rev": 244.0,
-          "status": "AUSENTE_FWD",
-          "delta_cm": null,
-          "pct": null
+          "status": "MATCH",
+          "delta_cm": 0.0,
+          "pct": 0.0
         },
         "n_paineis_A": {
           "p4": 3,
@@ -120,12 +120,12 @@
           "pct": null
         },
         "comprimento": {
-          "fwd_vigas_json": 259.5,
+          "fwd_vigas_json": 366.0,
           "p4_sum_panels": 259.5,
           "rev": 366.0,
-          "status": "AUSENTE_FWD",
-          "delta_cm": null,
-          "pct": null
+          "status": "MATCH",
+          "delta_cm": 0.0,
+          "pct": 0.0
         },
         "n_paineis_A": {
           "p4": 3,
@@ -168,12 +168,12 @@
           "pct": null
         },
         "comprimento": {
-          "fwd_vigas_json": 248.0,
+          "fwd_vigas_json": 366.0,
           "p4_sum_panels": 248.0,
           "rev": 366.0,
-          "status": "AUSENTE_FWD",
-          "delta_cm": null,
-          "pct": null
+          "status": "MATCH",
+          "delta_cm": 0.0,
+          "pct": 0.0
         },
         "n_paineis_A": {
           "p4": 3,
@@ -216,12 +216,12 @@
           "pct": null
         },
         "comprimento": {
-          "fwd_vigas_json": 286.0,
+          "fwd_vigas_json": 256.0,
           "p4_sum_panels": 286.0,
           "rev": 256.0,
-          "status": "AUSENTE_FWD",
-          "delta_cm": null,
-          "pct": null
+          "status": "MATCH",
+          "delta_cm": 0.0,
+          "pct": 0.0
         },
         "n_paineis_A": {
           "p4": 3,
@@ -264,12 +264,12 @@
           "pct": null
         },
         "comprimento": {
-          "fwd_vigas_json": 318.0,
+          "fwd_vigas_json": 122.0,
           "p4_sum_panels": 318.0,
           "rev": 122.0,
-          "status": "AUSENTE_FWD",
-          "delta_cm": null,
-          "pct": null
+          "status": "MATCH",
+          "delta_cm": 0.0,
+          "pct": 0.0
         },
         "n_paineis_A": {
           "p4": 3,
@@ -285,54 +285,6 @@
         },
         "pillar_right": {
           "rev": "P1",
-          "status": "REV_ONLY"
-        }
-      }
-    },
-    "V6": {
-      "id": "V6",
-      "tipo": "VIG",
-      "campos": {
-        "b": {
-          "fwd": 33.75,
-          "p4": 33.75,
-          "rev": 19.0,
-          "status": "MATCH",
-          "delta_cm": 3.8,
-          "pct": 16.5
-        },
-        "h": {
-          "fwd": 40.0,
-          "p4": 40.0,
-          "rev": 67.0,
-          "rev_secao": 0,
-          "rev_used": 67.0,
-          "status": "AUSENTE_FWD",
-          "delta_cm": null,
-          "pct": null
-        },
-        "comprimento": {
-          "fwd_vigas_json": 288.0,
-          "p4_sum_panels": 288.0,
-          "rev": 326.0,
-          "status": "AUSENTE_FWD",
-          "delta_cm": null,
-          "pct": null
-        },
-        "n_paineis_A": {
-          "p4": 3,
-          "rev_raw": 7,
-          "rev_filtered_gt30": 7,
-          "status": "REV_ONLY",
-          "delta_cm": null,
-          "pct": null
-        },
-        "pillar_left": {
-          "rev": "P2",
-          "status": "REV_ONLY"
-        },
-        "pillar_right": {
-          "rev": "P3B",
           "status": "REV_ONLY"
         }
       }
@@ -385,6 +337,54 @@
         }
       }
     },
+    "V6": {
+      "id": "V6",
+      "tipo": "VIG",
+      "campos": {
+        "b": {
+          "fwd": 33.75,
+          "p4": 33.75,
+          "rev": 19.0,
+          "status": "MATCH",
+          "delta_cm": 3.8,
+          "pct": 16.5
+        },
+        "h": {
+          "fwd": 40.0,
+          "p4": 40.0,
+          "rev": 67.0,
+          "rev_secao": 0,
+          "rev_used": 67.0,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null,
+          "pct": null
+        },
+        "comprimento": {
+          "fwd_vigas_json": 326.0,
+          "p4_sum_panels": 288.0,
+          "rev": 326.0,
+          "status": "MATCH",
+          "delta_cm": 0.0,
+          "pct": 0.0
+        },
+        "n_paineis_A": {
+          "p4": 3,
+          "rev_raw": 7,
+          "rev_filtered_gt30": 7,
+          "status": "REV_ONLY",
+          "delta_cm": null,
+          "pct": null
+        },
+        "pillar_left": {
+          "rev": "P2",
+          "status": "REV_ONLY"
+        },
+        "pillar_right": {
+          "rev": "P3B",
+          "status": "REV_ONLY"
+        }
+      }
+    },
     "V7": {
       "id": "V7",
       "tipo": "VIG",
@@ -408,12 +408,12 @@
           "pct": null
         },
         "comprimento": {
-          "fwd_vigas_json": 326.0,
+          "fwd_vigas_json": 293.5,
           "p4_sum_panels": 326.0,
           "rev": 293.5,
-          "status": "AUSENTE_FWD",
-          "delta_cm": null,
-          "pct": null
+          "status": "MATCH",
+          "delta_cm": 0.0,
+          "pct": 0.0
         },
         "n_paineis_A": {
           "p4": 3,
@@ -456,12 +456,12 @@
           "pct": null
         },
         "comprimento": {
-          "fwd_vigas_json": 251.5,
+          "fwd_vigas_json": 244.0,
           "p4_sum_panels": 251.5,
           "rev": 244.0,
-          "status": "DELTA_SMALL",
-          "delta_cm": 7.5,
-          "pct": 3.0
+          "status": "MATCH",
+          "delta_cm": 0.0,
+          "pct": 0.0
         },
         "n_paineis_A": {
           "p4": 3,
@@ -504,12 +504,12 @@
           "pct": null
         },
         "comprimento": {
-          "fwd_vigas_json": 251.5,
+          "fwd_vigas_json": 244.0,
           "p4_sum_panels": 251.5,
           "rev": 244.0,
-          "status": "DELTA_SMALL",
-          "delta_cm": 7.5,
-          "pct": 3.0
+          "status": "MATCH",
+          "delta_cm": 0.0,
+          "pct": 0.0
         },
         "n_paineis_A": {
           "p4": 3,
@@ -648,12 +648,12 @@
           "pct": 14.9
         },
         "comprimento": {
-          "fwd_vigas_json": 252.0,
+          "fwd_vigas_json": 291.5,
           "p4_sum_panels": 252.0,
           "rev": 291.5,
-          "status": "AUSENTE_FWD",
-          "delta_cm": null,
-          "pct": null
+          "status": "MATCH",
+          "delta_cm": 0.0,
+          "pct": 0.0
         },
         "n_paineis_A": {
           "p4": 3,
@@ -744,12 +744,12 @@
           "pct": null
         },
         "comprimento": {
-          "fwd_vigas_json": 126.0,
+          "fwd_vigas_json": 244.0,
           "p4_sum_panels": 126.0,
           "rev": 244.0,
-          "status": "AUSENTE_FWD",
-          "delta_cm": null,
-          "pct": null
+          "status": "MATCH",
+          "delta_cm": 0.0,
+          "pct": 0.0
         },
         "n_paineis_A": {
           "p4": 2,
@@ -792,7 +792,7 @@
           "pct": null
         },
         "comprimento": {
-          "fwd_vigas_json": 305.5,
+          "fwd_vigas_json": 503.5,
           "p4_sum_panels": 305.5,
           "rev": 503.5,
           "status": "AUSENTE_FWD",
@@ -840,7 +840,7 @@
           "pct": 12.5
         },
         "comprimento": {
-          "fwd_vigas_json": 252.0,
+          "fwd_vigas_json": 503.5,
           "p4_sum_panels": 252.0,
           "rev": 503.5,
           "status": "AUSENTE_FWD",
@@ -888,12 +888,12 @@
           "pct": null
         },
         "comprimento": {
-          "fwd_vigas_json": 298.0,
+          "fwd_vigas_json": 247.5,
           "p4_sum_panels": 298.0,
           "rev": 247.5,
-          "status": "AUSENTE_FWD",
-          "delta_cm": null,
-          "pct": null
+          "status": "MATCH",
+          "delta_cm": 0.0,
+          "pct": 0.0
         },
         "n_paineis_A": {
           "p4": 3,
@@ -936,12 +936,12 @@
           "pct": null
         },
         "comprimento": {
-          "fwd_vigas_json": 298.0,
+          "fwd_vigas_json": 244.0,
           "p4_sum_panels": 298.0,
           "rev": 244.0,
-          "status": "AUSENTE_FWD",
-          "delta_cm": null,
-          "pct": null
+          "status": "MATCH",
+          "delta_cm": 0.0,
+          "pct": 0.0
         },
         "n_paineis_A": {
           "p4": 3,
@@ -984,12 +984,12 @@
           "pct": null
         },
         "comprimento": {
-          "fwd_vigas_json": 298.0,
+          "fwd_vigas_json": 310.0,
           "p4_sum_panels": 298.0,
           "rev": 310.0,
-          "status": "DELTA_SMALL",
-          "delta_cm": 12.0,
-          "pct": 3.9
+          "status": "MATCH",
+          "delta_cm": 0.0,
+          "pct": 0.0
         },
         "n_paineis_A": {
           "p4": 3,
@@ -1032,12 +1032,12 @@
           "pct": 27.3
         },
         "comprimento": {
-          "fwd_vigas_json": 298.0,
+          "fwd_vigas_json": 257.0,
           "p4_sum_panels": 298.0,
           "rev": 257.0,
-          "status": "AUSENTE_FWD",
-          "delta_cm": null,
-          "pct": null
+          "status": "MATCH",
+          "delta_cm": 0.0,
+          "pct": 0.0
         },
         "n_paineis_A": {
           "p4": 3,
@@ -1080,12 +1080,12 @@
           "pct": null
         },
         "comprimento": {
-          "fwd_vigas_json": 503.5,
+          "fwd_vigas_json": 267.0,
           "p4_sum_panels": 503.5,
           "rev": 267.0,
-          "status": "AUSENTE_FWD",
-          "delta_cm": null,
-          "pct": null
+          "status": "MATCH",
+          "delta_cm": 0.0,
+          "pct": 0.0
         },
         "n_paineis_A": {
           "p4": 5,
@@ -1128,12 +1128,12 @@
           "pct": 27.3
         },
         "comprimento": {
-          "fwd_vigas_json": 503.5,
+          "fwd_vigas_json": 244.0,
           "p4_sum_panels": 503.5,
           "rev": 244.0,
-          "status": "AUSENTE_FWD",
-          "delta_cm": null,
-          "pct": null
+          "status": "MATCH",
+          "delta_cm": 0.0,
+          "pct": 0.0
         },
         "n_paineis_A": {
           "p4": 5,
@@ -1176,12 +1176,12 @@
           "pct": null
         },
         "comprimento": {
-          "fwd_vigas_json": 298.0,
+          "fwd_vigas_json": 244.0,
           "p4_sum_panels": 298.0,
           "rev": 244.0,
-          "status": "AUSENTE_FWD",
-          "delta_cm": null,
-          "pct": null
+          "status": "MATCH",
+          "delta_cm": 0.0,
+          "pct": 0.0
         },
         "n_paineis_A": {
           "p4": 3,
@@ -1224,7 +1224,7 @@
           "pct": 0.0
         },
         "comprimento": {
-          "fwd_vigas_json": 302.5,
+          "fwd_vigas_json": 503.5,
           "p4_sum_panels": 302.5,
           "rev": 503.5,
           "status": "AUSENTE_FWD",
@@ -1272,7 +1272,7 @@
           "pct": 0.0
         },
         "comprimento": {
-          "fwd_vigas_json": 302.5,
+          "fwd_vigas_json": 503.5,
           "p4_sum_panels": 302.5,
           "rev": 503.5,
           "status": "AUSENTE_FWD",
@@ -1320,12 +1320,12 @@
           "pct": null
         },
         "comprimento": {
-          "fwd_vigas_json": 293.6,
+          "fwd_vigas_json": 181.0,
           "p4_sum_panels": 293.6,
           "rev": 181.0,
-          "status": "AUSENTE_FWD",
-          "delta_cm": null,
-          "pct": null
+          "status": "MATCH",
+          "delta_cm": 0.0,
+          "pct": 0.0
         },
         "n_paineis_A": {
           "p4": 3,
@@ -1656,12 +1656,12 @@
           "pct": null
         },
         "comprimento": {
-          "fwd_vigas_json": 247.5,
+          "fwd_vigas_json": 124.0,
           "p4_sum_panels": 247.5,
           "rev": 124.0,
-          "status": "AUSENTE_FWD",
-          "delta_cm": null,
-          "pct": null
+          "status": "MATCH",
+          "delta_cm": 0.0,
+          "pct": 0.0
         },
         "n_paineis_A": {
           "p4": 3,
@@ -1704,12 +1704,12 @@
           "pct": null
         },
         "comprimento": {
-          "fwd_vigas_json": 246.0,
+          "fwd_vigas_json": 259.5,
           "p4_sum_panels": 246.0,
           "rev": 259.5,
-          "status": "DELTA_SMALL",
-          "delta_cm": 13.5,
-          "pct": 5.2
+          "status": "MATCH",
+          "delta_cm": 0.0,
+          "pct": 0.0
         },
         "n_paineis_A": {
           "p4": 3,
@@ -1848,12 +1848,12 @@
           "pct": null
         },
         "comprimento": {
-          "fwd_vigas_json": 247.5,
+          "fwd_vigas_json": 227.0,
           "p4_sum_panels": 247.5,
           "rev": 227.0,
-          "status": "DELTA_MED",
-          "delta_cm": 20.5,
-          "pct": 8.3
+          "status": "MATCH",
+          "delta_cm": 0.0,
+          "pct": 0.0
         },
         "n_paineis_A": {
           "p4": 3,
@@ -2834,5 +2834,1184 @@
       }
     }
   },
-  "LAJ": {}
+  "LAJ": {
+    "L2": {
+      "id": "L2",
+      "tipo": "LAJ",
+      "campos": {
+        "comprimento": {
+          "fwd": null,
+          "rev": 244.0,
+          "rev_adj": 200.0,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null,
+          "pct": null
+        },
+        "largura": {
+          "fwd": null,
+          "rev": 244.0,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null,
+          "pct": null
+        },
+        "n_paineis": {
+          "fwd": null,
+          "rev": 9,
+          "status": "REV_ONLY"
+        },
+        "nivel_delta": {
+          "fwd": null,
+          "rev": 12,
+          "status": "REV_ONLY"
+        }
+      }
+    },
+    "L3": {
+      "id": "L3",
+      "tipo": "LAJ",
+      "campos": {
+        "comprimento": {
+          "fwd": null,
+          "rev": 244.0,
+          "rev_adj": 200.0,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null,
+          "pct": null
+        },
+        "largura": {
+          "fwd": null,
+          "rev": 244.0,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null,
+          "pct": null
+        },
+        "n_paineis": {
+          "fwd": null,
+          "rev": 8,
+          "status": "REV_ONLY"
+        },
+        "nivel_delta": {
+          "fwd": null,
+          "rev": 12,
+          "status": "REV_ONLY"
+        }
+      }
+    },
+    "L4": {
+      "id": "L4",
+      "tipo": "LAJ",
+      "campos": {
+        "comprimento": {
+          "fwd": null,
+          "rev": 244.0,
+          "rev_adj": 200.0,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null,
+          "pct": null
+        },
+        "largura": {
+          "fwd": null,
+          "rev": 244.0,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null,
+          "pct": null
+        },
+        "n_paineis": {
+          "fwd": null,
+          "rev": 17,
+          "status": "REV_ONLY"
+        },
+        "nivel_delta": {
+          "fwd": null,
+          "rev": 12,
+          "status": "REV_ONLY"
+        }
+      }
+    },
+    "L5": {
+      "id": "L5",
+      "tipo": "LAJ",
+      "campos": {
+        "comprimento": {
+          "fwd": null,
+          "rev": 244.0,
+          "rev_adj": 200.0,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null,
+          "pct": null
+        },
+        "largura": {
+          "fwd": null,
+          "rev": null,
+          "status": "AUSENTE_AMBOS",
+          "delta_cm": null,
+          "pct": null
+        },
+        "n_paineis": {
+          "fwd": null,
+          "rev": 2,
+          "status": "REV_ONLY"
+        },
+        "nivel_delta": {
+          "fwd": null,
+          "rev": 12,
+          "status": "REV_ONLY"
+        }
+      }
+    },
+    "L6": {
+      "id": "L6",
+      "tipo": "LAJ",
+      "campos": {
+        "comprimento": {
+          "fwd": null,
+          "rev": 244.0,
+          "rev_adj": 200.0,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null,
+          "pct": null
+        },
+        "largura": {
+          "fwd": null,
+          "rev": 244.0,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null,
+          "pct": null
+        },
+        "n_paineis": {
+          "fwd": null,
+          "rev": 14,
+          "status": "REV_ONLY"
+        },
+        "nivel_delta": {
+          "fwd": null,
+          "rev": 12,
+          "status": "REV_ONLY"
+        }
+      }
+    },
+    "L6B": {
+      "id": "L6B",
+      "tipo": "LAJ",
+      "campos": {
+        "comprimento": {
+          "fwd": null,
+          "rev": null,
+          "rev_adj": null,
+          "status": "AUSENTE_AMBOS",
+          "delta_cm": null,
+          "pct": null
+        },
+        "largura": {
+          "fwd": null,
+          "rev": null,
+          "status": "AUSENTE_AMBOS",
+          "delta_cm": null,
+          "pct": null
+        },
+        "n_paineis": {
+          "fwd": null,
+          "rev": null,
+          "status": "AUSENTE"
+        },
+        "nivel_delta": {
+          "fwd": null,
+          "rev": null,
+          "status": "AUSENTE"
+        }
+      }
+    },
+    "L6A": {
+      "id": "L6A",
+      "tipo": "LAJ",
+      "campos": {
+        "comprimento": {
+          "fwd": null,
+          "rev": null,
+          "rev_adj": null,
+          "status": "AUSENTE_AMBOS",
+          "delta_cm": null,
+          "pct": null
+        },
+        "largura": {
+          "fwd": null,
+          "rev": null,
+          "status": "AUSENTE_AMBOS",
+          "delta_cm": null,
+          "pct": null
+        },
+        "n_paineis": {
+          "fwd": null,
+          "rev": null,
+          "status": "AUSENTE"
+        },
+        "nivel_delta": {
+          "fwd": null,
+          "rev": null,
+          "status": "AUSENTE"
+        }
+      }
+    },
+    "L7": {
+      "id": "L7",
+      "tipo": "LAJ",
+      "campos": {
+        "comprimento": {
+          "fwd": null,
+          "rev": 244.0,
+          "rev_adj": 200.0,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null,
+          "pct": null
+        },
+        "largura": {
+          "fwd": null,
+          "rev": 244.0,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null,
+          "pct": null
+        },
+        "n_paineis": {
+          "fwd": null,
+          "rev": 20,
+          "status": "REV_ONLY"
+        },
+        "nivel_delta": {
+          "fwd": null,
+          "rev": 12,
+          "status": "REV_ONLY"
+        }
+      }
+    },
+    "L8": {
+      "id": "L8",
+      "tipo": "LAJ",
+      "campos": {
+        "comprimento": {
+          "fwd": null,
+          "rev": 244.0,
+          "rev_adj": 200.0,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null,
+          "pct": null
+        },
+        "largura": {
+          "fwd": null,
+          "rev": 244.0,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null,
+          "pct": null
+        },
+        "n_paineis": {
+          "fwd": null,
+          "rev": 36,
+          "status": "REV_ONLY"
+        },
+        "nivel_delta": {
+          "fwd": null,
+          "rev": 12,
+          "status": "REV_ONLY"
+        }
+      }
+    },
+    "L9": {
+      "id": "L9",
+      "tipo": "LAJ",
+      "campos": {
+        "comprimento": {
+          "fwd": null,
+          "rev": 244.0,
+          "rev_adj": 200.0,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null,
+          "pct": null
+        },
+        "largura": {
+          "fwd": null,
+          "rev": 244.0,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null,
+          "pct": null
+        },
+        "n_paineis": {
+          "fwd": null,
+          "rev": 23,
+          "status": "REV_ONLY"
+        },
+        "nivel_delta": {
+          "fwd": null,
+          "rev": 12,
+          "status": "REV_ONLY"
+        }
+      }
+    },
+    "L10": {
+      "id": "L10",
+      "tipo": "LAJ",
+      "campos": {
+        "comprimento": {
+          "fwd": null,
+          "rev": 244.0,
+          "rev_adj": 200.0,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null,
+          "pct": null
+        },
+        "largura": {
+          "fwd": null,
+          "rev": 244.0,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null,
+          "pct": null
+        },
+        "n_paineis": {
+          "fwd": null,
+          "rev": 21,
+          "status": "REV_ONLY"
+        },
+        "nivel_delta": {
+          "fwd": null,
+          "rev": 12,
+          "status": "REV_ONLY"
+        }
+      }
+    },
+    "L11": {
+      "id": "L11",
+      "tipo": "LAJ",
+      "campos": {
+        "comprimento": {
+          "fwd": null,
+          "rev": 244.0,
+          "rev_adj": 200.0,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null,
+          "pct": null
+        },
+        "largura": {
+          "fwd": null,
+          "rev": 244.0,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null,
+          "pct": null
+        },
+        "n_paineis": {
+          "fwd": null,
+          "rev": 21,
+          "status": "REV_ONLY"
+        },
+        "nivel_delta": {
+          "fwd": null,
+          "rev": 14,
+          "status": "REV_ONLY"
+        }
+      }
+    },
+    "L12": {
+      "id": "L12",
+      "tipo": "LAJ",
+      "campos": {
+        "comprimento": {
+          "fwd": null,
+          "rev": 244.0,
+          "rev_adj": 200.0,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null,
+          "pct": null
+        },
+        "largura": {
+          "fwd": null,
+          "rev": 122.0,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null,
+          "pct": null
+        },
+        "n_paineis": {
+          "fwd": null,
+          "rev": 6,
+          "status": "REV_ONLY"
+        },
+        "nivel_delta": {
+          "fwd": null,
+          "rev": 12,
+          "status": "REV_ONLY"
+        }
+      }
+    },
+    "L13": {
+      "id": "L13",
+      "tipo": "LAJ",
+      "campos": {
+        "comprimento": {
+          "fwd": null,
+          "rev": 138.0,
+          "rev_adj": 94.0,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null,
+          "pct": null
+        },
+        "largura": {
+          "fwd": null,
+          "rev": 122.0,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null,
+          "pct": null
+        },
+        "n_paineis": {
+          "fwd": null,
+          "rev": 14,
+          "status": "REV_ONLY"
+        },
+        "nivel_delta": {
+          "fwd": null,
+          "rev": 12,
+          "status": "REV_ONLY"
+        }
+      }
+    },
+    "L14": {
+      "id": "L14",
+      "tipo": "LAJ",
+      "campos": {
+        "comprimento": {
+          "fwd": null,
+          "rev": 244.0,
+          "rev_adj": 200.0,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null,
+          "pct": null
+        },
+        "largura": {
+          "fwd": null,
+          "rev": 244.0,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null,
+          "pct": null
+        },
+        "n_paineis": {
+          "fwd": null,
+          "rev": 19,
+          "status": "REV_ONLY"
+        },
+        "nivel_delta": {
+          "fwd": null,
+          "rev": 12,
+          "status": "REV_ONLY"
+        }
+      }
+    },
+    "L15": {
+      "id": "L15",
+      "tipo": "LAJ",
+      "campos": {
+        "comprimento": {
+          "fwd": null,
+          "rev": 244.0,
+          "rev_adj": 200.0,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null,
+          "pct": null
+        },
+        "largura": {
+          "fwd": null,
+          "rev": 244.0,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null,
+          "pct": null
+        },
+        "n_paineis": {
+          "fwd": null,
+          "rev": 12,
+          "status": "REV_ONLY"
+        },
+        "nivel_delta": {
+          "fwd": null,
+          "rev": 14,
+          "status": "REV_ONLY"
+        }
+      }
+    },
+    "L16": {
+      "id": "L16",
+      "tipo": "LAJ",
+      "campos": {
+        "comprimento": {
+          "fwd": null,
+          "rev": 244.0,
+          "rev_adj": 200.0,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null,
+          "pct": null
+        },
+        "largura": {
+          "fwd": null,
+          "rev": 244.0,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null,
+          "pct": null
+        },
+        "n_paineis": {
+          "fwd": null,
+          "rev": 5,
+          "status": "REV_ONLY"
+        },
+        "nivel_delta": {
+          "fwd": null,
+          "rev": 12,
+          "status": "REV_ONLY"
+        }
+      }
+    },
+    "L41": {
+      "id": "L41",
+      "tipo": "LAJ",
+      "campos": {
+        "comprimento": {
+          "fwd": null,
+          "rev": 244.0,
+          "rev_adj": 200.0,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null,
+          "pct": null
+        },
+        "largura": {
+          "fwd": null,
+          "rev": 244.0,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null,
+          "pct": null
+        },
+        "n_paineis": {
+          "fwd": null,
+          "rev": 20,
+          "status": "REV_ONLY"
+        },
+        "nivel_delta": {
+          "fwd": null,
+          "rev": 10,
+          "status": "REV_ONLY"
+        }
+      }
+    },
+    "L42": {
+      "id": "L42",
+      "tipo": "LAJ",
+      "campos": {
+        "comprimento": {
+          "fwd": null,
+          "rev": 244.0,
+          "rev_adj": 200.0,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null,
+          "pct": null
+        },
+        "largura": {
+          "fwd": null,
+          "rev": 244.0,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null,
+          "pct": null
+        },
+        "n_paineis": {
+          "fwd": null,
+          "rev": 10,
+          "status": "REV_ONLY"
+        },
+        "nivel_delta": {
+          "fwd": null,
+          "rev": 10,
+          "status": "REV_ONLY"
+        }
+      }
+    },
+    "L43": {
+      "id": "L43",
+      "tipo": "LAJ",
+      "campos": {
+        "comprimento": {
+          "fwd": null,
+          "rev": 244.0,
+          "rev_adj": 200.0,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null,
+          "pct": null
+        },
+        "largura": {
+          "fwd": null,
+          "rev": 91.0,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null,
+          "pct": null
+        },
+        "n_paineis": {
+          "fwd": null,
+          "rev": 12,
+          "status": "REV_ONLY"
+        },
+        "nivel_delta": {
+          "fwd": null,
+          "rev": 10,
+          "status": "REV_ONLY"
+        }
+      }
+    },
+    "L135": {
+      "id": "L135",
+      "tipo": "LAJ",
+      "campos": {
+        "comprimento": {
+          "fwd": null,
+          "rev": 244.0,
+          "rev_adj": 200.0,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null,
+          "pct": null
+        },
+        "largura": {
+          "fwd": null,
+          "rev": 122.0,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null,
+          "pct": null
+        },
+        "n_paineis": {
+          "fwd": null,
+          "rev": 18,
+          "status": "REV_ONLY"
+        },
+        "nivel_delta": {
+          "fwd": null,
+          "rev": 12,
+          "status": "REV_ONLY"
+        }
+      }
+    },
+    "L136": {
+      "id": "L136",
+      "tipo": "LAJ",
+      "campos": {
+        "comprimento": {
+          "fwd": null,
+          "rev": 244.0,
+          "rev_adj": 200.0,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null,
+          "pct": null
+        },
+        "largura": {
+          "fwd": null,
+          "rev": 122.0,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null,
+          "pct": null
+        },
+        "n_paineis": {
+          "fwd": null,
+          "rev": 14,
+          "status": "REV_ONLY"
+        },
+        "nivel_delta": {
+          "fwd": null,
+          "rev": 12,
+          "status": "REV_ONLY"
+        }
+      }
+    },
+    "L137": {
+      "id": "L137",
+      "tipo": "LAJ",
+      "campos": {
+        "comprimento": {
+          "fwd": null,
+          "rev": 135.7,
+          "rev_adj": 91.69999999999999,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null,
+          "pct": null
+        },
+        "largura": {
+          "fwd": null,
+          "rev": 122.0,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null,
+          "pct": null
+        },
+        "n_paineis": {
+          "fwd": null,
+          "rev": 9,
+          "status": "REV_ONLY"
+        },
+        "nivel_delta": {
+          "fwd": null,
+          "rev": 12,
+          "status": "REV_ONLY"
+        }
+      }
+    },
+    "L138": {
+      "id": "L138",
+      "tipo": "LAJ",
+      "campos": {
+        "comprimento": {
+          "fwd": null,
+          "rev": 122.0,
+          "rev_adj": 78.0,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null,
+          "pct": null
+        },
+        "largura": {
+          "fwd": null,
+          "rev": 122.0,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null,
+          "pct": null
+        },
+        "n_paineis": {
+          "fwd": null,
+          "rev": 6,
+          "status": "REV_ONLY"
+        },
+        "nivel_delta": {
+          "fwd": null,
+          "rev": 12,
+          "status": "REV_ONLY"
+        }
+      }
+    },
+    "L139": {
+      "id": "L139",
+      "tipo": "LAJ",
+      "campos": {
+        "comprimento": {
+          "fwd": null,
+          "rev": 244.0,
+          "rev_adj": 200.0,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null,
+          "pct": null
+        },
+        "largura": {
+          "fwd": null,
+          "rev": 244.0,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null,
+          "pct": null
+        },
+        "n_paineis": {
+          "fwd": null,
+          "rev": 20,
+          "status": "REV_ONLY"
+        },
+        "nivel_delta": {
+          "fwd": null,
+          "rev": 12,
+          "status": "REV_ONLY"
+        }
+      }
+    },
+    "L140": {
+      "id": "L140",
+      "tipo": "LAJ",
+      "campos": {
+        "comprimento": {
+          "fwd": null,
+          "rev": 244.0,
+          "rev_adj": 200.0,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null,
+          "pct": null
+        },
+        "largura": {
+          "fwd": null,
+          "rev": 135.7,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null,
+          "pct": null
+        },
+        "n_paineis": {
+          "fwd": null,
+          "rev": 15,
+          "status": "REV_ONLY"
+        },
+        "nivel_delta": {
+          "fwd": null,
+          "rev": 12,
+          "status": "REV_ONLY"
+        }
+      }
+    },
+    "L141": {
+      "id": "L141",
+      "tipo": "LAJ",
+      "campos": {
+        "comprimento": {
+          "fwd": null,
+          "rev": 244.0,
+          "rev_adj": 200.0,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null,
+          "pct": null
+        },
+        "largura": {
+          "fwd": null,
+          "rev": 122.0,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null,
+          "pct": null
+        },
+        "n_paineis": {
+          "fwd": null,
+          "rev": 10,
+          "status": "REV_ONLY"
+        },
+        "nivel_delta": {
+          "fwd": null,
+          "rev": 12,
+          "status": "REV_ONLY"
+        }
+      }
+    },
+    "L143": {
+      "id": "L143",
+      "tipo": "LAJ",
+      "campos": {
+        "comprimento": {
+          "fwd": null,
+          "rev": 244.0,
+          "rev_adj": 200.0,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null,
+          "pct": null
+        },
+        "largura": {
+          "fwd": null,
+          "rev": 244.0,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null,
+          "pct": null
+        },
+        "n_paineis": {
+          "fwd": null,
+          "rev": 20,
+          "status": "REV_ONLY"
+        },
+        "nivel_delta": {
+          "fwd": null,
+          "rev": 12,
+          "status": "REV_ONLY"
+        }
+      }
+    },
+    "L144": {
+      "id": "L144",
+      "tipo": "LAJ",
+      "campos": {
+        "comprimento": {
+          "fwd": null,
+          "rev": 244.0,
+          "rev_adj": 200.0,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null,
+          "pct": null
+        },
+        "largura": {
+          "fwd": null,
+          "rev": 73.3,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null,
+          "pct": null
+        },
+        "n_paineis": {
+          "fwd": null,
+          "rev": 3,
+          "status": "REV_ONLY"
+        },
+        "nivel_delta": {
+          "fwd": null,
+          "rev": 14,
+          "status": "REV_ONLY"
+        }
+      }
+    },
+    "L145": {
+      "id": "L145",
+      "tipo": "LAJ",
+      "campos": {
+        "comprimento": {
+          "fwd": null,
+          "rev": 244.0,
+          "rev_adj": 200.0,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null,
+          "pct": null
+        },
+        "largura": {
+          "fwd": null,
+          "rev": 244.0,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null,
+          "pct": null
+        },
+        "n_paineis": {
+          "fwd": null,
+          "rev": 44,
+          "status": "REV_ONLY"
+        },
+        "nivel_delta": {
+          "fwd": null,
+          "rev": 12,
+          "status": "REV_ONLY"
+        }
+      }
+    },
+    "L148": {
+      "id": "L148",
+      "tipo": "LAJ",
+      "campos": {
+        "comprimento": {
+          "fwd": null,
+          "rev": 244.0,
+          "rev_adj": 200.0,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null,
+          "pct": null
+        },
+        "largura": {
+          "fwd": null,
+          "rev": 244.0,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null,
+          "pct": null
+        },
+        "n_paineis": {
+          "fwd": null,
+          "rev": 9,
+          "status": "REV_ONLY"
+        },
+        "nivel_delta": {
+          "fwd": null,
+          "rev": 12,
+          "status": "REV_ONLY"
+        }
+      }
+    },
+    "L149": {
+      "id": "L149",
+      "tipo": "LAJ",
+      "campos": {
+        "comprimento": {
+          "fwd": null,
+          "rev": 244.0,
+          "rev_adj": 200.0,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null,
+          "pct": null
+        },
+        "largura": {
+          "fwd": null,
+          "rev": 122.0,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null,
+          "pct": null
+        },
+        "n_paineis": {
+          "fwd": null,
+          "rev": 6,
+          "status": "REV_ONLY"
+        },
+        "nivel_delta": {
+          "fwd": null,
+          "rev": 16,
+          "status": "REV_ONLY"
+        }
+      }
+    },
+    "L150": {
+      "id": "L150",
+      "tipo": "LAJ",
+      "campos": {
+        "comprimento": {
+          "fwd": null,
+          "rev": 244.0,
+          "rev_adj": 200.0,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null,
+          "pct": null
+        },
+        "largura": {
+          "fwd": null,
+          "rev": null,
+          "status": "AUSENTE_AMBOS",
+          "delta_cm": null,
+          "pct": null
+        },
+        "n_paineis": {
+          "fwd": null,
+          "rev": 1,
+          "status": "REV_ONLY"
+        },
+        "nivel_delta": {
+          "fwd": null,
+          "rev": 12,
+          "status": "REV_ONLY"
+        }
+      }
+    },
+    "L151": {
+      "id": "L151",
+      "tipo": "LAJ",
+      "campos": {
+        "comprimento": {
+          "fwd": null,
+          "rev": 83.7,
+          "rev_adj": 39.7,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null,
+          "pct": null
+        },
+        "largura": {
+          "fwd": null,
+          "rev": null,
+          "status": "AUSENTE_AMBOS",
+          "delta_cm": null,
+          "pct": null
+        },
+        "n_paineis": {
+          "fwd": null,
+          "rev": 3,
+          "status": "REV_ONLY"
+        },
+        "nivel_delta": {
+          "fwd": null,
+          "rev": 12,
+          "status": "REV_ONLY"
+        }
+      }
+    },
+    "L157": {
+      "id": "L157",
+      "tipo": "LAJ",
+      "campos": {
+        "comprimento": {
+          "fwd": null,
+          "rev": 244.0,
+          "rev_adj": 200.0,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null,
+          "pct": null
+        },
+        "largura": {
+          "fwd": null,
+          "rev": 244.0,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null,
+          "pct": null
+        },
+        "n_paineis": {
+          "fwd": null,
+          "rev": 14,
+          "status": "REV_ONLY"
+        },
+        "nivel_delta": {
+          "fwd": null,
+          "rev": 12,
+          "status": "REV_ONLY"
+        }
+      }
+    },
+    "L158": {
+      "id": "L158",
+      "tipo": "LAJ",
+      "campos": {
+        "comprimento": {
+          "fwd": null,
+          "rev": 244.0,
+          "rev_adj": 200.0,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null,
+          "pct": null
+        },
+        "largura": {
+          "fwd": null,
+          "rev": 135.7,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null,
+          "pct": null
+        },
+        "n_paineis": {
+          "fwd": null,
+          "rev": 13,
+          "status": "REV_ONLY"
+        },
+        "nivel_delta": {
+          "fwd": null,
+          "rev": 12,
+          "status": "REV_ONLY"
+        }
+      }
+    },
+    "L159": {
+      "id": "L159",
+      "tipo": "LAJ",
+      "campos": {
+        "comprimento": {
+          "fwd": null,
+          "rev": 244.0,
+          "rev_adj": 200.0,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null,
+          "pct": null
+        },
+        "largura": {
+          "fwd": null,
+          "rev": 122.0,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null,
+          "pct": null
+        },
+        "n_paineis": {
+          "fwd": null,
+          "rev": 12,
+          "status": "REV_ONLY"
+        },
+        "nivel_delta": {
+          "fwd": null,
+          "rev": 12,
+          "status": "REV_ONLY"
+        }
+      }
+    },
+    "L164": {
+      "id": "L164",
+      "tipo": "LAJ",
+      "campos": {
+        "comprimento": {
+          "fwd": null,
+          "rev": 135.7,
+          "rev_adj": 91.69999999999999,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null,
+          "pct": null
+        },
+        "largura": {
+          "fwd": null,
+          "rev": 122.0,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null,
+          "pct": null
+        },
+        "n_paineis": {
+          "fwd": null,
+          "rev": 9,
+          "status": "REV_ONLY"
+        },
+        "nivel_delta": {
+          "fwd": null,
+          "rev": 12,
+          "status": "REV_ONLY"
+        }
+      }
+    }
+  }
 }

@@ -1,0 +1,398 @@
+{
+  "L1": {
+    "nome": "L1",
+    "comprimento_total": 244.0,
+    "largura_total": 60.5,
+    "nivel_delta": 12,
+    "offset": 787.85,
+    "n_paineis": 18,
+    "confidence": 1.0,
+    "_h_dims": [
+      244.0,
+      244.0,
+      244.0,
+      244.0,
+      244.0,
+      244.0,
+      239.5,
+      229.5,
+      152.0,
+      152.0,
+      144.0,
+      136.0,
+      108.0,
+      100.0,
+      92.0,
+      92.0
+    ],
+    "_v_dims": [
+      60.5,
+      53.5
+    ],
+    "_y_band": [
+      10035,
+      10735
+    ]
+  },
+  "L2": {
+    "nome": "L2",
+    "comprimento_total": 244.0,
+    "largura_total": 0,
+    "nivel_delta": 12,
+    "offset": 787.75,
+    "n_paineis": 6,
+    "confidence": 0.8,
+    "_h_dims": [
+      244.0,
+      244.0,
+      239.5,
+      229.5,
+      136.0,
+      108.0
+    ],
+    "_v_dims": [],
+    "_y_band": [
+      10035,
+      10235
+    ]
+  },
+  "L5": {
+    "nome": "L5",
+    "comprimento_total": 244.0,
+    "largura_total": 0,
+    "nivel_delta": 15,
+    "offset": 787.85,
+    "n_paineis": 5,
+    "confidence": 0.8,
+    "_h_dims": [],
+    "_v_dims": [
+      244.0,
+      122.0,
+      122.0,
+      60.5,
+      60.5
+    ],
+    "_y_band": [
+      9852,
+      10052
+    ]
+  },
+  "L4": {
+    "nome": "L4",
+    "comprimento_total": 244.0,
+    "largura_total": 0,
+    "nivel_delta": 16,
+    "offset": 787.85,
+    "n_paineis": 9,
+    "confidence": 0.8,
+    "_h_dims": [],
+    "_v_dims": [
+      244.0,
+      244.0,
+      122.0,
+      122.0,
+      122.0,
+      122.0,
+      60.5,
+      60.5,
+      60.5
+    ],
+    "_y_band": [
+      9852,
+      10052
+    ]
+  },
+  "L6": {
+    "nome": "L6",
+    "comprimento_total": 244.0,
+    "largura_total": 0,
+    "nivel_delta": 16,
+    "offset": 787.85,
+    "n_paineis": 3,
+    "confidence": 0.8,
+    "_h_dims": [],
+    "_v_dims": [
+      244.0,
+      122.0,
+      60.5
+    ],
+    "_y_band": [
+      9852,
+      10052
+    ]
+  },
+  "L3": {
+    "nome": "L3",
+    "comprimento_total": 244.0,
+    "largura_total": 0,
+    "nivel_delta": 12,
+    "offset": 787.75,
+    "n_paineis": 1,
+    "confidence": 0.8,
+    "_h_dims": [],
+    "_v_dims": [
+      244.0
+    ],
+    "_y_band": [
+      9738,
+      9952
+    ]
+  },
+  "L7": {
+    "nome": "L7",
+    "comprimento_total": 244.0,
+    "largura_total": 0,
+    "nivel_delta": 22,
+    "offset": 787.85,
+    "n_paineis": 1,
+    "confidence": 0.8,
+    "_h_dims": [],
+    "_v_dims": [
+      244.0
+    ],
+    "_y_band": [
+      9482,
+      9729
+    ]
+  },
+  "L8": {
+    "nome": "L8",
+    "comprimento_total": 244.0,
+    "largura_total": 122.0,
+    "nivel_delta": 12,
+    "offset": 787.85,
+    "n_paineis": 14,
+    "confidence": 1.0,
+    "_h_dims": [
+      244.0,
+      244.0,
+      244.0,
+      244.0,
+      244.0,
+      244.0,
+      244.0,
+      207.5
+    ],
+    "_v_dims": [
+      122.0,
+      122.0,
+      101.0,
+      100.0,
+      100.0,
+      57.0
+    ],
+    "_y_band": [
+      9238,
+      9470
+    ]
+  },
+  "L10": {
+    "nome": "L10",
+    "comprimento_total": 206.5,
+    "largura_total": 122.0,
+    "nivel_delta": 12,
+    "offset": 787.85,
+    "n_paineis": 15,
+    "confidence": 1.0,
+    "_h_dims": [
+      122.0,
+      78.5,
+      73.9
+    ],
+    "_v_dims": [
+      206.5,
+      140.5,
+      122.0,
+      122.0,
+      122.0,
+      122.0,
+      122.0,
+      122.0,
+      94.9,
+      90.0,
+      89.0,
+      57.0
+    ],
+    "_y_band": [
+      9061,
+      9261
+    ]
+  },
+  "L9": {
+    "nome": "L9",
+    "comprimento_total": 140.5,
+    "largura_total": 0,
+    "nivel_delta": 22,
+    "offset": 787.85,
+    "n_paineis": 3,
+    "confidence": 0.8,
+    "_h_dims": [],
+    "_v_dims": [
+      140.5,
+      122.0,
+      122.0
+    ],
+    "_y_band": [
+      9036,
+      9236
+    ]
+  },
+  "L12": {
+    "nome": "L12",
+    "comprimento_total": 244.0,
+    "largura_total": 0,
+    "nivel_delta": 15,
+    "offset": 787.85,
+    "n_paineis": 5,
+    "confidence": 0.8,
+    "_h_dims": [],
+    "_v_dims": [
+      244.0,
+      122.0,
+      122.0,
+      122.0,
+      122.0
+    ],
+    "_y_band": [
+      8908,
+      9108
+    ]
+  },
+  "L13": {
+    "nome": "L13",
+    "comprimento_total": 244.0,
+    "largura_total": 0,
+    "nivel_delta": 16,
+    "offset": 787.85,
+    "n_paineis": 3,
+    "confidence": 0.8,
+    "_h_dims": [],
+    "_v_dims": [
+      244.0,
+      122.0,
+      122.0
+    ],
+    "_y_band": [
+      8908,
+      9108
+    ]
+  },
+  "L11": {
+    "nome": "L11",
+    "comprimento_total": 244.0,
+    "largura_total": 244.0,
+    "nivel_delta": 16,
+    "offset": 787.85,
+    "n_paineis": 16,
+    "confidence": 1.0,
+    "_h_dims": [
+      244.0,
+      244.0,
+      244.0,
+      244.0,
+      244.0,
+      244.0,
+      238.0,
+      238.0,
+      238.0
+    ],
+    "_v_dims": [
+      244.0,
+      122.0,
+      122.0,
+      122.0,
+      122.0,
+      122.0,
+      122.0
+    ],
+    "_y_band": [
+      8879,
+      9108
+    ]
+  },
+  "L14": {
+    "nome": "L14",
+    "comprimento_total": 244.0,
+    "largura_total": 122.0,
+    "nivel_delta": 12,
+    "offset": 787.75,
+    "n_paineis": 8,
+    "confidence": 1.0,
+    "_h_dims": [
+      122.0,
+      122.0,
+      62.0
+    ],
+    "_v_dims": [
+      244.0,
+      122.0,
+      122.0,
+      122.0,
+      60.5
+    ],
+    "_y_band": [
+      8632,
+      8868
+    ]
+  },
+  "L16": {
+    "nome": "L16",
+    "comprimento_total": 492.5,
+    "largura_total": 60.5,
+    "nivel_delta": 12,
+    "offset": 787.85,
+    "n_paineis": 22,
+    "confidence": 1.0,
+    "_h_dims": [
+      492.5,
+      244.0,
+      244.0,
+      244.0,
+      244.0,
+      244.0,
+      244.0,
+      244.0,
+      239.5,
+      229.5,
+      152.0,
+      152.0,
+      144.0,
+      136.0,
+      134.5,
+      108.0,
+      100.0,
+      92.0,
+      92.0
+    ],
+    "_v_dims": [
+      60.5,
+      60.5,
+      53.5
+    ],
+    "_y_band": [
+      8417,
+      8623
+    ]
+  },
+  "L15": {
+    "nome": "L15",
+    "comprimento_total": 492.5,
+    "largura_total": 0,
+    "nivel_delta": 12,
+    "offset": 787.75,
+    "n_paineis": 5,
+    "confidence": 0.8,
+    "_h_dims": [
+      492.5,
+      244.0,
+      244.0,
+      136.0,
+      108.0
+    ],
+    "_v_dims": [],
+    "_y_band": [
+      7887,
+      8587
+    ]
+  }
+}

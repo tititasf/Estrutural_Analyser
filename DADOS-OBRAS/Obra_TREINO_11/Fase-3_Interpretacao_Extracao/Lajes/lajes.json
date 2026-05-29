@@ -1,365 +1,369 @@
 {
   "L1": {
-    "comprimento": 100.0,
-    "largura": 100.0,
+    "comprimento": 244.0,
+    "largura": 244.0,
     "coordenadas": [
       [
         0.0,
         0.0
       ],
       [
-        100.0,
+        244.0,
         0.0
       ],
       [
-        100.0,
-        100.0
+        244.0,
+        244.0
       ],
       [
         0.0,
-        100.0
+        244.0
       ],
       [
         0.0,
         0.0
       ]
     ],
-    "area_cm2": 10000.0,
-    "confidence": 0.3,
-    "source": "label-only",
+    "area_cm2": 59536.0,
+    "confidence": 0.4,
+    "source": "cota-dims",
     "modo_selecionado": 0
   },
   "L2": {
-    "comprimento": 100.0,
-    "largura": 100.0,
+    "comprimento": 244.0,
+    "largura": 244.0,
     "coordenadas": [
       [
         0.0,
         0.0
       ],
       [
-        100.0,
+        244.0,
         0.0
       ],
       [
-        100.0,
-        100.0
+        244.0,
+        244.0
       ],
       [
         0.0,
-        100.0
+        244.0
       ],
       [
         0.0,
         0.0
       ]
     ],
-    "area_cm2": 10000.0,
-    "confidence": 0.3,
-    "source": "label-only",
+    "area_cm2": 59536.0,
+    "confidence": 0.4,
+    "source": "cota-dims",
     "modo_selecionado": 0
   },
   "L3": {
-    "comprimento": 100.0,
-    "largura": 100.0,
+    "comprimento": 244.0,
+    "largura": 244.0,
     "coordenadas": [
       [
         0.0,
         0.0
       ],
       [
-        100.0,
+        244.0,
         0.0
       ],
       [
-        100.0,
-        100.0
+        244.0,
+        244.0
       ],
       [
         0.0,
-        100.0
+        244.0
       ],
       [
         0.0,
         0.0
       ]
     ],
-    "area_cm2": 10000.0,
-    "confidence": 0.3,
-    "source": "label-only",
+    "area_cm2": 59536.0,
+    "confidence": 0.4,
+    "source": "cota-dims",
     "modo_selecionado": 0
   },
   "L4": {
-    "comprimento": 100.0,
-    "largura": 100.0,
+    "comprimento": 244.0,
+    "largura": 244.0,
     "coordenadas": [
       [
         0.0,
         0.0
       ],
       [
-        100.0,
+        244.0,
         0.0
       ],
       [
-        100.0,
-        100.0
+        244.0,
+        244.0
       ],
       [
         0.0,
-        100.0
+        244.0
       ],
       [
         0.0,
         0.0
       ]
     ],
-    "area_cm2": 10000.0,
-    "confidence": 0.3,
-    "source": "label-only",
+    "area_cm2": 59536.0,
+    "confidence": 0.4,
+    "source": "cota-dims",
     "modo_selecionado": 0
   },
   "L5": {
-    "comprimento": 100.0,
-    "largura": 100.0,
+    "comprimento": 244.0,
+    "largura": 244.0,
     "coordenadas": [
       [
         0.0,
         0.0
       ],
       [
-        100.0,
+        244.0,
         0.0
       ],
       [
-        100.0,
-        100.0
+        244.0,
+        244.0
       ],
       [
         0.0,
-        100.0
+        244.0
       ],
       [
         0.0,
         0.0
       ]
     ],
-    "area_cm2": 10000.0,
-    "confidence": 0.3,
-    "source": "label-only",
+    "area_cm2": 59536.0,
+    "confidence": 0.4,
+    "source": "cota-dims",
     "modo_selecionado": 0
   },
   "L6": {
-    "comprimento": 100.0,
-    "largura": 100.0,
+    "comprimento": 244.0,
+    "largura": 244.0,
     "coordenadas": [
       [
         0.0,
         0.0
       ],
       [
-        100.0,
+        244.0,
         0.0
       ],
       [
-        100.0,
-        100.0
+        244.0,
+        244.0
       ],
       [
         0.0,
-        100.0
+        244.0
       ],
       [
         0.0,
         0.0
       ]
     ],
-    "area_cm2": 10000.0,
-    "confidence": 0.3,
-    "source": "label-only",
+    "area_cm2": 59536.0,
+    "confidence": 0.4,
+    "source": "cota-dims",
     "modo_selecionado": 0
   },
   "L7": {
-    "comprimento": 100.0,
-    "largura": 100.0,
+    "comprimento": 244.0,
+    "largura": 244.0,
     "coordenadas": [
       [
         0.0,
         0.0
       ],
       [
-        100.0,
+        244.0,
         0.0
       ],
       [
-        100.0,
-        100.0
+        244.0,
+        244.0
       ],
       [
         0.0,
-        100.0
+        244.0
       ],
       [
         0.0,
         0.0
       ]
     ],
-    "area_cm2": 10000.0,
-    "confidence": 0.3,
-    "source": "label-only",
+    "area_cm2": 59536.0,
+    "confidence": 0.4,
+    "source": "cota-dims",
     "modo_selecionado": 0
   },
   "L8": {
-    "comprimento": 100.0,
-    "largura": 100.0,
+    "comprimento": 244.0,
+    "largura": 244.0,
     "coordenadas": [
       [
         0.0,
         0.0
       ],
       [
-        100.0,
+        244.0,
         0.0
       ],
       [
-        100.0,
-        100.0
+        244.0,
+        244.0
       ],
       [
         0.0,
-        100.0
+        244.0
       ],
       [
         0.0,
         0.0
       ]
     ],
-    "area_cm2": 10000.0,
-    "confidence": 0.3,
-    "source": "label-only",
+    "area_cm2": 59536.0,
+    "confidence": 0.4,
+    "source": "cota-dims",
     "modo_selecionado": 0
   },
   "L9": {
-    "comprimento": 100.0,
-    "largura": 100.0,
+    "comprimento": 244.0,
+    "largura": 244.0,
     "coordenadas": [
       [
         0.0,
         0.0
       ],
       [
-        100.0,
+        244.0,
         0.0
       ],
       [
-        100.0,
-        100.0
+        244.0,
+        244.0
       ],
       [
         0.0,
-        100.0
+        244.0
       ],
       [
         0.0,
         0.0
       ]
     ],
-    "area_cm2": 10000.0,
-    "confidence": 0.3,
-    "source": "label-only",
+    "area_cm2": 59536.0,
+    "confidence": 0.4,
+    "source": "cota-dims",
     "modo_selecionado": 0
   },
   "L10": {
-    "comprimento": 100.0,
-    "largura": 100.0,
+    "comprimento": 244.0,
+    "largura": 244.0,
     "coordenadas": [
       [
         0.0,
         0.0
       ],
       [
-        100.0,
+        244.0,
         0.0
       ],
       [
-        100.0,
-        100.0
+        244.0,
+        244.0
       ],
       [
         0.0,
-        100.0
+        244.0
       ],
       [
         0.0,
         0.0
       ]
     ],
-    "area_cm2": 10000.0,
-    "confidence": 0.3,
-    "source": "label-only",
+    "area_cm2": 59536.0,
+    "confidence": 0.4,
+    "source": "cota-dims",
     "modo_selecionado": 0
   },
   "L11": {
-    "comprimento": 100.0,
-    "largura": 100.0,
+    "comprimento": 244.0,
+    "largura": 244.0,
     "coordenadas": [
       [
-        12958.3,
-        8535.1
+        0.0,
+        0.0
       ],
       [
-        13068.8,
-        8535.1
+        244.0,
+        0.0
       ],
       [
-        13068.8,
-        8512.8
+        244.0,
+        244.0
       ],
       [
-        12958.3,
-        8512.8
+        0.0,
+        244.0
+      ],
+      [
+        0.0,
+        0.0
       ]
     ],
-    "area_cm2": 10000.0,
-    "confidence": 0.6,
-    "source": "label-only",
+    "area_cm2": 59536.0,
+    "confidence": 0.4,
+    "source": "cota-dims",
     "modo_selecionado": 0
   },
   "L12": {
-    "comprimento": 100.0,
-    "largura": 100.0,
+    "comprimento": 244.0,
+    "largura": 244.0,
     "coordenadas": [
       [
         0.0,
         0.0
       ],
       [
-        100.0,
+        244.0,
         0.0
       ],
       [
-        100.0,
-        100.0
+        244.0,
+        244.0
       ],
       [
         0.0,
-        100.0
+        244.0
       ],
       [
         0.0,
         0.0
       ]
     ],
-    "area_cm2": 10000.0,
-    "confidence": 0.3,
-    "source": "label-only",
+    "area_cm2": 59536.0,
+    "confidence": 0.4,
+    "source": "cota-dims",
     "modo_selecionado": 0
   },
   "_meta": {
     "total": 11,
     "integrado_em": "2026-03-08",
     "fontes": [
-      "lajes_data.json"
+      "lajes_poligono.json"
     ]
   }
 }

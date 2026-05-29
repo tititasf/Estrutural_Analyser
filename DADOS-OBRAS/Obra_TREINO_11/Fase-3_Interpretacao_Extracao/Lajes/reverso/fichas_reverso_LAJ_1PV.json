@@ -1,0 +1,331 @@
+{
+  "L2": {
+    "nome": "L2",
+    "comprimento_total": 244.0,
+    "largura_total": 60.5,
+    "nivel_delta": 12,
+    "offset": 774.89,
+    "n_paineis": 7,
+    "confidence": 1.0,
+    "_h_dims": [
+      244.0,
+      244.0,
+      244.0,
+      230.0,
+      96.5
+    ],
+    "_v_dims": [
+      60.5,
+      53.5
+    ],
+    "_y_band": [
+      9826,
+      10526
+    ]
+  },
+  "L1": {
+    "nome": "L1",
+    "comprimento_total": 244.0,
+    "largura_total": 60.5,
+    "nivel_delta": 12,
+    "offset": 774.89,
+    "n_paineis": 14,
+    "confidence": 1.0,
+    "_h_dims": [
+      244.0,
+      244.0,
+      244.0,
+      244.0,
+      244.0,
+      244.0,
+      244.0,
+      244.0,
+      230.0,
+      96.5
+    ],
+    "_v_dims": [
+      60.5,
+      60.5,
+      53.5,
+      53.5
+    ],
+    "_y_band": [
+      9825,
+      10025
+    ]
+  },
+  "L3": {
+    "nome": "L3",
+    "comprimento_total": 244.0,
+    "largura_total": 0,
+    "nivel_delta": 12,
+    "offset": 774.89,
+    "n_paineis": 2,
+    "confidence": 0.8,
+    "_h_dims": [
+      244.0,
+      96.5
+    ],
+    "_v_dims": [],
+    "_y_band": [
+      9704,
+      10024
+    ]
+  },
+  "L5": {
+    "nome": "L5",
+    "comprimento_total": 244.0,
+    "largura_total": 122.0,
+    "nivel_delta": 12,
+    "offset": 774.89,
+    "n_paineis": 9,
+    "confidence": 1.0,
+    "_h_dims": [
+      122.0,
+      122.0,
+      122.0,
+      122.0,
+      86.0,
+      76.0,
+      60.5
+    ],
+    "_v_dims": [
+      244.0,
+      244.0
+    ],
+    "_y_band": [
+      9365,
+      9686
+    ]
+  },
+  "L4": {
+    "nome": "L4",
+    "comprimento_total": 244.0,
+    "largura_total": 122.0,
+    "nivel_delta": 18,
+    "offset": 774.89,
+    "n_paineis": 6,
+    "confidence": 1.0,
+    "_h_dims": [
+      122.0,
+      122.0,
+      122.0,
+      60.5
+    ],
+    "_v_dims": [
+      244.0,
+      73.5
+    ],
+    "_y_band": [
+      9208,
+      9551
+    ]
+  },
+  "L7": {
+    "nome": "L7",
+    "comprimento_total": 244.0,
+    "largura_total": 150.0,
+    "nivel_delta": 16,
+    "offset": 774.89,
+    "n_paineis": 5,
+    "confidence": 1.0,
+    "_h_dims": [
+      150.0
+    ],
+    "_v_dims": [
+      244.0,
+      244.0,
+      140.5,
+      122.0
+    ],
+    "_y_band": [
+      8845,
+      9188
+    ]
+  },
+  "L8": {
+    "nome": "L8",
+    "comprimento_total": 244.0,
+    "largura_total": 244.0,
+    "nivel_delta": 12,
+    "offset": 774.89,
+    "n_paineis": 4,
+    "confidence": 1.0,
+    "_h_dims": [
+      244.0
+    ],
+    "_v_dims": [
+      244.0,
+      140.5,
+      122.0
+    ],
+    "_y_band": [
+      8768,
+      8968
+    ]
+  },
+  "L6": {
+    "nome": "L6",
+    "comprimento_total": 244.0,
+    "largura_total": 244.0,
+    "nivel_delta": 12,
+    "offset": 774.89,
+    "n_paineis": 13,
+    "confidence": 1.0,
+    "_h_dims": [
+      244.0,
+      244.0,
+      235.5,
+      122.0,
+      78.5,
+      73.9
+    ],
+    "_v_dims": [
+      244.0,
+      244.0,
+      206.5,
+      140.5,
+      122.0,
+      80.0,
+      51.0
+    ],
+    "_y_band": [
+      8752,
+      8952
+    ]
+  },
+  "L9": {
+    "nome": "L9",
+    "comprimento_total": 244.0,
+    "largura_total": 93.0,
+    "nivel_delta": 16,
+    "offset": 774.89,
+    "n_paineis": 2,
+    "confidence": 1.0,
+    "_h_dims": [
+      93.0
+    ],
+    "_v_dims": [
+      244.0
+    ],
+    "_y_band": [
+      8522,
+      8825
+    ]
+  },
+  "L13": {
+    "nome": "L13",
+    "comprimento_total": 244.0,
+    "largura_total": 244.0,
+    "nivel_delta": 12,
+    "offset": 774.89,
+    "n_paineis": 5,
+    "confidence": 1.0,
+    "_h_dims": [
+      244.0,
+      96.5
+    ],
+    "_v_dims": [
+      244.0,
+      60.5,
+      53.5
+    ],
+    "_y_band": [
+      8203,
+      8506
+    ]
+  },
+  "L12": {
+    "nome": "L12",
+    "comprimento_total": 244.0,
+    "largura_total": 60.5,
+    "nivel_delta": 12,
+    "offset": 774.89,
+    "n_paineis": 9,
+    "confidence": 1.0,
+    "_h_dims": [
+      244.0,
+      244.0,
+      244.0,
+      222.0,
+      96.5
+    ],
+    "_v_dims": [
+      60.5,
+      60.5,
+      53.5,
+      53.5
+    ],
+    "_y_band": [
+      8203,
+      8403
+    ]
+  },
+  "L11": {
+    "nome": "L11",
+    "comprimento_total": 244.0,
+    "largura_total": 60.5,
+    "nivel_delta": 12,
+    "offset": 774.89,
+    "n_paineis": 14,
+    "confidence": 1.0,
+    "_h_dims": [
+      244.0,
+      244.0,
+      244.0,
+      244.0,
+      244.0,
+      230.0,
+      222.0,
+      96.5
+    ],
+    "_v_dims": [
+      60.5,
+      60.5,
+      60.5,
+      53.5,
+      53.5,
+      53.5
+    ],
+    "_y_band": [
+      8203,
+      8403
+    ]
+  },
+  "L10": {
+    "nome": "L10",
+    "comprimento_total": 244.0,
+    "largura_total": 60.5,
+    "nivel_delta": 12,
+    "offset": 774.89,
+    "n_paineis": 19,
+    "confidence": 1.0,
+    "_h_dims": [
+      244.0,
+      244.0,
+      244.0,
+      244.0,
+      244.0,
+      244.0,
+      244.0,
+      238.0,
+      230.0,
+      222.0,
+      96.5
+    ],
+    "_v_dims": [
+      60.5,
+      60.5,
+      60.5,
+      60.5,
+      53.5,
+      53.5,
+      53.5,
+      53.5
+    ],
+    "_y_band": [
+      7702,
+      8402
+    ]
+  }
+}
