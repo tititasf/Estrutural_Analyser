@@ -1,0 +1,612 @@
+[
+  {
+    "id": "P10",
+    "_faces": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "_face_widths": {
+      "A": 82,
+      "C": 19,
+      "D": 19,
+      "B": 82
+    },
+    "_pd_m": 3.5,
+    "_pav_txt": "COBERTURA"
+  },
+  {
+    "id": "P10_2",
+    "_faces": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "_face_widths": {
+      "A": 82,
+      "D": 19,
+      "C": 19,
+      "B": 82
+    },
+    "_pd_m": 1.55,
+    "_pav_txt": ""
+  },
+  {
+    "id": "P11",
+    "_faces": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "_face_widths": {
+      "C": 19,
+      "D": 19,
+      "A": 102,
+      "B": 102
+    },
+    "_pd_m": 3.5,
+    "_pav_txt": "COBERTURA"
+  },
+  {
+    "id": "P12",
+    "_faces": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "_face_widths": {
+      "C": 19,
+      "D": 19,
+      "A": 120,
+      "B": 120
+    },
+    "_pd_m": 3.5,
+    "_pav_txt": "COBERTURA"
+  },
+  {
+    "id": "P14",
+    "_faces": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "_face_widths": {
+      "C": 19,
+      "D": 19,
+      "A": 120,
+      "B": 120
+    },
+    "_pd_m": 3.5,
+    "_pav_txt": "COBERTURA"
+  },
+  {
+    "id": "P16",
+    "_faces": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "_face_widths": {
+      "C": 19,
+      "D": 19,
+      "A": 122,
+      "B": 122
+    },
+    "_pd_m": 3.6,
+    "_pav_txt": "COBERTURA"
+  },
+  {
+    "id": "P17",
+    "_faces": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "_face_widths": {
+      "C": 19,
+      "D": 19,
+      "A": 142,
+      "B": 142
+    },
+    "_pd_m": 3.6,
+    "_pav_txt": "COBERTURA"
+  },
+  {
+    "id": "P18",
+    "_faces": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "_face_widths": {
+      "C": 19,
+      "D": 19,
+      "A": 101,
+      "B": 101
+    },
+    "_pd_m": 3.6,
+    "_pav_txt": "COBERTURA"
+  },
+  {
+    "id": "P19",
+    "_faces": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "_face_widths": {
+      "B": 102,
+      "C": 19,
+      "D": 19,
+      "A": 102
+    },
+    "_pd_m": 3.5,
+    "_pav_txt": "COBERTURA"
+  },
+  {
+    "id": "P20",
+    "_faces": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "_face_widths": {
+      "A": 108,
+      "C": 19,
+      "D": 19,
+      "B": 108
+    },
+    "_pd_m": 3.5,
+    "_pav_txt": "COBERTURA"
+  },
+  {
+    "id": "P21",
+    "_faces": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "_face_widths": {
+      "C": 19,
+      "D": 19,
+      "A": 108,
+      "B": 108
+    },
+    "_pd_m": 3.5,
+    "_pav_txt": "COBERTURA"
+  },
+  {
+    "id": "P22",
+    "_faces": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "_face_widths": {
+      "C": 19,
+      "D": 19,
+      "A": 108,
+      "B": 108
+    },
+    "_pd_m": 3.5,
+    "_pav_txt": "COBERTURA"
+  },
+  {
+    "id": "P23",
+    "_faces": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "_face_widths": {
+      "C": 19,
+      "D": 19,
+      "A": 122,
+      "B": 122
+    },
+    "_pd_m": 3.6,
+    "_pav_txt": "COBERTURA"
+  },
+  {
+    "id": "P23_2",
+    "_faces": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "_face_widths": {
+      "C": 19,
+      "D": 19,
+      "A": 122,
+      "B": 122
+    },
+    "_pd_m": 1.3,
+    "_pav_txt": ""
+  },
+  {
+    "id": "P24",
+    "_faces": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "_face_widths": {
+      "C": 19,
+      "D": 19,
+      "A": 102,
+      "B": 102
+    },
+    "_pd_m": 3.6,
+    "_pav_txt": "COBERTURA"
+  },
+  {
+    "id": "P25",
+    "_faces": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "_face_widths": {
+      "A": 82,
+      "C": 19,
+      "D": 19,
+      "B": 82
+    },
+    "_pd_m": 3.6,
+    "_pav_txt": "COBERTURA"
+  },
+  {
+    "id": "P25_2",
+    "_faces": [
+      "A",
+      "C",
+      "D"
+    ],
+    "_face_widths": {
+      "A": 82,
+      "C": 19,
+      "D": 19
+    },
+    "_pd_m": 1.55,
+    "_pav_txt": ""
+  },
+  {
+    "id": "P26",
+    "_faces": [
+      "A",
+      "B",
+      "C",
+      "D",
+      "E",
+      "F"
+    ],
+    "_face_widths": {
+      "A": 176,
+      "B": 153,
+      "C": 19,
+      "D": 19,
+      "E": 240,
+      "F": 210
+    },
+    "_pd_m": 3.6,
+    "_pav_txt": "COBERTURA"
+  },
+  {
+    "id": "P27",
+    "_faces": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "_face_widths": {
+      "A": 176,
+      "B": 153,
+      "C": 19,
+      "D": 19
+    },
+    "_pd_m": 3.6,
+    "_pav_txt": "COBERTURA"
+  },
+  {
+    "id": "P27_2",
+    "_faces": [
+      "E",
+      "F"
+    ],
+    "_face_widths": {
+      "E": 210,
+      "F": 240
+    },
+    "_pd_m": 3.6,
+    "_pav_txt": "COBERTURA"
+  },
+  {
+    "id": "P28",
+    "_faces": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "_face_widths": {
+      "C": 24,
+      "D": 24,
+      "A": 102,
+      "B": 102
+    },
+    "_pd_m": 3.5,
+    "_pav_txt": "COBERTURA"
+  },
+  {
+    "id": "P29",
+    "_faces": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "_face_widths": {
+      "C": 24,
+      "D": 24,
+      "A": 88,
+      "B": 88
+    },
+    "_pd_m": 3.5,
+    "_pav_txt": "COBERTURA"
+  },
+  {
+    "id": "P30",
+    "_faces": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "_face_widths": {
+      "C": 24,
+      "D": 24,
+      "A": 88,
+      "B": 88
+    },
+    "_pd_m": 3.5,
+    "_pav_txt": "COBERTURA"
+  },
+  {
+    "id": "P31",
+    "_faces": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "_face_widths": {
+      "C": 24,
+      "D": 24,
+      "A": 88,
+      "B": 88
+    },
+    "_pd_m": 3.5,
+    "_pav_txt": "COBERTURA"
+  },
+  {
+    "id": "P31_2",
+    "_faces": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "_face_widths": {
+      "A": 54,
+      "C": 24,
+      "D": 24,
+      "B": 88
+    },
+    "_pd_m": 1.55,
+    "_pav_txt": ""
+  },
+  {
+    "id": "P32",
+    "_faces": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "_face_widths": {
+      "C": 24,
+      "D": 24,
+      "A": 88,
+      "B": 88
+    },
+    "_pd_m": 3.6,
+    "_pav_txt": "COBERTURA"
+  },
+  {
+    "id": "P32_2",
+    "_faces": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "_face_widths": {
+      "A": 88,
+      "C": 19,
+      "D": 19,
+      "B": 88
+    },
+    "_pd_m": 1.55,
+    "_pav_txt": ""
+  },
+  {
+    "id": "P33",
+    "_faces": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "_face_widths": {
+      "A": 122,
+      "C": 19,
+      "D": 19,
+      "B": 122
+    },
+    "_pd_m": 3.6,
+    "_pav_txt": "COBERTURA"
+  },
+  {
+    "id": "P34",
+    "_faces": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "_face_widths": {
+      "A": 82,
+      "C": 19,
+      "D": 19,
+      "B": 82
+    },
+    "_pd_m": 3.6,
+    "_pav_txt": "COBERTURA"
+  },
+  {
+    "id": "P35",
+    "_faces": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "_face_widths": {
+      "A": 82,
+      "C": 19,
+      "D": 19,
+      "B": 82
+    },
+    "_pd_m": 3.6,
+    "_pav_txt": "COBERTURA"
+  },
+  {
+    "id": "P43",
+    "_faces": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "_face_widths": {
+      "D": 19,
+      "C": 19,
+      "B": 72,
+      "A": 72
+    },
+    "_pd_m": 3.5,
+    "_pav_txt": "COBERTURA"
+  },
+  {
+    "id": "P46",
+    "_faces": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "_face_widths": {
+      "D": 19,
+      "C": 19,
+      "B": 72,
+      "A": 72
+    },
+    "_pd_m": 3.6,
+    "_pav_txt": "COBERTURA"
+  },
+  {
+    "id": "P47",
+    "_faces": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "_face_widths": {
+      "D": 19,
+      "C": 19,
+      "B": 72,
+      "A": 72
+    },
+    "_pd_m": 3.6,
+    "_pav_txt": "COBERTURA"
+  },
+  {
+    "id": "P49",
+    "_faces": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "_face_widths": {
+      "A": 72,
+      "B": 72,
+      "C": 19,
+      "D": 19
+    },
+    "_pd_m": 3.6,
+    "_pav_txt": "COBERTURA"
+  },
+  {
+    "id": "P51",
+    "_faces": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "_face_widths": {
+      "A": 72,
+      "B": 72,
+      "C": 19,
+      "D": 19
+    },
+    "_pd_m": 3.6,
+    "_pav_txt": "COBERTURA"
+  },
+  {
+    "id": "P51_2",
+    "_faces": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "_face_widths": {
+      "D": 19,
+      "C": 19,
+      "B": 72,
+      "A": 72
+    },
+    "_pd_m": 1.3,
+    "_pav_txt": ""
+  }
+]

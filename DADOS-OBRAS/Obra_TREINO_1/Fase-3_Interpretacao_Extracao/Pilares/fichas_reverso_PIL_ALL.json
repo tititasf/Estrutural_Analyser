@@ -1,0 +1,2202 @@
+{
+  "P1": {
+    "id": "P1",
+    "comprimento": 88.0,
+    "largura": 24.0,
+    "altura_cm": 321.0,
+    "confidence": 1.0,
+    "pavimentos": [
+      "13PAV",
+      "1PAV",
+      "2PAV",
+      "TIPO"
+    ],
+    "_sources": {
+      "13PAV": {
+        "comprimento": 88.0,
+        "largura": 19.0,
+        "altura_cm": 321.0,
+        "confidence": 1.0
+      },
+      "1PAV": {
+        "comprimento": 88.0,
+        "largura": 24.0,
+        "altura_cm": 425.0,
+        "confidence": 1.0
+      },
+      "2PAV": {
+        "comprimento": 88.0,
+        "largura": 24.0,
+        "altura_cm": 323.0,
+        "confidence": 1.0
+      },
+      "TIPO": {
+        "comprimento": 88.0,
+        "largura": 19.0,
+        "altura_cm": 280.0,
+        "confidence": 1.0
+      }
+    }
+  },
+  "P2": {
+    "id": "P2",
+    "comprimento": 88.0,
+    "largura": 30.0,
+    "altura_cm": 321.0,
+    "confidence": 1.0,
+    "pavimentos": [
+      "13PAV",
+      "1PAV",
+      "2PAV",
+      "TIPO"
+    ],
+    "_sources": {
+      "13PAV": {
+        "comprimento": 88.0,
+        "largura": 19.0,
+        "altura_cm": 321.0,
+        "confidence": 1.0
+      },
+      "1PAV": {
+        "comprimento": 88.0,
+        "largura": 30.0,
+        "altura_cm": 408.0,
+        "confidence": 0.85
+      },
+      "2PAV": {
+        "comprimento": 88.0,
+        "largura": 30.0,
+        "altura_cm": 323.0,
+        "confidence": 1.0
+      },
+      "TIPO": {
+        "comprimento": 88.0,
+        "largura": 19.0,
+        "altura_cm": 280.0,
+        "confidence": 1.0
+      }
+    }
+  },
+  "P3": {
+    "id": "P3",
+    "comprimento": 88.0,
+    "largura": 24.0,
+    "altura_cm": 321.0,
+    "confidence": 1.0,
+    "pavimentos": [
+      "13PAV",
+      "1PAV",
+      "2PAV",
+      "TIPO"
+    ],
+    "_sources": {
+      "13PAV": {
+        "comprimento": 88.0,
+        "largura": 19.0,
+        "altura_cm": 321.0,
+        "confidence": 1.0
+      },
+      "1PAV": {
+        "comprimento": 82.0,
+        "largura": 24.0,
+        "altura_cm": 408.0,
+        "confidence": 1.0
+      },
+      "2PAV": {
+        "comprimento": 82.0,
+        "largura": 24.0,
+        "altura_cm": 323.0,
+        "confidence": 1.0
+      },
+      "TIPO": {
+        "comprimento": 88.0,
+        "largura": 19.0,
+        "altura_cm": 280.0,
+        "confidence": 1.0
+      }
+    }
+  },
+  "P4": {
+    "id": "P4",
+    "comprimento": 88.0,
+    "largura": 24.0,
+    "altura_cm": 321.0,
+    "confidence": 1.0,
+    "pavimentos": [
+      "13PAV",
+      "1PAV",
+      "2PAV",
+      "TIPO"
+    ],
+    "_sources": {
+      "13PAV": {
+        "comprimento": 88.0,
+        "largura": 19.0,
+        "altura_cm": 321.0,
+        "confidence": 1.0
+      },
+      "1PAV": {
+        "comprimento": 82.0,
+        "largura": 24.0,
+        "altura_cm": 408.0,
+        "confidence": 1.0
+      },
+      "2PAV": {
+        "comprimento": 82.0,
+        "largura": 24.0,
+        "altura_cm": 323.0,
+        "confidence": 1.0
+      },
+      "TIPO": {
+        "comprimento": 88.0,
+        "largura": 19.0,
+        "altura_cm": 280.0,
+        "confidence": 1.0
+      }
+    }
+  },
+  "P5": {
+    "id": "P5",
+    "comprimento": 88.0,
+    "largura": 24.0,
+    "altura_cm": 321.0,
+    "confidence": 1.0,
+    "pavimentos": [
+      "13PAV",
+      "1PAV",
+      "2PAV",
+      "TIPO"
+    ],
+    "_sources": {
+      "13PAV": {
+        "comprimento": 88.0,
+        "largura": 19.0,
+        "altura_cm": 321.0,
+        "confidence": 1.0
+      },
+      "1PAV": {
+        "comprimento": 82.0,
+        "largura": 24.0,
+        "altura_cm": 408.0,
+        "confidence": 1.0
+      },
+      "2PAV": {
+        "comprimento": 82.0,
+        "largura": 24.0,
+        "altura_cm": 323.0,
+        "confidence": 1.0
+      },
+      "TIPO": {
+        "comprimento": 88.0,
+        "largura": 19.0,
+        "altura_cm": 280.0,
+        "confidence": 1.0
+      }
+    }
+  },
+  "P6": {
+    "id": "P6",
+    "comprimento": 88.0,
+    "largura": 24.0,
+    "altura_cm": 321.0,
+    "confidence": 1.0,
+    "pavimentos": [
+      "13PAV",
+      "1PAV",
+      "2PAV",
+      "TIPO"
+    ],
+    "_sources": {
+      "13PAV": {
+        "comprimento": 88.0,
+        "largura": 19.0,
+        "altura_cm": 321.0,
+        "confidence": 1.0
+      },
+      "1PAV": {
+        "comprimento": 82.0,
+        "largura": 24.0,
+        "altura_cm": 425.0,
+        "confidence": 1.0
+      },
+      "2PAV": {
+        "comprimento": 82.0,
+        "largura": 24.0,
+        "altura_cm": 323.0,
+        "confidence": 1.0
+      },
+      "TIPO": {
+        "comprimento": 88.0,
+        "largura": 19.0,
+        "altura_cm": 280.0,
+        "confidence": 1.0
+      }
+    }
+  },
+  "P7": {
+    "id": "P7",
+    "comprimento": 88.0,
+    "largura": 24.0,
+    "altura_cm": 321.0,
+    "confidence": 1.0,
+    "pavimentos": [
+      "13PAV",
+      "1PAV",
+      "2PAV",
+      "TIPO"
+    ],
+    "_sources": {
+      "13PAV": {
+        "comprimento": 88.0,
+        "largura": 19.0,
+        "altura_cm": 321.0,
+        "confidence": 1.0
+      },
+      "1PAV": {
+        "comprimento": 82.0,
+        "largura": 24.0,
+        "altura_cm": 408.0,
+        "confidence": 1.0
+      },
+      "2PAV": {
+        "comprimento": 82.0,
+        "largura": 24.0,
+        "altura_cm": 323.0,
+        "confidence": 1.0
+      },
+      "TIPO": {
+        "comprimento": 88.0,
+        "largura": 19.0,
+        "altura_cm": 280.0,
+        "confidence": 1.0
+      }
+    }
+  },
+  "P8": {
+    "id": "P8",
+    "comprimento": 88.0,
+    "largura": 27.0,
+    "altura_cm": 321.0,
+    "confidence": 1.0,
+    "pavimentos": [
+      "13PAV",
+      "1PAV",
+      "2PAV",
+      "TIPO"
+    ],
+    "_sources": {
+      "13PAV": {
+        "comprimento": 88.0,
+        "largura": 19.0,
+        "altura_cm": 321.0,
+        "confidence": 1.0
+      },
+      "1PAV": {
+        "comprimento": 82.0,
+        "largura": 27.0,
+        "altura_cm": 408.0,
+        "confidence": 1.0
+      },
+      "2PAV": {
+        "comprimento": 82.0,
+        "largura": 27.0,
+        "altura_cm": 323.0,
+        "confidence": 1.0
+      },
+      "TIPO": {
+        "comprimento": 88.0,
+        "largura": 19.0,
+        "altura_cm": 280.0,
+        "confidence": 1.0
+      }
+    }
+  },
+  "P9": {
+    "id": "P9",
+    "comprimento": 126.0,
+    "largura": 30.0,
+    "altura_cm": 321.0,
+    "confidence": 1.0,
+    "pavimentos": [
+      "13PAV",
+      "1PAV",
+      "2PAV",
+      "TIPO"
+    ],
+    "_sources": {
+      "13PAV": {
+        "comprimento": 126.0,
+        "largura": 19.0,
+        "altura_cm": 321.0,
+        "confidence": 1.0
+      },
+      "1PAV": {
+        "comprimento": 126.0,
+        "largura": 30.0,
+        "altura_cm": 408.0,
+        "confidence": 1.0
+      },
+      "2PAV": {
+        "comprimento": 126.0,
+        "largura": 30.0,
+        "altura_cm": 323.0,
+        "confidence": 1.0
+      },
+      "TIPO": {
+        "comprimento": 126.0,
+        "largura": 19.0,
+        "altura_cm": 280.0,
+        "confidence": 1.0
+      }
+    }
+  },
+  "P10": {
+    "id": "P10",
+    "comprimento": 82.0,
+    "largura": 24.0,
+    "altura_cm": 321.0,
+    "confidence": 1.0,
+    "pavimentos": [
+      "13PAV",
+      "14PAV",
+      "2PAV",
+      "COBERTURA",
+      "TIPO"
+    ],
+    "_sources": {
+      "13PAV": {
+        "comprimento": 82.0,
+        "largura": 19.0,
+        "altura_cm": 321.0,
+        "confidence": 1.0
+      },
+      "14PAV": {
+        "comprimento": 82.0,
+        "largura": 19.0,
+        "altura_cm": 306.0,
+        "confidence": 1.0
+      },
+      "2PAV": {
+        "comprimento": 82.0,
+        "largura": 24.0,
+        "altura_cm": 323.0,
+        "confidence": 1.0
+      },
+      "COBERTURA": {
+        "comprimento": 82.0,
+        "largura": 19.0,
+        "altura_cm": 350.0,
+        "confidence": 1.0
+      },
+      "TIPO": {
+        "comprimento": 82.0,
+        "largura": 19.0,
+        "altura_cm": 280.0,
+        "confidence": 1.0
+      }
+    }
+  },
+  "P11": {
+    "id": "P11",
+    "comprimento": 102.0,
+    "largura": 30.0,
+    "altura_cm": 321.0,
+    "confidence": 1.0,
+    "pavimentos": [
+      "13PAV",
+      "14PAV",
+      "1PAV",
+      "2PAV",
+      "COBERTURA",
+      "TERREO",
+      "TIPO"
+    ],
+    "_sources": {
+      "13PAV": {
+        "comprimento": 102.0,
+        "largura": 19.0,
+        "altura_cm": 321.0,
+        "confidence": 1.0
+      },
+      "14PAV": {
+        "comprimento": 102.0,
+        "largura": 19.0,
+        "altura_cm": 306.0,
+        "confidence": 1.0
+      },
+      "1PAV": {
+        "comprimento": 102.0,
+        "largura": 30.0,
+        "altura_cm": 408.0,
+        "confidence": 1.0
+      },
+      "2PAV": {
+        "comprimento": 102.0,
+        "largura": 30.0,
+        "altura_cm": 323.0,
+        "confidence": 1.0
+      },
+      "COBERTURA": {
+        "comprimento": 102.0,
+        "largura": 19.0,
+        "altura_cm": 350.0,
+        "confidence": 1.0
+      },
+      "TERREO": {
+        "comprimento": 102.0,
+        "largura": 30.0,
+        "altura_cm": 312.0,
+        "confidence": 1.0
+      },
+      "TIPO": {
+        "comprimento": 102.0,
+        "largura": 19.0,
+        "altura_cm": 280.0,
+        "confidence": 1.0
+      }
+    }
+  },
+  "P12": {
+    "id": "P12",
+    "comprimento": 120.0,
+    "largura": 24.0,
+    "altura_cm": 321.0,
+    "confidence": 1.0,
+    "pavimentos": [
+      "13PAV",
+      "14PAV",
+      "1PAV",
+      "2PAV",
+      "COBERTURA",
+      "TERREO",
+      "TIPO"
+    ],
+    "_sources": {
+      "13PAV": {
+        "comprimento": 120.0,
+        "largura": 19.0,
+        "altura_cm": 321.0,
+        "confidence": 1.0
+      },
+      "14PAV": {
+        "comprimento": 120.0,
+        "largura": 19.0,
+        "altura_cm": 306.0,
+        "confidence": 1.0
+      },
+      "1PAV": {
+        "comprimento": 92.0,
+        "largura": 24.0,
+        "altura_cm": 408.0,
+        "confidence": 1.0
+      },
+      "2PAV": {
+        "comprimento": 120.0,
+        "largura": 24.0,
+        "altura_cm": 323.0,
+        "confidence": 1.0
+      },
+      "COBERTURA": {
+        "comprimento": 120.0,
+        "largura": 19.0,
+        "altura_cm": 350.0,
+        "confidence": 1.0
+      },
+      "TERREO": {
+        "comprimento": 92.0,
+        "largura": 24.0,
+        "altura_cm": 312.0,
+        "confidence": 1.0
+      },
+      "TIPO": {
+        "comprimento": 120.0,
+        "largura": 19.0,
+        "altura_cm": 280.0,
+        "confidence": 1.0
+      }
+    }
+  },
+  "P13": {
+    "id": "P13",
+    "comprimento": 120.0,
+    "largura": 24.0,
+    "altura_cm": 321.0,
+    "confidence": 1.0,
+    "pavimentos": [
+      "13PAV",
+      "1PAV",
+      "2PAV",
+      "TERREO",
+      "TIPO"
+    ],
+    "_sources": {
+      "13PAV": {
+        "comprimento": 120.0,
+        "largura": 19.0,
+        "altura_cm": 321.0,
+        "confidence": 1.0
+      },
+      "1PAV": {
+        "comprimento": 92.0,
+        "largura": 24.0,
+        "altura_cm": 408.0,
+        "confidence": 1.0
+      },
+      "2PAV": {
+        "comprimento": 92.0,
+        "largura": 24.0,
+        "altura_cm": 323.0,
+        "confidence": 1.0
+      },
+      "TERREO": {
+        "comprimento": 92.0,
+        "largura": 24.0,
+        "altura_cm": 312.0,
+        "confidence": 1.0
+      },
+      "TIPO": {
+        "comprimento": 120.0,
+        "largura": 19.0,
+        "altura_cm": 280.0,
+        "confidence": 1.0
+      }
+    }
+  },
+  "P14": {
+    "id": "P14",
+    "comprimento": 120.0,
+    "largura": 24.0,
+    "altura_cm": 321.0,
+    "confidence": 1.0,
+    "pavimentos": [
+      "13PAV",
+      "14PAV",
+      "2PAV",
+      "COBERTURA",
+      "TIPO"
+    ],
+    "_sources": {
+      "13PAV": {
+        "comprimento": 120.0,
+        "largura": 19.0,
+        "altura_cm": 321.0,
+        "confidence": 1.0
+      },
+      "14PAV": {
+        "comprimento": 120.0,
+        "largura": 19.0,
+        "altura_cm": 306.0,
+        "confidence": 1.0
+      },
+      "2PAV": {
+        "comprimento": 120.0,
+        "largura": 24.0,
+        "altura_cm": 323.0,
+        "confidence": 1.0
+      },
+      "COBERTURA": {
+        "comprimento": 120.0,
+        "largura": 19.0,
+        "altura_cm": 350.0,
+        "confidence": 1.0
+      },
+      "TIPO": {
+        "comprimento": 120.0,
+        "largura": 19.0,
+        "altura_cm": 280.0,
+        "confidence": 1.0
+      }
+    }
+  },
+  "P15": {
+    "id": "P15",
+    "comprimento": 122.0,
+    "largura": 45.0,
+    "altura_cm": 321.0,
+    "confidence": 1.0,
+    "pavimentos": [
+      "13PAV",
+      "1PAV",
+      "2PAV",
+      "TERREO",
+      "TIPO"
+    ],
+    "_sources": {
+      "13PAV": {
+        "comprimento": 122.0,
+        "largura": 19.0,
+        "altura_cm": 321.0,
+        "confidence": 1.0
+      },
+      "1PAV": {
+        "comprimento": 67.0,
+        "largura": 45.0,
+        "altura_cm": 393.0,
+        "confidence": 1.0
+      },
+      "2PAV": {
+        "comprimento": 67.0,
+        "largura": 45.0,
+        "altura_cm": 323.0,
+        "confidence": 1.0
+      },
+      "TERREO": {
+        "comprimento": 67.0,
+        "largura": 45.0,
+        "altura_cm": 327.0,
+        "confidence": 1.0
+      },
+      "TIPO": {
+        "comprimento": 122.0,
+        "largura": 19.0,
+        "altura_cm": 280.0,
+        "confidence": 1.0
+      }
+    }
+  },
+  "P16": {
+    "id": "P16",
+    "comprimento": 122.0,
+    "largura": 24.0,
+    "altura_cm": 321.0,
+    "confidence": 1.0,
+    "pavimentos": [
+      "13PAV",
+      "14PAV",
+      "1PAV",
+      "2PAV",
+      "COBERTURA",
+      "TERREO",
+      "TIPO"
+    ],
+    "_sources": {
+      "13PAV": {
+        "comprimento": 122.0,
+        "largura": 19.0,
+        "altura_cm": 321.0,
+        "confidence": 1.0
+      },
+      "14PAV": {
+        "comprimento": 122.0,
+        "largura": 19.0,
+        "altura_cm": 306.0,
+        "confidence": 1.0
+      },
+      "1PAV": {
+        "comprimento": 102.0,
+        "largura": 24.0,
+        "altura_cm": 348.0,
+        "confidence": 1.0
+      },
+      "2PAV": {
+        "comprimento": 122.0,
+        "largura": 24.0,
+        "altura_cm": 323.0,
+        "confidence": 1.0
+      },
+      "COBERTURA": {
+        "comprimento": 122.0,
+        "largura": 19.0,
+        "altura_cm": 360.0,
+        "confidence": 1.0
+      },
+      "TERREO": {
+        "comprimento": 102.0,
+        "largura": 4.0,
+        "altura_cm": 372.0,
+        "confidence": 1.0
+      },
+      "TIPO": {
+        "comprimento": 122.0,
+        "largura": 19.0,
+        "altura_cm": 280.0,
+        "confidence": 1.0
+      }
+    }
+  },
+  "P17": {
+    "id": "P17",
+    "comprimento": 142.0,
+    "largura": 30.0,
+    "altura_cm": 321.0,
+    "confidence": 1.0,
+    "pavimentos": [
+      "13PAV",
+      "14PAV",
+      "1PAV",
+      "2PAV",
+      "COBERTURA",
+      "TERREO",
+      "TIPO"
+    ],
+    "_sources": {
+      "13PAV": {
+        "comprimento": 142.0,
+        "largura": 19.0,
+        "altura_cm": 321.0,
+        "confidence": 1.0
+      },
+      "14PAV": {
+        "comprimento": 142.0,
+        "largura": 19.0,
+        "altura_cm": 306.0,
+        "confidence": 1.0
+      },
+      "1PAV": {
+        "comprimento": 142.0,
+        "largura": 30.0,
+        "altura_cm": 393.0,
+        "confidence": 1.0
+      },
+      "2PAV": {
+        "comprimento": 142.0,
+        "largura": 30.0,
+        "altura_cm": 323.0,
+        "confidence": 1.0
+      },
+      "COBERTURA": {
+        "comprimento": 142.0,
+        "largura": 19.0,
+        "altura_cm": 360.0,
+        "confidence": 1.0
+      },
+      "TERREO": {
+        "comprimento": 142.0,
+        "largura": 30.0,
+        "altura_cm": 327.0,
+        "confidence": 1.0
+      },
+      "TIPO": {
+        "comprimento": 142.0,
+        "largura": 19.0,
+        "altura_cm": 280.0,
+        "confidence": 1.0
+      }
+    }
+  },
+  "P18": {
+    "id": "P18",
+    "comprimento": 101.0,
+    "largura": 24.0,
+    "altura_cm": 321.0,
+    "confidence": 1.0,
+    "pavimentos": [
+      "13PAV",
+      "14PAV",
+      "1PAV",
+      "2PAV",
+      "COBERTURA",
+      "TERREO",
+      "TIPO"
+    ],
+    "_sources": {
+      "13PAV": {
+        "comprimento": 101.0,
+        "largura": 19.0,
+        "altura_cm": 321.0,
+        "confidence": 0.85
+      },
+      "14PAV": {
+        "comprimento": 101.0,
+        "largura": 19.0,
+        "altura_cm": 306.0,
+        "confidence": 1.0
+      },
+      "1PAV": {
+        "comprimento": 72.0,
+        "largura": 24.0,
+        "altura_cm": 393.0,
+        "confidence": 1.0
+      },
+      "2PAV": {
+        "comprimento": 72.0,
+        "largura": 24.0,
+        "altura_cm": 323.0,
+        "confidence": 1.0
+      },
+      "COBERTURA": {
+        "comprimento": 101.0,
+        "largura": 19.0,
+        "altura_cm": 360.0,
+        "confidence": 1.0
+      },
+      "TERREO": {
+        "comprimento": 72.0,
+        "largura": 24.0,
+        "altura_cm": 327.0,
+        "confidence": 1.0
+      },
+      "TIPO": {
+        "comprimento": 72.0,
+        "largura": 19.0,
+        "altura_cm": 280.0,
+        "confidence": 0.85
+      }
+    }
+  },
+  "P19": {
+    "id": "P19",
+    "comprimento": 102.0,
+    "largura": 30.0,
+    "altura_cm": 321.0,
+    "confidence": 1.0,
+    "pavimentos": [
+      "13PAV",
+      "14PAV",
+      "1PAV",
+      "2PAV",
+      "COBERTURA",
+      "TERREO",
+      "TIPO"
+    ],
+    "_sources": {
+      "13PAV": {
+        "comprimento": 102.0,
+        "largura": 19.0,
+        "altura_cm": 321.0,
+        "confidence": 1.0
+      },
+      "14PAV": {
+        "comprimento": 102.0,
+        "largura": 19.0,
+        "altura_cm": 306.0,
+        "confidence": 1.0
+      },
+      "1PAV": {
+        "comprimento": 102.0,
+        "largura": 30.0,
+        "altura_cm": 408.0,
+        "confidence": 1.0
+      },
+      "2PAV": {
+        "comprimento": 102.0,
+        "largura": 30.0,
+        "altura_cm": 323.0,
+        "confidence": 1.0
+      },
+      "COBERTURA": {
+        "comprimento": 102.0,
+        "largura": 19.0,
+        "altura_cm": 350.0,
+        "confidence": 1.0
+      },
+      "TERREO": {
+        "comprimento": 102.0,
+        "largura": 30.0,
+        "altura_cm": 312.0,
+        "confidence": 1.0
+      },
+      "TIPO": {
+        "comprimento": 102.0,
+        "largura": 19.0,
+        "altura_cm": 280.0,
+        "confidence": 1.0
+      }
+    }
+  },
+  "P20": {
+    "id": "P20",
+    "comprimento": 108.0,
+    "largura": 24.0,
+    "altura_cm": 321.0,
+    "confidence": 1.0,
+    "pavimentos": [
+      "13PAV",
+      "14PAV",
+      "1PAV",
+      "2PAV",
+      "COBERTURA",
+      "TERREO",
+      "TIPO"
+    ],
+    "_sources": {
+      "13PAV": {
+        "comprimento": 108.0,
+        "largura": 19.0,
+        "altura_cm": 321.0,
+        "confidence": 1.0
+      },
+      "14PAV": {
+        "comprimento": 108.0,
+        "largura": 19.0,
+        "altura_cm": 306.0,
+        "confidence": 1.0
+      },
+      "1PAV": {
+        "comprimento": 102.0,
+        "largura": 24.0,
+        "altura_cm": 408.0,
+        "confidence": 1.0
+      },
+      "2PAV": {
+        "comprimento": 108.0,
+        "largura": 24.0,
+        "altura_cm": 323.0,
+        "confidence": 1.0
+      },
+      "COBERTURA": {
+        "comprimento": 108.0,
+        "largura": 19.0,
+        "altura_cm": 350.0,
+        "confidence": 1.0
+      },
+      "TERREO": {
+        "comprimento": 102.0,
+        "largura": 24.0,
+        "altura_cm": 312.0,
+        "confidence": 1.0
+      },
+      "TIPO": {
+        "comprimento": 108.0,
+        "largura": 19.0,
+        "altura_cm": 280.0,
+        "confidence": 1.0
+      }
+    }
+  },
+  "P21": {
+    "id": "P21",
+    "comprimento": 108.0,
+    "largura": 24.0,
+    "altura_cm": 321.0,
+    "confidence": 1.0,
+    "pavimentos": [
+      "13PAV",
+      "14PAV",
+      "1PAV",
+      "2PAV",
+      "COBERTURA",
+      "TERREO",
+      "TIPO"
+    ],
+    "_sources": {
+      "13PAV": {
+        "comprimento": 108.0,
+        "largura": 19.0,
+        "altura_cm": 321.0,
+        "confidence": 1.0
+      },
+      "14PAV": {
+        "comprimento": 108.0,
+        "largura": 19.0,
+        "altura_cm": 306.0,
+        "confidence": 1.0
+      },
+      "1PAV": {
+        "comprimento": 102.0,
+        "largura": 24.0,
+        "altura_cm": 408.0,
+        "confidence": 1.0
+      },
+      "2PAV": {
+        "comprimento": 102.0,
+        "largura": 24.0,
+        "altura_cm": 323.0,
+        "confidence": 1.0
+      },
+      "COBERTURA": {
+        "comprimento": 108.0,
+        "largura": 19.0,
+        "altura_cm": 350.0,
+        "confidence": 1.0
+      },
+      "TERREO": {
+        "comprimento": 102.0,
+        "largura": 24.0,
+        "altura_cm": 312.0,
+        "confidence": 1.0
+      },
+      "TIPO": {
+        "comprimento": 108.0,
+        "largura": 19.0,
+        "altura_cm": 280.0,
+        "confidence": 1.0
+      }
+    }
+  },
+  "P22": {
+    "id": "P22",
+    "comprimento": 108.0,
+    "largura": 24.0,
+    "altura_cm": 321.0,
+    "confidence": 1.0,
+    "pavimentos": [
+      "13PAV",
+      "14PAV",
+      "2PAV",
+      "COBERTURA",
+      "TIPO"
+    ],
+    "_sources": {
+      "13PAV": {
+        "comprimento": 108.0,
+        "largura": 19.0,
+        "altura_cm": 321.0,
+        "confidence": 1.0
+      },
+      "14PAV": {
+        "comprimento": 108.0,
+        "largura": 19.0,
+        "altura_cm": 306.0,
+        "confidence": 1.0
+      },
+      "2PAV": {
+        "comprimento": 108.0,
+        "largura": 24.0,
+        "altura_cm": 323.0,
+        "confidence": 1.0
+      },
+      "COBERTURA": {
+        "comprimento": 108.0,
+        "largura": 19.0,
+        "altura_cm": 350.0,
+        "confidence": 1.0
+      },
+      "TIPO": {
+        "comprimento": 108.0,
+        "largura": 19.0,
+        "altura_cm": 280.0,
+        "confidence": 1.0
+      }
+    }
+  },
+  "P23": {
+    "id": "P23",
+    "comprimento": 122.0,
+    "largura": 45.0,
+    "altura_cm": 321.0,
+    "confidence": 1.0,
+    "pavimentos": [
+      "13PAV",
+      "14PAV",
+      "1PAV",
+      "2PAV",
+      "COBERTURA",
+      "TERREO",
+      "TIPO"
+    ],
+    "_sources": {
+      "13PAV": {
+        "comprimento": 122.0,
+        "largura": 19.0,
+        "altura_cm": 321.0,
+        "confidence": 1.0
+      },
+      "14PAV": {
+        "comprimento": 122.0,
+        "largura": 19.0,
+        "altura_cm": 306.0,
+        "confidence": 1.0
+      },
+      "1PAV": {
+        "comprimento": 67.0,
+        "largura": 45.0,
+        "altura_cm": 393.0,
+        "confidence": 1.0
+      },
+      "2PAV": {
+        "comprimento": 67.0,
+        "largura": 45.0,
+        "altura_cm": 323.0,
+        "confidence": 1.0
+      },
+      "COBERTURA": {
+        "comprimento": 122.0,
+        "largura": 19.0,
+        "altura_cm": 360.0,
+        "confidence": 1.0
+      },
+      "TERREO": {
+        "comprimento": 67.0,
+        "largura": 45.0,
+        "altura_cm": 327.0,
+        "confidence": 1.0
+      },
+      "TIPO": {
+        "comprimento": 122.0,
+        "largura": 19.0,
+        "altura_cm": 280.0,
+        "confidence": 1.0
+      }
+    }
+  },
+  "P24": {
+    "id": "P24",
+    "comprimento": 102.0,
+    "largura": 19.0,
+    "altura_cm": 321.0,
+    "confidence": 1.0,
+    "pavimentos": [
+      "13PAV",
+      "14PAV",
+      "1PAV",
+      "2PAV",
+      "COBERTURA",
+      "TERREO",
+      "TIPO"
+    ],
+    "_sources": {
+      "13PAV": {
+        "comprimento": 102.0,
+        "largura": 19.0,
+        "altura_cm": 321.0,
+        "confidence": 1.0
+      },
+      "14PAV": {
+        "comprimento": 102.0,
+        "largura": 19.0,
+        "altura_cm": 306.0,
+        "confidence": 1.0
+      },
+      "1PAV": {
+        "comprimento": 102.0,
+        "largura": 19.0,
+        "altura_cm": 393.0,
+        "confidence": 0.85
+      },
+      "2PAV": {
+        "comprimento": 102.0,
+        "largura": 19.0,
+        "altura_cm": 323.0,
+        "confidence": 0.85
+      },
+      "COBERTURA": {
+        "comprimento": 102.0,
+        "largura": 19.0,
+        "altura_cm": 360.0,
+        "confidence": 1.0
+      },
+      "TERREO": {
+        "comprimento": 102.0,
+        "largura": 24.0,
+        "altura_cm": 327.0,
+        "confidence": 0.85
+      },
+      "TIPO": {
+        "comprimento": 102.0,
+        "largura": 19.0,
+        "altura_cm": 280.0,
+        "confidence": 0.85
+      }
+    }
+  },
+  "P25": {
+    "id": "P25",
+    "comprimento": 82.0,
+    "largura": 30.0,
+    "altura_cm": 321.0,
+    "confidence": 1.0,
+    "pavimentos": [
+      "13PAV",
+      "14PAV",
+      "1PAV",
+      "2PAV",
+      "COBERTURA",
+      "TIPO"
+    ],
+    "_sources": {
+      "13PAV": {
+        "comprimento": 82.0,
+        "largura": 19.0,
+        "altura_cm": 321.0,
+        "confidence": 1.0
+      },
+      "14PAV": {
+        "comprimento": 82.0,
+        "largura": 19.0,
+        "altura_cm": 306.0,
+        "confidence": 1.0
+      },
+      "1PAV": {
+        "comprimento": 82.0,
+        "largura": 30.0,
+        "altura_cm": 425.0,
+        "confidence": 1.0
+      },
+      "2PAV": {
+        "comprimento": 82.0,
+        "largura": 30.0,
+        "altura_cm": 323.0,
+        "confidence": 1.0
+      },
+      "COBERTURA": {
+        "comprimento": 82.0,
+        "largura": 19.0,
+        "altura_cm": 360.0,
+        "confidence": 1.0
+      },
+      "TIPO": {
+        "comprimento": 82.0,
+        "largura": 19.0,
+        "altura_cm": 280.0,
+        "confidence": 1.0
+      }
+    }
+  },
+  "P26": {
+    "id": "P26",
+    "comprimento": 240.0,
+    "largura": 19.0,
+    "altura_cm": 321.0,
+    "confidence": 1.0,
+    "pavimentos": [
+      "13PAV",
+      "14PAV",
+      "1PAV",
+      "2PAV",
+      "COBERTURA",
+      "TERREO",
+      "TIPO"
+    ],
+    "_sources": {
+      "13PAV": {
+        "comprimento": 176.0,
+        "largura": 19.0,
+        "altura_cm": 321.0,
+        "confidence": 1.0
+      },
+      "14PAV": {
+        "comprimento": 240.0,
+        "largura": 19.0,
+        "altura_cm": 306.0,
+        "confidence": 1.0
+      },
+      "1PAV": {
+        "comprimento": 240.0,
+        "largura": 19.0,
+        "altura_cm": 393.0,
+        "confidence": 1.0
+      },
+      "2PAV": {
+        "comprimento": 176.0,
+        "largura": 19.0,
+        "altura_cm": 323.0,
+        "confidence": 1.0
+      },
+      "COBERTURA": {
+        "comprimento": 240.0,
+        "largura": 19.0,
+        "altura_cm": 360.0,
+        "confidence": 1.0
+      },
+      "TERREO": {
+        "comprimento": 240.0,
+        "largura": 19.0,
+        "altura_cm": 327.0,
+        "confidence": 1.0
+      },
+      "TIPO": {
+        "comprimento": 176.0,
+        "largura": 19.0,
+        "altura_cm": 280.0,
+        "confidence": 1.0
+      }
+    }
+  },
+  "P26_2": {
+    "id": "P26_2",
+    "comprimento": 240.0,
+    "largura": 210.0,
+    "altura_cm": 321.0,
+    "confidence": 0.85,
+    "pavimentos": [
+      "13PAV",
+      "2PAV",
+      "TIPO"
+    ],
+    "_sources": {
+      "13PAV": {
+        "comprimento": 240.0,
+        "largura": 210.0,
+        "altura_cm": 321.0,
+        "confidence": 0.85
+      },
+      "2PAV": {
+        "comprimento": 240.0,
+        "largura": 210.0,
+        "altura_cm": 323.0,
+        "confidence": 0.85
+      },
+      "TIPO": {
+        "comprimento": 240.0,
+        "largura": 210.0,
+        "altura_cm": 280.0,
+        "confidence": 0.85
+      }
+    }
+  },
+  "P27": {
+    "id": "P27",
+    "comprimento": 240.0,
+    "largura": 19.0,
+    "altura_cm": 321.0,
+    "confidence": 1.0,
+    "pavimentos": [
+      "13PAV",
+      "14PAV",
+      "1PAV",
+      "2PAV",
+      "COBERTURA",
+      "TERREO",
+      "TIPO"
+    ],
+    "_sources": {
+      "13PAV": {
+        "comprimento": 240.0,
+        "largura": 19.0,
+        "altura_cm": 321.0,
+        "confidence": 1.0
+      },
+      "14PAV": {
+        "comprimento": 176.0,
+        "largura": 19.0,
+        "altura_cm": 306.0,
+        "confidence": 1.0
+      },
+      "1PAV": {
+        "comprimento": 240.0,
+        "largura": 19.0,
+        "altura_cm": 393.0,
+        "confidence": 1.0
+      },
+      "2PAV": {
+        "comprimento": 240.0,
+        "largura": 19.0,
+        "altura_cm": 323.0,
+        "confidence": 1.0
+      },
+      "COBERTURA": {
+        "comprimento": 176.0,
+        "largura": 19.0,
+        "altura_cm": 360.0,
+        "confidence": 1.0
+      },
+      "TERREO": {
+        "comprimento": 240.0,
+        "largura": 19.0,
+        "altura_cm": 327.0,
+        "confidence": 1.0
+      },
+      "TIPO": {
+        "comprimento": 240.0,
+        "largura": 19.0,
+        "altura_cm": 280.0,
+        "confidence": 1.0
+      }
+    }
+  },
+  "P28": {
+    "id": "P28",
+    "comprimento": 102.0,
+    "largura": 30.0,
+    "altura_cm": 321.0,
+    "confidence": 1.0,
+    "pavimentos": [
+      "13PAV",
+      "14PAV",
+      "1PAV",
+      "2PAV",
+      "COBERTURA",
+      "TERREO",
+      "TIPO"
+    ],
+    "_sources": {
+      "13PAV": {
+        "comprimento": 102.0,
+        "largura": 24.0,
+        "altura_cm": 321.0,
+        "confidence": 1.0
+      },
+      "14PAV": {
+        "comprimento": 102.0,
+        "largura": 24.0,
+        "altura_cm": 306.0,
+        "confidence": 1.0
+      },
+      "1PAV": {
+        "comprimento": 102.0,
+        "largura": 30.0,
+        "altura_cm": 408.0,
+        "confidence": 1.0
+      },
+      "2PAV": {
+        "comprimento": 102.0,
+        "largura": 30.0,
+        "altura_cm": 323.0,
+        "confidence": 1.0
+      },
+      "COBERTURA": {
+        "comprimento": 102.0,
+        "largura": 24.0,
+        "altura_cm": 350.0,
+        "confidence": 1.0
+      },
+      "TERREO": {
+        "comprimento": 63.0,
+        "largura": 30.0,
+        "altura_cm": 312.0,
+        "confidence": 0.85
+      },
+      "TIPO": {
+        "comprimento": 102.0,
+        "largura": 24.0,
+        "altura_cm": 280.0,
+        "confidence": 1.0
+      }
+    }
+  },
+  "P29": {
+    "id": "P29",
+    "comprimento": 88.0,
+    "largura": 24.0,
+    "altura_cm": 321.0,
+    "confidence": 1.0,
+    "pavimentos": [
+      "13PAV",
+      "14PAV",
+      "1PAV",
+      "2PAV",
+      "COBERTURA",
+      "TERREO",
+      "TIPO"
+    ],
+    "_sources": {
+      "13PAV": {
+        "comprimento": 88.0,
+        "largura": 24.0,
+        "altura_cm": 321.0,
+        "confidence": 1.0
+      },
+      "14PAV": {
+        "comprimento": 88.0,
+        "largura": 24.0,
+        "altura_cm": 306.0,
+        "confidence": 1.0
+      },
+      "1PAV": {
+        "comprimento": 88.0,
+        "largura": 24.0,
+        "altura_cm": 408.0,
+        "confidence": 1.0
+      },
+      "2PAV": {
+        "comprimento": 88.0,
+        "largura": 24.0,
+        "altura_cm": 323.0,
+        "confidence": 1.0
+      },
+      "COBERTURA": {
+        "comprimento": 88.0,
+        "largura": 24.0,
+        "altura_cm": 350.0,
+        "confidence": 1.0
+      },
+      "TERREO": {
+        "comprimento": 49.0,
+        "largura": 24.0,
+        "altura_cm": 312.0,
+        "confidence": 0.85
+      },
+      "TIPO": {
+        "comprimento": 88.0,
+        "largura": 24.0,
+        "altura_cm": 280.0,
+        "confidence": 1.0
+      }
+    }
+  },
+  "P30": {
+    "id": "P30",
+    "comprimento": 92.0,
+    "largura": 27.0,
+    "altura_cm": 321.0,
+    "confidence": 1.0,
+    "pavimentos": [
+      "13PAV",
+      "14PAV",
+      "1PAV",
+      "2PAV",
+      "COBERTURA",
+      "TERREO",
+      "TIPO"
+    ],
+    "_sources": {
+      "13PAV": {
+        "comprimento": 88.0,
+        "largura": 24.0,
+        "altura_cm": 321.0,
+        "confidence": 1.0
+      },
+      "14PAV": {
+        "comprimento": 88.0,
+        "largura": 24.0,
+        "altura_cm": 306.0,
+        "confidence": 1.0
+      },
+      "1PAV": {
+        "comprimento": 92.0,
+        "largura": 27.0,
+        "altura_cm": 408.0,
+        "confidence": 1.0
+      },
+      "2PAV": {
+        "comprimento": 92.0,
+        "largura": 27.0,
+        "altura_cm": 323.0,
+        "confidence": 1.0
+      },
+      "COBERTURA": {
+        "comprimento": 88.0,
+        "largura": 24.0,
+        "altura_cm": 350.0,
+        "confidence": 1.0
+      },
+      "TERREO": {
+        "comprimento": 92.0,
+        "largura": 18.0,
+        "altura_cm": 312.0,
+        "confidence": 0.85
+      },
+      "TIPO": {
+        "comprimento": 88.0,
+        "largura": 24.0,
+        "altura_cm": 280.0,
+        "confidence": 1.0
+      }
+    }
+  },
+  "P31": {
+    "id": "P31",
+    "comprimento": 92.0,
+    "largura": 27.0,
+    "altura_cm": 321.0,
+    "confidence": 1.0,
+    "pavimentos": [
+      "13PAV",
+      "14PAV",
+      "1PAV",
+      "2PAV",
+      "COBERTURA",
+      "TERREO",
+      "TIPO"
+    ],
+    "_sources": {
+      "13PAV": {
+        "comprimento": 88.0,
+        "largura": 24.0,
+        "altura_cm": 321.0,
+        "confidence": 1.0
+      },
+      "14PAV": {
+        "comprimento": 88.0,
+        "largura": 24.0,
+        "altura_cm": 306.0,
+        "confidence": 1.0
+      },
+      "1PAV": {
+        "comprimento": 92.0,
+        "largura": 27.0,
+        "altura_cm": 393.0,
+        "confidence": 1.0
+      },
+      "2PAV": {
+        "comprimento": 92.0,
+        "largura": 27.0,
+        "altura_cm": 323.0,
+        "confidence": 1.0
+      },
+      "COBERTURA": {
+        "comprimento": 88.0,
+        "largura": 24.0,
+        "altura_cm": 350.0,
+        "confidence": 1.0
+      },
+      "TERREO": {
+        "comprimento": 102.0,
+        "largura": 18.0,
+        "altura_cm": 327.0,
+        "confidence": 0.85
+      },
+      "TIPO": {
+        "comprimento": 88.0,
+        "largura": 24.0,
+        "altura_cm": 280.0,
+        "confidence": 1.0
+      }
+    }
+  },
+  "P32": {
+    "id": "P32",
+    "comprimento": 92.0,
+    "largura": 27.0,
+    "altura_cm": 321.0,
+    "confidence": 1.0,
+    "pavimentos": [
+      "13PAV",
+      "14PAV",
+      "1PAV",
+      "2PAV",
+      "COBERTURA",
+      "TERREO",
+      "TIPO"
+    ],
+    "_sources": {
+      "13PAV": {
+        "comprimento": 88.0,
+        "largura": 24.0,
+        "altura_cm": 321.0,
+        "confidence": 1.0
+      },
+      "14PAV": {
+        "comprimento": 88.0,
+        "largura": 24.0,
+        "altura_cm": 306.0,
+        "confidence": 1.0
+      },
+      "1PAV": {
+        "comprimento": 92.0,
+        "largura": 27.0,
+        "altura_cm": 408.0,
+        "confidence": 1.0
+      },
+      "2PAV": {
+        "comprimento": 92.0,
+        "largura": 27.0,
+        "altura_cm": 323.0,
+        "confidence": 1.0
+      },
+      "COBERTURA": {
+        "comprimento": 88.0,
+        "largura": 24.0,
+        "altura_cm": 360.0,
+        "confidence": 1.0
+      },
+      "TERREO": {
+        "comprimento": 92.0,
+        "largura": 18.0,
+        "altura_cm": 327.0,
+        "confidence": 0.85
+      },
+      "TIPO": {
+        "comprimento": 88.0,
+        "largura": 24.0,
+        "altura_cm": 280.0,
+        "confidence": 1.0
+      }
+    }
+  },
+  "P33": {
+    "id": "P33",
+    "comprimento": 122.0,
+    "largura": 19.0,
+    "altura_cm": 321.0,
+    "confidence": 1.0,
+    "pavimentos": [
+      "13PAV",
+      "14PAV",
+      "1PAV",
+      "2PAV",
+      "COBERTURA",
+      "TIPO"
+    ],
+    "_sources": {
+      "13PAV": {
+        "comprimento": 122.0,
+        "largura": 19.0,
+        "altura_cm": 321.0,
+        "confidence": 1.0
+      },
+      "14PAV": {
+        "comprimento": 122.0,
+        "largura": 19.0,
+        "altura_cm": 306.0,
+        "confidence": 1.0
+      },
+      "1PAV": {
+        "comprimento": 122.0,
+        "largura": 19.0,
+        "altura_cm": 408.0,
+        "confidence": 1.0
+      },
+      "2PAV": {
+        "comprimento": 122.0,
+        "largura": 19.0,
+        "altura_cm": 323.0,
+        "confidence": 1.0
+      },
+      "COBERTURA": {
+        "comprimento": 122.0,
+        "largura": 19.0,
+        "altura_cm": 360.0,
+        "confidence": 1.0
+      },
+      "TIPO": {
+        "comprimento": 122.0,
+        "largura": 19.0,
+        "altura_cm": 280.0,
+        "confidence": 1.0
+      }
+    }
+  },
+  "P34": {
+    "id": "P34",
+    "comprimento": 82.0,
+    "largura": 19.0,
+    "altura_cm": 321.0,
+    "confidence": 1.0,
+    "pavimentos": [
+      "13PAV",
+      "14PAV",
+      "1PAV",
+      "2PAV",
+      "COBERTURA",
+      "TIPO"
+    ],
+    "_sources": {
+      "13PAV": {
+        "comprimento": 82.0,
+        "largura": 19.0,
+        "altura_cm": 321.0,
+        "confidence": 1.0
+      },
+      "14PAV": {
+        "comprimento": 82.0,
+        "largura": 19.0,
+        "altura_cm": 306.0,
+        "confidence": 1.0
+      },
+      "1PAV": {
+        "comprimento": 82.0,
+        "largura": 19.0,
+        "altura_cm": 408.0,
+        "confidence": 1.0
+      },
+      "2PAV": {
+        "comprimento": 82.0,
+        "largura": 19.0,
+        "altura_cm": 323.0,
+        "confidence": 1.0
+      },
+      "COBERTURA": {
+        "comprimento": 82.0,
+        "largura": 19.0,
+        "altura_cm": 360.0,
+        "confidence": 1.0
+      },
+      "TIPO": {
+        "comprimento": 82.0,
+        "largura": 19.0,
+        "altura_cm": 280.0,
+        "confidence": 1.0
+      }
+    }
+  },
+  "P35": {
+    "id": "P35",
+    "comprimento": 82.0,
+    "largura": 19.0,
+    "altura_cm": 321.0,
+    "confidence": 1.0,
+    "pavimentos": [
+      "13PAV",
+      "14PAV",
+      "1PAV",
+      "2PAV",
+      "COBERTURA",
+      "TIPO"
+    ],
+    "_sources": {
+      "13PAV": {
+        "comprimento": 82.0,
+        "largura": 19.0,
+        "altura_cm": 321.0,
+        "confidence": 1.0
+      },
+      "14PAV": {
+        "comprimento": 82.0,
+        "largura": 19.0,
+        "altura_cm": 306.0,
+        "confidence": 1.0
+      },
+      "1PAV": {
+        "comprimento": 82.0,
+        "largura": 19.0,
+        "altura_cm": 408.0,
+        "confidence": 1.0
+      },
+      "2PAV": {
+        "comprimento": 82.0,
+        "largura": 19.0,
+        "altura_cm": 323.0,
+        "confidence": 1.0
+      },
+      "COBERTURA": {
+        "comprimento": 82.0,
+        "largura": 19.0,
+        "altura_cm": 360.0,
+        "confidence": 1.0
+      },
+      "TIPO": {
+        "comprimento": 82.0,
+        "largura": 19.0,
+        "altura_cm": 280.0,
+        "confidence": 1.0
+      }
+    }
+  },
+  "P27_2": {
+    "id": "P27_2",
+    "comprimento": 240.0,
+    "largura": 210.0,
+    "altura_cm": 306.0,
+    "confidence": 0.85,
+    "pavimentos": [
+      "14PAV",
+      "COBERTURA"
+    ],
+    "_sources": {
+      "14PAV": {
+        "comprimento": 240.0,
+        "largura": 210.0,
+        "altura_cm": 306.0,
+        "confidence": 0.85
+      },
+      "COBERTURA": {
+        "comprimento": 240.0,
+        "largura": 210.0,
+        "altura_cm": 360.0,
+        "confidence": 0.85
+      }
+    }
+  },
+  "P43": {
+    "id": "P43",
+    "comprimento": 72.0,
+    "largura": 19.0,
+    "altura_cm": 306.0,
+    "confidence": 1.0,
+    "pavimentos": [
+      "14PAV",
+      "COBERTURA"
+    ],
+    "_sources": {
+      "14PAV": {
+        "comprimento": 72.0,
+        "largura": 19.0,
+        "altura_cm": 306.0,
+        "confidence": 1.0
+      },
+      "COBERTURA": {
+        "comprimento": 72.0,
+        "largura": 19.0,
+        "altura_cm": 350.0,
+        "confidence": 1.0
+      }
+    }
+  },
+  "P47": {
+    "id": "P47",
+    "comprimento": 72.0,
+    "largura": 19.0,
+    "altura_cm": 306.0,
+    "confidence": 1.0,
+    "pavimentos": [
+      "14PAV",
+      "COBERTURA"
+    ],
+    "_sources": {
+      "14PAV": {
+        "comprimento": 72.0,
+        "largura": 19.0,
+        "altura_cm": 306.0,
+        "confidence": 1.0
+      },
+      "COBERTURA": {
+        "comprimento": 72.0,
+        "largura": 19.0,
+        "altura_cm": 360.0,
+        "confidence": 1.0
+      }
+    }
+  },
+  "P49": {
+    "id": "P49",
+    "comprimento": 72.0,
+    "largura": 19.0,
+    "altura_cm": 198.0,
+    "confidence": 1.0,
+    "pavimentos": [
+      "14PAV",
+      "COBERTURA"
+    ],
+    "_sources": {
+      "14PAV": {
+        "comprimento": 72.0,
+        "largura": 19.0,
+        "altura_cm": 198.0,
+        "confidence": 1.0
+      },
+      "COBERTURA": {
+        "comprimento": 72.0,
+        "largura": 19.0,
+        "altura_cm": 360.0,
+        "confidence": 1.0
+      }
+    }
+  },
+  "P61": {
+    "id": "P61",
+    "comprimento": 41.0,
+    "largura": 19.0,
+    "altura_cm": 393.0,
+    "confidence": 1.0,
+    "pavimentos": [
+      "1PAV"
+    ],
+    "_sources": {
+      "1PAV": {
+        "comprimento": 41.0,
+        "largura": 19.0,
+        "altura_cm": 393.0,
+        "confidence": 1.0
+      }
+    }
+  },
+  "P62": {
+    "id": "P62",
+    "comprimento": 41.0,
+    "largura": 19.0,
+    "altura_cm": 393.0,
+    "confidence": 1.0,
+    "pavimentos": [
+      "1PAV"
+    ],
+    "_sources": {
+      "1PAV": {
+        "comprimento": 41.0,
+        "largura": 19.0,
+        "altura_cm": 393.0,
+        "confidence": 1.0
+      }
+    }
+  },
+  "P101": {
+    "id": "P101",
+    "comprimento": 82.0,
+    "largura": 24.0,
+    "altura_cm": 408.0,
+    "confidence": 1.0,
+    "pavimentos": [
+      "1PAV",
+      "TERREO"
+    ],
+    "_sources": {
+      "1PAV": {
+        "comprimento": 82.0,
+        "largura": 24.0,
+        "altura_cm": 408.0,
+        "confidence": 1.0
+      },
+      "TERREO": {
+        "comprimento": 82.0,
+        "largura": 24.0,
+        "altura_cm": 312.0,
+        "confidence": 1.0
+      }
+    }
+  },
+  "P102": {
+    "id": "P102",
+    "comprimento": 82.0,
+    "largura": 24.0,
+    "altura_cm": 408.0,
+    "confidence": 1.0,
+    "pavimentos": [
+      "1PAV",
+      "TERREO"
+    ],
+    "_sources": {
+      "1PAV": {
+        "comprimento": 82.0,
+        "largura": 24.0,
+        "altura_cm": 408.0,
+        "confidence": 1.0
+      },
+      "TERREO": {
+        "comprimento": 82.0,
+        "largura": 24.0,
+        "altura_cm": 331.0,
+        "confidence": 1.0
+      }
+    }
+  },
+  "P103": {
+    "id": "P103",
+    "comprimento": 84.0,
+    "largura": 19.0,
+    "altura_cm": 393.0,
+    "confidence": 1.0,
+    "pavimentos": [
+      "1PAV",
+      "TERREO"
+    ],
+    "_sources": {
+      "1PAV": {
+        "comprimento": 82.0,
+        "largura": 19.0,
+        "altura_cm": 393.0,
+        "confidence": 1.0
+      },
+      "TERREO": {
+        "comprimento": 84.0,
+        "largura": 19.0,
+        "altura_cm": 327.0,
+        "confidence": 1.0
+      }
+    }
+  },
+  "P10_2": {
+    "id": "P10_2",
+    "comprimento": 82.0,
+    "largura": 19.0,
+    "altura_cm": 155.0,
+    "confidence": 1.0,
+    "pavimentos": [
+      "COBERTURA"
+    ],
+    "_sources": {
+      "COBERTURA": {
+        "comprimento": 82.0,
+        "largura": 19.0,
+        "altura_cm": 155.0,
+        "confidence": 1.0
+      }
+    }
+  },
+  "P23_2": {
+    "id": "P23_2",
+    "comprimento": 122.0,
+    "largura": 19.0,
+    "altura_cm": 130.0,
+    "confidence": 1.0,
+    "pavimentos": [
+      "COBERTURA"
+    ],
+    "_sources": {
+      "COBERTURA": {
+        "comprimento": 122.0,
+        "largura": 19.0,
+        "altura_cm": 130.0,
+        "confidence": 1.0
+      }
+    }
+  },
+  "P25_2": {
+    "id": "P25_2",
+    "comprimento": 82.0,
+    "largura": 19.0,
+    "altura_cm": 155.0,
+    "confidence": 0.85,
+    "pavimentos": [
+      "COBERTURA"
+    ],
+    "_sources": {
+      "COBERTURA": {
+        "comprimento": 82.0,
+        "largura": 19.0,
+        "altura_cm": 155.0,
+        "confidence": 0.85
+      }
+    }
+  },
+  "P31_2": {
+    "id": "P31_2",
+    "comprimento": 88.0,
+    "largura": 24.0,
+    "altura_cm": 155.0,
+    "confidence": 1.0,
+    "pavimentos": [
+      "COBERTURA"
+    ],
+    "_sources": {
+      "COBERTURA": {
+        "comprimento": 88.0,
+        "largura": 24.0,
+        "altura_cm": 155.0,
+        "confidence": 1.0
+      }
+    }
+  },
+  "P32_2": {
+    "id": "P32_2",
+    "comprimento": 88.0,
+    "largura": 19.0,
+    "altura_cm": 155.0,
+    "confidence": 1.0,
+    "pavimentos": [
+      "COBERTURA"
+    ],
+    "_sources": {
+      "COBERTURA": {
+        "comprimento": 88.0,
+        "largura": 19.0,
+        "altura_cm": 155.0,
+        "confidence": 1.0
+      }
+    }
+  },
+  "P46": {
+    "id": "P46",
+    "comprimento": 72.0,
+    "largura": 19.0,
+    "altura_cm": 360.0,
+    "confidence": 1.0,
+    "pavimentos": [
+      "COBERTURA"
+    ],
+    "_sources": {
+      "COBERTURA": {
+        "comprimento": 72.0,
+        "largura": 19.0,
+        "altura_cm": 360.0,
+        "confidence": 1.0
+      }
+    }
+  },
+  "P51": {
+    "id": "P51",
+    "comprimento": 72.0,
+    "largura": 19.0,
+    "altura_cm": 360.0,
+    "confidence": 1.0,
+    "pavimentos": [
+      "COBERTURA"
+    ],
+    "_sources": {
+      "COBERTURA": {
+        "comprimento": 72.0,
+        "largura": 19.0,
+        "altura_cm": 360.0,
+        "confidence": 1.0
+      }
+    }
+  },
+  "P51_2": {
+    "id": "P51_2",
+    "comprimento": 72.0,
+    "largura": 19.0,
+    "altura_cm": 130.0,
+    "confidence": 1.0,
+    "pavimentos": [
+      "COBERTURA"
+    ],
+    "_sources": {
+      "COBERTURA": {
+        "comprimento": 72.0,
+        "largura": 19.0,
+        "altura_cm": 130.0,
+        "confidence": 1.0
+      }
+    }
+  }
+}

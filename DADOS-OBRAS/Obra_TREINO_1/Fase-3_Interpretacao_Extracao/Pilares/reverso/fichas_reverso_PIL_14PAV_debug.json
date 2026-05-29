@@ -1,0 +1,478 @@
+[
+  {
+    "id": "P10",
+    "_faces": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "_face_widths": {
+      "A": 82,
+      "C": 19,
+      "D": 19,
+      "B": 82
+    },
+    "_pd_m": 3.06,
+    "_pav_txt": "14° PAVIMENTO"
+  },
+  {
+    "id": "P11",
+    "_faces": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "_face_widths": {
+      "C": 19,
+      "D": 19,
+      "A": 102,
+      "B": 102
+    },
+    "_pd_m": 3.06,
+    "_pav_txt": "14° PAVIMENTO"
+  },
+  {
+    "id": "P12",
+    "_faces": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "_face_widths": {
+      "C": 19,
+      "D": 19,
+      "A": 120,
+      "B": 120
+    },
+    "_pd_m": 3.06,
+    "_pav_txt": "14° PAVIMENTO"
+  },
+  {
+    "id": "P14",
+    "_faces": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "_face_widths": {
+      "C": 19,
+      "D": 19,
+      "A": 120,
+      "B": 120
+    },
+    "_pd_m": 3.06,
+    "_pav_txt": "14° PAVIMENTO"
+  },
+  {
+    "id": "P16",
+    "_faces": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "_face_widths": {
+      "C": 19,
+      "D": 19,
+      "A": 122,
+      "B": 122
+    },
+    "_pd_m": 3.06,
+    "_pav_txt": "14° PAVIMENTO"
+  },
+  {
+    "id": "P17",
+    "_faces": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "_face_widths": {
+      "C": 19,
+      "D": 19,
+      "A": 142,
+      "B": 142
+    },
+    "_pd_m": 3.06,
+    "_pav_txt": "14° PAVIMENTO"
+  },
+  {
+    "id": "P18",
+    "_faces": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "_face_widths": {
+      "C": 19,
+      "D": 19,
+      "A": 101,
+      "B": 101
+    },
+    "_pd_m": 3.06,
+    "_pav_txt": "14° PAVIMENTO"
+  },
+  {
+    "id": "P19",
+    "_faces": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "_face_widths": {
+      "A": 102,
+      "C": 19,
+      "D": 19,
+      "B": 102
+    },
+    "_pd_m": 3.06,
+    "_pav_txt": "14° PAVIMENTO"
+  },
+  {
+    "id": "P20",
+    "_faces": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "_face_widths": {
+      "A": 108,
+      "C": 19,
+      "D": 19,
+      "B": 108
+    },
+    "_pd_m": 3.06,
+    "_pav_txt": "14° PAVIMENTO"
+  },
+  {
+    "id": "P21",
+    "_faces": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "_face_widths": {
+      "A": 108,
+      "C": 19,
+      "D": 19,
+      "B": 108
+    },
+    "_pd_m": 3.06,
+    "_pav_txt": "14° PAVIMENTO"
+  },
+  {
+    "id": "P22",
+    "_faces": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "_face_widths": {
+      "A": 108,
+      "C": 19,
+      "D": 19,
+      "B": 108
+    },
+    "_pd_m": 3.06,
+    "_pav_txt": "14° PAVIMENTO"
+  },
+  {
+    "id": "P23",
+    "_faces": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "_face_widths": {
+      "A": 122,
+      "C": 19,
+      "D": 19,
+      "B": 122
+    },
+    "_pd_m": 3.06,
+    "_pav_txt": "14° PAVIMENTO"
+  },
+  {
+    "id": "P24",
+    "_faces": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "_face_widths": {
+      "A": 102,
+      "C": 19,
+      "D": 19,
+      "B": 102
+    },
+    "_pd_m": 3.06,
+    "_pav_txt": "14° PAVIMENTO"
+  },
+  {
+    "id": "P25",
+    "_faces": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "_face_widths": {
+      "A": 82,
+      "C": 19,
+      "D": 19,
+      "B": 82
+    },
+    "_pd_m": 3.06,
+    "_pav_txt": "14° PAVIMENTO"
+  },
+  {
+    "id": "P26",
+    "_faces": [
+      "A",
+      "B",
+      "C",
+      "D",
+      "E",
+      "F"
+    ],
+    "_face_widths": {
+      "A": 176,
+      "B": 153,
+      "C": 19,
+      "D": 19,
+      "E": 240,
+      "F": 210
+    },
+    "_pd_m": 3.06,
+    "_pav_txt": "14° PAVIMENTO"
+  },
+  {
+    "id": "P27",
+    "_faces": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "_face_widths": {
+      "A": 176,
+      "B": 153,
+      "C": 19,
+      "D": 19
+    },
+    "_pd_m": 3.06,
+    "_pav_txt": "14° PAVIMENTO"
+  },
+  {
+    "id": "P27_2",
+    "_faces": [
+      "E",
+      "F"
+    ],
+    "_face_widths": {
+      "E": 210,
+      "F": 240
+    },
+    "_pd_m": 3.06,
+    "_pav_txt": "14° PAVIMENTO"
+  },
+  {
+    "id": "P28",
+    "_faces": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "_face_widths": {
+      "C": 24,
+      "D": 24,
+      "A": 102,
+      "B": 102
+    },
+    "_pd_m": 3.06,
+    "_pav_txt": "14° PAVIMENTO"
+  },
+  {
+    "id": "P29",
+    "_faces": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "_face_widths": {
+      "C": 24,
+      "D": 24,
+      "A": 88,
+      "B": 88
+    },
+    "_pd_m": 3.06,
+    "_pav_txt": "14° PAVIMENTO"
+  },
+  {
+    "id": "P30",
+    "_faces": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "_face_widths": {
+      "C": 24,
+      "D": 24,
+      "A": 88,
+      "B": 88
+    },
+    "_pd_m": 3.06,
+    "_pav_txt": "14° PAVIMENTO"
+  },
+  {
+    "id": "P31",
+    "_faces": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "_face_widths": {
+      "C": 24,
+      "D": 24,
+      "A": 88,
+      "B": 88
+    },
+    "_pd_m": 3.06,
+    "_pav_txt": "14° PAVIMENTO"
+  },
+  {
+    "id": "P32",
+    "_faces": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "_face_widths": {
+      "C": 24,
+      "D": 24,
+      "A": 88,
+      "B": 88
+    },
+    "_pd_m": 3.06,
+    "_pav_txt": "14° PAVIMENTO"
+  },
+  {
+    "id": "P33",
+    "_faces": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "_face_widths": {
+      "A": 122,
+      "C": 19,
+      "D": 19,
+      "B": 122
+    },
+    "_pd_m": 3.06,
+    "_pav_txt": "14° PAVIMENTO"
+  },
+  {
+    "id": "P34",
+    "_faces": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "_face_widths": {
+      "A": 82,
+      "C": 19,
+      "D": 19,
+      "B": 82
+    },
+    "_pd_m": 3.06,
+    "_pav_txt": "14° PAVIMENTO"
+  },
+  {
+    "id": "P35",
+    "_faces": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "_face_widths": {
+      "A": 82,
+      "C": 19,
+      "D": 19,
+      "B": 82
+    },
+    "_pd_m": 3.06,
+    "_pav_txt": "14° PAVIMENTO"
+  },
+  {
+    "id": "P43",
+    "_faces": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "_face_widths": {
+      "D": 19,
+      "C": 19,
+      "B": 72,
+      "A": 72
+    },
+    "_pd_m": 3.06,
+    "_pav_txt": "14° PAVIMENTO"
+  },
+  {
+    "id": "P47",
+    "_faces": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "_face_widths": {
+      "D": 19,
+      "C": 19,
+      "B": 72,
+      "A": 72
+    },
+    "_pd_m": 3.06,
+    "_pav_txt": "14° PAVIMENTO"
+  },
+  {
+    "id": "P49",
+    "_faces": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "_face_widths": {
+      "A": 72,
+      "B": 72,
+      "C": 19,
+      "D": 19
+    },
+    "_pd_m": 1.98,
+    "_pav_txt": "14° PAVIMENTO"
+  }
+]

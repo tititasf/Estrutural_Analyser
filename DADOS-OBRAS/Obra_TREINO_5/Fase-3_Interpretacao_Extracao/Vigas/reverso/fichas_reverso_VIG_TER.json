@@ -1,0 +1,1523 @@
+{
+  "V201": {
+    "nome": "V201",
+    "lado_A": {
+      "comprimento_total": 333.0,
+      "altura": 64.0,
+      "b_secao": null,
+      "h_secao": null,
+      "paineis": [
+        244.0,
+        244.0,
+        244.0,
+        244.0,
+        244.0,
+        244.0,
+        244.0,
+        244.0,
+        244.0,
+        244.0,
+        244.0,
+        106.0,
+        89.0,
+        82.0,
+        70.0,
+        70.0,
+        60.0
+      ],
+      "n_paineis": 17,
+      "pillar_left": "P1",
+      "pillar_right": "P5",
+      "_n_dims_h": 24,
+      "_bbox_w": 1076.0,
+      "_bbox_h": 341.5
+    },
+    "lado_B": {
+      "comprimento_total": 244.0,
+      "altura": 64.0,
+      "b_secao": null,
+      "h_secao": null,
+      "paineis": [
+        185.0,
+        169.0,
+        92.5,
+        78.0,
+        78.0,
+        70.0,
+        70.0,
+        70.0,
+        70.0,
+        64.0,
+        64.0,
+        63.0,
+        60.0,
+        58.0,
+        56.0,
+        53.0
+      ],
+      "n_paineis": 16,
+      "pillar_left": "P4",
+      "pillar_right": "P13",
+      "_n_dims_h": 64,
+      "_bbox_w": 1778.0,
+      "_bbox_h": 647.6
+    },
+    "fundo": {
+      "b": 0,
+      "comprimento_total": 0,
+      "paineis": [],
+      "n_paineis": 0,
+      "_n_dims_h": 0,
+      "_y_band": [
+        9997,
+        10247
+      ]
+    },
+    "comprimento_cm": 333.0,
+    "altura_cm": 64.0,
+    "b": 0,
+    "h_secao": 0,
+    "has_lv": true,
+    "has_fv": true
+  },
+  "V202": {
+    "nome": "V202",
+    "lado_A": {
+      "comprimento_total": 244.0,
+      "altura": 64.0,
+      "b_secao": null,
+      "h_secao": null,
+      "paineis": [
+        122.0,
+        122.0,
+        121.0,
+        107.5,
+        99.0,
+        99.0,
+        90.5,
+        90.5,
+        67.0,
+        65.0,
+        60.0,
+        60.0
+      ],
+      "n_paineis": 12,
+      "pillar_left": "P14",
+      "pillar_right": "P19",
+      "_n_dims_h": 22,
+      "_bbox_w": 1061.0,
+      "_bbox_h": 538.0
+    },
+    "lado_B": {
+      "comprimento_total": 293.0,
+      "altura": 64.0,
+      "b_secao": null,
+      "h_secao": null,
+      "paineis": [
+        244.0,
+        244.0,
+        244.0,
+        244.0,
+        244.0,
+        244.0,
+        244.0,
+        244.0,
+        244.0,
+        244.0,
+        244.0,
+        244.0,
+        244.0,
+        244.0,
+        244.0,
+        244.0,
+        189.0,
+        185.0,
+        173.0,
+        70.0,
+        67.5,
+        65.0,
+        64.0,
+        60.0,
+        60.0,
+        52.0
+      ],
+      "n_paineis": 26,
+      "pillar_left": "P21",
+      "pillar_right": "P8",
+      "_n_dims_h": 36,
+      "_bbox_w": 1593.0,
+      "_bbox_h": 1114.5
+    },
+    "fundo": {
+      "b": 0,
+      "comprimento_total": 244.0,
+      "paineis": [
+        91.5
+      ],
+      "n_paineis": 1,
+      "_n_dims_h": 2,
+      "_y_band": [
+        9985,
+        10085
+      ]
+    },
+    "comprimento_cm": 293.0,
+    "altura_cm": 64.0,
+    "b": 0,
+    "h_secao": 0,
+    "has_lv": true,
+    "has_fv": true
+  },
+  "V203": {
+    "nome": "V203",
+    "lado_A": {
+      "comprimento_total": 240.0,
+      "altura": 52.0,
+      "b_secao": null,
+      "h_secao": null,
+      "paineis": [
+        122.0,
+        99.0,
+        64.0
+      ],
+      "n_paineis": 3,
+      "pillar_left": "P19",
+      "pillar_right": "P32",
+      "_n_dims_h": 10,
+      "_bbox_w": 953.0,
+      "_bbox_h": 541.2
+    },
+    "lado_B": {
+      "comprimento_total": 240.0,
+      "altura": 44.0,
+      "b_secao": null,
+      "h_secao": null,
+      "paineis": [
+        122.0,
+        99.0
+      ],
+      "n_paineis": 2,
+      "pillar_left": "P25",
+      "pillar_right": "P32",
+      "_n_dims_h": 5,
+      "_bbox_w": 537.0,
+      "_bbox_h": 253.5
+    },
+    "fundo": {
+      "b": 0,
+      "comprimento_total": 366.0,
+      "paineis": [
+        289.5,
+        221.0
+      ],
+      "n_paineis": 2,
+      "_n_dims_h": 3,
+      "_y_band": [
+        9731,
+        9889
+      ]
+    },
+    "comprimento_cm": 240.0,
+    "altura_cm": 48.0,
+    "b": 0,
+    "h_secao": 0,
+    "has_lv": true,
+    "has_fv": true
+  },
+  "V204": {
+    "nome": "V204",
+    "lado_A": {
+      "comprimento_total": 244.0,
+      "altura": 64.0,
+      "b_secao": null,
+      "h_secao": null,
+      "paineis": [
+        189.0,
+        189.0,
+        60.0,
+        60.0
+      ],
+      "n_paineis": 4,
+      "pillar_left": "P29",
+      "pillar_right": "P29",
+      "_n_dims_h": 26,
+      "_bbox_w": 1076.0,
+      "_bbox_h": 573.7
+    },
+    "lado_B": {
+      "comprimento_total": 244.0,
+      "altura": 64.0,
+      "b_secao": null,
+      "h_secao": null,
+      "paineis": [
+        189.0,
+        189.0,
+        60.0,
+        60.0
+      ],
+      "n_paineis": 4,
+      "pillar_left": "P29",
+      "pillar_right": "P29",
+      "_n_dims_h": 26,
+      "_bbox_w": 1076.0,
+      "_bbox_h": 573.7
+    },
+    "fundo": {
+      "b": 0,
+      "comprimento_total": 366.0,
+      "paineis": [
+        289.5,
+        244.0,
+        244.0,
+        221.0,
+        131.5,
+        131.5
+      ],
+      "n_paineis": 6,
+      "_n_dims_h": 7,
+      "_y_band": [
+        9601,
+        9797
+      ]
+    },
+    "comprimento_cm": 244.0,
+    "altura_cm": 64.0,
+    "b": 0,
+    "h_secao": 0,
+    "has_lv": true,
+    "has_fv": true
+  },
+  "V205": {
+    "nome": "V205",
+    "lado_A": {
+      "comprimento_total": 244.0,
+      "altura": 50.0,
+      "b_secao": null,
+      "h_secao": null,
+      "paineis": [
+        177.0,
+        173.0,
+        122.0,
+        99.0,
+        64.0,
+        64.0,
+        60.0,
+        53.0,
+        50.0
+      ],
+      "n_paineis": 9,
+      "pillar_left": "P25",
+      "pillar_right": "P31",
+      "_n_dims_h": 22,
+      "_bbox_w": 1198.0,
+      "_bbox_h": 253.5
+    },
+    "lado_B": {
+      "comprimento_total": 244.0,
+      "altura": 50.0,
+      "b_secao": null,
+      "h_secao": null,
+      "paineis": [
+        177.0,
+        173.0,
+        122.0,
+        99.0,
+        64.0,
+        64.0,
+        60.0,
+        53.0,
+        50.0
+      ],
+      "n_paineis": 9,
+      "pillar_left": "P25",
+      "pillar_right": "P31",
+      "_n_dims_h": 22,
+      "_bbox_w": 1198.0,
+      "_bbox_h": 253.5
+    },
+    "fundo": {
+      "b": 0,
+      "comprimento_total": 244.0,
+      "paineis": [
+        206.0,
+        181.0
+      ],
+      "n_paineis": 2,
+      "_n_dims_h": 3,
+      "_y_band": [
+        9967,
+        10085
+      ]
+    },
+    "comprimento_cm": 244.0,
+    "altura_cm": 50.0,
+    "b": 0,
+    "h_secao": 0,
+    "has_lv": true,
+    "has_fv": true
+  },
+  "V206": {
+    "nome": "V206",
+    "lado_A": {
+      "comprimento_total": 244.0,
+      "altura": 64.0,
+      "b_secao": null,
+      "h_secao": null,
+      "paineis": [
+        121.0,
+        121.0,
+        60.0,
+        60.0
+      ],
+      "n_paineis": 4,
+      "pillar_left": "P35",
+      "pillar_right": "P3",
+      "_n_dims_h": 21,
+      "_bbox_w": 1076.0,
+      "_bbox_h": 559.8
+    },
+    "lado_B": {
+      "comprimento_total": 244.0,
+      "altura": 64.0,
+      "b_secao": null,
+      "h_secao": null,
+      "paineis": [
+        121.0,
+        121.0,
+        60.0,
+        60.0
+      ],
+      "n_paineis": 4,
+      "pillar_left": "P35",
+      "pillar_right": "P3",
+      "_n_dims_h": 21,
+      "_bbox_w": 1076.0,
+      "_bbox_h": 559.8
+    },
+    "fundo": {
+      "b": 0,
+      "comprimento_total": 244.0,
+      "paineis": [
+        206.0,
+        181.0
+      ],
+      "n_paineis": 2,
+      "_n_dims_h": 3,
+      "_y_band": [
+        9844,
+        10028
+      ]
+    },
+    "comprimento_cm": 244.0,
+    "altura_cm": 64.0,
+    "b": 0,
+    "h_secao": 0,
+    "has_lv": true,
+    "has_fv": true
+  },
+  "V207": {
+    "nome": "V207",
+    "lado_A": {
+      "comprimento_total": 269.0,
+      "altura": 64.0,
+      "b_secao": null,
+      "h_secao": null,
+      "paineis": [
+        244.0,
+        244.0,
+        244.0,
+        244.0,
+        244.0,
+        244.0,
+        244.0,
+        244.0,
+        244.0,
+        244.0,
+        244.0,
+        244.0,
+        244.0,
+        244.0,
+        244.0,
+        244.0,
+        241.0,
+        217.0,
+        173.0,
+        82.0,
+        70.0,
+        70.0,
+        70.0,
+        67.0,
+        65.0,
+        64.0,
+        52.0
+      ],
+      "n_paineis": 27,
+      "pillar_left": "P19",
+      "pillar_right": "P43",
+      "_n_dims_h": 40,
+      "_bbox_w": 1353.0,
+      "_bbox_h": 1095.1
+    },
+    "lado_B": {
+      "comprimento_total": 289.0,
+      "altura": 64.0,
+      "b_secao": null,
+      "h_secao": null,
+      "paineis": [
+        269.0,
+        244.0,
+        244.0,
+        244.0,
+        244.0,
+        244.0,
+        244.0,
+        244.0,
+        244.0,
+        244.0,
+        244.0,
+        244.0,
+        244.0,
+        244.0,
+        244.0,
+        244.0,
+        241.0,
+        217.0,
+        173.0,
+        117.0,
+        82.0,
+        79.0,
+        70.0,
+        70.0,
+        70.0,
+        70.0,
+        70.0,
+        64.0,
+        63.5,
+        60.0,
+        56.0,
+        52.0
+      ],
+      "n_paineis": 32,
+      "pillar_left": "P40",
+      "pillar_right": "P40",
+      "_n_dims_h": 47,
+      "_bbox_w": 1536.0,
+      "_bbox_h": 512.1
+    },
+    "fundo": {
+      "b": 0,
+      "comprimento_total": 244.0,
+      "paineis": [
+        116.0
+      ],
+      "n_paineis": 1,
+      "_n_dims_h": 2,
+      "_y_band": [
+        8837,
+        8937
+      ]
+    },
+    "comprimento_cm": 289.0,
+    "altura_cm": 64.0,
+    "b": 0,
+    "h_secao": 0,
+    "has_lv": true,
+    "has_fv": true
+  },
+  "V208": {
+    "nome": "V208",
+    "lado_A": {
+      "comprimento_total": 244.0,
+      "altura": 44.0,
+      "b_secao": null,
+      "h_secao": null,
+      "paineis": [
+        124.0,
+        90.5,
+        90.5,
+        90.5,
+        90.5,
+        90.5,
+        90.5,
+        90.5,
+        90.5,
+        85.5,
+        85.5,
+        85.5,
+        85.5,
+        85.0,
+        85.0,
+        85.0,
+        85.0,
+        80.5,
+        80.5,
+        80.5,
+        80.5,
+        77.0,
+        60.0
+      ],
+      "n_paineis": 23,
+      "pillar_left": "P29",
+      "pillar_right": "P56",
+      "_n_dims_h": 29,
+      "_bbox_w": 999.0,
+      "_bbox_h": 1160.7
+    },
+    "lado_B": {
+      "comprimento_total": 333.0,
+      "altura": 0,
+      "b_secao": null,
+      "h_secao": null,
+      "paineis": [
+        269.0,
+        244.0,
+        244.0,
+        244.0,
+        244.0,
+        244.0,
+        244.0,
+        244.0,
+        244.0,
+        244.0,
+        244.0,
+        244.0,
+        89.0,
+        70.0,
+        70.0,
+        67.0
+      ],
+      "n_paineis": 16,
+      "pillar_left": "P56",
+      "pillar_right": "P61",
+      "_n_dims_h": 27,
+      "_bbox_w": 1101.0,
+      "_bbox_h": 486.0
+    },
+    "fundo": {
+      "b": 0,
+      "comprimento_total": 181.0,
+      "paineis": [
+        170.5,
+        167.0,
+        167.0
+      ],
+      "n_paineis": 3,
+      "_n_dims_h": 5,
+      "_y_band": [
+        8836,
+        8936
+      ]
+    },
+    "comprimento_cm": 333.0,
+    "altura_cm": 44.0,
+    "b": 0,
+    "h_secao": 0,
+    "has_lv": true,
+    "has_fv": true
+  },
+  "V209": {
+    "nome": "V209",
+    "lado_A": {
+      "comprimento_total": 244.0,
+      "altura": 2.0,
+      "b_secao": null,
+      "h_secao": null,
+      "paineis": [
+        124.0,
+        124.0,
+        124.0,
+        83.7,
+        83.5,
+        83.5,
+        80.0,
+        80.0,
+        70.5,
+        70.5
+      ],
+      "n_paineis": 10,
+      "pillar_left": "P66",
+      "pillar_right": "P71",
+      "_n_dims_h": 15,
+      "_bbox_w": 1073.0,
+      "_bbox_h": 258.0
+    },
+    "lado_B": {
+      "comprimento_total": 244.0,
+      "altura": 2.0,
+      "b_secao": null,
+      "h_secao": null,
+      "paineis": [
+        124.0,
+        124.0,
+        124.0,
+        83.7,
+        83.5,
+        83.5,
+        80.0,
+        80.0,
+        70.5,
+        70.5
+      ],
+      "n_paineis": 10,
+      "pillar_left": "P66",
+      "pillar_right": "P71",
+      "_n_dims_h": 15,
+      "_bbox_w": 1073.0,
+      "_bbox_h": 258.0
+    },
+    "fundo": {
+      "b": 0,
+      "comprimento_total": 305.0,
+      "paineis": [
+        244.0,
+        244.0,
+        244.0,
+        244.0,
+        221.5,
+        181.0,
+        160.0,
+        157.0,
+        147.0,
+        122.0,
+        40.5
+      ],
+      "n_paineis": 11,
+      "_n_dims_h": 12,
+      "_y_band": [
+        8414,
+        8614
+      ]
+    },
+    "comprimento_cm": 244.0,
+    "altura_cm": 2.0,
+    "b": 0,
+    "h_secao": 0,
+    "has_lv": true,
+    "has_fv": true
+  },
+  "V210": {
+    "nome": "V210",
+    "lado_A": {
+      "comprimento_total": 244.0,
+      "altura": 64.0,
+      "b_secao": null,
+      "h_secao": null,
+      "paineis": [
+        189.0,
+        122.0,
+        90.5,
+        90.5,
+        90.0,
+        89.0,
+        88.5,
+        85.5,
+        85.5,
+        85.5,
+        85.5,
+        85.0,
+        85.0,
+        85.0,
+        85.0,
+        85.0,
+        83.5,
+        83.5
+      ],
+      "n_paineis": 18,
+      "pillar_left": "P46",
+      "pillar_right": "P75",
+      "_n_dims_h": 24,
+      "_bbox_w": 1094.0,
+      "_bbox_h": 1062.2
+    },
+    "lado_B": {
+      "comprimento_total": 288.0,
+      "altura": 44.0,
+      "b_secao": null,
+      "h_secao": null,
+      "paineis": [
+        244.0,
+        244.0,
+        244.0,
+        244.0,
+        244.0,
+        244.0,
+        244.0,
+        244.0,
+        85.5,
+        70.0,
+        70.0,
+        70.0
+      ],
+      "n_paineis": 12,
+      "pillar_left": "P74",
+      "pillar_right": "P71",
+      "_n_dims_h": 21,
+      "_bbox_w": 1680.0,
+      "_bbox_h": 336.2
+    },
+    "fundo": {
+      "b": 0,
+      "comprimento_total": 0,
+      "paineis": [],
+      "n_paineis": 0,
+      "_n_dims_h": 0,
+      "_y_band": [
+        8852,
+        9102
+      ]
+    },
+    "comprimento_cm": 288.0,
+    "altura_cm": 54.0,
+    "b": 0,
+    "h_secao": 0,
+    "has_lv": true,
+    "has_fv": true
+  },
+  "V227": {
+    "nome": "V227",
+    "lado_A": {
+      "comprimento_total": 244.0,
+      "altura": 64.0,
+      "b_secao": null,
+      "h_secao": null,
+      "paineis": [
+        164.0,
+        130.0,
+        74.0,
+        66.0,
+        61.0,
+        60.0,
+        60.0,
+        60.0,
+        60.0,
+        60.0,
+        56.0,
+        56.0
+      ],
+      "n_paineis": 12,
+      "pillar_left": "P52",
+      "pillar_right": "P52",
+      "_n_dims_h": 35,
+      "_bbox_w": 1078.0,
+      "_bbox_h": 593.2
+    },
+    "lado_B": {
+      "comprimento_total": 308.0,
+      "altura": 64.0,
+      "b_secao": null,
+      "h_secao": null,
+      "paineis": [
+        295.0,
+        244.0,
+        244.0,
+        244.0,
+        244.0,
+        244.0,
+        244.0,
+        244.0,
+        244.0,
+        244.0,
+        244.0,
+        244.0,
+        244.0,
+        244.0,
+        244.0,
+        244.0,
+        244.0,
+        244.0,
+        244.0,
+        244.0,
+        244.0,
+        244.0,
+        244.0,
+        244.0,
+        244.0,
+        244.0,
+        244.0,
+        244.0,
+        194.0,
+        164.0,
+        130.0,
+        130.0,
+        76.0,
+        74.0,
+        66.0,
+        64.0,
+        64.0,
+        61.0,
+        60.0,
+        60.0,
+        60.0,
+        60.0,
+        60.0,
+        60.0,
+        60.0,
+        60.0,
+        56.0,
+        56.0,
+        53.0,
+        51.0
+      ],
+      "n_paineis": 50,
+      "pillar_left": "P52",
+      "pillar_right": "P36",
+      "_n_dims_h": 73,
+      "_bbox_w": 2570.0,
+      "_bbox_h": 598.1
+    },
+    "fundo": {
+      "b": 0,
+      "comprimento_total": 244.0,
+      "paineis": [
+        180.0
+      ],
+      "n_paineis": 1,
+      "_n_dims_h": 2,
+      "_y_band": [
+        8598,
+        8728
+      ]
+    },
+    "comprimento_cm": 308.0,
+    "altura_cm": 64.0,
+    "b": 0,
+    "h_secao": 0,
+    "has_lv": true,
+    "has_fv": true
+  },
+  "V231": {
+    "nome": "V231",
+    "lado_A": {
+      "comprimento_total": 308.0,
+      "altura": 64.0,
+      "b_secao": null,
+      "h_secao": null,
+      "paineis": [
+        244.0,
+        244.0,
+        244.0,
+        244.0,
+        244.0,
+        244.0,
+        244.0,
+        244.0,
+        244.0,
+        244.0,
+        194.0,
+        130.0,
+        76.0,
+        64.0,
+        64.0,
+        60.0,
+        60.0,
+        60.0,
+        53.0
+      ],
+      "n_paineis": 19,
+      "pillar_left": "P56",
+      "pillar_right": "P36",
+      "_n_dims_h": 31,
+      "_bbox_w": 1217.0,
+      "_bbox_h": 379.0
+    },
+    "fundo": {
+      "b": 0,
+      "comprimento_total": 0,
+      "paineis": [],
+      "n_paineis": 0,
+      "_n_dims_h": 0,
+      "_y_band": [
+        8363,
+        8463
+      ]
+    },
+    "comprimento_cm": 308.0,
+    "altura_cm": 64.0,
+    "b": 0,
+    "h_secao": 0,
+    "has_lv": true,
+    "has_fv": true
+  },
+  "V234": {
+    "nome": "V234",
+    "fundo": {
+      "b": 0,
+      "comprimento_total": 316.0,
+      "paineis": [
+        276.0,
+        244.0,
+        244.0,
+        244.0,
+        221.0,
+        157.0,
+        147.0,
+        122.0
+      ],
+      "n_paineis": 8,
+      "_n_dims_h": 9,
+      "_y_band": [
+        8106,
+        8356
+      ]
+    },
+    "comprimento_cm": 316.0,
+    "altura_cm": 0,
+    "b": 0,
+    "h_secao": 0,
+    "has_lv": false,
+    "has_fv": true
+  },
+  "V236": {
+    "nome": "V236",
+    "lado_A": {
+      "comprimento_total": 299.0,
+      "altura": 64.0,
+      "b_secao": null,
+      "h_secao": null,
+      "paineis": [
+        279.0,
+        244.0,
+        244.0,
+        244.0,
+        244.0,
+        244.0,
+        244.0,
+        244.0,
+        244.0,
+        244.0,
+        233.0,
+        109.0,
+        98.0,
+        64.0,
+        56.0,
+        56.0,
+        55.0,
+        50.0
+      ],
+      "n_paineis": 18,
+      "pillar_left": "P31",
+      "pillar_right": "P7",
+      "_n_dims_h": 33,
+      "_bbox_w": 887.0,
+      "_bbox_h": 543.5
+    },
+    "lado_B": {
+      "comprimento_total": 299.0,
+      "altura": 64.0,
+      "b_secao": null,
+      "h_secao": null,
+      "paineis": [
+        279.0,
+        244.0,
+        244.0,
+        244.0,
+        244.0,
+        244.0,
+        244.0,
+        244.0,
+        244.0,
+        244.0,
+        233.0,
+        109.0,
+        98.0,
+        64.0,
+        56.0,
+        56.0,
+        55.0,
+        50.0
+      ],
+      "n_paineis": 18,
+      "pillar_left": "P31",
+      "pillar_right": "P7",
+      "_n_dims_h": 33,
+      "_bbox_w": 887.0,
+      "_bbox_h": 543.5
+    },
+    "fundo": {
+      "b": 0,
+      "comprimento_total": 305.0,
+      "paineis": [
+        276.0,
+        244.0,
+        244.0
+      ],
+      "n_paineis": 3,
+      "_n_dims_h": 4,
+      "_y_band": [
+        9403,
+        9653
+      ]
+    },
+    "comprimento_cm": 299.0,
+    "altura_cm": 64.0,
+    "b": 0,
+    "h_secao": 0,
+    "has_lv": true,
+    "has_fv": true
+  },
+  "V238": {
+    "nome": "V238",
+    "lado_A": {
+      "comprimento_total": 283.0,
+      "altura": 64.0,
+      "b_secao": null,
+      "h_secao": null,
+      "paineis": [
+        244.0,
+        244.0,
+        244.0,
+        244.0,
+        64.0,
+        60.0,
+        50.0
+      ],
+      "n_paineis": 7,
+      "pillar_left": "P46",
+      "pillar_right": "P51",
+      "_n_dims_h": 21,
+      "_bbox_w": 1097.0,
+      "_bbox_h": 590.3
+    },
+    "fundo": {
+      "b": 0,
+      "comprimento_total": 316.0,
+      "paineis": [
+        276.0,
+        244.0,
+        244.0,
+        147.0,
+        122.0
+      ],
+      "n_paineis": 5,
+      "_n_dims_h": 6,
+      "_y_band": [
+        8256,
+        8356
+      ]
+    },
+    "comprimento_cm": 283.0,
+    "altura_cm": 64.0,
+    "b": 0,
+    "h_secao": 0,
+    "has_lv": true,
+    "has_fv": true
+  },
+  "V239": {
+    "nome": "V239",
+    "lado_A": {
+      "comprimento_total": 317.0,
+      "altura": 69.0,
+      "b_secao": null,
+      "h_secao": null,
+      "paineis": [
+        283.0,
+        244.0,
+        244.0,
+        244.0,
+        244.0,
+        157.0,
+        157.0,
+        73.0,
+        69.0,
+        56.0,
+        55.0
+      ],
+      "n_paineis": 11,
+      "pillar_left": "P47",
+      "pillar_right": "P26",
+      "_n_dims_h": 20,
+      "_bbox_w": 1168.0,
+      "_bbox_h": 281.1
+    },
+    "lado_B": {
+      "comprimento_total": 317.0,
+      "altura": 69.0,
+      "b_secao": null,
+      "h_secao": null,
+      "paineis": [
+        283.0,
+        244.0,
+        244.0,
+        244.0,
+        244.0,
+        157.0,
+        157.0,
+        73.0,
+        69.0,
+        56.0,
+        55.0
+      ],
+      "n_paineis": 11,
+      "pillar_left": "P47",
+      "pillar_right": "P26",
+      "_n_dims_h": 20,
+      "_bbox_w": 1168.0,
+      "_bbox_h": 281.1
+    },
+    "fundo": {
+      "b": 0,
+      "comprimento_total": 305.0,
+      "paineis": [
+        244.0,
+        244.0,
+        157.0,
+        147.0,
+        122.0
+      ],
+      "n_paineis": 5,
+      "_n_dims_h": 6,
+      "_y_band": [
+        8546,
+        8672
+      ]
+    },
+    "comprimento_cm": 317.0,
+    "altura_cm": 69.0,
+    "b": 0,
+    "h_secao": 0,
+    "has_lv": true,
+    "has_fv": true
+  },
+  "V243": {
+    "nome": "V243",
+    "lado_A": {
+      "comprimento_total": 279.0,
+      "altura": 64.0,
+      "b_secao": null,
+      "h_secao": null,
+      "paineis": [
+        244.0,
+        244.0,
+        244.0,
+        244.0,
+        244.0,
+        244.0,
+        244.0,
+        244.0,
+        244.0,
+        244.0,
+        244.0,
+        237.0,
+        233.0,
+        130.0,
+        109.0,
+        98.0,
+        64.0,
+        64.0,
+        60.0,
+        60.0,
+        56.0,
+        56.0,
+        50.0
+      ],
+      "n_paineis": 23,
+      "pillar_left": "P52",
+      "pillar_right": "P33",
+      "_n_dims_h": 40,
+      "_bbox_w": 1007.0,
+      "_bbox_h": 1192.2
+    },
+    "lado_B": {
+      "comprimento_total": 279.0,
+      "altura": 64.0,
+      "b_secao": null,
+      "h_secao": null,
+      "paineis": [
+        244.0,
+        244.0,
+        244.0,
+        244.0,
+        244.0,
+        244.0,
+        244.0,
+        244.0,
+        237.0,
+        233.0,
+        109.0,
+        98.0,
+        64.0,
+        64.0,
+        56.0,
+        56.0,
+        50.0
+      ],
+      "n_paineis": 17,
+      "pillar_left": "P33",
+      "pillar_right": "P33",
+      "_n_dims_h": 30,
+      "_bbox_w": 890.0,
+      "_bbox_h": 604.3
+    },
+    "fundo": {
+      "b": 0,
+      "comprimento_total": 305.0,
+      "paineis": [
+        276.0,
+        244.0,
+        244.0
+      ],
+      "n_paineis": 3,
+      "_n_dims_h": 4,
+      "_y_band": [
+        9403,
+        9653
+      ]
+    },
+    "comprimento_cm": 279.0,
+    "altura_cm": 64.0,
+    "b": 0,
+    "h_secao": 0,
+    "has_lv": true,
+    "has_fv": true
+  },
+  "V244": {
+    "nome": "V244",
+    "fundo": {
+      "b": 0,
+      "comprimento_total": 316.0,
+      "paineis": [
+        276.0,
+        244.0,
+        244.0,
+        244.0,
+        221.0,
+        157.0,
+        147.0,
+        122.0
+      ],
+      "n_paineis": 8,
+      "_n_dims_h": 9,
+      "_y_band": [
+        8106,
+        8356
+      ]
+    },
+    "comprimento_cm": 316.0,
+    "altura_cm": 0,
+    "b": 0,
+    "h_secao": 0,
+    "has_lv": false,
+    "has_fv": true
+  },
+  "V246": {
+    "nome": "V246",
+    "lado_A": {
+      "comprimento_total": 312.0,
+      "altura": 60.0,
+      "b_secao": null,
+      "h_secao": null,
+      "paineis": [
+        279.0,
+        244.0,
+        244.0,
+        244.0,
+        244.0,
+        244.0,
+        244.0,
+        244.0,
+        157.0,
+        69.0,
+        68.0,
+        64.0,
+        64.0,
+        60.0,
+        57.0,
+        55.0
+      ],
+      "n_paineis": 16,
+      "pillar_left": "P47",
+      "pillar_right": "P16",
+      "_n_dims_h": 25,
+      "_bbox_w": 824.0,
+      "_bbox_h": 1049.7
+    },
+    "lado_B": {
+      "comprimento_total": 312.0,
+      "altura": 64.0,
+      "b_secao": null,
+      "h_secao": null,
+      "paineis": [
+        279.0,
+        244.0,
+        244.0,
+        244.0,
+        244.0,
+        244.0,
+        244.0,
+        244.0,
+        244.0,
+        68.0,
+        64.0,
+        64.0,
+        60.0,
+        57.0
+      ],
+      "n_paineis": 14,
+      "pillar_left": "P49",
+      "pillar_right": "P35",
+      "_n_dims_h": 22,
+      "_bbox_w": 1076.0,
+      "_bbox_h": 397.1
+    },
+    "fundo": {
+      "b": 0,
+      "comprimento_total": 244.0,
+      "paineis": [
+        180.0,
+        157.0
+      ],
+      "n_paineis": 2,
+      "_n_dims_h": 4,
+      "_y_band": [
+        8267,
+        8408
+      ]
+    },
+    "comprimento_cm": 312.0,
+    "altura_cm": 62.0,
+    "b": 0,
+    "h_secao": 0,
+    "has_lv": true,
+    "has_fv": true
+  },
+  "V248": {
+    "nome": "V248",
+    "lado_A": {
+      "comprimento_total": 283.0,
+      "altura": 44.0,
+      "b_secao": null,
+      "h_secao": null,
+      "paineis": [
+        244.0,
+        244.0,
+        244.0,
+        244.0,
+        244.0,
+        244.0,
+        198.0,
+        157.0,
+        60.0,
+        56.0
+      ],
+      "n_paineis": 10,
+      "pillar_left": "P15",
+      "pillar_right": "P81",
+      "_n_dims_h": 22,
+      "_bbox_w": 1291.0,
+      "_bbox_h": 251.8
+    },
+    "lado_B": {
+      "comprimento_total": 283.0,
+      "altura": 44.0,
+      "b_secao": null,
+      "h_secao": null,
+      "paineis": [
+        244.0,
+        244.0,
+        244.0,
+        244.0,
+        244.0,
+        244.0,
+        198.0,
+        157.0,
+        60.0,
+        56.0
+      ],
+      "n_paineis": 10,
+      "pillar_left": "P15",
+      "pillar_right": "P81",
+      "_n_dims_h": 22,
+      "_bbox_w": 1291.0,
+      "_bbox_h": 251.8
+    },
+    "fundo": {
+      "b": 0,
+      "comprimento_total": 244.0,
+      "paineis": [
+        157.0
+      ],
+      "n_paineis": 1,
+      "_n_dims_h": 2,
+      "_y_band": [
+        8808,
+        8928
+      ]
+    },
+    "comprimento_cm": 283.0,
+    "altura_cm": 44.0,
+    "b": 0,
+    "h_secao": 0,
+    "has_lv": true,
+    "has_fv": true
+  },
+  "V249": {
+    "nome": "V249",
+    "lado_A": {
+      "comprimento_total": 279.0,
+      "altura": 64.0,
+      "b_secao": null,
+      "h_secao": null,
+      "paineis": [
+        244.0,
+        244.0,
+        244.0,
+        244.0,
+        244.0,
+        244.0,
+        244.0,
+        237.0,
+        169.0,
+        160.0,
+        64.0,
+        60.0
+      ],
+      "n_paineis": 12,
+      "pillar_left": "P13",
+      "pillar_right": "P31",
+      "_n_dims_h": 26,
+      "_bbox_w": 611.0,
+      "_bbox_h": 1222.9
+    },
+    "lado_B": {
+      "comprimento_total": 244.0,
+      "altura": 64.0,
+      "b_secao": null,
+      "h_secao": null,
+      "paineis": [
+        237.0,
+        169.0,
+        160.0,
+        76.0,
+        64.0,
+        60.0,
+        60.0,
+        60.0
+      ],
+      "n_paineis": 8,
+      "pillar_left": "P13",
+      "pillar_right": "P37",
+      "_n_dims_h": 30,
+      "_bbox_w": 1076.0,
+      "_bbox_h": 596.7
+    },
+    "fundo": {
+      "b": 0,
+      "comprimento_total": 244.0,
+      "paineis": [
+        157.0
+      ],
+      "n_paineis": 1,
+      "_n_dims_h": 2,
+      "_y_band": [
+        8682,
+        8871
+      ]
+    },
+    "comprimento_cm": 279.0,
+    "altura_cm": 64.0,
+    "b": 0,
+    "h_secao": 0,
+    "has_lv": true,
+    "has_fv": true
+  }
+}

@@ -1,0 +1,3462 @@
+{
+  "PIL": {},
+  "VIG": {
+    "_meta": {
+      "id": "_meta",
+      "tipo": "VIG",
+      "campos": {
+        "b": {
+          "fwd": null,
+          "p4": null,
+          "rev": null,
+          "status": "AUSENTE_AMBOS",
+          "delta_cm": null,
+          "pct": null
+        },
+        "h": {
+          "fwd": null,
+          "p4": null,
+          "rev": null,
+          "rev_secao": null,
+          "rev_used": null,
+          "status": "AUSENTE_AMBOS",
+          "delta_cm": null,
+          "pct": null
+        },
+        "comprimento": {
+          "fwd_vigas_json": null,
+          "p4_sum_panels": null,
+          "rev": null,
+          "status": "AUSENTE_AMBOS",
+          "delta_cm": null,
+          "pct": null
+        },
+        "n_paineis_A": {
+          "p4": null,
+          "rev_raw": null,
+          "rev_filtered_gt30": null,
+          "status": "AUSENTE_AMBOS",
+          "delta_cm": null,
+          "pct": null
+        },
+        "pillar_left": {
+          "rev": null,
+          "status": "AUSENTE"
+        },
+        "pillar_right": {
+          "rev": null,
+          "status": "AUSENTE"
+        }
+      }
+    },
+    "V3046": {
+      "id": "V3046",
+      "tipo": "VIG",
+      "campos": {
+        "b": {
+          "fwd": 14.0,
+          "p4": 14.0,
+          "rev": 25.0,
+          "status": "DELTA_SMALL",
+          "delta_cm": 11.0,
+          "pct": 44.0
+        },
+        "h": {
+          "fwd": 104.0,
+          "p4": 104.0,
+          "rev": 56.0,
+          "rev_secao": 52.0,
+          "rev_used": 56.0,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null,
+          "pct": null
+        },
+        "comprimento": {
+          "fwd_vigas_json": 252.5,
+          "p4_sum_panels": 252.5,
+          "rev": 491.0,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null,
+          "pct": null
+        },
+        "n_paineis_A": {
+          "p4": 3,
+          "rev_raw": 20,
+          "rev_filtered_gt30": 20,
+          "status": "REV_ONLY",
+          "delta_cm": null,
+          "pct": null
+        },
+        "pillar_left": {
+          "rev": "P221",
+          "status": "REV_ONLY"
+        },
+        "pillar_right": {
+          "rev": "P221",
+          "status": "REV_ONLY"
+        }
+      }
+    },
+    "V3047": {
+      "id": "V3047",
+      "tipo": "VIG",
+      "campos": {
+        "b": {
+          "fwd": 14.0,
+          "p4": 14.0,
+          "rev": 14.0,
+          "status": "MATCH",
+          "delta_cm": 0.0,
+          "pct": 0.0
+        },
+        "h": {
+          "fwd": 104.0,
+          "p4": 104.0,
+          "rev": 49.0,
+          "rev_secao": 52.0,
+          "rev_used": 49.0,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null,
+          "pct": null
+        },
+        "comprimento": {
+          "fwd_vigas_json": 236.5,
+          "p4_sum_panels": 236.5,
+          "rev": 747.0,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null,
+          "pct": null
+        },
+        "n_paineis_A": {
+          "p4": 2,
+          "rev_raw": 12,
+          "rev_filtered_gt30": 12,
+          "status": "REV_ONLY",
+          "delta_cm": null,
+          "pct": null
+        },
+        "pillar_left": {
+          "rev": "P236",
+          "status": "REV_ONLY"
+        },
+        "pillar_right": {
+          "rev": "P235",
+          "status": "REV_ONLY"
+        }
+      }
+    },
+    "V3049": {
+      "id": "V3049",
+      "tipo": "VIG",
+      "campos": {
+        "b": {
+          "fwd": 25.0,
+          "p4": 25.0,
+          "rev": 14.0,
+          "status": "MATCH",
+          "delta_cm": 0.0,
+          "pct": 0.0
+        },
+        "h": {
+          "fwd": 128.0,
+          "p4": 128.0,
+          "rev": 68.0,
+          "rev_secao": 64.0,
+          "rev_used": 68.0,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null,
+          "pct": null
+        },
+        "comprimento": {
+          "fwd_vigas_json": 152.0,
+          "p4_sum_panels": 152.0,
+          "rev": 152.0,
+          "status": "MATCH",
+          "delta_cm": 0.0,
+          "pct": 0.0
+        },
+        "n_paineis_A": {
+          "p4": 2,
+          "rev_raw": 8,
+          "rev_filtered_gt30": 8,
+          "status": "REV_ONLY",
+          "delta_cm": null,
+          "pct": null
+        },
+        "pillar_left": {
+          "rev": "P218",
+          "status": "REV_ONLY"
+        },
+        "pillar_right": {
+          "rev": "P275",
+          "status": "REV_ONLY"
+        }
+      }
+    },
+    "V3051": {
+      "id": "V3051",
+      "tipo": "VIG",
+      "campos": {
+        "b": {
+          "fwd": 25.0,
+          "p4": 25.0,
+          "rev": null,
+          "status": "AUSENTE_REV",
+          "delta_cm": null,
+          "pct": null
+        },
+        "h": {
+          "fwd": 38.0,
+          "p4": 38.0,
+          "rev": null,
+          "rev_secao": null,
+          "rev_used": null,
+          "status": "AUSENTE_REV",
+          "delta_cm": null,
+          "pct": null
+        },
+        "comprimento": {
+          "fwd_vigas_json": 414.0,
+          "p4_sum_panels": 414.0,
+          "rev": null,
+          "status": "AUSENTE_REV",
+          "delta_cm": null,
+          "pct": null
+        },
+        "n_paineis_A": {
+          "p4": 4,
+          "rev_raw": null,
+          "rev_filtered_gt30": null,
+          "status": "AUSENTE_REV",
+          "delta_cm": null,
+          "pct": null
+        },
+        "pillar_left": {
+          "rev": null,
+          "status": "AUSENTE"
+        },
+        "pillar_right": {
+          "rev": null,
+          "status": "AUSENTE"
+        }
+      }
+    },
+    "V3052": {
+      "id": "V3052",
+      "tipo": "VIG",
+      "campos": {
+        "b": {
+          "fwd": 60.0,
+          "p4": 60.0,
+          "rev": 14.0,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null,
+          "pct": null
+        },
+        "h": {
+          "fwd": 104.0,
+          "p4": 104.0,
+          "rev": 68.0,
+          "rev_secao": 64.0,
+          "rev_used": 68.0,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null,
+          "pct": null
+        },
+        "comprimento": {
+          "fwd_vigas_json": 335.0,
+          "p4_sum_panels": 335.0,
+          "rev": 335.0,
+          "status": "MATCH",
+          "delta_cm": 0.0,
+          "pct": 0.0
+        },
+        "n_paineis_A": {
+          "p4": 3,
+          "rev_raw": 43,
+          "rev_filtered_gt30": 43,
+          "status": "REV_ONLY",
+          "delta_cm": null,
+          "pct": null
+        },
+        "pillar_left": {
+          "rev": "P218",
+          "status": "REV_ONLY"
+        },
+        "pillar_right": {
+          "rev": "P258",
+          "status": "REV_ONLY"
+        }
+      }
+    },
+    "V3054": {
+      "id": "V3054",
+      "tipo": "VIG",
+      "campos": {
+        "b": {
+          "fwd": 14.0,
+          "p4": 14.0,
+          "rev": 14.0,
+          "status": "MATCH",
+          "delta_cm": 0.0,
+          "pct": 0.0
+        },
+        "h": {
+          "fwd": 104.0,
+          "p4": 104.0,
+          "rev": 62.0,
+          "rev_secao": 52.0,
+          "rev_used": 62.0,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null,
+          "pct": null
+        },
+        "comprimento": {
+          "fwd_vigas_json": 732.0,
+          "p4_sum_panels": 732.0,
+          "rev": 732.0,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null,
+          "pct": null
+        },
+        "n_paineis_A": {
+          "p4": 7,
+          "rev_raw": 29,
+          "rev_filtered_gt30": 29,
+          "status": "REV_ONLY",
+          "delta_cm": null,
+          "pct": null
+        },
+        "pillar_left": {
+          "rev": "P259",
+          "status": "REV_ONLY"
+        },
+        "pillar_right": {
+          "rev": "P267",
+          "status": "REV_ONLY"
+        }
+      }
+    },
+    "V3055": {
+      "id": "V3055",
+      "tipo": "VIG",
+      "campos": {
+        "b": {
+          "fwd": 25.0,
+          "p4": 25.0,
+          "rev": null,
+          "status": "AUSENTE_REV",
+          "delta_cm": null,
+          "pct": null
+        },
+        "h": {
+          "fwd": 40.0,
+          "p4": 40.0,
+          "rev": null,
+          "rev_secao": null,
+          "rev_used": null,
+          "status": "AUSENTE_REV",
+          "delta_cm": null,
+          "pct": null
+        },
+        "comprimento": {
+          "fwd_vigas_json": 746.0,
+          "p4_sum_panels": 746.0,
+          "rev": null,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null,
+          "pct": null
+        },
+        "n_paineis_A": {
+          "p4": 7,
+          "rev_raw": null,
+          "rev_filtered_gt30": null,
+          "status": "AUSENTE_REV",
+          "delta_cm": null,
+          "pct": null
+        },
+        "pillar_left": {
+          "rev": null,
+          "status": "AUSENTE"
+        },
+        "pillar_right": {
+          "rev": null,
+          "status": "AUSENTE"
+        }
+      }
+    },
+    "V3056": {
+      "id": "V3056",
+      "tipo": "VIG",
+      "campos": {
+        "b": {
+          "fwd": 60.0,
+          "p4": 60.0,
+          "rev": 14.0,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null,
+          "pct": null
+        },
+        "h": {
+          "fwd": 28.0,
+          "p4": 28.0,
+          "rev": 68.0,
+          "rev_secao": 52.0,
+          "rev_used": 52.0,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null,
+          "pct": null
+        },
+        "comprimento": {
+          "fwd_vigas_json": 732.0,
+          "p4_sum_panels": 732.0,
+          "rev": 269.0,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null,
+          "pct": null
+        },
+        "n_paineis_A": {
+          "p4": 7,
+          "rev_raw": 32,
+          "rev_filtered_gt30": 32,
+          "status": "REV_ONLY",
+          "delta_cm": null,
+          "pct": null
+        },
+        "pillar_left": {
+          "rev": "P239",
+          "status": "REV_ONLY"
+        },
+        "pillar_right": {
+          "rev": "P294",
+          "status": "REV_ONLY"
+        }
+      }
+    },
+    "V3057": {
+      "id": "V3057",
+      "tipo": "VIG",
+      "campos": {
+        "b": {
+          "fwd": 60.0,
+          "p4": 60.0,
+          "rev": 14.0,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null,
+          "pct": null
+        },
+        "h": {
+          "fwd": 104.0,
+          "p4": 104.0,
+          "rev": 68.0,
+          "rev_secao": 64.0,
+          "rev_used": 68.0,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null,
+          "pct": null
+        },
+        "comprimento": {
+          "fwd_vigas_json": 254.0,
+          "p4_sum_panels": 254.0,
+          "rev": 570.0,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null,
+          "pct": null
+        },
+        "n_paineis_A": {
+          "p4": 3,
+          "rev_raw": 20,
+          "rev_filtered_gt30": 20,
+          "status": "REV_ONLY",
+          "delta_cm": null,
+          "pct": null
+        },
+        "pillar_left": {
+          "rev": "P296",
+          "status": "REV_ONLY"
+        },
+        "pillar_right": {
+          "rev": "P299",
+          "status": "REV_ONLY"
+        }
+      }
+    },
+    "V3059": {
+      "id": "V3059",
+      "tipo": "VIG",
+      "campos": {
+        "b": {
+          "fwd": 66.01,
+          "p4": 66.01,
+          "rev": 14.0,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null,
+          "pct": null
+        },
+        "h": {
+          "fwd": 28.0,
+          "p4": 28.0,
+          "rev": 68.0,
+          "rev_secao": 64.0,
+          "rev_used": 64.0,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null,
+          "pct": null
+        },
+        "comprimento": {
+          "fwd_vigas_json": 244.0,
+          "p4_sum_panels": 244.0,
+          "rev": 82.0,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null,
+          "pct": null
+        },
+        "n_paineis_A": {
+          "p4": 3,
+          "rev_raw": 0,
+          "rev_filtered_gt30": 0,
+          "status": "MATCH",
+          "delta_cm": 3.0,
+          "pct": 100.0
+        },
+        "pillar_left": {
+          "rev": "P298",
+          "status": "REV_ONLY"
+        },
+        "pillar_right": {
+          "rev": "P296",
+          "status": "REV_ONLY"
+        }
+      }
+    },
+    "V3060": {
+      "id": "V3060",
+      "tipo": "VIG",
+      "campos": {
+        "b": {
+          "fwd": 60.0,
+          "p4": 60.0,
+          "rev": 14.0,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null,
+          "pct": null
+        },
+        "h": {
+          "fwd": 128.0,
+          "p4": 128.0,
+          "rev": 68.0,
+          "rev_secao": 64.0,
+          "rev_used": 68.0,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null,
+          "pct": null
+        },
+        "comprimento": {
+          "fwd_vigas_json": 564.0,
+          "p4_sum_panels": 564.0,
+          "rev": 564.0,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null,
+          "pct": null
+        },
+        "n_paineis_A": {
+          "p4": 5,
+          "rev_raw": 12,
+          "rev_filtered_gt30": 12,
+          "status": "REV_ONLY",
+          "delta_cm": null,
+          "pct": null
+        },
+        "pillar_left": {
+          "rev": "P296",
+          "status": "REV_ONLY"
+        },
+        "pillar_right": {
+          "rev": "P311",
+          "status": "REV_ONLY"
+        }
+      }
+    },
+    "V3062": {
+      "id": "V3062",
+      "tipo": "VIG",
+      "campos": {
+        "b": {
+          "fwd": 14.0,
+          "p4": 14.0,
+          "rev": 14.0,
+          "status": "MATCH",
+          "delta_cm": 0.0,
+          "pct": 0.0
+        },
+        "h": {
+          "fwd": 104.0,
+          "p4": 104.0,
+          "rev": 58.5,
+          "rev_secao": 52.0,
+          "rev_used": 58.5,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null,
+          "pct": null
+        },
+        "comprimento": {
+          "fwd_vigas_json": 746.0,
+          "p4_sum_panels": 746.0,
+          "rev": 787.0,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null,
+          "pct": null
+        },
+        "n_paineis_A": {
+          "p4": 7,
+          "rev_raw": 222,
+          "rev_filtered_gt30": 222,
+          "status": "REV_ONLY",
+          "delta_cm": null,
+          "pct": null
+        },
+        "pillar_left": {
+          "rev": "P329",
+          "status": "REV_ONLY"
+        },
+        "pillar_right": {
+          "rev": "P323",
+          "status": "REV_ONLY"
+        }
+      }
+    },
+    "V3063": {
+      "id": "V3063",
+      "tipo": "VIG",
+      "campos": {
+        "b": {
+          "fwd": 14.0,
+          "p4": 14.0,
+          "rev": 19.0,
+          "status": "MATCH",
+          "delta_cm": 5.0,
+          "pct": 26.3
+        },
+        "h": {
+          "fwd": 104.0,
+          "p4": 104.0,
+          "rev": 62.0,
+          "rev_secao": 52.0,
+          "rev_used": 62.0,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null,
+          "pct": null
+        },
+        "comprimento": {
+          "fwd_vigas_json": 570.0,
+          "p4_sum_panels": 570.0,
+          "rev": 740.5,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null,
+          "pct": null
+        },
+        "n_paineis_A": {
+          "p4": 5,
+          "rev_raw": 44,
+          "rev_filtered_gt30": 44,
+          "status": "REV_ONLY",
+          "delta_cm": null,
+          "pct": null
+        },
+        "pillar_left": {
+          "rev": "P330",
+          "status": "REV_ONLY"
+        },
+        "pillar_right": {
+          "rev": "P341",
+          "status": "REV_ONLY"
+        }
+      }
+    },
+    "V3074": {
+      "id": "V3074",
+      "tipo": "VIG",
+      "campos": {
+        "b": {
+          "fwd": 25.0,
+          "p4": 25.0,
+          "rev": 14.0,
+          "status": "MATCH",
+          "delta_cm": 0.0,
+          "pct": 0.0
+        },
+        "h": {
+          "fwd": 104.0,
+          "p4": 104.0,
+          "rev": 70.5,
+          "rev_secao": 52.0,
+          "rev_used": 70.5,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null,
+          "pct": null
+        },
+        "comprimento": {
+          "fwd_vigas_json": 746.0,
+          "p4_sum_panels": 746.0,
+          "rev": 746.0,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null,
+          "pct": null
+        },
+        "n_paineis_A": {
+          "p4": 7,
+          "rev_raw": 27,
+          "rev_filtered_gt30": 27,
+          "status": "REV_ONLY",
+          "delta_cm": null,
+          "pct": null
+        },
+        "pillar_left": {
+          "rev": "P315",
+          "status": "REV_ONLY"
+        },
+        "pillar_right": {
+          "rev": "P218",
+          "status": "REV_ONLY"
+        }
+      }
+    },
+    "V3077": {
+      "id": "V3077",
+      "tipo": "VIG",
+      "campos": {
+        "b": {
+          "fwd": 25.0,
+          "p4": 25.0,
+          "rev": 25.0,
+          "status": "MATCH",
+          "delta_cm": 0.0,
+          "pct": 0.0
+        },
+        "h": {
+          "fwd": 50.0,
+          "p4": 50.0,
+          "rev": 56.0,
+          "rev_secao": 52.0,
+          "rev_used": 52.0,
+          "status": "MATCH",
+          "delta_cm": 2.0,
+          "pct": 3.8
+        },
+        "comprimento": {
+          "fwd_vigas_json": 468.0,
+          "p4_sum_panels": 468.0,
+          "rev": 468.0,
+          "status": "MATCH",
+          "delta_cm": 0.0,
+          "pct": 0.0
+        },
+        "n_paineis_A": {
+          "p4": 4,
+          "rev_raw": 8,
+          "rev_filtered_gt30": 8,
+          "status": "REV_ONLY",
+          "delta_cm": null,
+          "pct": null
+        },
+        "pillar_left": {
+          "rev": "P316",
+          "status": "REV_ONLY"
+        },
+        "pillar_right": {
+          "rev": "P282",
+          "status": "REV_ONLY"
+        }
+      }
+    },
+    "V3078": {
+      "id": "V3078",
+      "tipo": "VIG",
+      "campos": {
+        "b": {
+          "fwd": 25.0,
+          "p4": 25.0,
+          "rev": 25.0,
+          "status": "MATCH",
+          "delta_cm": 0.0,
+          "pct": 0.0
+        },
+        "h": {
+          "fwd": 50.0,
+          "p4": 50.0,
+          "rev": 56.0,
+          "rev_secao": 52.0,
+          "rev_used": 52.0,
+          "status": "MATCH",
+          "delta_cm": 2.0,
+          "pct": 3.8
+        },
+        "comprimento": {
+          "fwd_vigas_json": 468.0,
+          "p4_sum_panels": 468.0,
+          "rev": 468.0,
+          "status": "MATCH",
+          "delta_cm": 0.0,
+          "pct": 0.0
+        },
+        "n_paineis_A": {
+          "p4": 4,
+          "rev_raw": 17,
+          "rev_filtered_gt30": 17,
+          "status": "REV_ONLY",
+          "delta_cm": null,
+          "pct": null
+        },
+        "pillar_left": {
+          "rev": "P316",
+          "status": "REV_ONLY"
+        },
+        "pillar_right": {
+          "rev": "P219",
+          "status": "REV_ONLY"
+        }
+      }
+    },
+    "V3079": {
+      "id": "V3079",
+      "tipo": "VIG",
+      "campos": {
+        "b": {
+          "fwd": 14.0,
+          "p4": 14.0,
+          "rev": 25.0,
+          "status": "DELTA_SMALL",
+          "delta_cm": 11.0,
+          "pct": 44.0
+        },
+        "h": {
+          "fwd": 28.0,
+          "p4": 28.0,
+          "rev": 56.0,
+          "rev_secao": 52.0,
+          "rev_used": 52.0,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null,
+          "pct": null
+        },
+        "comprimento": {
+          "fwd_vigas_json": 468.0,
+          "p4_sum_panels": 468.0,
+          "rev": 148.0,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null,
+          "pct": null
+        },
+        "n_paineis_A": {
+          "p4": 4,
+          "rev_raw": 7,
+          "rev_filtered_gt30": 7,
+          "status": "MATCH",
+          "delta_cm": 3.0,
+          "pct": 42.9
+        },
+        "pillar_left": {
+          "rev": "P252",
+          "status": "REV_ONLY"
+        },
+        "pillar_right": {
+          "rev": "P317",
+          "status": "REV_ONLY"
+        }
+      }
+    },
+    "V3081": {
+      "id": "V3081",
+      "tipo": "VIG",
+      "campos": {
+        "b": {
+          "fwd": 25.0,
+          "p4": 25.0,
+          "rev": 14.0,
+          "status": "MATCH",
+          "delta_cm": 0.0,
+          "pct": 0.0
+        },
+        "h": {
+          "fwd": 50.0,
+          "p4": 50.0,
+          "rev": 56.0,
+          "rev_secao": 52.0,
+          "rev_used": 52.0,
+          "status": "MATCH",
+          "delta_cm": 2.0,
+          "pct": 3.8
+        },
+        "comprimento": {
+          "fwd_vigas_json": 468.0,
+          "p4_sum_panels": 468.0,
+          "rev": 468.0,
+          "status": "MATCH",
+          "delta_cm": 0.0,
+          "pct": 0.0
+        },
+        "n_paineis_A": {
+          "p4": 4,
+          "rev_raw": 16,
+          "rev_filtered_gt30": 16,
+          "status": "REV_ONLY",
+          "delta_cm": null,
+          "pct": null
+        },
+        "pillar_left": {
+          "rev": "P283",
+          "status": "REV_ONLY"
+        },
+        "pillar_right": {
+          "rev": "P283",
+          "status": "REV_ONLY"
+        }
+      }
+    },
+    "V3082": {
+      "id": "V3082",
+      "tipo": "VIG",
+      "campos": {
+        "b": {
+          "fwd": 25.0,
+          "p4": 25.0,
+          "rev": 25.0,
+          "status": "MATCH",
+          "delta_cm": 0.0,
+          "pct": 0.0
+        },
+        "h": {
+          "fwd": 50.0,
+          "p4": 50.0,
+          "rev": 56.0,
+          "rev_secao": 52.0,
+          "rev_used": 52.0,
+          "status": "MATCH",
+          "delta_cm": 2.0,
+          "pct": 3.8
+        },
+        "comprimento": {
+          "fwd_vigas_json": 468.0,
+          "p4_sum_panels": 468.0,
+          "rev": 457.0,
+          "status": "DELTA_SMALL",
+          "delta_cm": 11.0,
+          "pct": 2.4
+        },
+        "n_paineis_A": {
+          "p4": 4,
+          "rev_raw": 9,
+          "rev_filtered_gt30": 9,
+          "status": "REV_ONLY",
+          "delta_cm": null,
+          "pct": null
+        },
+        "pillar_left": {
+          "rev": "P317",
+          "status": "REV_ONLY"
+        },
+        "pillar_right": {
+          "rev": "P220",
+          "status": "REV_ONLY"
+        }
+      }
+    },
+    "V3084": {
+      "id": "V3084",
+      "tipo": "VIG",
+      "campos": {
+        "b": {
+          "fwd": 25.0,
+          "p4": 25.0,
+          "rev": 25.0,
+          "status": "MATCH",
+          "delta_cm": 0.0,
+          "pct": 0.0
+        },
+        "h": {
+          "fwd": 50.0,
+          "p4": 50.0,
+          "rev": 56.0,
+          "rev_secao": 52.0,
+          "rev_used": 52.0,
+          "status": "MATCH",
+          "delta_cm": 2.0,
+          "pct": 3.8
+        },
+        "comprimento": {
+          "fwd_vigas_json": 468.0,
+          "p4_sum_panels": 468.0,
+          "rev": 468.0,
+          "status": "MATCH",
+          "delta_cm": 0.0,
+          "pct": 0.0
+        },
+        "n_paineis_A": {
+          "p4": 4,
+          "rev_raw": 17,
+          "rev_filtered_gt30": 17,
+          "status": "REV_ONLY",
+          "delta_cm": null,
+          "pct": null
+        },
+        "pillar_left": {
+          "rev": "P220",
+          "status": "REV_ONLY"
+        },
+        "pillar_right": {
+          "rev": "P284",
+          "status": "REV_ONLY"
+        }
+      }
+    },
+    "V3085": {
+      "id": "V3085",
+      "tipo": "VIG",
+      "campos": {
+        "b": {
+          "fwd": 25.0,
+          "p4": 25.0,
+          "rev": 25.0,
+          "status": "MATCH",
+          "delta_cm": 0.0,
+          "pct": 0.0
+        },
+        "h": {
+          "fwd": 50.0,
+          "p4": 50.0,
+          "rev": 56.0,
+          "rev_secao": 52.0,
+          "rev_used": 52.0,
+          "status": "MATCH",
+          "delta_cm": 2.0,
+          "pct": 3.8
+        },
+        "comprimento": {
+          "fwd_vigas_json": 468.0,
+          "p4_sum_panels": 468.0,
+          "rev": 468.0,
+          "status": "MATCH",
+          "delta_cm": 0.0,
+          "pct": 0.0
+        },
+        "n_paineis_A": {
+          "p4": 4,
+          "rev_raw": 12,
+          "rev_filtered_gt30": 12,
+          "status": "REV_ONLY",
+          "delta_cm": null,
+          "pct": null
+        },
+        "pillar_left": {
+          "rev": "P318",
+          "status": "REV_ONLY"
+        },
+        "pillar_right": {
+          "rev": "P221",
+          "status": "REV_ONLY"
+        }
+      }
+    },
+    "V3087": {
+      "id": "V3087",
+      "tipo": "VIG",
+      "campos": {
+        "b": {
+          "fwd": 25.0,
+          "p4": 25.0,
+          "rev": 25.0,
+          "status": "MATCH",
+          "delta_cm": 0.0,
+          "pct": 0.0
+        },
+        "h": {
+          "fwd": 50.0,
+          "p4": 50.0,
+          "rev": 56.0,
+          "rev_secao": 52.0,
+          "rev_used": 52.0,
+          "status": "MATCH",
+          "delta_cm": 2.0,
+          "pct": 3.8
+        },
+        "comprimento": {
+          "fwd_vigas_json": 468.0,
+          "p4_sum_panels": 468.0,
+          "rev": 468.0,
+          "status": "MATCH",
+          "delta_cm": 0.0,
+          "pct": 0.0
+        },
+        "n_paineis_A": {
+          "p4": 4,
+          "rev_raw": 17,
+          "rev_filtered_gt30": 17,
+          "status": "REV_ONLY",
+          "delta_cm": null,
+          "pct": null
+        },
+        "pillar_left": {
+          "rev": "P221",
+          "status": "REV_ONLY"
+        },
+        "pillar_right": {
+          "rev": "P285",
+          "status": "REV_ONLY"
+        }
+      }
+    },
+    "V3088": {
+      "id": "V3088",
+      "tipo": "VIG",
+      "campos": {
+        "b": {
+          "fwd": 25.0,
+          "p4": 25.0,
+          "rev": 25.0,
+          "status": "MATCH",
+          "delta_cm": 0.0,
+          "pct": 0.0
+        },
+        "h": {
+          "fwd": 50.0,
+          "p4": 50.0,
+          "rev": 56.0,
+          "rev_secao": 52.0,
+          "rev_used": 52.0,
+          "status": "MATCH",
+          "delta_cm": 2.0,
+          "pct": 3.8
+        },
+        "comprimento": {
+          "fwd_vigas_json": 468.0,
+          "p4_sum_panels": 468.0,
+          "rev": 457.0,
+          "status": "DELTA_SMALL",
+          "delta_cm": 11.0,
+          "pct": 2.4
+        },
+        "n_paineis_A": {
+          "p4": 4,
+          "rev_raw": 7,
+          "rev_filtered_gt30": 7,
+          "status": "MATCH",
+          "delta_cm": 3.0,
+          "pct": 42.9
+        },
+        "pillar_left": {
+          "rev": "P222",
+          "status": "REV_ONLY"
+        },
+        "pillar_right": {
+          "rev": "P222",
+          "status": "REV_ONLY"
+        }
+      }
+    },
+    "V3091": {
+      "id": "V3091",
+      "tipo": "VIG",
+      "campos": {
+        "b": {
+          "fwd": 25.0,
+          "p4": 25.0,
+          "rev": 25.0,
+          "status": "MATCH",
+          "delta_cm": 0.0,
+          "pct": 0.0
+        },
+        "h": {
+          "fwd": 50.0,
+          "p4": 50.0,
+          "rev": 56.0,
+          "rev_secao": 52.0,
+          "rev_used": 52.0,
+          "status": "MATCH",
+          "delta_cm": 2.0,
+          "pct": 3.8
+        },
+        "comprimento": {
+          "fwd_vigas_json": 468.0,
+          "p4_sum_panels": 468.0,
+          "rev": 468.0,
+          "status": "MATCH",
+          "delta_cm": 0.0,
+          "pct": 0.0
+        },
+        "n_paineis_A": {
+          "p4": 4,
+          "rev_raw": 20,
+          "rev_filtered_gt30": 20,
+          "status": "REV_ONLY",
+          "delta_cm": null,
+          "pct": null
+        },
+        "pillar_left": {
+          "rev": "P222",
+          "status": "REV_ONLY"
+        },
+        "pillar_right": {
+          "rev": "P286",
+          "status": "REV_ONLY"
+        }
+      }
+    },
+    "V3092": {
+      "id": "V3092",
+      "tipo": "VIG",
+      "campos": {
+        "b": {
+          "fwd": 25.0,
+          "p4": 25.0,
+          "rev": 25.0,
+          "status": "MATCH",
+          "delta_cm": 0.0,
+          "pct": 0.0
+        },
+        "h": {
+          "fwd": 50.0,
+          "p4": 50.0,
+          "rev": 56.0,
+          "rev_secao": 52.0,
+          "rev_used": 52.0,
+          "status": "MATCH",
+          "delta_cm": 2.0,
+          "pct": 3.8
+        },
+        "comprimento": {
+          "fwd_vigas_json": 457.0,
+          "p4_sum_panels": 457.0,
+          "rev": 457.0,
+          "status": "MATCH",
+          "delta_cm": 0.0,
+          "pct": 0.0
+        },
+        "n_paineis_A": {
+          "p4": 4,
+          "rev_raw": 11,
+          "rev_filtered_gt30": 11,
+          "status": "REV_ONLY",
+          "delta_cm": null,
+          "pct": null
+        },
+        "pillar_left": {
+          "rev": "P320",
+          "status": "REV_ONLY"
+        },
+        "pillar_right": {
+          "rev": "P321",
+          "status": "REV_ONLY"
+        }
+      }
+    },
+    "V3097": {
+      "id": "V3097",
+      "tipo": "VIG",
+      "campos": {
+        "b": {
+          "fwd": 60.0,
+          "p4": 60.0,
+          "rev": 25.0,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null,
+          "pct": null
+        },
+        "h": {
+          "fwd": 50.0,
+          "p4": 50.0,
+          "rev": 56.0,
+          "rev_secao": 52.0,
+          "rev_used": 52.0,
+          "status": "MATCH",
+          "delta_cm": 2.0,
+          "pct": 3.8
+        },
+        "comprimento": {
+          "fwd_vigas_json": 468.0,
+          "p4_sum_panels": 468.0,
+          "rev": 468.0,
+          "status": "MATCH",
+          "delta_cm": 0.0,
+          "pct": 0.0
+        },
+        "n_paineis_A": {
+          "p4": 4,
+          "rev_raw": 21,
+          "rev_filtered_gt30": 21,
+          "status": "REV_ONLY",
+          "delta_cm": null,
+          "pct": null
+        },
+        "pillar_left": {
+          "rev": "P223",
+          "status": "REV_ONLY"
+        },
+        "pillar_right": {
+          "rev": "P287",
+          "status": "REV_ONLY"
+        }
+      }
+    },
+    "V3098": {
+      "id": "V3098",
+      "tipo": "VIG",
+      "campos": {
+        "b": {
+          "fwd": 75.0,
+          "p4": 75.0,
+          "rev": 25.0,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null,
+          "pct": null
+        },
+        "h": {
+          "fwd": 50.0,
+          "p4": 50.0,
+          "rev": 56.0,
+          "rev_secao": 52.0,
+          "rev_used": 52.0,
+          "status": "MATCH",
+          "delta_cm": 2.0,
+          "pct": 3.8
+        },
+        "comprimento": {
+          "fwd_vigas_json": 468.0,
+          "p4_sum_panels": 468.0,
+          "rev": 457.0,
+          "status": "DELTA_SMALL",
+          "delta_cm": 11.0,
+          "pct": 2.4
+        },
+        "n_paineis_A": {
+          "p4": 4,
+          "rev_raw": 9,
+          "rev_filtered_gt30": 9,
+          "status": "REV_ONLY",
+          "delta_cm": null,
+          "pct": null
+        },
+        "pillar_left": {
+          "rev": "P321",
+          "status": "REV_ONLY"
+        },
+        "pillar_right": {
+          "rev": "P224",
+          "status": "REV_ONLY"
+        }
+      }
+    },
+    "V3099": {
+      "id": "V3099",
+      "tipo": "VIG",
+      "campos": {
+        "b": {
+          "fwd": 60.0,
+          "p4": 60.0,
+          "rev": 25.0,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null,
+          "pct": null
+        },
+        "h": {
+          "fwd": 50.0,
+          "p4": 50.0,
+          "rev": 56.0,
+          "rev_secao": 52.0,
+          "rev_used": 52.0,
+          "status": "MATCH",
+          "delta_cm": 2.0,
+          "pct": 3.8
+        },
+        "comprimento": {
+          "fwd_vigas_json": 468.0,
+          "p4_sum_panels": 468.0,
+          "rev": 468.0,
+          "status": "MATCH",
+          "delta_cm": 0.0,
+          "pct": 0.0
+        },
+        "n_paineis_A": {
+          "p4": 4,
+          "rev_raw": 19,
+          "rev_filtered_gt30": 19,
+          "status": "REV_ONLY",
+          "delta_cm": null,
+          "pct": null
+        },
+        "pillar_left": {
+          "rev": "P224",
+          "status": "REV_ONLY"
+        },
+        "pillar_right": {
+          "rev": "P288",
+          "status": "REV_ONLY"
+        }
+      }
+    },
+    "V3100": {
+      "id": "V3100",
+      "tipo": "VIG",
+      "campos": {
+        "b": {
+          "fwd": 60.0,
+          "p4": 60.0,
+          "rev": 25.0,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null,
+          "pct": null
+        },
+        "h": {
+          "fwd": 50.0,
+          "p4": 50.0,
+          "rev": 56.0,
+          "rev_secao": 52.0,
+          "rev_used": 52.0,
+          "status": "MATCH",
+          "delta_cm": 2.0,
+          "pct": 3.8
+        },
+        "comprimento": {
+          "fwd_vigas_json": 457.0,
+          "p4_sum_panels": 457.0,
+          "rev": 468.0,
+          "status": "DELTA_SMALL",
+          "delta_cm": 11.0,
+          "pct": 2.4
+        },
+        "n_paineis_A": {
+          "p4": 4,
+          "rev_raw": 10,
+          "rev_filtered_gt30": 10,
+          "status": "REV_ONLY",
+          "delta_cm": null,
+          "pct": null
+        },
+        "pillar_left": {
+          "rev": "P322",
+          "status": "REV_ONLY"
+        },
+        "pillar_right": {
+          "rev": "P289",
+          "status": "REV_ONLY"
+        }
+      }
+    },
+    "V3104": {
+      "id": "V3104",
+      "tipo": "VIG",
+      "campos": {
+        "b": {
+          "fwd": 25.0,
+          "p4": 25.0,
+          "rev": 25.0,
+          "status": "MATCH",
+          "delta_cm": 0.0,
+          "pct": 0.0
+        },
+        "h": {
+          "fwd": 50.0,
+          "p4": 50.0,
+          "rev": 56.0,
+          "rev_secao": 52.0,
+          "rev_used": 52.0,
+          "status": "MATCH",
+          "delta_cm": 2.0,
+          "pct": 3.8
+        },
+        "comprimento": {
+          "fwd_vigas_json": 468.0,
+          "p4_sum_panels": 468.0,
+          "rev": 468.0,
+          "status": "MATCH",
+          "delta_cm": 0.0,
+          "pct": 0.0
+        },
+        "n_paineis_A": {
+          "p4": 4,
+          "rev_raw": 19,
+          "rev_filtered_gt30": 19,
+          "status": "REV_ONLY",
+          "delta_cm": null,
+          "pct": null
+        },
+        "pillar_left": {
+          "rev": "P225",
+          "status": "REV_ONLY"
+        },
+        "pillar_right": {
+          "rev": "P289",
+          "status": "REV_ONLY"
+        }
+      }
+    },
+    "V3105": {
+      "id": "V3105",
+      "tipo": "VIG",
+      "campos": {
+        "b": {
+          "fwd": 25.0,
+          "p4": 25.0,
+          "rev": 25.0,
+          "status": "MATCH",
+          "delta_cm": 0.0,
+          "pct": 0.0
+        },
+        "h": {
+          "fwd": 50.0,
+          "p4": 50.0,
+          "rev": 56.0,
+          "rev_secao": 52.0,
+          "rev_used": 52.0,
+          "status": "MATCH",
+          "delta_cm": 2.0,
+          "pct": 3.8
+        },
+        "comprimento": {
+          "fwd_vigas_json": 468.0,
+          "p4_sum_panels": 468.0,
+          "rev": 384.0,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null,
+          "pct": null
+        },
+        "n_paineis_A": {
+          "p4": 4,
+          "rev_raw": 3,
+          "rev_filtered_gt30": 3,
+          "status": "MATCH",
+          "delta_cm": 1.0,
+          "pct": 25.0
+        },
+        "pillar_left": {
+          "rev": "P259",
+          "status": "REV_ONLY"
+        },
+        "pillar_right": {
+          "rev": "P226",
+          "status": "REV_ONLY"
+        }
+      }
+    },
+    "V3108": {
+      "id": "V3108",
+      "tipo": "VIG",
+      "campos": {
+        "b": {
+          "fwd": 25.0,
+          "p4": 25.0,
+          "rev": 25.0,
+          "status": "MATCH",
+          "delta_cm": 0.0,
+          "pct": 0.0
+        },
+        "h": {
+          "fwd": 50.0,
+          "p4": 50.0,
+          "rev": 56.0,
+          "rev_secao": 52.0,
+          "rev_used": 52.0,
+          "status": "MATCH",
+          "delta_cm": 2.0,
+          "pct": 3.8
+        },
+        "comprimento": {
+          "fwd_vigas_json": 468.0,
+          "p4_sum_panels": 468.0,
+          "rev": 468.0,
+          "status": "MATCH",
+          "delta_cm": 0.0,
+          "pct": 0.0
+        },
+        "n_paineis_A": {
+          "p4": 4,
+          "rev_raw": 12,
+          "rev_filtered_gt30": 12,
+          "status": "REV_ONLY",
+          "delta_cm": null,
+          "pct": null
+        },
+        "pillar_left": {
+          "rev": "P259",
+          "status": "REV_ONLY"
+        },
+        "pillar_right": {
+          "rev": "P290",
+          "status": "REV_ONLY"
+        }
+      }
+    },
+    "V3109": {
+      "id": "V3109",
+      "tipo": "VIG",
+      "campos": {
+        "b": {
+          "fwd": 25.0,
+          "p4": 25.0,
+          "rev": 25.0,
+          "status": "MATCH",
+          "delta_cm": 0.0,
+          "pct": 0.0
+        },
+        "h": {
+          "fwd": 50.0,
+          "p4": 50.0,
+          "rev": 56.0,
+          "rev_secao": 52.0,
+          "rev_used": 52.0,
+          "status": "MATCH",
+          "delta_cm": 2.0,
+          "pct": 3.8
+        },
+        "comprimento": {
+          "fwd_vigas_json": 468.0,
+          "p4_sum_panels": 468.0,
+          "rev": 457.0,
+          "status": "DELTA_SMALL",
+          "delta_cm": 11.0,
+          "pct": 2.4
+        },
+        "n_paineis_A": {
+          "p4": 4,
+          "rev_raw": 9,
+          "rev_filtered_gt30": 9,
+          "status": "REV_ONLY",
+          "delta_cm": null,
+          "pct": null
+        },
+        "pillar_left": {
+          "rev": "P324",
+          "status": "REV_ONLY"
+        },
+        "pillar_right": {
+          "rev": "P227",
+          "status": "REV_ONLY"
+        }
+      }
+    },
+    "V3113": {
+      "id": "V3113",
+      "tipo": "VIG",
+      "campos": {
+        "b": {
+          "fwd": 25.0,
+          "p4": 25.0,
+          "rev": 25.0,
+          "status": "MATCH",
+          "delta_cm": 0.0,
+          "pct": 0.0
+        },
+        "h": {
+          "fwd": 50.0,
+          "p4": 50.0,
+          "rev": 56.0,
+          "rev_secao": 52.0,
+          "rev_used": 52.0,
+          "status": "MATCH",
+          "delta_cm": 2.0,
+          "pct": 3.8
+        },
+        "comprimento": {
+          "fwd_vigas_json": 468.0,
+          "p4_sum_panels": 468.0,
+          "rev": 468.0,
+          "status": "MATCH",
+          "delta_cm": 0.0,
+          "pct": 0.0
+        },
+        "n_paineis_A": {
+          "p4": 4,
+          "rev_raw": 16,
+          "rev_filtered_gt30": 16,
+          "status": "REV_ONLY",
+          "delta_cm": null,
+          "pct": null
+        },
+        "pillar_left": {
+          "rev": "P227",
+          "status": "REV_ONLY"
+        },
+        "pillar_right": {
+          "rev": "P291",
+          "status": "REV_ONLY"
+        }
+      }
+    },
+    "V3114": {
+      "id": "V3114",
+      "tipo": "VIG",
+      "campos": {
+        "b": {
+          "fwd": 25.0,
+          "p4": 25.0,
+          "rev": 25.0,
+          "status": "MATCH",
+          "delta_cm": 0.0,
+          "pct": 0.0
+        },
+        "h": {
+          "fwd": 50.0,
+          "p4": 50.0,
+          "rev": 56.0,
+          "rev_secao": 52.0,
+          "rev_used": 52.0,
+          "status": "MATCH",
+          "delta_cm": 2.0,
+          "pct": 3.8
+        },
+        "comprimento": {
+          "fwd_vigas_json": 468.0,
+          "p4_sum_panels": 468.0,
+          "rev": 457.0,
+          "status": "DELTA_SMALL",
+          "delta_cm": 11.0,
+          "pct": 2.4
+        },
+        "n_paineis_A": {
+          "p4": 4,
+          "rev_raw": 9,
+          "rev_filtered_gt30": 9,
+          "status": "REV_ONLY",
+          "delta_cm": null,
+          "pct": null
+        },
+        "pillar_left": {
+          "rev": "P325",
+          "status": "REV_ONLY"
+        },
+        "pillar_right": {
+          "rev": "P228",
+          "status": "REV_ONLY"
+        }
+      }
+    },
+    "V3118": {
+      "id": "V3118",
+      "tipo": "VIG",
+      "campos": {
+        "b": {
+          "fwd": 25.0,
+          "p4": 25.0,
+          "rev": 25.0,
+          "status": "MATCH",
+          "delta_cm": 0.0,
+          "pct": 0.0
+        },
+        "h": {
+          "fwd": 50.0,
+          "p4": 50.0,
+          "rev": 56.0,
+          "rev_secao": 52.0,
+          "rev_used": 52.0,
+          "status": "MATCH",
+          "delta_cm": 2.0,
+          "pct": 3.8
+        },
+        "comprimento": {
+          "fwd_vigas_json": 468.0,
+          "p4_sum_panels": 468.0,
+          "rev": 468.0,
+          "status": "MATCH",
+          "delta_cm": 0.0,
+          "pct": 0.0
+        },
+        "n_paineis_A": {
+          "p4": 4,
+          "rev_raw": 16,
+          "rev_filtered_gt30": 16,
+          "status": "REV_ONLY",
+          "delta_cm": null,
+          "pct": null
+        },
+        "pillar_left": {
+          "rev": "P228",
+          "status": "REV_ONLY"
+        },
+        "pillar_right": {
+          "rev": "P292",
+          "status": "REV_ONLY"
+        }
+      }
+    },
+    "V3119": {
+      "id": "V3119",
+      "tipo": "VIG",
+      "campos": {
+        "b": {
+          "fwd": 25.0,
+          "p4": 25.0,
+          "rev": 25.0,
+          "status": "MATCH",
+          "delta_cm": 0.0,
+          "pct": 0.0
+        },
+        "h": {
+          "fwd": 50.0,
+          "p4": 50.0,
+          "rev": 56.0,
+          "rev_secao": 52.0,
+          "rev_used": 52.0,
+          "status": "MATCH",
+          "delta_cm": 2.0,
+          "pct": 3.8
+        },
+        "comprimento": {
+          "fwd_vigas_json": 468.0,
+          "p4_sum_panels": 468.0,
+          "rev": 457.0,
+          "status": "DELTA_SMALL",
+          "delta_cm": 11.0,
+          "pct": 2.4
+        },
+        "n_paineis_A": {
+          "p4": 4,
+          "rev_raw": 9,
+          "rev_filtered_gt30": 9,
+          "status": "REV_ONLY",
+          "delta_cm": null,
+          "pct": null
+        },
+        "pillar_left": {
+          "rev": "P326",
+          "status": "REV_ONLY"
+        },
+        "pillar_right": {
+          "rev": "P229",
+          "status": "REV_ONLY"
+        }
+      }
+    },
+    "V3123": {
+      "id": "V3123",
+      "tipo": "VIG",
+      "campos": {
+        "b": {
+          "fwd": 25.0,
+          "p4": 25.0,
+          "rev": 25.0,
+          "status": "MATCH",
+          "delta_cm": 0.0,
+          "pct": 0.0
+        },
+        "h": {
+          "fwd": 50.0,
+          "p4": 50.0,
+          "rev": 56.0,
+          "rev_secao": 52.0,
+          "rev_used": 52.0,
+          "status": "MATCH",
+          "delta_cm": 2.0,
+          "pct": 3.8
+        },
+        "comprimento": {
+          "fwd_vigas_json": 468.0,
+          "p4_sum_panels": 468.0,
+          "rev": 468.0,
+          "status": "MATCH",
+          "delta_cm": 0.0,
+          "pct": 0.0
+        },
+        "n_paineis_A": {
+          "p4": 4,
+          "rev_raw": 20,
+          "rev_filtered_gt30": 20,
+          "status": "REV_ONLY",
+          "delta_cm": null,
+          "pct": null
+        },
+        "pillar_left": {
+          "rev": "P229",
+          "status": "REV_ONLY"
+        },
+        "pillar_right": {
+          "rev": "P293",
+          "status": "REV_ONLY"
+        }
+      }
+    },
+    "V3124": {
+      "id": "V3124",
+      "tipo": "VIG",
+      "campos": {
+        "b": {
+          "fwd": 25.0,
+          "p4": 25.0,
+          "rev": 25.0,
+          "status": "MATCH",
+          "delta_cm": 0.0,
+          "pct": 0.0
+        },
+        "h": {
+          "fwd": 50.0,
+          "p4": 50.0,
+          "rev": 56.0,
+          "rev_secao": 52.0,
+          "rev_used": 52.0,
+          "status": "MATCH",
+          "delta_cm": 2.0,
+          "pct": 3.8
+        },
+        "comprimento": {
+          "fwd_vigas_json": 457.0,
+          "p4_sum_panels": 457.0,
+          "rev": 457.0,
+          "status": "MATCH",
+          "delta_cm": 0.0,
+          "pct": 0.0
+        },
+        "n_paineis_A": {
+          "p4": 4,
+          "rev_raw": 9,
+          "rev_filtered_gt30": 9,
+          "status": "REV_ONLY",
+          "delta_cm": null,
+          "pct": null
+        },
+        "pillar_left": {
+          "rev": "P230",
+          "status": "REV_ONLY"
+        },
+        "pillar_right": {
+          "rev": "P328",
+          "status": "REV_ONLY"
+        }
+      }
+    },
+    "V3125": {
+      "id": "V3125",
+      "tipo": "VIG",
+      "campos": {
+        "b": {
+          "fwd": 25.0,
+          "p4": 25.0,
+          "rev": 25.0,
+          "status": "MATCH",
+          "delta_cm": 0.0,
+          "pct": 0.0
+        },
+        "h": {
+          "fwd": 50.0,
+          "p4": 50.0,
+          "rev": 56.0,
+          "rev_secao": 52.0,
+          "rev_used": 52.0,
+          "status": "MATCH",
+          "delta_cm": 2.0,
+          "pct": 3.8
+        },
+        "comprimento": {
+          "fwd_vigas_json": 468.0,
+          "p4_sum_panels": 468.0,
+          "rev": 468.0,
+          "status": "MATCH",
+          "delta_cm": 0.0,
+          "pct": 0.0
+        },
+        "n_paineis_A": {
+          "p4": 4,
+          "rev_raw": 20,
+          "rev_filtered_gt30": 20,
+          "status": "REV_ONLY",
+          "delta_cm": null,
+          "pct": null
+        },
+        "pillar_left": {
+          "rev": "P230",
+          "status": "REV_ONLY"
+        },
+        "pillar_right": {
+          "rev": "P294",
+          "status": "REV_ONLY"
+        }
+      }
+    },
+    "V3126": {
+      "id": "V3126",
+      "tipo": "VIG",
+      "campos": {
+        "b": {
+          "fwd": 75.0,
+          "p4": 75.0,
+          "rev": 25.0,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null,
+          "pct": null
+        },
+        "h": {
+          "fwd": 50.0,
+          "p4": 50.0,
+          "rev": 62.0,
+          "rev_secao": 52.0,
+          "rev_used": 52.0,
+          "status": "MATCH",
+          "delta_cm": 2.0,
+          "pct": 3.8
+        },
+        "comprimento": {
+          "fwd_vigas_json": 468.0,
+          "p4_sum_panels": 468.0,
+          "rev": 468.0,
+          "status": "MATCH",
+          "delta_cm": 0.0,
+          "pct": 0.0
+        },
+        "n_paineis_A": {
+          "p4": 4,
+          "rev_raw": 41,
+          "rev_filtered_gt30": 41,
+          "status": "REV_ONLY",
+          "delta_cm": null,
+          "pct": null
+        },
+        "pillar_left": {
+          "rev": "P328",
+          "status": "REV_ONLY"
+        },
+        "pillar_right": {
+          "rev": "P329",
+          "status": "REV_ONLY"
+        }
+      }
+    },
+    "V3130": {
+      "id": "V3130",
+      "tipo": "VIG",
+      "campos": {
+        "b": {
+          "fwd": 25.0,
+          "p4": 25.0,
+          "rev": 25.0,
+          "status": "MATCH",
+          "delta_cm": 0.0,
+          "pct": 0.0
+        },
+        "h": {
+          "fwd": 38.0,
+          "p4": 38.0,
+          "rev": 68.0,
+          "rev_secao": 52.0,
+          "rev_used": 52.0,
+          "status": "MATCH",
+          "delta_cm": 14.0,
+          "pct": 26.9
+        },
+        "comprimento": {
+          "fwd_vigas_json": 457.0,
+          "p4_sum_panels": 457.0,
+          "rev": 457.0,
+          "status": "MATCH",
+          "delta_cm": 0.0,
+          "pct": 0.0
+        },
+        "n_paineis_A": {
+          "p4": 4,
+          "rev_raw": 15,
+          "rev_filtered_gt30": 15,
+          "status": "REV_ONLY",
+          "delta_cm": null,
+          "pct": null
+        },
+        "pillar_left": {
+          "rev": "P231",
+          "status": "REV_ONLY"
+        },
+        "pillar_right": {
+          "rev": "P264",
+          "status": "REV_ONLY"
+        }
+      }
+    },
+    "V3134": {
+      "id": "V3134",
+      "tipo": "VIG",
+      "campos": {
+        "b": {
+          "fwd": 19.0,
+          "p4": 19.0,
+          "rev": null,
+          "status": "AUSENTE_REV",
+          "delta_cm": null,
+          "pct": null
+        },
+        "h": {
+          "fwd": 38.0,
+          "p4": 38.0,
+          "rev": null,
+          "rev_secao": null,
+          "rev_used": null,
+          "status": "AUSENTE_REV",
+          "delta_cm": null,
+          "pct": null
+        },
+        "comprimento": {
+          "fwd_vigas_json": 468.0,
+          "p4_sum_panels": 468.0,
+          "rev": null,
+          "status": "AUSENTE_REV",
+          "delta_cm": null,
+          "pct": null
+        },
+        "n_paineis_A": {
+          "p4": 4,
+          "rev_raw": null,
+          "rev_filtered_gt30": null,
+          "status": "AUSENTE_REV",
+          "delta_cm": null,
+          "pct": null
+        },
+        "pillar_left": {
+          "rev": null,
+          "status": "AUSENTE"
+        },
+        "pillar_right": {
+          "rev": null,
+          "status": "AUSENTE"
+        }
+      }
+    },
+    "V3137": {
+      "id": "V3137",
+      "tipo": "VIG",
+      "campos": {
+        "b": {
+          "fwd": 16.0,
+          "p4": 16.0,
+          "rev": null,
+          "status": "AUSENTE_REV",
+          "delta_cm": null,
+          "pct": null
+        },
+        "h": {
+          "fwd": 128.0,
+          "p4": 128.0,
+          "rev": null,
+          "rev_secao": null,
+          "rev_used": null,
+          "status": "AUSENTE_REV",
+          "delta_cm": null,
+          "pct": null
+        },
+        "comprimento": {
+          "fwd_vigas_json": 504.0,
+          "p4_sum_panels": 504.0,
+          "rev": null,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null,
+          "pct": null
+        },
+        "n_paineis_A": {
+          "p4": 5,
+          "rev_raw": null,
+          "rev_filtered_gt30": null,
+          "status": "AUSENTE_REV",
+          "delta_cm": null,
+          "pct": null
+        },
+        "pillar_left": {
+          "rev": null,
+          "status": "AUSENTE"
+        },
+        "pillar_right": {
+          "rev": null,
+          "status": "AUSENTE"
+        }
+      }
+    },
+    "V3138": {
+      "id": "V3138",
+      "tipo": "VIG",
+      "campos": {
+        "b": {
+          "fwd": 16.0,
+          "p4": 16.0,
+          "rev": null,
+          "status": "AUSENTE_REV",
+          "delta_cm": null,
+          "pct": null
+        },
+        "h": {
+          "fwd": 128.0,
+          "p4": 128.0,
+          "rev": null,
+          "rev_secao": null,
+          "rev_used": null,
+          "status": "AUSENTE_REV",
+          "delta_cm": null,
+          "pct": null
+        },
+        "comprimento": {
+          "fwd_vigas_json": 504.0,
+          "p4_sum_panels": 504.0,
+          "rev": null,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null,
+          "pct": null
+        },
+        "n_paineis_A": {
+          "p4": 5,
+          "rev_raw": null,
+          "rev_filtered_gt30": null,
+          "status": "AUSENTE_REV",
+          "delta_cm": null,
+          "pct": null
+        },
+        "pillar_left": {
+          "rev": null,
+          "status": "AUSENTE"
+        },
+        "pillar_right": {
+          "rev": null,
+          "status": "AUSENTE"
+        }
+      }
+    },
+    "V3140": {
+      "id": "V3140",
+      "tipo": "VIG",
+      "campos": {
+        "b": {
+          "fwd": 16.0,
+          "p4": 16.0,
+          "rev": 14.0,
+          "status": "MATCH",
+          "delta_cm": 2.0,
+          "pct": 12.5
+        },
+        "h": {
+          "fwd": 28.0,
+          "p4": 28.0,
+          "rev": 68.0,
+          "rev_secao": 64.0,
+          "rev_used": 64.0,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null,
+          "pct": null
+        },
+        "comprimento": {
+          "fwd_vigas_json": 457.0,
+          "p4_sum_panels": 457.0,
+          "rev": 468.0,
+          "status": "DELTA_SMALL",
+          "delta_cm": 11.0,
+          "pct": 2.4
+        },
+        "n_paineis_A": {
+          "p4": 4,
+          "rev_raw": 17,
+          "rev_filtered_gt30": 17,
+          "status": "REV_ONLY",
+          "delta_cm": null,
+          "pct": null
+        },
+        "pillar_left": {
+          "rev": "P295",
+          "status": "REV_ONLY"
+        },
+        "pillar_right": {
+          "rev": "P275",
+          "status": "REV_ONLY"
+        }
+      }
+    },
+    "V3143": {
+      "id": "V3143",
+      "tipo": "VIG",
+      "campos": {
+        "b": {
+          "fwd": 14.0,
+          "p4": 14.0,
+          "rev": 14.0,
+          "status": "MATCH",
+          "delta_cm": 0.0,
+          "pct": 0.0
+        },
+        "h": {
+          "fwd": 28.0,
+          "p4": 28.0,
+          "rev": 68.0,
+          "rev_secao": 64.0,
+          "rev_used": 64.0,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null,
+          "pct": null
+        },
+        "comprimento": {
+          "fwd_vigas_json": 468.0,
+          "p4_sum_panels": 468.0,
+          "rev": 403.0,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null,
+          "pct": null
+        },
+        "n_paineis_A": {
+          "p4": 4,
+          "rev_raw": 16,
+          "rev_filtered_gt30": 16,
+          "status": "REV_ONLY",
+          "delta_cm": null,
+          "pct": null
+        },
+        "pillar_left": {
+          "rev": "P244",
+          "status": "REV_ONLY"
+        },
+        "pillar_right": {
+          "rev": "P245",
+          "status": "REV_ONLY"
+        }
+      }
+    },
+    "V3147": {
+      "id": "V3147",
+      "tipo": "VIG",
+      "campos": {
+        "b": {
+          "fwd": 16.0,
+          "p4": 16.0,
+          "rev": 14.0,
+          "status": "MATCH",
+          "delta_cm": 2.0,
+          "pct": 12.5
+        },
+        "h": {
+          "fwd": 28.0,
+          "p4": 28.0,
+          "rev": 80.0,
+          "rev_secao": 56.0,
+          "rev_used": 56.0,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null,
+          "pct": null
+        },
+        "comprimento": {
+          "fwd_vigas_json": 463.0,
+          "p4_sum_panels": 463.0,
+          "rev": 468.0,
+          "status": "MATCH",
+          "delta_cm": 5.0,
+          "pct": 1.1
+        },
+        "n_paineis_A": {
+          "p4": 4,
+          "rev_raw": 20,
+          "rev_filtered_gt30": 20,
+          "status": "REV_ONLY",
+          "delta_cm": null,
+          "pct": null
+        },
+        "pillar_left": {
+          "rev": "P331",
+          "status": "REV_ONLY"
+        },
+        "pillar_right": {
+          "rev": "P331",
+          "status": "REV_ONLY"
+        }
+      }
+    },
+    "V3151": {
+      "id": "V3151",
+      "tipo": "VIG",
+      "campos": {
+        "b": {
+          "fwd": 25.0,
+          "p4": 25.0,
+          "rev": 25.0,
+          "status": "MATCH",
+          "delta_cm": 0.0,
+          "pct": 0.0
+        },
+        "h": {
+          "fwd": 50.0,
+          "p4": 50.0,
+          "rev": 61.0,
+          "rev_secao": 52.0,
+          "rev_used": 52.0,
+          "status": "MATCH",
+          "delta_cm": 2.0,
+          "pct": 3.8
+        },
+        "comprimento": {
+          "fwd_vigas_json": 468.0,
+          "p4_sum_panels": 468.0,
+          "rev": 463.0,
+          "status": "MATCH",
+          "delta_cm": 5.0,
+          "pct": 1.1
+        },
+        "n_paineis_A": {
+          "p4": 4,
+          "rev_raw": 11,
+          "rev_filtered_gt30": 11,
+          "status": "REV_ONLY",
+          "delta_cm": null,
+          "pct": null
+        },
+        "pillar_left": {
+          "rev": "P313",
+          "status": "REV_ONLY"
+        },
+        "pillar_right": {
+          "rev": "P299",
+          "status": "REV_ONLY"
+        }
+      }
+    },
+    "V3152": {
+      "id": "V3152",
+      "tipo": "VIG",
+      "campos": {
+        "b": {
+          "fwd": 25.0,
+          "p4": 25.0,
+          "rev": 25.0,
+          "status": "MATCH",
+          "delta_cm": 0.0,
+          "pct": 0.0
+        },
+        "h": {
+          "fwd": 50.0,
+          "p4": 50.0,
+          "rev": 56.0,
+          "rev_secao": 52.0,
+          "rev_used": 52.0,
+          "status": "MATCH",
+          "delta_cm": 2.0,
+          "pct": 3.8
+        },
+        "comprimento": {
+          "fwd_vigas_json": 468.0,
+          "p4_sum_panels": 468.0,
+          "rev": 468.0,
+          "status": "MATCH",
+          "delta_cm": 0.0,
+          "pct": 0.0
+        },
+        "n_paineis_A": {
+          "p4": 4,
+          "rev_raw": 15,
+          "rev_filtered_gt30": 15,
+          "status": "REV_ONLY",
+          "delta_cm": null,
+          "pct": null
+        },
+        "pillar_left": {
+          "rev": "P299",
+          "status": "REV_ONLY"
+        },
+        "pillar_right": {
+          "rev": "P233",
+          "status": "REV_ONLY"
+        }
+      }
+    },
+    "V3156": {
+      "id": "V3156",
+      "tipo": "VIG",
+      "campos": {
+        "b": {
+          "fwd": 25.0,
+          "p4": 25.0,
+          "rev": 25.0,
+          "status": "MATCH",
+          "delta_cm": 0.0,
+          "pct": 0.0
+        },
+        "h": {
+          "fwd": 50.0,
+          "p4": 50.0,
+          "rev": 56.0,
+          "rev_secao": 52.0,
+          "rev_used": 52.0,
+          "status": "MATCH",
+          "delta_cm": 2.0,
+          "pct": 3.8
+        },
+        "comprimento": {
+          "fwd_vigas_json": 468.0,
+          "p4_sum_panels": 468.0,
+          "rev": 468.0,
+          "status": "MATCH",
+          "delta_cm": 0.0,
+          "pct": 0.0
+        },
+        "n_paineis_A": {
+          "p4": 4,
+          "rev_raw": 14,
+          "rev_filtered_gt30": 14,
+          "status": "REV_ONLY",
+          "delta_cm": null,
+          "pct": null
+        },
+        "pillar_left": {
+          "rev": "P233",
+          "status": "REV_ONLY"
+        },
+        "pillar_right": {
+          "rev": "P234",
+          "status": "REV_ONLY"
+        }
+      }
+    },
+    "V3157": {
+      "id": "V3157",
+      "tipo": "VIG",
+      "campos": {
+        "b": {
+          "fwd": 25.0,
+          "p4": 25.0,
+          "rev": 25.0,
+          "status": "MATCH",
+          "delta_cm": 0.0,
+          "pct": 0.0
+        },
+        "h": {
+          "fwd": 50.0,
+          "p4": 50.0,
+          "rev": 56.0,
+          "rev_secao": 52.0,
+          "rev_used": 52.0,
+          "status": "MATCH",
+          "delta_cm": 2.0,
+          "pct": 3.8
+        },
+        "comprimento": {
+          "fwd_vigas_json": 468.0,
+          "p4_sum_panels": 468.0,
+          "rev": 468.0,
+          "status": "MATCH",
+          "delta_cm": 0.0,
+          "pct": 0.0
+        },
+        "n_paineis_A": {
+          "p4": 4,
+          "rev_raw": 14,
+          "rev_filtered_gt30": 14,
+          "status": "REV_ONLY",
+          "delta_cm": null,
+          "pct": null
+        },
+        "pillar_left": {
+          "rev": "P300",
+          "status": "REV_ONLY"
+        },
+        "pillar_right": {
+          "rev": "P267",
+          "status": "REV_ONLY"
+        }
+      }
+    },
+    "V3160": {
+      "id": "V3160",
+      "tipo": "VIG",
+      "campos": {
+        "b": {
+          "fwd": 41.0,
+          "p4": 41.0,
+          "rev": 25.0,
+          "status": "MATCH",
+          "delta_cm": 5.0,
+          "pct": 16.7
+        },
+        "h": {
+          "fwd": 50.0,
+          "p4": 50.0,
+          "rev": 56.0,
+          "rev_secao": 52.0,
+          "rev_used": 52.0,
+          "status": "MATCH",
+          "delta_cm": 2.0,
+          "pct": 3.8
+        },
+        "comprimento": {
+          "fwd_vigas_json": 468.0,
+          "p4_sum_panels": 468.0,
+          "rev": 463.0,
+          "status": "MATCH",
+          "delta_cm": 5.0,
+          "pct": 1.1
+        },
+        "n_paineis_A": {
+          "p4": 4,
+          "rev_raw": 10,
+          "rev_filtered_gt30": 10,
+          "status": "REV_ONLY",
+          "delta_cm": null,
+          "pct": null
+        },
+        "pillar_left": {
+          "rev": "P234",
+          "status": "REV_ONLY"
+        },
+        "pillar_right": {
+          "rev": "P268",
+          "status": "REV_ONLY"
+        }
+      }
+    },
+    "V3161": {
+      "id": "V3161",
+      "tipo": "VIG",
+      "campos": {
+        "b": {
+          "fwd": 8.0,
+          "p4": 8.0,
+          "rev": 25.0,
+          "status": "DELTA_MED",
+          "delta_cm": 17.0,
+          "pct": 68.0
+        },
+        "h": {
+          "fwd": 50.0,
+          "p4": 50.0,
+          "rev": 56.0,
+          "rev_secao": 52.0,
+          "rev_used": 52.0,
+          "status": "MATCH",
+          "delta_cm": 2.0,
+          "pct": 3.8
+        },
+        "comprimento": {
+          "fwd_vigas_json": 468.0,
+          "p4_sum_panels": 468.0,
+          "rev": 468.0,
+          "status": "MATCH",
+          "delta_cm": 0.0,
+          "pct": 0.0
+        },
+        "n_paineis_A": {
+          "p4": 4,
+          "rev_raw": 16,
+          "rev_filtered_gt30": 16,
+          "status": "REV_ONLY",
+          "delta_cm": null,
+          "pct": null
+        },
+        "pillar_left": {
+          "rev": "P334",
+          "status": "REV_ONLY"
+        },
+        "pillar_right": {
+          "rev": "P268",
+          "status": "REV_ONLY"
+        }
+      }
+    },
+    "V3172": {
+      "id": "V3172",
+      "tipo": "VIG",
+      "campos": {
+        "b": {
+          "fwd": 28.0,
+          "p4": 28.0,
+          "rev": 25.0,
+          "status": "MATCH",
+          "delta_cm": 3.0,
+          "pct": 10.7
+        },
+        "h": {
+          "fwd": 50.0,
+          "p4": 50.0,
+          "rev": 56.0,
+          "rev_secao": 52.0,
+          "rev_used": 52.0,
+          "status": "MATCH",
+          "delta_cm": 2.0,
+          "pct": 3.8
+        },
+        "comprimento": {
+          "fwd_vigas_json": 463.0,
+          "p4_sum_panels": 463.0,
+          "rev": 463.0,
+          "status": "MATCH",
+          "delta_cm": 0.0,
+          "pct": 0.0
+        },
+        "n_paineis_A": {
+          "p4": 4,
+          "rev_raw": 8,
+          "rev_filtered_gt30": 8,
+          "status": "REV_ONLY",
+          "delta_cm": null,
+          "pct": null
+        },
+        "pillar_left": {
+          "rev": "P335",
+          "status": "REV_ONLY"
+        },
+        "pillar_right": {
+          "rev": "P335",
+          "status": "REV_ONLY"
+        }
+      }
+    },
+    "V3173": {
+      "id": "V3173",
+      "tipo": "VIG",
+      "campos": {
+        "b": {
+          "fwd": 75.0,
+          "p4": 75.0,
+          "rev": 25.0,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null,
+          "pct": null
+        },
+        "h": {
+          "fwd": 50.0,
+          "p4": 50.0,
+          "rev": 56.0,
+          "rev_secao": 52.0,
+          "rev_used": 52.0,
+          "status": "MATCH",
+          "delta_cm": 2.0,
+          "pct": 3.8
+        },
+        "comprimento": {
+          "fwd_vigas_json": 468.0,
+          "p4_sum_panels": 468.0,
+          "rev": 468.0,
+          "status": "MATCH",
+          "delta_cm": 0.0,
+          "pct": 0.0
+        },
+        "n_paineis_A": {
+          "p4": 4,
+          "rev_raw": 16,
+          "rev_filtered_gt30": 16,
+          "status": "REV_ONLY",
+          "delta_cm": null,
+          "pct": null
+        },
+        "pillar_left": {
+          "rev": "P335",
+          "status": "REV_ONLY"
+        },
+        "pillar_right": {
+          "rev": "P269",
+          "status": "REV_ONLY"
+        }
+      }
+    },
+    "V3174": {
+      "id": "V3174",
+      "tipo": "VIG",
+      "campos": {
+        "b": {
+          "fwd": 19.0,
+          "p4": 19.0,
+          "rev": 25.0,
+          "status": "DELTA_SMALL",
+          "delta_cm": 6.0,
+          "pct": 24.0
+        },
+        "h": {
+          "fwd": 50.0,
+          "p4": 50.0,
+          "rev": 66.0,
+          "rev_secao": 52.0,
+          "rev_used": 52.0,
+          "status": "MATCH",
+          "delta_cm": 2.0,
+          "pct": 3.8
+        },
+        "comprimento": {
+          "fwd_vigas_json": 526.0,
+          "p4_sum_panels": 526.0,
+          "rev": 526.0,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null,
+          "pct": null
+        },
+        "n_paineis_A": {
+          "p4": 5,
+          "rev_raw": 10,
+          "rev_filtered_gt30": 10,
+          "status": "REV_ONLY",
+          "delta_cm": null,
+          "pct": null
+        },
+        "pillar_left": {
+          "rev": "P236",
+          "status": "REV_ONLY"
+        },
+        "pillar_right": {
+          "rev": "P277",
+          "status": "REV_ONLY"
+        }
+      }
+    },
+    "V3175": {
+      "id": "V3175",
+      "tipo": "VIG",
+      "campos": {
+        "b": {
+          "fwd": 25.0,
+          "p4": 25.0,
+          "rev": 25.0,
+          "status": "MATCH",
+          "delta_cm": 0.0,
+          "pct": 0.0
+        },
+        "h": {
+          "fwd": 50.0,
+          "p4": 50.0,
+          "rev": 66.0,
+          "rev_secao": 52.0,
+          "rev_used": 52.0,
+          "status": "MATCH",
+          "delta_cm": 2.0,
+          "pct": 3.8
+        },
+        "comprimento": {
+          "fwd_vigas_json": 526.0,
+          "p4_sum_panels": 526.0,
+          "rev": 526.0,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null,
+          "pct": null
+        },
+        "n_paineis_A": {
+          "p4": 5,
+          "rev_raw": 20,
+          "rev_filtered_gt30": 20,
+          "status": "REV_ONLY",
+          "delta_cm": null,
+          "pct": null
+        },
+        "pillar_left": {
+          "rev": "P336",
+          "status": "REV_ONLY"
+        },
+        "pillar_right": {
+          "rev": "P237",
+          "status": "REV_ONLY"
+        }
+      }
+    },
+    "V3181": {
+      "id": "V3181",
+      "tipo": "VIG",
+      "campos": {
+        "b": {
+          "fwd": 25.0,
+          "p4": 25.0,
+          "rev": 25.0,
+          "status": "MATCH",
+          "delta_cm": 0.0,
+          "pct": 0.0
+        },
+        "h": {
+          "fwd": 50.0,
+          "p4": 50.0,
+          "rev": 42.0,
+          "rev_secao": 52.0,
+          "rev_used": 52.0,
+          "status": "MATCH",
+          "delta_cm": 2.0,
+          "pct": 3.8
+        },
+        "comprimento": {
+          "fwd_vigas_json": 468.0,
+          "p4_sum_panels": 468.0,
+          "rev": 463.0,
+          "status": "MATCH",
+          "delta_cm": 5.0,
+          "pct": 1.1
+        },
+        "n_paineis_A": {
+          "p4": 4,
+          "rev_raw": 14,
+          "rev_filtered_gt30": 14,
+          "status": "REV_ONLY",
+          "delta_cm": null,
+          "pct": null
+        },
+        "pillar_left": {
+          "rev": "P277",
+          "status": "REV_ONLY"
+        },
+        "pillar_right": {
+          "rev": "P304",
+          "status": "REV_ONLY"
+        }
+      }
+    },
+    "V3182": {
+      "id": "V3182",
+      "tipo": "VIG",
+      "campos": {
+        "b": {
+          "fwd": 25.0,
+          "p4": 25.0,
+          "rev": 25.0,
+          "status": "MATCH",
+          "delta_cm": 0.0,
+          "pct": 0.0
+        },
+        "h": {
+          "fwd": 50.0,
+          "p4": 50.0,
+          "rev": 42.0,
+          "rev_secao": 52.0,
+          "rev_used": 52.0,
+          "status": "MATCH",
+          "delta_cm": 2.0,
+          "pct": 3.8
+        },
+        "comprimento": {
+          "fwd_vigas_json": 468.0,
+          "p4_sum_panels": 468.0,
+          "rev": 468.0,
+          "status": "MATCH",
+          "delta_cm": 0.0,
+          "pct": 0.0
+        },
+        "n_paineis_A": {
+          "p4": 4,
+          "rev_raw": 20,
+          "rev_filtered_gt30": 20,
+          "status": "REV_ONLY",
+          "delta_cm": null,
+          "pct": null
+        },
+        "pillar_left": {
+          "rev": "P304",
+          "status": "REV_ONLY"
+        },
+        "pillar_right": {
+          "rev": "P238",
+          "status": "REV_ONLY"
+        }
+      }
+    },
+    "V3187": {
+      "id": "V3187",
+      "tipo": "VIG",
+      "campos": {
+        "b": {
+          "fwd": 25.0,
+          "p4": 25.0,
+          "rev": 25.0,
+          "status": "MATCH",
+          "delta_cm": 0.0,
+          "pct": 0.0
+        },
+        "h": {
+          "fwd": 50.0,
+          "p4": 50.0,
+          "rev": 61.0,
+          "rev_secao": 52.0,
+          "rev_used": 52.0,
+          "status": "MATCH",
+          "delta_cm": 2.0,
+          "pct": 3.8
+        },
+        "comprimento": {
+          "fwd_vigas_json": 468.0,
+          "p4_sum_panels": 468.0,
+          "rev": 468.0,
+          "status": "MATCH",
+          "delta_cm": 0.0,
+          "pct": 0.0
+        },
+        "n_paineis_A": {
+          "p4": 4,
+          "rev_raw": 16,
+          "rev_filtered_gt30": 16,
+          "status": "REV_ONLY",
+          "delta_cm": null,
+          "pct": null
+        },
+        "pillar_left": {
+          "rev": "P270",
+          "status": "REV_ONLY"
+        },
+        "pillar_right": {
+          "rev": "P239",
+          "status": "REV_ONLY"
+        }
+      }
+    },
+    "V3188": {
+      "id": "V3188",
+      "tipo": "VIG",
+      "campos": {
+        "b": {
+          "fwd": 20.0,
+          "p4": 20.0,
+          "rev": 25.0,
+          "status": "MATCH",
+          "delta_cm": 5.0,
+          "pct": 20.0
+        },
+        "h": {
+          "fwd": 50.0,
+          "p4": 50.0,
+          "rev": 61.0,
+          "rev_secao": 52.0,
+          "rev_used": 52.0,
+          "status": "MATCH",
+          "delta_cm": 2.0,
+          "pct": 3.8
+        },
+        "comprimento": {
+          "fwd_vigas_json": 468.0,
+          "p4_sum_panels": 468.0,
+          "rev": 468.0,
+          "status": "MATCH",
+          "delta_cm": 0.0,
+          "pct": 0.0
+        },
+        "n_paineis_A": {
+          "p4": 4,
+          "rev_raw": 22,
+          "rev_filtered_gt30": 22,
+          "status": "REV_ONLY",
+          "delta_cm": null,
+          "pct": null
+        },
+        "pillar_left": {
+          "rev": "P305",
+          "status": "REV_ONLY"
+        },
+        "pillar_right": {
+          "rev": "P271",
+          "status": "REV_ONLY"
+        }
+      }
+    },
+    "V3193": {
+      "id": "V3193",
+      "tipo": "VIG",
+      "campos": {
+        "b": {
+          "fwd": 25.0,
+          "p4": 25.0,
+          "rev": 25.0,
+          "status": "MATCH",
+          "delta_cm": 0.0,
+          "pct": 0.0
+        },
+        "h": {
+          "fwd": 50.0,
+          "p4": 50.0,
+          "rev": 42.0,
+          "rev_secao": 52.0,
+          "rev_used": 52.0,
+          "status": "MATCH",
+          "delta_cm": 2.0,
+          "pct": 3.8
+        },
+        "comprimento": {
+          "fwd_vigas_json": 468.0,
+          "p4_sum_panels": 468.0,
+          "rev": 463.0,
+          "status": "MATCH",
+          "delta_cm": 5.0,
+          "pct": 1.1
+        },
+        "n_paineis_A": {
+          "p4": 4,
+          "rev_raw": 10,
+          "rev_filtered_gt30": 10,
+          "status": "REV_ONLY",
+          "delta_cm": null,
+          "pct": null
+        },
+        "pillar_left": {
+          "rev": "P306",
+          "status": "REV_ONLY"
+        },
+        "pillar_right": {
+          "rev": "P272",
+          "status": "REV_ONLY"
+        }
+      }
+    },
+    "V3194": {
+      "id": "V3194",
+      "tipo": "VIG",
+      "campos": {
+        "b": {
+          "fwd": 25.0,
+          "p4": 25.0,
+          "rev": 25.0,
+          "status": "MATCH",
+          "delta_cm": 0.0,
+          "pct": 0.0
+        },
+        "h": {
+          "fwd": 50.0,
+          "p4": 50.0,
+          "rev": 42.0,
+          "rev_secao": 52.0,
+          "rev_used": 52.0,
+          "status": "MATCH",
+          "delta_cm": 2.0,
+          "pct": 3.8
+        },
+        "comprimento": {
+          "fwd_vigas_json": 468.0,
+          "p4_sum_panels": 468.0,
+          "rev": 468.0,
+          "status": "MATCH",
+          "delta_cm": 0.0,
+          "pct": 0.0
+        },
+        "n_paineis_A": {
+          "p4": 4,
+          "rev_raw": 20,
+          "rev_filtered_gt30": 20,
+          "status": "REV_ONLY",
+          "delta_cm": null,
+          "pct": null
+        },
+        "pillar_left": {
+          "rev": "P306",
+          "status": "REV_ONLY"
+        },
+        "pillar_right": {
+          "rev": "P240",
+          "status": "REV_ONLY"
+        }
+      }
+    },
+    "V3195": {
+      "id": "V3195",
+      "tipo": "VIG",
+      "campos": {
+        "b": {
+          "fwd": 14.0,
+          "p4": 14.0,
+          "rev": 25.0,
+          "status": "DELTA_SMALL",
+          "delta_cm": 11.0,
+          "pct": 44.0
+        },
+        "h": {
+          "fwd": 28.0,
+          "p4": 28.0,
+          "rev": 56.0,
+          "rev_secao": 52.0,
+          "rev_used": 52.0,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null,
+          "pct": null
+        },
+        "comprimento": {
+          "fwd_vigas_json": 526.0,
+          "p4_sum_panels": 526.0,
+          "rev": 148.0,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null,
+          "pct": null
+        },
+        "n_paineis_A": {
+          "p4": 5,
+          "rev_raw": 6,
+          "rev_filtered_gt30": 6,
+          "status": "MATCH",
+          "delta_cm": 1.0,
+          "pct": 16.7
+        },
+        "pillar_left": {
+          "rev": "P272",
+          "status": "REV_ONLY"
+        },
+        "pillar_right": {
+          "rev": "P340",
+          "status": "REV_ONLY"
+        }
+      }
+    },
+    "V3198": {
+      "id": "V3198",
+      "tipo": "VIG",
+      "campos": {
+        "b": {
+          "fwd": 14.0,
+          "p4": 14.0,
+          "rev": 25.0,
+          "status": "DELTA_SMALL",
+          "delta_cm": 11.0,
+          "pct": 44.0
+        },
+        "h": {
+          "fwd": 50.0,
+          "p4": 50.0,
+          "rev": 61.0,
+          "rev_secao": 57.0,
+          "rev_used": 57.0,
+          "status": "MATCH",
+          "delta_cm": 7.0,
+          "pct": 12.3
+        },
+        "comprimento": {
+          "fwd_vigas_json": 468.0,
+          "p4_sum_panels": 468.0,
+          "rev": 463.0,
+          "status": "MATCH",
+          "delta_cm": 5.0,
+          "pct": 1.1
+        },
+        "n_paineis_A": {
+          "p4": 4,
+          "rev_raw": 10,
+          "rev_filtered_gt30": 10,
+          "status": "REV_ONLY",
+          "delta_cm": null,
+          "pct": null
+        },
+        "pillar_left": {
+          "rev": "P307",
+          "status": "REV_ONLY"
+        },
+        "pillar_right": {
+          "rev": "P307",
+          "status": "REV_ONLY"
+        }
+      }
+    },
+    "V3199": {
+      "id": "V3199",
+      "tipo": "VIG",
+      "campos": {
+        "b": {
+          "fwd": 25.0,
+          "p4": 25.0,
+          "rev": 25.0,
+          "status": "MATCH",
+          "delta_cm": 0.0,
+          "pct": 0.0
+        },
+        "h": {
+          "fwd": 50.0,
+          "p4": 50.0,
+          "rev": 42.0,
+          "rev_secao": 52.0,
+          "rev_used": 52.0,
+          "status": "MATCH",
+          "delta_cm": 2.0,
+          "pct": 3.8
+        },
+        "comprimento": {
+          "fwd_vigas_json": 468.0,
+          "p4_sum_panels": 468.0,
+          "rev": 468.0,
+          "status": "MATCH",
+          "delta_cm": 0.0,
+          "pct": 0.0
+        },
+        "n_paineis_A": {
+          "p4": 4,
+          "rev_raw": 10,
+          "rev_filtered_gt30": 10,
+          "status": "REV_ONLY",
+          "delta_cm": null,
+          "pct": null
+        },
+        "pillar_left": {
+          "rev": "P241",
+          "status": "REV_ONLY"
+        },
+        "pillar_right": {
+          "rev": "P241",
+          "status": "REV_ONLY"
+        }
+      }
+    },
+    "V3201": {
+      "id": "V3201",
+      "tipo": "VIG",
+      "campos": {
+        "b": {
+          "fwd": 25.0,
+          "p4": 25.0,
+          "rev": null,
+          "status": "AUSENTE_REV",
+          "delta_cm": null,
+          "pct": null
+        },
+        "h": {
+          "fwd": 104.0,
+          "p4": 104.0,
+          "rev": null,
+          "rev_secao": null,
+          "rev_used": null,
+          "status": "AUSENTE_REV",
+          "delta_cm": null,
+          "pct": null
+        },
+        "comprimento": {
+          "fwd_vigas_json": 668.5,
+          "p4_sum_panels": 668.5,
+          "rev": null,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null,
+          "pct": null
+        },
+        "n_paineis_A": {
+          "p4": 6,
+          "rev_raw": null,
+          "rev_filtered_gt30": null,
+          "status": "AUSENTE_REV",
+          "delta_cm": null,
+          "pct": null
+        },
+        "pillar_left": {
+          "rev": null,
+          "status": "AUSENTE"
+        },
+        "pillar_right": {
+          "rev": null,
+          "status": "AUSENTE"
+        }
+      }
+    },
+    "V3204": {
+      "id": "V3204",
+      "tipo": "VIG",
+      "campos": {
+        "b": {
+          "fwd": 14.0,
+          "p4": 14.0,
+          "rev": 19.0,
+          "status": "MATCH",
+          "delta_cm": 5.0,
+          "pct": 26.3
+        },
+        "h": {
+          "fwd": 38.0,
+          "p4": 38.0,
+          "rev": 61.0,
+          "rev_secao": 52.0,
+          "rev_used": 52.0,
+          "status": "MATCH",
+          "delta_cm": 14.0,
+          "pct": 26.9
+        },
+        "comprimento": {
+          "fwd_vigas_json": 414.0,
+          "p4_sum_panels": 414.0,
+          "rev": 414.0,
+          "status": "MATCH",
+          "delta_cm": 0.0,
+          "pct": 0.0
+        },
+        "n_paineis_A": {
+          "p4": 4,
+          "rev_raw": 10,
+          "rev_filtered_gt30": 10,
+          "status": "REV_ONLY",
+          "delta_cm": null,
+          "pct": null
+        },
+        "pillar_left": {
+          "rev": "P341",
+          "status": "REV_ONLY"
+        },
+        "pillar_right": {
+          "rev": "P308",
+          "status": "REV_ONLY"
+        }
+      }
+    },
+    "V3243": {
+      "id": "V3243",
+      "tipo": "VIG",
+      "campos": {
+        "b": {
+          "fwd": 16.0,
+          "p4": 16.0,
+          "rev": 14.0,
+          "status": "MATCH",
+          "delta_cm": 2.0,
+          "pct": 12.5
+        },
+        "h": {
+          "fwd": 120.0,
+          "p4": 120.0,
+          "rev": 43.0,
+          "rev_secao": 64.0,
+          "rev_used": 43.0,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null,
+          "pct": null
+        },
+        "comprimento": {
+          "fwd_vigas_json": 252.0,
+          "p4_sum_panels": 252.0,
+          "rev": 252.0,
+          "status": "MATCH",
+          "delta_cm": 0.0,
+          "pct": 0.0
+        },
+        "n_paineis_A": {
+          "p4": 3,
+          "rev_raw": 3,
+          "rev_filtered_gt30": 3,
+          "status": "MATCH",
+          "delta_cm": 0.0,
+          "pct": 0.0
+        },
+        "pillar_left": {
+          "rev": "P225",
+          "status": "REV_ONLY"
+        },
+        "pillar_right": {
+          "rev": "P311",
+          "status": "REV_ONLY"
+        }
+      }
+    },
+    "V3244": {
+      "id": "V3244",
+      "tipo": "VIG",
+      "campos": {
+        "b": {
+          "fwd": 14.0,
+          "p4": 14.0,
+          "rev": 25.0,
+          "status": "DELTA_SMALL",
+          "delta_cm": 11.0,
+          "pct": 44.0
+        },
+        "h": {
+          "fwd": 104.0,
+          "p4": 104.0,
+          "rev": 62.0,
+          "rev_secao": 52.0,
+          "rev_used": 62.0,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null,
+          "pct": null
+        },
+        "comprimento": {
+          "fwd_vigas_json": 504.0,
+          "p4_sum_panels": 504.0,
+          "rev": 736.0,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null,
+          "pct": null
+        },
+        "n_paineis_A": {
+          "p4": 5,
+          "rev_raw": 20,
+          "rev_filtered_gt30": 20,
+          "status": "REV_ONLY",
+          "delta_cm": null,
+          "pct": null
+        },
+        "pillar_left": {
+          "rev": "P225",
+          "status": "REV_ONLY"
+        },
+        "pillar_right": {
+          "rev": "P232",
+          "status": "REV_ONLY"
+        }
+      }
+    }
+  },
+  "LAJ": {}
+}
