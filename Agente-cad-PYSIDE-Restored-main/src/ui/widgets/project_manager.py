@@ -23,6 +23,12 @@ from src.ui.dialogs.project_details_dialog import ProjectDetailsDialog
 from src.ui.dialogs.document_upload_dialog import DocumentUploadDialog
 from src.core.storage.project_storage import ProjectStorageManager
 from src.core.cad_utils import get_cad_version_info
+from src.ui.theme import Colors, Fonts, Radius
+
+import re as _css_re
+def _resolve_css(css: str) -> str:
+    return _css_re.sub(r'{Colors\.(\w+)}', lambda m: getattr(Colors, m.group(1), m.group(0)), css)
+
 
 class ProjectManager(QWidget):
     project_selected = Signal(str, str, str)  # id, name, dxf_path
@@ -73,40 +79,40 @@ class ProjectManager(QWidget):
 
     def apply_styles(self):
         # Current app styles + specific premium project styles
-        self.setStyleSheet("""
+        self.setStyleSheet(_resolve_css("""
             QWidget {
-                background-color: #1a1a1a;
-                color: #e0e0e0;
+                background-color: {Colors.BG_DEEP};
+                color: {Colors.TEXT_PRIMARY};
                 font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
             }
             QPushButton#PrimaryButton {
-                background-color: #00d4ff;
-                color: #000;
+                background-color: {Colors.ACCENT_PRIMARY};
+                color: {Colors.BG_DEEP};
                 font-weight: bold;
                 padding: 10px 20px;
                 border: none;
                 border-radius: 6px;
             }
-            QPushButton#PrimaryButton:hover { background-color: #00b8e6; }
+            QPushButton#PrimaryButton:hover { background-color: {Colors.ACCENT_TEAL}; }
             
             QTableWidget {
-                background-color: #1e1e1e;
-                border: 1px solid #333;
-                gridline-color: #2a2a2a;
+                background-color: {Colors.BG_PANEL};
+                border: 1px solid {Colors.BORDER_DEFAULT};
+                gridline-color: {Colors.BORDER_SUBTLE};
                 font-size: 13px;
                 border-radius: 8px;
             }
             QTableWidget::item { padding: 8px; }
             QHeaderView::section {
-                background-color: #252528;
-                color: #888;
+                background-color: {Colors.BG_SURFACE};
+                color: {Colors.TEXT_SECONDARY};
                 padding: 8px;
                 border: none;
                 font-weight: bold;
                 text-transform: uppercase;
                 font-size: 10px;
             }
-        """)
+        """))
 
     def setup_ui(self):
         self.layout = QVBoxLayout(self)
@@ -117,18 +123,18 @@ class ProjectManager(QWidget):
         self.top_bar = QFrame()
         self.top_bar.setFixedHeight(60)
         self.top_bar.setObjectName("TopBar")
-        self.top_bar.setStyleSheet("""
+        self.top_bar.setStyleSheet(_resolve_css("""
             #TopBar { 
-                background-color: #1a1a1a; 
-                border-bottom: 2px solid #2d2d2d; 
+                background-color: {Colors.BG_DEEP}; 
+                border-bottom: 2px solid {Colors.BG_CARD}; 
             }
-        """)
+        """))
         
         top_layout = QHBoxLayout(self.top_bar)
         top_layout.setContentsMargins(20, 0, 20, 0)
         
         logo_lbl = QLabel("VISION AI")
-        logo_lbl.setStyleSheet("font-weight: bold; font-size: 18px; color: #00d4ff;")
+        logo_lbl.setStyleSheet(f"font-weight: bold; font-size: 18px; color: {Colors.ACCENT_PRIMARY};")
         top_layout.addWidget(logo_lbl)
         
         top_layout.addSpacing(30)
@@ -140,30 +146,30 @@ class ProjectManager(QWidget):
         self.search_box = QLineEdit()
         self.search_box.setPlaceholderText("Buscar obras ou projetos...")
         self.search_box.setFixedWidth(250)
-        self.search_box.setStyleSheet("""
+        self.search_box.setStyleSheet(_resolve_css("""
             QLineEdit {
-                background: #252528;
-                border: 1px solid #333;
+                background: {Colors.BG_SURFACE};
+                border: 1px solid {Colors.BORDER_DEFAULT};
                 border-radius: 6px;
                 padding: 6px 12px;
-                color: #fff;
+                color: {Colors.TEXT_BRIGHT};
             }
-            QLineEdit:focus { border-color: #00d4ff; }
-        """)
+            QLineEdit:focus { border-color: {Colors.ACCENT_PRIMARY}; }
+        """))
         top_layout.addWidget(self.search_box)
         
         self.user_btn = QPushButton("ADMIN")
-        self.user_btn.setStyleSheet("""
+        self.user_btn.setStyleSheet(_resolve_css("""
             QPushButton {
-                background: #333;
+                background: {Colors.BG_CARD};
                 border-radius: 15px;
                 padding: 0 15px;
                 height: 30px;
-                color: #aaa;
+                color: {Colors.TEXT_SECONDARY};
                 font-weight: bold;
                 font-size: 11px;
             }
-        """)
+        """))
         top_layout.addWidget(self.user_btn)
         
         self.layout.addWidget(self.top_bar)
@@ -171,38 +177,32 @@ class ProjectManager(QWidget):
         # 2. Main Tabs
         self.tabs = QTabWidget()
         self.tabs.setObjectName("ProjectTabs")
-        self.tabs.setStyleSheet("""
-            QTabWidget::pane { border: none; background: #1a1a1a; }
+        self.tabs.setStyleSheet(_resolve_css("""
+            QTabWidget::pane { border: none; background: {Colors.BG_DEEP}; }
             QTabBar::tab {
                 background: transparent;
-                color: #666;
+                color: {Colors.TEXT_DIM};
                 padding: 12px 25px;
                 font-weight: bold;
                 font-size: 13px;
                 border-bottom: 3px solid transparent;
             }
             QTabBar::tab:selected {
-                color: #00d4ff;
-                border-bottom: 3px solid #00d4ff;
+                color: {Colors.ACCENT_PRIMARY};
+                border-bottom: 3px solid {Colors.ACCENT_PRIMARY};
             }
-        """)
+        """))
         
         self.local_tab = QWidget()
         self.setup_local_tab()
         self.tabs.addTab(self.local_tab, "MEUS PROJETOS")
         
-        auth = AuthService()
-        user = auth.get_current_user()
-        is_admin = user and (user.role == 'admin' or user.email == 'thierry.tasf@gmail.com')
-        
-        if is_admin:
-            self.community_tab = QWidget()
-            self.setup_community_tab()
-            self.tabs.addTab(self.community_tab, "🛡️ CURADORIA (ADMIN)")
-            
-            # 3. CENTRAL DE CONTROLE (Admin)
-            self.central_tab = CentralControle(self.db, self.memory, self.auth_service)
-            self.tabs.addTab(self.central_tab, "CENTRAL DE CONTROLE (Admin)")
+        self.community_tab = QWidget()
+        self.setup_community_tab()
+        self.tabs.addTab(self.community_tab, "🛡️ CURADORIA")
+
+        self.central_tab = CentralControle(self.db, self.memory, self.auth_service)
+        self.tabs.addTab(self.central_tab, "CENTRAL DE CONTROLE")
             
         self.layout.addWidget(self.tabs)
 
@@ -213,25 +213,25 @@ class ProjectManager(QWidget):
         
         self.local_splitter = QSplitter(Qt.Horizontal)
         self.local_splitter.setHandleWidth(1)
-        self.local_splitter.setStyleSheet("QSplitter::handle { background: #2d2d2d; }")
+        self.local_splitter.setStyleSheet(f"QSplitter::handle {{ background: {Colors.BG_CARD}; }}")
         
         # --- SIDEBAR: OBRAS ---
         self.works_sidebar = QFrame()
         self.works_sidebar.setFixedWidth(280)
         self.works_sidebar.setObjectName("WorksSidebar")
-        self.works_sidebar.setStyleSheet("""
+        self.works_sidebar.setStyleSheet(_resolve_css("""
             #WorksSidebar {
-                background-color: #1a1a1b;
-                border-right: 1px solid #2d2d2d;
+                background-color: {Colors.BG_DEEP};
+                border-right: 1px solid {Colors.BG_CARD};
             }
-        """)
+        """))
         sidebar_layout = QVBoxLayout(self.works_sidebar)
         sidebar_layout.setContentsMargins(15, 20, 15, 20)
         sidebar_layout.setSpacing(15)
 
         sidebar_header = QHBoxLayout()
         sidebar_title = QLabel("MINHAS OBRAS")
-        sidebar_title.setStyleSheet("font-weight: bold; font-size: 11px; color: #555; letter-spacing: 1px;")
+        sidebar_title.setStyleSheet(f"font-weight: bold; font-size: 11px; color: {Colors.TEXT_MUTED}; letter-spacing: 1px;")
         sidebar_header.addWidget(sidebar_title)
         
         sidebar_header.addStretch()
@@ -239,19 +239,19 @@ class ProjectManager(QWidget):
         self.btn_refresh_works = QPushButton("🔄")
         self.btn_refresh_works.setToolTip("Atualizar Lista de Obras")
         self.btn_refresh_works.setFixedSize(24, 24)
-        self.btn_refresh_works.setStyleSheet("""
+        self.btn_refresh_works.setStyleSheet(_resolve_css("""
             QPushButton {
                 background: transparent;
                 border: none;
-                color: #555;
+                color: {Colors.TEXT_MUTED};
                 font-size: 14px;
             }
             QPushButton:hover {
-                color: #00d4ff;
-                background: #252528;
+                color: {Colors.ACCENT_PRIMARY};
+                background: {Colors.BG_SURFACE};
                 border-radius: 4px;
             }
-        """)
+        """))
         self.btn_refresh_works.clicked.connect(self.load_works_combo)
         sidebar_header.addWidget(self.btn_refresh_works)
         
@@ -260,22 +260,22 @@ class ProjectManager(QWidget):
         # Busca Obras
         self.edit_search_works = QLineEdit()
         self.edit_search_works.setPlaceholderText("🔍 Filtrar obras...")
-        self.edit_search_works.setStyleSheet("""
+        self.edit_search_works.setStyleSheet(_resolve_css("""
             QLineEdit {
-                background: #252528;
-                border: 1px solid #333;
+                background: {Colors.BG_SURFACE};
+                border: 1px solid {Colors.BORDER_DEFAULT};
                 border-radius: 4px;
                 padding: 6px 10px;
                 font-size: 11px;
             }
-        """)
+        """))
         self.edit_search_works.textChanged.connect(self._filter_works_list)
         sidebar_layout.addWidget(self.edit_search_works)
 
         # Lista de Obras
         self.list_works = QListWidget()
         self.list_works.setObjectName("WorksList")
-        self.list_works.setStyleSheet("""
+        self.list_works.setStyleSheet(_resolve_css("""
             #WorksList {
                 background: transparent;
                 border: none;
@@ -284,39 +284,39 @@ class ProjectManager(QWidget):
             #WorksList::item {
                 padding: 10px;
                 border-radius: 6px;
-                color: #aaa;
+                color: {Colors.TEXT_SECONDARY};
                 margin-bottom: 2px;
             }
             #WorksList::item:selected {
-                background-color: #2a2a2d;
-                color: #00d4ff;
+                background-color: {Colors.BORDER_SUBTLE};
+                color: {Colors.ACCENT_PRIMARY};
                 font-weight: bold;
             }
             #WorksList::item:hover:!selected {
-                background-color: #222225;
-                color: #fff;
+                background-color: {Colors.BG_DEEP};
+                color: {Colors.TEXT_BRIGHT};
             }
-        """)
+        """))
         self.list_works.currentItemChanged.connect(self.load_projects)
         sidebar_layout.addWidget(self.list_works)
 
         # Botão + Obra na base da sidebar
         btn_add_work_sidebar = QPushButton("+ Criar Nova Obra")
-        btn_add_work_sidebar.setStyleSheet("""
+        btn_add_work_sidebar.setStyleSheet(_resolve_css("""
             QPushButton {
                 background-color: transparent;
-                border: 1px dashed #444;
+                border: 1px dashed {Colors.BORDER_INPUT};
                 border-radius: 6px;
-                color: #00d4ff;
+                color: {Colors.ACCENT_PRIMARY};
                 font-weight: bold;
                 padding: 10px;
                 font-size: 11px;
             }
             QPushButton:hover {
-                background-color: #222;
-                border-color: #00d4ff;
+                background-color: {Colors.BG_PANEL};
+                border-color: {Colors.ACCENT_PRIMARY};
             }
-        """)
+        """))
         btn_add_work_sidebar.clicked.connect(self.add_work)
         sidebar_layout.addWidget(btn_add_work_sidebar)
 
@@ -333,25 +333,25 @@ class ProjectManager(QWidget):
         
         # No lugar do combo, colocamos o nome da obra selecionada em destaque
         self.lbl_selected_work = QLabel("Selecione uma Obra")
-        self.lbl_selected_work.setStyleSheet("font-size: 18px; font-weight: bold; color: #fff;")
+        self.lbl_selected_work.setStyleSheet(f"font-size: 18px; font-weight: bold; color: {Colors.TEXT_BRIGHT};")
         self.header_layout.addWidget(self.lbl_selected_work)
         
         self.header_layout.addStretch()
         
         # Botão de Remover Obra (inicialmente escondido)
         self.btn_delete_work = QPushButton("Remover Obra")
-        self.btn_delete_work.setStyleSheet("""
+        self.btn_delete_work.setStyleSheet(_resolve_css("""
             QPushButton { 
-                background: #3a1c1c; 
-                color: #ff6b6b; 
-                border: 1px solid #ff4444; 
+                background: rgba(58,28,28,1); 
+                color: {Colors.ACCENT_DANGER}; 
+                border: 1px solid {Colors.ACCENT_DANGER}; 
                 border-radius: 4px; 
                 padding: 6px 12px;
                 font-weight: bold;
                 font-size: 11px;
             }
-            QPushButton:hover { background: #ff4444; color: white; }
-        """)
+            QPushButton:hover { background: {Colors.ACCENT_DANGER}; color: {Colors.TEXT_BRIGHT}; }
+        """))
         self.btn_delete_work.clicked.connect(self.delete_current_work)
         self.btn_delete_work.setVisible(False)
         self.btn_delete_work.setVisible(False)
@@ -359,19 +359,19 @@ class ProjectManager(QWidget):
         
         # Botão Sync Obra Completa
         self.btn_sync_work = QPushButton("Sincronizar Obra")
-        self.btn_sync_work.setStyleSheet("""
+        self.btn_sync_work.setStyleSheet(_resolve_css("""
             QPushButton {
-                background: #1a324b;
-                color: #00d4ff;
-                border: 1px solid #00d4ff;
+                background: rgba(26,50,75,1);
+                color: {Colors.ACCENT_PRIMARY};
+                border: 1px solid {Colors.ACCENT_PRIMARY};
                 border-radius: 4px;
                 padding: 6px 12px;
                 font-weight: bold;
                 font-size: 11px;
                 margin-left: 10px;
             }
-            QPushButton:hover { background: #00d4ff; color: #000; }
-        """)
+            QPushButton:hover { background: {Colors.ACCENT_PRIMARY}; color: {Colors.BG_DEEP}; }
+        """))
         self.btn_sync_work.clicked.connect(self.sync_current_work)
         self.btn_sync_work.setVisible(False)
         self.header_layout.addWidget(self.btn_sync_work)
@@ -387,46 +387,46 @@ class ProjectManager(QWidget):
         
         # Título da seção de documentos abaixo do nome da obra
         self.lbl_documents_title = QLabel("DOCUMENTOS")
-        self.lbl_documents_title.setStyleSheet("""
+        self.lbl_documents_title.setStyleSheet(_resolve_css("""
             font-size: 24px; 
             font-weight: bold; 
-            color: #00d4ff; 
+            color: {Colors.ACCENT_PRIMARY}; 
             margin-top: 10px;
             margin-bottom: 5px;
             letter-spacing: 2px;
-        """)
+        """))
         central_layout.addWidget(self.lbl_documents_title)
 
         # Container para o fluxo de fases (antigo sub_tabs, mas agora tratado como corpo principal)
         # Mantendo o QTabWidget para as 8 fases, mas agora ele é o foco principal
         self.phase_tabs = QTabWidget()
         self.phase_tabs.setObjectName("PhaseTabs")
-        self.phase_tabs.setStyleSheet("""
+        self.phase_tabs.setStyleSheet(_resolve_css("""
             QTabWidget::pane { 
-                border: 1px solid #333; 
-                background: #1a1a1a; 
+                border: 1px solid {Colors.BORDER_DEFAULT}; 
+                background: {Colors.BG_DEEP}; 
                 border-radius: 8px;
             }
             QTabBar::tab { 
-                background: #252525; 
-                color: #888; 
+                background: {Colors.BG_CARD}; 
+                color: {Colors.TEXT_SECONDARY}; 
                 padding: 12px 25px; 
-                border: 1px solid #333; 
+                border: 1px solid {Colors.BORDER_DEFAULT}; 
                 border-bottom: none;
                 margin-right: 2px;
                 font-weight: bold;
                 font-size: 11px;
             }
             QTabBar::tab:selected { 
-                background: #1a1a1a; 
-                color: #00d4ff; 
-                border-bottom: 3px solid #00d4ff;
+                background: {Colors.BG_DEEP}; 
+                color: {Colors.ACCENT_PRIMARY}; 
+                border-bottom: 3px solid {Colors.ACCENT_PRIMARY};
             }
             QTabBar::tab:hover:!selected {
-                background: #2a2a2a;
-                color: #aaa;
+                background: {Colors.BORDER_SUBTLE};
+                color: {Colors.TEXT_SECONDARY};
             }
-        """)
+        """))
 
         # Criar as 8 abas de fases (isso será movido daqui do loop para um método)
         self.phase_tab_widgets = {}
@@ -447,15 +447,15 @@ class ProjectManager(QWidget):
         """Prepara o container de pavimentos para ser inserido na Fase 2."""
         self.scroll_area = QScrollArea()
         self.scroll_area.setWidgetResizable(True)
-        self.scroll_area.setStyleSheet("""
-            QScrollArea { border: 1px solid #333; background: #151515; border-radius: 8px; min-height: 400px; }
+        self.scroll_area.setStyleSheet(_resolve_css("""
+            QScrollArea { border: 1px solid {Colors.BORDER_DEFAULT}; background: {Colors.BG_DEEP}; border-radius: 8px; min-height: 400px; }
             QScrollBar:vertical {
-                border: none; background: #1a1a1a; width: 8px; margin: 0;
+                border: none; background: {Colors.BG_DEEP}; width: 8px; margin: 0;
             }
             QScrollBar::handle:vertical {
-                background: #333; min-height: 20px; border-radius: 4px;
+                background: {Colors.BG_CARD}; min-height: 20px; border-radius: 4px;
             }
-        """)
+        """))
         
         self.cards_container = QWidget()
         self.cards_container.setObjectName("CardsContainer")
@@ -472,26 +472,26 @@ class ProjectManager(QWidget):
     def setup_pavement_selector_combo(self, parent_layout, phase_num=3):
         """Prepara o seletor de pavimento (ComboBox) para a Fase 3, 4 ou 5."""
         container = QFrame()
-        container.setStyleSheet("background: #1e1e1e; border: 1px solid #333; border-radius: 6px; padding: 10px;")
+        container.setStyleSheet(f"background: {Colors.BG_PANEL}; border: 1px solid {Colors.BORDER_DEFAULT}; border-radius: 6px; padding: 10px;")
         layout = QHBoxLayout(container)
         
         phase_map = {3: 'INTERPRETAÇÃO/EXTRAÇÃO', 4: 'DADOS SYNC ROBOS', 5: 'SCRIPTS ROBOS SRC'}
         proc_text = phase_map.get(phase_num, 'PROCESSO')
         
         lbl = QLabel(f"📍 SELECIONE O PAVIMENTO PARA {proc_text}:")
-        lbl.setStyleSheet("color: #00d4ff; font-weight: bold; font-size: 11px;")
+        lbl.setStyleSheet(f"color: {Colors.ACCENT_PRIMARY}; font-weight: bold; font-size: 11px;")
         layout.addWidget(lbl)
         
         cmb = QComboBox()
-        cmb.setStyleSheet("""
+        cmb.setStyleSheet(_resolve_css("""
             QComboBox {
-                background: #252528; border: 1px solid #333; border-radius: 4px;
-                padding: 8px; color: #fff; font-size: 12px; min-width: 250px;
+                background: {Colors.BG_SURFACE}; border: 1px solid {Colors.BORDER_DEFAULT}; border-radius: 4px;
+                padding: 8px; color: {Colors.TEXT_BRIGHT}; font-size: 12px; min-width: 250px;
             }
-            QComboBox:focus { border: 1px solid #00d4ff; }
+            QComboBox:focus { border: 1px solid {Colors.ACCENT_PRIMARY}; }
             QComboBox::drop-down { border: none; }
             QComboBox::down-arrow { image: none; border: none; }
-        """)
+        """))
         cmb.currentIndexChanged.connect(self._on_pavement_combo_changed)
         layout.addWidget(cmb)
         
@@ -504,21 +504,21 @@ class ProjectManager(QWidget):
             prog_layout.setSpacing(2)
             
             lbl_prog = QLabel("📊 PROGRESSO DE SCRIPTS:")
-            lbl_prog.setStyleSheet("color: #aaa; font-size: 9px; font-weight: bold;")
+            lbl_prog.setStyleSheet(f"color: {Colors.TEXT_SECONDARY}; font-size: 9px; font-weight: bold;")
             prog_layout.addWidget(lbl_prog)
             
             self.progress_scripts = QProgressBar()
             self.progress_scripts.setFixedHeight(12)
-            self.progress_scripts.setStyleSheet("""
+            self.progress_scripts.setStyleSheet(_resolve_css("""
                 QProgressBar {
-                    background: #111; border: 1px solid #333; border-radius: 6px;
+                    background: {Colors.BG_DEEP}; border: 1px solid {Colors.BORDER_DEFAULT}; border-radius: 6px;
                     text-align: center; color: transparent;
                 }
                 QProgressBar::chunk {
-                    background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 #00d4ff, stop:1 #00ffaa);
+                    background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 {Colors.ACCENT_PRIMARY}, stop:1 {Colors.ACCENT_MINT});
                     border-radius: 5px;
                 }
-            """)
+            """))
             self.progress_scripts.setValue(0)
             prog_layout.addWidget(self.progress_scripts)
             layout.addWidget(progress_container)
@@ -559,13 +559,13 @@ class ProjectManager(QWidget):
     def setup_specs_container(self, parent_layout):
         """Prepara o formulário de especificações para ser inserido na Fase 1."""
         container = QFrame()
-        container.setStyleSheet("background: #1e1e1e; border: 1px solid #333; border-radius: 8px;")
+        container.setStyleSheet(f"background: {Colors.BG_PANEL}; border: 1px solid {Colors.BORDER_DEFAULT}; border-radius: 8px;")
         layout = QVBoxLayout(container)
         layout.setContentsMargins(20, 20, 20, 20)
         layout.setSpacing(15)
         
         title = QLabel("📝 ESPECIFICAÇÕES TÉCNICAS DA OBRA")
-        title.setStyleSheet("color: #00d4ff; font-weight: bold; font-size: 14px; border: none; background: transparent;")
+        title.setStyleSheet(f"color: {Colors.ACCENT_PRIMARY}; font-weight: bold; font-size: 14px; border: none; background: transparent;")
         layout.addWidget(title)
 
         # 1. Nome da Obra (Full Row)
@@ -605,24 +605,24 @@ class ProjectManager(QWidget):
         layout.addWidget(QLabel("📝 OBSERVAÇÕES E NOTAS TÉCNICAS:"))
         self.txt_specs = QTextEdit()
         self.txt_specs.setPlaceholderText("Especifique detalhes técnicos da obra aqui...")
-        self.txt_specs.setStyleSheet("""
+        self.txt_specs.setStyleSheet(_resolve_css("""
             QTextEdit {
-                background: #1a1a1b; border: 1px solid #333; border-radius: 6px;
-                color: #ccc; padding: 10px; font-size: 12px; min-height: 50px; max-height: 80px;
+                background: {Colors.BG_DEEP}; border: 1px solid {Colors.BORDER_DEFAULT}; border-radius: 6px;
+                color: {Colors.TEXT_PRIMARY}; padding: 10px; font-size: 12px; min-height: 50px; max-height: 80px;
             }
-        """)
+        """))
         layout.addWidget(self.txt_specs)
         
         self.btn_save_work_specs = QPushButton("💾 SALVAR ESPECIFICAÇÕES")
         self.btn_save_work_specs.setCursor(Qt.PointingHandCursor)
         self.btn_save_work_specs.setFixedHeight(40)
-        self.btn_save_work_specs.setStyleSheet("""
+        self.btn_save_work_specs.setStyleSheet(_resolve_css("""
             QPushButton {
-                background-color: #00d4ff; color: #000; font-weight: bold;
+                background-color: {Colors.ACCENT_PRIMARY}; color: {Colors.BG_DEEP}; font-weight: bold;
                 border-radius: 6px; font-size: 11px;
             }
-            QPushButton:hover { background-color: #00b8e6; }
-        """)
+            QPushButton:hover { background-color: {Colors.ACCENT_TEAL}; }
+        """))
         self.btn_save_work_specs.clicked.connect(self.save_work_metadata)
         layout.addWidget(self.btn_save_work_specs)
         
@@ -640,16 +640,16 @@ class ProjectManager(QWidget):
         layout.setSpacing(5)
         
         lbl = QLabel(label_text)
-        lbl.setStyleSheet("color: #888; font-weight: bold; font-size: 10px; border: none;")
+        lbl.setStyleSheet(f"color: {Colors.TEXT_SECONDARY}; font-weight: bold; font-size: 10px; border: none;")
         layout.addWidget(lbl)
         
-        widget.setStyleSheet("""
+        widget.setStyleSheet(_resolve_css("""
             QLineEdit {
-                background: #252528; border: 1px solid #333; border-radius: 4px;
-                padding: 8px; color: #fff; font-size: 12px;
+                background: {Colors.BG_SURFACE}; border: 1px solid {Colors.BORDER_DEFAULT}; border-radius: 4px;
+                padding: 8px; color: {Colors.TEXT_BRIGHT}; font-size: 12px;
             }
-            QLineEdit:focus { border: 1px solid #00d4ff; }
-        """)
+            QLineEdit:focus { border: 1px solid {Colors.ACCENT_PRIMARY}; }
+        """))
         layout.addWidget(widget)
         
         return container
@@ -730,18 +730,18 @@ class ProjectManager(QWidget):
             QMessageBox.critical(self, "Erro", f"Falha ao salvar: {e}")
         
         btn_save_specs = QPushButton("Salvar Alterações")
-        btn_save_specs.setStyleSheet("""
+        btn_save_specs.setStyleSheet(_resolve_css("""
             QPushButton {
-                background: #2a2a2d;
-                color: #00d4ff;
-                border: 1px solid #00d4ff;
+                background: {Colors.BORDER_SUBTLE};
+                color: {Colors.ACCENT_PRIMARY};
+                border: 1px solid {Colors.ACCENT_PRIMARY};
                 border-radius: 4px;
                 padding: 8px 15px;
                 font-size: 11px;
                 margin-top: 10px;
             }
-            QPushButton:hover { background: #00d4ff; color: #000; }
-        """)
+            QPushButton:hover { background: {Colors.ACCENT_PRIMARY}; color: {Colors.BG_DEEP}; }
+        """))
         btn_save_specs.clicked.connect(self.save_project_specs)
         layout.addWidget(btn_save_specs, 0, Qt.AlignRight)
         layout.addStretch()
@@ -750,14 +750,14 @@ class ProjectManager(QWidget):
     def _get_phase_name(self, phase_num):
         """Retorna o nome da fase."""
         names = {
-            1: "1. INGESTÃO",
-            2: "2. TRIAGEM",
-            3: "3. INTERPRETACAO/EXTRACAO",
-            4: "4. DADOS SYNC ROBOS",
-            5: "5. SCRIPTS ROBOS SRC",
-            6: "6. CONVERSAO SCRIPTS DXF",
-            7: "7. UNIFICACAO DXF PAVIMENTO",
-            8: "8. RETOQUES E REVISAO"
+            1: "INGESTÃO",
+            2: "TRIAGEM",
+            3: "INTERPRETACAO/EXTRACAO",
+            4: "DADOS SYNC ROBOS",
+            5: "SCRIPTS ROBOS SRC",
+            6: "CONVERSAO SCRIPTS DXF",
+            7: "UNIFICACAO DXF PAVIMENTO",
+            8: "REVISAO E ENTREGA"
         }
         return names.get(phase_num, f"FASE {phase_num}")
 
@@ -785,13 +785,13 @@ class ProjectManager(QWidget):
         # Descrição da fase
         desc_label = QLabel(self.PHASE_DESCRIPTIONS.get(phase_num, ""))
         desc_label.setWordWrap(True)
-        desc_label.setStyleSheet("""
+        desc_label.setStyleSheet(_resolve_css("""
             QLabel {
-                color: #aaa; font-size: 12px; padding: 15px;
-                background: #1e1e1e; border: 1px solid #333; border-radius: 6px;
+                color: {Colors.TEXT_SECONDARY}; font-size: 12px; padding: 15px;
+                background: {Colors.BG_PANEL}; border: 1px solid {Colors.BORDER_DEFAULT}; border-radius: 6px;
                 line-height: 1.6;
             }
-        """)
+        """))
         layout.addWidget(desc_label)
 
         # Injetar o ComboBox de seleção GLOBAL no topo da Fase 4 e 5
@@ -825,14 +825,14 @@ class ProjectManager(QWidget):
     def _create_class_widget(self, phase_num, class_name):
         """Cria um widget para uma classe de itens com lista de documentos e botões de ação."""
         class_frame = QFrame()
-        class_frame.setStyleSheet("""
+        class_frame.setStyleSheet(_resolve_css("""
             QFrame {
-                background: #1e1e1e;
-                border: 1px solid #333;
+                background: {Colors.BG_PANEL};
+                border: 1px solid {Colors.BORDER_DEFAULT};
                 border-radius: 6px;
                 padding: 0px;
             }
-        """)
+        """))
         
         class_layout = QVBoxLayout(class_frame)
         class_layout.setContentsMargins(15, 15, 15, 15)
@@ -842,55 +842,55 @@ class ProjectManager(QWidget):
         header_layout = QHBoxLayout()
         
         class_title = QLabel(class_name)
-        class_title.setStyleSheet("""
+        class_title.setStyleSheet(_resolve_css("""
             QLabel {
-                color: #00d4ff;
+                color: {Colors.ACCENT_PRIMARY};
                 font-weight: bold;
                 font-size: 13px;
             }
-        """)
+        """))
         header_layout.addWidget(class_title)
         header_layout.addStretch()
         
         # Botão Converter Todos DWG → DXF 2018 (apenas para Fase 1)
         if phase_num == 1:
             btn_convert_all = QPushButton("⚡ Converter Todos → DXF 2018")
-            btn_convert_all.setStyleSheet("""
+            btn_convert_all.setStyleSheet(_resolve_css("""
                 QPushButton {
-                    background: #1a4d2e;
-                    color: #00ff88;
-                    border: 1px solid #00ff88;
+                    background: rgba(26,77,46,1);
+                    color: {Colors.ACCENT_SUCCESS_ALT};
+                    border: 1px solid {Colors.ACCENT_SUCCESS_ALT};
                     border-radius: 4px;
                     padding: 6px 12px;
                     font-size: 11px;
                     font-weight: bold;
                 }
                 QPushButton:hover {
-                    background: #00ff88;
-                    color: #000;
+                    background: {Colors.ACCENT_SUCCESS_ALT};
+                    color: {Colors.BG_DEEP};
                 }
-            """)
+            """))
             btn_convert_all.setToolTip("Converte todos os arquivos DWG desta classe para DXF 2018 ASCII")
             btn_convert_all.clicked.connect(lambda: self._convert_all_dwg_in_class(phase_num, class_name))
             header_layout.addWidget(btn_convert_all)
         
         # Botão Adicionar Documento
         btn_add = QPushButton("+ Adicionar")
-        btn_add.setStyleSheet("""
+        btn_add.setStyleSheet(_resolve_css("""
             QPushButton {
-                background: #2a2a2a;
-                color: #00d4ff;
-                border: 1px solid #00d4ff;
+                background: {Colors.BORDER_SUBTLE};
+                color: {Colors.ACCENT_PRIMARY};
+                border: 1px solid {Colors.ACCENT_PRIMARY};
                 border-radius: 4px;
                 padding: 6px 12px;
                 font-size: 11px;
                 font-weight: bold;
             }
             QPushButton:hover {
-                background: #00d4ff;
-                color: #000;
+                background: {Colors.ACCENT_PRIMARY};
+                color: {Colors.BG_DEEP};
             }
-        """)
+        """))
         btn_add.clicked.connect(lambda: self._add_document_to_class(phase_num, class_name))
         header_layout.addWidget(btn_add)
         
@@ -928,7 +928,7 @@ class ProjectManager(QWidget):
             db_layout.setContentsMargins(0, 10, 0, 0)
             
             lbl_db = QLabel(f"🔢 {class_name} (Dados Vinculados)")
-            lbl_db.setStyleSheet("color: #00d4ff; font-weight: bold; font-size: 11px;")
+            lbl_db.setStyleSheet(f"color: {Colors.ACCENT_PRIMARY}; font-weight: bold; font-size: 11px;")
             db_layout.addWidget(lbl_db)
             
             # Tree Widget parecido com o do main.py
@@ -947,7 +947,7 @@ class ProjectManager(QWidget):
                 tree.setColumnWidth(1, 150)
                 tree.setColumnWidth(2, 80)
             
-            tree.setStyleSheet("QTreeWidget { background: #151515; border: 1px solid #333; }")
+            tree.setStyleSheet(f"QTreeWidget {{ background: {Colors.BG_DEEP}; border: 1px solid {Colors.BORDER_DEFAULT}; }}")
             tree.setMinimumHeight(200)
             db_layout.addWidget(tree)
             
@@ -959,7 +959,7 @@ class ProjectManager(QWidget):
             # Botão de Refresh Específico
             btn_refresh = QPushButton("🔄 Atualizar")
             btn_refresh.setCursor(Qt.PointingHandCursor)
-            btn_refresh.setStyleSheet("background: transparent; color: #888; border: none; font-size: 10px;")
+            btn_refresh.setStyleSheet(f"background: transparent; color: {Colors.TEXT_SECONDARY}; border: none; font-size: 10px;")
             if phase_num == 3:
                 btn_refresh.clicked.connect(lambda checked=False, cn=class_name, t=tree: self._refresh_phase3_data(cn, t))
             elif phase_num == 5:
@@ -978,10 +978,10 @@ class ProjectManager(QWidget):
     def _refresh_phase3_data(self, class_name, tree_widget):
         """Carrega dados do SQLite para a lista"""
         if not self.current_project_id: return
-        
+
         tree_widget.clear()
         items = []
-        
+
         try:
             if "Pilar" in class_name:
                 items = self.db.load_pillars(self.current_project_id)
@@ -999,8 +999,28 @@ class ProjectManager(QWidget):
 
         print(f"[Phase3] 🔄 Populando {len(items)} itens em {class_name} (Projeto: {self.current_project_id})")
 
+        # CAD-15: carregar scores de completude em batch
+        completude_scores: dict = {}
+        try:
+            from src.core.services.completude_cache import compute_completude_batch
+            from pathlib import Path as _Path
+            # Inferir obra_path a partir do projeto
+            _obra_path = None
+            try:
+                projects = self.db.get_projects()
+                proj = next((p for p in projects if str(p.get('id')) == str(self.current_project_id)), None)
+                if proj:
+                    _obra_root = _Path("D:/Agente-cad-PYSIDE/DADOS-OBRAS")
+                    _obra_path = str(_obra_root / proj.get('work_name', ''))
+            except Exception:
+                pass
+            completude_scores = compute_completude_batch(
+                items, obra_path=_obra_path, project_id=self.current_project_id
+            )
+        except Exception as _ce:
+            print(f"[Phase3] ℹ️ Completude nao disponivel: {_ce}")
+
         # Ordenar
-        import re
         def nat_key(x):
             name = str(x.get('name', x.get('nome', '')))
             return [int(t) if t.isdigit() else t.lower() for t in re.split(r'(\d+)', name)]
@@ -1009,22 +1029,32 @@ class ProjectManager(QWidget):
         for i, item_data in enumerate(items):
             item_id = item_data.get('id_item', f"{i+1:02}")
             name = item_data.get('name', '?')
-            status = "Validado" if item_data.get('is_validated') else "Pendente"
-            
+            validated = item_data.get('is_validated', False)
+            status_label = "Validado" if validated else "Pendente"
+
+            # CAD-15: badge de completude
+            pct = completude_scores.get(item_id)
+            if pct is not None:
+                status_txt = f"[{pct:.0f}%] {status_label}"
+            else:
+                status_txt = status_label
+
             tree_item = QTreeWidgetItem(tree_widget)
             tree_item.setText(0, item_id)
             tree_item.setText(1, name)
-            tree_item.setText(2, status)
-            
-            if item_data.get('is_validated'):
+            tree_item.setText(2, status_txt)
+
+            if validated:
                 tree_item.setForeground(2, Qt.green)
+            elif pct is not None and pct >= 70:
+                tree_item.setForeground(2, QColor("#80cbc4"))  # teal — boa completude  # hardcoded-ok
             else:
-                tree_item.setForeground(2, QColor("#ffd600"))
-                
+                tree_item.setForeground(2, QColor(Colors.ACCENT_INFO))
+
             # Botão Detalhes
             btn = QPushButton("Ver Detalhes")
             btn.setCursor(Qt.PointingHandCursor)
-            btn.setStyleSheet("background: #333; color: white; border-radius: 4px; padding: 2px; font-size: 10px;")
+            btn.setStyleSheet(f"background: {Colors.BG_CARD}; color: {Colors.TEXT_BRIGHT}; border-radius: 4px; padding: 2px; font-size: 10px;")
             # Usar closure seguro
             btn.clicked.connect(lambda checked=False, d=item_data: self._open_detail_dialog(d))
             tree_widget.setItemWidget(tree_item, 3, btn)
@@ -1139,12 +1169,12 @@ class ProjectManager(QWidget):
             if is_valid:
                 tree_item.setForeground(2, Qt.green)
             else:
-                tree_item.setForeground(2, QColor("#00d4ff"))
+                tree_item.setForeground(2, QColor(Colors.ACCENT_PRIMARY))
 
             # Botão Detalhes com ficha específica do robô
             btn = QPushButton("Ver Ficha Robô")
             btn.setCursor(Qt.PointingHandCursor)
-            btn.setStyleSheet("background: #004d73; color: white; border-radius: 4px; padding: 2px; font-size: 10px;")
+            btn.setStyleSheet(f"background: rgba(0,77,115,1); color: {Colors.TEXT_BRIGHT}; border-radius: 4px; padding: 2px; font-size: 10px;")
             btn.clicked.connect(lambda checked=False, d=item_data: self._open_robot_ficha(d))
             tree_widget.setItemWidget(tree_item, 3, btn)
 
@@ -2070,11 +2100,11 @@ class ProjectManager(QWidget):
                         if dt and ' ' in dt: dt = dt.split(' ')[0]
                         label_dt = f"{dt[8:10]}/{dt[5:7]}" if len(dt) >= 10 else "Sim"
                         tree_item.setText(col, f"✅ {label_dt}")
-                        tree_item.setForeground(col, QColor("#00ffaa"))
+                        tree_item.setForeground(col, QColor(Colors.ACCENT_MINT))
                         tree_item.setToolTip(col, f"Gerado em: {s_info.get('generated_at')}\nCaminho: {s_info.get('script_path')}")
                     else:
                         tree_item.setText(col, "⏳ Pend")
-                        tree_item.setForeground(col, QColor("#ffaa00"))
+                        tree_item.setForeground(col, QColor(Colors.ACCENT_WARNING_ALT))
             else:
                 s_info = generated_map.get(f"{item_type}_{item_db_id}")
                 if s_info:
@@ -2082,15 +2112,15 @@ class ProjectManager(QWidget):
                     if dt and ' ' in dt: dt = dt.split(' ')[0]
                     label_dt = f"{dt[8:10]}/{dt[5:7]}" if len(dt) >= 10 else "Sim"
                     tree_item.setText(2, f"✅ GERADO ({label_dt})")
-                    tree_item.setForeground(2, QColor("#00ffaa"))
+                    tree_item.setForeground(2, QColor(Colors.ACCENT_MINT))
                 else:
                     tree_item.setText(2, "⏳ PENDENTE")
-                    tree_item.setForeground(2, QColor("#ffaa00"))
+                    tree_item.setForeground(2, QColor(Colors.ACCENT_WARNING_ALT))
 
             btn_action = QPushButton("📁")
             btn_action.setFixedSize(30, 22)
             btn_action.setCursor(Qt.PointingHandCursor)
-            btn_action.setStyleSheet("background: #333; color: white; border-radius: 3px;")
+            btn_action.setStyleSheet(f"background: {Colors.BG_CARD}; color: {Colors.TEXT_BRIGHT}; border-radius: 3px;")
             
             def make_open_fn(it_id):
                 def open_fn():
@@ -2136,10 +2166,10 @@ class ProjectManager(QWidget):
         main_container = QFrame()
         # Se tiver filho, usamos layout vertical para empilhar. Se não, o estilo padrão.
         if child_doc:
-            main_container.setStyleSheet("""
+            main_container.setStyleSheet(_resolve_css("""
                 QFrame#MainContainer {
-                    background: #252528;
-                    border: 1px solid #333;
+                    background: {Colors.BG_SURFACE};
+                    border: 1px solid {Colors.BORDER_DEFAULT};
                     border-radius: 4px;
                 }
                 QFrame#Row {
@@ -2147,30 +2177,30 @@ class ProjectManager(QWidget):
                     border: none;
                 }
                 QFrame#Row:hover {
-                    background: #2a2a2d;
+                    background: {Colors.BORDER_SUBTLE};
                 }
                 QFrame#ChildRow {
-                    background: #222225;
-                    border-top: 1px solid #333;
+                    background: {Colors.BG_DEEP};
+                    border-top: 1px solid {Colors.BORDER_DEFAULT};
                 }
-            """)
+            """))
             main_container.setObjectName("MainContainer")
             container_layout = QVBoxLayout(main_container)
             container_layout.setContentsMargins(0, 0, 0, 0)
             container_layout.setSpacing(0)
         else:
-            main_container.setStyleSheet("""
+            main_container.setStyleSheet(_resolve_css("""
                 QFrame {
-                    background: #252528;
-                    border: 1px solid #333;
+                    background: {Colors.BG_SURFACE};
+                    border: 1px solid {Colors.BORDER_DEFAULT};
                     border-radius: 4px;
                     padding: 8px;
                 }
                 QFrame:hover {
-                    background: #2a2a2d;
-                    border-color: #444;
+                    background: {Colors.BORDER_SUBTLE};
+                    border-color: {Colors.BORDER_INPUT};
                 }
-            """)
+            """))
             container_layout = QVBoxLayout(main_container) # Use VBox genericamente, mas com um item só
             container_layout.setContentsMargins(0, 0, 0, 0)
         
@@ -2189,15 +2219,15 @@ class ProjectManager(QWidget):
             # Indentação para filho
             if is_child:
                 icon_link = QLabel("↳")
-                icon_link.setStyleSheet("color: #666; font-size: 16px; font-weight: bold; margin-right: 5px;")
+                icon_link.setStyleSheet(f"color: {Colors.TEXT_DIM}; font-size: 16px; font-weight: bold; margin-right: 5px;")
                 row_layout.addWidget(icon_link)
 
             # Nome do documento (com largura flexível porém controlada)
             doc_name = item_doc.get('name', 'Sem nome')
             name_label = QLabel(doc_name)
             name_label.setToolTip(doc_name) # Tooltip para nomes cortados
-            name_style = "color: #e0e0e0; font-size: 12px; font-weight: 500;"
-            if is_child: name_style += " font-style: italic; color: #aaa;"
+            name_style = f
+            if is_child: name_style += f" font-style: italic; color: {Colors.TEXT_SECONDARY};"
             name_label.setStyleSheet(name_style)
             row_layout.addWidget(name_label, 1) # Stretch 1
             
@@ -2206,7 +2236,7 @@ class ProjectManager(QWidget):
             format_label = QLabel(ext.upper() if ext else "N/A")
             format_label.setFixedWidth(50)
             format_label.setAlignment(Qt.AlignCenter)
-            format_label.setStyleSheet("color: #888; font-size: 10px; padding: 2px 4px; background: #1a1a1a; border-radius: 3px; border: 1px solid #333;")
+            format_label.setStyleSheet(f"color: {Colors.TEXT_SECONDARY}; font-size: 10px; padding: 2px 4px; background: {Colors.BG_DEEP}; border-radius: 3px; border: 1px solid {Colors.BORDER_DEFAULT};")
             row_layout.addWidget(format_label)
             
             # Versão (Alinhada como coluna)
@@ -2217,13 +2247,13 @@ class ProjectManager(QWidget):
                 version_label = QLabel()
                 if not version_val:
                     version_text = "⚠️ Pendente Scan"
-                    version_style = "color: #ff9800; background: #332211; border: 1px solid #ff9800;"
+                    version_style = f
                 elif version_val == "Desconhecido":
                     version_text = "❓ Desconhecido"
-                    version_style = "color: #aaaaaa; background: #222222; border: 1px solid #444;"
+                    version_style = f
                 else:
                     version_text = f"⚙️ {version_val}"
-                    version_style = "color: #00d4ff; background: #1a324b; border: 1px solid #00d4ff;"
+                    version_style = f
                 
                 version_label.setText(version_text)
                 version_label.setStyleSheet(f"""
@@ -2248,13 +2278,13 @@ class ProjectManager(QWidget):
             btn_open.setFixedSize(28, 28)
             btn_open.setCursor(Qt.PointingHandCursor)
             btn_open.setToolTip("Abrir documento")
-            btn_open.setStyleSheet("""
+            btn_open.setStyleSheet(_resolve_css("""
                 QPushButton {
-                    background: #1a324b; color: #00d4ff; border: 1px solid #00d4ff;
+                    background: rgba(26,50,75,1); color: {Colors.ACCENT_PRIMARY}; border: 1px solid {Colors.ACCENT_PRIMARY};
                     border-radius: 4px; font-weight: bold; font-size: 14px;
                 }
-                QPushButton:hover { background: #00d4ff; color: #000; }
-            """)
+                QPushButton:hover { background: {Colors.ACCENT_PRIMARY}; color: {Colors.BG_DEEP}; }
+            """))
             fpath = item_doc.get('file_path')
             if fpath:
                 import os
@@ -2268,13 +2298,13 @@ class ProjectManager(QWidget):
                  btn_quick_convert.setFixedHeight(28)
                  btn_quick_convert.setCursor(Qt.PointingHandCursor)
                  btn_quick_convert.setToolTip("Conversão rápida para DXF 2018 ASCII")
-                 btn_quick_convert.setStyleSheet("""
+                 btn_quick_convert.setStyleSheet(_resolve_css("""
                     QPushButton {
-                        background: #1a4d2e; color: #00ff88; border: 1px solid #00ff88;
+                        background: rgba(26,77,46,1); color: {Colors.ACCENT_SUCCESS_ALT}; border: 1px solid {Colors.ACCENT_SUCCESS_ALT};
                         border-radius: 4px; padding: 4px 12px; font-size: 11px; font-weight: bold;
                     }
-                    QPushButton:hover { background: #00ff88; color: #000; }
-                 """)
+                    QPushButton:hover { background: {Colors.ACCENT_SUCCESS_ALT}; color: {Colors.BG_DEEP}; }
+                 """))
                  btn_quick_convert.clicked.connect(lambda checked=False, d=item_doc: self._convert_to_specific_version(d, "R2018", "dxf", False))
                  row_layout.addWidget(btn_quick_convert)
                  
@@ -2284,9 +2314,9 @@ class ProjectManager(QWidget):
                  btn_convert.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
                  btn_convert.setPopupMode(QToolButton.InstantPopup)
                  btn_convert.setCursor(Qt.PointingHandCursor)
-                 btn_convert.setStyleSheet("""
+                 btn_convert.setStyleSheet(_resolve_css("""
                     QToolButton {
-                        background: #1a324b; color: #00d4ff; border: 1px solid #00d4ff;
+                        background: rgba(26,50,75,1); color: {Colors.ACCENT_PRIMARY}; border: 1px solid {Colors.ACCENT_PRIMARY};
                         border-radius: 4px; padding: 6px 12px; font-size: 11px; font-weight: bold;
                     }
                     QToolButton::menu-indicator { 
@@ -2294,17 +2324,17 @@ class ProjectManager(QWidget):
                         subcontrol-position: center right;
                         right: 4px;
                     }
-                    QToolButton:hover { background: #00d4ff; color: #000; }
-                 """)
+                    QToolButton:hover { background: {Colors.ACCENT_PRIMARY}; color: {Colors.BG_DEEP}; }
+                 """))
                  
                  menu = QMenu(self)
-                 menu.setStyleSheet("""
-                    QMenu { background-color: #252528; color: #e0e0e0; border: 1px solid #444; font-size: 11px; }
+                 menu.setStyleSheet(_resolve_css("""
+                    QMenu { background-color: {Colors.BG_SURFACE}; color: {Colors.TEXT_PRIMARY}; border: 1px solid {Colors.BORDER_INPUT}; font-size: 11px; }
                     QMenu::item { padding: 8px 30px; }
-                    QMenu::item:selected { background-color: #00d4ff; color: #000; }
-                    QMenu::separator { height: 1px; background: #444; margin: 5px 0; }
-                    QMenu::section { background-color: #1a1a1c; color: #00d4ff; padding: 6px; font-weight: bold; border-bottom: 1px solid #333; }
-                 """)
+                    QMenu::item:selected { background-color: {Colors.ACCENT_PRIMARY}; color: {Colors.BG_DEEP}; }
+                    QMenu::separator { height: 1px; background: {Colors.BORDER_INPUT}; margin: 5px 0; }
+                    QMenu::section { background-color: {Colors.BG_DEEP}; color: {Colors.ACCENT_PRIMARY}; padding: 6px; font-weight: bold; border-bottom: 1px solid {Colors.BORDER_DEFAULT}; }
+                 """))
                  
                  # Opção especial: Converter para TODOS os formatos
                  menu.addSection("⚡ CONVERSÃO EM LOTE")
@@ -2349,13 +2379,13 @@ class ProjectManager(QWidget):
             btn_delete.setFixedSize(28, 28)
             btn_delete.setCursor(Qt.PointingHandCursor)
             btn_delete.setToolTip("Excluir documento")
-            btn_delete.setStyleSheet("""
+            btn_delete.setStyleSheet(_resolve_css("""
                 QPushButton {
-                    background: #3a1c1c; color: #ff6b6b; border: 1px solid #ff4444;
+                    background: rgba(58,28,28,1); color: {Colors.ACCENT_DANGER}; border: 1px solid {Colors.ACCENT_DANGER};
                     border-radius: 4px; font-weight: bold; font-size: 12px;
                 }
-                QPushButton:hover { background: #ff4444; color: white; }
-            """)
+                QPushButton:hover { background: {Colors.ACCENT_DANGER}; color: {Colors.TEXT_BRIGHT}; }
+            """))
             doc_id = item_doc.get('id')
             if doc_id == 'main_dxf':
                 btn_delete.clicked.connect(lambda: self._delete_main_dxf())
