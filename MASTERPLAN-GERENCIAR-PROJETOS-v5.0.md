@@ -1,6 +1,101 @@
-# MASTERPLAN — CAD Analyzer UI v5.0
+# MASTERPLAN — CAD Analyzer v5.0
 **Data:** 2026-06-03 | **Status:** ATIVO
-**Escopo:** Gerenciar Projetos + Comparison Engine + Sincronização Global
+**Escopo:** Robot Quality Loop + Comparison Engine + Gerenciar Projetos + Sincronização Global
+
+---
+
+## VISÃO ESTRATÉGICA — PRIORIDADE REAL
+
+```
+TRILHA A — Robot Quality Loop (PRIORIDADE MÁXIMA)
+  CE-001 + CE-004  →  Refinamento LV (4 vigas)  →  4× cada classe
+      →  Fichas completas  →  Harmonização semântica  →  E2E
+
+TRILHA B — UI/Infraestrutura (paralela ou posterior)
+  PM-001 a PM-009  →  Gerenciar Projetos completo
+
+Dependência crítica: CE-001 e CE-004 são pré-requisitos da Trilha A.
+Tudo mais em PM pode esperar o quality loop estar maduro.
+```
+
+---
+
+## TRILHA A — ROBOT QUALITY LOOP
+
+### QA-001: CE fixes para habilitar o quality loop
+**Prioridade:** BLOQUEANTE para Trilha A  
+**Stories:** CE-001 (layout), CE-003 (renomear botões), CE-004 (N2 dinâmico)  
+**Por que primeiro:** Sem CE-004, o N2 é estático e não rastreia o DXF de eng. reversa por obra/pavimento. O ciclo de comparação N1 vs N2 vs N3 não funciona de forma ágil.
+
+---
+
+### QA-002: Refinamento LV — 4 Vigas de Teste
+**Prioridade:** P0 — core do produto  
+**Contexto:** 4 vigas (V4, V5, V6, V7) estão sendo testadas. Ainda há erros a refinar.  
+**Critério de saída desta etapa:**
+- Score comparison N1 vs N2 ≥ 85% em todas as 4 vigas
+- N3 (robot gerado) visualmente correto vs N1 (estrutural real)
+- Ficha de cada viga no CE com dados coerentes (h, b, laje_sup, laje_inf, seções)
+- Zero regressões nas vigas já aprovadas ao corrigir as problemáticas
+
+**Processo de refinamento por viga:**
+```
+1. Selecionar viga no CE (N1 carrega DXF estrutural, N2 carrega eng. reversa, N3 PNG robot)
+2. Identificar delta: o que N3 tem que N1 não tem, e vice-versa
+3. Corrigir no gerador (gerar_lv_dxf_stog.py) ou na ficha (fichas_lv_v2)
+4. Regenerar N3 → re-comparar
+5. Registrar resultado na ficha de validação
+```
+
+**Vigas em teste:** V4, V5, V6, V7  
+**Arquivos:** `scripts/gerar_lv_dxf_stog.py`, `data/fichas_lv_v2/`, `DADOS-OBRAS/Obra_TREINO_*/`
+
+---
+
+### QA-003: Expansão para todas as classes — 4× cada
+**Prioridade:** P1 — após QA-002 aprovado  
+**Objetivo:** Ter fichas de validação de 4 amostras de cada classe estrutural no CE.
+
+| Classe | Qtd amostras | Script gerador | Status |
+|--------|-------------|----------------|--------|
+| LV — Laterais de Viga | 4 (V4/V5/V6/V7) | `gerar_lv_dxf_stog.py` | Em refinamento |
+| PL — Pilares | 4 | `gerar_pl_dxf_stog.py` | Pendente após LV |
+| LJ — Lajes | 4 | `gerar_lj_dxf_stog.py` | Pendente após LV |
+| FV — Fundo de Viga | 4 | `gerar_fv_dxf_stog.py` | Pendente após LV |
+
+**Critério de saída:** CE tem 16 itens de fichas (4 × 4 classes) com N1/N2/N3 carregados e scores ≥ 85%.
+
+---
+
+### QA-004: Harmonização Semântica
+**Prioridade:** P1 — após QA-003  
+**Objetivo:** Com todas as espécies de fichas no CE, garantir que os campos semânticos (h, b, laje_sup, laje_inf, seções, grades, sarrafos) são extraídos consistentemente entre obras diferentes da mesma classe.
+
+**Processo:**
+```
+Para cada classe (LV/PL/LJ/FV):
+  1. Comparar fichas das 4 amostras entre si
+  2. Identificar variações legítimas vs bugs de extração
+  3. Documentar regras semânticas canonizadas
+  4. Atualizar extratores + geradores
+  5. Re-validar as 4 amostras
+```
+
+**Output:** `docs/SEMANTICA-CANONICA-{CLASSE}.md` por classe
+
+---
+
+### QA-005: E2E Multi-Obra
+**Prioridade:** P2 — após QA-004  
+**Objetivo:** Pipeline completo Fase 1→8 funcionando em 3+ obras diferentes sem intervenção manual.
+
+**Critério de saída:**
+- Selecionar obra no CE → N1/N2/N3 carregam automaticamente
+- Processar pipeline completo (Fases 1-6) em 3 obras distintas
+- Score médio ≥ 80% em todas as obras
+- Zero regressões nas obras de treino já aprovadas
+
+---
 
 ---
 
