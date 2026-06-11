@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>LV Itens -- Obra_TREINO_16</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#0d0e18;color:#cdd;font-family:'Courier New',monospace;display:flex;height:100vh;overflow:hidden}
+#sidebar{width:200px;min-width:200px;background:#12131f;border-right:1px solid #223;overflow-y:auto;display:flex;flex-direction:column;font-size:11px}
+#sidebar h2{color:#00d4ff;padding:6px 10px;border-bottom:1px solid #223;font-size:11px}
+.pg{padding:4px 8px;cursor:pointer;border-bottom:1px solid #1a1b2a}
+.pg .plabel{font-weight:bold;color:#88aacc;padding:2px 0}
+.pg .plabel:hover{color:#00d4ff}
+.items{display:none;padding:2px 0 4px 10px}
+.pg.open .items{display:block}
+.item{padding:2px 6px;cursor:pointer;color:#5a7a9a;border-left:1px solid #223}
+.item:hover{color:#00d4ff;border-left-color:#00d4ff}
+.item.active{color:#ffcc44;border-left-color:#ffcc44;background:#1a1500}
+.pg.active .plabel{color:#00d4ff}
+#main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+#topbar{background:#12131f;padding:5px 12px;display:flex;align-items:center;gap:10px;border-bottom:1px solid #223;font-size:12px}
+#title{color:#00d4ff;font-weight:bold;flex:1}
+#shortcuts{color:#334;font-size:10px}
+#viewer{flex:1;position:relative;overflow:hidden;background:#050508}
+#svghost{position:absolute;top:0;left:0;width:100%;height:100%;transform-origin:0 0;cursor:grab}
+#svghost.grabbing{cursor:grabbing}
+#svghost iframe{width:100%;height:100%;border:none;background:transparent}
+#zbar{position:absolute;bottom:8px;right:10px;display:flex;gap:5px;z-index:10}
+.zb{background:#1a1b2c;color:#99a;border:1px solid #334;padding:3px 9px;cursor:pointer;font-size:12px;border-radius:3px;font-family:inherit}
+.zb:hover{background:#252640;color:#00d4ff}
+#btnbar{background:#12131f;padding:4px 12px;display:flex;gap:8px;align-items:center;border-top:1px solid #223}
+button{background:#1a1b2c;color:#99a;border:1px solid #334;padding:3px 10px;cursor:pointer;font-family:inherit;font-size:11px;border-radius:3px}
+button:hover{background:#252640;color:#00d4ff}
+#ctr{color:#445;font-size:11px;margin:0 auto}
+#zlbl{color:#445;font-size:10px;min-width:36px;text-align:center}
+</style>
+</head>
+<body>
+<div id="sidebar">
+  <h2>LV -- Paginas / Itens</h2>
+  <div id="navlist"></div>
+</div>
+<div id="main">
+  <div id="topbar">
+    <span id="title">--</span>
+    <span id="shortcuts">A D: nav | scroll: zoom | drag: pan | R: reset</span>
+  </div>
+  <div id="viewer">
+    <div id="svghost"><iframe id="frame" src="" style="width:100%;height:100%;border:none"></iframe></div>
+    <div id="zbar">
+      <button class="zb" onclick="doZoom(1.4,null,null)">+</button>
+      <span id="zlbl">100%</span>
+      <button class="zb" onclick="doZoom(1/1.4,null,null)">-</button>
+      <button class="zb" onclick="resetZ()">R</button>
+    </div>
+  </div>
+  <div id="btnbar">
+    <button onclick="navItem(-1)">prev</button>
+    <button onclick="navItem(1)">next</button>
+    <span id="ctr"></span>
+  </div>
+</div>
+<script>
+const NAV = [{"pnum": 3, "label": "Pag 03", "page_svg": "pag_003.svg", "items": []}, {"pnum": 4, "label": "Pag 04", "page_svg": "pag_004.svg", "items": []}, {"pnum": 5, "label": "Pag 05", "page_svg": "pag_005.svg", "items": []}, {"pnum": 6, "label": "Pag 06", "page_svg": "pag_006.svg", "items": [{"name": "(VA1+V3).A", "svg": "pag_006_VA1_V3_.A.svg"}]}, {"pnum": 7, "label": "Pag 07", "page_svg": "pag_007.svg", "items": [{"name": "(VA1+V3).B", "svg": "pag_007_VA1_V3_.B.svg"}]}, {"pnum": 8, "label": "Pag 08", "page_svg": "pag_008.svg", "items": [{"name": "CONTINUAÇÃO... (VA1+V3).B", "svg": "pag_008_CONTINUAÇÃO...__VA1_V3_.B.svg"}, {"name": "1", "svg": "pag_008_1.svg"}, {"name": "2", "svg": "pag_008_2.svg"}, {"name": "3", "svg": "pag_008_3.svg"}]}, {"pnum": 9, "label": "Pag 09", "page_svg": "pag_009.svg", "items": [{"name": "V4.A", "svg": "pag_009_V4.A.svg"}, {"name": "V4.B", "svg": "pag_009_V4.B.svg"}]}, {"pnum": 10, "label": "Pag 10", "page_svg": "pag_010.svg", "items": [{"name": "V5.A", "svg": "pag_010_V5.A.svg"}, {"name": "V7.A", "svg": "pag_010_V7.A.svg"}, {"name": "V5.B", "svg": "pag_010_V5.B.svg"}, {"name": "M5", "svg": "pag_010_M5.svg"}, {"name": "V7.B", "svg": "pag_010_V7.B.svg"}]}, {"pnum": 11, "label": "Pag 11", "page_svg": "pag_011.svg", "items": [{"name": "V6.A", "svg": "pag_011_V6.A.svg"}, {"name": "V6.B", "svg": "pag_011_V6.B.svg"}]}, {"pnum": 12, "label": "Pag 12", "page_svg": "pag_012.svg", "items": [{"name": "V9.A - V9.B", "svg": "pag_012_V9.A_-_V9.B.svg"}, {"name": "V13.A - V13.B", "svg": "pag_012_V13.A_-_V13.B.svg"}, {"name": "V8.A - V8.B", "svg": "pag_012_V8.A_-_V8.B.svg"}]}, {"pnum": 13, "label": "Pag 13", "page_svg": "pag_013.svg", "items": [{"name": "V10.A", "svg": "pag_013_V10.A.svg"}, {"name": "V10.B", "svg": "pag_013_V10.B.svg"}]}, {"pnum": 14, "label": "Pag 14", "page_svg": "pag_014.svg", "items": [{"name": "V10A.A", "svg": "pag_014_V10A.A.svg"}, {"name": "V10A.B", "svg": "pag_014_V10A.B.svg"}]}, {"pnum": 15, "label": "Pag 15", "page_svg": "pag_015.svg", "items": [{"name": "V11.A", "svg": "pag_015_V11.A.svg"}]}, {"pnum": 16, "label": "Pag 16", "page_svg": "pag_016.svg", "items": [{"name": "V11.A", "svg": "pag_016_V11.A.svg"}]}, {"pnum": 17, "label": "Pag 17", "page_svg": "pag_017.svg", "items": [{"name": "V14.A", "svg": "pag_017_V14.A.svg"}, {"name": "V14.B", "svg": "pag_017_V14.B.svg"}]}, {"pnum": 18, "label": "Pag 18", "page_svg": "pag_018.svg", "items": [{"name": "TEST.4.A", "svg": "pag_018_TEST.4.A.svg"}, {"name": "TEST.4.B", "svg": "pag_018_TEST.4.B.svg"}, {"name": "M15", "svg": "pag_018_M15.svg"}]}, {"pnum": 19, "label": "Pag 19", "page_svg": "pag_019.svg", "items": [{"name": "TEST.1.A", "svg": "pag_019_TEST.1.A.svg"}, {"name": "V15.A", "svg": "pag_019_V15.A.svg"}, {"name": "M7.5", "svg": "pag_019_M7.5.svg"}, {"name": "TEST.1.B", "svg": "pag_019_TEST.1.B.svg"}, {"name": "V15.B", "svg": "pag_019_V15.B.svg"}, {"name": "M5", "svg": "pag_019_M5.svg"}, {"name": "M2.5", "svg": "pag_019_M2.5.svg"}]}, {"pnum": 20, "label": "Pag 20", "page_svg": "pag_020.svg", "items": []}, {"pnum": 21, "label": "Pag 21", "page_svg": "pag_021.svg", "items": [{"name": "(VA2+V16+V17+V18+V19).A", "svg": "pag_021_VA2_V16_V17_V18_V19_.A.svg"}, {"name": "1", "svg": "pag_021_1.svg"}, {"name": "2", "svg": "pag_021_2.svg"}, {"name": "3", "svg": "pag_021_3.svg"}]}, {"pnum": 22, "label": "Pag 22", "page_svg": "pag_022.svg", "items": [{"name": "(VA2+V16+V17+V18+V19).B", "svg": "pag_022_VA2_V16_V17_V18_V19_.B.svg"}, {"name": "M5", "svg": "pag_022_M5.svg"}]}, {"pnum": 23, "label": "Pag 23", "page_svg": "pag_023.svg", "items": [{"name": "V22.A", "svg": "pag_023_V22.A.svg"}, {"name": "V22.B", "svg": "pag_023_V22.B.svg"}]}, {"pnum": 24, "label": "Pag 24", "page_svg": "pag_024.svg", "items": [{"name": "V23.A", "svg": "pag_024_V23.A.svg"}, {"name": "V23.B", "svg": "pag_024_V23.B.svg"}, {"name": "M5", "svg": "pag_024_M5.svg"}, {"name": "M16", "svg": "pag_024_M16.svg"}, {"name": "V24.B", "svg": "pag_024_V24.B.svg"}, {"name": "V24.A", "svg": "pag_024_V24.A.svg"}, {"name": "M2.5", "svg": "pag_024_M2.5.svg"}]}, {"pnum": 25, "label": "Pag 25", "page_svg": "pag_025.svg", "items": [{"name": "V25.A", "svg": "pag_025_V25.A.svg"}, {"name": "V28.A", "svg": "pag_025_V28.A.svg"}, {"name": "M2.5", "svg": "pag_025_M2.5.svg"}, {"name": "M5", "svg": "pag_025_M5.svg"}, {"name": "V25.B", "svg": "pag_025_V25.B.svg"}, {"name": "V28.B", "svg": "pag_025_V28.B.svg"}]}, {"pnum": 26, "label": "Pag 26", "page_svg": "pag_026.svg", "items": [{"name": "V26.A", "svg": "pag_026_V26.A.svg"}, {"name": "M5", "svg": "pag_026_M5.svg"}, {"name": "V26.B", "svg": "pag_026_V26.B.svg"}]}, {"pnum": 27, "label": "Pag 27", "page_svg": "pag_027.svg", "items": [{"name": "V27.A", "svg": "pag_027_V27.A.svg"}, {"name": "V27.B", "svg": "pag_027_V27.B.svg"}]}, {"pnum": 28, "label": "Pag 28", "page_svg": "pag_028.svg", "items": [{"name": "TEST.1.A", "svg": "pag_028_TEST.1.A.svg"}, {"name": "TEST.1.B", "svg": "pag_028_TEST.1.B.svg"}, {"name": "FECH.", "svg": "pag_028_FECH..svg"}]}, {"pnum": 29, "label": "Pag 29", "page_svg": "pag_029.svg", "items": [{"name": "V29.A", "svg": "pag_029_V29.A.svg"}, {"name": "V29.B", "svg": "pag_029_V29.B.svg"}]}, {"pnum": 30, "label": "Pag 30", "page_svg": "pag_030.svg", "items": [{"name": "VE1.A", "svg": "pag_030_VE1.A.svg"}, {"name": "VE1.B", "svg": "pag_030_VE1.B.svg"}, {"name": "VE.A-VE.B", "svg": "pag_030_VE.A-VE.B.svg"}]}, {"pnum": 31, "label": "Pag 31", "page_svg": "pag_031.svg", "items": [{"name": "V30.A", "svg": "pag_031_V30.A.svg"}, {"name": "V30.B", "svg": "pag_031_V30.B.svg"}, {"name": "M5", "svg": "pag_031_M5.svg"}]}, {"pnum": 32, "label": "Pag 32", "page_svg": "pag_032.svg", "items": [{"name": "V31.A", "svg": "pag_032_V31.A.svg"}, {"name": "V31.B", "svg": "pag_032_V31.B.svg"}, {"name": "M5", "svg": "pag_032_M5.svg"}]}, {"pnum": 33, "label": "Pag 33", "page_svg": "pag_033.svg", "items": [{"name": "V32.A", "svg": "pag_033_V32.A.svg"}, {"name": "V35.A", "svg": "pag_033_V35.A.svg"}, {"name": "M2.5", "svg": "pag_033_M2.5.svg"}, {"name": "V32.B", "svg": "pag_033_V32.B.svg"}, {"name": "V35.B", "svg": "pag_033_V35.B.svg"}, {"name": "M15.5", "svg": "pag_033_M15.5.svg"}]}, {"pnum": 34, "label": "Pag 34", "page_svg": "pag_034.svg", "items": [{"name": "V33.A", "svg": "pag_034_V33.A.svg"}, {"name": "V33.B", "svg": "pag_034_V33.B.svg"}, {"name": "M5", "svg": "pag_034_M5.svg"}, {"name": "M6.5", "svg": "pag_034_M6.5.svg"}]}, {"pnum": 35, "label": "Pag 35", "page_svg": "pag_035.svg", "items": [{"name": "TEST.3.A", "svg": "pag_035_TEST.3.A.svg"}, {"name": "M7", "svg": "pag_035_M7.svg"}, {"name": "TEST.3.B", "svg": "pag_035_TEST.3.B.svg"}, {"name": "M6", "svg": "pag_035_M6.svg"}]}, {"pnum": 36, "label": "Pag 36", "page_svg": "pag_036.svg", "items": [{"name": "V36.A", "svg": "pag_036_V36.A.svg"}, {"name": "M5", "svg": "pag_036_M5.svg"}, {"name": "V36.B", "svg": "pag_036_V36.B.svg"}]}, {"pnum": 37, "label": "Pag 37", "page_svg": "pag_037.svg", "items": [{"name": "V41A.A", "svg": "pag_037_V41A.A.svg"}, {"name": "V40.A", "svg": "pag_037_V40.A.svg"}, {"name": "M5", "svg": "pag_037_M5.svg"}, {"name": "V41A.B", "svg": "pag_037_V41A.B.svg"}, {"name": "V40.B", "svg": "pag_037_V40.B.svg"}]}, {"pnum": 38, "label": "Pag 38", "page_svg": "pag_038.svg", "items": [{"name": "VA1.A", "svg": "pag_038_VA1.A.svg"}, {"name": "M18.5", "svg": "pag_038_M18.5.svg"}, {"name": "VA1.B", "svg": "pag_038_VA1.B.svg"}, {"name": "VA2.A", "svg": "pag_038_VA2.A.svg"}, {"name": "VA2.B", "svg": "pag_038_VA2.B.svg"}, {"name": "VA3.A", "svg": "pag_038_VA3.A.svg"}, {"name": "M15", "svg": "pag_038_M15.svg"}, {"name": "VA3.B", "svg": "pag_038_VA3.B.svg"}]}, {"pnum": 39, "label": "Pag 39", "page_svg": "pag_039.svg", "items": [{"name": "VA4.A", "svg": "pag_039_VA4.A.svg"}, {"name": "VA6.A-VA9.B", "svg": "pag_039_VA6.A-VA9.B.svg"}, {"name": "VA4.B", "svg": "pag_039_VA4.B.svg"}, {"name": "VA6.B-VA9.A", "svg": "pag_039_VA6.B-VA9.A.svg"}, {"name": "VA5.A", "svg": "pag_039_VA5.A.svg"}, {"name": "VA8.B", "svg": "pag_039_VA8.B.svg"}, {"name": "VA8.A", "svg": "pag_039_VA8.A.svg"}, {"name": "VA5.B", "svg": "pag_039_VA5.B.svg"}, {"name": "VA7.A", "svg": "pag_039_VA7.A.svg"}, {"name": "VA7.B", "svg": "pag_039_VA7.B.svg"}]}, {"pnum": 40, "label": "Pag 40", "page_svg": "pag_040.svg", "items": []}, {"pnum": 41, "label": "Pag 41", "page_svg": "pag_041.svg", "items": []}, {"pnum": 42, "label": "Pag 42", "page_svg": "pag_042.svg", "items": []}, {"pnum": 43, "label": "Pag 43", "page_svg": "pag_043.svg", "items": []}, {"pnum": 44, "label": "Pag 44", "page_svg": "pag_044.svg", "items": []}, {"pnum": 45, "label": "Pag 45", "page_svg": "pag_045.svg", "items": []}, {"pnum": 46, "label": "Pag 46", "page_svg": "pag_046.svg", "items": []}, {"pnum": 47, "label": "Pag 47", "page_svg": "pag_047.svg", "items": []}, {"pnum": 48, "label": "Pag 48", "page_svg": "pag_048.svg", "items": []}, {"pnum": 49, "label": "Pag 49", "page_svg": "pag_049.svg", "items": []}, {"pnum": 50, "label": "Pag 50", "page_svg": "pag_050.svg", "items": []}, {"pnum": 51, "label": "Pag 51", "page_svg": "pag_051.svg", "items": []}, {"pnum": 52, "label": "Pag 52", "page_svg": "pag_052.svg", "items": []}, {"pnum": 53, "label": "Pag 53", "page_svg": "pag_053.svg", "items": []}, {"pnum": 54, "label": "Pag 54", "page_svg": "pag_054.svg", "items": []}, {"pnum": 55, "label": "Pag 55", "page_svg": "pag_055.svg", "items": []}, {"pnum": 56, "label": "Pag 56", "page_svg": "pag_056.svg", "items": []}, {"pnum": 57, "label": "Pag 57", "page_svg": "pag_057.svg", "items": []}, {"pnum": 58, "label": "Pag 58", "page_svg": "pag_058.svg", "items": []}, {"pnum": 59, "label": "Pag 59", "page_svg": "pag_059.svg", "items": []}, {"pnum": 60, "label": "Pag 60", "page_svg": "pag_060.svg", "items": []}, {"pnum": 61, "label": "Pag 61", "page_svg": "pag_061.svg", "items": []}, {"pnum": 62, "label": "Pag 62", "page_svg": "pag_062.svg", "items": []}, {"pnum": 63, "label": "Pag 63", "page_svg": "pag_063.svg", "items": []}, {"pnum": 64, "label": "Pag 64", "page_svg": "pag_064.svg", "items": []}, {"pnum": 65, "label": "Pag 65", "page_svg": "pag_065.svg", "items": []}, {"pnum": 66, "label": "Pag 66", "page_svg": "pag_066.svg", "items": []}, {"pnum": 67, "label": "Pag 67", "page_svg": "pag_067.svg", "items": []}, {"pnum": 68, "label": "Pag 68", "page_svg": "pag_068.svg", "items": []}, {"pnum": 69, "label": "Pag 69", "page_svg": "pag_069.svg", "items": []}, {"pnum": 70, "label": "Pag 70", "page_svg": "pag_070.svg", "items": []}, {"pnum": 71, "label": "Pag 71", "page_svg": "pag_071.svg", "items": []}, {"pnum": 72, "label": "Pag 72", "page_svg": "pag_072.svg", "items": []}, {"pnum": 73, "label": "Pag 73", "page_svg": "pag_073.svg", "items": []}, {"pnum": 74, "label": "Pag 74", "page_svg": "pag_074.svg", "items": []}, {"pnum": 75, "label": "Pag 75", "page_svg": "pag_075.svg", "items": []}, {"pnum": 76, "label": "Pag 76", "page_svg": "pag_076.svg", "items": []}, {"pnum": 77, "label": "Pag 77", "page_svg": "pag_077.svg", "items": []}, {"pnum": 78, "label": "Pag 78", "page_svg": "pag_078.svg", "items": []}, {"pnum": 79, "label": "Pag 79", "page_svg": "pag_079.svg", "items": []}, {"pnum": 80, "label": "Pag 80", "page_svg": "pag_080.svg", "items": []}, {"pnum": 81, "label": "Pag 81", "page_svg": "pag_081.svg", "items": []}, {"pnum": 82, "label": "Pag 82", "page_svg": "pag_082.svg", "items": []}, {"pnum": 83, "label": "Pag 83", "page_svg": "pag_083.svg", "items": []}, {"pnum": 84, "label": "Pag 84", "page_svg": "pag_084.svg", "items": []}, {"pnum": 85, "label": "Pag 85", "page_svg": "pag_085.svg", "items": []}, {"pnum": 86, "label": "Pag 86", "page_svg": "pag_086.svg", "items": []}, {"pnum": 87, "label": "Pag 87", "page_svg": "pag_087.svg", "items": []}, {"pnum": 88, "label": "Pag 88", "page_svg": "pag_088.svg", "items": []}, {"pnum": 89, "label": "Pag 89", "page_svg": "pag_089.svg", "items": []}, {"pnum": 90, "label": "Pag 90", "page_svg": "pag_090.svg", "items": []}, {"pnum": 91, "label": "Pag 91", "page_svg": "pag_091.svg", "items": []}, {"pnum": 92, "label": "Pag 92", "page_svg": "pag_092.svg", "items": []}, {"pnum": 93, "label": "Pag 93", "page_svg": "pag_093.svg", "items": []}, {"pnum": 94, "label": "Pag 94", "page_svg": "pag_094.svg", "items": []}, {"pnum": 95, "label": "Pag 95", "page_svg": "pag_095.svg", "items": []}, {"pnum": 96, "label": "Pag 96", "page_svg": "pag_096.svg", "items": []}, {"pnum": 97, "label": "Pag 97", "page_svg": "pag_097.svg", "items": []}, {"pnum": 98, "label": "Pag 98", "page_svg": "pag_098.svg", "items": []}, {"pnum": 99, "label": "Pag 99", "page_svg": "pag_099.svg", "items": []}];
+
+let flatItems = [];
+NAV.forEach(p => {
+  flatItems.push({pnum:p.pnum, name:p.label, svg:p.page_svg, type:'page'});
+  p.items.forEach(it => {
+    flatItems.push({pnum:p.pnum, name:it.name, svg:it.svg, type:'item'});
+  });
+});
+
+let curIdx = 0;
+let sc=1, tx=0, ty=0, drag=false, dx_=0, dy_=0;
+const host = document.getElementById('svghost');
+
+function apply(){
+  host.style.transform = 'translate('+tx+'px,'+ty+'px) scale('+sc+')';
+  document.getElementById('zlbl').textContent = Math.round(sc*100)+'%';
+}
+function doZoom(f,cx,cy){
+  const p=sc; sc=Math.max(0.15,Math.min(20,sc*f));
+  if(cx!=null){tx=cx-(cx-tx)*sc/p; ty=cy-(cy-ty)*sc/p;}
+  apply();
+}
+function resetZ(){sc=1;tx=0;ty=0;apply();}
+
+document.getElementById('viewer').addEventListener('wheel',function(e){
+  e.preventDefault();
+  const r=document.getElementById('viewer').getBoundingClientRect();
+  doZoom(e.deltaY<0?1.15:1/1.15,e.clientX-r.left,e.clientY-r.top);
+},{passive:false});
+host.addEventListener('mousedown',function(e){drag=true;dx_=e.clientX-tx;dy_=e.clientY-ty;host.classList.add('grabbing');});
+document.addEventListener('mousemove',function(e){if(!drag)return;tx=e.clientX-dx_;ty=e.clientY-dy_;apply();});
+document.addEventListener('mouseup',function(){drag=false;host.classList.remove('grabbing');});
+
+function goTo(idx){
+  curIdx=((idx%flatItems.length)+flatItems.length)%flatItems.length;
+  const it=flatItems[curIdx];
+  sc=1;tx=0;ty=0;
+  document.getElementById('frame').src=it.svg;
+  document.getElementById('title').textContent='Pag '+it.pnum+' -- '+it.name;
+  document.getElementById('ctr').textContent=(curIdx+1)+' / '+flatItems.length;
+  apply();
+  highlightSidebar(it.pnum, it.svg);
+}
+function navItem(d){ goTo(curIdx+d); }
+
+function loadItem(svg,pnum,name,idx){
+  curIdx=idx; sc=1;tx=0;ty=0;
+  document.getElementById('frame').src=svg;
+  document.getElementById('title').textContent='Pag '+pnum+' -- '+name;
+  document.getElementById('ctr').textContent=(idx+1)+' / '+flatItems.length;
+  apply();
+  highlightSidebar(pnum,svg);
+}
+
+function highlightSidebar(pnum,svg){
+  document.querySelectorAll('.pg').forEach(function(el){
+    var isActive=parseInt(el.dataset.pnum)===pnum;
+    el.classList.toggle('active', isActive);
+    if(isActive) el.classList.add('open');
+  });
+  document.querySelectorAll('.item').forEach(function(el){
+    el.classList.toggle('active', el.dataset.svg===svg);
+  });
+  var activeEl = document.querySelector('.item.active') || document.querySelector('.pg.active');
+  if(activeEl) activeEl.scrollIntoView({block:'nearest'});
+}
+
+function buildSidebar(){
+  var nl = document.getElementById('navlist');
+  nl.innerHTML='';
+  NAV.forEach(function(p,pi){
+    var idx_page = flatItems.findIndex(function(f){return f.pnum===p.pnum&&f.type==='page';});
+    var div = document.createElement('div');
+    div.className='pg'; div.dataset.pnum=p.pnum;
+
+    var plabel = document.createElement('div');
+    plabel.className='plabel';
+    plabel.textContent=p.label+(p.items.length?' ('+p.items.length+')':' --');
+    plabel.onclick=function(){
+      div.classList.toggle('open');
+      if(idx_page>=0) loadItem(p.page_svg,p.pnum,p.label,idx_page);
+    };
+    div.appendChild(plabel);
+
+    if(p.items.length){
+      var idiv = document.createElement('div');
+      idiv.className='items';
+      p.items.forEach(function(it){
+        var idx_it = flatItems.findIndex(function(f){return f.svg===it.svg;});
+        var sp=document.createElement('div');
+        sp.className='item'; sp.dataset.svg=it.svg;
+        sp.textContent=it.name;
+        sp.onclick=function(e){e.stopPropagation();loadItem(it.svg,p.pnum,it.name,idx_it);};
+        idiv.appendChild(sp);
+      });
+      div.appendChild(idiv);
+    }
+    nl.appendChild(div);
+  });
+}
+
+document.addEventListener('keydown',function(e){
+  if(e.key==='ArrowRight'||e.key==='d') navItem(1);
+  if(e.key==='ArrowLeft'||e.key==='a') navItem(-1);
+  if(e.key==='r'||e.key==='R') resetZ();
+  if(e.key==='+'||e.key==='=') doZoom(1.3,null,null);
+  if(e.key==='-') doZoom(1/1.3,null,null);
+});
+
+buildSidebar();
+goTo(0);
+</script>
+</body>
+</html>

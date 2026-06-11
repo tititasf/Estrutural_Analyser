@@ -1,31 +1,43 @@
 {
   "numero": 7,
   "nome": "L7",
-  "comprimento": 100.0,
-  "largura": 100.0,
-  "pavimento": "VALDIR NIEMEYER-TP2",
+  "comprimento": 244.0,
+  "largura": 244.0,
+  "pavimento": "12 PAV",
   "coordenadas": [
     [
-      191894.0,
-      38477.7
+      0.0,
+      0.0
     ],
     [
-      190715.0,
-      38477.7
+      244.0,
+      0.0
     ],
     [
-      190715.0,
-      38437.7
+      244.0,
+      244.0
     ],
     [
-      191894.0,
-      38437.7
+      0.0,
+      244.0
+    ],
+    [
+      0.0,
+      0.0
     ]
   ],
-  "area_cm2": 10000.0,
+  "area_cm2": 59536.0,
   "linhas_verticais": [
     {
       "value": 100.0,
+      "is_union": false
+    },
+    {
+      "value": 200.0,
+      "is_union": false
+    },
+    {
+      "value": 244.0,
       "is_union": false
     }
   ],
@@ -33,5 +45,35 @@
   "obstaculos": [],
   "modo_selecionado": 0,
   "unioes_nos_bordes": false,
-  "observacoes": ""
+  "observacoes": "",
+  "pontaletes": {},
+  "_sa_meta": {
+    "tipo": "LJ",
+    "analisado_em": "2026-05-21 13:24",
+    "campos_extraidos": [
+      "area_cm2",
+      "comprimento",
+      "coordenadas",
+      "largura",
+      "linhas_verticais",
+      "nome",
+      "numero",
+      "pavimento"
+    ],
+    "campos_defaulted": [],
+    "na_fields": [
+      "grade_1",
+      "grade_2",
+      "h1_A",
+      "h2_A",
+      "h3_A",
+      "holes",
+      "panels",
+      "pillar_left",
+      "pillar_right",
+      "side",
+      "total_width"
+    ],
+    "completude_pct": 100.0
+  }
 }

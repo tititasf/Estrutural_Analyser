@@ -1,0 +1,5777 @@
+[
+  {
+    "page": 6,
+    "viga_name": "(VA1+V3)",
+    "W_cm": null,
+    "H_cm": null,
+    "sections": [
+      {
+        "label": "(VA1+V3)\\P(var.)",
+        "type": "titulo",
+        "y_top": 33906.0,
+        "y_bot": 33702.0,
+        "panels": [
+          "P138"
+        ],
+        "painel_dims": [
+          0.999999999992724,
+          14.0,
+          15.0,
+          27.0,
+          31.5,
+          50.99999999999272,
+          58.5,
+          80.0,
+          82.0,
+          244.0
+        ],
+        "secao_dims": [
+          11.99999999989086,
+          123.9999999989595
+        ],
+        "sarr_count": 28,
+        "sarr_layers": {
+          "SARR_2.2x7": 9,
+          "SARR_3.5x7": 19
+        },
+        "corte_labels": [],
+        "xrefs": [
+          "V113.A",
+          "V112.A",
+          "V113.B",
+          "V113.B"
+        ],
+        "sp_markers": [],
+        "other_texts": []
+      },
+      {
+        "label": "(VA1+V3).A",
+        "type": "face_A",
+        "y_top": 33906.0,
+        "y_bot": 33702.0,
+        "panels": [
+          "P138"
+        ],
+        "painel_dims": [
+          0.999999999992724,
+          14.0,
+          15.0,
+          27.0,
+          31.5,
+          50.99999999999272,
+          58.5,
+          80.0,
+          82.0,
+          244.0
+        ],
+        "secao_dims": [
+          11.99999999989086,
+          123.9999999989595
+        ],
+        "sarr_count": 28,
+        "sarr_layers": {
+          "SARR_2.2x7": 9,
+          "SARR_3.5x7": 19
+        },
+        "corte_labels": [],
+        "xrefs": [
+          "V113.A",
+          "V112.A",
+          "V113.B",
+          "V113.B"
+        ],
+        "sp_markers": [],
+        "other_texts": []
+      }
+    ],
+    "raw_titles": [
+      "(VA1+V3)\\P(var.)"
+    ]
+  },
+  {
+    "page": 7,
+    "viga_name": null,
+    "W_cm": null,
+    "H_cm": null,
+    "sections": [
+      {
+        "label": "(VA1+V3).B",
+        "type": "face_B",
+        "y_top": 33890.0,
+        "y_bot": 33121.62489231332,
+        "panels": [
+          "V40",
+          "PA1",
+          "V32"
+        ],
+        "painel_dims": [
+          10.0,
+          19.0,
+          25.0,
+          54.0,
+          54.00000000005821,
+          54.99999999999272,
+          56.99999999999272,
+          60.5,
+          122.0,
+          127.0,
+          149.0,
+          165.0,
+          210.5,
+          244.0,
+          244.0000000000291,
+          304.5
+        ],
+        "secao_dims": [],
+        "sarr_count": 61,
+        "sarr_layers": {
+          "SARR_2.2x7": 35,
+          "SARR_3.5x7": 26
+        },
+        "corte_labels": [],
+        "xrefs": [],
+        "sp_markers": [],
+        "other_texts": [
+          {
+            "text": "8 1/2pont",
+            "layer": "texto"
+          },
+          {
+            "text": "4 1/2pont",
+            "layer": "texto"
+          },
+          {
+            "text": "8 1/2pont",
+            "layer": "texto"
+          },
+          {
+            "text": "12 1/2pont",
+            "layer": "texto"
+          },
+          {
+            "text": "6 1/2pont",
+            "layer": "texto"
+          },
+          {
+            "text": "5 1/2pont",
+            "layer": "texto"
+          },
+          {
+            "text": "5 1/2pont",
+            "layer": "texto"
+          }
+        ]
+      }
+    ],
+    "raw_titles": []
+  },
+  {
+    "page": 8,
+    "viga_name": null,
+    "W_cm": null,
+    "H_cm": null,
+    "sections": [
+      {
+        "label": "CONTINUAÇÃO... (VA1+V3).B",
+        "type": "face_B",
+        "y_top": 34091.62489231332,
+        "y_bot": 33943.896999844495,
+        "panels": [],
+        "painel_dims": [
+          60.0
+        ],
+        "secao_dims": [
+          59.99999999947613,
+          121.7999999989734
+        ],
+        "sarr_count": 0,
+        "sarr_layers": {},
+        "corte_labels": [
+          {
+            "label": "a",
+            "x": 134201.0051902423,
+            "y": 33947.86100877918
+          }
+        ],
+        "xrefs": [],
+        "sp_markers": [],
+        "other_texts": [
+          {
+            "text": "DET. CAMB.",
+            "layer": "Romaneio"
+          },
+          {
+            "text": "CORTE A - A",
+            "layer": "Romaneio"
+          }
+        ]
+      },
+      {
+        "label": "1",
+        "type": "other",
+        "y_top": 33943.896999844495,
+        "y_bot": 33888.7645696712,
+        "panels": [],
+        "painel_dims": [],
+        "secao_dims": [],
+        "sarr_count": 0,
+        "sarr_layers": {},
+        "corte_labels": [],
+        "xrefs": [],
+        "sp_markers": [],
+        "other_texts": [
+          {
+            "text": "5 camb.",
+            "layer": "texto"
+          },
+          {
+            "text": "5 camb.",
+            "layer": "texto"
+          },
+          {
+            "text": "2 camb.",
+            "layer": "texto"
+          }
+        ]
+      },
+      {
+        "label": "2",
+        "type": "other",
+        "y_top": 33888.7645696712,
+        "y_bot": 33819.948549939734,
+        "panels": [],
+        "painel_dims": [
+          41.80000000000291
+        ],
+        "secao_dims": [
+          32.99999999953434,
+          41.7999999995518,
+          59.99999999947613,
+          62.1999999994805
+        ],
+        "sarr_count": 0,
+        "sarr_layers": {},
+        "corte_labels": [],
+        "xrefs": [],
+        "sp_markers": [],
+        "other_texts": [
+          {
+            "text": "CAMB.",
+            "layer": "Romaneio"
+          }
+        ]
+      },
+      {
+        "label": "3",
+        "type": "other",
+        "y_top": 33819.948549939734,
+        "y_bot": 33121.62489231332,
+        "panels": [],
+        "painel_dims": [
+          43.0,
+          62.19999999999709,
+          122.0
+        ],
+        "secao_dims": [
+          32.99999999953434,
+          39.99999999953434,
+          46.99999999949068
+        ],
+        "sarr_count": 0,
+        "sarr_layers": {},
+        "corte_labels": [
+          {
+            "label": "a",
+            "x": 134201.0051902423,
+            "y": 33734.62408693708
+          }
+        ],
+        "xrefs": [],
+        "sp_markers": [],
+        "other_texts": []
+      }
+    ],
+    "raw_titles": []
+  },
+  {
+    "page": 9,
+    "viga_name": "V4",
+    "W_cm": 40.0,
+    "H_cm": 30.0,
+    "sections": [
+      {
+        "label": "V4\\P(40x30)",
+        "type": "titulo",
+        "y_top": 32557.0,
+        "y_bot": 32369.0,
+        "panels": [
+          "P1",
+          "P2",
+          "TEST.1",
+          "P3A"
+        ],
+        "painel_dims": [
+          14.00000000000364,
+          20.0,
+          34.0,
+          72.5,
+          122.0,
+          134.0,
+          165.5,
+          244.0,
+          256.0
+        ],
+        "secao_dims": [],
+        "sarr_count": 16,
+        "sarr_layers": {
+          "SARR_2.2x7": 16
+        },
+        "corte_labels": [],
+        "xrefs": [],
+        "sp_markers": [],
+        "other_texts": []
+      },
+      {
+        "label": "V4.A",
+        "type": "face_A",
+        "y_top": 32557.0,
+        "y_bot": 32369.0,
+        "panels": [
+          "P1",
+          "P2",
+          "TEST.1",
+          "P3A"
+        ],
+        "painel_dims": [
+          14.00000000000364,
+          20.0,
+          34.0,
+          72.5,
+          122.0,
+          134.0,
+          165.5,
+          244.0,
+          256.0
+        ],
+        "secao_dims": [],
+        "sarr_count": 16,
+        "sarr_layers": {
+          "SARR_2.2x7": 16
+        },
+        "corte_labels": [],
+        "xrefs": [],
+        "sp_markers": [],
+        "other_texts": []
+      },
+      {
+        "label": "V4.B",
+        "type": "face_B",
+        "y_top": 32369.0,
+        "y_bot": 31973.049784626637,
+        "panels": [
+          "P3A",
+          "P1"
+        ],
+        "painel_dims": [
+          7.0,
+          14.0,
+          20.0,
+          34.0,
+          42.0,
+          84.0,
+          244.0,
+          286.0
+        ],
+        "secao_dims": [],
+        "sarr_count": 8,
+        "sarr_layers": {
+          "SARR_2.2x7": 8
+        },
+        "corte_labels": [],
+        "xrefs": [],
+        "sp_markers": [
+          "S.P"
+        ],
+        "other_texts": []
+      }
+    ],
+    "raw_titles": [
+      "V4\\P(40x30)"
+    ]
+  },
+  {
+    "page": 10,
+    "viga_name": "V7",
+    "W_cm": 19.0,
+    "H_cm": 63.0,
+    "sections": [
+      {
+        "label": "V7\\P(19x63)",
+        "type": "titulo",
+        "y_top": 32943.04978462664,
+        "y_bot": 32825.129380660415,
+        "panels": [],
+        "painel_dims": [],
+        "secao_dims": [],
+        "sarr_count": 0,
+        "sarr_layers": {},
+        "corte_labels": [],
+        "xrefs": [],
+        "sp_markers": [],
+        "other_texts": []
+      },
+      {
+        "label": "V5\\P(19x159)",
+        "type": "titulo",
+        "y_top": 32825.129380660415,
+        "y_bot": 32819.84381131266,
+        "panels": [],
+        "painel_dims": [],
+        "secao_dims": [],
+        "sarr_count": 0,
+        "sarr_layers": {},
+        "corte_labels": [],
+        "xrefs": [],
+        "sp_markers": [],
+        "other_texts": []
+      },
+      {
+        "label": "V5.A",
+        "type": "face_A",
+        "y_top": 32819.84381131266,
+        "y_bot": 32675.70516554802,
+        "panels": [],
+        "painel_dims": [
+          14.0,
+          27.0,
+          38.0,
+          163.0
+        ],
+        "secao_dims": [
+          11.99999999999272,
+          11.99999999999636,
+          13.99999999999636,
+          62.99999999998545,
+          158.9999999999854
+        ],
+        "sarr_count": 11,
+        "sarr_layers": {
+          "SARR_2.2x7": 5,
+          "SARR_3.5x7": 6
+        },
+        "corte_labels": [],
+        "xrefs": [],
+        "sp_markers": [],
+        "other_texts": [
+          {
+            "text": "5 1/2pont",
+            "layer": "texto"
+          },
+          {
+            "text": "4 1/2pont",
+            "layer": "texto"
+          }
+        ]
+      },
+      {
+        "label": "V7.A",
+        "type": "face_A",
+        "y_top": 32675.70516554802,
+        "y_bot": 32504.182590732482,
+        "panels": [
+          "P3B",
+          "V29"
+        ],
+        "painel_dims": [
+          0.9966228422272252,
+          16.0,
+          51.0,
+          66.99999999999272,
+          118.5,
+          122.0,
+          149.0
+        ],
+        "secao_dims": [
+          19.0,
+          51.0,
+          53.0
+        ],
+        "sarr_count": 2,
+        "sarr_layers": {
+          "SARR_2.2x7": 2
+        },
+        "corte_labels": [
+          {
+            "label": "c",
+            "x": 131713.4701223608,
+            "y": 32650.90569665534
+          },
+          {
+            "label": "b",
+            "x": 131741.1478133501,
+            "y": 32656.31780726031
+          },
+          {
+            "label": "a",
+            "x": 131685.174154406,
+            "y": 32656.32886470588
+          }
+        ],
+        "xrefs": [],
+        "sp_markers": [],
+        "other_texts": [
+          {
+            "text": "FORNECER MOSCA",
+            "layer": "CARIMBO"
+          }
+        ]
+      },
+      {
+        "label": "V5.B",
+        "type": "face_B",
+        "y_top": 32504.182590732482,
+        "y_bot": 32420.52455616897,
+        "panels": [],
+        "painel_dims": [
+          2.0,
+          14.0,
+          50.99999999999272,
+          57.0,
+          163.0
+        ],
+        "secao_dims": [
+          149.0
+        ],
+        "sarr_count": 12,
+        "sarr_layers": {
+          "SARR_2.2x7": 4,
+          "SARR_3.5x7": 8
+        },
+        "corte_labels": [
+          {
+            "label": "c",
+            "x": 130835.1046032441,
+            "y": 32458.90569665534
+          },
+          {
+            "label": "b",
+            "x": 130861.7379653565,
+            "y": 32474.7594167882
+          },
+          {
+            "label": "a",
+            "x": 130805.7643064124,
+            "y": 32474.77047423377
+          }
+        ],
+        "xrefs": [
+          "V113.A"
+        ],
+        "sp_markers": [],
+        "other_texts": []
+      },
+      {
+        "label": "M5",
+        "type": "corte",
+        "y_top": 32420.52455616897,
+        "y_bot": 32336.21889166521,
+        "panels": [
+          "P2",
+          "P3A"
+        ],
+        "painel_dims": [
+          5.000000000014552,
+          5.000000000029104
+        ],
+        "secao_dims": [
+          19.0
+        ],
+        "sarr_count": 8,
+        "sarr_layers": {
+          "SARR_3.5x7": 8
+        },
+        "corte_labels": [],
+        "xrefs": [],
+        "sp_markers": [],
+        "other_texts": [
+          {
+            "text": "5 1/2pont",
+            "layer": "texto"
+          }
+        ]
+      },
+      {
+        "label": "V7.B",
+        "type": "face_B",
+        "y_top": 32336.21889166521,
+        "y_bot": 31973.049784626637,
+        "panels": [
+          "P3B",
+          "P3",
+          "P1"
+        ],
+        "painel_dims": [
+          14.0,
+          51.0000000000291,
+          52.99999999999272,
+          66.99999999999272,
+          80.5,
+          149.0
+        ],
+        "secao_dims": [],
+        "sarr_count": 12,
+        "sarr_layers": {
+          "SARR_2.2x7": 4,
+          "SARR_3.5x7": 8
+        },
+        "corte_labels": [],
+        "xrefs": [],
+        "sp_markers": [],
+        "other_texts": [
+          {
+            "text": "8 1/2pont",
+            "layer": "texto"
+          }
+        ]
+      }
+    ],
+    "raw_titles": [
+      "V7\\P(19x63)",
+      "V5\\P(19x159)"
+    ]
+  },
+  {
+    "viga_name": "V5",
+    "page": 10,
+    "comprimento_cm": null
+  },
+  {
+    "page": 11,
+    "viga_name": "V6",
+    "W_cm": 40.0,
+    "H_cm": 30.0,
+    "sections": [
+      {
+        "label": "V6\\P(40x30)",
+        "type": "titulo",
+        "y_top": 32583.0,
+        "y_bot": 32371.0,
+        "panels": [
+          "P3B",
+          "TEST.3",
+          "P4",
+          "P5"
+        ],
+        "painel_dims": [
+          13.99999999999636,
+          15.99999999996362,
+          18.0,
+          33.99999999996362,
+          33.99999999999636,
+          88.5,
+          101.0,
+          122.0,
+          129.5,
+          244.0,
+          251.5
+        ],
+        "secao_dims": [],
+        "sarr_count": 18,
+        "sarr_layers": {
+          "SARR_2.2x7": 18
+        },
+        "corte_labels": [],
+        "xrefs": [],
+        "sp_markers": [],
+        "other_texts": []
+      },
+      {
+        "label": "V6.A",
+        "type": "face_A",
+        "y_top": 32583.0,
+        "y_bot": 32371.0,
+        "panels": [
+          "P3B",
+          "TEST.3",
+          "P4",
+          "P5"
+        ],
+        "painel_dims": [
+          13.99999999999636,
+          15.99999999996362,
+          18.0,
+          33.99999999996362,
+          33.99999999999636,
+          88.5,
+          101.0,
+          122.0,
+          129.5,
+          244.0,
+          251.5
+        ],
+        "secao_dims": [],
+        "sarr_count": 18,
+        "sarr_layers": {
+          "SARR_2.2x7": 18
+        },
+        "corte_labels": [],
+        "xrefs": [],
+        "sp_markers": [],
+        "other_texts": []
+      },
+      {
+        "label": "V6.B",
+        "type": "face_B",
+        "y_top": 32371.0,
+        "y_bot": 31973.049784626637,
+        "panels": [
+          "P1"
+        ],
+        "painel_dims": [
+          20.0,
+          44.0,
+          99.5,
+          122.0,
+          129.0,
+          244.0,
+          251.0,
+          288.0
+        ],
+        "secao_dims": [],
+        "sarr_count": 16,
+        "sarr_layers": {
+          "SARR_2.2x7": 16
+        },
+        "corte_labels": [],
+        "xrefs": [],
+        "sp_markers": [],
+        "other_texts": []
+      }
+    ],
+    "raw_titles": [
+      "V6\\P(40x30)"
+    ]
+  },
+  {
+    "page": 12,
+    "viga_name": "V13",
+    "W_cm": 19.0,
+    "H_cm": 63.0,
+    "sections": [
+      {
+        "label": "V13\\P(19x63)",
+        "type": "titulo",
+        "y_top": 32943.04978462664,
+        "y_bot": 32825.12938066042,
+        "panels": [],
+        "painel_dims": [],
+        "secao_dims": [],
+        "sarr_count": 0,
+        "sarr_layers": {},
+        "corte_labels": [],
+        "xrefs": [],
+        "sp_markers": [],
+        "other_texts": []
+      },
+      {
+        "label": "V8 - V9\\P(14x48)",
+        "type": "titulo",
+        "y_top": 32825.12938066042,
+        "y_bot": 32668.737364666333,
+        "panels": [],
+        "painel_dims": [],
+        "secao_dims": [
+          9.999999999992724,
+          9.999999999996362,
+          47.99999999998545,
+          51.99999999999272,
+          62.99999999998545
+        ],
+        "sarr_count": 0,
+        "sarr_layers": {},
+        "corte_labels": [
+          {
+            "label": "c",
+            "x": 134170.1733604225,
+            "y": 32680.90569665534
+          },
+          {
+            "label": "b",
+            "x": 134192.2965078402,
+            "y": 32677.71891994772
+          },
+          {
+            "label": "a",
+            "x": 134146.3228488961,
+            "y": 32677.72997739329
+          }
+        ],
+        "xrefs": [],
+        "sp_markers": [],
+        "other_texts": []
+      },
+      {
+        "label": "V9.A - V9.B",
+        "type": "face_B",
+        "y_top": 32668.737364666333,
+        "y_bot": 32502.34534867228,
+        "panels": [],
+        "painel_dims": [],
+        "secao_dims": [
+          14.0,
+          19.0,
+          55.0
+        ],
+        "sarr_count": 0,
+        "sarr_layers": {},
+        "corte_labels": [
+          {
+            "label": "c",
+            "x": 134915.3807153789,
+            "y": 32650.90569665534
+          },
+          {
+            "label": "b",
+            "x": 134943.0584063683,
+            "y": 32656.31780726031
+          },
+          {
+            "label": "a",
+            "x": 134887.0847474242,
+            "y": 32656.32886470588
+          }
+        ],
+        "xrefs": [],
+        "sp_markers": [],
+        "other_texts": []
+      },
+      {
+        "label": "V13.A - V13.B",
+        "type": "face_B",
+        "y_top": 32502.34534867228,
+        "y_bot": 32492.34534867228,
+        "panels": [],
+        "painel_dims": [],
+        "secao_dims": [],
+        "sarr_count": 0,
+        "sarr_layers": {},
+        "corte_labels": [],
+        "xrefs": [],
+        "sp_markers": [],
+        "other_texts": []
+      },
+      {
+        "label": "V8.A - V8.B",
+        "type": "face_B",
+        "y_top": 32492.34534867228,
+        "y_bot": 31973.049784626637,
+        "panels": [
+          "V29",
+          "P3A",
+          "P15",
+          "V27"
+        ],
+        "painel_dims": [
+          12.0,
+          34.99999999999272,
+          46.99999999999272,
+          52.0,
+          92.0,
+          93.0
+        ],
+        "secao_dims": [],
+        "sarr_count": 24,
+        "sarr_layers": {
+          "SARR_2.2x7": 8,
+          "SARR_3.5x7": 16
+        },
+        "corte_labels": [],
+        "xrefs": [],
+        "sp_markers": [],
+        "other_texts": [
+          {
+            "text": "4 1/2pont",
+            "layer": "texto"
+          },
+          {
+            "text": "4 1/2pont",
+            "layer": "texto"
+          }
+        ]
+      }
+    ],
+    "raw_titles": [
+      "V13\\P(19x63)",
+      "V8 - V9\\P(14x48)"
+    ]
+  },
+  {
+    "page": 13,
+    "viga_name": "V10",
+    "W_cm": 19.0,
+    "H_cm": 75.0,
+    "sections": [
+      {
+        "label": "V10\\P(19x75)",
+        "type": "titulo",
+        "y_top": 31368.0,
+        "y_bot": 31158.0,
+        "panels": [
+          "TEST.1",
+          "P7",
+          "P140"
+        ],
+        "painel_dims": [
+          5.000000000014552,
+          7.000000000029104,
+          13.99999999999272,
+          27.0,
+          32.99999999999272,
+          37.99999999999272,
+          46.99999999998545,
+          61.5,
+          64.99999999999272,
+          146.0,
+          166.5,
+          244.0
+        ],
+        "secao_dims": [],
+        "sarr_count": 27,
+        "sarr_layers": {
+          "SARR_2.2x7": 12,
+          "SARR_3.5x7": 15
+        },
+        "corte_labels": [],
+        "xrefs": [],
+        "sp_markers": [
+          "S.P"
+        ],
+        "other_texts": [
+          {
+            "text": "6 1/2pont",
+            "layer": "texto"
+          },
+          {
+            "text": "8 1/2pont",
+            "layer": "texto"
+          },
+          {
+            "text": "8 1/2pont",
+            "layer": "texto"
+          },
+          {
+            "text": "12 1/2pont",
+            "layer": "texto"
+          },
+          {
+            "text": "6 1/2pont",
+            "layer": "texto"
+          }
+        ]
+      },
+      {
+        "label": "V10.A",
+        "type": "face_A",
+        "y_top": 31368.0,
+        "y_bot": 31158.0,
+        "panels": [
+          "TEST.1",
+          "P7",
+          "P140"
+        ],
+        "painel_dims": [
+          5.000000000014552,
+          7.000000000029104,
+          13.99999999999272,
+          27.0,
+          32.99999999999272,
+          37.99999999999272,
+          46.99999999998545,
+          61.5,
+          64.99999999999272,
+          146.0,
+          166.5,
+          244.0
+        ],
+        "secao_dims": [],
+        "sarr_count": 27,
+        "sarr_layers": {
+          "SARR_2.2x7": 12,
+          "SARR_3.5x7": 15
+        },
+        "corte_labels": [],
+        "xrefs": [],
+        "sp_markers": [
+          "S.P"
+        ],
+        "other_texts": [
+          {
+            "text": "6 1/2pont",
+            "layer": "texto"
+          },
+          {
+            "text": "8 1/2pont",
+            "layer": "texto"
+          },
+          {
+            "text": "8 1/2pont",
+            "layer": "texto"
+          },
+          {
+            "text": "12 1/2pont",
+            "layer": "texto"
+          },
+          {
+            "text": "6 1/2pont",
+            "layer": "texto"
+          }
+        ]
+      },
+      {
+        "label": "V10.B",
+        "type": "face_B",
+        "y_top": 31158.0,
+        "y_bot": 30824.474676939957,
+        "panels": [
+          "P140",
+          "P7",
+          "TEST.1",
+          "P8"
+        ],
+        "painel_dims": [
+          7.000000000029104,
+          32.99999999999272,
+          65.0,
+          71.0,
+          103.5,
+          125.0,
+          129.4999999999854,
+          244.0
+        ],
+        "secao_dims": [],
+        "sarr_count": 38,
+        "sarr_layers": {
+          "SARR_2.2x7": 14,
+          "SARR_3.5x7": 24
+        },
+        "corte_labels": [],
+        "xrefs": [],
+        "sp_markers": [
+          "S.P"
+        ],
+        "other_texts": [
+          {
+            "text": "4 1/2pont",
+            "layer": "texto"
+          },
+          {
+            "text": "6 1/2pont",
+            "layer": "texto"
+          },
+          {
+            "text": "8 1/2pont",
+            "layer": "texto"
+          },
+          {
+            "text": "8 1/2pont",
+            "layer": "texto"
+          },
+          {
+            "text": "6 1/2pont",
+            "layer": "texto"
+          }
+        ]
+      }
+    ],
+    "raw_titles": [
+      "V10\\P(19x75)"
+    ]
+  },
+  {
+    "page": 14,
+    "viga_name": "V10A",
+    "W_cm": 19.0,
+    "H_cm": 43.0,
+    "sections": [
+      {
+        "label": "V10A\\P(19x43)",
+        "type": "titulo",
+        "y_top": 31403.0,
+        "y_bot": 31183.0,
+        "panels": [
+          "TEST.3",
+          "P10",
+          "P12"
+        ],
+        "painel_dims": [
+          14.0,
+          16.0,
+          21.99999999998909,
+          32.99999999998909,
+          47.0,
+          244.0
+        ],
+        "secao_dims": [],
+        "sarr_count": 23,
+        "sarr_layers": {
+          "SARR_2.2x7": 9,
+          "SARR_3.5x7": 14
+        },
+        "corte_labels": [],
+        "xrefs": [],
+        "sp_markers": [],
+        "other_texts": [
+          {
+            "text": "8 1/2pont",
+            "layer": "texto"
+          },
+          {
+            "text": "4 1/2pont",
+            "layer": "texto"
+          },
+          {
+            "text": "8 1/2pont",
+            "layer": "texto"
+          },
+          {
+            "text": "8 1/2pont",
+            "layer": "texto"
+          },
+          {
+            "text": "5 1/2pont",
+            "layer": "texto"
+          }
+        ]
+      },
+      {
+        "label": "V10A.A",
+        "type": "face_A",
+        "y_top": 31403.0,
+        "y_bot": 31183.0,
+        "panels": [
+          "TEST.3",
+          "P10",
+          "P12"
+        ],
+        "painel_dims": [
+          14.0,
+          16.0,
+          21.99999999998909,
+          32.99999999998909,
+          47.0,
+          244.0
+        ],
+        "secao_dims": [],
+        "sarr_count": 23,
+        "sarr_layers": {
+          "SARR_2.2x7": 9,
+          "SARR_3.5x7": 14
+        },
+        "corte_labels": [],
+        "xrefs": [],
+        "sp_markers": [],
+        "other_texts": [
+          {
+            "text": "8 1/2pont",
+            "layer": "texto"
+          },
+          {
+            "text": "4 1/2pont",
+            "layer": "texto"
+          },
+          {
+            "text": "8 1/2pont",
+            "layer": "texto"
+          },
+          {
+            "text": "8 1/2pont",
+            "layer": "texto"
+          },
+          {
+            "text": "5 1/2pont",
+            "layer": "texto"
+          }
+        ]
+      },
+      {
+        "label": "V10A.B",
+        "type": "face_B",
+        "y_top": 31183.0,
+        "y_bot": 30824.474676939957,
+        "panels": [
+          "P12",
+          "P11",
+          "TEST.3",
+          "P10"
+        ],
+        "painel_dims": [
+          22.0,
+          30.99999999998545,
+          32.99999999999272,
+          121.9999999999709,
+          129.5000000000291
+        ],
+        "secao_dims": [],
+        "sarr_count": 30,
+        "sarr_layers": {
+          "SARR_2.2x7": 12,
+          "SARR_3.5x7": 18
+        },
+        "corte_labels": [],
+        "xrefs": [],
+        "sp_markers": [],
+        "other_texts": [
+          {
+            "text": "8 1/2pont",
+            "layer": "texto"
+          },
+          {
+            "text": "9 1/2pont",
+            "layer": "texto"
+          },
+          {
+            "text": "8 1/2pont",
+            "layer": "texto"
+          },
+          {
+            "text": "4 1/2pont",
+            "layer": "texto"
+          },
+          {
+            "text": "8 1/2pont",
+            "layer": "texto"
+          },
+          {
+            "text": "4 1/2pont",
+            "layer": "texto"
+          }
+        ]
+      }
+    ],
+    "raw_titles": [
+      "V10A\\P(19x43)"
+    ]
+  },
+  {
+    "page": 15,
+    "viga_name": "V11",
+    "W_cm": 19.0,
+    "H_cm": 43.0,
+    "sections": [
+      {
+        "label": "V11.A",
+        "type": "face_A",
+        "y_top": 31794.474676939957,
+        "y_bot": 31688.9937316562,
+        "panels": [],
+        "painel_dims": [
+          14.00000000000728,
+          47.0
+        ],
+        "secao_dims": [],
+        "sarr_count": 0,
+        "sarr_layers": {},
+        "corte_labels": [],
+        "xrefs": [],
+        "sp_markers": [],
+        "other_texts": []
+      },
+      {
+        "label": "V11\\P(19x43)",
+        "type": "titulo",
+        "y_top": 31688.9937316562,
+        "y_bot": 30824.474676939957,
+        "panels": [
+          "P13",
+          "P14",
+          "P15",
+          "P17",
+          "V27",
+          "P16",
+          "P18"
+        ],
+        "painel_dims": [
+          4.999999999989086,
+          7.0,
+          12.0,
+          14.00000000000364,
+          16.0,
+          30.99999999999636,
+          32.99999999999272,
+          34.99999999999272,
+          46.99999999997817,
+          46.99999999999272,
+          46.99999999999636,
+          121.9999999999709,
+          122.0,
+          129.5,
+          130.0000000000582,
+          238.0,
+          244.0,
+          263.0
+        ],
+        "secao_dims": [
+          11.99999999999272,
+          11.99999999999636,
+          19.0,
+          33.0,
+          42.99999999998545
+        ],
+        "sarr_count": 70,
+        "sarr_layers": {
+          "SARR_2.2x7": 27,
+          "SARR_3.5x7": 43
+        },
+        "corte_labels": [
+          {
+            "label": "c",
+            "x": 132457.8868926807,
+            "y": 31542.33058896866
+          },
+          {
+            "label": "b",
+            "x": 132485.56458367,
+            "y": 31547.74269957363
+          },
+          {
+            "label": "a",
+            "x": 132429.590924726,
+            "y": 31547.7537570192
+          }
+        ],
+        "xrefs": [],
+        "sp_markers": [],
+        "other_texts": [
+          {
+            "text": "10 1/2pont",
+            "layer": "texto"
+          },
+          {
+            "text": "8 1/2pont",
+            "layer": "texto"
+          },
+          {
+            "text": "8 1/2pont",
+            "layer": "texto"
+          },
+          {
+            "text": "8 1/2pont",
+            "layer": "texto"
+          },
+          {
+            "text": "8 1/2pont",
+            "layer": "texto"
+          },
+          {
+            "text": "8 1/2pont",
+            "layer": "texto"
+          },
+          {
+            "text": "8 1/2pont",
+            "layer": "texto"
+          },
+          {
+            "text": "6 1/2pont",
+            "layer": "texto"
+          },
+          {
+            "text": "5 1/2pont",
+            "layer": "texto"
+          },
+          {
+            "text": "8 1/2pont",
+            "layer": "texto"
+          },
+          {
+            "text": "9 1/2pont",
+            "layer": "texto"
+          }
+        ]
+      }
+    ],
+    "raw_titles": [
+      "V11\\P(19x43)"
+    ]
+  },
+  {
+    "page": 16,
+    "viga_name": null,
+    "W_cm": null,
+    "H_cm": null,
+    "sections": [
+      {
+        "label": "V11.A",
+        "type": "face_A",
+        "y_top": 31435.0,
+        "y_bot": 30824.474676939957,
+        "panels": [
+          "P14",
+          "P13",
+          "P17"
+        ],
+        "painel_dims": [
+          14.0,
+          14.00000000000364,
+          32.99999999999272,
+          33.0,
+          46.99999999999636,
+          47.0,
+          121.9999999999709,
+          122.0,
+          137.0,
+          137.0000000000582,
+          183.0,
+          244.0
+        ],
+        "secao_dims": [],
+        "sarr_count": 29,
+        "sarr_layers": {
+          "SARR_2.2x7": 11,
+          "SARR_3.5x7": 18
+        },
+        "corte_labels": [],
+        "xrefs": [],
+        "sp_markers": [],
+        "other_texts": [
+          {
+            "text": "11 1/2pont",
+            "layer": "texto"
+          },
+          {
+            "text": "8 1/2pont",
+            "layer": "texto"
+          },
+          {
+            "text": "8 1/2pont",
+            "layer": "texto"
+          },
+          {
+            "text": "6 1/2pont",
+            "layer": "texto"
+          },
+          {
+            "text": "8 1/2pont",
+            "layer": "texto"
+          },
+          {
+            "text": "8 1/2pont",
+            "layer": "texto"
+          },
+          {
+            "text": "10 1/2pont",
+            "layer": "texto"
+          }
+        ]
+      }
+    ],
+    "raw_titles": []
+  },
+  {
+    "page": 17,
+    "viga_name": "V14",
+    "W_cm": 19.0,
+    "H_cm": 63.0,
+    "sections": [
+      {
+        "label": "V14\\P(19x63)",
+        "type": "titulo",
+        "y_top": 30645.899569253277,
+        "y_bot": 30524.137009287602,
+        "panels": [],
+        "painel_dims": [],
+        "secao_dims": [],
+        "sarr_count": 0,
+        "sarr_layers": {},
+        "corte_labels": [],
+        "xrefs": [],
+        "sp_markers": [],
+        "other_texts": []
+      },
+      {
+        "label": "V14.A",
+        "type": "face_A",
+        "y_top": 30524.137009287602,
+        "y_bot": 30393.7151229954,
+        "panels": [],
+        "painel_dims": [
+          12.00000000000728,
+          54.99999999999272,
+          66.99999999999272,
+          122.0,
+          145.0
+        ],
+        "secao_dims": [
+          9.999999999992724,
+          9.999999999996362,
+          62.99999999998545
+        ],
+        "sarr_count": 24,
+        "sarr_layers": {
+          "SARR_2.2x7": 8,
+          "SARR_3.5x7": 16
+        },
+        "corte_labels": [],
+        "xrefs": [],
+        "sp_markers": [],
+        "other_texts": [
+          {
+            "text": "5 1/2pont",
+            "layer": "texto"
+          },
+          {
+            "text": "6 1/2pont",
+            "layer": "texto"
+          }
+        ]
+      },
+      {
+        "label": "V14.B",
+        "type": "face_B",
+        "y_top": 30393.7151229954,
+        "y_bot": 29675.899569253277,
+        "panels": [
+          "P22A",
+          "V27",
+          "P22B"
+        ],
+        "painel_dims": [
+          12.00000000000728,
+          54.99999999999272,
+          66.99999999999272,
+          122.0,
+          145.0
+        ],
+        "secao_dims": [
+          19.0,
+          55.0
+        ],
+        "sarr_count": 24,
+        "sarr_layers": {
+          "SARR_2.2x7": 8,
+          "SARR_3.5x7": 16
+        },
+        "corte_labels": [
+          {
+            "label": "c",
+            "x": 129372.1536237794,
+            "y": 30353.75548128198
+          },
+          {
+            "label": "b",
+            "x": 129399.8313147688,
+            "y": 30359.16759188695
+          },
+          {
+            "label": "a",
+            "x": 129343.8576558247,
+            "y": 30359.17864933252
+          }
+        ],
+        "xrefs": [],
+        "sp_markers": [],
+        "other_texts": [
+          {
+            "text": "5 1/2pont",
+            "layer": "texto"
+          },
+          {
+            "text": "6 1/2pont",
+            "layer": "texto"
+          }
+        ]
+      }
+    ],
+    "raw_titles": [
+      "V14\\P(19x63)"
+    ]
+  },
+  {
+    "page": 18,
+    "viga_name": "TEST.4",
+    "W_cm": 14.0,
+    "H_cm": 75.0,
+    "sections": [
+      {
+        "label": "TEST.4.A",
+        "type": "face_A",
+        "y_top": 30645.899569253277,
+        "y_bot": 30528.466145583425,
+        "panels": [],
+        "painel_dims": [],
+        "secao_dims": [],
+        "sarr_count": 0,
+        "sarr_layers": {},
+        "corte_labels": [],
+        "xrefs": [],
+        "sp_markers": [],
+        "other_texts": []
+      },
+      {
+        "label": "TEST.4\\P(14x75)",
+        "type": "titulo",
+        "y_top": 30528.466145583425,
+        "y_bot": 30394.701192099106,
+        "panels": [],
+        "painel_dims": [
+          14.00000000000364,
+          24.99999999999272,
+          40.0,
+          64.99999999999272,
+          78.99999999999636,
+          121.9999999999709,
+          131.5000000000582
+        ],
+        "secao_dims": [
+          11.99999999999272,
+          11.99999999999636,
+          74.99999999998545
+        ],
+        "sarr_count": 11,
+        "sarr_layers": {
+          "SARR_2.2x7": 5,
+          "SARR_3.5x7": 6
+        },
+        "corte_labels": [],
+        "xrefs": [
+          "V117.B",
+          "V117.B"
+        ],
+        "sp_markers": [],
+        "other_texts": []
+      },
+      {
+        "label": "TEST.4.B",
+        "type": "face_B",
+        "y_top": 30394.701192099106,
+        "y_bot": 30171.531412146676,
+        "panels": [
+          "P23",
+          "P24"
+        ],
+        "painel_dims": [
+          14.00000000000364,
+          64.99999999999272,
+          78.99999999999636
+        ],
+        "secao_dims": [
+          14.0,
+          65.0
+        ],
+        "sarr_count": 10,
+        "sarr_layers": {
+          "SARR_2.2x7": 4,
+          "SARR_3.5x7": 6
+        },
+        "corte_labels": [
+          {
+            "label": "c",
+            "x": 130928.82856259,
+            "y": 30329.75548128197
+          },
+          {
+            "label": "b",
+            "x": 130950.7041345452,
+            "y": 30335.16759188695
+          },
+          {
+            "label": "a",
+            "x": 130904.7304756011,
+            "y": 30335.17864933252
+          }
+        ],
+        "xrefs": [],
+        "sp_markers": [],
+        "other_texts": [
+          {
+            "text": "8 1/2pont",
+            "layer": "texto"
+          },
+          {
+            "text": "10 1/2pont",
+            "layer": "texto"
+          }
+        ]
+      },
+      {
+        "label": "M15",
+        "type": "corte",
+        "y_top": 30171.531412146676,
+        "y_bot": 29675.899569253277,
+        "panels": [
+          "P23",
+          "P24"
+        ],
+        "painel_dims": [
+          2.0,
+          121.9999999999709,
+          129.5000000000582
+        ],
+        "secao_dims": [],
+        "sarr_count": 0,
+        "sarr_layers": {},
+        "corte_labels": [],
+        "xrefs": [],
+        "sp_markers": [],
+        "other_texts": []
+      }
+    ],
+    "raw_titles": [
+      "TEST.4\\P(14x75)"
+    ]
+  },
+  {
+    "page": 19,
+    "viga_name": "V15",
+    "W_cm": 19.0,
+    "H_cm": 43.0,
+    "sections": [
+      {
+        "label": "V15\\P(19x43)",
+        "type": "titulo",
+        "y_top": 30645.899569253277,
+        "y_bot": 30527.979165287084,
+        "panels": [],
+        "painel_dims": [],
+        "secao_dims": [],
+        "sarr_count": 0,
+        "sarr_layers": {},
+        "corte_labels": [],
+        "xrefs": [],
+        "sp_markers": [],
+        "other_texts": []
+      },
+      {
+        "label": "TEST.1\\P(19x75)",
+        "type": "titulo",
+        "y_top": 30527.979165287084,
+        "y_bot": 30383.966287002164,
+        "panels": [],
+        "painel_dims": [],
+        "secao_dims": [
+          11.99999999999272,
+          11.99999999999636,
+          13.99999999999272,
+          42.99999999998545,
+          74.99999999998545
+        ],
+        "sarr_count": 0,
+        "sarr_layers": {},
+        "corte_labels": [
+          {
+            "label": "c",
+            "x": 132617.822017154,
+            "y": 30393.75548128198
+          },
+          {
+            "label": "b",
+            "x": 132645.4997081434,
+            "y": 30399.16759188696
+          },
+          {
+            "label": "a",
+            "x": 132589.5260491993,
+            "y": 30399.17864933253
+          }
+        ],
+        "xrefs": [],
+        "sp_markers": [],
+        "other_texts": []
+      },
+      {
+        "label": "TEST.1.A",
+        "type": "face_A",
+        "y_top": 30383.966287002164,
+        "y_bot": 30231.608277835516,
+        "panels": [],
+        "painel_dims": [
+          23.0
+        ],
+        "secao_dims": [
+          19.0,
+          31.0,
+          33.0,
+          65.0
+        ],
+        "sarr_count": 0,
+        "sarr_layers": {},
+        "corte_labels": [
+          {
+            "label": "c",
+            "x": 133316.7463400067,
+            "y": 30329.75548128197
+          },
+          {
+            "label": "b",
+            "x": 133344.4240309961,
+            "y": 30335.16759188695
+          },
+          {
+            "label": "a",
+            "x": 133288.450372052,
+            "y": 30335.17864933252
+          }
+        ],
+        "xrefs": [],
+        "sp_markers": [],
+        "other_texts": []
+      },
+      {
+        "label": "V15.A",
+        "type": "face_A",
+        "y_top": 30231.608277835516,
+        "y_bot": 30142.48619105247,
+        "panels": [],
+        "painel_dims": [
+          12.0,
+          14.00000000000728,
+          33.0,
+          34.99999999999272,
+          46.99999999999272,
+          51.0000000000291,
+          65.0,
+          79.00000000000728
+        ],
+        "secao_dims": [],
+        "sarr_count": 18,
+        "sarr_layers": {
+          "SARR_2.2x7": 8,
+          "SARR_3.5x7": 10
+        },
+        "corte_labels": [],
+        "xrefs": [],
+        "sp_markers": [],
+        "other_texts": [
+          {
+            "text": "6 1/2pont",
+            "layer": "texto"
+          },
+          {
+            "text": "4 1/2pont",
+            "layer": "texto"
+          },
+          {
+            "text": "6 1/2pont",
+            "layer": "texto"
+          }
+        ]
+      },
+      {
+        "label": "M7.5",
+        "type": "corte",
+        "y_top": 30142.48619105247,
+        "y_bot": 30047.698978506345,
+        "panels": [
+          "P24",
+          "P19",
+          "V10",
+          "P14"
+        ],
+        "painel_dims": [
+          2.0,
+          174.0
+        ],
+        "secao_dims": [],
+        "sarr_count": 0,
+        "sarr_layers": {},
+        "corte_labels": [],
+        "xrefs": [],
+        "sp_markers": [],
+        "other_texts": []
+      },
+      {
+        "label": "TEST.1.B",
+        "type": "face_B",
+        "y_top": 30047.698978506345,
+        "y_bot": 30028.474931656077,
+        "panels": [],
+        "painel_dims": [],
+        "secao_dims": [],
+        "sarr_count": 0,
+        "sarr_layers": {},
+        "corte_labels": [],
+        "xrefs": [],
+        "sp_markers": [],
+        "other_texts": []
+      },
+      {
+        "label": "V15.B",
+        "type": "face_B",
+        "y_top": 30028.474931656077,
+        "y_bot": 29949.66529781129,
+        "panels": [],
+        "painel_dims": [
+          12.0,
+          14.00000000000728,
+          34.99999999999272,
+          46.99999999999272,
+          79.00000000000728
+        ],
+        "secao_dims": [],
+        "sarr_count": 19,
+        "sarr_layers": {
+          "SARR_2.2x7": 7,
+          "SARR_3.5x7": 12
+        },
+        "corte_labels": [],
+        "xrefs": [],
+        "sp_markers": [],
+        "other_texts": [
+          {
+            "text": "8 1/2pont",
+            "layer": "texto"
+          },
+          {
+            "text": "6 1/2pont",
+            "layer": "texto"
+          }
+        ]
+      },
+      {
+        "label": "M5",
+        "type": "corte",
+        "y_top": 29949.66529781129,
+        "y_bot": 29865.757001233695,
+        "panels": [
+          "P19",
+          "V27",
+          "V10",
+          "P14"
+        ],
+        "painel_dims": [
+          2.0,
+          65.0,
+          151.0
+        ],
+        "secao_dims": [],
+        "sarr_count": 0,
+        "sarr_layers": {},
+        "corte_labels": [],
+        "xrefs": [],
+        "sp_markers": [],
+        "other_texts": []
+      },
+      {
+        "label": "M2.5",
+        "type": "corte",
+        "y_top": 29865.757001233695,
+        "y_bot": 29675.899569253277,
+        "panels": [],
+        "painel_dims": [],
+        "secao_dims": [],
+        "sarr_count": 0,
+        "sarr_layers": {},
+        "corte_labels": [],
+        "xrefs": [],
+        "sp_markers": [],
+        "other_texts": []
+      }
+    ],
+    "raw_titles": [
+      "V15\\P(19x43)",
+      "TEST.1\\P(19x75)"
+    ]
+  },
+  {
+    "page": 20,
+    "viga_name": "(VA2+V16+V17+V18+V19)",
+    "W_cm": null,
+    "H_cm": null,
+    "sections": [
+      {
+        "label": "(VA2+V16+V17+V18+V19)\\P(var.)",
+        "type": "titulo",
+        "y_top": 30645.899569253277,
+        "y_bot": 29675.899569253277,
+        "panels": [],
+        "painel_dims": [],
+        "secao_dims": [
+          14.00000000000182,
+          18.99999999998545,
+          62.99999999987449,
+          69.99999999999818,
+          148.9999999998672
+        ],
+        "sarr_count": 0,
+        "sarr_layers": {},
+        "corte_labels": [
+          {
+            "label": "b",
+            "x": 134617.6894457787,
+            "y": 30201.72719769641
+          },
+          {
+            "label": "a",
+            "x": 134558.4260491993,
+            "y": 30201.7469645557
+          },
+          {
+            "label": "c",
+            "x": 134587.766346031,
+            "y": 30185.88218697726
+          }
+        ],
+        "xrefs": [],
+        "sp_markers": [],
+        "other_texts": []
+      }
+    ],
+    "raw_titles": [
+      "(VA2+V16+V17+V18+V19)\\P(var.)"
+    ]
+  },
+  {
+    "page": 21,
+    "viga_name": null,
+    "W_cm": null,
+    "H_cm": null,
+    "sections": [
+      {
+        "label": "(VA2+V16+V17+V18+V19).A",
+        "type": "face_A",
+        "y_top": 29497.324461566597,
+        "y_bot": 29387.2755710134,
+        "panels": [],
+        "painel_dims": [
+          60.0
+        ],
+        "secao_dims": [],
+        "sarr_count": 3,
+        "sarr_layers": {
+          "SARR_2.2x7": 3
+        },
+        "corte_labels": [
+          {
+            "label": "b",
+            "x": 130244.1689466268,
+            "y": 29393.76414445226
+          },
+          {
+            "label": "a",
+            "x": 129442.147936769,
+            "y": 29393.76414445223
+          }
+        ],
+        "xrefs": [],
+        "sp_markers": [],
+        "other_texts": []
+      },
+      {
+        "label": "1",
+        "type": "other",
+        "y_top": 29387.2755710134,
+        "y_bot": 29372.601150705836,
+        "panels": [],
+        "painel_dims": [],
+        "secao_dims": [],
+        "sarr_count": 1,
+        "sarr_layers": {
+          "SARR_2.2x7": 1
+        },
+        "corte_labels": [],
+        "xrefs": [],
+        "sp_markers": [],
+        "other_texts": []
+      },
+      {
+        "label": "2",
+        "type": "other",
+        "y_top": 29333.643140840104,
+        "y_bot": 29294.685130974376,
+        "panels": [],
+        "painel_dims": [
+          41.80000000000291,
+          42.80000000000291,
+          79.0
+        ],
+        "secao_dims": [],
+        "sarr_count": 10,
+        "sarr_layers": {
+          "SARR_2.2x7": 2,
+          "SARR_3.5x7": 8
+        },
+        "corte_labels": [],
+        "xrefs": [],
+        "sp_markers": [],
+        "other_texts": [
+          {
+            "text": "5 1/2pont",
+            "layer": "texto"
+          },
+          {
+            "text": "5 1/2pont",
+            "layer": "texto"
+          },
+          {
+            "text": "4 1/2pont",
+            "layer": "texto"
+          }
+        ]
+      },
+      {
+        "label": "3",
+        "type": "other",
+        "y_top": 29264.827121108625,
+        "y_bot": 29234.469111242906,
+        "panels": [
+          "PA3"
+        ],
+        "painel_dims": [
+          87.19999999999709,
+          149.0
+        ],
+        "secao_dims": [],
+        "sarr_count": 0,
+        "sarr_layers": {},
+        "corte_labels": [],
+        "xrefs": [],
+        "sp_markers": [],
+        "other_texts": []
+      }
+    ],
+    "raw_titles": []
+  },
+  {
+    "page": 22,
+    "viga_name": null,
+    "W_cm": null,
+    "H_cm": null,
+    "sections": [
+      {
+        "label": "(VA2+V16+V17+V18+V19).B",
+        "type": "face_B",
+        "y_top": 29497.324461566597,
+        "y_bot": 29307.437402217416,
+        "panels": [],
+        "painel_dims": [
+          13.99999999999272,
+          14.0,
+          65.00000000000364,
+          70.0,
+          82.00000000000728,
+          122.0,
+          125.4999999999854,
+          136.5,
+          148.9999999999964,
+          218.0,
+          244.0,
+          258.5
+        ],
+        "secao_dims": [],
+        "sarr_count": 25,
+        "sarr_layers": {
+          "SARR_2.2x7": 13,
+          "SARR_3.5x7": 12
+        },
+        "corte_labels": [],
+        "xrefs": [
+          "V142.A\\P(240x124)",
+          "V142.B\\P(246x108)"
+        ],
+        "sp_markers": [],
+        "other_texts": [
+          {
+            "text": "5 1/2pont",
+            "layer": "texto"
+          },
+          {
+            "text": "10 1/2pont",
+            "layer": "texto"
+          }
+        ]
+      },
+      {
+        "label": "M5",
+        "type": "corte",
+        "y_top": 29307.437402217416,
+        "y_bot": 29063.281666958035,
+        "panels": [
+          "V41A",
+          "PA4",
+          "PA5"
+        ],
+        "painel_dims": [
+          2.0,
+          12.00000000000728,
+          16.00000000000728,
+          53.0,
+          69.99999999997817,
+          69.99999999998545,
+          98.0,
+          135.0,
+          148.9999999999709,
+          243.9999999999418,
+          244.0
+        ],
+        "secao_dims": [],
+        "sarr_count": 63,
+        "sarr_layers": {
+          "SARR_3.5x7": 40,
+          "SARR_2.2x7": 23
+        },
+        "corte_labels": [],
+        "xrefs": [],
+        "sp_markers": [],
+        "other_texts": [
+          {
+            "text": "8 1/2pont",
+            "layer": "texto"
+          },
+          {
+            "text": "8 1/2pont",
+            "layer": "texto"
+          },
+          {
+            "text": "5 1/2pont",
+            "layer": "texto"
+          },
+          {
+            "text": "5 1/2pont",
+            "layer": "texto"
+          },
+          {
+            "text": "4 1/2pont",
+            "layer": "texto"
+          },
+          {
+            "text": "8 1/2pont",
+            "layer": "texto"
+          },
+          {
+            "text": "6 1/2pont",
+            "layer": "texto"
+          },
+          {
+            "text": "8 1/2pont",
+            "layer": "texto"
+          },
+          {
+            "text": "4 1/2pont",
+            "layer": "texto"
+          },
+          {
+            "text": "5 1/2pont",
+            "layer": "texto"
+          },
+          {
+            "text": "4 1/2pont",
+            "layer": "texto"
+          }
+        ]
+      }
+    ],
+    "raw_titles": []
+  },
+  {
+    "page": 23,
+    "viga_name": "V22",
+    "W_cm": 19.0,
+    "H_cm": 145.0,
+    "sections": [
+      {
+        "label": "V22.A",
+        "type": "face_A",
+        "y_top": 29497.324461566597,
+        "y_bot": 29390.67702446068,
+        "panels": [],
+        "painel_dims": [],
+        "secao_dims": [],
+        "sarr_count": 0,
+        "sarr_layers": {},
+        "corte_labels": [],
+        "xrefs": [],
+        "sp_markers": [],
+        "other_texts": []
+      },
+      {
+        "label": "V22\\P(19x145)",
+        "type": "titulo",
+        "y_top": 29390.67702446068,
+        "y_bot": 29217.32960074655,
+        "panels": [],
+        "painel_dims": [
+          7.000000000058208,
+          149.0
+        ],
+        "secao_dims": [
+          81.99999999999818,
+          148.9999999998672
+        ],
+        "sarr_count": 12,
+        "sarr_layers": {
+          "SARR_2.2x7": 5,
+          "SARR_3.5x7": 7
+        },
+        "corte_labels": [],
+        "xrefs": [],
+        "sp_markers": [
+          "S.P"
+        ],
+        "other_texts": [
+          {
+            "text": "5 1/2pont",
+            "layer": "texto"
+          },
+          {
+            "text": "5 1/2pont",
+            "layer": "texto"
+          },
+          {
+            "text": "5 1/2pont",
+            "layer": "texto"
+          }
+        ]
+      },
+      {
+        "label": "V22.B",
+        "type": "face_B",
+        "y_top": 29217.32960074655,
+        "y_bot": 28527.324461566597,
+        "panels": [
+          "PA6",
+          "PA1",
+          "V7",
+          "V3"
+        ],
+        "painel_dims": [
+          14.0,
+          42.0,
+          53.0,
+          82.00000000000728,
+          122.0,
+          148.9999999999964,
+          185.5000000000291,
+          214.9999999999709
+        ],
+        "secao_dims": [
+          12.00000000000182,
+          18.99999999998545,
+          52.99999999987449
+        ],
+        "sarr_count": 20,
+        "sarr_layers": {
+          "SARR_2.2x7": 8,
+          "SARR_3.5x7": 12
+        },
+        "corte_labels": [
+          {
+            "label": "b",
+            "x": 132580.9394571256,
+            "y": 29057.02538431465
+          },
+          {
+            "label": "a",
+            "x": 132521.6760605461,
+            "y": 29057.04515117394
+          },
+          {
+            "label": "c",
+            "x": 132551.0163573778,
+            "y": 29041.1803735955
+          }
+        ],
+        "xrefs": [
+          "V142.A\\P(237x124)",
+          "V142.A\\P(219x124)"
+        ],
+        "sp_markers": [],
+        "other_texts": [
+          {
+            "text": "8 1/2pont",
+            "layer": "texto"
+          },
+          {
+            "text": "6 1/2pont",
+            "layer": "texto"
+          }
+        ]
+      }
+    ],
+    "raw_titles": [
+      "V22\\P(19x145)"
+    ]
+  },
+  {
+    "page": 24,
+    "viga_name": "V23",
+    "W_cm": 19.0,
+    "H_cm": 43.0,
+    "sections": [
+      {
+        "label": "V23.A",
+        "type": "face_A",
+        "y_top": 29497.324461566597,
+        "y_bot": 29388.732888178267,
+        "panels": [],
+        "painel_dims": [
+          14.00000000000728,
+          47.0,
+          107.0,
+          168.5
+        ],
+        "secao_dims": [],
+        "sarr_count": 0,
+        "sarr_layers": {},
+        "corte_labels": [],
+        "xrefs": [],
+        "sp_markers": [],
+        "other_texts": []
+      },
+      {
+        "label": "V23\\P(19x43)",
+        "type": "titulo",
+        "y_top": 29388.732888178267,
+        "y_bot": 29286.72509719659,
+        "panels": [],
+        "painel_dims": [
+          7.000000000058208,
+          13.99999999999636,
+          32.99999999999272,
+          58.5,
+          185.0000000000582,
+          244.0
+        ],
+        "secao_dims": [
+          11.99999999999636,
+          13.99999999999272,
+          42.99999999998545
+        ],
+        "sarr_count": 19,
+        "sarr_layers": {
+          "SARR_2.2x7": 8,
+          "SARR_3.5x7": 9,
+          "SARR_EDITAR": 2
+        },
+        "corte_labels": [],
+        "xrefs": [],
+        "sp_markers": [
+          "S.P"
+        ],
+        "other_texts": []
+      },
+      {
+        "label": "V23.B",
+        "type": "face_B",
+        "y_top": 29286.72509719659,
+        "y_bot": 29140.226059673274,
+        "panels": [
+          "P1",
+          "P7"
+        ],
+        "painel_dims": [
+          12.0,
+          13.99999999999272,
+          14.0,
+          28.99999999994179,
+          33.0,
+          46.99999999999272,
+          75.50000000005821
+        ],
+        "secao_dims": [
+          19.0,
+          31.0,
+          33.0
+        ],
+        "sarr_count": 16,
+        "sarr_layers": {
+          "SARR_2.2x7": 7,
+          "SARR_3.5x7": 7,
+          "SARR_EDITAR": 2
+        },
+        "corte_labels": [
+          {
+            "label": "c",
+            "x": 134147.0615214013,
+            "y": 29245.1803735953
+          },
+          {
+            "label": "b",
+            "x": 134174.7392123906,
+            "y": 29250.59248420028
+          },
+          {
+            "label": "a",
+            "x": 134118.7655534466,
+            "y": 29250.60354164585
+          }
+        ],
+        "xrefs": [],
+        "sp_markers": [],
+        "other_texts": [
+          {
+            "text": "8 1/2pont",
+            "layer": "texto"
+          }
+        ]
+      },
+      {
+        "label": "V24\\P(19x63)",
+        "type": "titulo",
+        "y_top": 29140.226059673274,
+        "y_bot": 29063.068025109766,
+        "panels": [
+          "P7",
+          "P1"
+        ],
+        "painel_dims": [
+          2.0,
+          20.99999999999272
+        ],
+        "secao_dims": [],
+        "sarr_count": 0,
+        "sarr_layers": {},
+        "corte_labels": [],
+        "xrefs": [],
+        "sp_markers": [],
+        "other_texts": []
+      },
+      {
+        "label": "M5",
+        "type": "corte",
+        "y_top": 29063.068025109766,
+        "y_bot": 29039.73006766575,
+        "panels": [],
+        "painel_dims": [],
+        "secao_dims": [],
+        "sarr_count": 0,
+        "sarr_layers": {},
+        "corte_labels": [],
+        "xrefs": [],
+        "sp_markers": [],
+        "other_texts": []
+      },
+      {
+        "label": "M16",
+        "type": "corte",
+        "y_top": 29063.068025109766,
+        "y_bot": 29039.73006766575,
+        "panels": [],
+        "painel_dims": [],
+        "secao_dims": [],
+        "sarr_count": 0,
+        "sarr_layers": {},
+        "corte_labels": [],
+        "xrefs": [],
+        "sp_markers": [],
+        "other_texts": []
+      },
+      {
+        "label": "V24.B",
+        "type": "face_B",
+        "y_top": 29002.925565916856,
+        "y_bot": 28964.600256135436,
+        "panels": [],
+        "painel_dims": [],
+        "secao_dims": [],
+        "sarr_count": 0,
+        "sarr_layers": {},
+        "corte_labels": [],
+        "xrefs": [],
+        "sp_markers": [],
+        "other_texts": []
+      },
+      {
+        "label": "V24.A",
+        "type": "face_A",
+        "y_top": 28964.600256135436,
+        "y_bot": 28874.26576823971,
+        "panels": [],
+        "painel_dims": [
+          13.0,
+          13.99999999999272,
+          15.0,
+          15.99999999999272,
+          35.99999999999272,
+          39.99999999999272,
+          50.99999999999272,
+          52.99999999999272,
+          66.99999999998545
+        ],
+        "secao_dims": [
+          55.0
+        ],
+        "sarr_count": 18,
+        "sarr_layers": {
+          "SARR_2.2x7": 10,
+          "SARR_3.5x7": 8
+        },
+        "corte_labels": [
+          {
+            "label": "c",
+            "x": 134147.0615214013,
+            "y": 28912.18229854868
+          },
+          {
+            "label": "b",
+            "x": 134174.7392123906,
+            "y": 28917.59440915366
+          },
+          {
+            "label": "a",
+            "x": 134118.7655534466,
+            "y": 28917.60546659923
+          }
+        ],
+        "xrefs": [],
+        "sp_markers": [],
+        "other_texts": [
+          {
+            "text": "8 1/2pont",
+            "layer": "texto"
+          },
+          {
+            "text": "8 1/2pont",
+            "layer": "texto"
+          }
+        ]
+      },
+      {
+        "label": "M2.5",
+        "type": "corte",
+        "y_top": 28874.26576823971,
+        "y_bot": 28785.45208837651,
+        "panels": [
+          "P14",
+          "P21"
+        ],
+        "painel_dims": [
+          2.0,
+          243.5
+        ],
+        "secao_dims": [
+          19.0
+        ],
+        "sarr_count": 0,
+        "sarr_layers": {},
+        "corte_labels": [],
+        "xrefs": [],
+        "sp_markers": [],
+        "other_texts": []
+      }
+    ],
+    "raw_titles": [
+      "V23\\P(19x43)",
+      "V24\\P(19x63)"
+    ]
+  },
+  {
+    "page": 25,
+    "viga_name": "V25",
+    "W_cm": 19.0,
+    "H_cm": 43.0,
+    "sections": [
+      {
+        "label": "V25\\P(19x43)",
+        "type": "titulo",
+        "y_top": 28348.749353879917,
+        "y_bot": 28230.828949913725,
+        "panels": [],
+        "painel_dims": [],
+        "secao_dims": [],
+        "sarr_count": 0,
+        "sarr_layers": {},
+        "corte_labels": [],
+        "xrefs": [],
+        "sp_markers": [],
+        "other_texts": []
+      },
+      {
+        "label": "V28\\P(19x63)",
+        "type": "titulo",
+        "y_top": 28230.828949913725,
+        "y_bot": 28102.671479128705,
+        "panels": [],
+        "painel_dims": [],
+        "secao_dims": [
+          11.99999999999636,
+          13.99999999999272,
+          42.99999999998545,
+          62.99999999998545
+        ],
+        "sarr_count": 0,
+        "sarr_layers": {},
+        "corte_labels": [],
+        "xrefs": [],
+        "sp_markers": [],
+        "other_texts": []
+      },
+      {
+        "label": "V25.A",
+        "type": "face_A",
+        "y_top": 28102.671479128705,
+        "y_bot": 27969.993030922844,
+        "panels": [],
+        "painel_dims": [],
+        "secao_dims": [
+          19.0,
+          31.0,
+          33.0,
+          53.0,
+          66.99999999999454
+        ],
+        "sarr_count": 0,
+        "sarr_layers": {},
+        "corte_labels": [
+          {
+            "label": "c",
+            "x": 129419.225907788,
+            "y": 28096.60526590862
+          },
+          {
+            "label": "b",
+            "x": 129446.9035987774,
+            "y": 28102.0173765136
+          },
+          {
+            "label": "a",
+            "x": 129390.9299398333,
+            "y": 28102.02843395917
+          },
+          {
+            "label": "c",
+            "x": 130086.3113241835,
+            "y": 28056.60526590862
+          },
+          {
+            "label": "b",
+            "x": 130113.9890151729,
+            "y": 28062.01737651359
+          },
+          {
+            "label": "a",
+            "x": 130058.0153562288,
+            "y": 28062.02843395916
+          }
+        ],
+        "xrefs": [],
+        "sp_markers": [],
+        "other_texts": []
+      },
+      {
+        "label": "V28.A",
+        "type": "face_A",
+        "y_top": 27969.993030922844,
+        "y_bot": 27898.397376992296,
+        "panels": [],
+        "painel_dims": [
+          2.0,
+          13.99999999999272,
+          30.99999999999272,
+          39.99999999999272,
+          44.99999999998545,
+          52.99999999999272,
+          66.99999999998545
+        ],
+        "secao_dims": [],
+        "sarr_count": 17,
+        "sarr_layers": {
+          "SARR_2.2x7": 7,
+          "SARR_3.5x7": 10
+        },
+        "corte_labels": [],
+        "xrefs": [],
+        "sp_markers": [],
+        "other_texts": [
+          {
+            "text": "5 1/2pont",
+            "layer": "texto"
+          },
+          {
+            "text": "6 1/2pont",
+            "layer": "texto"
+          },
+          {
+            "text": "7 1/2pont",
+            "layer": "texto"
+          }
+        ]
+      },
+      {
+        "label": "M2.5",
+        "type": "corte",
+        "y_top": 27898.397376992296,
+        "y_bot": 27810.26993709504,
+        "panels": [
+          "P2",
+          "P8",
+          "P140",
+          "P3A"
+        ],
+        "painel_dims": [
+          2.0,
+          13.0,
+          181.0,
+          219.0
+        ],
+        "secao_dims": [],
+        "sarr_count": 2,
+        "sarr_layers": {
+          "SARR_2.2x7": 2
+        },
+        "corte_labels": [],
+        "xrefs": [],
+        "sp_markers": [],
+        "other_texts": []
+      },
+      {
+        "label": "M5",
+        "type": "corte",
+        "y_top": 27810.26993709504,
+        "y_bot": 27789.21717370749,
+        "panels": [],
+        "painel_dims": [],
+        "secao_dims": [],
+        "sarr_count": 0,
+        "sarr_layers": {},
+        "corte_labels": [],
+        "xrefs": [],
+        "sp_markers": [],
+        "other_texts": []
+      },
+      {
+        "label": "V25.B",
+        "type": "face_B",
+        "y_top": 27774.029364794726,
+        "y_bot": 27746.71455243091,
+        "panels": [],
+        "painel_dims": [
+          13.99999999999272,
+          44.99999999998545
+        ],
+        "secao_dims": [],
+        "sarr_count": 0,
+        "sarr_layers": {},
+        "corte_labels": [],
+        "xrefs": [],
+        "sp_markers": [],
+        "other_texts": []
+      },
+      {
+        "label": "V28.B",
+        "type": "face_B",
+        "y_top": 27746.71455243091,
+        "y_bot": 27675.11889850036,
+        "panels": [],
+        "painel_dims": [
+          2.0,
+          22.0,
+          30.99999999999272,
+          53.99999999999272
+        ],
+        "secao_dims": [],
+        "sarr_count": 17,
+        "sarr_layers": {
+          "SARR_2.2x7": 7,
+          "SARR_3.5x7": 10
+        },
+        "corte_labels": [],
+        "xrefs": [],
+        "sp_markers": [],
+        "other_texts": [
+          {
+            "text": "5 1/2pont",
+            "layer": "texto"
+          },
+          {
+            "text": "6 1/2pont",
+            "layer": "texto"
+          },
+          {
+            "text": "7 1/2pont",
+            "layer": "texto"
+          }
+        ]
+      }
+    ],
+    "raw_titles": [
+      "V25\\P(19x43)",
+      "V28\\P(19x63)"
+    ]
+  },
+  {
+    "page": 26,
+    "viga_name": "V26",
+    "W_cm": 19.0,
+    "H_cm": 63.0,
+    "sections": [
+      {
+        "label": "V26\\P(19x63)",
+        "type": "titulo",
+        "y_top": 28348.749353879917,
+        "y_bot": 28224.380571272253,
+        "panels": [],
+        "painel_dims": [],
+        "secao_dims": [],
+        "sarr_count": 0,
+        "sarr_layers": {},
+        "corte_labels": [],
+        "xrefs": [],
+        "sp_markers": [],
+        "other_texts": []
+      },
+      {
+        "label": "V26.A",
+        "type": "face_A",
+        "y_top": 28224.380571272253,
+        "y_bot": 28135.336538700245,
+        "panels": [],
+        "painel_dims": [
+          15.99999999999272,
+          50.99999999999272,
+          66.99999999998545
+        ],
+        "secao_dims": [
+          9.999999999992724,
+          13.99999999999636,
+          62.99999999998545
+        ],
+        "sarr_count": 12,
+        "sarr_layers": {
+          "SARR_2.2x7": 4,
+          "SARR_3.5x7": 8
+        },
+        "corte_labels": [],
+        "xrefs": [],
+        "sp_markers": [],
+        "other_texts": [
+          {
+            "text": "8 1/2pont",
+            "layer": "texto"
+          }
+        ]
+      },
+      {
+        "label": "M5",
+        "type": "corte",
+        "y_top": 28135.336538700245,
+        "y_bot": 28052.7408847697,
+        "panels": [
+          "P2",
+          "P8"
+        ],
+        "painel_dims": [
+          2.0,
+          64.0
+        ],
+        "secao_dims": [],
+        "sarr_count": 0,
+        "sarr_layers": {},
+        "corte_labels": [
+          {
+            "label": "c",
+            "x": 130970.6536237794,
+            "y": 28056.60526590862
+          },
+          {
+            "label": "b",
+            "x": 130998.3313147688,
+            "y": 28062.01737651359
+          },
+          {
+            "label": "a",
+            "x": 130942.3576558247,
+            "y": 28062.02843395916
+          }
+        ],
+        "xrefs": [],
+        "sp_markers": [],
+        "other_texts": []
+      },
+      {
+        "label": "V26.B",
+        "type": "face_B",
+        "y_top": 27999.43029106302,
+        "y_bot": 27378.749353879917,
+        "panels": [
+          "V14",
+          "V13",
+          "V11"
+        ],
+        "painel_dims": [
+          7.000000000058208,
+          12.00000000000728,
+          34.0,
+          34.99999999999272,
+          54.99999999998909,
+          67.0,
+          72.0,
+          89.0,
+          145.0
+        ],
+        "secao_dims": [],
+        "sarr_count": 25,
+        "sarr_layers": {
+          "SARR_2.2x7": 17,
+          "SARR_3.5x7": 8
+        },
+        "corte_labels": [],
+        "xrefs": [],
+        "sp_markers": [
+          "S.P"
+        ],
+        "other_texts": [
+          {
+            "text": "8 1/2pont",
+            "layer": "texto"
+          }
+        ]
+      }
+    ],
+    "raw_titles": [
+      "V26\\P(19x63)"
+    ]
+  },
+  {
+    "page": 27,
+    "viga_name": "V27",
+    "W_cm": 19.0,
+    "H_cm": 63.0,
+    "sections": [
+      {
+        "label": "V27\\P(19x63)",
+        "type": "titulo",
+        "y_top": 28209.0,
+        "y_bot": 27378.749353879917,
+        "panels": [
+          "V11",
+          "V13",
+          "V14",
+          "V17"
+        ],
+        "painel_dims": [
+          7.0,
+          7.000000000058208,
+          16.99999999999272,
+          29.0,
+          32.0,
+          34.0,
+          34.99999999999272,
+          38.0,
+          47.0,
+          52.0,
+          54.99999999998909,
+          55.5,
+          67.0,
+          72.0,
+          151.0,
+          244.0
+        ],
+        "secao_dims": [
+          13.99999999999636,
+          19.0,
+          51.0,
+          62.99999999998545,
+          66.99999999999454
+        ],
+        "sarr_count": 50,
+        "sarr_layers": {
+          "SARR_2.2x7": 21,
+          "SARR_3.5x7": 29
+        },
+        "corte_labels": [
+          {
+            "label": "c",
+            "x": 132504.2527339188,
+            "y": 28056.60526590862
+          },
+          {
+            "label": "b",
+            "x": 132531.9304249082,
+            "y": 28062.01737651359
+          },
+          {
+            "label": "a",
+            "x": 132475.9567659641,
+            "y": 28062.02843395916
+          }
+        ],
+        "xrefs": [
+          "V139.A",
+          "V139.A",
+          "V139.B",
+          "V139.B"
+        ],
+        "sp_markers": [
+          "S.P",
+          "S.P"
+        ],
+        "other_texts": [
+          {
+            "text": "5 1/2pont",
+            "layer": "texto"
+          }
+        ]
+      },
+      {
+        "label": "V27.A",
+        "type": "face_A",
+        "y_top": 28209.0,
+        "y_bot": 27378.749353879917,
+        "panels": [
+          "V11",
+          "V13",
+          "V14",
+          "V17"
+        ],
+        "painel_dims": [
+          7.0,
+          7.000000000058208,
+          16.99999999999272,
+          29.0,
+          32.0,
+          34.0,
+          34.99999999999272,
+          38.0,
+          47.0,
+          52.0,
+          54.99999999998909,
+          55.5,
+          67.0,
+          72.0,
+          151.0,
+          244.0
+        ],
+        "secao_dims": [
+          13.99999999999636,
+          19.0,
+          51.0,
+          62.99999999998545,
+          66.99999999999454
+        ],
+        "sarr_count": 50,
+        "sarr_layers": {
+          "SARR_2.2x7": 21,
+          "SARR_3.5x7": 29
+        },
+        "corte_labels": [
+          {
+            "label": "c",
+            "x": 132504.2527339188,
+            "y": 28056.60526590862
+          },
+          {
+            "label": "b",
+            "x": 132531.9304249082,
+            "y": 28062.01737651359
+          },
+          {
+            "label": "a",
+            "x": 132475.9567659641,
+            "y": 28062.02843395916
+          }
+        ],
+        "xrefs": [
+          "V139.A",
+          "V139.A",
+          "V139.B",
+          "V139.B"
+        ],
+        "sp_markers": [
+          "S.P",
+          "S.P"
+        ],
+        "other_texts": [
+          {
+            "text": "5 1/2pont",
+            "layer": "texto"
+          }
+        ]
+      },
+      {
+        "label": "V27.B",
+        "type": "face_B",
+        "y_top": 28209.0,
+        "y_bot": 27378.749353879917,
+        "panels": [
+          "V11",
+          "V13",
+          "V14",
+          "V17"
+        ],
+        "painel_dims": [
+          7.0,
+          7.000000000058208,
+          16.99999999999272,
+          29.0,
+          32.0,
+          34.0,
+          34.99999999999272,
+          38.0,
+          47.0,
+          52.0,
+          54.99999999998909,
+          55.5,
+          67.0,
+          72.0,
+          151.0,
+          244.0
+        ],
+        "secao_dims": [
+          13.99999999999636,
+          19.0,
+          51.0,
+          62.99999999998545,
+          66.99999999999454
+        ],
+        "sarr_count": 50,
+        "sarr_layers": {
+          "SARR_2.2x7": 21,
+          "SARR_3.5x7": 29
+        },
+        "corte_labels": [
+          {
+            "label": "c",
+            "x": 132504.2527339188,
+            "y": 28056.60526590862
+          },
+          {
+            "label": "b",
+            "x": 132531.9304249082,
+            "y": 28062.01737651359
+          },
+          {
+            "label": "a",
+            "x": 132475.9567659641,
+            "y": 28062.02843395916
+          }
+        ],
+        "xrefs": [
+          "V139.A",
+          "V139.A",
+          "V139.B",
+          "V139.B"
+        ],
+        "sp_markers": [
+          "S.P",
+          "S.P"
+        ],
+        "other_texts": [
+          {
+            "text": "5 1/2pont",
+            "layer": "texto"
+          }
+        ]
+      }
+    ],
+    "raw_titles": [
+      "V27\\P(19x63)"
+    ]
+  },
+  {
+    "page": 28,
+    "viga_name": "TEST.1",
+    "W_cm": 19.0,
+    "H_cm": 75.0,
+    "sections": [
+      {
+        "label": "TEST.1\\P(19x75)",
+        "type": "titulo",
+        "y_top": 28348.749353879917,
+        "y_bot": 28226.897504628083,
+        "panels": [],
+        "painel_dims": [
+          22.0,
+          172.0
+        ],
+        "secao_dims": [],
+        "sarr_count": 0,
+        "sarr_layers": {},
+        "corte_labels": [],
+        "xrefs": [],
+        "sp_markers": [],
+        "other_texts": []
+      },
+      {
+        "label": "TEST.1.A",
+        "type": "face_A",
+        "y_top": 28226.897504628083,
+        "y_bot": 28079.529747163484,
+        "panels": [
+          "V11",
+          "V10"
+        ],
+        "painel_dims": [
+          7.0,
+          12.0,
+          14.0,
+          20.0,
+          53.0,
+          55.0,
+          65.00000000000728,
+          67.0,
+          72.0,
+          79.00000000000728,
+          234.0,
+          244.0
+        ],
+        "secao_dims": [
+          11.99999999999272,
+          11.99999999999636,
+          74.99999999998545
+        ],
+        "sarr_count": 16,
+        "sarr_layers": {
+          "SARR_2.2x7": 7,
+          "SARR_3.5x7": 9
+        },
+        "corte_labels": [],
+        "xrefs": [],
+        "sp_markers": [
+          "S.P"
+        ],
+        "other_texts": [
+          {
+            "text": "8 1/2pont",
+            "layer": "texto"
+          },
+          {
+            "text": "8 1/2pont",
+            "layer": "texto"
+          },
+          {
+            "text": "8 1/2pont",
+            "layer": "texto"
+          }
+        ]
+      },
+      {
+        "label": "TEST.1.B",
+        "type": "face_B",
+        "y_top": 28079.529747163484,
+        "y_bot": 27924.67933808115,
+        "panels": [],
+        "painel_dims": [
+          23.0
+        ],
+        "secao_dims": [
+          19.0,
+          65.0
+        ],
+        "sarr_count": 0,
+        "sarr_layers": {},
+        "corte_labels": [
+          {
+            "label": "c",
+            "x": 134076.3645851852,
+            "y": 28032.60526590861
+          },
+          {
+            "label": "b",
+            "x": 134104.1161679219,
+            "y": 28038.01737651359
+          },
+          {
+            "label": "a",
+            "x": 134048.1425089778,
+            "y": 28038.02843395916
+          }
+        ],
+        "xrefs": [],
+        "sp_markers": [],
+        "other_texts": []
+      },
+      {
+        "label": "FECH.",
+        "type": "other",
+        "y_top": 27924.67933808115,
+        "y_bot": 27378.749353879917,
+        "panels": [
+          "V11",
+          "V10"
+        ],
+        "painel_dims": [
+          7.0,
+          12.0,
+          14.0,
+          18.9999999999709,
+          20.0,
+          32.99999999999272,
+          33.0,
+          49.0,
+          53.0,
+          55.0,
+          67.0,
+          122.0,
+          135.0,
+          244.0,
+          257.0
+        ],
+        "secao_dims": [],
+        "sarr_count": 19,
+        "sarr_layers": {
+          "SARR_2.2x7": 10,
+          "SARR_3.5x7": 9
+        },
+        "corte_labels": [],
+        "xrefs": [],
+        "sp_markers": [
+          "S.P"
+        ],
+        "other_texts": [
+          {
+            "text": "8 1/2pont",
+            "layer": "texto"
+          },
+          {
+            "text": "8 1/2pont",
+            "layer": "texto"
+          },
+          {
+            "text": "8 1/2pont",
+            "layer": "texto"
+          }
+        ]
+      }
+    ],
+    "raw_titles": [
+      "TEST.1\\P(19x75)"
+    ]
+  },
+  {
+    "page": 29,
+    "viga_name": "V29",
+    "W_cm": 19.0,
+    "H_cm": 48.0,
+    "sections": [
+      {
+        "label": "V29.A",
+        "type": "face_A",
+        "y_top": 26861.0,
+        "y_bot": 26230.174246193237,
+        "panels": [
+          "P140",
+          "P3A"
+        ],
+        "painel_dims": [
+          37.99999999998909,
+          244.0
+        ],
+        "secao_dims": [],
+        "sarr_count": 13,
+        "sarr_layers": {
+          "SARR_2.2x7": 5,
+          "SARR_3.5x7": 8
+        },
+        "corte_labels": [],
+        "xrefs": [],
+        "sp_markers": [],
+        "other_texts": [
+          {
+            "text": "8 1/2pont",
+            "layer": "texto"
+          },
+          {
+            "text": "8 1/2pont",
+            "layer": "texto"
+          },
+          {
+            "text": "8 1/2pont",
+            "layer": "texto"
+          }
+        ]
+      },
+      {
+        "label": "V29\\P(19x48)",
+        "type": "titulo",
+        "y_top": 26861.0,
+        "y_bot": 26230.174246193237,
+        "panels": [
+          "P140",
+          "P3A"
+        ],
+        "painel_dims": [
+          37.99999999998909,
+          244.0
+        ],
+        "secao_dims": [],
+        "sarr_count": 13,
+        "sarr_layers": {
+          "SARR_2.2x7": 5,
+          "SARR_3.5x7": 8
+        },
+        "corte_labels": [],
+        "xrefs": [],
+        "sp_markers": [],
+        "other_texts": [
+          {
+            "text": "8 1/2pont",
+            "layer": "texto"
+          },
+          {
+            "text": "8 1/2pont",
+            "layer": "texto"
+          },
+          {
+            "text": "8 1/2pont",
+            "layer": "texto"
+          }
+        ]
+      },
+      {
+        "label": "V29.B",
+        "type": "face_B",
+        "y_top": 26861.0,
+        "y_bot": 26230.174246193237,
+        "panels": [
+          "P140",
+          "P3A"
+        ],
+        "painel_dims": [
+          37.99999999998909,
+          244.0
+        ],
+        "secao_dims": [],
+        "sarr_count": 13,
+        "sarr_layers": {
+          "SARR_2.2x7": 5,
+          "SARR_3.5x7": 8
+        },
+        "corte_labels": [],
+        "xrefs": [],
+        "sp_markers": [],
+        "other_texts": [
+          {
+            "text": "8 1/2pont",
+            "layer": "texto"
+          },
+          {
+            "text": "8 1/2pont",
+            "layer": "texto"
+          },
+          {
+            "text": "8 1/2pont",
+            "layer": "texto"
+          }
+        ]
+      }
+    ],
+    "raw_titles": [
+      "V29\\P(19x48)"
+    ]
+  },
+  {
+    "page": 30,
+    "viga_name": "VE - VE1",
+    "W_cm": 19.0,
+    "H_cm": 40.0,
+    "sections": [
+      {
+        "label": "VE1.A",
+        "type": "face_A",
+        "y_top": 27200.174246193237,
+        "y_bot": 27083.38714561946,
+        "panels": [],
+        "painel_dims": [],
+        "secao_dims": [],
+        "sarr_count": 0,
+        "sarr_layers": {},
+        "corte_labels": [],
+        "xrefs": [],
+        "sp_markers": [],
+        "other_texts": []
+      },
+      {
+        "label": "VE - VE1\\P(19x40)",
+        "type": "titulo",
+        "y_top": 27083.38714561946,
+        "y_bot": 26979.116854262087,
+        "panels": [],
+        "painel_dims": [
+          43.99999999998909,
+          244.0
+        ],
+        "secao_dims": [
+          39.99999999998545,
+          43.99999999999272
+        ],
+        "sarr_count": 13,
+        "sarr_layers": {
+          "SARR_2.2x7": 5,
+          "SARR_3.5x7": 8
+        },
+        "corte_labels": [],
+        "xrefs": [],
+        "sp_markers": [],
+        "other_texts": [
+          {
+            "text": "8 1/2pont",
+            "layer": "texto"
+          },
+          {
+            "text": "8 1/2pont",
+            "layer": "texto"
+          },
+          {
+            "text": "8 1/2pont",
+            "layer": "texto"
+          }
+        ]
+      },
+      {
+        "label": "VE1.B",
+        "type": "face_B",
+        "y_top": 26979.116854262087,
+        "y_bot": 26769.808427978496,
+        "panels": [
+          "P140",
+          "P3A"
+        ],
+        "painel_dims": [
+          43.99999999998909,
+          244.0
+        ],
+        "secao_dims": [
+          19.0,
+          43.99999999999272
+        ],
+        "sarr_count": 13,
+        "sarr_layers": {
+          "SARR_2.2x7": 5,
+          "SARR_3.5x7": 8
+        },
+        "corte_labels": [
+          {
+            "label": "c",
+            "x": 130918.935107517,
+            "y": 26952.53015822195
+          },
+          {
+            "label": "b",
+            "x": 130947.5071712289,
+            "y": 26949.34338151434
+          },
+          {
+            "label": "a",
+            "x": 130891.5335122848,
+            "y": 26949.35443895991
+          }
+        ],
+        "xrefs": [],
+        "sp_markers": [],
+        "other_texts": [
+          {
+            "text": "8 1/2pont",
+            "layer": "texto"
+          },
+          {
+            "text": "8 1/2pont",
+            "layer": "texto"
+          },
+          {
+            "text": "8 1/2pont",
+            "layer": "texto"
+          }
+        ]
+      },
+      {
+        "label": "VE.A-VE.B",
+        "type": "face_B",
+        "y_top": 26769.808427978496,
+        "y_bot": 26230.174246193237,
+        "panels": [
+          "P140",
+          "P3A",
+          "PE",
+          "P22B"
+        ],
+        "painel_dims": [
+          43.99999999999272,
+          122.0,
+          145.0
+        ],
+        "secao_dims": [],
+        "sarr_count": 10,
+        "sarr_layers": {
+          "SARR_2.2x7": 4,
+          "SARR_3.5x7": 6
+        },
+        "corte_labels": [],
+        "xrefs": [],
+        "sp_markers": [],
+        "other_texts": [
+          {
+            "text": "5 1/2pont",
+            "layer": "texto"
+          },
+          {
+            "text": "6 1/2pont",
+            "layer": "texto"
+          }
+        ]
+      }
+    ],
+    "raw_titles": [
+      "VE - VE1\\P(19x40)"
+    ]
+  },
+  {
+    "page": 31,
+    "viga_name": "V30",
+    "W_cm": 19.0,
+    "H_cm": 63.0,
+    "sections": [
+      {
+        "label": "V30.A",
+        "type": "face_A",
+        "y_top": 27200.174246193237,
+        "y_bot": 27087.44613933265,
+        "panels": [],
+        "painel_dims": [
+          34.0
+        ],
+        "secao_dims": [],
+        "sarr_count": 0,
+        "sarr_layers": {},
+        "corte_labels": [],
+        "xrefs": [],
+        "sp_markers": [],
+        "other_texts": []
+      },
+      {
+        "label": "V30\\P(19x63)",
+        "type": "titulo",
+        "y_top": 27087.44613933265,
+        "y_bot": 26975.242784613547,
+        "panels": [],
+        "painel_dims": [
+          7.0,
+          47.0,
+          67.00000000000728,
+          93.0
+        ],
+        "secao_dims": [
+          62.99999999998545
+        ],
+        "sarr_count": 19,
+        "sarr_layers": {
+          "SARR_2.2x7": 13,
+          "SARR_3.5x7": 6
+        },
+        "corte_labels": [],
+        "xrefs": [],
+        "sp_markers": [
+          "S.P"
+        ],
+        "other_texts": [
+          {
+            "text": "4 1/2pont",
+            "layer": "texto"
+          },
+          {
+            "text": "6 1/2pont",
+            "layer": "texto"
+          }
+        ]
+      },
+      {
+        "label": "V30.B",
+        "type": "face_B",
+        "y_top": 26975.242784613547,
+        "y_bot": 26778.89723910432,
+        "panels": [
+          "V11",
+          "V14"
+        ],
+        "painel_dims": [
+          13.0,
+          53.99999999999272,
+          66.99999999999272,
+          151.0,
+          244.0
+        ],
+        "secao_dims": [
+          19.0,
+          66.99999999999454
+        ],
+        "sarr_count": 7,
+        "sarr_layers": {
+          "SARR_2.2x7": 3,
+          "SARR_3.5x7": 4
+        },
+        "corte_labels": [
+          {
+            "label": "c",
+            "x": 132533.1511984462,
+            "y": 26908.03015822194
+          },
+          {
+            "label": "b",
+            "x": 132560.8288894356,
+            "y": 26913.44226882691
+          },
+          {
+            "label": "a",
+            "x": 132504.8552304915,
+            "y": 26913.45332627248
+          }
+        ],
+        "xrefs": [
+          "V143.A"
+        ],
+        "sp_markers": [],
+        "other_texts": []
+      },
+      {
+        "label": "M5",
+        "type": "corte",
+        "y_top": 26778.89723910432,
+        "y_bot": 26689.56275120859,
+        "panels": [
+          "P16",
+          "P22"
+        ],
+        "painel_dims": [
+          2.0,
+          244.0
+        ],
+        "secao_dims": [],
+        "sarr_count": 0,
+        "sarr_layers": {},
+        "corte_labels": [],
+        "xrefs": [],
+        "sp_markers": [],
+        "other_texts": []
+      }
+    ],
+    "raw_titles": [
+      "V30\\P(19x63)"
+    ]
+  },
+  {
+    "page": 32,
+    "viga_name": "V31",
+    "W_cm": 19.0,
+    "H_cm": 63.0,
+    "sections": [
+      {
+        "label": "V31.A",
+        "type": "face_A",
+        "y_top": 27086.0,
+        "y_bot": 26230.174246193234,
+        "panels": [
+          "P3B",
+          "P10"
+        ],
+        "painel_dims": [
+          2.0,
+          7.0,
+          13.99999999999636,
+          16.0,
+          32.0000000000291,
+          50.99999999999272,
+          52.99999999998909,
+          66.99999999999272,
+          67.0,
+          234.0,
+          235.0
+        ],
+        "secao_dims": [
+          11.99999999999636,
+          13.99999999999272,
+          19.0,
+          51.0,
+          53.0,
+          62.99999999998545
+        ],
+        "sarr_count": 25,
+        "sarr_layers": {
+          "SARR_2.2x7": 18,
+          "SARR_3.5x7": 7
+        },
+        "corte_labels": [
+          {
+            "label": "c",
+            "x": 134093.993696461,
+            "y": 26908.03015822194
+          },
+          {
+            "label": "b",
+            "x": 134121.6713874504,
+            "y": 26913.44226882691
+          },
+          {
+            "label": "a",
+            "x": 134065.6977285063,
+            "y": 26913.45332627248
+          }
+        ],
+        "xrefs": [],
+        "sp_markers": [
+          "S.P"
+        ],
+        "other_texts": [
+          {
+            "text": "8 1/2pont",
+            "layer": "texto"
+          },
+          {
+            "text": "8 1/2pont",
+            "layer": "texto"
+          }
+        ]
+      },
+      {
+        "label": "V31\\P(19x63)",
+        "type": "titulo",
+        "y_top": 27086.0,
+        "y_bot": 26230.174246193234,
+        "panels": [
+          "P3B",
+          "P10"
+        ],
+        "painel_dims": [
+          2.0,
+          7.0,
+          13.99999999999636,
+          16.0,
+          32.0000000000291,
+          50.99999999999272,
+          52.99999999998909,
+          66.99999999999272,
+          67.0,
+          234.0,
+          235.0
+        ],
+        "secao_dims": [
+          11.99999999999636,
+          13.99999999999272,
+          19.0,
+          51.0,
+          53.0,
+          62.99999999998545
+        ],
+        "sarr_count": 25,
+        "sarr_layers": {
+          "SARR_2.2x7": 18,
+          "SARR_3.5x7": 7
+        },
+        "corte_labels": [
+          {
+            "label": "c",
+            "x": 134093.993696461,
+            "y": 26908.03015822194
+          },
+          {
+            "label": "b",
+            "x": 134121.6713874504,
+            "y": 26913.44226882691
+          },
+          {
+            "label": "a",
+            "x": 134065.6977285063,
+            "y": 26913.45332627248
+          }
+        ],
+        "xrefs": [],
+        "sp_markers": [
+          "S.P"
+        ],
+        "other_texts": [
+          {
+            "text": "8 1/2pont",
+            "layer": "texto"
+          },
+          {
+            "text": "8 1/2pont",
+            "layer": "texto"
+          }
+        ]
+      },
+      {
+        "label": "V31.B",
+        "type": "face_B",
+        "y_top": 27086.0,
+        "y_bot": 26230.174246193234,
+        "panels": [
+          "P3B",
+          "P10"
+        ],
+        "painel_dims": [
+          2.0,
+          7.0,
+          13.99999999999636,
+          16.0,
+          32.0000000000291,
+          50.99999999999272,
+          52.99999999998909,
+          66.99999999999272,
+          67.0,
+          234.0,
+          235.0
+        ],
+        "secao_dims": [
+          11.99999999999636,
+          13.99999999999272,
+          19.0,
+          51.0,
+          53.0,
+          62.99999999998545
+        ],
+        "sarr_count": 25,
+        "sarr_layers": {
+          "SARR_2.2x7": 18,
+          "SARR_3.5x7": 7
+        },
+        "corte_labels": [
+          {
+            "label": "c",
+            "x": 134093.993696461,
+            "y": 26908.03015822194
+          },
+          {
+            "label": "b",
+            "x": 134121.6713874504,
+            "y": 26913.44226882691
+          },
+          {
+            "label": "a",
+            "x": 134065.6977285063,
+            "y": 26913.45332627248
+          }
+        ],
+        "xrefs": [],
+        "sp_markers": [
+          "S.P"
+        ],
+        "other_texts": [
+          {
+            "text": "8 1/2pont",
+            "layer": "texto"
+          },
+          {
+            "text": "8 1/2pont",
+            "layer": "texto"
+          }
+        ]
+      },
+      {
+        "label": "M5",
+        "type": "corte",
+        "y_top": 27086.0,
+        "y_bot": 26230.174246193234,
+        "panels": [
+          "P3B",
+          "P10"
+        ],
+        "painel_dims": [
+          2.0,
+          7.0,
+          13.99999999999636,
+          16.0,
+          32.0000000000291,
+          50.99999999999272,
+          52.99999999998909,
+          66.99999999999272,
+          67.0,
+          234.0,
+          235.0
+        ],
+        "secao_dims": [
+          11.99999999999636,
+          13.99999999999272,
+          19.0,
+          51.0,
+          53.0,
+          62.99999999998545
+        ],
+        "sarr_count": 25,
+        "sarr_layers": {
+          "SARR_2.2x7": 18,
+          "SARR_3.5x7": 7
+        },
+        "corte_labels": [
+          {
+            "label": "c",
+            "x": 134093.993696461,
+            "y": 26908.03015822194
+          },
+          {
+            "label": "b",
+            "x": 134121.6713874504,
+            "y": 26913.44226882691
+          },
+          {
+            "label": "a",
+            "x": 134065.6977285063,
+            "y": 26913.45332627248
+          }
+        ],
+        "xrefs": [],
+        "sp_markers": [
+          "S.P"
+        ],
+        "other_texts": [
+          {
+            "text": "8 1/2pont",
+            "layer": "texto"
+          },
+          {
+            "text": "8 1/2pont",
+            "layer": "texto"
+          }
+        ]
+      }
+    ],
+    "raw_titles": [
+      "V31\\P(19x63)"
+    ]
+  },
+  {
+    "page": 33,
+    "viga_name": "V32",
+    "W_cm": 19.0,
+    "H_cm": 43.0,
+    "sections": [
+      {
+        "label": "V32\\P(19x43)",
+        "type": "titulo",
+        "y_top": 26051.599138506564,
+        "y_bot": 25933.67873454037,
+        "panels": [],
+        "painel_dims": [],
+        "secao_dims": [],
+        "sarr_count": 0,
+        "sarr_layers": {},
+        "corte_labels": [],
+        "xrefs": [],
+        "sp_markers": [],
+        "other_texts": []
+      },
+      {
+        "label": "V35\\P(19x43)",
+        "type": "titulo",
+        "y_top": 26051.599138506564,
+        "y_bot": 25933.67873454037,
+        "panels": [],
+        "painel_dims": [],
+        "secao_dims": [],
+        "sarr_count": 0,
+        "sarr_layers": {},
+        "corte_labels": [],
+        "xrefs": [],
+        "sp_markers": [],
+        "other_texts": []
+      },
+      {
+        "label": "V32.A",
+        "type": "face_A",
+        "y_top": 25801.515281755666,
+        "y_bot": 25669.35182897096,
+        "panels": [],
+        "painel_dims": [],
+        "secao_dims": [
+          19.0,
+          31.0,
+          32.0,
+          33.0
+        ],
+        "sarr_count": 0,
+        "sarr_layers": {},
+        "corte_labels": [
+          {
+            "label": "c",
+            "x": 129352.0937132722,
+            "y": 25799.45505053527
+          },
+          {
+            "label": "c",
+            "x": 130043.9805396597,
+            "y": 25799.45505053527
+          }
+        ],
+        "xrefs": [],
+        "sp_markers": [],
+        "other_texts": []
+      },
+      {
+        "label": "V35.A",
+        "type": "face_A",
+        "y_top": 25801.515281755666,
+        "y_bot": 25669.35182897096,
+        "panels": [],
+        "painel_dims": [],
+        "secao_dims": [
+          19.0,
+          31.0,
+          32.0,
+          33.0
+        ],
+        "sarr_count": 0,
+        "sarr_layers": {},
+        "corte_labels": [
+          {
+            "label": "c",
+            "x": 129352.0937132722,
+            "y": 25799.45505053527
+          },
+          {
+            "label": "c",
+            "x": 130043.9805396597,
+            "y": 25799.45505053527
+          }
+        ],
+        "xrefs": [],
+        "sp_markers": [],
+        "other_texts": []
+      },
+      {
+        "label": "M2.5",
+        "type": "corte",
+        "y_top": 25589.017341075236,
+        "y_bot": 25508.68285317951,
+        "panels": [
+          "V3",
+          "P3B",
+          "P11",
+          "P4"
+        ],
+        "painel_dims": [
+          2.0,
+          243.5
+        ],
+        "secao_dims": [],
+        "sarr_count": 0,
+        "sarr_layers": {},
+        "corte_labels": [],
+        "xrefs": [],
+        "sp_markers": [],
+        "other_texts": []
+      },
+      {
+        "label": "V32.B",
+        "type": "face_B",
+        "y_top": 25485.00085002762,
+        "y_bot": 25459.82289621725,
+        "panels": [],
+        "painel_dims": [],
+        "secao_dims": [],
+        "sarr_count": 0,
+        "sarr_layers": {},
+        "corte_labels": [],
+        "xrefs": [],
+        "sp_markers": [],
+        "other_texts": []
+      },
+      {
+        "label": "V35.B",
+        "type": "face_B",
+        "y_top": 25459.82289621725,
+        "y_bot": 25385.561012488863,
+        "panels": [],
+        "painel_dims": [
+          14.0,
+          32.99999999999272,
+          46.99999999999272
+        ],
+        "secao_dims": [],
+        "sarr_count": 27,
+        "sarr_layers": {
+          "SARR_2.2x7": 11,
+          "SARR_3.5x7": 16
+        },
+        "corte_labels": [],
+        "xrefs": [],
+        "sp_markers": [],
+        "other_texts": [
+          {
+            "text": "5 1/2pont",
+            "layer": "texto"
+          },
+          {
+            "text": "5 1/2pont",
+            "layer": "texto"
+          },
+          {
+            "text": "8 1/2pont",
+            "layer": "texto"
+          },
+          {
+            "text": "5 1/2pont",
+            "layer": "texto"
+          },
+          {
+            "text": "5 1/2pont",
+            "layer": "texto"
+          }
+        ]
+      },
+      {
+        "label": "M15.5",
+        "type": "corte",
+        "y_top": 25385.561012488863,
+        "y_bot": 25306.226524593134,
+        "panels": [
+          "V3",
+          "P3B",
+          "P11",
+          "P4"
+        ],
+        "painel_dims": [
+          2.0,
+          243.5
+        ],
+        "secao_dims": [],
+        "sarr_count": 0,
+        "sarr_layers": {},
+        "corte_labels": [],
+        "xrefs": [],
+        "sp_markers": [],
+        "other_texts": []
+      }
+    ],
+    "raw_titles": [
+      "V32\\P(19x43)",
+      "V35\\P(19x43)"
+    ]
+  },
+  {
+    "page": 34,
+    "viga_name": "V33",
+    "W_cm": 19.0,
+    "H_cm": 75.0,
+    "sections": [
+      {
+        "label": "V33\\P(19x75)",
+        "type": "titulo",
+        "y_top": 26051.599138506564,
+        "y_bot": 25927.2303558989,
+        "panels": [],
+        "painel_dims": [],
+        "secao_dims": [],
+        "sarr_count": 0,
+        "sarr_layers": {},
+        "corte_labels": [],
+        "xrefs": [],
+        "sp_markers": [],
+        "other_texts": []
+      },
+      {
+        "label": "V33.A",
+        "type": "face_A",
+        "y_top": 25927.2303558989,
+        "y_bot": 25773.988811275267,
+        "panels": [],
+        "painel_dims": [
+          46.0,
+          78.99999999999272,
+          122.0,
+          137.5
+        ],
+        "secao_dims": [
+          11.99999999999272,
+          74.99999999998545
+        ],
+        "sarr_count": 18,
+        "sarr_layers": {
+          "SARR_2.2x7": 10,
+          "SARR_3.5x7": 8
+        },
+        "corte_labels": [],
+        "xrefs": [],
+        "sp_markers": [],
+        "other_texts": [
+          {
+            "text": "8 1/2pont",
+            "layer": "texto"
+          }
+        ]
+      },
+      {
+        "label": "V33.B",
+        "type": "face_B",
+        "y_top": 25773.988811275267,
+        "y_bot": 25538.599991362542,
+        "panels": [
+          "P17",
+          "P23"
+        ],
+        "painel_dims": [
+          13.99999999999272,
+          64.99999999999272,
+          78.99999999998545,
+          259.5
+        ],
+        "secao_dims": [
+          19.0,
+          65.0,
+          78.99999999999454
+        ],
+        "sarr_count": 12,
+        "sarr_layers": {
+          "SARR_2.2x7": 4,
+          "SARR_3.5x7": 8
+        },
+        "corte_labels": [
+          {
+            "label": "c",
+            "x": 130908.9185646658,
+            "y": 25735.45505053526
+          },
+          {
+            "label": "b",
+            "x": 130936.6701474025,
+            "y": 25740.86716114024
+          },
+          {
+            "label": "a",
+            "x": 130880.6964884584,
+            "y": 25740.87821858581
+          }
+        ],
+        "xrefs": [],
+        "sp_markers": [],
+        "other_texts": [
+          {
+            "text": "8 1/2pont",
+            "layer": "texto"
+          }
+        ]
+      },
+      {
+        "label": "M5",
+        "type": "corte",
+        "y_top": 25538.599991362542,
+        "y_bot": 25450.00433743199,
+        "panels": [
+          "P23",
+          "P17"
+        ],
+        "painel_dims": [
+          2.0,
+          59.0
+        ],
+        "secao_dims": [],
+        "sarr_count": 0,
+        "sarr_layers": {},
+        "corte_labels": [],
+        "xrefs": [],
+        "sp_markers": [],
+        "other_texts": []
+      },
+      {
+        "label": "M6.5",
+        "type": "corte",
+        "y_top": 25538.599991362542,
+        "y_bot": 25450.00433743199,
+        "panels": [
+          "P23",
+          "P17"
+        ],
+        "painel_dims": [
+          2.0,
+          59.0
+        ],
+        "secao_dims": [],
+        "sarr_count": 0,
+        "sarr_layers": {},
+        "corte_labels": [],
+        "xrefs": [],
+        "sp_markers": [],
+        "other_texts": []
+      }
+    ],
+    "raw_titles": [
+      "V33\\P(19x75)"
+    ]
+  },
+  {
+    "page": 35,
+    "viga_name": "TEST.3",
+    "W_cm": 14.0,
+    "H_cm": 75.0,
+    "sections": [
+      {
+        "label": "TEST.3\\P(14x75)",
+        "type": "titulo",
+        "y_top": 26051.599138506564,
+        "y_bot": 25827.2543552858,
+        "panels": [],
+        "painel_dims": [],
+        "secao_dims": [
+          11.99999999999272,
+          13.99999999999636,
+          74.99999999998545
+        ],
+        "sarr_count": 0,
+        "sarr_layers": {},
+        "corte_labels": [],
+        "xrefs": [],
+        "sp_markers": [],
+        "other_texts": []
+      },
+      {
+        "label": "TEST.3.A",
+        "type": "face_A",
+        "y_top": 25827.2543552858,
+        "y_bot": 25597.650416444143,
+        "panels": [],
+        "painel_dims": [
+          14.0,
+          14.00000000000364,
+          16.0,
+          18.00000000000364,
+          27.0,
+          32.99999999998909,
+          48.0,
+          50.99999999999272,
+          52.99999999999272,
+          62.99999999998909,
+          64.99999999999636,
+          78.99999999999272
+        ],
+        "secao_dims": [
+          14.0,
+          63.0,
+          65.0
+        ],
+        "sarr_count": 23,
+        "sarr_layers": {
+          "SARR_2.2x7": 9,
+          "SARR_3.5x7": 14
+        },
+        "corte_labels": [
+          {
+            "label": "c",
+            "x": 132947.6241361882,
+            "y": 25772.49139089234
+          },
+          {
+            "label": "b",
+            "x": 132969.4997081434,
+            "y": 25777.90350149732
+          },
+          {
+            "label": "a",
+            "x": 132923.5260491993,
+            "y": 25777.91455894289
+          }
+        ],
+        "xrefs": [],
+        "sp_markers": [],
+        "other_texts": [
+          {
+            "text": "6 1/2pont",
+            "layer": "texto"
+          },
+          {
+            "text": "6 1/2pont",
+            "layer": "texto"
+          },
+          {
+            "text": "8 1/2pont",
+            "layer": "texto"
+          },
+          {
+            "text": "8 1/2pont",
+            "layer": "texto"
+          },
+          {
+            "text": "6 1/2pont",
+            "layer": "texto"
+          }
+        ]
+      },
+      {
+        "label": "M7",
+        "type": "corte",
+        "y_top": 25597.650416444143,
+        "y_bot": 25491.25925807103,
+        "panels": [
+          "V3",
+          "P17"
+        ],
+        "painel_dims": [
+          2.0,
+          178.0,
+          223.0,
+          228.0,
+          244.0
+        ],
+        "secao_dims": [],
+        "sarr_count": 0,
+        "sarr_layers": {},
+        "corte_labels": [],
+        "xrefs": [],
+        "sp_markers": [],
+        "other_texts": []
+      },
+      {
+        "label": "TEST.3.B",
+        "type": "face_B",
+        "y_top": 25491.25925807103,
+        "y_bot": 25376.814464833966,
+        "panels": [],
+        "painel_dims": [
+          14.0,
+          14.00000000000364,
+          16.0,
+          18.00000000000364,
+          27.0,
+          32.99999999998909,
+          48.0,
+          50.99999999999272,
+          52.99999999999272,
+          62.99999999998909,
+          64.99999999999636,
+          66.99999999999272,
+          78.99999999999272
+        ],
+        "secao_dims": [],
+        "sarr_count": 23,
+        "sarr_layers": {
+          "SARR_2.2x7": 9,
+          "SARR_3.5x7": 14
+        },
+        "corte_labels": [],
+        "xrefs": [],
+        "sp_markers": [],
+        "other_texts": [
+          {
+            "text": "6 1/2pont",
+            "layer": "texto"
+          },
+          {
+            "text": "6 1/2pont",
+            "layer": "texto"
+          },
+          {
+            "text": "8 1/2pont",
+            "layer": "texto"
+          },
+          {
+            "text": "8 1/2pont",
+            "layer": "texto"
+          },
+          {
+            "text": "6 1/2pont",
+            "layer": "texto"
+          }
+        ]
+      },
+      {
+        "label": "M6",
+        "type": "corte",
+        "y_top": 25376.814464833966,
+        "y_bot": 25081.599138506564,
+        "panels": [
+          "V3",
+          "P17"
+        ],
+        "painel_dims": [
+          2.0,
+          178.0,
+          223.0,
+          228.0,
+          244.0
+        ],
+        "secao_dims": [],
+        "sarr_count": 0,
+        "sarr_layers": {},
+        "corte_labels": [],
+        "xrefs": [],
+        "sp_markers": [],
+        "other_texts": []
+      }
+    ],
+    "raw_titles": [
+      "TEST.3\\P(14x75)"
+    ]
+  },
+  {
+    "page": 36,
+    "viga_name": "V36",
+    "W_cm": 19.0,
+    "H_cm": 43.0,
+    "sections": [
+      {
+        "label": "V36\\P(19x43)",
+        "type": "titulo",
+        "y_top": 26051.599138506564,
+        "y_bot": 25927.230355898915,
+        "panels": [],
+        "painel_dims": [],
+        "secao_dims": [],
+        "sarr_count": 0,
+        "sarr_layers": {},
+        "corte_labels": [],
+        "xrefs": [],
+        "sp_markers": [],
+        "other_texts": []
+      },
+      {
+        "label": "V36.A",
+        "type": "face_A",
+        "y_top": 25927.230355898915,
+        "y_bot": 25848.18632332691,
+        "panels": [],
+        "painel_dims": [
+          13.99999999999272,
+          33.0,
+          46.99999999999272
+        ],
+        "secao_dims": [
+          11.99999999999272,
+          11.99999999999636,
+          42.99999999998545
+        ],
+        "sarr_count": 10,
+        "sarr_layers": {
+          "SARR_2.2x7": 4,
+          "SARR_3.5x7": 6
+        },
+        "corte_labels": [],
+        "xrefs": [],
+        "sp_markers": [],
+        "other_texts": [
+          {
+            "text": "8 1/2pont",
+            "layer": "texto"
+          },
+          {
+            "text": "5 1/2pont",
+            "layer": "texto"
+          }
+        ]
+      },
+      {
+        "label": "M5",
+        "type": "corte",
+        "y_top": 25848.18632332691,
+        "y_bot": 25775.59066939636,
+        "panels": [
+          "P18",
+          "P24"
+        ],
+        "painel_dims": [
+          2.0,
+          131.5
+        ],
+        "secao_dims": [
+          33.0
+        ],
+        "sarr_count": 0,
+        "sarr_layers": {},
+        "corte_labels": [
+          {
+            "label": "c",
+            "x": 134107.0937132722,
+            "y": 25799.45505053527
+          },
+          {
+            "label": "b",
+            "x": 134134.7714042615,
+            "y": 25804.86716114025
+          },
+          {
+            "label": "a",
+            "x": 134078.7977453175,
+            "y": 25804.87821858582
+          }
+        ],
+        "xrefs": [],
+        "sp_markers": [],
+        "other_texts": []
+      },
+      {
+        "label": "V36.B",
+        "type": "face_B",
+        "y_top": 25726.40240425594,
+        "y_bot": 25081.599138506564,
+        "panels": [
+          "P24",
+          "P18"
+        ],
+        "painel_dims": [
+          7.000000000058208,
+          11.99999999999272,
+          14.00501710604294,
+          16.00501710604294,
+          18.99999999999272,
+          32.99999999998545,
+          47.00501710602839,
+          47.00501710604294,
+          58.9999999999709,
+          168.5,
+          195.4999999999709
+        ],
+        "secao_dims": [],
+        "sarr_count": 18,
+        "sarr_layers": {
+          "SARR_2.2x7": 9,
+          "SARR_EDITAR": 2,
+          "SARR_3.5x7": 7
+        },
+        "corte_labels": [],
+        "xrefs": [],
+        "sp_markers": [
+          "S.P"
+        ],
+        "other_texts": [
+          {
+            "text": "5 1/2pont",
+            "layer": "texto"
+          }
+        ]
+      }
+    ],
+    "raw_titles": [
+      "V36\\P(19x43)"
+    ]
+  },
+  {
+    "page": 37,
+    "viga_name": "V40-V41A",
+    "W_cm": 19.0,
+    "H_cm": 145.0,
+    "sections": [
+      {
+        "label": "V40-V41A\\P(19x145)",
+        "type": "titulo",
+        "y_top": 24903.024030819885,
+        "y_bot": 24779.655248212242,
+        "panels": [],
+        "painel_dims": [],
+        "secao_dims": [],
+        "sarr_count": 0,
+        "sarr_layers": {},
+        "corte_labels": [],
+        "xrefs": [],
+        "sp_markers": [],
+        "other_texts": []
+      },
+      {
+        "label": "V41A.A",
+        "type": "face_A",
+        "y_top": 24779.655248212242,
+        "y_bot": 24773.456869570808,
+        "panels": [],
+        "painel_dims": [],
+        "secao_dims": [],
+        "sarr_count": 0,
+        "sarr_layers": {},
+        "corte_labels": [],
+        "xrefs": [],
+        "sp_markers": [],
+        "other_texts": []
+      },
+      {
+        "label": "V40.A",
+        "type": "face_A",
+        "y_top": 24773.456869570808,
+        "y_bot": 24648.417590446374,
+        "panels": [],
+        "painel_dims": [
+          14.0,
+          52.99999999999272,
+          82.0,
+          148.9999999999891
+        ],
+        "secao_dims": [
+          82.0
+        ],
+        "sarr_count": 16,
+        "sarr_layers": {
+          "SARR_2.2x7": 8,
+          "SARR_3.5x7": 8
+        },
+        "corte_labels": [],
+        "xrefs": [],
+        "sp_markers": [],
+        "other_texts": []
+      },
+      {
+        "label": "M5",
+        "type": "corte",
+        "y_top": 24648.417590446374,
+        "y_bot": 24480.581633779035,
+        "panels": [
+          "P19",
+          "V19",
+          "P5",
+          "V3"
+        ],
+        "painel_dims": [
+          2.0
+        ],
+        "secao_dims": [
+          12.00000000000182,
+          52.99999999987449
+        ],
+        "sarr_count": 12,
+        "sarr_layers": {
+          "SARR_2.2x7": 4,
+          "SARR_3.5x7": 8
+        },
+        "corte_labels": [],
+        "xrefs": [],
+        "sp_markers": [],
+        "other_texts": [
+          {
+            "text": "6 1/2pont",
+            "layer": "texto"
+          },
+          {
+            "text": "7 1/2pont",
+            "layer": "texto"
+          }
+        ]
+      },
+      {
+        "label": "V41A.B",
+        "type": "face_B",
+        "y_top": 24480.581633779035,
+        "y_bot": 24437.034956236137,
+        "panels": [],
+        "painel_dims": [],
+        "secao_dims": [],
+        "sarr_count": 0,
+        "sarr_layers": {},
+        "corte_labels": [
+          {
+            "label": "b",
+            "x": 129341.0978742059,
+            "y": 24462.72495356794
+          },
+          {
+            "label": "a",
+            "x": 129289.8344776264,
+            "y": 24462.74472042722
+          },
+          {
+            "label": "c",
+            "x": 129314.8908397653,
+            "y": 24446.87994284879
+          }
+        ],
+        "xrefs": [],
+        "sp_markers": [],
+        "other_texts": []
+      },
+      {
+        "label": "V40.B",
+        "type": "face_B",
+        "y_top": 24437.034956236137,
+        "y_bot": 23933.024030819885,
+        "panels": [
+          "P19",
+          "V19",
+          "V3",
+          "P5"
+        ],
+        "painel_dims": [
+          14.0,
+          46.0,
+          52.99999999999272,
+          82.0,
+          122.0,
+          148.9999999999891,
+          149.0
+        ],
+        "secao_dims": [
+          14.99999999998545
+        ],
+        "sarr_count": 29,
+        "sarr_layers": {
+          "SARR_2.2x7": 11,
+          "SARR_3.5x7": 18
+        },
+        "corte_labels": [],
+        "xrefs": [],
+        "sp_markers": [],
+        "other_texts": [
+          {
+            "text": "6 1/2pont",
+            "layer": "texto"
+          },
+          {
+            "text": "5 1/2pont",
+            "layer": "texto"
+          },
+          {
+            "text": "5 1/2pont",
+            "layer": "texto"
+          }
+        ]
+      }
+    ],
+    "raw_titles": [
+      "V40-V41A\\P(19x145)"
+    ]
+  },
+  {
+    "page": 38,
+    "viga_name": "VA1",
+    "W_cm": 19.0,
+    "H_cm": 24.0,
+    "sections": [
+      {
+        "label": "VA1.A",
+        "type": "face_A",
+        "y_top": 24584.0,
+        "y_bot": 24434.0,
+        "panels": [
+          "P3B",
+          "P4",
+          "TEST.3"
+        ],
+        "painel_dims": [
+          11.99999999999272,
+          16.0,
+          16.00000000000364,
+          27.99999999999272,
+          27.99999999999636,
+          88.5,
+          100.9999999999709,
+          244.0
+        ],
+        "secao_dims": [
+          12.0,
+          14.0,
+          26.0
+        ],
+        "sarr_count": 24,
+        "sarr_layers": {
+          "SARR_EDITAR": 16,
+          "SARR_2.2x7": 8
+        },
+        "corte_labels": [
+          {
+            "label": "c",
+            "x": 130874.5343282122,
+            "y": 24455.92937136119
+          },
+          {
+            "label": "b",
+            "x": 130908.1010416683,
+            "y": 24484.1829470044
+          },
+          {
+            "label": "a",
+            "x": 130841.4418374388,
+            "y": 24461.35253941173
+          }
+        ],
+        "xrefs": [],
+        "sp_markers": [],
+        "other_texts": []
+      },
+      {
+        "label": "VA1\\P(19x24)",
+        "type": "titulo",
+        "y_top": 24584.0,
+        "y_bot": 24434.0,
+        "panels": [
+          "P3B",
+          "P4",
+          "TEST.3"
+        ],
+        "painel_dims": [
+          11.99999999999272,
+          16.0,
+          16.00000000000364,
+          27.99999999999272,
+          27.99999999999636,
+          88.5,
+          100.9999999999709,
+          244.0
+        ],
+        "secao_dims": [
+          12.0,
+          14.0,
+          26.0
+        ],
+        "sarr_count": 24,
+        "sarr_layers": {
+          "SARR_EDITAR": 16,
+          "SARR_2.2x7": 8
+        },
+        "corte_labels": [
+          {
+            "label": "c",
+            "x": 130874.5343282122,
+            "y": 24455.92937136119
+          },
+          {
+            "label": "b",
+            "x": 130908.1010416683,
+            "y": 24484.1829470044
+          },
+          {
+            "label": "a",
+            "x": 130841.4418374388,
+            "y": 24461.35253941173
+          }
+        ],
+        "xrefs": [],
+        "sp_markers": [],
+        "other_texts": []
+      },
+      {
+        "label": "M18.5",
+        "type": "corte",
+        "y_top": 24584.0,
+        "y_bot": 24434.0,
+        "panels": [
+          "P3B",
+          "P4",
+          "TEST.3"
+        ],
+        "painel_dims": [
+          11.99999999999272,
+          16.0,
+          16.00000000000364,
+          27.99999999999272,
+          27.99999999999636,
+          88.5,
+          100.9999999999709,
+          244.0
+        ],
+        "secao_dims": [
+          12.0,
+          14.0,
+          26.0
+        ],
+        "sarr_count": 24,
+        "sarr_layers": {
+          "SARR_EDITAR": 16,
+          "SARR_2.2x7": 8
+        },
+        "corte_labels": [
+          {
+            "label": "c",
+            "x": 130874.5343282122,
+            "y": 24455.92937136119
+          },
+          {
+            "label": "b",
+            "x": 130908.1010416683,
+            "y": 24484.1829470044
+          },
+          {
+            "label": "a",
+            "x": 130841.4418374388,
+            "y": 24461.35253941173
+          }
+        ],
+        "xrefs": [],
+        "sp_markers": [],
+        "other_texts": []
+      },
+      {
+        "label": "VA1.B",
+        "type": "face_B",
+        "y_top": 24584.0,
+        "y_bot": 24434.0,
+        "panels": [
+          "P3B",
+          "P4",
+          "TEST.3"
+        ],
+        "painel_dims": [
+          11.99999999999272,
+          16.0,
+          16.00000000000364,
+          27.99999999999272,
+          27.99999999999636,
+          88.5,
+          100.9999999999709,
+          244.0
+        ],
+        "secao_dims": [
+          12.0,
+          14.0,
+          26.0
+        ],
+        "sarr_count": 24,
+        "sarr_layers": {
+          "SARR_EDITAR": 16,
+          "SARR_2.2x7": 8
+        },
+        "corte_labels": [
+          {
+            "label": "c",
+            "x": 130874.5343282122,
+            "y": 24455.92937136119
+          },
+          {
+            "label": "b",
+            "x": 130908.1010416683,
+            "y": 24484.1829470044
+          },
+          {
+            "label": "a",
+            "x": 130841.4418374388,
+            "y": 24461.35253941173
+          }
+        ],
+        "xrefs": [],
+        "sp_markers": [],
+        "other_texts": []
+      },
+      {
+        "label": "VA2.A",
+        "type": "face_A",
+        "y_top": 24584.0,
+        "y_bot": 24434.0,
+        "panels": [
+          "P3B",
+          "P4",
+          "TEST.3"
+        ],
+        "painel_dims": [
+          11.99999999999272,
+          16.0,
+          16.00000000000364,
+          27.99999999999272,
+          27.99999999999636,
+          88.5,
+          100.9999999999709,
+          244.0
+        ],
+        "secao_dims": [
+          12.0,
+          14.0,
+          26.0
+        ],
+        "sarr_count": 24,
+        "sarr_layers": {
+          "SARR_EDITAR": 16,
+          "SARR_2.2x7": 8
+        },
+        "corte_labels": [
+          {
+            "label": "c",
+            "x": 130874.5343282122,
+            "y": 24455.92937136119
+          },
+          {
+            "label": "b",
+            "x": 130908.1010416683,
+            "y": 24484.1829470044
+          },
+          {
+            "label": "a",
+            "x": 130841.4418374388,
+            "y": 24461.35253941173
+          }
+        ],
+        "xrefs": [],
+        "sp_markers": [],
+        "other_texts": []
+      },
+      {
+        "label": "VA2-VA3\\P(19x26)",
+        "type": "titulo",
+        "y_top": 24434.0,
+        "y_bot": 23933.024030819885,
+        "panels": [
+          "P3B",
+          "P4",
+          "TEST.3",
+          "P5"
+        ],
+        "painel_dims": [
+          2.0,
+          11.99999999999272,
+          13.99999999999272,
+          13.99999999999636,
+          16.0,
+          27.99999999998909,
+          27.99999999999272,
+          88.4999999999709,
+          101.0,
+          122.0,
+          127.5000000000291,
+          129.5,
+          244.0,
+          246.0,
+          249.5000000000291,
+          251.5
+        ],
+        "secao_dims": [
+          19.0
+        ],
+        "sarr_count": 12,
+        "sarr_layers": {
+          "SARR_EDITAR": 8,
+          "SARR_2.2x7": 4
+        },
+        "corte_labels": [],
+        "xrefs": [],
+        "sp_markers": [],
+        "other_texts": []
+      },
+      {
+        "label": "VA2.B",
+        "type": "face_B",
+        "y_top": 24434.0,
+        "y_bot": 23933.024030819885,
+        "panels": [
+          "P3B",
+          "P4",
+          "TEST.3",
+          "P5"
+        ],
+        "painel_dims": [
+          2.0,
+          11.99999999999272,
+          13.99999999999272,
+          13.99999999999636,
+          16.0,
+          27.99999999998909,
+          27.99999999999272,
+          88.4999999999709,
+          101.0,
+          122.0,
+          127.5000000000291,
+          129.5,
+          244.0,
+          246.0,
+          249.5000000000291,
+          251.5
+        ],
+        "secao_dims": [
+          19.0
+        ],
+        "sarr_count": 12,
+        "sarr_layers": {
+          "SARR_EDITAR": 8,
+          "SARR_2.2x7": 4
+        },
+        "corte_labels": [],
+        "xrefs": [],
+        "sp_markers": [],
+        "other_texts": []
+      },
+      {
+        "label": "VA3.A",
+        "type": "face_A",
+        "y_top": 24434.0,
+        "y_bot": 23933.024030819885,
+        "panels": [
+          "P3B",
+          "P4",
+          "TEST.3",
+          "P5"
+        ],
+        "painel_dims": [
+          2.0,
+          11.99999999999272,
+          13.99999999999272,
+          13.99999999999636,
+          16.0,
+          27.99999999998909,
+          27.99999999999272,
+          88.4999999999709,
+          101.0,
+          122.0,
+          127.5000000000291,
+          129.5,
+          244.0,
+          246.0,
+          249.5000000000291,
+          251.5
+        ],
+        "secao_dims": [
+          19.0
+        ],
+        "sarr_count": 12,
+        "sarr_layers": {
+          "SARR_EDITAR": 8,
+          "SARR_2.2x7": 4
+        },
+        "corte_labels": [],
+        "xrefs": [],
+        "sp_markers": [],
+        "other_texts": []
+      },
+      {
+        "label": "M15",
+        "type": "corte",
+        "y_top": 24434.0,
+        "y_bot": 23933.024030819885,
+        "panels": [
+          "P3B",
+          "P4",
+          "TEST.3",
+          "P5"
+        ],
+        "painel_dims": [
+          2.0,
+          11.99999999999272,
+          13.99999999999272,
+          13.99999999999636,
+          16.0,
+          27.99999999998909,
+          27.99999999999272,
+          88.4999999999709,
+          101.0,
+          122.0,
+          127.5000000000291,
+          129.5,
+          244.0,
+          246.0,
+          249.5000000000291,
+          251.5
+        ],
+        "secao_dims": [
+          19.0
+        ],
+        "sarr_count": 12,
+        "sarr_layers": {
+          "SARR_EDITAR": 8,
+          "SARR_2.2x7": 4
+        },
+        "corte_labels": [],
+        "xrefs": [],
+        "sp_markers": [],
+        "other_texts": []
+      },
+      {
+        "label": "VA3.B",
+        "type": "face_B",
+        "y_top": 24434.0,
+        "y_bot": 23933.024030819885,
+        "panels": [
+          "P3B",
+          "P4",
+          "TEST.3",
+          "P5"
+        ],
+        "painel_dims": [
+          2.0,
+          11.99999999999272,
+          13.99999999999272,
+          13.99999999999636,
+          16.0,
+          27.99999999998909,
+          27.99999999999272,
+          88.4999999999709,
+          101.0,
+          122.0,
+          127.5000000000291,
+          129.5,
+          244.0,
+          246.0,
+          249.5000000000291,
+          251.5
+        ],
+        "secao_dims": [
+          19.0
+        ],
+        "sarr_count": 12,
+        "sarr_layers": {
+          "SARR_EDITAR": 8,
+          "SARR_2.2x7": 4
+        },
+        "corte_labels": [],
+        "xrefs": [],
+        "sp_markers": [],
+        "other_texts": []
+      }
+    ],
+    "raw_titles": [
+      "VA1\\P(19x24)",
+      "VA2-VA3\\P(19x26)"
+    ]
+  },
+  {
+    "page": 39,
+    "viga_name": "VA4-VA5-VA7-VA8",
+    "W_cm": 19.0,
+    "H_cm": 24.0,
+    "sections": [
+      {
+        "label": "VA4.A",
+        "type": "face_A",
+        "y_top": 24903.024030819885,
+        "y_bot": 24825.41433037651,
+        "panels": [],
+        "painel_dims": [],
+        "secao_dims": [],
+        "sarr_count": 0,
+        "sarr_layers": {},
+        "corte_labels": [],
+        "xrefs": [],
+        "sp_markers": [],
+        "other_texts": []
+      },
+      {
+        "label": "VA6.A-VA9.B",
+        "type": "face_B",
+        "y_top": 24903.024030819885,
+        "y_bot": 24825.41433037651,
+        "panels": [],
+        "painel_dims": [],
+        "secao_dims": [],
+        "sarr_count": 0,
+        "sarr_layers": {},
+        "corte_labels": [],
+        "xrefs": [],
+        "sp_markers": [],
+        "other_texts": []
+      },
+      {
+        "label": "VA4-VA5-VA7-VA8\\P(19x24)",
+        "type": "titulo",
+        "y_top": 24805.258978615093,
+        "y_bot": 24732.92417093059,
+        "panels": [
+          "P13",
+          "V23"
+        ],
+        "painel_dims": [
+          7.000000000058208,
+          11.99999999999272,
+          13.99999999999272,
+          25.99999999998909,
+          27.99999999998909,
+          94.5,
+          122.0,
+          151.0,
+          244.0
+        ],
+        "secao_dims": [
+          12.0,
+          24.0
+        ],
+        "sarr_count": 10,
+        "sarr_layers": {
+          "SARR_EDITAR": 6,
+          "SARR_2.2x7": 4
+        },
+        "corte_labels": [],
+        "xrefs": [],
+        "sp_markers": [
+          "S.P"
+        ],
+        "other_texts": []
+      },
+      {
+        "label": "VA4.B",
+        "type": "face_B",
+        "y_top": 24732.92417093059,
+        "y_bot": 24680.744715007488,
+        "panels": [
+          "V23"
+        ],
+        "painel_dims": [
+          273.0
+        ],
+        "secao_dims": [
+          12.0
+        ],
+        "sarr_count": 0,
+        "sarr_layers": {},
+        "corte_labels": [
+          {
+            "label": "c",
+            "x": 132459.5343282122,
+            "y": 24688.87994284852
+          },
+          {
+            "label": "b",
+            "x": 132493.1010416683,
+            "y": 24713.13351849174
+          },
+          {
+            "label": "a",
+            "x": 132426.4418374388,
+            "y": 24694.30311089907
+          }
+        ],
+        "xrefs": [],
+        "sp_markers": [],
+        "other_texts": []
+      },
+      {
+        "label": "VA6.B-VA9.A",
+        "type": "face_A",
+        "y_top": 24680.744715007488,
+        "y_bot": 24620.95829276203,
+        "panels": [],
+        "painel_dims": [
+          11.99999999999272,
+          14.0,
+          16.0,
+          25.99999999999272,
+          27.99999999999272
+        ],
+        "secao_dims": [
+          19.0
+        ],
+        "sarr_count": 10,
+        "sarr_layers": {
+          "SARR_EDITAR": 6,
+          "SARR_2.2x7": 4
+        },
+        "corte_labels": [],
+        "xrefs": [],
+        "sp_markers": [],
+        "other_texts": []
+      },
+      {
+        "label": "VA5.A",
+        "type": "face_A",
+        "y_top": 24620.95829276203,
+        "y_bot": 24558.662462941465,
+        "panels": [
+          "V23",
+          "P13"
+        ],
+        "painel_dims": [
+          94.5,
+          239.0,
+          244.0
+        ],
+        "secao_dims": [],
+        "sarr_count": 0,
+        "sarr_layers": {},
+        "corte_labels": [],
+        "xrefs": [],
+        "sp_markers": [],
+        "other_texts": []
+      },
+      {
+        "label": "VA6-VA9\\P(19x26)",
+        "type": "titulo",
+        "y_top": 24558.662462941465,
+        "y_bot": 24540.245104734153,
+        "panels": [],
+        "painel_dims": [
+          13.99999999998545,
+          25.99999999997817
+        ],
+        "secao_dims": [],
+        "sarr_count": 0,
+        "sarr_layers": {},
+        "corte_labels": [],
+        "xrefs": [],
+        "sp_markers": [],
+        "other_texts": []
+      },
+      {
+        "label": "VA8.B",
+        "type": "face_B",
+        "y_top": 24540.245104734153,
+        "y_bot": 24524.33715410195,
+        "panels": [],
+        "painel_dims": [
+          11.99999999999272
+        ],
+        "secao_dims": [],
+        "sarr_count": 8,
+        "sarr_layers": {
+          "SARR_EDITAR": 4,
+          "SARR_2.2x7": 4
+        },
+        "corte_labels": [],
+        "xrefs": [],
+        "sp_markers": [],
+        "other_texts": []
+      },
+      {
+        "label": "VA8.A",
+        "type": "face_A",
+        "y_top": 24540.245104734153,
+        "y_bot": 24524.33715410195,
+        "panels": [],
+        "painel_dims": [
+          11.99999999999272
+        ],
+        "secao_dims": [],
+        "sarr_count": 8,
+        "sarr_layers": {
+          "SARR_EDITAR": 4,
+          "SARR_2.2x7": 4
+        },
+        "corte_labels": [],
+        "xrefs": [],
+        "sp_markers": [],
+        "other_texts": []
+      },
+      {
+        "label": "VA5.B",
+        "type": "face_B",
+        "y_top": 24478.765800259433,
+        "y_bot": 24362.747267441664,
+        "panels": [
+          "TEST.1",
+          "V28"
+        ],
+        "painel_dims": [
+          11.99999999999272,
+          14.0,
+          25.99999999999272,
+          50.5,
+          77.0,
+          82.0,
+          169.5
+        ],
+        "secao_dims": [
+          14.0,
+          19.0
+        ],
+        "sarr_count": 8,
+        "sarr_layers": {
+          "SARR_EDITAR": 4,
+          "SARR_2.2x7": 4
+        },
+        "corte_labels": [
+          {
+            "label": "c",
+            "x": 132459.5343282122,
+            "y": 24455.92937136119
+          },
+          {
+            "label": "a",
+            "x": 132426.4418374388,
+            "y": 24465.35253941173
+          }
+        ],
+        "xrefs": [],
+        "sp_markers": [],
+        "other_texts": []
+      },
+      {
+        "label": "VA7.A",
+        "type": "face_A",
+        "y_top": 24362.747267441664,
+        "y_bot": 24292.30008846642,
+        "panels": [
+          "TEST.1",
+          "V28"
+        ],
+        "painel_dims": [],
+        "secao_dims": [],
+        "sarr_count": 0,
+        "sarr_layers": {},
+        "corte_labels": [],
+        "xrefs": [],
+        "sp_markers": [],
+        "other_texts": []
+      },
+      {
+        "label": "VA7.B",
+        "type": "face_B",
+        "y_top": 24362.747267441664,
+        "y_bot": 24292.30008846642,
+        "panels": [
+          "TEST.1",
+          "V28"
+        ],
+        "painel_dims": [],
+        "secao_dims": [],
+        "sarr_count": 0,
+        "sarr_layers": {},
+        "corte_labels": [],
+        "xrefs": [],
+        "sp_markers": [],
+        "other_texts": []
+      }
+    ],
+    "raw_titles": [
+      "VA4-VA5-VA7-VA8\\P(19x24)",
+      "VA6-VA9\\P(19x26)"
+    ]
+  }
+]

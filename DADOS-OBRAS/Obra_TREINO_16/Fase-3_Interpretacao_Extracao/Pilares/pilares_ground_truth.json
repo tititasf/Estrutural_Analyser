@@ -150,11 +150,11 @@
   "_meta": {
     "total": 10,
     "obra": "engenharia-reversa",
-    "pavimento": "VALDIR NIEMEYER-TP2",
+    "pavimento": "VALDIR NIEMEYER - TP2",
     "pe_direito_cm": 652.0,
-    "extraido_em": "2026-03-09",
+    "extraido_em": "2026-05-06",
     "confidence_nota": "IDs=ALTA | altura=MEDIA | B/H=BAIXA(requer revisao)",
     "bh_extraidos": 10,
-    "bh_atualizado_em": "2026-03-09"
+    "bh_atualizado_em": "2026-05-06"
   }
 }

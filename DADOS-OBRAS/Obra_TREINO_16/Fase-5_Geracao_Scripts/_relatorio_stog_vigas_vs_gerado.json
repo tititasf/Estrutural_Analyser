@@ -1,0 +1,10 @@
+{
+  "score_both": 0,
+  "score_comp": 0,
+  "score_alt": 0,
+  "n_total": 0,
+  "n_skip": 39,
+  "min_conf": 0.5,
+  "tolerancia": 0.05,
+  "vigas": {}
+}

@@ -94,8 +94,8 @@
     "cobertura_pct": 100.0,
     "max_dist": 300.0,
     "obra": "Obra_TREINO_16",
-    "pavimento": "VALDIR NIEMEYER-TP2",
-    "extraido_em": "2026-03-09",
+    "pavimento": "VALDIR NIEMEYER - TP2",
+    "extraido_em": "2026-05-06",
     "algoritmo": "dimension-proximity-matching"
   }
 }

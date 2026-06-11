@@ -1,47 +1,57 @@
 {
   "L2": {
-    "comprimento": 100.0,
-    "largura": 100.0,
-    "area_cm2": 10000.0
+    "comprimento": 244.0,
+    "largura": 244.0,
+    "area_cm2": 59536.0
   },
   "L3": {
-    "comprimento": 100.0,
-    "largura": 100.0,
-    "area_cm2": 10000.0
+    "comprimento": 244.0,
+    "largura": 244.0,
+    "area_cm2": 59536.0
   },
   "L4": {
-    "comprimento": 100.0,
-    "largura": 100.0,
-    "area_cm2": 10000.0
+    "comprimento": 244.0,
+    "largura": 244.0,
+    "area_cm2": 59536.0
   },
   "L5": {
-    "comprimento": 100.0,
-    "largura": 100.0,
-    "area_cm2": 10000.0
+    "comprimento": 244.0,
+    "largura": 244.0,
+    "area_cm2": 59536.0
   },
   "L6": {
-    "comprimento": 100.0,
-    "largura": 100.0,
-    "area_cm2": 10000.0
+    "comprimento": 244.0,
+    "largura": 244.0,
+    "area_cm2": 59536.0
   },
   "L7": {
-    "comprimento": 100.0,
-    "largura": 100.0,
-    "area_cm2": 10000.0
+    "comprimento": 244.0,
+    "largura": 244.0,
+    "area_cm2": 59536.0
   },
   "L8": {
-    "comprimento": 100.0,
-    "largura": 100.0,
-    "area_cm2": 10000.0
+    "comprimento": 244.0,
+    "largura": 244.0,
+    "area_cm2": 59536.0
   },
   "L9": {
-    "comprimento": 100.0,
-    "largura": 100.0,
-    "area_cm2": 10000.0
+    "comprimento": 244.0,
+    "largura": 244.0,
+    "area_cm2": 59536.0
   },
   "L10": {
-    "comprimento": 100.0,
-    "largura": 100.0,
-    "area_cm2": 10000.0
+    "comprimento": 244.0,
+    "largura": 244.0,
+    "area_cm2": 59536.0
+  },
+  "L6A": {
+    "comprimento": 244.0,
+    "largura": 244.0,
+    "area_cm2": 59536.0
+  },
+  "L6B": {
+    "comprimento": 244.0,
+    "largura": 244.0,
+    "area_cm2": 59536.0
   }
 }

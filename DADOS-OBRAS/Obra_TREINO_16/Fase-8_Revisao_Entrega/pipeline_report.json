@@ -1,7 +1,7 @@
 {
   "obra": "Obra_TREINO_16",
-  "pavimento": "VALDIR NIEMEYER-TP2",
-  "timestamp": "2026-03-09T07:17:41.558784",
+  "pavimento": "12 PAV",
+  "timestamp": "2026-05-21T13:24:29.093494",
   "fases": {
     "descoberta": "SKIP",
     "eng_reversa": "OK",
@@ -12,16 +12,17 @@
     "ancoras": "OK",
     "consolidacao_coletivo": "OK",
     "validacao_coletivo": "OK",
-    "obras_salvas": "OK"
+    "obras_salvas": "OK",
+    "validacao_visual": "OK"
   },
   "scores": {
     "coletivo": {
-      "pilares": 100.0,
-      "vigas": 100.0,
-      "lajes": 100.0,
-      "global": 100.0,
-      "aprovado": true
+      "pilares": 0.0,
+      "vigas": 0.0,
+      "lajes": 0.0,
+      "global": 0.0,
+      "aprovado": false
     }
   },
-  "status": "APROVADO"
+  "status": "REPROVADO"
 }

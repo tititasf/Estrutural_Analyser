@@ -1,6 +1,6 @@
 {
   "obra": "Obra_TREINO_16",
-  "pavimento": "VALDIR NIEMEYER-TP2",
+  "pavimento": "12 PAV",
   "elementos": {
     "pilares": {
       "tipo": "pilares",
@@ -32,9 +32,9 @@
     },
     "lajes": {
       "tipo": "lajes",
-      "gt_count": 9,
-      "gerado_count": 9,
-      "correct": 9,
+      "gt_count": 11,
+      "gerado_count": 11,
+      "correct": 11,
       "hallucinated": [],
       "missed": [],
       "id_match": 1.0,
