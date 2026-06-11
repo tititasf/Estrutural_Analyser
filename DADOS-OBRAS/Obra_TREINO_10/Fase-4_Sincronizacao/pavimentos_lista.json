@@ -1,11 +1,11 @@
 {
   "Obra_TREINO_10": {
     "pavimentos": [
-      "2SS - TRECHO 1"
+      "12 PAV"
     ],
     "pavimentos_data": {
-      "2SS - TRECHO 1": {
-        "nome": "2SS - TRECHO 1",
+      "12 PAV": {
+        "nome": "12 PAV",
         "numero": "1",
         "nivel_chegada": "0.0",
         "nivel_saida": "280.0"

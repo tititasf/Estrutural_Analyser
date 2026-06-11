@@ -1,0 +1,32 @@
+{
+  "motivo": {
+    "id": "motivo",
+    "coordenadas": [
+      [
+        0.0,
+        0.0
+      ],
+      [
+        100.0,
+        0.0
+      ],
+      [
+        100.0,
+        100.0
+      ],
+      [
+        0.0,
+        100.0
+      ],
+      [
+        0.0,
+        0.0
+      ]
+    ],
+    "comprimento": 100.0,
+    "largura": 100.0,
+    "confidence": 0.03,
+    "source": "fallback-lajes_ground_truth.json",
+    "nota": "Sem dados geometricos — ID preservado"
+  }
+}

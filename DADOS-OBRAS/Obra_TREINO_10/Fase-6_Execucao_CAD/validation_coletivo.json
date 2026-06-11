@@ -1,26 +1,15 @@
 {
   "obra": "Obra_TREINO_10",
-  "pavimento": "2SS - TRECHO 1",
+  "pavimento": "TRECHO 3 - 2SS",
   "elementos": {
     "pilares": {
-      "tipo": "pilares",
-      "gt_count": 17,
-      "gerado_count": 17,
-      "correct": 17,
-      "hallucinated": [],
-      "missed": [],
-      "id_match": 1.0,
-      "hallucination_rate": 0.0,
-      "count_match": 1.0,
-      "score": 1.0,
-      "score_percent": 100.0,
-      "aprovado": true
+      "erro": "GT vazio"
     },
     "vigas": {
       "tipo": "vigas",
-      "gt_count": 20,
-      "gerado_count": 20,
-      "correct": 20,
+      "gt_count": 4,
+      "gerado_count": 4,
+      "correct": 4,
       "hallucinated": [],
       "missed": [],
       "id_match": 1.0,
@@ -31,7 +20,7 @@
       "aprovado": true
     },
     "lajes": {
-      "erro": "lajes_ground_truth.json não encontrado"
+      "erro": "GT vazio"
     }
   },
   "score_global": 1.0,

@@ -1,1 +1,7 @@
-{}
+{
+  "motivo": {
+    "comprimento": 100.0,
+    "largura": 100.0,
+    "area_cm2": 10000.0
+  }
+}

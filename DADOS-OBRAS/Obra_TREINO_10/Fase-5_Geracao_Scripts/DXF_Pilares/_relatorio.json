@@ -1,146 +1,106 @@
 {
   "_meta": {
-    "total": 17,
+    "total": 12,
     "erros": 0,
-    "pavimento": "2SS - TRECHO 1",
+    "pavimento": "12 PAV",
     "output_dir": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_10\\Fase-5_Geracao_Scripts\\DXF_Pilares"
   },
   "pilares": {
-    "P23": {
-      "pid": "P23",
-      "b": 40.0,
-      "h": 92.0,
+    "P11": {
+      "pid": "P11",
+      "b": 34.0,
+      "h": 64.0,
       "n_paineis": 12,
       "total_height": 280.0,
-      "path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_10\\Fase-5_Geracao_Scripts\\DXF_Pilares\\P23.dxf"
+      "path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_10\\Fase-5_Geracao_Scripts\\DXF_Pilares\\P11.dxf"
     },
-    "P24": {
-      "pid": "P24",
-      "b": 40.0,
-      "h": 92.0,
+    "P12": {
+      "pid": "P12",
+      "b": 38.0,
+      "h": 60.0,
       "n_paineis": 12,
       "total_height": 280.0,
-      "path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_10\\Fase-5_Geracao_Scripts\\DXF_Pilares\\P24.dxf"
+      "path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_10\\Fase-5_Geracao_Scripts\\DXF_Pilares\\P12.dxf"
     },
-    "P25": {
-      "pid": "P25",
+    "P13": {
+      "pid": "P13",
       "b": 19.0,
       "h": 64.0,
       "n_paineis": 12,
       "total_height": 280.0,
-      "path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_10\\Fase-5_Geracao_Scripts\\DXF_Pilares\\P25.dxf"
+      "path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_10\\Fase-5_Geracao_Scripts\\DXF_Pilares\\P13.dxf"
     },
-    "P26": {
-      "pid": "P26",
+    "P14": {
+      "pid": "P14",
+      "b": 19.0,
+      "h": 31.0,
+      "n_paineis": 12,
+      "total_height": 280.0,
+      "path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_10\\Fase-5_Geracao_Scripts\\DXF_Pilares\\P14.dxf"
+    },
+    "P29": {
+      "pid": "P29",
       "b": 19.0,
       "h": 64.0,
       "n_paineis": 12,
       "total_height": 280.0,
-      "path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_10\\Fase-5_Geracao_Scripts\\DXF_Pilares\\P26.dxf"
+      "path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_10\\Fase-5_Geracao_Scripts\\DXF_Pilares\\P29.dxf"
     },
-    "P27": {
-      "pid": "P27",
+    "P33": {
+      "pid": "P33",
+      "b": 31.0,
+      "h": 64.0,
+      "n_paineis": 12,
+      "total_height": 280.0,
+      "path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_10\\Fase-5_Geracao_Scripts\\DXF_Pilares\\P33.dxf"
+    },
+    "P34": {
+      "pid": "P34",
+      "b": 19.0,
+      "h": 64.0,
+      "n_paineis": 12,
+      "total_height": 280.0,
+      "path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_10\\Fase-5_Geracao_Scripts\\DXF_Pilares\\P34.dxf"
+    },
+    "P35": {
+      "pid": "P35",
+      "b": 34.0,
+      "h": 64.0,
+      "n_paineis": 12,
+      "total_height": 280.0,
+      "path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_10\\Fase-5_Geracao_Scripts\\DXF_Pilares\\P35.dxf"
+    },
+    "P36": {
+      "pid": "P36",
+      "b": 19.0,
+      "h": 32.0,
+      "n_paineis": 12,
+      "total_height": 280.0,
+      "path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_10\\Fase-5_Geracao_Scripts\\DXF_Pilares\\P36.dxf"
+    },
+    "P52": {
+      "pid": "P52",
+      "b": 34.0,
+      "h": 64.0,
+      "n_paineis": 12,
+      "total_height": 280.0,
+      "path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_10\\Fase-5_Geracao_Scripts\\DXF_Pilares\\P52.dxf"
+    },
+    "P53": {
+      "pid": "P53",
       "b": 40.0,
       "h": 92.0,
       "n_paineis": 12,
       "total_height": 280.0,
-      "path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_10\\Fase-5_Geracao_Scripts\\DXF_Pilares\\P27.dxf"
+      "path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_10\\Fase-5_Geracao_Scripts\\DXF_Pilares\\P53.dxf"
     },
-    "P28": {
-      "pid": "P28",
+    "P54": {
+      "pid": "P54",
       "b": 40.0,
       "h": 92.0,
       "n_paineis": 12,
       "total_height": 280.0,
-      "path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_10\\Fase-5_Geracao_Scripts\\DXF_Pilares\\P28.dxf"
-    },
-    "P44": {
-      "pid": "P44",
-      "b": 40.0,
-      "h": 71.0,
-      "n_paineis": 12,
-      "total_height": 280.0,
-      "path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_10\\Fase-5_Geracao_Scripts\\DXF_Pilares\\P44.dxf"
-    },
-    "P45": {
-      "pid": "P45",
-      "b": 27.0,
-      "h": 36.0,
-      "n_paineis": 12,
-      "total_height": 280.0,
-      "path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_10\\Fase-5_Geracao_Scripts\\DXF_Pilares\\P45.dxf"
-    },
-    "P46": {
-      "pid": "P46",
-      "b": 40.0,
-      "h": 53.0,
-      "n_paineis": 12,
-      "total_height": 280.0,
-      "path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_10\\Fase-5_Geracao_Scripts\\DXF_Pilares\\P46.dxf"
-    },
-    "P47": {
-      "pid": "P47",
-      "b": 40.0,
-      "h": 53.0,
-      "n_paineis": 12,
-      "total_height": 280.0,
-      "path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_10\\Fase-5_Geracao_Scripts\\DXF_Pilares\\P47.dxf"
-    },
-    "P48": {
-      "pid": "P48",
-      "b": 40.0,
-      "h": 92.0,
-      "n_paineis": 12,
-      "total_height": 280.0,
-      "path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_10\\Fase-5_Geracao_Scripts\\DXF_Pilares\\P48.dxf"
-    },
-    "P61": {
-      "pid": "P61",
-      "b": 62.0,
-      "h": 92.0,
-      "n_paineis": 12,
-      "total_height": 280.0,
-      "path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_10\\Fase-5_Geracao_Scripts\\DXF_Pilares\\P61.dxf"
-    },
-    "P62": {
-      "pid": "P62",
-      "b": 40.0,
-      "h": 42.0,
-      "n_paineis": 12,
-      "total_height": 280.0,
-      "path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_10\\Fase-5_Geracao_Scripts\\DXF_Pilares\\P62.dxf"
-    },
-    "P63": {
-      "pid": "P63",
-      "b": 40.0,
-      "h": 92.0,
-      "n_paineis": 12,
-      "total_height": 280.0,
-      "path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_10\\Fase-5_Geracao_Scripts\\DXF_Pilares\\P63.dxf"
-    },
-    "P64": {
-      "pid": "P64",
-      "b": 40.0,
-      "h": 92.0,
-      "n_paineis": 12,
-      "total_height": 280.0,
-      "path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_10\\Fase-5_Geracao_Scripts\\DXF_Pilares\\P64.dxf"
-    },
-    "P65": {
-      "pid": "P65",
-      "b": 40.0,
-      "h": 92.0,
-      "n_paineis": 12,
-      "total_height": 280.0,
-      "path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_10\\Fase-5_Geracao_Scripts\\DXF_Pilares\\P65.dxf"
-    },
-    "P66": {
-      "pid": "P66",
-      "b": 40.0,
-      "h": 82.0,
-      "n_paineis": 12,
-      "total_height": 280.0,
-      "path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_10\\Fase-5_Geracao_Scripts\\DXF_Pilares\\P66.dxf"
+      "path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_10\\Fase-5_Geracao_Scripts\\DXF_Pilares\\P54.dxf"
     }
   }
 }

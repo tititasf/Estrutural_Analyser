@@ -1,8 +1,21 @@
 {
-  "pilares_consolidados": 17,
-  "total_dxf_files": 17,
-  "sem_ancora": [],
+  "pilares_consolidados": 0,
+  "total_dxf_files": 12,
+  "sem_ancora": [
+    "P11",
+    "P12",
+    "P13",
+    "P14",
+    "P29",
+    "P33",
+    "P34",
+    "P35",
+    "P36",
+    "P52",
+    "P53",
+    "P54"
+  ],
   "erros": [],
   "output": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_10\\Fase-6_Execucao_CAD\\PL_gerado.dxf",
-  "aprovado": true
+  "aprovado": false
 }
