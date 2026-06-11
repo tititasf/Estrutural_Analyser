@@ -1,0 +1,1076 @@
+{
+  "P15": {
+    "pilar": "P15",
+    "faces_found": [
+      "A",
+      "B",
+      "C",
+      "D",
+      "E",
+      "F"
+    ],
+    "chapa_vert": 0,
+    "chapa_horiz": 2,
+    "chapa_total": 2,
+    "grade_1": 122.0,
+    "grade_2": 90.0,
+    "grade_source": "cota-grade-nearest",
+    "perfil_metalico": 4,
+    "sp_per_face": {
+      "A": 3,
+      "B": 3,
+      "C": 0,
+      "D": 2,
+      "E": 2,
+      "F": 2
+    },
+    "sp_total": 12,
+    "confidence": 0.85
+  },
+  "P16": {
+    "pilar": "P16",
+    "faces_found": [
+      "A",
+      "B",
+      "C",
+      "D",
+      "E",
+      "F"
+    ],
+    "chapa_vert": 1,
+    "chapa_horiz": 1,
+    "chapa_total": 2,
+    "grade_1": 122.0,
+    "grade_2": 90.0,
+    "grade_source": "cota-grade-nearest",
+    "perfil_metalico": 6,
+    "sp_per_face": {
+      "A": 2,
+      "B": 3,
+      "C": 1,
+      "D": 2,
+      "E": 3,
+      "F": 2
+    },
+    "sp_total": 13,
+    "confidence": 0.85
+  },
+  "P132": {
+    "pilar": "P132",
+    "faces_found": [
+      "B"
+    ],
+    "chapa_vert": 0,
+    "chapa_horiz": 0,
+    "chapa_total": 0,
+    "grade_1": null,
+    "grade_2": null,
+    "grade_source": "no-grade",
+    "perfil_metalico": 0,
+    "sp_per_face": {
+      "B": 0
+    },
+    "sp_total": 0,
+    "confidence": 0.6
+  },
+  "P134": {
+    "pilar": "P134",
+    "faces_found": [
+      "B"
+    ],
+    "chapa_vert": 0,
+    "chapa_horiz": 0,
+    "chapa_total": 0,
+    "grade_1": null,
+    "grade_2": null,
+    "grade_source": "no-grade",
+    "perfil_metalico": 0,
+    "sp_per_face": {
+      "B": 0
+    },
+    "sp_total": 0,
+    "confidence": 0.6
+  },
+  "P126": {
+    "pilar": "P126",
+    "faces_found": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "chapa_vert": 0,
+    "chapa_horiz": 0,
+    "chapa_total": 0,
+    "grade_1": null,
+    "grade_2": null,
+    "grade_source": "no-grade",
+    "perfil_metalico": 4,
+    "sp_per_face": {
+      "A": 0,
+      "B": 0,
+      "C": 0,
+      "D": 0
+    },
+    "sp_total": 0,
+    "confidence": 0.6
+  },
+  "P105": {
+    "pilar": "P105",
+    "faces_found": [
+      "B"
+    ],
+    "chapa_vert": 0,
+    "chapa_horiz": 0,
+    "chapa_total": 0,
+    "grade_1": null,
+    "grade_2": null,
+    "grade_source": "no-grade",
+    "perfil_metalico": 0,
+    "sp_per_face": {
+      "B": 0
+    },
+    "sp_total": 0,
+    "confidence": 0.6
+  },
+  "P112": {
+    "pilar": "P112",
+    "faces_found": [
+      "B"
+    ],
+    "chapa_vert": 0,
+    "chapa_horiz": 0,
+    "chapa_total": 0,
+    "grade_1": null,
+    "grade_2": null,
+    "grade_source": "no-grade",
+    "perfil_metalico": 0,
+    "sp_per_face": {
+      "B": 0
+    },
+    "sp_total": 0,
+    "confidence": 0.6
+  },
+  "P114": {
+    "pilar": "P114",
+    "faces_found": [
+      "B"
+    ],
+    "chapa_vert": 0,
+    "chapa_horiz": 0,
+    "chapa_total": 0,
+    "grade_1": null,
+    "grade_2": null,
+    "grade_source": "no-grade",
+    "perfil_metalico": 0,
+    "sp_per_face": {
+      "B": 0
+    },
+    "sp_total": 0,
+    "confidence": 0.6
+  },
+  "P109": {
+    "pilar": "P109",
+    "faces_found": [
+      "B"
+    ],
+    "chapa_vert": 0,
+    "chapa_horiz": 0,
+    "chapa_total": 0,
+    "grade_1": null,
+    "grade_2": null,
+    "grade_source": "no-grade",
+    "perfil_metalico": 0,
+    "sp_per_face": {
+      "B": 0
+    },
+    "sp_total": 0,
+    "confidence": 0.6
+  },
+  "P122": {
+    "pilar": "P122",
+    "faces_found": [
+      "A",
+      "B",
+      "C"
+    ],
+    "chapa_vert": 0,
+    "chapa_horiz": 0,
+    "chapa_total": 0,
+    "grade_1": null,
+    "grade_2": null,
+    "grade_source": "no-grade",
+    "perfil_metalico": 4,
+    "sp_per_face": {
+      "A": 0,
+      "B": 0,
+      "C": 0
+    },
+    "sp_total": 0,
+    "confidence": 0.6
+  },
+  "P123": {
+    "pilar": "P123",
+    "faces_found": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "chapa_vert": 0,
+    "chapa_horiz": 0,
+    "chapa_total": 0,
+    "grade_1": null,
+    "grade_2": null,
+    "grade_source": "no-grade",
+    "perfil_metalico": 4,
+    "sp_per_face": {
+      "A": 0,
+      "B": 0,
+      "C": 0,
+      "D": 0
+    },
+    "sp_total": 0,
+    "confidence": 0.6
+  },
+  "P2": {
+    "pilar": "P2",
+    "faces_found": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "chapa_vert": 0,
+    "chapa_horiz": 0,
+    "chapa_total": 0,
+    "grade_1": null,
+    "grade_2": null,
+    "grade_source": "no-grade",
+    "perfil_metalico": 6,
+    "sp_per_face": {
+      "A": 0,
+      "B": 0,
+      "C": 0,
+      "D": 0
+    },
+    "sp_total": 0,
+    "confidence": 0.6
+  },
+  "P3": {
+    "pilar": "P3",
+    "faces_found": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "chapa_vert": 0,
+    "chapa_horiz": 0,
+    "chapa_total": 0,
+    "grade_1": null,
+    "grade_2": null,
+    "grade_source": "no-grade",
+    "perfil_metalico": 8,
+    "sp_per_face": {
+      "A": 0,
+      "B": 0,
+      "C": 0,
+      "D": 0
+    },
+    "sp_total": 0,
+    "confidence": 0.6
+  },
+  "P4": {
+    "pilar": "P4",
+    "faces_found": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "chapa_vert": 0,
+    "chapa_horiz": 0,
+    "chapa_total": 0,
+    "grade_1": null,
+    "grade_2": null,
+    "grade_source": "no-grade",
+    "perfil_metalico": 6,
+    "sp_per_face": {
+      "A": 0,
+      "B": 0,
+      "C": 0,
+      "D": 0
+    },
+    "sp_total": 0,
+    "confidence": 0.6
+  },
+  "P5": {
+    "pilar": "P5",
+    "faces_found": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "chapa_vert": 0,
+    "chapa_horiz": 0,
+    "chapa_total": 0,
+    "grade_1": null,
+    "grade_2": null,
+    "grade_source": "no-grade",
+    "perfil_metalico": 8,
+    "sp_per_face": {
+      "A": 0,
+      "B": 0,
+      "C": 0,
+      "D": 0
+    },
+    "sp_total": 0,
+    "confidence": 0.6
+  },
+  "P6": {
+    "pilar": "P6",
+    "faces_found": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "chapa_vert": 0,
+    "chapa_horiz": 0,
+    "chapa_total": 0,
+    "grade_1": null,
+    "grade_2": null,
+    "grade_source": "no-grade",
+    "perfil_metalico": 6,
+    "sp_per_face": {
+      "A": 0,
+      "B": 0,
+      "C": 0,
+      "D": 0
+    },
+    "sp_total": 0,
+    "confidence": 0.6
+  },
+  "P7": {
+    "pilar": "P7",
+    "faces_found": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "chapa_vert": 0,
+    "chapa_horiz": 0,
+    "chapa_total": 0,
+    "grade_1": 122.0,
+    "grade_2": null,
+    "grade_source": "cota-grade-nearest",
+    "perfil_metalico": 8,
+    "sp_per_face": {
+      "A": 0,
+      "B": 0,
+      "C": 0,
+      "D": 0
+    },
+    "sp_total": 0,
+    "confidence": 0.85
+  },
+  "P8": {
+    "pilar": "P8",
+    "faces_found": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "chapa_vert": 0,
+    "chapa_horiz": 0,
+    "chapa_total": 0,
+    "grade_1": 122.0,
+    "grade_2": null,
+    "grade_source": "cota-grade-nearest",
+    "perfil_metalico": 6,
+    "sp_per_face": {
+      "A": 0,
+      "B": 0,
+      "C": 0,
+      "D": 0
+    },
+    "sp_total": 0,
+    "confidence": 0.85
+  },
+  "P10": {
+    "pilar": "P10",
+    "faces_found": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "chapa_vert": 0,
+    "chapa_horiz": 0,
+    "chapa_total": 0,
+    "grade_1": null,
+    "grade_2": null,
+    "grade_source": "no-grade",
+    "perfil_metalico": 8,
+    "sp_per_face": {
+      "A": 0,
+      "B": 0,
+      "C": 0,
+      "D": 0
+    },
+    "sp_total": 0,
+    "confidence": 0.6
+  },
+  "P11": {
+    "pilar": "P11",
+    "faces_found": [
+      "B",
+      "A",
+      "C",
+      "D"
+    ],
+    "chapa_vert": 1,
+    "chapa_horiz": 4,
+    "chapa_total": 5,
+    "grade_1": 122.0,
+    "grade_2": 90.0,
+    "grade_source": "cota-grade-nearest",
+    "perfil_metalico": 12,
+    "sp_per_face": {
+      "B": 0,
+      "A": 0,
+      "C": 0,
+      "D": 0
+    },
+    "sp_total": 0,
+    "confidence": 0.85
+  },
+  "P12": {
+    "pilar": "P12",
+    "faces_found": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "chapa_vert": 0,
+    "chapa_horiz": 0,
+    "chapa_total": 0,
+    "grade_1": 122.0,
+    "grade_2": null,
+    "grade_source": "cota-grade-nearest",
+    "perfil_metalico": 4,
+    "sp_per_face": {
+      "A": 0,
+      "B": 0,
+      "C": 0,
+      "D": 0
+    },
+    "sp_total": 0,
+    "confidence": 0.85
+  },
+  "P13": {
+    "pilar": "P13",
+    "faces_found": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "chapa_vert": 0,
+    "chapa_horiz": 0,
+    "chapa_total": 0,
+    "grade_1": 122.0,
+    "grade_2": null,
+    "grade_source": "cota-grade-nearest",
+    "perfil_metalico": 4,
+    "sp_per_face": {
+      "A": 0,
+      "B": 0,
+      "C": 0,
+      "D": 0
+    },
+    "sp_total": 0,
+    "confidence": 0.85
+  },
+  "P14": {
+    "pilar": "P14",
+    "faces_found": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "chapa_vert": 0,
+    "chapa_horiz": 0,
+    "chapa_total": 0,
+    "grade_1": null,
+    "grade_2": null,
+    "grade_source": "no-grade",
+    "perfil_metalico": 4,
+    "sp_per_face": {
+      "A": 0,
+      "B": 0,
+      "C": 0,
+      "D": 0
+    },
+    "sp_total": 0,
+    "confidence": 0.6
+  },
+  "P17": {
+    "pilar": "P17",
+    "faces_found": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "chapa_vert": 0,
+    "chapa_horiz": 0,
+    "chapa_total": 0,
+    "grade_1": 90.0,
+    "grade_2": null,
+    "grade_source": "cota-grade-nearest",
+    "perfil_metalico": 6,
+    "sp_per_face": {
+      "A": 0,
+      "B": 0,
+      "C": 0,
+      "D": 0
+    },
+    "sp_total": 0,
+    "confidence": 0.85
+  },
+  "P18": {
+    "pilar": "P18",
+    "faces_found": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "chapa_vert": 0,
+    "chapa_horiz": 0,
+    "chapa_total": 0,
+    "grade_1": null,
+    "grade_2": null,
+    "grade_source": "no-grade",
+    "perfil_metalico": 6,
+    "sp_per_face": {
+      "A": 0,
+      "B": 0,
+      "C": 0,
+      "D": 0
+    },
+    "sp_total": 0,
+    "confidence": 0.6
+  },
+  "P19": {
+    "pilar": "P19",
+    "faces_found": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "chapa_vert": 0,
+    "chapa_horiz": 0,
+    "chapa_total": 0,
+    "grade_1": null,
+    "grade_2": null,
+    "grade_source": "no-grade",
+    "perfil_metalico": 6,
+    "sp_per_face": {
+      "A": 0,
+      "B": 0,
+      "C": 0,
+      "D": 0
+    },
+    "sp_total": 0,
+    "confidence": 0.6
+  },
+  "P20": {
+    "pilar": "P20",
+    "faces_found": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "chapa_vert": 0,
+    "chapa_horiz": 0,
+    "chapa_total": 0,
+    "grade_1": null,
+    "grade_2": null,
+    "grade_source": "no-grade",
+    "perfil_metalico": 6,
+    "sp_per_face": {
+      "A": 0,
+      "B": 0,
+      "C": 0,
+      "D": 0
+    },
+    "sp_total": 0,
+    "confidence": 0.6
+  },
+  "P21": {
+    "pilar": "P21",
+    "faces_found": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "chapa_vert": 0,
+    "chapa_horiz": 0,
+    "chapa_total": 0,
+    "grade_1": null,
+    "grade_2": null,
+    "grade_source": "no-grade",
+    "perfil_metalico": 6,
+    "sp_per_face": {
+      "A": 0,
+      "B": 0,
+      "C": 0,
+      "D": 0
+    },
+    "sp_total": 0,
+    "confidence": 0.6
+  },
+  "P22": {
+    "pilar": "P22",
+    "faces_found": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "chapa_vert": 0,
+    "chapa_horiz": 0,
+    "chapa_total": 0,
+    "grade_1": null,
+    "grade_2": null,
+    "grade_source": "no-grade",
+    "perfil_metalico": 6,
+    "sp_per_face": {
+      "A": 0,
+      "B": 0,
+      "C": 0,
+      "D": 0
+    },
+    "sp_total": 0,
+    "confidence": 0.6
+  },
+  "P23": {
+    "pilar": "P23",
+    "faces_found": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "chapa_vert": 0,
+    "chapa_horiz": 0,
+    "chapa_total": 0,
+    "grade_1": null,
+    "grade_2": null,
+    "grade_source": "no-grade",
+    "perfil_metalico": 6,
+    "sp_per_face": {
+      "A": 0,
+      "B": 0,
+      "C": 0,
+      "D": 0
+    },
+    "sp_total": 0,
+    "confidence": 0.6
+  },
+  "P24": {
+    "pilar": "P24",
+    "faces_found": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "chapa_vert": 0,
+    "chapa_horiz": 0,
+    "chapa_total": 0,
+    "grade_1": null,
+    "grade_2": null,
+    "grade_source": "no-grade",
+    "perfil_metalico": 8,
+    "sp_per_face": {
+      "A": 0,
+      "B": 0,
+      "C": 0,
+      "D": 0
+    },
+    "sp_total": 0,
+    "confidence": 0.6
+  },
+  "P25": {
+    "pilar": "P25",
+    "faces_found": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "chapa_vert": 0,
+    "chapa_horiz": 0,
+    "chapa_total": 0,
+    "grade_1": null,
+    "grade_2": null,
+    "grade_source": "no-grade",
+    "perfil_metalico": 6,
+    "sp_per_face": {
+      "A": 0,
+      "B": 0,
+      "C": 0,
+      "D": 0
+    },
+    "sp_total": 0,
+    "confidence": 0.6
+  },
+  "P26": {
+    "pilar": "P26",
+    "faces_found": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "chapa_vert": 0,
+    "chapa_horiz": 0,
+    "chapa_total": 0,
+    "grade_1": null,
+    "grade_2": null,
+    "grade_source": "no-grade",
+    "perfil_metalico": 6,
+    "sp_per_face": {
+      "A": 0,
+      "B": 0,
+      "C": 0,
+      "D": 0
+    },
+    "sp_total": 0,
+    "confidence": 0.6
+  },
+  "P27": {
+    "pilar": "P27",
+    "faces_found": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "chapa_vert": 0,
+    "chapa_horiz": 0,
+    "chapa_total": 0,
+    "grade_1": null,
+    "grade_2": null,
+    "grade_source": "no-grade",
+    "perfil_metalico": 6,
+    "sp_per_face": {
+      "A": 0,
+      "B": 0,
+      "C": 0,
+      "D": 0
+    },
+    "sp_total": 0,
+    "confidence": 0.6
+  },
+  "P28": {
+    "pilar": "P28",
+    "faces_found": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "chapa_vert": 0,
+    "chapa_horiz": 0,
+    "chapa_total": 0,
+    "grade_1": null,
+    "grade_2": null,
+    "grade_source": "no-grade",
+    "perfil_metalico": 6,
+    "sp_per_face": {
+      "A": 0,
+      "B": 0,
+      "C": 0,
+      "D": 0
+    },
+    "sp_total": 0,
+    "confidence": 0.6
+  },
+  "P29": {
+    "pilar": "P29",
+    "faces_found": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "chapa_vert": 0,
+    "chapa_horiz": 0,
+    "chapa_total": 0,
+    "grade_1": null,
+    "grade_2": null,
+    "grade_source": "no-grade",
+    "perfil_metalico": 6,
+    "sp_per_face": {
+      "A": 0,
+      "B": 0,
+      "C": 0,
+      "D": 0
+    },
+    "sp_total": 0,
+    "confidence": 0.6
+  },
+  "P30": {
+    "pilar": "P30",
+    "faces_found": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "chapa_vert": 0,
+    "chapa_horiz": 0,
+    "chapa_total": 0,
+    "grade_1": null,
+    "grade_2": null,
+    "grade_source": "no-grade",
+    "perfil_metalico": 6,
+    "sp_per_face": {
+      "A": 0,
+      "B": 0,
+      "C": 0,
+      "D": 0
+    },
+    "sp_total": 0,
+    "confidence": 0.6
+  },
+  "P31": {
+    "pilar": "P31",
+    "faces_found": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "chapa_vert": 0,
+    "chapa_horiz": 0,
+    "chapa_total": 0,
+    "grade_1": null,
+    "grade_2": null,
+    "grade_source": "no-grade",
+    "perfil_metalico": 6,
+    "sp_per_face": {
+      "A": 0,
+      "B": 0,
+      "C": 0,
+      "D": 0
+    },
+    "sp_total": 0,
+    "confidence": 0.6
+  },
+  "P32": {
+    "pilar": "P32",
+    "faces_found": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "chapa_vert": 0,
+    "chapa_horiz": 0,
+    "chapa_total": 0,
+    "grade_1": null,
+    "grade_2": null,
+    "grade_source": "no-grade",
+    "perfil_metalico": 8,
+    "sp_per_face": {
+      "A": 0,
+      "B": 0,
+      "C": 0,
+      "D": 0
+    },
+    "sp_total": 0,
+    "confidence": 0.6
+  },
+  "P33": {
+    "pilar": "P33",
+    "faces_found": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "chapa_vert": 0,
+    "chapa_horiz": 0,
+    "chapa_total": 0,
+    "grade_1": null,
+    "grade_2": null,
+    "grade_source": "no-grade",
+    "perfil_metalico": 6,
+    "sp_per_face": {
+      "A": 0,
+      "B": 0,
+      "C": 0,
+      "D": 0
+    },
+    "sp_total": 0,
+    "confidence": 0.6
+  },
+  "P34": {
+    "pilar": "P34",
+    "faces_found": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "chapa_vert": 0,
+    "chapa_horiz": 0,
+    "chapa_total": 0,
+    "grade_1": null,
+    "grade_2": null,
+    "grade_source": "no-grade",
+    "perfil_metalico": 6,
+    "sp_per_face": {
+      "A": 0,
+      "B": 0,
+      "C": 0,
+      "D": 0
+    },
+    "sp_total": 0,
+    "confidence": 0.6
+  },
+  "P35": {
+    "pilar": "P35",
+    "faces_found": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "chapa_vert": 0,
+    "chapa_horiz": 0,
+    "chapa_total": 0,
+    "grade_1": null,
+    "grade_2": null,
+    "grade_source": "no-grade",
+    "perfil_metalico": 4,
+    "sp_per_face": {
+      "A": 0,
+      "B": 0,
+      "C": 0,
+      "D": 0
+    },
+    "sp_total": 0,
+    "confidence": 0.6
+  },
+  "P36": {
+    "pilar": "P36",
+    "faces_found": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "chapa_vert": 0,
+    "chapa_horiz": 0,
+    "chapa_total": 0,
+    "grade_1": null,
+    "grade_2": null,
+    "grade_source": "no-grade",
+    "perfil_metalico": 4,
+    "sp_per_face": {
+      "A": 0,
+      "B": 0,
+      "C": 0,
+      "D": 0
+    },
+    "sp_total": 0,
+    "confidence": 0.6
+  },
+  "P37": {
+    "pilar": "P37",
+    "faces_found": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "chapa_vert": 0,
+    "chapa_horiz": 0,
+    "chapa_total": 0,
+    "grade_1": null,
+    "grade_2": null,
+    "grade_source": "no-grade",
+    "perfil_metalico": 4,
+    "sp_per_face": {
+      "A": 0,
+      "B": 0,
+      "C": 0,
+      "D": 0
+    },
+    "sp_total": 0,
+    "confidence": 0.6
+  },
+  "P38": {
+    "pilar": "P38",
+    "faces_found": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "chapa_vert": 0,
+    "chapa_horiz": 0,
+    "chapa_total": 0,
+    "grade_1": null,
+    "grade_2": null,
+    "grade_source": "no-grade",
+    "perfil_metalico": 4,
+    "sp_per_face": {
+      "A": 0,
+      "B": 0,
+      "C": 0,
+      "D": 0
+    },
+    "sp_total": 0,
+    "confidence": 0.6
+  },
+  "P1": {
+    "pilar": "P1",
+    "faces_found": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "chapa_vert": 0,
+    "chapa_horiz": 0,
+    "chapa_total": 0,
+    "grade_1": null,
+    "grade_2": null,
+    "grade_source": "no-grade",
+    "perfil_metalico": 6,
+    "sp_per_face": {
+      "A": 0,
+      "B": 0,
+      "C": 0,
+      "D": 0
+    },
+    "sp_total": 0,
+    "confidence": 0.6
+  }
+}

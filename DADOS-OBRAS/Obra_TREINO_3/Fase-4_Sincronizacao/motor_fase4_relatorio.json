@@ -1,10 +1,10 @@
 {
   "obra": "Obra_TREINO_3",
-  "pavimento": "RES.DIAMOND - TÉRREO - PERIFERIA - TORRE 1 - S04A",
+  "pavimento": null,
   "stats": {
-    "pilares": 10,
-    "vigas": 33,
-    "lajes": 16,
+    "pilares": 102,
+    "vigas": 108,
+    "lajes": 42,
     "errors": 0
   },
   "output_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_3\\Fase-4_Sincronizacao"

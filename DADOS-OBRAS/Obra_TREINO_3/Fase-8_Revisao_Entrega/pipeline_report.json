@@ -1,18 +1,21 @@
 {
   "obra": "Obra_TREINO_3",
-  "pavimento": "RES.DIAMOND - TÉRREO - PERIFERIA - TORRE 1 - S04A",
-  "timestamp": "2026-03-09T07:32:38.506446",
+  "pavimento": "12 PAV",
+  "timestamp": "2026-05-28T00:33:32.570525",
   "fases": {
     "descoberta": "SKIP",
     "eng_reversa": "OK",
     "extracao_dimensional": "OK",
+    "validacao_bh": "SKIP",
     "motor_fase4": "OK",
     "geracao_dxf_individual": "OK",
     "comparacao_individual": "OK",
     "ancoras": "OK",
     "consolidacao_coletivo": "OK",
     "validacao_coletivo": "OK",
-    "obras_salvas": "OK"
+    "obras_salvas": "OK",
+    "validacao_visual": "OK",
+    "relatorio_fidelidade": "OK"
   },
   "scores": {
     "coletivo": {

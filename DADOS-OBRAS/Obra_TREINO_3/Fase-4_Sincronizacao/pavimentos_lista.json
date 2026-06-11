@@ -1,11 +1,11 @@
 {
   "Obra_TREINO_3": {
     "pavimentos": [
-      "RES.DIAMOND - TÉRREO - PERIFERIA - TORRE 1 - S04A"
+      "12 PAV"
     ],
     "pavimentos_data": {
-      "RES.DIAMOND - TÉRREO - PERIFERIA - TORRE 1 - S04A": {
-        "nome": "RES.DIAMOND - TÉRREO - PERIFERIA - TORRE 1 - S04A",
+      "12 PAV": {
+        "nome": "12 PAV",
         "numero": "1",
         "nivel_chegada": "0.0",
         "nivel_saida": "280.0"

@@ -1,82 +1,212 @@
 {
-  "L5": {
-    "comprimento": 100.0,
-    "largura": 100.0,
-    "area_cm2": 10000.0
+  "L80": {
+    "comprimento": 244.0,
+    "largura": 244.0,
+    "area_cm2": 59536.0
   },
-  "L6": {
-    "comprimento": 100.0,
-    "largura": 100.0,
-    "area_cm2": 10000.0
+  "L81": {
+    "comprimento": 244.0,
+    "largura": 244.0,
+    "area_cm2": 59536.0
   },
-  "L7": {
-    "comprimento": 100.0,
-    "largura": 100.0,
-    "area_cm2": 10000.0
+  "L82": {
+    "comprimento": 244.0,
+    "largura": 244.0,
+    "area_cm2": 59536.0
   },
-  "L8": {
-    "comprimento": 100.0,
-    "largura": 100.0,
-    "area_cm2": 10000.0
+  "L83": {
+    "comprimento": 244.0,
+    "largura": 244.0,
+    "area_cm2": 59536.0
   },
-  "L14": {
-    "comprimento": 100.0,
-    "largura": 100.0,
-    "area_cm2": 10000.0
+  "L84": {
+    "comprimento": 244.0,
+    "largura": 244.0,
+    "area_cm2": 59536.0
   },
-  "L15": {
-    "comprimento": 100.0,
-    "largura": 100.0,
-    "area_cm2": 10000.0
+  "L85": {
+    "comprimento": 366.0,
+    "largura": 133.5,
+    "area_cm2": 48861.0
   },
-  "L16": {
-    "comprimento": 100.0,
-    "largura": 100.0,
-    "area_cm2": 10000.0
+  "L86": {
+    "comprimento": 244.0,
+    "largura": 133.5,
+    "area_cm2": 32574.0
   },
-  "L17": {
-    "comprimento": 100.0,
-    "largura": 100.0,
-    "area_cm2": 10000.0
+  "L87": {
+    "comprimento": 244.0,
+    "largura": 244.0,
+    "area_cm2": 59536.0
   },
-  "L26": {
-    "comprimento": 100.0,
-    "largura": 100.0,
-    "area_cm2": 10000.0
+  "L88": {
+    "comprimento": 244.0,
+    "largura": 244.0,
+    "area_cm2": 59536.0
   },
-  "L27": {
-    "comprimento": 100.0,
-    "largura": 100.0,
-    "area_cm2": 10000.0
+  "L89": {
+    "comprimento": 244.0,
+    "largura": 244.0,
+    "area_cm2": 59536.0
   },
-  "L28": {
-    "comprimento": 100.0,
-    "largura": 100.0,
-    "area_cm2": 10000.0
+  "L93": {
+    "comprimento": 244.0,
+    "largura": 244.0,
+    "area_cm2": 59536.0
   },
-  "L29": {
-    "comprimento": 100.0,
-    "largura": 100.0,
-    "area_cm2": 10000.0
+  "L94": {
+    "comprimento": 244.0,
+    "largura": 244.0,
+    "area_cm2": 59536.0
   },
-  "L30": {
-    "comprimento": 100.0,
-    "largura": 100.0,
-    "area_cm2": 10000.0
+  "L100": {
+    "comprimento": 236.5,
+    "largura": 196.5,
+    "area_cm2": 46472.2
   },
-  "L31": {
-    "comprimento": 100.0,
-    "largura": 100.0,
-    "area_cm2": 10000.0
+  "L101": {
+    "comprimento": 244.0,
+    "largura": 244.0,
+    "area_cm2": 59536.0
   },
-  "L32": {
-    "comprimento": 100.0,
-    "largura": 100.0,
-    "area_cm2": 10000.0
+  "L102": {
+    "comprimento": 244.0,
+    "largura": 244.0,
+    "area_cm2": 59536.0
   },
-  "L34": {
-    "comprimento": 100.0,
-    "largura": 100.0,
-    "area_cm2": 10000.0
+  "L103": {
+    "comprimento": 244.0,
+    "largura": 244.0,
+    "area_cm2": 59536.0
+  },
+  "L104": {
+    "comprimento": 244.0,
+    "largura": 244.0,
+    "area_cm2": 59536.0
+  },
+  "L105": {
+    "comprimento": 244.0,
+    "largura": 244.0,
+    "area_cm2": 59536.0
+  },
+  "L106": {
+    "comprimento": 244.0,
+    "largura": 244.0,
+    "area_cm2": 59536.0
+  },
+  "L107": {
+    "comprimento": 244.0,
+    "largura": 244.0,
+    "area_cm2": 59536.0
+  },
+  "L108": {
+    "comprimento": 244.0,
+    "largura": 244.0,
+    "area_cm2": 59536.0
+  },
+  "L109": {
+    "comprimento": 244.0,
+    "largura": 244.0,
+    "area_cm2": 59536.0
+  },
+  "L110": {
+    "comprimento": 244.0,
+    "largura": 244.0,
+    "area_cm2": 59536.0
+  },
+  "L111": {
+    "comprimento": 244.0,
+    "largura": 244.0,
+    "area_cm2": 59536.0
+  },
+  "L112": {
+    "comprimento": 244.0,
+    "largura": 244.0,
+    "area_cm2": 59536.0
+  },
+  "L113": {
+    "comprimento": 236.5,
+    "largura": 196.5,
+    "area_cm2": 46472.2
+  },
+  "L119": {
+    "comprimento": 244.0,
+    "largura": 244.0,
+    "area_cm2": 59536.0
+  },
+  "L120": {
+    "comprimento": 244.0,
+    "largura": 244.0,
+    "area_cm2": 59536.0
+  },
+  "L121": {
+    "comprimento": 244.0,
+    "largura": 244.0,
+    "area_cm2": 59536.0
+  },
+  "L122": {
+    "comprimento": 244.0,
+    "largura": 244.0,
+    "area_cm2": 59536.0
+  },
+  "L123": {
+    "comprimento": 244.0,
+    "largura": 244.0,
+    "area_cm2": 59536.0
+  },
+  "L124": {
+    "comprimento": 366.0,
+    "largura": 140.5,
+    "area_cm2": 51423.0
+  },
+  "L125": {
+    "comprimento": 366.0,
+    "largura": 140.5,
+    "area_cm2": 51423.0
+  },
+  "L126": {
+    "comprimento": 244.0,
+    "largura": 140.5,
+    "area_cm2": 34282.0
+  },
+  "L127": {
+    "comprimento": 140.5,
+    "largura": 122.0,
+    "area_cm2": 17141.0
+  },
+  "L128": {
+    "comprimento": 244.0,
+    "largura": 244.0,
+    "area_cm2": 59536.0
+  },
+  "L129": {
+    "comprimento": 223.5,
+    "largura": 178.5,
+    "area_cm2": 39894.8
+  },
+  "L130": {
+    "comprimento": 244.0,
+    "largura": 244.0,
+    "area_cm2": 59536.0
+  },
+  "L124A": {
+    "comprimento": 244.0,
+    "largura": 244.0,
+    "area_cm2": 59536.0
+  },
+  "L124B": {
+    "comprimento": 244.0,
+    "largura": 244.0,
+    "area_cm2": 59536.0
+  },
+  "L125A": {
+    "comprimento": 244.0,
+    "largura": 244.0,
+    "area_cm2": 59536.0
+  },
+  "L125B": {
+    "comprimento": 244.0,
+    "largura": 244.0,
+    "area_cm2": 59536.0
   }
 }

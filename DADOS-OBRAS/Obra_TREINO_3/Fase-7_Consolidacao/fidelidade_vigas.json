@@ -1,0 +1,107 @@
+{
+  "tipo": "vigas",
+  "score": 99.3,
+  "aprovado": true,
+  "limiar": 82.0,
+  "sub_tipos": {
+    "LV": {
+      "stog_dxf": "NOVA - CAPREM - RES.DIAMOND - 1° SUB - PERIFERIA - TORRE 1 - S01A - LV - R00_R2018_ASCII_ODA.dxf",
+      "gerado_dxf": "LV_stog_quality.dxf",
+      "score": 100.0,
+      "detalhes": {
+        "id_match": {
+          "score": 30.0,
+          "max": 30,
+          "gt_count": 74,
+          "gerado_count": 74,
+          "id_match_rate": 1.0,
+          "hallucination_rate": 0.0,
+          "missed": [],
+          "hallucinated": []
+        },
+        "entity_coverage": {
+          "score": 40.0,
+          "max": 40,
+          "stog_total": 4656,
+          "gerado_total": 56260,
+          "global_ratio": 1.0,
+          "critical_avg": 1.0
+        },
+        "layer_presence": {
+          "score": 20.0,
+          "max": 20,
+          "present": 22,
+          "missing": 0,
+          "required_layers": 22,
+          "missing_list": []
+        },
+        "anti_hallucination": {
+          "score": 10.0,
+          "max": 10
+        }
+      },
+      "scorer": "kb-blended",
+      "kb_file": "NOVA - CAPREM - RES.DIAMOND - 1° SUB - PERIFERIA - TORRE 1 - S01A - LV - R00_R2018_ASCII_ODA.dxf",
+      "aprovado": true,
+      "limiar": 85.0
+    },
+    "FV": {
+      "stog_dxf": "NOVA - CAPREM - RES.DIAMOND - TORRE 1 - TIPO 14° AO 17° PAV. - FV - R00_R2018_ASCII_ODA.dxf",
+      "gerado_dxf": "FV_stog_quality.dxf",
+      "score": 98.2,
+      "detalhes": {
+        "id_match": {
+          "score": 29.6,
+          "max": 30,
+          "gt_count": 85,
+          "gerado_count": 98,
+          "id_match_rate": 0.9882,
+          "hallucination_rate": 0.1429,
+          "missed": [
+            "V78"
+          ],
+          "hallucinated": [
+            "V40",
+            "V70",
+            "V88",
+            "V89",
+            "V90",
+            "V91",
+            "V92",
+            "V93",
+            "V94",
+            "V95",
+            "V96",
+            "V97",
+            "V98",
+            "V99"
+          ]
+        },
+        "entity_coverage": {
+          "score": 40.0,
+          "max": 40,
+          "stog_total": 1857,
+          "gerado_total": 5515,
+          "global_ratio": 1.0,
+          "critical_avg": 1.0
+        },
+        "layer_presence": {
+          "score": 20.0,
+          "max": 20,
+          "present": 17,
+          "missing": 0,
+          "required_layers": 17,
+          "missing_list": []
+        },
+        "anti_hallucination": {
+          "score": 8.6,
+          "max": 10
+        }
+      },
+      "scorer": "kb-blended",
+      "kb_file": "NOVA - CAPREM - RES.DIAMOND - TORRE 1 - TIPO 14° AO 17° PAV. - FV - R00_R2018_ASCII_ODA.dxf",
+      "aprovado": true,
+      "limiar": 80.0
+    }
+  }
+}

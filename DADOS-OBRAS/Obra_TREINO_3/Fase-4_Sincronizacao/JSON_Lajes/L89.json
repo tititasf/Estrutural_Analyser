@@ -1,0 +1,79 @@
+{
+  "numero": 89,
+  "nome": "L89",
+  "comprimento": 244.0,
+  "largura": 244.0,
+  "pavimento": "Pavimento",
+  "coordenadas": [
+    [
+      0.0,
+      0.0
+    ],
+    [
+      244.0,
+      0.0
+    ],
+    [
+      244.0,
+      244.0
+    ],
+    [
+      0.0,
+      244.0
+    ],
+    [
+      0.0,
+      0.0
+    ]
+  ],
+  "area_cm2": 59536.0,
+  "linhas_verticais": [
+    {
+      "value": 100.0,
+      "is_union": false
+    },
+    {
+      "value": 200.0,
+      "is_union": false
+    },
+    {
+      "value": 244.0,
+      "is_union": false
+    }
+  ],
+  "linhas_horizontais": [],
+  "obstaculos": [],
+  "modo_selecionado": 0,
+  "unioes_nos_bordes": false,
+  "observacoes": "",
+  "pontaletes": {},
+  "_sa_meta": {
+    "tipo": "LJ",
+    "analisado_em": "2026-05-28 10:39",
+    "campos_extraidos": [
+      "area_cm2",
+      "comprimento",
+      "coordenadas",
+      "largura",
+      "linhas_verticais",
+      "nome",
+      "numero",
+      "pavimento"
+    ],
+    "campos_defaulted": [],
+    "na_fields": [
+      "grade_1",
+      "grade_2",
+      "h1_A",
+      "h2_A",
+      "h3_A",
+      "holes",
+      "panels",
+      "pillar_left",
+      "pillar_right",
+      "side",
+      "total_width"
+    ],
+    "completude_pct": 100.0
+  }
+}

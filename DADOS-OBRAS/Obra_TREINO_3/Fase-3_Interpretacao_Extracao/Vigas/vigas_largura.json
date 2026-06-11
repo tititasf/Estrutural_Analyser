@@ -1,0 +1,650 @@
+{
+  "VR4": {
+    "id": "VR4",
+    "largura_cm": 25.0,
+    "confidence": 0.9,
+    "source": "structural-freq(1x):Subsolo-1"
+  },
+  "VR7": {
+    "id": "VR7",
+    "largura_cm": 25.0,
+    "confidence": 0.9,
+    "source": "structural-freq(1x):Subsolo-1"
+  },
+  "V201": {
+    "id": "V201",
+    "largura_cm": 20.0,
+    "confidence": 0.95,
+    "source": "structural-freq(1x):Subsolo-1"
+  },
+  "V202": {
+    "id": "V202",
+    "largura_cm": 40.0,
+    "confidence": 0.9,
+    "source": "structural-freq(1x):Subsolo-1"
+  },
+  "V203": {
+    "id": "V203",
+    "largura_cm": 25.0,
+    "confidence": 0.9,
+    "source": "structural-freq(1x):Subsolo-1"
+  },
+  "V204": {
+    "id": "V204",
+    "largura_cm": 20.0,
+    "confidence": 0.9,
+    "source": "structural-freq(1x):Subsolo-1"
+  },
+  "V205": {
+    "id": "V205",
+    "largura_cm": 20.0,
+    "confidence": 0.9,
+    "source": "structural-freq(1x):Subsolo-1"
+  },
+  "V206": {
+    "id": "V206",
+    "largura_cm": 20.0,
+    "confidence": 0.9,
+    "source": "structural-freq(1x):Subsolo-1"
+  },
+  "V207": {
+    "id": "V207",
+    "largura_cm": 20.0,
+    "confidence": 0.9,
+    "source": "structural-freq(1x):Subsolo-1"
+  },
+  "V208": {
+    "id": "V208",
+    "largura_cm": 25.0,
+    "confidence": 0.9,
+    "source": "structural-freq(1x):Subsolo-1"
+  },
+  "V209": {
+    "id": "V209",
+    "largura_cm": 20.0,
+    "confidence": 0.9,
+    "source": "structural-freq(1x):Subsolo-1"
+  },
+  "V210": {
+    "id": "V210",
+    "largura_cm": 25.0,
+    "confidence": 0.9,
+    "source": "structural-freq(1x):Subsolo-1"
+  },
+  "V211": {
+    "id": "V211",
+    "largura_cm": 25.0,
+    "confidence": 0.95,
+    "source": "structural-freq(1x):Subsolo-1"
+  },
+  "V212": {
+    "id": "V212",
+    "largura_cm": 20.0,
+    "confidence": 0.9,
+    "source": "structural-freq(1x):Subsolo-1"
+  },
+  "V213": {
+    "id": "V213",
+    "largura_cm": 19.0,
+    "confidence": 0.9,
+    "source": "structural-freq(1x):Subsolo-1"
+  },
+  "V214": {
+    "id": "V214",
+    "largura_cm": 19.0,
+    "confidence": 0.9,
+    "source": "structural-freq(1x):Subsolo-1"
+  },
+  "V215": {
+    "id": "V215",
+    "largura_cm": 19.0,
+    "confidence": 0.9,
+    "source": "structural-freq(1x):Subsolo-1"
+  },
+  "V216": {
+    "id": "V216",
+    "largura_cm": 30.0,
+    "confidence": 0.9,
+    "source": "structural-freq(1x):Subsolo-1"
+  },
+  "V217": {
+    "id": "V217",
+    "largura_cm": 25.0,
+    "confidence": 0.9,
+    "source": "structural-freq(1x):Subsolo-1"
+  },
+  "V218": {
+    "id": "V218",
+    "largura_cm": 25.0,
+    "confidence": 0.8,
+    "source": "structural-freq(1x):Subsolo-1"
+  },
+  "V219": {
+    "id": "V219",
+    "largura_cm": 14.0,
+    "confidence": 0.9,
+    "source": "structural-freq(1x):Subsolo-1"
+  },
+  "V220": {
+    "id": "V220",
+    "largura_cm": 14.0,
+    "confidence": 0.9,
+    "source": "structural-freq(1x):Subsolo-1"
+  },
+  "V221": {
+    "id": "V221",
+    "largura_cm": 19.0,
+    "confidence": 0.9,
+    "source": "structural-freq(1x):Subsolo-1"
+  },
+  "V222": {
+    "id": "V222",
+    "largura_cm": 25.0,
+    "confidence": 0.9,
+    "source": "structural-freq(1x):Subsolo-1"
+  },
+  "V223": {
+    "id": "V223",
+    "largura_cm": 25.0,
+    "confidence": 0.9,
+    "source": "structural-freq(1x):Subsolo-1"
+  },
+  "V224": {
+    "id": "V224",
+    "largura_cm": 22.0,
+    "confidence": 0.9,
+    "source": "structural-freq(1x):Subsolo-1"
+  },
+  "V225": {
+    "id": "V225",
+    "largura_cm": 20.0,
+    "confidence": 0.9,
+    "source": "structural-freq(1x):Subsolo-1"
+  },
+  "V226": {
+    "id": "V226",
+    "largura_cm": 20.0,
+    "confidence": 0.9,
+    "source": "structural-freq(1x):Subsolo-1"
+  },
+  "V227": {
+    "id": "V227",
+    "largura_cm": 30.0,
+    "confidence": 0.9,
+    "source": "structural-freq(1x):Subsolo-1"
+  },
+  "V228": {
+    "id": "V228",
+    "largura_cm": 20.0,
+    "confidence": 0.9,
+    "source": "structural-freq(1x):Subsolo-1"
+  },
+  "V229": {
+    "id": "V229",
+    "largura_cm": 28.0,
+    "confidence": 0.95,
+    "source": "structural-freq(1x):Subsolo-1"
+  },
+  "V230": {
+    "id": "V230",
+    "largura_cm": 28.0,
+    "confidence": 0.9,
+    "source": "structural-freq(1x):Subsolo-1"
+  },
+  "V231": {
+    "id": "V231",
+    "largura_cm": 20.0,
+    "confidence": 0.9,
+    "source": "structural-freq(1x):Subsolo-1"
+  },
+  "V232": {
+    "id": "V232",
+    "largura_cm": 20.0,
+    "confidence": 0.9,
+    "source": "structural-freq(1x):Subsolo-1"
+  },
+  "V233": {
+    "id": "V233",
+    "largura_cm": 20.0,
+    "confidence": 0.8,
+    "source": "structural-freq(1x):Subsolo-1"
+  },
+  "V234": {
+    "id": "V234",
+    "largura_cm": 20.0,
+    "confidence": 0.9,
+    "source": "structural-freq(1x):Subsolo-1"
+  },
+  "V235": {
+    "id": "V235",
+    "largura_cm": 20.0,
+    "confidence": 0.9,
+    "source": "structural-freq(1x):Subsolo-1"
+  },
+  "V236": {
+    "id": "V236",
+    "largura_cm": 20.0,
+    "confidence": 0.9,
+    "source": "structural-freq(1x):Subsolo-1"
+  },
+  "V237": {
+    "id": "V237",
+    "largura_cm": 20.0,
+    "confidence": 0.9,
+    "source": "structural-freq(1x):Subsolo-1"
+  },
+  "V238": {
+    "id": "V238",
+    "largura_cm": 25.0,
+    "confidence": 0.9,
+    "source": "structural-freq(1x):Subsolo-1"
+  },
+  "V239": {
+    "id": "V239",
+    "largura_cm": 40.0,
+    "confidence": 0.9,
+    "source": "structural-freq(1x):Subsolo-1"
+  },
+  "V240": {
+    "id": "V240",
+    "largura_cm": 40.0,
+    "confidence": 0.9,
+    "source": "structural-freq(1x):Subsolo-1"
+  },
+  "V241": {
+    "id": "V241",
+    "largura_cm": 20.0,
+    "confidence": 0.9,
+    "source": "structural-freq(1x):Subsolo-1"
+  },
+  "V242": {
+    "id": "V242",
+    "largura_cm": 20.0,
+    "confidence": 0.9,
+    "source": "structural-freq(1x):Subsolo-1"
+  },
+  "V243": {
+    "id": "V243",
+    "largura_cm": 20.0,
+    "confidence": 0.9,
+    "source": "structural-freq(1x):Subsolo-1"
+  },
+  "V244": {
+    "id": "V244",
+    "largura_cm": 25.0,
+    "confidence": 0.9,
+    "source": "structural-freq(1x):Subsolo-1"
+  },
+  "V245": {
+    "id": "V245",
+    "largura_cm": 20.0,
+    "confidence": 0.9,
+    "source": "structural-freq(1x):Subsolo-1"
+  },
+  "V246": {
+    "id": "V246",
+    "largura_cm": 20.0,
+    "confidence": 0.9,
+    "source": "structural-freq(1x):Subsolo-1"
+  },
+  "V247": {
+    "id": "V247",
+    "largura_cm": 20.0,
+    "confidence": 0.9,
+    "source": "structural-freq(1x):Subsolo-1"
+  },
+  "V248": {
+    "id": "V248",
+    "largura_cm": 20.0,
+    "confidence": 0.9,
+    "source": "structural-freq(1x):Subsolo-1"
+  },
+  "V249": {
+    "id": "V249",
+    "largura_cm": 20.0,
+    "confidence": 0.9,
+    "source": "structural-freq(1x):Subsolo-1"
+  },
+  "V250": {
+    "id": "V250",
+    "largura_cm": 20.0,
+    "confidence": 0.9,
+    "source": "structural-freq(1x):Subsolo-1"
+  },
+  "V251": {
+    "id": "V251",
+    "largura_cm": 20.0,
+    "confidence": 0.9,
+    "source": "structural-freq(1x):Subsolo-1"
+  },
+  "V252": {
+    "id": "V252",
+    "largura_cm": 28.0,
+    "confidence": 0.9,
+    "source": "structural-freq(1x):Subsolo-1"
+  },
+  "V253": {
+    "id": "V253",
+    "largura_cm": 25.0,
+    "confidence": 0.9,
+    "source": "structural-freq(1x):Subsolo-1"
+  },
+  "V254": {
+    "id": "V254",
+    "largura_cm": 20.0,
+    "confidence": 0.9,
+    "source": "structural-freq(1x):Subsolo-1"
+  },
+  "V255": {
+    "id": "V255",
+    "largura_cm": 30.0,
+    "confidence": 0.9,
+    "source": "structural-freq(1x):Subsolo-1"
+  },
+  "V256": {
+    "id": "V256",
+    "largura_cm": 20.0,
+    "confidence": 0.9,
+    "source": "structural-freq(1x):Subsolo-1"
+  },
+  "V257": {
+    "id": "V257",
+    "largura_cm": 20.0,
+    "confidence": 0.9,
+    "source": "structural-freq(1x):Subsolo-1"
+  },
+  "V258": {
+    "id": "V258",
+    "largura_cm": 20.0,
+    "confidence": 0.95,
+    "source": "structural-freq(1x):Subsolo-1"
+  },
+  "V259": {
+    "id": "V259",
+    "largura_cm": 20.0,
+    "confidence": 0.9,
+    "source": "structural-freq(1x):Subsolo-1"
+  },
+  "V260": {
+    "id": "V260",
+    "largura_cm": 20.0,
+    "confidence": 0.9,
+    "source": "structural-freq(1x):Subsolo-1"
+  },
+  "V261": {
+    "id": "V261",
+    "largura_cm": 20.0,
+    "confidence": 0.9,
+    "source": "structural-freq(1x):Subsolo-1"
+  },
+  "V262": {
+    "id": "V262",
+    "largura_cm": 22.0,
+    "confidence": 0.9,
+    "source": "structural-freq(1x):Subsolo-1"
+  },
+  "V263": {
+    "id": "V263",
+    "largura_cm": 28.0,
+    "confidence": 0.9,
+    "source": "structural-freq(1x):Subsolo-1"
+  },
+  "V264": {
+    "id": "V264",
+    "largura_cm": 36.0,
+    "confidence": 0.9,
+    "source": "structural-freq(1x):Subsolo-1"
+  },
+  "V265": {
+    "id": "V265",
+    "largura_cm": 20.0,
+    "confidence": 0.9,
+    "source": "structural-freq(1x):Subsolo-1"
+  },
+  "V266": {
+    "id": "V266",
+    "largura_cm": 30.0,
+    "confidence": 0.9,
+    "source": "structural-freq(1x):Subsolo-1"
+  },
+  "V267": {
+    "id": "V267",
+    "largura_cm": 31.0,
+    "confidence": 0.9,
+    "source": "structural-freq(1x):Subsolo-1"
+  },
+  "V268": {
+    "id": "V268",
+    "largura_cm": 19.0,
+    "confidence": 0.9,
+    "source": "structural-freq(1x):Subsolo-1"
+  },
+  "V269": {
+    "id": "V269",
+    "largura_cm": 20.0,
+    "confidence": 0.9,
+    "source": "structural-freq(1x):Subsolo-1"
+  },
+  "V270": {
+    "id": "V270",
+    "largura_cm": 20.0,
+    "confidence": 0.9,
+    "source": "structural-freq(1x):Subsolo-1"
+  },
+  "V271": {
+    "id": "V271",
+    "largura_cm": 20.0,
+    "confidence": 0.9,
+    "source": "structural-freq(1x):Subsolo-1"
+  },
+  "V272": {
+    "id": "V272",
+    "largura_cm": 19.0,
+    "confidence": 0.9,
+    "source": "structural-freq(1x):Subsolo-1"
+  },
+  "V273": {
+    "id": "V273",
+    "largura_cm": 20.0,
+    "confidence": 0.9,
+    "source": "structural-freq(1x):Subsolo-1"
+  },
+  "V274": {
+    "id": "V274",
+    "largura_cm": 20.0,
+    "confidence": 0.9,
+    "source": "structural-freq(1x):Subsolo-1"
+  },
+  "V275": {
+    "id": "V275",
+    "largura_cm": 25.0,
+    "confidence": 0.9,
+    "source": "structural-freq(1x):Subsolo-1"
+  },
+  "V276": {
+    "id": "V276",
+    "largura_cm": 20.0,
+    "confidence": 0.9,
+    "source": "structural-freq(1x):Subsolo-1"
+  },
+  "V277": {
+    "id": "V277",
+    "largura_cm": 20.0,
+    "confidence": 0.95,
+    "source": "structural-freq(1x):Subsolo-1"
+  },
+  "V279": {
+    "id": "V279",
+    "largura_cm": 19.0,
+    "confidence": 0.9,
+    "source": "structural-freq(1x):Subsolo-1"
+  },
+  "V280": {
+    "id": "V280",
+    "largura_cm": 25.0,
+    "confidence": 0.8,
+    "source": "structural-freq(1x):Subsolo-1"
+  },
+  "V281": {
+    "id": "V281",
+    "largura_cm": 25.0,
+    "confidence": 0.9,
+    "source": "structural-freq(1x):Subsolo-1"
+  },
+  "V282": {
+    "id": "V282",
+    "largura_cm": 40.0,
+    "confidence": 0.9,
+    "source": "structural-freq(1x):Subsolo-1"
+  },
+  "V283": {
+    "id": "V283",
+    "largura_cm": 20.0,
+    "confidence": 0.8,
+    "source": "structural-freq(2x):Subsolo-1"
+  },
+  "V284": {
+    "id": "V284",
+    "largura_cm": 19.0,
+    "confidence": 0.9,
+    "source": "structural-freq(1x):Subsolo-1"
+  },
+  "V285": {
+    "id": "V285",
+    "largura_cm": 20.0,
+    "confidence": 0.9,
+    "source": "structural-freq(1x):Subsolo-1"
+  },
+  "V286": {
+    "id": "V286",
+    "largura_cm": 20.0,
+    "confidence": 0.9,
+    "source": "structural-freq(1x):Subsolo-1"
+  },
+  "V287": {
+    "id": "V287",
+    "largura_cm": 19.0,
+    "confidence": 0.9,
+    "source": "structural-freq(1x):Subsolo-1"
+  },
+  "V288": {
+    "id": "V288",
+    "largura_cm": 30.0,
+    "confidence": 0.9,
+    "source": "structural-freq(1x):Subsolo-1"
+  },
+  "V289": {
+    "id": "V289",
+    "largura_cm": 30.0,
+    "confidence": 0.9,
+    "source": "structural-freq(1x):Subsolo-1"
+  },
+  "V290": {
+    "id": "V290",
+    "largura_cm": 20.0,
+    "confidence": 0.9,
+    "source": "structural-freq(1x):Subsolo-1"
+  },
+  "V291": {
+    "id": "V291",
+    "largura_cm": 30.0,
+    "confidence": 0.9,
+    "source": "structural-freq(1x):Subsolo-1"
+  },
+  "V292": {
+    "id": "V292",
+    "largura_cm": 20.0,
+    "confidence": 0.9,
+    "source": "structural-freq(1x):Subsolo-1"
+  },
+  "V293": {
+    "id": "V293",
+    "largura_cm": 30.0,
+    "confidence": 0.9,
+    "source": "structural-freq(1x):Subsolo-1"
+  },
+  "V294": {
+    "id": "V294",
+    "largura_cm": 20.0,
+    "confidence": 0.9,
+    "source": "structural-freq(1x):Subsolo-1"
+  },
+  "V295": {
+    "id": "V295",
+    "largura_cm": 25.0,
+    "confidence": 0.9,
+    "source": "structural-freq(1x):Subsolo-1"
+  },
+  "V296": {
+    "id": "V296",
+    "largura_cm": 30.0,
+    "confidence": 0.9,
+    "source": "structural-freq(1x):Subsolo-1"
+  },
+  "V297": {
+    "id": "V297",
+    "largura_cm": 25.0,
+    "confidence": 0.9,
+    "source": "structural-freq(1x):Subsolo-1"
+  },
+  "V298": {
+    "id": "V298",
+    "largura_cm": 20.0,
+    "confidence": 0.9,
+    "source": "structural-freq(1x):Subsolo-1"
+  },
+  "V299": {
+    "id": "V299",
+    "largura_cm": 20.0,
+    "confidence": 0.9,
+    "source": "structural-freq(1x):Subsolo-1"
+  },
+  "VN201": {
+    "id": "VN201",
+    "largura_cm": 20.0,
+    "confidence": 0.9,
+    "source": "structural-freq(1x):Subsolo-1"
+  },
+  "VN202": {
+    "id": "VN202",
+    "largura_cm": 20.0,
+    "confidence": 0.9,
+    "source": "structural-freq(1x):Subsolo-1"
+  },
+  "VN203": {
+    "id": "VN203",
+    "largura_cm": 20.0,
+    "confidence": 0.9,
+    "source": "structural-freq(1x):Subsolo-1"
+  },
+  "VN204": {
+    "id": "VN204",
+    "largura_cm": 25.0,
+    "confidence": 0.9,
+    "source": "structural-freq(1x):Subsolo-1"
+  },
+  "VN205": {
+    "id": "VN205",
+    "largura_cm": 25.0,
+    "confidence": 0.9,
+    "source": "structural-freq(1x):Subsolo-1"
+  },
+  "VN206": {
+    "id": "VN206",
+    "largura_cm": 30.0,
+    "confidence": 0.9,
+    "source": "structural-freq(1x):Subsolo-1"
+  },
+  "VN207": {
+    "id": "VN207",
+    "largura_cm": 25.0,
+    "confidence": 0.9,
+    "source": "structural-freq(1x):Subsolo-1"
+  },
+  "VN208": {
+    "id": "VN208",
+    "largura_cm": 25.0,
+    "confidence": 0.9,
+    "source": "structural-freq(1x):Subsolo-1"
+  }
+}

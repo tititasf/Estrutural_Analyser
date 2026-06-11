@@ -1,43 +1,71 @@
 {
   "number": "396",
   "name": "V396A_B",
-  "floor": "RES.DIAMOND - TÉRREO - PERIFERIA - TORRE 1 - S04A",
+  "floor": "Pavimento",
   "side": "B",
-  "total_width": 15.0,
-  "total_height": "50.0",
+  "total_width": 30.0,
+  "total_height": "120.0",
   "panels": [
     {
       "width": 120.0,
-      "height1": 50.0,
-      "height2": 50.0,
+      "height1": 120.0,
+      "height2": 120.0,
       "grade_h1": "0",
       "grade_h2": "0"
     },
     {
       "width": 120.0,
-      "height1": 50.0,
-      "height2": 50.0,
+      "height1": 120.0,
+      "height2": 120.0,
       "grade_h1": "0",
       "grade_h2": "0"
     },
     {
       "width": 120.0,
-      "height1": 50.0,
-      "height2": 50.0,
+      "height1": 120.0,
+      "height2": 120.0,
       "grade_h1": "0",
       "grade_h2": "0"
     },
     {
       "width": 120.0,
-      "height1": 50.0,
-      "height2": 50.0,
+      "height1": 120.0,
+      "height2": 120.0,
       "grade_h1": "0",
       "grade_h2": "0"
     },
     {
-      "width": 16.0,
-      "height1": 50.0,
-      "height2": 50.0,
+      "width": 120.0,
+      "height1": 120.0,
+      "height2": 120.0,
+      "grade_h1": "0",
+      "grade_h2": "0"
+    },
+    {
+      "width": 120.0,
+      "height1": 120.0,
+      "height2": 120.0,
+      "grade_h1": "0",
+      "grade_h2": "0"
+    },
+    {
+      "width": 120.0,
+      "height1": 120.0,
+      "height2": 120.0,
+      "grade_h1": "0",
+      "grade_h2": "0"
+    },
+    {
+      "width": 120.0,
+      "height1": 120.0,
+      "height2": 120.0,
+      "grade_h1": "0",
+      "grade_h2": "0"
+    },
+    {
+      "width": 11.5,
+      "height1": 120.0,
+      "height2": 120.0,
       "grade_h1": "0",
       "grade_h2": "0"
     }
@@ -79,5 +107,33 @@
     "length": 0.0
   },
   "sarrafo_left_id": 0,
-  "sarrafo_right_id": 0
+  "sarrafo_right_id": 0,
+  "_sa_meta": {
+    "tipo": "LV",
+    "analisado_em": "2026-05-28 09:17",
+    "campos_extraidos": [
+      "floor",
+      "name",
+      "number",
+      "panels",
+      "side",
+      "total_height",
+      "total_width"
+    ],
+    "campos_defaulted": [],
+    "na_fields": [
+      "altura",
+      "comprimento",
+      "coordenadas",
+      "grade_1",
+      "grade_2",
+      "largura",
+      "linhas_horizontais",
+      "linhas_verticais",
+      "numero",
+      "obstaculos",
+      "reaproveitamento_dados"
+    ],
+    "completude_pct": 100.0
+  }
 }
