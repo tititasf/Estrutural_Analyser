@@ -1,0 +1,101 @@
+[INFO] Carregando discovery de D:\Agente-cad-PYSIDE\DADOS-OBRAS...
+[INFO] Provider: NVIDIA NIM | Modelo: meta/llama-3.2-90b-vision-instruct
+
+============================================================
+  Obra: Obra_TREINO_18 | Pavimento: 1PV
+============================================================
+
+  [PL] STOG: ZAMBETA - LUXOR - 1PV - PL - R01 - 2°ETAPA_R2018_ASCII_ODA.dxf | Gerado: PL_gerado.dxf
+    Análise estrutural...
+    Entidades STOG=4607 Gerado=306 struct_ratio=0.08 score_est=5
+    Layers faltando: ['0', 'BARRA ANCORAGEM', 'CHAPA', 'CONCRETO', 'COTA']
+    Renderizando STOG... 122KB
+    Renderizando Gerado... 23KB
+    SBS salvo: PL_sbs.png (184KB)
+    Análise visual completa:
+    Full image: 184KB → API... score=95
+    Gerando 3×3 tiles e analisando...
+    Tile (0,0): 21KB → API... score=100
+    Tile (0,1): 44KB → API... score=100
+    Tile (0,2): 31KB → API... score=90
+    Tile (1,0): 13KB → API... score=100
+    Tile (1,1): 17KB → API... score=100
+    Tile (1,2): 14KB → API... score=100
+    Tile (2,0): 10KB → API... score=95
+    Tile (2,1): 13KB → API... score=100
+    Tile (2,2): 10KB → API... score=100
+    ✅ Score final [PL]: 86.9/100 (est=5 + vis=96.0)
+
+  [LV] STOG: ZAMBETA - LUXOR - 1PV - LV - R00 - 2°ETAPA_R2018_ASCII_ODA.dxf | Gerado: LV_gerado.dxf
+    Análise estrutural...
+    Entidades STOG=3519 Gerado=1502 struct_ratio=0.47 score_est=20
+    Layers faltando: ['0', '5', 'BARRA DE ANCORAGEM', 'CONCRETO', 'Demarcação 1']
+    Renderizando STOG... 95KB
+    Renderizando Gerado... 18KB
+    SBS salvo: LV_sbs.png (154KB)
+    Análise visual completa:
+    Full image: 154KB → API... score=40
+    Gerando 3×3 tiles e analisando...
+    Tile (0,0): 16KB → API... score=100
+    Tile (0,1): 29KB → API... score=0
+    Tile (0,2): 22KB → API... score=0
+    Tile (1,0): 11KB → API... score=0
+    Tile (1,1): 10KB → API... score=100
+    Tile (1,2): 8KB → API... score=100
+    Tile (2,0): 12KB → API... score=0
+    Tile (2,1): 8KB → API... score=100
+    Tile (2,2): 7KB → API... score=100
+    ❌ Score final [LV]: 46.5/100 (est=20 + vis=49.4)
+
+  [FV] STOG: ZAMBETA - LUXOR - 1PV - FV - R00 - 2°ETAPA_R2018_ASCII_ODA.dxf | Gerado: FV_gerado.dxf
+    Análise estrutural...
+    Entidades STOG=1350 Gerado=1502 struct_ratio=1.22 score_est=60
+    Layers faltando: ['0', '5', 'BARRA DE ANCORAGEM', 'CONCRETO', 'Demarcação 1']
+    Renderizando STOG... 52KB
+    Renderizando Gerado... 18KB
+    SBS salvo: FV_sbs.png (83KB)
+    Análise visual completa:
+    Full image: 83KB → API... score=100
+    Gerando 3×3 tiles e analisando...
+    Tile (0,0): 6KB → API... score=100
+    Tile (0,1): 14KB → API... score=100
+    Tile (0,2): 11KB → API... score=85
+    Tile (1,0): 12KB → API... score=None
+    Tile (1,1): 12KB → API... score=90
+    Tile (1,2): 4KB → API... score=0
+    Tile (2,0): 11KB → API... score=0
+    Tile (2,1): 3KB → API... score=0
+    Tile (2,2): 3KB → API... score=0
+    ✅ Score final [FV]: 94.3/100 (est=60 + vis=98.1)
+
+  [LJ] STOG: ZAMBETA - LUXOR - 1PV - LJ - R00 - 2°ETAPA_R2018_ASCII_ODA.dxf | Gerado: LJ_gerado.dxf
+    Análise estrutural...
+    Entidades STOG=3117 Gerado=48 struct_ratio=0.02 score_est=5
+    Layers faltando: ['0', 'COTA', 'Cota Seção (2x)', 'Hachura', 'MTH-230']
+    Renderizando STOG... 74KB
+    Renderizando Gerado... 28KB
+    SBS salvo: LJ_sbs.png (208KB)
+    Análise visual completa:
+    Full image: 208KB → API... score=80
+    Gerando 3×3 tiles e analisando...
+    Tile (0,0): 7KB → API... score=85
+    Tile (0,1): 11KB → API... score=None
+    Tile (0,2): 14KB → API... score=100
+    Tile (1,0): 14KB → API... score=95
+    Tile (1,1): 17KB → API... score=100
+    Tile (1,2): 13KB → API... score=0
+    Tile (2,0): 7KB → API... score=20
+    Tile (2,1): 8KB → API... score=100
+    Tile (2,2): 13KB → API... score=100
+    ⚠️ Score final [LJ]: 71.2/100 (est=5 + vis=78.5)
+
+  ⚠️ SCORE PAVIMENTO [1PV]: 74.7/100
+  JSON: D:\Agente-cad-PYSIDE\validacao_visual\Obra_TREINO_18\1PV\validation_visual.json
+
+============================================================
+  RESUMO FINAL — Obra_TREINO_18
+============================================================
+  ⚠️ 1PV                            score=74.7  tipos=PL+LV+FV+LJ
+
+  Consolidado: D:\Agente-cad-PYSIDE\validacao_visual\consolidado_Obra_TREINO_18.json
+  Imagens em: D:\Agente-cad-PYSIDE\validacao_visual/

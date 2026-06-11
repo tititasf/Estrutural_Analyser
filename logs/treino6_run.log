@@ -1,0 +1,86 @@
+copy process ignored DIMASSOC(#78E33828) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#78E33842) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#78E3384F) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#78E3387A) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#78E3387D) - this may cause problems in AutoCAD
+[INFO] Carregando discovery de D:\Agente-cad-PYSIDE\DADOS-OBRAS...
+[INFO] Provider: NVIDIA NIM | Modelo: meta/llama-3.2-90b-vision-instruct
+
+============================================================
+  Obra: Obra_TREINO_6 | Pavimento: JFC - 12PV
+============================================================
+
+  [PL] STOG: NOVA-FYP-JFC-12PV-PL-R00_R2018_ASCII_ODA.dxf | Gerado: PL_gerado.dxf
+    Análise estrutural...
+    Entidades STOG=3662 Gerado=378 struct_ratio=0.12 score_est=5
+    Layers faltando: ['0', '3', 'BARRA ANCORAGEM', 'CONCRETO', 'COTA']
+    Renderizando STOG... 63KB
+    Renderizando Gerado... 20KB
+    SBS salvo: PL_sbs.png (116KB)
+    Análise visual completa:
+    Full image: 116KB → API... score=96.0
+    Gerando 3×3 tiles e analisando...
+    Tile (0,0): 13KB → API... score=80
+    Tile (0,1): 24KB → API... score=100
+    Tile (0,2): 12KB → API... score=100
+    Tile (1,0): 12KB → API... score=95
+    Tile (1,1): 12KB → API... score=100
+    Tile (1,2): 5KB → API... score=100
+    Tile (2,0): 4KB → API... score=100
+    Tile (2,1): 6KB → API... score=0
+    Tile (2,2): 3KB → API... score=100
+    ✅ Score final [PL]: 87.2/100 (est=5 + vis=96.3)
+
+  [LV] STOG: NOVA-FYP-JFC-12PV-LV-R00_R2018_ASCII_ODA.dxf | Gerado: LV_gerado.dxf
+    Análise estrutural...
+    Entidades STOG=4792 Gerado=1208 struct_ratio=0.28 score_est=5
+    Layers faltando: ['0', '5', 'BARRA DE ANCORAGEM', 'CONCRETO', 'Demarcação 1']
+    Renderizando STOG... 117KB
+    Renderizando Gerado... 12KB
+    SBS salvo: LV_sbs.png (169KB)
+    Análise visual completa:
+    Full image: 169KB → API... score=60.0
+    Gerando 3×3 tiles e analisando...
+    Tile (0,0): 21KB → API... score=100
+    Tile (0,1): 40KB → API... score=100
+    Tile (0,2): 24KB → API... score=0
+    Tile (1,0): 10KB → API... score=100
+    Tile (1,1): 14KB → API... score=100
+    Tile (1,2): 11KB → API... score=100
+    Tile (2,0): 13KB → API... score=0
+    Tile (2,1): 11KB → API... score=100
+    Tile (2,2): 9KB → API... score=0
+    ❌ Score final [LV]: 58.6/100 (est=5 + vis=64.5)
+  [FV] Sem DXF STOG no discovery — skip
+
+  [LJ] STOG: NOVA-FYP-JFC-12PV-LJ-R00_R2018_ASCII_ODA.dxf | Gerado: LJ_gerado.dxf
+    Análise estrutural...
+    Entidades STOG=1366 Gerado=56 struct_ratio=0.04 score_est=5
+    Layers faltando: ['0', '00-FELIPE', '38', '40', '41']
+    Renderizando STOG... 83KB
+    Renderizando Gerado... 27KB
+    SBS salvo: LJ_sbs.png (140KB)
+    Análise visual completa:
+    Full image: 140KB → API... score=100
+    Gerando 3×3 tiles e analisando...
+    Tile (0,0): 6KB → API... score=100
+    Tile (0,1): 8KB → API... score=100
+    Tile (0,2): 4KB → API... score=100
+    Tile (1,0): 32KB → API... score=0
+    Tile (1,1): 21KB → API... score=100
+    Tile (1,2): 2KB → API... score=100
+    Tile (2,0): 15KB → API... score=100
+    Tile (2,1): 20KB → API... score=100
+    Tile (2,2): 3KB → API... score=100
+    ✅ Score final [LJ]: 87.5/100 (est=5 + vis=96.7)
+
+  ⚠️ SCORE PAVIMENTO [JFC - 12PV]: 77.8/100
+  JSON: D:\Agente-cad-PYSIDE\validacao_visual\Obra_TREINO_6\JFC_-_12PV\validation_visual.json
+
+============================================================
+  RESUMO FINAL — Obra_TREINO_6
+============================================================
+  ⚠️ JFC - 12PV                     score=77.8  tipos=PL+LV+LJ
+
+  Consolidado: D:\Agente-cad-PYSIDE\validacao_visual\consolidado_Obra_TREINO_6.json
+  Imagens em: D:\Agente-cad-PYSIDE\validacao_visual/

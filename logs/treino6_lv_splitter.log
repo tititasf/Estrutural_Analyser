@@ -1,0 +1,39 @@
+[INFO] Carregando discovery de D:\Agente-cad-PYSIDE\DADOS-OBRAS...
+[INFO] Provider: NVIDIA NIM | Modelo: meta/llama-3.2-90b-vision-instruct
+
+============================================================
+  Obra: Obra_TREINO_6 | Pavimento: JFC - 12PV
+============================================================
+
+  [LV] STOG: NOVA-FYP-JFC-12PV-LV-R00_R2018_ASCII_ODA.dxf | Gerado: LV_gerado.dxf
+    Análise estrutural...
+    Entidades STOG=4792 Gerado=1208 struct_ratio=0.28 score_est=5
+    Layers faltando: ['0', '5', 'BARRA DE ANCORAGEM', 'CONCRETO', 'Demarcação 1']
+    Prancha format detectado: 50 frames — usando splitter
+    Renderizando STOG... 26KB  [prancha-strip]
+    Renderizando Gerado... 12KB
+    SBS salvo: LV_sbs.png (83KB)
+    Análise visual completa:
+    Full image: 83KB → API... score=?
+    Gerando 3×3 tiles e analisando...
+    Tile (0,0): 6KB → API... score=100
+    Tile (0,1): 6KB → API... score=100
+    Tile (0,2): 8KB → API... score=0
+    Tile (1,0): 4KB → API... score=0
+    Tile (1,1): 5KB → API... score=0
+    Tile (1,2): 4KB → API... score=100
+    Tile (2,0): 8KB → API... score=100
+    Tile (2,1): 3KB → API... score=100
+    Tile (2,2): 3KB → API... score=100
+    ⚠️ Score final [LV]: 77.6/100 (est=5 + vis=85.7)
+
+  ⚠️ SCORE PAVIMENTO [JFC - 12PV]: 77.6/100
+  JSON: D:\Agente-cad-PYSIDE\validacao_visual\Obra_TREINO_6\JFC_-_12PV\validation_visual.json
+
+============================================================
+  RESUMO FINAL — Obra_TREINO_6
+============================================================
+  ⚠️ JFC - 12PV                     score=84.1  tipos=PL+LV+LJ
+
+  Consolidado: D:\Agente-cad-PYSIDE\validacao_visual\consolidado_Obra_TREINO_6.json
+  Imagens em: D:\Agente-cad-PYSIDE\validacao_visual/

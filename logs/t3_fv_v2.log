@@ -1,0 +1,38 @@
+[INFO] Carregando discovery de D:\Agente-cad-PYSIDE\DADOS-OBRAS...
+[INFO] Provider: NVIDIA NIM | Modelo: meta/llama-3.2-90b-vision-instruct
+
+============================================================
+  Obra: Obra_TREINO_3 | Pavimento: TORRE A - TIPO 2 AO 13PAV
+============================================================
+
+  [FV] STOG: NOVA - CAPREM - RES.DIAMOND - TORRE A - TIPO 2° AO 13° PAV.- FV - PROJEÇÃO - R00_R2018_ASCII_ODA.dxf | Gerado: FV_gerado.dxf
+    Análise estrutural...
+    Entidades STOG=1857 Gerado=2936 struct_ratio=1.70 score_est=20
+    Layers faltando: ['0', '5', 'BARRA DE ANCORAGEM', 'CONCRETO', 'Defpoints']
+    Renderizando STOG... 103KB
+    Renderizando Gerado... 45KB
+    SBS salvo: FV_sbs.png (169KB)
+    Análise visual completa:
+    Full image: 169KB → API... score=10.0
+    Gerando 3×3 tiles e analisando...
+    Tile (0,0): 11KB → API... score=0
+    Tile (0,1): 23KB → API... score=None
+    Tile (0,2): 12KB → API... score=0
+    Tile (1,0): 15KB → API... score=60
+    Tile (1,1): 31KB → API... score=0
+    Tile (1,2): 22KB → API... score=100
+    Tile (2,0): 21KB → API... score=100.0
+    Tile (2,1): 15KB → API... score=100
+    Tile (2,2): 8KB → API... score=100
+    ❌ Score final [FV]: 23.8/100 (est=20 + vis=24.2)
+
+  ❌ SCORE PAVIMENTO [TORRE A - TIPO 2 AO 13PAV]: 23.8/100
+  JSON: D:\Agente-cad-PYSIDE\validacao_visual\Obra_TREINO_3\TORRE_A_-_TIPO_2_AO_13PAV\validation_visual.json
+
+============================================================
+  RESUMO FINAL — Obra_TREINO_3
+============================================================
+  ❌ TORRE A - TIPO 2 AO 13PAV      score=66.4  tipos=PL+LV+FV+LJ
+
+  Consolidado: D:\Agente-cad-PYSIDE\validacao_visual\consolidado_Obra_TREINO_3.json
+  Imagens em: D:\Agente-cad-PYSIDE\validacao_visual/

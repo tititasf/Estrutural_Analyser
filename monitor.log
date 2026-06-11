@@ -1,0 +1,167 @@
+[2026-05-23 11:36:30] === CAD Pipeline Monitor STARTED ===
+[2026-05-23 11:36:30] Interval: 600s (10 min) | Target: 92 pavimentos
+[2026-05-23 11:36:30] Monitor log: D:\Agente-cad-PYSIDE\monitor.log
+[2026-05-23 11:36:30] 
+[2026-05-23 11:36:30] === CHECK #1 ===
+[2026-05-23 11:36:30]   Processes: batch=ALIVE, prerender=ALIVE
+[2026-05-23 11:36:30]   Batch log size: 25237 bytes (+0 since last check)
+[2026-05-23 11:36:30]   Progress: 18/92 pavimentos DONE
+[2026-05-23 11:36:30]   'PIPELINE CONCLU' markers in log: 5
+[2026-05-23 11:36:30]   ETA estimate: ~740 min remaining (~12h 20m)
+[2026-05-23 11:36:30] 
+[2026-05-23 11:46:30] === CHECK #2 ===
+[2026-05-23 11:46:31]   Processes: batch=ALIVE, prerender=ALIVE
+[2026-05-23 11:46:31]   Batch log size: 29749 bytes (+4512 since last check)
+[2026-05-23 11:46:31]   Progress: 18/92 pavimentos DONE
+[2026-05-23 11:46:31]   'PIPELINE CONCLU' markers in log: 7
+[2026-05-23 11:46:31]   ETA estimate: ~740 min remaining (~12h 20m)
+[2026-05-23 11:46:31] 
+[2026-05-23 11:56:31] === CHECK #3 ===
+[2026-05-23 11:56:31]   Processes: batch=ALIVE, prerender=ALIVE
+[2026-05-23 11:56:31]   Batch log size: 33638 bytes (+3889 since last check)
+[2026-05-23 11:56:31]   Progress: 18/92 pavimentos DONE
+[2026-05-23 11:56:31]   'PIPELINE CONCLU' markers in log: 8
+[2026-05-23 11:56:31]   ETA estimate: ~740 min remaining (~12h 20m)
+[2026-05-23 11:56:31] 
+[2026-05-23 12:06:31] === CHECK #4 ===
+[2026-05-23 12:06:31]   Processes: batch=ALIVE, prerender=ALIVE
+[2026-05-23 12:06:31]   Batch log size: 33638 bytes (+0 since last check)
+[2026-05-23 12:06:31]   Progress: 18/92 pavimentos DONE
+[2026-05-23 12:06:31]   'PIPELINE CONCLU' markers in log: 8
+[2026-05-23 12:06:31]   WARN: Batch alive but log not growing -- may be stalled (monitoring)
+[2026-05-23 12:06:31]   ETA estimate: ~740 min remaining (~12h 20m)
+[2026-05-23 12:06:31] 
+[2026-05-23 12:16:31] === CHECK #5 ===
+Exception in thread Thread-17 (_readerthread):
+Traceback (most recent call last):
+  File "C:\Python314\Lib\threading.py", line 1082, in _bootstrap_inner
+    self._context.run(self.run)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "C:\Python314\Lib\threading.py", line 1024, in run
+    self._target(*self._args, **self._kwargs)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python314\Lib\subprocess.py", line 1613, in _readerthread
+    buffer.append(fh.read())
+                  ~~~~~~~^^
+  File "C:\Python314\Lib\encodings\cp1252.py", line 23, in decode
+    return codecs.charmap_decode(input,self.errors,decoding_table)[0]
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'charmap' codec can't decode byte 0x90 in position 895: character maps to <undefined>
+[2026-05-23 12:16:31]   WARN: wmic check error: argument of type 'NoneType' is not a container or iterable
+Exception in thread Thread-19 (_readerthread):
+Traceback (most recent call last):
+  File "C:\Python314\Lib\threading.py", line 1082, in _bootstrap_inner
+    self._context.run(self.run)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "C:\Python314\Lib\threading.py", line 1024, in run
+    self._target(*self._args, **self._kwargs)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python314\Lib\subprocess.py", line 1613, in _readerthread
+    buffer.append(fh.read())
+                  ~~~~~~~^^
+  File "C:\Python314\Lib\encodings\cp1252.py", line 23, in decode
+    return codecs.charmap_decode(input,self.errors,decoding_table)[0]
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'charmap' codec can't decode byte 0x90 in position 895: character maps to <undefined>
+[2026-05-23 12:16:31]   Processes: batch=ALIVE, prerender=ALIVE
+[2026-05-23 12:16:31]   Batch log size: 43881 bytes (+10243 since last check)
+[2026-05-23 12:16:31]   Progress: 18/92 pavimentos DONE
+[2026-05-23 12:16:31]   'PIPELINE CONCLU' markers in log: 10
+[2026-05-23 12:16:31]   ETA estimate: ~740 min remaining (~12h 20m)
+[2026-05-23 12:16:31] 
+[2026-05-23 12:26:31] === CHECK #6 ===
+[2026-05-23 12:26:32]   Processes: batch=ALIVE, prerender=ALIVE
+[2026-05-23 12:26:32]   Batch log size: 60325 bytes (+16444 since last check)
+[2026-05-23 12:26:32]   Progress: 18/92 pavimentos DONE
+[2026-05-23 12:26:32]   'PIPELINE CONCLU' markers in log: 13
+[2026-05-23 12:26:32]   ETA estimate: ~740 min remaining (~12h 20m)
+[2026-05-23 12:26:32] 
+[2026-05-23 12:36:32] === CHECK #7 ===
+[2026-05-23 12:36:32]   Processes: batch=ALIVE, prerender=ALIVE
+[2026-05-23 12:36:32]   Batch log size: 83771 bytes (+23446 since last check)
+[2026-05-23 12:36:32]   Progress: 18/92 pavimentos DONE
+[2026-05-23 12:36:32]   'PIPELINE CONCLU' markers in log: 18
+[2026-05-23 12:36:32]   ETA estimate: ~740 min remaining (~12h 20m)
+[2026-05-23 12:36:32] 
+[2026-05-23 12:46:32] === CHECK #8 ===
+[2026-05-23 12:46:32]   Processes: batch=ALIVE, prerender=ALIVE
+[2026-05-23 12:46:32]   Batch log size: 87808 bytes (+4037 since last check)
+[2026-05-23 12:46:32]   Progress: 18/92 pavimentos DONE
+[2026-05-23 12:46:32]   'PIPELINE CONCLU' markers in log: 19
+[2026-05-23 12:46:32]   ETA estimate: ~740 min remaining (~12h 20m)
+[2026-05-23 12:46:32] 
+[2026-05-23 12:56:32] === CHECK #9 ===
+[2026-05-23 12:56:32]   Processes: batch=ALIVE, prerender=ALIVE
+[2026-05-23 12:56:32]   Batch log size: 87808 bytes (+0 since last check)
+[2026-05-23 12:56:32]   Progress: 18/92 pavimentos DONE
+[2026-05-23 12:56:32]   'PIPELINE CONCLU' markers in log: 19
+[2026-05-23 12:56:32]   WARN: Batch alive but log not growing -- may be stalled (monitoring)
+[2026-05-23 12:56:32]   ETA estimate: ~740 min remaining (~12h 20m)
+[2026-05-23 12:56:32] 
+[2026-05-23 13:06:32] === CHECK #10 ===
+[2026-05-23 13:06:32]   Processes: batch=ALIVE, prerender=ALIVE
+[2026-05-23 13:06:32]   Batch log size: 91910 bytes (+4102 since last check)
+[2026-05-23 13:06:32]   Progress: 18/92 pavimentos DONE
+[2026-05-23 13:06:32]   'PIPELINE CONCLU' markers in log: 20
+[2026-05-23 13:06:32]   ETA estimate: ~740 min remaining (~12h 20m)
+[2026-05-23 13:06:32] 
+[2026-05-23 13:16:32] === CHECK #11 ===
+[2026-05-23 13:16:33]   Processes: batch=ALIVE, prerender=ALIVE
+[2026-05-23 13:16:33]   Batch log size: 96012 bytes (+4102 since last check)
+[2026-05-23 13:16:33]   Progress: 18/92 pavimentos DONE
+[2026-05-23 13:16:33]   'PIPELINE CONCLU' markers in log: 21
+[2026-05-23 13:16:33]   ETA estimate: ~740 min remaining (~12h 20m)
+[2026-05-23 13:16:33] 
+[2026-05-23 13:26:33] === CHECK #12 ===
+[2026-05-23 13:26:33]   Processes: batch=ALIVE, prerender=ALIVE
+[2026-05-23 13:26:33]   Batch log size: 96012 bytes (+0 since last check)
+[2026-05-23 13:26:33]   Progress: 18/92 pavimentos DONE
+[2026-05-23 13:26:33]   'PIPELINE CONCLU' markers in log: 21
+[2026-05-23 13:26:33]   WARN: Batch alive but log not growing -- may be stalled (monitoring)
+[2026-05-23 13:26:33]   ETA estimate: ~740 min remaining (~12h 20m)
+[2026-05-23 13:26:33] 
+[2026-05-23 13:36:33] === CHECK #13 ===
+[2026-05-23 13:36:33]   Processes: batch=ALIVE, prerender=ALIVE
+[2026-05-23 13:36:33]   Batch log size: 100049 bytes (+4037 since last check)
+[2026-05-23 13:36:33]   Progress: 18/92 pavimentos DONE
+[2026-05-23 13:36:33]   'PIPELINE CONCLU' markers in log: 22
+[2026-05-23 13:36:33]   ETA estimate: ~740 min remaining (~12h 20m)
+[2026-05-23 13:36:33] 
+[2026-05-23 13:46:33] === CHECK #14 ===
+[2026-05-23 13:46:33]   Processes: batch=ALIVE, prerender=ALIVE
+[2026-05-23 13:46:33]   Batch log size: 119197 bytes (+19148 since last check)
+[2026-05-23 13:46:33]   Progress: 18/92 pavimentos DONE
+[2026-05-23 13:46:33]   'PIPELINE CONCLU' markers in log: 23
+[2026-05-23 13:46:33]   ETA estimate: ~740 min remaining (~12h 20m)
+[2026-05-23 13:46:33] 
+[2026-05-23 13:56:33] === CHECK #15 ===
+[2026-05-23 13:56:33]   Processes: batch=ALIVE, prerender=ALIVE
+[2026-05-23 13:56:33]   Batch log size: 159913 bytes (+40716 since last check)
+[2026-05-23 13:56:33]   Progress: 18/92 pavimentos DONE
+[2026-05-23 13:56:33]   'PIPELINE CONCLU' markers in log: 24
+[2026-05-23 13:56:33]   ETA estimate: ~740 min remaining (~12h 20m)
+[2026-05-23 13:56:33] 
+[2026-05-23 14:06:33] === CHECK #16 ===
+[2026-05-23 14:06:34]   Processes: batch=ALIVE, prerender=ALIVE
+[2026-05-23 14:06:34]   Batch log size: 163905 bytes (+3992 since last check)
+[2026-05-23 14:06:34]   Progress: 18/92 pavimentos DONE
+[2026-05-23 14:06:34]   'PIPELINE CONCLU' markers in log: 25
+[2026-05-23 14:06:34]   ETA estimate: ~740 min remaining (~12h 20m)
+[2026-05-23 14:06:34] 
+[2026-05-23 14:16:34] === CHECK #17 ===
+[2026-05-23 14:16:34]   Processes: batch=ALIVE, prerender=ALIVE
+[2026-05-23 14:16:34]   Batch log size: 189829 bytes (+25924 since last check)
+[2026-05-23 14:16:34]   Progress: 18/92 pavimentos DONE
+[2026-05-23 14:16:34]   'PIPELINE CONCLU' markers in log: 26
+[2026-05-23 14:16:34]   ETA estimate: ~740 min remaining (~12h 20m)
+[2026-05-23 14:16:34] 
+[2026-05-23 14:26:34] === CHECK #18 ===
+[2026-05-23 14:26:34]   Processes: batch=ALIVE, prerender=ALIVE
+[2026-05-23 14:26:34]   Batch log size: 210045 bytes (+20216 since last check)
+[2026-05-23 14:26:34]   Progress: 18/92 pavimentos DONE
+[2026-05-23 14:26:34]   'PIPELINE CONCLU' markers in log: 26
+[2026-05-23 14:26:34]   ETA estimate: ~740 min remaining (~12h 20m)
+[2026-05-23 14:26:34] 
+
+[2026-05-23 14:26:34]   ETA estimate: ~740 min remaining (~12h 20m)
+[2026-05-23 14:26:34] 

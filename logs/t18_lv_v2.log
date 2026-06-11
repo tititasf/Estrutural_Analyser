@@ -1,0 +1,39 @@
+[INFO] Carregando discovery de D:\Agente-cad-PYSIDE\DADOS-OBRAS...
+[INFO] Provider: NVIDIA NIM | Modelo: meta/llama-3.2-90b-vision-instruct
+
+============================================================
+  Obra: Obra_TREINO_18 | Pavimento: 1PV
+============================================================
+
+  [LV] STOG: ZAMBETA - LUXOR - 1PV - LV - R00 - 2°ETAPA_R2018_ASCII_ODA.dxf | Gerado: LV_gerado.dxf
+    Análise estrutural...
+    Entidades STOG=3519 Gerado=1502 struct_ratio=0.47 score_est=20
+    Layers faltando: ['0', '5', 'BARRA DE ANCORAGEM', 'CONCRETO', 'Demarcação 1']
+    Prancha format detectado: 9 frames — usando splitter
+    Renderizando STOG... 11KB  [prancha-strip]
+    Renderizando Gerado... 18KB
+    SBS salvo: LV_sbs.png (73KB)
+    Análise visual completa:
+    Full image: 73KB → API... score=94
+    Gerando 3×3 tiles e analisando...
+    Tile (0,0): 4KB → API... score=100
+    Tile (0,1): 6KB → API... score=0
+    Tile (0,2): 3KB → API... score=100
+    Tile (1,0): 5KB → API... score=100
+    Tile (1,1): 2KB → API... score=100
+    Tile (1,2): 1KB → API... score=20
+    Tile (2,0): 7KB → API... score=0
+    Tile (2,1): 1KB → API... score=100
+    Tile (2,2): 1KB → API... score=None
+    ⚠️ Score final [LV]: 81.3/100 (est=20 + vis=88.1)
+
+  ⚠️ SCORE PAVIMENTO [1PV]: 81.3/100
+  JSON: D:\Agente-cad-PYSIDE\validacao_visual\Obra_TREINO_18\1PV\validation_visual.json
+
+============================================================
+  RESUMO FINAL — Obra_TREINO_18
+============================================================
+  ⚠️ 1PV                            score=83.4  tipos=PL+LV+FV+LJ
+
+  Consolidado: D:\Agente-cad-PYSIDE\validacao_visual\consolidado_Obra_TREINO_18.json
+  Imagens em: D:\Agente-cad-PYSIDE\validacao_visual/

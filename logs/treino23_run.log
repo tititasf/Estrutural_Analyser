@@ -1,0 +1,101 @@
+[INFO] Carregando discovery de D:\Agente-cad-PYSIDE\DADOS-OBRAS...
+[INFO] Provider: NVIDIA NIM | Modelo: meta/llama-3.2-90b-vision-instruct
+
+============================================================
+  Obra: Obra_TREINO_23 | Pavimento: SANTA CRUZ - 1PV
+============================================================
+
+  [PL] STOG: NOVA-UNITÁ-SANTA CRUZ-1PV-PL-R00_R2018_ASCII_ODA.dxf | Gerado: PL_gerado.dxf
+    Análise estrutural...
+    Entidades STOG=1763 Gerado=360 struct_ratio=0.24 score_est=5
+    Layers faltando: ['0', '1-2 PONTALETE', 'BARRA ANCORAGEM', 'CONCRETO', 'COTA']
+    Renderizando STOG... 41KB
+    Renderizando Gerado... 22KB
+    SBS salvo: PL_sbs.png (121KB)
+    Análise visual completa:
+    Full image: 121KB → API... score=80
+    Gerando 3×3 tiles e analisando...
+    Tile (0,0): 9KB → API... score=100
+    Tile (0,1): 18KB → API... score=80
+    Tile (0,2): 5KB → API... score=100
+    Tile (1,0): 8KB → API... score=100
+    Tile (1,1): 11KB → API... score=100
+    Tile (1,2): 4KB → API... score=100
+    Tile (2,0): 6KB → API... score=0.0
+    Tile (2,1): 8KB → API... score=100
+    Tile (2,2): 2KB → API... score=0
+    ⚠️ Score final [PL]: 73.9/100 (est=5 + vis=81.5)
+
+  [LV] STOG: NOVA-UNITÁ-SANTA CRUZ-1PV-LV-R00_R2018_ASCII_ODA.dxf | Gerado: LV_gerado.dxf
+    Análise estrutural...
+    Entidades STOG=2050 Gerado=552 struct_ratio=0.31 score_est=20
+    Layers faltando: ['0', '5', 'BARRA DE ANCORAGEM', 'CONCRETO', 'Demarcação 1']
+    Renderizando STOG... 95KB
+    Renderizando Gerado... 5KB
+    SBS salvo: LV_sbs.png (129KB)
+    Análise visual completa:
+    Full image: 129KB → API... score=80
+    Gerando 3×3 tiles e analisando...
+    Tile (0,0): 12KB → API... score=0
+    Tile (0,1): 22KB → API... score=None
+    Tile (0,2): 19KB → API... score=0
+    Tile (1,0): 12KB → API... score=0
+    Tile (1,1): 17KB → API... score=85
+    Tile (1,2): 13KB → API... score=100
+    Tile (2,0): 11KB → API... score=100
+    Tile (2,1): 14KB → API... score=100
+    Tile (2,2): 11KB → API... score=0
+    ⚠️ Score final [LV]: 73.2/100 (est=20 + vis=79.1)
+
+  [FV] STOG: NOVA-UNITÁ-SANTA CRUZ-1PV-FV-R00_R2018_ASCII_ODA.dxf | Gerado: FV_gerado.dxf
+    Análise estrutural...
+    Entidades STOG=1312 Gerado=552 struct_ratio=0.47 score_est=20
+    Layers faltando: ['0', '5', 'BARRA DE ANCORAGEM', 'CONCRETO', 'Demarcação 1']
+    Renderizando STOG... 30KB
+    Renderizando Gerado... 5KB
+    SBS salvo: FV_sbs.png (96KB)
+    Análise visual completa:
+    Full image: 96KB → API... score=100
+    Gerando 3×3 tiles e analisando...
+    Tile (0,0): 6KB → API... score=100
+    Tile (0,1): 8KB → API... score=100
+    Tile (0,2): 3KB → API... score=0
+    Tile (1,0): 2KB → API... score=None
+    Tile (1,1): 8KB → API... score=100
+    Tile (1,2): 2KB → API... score=100
+    Tile (2,0): 2KB → API... score=None
+    Tile (2,1): 6KB → API... score=100.0
+    Tile (2,2): 2KB → API... score=None
+    ✅ Score final [FV]: 92.0/100 (est=20 + vis=100.0)
+
+  [LJ] STOG: NOVA-UNITÁ-SANTA CRUZ-1PV-LJ-R00_R2018_ASCII_ODA.dxf | Gerado: LJ_gerado.dxf
+    Análise estrutural...
+    Entidades STOG=968 Gerado=108 struct_ratio=0.12 score_est=5
+    Layers faltando: ['0', '241', 'CONCRETO', 'COTA', 'H2']
+    Renderizando STOG... 83KB
+    Renderizando Gerado... 28KB
+    SBS salvo: LJ_sbs.png (142KB)
+    Análise visual completa:
+    Full image: 142KB → API... score=80.0
+    Gerando 3×3 tiles e analisando...
+    Tile (0,0): 3KB → API... score=100
+    Tile (0,1): 10KB → API... score=100
+    Tile (0,2): 4KB → API... score=100
+    Tile (1,0): 8KB → API... score=100
+    Tile (1,1): 53KB → API... score=95
+    Tile (1,2): 8KB → API... score=100
+    Tile (2,0): 4KB → API... score=100
+    Tile (2,1): 8KB → API... score=0
+    Tile (2,2): 13KB → API... score=100
+    ⚠️ Score final [LJ]: 74.8/100 (est=5 + vis=82.5)
+
+  ⚠️ SCORE PAVIMENTO [SANTA CRUZ - 1PV]: 78.5/100
+  JSON: D:\Agente-cad-PYSIDE\validacao_visual\Obra_TREINO_23\SANTA_CRUZ_-_1PV\validation_visual.json
+
+============================================================
+  RESUMO FINAL — Obra_TREINO_23
+============================================================
+  ⚠️ SANTA CRUZ - 1PV               score=78.5  tipos=PL+LV+FV+LJ
+
+  Consolidado: D:\Agente-cad-PYSIDE\validacao_visual\consolidado_Obra_TREINO_23.json
+  Imagens em: D:\Agente-cad-PYSIDE\validacao_visual/

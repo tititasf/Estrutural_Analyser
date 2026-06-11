@@ -1,0 +1,111 @@
+
+=== COMPARADOR DXF vs. GROUND TRUTH (tol=5.0%) ===
+
+--- PILARES ---
+  Match rate: 93.3% (111/119)
+  Erro médio: 4.1%
+  DIFF P118: ref B=0.0 H=19.0 | gen B=19.0 H=30.0 | err=78.9%
+  DIFF P360: ref B=0.0 H=25.0 | gen B=25.0 H=30.0 | err=60.0%
+  DIFF P49: ref B=0.0 H=82.0 | gen B=30.0 H=82.0 | err=50.0%
+  DIFF P58: ref B=0.0 H=40.0 | gen B=30.0 H=40.0 | err=50.0%
+  DIFF P61: ref B=0.0 H=20.0 | gen B=20.0 H=30.0 | err=75.0%
+  DIFF P81: ref B=0.0 H=51.0 | gen B=30.0 H=51.0 | err=50.0%
+  DIFF P92: ref B=0.0 H=20.0 | gen B=20.0 H=30.0 | err=75.0%
+  DIFF P93: ref B=0.0 H=56.0 | gen B=30.0 H=56.0 | err=50.0%
+
+--- VIGAS ---
+  Match rate: 100.0% (71/71)
+  Erro médio: 0.0%
+
+--- LAJES ---
+  Match rate: 100.0% (65/65)
+  Erro médio: 0.0%
+
+=== SCORE GERAL: 97.8% (PASS | meta: 75.0%) ===
+  Pilares: 93.3% | Vigas: 100.0% | Lajes: 100.0%
+
+  Relatorio: D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_8\Fase-5_Geracao_Scripts\_relatorio_comparacao.json
+[INFO] === validar_dxf_coletivo.py | Obra_TREINO_8 | IONEJI - T1 - 1PAV ===
+
+  [PILARES]
+    GT: 119 | Gerado: 119 | Corretos: 119
+    id_match: 100.0% | hallucination: 0.0%
+    SCORE: 100.0% — APROVADO
+
+  [VIGAS]
+    GT: 71 | Gerado: 71 | Corretos: 71
+    id_match: 100.0% | hallucination: 0.0%
+    SCORE: 100.0% — APROVADO
+
+  [LAJES]
+    GT: 65 | Gerado: 65 | Corretos: 65
+    id_match: 100.0% | hallucination: 0.0%
+    SCORE: 100.0% — APROVADO
+
+[RESULTADO GLOBAL]
+  Score global: 100.0%
+  Status: APROVADO (>=90%)
+
+[INFO] Salvo: D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_8\Fase-6_Execucao_CAD\validation_coletivo.json
+[INFO] Carregando discovery de D:\Agente-cad-PYSIDE\DADOS-OBRAS...
+[INFO] Provider: NVIDIA NIM | Modelo: meta/llama-3.2-90b-vision-instruct
+
+============================================================
+  Obra: Obra_TREINO_8 | Pavimento: IONEJI - T1 - 1PAV
+============================================================
+
+============================================================
+  RESUMO FINAL â€” Obra_TREINO_8
+============================================================
+  âš ï¸ IONEJI - T1 - 1PAV             score=74.3  tipos=PL+LV+FV+LJ
+
+  Consolidado: D:\Agente-cad-PYSIDE\validacao_visual\consolidado_Obra_TREINO_8.json
+  Imagens em: D:\Agente-cad-PYSIDE\validacao_visual/
+
+============================================================
+PIPELINE E2E — Obra_TREINO_8 | IONEJI - T1 - 1PAV
+============================================================
+
+[FASE 1] Descoberta de DXFs
+  [SKIP] dxf_discovery.json ja existe e contem Obra_TREINO_8
+
+[FASE 2] Engenharia Reversa (Ground Truth)
+  [SKIP] ground truth já existe
+
+[FASE 3] Extração Dimensional
+  [SKIP] dados dimensionais ja existem
+
+[FASE 4] Motor Fase 4 (Transformacao Fase-3 -> Fase-4)
+  [SKIP] Fase-4 já processada
+
+[FASE 5] Geração DXF Individual
+  [SKIP] DXF_Pilares/ já existe
+
+[FASE 5b] Comparação DXF Individual vs STOG
+  [RUN] comparar_dxf.py ...
+        -> OK (7.0s)
+
+[FASE 6] Extração de Âncoras (coords absolutas)
+  [SKIP] âncoras já existem
+
+[FASE 7] Consolidação DXF Coletivo
+  [SKIP] DXFs coletivos já existem
+
+[FASE 8] Validação DXF Coletivo
+  [RUN] validar_dxf_coletivo.py ...
+        -> OK (1.9s)
+
+[FASE 9] Geração obras_salvas.json (formato robô)
+  [SKIP] obras_salvas.json já existe
+
+[FASE 10] Validação Visual Autônoma (NVIDIA NIM)
+  [RUN] validar_visual_dxf.py ...
+        -> OK (3895.3s)
+  [VIS] Score visual: 74.3/100
+
+============================================================
+PIPELINE CONCLUÍDO — PARCIAL
+  Score coletivo: 100.0%
+  Relatório: D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_8\Fase-8_Revisao_Entrega\pipeline_report.json
+============================================================
+

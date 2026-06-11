@@ -1,0 +1,107 @@
+
+=== COMPARADOR DXF vs. GROUND TRUTH (tol=5.0%) ===
+
+--- PILARES ---
+  Match rate: 80.0% (16/20)
+  Erro médio: 10.0%
+  DIFF P14: ref B=0.0 H=60.0 | gen B=30.0 H=60.0 | err=50.0%
+  DIFF P2: ref B=0.0 H=38.0 | gen B=30.0 H=38.0 | err=50.0%
+  DIFF P7: ref B=0.0 H=32.4 | gen B=30.0 H=32.4 | err=50.0%
+  DIFF P8: ref B=0.0 H=75.6 | gen B=30.0 H=75.6 | err=50.0%
+
+--- VIGAS ---
+  Match rate: 100.0% (40/40)
+  Erro médio: 0.0%
+
+--- LAJES ---
+  Match rate: 100.0% (17/17)
+  Erro médio: 0.0%
+
+=== SCORE GERAL: 93.3% (PASS | meta: 75.0%) ===
+  Pilares: 80.0% | Vigas: 100.0% | Lajes: 100.0%
+
+  Relatorio: D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_15\Fase-5_Geracao_Scripts\_relatorio_comparacao.json
+[INFO] === validar_dxf_coletivo.py | Obra_TREINO_15 | IPEROIG - TIP ===
+
+  [PILARES]
+    GT: 20 | Gerado: 20 | Corretos: 20
+    id_match: 100.0% | hallucination: 0.0%
+    SCORE: 100.0% — APROVADO
+
+  [VIGAS]
+    GT: 40 | Gerado: 40 | Corretos: 40
+    id_match: 100.0% | hallucination: 0.0%
+    SCORE: 100.0% — APROVADO
+
+  [LAJES]
+    GT: 17 | Gerado: 17 | Corretos: 17
+    id_match: 100.0% | hallucination: 0.0%
+    SCORE: 100.0% — APROVADO
+
+[RESULTADO GLOBAL]
+  Score global: 100.0%
+  Status: APROVADO (>=90%)
+
+[INFO] Salvo: D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_15\Fase-6_Execucao_CAD\validation_coletivo.json
+[INFO] Carregando discovery de D:\Agente-cad-PYSIDE\DADOS-OBRAS...
+[INFO] Provider: NVIDIA NIM | Modelo: meta/llama-3.2-90b-vision-instruct
+
+============================================================
+  Obra: Obra_TREINO_15 | Pavimento: IPEROIG - TIP
+============================================================
+
+============================================================
+  RESUMO FINAL â€” Obra_TREINO_15
+============================================================
+  âŒ IPEROIG - TIP                  score=None  tipos=
+
+  Consolidado: D:\Agente-cad-PYSIDE\validacao_visual\consolidado_Obra_TREINO_15.json
+  Imagens em: D:\Agente-cad-PYSIDE\validacao_visual/
+
+============================================================
+PIPELINE E2E — Obra_TREINO_15 | IPEROIG - TIP
+============================================================
+
+[FASE 1] Descoberta de DXFs
+  [SKIP] dxf_discovery.json ja existe e contem Obra_TREINO_15
+
+[FASE 2] Engenharia Reversa (Ground Truth)
+  [SKIP] ground truth já existe
+
+[FASE 3] Extração Dimensional
+  [SKIP] dados dimensionais ja existem
+
+[FASE 4] Motor Fase 4 (Transformacao Fase-3 -> Fase-4)
+  [SKIP] Fase-4 já processada
+
+[FASE 5] Geração DXF Individual
+  [SKIP] DXF_Pilares/ já existe
+
+[FASE 5b] Comparação DXF Individual vs STOG
+  [RUN] comparar_dxf.py ...
+        -> OK (3.2s)
+
+[FASE 6] Extração de Âncoras (coords absolutas)
+  [SKIP] âncoras já existem
+
+[FASE 7] Consolidação DXF Coletivo
+  [SKIP] DXFs coletivos já existem
+
+[FASE 8] Validação DXF Coletivo
+  [RUN] validar_dxf_coletivo.py ...
+        -> OK (1.4s)
+
+[FASE 9] Geração obras_salvas.json (formato robô)
+  [SKIP] obras_salvas.json já existe
+
+[FASE 10] Validação Visual Autônoma (NVIDIA NIM)
+  [RUN] validar_visual_dxf.py ...
+        -> OK (3.7s)
+  [VIS] Score visual: None/100
+
+============================================================
+PIPELINE CONCLUÍDO — PARCIAL
+  Score coletivo: 100.0%
+  Relatório: D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_15\Fase-8_Revisao_Entrega\pipeline_report.json
+============================================================
+

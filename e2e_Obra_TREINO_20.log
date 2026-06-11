@@ -1,0 +1,95 @@
+
+=== COMPARADOR DXF vs. GROUND TRUTH (tol=5.0%) ===
+
+--- PILARES ---
+  Match rate: 100.0% (9/9)
+  Erro médio: 0.0%
+
+--- VIGAS ---
+  Match rate: 0.0% (0/0)
+  Erro médio: 0.0%
+
+--- LAJES ---
+  Match rate: 0.0% (0/0)
+  Erro médio: 0.0%
+
+=== SCORE GERAL: 100.0% (PASS | meta: 75.0%) ===
+  Pilares: 100.0% | Vigas: 0.0% | Lajes: 0.0%
+
+  Relatorio: D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_20\Fase-5_Geracao_Scripts\_relatorio_comparacao.json
+[INFO] === validar_dxf_coletivo.py | Obra_TREINO_20 | ITAQUERA III - 1PV ===
+
+  [PILARES]
+    GT: 9 | Gerado: 9 | Corretos: 9
+    id_match: 100.0% | hallucination: 0.0%
+    SCORE: 100.0% — APROVADO
+  [SKIP] vigas: DXF coletivo não encontrado (LV_gerado.dxf)
+  [SKIP] lajes: DXF coletivo não encontrado (LJ_gerado.dxf)
+
+[RESULTADO GLOBAL]
+  Score global: 100.0%
+  Status: APROVADO (>=90%)
+
+[INFO] Salvo: D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_20\Fase-6_Execucao_CAD\validation_coletivo.json
+[INFO] Carregando discovery de D:\Agente-cad-PYSIDE\DADOS-OBRAS...
+[INFO] Provider: NVIDIA NIM | Modelo: meta/llama-3.2-90b-vision-instruct
+
+============================================================
+  Obra: Obra_TREINO_20 | Pavimento: ITAQUERA III - 1PV
+============================================================
+
+============================================================
+  RESUMO FINAL â€” Obra_TREINO_20
+============================================================
+  âŒ ITAQUERA III - 1PV             score=69.5  tipos=PL
+
+  Consolidado: D:\Agente-cad-PYSIDE\validacao_visual\consolidado_Obra_TREINO_20.json
+  Imagens em: D:\Agente-cad-PYSIDE\validacao_visual/
+
+============================================================
+PIPELINE E2E — Obra_TREINO_20 | ITAQUERA III - 1PV
+============================================================
+
+[FASE 1] Descoberta de DXFs
+  [SKIP] dxf_discovery.json ja existe e contem Obra_TREINO_20
+
+[FASE 2] Engenharia Reversa (Ground Truth)
+  [SKIP] ground truth já existe
+
+[FASE 3] Extração Dimensional
+  [SKIP] dados dimensionais ja existem
+
+[FASE 4] Motor Fase 4 (Transformacao Fase-3 -> Fase-4)
+  [SKIP] Fase-4 já processada
+
+[FASE 5] Geração DXF Individual
+  [SKIP] DXF_Pilares/ já existe
+
+[FASE 5b] Comparação DXF Individual vs STOG
+  [RUN] comparar_dxf.py ...
+        -> OK (0.7s)
+
+[FASE 6] Extração de Âncoras (coords absolutas)
+  [SKIP] âncoras já existem
+
+[FASE 7] Consolidação DXF Coletivo
+  [SKIP] DXFs coletivos já existem
+
+[FASE 8] Validação DXF Coletivo
+  [RUN] validar_dxf_coletivo.py ...
+        -> OK (0.6s)
+
+[FASE 9] Geração obras_salvas.json (formato robô)
+  [SKIP] obras_salvas.json já existe
+
+[FASE 10] Validação Visual Autônoma (NVIDIA NIM)
+  [RUN] validar_visual_dxf.py ...
+        -> OK (1045.2s)
+  [VIS] Score visual: 69.5/100
+
+============================================================
+PIPELINE CONCLUÍDO — PARCIAL
+  Score coletivo: 100.0%
+  Relatório: D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_20\Fase-8_Revisao_Entrega\pipeline_report.json
+============================================================
+

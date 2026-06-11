@@ -1,0 +1,59 @@
+[INFO] Carregando discovery de D:\Agente-cad-PYSIDE\DADOS-OBRAS...
+[INFO] Provider: NVIDIA NIM | Modelo: meta/llama-3.2-90b-vision-instruct
+
+============================================================
+  Obra: Obra_TREINO_3 | Pavimento: TORRE A - TIPO 2 AO 13PAV
+============================================================
+
+  [FV] STOG: NOVA - CAPREM - RES.DIAMOND - TORRE A - TIPO 2° AO 13° PAV.- FV - PROJEÇÃO - R00_R2018_ASCII_ODA.dxf | Gerado: FV_gerado.dxf
+    Análise estrutural...
+    Entidades STOG=1857 Gerado=2936 struct_ratio=1.70 score_est=20
+    Layers faltando: ['0', '5', 'BARRA DE ANCORAGEM', 'CONCRETO', 'Defpoints']
+    Renderizando STOG... 103KB
+    Renderizando Gerado... 45KB
+    SBS salvo: FV_sbs.png (169KB)
+    Análise visual completa:
+    Full image: 169KB → API... score=20.0
+    Gerando 3×3 tiles e analisando...
+    Tile (0,0): 11KB → API... score=0
+    Tile (0,1): 23KB → API... score=0
+    Tile (0,2): 12KB → API... score=100
+    Tile (1,0): 15KB → API... score=100
+    Tile (1,1): 31KB → API... score=90
+    Tile (1,2): 22KB → API... score=100
+    Tile (2,0): 21KB → API... score=100
+    Tile (2,1): 15KB → API... score=0
+    Tile (2,2): 8KB → API... score=100
+    ❌ Score final [FV]: 37.4/100 (est=20 + vis=39.3)
+
+  [LV] STOG: NOVA - CAPREM - RES.DIAMOND - TORRE A - TIPO 2° AO 13° PAV.-  LV - PROJEÇÃO - R00_R2018_ASCII_ODA.dxf | Gerado: LV_gerado.dxf
+    Análise estrutural...
+    Entidades STOG=13455 Gerado=2936 struct_ratio=0.25 score_est=5
+    Layers faltando: ['0', '5', '8', 'BARRA DE ANCORAGEM', 'CONCRETO']
+    Renderizando STOG... 225KB
+    Renderizando Gerado... 45KB
+    SBS salvo: LV_sbs.png (565KB)
+    Análise visual completa:
+    Full image: 565KB → API... score=?
+    Gerando 3×3 tiles e analisando...
+    Tile (0,0): 33KB → API... score=100
+    Tile (0,1): 65KB → API... score=95
+    Tile (0,2): 38KB → API... score=100
+    Tile (1,0): 31KB → API... score=100
+    Tile (1,1): 54KB → API... score=100
+    Tile (1,2): 30KB → API... score=90
+    Tile (2,0): 15KB → API... score=100
+    Tile (2,1): 22KB → API... score=100
+    Tile (2,2): 14KB → API... score=100
+    ✅ Score final [LV]: 89.0/100 (est=5 + vis=98.3)
+
+  ❌ SCORE PAVIMENTO [TORRE A - TIPO 2 AO 13PAV]: 63.2/100
+  JSON: D:\Agente-cad-PYSIDE\validacao_visual\Obra_TREINO_3\TORRE_A_-_TIPO_2_AO_13PAV\validation_visual.json
+
+============================================================
+  RESUMO FINAL — Obra_TREINO_3
+============================================================
+  ❌ TORRE A - TIPO 2 AO 13PAV      score=69.8  tipos=PL+LV+FV+LJ
+
+  Consolidado: D:\Agente-cad-PYSIDE\validacao_visual\consolidado_Obra_TREINO_3.json
+  Imagens em: D:\Agente-cad-PYSIDE\validacao_visual/

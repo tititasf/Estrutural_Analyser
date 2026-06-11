@@ -1,0 +1,101 @@
+[INFO] Carregando discovery de D:\Agente-cad-PYSIDE\DADOS-OBRAS...
+[INFO] Provider: NVIDIA NIM | Modelo: meta/llama-3.2-90b-vision-instruct
+
+============================================================
+  Obra: Obra_TREINO_9 | Pavimento: TORRE 1 - 1PAVIMENTO
+============================================================
+
+  [PL] STOG: RB2 - CITTA DI LUCCA - TORRE 1 - 1°PAVIMENTO  - PL - R00_R2018_ASCII_ODA.dxf | Gerado: PL_gerado.dxf
+    Análise estrutural...
+    Entidades STOG=9424 Gerado=288 struct_ratio=0.04 score_est=5
+    Layers faltando: ['0', 'BARRA ANCORAGEM', 'CHAPA', 'CONCRETO', 'COTA']
+    Renderizando STOG... 230KB
+    Renderizando Gerado... 23KB
+    SBS salvo: PL_sbs.png (323KB)
+    Análise visual completa:
+    Full image: 323KB → API... score=87.0
+    Gerando 3×3 tiles e analisando...
+    Tile (0,0): 27KB → API... score=100
+    Tile (0,1): 58KB → API... score=0
+    Tile (0,2): 36KB → API... score=100
+    Tile (1,0): 34KB → API... score=0
+    Tile (1,1): 57KB → API... score=100
+    Tile (1,2): 29KB → API... score=100
+    Tile (2,0): 12KB → API... score=100
+    Tile (2,1): 17KB → API... score=None
+    Tile (2,2): 13KB → API... score=100
+    ⚠️ Score final [PL]: 75.6/100 (est=5 + vis=83.4)
+
+  [LV] STOG: RB2 - CITTA DI LUCCA - TORRE 1 - 1°PAVIMENTO - LV - R00_R2018_ASCII_ODA.dxf | Gerado: LV_gerado.dxf
+    Análise estrutural...
+    Entidades STOG=10581 Gerado=536 struct_ratio=0.06 score_est=5
+    Layers faltando: ['0', '5', 'BARRA DE ANCORAGEM', 'CONCRETO', 'Cota Seção (2x)']
+    Renderizando STOG... 214KB
+    Renderizando Gerado... 40KB
+    SBS salvo: LV_sbs.png (291KB)
+    Análise visual completa:
+    Full image: 291KB → API... score=100
+    Gerando 3×3 tiles e analisando...
+    Tile (0,0): 32KB → API... score=0
+    Tile (0,1): 64KB → API... score=0
+    Tile (0,2): 39KB → API... score=100
+    Tile (1,0): 28KB → API... score=0
+    Tile (1,1): 49KB → API... score=90
+    Tile (1,2): 31KB → API... score=100
+    Tile (2,0): 14KB → API... score=100
+    Tile (2,1): 22KB → API... score=100
+    Tile (2,2): 14KB → API... score=None
+    ⚠️ Score final [LV]: 82.4/100 (est=5 + vis=91.0)
+
+  [FV] STOG: RB2 - CITTA DI LUCCA - TORRE 1 - 1°PAVIMENTO  - FV - R00_R2018_ASCII_ODA.dxf | Gerado: FV_gerado.dxf
+    Análise estrutural...
+    Entidades STOG=2104 Gerado=536 struct_ratio=0.28 score_est=5
+    Layers faltando: ['0', '5', 'BARRA DE ANCORAGEM', 'CONCRETO', 'Defpoints']
+    Renderizando STOG... 123KB
+    Renderizando Gerado... 40KB
+    SBS salvo: FV_sbs.png (194KB)
+    Análise visual completa:
+    Full image: 194KB → API... score=?
+    Gerando 3×3 tiles e analisando...
+    Tile (0,0): 19KB → API... score=0
+    Tile (0,1): 37KB → API... score=0
+    Tile (0,2): 22KB → API... score=0
+    Tile (1,0): 13KB → API... score=0
+    Tile (1,1): 29KB → API... score=80
+    Tile (1,2): 25KB → API... score=100
+    Tile (2,0): 15KB → API... score=100
+    Tile (2,1): 22KB → API... score=100
+    Tile (2,2): 14KB → API... score=None
+    ✅ Score final [FV]: 86.0/100 (est=5 + vis=95.0)
+
+  [LJ] STOG: RB2 - CITTA DI LUCCA - TORRE 1 - 1°PAVIMENTO  - LJ - R01_R2018_ASCII_ODA.dxf | Gerado: LJ_gerado.dxf
+    Análise estrutural...
+    Entidades STOG=1364 Gerado=108 struct_ratio=0.08 score_est=5
+    Layers faltando: ['0', '01', '10', '13', '19']
+    Renderizando STOG... 96KB
+    Renderizando Gerado... 29KB
+    SBS salvo: LJ_sbs.png (156KB)
+    Análise visual completa:
+    Full image: 156KB → API... score=92.0
+    Gerando 3×3 tiles e analisando...
+    Tile (0,0): 6KB → API... score=100
+    Tile (0,1): 10KB → API... score=100
+    Tile (0,2): 15KB → API... score=100
+    Tile (1,0): 5KB → API... score=100
+    Tile (1,1): 13KB → API... score=100
+    Tile (1,2): 29KB → API... score=95
+    Tile (2,0): 9KB → API... score=100
+    Tile (2,1): 13KB → API... score=0
+    Tile (2,2): 27KB → API... score=100
+    ✅ Score final [LJ]: 85.3/100 (est=5 + vis=94.2)
+
+  ⚠️ SCORE PAVIMENTO [TORRE 1 - 1PAVIMENTO]: 82.3/100
+  JSON: D:\Agente-cad-PYSIDE\validacao_visual\Obra_TREINO_9\TORRE_1_-_1PAVIMENTO\validation_visual.json
+
+============================================================
+  RESUMO FINAL — Obra_TREINO_9
+============================================================
+  ⚠️ TORRE 1 - 1PAVIMENTO           score=82.3  tipos=PL+LV+FV+LJ
+
+  Consolidado: D:\Agente-cad-PYSIDE\validacao_visual\consolidado_Obra_TREINO_9.json
+  Imagens em: D:\Agente-cad-PYSIDE\validacao_visual/

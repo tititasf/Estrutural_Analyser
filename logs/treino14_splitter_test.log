@@ -1,0 +1,39 @@
+[INFO] Carregando discovery de D:\Agente-cad-PYSIDE\DADOS-OBRAS...
+[INFO] Provider: NVIDIA NIM | Modelo: meta/llama-3.2-90b-vision-instruct
+
+============================================================
+  Obra: Obra_TREINO_14 | Pavimento: ARRAIA - 1PAV
+============================================================
+
+  [LV] STOG: NOVA-STOG-ARRAIA-1PAV-VI-R00_R2018_ASCII_ODA.dxf | Gerado: LV_gerado.dxf
+    Análise estrutural...
+    Entidades STOG=13503 Gerado=2100 struct_ratio=0.17 score_est=5
+    Layers faltando: ['0', '00 - Cota Viga Vertical', '1HACHURA MADEIRAS', '23', '5']
+    Prancha format detectado: 2 frames — usando splitter
+    Renderizando STOG... 12KB  [prancha-strip]
+    Renderizando Gerado... 23KB
+    SBS salvo: LV_sbs.png (91KB)
+    Análise visual completa:
+    Full image: 91KB → API... score=60.0
+    Gerando 3×3 tiles e analisando...
+    Tile (0,0): 1KB → API... score=100
+    Tile (0,1): 5KB → API... score=100
+    Tile (0,2): 5KB → API... score=None
+    Tile (1,0): 7KB → API... score=100
+    Tile (1,1): 6KB → API... score=0
+    Tile (1,2): 5KB → API... score=100
+    Tile (2,0): 8KB → API... score=100
+    Tile (2,1): 1KB → API... score=100
+    Tile (2,2): 1KB → API... score=100
+    ❌ Score final [LV]: 65.3/100 (est=5 + vis=72.0)
+
+  ❌ SCORE PAVIMENTO [ARRAIA - 1PAV]: 65.3/100
+  JSON: D:\Agente-cad-PYSIDE\validacao_visual\Obra_TREINO_14\ARRAIA_-_1PAV\validation_visual.json
+
+============================================================
+  RESUMO FINAL — Obra_TREINO_14
+============================================================
+  ⚠️ ARRAIA - 1PAV                  score=72.0  tipos=PL+LV+FV+LJ
+
+  Consolidado: D:\Agente-cad-PYSIDE\validacao_visual\consolidado_Obra_TREINO_14.json
+  Imagens em: D:\Agente-cad-PYSIDE\validacao_visual/

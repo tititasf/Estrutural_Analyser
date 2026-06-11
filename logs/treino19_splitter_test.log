@@ -1,0 +1,61 @@
+[INFO] Carregando discovery de D:\Agente-cad-PYSIDE\DADOS-OBRAS...
+[INFO] Provider: NVIDIA NIM | Modelo: meta/llama-3.2-90b-vision-instruct
+
+============================================================
+  Obra: Obra_TREINO_19 | Pavimento: 1 SUBOLO
+============================================================
+
+  [FV] STOG: QUATTRI - INDIANOPOLIS - 1° SUBOLO - FV - PROJEÇÃO - R00_R2018_ASCII_ODA.dxf | Gerado: FV_gerado.dxf
+    Análise estrutural...
+    Entidades STOG=1831 Gerado=1418 struct_ratio=0.83 score_est=60
+    Layers faltando: ['0', '222', '5', 'BARRA DE ANCORAGEM', 'CONCRETO']
+    Prancha format detectado: 10 frames — usando splitter
+    Renderizando STOG... 99KB  [prancha-strip]
+    Renderizando Gerado... 26KB
+    SBS salvo: FV_sbs.png (222KB)
+    Análise visual completa:
+    Full image: 222KB → API... score=80
+    Gerando 3×3 tiles e analisando...
+    Tile (0,0): 5KB → API... score=0
+    Tile (0,1): 13KB → API... score=0
+    Tile (0,2): 16KB → API... score=0
+    Tile (1,0): 21KB → API... score=100
+    Tile (1,1): 27KB → API... score=0
+    Tile (1,2): 21KB → API... score=20
+    Tile (2,0): 17KB → API... score=90.0
+    Tile (2,1): 8KB → API... score=100
+    Tile (2,2): 1KB → API... score=100
+    ⚠️ Score final [FV]: 70.4/100 (est=60 + vis=71.5)
+
+  [LV] STOG: QUATTRI - INDIANOPOLIS - 1° SUBOLO - LV - PROJEÇÃO - R00_R2018_ASCII_ODA.dxf | Gerado: LV_gerado.dxf
+    Análise estrutural...
+    Entidades STOG=8771 Gerado=1418 struct_ratio=0.18 score_est=5
+    Layers faltando: ['0', '00 - FELIPE', '5', '8', 'BARRA DE ANCORAGEM']
+    Prancha format detectado: 2 frames — usando splitter
+    Renderizando STOG... 12KB  [prancha-strip]
+    Renderizando Gerado... 26KB
+    SBS salvo: LV_sbs.png (147KB)
+    Análise visual completa:
+    Full image: 147KB → API... score=80
+    Gerando 3×3 tiles e analisando...
+    Tile (0,0): 1KB → API... score=100
+    Tile (0,1): 3KB → API... score=100
+    Tile (0,2): 4KB → API... score=None
+    Tile (1,0): 6KB → API... score=?
+    Tile (1,1): 10KB → API... score=0
+    Tile (1,2): 5KB → API... score=80
+    Tile (2,0): 6KB → API... score=0
+    Tile (2,1): 5KB → API... score=0
+    Tile (2,2): 2KB → API... score=100
+    ❌ Score final [LV]: 68.0/100 (est=5 + vis=75.0)
+
+  ❌ SCORE PAVIMENTO [1 SUBOLO]: 69.2/100
+  JSON: D:\Agente-cad-PYSIDE\validacao_visual\Obra_TREINO_19\1_SUBOLO\validation_visual.json
+
+============================================================
+  RESUMO FINAL — Obra_TREINO_19
+============================================================
+  ❌ 1 SUBOLO                       score=55.2  tipos=PL+LV+FV+LJ
+
+  Consolidado: D:\Agente-cad-PYSIDE\validacao_visual\consolidado_Obra_TREINO_19.json
+  Imagens em: D:\Agente-cad-PYSIDE\validacao_visual/

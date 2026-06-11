@@ -1,0 +1,101 @@
+[INFO] Carregando discovery de D:\Agente-cad-PYSIDE\DADOS-OBRAS...
+[INFO] Provider: NVIDIA NIM | Modelo: meta/llama-3.2-90b-vision-instruct
+
+============================================================
+  Obra: Obra_TREINO_8 | Pavimento: IONEJI - T1 - 1PAV
+============================================================
+
+  [PL] STOG: P4 - CASA 8 - IONEJI - T1 - 1º PAV. - PL - R00_R2018_ASCII_ODA.dxf | Gerado: PL_gerado.dxf
+    Análise estrutural...
+    Entidades STOG=17112 Gerado=2142 struct_ratio=0.16 score_est=5
+    Layers faltando: ['0', 'BARRA ANCORAGEM', 'CHAPA', 'CONCRETO', 'COTA']
+    Renderizando STOG... 205KB
+    Renderizando Gerado... 18KB
+    SBS salvo: PL_sbs.png (289KB)
+    Análise visual completa:
+    Full image: 289KB → API... score=80
+    Gerando 3×3 tiles e analisando...
+    Tile (0,0): 33KB → API... score=0
+    Tile (0,1): 47KB → API... score=0
+    Tile (0,2): 5KB → API... score=100
+    Tile (1,0): 48KB → API... score=100
+    Tile (1,1): 58KB → API... score=100
+    Tile (1,2): 4KB → API... score=0
+    Tile (2,0): 23KB → API... score=100
+    Tile (2,1): 26KB → API... score=0
+    Tile (2,2): 2KB → API... score=100
+    ⚠️ Score final [PL]: 70.2/100 (est=5 + vis=77.4)
+
+  [LV] STOG: P4-CASA 8-IONEJI-T1-1PAV-LV-R00_R2018_ASCII_ODA.dxf | Gerado: LV_gerado.dxf
+    Análise estrutural...
+    Entidades STOG=15996 Gerado=2510 struct_ratio=0.17 score_est=5
+    Layers faltando: ['0', '00 - FELIPE', '5', 'BARRA DE ANCORAGEM', 'CONCRETO']
+    Renderizando STOG... 94KB
+    Renderizando Gerado... 40KB
+    SBS salvo: LV_sbs.png (324KB)
+    Análise visual completa:
+    Full image: 324KB → API... score=75
+    Gerando 3×3 tiles e analisando...
+    Tile (0,0): 26KB → API... score=0
+    Tile (0,1): 8KB → API... score=100
+    Tile (0,2): 11KB → API... score=100
+    Tile (1,0): 40KB → API... score=40
+    Tile (1,1): 15KB → API... score=100
+    Tile (1,2): 13KB → API... score=0
+    Tile (2,0): 22KB → API... score=0
+    Tile (2,1): 9KB → API... score=100
+    Tile (2,2): 11KB → API... score=0
+    ❌ Score final [LV]: 67.5/100 (est=5 + vis=74.5)
+
+  [FV] STOG: P4-CASA 8-IONEJI-T1-1PAV-FV-R00_R2018_ASCII_ODA.dxf | Gerado: FV_gerado.dxf
+    Análise estrutural...
+    Entidades STOG=2196 Gerado=2510 struct_ratio=1.21 score_est=60
+    Layers faltando: ['0', '5', 'BARRA DE ANCORAGEM', 'CONCRETO', 'Demarcação 1']
+    Renderizando STOG... 114KB
+    Renderizando Gerado... 40KB
+    SBS salvo: FV_sbs.png (175KB)
+    Análise visual completa:
+    Full image: 175KB → API... score=?
+    Gerando 3×3 tiles e analisando...
+    Tile (0,0): 5KB → API... score=?
+    Tile (0,1): 16KB → API... score=0
+    Tile (0,2): 17KB → API... score=99
+    Tile (1,0): 22KB → API... score=100
+    Tile (1,1): 31KB → API... score=0
+    Tile (1,2): 23KB → API... score=100
+    Tile (2,0): 23KB → API... score=100
+    Tile (2,1): 24KB → API... score=100
+    Tile (2,2): 9KB → API... score=100
+    ⚠️ Score final [FV]: 83.0/100 (est=60 + vis=85.6)
+
+  [LJ] STOG: P4-CASA 8-IONEJI-T1-1PAV-LJ-R00_R2018_ASCII_ODA.dxf | Gerado: LJ_gerado.dxf
+    Análise estrutural...
+    Entidades STOG=2905 Gerado=260 struct_ratio=0.10 score_est=5
+    Layers faltando: ['0', '00 - FELIPE', 'ARCO-MD-SHAFT', 'ES-FURO-LAJE', 'ES-LAJE-NOME']
+    Renderizando STOG... 52KB
+    Renderizando Gerado... 30KB
+    SBS salvo: LJ_sbs.png (116KB)
+    Análise visual completa:
+    Full image: 116KB → API... score=80
+    Gerando 3×3 tiles e analisando...
+    Tile (0,0): 14KB → API... score=90
+    Tile (0,1): 23KB → API... score=0
+    Tile (0,2): 18KB → API... score=100
+    Tile (1,0): 2KB → API... score=0
+    Tile (1,1): 3KB → API... score=100
+    Tile (1,2): 3KB → API... score=99
+    Tile (2,0): 6KB → API... score=100
+    Tile (2,1): 11KB → API... score=None
+    Tile (2,2): 9KB → API... score=100
+    ⚠️ Score final [LJ]: 77.5/100 (est=5 + vis=85.5)
+
+  ⚠️ SCORE PAVIMENTO [IONEJI - T1 - 1PAV]: 74.5/100
+  JSON: D:\Agente-cad-PYSIDE\validacao_visual\Obra_TREINO_8\IONEJI_-_T1_-_1PAV\validation_visual.json
+
+============================================================
+  RESUMO FINAL — Obra_TREINO_8
+============================================================
+  ⚠️ IONEJI - T1 - 1PAV             score=74.5  tipos=PL+LV+FV+LJ
+
+  Consolidado: D:\Agente-cad-PYSIDE\validacao_visual\consolidado_Obra_TREINO_8.json
+  Imagens em: D:\Agente-cad-PYSIDE\validacao_visual/

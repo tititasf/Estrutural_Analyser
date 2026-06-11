@@ -1,0 +1,41 @@
+
+=== COMPARADOR DXF vs. GROUND TRUTH (tol=5.0%) ===
+
+--- PILARES ---
+  Match rate: 100.0% (10/10)
+  Erro médio: 0.0%
+
+--- VIGAS ---
+  Match rate: 100.0% (39/39)
+  Erro médio: 0.0%
+
+--- LAJES ---
+  Match rate: 100.0% (11/11)
+  Erro médio: 0.0%
+
+=== SCORE GERAL: 100.0% (PASS | meta: 75.0%) ===
+  Pilares: 100.0% | Vigas: 100.0% | Lajes: 100.0%
+
+  Relatorio: D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_16\Fase-5_Geracao_Scripts\_relatorio_comparacao.json
+[INFO] === validar_dxf_coletivo.py | Obra_TREINO_16 | VALDIR NIEMEYER - 1PV ===
+
+  [PILARES]
+    GT: 10 | Gerado: 10 | Corretos: 10
+    id_match: 100.0% | hallucination: 0.0%
+    SCORE: 100.0% — APROVADO
+
+  [VIGAS]
+    GT: 39 | Gerado: 39 | Corretos: 39
+    id_match: 100.0% | hallucination: 0.0%
+    SCORE: 100.0% — APROVADO
+
+  [LAJES]
+    GT: 11 | Gerado: 11 | Corretos: 11
+    id_match: 100.0% | hallucination: 0.0%
+    SCORE: 100.0% — APROVADO
+
+[RESULTADO GLOBAL]
+  Score global: 100.0%
+  Status: APROVADO (>=90%)
+
+[INFO] Salvo: D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_16\Fase-6_Execucao_CAD\validation_coletivo.json

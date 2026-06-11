@@ -1,0 +1,14 @@
+[INFO] Carregando discovery de D:\Agente-cad-PYSIDE\DADOS-OBRAS...
+[INFO] Provider: NVIDIA NIM | Modelo: meta/llama-3.2-90b-vision-instruct
+
+============================================================
+  Obra: Obra_TREINO_3 | Pavimento: 1 SUB - PERIFERIA - TORRE 1 - S01A
+============================================================
+
+============================================================
+  RESUMO FINAL — Obra_TREINO_3
+============================================================
+  ⚠️ 1 SUB - PERIFERIA - TORRE 1 - S01A score=79.0  tipos=PL+LV+FV+LJ
+
+  Consolidado: D:\Agente-cad-PYSIDE\validacao_visual\consolidado_Obra_TREINO_3.json
+  Imagens em: D:\Agente-cad-PYSIDE\validacao_visual/

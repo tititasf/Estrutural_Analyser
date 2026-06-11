@@ -1,0 +1,921 @@
+[00:37:00.037] ITEM_SELECTED classe=LV id=V104 flow=reverso
+[00:37:00.039] N1 flow=reverso classe=LV id=V104 auto_chain=True
+[00:37:00.040] N1 ER shortcircuit → chaining N2
+[00:37:00.153] N2 is_er_flow=True obra=Obra_TREINO_1 classe=LV id=V104
+[00:37:00.156] N2 recorte_path=D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-2_Triagem\recortes_reversos\ALIMONTI - PARAISO - TÉRREO - LV - R00\LV_V104_motor_178111356635.dxf
+[00:37:00.156] N2 loading DXF size=113KB
+[00:37:00.160] N2 done ok. is_er=True auto_chain=True
+[00:37:02.821] ITEM_SELECTED classe=LV id=V107 flow=reverso
+[00:37:02.823] N1 flow=reverso classe=LV id=V107 auto_chain=True
+[00:37:02.825] N1 ER shortcircuit → chaining N2
+[00:37:02.946] N2 is_er_flow=True obra=Obra_TREINO_1 classe=LV id=V107
+[00:37:02.949] N2 recorte_path=D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-2_Triagem\recortes_reversos\ALIMONTI - PARAISO - TÉRREO - LV - R00\LV_V107_motor_178111356665.dxf
+[00:37:02.949] N2 loading DXF size=123KB
+[00:37:02.954] N2 done ok. is_er=True auto_chain=True
+[00:37:04.165] ITEM_SELECTED classe=LV id=V105 flow=reverso
+[00:37:04.167] N1 flow=reverso classe=LV id=V105 auto_chain=True
+[00:37:04.169] N1 ER shortcircuit → chaining N2
+[00:37:04.282] N2 is_er_flow=True obra=Obra_TREINO_1 classe=LV id=V105
+[00:37:04.284] N2 recorte_path=D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-2_Triagem\recortes_reversos\ALIMONTI - PARAISO - 1° PAV.- LV - R00\LV_V105_motor_178111341491.dxf
+[00:37:04.284] N2 loading DXF size=145KB
+[00:37:04.289] N2 done ok. is_er=True auto_chain=True
+[00:37:06.117] ITEM_SELECTED classe=LV id=V109 flow=reverso
+[00:37:06.119] N1 flow=reverso classe=LV id=V109 auto_chain=True
+[00:37:06.120] N1 ER shortcircuit → chaining N2
+[00:37:06.182] N2 is_er_flow=True obra=Obra_TREINO_1 classe=LV id=V109
+[00:37:06.185] N2 recorte_path=D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-2_Triagem\recortes_reversos\ALIMONTI - PARAISO - TÉRREO - LV - R00\LV_V109_motor_178111356684.dxf
+[00:37:06.185] N2 loading DXF size=133KB
+[00:37:06.191] N2 done ok. is_er=True auto_chain=True
+[00:37:09.189] ITEM_SELECTED classe=LV id=V107 flow=reverso
+[00:37:09.191] N1 flow=reverso classe=LV id=V107 auto_chain=True
+[00:37:09.193] N1 ER shortcircuit → chaining N2
+[00:37:09.247] N2 is_er_flow=True obra=Obra_TREINO_1 classe=LV id=V107
+[00:37:09.249] N2 recorte_path=D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-2_Triagem\recortes_reversos\ALIMONTI - PARAISO - TÉRREO - LV - R00\LV_V107_motor_178111356665.dxf
+[00:37:09.250] N2 loading DXF size=123KB
+[00:37:09.255] N2 done ok. is_er=True auto_chain=True
+[00:37:10.621] ITEM_SELECTED classe=LV id=V102 flow=reverso
+[00:37:10.623] N1 flow=reverso classe=LV id=V102 auto_chain=True
+[00:37:10.625] N1 ER shortcircuit → chaining N2
+[00:37:10.691] N2 is_er_flow=True obra=Obra_TREINO_1 classe=LV id=V102
+[00:37:10.694] N2 recorte_path=D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-2_Triagem\recortes_reversos\ALIMONTI - PARAISO - TÉRREO - LV - R00\LV_V102_motor_178111356616.dxf
+[00:37:10.694] N2 loading DXF size=139KB
+[00:37:10.699] N2 done ok. is_er=True auto_chain=True
+[00:37:14.461] ITEM_SELECTED classe=LV id=V10_A flow=estrutural
+[00:37:14.464] N1 flow=estrutural classe=LV id=V10_A auto_chain=True
+[00:37:14.586] N2 is_er_flow=False obra=Obra_TREINO_1 classe=LV id=V10_A
+[00:37:14.588] N2 loading DXF size=6898KB
+[00:37:14.591] N2 done ok. is_er=False auto_chain=True
+[00:37:15.709] ITEM_SELECTED classe=LV id=V11_A flow=estrutural
+[00:37:15.711] N1 flow=estrutural classe=LV id=V11_A auto_chain=True
+[00:37:15.828] N2 is_er_flow=False obra=Obra_TREINO_1 classe=LV id=V11_A
+[00:37:15.830] N2 loading DXF size=6898KB
+[00:37:15.832] N2 done ok. is_er=False auto_chain=True
+[00:37:17.437] ITEM_SELECTED classe=PL id=P1 flow=estrutural
+[00:37:17.439] N1 flow=estrutural classe=PL id=P1 auto_chain=True
+[00:37:17.551] N2 is_er_flow=False obra=Obra_TREINO_1 classe=PL id=P1
+[00:37:17.553] N2 loading DXF size=7931KB
+[00:37:17.556] N2 done ok. is_er=False auto_chain=True
+[00:37:18.372] ITEM_SELECTED classe=PL id=P101 flow=estrutural
+[00:37:18.374] N1 flow=estrutural classe=PL id=P101 auto_chain=True
+[00:37:18.495] N2 is_er_flow=False obra=Obra_TREINO_1 classe=PL id=P101
+[00:37:18.496] N2 loading DXF size=7931KB
+[00:37:18.497] N2 done ok. is_er=False auto_chain=True
+[00:37:19.732] ITEM_SELECTED classe=PL id=P11 flow=estrutural
+[00:37:19.735] N1 flow=estrutural classe=PL id=P11 auto_chain=True
+[00:37:19.852] N2 is_er_flow=False obra=Obra_TREINO_1 classe=PL id=P11
+[00:37:19.854] N2 loading DXF size=7931KB
+[00:37:19.857] N2 done ok. is_er=False auto_chain=True
+[00:37:21.237] ITEM_SELECTED classe=PL id=P13 flow=estrutural
+[00:37:21.239] N1 flow=estrutural classe=PL id=P13 auto_chain=True
+[00:37:21.383] N2 is_er_flow=False obra=Obra_TREINO_1 classe=PL id=P13
+[00:37:21.385] N2 loading DXF size=7931KB
+[00:37:21.388] N2 done ok. is_er=False auto_chain=True
+[00:37:24.924] ITEM_SELECTED classe=PL id=P16 flow=estrutural
+[00:37:24.926] N1 flow=estrutural classe=PL id=P16 auto_chain=True
+[00:37:25.070] N2 is_er_flow=False obra=Obra_TREINO_1 classe=PL id=P16
+[00:37:25.072] N2 loading DXF size=7931KB
+[00:37:25.074] N2 done ok. is_er=False auto_chain=True
+[00:37:57.421] ITEM_SELECTED classe=PL id=P14 flow=estrutural
+[00:37:57.423] N1 flow=estrutural classe=PL id=P14 auto_chain=True
+[00:37:57.688] N2 is_er_flow=False obra=Obra_TREINO_1 classe=PL id=P14
+[00:37:57.690] N2 loading DXF size=7931KB
+[00:37:57.794] N2 done ok. is_er=False auto_chain=True
+[00:38:00.373] ITEM_SELECTED classe=PL id=P16 flow=estrutural
+[00:38:00.375] N1 flow=estrutural classe=PL id=P16 auto_chain=True
+[00:38:00.483] N2 is_er_flow=False obra=Obra_TREINO_1 classe=PL id=P16
+[00:38:00.485] N2 loading DXF size=7931KB
+[00:38:00.487] N2 done ok. is_er=False auto_chain=True
+[00:38:01.580] ITEM_SELECTED classe=PL id=P15 flow=estrutural
+[00:38:01.582] N1 flow=estrutural classe=PL id=P15 auto_chain=True
+[00:38:01.694] N2 is_er_flow=False obra=Obra_TREINO_1 classe=PL id=P15
+[00:38:01.696] N2 loading DXF size=7931KB
+[00:38:01.699] N2 done ok. is_er=False auto_chain=True
+[00:38:04.508] ITEM_SELECTED classe=PL id=P17 flow=estrutural
+[00:38:04.510] N1 flow=estrutural classe=PL id=P17 auto_chain=True
+[00:38:04.628] N2 is_er_flow=False obra=Obra_TREINO_1 classe=PL id=P17
+[00:38:04.630] N2 loading DXF size=7931KB
+[00:38:04.633] N2 done ok. is_er=False auto_chain=True
+[00:38:10.292] ITEM_SELECTED classe=PL id=P1 flow=reverso
+[00:38:10.294] N1 flow=reverso classe=PL id=P1 auto_chain=True
+[00:38:10.296] N1 ER shortcircuit → chaining N2
+[00:38:10.366] N2 is_er_flow=True obra=Obra_TREINO_1 classe=PL id=P1
+[00:38:10.368] N2 recorte_path=D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-2_Triagem\recortes_reversos\ALIMONTI - PARAISO - 1° PAV.- PL - R00\PIL_P1_motor_178111343962.dxf
+[00:38:10.368] N2 loading DXF size=214KB
+[00:38:10.376] N2 done ok. is_er=True auto_chain=True
+[00:38:11.732] ITEM_SELECTED classe=LV id=V109 flow=reverso
+[00:38:11.734] N1 flow=reverso classe=LV id=V109 auto_chain=True
+[00:38:11.736] N1 ER shortcircuit → chaining N2
+[00:38:11.801] N2 is_er_flow=True obra=Obra_TREINO_1 classe=LV id=V109
+[00:38:11.804] N2 recorte_path=D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-2_Triagem\recortes_reversos\ALIMONTI - PARAISO - TÉRREO - LV - R00\LV_V109_motor_178111356684.dxf
+[00:38:11.804] N2 loading DXF size=133KB
+[00:38:11.810] N2 done ok. is_er=True auto_chain=True
+[00:38:15.156] ITEM_SELECTED classe=LV id=V13 flow=reverso
+[00:38:15.159] N1 flow=reverso classe=LV id=V13 auto_chain=True
+[00:38:15.160] N1 ER shortcircuit → chaining N2
+[00:38:15.229] N2 is_er_flow=True obra=Obra_TREINO_1 classe=LV id=V13
+[00:38:15.231] N2 recorte_path=D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-2_Triagem\recortes_reversos\ALIMONTI - PARAISO - TIPO - 3° AO 12° PAV.- LV - R00\LV_V13_motor_178111351374.dxf
+[00:38:15.232] N2 loading DXF size=173KB
+[00:38:15.237] N2 done ok. is_er=True auto_chain=True
+[00:38:29.205] ITEM_SELECTED classe=LV id=V128 flow=reverso
+[00:38:29.208] N1 flow=reverso classe=LV id=V128 auto_chain=True
+[00:38:29.209] N1 ER shortcircuit → chaining N2
+[00:38:29.276] N2 is_er_flow=True obra=Obra_TREINO_1 classe=LV id=V128
+[00:38:29.279] N2 recorte_path=D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-2_Triagem\recortes_reversos\ALIMONTI - PARAISO - TÉRREO - LV - R00\LV_V128_motor_178111356845.dxf
+[00:38:29.279] N2 loading DXF size=230KB
+[00:38:29.286] N2 done ok. is_er=True auto_chain=True
+[00:38:31.573] ITEM_SELECTED classe=LV id=V111 flow=reverso
+[00:38:31.575] N1 flow=reverso classe=LV id=V111 auto_chain=True
+[00:38:31.577] N1 ER shortcircuit → chaining N2
+[00:38:31.649] N2 is_er_flow=True obra=Obra_TREINO_1 classe=LV id=V111
+[00:38:31.652] N2 recorte_path=D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-2_Triagem\recortes_reversos\ALIMONTI - PARAISO - TÉRREO - LV - R00\LV_V111_motor_178111356702.dxf
+[00:38:31.652] N2 loading DXF size=133KB
+[00:38:31.658] N2 done ok. is_er=True auto_chain=True
+[00:38:34.605] ITEM_SELECTED classe=LV id=V423 flow=reverso
+[00:38:34.607] N1 flow=reverso classe=LV id=V423 auto_chain=True
+[00:38:34.609] N1 ER shortcircuit → chaining N2
+[00:38:34.677] N2 is_er_flow=True obra=Obra_TREINO_1 classe=LV id=V423
+[00:38:34.680] N2 recorte_path=D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-2_Triagem\recortes_reversos\ALIMONTI - PARAISO - 14° PAV.- LV - R00\LV_V423_motor_178111337534.dxf
+[00:38:34.680] N2 loading DXF size=200KB
+[00:38:34.686] N2 done ok. is_er=True auto_chain=True
+[00:38:37.653] ITEM_SELECTED classe=LV id=VD13 flow=reverso
+[00:38:37.655] N1 flow=reverso classe=LV id=VD13 auto_chain=True
+[00:38:37.657] N1 ER shortcircuit → chaining N2
+[00:38:37.729] N2 is_er_flow=True obra=Obra_TREINO_1 classe=LV id=VD13
+[00:38:37.732] N2 recorte_path=D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-2_Triagem\recortes_reversos\NOVA - ALIMONTI - PARAISO - COBERTURA - DECK - LV - R00\LV_VD13_motor_178111361098.dxf
+[00:38:37.732] N2 loading DXF size=186KB
+[00:38:37.739] N2 done ok. is_er=True auto_chain=True
+[00:41:12.301] ITEM_SELECTED classe=LV id=V11_B flow=estrutural
+[00:41:12.303] N1 flow=estrutural classe=LV id=V11_B auto_chain=True
+[00:41:12.414] N2 is_er_flow=False obra=Obra_TREINO_1 classe=LV id=V11_B
+[00:41:12.418] N2 loading DXF size=6898KB
+[00:41:12.430] N2 done ok. is_er=False auto_chain=True
+[00:41:15.884] ITEM_SELECTED classe=LV id=V12_B flow=estrutural
+[00:41:15.886] N1 flow=estrutural classe=LV id=V12_B auto_chain=True
+[00:41:16.007] N2 is_er_flow=False obra=Obra_TREINO_1 classe=LV id=V12_B
+[00:41:16.009] N2 loading DXF size=6898KB
+[00:41:16.011] N2 done ok. is_er=False auto_chain=True
+[00:41:32.757] ITEM_SELECTED classe=LV id=V12_B flow=estrutural
+[00:41:32.759] N1 flow=estrutural classe=LV id=V12_B auto_chain=True
+[00:41:32.900] N2 is_er_flow=False obra=Obra_TREINO_1 classe=LV id=V12_B
+[00:41:32.902] N2 loading DXF size=6898KB
+[00:41:32.953] N2 done ok. is_er=False auto_chain=True
+[00:42:08.020] ITEM_SELECTED classe=LV id=V68_A flow=estrutural
+[00:42:08.022] N1 flow=estrutural classe=LV id=V68_A auto_chain=True
+[00:42:08.162] N2 is_er_flow=False obra=Obra_TREINO_1 classe=LV id=V68_A
+[00:42:08.164] N2 loading DXF size=6898KB
+[00:42:08.215] N2 done ok. is_er=False auto_chain=True
+[00:42:20.060] ITEM_SELECTED classe=LV id=V207_A flow=estrutural
+[00:42:20.062] N1 flow=estrutural classe=LV id=V207_A auto_chain=True
+[00:42:20.173] N2 is_er_flow=False obra=Obra_TREINO_1 classe=LV id=V207_A
+[00:42:20.175] N2 loading DXF size=6898KB
+[00:42:20.214] N2 done ok. is_er=False auto_chain=True
+[00:42:21.475] ITEM_SELECTED classe=LV id=V208_A flow=estrutural
+[00:42:21.477] N1 flow=estrutural classe=LV id=V208_A auto_chain=True
+[00:42:21.596] N2 is_er_flow=False obra=Obra_TREINO_1 classe=LV id=V208_A
+[00:42:21.598] N2 loading DXF size=6898KB
+[00:42:21.600] N2 done ok. is_er=False auto_chain=True
+[00:42:22.204] ITEM_SELECTED classe=LV id=V209_A flow=estrutural
+[00:42:22.206] N1 flow=estrutural classe=LV id=V209_A auto_chain=True
+[00:42:22.317] N2 is_er_flow=False obra=Obra_TREINO_1 classe=LV id=V209_A
+[00:42:22.319] N2 loading DXF size=6898KB
+[00:42:22.321] N2 done ok. is_er=False auto_chain=True
+[00:42:22.804] ITEM_SELECTED classe=LV id=V206_B flow=estrutural
+[00:42:22.806] N1 flow=estrutural classe=LV id=V206_B auto_chain=True
+[00:42:22.924] N2 is_er_flow=False obra=Obra_TREINO_1 classe=LV id=V206_B
+[00:42:22.925] N2 loading DXF size=6898KB
+[00:42:22.928] N2 done ok. is_er=False auto_chain=True
+[00:42:23.868] ITEM_SELECTED classe=LV id=V11_B flow=estrutural
+[00:42:23.870] N1 flow=estrutural classe=LV id=V11_B auto_chain=True
+[00:42:23.997] N2 is_er_flow=False obra=Obra_TREINO_1 classe=LV id=V11_B
+[00:42:23.999] N2 loading DXF size=6898KB
+[00:42:24.001] N2 done ok. is_er=False auto_chain=True
+[00:42:24.636] ITEM_SELECTED classe=LV id=V11_A flow=estrutural
+[00:42:24.638] N1 flow=estrutural classe=LV id=V11_A auto_chain=True
+[00:42:24.757] N2 is_er_flow=False obra=Obra_TREINO_1 classe=LV id=V11_A
+[00:42:24.759] N2 loading DXF size=6898KB
+[00:42:24.761] N2 done ok. is_er=False auto_chain=True
+[00:42:25.244] ITEM_SELECTED classe=LV id=V10_B flow=estrutural
+[00:42:25.246] N1 flow=estrutural classe=LV id=V10_B auto_chain=True
+[00:42:25.382] N2 is_er_flow=False obra=Obra_TREINO_1 classe=LV id=V10_B
+[00:42:25.383] N2 loading DXF size=6898KB
+[00:42:25.386] N2 done ok. is_er=False auto_chain=True
+[00:42:26.044] ITEM_SELECTED classe=LV id=V13_A flow=estrutural
+[00:42:26.046] N1 flow=estrutural classe=LV id=V13_A auto_chain=True
+[00:42:26.161] N2 is_er_flow=False obra=Obra_TREINO_1 classe=LV id=V13_A
+[00:42:26.163] N2 loading DXF size=6898KB
+[00:42:26.166] N2 done ok. is_er=False auto_chain=True
+[00:42:30.428] ITEM_SELECTED classe=LV id=V11_A flow=estrutural
+[00:42:30.430] N1 flow=estrutural classe=LV id=V11_A auto_chain=True
+[00:42:30.544] N2 is_er_flow=False obra=Obra_TREINO_1 classe=LV id=V11_A
+[00:42:30.546] N2 loading DXF size=6898KB
+[00:42:30.549] N2 done ok. is_er=False auto_chain=True
+[00:42:30.884] ITEM_SELECTED classe=LV id=V12_B flow=estrutural
+[00:42:30.886] N1 flow=estrutural classe=LV id=V12_B auto_chain=True
+[00:42:31.027] N2 is_er_flow=False obra=Obra_TREINO_1 classe=LV id=V12_B
+[00:42:31.028] N2 loading DXF size=6898KB
+[00:42:31.031] N2 done ok. is_er=False auto_chain=True
+[00:42:32.604] ITEM_SELECTED classe=LJ id=L11 flow=estrutural
+[00:42:32.606] N1 flow=estrutural classe=LJ id=L11 auto_chain=True
+[00:42:32.724] N2 is_er_flow=False obra=Obra_TREINO_1 classe=LJ id=L11
+[00:42:32.724] N2 loading DXF size=1251KB
+[00:42:32.726] N2 done ok. is_er=False auto_chain=True
+[00:42:33.236] ITEM_SELECTED classe=LJ id=L14 flow=estrutural
+[00:42:33.238] N1 flow=estrutural classe=LJ id=L14 auto_chain=True
+[00:42:33.350] N2 is_er_flow=False obra=Obra_TREINO_1 classe=LJ id=L14
+[00:42:33.351] N2 loading DXF size=1251KB
+[00:42:33.352] N2 done ok. is_er=False auto_chain=True
+[00:42:34.541] ITEM_SELECTED classe=LJ id=L16 flow=estrutural
+[00:42:34.543] N1 flow=estrutural classe=LJ id=L16 auto_chain=True
+[00:42:34.662] N2 is_er_flow=False obra=Obra_TREINO_1 classe=LJ id=L16
+[00:42:34.662] N2 loading DXF size=1251KB
+[00:42:34.664] N2 done ok. is_er=False auto_chain=True
+[00:42:35.068] ITEM_SELECTED classe=LJ id=L13 flow=estrutural
+[00:42:35.070] N1 flow=estrutural classe=LJ id=L13 auto_chain=True
+[00:42:35.187] N2 is_er_flow=False obra=Obra_TREINO_1 classe=LJ id=L13
+[00:42:35.187] N2 loading DXF size=1251KB
+[00:42:35.189] N2 done ok. is_er=False auto_chain=True
+[00:42:35.564] ITEM_SELECTED classe=LJ id=L1 flow=estrutural
+[00:42:35.566] N1 flow=estrutural classe=LJ id=L1 auto_chain=True
+[00:42:35.705] N2 is_er_flow=False obra=Obra_TREINO_1 classe=LJ id=L1
+[00:42:35.706] N2 loading DXF size=1251KB
+[00:42:35.708] N2 done ok. is_er=False auto_chain=True
+[00:42:36.012] ITEM_SELECTED classe=LJ id=L10 flow=estrutural
+[00:42:36.014] N1 flow=estrutural classe=LJ id=L10 auto_chain=True
+[00:42:36.129] N2 is_er_flow=False obra=Obra_TREINO_1 classe=LJ id=L10
+[00:42:36.129] N2 loading DXF size=1251KB
+[00:42:36.131] N2 done ok. is_er=False auto_chain=True
+[00:42:36.412] ITEM_SELECTED classe=LJ id=L11 flow=estrutural
+[00:42:36.414] N1 flow=estrutural classe=LJ id=L11 auto_chain=True
+[00:42:36.527] N2 is_er_flow=False obra=Obra_TREINO_1 classe=LJ id=L11
+[00:42:36.527] N2 loading DXF size=1251KB
+[00:42:36.529] N2 done ok. is_er=False auto_chain=True
+[00:42:36.812] ITEM_SELECTED classe=LJ id=L13 flow=estrutural
+[00:42:36.814] N1 flow=estrutural classe=LJ id=L13 auto_chain=True
+[00:42:36.959] N2 is_er_flow=False obra=Obra_TREINO_1 classe=LJ id=L13
+[00:42:36.960] N2 loading DXF size=1251KB
+[00:42:36.961] N2 done ok. is_er=False auto_chain=True
+[00:42:37.100] ITEM_SELECTED classe=LJ id=L14 flow=estrutural
+[00:42:37.102] N1 flow=estrutural classe=LJ id=L14 auto_chain=True
+[00:42:37.219] N2 is_er_flow=False obra=Obra_TREINO_1 classe=LJ id=L14
+[00:42:37.219] N2 loading DXF size=1251KB
+[00:42:37.221] N2 done ok. is_er=False auto_chain=True
+[00:42:37.364] ITEM_SELECTED classe=LJ id=L16 flow=estrutural
+[00:42:37.366] N1 flow=estrutural classe=LJ id=L16 auto_chain=True
+[00:42:37.484] N2 is_er_flow=False obra=Obra_TREINO_1 classe=LJ id=L16
+[00:42:37.485] N2 loading DXF size=1251KB
+[00:42:37.487] N2 done ok. is_er=False auto_chain=True
+[00:42:37.696] ITEM_SELECTED classe=LJ id=L16 flow=estrutural
+[00:42:37.703] N1 flow=estrutural classe=LJ id=L16 auto_chain=True
+[00:42:37.866] N2 is_er_flow=False obra=Obra_TREINO_1 classe=LJ id=L16
+[00:42:37.866] N2 loading DXF size=1251KB
+[00:42:37.868] N2 done ok. is_er=False auto_chain=True
+[00:42:38.444] ITEM_SELECTED classe=LJ id=L2 flow=estrutural
+[00:42:38.446] N1 flow=estrutural classe=LJ id=L2 auto_chain=True
+[00:42:38.569] N2 is_er_flow=False obra=Obra_TREINO_1 classe=LJ id=L2
+[00:42:38.570] N2 loading DXF size=1251KB
+[00:42:38.572] N2 done ok. is_er=False auto_chain=True
+[00:42:38.748] ITEM_SELECTED classe=LJ id=L201 flow=estrutural
+[00:42:38.750] N1 flow=estrutural classe=LJ id=L201 auto_chain=True
+[00:42:38.890] N2 is_er_flow=False obra=Obra_TREINO_1 classe=LJ id=L201
+[00:42:38.891] N2 loading DXF size=1251KB
+[00:42:38.892] N2 done ok. is_er=False auto_chain=True
+[00:42:38.996] ITEM_SELECTED classe=LJ id=L202 flow=estrutural
+[00:42:38.998] N1 flow=estrutural classe=LJ id=L202 auto_chain=True
+[00:42:39.113] N2 is_er_flow=False obra=Obra_TREINO_1 classe=LJ id=L202
+[00:42:39.113] N2 loading DXF size=1251KB
+[00:42:39.115] N2 done ok. is_er=False auto_chain=True
+[00:42:39.292] ITEM_SELECTED classe=LJ id=L203 flow=estrutural
+[00:42:39.294] N1 flow=estrutural classe=LJ id=L203 auto_chain=True
+[00:42:39.411] N2 is_er_flow=False obra=Obra_TREINO_1 classe=LJ id=L203
+[00:42:39.411] N2 loading DXF size=1251KB
+[00:42:39.413] N2 done ok. is_er=False auto_chain=True
+[00:42:40.020] ITEM_SELECTED classe=LJ id=L209 flow=estrutural
+[00:42:40.022] N1 flow=estrutural classe=LJ id=L209 auto_chain=True
+[00:42:40.161] N2 is_er_flow=False obra=Obra_TREINO_1 classe=LJ id=L209
+[00:42:40.162] N2 loading DXF size=1251KB
+[00:42:40.163] N2 done ok. is_er=False auto_chain=True
+[00:42:40.420] ITEM_SELECTED classe=LJ id=L21 flow=estrutural
+[00:42:40.422] N1 flow=estrutural classe=LJ id=L21 auto_chain=True
+[00:42:40.539] N2 is_er_flow=False obra=Obra_TREINO_1 classe=LJ id=L21
+[00:42:40.540] N2 loading DXF size=1251KB
+[00:42:40.542] N2 done ok. is_er=False auto_chain=True
+[00:42:40.676] ITEM_SELECTED classe=LJ id=L210 flow=estrutural
+[00:42:40.678] N1 flow=estrutural classe=LJ id=L210 auto_chain=True
+[00:42:40.796] N2 is_er_flow=False obra=Obra_TREINO_1 classe=LJ id=L210
+[00:42:40.797] N2 loading DXF size=1251KB
+[00:42:40.799] N2 done ok. is_er=False auto_chain=True
+[00:42:41.404] ITEM_SELECTED classe=LJ id=L23 flow=estrutural
+[00:42:41.406] N1 flow=estrutural classe=LJ id=L23 auto_chain=True
+[00:42:41.528] N2 is_er_flow=False obra=Obra_TREINO_1 classe=LJ id=L23
+[00:42:41.532] N2 loading DXF size=1251KB
+[00:42:41.539] N2 done ok. is_er=False auto_chain=True
+[00:42:41.716] ITEM_SELECTED classe=LJ id=L24 flow=estrutural
+[00:42:41.718] N1 flow=estrutural classe=LJ id=L24 auto_chain=True
+[00:42:41.837] N2 is_er_flow=False obra=Obra_TREINO_1 classe=LJ id=L24
+[00:42:41.838] N2 loading DXF size=1251KB
+[00:42:41.840] N2 done ok. is_er=False auto_chain=True
+[00:42:41.988] ITEM_SELECTED classe=LJ id=L251 flow=estrutural
+[00:42:41.990] N1 flow=estrutural classe=LJ id=L251 auto_chain=True
+[00:42:42.134] N2 is_er_flow=False obra=Obra_TREINO_1 classe=LJ id=L251
+[00:42:42.135] N2 loading DXF size=1251KB
+[00:42:42.137] N2 done ok. is_er=False auto_chain=True
+[00:42:42.340] ITEM_SELECTED classe=LJ id=L22 flow=estrutural
+[00:42:42.342] N1 flow=estrutural classe=LJ id=L22 auto_chain=True
+[00:42:42.466] N2 is_er_flow=False obra=Obra_TREINO_1 classe=LJ id=L22
+[00:42:42.466] N2 loading DXF size=1251KB
+[00:42:42.468] N2 done ok. is_er=False auto_chain=True
+[00:42:44.284] ITEM_SELECTED classe=LJ id=L10 flow=estrutural
+[00:42:44.286] N1 flow=estrutural classe=LJ id=L10 auto_chain=True
+[00:42:44.429] N2 is_er_flow=False obra=Obra_TREINO_1 classe=LJ id=L10
+[00:42:44.430] N2 loading DXF size=1251KB
+[00:42:44.431] N2 done ok. is_er=False auto_chain=True
+[00:42:46.188] ITEM_SELECTED classe=LJ id=L12 flow=estrutural
+[00:42:46.190] N1 flow=estrutural classe=LJ id=L12 auto_chain=True
+[00:42:46.304] N2 is_er_flow=False obra=Obra_TREINO_1 classe=LJ id=L12
+[00:42:46.304] N2 loading DXF size=1251KB
+[00:42:46.306] N2 done ok. is_er=False auto_chain=True
+[00:42:46.668] ITEM_SELECTED classe=LJ id=L16 flow=estrutural
+[00:42:46.670] N1 flow=estrutural classe=LJ id=L16 auto_chain=True
+[00:42:46.807] N2 is_er_flow=False obra=Obra_TREINO_1 classe=LJ id=L16
+[00:42:46.808] N2 loading DXF size=1251KB
+[00:42:46.810] N2 done ok. is_er=False auto_chain=True
+[00:43:00.668] ITEM_SELECTED classe=PL id=P10 flow=estrutural
+[00:43:00.671] N1 flow=estrutural classe=PL id=P10 auto_chain=True
+[00:43:00.786] N2 is_er_flow=False obra=Obra_TREINO_1 classe=PL id=P10
+[00:43:00.788] N2 loading DXF size=7931KB
+[00:43:00.797] N2 done ok. is_er=False auto_chain=True
+[00:43:01.460] ITEM_SELECTED classe=PL id=P102 flow=estrutural
+[00:43:01.462] N1 flow=estrutural classe=PL id=P102 auto_chain=True
+[00:43:01.572] N2 is_er_flow=False obra=Obra_TREINO_1 classe=PL id=P102
+[00:43:01.573] N2 loading DXF size=7931KB
+[00:43:01.574] N2 done ok. is_er=False auto_chain=True
+[00:43:01.924] ITEM_SELECTED classe=PL id=P12 flow=estrutural
+[00:43:01.926] N1 flow=estrutural classe=PL id=P12 auto_chain=True
+[00:43:02.044] N2 is_er_flow=False obra=Obra_TREINO_1 classe=PL id=P12
+[00:43:02.046] N2 loading DXF size=7931KB
+[00:43:02.049] N2 done ok. is_er=False auto_chain=True
+[00:43:03.684] ITEM_SELECTED classe=PL id=PD3 flow=estrutural
+[00:43:03.686] N1 flow=estrutural classe=PL id=PD3 auto_chain=True
+[00:43:03.800] N2 is_er_flow=False obra=Obra_TREINO_1 classe=PL id=PD3
+[00:43:03.801] N2 loading DXF size=7931KB
+[00:43:03.802] N2 done ok. is_er=False auto_chain=True
+[00:43:05.284] ITEM_SELECTED classe=PL id=P41 flow=estrutural
+[00:43:05.286] N1 flow=estrutural classe=PL id=P41 auto_chain=True
+[00:43:05.400] N2 is_er_flow=False obra=Obra_TREINO_1 classe=PL id=P41
+[00:43:05.402] N2 loading DXF size=7931KB
+[00:43:05.404] N2 done ok. is_er=False auto_chain=True
+[01:05:03.172] ITEM_SELECTED classe=LJ id=L308 flow=reverso
+[01:05:03.174] N1 flow=reverso classe=LJ id=L308 auto_chain=True
+[01:05:03.175] N1 ER shortcircuit → chaining N2
+[01:05:03.297] N2 is_er_flow=True obra=Obra_TREINO_1 classe=LJ id=L308
+[01:05:03.300] N2 recorte_path=D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-2_Triagem\recortes_reversos\ALIMONTI - PARAISO - 13° PAV.- LJ - R00\LAJ_L308_sel_1781121913.dxf
+[01:05:03.300] N2 loading DXF size=38KB
+[01:05:03.305] N2 done ok. is_er=True auto_chain=True
+[01:22:10.796] ITEM_SELECTED classe=LV id=V10_B flow=estrutural
+[01:22:10.798] N1 flow=estrutural classe=LV id=V10_B auto_chain=True
+[01:22:10.927] N2 is_er_flow=False obra=Obra_TREINO_1 classe=LV id=V10_B
+[01:22:10.929] N2 loading DXF size=6898KB
+[01:22:10.932] N2 done ok. is_er=False auto_chain=True
+[01:22:11.763] ITEM_SELECTED classe=LV id=V11_A flow=estrutural
+[01:22:11.765] N1 flow=estrutural classe=LV id=V11_A auto_chain=True
+[01:22:11.894] N2 is_er_flow=False obra=Obra_TREINO_1 classe=LV id=V11_A
+[01:22:11.895] N2 loading DXF size=6898KB
+[01:22:11.898] N2 done ok. is_er=False auto_chain=True
+[01:22:12.971] ITEM_SELECTED classe=LV id=V11_B flow=estrutural
+[01:22:12.973] N1 flow=estrutural classe=LV id=V11_B auto_chain=True
+[01:22:13.103] N2 is_er_flow=False obra=Obra_TREINO_1 classe=LV id=V11_B
+[01:22:13.105] N2 loading DXF size=6898KB
+[01:22:13.107] N2 done ok. is_er=False auto_chain=True
+[11:12:41.918] ITEM_SELECTED classe=LJ id=L204 flow=reverso
+[11:12:41.921] N1 flow=reverso classe=LJ id=L204 auto_chain=True
+[11:12:41.923] N1 ER shortcircuit → chaining N2
+[11:12:42.037] N2 is_er_flow=True obra=Obra_TREINO_1 classe=LJ id=L204
+[11:12:42.039] N2 recorte_path=D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-2_Triagem\recortes_reversos\ALIMONTI - PARAISO - 1° PAV.- LJ - R01\LAJ_L204_motor_178111339970.dxf
+[11:12:42.040] N2 loading DXF size=40KB
+[11:12:42.044] N2 done ok. is_er=True auto_chain=True
+[11:12:44.374] ITEM_SELECTED classe=LJ id=L202 flow=reverso
+[11:12:44.377] N1 flow=reverso classe=LJ id=L202 auto_chain=True
+[11:12:44.379] N1 ER shortcircuit → chaining N2
+[11:12:44.438] N2 is_er_flow=True obra=Obra_TREINO_1 classe=LJ id=L202
+[11:12:44.441] N2 recorte_path=D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-2_Triagem\recortes_reversos\ALIMONTI - PARAISO - 1° PAV.- LJ - R01\LAJ_L202_motor_178111339968.dxf
+[11:12:44.441] N2 loading DXF size=28KB
+[11:12:44.446] N2 done ok. is_er=True auto_chain=True
+[11:12:46.638] ITEM_SELECTED classe=LJ id=L207 flow=reverso
+[11:12:46.641] N1 flow=reverso classe=LJ id=L207 auto_chain=True
+[11:12:46.643] N1 ER shortcircuit → chaining N2
+[11:12:46.713] N2 is_er_flow=True obra=Obra_TREINO_1 classe=LJ id=L207
+[11:12:46.716] N2 recorte_path=D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-2_Triagem\recortes_reversos\ALIMONTI - PARAISO - 1° PAV.- LJ - R01\LAJ_L207_motor_178111339976.dxf
+[11:12:46.716] N2 loading DXF size=49KB
+[11:12:46.722] N2 done ok. is_er=True auto_chain=True
+[11:25:26.590] ITEM_SELECTED classe=LV id=V13 flow=reverso
+[11:25:26.593] N1 flow=reverso classe=LV id=V13 auto_chain=True
+[11:25:26.595] N1 ER shortcircuit → chaining N2
+[11:25:26.667] N2 is_er_flow=True obra=Obra_TREINO_1 classe=LV id=V13
+[11:25:26.671] N2 recorte_path=D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-2_Triagem\recortes_reversos\ALIMONTI - PARAISO - TIPO - 3° AO 12° PAV.- LV - R00\LV_V13_motor_178111351374.dxf
+[11:25:26.671] N2 loading DXF size=173KB
+[11:25:26.677] N2 done ok. is_er=True auto_chain=True
+[11:25:28.622] ITEM_SELECTED classe=LV id=V302 flow=reverso
+[11:25:28.625] N1 flow=reverso classe=LV id=V302 auto_chain=True
+[11:25:28.627] N1 ER shortcircuit → chaining N2
+[11:25:28.696] N2 is_er_flow=True obra=Obra_TREINO_1 classe=LV id=V302
+[11:25:28.698] N2 recorte_path=None
+[11:25:28.698] N2 DXF not found: None
+[11:25:28.702] N2 done ok. is_er=True auto_chain=True
+[11:25:30.006] ITEM_SELECTED classe=LV id=V305 flow=reverso
+[11:25:30.009] N1 flow=reverso classe=LV id=V305 auto_chain=True
+[11:25:30.011] N1 ER shortcircuit → chaining N2
+[11:25:30.065] N2 is_er_flow=True obra=Obra_TREINO_1 classe=LV id=V305
+[11:25:30.067] N2 recorte_path=None
+[11:25:30.067] N2 DXF not found: None
+[11:25:30.070] N2 done ok. is_er=True auto_chain=True
+[11:25:30.926] ITEM_SELECTED classe=LV id=V302 flow=reverso
+[11:25:30.929] N1 flow=reverso classe=LV id=V302 auto_chain=True
+[11:25:30.930] N1 ER shortcircuit → chaining N2
+[11:25:30.984] N2 is_er_flow=True obra=Obra_TREINO_1 classe=LV id=V302
+[11:25:30.987] N2 recorte_path=None
+[11:25:30.987] N2 DXF not found: None
+[11:25:30.990] N2 done ok. is_er=True auto_chain=True
+[11:25:32.086] ITEM_SELECTED classe=LV id=V304 flow=reverso
+[11:25:32.089] N1 flow=reverso classe=LV id=V304 auto_chain=True
+[11:25:32.091] N1 ER shortcircuit → chaining N2
+[11:25:32.160] N2 is_er_flow=True obra=Obra_TREINO_1 classe=LV id=V304
+[11:25:32.164] N2 recorte_path=None
+[11:25:32.164] N2 DXF not found: None
+[11:25:32.169] N2 done ok. is_er=True auto_chain=True
+[11:25:32.750] ITEM_SELECTED classe=LV id=V308 flow=reverso
+[11:25:32.753] N1 flow=reverso classe=LV id=V308 auto_chain=True
+[11:25:32.754] N1 ER shortcircuit → chaining N2
+[11:25:32.812] N2 is_er_flow=True obra=Obra_TREINO_1 classe=LV id=V308
+[11:25:32.815] N2 recorte_path=None
+[11:25:32.815] N2 DXF not found: None
+[11:25:32.818] N2 done ok. is_er=True auto_chain=True
+[11:25:33.182] ITEM_SELECTED classe=LV id=V310 flow=reverso
+[11:25:33.185] N1 flow=reverso classe=LV id=V310 auto_chain=True
+[11:25:33.186] N1 ER shortcircuit → chaining N2
+[11:25:33.248] N2 is_er_flow=True obra=Obra_TREINO_1 classe=LV id=V310
+[11:25:33.250] N2 recorte_path=None
+[11:25:33.250] N2 DXF not found: None
+[11:25:33.254] N2 done ok. is_er=True auto_chain=True
+[11:25:34.030] ITEM_SELECTED classe=LV id=V301 flow=reverso
+[11:25:34.033] N1 flow=reverso classe=LV id=V301 auto_chain=True
+[11:25:34.035] N1 ER shortcircuit → chaining N2
+[11:25:34.106] N2 is_er_flow=True obra=Obra_TREINO_1 classe=LV id=V301
+[11:25:34.109] N2 recorte_path=None
+[11:25:34.109] N2 DXF not found: None
+[11:25:34.113] N2 done ok. is_er=True auto_chain=True
+[11:25:34.566] ITEM_SELECTED classe=LV id=V13 flow=reverso
+[11:25:34.569] N1 flow=reverso classe=LV id=V13 auto_chain=True
+[11:25:34.571] N1 ER shortcircuit → chaining N2
+[11:25:34.634] N2 is_er_flow=True obra=Obra_TREINO_1 classe=LV id=V13
+[11:25:34.636] N2 recorte_path=D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-2_Triagem\recortes_reversos\ALIMONTI - PARAISO - TIPO - 3° AO 12° PAV.- LV - R00\LV_V13_motor_178111351374.dxf
+[11:25:34.637] N2 loading DXF size=173KB
+[11:25:34.642] N2 done ok. is_er=True auto_chain=True
+[11:25:36.710] ITEM_SELECTED classe=LV id=V302 flow=reverso
+[11:25:36.713] N1 flow=reverso classe=LV id=V302 auto_chain=True
+[11:25:36.714] N1 ER shortcircuit → chaining N2
+[11:25:36.776] N2 is_er_flow=True obra=Obra_TREINO_1 classe=LV id=V302
+[11:25:36.778] N2 recorte_path=None
+[11:25:36.778] N2 DXF not found: None
+[11:25:36.781] N2 done ok. is_er=True auto_chain=True
+[11:25:38.142] ITEM_SELECTED classe=PL id=P1 flow=reverso
+[11:25:38.145] N1 flow=reverso classe=PL id=P1 auto_chain=True
+[11:25:38.146] N1 ER shortcircuit → chaining N2
+[11:25:38.201] N2 is_er_flow=True obra=Obra_TREINO_1 classe=PL id=P1
+[11:25:38.204] N2 recorte_path=D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-2_Triagem\recortes_reversos\ALIMONTI - PARAISO - 1° PAV.- PL - R00\PIL_P1_motor_178111343962.dxf
+[11:25:38.204] N2 loading DXF size=214KB
+[11:25:38.212] N2 done ok. is_er=True auto_chain=True
+[11:25:39.550] ITEM_SELECTED classe=PL id=P13 flow=reverso
+[11:25:39.553] N1 flow=reverso classe=PL id=P13 auto_chain=True
+[11:25:39.555] N1 ER shortcircuit → chaining N2
+[11:25:39.613] N2 is_er_flow=True obra=Obra_TREINO_1 classe=PL id=P13
+[11:25:39.615] N2 recorte_path=D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-2_Triagem\recortes_reversos\ALIMONTI - PARAISO - 1° PAV.- PL - R00\PIL_P13_motor_178111344176.dxf
+[11:25:39.615] N2 loading DXF size=221KB
+[11:25:39.624] N2 done ok. is_er=True auto_chain=True
+[11:25:40.878] ITEM_SELECTED classe=PL id=P14 flow=reverso
+[11:25:40.881] N1 flow=reverso classe=PL id=P14 auto_chain=True
+[11:25:40.883] N1 ER shortcircuit → chaining N2
+[11:25:40.935] N2 is_er_flow=True obra=Obra_TREINO_1 classe=PL id=P14
+[11:25:40.938] N2 recorte_path=D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-2_Triagem\recortes_reversos\ALIMONTI - PARAISO - 14° PAV.- PL - R00\PIL_P14_motor_178111339183.dxf
+[11:25:40.938] N2 loading DXF size=250KB
+[11:25:40.947] N2 done ok. is_er=True auto_chain=True
+[11:25:42.566] ITEM_SELECTED classe=PL id=P19 flow=reverso
+[11:25:42.569] N1 flow=reverso classe=PL id=P19 auto_chain=True
+[11:25:42.571] N1 ER shortcircuit → chaining N2
+[11:25:42.632] N2 is_er_flow=True obra=Obra_TREINO_1 classe=PL id=P19
+[11:25:42.635] N2 recorte_path=D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-2_Triagem\recortes_reversos\ALIMONTI - PARAISO - 14° PAV.- PL - R00\PIL_P19_motor_178111339252.dxf
+[11:25:42.635] N2 loading DXF size=216KB
+[11:25:42.644] N2 done ok. is_er=True auto_chain=True
+[11:25:44.374] ITEM_SELECTED classe=LV id=V310 flow=reverso
+[11:25:44.377] N1 flow=reverso classe=LV id=V310 auto_chain=True
+[11:25:44.378] N1 ER shortcircuit → chaining N2
+[11:25:44.447] N2 is_er_flow=True obra=Obra_TREINO_1 classe=LV id=V310
+[11:25:44.449] N2 recorte_path=None
+[11:25:44.450] N2 DXF not found: None
+[11:25:44.453] N2 done ok. is_er=True auto_chain=True
+[11:25:46.686] ITEM_SELECTED classe=LV id=V304 flow=reverso
+[11:25:46.689] N1 flow=reverso classe=LV id=V304 auto_chain=True
+[11:25:46.690] N1 ER shortcircuit → chaining N2
+[11:25:46.760] N2 is_er_flow=True obra=Obra_TREINO_1 classe=LV id=V304
+[11:25:46.763] N2 recorte_path=None
+[11:25:46.763] N2 DXF not found: None
+[11:25:46.767] N2 done ok. is_er=True auto_chain=True
+[11:25:47.950] ITEM_SELECTED classe=LV id=V320 flow=reverso
+[11:25:47.953] N1 flow=reverso classe=LV id=V320 auto_chain=True
+[11:25:47.955] N1 ER shortcircuit → chaining N2
+[11:25:48.025] N2 is_er_flow=True obra=Obra_TREINO_1 classe=LV id=V320
+[11:25:48.028] N2 recorte_path=None
+[11:25:48.028] N2 DXF not found: None
+[11:25:48.031] N2 done ok. is_er=True auto_chain=True
+[11:25:48.510] ITEM_SELECTED classe=LV id=V321 flow=reverso
+[11:25:48.513] N1 flow=reverso classe=LV id=V321 auto_chain=True
+[11:25:48.514] N1 ER shortcircuit → chaining N2
+[11:25:48.584] N2 is_er_flow=True obra=Obra_TREINO_1 classe=LV id=V321
+[11:25:48.587] N2 recorte_path=None
+[11:25:48.587] N2 DXF not found: None
+[11:25:48.591] N2 done ok. is_er=True auto_chain=True
+[11:25:49.198] ITEM_SELECTED classe=LV id=V332 flow=reverso
+[11:25:49.201] N1 flow=reverso classe=LV id=V332 auto_chain=True
+[11:25:49.202] N1 ER shortcircuit → chaining N2
+[11:25:49.266] N2 is_er_flow=True obra=Obra_TREINO_1 classe=LV id=V332
+[11:25:49.269] N2 recorte_path=None
+[11:25:49.269] N2 DXF not found: None
+[11:25:49.272] N2 done ok. is_er=True auto_chain=True
+[11:25:50.670] ITEM_SELECTED classe=LV id=V332 flow=reverso
+[11:25:50.673] N1 flow=reverso classe=LV id=V332 auto_chain=True
+[11:25:50.675] N1 ER shortcircuit → chaining N2
+[11:25:50.740] N2 is_er_flow=True obra=Obra_TREINO_1 classe=LV id=V332
+[11:25:50.742] N2 recorte_path=None
+[11:25:50.742] N2 DXF not found: None
+[11:25:50.746] N2 done ok. is_er=True auto_chain=True
+[11:25:52.134] ITEM_SELECTED classe=LV id=V304 flow=reverso
+[11:25:52.137] N1 flow=reverso classe=LV id=V304 auto_chain=True
+[11:25:52.138] N1 ER shortcircuit → chaining N2
+[11:25:52.215] N2 is_er_flow=True obra=Obra_TREINO_1 classe=LV id=V304
+[11:25:52.219] N2 recorte_path=None
+[11:25:52.219] N2 DXF not found: None
+[11:25:52.224] N2 done ok. is_er=True auto_chain=True
+[11:25:52.766] ITEM_SELECTED classe=LV id=V303 flow=reverso
+[11:25:52.769] N1 flow=reverso classe=LV id=V303 auto_chain=True
+[11:25:52.770] N1 ER shortcircuit → chaining N2
+[11:25:52.826] N2 is_er_flow=True obra=Obra_TREINO_1 classe=LV id=V303
+[11:25:52.828] N2 recorte_path=None
+[11:25:52.828] N2 DXF not found: None
+[11:25:52.831] N2 done ok. is_er=True auto_chain=True
+[11:25:53.286] ITEM_SELECTED classe=LV id=V302 flow=reverso
+[11:25:53.289] N1 flow=reverso classe=LV id=V302 auto_chain=True
+[11:25:53.291] N1 ER shortcircuit → chaining N2
+[11:25:53.341] N2 is_er_flow=True obra=Obra_TREINO_1 classe=LV id=V302
+[11:25:53.344] N2 recorte_path=None
+[11:25:53.344] N2 DXF not found: None
+[11:25:53.347] N2 done ok. is_er=True auto_chain=True
+[11:25:53.734] ITEM_SELECTED classe=LV id=V301 flow=reverso
+[11:25:53.737] N1 flow=reverso classe=LV id=V301 auto_chain=True
+[11:25:53.739] N1 ER shortcircuit → chaining N2
+[11:25:53.806] N2 is_er_flow=True obra=Obra_TREINO_1 classe=LV id=V301
+[11:25:53.809] N2 recorte_path=None
+[11:25:53.809] N2 DXF not found: None
+[11:25:53.812] N2 done ok. is_er=True auto_chain=True
+[11:25:54.166] ITEM_SELECTED classe=LV id=V13 flow=reverso
+[11:25:54.169] N1 flow=reverso classe=LV id=V13 auto_chain=True
+[11:25:54.171] N1 ER shortcircuit → chaining N2
+[11:25:54.245] N2 is_er_flow=True obra=Obra_TREINO_1 classe=LV id=V13
+[11:25:54.252] N2 recorte_path=D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-2_Triagem\recortes_reversos\ALIMONTI - PARAISO - TIPO - 3° AO 12° PAV.- LV - R00\LV_V13_motor_178111351374.dxf
+[11:25:54.252] N2 loading DXF size=173KB
+[11:25:54.258] N2 done ok. is_er=True auto_chain=True
+[11:25:55.142] ITEM_SELECTED classe=LV id=V302 flow=reverso
+[11:25:55.145] N1 flow=reverso classe=LV id=V302 auto_chain=True
+[11:25:55.147] N1 ER shortcircuit → chaining N2
+[11:25:55.207] N2 is_er_flow=True obra=Obra_TREINO_1 classe=LV id=V302
+[11:25:55.210] N2 recorte_path=None
+[11:25:55.210] N2 DXF not found: None
+[11:25:55.213] N2 done ok. is_er=True auto_chain=True
+[11:25:56.086] ITEM_SELECTED classe=LV id=V304 flow=reverso
+[11:25:56.089] N1 flow=reverso classe=LV id=V304 auto_chain=True
+[11:25:56.091] N1 ER shortcircuit → chaining N2
+[11:25:56.166] N2 is_er_flow=True obra=Obra_TREINO_1 classe=LV id=V304
+[11:25:56.169] N2 recorte_path=None
+[11:25:56.169] N2 DXF not found: None
+[11:25:56.172] N2 done ok. is_er=True auto_chain=True
+[11:25:57.414] ITEM_SELECTED classe=LV id=V310 flow=reverso
+[11:25:57.417] N1 flow=reverso classe=LV id=V310 auto_chain=True
+[11:25:57.419] N1 ER shortcircuit → chaining N2
+[11:25:57.468] N2 is_er_flow=True obra=Obra_TREINO_1 classe=LV id=V310
+[11:25:57.471] N2 recorte_path=None
+[11:25:57.471] N2 DXF not found: None
+[11:25:57.474] N2 done ok. is_er=True auto_chain=True
+[11:26:31.806] ITEM_SELECTED classe=FV id=V302 flow=reverso
+[11:26:31.809] N1 flow=reverso classe=FV id=V302 auto_chain=True
+[11:26:31.811] N1 ER shortcircuit → chaining N2
+[11:26:31.881] N2 is_er_flow=True obra=Obra_TREINO_1 classe=FV id=V302
+[11:26:31.884] N2 recorte_path=None
+[11:26:31.884] N2 DXF not found: None
+[11:26:31.888] N2 done ok. is_er=True auto_chain=True
+[11:26:32.382] ITEM_SELECTED classe=FV id=V305 flow=reverso
+[11:26:32.385] N1 flow=reverso classe=FV id=V305 auto_chain=True
+[11:26:32.387] N1 ER shortcircuit → chaining N2
+[11:26:32.454] N2 is_er_flow=True obra=Obra_TREINO_1 classe=FV id=V305
+[11:26:32.457] N2 recorte_path=None
+[11:26:32.457] N2 DXF not found: None
+[11:26:32.461] N2 done ok. is_er=True auto_chain=True
+[11:26:32.710] ITEM_SELECTED classe=FV id=V307 flow=reverso
+[11:26:32.713] N1 flow=reverso classe=FV id=V307 auto_chain=True
+[11:26:32.715] N1 ER shortcircuit → chaining N2
+[11:26:32.763] N2 is_er_flow=True obra=Obra_TREINO_1 classe=FV id=V307
+[11:26:32.766] N2 recorte_path=None
+[11:26:32.766] N2 DXF not found: None
+[11:26:32.769] N2 done ok. is_er=True auto_chain=True
+[11:26:34.486] ITEM_SELECTED classe=LJ id=L308 flow=reverso
+[11:26:34.488] N1 flow=reverso classe=LJ id=L308 auto_chain=True
+[11:26:34.490] N1 ER shortcircuit → chaining N2
+[11:26:34.548] N2 is_er_flow=True obra=Obra_TREINO_1 classe=LJ id=L308
+[11:26:34.550] N2 recorte_path=D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-2_Triagem\recortes_reversos\ALIMONTI - PARAISO - 13° PAV.- LJ - R00\LAJ_L308_sel_1781121913.dxf
+[11:26:34.551] N2 loading DXF size=38KB
+[11:26:34.556] N2 done ok. is_er=True auto_chain=True
+[11:35:04.166] ITEM_SELECTED classe=LV id=V13 flow=reverso
+[11:35:04.169] N1 flow=reverso classe=LV id=V13 auto_chain=True
+[11:35:04.171] N1 ER shortcircuit → chaining N2
+[11:35:04.290] N2 is_er_flow=True obra=Obra_TREINO_1 classe=LV id=V13
+[11:35:04.293] N2 recorte_path=D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-2_Triagem\recortes_reversos\ALIMONTI - PARAISO - TIPO - 3° AO 12° PAV.- LV - R00\LV_V13_motor_178111351374.dxf
+[11:35:04.293] N2 loading DXF size=173KB
+[11:35:04.297] N2 done ok. is_er=True auto_chain=True
+[11:35:06.566] ITEM_SELECTED classe=LV id=V301 flow=reverso
+[11:35:06.569] N1 flow=reverso classe=LV id=V301 auto_chain=True
+[11:35:06.570] N1 ER shortcircuit → chaining N2
+[11:35:06.623] N2 is_er_flow=True obra=Obra_TREINO_1 classe=LV id=V301
+[11:35:06.638] N2 recorte_path=D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-2_Triagem\recortes_reversos\ALIMONTI - PARAISO - 13° PAV.- LV - R00\LV_V301_motor_178106116876.dxf
+[11:35:06.638] N2 loading DXF size=482KB
+[11:35:06.779] N2 done ok. is_er=True auto_chain=True
+[11:35:07.758] ITEM_SELECTED classe=LV id=V303 flow=reverso
+[11:35:07.761] N1 flow=reverso classe=LV id=V303 auto_chain=True
+[11:35:07.763] N1 ER shortcircuit → chaining N2
+[11:35:07.831] N2 is_er_flow=True obra=Obra_TREINO_1 classe=LV id=V303
+[11:35:07.848] N2 recorte_path=D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-2_Triagem\recortes_reversos\ALIMONTI - PARAISO - 13° PAV.- LV - R00\LV_V303_motor_178106116908.dxf
+[11:35:07.848] N2 loading DXF size=193KB
+[11:35:07.927] N2 done ok. is_er=True auto_chain=True
+[11:35:09.310] ITEM_SELECTED classe=LV id=V301 flow=reverso
+[11:35:09.313] N1 flow=reverso classe=LV id=V301 auto_chain=True
+[11:35:09.315] N1 ER shortcircuit → chaining N2
+[11:35:09.381] N2 is_er_flow=True obra=Obra_TREINO_1 classe=LV id=V301
+[11:35:09.396] N2 recorte_path=D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-2_Triagem\recortes_reversos\ALIMONTI - PARAISO - 13° PAV.- LV - R00\LV_V301_motor_178106116876.dxf
+[11:35:09.396] N2 loading DXF size=482KB
+[11:35:09.526] N2 done ok. is_er=True auto_chain=True
+[11:35:11.462] ITEM_SELECTED classe=LV id=V302 flow=reverso
+[11:35:11.465] N1 flow=reverso classe=LV id=V302 auto_chain=True
+[11:35:11.466] N1 ER shortcircuit → chaining N2
+[11:35:11.542] N2 is_er_flow=True obra=Obra_TREINO_1 classe=LV id=V302
+[11:35:11.557] N2 recorte_path=D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-2_Triagem\recortes_reversos\ALIMONTI - PARAISO - 13° PAV.- LV - R00\LV_V302_motor_178106116896.dxf
+[11:35:11.557] N2 loading DXF size=254KB
+[11:35:11.650] N2 done ok. is_er=True auto_chain=True
+[11:39:30.998] ITEM_SELECTED classe=LV id=V10_B flow=estrutural
+[11:39:31.001] N1 flow=estrutural classe=LV id=V10_B auto_chain=True
+[11:39:31.118] N2 is_er_flow=False obra=Obra_TREINO_1 classe=LV id=V10_B
+[11:39:31.122] N2 loading DXF size=6898KB
+[11:39:31.128] N2 done ok. is_er=False auto_chain=True
+[11:39:36.942] ITEM_SELECTED classe=LV id=V11_A flow=estrutural
+[11:39:36.944] N1 flow=estrutural classe=LV id=V11_A auto_chain=True
+[11:39:37.046] N2 is_er_flow=False obra=Obra_TREINO_1 classe=LV id=V11_A
+[11:39:37.047] N2 loading DXF size=6898KB
+[11:39:37.050] N2 done ok. is_er=False auto_chain=True
+[17:54:22.159] ITEM_SELECTED classe=LV id=V13 flow=reverso
+[17:54:22.162] N1 flow=reverso classe=LV id=V13 auto_chain=True
+[17:54:22.163] N1 ER shortcircuit → chaining N2
+[17:54:22.229] N2 is_er_flow=True obra=Obra_TREINO_1 classe=LV id=V13
+[17:54:22.232] N2 recorte_path=D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-2_Triagem\recortes_reversos\ALIMONTI - PARAISO - TIPO - 3° AO 12° PAV.- LV - R00\LV_V13_motor_178111351374.dxf
+[17:54:22.232] N2 loading DXF size=173KB
+[17:54:22.237] N2 done ok. is_er=True auto_chain=True
+[17:54:25.623] ITEM_SELECTED classe=LV id=V302 flow=reverso
+[17:54:25.626] N1 flow=reverso classe=LV id=V302 auto_chain=True
+[17:54:25.627] N1 ER shortcircuit → chaining N2
+[17:54:25.694] N2 is_er_flow=True obra=Obra_TREINO_1 classe=LV id=V302
+[17:54:25.709] N2 recorte_path=D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-2_Triagem\recortes_reversos\ALIMONTI - PARAISO - 13° PAV.- LV - R00\LV_V302_motor_178106116896.dxf
+[17:54:25.709] N2 loading DXF size=254KB
+[17:54:25.805] N2 done ok. is_er=True auto_chain=True
+[17:57:03.927] ITEM_SELECTED classe=PL id=P1 flow=estrutural
+[17:57:03.930] N1 flow=estrutural classe=PL id=P1 auto_chain=True
+[17:57:04.044] N2 is_er_flow=False obra=Obra_TREINO_3 classe=PL id=P1
+[17:57:04.045] N2 loading DXF size=1627KB
+[17:57:04.047] N2 done ok. is_er=False auto_chain=True
+[17:57:10.287] ITEM_SELECTED classe=PL id=P1 flow=estrutural
+[17:57:10.290] N1 flow=estrutural classe=PL id=P1 auto_chain=True
+[17:57:10.409] N2 is_er_flow=False obra=Obra_TREINO_3 classe=PL id=P1
+[17:57:10.410] N2 loading DXF size=1627KB
+[17:57:10.450] N2 done ok. is_er=False auto_chain=True
+[17:57:11.262] ITEM_SELECTED classe=PL id=P11 flow=estrutural
+[17:57:11.265] N1 flow=estrutural classe=PL id=P11 auto_chain=True
+[17:57:11.415] N2 is_er_flow=False obra=Obra_TREINO_3 classe=PL id=P11
+[17:57:11.416] N2 loading DXF size=1627KB
+[17:57:11.418] N2 done ok. is_er=False auto_chain=True
+[17:57:13.575] ITEM_SELECTED classe=PL id=P123 flow=estrutural
+[17:57:13.578] N1 flow=estrutural classe=PL id=P123 auto_chain=True
+[17:57:13.689] N2 is_er_flow=False obra=Obra_TREINO_3 classe=PL id=P123
+[17:57:13.691] N2 loading DXF size=1627KB
+[17:57:13.694] N2 done ok. is_er=False auto_chain=True
+[17:57:15.527] ITEM_SELECTED classe=PL id=P118 flow=estrutural
+[17:57:15.530] N1 flow=estrutural classe=PL id=P118 auto_chain=True
+[17:57:15.646] N2 is_er_flow=False obra=Obra_TREINO_3 classe=PL id=P118
+[17:57:15.648] N2 loading DXF size=1627KB
+[17:57:15.650] N2 done ok. is_er=False auto_chain=True
+[17:57:16.319] ITEM_SELECTED classe=PL id=P109 flow=estrutural
+[17:57:16.322] N1 flow=estrutural classe=PL id=P109 auto_chain=True
+[17:57:16.441] N2 is_er_flow=False obra=Obra_TREINO_3 classe=PL id=P109
+[17:57:16.443] N2 loading DXF size=1627KB
+[17:57:16.445] N2 done ok. is_er=False auto_chain=True
+[17:57:17.167] ITEM_SELECTED classe=PL id=P10 flow=estrutural
+[17:57:17.170] N1 flow=estrutural classe=PL id=P10 auto_chain=True
+[17:57:17.279] N2 is_er_flow=False obra=Obra_TREINO_3 classe=PL id=P10
+[17:57:17.280] N2 loading DXF size=1627KB
+[17:57:17.282] N2 done ok. is_er=False auto_chain=True
+[17:57:18.007] ITEM_SELECTED classe=PL id=P19 flow=estrutural
+[17:57:18.009] N1 flow=estrutural classe=PL id=P19 auto_chain=True
+[17:57:18.123] N2 is_er_flow=False obra=Obra_TREINO_3 classe=PL id=P19
+[17:57:18.124] N2 loading DXF size=1627KB
+[17:57:18.125] N2 done ok. is_er=False auto_chain=True
+[17:57:18.887] ITEM_SELECTED classe=PL id=P2 flow=estrutural
+[17:57:18.889] N1 flow=estrutural classe=PL id=P2 auto_chain=True
+[17:57:18.998] N2 is_er_flow=False obra=Obra_TREINO_3 classe=PL id=P2
+[17:57:18.998] N2 loading DXF size=1627KB
+[17:57:19.000] N2 done ok. is_er=False auto_chain=True
+[17:57:19.863] ITEM_SELECTED classe=PL id=P18 flow=estrutural
+[17:57:19.865] N1 flow=estrutural classe=PL id=P18 auto_chain=True
+[17:57:19.986] N2 is_er_flow=False obra=Obra_TREINO_3 classe=PL id=P18
+[17:57:19.987] N2 loading DXF size=1627KB
+[17:57:19.988] N2 done ok. is_er=False auto_chain=True
+[17:57:59.839] ITEM_SELECTED classe=PL id=P109 flow=estrutural
+[17:57:59.843] N1 flow=estrutural classe=PL id=P109 auto_chain=True
+[17:57:59.947] N2 is_er_flow=False obra=Obra_TREINO_3 classe=PL id=P109
+[17:57:59.949] N2 loading DXF size=1627KB
+[17:57:59.979] N2 done ok. is_er=False auto_chain=True
+[17:58:01.599] ITEM_SELECTED classe=PL id=P12 flow=estrutural
+[17:58:01.602] N1 flow=estrutural classe=PL id=P12 auto_chain=True
+[17:58:01.807] N2 is_er_flow=False obra=Obra_TREINO_3 classe=PL id=P12
+[17:58:01.807] N2 loading DXF size=1627KB
+[17:58:01.809] N2 done ok. is_er=False auto_chain=True
+[17:58:04.895] ITEM_SELECTED classe=PL id=P134 flow=estrutural
+[17:58:04.898] N1 flow=estrutural classe=PL id=P134 auto_chain=True
+[17:58:05.026] N2 is_er_flow=False obra=Obra_TREINO_3 classe=PL id=P134
+[17:58:05.028] N2 loading DXF size=1627KB
+[17:58:05.030] N2 done ok. is_er=False auto_chain=True
+[17:58:07.343] ITEM_SELECTED classe=PL id=P14 flow=estrutural
+[17:58:07.346] N1 flow=estrutural classe=PL id=P14 auto_chain=True
+[17:58:07.449] N2 is_er_flow=False obra=Obra_TREINO_3 classe=PL id=P14
+[17:58:07.449] N2 loading DXF size=1627KB
+[17:58:07.451] N2 done ok. is_er=False auto_chain=True
+[17:58:08.735] ITEM_SELECTED classe=PL id=P15 flow=estrutural
+[17:58:08.738] N1 flow=estrutural classe=PL id=P15 auto_chain=True
+[17:58:08.843] N2 is_er_flow=False obra=Obra_TREINO_3 classe=PL id=P15
+[17:58:08.844] N2 loading DXF size=1627KB
+[17:58:08.845] N2 done ok. is_er=False auto_chain=True
+[17:58:09.760] ITEM_SELECTED classe=PL id=P202 flow=estrutural
+[17:58:09.763] N1 flow=estrutural classe=PL id=P202 auto_chain=True
+[17:58:09.911] N2 is_er_flow=False obra=Obra_TREINO_3 classe=PL id=P202
+[17:58:09.913] N2 loading DXF size=1627KB
+[17:58:09.916] N2 done ok. is_er=False auto_chain=True
+[17:58:13.943] ITEM_SELECTED classe=PL id=P7 flow=estrutural
+[17:58:13.946] N1 flow=estrutural classe=PL id=P7 auto_chain=True
+[17:58:14.056] N2 is_er_flow=False obra=Obra_TREINO_3 classe=PL id=P7
+[17:58:14.056] N2 loading DXF size=1627KB
+[17:58:14.058] N2 done ok. is_er=False auto_chain=True
+[17:58:16.879] ITEM_SELECTED classe=PL id=P109 flow=estrutural
+[17:58:16.882] N1 flow=estrutural classe=PL id=P109 auto_chain=True
+[17:58:17.085] N2 is_er_flow=False obra=Obra_TREINO_3 classe=PL id=P109
+[17:58:17.087] N2 loading DXF size=1627KB
+[17:58:17.090] N2 done ok. is_er=False auto_chain=True
+[17:58:21.927] ITEM_SELECTED classe=LV id=V282_B flow=estrutural
+[17:58:21.930] N1 flow=estrutural classe=LV id=V282_B auto_chain=True
+[17:58:22.284] N2 is_er_flow=False obra=Obra_TREINO_3 classe=LV id=V282_B
+[17:58:22.285] N2 loading DXF size=3771KB
+[17:58:22.287] N2 done ok. is_er=False auto_chain=True
+[17:58:23.359] ITEM_SELECTED classe=LV id=V296_A flow=estrutural
+[17:58:23.362] N1 flow=estrutural classe=LV id=V296_A auto_chain=True
+[17:58:23.463] N2 is_er_flow=False obra=Obra_TREINO_3 classe=LV id=V296_A
+[17:58:23.465] N2 loading DXF size=3771KB
+[17:58:23.496] N2 done ok. is_er=False auto_chain=True
+[17:58:28.319] ITEM_SELECTED classe=FV id=VN204_fundo flow=estrutural
+[17:58:28.322] N1 flow=estrutural classe=FV id=VN204_fundo auto_chain=True
+[17:58:28.429] N2 is_er_flow=False obra=Obra_TREINO_3 classe=FV id=VN204_fundo
+[17:58:28.430] N2 loading DXF size=1385KB
+[17:58:28.432] N2 done ok. is_er=False auto_chain=True
+[17:58:29.743] ITEM_SELECTED classe=LJ id=L88 flow=estrutural
+[17:58:29.746] N1 flow=estrutural classe=LJ id=L88 auto_chain=True
+[17:58:29.951] N2 is_er_flow=False obra=Obra_TREINO_3 classe=LJ id=L88
+[17:58:29.952] N2 loading DXF size=1204KB
+[17:58:29.953] N2 done ok. is_er=False auto_chain=True
+[17:58:30.735] ITEM_SELECTED classe=LJ id=L86 flow=estrutural
+[17:58:30.738] N1 flow=estrutural classe=LJ id=L86 auto_chain=True
+[17:58:30.844] N2 is_er_flow=False obra=Obra_TREINO_3 classe=LJ id=L86
+[17:58:30.845] N2 loading DXF size=1204KB
+[17:58:30.846] N2 done ok. is_er=False auto_chain=True
+[17:58:31.335] ITEM_SELECTED classe=LJ id=L94 flow=estrutural
+[17:58:31.338] N1 flow=estrutural classe=LJ id=L94 auto_chain=True
+[17:58:31.459] N2 is_er_flow=False obra=Obra_TREINO_3 classe=LJ id=L94
+[17:58:31.463] N2 loading DXF size=1204KB
+[17:58:31.471] N2 done ok. is_er=False auto_chain=True
+[17:58:32.296] ITEM_SELECTED classe=LJ id=L82 flow=estrutural
+[17:58:32.300] N1 flow=estrutural classe=LJ id=L82 auto_chain=True
+[17:58:32.454] N2 is_er_flow=False obra=Obra_TREINO_3 classe=LJ id=L82
+[17:58:32.457] N2 loading DXF size=1204KB
+[17:58:32.463] N2 done ok. is_er=False auto_chain=True
+[19:38:35.477] ITEM_SELECTED classe=LV id=V10_B flow=estrutural
+[19:38:35.480] N1 flow=estrutural classe=LV id=V10_B auto_chain=True
+[19:38:40.621] ITEM_SELECTED classe=LV id=V11_A flow=estrutural
+[19:38:40.625] N1 flow=estrutural classe=LV id=V11_A auto_chain=True
+[19:38:46.829] ITEM_SELECTED classe=LV id=V10_B flow=estrutural
+[19:38:46.833] N1 flow=estrutural classe=LV id=V10_B auto_chain=True
+[19:38:48.445] ITEM_SELECTED classe=LV id=V301 flow=reverso
+[19:38:48.449] N1 flow=reverso classe=LV id=V301 auto_chain=True
+[19:38:48.450] N1 ER shortcircuit → chaining N2
+[19:38:48.521] N2 is_er_flow=True obra=Obra_TREINO_1 classe=LV id=V301
+[19:38:48.555] N2 recorte_path=D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-2_Triagem\recortes_reversos\ALIMONTI - PARAISO - 13° PAV.- LV - R00\LV_V301_motor_178106116876.dxf
+[19:38:48.555] N2 loading DXF size=482KB
+[19:38:48.693] N2 done ok. is_er=True auto_chain=True
+[19:38:56.053] ITEM_SELECTED classe=LV id=V302 flow=reverso
+[19:38:56.056] N1 flow=reverso classe=LV id=V302 auto_chain=True
+[19:38:56.057] N1 ER shortcircuit → chaining N2
+[19:38:56.130] N2 is_er_flow=True obra=Obra_TREINO_1 classe=LV id=V302
+[19:38:56.145] N2 recorte_path=D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-2_Triagem\recortes_reversos\ALIMONTI - PARAISO - 13° PAV.- LV - R00\LV_V302_motor_178106116896.dxf
+[19:38:56.145] N2 loading DXF size=254KB
+[19:38:56.232] N2 done ok. is_er=True auto_chain=True
+[19:38:58.117] ITEM_SELECTED classe=LV id=V301 flow=reverso
+[19:38:58.120] N1 flow=reverso classe=LV id=V301 auto_chain=True
+[19:38:58.121] N1 ER shortcircuit → chaining N2
+[19:38:58.183] N2 is_er_flow=True obra=Obra_TREINO_1 classe=LV id=V301
+[19:38:58.198] N2 recorte_path=D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-2_Triagem\recortes_reversos\ALIMONTI - PARAISO - 13° PAV.- LV - R00\LV_V301_motor_178106116876.dxf
+[19:38:58.198] N2 loading DXF size=482KB
+[19:38:58.330] N2 done ok. is_er=True auto_chain=True
+[19:39:04.029] ITEM_SELECTED classe=LV id=V304 flow=reverso
+[19:39:04.033] N1 flow=reverso classe=LV id=V304 auto_chain=True
+[19:39:04.034] N1 ER shortcircuit → chaining N2
+[19:39:04.088] N2 is_er_flow=True obra=Obra_TREINO_1 classe=LV id=V304
+[19:39:04.103] N2 recorte_path=D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-2_Triagem\recortes_reversos\ALIMONTI - PARAISO - 13° PAV.- LV - R00\LV_V304_motor_178106116918.dxf
+[19:39:04.103] N2 loading DXF size=106KB
+[19:39:04.160] N2 done ok. is_er=True auto_chain=True
+[19:39:07.069] ITEM_SELECTED classe=LV id=V303 flow=reverso
+[19:39:07.072] N1 flow=reverso classe=LV id=V303 auto_chain=True
+[19:39:07.073] N1 ER shortcircuit → chaining N2
+[19:39:07.144] N2 is_er_flow=True obra=Obra_TREINO_1 classe=LV id=V303
+[19:39:07.159] N2 recorte_path=D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-2_Triagem\recortes_reversos\ALIMONTI - PARAISO - 13° PAV.- LV - R00\LV_V303_motor_178106116908.dxf
+[19:39:07.159] N2 loading DXF size=193KB
+[19:39:07.238] N2 done ok. is_er=True auto_chain=True
+[19:39:15.661] ITEM_SELECTED classe=LV id=V303 flow=reverso
+[19:39:15.665] N1 flow=reverso classe=LV id=V303 auto_chain=True
+[19:39:15.667] N1 ER shortcircuit → chaining N2
+[19:39:15.732] N2 is_er_flow=True obra=Obra_TREINO_1 classe=LV id=V303
+[19:39:15.765] N2 recorte_path=D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-2_Triagem\recortes_reversos\ALIMONTI - PARAISO - 13° PAV.- LV - R00\LV_V303_motor_178106116908.dxf
+[19:39:15.765] N2 loading DXF size=193KB
+[19:39:15.830] N2 done ok. is_er=True auto_chain=True
+[19:39:57.357] ITEM_SELECTED classe=LV id=V308 flow=reverso
+[19:39:57.361] N1 flow=reverso classe=LV id=V308 auto_chain=True
+[19:39:57.363] N1 ER shortcircuit → chaining N2
+[19:39:57.421] N2 is_er_flow=True obra=Obra_TREINO_1 classe=LV id=V308
+[19:39:57.441] N2 recorte_path=D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-2_Triagem\recortes_reversos\ALIMONTI - PARAISO - 13° PAV.- LV - R00\LV_V308_motor_178106116947.dxf
+[19:39:57.441] N2 loading DXF size=111KB
+[19:39:57.501] N2 done ok. is_er=True auto_chain=True
+[19:39:59.253] ITEM_SELECTED classe=LV id=V317 flow=reverso
+[19:39:59.256] N1 flow=reverso classe=LV id=V317 auto_chain=True
+[19:39:59.257] N1 ER shortcircuit → chaining N2
+[19:39:59.314] N2 is_er_flow=True obra=Obra_TREINO_1 classe=LV id=V317
+[19:39:59.329] N2 recorte_path=D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-2_Triagem\recortes_reversos\ALIMONTI - PARAISO - 13° PAV.- LV - R00\LV_V317_motor_178106117014.dxf
+[19:39:59.329] N2 loading DXF size=208KB
+[19:39:59.407] N2 done ok. is_er=True auto_chain=True
+[19:40:04.517] ITEM_SELECTED classe=LV id=V318 flow=reverso
+[19:40:04.520] N1 flow=reverso classe=LV id=V318 auto_chain=True
+[19:40:04.521] N1 ER shortcircuit → chaining N2
+[19:40:04.583] N2 is_er_flow=True obra=Obra_TREINO_1 classe=LV id=V318
+[19:40:04.599] N2 recorte_path=D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-2_Triagem\recortes_reversos\ALIMONTI - PARAISO - 13° PAV.- LV - R00\LV_V318_motor_178106117025.dxf
+[19:40:04.599] N2 loading DXF size=208KB
+[19:40:04.682] N2 done ok. is_er=True auto_chain=True
+[19:44:29.645] ITEM_SELECTED classe=LV id=V311 flow=reverso
+[19:44:29.649] N1 flow=reverso classe=LV id=V311 auto_chain=True
+[19:44:29.651] N1 ER shortcircuit → chaining N2
+[19:44:29.720] N2 is_er_flow=True obra=Obra_TREINO_1 classe=LV id=V311
+[19:44:29.742] N2 recorte_path=D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-2_Triagem\recortes_reversos\ALIMONTI - PARAISO - 13° PAV.- LV - R00\LV_V311_motor_178106116965.dxf
+[19:44:29.742] N2 loading DXF size=166KB
+[19:44:29.811] N2 done ok. is_er=True auto_chain=True
+[19:44:31.301] ITEM_SELECTED classe=LV id=V312 flow=reverso
+[19:44:31.303] N1 flow=reverso classe=LV id=V312 auto_chain=True
+[19:44:31.305] N1 ER shortcircuit → chaining N2
+[19:44:31.367] N2 is_er_flow=True obra=Obra_TREINO_1 classe=LV id=V312
+[19:44:31.381] N2 recorte_path=D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-2_Triagem\recortes_reversos\ALIMONTI - PARAISO - 13° PAV.- LV - R00\LV_V312_motor_178106116974.dxf
+[19:44:31.381] N2 loading DXF size=166KB
+[19:44:31.453] N2 done ok. is_er=True auto_chain=True
+[19:44:34.501] ITEM_SELECTED classe=LV id=V303 flow=reverso
+[19:44:34.503] N1 flow=reverso classe=LV id=V303 auto_chain=True
+[19:44:34.505] N1 ER shortcircuit → chaining N2
+[19:44:34.569] N2 is_er_flow=True obra=Obra_TREINO_1 classe=LV id=V303
+[19:44:34.583] N2 recorte_path=D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-2_Triagem\recortes_reversos\ALIMONTI - PARAISO - 13° PAV.- LV - R00\LV_V303_motor_178106116908.dxf
+[19:44:34.583] N2 loading DXF size=193KB
+[19:44:34.650] N2 done ok. is_er=True auto_chain=True
+[19:44:36.525] ITEM_SELECTED classe=LV id=V304 flow=reverso
+[19:44:36.527] N1 flow=reverso classe=LV id=V304 auto_chain=True
+[19:44:36.529] N1 ER shortcircuit → chaining N2
+[19:44:36.596] N2 is_er_flow=True obra=Obra_TREINO_1 classe=LV id=V304
+[19:44:36.610] N2 recorte_path=D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-2_Triagem\recortes_reversos\ALIMONTI - PARAISO - 13° PAV.- LV - R00\LV_V304_motor_178106116918.dxf
+[19:44:36.610] N2 loading DXF size=106KB
+[19:44:36.657] N2 done ok. is_er=True auto_chain=True
+[19:44:37.853] ITEM_SELECTED classe=LV id=V305 flow=reverso
+[19:44:37.855] N1 flow=reverso classe=LV id=V305 auto_chain=True
+[19:44:37.857] N1 ER shortcircuit → chaining N2
+[19:44:37.914] N2 is_er_flow=True obra=Obra_TREINO_1 classe=LV id=V305
+[19:44:37.929] N2 recorte_path=D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-2_Triagem\recortes_reversos\ALIMONTI - PARAISO - 13° PAV.- LV - R00\LV_V305_motor_178106116926.dxf
+[19:44:37.929] N2 loading DXF size=165KB
+[19:44:37.999] N2 done ok. is_er=True auto_chain=True

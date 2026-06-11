@@ -1,0 +1,102 @@
+
+=== COMPARADOR DXF vs. GROUND TRUTH (tol=5.0%) ===
+
+--- PILARES ---
+  Match rate: 98.8% (80/81)
+  Erro médio: 0.6%
+  DIFF P36: ref B=0.0 H=30.5 | gen B=30.0 H=30.5 | err=50.0%
+
+--- VIGAS ---
+  Match rate: 100.0% (21/21)
+  Erro médio: 0.0%
+
+--- LAJES ---
+  Match rate: 0.0% (0/0)
+  Erro médio: 0.0%
+
+=== SCORE GERAL: 99.4% (PASS | meta: 75.0%) ===
+  Pilares: 98.8% | Vigas: 100.0% | Lajes: 0.0%
+
+  Relatorio: D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_5\Fase-5_Geracao_Scripts\_relatorio_comparacao.json
+[INFO] === validar_dxf_coletivo.py | Obra_TREINO_5 | EMBRAMACO - 1PV ===
+
+  [PILARES]
+    GT: 81 | Gerado: 81 | Corretos: 81
+    id_match: 100.0% | hallucination: 0.0%
+    SCORE: 100.0% — APROVADO
+
+  [VIGAS]
+    GT: 21 | Gerado: 21 | Corretos: 21
+    id_match: 100.0% | hallucination: 0.0%
+    SCORE: 100.0% — APROVADO
+  [SKIP] lajes: DXF coletivo não encontrado (LJ_gerado.dxf)
+
+[RESULTADO GLOBAL]
+  Score global: 100.0%
+  Status: APROVADO (>=90%)
+
+[INFO] Salvo: D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_5\Fase-6_Execucao_CAD\validation_coletivo.json
+[INFO] Carregando discovery de D:\Agente-cad-PYSIDE\DADOS-OBRAS...
+[INFO] Provider: NVIDIA NIM | Modelo: meta/llama-3.2-90b-vision-instruct
+
+============================================================
+  Obra: Obra_TREINO_5 | Pavimento: EMBRAMACO - 1PV
+============================================================
+
+    ERRO render STOG: bad allocation
+
+============================================================
+  RESUMO FINAL â€” Obra_TREINO_5
+============================================================
+  âŒ EMBRAMACO - 1PV                score=47.3  tipos=PL+LV+FV
+
+  Consolidado: D:\Agente-cad-PYSIDE\validacao_visual\consolidado_Obra_TREINO_5.json
+  Imagens em: D:\Agente-cad-PYSIDE\validacao_visual/
+
+============================================================
+PIPELINE E2E — Obra_TREINO_5 | EMBRAMACO - 1PV
+============================================================
+
+[FASE 1] Descoberta de DXFs
+  [SKIP] dxf_discovery.json ja existe e contem Obra_TREINO_5
+
+[FASE 2] Engenharia Reversa (Ground Truth)
+  [SKIP] ground truth já existe
+
+[FASE 3] Extração Dimensional
+  [SKIP] dados dimensionais ja existem
+
+[FASE 4] Motor Fase 4 (Transformacao Fase-3 -> Fase-4)
+  [SKIP] Fase-4 já processada
+
+[FASE 5] Geração DXF Individual
+  [SKIP] DXF_Pilares/ já existe
+
+[FASE 5b] Comparação DXF Individual vs STOG
+  [RUN] comparar_dxf.py ...
+        -> OK (3.2s)
+
+[FASE 6] Extração de Âncoras (coords absolutas)
+  [SKIP] âncoras já existem
+
+[FASE 7] Consolidação DXF Coletivo
+  [SKIP] DXFs coletivos já existem
+
+[FASE 8] Validação DXF Coletivo
+  [RUN] validar_dxf_coletivo.py ...
+        -> OK (1.4s)
+
+[FASE 9] Geração obras_salvas.json (formato robô)
+  [SKIP] obras_salvas.json já existe
+
+[FASE 10] Validação Visual Autônoma (NVIDIA NIM)
+  [RUN] validar_visual_dxf.py ...
+        -> OK (3408.8s)
+  [VIS] Score visual: 47.3/100
+
+============================================================
+PIPELINE CONCLUÍDO — PARCIAL
+  Score coletivo: 100.0%
+  Relatório: D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_5\Fase-8_Revisao_Entrega\pipeline_report.json
+============================================================
+

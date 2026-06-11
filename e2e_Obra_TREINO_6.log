@@ -1,0 +1,144 @@
+
+=== COMPARADOR DXF vs. GROUND TRUTH (tol=5.0%) ===
+
+--- PILARES ---
+  Match rate: 95.2% (20/21)
+  Erro médio: 3.8%
+  DIFF P21: ref B=0.0 H=19.0 | gen B=19.0 H=30.0 | err=78.9%
+
+--- VIGAS ---
+  Match rate: 100.0% (35/35)
+  Erro médio: 0.0%
+
+--- LAJES ---
+  Match rate: 100.0% (14/14)
+  Erro médio: 0.0%
+
+=== SCORE GERAL: 98.4% (PASS | meta: 75.0%) ===
+  Pilares: 95.2% | Vigas: 100.0% | Lajes: 100.0%
+
+  Relatorio: D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_6\Fase-5_Geracao_Scripts\_relatorio_comparacao.json
+[INFO] === validar_dxf_coletivo.py | Obra_TREINO_6 | JFC - 10PV ===
+
+  [PILARES]
+    GT: 21 | Gerado: 21 | Corretos: 21
+    id_match: 100.0% | hallucination: 0.0%
+    SCORE: 100.0% — APROVADO
+
+  [VIGAS]
+    GT: 35 | Gerado: 35 | Corretos: 35
+    id_match: 100.0% | hallucination: 0.0%
+    SCORE: 100.0% — APROVADO
+
+  [LAJES]
+    GT: 14 | Gerado: 14 | Corretos: 14
+    id_match: 100.0% | hallucination: 0.0%
+    SCORE: 100.0% — APROVADO
+
+[RESULTADO GLOBAL]
+  Score global: 100.0%
+  Status: APROVADO (>=90%)
+
+[INFO] Salvo: D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_6\Fase-6_Execucao_CAD\validation_coletivo.json
+copy process ignored DIMASSOC(#78E33828) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#78E33842) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#78E3384F) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#78E3387A) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#78E3387D) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#78E33828) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#78E33842) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#78E3384F) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#78E3387A) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#78E3387D) - this may cause problems in AutoCAD
+[INFO] Carregando discovery de D:\Agente-cad-PYSIDE\DADOS-OBRAS...
+[INFO] Provider: NVIDIA NIM | Modelo: meta/llama-3.2-90b-vision-instruct
+
+============================================================
+  Obra: Obra_TREINO_6 | Pavimento: JFC - 10PV
+============================================================
+
+    ERRO render STOG: 
+Traceback (most recent call last):
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\scripts\validar_visual_dxf.py", line 1578, in <module>
+    main()
+    ~~~~^^
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\scripts\validar_visual_dxf.py", line 1549, in main
+    res = validar_pavimento(
+        obra_nome, pav_nome, discovery, data_dir, out_dir,
+        client=client, model=args.model, n_tiles=args.tiles,
+        tipos=tipos, verbose=verbose, n_runs=args.n_runs,
+    )
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\scripts\validar_visual_dxf.py", line 1353, in validar_pavimento
+    json_path.write_text(
+    ~~~~~~~~~~~~~~~~~~~~^
+        json.dumps(resultado_pav, indent=2, ensure_ascii=False),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        encoding="utf-8"
+        ^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Python314\Lib\pathlib\__init__.py", line 809, in write_text
+  File "C:\Python314\Lib\pathlib\__init__.py", line 771, in open
+MemoryError
+
+============================================================
+PIPELINE E2E — Obra_TREINO_6 | JFC - 10PV
+============================================================
+
+[FASE 1] Descoberta de DXFs
+  [SKIP] dxf_discovery.json ja existe e contem Obra_TREINO_6
+
+[FASE 2] Engenharia Reversa (Ground Truth)
+  [SKIP] ground truth já existe
+
+[FASE 3] Extração Dimensional
+  [SKIP] dados dimensionais ja existem
+
+[FASE 4] Motor Fase 4 (Transformacao Fase-3 -> Fase-4)
+  [SKIP] Fase-4 já processada
+
+[FASE 5] Geração DXF Individual
+  [SKIP] DXF_Pilares/ já existe
+
+[FASE 5b] Comparação DXF Individual vs STOG
+  [RUN] comparar_dxf.py ...
+        -> OK (2.9s)
+
+[FASE 6] Extração de Âncoras (coords absolutas)
+  [SKIP] âncoras já existem
+
+[FASE 7] Consolidação DXF Coletivo
+  [SKIP] DXFs coletivos já existem
+
+[FASE 8] Validação DXF Coletivo
+  [RUN] validar_dxf_coletivo.py ...
+        -> OK (1.2s)
+
+[FASE 9] Geração obras_salvas.json (formato robô)
+  [SKIP] obras_salvas.json já existe
+
+[FASE 10] Validação Visual Autônoma (NVIDIA NIM)
+  [RUN] validar_visual_dxf.py ...
+        -> FALHOU (code 1) (2139.7s)
+Traceback (most recent call last):
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\scripts\pipeline_e2e.py", line 351, in <module>
+    main()
+    ~~~~^^
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\scripts\pipeline_e2e.py", line 339, in main
+    results = run_pipeline(args.obra, args.pavimento, args.dry_run, args.force)
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\scripts\pipeline_e2e.py", line 275, in run_pipeline
+    vis_data = json.load(f)
+  File "C:\Python314\Lib\json\__init__.py", line 298, in load
+    return loads(fp.read(),
+        cls=cls, object_hook=object_hook,
+        parse_float=parse_float, parse_int=parse_int,
+        parse_constant=parse_constant, object_pairs_hook=object_pairs_hook, **kw)
+  File "C:\Python314\Lib\json\__init__.py", line 352, in loads
+    return _default_decoder.decode(s)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^
+  File "C:\Python314\Lib\json\decoder.py", line 345, in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+               ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python314\Lib\json\decoder.py", line 363, in raw_decode
+    raise JSONDecodeError("Expecting value", s, err.value) from None
+json.decoder.JSONDecodeError: Expecting value: line 1 column 1 (char 0)

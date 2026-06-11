@@ -1,0 +1,262 @@
+2026-03-28 10:29:00 | debug_robo_cima | INFO | Iniciando logs de depuração para robo_cima
+2026-03-28 10:29:00 | debug_robo_cima | INFO | Arquivo de log: logs\depuracao\robo_cima_20260328_102900.log
+2026-03-28 10:29:00 | debug_robo_cima | INFO | Iniciando logs de depuração para robo_cima
+2026-03-28 10:29:00 | debug_robo_cima | INFO | Arquivo de log: logs\depuracao\robo_cima_20260328_102900.log
+2026-03-28 10:29:01 | debug_robo_cima | INFO | ℹ️ 🔄 Instância do GeradorPilar registrada globalmente
+2026-03-28 10:29:01 | debug_robo_cima | INFO | ℹ️ 🔄 Globais do pilar especial inicializadas
+2026-03-28 10:29:01 | debug_robo_cima | INFO | 
+----------------------------------------
+2026-03-28 10:29:01 | debug_robo_cima | INFO | 📌 VERIFICAÇÃO DE PILAR ESPECIAL ATIVO
+2026-03-28 10:29:01 | debug_robo_cima | INFO | ----------------------------------------
+2026-03-28 10:29:01 | debug_robo_cima | INFO | ℹ️ 🔄 Verificando se pilar especial está ativo...
+2026-03-28 10:29:01 | debug_robo_cima | INFO | ℹ️ 🔄 Status do checkbox pilar_rotacionado_var: False
+2026-03-28 10:29:01 | debug_robo_cima | INFO | ℹ️ 🔄 Status do checkbox pilar_especial_ativo_var: False
+2026-03-28 10:29:01 | debug_robo_cima | INFO | ℹ️ Pilar especial INATIVO - pilar_rotacionado: False, pilar_especial: False, globais: False, tipo: ''
+2026-03-28 10:29:01 | debug_robo_cima | INFO | 
+----------------------------------------
+2026-03-28 10:29:01 | debug_robo_cima | INFO | 📌 VERIFICAÇÃO DE PILAR ESPECIAL ATIVO
+2026-03-28 10:29:01 | debug_robo_cima | INFO | ----------------------------------------
+2026-03-28 10:29:01 | debug_robo_cima | INFO | ℹ️ 🔄 Verificando se pilar especial está ativo...
+2026-03-28 10:29:01 | debug_robo_cima | INFO | ℹ️ 🔄 Status do checkbox pilar_rotacionado_var: False
+2026-03-28 10:29:01 | debug_robo_cima | INFO | ℹ️ 🔄 Status do checkbox pilar_especial_ativo_var: False
+2026-03-28 10:29:01 | debug_robo_cima | INFO | ℹ️ Pilar especial INATIVO - pilar_rotacionado: False, pilar_especial: False, globais: False, tipo: ''
+2026-03-28 10:29:01 | debug_robo_cima | INFO | 
+----------------------------------------
+2026-03-28 10:29:01 | debug_robo_cima | INFO | 📌 VERIFICAÇÃO DE PILAR ESPECIAL ATIVO
+2026-03-28 10:29:01 | debug_robo_cima | INFO | ----------------------------------------
+2026-03-28 10:29:01 | debug_robo_cima | INFO | ℹ️ 🔄 Verificando se pilar especial está ativo...
+2026-03-28 10:29:01 | debug_robo_cima | INFO | ℹ️ 🔄 Status do checkbox pilar_rotacionado_var: False
+2026-03-28 10:29:01 | debug_robo_cima | INFO | ℹ️ 🔄 Status do checkbox pilar_especial_ativo_var: False
+2026-03-28 10:29:01 | debug_robo_cima | INFO | ℹ️ Pilar especial INATIVO - pilar_rotacionado: False, pilar_especial: False, globais: False, tipo: ''
+2026-03-28 10:29:01 | debug_robo_cima | INFO | 
+----------------------------------------
+2026-03-28 10:29:01 | debug_robo_cima | INFO | 📌 VERIFICAÇÃO DE PILAR ESPECIAL ATIVO
+2026-03-28 10:29:01 | debug_robo_cima | INFO | ----------------------------------------
+2026-03-28 10:29:01 | debug_robo_cima | INFO | ℹ️ 🔄 Verificando se pilar especial está ativo...
+2026-03-28 10:29:01 | debug_robo_cima | INFO | ℹ️ 🔄 Status do checkbox pilar_rotacionado_var: False
+2026-03-28 10:29:01 | debug_robo_cima | INFO | ℹ️ 🔄 Status do checkbox pilar_especial_ativo_var: False
+2026-03-28 10:29:01 | debug_robo_cima | INFO | ℹ️ Pilar especial INATIVO - pilar_rotacionado: False, pilar_especial: False, globais: False, tipo: ''
+2026-03-28 10:29:01 | debug_robo_cima | INFO | 
+----------------------------------------
+2026-03-28 10:29:01 | debug_robo_cima | INFO | 📌 VERIFICAÇÃO DE PILAR ESPECIAL ATIVO
+2026-03-28 10:29:01 | debug_robo_cima | INFO | ----------------------------------------
+2026-03-28 10:29:01 | debug_robo_cima | INFO | ℹ️ 🔄 Verificando se pilar especial está ativo...
+2026-03-28 10:29:01 | debug_robo_cima | INFO | ℹ️ 🔄 Status do checkbox pilar_rotacionado_var: False
+2026-03-28 10:29:01 | debug_robo_cima | INFO | ℹ️ 🔄 Status do checkbox pilar_especial_ativo_var: False
+2026-03-28 10:29:01 | debug_robo_cima | INFO | ℹ️ Pilar especial INATIVO - pilar_rotacionado: False, pilar_especial: False, globais: False, tipo: ''
+2026-03-28 10:29:01 | debug_robo_cima | INFO | 
+----------------------------------------
+2026-03-28 10:29:01 | debug_robo_cima | INFO | 📌 VERIFICAÇÃO DE PILAR ESPECIAL ATIVO
+2026-03-28 10:29:01 | debug_robo_cima | INFO | ----------------------------------------
+2026-03-28 10:29:01 | debug_robo_cima | INFO | ℹ️ 🔄 Verificando se pilar especial está ativo...
+2026-03-28 10:29:01 | debug_robo_cima | INFO | ℹ️ 🔄 Status do checkbox pilar_rotacionado_var: False
+2026-03-28 10:29:01 | debug_robo_cima | INFO | ℹ️ 🔄 Status do checkbox pilar_especial_ativo_var: False
+2026-03-28 10:29:01 | debug_robo_cima | INFO | ℹ️ Pilar especial INATIVO - pilar_rotacionado: False, pilar_especial: False, globais: False, tipo: ''
+2026-03-28 10:29:01 | debug_robo_cima | INFO | 
+----------------------------------------
+2026-03-28 10:29:01 | debug_robo_cima | INFO | 📌 VERIFICAÇÃO DE PILAR ESPECIAL ATIVO
+2026-03-28 10:29:01 | debug_robo_cima | INFO | ----------------------------------------
+2026-03-28 10:29:01 | debug_robo_cima | INFO | ℹ️ 🔄 Verificando se pilar especial está ativo...
+2026-03-28 10:29:01 | debug_robo_cima | INFO | ℹ️ 🔄 Status do checkbox pilar_rotacionado_var: False
+2026-03-28 10:29:01 | debug_robo_cima | INFO | ℹ️ 🔄 Status do checkbox pilar_especial_ativo_var: False
+2026-03-28 10:29:01 | debug_robo_cima | INFO | ℹ️ Pilar especial INATIVO - pilar_rotacionado: False, pilar_especial: False, globais: False, tipo: ''
+2026-03-28 10:29:01 | debug_robo_cima | INFO | 
+----------------------------------------
+2026-03-28 10:29:01 | debug_robo_cima | INFO | 📌 VERIFICAÇÃO DE PILAR ESPECIAL ATIVO
+2026-03-28 10:29:01 | debug_robo_cima | INFO | ----------------------------------------
+2026-03-28 10:29:01 | debug_robo_cima | INFO | ℹ️ 🔄 Verificando se pilar especial está ativo...
+2026-03-28 10:29:01 | debug_robo_cima | INFO | ℹ️ 🔄 Status do checkbox pilar_rotacionado_var: False
+2026-03-28 10:29:01 | debug_robo_cima | INFO | ℹ️ 🔄 Status do checkbox pilar_especial_ativo_var: False
+2026-03-28 10:29:01 | debug_robo_cima | INFO | ℹ️ Pilar especial INATIVO - pilar_rotacionado: False, pilar_especial: False, globais: False, tipo: ''
+2026-03-28 10:29:01 | debug_robo_cima | INFO | 
+----------------------------------------
+2026-03-28 10:29:01 | debug_robo_cima | INFO | 📌 VERIFICAÇÃO DE PILAR ESPECIAL ATIVO
+2026-03-28 10:29:01 | debug_robo_cima | INFO | ----------------------------------------
+2026-03-28 10:29:01 | debug_robo_cima | INFO | ℹ️ 🔄 Verificando se pilar especial está ativo...
+2026-03-28 10:29:01 | debug_robo_cima | INFO | ℹ️ 🔄 Status do checkbox pilar_rotacionado_var: False
+2026-03-28 10:29:01 | debug_robo_cima | INFO | ℹ️ 🔄 Status do checkbox pilar_especial_ativo_var: False
+2026-03-28 10:29:01 | debug_robo_cima | INFO | ℹ️ Pilar especial INATIVO - pilar_rotacionado: False, pilar_especial: False, globais: False, tipo: ''
+2026-03-28 10:29:01 | debug_robo_cima | INFO | 
+----------------------------------------
+2026-03-28 10:29:01 | debug_robo_cima | INFO | 📌 VERIFICAÇÃO DE PILAR ESPECIAL ATIVO
+2026-03-28 10:29:01 | debug_robo_cima | INFO | ----------------------------------------
+2026-03-28 10:29:01 | debug_robo_cima | INFO | ℹ️ 🔄 Verificando se pilar especial está ativo...
+2026-03-28 10:29:01 | debug_robo_cima | INFO | ℹ️ 🔄 Status do checkbox pilar_rotacionado_var: False
+2026-03-28 10:29:01 | debug_robo_cima | INFO | ℹ️ 🔄 Status do checkbox pilar_especial_ativo_var: False
+2026-03-28 10:29:01 | debug_robo_cima | INFO | ℹ️ Pilar especial INATIVO - pilar_rotacionado: False, pilar_especial: False, globais: False, tipo: ''
+2026-03-28 10:29:01 | debug_robo_cima | INFO | 
+----------------------------------------
+2026-03-28 10:29:01 | debug_robo_cima | INFO | 📌 VERIFICAÇÃO DE PILAR ESPECIAL ATIVO
+2026-03-28 10:29:01 | debug_robo_cima | INFO | ----------------------------------------
+2026-03-28 10:29:01 | debug_robo_cima | INFO | ℹ️ 🔄 Verificando se pilar especial está ativo...
+2026-03-28 10:29:01 | debug_robo_cima | INFO | ℹ️ 🔄 Status do checkbox pilar_rotacionado_var: False
+2026-03-28 10:29:01 | debug_robo_cima | INFO | ℹ️ 🔄 Status do checkbox pilar_especial_ativo_var: False
+2026-03-28 10:29:01 | debug_robo_cima | INFO | ℹ️ Pilar especial INATIVO - pilar_rotacionado: False, pilar_especial: False, globais: False, tipo: ''
+2026-03-28 10:29:01 | debug_robo_cima | INFO | 
+----------------------------------------
+2026-03-28 10:29:01 | debug_robo_cima | INFO | 📌 VERIFICAÇÃO DE PILAR ESPECIAL ATIVO
+2026-03-28 10:29:01 | debug_robo_cima | INFO | ----------------------------------------
+2026-03-28 10:29:01 | debug_robo_cima | INFO | ℹ️ 🔄 Verificando se pilar especial está ativo...
+2026-03-28 10:29:01 | debug_robo_cima | INFO | ℹ️ 🔄 Status do checkbox pilar_rotacionado_var: False
+2026-03-28 10:29:01 | debug_robo_cima | INFO | ℹ️ 🔄 Status do checkbox pilar_especial_ativo_var: False
+2026-03-28 10:29:01 | debug_robo_cima | INFO | ℹ️ Pilar especial INATIVO - pilar_rotacionado: False, pilar_especial: False, globais: False, tipo: ''
+2026-03-28 10:29:01 | debug_robo_cima | INFO | 
+----------------------------------------
+2026-03-28 10:29:01 | debug_robo_cima | INFO | 📌 VERIFICAÇÃO DE PILAR ESPECIAL ATIVO
+2026-03-28 10:29:01 | debug_robo_cima | INFO | ----------------------------------------
+2026-03-28 10:29:01 | debug_robo_cima | INFO | ℹ️ 🔄 Verificando se pilar especial está ativo...
+2026-03-28 10:29:01 | debug_robo_cima | INFO | ℹ️ 🔄 Status do checkbox pilar_rotacionado_var: False
+2026-03-28 10:29:01 | debug_robo_cima | INFO | ℹ️ 🔄 Status do checkbox pilar_especial_ativo_var: False
+2026-03-28 10:29:01 | debug_robo_cima | INFO | ℹ️ Pilar especial INATIVO - pilar_rotacionado: False, pilar_especial: False, globais: False, tipo: ''
+2026-03-28 10:29:01 | debug_robo_cima | INFO | 
+----------------------------------------
+2026-03-28 10:29:01 | debug_robo_cima | INFO | 📌 VERIFICAÇÃO DE PILAR ESPECIAL ATIVO
+2026-03-28 10:29:01 | debug_robo_cima | INFO | ----------------------------------------
+2026-03-28 10:29:01 | debug_robo_cima | INFO | ℹ️ 🔄 Verificando se pilar especial está ativo...
+2026-03-28 10:29:01 | debug_robo_cima | INFO | ℹ️ 🔄 Status do checkbox pilar_rotacionado_var: False
+2026-03-28 10:29:01 | debug_robo_cima | INFO | ℹ️ 🔄 Status do checkbox pilar_especial_ativo_var: False
+2026-03-28 10:29:01 | debug_robo_cima | INFO | ℹ️ Pilar especial INATIVO - pilar_rotacionado: False, pilar_especial: False, globais: False, tipo: ''
+2026-03-28 10:29:02 | debug_robo_cima | INFO | 
+----------------------------------------
+2026-03-28 10:29:02 | debug_robo_cima | INFO | 📌 VERIFICAÇÃO DE PILAR ESPECIAL ATIVO
+2026-03-28 10:29:02 | debug_robo_cima | INFO | ----------------------------------------
+2026-03-28 10:29:02 | debug_robo_cima | INFO | ℹ️ 🔄 Verificando se pilar especial está ativo...
+2026-03-28 10:29:02 | debug_robo_cima | INFO | ℹ️ 🔄 Status do checkbox pilar_rotacionado_var: False
+2026-03-28 10:29:02 | debug_robo_cima | INFO | ℹ️ 🔄 Status do checkbox pilar_especial_ativo_var: False
+2026-03-28 10:29:02 | debug_robo_cima | INFO | ℹ️ Pilar especial INATIVO - pilar_rotacionado: False, pilar_especial: False, globais: False, tipo: ''
+2026-03-28 10:29:02 | debug_robo_cima | INFO | 
+----------------------------------------
+2026-03-28 10:29:02 | debug_robo_cima | INFO | 📌 VERIFICAÇÃO DE PILAR ESPECIAL ATIVO
+2026-03-28 10:29:02 | debug_robo_cima | INFO | ----------------------------------------
+2026-03-28 10:29:02 | debug_robo_cima | INFO | ℹ️ 🔄 Verificando se pilar especial está ativo...
+2026-03-28 10:29:02 | debug_robo_cima | INFO | ℹ️ 🔄 Status do checkbox pilar_rotacionado_var: False
+2026-03-28 10:29:02 | debug_robo_cima | INFO | ℹ️ 🔄 Status do checkbox pilar_especial_ativo_var: False
+2026-03-28 10:29:02 | debug_robo_cima | INFO | ℹ️ Pilar especial INATIVO - pilar_rotacionado: False, pilar_especial: False, globais: False, tipo: ''
+2026-03-28 10:29:02 | debug_robo_cima | INFO | 
+----------------------------------------
+2026-03-28 10:29:02 | debug_robo_cima | INFO | 📌 VERIFICAÇÃO DE PILAR ESPECIAL ATIVO
+2026-03-28 10:29:02 | debug_robo_cima | INFO | ----------------------------------------
+2026-03-28 10:29:02 | debug_robo_cima | INFO | ℹ️ 🔄 Verificando se pilar especial está ativo...
+2026-03-28 10:29:02 | debug_robo_cima | INFO | ℹ️ 🔄 Status do checkbox pilar_rotacionado_var: False
+2026-03-28 10:29:02 | debug_robo_cima | INFO | ℹ️ 🔄 Status do checkbox pilar_especial_ativo_var: False
+2026-03-28 10:29:02 | debug_robo_cima | INFO | ℹ️ Pilar especial INATIVO - pilar_rotacionado: False, pilar_especial: False, globais: False, tipo: ''
+2026-03-28 10:29:02 | debug_robo_cima | INFO | 
+----------------------------------------
+2026-03-28 10:29:02 | debug_robo_cima | INFO | 📌 VERIFICAÇÃO DE PILAR ESPECIAL ATIVO
+2026-03-28 10:29:02 | debug_robo_cima | INFO | ----------------------------------------
+2026-03-28 10:29:02 | debug_robo_cima | INFO | ℹ️ 🔄 Verificando se pilar especial está ativo...
+2026-03-28 10:29:02 | debug_robo_cima | INFO | ℹ️ 🔄 Status do checkbox pilar_rotacionado_var: False
+2026-03-28 10:29:02 | debug_robo_cima | INFO | ℹ️ 🔄 Status do checkbox pilar_especial_ativo_var: False
+2026-03-28 10:29:02 | debug_robo_cima | INFO | ℹ️ Pilar especial INATIVO - pilar_rotacionado: False, pilar_especial: False, globais: False, tipo: ''
+2026-03-28 10:29:02 | debug_robo_cima | INFO | 
+----------------------------------------
+2026-03-28 10:29:02 | debug_robo_cima | INFO | 📌 VERIFICAÇÃO DE PILAR ESPECIAL ATIVO
+2026-03-28 10:29:02 | debug_robo_cima | INFO | ----------------------------------------
+2026-03-28 10:29:02 | debug_robo_cima | INFO | ℹ️ 🔄 Verificando se pilar especial está ativo...
+2026-03-28 10:29:02 | debug_robo_cima | INFO | ℹ️ 🔄 Status do checkbox pilar_rotacionado_var: False
+2026-03-28 10:29:02 | debug_robo_cima | INFO | ℹ️ 🔄 Status do checkbox pilar_especial_ativo_var: False
+2026-03-28 10:29:02 | debug_robo_cima | INFO | ℹ️ Pilar especial INATIVO - pilar_rotacionado: False, pilar_especial: False, globais: False, tipo: ''
+2026-03-28 10:29:02 | debug_robo_cima | INFO | 
+----------------------------------------
+2026-03-28 10:29:02 | debug_robo_cima | INFO | 📌 VERIFICAÇÃO DE PILAR ESPECIAL ATIVO
+2026-03-28 10:29:02 | debug_robo_cima | INFO | ----------------------------------------
+2026-03-28 10:29:02 | debug_robo_cima | INFO | ℹ️ 🔄 Verificando se pilar especial está ativo...
+2026-03-28 10:29:02 | debug_robo_cima | INFO | ℹ️ 🔄 Status do checkbox pilar_rotacionado_var: False
+2026-03-28 10:29:02 | debug_robo_cima | INFO | ℹ️ 🔄 Status do checkbox pilar_especial_ativo_var: False
+2026-03-28 10:29:02 | debug_robo_cima | INFO | ℹ️ Pilar especial INATIVO - pilar_rotacionado: False, pilar_especial: False, globais: False, tipo: ''
+2026-03-28 10:29:02 | debug_robo_cima | INFO | 
+----------------------------------------
+2026-03-28 10:29:02 | debug_robo_cima | INFO | 📌 VERIFICAÇÃO DE PILAR ESPECIAL ATIVO
+2026-03-28 10:29:02 | debug_robo_cima | INFO | ----------------------------------------
+2026-03-28 10:29:02 | debug_robo_cima | INFO | ℹ️ 🔄 Verificando se pilar especial está ativo...
+2026-03-28 10:29:02 | debug_robo_cima | INFO | ℹ️ 🔄 Status do checkbox pilar_rotacionado_var: False
+2026-03-28 10:29:02 | debug_robo_cima | INFO | ℹ️ 🔄 Status do checkbox pilar_especial_ativo_var: False
+2026-03-28 10:29:02 | debug_robo_cima | INFO | ℹ️ Pilar especial INATIVO - pilar_rotacionado: False, pilar_especial: False, globais: False, tipo: ''
+2026-03-28 10:29:02 | debug_robo_cima | INFO | 
+----------------------------------------
+2026-03-28 10:29:02 | debug_robo_cima | INFO | 📌 VERIFICAÇÃO DE PILAR ESPECIAL ATIVO
+2026-03-28 10:29:02 | debug_robo_cima | INFO | ----------------------------------------
+2026-03-28 10:29:02 | debug_robo_cima | INFO | ℹ️ 🔄 Verificando se pilar especial está ativo...
+2026-03-28 10:29:02 | debug_robo_cima | INFO | ℹ️ 🔄 Status do checkbox pilar_rotacionado_var: False
+2026-03-28 10:29:02 | debug_robo_cima | INFO | ℹ️ 🔄 Status do checkbox pilar_especial_ativo_var: False
+2026-03-28 10:29:02 | debug_robo_cima | INFO | ℹ️ Pilar especial INATIVO - pilar_rotacionado: False, pilar_especial: False, globais: False, tipo: ''
+2026-03-28 10:29:02 | debug_robo_cima | INFO | 
+----------------------------------------
+2026-03-28 10:29:02 | debug_robo_cima | INFO | 📌 VERIFICAÇÃO DE PILAR ESPECIAL ATIVO
+2026-03-28 10:29:02 | debug_robo_cima | INFO | ----------------------------------------
+2026-03-28 10:29:02 | debug_robo_cima | INFO | ℹ️ 🔄 Verificando se pilar especial está ativo...
+2026-03-28 10:29:02 | debug_robo_cima | INFO | ℹ️ 🔄 Status do checkbox pilar_rotacionado_var: False
+2026-03-28 10:29:02 | debug_robo_cima | INFO | ℹ️ 🔄 Status do checkbox pilar_especial_ativo_var: False
+2026-03-28 10:29:02 | debug_robo_cima | INFO | ℹ️ Pilar especial INATIVO - pilar_rotacionado: False, pilar_especial: False, globais: False, tipo: ''
+2026-03-28 10:29:02 | debug_robo_cima | INFO | 
+----------------------------------------
+2026-03-28 10:29:02 | debug_robo_cima | INFO | 📌 VERIFICAÇÃO DE PILAR ESPECIAL ATIVO
+2026-03-28 10:29:02 | debug_robo_cima | INFO | ----------------------------------------
+2026-03-28 10:29:02 | debug_robo_cima | INFO | ℹ️ 🔄 Verificando se pilar especial está ativo...
+2026-03-28 10:29:02 | debug_robo_cima | INFO | ℹ️ 🔄 Status do checkbox pilar_rotacionado_var: False
+2026-03-28 10:29:02 | debug_robo_cima | INFO | ℹ️ 🔄 Status do checkbox pilar_especial_ativo_var: False
+2026-03-28 10:29:02 | debug_robo_cima | INFO | ℹ️ Pilar especial INATIVO - pilar_rotacionado: False, pilar_especial: False, globais: False, tipo: ''
+2026-03-28 10:29:02 | debug_robo_cima | INFO | 
+----------------------------------------
+2026-03-28 10:29:02 | debug_robo_cima | INFO | 📌 VERIFICAÇÃO DE PILAR ESPECIAL ATIVO
+2026-03-28 10:29:02 | debug_robo_cima | INFO | ----------------------------------------
+2026-03-28 10:29:02 | debug_robo_cima | INFO | ℹ️ 🔄 Verificando se pilar especial está ativo...
+2026-03-28 10:29:02 | debug_robo_cima | INFO | ℹ️ 🔄 Status do checkbox pilar_rotacionado_var: False
+2026-03-28 10:29:02 | debug_robo_cima | INFO | ℹ️ 🔄 Status do checkbox pilar_especial_ativo_var: False
+2026-03-28 10:29:02 | debug_robo_cima | INFO | ℹ️ Pilar especial INATIVO - pilar_rotacionado: False, pilar_especial: False, globais: False, tipo: ''
+2026-03-28 10:29:02 | debug_robo_cima | INFO | 
+----------------------------------------
+2026-03-28 10:29:02 | debug_robo_cima | INFO | 📌 VERIFICAÇÃO DE PILAR ESPECIAL ATIVO
+2026-03-28 10:29:02 | debug_robo_cima | INFO | ----------------------------------------
+2026-03-28 10:29:02 | debug_robo_cima | INFO | ℹ️ 🔄 Verificando se pilar especial está ativo...
+2026-03-28 10:29:02 | debug_robo_cima | INFO | ℹ️ 🔄 Status do checkbox pilar_rotacionado_var: False
+2026-03-28 10:29:02 | debug_robo_cima | INFO | ℹ️ 🔄 Status do checkbox pilar_especial_ativo_var: False
+2026-03-28 10:29:02 | debug_robo_cima | INFO | ℹ️ Pilar especial INATIVO - pilar_rotacionado: False, pilar_especial: False, globais: False, tipo: ''
+2026-03-28 10:29:02 | debug_robo_cima | INFO | 
+----------------------------------------
+2026-03-28 10:29:02 | debug_robo_cima | INFO | 📌 VERIFICAÇÃO DE PILAR ESPECIAL ATIVO
+2026-03-28 10:29:02 | debug_robo_cima | INFO | ----------------------------------------
+2026-03-28 10:29:02 | debug_robo_cima | INFO | ℹ️ 🔄 Verificando se pilar especial está ativo...
+2026-03-28 10:29:02 | debug_robo_cima | INFO | ℹ️ 🔄 Status do checkbox pilar_rotacionado_var: False
+2026-03-28 10:29:02 | debug_robo_cima | INFO | ℹ️ 🔄 Status do checkbox pilar_especial_ativo_var: False
+2026-03-28 10:29:02 | debug_robo_cima | INFO | ℹ️ Pilar especial INATIVO - pilar_rotacionado: False, pilar_especial: False, globais: False, tipo: ''
+2026-03-28 10:29:02 | debug_robo_cima | INFO | 
+----------------------------------------
+2026-03-28 10:29:02 | debug_robo_cima | INFO | 📌 VERIFICAÇÃO DE PILAR ESPECIAL ATIVO
+2026-03-28 10:29:02 | debug_robo_cima | INFO | ----------------------------------------
+2026-03-28 10:29:02 | debug_robo_cima | INFO | ℹ️ 🔄 Verificando se pilar especial está ativo...
+2026-03-28 10:29:02 | debug_robo_cima | INFO | ℹ️ 🔄 Status do checkbox pilar_rotacionado_var: False
+2026-03-28 10:29:02 | debug_robo_cima | INFO | ℹ️ 🔄 Status do checkbox pilar_especial_ativo_var: False
+2026-03-28 10:29:02 | debug_robo_cima | INFO | ℹ️ Pilar especial INATIVO - pilar_rotacionado: False, pilar_especial: False, globais: False, tipo: ''
+2026-03-28 10:29:02 | debug_robo_cima | INFO | 
+----------------------------------------
+2026-03-28 10:29:02 | debug_robo_cima | INFO | 📌 VERIFICAÇÃO DE PILAR ESPECIAL ATIVO
+2026-03-28 10:29:02 | debug_robo_cima | INFO | ----------------------------------------
+2026-03-28 10:29:02 | debug_robo_cima | INFO | ℹ️ 🔄 Verificando se pilar especial está ativo...
+2026-03-28 10:29:02 | debug_robo_cima | INFO | ℹ️ 🔄 Status do checkbox pilar_rotacionado_var: False
+2026-03-28 10:29:02 | debug_robo_cima | INFO | ℹ️ 🔄 Status do checkbox pilar_especial_ativo_var: False
+2026-03-28 10:29:02 | debug_robo_cima | INFO | ℹ️ Pilar especial INATIVO - pilar_rotacionado: False, pilar_especial: False, globais: False, tipo: ''
+2026-03-28 10:29:02 | debug_robo_cima | INFO | 
+----------------------------------------
+2026-03-28 10:29:02 | debug_robo_cima | INFO | 📌 VERIFICAÇÃO DE PILAR ESPECIAL ATIVO
+2026-03-28 10:29:02 | debug_robo_cima | INFO | ----------------------------------------
+2026-03-28 10:29:02 | debug_robo_cima | INFO | ℹ️ 🔄 Verificando se pilar especial está ativo...
+2026-03-28 10:29:02 | debug_robo_cima | INFO | ℹ️ 🔄 Status do checkbox pilar_rotacionado_var: False
+2026-03-28 10:29:02 | debug_robo_cima | INFO | ℹ️ 🔄 Status do checkbox pilar_especial_ativo_var: False
+2026-03-28 10:29:02 | debug_robo_cima | INFO | ℹ️ Pilar especial INATIVO - pilar_rotacionado: False, pilar_especial: False, globais: False, tipo: ''
+2026-03-28 10:29:02 | debug_robo_cima | INFO | 
+----------------------------------------
+2026-03-28 10:29:02 | debug_robo_cima | INFO | 📌 VERIFICAÇÃO DE PILAR ESPECIAL ATIVO
+2026-03-28 10:29:02 | debug_robo_cima | INFO | ----------------------------------------
+2026-03-28 10:29:02 | debug_robo_cima | INFO | ℹ️ 🔄 Verificando se pilar especial está ativo...
+2026-03-28 10:29:02 | debug_robo_cima | INFO | ℹ️ 🔄 Status do checkbox pilar_rotacionado_var: False
+2026-03-28 10:29:02 | debug_robo_cima | INFO | ℹ️ 🔄 Status do checkbox pilar_especial_ativo_var: False
+2026-03-28 10:29:02 | debug_robo_cima | INFO | ℹ️ Pilar especial INATIVO - pilar_rotacionado: False, pilar_especial: False, globais: False, tipo: ''
+2026-03-28 10:29:02 | debug_robo_cima | INFO | 
+----------------------------------------
+2026-03-28 10:29:02 | debug_robo_cima | INFO | 📌 VERIFICAÇÃO DE PILAR ESPECIAL ATIVO
+2026-03-28 10:29:02 | debug_robo_cima | INFO | ----------------------------------------
+2026-03-28 10:29:02 | debug_robo_cima | INFO | ℹ️ 🔄 Verificando se pilar especial está ativo...
+2026-03-28 10:29:02 | debug_robo_cima | INFO | ℹ️ 🔄 Status do checkbox pilar_rotacionado_var: False
+2026-03-28 10:29:02 | debug_robo_cima | INFO | ℹ️ 🔄 Status do checkbox pilar_especial_ativo_var: False
+2026-03-28 10:29:02 | debug_robo_cima | INFO | ℹ️ Pilar especial INATIVO - pilar_rotacionado: False, pilar_especial: False, globais: False, tipo: ''

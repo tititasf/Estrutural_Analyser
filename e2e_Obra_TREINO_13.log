@@ -1,0 +1,307 @@
+
+=== COMPARADOR DXF vs. GROUND TRUTH (tol=5.0%) ===
+
+--- PILARES ---
+  Match rate: 100.0% (24/24)
+  Erro médio: 0.0%
+
+--- VIGAS ---
+  Match rate: 100.0% (46/46)
+  Erro médio: 0.0%
+
+--- LAJES ---
+  Match rate: 100.0% (32/32)
+  Erro médio: 0.0%
+
+=== SCORE GERAL: 100.0% (PASS | meta: 75.0%) ===
+  Pilares: 100.0% | Vigas: 100.0% | Lajes: 100.0%
+
+  Relatorio: D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_13\Fase-5_Geracao_Scripts\_relatorio_comparacao.json
+[INFO] === validar_dxf_coletivo.py | Obra_TREINO_13 | 1PV ===
+
+  [PILARES]
+    GT: 24 | Gerado: 24 | Corretos: 24
+    id_match: 100.0% | hallucination: 0.0%
+    SCORE: 100.0% — APROVADO
+
+  [VIGAS]
+    GT: 46 | Gerado: 46 | Corretos: 46
+    id_match: 100.0% | hallucination: 0.0%
+    SCORE: 100.0% — APROVADO
+
+  [LAJES]
+    GT: 32 | Gerado: 32 | Corretos: 32
+    id_match: 100.0% | hallucination: 0.0%
+    SCORE: 100.0% — APROVADO
+
+[RESULTADO GLOBAL]
+  Score global: 100.0%
+  Status: APROVADO (>=90%)
+
+[INFO] Salvo: D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_13\Fase-6_Execucao_CAD\validation_coletivo.json
+copy process ignored DIMASSOC(#6B7AB) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#6B7AE) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#6B7B1) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#6B7B4) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#6B7B7) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#6B7BA) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#6B7BD) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#6B7C0) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#6B80C) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#6B816) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#6B81D) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#6B820) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#6B833) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#6B85A) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#6B85D) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#6B862) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#6B865) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#6B868) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#6B86F) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#6B874) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#6B87E) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#6B88B) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#6B894) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#6B897) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#6B89A) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#6B8A6) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#6B8A9) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#6B8AC) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#6B8AF) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#6B8BE) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#6B8C1) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#6B8C7) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#6B8CB) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#C681F) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#C6822) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#C6825) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#C6828) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#C682B) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#C6844) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#C687E) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#C6881) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#C6884) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#C6887) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#C6895) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#C68CB) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#C68CE) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#C68D1) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#C68E4) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#C68E7) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#C68F0) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#C68F3) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#C68F6) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#C68F9) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#C68FC) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#5AB2E) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#5AB31) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#5AB34) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#5AB74) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#5AB77) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#5AB7A) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#5ABB2) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#5ABDF) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#5ABE2) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#5ABF0) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#5ABF3) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#5ABFC) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#5ABFF) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#5AC05) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#5AC08) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#5AFCF) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#5AFF7) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#5B00F) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#5B027) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#5B070) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#C7F97) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#C7F9A) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#C7F9D) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#C7FA0) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#C7FA3) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#C7FA6) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#C7FEF) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#C7FF2) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#C7FF5) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#C801E) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#C8029) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#C802C) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#C8031) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#C8034) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#C8070) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#C8073) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#C8076) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#C808F) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#C809C) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#C809F) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#C80B4) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#C80B7) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#C80BA) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#C80BD) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#C80C0) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#C80C3) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#6B7AB) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#6B7AE) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#6B7B1) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#6B7B4) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#6B7B7) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#6B7BA) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#6B7BD) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#6B7C0) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#6B80C) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#6B816) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#6B81D) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#6B820) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#6B833) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#6B85A) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#6B85D) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#6B862) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#6B865) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#6B868) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#6B86F) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#6B874) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#6B87E) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#6B88B) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#6B894) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#6B897) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#6B89A) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#6B8A6) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#6B8A9) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#6B8AC) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#6B8AF) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#6B8BE) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#6B8C1) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#6B8C7) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#6B8CB) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#6B7AB) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#6B7AE) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#6B7B1) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#6B7B4) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#6B7B7) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#6B7BA) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#6B7BD) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#6B7C0) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#6B80C) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#6B816) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#6B81D) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#6B820) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#6B833) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#6B85A) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#6B85D) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#6B862) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#6B865) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#6B868) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#6B86F) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#6B874) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#6B87E) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#6B88B) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#6B894) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#6B897) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#6B89A) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#6B8A6) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#6B8A9) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#6B8AC) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#6B8AF) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#6B8BE) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#6B8C1) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#6B8C7) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#6B8CB) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#C681F) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#C6822) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#C6825) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#C6828) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#C682B) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#C6844) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#C687E) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#C6881) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#C6884) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#C6887) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#C6895) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#C68CB) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#C68CE) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#C68D1) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#C68E4) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#C68E7) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#C68F0) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#C68F3) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#C68F6) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#C68F9) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#C68FC) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#5AB2E) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#5AB31) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#5AB34) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#5AB74) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#5AB77) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#5AB7A) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#5ABB2) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#5ABDF) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#5ABE2) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#5ABF0) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#5ABF3) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#5ABFC) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#5ABFF) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#5AC05) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#5AC08) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#5AFCF) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#5AFF7) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#5B00F) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#5B027) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#5B070) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#C7F97) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#C7F9A) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#C7F9D) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#C7FA0) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#C7FA3) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#C7FA6) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#C7FEF) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#C7FF2) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#C7FF5) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#C801E) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#C8029) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#C802C) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#C8031) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#C8034) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#C8070) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#C8073) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#C8076) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#C808F) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#C809C) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#C809F) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#C80B4) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#C80B7) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#C80BA) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#C80BD) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#C80C0) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#C80C3) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#6B7AB) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#6B7AE) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#6B7B1) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#6B7B4) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#6B7B7) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#6B7BA) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#6B7BD) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#6B7C0) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#6B80C) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#6B816) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#6B81D) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#6B820) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#6B833) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#6B85A) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#6B85D) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#6B862) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#6B865) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#6B868) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#6B86F) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#6B874) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#6B87E) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#6B88B) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#6B894) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#6B897) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#6B89A) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#6B8A6) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#6B8A9) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#6B8AC) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#6B8AF) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#6B8BE) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#6B8C1) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#6B8C7) - this may cause problems in AutoCAD
+copy process ignored DIMASSOC(#6B8CB) - this may cause problems in AutoCAD
