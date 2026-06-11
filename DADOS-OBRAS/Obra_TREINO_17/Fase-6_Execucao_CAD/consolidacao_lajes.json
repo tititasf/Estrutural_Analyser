@@ -1,0 +1,24 @@
+{
+  "lajes_consolidadas": 16,
+  "total_dxf": 16,
+  "sem_ancora": [
+    "L101",
+    "L102",
+    "L103",
+    "L104",
+    "L105",
+    "L106",
+    "L107",
+    "L108",
+    "L109",
+    "L110",
+    "L111",
+    "L112",
+    "L113",
+    "L114",
+    "L115",
+    "L116"
+  ],
+  "output": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_17\\Fase-6_Execucao_CAD\\LJ_gerado.dxf",
+  "aprovado": true
+}

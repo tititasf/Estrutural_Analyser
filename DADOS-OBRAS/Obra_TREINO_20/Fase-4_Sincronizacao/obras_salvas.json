@@ -1,0 +1,4186 @@
+{
+  "Obra_TREINO_20": {
+    "ITAQUERA III - 1PV": {
+      "1": {
+        "dados": {
+          "numero": "1",
+          "nome": "P1",
+          "obra": "Obra_TREINO_20",
+          "comprimento": "76",
+          "largura": "74",
+          "pavimento": "ITAQUERA III - 1PV",
+          "pavimento_numero": "1",
+          "pavimento_anterior": "ITAQUERA III - 1PV",
+          "nivel_saida": "280.0",
+          "nivel_chegada": "0.0",
+          "nivel_diferencial": "",
+          "altura": "280",
+          "parafusos": {
+            "par_1_2": "0",
+            "par_2_3": "0",
+            "par_3_4": "0",
+            "par_4_5": "0",
+            "par_5_6": "0",
+            "par_6_7": "0",
+            "par_7_8": "0",
+            "par_8_9": "0"
+          },
+          "grades": {
+            "grade_1": "0",
+            "distancia_1": "14",
+            "grade_2": "",
+            "distancia_2": "",
+            "grade_3": ""
+          },
+          "pilar_especial": false,
+          "detalhes_grades": {},
+          "altura_detalhes_grades": "",
+          "grades_grupo2": {},
+          "detalhes_grades_grupo2": {},
+          "altura_detalhes_grades_b": "",
+          "ruler_grupo1": {},
+          "paineis": {
+            "A": {
+              "laje": "",
+              "posicao_laje": "5",
+              "larg1": "76",
+              "larg2": "0",
+              "larg3": "0",
+              "h1": "2",
+              "h2": "244",
+              "h3": "34",
+              "h4": "0",
+              "h5": "0",
+              "aberturas": {
+                "esquerda": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                },
+                "direita": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                }
+              }
+            },
+            "B": {
+              "laje": "",
+              "posicao_laje": "5",
+              "larg1": "74",
+              "larg2": "0",
+              "larg3": "0",
+              "h1": "2",
+              "h2": "244",
+              "h3": "34",
+              "h4": "0",
+              "h5": "0",
+              "aberturas": {
+                "esquerda": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                },
+                "direita": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                }
+              }
+            },
+            "C": {
+              "laje": "",
+              "posicao_laje": "5",
+              "larg1": "76",
+              "larg2": "0",
+              "larg3": "0",
+              "h1": "2",
+              "h2": "244",
+              "h3": "34",
+              "h4": "0",
+              "h5": "0",
+              "aberturas": {
+                "esquerda": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                },
+                "direita": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                }
+              }
+            },
+            "D": {
+              "laje": "",
+              "posicao_laje": "5",
+              "larg1": "74",
+              "larg2": "0",
+              "larg3": "0",
+              "h1": "2",
+              "h2": "244",
+              "h3": "34",
+              "h4": "0",
+              "h5": "0",
+              "aberturas": {
+                "esquerda": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                },
+                "direita": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                }
+              }
+            },
+            "E": {
+              "laje": "",
+              "posicao_laje": "5",
+              "larg1": "244",
+              "larg2": "0",
+              "larg3": "0",
+              "h1": "2",
+              "h2": "244",
+              "h3": "34",
+              "h4": "0",
+              "h5": "0",
+              "aberturas": {
+                "esquerda": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                },
+                "direita": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                }
+              }
+            },
+            "F": {
+              "laje": "",
+              "posicao_laje": "5",
+              "larg1": "244",
+              "larg2": "0",
+              "larg3": "0",
+              "h1": "2",
+              "h2": "244",
+              "h3": "34",
+              "h4": "0",
+              "h5": "0",
+              "aberturas": {
+                "esquerda": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                },
+                "direita": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                }
+              }
+            },
+            "G": {
+              "laje": "",
+              "posicao_laje": "5",
+              "larg1": "244",
+              "larg2": "0",
+              "larg3": "0",
+              "h1": "2",
+              "h2": "244",
+              "h3": "34",
+              "h4": "0",
+              "h5": "0",
+              "aberturas": {
+                "esquerda": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                },
+                "direita": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                }
+              }
+            },
+            "H": {
+              "laje": "",
+              "posicao_laje": "5",
+              "larg1": "244",
+              "larg2": "0",
+              "larg3": "0",
+              "h1": "2",
+              "h2": "244",
+              "h3": "34",
+              "h4": "0",
+              "h5": "0",
+              "aberturas": {
+                "esquerda": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                },
+                "direita": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                }
+              }
+            }
+          },
+          "modo_calculo": "automatico",
+          "tipo_distribuicao_largura": "padrao",
+          "checkbox_descontar_laje": false,
+          "checkbox_descontar_aberturas": false,
+          "hachura_paineis": false,
+          "m2_total": 0.0
+        },
+        "item_id": "1_ITAQUERA III - 1PV",
+        "locks": {}
+      },
+      "2": {
+        "dados": {
+          "numero": "2",
+          "nome": "P2",
+          "obra": "Obra_TREINO_20",
+          "comprimento": "74",
+          "largura": "19",
+          "pavimento": "ITAQUERA III - 1PV",
+          "pavimento_numero": "1",
+          "pavimento_anterior": "ITAQUERA III - 1PV",
+          "nivel_saida": "280.0",
+          "nivel_chegada": "0.0",
+          "nivel_diferencial": "",
+          "altura": "280",
+          "parafusos": {
+            "par_1_2": "0",
+            "par_2_3": "0",
+            "par_3_4": "0",
+            "par_4_5": "0",
+            "par_5_6": "0",
+            "par_6_7": "0",
+            "par_7_8": "0",
+            "par_8_9": "0"
+          },
+          "grades": {
+            "grade_1": "0",
+            "distancia_1": "14",
+            "grade_2": "",
+            "distancia_2": "",
+            "grade_3": ""
+          },
+          "pilar_especial": false,
+          "detalhes_grades": {},
+          "altura_detalhes_grades": "",
+          "grades_grupo2": {},
+          "detalhes_grades_grupo2": {},
+          "altura_detalhes_grades_b": "",
+          "ruler_grupo1": {},
+          "paineis": {
+            "A": {
+              "laje": "",
+              "posicao_laje": "5",
+              "larg1": "74",
+              "larg2": "0",
+              "larg3": "0",
+              "h1": "2",
+              "h2": "244",
+              "h3": "34",
+              "h4": "0",
+              "h5": "0",
+              "aberturas": {
+                "esquerda": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                },
+                "direita": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                }
+              }
+            },
+            "B": {
+              "laje": "",
+              "posicao_laje": "5",
+              "larg1": "19",
+              "larg2": "0",
+              "larg3": "0",
+              "h1": "2",
+              "h2": "244",
+              "h3": "34",
+              "h4": "0",
+              "h5": "0",
+              "aberturas": {
+                "esquerda": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                },
+                "direita": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                }
+              }
+            },
+            "C": {
+              "laje": "",
+              "posicao_laje": "5",
+              "larg1": "74",
+              "larg2": "0",
+              "larg3": "0",
+              "h1": "2",
+              "h2": "244",
+              "h3": "34",
+              "h4": "0",
+              "h5": "0",
+              "aberturas": {
+                "esquerda": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                },
+                "direita": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                }
+              }
+            },
+            "D": {
+              "laje": "",
+              "posicao_laje": "5",
+              "larg1": "19",
+              "larg2": "0",
+              "larg3": "0",
+              "h1": "2",
+              "h2": "244",
+              "h3": "34",
+              "h4": "0",
+              "h5": "0",
+              "aberturas": {
+                "esquerda": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                },
+                "direita": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                }
+              }
+            },
+            "E": {
+              "laje": "",
+              "posicao_laje": "5",
+              "larg1": "244",
+              "larg2": "0",
+              "larg3": "0",
+              "h1": "2",
+              "h2": "244",
+              "h3": "34",
+              "h4": "0",
+              "h5": "0",
+              "aberturas": {
+                "esquerda": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                },
+                "direita": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                }
+              }
+            },
+            "F": {
+              "laje": "",
+              "posicao_laje": "5",
+              "larg1": "244",
+              "larg2": "0",
+              "larg3": "0",
+              "h1": "2",
+              "h2": "244",
+              "h3": "34",
+              "h4": "0",
+              "h5": "0",
+              "aberturas": {
+                "esquerda": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                },
+                "direita": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                }
+              }
+            },
+            "G": {
+              "laje": "",
+              "posicao_laje": "5",
+              "larg1": "244",
+              "larg2": "0",
+              "larg3": "0",
+              "h1": "2",
+              "h2": "244",
+              "h3": "34",
+              "h4": "0",
+              "h5": "0",
+              "aberturas": {
+                "esquerda": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                },
+                "direita": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                }
+              }
+            },
+            "H": {
+              "laje": "",
+              "posicao_laje": "5",
+              "larg1": "244",
+              "larg2": "0",
+              "larg3": "0",
+              "h1": "2",
+              "h2": "244",
+              "h3": "34",
+              "h4": "0",
+              "h5": "0",
+              "aberturas": {
+                "esquerda": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                },
+                "direita": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                }
+              }
+            }
+          },
+          "modo_calculo": "automatico",
+          "tipo_distribuicao_largura": "padrao",
+          "checkbox_descontar_laje": false,
+          "checkbox_descontar_aberturas": false,
+          "hachura_paineis": false,
+          "m2_total": 0.0
+        },
+        "item_id": "2_ITAQUERA III - 1PV",
+        "locks": {}
+      },
+      "3": {
+        "dados": {
+          "numero": "3",
+          "nome": "P3",
+          "obra": "Obra_TREINO_20",
+          "comprimento": "61",
+          "largura": "20",
+          "pavimento": "ITAQUERA III - 1PV",
+          "pavimento_numero": "1",
+          "pavimento_anterior": "ITAQUERA III - 1PV",
+          "nivel_saida": "280.0",
+          "nivel_chegada": "0.0",
+          "nivel_diferencial": "",
+          "altura": "280",
+          "parafusos": {
+            "par_1_2": "0",
+            "par_2_3": "0",
+            "par_3_4": "0",
+            "par_4_5": "0",
+            "par_5_6": "0",
+            "par_6_7": "0",
+            "par_7_8": "0",
+            "par_8_9": "0"
+          },
+          "grades": {
+            "grade_1": "0",
+            "distancia_1": "14",
+            "grade_2": "",
+            "distancia_2": "",
+            "grade_3": ""
+          },
+          "pilar_especial": false,
+          "detalhes_grades": {},
+          "altura_detalhes_grades": "",
+          "grades_grupo2": {},
+          "detalhes_grades_grupo2": {},
+          "altura_detalhes_grades_b": "",
+          "ruler_grupo1": {},
+          "paineis": {
+            "A": {
+              "laje": "",
+              "posicao_laje": "5",
+              "larg1": "61",
+              "larg2": "0",
+              "larg3": "0",
+              "h1": "2",
+              "h2": "244",
+              "h3": "34",
+              "h4": "0",
+              "h5": "0",
+              "aberturas": {
+                "esquerda": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                },
+                "direita": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                }
+              }
+            },
+            "B": {
+              "laje": "",
+              "posicao_laje": "5",
+              "larg1": "20",
+              "larg2": "0",
+              "larg3": "0",
+              "h1": "2",
+              "h2": "244",
+              "h3": "34",
+              "h4": "0",
+              "h5": "0",
+              "aberturas": {
+                "esquerda": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                },
+                "direita": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                }
+              }
+            },
+            "C": {
+              "laje": "",
+              "posicao_laje": "5",
+              "larg1": "61",
+              "larg2": "0",
+              "larg3": "0",
+              "h1": "2",
+              "h2": "244",
+              "h3": "34",
+              "h4": "0",
+              "h5": "0",
+              "aberturas": {
+                "esquerda": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                },
+                "direita": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                }
+              }
+            },
+            "D": {
+              "laje": "",
+              "posicao_laje": "5",
+              "larg1": "20",
+              "larg2": "0",
+              "larg3": "0",
+              "h1": "2",
+              "h2": "244",
+              "h3": "34",
+              "h4": "0",
+              "h5": "0",
+              "aberturas": {
+                "esquerda": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                },
+                "direita": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                }
+              }
+            },
+            "E": {
+              "laje": "",
+              "posicao_laje": "5",
+              "larg1": "244",
+              "larg2": "0",
+              "larg3": "0",
+              "h1": "2",
+              "h2": "244",
+              "h3": "34",
+              "h4": "0",
+              "h5": "0",
+              "aberturas": {
+                "esquerda": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                },
+                "direita": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                }
+              }
+            },
+            "F": {
+              "laje": "",
+              "posicao_laje": "5",
+              "larg1": "244",
+              "larg2": "0",
+              "larg3": "0",
+              "h1": "2",
+              "h2": "244",
+              "h3": "34",
+              "h4": "0",
+              "h5": "0",
+              "aberturas": {
+                "esquerda": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                },
+                "direita": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                }
+              }
+            },
+            "G": {
+              "laje": "",
+              "posicao_laje": "5",
+              "larg1": "244",
+              "larg2": "0",
+              "larg3": "0",
+              "h1": "2",
+              "h2": "244",
+              "h3": "34",
+              "h4": "0",
+              "h5": "0",
+              "aberturas": {
+                "esquerda": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                },
+                "direita": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                }
+              }
+            },
+            "H": {
+              "laje": "",
+              "posicao_laje": "5",
+              "larg1": "244",
+              "larg2": "0",
+              "larg3": "0",
+              "h1": "2",
+              "h2": "244",
+              "h3": "34",
+              "h4": "0",
+              "h5": "0",
+              "aberturas": {
+                "esquerda": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                },
+                "direita": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                }
+              }
+            }
+          },
+          "modo_calculo": "automatico",
+          "tipo_distribuicao_largura": "padrao",
+          "checkbox_descontar_laje": false,
+          "checkbox_descontar_aberturas": false,
+          "hachura_paineis": false,
+          "m2_total": 0.0
+        },
+        "item_id": "3_ITAQUERA III - 1PV",
+        "locks": {}
+      },
+      "203": {
+        "dados": {
+          "numero": "203",
+          "nome": "P203",
+          "obra": "Obra_TREINO_20",
+          "comprimento": "61",
+          "largura": "28",
+          "pavimento": "ITAQUERA III - 1PV",
+          "pavimento_numero": "1",
+          "pavimento_anterior": "ITAQUERA III - 1PV",
+          "nivel_saida": "280.0",
+          "nivel_chegada": "0.0",
+          "nivel_diferencial": "",
+          "altura": "280",
+          "parafusos": {
+            "par_1_2": "0",
+            "par_2_3": "0",
+            "par_3_4": "0",
+            "par_4_5": "0",
+            "par_5_6": "0",
+            "par_6_7": "0",
+            "par_7_8": "0",
+            "par_8_9": "0"
+          },
+          "grades": {
+            "grade_1": "0",
+            "distancia_1": "14",
+            "grade_2": "",
+            "distancia_2": "",
+            "grade_3": ""
+          },
+          "pilar_especial": false,
+          "detalhes_grades": {},
+          "altura_detalhes_grades": "",
+          "grades_grupo2": {},
+          "detalhes_grades_grupo2": {},
+          "altura_detalhes_grades_b": "",
+          "ruler_grupo1": {},
+          "paineis": {
+            "A": {
+              "laje": "",
+              "posicao_laje": "5",
+              "larg1": "61",
+              "larg2": "0",
+              "larg3": "0",
+              "h1": "2",
+              "h2": "244",
+              "h3": "34",
+              "h4": "0",
+              "h5": "0",
+              "aberturas": {
+                "esquerda": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                },
+                "direita": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                }
+              }
+            },
+            "B": {
+              "laje": "",
+              "posicao_laje": "5",
+              "larg1": "28",
+              "larg2": "0",
+              "larg3": "0",
+              "h1": "2",
+              "h2": "244",
+              "h3": "34",
+              "h4": "0",
+              "h5": "0",
+              "aberturas": {
+                "esquerda": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                },
+                "direita": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                }
+              }
+            },
+            "C": {
+              "laje": "",
+              "posicao_laje": "5",
+              "larg1": "61",
+              "larg2": "0",
+              "larg3": "0",
+              "h1": "2",
+              "h2": "244",
+              "h3": "34",
+              "h4": "0",
+              "h5": "0",
+              "aberturas": {
+                "esquerda": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                },
+                "direita": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                }
+              }
+            },
+            "D": {
+              "laje": "",
+              "posicao_laje": "5",
+              "larg1": "28",
+              "larg2": "0",
+              "larg3": "0",
+              "h1": "2",
+              "h2": "244",
+              "h3": "34",
+              "h4": "0",
+              "h5": "0",
+              "aberturas": {
+                "esquerda": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                },
+                "direita": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                }
+              }
+            },
+            "E": {
+              "laje": "",
+              "posicao_laje": "5",
+              "larg1": "244",
+              "larg2": "0",
+              "larg3": "0",
+              "h1": "2",
+              "h2": "244",
+              "h3": "34",
+              "h4": "0",
+              "h5": "0",
+              "aberturas": {
+                "esquerda": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                },
+                "direita": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                }
+              }
+            },
+            "F": {
+              "laje": "",
+              "posicao_laje": "5",
+              "larg1": "244",
+              "larg2": "0",
+              "larg3": "0",
+              "h1": "2",
+              "h2": "244",
+              "h3": "34",
+              "h4": "0",
+              "h5": "0",
+              "aberturas": {
+                "esquerda": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                },
+                "direita": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                }
+              }
+            },
+            "G": {
+              "laje": "",
+              "posicao_laje": "5",
+              "larg1": "244",
+              "larg2": "0",
+              "larg3": "0",
+              "h1": "2",
+              "h2": "244",
+              "h3": "34",
+              "h4": "0",
+              "h5": "0",
+              "aberturas": {
+                "esquerda": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                },
+                "direita": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                }
+              }
+            },
+            "H": {
+              "laje": "",
+              "posicao_laje": "5",
+              "larg1": "244",
+              "larg2": "0",
+              "larg3": "0",
+              "h1": "2",
+              "h2": "244",
+              "h3": "34",
+              "h4": "0",
+              "h5": "0",
+              "aberturas": {
+                "esquerda": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                },
+                "direita": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                }
+              }
+            }
+          },
+          "modo_calculo": "automatico",
+          "tipo_distribuicao_largura": "padrao",
+          "checkbox_descontar_laje": false,
+          "checkbox_descontar_aberturas": false,
+          "hachura_paineis": false,
+          "m2_total": 0.0
+        },
+        "item_id": "203_ITAQUERA III - 1PV",
+        "locks": {}
+      },
+      "204": {
+        "dados": {
+          "numero": "204",
+          "nome": "P204",
+          "obra": "Obra_TREINO_20",
+          "comprimento": "61",
+          "largura": "14",
+          "pavimento": "ITAQUERA III - 1PV",
+          "pavimento_numero": "1",
+          "pavimento_anterior": "ITAQUERA III - 1PV",
+          "nivel_saida": "280.0",
+          "nivel_chegada": "0.0",
+          "nivel_diferencial": "",
+          "altura": "280",
+          "parafusos": {
+            "par_1_2": "0",
+            "par_2_3": "0",
+            "par_3_4": "0",
+            "par_4_5": "0",
+            "par_5_6": "0",
+            "par_6_7": "0",
+            "par_7_8": "0",
+            "par_8_9": "0"
+          },
+          "grades": {
+            "grade_1": "0",
+            "distancia_1": "14",
+            "grade_2": "",
+            "distancia_2": "",
+            "grade_3": ""
+          },
+          "pilar_especial": false,
+          "detalhes_grades": {},
+          "altura_detalhes_grades": "",
+          "grades_grupo2": {},
+          "detalhes_grades_grupo2": {},
+          "altura_detalhes_grades_b": "",
+          "ruler_grupo1": {},
+          "paineis": {
+            "A": {
+              "laje": "",
+              "posicao_laje": "5",
+              "larg1": "61",
+              "larg2": "0",
+              "larg3": "0",
+              "h1": "2",
+              "h2": "244",
+              "h3": "34",
+              "h4": "0",
+              "h5": "0",
+              "aberturas": {
+                "esquerda": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                },
+                "direita": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                }
+              }
+            },
+            "B": {
+              "laje": "",
+              "posicao_laje": "5",
+              "larg1": "14",
+              "larg2": "0",
+              "larg3": "0",
+              "h1": "2",
+              "h2": "244",
+              "h3": "34",
+              "h4": "0",
+              "h5": "0",
+              "aberturas": {
+                "esquerda": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                },
+                "direita": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                }
+              }
+            },
+            "C": {
+              "laje": "",
+              "posicao_laje": "5",
+              "larg1": "61",
+              "larg2": "0",
+              "larg3": "0",
+              "h1": "2",
+              "h2": "244",
+              "h3": "34",
+              "h4": "0",
+              "h5": "0",
+              "aberturas": {
+                "esquerda": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                },
+                "direita": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                }
+              }
+            },
+            "D": {
+              "laje": "",
+              "posicao_laje": "5",
+              "larg1": "14",
+              "larg2": "0",
+              "larg3": "0",
+              "h1": "2",
+              "h2": "244",
+              "h3": "34",
+              "h4": "0",
+              "h5": "0",
+              "aberturas": {
+                "esquerda": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                },
+                "direita": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                }
+              }
+            },
+            "E": {
+              "laje": "",
+              "posicao_laje": "5",
+              "larg1": "244",
+              "larg2": "0",
+              "larg3": "0",
+              "h1": "2",
+              "h2": "244",
+              "h3": "34",
+              "h4": "0",
+              "h5": "0",
+              "aberturas": {
+                "esquerda": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                },
+                "direita": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                }
+              }
+            },
+            "F": {
+              "laje": "",
+              "posicao_laje": "5",
+              "larg1": "244",
+              "larg2": "0",
+              "larg3": "0",
+              "h1": "2",
+              "h2": "244",
+              "h3": "34",
+              "h4": "0",
+              "h5": "0",
+              "aberturas": {
+                "esquerda": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                },
+                "direita": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                }
+              }
+            },
+            "G": {
+              "laje": "",
+              "posicao_laje": "5",
+              "larg1": "244",
+              "larg2": "0",
+              "larg3": "0",
+              "h1": "2",
+              "h2": "244",
+              "h3": "34",
+              "h4": "0",
+              "h5": "0",
+              "aberturas": {
+                "esquerda": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                },
+                "direita": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                }
+              }
+            },
+            "H": {
+              "laje": "",
+              "posicao_laje": "5",
+              "larg1": "244",
+              "larg2": "0",
+              "larg3": "0",
+              "h1": "2",
+              "h2": "244",
+              "h3": "34",
+              "h4": "0",
+              "h5": "0",
+              "aberturas": {
+                "esquerda": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                },
+                "direita": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                }
+              }
+            }
+          },
+          "modo_calculo": "automatico",
+          "tipo_distribuicao_largura": "padrao",
+          "checkbox_descontar_laje": false,
+          "checkbox_descontar_aberturas": false,
+          "hachura_paineis": false,
+          "m2_total": 0.0
+        },
+        "item_id": "204_ITAQUERA III - 1PV",
+        "locks": {}
+      },
+      "206": {
+        "dados": {
+          "numero": "206",
+          "nome": "P206",
+          "obra": "Obra_TREINO_20",
+          "comprimento": "74",
+          "largura": "66",
+          "pavimento": "ITAQUERA III - 1PV",
+          "pavimento_numero": "1",
+          "pavimento_anterior": "ITAQUERA III - 1PV",
+          "nivel_saida": "280.0",
+          "nivel_chegada": "0.0",
+          "nivel_diferencial": "",
+          "altura": "280",
+          "parafusos": {
+            "par_1_2": "0",
+            "par_2_3": "0",
+            "par_3_4": "0",
+            "par_4_5": "0",
+            "par_5_6": "0",
+            "par_6_7": "0",
+            "par_7_8": "0",
+            "par_8_9": "0"
+          },
+          "grades": {
+            "grade_1": "0",
+            "distancia_1": "14",
+            "grade_2": "",
+            "distancia_2": "",
+            "grade_3": ""
+          },
+          "pilar_especial": false,
+          "detalhes_grades": {},
+          "altura_detalhes_grades": "",
+          "grades_grupo2": {},
+          "detalhes_grades_grupo2": {},
+          "altura_detalhes_grades_b": "",
+          "ruler_grupo1": {},
+          "paineis": {
+            "A": {
+              "laje": "",
+              "posicao_laje": "5",
+              "larg1": "74",
+              "larg2": "0",
+              "larg3": "0",
+              "h1": "2",
+              "h2": "244",
+              "h3": "34",
+              "h4": "0",
+              "h5": "0",
+              "aberturas": {
+                "esquerda": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                },
+                "direita": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                }
+              }
+            },
+            "B": {
+              "laje": "",
+              "posicao_laje": "5",
+              "larg1": "66",
+              "larg2": "0",
+              "larg3": "0",
+              "h1": "2",
+              "h2": "244",
+              "h3": "34",
+              "h4": "0",
+              "h5": "0",
+              "aberturas": {
+                "esquerda": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                },
+                "direita": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                }
+              }
+            },
+            "C": {
+              "laje": "",
+              "posicao_laje": "5",
+              "larg1": "74",
+              "larg2": "0",
+              "larg3": "0",
+              "h1": "2",
+              "h2": "244",
+              "h3": "34",
+              "h4": "0",
+              "h5": "0",
+              "aberturas": {
+                "esquerda": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                },
+                "direita": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                }
+              }
+            },
+            "D": {
+              "laje": "",
+              "posicao_laje": "5",
+              "larg1": "66",
+              "larg2": "0",
+              "larg3": "0",
+              "h1": "2",
+              "h2": "244",
+              "h3": "34",
+              "h4": "0",
+              "h5": "0",
+              "aberturas": {
+                "esquerda": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                },
+                "direita": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                }
+              }
+            },
+            "E": {
+              "laje": "",
+              "posicao_laje": "5",
+              "larg1": "244",
+              "larg2": "0",
+              "larg3": "0",
+              "h1": "2",
+              "h2": "244",
+              "h3": "34",
+              "h4": "0",
+              "h5": "0",
+              "aberturas": {
+                "esquerda": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                },
+                "direita": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                }
+              }
+            },
+            "F": {
+              "laje": "",
+              "posicao_laje": "5",
+              "larg1": "244",
+              "larg2": "0",
+              "larg3": "0",
+              "h1": "2",
+              "h2": "244",
+              "h3": "34",
+              "h4": "0",
+              "h5": "0",
+              "aberturas": {
+                "esquerda": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                },
+                "direita": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                }
+              }
+            },
+            "G": {
+              "laje": "",
+              "posicao_laje": "5",
+              "larg1": "244",
+              "larg2": "0",
+              "larg3": "0",
+              "h1": "2",
+              "h2": "244",
+              "h3": "34",
+              "h4": "0",
+              "h5": "0",
+              "aberturas": {
+                "esquerda": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                },
+                "direita": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                }
+              }
+            },
+            "H": {
+              "laje": "",
+              "posicao_laje": "5",
+              "larg1": "244",
+              "larg2": "0",
+              "larg3": "0",
+              "h1": "2",
+              "h2": "244",
+              "h3": "34",
+              "h4": "0",
+              "h5": "0",
+              "aberturas": {
+                "esquerda": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                },
+                "direita": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                }
+              }
+            }
+          },
+          "modo_calculo": "automatico",
+          "tipo_distribuicao_largura": "padrao",
+          "checkbox_descontar_laje": false,
+          "checkbox_descontar_aberturas": false,
+          "hachura_paineis": false,
+          "m2_total": 0.0
+        },
+        "item_id": "206_ITAQUERA III - 1PV",
+        "locks": {}
+      },
+      "207": {
+        "dados": {
+          "numero": "207",
+          "nome": "P207",
+          "obra": "Obra_TREINO_20",
+          "comprimento": "66",
+          "largura": "14",
+          "pavimento": "ITAQUERA III - 1PV",
+          "pavimento_numero": "1",
+          "pavimento_anterior": "ITAQUERA III - 1PV",
+          "nivel_saida": "280.0",
+          "nivel_chegada": "0.0",
+          "nivel_diferencial": "",
+          "altura": "280",
+          "parafusos": {
+            "par_1_2": "0",
+            "par_2_3": "0",
+            "par_3_4": "0",
+            "par_4_5": "0",
+            "par_5_6": "0",
+            "par_6_7": "0",
+            "par_7_8": "0",
+            "par_8_9": "0"
+          },
+          "grades": {
+            "grade_1": "0",
+            "distancia_1": "14",
+            "grade_2": "",
+            "distancia_2": "",
+            "grade_3": ""
+          },
+          "pilar_especial": false,
+          "detalhes_grades": {},
+          "altura_detalhes_grades": "",
+          "grades_grupo2": {},
+          "detalhes_grades_grupo2": {},
+          "altura_detalhes_grades_b": "",
+          "ruler_grupo1": {},
+          "paineis": {
+            "A": {
+              "laje": "",
+              "posicao_laje": "5",
+              "larg1": "66",
+              "larg2": "0",
+              "larg3": "0",
+              "h1": "2",
+              "h2": "244",
+              "h3": "34",
+              "h4": "0",
+              "h5": "0",
+              "aberturas": {
+                "esquerda": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                },
+                "direita": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                }
+              }
+            },
+            "B": {
+              "laje": "",
+              "posicao_laje": "5",
+              "larg1": "14",
+              "larg2": "0",
+              "larg3": "0",
+              "h1": "2",
+              "h2": "244",
+              "h3": "34",
+              "h4": "0",
+              "h5": "0",
+              "aberturas": {
+                "esquerda": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                },
+                "direita": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                }
+              }
+            },
+            "C": {
+              "laje": "",
+              "posicao_laje": "5",
+              "larg1": "66",
+              "larg2": "0",
+              "larg3": "0",
+              "h1": "2",
+              "h2": "244",
+              "h3": "34",
+              "h4": "0",
+              "h5": "0",
+              "aberturas": {
+                "esquerda": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                },
+                "direita": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                }
+              }
+            },
+            "D": {
+              "laje": "",
+              "posicao_laje": "5",
+              "larg1": "14",
+              "larg2": "0",
+              "larg3": "0",
+              "h1": "2",
+              "h2": "244",
+              "h3": "34",
+              "h4": "0",
+              "h5": "0",
+              "aberturas": {
+                "esquerda": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                },
+                "direita": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                }
+              }
+            },
+            "E": {
+              "laje": "",
+              "posicao_laje": "5",
+              "larg1": "244",
+              "larg2": "0",
+              "larg3": "0",
+              "h1": "2",
+              "h2": "244",
+              "h3": "34",
+              "h4": "0",
+              "h5": "0",
+              "aberturas": {
+                "esquerda": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                },
+                "direita": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                }
+              }
+            },
+            "F": {
+              "laje": "",
+              "posicao_laje": "5",
+              "larg1": "244",
+              "larg2": "0",
+              "larg3": "0",
+              "h1": "2",
+              "h2": "244",
+              "h3": "34",
+              "h4": "0",
+              "h5": "0",
+              "aberturas": {
+                "esquerda": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                },
+                "direita": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                }
+              }
+            },
+            "G": {
+              "laje": "",
+              "posicao_laje": "5",
+              "larg1": "244",
+              "larg2": "0",
+              "larg3": "0",
+              "h1": "2",
+              "h2": "244",
+              "h3": "34",
+              "h4": "0",
+              "h5": "0",
+              "aberturas": {
+                "esquerda": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                },
+                "direita": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                }
+              }
+            },
+            "H": {
+              "laje": "",
+              "posicao_laje": "5",
+              "larg1": "244",
+              "larg2": "0",
+              "larg3": "0",
+              "h1": "2",
+              "h2": "244",
+              "h3": "34",
+              "h4": "0",
+              "h5": "0",
+              "aberturas": {
+                "esquerda": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                },
+                "direita": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                }
+              }
+            }
+          },
+          "modo_calculo": "automatico",
+          "tipo_distribuicao_largura": "padrao",
+          "checkbox_descontar_laje": false,
+          "checkbox_descontar_aberturas": false,
+          "hachura_paineis": false,
+          "m2_total": 0.0
+        },
+        "item_id": "207_ITAQUERA III - 1PV",
+        "locks": {}
+      },
+      "301": {
+        "dados": {
+          "numero": "301",
+          "nome": "P301",
+          "obra": "Obra_TREINO_20",
+          "comprimento": "71",
+          "largura": "20",
+          "pavimento": "ITAQUERA III - 1PV",
+          "pavimento_numero": "1",
+          "pavimento_anterior": "ITAQUERA III - 1PV",
+          "nivel_saida": "280.0",
+          "nivel_chegada": "0.0",
+          "nivel_diferencial": "",
+          "altura": "280",
+          "parafusos": {
+            "par_1_2": "0",
+            "par_2_3": "0",
+            "par_3_4": "0",
+            "par_4_5": "0",
+            "par_5_6": "0",
+            "par_6_7": "0",
+            "par_7_8": "0",
+            "par_8_9": "0"
+          },
+          "grades": {
+            "grade_1": "0",
+            "distancia_1": "14",
+            "grade_2": "",
+            "distancia_2": "",
+            "grade_3": ""
+          },
+          "pilar_especial": false,
+          "detalhes_grades": {},
+          "altura_detalhes_grades": "",
+          "grades_grupo2": {},
+          "detalhes_grades_grupo2": {},
+          "altura_detalhes_grades_b": "",
+          "ruler_grupo1": {},
+          "paineis": {
+            "A": {
+              "laje": "",
+              "posicao_laje": "5",
+              "larg1": "71",
+              "larg2": "0",
+              "larg3": "0",
+              "h1": "2",
+              "h2": "244",
+              "h3": "34",
+              "h4": "0",
+              "h5": "0",
+              "aberturas": {
+                "esquerda": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                },
+                "direita": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                }
+              }
+            },
+            "B": {
+              "laje": "",
+              "posicao_laje": "5",
+              "larg1": "20",
+              "larg2": "0",
+              "larg3": "0",
+              "h1": "2",
+              "h2": "244",
+              "h3": "34",
+              "h4": "0",
+              "h5": "0",
+              "aberturas": {
+                "esquerda": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                },
+                "direita": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                }
+              }
+            },
+            "C": {
+              "laje": "",
+              "posicao_laje": "5",
+              "larg1": "71",
+              "larg2": "0",
+              "larg3": "0",
+              "h1": "2",
+              "h2": "244",
+              "h3": "34",
+              "h4": "0",
+              "h5": "0",
+              "aberturas": {
+                "esquerda": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                },
+                "direita": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                }
+              }
+            },
+            "D": {
+              "laje": "",
+              "posicao_laje": "5",
+              "larg1": "20",
+              "larg2": "0",
+              "larg3": "0",
+              "h1": "2",
+              "h2": "244",
+              "h3": "34",
+              "h4": "0",
+              "h5": "0",
+              "aberturas": {
+                "esquerda": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                },
+                "direita": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                }
+              }
+            },
+            "E": {
+              "laje": "",
+              "posicao_laje": "5",
+              "larg1": "244",
+              "larg2": "0",
+              "larg3": "0",
+              "h1": "2",
+              "h2": "244",
+              "h3": "34",
+              "h4": "0",
+              "h5": "0",
+              "aberturas": {
+                "esquerda": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                },
+                "direita": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                }
+              }
+            },
+            "F": {
+              "laje": "",
+              "posicao_laje": "5",
+              "larg1": "244",
+              "larg2": "0",
+              "larg3": "0",
+              "h1": "2",
+              "h2": "244",
+              "h3": "34",
+              "h4": "0",
+              "h5": "0",
+              "aberturas": {
+                "esquerda": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                },
+                "direita": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                }
+              }
+            },
+            "G": {
+              "laje": "",
+              "posicao_laje": "5",
+              "larg1": "244",
+              "larg2": "0",
+              "larg3": "0",
+              "h1": "2",
+              "h2": "244",
+              "h3": "34",
+              "h4": "0",
+              "h5": "0",
+              "aberturas": {
+                "esquerda": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                },
+                "direita": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                }
+              }
+            },
+            "H": {
+              "laje": "",
+              "posicao_laje": "5",
+              "larg1": "244",
+              "larg2": "0",
+              "larg3": "0",
+              "h1": "2",
+              "h2": "244",
+              "h3": "34",
+              "h4": "0",
+              "h5": "0",
+              "aberturas": {
+                "esquerda": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                },
+                "direita": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                }
+              }
+            }
+          },
+          "modo_calculo": "automatico",
+          "tipo_distribuicao_largura": "padrao",
+          "checkbox_descontar_laje": false,
+          "checkbox_descontar_aberturas": false,
+          "hachura_paineis": false,
+          "m2_total": 0.0
+        },
+        "item_id": "301_ITAQUERA III - 1PV",
+        "locks": {}
+      },
+      "302": {
+        "dados": {
+          "numero": "302",
+          "nome": "P302",
+          "obra": "Obra_TREINO_20",
+          "comprimento": "76",
+          "largura": "47",
+          "pavimento": "ITAQUERA III - 1PV",
+          "pavimento_numero": "1",
+          "pavimento_anterior": "ITAQUERA III - 1PV",
+          "nivel_saida": "280.0",
+          "nivel_chegada": "0.0",
+          "nivel_diferencial": "",
+          "altura": "280",
+          "parafusos": {
+            "par_1_2": "0",
+            "par_2_3": "0",
+            "par_3_4": "0",
+            "par_4_5": "0",
+            "par_5_6": "0",
+            "par_6_7": "0",
+            "par_7_8": "0",
+            "par_8_9": "0"
+          },
+          "grades": {
+            "grade_1": "0",
+            "distancia_1": "14",
+            "grade_2": "",
+            "distancia_2": "",
+            "grade_3": ""
+          },
+          "pilar_especial": false,
+          "detalhes_grades": {},
+          "altura_detalhes_grades": "",
+          "grades_grupo2": {},
+          "detalhes_grades_grupo2": {},
+          "altura_detalhes_grades_b": "",
+          "ruler_grupo1": {},
+          "paineis": {
+            "A": {
+              "laje": "",
+              "posicao_laje": "5",
+              "larg1": "76",
+              "larg2": "0",
+              "larg3": "0",
+              "h1": "2",
+              "h2": "244",
+              "h3": "34",
+              "h4": "0",
+              "h5": "0",
+              "aberturas": {
+                "esquerda": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                },
+                "direita": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                }
+              }
+            },
+            "B": {
+              "laje": "",
+              "posicao_laje": "5",
+              "larg1": "47",
+              "larg2": "0",
+              "larg3": "0",
+              "h1": "2",
+              "h2": "244",
+              "h3": "34",
+              "h4": "0",
+              "h5": "0",
+              "aberturas": {
+                "esquerda": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                },
+                "direita": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                }
+              }
+            },
+            "C": {
+              "laje": "",
+              "posicao_laje": "5",
+              "larg1": "76",
+              "larg2": "0",
+              "larg3": "0",
+              "h1": "2",
+              "h2": "244",
+              "h3": "34",
+              "h4": "0",
+              "h5": "0",
+              "aberturas": {
+                "esquerda": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                },
+                "direita": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                }
+              }
+            },
+            "D": {
+              "laje": "",
+              "posicao_laje": "5",
+              "larg1": "47",
+              "larg2": "0",
+              "larg3": "0",
+              "h1": "2",
+              "h2": "244",
+              "h3": "34",
+              "h4": "0",
+              "h5": "0",
+              "aberturas": {
+                "esquerda": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                },
+                "direita": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                }
+              }
+            },
+            "E": {
+              "laje": "",
+              "posicao_laje": "5",
+              "larg1": "244",
+              "larg2": "0",
+              "larg3": "0",
+              "h1": "2",
+              "h2": "244",
+              "h3": "34",
+              "h4": "0",
+              "h5": "0",
+              "aberturas": {
+                "esquerda": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                },
+                "direita": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                }
+              }
+            },
+            "F": {
+              "laje": "",
+              "posicao_laje": "5",
+              "larg1": "244",
+              "larg2": "0",
+              "larg3": "0",
+              "h1": "2",
+              "h2": "244",
+              "h3": "34",
+              "h4": "0",
+              "h5": "0",
+              "aberturas": {
+                "esquerda": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                },
+                "direita": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                }
+              }
+            },
+            "G": {
+              "laje": "",
+              "posicao_laje": "5",
+              "larg1": "244",
+              "larg2": "0",
+              "larg3": "0",
+              "h1": "2",
+              "h2": "244",
+              "h3": "34",
+              "h4": "0",
+              "h5": "0",
+              "aberturas": {
+                "esquerda": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                },
+                "direita": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                }
+              }
+            },
+            "H": {
+              "laje": "",
+              "posicao_laje": "5",
+              "larg1": "244",
+              "larg2": "0",
+              "larg3": "0",
+              "h1": "2",
+              "h2": "244",
+              "h3": "34",
+              "h4": "0",
+              "h5": "0",
+              "aberturas": {
+                "esquerda": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                },
+                "direita": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                }
+              }
+            }
+          },
+          "modo_calculo": "automatico",
+          "tipo_distribuicao_largura": "padrao",
+          "checkbox_descontar_laje": false,
+          "checkbox_descontar_aberturas": false,
+          "hachura_paineis": false,
+          "m2_total": 0.0
+        },
+        "item_id": "302_ITAQUERA III - 1PV",
+        "locks": {}
+      },
+      "303": {
+        "dados": {
+          "numero": "303",
+          "nome": "P303",
+          "obra": "Obra_TREINO_20",
+          "comprimento": "31",
+          "largura": "20",
+          "pavimento": "ITAQUERA III - 1PV",
+          "pavimento_numero": "1",
+          "pavimento_anterior": "ITAQUERA III - 1PV",
+          "nivel_saida": "280.0",
+          "nivel_chegada": "0.0",
+          "nivel_diferencial": "",
+          "altura": "280",
+          "parafusos": {
+            "par_1_2": "0",
+            "par_2_3": "0",
+            "par_3_4": "0",
+            "par_4_5": "0",
+            "par_5_6": "0",
+            "par_6_7": "0",
+            "par_7_8": "0",
+            "par_8_9": "0"
+          },
+          "grades": {
+            "grade_1": "0",
+            "distancia_1": "14",
+            "grade_2": "",
+            "distancia_2": "",
+            "grade_3": ""
+          },
+          "pilar_especial": false,
+          "detalhes_grades": {},
+          "altura_detalhes_grades": "",
+          "grades_grupo2": {},
+          "detalhes_grades_grupo2": {},
+          "altura_detalhes_grades_b": "",
+          "ruler_grupo1": {},
+          "paineis": {
+            "A": {
+              "laje": "",
+              "posicao_laje": "5",
+              "larg1": "31",
+              "larg2": "0",
+              "larg3": "0",
+              "h1": "2",
+              "h2": "244",
+              "h3": "34",
+              "h4": "0",
+              "h5": "0",
+              "aberturas": {
+                "esquerda": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                },
+                "direita": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                }
+              }
+            },
+            "B": {
+              "laje": "",
+              "posicao_laje": "5",
+              "larg1": "20",
+              "larg2": "0",
+              "larg3": "0",
+              "h1": "2",
+              "h2": "244",
+              "h3": "34",
+              "h4": "0",
+              "h5": "0",
+              "aberturas": {
+                "esquerda": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                },
+                "direita": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                }
+              }
+            },
+            "C": {
+              "laje": "",
+              "posicao_laje": "5",
+              "larg1": "31",
+              "larg2": "0",
+              "larg3": "0",
+              "h1": "2",
+              "h2": "244",
+              "h3": "34",
+              "h4": "0",
+              "h5": "0",
+              "aberturas": {
+                "esquerda": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                },
+                "direita": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                }
+              }
+            },
+            "D": {
+              "laje": "",
+              "posicao_laje": "5",
+              "larg1": "20",
+              "larg2": "0",
+              "larg3": "0",
+              "h1": "2",
+              "h2": "244",
+              "h3": "34",
+              "h4": "0",
+              "h5": "0",
+              "aberturas": {
+                "esquerda": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                },
+                "direita": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                }
+              }
+            },
+            "E": {
+              "laje": "",
+              "posicao_laje": "5",
+              "larg1": "244",
+              "larg2": "0",
+              "larg3": "0",
+              "h1": "2",
+              "h2": "244",
+              "h3": "34",
+              "h4": "0",
+              "h5": "0",
+              "aberturas": {
+                "esquerda": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                },
+                "direita": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                }
+              }
+            },
+            "F": {
+              "laje": "",
+              "posicao_laje": "5",
+              "larg1": "244",
+              "larg2": "0",
+              "larg3": "0",
+              "h1": "2",
+              "h2": "244",
+              "h3": "34",
+              "h4": "0",
+              "h5": "0",
+              "aberturas": {
+                "esquerda": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                },
+                "direita": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                }
+              }
+            },
+            "G": {
+              "laje": "",
+              "posicao_laje": "5",
+              "larg1": "244",
+              "larg2": "0",
+              "larg3": "0",
+              "h1": "2",
+              "h2": "244",
+              "h3": "34",
+              "h4": "0",
+              "h5": "0",
+              "aberturas": {
+                "esquerda": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                },
+                "direita": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                }
+              }
+            },
+            "H": {
+              "laje": "",
+              "posicao_laje": "5",
+              "larg1": "244",
+              "larg2": "0",
+              "larg3": "0",
+              "h1": "2",
+              "h2": "244",
+              "h3": "34",
+              "h4": "0",
+              "h5": "0",
+              "aberturas": {
+                "esquerda": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                },
+                "direita": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                }
+              }
+            }
+          },
+          "modo_calculo": "automatico",
+          "tipo_distribuicao_largura": "padrao",
+          "checkbox_descontar_laje": false,
+          "checkbox_descontar_aberturas": false,
+          "hachura_paineis": false,
+          "m2_total": 0.0
+        },
+        "item_id": "303_ITAQUERA III - 1PV",
+        "locks": {}
+      }
+    }
+  }
+}

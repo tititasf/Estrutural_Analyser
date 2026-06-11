@@ -1,7 +1,7 @@
 {
   "obra": "Obra_TREINO_19",
-  "pavimento": "1 SUBOLO",
-  "timestamp": "2026-05-01T01:00:08.102393+00:00",
+  "pavimento": "12 PAV",
+  "timestamp": "2026-05-21T23:34:40.656036+00:00",
   "versao_pipeline": "CAD-ANALYZER v4.0",
   "aprovado": true,
   "criterios": {
@@ -47,9 +47,9 @@
     "C4_dxf_individual": {
       "descricao": "DXF individual PASS",
       "tipo": "WARN",
-      "status": "FAIL",
-      "pipeline_status": "APROVADO",
-      "comparacao_individual": "FALHOU/SKIP"
+      "status": "PASS",
+      "pipeline_status": "PARCIAL",
+      "comparacao_individual": "OK"
     },
     "C5_dxf_coletivo": {
       "descricao": "DXF coletivo score >= 95%",
@@ -75,14 +75,14 @@
     "C6_fidelidade": {
       "descricao": "Fidelidade estrutural >= 50/100",
       "tipo": "WARN",
-      "status": "FAIL",
-      "score_global": 26.4,
+      "status": "PASS",
+      "score_global": 77.2,
       "limiar": 50.0,
       "nota": "WARN: ezdxf pipeline gera DXFs de identificação (Frente 2). Fidelidade visual >= 95% é responsabilidade da Frente 1 (AutoCAD/SCR — score 95.1 para PL).",
       "por_tipo": {
-        "pilares": 0.0,
-        "vigas": 46.3,
-        "lajes": 40.9
+        "pilares": null,
+        "vigas": 85.0,
+        "lajes": 66.3
       }
     },
     "C7_multi_pav": {
@@ -102,9 +102,6 @@
     }
   },
   "falhas_bloqueantes": [],
-  "avisos": [
-    "C4_dxf_individual",
-    "C6_fidelidade"
-  ],
+  "avisos": [],
   "resumo": "APROVADO — Pipeline certificado com fidelidade suficiente para uso em produção."
 }

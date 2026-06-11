@@ -1,0 +1,30 @@
+{
+  "obra": "Obra_TREINO_5",
+  "pavimento": "EMBRAMACO - N300",
+  "timestamp": "2026-05-22T13:59:34.097381",
+  "fases": {
+    "descoberta": "SKIP",
+    "eng_reversa": "OK",
+    "extracao_dimensional": "OK",
+    "validacao_bh": "SKIP",
+    "motor_fase4": "OK",
+    "geracao_dxf_individual": "OK",
+    "comparacao_individual": "OK",
+    "ancoras": "OK",
+    "consolidacao_coletivo": "OK",
+    "validacao_coletivo": "OK",
+    "obras_salvas": "OK",
+    "validacao_visual": "SKIP",
+    "relatorio_fidelidade": "OK"
+  },
+  "scores": {
+    "coletivo": {
+      "pilares": 100.0,
+      "vigas": 100.0,
+      "lajes": null,
+      "global": 100.0,
+      "aprovado": true
+    }
+  },
+  "status": "APROVADO"
+}

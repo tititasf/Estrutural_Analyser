@@ -1,0 +1,489 @@
+{
+  "L101": {
+    "comprimento": 100.0,
+    "largura": 100.0,
+    "coordenadas": [
+      [
+        0.0,
+        0.0
+      ],
+      [
+        100.0,
+        0.0
+      ],
+      [
+        100.0,
+        100.0
+      ],
+      [
+        0.0,
+        100.0
+      ],
+      [
+        0.0,
+        0.0
+      ]
+    ],
+    "area_cm2": 10000.0,
+    "confidence": 0.03,
+    "source": "fallback-lajes_ground_truth.json",
+    "modo_selecionado": 0
+  },
+  "L102": {
+    "comprimento": 100.0,
+    "largura": 100.0,
+    "coordenadas": [
+      [
+        0.0,
+        0.0
+      ],
+      [
+        100.0,
+        0.0
+      ],
+      [
+        100.0,
+        100.0
+      ],
+      [
+        0.0,
+        100.0
+      ],
+      [
+        0.0,
+        0.0
+      ]
+    ],
+    "area_cm2": 10000.0,
+    "confidence": 0.03,
+    "source": "fallback-lajes_ground_truth.json",
+    "modo_selecionado": 0
+  },
+  "L103": {
+    "comprimento": 100.0,
+    "largura": 100.0,
+    "coordenadas": [
+      [
+        0.0,
+        0.0
+      ],
+      [
+        100.0,
+        0.0
+      ],
+      [
+        100.0,
+        100.0
+      ],
+      [
+        0.0,
+        100.0
+      ],
+      [
+        0.0,
+        0.0
+      ]
+    ],
+    "area_cm2": 10000.0,
+    "confidence": 0.03,
+    "source": "fallback-lajes_ground_truth.json",
+    "modo_selecionado": 0
+  },
+  "L104": {
+    "comprimento": 100.0,
+    "largura": 100.0,
+    "coordenadas": [
+      [
+        0.0,
+        0.0
+      ],
+      [
+        100.0,
+        0.0
+      ],
+      [
+        100.0,
+        100.0
+      ],
+      [
+        0.0,
+        100.0
+      ],
+      [
+        0.0,
+        0.0
+      ]
+    ],
+    "area_cm2": 10000.0,
+    "confidence": 0.03,
+    "source": "fallback-lajes_ground_truth.json",
+    "modo_selecionado": 0
+  },
+  "L105": {
+    "comprimento": 100.0,
+    "largura": 100.0,
+    "coordenadas": [
+      [
+        0.0,
+        0.0
+      ],
+      [
+        100.0,
+        0.0
+      ],
+      [
+        100.0,
+        100.0
+      ],
+      [
+        0.0,
+        100.0
+      ],
+      [
+        0.0,
+        0.0
+      ]
+    ],
+    "area_cm2": 10000.0,
+    "confidence": 0.03,
+    "source": "fallback-lajes_ground_truth.json",
+    "modo_selecionado": 0
+  },
+  "L106": {
+    "comprimento": 100.0,
+    "largura": 100.0,
+    "coordenadas": [
+      [
+        0.0,
+        0.0
+      ],
+      [
+        100.0,
+        0.0
+      ],
+      [
+        100.0,
+        100.0
+      ],
+      [
+        0.0,
+        100.0
+      ],
+      [
+        0.0,
+        0.0
+      ]
+    ],
+    "area_cm2": 10000.0,
+    "confidence": 0.03,
+    "source": "fallback-lajes_ground_truth.json",
+    "modo_selecionado": 0
+  },
+  "L107": {
+    "comprimento": 100.0,
+    "largura": 100.0,
+    "coordenadas": [
+      [
+        0.0,
+        0.0
+      ],
+      [
+        100.0,
+        0.0
+      ],
+      [
+        100.0,
+        100.0
+      ],
+      [
+        0.0,
+        100.0
+      ],
+      [
+        0.0,
+        0.0
+      ]
+    ],
+    "area_cm2": 10000.0,
+    "confidence": 0.03,
+    "source": "fallback-lajes_ground_truth.json",
+    "modo_selecionado": 0
+  },
+  "L108": {
+    "comprimento": 100.0,
+    "largura": 100.0,
+    "coordenadas": [
+      [
+        0.0,
+        0.0
+      ],
+      [
+        100.0,
+        0.0
+      ],
+      [
+        100.0,
+        100.0
+      ],
+      [
+        0.0,
+        100.0
+      ],
+      [
+        0.0,
+        0.0
+      ]
+    ],
+    "area_cm2": 10000.0,
+    "confidence": 0.03,
+    "source": "fallback-lajes_ground_truth.json",
+    "modo_selecionado": 0
+  },
+  "L109": {
+    "comprimento": 100.0,
+    "largura": 100.0,
+    "coordenadas": [
+      [
+        0.0,
+        0.0
+      ],
+      [
+        100.0,
+        0.0
+      ],
+      [
+        100.0,
+        100.0
+      ],
+      [
+        0.0,
+        100.0
+      ],
+      [
+        0.0,
+        0.0
+      ]
+    ],
+    "area_cm2": 10000.0,
+    "confidence": 0.03,
+    "source": "fallback-lajes_ground_truth.json",
+    "modo_selecionado": 0
+  },
+  "L110": {
+    "comprimento": 100.0,
+    "largura": 100.0,
+    "coordenadas": [
+      [
+        0.0,
+        0.0
+      ],
+      [
+        100.0,
+        0.0
+      ],
+      [
+        100.0,
+        100.0
+      ],
+      [
+        0.0,
+        100.0
+      ],
+      [
+        0.0,
+        0.0
+      ]
+    ],
+    "area_cm2": 10000.0,
+    "confidence": 0.03,
+    "source": "fallback-lajes_ground_truth.json",
+    "modo_selecionado": 0
+  },
+  "L111": {
+    "comprimento": 100.0,
+    "largura": 100.0,
+    "coordenadas": [
+      [
+        0.0,
+        0.0
+      ],
+      [
+        100.0,
+        0.0
+      ],
+      [
+        100.0,
+        100.0
+      ],
+      [
+        0.0,
+        100.0
+      ],
+      [
+        0.0,
+        0.0
+      ]
+    ],
+    "area_cm2": 10000.0,
+    "confidence": 0.03,
+    "source": "fallback-lajes_ground_truth.json",
+    "modo_selecionado": 0
+  },
+  "L112": {
+    "comprimento": 100.0,
+    "largura": 100.0,
+    "coordenadas": [
+      [
+        0.0,
+        0.0
+      ],
+      [
+        100.0,
+        0.0
+      ],
+      [
+        100.0,
+        100.0
+      ],
+      [
+        0.0,
+        100.0
+      ],
+      [
+        0.0,
+        0.0
+      ]
+    ],
+    "area_cm2": 10000.0,
+    "confidence": 0.03,
+    "source": "fallback-lajes_ground_truth.json",
+    "modo_selecionado": 0
+  },
+  "L113": {
+    "comprimento": 100.0,
+    "largura": 100.0,
+    "coordenadas": [
+      [
+        0.0,
+        0.0
+      ],
+      [
+        100.0,
+        0.0
+      ],
+      [
+        100.0,
+        100.0
+      ],
+      [
+        0.0,
+        100.0
+      ],
+      [
+        0.0,
+        0.0
+      ]
+    ],
+    "area_cm2": 10000.0,
+    "confidence": 0.03,
+    "source": "fallback-lajes_ground_truth.json",
+    "modo_selecionado": 0
+  },
+  "L114": {
+    "comprimento": 100.0,
+    "largura": 100.0,
+    "coordenadas": [
+      [
+        0.0,
+        0.0
+      ],
+      [
+        100.0,
+        0.0
+      ],
+      [
+        100.0,
+        100.0
+      ],
+      [
+        0.0,
+        100.0
+      ],
+      [
+        0.0,
+        0.0
+      ]
+    ],
+    "area_cm2": 10000.0,
+    "confidence": 0.03,
+    "source": "fallback-lajes_ground_truth.json",
+    "modo_selecionado": 0
+  },
+  "L115": {
+    "comprimento": 100.0,
+    "largura": 100.0,
+    "coordenadas": [
+      [
+        0.0,
+        0.0
+      ],
+      [
+        100.0,
+        0.0
+      ],
+      [
+        100.0,
+        100.0
+      ],
+      [
+        0.0,
+        100.0
+      ],
+      [
+        0.0,
+        0.0
+      ]
+    ],
+    "area_cm2": 10000.0,
+    "confidence": 0.03,
+    "source": "fallback-lajes_ground_truth.json",
+    "modo_selecionado": 0
+  },
+  "L116": {
+    "comprimento": 100.0,
+    "largura": 100.0,
+    "coordenadas": [
+      [
+        0.0,
+        0.0
+      ],
+      [
+        100.0,
+        0.0
+      ],
+      [
+        100.0,
+        100.0
+      ],
+      [
+        0.0,
+        100.0
+      ],
+      [
+        0.0,
+        0.0
+      ]
+    ],
+    "area_cm2": 10000.0,
+    "confidence": 0.03,
+    "source": "fallback-lajes_ground_truth.json",
+    "modo_selecionado": 0
+  },
+  "_meta": {
+    "total": 15,
+    "integrado_em": "2026-03-08",
+    "fontes": [
+      "lajes_poligono.json"
+    ]
+  }
+}

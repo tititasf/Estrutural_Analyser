@@ -1,0 +1,80 @@
+{
+  "numero": 16,
+  "nome": "L16",
+  "comprimento": 165.1,
+  "largura": 139.2,
+  "pavimento": "Pavimento",
+  "coordenadas": [
+    [
+      0.0,
+      0.0
+    ],
+    [
+      165.1,
+      0.0
+    ],
+    [
+      165.1,
+      139.2
+    ],
+    [
+      0.0,
+      139.2
+    ],
+    [
+      0.0,
+      0.0
+    ]
+  ],
+  "area_cm2": 22981.9,
+  "linhas_verticais": [
+    {
+      "value": 165.1,
+      "is_union": false
+    }
+  ],
+  "linhas_horizontais": [
+    {
+      "value": 122.0,
+      "is_union": false
+    },
+    {
+      "value": 139.2,
+      "is_union": true
+    }
+  ],
+  "obstaculos": [],
+  "modo_selecionado": 0,
+  "unioes_nos_bordes": false,
+  "observacoes": "",
+  "pontaletes": {},
+  "_sa_meta": {
+    "tipo": "LJ",
+    "analisado_em": "2026-06-04 18:14",
+    "campos_extraidos": [
+      "area_cm2",
+      "comprimento",
+      "coordenadas",
+      "largura",
+      "linhas_verticais",
+      "nome",
+      "numero",
+      "pavimento"
+    ],
+    "campos_defaulted": [],
+    "na_fields": [
+      "grade_1",
+      "grade_2",
+      "h1_A",
+      "h2_A",
+      "h3_A",
+      "holes",
+      "panels",
+      "pillar_left",
+      "pillar_right",
+      "side",
+      "total_width"
+    ],
+    "completude_pct": 100.0
+  }
+}

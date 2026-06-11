@@ -1,0 +1,126 @@
+{
+  "tipo": "vigas",
+  "score": 93.9,
+  "aprovado": true,
+  "limiar": 82.0,
+  "sub_tipos": {
+    "LV": {
+      "stog_dxf": "NOVA-UNITÁ-METROCASA9 DE JULHO-1PV-LV-R00_R2018_ASCII_ODA.dxf",
+      "gerado_dxf": "LV_stog_quality.dxf",
+      "score": 96.3,
+      "detalhes": {
+        "id_match": {
+          "score": 30.0,
+          "max": 30,
+          "gt_count": 17,
+          "gerado_count": 17,
+          "id_match_rate": 1.0,
+          "hallucination_rate": 0.0,
+          "missed": [],
+          "hallucinated": []
+        },
+        "entity_coverage": {
+          "score": 36.3,
+          "max": 40,
+          "stog_total": 5112,
+          "gerado_total": 6170,
+          "global_ratio": 1.0,
+          "critical_avg": 0.8664
+        },
+        "layer_presence": {
+          "score": 20.0,
+          "max": 20,
+          "present": 27,
+          "missing": 0,
+          "required_layers": 27,
+          "missing_list": []
+        },
+        "anti_hallucination": {
+          "score": 10.0,
+          "max": 10
+        }
+      },
+      "scorer": "kb-blended",
+      "kb_file": "NOVA-UNITÁ-METROCASA9 DE JULHO-1PV-LV-R00_R2018_ASCII_ODA.dxf",
+      "aprovado": true,
+      "limiar": 85.0
+    },
+    "FV": {
+      "stog_dxf": "NOVA-UNITÁ-METROCASA9 DE JULHO-TER-FV-R00_R2018_ASCII_ODA.dxf",
+      "gerado_dxf": "FV_stog_quality.dxf",
+      "score": 90.2,
+      "detalhes": {
+        "id_match": {
+          "score": 26.0,
+          "max": 30,
+          "gt_count": 45,
+          "gerado_count": 15,
+          "id_match_rate": 0.8667,
+          "hallucination_rate": 0.1333,
+          "missed": [
+            "V15",
+            "V16",
+            "V17",
+            "V18",
+            "V20",
+            "V21",
+            "V22",
+            "V23",
+            "V25",
+            "V26",
+            "V27",
+            "V28",
+            "V29",
+            "V30",
+            "V31",
+            "V32",
+            "V33",
+            "V34",
+            "V35",
+            "V36",
+            "V37",
+            "V38",
+            "V39",
+            "V40",
+            "V41",
+            "V42",
+            "V43",
+            "V45",
+            "V46",
+            "V47",
+            "V48",
+            "V5"
+          ],
+          "hallucinated": [
+            "V12",
+            "V6"
+          ]
+        },
+        "entity_coverage": {
+          "score": 35.5,
+          "max": 40,
+          "stog_total": 2159,
+          "gerado_total": 782,
+          "global_ratio": 1.0,
+          "critical_avg": 0.8399
+        },
+        "layer_presence": {
+          "score": 20.0,
+          "max": 20,
+          "present": 19,
+          "missing": 0,
+          "required_layers": 19,
+          "missing_list": []
+        },
+        "anti_hallucination": {
+          "score": 8.7,
+          "max": 10
+        }
+      },
+      "scorer": "kb-blended",
+      "kb_file": "NOVA-UNITÁ-METROCASA9 DE JULHO-TER-FV-R00_R2018_ASCII_ODA.dxf",
+      "aprovado": true,
+      "limiar": 80.0
+    }
+  }
+}

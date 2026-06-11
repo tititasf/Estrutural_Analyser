@@ -1,0 +1,173 @@
+{
+  "V19": {
+    "id": "V19",
+    "largura_cm": 19.0,
+    "confidence": 0.3,
+    "source": "fv-dxf-global-median",
+    "note": "Sem label V{n}.C próximo — usando mediana global"
+  },
+  "V24": {
+    "id": "V24",
+    "largura_cm": 19.0,
+    "confidence": 0.3,
+    "source": "fv-dxf-global-median",
+    "note": "Sem label V{n}.C próximo — usando mediana global"
+  },
+  "V49": {
+    "id": "V49",
+    "largura_cm": 19.0,
+    "confidence": 0.3,
+    "source": "fv-dxf-global-median",
+    "note": "Sem label V{n}.C próximo — usando mediana global"
+  },
+  "V101": {
+    "id": "V101",
+    "largura_cm": 35.0,
+    "confidence": 0.85,
+    "source": "fv-dxf-proximity",
+    "dist": 18.0,
+    "label_pos": [
+      192137.5,
+      34081.4
+    ]
+  },
+  "V102": {
+    "id": "V102",
+    "largura_cm": 14.0,
+    "confidence": 0.85,
+    "source": "fv-dxf-proximity",
+    "dist": 131.3,
+    "label_pos": [
+      192137.5,
+      33885.5
+    ]
+  },
+  "V103": {
+    "id": "V103",
+    "largura_cm": 14.0,
+    "confidence": 0.85,
+    "source": "fv-dxf-proximity",
+    "dist": 82.6,
+    "label_pos": [
+      192600.6,
+      34081.4
+    ]
+  },
+  "V106": {
+    "id": "V106",
+    "largura_cm": 14.0,
+    "confidence": 0.85,
+    "source": "fv-dxf-proximity",
+    "dist": 82.6,
+    "label_pos": [
+      192600.6,
+      34081.4
+    ]
+  },
+  "V107": {
+    "id": "V107",
+    "largura_cm": 62.0,
+    "confidence": 0.85,
+    "source": "fv-dxf-proximity",
+    "dist": 355.6,
+    "label_pos": [
+      193703.2,
+      33928.9
+    ]
+  },
+  "V108": {
+    "id": "V108",
+    "largura_cm": 62.0,
+    "confidence": 0.85,
+    "source": "fv-dxf-proximity",
+    "dist": 309.1,
+    "label_pos": [
+      193703.2,
+      33791.2
+    ]
+  },
+  "V109": {
+    "id": "V109",
+    "largura_cm": 14.0,
+    "confidence": 0.85,
+    "source": "fv-dxf-proximity",
+    "dist": 111.5,
+    "label_pos": [
+      193134.6,
+      34069.1
+    ]
+  },
+  "V110": {
+    "id": "V110",
+    "largura_cm": 14.0,
+    "confidence": 0.85,
+    "source": "fv-dxf-proximity",
+    "dist": 111.5,
+    "label_pos": [
+      193134.6,
+      34069.1
+    ]
+  },
+  "V111": {
+    "id": "V111",
+    "largura_cm": 62.0,
+    "confidence": 0.85,
+    "source": "fv-dxf-proximity",
+    "dist": 320.2,
+    "label_pos": [
+      193703.2,
+      33653.6
+    ]
+  },
+  "V112": {
+    "id": "V112",
+    "largura_cm": 19.0,
+    "confidence": 0.3,
+    "source": "fv-dxf-global-median",
+    "note": "Sem label V{n}.C próximo — usando mediana global"
+  },
+  "V113": {
+    "id": "V113",
+    "largura_cm": 24.0,
+    "confidence": 0.85,
+    "source": "fv-dxf-proximity",
+    "dist": 400.7,
+    "label_pos": [
+      195364.3,
+      34073.7
+    ]
+  },
+  "V114": {
+    "id": "V114",
+    "largura_cm": 19.0,
+    "confidence": 0.85,
+    "source": "fv-dxf-proximity",
+    "dist": 355.8,
+    "label_pos": [
+      195364.3,
+      33755.0
+    ]
+  },
+  "V104L": {
+    "id": "V104L",
+    "largura_cm": 14.0,
+    "confidence": 0.85,
+    "source": "fv-dxf-proximity",
+    "dist": 133.2,
+    "label_pos": [
+      192600.6,
+      33965.3
+    ]
+  },
+  "V105L": {
+    "id": "V105L",
+    "largura_cm": 24.0,
+    "confidence": 0.85,
+    "source": "fv-dxf-proximity",
+    "dist": 85.0,
+    "label_pos": [
+      192600.6,
+      33744.0
+    ]
+  }
+}

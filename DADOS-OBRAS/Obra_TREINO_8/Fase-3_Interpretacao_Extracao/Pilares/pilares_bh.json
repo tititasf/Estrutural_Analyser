@@ -1,0 +1,2863 @@
+{
+  "P1": {
+    "b": 19.0,
+    "h": 50.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P2": {
+    "b": 19.0,
+    "h": 50.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P3": {
+    "b": 19.0,
+    "h": 50.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P4": {
+    "b": 19.0,
+    "h": 50.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P5": {
+    "b": 19.0,
+    "h": 50.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P7": {
+    "b": 19.0,
+    "h": 50.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P8": {
+    "b": 19.0,
+    "h": 50.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P9": {
+    "b": 19.0,
+    "h": 50.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P12": {
+    "b": 19.0,
+    "h": 50.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P13": {
+    "b": 19.0,
+    "h": 50.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P14": {
+    "b": 19.0,
+    "h": 50.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P15": {
+    "b": 19.0,
+    "h": 50.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P22": {
+    "b": 19.0,
+    "h": 50.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P23": {
+    "b": 19.0,
+    "h": 50.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P24": {
+    "b": 19.0,
+    "h": 50.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P25": {
+    "b": 19.0,
+    "h": 50.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P26": {
+    "b": 19.0,
+    "h": 50.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P27": {
+    "b": 19.0,
+    "h": 50.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P28": {
+    "b": 19.0,
+    "h": 50.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P29": {
+    "b": 19.0,
+    "h": 50.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P30": {
+    "b": 19.0,
+    "h": 50.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P31": {
+    "b": 19.0,
+    "h": 50.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P32": {
+    "b": 19.0,
+    "h": 50.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P36": {
+    "b": 19.0,
+    "h": 50.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P37": {
+    "b": 19.0,
+    "h": 50.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 19.2,
+    "dist_d2": 19.2
+  },
+  "P38": {
+    "b": 19.0,
+    "h": 50.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P39": {
+    "b": 25.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P40": {
+    "b": 25.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P41": {
+    "b": 25.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P42": {
+    "b": 25.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P43": {
+    "b": 25.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P44": {
+    "b": 25.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P45": {
+    "b": 25.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P46": {
+    "b": 25.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P47": {
+    "b": 25.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P48": {
+    "b": 25.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P49": {
+    "b": 25.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P50": {
+    "b": 20.0,
+    "h": 80.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P51": {
+    "b": 19.0,
+    "h": 50.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P52": {
+    "b": 25.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P53": {
+    "b": 25.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P54": {
+    "b": 25.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P55": {
+    "b": 25.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P56": {
+    "b": 25.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P57": {
+    "b": 25.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P58": {
+    "b": 25.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P59": {
+    "b": 25.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P60": {
+    "b": 25.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P61": {
+    "b": 25.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P62": {
+    "b": 25.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P63": {
+    "b": 25.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.8,
+    "dist_d2": 18.8
+  },
+  "P64": {
+    "b": 25.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P65": {
+    "b": 25.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P66": {
+    "b": 19.0,
+    "h": 50.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P67": {
+    "b": 19.0,
+    "h": 50.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 19.2,
+    "dist_d2": 19.2
+  },
+  "P68": {
+    "b": 19.0,
+    "h": 50.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P69": {
+    "b": 19.0,
+    "h": 50.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P70": {
+    "b": 19.0,
+    "h": 50.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P71": {
+    "b": 14.0,
+    "h": 224.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P72": {
+    "b": 20.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P73": {
+    "b": 19.0,
+    "h": 229.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P74": {
+    "b": 20.0,
+    "h": 50.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 19.5,
+    "dist_d2": 19.5
+  },
+  "P75": {
+    "b": 20.0,
+    "h": 89.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P76": {
+    "b": 25.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P77": {
+    "b": 25.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P78": {
+    "b": 25.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P79": {
+    "b": 25.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P80": {
+    "b": 25.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P81": {
+    "b": 20.0,
+    "h": 89.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P82": {
+    "b": 41.0,
+    "h": 74.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P83": {
+    "b": 25.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P84": {
+    "b": 25.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P85": {
+    "b": 25.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P86": {
+    "b": 20.0,
+    "h": 74.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 16.4,
+    "dist_d2": 16.4
+  },
+  "P87": {
+    "b": 19.0,
+    "h": 229.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P88": {
+    "b": 19.0,
+    "h": 74.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P89": {
+    "b": 20.0,
+    "h": 89.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 19.7,
+    "dist_d2": 19.7
+  },
+  "P90": {
+    "b": 25.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P91": {
+    "b": 25.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P92": {
+    "b": 25.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P93": {
+    "b": 25.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P94": {
+    "b": 25.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P95": {
+    "b": 41.0,
+    "h": 74.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P96": {
+    "b": 20.0,
+    "h": 89.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P97": {
+    "b": 25.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P98": {
+    "b": 25.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P99": {
+    "b": 25.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P100": {
+    "b": 25.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P101": {
+    "b": 25.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P102": {
+    "b": 20.0,
+    "h": 89.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P103": {
+    "b": 19.0,
+    "h": 50.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P104": {
+    "b": 19.0,
+    "h": 50.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.9,
+    "dist_d2": 18.9
+  },
+  "P105": {
+    "b": 19.0,
+    "h": 50.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P106": {
+    "b": 19.0,
+    "h": 50.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P107": {
+    "b": 19.0,
+    "h": 50.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P108": {
+    "b": 20.0,
+    "h": 89.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P109": {
+    "b": 25.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.4,
+    "dist_d2": 18.4
+  },
+  "P110": {
+    "b": 25.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P111": {
+    "b": 25.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P112": {
+    "b": 25.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P113": {
+    "b": 25.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P114": {
+    "b": 20.0,
+    "h": 89.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P115": {
+    "b": 41.0,
+    "h": 74.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P116": {
+    "b": 25.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P117": {
+    "b": 25.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P118": {
+    "b": 19.0,
+    "h": 223.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 20.0,
+    "dist_d2": 20.0
+  },
+  "P119": {
+    "b": 19.0,
+    "h": 223.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P120": {
+    "b": 19.0,
+    "h": 74.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P121": {
+    "b": 20.0,
+    "h": 89.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P122": {
+    "b": 25.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P123": {
+    "b": 25.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P124": {
+    "b": 25.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P125": {
+    "b": 25.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P126": {
+    "b": 25.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P127": {
+    "b": 41.0,
+    "h": 74.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 19.5,
+    "dist_d2": 19.5
+  },
+  "P128": {
+    "b": 20.0,
+    "h": 89.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P129": {
+    "b": 25.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P130": {
+    "b": 25.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P131": {
+    "b": 25.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P132": {
+    "b": 20.0,
+    "h": 70.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P133": {
+    "b": 20.0,
+    "h": 89.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P134": {
+    "b": 19.0,
+    "h": 50.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P135": {
+    "b": 19.0,
+    "h": 50.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P136": {
+    "b": 19.0,
+    "h": 50.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P137": {
+    "b": 25.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P138": {
+    "b": 25.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P139": {
+    "b": 14.0,
+    "h": 223.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P140": {
+    "b": 14.0,
+    "h": 223.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P141": {
+    "b": 19.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P142": {
+    "b": 19.0,
+    "h": 50.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P143": {
+    "b": 25.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P144": {
+    "b": 25.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P145": {
+    "b": 25.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P146": {
+    "b": 25.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P147": {
+    "b": 25.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P148": {
+    "b": 25.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P149": {
+    "b": 25.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P150": {
+    "b": 25.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P151": {
+    "b": 25.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P152": {
+    "b": 25.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P153": {
+    "b": 19.0,
+    "h": 223.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P154": {
+    "b": 19.0,
+    "h": 223.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P155": {
+    "b": 19.0,
+    "h": 50.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P156": {
+    "b": 25.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P157": {
+    "b": 25.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P158": {
+    "b": 25.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P159": {
+    "b": 25.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P160": {
+    "b": 25.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P161": {
+    "b": 25.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P162": {
+    "b": 25.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P163": {
+    "b": 25.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P164": {
+    "b": 25.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P165": {
+    "b": 25.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P166": {
+    "b": 25.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P167": {
+    "b": 20.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P168": {
+    "b": 19.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P169": {
+    "b": 20.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P170": {
+    "b": 19.0,
+    "h": 50.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.8,
+    "dist_d2": 18.8
+  },
+  "P171": {
+    "b": 19.0,
+    "h": 50.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P172": {
+    "b": 19.0,
+    "h": 50.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P173": {
+    "b": 19.0,
+    "h": 50.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P174": {
+    "b": 19.0,
+    "h": 50.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P175": {
+    "b": 14.0,
+    "h": 81.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.8,
+    "dist_d2": 18.8
+  },
+  "P176": {
+    "b": 19.0,
+    "h": 50.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P177": {
+    "b": 19.0,
+    "h": 50.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P178": {
+    "b": 19.0,
+    "h": 50.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P179": {
+    "b": 19.0,
+    "h": 50.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P180": {
+    "b": 25.0,
+    "h": 50.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P181": {
+    "b": 25.0,
+    "h": 50.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P182": {
+    "b": 25.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P183": {
+    "b": 25.0,
+    "h": 50.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P184": {
+    "b": 19.0,
+    "h": 50.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P185": {
+    "b": 19.0,
+    "h": 50.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P186": {
+    "b": 19.0,
+    "h": 50.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P187": {
+    "b": 19.0,
+    "h": 50.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P188": {
+    "b": 19.0,
+    "h": 50.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P189": {
+    "b": 19.0,
+    "h": 50.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P190": {
+    "b": 19.0,
+    "h": 50.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P191": {
+    "b": 19.0,
+    "h": 50.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P192": {
+    "b": 19.0,
+    "h": 50.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P193": {
+    "b": 25.0,
+    "h": 70.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P194": {
+    "b": 14.0,
+    "h": 206.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P195": {
+    "b": 19.0,
+    "h": 50.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.7,
+    "dist_d2": 18.7
+  },
+  "P196": {
+    "b": 19.0,
+    "h": 50.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P197": {
+    "b": 19.0,
+    "h": 50.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P198": {
+    "b": 19.0,
+    "h": 50.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P199": {
+    "b": 19.0,
+    "h": 50.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P200": {
+    "b": 25.0,
+    "h": 50.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P201": {
+    "b": 19.0,
+    "h": 50.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P202": {
+    "b": 19.0,
+    "h": 50.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P203": {
+    "b": 19.0,
+    "h": 50.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P204": {
+    "b": 19.0,
+    "h": 50.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P205": {
+    "b": 19.0,
+    "h": 50.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P206": {
+    "b": 19.0,
+    "h": 50.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P207": {
+    "b": 19.0,
+    "h": 50.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P208": {
+    "b": 19.0,
+    "h": 50.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P209": {
+    "b": 19.0,
+    "h": 50.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P210": {
+    "b": 19.0,
+    "h": 50.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P211": {
+    "b": 19.0,
+    "h": 50.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P212": {
+    "b": 19.0,
+    "h": 50.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P213": {
+    "b": 19.0,
+    "h": 50.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P214": {
+    "b": 19.0,
+    "h": 50.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P215": {
+    "b": 19.0,
+    "h": 50.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.8,
+    "dist_d2": 18.8
+  },
+  "P216": {
+    "b": 19.0,
+    "h": 50.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P217": {
+    "b": 19.0,
+    "h": 50.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P218": {
+    "b": 25.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P219": {
+    "b": 25.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P220": {
+    "b": 25.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P221": {
+    "b": 25.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P222": {
+    "b": 25.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P223": {
+    "b": 25.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P224": {
+    "b": 25.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P225": {
+    "b": 25.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P226": {
+    "b": 25.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P227": {
+    "b": 25.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P228": {
+    "b": 25.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P229": {
+    "b": 25.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P230": {
+    "b": 25.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P231": {
+    "b": 25.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P232": {
+    "b": 19.0,
+    "h": 50.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P233": {
+    "b": 25.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P234": {
+    "b": 25.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P235": {
+    "b": 25.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P236": {
+    "b": 25.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P237": {
+    "b": 25.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P238": {
+    "b": 25.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P239": {
+    "b": 25.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P240": {
+    "b": 25.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P241": {
+    "b": 25.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P242": {
+    "b": 25.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P243": {
+    "b": 19.0,
+    "h": 50.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P244": {
+    "b": 19.0,
+    "h": 223.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P245": {
+    "b": 19.0,
+    "h": 223.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P246": {
+    "b": 19.0,
+    "h": 50.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P247": {
+    "b": 14.0,
+    "h": 223.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P248": {
+    "b": 14.0,
+    "h": 223.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P249": {
+    "b": 25.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P250": {
+    "b": 19.0,
+    "h": 50.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P251": {
+    "b": 20.0,
+    "h": 89.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P252": {
+    "b": 25.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P253": {
+    "b": 25.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P254": {
+    "b": 25.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P255": {
+    "b": 25.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P256": {
+    "b": 25.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P257": {
+    "b": 20.0,
+    "h": 89.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P258": {
+    "b": 41.0,
+    "h": 74.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P259": {
+    "b": 25.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P260": {
+    "b": 25.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P261": {
+    "b": 25.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P262": {
+    "b": 25.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P263": {
+    "b": 25.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P264": {
+    "b": 20.0,
+    "h": 89.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P265": {
+    "b": 19.0,
+    "h": 74.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P266": {
+    "b": 25.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P267": {
+    "b": 25.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P268": {
+    "b": 41.0,
+    "h": 74.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P269": {
+    "b": 20.0,
+    "h": 89.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P270": {
+    "b": 25.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P271": {
+    "b": 25.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P272": {
+    "b": 25.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P273": {
+    "b": 25.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P274": {
+    "b": 20.0,
+    "h": 89.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P275": {
+    "b": 19.0,
+    "h": 223.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P276": {
+    "b": 19.0,
+    "h": 223.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P277": {
+    "b": 25.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P278": {
+    "b": 19.0,
+    "h": 50.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 19.2,
+    "dist_d2": 19.2
+  },
+  "P279": {
+    "b": 19.0,
+    "h": 50.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P280": {
+    "b": 19.0,
+    "h": 50.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P281": {
+    "b": 20.0,
+    "h": 89.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P282": {
+    "b": 25.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P283": {
+    "b": 25.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P284": {
+    "b": 25.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P285": {
+    "b": 25.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P286": {
+    "b": 25.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P287": {
+    "b": 20.0,
+    "h": 89.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P288": {
+    "b": 41.0,
+    "h": 74.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P289": {
+    "b": 25.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P290": {
+    "b": 25.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P291": {
+    "b": 25.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P292": {
+    "b": 25.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P293": {
+    "b": 25.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P294": {
+    "b": 20.0,
+    "h": 89.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P295": {
+    "b": 19.0,
+    "h": 74.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P296": {
+    "b": 20.0,
+    "h": 74.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P297": {
+    "b": 19.0,
+    "h": 229.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P298": {
+    "b": 25.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P299": {
+    "b": 25.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P300": {
+    "b": 25.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P301": {
+    "b": 41.0,
+    "h": 74.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P302": {
+    "b": 20.0,
+    "h": 89.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P303": {
+    "b": 25.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P304": {
+    "b": 25.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P305": {
+    "b": 25.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P306": {
+    "b": 25.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P307": {
+    "b": 25.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P308": {
+    "b": 20.0,
+    "h": 89.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P309": {
+    "b": 19.0,
+    "h": 50.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P310": {
+    "b": 19.0,
+    "h": 50.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P311": {
+    "b": 20.0,
+    "h": 50.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P312": {
+    "b": 19.0,
+    "h": 229.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P313": {
+    "b": 20.0,
+    "h": 70.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P314": {
+    "b": 14.0,
+    "h": 224.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P315": {
+    "b": 25.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P316": {
+    "b": 25.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P317": {
+    "b": 25.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P318": {
+    "b": 25.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P319": {
+    "b": 25.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P320": {
+    "b": 25.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P321": {
+    "b": 25.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P322": {
+    "b": 25.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P323": {
+    "b": 25.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P324": {
+    "b": 25.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P325": {
+    "b": 25.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P326": {
+    "b": 25.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P327": {
+    "b": 25.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P328": {
+    "b": 25.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P329": {
+    "b": 19.0,
+    "h": 50.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P330": {
+    "b": 20.0,
+    "h": 80.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P331": {
+    "b": 25.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P332": {
+    "b": 25.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P333": {
+    "b": 25.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P334": {
+    "b": 25.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P335": {
+    "b": 25.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P336": {
+    "b": 25.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P337": {
+    "b": 25.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P338": {
+    "b": 25.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P339": {
+    "b": 25.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P340": {
+    "b": 25.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P341": {
+    "b": 25.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P342": {
+    "b": 19.0,
+    "h": 50.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P343": {
+    "b": 19.0,
+    "h": 50.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 19.3,
+    "dist_d2": 19.3
+  },
+  "P344": {
+    "b": 19.0,
+    "h": 50.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P345": {
+    "b": 19.0,
+    "h": 50.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P346": {
+    "b": 19.0,
+    "h": 50.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 19.0,
+    "dist_d2": 19.0
+  },
+  "P347": {
+    "b": 19.0,
+    "h": 50.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P348": {
+    "b": 19.0,
+    "h": 50.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P349": {
+    "b": 19.0,
+    "h": 50.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 19.1,
+    "dist_d2": 19.1
+  },
+  "P350": {
+    "b": 19.0,
+    "h": 50.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P351": {
+    "b": 19.0,
+    "h": 50.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P352": {
+    "b": 19.0,
+    "h": 50.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P353": {
+    "b": 19.0,
+    "h": 50.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P354": {
+    "b": 19.0,
+    "h": 50.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P355": {
+    "b": 19.0,
+    "h": 50.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P356": {
+    "b": 19.0,
+    "h": 50.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P357": {
+    "b": 19.0,
+    "h": 50.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P358": {
+    "b": 19.0,
+    "h": 50.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P359": {
+    "b": 19.0,
+    "h": 50.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P360": {
+    "b": 25.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P362": {
+    "b": 14.0,
+    "h": 81.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 20.6,
+    "dist_d2": 20.6
+  },
+  "P363": {
+    "b": 25.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P364": {
+    "b": 25.0,
+    "h": 60.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_01",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P367": {
+    "b": 19.0,
+    "h": 50.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_02",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P368": {
+    "b": 14.0,
+    "h": 50.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_02",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P369": {
+    "b": 14.0,
+    "h": 50.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_02",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P372": {
+    "b": 14.0,
+    "h": 40.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_02",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "P373": {
+    "b": 14.0,
+    "h": 40.0,
+    "confidence": 0.95,
+    "source": "structural-proximity:PAVIMENTO_02",
+    "dist_d1": 18.5,
+    "dist_d2": 18.5
+  },
+  "_meta": {
+    "total": 356,
+    "extraidos_bh_completo": 356,
+    "extraidos_parcial": 0,
+    "sem_dados": 0,
+    "cobertura_pct": 100.0,
+    "obra": "Obra_TREINO_8",
+    "pavimento": "todos",
+    "extraido_em": "2026-05-28",
+    "algoritmo": "structural-text-proximity",
+    "fonte": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_8\\Fase-2_Triagem\\Estruturais_Pavimentos_Limpos",
+    "dxfs_processados": 6
+  }
+}

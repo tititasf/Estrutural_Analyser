@@ -1,0 +1,40 @@
+{
+  "obra": "Obra_TREINO_19",
+  "pavimento": "12 PAV",
+  "elementos": {
+    "pilares": {
+      "erro": "GT vazio"
+    },
+    "vigas": {
+      "tipo": "vigas",
+      "gt_count": 38,
+      "gerado_count": 38,
+      "correct": 38,
+      "hallucinated": [],
+      "missed": [],
+      "id_match": 1.0,
+      "hallucination_rate": 0.0,
+      "count_match": 1.0,
+      "score": 1.0,
+      "score_percent": 100.0,
+      "aprovado": true
+    },
+    "lajes": {
+      "tipo": "lajes",
+      "gt_count": 25,
+      "gerado_count": 25,
+      "correct": 25,
+      "hallucinated": [],
+      "missed": [],
+      "id_match": 1.0,
+      "hallucination_rate": 0.0,
+      "count_match": 1.0,
+      "score": 1.0,
+      "score_percent": 100.0,
+      "aprovado": true
+    }
+  },
+  "score_global": 1.0,
+  "score_global_percent": 100.0,
+  "aprovado": true
+}

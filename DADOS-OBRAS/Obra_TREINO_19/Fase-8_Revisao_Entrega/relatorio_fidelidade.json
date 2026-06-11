@@ -1,0 +1,52 @@
+{
+  "obra": "Obra_TREINO_19",
+  "pavimento": "1 SUBOLO",
+  "timestamp": "2026-05-22T16:01:12.733968+00:00",
+  "fidelidade": {
+    "pilares": {
+      "score": null,
+      "aprovado": null,
+      "limiar": 85.0
+    },
+    "vigas": {
+      "score": 85.0,
+      "aprovado": true,
+      "limiar": 82.0
+    },
+    "lajes": {
+      "score": 66.3,
+      "aprovado": false,
+      "limiar": 75.0
+    }
+  },
+  "score_global": 77.2,
+  "meta": 80.0,
+  "certificado": false,
+  "abaixo_limiar": [
+    {
+      "tipo": "pilares",
+      "score": null,
+      "limiar": 85.0
+    },
+    {
+      "tipo": "lajes",
+      "score": 66.3,
+      "limiar": 75.0
+    }
+  ],
+  "observacoes": [
+    "Vigas fundo (FV) abaixo do limiar (69.9/80.0). FV_gerado usa ezdxf simplificado — sarrafos e chanfros incompletos.",
+    "Score coletivo (IDs): 100.0% ≥ 95% — pipeline de IDs aprovado."
+  ],
+  "fontes": {
+    "coletivo_score_global": 100.0,
+    "dimensional_bh": {
+      "score_pct": null,
+      "aprovado": null
+    },
+    "pipeline_report": {
+      "status": "PARCIAL",
+      "coletivo_global": 100.0
+    }
+  }
+}

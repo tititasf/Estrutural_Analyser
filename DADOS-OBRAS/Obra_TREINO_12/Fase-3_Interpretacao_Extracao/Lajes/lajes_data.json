@@ -1,0 +1,1620 @@
+{
+  "L1": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 71670.4,
+    "comprimento_cm": 277.9,
+    "largura_cm": 257.9,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:TERREO"
+  },
+  "L2": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 119232.1,
+    "comprimento_cm": 345.3,
+    "largura_cm": 345.3,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:TERREO"
+  },
+  "L3": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 141686.5,
+    "comprimento_cm": 395.0,
+    "largura_cm": 358.7,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:TERREO"
+  },
+  "L4": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 70159.9,
+    "comprimento_cm": 355.6,
+    "largura_cm": 197.3,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:TERREO"
+  },
+  "L5": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 100767.4,
+    "comprimento_cm": 338.6,
+    "largura_cm": 297.6,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:TERREO"
+  },
+  "L6": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 27379.2,
+    "comprimento_cm": 297.6,
+    "largura_cm": 92.0,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:TERREO"
+  },
+  "L7": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 182707.3,
+    "comprimento_cm": 513.8,
+    "largura_cm": 355.6,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:TERREO"
+  },
+  "L8": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 71670.4,
+    "comprimento_cm": 277.9,
+    "largura_cm": 257.9,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:TERREO"
+  },
+  "L9": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 347628.2,
+    "comprimento_cm": 589.6,
+    "largura_cm": 589.6,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:TERREO"
+  },
+  "L10": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 23225.8,
+    "comprimento_cm": 152.4,
+    "largura_cm": 152.4,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:TERREO"
+  },
+  "L11": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 143000.0,
+    "comprimento_cm": 715.0,
+    "largura_cm": 200.0,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:TERREO"
+  },
+  "L12": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 112560.2,
+    "comprimento_cm": 335.5,
+    "largura_cm": 335.5,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:TERREO"
+  },
+  "L13": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 23804.9,
+    "comprimento_cm": 156.2,
+    "largura_cm": 152.4,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:TERREO"
+  },
+  "L14": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 24398.4,
+    "comprimento_cm": 156.2,
+    "largura_cm": 156.2,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:TERREO"
+  },
+  "L15": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 21241.9,
+    "comprimento_cm": 152.6,
+    "largura_cm": 139.2,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:TERREO"
+  },
+  "L16": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 22981.9,
+    "comprimento_cm": 165.1,
+    "largura_cm": 139.2,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:TERREO"
+  },
+  "L17": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 180828.0,
+    "comprimento_cm": 502.3,
+    "largura_cm": 360.0,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:TERREO"
+  },
+  "L18": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 152358.2,
+    "comprimento_cm": 484.6,
+    "largura_cm": 314.4,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:TERREO"
+  },
+  "L19": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 172473.6,
+    "comprimento_cm": 691.0,
+    "largura_cm": 249.6,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:TERREO"
+  },
+  "L20": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 16764.0,
+    "comprimento_cm": 152.4,
+    "largura_cm": 110.0,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:TERREO"
+  },
+  "L21": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 16604.1,
+    "comprimento_cm": 156.2,
+    "largura_cm": 106.3,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:TERREO"
+  },
+  "L22": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 25070.1,
+    "comprimento_cm": 160.5,
+    "largura_cm": 156.2,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:TERREO"
+  },
+  "L23": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 24398.4,
+    "comprimento_cm": 156.2,
+    "largura_cm": 156.2,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:TERREO"
+  },
+  "L24": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 72008.2,
+    "comprimento_cm": 461.0,
+    "largura_cm": 156.2,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:TERREO"
+  },
+  "L25": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 114237.8,
+    "comprimento_cm": 340.5,
+    "largura_cm": 335.5,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:TERREO"
+  },
+  "L26": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 29376.0,
+    "comprimento_cm": 204.0,
+    "largura_cm": 144.0,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:TERREO"
+  },
+  "L27": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 47940.0,
+    "comprimento_cm": 235.0,
+    "largura_cm": 204.0,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:TERREO"
+  },
+  "L28": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 407049.0,
+    "comprimento_cm": 723.0,
+    "largura_cm": 563.0,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:TERREO"
+  },
+  "L29": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 252305.3,
+    "comprimento_cm": 502.3,
+    "largura_cm": 502.3,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:TERREO"
+  },
+  "L30": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 24480.0,
+    "comprimento_cm": 204.0,
+    "largura_cm": 120.0,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:TERREO"
+  },
+  "L31": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 96100.0,
+    "comprimento_cm": 310.0,
+    "largura_cm": 310.0,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:TERREO"
+  },
+  "L32": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 40906.0,
+    "comprimento_cm": 362.0,
+    "largura_cm": 113.0,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:TERREO"
+  },
+  "L33": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 47940.0,
+    "comprimento_cm": 235.0,
+    "largura_cm": 204.0,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:TERREO"
+  },
+  "L34": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 381432.0,
+    "comprimento_cm": 691.0,
+    "largura_cm": 552.0,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:TERREO"
+  },
+  "L35": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 202609.5,
+    "comprimento_cm": 461.0,
+    "largura_cm": 439.5,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:TERREO"
+  },
+  "L36": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 227052.2,
+    "comprimento_cm": 476.5,
+    "largura_cm": 476.5,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:TERREO"
+  },
+  "L37": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 1510117.5,
+    "comprimento_cm": 1330.5,
+    "largura_cm": 1135.0,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:TERREO"
+  },
+  "L38": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 19044.0,
+    "comprimento_cm": 138.0,
+    "largura_cm": 138.0,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:TERREO"
+  },
+  "L39": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 299370.8,
+    "comprimento_cm": 596.0,
+    "largura_cm": 502.3,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:TERREO"
+  },
+  "L40": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 50443.0,
+    "comprimento_cm": 691.0,
+    "largura_cm": 73.0,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:TERREO"
+  },
+  "L41": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 204426.0,
+    "comprimento_cm": 554.0,
+    "largura_cm": 369.0,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:TERREO"
+  },
+  "L42": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 11077.5,
+    "comprimento_cm": 105.5,
+    "largura_cm": 105.0,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:TERREO"
+  },
+  "L43": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 41262.0,
+    "comprimento_cm": 299.0,
+    "largura_cm": 138.0,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:TERREO"
+  },
+  "L44": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 79975.0,
+    "comprimento_cm": 457.0,
+    "largura_cm": 175.0,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:TERREO"
+  },
+  "L45": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 115509.0,
+    "comprimento_cm": 417.0,
+    "largura_cm": 277.0,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:TERREO"
+  },
+  "L46": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 192660.0,
+    "comprimento_cm": 676.0,
+    "largura_cm": 285.0,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:TERREO"
+  },
+  "L47": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 485082.0,
+    "comprimento_cm": 702.0,
+    "largura_cm": 691.0,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:TERREO"
+  },
+  "L48": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 492804.0,
+    "comprimento_cm": 702.0,
+    "largura_cm": 702.0,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:TERREO"
+  },
+  "L49": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 4745.0,
+    "comprimento_cm": 73.0,
+    "largura_cm": 65.0,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:TERREO"
+  },
+  "L50": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 90220.5,
+    "comprimento_cm": 369.0,
+    "largura_cm": 244.5,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:TERREO"
+  },
+  "L51": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 350874.0,
+    "comprimento_cm": 606.0,
+    "largura_cm": 579.0,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:TERREO"
+  },
+  "L52": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 277623.6,
+    "comprimento_cm": 526.9,
+    "largura_cm": 526.9,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:TERREO"
+  },
+  "L53": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 277623.6,
+    "comprimento_cm": 526.9,
+    "largura_cm": 526.9,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:TERREO"
+  },
+  "L54": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 169275.0,
+    "comprimento_cm": 555.0,
+    "largura_cm": 305.0,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:TERREO"
+  },
+  "L55": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 132980.0,
+    "comprimento_cm": 436.0,
+    "largura_cm": 305.0,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:TERREO"
+  },
+  "L56": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 417690.0,
+    "comprimento_cm": 918.0,
+    "largura_cm": 455.0,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:TERREO"
+  },
+  "L57": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 69379.6,
+    "comprimento_cm": 263.4,
+    "largura_cm": 263.4,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:TERREO"
+  },
+  "L58": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 40563.6,
+    "comprimento_cm": 263.4,
+    "largura_cm": 154.0,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:TERREO"
+  },
+  "L59": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 62130.0,
+    "comprimento_cm": 327.0,
+    "largura_cm": 190.0,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:TERREO"
+  },
+  "L60": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 62130.0,
+    "comprimento_cm": 327.0,
+    "largura_cm": 190.0,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:TERREO"
+  },
+  "L61": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 615273.0,
+    "comprimento_cm": 851.0,
+    "largura_cm": 723.0,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:TERREO"
+  },
+  "L62": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 583232.0,
+    "comprimento_cm": 832.0,
+    "largura_cm": 701.0,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:TERREO"
+  },
+  "L63": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 692224.0,
+    "comprimento_cm": 832.0,
+    "largura_cm": 832.0,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:TERREO"
+  },
+  "L64": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 529322.0,
+    "comprimento_cm": 851.0,
+    "largura_cm": 622.0,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:TERREO"
+  },
+  "L65": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 130298.0,
+    "comprimento_cm": 454.0,
+    "largura_cm": 287.0,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:TERREO"
+  },
+  "L66": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 175235.0,
+    "comprimento_cm": 505.0,
+    "largura_cm": 347.0,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:TERREO"
+  },
+  "L67": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 151292.0,
+    "comprimento_cm": 436.0,
+    "largura_cm": 347.0,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:TERREO"
+  },
+  "L68": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 483025.0,
+    "comprimento_cm": 695.0,
+    "largura_cm": 695.0,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:TERREO"
+  },
+  "L69": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 57820.0,
+    "comprimento_cm": 245.0,
+    "largura_cm": 236.0,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:TERREO"
+  },
+  "L70": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 113088.0,
+    "comprimento_cm": 496.0,
+    "largura_cm": 228.0,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:TERREO"
+  },
+  "L71": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 186992.0,
+    "comprimento_cm": 496.0,
+    "largura_cm": 377.0,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:TERREO"
+  },
+  "L72": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 47652.0,
+    "comprimento_cm": 228.0,
+    "largura_cm": 209.0,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:TERREO"
+  },
+  "L73": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 97781.3,
+    "comprimento_cm": 312.7,
+    "largura_cm": 312.7,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:TERREO"
+  },
+  "L74": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 94310.3,
+    "comprimento_cm": 312.7,
+    "largura_cm": 301.6,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:TERREO"
+  },
+  "L75": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 237827.8,
+    "comprimento_cm": 514.0,
+    "largura_cm": 462.7,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:TERREO"
+  },
+  "L101": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 25594.0,
+    "comprimento_cm": 191.0,
+    "largura_cm": 134.0,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:PAVIMENTO_1"
+  },
+  "L102": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 263544.0,
+    "comprimento_cm": 556.0,
+    "largura_cm": 474.0,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:PAVIMENTO_1"
+  },
+  "L103": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 431730.0,
+    "comprimento_cm": 738.0,
+    "largura_cm": 585.0,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:PAVIMENTO_1"
+  },
+  "L104": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 89823.0,
+    "comprimento_cm": 474.0,
+    "largura_cm": 189.5,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:PAVIMENTO_1"
+  },
+  "L105": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 210222.0,
+    "comprimento_cm": 687.0,
+    "largura_cm": 306.0,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:PAVIMENTO_1"
+  },
+  "L106": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 25010.0,
+    "comprimento_cm": 244.0,
+    "largura_cm": 102.5,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:PAVIMENTO_1"
+  },
+  "L107": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 62062.0,
+    "comprimento_cm": 341.0,
+    "largura_cm": 182.0,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:PAVIMENTO_1"
+  },
+  "L108": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 373068.0,
+    "comprimento_cm": 723.0,
+    "largura_cm": 516.0,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:PAVIMENTO_1"
+  },
+  "L109": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 164611.0,
+    "comprimento_cm": 421.0,
+    "largura_cm": 391.0,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:PAVIMENTO_1"
+  },
+  "L110": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 1099584.0,
+    "comprimento_cm": 1494.0,
+    "largura_cm": 736.0,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:PAVIMENTO_1"
+  },
+  "L111": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 177241.0,
+    "comprimento_cm": 421.0,
+    "largura_cm": 421.0,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:PAVIMENTO_1"
+  },
+  "L112": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 62457.0,
+    "comprimento_cm": 327.0,
+    "largura_cm": 191.0,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:PAVIMENTO_1"
+  },
+  "L113": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 529322.0,
+    "comprimento_cm": 851.0,
+    "largura_cm": 622.0,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:PAVIMENTO_1"
+  },
+  "L114": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 197456.0,
+    "comprimento_cm": 574.0,
+    "largura_cm": 344.0,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:PAVIMENTO_1"
+  },
+  "L115": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 583232.0,
+    "comprimento_cm": 832.0,
+    "largura_cm": 701.0,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:PAVIMENTO_1"
+  },
+  "L116": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 386884.0,
+    "comprimento_cm": 622.0,
+    "largura_cm": 622.0,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:PAVIMENTO_1"
+  },
+  "L117": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 62130.0,
+    "comprimento_cm": 327.0,
+    "largura_cm": 190.0,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:PAVIMENTO_1"
+  },
+  "L118": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 288357.0,
+    "comprimento_cm": 831.0,
+    "largura_cm": 347.0,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:PAVIMENTO_1"
+  },
+  "L119": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 28255.5,
+    "comprimento_cm": 189.0,
+    "largura_cm": 149.5,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:PAVIMENTO_1"
+  },
+  "L120": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 48090.0,
+    "comprimento_cm": 229.0,
+    "largura_cm": 210.0,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:PAVIMENTO_1"
+  },
+  "L121": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 48090.0,
+    "comprimento_cm": 229.0,
+    "largura_cm": 210.0,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:PAVIMENTO_1"
+  },
+  "L122": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 46795.0,
+    "comprimento_cm": 245.0,
+    "largura_cm": 191.0,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:PAVIMENTO_1"
+  },
+  "L123": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 56105.0,
+    "comprimento_cm": 245.0,
+    "largura_cm": 229.0,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:PAVIMENTO_1"
+  },
+  "L124": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 499094.0,
+    "comprimento_cm": 971.0,
+    "largura_cm": 514.0,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:PAVIMENTO_1"
+  },
+  "L125": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 30935.0,
+    "comprimento_cm": 269.0,
+    "largura_cm": 115.0,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:SUBSOLO_1"
+  },
+  "L126": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 53824.0,
+    "comprimento_cm": 232.0,
+    "largura_cm": 232.0,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:SUBSOLO_1"
+  },
+  "L127": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 499593.0,
+    "comprimento_cm": 723.0,
+    "largura_cm": 691.0,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:SUBSOLO_1"
+  },
+  "L128": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 485082.0,
+    "comprimento_cm": 702.0,
+    "largura_cm": 691.0,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:SUBSOLO_1"
+  },
+  "L129": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 501930.0,
+    "comprimento_cm": 715.0,
+    "largura_cm": 702.0,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:SUBSOLO_1"
+  },
+  "L130": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 499593.0,
+    "comprimento_cm": 723.0,
+    "largura_cm": 691.0,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:SUBSOLO_1"
+  },
+  "L131": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 189772.0,
+    "comprimento_cm": 454.0,
+    "largura_cm": 418.0,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:SUBSOLO_1"
+  },
+  "L132": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 370872.0,
+    "comprimento_cm": 612.0,
+    "largura_cm": 606.0,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:SUBSOLO_1"
+  },
+  "L133": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 279072.0,
+    "comprimento_cm": 612.0,
+    "largura_cm": 456.0,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:SUBSOLO_1"
+  },
+  "L135": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 218374.0,
+    "comprimento_cm": 481.0,
+    "largura_cm": 454.0,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:SUBSOLO_1"
+  },
+  "L136": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 62130.0,
+    "comprimento_cm": 327.0,
+    "largura_cm": 190.0,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:SUBSOLO_1"
+  },
+  "L137": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 78970.5,
+    "comprimento_cm": 327.0,
+    "largura_cm": 241.5,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:SUBSOLO_1"
+  },
+  "L138": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 724201.0,
+    "comprimento_cm": 851.0,
+    "largura_cm": 851.0,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:SUBSOLO_1"
+  },
+  "L139": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 492102.0,
+    "comprimento_cm": 702.0,
+    "largura_cm": 701.0,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:SUBSOLO_1"
+  },
+  "L140": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 329763.0,
+    "comprimento_cm": 574.5,
+    "largura_cm": 574.0,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:SUBSOLO_1"
+  },
+  "L141": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 54900.0,
+    "comprimento_cm": 244.0,
+    "largura_cm": 225.0,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:SUBSOLO_1"
+  },
+  "L142": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 130298.0,
+    "comprimento_cm": 454.0,
+    "largura_cm": 287.0,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:SUBSOLO_1"
+  },
+  "L143": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 351576.0,
+    "comprimento_cm": 684.0,
+    "largura_cm": 514.0,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:SUBSOLO_1"
+  },
+  "L144": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 21442.0,
+    "comprimento_cm": 151.0,
+    "largura_cm": 142.0,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:SUBSOLO_1"
+  },
+  "L145": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 64664.0,
+    "comprimento_cm": 274.0,
+    "largura_cm": 236.0,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:SUBSOLO_1"
+  },
+  "L146": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 43320.0,
+    "comprimento_cm": 228.0,
+    "largura_cm": 190.0,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:SUBSOLO_1"
+  },
+  "L147": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 70723.0,
+    "comprimento_cm": 359.0,
+    "largura_cm": 197.0,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:SUBSOLO_1"
+  },
+  "L148": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 42402.0,
+    "comprimento_cm": 222.0,
+    "largura_cm": 191.0,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:SUBSOLO_1"
+  },
+  "L149": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 47652.0,
+    "comprimento_cm": 228.0,
+    "largura_cm": 209.0,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:SUBSOLO_1"
+  },
+  "L150": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 301002.0,
+    "comprimento_cm": 663.0,
+    "largura_cm": 454.0,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:SUBSOLO_1"
+  },
+  "L151": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 97781.3,
+    "comprimento_cm": 312.7,
+    "largura_cm": 312.7,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:SUBSOLO_1"
+  },
+  "L153": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 94310.3,
+    "comprimento_cm": 312.7,
+    "largura_cm": 301.6,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:SUBSOLO_1"
+  },
+  "L154": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 237827.8,
+    "comprimento_cm": 514.0,
+    "largura_cm": 462.7,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:SUBSOLO_1"
+  },
+  "L201": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 197370.0,
+    "comprimento_cm": 645.0,
+    "largura_cm": 306.0,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:PAVIMENTO_2"
+  },
+  "L202": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 197370.0,
+    "comprimento_cm": 645.0,
+    "largura_cm": 306.0,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:PAVIMENTO_2"
+  },
+  "L203": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 45885.0,
+    "comprimento_cm": 285.0,
+    "largura_cm": 161.0,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:PAVIMENTO_2"
+  },
+  "L204": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 53580.0,
+    "comprimento_cm": 285.0,
+    "largura_cm": 188.0,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:PAVIMENTO_2"
+  },
+  "L205": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 637938.0,
+    "comprimento_cm": 1494.0,
+    "largura_cm": 427.0,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:PAVIMENTO_2"
+  },
+  "L206": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 963630.0,
+    "comprimento_cm": 1494.0,
+    "largura_cm": 645.0,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:PAVIMENTO_2"
+  },
+  "L207": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 62130.0,
+    "comprimento_cm": 327.0,
+    "largura_cm": 190.0,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:PAVIMENTO_2"
+  },
+  "L208": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 531188.0,
+    "comprimento_cm": 854.0,
+    "largura_cm": 622.0,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:PAVIMENTO_2"
+  },
+  "L209": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 135945.0,
+    "comprimento_cm": 570.0,
+    "largura_cm": 238.5,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:PAVIMENTO_2"
+  },
+  "L210": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 198432.0,
+    "comprimento_cm": 832.0,
+    "largura_cm": 238.5,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:PAVIMENTO_2"
+  },
+  "L211": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 531188.0,
+    "comprimento_cm": 854.0,
+    "largura_cm": 622.0,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:PAVIMENTO_2"
+  },
+  "L212": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 84693.0,
+    "comprimento_cm": 327.0,
+    "largura_cm": 259.0,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:PAVIMENTO_2"
+  },
+  "L213": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 288357.0,
+    "comprimento_cm": 831.0,
+    "largura_cm": 347.0,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:PAVIMENTO_2"
+  },
+  "L214": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 291480.0,
+    "comprimento_cm": 840.0,
+    "largura_cm": 347.0,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:PAVIMENTO_2"
+  },
+  "L215": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 24448.0,
+    "comprimento_cm": 191.0,
+    "largura_cm": 128.0,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:PAVIMENTO_2"
+  },
+  "L216": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 24448.0,
+    "comprimento_cm": 191.0,
+    "largura_cm": 128.0,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:PAVIMENTO_2"
+  },
+  "L301": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 197370.0,
+    "comprimento_cm": 645.0,
+    "largura_cm": 306.0,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:TIPO"
+  },
+  "L302": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 197370.0,
+    "comprimento_cm": 645.0,
+    "largura_cm": 306.0,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:TIPO"
+  },
+  "L303": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 45885.0,
+    "comprimento_cm": 285.0,
+    "largura_cm": 161.0,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:TIPO"
+  },
+  "L304": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 53580.0,
+    "comprimento_cm": 285.0,
+    "largura_cm": 188.0,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:TIPO"
+  },
+  "L305": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 637938.0,
+    "comprimento_cm": 1494.0,
+    "largura_cm": 427.0,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:TIPO"
+  },
+  "L306": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 963630.0,
+    "comprimento_cm": 1494.0,
+    "largura_cm": 645.0,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:TIPO"
+  },
+  "L307": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 62130.0,
+    "comprimento_cm": 327.0,
+    "largura_cm": 190.0,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:TIPO"
+  },
+  "L308": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 531188.0,
+    "comprimento_cm": 854.0,
+    "largura_cm": 622.0,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:TIPO"
+  },
+  "L309": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 135945.0,
+    "comprimento_cm": 570.0,
+    "largura_cm": 238.5,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:TIPO"
+  },
+  "L310": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 198432.0,
+    "comprimento_cm": 832.0,
+    "largura_cm": 238.5,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:TIPO"
+  },
+  "L311": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 531188.0,
+    "comprimento_cm": 854.0,
+    "largura_cm": 622.0,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:TIPO"
+  },
+  "L312": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 84693.0,
+    "comprimento_cm": 327.0,
+    "largura_cm": 259.0,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:TIPO"
+  },
+  "L313": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 288357.0,
+    "comprimento_cm": 831.0,
+    "largura_cm": 347.0,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:TIPO"
+  },
+  "L314": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 291480.0,
+    "comprimento_cm": 840.0,
+    "largura_cm": 347.0,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:TIPO"
+  },
+  "L315": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 24448.0,
+    "comprimento_cm": 191.0,
+    "largura_cm": 128.0,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:TIPO"
+  },
+  "L316": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 24448.0,
+    "comprimento_cm": 191.0,
+    "largura_cm": 128.0,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:TIPO"
+  },
+  "L401": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 197370.0,
+    "comprimento_cm": 645.0,
+    "largura_cm": 306.0,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:COBERTURA"
+  },
+  "L402": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 197370.0,
+    "comprimento_cm": 645.0,
+    "largura_cm": 306.0,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:COBERTURA"
+  },
+  "L403": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 22748.0,
+    "comprimento_cm": 188.0,
+    "largura_cm": 121.0,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:COBERTURA"
+  },
+  "L404": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 22748.0,
+    "comprimento_cm": 188.0,
+    "largura_cm": 121.0,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:COBERTURA"
+  },
+  "L405": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 45885.0,
+    "comprimento_cm": 285.0,
+    "largura_cm": 161.0,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:COBERTURA"
+  },
+  "L406": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 17424.0,
+    "comprimento_cm": 132.0,
+    "largura_cm": 132.0,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:COBERTURA"
+  },
+  "L407": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 78570.0,
+    "comprimento_cm": 291.0,
+    "largura_cm": 270.0,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:COBERTURA"
+  },
+  "L408": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 78570.0,
+    "comprimento_cm": 291.0,
+    "largura_cm": 270.0,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:COBERTURA"
+  },
+  "L409": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 1029366.0,
+    "comprimento_cm": 1494.0,
+    "largura_cm": 689.0,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:COBERTURA"
+  },
+  "L410": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 1029366.0,
+    "comprimento_cm": 1494.0,
+    "largura_cm": 689.0,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:COBERTURA"
+  },
+  "L411": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 63222.0,
+    "comprimento_cm": 257.0,
+    "largura_cm": 246.0,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:COBERTURA"
+  },
+  "L412": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 63222.0,
+    "comprimento_cm": 257.0,
+    "largura_cm": 246.0,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:COBERTURA"
+  },
+  "L413": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 46740.0,
+    "comprimento_cm": 246.0,
+    "largura_cm": 190.0,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:COBERTURA"
+  },
+  "L414": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 531188.0,
+    "comprimento_cm": 854.0,
+    "largura_cm": 622.0,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:COBERTURA"
+  },
+  "L415": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 165496.5,
+    "comprimento_cm": 448.5,
+    "largura_cm": 369.0,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:COBERTURA"
+  },
+  "L416": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 255645.0,
+    "comprimento_cm": 570.0,
+    "largura_cm": 448.5,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:COBERTURA"
+  },
+  "L417": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 255645.0,
+    "comprimento_cm": 570.0,
+    "largura_cm": 448.5,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:COBERTURA"
+  },
+  "L418": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 267782.0,
+    "comprimento_cm": 701.0,
+    "largura_cm": 382.0,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:COBERTURA"
+  },
+  "L419": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 531188.0,
+    "comprimento_cm": 854.0,
+    "largura_cm": 622.0,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:COBERTURA"
+  },
+  "L420": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 46740.0,
+    "comprimento_cm": 246.0,
+    "largura_cm": 190.0,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:COBERTURA"
+  },
+  "L421": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 288357.0,
+    "comprimento_cm": 831.0,
+    "largura_cm": 347.0,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:COBERTURA"
+  },
+  "L422": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 291480.0,
+    "comprimento_cm": 840.0,
+    "largura_cm": 347.0,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:COBERTURA"
+  },
+  "L423": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 34380.0,
+    "comprimento_cm": 191.0,
+    "largura_cm": 180.0,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:COBERTURA"
+  },
+  "L424": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 34380.0,
+    "comprimento_cm": 191.0,
+    "largura_cm": 180.0,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:COBERTURA"
+  },
+  "L501": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 115280.0,
+    "comprimento_cm": 524.0,
+    "largura_cm": 220.0,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:BARRILETE"
+  },
+  "L502": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 115280.0,
+    "comprimento_cm": 524.0,
+    "largura_cm": 220.0,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:BARRILETE"
+  },
+  "L503": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 154056.0,
+    "comprimento_cm": 524.0,
+    "largura_cm": 294.0,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:BARRILETE"
+  },
+  "L504": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 154056.0,
+    "comprimento_cm": 524.0,
+    "largura_cm": 294.0,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:BARRILETE"
+  },
+  "L505": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 36290.0,
+    "comprimento_cm": 191.0,
+    "largura_cm": 190.0,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:BARRILETE"
+  },
+  "L506": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 43739.0,
+    "comprimento_cm": 229.0,
+    "largura_cm": 191.0,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:BARRILETE"
+  },
+  "L601": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 155520.0,
+    "comprimento_cm": 576.0,
+    "largura_cm": 270.0,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:TAMPA"
+  },
+  "L602": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 44280.0,
+    "comprimento_cm": 270.0,
+    "largura_cm": 164.0,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:TAMPA"
+  },
+  "L603": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 36100.0,
+    "comprimento_cm": 190.0,
+    "largura_cm": 190.0,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:TAMPA"
+  },
+  "L604": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 43320.0,
+    "comprimento_cm": 228.0,
+    "largura_cm": 190.0,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:TAMPA"
+  },
+  "L605": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 43320.0,
+    "comprimento_cm": 228.0,
+    "largura_cm": 190.0,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:TAMPA"
+  },
+  "L606": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 120540.0,
+    "comprimento_cm": 492.0,
+    "largura_cm": 245.0,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:TAMPA"
+  },
+  "L607": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 43320.0,
+    "comprimento_cm": 228.0,
+    "largura_cm": 190.0,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:TAMPA"
+  },
+  "L608": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 46182.0,
+    "comprimento_cm": 358.0,
+    "largura_cm": 129.0,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:TAMPA"
+  },
+  "L609": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 36290.0,
+    "comprimento_cm": 191.0,
+    "largura_cm": 190.0,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:TAMPA"
+  },
+  "L610": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 36481.0,
+    "comprimento_cm": 191.0,
+    "largura_cm": 191.0,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:TAMPA"
+  },
+  "L611": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 34380.0,
+    "comprimento_cm": 191.0,
+    "largura_cm": 180.0,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:TAMPA"
+  },
+  "L612": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 34380.0,
+    "comprimento_cm": 191.0,
+    "largura_cm": 180.0,
+    "confidence": 0.45,
+    "source": "structural-span-proximity:TAMPA"
+  },
+  "_meta": {
+    "total": 201,
+    "obra": "Obra_TREINO_12",
+    "pavimento": "todos",
+    "extraido_em": "2026-05-28",
+    "algoritmo": "structural-text-proximity",
+    "fonte": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_12\\Fase-2_Triagem\\Estruturais_Pavimentos_Limpos",
+    "dxfs_processados": 10,
+    "com_dimensoes": 201
+  }
+}

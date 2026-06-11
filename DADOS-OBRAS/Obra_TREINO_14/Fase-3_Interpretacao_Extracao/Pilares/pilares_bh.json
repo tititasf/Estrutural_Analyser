@@ -1,0 +1,254 @@
+{
+  "P1": {
+    "b": 62.0,
+    "h": 74.0,
+    "confidence": 0.9,
+    "source": "inverse-proximity",
+    "dims_assignadas": 11,
+    "dist_d1": 167.0,
+    "dist_d2": 205.5
+  },
+  "P2": {
+    "b": 19.0,
+    "h": 62.0,
+    "confidence": 0.9,
+    "source": "inverse-proximity",
+    "dims_assignadas": 8,
+    "dist_d1": 90.4,
+    "dist_d2": 92.8
+  },
+  "P3": {
+    "b": 19.0,
+    "h": 62.0,
+    "confidence": 0.9,
+    "source": "inverse-proximity",
+    "dims_assignadas": 30,
+    "dist_d1": 74.3,
+    "dist_d2": 89.4
+  },
+  "P4": {
+    "b": 19.0,
+    "h": 62.0,
+    "confidence": 0.9,
+    "source": "inverse-proximity",
+    "dims_assignadas": 52,
+    "dist_d1": 54.7,
+    "dist_d2": 148.8
+  },
+  "P5": {
+    "b": 19.0,
+    "h": 62.0,
+    "confidence": 0.9,
+    "source": "inverse-proximity",
+    "dims_assignadas": 71,
+    "dist_d1": 69.0,
+    "dist_d2": 132.7
+  },
+  "P6": {
+    "b": 19.0,
+    "h": 62.0,
+    "confidence": 0.4,
+    "source": "proximity-fallback",
+    "dist_d1": 69.0,
+    "dist_d2": 132.7
+  },
+  "P7": {
+    "b": 19.0,
+    "h": 62.0,
+    "confidence": 0.4,
+    "source": "proximity-fallback",
+    "dist_d1": 69.0,
+    "dist_d2": 132.7
+  },
+  "P16": {
+    "b": 50.5,
+    "h": 60.0,
+    "confidence": 0.9,
+    "source": "inverse-proximity",
+    "dims_assignadas": 76,
+    "dist_d1": 38.3,
+    "dist_d2": 44.5
+  },
+  "P17": {
+    "b": 40.0,
+    "h": 41.0,
+    "confidence": 0.9,
+    "source": "inverse-proximity",
+    "dims_assignadas": 51,
+    "dist_d1": 253.7,
+    "dist_d2": 270.7
+  },
+  "P18": {
+    "b": 38.0,
+    "h": 62.0,
+    "confidence": 0.9,
+    "source": "inverse-proximity",
+    "dims_assignadas": 44,
+    "dist_d1": 73.3,
+    "dist_d2": 80.1
+  },
+  "P24": {
+    "b": 19.0,
+    "h": 62.0,
+    "confidence": 0.9,
+    "source": "inverse-proximity",
+    "dims_assignadas": 5,
+    "dist_d1": 67.5,
+    "dist_d2": 134.7
+  },
+  "P25": {
+    "b": 19.0,
+    "h": 62.0,
+    "confidence": 0.9,
+    "source": "inverse-proximity",
+    "dims_assignadas": 51,
+    "dist_d1": 101.2,
+    "dist_d2": 136.6
+  },
+  "P27": {
+    "b": 19.0,
+    "h": 62.0,
+    "confidence": 0.4,
+    "source": "proximity-fallback",
+    "dist_d1": 67.5,
+    "dist_d2": 134.7
+  },
+  "P28": {
+    "b": 62.0,
+    "h": 64.0,
+    "confidence": 0.9,
+    "source": "inverse-proximity",
+    "dims_assignadas": 44,
+    "dist_d1": 67.5,
+    "dist_d2": 310.2
+  },
+  "P34": {
+    "b": 19.0,
+    "h": 41.0,
+    "confidence": 0.9,
+    "source": "inverse-proximity",
+    "dims_assignadas": 47,
+    "dist_d1": 80.0,
+    "dist_d2": 115.7
+  },
+  "P35": {
+    "b": 19.0,
+    "h": 61.0,
+    "confidence": 0.9,
+    "source": "inverse-proximity",
+    "dims_assignadas": 37,
+    "dist_d1": 64.6,
+    "dist_d2": 209.4
+  },
+  "P36": {
+    "b": 30.0,
+    "h": 35.0,
+    "confidence": 0.9,
+    "source": "inverse-proximity",
+    "dims_assignadas": 30,
+    "dist_d1": 27.3,
+    "dist_d2": 49.4
+  },
+  "P37": {
+    "b": 42.0,
+    "h": 44.0,
+    "confidence": 0.8,
+    "source": "inverse-proximity",
+    "dims_assignadas": 21,
+    "dist_d1": 402.5,
+    "dist_d2": 432.9
+  },
+  "P38": {
+    "b": 19.0,
+    "h": 62.0,
+    "confidence": 0.9,
+    "source": "inverse-proximity",
+    "dims_assignadas": 11,
+    "dist_d1": 136.7,
+    "dist_d2": 194.2
+  },
+  "P39": {
+    "b": 19.0,
+    "h": 64.0,
+    "confidence": 0.9,
+    "source": "inverse-proximity",
+    "dims_assignadas": 27,
+    "dist_d1": 80.3,
+    "dist_d2": 136.3
+  },
+  "P40": {
+    "b": 19.0,
+    "h": 62.0,
+    "confidence": 0.9,
+    "source": "inverse-proximity",
+    "dims_assignadas": 29,
+    "dist_d1": 69.0,
+    "dist_d2": 132.7
+  },
+  "P41": {
+    "b": 19.0,
+    "h": 62.0,
+    "confidence": 0.9,
+    "source": "inverse-proximity",
+    "dims_assignadas": 48,
+    "dist_d1": 90.1,
+    "dist_d2": 110.9
+  },
+  "P42": {
+    "b": 19.0,
+    "h": 41.0,
+    "confidence": 0.9,
+    "source": "inverse-proximity",
+    "dims_assignadas": 32,
+    "dist_d1": 76.4,
+    "dist_d2": 122.8
+  },
+  "P46": {
+    "b": 19.0,
+    "h": 62.0,
+    "confidence": 0.9,
+    "source": "inverse-proximity",
+    "dims_assignadas": 74,
+    "dist_d1": 95.7,
+    "dist_d2": 118.7
+  },
+  "P50": {
+    "b": 32.0,
+    "h": 68.0,
+    "confidence": 0.9,
+    "source": "inverse-proximity",
+    "dims_assignadas": 65,
+    "dist_d1": 56.6,
+    "dist_d2": 113.5
+  },
+  "P51": {
+    "b": 14.0,
+    "h": 62.0,
+    "confidence": 0.8,
+    "source": "inverse-proximity",
+    "dims_assignadas": 98,
+    "dist_d1": 414.6,
+    "dist_d2": 422.4
+  },
+  "P56": {
+    "b": 19.0,
+    "h": 62.0,
+    "confidence": 0.9,
+    "source": "inverse-proximity",
+    "dims_assignadas": 162,
+    "dist_d1": 116.7,
+    "dist_d2": 175.8
+  },
+  "_meta": {
+    "total": 27,
+    "extraidos_bh_completo": 27,
+    "extraidos_parcial": 0,
+    "sem_dados": 0,
+    "cobertura_pct": 100.0,
+    "max_dist": 300.0,
+    "obra": "Obra_TREINO_14",
+    "pavimento": "ARRAIA - 2PAV",
+    "extraido_em": "2026-05-06",
+    "algoritmo": "dimension-proximity-matching"
+  }
+}

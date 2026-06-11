@@ -1,0 +1,46 @@
+{
+  "obra": "Obra_TREINO_20",
+  "pavimento": "ITAQUERA III - TER",
+  "timestamp": "2026-05-22T16:02:36.129002+00:00",
+  "fidelidade": {
+    "pilares": {
+      "score": 81.5,
+      "aprovado": false,
+      "limiar": 85.0
+    },
+    "vigas": {
+      "score": 91.6,
+      "aprovado": true,
+      "limiar": 82.0
+    },
+    "lajes": {
+      "score": 92.3,
+      "aprovado": true,
+      "limiar": 75.0
+    }
+  },
+  "score_global": 87.7,
+  "meta": 80.0,
+  "certificado": true,
+  "abaixo_limiar": [
+    {
+      "tipo": "pilares",
+      "score": 81.5,
+      "limiar": 85.0
+    }
+  ],
+  "observacoes": [
+    "Score coletivo (IDs): 100.0% ≥ 95% — pipeline de IDs aprovado."
+  ],
+  "fontes": {
+    "coletivo_score_global": 100.0,
+    "dimensional_bh": {
+      "score_pct": null,
+      "aprovado": null
+    },
+    "pipeline_report": {
+      "status": "APROVADO",
+      "coletivo_global": 100.0
+    }
+  }
+}

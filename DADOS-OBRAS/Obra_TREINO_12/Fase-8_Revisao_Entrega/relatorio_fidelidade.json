@@ -1,0 +1,46 @@
+{
+  "obra": "Obra_TREINO_12",
+  "pavimento": "12 PAV",
+  "timestamp": "2026-05-20T23:39:15.260478+00:00",
+  "fidelidade": {
+    "pilares": {
+      "score": null,
+      "aprovado": null,
+      "limiar": null
+    },
+    "vigas": {
+      "score": 0.0,
+      "aprovado": false,
+      "limiar": 82.0
+    },
+    "lajes": {
+      "score": null,
+      "aprovado": null,
+      "limiar": null
+    }
+  },
+  "score_global": 0.0,
+  "meta": 80.0,
+  "certificado": false,
+  "abaixo_limiar": [
+    {
+      "tipo": "vigas",
+      "score": 0.0,
+      "limiar": 82.0
+    }
+  ],
+  "observacoes": [
+    "Vigas fundo (FV) abaixo do limiar (None/None). FV_gerado usa ezdxf simplificado — sarrafos e chanfros incompletos."
+  ],
+  "fontes": {
+    "coletivo_score_global": 0.0,
+    "dimensional_bh": {
+      "score_pct": null,
+      "aprovado": null
+    },
+    "pipeline_report": {
+      "status": "REPROVADO",
+      "coletivo_global": 0.0
+    }
+  }
+}

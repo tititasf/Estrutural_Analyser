@@ -1,0 +1,395 @@
+{
+  "V517": {
+    "b": 19.0,
+    "h": 40.0,
+    "comprimento": 701.0,
+    "confidence": 0.54,
+    "source": "vigas_dim+fv-dxf-global-median",
+    "sides": [
+      "A",
+      "B"
+    ]
+  },
+  "V521": {
+    "b": 19.0,
+    "h": 40.0,
+    "comprimento": 701.0,
+    "confidence": 0.54,
+    "source": "vigas_dim+fv-dxf-global-median",
+    "sides": [
+      "A",
+      "B"
+    ]
+  },
+  "V524": {
+    "b": 19.0,
+    "h": 40.0,
+    "comprimento": 701.0,
+    "confidence": 0.54,
+    "source": "vigas_dim+fv-dxf-global-median",
+    "sides": [
+      "A",
+      "B"
+    ]
+  },
+  "V528": {
+    "b": 19.0,
+    "h": 40.0,
+    "comprimento": 701.0,
+    "confidence": 0.54,
+    "source": "vigas_dim+fv-dxf-global-median",
+    "sides": [
+      "A",
+      "B"
+    ]
+  },
+  "V565": {
+    "b": 19.0,
+    "h": 40.0,
+    "comprimento": 688.6,
+    "confidence": 0.54,
+    "source": "vigas_dim+fv-dxf-global-median",
+    "sides": [
+      "A",
+      "B"
+    ]
+  },
+  "V566": {
+    "b": 19.0,
+    "h": 40.0,
+    "comprimento": 688.6,
+    "confidence": 0.54,
+    "source": "vigas_dim+fv-dxf-global-median",
+    "sides": [
+      "A",
+      "B"
+    ]
+  },
+  "V567": {
+    "b": 19.0,
+    "h": 40.0,
+    "comprimento": 688.6,
+    "confidence": 0.54,
+    "source": "vigas_dim+fv-dxf-global-median",
+    "sides": [
+      "A",
+      "B"
+    ]
+  },
+  "V568": {
+    "b": 19.0,
+    "h": 40.0,
+    "comprimento": 688.6,
+    "confidence": 0.54,
+    "source": "vigas_dim+fv-dxf-global-median",
+    "sides": [
+      "A",
+      "B"
+    ]
+  },
+  "V634": {
+    "b": 19.0,
+    "h": 40.0,
+    "comprimento": 450.0,
+    "confidence": 0.59,
+    "source": "vigas_dim+fv-dxf-global-median",
+    "sides": [
+      "A",
+      "B"
+    ]
+  },
+  "V703": {
+    "b": 19.0,
+    "h": 40.0,
+    "comprimento": 301.0,
+    "confidence": 0.54,
+    "source": "vigas_dim+fv-dxf-global-median",
+    "sides": [
+      "A",
+      "B"
+    ]
+  },
+  "V707": {
+    "b": 19.0,
+    "h": 40.0,
+    "comprimento": 450.0,
+    "confidence": 0.54,
+    "source": "vigas_dim+fv-dxf-global-median",
+    "sides": [
+      "A",
+      "B"
+    ]
+  },
+  "V708": {
+    "b": 19.0,
+    "h": 40.0,
+    "comprimento": 301.0,
+    "confidence": 0.54,
+    "source": "vigas_dim+fv-dxf-global-median",
+    "sides": [
+      "A",
+      "B"
+    ]
+  },
+  "V710": {
+    "b": 19.0,
+    "h": 40.0,
+    "comprimento": 505.5,
+    "confidence": 0.54,
+    "source": "vigas_dim+fv-dxf-global-median",
+    "sides": [
+      "A",
+      "B"
+    ]
+  },
+  "V714": {
+    "b": 19.0,
+    "h": 40.0,
+    "comprimento": 701.0,
+    "confidence": 0.54,
+    "source": "vigas_dim+fv-dxf-global-median",
+    "sides": [
+      "A",
+      "B"
+    ]
+  },
+  "V716": {
+    "b": 19.0,
+    "h": 40.0,
+    "comprimento": 701.0,
+    "confidence": 0.59,
+    "source": "vigas_dim+fv-dxf-global-median",
+    "sides": [
+      "A",
+      "B"
+    ]
+  },
+  "V720": {
+    "b": 19.0,
+    "h": 40.0,
+    "comprimento": 701.0,
+    "confidence": 0.54,
+    "source": "vigas_dim+fv-dxf-global-median",
+    "sides": [
+      "A",
+      "B"
+    ]
+  },
+  "V722": {
+    "b": 19.0,
+    "h": 40.0,
+    "comprimento": 540.0,
+    "confidence": 0.54,
+    "source": "vigas_dim+fv-dxf-global-median",
+    "sides": [
+      "A",
+      "B"
+    ]
+  },
+  "V723": {
+    "b": 19.0,
+    "h": 40.0,
+    "comprimento": 701.0,
+    "confidence": 0.59,
+    "source": "vigas_dim+fv-dxf-global-median",
+    "sides": [
+      "A",
+      "B"
+    ]
+  },
+  "V727": {
+    "b": 19.0,
+    "h": 40.0,
+    "comprimento": 701.0,
+    "confidence": 0.59,
+    "source": "vigas_dim+fv-dxf-global-median",
+    "sides": [
+      "A",
+      "B"
+    ]
+  },
+  "V729": {
+    "b": 19.0,
+    "h": 40.0,
+    "comprimento": 701.0,
+    "confidence": 0.54,
+    "source": "vigas_dim+fv-dxf-global-median",
+    "sides": [
+      "A",
+      "B"
+    ]
+  },
+  "V731": {
+    "b": 19.0,
+    "h": 40.0,
+    "comprimento": 505.5,
+    "confidence": 0.54,
+    "source": "vigas_dim+fv-dxf-global-median",
+    "sides": [
+      "A",
+      "B"
+    ]
+  },
+  "V735": {
+    "b": 19.0,
+    "h": 40.0,
+    "comprimento": 701.0,
+    "confidence": 0.54,
+    "source": "vigas_dim+fv-dxf-global-median",
+    "sides": [
+      "A",
+      "B"
+    ]
+  },
+  "V736": {
+    "b": 19.0,
+    "h": 40.0,
+    "comprimento": 301.0,
+    "confidence": 0.54,
+    "source": "vigas_dim+fv-dxf-global-median",
+    "sides": [
+      "A",
+      "B"
+    ]
+  },
+  "V738": {
+    "b": 19.0,
+    "h": 40.0,
+    "comprimento": 450.0,
+    "confidence": 0.59,
+    "source": "vigas_dim+fv-dxf-global-median",
+    "sides": [
+      "A",
+      "B"
+    ]
+  },
+  "V763": {
+    "b": 19.0,
+    "h": 40.0,
+    "comprimento": 688.6,
+    "confidence": 0.59,
+    "source": "vigas_dim+fv-dxf-global-median",
+    "sides": [
+      "A",
+      "B"
+    ]
+  },
+  "V764": {
+    "b": 19.0,
+    "h": 40.0,
+    "comprimento": 688.6,
+    "confidence": 0.59,
+    "source": "vigas_dim+fv-dxf-global-median",
+    "sides": [
+      "A",
+      "B"
+    ]
+  },
+  "V765": {
+    "b": 19.0,
+    "h": 40.0,
+    "comprimento": 688.6,
+    "confidence": 0.59,
+    "source": "vigas_dim+fv-dxf-global-median",
+    "sides": [
+      "A",
+      "B"
+    ]
+  },
+  "V766": {
+    "b": 19.0,
+    "h": 40.0,
+    "comprimento": 688.6,
+    "confidence": 0.59,
+    "source": "vigas_dim+fv-dxf-global-median",
+    "sides": [
+      "A",
+      "B"
+    ]
+  },
+  "V769": {
+    "b": 19.0,
+    "h": 40.0,
+    "comprimento": 319.0,
+    "confidence": 0.54,
+    "source": "vigas_dim+fv-dxf-global-median",
+    "sides": [
+      "A",
+      "B"
+    ]
+  },
+  "V770": {
+    "b": 19.0,
+    "h": 40.0,
+    "comprimento": 688.6,
+    "confidence": 0.54,
+    "source": "vigas_dim+fv-dxf-global-median",
+    "sides": [
+      "A",
+      "B"
+    ]
+  },
+  "V771": {
+    "b": 19.0,
+    "h": 40.0,
+    "comprimento": 688.6,
+    "confidence": 0.54,
+    "source": "vigas_dim+fv-dxf-global-median",
+    "sides": [
+      "A",
+      "B"
+    ]
+  },
+  "V772": {
+    "b": 19.0,
+    "h": 40.0,
+    "comprimento": 852.5,
+    "confidence": 0.59,
+    "source": "vigas_dim+fv-dxf-global-median",
+    "sides": [
+      "A",
+      "B"
+    ]
+  },
+  "V773": {
+    "b": 19.0,
+    "h": 40.0,
+    "comprimento": 852.5,
+    "confidence": 0.54,
+    "source": "vigas_dim+fv-dxf-global-median",
+    "sides": [
+      "A",
+      "B"
+    ]
+  },
+  "V774": {
+    "b": 19.0,
+    "h": 40.0,
+    "comprimento": 852.5,
+    "confidence": 0.54,
+    "source": "vigas_dim+fv-dxf-global-median",
+    "sides": [
+      "A",
+      "B"
+    ]
+  },
+  "V775": {
+    "b": 19.0,
+    "h": 40.0,
+    "comprimento": 319.0,
+    "confidence": 0.54,
+    "source": "vigas_dim+fv-dxf-global-median",
+    "sides": [
+      "A",
+      "B"
+    ]
+  },
+  "_meta": {
+    "total": 34,
+    "integrado_em": "2026-03-08",
+    "fontes": [
+      "vigas_dim.json",
+      "vigas_largura.json"
+    ]
+  }
+}

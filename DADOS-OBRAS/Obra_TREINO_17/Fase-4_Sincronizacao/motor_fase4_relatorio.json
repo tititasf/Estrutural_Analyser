@@ -1,0 +1,11 @@
+{
+  "obra": "Obra_TREINO_17",
+  "pavimento": "METROCASA9 DE JULHO - 1PV",
+  "stats": {
+    "pilares": 0,
+    "vigas": 17,
+    "lajes": 16,
+    "errors": 0
+  },
+  "output_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_17\\Fase-4_Sincronizacao"
+}

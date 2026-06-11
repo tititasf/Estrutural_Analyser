@@ -1,0 +1,40 @@
+{
+  "obra": "Obra_TREINO_5",
+  "pavimento": "EMBRAMACO - N300",
+  "elementos": {
+    "pilares": {
+      "tipo": "pilares",
+      "gt_count": 97,
+      "gerado_count": 97,
+      "correct": 97,
+      "hallucinated": [],
+      "missed": [],
+      "id_match": 1.0,
+      "hallucination_rate": 0.0,
+      "count_match": 1.0,
+      "score": 1.0,
+      "score_percent": 100.0,
+      "aprovado": true
+    },
+    "vigas": {
+      "tipo": "vigas",
+      "gt_count": 35,
+      "gerado_count": 35,
+      "correct": 35,
+      "hallucinated": [],
+      "missed": [],
+      "id_match": 1.0,
+      "hallucination_rate": 0.0,
+      "count_match": 1.0,
+      "score": 1.0,
+      "score_percent": 100.0,
+      "aprovado": true
+    },
+    "lajes": {
+      "erro": "LJ_gerado.dxf não encontrado"
+    }
+  },
+  "score_global": 1.0,
+  "score_global_percent": 100.0,
+  "aprovado": true
+}

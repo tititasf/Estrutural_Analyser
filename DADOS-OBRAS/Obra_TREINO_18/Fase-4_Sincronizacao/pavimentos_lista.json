@@ -1,0 +1,15 @@
+{
+  "Obra_TREINO_18": {
+    "pavimentos": [
+      "TPPAR"
+    ],
+    "pavimentos_data": {
+      "TPPAR": {
+        "nome": "TPPAR",
+        "numero": "1",
+        "nivel_chegada": "0.0",
+        "nivel_saida": "280.0"
+      }
+    }
+  }
+}

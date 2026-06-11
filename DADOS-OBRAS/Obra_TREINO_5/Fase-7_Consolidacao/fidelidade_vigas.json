@@ -1,0 +1,101 @@
+{
+  "tipo": "vigas",
+  "score": 96.8,
+  "aprovado": true,
+  "limiar": 82.0,
+  "sub_tipos": {
+    "LV": {
+      "stog_dxf": "NOVA-D´URSO-EMBRAMACO-1PV-LV-R00_R2018_ASCII_ODA.dxf",
+      "gerado_dxf": "LV_stog_quality.dxf",
+      "score": 97.5,
+      "detalhes": {
+        "id_match": {
+          "score": 30.0,
+          "max": 30,
+          "gt_count": 35,
+          "gerado_count": 35,
+          "id_match_rate": 1.0,
+          "hallucination_rate": 0.0,
+          "missed": [],
+          "hallucinated": []
+        },
+        "entity_coverage": {
+          "score": 37.5,
+          "max": 40,
+          "stog_total": 4768,
+          "gerado_total": 6907,
+          "global_ratio": 1.0,
+          "critical_avg": 0.9091
+        },
+        "layer_presence": {
+          "score": 20.0,
+          "max": 20,
+          "present": 27,
+          "missing": 0,
+          "required_layers": 27,
+          "missing_list": []
+        },
+        "anti_hallucination": {
+          "score": 10.0,
+          "max": 10
+        }
+      },
+      "scorer": "kb-blended",
+      "kb_file": "NOVA-D´URSO-EMBRAMACO-1PV-LV-R00_R2018_ASCII_ODA.dxf",
+      "aprovado": true,
+      "limiar": 85.0
+    },
+    "FV": {
+      "stog_dxf": "NOVA-D´URSO-EMBRAMACO-1PV-FV-R01_R2018_ASCII_ODA.dxf",
+      "gerado_dxf": "FV_stog_quality.dxf",
+      "score": 95.8,
+      "detalhes": {
+        "id_match": {
+          "score": 30.0,
+          "max": 30,
+          "gt_count": 18,
+          "gerado_count": 8,
+          "id_match_rate": 1.0,
+          "hallucination_rate": 0.0,
+          "missed": [
+            "V11",
+            "V12",
+            "V13",
+            "V14",
+            "V15",
+            "V16",
+            "V17",
+            "V18",
+            "V8",
+            "V9"
+          ],
+          "hallucinated": []
+        },
+        "entity_coverage": {
+          "score": 35.8,
+          "max": 40,
+          "stog_total": 1741,
+          "gerado_total": 892,
+          "global_ratio": 1.0,
+          "critical_avg": 0.8511
+        },
+        "layer_presence": {
+          "score": 20.0,
+          "max": 20,
+          "present": 18,
+          "missing": 0,
+          "required_layers": 18,
+          "missing_list": []
+        },
+        "anti_hallucination": {
+          "score": 10.0,
+          "max": 10
+        }
+      },
+      "scorer": "kb-blended",
+      "kb_file": "NOVA-D´URSO-EMBRAMACO-1PV-FV-R01_R2018_ASCII_ODA.dxf",
+      "aprovado": true,
+      "limiar": 80.0
+    }
+  }
+}

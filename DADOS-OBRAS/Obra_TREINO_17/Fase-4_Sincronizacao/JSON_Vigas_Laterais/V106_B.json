@@ -1,0 +1,69 @@
+{
+  "number": "106",
+  "name": "V106_B",
+  "floor": "METROCASA9 DE JULHO - 1PV",
+  "side": "B",
+  "total_width": 14.0,
+  "total_height": "40.0",
+  "panels": [
+    {
+      "width": 120.0,
+      "height1": 40.0,
+      "height2": 40.0,
+      "grade_h1": "0",
+      "grade_h2": "0"
+    },
+    {
+      "width": 120.0,
+      "height1": 40.0,
+      "height2": 40.0,
+      "grade_h1": "0",
+      "grade_h2": "0"
+    },
+    {
+      "width": 4.0,
+      "height1": 40.0,
+      "height2": 40.0,
+      "grade_h1": "0",
+      "grade_h2": "0"
+    }
+  ],
+  "holes": [
+    {
+      "active": false,
+      "width": 0.0,
+      "height": 0.0,
+      "position": 0.0
+    },
+    {
+      "active": false,
+      "width": 0.0,
+      "height": 0.0,
+      "position": 0.0
+    },
+    {
+      "active": false,
+      "width": 0.0,
+      "height": 0.0,
+      "position": 0.0
+    },
+    {
+      "active": false,
+      "width": 0.0,
+      "height": 0.0,
+      "position": 0.0
+    }
+  ],
+  "pillar_left": {
+    "active": false,
+    "width": 0.0,
+    "length": 0.0
+  },
+  "pillar_right": {
+    "active": false,
+    "width": 0.0,
+    "length": 0.0
+  },
+  "sarrafo_left_id": 0,
+  "sarrafo_right_id": 0
+}

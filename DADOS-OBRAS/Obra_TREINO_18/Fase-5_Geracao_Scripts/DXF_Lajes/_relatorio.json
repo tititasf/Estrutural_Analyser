@@ -1,0 +1,130 @@
+{
+  "_meta": {
+    "total": 12,
+    "erros": 0,
+    "pavimento": "TIPO",
+    "output_dir": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_18\\Fase-5_Geracao_Scripts\\DXF_Lajes"
+  },
+  "lajes": {
+    "L20": {
+      "lid": "L20",
+      "comprimento": 100.0,
+      "largura": 100.0,
+      "area_cm2": 10000.0,
+      "n_paineis_v": 2,
+      "n_paineis_h": 1,
+      "n_obstaculos": 0,
+      "path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_18\\Fase-5_Geracao_Scripts\\DXF_Lajes\\L20.dxf"
+    },
+    "L22": {
+      "lid": "L22",
+      "comprimento": 100.0,
+      "largura": 100.0,
+      "area_cm2": 10000.0,
+      "n_paineis_v": 2,
+      "n_paineis_h": 1,
+      "n_obstaculos": 0,
+      "path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_18\\Fase-5_Geracao_Scripts\\DXF_Lajes\\L22.dxf"
+    },
+    "L23": {
+      "lid": "L23",
+      "comprimento": 100.0,
+      "largura": 100.0,
+      "area_cm2": 10000.0,
+      "n_paineis_v": 2,
+      "n_paineis_h": 1,
+      "n_obstaculos": 0,
+      "path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_18\\Fase-5_Geracao_Scripts\\DXF_Lajes\\L23.dxf"
+    },
+    "L24": {
+      "lid": "L24",
+      "comprimento": 100.0,
+      "largura": 100.0,
+      "area_cm2": 10000.0,
+      "n_paineis_v": 2,
+      "n_paineis_h": 1,
+      "n_obstaculos": 0,
+      "path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_18\\Fase-5_Geracao_Scripts\\DXF_Lajes\\L24.dxf"
+    },
+    "L25": {
+      "lid": "L25",
+      "comprimento": 100.0,
+      "largura": 100.0,
+      "area_cm2": 10000.0,
+      "n_paineis_v": 2,
+      "n_paineis_h": 1,
+      "n_obstaculos": 0,
+      "path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_18\\Fase-5_Geracao_Scripts\\DXF_Lajes\\L25.dxf"
+    },
+    "L27": {
+      "lid": "L27",
+      "comprimento": 100.0,
+      "largura": 100.0,
+      "area_cm2": 10000.0,
+      "n_paineis_v": 2,
+      "n_paineis_h": 1,
+      "n_obstaculos": 0,
+      "path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_18\\Fase-5_Geracao_Scripts\\DXF_Lajes\\L27.dxf"
+    },
+    "L28": {
+      "lid": "L28",
+      "comprimento": 100.0,
+      "largura": 100.0,
+      "area_cm2": 10000.0,
+      "n_paineis_v": 2,
+      "n_paineis_h": 1,
+      "n_obstaculos": 0,
+      "path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_18\\Fase-5_Geracao_Scripts\\DXF_Lajes\\L28.dxf"
+    },
+    "L29": {
+      "lid": "L29",
+      "comprimento": 100.0,
+      "largura": 100.0,
+      "area_cm2": 10000.0,
+      "n_paineis_v": 2,
+      "n_paineis_h": 1,
+      "n_obstaculos": 0,
+      "path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_18\\Fase-5_Geracao_Scripts\\DXF_Lajes\\L29.dxf"
+    },
+    "L30": {
+      "lid": "L30",
+      "comprimento": 100.0,
+      "largura": 100.0,
+      "area_cm2": 10000.0,
+      "n_paineis_v": 2,
+      "n_paineis_h": 1,
+      "n_obstaculos": 0,
+      "path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_18\\Fase-5_Geracao_Scripts\\DXF_Lajes\\L30.dxf"
+    },
+    "L31": {
+      "lid": "L31",
+      "comprimento": 100.0,
+      "largura": 100.0,
+      "area_cm2": 10000.0,
+      "n_paineis_v": 2,
+      "n_paineis_h": 1,
+      "n_obstaculos": 0,
+      "path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_18\\Fase-5_Geracao_Scripts\\DXF_Lajes\\L31.dxf"
+    },
+    "L32": {
+      "lid": "L32",
+      "comprimento": 100.0,
+      "largura": 100.0,
+      "area_cm2": 10000.0,
+      "n_paineis_v": 2,
+      "n_paineis_h": 1,
+      "n_obstaculos": 0,
+      "path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_18\\Fase-5_Geracao_Scripts\\DXF_Lajes\\L32.dxf"
+    },
+    "L33": {
+      "lid": "L33",
+      "comprimento": 100.0,
+      "largura": 100.0,
+      "area_cm2": 10000.0,
+      "n_paineis_v": 2,
+      "n_paineis_h": 1,
+      "n_obstaculos": 0,
+      "path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_18\\Fase-5_Geracao_Scripts\\DXF_Lajes\\L33.dxf"
+    }
+  }
+}

@@ -1,0 +1,478 @@
+{
+  "L20": {
+    "n_paineis": 0,
+    "area_total_paineis_cm2": null,
+    "area_poligono_cm2": 4066.0,
+    "coordenadas": [
+      [
+        5495.6,
+        2070.5
+      ],
+      [
+        5514.6,
+        2070.5
+      ],
+      [
+        5514.6,
+        2284.5
+      ],
+      [
+        5495.6,
+        2284.5
+      ],
+      [
+        5495.6,
+        2070.5
+      ]
+    ],
+    "maior_painel": {
+      "dim1": null,
+      "dim2": null
+    },
+    "dims_paineis": [],
+    "pos_label": [
+      5289.6,
+      2236.6
+    ],
+    "confidence": 0.6,
+    "source": "label-only",
+    "nota": "Sem dados de paineis"
+  },
+  "L22": {
+    "n_paineis": 0,
+    "area_total_paineis_cm2": null,
+    "area_poligono_cm2": 3040.0,
+    "coordenadas": [
+      [
+        5495.6,
+        1467.5
+      ],
+      [
+        5514.6,
+        1467.5
+      ],
+      [
+        5514.6,
+        1627.5
+      ],
+      [
+        5495.6,
+        1627.5
+      ],
+      [
+        5495.6,
+        1467.5
+      ]
+    ],
+    "maior_painel": {
+      "dim1": null,
+      "dim2": null
+    },
+    "dims_paineis": [],
+    "pos_label": [
+      5341.3,
+      1780.2
+    ],
+    "confidence": 0.6,
+    "source": "label-only",
+    "nota": "Sem dados de paineis"
+  },
+  "L23": {
+    "n_paineis": 0,
+    "area_total_paineis_cm2": null,
+    "area_poligono_cm2": 2000.0,
+    "coordenadas": [
+      [
+        5960.6,
+        2237.5
+      ],
+      [
+        5985.6,
+        2237.5
+      ],
+      [
+        5985.6,
+        2317.5
+      ],
+      [
+        5960.6,
+        2317.5
+      ],
+      [
+        5960.6,
+        2237.5
+      ]
+    ],
+    "maior_painel": {
+      "dim1": null,
+      "dim2": null
+    },
+    "dims_paineis": [],
+    "pos_label": [
+      5874.5,
+      1877.9
+    ],
+    "confidence": 0.6,
+    "source": "label-only",
+    "nota": "Sem dados de paineis"
+  },
+  "L24": {
+    "n_paineis": 0,
+    "area_total_paineis_cm2": null,
+    "area_poligono_cm2": 3040.0,
+    "coordenadas": [
+      [
+        6215.6,
+        1467.5
+      ],
+      [
+        6234.6,
+        1467.5
+      ],
+      [
+        6234.6,
+        1627.5
+      ],
+      [
+        6215.6,
+        1627.5
+      ],
+      [
+        6215.6,
+        1467.5
+      ]
+    ],
+    "maior_painel": {
+      "dim1": null,
+      "dim2": null
+    },
+    "dims_paineis": [],
+    "pos_label": [
+      6447.5,
+      1770.9
+    ],
+    "confidence": 0.6,
+    "source": "label-only",
+    "nota": "Sem dados de paineis"
+  },
+  "L25": {
+    "n_paineis": 0,
+    "area_total_paineis_cm2": null,
+    "area_poligono_cm2": 1562.5,
+    "coordenadas": [
+      [
+        7297.1,
+        1539.0
+      ],
+      [
+        7297.1,
+        1564.0
+      ],
+      [
+        7234.6,
+        1564.0
+      ],
+      [
+        7234.6,
+        1539.0
+      ],
+      [
+        7297.1,
+        1539.0
+      ]
+    ],
+    "maior_painel": {
+      "dim1": null,
+      "dim2": null
+    },
+    "dims_paineis": [],
+    "pos_label": [
+      6998.5,
+      1775.2
+    ],
+    "confidence": 0.6,
+    "source": "label-only",
+    "nota": "Sem dados de paineis"
+  },
+  "L27": {
+    "n_paineis": 0,
+    "area_total_paineis_cm2": null,
+    "area_poligono_cm2": 3040.0,
+    "coordenadas": [
+      [
+        5495.6,
+        1467.5
+      ],
+      [
+        5514.6,
+        1467.5
+      ],
+      [
+        5514.6,
+        1627.5
+      ],
+      [
+        5495.6,
+        1627.5
+      ],
+      [
+        5495.6,
+        1467.5
+      ]
+    ],
+    "maior_painel": {
+      "dim1": null,
+      "dim2": null
+    },
+    "dims_paineis": [],
+    "pos_label": [
+      5753.4,
+      1436.2
+    ],
+    "confidence": 0.6,
+    "source": "label-only",
+    "nota": "Sem dados de paineis"
+  },
+  "L28": {
+    "n_paineis": 0,
+    "area_total_paineis_cm2": null,
+    "area_poligono_cm2": 3040.0,
+    "coordenadas": [
+      [
+        5495.6,
+        1181.5
+      ],
+      [
+        5514.6,
+        1181.5
+      ],
+      [
+        5514.6,
+        1341.5
+      ],
+      [
+        5495.6,
+        1341.5
+      ],
+      [
+        5495.6,
+        1181.5
+      ]
+    ],
+    "maior_painel": {
+      "dim1": null,
+      "dim2": null
+    },
+    "dims_paineis": [],
+    "pos_label": [
+      5337.4,
+      1058.0
+    ],
+    "confidence": 0.6,
+    "source": "label-only",
+    "nota": "Sem dados de paineis"
+  },
+  "L29": {
+    "n_paineis": 0,
+    "area_total_paineis_cm2": null,
+    "area_poligono_cm2": 2000.0,
+    "coordenadas": [
+      [
+        5960.6,
+        491.5
+      ],
+      [
+        5985.6,
+        491.5
+      ],
+      [
+        5985.6,
+        571.5
+      ],
+      [
+        5960.6,
+        571.5
+      ],
+      [
+        5960.6,
+        491.5
+      ]
+    ],
+    "maior_painel": {
+      "dim1": null,
+      "dim2": null
+    },
+    "dims_paineis": [],
+    "pos_label": [
+      5837.5,
+      912.2
+    ],
+    "confidence": 0.6,
+    "source": "label-only",
+    "nota": "Sem dados de paineis"
+  },
+  "L30": {
+    "n_paineis": 0,
+    "area_total_paineis_cm2": null,
+    "area_poligono_cm2": 3040.0,
+    "coordenadas": [
+      [
+        6215.6,
+        1181.5
+      ],
+      [
+        6234.6,
+        1181.5
+      ],
+      [
+        6234.6,
+        1341.5
+      ],
+      [
+        6215.6,
+        1341.5
+      ],
+      [
+        6215.6,
+        1181.5
+      ]
+    ],
+    "maior_painel": {
+      "dim1": null,
+      "dim2": null
+    },
+    "dims_paineis": [],
+    "pos_label": [
+      6439.5,
+      1020.8
+    ],
+    "confidence": 0.6,
+    "source": "label-only",
+    "nota": "Sem dados de paineis"
+  },
+  "L31": {
+    "n_paineis": 0,
+    "area_total_paineis_cm2": null,
+    "area_poligono_cm2": 1562.5,
+    "coordenadas": [
+      [
+        7297.1,
+        1245.0
+      ],
+      [
+        7297.1,
+        1270.0
+      ],
+      [
+        7234.6,
+        1270.0
+      ],
+      [
+        7234.6,
+        1245.0
+      ],
+      [
+        7297.1,
+        1245.0
+      ]
+    ],
+    "maior_painel": {
+      "dim1": null,
+      "dim2": null
+    },
+    "dims_paineis": [],
+    "pos_label": [
+      6998.5,
+      1056.7
+    ],
+    "confidence": 0.6,
+    "source": "label-only",
+    "nota": "Sem dados de paineis"
+  },
+  "L32": {
+    "n_paineis": 0,
+    "area_total_paineis_cm2": null,
+    "area_poligono_cm2": 4066.0,
+    "coordenadas": [
+      [
+        5495.6,
+        524.5
+      ],
+      [
+        5514.6,
+        524.5
+      ],
+      [
+        5514.6,
+        738.5
+      ],
+      [
+        5495.6,
+        738.5
+      ],
+      [
+        5495.6,
+        524.5
+      ]
+    ],
+    "maior_painel": {
+      "dim1": null,
+      "dim2": null
+    },
+    "dims_paineis": [],
+    "pos_label": [
+      5351.1,
+      644.1
+    ],
+    "confidence": 0.6,
+    "source": "label-only",
+    "nota": "Sem dados de paineis"
+  },
+  "L33": {
+    "n_paineis": 0,
+    "area_total_paineis_cm2": null,
+    "area_poligono_cm2": 2000.0,
+    "coordenadas": [
+      [
+        5960.6,
+        491.5
+      ],
+      [
+        5985.6,
+        491.5
+      ],
+      [
+        5985.6,
+        571.5
+      ],
+      [
+        5960.6,
+        571.5
+      ],
+      [
+        5960.6,
+        491.5
+      ]
+    ],
+    "maior_painel": {
+      "dim1": null,
+      "dim2": null
+    },
+    "dims_paineis": [],
+    "pos_label": [
+      6020.4,
+      579.9
+    ],
+    "confidence": 0.6,
+    "source": "label-only",
+    "nota": "Sem dados de paineis"
+  },
+  "_meta": {
+    "total": 12,
+    "pavimento": "TPPAR",
+    "extraido_em": "2026-05-06",
+    "com_paineis": 0,
+    "com_coordenadas": 12,
+    "nota": "AUX00 contem paineis individuais de forma, nao coordenadas estruturais da laje"
+  }
+}

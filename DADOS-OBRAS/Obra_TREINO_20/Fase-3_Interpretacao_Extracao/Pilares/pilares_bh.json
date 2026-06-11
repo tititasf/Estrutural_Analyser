@@ -1,0 +1,103 @@
+{
+  "P1": {
+    "b": 74.0,
+    "h": 76.0,
+    "confidence": 0.9,
+    "source": "inverse-proximity",
+    "dims_assignadas": 15,
+    "dist_d1": 49.5,
+    "dist_d2": 193.3
+  },
+  "P2": {
+    "b": 19.0,
+    "h": 74.0,
+    "confidence": 0.9,
+    "source": "inverse-proximity",
+    "dims_assignadas": 13,
+    "dist_d1": 164.3,
+    "dist_d2": 225.4
+  },
+  "P3": {
+    "b": 20.0,
+    "h": 61.0,
+    "confidence": 0.9,
+    "source": "inverse-proximity",
+    "dims_assignadas": 15,
+    "dist_d1": 49.3,
+    "dist_d2": 149.4
+  },
+  "P203": {
+    "b": 28.0,
+    "h": 61.0,
+    "confidence": 0.8,
+    "source": "inverse-proximity",
+    "dims_assignadas": 9,
+    "dist_d1": 358.8,
+    "dist_d2": 648.2
+  },
+  "P204": {
+    "b": 14.0,
+    "h": 61.0,
+    "confidence": 0.8,
+    "source": "inverse-proximity",
+    "dims_assignadas": 12,
+    "dist_d1": 336.3,
+    "dist_d2": 443.5
+  },
+  "P206": {
+    "b": 66.0,
+    "h": 74.0,
+    "confidence": 0.9,
+    "source": "inverse-proximity",
+    "dims_assignadas": 19,
+    "dist_d1": 47.6,
+    "dist_d2": 227.1
+  },
+  "P207": {
+    "b": 14.0,
+    "h": 66.0,
+    "confidence": 0.4,
+    "source": "proximity-fallback",
+    "dist_d1": 415.6,
+    "dist_d2": 488.3
+  },
+  "P301": {
+    "b": 20.0,
+    "h": 71.0,
+    "confidence": 0.9,
+    "source": "inverse-proximity",
+    "dims_assignadas": 11,
+    "dist_d1": 58.0,
+    "dist_d2": 160.6
+  },
+  "P302": {
+    "b": 47.0,
+    "h": 76.0,
+    "confidence": 0.9,
+    "source": "inverse-proximity",
+    "dims_assignadas": 36,
+    "dist_d1": 78.0,
+    "dist_d2": 209.4
+  },
+  "P303": {
+    "b": 20.0,
+    "h": 31.0,
+    "confidence": 0.9,
+    "source": "inverse-proximity",
+    "dims_assignadas": 39,
+    "dist_d1": 55.9,
+    "dist_d2": 175.7
+  },
+  "_meta": {
+    "total": 10,
+    "extraidos_bh_completo": 10,
+    "extraidos_parcial": 0,
+    "sem_dados": 0,
+    "cobertura_pct": 100.0,
+    "max_dist": 300.0,
+    "obra": "Obra_TREINO_20",
+    "pavimento": "ITAQUERA III - 1PV",
+    "extraido_em": "2026-05-22",
+    "algoritmo": "dimension-proximity-matching"
+  }
+}

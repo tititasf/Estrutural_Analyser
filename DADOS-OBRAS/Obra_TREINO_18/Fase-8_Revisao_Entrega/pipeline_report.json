@@ -1,0 +1,37 @@
+{
+  "obra": "Obra_TREINO_18",
+  "pavimento": "1PV",
+  "timestamp": "2026-05-14T12:25:53.068168",
+  "fases": {
+    "descoberta": "SKIP",
+    "eng_reversa": "SKIP",
+    "extracao_dimensional": "SKIP",
+    "motor_fase4": "SKIP",
+    "geracao_dxf_individual": "SKIP",
+    "comparacao_individual": "OK",
+    "ancoras": "SKIP",
+    "consolidacao_coletivo": "SKIP",
+    "validacao_coletivo": "OK",
+    "obras_salvas": "SKIP",
+    "validacao_visual": "OK"
+  },
+  "scores": {
+    "visual": {
+      "score_pavimento": 81.5,
+      "tipos": [
+        "PL",
+        "LV",
+        "FV",
+        "LJ"
+      ]
+    },
+    "coletivo": {
+      "pilares": 100.0,
+      "vigas": 100.0,
+      "lajes": 100.0,
+      "global": 100.0,
+      "aprovado": true
+    }
+  },
+  "status": "PARCIAL"
+}

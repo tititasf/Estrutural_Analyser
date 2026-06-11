@@ -1,0 +1,94 @@
+{
+  "tipo": "vigas",
+  "score": 93.2,
+  "aprovado": true,
+  "limiar": 82.0,
+  "sub_tipos": {
+    "LV": {
+      "stog_dxf": "NOVA-UNITÁ-ITAQUERA III-1PAV-LV-R00_R2018_ASCII_ODA.dxf",
+      "gerado_dxf": "LV_stog_quality.dxf",
+      "score": 98.8,
+      "detalhes": {
+        "id_match": {
+          "score": 30.0,
+          "max": 30,
+          "gt_count": 7,
+          "gerado_count": 7,
+          "id_match_rate": 1.0,
+          "hallucination_rate": 0.0,
+          "missed": [],
+          "hallucinated": []
+        },
+        "entity_coverage": {
+          "score": 38.8,
+          "max": 40,
+          "stog_total": 1659,
+          "gerado_total": 1487,
+          "global_ratio": 0.8963,
+          "critical_avg": 1.0
+        },
+        "layer_presence": {
+          "score": 20.0,
+          "max": 20,
+          "present": 25,
+          "missing": 0,
+          "required_layers": 25,
+          "missing_list": []
+        },
+        "anti_hallucination": {
+          "score": 10.0,
+          "max": 10
+        }
+      },
+      "scorer": "kb-blended",
+      "kb_file": "NOVA-UNITÁ-ITAQUERA III-1PAV-LV-R00_R2018_ASCII_ODA.dxf",
+      "aprovado": true,
+      "limiar": 85.0
+    },
+    "FV": {
+      "stog_dxf": "NOVA-UNITÁ-ITAQUERA III-1PV-FV-R00_R2018_ASCII_ODA.dxf",
+      "gerado_dxf": "FV_stog_quality.dxf",
+      "score": 84.8,
+      "detalhes": {
+        "id_match": {
+          "score": 22.5,
+          "max": 30,
+          "gt_count": 4,
+          "gerado_count": 3,
+          "id_match_rate": 0.75,
+          "hallucination_rate": 0.0,
+          "missed": [
+            "V5"
+          ],
+          "hallucinated": []
+        },
+        "entity_coverage": {
+          "score": 33.4,
+          "max": 40,
+          "stog_total": 1063,
+          "gerado_total": 1153,
+          "global_ratio": 1.0,
+          "critical_avg": 0.7636
+        },
+        "layer_presence": {
+          "score": 18.9,
+          "max": 20,
+          "present": 17,
+          "missing": 1,
+          "required_layers": 18,
+          "missing_list": [
+            "Demarcação 1"
+          ]
+        },
+        "anti_hallucination": {
+          "score": 10.0,
+          "max": 10
+        }
+      },
+      "scorer": "kb-blended",
+      "kb_file": "NOVA-UNITÁ-ITAQUERA III-1PV-FV-R00_R2018_ASCII_ODA.dxf",
+      "aprovado": true,
+      "limiar": 80.0
+    }
+  }
+}

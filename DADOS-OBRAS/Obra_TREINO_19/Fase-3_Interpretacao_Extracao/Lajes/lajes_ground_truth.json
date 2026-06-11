@@ -1,0 +1,622 @@
+{
+  "L18": {
+    "comprimento": null,
+    "largura": null,
+    "coordenadas": [
+      [
+        3994.3,
+        2587.9
+      ],
+      [
+        4019.3,
+        2587.9
+      ],
+      [
+        4019.3,
+        2752.9
+      ],
+      [
+        3994.3,
+        2752.9
+      ],
+      [
+        3994.3,
+        2587.9
+      ]
+    ],
+    "area_cm2": null,
+    "confidence": 0.25,
+    "source": "engenharia-reversa-ezdxf",
+    "nota": "Dims requerem verificação manual"
+  },
+  "L19": {
+    "comprimento": null,
+    "largura": null,
+    "coordenadas": [
+      [
+        4289.3,
+        2869.9
+      ],
+      [
+        4314.3,
+        2869.9
+      ],
+      [
+        4314.3,
+        3009.9
+      ],
+      [
+        4289.3,
+        3009.9
+      ],
+      [
+        4289.3,
+        2869.9
+      ]
+    ],
+    "area_cm2": null,
+    "confidence": 0.25,
+    "source": "engenharia-reversa-ezdxf",
+    "nota": "Dims requerem verificação manual"
+  },
+  "L20": {
+    "comprimento": null,
+    "largura": null,
+    "coordenadas": [],
+    "area_cm2": null,
+    "confidence": 0.25,
+    "source": "engenharia-reversa-ezdxf",
+    "nota": "Dims requerem verificação manual"
+  },
+  "L21": {
+    "comprimento": null,
+    "largura": null,
+    "coordenadas": [],
+    "area_cm2": null,
+    "confidence": 0.25,
+    "source": "engenharia-reversa-ezdxf",
+    "nota": "Dims requerem verificação manual"
+  },
+  "L22": {
+    "comprimento": null,
+    "largura": null,
+    "coordenadas": [
+      [
+        6785.3,
+        2869.9
+      ],
+      [
+        6810.3,
+        2869.9
+      ],
+      [
+        6810.3,
+        3009.9
+      ],
+      [
+        6785.3,
+        3009.9
+      ],
+      [
+        6785.3,
+        2869.9
+      ]
+    ],
+    "area_cm2": null,
+    "confidence": 0.25,
+    "source": "engenharia-reversa-ezdxf",
+    "nota": "Dims requerem verificação manual"
+  },
+  "L23": {
+    "comprimento": null,
+    "largura": null,
+    "coordenadas": [
+      [
+        3994.3,
+        2587.9
+      ],
+      [
+        4019.3,
+        2587.9
+      ],
+      [
+        4019.3,
+        2752.9
+      ],
+      [
+        3994.3,
+        2752.9
+      ],
+      [
+        3994.3,
+        2587.9
+      ]
+    ],
+    "area_cm2": null,
+    "confidence": 0.25,
+    "source": "engenharia-reversa-ezdxf",
+    "nota": "Dims requerem verificação manual"
+  },
+  "L24": {
+    "comprimento": null,
+    "largura": null,
+    "coordenadas": [
+      [
+        4468.3,
+        2247.9
+      ],
+      [
+        4468.3,
+        2247.9
+      ],
+      [
+        4487.3,
+        2247.9
+      ],
+      [
+        4487.3,
+        2458.9
+      ],
+      [
+        4618.3,
+        2458.9
+      ],
+      [
+        4618.3,
+        2477.9
+      ],
+      [
+        4468.3,
+        2477.9
+      ],
+      [
+        4468.3,
+        2247.9
+      ]
+    ],
+    "area_cm2": null,
+    "confidence": 0.25,
+    "source": "engenharia-reversa-ezdxf",
+    "nota": "Dims requerem verificação manual"
+  },
+  "L25": {
+    "comprimento": null,
+    "largura": null,
+    "coordenadas": [
+      [
+        4905.3,
+        2247.9
+      ],
+      [
+        4924.3,
+        2247.9
+      ],
+      [
+        4924.3,
+        2477.9
+      ],
+      [
+        4774.3,
+        2477.9
+      ],
+      [
+        4774.3,
+        2458.9
+      ],
+      [
+        4905.3,
+        2458.9
+      ],
+      [
+        4905.3,
+        2247.9
+      ]
+    ],
+    "area_cm2": null,
+    "confidence": 0.25,
+    "source": "engenharia-reversa-ezdxf",
+    "nota": "Dims requerem verificação manual"
+  },
+  "L26": {
+    "comprimento": null,
+    "largura": null,
+    "coordenadas": [],
+    "area_cm2": null,
+    "confidence": 0.25,
+    "source": "engenharia-reversa-ezdxf",
+    "nota": "Dims requerem verificação manual"
+  },
+  "L26A": {
+    "comprimento": null,
+    "largura": null,
+    "coordenadas": [
+      [
+        5376.3,
+        2164.9
+      ],
+      [
+        5351.3,
+        2164.9
+      ],
+      [
+        5351.3,
+        2027.9
+      ],
+      [
+        5376.3,
+        2027.9
+      ],
+      [
+        5376.3,
+        2164.9
+      ]
+    ],
+    "area_cm2": null,
+    "confidence": 0.25,
+    "source": "engenharia-reversa-ezdxf",
+    "nota": "Dims requerem verificação manual"
+  },
+  "L26B": {
+    "comprimento": null,
+    "largura": null,
+    "coordenadas": [
+      [
+        5376.3,
+        2164.9
+      ],
+      [
+        5351.3,
+        2164.9
+      ],
+      [
+        5351.3,
+        2027.9
+      ],
+      [
+        5376.3,
+        2027.9
+      ],
+      [
+        5376.3,
+        2164.9
+      ]
+    ],
+    "area_cm2": null,
+    "confidence": 0.25,
+    "source": "engenharia-reversa-ezdxf",
+    "nota": "Dims requerem verificação manual"
+  },
+  "L27": {
+    "comprimento": null,
+    "largura": null,
+    "coordenadas": [],
+    "area_cm2": null,
+    "confidence": 0.25,
+    "source": "engenharia-reversa-ezdxf",
+    "nota": "Dims requerem verificação manual"
+  },
+  "L28": {
+    "comprimento": null,
+    "largura": null,
+    "coordenadas": [],
+    "area_cm2": null,
+    "confidence": 0.25,
+    "source": "engenharia-reversa-ezdxf",
+    "nota": "Dims requerem verificação manual"
+  },
+  "L29": {
+    "comprimento": null,
+    "largura": null,
+    "coordenadas": [
+      [
+        7066.3,
+        2645.4
+      ],
+      [
+        7066.3,
+        2695.4
+      ],
+      [
+        7125.3,
+        2695.4
+      ],
+      [
+        7125.3,
+        2645.4
+      ],
+      [
+        7066.3,
+        2645.4
+      ]
+    ],
+    "area_cm2": null,
+    "confidence": 0.25,
+    "source": "engenharia-reversa-ezdxf",
+    "nota": "Dims requerem verificação manual"
+  },
+  "L30": {
+    "comprimento": null,
+    "largura": null,
+    "coordenadas": [
+      [
+        3508.3,
+        3090.9
+      ],
+      [
+        3508.3,
+        1469.0
+      ],
+      [
+        3508.8,
+        1265.2
+      ]
+    ],
+    "area_cm2": null,
+    "confidence": 0.25,
+    "source": "engenharia-reversa-ezdxf",
+    "nota": "Dims requerem verificação manual"
+  },
+  "L31": {
+    "comprimento": null,
+    "largura": null,
+    "coordenadas": [
+      [
+        4200.3,
+        2024.9
+      ],
+      [
+        4200.3,
+        2049.9
+      ],
+      [
+        4010.3,
+        2049.9
+      ],
+      [
+        4010.3,
+        2024.9
+      ],
+      [
+        4200.3,
+        2024.9
+      ]
+    ],
+    "area_cm2": null,
+    "confidence": 0.25,
+    "source": "engenharia-reversa-ezdxf",
+    "nota": "Dims requerem verificação manual"
+  },
+  "L32": {
+    "comprimento": null,
+    "largura": null,
+    "coordenadas": [
+      [
+        4501.8,
+        2027.9
+      ],
+      [
+        4526.8,
+        2027.9
+      ],
+      [
+        4526.8,
+        2137.9
+      ],
+      [
+        4501.8,
+        2137.9
+      ],
+      [
+        4501.8,
+        2027.9
+      ]
+    ],
+    "area_cm2": null,
+    "confidence": 0.25,
+    "source": "engenharia-reversa-ezdxf",
+    "nota": "Dims requerem verificação manual"
+  },
+  "L32A": {
+    "comprimento": null,
+    "largura": null,
+    "coordenadas": [
+      [
+        4501.8,
+        2027.9
+      ],
+      [
+        4526.8,
+        2027.9
+      ],
+      [
+        4526.8,
+        2137.9
+      ],
+      [
+        4501.8,
+        2137.9
+      ],
+      [
+        4501.8,
+        2027.9
+      ]
+    ],
+    "area_cm2": null,
+    "confidence": 0.25,
+    "source": "engenharia-reversa-ezdxf",
+    "nota": "Dims requerem verificação manual"
+  },
+  "L33": {
+    "comprimento": null,
+    "largura": null,
+    "coordenadas": [
+      [
+        5351.3,
+        1624.9
+      ],
+      [
+        5376.3,
+        1624.9
+      ],
+      [
+        5376.3,
+        1774.9
+      ],
+      [
+        5351.3,
+        1774.9
+      ],
+      [
+        5351.3,
+        1624.9
+      ]
+    ],
+    "area_cm2": null,
+    "confidence": 0.25,
+    "source": "engenharia-reversa-ezdxf",
+    "nota": "Dims requerem verificação manual"
+  },
+  "L33A": {
+    "comprimento": null,
+    "largura": null,
+    "coordenadas": [],
+    "area_cm2": null,
+    "confidence": 0.25,
+    "source": "engenharia-reversa-ezdxf",
+    "nota": "Dims requerem verificação manual"
+  },
+  "L34": {
+    "comprimento": null,
+    "largura": null,
+    "coordenadas": [
+      [
+        5723.3,
+        1624.9
+      ],
+      [
+        5748.3,
+        1624.9
+      ],
+      [
+        5748.3,
+        1774.9
+      ],
+      [
+        5723.3,
+        1774.9
+      ],
+      [
+        5723.3,
+        1624.9
+      ]
+    ],
+    "area_cm2": null,
+    "confidence": 0.25,
+    "source": "engenharia-reversa-ezdxf",
+    "nota": "Dims requerem verificação manual"
+  },
+  "L35": {
+    "comprimento": null,
+    "largura": null,
+    "coordenadas": [
+      [
+        6572.8,
+        2027.9
+      ],
+      [
+        6597.8,
+        2027.9
+      ],
+      [
+        6597.8,
+        2137.9
+      ],
+      [
+        6572.8,
+        2137.9
+      ],
+      [
+        6572.8,
+        2027.9
+      ]
+    ],
+    "area_cm2": null,
+    "confidence": 0.25,
+    "source": "engenharia-reversa-ezdxf",
+    "nota": "Dims requerem verificação manual"
+  },
+  "L35A": {
+    "comprimento": null,
+    "largura": null,
+    "coordenadas": [],
+    "area_cm2": null,
+    "confidence": 0.25,
+    "source": "engenharia-reversa-ezdxf",
+    "nota": "Dims requerem verificação manual"
+  },
+  "L36": {
+    "comprimento": null,
+    "largura": null,
+    "coordenadas": [
+      [
+        7089.3,
+        2024.9
+      ],
+      [
+        7089.3,
+        2049.9
+      ],
+      [
+        6899.3,
+        2049.9
+      ],
+      [
+        6899.3,
+        2024.9
+      ],
+      [
+        7089.3,
+        2024.9
+      ]
+    ],
+    "area_cm2": null,
+    "confidence": 0.25,
+    "source": "engenharia-reversa-ezdxf",
+    "nota": "Dims requerem verificação manual"
+  },
+  "L37": {
+    "comprimento": null,
+    "largura": null,
+    "coordenadas": [
+      [
+        7089.3,
+        2024.9
+      ],
+      [
+        7089.3,
+        2049.9
+      ],
+      [
+        6899.3,
+        2049.9
+      ],
+      [
+        6899.3,
+        2024.9
+      ],
+      [
+        7089.3,
+        2024.9
+      ]
+    ],
+    "area_cm2": null,
+    "confidence": 0.25,
+    "source": "engenharia-reversa-ezdxf",
+    "nota": "Dims requerem verificação manual"
+  },
+  "_meta": {
+    "total": 25,
+    "pavimento": "1 SUBOLO",
+    "extraido_em": "2026-05-06"
+  }
+}

@@ -1,0 +1,752 @@
+{
+  "L18": {
+    "id": "L18",
+    "coordenadas": [
+      [
+        0.0,
+        0.0
+      ],
+      [
+        100.0,
+        0.0
+      ],
+      [
+        100.0,
+        100.0
+      ],
+      [
+        0.0,
+        100.0
+      ],
+      [
+        0.0,
+        0.0
+      ]
+    ],
+    "comprimento": 100.0,
+    "largura": 100.0,
+    "confidence": 0.03,
+    "source": "fallback-lajes_ground_truth.json",
+    "nota": "Sem dados geometricos — ID preservado"
+  },
+  "L19": {
+    "id": "L19",
+    "coordenadas": [
+      [
+        0.0,
+        0.0
+      ],
+      [
+        100.0,
+        0.0
+      ],
+      [
+        100.0,
+        100.0
+      ],
+      [
+        0.0,
+        100.0
+      ],
+      [
+        0.0,
+        0.0
+      ]
+    ],
+    "comprimento": 100.0,
+    "largura": 100.0,
+    "confidence": 0.03,
+    "source": "fallback-lajes_ground_truth.json",
+    "nota": "Sem dados geometricos — ID preservado"
+  },
+  "L20": {
+    "id": "L20",
+    "coordenadas": [
+      [
+        0.0,
+        0.0
+      ],
+      [
+        100.0,
+        0.0
+      ],
+      [
+        100.0,
+        100.0
+      ],
+      [
+        0.0,
+        100.0
+      ],
+      [
+        0.0,
+        0.0
+      ]
+    ],
+    "comprimento": 100.0,
+    "largura": 100.0,
+    "confidence": 0.03,
+    "source": "fallback-lajes_ground_truth.json",
+    "nota": "Sem dados geometricos — ID preservado"
+  },
+  "L21": {
+    "id": "L21",
+    "coordenadas": [
+      [
+        0.0,
+        0.0
+      ],
+      [
+        100.0,
+        0.0
+      ],
+      [
+        100.0,
+        100.0
+      ],
+      [
+        0.0,
+        100.0
+      ],
+      [
+        0.0,
+        0.0
+      ]
+    ],
+    "comprimento": 100.0,
+    "largura": 100.0,
+    "confidence": 0.03,
+    "source": "fallback-lajes_ground_truth.json",
+    "nota": "Sem dados geometricos — ID preservado"
+  },
+  "L22": {
+    "id": "L22",
+    "coordenadas": [
+      [
+        0.0,
+        0.0
+      ],
+      [
+        100.0,
+        0.0
+      ],
+      [
+        100.0,
+        100.0
+      ],
+      [
+        0.0,
+        100.0
+      ],
+      [
+        0.0,
+        0.0
+      ]
+    ],
+    "comprimento": 100.0,
+    "largura": 100.0,
+    "confidence": 0.03,
+    "source": "fallback-lajes_ground_truth.json",
+    "nota": "Sem dados geometricos — ID preservado"
+  },
+  "L23": {
+    "id": "L23",
+    "coordenadas": [
+      [
+        0.0,
+        0.0
+      ],
+      [
+        100.0,
+        0.0
+      ],
+      [
+        100.0,
+        100.0
+      ],
+      [
+        0.0,
+        100.0
+      ],
+      [
+        0.0,
+        0.0
+      ]
+    ],
+    "comprimento": 100.0,
+    "largura": 100.0,
+    "confidence": 0.03,
+    "source": "fallback-lajes_ground_truth.json",
+    "nota": "Sem dados geometricos — ID preservado"
+  },
+  "L24": {
+    "id": "L24",
+    "coordenadas": [
+      [
+        0.0,
+        0.0
+      ],
+      [
+        100.0,
+        0.0
+      ],
+      [
+        100.0,
+        100.0
+      ],
+      [
+        0.0,
+        100.0
+      ],
+      [
+        0.0,
+        0.0
+      ]
+    ],
+    "comprimento": 100.0,
+    "largura": 100.0,
+    "confidence": 0.03,
+    "source": "fallback-lajes_ground_truth.json",
+    "nota": "Sem dados geometricos — ID preservado"
+  },
+  "L25": {
+    "id": "L25",
+    "coordenadas": [
+      [
+        0.0,
+        0.0
+      ],
+      [
+        100.0,
+        0.0
+      ],
+      [
+        100.0,
+        100.0
+      ],
+      [
+        0.0,
+        100.0
+      ],
+      [
+        0.0,
+        0.0
+      ]
+    ],
+    "comprimento": 100.0,
+    "largura": 100.0,
+    "confidence": 0.03,
+    "source": "fallback-lajes_ground_truth.json",
+    "nota": "Sem dados geometricos — ID preservado"
+  },
+  "L26": {
+    "id": "L26",
+    "coordenadas": [
+      [
+        0.0,
+        0.0
+      ],
+      [
+        100.0,
+        0.0
+      ],
+      [
+        100.0,
+        100.0
+      ],
+      [
+        0.0,
+        100.0
+      ],
+      [
+        0.0,
+        0.0
+      ]
+    ],
+    "comprimento": 100.0,
+    "largura": 100.0,
+    "confidence": 0.03,
+    "source": "fallback-lajes_ground_truth.json",
+    "nota": "Sem dados geometricos — ID preservado"
+  },
+  "L26A": {
+    "id": "L26A",
+    "coordenadas": [
+      [
+        0.0,
+        0.0
+      ],
+      [
+        100.0,
+        0.0
+      ],
+      [
+        100.0,
+        100.0
+      ],
+      [
+        0.0,
+        100.0
+      ],
+      [
+        0.0,
+        0.0
+      ]
+    ],
+    "comprimento": 100.0,
+    "largura": 100.0,
+    "confidence": 0.03,
+    "source": "fallback-lajes_ground_truth.json",
+    "nota": "Sem dados geometricos — ID preservado"
+  },
+  "L26B": {
+    "id": "L26B",
+    "coordenadas": [
+      [
+        0.0,
+        0.0
+      ],
+      [
+        100.0,
+        0.0
+      ],
+      [
+        100.0,
+        100.0
+      ],
+      [
+        0.0,
+        100.0
+      ],
+      [
+        0.0,
+        0.0
+      ]
+    ],
+    "comprimento": 100.0,
+    "largura": 100.0,
+    "confidence": 0.03,
+    "source": "fallback-lajes_ground_truth.json",
+    "nota": "Sem dados geometricos — ID preservado"
+  },
+  "L27": {
+    "id": "L27",
+    "coordenadas": [
+      [
+        0.0,
+        0.0
+      ],
+      [
+        100.0,
+        0.0
+      ],
+      [
+        100.0,
+        100.0
+      ],
+      [
+        0.0,
+        100.0
+      ],
+      [
+        0.0,
+        0.0
+      ]
+    ],
+    "comprimento": 100.0,
+    "largura": 100.0,
+    "confidence": 0.03,
+    "source": "fallback-lajes_ground_truth.json",
+    "nota": "Sem dados geometricos — ID preservado"
+  },
+  "L28": {
+    "id": "L28",
+    "coordenadas": [
+      [
+        0.0,
+        0.0
+      ],
+      [
+        100.0,
+        0.0
+      ],
+      [
+        100.0,
+        100.0
+      ],
+      [
+        0.0,
+        100.0
+      ],
+      [
+        0.0,
+        0.0
+      ]
+    ],
+    "comprimento": 100.0,
+    "largura": 100.0,
+    "confidence": 0.03,
+    "source": "fallback-lajes_ground_truth.json",
+    "nota": "Sem dados geometricos — ID preservado"
+  },
+  "L29": {
+    "id": "L29",
+    "coordenadas": [
+      [
+        0.0,
+        0.0
+      ],
+      [
+        100.0,
+        0.0
+      ],
+      [
+        100.0,
+        100.0
+      ],
+      [
+        0.0,
+        100.0
+      ],
+      [
+        0.0,
+        0.0
+      ]
+    ],
+    "comprimento": 100.0,
+    "largura": 100.0,
+    "confidence": 0.03,
+    "source": "fallback-lajes_ground_truth.json",
+    "nota": "Sem dados geometricos — ID preservado"
+  },
+  "L30": {
+    "id": "L30",
+    "coordenadas": [
+      [
+        0.0,
+        0.0
+      ],
+      [
+        100.0,
+        0.0
+      ],
+      [
+        100.0,
+        100.0
+      ],
+      [
+        0.0,
+        100.0
+      ],
+      [
+        0.0,
+        0.0
+      ]
+    ],
+    "comprimento": 100.0,
+    "largura": 100.0,
+    "confidence": 0.03,
+    "source": "fallback-lajes_ground_truth.json",
+    "nota": "Sem dados geometricos — ID preservado"
+  },
+  "L31": {
+    "id": "L31",
+    "coordenadas": [
+      [
+        0.0,
+        0.0
+      ],
+      [
+        100.0,
+        0.0
+      ],
+      [
+        100.0,
+        100.0
+      ],
+      [
+        0.0,
+        100.0
+      ],
+      [
+        0.0,
+        0.0
+      ]
+    ],
+    "comprimento": 100.0,
+    "largura": 100.0,
+    "confidence": 0.03,
+    "source": "fallback-lajes_ground_truth.json",
+    "nota": "Sem dados geometricos — ID preservado"
+  },
+  "L32": {
+    "id": "L32",
+    "coordenadas": [
+      [
+        0.0,
+        0.0
+      ],
+      [
+        100.0,
+        0.0
+      ],
+      [
+        100.0,
+        100.0
+      ],
+      [
+        0.0,
+        100.0
+      ],
+      [
+        0.0,
+        0.0
+      ]
+    ],
+    "comprimento": 100.0,
+    "largura": 100.0,
+    "confidence": 0.03,
+    "source": "fallback-lajes_ground_truth.json",
+    "nota": "Sem dados geometricos — ID preservado"
+  },
+  "L32A": {
+    "id": "L32A",
+    "coordenadas": [
+      [
+        0.0,
+        0.0
+      ],
+      [
+        100.0,
+        0.0
+      ],
+      [
+        100.0,
+        100.0
+      ],
+      [
+        0.0,
+        100.0
+      ],
+      [
+        0.0,
+        0.0
+      ]
+    ],
+    "comprimento": 100.0,
+    "largura": 100.0,
+    "confidence": 0.03,
+    "source": "fallback-lajes_ground_truth.json",
+    "nota": "Sem dados geometricos — ID preservado"
+  },
+  "L33": {
+    "id": "L33",
+    "coordenadas": [
+      [
+        0.0,
+        0.0
+      ],
+      [
+        100.0,
+        0.0
+      ],
+      [
+        100.0,
+        100.0
+      ],
+      [
+        0.0,
+        100.0
+      ],
+      [
+        0.0,
+        0.0
+      ]
+    ],
+    "comprimento": 100.0,
+    "largura": 100.0,
+    "confidence": 0.03,
+    "source": "fallback-lajes_ground_truth.json",
+    "nota": "Sem dados geometricos — ID preservado"
+  },
+  "L33A": {
+    "id": "L33A",
+    "coordenadas": [
+      [
+        0.0,
+        0.0
+      ],
+      [
+        100.0,
+        0.0
+      ],
+      [
+        100.0,
+        100.0
+      ],
+      [
+        0.0,
+        100.0
+      ],
+      [
+        0.0,
+        0.0
+      ]
+    ],
+    "comprimento": 100.0,
+    "largura": 100.0,
+    "confidence": 0.03,
+    "source": "fallback-lajes_ground_truth.json",
+    "nota": "Sem dados geometricos — ID preservado"
+  },
+  "L34": {
+    "id": "L34",
+    "coordenadas": [
+      [
+        0.0,
+        0.0
+      ],
+      [
+        100.0,
+        0.0
+      ],
+      [
+        100.0,
+        100.0
+      ],
+      [
+        0.0,
+        100.0
+      ],
+      [
+        0.0,
+        0.0
+      ]
+    ],
+    "comprimento": 100.0,
+    "largura": 100.0,
+    "confidence": 0.03,
+    "source": "fallback-lajes_ground_truth.json",
+    "nota": "Sem dados geometricos — ID preservado"
+  },
+  "L35": {
+    "id": "L35",
+    "coordenadas": [
+      [
+        0.0,
+        0.0
+      ],
+      [
+        100.0,
+        0.0
+      ],
+      [
+        100.0,
+        100.0
+      ],
+      [
+        0.0,
+        100.0
+      ],
+      [
+        0.0,
+        0.0
+      ]
+    ],
+    "comprimento": 100.0,
+    "largura": 100.0,
+    "confidence": 0.03,
+    "source": "fallback-lajes_ground_truth.json",
+    "nota": "Sem dados geometricos — ID preservado"
+  },
+  "L35A": {
+    "id": "L35A",
+    "coordenadas": [
+      [
+        0.0,
+        0.0
+      ],
+      [
+        100.0,
+        0.0
+      ],
+      [
+        100.0,
+        100.0
+      ],
+      [
+        0.0,
+        100.0
+      ],
+      [
+        0.0,
+        0.0
+      ]
+    ],
+    "comprimento": 100.0,
+    "largura": 100.0,
+    "confidence": 0.03,
+    "source": "fallback-lajes_ground_truth.json",
+    "nota": "Sem dados geometricos — ID preservado"
+  },
+  "L36": {
+    "id": "L36",
+    "coordenadas": [
+      [
+        0.0,
+        0.0
+      ],
+      [
+        100.0,
+        0.0
+      ],
+      [
+        100.0,
+        100.0
+      ],
+      [
+        0.0,
+        100.0
+      ],
+      [
+        0.0,
+        0.0
+      ]
+    ],
+    "comprimento": 100.0,
+    "largura": 100.0,
+    "confidence": 0.03,
+    "source": "fallback-lajes_ground_truth.json",
+    "nota": "Sem dados geometricos — ID preservado"
+  },
+  "L37": {
+    "id": "L37",
+    "coordenadas": [
+      [
+        0.0,
+        0.0
+      ],
+      [
+        100.0,
+        0.0
+      ],
+      [
+        100.0,
+        100.0
+      ],
+      [
+        0.0,
+        100.0
+      ],
+      [
+        0.0,
+        0.0
+      ]
+    ],
+    "comprimento": 100.0,
+    "largura": 100.0,
+    "confidence": 0.03,
+    "source": "fallback-lajes_ground_truth.json",
+    "nota": "Sem dados geometricos — ID preservado"
+  }
+}

@@ -1,0 +1,100 @@
+{
+  "tipo": "vigas",
+  "score": 87.2,
+  "aprovado": true,
+  "limiar": 82.0,
+  "sub_tipos": {
+    "LV": {
+      "stog_dxf": "TOLEDO-IPEROIG-LO-6PV-TIP-DINF-LV-R00_R2018_ASCII_ODA.dxf",
+      "gerado_dxf": "LV_stog_quality.dxf",
+      "score": 86.2,
+      "detalhes": {
+        "id_match": {
+          "score": 30.0,
+          "max": 30,
+          "gt_count": 40,
+          "gerado_count": 40,
+          "id_match_rate": 1.0,
+          "hallucination_rate": 0.0,
+          "missed": [],
+          "hallucinated": []
+        },
+        "entity_coverage": {
+          "score": 32.6,
+          "max": 40,
+          "stog_total": 8251,
+          "gerado_total": 7638,
+          "global_ratio": 0.9257,
+          "critical_avg": 0.767
+        },
+        "layer_presence": {
+          "score": 13.6,
+          "max": 20,
+          "present": 19,
+          "missing": 9,
+          "required_layers": 28,
+          "missing_list": [
+            "Cota Sarrafo",
+            "Sarr 3.5x7",
+            "Demarcação 1",
+            "presilha",
+            "SARRAFO DE PRESSAO",
+            "barrote",
+            "SCO-___-LAJ",
+            "Demarcação 2",
+            "Laje_Perimetro"
+          ]
+        },
+        "anti_hallucination": {
+          "score": 10.0,
+          "max": 10
+        }
+      },
+      "scorer": "kb-blended",
+      "kb_file": "TOLEDO-IPEROIG-LO-6PV-TIP-DINF-LV-R00_R2018_ASCII_ODA.dxf",
+      "aprovado": true,
+      "limiar": 85.0
+    },
+    "FV": {
+      "stog_dxf": "TOLEDO-IPEROIG-LO-6PV-FV-R00_R2018_ASCII_ODA.dxf",
+      "gerado_dxf": "FV_stog_quality.dxf",
+      "score": 88.7,
+      "detalhes": {
+        "id_match": {
+          "score": 30.0,
+          "max": 30,
+          "gt_count": 35,
+          "gerado_count": 35,
+          "id_match_rate": 1.0,
+          "hallucination_rate": 0.0,
+          "missed": [],
+          "hallucinated": []
+        },
+        "entity_coverage": {
+          "score": 28.7,
+          "max": 40,
+          "stog_total": 4221,
+          "gerado_total": 3297,
+          "global_ratio": 0.7811,
+          "critical_avg": 0.6909
+        },
+        "layer_presence": {
+          "score": 20.0,
+          "max": 20,
+          "present": 9,
+          "missing": 0,
+          "required_layers": 9,
+          "missing_list": []
+        },
+        "anti_hallucination": {
+          "score": 10.0,
+          "max": 10
+        }
+      },
+      "scorer": "kb-blended",
+      "kb_file": "TOLEDO-IPEROIG-LO-6PV-FV-R00_R2018_ASCII_ODA.dxf",
+      "aprovado": true,
+      "limiar": 80.0
+    }
+  }
+}

@@ -1,0 +1,62 @@
+{
+  "number": "58",
+  "name": "V58_A",
+  "floor": "1 SUBOLO",
+  "side": "A",
+  "total_width": 32.5,
+  "total_height": "120.0",
+  "panels": [
+    {
+      "width": 120.0,
+      "height1": 120.0,
+      "height2": 120.0,
+      "grade_h1": "0",
+      "grade_h2": "0"
+    },
+    {
+      "width": 8.0,
+      "height1": 120.0,
+      "height2": 120.0,
+      "grade_h1": "0",
+      "grade_h2": "0"
+    }
+  ],
+  "holes": [
+    {
+      "active": false,
+      "width": 0.0,
+      "height": 0.0,
+      "position": 0.0
+    },
+    {
+      "active": false,
+      "width": 0.0,
+      "height": 0.0,
+      "position": 0.0
+    },
+    {
+      "active": false,
+      "width": 0.0,
+      "height": 0.0,
+      "position": 0.0
+    },
+    {
+      "active": false,
+      "width": 0.0,
+      "height": 0.0,
+      "position": 0.0
+    }
+  ],
+  "pillar_left": {
+    "active": false,
+    "width": 0.0,
+    "length": 0.0
+  },
+  "pillar_right": {
+    "active": false,
+    "width": 0.0,
+    "length": 0.0
+  },
+  "sarrafo_left_id": 0,
+  "sarrafo_right_id": 0
+}

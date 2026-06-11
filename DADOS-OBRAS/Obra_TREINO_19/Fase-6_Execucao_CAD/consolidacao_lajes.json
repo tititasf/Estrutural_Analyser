@@ -1,0 +1,13 @@
+{
+  "lajes_consolidadas": 25,
+  "total_dxf": 25,
+  "sem_ancora": [
+    "L26A",
+    "L26B",
+    "L32A",
+    "L33A",
+    "L35A"
+  ],
+  "output": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_19\\Fase-6_Execucao_CAD\\LJ_gerado.dxf",
+  "aprovado": true
+}

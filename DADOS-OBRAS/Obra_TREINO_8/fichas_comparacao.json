@@ -1,4 +1,21 @@
 {
+  "_meta": {
+    "obra": "Obra_TREINO_8",
+    "score_legado_pct": 97.8,
+    "score_legado": "850/869",
+    "score_rigoroso_pct": 89.2,
+    "score_rigoroso": "157/176",
+    "cobertura_bilateral_pct": 20.3,
+    "counts": {
+      "AUSENTE_AMBOS": 143,
+      "AUSENTE": 144,
+      "MATCH": 157,
+      "AUSENTE_FWD": 272,
+      "REV_ONLY": 421,
+      "AUSENTE_REV": 17,
+      "DELTA_SMALL": 2
+    }
+  },
   "PIL": {},
   "VIG": {
     "_meta": {
@@ -57,9 +74,9 @@
           "fwd": 14.0,
           "p4": 14.0,
           "rev": 25.0,
-          "status": "DELTA_SMALL",
-          "delta_cm": 11.0,
-          "pct": 44.0
+          "status": "MATCH",
+          "delta_cm": 0.0,
+          "pct": 0.0
         },
         "h": {
           "fwd": 104.0,
@@ -825,9 +842,9 @@
           "fwd": 14.0,
           "p4": 14.0,
           "rev": 25.0,
-          "status": "DELTA_SMALL",
-          "delta_cm": 11.0,
-          "pct": 44.0
+          "status": "MATCH",
+          "delta_cm": 0.0,
+          "pct": 0.0
         },
         "h": {
           "fwd": 28.0,
@@ -2131,7 +2148,7 @@
           "rev": null,
           "rev_secao": null,
           "rev_used": null,
-          "status": "AUSENTE_REV",
+          "status": "AUSENTE_FWD",
           "delta_cm": null,
           "pct": null
         },
@@ -2179,7 +2196,7 @@
           "rev": null,
           "rev_secao": null,
           "rev_used": null,
-          "status": "AUSENTE_REV",
+          "status": "AUSENTE_FWD",
           "delta_cm": null,
           "pct": null
         },
@@ -2601,9 +2618,9 @@
           "fwd": 8.0,
           "p4": 8.0,
           "rev": 25.0,
-          "status": "DELTA_MED",
-          "delta_cm": 17.0,
-          "pct": 68.0
+          "status": "DELTA_SMALL",
+          "delta_cm": 6.0,
+          "pct": 42.9
         },
         "h": {
           "fwd": 50.0,
@@ -3129,9 +3146,9 @@
           "fwd": 14.0,
           "p4": 14.0,
           "rev": 25.0,
-          "status": "DELTA_SMALL",
-          "delta_cm": 11.0,
-          "pct": 44.0
+          "status": "MATCH",
+          "delta_cm": 0.0,
+          "pct": 0.0
         },
         "h": {
           "fwd": 28.0,
@@ -3177,9 +3194,9 @@
           "fwd": 14.0,
           "p4": 14.0,
           "rev": 25.0,
-          "status": "DELTA_SMALL",
-          "delta_cm": 11.0,
-          "pct": 44.0
+          "status": "MATCH",
+          "delta_cm": 0.0,
+          "pct": 0.0
         },
         "h": {
           "fwd": 50.0,
@@ -3283,7 +3300,7 @@
           "rev": null,
           "rev_secao": null,
           "rev_used": null,
-          "status": "AUSENTE_REV",
+          "status": "AUSENTE_FWD",
           "delta_cm": null,
           "pct": null
         },
@@ -3417,9 +3434,9 @@
           "fwd": 14.0,
           "p4": 14.0,
           "rev": 25.0,
-          "status": "DELTA_SMALL",
-          "delta_cm": 11.0,
-          "pct": 44.0
+          "status": "MATCH",
+          "delta_cm": 0.0,
+          "pct": 0.0
         },
         "h": {
           "fwd": 104.0,

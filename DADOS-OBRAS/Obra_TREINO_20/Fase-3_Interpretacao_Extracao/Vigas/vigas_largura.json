@@ -1,0 +1,63 @@
+{
+  "V209": {
+    "id": "V209",
+    "largura_cm": 29.98,
+    "confidence": 0.3,
+    "source": "fv-dxf-global-median",
+    "note": "Sem label V{n}.C próximo — usando mediana global"
+  },
+  "V210": {
+    "id": "V210",
+    "largura_cm": 29.98,
+    "confidence": 0.3,
+    "source": "fv-dxf-global-median",
+    "note": "Sem label V{n}.C próximo — usando mediana global"
+  },
+  "V301": {
+    "id": "V301",
+    "largura_cm": 21.98,
+    "confidence": 0.85,
+    "source": "fv-dxf-proximity",
+    "dist": 215.1,
+    "label_pos": [
+      192182.4,
+      34078.6
+    ]
+  },
+  "V302": {
+    "id": "V302",
+    "largura_cm": 21.98,
+    "confidence": 0.85,
+    "source": "fv-dxf-proximity",
+    "dist": 90.3,
+    "label_pos": [
+      192479.0,
+      34078.6
+    ]
+  },
+  "V303": {
+    "id": "V303",
+    "largura_cm": 13.98,
+    "confidence": 0.85,
+    "source": "fv-dxf-proximity",
+    "dist": 78.9,
+    "label_pos": [
+      192768.5,
+      34078.6
+    ]
+  },
+  "V304": {
+    "id": "V304",
+    "largura_cm": 29.98,
+    "confidence": 0.3,
+    "source": "fv-dxf-global-median",
+    "note": "Sem label V{n}.C próximo — usando mediana global"
+  },
+  "V305": {
+    "id": "V305",
+    "largura_cm": 29.98,
+    "confidence": 0.3,
+    "source": "fv-dxf-global-median",
+    "note": "Sem label V{n}.C próximo — usando mediana global"
+  }
+}

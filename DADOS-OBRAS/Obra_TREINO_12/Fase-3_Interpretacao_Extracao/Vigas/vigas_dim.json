@@ -1,0 +1,6101 @@
+{
+  "V1": {
+    "id": "V1",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 50.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 201.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 1881.55,
+    "cy": 1144.19
+  },
+  "V2": {
+    "id": "V2",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 50.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 50.0,
+    "comprimento_conf": 0.85,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.88,
+    "cx": 2317.33,
+    "cy": 1118.97
+  },
+  "V3": {
+    "id": "V3",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 50.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 145.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 1071.33,
+    "cy": 2060.92
+  },
+  "V4": {
+    "id": "V4",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 132.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 138.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 1572.85,
+    "cy": 1142.7
+  },
+  "V5": {
+    "id": "V5",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 70.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 152.6,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 2435.45,
+    "cy": 1661.8
+  },
+  "V6": {
+    "id": "V6",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 84.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 190.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 1765.5,
+    "cy": 950.55
+  },
+  "V7": {
+    "id": "V7",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 188.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 152.4,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 579.96,
+    "cy": 1526.79
+  },
+  "V8": {
+    "id": "V8",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 147.0,
+    "altura_conf": 0.95,
+    "comprimento_cm": 76.6,
+    "comprimento_conf": 0.85,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.9,
+    "cx": 821.63,
+    "cy": 851.41
+  },
+  "V9": {
+    "id": "V9",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 128.0,
+    "altura_conf": 0.95,
+    "comprimento_cm": 90.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.88,
+    "cx": 2584.78,
+    "cy": 1512.08
+  },
+  "V10": {
+    "id": "V10",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 63.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 158.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 1764.16,
+    "cy": 757.22
+  },
+  "V11": {
+    "id": "V11",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 188.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 110.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 659.68,
+    "cy": 1387.48
+  },
+  "V12": {
+    "id": "V12",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 188.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 85.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 1945.09,
+    "cy": 913.41
+  },
+  "V13": {
+    "id": "V13",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 128.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 67.3,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 1160.32,
+    "cy": 1354.37
+  },
+  "V14": {
+    "id": "V14",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 128.0,
+    "altura_conf": 0.95,
+    "comprimento_cm": 55.0,
+    "comprimento_conf": 0.85,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.9,
+    "cx": 289.24,
+    "cy": 852.57
+  },
+  "V15": {
+    "id": "V15",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 80.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 56.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 1152.25,
+    "cy": 1401.17
+  },
+  "V16": {
+    "id": "V16",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 73.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 60.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 85.37,
+    "cy": 1732.63
+  },
+  "V17": {
+    "id": "V17",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 73.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 120.0,
+    "comprimento_conf": 0.85,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.88,
+    "cx": 1593.5,
+    "cy": 831.41
+  },
+  "V18": {
+    "id": "V18",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 73.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 52.5,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 608.25,
+    "cy": 1251.8
+  },
+  "V19": {
+    "id": "V19",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 85.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 71.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 420.99,
+    "cy": 1850.0
+  },
+  "V20": {
+    "id": "V20",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 50.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 52.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 2875.25,
+    "cy": 1131.78
+  },
+  "V21": {
+    "id": "V21",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 85.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 108.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 2559.22,
+    "cy": 541.28
+  },
+  "V22": {
+    "id": "V22",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 50.0,
+    "altura_conf": 0.7,
+    "comprimento_cm": 60.0,
+    "comprimento_conf": 0.85,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.78,
+    "cx": 2087.66,
+    "cy": -194.37
+  },
+  "V23": {
+    "id": "V23",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 128.0,
+    "altura_conf": 0.7,
+    "comprimento_cm": 66.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.76,
+    "cx": 2478.76,
+    "cy": -5.56
+  },
+  "V24": {
+    "id": "V24",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 85.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 121.5,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 965.77,
+    "cy": 1004.55
+  },
+  "V25": {
+    "id": "V25",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 63.0,
+    "altura_conf": 0.95,
+    "comprimento_cm": 105.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.88,
+    "cx": 2464.75,
+    "cy": 979.68
+  },
+  "V26": {
+    "id": "V26",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 50.0,
+    "altura_conf": 0.95,
+    "comprimento_cm": 196.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.88,
+    "cx": 1711.67,
+    "cy": 950.16
+  },
+  "V27": {
+    "id": "V27",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 63.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 191.5,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 1318.6,
+    "cy": 445.09
+  },
+  "V28": {
+    "id": "V28",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 63.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 135.5,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 2762.86,
+    "cy": 112.39
+  },
+  "V29": {
+    "id": "V29",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 63.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 50.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 485.02,
+    "cy": 1337.5
+  },
+  "V30": {
+    "id": "V30",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 63.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 139.5,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 2465.57,
+    "cy": 548.1
+  },
+  "V31": {
+    "id": "V31",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 218.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 120.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 2762.47,
+    "cy": 508.57
+  },
+  "V32": {
+    "id": "V32",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 115.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 190.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 1171.99,
+    "cy": 1242.0
+  },
+  "V33": {
+    "id": "V33",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 115.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 190.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 2882.98,
+    "cy": 1234.5
+  },
+  "V34": {
+    "id": "V34",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 27.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 190.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 935.48,
+    "cy": 1141.5
+  },
+  "V35": {
+    "id": "V35",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 63.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 229.0,
+    "comprimento_conf": 0.85,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.88,
+    "cx": 1272.99,
+    "cy": 1122.5
+  },
+  "V36": {
+    "id": "V36",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 115.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 190.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 2523.48,
+    "cy": 1107.47
+  },
+  "V37": {
+    "id": "V37",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 50.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 210.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 2987.48,
+    "cy": 1096.5
+  },
+  "V38": {
+    "id": "V38",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 85.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 108.0,
+    "comprimento_conf": 0.72,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.81,
+    "cx": 445.99,
+    "cy": 1051.5
+  },
+  "V39": {
+    "id": "V39",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 63.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 142.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 3449.48,
+    "cy": 1044.0
+  },
+  "V40": {
+    "id": "V40",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 85.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 264.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 1681.49,
+    "cy": 957.5
+  },
+  "V41": {
+    "id": "V41",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 50.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 121.5,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 2519.56,
+    "cy": 320.9
+  },
+  "V42": {
+    "id": "V42",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 50.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 142.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 3381.98,
+    "cy": 940.98
+  },
+  "V43": {
+    "id": "V43",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 85.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 274.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 1039.98,
+    "cy": 916.5
+  },
+  "V44": {
+    "id": "V44",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 85.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 55.9,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 2698.23,
+    "cy": 909.0
+  },
+  "V45": {
+    "id": "V45",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 85.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 50.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 396.62,
+    "cy": 1195.63
+  },
+  "V46": {
+    "id": "V46",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 85.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 108.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 421.62,
+    "cy": 1017.63
+  },
+  "V47": {
+    "id": "V47",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 63.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 108.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 683.62,
+    "cy": 989.63
+  },
+  "V48": {
+    "id": "V48",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 85.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 287.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 916.62,
+    "cy": 1052.13
+  },
+  "V49": {
+    "id": "V49",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 193.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 83.4,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 1088.96,
+    "cy": 1545.33
+  },
+  "V50": {
+    "id": "V50",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 85.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 123.3,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 1088.96,
+    "cy": 2037.28
+  },
+  "V51": {
+    "id": "V51",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 85.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 152.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 1303.98,
+    "cy": 183.25
+  },
+  "V52": {
+    "id": "V52",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 63.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 130.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 1160.12,
+    "cy": 1862.74
+  },
+  "V53": {
+    "id": "V53",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 85.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 197.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 1257.62,
+    "cy": 847.13
+  },
+  "V54": {
+    "id": "V54",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 63.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 150.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 1326.11,
+    "cy": 963.13
+  },
+  "V55": {
+    "id": "V55",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 73.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 204.4,
+    "comprimento_conf": 0.85,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.88,
+    "cx": 1342.62,
+    "cy": 1473.13
+  },
+  "V56": {
+    "id": "V56",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 188.0,
+    "altura_conf": 0.95,
+    "comprimento_cm": 110.0,
+    "comprimento_conf": 0.85,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.9,
+    "cx": 1388.57,
+    "cy": 1642.31
+  },
+  "V57": {
+    "id": "V57",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 155.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 96.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 1404.86,
+    "cy": 1775.99
+  },
+  "V58": {
+    "id": "V58",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 73.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 120.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 1419.12,
+    "cy": 1487.33
+  },
+  "V59": {
+    "id": "V59",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 188.0,
+    "altura_conf": 0.95,
+    "comprimento_cm": 110.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.88,
+    "cx": 1452.81,
+    "cy": 1623.61
+  },
+  "V60": {
+    "id": "V60",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 73.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 204.4,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 1704.62,
+    "cy": 1385.63
+  },
+  "V61": {
+    "id": "V61",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 85.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 183.5,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 1761.12,
+    "cy": 808.63
+  },
+  "V62": {
+    "id": "V62",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 73.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 58.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 1869.12,
+    "cy": 1427.33
+  },
+  "V63": {
+    "id": "V63",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 85.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 100.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 2060.61,
+    "cy": 816.13
+  },
+  "V64": {
+    "id": "V64",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 73.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 52.5,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 771.17,
+    "cy": 478.15
+  },
+  "V65": {
+    "id": "V65",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 188.0,
+    "altura_conf": 0.95,
+    "comprimento_cm": 58.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.88,
+    "cx": 840.33,
+    "cy": 589.08
+  },
+  "V66": {
+    "id": "V66",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 188.0,
+    "altura_conf": 0.95,
+    "comprimento_cm": 58.0,
+    "comprimento_conf": 0.85,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.9,
+    "cx": 924.15,
+    "cy": 584.77
+  },
+  "V67": {
+    "id": "V67",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 73.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 58.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 945.93,
+    "cy": 489.99
+  },
+  "V68": {
+    "id": "V68",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 85.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 62.0,
+    "comprimento_conf": 0.85,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.88,
+    "cx": 2360.11,
+    "cy": 728.63
+  },
+  "V69": {
+    "id": "V69",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 73.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 99.5,
+    "comprimento_conf": 0.85,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.88,
+    "cx": 1060.09,
+    "cy": -10.2
+  },
+  "V70": {
+    "id": "V70",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 147.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 156.2,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 2595.86,
+    "cy": 1515.87
+  },
+  "V71": {
+    "id": "V71",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 93.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 439.5,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 1441.84,
+    "cy": -38.2
+  },
+  "V72": {
+    "id": "V72",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 63.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 179.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 2798.1,
+    "cy": 693.09
+  },
+  "V73": {
+    "id": "V73",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 128.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 113.2,
+    "comprimento_conf": 0.85,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.88,
+    "cx": 2800.05,
+    "cy": 1465.87
+  },
+  "V74": {
+    "id": "V74",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 85.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 125.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 2866.6,
+    "cy": 554.63
+  },
+  "V75": {
+    "id": "V75",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 73.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 139.2,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 2885.86,
+    "cy": 1448.37
+  },
+  "V76": {
+    "id": "V76",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 85.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 116.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 2716.0,
+    "cy": -194.73
+  },
+  "V77": {
+    "id": "V77",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 73.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 139.2,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 3044.81,
+    "cy": 1425.87
+  },
+  "V78": {
+    "id": "V78",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 117.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 312.7,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 2487.33,
+    "cy": -84.33
+  },
+  "V79": {
+    "id": "V79",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 63.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 190.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 2603.07,
+    "cy": 101.65
+  },
+  "V80": {
+    "id": "V80",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 85.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 85.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 2071.0,
+    "cy": -92.95
+  },
+  "V81": {
+    "id": "V81",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 63.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 312.7,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 3345.61,
+    "cy": 343.8
+  },
+  "V82": {
+    "id": "V82",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 68.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 261.5,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 3035.93,
+    "cy": 416.32
+  },
+  "V83": {
+    "id": "V83",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 63.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 301.6,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 3430.61,
+    "cy": 306.3
+  },
+  "V84": {
+    "id": "V84",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 50.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 186.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 3435.1,
+    "cy": 722.63
+  },
+  "V85": {
+    "id": "V85",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 47.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 263.4,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 2895.51,
+    "cy": 37.09
+  },
+  "V86": {
+    "id": "V86",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 84.0,
+    "altura_conf": 0.95,
+    "comprimento_cm": 142.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.88,
+    "cx": 3538.75,
+    "cy": 1365.28
+  },
+  "V87": {
+    "id": "V87",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 246.0,
+    "altura_conf": 0.95,
+    "comprimento_cm": 104.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.88,
+    "cx": 3641.12,
+    "cy": 670.13
+  },
+  "V88": {
+    "id": "V88",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 128.0,
+    "altura_conf": 0.95,
+    "comprimento_cm": 63.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.88,
+    "cx": 3702.6,
+    "cy": 238.8
+  },
+  "V89": {
+    "id": "V89",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 50.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 50.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 3154.88,
+    "cy": -264.25
+  },
+  "VA1": {
+    "id": "VA1",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 85.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 143.5,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": -1978.24,
+    "cy": 2362.49
+  },
+  "VA2": {
+    "id": "VA2",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 85.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 65.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": -1461.24,
+    "cy": 2387.3
+  },
+  "VA3": {
+    "id": "VA3",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 85.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 65.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": -751.24,
+    "cy": 2387.3
+  },
+  "VA4": {
+    "id": "VA4",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 85.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 65.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": -41.24,
+    "cy": 2379.32
+  },
+  "VA5": {
+    "id": "VA5",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 50.0,
+    "altura_conf": 0.7,
+    "comprimento_cm": 65.0,
+    "comprimento_conf": 0.85,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.78,
+    "cx": 3401.77,
+    "cy": 172.61
+  },
+  "VA6": {
+    "id": "VA6",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 85.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 65.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 2973.83,
+    "cy": 1047.68
+  },
+  "VA7": {
+    "id": "VA7",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 85.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 65.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 1631.75,
+    "cy": 2294.49
+  },
+  "VA8": {
+    "id": "VA8",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 110.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 60.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 2544.98,
+    "cy": 2144.94
+  },
+  "VA9": {
+    "id": "VA9",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 85.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 60.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 3292.27,
+    "cy": 2054.87
+  },
+  "VC1": {
+    "id": "VC1",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 50.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 860.8,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": -507.86,
+    "cy": 270.15
+  },
+  "VC2": {
+    "id": "VC2",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 50.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 599.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 1645.48,
+    "cy": 265.15
+  },
+  "VC3": {
+    "id": "VC3",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 50.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 304.7,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 2629.67,
+    "cy": 379.74
+  },
+  "VE1": {
+    "id": "VE1",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 40.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 121.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 326.48,
+    "cy": 319.25
+  },
+  "VE2": {
+    "id": "VE2",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 40.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 121.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 1291.34,
+    "cy": 305.98
+  },
+  "VE3": {
+    "id": "VE3",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 40.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 121.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 409.48,
+    "cy": -74.09
+  },
+  "VE4": {
+    "id": "VE4",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 40.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 121.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 1496.48,
+    "cy": 1177.75
+  },
+  "VE5": {
+    "id": "VE5",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 81.0,
+    "altura_conf": 0.95,
+    "comprimento_cm": 121.5,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.88,
+    "cx": -268.26,
+    "cy": 371.21
+  },
+  "VE6": {
+    "id": "VE6",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 40.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 121.5,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 1496.48,
+    "cy": 1157.37
+  },
+  "VP1": {
+    "id": "VP1",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 53.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 60.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 1352.08,
+    "cy": 1527.14
+  },
+  "VP2": {
+    "id": "VP2",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 53.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 64.0,
+    "comprimento_conf": 0.85,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.88,
+    "cx": 1407.73,
+    "cy": 1480.2
+  },
+  "VP3": {
+    "id": "VP3",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 53.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 50.0,
+    "comprimento_conf": 0.85,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.88,
+    "cx": 1784.18,
+    "cy": 908.16
+  },
+  "VP4": {
+    "id": "VP4",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 53.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 50.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 1698.5,
+    "cy": 1462.7
+  },
+  "VP5": {
+    "id": "VP5",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 80.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 50.0,
+    "comprimento_conf": 0.85,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.88,
+    "cx": 1843.89,
+    "cy": 1445.2
+  },
+  "VP6": {
+    "id": "VP6",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 53.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 50.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 1989.28,
+    "cy": 1437.7
+  },
+  "VP7": {
+    "id": "VP7",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 53.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 50.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 2137.91,
+    "cy": 1430.2
+  },
+  "VP8": {
+    "id": "VP8",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 80.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 50.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 2286.04,
+    "cy": 1422.7
+  },
+  "VP9": {
+    "id": "VP9",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 53.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 50.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 2433.93,
+    "cy": 1415.2
+  },
+  "VR1": {
+    "id": "VR1",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 50.0,
+    "altura_conf": 0.7,
+    "comprimento_cm": 65.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.76,
+    "cx": 3500.61,
+    "cy": 197.63
+  },
+  "VR2": {
+    "id": "VR2",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 40.0,
+    "altura_conf": 0.7,
+    "comprimento_cm": 441.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.76,
+    "cx": 3771.89,
+    "cy": 731.35
+  },
+  "VR3": {
+    "id": "VR3",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 40.0,
+    "altura_conf": 0.7,
+    "comprimento_cm": 140.5,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.76,
+    "cx": 4202.39,
+    "cy": 771.55
+  },
+  "VR4": {
+    "id": "VR4",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 60.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 60.0,
+    "comprimento_conf": 0.85,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.88,
+    "cx": 2760.23,
+    "cy": 981.14
+  },
+  "VR5": {
+    "id": "VR5",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 76.0,
+    "altura_conf": 0.95,
+    "comprimento_cm": 305.5,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.88,
+    "cx": 2156.59,
+    "cy": 1388.79
+  },
+  "V101": {
+    "id": "V101",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 186.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 53.0,
+    "comprimento_conf": 0.85,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.88,
+    "cx": 2582.54,
+    "cy": 2020.65
+  },
+  "V102": {
+    "id": "V102",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 53.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 260.5,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 1977.13,
+    "cy": 2455.49
+  },
+  "V103": {
+    "id": "V103",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 186.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 169.5,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 3215.47,
+    "cy": 1956.24
+  },
+  "V104": {
+    "id": "V104",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 63.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 157.5,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 2252.91,
+    "cy": 2318.28
+  },
+  "V105": {
+    "id": "V105",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 186.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 163.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 1238.9,
+    "cy": 1546.14
+  },
+  "V106": {
+    "id": "V106",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 53.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 153.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 2312.41,
+    "cy": 2130.13
+  },
+  "V107": {
+    "id": "V107",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 201.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 157.5,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 1092.09,
+    "cy": 2076.9
+  },
+  "V108": {
+    "id": "V108",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 150.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 69.0,
+    "comprimento_conf": 0.85,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.88,
+    "cx": 2094.26,
+    "cy": 2050.4
+  },
+  "V109": {
+    "id": "V109",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 110.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 121.0,
+    "comprimento_conf": 0.85,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.88,
+    "cx": 2883.07,
+    "cy": 1742.29
+  },
+  "V110": {
+    "id": "V110",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 63.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 158.5,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 1155.49,
+    "cy": 1930.0
+  },
+  "V111": {
+    "id": "V111",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 90.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 50.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 2453.19,
+    "cy": 1560.01
+  },
+  "V112": {
+    "id": "V112",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 63.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 50.0,
+    "comprimento_conf": 0.85,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.88,
+    "cx": 2587.24,
+    "cy": 676.55
+  },
+  "V113": {
+    "id": "V113",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 204.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 121.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 1719.24,
+    "cy": 1787.24
+  },
+  "V114": {
+    "id": "V114",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 63.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 105.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 1094.77,
+    "cy": 1731.5
+  },
+  "V115": {
+    "id": "V115",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 63.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 105.0,
+    "comprimento_conf": 0.85,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.88,
+    "cx": 1252.39,
+    "cy": 943.05
+  },
+  "V116": {
+    "id": "V116",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 63.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 135.5,
+    "comprimento_conf": 0.85,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.88,
+    "cx": 2868.35,
+    "cy": 607.29
+  },
+  "V117": {
+    "id": "V117",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 63.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 128.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 3591.64,
+    "cy": 452.08
+  },
+  "V118": {
+    "id": "V118",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 63.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 190.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 851.0,
+    "cy": 1473.5
+  },
+  "V119": {
+    "id": "V119",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 140.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 203.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 2976.73,
+    "cy": 1468.75
+  },
+  "V120": {
+    "id": "V120",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 63.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 200.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 1670.99,
+    "cy": 1385.37
+  },
+  "V121": {
+    "id": "V121",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 63.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 118.0,
+    "comprimento_conf": 0.85,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.88,
+    "cx": 1902.48,
+    "cy": 1368.0
+  },
+  "V122": {
+    "id": "V122",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 63.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 99.5,
+    "comprimento_conf": 0.85,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.88,
+    "cx": 1127.99,
+    "cy": 1312.0
+  },
+  "V123": {
+    "id": "V123",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 63.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 172.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 2048.73,
+    "cy": 1298.74
+  },
+  "V124": {
+    "id": "V124",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 63.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 229.0,
+    "comprimento_conf": 0.85,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.88,
+    "cx": 2771.23,
+    "cy": 1289.49
+  },
+  "V125": {
+    "id": "V125",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 63.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 50.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 1798.99,
+    "cy": 1265.25
+  },
+  "V126": {
+    "id": "V126",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 63.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 118.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 2377.99,
+    "cy": 1248.0
+  },
+  "V127": {
+    "id": "V127",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 63.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 118.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 2254.73,
+    "cy": 1201.0
+  },
+  "V128": {
+    "id": "V128",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 50.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 135.5,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 1715.68,
+    "cy": 675.94
+  },
+  "V129": {
+    "id": "V129",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 63.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 151.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 3552.59,
+    "cy": 1161.12
+  },
+  "V130": {
+    "id": "V130",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 63.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 191.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 1362.98,
+    "cy": 1117.0
+  },
+  "V131": {
+    "id": "V131",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 63.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 274.0,
+    "comprimento_conf": 0.85,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.88,
+    "cx": 1882.73,
+    "cy": 1101.75
+  },
+  "V132": {
+    "id": "V132",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 63.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 50.0,
+    "comprimento_conf": 0.85,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.88,
+    "cx": 1561.8,
+    "cy": 1236.06
+  },
+  "V133": {
+    "id": "V133",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 63.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 255.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 1868.59,
+    "cy": 1068.4
+  },
+  "V134": {
+    "id": "V134",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 186.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 50.0,
+    "comprimento_conf": 0.85,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.88,
+    "cx": 671.62,
+    "cy": 1307.63
+  },
+  "V135": {
+    "id": "V135",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 135.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 74.7,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 770.29,
+    "cy": 1479.46
+  },
+  "V136": {
+    "id": "V136",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 50.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 60.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 933.37,
+    "cy": 1347.5
+  },
+  "V137": {
+    "id": "V137",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 63.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 78.0,
+    "comprimento_conf": 0.85,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.88,
+    "cx": 1192.3,
+    "cy": 662.3
+  },
+  "V138": {
+    "id": "V138",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 63.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 125.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 2271.22,
+    "cy": 790.75
+  },
+  "V139": {
+    "id": "V139",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 63.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 116.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 1254.62,
+    "cy": 1210.38
+  },
+  "V140": {
+    "id": "V140",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 63.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 101.0,
+    "comprimento_conf": 0.85,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.88,
+    "cx": 1352.87,
+    "cy": 1358.88
+  },
+  "V141": {
+    "id": "V141",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 63.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 122.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 1747.87,
+    "cy": 1392.13
+  },
+  "V142": {
+    "id": "V142",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 63.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 60.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 1925.86,
+    "cy": 1094.88
+  },
+  "V143": {
+    "id": "V143",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 250.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 100.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 2221.36,
+    "cy": 1097.38
+  },
+  "V144": {
+    "id": "V144",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 63.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 71.0,
+    "comprimento_conf": 0.85,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.88,
+    "cx": 2443.86,
+    "cy": 1313.88
+  },
+  "V145": {
+    "id": "V145",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 53.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 98.3,
+    "comprimento_conf": 0.85,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.88,
+    "cx": 3154.19,
+    "cy": 1220.75
+  },
+  "V146": {
+    "id": "V146",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 263.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 107.5,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 3096.88,
+    "cy": 1049.44
+  },
+  "V147": {
+    "id": "V147",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 140.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 58.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 3361.34,
+    "cy": 753.02
+  },
+  "V148": {
+    "id": "V148",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 161.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 120.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 3357.36,
+    "cy": 1325.39
+  },
+  "V149": {
+    "id": "V149",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 160.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 60.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 3404.48,
+    "cy": 1169.48
+  },
+  "V150": {
+    "id": "V150",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 53.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 90.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 2986.46,
+    "cy": 1412.04
+  },
+  "V151": {
+    "id": "V151",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 63.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 67.2,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 3052.1,
+    "cy": 783.05
+  },
+  "V152": {
+    "id": "V152",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 73.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 99.5,
+    "comprimento_conf": 0.85,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.88,
+    "cx": 3043.42,
+    "cy": 573.72
+  },
+  "V153": {
+    "id": "V153",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 81.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 73.2,
+    "comprimento_conf": 0.85,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.88,
+    "cx": 4111.03,
+    "cy": 982.12
+  },
+  "V154": {
+    "id": "V154",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 63.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 50.0,
+    "comprimento_conf": 0.85,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.88,
+    "cx": 2876.43,
+    "cy": 637.01
+  },
+  "V155": {
+    "id": "V155",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 63.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 239.5,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 2939.23,
+    "cy": 882.2
+  },
+  "V156": {
+    "id": "V156",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 40.0,
+    "altura_conf": 0.7,
+    "comprimento_cm": 50.0,
+    "comprimento_conf": 0.85,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.78,
+    "cx": 3804.39,
+    "cy": 776.21
+  },
+  "V157": {
+    "id": "V157",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 105.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 50.0,
+    "comprimento_conf": 0.85,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.88,
+    "cx": 3934.49,
+    "cy": 383.83
+  },
+  "V158": {
+    "id": "V158",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 125.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 128.0,
+    "comprimento_conf": 0.85,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.88,
+    "cx": 3717.7,
+    "cy": 894.05
+  },
+  "V159": {
+    "id": "V159",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 50.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 301.6,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 3430.61,
+    "cy": 648.8
+  },
+  "V160": {
+    "id": "V160",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 87.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 87.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 3764.7,
+    "cy": 1001.07
+  },
+  "V161": {
+    "id": "V161",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 125.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 128.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 3508.6,
+    "cy": 1045.13
+  },
+  "V162": {
+    "id": "V162",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 40.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 69.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 3549.66,
+    "cy": 202.3
+  },
+  "V163": {
+    "id": "V163",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 269.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 115.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 3582.11,
+    "cy": 1403.13
+  },
+  "V164": {
+    "id": "V164",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 50.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 179.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 3697.1,
+    "cy": 598.8
+  },
+  "V165": {
+    "id": "V165",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 125.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 206.4,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 1297.07,
+    "cy": 1336.72
+  },
+  "V166": {
+    "id": "V166",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 255.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 224.8,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 1434.34,
+    "cy": 1643.6
+  },
+  "V167": {
+    "id": "V167",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 163.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 78.5,
+    "comprimento_conf": 0.85,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.88,
+    "cx": 2484.78,
+    "cy": 470.23
+  },
+  "V201": {
+    "id": "V201",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 63.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 90.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": -3042.99,
+    "cy": 620.32
+  },
+  "V202": {
+    "id": "V202",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 63.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 84.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 1008.32,
+    "cy": 614.07
+  },
+  "V203": {
+    "id": "V203",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 78.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 63.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": -2547.57,
+    "cy": 581.16
+  },
+  "V204": {
+    "id": "V204",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 78.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 85.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 565.66,
+    "cy": 574.91
+  },
+  "V205": {
+    "id": "V205",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 63.0,
+    "altura_conf": 0.8,
+    "comprimento_cm": 121.0,
+    "comprimento_conf": 0.85,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.83,
+    "cx": -298.0,
+    "cy": -252.59
+  },
+  "V206": {
+    "id": "V206",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 63.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 121.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": -1803.66,
+    "cy": 469.08
+  },
+  "V207": {
+    "id": "V207",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 78.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 63.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": -337.67,
+    "cy": 456.58
+  },
+  "V208": {
+    "id": "V208",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 63.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 121.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 389.66,
+    "cy": 444.08
+  },
+  "V209": {
+    "id": "V209",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 63.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 645.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": -2525.57,
+    "cy": 314.49
+  },
+  "V210": {
+    "id": "V210",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 63.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 121.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": -1770.33,
+    "cy": 321.58
+  },
+  "V211": {
+    "id": "V211",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 63.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 85.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 49.67,
+    "cy": 315.33
+  },
+  "V212": {
+    "id": "V212",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 63.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 125.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 622.33,
+    "cy": 295.74
+  },
+  "V213": {
+    "id": "V213",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 10.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 477.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": -1538.42,
+    "cy": 210.16
+  },
+  "V214": {
+    "id": "V214",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 63.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 171.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": -421.63,
+    "cy": -44.87
+  },
+  "V215": {
+    "id": "V215",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 63.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 327.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 1410.1,
+    "cy": -231.28
+  },
+  "V216": {
+    "id": "V216",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 63.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 90.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": -2956.33,
+    "cy": -26.59
+  },
+  "V217": {
+    "id": "V217",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 53.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 131.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 792.32,
+    "cy": -32.84
+  },
+  "V218": {
+    "id": "V218",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 37.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 190.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": -2034.33,
+    "cy": -129.09
+  },
+  "V219": {
+    "id": "V219",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 63.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 118.0,
+    "comprimento_conf": 0.85,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.88,
+    "cx": 158.99,
+    "cy": -131.59
+  },
+  "V220": {
+    "id": "V220",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 37.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 204.5,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": -2351.11,
+    "cy": -268.1
+  },
+  "V221": {
+    "id": "V221",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 37.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 190.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": -1551.67,
+    "cy": -279.67
+  },
+  "V222": {
+    "id": "V222",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 37.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 78.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": -232.34,
+    "cy": -285.97
+  },
+  "V223": {
+    "id": "V223",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 37.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 50.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 567.66,
+    "cy": -286.84
+  },
+  "V224": {
+    "id": "V224",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 63.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 118.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": -1894.99,
+    "cy": -319.09
+  },
+  "V225": {
+    "id": "V225",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 63.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 128.0,
+    "comprimento_conf": 0.85,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.88,
+    "cx": 175.67,
+    "cy": -325.34
+  },
+  "V226": {
+    "id": "V226",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 63.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 315.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": -3009.66,
+    "cy": -345.59
+  },
+  "V227": {
+    "id": "V227",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 73.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 154.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 852.33,
+    "cy": -351.84
+  },
+  "V228": {
+    "id": "V228",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 63.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 191.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": -1389.0,
+    "cy": -463.42
+  },
+  "V229": {
+    "id": "V229",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 78.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 147.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": -2209.01,
+    "cy": -494.34
+  },
+  "V230": {
+    "id": "V230",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 78.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 149.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": -11.0,
+    "cy": -500.59
+  },
+  "V231": {
+    "id": "V231",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 63.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 90.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": -3068.16,
+    "cy": -61.34
+  },
+  "V232": {
+    "id": "V232",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 63.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 315.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": -3007.16,
+    "cy": -331.59
+  },
+  "V233": {
+    "id": "V233",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 63.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 175.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": -2650.66,
+    "cy": 229.49
+  },
+  "V234": {
+    "id": "V234",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 63.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 204.5,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": -2374.83,
+    "cy": -314.76
+  },
+  "V235": {
+    "id": "V235",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 63.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 125.0,
+    "comprimento_conf": 0.85,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.88,
+    "cx": -2244.83,
+    "cy": 146.99
+  },
+  "V236": {
+    "id": "V236",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 63.0,
+    "altura_conf": 0.8,
+    "comprimento_cm": 152.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.81,
+    "cx": 268.24,
+    "cy": -598.59
+  },
+  "V237": {
+    "id": "V237",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 78.0,
+    "altura_conf": 0.95,
+    "comprimento_cm": 61.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.88,
+    "cx": -1828.83,
+    "cy": -543.28
+  },
+  "V238": {
+    "id": "V238",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 10.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 105.0,
+    "comprimento_conf": 0.85,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.88,
+    "cx": -1635.34,
+    "cy": 55.57
+  },
+  "V239": {
+    "id": "V239",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 78.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 109.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": -1332.16,
+    "cy": 83.32
+  },
+  "V240": {
+    "id": "V240",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 63.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 78.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": -1246.83,
+    "cy": -446.97
+  },
+  "V241": {
+    "id": "V241",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 63.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 61.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": -847.5,
+    "cy": -449.84
+  },
+  "V242": {
+    "id": "V242",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 63.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 78.0,
+    "comprimento_conf": 0.85,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.88,
+    "cx": -448.16,
+    "cy": -456.14
+  },
+  "V243": {
+    "id": "V243",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 78.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 188.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": -362.84,
+    "cy": 64.99
+  },
+  "V244": {
+    "id": "V244",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 63.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 105.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": -32.17,
+    "cy": 18.07
+  },
+  "V245": {
+    "id": "V245",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 78.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 61.0,
+    "comprimento_conf": 0.85,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.88,
+    "cx": 133.82,
+    "cy": -586.84
+  },
+  "V246": {
+    "id": "V246",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 63.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 152.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 1495.99,
+    "cy": -462.34
+  },
+  "V247": {
+    "id": "V247",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 63.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 125.0,
+    "comprimento_conf": 0.85,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.88,
+    "cx": 568.32,
+    "cy": 71.99
+  },
+  "V248": {
+    "id": "V248",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 63.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 204.5,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 679.82,
+    "cy": -435.59
+  },
+  "V249": {
+    "id": "V249",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 10.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 175.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 983.16,
+    "cy": 126.16
+  },
+  "V250": {
+    "id": "V250",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 63.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 315.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 1339.82,
+    "cy": -634.31
+  },
+  "V251": {
+    "id": "V251",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 63.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 50.0,
+    "comprimento_conf": 0.85,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.88,
+    "cx": 1373.16,
+    "cy": -181.34
+  },
+  "V252": {
+    "id": "V252",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 63.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 325.7,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": -98.6,
+    "cy": -1092.71
+  },
+  "V253": {
+    "id": "V253",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 63.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 325.7,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": -69.76,
+    "cy": -1109.22
+  },
+  "V301": {
+    "id": "V301",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 63.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 71.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": -3306.49,
+    "cy": 1357.75
+  },
+  "V302": {
+    "id": "V302",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 63.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 84.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 2770.48,
+    "cy": 1357.75
+  },
+  "V303": {
+    "id": "V303",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 78.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 63.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": -2603.36,
+    "cy": 1317.75
+  },
+  "V304": {
+    "id": "V304",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 78.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 85.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 2106.48,
+    "cy": 1317.75
+  },
+  "V305": {
+    "id": "V305",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 17.0,
+    "altura_conf": 0.55,
+    "comprimento_cm": 133.0,
+    "comprimento_conf": 0.72,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.64,
+    "cx": 1801.59,
+    "cy": -935.13
+  },
+  "V306": {
+    "id": "V306",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 78.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 121.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": -1447.49,
+    "cy": 1177.75
+  },
+  "V307": {
+    "id": "V307",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 78.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 63.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 751.48,
+    "cy": 1177.75
+  },
+  "V308": {
+    "id": "V308",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 63.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 121.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 1842.48,
+    "cy": 1177.75
+  },
+  "V309": {
+    "id": "V309",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 63.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 645.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": -2530.36,
+    "cy": 992.75
+  },
+  "V310": {
+    "id": "V310",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 63.0,
+    "altura_conf": 0.95,
+    "comprimento_cm": 121.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.88,
+    "cx": -1397.49,
+    "cy": 1012.75
+  },
+  "V311": {
+    "id": "V311",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 63.0,
+    "altura_conf": 0.95,
+    "comprimento_cm": 85.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.88,
+    "cx": 1332.51,
+    "cy": 1012.75
+  },
+  "V312": {
+    "id": "V312",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 63.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 125.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 2191.49,
+    "cy": 992.75
+  },
+  "V313": {
+    "id": "V313",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 10.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 477.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": -1049.63,
+    "cy": 873.75
+  },
+  "V314": {
+    "id": "V314",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 63.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 171.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": -1793.49,
+    "cy": 582.75
+  },
+  "V315": {
+    "id": "V315",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 63.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 327.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 1556.48,
+    "cy": 582.75
+  },
+  "V316": {
+    "id": "V316",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 63.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 90.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": -3176.49,
+    "cy": 546.75
+  },
+  "V317": {
+    "id": "V317",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 63.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 131.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 2446.48,
+    "cy": 546.75
+  },
+  "V318": {
+    "id": "V318",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 37.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 190.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": -1793.49,
+    "cy": 411.75
+  },
+  "V319": {
+    "id": "V319",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 63.0,
+    "altura_conf": 0.95,
+    "comprimento_cm": 118.0,
+    "comprimento_conf": 0.85,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.9,
+    "cx": 1496.48,
+    "cy": 426.75
+  },
+  "V320": {
+    "id": "V320",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 37.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 204.5,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": -2268.67,
+    "cy": 240.74
+  },
+  "V321": {
+    "id": "V321",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 37.0,
+    "altura_conf": 0.95,
+    "comprimento_cm": 190.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.88,
+    "cx": -1069.51,
+    "cy": 232.75
+  },
+  "V322": {
+    "id": "V322",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 37.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 78.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 909.48,
+    "cy": 232.68
+  },
+  "V323": {
+    "id": "V323",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 37.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 50.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 2109.48,
+    "cy": 240.75
+  },
+  "V324": {
+    "id": "V324",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 63.0,
+    "altura_conf": 0.95,
+    "comprimento_cm": 118.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.88,
+    "cx": -1584.49,
+    "cy": 201.75
+  },
+  "V325": {
+    "id": "V325",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 63.0,
+    "altura_conf": 0.95,
+    "comprimento_cm": 128.0,
+    "comprimento_conf": 0.85,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.9,
+    "cx": 1521.5,
+    "cy": 201.75
+  },
+  "V326": {
+    "id": "V326",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 63.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 315.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": -3256.49,
+    "cy": 180.75
+  },
+  "V327": {
+    "id": "V327",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 63.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 154.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 2536.49,
+    "cy": 180.75
+  },
+  "V328": {
+    "id": "V328",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 63.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 191.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": -825.51,
+    "cy": 22.75
+  },
+  "V329": {
+    "id": "V329",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 78.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 147.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": -2055.51,
+    "cy": -14.25
+  },
+  "V330": {
+    "id": "V330",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 78.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 149.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 1241.5,
+    "cy": -14.25
+  },
+  "V331": {
+    "id": "V331",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 63.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 90.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": -3344.24,
+    "cy": 654.0
+  },
+  "V332": {
+    "id": "V332",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 63.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 315.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": -3252.74,
+    "cy": 258.0
+  },
+  "V333": {
+    "id": "V333",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 63.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 175.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": -2717.99,
+    "cy": 1109.0
+  },
+  "V334": {
+    "id": "V334",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 63.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 204.5,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": -2304.24,
+    "cy": 301.99
+  },
+  "V335": {
+    "id": "V335",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 63.0,
+    "altura_conf": 0.95,
+    "comprimento_cm": 125.0,
+    "comprimento_conf": 0.85,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.9,
+    "cx": -2109.24,
+    "cy": 1004.0
+  },
+  "V336": {
+    "id": "V336",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 78.0,
+    "altura_conf": 0.55,
+    "comprimento_cm": 152.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.68,
+    "cx": 1102.44,
+    "cy": -1047.43
+  },
+  "V337": {
+    "id": "V337",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 78.0,
+    "altura_conf": 0.95,
+    "comprimento_cm": 61.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.88,
+    "cx": -1485.25,
+    "cy": -12.66
+  },
+  "V338": {
+    "id": "V338",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 10.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 105.0,
+    "comprimento_conf": 0.85,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.88,
+    "cx": -1195.01,
+    "cy": 895.0
+  },
+  "V339": {
+    "id": "V339",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 78.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 109.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": -740.25,
+    "cy": 946.0
+  },
+  "V340": {
+    "id": "V340",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 63.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 78.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": -612.24,
+    "cy": 159.93
+  },
+  "V341": {
+    "id": "V341",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 63.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 61.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": -13.25,
+    "cy": 165.0
+  },
+  "V342": {
+    "id": "V342",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 63.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 78.0,
+    "comprimento_conf": 0.85,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.88,
+    "cx": 585.75,
+    "cy": 164.93
+  },
+  "V343": {
+    "id": "V343",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 78.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 188.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 713.73,
+    "cy": 956.0
+  },
+  "V344": {
+    "id": "V344",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 63.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 105.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 1209.74,
+    "cy": 895.0
+  },
+  "V345": {
+    "id": "V345",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 78.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 61.0,
+    "comprimento_conf": 0.85,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.88,
+    "cx": 1458.73,
+    "cy": -3.0
+  },
+  "V346": {
+    "id": "V346",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 63.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 152.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 1804.73,
+    "cy": 423.0
+  },
+  "V347": {
+    "id": "V347",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 63.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 125.0,
+    "comprimento_conf": 0.85,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.88,
+    "cx": 2110.48,
+    "cy": 1004.0
+  },
+  "V348": {
+    "id": "V348",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 63.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 204.5,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 2277.73,
+    "cy": 252.0
+  },
+  "V349": {
+    "id": "V349",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 10.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 175.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 2732.73,
+    "cy": 1104.0
+  },
+  "V350": {
+    "id": "V350",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 63.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 315.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 3267.73,
+    "cy": 248.0
+  },
+  "V351": {
+    "id": "V351",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 63.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 50.0,
+    "comprimento_conf": 0.85,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.88,
+    "cx": 3317.73,
+    "cy": 661.5
+  },
+  "V401": {
+    "id": "V401",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 213.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 132.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": -3306.49,
+    "cy": 1357.75
+  },
+  "V402": {
+    "id": "V402",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 213.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 71.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 2770.48,
+    "cy": 1357.75
+  },
+  "V403": {
+    "id": "V403",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 213.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 132.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": -2721.49,
+    "cy": 1317.75
+  },
+  "V404": {
+    "id": "V404",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 213.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 85.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 2106.48,
+    "cy": 1317.75
+  },
+  "V405": {
+    "id": "V405",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 81.0,
+    "altura_conf": 0.95,
+    "comprimento_cm": 121.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.88,
+    "cx": 268.93,
+    "cy": 69.07
+  },
+  "V406": {
+    "id": "V406",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 213.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 121.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": -1452.49,
+    "cy": 1177.75
+  },
+  "V407": {
+    "id": "V407",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 213.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 132.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 751.48,
+    "cy": 1177.75
+  },
+  "V408": {
+    "id": "V408",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 40.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 121.5,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 1496.48,
+    "cy": 1177.75
+  },
+  "V409": {
+    "id": "V409",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 81.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 645.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": -2530.36,
+    "cy": 992.75
+  },
+  "V410": {
+    "id": "V410",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 213.0,
+    "altura_conf": 0.95,
+    "comprimento_cm": 121.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.88,
+    "cx": -1397.5,
+    "cy": 997.75
+  },
+  "V411": {
+    "id": "V411",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 81.0,
+    "altura_conf": 0.95,
+    "comprimento_cm": 85.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.88,
+    "cx": 1309.51,
+    "cy": 997.75
+  },
+  "V412": {
+    "id": "V412",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 81.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 132.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 2186.49,
+    "cy": 992.75
+  },
+  "V413": {
+    "id": "V413",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 10.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 477.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": -1009.63,
+    "cy": 873.75
+  },
+  "V414": {
+    "id": "V414",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 40.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 67.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": -18.19,
+    "cy": -110.93
+  },
+  "V415": {
+    "id": "V415",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 40.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 83.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 1496.48,
+    "cy": 746.75
+  },
+  "V416": {
+    "id": "V416",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 81.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 51.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": -1712.49,
+    "cy": 582.75
+  },
+  "V417": {
+    "id": "V417",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 81.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 246.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 1556.48,
+    "cy": 582.75
+  },
+  "V418": {
+    "id": "V418",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 81.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 50.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": -725.71,
+    "cy": -672.88
+  },
+  "V419": {
+    "id": "V419",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 10.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 140.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 2544.99,
+    "cy": 546.75
+  },
+  "V420": {
+    "id": "V420",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 55.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 190.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": -1793.49,
+    "cy": 411.75
+  },
+  "V421": {
+    "id": "V421",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 81.0,
+    "altura_conf": 0.95,
+    "comprimento_cm": 118.0,
+    "comprimento_conf": 0.85,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.9,
+    "cx": 1496.48,
+    "cy": 426.75
+  },
+  "V422": {
+    "id": "V422",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 55.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 190.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": -1204.9,
+    "cy": -417.93
+  },
+  "V423": {
+    "id": "V423",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 55.0,
+    "altura_conf": 0.95,
+    "comprimento_cm": 190.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.88,
+    "cx": -1069.51,
+    "cy": 247.75
+  },
+  "V424": {
+    "id": "V424",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 55.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 190.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 909.51,
+    "cy": 232.68
+  },
+  "V425": {
+    "id": "V425",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 55.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 190.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 2106.48,
+    "cy": 240.75
+  },
+  "V426": {
+    "id": "V426",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 81.0,
+    "altura_conf": 0.95,
+    "comprimento_cm": 118.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.88,
+    "cx": -1584.49,
+    "cy": 201.75
+  },
+  "V427": {
+    "id": "V427",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 81.0,
+    "altura_conf": 0.95,
+    "comprimento_cm": 118.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.88,
+    "cx": 1496.48,
+    "cy": 201.75
+  },
+  "V428": {
+    "id": "V428",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 213.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 315.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": -3156.49,
+    "cy": 180.75
+  },
+  "V429": {
+    "id": "V429",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 213.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 60.0,
+    "comprimento_conf": 0.85,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.88,
+    "cx": 2405.49,
+    "cy": 180.75
+  },
+  "V430": {
+    "id": "V430",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 213.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 180.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": -825.51,
+    "cy": 22.75
+  },
+  "V431": {
+    "id": "V431",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 213.0,
+    "altura_conf": 0.7,
+    "comprimento_cm": 217.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.76,
+    "cx": -1242.9,
+    "cy": -479.43
+  },
+  "V432": {
+    "id": "V432",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 213.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 210.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 1241.5,
+    "cy": -14.25
+  },
+  "V433": {
+    "id": "V433",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 213.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 50.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": -3344.24,
+    "cy": 654.0
+  },
+  "V434": {
+    "id": "V434",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 213.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 315.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": -3252.74,
+    "cy": 238.0
+  },
+  "V435": {
+    "id": "V435",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 81.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 84.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": -2717.99,
+    "cy": 1109.0
+  },
+  "V436": {
+    "id": "V436",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 81.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 204.5,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": -2304.24,
+    "cy": 277.0
+  },
+  "V437": {
+    "id": "V437",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 81.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 132.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": -2095.24,
+    "cy": 1004.0
+  },
+  "V438": {
+    "id": "V438",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 81.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 152.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": -1831.24,
+    "cy": 418.0
+  },
+  "V439": {
+    "id": "V439",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 40.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 91.0,
+    "comprimento_conf": 0.85,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.88,
+    "cx": -107.57,
+    "cy": -97.31
+  },
+  "V440": {
+    "id": "V440",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 213.0,
+    "altura_conf": 0.95,
+    "comprimento_cm": 197.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.88,
+    "cx": -1485.25,
+    "cy": -3.0
+  },
+  "V441": {
+    "id": "V441",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 10.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 105.0,
+    "comprimento_conf": 0.85,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.88,
+    "cx": -1195.01,
+    "cy": 892.5
+  },
+  "V442": {
+    "id": "V442",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 213.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 109.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": -740.25,
+    "cy": 956.0
+  },
+  "V443": {
+    "id": "V443",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 81.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 78.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": -612.24,
+    "cy": 159.93
+  },
+  "V444": {
+    "id": "V444",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 81.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 131.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": -13.25,
+    "cy": 165.0
+  },
+  "V445": {
+    "id": "V445",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 81.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 78.0,
+    "comprimento_conf": 0.85,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.88,
+    "cx": 585.75,
+    "cy": 165.0
+  },
+  "V446": {
+    "id": "V446",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 213.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 81.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 713.73,
+    "cy": 956.0
+  },
+  "V447": {
+    "id": "V447",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 81.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 105.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 1209.74,
+    "cy": 900.0
+  },
+  "V448": {
+    "id": "V448",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 81.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 197.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 1458.73,
+    "cy": -3.0
+  },
+  "V449": {
+    "id": "V449",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 40.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 91.0,
+    "comprimento_conf": 0.85,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.88,
+    "cx": 1734.74,
+    "cy": 750.0
+  },
+  "V450": {
+    "id": "V450",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 81.0,
+    "altura_conf": 0.95,
+    "comprimento_cm": 152.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.88,
+    "cx": 1804.73,
+    "cy": 423.0
+  },
+  "V451": {
+    "id": "V451",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 81.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 132.0,
+    "comprimento_conf": 0.85,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.88,
+    "cx": 2110.48,
+    "cy": 1004.0
+  },
+  "V452": {
+    "id": "V452",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 55.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 101.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 2277.73,
+    "cy": 252.0
+  },
+  "V453": {
+    "id": "V453",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 81.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 84.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 2732.73,
+    "cy": 1104.0
+  },
+  "V454": {
+    "id": "V454",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 213.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 315.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 3267.73,
+    "cy": 238.0
+  },
+  "V455": {
+    "id": "V455",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 213.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 50.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 3317.73,
+    "cy": 661.5
+  },
+  "V501": {
+    "id": "V501",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 100.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 220.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": -2255.48,
+    "cy": 1177.75
+  },
+  "V503": {
+    "id": "V503",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 45.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 146.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": -2266.49,
+    "cy": 815.25
+  },
+  "V504": {
+    "id": "V504",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 45.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 270.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 1772.49,
+    "cy": 867.75
+  },
+  "V505": {
+    "id": "V505",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 90.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 140.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": -2266.49,
+    "cy": 546.75
+  },
+  "V506": {
+    "id": "V506",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 45.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 220.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 1772.49,
+    "cy": 546.75
+  },
+  "V507": {
+    "id": "V507",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 35.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 169.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": -1793.49,
+    "cy": 411.75
+  },
+  "V508": {
+    "id": "V508",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 35.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 116.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 1633.48,
+    "cy": 411.75
+  },
+  "V509": {
+    "id": "V509",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 90.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 140.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": -875.14,
+    "cy": -399.51
+  },
+  "V510": {
+    "id": "V510",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 45.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 220.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": -1761.24,
+    "cy": 594.0
+  },
+  "V511": {
+    "id": "V511",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 45.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 220.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 1734.74,
+    "cy": 594.0
+  },
+  "V512": {
+    "id": "V512",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 55.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 50.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 2377.48,
+    "cy": -424.76
+  },
+  "V513": {
+    "id": "V513",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 30.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 169.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": -1831.24,
+    "cy": 213.0
+  },
+  "V514": {
+    "id": "V514",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 35.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 180.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": -1622.24,
+    "cy": 208.0
+  },
+  "V515": {
+    "id": "V515",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 35.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 169.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 1804.73,
+    "cy": 213.0
+  },
+  "V516": {
+    "id": "V516",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 35.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 180.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 1595.73,
+    "cy": 213.0
+  },
+  "V517": {
+    "id": "V517",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 100.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 220.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 1772.49,
+    "cy": 1177.75
+  },
+  "V601": {
+    "id": "V601",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 45.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 513.0,
+    "comprimento_conf": 0.72,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.81,
+    "cx": -2255.48,
+    "cy": 1177.75
+  },
+  "V602": {
+    "id": "V602",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 173.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 121.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 1496.48,
+    "cy": 1177.75
+  },
+  "V603": {
+    "id": "V603",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 173.0,
+    "altura_conf": 0.95,
+    "comprimento_cm": 128.5,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.88,
+    "cx": -1709.49,
+    "cy": 582.75
+  },
+  "V604": {
+    "id": "V604",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 173.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 119.5,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 1496.48,
+    "cy": 582.75
+  },
+  "V605": {
+    "id": "V605",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 156.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 190.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": -2266.49,
+    "cy": 411.75
+  },
+  "V606": {
+    "id": "V606",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 156.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 126.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": -1069.51,
+    "cy": 403.75
+  },
+  "V607": {
+    "id": "V607",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 156.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 358.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": -170.51,
+    "cy": 406.25
+  },
+  "V608": {
+    "id": "V608",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 156.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 190.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 904.51,
+    "cy": 403.68
+  },
+  "V609": {
+    "id": "V609",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 156.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 190.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 2106.48,
+    "cy": 411.75
+  },
+  "V610": {
+    "id": "V610",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 156.0,
+    "altura_conf": 0.95,
+    "comprimento_cm": 126.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.88,
+    "cx": -2271.49,
+    "cy": 240.75
+  },
+  "V611": {
+    "id": "V611",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 156.0,
+    "altura_conf": 0.95,
+    "comprimento_cm": 126.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.88,
+    "cx": -1074.51,
+    "cy": 232.75
+  },
+  "V612": {
+    "id": "V612",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 156.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 152.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 909.51,
+    "cy": 232.68
+  },
+  "V613": {
+    "id": "V613",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 30.0,
+    "altura_conf": 0.95,
+    "comprimento_cm": 61.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.88,
+    "cx": 2106.48,
+    "cy": 240.75
+  },
+  "V614": {
+    "id": "V614",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 30.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 141.5,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": -1993.49,
+    "cy": 161.24
+  },
+  "V615": {
+    "id": "V615",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 156.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 195.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": -170.51,
+    "cy": 192.25
+  },
+  "V616": {
+    "id": "V616",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 156.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 180.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": -2304.24,
+    "cy": 42.0
+  },
+  "V617": {
+    "id": "V617",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 156.0,
+    "altura_conf": 0.95,
+    "comprimento_cm": 141.5,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.88,
+    "cx": -2095.26,
+    "cy": 42.0
+  },
+  "V618": {
+    "id": "V618",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 156.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 126.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": -1831.27,
+    "cy": 208.23
+  },
+  "V619": {
+    "id": "V619",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 173.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 255.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": -1761.24,
+    "cy": 644.0
+  },
+  "V620": {
+    "id": "V620",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 173.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 136.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": -1443.75,
+    "cy": 439.0
+  },
+  "V621": {
+    "id": "V621",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 156.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 180.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": -1107.26,
+    "cy": 34.0
+  },
+  "V622": {
+    "id": "V622",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 156.0,
+    "altura_conf": 0.95,
+    "comprimento_cm": 180.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.88,
+    "cx": -911.26,
+    "cy": 34.0
+  },
+  "V623": {
+    "id": "V623",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 156.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 195.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": -219.26,
+    "cy": 203.5
+  },
+  "V624": {
+    "id": "V624",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 156.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 195.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 179.74,
+    "cy": 203.5
+  },
+  "V625": {
+    "id": "V625",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 156.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 180.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 871.76,
+    "cy": 34.0
+  },
+  "V626": {
+    "id": "V626",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 156.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 180.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 1080.73,
+    "cy": 34.0
+  },
+  "V627": {
+    "id": "V627",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 173.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 119.5,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 1458.73,
+    "cy": 436.5
+  },
+  "V628": {
+    "id": "V628",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 173.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 126.5,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 1734.74,
+    "cy": 594.0
+  },
+  "V629": {
+    "id": "V629",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 156.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 180.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 2068.73,
+    "cy": 42.07
+  },
+  "V630": {
+    "id": "V630",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 156.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 180.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 2277.73,
+    "cy": 42.0
+  },
+  "V631": {
+    "id": "V631",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 45.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 228.0,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 2277.73,
+    "cy": 558.0
+  },
+  "VP10": {
+    "id": "VP10",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 80.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 76.5,
+    "comprimento_conf": 0.85,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.88,
+    "cx": 2562.32,
+    "cy": 1410.2
+  },
+  "VP11": {
+    "id": "VP11",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 53.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 59.3,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 2690.7,
+    "cy": 1413.95
+  },
+  "VP12": {
+    "id": "VP12",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 53.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 190.0,
+    "comprimento_conf": 0.85,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.88,
+    "cx": 2845.9,
+    "cy": 1413.55
+  },
+  "VP13": {
+    "id": "VP13",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 53.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 65.5,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 2630.23,
+    "cy": 746.97
+  },
+  "VP14": {
+    "id": "VP14",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 50.0,
+    "altura_conf": 0.9,
+    "comprimento_cm": 304.7,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.85,
+    "cx": 2623.64,
+    "cy": 91.3
+  },
+  "VP15": {
+    "id": "VP15",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 50.0,
+    "altura_conf": 0.95,
+    "comprimento_cm": 267.7,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.88,
+    "cx": 2698.64,
+    "cy": 66.3
+  },
+  "VP16": {
+    "id": "VP16",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 50.0,
+    "altura_conf": 0.95,
+    "comprimento_cm": 267.7,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.88,
+    "cx": 2773.64,
+    "cy": 58.8
+  },
+  "VP17": {
+    "id": "VP17",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 128.0,
+    "altura_conf": 0.95,
+    "comprimento_cm": 267.7,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.88,
+    "cx": 2848.64,
+    "cy": 51.3
+  },
+  "VP18": {
+    "id": "VP18",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 128.0,
+    "altura_conf": 0.95,
+    "comprimento_cm": 267.7,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.88,
+    "cx": 2923.64,
+    "cy": 43.8
+  },
+  "VP19": {
+    "id": "VP19",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 128.0,
+    "altura_conf": 0.95,
+    "comprimento_cm": 267.7,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.88,
+    "cx": 2998.69,
+    "cy": 36.3
+  },
+  "VP20": {
+    "id": "VP20",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 128.0,
+    "altura_conf": 0.95,
+    "comprimento_cm": 267.7,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.88,
+    "cx": 3073.69,
+    "cy": 28.8
+  },
+  "VP21": {
+    "id": "VP21",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "altura_lateral_cm": 128.0,
+    "altura_conf": 0.95,
+    "comprimento_cm": 267.7,
+    "comprimento_conf": 0.81,
+    "comprimento_source": "structural-span-proximity",
+    "confidence": 0.88,
+    "cx": 3148.69,
+    "cy": 21.3
+  },
+  "_meta": {
+    "total": 406,
+    "obra": "Obra_TREINO_12",
+    "pavimento": "todos",
+    "extraido_em": "2026-06-04",
+    "algoritmo": "structural-text-proximity",
+    "fonte": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_12\\Fase-2_Triagem\\Estruturais_Pavimentos_Limpos",
+    "dxfs_processados": 10
+  }
+}

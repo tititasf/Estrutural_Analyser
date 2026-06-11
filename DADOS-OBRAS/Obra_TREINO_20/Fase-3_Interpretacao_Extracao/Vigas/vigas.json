@@ -1,0 +1,100 @@
+{
+  "V209": {
+    "b": 29.98,
+    "h": 40.0,
+    "comprimento": 220.0,
+    "confidence": 0.54,
+    "source": "vigas_dim+fv-dxf-global-median+reverso_fv_only",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "comprimento_original": 371.0,
+    "comprimento_enrich_status": "enriched_fv_only"
+  },
+  "V210": {
+    "b": 29.98,
+    "h": 40.0,
+    "comprimento": 220.0,
+    "confidence": 0.54,
+    "source": "vigas_dim+fv-dxf-global-median+reverso_fv_only",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "comprimento_original": 371.0,
+    "comprimento_enrich_status": "enriched_fv_only"
+  },
+  "V301": {
+    "b": 21.98,
+    "h": 40.0,
+    "comprimento": 341.0,
+    "confidence": 0.815,
+    "source": "vigas_dim+fv-dxf-proximity",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "comprimento_enrich_status": "sem_reverso"
+  },
+  "V302": {
+    "b": 21.98,
+    "h": 40.0,
+    "comprimento": 341.0,
+    "confidence": 0.815,
+    "source": "vigas_dim+fv-dxf-proximity",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "comprimento_enrich_status": "sem_reverso"
+  },
+  "V303": {
+    "b": 13.98,
+    "h": 40.0,
+    "comprimento": 371.0,
+    "confidence": 0.815,
+    "source": "vigas_dim+fv-dxf-proximity+reverso_lv",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "comprimento_original": 371.0,
+    "comprimento_enrich_status": "enriched_lv"
+  },
+  "V304": {
+    "b": 29.98,
+    "h": 40.0,
+    "comprimento": 399.0,
+    "confidence": 0.59,
+    "source": "vigas_dim+fv-dxf-global-median+reverso_lv",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "comprimento_original": 382.0,
+    "comprimento_enrich_status": "enriched_lv"
+  },
+  "V305": {
+    "b": 29.98,
+    "h": 40.0,
+    "comprimento": 399.0,
+    "confidence": 0.59,
+    "source": "vigas_dim+fv-dxf-global-median+reverso_lv",
+    "sides": [
+      "A",
+      "B"
+    ],
+    "comprimento_original": 399.0,
+    "comprimento_enrich_status": "enriched_lv"
+  },
+  "_meta": {
+    "total": 6,
+    "integrado_em": "2026-03-08",
+    "fontes": [
+      "vigas_dim.json",
+      "vigas_largura.json"
+    ],
+    "comprimento_enrich_status": "sem_reverso"
+  }
+}

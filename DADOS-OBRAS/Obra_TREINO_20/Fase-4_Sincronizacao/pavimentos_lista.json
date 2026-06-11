@@ -1,0 +1,15 @@
+{
+  "Obra_TREINO_20": {
+    "pavimentos": [
+      "ITAQUERA III - 1PV"
+    ],
+    "pavimentos_data": {
+      "ITAQUERA III - 1PV": {
+        "nome": "ITAQUERA III - 1PV",
+        "numero": "1",
+        "nivel_chegada": "0.0",
+        "nivel_saida": "280.0"
+      }
+    }
+  }
+}

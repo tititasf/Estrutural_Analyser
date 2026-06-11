@@ -1,0 +1,800 @@
+{
+  "P1": {
+    "b": 14.0,
+    "h": 52.0,
+    "confidence": 0.4,
+    "source": "proximity-fallback",
+    "dist_d1": 1953.5,
+    "dist_d2": 2026.6
+  },
+  "P2": {
+    "b": 14.0,
+    "h": 52.0,
+    "confidence": 0.4,
+    "source": "proximity-fallback",
+    "dist_d1": 1953.5,
+    "dist_d2": 2026.6
+  },
+  "P3": {
+    "b": 19.0,
+    "h": 61.0,
+    "confidence": 0.7,
+    "source": "inverse-proximity",
+    "dims_assignadas": 9,
+    "dist_d1": 1407.7,
+    "dist_d2": 1564.1
+  },
+  "P4": {
+    "b": 19.0,
+    "h": 52.0,
+    "confidence": 0.4,
+    "source": "proximity-fallback",
+    "dist_d1": 2005.6,
+    "dist_d2": 2040.6
+  },
+  "P5": {
+    "b": 19.0,
+    "h": 52.0,
+    "confidence": 0.4,
+    "source": "proximity-fallback",
+    "dist_d1": 2005.6,
+    "dist_d2": 2040.6
+  },
+  "P6": {
+    "b": 19.0,
+    "h": 52.0,
+    "confidence": 0.4,
+    "source": "proximity-fallback",
+    "dist_d1": 2005.6,
+    "dist_d2": 2040.6
+  },
+  "P7": {
+    "b": 14.0,
+    "h": 52.0,
+    "confidence": 0.8,
+    "source": "inverse-proximity",
+    "dims_assignadas": 6,
+    "dist_d1": 436.7,
+    "dist_d2": 502.3
+  },
+  "P8": {
+    "b": 14.0,
+    "h": 52.0,
+    "confidence": 0.4,
+    "source": "proximity-fallback",
+    "dist_d1": 440.8,
+    "dist_d2": 505.9
+  },
+  "P9": {
+    "b": 19.0,
+    "h": 52.0,
+    "confidence": 0.4,
+    "source": "proximity-fallback",
+    "dist_d1": 2004.5,
+    "dist_d2": 2036.0
+  },
+  "P10": {
+    "b": 19.0,
+    "h": 52.0,
+    "confidence": 0.4,
+    "source": "proximity-fallback",
+    "dist_d1": 2004.5,
+    "dist_d2": 2036.0
+  },
+  "P11": {
+    "b": 19.0,
+    "h": 52.0,
+    "confidence": 0.4,
+    "source": "proximity-fallback",
+    "dist_d1": 2004.5,
+    "dist_d2": 2036.0
+  },
+  "P12": {
+    "b": 19.0,
+    "h": 52.0,
+    "confidence": 0.4,
+    "source": "proximity-fallback",
+    "dist_d1": 2003.8,
+    "dist_d2": 2031.7
+  },
+  "P13": {
+    "b": 14.0,
+    "h": 52.0,
+    "confidence": 0.4,
+    "source": "proximity-fallback",
+    "dist_d1": 440.8,
+    "dist_d2": 505.9
+  },
+  "P14": {
+    "b": 19.0,
+    "h": 52.0,
+    "confidence": 0.9,
+    "source": "inverse-proximity",
+    "dims_assignadas": 4,
+    "dist_d1": 146.9,
+    "dist_d2": 350.0
+  },
+  "P15": {
+    "b": 52.0,
+    "h": 60.0,
+    "confidence": 0.4,
+    "source": "proximity-fallback",
+    "dist_d1": 1117.0,
+    "dist_d2": 1257.9
+  },
+  "P16": {
+    "b": 19.0,
+    "h": 52.0,
+    "confidence": 0.4,
+    "source": "proximity-fallback",
+    "dist_d1": 1040.2,
+    "dist_d2": 1134.7
+  },
+  "P17": {
+    "b": 19.0,
+    "h": 52.0,
+    "confidence": 0.4,
+    "source": "proximity-fallback",
+    "dist_d1": 146.9,
+    "dist_d2": 350.0
+  },
+  "P18": {
+    "b": 19.0,
+    "h": 52.0,
+    "confidence": 0.4,
+    "source": "proximity-fallback",
+    "dist_d1": 1693.8,
+    "dist_d2": 1760.7
+  },
+  "P19": {
+    "b": 19.0,
+    "h": 52.0,
+    "confidence": 0.4,
+    "source": "proximity-fallback",
+    "dist_d1": 1693.8,
+    "dist_d2": 1760.7
+  },
+  "P20": {
+    "b": 19.0,
+    "h": 52.0,
+    "confidence": 0.4,
+    "source": "proximity-fallback",
+    "dist_d1": 1690.2,
+    "dist_d2": 1753.1
+  },
+  "P21": {
+    "b": 19.0,
+    "h": 52.0,
+    "confidence": 0.4,
+    "source": "proximity-fallback",
+    "dist_d1": 1690.2,
+    "dist_d2": 1753.1
+  },
+  "P22": {
+    "b": 19.0,
+    "h": 52.0,
+    "confidence": 0.4,
+    "source": "proximity-fallback",
+    "dist_d1": 1674.5,
+    "dist_d2": 1700.6
+  },
+  "P23": {
+    "b": 19.0,
+    "h": 34.0,
+    "confidence": 0.4,
+    "source": "proximity-fallback",
+    "dist_d1": 222.6,
+    "dist_d2": 406.3
+  },
+  "P24": {
+    "b": 34.0,
+    "h": 61.0,
+    "confidence": 0.4,
+    "source": "proximity-fallback",
+    "dist_d1": 1346.9,
+    "dist_d2": 1349.7
+  },
+  "P25": {
+    "b": 19.0,
+    "h": 52.0,
+    "confidence": 0.4,
+    "source": "proximity-fallback",
+    "dist_d1": 1019.4,
+    "dist_d2": 1070.4
+  },
+  "P26": {
+    "b": 19.0,
+    "h": 52.0,
+    "confidence": 0.4,
+    "source": "proximity-fallback",
+    "dist_d1": 1078.5,
+    "dist_d2": 1204.9
+  },
+  "P27": {
+    "b": 19.0,
+    "h": 34.0,
+    "confidence": 0.4,
+    "source": "proximity-fallback",
+    "dist_d1": 2187.5,
+    "dist_d2": 2307.7
+  },
+  "P28": {
+    "b": 19.0,
+    "h": 52.0,
+    "confidence": 0.4,
+    "source": "proximity-fallback",
+    "dist_d1": 3850.7,
+    "dist_d2": 3929.0
+  },
+  "P29": {
+    "b": 19.0,
+    "h": 52.0,
+    "confidence": 0.4,
+    "source": "proximity-fallback",
+    "dist_d1": 3850.7,
+    "dist_d2": 3929.0
+  },
+  "P30": {
+    "b": 19.0,
+    "h": 34.0,
+    "confidence": 0.4,
+    "source": "proximity-fallback",
+    "dist_d1": 2237.1,
+    "dist_d2": 2352.5
+  },
+  "P31": {
+    "b": 19.0,
+    "h": 34.0,
+    "confidence": 0.4,
+    "source": "proximity-fallback",
+    "dist_d1": 1030.3,
+    "dist_d2": 1049.9
+  },
+  "P32": {
+    "b": 19.0,
+    "h": 61.0,
+    "confidence": 0.4,
+    "source": "proximity-fallback",
+    "dist_d1": 1355.7,
+    "dist_d2": 1366.4
+  },
+  "P33": {
+    "b": 19.0,
+    "h": 34.0,
+    "confidence": 0.4,
+    "source": "proximity-fallback",
+    "dist_d1": 1122.8,
+    "dist_d2": 1146.9
+  },
+  "P34": {
+    "b": 19.0,
+    "h": 52.0,
+    "confidence": 0.4,
+    "source": "proximity-fallback",
+    "dist_d1": 3844.9,
+    "dist_d2": 3921.5
+  },
+  "P35": {
+    "b": 19.0,
+    "h": 34.0,
+    "confidence": 0.4,
+    "source": "proximity-fallback",
+    "dist_d1": 2329.3,
+    "dist_d2": 2436.3
+  },
+  "P36": {
+    "b": 14.0,
+    "h": 52.0,
+    "confidence": 0.4,
+    "source": "proximity-fallback",
+    "dist_d1": 1788.4,
+    "dist_d2": 1840.5
+  },
+  "P37": {
+    "b": 19.0,
+    "h": 61.0,
+    "confidence": 0.4,
+    "source": "proximity-fallback",
+    "dist_d1": 1358.8,
+    "dist_d2": 1362.4
+  },
+  "P38": {
+    "b": 30.5,
+    "h": 61.0,
+    "confidence": 0.7,
+    "source": "inverse-proximity",
+    "dims_assignadas": 200,
+    "dist_d1": 3344.1,
+    "dist_d2": 3357.4
+  },
+  "P39": {
+    "b": 30.0,
+    "h": 55.0,
+    "confidence": 0.7,
+    "source": "inverse-proximity",
+    "dims_assignadas": 68,
+    "dist_d1": 3833.4,
+    "dist_d2": 3994.8
+  },
+  "P40": {
+    "b": 19.0,
+    "h": 52.0,
+    "confidence": 0.4,
+    "source": "proximity-fallback",
+    "dist_d1": 2788.3,
+    "dist_d2": 2888.5
+  },
+  "P41": {
+    "b": 19.0,
+    "h": 52.0,
+    "confidence": 0.4,
+    "source": "proximity-fallback",
+    "dist_d1": 2788.3,
+    "dist_d2": 2888.5
+  },
+  "P42": {
+    "b": 19.0,
+    "h": 52.0,
+    "confidence": 0.4,
+    "source": "proximity-fallback",
+    "dist_d1": 2788.3,
+    "dist_d2": 2888.5
+  },
+  "P43": {
+    "b": 19.0,
+    "h": 52.0,
+    "confidence": 0.4,
+    "source": "proximity-fallback",
+    "dist_d1": 2796.0,
+    "dist_d2": 2898.4
+  },
+  "P44": {
+    "b": 14.0,
+    "h": 52.0,
+    "confidence": 0.4,
+    "source": "proximity-fallback",
+    "dist_d1": 1341.8,
+    "dist_d2": 1397.4
+  },
+  "P45": {
+    "b": 26.0,
+    "h": 52.0,
+    "confidence": 0.4,
+    "source": "proximity-fallback",
+    "dist_d1": 3172.7,
+    "dist_d2": 3196.4
+  },
+  "P46": {
+    "b": 14.0,
+    "h": 52.0,
+    "confidence": 0.4,
+    "source": "proximity-fallback",
+    "dist_d1": 1242.0,
+    "dist_d2": 1301.9
+  },
+  "P47": {
+    "b": 19.0,
+    "h": 52.0,
+    "confidence": 0.4,
+    "source": "proximity-fallback",
+    "dist_d1": 2796.0,
+    "dist_d2": 2898.4
+  },
+  "P48": {
+    "b": 19.0,
+    "h": 52.0,
+    "confidence": 0.4,
+    "source": "proximity-fallback",
+    "dist_d1": 2796.0,
+    "dist_d2": 2898.4
+  },
+  "P49": {
+    "b": 19.0,
+    "h": 52.0,
+    "confidence": 0.4,
+    "source": "proximity-fallback",
+    "dist_d1": 2803.8,
+    "dist_d2": 2908.4
+  },
+  "P50": {
+    "b": 19.0,
+    "h": 52.0,
+    "confidence": 0.4,
+    "source": "proximity-fallback",
+    "dist_d1": 2803.8,
+    "dist_d2": 2908.4
+  },
+  "P51": {
+    "b": 14.0,
+    "h": 52.0,
+    "confidence": 0.4,
+    "source": "proximity-fallback",
+    "dist_d1": 1664.5,
+    "dist_d2": 1720.3
+  },
+  "P52": {
+    "b": 19.0,
+    "h": 52.0,
+    "confidence": 0.4,
+    "source": "proximity-fallback",
+    "dist_d1": 2847.9,
+    "dist_d2": 2900.2
+  },
+  "P53": {
+    "b": 19.0,
+    "h": 52.0,
+    "confidence": 0.4,
+    "source": "proximity-fallback",
+    "dist_d1": 2886.2,
+    "dist_d2": 2959.9
+  },
+  "P54": {
+    "b": 19.0,
+    "h": 52.0,
+    "confidence": 0.4,
+    "source": "proximity-fallback",
+    "dist_d1": 2886.2,
+    "dist_d2": 2959.9
+  },
+  "P55": {
+    "b": 19.0,
+    "h": 52.0,
+    "confidence": 0.4,
+    "source": "proximity-fallback",
+    "dist_d1": 2886.2,
+    "dist_d2": 2959.9
+  },
+  "P56": {
+    "b": 19.0,
+    "h": 52.0,
+    "confidence": 0.4,
+    "source": "proximity-fallback",
+    "dist_d1": 1347.3,
+    "dist_d2": 1370.6
+  },
+  "P57": {
+    "b": 19.0,
+    "h": 52.0,
+    "confidence": 0.4,
+    "source": "proximity-fallback",
+    "dist_d1": 2881.1,
+    "dist_d2": 2952.5
+  },
+  "P58": {
+    "b": 19.0,
+    "h": 52.0,
+    "confidence": 0.4,
+    "source": "proximity-fallback",
+    "dist_d1": 2881.1,
+    "dist_d2": 2952.5
+  },
+  "P59": {
+    "b": 14.0,
+    "h": 52.0,
+    "confidence": 0.4,
+    "source": "proximity-fallback",
+    "dist_d1": 3207.5,
+    "dist_d2": 3323.6
+  },
+  "P60": {
+    "b": 19.0,
+    "h": 52.0,
+    "confidence": 0.4,
+    "source": "proximity-fallback",
+    "dist_d1": 2881.1,
+    "dist_d2": 2952.5
+  },
+  "P61": {
+    "b": 14.0,
+    "h": 52.0,
+    "confidence": 0.4,
+    "source": "proximity-fallback",
+    "dist_d1": 3207.5,
+    "dist_d2": 3323.6
+  },
+  "P62": {
+    "b": 26.0,
+    "h": 52.0,
+    "confidence": 0.4,
+    "source": "proximity-fallback",
+    "dist_d1": 4074.5,
+    "dist_d2": 4099.0
+  },
+  "P63": {
+    "b": 14.0,
+    "h": 52.0,
+    "confidence": 0.4,
+    "source": "proximity-fallback",
+    "dist_d1": 3207.5,
+    "dist_d2": 3323.6
+  },
+  "P64": {
+    "b": 26.0,
+    "h": 52.0,
+    "confidence": 0.4,
+    "source": "proximity-fallback",
+    "dist_d1": 4074.5,
+    "dist_d2": 4099.0
+  },
+  "P65": {
+    "b": 26.0,
+    "h": 52.0,
+    "confidence": 0.4,
+    "source": "proximity-fallback",
+    "dist_d1": 4074.5,
+    "dist_d2": 4099.0
+  },
+  "P66": {
+    "b": 19.0,
+    "h": 52.0,
+    "confidence": 0.4,
+    "source": "proximity-fallback",
+    "dist_d1": 2989.9,
+    "dist_d2": 2992.6
+  },
+  "P67": {
+    "b": 26.0,
+    "h": 52.0,
+    "confidence": 0.4,
+    "source": "proximity-fallback",
+    "dist_d1": 2850.0,
+    "dist_d2": 2868.7
+  },
+  "P68": {
+    "b": 26.0,
+    "h": 52.0,
+    "confidence": 0.4,
+    "source": "proximity-fallback",
+    "dist_d1": 4068.4,
+    "dist_d2": 4093.0
+  },
+  "P69": {
+    "b": 26.0,
+    "h": 52.0,
+    "confidence": 0.4,
+    "source": "proximity-fallback",
+    "dist_d1": 4064.4,
+    "dist_d2": 4088.9
+  },
+  "P70": {
+    "b": 26.0,
+    "h": 52.0,
+    "confidence": 0.7,
+    "source": "inverse-proximity",
+    "dims_assignadas": 56,
+    "dist_d1": 2833.3,
+    "dist_d2": 2852.2
+  },
+  "P71": {
+    "b": 19.0,
+    "h": 52.0,
+    "confidence": 0.4,
+    "source": "proximity-fallback",
+    "dist_d1": 2989.9,
+    "dist_d2": 2992.6
+  },
+  "P72": {
+    "b": 26.0,
+    "h": 52.0,
+    "confidence": 0.4,
+    "source": "proximity-fallback",
+    "dist_d1": 4058.3,
+    "dist_d2": 4083.0
+  },
+  "P73": {
+    "b": 26.0,
+    "h": 52.0,
+    "confidence": 0.4,
+    "source": "proximity-fallback",
+    "dist_d1": 4058.3,
+    "dist_d2": 4083.0
+  },
+  "P74": {
+    "b": 14.0,
+    "h": 52.0,
+    "confidence": 0.4,
+    "source": "proximity-fallback",
+    "dist_d1": 3212.7,
+    "dist_d2": 3327.0
+  },
+  "P75": {
+    "b": 14.0,
+    "h": 52.0,
+    "confidence": 0.4,
+    "source": "proximity-fallback",
+    "dist_d1": 4031.4,
+    "dist_d2": 4138.3
+  },
+  "P76": {
+    "b": 19.0,
+    "h": 52.0,
+    "confidence": 0.4,
+    "source": "proximity-fallback",
+    "dist_d1": 4404.6,
+    "dist_d2": 4423.9
+  },
+  "P77": {
+    "b": 14.0,
+    "h": 52.0,
+    "confidence": 0.4,
+    "source": "proximity-fallback",
+    "dist_d1": 3212.7,
+    "dist_d2": 3327.0
+  },
+  "P78": {
+    "b": 14.0,
+    "h": 52.0,
+    "confidence": 0.4,
+    "source": "proximity-fallback",
+    "dist_d1": 4031.4,
+    "dist_d2": 4138.3
+  },
+  "P79": {
+    "b": 14.0,
+    "h": 52.0,
+    "confidence": 0.4,
+    "source": "proximity-fallback",
+    "dist_d1": 4037.0,
+    "dist_d2": 4142.5
+  },
+  "P80": {
+    "b": 14.0,
+    "h": 52.0,
+    "confidence": 0.4,
+    "source": "proximity-fallback",
+    "dist_d1": 3212.7,
+    "dist_d2": 3327.0
+  },
+  "P81": {
+    "b": 14.0,
+    "h": 52.0,
+    "confidence": 0.4,
+    "source": "proximity-fallback",
+    "dist_d1": 2455.1,
+    "dist_d2": 2523.8
+  },
+  "P85": {
+    "b": 19.0,
+    "h": 65.0,
+    "confidence": 0.9,
+    "source": "inverse-proximity",
+    "dims_assignadas": 42,
+    "dist_d1": 168.4,
+    "dist_d2": 362.2
+  },
+  "P86": {
+    "b": 19.0,
+    "h": 52.0,
+    "confidence": 0.4,
+    "source": "proximity-fallback",
+    "dist_d1": 143.3,
+    "dist_d2": 168.4
+  },
+  "P87": {
+    "b": 19.0,
+    "h": 52.0,
+    "confidence": 0.4,
+    "source": "proximity-fallback",
+    "dist_d1": 143.3,
+    "dist_d2": 168.4
+  },
+  "P88": {
+    "b": 19.0,
+    "h": 52.0,
+    "confidence": 0.4,
+    "source": "proximity-fallback",
+    "dist_d1": 143.3,
+    "dist_d2": 168.4
+  },
+  "P89": {
+    "b": 44.0,
+    "h": 52.0,
+    "confidence": 0.9,
+    "source": "inverse-proximity",
+    "dims_assignadas": 71,
+    "dist_d1": 119.9,
+    "dist_d2": 301.3
+  },
+  "P90": {
+    "b": 30.5,
+    "h": 61.0,
+    "confidence": 0.7,
+    "source": "inverse-proximity",
+    "dims_assignadas": 35,
+    "dist_d1": 741.1,
+    "dist_d2": 803.8
+  },
+  "P91": {
+    "b": 19.0,
+    "h": 65.0,
+    "confidence": 0.4,
+    "source": "proximity-fallback",
+    "dist_d1": 164.1,
+    "dist_d2": 323.4
+  },
+  "P92": {
+    "b": 19.0,
+    "h": 65.0,
+    "confidence": 0.4,
+    "source": "proximity-fallback",
+    "dist_d1": 164.1,
+    "dist_d2": 323.4
+  },
+  "P93": {
+    "b": 19.0,
+    "h": 65.0,
+    "confidence": 0.4,
+    "source": "proximity-fallback",
+    "dist_d1": 164.1,
+    "dist_d2": 323.4
+  },
+  "P94": {
+    "b": 19.0,
+    "h": 52.0,
+    "confidence": 0.4,
+    "source": "proximity-fallback",
+    "dist_d1": 119.9,
+    "dist_d2": 192.5
+  },
+  "P95": {
+    "b": 19.0,
+    "h": 52.0,
+    "confidence": 0.4,
+    "source": "proximity-fallback",
+    "dist_d1": 119.9,
+    "dist_d2": 192.5
+  },
+  "P96": {
+    "b": 19.0,
+    "h": 65.0,
+    "confidence": 0.9,
+    "source": "inverse-proximity",
+    "dims_assignadas": 16,
+    "dist_d1": 140.3,
+    "dist_d2": 315.2
+  },
+  "P97": {
+    "b": 19.0,
+    "h": 65.0,
+    "confidence": 0.4,
+    "source": "proximity-fallback",
+    "dist_d1": 140.3,
+    "dist_d2": 315.2
+  },
+  "P98": {
+    "b": 19.0,
+    "h": 65.0,
+    "confidence": 0.4,
+    "source": "proximity-fallback",
+    "dist_d1": 140.3,
+    "dist_d2": 315.2
+  },
+  "P99": {
+    "b": 19.0,
+    "h": 65.0,
+    "confidence": 0.4,
+    "source": "proximity-fallback",
+    "dist_d1": 140.3,
+    "dist_d2": 315.2
+  },
+  "P100": {
+    "b": 19.0,
+    "h": 52.0,
+    "confidence": 0.4,
+    "source": "proximity-fallback",
+    "dist_d1": 119.9,
+    "dist_d2": 192.5
+  },
+  "_meta": {
+    "total": 97,
+    "extraidos_bh_completo": 97,
+    "extraidos_parcial": 0,
+    "sem_dados": 0,
+    "cobertura_pct": 100.0,
+    "max_dist": 300.0,
+    "obra": "Obra_TREINO_5",
+    "pavimento": "EMBRAMACO - N300",
+    "extraido_em": "2026-05-22",
+    "algoritmo": "dimension-proximity-matching"
+  }
+}

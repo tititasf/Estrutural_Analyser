@@ -1,0 +1,32 @@
+{
+  "obra": "Obra_TREINO_15",
+  "pavimento": "IPEROIG - TIP",
+  "timestamp": "2026-05-14T13:53:22.098618",
+  "fases": {
+    "descoberta": "SKIP",
+    "eng_reversa": "SKIP",
+    "extracao_dimensional": "SKIP",
+    "motor_fase4": "SKIP",
+    "geracao_dxf_individual": "SKIP",
+    "comparacao_individual": "OK",
+    "ancoras": "SKIP",
+    "consolidacao_coletivo": "SKIP",
+    "validacao_coletivo": "OK",
+    "obras_salvas": "SKIP",
+    "validacao_visual": "OK"
+  },
+  "scores": {
+    "visual": {
+      "score_pavimento": null,
+      "tipos": []
+    },
+    "coletivo": {
+      "pilares": 100.0,
+      "vigas": 100.0,
+      "lajes": 100.0,
+      "global": 100.0,
+      "aprovado": true
+    }
+  },
+  "status": "PARCIAL"
+}

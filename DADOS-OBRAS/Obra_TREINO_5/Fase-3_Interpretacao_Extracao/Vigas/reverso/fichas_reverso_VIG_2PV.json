@@ -598,6 +598,47 @@
     "has_lv": true,
     "has_fv": false
   },
+  "V312": {
+    "nome": "V312",
+    "lado_A": {
+      "comprimento_total": 246.0,
+      "altura": 84.0,
+      "b_secao": null,
+      "h_secao": null,
+      "paineis": [
+        166.0,
+        54.0
+      ],
+      "n_paineis": 2,
+      "pillar_left": "P20",
+      "pillar_right": "P36",
+      "_n_dims_h": 14,
+      "_bbox_w": 1197.0,
+      "_bbox_h": 365.9
+    },
+    "lado_B": {
+      "comprimento_total": 246.0,
+      "altura": 84.0,
+      "b_secao": null,
+      "h_secao": null,
+      "paineis": [
+        166.0,
+        54.0
+      ],
+      "n_paineis": 2,
+      "pillar_left": "P20",
+      "pillar_right": "P36",
+      "_n_dims_h": 14,
+      "_bbox_w": 1197.0,
+      "_bbox_h": 365.9
+    },
+    "comprimento_cm": 246.0,
+    "altura_cm": 84.0,
+    "b": 0,
+    "h_secao": 0,
+    "has_lv": true,
+    "has_fv": false
+  },
   "V313": {
     "nome": "V313",
     "lado_A": {
@@ -661,6 +702,49 @@
       "_bbox_h": 589.1
     },
     "comprimento_cm": 299.0,
+    "altura_cm": 84.0,
+    "b": 0,
+    "h_secao": 0,
+    "has_lv": true,
+    "has_fv": false
+  },
+  "V314": {
+    "nome": "V314",
+    "lado_A": {
+      "comprimento_total": 246.0,
+      "altura": 84.0,
+      "b_secao": null,
+      "h_secao": null,
+      "paineis": [
+        166.0,
+        153.5,
+        54.0
+      ],
+      "n_paineis": 3,
+      "pillar_left": "P20",
+      "pillar_right": "P36",
+      "_n_dims_h": 15,
+      "_bbox_w": 1197.0,
+      "_bbox_h": 405.4
+    },
+    "lado_B": {
+      "comprimento_total": 246.0,
+      "altura": 84.0,
+      "b_secao": null,
+      "h_secao": null,
+      "paineis": [
+        166.0,
+        153.5,
+        54.0
+      ],
+      "n_paineis": 3,
+      "pillar_left": "P20",
+      "pillar_right": "P36",
+      "_n_dims_h": 15,
+      "_bbox_w": 1197.0,
+      "_bbox_h": 405.4
+    },
+    "comprimento_cm": 246.0,
     "altura_cm": 84.0,
     "b": 0,
     "h_secao": 0,

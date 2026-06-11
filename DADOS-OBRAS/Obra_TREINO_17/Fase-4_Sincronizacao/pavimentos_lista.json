@@ -1,0 +1,15 @@
+{
+  "Obra_TREINO_17": {
+    "pavimentos": [
+      "METROCASA9 DE JULHO - 1PV"
+    ],
+    "pavimentos_data": {
+      "METROCASA9 DE JULHO - 1PV": {
+        "nome": "METROCASA9 DE JULHO - 1PV",
+        "numero": "1",
+        "nivel_chegada": "0.0",
+        "nivel_saida": "280.0"
+      }
+    }
+  }
+}

@@ -1,0 +1,46 @@
+{
+  "tipo": "pilares",
+  "stog_dxf": "TOLEDO-IPEROIG-LO-TIP-DINF-PI-R00_R2018_ASCII_ODA.dxf",
+  "gerado_dxf": "PL_stog_quality.dxf",
+  "score": 86.6,
+  "aprovado": true,
+  "limiar": 85.0,
+  "detalhes": {
+    "id_match": {
+      "score": 30.0,
+      "max": 30,
+      "gt_count": 20,
+      "gerado_count": 20,
+      "id_match_rate": 1.0,
+      "hallucination_rate": 0.0,
+      "missed": [],
+      "hallucinated": []
+    },
+    "entity_coverage": {
+      "score": 31.2,
+      "max": 40,
+      "stog_total": 11576,
+      "gerado_total": 5723,
+      "global_ratio": 0.4944,
+      "critical_avg": 0.9025
+    },
+    "layer_presence": {
+      "score": 15.4,
+      "max": 20,
+      "present": 10,
+      "missing": 3,
+      "required_layers": 13,
+      "missing_list": [
+        "HACHURACONCRETO",
+        "Demarcação 1",
+        "cotas"
+      ]
+    },
+    "anti_hallucination": {
+      "score": 10.0,
+      "max": 10
+    }
+  },
+  "scorer": "kb-blended",
+  "kb_file": "TOLEDO-IPEROIG-LO-TIP-DINF-PI-R00_R2018_ASCII_ODA.dxf"
+}

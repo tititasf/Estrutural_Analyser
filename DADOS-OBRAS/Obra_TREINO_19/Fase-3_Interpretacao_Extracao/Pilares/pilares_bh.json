@@ -1,0 +1,14 @@
+{
+  "_meta": {
+    "total": 0,
+    "extraidos_bh_completo": 0,
+    "extraidos_parcial": 0,
+    "sem_dados": 0,
+    "cobertura_pct": 0,
+    "max_dist": 300.0,
+    "obra": "Obra_TREINO_19",
+    "pavimento": "1 SUBOLO",
+    "extraido_em": "2026-05-06",
+    "algoritmo": "dimension-proximity-matching"
+  }
+}
