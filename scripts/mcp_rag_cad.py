@@ -87,6 +87,37 @@ def do_rag_search(query_text: str, tipo: str | None, obra: str | None,
     return out
 
 
+def do_semantica_search(query_text: str, categoria: str | None,
+                        k: int, threshold: float) -> list[dict]:
+    """Busca no índice de conhecimento semântico (semantica_formas).
+
+    Os chunks semânticos usam campo 'tipo' como categoria
+    (arquitetura|pilar|viga|laje|nivel|algoritmo) e 'id' como título.
+    """
+    import rag_commons
+    results = rag_commons.query(
+        text=query_text,
+        tipo='semantica',
+        obra=None,
+        k=k,
+        threshold=threshold,
+    )
+    out = []
+    for r in results:
+        m = r['meta']
+        # campo 'tipo' = categoria do conhecimento
+        if categoria and m.get('tipo') != categoria:
+            continue
+        chunk = {
+            'score': round(r['score'], 4),
+            'categoria': m.get('tipo', '?'),
+            'id': m.get('id', '?'),
+            'conteudo': m.get('text', ''),
+        }
+        out.append(chunk)
+    return out
+
+
 def do_rag_stats() -> dict:
     """Retorna estatísticas do índice FAISS."""
     import rag_commons
@@ -149,6 +180,41 @@ async def list_tools() -> list[Tool]:
             }
         ),
         Tool(
+            name="rag_semantica",
+            description=(
+                "Busca no conhecimento semântico de engenharia estrutural / CAD. "
+                "Use para recuperar regras de interpretação de fichas TQS, heurísticas de extração DXF, "
+                "terminologia (viga invertida, visão de corte, pillar_left/right), "
+                "e algoritmos de matching (ray casting, bbox, multi-label filter). "
+                "NÃO retorna elementos de obra — retorna conhecimento processual/arquitetural."
+            ),
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "query": {
+                        "type": "string",
+                        "description": "Pergunta ou tema. Ex: 'como detectar viga passando pelo pilar' ou 'mapeamento campo h3 ficha TQS'"
+                    },
+                    "categoria": {
+                        "type": "string",
+                        "enum": ["arquitetura", "pilar", "viga", "laje", "nivel", "algoritmo"],
+                        "description": "Filtrar por categoria: arquitetura (Architecture B, layers), pilar (b/h/h3/laje_A-H), viga (b/h/visao_corte/invertida), laje (poligono/nivel/pontalete), nivel (granular), algoritmo (ray-cast/DXF-select) (opcional)"
+                    },
+                    "k": {
+                        "type": "integer",
+                        "default": 3,
+                        "description": "Número de resultados (1-10, default=3)"
+                    },
+                    "threshold": {
+                        "type": "number",
+                        "default": 0.30,
+                        "description": "Score mínimo de similaridade (default=0.30)"
+                    }
+                },
+                "required": ["query"]
+            }
+        ),
+        Tool(
             name="rag_stats",
             description=(
                 "Retorna estatísticas do índice RAG CAD-ANALYZER: total de vetores, "
@@ -186,6 +252,24 @@ async def call_tool(name: str, arguments: dict) -> list[TextContent]:
                 "query": query_text,
                 "tipo_filtro": tipo,
                 "obra_filtro": obra,
+                "n_resultados": len(results),
+                "resultados": results,
+            }
+            return [TextContent(type="text", text=json.dumps(payload, ensure_ascii=False, indent=2))]
+        except Exception as e:
+            return [TextContent(type="text", text=json.dumps({"error": str(e)}, ensure_ascii=False))]
+
+    elif name == "rag_semantica":
+        query_text = arguments.get("query", "")
+        categoria  = arguments.get("categoria")
+        k          = min(int(arguments.get("k", 3)), 10)
+        threshold  = float(arguments.get("threshold", 0.30))
+
+        try:
+            results = do_semantica_search(query_text, categoria, k, threshold)
+            payload = {
+                "query": query_text,
+                "categoria_filtro": categoria,
                 "n_resultados": len(results),
                 "resultados": results,
             }

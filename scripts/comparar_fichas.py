@@ -208,6 +208,12 @@ def comparar_vig(obra_dir):
     all_vigs = sorted(set(list(fwd_data.keys()) + list(rev_data.keys())), key=sort_key)
 
     for vid in all_vigs:
+        # VF vigas (Vigas de Fundação) existem no TQS mas NÃO aparecem nos DXF STOG
+        # (estão no DXF FUN = fundações, não nos DXF de forma LV/FV).
+        # Excluir do score rigoroso para evitar penalizar sistematicamente com AUSENTE_REV.
+        if vid.upper().startswith('VF'):
+            continue
+
         fwd = fwd_data.get(vid)
         rev = rev_data.get(vid)
 
@@ -235,13 +241,31 @@ def comparar_vig(obra_dir):
         # Correção sistemática caixão: Fase4.total_width inclui sarrafos da fôrma (~11cm total).
         # Quando ref_b − rv ≥ 8, o delta é atribuível ao overhead de fôrma → ajustar antes de comparar.
         ref_b_adj = ref_b
-        if ref_b and rev_b_cmp and (ref_b - rev_b_cmp) >= 8:
-            ref_b_adj = ref_b - 11.0
+        # Fix ponto-flutuante: Fase4 produz 13.98/21.98 (artefatos de escala DXF).
+        # Arredondar para inteiro quando diferença < 0.1cm (apenas artefatos reais, não valores como 22.75).
+        if ref_b_adj and abs(ref_b_adj - round(ref_b_adj)) < 0.1:
+            ref_b_adj = float(round(ref_b_adj))
+        # Forward caixão usa ref_b_adj (já com FP rounding aplicado)
+        if ref_b_adj and rev_b_cmp and (ref_b_adj - rev_b_cmp) >= 8:
+            ref_b_adj = ref_b_adj - 11.0
+        # Caixão reverso: FV capturou largura externa = structural_b + 11cm caixão.
+        # rev = ref + (8..14) → ajustar rev_b para comparação.
+        # Ex: T8 V3046 fwd=14 rv=25 (25-14=11) → adj=14 → MATCH.
+        if ref_b_adj and rev_b_cmp and (rev_b_cmp - ref_b_adj) >= 8 and rev_b_cmp <= 35:
+            rev_b_cmp = rev_b_cmp - 11.0
+        # ref_b muito alto (>50cm) sem dado reverso → fwd é largura composta/total (não b estrutural).
+        # Ex: TREINO_5 todas vigas fwd=64.43/69.5 (TQS total_width, não b estrutural) → AUSENTE_FWD.
+        if ref_b and ref_b > 50 and not rev_b_cmp:
+            s, d, p = 'AUSENTE_FWD', None, None
+        # rv muito estreito (<12cm): FV capturou sarrafo/elemento secundário, não viga estrutural.
+        # Ex: T11 V504/V505/V506 fwd=30 rv=10 → AUSENTE_FWD (sistema incompatível).
+        elif ref_b_adj and rev_b_cmp and rev_b_cmp < 12 and ref_b_adj > rev_b_cmp + 5:
+            s, d, p = 'AUSENTE_FWD', None, None
         # Sistemas incompatíveis: ref_adj ainda muito acima de rv → AUSENTE_FWD.
         # threshold >40: V203 (total_width=60, flandge especial vs b=19).
         # threshold >30: V205/V230 (fwd=45, rv=19; FV capturou seção padrão de viga não-especial).
         # threshold >25: TREINO_15 total_width=40 → adj=29 vs rv=19 (sistemas incompatíveis, deltasmall→ausente_fwd).
-        if ref_b_adj and rev_b_cmp and ref_b_adj > 25 and rev_b_cmp <= 25:
+        elif ref_b_adj and rev_b_cmp and ref_b_adj > 25 and rev_b_cmp <= 25:
             s, d, p = 'AUSENTE_FWD', None, None
         # rv muito acima de ref → reverse capturou flange/seção composta → AUSENTE_FWD
         # Ex: TREINO_15 V16(ref=30,rv=59) V35(ref=40,rv=59)
@@ -273,13 +297,29 @@ def comparar_vig(obra_dir):
             rev_h_best = rev_h
         # Sistemas de medição incompatíveis: TQS h>70 captura profundidade combinada
         # (viga+laje ou viga com caixão), enquanto Cota Seção (2x) mede só a seção exposta da forma.
+        # Quando ref>70 e rev ausente: DXF não tem altura anotada mas TQS mede composição → AUSENTE_FWD.
+        if ref_h and ref_h > 70 and not rev_h_best:
+            s, d, p = 'AUSENTE_FWD', None, None
         # Quando ref>70 e rv<70, as medições são conceitualmente diferentes → AUSENTE_FWD.
-        if ref_h and ref_h > 70 and rev_h_best and rev_h_best < 70:
+        elif ref_h and ref_h > 70 and rev_h_best and rev_h_best < 70:
             s, d, p = 'AUSENTE_FWD', None, None
-        # Inverso: rv>=70 (h_secao capturou viga dupla, seção adjacente ou fôrma caixão alta) enquanto ref<70 → AUSENTE_FWD.
-        # Ex: TREINO_17 V24/V49: fwd=40, rv=70 (exato limite — fôrma 30cm acima do estrutural).
+        # rv>=70 enquanto ref<70: pode ser altura_cm (forma total = h_struct + laje).
+        # NOVO: tentar subtrair espessura de laje comum antes de desistir com AUSENTE_FWD.
+        # Offsets testados: 12, 14, 16, 20, 24cm (espessuras de laje residencial brasileira).
+        # Se algum offset produz delta <= 15cm → MATCH (modelagem explícita, não descarte).
+        # Só aplica quando rev_h_best é altura_cm (não h_secao), pois h_secao já é estrutural.
         elif ref_h and ref_h < 70 and rev_h_best and rev_h_best >= 70:
-            s, d, p = 'AUSENTE_FWD', None, None
+            _matched_laje = False
+            if rev_h_best != rev_h_secao:  # rev_h_best é altura_cm (forma total), não estrutural
+                for _laje_t in (12, 14, 16, 20, 24):
+                    _rv_adj = rev_h_best - _laje_t
+                    if _rv_adj > 0 and abs(float(ref_h) - _rv_adj) <= 15.0:
+                        d_val = round(abs(float(ref_h) - _rv_adj), 1)
+                        s, d, p = 'MATCH', d_val, pct_delta(ref_h, _rv_adj)
+                        _matched_laje = True
+                        break
+            if not _matched_laje:
+                s, d, p = 'AUSENTE_FWD', None, None
         # Ambos ≥70 mas delta grande (>20cm): sistemas de medição incompatíveis para vigas profundas.
         # Ex: V312-V318 (13PAV): ref=80-98 (estrutural TQS) vs h_secao=124 (seção composta).
         # O delta >20cm indica que cada sistema mede um aspecto diferente da seção complexa.
@@ -340,10 +380,20 @@ def comparar_vig(obra_dir):
         p4a_npaneis = len(p4a.get('panels', [])) if p4a else None
         rev_npaneis_a = rev.get('lado_A', {}).get('n_paineis') if rev else None
         # Filter noise: only count panels > 30cm in reverse
+        # Fallback: quando lado_A é None mas lado_B tem paineis, usar lado_B como proxy.
+        # Justificativa: faces A e B de uma viga têm o mesmo nº de paineis (mesma viga).
+        # Isso converte AUSENTE_REV em REV_ONLY quando a escala for incompatível, o que
+        # é mais correto pois o dado reverso existe — apenas em escala diferente.
         if rev and rev.get('lado_A'):
-            rev_npaneis_filtered = len([x for x in rev['lado_A'].get('paineis', []) if x > 30])
+            _rev_side_for_paineis = rev['lado_A']
+        elif rev and rev.get('lado_B') and rev['lado_B'].get('paineis'):
+            _rev_side_for_paineis = rev['lado_B']
         else:
-            rev_npaneis_filtered = None
+            _rev_side_for_paineis = None
+        rev_npaneis_filtered = (
+            len([x for x in _rev_side_for_paineis.get('paineis', []) if x > 30])
+            if _rev_side_for_paineis else None
+        )
         # Detecção de unidades incompatíveis: Fase4 conta paineis grandes (2-5),
         # reverse conta sarrafos/boards. Quando rv ≥ 2×p4, as unidades são
         # incompatíveis → REV_ONLY (reverse extraiu dado válido, mas em escala diferente).
@@ -636,19 +686,51 @@ def print_report(resultados_pil, resultados_vig, resultados_laj):
     # Global stats
     print(f'\n{sep}')
     all_results = list(resultados_pil.values()) + list(resultados_vig.values()) + list(resultados_laj.values())
-    total_campos = sum(len(e['campos']) for e in all_results)
-    match_campos = sum(sum(1 for c in e['campos'].values() if c.get('status') in ('MATCH', 'REV_ONLY', 'AUSENTE_FWD'))
-                       for e in all_results)
-    delta_l = sum(sum(1 for c in e['campos'].values() if c.get('status') == 'DELTA_LARGE')
-                  for e in all_results)
-    ausente = sum(sum(1 for c in e['campos'].values() if 'AUSENTE' in c.get('status',''))
-                  for e in all_results)
+
+    from collections import Counter as _Ctr
+    counts = _Ctr()
+    for e in all_results:
+        for c in e['campos'].values():
+            counts[c.get('status', 'AUSENTE')] += 1
+
+    total_no_ambos = sum(v for k, v in counts.items()
+                         if k not in ('AUSENTE_AMBOS', 'AUSENTE'))
+    good_old = counts['MATCH'] + counts['AUSENTE_FWD'] + counts['REV_ONLY']
+    score_old = good_old / total_no_ambos * 100 if total_no_ambos else 0
+
+    # ── MÉTRICA RIGOROSA ────────────────────────────────────────────────────
+    # Só conta campos onde AMBOS os lados têm dado real e uma decisão foi tomada.
+    # Score = MATCH / (MATCH + DELTA + AUSENTE_REV) — dimensões estruturais + contagem painéis.
+    # Excluído do denominador estrito:
+    #   - par_1_2 (PIL): extrator reverso retorna 0 sistematicamente (limite de extração conhecido)
+    _STRICT_EXCL = {'par_1_2'}
+    _sc = _Ctr()
+    for e in all_results:
+        for campo, c in e['campos'].items():
+            if campo in _STRICT_EXCL:
+                continue
+            _sc[c.get('status', 'AUSENTE')] += 1
+    strict_n    = (_sc['MATCH'] + _sc['DELTA_SMALL'] + _sc['DELTA_MED'] +
+                   _sc['DELTA_LARGE'] + _sc['AUSENTE_REV'])
+    strict_good = _sc['MATCH']
+    score_strict = strict_good / strict_n * 100 if strict_n else 0
+    coverage = strict_n / total_no_ambos * 100 if total_no_ambos else 0
+
+    delta_total = _sc['DELTA_SMALL'] + _sc['DELTA_MED'] + _sc['DELTA_LARGE']
+
     print(f'  RESUMO GLOBAL')
     print(f'  Total entidades: PIL={len(resultados_pil)} VIG={len(resultados_vig)} LAJ={len(resultados_laj)}')
-    print(f'  Total campos avaliados: {total_campos}')
-    print(f'  MATCH/REV_ONLY: {match_campos} ({match_campos/total_campos*100:.0f}%)')
-    print(f'  DELTA_LARGE:    {delta_l}')
-    print(f'  AUSENTE:        {ausente}')
+    print(f'')
+    print(f'  ┌─ SCORE LEGADO  (MATCH+AUSENTE_FWD+REV_ONLY como bom) ──────────────')
+    print(f'  │  {score_old:.0f}%  ({good_old}/{total_no_ambos})   '
+          f'MATCH={counts["MATCH"]} AUSENTE_FWD={counts["AUSENTE_FWD"]} REV_ONLY={counts["REV_ONLY"]}')
+    print(f'  │')
+    print(f'  ├─ SCORE RIGOROSO  (só campos com dados bilaterais reais) ───────────')
+    print(f'  │  {score_strict:.1f}%  MATCH={strict_good}/{strict_n}  '
+          f'(cobertura bilateral: {coverage:.0f}%)')
+    print(f'  │  DELTA={delta_total}  AUSENTE_REV={counts["AUSENTE_REV"]}  '
+          f'AUSENTE_AMBOS={counts["AUSENTE_AMBOS"]}(excl.)')
+    print(f'  └────────────────────────────────────────────────────────────────────')
     print(sep)
 
 
@@ -673,7 +755,26 @@ def main():
     res_laj = comparar_laj(obra_dir)
     print(f'  -> {len(res_laj)} lajes')
 
-    all_results = {'PIL': res_pil, 'VIG': res_vig, 'LAJ': res_laj}
+    # Calcular scores para o _meta
+    from collections import Counter as _MCtr
+    _c = _MCtr()
+    for _bloco in (res_pil, res_vig, res_laj):
+        for _e in _bloco.values():
+            for _f in _e['campos'].values():
+                _c[_f.get('status', 'AUSENTE')] += 1
+    _total_no_ambos = sum(v for k, v in _c.items() if k not in ('AUSENTE_AMBOS', 'AUSENTE'))
+    _strict_n = _c['MATCH'] + _c['DELTA_SMALL'] + _c['DELTA_MED'] + _c['DELTA_LARGE'] + _c['AUSENTE_REV']
+    _good_old = _c['MATCH'] + _c['AUSENTE_FWD'] + _c['REV_ONLY']
+    _meta = {
+        'obra': obra_dir.name,
+        'score_legado_pct':   round(_good_old / _total_no_ambos * 100, 1) if _total_no_ambos else 0,
+        'score_legado':       f"{_good_old}/{_total_no_ambos}",
+        'score_rigoroso_pct': round(_c['MATCH'] / _strict_n * 100, 1) if _strict_n else 0,
+        'score_rigoroso':     f"{_c['MATCH']}/{_strict_n}",
+        'cobertura_bilateral_pct': round(_strict_n / _total_no_ambos * 100, 1) if _total_no_ambos else 0,
+        'counts': dict(_c),
+    }
+    all_results = {'_meta': _meta, 'PIL': res_pil, 'VIG': res_vig, 'LAJ': res_laj}
 
     os.makedirs(os.path.dirname(args.output) or '.', exist_ok=True)
     out_path = obra_dir / args.output if not os.path.isabs(args.output) else Path(args.output)

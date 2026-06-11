@@ -106,6 +106,13 @@ def consolidar(all_data):
                     existing['has_lv'] = True
                 if ficha.get('has_fv', False):
                     existing['has_fv'] = True
+                # Merge lado_A/lado_B: propagar quando pavimento atual tem paineis
+                # e o existente não (fix: primeiro pav pode não ter LV, segundo tem)
+                for side in ('lado_A', 'lado_B'):
+                    if side in ficha:
+                        existing_side = existing.get(side, {})
+                        if not existing_side or not existing_side.get('paineis'):
+                            existing[side] = ficha[side]
 
     return consolidated
 

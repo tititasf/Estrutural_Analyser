@@ -187,6 +187,10 @@ class AnomalyDetector:
         self.plausibility = PlausibilityChecker(k_similares=3)
         self.validator    = StructuralValidator()
 
+    # Tipos com embeddings confiáveis (têm dimensões reais nos JSONs Fase-3)
+    # Vigas e lajes têm b=None/comprimento=None → embeddings todos iguais → sem discriminação
+    _SEMANTIC_RELIABLE = {'pilar'}
+
     def score_element(
         self,
         tipo:        str,
@@ -198,10 +202,14 @@ class AnomalyDetector:
         """
         Calcula score de anomalia para um elemento.
 
+        Nota: Para vigas e lajes os embeddings FAISS têm b=None (dados ausentes na Fase-3),
+        por isso a camada semântica é desabilitada nesses tipos — usa apenas validação
+        dimensional (StructuralValidator), que é determinística e confiável.
+
         Returns:
             AnomalyScore com todos os detalhes
         """
-        # 1. Validação dimensional (hard limits)
+        # 1. Validação dimensional (hard limits) — sempre ativa
         val = self.validator.validate(tipo, elemento_id, dados, obra)
 
         if val.bloqueado:
@@ -211,12 +219,23 @@ class AnomalyDetector:
         else:
             dim_penalty = 0.0
 
-        # 2. Plausibilidade semântica (RAG)
-        plaus = self.plausibility.check(elemento_id, tipo, dados, obra, pavimento)
-        semantic_sim = plaus.similarity
+        # 2. Plausibilidade semântica (RAG) — apenas para tipos com dados confiáveis
+        if tipo in self._SEMANTIC_RELIABLE:
+            plaus = self.plausibility.check(elemento_id, tipo, dados, obra, pavimento)
+            semantic_sim = plaus.similarity
+            plausibility_acao = plaus.acao
+        else:
+            # Sem semântica confiável — score neutro (0.5 = sem evidência)
+            semantic_sim = 0.5
+            plausibility_acao = 'SEM_SEMANTICA'
 
         # 3. Score combinado
-        anomaly = 0.5 * (1.0 - semantic_sim) + 0.5 * dim_penalty
+        if tipo in self._SEMANTIC_RELIABLE:
+            # Combina semântico + dimensional
+            anomaly = 0.5 * (1.0 - semantic_sim) + 0.5 * dim_penalty
+        else:
+            # Apenas dimensional
+            anomaly = dim_penalty
         anomaly = max(0.0, min(1.0, anomaly))
 
         # 4. Categoria
@@ -237,10 +256,10 @@ class AnomalyDetector:
             semantic_sim=semantic_sim,
             dim_penalty=dim_penalty,
             categoria=categoria,
-            plausibility_acao=plaus.acao,
+            plausibility_acao=plausibility_acao,
             dim_status=val.status,
             alertas_dim=val.alertas,
-            similares=plaus.similares,
+            similares=plaus.similares if tipo in self._SEMANTIC_RELIABLE else [],
         )
 
     def score_batch(self, elementos: list, obra: str) -> list:

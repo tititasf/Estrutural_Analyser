@@ -43,8 +43,14 @@ def load_index(tipo: str = None) -> tuple:
     Carrega índice FAISS + metadados (com cache).
     tipo=None → índice geral 'estruturais'
     tipo='pilar'|'viga'|'laje' → índice específico
+    tipo='semantica' → conhecimento semântico de interpretação de formas
     """
-    PLURAL = {'pilar': 'pilares', 'viga': 'vigas', 'laje': 'lajes'}
+    PLURAL = {
+        'pilar': 'pilares',
+        'viga': 'vigas',
+        'laje': 'lajes',
+        'semantica': 'semantica_formas',
+    }
     nome = PLURAL.get(tipo, 'estruturais') if tipo else 'estruturais'
 
     if nome not in _index_cache:

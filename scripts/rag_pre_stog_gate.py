@@ -7,7 +7,9 @@ Gate obrigatório ANTES de qualquer geração DXF pelos robôs Bolt/Crane/Slab.
 Carrega elementos da Fase 3 (ground truth JSONs) de uma obra,
 valida cada um via AnomalyDetector, e retorna veredicto final:
   - PASS: todos os elementos aprovados (podem prosseguir para os robôs)
-  - FAIL: há elementos bloqueados (parar geração até revisão)
+  - WARN: obra fora do corpus FAISS — apenas validação dimensional, sem bloqueios dimensionais
+  - FAIL: há elementos com bloqueio dimensional CRÍTICO (parar geração até revisão)
+  - SKIP: sem elementos na Fase 3
 
 Integrar chamada antes de robot_integration.process_pavimento().
 
@@ -31,6 +33,7 @@ from typing import Optional
 
 sys.path.insert(0, str(Path(__file__).parent))
 from rag_anomaly_detector import AnomalyDetector, ObraAnomalyReport
+from rag_commons import get_obras_ingeridas
 
 OBRAS_DIR    = Path('D:/Agente-cad-PYSIDE/DADOS-OBRAS')
 REPORTS_DIR  = Path('D:/Agente-cad-PYSIDE/data/rag-gates')
@@ -97,18 +100,20 @@ def carregar_elementos_fase3(obra_path: Path, obra_nome: str) -> list:
 class GateResult:
     obra:        str
     obra_path:   str
-    gate:        str       # PASS | FAIL | SKIP (sem elementos)
+    gate:        str       # PASS | WARN | FAIL | SKIP (sem elementos)
     timestamp:   str = field(default_factory=lambda: datetime.datetime.now().isoformat())
     n_elementos: int = 0
     n_aprovados: int = 0
     n_avisos:    int = 0
     n_bloqueados: int = 0
+    obra_no_corpus: bool = False   # True se obra não está no FAISS corpus
     anomaly_report: Optional[ObraAnomalyReport] = None
     motivo_skip: str = ''
 
     def print_summary(self):
         cor = {
             'PASS':  '\033[32m',  # verde
+            'WARN':  '\033[33m',  # amarelo
             'FAIL':  '\033[31m',  # vermelho
             'SKIP':  '\033[33m',  # amarelo
         }
@@ -118,6 +123,8 @@ class GateResult:
         print(f"\n{'='*55}")
         print(f"  PRE-STOG GATE — {self.obra}")
         print(f"  Status: {c}{self.gate}{reset}")
+        if self.obra_no_corpus:
+            print(f"  \033[33m[AVISO] Obra não está no corpus FAISS — apenas validação dimensional ativa\033[0m")
         print(f"  Elementos: {self.n_elementos} total")
         print(f"    Aprovados:  {self.n_aprovados}")
         print(f"    Com avisos: {self.n_avisos}")
@@ -126,7 +133,7 @@ class GateResult:
             print(f"  Motivo: {self.motivo_skip}")
         print(f"{'='*55}")
 
-        if self.gate == 'FAIL' and self.anomaly_report:
+        if self.gate in ('FAIL', 'WARN') and self.anomaly_report:
             print(self.anomaly_report.relatorio(verbose=False))
 
     def to_dict(self) -> dict:
@@ -140,6 +147,8 @@ class GateResult:
             'n_avisos':    self.n_avisos,
             'n_bloqueados': self.n_bloqueados,
         }
+        if self.obra_no_corpus:
+            d['obra_no_corpus'] = True
         if self.anomaly_report:
             d['anomaly_report'] = self.anomaly_report.to_dict()
         if self.motivo_skip:
@@ -208,6 +217,10 @@ class PreStogGate:
                 motivo_skip='Nenhum elemento encontrado na Fase 3',
             )
 
+        # Verificar se obra está no corpus FAISS
+        obras_corpus = get_obras_ingeridas()
+        obra_no_corpus = obra_nome not in obras_corpus
+
         # Executar anomaly detection
         report = self.detector.report_obra(obra_nome, elementos)
 
@@ -216,7 +229,24 @@ class PreStogGate:
         n_bloqueados = len(report.bloqueados)
         n_aprovados  = len(report.normais)
 
-        gate_status = 'PASS' if n_bloqueados == 0 else 'FAIL'
+        # Determinar gate status
+        if obra_no_corpus:
+            # Obra desconhecida: apenas bloqueios DIMENSIONAIS causam FAIL
+            # Anomalias semânticas (que seriam ANÔMALO pelo score combinado) viram WARN
+            # porque sem corpus, o score semântico é neutro (0.5) e não é confiável
+            n_bloqueados_dim = sum(
+                1 for s in report.scores
+                if s.dim_status == 'BLOQUEADO'
+            )
+            if n_bloqueados_dim > 0:
+                gate_status = 'FAIL'
+            elif n_bloqueados > 0 or n_avisos > 0:
+                gate_status = 'WARN'
+            else:
+                gate_status = 'PASS'
+        else:
+            # Obra conhecida: qualquer bloqueado (dimensional ou semântico) é FAIL
+            gate_status = 'PASS' if n_bloqueados == 0 else 'FAIL'
 
         return GateResult(
             obra=obra_nome,
@@ -226,15 +256,22 @@ class PreStogGate:
             n_aprovados=n_aprovados,
             n_avisos=n_avisos,
             n_bloqueados=n_bloqueados,
+            obra_no_corpus=obra_no_corpus,
             anomaly_report=report,
         )
 
-    def approve(self, obra: str, obras_dir: Path = OBRAS_DIR) -> bool:
+    def approve(self, obra: str, obras_dir: Path = OBRAS_DIR, allow_warn: bool = True) -> bool:
         """
         Versão booleana para integração em pipelines.
-        True = PASS (pode prosseguir), False = FAIL (bloquear).
+        True = pode prosseguir, False = bloquear.
+
+        Args:
+            allow_warn: Se True (padrão), WARN permite prosseguir.
+                        Se False, WARN também bloqueia (modo estrito).
         """
         result = self.run(obra, obras_dir)
+        if allow_warn:
+            return result.gate in ('PASS', 'WARN', 'SKIP')
         return result.gate in ('PASS', 'SKIP')
 
     def run_all(self, obras_dir: Path = OBRAS_DIR) -> list:
@@ -273,16 +310,23 @@ if __name__ == '__main__':
         print(f"PRE-STOG GATE — Todas as Obras ({len(results)} processadas)")
         print(f"{'='*60}")
         for r in results:
-            cor = '\033[32m' if r.gate == 'PASS' else ('\033[33m' if r.gate == 'SKIP' else '\033[31m')
-            print(f"  {cor}{r.gate}\033[0m  {r.obra:<30}  elem={r.n_elementos}  bloqued={r.n_bloqueados}")
+            if r.gate == 'PASS':
+                cor = '\033[32m'
+            elif r.gate in ('WARN', 'SKIP'):
+                cor = '\033[33m'
+            else:
+                cor = '\033[31m'
+            corpus_flag = ' [SEM CORPUS]' if r.obra_no_corpus else ''
+            print(f"  {cor}{r.gate}\033[0m  {r.obra:<30}  elem={r.n_elementos}  bloqued={r.n_bloqueados}{corpus_flag}")
             if args.save and r.gate != 'SKIP':
                 p = gate.salvar_report(r)
                 print(f"        → {p}")
 
         n_fail = sum(1 for r in results if r.gate == 'FAIL')
+        n_warn = sum(1 for r in results if r.gate == 'WARN')
         n_pass = sum(1 for r in results if r.gate == 'PASS')
         n_skip = sum(1 for r in results if r.gate == 'SKIP')
-        print(f"\nResumo: PASS={n_pass} FAIL={n_fail} SKIP={n_skip}")
+        print(f"\nResumo: PASS={n_pass} WARN={n_warn} FAIL={n_fail} SKIP={n_skip}")
 
         if n_fail > 0 and not args.force:
             sys.exit(1)
@@ -295,6 +339,8 @@ if __name__ == '__main__':
             print(f"\nReport salvo: {p}")
         if result.gate == 'FAIL' and not args.force:
             sys.exit(1)
+        if result.gate == 'WARN':
+            print(f"\n[WARN] Obra fora do corpus FAISS — validação dimensional ativa, semântica ignorada.")
     else:
         parser.print_help()
         print('\nExemplos:')

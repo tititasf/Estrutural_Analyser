@@ -52,29 +52,103 @@ def get_dim_info(e):
 
 # ── LV EXTRACTOR ─────────────────────────────────────────────────────────────
 
-def extrair_lv(lv_path):
+def extrair_pilar_refs_fv(fv_path):
+    """Extrai referências de pilares (P-labels) do DXF FV (layer '5' ou 'TEXTO PILAR').
+    Usado como pool suplementar quando os labels no LV estão fora do alcance das seções
+    (ex: TREINO_17 1PV — LV refs em Y~27k, seções em Y~34k, gap ~6000 unidades).
+    O FV frequentemente tem os P-labels co-localizados com as seções."""
+    try:
+        doc = ezdxf.readfile(fv_path)
+        msp = doc.modelspace()
+        refs = []
+        for e in msp:
+            if e.dxftype() != 'TEXT':
+                continue
+            lyr = e.dxf.layer
+            if lyr not in ('5', 'TEXTO PILAR'):
+                continue
+            txt = e.dxf.text.strip()
+            if re.match(r'^P\d+', txt):
+                refs.append({'text': txt, 'pos': (float(e.dxf.insert[0]), float(e.dxf.insert[1]))})
+        return refs
+    except Exception:
+        return []
+
+
+def extrair_lv(lv_path, extra_pilar_refs=None):
     doc = ezdxf.readfile(lv_path)
     msp = doc.modelspace()
 
     # 1. Textos de secao (Texto Secao layer OU NOMENCLATURA)
     # TREINO_1+: layer 'Texto Seção' ou similar (contém 'Texto' e 'Se')
     # TREINO_5+: layer 'NOMENCLATURA' (contem V201.A, V201.B etc.)
+    # Nota: DXFs gerados podem usar MTEXT em vez de TEXT (ex: TREINO_1 LV_gerado.dxf)
     secao_texts = []
     for e in msp:
-        if e.dxftype() != 'TEXT': continue
+        if e.dxftype() not in ('TEXT', 'MTEXT'): continue
         layer = str(e.dxf.layer)
         is_secao_layer = ('Texto' in layer and 'Se' in layer) or layer == 'NOMENCLATURA'
         if not is_secao_layer: continue
-        txt = e.dxf.text.strip()
-        m = re.match(r'^(CONT\.\s*)?V[F]?(\d+)\.([AB])$', txt)
+        if e.dxftype() == 'MTEXT':
+            try:
+                txt = e.plain_text().strip()
+            except Exception:
+                txt = e.dxf.text.strip()
+        else:
+            txt = e.dxf.text.strip()
+        # Formato padrão: V1.A, V1_A, V10A.A (sufixo alfa em vigas compostas)
+        m = re.match(r'^(CONT\.\s*)?V[F]?(\d+[A-Za-z]?)[._]([AB])$', txt)
         if m:
+            _raw = m.group(2)
+            _vid = f'V{_raw}' if re.search(r'[A-Za-z]$', _raw) else f'V{int(_raw)}'
             secao_texts.append({
-                'viga': f'V{int(m.group(2))}',
+                'viga': _vid,
                 'side': m.group(3),
                 'is_cont': bool(m.group(1)),
                 'pos': (float(e.dxf.insert[0]), float(e.dxf.insert[1])),
                 'text': txt,
             })
+        else:
+            # Compound format: 'V406.A-V406.B', 'V422.A-V425.A', 'V418A.A-V424.B' etc.
+            # Múltiplos labels V-face num único TEXT entity (bloco de seção compartilhado).
+            # Ex: TREINO_11 1PV LV usa este formato para vigas agrupadas na mesma seção.
+            pieces = re.findall(r'V[F]?(\d+[A-Za-z]?)[._]([AB])', txt)
+            if len(pieces) >= 2:
+                pos = (float(e.dxf.insert[0]), float(e.dxf.insert[1]))
+                for raw_num, side in pieces:
+                    # Preservar sufixo alfa (ex: '418A') ou normalizar inteiro (ex: '406')
+                    viga_id = f'V{raw_num}' if re.search(r'[A-Za-z]$', raw_num) else f'V{int(raw_num)}'
+                    secao_texts.append({
+                        'viga': viga_id,
+                        'side': side,
+                        'is_cont': False,
+                        'pos': pos,
+                        'text': txt,
+                    })
+
+    # 1b. NOMENCLATURA captions (DXFs gerados pelo robô LV TREINO_1 e similares):
+    # Formato: '{PAV} - V{num}  b={b}cm  h={h}cm  L={L}cm'
+    # Estes captions codificam diretamente b/h/L → usados como override quando
+    # a extração por dimensões DXF falha (ex: Cota Seção 2x ausente no DXF gerado).
+    caption_overrides = {}  # viga_id -> {b, h, comprimento}
+    for e in msp:
+        if e.dxftype() not in ('TEXT', 'MTEXT') or e.dxf.layer != 'NOMENCLATURA':
+            continue
+        if e.dxftype() == 'MTEXT':
+            try:
+                txt = e.plain_text().strip()
+            except Exception:
+                txt = e.dxf.text.strip()
+        else:
+            txt = e.dxf.text.strip()
+        mc = re.search(r'V(\d+)\s+b=(\d+)cm\s+h=(\d+)cm\s+L=(\d+)cm', txt)
+        if mc:
+            vid = f'V{int(mc.group(1))}'
+            caption_overrides[vid] = {
+                'b':          float(mc.group(2)),
+                'h_secao':    float(mc.group(3)),
+                'comprimento': float(mc.group(4)),
+            }
 
     # 2. COTA dimensions
     cota_dims = []
@@ -114,6 +188,19 @@ def extrair_lv(lv_path):
         txt = e.dxf.text.strip()
         if re.match(r'^P\d+', txt):
             pilar_refs.append({'text': txt, 'pos': (float(e.dxf.insert[0]), float(e.dxf.insert[1]))})
+
+    # 4b. Pool suplementar do FV (quando LV labels estão fora do alcance das seções)
+    # Ex: TREINO_17 1PV — LV pilar_refs em Y~27k, seções em Y~34k (gap ~6k > raio max 1200).
+    # O FV tem P-labels co-localizados com as seções → merge correto por zona de raio.
+    # Deduplicação por (texto, célula de grid 100u): evita entradas idênticas.
+    if extra_pilar_refs:
+        existing_keys = {(p['text'], round(p['pos'][0]/100), round(p['pos'][1]/100))
+                         for p in pilar_refs}
+        for p in extra_pilar_refs:
+            key = (p['text'], round(p['pos'][0]/100), round(p['pos'][1]/100))
+            if key not in existing_keys:
+                pilar_refs.append(p)
+                existing_keys.add(key)
 
     # 5. Agrupar secoes por (viga, side)
     groups = defaultdict(list)
@@ -164,6 +251,11 @@ def extrair_lv(lv_path):
                 break
         if not altura and v_sorted:
             altura = v_sorted[0]
+        # Fallback: quando COTA não tem V-dims (v_sorted vazio), usar bbox_h dos Paineis lines.
+        # bbox_h = span vertical das linhas de Paineis ao redor da seção = altura da forma.
+        # Threshold 20-200cm: evita ruído (valores < 20cm = sarrafo) e outliers (>200cm).
+        if not altura and 20.0 <= bbox_h <= 200.0:
+            altura = bbox_h
 
         # Cota Seção (2x) — b_secao e h_secao (dimensões estruturais, mais precisas)
         # Bbox estendida: section details ficam próximos ao bloco principal (±600 units)
@@ -193,10 +285,26 @@ def extrair_lv(lv_path):
         else:
             h_secao = None
 
-        # Pilares nas extremidades
-        nearby_pilares = [p for p in pilar_refs
-                          if bbox_xmin-400 <= p['pos'][0] <= bbox_xmax+400
-                          and bbox_ymin-400 <= p['pos'][1] <= bbox_ymax+400]
+        # Pilares nas extremidades — adaptive radius: tenta 400 primeiro, expande se vazio
+        # Evita falso positivo (viga vizinha) usando raio mínimo possível,
+        # mas garante cobertura quando pilar_label está distante do bloco de secao.
+        nearby_pilares = []
+        for _r in (400, 600, 800, 1000, 1200):
+            nearby_pilares = [p for p in pilar_refs
+                              if bbox_xmin-_r <= p['pos'][0] <= bbox_xmax+_r
+                              and bbox_ymin-_r <= p['pos'][1] <= bbox_ymax+_r]
+            if nearby_pilares:
+                break
+
+        # Fase 2: Y-only fallback para extra_pilar_refs em espaço X diferente
+        # (ex: TREINO_17 1PV — FV pilar refs em X~194k, seções LV em X~130k, gap ~60k).
+        # O FV e o LV são desenhados em regiões X independentes, mas compartilham Y estrutural.
+        # Threshold Y: 1200 unidades — generoso para cobrir layouts STOG variados.
+        if not nearby_pilares and extra_pilar_refs:
+            Y_ONLY_BAND = 1200
+            nearby_pilares = [p for p in extra_pilar_refs
+                              if bbox_ymin - Y_ONLY_BAND <= p['pos'][1] <= bbox_ymax + Y_ONLY_BAND]
+
         nearby_pilares.sort(key=lambda p: p['pos'][0])
         pillar_left = nearby_pilares[0]['text'] if nearby_pilares else None
         pillar_right = nearby_pilares[-1]['text'] if len(nearby_pilares) >= 2 else None
@@ -218,6 +326,23 @@ def extrair_lv(lv_path):
             '_bbox_h': bbox_h,
         }
 
+    # Apply NOMENCLATURA caption overrides to fill missing b_secao / h_secao
+    for vid, cap in caption_overrides.items():
+        if vid not in vigas_lv:
+            continue
+        for side_key in ('lado_A', 'lado_B'):
+            if side_key not in vigas_lv[vid]:
+                continue
+            ld = vigas_lv[vid][side_key]
+            if not ld.get('b_secao'):
+                ld['b_secao'] = cap['b']
+            if not ld.get('h_secao'):
+                ld['h_secao'] = cap['h_secao']
+            # Comprimento from caption (L field) — only override if extracted value
+            # is missing or suspiciously small (< 20cm = fallback bbox artifact)
+            if cap['comprimento'] > 0 and (not ld.get('comprimento_total') or ld['comprimento_total'] < 20):
+                ld['comprimento_total'] = cap['comprimento']
+
     return vigas_lv
 
 
@@ -236,11 +361,35 @@ def extrair_fv(fv_path):
             nom_texts.append({'text': txt, 'pos': pos})
 
     # COTA dims apenas (layer COTA — mais confiável que Painéis para FV)
+    # Para V-orient dims: actual_measurement é preferencial (medida real anotada pelo STOG).
+    # Fallback para geometria bruta quando actual_measurement < 8cm (claramente incorreto,
+    # ex: TREINO_5 500-FV tem actual_measurement=2.0 para b=21.5cm real).
     cota_dims = []
     for e in msp:
-        if e.dxftype() == 'DIMENSION' and e.dxf.layer == 'COTA':
-            info = get_dim_info(e)
-            if info: cota_dims.append(info)
+        if e.dxftype() != 'DIMENSION' or e.dxf.layer != 'COTA':
+            continue
+        try:
+            dp  = (float(e.dxf.defpoint[0]),  float(e.dxf.defpoint[1]))
+            dp2 = (float(e.dxf.defpoint2[0]), float(e.dxf.defpoint2[1]))
+            dx = abs(dp[0]-dp2[0]); dy = abs(dp[1]-dp2[1])
+            orient = 'H' if dx > dy else 'V'
+            cx, cy = (dp[0]+dp2[0])/2, (dp[1]+dp2[1])/2
+            if orient == 'V':
+                # Para V dims (b candidatos): usar actual_measurement se >= 8cm (plausível)
+                # Fallback para geometria bruta quando actual_measurement é claramente errado (< 8cm)
+                v = get_dim_value(e)
+                if v is not None and v < 8:
+                    raw_v = round(math.sqrt(dx*dx+dy*dy), 1)
+                    if raw_v >= 8:
+                        v = raw_v
+                    else:
+                        v = None  # descartado (ruído)
+            else:
+                v = get_dim_value(e)
+            if v and v > 0:
+                cota_dims.append({'meas': v, 'orient': orient, 'center': (cx, cy)})
+        except Exception:
+            pass
 
     # ── Estratégia FV v3 ──────────────────────────────────────────────────────
     # O FV é desenhado em projeção oblíqua (≈45°): b aparece como orient=H.
@@ -286,7 +435,7 @@ def extrair_fv(fv_path):
         x_lo = ax          # forma sempre à direita do label
         x_hi = ax + 3000
 
-        h_dims, small_h, small_v = [], [], []
+        h_dims, small_h, small_v, v_candidates = [], [], [], []
         for d in cota_dims:
             cx, cy = d['center']
             if x_lo <= cx <= x_hi and y_lo <= cy <= y_hi:
@@ -301,6 +450,9 @@ def extrair_fv(fv_path):
                     # range 8-80: mais amplo para capturar vigas largas (b=60cm)
                     if 8 <= d['meas'] <= 80:
                         small_v.append((d['meas'], cx))
+                    # Candidatos para h_fv: V-dims em 25-120cm (altura estrutural da seção)
+                    if 25 <= d['meas'] <= 120:
+                        v_candidates.append(d['meas'])
 
         h_sorted = sorted(h_dims, reverse=True)
         comprimento_total = h_sorted[0] if h_sorted else 0
@@ -316,11 +468,45 @@ def extrair_fv(fv_path):
         else:
             b = 0
 
+        # Fallback b — banda Y estendida ±2000 (apenas quando b=0 após passe principal)
+        # Alguns DXFs (ex: TREINO_5 500-FV) posicionam as dims de b ~900 unidades
+        # acima do anchor NOMENCLATURA, fora do MAX_HALF=200 normal.
+        # Seguro porque: só ativa quando b=0, usa range [8-35] restrito, só lê V-dims
+        # (H-dims nessa faixa seriam comprimentos de paineis ~244cm — fora do range).
+        if b == 0:
+            B_EXT_BAND = 2000
+            ext_small_h, ext_small_v = [], []
+            for d in cota_dims:
+                cx, cy = d['center']
+                if x_lo <= cx <= x_hi and ay - B_EXT_BAND <= cy <= ay + B_EXT_BAND:
+                    if cy < y_lo or cy > y_hi:  # fora da banda normal
+                        if d['orient'] == 'H' and 8 <= d['meas'] <= 35:
+                            ext_small_h.append((d['meas'], cx))
+                        elif d['orient'] == 'V' and 8 <= d['meas'] <= 35:
+                            ext_small_v.append((d['meas'], cx))
+            ext_h_sorted = sorted(ext_small_h, key=lambda s: (s[0], s[1]))
+            ext_v_sorted = sorted(ext_small_v, key=lambda s: (s[0], s[1]))
+            if ext_h_sorted:
+                b = round(ext_h_sorted[0][0], 1)
+            elif ext_v_sorted:
+                b = round(ext_v_sorted[0][0], 1)
+
         # Paineis = H dims entre 40 e (total - 5) — excluindo comprimento total
         paineis = sorted([m for m in h_sorted if 40 < m < comprimento_total - 5], reverse=True)
 
+        # h_fv: altura estrutural da seção, extraída de V-dims em 25-120cm.
+        # Exclui o próprio b (±3cm) para evitar confundir largura com altura.
+        # Usa valor mais comum (mode) dos candidatos restantes.
+        h_fv = 0
+        if v_candidates:
+            h_candidates = [v for v in v_candidates if abs(v - b) > 3]
+            if h_candidates:
+                from collections import Counter as _Cnt
+                h_fv = round(_Cnt([round(v) for v in h_candidates]).most_common(1)[0][0], 1)
+
         result = {
             'b': b,
+            'h_fv': h_fv,
             'comprimento_total': comprimento_total,
             'paineis': paineis,
             'n_paineis': len(paineis),
@@ -377,7 +563,12 @@ def merge_vigas(vigas_lv, vigas_fv):
                 if sh: secao_h_vals.append(sh)
 
         ficha['comprimento_cm'] = max(comp_vals) if comp_vals else (ficha['fundo']['comprimento_total'] if 'fundo' in ficha else 0)
-        ficha['altura_cm'] = round(sum(alt_vals)/len(alt_vals), 1) if alt_vals else 0
+        if alt_vals:
+            ficha['altura_cm'] = round(sum(alt_vals)/len(alt_vals), 1)
+        else:
+            # Fallback: usar h_fv do FV quando LV não tem altura anotada
+            h_fv = ficha['fundo']['h_fv'] if 'fundo' in ficha else 0
+            ficha['altura_cm'] = float(h_fv) if h_fv else 0
 
         # b: preferir FV (tem projeção direta de b), fallback para Cota Seção (2x) do LV
         fv_b = ficha['fundo']['b'] if 'fundo' in ficha else 0
@@ -406,7 +597,15 @@ def main():
     args = parser.parse_args()
 
     print(f"LV: {args.lv}")
-    vigas_lv = extrair_lv(args.lv)
+
+    # Se FV fornecido, extrair pilar refs para suplementar pool do LV
+    fv_pilar_refs = []
+    if args.fv:
+        fv_pilar_refs = extrair_pilar_refs_fv(args.fv)
+        if fv_pilar_refs:
+            print(f"  FV pilar refs (pool suplementar LV): {len(fv_pilar_refs)}")
+
+    vigas_lv = extrair_lv(args.lv, extra_pilar_refs=fv_pilar_refs if fv_pilar_refs else None)
     print(f"  -> {len(vigas_lv)} vigas laterais")
 
     if args.fv:
