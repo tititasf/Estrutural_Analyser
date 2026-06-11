@@ -1,0 +1,85 @@
+{
+  "number": "53",
+  "name": "VF53_B",
+  "floor": "Pavimento",
+  "side": "B",
+  "total_width": 14.0,
+  "total_height": "55.0",
+  "panels": [
+    {
+      "width": 158.8,
+      "height1": 55.0,
+      "height2": 55.0,
+      "grade_h1": "158.8",
+      "grade_h2": "158.8"
+    }
+  ],
+  "holes": [
+    {
+      "active": false,
+      "width": 0.0,
+      "height": 0.0,
+      "position": 0.0
+    },
+    {
+      "active": false,
+      "width": 0.0,
+      "height": 0.0,
+      "position": 0.0
+    },
+    {
+      "active": false,
+      "width": 0.0,
+      "height": 0.0,
+      "position": 0.0
+    },
+    {
+      "active": false,
+      "width": 0.0,
+      "height": 0.0,
+      "position": 0.0
+    }
+  ],
+  "pillar_left": {
+    "active": true,
+    "width": 14.8,
+    "length": 66.0
+  },
+  "pillar_right": {
+    "active": true,
+    "width": 33.8,
+    "length": 19.0
+  },
+  "sarrafo_left_id": 0,
+  "sarrafo_right_id": 0,
+  "_sa_meta": {
+    "tipo": "LV",
+    "analisado_em": "2026-06-04 18:15",
+    "campos_extraidos": [
+      "floor",
+      "name",
+      "number",
+      "panels",
+      "pillar_left",
+      "pillar_right",
+      "side",
+      "total_height",
+      "total_width"
+    ],
+    "campos_defaulted": [],
+    "na_fields": [
+      "altura",
+      "comprimento",
+      "coordenadas",
+      "grade_1",
+      "grade_2",
+      "largura",
+      "linhas_horizontais",
+      "linhas_verticais",
+      "numero",
+      "obstaculos",
+      "reaproveitamento_dados"
+    ],
+    "completude_pct": 100.0
+  }
+}

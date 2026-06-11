@@ -1,0 +1,52 @@
+{
+  "obra": "Obra_TREINO_1",
+  "pavimento": "TIPO - 3 AO 12PAV",
+  "timestamp": "2026-05-23T15:13:27.805600+00:00",
+  "fidelidade": {
+    "pilares": {
+      "score": 63.7,
+      "aprovado": false,
+      "limiar": 85.0
+    },
+    "vigas": {
+      "score": 57.9,
+      "aprovado": false,
+      "limiar": 82.0
+    },
+    "lajes": {
+      "score": 88.6,
+      "aprovado": true,
+      "limiar": 75.0
+    }
+  },
+  "score_global": 67.9,
+  "meta": 80.0,
+  "certificado": false,
+  "abaixo_limiar": [
+    {
+      "tipo": "pilares",
+      "score": 63.7,
+      "limiar": 85.0
+    },
+    {
+      "tipo": "vigas",
+      "score": 57.9,
+      "limiar": 82.0
+    }
+  ],
+  "observacoes": [
+    "Vigas fundo (FV) abaixo do limiar (41.5/80.0). FV_gerado usa ezdxf simplificado — sarrafos e chanfros incompletos.",
+    "Score coletivo (IDs): 100.0% ≥ 95% — pipeline de IDs aprovado."
+  ],
+  "fontes": {
+    "coletivo_score_global": 100.0,
+    "dimensional_bh": {
+      "score_pct": 8.6,
+      "aprovado": false
+    },
+    "pipeline_report": {
+      "status": "APROVADO",
+      "coletivo_global": 100.0
+    }
+  }
+}

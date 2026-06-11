@@ -1,4 +1,21 @@
 {
+  "_meta": {
+    "obra": "Obra_TREINO_1",
+    "score_legado_pct": 94.3,
+    "score_legado": "2137/2265",
+    "score_rigoroso_pct": 83.4,
+    "score_rigoroso": "642/770",
+    "cobertura_bilateral_pct": 34.0,
+    "counts": {
+      "MATCH": 642,
+      "AUSENTE_REV": 126,
+      "DELTA_SMALL": 2,
+      "AUSENTE_FWD": 483,
+      "AUSENTE_AMBOS": 31,
+      "AUSENTE": 77,
+      "REV_ONLY": 1012
+    }
+  },
   "PIL": {
     "P1": {
       "id": "P1",
@@ -405,51 +422,6 @@
         }
       }
     },
-    "P10": {
-      "id": "P10",
-      "tipo": "PIL",
-      "campos": {
-        "grade_1": {
-          "fwd": 102.0,
-          "rev": 82.0,
-          "rev_swap": 82.0,
-          "status": "AUSENTE_FWD",
-          "delta_cm": null,
-          "pct": null
-        },
-        "b": {
-          "fwd": 19.0,
-          "rev": 24.0,
-          "rev_adj": 24.0,
-          "status": "MATCH",
-          "delta_cm": 5.0,
-          "pct": 20.8
-        },
-        "h": {
-          "fwd": 60.0,
-          "rev": 60.0,
-          "p4": 60.0,
-          "status": "MATCH",
-          "delta_cm": 0.0,
-          "pct": 0.0
-        },
-        "par_1_2": {
-          "fwd_p4": 42.0,
-          "rev": null,
-          "status": "AUSENTE_REV",
-          "delta_cm": null,
-          "pct": null
-        },
-        "grade_2": {
-          "fwd": 0.0,
-          "p4": 0.0,
-          "status": "MATCH",
-          "delta_cm": 0.0,
-          "pct": 0.0,
-          "rev": null
-        }
-      }
-    },
     "P10_2": {
       "id": "P10_2",
       "tipo": "PIL",
@@ -491,6 +463,51 @@
           "status": "AUSENTE_AMBOS",
           "delta_cm": null,
           "pct": null,
+          "rev": null
+        }
+      }
+    },
+    "P10": {
+      "id": "P10",
+      "tipo": "PIL",
+      "campos": {
+        "grade_1": {
+          "fwd": 102.0,
+          "rev": 82.0,
+          "rev_swap": 82.0,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null,
+          "pct": null
+        },
+        "b": {
+          "fwd": 19.0,
+          "rev": 24.0,
+          "rev_adj": 24.0,
+          "status": "MATCH",
+          "delta_cm": 5.0,
+          "pct": 20.8
+        },
+        "h": {
+          "fwd": 60.0,
+          "rev": 60.0,
+          "p4": 60.0,
+          "status": "MATCH",
+          "delta_cm": 0.0,
+          "pct": 0.0
+        },
+        "par_1_2": {
+          "fwd_p4": 42.0,
+          "rev": null,
+          "status": "AUSENTE_REV",
+          "delta_cm": null,
+          "pct": null
+        },
+        "grade_2": {
+          "fwd": 0.0,
+          "p4": 0.0,
+          "status": "MATCH",
+          "delta_cm": 0.0,
+          "pct": 0.0,
           "rev": null
         }
       }
@@ -1350,51 +1367,6 @@
         }
       }
     },
-    "P27_2": {
-      "id": "P27_2",
-      "tipo": "PIL",
-      "campos": {
-        "grade_1": {
-          "fwd": null,
-          "rev": null,
-          "rev_swap": null,
-          "status": "AUSENTE_AMBOS",
-          "delta_cm": null,
-          "pct": null
-        },
-        "b": {
-          "fwd": null,
-          "rev": 210.0,
-          "rev_adj": 210.0,
-          "status": "AUSENTE_FWD",
-          "delta_cm": null,
-          "pct": null
-        },
-        "h": {
-          "fwd": null,
-          "rev": null,
-          "p4": null,
-          "status": "AUSENTE_AMBOS",
-          "delta_cm": null,
-          "pct": null
-        },
-        "par_1_2": {
-          "fwd_p4": null,
-          "rev": null,
-          "status": "AUSENTE_AMBOS",
-          "delta_cm": null,
-          "pct": null
-        },
-        "grade_2": {
-          "fwd": null,
-          "p4": null,
-          "status": "AUSENTE_AMBOS",
-          "delta_cm": null,
-          "pct": null,
-          "rev": null
-        }
-      }
-    },
     "P27": {
       "id": "P27",
       "tipo": "PIL",
@@ -1436,6 +1408,51 @@
           "status": "MATCH",
           "delta_cm": 0.0,
           "pct": 0.0,
+          "rev": null
+        }
+      }
+    },
+    "P27_2": {
+      "id": "P27_2",
+      "tipo": "PIL",
+      "campos": {
+        "grade_1": {
+          "fwd": null,
+          "rev": null,
+          "rev_swap": null,
+          "status": "AUSENTE_AMBOS",
+          "delta_cm": null,
+          "pct": null
+        },
+        "b": {
+          "fwd": null,
+          "rev": 210.0,
+          "rev_adj": 210.0,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null,
+          "pct": null
+        },
+        "h": {
+          "fwd": null,
+          "rev": null,
+          "p4": null,
+          "status": "AUSENTE_AMBOS",
+          "delta_cm": null,
+          "pct": null
+        },
+        "par_1_2": {
+          "fwd_p4": null,
+          "rev": null,
+          "status": "AUSENTE_AMBOS",
+          "delta_cm": null,
+          "pct": null
+        },
+        "grade_2": {
+          "fwd": null,
+          "p4": null,
+          "status": "AUSENTE_AMBOS",
+          "delta_cm": null,
+          "pct": null,
           "rev": null
         }
       }
@@ -1665,51 +1682,6 @@
         }
       }
     },
-    "P32_2": {
-      "id": "P32_2",
-      "tipo": "PIL",
-      "campos": {
-        "grade_1": {
-          "fwd": null,
-          "rev": 88.0,
-          "rev_swap": 88.0,
-          "status": "AUSENTE_FWD",
-          "delta_cm": null,
-          "pct": null
-        },
-        "b": {
-          "fwd": null,
-          "rev": 19.0,
-          "rev_adj": 19.0,
-          "status": "AUSENTE_FWD",
-          "delta_cm": null,
-          "pct": null
-        },
-        "h": {
-          "fwd": null,
-          "rev": 66.0,
-          "p4": null,
-          "status": "AUSENTE_FWD",
-          "delta_cm": null,
-          "pct": null
-        },
-        "par_1_2": {
-          "fwd_p4": null,
-          "rev": null,
-          "status": "AUSENTE_AMBOS",
-          "delta_cm": null,
-          "pct": null
-        },
-        "grade_2": {
-          "fwd": null,
-          "p4": null,
-          "status": "AUSENTE_AMBOS",
-          "delta_cm": null,
-          "pct": null,
-          "rev": null
-        }
-      }
-    },
     "P32": {
       "id": "P32",
       "tipo": "PIL",
@@ -1751,6 +1723,51 @@
           "status": "MATCH",
           "delta_cm": 0.0,
           "pct": 0.0,
+          "rev": null
+        }
+      }
+    },
+    "P32_2": {
+      "id": "P32_2",
+      "tipo": "PIL",
+      "campos": {
+        "grade_1": {
+          "fwd": null,
+          "rev": 88.0,
+          "rev_swap": 88.0,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null,
+          "pct": null
+        },
+        "b": {
+          "fwd": null,
+          "rev": 19.0,
+          "rev_adj": 19.0,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null,
+          "pct": null
+        },
+        "h": {
+          "fwd": null,
+          "rev": 66.0,
+          "p4": null,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null,
+          "pct": null
+        },
+        "par_1_2": {
+          "fwd_p4": null,
+          "rev": null,
+          "status": "AUSENTE_AMBOS",
+          "delta_cm": null,
+          "pct": null
+        },
+        "grade_2": {
+          "fwd": null,
+          "p4": null,
+          "status": "AUSENTE_AMBOS",
+          "delta_cm": null,
+          "pct": null,
           "rev": null
         }
       }
@@ -2753,102 +2770,6 @@
         }
       }
     },
-    "VF1": {
-      "id": "VF1",
-      "tipo": "VIG",
-      "campos": {
-        "b": {
-          "fwd": 19.0,
-          "p4": 19.0,
-          "rev": null,
-          "status": "AUSENTE_REV",
-          "delta_cm": null,
-          "pct": null
-        },
-        "h": {
-          "fwd": 66.0,
-          "p4": 66.0,
-          "rev": null,
-          "rev_secao": null,
-          "rev_used": null,
-          "status": "AUSENTE_REV",
-          "delta_cm": null,
-          "pct": null
-        },
-        "comprimento": {
-          "fwd_vigas_json": 71.0,
-          "p4_sum_panels": 71.0,
-          "rev": null,
-          "status": "AUSENTE_REV",
-          "delta_cm": null,
-          "pct": null
-        },
-        "n_paineis_A": {
-          "p4": 1,
-          "rev_raw": null,
-          "rev_filtered_gt30": null,
-          "status": "AUSENTE_REV",
-          "delta_cm": null,
-          "pct": null
-        },
-        "pillar_left": {
-          "rev": null,
-          "status": "AUSENTE"
-        },
-        "pillar_right": {
-          "rev": null,
-          "status": "AUSENTE"
-        }
-      }
-    },
-    "VF2": {
-      "id": "VF2",
-      "tipo": "VIG",
-      "campos": {
-        "b": {
-          "fwd": 14.0,
-          "p4": 14.0,
-          "rev": null,
-          "status": "AUSENTE_REV",
-          "delta_cm": null,
-          "pct": null
-        },
-        "h": {
-          "fwd": 55.0,
-          "p4": 55.0,
-          "rev": null,
-          "rev_secao": null,
-          "rev_used": null,
-          "status": "AUSENTE_REV",
-          "delta_cm": null,
-          "pct": null
-        },
-        "comprimento": {
-          "fwd_vigas_json": 89.8,
-          "p4_sum_panels": 89.8,
-          "rev": null,
-          "status": "AUSENTE_REV",
-          "delta_cm": null,
-          "pct": null
-        },
-        "n_paineis_A": {
-          "p4": 1,
-          "rev_raw": null,
-          "rev_filtered_gt30": null,
-          "status": "AUSENTE_REV",
-          "delta_cm": null,
-          "pct": null
-        },
-        "pillar_left": {
-          "rev": null,
-          "status": "AUSENTE"
-        },
-        "pillar_right": {
-          "rev": null,
-          "status": "AUSENTE"
-        }
-      }
-    },
     "V2": {
       "id": "V2",
       "tipo": "VIG",
@@ -2942,54 +2863,6 @@
         "pillar_right": {
           "rev": "P24",
           "status": "REV_ONLY"
-        }
-      }
-    },
-    "VF3": {
-      "id": "VF3",
-      "tipo": "VIG",
-      "campos": {
-        "b": {
-          "fwd": 14.0,
-          "p4": 14.0,
-          "rev": null,
-          "status": "AUSENTE_REV",
-          "delta_cm": null,
-          "pct": null
-        },
-        "h": {
-          "fwd": 55.0,
-          "p4": 55.0,
-          "rev": null,
-          "rev_secao": null,
-          "rev_used": null,
-          "status": "AUSENTE_REV",
-          "delta_cm": null,
-          "pct": null
-        },
-        "comprimento": {
-          "fwd_vigas_json": 161.8,
-          "p4_sum_panels": 161.8,
-          "rev": null,
-          "status": "AUSENTE_REV",
-          "delta_cm": null,
-          "pct": null
-        },
-        "n_paineis_A": {
-          "p4": 1,
-          "rev_raw": null,
-          "rev_filtered_gt30": null,
-          "status": "AUSENTE_REV",
-          "delta_cm": null,
-          "pct": null
-        },
-        "pillar_left": {
-          "rev": null,
-          "status": "AUSENTE"
-        },
-        "pillar_right": {
-          "rev": null,
-          "status": "AUSENTE"
         }
       }
     },
@@ -4322,8 +4195,8 @@
         "n_paineis_A": {
           "p4": 3,
           "rev_raw": null,
-          "rev_filtered_gt30": null,
-          "status": "AUSENTE_REV",
+          "rev_filtered_gt30": 11,
+          "status": "REV_ONLY",
           "delta_cm": null,
           "pct": null
         },
@@ -4385,54 +4258,6 @@
         }
       }
     },
-    "VF51": {
-      "id": "VF51",
-      "tipo": "VIG",
-      "campos": {
-        "b": {
-          "fwd": 19.0,
-          "p4": 19.0,
-          "rev": null,
-          "status": "AUSENTE_REV",
-          "delta_cm": null,
-          "pct": null
-        },
-        "h": {
-          "fwd": 66.0,
-          "p4": 66.0,
-          "rev": null,
-          "rev_secao": null,
-          "rev_used": null,
-          "status": "AUSENTE_REV",
-          "delta_cm": null,
-          "pct": null
-        },
-        "comprimento": {
-          "fwd_vigas_json": 66.0,
-          "p4_sum_panels": 66.0,
-          "rev": null,
-          "status": "AUSENTE_REV",
-          "delta_cm": null,
-          "pct": null
-        },
-        "n_paineis_A": {
-          "p4": 1,
-          "rev_raw": null,
-          "rev_filtered_gt30": null,
-          "status": "AUSENTE_REV",
-          "delta_cm": null,
-          "pct": null
-        },
-        "pillar_left": {
-          "rev": null,
-          "status": "AUSENTE"
-        },
-        "pillar_right": {
-          "rev": null,
-          "status": "AUSENTE"
-        }
-      }
-    },
     "V52": {
       "id": "V52",
       "tipo": "VIG",
@@ -4478,102 +4303,6 @@
         "pillar_right": {
           "rev": "P13",
           "status": "REV_ONLY"
-        }
-      }
-    },
-    "VF52": {
-      "id": "VF52",
-      "tipo": "VIG",
-      "campos": {
-        "b": {
-          "fwd": 14.0,
-          "p4": 14.0,
-          "rev": null,
-          "status": "AUSENTE_REV",
-          "delta_cm": null,
-          "pct": null
-        },
-        "h": {
-          "fwd": 55.0,
-          "p4": 55.0,
-          "rev": null,
-          "rev_secao": null,
-          "rev_used": null,
-          "status": "AUSENTE_REV",
-          "delta_cm": null,
-          "pct": null
-        },
-        "comprimento": {
-          "fwd_vigas_json": 89.8,
-          "p4_sum_panels": 89.8,
-          "rev": null,
-          "status": "AUSENTE_REV",
-          "delta_cm": null,
-          "pct": null
-        },
-        "n_paineis_A": {
-          "p4": 1,
-          "rev_raw": null,
-          "rev_filtered_gt30": null,
-          "status": "AUSENTE_REV",
-          "delta_cm": null,
-          "pct": null
-        },
-        "pillar_left": {
-          "rev": null,
-          "status": "AUSENTE"
-        },
-        "pillar_right": {
-          "rev": null,
-          "status": "AUSENTE"
-        }
-      }
-    },
-    "VF53": {
-      "id": "VF53",
-      "tipo": "VIG",
-      "campos": {
-        "b": {
-          "fwd": 14.0,
-          "p4": 14.0,
-          "rev": null,
-          "status": "AUSENTE_REV",
-          "delta_cm": null,
-          "pct": null
-        },
-        "h": {
-          "fwd": 55.0,
-          "p4": 55.0,
-          "rev": null,
-          "rev_secao": null,
-          "rev_used": null,
-          "status": "AUSENTE_REV",
-          "delta_cm": null,
-          "pct": null
-        },
-        "comprimento": {
-          "fwd_vigas_json": 158.8,
-          "p4_sum_panels": 158.8,
-          "rev": null,
-          "status": "AUSENTE_REV",
-          "delta_cm": null,
-          "pct": null
-        },
-        "n_paineis_A": {
-          "p4": 1,
-          "rev_raw": null,
-          "rev_filtered_gt30": null,
-          "status": "AUSENTE_REV",
-          "delta_cm": null,
-          "pct": null
-        },
-        "pillar_left": {
-          "rev": null,
-          "status": "AUSENTE"
-        },
-        "pillar_right": {
-          "rev": null,
-          "status": "AUSENTE"
         }
       }
     },
@@ -5954,8 +5683,8 @@
         "n_paineis_A": {
           "p4": 1,
           "rev_raw": null,
-          "rev_filtered_gt30": null,
-          "status": "AUSENTE_REV",
+          "rev_filtered_gt30": 4,
+          "status": "REV_ONLY",
           "delta_cm": null,
           "pct": null
         },
@@ -7394,8 +7123,8 @@
         "n_paineis_A": {
           "p4": null,
           "rev_raw": null,
-          "rev_filtered_gt30": null,
-          "status": "AUSENTE_AMBOS",
+          "rev_filtered_gt30": 10,
+          "status": "AUSENTE_FWD",
           "delta_cm": null,
           "pct": null
         },
@@ -7505,54 +7234,6 @@
         }
       }
     },
-    "VF202": {
-      "id": "VF202",
-      "tipo": "VIG",
-      "campos": {
-        "b": {
-          "fwd": 14.0,
-          "p4": 14.0,
-          "rev": null,
-          "status": "AUSENTE_REV",
-          "delta_cm": null,
-          "pct": null
-        },
-        "h": {
-          "fwd": 55.0,
-          "p4": 55.0,
-          "rev": null,
-          "rev_secao": null,
-          "rev_used": null,
-          "status": "AUSENTE_REV",
-          "delta_cm": null,
-          "pct": null
-        },
-        "comprimento": {
-          "fwd_vigas_json": 89.8,
-          "p4_sum_panels": 89.8,
-          "rev": null,
-          "status": "AUSENTE_REV",
-          "delta_cm": null,
-          "pct": null
-        },
-        "n_paineis_A": {
-          "p4": 1,
-          "rev_raw": null,
-          "rev_filtered_gt30": null,
-          "status": "AUSENTE_REV",
-          "delta_cm": null,
-          "pct": null
-        },
-        "pillar_left": {
-          "rev": null,
-          "status": "AUSENTE"
-        },
-        "pillar_right": {
-          "rev": null,
-          "status": "AUSENTE"
-        }
-      }
-    },
     "V202": {
       "id": "V202",
       "tipo": "VIG",
@@ -7586,56 +7267,8 @@
         "n_paineis_A": {
           "p4": 2,
           "rev_raw": null,
-          "rev_filtered_gt30": null,
-          "status": "AUSENTE_REV",
-          "delta_cm": null,
-          "pct": null
-        },
-        "pillar_left": {
-          "rev": null,
-          "status": "AUSENTE"
-        },
-        "pillar_right": {
-          "rev": null,
-          "status": "AUSENTE"
-        }
-      }
-    },
-    "VF203": {
-      "id": "VF203",
-      "tipo": "VIG",
-      "campos": {
-        "b": {
-          "fwd": 14.0,
-          "p4": 14.0,
-          "rev": null,
-          "status": "AUSENTE_REV",
-          "delta_cm": null,
-          "pct": null
-        },
-        "h": {
-          "fwd": 55.0,
-          "p4": 55.0,
-          "rev": null,
-          "rev_secao": null,
-          "rev_used": null,
-          "status": "AUSENTE_REV",
-          "delta_cm": null,
-          "pct": null
-        },
-        "comprimento": {
-          "fwd_vigas_json": 161.8,
-          "p4_sum_panels": 161.8,
-          "rev": null,
-          "status": "AUSENTE_REV",
-          "delta_cm": null,
-          "pct": null
-        },
-        "n_paineis_A": {
-          "p4": 1,
-          "rev_raw": null,
-          "rev_filtered_gt30": null,
-          "status": "AUSENTE_REV",
+          "rev_filtered_gt30": 6,
+          "status": "REV_ONLY",
           "delta_cm": null,
           "pct": null
         },
@@ -7763,7 +7396,7 @@
           "rev": 0,
           "rev_secao": 0,
           "rev_used": null,
-          "status": "AUSENTE_REV",
+          "status": "AUSENTE_FWD",
           "delta_cm": null,
           "pct": null
         },
@@ -9617,54 +9250,6 @@
         }
       }
     },
-    "VF251": {
-      "id": "VF251",
-      "tipo": "VIG",
-      "campos": {
-        "b": {
-          "fwd": 19.0,
-          "p4": 19.0,
-          "rev": null,
-          "status": "AUSENTE_REV",
-          "delta_cm": null,
-          "pct": null
-        },
-        "h": {
-          "fwd": 40.0,
-          "p4": 40.0,
-          "rev": null,
-          "rev_secao": null,
-          "rev_used": null,
-          "status": "AUSENTE_REV",
-          "delta_cm": null,
-          "pct": null
-        },
-        "comprimento": {
-          "fwd_vigas_json": 99.3,
-          "p4_sum_panels": 99.3,
-          "rev": null,
-          "status": "AUSENTE_REV",
-          "delta_cm": null,
-          "pct": null
-        },
-        "n_paineis_A": {
-          "p4": 1,
-          "rev_raw": null,
-          "rev_filtered_gt30": null,
-          "status": "AUSENTE_REV",
-          "delta_cm": null,
-          "pct": null
-        },
-        "pillar_left": {
-          "rev": null,
-          "status": "AUSENTE"
-        },
-        "pillar_right": {
-          "rev": null,
-          "status": "AUSENTE"
-        }
-      }
-    },
     "V251": {
       "id": "V251",
       "tipo": "VIG",
@@ -9854,54 +9439,6 @@
         "pillar_right": {
           "rev": "P8",
           "status": "REV_ONLY"
-        }
-      }
-    },
-    "VF301": {
-      "id": "VF301",
-      "tipo": "VIG",
-      "campos": {
-        "b": {
-          "fwd": 19.0,
-          "p4": 19.0,
-          "rev": null,
-          "status": "AUSENTE_REV",
-          "delta_cm": null,
-          "pct": null
-        },
-        "h": {
-          "fwd": 66.0,
-          "p4": 66.0,
-          "rev": null,
-          "rev_secao": null,
-          "rev_used": null,
-          "status": "AUSENTE_REV",
-          "delta_cm": null,
-          "pct": null
-        },
-        "comprimento": {
-          "fwd_vigas_json": 66.0,
-          "p4_sum_panels": 66.0,
-          "rev": null,
-          "status": "AUSENTE_REV",
-          "delta_cm": null,
-          "pct": null
-        },
-        "n_paineis_A": {
-          "p4": 1,
-          "rev_raw": null,
-          "rev_filtered_gt30": null,
-          "status": "AUSENTE_REV",
-          "delta_cm": null,
-          "pct": null
-        },
-        "pillar_left": {
-          "rev": null,
-          "status": "AUSENTE"
-        },
-        "pillar_right": {
-          "rev": null,
-          "status": "AUSENTE"
         }
       }
     },
@@ -11330,8 +10867,8 @@
         "n_paineis_A": {
           "p4": 1,
           "rev_raw": null,
-          "rev_filtered_gt30": null,
-          "status": "AUSENTE_REV",
+          "rev_filtered_gt30": 3,
+          "status": "REV_ONLY",
           "delta_cm": null,
           "pct": null
         },
@@ -11393,54 +10930,6 @@
         }
       }
     },
-    "VF401": {
-      "id": "VF401",
-      "tipo": "VIG",
-      "campos": {
-        "b": {
-          "fwd": 14.0,
-          "p4": 14.0,
-          "rev": null,
-          "status": "AUSENTE_REV",
-          "delta_cm": null,
-          "pct": null
-        },
-        "h": {
-          "fwd": 55.0,
-          "p4": 55.0,
-          "rev": null,
-          "rev_secao": null,
-          "rev_used": null,
-          "status": "AUSENTE_REV",
-          "delta_cm": null,
-          "pct": null
-        },
-        "comprimento": {
-          "fwd_vigas_json": 855.2,
-          "p4_sum_panels": 855.2,
-          "rev": null,
-          "status": "AUSENTE_FWD",
-          "delta_cm": null,
-          "pct": null
-        },
-        "n_paineis_A": {
-          "p4": 4,
-          "rev_raw": null,
-          "rev_filtered_gt30": null,
-          "status": "AUSENTE_REV",
-          "delta_cm": null,
-          "pct": null
-        },
-        "pillar_left": {
-          "rev": null,
-          "status": "AUSENTE"
-        },
-        "pillar_right": {
-          "rev": null,
-          "status": "AUSENTE"
-        }
-      }
-    },
     "V401": {
       "id": "V401",
       "tipo": "VIG",
@@ -11486,54 +10975,6 @@
         "pillar_right": {
           "rev": "P45",
           "status": "REV_ONLY"
-        }
-      }
-    },
-    "VF402": {
-      "id": "VF402",
-      "tipo": "VIG",
-      "campos": {
-        "b": {
-          "fwd": 14.0,
-          "p4": 14.0,
-          "rev": null,
-          "status": "AUSENTE_REV",
-          "delta_cm": null,
-          "pct": null
-        },
-        "h": {
-          "fwd": 55.0,
-          "p4": 55.0,
-          "rev": null,
-          "rev_secao": null,
-          "rev_used": null,
-          "status": "AUSENTE_REV",
-          "delta_cm": null,
-          "pct": null
-        },
-        "comprimento": {
-          "fwd_vigas_json": 335.5,
-          "p4_sum_panels": 335.6,
-          "rev": null,
-          "status": "AUSENTE_REV",
-          "delta_cm": null,
-          "pct": null
-        },
-        "n_paineis_A": {
-          "p4": 2,
-          "rev_raw": null,
-          "rev_filtered_gt30": null,
-          "status": "AUSENTE_REV",
-          "delta_cm": null,
-          "pct": null
-        },
-        "pillar_left": {
-          "rev": null,
-          "status": "AUSENTE"
-        },
-        "pillar_right": {
-          "rev": null,
-          "status": "AUSENTE"
         }
       }
     },
@@ -11633,54 +11074,6 @@
         }
       }
     },
-    "VF403": {
-      "id": "VF403",
-      "tipo": "VIG",
-      "campos": {
-        "b": {
-          "fwd": 14.0,
-          "p4": 14.0,
-          "rev": null,
-          "status": "AUSENTE_REV",
-          "delta_cm": null,
-          "pct": null
-        },
-        "h": {
-          "fwd": 55.0,
-          "p4": 55.0,
-          "rev": null,
-          "rev_secao": null,
-          "rev_used": null,
-          "status": "AUSENTE_REV",
-          "delta_cm": null,
-          "pct": null
-        },
-        "comprimento": {
-          "fwd_vigas_json": 161.8,
-          "p4_sum_panels": 161.8,
-          "rev": null,
-          "status": "AUSENTE_REV",
-          "delta_cm": null,
-          "pct": null
-        },
-        "n_paineis_A": {
-          "p4": 1,
-          "rev_raw": null,
-          "rev_filtered_gt30": null,
-          "status": "AUSENTE_REV",
-          "delta_cm": null,
-          "pct": null
-        },
-        "pillar_left": {
-          "rev": null,
-          "status": "AUSENTE"
-        },
-        "pillar_right": {
-          "rev": null,
-          "status": "AUSENTE"
-        }
-      }
-    },
     "V404": {
       "id": "V404",
       "tipo": "VIG",
@@ -11729,102 +11122,6 @@
         }
       }
     },
-    "VF404": {
-      "id": "VF404",
-      "tipo": "VIG",
-      "campos": {
-        "b": {
-          "fwd": 14.0,
-          "p4": 14.0,
-          "rev": null,
-          "status": "AUSENTE_REV",
-          "delta_cm": null,
-          "pct": null
-        },
-        "h": {
-          "fwd": 55.0,
-          "p4": 55.0,
-          "rev": null,
-          "rev_secao": null,
-          "rev_used": null,
-          "status": "AUSENTE_REV",
-          "delta_cm": null,
-          "pct": null
-        },
-        "comprimento": {
-          "fwd_vigas_json": 71.0,
-          "p4_sum_panels": 71.0,
-          "rev": null,
-          "status": "AUSENTE_REV",
-          "delta_cm": null,
-          "pct": null
-        },
-        "n_paineis_A": {
-          "p4": 1,
-          "rev_raw": null,
-          "rev_filtered_gt30": null,
-          "status": "AUSENTE_REV",
-          "delta_cm": null,
-          "pct": null
-        },
-        "pillar_left": {
-          "rev": null,
-          "status": "AUSENTE"
-        },
-        "pillar_right": {
-          "rev": null,
-          "status": "AUSENTE"
-        }
-      }
-    },
-    "VF405": {
-      "id": "VF405",
-      "tipo": "VIG",
-      "campos": {
-        "b": {
-          "fwd": 14.0,
-          "p4": 14.0,
-          "rev": null,
-          "status": "AUSENTE_REV",
-          "delta_cm": null,
-          "pct": null
-        },
-        "h": {
-          "fwd": 55.0,
-          "p4": 55.0,
-          "rev": null,
-          "rev_secao": null,
-          "rev_used": null,
-          "status": "AUSENTE_REV",
-          "delta_cm": null,
-          "pct": null
-        },
-        "comprimento": {
-          "fwd_vigas_json": 50.0,
-          "p4_sum_panels": 50.0,
-          "rev": null,
-          "status": "AUSENTE_REV",
-          "delta_cm": null,
-          "pct": null
-        },
-        "n_paineis_A": {
-          "p4": 1,
-          "rev_raw": null,
-          "rev_filtered_gt30": null,
-          "status": "AUSENTE_REV",
-          "delta_cm": null,
-          "pct": null
-        },
-        "pillar_left": {
-          "rev": null,
-          "status": "AUSENTE"
-        },
-        "pillar_right": {
-          "rev": null,
-          "status": "AUSENTE"
-        }
-      }
-    },
     "V405": {
       "id": "V405",
       "tipo": "VIG",
@@ -11870,54 +11167,6 @@
         "pillar_right": {
           "rev": "P26",
           "status": "REV_ONLY"
-        }
-      }
-    },
-    "VF406": {
-      "id": "VF406",
-      "tipo": "VIG",
-      "campos": {
-        "b": {
-          "fwd": 14.0,
-          "p4": 14.0,
-          "rev": null,
-          "status": "AUSENTE_REV",
-          "delta_cm": null,
-          "pct": null
-        },
-        "h": {
-          "fwd": 55.0,
-          "p4": 55.0,
-          "rev": null,
-          "rev_secao": null,
-          "rev_used": null,
-          "status": "AUSENTE_REV",
-          "delta_cm": null,
-          "pct": null
-        },
-        "comprimento": {
-          "fwd_vigas_json": 55.0,
-          "p4_sum_panels": 55.0,
-          "rev": null,
-          "status": "AUSENTE_REV",
-          "delta_cm": null,
-          "pct": null
-        },
-        "n_paineis_A": {
-          "p4": 1,
-          "rev_raw": null,
-          "rev_filtered_gt30": null,
-          "status": "AUSENTE_REV",
-          "delta_cm": null,
-          "pct": null
-        },
-        "pillar_left": {
-          "rev": null,
-          "status": "AUSENTE"
-        },
-        "pillar_right": {
-          "rev": null,
-          "status": "AUSENTE"
         }
       }
     },
@@ -12962,8 +12211,8 @@
         "n_paineis_A": {
           "p4": 2,
           "rev_raw": null,
-          "rev_filtered_gt30": null,
-          "status": "AUSENTE_REV",
+          "rev_filtered_gt30": 9,
+          "status": "REV_ONLY",
           "delta_cm": null,
           "pct": null
         },

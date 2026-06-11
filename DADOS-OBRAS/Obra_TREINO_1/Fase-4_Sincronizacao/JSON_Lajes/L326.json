@@ -1,0 +1,260 @@
+{
+  "numero": 326,
+  "nome": "L326",
+  "comprimento": 3490.0,
+  "largura": 55.0,
+  "pavimento": "Pavimento",
+  "coordenadas": [
+    [
+      0.0,
+      0.0
+    ],
+    [
+      0.0,
+      55.0
+    ],
+    [
+      3490.0,
+      55.0
+    ],
+    [
+      3490.0,
+      0.0
+    ],
+    [
+      3471.0,
+      0.0
+    ],
+    [
+      3471.0,
+      43.0
+    ],
+    [
+      3065.5,
+      43.0
+    ],
+    [
+      3065.5,
+      0.0
+    ],
+    [
+      3046.5,
+      0.0
+    ],
+    [
+      3046.5,
+      43.0
+    ],
+    [
+      2628.5,
+      43.0
+    ],
+    [
+      2628.5,
+      0.0
+    ],
+    [
+      2609.5,
+      0.0
+    ],
+    [
+      2609.5,
+      43.0
+    ],
+    [
+      2191.5,
+      43.0
+    ],
+    [
+      2191.5,
+      0.0
+    ],
+    [
+      2172.5,
+      0.0
+    ],
+    [
+      2172.5,
+      43.0
+    ],
+    [
+      1754.5,
+      43.0
+    ],
+    [
+      1754.5,
+      0.0
+    ],
+    [
+      1735.5,
+      0.0
+    ],
+    [
+      1735.5,
+      43.0
+    ],
+    [
+      1317.5,
+      43.0
+    ],
+    [
+      1317.5,
+      0.0
+    ],
+    [
+      1298.5,
+      0.0
+    ],
+    [
+      1298.5,
+      43.0
+    ],
+    [
+      880.5,
+      43.0
+    ],
+    [
+      880.5,
+      0.0
+    ],
+    [
+      861.5,
+      0.0
+    ],
+    [
+      861.5,
+      43.0
+    ],
+    [
+      443.5,
+      43.0
+    ],
+    [
+      443.5,
+      0.0
+    ],
+    [
+      424.5,
+      0.0
+    ],
+    [
+      424.5,
+      43.0
+    ],
+    [
+      19.0,
+      43.0
+    ],
+    [
+      19.0,
+      0.0
+    ],
+    [
+      0.0,
+      0.0
+    ]
+  ],
+  "area_cm2": 191950.0,
+  "linhas_verticais": [
+    {
+      "value": 244.0,
+      "is_union": false
+    },
+    {
+      "value": 488.0,
+      "is_union": false
+    },
+    {
+      "value": 732.0,
+      "is_union": false
+    },
+    {
+      "value": 976.0,
+      "is_union": false
+    },
+    {
+      "value": 1220.0,
+      "is_union": false
+    },
+    {
+      "value": 1464.0,
+      "is_union": false
+    },
+    {
+      "value": 1708.0,
+      "is_union": false
+    },
+    {
+      "value": 1952.0,
+      "is_union": false
+    },
+    {
+      "value": 2196.0,
+      "is_union": false
+    },
+    {
+      "value": 2440.0,
+      "is_union": false
+    },
+    {
+      "value": 2684.0,
+      "is_union": false
+    },
+    {
+      "value": 2928.0,
+      "is_union": false
+    },
+    {
+      "value": 3172.0,
+      "is_union": false
+    },
+    {
+      "value": 3416.0,
+      "is_union": false
+    },
+    {
+      "value": 3490.0,
+      "is_union": false
+    }
+  ],
+  "linhas_horizontais": [
+    {
+      "value": 55.0,
+      "is_union": false
+    }
+  ],
+  "obstaculos": [],
+  "modo_selecionado": 0,
+  "unioes_nos_bordes": false,
+  "observacoes": "",
+  "pontaletes": {},
+  "_sa_meta": {
+    "tipo": "LJ",
+    "analisado_em": "2026-06-04 18:15",
+    "campos_extraidos": [
+      "area_cm2",
+      "comprimento",
+      "coordenadas",
+      "largura",
+      "linhas_verticais",
+      "nome",
+      "numero",
+      "pavimento"
+    ],
+    "campos_defaulted": [],
+    "na_fields": [
+      "grade_1",
+      "grade_2",
+      "h1_A",
+      "h2_A",
+      "h3_A",
+      "holes",
+      "panels",
+      "pillar_left",
+      "pillar_right",
+      "side",
+      "total_width"
+    ],
+    "completude_pct": 100.0
+  }
+}

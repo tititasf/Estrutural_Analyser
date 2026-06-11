@@ -1,0 +1,162 @@
+{
+  "L1": {
+    "nivel_cm": -3.0,
+    "nivel_texto": "-0.03",
+    "origem": "individual"
+  },
+  "L2": {
+    "nivel_cm": 405.5,
+    "nivel_texto": "405.5",
+    "origem": "tabela_pav"
+  },
+  "L3": {
+    "nivel_cm": -3.0,
+    "nivel_texto": "-0.03",
+    "origem": "individual"
+  },
+  "L4": {
+    "nivel_cm": -3.0,
+    "nivel_texto": "-0.03",
+    "origem": "individual"
+  },
+  "L5": {
+    "nivel_cm": 405.5,
+    "nivel_texto": "405.5",
+    "origem": "tabela_pav"
+  },
+  "L6": {
+    "nivel_cm": -3.0,
+    "nivel_texto": "-0.03",
+    "origem": "tabela_pav"
+  },
+  "L7": {
+    "nivel_cm": -3.0,
+    "nivel_texto": "-0.03",
+    "origem": "individual"
+  },
+  "L8": {
+    "nivel_cm": -3.0,
+    "nivel_texto": "-0.03",
+    "origem": "individual"
+  },
+  "L9": {
+    "nivel_cm": -3.0,
+    "nivel_texto": "-0.03",
+    "origem": "individual"
+  },
+  "L10": {
+    "nivel_cm": 405.5,
+    "nivel_texto": "405.5",
+    "origem": "tabela_pav"
+  },
+  "L11": {
+    "nivel_cm": -3.0,
+    "nivel_texto": "-0.03",
+    "origem": "individual"
+  },
+  "L12": {
+    "nivel_cm": -3.0,
+    "nivel_texto": "-0.03",
+    "origem": "individual"
+  },
+  "L13": {
+    "nivel_cm": 405.5,
+    "nivel_texto": "405.5",
+    "origem": "tabela_pav"
+  },
+  "L14": {
+    "nivel_cm": -3.0,
+    "nivel_texto": "-0.03",
+    "origem": "tabela_pav"
+  },
+  "L15": {
+    "nivel_cm": -3.0,
+    "nivel_texto": "-0.03",
+    "origem": "individual"
+  },
+  "L16": {
+    "nivel_cm": -3.0,
+    "nivel_texto": "-0.03",
+    "origem": "individual"
+  },
+  "L17": {
+    "nivel_cm": -3.0,
+    "nivel_texto": "-0.03",
+    "origem": "individual"
+  },
+  "L18": {
+    "nivel_cm": -3.0,
+    "nivel_texto": "-0.03",
+    "origem": "individual"
+  },
+  "L19": {
+    "nivel_cm": -3.0,
+    "nivel_texto": "-0.03",
+    "origem": "individual"
+  },
+  "L20": {
+    "nivel_cm": 405.5,
+    "nivel_texto": "405.5",
+    "origem": "tabela_pav"
+  },
+  "L21": {
+    "nivel_cm": 405.5,
+    "nivel_texto": "405.5",
+    "origem": "tabela_pav"
+  },
+  "L22": {
+    "nivel_cm": -3.0,
+    "nivel_texto": "-0.03",
+    "origem": "individual"
+  },
+  "L23": {
+    "nivel_cm": -3.0,
+    "nivel_texto": "-0.03",
+    "origem": "tabela_pav"
+  },
+  "L24": {
+    "nivel_cm": -3.0,
+    "nivel_texto": "-0.03",
+    "origem": "tabela_pav"
+  },
+  "L25": {
+    "nivel_cm": -3.0,
+    "nivel_texto": "-0.03",
+    "origem": "individual"
+  },
+  "L26": {
+    "nivel_cm": -3.0,
+    "nivel_texto": "-0.03",
+    "origem": "individual"
+  },
+  "L27": {
+    "nivel_cm": 405.5,
+    "nivel_texto": "405.5",
+    "origem": "tabela_pav"
+  },
+  "L28": {
+    "nivel_cm": -3.0,
+    "nivel_texto": "-0.03",
+    "origem": "individual"
+  },
+  "L29": {
+    "nivel_cm": 405.5,
+    "nivel_texto": "405.5",
+    "origem": "tabela_pav"
+  },
+  "L30": {
+    "nivel_cm": -3.0,
+    "nivel_texto": "-0.03",
+    "origem": "individual"
+  },
+  "_meta": {
+    "total": 30,
+    "individual": 18,
+    "tabela_pav": 12,
+    "sem_nivel": 0,
+    "obra": "Obra_TREINO_1",
+    "pavimento": "12 PAV",
+    "extraido_em": "2026-05-28",
+    "algoritmo": "point-in-polygon + tabela-pavimentos"
+  }
+}

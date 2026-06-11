@@ -1,0 +1,102 @@
+{
+  "obra_name": "Obra_TREINO_1",
+  "pavimento_name": "TMC-EST-EX-1000-FUN-R01_R2018_ASCII_ODA",
+  "dxf_bruto": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-1_Ingestao\\Estruturais_dos_Pavimentos_Estado_Bruto_DWG_DXF\\TMC-EST-EX-1000-FUN-R01_R2018_ASCII_ODA.dxf",
+  "n_torres": 1,
+  "out_dir": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes\\TMC-EST-EX-1000-FUN-R01_R2018_ASCII_ODA",
+  "torres": [
+    {
+      "type": "torre_1",
+      "output_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes\\TMC-EST-EX-1000-FUN-R01_R2018_ASCII_ODA\\torre_1.dxf",
+      "bbox": [
+        1705.944447,
+        515.6813569999999,
+        8089.73712,
+        2388.784412
+      ],
+      "area": 11957501.558282916,
+      "entity_count": 2675,
+      "entities_copied": 4614,
+      "status": "pending",
+      "approved": false,
+      "approved_at": null
+    }
+  ],
+  "detalhes": [
+    {
+      "type": "detalhes",
+      "output_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes\\TMC-EST-EX-1000-FUN-R01_R2018_ASCII_ODA\\detalhes.dxf",
+      "bboxes": [
+        [
+          1898.008814,
+          1773.642757,
+          6011.527994,
+          3478.10561
+        ],
+        [
+          6070.473408,
+          3022.104704,
+          8059.1899735,
+          3965.6808195000003
+        ],
+        [
+          6356.771051,
+          2428.784412,
+          6488.984764,
+          2881.754921
+        ],
+        [
+          6849.882893,
+          2388.309246,
+          6990.287061,
+          2806.604704
+        ],
+        [
+          7389.281363,
+          1531.276885,
+          7686.853623,
+          1660.8427545
+        ],
+        [
+          7514.259426,
+          2340.023492,
+          7550.118083,
+          2682.247376
+        ],
+        [
+          7488.164679,
+          2034.773857,
+          7517.630848,
+          2270.903814
+        ],
+        [
+          7927.01161,
+          1547.155801,
+          7927.1399385,
+          1774.529708
+        ],
+        [
+          6673.529055999999,
+          2417.182659,
+          6673.529055999999,
+          2843.372708
+        ]
+      ],
+      "area": 9064279.349001966,
+      "entity_count": 4630,
+      "entities_copied": 4652,
+      "clusters": 9,
+      "status": "pending",
+      "approved": false,
+      "approved_at": null
+    }
+  ],
+  "errors": [],
+  "processed_at": "2026-06-07T01:58:04.711245",
+  "cached": false,
+  "detection": {
+    "total_entities": 7362,
+    "total_clusters": 10,
+    "eps_used": 171.09
+  }
+}

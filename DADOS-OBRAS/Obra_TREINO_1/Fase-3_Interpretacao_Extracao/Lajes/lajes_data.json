@@ -1,406 +1,1052 @@
 {
-  "L101": {
-    "n_paineis": 0,
-    "area_total_paineis_cm2": null,
-    "area_poligono_cm2": null,
-    "coordenadas": [],
-    "maior_painel": {
-      "dim1": null,
-      "dim2": null
-    },
-    "dims_paineis": [],
-    "pos_label": [
-      3250.5,
-      3060.0
-    ],
-    "confidence": 0.3,
-    "source": "label-only",
-    "nota": "Sem dados de paineis"
+  "L1": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 24375.0,
+    "comprimento_cm": 195.0,
+    "largura_cm": 125.0,
+    "confidence": 0.8,
+    "source": "structural-lwpolyline-bbox:Pavimento-TIPO"
   },
-  "L102": {
-    "n_paineis": 0,
-    "area_total_paineis_cm2": null,
-    "area_poligono_cm2": null,
-    "coordenadas": [],
-    "maior_painel": {
-      "dim1": null,
-      "dim2": null
-    },
-    "dims_paineis": [],
-    "pos_label": [
-      3658.3,
-      3061.6
-    ],
-    "confidence": 0.3,
-    "source": "label-only",
-    "nota": "Sem dados de paineis"
+  "L2": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 25000.0,
+    "comprimento_cm": 200.0,
+    "largura_cm": 125.0,
+    "confidence": 0.8,
+    "source": "structural-lwpolyline-bbox:Pavimento-TIPO"
   },
-  "L103": {
-    "n_paineis": 0,
-    "area_total_paineis_cm2": null,
-    "area_poligono_cm2": null,
-    "coordenadas": [],
-    "maior_painel": {
-      "dim1": null,
-      "dim2": null
-    },
-    "dims_paineis": [],
-    "pos_label": [
-      4116.2,
-      3017.1
-    ],
-    "confidence": 0.3,
-    "source": "label-only",
-    "nota": "Sem dados de paineis"
+  "L3": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 25000.0,
+    "comprimento_cm": 200.0,
+    "largura_cm": 125.0,
+    "confidence": 0.8,
+    "source": "structural-lwpolyline-bbox:Pavimento-TIPO"
   },
-  "L104": {
-    "n_paineis": 0,
-    "area_total_paineis_cm2": null,
-    "area_poligono_cm2": null,
-    "coordenadas": [],
-    "maior_painel": {
-      "dim1": null,
-      "dim2": null
-    },
-    "dims_paineis": [],
-    "pos_label": [
-      4547.5,
-      3013.0
-    ],
-    "confidence": 0.3,
-    "source": "label-only",
-    "nota": "Sem dados de paineis"
+  "L4": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 25000.0,
+    "comprimento_cm": 200.0,
+    "largura_cm": 125.0,
+    "confidence": 0.8,
+    "source": "structural-lwpolyline-bbox:Pavimento-TIPO"
   },
-  "L105": {
-    "n_paineis": 0,
-    "area_total_paineis_cm2": null,
-    "area_poligono_cm2": null,
-    "coordenadas": [],
-    "maior_painel": {
-      "dim1": null,
-      "dim2": null
-    },
-    "dims_paineis": [],
-    "pos_label": [
-      4988.3,
-      3021.7
-    ],
-    "confidence": 0.3,
-    "source": "label-only",
-    "nota": "Sem dados de paineis"
+  "L5": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 25000.0,
+    "comprimento_cm": 200.0,
+    "largura_cm": 125.0,
+    "confidence": 0.8,
+    "source": "structural-lwpolyline-bbox:Pavimento-TIPO"
   },
-  "L106": {
-    "n_paineis": 0,
-    "area_total_paineis_cm2": null,
-    "area_poligono_cm2": null,
-    "coordenadas": [],
-    "maior_painel": {
-      "dim1": null,
-      "dim2": null
-    },
-    "dims_paineis": [],
-    "pos_label": [
-      5572.2,
-      3147.0
-    ],
-    "confidence": 0.3,
-    "source": "label-only",
-    "nota": "Sem dados de paineis"
+  "L6": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 25000.0,
+    "comprimento_cm": 200.0,
+    "largura_cm": 125.0,
+    "confidence": 0.8,
+    "source": "structural-lwpolyline-bbox:Pavimento-TIPO"
   },
-  "L107": {
-    "n_paineis": 0,
-    "area_total_paineis_cm2": null,
-    "area_poligono_cm2": null,
-    "coordenadas": [],
-    "maior_painel": {
-      "dim1": null,
-      "dim2": null
-    },
-    "dims_paineis": [],
-    "pos_label": [
-      5852.1,
-      2801.9
-    ],
-    "confidence": 0.3,
-    "source": "label-only",
-    "nota": "Sem dados de paineis"
+  "L7": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 25000.0,
+    "comprimento_cm": 200.0,
+    "largura_cm": 125.0,
+    "confidence": 0.8,
+    "source": "structural-lwpolyline-bbox:Pavimento-TIPO"
   },
-  "L108": {
-    "n_paineis": 0,
-    "area_total_paineis_cm2": null,
-    "area_poligono_cm2": null,
-    "coordenadas": [],
-    "maior_painel": {
-      "dim1": null,
-      "dim2": null
-    },
-    "dims_paineis": [],
-    "pos_label": [
-      6278.5,
-      2779.3
-    ],
-    "confidence": 0.3,
-    "source": "label-only",
-    "nota": "Sem dados de paineis"
+  "L8": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 24375.0,
+    "comprimento_cm": 195.0,
+    "largura_cm": 125.0,
+    "confidence": 0.8,
+    "source": "structural-lwpolyline-bbox:Pavimento-TIPO"
   },
-  "L109": {
-    "n_paineis": 0,
-    "area_total_paineis_cm2": null,
-    "area_poligono_cm2": null,
-    "coordenadas": [],
-    "maior_painel": {
-      "dim1": null,
-      "dim2": null
-    },
-    "dims_paineis": [],
-    "pos_label": [
-      3236.2,
-      2720.4
-    ],
-    "confidence": 0.3,
-    "source": "label-only",
-    "nota": "Sem dados de paineis"
+  "L9": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 24375.0,
+    "comprimento_cm": 195.0,
+    "largura_cm": 125.0,
+    "confidence": 0.8,
+    "source": "structural-lwpolyline-bbox:Pavimento-TIPO"
   },
-  "L110": {
-    "n_paineis": 0,
-    "area_total_paineis_cm2": null,
-    "area_poligono_cm2": null,
-    "coordenadas": [],
-    "maior_painel": {
-      "dim1": null,
-      "dim2": null
-    },
-    "dims_paineis": [],
-    "pos_label": [
-      4407.4,
-      2696.3
-    ],
-    "confidence": 0.3,
-    "source": "label-only",
-    "nota": "Sem dados de paineis"
+  "L10": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 25000.0,
+    "comprimento_cm": 200.0,
+    "largura_cm": 125.0,
+    "confidence": 0.8,
+    "source": "structural-lwpolyline-bbox:Pavimento-TIPO"
   },
-  "L111": {
-    "n_paineis": 0,
-    "area_total_paineis_cm2": null,
-    "area_poligono_cm2": null,
-    "coordenadas": [],
-    "maior_painel": {
-      "dim1": null,
-      "dim2": null
-    },
-    "dims_paineis": [],
-    "pos_label": [
-      4913.6,
-      2647.7
-    ],
-    "confidence": 0.3,
-    "source": "label-only",
-    "nota": "Sem dados de paineis"
+  "L11": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 25000.0,
+    "comprimento_cm": 200.0,
+    "largura_cm": 125.0,
+    "confidence": 0.8,
+    "source": "structural-lwpolyline-bbox:Pavimento-TIPO"
   },
-  "L112": {
-    "n_paineis": 0,
-    "area_total_paineis_cm2": null,
-    "area_poligono_cm2": null,
-    "coordenadas": [],
-    "maior_painel": {
-      "dim1": null,
-      "dim2": null
-    },
-    "dims_paineis": [],
-    "pos_label": [
-      5491.6,
-      2624.5
-    ],
-    "confidence": 0.3,
-    "source": "label-only",
-    "nota": "Sem dados de paineis"
+  "L12": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 25000.0,
+    "comprimento_cm": 200.0,
+    "largura_cm": 125.0,
+    "confidence": 0.8,
+    "source": "structural-lwpolyline-bbox:Pavimento-TIPO"
   },
-  "L113": {
-    "n_paineis": 0,
-    "area_total_paineis_cm2": null,
-    "area_poligono_cm2": null,
-    "coordenadas": [],
-    "maior_painel": {
-      "dim1": null,
-      "dim2": null
-    },
-    "dims_paineis": [],
-    "pos_label": [
-      5970.8,
-      2670.3
-    ],
-    "confidence": 0.3,
-    "source": "label-only",
-    "nota": "Sem dados de paineis"
+  "L13": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 25000.0,
+    "comprimento_cm": 200.0,
+    "largura_cm": 125.0,
+    "confidence": 0.8,
+    "source": "structural-lwpolyline-bbox:Pavimento-TIPO"
   },
-  "L114": {
-    "n_paineis": 0,
-    "area_total_paineis_cm2": null,
-    "area_poligono_cm2": null,
-    "coordenadas": [],
-    "maior_painel": {
-      "dim1": null,
-      "dim2": null
-    },
-    "dims_paineis": [],
-    "pos_label": [
-      3247.9,
-      2305.9
-    ],
-    "confidence": 0.3,
-    "source": "label-only",
-    "nota": "Sem dados de paineis"
+  "L14": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 25000.0,
+    "comprimento_cm": 200.0,
+    "largura_cm": 125.0,
+    "confidence": 0.8,
+    "source": "structural-lwpolyline-bbox:Pavimento-TIPO"
   },
-  "L115": {
-    "n_paineis": 0,
-    "area_total_paineis_cm2": null,
-    "area_poligono_cm2": null,
-    "coordenadas": [],
-    "maior_painel": {
-      "dim1": null,
-      "dim2": null
-    },
-    "dims_paineis": [],
-    "pos_label": [
-      3640.9,
-      2286.7
-    ],
-    "confidence": 0.3,
-    "source": "label-only",
-    "nota": "Sem dados de paineis"
+  "L15": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 25000.0,
+    "comprimento_cm": 200.0,
+    "largura_cm": 125.0,
+    "confidence": 0.8,
+    "source": "structural-lwpolyline-bbox:Pavimento-TIPO"
   },
-  "L116": {
-    "n_paineis": 0,
-    "area_total_paineis_cm2": null,
-    "area_poligono_cm2": null,
-    "coordenadas": [],
-    "maior_painel": {
-      "dim1": null,
-      "dim2": null
-    },
-    "dims_paineis": [],
-    "pos_label": [
-      4111.2,
-      2443.8
-    ],
-    "confidence": 0.3,
-    "source": "label-only",
-    "nota": "Sem dados de paineis"
+  "L16": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 24375.0,
+    "comprimento_cm": 195.0,
+    "largura_cm": 125.0,
+    "confidence": 0.8,
+    "source": "structural-lwpolyline-bbox:Pavimento-TIPO"
   },
-  "L117": {
-    "n_paineis": 0,
-    "area_total_paineis_cm2": null,
-    "area_poligono_cm2": null,
-    "coordenadas": [],
-    "maior_painel": {
-      "dim1": null,
-      "dim2": null
-    },
-    "dims_paineis": [],
-    "pos_label": [
-      4544.3,
-      2315.1
-    ],
-    "confidence": 0.3,
-    "source": "label-only",
-    "nota": "Sem dados de paineis"
+  "L17": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 25000.0,
+    "comprimento_cm": 200.0,
+    "largura_cm": 125.0,
+    "confidence": 0.8,
+    "source": "structural-lwpolyline-bbox:Pavimento-TIPO"
   },
-  "L118": {
-    "n_paineis": 0,
-    "area_total_paineis_cm2": null,
-    "area_poligono_cm2": null,
-    "coordenadas": [],
-    "maior_painel": {
-      "dim1": null,
-      "dim2": null
-    },
-    "dims_paineis": [],
-    "pos_label": [
-      4985.3,
-      2312.5
-    ],
-    "confidence": 0.3,
-    "source": "label-only",
-    "nota": "Sem dados de paineis"
+  "L18": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 38690.0,
+    "comprimento_cm": 212.0,
+    "largura_cm": 182.5,
+    "confidence": 0.8,
+    "source": "structural-lwpolyline-bbox:Pavimento-TIPO"
   },
-  "L119": {
-    "n_paineis": 0,
-    "area_total_paineis_cm2": null,
-    "area_poligono_cm2": null,
-    "coordenadas": [],
-    "maior_painel": {
-      "dim1": null,
-      "dim2": null
-    },
-    "dims_paineis": [],
-    "pos_label": [
-      5331.6,
-      2328.0
-    ],
-    "confidence": 0.3,
-    "source": "label-only",
-    "nota": "Sem dados de paineis"
+  "L19": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 25000.0,
+    "comprimento_cm": 200.0,
+    "largura_cm": 125.0,
+    "confidence": 0.8,
+    "source": "structural-lwpolyline-bbox:Pavimento-TIPO"
   },
-  "L120": {
-    "n_paineis": 0,
-    "area_total_paineis_cm2": null,
-    "area_poligono_cm2": null,
-    "coordenadas": [],
-    "maior_painel": {
-      "dim1": null,
-      "dim2": null
-    },
-    "dims_paineis": [],
-    "pos_label": [
-      5496.8,
-      2225.4
-    ],
-    "confidence": 0.3,
-    "source": "label-only",
-    "nota": "Sem dados de paineis"
+  "L20": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 25000.0,
+    "comprimento_cm": 200.0,
+    "largura_cm": 125.0,
+    "confidence": 0.8,
+    "source": "structural-lwpolyline-bbox:Pavimento-TIPO"
   },
-  "L121": {
-    "n_paineis": 0,
-    "area_total_paineis_cm2": null,
-    "area_poligono_cm2": null,
-    "coordenadas": [],
-    "maior_painel": {
-      "dim1": null,
-      "dim2": null
-    },
-    "dims_paineis": [],
-    "pos_label": [
-      5735.1,
-      2329.3
-    ],
-    "confidence": 0.3,
-    "source": "label-only",
-    "nota": "Sem dados de paineis"
+  "L21": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 25000.0,
+    "comprimento_cm": 200.0,
+    "largura_cm": 125.0,
+    "confidence": 0.8,
+    "source": "structural-lwpolyline-bbox:Pavimento-TIPO"
   },
-  "L122": {
-    "n_paineis": 0,
-    "area_total_paineis_cm2": null,
-    "area_poligono_cm2": null,
-    "coordenadas": [],
-    "maior_painel": {
-      "dim1": null,
-      "dim2": null
-    },
-    "dims_paineis": [],
-    "pos_label": [
-      6461.1,
-      2220.5
-    ],
-    "confidence": 0.3,
-    "source": "label-only",
-    "nota": "Sem dados de paineis"
+  "L22": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 25000.0,
+    "comprimento_cm": 200.0,
+    "largura_cm": 125.0,
+    "confidence": 0.8,
+    "source": "structural-lwpolyline-bbox:Pavimento-TIPO"
+  },
+  "L23": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 25000.0,
+    "comprimento_cm": 200.0,
+    "largura_cm": 125.0,
+    "confidence": 0.8,
+    "source": "structural-lwpolyline-bbox:Pavimento-TIPO"
+  },
+  "L24": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 35970.0,
+    "comprimento_cm": 218.0,
+    "largura_cm": 165.0,
+    "confidence": 0.8,
+    "source": "structural-lwpolyline-bbox:Pavimento-TIPO"
+  },
+  "L25": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 38690.0,
+    "comprimento_cm": 212.0,
+    "largura_cm": 182.5,
+    "confidence": 0.65,
+    "source": "structural-lwpolyline-bbox:Pavimento-TIPO"
+  },
+  "L26": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 25000.0,
+    "comprimento_cm": 200.0,
+    "largura_cm": 125.0,
+    "confidence": 0.8,
+    "source": "structural-lwpolyline-bbox:Pavimento-TIPO"
+  },
+  "L27": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 25000.0,
+    "comprimento_cm": 200.0,
+    "largura_cm": 125.0,
+    "confidence": 0.8,
+    "source": "structural-lwpolyline-bbox:Pavimento-TIPO"
+  },
+  "L28": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 25000.0,
+    "comprimento_cm": 200.0,
+    "largura_cm": 125.0,
+    "confidence": 0.8,
+    "source": "structural-lwpolyline-bbox:Pavimento-TIPO"
+  },
+  "L29": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 25000.0,
+    "comprimento_cm": 200.0,
+    "largura_cm": 125.0,
+    "confidence": 0.8,
+    "source": "structural-lwpolyline-bbox:Pavimento-TIPO"
+  },
+  "L30": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 25000.0,
+    "comprimento_cm": 200.0,
+    "largura_cm": 125.0,
+    "confidence": 0.8,
+    "source": "structural-lwpolyline-bbox:Pavimento-TIPO"
+  },
+  "L51": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 24375.0,
+    "comprimento_cm": 195.0,
+    "largura_cm": 125.0,
+    "confidence": 0.8,
+    "source": "structural-lwpolyline-bbox:Pavimento_2"
+  },
+  "L52": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 25000.0,
+    "comprimento_cm": 200.0,
+    "largura_cm": 125.0,
+    "confidence": 0.8,
+    "source": "structural-lwpolyline-bbox:Pavimento_2"
+  },
+  "L53": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 25000.0,
+    "comprimento_cm": 200.0,
+    "largura_cm": 125.0,
+    "confidence": 0.8,
+    "source": "structural-lwpolyline-bbox:Pavimento_2"
+  },
+  "L54": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 25000.0,
+    "comprimento_cm": 200.0,
+    "largura_cm": 125.0,
+    "confidence": 0.8,
+    "source": "structural-lwpolyline-bbox:Pavimento_2"
+  },
+  "L55": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 25000.0,
+    "comprimento_cm": 200.0,
+    "largura_cm": 125.0,
+    "confidence": 0.8,
+    "source": "structural-lwpolyline-bbox:Pavimento_2"
+  },
+  "L56": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 25000.0,
+    "comprimento_cm": 200.0,
+    "largura_cm": 125.0,
+    "confidence": 0.8,
+    "source": "structural-lwpolyline-bbox:Pavimento_2"
+  },
+  "L57": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 25000.0,
+    "comprimento_cm": 200.0,
+    "largura_cm": 125.0,
+    "confidence": 0.8,
+    "source": "structural-lwpolyline-bbox:Pavimento_2"
+  },
+  "L58": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 24375.0,
+    "comprimento_cm": 195.0,
+    "largura_cm": 125.0,
+    "confidence": 0.8,
+    "source": "structural-lwpolyline-bbox:Pavimento_2"
+  },
+  "L59": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 24375.0,
+    "comprimento_cm": 195.0,
+    "largura_cm": 125.0,
+    "confidence": 0.8,
+    "source": "structural-lwpolyline-bbox:Pavimento_2"
+  },
+  "L60": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 25000.0,
+    "comprimento_cm": 200.0,
+    "largura_cm": 125.0,
+    "confidence": 0.8,
+    "source": "structural-lwpolyline-bbox:Pavimento_2"
+  },
+  "L61": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 25000.0,
+    "comprimento_cm": 200.0,
+    "largura_cm": 125.0,
+    "confidence": 0.8,
+    "source": "structural-lwpolyline-bbox:Pavimento_2"
+  },
+  "L62": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 25000.0,
+    "comprimento_cm": 200.0,
+    "largura_cm": 125.0,
+    "confidence": 0.8,
+    "source": "structural-lwpolyline-bbox:Pavimento_2"
+  },
+  "L63": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 25000.0,
+    "comprimento_cm": 200.0,
+    "largura_cm": 125.0,
+    "confidence": 0.8,
+    "source": "structural-lwpolyline-bbox:Pavimento_2"
+  },
+  "L64": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 25000.0,
+    "comprimento_cm": 200.0,
+    "largura_cm": 125.0,
+    "confidence": 0.8,
+    "source": "structural-lwpolyline-bbox:Pavimento_2"
+  },
+  "L65": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 25000.0,
+    "comprimento_cm": 200.0,
+    "largura_cm": 125.0,
+    "confidence": 0.8,
+    "source": "structural-lwpolyline-bbox:Pavimento_2"
+  },
+  "L66": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 24375.0,
+    "comprimento_cm": 195.0,
+    "largura_cm": 125.0,
+    "confidence": 0.8,
+    "source": "structural-lwpolyline-bbox:Pavimento_2"
+  },
+  "L67": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 25000.0,
+    "comprimento_cm": 200.0,
+    "largura_cm": 125.0,
+    "confidence": 0.8,
+    "source": "structural-lwpolyline-bbox:Pavimento_2"
+  },
+  "L68": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 38690.0,
+    "comprimento_cm": 212.0,
+    "largura_cm": 182.5,
+    "confidence": 0.8,
+    "source": "structural-lwpolyline-bbox:Pavimento_2"
+  },
+  "L69": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 25000.0,
+    "comprimento_cm": 200.0,
+    "largura_cm": 125.0,
+    "confidence": 0.8,
+    "source": "structural-lwpolyline-bbox:Pavimento_2"
+  },
+  "L70": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 25000.0,
+    "comprimento_cm": 200.0,
+    "largura_cm": 125.0,
+    "confidence": 0.8,
+    "source": "structural-lwpolyline-bbox:Pavimento_2"
+  },
+  "L71": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 25000.0,
+    "comprimento_cm": 200.0,
+    "largura_cm": 125.0,
+    "confidence": 0.8,
+    "source": "structural-lwpolyline-bbox:Pavimento_2"
+  },
+  "L72": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 25000.0,
+    "comprimento_cm": 200.0,
+    "largura_cm": 125.0,
+    "confidence": 0.8,
+    "source": "structural-lwpolyline-bbox:Pavimento_2"
+  },
+  "L73": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 25000.0,
+    "comprimento_cm": 200.0,
+    "largura_cm": 125.0,
+    "confidence": 0.8,
+    "source": "structural-lwpolyline-bbox:Pavimento_2"
+  },
+  "L74": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 35970.0,
+    "comprimento_cm": 218.0,
+    "largura_cm": 165.0,
+    "confidence": 0.8,
+    "source": "structural-lwpolyline-bbox:Pavimento_2"
+  },
+  "L75": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 38690.0,
+    "comprimento_cm": 212.0,
+    "largura_cm": 182.5,
+    "confidence": 0.65,
+    "source": "structural-lwpolyline-bbox:Pavimento_2"
+  },
+  "L76": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 25000.0,
+    "comprimento_cm": 200.0,
+    "largura_cm": 125.0,
+    "confidence": 0.8,
+    "source": "structural-lwpolyline-bbox:Pavimento_2"
+  },
+  "L77": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 25000.0,
+    "comprimento_cm": 200.0,
+    "largura_cm": 125.0,
+    "confidence": 0.8,
+    "source": "structural-lwpolyline-bbox:Pavimento_2"
+  },
+  "L78": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 25000.0,
+    "comprimento_cm": 200.0,
+    "largura_cm": 125.0,
+    "confidence": 0.8,
+    "source": "structural-lwpolyline-bbox:Pavimento_2"
+  },
+  "L79": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 25000.0,
+    "comprimento_cm": 200.0,
+    "largura_cm": 125.0,
+    "confidence": 0.8,
+    "source": "structural-lwpolyline-bbox:Pavimento_2"
+  },
+  "L80": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 25000.0,
+    "comprimento_cm": 200.0,
+    "largura_cm": 125.0,
+    "confidence": 0.8,
+    "source": "structural-lwpolyline-bbox:Pavimento_2"
+  },
+  "L201": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 20800.0,
+    "comprimento_cm": 160.0,
+    "largura_cm": 130.0,
+    "confidence": 0.65,
+    "source": "structural-lwpolyline-bbox:PAVIMENTO-1"
+  },
+  "L202": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 20800.0,
+    "comprimento_cm": 160.0,
+    "largura_cm": 130.0,
+    "confidence": 0.65,
+    "source": "structural-lwpolyline-bbox:PAVIMENTO-1"
+  },
+  "L203": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 20800.0,
+    "comprimento_cm": 160.0,
+    "largura_cm": 130.0,
+    "confidence": 0.8,
+    "source": "structural-lwpolyline-bbox:PAVIMENTO-1"
+  },
+  "L204": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 20800.0,
+    "comprimento_cm": 160.0,
+    "largura_cm": 130.0,
+    "confidence": 0.8,
+    "source": "structural-lwpolyline-bbox:PAVIMENTO-1"
+  },
+  "L205": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 20800.0,
+    "comprimento_cm": 160.0,
+    "largura_cm": 130.0,
+    "confidence": 0.8,
+    "source": "structural-lwpolyline-bbox:PAVIMENTO-1"
+  },
+  "L206": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 35970.0,
+    "comprimento_cm": 218.0,
+    "largura_cm": 165.0,
+    "confidence": 0.8,
+    "source": "structural-lwpolyline-bbox:PAVIMENTO-1"
+  },
+  "L207": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 35970.0,
+    "comprimento_cm": 218.0,
+    "largura_cm": 165.0,
+    "confidence": 0.8,
+    "source": "structural-lwpolyline-bbox:PAVIMENTO-1"
+  },
+  "L208": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 20800.0,
+    "comprimento_cm": 160.0,
+    "largura_cm": 130.0,
+    "confidence": 0.8,
+    "source": "structural-lwpolyline-bbox:PAVIMENTO-1"
+  },
+  "L209": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 35970.0,
+    "comprimento_cm": 218.0,
+    "largura_cm": 165.0,
+    "confidence": 0.8,
+    "source": "structural-lwpolyline-bbox:PAVIMENTO-1"
+  },
+  "L210": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 35970.0,
+    "comprimento_cm": 218.0,
+    "largura_cm": 165.0,
+    "confidence": 0.8,
+    "source": "structural-lwpolyline-bbox:PAVIMENTO-1"
+  },
+  "L211": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 16900.0,
+    "comprimento_cm": 130.0,
+    "largura_cm": 130.0,
+    "confidence": 0.65,
+    "source": "structural-lwpolyline-bbox:PAVIMENTO-1"
+  },
+  "L212": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 21644700.0,
+    "comprimento_cm": 6184.2,
+    "largura_cm": 3500.0,
+    "confidence": 0.8,
+    "source": "structural-lwpolyline-bbox:PAVIMENTO_1"
+  },
+  "L213": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 16900.0,
+    "comprimento_cm": 130.0,
+    "largura_cm": 130.0,
+    "confidence": 0.8,
+    "source": "structural-lwpolyline-bbox:PAVIMENTO-1"
+  },
+  "L214": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 35970.0,
+    "comprimento_cm": 218.0,
+    "largura_cm": 165.0,
+    "confidence": 0.8,
+    "source": "structural-lwpolyline-bbox:PAVIMENTO-1"
+  },
+  "L215": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 35970.0,
+    "comprimento_cm": 218.0,
+    "largura_cm": 165.0,
+    "confidence": 0.8,
+    "source": "structural-lwpolyline-bbox:PAVIMENTO-1"
+  },
+  "L251": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 20800.0,
+    "comprimento_cm": 160.0,
+    "largura_cm": 130.0,
+    "confidence": 0.65,
+    "source": "structural-lwpolyline-bbox:PAVIMENTO-1"
+  },
+  "L252": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 20800.0,
+    "comprimento_cm": 160.0,
+    "largura_cm": 130.0,
+    "confidence": 0.65,
+    "source": "structural-lwpolyline-bbox:PAVIMENTO-1"
+  },
+  "L301": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 25625.0,
+    "comprimento_cm": 205.0,
+    "largura_cm": 125.0,
+    "confidence": 0.8,
+    "source": "structural-lwpolyline-bbox:13-PAVIMENTO"
+  },
+  "L302": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 25625.0,
+    "comprimento_cm": 205.0,
+    "largura_cm": 125.0,
+    "confidence": 0.65,
+    "source": "structural-lwpolyline-bbox:13-PAVIMENTO"
+  },
+  "L303": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 25000.0,
+    "comprimento_cm": 200.0,
+    "largura_cm": 125.0,
+    "confidence": 0.65,
+    "source": "structural-lwpolyline-bbox:13-PAVIMENTO"
+  },
+  "L304": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 25625.0,
+    "comprimento_cm": 205.0,
+    "largura_cm": 125.0,
+    "confidence": 0.8,
+    "source": "structural-lwpolyline-bbox:13-PAVIMENTO"
+  },
+  "L305": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 25625.0,
+    "comprimento_cm": 205.0,
+    "largura_cm": 125.0,
+    "confidence": 0.8,
+    "source": "structural-lwpolyline-bbox:13-PAVIMENTO"
+  },
+  "L306": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 25625.0,
+    "comprimento_cm": 205.0,
+    "largura_cm": 125.0,
+    "confidence": 0.65,
+    "source": "structural-lwpolyline-bbox:13-PAVIMENTO"
+  },
+  "L307": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 25000.0,
+    "comprimento_cm": 200.0,
+    "largura_cm": 125.0,
+    "confidence": 0.65,
+    "source": "structural-lwpolyline-bbox:13-PAVIMENTO"
+  },
+  "L308": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 25000.0,
+    "comprimento_cm": 200.0,
+    "largura_cm": 125.0,
+    "confidence": 0.8,
+    "source": "structural-lwpolyline-bbox:13-PAVIMENTO"
+  },
+  "L309": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 25625.0,
+    "comprimento_cm": 205.0,
+    "largura_cm": 125.0,
+    "confidence": 0.8,
+    "source": "structural-lwpolyline-bbox:13-PAVIMENTO"
+  },
+  "L310": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 25000.0,
+    "comprimento_cm": 200.0,
+    "largura_cm": 125.0,
+    "confidence": 0.8,
+    "source": "structural-lwpolyline-bbox:13-PAVIMENTO"
+  },
+  "L311": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 25000.0,
+    "comprimento_cm": 200.0,
+    "largura_cm": 125.0,
+    "confidence": 0.8,
+    "source": "structural-lwpolyline-bbox:13-PAVIMENTO"
+  },
+  "L312": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 25625.0,
+    "comprimento_cm": 205.0,
+    "largura_cm": 125.0,
+    "confidence": 0.8,
+    "source": "structural-lwpolyline-bbox:13-PAVIMENTO"
+  },
+  "L313": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 25625.0,
+    "comprimento_cm": 205.0,
+    "largura_cm": 125.0,
+    "confidence": 0.8,
+    "source": "structural-lwpolyline-bbox:13-PAVIMENTO"
+  },
+  "L314": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 25000.0,
+    "comprimento_cm": 200.0,
+    "largura_cm": 125.0,
+    "confidence": 0.8,
+    "source": "structural-lwpolyline-bbox:13-PAVIMENTO"
+  },
+  "L315": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 25000.0,
+    "comprimento_cm": 200.0,
+    "largura_cm": 125.0,
+    "confidence": 0.8,
+    "source": "structural-lwpolyline-bbox:13-PAVIMENTO"
+  },
+  "L316": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 25000.0,
+    "comprimento_cm": 200.0,
+    "largura_cm": 125.0,
+    "confidence": 0.8,
+    "source": "structural-lwpolyline-bbox:13-PAVIMENTO"
+  },
+  "L317": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 25000.0,
+    "comprimento_cm": 200.0,
+    "largura_cm": 125.0,
+    "confidence": 0.8,
+    "source": "structural-lwpolyline-bbox:13-PAVIMENTO"
+  },
+  "L318": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 25000.0,
+    "comprimento_cm": 200.0,
+    "largura_cm": 125.0,
+    "confidence": 0.8,
+    "source": "structural-lwpolyline-bbox:13-PAVIMENTO"
+  },
+  "L319": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 38690.0,
+    "comprimento_cm": 212.0,
+    "largura_cm": 182.5,
+    "confidence": 0.8,
+    "source": "structural-lwpolyline-bbox:13-PAVIMENTO"
+  },
+  "L320": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 25000.0,
+    "comprimento_cm": 200.0,
+    "largura_cm": 125.0,
+    "confidence": 0.8,
+    "source": "structural-lwpolyline-bbox:13-PAVIMENTO"
+  },
+  "L321": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 25000.0,
+    "comprimento_cm": 200.0,
+    "largura_cm": 125.0,
+    "confidence": 0.8,
+    "source": "structural-lwpolyline-bbox:13-PAVIMENTO"
+  },
+  "L322": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 25000.0,
+    "comprimento_cm": 200.0,
+    "largura_cm": 125.0,
+    "confidence": 0.8,
+    "source": "structural-lwpolyline-bbox:13-PAVIMENTO"
+  },
+  "L323": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 25000.0,
+    "comprimento_cm": 200.0,
+    "largura_cm": 125.0,
+    "confidence": 0.8,
+    "source": "structural-lwpolyline-bbox:13-PAVIMENTO"
+  },
+  "L324": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 25000.0,
+    "comprimento_cm": 200.0,
+    "largura_cm": 125.0,
+    "confidence": 0.8,
+    "source": "structural-lwpolyline-bbox:13-PAVIMENTO"
+  },
+  "L325": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 35970.0,
+    "comprimento_cm": 218.0,
+    "largura_cm": 165.0,
+    "confidence": 0.8,
+    "source": "structural-lwpolyline-bbox:13-PAVIMENTO"
+  },
+  "L326": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 38690.0,
+    "comprimento_cm": 212.0,
+    "largura_cm": 182.5,
+    "confidence": 0.65,
+    "source": "structural-lwpolyline-bbox:13-PAVIMENTO"
+  },
+  "L327": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 25000.0,
+    "comprimento_cm": 200.0,
+    "largura_cm": 125.0,
+    "confidence": 0.8,
+    "source": "structural-lwpolyline-bbox:13-PAVIMENTO"
+  },
+  "L328": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 25000.0,
+    "comprimento_cm": 200.0,
+    "largura_cm": 125.0,
+    "confidence": 0.8,
+    "source": "structural-lwpolyline-bbox:13-PAVIMENTO"
+  },
+  "L329": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 25000.0,
+    "comprimento_cm": 200.0,
+    "largura_cm": 125.0,
+    "confidence": 0.8,
+    "source": "structural-lwpolyline-bbox:13-PAVIMENTO"
+  },
+  "L330": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 25000.0,
+    "comprimento_cm": 200.0,
+    "largura_cm": 125.0,
+    "confidence": 0.8,
+    "source": "structural-lwpolyline-bbox:13-PAVIMENTO"
+  },
+  "L331": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 25000.0,
+    "comprimento_cm": 200.0,
+    "largura_cm": 125.0,
+    "confidence": 0.8,
+    "source": "structural-lwpolyline-bbox:13-PAVIMENTO"
+  },
+  "L401": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 25000.0,
+    "comprimento_cm": 200.0,
+    "largura_cm": 125.0,
+    "confidence": 0.65,
+    "source": "structural-lwpolyline-bbox:Pavimento-14"
+  },
+  "L402": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 25625.0,
+    "comprimento_cm": 205.0,
+    "largura_cm": 125.0,
+    "confidence": 0.65,
+    "source": "structural-lwpolyline-bbox:Pavimento-14"
+  },
+  "L403": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 25625.0,
+    "comprimento_cm": 205.0,
+    "largura_cm": 125.0,
+    "confidence": 0.65,
+    "source": "structural-lwpolyline-bbox:Pavimento-14"
+  },
+  "L404": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 25000.0,
+    "comprimento_cm": 200.0,
+    "largura_cm": 125.0,
+    "confidence": 0.65,
+    "source": "structural-lwpolyline-bbox:Pavimento-14"
+  },
+  "L405": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 25625.0,
+    "comprimento_cm": 205.0,
+    "largura_cm": 125.0,
+    "confidence": 0.8,
+    "source": "structural-lwpolyline-bbox:Pavimento-14"
+  },
+  "L406": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 25625.0,
+    "comprimento_cm": 205.0,
+    "largura_cm": 125.0,
+    "confidence": 0.8,
+    "source": "structural-lwpolyline-bbox:Pavimento-14"
+  },
+  "L407": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 25625.0,
+    "comprimento_cm": 205.0,
+    "largura_cm": 125.0,
+    "confidence": 0.8,
+    "source": "structural-lwpolyline-bbox:Pavimento-14"
+  },
+  "L408": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 25000.0,
+    "comprimento_cm": 200.0,
+    "largura_cm": 125.0,
+    "confidence": 0.8,
+    "source": "structural-lwpolyline-bbox:Pavimento-14"
+  },
+  "L409": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 25625.0,
+    "comprimento_cm": 205.0,
+    "largura_cm": 125.0,
+    "confidence": 0.8,
+    "source": "structural-lwpolyline-bbox:Pavimento-14"
+  },
+  "L410": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 38690.0,
+    "comprimento_cm": 212.0,
+    "largura_cm": 182.5,
+    "confidence": 0.8,
+    "source": "structural-lwpolyline-bbox:Pavimento-14"
+  },
+  "L411": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 25000.0,
+    "comprimento_cm": 200.0,
+    "largura_cm": 125.0,
+    "confidence": 0.8,
+    "source": "structural-lwpolyline-bbox:Pavimento-14"
+  },
+  "L412": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 25000.0,
+    "comprimento_cm": 200.0,
+    "largura_cm": 125.0,
+    "confidence": 0.8,
+    "source": "structural-lwpolyline-bbox:Pavimento-14"
+  },
+  "L413": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 25000.0,
+    "comprimento_cm": 200.0,
+    "largura_cm": 125.0,
+    "confidence": 0.8,
+    "source": "structural-lwpolyline-bbox:Pavimento-14"
+  },
+  "L414": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 25000.0,
+    "comprimento_cm": 200.0,
+    "largura_cm": 125.0,
+    "confidence": 0.8,
+    "source": "structural-lwpolyline-bbox:Pavimento-14"
+  },
+  "L415": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 25000.0,
+    "comprimento_cm": 200.0,
+    "largura_cm": 125.0,
+    "confidence": 0.8,
+    "source": "structural-lwpolyline-bbox:Pavimento-14"
+  },
+  "L416": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 35970.0,
+    "comprimento_cm": 218.0,
+    "largura_cm": 165.0,
+    "confidence": 0.8,
+    "source": "structural-lwpolyline-bbox:Pavimento-14"
+  },
+  "L417": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 38690.0,
+    "comprimento_cm": 212.0,
+    "largura_cm": 182.5,
+    "confidence": 0.8,
+    "source": "structural-lwpolyline-bbox:Pavimento-14"
+  },
+  "L418": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 25000.0,
+    "comprimento_cm": 200.0,
+    "largura_cm": 125.0,
+    "confidence": 0.8,
+    "source": "structural-lwpolyline-bbox:Pavimento-14"
+  },
+  "L419": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 25000.0,
+    "comprimento_cm": 200.0,
+    "largura_cm": 125.0,
+    "confidence": 0.8,
+    "source": "structural-lwpolyline-bbox:Pavimento-14"
+  },
+  "L420": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 25000.0,
+    "comprimento_cm": 200.0,
+    "largura_cm": 125.0,
+    "confidence": 0.8,
+    "source": "structural-lwpolyline-bbox:Pavimento-14"
+  },
+  "L421": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 25000.0,
+    "comprimento_cm": 200.0,
+    "largura_cm": 125.0,
+    "confidence": 0.8,
+    "source": "structural-lwpolyline-bbox:Pavimento-14"
+  },
+  "L422": {
+    "n_paineis": 1,
+    "area_total_paineis_cm2": 25000.0,
+    "comprimento_cm": 200.0,
+    "largura_cm": 125.0,
+    "confidence": 0.8,
+    "source": "structural-lwpolyline-bbox:Pavimento-14"
   },
   "_meta": {
-    "total": 22,
-    "pavimento": "TÉRREO",
-    "extraido_em": "2026-03-09",
-    "com_paineis": 0,
-    "com_coordenadas": 0,
-    "nota": "AUX00 contem paineis individuais de forma, nao coordenadas estruturais da laje"
+    "total": 130,
+    "obra": "Obra_TREINO_1",
+    "pavimento": "12 PAV",
+    "extraido_em": "2026-05-28",
+    "algoritmo": "structural-text-proximity",
+    "fonte": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\Estruturais_Pavimentos_Limpos",
+    "dxfs_processados": 9,
+    "com_dimensoes": 130
   }
 }

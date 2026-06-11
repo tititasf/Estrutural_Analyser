@@ -1,0 +1,437 @@
+{
+  "obra": "Obra_TREINO_1",
+  "obra_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1",
+  "analysis_date": "2026-05-24T22:35:16.949004",
+  "total_stog_files": 30,
+  "by_class": {
+    "FV": {
+      "count": 5,
+      "total_entities": 3823,
+      "all_layers": {
+        "SARR_2.2x7": 1426,
+        "Painéis": 810,
+        "COTA": 761,
+        "5": 433,
+        "REAPROVEITAMENTO": 54,
+        "NOMENCLATURA": 183,
+        "SARR_EDITAR": 138,
+        "0": 5,
+        "00 - FELIPE": 4,
+        "CARIMBO": 9
+      },
+      "anomaly_count": 0,
+      "autonomous_layers": [
+        "00 - FELIPE"
+      ]
+    },
+    "GF": {
+      "count": 4,
+      "total_entities": 11177,
+      "all_layers": {
+        "3": 5617,
+        "COTA": 1614,
+        "TIRAS REESCORAMENTO": 1043,
+        "NOME DA VIGA": 436,
+        "4": 456,
+        "BARRA_ANCORAGEM": 440,
+        "VIGAS": 323,
+        "7": 241,
+        "9": 112,
+        "Painéis": 238,
+        "SARR_7x7": 193,
+        "1": 141,
+        "0": 94,
+        "GARFOS OK": 109,
+        "SARR_3.5x7": 55,
+        "Resinado": 37,
+        "Hachura": 27,
+        "8": 1
+      },
+      "anomaly_count": 0,
+      "autonomous_layers": [
+        "NOME DA VIGA",
+        "VIGAS",
+        "TIRAS REESCORAMENTO",
+        "BARRA_ANCORAGEM",
+        "GARFOS OK",
+        "Resinado"
+      ]
+    },
+    "LJ": {
+      "count": 7,
+      "total_entities": 12603,
+      "all_layers": {
+        "3": 7675,
+        "Painéis": 2269,
+        "4": 841,
+        "7": 360,
+        "REAPROVEITAMENTO": 224,
+        "Hachura": 190,
+        "9": 201,
+        "1": 274,
+        "AUX00": 158,
+        "0": 60,
+        "2": 2,
+        "6": 2,
+        "00 - FELIPE": 1,
+        "COTA": 301,
+        "SARR_2.2x7": 44,
+        "8": 1
+      },
+      "anomaly_count": 1,
+      "autonomous_layers": [
+        "00 - FELIPE"
+      ]
+    },
+    "LV": {
+      "count": 7,
+      "total_entities": 48815,
+      "all_layers": {
+        "SARR_2.2x7": 9139,
+        "Painéis": 9194,
+        "COTA": 10243,
+        "Hachura": 3510,
+        "Madeira": 2585,
+        "5": 1384,
+        "Texto Seção": 1133,
+        "REAPROVEITAMENTO": 601,
+        "detalhes": 982,
+        "SARR_3.5x7": 3634,
+        "Cota Seção (2x)": 589,
+        "CONCRETO": 314,
+        "NOMENCLATURA": 580,
+        "SARR_EDITAR": 152,
+        "CARIMBO": 189,
+        "SARRAFO DE PRESSAO": 188,
+        "00 - FELIPE": 221,
+        "Cotas": 84,
+        "TEXTO PILAR": 85,
+        "texto": 556,
+        "0": 2572,
+        "presilha": 242,
+        "SCO-___-LAJ": 121,
+        "TENSOR": 157,
+        "barrote": 126,
+        "238": 105,
+        "Romaneio": 66,
+        "Sarrafo de Pressão": 12,
+        "TEXTO_GERAL": 40,
+        "FOLHA MB": 4,
+        "SARR_2.2x10": 2,
+        "contorno de painel": 2,
+        "SARRAFO": 3
+      },
+      "anomaly_count": 0,
+      "autonomous_layers": [
+        "Cota Seção (2x)",
+        "TEXTO PILAR",
+        "00 - FELIPE",
+        "contorno de painel"
+      ]
+    },
+    "PL": {
+      "count": 7,
+      "total_entities": 52276,
+      "all_layers": {
+        "COTA": 13819,
+        "Painéis": 9564,
+        "Hachura": 6778,
+        "SARR_2.2x7": 6829,
+        "Madeira": 3427,
+        "SARRAFO": 2024,
+        "CHAPA": 1858,
+        "Texto Seção": 1417,
+        "TEXTO_GERAL": 1111,
+        "Perfil Metálico": 1048,
+        "texto": 951,
+        "Nível": 529,
+        "NOMENCLATURA": 451,
+        "MEIO_PONT": 445,
+        "CARIMBO": 284,
+        "SARRAFO DE PRESSAO": 275,
+        "NIVEL 2° PAV.": 504,
+        "00 - FELIPE": 32,
+        "CONCRETO": 14,
+        "SARR_EDITAR": 21,
+        "0": 14,
+        "9": 2,
+        "1": 2,
+        "Sarr 2.2x7": 113,
+        "SARR_2.2x10": 125,
+        "SARR_7x7": 84,
+        "SARR_3.5x7": 88,
+        "Texto Nível": 31,
+        "NIVEL 1° PAV.": 306,
+        "Sarrafo de Pressão": 90,
+        "Cota Seção (2x)": 40
+      },
+      "anomaly_count": 0,
+      "autonomous_layers": [
+        "Nível",
+        "00 - FELIPE",
+        "Texto Nível",
+        "Cota Seção (2x)"
+      ]
+    }
+  },
+  "autonomous_discoveries_global": [
+    "00 - FELIPE",
+    "BARRA_ANCORAGEM",
+    "Cota Seção (2x)",
+    "GARFOS OK",
+    "NOME DA VIGA",
+    "Nível",
+    "Resinado",
+    "TEXTO PILAR",
+    "TIRAS REESCORAMENTO",
+    "Texto Nível",
+    "VIGAS",
+    "contorno de painel"
+  ],
+  "anomalies_global": [],
+  "files_processed": [
+    {
+      "file": "ALIMONTI - PARAISO - 13° PAV.- FV - R00.dxf",
+      "classe": "FV",
+      "pavimento": "13° PAV",
+      "entities": 855,
+      "anomalies": 0,
+      "kb_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-0_STOG_KB\\FV\\ALIMONTI_-_PARAISO_-_13__PAV.-_FV_-_R00_kb.json"
+    },
+    {
+      "file": "ALIMONTI - PARAISO - 13° PAV.- GF - R00.dxf",
+      "classe": "GF",
+      "pavimento": "13° PAV",
+      "entities": 2514,
+      "anomalies": 0,
+      "kb_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-0_STOG_KB\\GF\\ALIMONTI_-_PARAISO_-_13__PAV.-_GF_-_R00_kb.json"
+    },
+    {
+      "file": "ALIMONTI - PARAISO - 13° PAV.- LJ - R00.dxf",
+      "classe": "LJ",
+      "pavimento": "13° PAV",
+      "entities": 1933,
+      "anomalies": 0,
+      "kb_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-0_STOG_KB\\LJ\\ALIMONTI_-_PARAISO_-_13__PAV.-_LJ_-_R00_kb.json"
+    },
+    {
+      "file": "ALIMONTI - PARAISO - 13° PAV.- LV - R00.dxf",
+      "classe": "LV",
+      "pavimento": "13° PAV",
+      "entities": 6670,
+      "anomalies": 0,
+      "kb_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-0_STOG_KB\\LV\\ALIMONTI_-_PARAISO_-_13__PAV.-_LV_-_R00_kb.json"
+    },
+    {
+      "file": "ALIMONTI - PARAISO - 13° PAV.- PL - R00.dxf",
+      "classe": "PL",
+      "pavimento": "13° PAV",
+      "entities": 7580,
+      "anomalies": 0,
+      "kb_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-0_STOG_KB\\PL\\ALIMONTI_-_PARAISO_-_13__PAV.-_PL_-_R00_kb.json"
+    },
+    {
+      "file": "ALIMONTI - PARAISO - 14° PAV.- GF - R00.dxf",
+      "classe": "GF",
+      "pavimento": "14° PAV",
+      "entities": 1449,
+      "anomalies": 0,
+      "kb_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-0_STOG_KB\\GF\\ALIMONTI_-_PARAISO_-_14__PAV.-_GF_-_R00_kb.json"
+    },
+    {
+      "file": "ALIMONTI - PARAISO - 14° PAV.- LJ - R00.dxf",
+      "classe": "LJ",
+      "pavimento": "14° PAV",
+      "entities": 1679,
+      "anomalies": 0,
+      "kb_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-0_STOG_KB\\LJ\\ALIMONTI_-_PARAISO_-_14__PAV.-_LJ_-_R00_kb.json"
+    },
+    {
+      "file": "ALIMONTI - PARAISO - 14° PAV.- LV - R00.dxf",
+      "classe": "LV",
+      "pavimento": "14° PAV",
+      "entities": 5550,
+      "anomalies": 0,
+      "kb_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-0_STOG_KB\\LV\\ALIMONTI_-_PARAISO_-_14__PAV.-_LV_-_R00_kb.json"
+    },
+    {
+      "file": "ALIMONTI - PARAISO - 14° PAV.- PL - R00.dxf",
+      "classe": "PL",
+      "pavimento": "14° PAV",
+      "entities": 6412,
+      "anomalies": 0,
+      "kb_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-0_STOG_KB\\PL\\ALIMONTI_-_PARAISO_-_14__PAV.-_PL_-_R00_kb.json"
+    },
+    {
+      "file": "ALIMONTI - PARAISO - 1° PAV.- FV - R00.dxf",
+      "classe": "FV",
+      "pavimento": "1° PAV",
+      "entities": 748,
+      "anomalies": 0,
+      "kb_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-0_STOG_KB\\FV\\ALIMONTI_-_PARAISO_-_1__PAV.-_FV_-_R00_kb.json"
+    },
+    {
+      "file": "ALIMONTI - PARAISO - 1° PAV.- LJ - R01.dxf",
+      "classe": "LJ",
+      "pavimento": "1° PAV",
+      "entities": 1392,
+      "anomalies": 0,
+      "kb_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-0_STOG_KB\\LJ\\ALIMONTI_-_PARAISO_-_1__PAV.-_LJ_-_R01_kb.json"
+    },
+    {
+      "file": "ALIMONTI - PARAISO - 1° PAV.- LV - R00.dxf",
+      "classe": "LV",
+      "pavimento": "1° PAV",
+      "entities": 8636,
+      "anomalies": 0,
+      "kb_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-0_STOG_KB\\LV\\ALIMONTI_-_PARAISO_-_1__PAV.-_LV_-_R00_kb.json"
+    },
+    {
+      "file": "ALIMONTI - PARAISO - 1° PAV.- PL - R00.dxf",
+      "classe": "PL",
+      "pavimento": "1° PAV",
+      "entities": 8742,
+      "anomalies": 0,
+      "kb_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-0_STOG_KB\\PL\\ALIMONTI_-_PARAISO_-_1__PAV.-_PL_-_R00_kb.json"
+    },
+    {
+      "file": "ALIMONTI - PARAISO - 2° PAV.- FV - R00.dxf",
+      "classe": "FV",
+      "pavimento": "2° PAV",
+      "entities": 986,
+      "anomalies": 0,
+      "kb_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-0_STOG_KB\\FV\\ALIMONTI_-_PARAISO_-_2__PAV.-_FV_-_R00_kb.json"
+    },
+    {
+      "file": "ALIMONTI - PARAISO - 2° PAV.- GF - R00.dxf",
+      "classe": "GF",
+      "pavimento": "2° PAV",
+      "entities": 3523,
+      "anomalies": 0,
+      "kb_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-0_STOG_KB\\GF\\ALIMONTI_-_PARAISO_-_2__PAV.-_GF_-_R00_kb.json"
+    },
+    {
+      "file": "ALIMONTI - PARAISO - 2° PAV.- LJ - R00.dxf",
+      "classe": "LJ",
+      "pavimento": "2° PAV",
+      "entities": 1961,
+      "anomalies": 0,
+      "kb_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-0_STOG_KB\\LJ\\ALIMONTI_-_PARAISO_-_2__PAV.-_LJ_-_R00_kb.json"
+    },
+    {
+      "file": "ALIMONTI - PARAISO - 2° PAV.- LV - R00.dxf",
+      "classe": "LV",
+      "pavimento": "2° PAV",
+      "entities": 6835,
+      "anomalies": 0,
+      "kb_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-0_STOG_KB\\LV\\ALIMONTI_-_PARAISO_-_2__PAV.-_LV_-_R00_kb.json"
+    },
+    {
+      "file": "ALIMONTI - PARAISO - 2° PAV.- PL - R00.dxf",
+      "classe": "PL",
+      "pavimento": "2° PAV",
+      "entities": 7529,
+      "anomalies": 0,
+      "kb_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-0_STOG_KB\\PL\\ALIMONTI_-_PARAISO_-_2__PAV.-_PL_-_R00_kb.json"
+    },
+    {
+      "file": "ALIMONTI - PARAISO - TIPO - 3° AO 12° PAV.- FV - R00.dxf",
+      "classe": "FV",
+      "pavimento": "TIPO",
+      "entities": 694,
+      "anomalies": 0,
+      "kb_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-0_STOG_KB\\FV\\ALIMONTI_-_PARAISO_-_TIPO_-_3__AO_12__PAV.-_FV_-_R00_kb.json"
+    },
+    {
+      "file": "ALIMONTI - PARAISO - TIPO - 3° AO 12° PAV.- GF - R00.dxf",
+      "classe": "GF",
+      "pavimento": "TIPO",
+      "entities": 3691,
+      "anomalies": 0,
+      "kb_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-0_STOG_KB\\GF\\ALIMONTI_-_PARAISO_-_TIPO_-_3__AO_12__PAV.-_GF_-_R00_kb.json"
+    },
+    {
+      "file": "ALIMONTI - PARAISO - TIPO - 3° AO 12° PAV.- LJ - R00.dxf",
+      "classe": "LJ",
+      "pavimento": "TIPO",
+      "entities": 1412,
+      "anomalies": 0,
+      "kb_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-0_STOG_KB\\LJ\\ALIMONTI_-_PARAISO_-_TIPO_-_3__AO_12__PAV.-_LJ_-_R00_kb.json"
+    },
+    {
+      "file": "ALIMONTI - PARAISO - TIPO - 3° AO 12° PAV.- LV - R00.dxf",
+      "classe": "LV",
+      "pavimento": "TIPO",
+      "entities": 5358,
+      "anomalies": 0,
+      "kb_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-0_STOG_KB\\LV\\ALIMONTI_-_PARAISO_-_TIPO_-_3__AO_12__PAV.-_LV_-_R00_kb.json"
+    },
+    {
+      "file": "ALIMONTI - PARAISO - TIPO - 3° AO 12° PAV.- PL - R00.dxf",
+      "classe": "PL",
+      "pavimento": "TIPO",
+      "entities": 6829,
+      "anomalies": 0,
+      "kb_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-0_STOG_KB\\PL\\ALIMONTI_-_PARAISO_-_TIPO_-_3__AO_12__PAV.-_PL_-_R00_kb.json"
+    },
+    {
+      "file": "ALIMONTI - PARAISO - TÉRREO - FV - R00.dxf",
+      "classe": "FV",
+      "pavimento": "TÉRREO",
+      "entities": 540,
+      "anomalies": 0,
+      "kb_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-0_STOG_KB\\FV\\ALIMONTI_-_PARAISO_-_TÉRREO_-_FV_-_R00_kb.json"
+    },
+    {
+      "file": "ALIMONTI - PARAISO - TÉRREO - LJ - R00.dxf",
+      "classe": "LJ",
+      "pavimento": "TÉRREO",
+      "entities": 2106,
+      "anomalies": 0,
+      "kb_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-0_STOG_KB\\LJ\\ALIMONTI_-_PARAISO_-_TÉRREO_-_LJ_-_R00_kb.json"
+    },
+    {
+      "file": "ALIMONTI - PARAISO - TÉRREO - LV - R00.dxf",
+      "classe": "LV",
+      "pavimento": "TÉRREO",
+      "entities": 6744,
+      "anomalies": 0,
+      "kb_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-0_STOG_KB\\LV\\ALIMONTI_-_PARAISO_-_TÉRREO_-_LV_-_R00_kb.json"
+    },
+    {
+      "file": "ALIMONTI - PARAISO - TÉRREO - PL - R00.dxf",
+      "classe": "PL",
+      "pavimento": "TÉRREO",
+      "entities": 5859,
+      "anomalies": 0,
+      "kb_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-0_STOG_KB\\PL\\ALIMONTI_-_PARAISO_-_TÉRREO_-_PL_-_R00_kb.json"
+    },
+    {
+      "file": "NOVA - ALIMONTI - PARAISO - COBERTURA - DECK - LJ - R00.dxf",
+      "classe": "LJ",
+      "pavimento": "COBERTURA",
+      "entities": 2120,
+      "anomalies": 1,
+      "kb_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-0_STOG_KB\\LJ\\NOVA_-_ALIMONTI_-_PARAISO_-_COBERTURA_-_DECK_-_LJ_-_R00_kb.json"
+    },
+    {
+      "file": "NOVA - ALIMONTI - PARAISO - COBERTURA - DECK - LV - R00.dxf",
+      "classe": "LV",
+      "pavimento": "COBERTURA",
+      "entities": 9022,
+      "anomalies": 0,
+      "kb_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-0_STOG_KB\\LV\\NOVA_-_ALIMONTI_-_PARAISO_-_COBERTURA_-_DECK_-_LV_-_R00_kb.json"
+    },
+    {
+      "file": "NOVA - ALIMONTI - PARAISO - COBERTURA E DECK - PL - R00.dxf",
+      "classe": "PL",
+      "pavimento": "COBERTURA",
+      "entities": 9325,
+      "anomalies": 0,
+      "kb_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-0_STOG_KB\\PL\\NOVA_-_ALIMONTI_-_PARAISO_-_COBERTURA_E_DECK_-_PL_-_R00_kb.json"
+    }
+  ],
+  "files_failed": [],
+  "total_processed": 30,
+  "total_failed": 0
+}

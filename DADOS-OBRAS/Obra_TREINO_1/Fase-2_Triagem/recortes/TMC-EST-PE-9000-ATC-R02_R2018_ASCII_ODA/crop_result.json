@@ -1,0 +1,144 @@
+{
+  "obra_name": "Obra_TREINO_1",
+  "pavimento_name": "TMC-EST-PE-9000-ATC-R02_R2018_ASCII_ODA",
+  "dxf_bruto": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-1_Ingestao\\Estruturais_dos_Pavimentos_Estado_Bruto_DWG_DXF\\TMC-EST-PE-9000-ATC-R02_R2018_ASCII_ODA.dxf",
+  "n_torres": 1,
+  "out_dir": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes\\TMC-EST-PE-9000-ATC-R02_R2018_ASCII_ODA",
+  "torres": [
+    {
+      "type": "torre_1",
+      "output_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes\\TMC-EST-PE-9000-ATC-R02_R2018_ASCII_ODA\\torre_1.dxf",
+      "bbox": [
+        728.653822,
+        394.841493,
+        2259.539866,
+        1970.725346
+      ],
+      "area": 2412498.5975226476,
+      "entity_count": 1040,
+      "entities_copied": 1051,
+      "status": "pending",
+      "approved": false,
+      "approved_at": null
+    }
+  ],
+  "detalhes": [
+    {
+      "type": "detalhes",
+      "output_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes\\TMC-EST-PE-9000-ATC-R02_R2018_ASCII_ODA\\detalhes.dxf",
+      "bboxes": [
+        [
+          1115.544,
+          2236.241814,
+          2253.4057700000003,
+          3705.38956
+        ],
+        [
+          3603.519909,
+          1124.2666239999999,
+          4584.476449,
+          2208.822087
+        ],
+        [
+          3587.251457,
+          2549.9930489999997,
+          4599.138975,
+          3459.719907
+        ],
+        [
+          2460.997568,
+          1386.901967,
+          3399.451429,
+          2090.326426
+        ],
+        [
+          4995.110527,
+          461.395692,
+          5372.627282,
+          930.788161
+        ],
+        [
+          5122.034932,
+          2495.086938,
+          5611.654053,
+          3170.351828
+        ],
+        [
+          728.653822,
+          3191.130615,
+          931.857818,
+          3712.913649
+        ],
+        [
+          5227.120029600001,
+          1426.315938,
+          5340.583913,
+          1973.315606
+        ],
+        [
+          2460.997568,
+          1157.993436,
+          2743.030777,
+          1270.901967
+        ],
+        [
+          728.653822,
+          2979.420841,
+          901.882275,
+          3128.593146
+        ],
+        [
+          3234.530777,
+          1157.993436,
+          3399.451429,
+          1274.235297
+        ],
+        [
+          4898.361801,
+          1410.437021,
+          5075.282565,
+          1540.002891
+        ],
+        [
+          5076.498148,
+          1781.569299,
+          5128.970449,
+          1981.054008
+        ],
+        [
+          2883.530777,
+          1157.993436,
+          2943.530777,
+          1265.8113405
+        ],
+        [
+          5486.922952,
+          1781.569299,
+          5539.070241,
+          1922.475244
+        ],
+        [
+          4898.138447,
+          993.073317,
+          4899.211429,
+          1197.697534
+        ]
+      ],
+      "area": 5116463.044917891,
+      "entity_count": 3236,
+      "entities_copied": 3272,
+      "clusters": 16,
+      "status": "pending",
+      "approved": false,
+      "approved_at": null
+    }
+  ],
+  "errors": [],
+  "processed_at": "2026-06-07T02:06:22.619338",
+  "cached": false,
+  "detection": {
+    "total_entities": 4379,
+    "total_clusters": 17,
+    "eps_used": 123.13
+  }
+}

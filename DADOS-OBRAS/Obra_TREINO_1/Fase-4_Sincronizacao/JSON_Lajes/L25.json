@@ -1,33 +1,80 @@
 {
-  "numero": 0,
+  "numero": 25,
   "nome": "L25",
-  "pavimento": "TIPO",
-  "linhas_verticais": [],
-  "linhas_horizontais": [],
-  "obstaculos": [],
-  "comprimento": 233.8,
-  "largura": 423.0,
+  "comprimento": 212.0,
+  "largura": 182.5,
+  "pavimento": "Pavimento",
   "coordenadas": [
     [
       0.0,
+      212.0
+    ],
+    [
+      182.5,
+      212.0
+    ],
+    [
+      182.5,
       0.0
-    ],
-    [
-      233.8,
-      0.0
-    ],
-    [
-      233.8,
-      423.0
-    ],
-    [
-      0.0,
-      423.0
     ],
     [
       0.0,
       0.0
+    ],
+    [
+      0.0,
+      212.0
     ]
   ],
-  "area_cm2": 98897.40000000001
+  "area_cm2": 38690.0,
+  "linhas_verticais": [
+    {
+      "value": 212.0,
+      "is_union": false
+    }
+  ],
+  "linhas_horizontais": [
+    {
+      "value": 122.0,
+      "is_union": false
+    },
+    {
+      "value": 182.5,
+      "is_union": false
+    }
+  ],
+  "obstaculos": [],
+  "modo_selecionado": 0,
+  "unioes_nos_bordes": false,
+  "observacoes": "",
+  "pontaletes": {},
+  "_sa_meta": {
+    "tipo": "LJ",
+    "analisado_em": "2026-06-04 18:15",
+    "campos_extraidos": [
+      "area_cm2",
+      "comprimento",
+      "coordenadas",
+      "largura",
+      "linhas_verticais",
+      "nome",
+      "numero",
+      "pavimento"
+    ],
+    "campos_defaulted": [],
+    "na_fields": [
+      "grade_1",
+      "grade_2",
+      "h1_A",
+      "h2_A",
+      "h3_A",
+      "holes",
+      "panels",
+      "pillar_left",
+      "pillar_right",
+      "side",
+      "total_width"
+    ],
+    "completude_pct": 100.0
+  }
 }

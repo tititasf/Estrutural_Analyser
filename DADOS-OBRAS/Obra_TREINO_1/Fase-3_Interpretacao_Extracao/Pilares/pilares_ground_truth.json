@@ -1,9 +1,9 @@
 {
-  "P11": {
-    "b": 46.0,
-    "h": 56.0,
+  "P1": {
+    "b": null,
+    "h": null,
     "altura": 280.0,
-    "confidence": 0.9,
+    "confidence": 0.3,
     "source": "engenharia-reversa-ezdxf",
     "faces_encontradas": [
       "A",
@@ -11,14 +11,175 @@
       "C",
       "D"
     ],
-    "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
-    "bh_source": "inverse-proximity"
+    "nota": "B×H extraído por proximidade espacial (dist=None u)",
+    "cx": 5357.75,
+    "cy": 12203.29
+  },
+  "P2": {
+    "b": null,
+    "h": null,
+    "altura": 280.0,
+    "confidence": 0.3,
+    "source": "engenharia-reversa-ezdxf",
+    "faces_encontradas": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "nota": "B×H extraído por proximidade espacial (dist=None u)",
+    "cx": 6942.75,
+    "cy": 12203.29
+  },
+  "P3": {
+    "b": null,
+    "h": null,
+    "altura": 280.0,
+    "confidence": 0.3,
+    "source": "engenharia-reversa-ezdxf",
+    "faces_encontradas": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "nota": "B×H extraído por proximidade espacial (dist=None u)",
+    "cx": 8527.75,
+    "cy": 12203.29
+  },
+  "P4": {
+    "b": null,
+    "h": null,
+    "altura": 280.0,
+    "confidence": 0.3,
+    "source": "engenharia-reversa-ezdxf",
+    "faces_encontradas": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "nota": "B×H extraído por proximidade espacial (dist=None u)",
+    "cx": 3760.48,
+    "cy": 11053.31
+  },
+  "P5": {
+    "b": null,
+    "h": null,
+    "altura": 280.0,
+    "confidence": 0.3,
+    "source": "engenharia-reversa-ezdxf",
+    "faces_encontradas": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "nota": "B×H extraído por proximidade espacial (dist=None u)",
+    "cx": 5364.66,
+    "cy": 11053.31
+  },
+  "P6": {
+    "b": null,
+    "h": null,
+    "altura": 280.0,
+    "confidence": 0.3,
+    "source": "engenharia-reversa-ezdxf",
+    "faces_encontradas": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "nota": "B×H extraído por proximidade espacial (dist=None u)",
+    "cx": 6942.96,
+    "cy": 11053.31
+  },
+  "P7": {
+    "b": null,
+    "h": null,
+    "altura": 280.0,
+    "confidence": 0.3,
+    "source": "engenharia-reversa-ezdxf",
+    "faces_encontradas": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "nota": "B×H extraído por proximidade espacial (dist=None u)",
+    "cx": 8528.19,
+    "cy": 11053.31
+  },
+  "P8": {
+    "b": null,
+    "h": null,
+    "altura": 280.0,
+    "confidence": 0.3,
+    "source": "engenharia-reversa-ezdxf",
+    "faces_encontradas": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "nota": "B×H extraído por proximidade espacial (dist=None u)",
+    "cx": 3759.31,
+    "cy": 9904.73
+  },
+  "P9": {
+    "b": null,
+    "h": null,
+    "altura": 280.0,
+    "confidence": 0.3,
+    "source": "engenharia-reversa-ezdxf",
+    "faces_encontradas": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "nota": "B×H extraído por proximidade espacial (dist=None u)",
+    "cx": 5349.04,
+    "cy": 9904.73
+  },
+  "P10": {
+    "b": null,
+    "h": null,
+    "altura": 280.0,
+    "confidence": 0.3,
+    "source": "engenharia-reversa-ezdxf",
+    "faces_encontradas": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "nota": "B×H extraído por proximidade espacial (dist=None u)",
+    "cx": 6951.49,
+    "cy": 9904.73
+  },
+  "P11": {
+    "b": null,
+    "h": null,
+    "altura": 280.0,
+    "confidence": 0.3,
+    "source": "engenharia-reversa-ezdxf",
+    "faces_encontradas": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "nota": "B×H extraído por proximidade espacial (dist=None u)",
+    "cx": 8522.5,
+    "cy": 9906.14
   },
   "P12": {
-    "b": 19.0,
-    "h": 64.0,
+    "b": null,
+    "h": null,
     "altura": 280.0,
-    "confidence": 0.9,
+    "confidence": 0.3,
     "source": "engenharia-reversa-ezdxf",
     "faces_encontradas": [
       "A",
@@ -26,14 +187,15 @@
       "C",
       "D"
     ],
-    "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
-    "bh_source": "inverse-proximity"
+    "nota": "B×H extraído por proximidade espacial (dist=None u)",
+    "cx": 3750.71,
+    "cy": 8757.56
   },
   "P13": {
-    "b": 24.0,
-    "h": 64.0,
+    "b": null,
+    "h": null,
     "altura": 280.0,
-    "confidence": 0.9,
+    "confidence": 0.3,
     "source": "engenharia-reversa-ezdxf",
     "faces_encontradas": [
       "A",
@@ -41,14 +203,31 @@
       "C",
       "D"
     ],
-    "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
-    "bh_source": "inverse-proximity"
+    "nota": "B×H extraído por proximidade espacial (dist=None u)",
+    "cx": 5349.21,
+    "cy": 8757.56
+  },
+  "P14": {
+    "b": null,
+    "h": null,
+    "altura": 280.0,
+    "confidence": 0.3,
+    "source": "engenharia-reversa-ezdxf",
+    "faces_encontradas": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "nota": "B×H extraído por proximidade espacial (dist=None u)",
+    "cx": 6934.21,
+    "cy": 8757.56
   },
   "P15": {
-    "b": 25.5,
-    "h": 34.0,
+    "b": null,
+    "h": null,
     "altura": 280.0,
-    "confidence": 0.8,
+    "confidence": 0.3,
     "source": "engenharia-reversa-ezdxf",
     "faces_encontradas": [
       "A",
@@ -56,14 +235,15 @@
       "C",
       "D"
     ],
-    "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
-    "bh_source": "inverse-proximity"
+    "nota": "B×H extraído por proximidade espacial (dist=None u)",
+    "cx": 8519.21,
+    "cy": 8757.56
   },
   "P16": {
-    "b": 16.0,
-    "h": 24.0,
+    "b": null,
+    "h": null,
     "altura": 280.0,
-    "confidence": 0.4,
+    "confidence": 0.3,
     "source": "engenharia-reversa-ezdxf",
     "faces_encontradas": [
       "A",
@@ -71,14 +251,15 @@
       "C",
       "D"
     ],
-    "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
-    "bh_source": "proximity-fallback"
+    "nota": "B×H extraído por proximidade espacial (dist=None u)",
+    "cx": 3750.71,
+    "cy": 7608.99
   },
   "P17": {
-    "b": 19.0,
-    "h": 24.0,
+    "b": null,
+    "h": null,
     "altura": 280.0,
-    "confidence": 0.4,
+    "confidence": 0.3,
     "source": "engenharia-reversa-ezdxf",
     "faces_encontradas": [
       "A",
@@ -86,160 +267,204 @@
       "C",
       "D"
     ],
-    "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
-    "bh_source": "proximity-fallback"
+    "nota": "B×H extraído por proximidade espacial (dist=None u)",
+    "cx": 5332.5,
+    "cy": 7608.99
   },
   "P18": {
-    "b": 34.0,
-    "h": 54.0,
+    "b": null,
+    "h": null,
     "altura": 280.0,
-    "confidence": 0.8,
-    "source": "engenharia-reversa-ezdxf",
-    "faces_encontradas": [
-      "A",
-      "B",
-      "C",
-      "D"
-    ],
-    "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
-    "bh_source": "inverse-proximity"
-  },
-  "P19": {
-    "b": 27.6,
-    "h": 54.0,
-    "altura": 280.0,
-    "confidence": 0.9,
-    "source": "engenharia-reversa-ezdxf",
-    "faces_encontradas": [
-      "A",
-      "B",
-      "C",
-      "D"
-    ],
-    "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
-    "bh_source": "inverse-proximity"
-  },
-  "P20": {
-    "b": 16.0,
-    "h": 54.0,
-    "altura": 280.0,
-    "confidence": 0.4,
-    "source": "engenharia-reversa-ezdxf",
-    "faces_encontradas": [
-      "A",
-      "B",
-      "C",
-      "D"
-    ],
-    "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
-    "bh_source": "proximity-fallback"
-  },
-  "P21": {
-    "b": 16.0,
-    "h": 19.0,
-    "altura": 280.0,
-    "confidence": 0.8,
-    "source": "engenharia-reversa-ezdxf",
-    "faces_encontradas": [
-      "A",
-      "B",
-      "C",
-      "D"
-    ],
-    "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
-    "bh_source": "inverse-proximity"
-  },
-  "P23": {
-    "b": 17.0,
-    "h": 64.0,
-    "altura": 280.0,
-    "confidence": 0.8,
-    "source": "engenharia-reversa-ezdxf",
-    "faces_encontradas": [
-      "A",
-      "B",
-      "C",
-      "D"
-    ],
-    "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
-    "bh_source": "inverse-proximity"
-  },
-  "P24": {
-    "b": 16.0,
-    "h": 19.0,
-    "altura": 280.0,
-    "confidence": 0.9,
-    "source": "engenharia-reversa-ezdxf",
-    "faces_encontradas": [
-      "A",
-      "B",
-      "D"
-    ],
-    "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
-    "bh_source": "inverse-proximity"
-  },
-  "P26": {
-    "b": 46.0,
-    "h": 56.0,
-    "altura": 280.0,
-    "confidence": 0.8,
-    "source": "engenharia-reversa-ezdxf",
-    "faces_encontradas": [
-      "A",
-      "B",
-      "C",
-      "D",
-      "E",
-      "F"
-    ],
-    "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
-    "bh_source": "inverse-proximity"
-  },
-  "P27": {
-    "b": 16.0,
-    "h": 50.0,
-    "altura": 280.0,
-    "confidence": 0.9,
-    "source": "engenharia-reversa-ezdxf",
-    "faces_encontradas": [
-      "A",
-      "B",
-      "C",
-      "D",
-      "E",
-      "F"
-    ],
-    "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
-    "bh_source": "inverse-proximity"
-  },
-  "P28": {
-    "b": 48.0,
-    "h": 65.0,
-    "altura": 280.0,
-    "confidence": 0.9,
+    "confidence": 0.3,
     "source": "engenharia-reversa-ezdxf",
     "faces_encontradas": [
       "A",
       "B",
       "C"
     ],
-    "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
-    "bh_source": "inverse-proximity"
+    "nota": "B×H extraído por proximidade espacial (dist=None u)",
+    "cx": 6670.59,
+    "cy": 7582.4
   },
-  "P29": {
-    "b": 19.0,
-    "h": 64.0,
+  "P19": {
+    "b": null,
+    "h": null,
     "altura": 280.0,
-    "confidence": 0.9,
+    "confidence": 0.3,
     "source": "engenharia-reversa-ezdxf",
     "faces_encontradas": [
       "A",
       "B",
       "C",
+      "D"
+    ],
+    "nota": "B×H extraído por proximidade espacial (dist=None u)",
+    "cx": 8531.04,
+    "cy": 7607.58
+  },
+  "P20": {
+    "b": null,
+    "h": null,
+    "altura": 280.0,
+    "confidence": 0.3,
+    "source": "engenharia-reversa-ezdxf",
+    "faces_encontradas": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "nota": "B×H extraído por proximidade espacial (dist=None u)",
+    "cx": 3762.54,
+    "cy": 6459.01
+  },
+  "P21": {
+    "b": null,
+    "h": null,
+    "altura": 280.0,
+    "confidence": 0.3,
+    "source": "engenharia-reversa-ezdxf",
+    "faces_encontradas": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "nota": "B×H extraído por proximidade espacial (dist=None u)",
+    "cx": 5361.04,
+    "cy": 6459.01
+  },
+  "P22": {
+    "b": null,
+    "h": null,
+    "altura": 280.0,
+    "confidence": 0.3,
+    "source": "engenharia-reversa-ezdxf",
+    "faces_encontradas": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "nota": "B×H extraído por proximidade espacial (dist=None u)",
+    "cx": 6946.04,
+    "cy": 6459.01
+  },
+  "P23": {
+    "b": null,
+    "h": null,
+    "altura": 280.0,
+    "confidence": 0.3,
+    "source": "engenharia-reversa-ezdxf",
+    "faces_encontradas": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "nota": "B×H extraído por proximidade espacial (dist=None u)",
+    "cx": 8524.04,
+    "cy": 6459.01
+  },
+  "P24": {
+    "b": null,
+    "h": null,
+    "altura": 280.0,
+    "confidence": 0.3,
+    "source": "engenharia-reversa-ezdxf",
+    "faces_encontradas": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "nota": "B×H extraído por proximidade espacial (dist=None u)",
+    "cx": 3762.54,
+    "cy": 5310.43
+  },
+  "P25": {
+    "b": null,
+    "h": null,
+    "altura": 280.0,
+    "confidence": 0.3,
+    "source": "engenharia-reversa-ezdxf",
+    "faces_encontradas": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "nota": "B×H extraído por proximidade espacial (dist=None u)",
+    "cx": 5361.04,
+    "cy": 5310.43
+  },
+  "P26": {
+    "b": null,
+    "h": null,
+    "altura": 280.0,
+    "confidence": 0.3,
+    "source": "engenharia-reversa-ezdxf",
+    "faces_encontradas": [
+      "A",
+      "B",
+      "C",
+      "D",
+      "E",
       "F"
     ],
-    "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
-    "bh_source": "inverse-proximity"
+    "nota": "B×H extraído por proximidade espacial (dist=None u)",
+    "cx": 6850.23,
+    "cy": 4929.43
+  },
+  "P27": {
+    "b": null,
+    "h": null,
+    "altura": 280.0,
+    "confidence": 0.3,
+    "source": "engenharia-reversa-ezdxf",
+    "faces_encontradas": [
+      "A",
+      "B",
+      "C",
+      "D",
+      "E",
+      "F"
+    ],
+    "nota": "B×H extraído por proximidade espacial (dist=None u)",
+    "cx": 7356.06,
+    "cy": 4163.72
+  },
+  "P28": {
+    "b": null,
+    "h": null,
+    "altura": 280.0,
+    "confidence": 0.3,
+    "source": "engenharia-reversa-ezdxf",
+    "faces_encontradas": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "nota": "B×H extraído por proximidade espacial (dist=None u)",
+    "cx": 3792.67,
+    "cy": 3014.68
+  },
+  "P29": {
+    "b": null,
+    "h": null,
+    "altura": 280.0,
+    "confidence": 0.3,
+    "source": "engenharia-reversa-ezdxf",
+    "faces_encontradas": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "nota": "B×H extraído por proximidade espacial (dist=None u)",
+    "cx": 5343.9,
+    "cy": 3014.68
   },
   "P30": {
     "b": null,
@@ -248,45 +473,36 @@
     "confidence": 0.3,
     "source": "engenharia-reversa-ezdxf",
     "faces_encontradas": [
+      "A",
       "B",
       "C",
       "D"
     ],
-    "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente"
+    "nota": "B×H extraído por proximidade espacial (dist=None u)",
+    "cx": 6928.9,
+    "cy": 3014.68
   },
   "P31": {
-    "b": 18.5,
-    "h": 50.0,
+    "b": null,
+    "h": null,
     "altura": 280.0,
-    "confidence": 0.9,
+    "confidence": 0.3,
     "source": "engenharia-reversa-ezdxf",
     "faces_encontradas": [
+      "A",
       "B",
       "C",
       "D"
     ],
-    "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
-    "bh_source": "inverse-proximity"
+    "nota": "B×H extraído por proximidade espacial (dist=None u)",
+    "cx": 8513.9,
+    "cy": 3014.68
   },
   "P32": {
-    "b": 18.5,
-    "h": 92.0,
+    "b": null,
+    "h": null,
     "altura": 280.0,
-    "confidence": 0.9,
-    "source": "engenharia-reversa-ezdxf",
-    "faces_encontradas": [
-      "B",
-      "C",
-      "D"
-    ],
-    "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
-    "bh_source": "inverse-proximity"
-  },
-  "P101": {
-    "b": 24.0,
-    "h": 65.0,
-    "altura": 280.0,
-    "confidence": 0.8,
+    "confidence": 0.3,
     "source": "engenharia-reversa-ezdxf",
     "faces_encontradas": [
       "A",
@@ -294,14 +510,15 @@
       "C",
       "D"
     ],
-    "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
-    "bh_source": "inverse-proximity"
+    "nota": "B×H extraído por proximidade espacial (dist=None u)",
+    "cx": 3758.9,
+    "cy": 1866.11
   },
-  "P102": {
-    "b": 24.0,
-    "h": 82.0,
+  "P33": {
+    "b": null,
+    "h": null,
     "altura": 280.0,
-    "confidence": 0.8,
+    "confidence": 0.3,
     "source": "engenharia-reversa-ezdxf",
     "faces_encontradas": [
       "A",
@@ -309,14 +526,15 @@
       "C",
       "D"
     ],
-    "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
-    "bh_source": "inverse-proximity"
+    "nota": "B×H extraído por proximidade espacial (dist=None u)",
+    "cx": 5340.54,
+    "cy": 1864.71
   },
-  "P103": {
-    "b": 24.0,
-    "h": 56.0,
+  "P34": {
+    "b": null,
+    "h": null,
     "altura": 280.0,
-    "confidence": 0.8,
+    "confidence": 0.3,
     "source": "engenharia-reversa-ezdxf",
     "faces_encontradas": [
       "A",
@@ -324,17 +542,33 @@
       "C",
       "D"
     ],
-    "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
-    "bh_source": "inverse-proximity"
+    "nota": "B×H extraído por proximidade espacial (dist=None u)",
+    "cx": 6932.54,
+    "cy": 1864.71
+  },
+  "P35": {
+    "b": null,
+    "h": null,
+    "altura": 280.0,
+    "confidence": 0.3,
+    "source": "engenharia-reversa-ezdxf",
+    "faces_encontradas": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "nota": "B×H extraído por proximidade espacial (dist=None u)",
+    "cx": 8517.54,
+    "cy": 1864.71
   },
   "_meta": {
-    "total": 22,
+    "total": 35,
+    "bh_extraidos": 35,
     "obra": "engenharia-reversa",
-    "pavimento": "TÉRREO",
+    "pavimento": "13PAV",
     "pe_direito_cm": null,
-    "extraido_em": "2026-03-09",
-    "confidence_nota": "IDs=ALTA | altura=MEDIA | B/H=BAIXA(requer revisao)",
-    "bh_extraidos": 21,
-    "bh_atualizado_em": "2026-03-09"
+    "extraido_em": "2026-06-11",
+    "confidence_nota": "IDs=ALTA | altura=MEDIA | B/H=ESPACIAL(conf≈0.50-0.78) ou BAIXA(conf=0.30)"
   }
 }

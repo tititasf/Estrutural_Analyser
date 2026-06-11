@@ -1,25 +1,27 @@
 {
   "obra": "Obra_TREINO_1",
-  "pavimento": "TÉRREO",
-  "timestamp": "2026-03-09T06:50:53.368211",
+  "pavimento": "12 PAV",
+  "timestamp": "2026-06-04T17:32:34.936308",
   "fases": {
     "descoberta": "SKIP",
-    "eng_reversa": "OK",
-    "extracao_dimensional": "OK",
-    "motor_fase4": "OK",
-    "geracao_dxf_individual": "OK",
+    "eng_reversa": "SKIP",
+    "extracao_dimensional": "SKIP",
+    "validacao_bh": "SKIP",
+    "motor_fase4": "SKIP",
+    "geracao_dxf_individual": "SKIP",
     "comparacao_individual": "OK",
-    "ancoras": "OK",
-    "consolidacao_coletivo": "OK",
+    "ancoras": "SKIP",
+    "consolidacao_coletivo": "SKIP",
     "validacao_coletivo": "OK",
-    "obras_salvas": "OK"
+    "obras_salvas": "SKIP",
+    "validacao_visual": "DRY"
   },
   "scores": {
     "coletivo": {
-      "pilares": 97.3,
+      "pilares": 87.5,
       "vigas": 100.0,
       "lajes": 100.0,
-      "global": 98.9,
+      "global": 95.0,
       "aprovado": true
     }
   },

@@ -1,0 +1,102 @@
+{
+  "obra_name": "Obra_TREINO_1",
+  "pavimento_name": "TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA",
+  "dxf_bruto": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-1_Ingestao\\Estruturais_dos_Pavimentos_Estado_Bruto_DWG_DXF\\TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA.dxf",
+  "n_torres": 1,
+  "out_dir": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes\\TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA",
+  "torres": [
+    {
+      "type": "torre_1",
+      "output_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes\\TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA\\torre_1.dxf",
+      "bbox": [
+        889.693286,
+        1015.2894788333333,
+        4898.204466,
+        3441.421115
+      ],
+      "area": 9725175.787725776,
+      "entity_count": 4164,
+      "entities_copied": 4167,
+      "status": "pending",
+      "approved": false,
+      "approved_at": null
+    }
+  ],
+  "detalhes": [
+    {
+      "type": "detalhes",
+      "output_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes\\TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA\\detalhes.dxf",
+      "bboxes": [
+        [
+          5025.760568,
+          761.9438,
+          6263.671455,
+          2004.016503
+        ],
+        [
+          5095.897489,
+          2846.041303,
+          5585.516611,
+          3521.306192
+        ],
+        [
+          6043.702191,
+          1793.418245,
+          6206.6130539999995,
+          2071.319686
+        ],
+        [
+          6311.016619,
+          2154.335719,
+          6516.95215,
+          2311.1984780000003
+        ],
+        [
+          5793.732541,
+          2438.848784,
+          5844.682885,
+          2830.346598
+        ],
+        [
+          6099.671133,
+          3045.457275,
+          6155.971863,
+          3237.203582
+        ],
+        [
+          5891.886099,
+          3045.457275,
+          5944.358399,
+          3244.941983
+        ],
+        [
+          6302.310903,
+          3045.457275,
+          6354.458191,
+          3186.363219
+        ],
+        [
+          6260.706858,
+          795.092144,
+          6263.10292,
+          1029.623235
+        ]
+      ],
+      "area": 1994894.3433885525,
+      "entity_count": 1333,
+      "entities_copied": 1341,
+      "clusters": 9,
+      "status": "pending",
+      "approved": false,
+      "approved_at": null
+    }
+  ],
+  "errors": [],
+  "processed_at": "2026-06-06T22:56:59.958923",
+  "cached": false,
+  "detection": {
+    "total_entities": 5554,
+    "total_clusters": 10,
+    "eps_used": 152.1
+  }
+}
