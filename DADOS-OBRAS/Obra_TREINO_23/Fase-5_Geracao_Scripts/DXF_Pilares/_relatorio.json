@@ -1,8 +1,8 @@
 {
   "_meta": {
-    "total": 18,
+    "total": 20,
     "erros": 0,
-    "pavimento": "SANTA CRUZ-TER",
+    "pavimento": "TIPO",
     "output_dir": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_23\\Fase-5_Geracao_Scripts\\DXF_Pilares"
   },
   "pilares": {
@@ -13,6 +13,14 @@
       "n_paineis": 12,
       "total_height": 280.0,
       "path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_23\\Fase-5_Geracao_Scripts\\DXF_Pilares\\P101.dxf"
+    },
+    "P102": {
+      "pid": "P102",
+      "b": 30.0,
+      "h": 14.0,
+      "n_paineis": 12,
+      "total_height": 280.0,
+      "path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_23\\Fase-5_Geracao_Scripts\\DXF_Pilares\\P102.dxf"
     },
     "P103": {
       "pid": "P103",
@@ -69,6 +77,14 @@
       "n_paineis": 12,
       "total_height": 280.0,
       "path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_23\\Fase-5_Geracao_Scripts\\DXF_Pilares\\P206.dxf"
+    },
+    "P208": {
+      "pid": "P208",
+      "b": 30.0,
+      "h": 52.0,
+      "n_paineis": 12,
+      "total_height": 280.0,
+      "path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_23\\Fase-5_Geracao_Scripts\\DXF_Pilares\\P208.dxf"
     },
     "P307": {
       "pid": "P307",

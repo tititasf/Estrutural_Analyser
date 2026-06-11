@@ -29,10 +29,70 @@
     "source": "engenharia-reversa-ezdxf",
     "nota": "Dims requerem verificação manual"
   },
+  "L1A": {
+    "comprimento": null,
+    "largura": null,
+    "coordenadas": [
+      [
+        191684.7,
+        39804.6
+      ],
+      [
+        191684.7,
+        39785.6
+      ],
+      [
+        191744.7,
+        39785.6
+      ],
+      [
+        191744.7,
+        39804.6
+      ],
+      [
+        191684.7,
+        39804.6
+      ]
+    ],
+    "area_cm2": null,
+    "confidence": 0.25,
+    "source": "engenharia-reversa-ezdxf",
+    "nota": "Dims requerem verificação manual"
+  },
   "L2": {
     "comprimento": null,
     "largura": null,
     "coordenadas": [],
+    "area_cm2": null,
+    "confidence": 0.25,
+    "source": "engenharia-reversa-ezdxf",
+    "nota": "Dims requerem verificação manual"
+  },
+  "L2A": {
+    "comprimento": null,
+    "largura": null,
+    "coordenadas": [
+      [
+        192309.2,
+        39648.6
+      ],
+      [
+        192309.2,
+        39609.6
+      ],
+      [
+        192323.2,
+        39609.6
+      ],
+      [
+        192323.2,
+        39648.6
+      ],
+      [
+        192309.2,
+        39648.6
+      ]
+    ],
     "area_cm2": null,
     "confidence": 0.25,
     "source": "engenharia-reversa-ezdxf",
@@ -466,8 +526,8 @@
     "nota": "Dims requerem verificação manual"
   },
   "_meta": {
-    "total": 16,
-    "pavimento": "SANTA CRUZ-TER",
-    "extraido_em": "2026-03-09"
+    "total": 18,
+    "pavimento": "SANTA CRUZ - TER",
+    "extraido_em": "2026-05-07"
   }
 }

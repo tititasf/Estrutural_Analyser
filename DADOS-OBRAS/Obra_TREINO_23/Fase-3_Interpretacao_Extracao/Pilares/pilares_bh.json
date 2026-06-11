@@ -178,8 +178,8 @@
     "cobertura_pct": 90.0,
     "max_dist": 300.0,
     "obra": "Obra_TREINO_23",
-    "pavimento": "SANTA CRUZ-TER",
-    "extraido_em": "2026-03-09",
+    "pavimento": "SANTA CRUZ - TER",
+    "extraido_em": "2026-05-07",
     "algoritmo": "dimension-proximity-matching"
   }
 }

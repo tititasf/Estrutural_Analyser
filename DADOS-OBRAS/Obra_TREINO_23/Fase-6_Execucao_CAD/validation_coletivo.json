@@ -1,22 +1,19 @@
 {
   "obra": "Obra_TREINO_23",
-  "pavimento": "SANTA CRUZ-TER",
+  "pavimento": "SANTA CRUZ - 1PV",
   "elementos": {
     "pilares": {
       "tipo": "pilares",
       "gt_count": 20,
-      "gerado_count": 18,
-      "correct": 18,
+      "gerado_count": 20,
+      "correct": 20,
       "hallucinated": [],
-      "missed": [
-        "P102",
-        "P208"
-      ],
-      "id_match": 0.9,
+      "missed": [],
+      "id_match": 1.0,
       "hallucination_rate": 0.0,
-      "count_match": 0.9,
-      "score": 0.94,
-      "score_percent": 94.0,
+      "count_match": 1.0,
+      "score": 1.0,
+      "score_percent": 100.0,
       "aprovado": true
     },
     "vigas": {
@@ -35,9 +32,9 @@
     },
     "lajes": {
       "tipo": "lajes",
-      "gt_count": 16,
-      "gerado_count": 16,
-      "correct": 16,
+      "gt_count": 18,
+      "gerado_count": 18,
+      "correct": 18,
       "hallucinated": [],
       "missed": [],
       "id_match": 1.0,
@@ -48,7 +45,7 @@
       "aprovado": true
     }
   },
-  "score_global": 0.976,
-  "score_global_percent": 97.6,
+  "score_global": 1.0,
+  "score_global_percent": 100.0,
   "aprovado": true
 }

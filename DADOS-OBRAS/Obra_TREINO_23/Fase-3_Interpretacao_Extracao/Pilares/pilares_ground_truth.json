@@ -274,11 +274,11 @@
   "_meta": {
     "total": 20,
     "obra": "engenharia-reversa",
-    "pavimento": "SANTA CRUZ-TER",
+    "pavimento": "SANTA CRUZ - TER",
     "pe_direito_cm": 652.0,
-    "extraido_em": "2026-03-09",
+    "extraido_em": "2026-05-07",
     "confidence_nota": "IDs=ALTA | altura=MEDIA | B/H=BAIXA(requer revisao)",
     "bh_extraidos": 18,
-    "bh_atualizado_em": "2026-03-09"
+    "bh_atualizado_em": "2026-05-07"
   }
 }

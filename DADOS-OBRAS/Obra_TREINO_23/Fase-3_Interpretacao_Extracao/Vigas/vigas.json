@@ -1,234 +1,274 @@
 {
   "V12": {
-    "b": 15.0,
+    "b": 25.0,
     "h": 40.0,
     "comprimento": 350.0,
-    "confidence": 0.69,
-    "source": "vigas_dim+default",
+    "confidence": 0.59,
+    "source": "vigas_dim+fv-dxf-global-median",
     "sides": [
       "A",
       "B"
-    ]
+    ],
+    "comprimento_enrich_status": "sem_reverso"
   },
   "V28": {
-    "b": 15.0,
+    "b": 25.0,
     "h": 40.0,
     "comprimento": 310.0,
-    "confidence": 0.69,
-    "source": "vigas_dim+default",
+    "confidence": 0.59,
+    "source": "vigas_dim+fv-dxf-global-median",
     "sides": [
       "A",
       "B"
-    ]
+    ],
+    "comprimento_enrich_status": "sem_reverso"
   },
   "V101": {
-    "b": 15.0,
+    "b": 13.98,
     "h": 40.0,
-    "comprimento": 156.5,
-    "confidence": 0.69,
-    "source": "vigas_dim+default",
+    "comprimento": 244.0,
+    "confidence": 0.865,
+    "source": "vigas_dim+fv-dxf-proximity+reverso_lv",
     "sides": [
       "A",
       "B"
-    ]
+    ],
+    "comprimento_original": 156.5,
+    "comprimento_enrich_status": "enriched_lv"
   },
   "V102": {
-    "b": 15.0,
+    "b": 25.0,
     "h": 40.0,
-    "comprimento": 244.0,
-    "confidence": 0.69,
-    "source": "vigas_dim+default",
+    "comprimento": 334.0,
+    "confidence": 0.865,
+    "source": "vigas_dim+fv-dxf-proximity+reverso_lv",
     "sides": [
       "A",
       "B"
-    ]
+    ],
+    "comprimento_original": 244.0,
+    "comprimento_enrich_status": "enriched_lv"
   },
   "V104": {
-    "b": 15.0,
+    "b": 25.0,
     "h": 40.0,
-    "comprimento": 244.0,
-    "confidence": 0.69,
-    "source": "vigas_dim+default",
+    "comprimento": 334.0,
+    "confidence": 0.865,
+    "source": "vigas_dim+fv-dxf-proximity+reverso_lv",
     "sides": [
       "A",
       "B"
-    ]
+    ],
+    "comprimento_original": 244.0,
+    "comprimento_enrich_status": "enriched_lv"
   },
   "V105": {
-    "b": 15.0,
+    "b": 25.0,
     "h": 40.0,
-    "comprimento": 180.0,
-    "confidence": 0.64,
-    "source": "vigas_dim+default",
+    "comprimento": 335.5,
+    "confidence": 0.815,
+    "source": "vigas_dim+fv-dxf-proximity+reverso_lv",
     "sides": [
       "A",
       "B"
-    ]
+    ],
+    "comprimento_original": 180.0,
+    "comprimento_enrich_status": "enriched_lv"
   },
   "V106": {
-    "b": 15.0,
+    "b": 25.0,
     "h": 40.0,
-    "comprimento": 244.0,
-    "confidence": 0.64,
-    "source": "vigas_dim+default",
+    "comprimento": 240.5,
+    "confidence": 0.815,
+    "source": "vigas_dim+fv-dxf-proximity+reverso_lv",
     "sides": [
       "A",
       "B"
-    ]
+    ],
+    "comprimento_original": 244.0,
+    "comprimento_enrich_status": "enriched_lv"
   },
   "V107": {
-    "b": 15.0,
+    "b": 25.0,
     "h": 40.0,
-    "comprimento": 246.0,
-    "confidence": 0.64,
-    "source": "vigas_dim+default",
+    "comprimento": 335.5,
+    "confidence": 0.815,
+    "source": "vigas_dim+fv-dxf-proximity+reverso_lv",
     "sides": [
       "A",
       "B"
-    ]
+    ],
+    "comprimento_original": 246.0,
+    "comprimento_enrich_status": "enriched_lv"
   },
   "V108": {
-    "b": 15.0,
+    "b": 25.0,
     "h": 40.0,
     "comprimento": 244.0,
-    "confidence": 0.64,
-    "source": "vigas_dim+default",
+    "confidence": 0.815,
+    "source": "vigas_dim+fv-dxf-proximity+reverso_lv",
     "sides": [
       "A",
       "B"
-    ]
+    ],
+    "comprimento_original": 244.0,
+    "comprimento_enrich_status": "enriched_lv"
   },
   "V109": {
-    "b": 15.0,
+    "b": 25.0,
     "h": 40.0,
-    "comprimento": 244.0,
-    "confidence": 0.64,
-    "source": "vigas_dim+default",
+    "comprimento": 55.0,
+    "confidence": 0.815,
+    "source": "vigas_dim+fv-dxf-proximity+reverso_fv_only",
     "sides": [
       "A",
       "B"
-    ]
+    ],
+    "comprimento_original": 244.0,
+    "comprimento_enrich_status": "enriched_fv_only"
   },
   "V110": {
-    "b": 15.0,
+    "b": 13.98,
     "h": 40.0,
-    "comprimento": 244.0,
-    "confidence": 0.69,
-    "source": "vigas_dim+default",
+    "comprimento": 271.0,
+    "confidence": 0.865,
+    "source": "vigas_dim+fv-dxf-proximity+reverso_lv",
     "sides": [
       "A",
       "B"
-    ]
+    ],
+    "comprimento_original": 244.0,
+    "comprimento_enrich_status": "enriched_lv"
   },
   "V111": {
-    "b": 15.0,
+    "b": 62.5,
     "h": 40.0,
-    "comprimento": 246.0,
-    "confidence": 0.69,
-    "source": "vigas_dim+default",
+    "comprimento": 271.0,
+    "confidence": 0.865,
+    "source": "vigas_dim+fv-dxf-proximity+reverso_lv",
     "sides": [
       "A",
       "B"
-    ]
+    ],
+    "comprimento_original": 246.0,
+    "comprimento_enrich_status": "enriched_lv"
   },
   "V112": {
-    "b": 15.0,
+    "b": 25.0,
     "h": 40.0,
     "comprimento": 244.0,
-    "confidence": 0.69,
-    "source": "vigas_dim+default",
+    "confidence": 0.865,
+    "source": "vigas_dim+fv-dxf-proximity+reverso_lv",
     "sides": [
       "A",
       "B"
-    ]
+    ],
+    "comprimento_original": 244.0,
+    "comprimento_enrich_status": "enriched_lv"
   },
   "V201": {
-    "b": 15.0,
+    "b": 25.0,
     "h": 40.0,
     "comprimento": 244.0,
-    "confidence": 0.64,
-    "source": "vigas_dim+default",
+    "confidence": 0.54,
+    "source": "vigas_dim+fv-dxf-global-median+reverso_lv",
     "sides": [
       "A",
       "B"
-    ]
+    ],
+    "comprimento_original": 244.0,
+    "comprimento_enrich_status": "enriched_lv"
   },
   "V202": {
-    "b": 15.0,
+    "b": 13.98,
     "h": 40.0,
     "comprimento": 244.0,
-    "confidence": 0.64,
-    "source": "vigas_dim+default",
+    "confidence": 0.815,
+    "source": "vigas_dim+fv-dxf-proximity+reverso_lv",
     "sides": [
       "A",
       "B"
-    ]
+    ],
+    "comprimento_original": 244.0,
+    "comprimento_enrich_status": "enriched_lv"
   },
   "V203": {
-    "b": 15.0,
+    "b": 32.0,
     "h": 40.0,
-    "comprimento": 198.5,
-    "confidence": 0.69,
-    "source": "vigas_dim+default",
+    "comprimento": 230.0,
+    "confidence": 0.865,
+    "source": "vigas_dim+fv-dxf-proximity+reverso_lv",
     "sides": [
       "A",
       "B"
-    ]
+    ],
+    "comprimento_original": 198.5,
+    "comprimento_enrich_status": "enriched_lv"
   },
   "V204": {
-    "b": 15.0,
+    "b": 19.0,
     "h": 40.0,
-    "comprimento": 240.5,
-    "confidence": 0.64,
-    "source": "vigas_dim+default",
+    "comprimento": 230.0,
+    "confidence": 0.815,
+    "source": "vigas_dim+fv-dxf-proximity+reverso_lv",
     "sides": [
       "A",
       "B"
-    ]
+    ],
+    "comprimento_original": 240.5,
+    "comprimento_enrich_status": "enriched_lv"
   },
   "V205": {
-    "b": 15.0,
+    "b": 19.0,
     "h": 40.0,
-    "comprimento": 240.5,
-    "confidence": 0.64,
-    "source": "vigas_dim+default",
+    "comprimento": 271.0,
+    "confidence": 0.815,
+    "source": "vigas_dim+fv-dxf-proximity+reverso_fv_only",
     "sides": [
       "A",
       "B"
-    ]
+    ],
+    "comprimento_original": 240.5,
+    "comprimento_enrich_status": "enriched_fv_only"
   },
   "V206": {
-    "b": 15.0,
+    "b": 19.0,
     "h": 40.0,
-    "comprimento": 240.5,
-    "confidence": 0.64,
-    "source": "vigas_dim+default",
+    "comprimento": 271.0,
+    "confidence": 0.815,
+    "source": "vigas_dim+fv-dxf-proximity+reverso_fv_only",
     "sides": [
       "A",
       "B"
-    ]
+    ],
+    "comprimento_original": 240.5,
+    "comprimento_enrich_status": "enriched_fv_only"
   },
   "V207": {
-    "b": 15.0,
+    "b": 19.0,
     "h": 40.0,
-    "comprimento": 240.5,
-    "confidence": 0.64,
-    "source": "vigas_dim+default",
+    "comprimento": 19.0,
+    "confidence": 0.815,
+    "source": "vigas_dim+fv-dxf-proximity+reverso_fv_only",
     "sides": [
       "A",
       "B"
-    ]
+    ],
+    "comprimento_original": 240.5,
+    "comprimento_enrich_status": "enriched_fv_only"
   },
   "V301": {
-    "b": 15.0,
+    "b": 25.0,
     "h": 40.0,
-    "comprimento": 194.0,
-    "confidence": 0.69,
-    "source": "vigas_dim+default",
+    "comprimento": 244.0,
+    "confidence": 0.59,
+    "source": "vigas_dim+fv-dxf-global-median+reverso_lv",
     "sides": [
       "A",
       "B"
-    ]
+    ],
+    "comprimento_original": 194.0,
+    "comprimento_enrich_status": "enriched_lv"
   },
   "_meta": {
     "total": 20,
@@ -236,6 +276,7 @@
     "fontes": [
       "vigas_dim.json",
       "vigas_largura.json"
-    ]
+    ],
+    "comprimento_enrich_status": "sem_reverso"
   }
 }

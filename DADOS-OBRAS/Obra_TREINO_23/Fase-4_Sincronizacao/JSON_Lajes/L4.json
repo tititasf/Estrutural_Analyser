@@ -1,35 +1,43 @@
 {
   "numero": 4,
   "nome": "L4",
-  "comprimento": 100.0,
-  "largura": 100.0,
-  "pavimento": "SANTA CRUZ-TER",
+  "comprimento": 244.0,
+  "largura": 244.0,
+  "pavimento": "SANTA CRUZ - TER",
   "coordenadas": [
     [
-      192674.2,
-      39668.6
+      0.0,
+      0.0
     ],
     [
-      192674.2,
-      39629.6
+      244.0,
+      0.0
     ],
     [
-      192688.2,
-      39629.6
+      244.0,
+      244.0
     ],
     [
-      192688.2,
-      39668.6
+      0.0,
+      244.0
     ],
     [
-      192674.2,
-      39668.6
+      0.0,
+      0.0
     ]
   ],
-  "area_cm2": 10000.0,
+  "area_cm2": 59536.0,
   "linhas_verticais": [
     {
       "value": 100.0,
+      "is_union": false
+    },
+    {
+      "value": 200.0,
+      "is_union": false
+    },
+    {
+      "value": 244.0,
       "is_union": false
     }
   ],

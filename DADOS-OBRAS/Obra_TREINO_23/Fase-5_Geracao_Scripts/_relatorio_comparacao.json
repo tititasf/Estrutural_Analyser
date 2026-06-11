@@ -1,15 +1,15 @@
 {
   "_meta": {
-    "score_geral": 70.83333333333333,
-    "status": "FAIL",
+    "score_geral": 96.66666666666667,
+    "status": "PASS",
     "meta": 75.0,
     "tolerancia_pct": 5.0
   },
   "pilares": {
-    "match_rate": 100.0,
-    "avg_err_pct": 0.0,
+    "match_rate": 90.0,
+    "avg_err_pct": 7.9,
     "n_ok": 18,
-    "n_total": 18,
+    "n_total": 20,
     "detalhes": {
       "P101": {
         "status": "OK",
@@ -20,6 +20,17 @@
         "err_b_pct": 0.0,
         "err_h_pct": 0.0,
         "err_medio_pct": 0.0,
+        "n_paineis": 12
+      },
+      "P102": {
+        "status": "DIFF",
+        "ref_b": 0.0,
+        "ref_h": 14.0,
+        "gen_b": 14.0,
+        "gen_h": 30.0,
+        "err_b_pct": 100.0,
+        "err_h_pct": 114.3,
+        "err_medio_pct": 107.1,
         "n_paineis": 12
       },
       "P103": {
@@ -97,6 +108,17 @@
         "err_b_pct": 0.0,
         "err_h_pct": 0.0,
         "err_medio_pct": 0.0,
+        "n_paineis": 12
+      },
+      "P208": {
+        "status": "DIFF",
+        "ref_b": 0.0,
+        "ref_h": 52.0,
+        "gen_b": 30.0,
+        "gen_h": 52.0,
+        "err_b_pct": 100.0,
+        "err_h_pct": 0.0,
+        "err_medio_pct": 50.0,
         "n_paineis": 12
       },
       "P307": {
@@ -219,7 +241,7 @@
     "detalhes": {
       "V101": {
         "status": "OK",
-        "ref_b": 15.0,
+        "ref_b": 13.98,
         "ref_h": 40.0,
         "ref_L": 156.5,
         "gen_L": 156.5,
@@ -230,7 +252,7 @@
       },
       "V102": {
         "status": "OK",
-        "ref_b": 15.0,
+        "ref_b": 25.0,
         "ref_h": 40.0,
         "ref_L": 244.0,
         "gen_L": 244.0,
@@ -241,7 +263,7 @@
       },
       "V104": {
         "status": "OK",
-        "ref_b": 15.0,
+        "ref_b": 25.0,
         "ref_h": 40.0,
         "ref_L": 244.0,
         "gen_L": 244.0,
@@ -252,7 +274,7 @@
       },
       "V105": {
         "status": "OK",
-        "ref_b": 15.0,
+        "ref_b": 25.0,
         "ref_h": 40.0,
         "ref_L": 180.0,
         "gen_L": 180.0,
@@ -263,7 +285,7 @@
       },
       "V106": {
         "status": "OK",
-        "ref_b": 15.0,
+        "ref_b": 25.0,
         "ref_h": 40.0,
         "ref_L": 244.0,
         "gen_L": 244.0,
@@ -274,7 +296,7 @@
       },
       "V107": {
         "status": "OK",
-        "ref_b": 15.0,
+        "ref_b": 25.0,
         "ref_h": 40.0,
         "ref_L": 246.0,
         "gen_L": 246.0,
@@ -285,7 +307,7 @@
       },
       "V108": {
         "status": "OK",
-        "ref_b": 15.0,
+        "ref_b": 25.0,
         "ref_h": 40.0,
         "ref_L": 244.0,
         "gen_L": 244.0,
@@ -296,7 +318,7 @@
       },
       "V109": {
         "status": "OK",
-        "ref_b": 15.0,
+        "ref_b": 25.0,
         "ref_h": 40.0,
         "ref_L": 244.0,
         "gen_L": 244.0,
@@ -307,7 +329,7 @@
       },
       "V110": {
         "status": "OK",
-        "ref_b": 15.0,
+        "ref_b": 13.98,
         "ref_h": 40.0,
         "ref_L": 244.0,
         "gen_L": 244.0,
@@ -318,7 +340,7 @@
       },
       "V111": {
         "status": "OK",
-        "ref_b": 15.0,
+        "ref_b": 62.5,
         "ref_h": 40.0,
         "ref_L": 246.0,
         "gen_L": 246.0,
@@ -329,7 +351,7 @@
       },
       "V112": {
         "status": "OK",
-        "ref_b": 15.0,
+        "ref_b": 25.0,
         "ref_h": 40.0,
         "ref_L": 244.0,
         "gen_L": 244.0,
@@ -340,7 +362,7 @@
       },
       "V12": {
         "status": "OK",
-        "ref_b": 15.0,
+        "ref_b": 25.0,
         "ref_h": 40.0,
         "ref_L": 350.0,
         "gen_L": 350.0,
@@ -351,7 +373,7 @@
       },
       "V201": {
         "status": "OK",
-        "ref_b": 15.0,
+        "ref_b": 25.0,
         "ref_h": 40.0,
         "ref_L": 244.0,
         "gen_L": 244.0,
@@ -362,7 +384,7 @@
       },
       "V202": {
         "status": "OK",
-        "ref_b": 15.0,
+        "ref_b": 13.98,
         "ref_h": 40.0,
         "ref_L": 244.0,
         "gen_L": 244.0,
@@ -373,7 +395,7 @@
       },
       "V203": {
         "status": "OK",
-        "ref_b": 15.0,
+        "ref_b": 32.0,
         "ref_h": 40.0,
         "ref_L": 198.5,
         "gen_L": 198.5,
@@ -384,7 +406,7 @@
       },
       "V204": {
         "status": "OK",
-        "ref_b": 15.0,
+        "ref_b": 19.0,
         "ref_h": 40.0,
         "ref_L": 240.5,
         "gen_L": 240.5,
@@ -395,7 +417,7 @@
       },
       "V205": {
         "status": "OK",
-        "ref_b": 15.0,
+        "ref_b": 19.0,
         "ref_h": 40.0,
         "ref_L": 240.5,
         "gen_L": 240.5,
@@ -406,7 +428,7 @@
       },
       "V206": {
         "status": "OK",
-        "ref_b": 15.0,
+        "ref_b": 19.0,
         "ref_h": 40.0,
         "ref_L": 240.5,
         "gen_L": 240.5,
@@ -417,7 +439,7 @@
       },
       "V207": {
         "status": "OK",
-        "ref_b": 15.0,
+        "ref_b": 19.0,
         "ref_h": 40.0,
         "ref_L": 240.5,
         "gen_L": 240.5,
@@ -428,7 +450,7 @@
       },
       "V28": {
         "status": "OK",
-        "ref_b": 15.0,
+        "ref_b": 25.0,
         "ref_h": 40.0,
         "ref_L": 310.0,
         "gen_L": 310.0,
@@ -439,7 +461,7 @@
       },
       "V301": {
         "status": "OK",
-        "ref_b": 15.0,
+        "ref_b": 25.0,
         "ref_h": 40.0,
         "ref_L": 194.0,
         "gen_L": 194.0,
@@ -451,170 +473,190 @@
     }
   },
   "lajes": {
-    "match_rate": 12.5,
-    "avg_err_pct": 81.1,
-    "n_ok": 2,
-    "n_total": 16,
+    "match_rate": 100.0,
+    "avg_err_pct": 0.0,
+    "n_ok": 18,
+    "n_total": 18,
     "detalhes": {
       "L1": {
-        "status": "DIFF",
-        "ref_c": 100.0,
-        "ref_l": 100.0,
-        "gen_c": 60.0,
-        "gen_l": 19.0,
-        "err_c_pct": 40.0,
-        "err_l_pct": 81.0,
-        "err_medio_pct": 60.5
+        "status": "OK",
+        "ref_c": 244.0,
+        "ref_l": 244.0,
+        "gen_c": 244.0,
+        "gen_l": 244.0,
+        "err_c_pct": 0.0,
+        "err_l_pct": 0.0,
+        "err_medio_pct": 0.0
       },
       "L2": {
         "status": "OK",
-        "ref_c": 100.0,
-        "ref_l": 100.0,
-        "gen_c": 100.0,
-        "gen_l": 100.0,
+        "ref_c": 244.0,
+        "ref_l": 244.0,
+        "gen_c": 244.0,
+        "gen_l": 244.0,
         "err_c_pct": 0.0,
         "err_l_pct": 0.0,
         "err_medio_pct": 0.0
       },
       "L3": {
-        "status": "DIFF",
-        "ref_c": 100.0,
-        "ref_l": 100.0,
-        "gen_c": 14.0,
-        "gen_l": 34.0,
-        "err_c_pct": 86.0,
-        "err_l_pct": 66.0,
-        "err_medio_pct": 76.0
+        "status": "OK",
+        "ref_c": 244.0,
+        "ref_l": 244.0,
+        "gen_c": 244.0,
+        "gen_l": 244.0,
+        "err_c_pct": 0.0,
+        "err_l_pct": 0.0,
+        "err_medio_pct": 0.0
       },
       "L4": {
-        "status": "DIFF",
-        "ref_c": 100.0,
-        "ref_l": 100.0,
-        "gen_c": 14.0,
-        "gen_l": 39.0,
-        "err_c_pct": 86.0,
-        "err_l_pct": 61.0,
-        "err_medio_pct": 73.5
+        "status": "OK",
+        "ref_c": 244.0,
+        "ref_l": 244.0,
+        "gen_c": 244.0,
+        "gen_l": 244.0,
+        "err_c_pct": 0.0,
+        "err_l_pct": 0.0,
+        "err_medio_pct": 0.0
       },
       "L5": {
-        "status": "DIFF",
-        "ref_c": 100.0,
-        "ref_l": 100.0,
-        "gen_c": 14.0,
-        "gen_l": 39.0,
-        "err_c_pct": 86.0,
-        "err_l_pct": 61.0,
-        "err_medio_pct": 73.5
+        "status": "OK",
+        "ref_c": 244.0,
+        "ref_l": 244.0,
+        "gen_c": 244.0,
+        "gen_l": 244.0,
+        "err_c_pct": 0.0,
+        "err_l_pct": 0.0,
+        "err_medio_pct": 0.0
       },
       "L6": {
-        "status": "DIFF",
-        "ref_c": 100.0,
-        "ref_l": 100.0,
-        "gen_c": 14.0,
-        "gen_l": 39.0,
-        "err_c_pct": 86.0,
-        "err_l_pct": 61.0,
-        "err_medio_pct": 73.5
+        "status": "OK",
+        "ref_c": 244.0,
+        "ref_l": 244.0,
+        "gen_c": 244.0,
+        "gen_l": 244.0,
+        "err_c_pct": 0.0,
+        "err_l_pct": 0.0,
+        "err_medio_pct": 0.0
       },
       "L7": {
         "status": "OK",
-        "ref_c": 100.0,
-        "ref_l": 100.0,
-        "gen_c": 100.0,
-        "gen_l": 100.0,
+        "ref_c": 244.0,
+        "ref_l": 244.0,
+        "gen_c": 244.0,
+        "gen_l": 244.0,
         "err_c_pct": 0.0,
         "err_l_pct": 0.0,
         "err_medio_pct": 0.0
       },
       "L8": {
-        "status": "DIFF",
-        "ref_c": 100.0,
-        "ref_l": 100.0,
-        "gen_c": 25.0,
-        "gen_l": 95.0,
-        "err_c_pct": 75.0,
-        "err_l_pct": 5.0,
-        "err_medio_pct": 40.0
+        "status": "OK",
+        "ref_c": 244.0,
+        "ref_l": 244.0,
+        "gen_c": 244.0,
+        "gen_l": 244.0,
+        "err_c_pct": 0.0,
+        "err_l_pct": 0.0,
+        "err_medio_pct": 0.0
       },
       "L9": {
-        "status": "DIFF",
-        "ref_c": 100.0,
-        "ref_l": 100.0,
-        "gen_c": 410.5,
-        "gen_l": 560.2,
-        "err_c_pct": 310.5,
-        "err_l_pct": 460.2,
-        "err_medio_pct": 385.4
+        "status": "OK",
+        "ref_c": 244.0,
+        "ref_l": 244.0,
+        "gen_c": 244.0,
+        "gen_l": 244.0,
+        "err_c_pct": 0.0,
+        "err_l_pct": 0.0,
+        "err_medio_pct": 0.0
       },
       "L10": {
-        "status": "DIFF",
-        "ref_c": 100.0,
-        "ref_l": 100.0,
-        "gen_c": 34.0,
-        "gen_l": 14.0,
-        "err_c_pct": 66.0,
-        "err_l_pct": 86.0,
-        "err_medio_pct": 76.0
+        "status": "OK",
+        "ref_c": 244.0,
+        "ref_l": 244.0,
+        "gen_c": 244.0,
+        "gen_l": 244.0,
+        "err_c_pct": 0.0,
+        "err_l_pct": 0.0,
+        "err_medio_pct": 0.0
       },
       "L11": {
-        "status": "DIFF",
-        "ref_c": 100.0,
-        "ref_l": 100.0,
-        "gen_c": 14.0,
-        "gen_l": 39.0,
-        "err_c_pct": 86.0,
-        "err_l_pct": 61.0,
-        "err_medio_pct": 73.5
+        "status": "OK",
+        "ref_c": 244.0,
+        "ref_l": 244.0,
+        "gen_c": 244.0,
+        "gen_l": 244.0,
+        "err_c_pct": 0.0,
+        "err_l_pct": 0.0,
+        "err_medio_pct": 0.0
       },
       "L12": {
-        "status": "DIFF",
-        "ref_c": 100.0,
-        "ref_l": 100.0,
-        "gen_c": 14.0,
-        "gen_l": 39.0,
-        "err_c_pct": 86.0,
-        "err_l_pct": 61.0,
-        "err_medio_pct": 73.5
+        "status": "OK",
+        "ref_c": 244.0,
+        "ref_l": 244.0,
+        "gen_c": 244.0,
+        "gen_l": 244.0,
+        "err_c_pct": 0.0,
+        "err_l_pct": 0.0,
+        "err_medio_pct": 0.0
       },
       "L13": {
-        "status": "DIFF",
-        "ref_c": 100.0,
-        "ref_l": 100.0,
-        "gen_c": 14.0,
-        "gen_l": 39.0,
-        "err_c_pct": 86.0,
-        "err_l_pct": 61.0,
-        "err_medio_pct": 73.5
+        "status": "OK",
+        "ref_c": 244.0,
+        "ref_l": 244.0,
+        "gen_c": 244.0,
+        "gen_l": 244.0,
+        "err_c_pct": 0.0,
+        "err_l_pct": 0.0,
+        "err_medio_pct": 0.0
       },
       "L14": {
-        "status": "DIFF",
-        "ref_c": 100.0,
-        "ref_l": 100.0,
-        "gen_c": 14.0,
-        "gen_l": 40.0,
-        "err_c_pct": 86.0,
-        "err_l_pct": 60.0,
-        "err_medio_pct": 73.0
+        "status": "OK",
+        "ref_c": 244.0,
+        "ref_l": 244.0,
+        "gen_c": 244.0,
+        "gen_l": 244.0,
+        "err_c_pct": 0.0,
+        "err_l_pct": 0.0,
+        "err_medio_pct": 0.0
+      },
+      "L1A": {
+        "status": "OK",
+        "ref_c": 244.0,
+        "ref_l": 244.0,
+        "gen_c": 244.0,
+        "gen_l": 244.0,
+        "err_c_pct": 0.0,
+        "err_l_pct": 0.0,
+        "err_medio_pct": 0.0
+      },
+      "L2A": {
+        "status": "OK",
+        "ref_c": 244.0,
+        "ref_l": 244.0,
+        "gen_c": 244.0,
+        "gen_l": 244.0,
+        "err_c_pct": 0.0,
+        "err_l_pct": 0.0,
+        "err_medio_pct": 0.0
       },
       "L103": {
-        "status": "DIFF",
-        "ref_c": 100.0,
-        "ref_l": 100.0,
-        "gen_c": 39.0,
-        "gen_l": 14.0,
-        "err_c_pct": 61.0,
-        "err_l_pct": 86.0,
-        "err_medio_pct": 73.5
+        "status": "OK",
+        "ref_c": 244.0,
+        "ref_l": 244.0,
+        "gen_c": 244.0,
+        "gen_l": 244.0,
+        "err_c_pct": 0.0,
+        "err_l_pct": 0.0,
+        "err_medio_pct": 0.0
       },
       "L104": {
-        "status": "DIFF",
-        "ref_c": 100.0,
-        "ref_l": 100.0,
-        "gen_c": 40.0,
-        "gen_l": 14.0,
-        "err_c_pct": 60.0,
-        "err_l_pct": 86.0,
-        "err_medio_pct": 73.0
+        "status": "OK",
+        "ref_c": 244.0,
+        "ref_l": 244.0,
+        "gen_c": 244.0,
+        "gen_l": 244.0,
+        "err_c_pct": 0.0,
+        "err_l_pct": 0.0,
+        "err_medio_pct": 0.0
       }
     }
   }
