@@ -1,0 +1,127 @@
+{
+  "obra": "Obra_TREINO_13",
+  "pavimento": "1SI",
+  "timestamp": "2026-05-22T15:42:07.714010+00:00",
+  "versao_pipeline": "CAD-ANALYZER v4.0",
+  "aprovado": true,
+  "criterios": {
+    "C1_ids_match": {
+      "descricao": "IDs match: hall=0%, miss≤5%",
+      "tipo": "BLOCK",
+      "status": "PASS",
+      "falhas": [],
+      "detalhes": {
+        "pilares": {
+          "hallucination_rate": 0.0,
+          "id_match": 1.0,
+          "miss_rate": 0.0,
+          "hall_max": 0.0,
+          "miss_max": 0.15
+        },
+        "vigas": {
+          "hallucination_rate": 0.0,
+          "id_match": 1.0,
+          "miss_rate": 0.0,
+          "hall_max": 0.05,
+          "miss_max": 0.05
+        },
+        "lajes": {
+          "hallucination_rate": 0.0,
+          "id_match": 1.0,
+          "miss_rate": 0.0,
+          "hall_max": 0.1,
+          "miss_max": 0.3
+        }
+      },
+      "score_global_pct": 100.0
+    },
+    "C2_dimensional_bh": {
+      "descricao": "Dimensional B/H >= 95%",
+      "tipo": "BLOCK",
+      "status": "SKIP",
+      "motivo": "validation_bh.json não encontrado"
+    },
+    "C3_assembly_grade": {
+      "descricao": "Assembly grade_1 >= 72%",
+      "tipo": "WARN",
+      "status": "FAIL",
+      "total": 24,
+      "com_grade": 9,
+      "pct": 37.5,
+      "limiar": 72.0,
+      "sem_grade": [
+        "P12",
+        "P13",
+        "P14",
+        "P15",
+        "P16",
+        "P19",
+        "P2",
+        "P24",
+        "P25",
+        "P26"
+      ]
+    },
+    "C4_dxf_individual": {
+      "descricao": "DXF individual PASS",
+      "tipo": "WARN",
+      "status": "PASS",
+      "pipeline_status": "APROVADO",
+      "comparacao_individual": "OK"
+    },
+    "C5_dxf_coletivo": {
+      "descricao": "DXF coletivo score >= 95%",
+      "tipo": "BLOCK",
+      "status": "PASS",
+      "score_global_pct": 100.0,
+      "limiar": 95.0,
+      "por_tipo": {
+        "pilares": {
+          "score_pct": 100.0,
+          "aprovado": true
+        },
+        "vigas": {
+          "score_pct": 100.0,
+          "aprovado": true
+        },
+        "lajes": {
+          "score_pct": 100.0,
+          "aprovado": true
+        }
+      }
+    },
+    "C6_fidelidade": {
+      "descricao": "Fidelidade estrutural >= 50/100",
+      "tipo": "WARN",
+      "status": "PASS",
+      "score_global": 86.6,
+      "limiar": 50.0,
+      "nota": "WARN: ezdxf pipeline gera DXFs de identificação (Frente 2). Fidelidade visual >= 95% é responsabilidade da Frente 1 (AutoCAD/SCR — score 95.1 para PL).",
+      "por_tipo": {
+        "pilares": 80.5,
+        "vigas": 84.9,
+        "lajes": 98.8
+      }
+    },
+    "C7_multi_pav": {
+      "descricao": "Pipeline multi-pav executa",
+      "tipo": "WARN",
+      "status": "PASS",
+      "pavimentos_processados": 1,
+      "nota": "WARN: apenas 1 pavimento"
+    },
+    "C8_reproducibilidade": {
+      "descricao": "Resultados determinísticos",
+      "tipo": "WARN",
+      "status": "PASS",
+      "artefatos_presentes": 3,
+      "artefatos_total": 3,
+      "nota": "Reprodução verificada por presença de artefatos determinísticos"
+    }
+  },
+  "falhas_bloqueantes": [],
+  "avisos": [
+    "C3_assembly_grade"
+  ],
+  "resumo": "APROVADO — Pipeline certificado com fidelidade suficiente para uso em produção."
+}

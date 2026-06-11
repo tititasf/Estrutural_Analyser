@@ -1,12 +1,12 @@
 {
   "obra": "Obra_TREINO_13",
-  "pavimento": "TIPO",
+  "pavimento": "2SI",
   "elementos": {
     "pilares": {
       "tipo": "pilares",
-      "gt_count": 24,
-      "gerado_count": 24,
-      "correct": 24,
+      "gt_count": 29,
+      "gerado_count": 29,
+      "correct": 29,
       "hallucinated": [],
       "missed": [],
       "id_match": 1.0,
@@ -18,9 +18,9 @@
     },
     "vigas": {
       "tipo": "vigas",
-      "gt_count": 46,
-      "gerado_count": 46,
-      "correct": 46,
+      "gt_count": 61,
+      "gerado_count": 61,
+      "correct": 61,
       "hallucinated": [],
       "missed": [],
       "id_match": 1.0,
@@ -32,9 +32,9 @@
     },
     "lajes": {
       "tipo": "lajes",
-      "gt_count": 32,
-      "gerado_count": 32,
-      "correct": 32,
+      "gt_count": 38,
+      "gerado_count": 38,
+      "correct": 38,
       "hallucinated": [],
       "missed": [],
       "id_match": 1.0,
