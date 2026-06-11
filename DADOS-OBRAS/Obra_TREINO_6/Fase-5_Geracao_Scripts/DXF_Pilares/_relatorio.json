@@ -1,8 +1,8 @@
 {
   "_meta": {
-    "total": 20,
+    "total": 21,
     "erros": 0,
-    "pavimento": "JFC-TIP",
+    "pavimento": "TIPO",
     "output_dir": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_6\\Fase-5_Geracao_Scripts\\DXF_Pilares"
   },
   "pilares": {
@@ -101,6 +101,14 @@
       "n_paineis": 12,
       "total_height": 280.0,
       "path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_6\\Fase-5_Geracao_Scripts\\DXF_Pilares\\P20.dxf"
+    },
+    "P21": {
+      "pid": "P21",
+      "b": 30.0,
+      "h": 19.0,
+      "n_paineis": 12,
+      "total_height": 280.0,
+      "path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_6\\Fase-5_Geracao_Scripts\\DXF_Pilares\\P21.dxf"
     },
     "P22": {
       "pid": "P22",

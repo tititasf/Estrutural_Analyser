@@ -1,0 +1,43 @@
+{
+  "tipo": "lajes",
+  "stog_dxf": "NOVA-FYP-JFC-12PV-LJ-R00_R2018_ASCII_ODA.dxf",
+  "gerado_dxf": "LJ_stog_quality.dxf",
+  "score": 84.1,
+  "aprovado": true,
+  "limiar": 75.0,
+  "nota": "Lajes têm geometria mais variável — limiar rebaixado para 75",
+  "detalhes": {
+    "id_match": {
+      "score": 30.0,
+      "max": 30,
+      "gt_count": 14,
+      "gerado_count": 14,
+      "id_match_rate": 1.0,
+      "hallucination_rate": 0.0,
+      "missed": [],
+      "hallucinated": []
+    },
+    "entity_coverage": {
+      "score": 24.1,
+      "max": 40,
+      "stog_total": 1041,
+      "gerado_total": 748,
+      "global_ratio": 0.7185,
+      "critical_avg": 0.5534
+    },
+    "layer_presence": {
+      "score": 20.0,
+      "max": 20,
+      "present": 5,
+      "missing": 0,
+      "required_layers": 5,
+      "missing_list": []
+    },
+    "anti_hallucination": {
+      "score": 10.0,
+      "max": 10
+    }
+  },
+  "scorer": "kb-blended",
+  "kb_file": "NOVA-FYP-JFC-12PV-LJ-R00_R2018_ASCII_ODA.dxf"
+}

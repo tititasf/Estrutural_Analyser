@@ -1,0 +1,279 @@
+{
+  "L12": {
+    "nome": "L12",
+    "comprimento_total": 244.0,
+    "largura_total": 195.0,
+    "nivel_delta": 20,
+    "offset": 0.0,
+    "n_paineis": 19,
+    "confidence": 1.0,
+    "_h_dims": [
+      244.0,
+      244.0,
+      244.0,
+      244.0,
+      244.0,
+      244.0,
+      244.0,
+      244.0,
+      201.0,
+      146.0,
+      138.0,
+      138.0,
+      132.0,
+      122.0,
+      122.0,
+      75.0
+    ],
+    "_v_dims": [
+      195.0,
+      97.0,
+      83.0
+    ],
+    "_y_band": [
+      3205,
+      3905
+    ]
+  },
+  "L3": {
+    "nome": "L3",
+    "comprimento_total": 201.0,
+    "largura_total": 195.0,
+    "nivel_delta": 12,
+    "offset": 0.0,
+    "n_paineis": 4,
+    "confidence": 1.0,
+    "_h_dims": [
+      201.0,
+      151.0
+    ],
+    "_v_dims": [
+      195.0,
+      55.0
+    ],
+    "_y_band": [
+      3104,
+      3304
+    ]
+  },
+  "L2": {
+    "nome": "L2",
+    "comprimento_total": 201.0,
+    "largura_total": 195.0,
+    "nivel_delta": 12,
+    "offset": 0.0,
+    "n_paineis": 5,
+    "confidence": 1.0,
+    "_h_dims": [
+      201.0,
+      151.0
+    ],
+    "_v_dims": [
+      195.0,
+      97.0,
+      55.0
+    ],
+    "_y_band": [
+      3093,
+      3293
+    ]
+  },
+  "L4": {
+    "nome": "L4",
+    "comprimento_total": 244.0,
+    "largura_total": 122.0,
+    "nivel_delta": 12,
+    "offset": 0.0,
+    "n_paineis": 5,
+    "confidence": 1.0,
+    "_h_dims": [
+      244.0,
+      132.0
+    ],
+    "_v_dims": [
+      122.0,
+      79.0,
+      55.0
+    ],
+    "_y_band": [
+      2942,
+      3154
+    ]
+  },
+  "L8": {
+    "nome": "L8",
+    "comprimento_total": 0,
+    "largura_total": 0,
+    "nivel_delta": 12,
+    "offset": 0.0,
+    "n_paineis": 0,
+    "confidence": 0.5,
+    "_h_dims": [],
+    "_v_dims": [],
+    "_y_band": [
+      2722,
+      2933
+    ]
+  },
+  "L7": {
+    "nome": "L7",
+    "comprimento_total": 0,
+    "largura_total": 0,
+    "nivel_delta": 12,
+    "offset": 0.0,
+    "n_paineis": 0,
+    "confidence": 0.5,
+    "_h_dims": [],
+    "_v_dims": [],
+    "_y_band": [
+      2700,
+      2900
+    ]
+  },
+  "L9": {
+    "nome": "L9",
+    "comprimento_total": 244.0,
+    "largura_total": 122.0,
+    "nivel_delta": 12,
+    "offset": 0.0,
+    "n_paineis": 6,
+    "confidence": 1.0,
+    "_h_dims": [
+      244.0,
+      132.0,
+      95.0
+    ],
+    "_v_dims": [
+      122.0,
+      68.0,
+      68.0
+    ],
+    "_y_band": [
+      2516,
+      2716
+    ]
+  },
+  "L1": {
+    "nome": "L1",
+    "comprimento_total": 122.0,
+    "largura_total": 95.0,
+    "nivel_delta": 12,
+    "offset": 0.0,
+    "n_paineis": 4,
+    "confidence": 1.0,
+    "_h_dims": [
+      95.0
+    ],
+    "_v_dims": [
+      122.0,
+      68.0,
+      68.0
+    ],
+    "_y_band": [
+      2306,
+      2507
+    ]
+  },
+  "L10": {
+    "nome": "L10",
+    "comprimento_total": 95.0,
+    "largura_total": 68.0,
+    "nivel_delta": 12,
+    "offset": 0.0,
+    "n_paineis": 2,
+    "confidence": 1.0,
+    "_h_dims": [
+      95.0
+    ],
+    "_v_dims": [
+      68.0
+    ],
+    "_y_band": [
+      2265,
+      2465
+    ]
+  },
+  "L11": {
+    "nome": "L11",
+    "comprimento_total": 0,
+    "largura_total": 0,
+    "nivel_delta": 12,
+    "offset": 0.0,
+    "n_paineis": 0,
+    "confidence": 0.5,
+    "_h_dims": [],
+    "_v_dims": [],
+    "_y_band": [
+      2187,
+      2387
+    ]
+  },
+  "L13": {
+    "nome": "L13",
+    "comprimento_total": 0,
+    "largura_total": 0,
+    "nivel_delta": 12,
+    "offset": 0.0,
+    "n_paineis": 0,
+    "confidence": 0.5,
+    "_h_dims": [],
+    "_v_dims": [],
+    "_y_band": [
+      2108,
+      2308
+    ]
+  },
+  "L14": {
+    "nome": "L14",
+    "comprimento_total": 0,
+    "largura_total": 0,
+    "nivel_delta": 12,
+    "offset": 0.0,
+    "n_paineis": 0,
+    "confidence": 0.5,
+    "_h_dims": [],
+    "_v_dims": [],
+    "_y_band": [
+      1993,
+      2293
+    ]
+  },
+  "L20": {
+    "nome": "L20",
+    "comprimento_total": 244.0,
+    "largura_total": 195.0,
+    "nivel_delta": 20,
+    "offset": 0.0,
+    "n_paineis": 21,
+    "confidence": 1.0,
+    "_h_dims": [
+      244.0,
+      244.0,
+      244.0,
+      244.0,
+      244.0,
+      201.0,
+      190.0,
+      138.0,
+      138.0,
+      122.0,
+      122.0,
+      122.0,
+      71.5,
+      60.5
+    ],
+    "_v_dims": [
+      195.0,
+      195.0,
+      157.0,
+      75.0,
+      75.0,
+      75.0,
+      55.0
+    ],
+    "_y_band": [
+      1176,
+      1976
+    ]
+  }
+}

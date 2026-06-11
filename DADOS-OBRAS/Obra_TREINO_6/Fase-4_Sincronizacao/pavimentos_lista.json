@@ -1,11 +1,11 @@
 {
   "Obra_TREINO_6": {
     "pavimentos": [
-      "JFC-TIP"
+      "JFC - TIP"
     ],
     "pavimentos_data": {
-      "JFC-TIP": {
-        "nome": "JFC-TIP",
+      "JFC - TIP": {
+        "nome": "JFC - TIP",
         "numero": "1",
         "nivel_chegada": "0.0",
         "nivel_saida": "280.0"

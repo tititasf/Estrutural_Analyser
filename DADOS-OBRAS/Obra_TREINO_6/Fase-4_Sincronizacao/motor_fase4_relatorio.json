@@ -1,10 +1,10 @@
 {
   "obra": "Obra_TREINO_6",
-  "pavimento": "JFC-TIP",
+  "pavimento": "JFC - TIP",
   "stats": {
-    "pilares": 20,
+    "pilares": 21,
     "vigas": 35,
-    "lajes": 11,
+    "lajes": 14,
     "errors": 0
   },
   "output_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_6\\Fase-4_Sincronizacao"

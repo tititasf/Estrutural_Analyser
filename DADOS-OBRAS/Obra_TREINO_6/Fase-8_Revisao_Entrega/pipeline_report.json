@@ -1,25 +1,34 @@
 {
   "obra": "Obra_TREINO_6",
-  "pavimento": "JFC-TIP",
-  "timestamp": "2026-03-09T07:34:05.802186",
+  "pavimento": "JFC - 10PV",
+  "timestamp": "2026-05-14T01:39:20.421283",
   "fases": {
     "descoberta": "SKIP",
-    "eng_reversa": "OK",
-    "extracao_dimensional": "OK",
-    "motor_fase4": "OK",
-    "geracao_dxf_individual": "OK",
+    "eng_reversa": "SKIP",
+    "extracao_dimensional": "SKIP",
+    "motor_fase4": "SKIP",
+    "geracao_dxf_individual": "SKIP",
     "comparacao_individual": "OK",
-    "ancoras": "OK",
-    "consolidacao_coletivo": "OK",
+    "ancoras": "SKIP",
+    "consolidacao_coletivo": "SKIP",
     "validacao_coletivo": "OK",
-    "obras_salvas": "OK"
+    "obras_salvas": "SKIP",
+    "validacao_visual": "OK"
   },
   "scores": {
+    "visual": {
+      "score_pavimento": 88.1,
+      "tipos": [
+        "PL",
+        "LV",
+        "LJ"
+      ]
+    },
     "coletivo": {
-      "pilares": 97.1,
+      "pilares": 100.0,
       "vigas": 100.0,
-      "lajes": 87.1,
-      "global": 95.6,
+      "lajes": 100.0,
+      "global": 100.0,
       "aprovado": true
     }
   },

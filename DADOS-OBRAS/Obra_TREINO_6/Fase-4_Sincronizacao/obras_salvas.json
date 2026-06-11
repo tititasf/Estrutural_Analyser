@@ -1,6 +1,6 @@
 {
   "Obra_TREINO_6": {
-    "JFC-TIP": {
+    "JFC - TIP": {
       "1": {
         "dados": {
           "numero": "1",
@@ -8,9 +8,9 @@
           "obra": "Obra_TREINO_6",
           "comprimento": "59",
           "largura": "19",
-          "pavimento": "JFC-TIP",
+          "pavimento": "JFC - TIP",
           "pavimento_numero": "1",
-          "pavimento_anterior": "JFC-TIP",
+          "pavimento_anterior": "JFC - TIP",
           "nivel_saida": "280.0",
           "nivel_chegada": "0.0",
           "nivel_diferencial": "",
@@ -416,7 +416,7 @@
           "hachura_paineis": false,
           "m2_total": 0.0
         },
-        "item_id": "1_JFC-TIP",
+        "item_id": "1_JFC - TIP",
         "locks": {}
       },
       "2": {
@@ -426,9 +426,9 @@
           "obra": "Obra_TREINO_6",
           "comprimento": "59",
           "largura": "20",
-          "pavimento": "JFC-TIP",
+          "pavimento": "JFC - TIP",
           "pavimento_numero": "1",
-          "pavimento_anterior": "JFC-TIP",
+          "pavimento_anterior": "JFC - TIP",
           "nivel_saida": "280.0",
           "nivel_chegada": "0.0",
           "nivel_diferencial": "",
@@ -834,7 +834,7 @@
           "hachura_paineis": false,
           "m2_total": 0.0
         },
-        "item_id": "2_JFC-TIP",
+        "item_id": "2_JFC - TIP",
         "locks": {}
       },
       "3": {
@@ -844,9 +844,9 @@
           "obra": "Obra_TREINO_6",
           "comprimento": "67",
           "largura": "19",
-          "pavimento": "JFC-TIP",
+          "pavimento": "JFC - TIP",
           "pavimento_numero": "1",
-          "pavimento_anterior": "JFC-TIP",
+          "pavimento_anterior": "JFC - TIP",
           "nivel_saida": "280.0",
           "nivel_chegada": "0.0",
           "nivel_diferencial": "",
@@ -1252,7 +1252,7 @@
           "hachura_paineis": false,
           "m2_total": 0.0
         },
-        "item_id": "3_JFC-TIP",
+        "item_id": "3_JFC - TIP",
         "locks": {}
       },
       "4": {
@@ -1262,9 +1262,9 @@
           "obra": "Obra_TREINO_6",
           "comprimento": "67",
           "largura": "19",
-          "pavimento": "JFC-TIP",
+          "pavimento": "JFC - TIP",
           "pavimento_numero": "1",
-          "pavimento_anterior": "JFC-TIP",
+          "pavimento_anterior": "JFC - TIP",
           "nivel_saida": "280.0",
           "nivel_chegada": "0.0",
           "nivel_diferencial": "",
@@ -1670,7 +1670,7 @@
           "hachura_paineis": false,
           "m2_total": 0.0
         },
-        "item_id": "4_JFC-TIP",
+        "item_id": "4_JFC - TIP",
         "locks": {}
       },
       "5": {
@@ -1680,9 +1680,9 @@
           "obra": "Obra_TREINO_6",
           "comprimento": "97",
           "largura": "88",
-          "pavimento": "JFC-TIP",
+          "pavimento": "JFC - TIP",
           "pavimento_numero": "1",
-          "pavimento_anterior": "JFC-TIP",
+          "pavimento_anterior": "JFC - TIP",
           "nivel_saida": "280.0",
           "nivel_chegada": "0.0",
           "nivel_diferencial": "",
@@ -2088,7 +2088,7 @@
           "hachura_paineis": false,
           "m2_total": 0.0
         },
-        "item_id": "5_JFC-TIP",
+        "item_id": "5_JFC - TIP",
         "locks": {}
       },
       "6": {
@@ -2098,9 +2098,9 @@
           "obra": "Obra_TREINO_6",
           "comprimento": "97",
           "largura": "88",
-          "pavimento": "JFC-TIP",
+          "pavimento": "JFC - TIP",
           "pavimento_numero": "1",
-          "pavimento_anterior": "JFC-TIP",
+          "pavimento_anterior": "JFC - TIP",
           "nivel_saida": "280.0",
           "nivel_chegada": "0.0",
           "nivel_diferencial": "",
@@ -2506,7 +2506,7 @@
           "hachura_paineis": false,
           "m2_total": 0.0
         },
-        "item_id": "6_JFC-TIP",
+        "item_id": "6_JFC - TIP",
         "locks": {}
       },
       "7": {
@@ -2516,9 +2516,9 @@
           "obra": "Obra_TREINO_6",
           "comprimento": "97",
           "largura": "88",
-          "pavimento": "JFC-TIP",
+          "pavimento": "JFC - TIP",
           "pavimento_numero": "1",
-          "pavimento_anterior": "JFC-TIP",
+          "pavimento_anterior": "JFC - TIP",
           "nivel_saida": "280.0",
           "nivel_chegada": "0.0",
           "nivel_diferencial": "",
@@ -2924,7 +2924,7 @@
           "hachura_paineis": false,
           "m2_total": 0.0
         },
-        "item_id": "7_JFC-TIP",
+        "item_id": "7_JFC - TIP",
         "locks": {}
       },
       "8": {
@@ -2934,9 +2934,9 @@
           "obra": "Obra_TREINO_6",
           "comprimento": "59",
           "largura": "19",
-          "pavimento": "JFC-TIP",
+          "pavimento": "JFC - TIP",
           "pavimento_numero": "1",
-          "pavimento_anterior": "JFC-TIP",
+          "pavimento_anterior": "JFC - TIP",
           "nivel_saida": "280.0",
           "nivel_chegada": "0.0",
           "nivel_diferencial": "",
@@ -3342,7 +3342,7 @@
           "hachura_paineis": false,
           "m2_total": 0.0
         },
-        "item_id": "8_JFC-TIP",
+        "item_id": "8_JFC - TIP",
         "locks": {}
       },
       "9": {
@@ -3352,9 +3352,9 @@
           "obra": "Obra_TREINO_6",
           "comprimento": "97",
           "largura": "88",
-          "pavimento": "JFC-TIP",
+          "pavimento": "JFC - TIP",
           "pavimento_numero": "1",
-          "pavimento_anterior": "JFC-TIP",
+          "pavimento_anterior": "JFC - TIP",
           "nivel_saida": "280.0",
           "nivel_chegada": "0.0",
           "nivel_diferencial": "",
@@ -3760,7 +3760,7 @@
           "hachura_paineis": false,
           "m2_total": 0.0
         },
-        "item_id": "9_JFC-TIP",
+        "item_id": "9_JFC - TIP",
         "locks": {}
       },
       "10": {
@@ -3770,9 +3770,9 @@
           "obra": "Obra_TREINO_6",
           "comprimento": "88",
           "largura": "77",
-          "pavimento": "JFC-TIP",
+          "pavimento": "JFC - TIP",
           "pavimento_numero": "1",
-          "pavimento_anterior": "JFC-TIP",
+          "pavimento_anterior": "JFC - TIP",
           "nivel_saida": "280.0",
           "nivel_chegada": "0.0",
           "nivel_diferencial": "",
@@ -4178,7 +4178,7 @@
           "hachura_paineis": false,
           "m2_total": 0.0
         },
-        "item_id": "10_JFC-TIP",
+        "item_id": "10_JFC - TIP",
         "locks": {}
       },
       "11": {
@@ -4188,9 +4188,9 @@
           "obra": "Obra_TREINO_6",
           "comprimento": "97",
           "largura": "88",
-          "pavimento": "JFC-TIP",
+          "pavimento": "JFC - TIP",
           "pavimento_numero": "1",
-          "pavimento_anterior": "JFC-TIP",
+          "pavimento_anterior": "JFC - TIP",
           "nivel_saida": "280.0",
           "nivel_chegada": "0.0",
           "nivel_diferencial": "",
@@ -4596,7 +4596,7 @@
           "hachura_paineis": false,
           "m2_total": 0.0
         },
-        "item_id": "11_JFC-TIP",
+        "item_id": "11_JFC - TIP",
         "locks": {}
       },
       "12": {
@@ -4606,9 +4606,9 @@
           "obra": "Obra_TREINO_6",
           "comprimento": "82",
           "largura": "68",
-          "pavimento": "JFC-TIP",
+          "pavimento": "JFC - TIP",
           "pavimento_numero": "1",
-          "pavimento_anterior": "JFC-TIP",
+          "pavimento_anterior": "JFC - TIP",
           "nivel_saida": "280.0",
           "nivel_chegada": "0.0",
           "nivel_diferencial": "",
@@ -5014,7 +5014,7 @@
           "hachura_paineis": false,
           "m2_total": 0.0
         },
-        "item_id": "12_JFC-TIP",
+        "item_id": "12_JFC - TIP",
         "locks": {}
       },
       "13": {
@@ -5024,9 +5024,9 @@
           "obra": "Obra_TREINO_6",
           "comprimento": "97",
           "largura": "88",
-          "pavimento": "JFC-TIP",
+          "pavimento": "JFC - TIP",
           "pavimento_numero": "1",
-          "pavimento_anterior": "JFC-TIP",
+          "pavimento_anterior": "JFC - TIP",
           "nivel_saida": "280.0",
           "nivel_chegada": "0.0",
           "nivel_diferencial": "",
@@ -5432,7 +5432,7 @@
           "hachura_paineis": false,
           "m2_total": 0.0
         },
-        "item_id": "13_JFC-TIP",
+        "item_id": "13_JFC - TIP",
         "locks": {}
       },
       "14": {
@@ -5442,9 +5442,9 @@
           "obra": "Obra_TREINO_6",
           "comprimento": "82",
           "largura": "68",
-          "pavimento": "JFC-TIP",
+          "pavimento": "JFC - TIP",
           "pavimento_numero": "1",
-          "pavimento_anterior": "JFC-TIP",
+          "pavimento_anterior": "JFC - TIP",
           "nivel_saida": "280.0",
           "nivel_chegada": "0.0",
           "nivel_diferencial": "",
@@ -5850,7 +5850,7 @@
           "hachura_paineis": false,
           "m2_total": 0.0
         },
-        "item_id": "14_JFC-TIP",
+        "item_id": "14_JFC - TIP",
         "locks": {}
       },
       "15": {
@@ -5860,9 +5860,9 @@
           "obra": "Obra_TREINO_6",
           "comprimento": "97",
           "largura": "88",
-          "pavimento": "JFC-TIP",
+          "pavimento": "JFC - TIP",
           "pavimento_numero": "1",
-          "pavimento_anterior": "JFC-TIP",
+          "pavimento_anterior": "JFC - TIP",
           "nivel_saida": "280.0",
           "nivel_chegada": "0.0",
           "nivel_diferencial": "",
@@ -6268,7 +6268,7 @@
           "hachura_paineis": false,
           "m2_total": 0.0
         },
-        "item_id": "15_JFC-TIP",
+        "item_id": "15_JFC - TIP",
         "locks": {}
       },
       "17": {
@@ -6278,9 +6278,9 @@
           "obra": "Obra_TREINO_6",
           "comprimento": "88",
           "largura": "19",
-          "pavimento": "JFC-TIP",
+          "pavimento": "JFC - TIP",
           "pavimento_numero": "1",
-          "pavimento_anterior": "JFC-TIP",
+          "pavimento_anterior": "JFC - TIP",
           "nivel_saida": "280.0",
           "nivel_chegada": "0.0",
           "nivel_diferencial": "",
@@ -6686,7 +6686,7 @@
           "hachura_paineis": false,
           "m2_total": 0.0
         },
-        "item_id": "17_JFC-TIP",
+        "item_id": "17_JFC - TIP",
         "locks": {}
       },
       "18": {
@@ -6696,9 +6696,9 @@
           "obra": "Obra_TREINO_6",
           "comprimento": "88",
           "largura": "19",
-          "pavimento": "JFC-TIP",
+          "pavimento": "JFC - TIP",
           "pavimento_numero": "1",
-          "pavimento_anterior": "JFC-TIP",
+          "pavimento_anterior": "JFC - TIP",
           "nivel_saida": "280.0",
           "nivel_chegada": "0.0",
           "nivel_diferencial": "",
@@ -7104,7 +7104,7 @@
           "hachura_paineis": false,
           "m2_total": 0.0
         },
-        "item_id": "18_JFC-TIP",
+        "item_id": "18_JFC - TIP",
         "locks": {}
       },
       "19": {
@@ -7114,9 +7114,9 @@
           "obra": "Obra_TREINO_6",
           "comprimento": "82",
           "largura": "68",
-          "pavimento": "JFC-TIP",
+          "pavimento": "JFC - TIP",
           "pavimento_numero": "1",
-          "pavimento_anterior": "JFC-TIP",
+          "pavimento_anterior": "JFC - TIP",
           "nivel_saida": "280.0",
           "nivel_chegada": "0.0",
           "nivel_diferencial": "",
@@ -7522,7 +7522,7 @@
           "hachura_paineis": false,
           "m2_total": 0.0
         },
-        "item_id": "19_JFC-TIP",
+        "item_id": "19_JFC - TIP",
         "locks": {}
       },
       "20": {
@@ -7532,9 +7532,9 @@
           "obra": "Obra_TREINO_6",
           "comprimento": "97",
           "largura": "88",
-          "pavimento": "JFC-TIP",
+          "pavimento": "JFC - TIP",
           "pavimento_numero": "1",
-          "pavimento_anterior": "JFC-TIP",
+          "pavimento_anterior": "JFC - TIP",
           "nivel_saida": "280.0",
           "nivel_chegada": "0.0",
           "nivel_diferencial": "",
@@ -7940,7 +7940,425 @@
           "hachura_paineis": false,
           "m2_total": 0.0
         },
-        "item_id": "20_JFC-TIP",
+        "item_id": "20_JFC - TIP",
+        "locks": {}
+      },
+      "21": {
+        "dados": {
+          "numero": "21",
+          "nome": "P21",
+          "obra": "Obra_TREINO_6",
+          "comprimento": "68",
+          "largura": "19",
+          "pavimento": "JFC - TIP",
+          "pavimento_numero": "1",
+          "pavimento_anterior": "JFC - TIP",
+          "nivel_saida": "280.0",
+          "nivel_chegada": "0.0",
+          "nivel_diferencial": "",
+          "altura": "280",
+          "parafusos": {
+            "par_1_2": "0",
+            "par_2_3": "0",
+            "par_3_4": "0",
+            "par_4_5": "0",
+            "par_5_6": "0",
+            "par_6_7": "0",
+            "par_7_8": "0",
+            "par_8_9": "0"
+          },
+          "grades": {
+            "grade_1": "0",
+            "distancia_1": "14",
+            "grade_2": "",
+            "distancia_2": "",
+            "grade_3": ""
+          },
+          "pilar_especial": false,
+          "detalhes_grades": {},
+          "altura_detalhes_grades": "",
+          "grades_grupo2": {},
+          "detalhes_grades_grupo2": {},
+          "altura_detalhes_grades_b": "",
+          "ruler_grupo1": {},
+          "paineis": {
+            "A": {
+              "laje": "",
+              "posicao_laje": "5",
+              "larg1": "244",
+              "larg2": "0",
+              "larg3": "0",
+              "h1": "2",
+              "h2": "244",
+              "h3": "34",
+              "h4": "0",
+              "h5": "0",
+              "aberturas": {
+                "esquerda": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                },
+                "direita": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                }
+              }
+            },
+            "B": {
+              "laje": "",
+              "posicao_laje": "5",
+              "larg1": "244",
+              "larg2": "0",
+              "larg3": "0",
+              "h1": "2",
+              "h2": "244",
+              "h3": "34",
+              "h4": "0",
+              "h5": "0",
+              "aberturas": {
+                "esquerda": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                },
+                "direita": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                }
+              }
+            },
+            "C": {
+              "laje": "",
+              "posicao_laje": "5",
+              "larg1": "244",
+              "larg2": "0",
+              "larg3": "0",
+              "h1": "2",
+              "h2": "244",
+              "h3": "34",
+              "h4": "0",
+              "h5": "0",
+              "aberturas": {
+                "esquerda": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                },
+                "direita": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                }
+              }
+            },
+            "D": {
+              "laje": "",
+              "posicao_laje": "5",
+              "larg1": "244",
+              "larg2": "0",
+              "larg3": "0",
+              "h1": "2",
+              "h2": "244",
+              "h3": "34",
+              "h4": "0",
+              "h5": "0",
+              "aberturas": {
+                "esquerda": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                },
+                "direita": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                }
+              }
+            },
+            "E": {
+              "laje": "",
+              "posicao_laje": "5",
+              "larg1": "244",
+              "larg2": "0",
+              "larg3": "0",
+              "h1": "2",
+              "h2": "244",
+              "h3": "34",
+              "h4": "0",
+              "h5": "0",
+              "aberturas": {
+                "esquerda": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                },
+                "direita": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                }
+              }
+            },
+            "F": {
+              "laje": "",
+              "posicao_laje": "5",
+              "larg1": "244",
+              "larg2": "0",
+              "larg3": "0",
+              "h1": "2",
+              "h2": "244",
+              "h3": "34",
+              "h4": "0",
+              "h5": "0",
+              "aberturas": {
+                "esquerda": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                },
+                "direita": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                }
+              }
+            },
+            "G": {
+              "laje": "",
+              "posicao_laje": "5",
+              "larg1": "244",
+              "larg2": "0",
+              "larg3": "0",
+              "h1": "2",
+              "h2": "244",
+              "h3": "34",
+              "h4": "0",
+              "h5": "0",
+              "aberturas": {
+                "esquerda": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                },
+                "direita": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                }
+              }
+            },
+            "H": {
+              "laje": "",
+              "posicao_laje": "5",
+              "larg1": "244",
+              "larg2": "0",
+              "larg3": "0",
+              "h1": "2",
+              "h2": "244",
+              "h3": "34",
+              "h4": "0",
+              "h5": "0",
+              "aberturas": {
+                "esquerda": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                },
+                "direita": {
+                  "1": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  },
+                  "2": {
+                    "distancia": "",
+                    "largura": "",
+                    "profundidade": "",
+                    "posicao": "",
+                    "tipo": ""
+                  }
+                }
+              }
+            }
+          },
+          "modo_calculo": "automatico",
+          "tipo_distribuicao_largura": "padrao",
+          "checkbox_descontar_laje": false,
+          "checkbox_descontar_aberturas": false,
+          "hachura_paineis": false,
+          "m2_total": 0.0
+        },
+        "item_id": "21_JFC - TIP",
         "locks": {}
       },
       "22": {
@@ -7950,9 +8368,9 @@
           "obra": "Obra_TREINO_6",
           "comprimento": "82",
           "largura": "68",
-          "pavimento": "JFC-TIP",
+          "pavimento": "JFC - TIP",
           "pavimento_numero": "1",
-          "pavimento_anterior": "JFC-TIP",
+          "pavimento_anterior": "JFC - TIP",
           "nivel_saida": "280.0",
           "nivel_chegada": "0.0",
           "nivel_diferencial": "",
@@ -8358,7 +8776,7 @@
           "hachura_paineis": false,
           "m2_total": 0.0
         },
-        "item_id": "22_JFC-TIP",
+        "item_id": "22_JFC - TIP",
         "locks": {}
       }
     }
