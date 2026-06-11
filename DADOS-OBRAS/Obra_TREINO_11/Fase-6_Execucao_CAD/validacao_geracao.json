@@ -1,0 +1,660 @@
+{
+  "_meta": {
+    "obra": "Obra_TREINO_11",
+    "score": 95.2,
+    "total": 84,
+    "good": 80,
+    "counts": {
+      "AUSENTE_FWD": 54,
+      "DELTA_SMALL": 1,
+      "MATCH": 26,
+      "AUSENTE_REV": 3
+    }
+  },
+  "vigas": {
+    "V402": {
+      "nome": "V402",
+      "campos": {
+        "comprimento": {
+          "fwd": 324.0,
+          "rev": 28.0,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null
+        },
+        "h": {
+          "fwd": 40.0,
+          "rev": 60.0,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null
+        },
+        "b": {
+          "fwd": 14.0,
+          "rev": 28.0,
+          "status": "DELTA_SMALL",
+          "delta_cm": 14.0
+        }
+      }
+    },
+    "V501": {
+      "nome": "V501",
+      "campos": {
+        "comprimento": {
+          "fwd": 324.0,
+          "rev": 28.0,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null
+        },
+        "h": {
+          "fwd": 40.0,
+          "rev": 60.0,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null
+        },
+        "b": {
+          "fwd": 30.0,
+          "rev": 28.0,
+          "status": "MATCH",
+          "delta_cm": 2.0
+        }
+      }
+    },
+    "V502": {
+      "nome": "V502",
+      "campos": {
+        "comprimento": {
+          "fwd": 256.0,
+          "rev": 28.0,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null
+        },
+        "h": {
+          "fwd": 40.0,
+          "rev": 60.0,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null
+        },
+        "b": {
+          "fwd": 30.0,
+          "rev": 28.0,
+          "status": "MATCH",
+          "delta_cm": 2.0
+        }
+      }
+    },
+    "V503": {
+      "nome": "V503",
+      "campos": {
+        "comprimento": {
+          "fwd": 233.5,
+          "rev": 28.0,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null
+        },
+        "h": {
+          "fwd": 40.0,
+          "rev": 60.0,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null
+        },
+        "b": {
+          "fwd": 30.0,
+          "rev": 28.0,
+          "status": "MATCH",
+          "delta_cm": 2.0
+        }
+      }
+    },
+    "V504": {
+      "nome": "V504",
+      "campos": {
+        "comprimento": {
+          "fwd": 247.0,
+          "rev": 28.0,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null
+        },
+        "h": {
+          "fwd": 40.0,
+          "rev": 60.0,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null
+        },
+        "b": {
+          "fwd": 30.0,
+          "rev": 28.0,
+          "status": "MATCH",
+          "delta_cm": 2.0
+        }
+      }
+    },
+    "V505": {
+      "nome": "V505",
+      "campos": {
+        "comprimento": {
+          "fwd": 246.0,
+          "rev": 28.0,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null
+        },
+        "h": {
+          "fwd": 40.0,
+          "rev": 60.0,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null
+        },
+        "b": {
+          "fwd": 30.0,
+          "rev": 28.0,
+          "status": "MATCH",
+          "delta_cm": 2.0
+        }
+      }
+    },
+    "V506": {
+      "nome": "V506",
+      "campos": {
+        "comprimento": {
+          "fwd": 246.0,
+          "rev": 28.0,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null
+        },
+        "h": {
+          "fwd": 40.0,
+          "rev": 60.0,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null
+        },
+        "b": {
+          "fwd": 30.0,
+          "rev": 28.0,
+          "status": "MATCH",
+          "delta_cm": 2.0
+        }
+      }
+    },
+    "V507": {
+      "nome": "V507",
+      "campos": {
+        "comprimento": {
+          "fwd": 233.5,
+          "rev": 28.0,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null
+        },
+        "h": {
+          "fwd": 40.0,
+          "rev": 60.0,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null
+        },
+        "b": {
+          "fwd": 30.0,
+          "rev": 28.0,
+          "status": "MATCH",
+          "delta_cm": 2.0
+        }
+      }
+    },
+    "V508": {
+      "nome": "V508",
+      "campos": {
+        "comprimento": {
+          "fwd": 244.0,
+          "rev": 28.0,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null
+        },
+        "h": {
+          "fwd": 40.0,
+          "rev": 60.0,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null
+        },
+        "b": {
+          "fwd": 30.0,
+          "rev": 28.0,
+          "status": "MATCH",
+          "delta_cm": 2.0
+        }
+      }
+    },
+    "V509": {
+      "nome": "V509",
+      "campos": {
+        "comprimento": {
+          "fwd": 244.0,
+          "rev": 28.0,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null
+        },
+        "h": {
+          "fwd": 40.0,
+          "rev": 60.0,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null
+        },
+        "b": {
+          "fwd": 30.0,
+          "rev": 28.0,
+          "status": "MATCH",
+          "delta_cm": 2.0
+        }
+      }
+    },
+    "V510": {
+      "nome": "V510",
+      "campos": {
+        "comprimento": {
+          "fwd": 281.5,
+          "rev": 28.0,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null
+        },
+        "h": {
+          "fwd": 40.0,
+          "rev": 60.0,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null
+        },
+        "b": {
+          "fwd": 30.0,
+          "rev": 28.0,
+          "status": "MATCH",
+          "delta_cm": 2.0
+        }
+      }
+    },
+    "V511": {
+      "nome": "V511",
+      "campos": {
+        "comprimento": {
+          "fwd": 324.0,
+          "rev": 28.0,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null
+        },
+        "h": {
+          "fwd": 40.0,
+          "rev": 60.0,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null
+        },
+        "b": {
+          "fwd": 30.0,
+          "rev": 28.0,
+          "status": "MATCH",
+          "delta_cm": 2.0
+        }
+      }
+    },
+    "V512": {
+      "nome": "V512",
+      "campos": {
+        "comprimento": {
+          "fwd": 324.0,
+          "rev": 28.0,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null
+        },
+        "h": {
+          "fwd": 40.0,
+          "rev": 60.0,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null
+        },
+        "b": {
+          "fwd": 30.0,
+          "rev": 28.0,
+          "status": "MATCH",
+          "delta_cm": 2.0
+        }
+      }
+    },
+    "V513": {
+      "nome": "V513",
+      "campos": {
+        "comprimento": {
+          "fwd": 244.0,
+          "rev": 28.0,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null
+        },
+        "h": {
+          "fwd": 40.0,
+          "rev": 60.0,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null
+        },
+        "b": {
+          "fwd": 30.0,
+          "rev": 28.0,
+          "status": "MATCH",
+          "delta_cm": 2.0
+        }
+      }
+    },
+    "V514": {
+      "nome": "V514",
+      "campos": {
+        "comprimento": {
+          "fwd": 324.0,
+          "rev": 28.0,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null
+        },
+        "h": {
+          "fwd": 40.0,
+          "rev": 60.0,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null
+        },
+        "b": {
+          "fwd": 30.0,
+          "rev": 28.0,
+          "status": "MATCH",
+          "delta_cm": 2.0
+        }
+      }
+    },
+    "V516": {
+      "nome": "V516",
+      "campos": {
+        "comprimento": {
+          "fwd": 246.0,
+          "rev": 28.0,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null
+        },
+        "h": {
+          "fwd": 40.0,
+          "rev": 60.0,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null
+        },
+        "b": {
+          "fwd": 30.0,
+          "rev": 28.0,
+          "status": "MATCH",
+          "delta_cm": 2.0
+        }
+      }
+    },
+    "V517": {
+      "nome": "V517",
+      "campos": {
+        "comprimento": {
+          "fwd": 244.0,
+          "rev": 28.0,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null
+        },
+        "h": {
+          "fwd": 40.0,
+          "rev": 60.0,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null
+        },
+        "b": {
+          "fwd": 30.0,
+          "rev": 28.0,
+          "status": "MATCH",
+          "delta_cm": 2.0
+        }
+      }
+    },
+    "V518": {
+      "nome": "V518",
+      "campos": {
+        "comprimento": {
+          "fwd": 292.5,
+          "rev": 28.0,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null
+        },
+        "h": {
+          "fwd": 40.0,
+          "rev": 60.0,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null
+        },
+        "b": {
+          "fwd": 30.0,
+          "rev": 28.0,
+          "status": "MATCH",
+          "delta_cm": 2.0
+        }
+      }
+    },
+    "V519": {
+      "nome": "V519",
+      "campos": {
+        "comprimento": {
+          "fwd": 292.5,
+          "rev": 28.0,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null
+        },
+        "h": {
+          "fwd": 40.0,
+          "rev": 60.0,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null
+        },
+        "b": {
+          "fwd": 30.0,
+          "rev": 28.0,
+          "status": "MATCH",
+          "delta_cm": 2.0
+        }
+      }
+    },
+    "V520": {
+      "nome": "V520",
+      "campos": {
+        "comprimento": {
+          "fwd": 246.0,
+          "rev": 28.0,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null
+        },
+        "h": {
+          "fwd": 40.0,
+          "rev": 60.0,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null
+        },
+        "b": {
+          "fwd": 30.0,
+          "rev": 28.0,
+          "status": "MATCH",
+          "delta_cm": 2.0
+        }
+      }
+    },
+    "V521": {
+      "nome": "V521",
+      "campos": {
+        "comprimento": {
+          "fwd": 282.5,
+          "rev": 28.0,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null
+        },
+        "h": {
+          "fwd": 40.0,
+          "rev": 60.0,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null
+        },
+        "b": {
+          "fwd": 30.0,
+          "rev": 28.0,
+          "status": "MATCH",
+          "delta_cm": 2.0
+        }
+      }
+    },
+    "V522": {
+      "nome": "V522",
+      "campos": {
+        "comprimento": {
+          "fwd": 246.0,
+          "rev": 28.0,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null
+        },
+        "h": {
+          "fwd": 40.0,
+          "rev": 60.0,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null
+        },
+        "b": {
+          "fwd": 30.0,
+          "rev": 28.0,
+          "status": "MATCH",
+          "delta_cm": 2.0
+        }
+      }
+    },
+    "V523": {
+      "nome": "V523",
+      "campos": {
+        "comprimento": {
+          "fwd": 246.0,
+          "rev": 28.0,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null
+        },
+        "h": {
+          "fwd": 40.0,
+          "rev": 60.0,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null
+        },
+        "b": {
+          "fwd": 30.0,
+          "rev": 28.0,
+          "status": "MATCH",
+          "delta_cm": 2.0
+        }
+      }
+    },
+    "V524": {
+      "nome": "V524",
+      "campos": {
+        "comprimento": {
+          "fwd": 233.0,
+          "rev": 28.0,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null
+        },
+        "h": {
+          "fwd": 40.0,
+          "rev": 60.0,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null
+        },
+        "b": {
+          "fwd": 30.0,
+          "rev": 28.0,
+          "status": "MATCH",
+          "delta_cm": 2.0
+        }
+      }
+    },
+    "V525": {
+      "nome": "V525",
+      "campos": {
+        "comprimento": {
+          "fwd": 324.0,
+          "rev": 28.0,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null
+        },
+        "h": {
+          "fwd": 40.0,
+          "rev": 60.0,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null
+        },
+        "b": {
+          "fwd": 30.0,
+          "rev": 28.0,
+          "status": "MATCH",
+          "delta_cm": 2.0
+        }
+      }
+    },
+    "V526": {
+      "nome": "V526",
+      "campos": {
+        "comprimento": {
+          "fwd": 324.0,
+          "rev": 28.0,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null
+        },
+        "h": {
+          "fwd": 40.0,
+          "rev": 60.0,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null
+        },
+        "b": {
+          "fwd": 30.0,
+          "rev": 28.0,
+          "status": "MATCH",
+          "delta_cm": 2.0
+        }
+      }
+    },
+    "V529": {
+      "nome": "V529",
+      "campos": {
+        "comprimento": {
+          "fwd": 256.0,
+          "rev": 28.0,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null
+        },
+        "h": {
+          "fwd": 40.0,
+          "rev": 60.0,
+          "status": "AUSENTE_FWD",
+          "delta_cm": null
+        },
+        "b": {
+          "fwd": 30.0,
+          "rev": 28.0,
+          "status": "MATCH",
+          "delta_cm": 2.0
+        }
+      }
+    },
+    "V506A": {
+      "nome": "V506A",
+      "campos": {
+        "comprimento": {
+          "fwd": 246.0,
+          "rev": null,
+          "status": "AUSENTE_REV",
+          "delta_cm": null
+        },
+        "h": {
+          "fwd": 40.0,
+          "rev": null,
+          "status": "AUSENTE_REV",
+          "delta_cm": null
+        },
+        "b": {
+          "fwd": 30.0,
+          "rev": null,
+          "status": "AUSENTE_REV",
+          "delta_cm": null
+        }
+      }
+    }
+  }
+}

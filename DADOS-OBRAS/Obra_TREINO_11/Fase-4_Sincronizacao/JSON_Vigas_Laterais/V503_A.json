@@ -1,24 +1,17 @@
 {
   "number": "503",
   "name": "V503_A",
-  "floor": "GWT-TIP",
+  "floor": "Pavimento",
   "side": "A",
-  "total_width": 15.0,
+  "total_width": 30.0,
   "total_height": "40.0",
   "panels": [
     {
-      "width": 120.0,
+      "width": 233.5,
       "height1": 40.0,
       "height2": 40.0,
-      "grade_h1": "0",
-      "grade_h2": "0"
-    },
-    {
-      "width": 113.5,
-      "height1": 40.0,
-      "height2": 40.0,
-      "grade_h1": "0",
-      "grade_h2": "0"
+      "grade_h1": "233.5",
+      "grade_h2": "233.5"
     }
   ],
   "holes": [
@@ -58,5 +51,33 @@
     "length": 0.0
   },
   "sarrafo_left_id": 0,
-  "sarrafo_right_id": 0
+  "sarrafo_right_id": 0,
+  "_sa_meta": {
+    "tipo": "LV",
+    "analisado_em": "2026-06-04 18:14",
+    "campos_extraidos": [
+      "floor",
+      "name",
+      "number",
+      "panels",
+      "side",
+      "total_height",
+      "total_width"
+    ],
+    "campos_defaulted": [],
+    "na_fields": [
+      "altura",
+      "comprimento",
+      "coordenadas",
+      "grade_1",
+      "grade_2",
+      "largura",
+      "linhas_horizontais",
+      "linhas_verticais",
+      "numero",
+      "obstaculos",
+      "reaproveitamento_dados"
+    ],
+    "completude_pct": 100.0
+  }
 }

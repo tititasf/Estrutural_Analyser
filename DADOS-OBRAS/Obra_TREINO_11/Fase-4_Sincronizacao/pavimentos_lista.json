@@ -1,11 +1,11 @@
 {
   "Obra_TREINO_11": {
     "pavimentos": [
-      "GWT-TIP"
+      "12 PAV"
     ],
     "pavimentos_data": {
-      "GWT-TIP": {
-        "nome": "GWT-TIP",
+      "12 PAV": {
+        "nome": "12 PAV",
         "numero": "1",
         "nivel_chegada": "0.0",
         "nivel_saida": "280.0"

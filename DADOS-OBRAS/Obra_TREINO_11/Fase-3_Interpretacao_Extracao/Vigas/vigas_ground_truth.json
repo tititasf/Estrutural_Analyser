@@ -1,14 +1,122 @@
 {
+  "V111": {
+    "b": null,
+    "h": null,
+    "comprimento": null,
+    "confidence": 0.25,
+    "source": "engenharia-reversa-ezdxf",
+    "sides_encontrados": [],
+    "nota": "Dims requerem verificação manual"
+  },
+  "V112": {
+    "b": null,
+    "h": null,
+    "comprimento": null,
+    "confidence": 0.25,
+    "source": "engenharia-reversa-ezdxf",
+    "sides_encontrados": [],
+    "nota": "Dims requerem verificação manual"
+  },
+  "V322": {
+    "b": null,
+    "h": null,
+    "comprimento": null,
+    "confidence": 0.25,
+    "source": "engenharia-reversa-ezdxf",
+    "sides_encontrados": [
+      "A",
+      "B"
+    ],
+    "nota": "Dims requerem verificação manual"
+  },
+  "V324": {
+    "b": null,
+    "h": null,
+    "comprimento": null,
+    "confidence": 0.25,
+    "source": "engenharia-reversa-ezdxf",
+    "sides_encontrados": [
+      "B"
+    ],
+    "nota": "Dims requerem verificação manual"
+  },
+  "V336": {
+    "b": null,
+    "h": null,
+    "comprimento": null,
+    "confidence": 0.25,
+    "source": "engenharia-reversa-ezdxf",
+    "sides_encontrados": [],
+    "nota": "Dims requerem verificação manual"
+  },
+  "V341": {
+    "b": null,
+    "h": null,
+    "comprimento": null,
+    "confidence": 0.25,
+    "source": "engenharia-reversa-ezdxf",
+    "sides_encontrados": [],
+    "nota": "Dims requerem verificação manual"
+  },
+  "V356": {
+    "b": null,
+    "h": null,
+    "comprimento": null,
+    "confidence": 0.25,
+    "source": "engenharia-reversa-ezdxf",
+    "sides_encontrados": [
+      "A"
+    ],
+    "nota": "Dims requerem verificação manual"
+  },
+  "V357": {
+    "b": null,
+    "h": null,
+    "comprimento": null,
+    "confidence": 0.25,
+    "source": "engenharia-reversa-ezdxf",
+    "sides_encontrados": [
+      "A"
+    ],
+    "nota": "Dims requerem verificação manual"
+  },
+  "V358": {
+    "b": null,
+    "h": null,
+    "comprimento": null,
+    "confidence": 0.25,
+    "source": "engenharia-reversa-ezdxf",
+    "sides_encontrados": [
+      "A",
+      "B"
+    ],
+    "nota": "Dims requerem verificação manual"
+  },
+  "V401": {
+    "b": null,
+    "h": null,
+    "comprimento": null,
+    "confidence": 0.25,
+    "source": "engenharia-reversa-ezdxf",
+    "sides_encontrados": [
+      "A",
+      "B"
+    ],
+    "nota": "Dims requerem verificação manual"
+  },
   "V402": {
     "b": null,
     "h": null,
     "comprimento": null,
     "confidence": 0.25,
     "source": "engenharia-reversa-ezdxf",
-    "sides_encontrados": [],
+    "sides_encontrados": [
+      "A",
+      "B"
+    ],
     "nota": "Dims requerem verificação manual"
   },
-  "V501": {
+  "V403": {
     "b": null,
     "h": null,
     "comprimento": null,
@@ -20,7 +128,7 @@
     ],
     "nota": "Dims requerem verificação manual"
   },
-  "V502": {
+  "V404": {
     "b": null,
     "h": null,
     "comprimento": null,
@@ -32,7 +140,7 @@
     ],
     "nota": "Dims requerem verificação manual"
   },
-  "V503": {
+  "V405": {
     "b": null,
     "h": null,
     "comprimento": null,
@@ -44,7 +152,7 @@
     ],
     "nota": "Dims requerem verificação manual"
   },
-  "V504": {
+  "V406": {
     "b": null,
     "h": null,
     "comprimento": null,
@@ -56,7 +164,7 @@
     ],
     "nota": "Dims requerem verificação manual"
   },
-  "V505": {
+  "V406A": {
     "b": null,
     "h": null,
     "comprimento": null,
@@ -68,16 +176,7 @@
     ],
     "nota": "Dims requerem verificação manual"
   },
-  "V506": {
-    "b": null,
-    "h": null,
-    "comprimento": null,
-    "confidence": 0.25,
-    "source": "engenharia-reversa-ezdxf",
-    "sides_encontrados": [],
-    "nota": "Dims requerem verificação manual"
-  },
-  "V506A": {
+  "V407": {
     "b": null,
     "h": null,
     "comprimento": null,
@@ -89,7 +188,7 @@
     ],
     "nota": "Dims requerem verificação manual"
   },
-  "V507": {
+  "V408": {
     "b": null,
     "h": null,
     "comprimento": null,
@@ -101,7 +200,7 @@
     ],
     "nota": "Dims requerem verificação manual"
   },
-  "V508": {
+  "V408A": {
     "b": null,
     "h": null,
     "comprimento": null,
@@ -113,7 +212,7 @@
     ],
     "nota": "Dims requerem verificação manual"
   },
-  "V509": {
+  "V409": {
     "b": null,
     "h": null,
     "comprimento": null,
@@ -125,7 +224,7 @@
     ],
     "nota": "Dims requerem verificação manual"
   },
-  "V510": {
+  "V410": {
     "b": null,
     "h": null,
     "comprimento": null,
@@ -137,7 +236,7 @@
     ],
     "nota": "Dims requerem verificação manual"
   },
-  "V511": {
+  "V410A": {
     "b": null,
     "h": null,
     "comprimento": null,
@@ -149,7 +248,7 @@
     ],
     "nota": "Dims requerem verificação manual"
   },
-  "V512": {
+  "V411": {
     "b": null,
     "h": null,
     "comprimento": null,
@@ -161,7 +260,7 @@
     ],
     "nota": "Dims requerem verificação manual"
   },
-  "V513": {
+  "V412": {
     "b": null,
     "h": null,
     "comprimento": null,
@@ -173,7 +272,18 @@
     ],
     "nota": "Dims requerem verificação manual"
   },
-  "V514": {
+  "V413": {
+    "b": null,
+    "h": null,
+    "comprimento": null,
+    "confidence": 0.25,
+    "source": "engenharia-reversa-ezdxf",
+    "sides_encontrados": [
+      "A"
+    ],
+    "nota": "Dims requerem verificação manual"
+  },
+  "V414": {
     "b": null,
     "h": null,
     "comprimento": null,
@@ -185,7 +295,7 @@
     ],
     "nota": "Dims requerem verificação manual"
   },
-  "V516": {
+  "V415": {
     "b": null,
     "h": null,
     "comprimento": null,
@@ -197,7 +307,7 @@
     ],
     "nota": "Dims requerem verificação manual"
   },
-  "V517": {
+  "V416": {
     "b": null,
     "h": null,
     "comprimento": null,
@@ -209,7 +319,7 @@
     ],
     "nota": "Dims requerem verificação manual"
   },
-  "V518": {
+  "V417": {
     "b": null,
     "h": null,
     "comprimento": null,
@@ -221,7 +331,7 @@
     ],
     "nota": "Dims requerem verificação manual"
   },
-  "V519": {
+  "V418": {
     "b": null,
     "h": null,
     "comprimento": null,
@@ -233,7 +343,18 @@
     ],
     "nota": "Dims requerem verificação manual"
   },
-  "V520": {
+  "V418A": {
+    "b": null,
+    "h": null,
+    "comprimento": null,
+    "confidence": 0.25,
+    "source": "engenharia-reversa-ezdxf",
+    "sides_encontrados": [
+      "A"
+    ],
+    "nota": "Dims requerem verificação manual"
+  },
+  "V419": {
     "b": null,
     "h": null,
     "comprimento": null,
@@ -245,7 +366,7 @@
     ],
     "nota": "Dims requerem verificação manual"
   },
-  "V521": {
+  "V420": {
     "b": null,
     "h": null,
     "comprimento": null,
@@ -257,7 +378,7 @@
     ],
     "nota": "Dims requerem verificação manual"
   },
-  "V522": {
+  "V421": {
     "b": null,
     "h": null,
     "comprimento": null,
@@ -269,7 +390,7 @@
     ],
     "nota": "Dims requerem verificação manual"
   },
-  "V523": {
+  "V422": {
     "b": null,
     "h": null,
     "comprimento": null,
@@ -281,7 +402,7 @@
     ],
     "nota": "Dims requerem verificação manual"
   },
-  "V524": {
+  "V423": {
     "b": null,
     "h": null,
     "comprimento": null,
@@ -293,7 +414,18 @@
     ],
     "nota": "Dims requerem verificação manual"
   },
-  "V525": {
+  "V424": {
+    "b": null,
+    "h": null,
+    "comprimento": null,
+    "confidence": 0.25,
+    "source": "engenharia-reversa-ezdxf",
+    "sides_encontrados": [
+      "B"
+    ],
+    "nota": "Dims requerem verificação manual"
+  },
+  "V425": {
     "b": null,
     "h": null,
     "comprimento": null,
@@ -305,7 +437,7 @@
     ],
     "nota": "Dims requerem verificação manual"
   },
-  "V526": {
+  "V426": {
     "b": null,
     "h": null,
     "comprimento": null,
@@ -317,18 +449,45 @@
     ],
     "nota": "Dims requerem verificação manual"
   },
-  "V529": {
+  "V427": {
     "b": null,
     "h": null,
     "comprimento": null,
     "confidence": 0.25,
     "source": "engenharia-reversa-ezdxf",
-    "sides_encontrados": [],
+    "sides_encontrados": [
+      "A",
+      "B"
+    ],
+    "nota": "Dims requerem verificação manual"
+  },
+  "V428": {
+    "b": null,
+    "h": null,
+    "comprimento": null,
+    "confidence": 0.25,
+    "source": "engenharia-reversa-ezdxf",
+    "sides_encontrados": [
+      "A",
+      "B"
+    ],
+    "nota": "Dims requerem verificação manual"
+  },
+  "V429": {
+    "b": null,
+    "h": null,
+    "comprimento": null,
+    "confidence": 0.25,
+    "source": "engenharia-reversa-ezdxf",
+    "sides_encontrados": [
+      "A",
+      "B"
+    ],
     "nota": "Dims requerem verificação manual"
   },
   "_meta": {
-    "total": 28,
-    "pavimento": "GWT-TIP",
-    "extraido_em": "2026-03-09"
+    "total": 42,
+    "pavimento": "GWT - 1PV",
+    "extraido_em": "2026-06-05"
   }
 }
