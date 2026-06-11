@@ -1,0 +1,50 @@
+{
+  "numero": 40,
+  "nome": "LJ40",
+  "comprimento": 488,
+  "largura": 244,
+  "pavimento": "CENARIOS",
+  "coordenadas": [
+    [
+      0,
+      0
+    ],
+    [
+      488,
+      0
+    ],
+    [
+      488,
+      244
+    ],
+    [
+      0,
+      244
+    ],
+    [
+      0,
+      0
+    ]
+  ],
+  "area_cm2": 119072,
+  "linhas_verticais": [
+    {
+      "value": 244.0,
+      "is_union": false
+    }
+  ],
+  "linhas_horizontais": [
+    {
+      "value": 122,
+      "is_union": false
+    },
+    {
+      "value": 142.0,
+      "is_union": true
+    }
+  ],
+  "obstaculos": [],
+  "modo_selecionado": 0,
+  "unioes_nos_bordes": false,
+  "observacoes": ""
+}

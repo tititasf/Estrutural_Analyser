@@ -1,0 +1,20 @@
+{
+  "obra": "Obra_TREINO_1",
+  "pavimento": "TIPO",
+  "timestamp": "2026-05-13T21:53:31.716523",
+  "fases": {
+    "descoberta": "OK",
+    "eng_reversa": "OK",
+    "extracao_dimensional": "OK",
+    "motor_fase4": "OK",
+    "geracao_dxf_individual": "OK",
+    "comparacao_individual": "OK",
+    "ancoras": "OK",
+    "consolidacao_coletivo": "OK",
+    "validacao_coletivo": "OK",
+    "obras_salvas": "OK",
+    "validacao_visual": "DRY"
+  },
+  "scores": {},
+  "status": "REPROVADO"
+}

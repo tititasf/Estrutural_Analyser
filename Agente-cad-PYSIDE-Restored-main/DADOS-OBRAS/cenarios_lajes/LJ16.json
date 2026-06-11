@@ -1,0 +1,78 @@
+{
+  "numero": 16,
+  "nome": "LJ16",
+  "comprimento": 1000,
+  "largura": 500,
+  "pavimento": "CENARIOS",
+  "coordenadas": [
+    [
+      0,
+      0
+    ],
+    [
+      1000,
+      0
+    ],
+    [
+      1000,
+      500
+    ],
+    [
+      0,
+      500
+    ],
+    [
+      0,
+      0
+    ]
+  ],
+  "area_cm2": 500000,
+  "linhas_verticais": [
+    {
+      "value": 244.0,
+      "is_union": false
+    },
+    {
+      "value": 488.0,
+      "is_union": false
+    },
+    {
+      "value": 732.0,
+      "is_union": false
+    },
+    {
+      "value": 854.0,
+      "is_union": false
+    }
+  ],
+  "linhas_horizontais": [
+    {
+      "value": 122,
+      "is_union": false
+    },
+    {
+      "value": 142.0,
+      "is_union": true
+    },
+    {
+      "value": 264.0,
+      "is_union": false
+    },
+    {
+      "value": 284.0,
+      "is_union": true
+    },
+    {
+      "value": 406.0,
+      "is_union": false
+    },
+    {
+      "value": 426.0,
+      "is_union": true
+    }
+  ],
+  "obstaculos": [],
+  "modo_selecionado": 0,
+  "unioes_nos_bordes": false,
+  "observacoes": ""
+}

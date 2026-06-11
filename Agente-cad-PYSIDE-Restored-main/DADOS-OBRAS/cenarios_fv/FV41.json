@@ -1,0 +1,44 @@
+{
+  "numero": "41",
+  "nome": "FV41",
+  "pavimento": "CENARIOS",
+  "largura": 300,
+  "altura": 19,
+  "paineis": [
+    244,
+    56,
+    0,
+    0,
+    0,
+    0
+  ],
+  "recuos": [
+    0,
+    0,
+    0,
+    0
+  ],
+  "aberturas": [
+    [
+      0,
+      0
+    ],
+    [
+      0,
+      0
+    ],
+    [
+      0,
+      0
+    ],
+    [
+      0,
+      0
+    ]
+  ],
+  "sarrafo_esq": false,
+  "sarrafo_dir": false,
+  "texto_esquerda": "ESQ",
+  "texto_direita": "DIR",
+  "continuacao": "UltimoSegmento"
+}

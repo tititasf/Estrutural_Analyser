@@ -1,17 +1,19 @@
 CRITICAL STARTUP ERROR:
 Traceback (most recent call last):
-  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\main.py", line 6354, in <module>
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\main.py", line 7998, in <module>
     main()
-  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\main.py", line 6342, in main
-    dummy_user.id = "local_admin_123"
-    ^^^^^^^^^^^^^
-  File "C:\Users\Thierry\AppData\Local\Programs\Python\Python312\Lib\site-packages\pydantic\main.py", line 998, in __setattr__
-    setattr_handler(self, name, value)  # call here to not memo on possibly unknown fields
-    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\Users\Thierry\AppData\Local\Programs\Python\Python312\Lib\site-packages\pydantic\main.py", line 99, in _model_field_setattr_handler
-    model.__pydantic_fields_set__.add(name)
-    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\Users\Thierry\AppData\Local\Programs\Python\Python312\Lib\site-packages\pydantic\main.py", line 988, in __getattr__
-    return super().__getattribute__(item)  # Raises AttributeError if appropriate
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-AttributeError: 'UserProfile' object has no attribute '__pydantic_fields_set__'. Did you mean: '__pydantic_fields__'?
+    ~~~~^^
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\main.py", line 7992, in main
+    start_app(dummy_user)
+    ~~~~~~~~~^^^^^^^^^^^^
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\main.py", line 7959, in start_app
+    window = MainWindow()
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\main.py", line 211, in __init__
+    self.init_ui()
+    ~~~~~~~~~~~~^^
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\main.py", line 2535, in init_ui
+    structural_widget = self._setup_structural_analyzer_area()
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\main.py", line 1076, in _setup_structural_analyzer_area
+    background: {Colors.BG_INPUT}; color: {Colors.TEXT_PRIMARY};
+                 ^^^^^^^^^^^^^^^
+AttributeError: type object 'Colors' has no attribute 'BG_INPUT'

@@ -1,0 +1,44 @@
+{
+  "numero": "47",
+  "nome": "FV47",
+  "pavimento": "CENARIOS",
+  "largura": 1500,
+  "altura": 19,
+  "paineis": [
+    244,
+    244,
+    244,
+    244,
+    244,
+    280
+  ],
+  "recuos": [
+    0,
+    0,
+    0,
+    0
+  ],
+  "aberturas": [
+    [
+      0,
+      0
+    ],
+    [
+      0,
+      0
+    ],
+    [
+      0,
+      0
+    ],
+    [
+      0,
+      0
+    ]
+  ],
+  "sarrafo_esq": true,
+  "sarrafo_dir": true,
+  "texto_esquerda": "ESQ",
+  "texto_direita": "DIR",
+  "continuacao": "UltimoSegmento"
+}

@@ -1,0 +1,41 @@
+{
+  "numero": 21,
+  "nome": "LJ21",
+  "comprimento": 300,
+  "largura": 60,
+  "pavimento": "CENARIOS",
+  "coordenadas": [
+    [
+      0,
+      0
+    ],
+    [
+      300,
+      0
+    ],
+    [
+      300,
+      60
+    ],
+    [
+      0,
+      60
+    ],
+    [
+      0,
+      0
+    ]
+  ],
+  "area_cm2": 18000,
+  "linhas_verticais": [
+    {
+      "value": 122.0,
+      "is_union": false
+    }
+  ],
+  "linhas_horizontais": [],
+  "obstaculos": [],
+  "modo_selecionado": 0,
+  "unioes_nos_bordes": false,
+  "observacoes": ""
+}

@@ -1,0 +1,44 @@
+{
+  "numero": "30",
+  "nome": "FV30",
+  "pavimento": "CENARIOS",
+  "largura": 300,
+  "altura": 19,
+  "paineis": [
+    244,
+    56,
+    0,
+    0,
+    0,
+    0
+  ],
+  "recuos": [
+    10,
+    10,
+    10,
+    10
+  ],
+  "aberturas": [
+    [
+      0,
+      0
+    ],
+    [
+      0,
+      0
+    ],
+    [
+      0,
+      0
+    ],
+    [
+      0,
+      0
+    ]
+  ],
+  "sarrafo_esq": true,
+  "sarrafo_dir": true,
+  "texto_esquerda": "ESQ",
+  "texto_direita": "DIR",
+  "continuacao": "UltimoSegmento"
+}

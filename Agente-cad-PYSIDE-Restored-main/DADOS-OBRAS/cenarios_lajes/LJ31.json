@@ -1,0 +1,46 @@
+{
+  "numero": 31,
+  "nome": "LJ31",
+  "comprimento": 400,
+  "largura": 150,
+  "pavimento": "CENARIOS",
+  "coordenadas": [
+    [
+      0,
+      0
+    ],
+    [
+      400,
+      0
+    ],
+    [
+      400,
+      150
+    ],
+    [
+      0,
+      150
+    ],
+    [
+      0,
+      0
+    ]
+  ],
+  "area_cm2": 60000,
+  "linhas_verticais": [
+    {
+      "value": 244.0,
+      "is_union": false
+    }
+  ],
+  "linhas_horizontais": [
+    {
+      "value": 122.0,
+      "is_union": false
+    }
+  ],
+  "obstaculos": [],
+  "modo_selecionado": 0,
+  "unioes_nos_bordes": false,
+  "observacoes": ""
+}

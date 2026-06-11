@@ -2,6 +2,24 @@
 import sys
 import os
 
+# ── Diagnóstico de crashes nativos (faulthandler) ─────────────────────────────
+import faulthandler
+faulthandler.enable(file=sys.stderr, all_threads=True)
+
+import atexit
+import signal
+
+def _crash_handler(sig, frame):
+    import traceback
+    print(f"\n[CRASH-HANDLER] Sinal recebido: {sig}", flush=True)
+    traceback.print_stack(frame)
+    sys.stdout.flush()
+    sys.stderr.flush()
+
+if hasattr(signal, 'SIGABRT'):
+    signal.signal(signal.SIGABRT, _crash_handler)
+# ─────────────────────────────────────────────────────────────────────────────
+
 # Configurar encoding UTF-8 para terminal (resolve problemas no Cursor)
 if sys.platform == 'win32':
     import io
@@ -95,8 +113,10 @@ from src.ui.organisms.login_widget import LoginWidget
 from src.ui.organisms.user_profile_dialog import UserProfileDialog
 from src.core.auth.models import UserProfile
 from src.ui.modules.diagnostic_hub import DiagnosticHubModule
+from src.ui.modules.diagnostic_reverse_hub import DiagnosticReverseHub
 from src.ui.modules.comparison_engine import ComparisonEngineModule
 from src.core.services.data_coordinator import get_coordinator
+from src.ui.theme import Colors, Fonts
 
 
 
@@ -170,7 +190,10 @@ class MainWindow(QMainWindow):
         # Garantir que o banco seja criado no diretório do main.py
         main_dir = os.path.dirname(os.path.abspath(__file__))
         self.base_dir = main_dir
-        db_path = os.path.join(main_dir, "project_data.vision")
+        # DB real fica um nível acima (D:/Agente-cad-PYSIDE/project_data.vision)
+        parent_db = os.path.join(os.path.dirname(main_dir), "project_data.vision")
+        local_db  = os.path.join(main_dir, "project_data.vision")
+        db_path = parent_db if os.path.exists(parent_db) and os.path.getsize(parent_db) > 200_000 else local_db
         self.db = DatabaseManager(db_path=db_path) # SQLite persistencia
         self.memory = HierarchicalMemory(self.db)
         self.auth_service = AuthService() # Initialize AuthService
@@ -205,10 +228,9 @@ class MainWindow(QMainWindow):
         
         # UI Setup
         self.init_ui()
-        
+
         # Carregar configurações customizadas de vínculos
         self._load_link_configs()
-
 
     def load_stylesheet(self):
         try:
@@ -229,9 +251,10 @@ class MainWindow(QMainWindow):
         """Configura a barra superior (Logotipo, Projeto, Obra/Pavimento)."""
         top_bar = QFrame()
         top_bar.setObjectName("TopBar")
+        top_bar.setFixedHeight(38)
         layout = QHBoxLayout(top_bar)
-        layout.setContentsMargins(10, 5, 20, 5)
-        layout.setSpacing(15)
+        layout.setContentsMargins(10, 0, 20, 0)
+        layout.setSpacing(10)
 
         # 0. Logo & Perfil (Esquerda/Direita)
         self.user_hbox = QHBoxLayout()
@@ -242,67 +265,45 @@ class MainWindow(QMainWindow):
         lbl_logo.setObjectName("LogoLabel")
         layout.addWidget(lbl_logo)
 
-        # 2. Botão Gerenciar Projetos
-        btn_manage = QPushButton("📂 Gerenciar Projetos")
-        btn_manage.setFixedWidth(140)
-        btn_manage.setStyleSheet("padding: 6px; font-size: 12px;")
-        btn_manage.clicked.connect(self.open_project_manager) 
-        layout.addWidget(btn_manage)
-        
-
-        # Separator
+        # Separator  (botão Gerenciar Projetos removido — agora é Tab 0)
         line = QFrame()
         line.setFrameShape(QFrame.VLine)
         line.setFrameShadow(QFrame.Sunken)
         line.setStyleSheet("border: 1px solid #444;")
         layout.addWidget(line)
 
-        # 3. Combo Obras
-        layout.addWidget(QLabel("Obra:"))
+        # 3. Combo Obras — oculto no topo, controlado pelo SA sidebar
         self.cmb_works = QComboBox()
         self.cmb_works.setPlaceholderText("Selecione a Obra...")
         self.cmb_works.setFixedWidth(200)
         self.cmb_works.currentIndexChanged.connect(self._on_work_changed)
-        layout.addWidget(self.cmb_works)
+        self.cmb_works.setVisible(False)
 
-        # Botão de refresh para debug
+        # Botão de refresh (mantido oculto — SA sidebar tem sua própria lógica)
         btn_refresh = QPushButton("🔄")
-        btn_refresh.setToolTip("Atualizar lista de obras")
         btn_refresh.setFixedSize(30, 25)
         btn_refresh.clicked.connect(self._refresh_nav_combos)
-        layout.addWidget(btn_refresh)
+        btn_refresh.setVisible(False)
 
-        # 4. Combo Pavimentos (Filta por Obra)
-        layout.addWidget(QLabel("Pavimento:"))
+        # 4. Combo Pavimentos — oculto no topo
         self.cmb_pavements = QComboBox()
         self.cmb_pavements.setPlaceholderText("Selecione o Pavimento...")
         self.cmb_pavements.setFixedWidth(200)
         self.cmb_pavements.currentIndexChanged.connect(self._on_pavement_changed)
-        layout.addWidget(self.cmb_pavements)
+        self.cmb_pavements.setVisible(False)
 
-        # Separator 2
-        line2 = QFrame()
-        line2.setFrameShape(QFrame.VLine)
-        line2.setFrameShadow(QFrame.Sunken)
-        line2.setStyleSheet("border: 1px solid #444;")
-        layout.addWidget(line2)
-
-        # 5. Níveis (Movido do Painel Esquerdo)
-        # Chegada
-        layout.addWidget(QLabel("Nível Cheg.:"))
+        # 5. Níveis — ocultos no topo, controlados pelo SA sidebar
         self.edit_level_arr = QLineEdit()
         self.edit_level_arr.setFixedWidth(60)
         self.edit_level_arr.setPlaceholderText("0.00")
         self.edit_level_arr.editingFinished.connect(self.save_project_metadata)
-        layout.addWidget(self.edit_level_arr)
-        
-        # Saída
-        layout.addWidget(QLabel("Nível Saída:"))
+        self.edit_level_arr.setVisible(False)
+
         self.edit_level_exit = QLineEdit()
         self.edit_level_exit.setFixedWidth(60)
         self.edit_level_exit.setPlaceholderText("3.00")
         self.edit_level_exit.editingFinished.connect(self.save_project_metadata)
-        layout.addWidget(self.edit_level_exit)
+        self.edit_level_exit.setVisible(False)
 
         # Spacer (Empurra status e progress para direita)
         layout.addStretch()
@@ -362,32 +363,32 @@ class MainWindow(QMainWindow):
         return top_bar
 
     def open_project_manager(self):
-        """Abre o gerenciador de projetos."""
-        if not hasattr(self, 'project_manager'):
-            self.project_manager = ProjectManager(self.db, self.memory, self.auth_service)
-            self.project_manager.project_selected.connect(lambda pid, name, path: self._open_project_tab(pid, name))
-            # Sincronização Sinais
-            self.project_manager.obra_created_globally.connect(self.on_global_obra_created)
-            self.project_manager.project_created_globally.connect(self.on_global_project_created)
-            self.project_manager.request_tab_switch.connect(self.switch_to_tab)
-            
-        self.project_manager.setWindowState(Qt.WindowMaximized)
-        self.project_manager.show()
+        """Navega para a tab 0 (Gerenciar Projetos — agora embutida na interface)."""
+        self.switch_to_tab(0)
         
     def on_global_obra_created(self, work_name):
         self.log(f"🏠 Sincronizando Obra Global: {work_name}")
         self._refresh_nav_combos()
 
     def switch_to_tab(self, index):
-        """Alterna para a aba solicitada (0=Pre, 1=Struc, 2=Pos)"""
-        if hasattr(self, 'tabs') and index < self.tabs.count():
-            self.tabs.setCurrentIndex(index)
-            # Ensure window is front if minimized (optional)
+        """Alterna para a aba solicitada.
+        Índices (com Gerenciar Projetos como tab 0):
+          0=Gerenciar Projetos, 1=Diagnostic Hub, 2=Diagnostic Reverse Hub,
+          3=Structural Analyzer, 4=Comparison Engine, 5=Robo Pilares,
+          6=Robo LV, 7=Robo FV, 8=Robo Laje
+        """
+        if hasattr(self, 'module_tabs') and index < self.module_tabs.count():
+            self.module_tabs.setCurrentIndex(index)
             self.raise_()
             self.activateWindow()
         # Sincronização centralizada - usar obra atual se disponível
         if hasattr(self, 'current_work_name') and self.current_work_name:
             self.sync_robots_with_master_context(self.current_work_name)
+
+    def _on_module_tab_changed(self, index: int):
+        """Atualiza a faixa de descrição de fase quando a aba muda."""
+        if hasattr(self, '_fase_desc_label') and hasattr(self, '_FASE_DESCS'):
+            self._fase_desc_label.setText(self._FASE_DESCS.get(index, ""))
         
     def on_global_project_created(self, work_name, project_name, project_id=None):
         self.log(f"🏗️ Sincronizando Projeto/Pavimento Global: {project_name} em {work_name} (ID: {project_id})")
@@ -476,9 +477,13 @@ class MainWindow(QMainWindow):
         
         try:
             works = self.db.get_all_works()
-            self.log(f"📋 Encontradas {len(works)} obras no banco: {works}")
-            
             self.cmb_works.addItems(works)
+            # Só loga se houver obras ou mudou (evita spam de "0 obras" no startup)
+            if works:
+                self.log(f"📋 {len(works)} obra(s) no banco: {', '.join(works[:5])}{'...' if len(works)>5 else ''}")
+            # Sincronizar combo do Diagnostic Reverse Hub
+            if hasattr(self, 'diagnostic_reverse_module'):
+                self.diagnostic_reverse_module.refresh_obras(works)
         except Exception as e:
             self.log(f"Erro carregando obras: {e}")
         
@@ -693,12 +698,51 @@ class MainWindow(QMainWindow):
         except Exception as e:
             print(f"[SYNC ERROR] Falha ao sincronizar legado: {e}")
 
+    def _on_open_reverse_hub(self, obra_name: str, file_path: str):
+        """Navega para o Diagnostic Reverse Hub, define a obra e seleciona o item."""
+        if hasattr(self, 'diagnostic_reverse_module'):
+            hub = self.diagnostic_reverse_module
+            hub.set_obra(obra_name)
+            # Seleciona o item específico na lista esquerda após a lista recarregar
+            from PySide6.QtCore import QTimer
+            QTimer.singleShot(80, lambda: hub._left.select_item_by_path(file_path))
+
+    def _on_ce_obra_pav_changed(self, obra: str, pav: str):
+        """CE-005: CE mudou obra/pav → sincroniza top bar sem loop."""
+        if self.cmb_works.currentText() != obra:
+            self.cmb_works.blockSignals(True)
+            idx = self.cmb_works.findText(obra)
+            if idx >= 0:
+                self.cmb_works.setCurrentIndex(idx)
+            self.cmb_works.blockSignals(False)
+        # PM-009: propagar para Gerenciar Projetos se aberto
+        self._sync_project_manager_obra(obra)
+
+    def _sync_project_manager_obra(self, obra: str):
+        """PM-009: Sincroniza a lista de obras no Gerenciar Projetos com a obra ativa."""
+        pm = getattr(self, 'project_manager', None)
+        if pm is None:
+            return
+        try:
+            lw = pm.list_works
+            for i in range(lw.count()):
+                item = lw.item(i)
+                if item and item.data(Qt.UserRole) == obra:
+                    lw.blockSignals(True)
+                    lw.setCurrentItem(item)
+                    lw.blockSignals(False)
+                    pm.load_projects()
+                    break
+        except Exception:
+            pass
+
     def _on_work_changed(self):
         """Filtra os pavimentos baseados na Obra selecionada."""
         work_name = self.cmb_works.currentText()
+        print(f"[WORK_CHANGED] work_name='{work_name}'", flush=True)
         self.cmb_pavements.blockSignals(True)
         self.cmb_pavements.clear()
-        
+
         if not work_name:
             self.cmb_pavements.blockSignals(False)
             return
@@ -708,10 +752,10 @@ class MainWindow(QMainWindow):
 
         # Busca todos os projetos e filtra por 'work_name'
         all_projects = self.db.get_projects()
-        
+
         # Filtra projetos que pertencem a esta Obra
         filtered = [p for p in all_projects if p.get('work_name') == work_name]
-        
+
         for p in filtered:
             display_name = p.get('pavement_name') or p.get('name')
             self.cmb_pavements.addItem(display_name, p['id'])
@@ -719,14 +763,47 @@ class MainWindow(QMainWindow):
         self.cmb_pavements.blockSignals(False)
         self.sync_robots_with_master_context(work_name)
 
+        # CE-005/PM-009: propagar para CE, Reverse Hub e Gerenciar Projetos
+        if hasattr(self, 'comparison_module'):
+            self.comparison_module.fase8_panel.set_obra(work_name)
+        if hasattr(self, 'diagnostic_reverse_module'):
+            self.diagnostic_reverse_module.set_obra(work_name)
+        self._sync_project_manager_obra(work_name)
+
+        # Reverse sync: SA sidebar combo de obras
+        if hasattr(self, 'sa_cmb_obras'):
+            sa_idx = self.sa_cmb_obras.findText(work_name)
+            if sa_idx >= 0 and self.sa_cmb_obras.currentIndex() != sa_idx:
+                self.sa_cmb_obras.blockSignals(True)
+                self.sa_cmb_obras.setCurrentIndex(sa_idx)
+                self.sa_cmb_obras.blockSignals(False)
+
+        # Auto-selecionar primeiro pavimento (blockSignals impediu que currentIndexChanged fosse emitido)
+        if self.cmb_pavements.count() > 0:
+            self._on_pavement_changed()
+
     def _on_pavement_changed(self):
         """Carrega o projeto selecionado (ABRE EM ABA)."""
         idx = self.cmb_pavements.currentIndex()
+        print(f"[PAV_CHANGED] idx={idx} text='{self.cmb_pavements.currentText()}'", flush=True)
         if idx < 0: return
         
         project_id = self.cmb_pavements.itemData(idx)
         project_name = self.cmb_pavements.currentText()
-        
+
+        # Reverse sync: SA sidebar combo de pavimentos (busca por raw_name no userData)
+        if hasattr(self, 'sa_cmb_pavimentos'):
+            sa_pav_idx = -1
+            for _i in range(self.sa_cmb_pavimentos.count()):
+                _d = self.sa_cmb_pavimentos.itemData(_i)
+                if _d and _d[1] == project_name:
+                    sa_pav_idx = _i
+                    break
+            if sa_pav_idx >= 0 and self.sa_cmb_pavimentos.currentIndex() != sa_pav_idx:
+                self.sa_cmb_pavimentos.blockSignals(True)
+                self.sa_cmb_pavimentos.setCurrentIndex(sa_pav_idx)
+                self.sa_cmb_pavimentos.blockSignals(False)
+
         # Notificar Coordenador Central
         get_coordinator().set_pavement(project_id, project_name)
         
@@ -748,29 +825,35 @@ class MainWindow(QMainWindow):
              
              self.sync_robots_with_master_context(work_name, project_name)
 
+    @staticmethod
+    def _tab_label_for(project_name: str) -> str:
+        """Formata o nome da aba com prefixo de nível numérico."""
+        import re as _re
+        m = _re.search(r'[-_](\d{3,5})[-_]', project_name)
+        prefix = f"[{m.group(1)}] " if m else ""
+        return f"{prefix}{project_name}"
+
     def _open_project_tab(self, project_id, project_name):
         """Abre uma nova aba de projeto ou foca na existente."""
-        print(f"DEBUG: _open_project_tab call. PID={project_id}, Name={project_name}")
-        self.log(f"DEBUG: Opening tab for {project_name} ({project_id})")
+        tab_label = self._tab_label_for(project_name)
         # Check if already open
         count = self.project_tabs.count()
         for i in range(count):
-            pid = self.project_tabs.tabToolTip(i) # Store ID in ToolTip or Data
+            pid = self.project_tabs.tabToolTip(i)
             if pid == project_id:
                 self.project_tabs.setCurrentIndex(i)
-                # self._on_project_tab_clicked(i) # Clicked signal usually handles load
-                # But setCurrentIndex doesn't trigger tabBarClicked
                 self._load_project_into_view(project_id)
                 return
 
         # Create new tab
-        self.project_tabs.blockSignals(True) # Evitar sinal prematuro antes do ToolTip ser setado
+        self.project_tabs.blockSignals(True)
         try:
             page = QWidget()
-            idx = self.project_tabs.addTab(page, project_name)
+            idx = self.project_tabs.addTab(page, tab_label)
             pid_str = str(project_id)
             self.project_tabs.setTabToolTip(idx, pid_str)
             self.project_tabs.setCurrentIndex(idx)
+            self.project_tabs.show()   # exibe o painel de abas agora que tem conteúdo
         finally:
             self.project_tabs.blockSignals(False)
         
@@ -791,6 +874,12 @@ class MainWindow(QMainWindow):
         if project_id != self.active_project_id:
              self._load_project_into_view(project_id)
 
+    def _on_project_tab_close_and_hide(self, index):
+        """Fecha aba e esconde o painel quando não resta nenhuma aba aberta."""
+        self._on_project_tab_close(index)
+        if self.project_tabs.count() == 0:
+            self.project_tabs.hide()
+
     def _on_project_tab_close(self, index):
         """Fecha a aba do projeto."""
         if index < 0: return
@@ -798,18 +887,25 @@ class MainWindow(QMainWindow):
         # This triggers _on_project_tab_changed automatically.
         # Just remove.
         self.project_tabs.removeTab(index)
-        
+
         # If no tabs left? Clear UI
         if self.project_tabs.count() == 0:
             self.active_project_id = None
             self.current_project_id = None
-            # TODO: Clear lists to show empty state
-            self.list_pillars.clear()
-            self.list_beams.clear()
-            self.list_slabs.clear()
-            # self.canvas.clear() ?
+            self._show_lists_empty_state()
             return
-            
+
+    def _show_lists_empty_state(self, message: str = "Nenhum projeto aberto"):
+        """Limpa as listas de análise e exibe placeholder de estado vazio."""
+        for tree in (self.list_pillars, self.list_beams, self.list_slabs):
+            tree.clear()
+            placeholder = QTreeWidgetItem([message])
+            placeholder.setFlags(Qt.ItemFlag.NoItemFlags)
+            placeholder.setForeground(0, QColor(Colors.TEXT_MUTED))
+            tree.addTopLevelItem(placeholder)
+        if hasattr(self, 'list_issues'):
+            self.list_issues.clear()
+
     def _load_project_into_view(self, project_id):
         """Carrega efetivamente o projeto ID na View Unica (com Cache Swap)."""
         print(f"DEBUG: _load_project_into_view called with PID={project_id}. Current Name={self.current_project_name}")
@@ -894,7 +990,22 @@ class MainWindow(QMainWindow):
 
         # 5. Atualizar Top Bar UI para refletir o projeto carregado (Fundamental para sync de abas)
         self._update_top_bar_UI(project_id)
-        
+
+        # Atualizar pipeline status bar
+        self._refresh_pipeline_status()
+
+        # Sincronizar Tab 2 (Fase-8) com a obra ativa
+        if hasattr(self, 'comparison_module') and self.comparison_module:
+            try:
+                proj = self.db.get_project_by_id(project_id)
+                if proj:
+                    self.comparison_module.fase8_panel.set_obra(
+                        proj.get('work_name', ''),
+                        proj.get('pavement_name', ''),
+                    )
+            except Exception:
+                pass
+
         # 6. Atualizar documentos no ProjectManager se estiver aberto
         if hasattr(self, 'project_manager') and self.project_manager:
             if hasattr(self.project_manager, 'current_project_id') and self.project_manager.current_project_id != project_id:
@@ -984,20 +1095,185 @@ class MainWindow(QMainWindow):
         # --- LADO ESQUERDO: GESTÃO DE ITENS ---
         self.left_panel = QWidget()
         self.left_panel.setObjectName("Sidebar")
-        self.left_panel.setFixedWidth(365)
+        self.left_panel.setFixedWidth(345)
         left_layout = QVBoxLayout(self.left_panel)
-        left_layout.setSpacing(10)
-        
-        # (Resto do código do painel esquerdo...)
-        
-        # 0. Botão Gerenciar Projetos (Removido daqui, foi para TopBar, mas mantemos lógica se precisar)
-        # Na verdade, removemos visualmente do painel esquerdo pois já está no TopBar.
-        
-        # 1. Inputs de Metadados (Removidos para TopBar)
-        # 1. Widgets Removidos (Movicdos para TopBar)
-        # self.meta_widget (Levels) -> TopBar
-        # self.progress_container -> TopBar
-        
+        left_layout.setContentsMargins(6, 6, 6, 6)
+        left_layout.setSpacing(3)
+
+        # ── Painel de Contexto: Obra / Pavimento / Níveis ────────────────────
+        _SS_COMBO = f"""
+            QComboBox {{
+                background: {Colors.BG_CARD}; color: {Colors.TEXT_PRIMARY};
+                border: 1px solid {Colors.BORDER_DEFAULT}; border-radius: 3px;
+                padding: 2px 5px; font-size: 10px; max-height: 20px;
+            }}
+            QComboBox:hover {{ border-color: {Colors.ACCENT_PRIMARY}; }}
+            QComboBox::drop-down {{ border: none; width: 16px; }}
+            QComboBox QAbstractItemView {{
+                background: {Colors.BG_CARD}; color: {Colors.TEXT_PRIMARY};
+                selection-background-color: {Colors.ACCENT_BLUE};
+            }}
+        """
+        _SS_EDIT = f"""
+            QLineEdit {{
+                background: {Colors.BG_CARD}; color: {Colors.TEXT_PRIMARY};
+                border: 1px solid {Colors.BORDER_DEFAULT}; border-radius: 3px;
+                padding: 2px 4px; font-size: 10px; max-height: 20px;
+            }}
+            QLineEdit:focus {{ border-color: {Colors.ACCENT_PRIMARY}; }}
+        """
+
+        ctx_frame = QFrame()
+        ctx_frame.setObjectName("SAContextFrame")
+        ctx_frame.setStyleSheet(f"""
+            QFrame#SAContextFrame {{
+                background: {Colors.BG_SECONDARY};
+                border: 1px solid {Colors.BORDER_DEFAULT};
+                border-radius: 4px;
+            }}
+        """)
+        ctx_lay = QVBoxLayout(ctx_frame)
+        ctx_lay.setContentsMargins(7, 4, 7, 5)
+        ctx_lay.setSpacing(3)
+
+        _lbl_sec = QLabel("OBRA  &  PAVIMENTO")
+        _lbl_sec.setStyleSheet(
+            f"color: {Colors.TEXT_MUTED}; font-size: 9px; font-weight: bold; letter-spacing: 1px;"
+        )
+        ctx_lay.addWidget(_lbl_sec)
+
+        self.sa_cmb_obras = QComboBox()
+        self.sa_cmb_obras.setPlaceholderText("Selecione a Obra...")
+        self.sa_cmb_obras.setStyleSheet(_SS_COMBO)
+        try:
+            _works = self.db.get_all_works()
+            self.sa_cmb_obras.addItems(_works)
+        except Exception:
+            pass
+        ctx_lay.addWidget(self.sa_cmb_obras)
+
+        self.sa_cmb_pavimentos = QComboBox()
+        self.sa_cmb_pavimentos.setPlaceholderText("Selecione o Pavimento...")
+        self.sa_cmb_pavimentos.setStyleSheet(_SS_COMBO)
+        ctx_lay.addWidget(self.sa_cmb_pavimentos)
+
+        _niveis_row = QHBoxLayout()
+        _niveis_row.setSpacing(6)
+        _lbl_cheg = QLabel("Cheg.:")
+        _lbl_cheg.setStyleSheet(f"color: {Colors.TEXT_SECONDARY}; font-size: 10px;")
+        self.sa_edit_nivel_cheg = QLineEdit("0.00")
+        self.sa_edit_nivel_cheg.setFixedWidth(60)
+        self.sa_edit_nivel_cheg.setStyleSheet(_SS_EDIT)
+        _lbl_saida = QLabel("Saída:")
+        _lbl_saida.setStyleSheet(f"color: {Colors.TEXT_SECONDARY}; font-size: 10px;")
+        self.sa_edit_nivel_saida = QLineEdit("3.00")
+        self.sa_edit_nivel_saida.setFixedWidth(60)
+        self.sa_edit_nivel_saida.setStyleSheet(_SS_EDIT)
+        _niveis_row.addWidget(_lbl_cheg)
+        _niveis_row.addWidget(self.sa_edit_nivel_cheg)
+        _niveis_row.addStretch()
+        _niveis_row.addWidget(_lbl_saida)
+        _niveis_row.addWidget(self.sa_edit_nivel_saida)
+        ctx_lay.addLayout(_niveis_row)
+
+        left_layout.addWidget(ctx_frame)
+
+        # ── Sync helpers ──────────────────────────────────────────────────────
+        import re as _re
+
+        def _pav_card_label(name: str) -> str:
+            """Extrai nível numérico do nome e formata como card prefix."""
+            m = _re.search(r'[-_](\d{3,5})[-_]', name)
+            if m:
+                return f"[{m.group(1)}]  {name}"
+            return f"■  {name}"
+
+        def _sa_populate_pavimentos(obra_name: str):
+            self.sa_cmb_pavimentos.blockSignals(True)
+            self.sa_cmb_pavimentos.clear()
+            try:
+                for p in self.db.get_projects():
+                    if (p.get('work_name') or '') == obra_name:
+                        nm = p.get('pavement_name') or p.get('name') or ''
+                        display = _pav_card_label(nm)
+                        # userData = (project_id, raw_name) para busca precisa
+                        self.sa_cmb_pavimentos.addItem(display, (p['id'], nm))
+            except Exception:
+                pass
+            self.sa_cmb_pavimentos.blockSignals(False)
+
+        # Store for reverse-sync
+        self._sa_populate_pavimentos = _sa_populate_pavimentos
+
+        def _on_sa_obra_changed():
+            obra = self.sa_cmb_obras.currentText()
+            if not obra:
+                return
+            # Popula SA primeiro, depois sincroniza top bar
+            _sa_populate_pavimentos(obra)
+            top_idx = self.cmb_works.findText(obra)
+            if top_idx >= 0 and self.cmb_works.currentIndex() != top_idx:
+                self.cmb_works.setCurrentIndex(top_idx)
+
+        def _on_sa_pav_changed():
+            data = self.sa_cmb_pavimentos.currentData()
+            if not data:
+                return
+            project_id, raw_name = data
+
+            # Sincroniza top bar pelo nome raw
+            top_idx = self.cmb_pavements.findText(raw_name)
+            if top_idx >= 0:
+                if self.cmb_pavements.currentIndex() != top_idx:
+                    # Signal _on_pavement_changed dispara e carrega DXF
+                    self.cmb_pavements.setCurrentIndex(top_idx)
+                else:
+                    # Mesmo índice: signal não re-dispara, forçar carga
+                    self._open_project_tab(project_id, raw_name)
+            else:
+                # Não encontrou no top bar — carrega direto pelo project_id
+                self.log(f"[SA] Forçando carregamento via combo: {raw_name}")
+                obra = self.sa_cmb_obras.currentText()
+                self.sync_robots_with_master_context(obra, raw_name, project_id)
+                self._open_project_tab(project_id, raw_name)
+
+        def _on_sa_nivel_cheg():
+            v = self.sa_edit_nivel_cheg.text()
+            if self.edit_level_arr.text() != v:
+                self.edit_level_arr.setText(v)
+                self.save_project_metadata()
+
+        def _on_sa_nivel_saida():
+            v = self.sa_edit_nivel_saida.text()
+            if self.edit_level_exit.text() != v:
+                self.edit_level_exit.setText(v)
+                self.save_project_metadata()
+
+        self.sa_cmb_obras.currentIndexChanged.connect(lambda _: _on_sa_obra_changed())
+        self.sa_cmb_pavimentos.currentIndexChanged.connect(lambda _: _on_sa_pav_changed())
+        self.sa_edit_nivel_cheg.editingFinished.connect(_on_sa_nivel_cheg)
+        self.sa_edit_nivel_saida.editingFinished.connect(_on_sa_nivel_saida)
+
+        # ── Separador visual ──────────────────────────────────────────────────
+        _sep = QFrame()
+        _sep.setFrameShape(QFrame.HLine)
+        _sep.setFixedHeight(1)
+        _sep.setStyleSheet(f"background: {Colors.BORDER_DEFAULT}; border: none;")
+        left_layout.addWidget(_sep)
+
+        # ── Tipo Geral de Vigas (redesign DS) ────────────────────────────────
+        _vigas_frame = QFrame()
+        _vigas_frame.setStyleSheet(f"""
+            QFrame {{
+                background: {Colors.BG_SECONDARY};
+                border: 1px solid {Colors.BORDER_DEFAULT};
+                border-radius: 4px;
+            }}
+        """)
+        _vigas_lay = QHBoxLayout(_vigas_frame)
+        _vigas_lay.setContentsMargins(6, 3, 6, 3)
+        _vigas_lay.setSpacing(6)
+
         # 1.5. Round Buttons Gerais - Tipo de Vigas (Visibilidade Constante)
         h_radio_layout_geral = QHBoxLayout()
         h_radio_layout_geral.setContentsMargins(0, 0, 0, 5)
@@ -1032,35 +1308,117 @@ class MainWindow(QMainWindow):
         self.rb_vigas_passam.toggled.connect(on_tipo_geral_changed)
         self.rb_vigas_param.toggled.connect(on_tipo_geral_changed)
         
-        h_radio_layout_geral.addWidget(self.rb_vigas_passam)
-        h_radio_layout_geral.addWidget(self.rb_vigas_param)
-        h_radio_layout_geral.addStretch()
-        
-        left_layout.addLayout(h_radio_layout_geral)
-        
-        # 2. Botão de Análise (Imediatamente acima do Salvar)
+        _vigas_lay.addWidget(lbl_radio_geral)
+        _vigas_lay.addWidget(self.rb_vigas_passam)
+        _vigas_lay.addWidget(self.rb_vigas_param)
+        _vigas_lay.addStretch()
+        left_layout.addWidget(_vigas_frame)
+
+        # ── Seção: Ações de Análise ───────────────────────────────────────────
+        _lbl_acoes = QLabel("ANÁLISE")
+        _lbl_acoes.setStyleSheet(
+            f"color: {Colors.TEXT_MUTED}; font-size: 9px; font-weight: bold;"
+            " letter-spacing: 1px; margin-top: 2px;"
+        )
+        left_layout.addWidget(_lbl_acoes)
+
+        _BTN_H = "max-height: 22px; min-height: 20px; padding: 2px 6px; font-size: 10px; border-radius: 3px;"
 
         self.btn_process = QPushButton("🚀 Iniciar Análise Geral")
-        self.btn_process.setObjectName("Primary") # Destaque visual
-        self.btn_process.setStyleSheet("padding: 4px; font-size: 11px; height: 18px;")
+        self.btn_process.setObjectName("btn_iniciar_analise")
+        self.btn_process.setAccessibleName("Iniciar Analise")
+        self.btn_process.setToolTip(
+            "Analisa o DXF carregado e detecta pilares, vigas e lajes.\n"
+            "Requer DXF carregado no Tab 0 (Diagnostic Hub).\n"
+            "Alternativa: use '▶ Interpretar DXF' no Tab 0 para dados Fase-3."
+        )
+        self.btn_process.setStyleSheet(
+            f"{_BTN_H} background: {Colors.ACCENT_BLUE}; color: #fff;"
+            f" border: none;"
+        )
         self.btn_process.clicked.connect(self.process_pillars_action)
         left_layout.addWidget(self.btn_process)
 
-        # 2b. Botão Gerenciar Memória (Removido)
-        # self.btn_mem removed (User request)
+        self.btn_process_with_context = QPushButton("🧠 Interpretar com Contexto")
+        self.btn_process_with_context.setObjectName("btn_interpretar_contexto")
+        self.btn_process_with_context.setToolTip(
+            "Roda a análise com pré-contexto da Ficha da Obra e RAG semântico.\n"
+            "Requer Ficha gerada (Tab 1 → Processar Todos)."
+        )
+        self.btn_process_with_context.setStyleSheet(
+            f"{_BTN_H} background: #1a3a2a; color: #5dcfa0;"
+            f" border: 1px solid #2d6a4a;"
+        )
+        self.btn_process_with_context.clicked.connect(self._process_with_obra_context)
+        left_layout.addWidget(self.btn_process_with_context)
 
-        # 2c. Botão Refresh Dados (Manual)
         self.btn_refresh_data = QPushButton("🔄 Atualizar Listas")
         self.btn_refresh_data.setObjectName("Secondary")
         self.btn_refresh_data.setToolTip("Recarregar dados do projeto e atualizar listas (Pillars, Beams, Slabs)")
-        self.btn_refresh_data.setStyleSheet("padding: 4px; font-size: 11px; height: 18px;")
+        self.btn_refresh_data.setStyleSheet(
+            f"{_BTN_H} background: {Colors.BG_CARD}; color: {Colors.TEXT_SECONDARY};"
+            f" border: 1px solid {Colors.BORDER_DEFAULT};"
+        )
         self.btn_refresh_data.clicked.connect(self.refresh_lists_action)
         left_layout.addWidget(self.btn_refresh_data)
 
+        self.btn_fase4_sync = QPushButton("⚙ Fase-4: Sincronizar")
+        self.btn_fase4_sync.setToolTip(
+            "Roda motor_fase4.py — transforma dados Fase-3 para formato dos robôs\n"
+            "Necessário antes de usar os Robôs (Tabs 3-6)"
+        )
+        self.btn_fase4_sync.setStyleSheet(
+            f"{_BTN_H} background: #1a3a5c; color: #7ab3e0; border: 1px solid #2a5a8c;"
+        )
+        self.btn_fase4_sync.clicked.connect(self._run_fase4_sync)
+        left_layout.addWidget(self.btn_fase4_sync)
+
+        # 2e. Log inline SA — colapsável
+        from PySide6.QtWidgets import QTextEdit as _QTextEdit
+        self.sa_inline_log = _QTextEdit()
+        self.sa_inline_log.setReadOnly(True)
+        self.sa_inline_log.setFixedHeight(48)
+        self.sa_inline_log.setStyleSheet(
+            f"background: {Colors.BG_DEEP}; color: {Colors.TEXT_DIM}; "
+            f"border: 1px solid {Colors.BORDER_SUBTLE}; border-radius: 3px; "
+            f"font-size: {Fonts.SIZE_XS}; font-family: {Fonts.FAMILY_MONO};"
+        )
+        self.sa_inline_log.setPlaceholderText("log SA...")
+        self.sa_inline_log.setVisible(False)  # oculto por padrão
+
+        _h_log_btns = QHBoxLayout()
+        _h_log_btns.setContentsMargins(0, 0, 0, 0)
+        _btn_toggle_log = QPushButton("▸ Log")
+        _btn_toggle_log.setFixedHeight(16)
+        _btn_toggle_log.setStyleSheet(
+            f"background: transparent; color: {Colors.TEXT_MUTED}; "
+            f"border: none; font-size: {Fonts.SIZE_XS}; padding: 0 4px; text-align: left;"
+        )
+        def _toggle_log():
+            vis = not self.sa_inline_log.isVisible()
+            self.sa_inline_log.setVisible(vis)
+            _btn_toggle_log.setText("▾ Log" if vis else "▸ Log")
+        _btn_toggle_log.clicked.connect(_toggle_log)
+
+        _btn_clear_log = QPushButton("limpar")
+        _btn_clear_log.setFixedHeight(16)
+        _btn_clear_log.setStyleSheet(
+            f"background: transparent; color: {Colors.TEXT_MUTED}; "
+            f"border: none; font-size: {Fonts.SIZE_XS}; padding: 0 4px;"
+        )
+        _btn_clear_log.clicked.connect(lambda: self.sa_inline_log.clear())
+        _h_log_btns.addWidget(_btn_toggle_log)
+        _h_log_btns.addStretch()
+        _h_log_btns.addWidget(_btn_clear_log)
+        left_layout.addLayout(_h_log_btns)
+        left_layout.addWidget(self.sa_inline_log)
+
         # 3. Botão Salvar
-        self.btn_save = QPushButton("Salvar")
+        self.btn_save = QPushButton("💾 Salvar Projeto")
         self.btn_save.setObjectName("Success")
-        self.btn_save.setStyleSheet("padding: 4px; font-size: 11px; height: 18px;")
+        self.btn_save.setStyleSheet(
+            f"{_BTN_H} background: {Colors.ACCENT_SUCCESS}; color: #fff; border: none;"
+        )
         self.btn_save.clicked.connect(self.save_project_action)
         left_layout.addWidget(self.btn_save)
 
@@ -1135,25 +1493,30 @@ class MainWindow(QMainWindow):
             h_layout = QHBoxLayout()
             h_layout.setContentsMargins(0,0,0,0)
             
+            _UTIL_BTN = "max-height: 20px; min-height: 18px; padding: 1px 6px; font-size: 10px; border-radius: 3px;"
             # Botão Excluir Item
-            btn_delete = QPushButton("🗑️ Excluir Item")
-            btn_delete.setStyleSheet("background-color: #ffcccc; color: #cc0000; border: 1px solid #ff9999; padding: 2px; font-size: 10px; height: 18px;")
+            btn_delete = QPushButton("🗑 Excluir")
+            btn_delete.setStyleSheet(f"{_UTIL_BTN} background: #331111; color: #e07070; border: 1px solid #552222;")
+            btn_delete.setToolTip("Excluir item selecionado")
             btn_delete.clicked.connect(lambda: self.delete_item_action(list_widget, item_type, is_library))
             h_layout.addWidget(btn_delete)
 
             # Botão Criar Novo Item (padrão)
             scope_name = "Lib" if is_library else "Análise"
-            btn_create = QPushButton(f"➕ Criar Novo Item ({scope_name})")
-            btn_create.setStyleSheet("padding: 2px; font-size: 10px; height: 18px;")
+            btn_create = QPushButton(f"➕ Novo ({scope_name})")
+            btn_create.setStyleSheet(f"{_UTIL_BTN} background: {Colors.BG_CARD}; color: {Colors.TEXT_SECONDARY}; border: 1px solid {Colors.BORDER_DEFAULT};")
+            btn_create.setToolTip(f"Criar novo item ({scope_name})")
             btn_create.clicked.connect(lambda: self.create_manual_item(is_library=is_library))
             h_layout.addWidget(btn_create)
             
             layout.addLayout(h_layout)
 
+            _ROBO_BTN = "max-height: 22px; min-height: 20px; padding: 2px 6px; font-size: 10px; font-weight: bold; border-radius: 3px; border: none;"
+
             # Botão Sincronizar Robo Laje (apenas para Laje na aba de Análise)
             if item_type == 'slab' and not is_library:
                 btn_sync_robo = QPushButton("🤖 Sincronizar Robo Laje")
-                btn_sync_robo.setStyleSheet("background-color: #6610f2; color: white; padding: 4px; font-weight: bold; font-size: 10px;")
+                btn_sync_robo.setStyleSheet(f"{_ROBO_BTN} background: #4a1d96; color: #d4b8ff;")
                 btn_sync_robo.setToolTip("Envia as lajes desta lista para o módulo Robo Lajes, calculando a geometria unificada (Marco + Extensões).")
                 btn_sync_robo.clicked.connect(self.sync_slabs_to_robo_laje_action)
                 layout.addWidget(btn_sync_robo)
@@ -1161,19 +1524,19 @@ class MainWindow(QMainWindow):
             # Botão Sincronizar Robo Vigas (apenas para Vigas na aba de Análise)
             if item_type == 'beam' and not is_library:
                 btn_laterais = QPushButton("🤖 Sincronizar Laterais de Vigas")
-                btn_laterais.setStyleSheet("background-color: #6610f2; color: white; padding: 4px; font-weight: bold; font-size: 10px;")
+                btn_laterais.setStyleSheet(f"{_ROBO_BTN} background: #4a1d96; color: #d4b8ff;")
                 btn_laterais.clicked.connect(self.sync_beams_to_laterais_action)
                 layout.addWidget(btn_laterais)
 
                 btn_fundo = QPushButton("🤖 Sincronizar Fundo de Vigas")
-                btn_fundo.setStyleSheet("background-color: #6610f2; color: white; padding: 4px; font-weight: bold; font-size: 10px;")
+                btn_fundo.setStyleSheet(f"{_ROBO_BTN} background: #4a1d96; color: #d4b8ff;")
                 btn_fundo.clicked.connect(self.sync_beams_to_fundo_action)
                 layout.addWidget(btn_fundo)
 
             # Botão Sincronizar Robo Pilares (apenas para Pilar na aba de Análise)
             if item_type == 'pillar' and not is_library:
                 btn_sync_pilar = QPushButton("🤖 Sincronizar Robo Pilares")
-                btn_sync_pilar.setStyleSheet("background-color: #6610f2; color: white; padding: 4px; font-weight: bold; font-size: 10px;")
+                btn_sync_pilar.setStyleSheet(f"{_ROBO_BTN} background: #4a1d96; color: #d4b8ff;")
                 btn_sync_pilar.setToolTip("Envia os pilares desta lista para o módulo Robo Pilares, calculando dimensões e níveis automaticamente.")
                 btn_sync_pilar.clicked.connect(self.sync_pillars_to_robo_pilares_action)
                 layout.addWidget(btn_sync_pilar)
@@ -1181,7 +1544,7 @@ class MainWindow(QMainWindow):
             # Botão Criar Comando LISP (apenas na aba de Análise)
             if not is_library:
                 btn_create_lisp = QPushButton("📜 Criar Comando LISP")
-                btn_create_lisp.setStyleSheet("background-color: #28a745; color: white; padding: 4px; font-weight: bold; font-size: 10px;")
+                btn_create_lisp.setStyleSheet(f"{_ROBO_BTN} background: #155724; color: #8ddbad;")
                 btn_create_lisp.setToolTip("Cria os arquivos comando_LAZ.lsp e script_LAZ.scr para execução no AutoCAD.")
                 btn_create_lisp.clicked.connect(lambda: self._create_laz_command_files())
                 layout.addWidget(btn_create_lisp)
@@ -1196,9 +1559,9 @@ class MainWindow(QMainWindow):
         self.tabs_analysis_internal = QTabWidget()
         self.tabs_analysis_internal.setStyleSheet(STYLE_TABS)
         self.list_pillars = QTreeWidget()
-        self.list_pillars.setHeaderLabels(["Item", "Nome", "Status"]) 
+        self.list_pillars.setHeaderLabels(["Item", "Nome", "Status"])
         self.list_pillars.setColumnWidth(0, 50)
-        self.list_pillars.setColumnWidth(1, 150)
+        self.list_pillars.setColumnWidth(1, 190)  # +40px para badge B/H (ex: "P1  46×56 ✓")
         self.list_pillars.setColumnWidth(2, 60)
 
         self.list_beams = QTreeWidget()
@@ -1239,7 +1602,10 @@ class MainWindow(QMainWindow):
         self.tabs_analysis_internal.addTab(create_tab_container(self.list_beams, 'beam', False), "Vigas")
         self.tabs_analysis_internal.addTab(create_tab_container(self.list_slabs, 'slab', False), "Lajes")
         self.tabs_analysis_internal.addTab(self.list_issues, "⚠️ Pendências")
-        
+
+        # Estado vazio inicial (antes de qualquer projeto ser aberto)
+        self._show_lists_empty_state("Selecione ou abra um projeto")
+
         # Conectar mudança de aba interna (Análise)
         self.tabs_analysis_internal.currentChanged.connect(self._on_analysis_tab_changed)
         
@@ -1256,7 +1622,7 @@ class MainWindow(QMainWindow):
         self.list_pillars_valid = QTreeWidget()
         self.list_pillars_valid.setHeaderLabels(["Item", "Nome", "Status"])
         self.list_pillars_valid.setColumnWidth(0, 50)
-        self.list_pillars_valid.setColumnWidth(1, 150)
+        self.list_pillars_valid.setColumnWidth(1, 190)  # +40px para badge B/H
         self.list_pillars_valid.setColumnWidth(2, 60)
 
         self.list_beams_valid = QTreeWidget()
@@ -1497,9 +1863,9 @@ class MainWindow(QMainWindow):
             if hasattr(self, 'robo_laje') and self.robo_laje is not None and hasattr(self.robo_laje, 'laje_tab'):
                 # Trocar para a aba do Robo Laje para visualização do processo
                 if hasattr(self, 'module_tabs'):
-                    self.module_tabs.setCurrentIndex(6)  # Robo Laje é a 7ª aba (índice 6)
+                    self.module_tabs.setCurrentIndex(8)  # Robo Laje é a 9ª aba (índice 8)
                 if hasattr(self, 'module_stack'):
-                    self.module_stack.setCurrentIndex(6)  # Robo Laje é o 7º módulo (índice 6)
+                    self.module_stack.setCurrentIndex(8)  # Robo Laje é o 9º módulo (índice 8)
                 
                 # Forçar atualização da tabela
                 if hasattr(self.robo_laje, 'pavimentos_widget'):
@@ -1969,14 +2335,30 @@ class MainWindow(QMainWindow):
                 self.robo_pilares.vm.current_pavimento.pilares = novos_pilares_robo
                 
                 # Trocar para a aba do Robo Pilares ANTES de processar
-                self.module_tabs.setCurrentIndex(3)
-                self.module_stack.setCurrentIndex(3)
+                self.module_tabs.setCurrentIndex(5)
+                self.module_stack.setCurrentIndex(5)
                 QApplication.processEvents()
                 
-                # Processar cada pilar passo a passo
+                # Processar cada pilar passo a passo (ROBUSTEZ-02: progress bar)
                 processados = 0
                 total = len(novos_pilares_robo)
-                
+
+                from PySide6.QtWidgets import QProgressBar as _QProgressBar
+                _sync_progress = _QProgressBar()
+                _sync_progress.setRange(0, total)
+                _sync_progress.setValue(0)
+                _sync_progress.setFormat("Processando %v/%m")
+                _sync_progress.setStyleSheet(
+                    f"QProgressBar {{ background: {Colors.BG_CARD}; border: 1px solid {Colors.BORDER_DEFAULT}; "
+                    f"border-radius: 3px; text-align: center; color: {Colors.TEXT_PRIMARY}; "
+                    f"font-size: {Fonts.SIZE_SM}; height: 16px; }}"
+                    f"QProgressBar::chunk {{ background: {Colors.ACCENT_PRIMARY}; border-radius: 2px; }}"
+                )
+                # Insert progress bar at top of left_layout if available
+                if hasattr(self, 'left_panel') and self.left_panel.layout():
+                    self.left_panel.layout().insertWidget(0, _sync_progress)
+                QApplication.processEvents()
+
                 for idx, pilar in enumerate(novos_pilares_robo):
                     try:
                         print(f"\n[sync_pillars] === Processando pilar {idx+1}/{total}: {pilar.nome} ===")
@@ -2029,6 +2411,9 @@ class MainWindow(QMainWindow):
                             traceback.print_exc()
                         
                         processados += 1
+                        _sync_progress.setValue(processados)
+                        _sync_progress.setFormat(f"Processando {pilar.nome} ({processados}/{total})")
+                        QApplication.processEvents()
                         print(f"  ✅✅ Pilar {pilar.nome} processado completamente ({processados}/{total})")
                         
                     except Exception as e:
@@ -2037,6 +2422,10 @@ class MainWindow(QMainWindow):
                         traceback.print_exc()
                         continue
                 
+                # Hide progress bar (ROBUSTEZ-02)
+                _sync_progress.hide()
+                _sync_progress.deleteLater()
+
                 # Notificar mudança no pavimento após todos os pilares serem processados
                 self.robo_pilares.vm.notify_property_changed("current_pavimento", self.robo_pilares.vm.current_pavimento)
                 QApplication.processEvents()
@@ -2082,64 +2471,176 @@ class MainWindow(QMainWindow):
         self.project_tabs.setObjectName("ProjectTabs")
         self.project_tabs.setTabsClosable(True)
         self.project_tabs.setMovable(True)
-        self.project_tabs.setStyleSheet("background: #0c0c10; border: none;")
-        self.project_tabs.setFixedHeight(35)
-        
+        self.project_tabs.setStyleSheet(f"background: {Colors.BG_DEEP}; border: none;")
+        self.project_tabs.setFixedHeight(28)
+        self.project_tabs.hide()   # Oculto até que alguma aba de projeto seja aberta
+
         # Conectar Sinais
         self.project_tabs.currentChanged.connect(self._on_project_tab_changed)
-        self.project_tabs.tabCloseRequested.connect(self._on_project_tab_close)
-        
+        self.project_tabs.tabCloseRequested.connect(self._on_project_tab_close_and_hide)
+
         root_layout.addWidget(self.project_tabs)
 
         # 2. Navegação de Módulos (Abas Superiores)
         self.module_tabs = QTabBar()
         self.module_tabs.setObjectName("ModuleNav")
         self.module_tabs.setDrawBase(False)
-        self.module_tabs.addTab("Diagnostic Hub (Pré)") # 1. Pre
-        self.module_tabs.addTab("Structural Analyzer")  # 2. Current
-        self.module_tabs.addTab("Comparison Engine (Pós)") # 3. Post (Comparison)
-        self.module_tabs.addTab("Robo Pilares")
-        self.module_tabs.addTab("Robo Laterais de Viga")
-        self.module_tabs.addTab("Robo Fundo de Vigas")
-        self.module_tabs.addTab("Robo Laje")
-        
-        # Container para abas (bg color)
+        self.module_tabs.setStyleSheet(f"""
+            QTabBar#ModuleNav::tab {{
+                background: {Colors.BG_DEEP};
+                color: {Colors.TEXT_SECONDARY};
+                padding: 4px 16px;
+                font-size: 11px;
+                font-weight: 500;
+                border: none;
+                border-right: 1px solid {Colors.BORDER_DEFAULT};
+                min-width: 60px;
+                height: 28px;
+            }}
+            QTabBar#ModuleNav::tab:selected {{
+                background: {Colors.BG_SECONDARY};
+                color: {Colors.ACCENT_PRIMARY};
+                border-bottom: 2px solid {Colors.ACCENT_PRIMARY};
+            }}
+            QTabBar#ModuleNav::tab:hover:!selected {{
+                background: {Colors.BG_HOVER};
+                color: {Colors.TEXT_PRIMARY};
+            }}
+        """)
+        # Tab 0 — FASE 1
+        self.module_tabs.addTab("Gerenciar Projetos")          # 0
+        # Tab 1 — FASE 2
+        self.module_tabs.addTab("Diagnostic Hub (Pré)")        # 1
+        # Tab 2 — FASE 2.5 (Engenharia Reversa)
+        self.module_tabs.addTab("Diagnostic Reverse Hub")      # 2
+        # Tab 3 — FASE 3
+        self.module_tabs.addTab("Structural Analyzer")         # 3
+        # Tab 4 — FASES 7+8
+        self.module_tabs.addTab("Comparison Engine (Pós)")     # 4
+        # Tabs 5-8 — FASES 4,5,6
+        self.module_tabs.addTab("Robo Pilares")                # 5
+        self.module_tabs.addTab("Robo Laterais de Viga")       # 6
+        self.module_tabs.addTab("Robo Fundo de Vigas")         # 7
+        self.module_tabs.addTab("Robo Laje")                   # 8
+
+        # Tooltips dos módulos
+        self.module_tabs.setTabToolTip(0, "Fase 1 — Ingestão: Cadastro de obras, importação de DXFs e documentos.")
+        self.module_tabs.setTabToolTip(1, "Fase 2 — Triagem: Separação estrutural/detalhes, recorte e limpeza de DXFs.")
+        self.module_tabs.setTabToolTip(2, "Fase 2.5 — Engenharia Reversa: Motor Reverso granular STOG→Ficha (N2), aprovação e alimentação do CE.")
+        self.module_tabs.setTabToolTip(3, "Fase 3 — Interpretação Semântica: Leitura dos DXFs limpos e geração de fichas.")
+        self.module_tabs.setTabToolTip(4, "Fases 7+8 — Validação: N1=Estrutura Real | N2=STOG Eng.Rev. | N3=Robot via Ficha SA | N4=Robot via Ficha Eng.Rev.")
+        self.module_tabs.setTabToolTip(5, "Fases 4,5,6 — Robô Pilares: gera DXF STOG para pilares (PL).")
+        self.module_tabs.setTabToolTip(6, "Fases 4,5,6 — Robô Laterais de Viga (LV): gera faces laterais em DXF STOG.")
+        self.module_tabs.setTabToolTip(7, "Fases 4,5,6 — Robô Fundo de Vigas (FV): gera fundo/sofito das vigas.")
+        self.module_tabs.setTabToolTip(8, "Fases 4,5,6 — Robô Laje (LJ): gera painéis de laje em DXF STOG.")
+
+        # ── Faixa de Fase (acima das tabs) ──────────────────────────
+        # Descreve a fase ativa para clareza do operador
+        _FASE_DESCS = {
+            0: "FASE 1  ·  INGESTÃO  —  Cadastro de obras, importação de DXFs e documentos estruturais",
+            1: "FASE 2  ·  TRIAGEM  —  Separação estrutural/detalhes, recorte e limpeza de DXFs",
+            2: "FASE 2.5  ·  ENGENHARIA REVERSA  —  Motor Reverso granular STOG→Ficha (N2) | Aprovação → alimenta CE Aba 2",
+            3: "FASE 3  ·  INTERPRETAÇÃO SEMÂNTICA  —  Leitura dos DXFs limpos e geração de fichas por elemento",
+            4: "FASES 7+8  ·  VALIDAÇÃO  —  N1=Estrutura Real | N2=STOG Eng.Rev. | N3=Robot via Ficha SA | N4=Robot via Ficha Eng.Rev.",
+            5: "FASES 4-6  ·  GERAÇÃO GRANULAR  —  Transformação das fichas em SCR/DXF: Robô Pilares",
+            6: "FASES 4-6  ·  GERAÇÃO GRANULAR  —  Transformação das fichas em SCR/DXF: Robô Laterais de Viga",
+            7: "FASES 4-6  ·  GERAÇÃO GRANULAR  —  Transformação das fichas em SCR/DXF: Robô Fundo de Vigas",
+            8: "FASES 4-6  ·  GERAÇÃO GRANULAR  —  Transformação das fichas em SCR/DXF: Robô Laje",
+        }
+        self._fase_desc_bar = QFrame()
+        self._fase_desc_bar.setFixedHeight(18)
+        self._fase_desc_bar.setStyleSheet(
+            "background: #060e1a; border-bottom: 1px solid #0f2040;"
+        )
+        _fdb_lay = QHBoxLayout(self._fase_desc_bar)
+        _fdb_lay.setContentsMargins(14, 0, 12, 0)
+        _fdb_lay.setSpacing(0)
+        self._fase_desc_label = QLabel(_FASE_DESCS.get(0, ""))
+        self._fase_desc_label.setStyleSheet(
+            "color: #3a7fd4; font-size: 9px; font-weight: bold; background: transparent;"
+        )
+        _fdb_lay.addWidget(self._fase_desc_label)
+        _fdb_lay.addStretch()
+        self._FASE_DESCS = _FASE_DESCS
+
+        # Container para abas — compacto
         tabs_container = QWidget()
-        tabs_container.setStyleSheet("background-color: #0c0c10; border-bottom: 1px solid #2a2a3e;")
+        tabs_container.setFixedHeight(30)
+        tabs_container.setStyleSheet(
+            f"background-color: {Colors.BG_DEEP}; border-bottom: 1px solid {Colors.BG_HOVER};"
+        )
         t_layout = QHBoxLayout(tabs_container)
+        t_layout.setContentsMargins(0, 0, 0, 0)
         t_layout.addWidget(self.module_tabs)
         t_layout.setContentsMargins(20, 0, 0, 0)
-        
+
+        root_layout.addWidget(self._fase_desc_bar)
         root_layout.addWidget(tabs_container)
 
         # 3. Stack de Conteúdo
         self.module_stack = QStackedWidget()
         root_layout.addWidget(self.module_stack)
 
+        # 4. Pipeline Status Bar (base da janela)
+        self._pipeline_status_bar = self._build_pipeline_status_bar()
+        root_layout.addWidget(self._pipeline_status_bar)
+
+        # --- MÓDULO 0: GERENCIAR PROJETOS (Tab nova — antes era janela flutuante) ---
+        self.project_manager = ProjectManager(self.db, self.memory, self.auth_service)
+        self.project_manager.setWindowFlags(Qt.Widget)  # embed como widget inline
+        self.project_manager.project_selected.connect(lambda pid, name, path: self._open_project_tab(pid, name))
+        self.project_manager.obra_created_globally.connect(self.on_global_obra_created)
+        self.project_manager.project_created_globally.connect(self.on_global_project_created)
+        self.project_manager.request_tab_switch.connect(self.switch_to_tab)
+        self.module_stack.addWidget(self.project_manager)   # index 0
+
         # --- MÓDULO 1: DIAGNOSTIC HUB (Novo) ---
         self.diagnostic_module = DiagnosticHubModule(self.db)
         self.module_stack.addWidget(self.diagnostic_module)
-        
+        # Conectar sinal de abertura de bruto direto no hub
+        self.project_manager.request_open_bruto.connect(self.diagnostic_module.open_bruto)
+        self.project_manager.request_open_reverse_hub.connect(self._on_open_reverse_hub)
+
         # Inicializar dados da sidebar
         self.diagnostic_module.sidebar.refresh()
 
-        # --- MÓDULO 2: STRUCTURAL ANALYZER (Legacy) ---
+        # Conectar Fase-3: ao concluir extração, mudar para Tab 2 e recarregar listas
+        self.diagnostic_module.fase3_complete.connect(self._on_fase3_complete)
+
+        # Conectar PreProcess: ao concluir, refreshar combos e ir para Structural Analyzer
+        self.diagnostic_module.preprocess_complete.connect(self._on_preprocess_complete)
+
+        # --- MÓDULO 2: DIAGNOSTIC REVERSE HUB (Engenharia Reversa) ---
+        self.diagnostic_reverse_module = DiagnosticReverseHub()
+        self.module_stack.addWidget(self.diagnostic_reverse_module)
+
+        # --- MÓDULO 3: STRUCTURAL ANALYZER (Legacy) ---
         structural_widget = self._setup_structural_analyzer_area()
         self.module_stack.addWidget(structural_widget)
 
-        # --- MÓDULO 3: COMPARISON ENGINE (Novo) ---
+        # --- MÓDULO 4: COMPARISON ENGINE (Novo) ---
         self.comparison_module = ComparisonEngineModule()
         self.module_stack.addWidget(self.comparison_module)
+        # CE-002/CE-006: conectar signals do CE ao Structural Analyzer
+        self.comparison_module.analise_geral_requested.connect(
+            lambda obra, pav: self.process_pillars_action()
+        )
+        self.comparison_module.fase4_sync_requested.connect(
+            lambda obra, pav: self._run_fase4_sync()
+        )
+        # CE-005: CE → top bar (bidirecional, sem loop: set_obra usa blockSignals internamente)
+        self.comparison_module.obra_pav_changed.connect(self._on_ce_obra_pav_changed)
 
         # --- MÓDULOS ROBÔS ---
-        
+
         # 1. Robo Pilares (INTEGRADO)
         if create_pilares_widget:
             try:
-                # Passar DatabaseManager para sincronização com banco principal
                 self.robo_pilares = create_pilares_widget(db_manager=self.db)
-                self.robo_pilares.setWindowFlags(Qt.Widget) # Embed mode
-                self.module_stack.addWidget(self.robo_pilares)
+                self.robo_pilares.setWindowFlags(Qt.Widget)
+                self._tag_robo_obra_combo(self.robo_pilares, 'robo_obra_combo_pl')
+                wrapper = self._build_robo_dxf_wrapper(self.robo_pilares, 'PL', 'P', 'gerar_pl_dxf_stog.py')
+                self.module_stack.addWidget(wrapper)
             except Exception as e:
                 self.module_stack.addWidget(QLabel(f"Erro ao carregar Robo Pilares: {e}"))
                 self.robo_pilares = None
@@ -2152,8 +2653,10 @@ class MainWindow(QMainWindow):
             try:
                 self.robo_viga = VigaMainWindow()
                 self.robo_viga.licensing_service = self.licensing_proxy
-                self.robo_viga.setWindowFlags(Qt.Widget) # Embed mode
-                self.module_stack.addWidget(self.robo_viga)
+                self.robo_viga.setWindowFlags(Qt.Widget)
+                self._tag_robo_obra_combo(self.robo_viga, 'robo_obra_combo_lv')
+                wrapper = self._build_robo_dxf_wrapper(self.robo_viga, 'LV', 'V', 'gerar_lv_dxf_stog.py')
+                self.module_stack.addWidget(wrapper)
             except Exception as e:
                 self.module_stack.addWidget(QLabel(f"Erro ao carregar Robo Viga: {e}"))
                 self.robo_viga = None
@@ -2165,10 +2668,10 @@ class MainWindow(QMainWindow):
         if FundoMainWindow:
             try:
                 self.robo_fundo = FundoMainWindow()
-                # Sistema de créditos removido
-                # self.robo_fundo.credit_manager = self.licensing_proxy
-                self.robo_fundo.setWindowFlags(Qt.Widget) # Embed mode
-                self.module_stack.addWidget(self.robo_fundo)
+                self.robo_fundo.setWindowFlags(Qt.Widget)
+                self._tag_robo_obra_combo(self.robo_fundo, 'robo_obra_combo_fv')
+                wrapper = self._build_robo_dxf_wrapper(self.robo_fundo, 'FV', 'V', 'gerar_fv_dxf_stog.py')
+                self.module_stack.addWidget(wrapper)
             except Exception as e:
                 self.module_stack.addWidget(QLabel(f"Erro ao carregar Robo Fundo: {e}"))
                 self.robo_fundo = None
@@ -2180,10 +2683,10 @@ class MainWindow(QMainWindow):
         if LajeMainWindow:
             try:
                 self.robo_laje = LajeMainWindow()
-                self.robo_laje.setWindowFlags(Qt.Widget) # Embed mode
-                
-                # Setup session mock/proxy if needed
-                self.module_stack.addWidget(self.robo_laje)
+                self.robo_laje.setWindowFlags(Qt.Widget)
+                self._tag_robo_obra_combo(self.robo_laje, 'robo_obra_combo_lj')
+                wrapper = self._build_robo_dxf_wrapper(self.robo_laje, 'LJ', 'L', 'gerar_lj_dxf_stog.py')
+                self.module_stack.addWidget(wrapper)
             except Exception as e:
                 self.module_stack.addWidget(QLabel(f"Erro ao carregar Robo Laje: {e}"))
                 self.robo_laje = None
@@ -2193,7 +2696,9 @@ class MainWindow(QMainWindow):
 
         # Conectar Navegação
         self.module_tabs.currentChanged.connect(self.module_stack.setCurrentIndex)
-        
+        # Atualizar faixa de descrição de fase ao mudar de tab
+        self.module_tabs.currentChanged.connect(self._on_module_tab_changed)
+
         # Inicializar Dados dos Combos (Obras e Pavimentos)
         # Timer singleShot para garantir que DB esteja pronto se necessario
         QTimer.singleShot(500, self._refresh_nav_combos)
@@ -2204,6 +2709,939 @@ class MainWindow(QMainWindow):
 
         # Timer final para casos extremos
         QTimer.singleShot(5000, self._refresh_nav_combos)
+
+    # ─────────────────────────────────────────────
+    # Robo DXF Generation Toolbar (Granular + Pavimento)
+    # ─────────────────────────────────────────────
+
+    def _tag_robo_obra_combo(self, robo_widget, obj_name: str) -> None:
+        """Aplica setObjectName + setAccessibleName no combo de obra do robô.
+
+        Busca recursivamente em sub-widgets pelos atributos conhecidos (combo_obra,
+        cmb_obra, obra_combo). Fallback: combo com mais itens (maior chance de ser
+        o de obras) entre os QComboBox visíveis.
+        Isso permite que UIA/pywinauto encontre o combo por window_text no teste.
+        """
+        from PySide6.QtWidgets import QComboBox, QWidget
+        combo = None
+
+        # 1. Busca atributos conhecidos no widget raiz e em todos os sub-widgets
+        ATTR_NAMES = ('combo_obra', 'cmb_obra', 'obra_combo', 'cmb_work', 'work_combo')
+        for w in [robo_widget] + list(robo_widget.findChildren(QWidget)):
+            for attr in ATTR_NAMES:
+                c = getattr(w, attr, None)
+                if isinstance(c, QComboBox):
+                    combo = c
+                    break
+            if combo is not None:
+                break
+
+        # 2. Laje: obra_control_widget.obra_combo (caminho especial)
+        if combo is None and hasattr(robo_widget, 'obra_control_widget'):
+            combo = getattr(robo_widget.obra_control_widget, 'obra_combo', None)
+
+        # 3. Fallback: combo com MAIS itens (geralmente o de obras tem 5+ itens)
+        if combo is None:
+            children = robo_widget.findChildren(QComboBox)
+            if children:
+                combo = max(children, key=lambda c: c.count())
+
+        if combo is not None:
+            combo.setObjectName(obj_name)
+            combo.setAccessibleName(obj_name)
+
+    def _build_robo_dxf_wrapper(self, robo_widget, tipo, item_prefix, script_name):
+        """Envolve um widget de Robô com uma toolbar de geração DXF granular.
+
+        Args:
+            robo_widget:  O widget do Robô (Pilares/LV/FV/Laje)
+            tipo:         'PL' | 'LV' | 'FV' | 'LJ'
+            item_prefix:  'P' | 'V' | 'L'  (prefixo dos JSONs)
+            script_name:  nome do script gerador em scripts/
+        """
+        from PySide6.QtWidgets import QLineEdit, QCheckBox
+        container = QWidget()
+        vlay = QVBoxLayout(container)
+        vlay.setContentsMargins(0, 0, 0, 0)
+        vlay.setSpacing(0)
+
+        # ── Toolbar de geração ──────────────────────────────────────────────
+        toolbar = QFrame()
+        toolbar.setFixedHeight(36)
+        toolbar.setStyleSheet(
+            "background: #0d1117; border-bottom: 1px solid #30363d;"
+        )
+        hlay = QHBoxLayout(toolbar)
+        hlay.setContentsMargins(8, 2, 8, 2)
+        hlay.setSpacing(6)
+
+        lbl = QLabel(f"Gerar DXF [{tipo}]")
+        lbl.setStyleSheet("color: #58a6ff; font-size: 10px; font-weight: bold;")
+        hlay.addWidget(lbl)
+
+        sep = QFrame(); sep.setFrameShape(QFrame.VLine)
+        sep.setStyleSheet("color: #30363d;"); hlay.addWidget(sep)
+
+        lbl_item = QLabel("Item:")
+        lbl_item.setStyleSheet("color: #8b949e; font-size: 10px;")
+        hlay.addWidget(lbl_item)
+
+        item_edit = QLineEdit()
+        item_edit.setPlaceholderText(f"{item_prefix}001")
+        item_edit.setFixedWidth(70)
+        item_edit.setFixedHeight(22)
+        item_edit.setToolTip(f"ID do item para geração granular (ex: {item_prefix}001)")
+        item_edit.setStyleSheet(
+            "background:#161b22; color:#e6edf3; border:1px solid #30363d;"
+            "border-radius:3px; padding:1px 4px; font-size:10px;"
+        )
+        hlay.addWidget(item_edit)
+
+        btn_item = QPushButton("⚙ DXF Item")
+        btn_item.setFixedHeight(24)
+        btn_item.setToolTip(f"Gera DXF só deste item ({item_prefix}XXX) sem sobrescrever o pavimento completo")
+        btn_item.setStyleSheet(
+            "background:#1f6feb; color:white; border:none; border-radius:3px;"
+            "padding:0 8px; font-size:10px; font-weight:bold;"
+        )
+        hlay.addWidget(btn_item)
+
+        btn_pav = QPushButton("⚙⚙ DXF Pav.")
+        btn_pav.setFixedHeight(24)
+        btn_pav.setToolTip(f"Gera {tipo}_stog_quality.dxf com todos os itens do pavimento selecionado")
+        btn_pav.setStyleSheet(
+            "background:#238636; color:white; border:none; border-radius:3px;"
+            "padding:0 8px; font-size:10px; font-weight:bold;"
+        )
+        hlay.addWidget(btn_pav)
+
+        sep2 = QFrame(); sep2.setFrameShape(QFrame.VLine)
+        sep2.setStyleSheet("color: #30363d;"); hlay.addWidget(sep2)
+
+        # ── Botões SCR (abrem Fase-5 no explorador) ─────────────────────────
+        btn_scr_item = QPushButton("▶ SCR Item")
+        btn_scr_item.setFixedHeight(24)
+        btn_scr_item.setToolTip(
+            f"Abre o SCR do item gerado pelo Robô (Fase-5).\n"
+            f"Use os botões 'Gerar' no painel abaixo para produzir o SCR primeiro."
+        )
+        btn_scr_item.setStyleSheet(
+            "background:#6f42c1; color:white; border:none; border-radius:3px;"
+            "padding:0 8px; font-size:10px; font-weight:bold;"
+        )
+        hlay.addWidget(btn_scr_item)
+
+        btn_scr_pav = QPushButton("▶▶ SCR Pav.")
+        btn_scr_pav.setFixedHeight(24)
+        btn_scr_pav.setToolTip(
+            f"Abre a pasta Fase-5 da obra — contém todos os SCRs gerados pelo Robô {tipo}."
+        )
+        btn_scr_pav.setStyleSheet(
+            "background:#5a32a3; color:white; border:none; border-radius:3px;"
+            "padding:0 8px; font-size:10px; font-weight:bold;"
+        )
+        hlay.addWidget(btn_scr_pav)
+
+        sep3 = QFrame(); sep3.setFrameShape(QFrame.VLine)
+        sep3.setStyleSheet("color: #30363d;"); hlay.addWidget(sep3)
+
+        # Checkbox opcional: abrir preview no canvas do Tab 0
+        chk_preview = QCheckBox("Abrir no canvas")
+        chk_preview.setChecked(False)
+        chk_preview.setToolTip(
+            "Ao concluir a geração, abre o DXF gerado no canvas do Tab 0 (Diagnostic Hub)\n"
+            "para visualização imediata. Não afeta o arquivo salvo."
+        )
+        chk_preview.setStyleSheet(
+            "color:#8b949e; font-size:10px;"
+            "QCheckBox::indicator { width:12px; height:12px; }"
+        )
+        hlay.addWidget(chk_preview)
+
+        # Botão de índice semântico (abre dialog com summary do tipo)
+        btn_sem = QPushButton("S")
+        btn_sem.setFixedSize(22, 22)
+        btn_sem.setToolTip("Ver índice semântico deste tipo (variedades, score médio, histórico)")
+        btn_sem.setStyleSheet(
+            "background:#21262d; color:#8b949e; border:1px solid #30363d;"
+            "border-radius:3px; font-size:9px; font-weight:bold;"
+        )
+        hlay.addWidget(btn_sem)
+
+        hlay.addStretch()
+
+        # Label de status inline
+        self._dxf_status_labels = getattr(self, '_dxf_status_labels', {})
+        status_lbl = QLabel("")
+        status_lbl.setObjectName(f"dxf_score_lbl_{tipo}")
+        status_lbl.setStyleSheet("color:#3fb950; font-size:10px;")
+        self._dxf_status_labels[tipo] = status_lbl
+        hlay.addWidget(status_lbl)
+
+        vlay.addWidget(toolbar)
+        vlay.addWidget(robo_widget, stretch=1)
+
+        # ── Conexões ────────────────────────────────────────────────────────
+        # Definir handler compartilhado para botão e Enter no campo
+        def _trigger_dxf_item(t=tipo, s=script_name, ed=item_edit, chk=chk_preview):
+            self._run_robo_dxf(t, s, item_id=ed.text().strip() or None,
+                               open_canvas=chk.isChecked())
+
+        btn_item.clicked.connect(lambda _=False: _trigger_dxf_item())
+        # Enter no campo de item também dispara (UX + automação de testes)
+        item_edit.returnPressed.connect(_trigger_dxf_item)
+        btn_pav.clicked.connect(
+            lambda _=False, t=tipo, s=script_name, chk=chk_preview:
+                self._run_robo_dxf(t, s, item_id=None,
+                                   open_canvas=chk.isChecked())
+        )
+        btn_scr_item.clicked.connect(
+            lambda _=False, t=tipo, ed=item_edit:
+                self._open_scr_file(t, ed.text().strip() or None)
+        )
+        btn_scr_pav.clicked.connect(
+            lambda _=False, t=tipo:
+                self._open_scr_folder(t)
+        )
+        btn_sem.clicked.connect(
+            lambda _=False, t=tipo:
+                self._show_semantic_dialog(t)
+        )
+
+        return container
+
+    def _show_semantic_dialog(self, tipo):
+        """Exibe dialog com o índice semântico do tipo selecionado.
+
+        Mostra:
+          - Summary: count, score_avg, score_min/max
+          - Variedades (seção para PL, comprimento para LV/FV, área para LJ)
+          - Tabela dos últimos 20 itens gerados do tipo
+        """
+        from PySide6.QtWidgets import (QDialog, QVBoxLayout, QHBoxLayout,
+                                        QLabel, QTableWidget, QTableWidgetItem,
+                                        QPushButton, QHeaderView)
+        from PySide6.QtCore import Qt
+
+        idx_path = self._SEMANTIC_INDEX_PATH
+        if not idx_path.exists():
+            self.log(f"[Sem] Índice ainda vazio — gere alguns itens primeiro.")
+            return
+
+        try:
+            idx = json.loads(idx_path.read_text(encoding='utf-8'))
+        except Exception as _e:
+            self.log(f"[Sem] Erro ao ler índice: {_e}")
+            return
+
+        dlg = QDialog(self)
+        dlg.setWindowTitle(f"Índice Semântico — {tipo}")
+        dlg.resize(700, 480)
+        dlg.setStyleSheet(
+            "background:#0d1117; color:#e6edf3;"
+            "QDialog { background:#0d1117; }"
+        )
+        layout = QVBoxLayout(dlg)
+
+        # ── Summary ──────────────────────────────────────────────────────
+        summary = idx.get('summary', {}).get(tipo, {})
+        s_count = summary.get('count', 0)
+        s_avg   = summary.get('score_avg', 0)
+        s_min   = summary.get('score_min', 0)
+        s_max   = summary.get('score_max', 0)
+
+        lbl_sum = QLabel(
+            f"<b>{tipo}</b>  |  {s_count} itens gerados  |  "
+            f"score médio: <b>{s_avg:.1f}</b>  "
+            f"(min {s_min} / max {s_max})"
+        )
+        lbl_sum.setStyleSheet("color:#58a6ff; font-size:11px; padding:4px;")
+        layout.addWidget(lbl_sum)
+
+        # Variedades semânticas
+        varieties_str = ''
+        if tipo == 'PL':
+            vs = summary.get('varieties_secao', {})
+            br = summary.get('b_range', [])
+            varieties_str = '  '.join(f"{k}×{v}" for k, v in sorted(vs.items()))
+            if br:
+                varieties_str += f"  |  b={br[0]}-{br[1]}cm"
+        elif tipo in ('LV', 'FV'):
+            cr = summary.get('comp_range', [])
+            wh = summary.get('with_holes', 0)
+            varieties_str = (f"comprimento {cr[0]}-{cr[1]}cm" if cr else "")
+            if wh:
+                varieties_str += f"  |  {wh} com furos"
+        elif tipo == 'LJ':
+            ar = summary.get('area_range_cm2', [])
+            varieties_str = f"área {ar[0]}-{ar[1]} cm²" if ar else ""
+
+        if varieties_str:
+            lbl_var = QLabel(f"Variedades: {varieties_str}")
+            lbl_var.setStyleSheet("color:#8b949e; font-size:10px; padding:2px 4px;")
+            layout.addWidget(lbl_var)
+
+        # ── Tabela de itens recentes ─────────────────────────────────────
+        items_t = [i for i in idx.get('items', []) if i.get('tipo') == tipo]
+        items_t = sorted(items_t, key=lambda x: x.get('ts', ''), reverse=True)[:30]
+
+        cols = ['ID', 'Obra', 'Semântica', 'Score', 'Missing L.', 'Extra L.', 'Data']
+        table = QTableWidget(len(items_t), len(cols), dlg)
+        table.setHorizontalHeaderLabels(cols)
+        table.setStyleSheet(
+            "QTableWidget { background:#161b22; color:#e6edf3; gridline-color:#21262d; }"
+            "QHeaderView::section { background:#21262d; color:#8b949e; font-size:10px; }"
+        )
+        table.horizontalHeader().setSectionResizeMode(2, QHeaderView.Stretch)
+        table.setEditTriggers(QTableWidget.NoEditTriggers)
+        table.setSelectionBehavior(QTableWidget.SelectRows)
+        table.verticalHeader().setVisible(False)
+
+        for row, it in enumerate(items_t):
+            sc   = it.get('score', {})
+            sem  = it.get('sem', {})
+            sem_s = self._sem_short(tipo, sem)
+
+            def _cell(val):
+                item = QTableWidgetItem(str(val))
+                item.setTextAlignment(Qt.AlignCenter)
+                return item
+
+            score_val = sc.get('score', 0)
+            table.setItem(row, 0, _cell(it.get('id', '')))
+            table.setItem(row, 1, _cell(it.get('obra', '')))
+            table.setItem(row, 2, QTableWidgetItem(sem_s))
+            score_cell = _cell(score_val)
+            color = '#3fb950' if score_val >= 70 else '#e3b341' if score_val >= 40 else '#f85149'
+            score_cell.setForeground(__import__('PySide6.QtGui', fromlist=['QColor']).QColor(color))
+            table.setItem(row, 3, score_cell)
+            table.setItem(row, 4, _cell(sc.get('missing_layers', '-')))
+            table.setItem(row, 5, _cell(sc.get('extra_layers', '-')))
+            table.setItem(row, 6, _cell(it.get('ts', '')[:16]))
+
+        layout.addWidget(table)
+
+        # ── Botão fechar ──────────────────────────────────────────────────
+        hb = QHBoxLayout()
+        hb.addStretch()
+        btn_close = QPushButton("Fechar")
+        btn_close.setStyleSheet(
+            "background:#21262d; color:#8b949e; border:1px solid #30363d;"
+            "padding:4px 16px; border-radius:3px;"
+        )
+        btn_close.clicked.connect(dlg.accept)
+        hb.addWidget(btn_close)
+        layout.addLayout(hb)
+
+        dlg.exec()
+
+    def _open_scr_file(self, tipo, item_id=None):
+        """Abre o SCR de um item específico ou o mais recente do tipo na Fase-5."""
+        import subprocess
+        obra_nome = self.cmb_works.currentText() if hasattr(self, 'cmb_works') else ''
+        if not obra_nome:
+            self.log(f"[SCR {tipo}] Selecione uma obra primeiro.")
+            return
+        obra_path = Path('D:/Agente-cad-PYSIDE/DADOS-OBRAS') / obra_nome
+        f5 = obra_path / 'Fase-5_Geracao_Scripts'
+        if not f5.exists():
+            self.log(f"[SCR {tipo}] Fase-5 não encontrada em {obra_path.name}")
+            return
+        # Busca SCR do item ou o mais recente do tipo
+        candidates = sorted(f5.rglob(f'*{tipo}*.scr'), key=lambda p: p.stat().st_mtime, reverse=True)
+        if item_id:
+            # Tenta achar arquivo com o item_id no nome
+            by_id = [c for c in candidates if item_id.upper() in c.stem.upper()]
+            if by_id:
+                candidates = by_id
+        if not candidates:
+            self.log(f"[SCR {tipo}] Nenhum SCR encontrado em Fase-5 para {tipo}")
+            return
+        scr = candidates[0]
+        self.log(f"[SCR {tipo}] Abrindo: {scr.name}")
+        try:
+            subprocess.Popen(['notepad.exe', str(scr)])
+        except Exception as _e:
+            self.log(f"[SCR {tipo}] Erro ao abrir: {_e}")
+
+    def _open_scr_folder(self, tipo):
+        """Abre a pasta Fase-5 da obra no explorador."""
+        import subprocess
+        obra_nome = self.cmb_works.currentText() if hasattr(self, 'cmb_works') else ''
+        if not obra_nome:
+            self.log(f"[SCR {tipo}] Selecione uma obra primeiro.")
+            return
+        obra_path = Path('D:/Agente-cad-PYSIDE/DADOS-OBRAS') / obra_nome
+        f5 = obra_path / 'Fase-5_Geracao_Scripts'
+        target = str(f5) if f5.exists() else str(obra_path)
+        self.log(f"[SCR {tipo}] Abrindo pasta: {target}")
+        try:
+            subprocess.Popen(['explorer.exe', target])
+        except Exception as _e:
+            self.log(f"[SCR {tipo}] Erro ao abrir pasta: {_e}")
+
+    def _run_robo_dxf(self, tipo, script_name, item_id=None, open_canvas=False):
+        """Executa gerar_*_dxf_stog.py via QProcess para um item ou o pavimento completo.
+
+        Args:
+            open_canvas: Se True e geração OK, abre o DXF no canvas do Tab 0 automaticamente.
+        """
+        import sys
+
+        obra_nome = self.cmb_works.currentText() if hasattr(self, 'cmb_works') else ''
+        if not obra_nome:
+            QMessageBox.warning(self, "Gerar DXF", "Selecione uma obra na barra superior.")
+            return
+
+        # Resolver caminho da obra — prioriza DADOS-OBRAS externo (tem todas as fases)
+        dados_dir_local = Path(self.base_dir) / 'DADOS-OBRAS'
+        dados_dir_ext   = Path('D:/Agente-cad-PYSIDE/DADOS-OBRAS')
+        obra_path_local = dados_dir_local / obra_nome
+        obra_path_ext   = dados_dir_ext   / obra_nome
+
+        def _has_fase4(p):
+            return (p / 'Fase-4_Sincronizacao').exists()
+
+        # Escolher: externo com Fase-4 > local com Fase-4 > qualquer existente
+        if obra_path_ext.exists() and _has_fase4(obra_path_ext):
+            obra_path = obra_path_ext
+        elif obra_path_local.exists() and _has_fase4(obra_path_local):
+            obra_path = obra_path_local
+        elif obra_path_ext.exists():
+            obra_path = obra_path_ext
+        elif obra_path_local.exists():
+            obra_path = obra_path_local
+        else:
+            obra_path = obra_path_ext  # fallback para mensagem de erro legível
+
+        if not obra_path.exists():
+            QMessageBox.warning(self, "Gerar DXF", f"Caminho da obra não encontrado:\n{obra_path}")
+            return
+
+        # Limpar preview anterior para evitar arquivos órfãos
+        if item_id:
+            f6 = obra_path / 'Fase-6_Execucao_CAD'
+            if f6.exists():
+                for old_preview in f6.glob(f'{tipo}_preview_{item_id.upper()}*.dxf'):
+                    try:
+                        old_preview.unlink()
+                        self.log(f"[DXF {tipo}] Removido preview anterior: {old_preview.name}")
+                    except Exception:
+                        pass
+
+        script = Path(self.base_dir) / 'scripts' / script_name
+        modo = f"item={item_id}" if item_id else "pavimento completo"
+        self.log(f"[DXF {tipo}] Gerando {modo}: {obra_nome}")
+
+        status_lbl = getattr(self, '_dxf_status_labels', {}).get(tipo)
+        if status_lbl:
+            # Ler _sa_meta.completude_pct antes de rodar o robô
+            _sa_badge = self._get_sa_completude_badge(tipo, obra_path, item_id)
+            _sa_prefix = f"SA{_sa_badge} | " if _sa_badge else ""
+            status_lbl.setText(f"{_sa_prefix}Gerando {modo}...")
+            status_lbl.setStyleSheet("color:#e3b341; font-size:10px;")
+
+        from PySide6.QtCore import QProcess
+        proc = QProcess(self)
+        proc.setProgram(sys.executable)
+        proc.setArguments(
+            [str(script), '--obra', str(obra_path)] +
+            (['--item', item_id] if item_id else [])
+        )
+        proc.setWorkingDirectory(str(Path(self.base_dir)))
+
+        def on_finish(exit_code, _exit_status):
+            out = bytes(proc.readAllStandardOutput()).decode('utf-8', errors='replace')
+            err = bytes(proc.readAllStandardError()).decode('utf-8', errors='replace')
+            # Extrai caminho do DXF gerado da saída ("DXF: C:\...")
+            dxf_path = None
+            for line in out.splitlines():
+                if 'DXF' in line and ':' in line:
+                    candidate = line.split(':', 1)[-1].strip()
+                    if candidate.endswith('.dxf') and Path(candidate).exists():
+                        dxf_path = candidate
+                        break
+
+            if exit_code == 0:
+                # Score estrutural inline (sem subprocess)
+                score_info = self._score_preview_dxf_inline(dxf_path, tipo, obra_path, item_id=item_id) if dxf_path else None
+
+                # Semântica do item (só para geração granular)
+                sem = self._extract_item_semantics(tipo, obra_path, item_id) if item_id else {}
+
+                # Persiste no índice semântico global
+                if item_id and score_info is not None:
+                    self._update_semantic_index({
+                        'id': item_id, 'tipo': tipo,
+                        'obra': obra_nome, 'modo': modo,
+                        'sem': sem, 'score': score_info,
+                    })
+
+                # Monta label de status enriquecido
+                score_txt = f"score={score_info['score']}" if score_info else "OK"
+                sem_txt = self._sem_short(tipo, sem)
+                ratio_txt = f"ratio={score_info['ratio']:.2f}" if score_info else ""
+                sa_badge = self._get_sa_completude_badge(tipo, obra_path, item_id)
+                sa_txt = f"SA{sa_badge}" if sa_badge else ""
+                status_parts = [s for s in [score_txt, sem_txt, ratio_txt, sa_txt] if s]
+                status_str = " | ".join(status_parts)
+
+                self.log(f"[DXF {tipo}] {status_str}")
+                if status_lbl:
+                    status_lbl.setText(status_str)
+                    color = "#3fb950" if (score_info and score_info['score'] >= 70) else \
+                            "#e3b341" if (score_info and score_info['score'] >= 40) else "#f85149"
+                    status_lbl.setStyleSheet(f"color:{color}; font-size:10px;")
+
+                # Abrir no canvas do Tab 0 (opcional)
+                if open_canvas and dxf_path:
+                    try:
+                        self.module_tabs.setCurrentIndex(0)
+                        self.load_dxf(dxf_path)
+                        self.log(f"[DXF {tipo}] Preview no canvas: {Path(dxf_path).name}")
+                    except Exception as _e:
+                        self.log(f"[DXF {tipo}] canvas falhou: {_e}")
+            else:
+                self.log(f"[DXF {tipo}] ERRO (code={exit_code}): {err[:200]}")
+                if status_lbl:
+                    status_lbl.setText("ERRO")
+                    status_lbl.setStyleSheet("color:#f85149; font-size:10px;")
+
+        def on_error(error):
+            err_names = {0:'FailedToStart', 1:'Crashed', 2:'Timedout', 4:'ReadError', 5:'WriteError', 6:'UnknownError'}
+            self.log(f"[DXF {tipo}] Processo falhou: {err_names.get(error, str(error))}")
+            if status_lbl:
+                status_lbl.setText("ERRO")
+                status_lbl.setStyleSheet("color:#f85149; font-size:10px;")
+
+        proc.finished.connect(on_finish)
+        proc.errorOccurred.connect(on_error)
+        proc.start()
+
+    # ─────────────────────────────────────────────
+    # SA Inline Log (ROBUSTEZ-01)
+    # ─────────────────────────────────────────────
+
+    def _sa_log_append(self, text: str):
+        """Append colorized line to the SA inline log widget."""
+        if not hasattr(self, 'sa_inline_log') or self.sa_inline_log is None:
+            return
+        for line in text.split('\n'):
+            stripped = line.strip()
+            if not stripped:
+                continue
+            if '[ERRO]' in stripped.upper() or 'ERROR' in stripped.upper():
+                color = Colors.ACCENT_DANGER
+            elif '[AVISO]' in stripped.upper() or 'WARNING' in stripped.upper():
+                color = Colors.ACCENT_WARNING_ALT
+            elif '[INFO]' in stripped and '✅' in stripped:
+                color = Colors.ACCENT_SUCCESS
+            else:
+                color = Colors.TEXT_PRIMARY
+            self.sa_inline_log.append(
+                f'<span style="color:{color}">{stripped}</span>'
+            )
+
+    # ─────────────────────────────────────────────
+    # SA Completude Badge
+    # ─────────────────────────────────────────────
+
+    def _get_sa_completude_badge(self, tipo: str, obra_path, item_id: str = None) -> str:
+        """
+        Lê _sa_meta.completude_pct do JSON Fase-4 correspondente ao item.
+        Retorna string curta para exibição no status_lbl:
+          100% → "100%✅"   ≥80% → "85%⚠"   <80% → "60%❌"
+        Retorna "" se JSON não encontrado ou sem _sa_meta.
+        """
+        try:
+            import re as _re
+            f4 = Path(obra_path) / 'Fase-4_Sincronizacao'
+            _dirs = {
+                'PL': (f4 / 'JSON_Pilares',      'P*.json'),
+                'LV': (f4 / 'JSON_Vigas_Laterais','V*_A.json'),
+                'FV': (f4 / 'JSON_Vigas_Fundo',   'V*_fundo.json'),
+                'LJ': (f4 / 'JSON_Lajes',         'L*.json'),
+            }
+            if tipo not in _dirs:
+                return ""
+            json_dir, glob_pat = _dirs[tipo]
+            if not json_dir.exists():
+                return ""
+
+            jf = None
+            if item_id:
+                # Tentar match direto primeiro
+                _raw = item_id.upper().replace('_A', '').replace('_B', '').replace('_FUNDO', '')
+                _num_m = _re.search(r'\d+', _raw)
+                if _num_m:
+                    _num = int(_num_m.group())
+                    for f in sorted(json_dir.glob(glob_pat)):
+                        _fm = _re.search(r'\d+', f.stem)
+                        if _fm and int(_fm.group()) == _num:
+                            jf = f
+                            break
+            else:
+                # Sem item_id: ler primeiro JSON disponível para mostrar completude geral
+                candidates = sorted(json_dir.glob(glob_pat))
+                jf = candidates[0] if candidates else None
+
+            if not jf or not jf.exists():
+                return ""
+
+            data = json.loads(jf.read_text(encoding='utf-8'))
+            meta = data.get('_sa_meta')
+            if not meta:
+                return "sem-SA"
+            pct = meta.get('completude_pct', 0)
+            if pct >= 100:
+                return f"{pct:.0f}%✅"
+            elif pct >= 80:
+                return f"{pct:.0f}%⚠"
+            else:
+                return f"{pct:.0f}%❌"
+        except Exception:
+            return ""
+
+    # ─────────────────────────────────────────────
+    # Semantic Understanding — Score + Descriptors
+    # ─────────────────────────────────────────────
+
+    _SEMANTIC_INDEX_PATH = Path('D:/Agente-cad-PYSIDE/validacao_visual/semantic_index.json')
+    _STRUCT_TYPES = {'LWPOLYLINE', 'LINE', 'DIMENSION', 'TEXT', 'MTEXT',
+                     'ARC', 'CIRCLE', 'SPLINE', 'POLYLINE', 'SOLID'}
+
+    def _score_preview_dxf_inline(self, dxf_path, tipo, obra_path, item_id=None):
+        """Computa score_estrutural inline (ezdxf direto, sem subprocess).
+
+        Modo pavimento completo (item_id=None):
+          Compara gerado vs STOG via dxf_discovery.json → ratio + layer score.
+
+        Modo item granular (item_id != None):
+          Ratio contra STOG total é inválido (1 item ≠ N items).
+          Usa 50pts de presença (DXF gerado com entidades) + layer_score (cobertura
+          de layers contra o STOG completo). Layer_score mede se o gerador usa os
+          layers corretos — é o sinal mais confiável por item.
+          Max item score = 90 ("gerado corretamente, layers corretos").
+
+        Retorna dict com score, ratio (raw), gen_struct, stog_struct, missing/extra layers.
+        """
+        try:
+            import ezdxf as _ez
+            gen_doc = _ez.readfile(str(dxf_path))
+            gen_msp = gen_doc.modelspace()
+            gen_struct = sum(1 for e in gen_msp if e.dxftype() in self._STRUCT_TYPES)
+            gen_layers = set(e.dxf.layer for e in gen_msp)
+
+            disc_path = obra_path.parent / 'dxf_discovery.json'
+            if not disc_path.exists():
+                return None
+            disc = json.loads(disc_path.read_text(encoding='utf-8'))
+            obra_disc = disc.get(obra_path.name, {})
+            best_pav = (
+                next((p for p in obra_disc if p.upper() in ('TIPO', 'TIP')), None)
+                or next((p for p in obra_disc if '12' in p), None)
+                or next(iter(obra_disc), None)
+            )
+            stog_fp = (obra_disc.get(best_pav) or {}).get(tipo) if best_pav else None
+            if not stog_fp or not Path(stog_fp).exists():
+                return None
+
+            stog_doc = _ez.readfile(str(stog_fp))
+            stog_msp = stog_doc.modelspace()
+            stog_struct = sum(1 for e in stog_msp if e.dxftype() in self._STRUCT_TYPES)
+            stog_layers = set(e.dxf.layer for e in stog_msp)
+
+            raw_ratio = gen_struct / max(stog_struct, 1)
+            missing = len(stog_layers - gen_layers)
+            extra   = len(gen_layers - stog_layers)
+            layer_score = max(0, 40 - missing * 3 - extra)
+
+            if item_id:
+                # Item mode: ratio inválido (1 item vs N no STOG).
+                # 50pts de presença + layer_score (cobertura). Max=90.
+                presence_pts = 50 if gen_struct > 0 else 0
+                total_score = presence_pts + layer_score
+                return {
+                    'score': total_score,
+                    'ratio': round(raw_ratio, 3),   # informativo apenas
+                    'gen_struct': gen_struct,
+                    'stog_struct': stog_struct,
+                    'missing_layers': missing,
+                    'extra_layers': extra,
+                    'item_mode': True,
+                    'presence_pts': presence_pts,
+                }
+            else:
+                ratio_pts = (60 if 0.70 <= raw_ratio <= 1.30 else
+                             40 if 0.50 <= raw_ratio <= 1.60 else
+                             20 if 0.30 <= raw_ratio <= 2.00 else 5)
+                return {
+                    'score': ratio_pts + layer_score,
+                    'ratio': round(raw_ratio, 3),
+                    'gen_struct': gen_struct,
+                    'stog_struct': stog_struct,
+                    'missing_layers': missing,
+                    'extra_layers': extra,
+                    'item_mode': False,
+                }
+        except Exception as _e:
+            self.log(f"[score_inline] {_e}")
+            return None
+
+    def _extract_item_semantics(self, tipo, obra_path, item_id):
+        """Extrai descritores semânticos do JSON Fase-4 do item.
+        Retorna dict com dimensões, complexidade e características estruturais.
+        """
+        import re as _re
+        try:
+            def _find_json(json_dir, glob_pat, raw_id):
+                raw = raw_id.upper()
+                m = _re.search(r'\d+', raw)
+                num = int(m.group()) if m else -1
+                prefix = _re.sub(r'\d+', '', raw)
+                return next(
+                    (f for f in sorted(json_dir.glob(glob_pat))
+                     if _re.sub(r'\d+', '', f.stem.upper().split('_')[0]) == prefix and
+                        _re.search(r'\d+', f.stem) and
+                        int(_re.search(r'\d+', f.stem).group()) == num),
+                    None
+                )
+
+            f4 = obra_path / 'Fase-4_Sincronizacao'
+
+            if tipo == 'PL':
+                jf = _find_json(f4 / 'JSON_Pilares', 'P*.json', item_id)
+                if not jf: return {}
+                d = json.loads(jf.read_text(encoding='utf-8'))
+                b = float(d.get('largura', 0))
+                h = float(d.get('comprimento', 0))
+                alt = float(d.get('altura', 280))
+                return {
+                    'b': b, 'h': h, 'altura': alt,
+                    'secao': f'{int(b)}x{int(h)}',
+                    'area_cm2': round(b * h, 1),
+                    'pavimento': d.get('pavimento', ''),
+                }
+
+            elif tipo == 'LV':
+                raw_id = item_id.upper().replace('_A', '').replace('_B', '')
+                jf = _find_json(f4 / 'JSON_Vigas_Laterais', 'V*_A.json', raw_id)
+                if not jf: return {}
+                d = json.loads(jf.read_text(encoding='utf-8'))
+                panels = d.get('panels', [])
+                comp = sum(float(p.get('width', 0)) for p in panels)
+                return {
+                    'b': float(d.get('total_width', 0)),
+                    'h': float(d.get('total_height', 0)),
+                    'comprimento': round(comp, 1),
+                    'n_paineis': len(panels),
+                    'has_holes': bool(d.get('holes')),
+                    'has_pillar_left': bool(d.get('pillar_left')),
+                    'has_pillar_right': bool(d.get('pillar_right')),
+                }
+
+            elif tipo == 'FV':
+                raw_id = item_id.upper().replace('_FUNDO', '')
+                jf = _find_json(f4 / 'JSON_Vigas_Fundo', 'V*_fundo.json', raw_id)
+                if not jf: return {}
+                d = json.loads(jf.read_text(encoding='utf-8'))
+                panels = d.get('panels', [])
+                comp = sum(float(p.get('width', 0)) for p in panels)
+                return {
+                    'b': float(d.get('total_width', 0)),
+                    'comprimento': round(comp, 1),
+                    'n_paineis': len(panels),
+                    'has_holes': bool(d.get('holes')),
+                }
+
+            elif tipo == 'LJ':
+                jf = _find_json(f4 / 'JSON_Lajes', 'L*.json', item_id)
+                if not jf: return {}
+                d = json.loads(jf.read_text(encoding='utf-8'))
+                comp = float(d.get('comprimento', 0))
+                larg = float(d.get('largura', 0))
+                paineis = d.get('linhas_verticais', []) + d.get('linhas_horizontais', [])
+                return {
+                    'comprimento': comp,
+                    'largura': larg,
+                    'area_cm2': round(comp * larg, 1),
+                    'n_linhas': len(paineis),
+                    'modo': d.get('modo_selecionado', ''),
+                }
+        except Exception as _e:
+            self.log(f"[sem] {_e}")
+        return {}
+
+    def _sem_short(self, tipo, sem):
+        """Retorna string curta da semântica para o label de status."""
+        if not sem: return ''
+        if tipo == 'PL':
+            return sem.get('secao', '')
+        elif tipo in ('LV', 'FV'):
+            b  = sem.get('b', 0)
+            comp = sem.get('comprimento', 0)
+            holes = ' furo' if sem.get('has_holes') else ''
+            return f"{int(b)}x{int(comp)}cm{holes}"
+        elif tipo == 'LJ':
+            c = sem.get('comprimento', 0)
+            l = sem.get('largura', 0)
+            return f"{int(c)}x{int(l)}cm"
+        return ''
+
+    def _update_semantic_index(self, entry):
+        """Persiste entry no índice semântico global e recalcula summary.
+
+        Estratégia de crescimento:
+          - Dedup por (tipo, obra, id): atualiza entry existente com novo score/sem.
+            Isso garante que gerar o mesmo item novamente só atualiza, não acumula.
+          - Cap global de 2000 itens (oldest-first). Cada (tipo,obra) contribui
+            proporcionalmente — não há lock por tipo.
+          - Summary sempre recalculado a partir dos items vigentes.
+
+        Índice em: D:/Agente-cad-PYSIDE/validacao_visual/semantic_index.json
+        Formato: { "items": [...], "summary": { "PL": {...}, ... } }
+        """
+        import datetime
+        _MAX_ITEMS = 2000
+        idx_path = self._SEMANTIC_INDEX_PATH
+        try:
+            idx = json.loads(idx_path.read_text(encoding='utf-8')) \
+                  if idx_path.exists() else {'items': [], 'summary': {}}
+        except Exception:
+            idx = {'items': [], 'summary': {}}
+
+        entry['ts'] = datetime.datetime.now().isoformat(timespec='seconds')
+
+        # Dedup: remove entry anterior com mesmo (tipo, obra, id)
+        _key = (entry.get('tipo'), entry.get('obra', ''), entry.get('id', ''))
+        idx['items'] = [
+            i for i in idx['items']
+            if (i.get('tipo'), i.get('obra', ''), i.get('id', '')) != _key
+        ]
+        idx['items'].append(entry)
+
+        # Cap global — descarta os mais antigos se ultrapassar limite
+        if len(idx['items']) > _MAX_ITEMS:
+            idx['items'] = idx['items'][-_MAX_ITEMS:]
+
+        # Recalcula summary por tipo
+        for t in ('PL', 'LV', 'FV', 'LJ'):
+            items_t = [i for i in idx['items'] if i.get('tipo') == t]
+            if not items_t:
+                continue
+            scores = [i['score']['score'] for i in items_t if i.get('score')]
+            s = idx['summary'].get(t, {})
+            s['count'] = len(items_t)
+            if scores:
+                s['score_avg'] = round(sum(scores) / len(scores), 1)
+                s['score_min'] = min(scores)
+                s['score_max'] = max(scores)
+                s['score_dist'] = {
+                    '0-40':  sum(1 for x in scores if x < 40),
+                    '40-70': sum(1 for x in scores if 40 <= x < 70),
+                    '70-100': sum(1 for x in scores if x >= 70),
+                }
+            # Variedades semânticas por tipo
+            if t == 'PL':
+                secoes = [i['sem'].get('secao', '?') for i in items_t if i.get('sem')]
+                s['varieties_secao'] = {k: secoes.count(k) for k in set(secoes)}
+                bs = [i['sem'].get('b', 0) for i in items_t if i.get('sem')]
+                if bs:
+                    s['b_range'] = [round(min(bs), 1), round(max(bs), 1)]
+            elif t in ('LV', 'FV'):
+                comps = [i['sem'].get('comprimento', 0) for i in items_t if i.get('sem')]
+                if comps:
+                    s['comp_range'] = [round(min(comps), 1), round(max(comps), 1)]
+                s['with_holes'] = sum(1 for i in items_t if i.get('sem', {}).get('has_holes'))
+            elif t == 'LJ':
+                areas = [i['sem'].get('area_cm2', 0) for i in items_t if i.get('sem')]
+                if areas:
+                    s['area_range_cm2'] = [round(min(areas), 1), round(max(areas), 1)]
+            idx['summary'][t] = s
+
+        try:
+            idx_path.parent.mkdir(parents=True, exist_ok=True)
+            idx_path.write_text(json.dumps(idx, ensure_ascii=False, indent=2), encoding='utf-8')
+        except Exception as _e:
+            self.log(f"[sem_index] save error: {_e}")
+
+    # ─────────────────────────────────────────────
+    # Pipeline Status Bar (CAD-UI-4.1)
+    # ─────────────────────────────────────────────
+
+    def _build_pipeline_status_bar(self):
+        """Barra de status de pipeline na base da janela (F1…F8 com checkmarks)."""
+        bar = QFrame()
+        bar.setFixedHeight(28)
+        bar.setStyleSheet("background: #0d1117; border-top: 1px solid #21262d;")
+        lay = QHBoxLayout(bar)
+        lay.setContentsMargins(10, 0, 10, 0)
+        lay.setSpacing(6)
+
+        self._lbl_pipeline_obra = QLabel("Obra: —")
+        self._lbl_pipeline_obra.setStyleSheet("color: #7ab3e0; font-size: 10px; font-weight: bold;")
+        lay.addWidget(self._lbl_pipeline_obra)
+
+        sep = QFrame(); sep.setFrameShape(QFrame.VLine)
+        sep.setStyleSheet("color: #333;"); lay.addWidget(sep)
+
+        self._fase_labels = {}
+        fase_names = {
+            1: "F1: Ingestão", 2: "F2: Triagem", 3: "F3: Interpretação",
+            4: "F4: Sincronização", 5: "F5: Scripts", 6: "F6: CAD",
+            7: "F7: Validação", 8: "F8: Certificação",
+        }
+        for i in range(1, 9):
+            lbl = QLabel(f"○F{i}")   # ○ = fase pendente (atualizado ao carregar obra)
+            lbl.setToolTip(fase_names[i])
+            lbl.setStyleSheet("color: #444; font-size: 10px; padding: 0 3px;")
+            lay.addWidget(lbl)
+            self._fase_labels[i] = lbl
+
+        lay.addStretch()
+        return bar
+
+    def _refresh_pipeline_status(self, obra_path=None, work_name=None):
+        """Atualiza a status bar de pipeline para a obra ativa."""
+        from pathlib import Path as _Path  # noqa: already imported at top via Path
+
+        if not obra_path and self.current_project_id and hasattr(self, 'db') and self.db:
+            try:
+                projects = self.db.get_projects()
+                proj = next((p for p in projects if str(p.get('id')) == str(self.current_project_id)), None)
+                if proj:
+                    wn = proj.get('work_name', '')
+                    work_name = wn
+                    obra_path = str(_Path("D:/Agente-cad-PYSIDE/DADOS-OBRAS") / wn)
+            except Exception:
+                pass
+
+        if not obra_path:
+            return
+
+        self._lbl_pipeline_obra.setText(f"Obra: {work_name or _Path(obra_path).name}")
+
+        fase_dirs = {
+            1: "Fase-1_Ingestao",
+            2: "Fase-2_Triagem",
+            3: "Fase-3_Interpretacao_Extracao",
+            4: "Fase-4_Sincronizacao",
+            5: "Fase-5_Geracao_Scripts",
+            6: "Fase-6_Execucao_CAD",
+            7: "Fase-7_Validacao_Fidelidade",
+            8: "Fase-8_Revisao_Entrega",
+        }
+        for fase_num, subdir in fase_dirs.items():
+            lbl = self._fase_labels.get(fase_num)
+            if not lbl:
+                continue
+            done = (_Path(obra_path) / subdir).exists()
+            if done:
+                lbl.setText(f"✓F{fase_num}")
+                lbl.setStyleSheet("color: #4caf50; font-size: 10px; padding: 0 3px;")
+            else:
+                lbl.setText(f"○F{fase_num}")
+                lbl.setStyleSheet("color: #444; font-size: 10px; padding: 0 3px;")
 
     def _on_analysis_tab_changed(self, index):
         """Filtra visualização no Canvas baseado na aba selecionada (Análise)"""
@@ -2848,26 +4286,141 @@ class MainWindow(QMainWindow):
             return float(m.group()) if m else None
         except: return None
 
+    def _run_fase4_sync(self):
+        """Executa motor_fase4.py — Fase-4 Sincronização (CAD-UI-3.3)."""
+        if not self.current_project_id:
+            from PySide6.QtWidgets import QMessageBox
+            QMessageBox.warning(self, "Fase-4", "Nenhum projeto/pavimento selecionado.")
+            return
+
+        try:
+            projects = self.db.get_projects()
+            proj = next((p for p in projects if str(p.get('id')) == str(self.current_project_id)), None)
+            if not proj:
+                return
+            work_name = proj.get('work_name', '')
+            pav       = proj.get('pavement_name', '1PV')
+        except Exception:
+            return
+
+        from pathlib import Path
+        obra_path = Path("D:/Agente-cad-PYSIDE/DADOS-OBRAS") / work_name
+        script    = Path("D:/Agente-cad-PYSIDE/Agente-cad-PYSIDE-Restored-main/scripts/motor_fase4.py")
+
+        if not script.exists():
+            from PySide6.QtWidgets import QMessageBox
+            QMessageBox.critical(self, "Fase-4", f"Script não encontrado:\n{script}")
+            return
+
+        self.btn_fase4_sync.setEnabled(False)
+        self.log(f"[Fase-4] Iniciando sincronização: {work_name} / {pav}")
+
+        from PySide6.QtCore import QProcess
+        proc = QProcess(self)
+        proc.setProcessChannelMode(QProcess.MergedChannels)
+
+        def _on_fase4_stdout():
+            raw = bytes(proc.readAllStandardOutput()).decode('utf-8', 'replace').strip()
+            self.log(raw)
+            self._sa_log_append(raw)
+
+        proc.readyReadStandardOutput.connect(_on_fase4_stdout)
+
+        def on_finished(code, _):
+            self.btn_fase4_sync.setEnabled(True)
+            if code == 0:
+                self.log(f"✅ [Fase-4] Sincronização concluída para {work_name}")
+                self._sa_log_append("[INFO] ✅ Sincronização concluída")
+            else:
+                self.log(f"❌ [Fase-4] Erro (código {code})")
+                self._sa_log_append(f"[ERRO] Fase-4 falhou (código {code})")
+
+        proc.finished.connect(on_finished)
+        proc.start(sys.executable, [str(script), "--obra", str(obra_path), "--pavimento", pav])
+
+    def _on_preprocess_complete(self, obra_name: str):
+        """Callback: PreProcessAll terminou — refreshar combos, auto-selecionar obra, ir para Structural Analyzer."""
+        self.log(f"[PreProcess] {obra_name} concluído — atualizando combos e listas...")
+
+        # 1. Refresh combos (inclui os projetos recém criados pelo worker)
+        self._refresh_nav_combos()
+
+        # 2. Auto-selecionar a obra processada no combo
+        if obra_name:
+            idx = self.cmb_works.findText(obra_name)
+            if idx >= 0:
+                # Forçar seleção — dispara _on_work_changed → popula cmb_pavements → auto-seleciona 1º pav
+                self.cmb_works.setCurrentIndex(idx)
+                if self.cmb_works.currentIndex() == idx:
+                    # Se já estava selecionado, _on_work_changed não dispara — forçar manualmente
+                    self._on_work_changed()
+            else:
+                self.log(f"[PreProcess] Obra '{obra_name}' não encontrada no combo após refresh")
+
+        # 3. Ir para Structural Analyzer (Tab 3)
+        self.module_tabs.setCurrentIndex(3)
+        self.log(f"[PreProcess] Structural Analyzer carregado com dados de {obra_name}")
+
+    def _on_fase3_complete(self, project_id: str):
+        """Callback: Fase-3 terminou — mudar para Structural Analyzer e recarregar."""
+        self.log(f"[Fase-3] Importação concluída para projeto {project_id}")
+
+        # Navegar para Tab 3 (Structural Analyzer) automaticamente
+        # module_tabs.currentChanged está conectado a module_stack.setCurrentIndex
+        self.module_tabs.setCurrentIndex(3)
+
+        # Recarregar listas — tanto para o projeto ativo quanto para projetos recém-importados
+        if self.current_project_id and str(self.current_project_id) == str(project_id):
+            self.refresh_lists_action()
+        else:
+            # Projeto diferente do ativo: tentar recarregar combos e selecionar o projeto importado
+            self.log(f"[Fase-3] Sincronizando combos após importação de {project_id}")
+            self._refresh_nav_combos()
+            # Se ainda não há projeto ativo, refresh_lists_action usará o fallback de combo
+            self.refresh_lists_action()
+
     def refresh_lists_action(self):
         """Recarrega os dados do banco e repovoa todas as listas da UI."""
         if not self.current_project_id:
-            from PySide6.QtWidgets import QMessageBox
-            QMessageBox.warning(self, "Aviso", "Nenhum projeto/pavimento selecionado para atualizar.")
-            return
-            
+            # Fallback: tentar forçar carregamento a partir do combo atual.
+            # Necessário quando seleção foi feita via automação (UIA/pywinauto)
+            # que não dispara currentIndexChanged do Qt nativamente.
+            work_text = self.cmb_works.currentText()
+            if work_text and not work_text.startswith('Selecione'):
+                self.log(f"[Atualizar] Forçando carregamento via combo: {work_text}")
+                self._on_work_changed()          # popula cmb_pavements
+                if self.cmb_pavements.count() > 0:
+                    self.cmb_pavements.setCurrentIndex(0)  # dispara _on_pavement_changed
+                    # _on_pavement_changed é síncrono → já setou current_project_id
+            if not self.current_project_id:
+                from PySide6.QtWidgets import QMessageBox
+                QMessageBox.warning(self, "Aviso", "Nenhum projeto/pavimento selecionado para atualizar.")
+                return
+
         self.log(f"🔄 Atualizando listas do projeto '{self.current_project_name}'...")
-        
+
         # O load_project_action já faz:
         # 1. Sync dos robôs (se faltar algo)
         # 2. Re-query do DB principal (pillars, beams, slabs)
         # 3. Re-draw do Canvas
         # 4. Update de todas as listas na UI
         self.load_project_action()
-        
+
         self.log("✅ Listas de projeto atualizadas com sucesso.")
 
     def process_pillars_action(self):
-        if not self.dxf_data: return
+        if not self.dxf_data:
+            # CAD-UI-4.3: feedback explícito — não silenciar
+            self.log("⚠️ Nenhum DXF carregado. Carregue um DXF no Tab 0 (Diagnostic Hub) primeiro.")
+            QMessageBox.information(
+                self, "Análise Geral",
+                "Nenhum arquivo DXF carregado.\n\n"
+                "1. Vá para Tab 0 (Diagnostic Hub)\n"
+                "2. Selecione um arquivo DXF na sidebar\n"
+                "3. Volte aqui e clique em 'Iniciar Análise Geral'\n\n"
+                "Alternativa: Use '▶ Interpretar DXF' (painel azul no Tab 0) para carregar dados da Fase-3."
+            )
+            return
         import uuid # Garantir import
         
         # --- Snapshot de Dados Validados (Modo Incremental Automático) ---
@@ -3261,6 +4814,7 @@ class MainWindow(QMainWindow):
         self.canvas.draw_slabs(self.slabs_found)
         self.canvas.draw_beams(self.beams_found)
         self.hide_progress()
+        print(f"[ANALISE] concluída: PL={len(self.pillars_found)} BM={len(getattr(self,'beams_found',[]))} SL={len(getattr(self,'slabs_found',[]))}", flush=True)
         self.log(f"Análise finalizada: {len(self.pillars_found)} Pilares, {len(self.beams_found)} Vigas e {len(self.slabs_found)} Lajes.")
         self.btn_save.setEnabled(True)
 
@@ -3504,40 +5058,150 @@ class MainWindow(QMainWindow):
             return items
         except: return []
 
+    def _process_with_obra_context(self):
+        """
+        '🧠 Interpretar com Contexto' — Fase-3 análise com pré-contexto da Ficha da Obra.
+
+        Mesma análise que process_pillars_action(), porém:
+        1. Lê pre_processamento_estado.json da obra ativa para obter a Ficha Pré-Interpretativa
+        2. Injeta contexto (totais esperados, padrões de pavimento) no log antes de analisar
+        3. Roda process_pillars_action() normalmente — o contexto fica no log e pode ser
+           usado manualmente pelo operador para validar / ajustar os resultados.
+
+        Nota: A integração profunda (feedback automático ao motor) será implementada em
+        sprint futuro conforme MASTERPLAN-CAD-ANALYZER EPIC 4.5+.
+        """
+        if not self.dxf_data:
+            from PySide6.QtWidgets import QMessageBox as _QMB
+            _QMB.information(
+                self, "Interpretar com Contexto",
+                "Nenhum DXF carregado.\n\n"
+                "1. Vá para Tab 1 (Diagnostic Hub)\n"
+                "2. Selecione o DXF do pavimento\n"
+                "3. Volte aqui e clique em '🧠 Interpretar com Contexto'"
+            )
+            return
+
+        # Tentar carregar ficha da obra ativa
+        obra_ctx = ""
+        try:
+            dados_root = Path("D:/Agente-cad-PYSIDE/DADOS-OBRAS")
+            # Inferir obra a partir do projeto atual
+            if self.current_project_name:
+                parts = self.current_project_name.split(" / ")
+                obra_name = parts[0] if parts else self.current_project_name
+                estado_path = dados_root / obra_name / "pre_processamento_estado.json"
+                if estado_path.exists():
+                    import json as _json
+                    estado = _json.loads(estado_path.read_text(encoding='utf-8'))
+                    ficha  = estado.get('ficha', {})
+                    totais = ficha.get('totais', {})
+                    pavs   = ficha.get('pavimentos', [])
+                    resumo = ficha.get('resumo_semantico', '')
+                    obra_ctx = (
+                        f"\n{'═'*50}\n"
+                        f"🧠 CONTEXTO DA OBRA (Ficha Pré-Interpretativa)\n"
+                        f"Obra: {ficha.get('obra', obra_name)}\n"
+                        f"Total obra: {totais.get('pilares',0)} pilares | "
+                        f"{totais.get('vigas',0)} vigas | {totais.get('lajes',0)} lajes\n"
+                        f"Pavimentos: {len(pavs)}\n"
+                    )
+                    # Incluir contexto do pavimento atual se disponível
+                    if self.current_project_name and " / " in self.current_project_name:
+                        pav_name = parts[1] if len(parts) > 1 else ""
+                        pav_data = next((p for p in pavs if p.get('nome','') == pav_name), None)
+                        if pav_data:
+                            obra_ctx += (
+                                f"Pavimento atual '{pav_name}': "
+                                f"{pav_data.get('n_pilares',0)}P / "
+                                f"{pav_data.get('n_vigas',0)}V / "
+                                f"{pav_data.get('n_lajes',0)}L\n"
+                            )
+                    if resumo:
+                        obra_ctx += f"Resumo: {resumo}\n"
+                    obra_ctx += f"{'═'*50}\n"
+                else:
+                    obra_ctx = (
+                        "\n⚠ Ficha da Obra não encontrada. "
+                        "Execute '⚡ Interpretar Obra Toda' no Tab 1 primeiro.\n"
+                        "Prosseguindo com análise sem contexto...\n"
+                    )
+        except Exception as ctx_err:
+            obra_ctx = f"\n⚠ Erro ao carregar contexto: {ctx_err}\n"
+
+        if obra_ctx:
+            self.log(obra_ctx)
+
+        # Executar análise normal com contexto injetado no log
+        self.process_pillars_action()
+
+    @staticmethod
+    def _validate_structural_item(d: dict) -> bool:
+        """Valida integridade minima de item estrutural antes de salvar no DB (ROBUSTEZ-03)."""
+        try:
+            comp = float(d.get("comprimento", d.get("comp", 0)) or 0)
+            larg = float(d.get("largura", d.get("larg", d.get("b", 0))) or 0)
+            alt = float(d.get("altura", d.get("h", d.get("height", 0))) or 0)
+            # At least one non-zero dimension required
+            return comp > 0 or larg > 0 or alt > 0
+        except (ValueError, TypeError):
+            return False
+
     def _auto_sync_robos_to_db(self, project_id, force=False):
         """Sincroniza automaticamente dados dos robôs para o analyzer."""
         p_data = self.db.get_project_by_id(project_id)
         if not p_data: return
         pav_nome = p_data.get('pavement_name') or p_data.get('name')
         if not pav_nome: return
-        
+
         self.log(f"🤖 Sync: Verificando dados dos robôs para '{pav_nome}' (Force={force})...")
-        
-        # Sincronizar Pilares
+
+        # Sincronizar Pilares (ROBUSTEZ-03: validate before save)
         if force or not self.db.load_pillars(project_id):
             items = self._read_robot_pilares_data(pav_nome)
-            for item in items: self.db.save_pillar(item, project_id)
-            if items: self.log(f"   ✅ {len(items)} pilares sincronizados.")
+            valid_count = 0
+            invalid_count = 0
+            for item in items:
+                if self._validate_structural_item(item):
+                    self.db.save_pillar(item, project_id)
+                    valid_count += 1
+                else:
+                    invalid_count += 1
+                    self.log(f"   [AVISO] Pilar '{item.get('name', '?')}' ignorado (dimensoes invalidas)")
+            if valid_count: self.log(f"   ✅ {valid_count} pilares sincronizados.")
+            if invalid_count: self.log(f"   ⚠ {invalid_count} pilares ignorados (dimensoes invalidas).")
 
         # Sincronizar Lajes
         if force or not self.db.load_slabs(project_id):
             items = self._read_robot_lajes_data(pav_nome)
-            for item in items: self.db.save_slab(item, project_id)
-            if items: self.log(f"   ✅ {len(items)} lajes sincronizadas.")
+            valid_count = 0
+            invalid_count = 0
+            for item in items:
+                if self._validate_structural_item(item):
+                    self.db.save_slab(item, project_id)
+                    valid_count += 1
+                else:
+                    invalid_count += 1
+                    self.log(f"   [AVISO] Laje '{item.get('name', '?')}' ignorada (dimensoes invalidas)")
+            if valid_count: self.log(f"   ✅ {valid_count} lajes sincronizadas.")
+            if invalid_count: self.log(f"   ⚠ {invalid_count} lajes ignoradas.")
 
         # Sincronizar Vigas
         if force or not self.db.load_beams(project_id):
-            # Laterais
             lat = self._read_robot_laterais_data(pav_nome)
-            for item in lat: 
+            valid_count = 0
+            for item in lat:
                 item['type'] = 'Lateral'
-                self.db.save_beam(item, project_id)
-            # Fundos
+                if self._validate_structural_item(item):
+                    self.db.save_beam(item, project_id)
+                    valid_count += 1
             fun = self._read_robot_fundos_data(pav_nome)
             for item in fun:
                 item['type'] = 'Fundo'
-                self.db.save_beam(item, project_id)
-            if lat or fun: self.log(f"   ✅ {len(lat)+len(fun)} vigas sincronizadas.")
+                if self._validate_structural_item(item):
+                    self.db.save_beam(item, project_id)
+                    valid_count += 1
+            if valid_count: self.log(f"   ✅ {valid_count} vigas sincronizadas.")
 
     def load_project_action(self):
         """Carrega e restaura o estado do projeto."""
@@ -4832,7 +6496,14 @@ class MainWindow(QMainWindow):
         # Limpar cache de itens deste widget específico antes de limpar o widget
         ids_to_clean = []
         for iid, widgets in self.tree_item_map.items():
-            self.tree_item_map[iid] = [w for w in widgets if w.treeWidget() != tree_widget]
+            safe = []
+            for w in widgets:
+                try:
+                    if w.treeWidget() != tree_widget:
+                        safe.append(w)
+                except RuntimeError:
+                    pass  # objeto C++ já deletado
+            self.tree_item_map[iid] = safe
         
         tree_widget.clear()
         
@@ -4847,8 +6518,24 @@ class MainWindow(QMainWindow):
             
             # Info extra no nome
             if item_type == 'pillar':
-                # Usuário pediu para remover dimensão da lista
-                display_name = name
+                # CAD-UI-1.3: Badge de confiança B/H
+                sides = item_data.get('sides_data', {})
+                bh_conf = sides.get('bh_confidence') if sides else None
+                b_val   = sides.get('b') if sides else None
+                h_val   = sides.get('h') if sides else None
+                if bh_conf is not None:
+                    if bh_conf >= 0.7:
+                        bh_badge = " ✓"   # verde — confiança alta
+                    elif bh_conf >= 0.4:
+                        bh_badge = " ⚠"   # amarelo — conferir
+                    else:
+                        bh_badge = " ?"   # vermelho — B/H incerto
+                    if b_val and h_val:
+                        display_name = f"{name}  {int(b_val)}×{int(h_val)}{bh_badge}"
+                    else:
+                        display_name = f"{name}{bh_badge}"
+                else:
+                    display_name = name
             elif item_type == 'slab':
                 area = item_data.get('area', 0.0)
                 # Tentar recalcular area se nao tiver
@@ -4894,9 +6581,34 @@ class MainWindow(QMainWindow):
                 btn_detail.clicked.connect(lambda checked=False, d=item_data: self.open_detail_window(d))
                 tree_widget.setItemWidget(tree_item, 4, btn_detail)
 
+            # Tooltip com detalhes (CAD-UI-1.3)
+            if item_type == 'pillar':
+                sides = item_data.get('sides_data', {})
+                bh_conf = sides.get('bh_confidence') if sides else None
+                tooltip_lines = [f"ID: {item_data.get('id_item', name)}"]
+                if bh_conf is not None:
+                    conf_pct = int(bh_conf * 100)
+                    if bh_conf >= 0.7:
+                        conf_label = f"Alta ({conf_pct}%)"
+                    elif bh_conf >= 0.4:
+                        conf_label = f"Média ({conf_pct}%) — confirmar"
+                    else:
+                        conf_label = f"Baixa ({conf_pct}%) — verificação manual"
+                    tooltip_lines.append(f"Confiança B/H: {conf_label}")
+                if sides:
+                    b_v = sides.get('b')
+                    h_v = sides.get('h')
+                    if b_v and h_v:
+                        tooltip_lines.append(f"Dimensões: {b_v}×{h_v} cm")
+                    alt = sides.get('altura')
+                    if alt:
+                        tooltip_lines.append(f"Altura: {alt} cm")
+                tree_item.setToolTip(0, "\n".join(tooltip_lines))
+                tree_item.setToolTip(1, "\n".join(tooltip_lines))
+
             # Setup Data
             tree_item.setData(0, Qt.UserRole, item_id)
-            
+
             # Cores
             if item_data.get('is_fully_validated'):
                  tree_item.setForeground(0, QColor("#00d4ff")) # Blue Cyan
@@ -4920,11 +6632,22 @@ class MainWindow(QMainWindow):
                 status_code = "validated" if item_data.get('is_validated') else "default"
                 self.canvas.update_slab_status(item_data['id'], status_code)
 
+        # Ajusta coluna Nome ao conteúdo real (badge B/H pode ser mais largo)
+        if item_type == 'pillar':
+            tree_widget.resizeColumnToContents(1)
+
 
     def _populate_beam_tree(self, tree_widget, beam_list):
         # Limpar cache de itens deste widget específico
         for iid, widgets in self.tree_item_map.items():
-            self.tree_item_map[iid] = [w for w in widgets if w.treeWidget() != tree_widget]
+            safe = []
+            for w in widgets:
+                try:
+                    if w.treeWidget() != tree_widget:
+                        safe.append(w)
+                except RuntimeError:
+                    pass  # objeto C++ já deletado
+            self.tree_item_map[iid] = safe
 
         tree_widget.clear()
         if not beam_list: return
@@ -6318,8 +8041,15 @@ def main():
         # Init Main Window
         window = MainWindow()
         window.set_user_context(user_profile)
-        window.setWindowState(Qt.WindowMaximized)
+        # Forçar geometria na tela primária antes de maximizar
+        screen = app.primaryScreen().availableGeometry()
+        window.setGeometry(screen.x() + 50, screen.y() + 50,
+                           min(1600, screen.width() - 100),
+                           min(1000, screen.height() - 100))
         window.show()
+        window.setWindowState(Qt.WindowMaximized)
+        window.raise_()
+        window.activateWindow()
         windows['main'] = window
 
         # If MainWindow closes, and there is no login window, check if we should re-show login

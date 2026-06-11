@@ -1,0 +1,50 @@
+{
+  "numero": 49,
+  "nome": "LJ49",
+  "comprimento": 234,
+  "largura": 423,
+  "pavimento": "CENARIOS",
+  "coordenadas": [
+    [
+      0,
+      0
+    ],
+    [
+      234,
+      0
+    ],
+    [
+      234,
+      423
+    ],
+    [
+      0,
+      423
+    ],
+    [
+      0,
+      0
+    ]
+  ],
+  "area_cm2": 98982,
+  "linhas_verticais": [
+    {
+      "value": 122,
+      "is_union": false
+    },
+    {
+      "value": 142.0,
+      "is_union": true
+    }
+  ],
+  "linhas_horizontais": [
+    {
+      "value": 244.0,
+      "is_union": false
+    }
+  ],
+  "obstaculos": [],
+  "modo_selecionado": 0,
+  "unioes_nos_bordes": false,
+  "observacoes": ""
+}
