@@ -1,14 +1,15 @@
 {
   "P16": {
-    "b": null,
-    "h": null,
+    "b": 14.0,
+    "h": 60.0,
     "altura": 652.0,
-    "confidence": 0.3,
+    "confidence": 0.4,
     "source": "engenharia-reversa-ezdxf",
     "faces_encontradas": [
       "B"
     ],
-    "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente"
+    "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "bh_source": "proximity-fallback"
   },
   "P314": {
     "b": 19.0,
@@ -234,9 +235,9 @@
     "obra": "engenharia-reversa",
     "pavimento": "TORRE 2 - TÉRREO - PERIFERIA",
     "pe_direito_cm": 652.0,
-    "extraido_em": "2026-03-09",
+    "extraido_em": "2026-05-07",
     "confidence_nota": "IDs=ALTA | altura=MEDIA | B/H=BAIXA(requer revisao)",
-    "bh_extraidos": 15,
-    "bh_atualizado_em": "2026-03-09"
+    "bh_extraidos": 16,
+    "bh_atualizado_em": "2026-05-07"
   }
 }

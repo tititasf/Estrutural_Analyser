@@ -1,11 +1,19 @@
 {
   "_meta": {
-    "total": 15,
+    "total": 16,
     "erros": 0,
-    "pavimento": "TORRE 2 - TÉRREO - PERIFERIA",
+    "pavimento": "TIPO",
     "output_dir": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_9\\Fase-5_Geracao_Scripts\\DXF_Pilares"
   },
   "pilares": {
+    "P16": {
+      "pid": "P16",
+      "b": 14.0,
+      "h": 60.0,
+      "n_paineis": 12,
+      "total_height": 280.0,
+      "path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_9\\Fase-5_Geracao_Scripts\\DXF_Pilares\\P16.dxf"
+    },
     "P314": {
       "pid": "P314",
       "b": 19.0,

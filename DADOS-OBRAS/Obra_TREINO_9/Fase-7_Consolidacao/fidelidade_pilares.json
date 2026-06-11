@@ -1,0 +1,42 @@
+{
+  "tipo": "pilares",
+  "stog_dxf": "RB2 - CITTA DI LUCCA - TORRE 1 - 1°PAVIMENTO - PERIFERIA - PL - R00_R2018_ASCII_ODA.dxf",
+  "gerado_dxf": "PL_stog_quality.dxf",
+  "score": 100.0,
+  "aprovado": true,
+  "limiar": 85.0,
+  "detalhes": {
+    "id_match": {
+      "score": 30.0,
+      "max": 30,
+      "gt_count": 16,
+      "gerado_count": 16,
+      "id_match_rate": 1.0,
+      "hallucination_rate": 0.0,
+      "missed": [],
+      "hallucinated": []
+    },
+    "entity_coverage": {
+      "score": 40.0,
+      "max": 40,
+      "stog_total": 2092,
+      "gerado_total": 4493,
+      "global_ratio": 1.0,
+      "critical_avg": 1.0
+    },
+    "layer_presence": {
+      "score": 20.0,
+      "max": 20,
+      "present": 17,
+      "missing": 0,
+      "required_layers": 17,
+      "missing_list": []
+    },
+    "anti_hallucination": {
+      "score": 10.0,
+      "max": 10
+    }
+  },
+  "scorer": "kb-blended",
+  "kb_file": "RB2 - CITTA DI LUCCA - TORRE 1 - 1°PAVIMENTO - PERIFERIA - PL - R00_R2018_ASCII_ODA.dxf"
+}

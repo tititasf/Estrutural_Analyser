@@ -1,0 +1,1024 @@
+{
+  "P128": {
+    "pilar": "P128",
+    "faces_found": [
+      "C"
+    ],
+    "chapa_vert": 0,
+    "chapa_horiz": 0,
+    "chapa_total": 0,
+    "grade_1": 102.0,
+    "grade_2": null,
+    "grade_source": "cota-grade-nearest",
+    "perfil_metalico": 0,
+    "sp_per_face": {
+      "C": 2
+    },
+    "sp_total": 2,
+    "confidence": 0.85
+  },
+  "P201": {
+    "pilar": "P201",
+    "faces_found": [
+      "D"
+    ],
+    "chapa_vert": 0,
+    "chapa_horiz": 0,
+    "chapa_total": 0,
+    "grade_1": 102.0,
+    "grade_2": null,
+    "grade_source": "cota-grade-nearest",
+    "perfil_metalico": 0,
+    "sp_per_face": {
+      "D": 4
+    },
+    "sp_total": 4,
+    "confidence": 0.85
+  },
+  "P203": {
+    "pilar": "P203",
+    "faces_found": [
+      "D"
+    ],
+    "chapa_vert": 1,
+    "chapa_horiz": 1,
+    "chapa_total": 2,
+    "grade_1": 102.0,
+    "grade_2": null,
+    "grade_source": "cota-grade-nearest",
+    "perfil_metalico": 3,
+    "sp_per_face": {
+      "D": 3
+    },
+    "sp_total": 3,
+    "confidence": 0.85
+  },
+  "P204": {
+    "pilar": "P204",
+    "faces_found": [
+      "A",
+      "B",
+      "C"
+    ],
+    "chapa_vert": 0,
+    "chapa_horiz": 0,
+    "chapa_total": 0,
+    "grade_1": 102.0,
+    "grade_2": null,
+    "grade_source": "cota-grade-nearest",
+    "perfil_metalico": 0,
+    "sp_per_face": {
+      "A": 0,
+      "B": 0,
+      "C": 4
+    },
+    "sp_total": 4,
+    "confidence": 0.85
+  },
+  "P205": {
+    "pilar": "P205",
+    "faces_found": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "chapa_vert": 3,
+    "chapa_horiz": 2,
+    "chapa_total": 5,
+    "grade_1": 122.0,
+    "grade_2": null,
+    "grade_source": "cota-grade-nearest",
+    "perfil_metalico": 6,
+    "sp_per_face": {
+      "A": 4,
+      "B": 4,
+      "C": 4,
+      "D": 3
+    },
+    "sp_total": 15,
+    "confidence": 0.85
+  },
+  "P206": {
+    "pilar": "P206",
+    "faces_found": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "chapa_vert": 3,
+    "chapa_horiz": 3,
+    "chapa_total": 6,
+    "grade_1": 122.0,
+    "grade_2": 100.0,
+    "grade_source": "cota-grade-nearest",
+    "perfil_metalico": 10,
+    "sp_per_face": {
+      "A": 4,
+      "B": 4,
+      "C": 4,
+      "D": 3
+    },
+    "sp_total": 15,
+    "confidence": 0.85
+  },
+  "P207": {
+    "pilar": "P207",
+    "faces_found": [
+      "C",
+      "D",
+      "A",
+      "B"
+    ],
+    "chapa_vert": 3,
+    "chapa_horiz": 3,
+    "chapa_total": 6,
+    "grade_1": 67.0,
+    "grade_2": null,
+    "grade_source": "cota-grade-nearest",
+    "perfil_metalico": 9,
+    "sp_per_face": {
+      "C": 4,
+      "D": 4,
+      "A": 4,
+      "B": 4
+    },
+    "sp_total": 16,
+    "confidence": 0.85
+  },
+  "P208": {
+    "pilar": "P208",
+    "faces_found": [
+      "C",
+      "D",
+      "B",
+      "A"
+    ],
+    "chapa_vert": 2,
+    "chapa_horiz": 2,
+    "chapa_total": 4,
+    "grade_1": 67.0,
+    "grade_2": null,
+    "grade_source": "cota-grade-nearest",
+    "perfil_metalico": 6,
+    "sp_per_face": {
+      "C": 4,
+      "D": 4,
+      "B": 4,
+      "A": 4
+    },
+    "sp_total": 16,
+    "confidence": 0.85
+  },
+  "P209": {
+    "pilar": "P209",
+    "faces_found": [
+      "C",
+      "D",
+      "A",
+      "B"
+    ],
+    "chapa_vert": 2,
+    "chapa_horiz": 2,
+    "chapa_total": 4,
+    "grade_1": 82.0,
+    "grade_2": null,
+    "grade_source": "cota-grade-nearest",
+    "perfil_metalico": 6,
+    "sp_per_face": {
+      "C": 4,
+      "D": 4,
+      "A": 4,
+      "B": 4
+    },
+    "sp_total": 16,
+    "confidence": 0.85
+  },
+  "P210": {
+    "pilar": "P210",
+    "faces_found": [
+      "C",
+      "D",
+      "A",
+      "B"
+    ],
+    "chapa_vert": 0,
+    "chapa_horiz": 0,
+    "chapa_total": 0,
+    "grade_1": 100.0,
+    "grade_2": null,
+    "grade_source": "cota-grade-nearest",
+    "perfil_metalico": 1,
+    "sp_per_face": {
+      "C": 3,
+      "D": 3,
+      "A": 4,
+      "B": 4
+    },
+    "sp_total": 14,
+    "confidence": 0.85
+  },
+  "P211": {
+    "pilar": "P211",
+    "faces_found": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "chapa_vert": 3,
+    "chapa_horiz": 3,
+    "chapa_total": 6,
+    "grade_1": 102.0,
+    "grade_2": 100.0,
+    "grade_source": "cota-grade-nearest",
+    "perfil_metalico": 10,
+    "sp_per_face": {
+      "A": 4,
+      "B": 4,
+      "C": 4,
+      "D": 4
+    },
+    "sp_total": 16,
+    "confidence": 0.85
+  },
+  "P212": {
+    "pilar": "P212",
+    "faces_found": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "chapa_vert": 2,
+    "chapa_horiz": 2,
+    "chapa_total": 4,
+    "grade_1": 102.0,
+    "grade_2": null,
+    "grade_source": "cota-grade-nearest",
+    "perfil_metalico": 6,
+    "sp_per_face": {
+      "A": 4,
+      "B": 4,
+      "C": 4,
+      "D": 4
+    },
+    "sp_total": 16,
+    "confidence": 0.85
+  },
+  "P213": {
+    "pilar": "P213",
+    "faces_found": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "chapa_vert": 1,
+    "chapa_horiz": 1,
+    "chapa_total": 2,
+    "grade_1": 70.0,
+    "grade_2": null,
+    "grade_source": "cota-grade-nearest",
+    "perfil_metalico": 1,
+    "sp_per_face": {
+      "A": 4,
+      "B": 4,
+      "C": 3,
+      "D": 2
+    },
+    "sp_total": 13,
+    "confidence": 0.85
+  },
+  "P214": {
+    "pilar": "P214",
+    "faces_found": [
+      "A",
+      "C",
+      "D",
+      "B"
+    ],
+    "chapa_vert": 1,
+    "chapa_horiz": 0,
+    "chapa_total": 1,
+    "grade_1": 70.0,
+    "grade_2": null,
+    "grade_source": "cota-grade-nearest",
+    "perfil_metalico": 1,
+    "sp_per_face": {
+      "A": 4,
+      "C": 3,
+      "D": 2,
+      "B": 4
+    },
+    "sp_total": 13,
+    "confidence": 0.85
+  },
+  "P215": {
+    "pilar": "P215",
+    "faces_found": [
+      "C",
+      "D",
+      "A",
+      "B"
+    ],
+    "chapa_vert": 3,
+    "chapa_horiz": 3,
+    "chapa_total": 6,
+    "grade_1": 70.0,
+    "grade_2": null,
+    "grade_source": "cota-grade-nearest",
+    "perfil_metalico": 3,
+    "sp_per_face": {
+      "C": 4,
+      "D": 3,
+      "A": 4,
+      "B": 4
+    },
+    "sp_total": 15,
+    "confidence": 0.85
+  },
+  "P216": {
+    "pilar": "P216",
+    "faces_found": [
+      "C",
+      "D",
+      "A",
+      "B"
+    ],
+    "chapa_vert": 2,
+    "chapa_horiz": 2,
+    "chapa_total": 4,
+    "grade_1": 70.0,
+    "grade_2": null,
+    "grade_source": "cota-grade-nearest",
+    "perfil_metalico": 2,
+    "sp_per_face": {
+      "C": 4,
+      "D": 3,
+      "A": 4,
+      "B": 4
+    },
+    "sp_total": 15,
+    "confidence": 0.85
+  },
+  "P217": {
+    "pilar": "P217",
+    "faces_found": [
+      "A",
+      "C",
+      "D",
+      "B"
+    ],
+    "chapa_vert": 1,
+    "chapa_horiz": 1,
+    "chapa_total": 2,
+    "grade_1": 102.0,
+    "grade_2": null,
+    "grade_source": "cota-grade-nearest",
+    "perfil_metalico": 3,
+    "sp_per_face": {
+      "A": 4,
+      "C": 3,
+      "D": 2,
+      "B": 4
+    },
+    "sp_total": 13,
+    "confidence": 0.85
+  },
+  "P218": {
+    "pilar": "P218",
+    "faces_found": [
+      "A",
+      "C"
+    ],
+    "chapa_vert": 2,
+    "chapa_horiz": 2,
+    "chapa_total": 4,
+    "grade_1": 102.0,
+    "grade_2": null,
+    "grade_source": "cota-grade-nearest",
+    "perfil_metalico": 6,
+    "sp_per_face": {
+      "A": 6,
+      "C": 6
+    },
+    "sp_total": 12,
+    "confidence": 0.85
+  },
+  "P219": {
+    "pilar": "P219",
+    "faces_found": [
+      "C",
+      "D",
+      "A",
+      "B"
+    ],
+    "chapa_vert": 2,
+    "chapa_horiz": 2,
+    "chapa_total": 4,
+    "grade_1": 102.0,
+    "grade_2": null,
+    "grade_source": "cota-grade-nearest",
+    "perfil_metalico": 6,
+    "sp_per_face": {
+      "C": 4,
+      "D": 4,
+      "A": 4,
+      "B": 4
+    },
+    "sp_total": 16,
+    "confidence": 0.85
+  },
+  "P220": {
+    "pilar": "P220",
+    "faces_found": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "chapa_vert": 1,
+    "chapa_horiz": 0,
+    "chapa_total": 1,
+    "grade_1": 102.0,
+    "grade_2": 100.0,
+    "grade_source": "cota-grade-nearest",
+    "perfil_metalico": 1,
+    "sp_per_face": {
+      "A": 4,
+      "B": 4,
+      "C": 3,
+      "D": 2
+    },
+    "sp_total": 13,
+    "confidence": 0.85
+  },
+  "P221": {
+    "pilar": "P221",
+    "faces_found": [
+      "C",
+      "D"
+    ],
+    "chapa_vert": 1,
+    "chapa_horiz": 1,
+    "chapa_total": 2,
+    "grade_1": 69.0,
+    "grade_2": null,
+    "grade_source": "cota-grade-nearest",
+    "perfil_metalico": 1,
+    "sp_per_face": {
+      "C": 4,
+      "D": 4
+    },
+    "sp_total": 8,
+    "confidence": 0.85
+  },
+  "P223": {
+    "pilar": "P223",
+    "faces_found": [
+      "A",
+      "B",
+      "C"
+    ],
+    "chapa_vert": 2,
+    "chapa_horiz": 2,
+    "chapa_total": 4,
+    "grade_1": 100.0,
+    "grade_2": 69.0,
+    "grade_source": "cota-grade-nearest",
+    "perfil_metalico": 3,
+    "sp_per_face": {
+      "A": 4,
+      "B": 4,
+      "C": 4
+    },
+    "sp_total": 12,
+    "confidence": 0.85
+  },
+  "P224": {
+    "pilar": "P224",
+    "faces_found": [
+      "A",
+      "C",
+      "D",
+      "B"
+    ],
+    "chapa_vert": 2,
+    "chapa_horiz": 2,
+    "chapa_total": 4,
+    "grade_1": 69.0,
+    "grade_2": null,
+    "grade_source": "cota-grade-nearest",
+    "perfil_metalico": 2,
+    "sp_per_face": {
+      "A": 4,
+      "C": 4,
+      "D": 3,
+      "B": 4
+    },
+    "sp_total": 15,
+    "confidence": 0.85
+  },
+  "P225": {
+    "pilar": "P225",
+    "faces_found": [
+      "B"
+    ],
+    "chapa_vert": 1,
+    "chapa_horiz": 0,
+    "chapa_total": 1,
+    "grade_1": 102.0,
+    "grade_2": null,
+    "grade_source": "cota-grade-nearest",
+    "perfil_metalico": 0,
+    "sp_per_face": {
+      "B": 4
+    },
+    "sp_total": 4,
+    "confidence": 0.85
+  },
+  "P226": {
+    "pilar": "P226",
+    "faces_found": [
+      "D"
+    ],
+    "chapa_vert": 1,
+    "chapa_horiz": 2,
+    "chapa_total": 3,
+    "grade_1": 102.0,
+    "grade_2": null,
+    "grade_source": "cota-grade-nearest",
+    "perfil_metalico": 6,
+    "sp_per_face": {
+      "D": 4
+    },
+    "sp_total": 4,
+    "confidence": 0.85
+  },
+  "P227": {
+    "pilar": "P227",
+    "faces_found": [
+      "A",
+      "C",
+      "B"
+    ],
+    "chapa_vert": 0,
+    "chapa_horiz": 1,
+    "chapa_total": 1,
+    "grade_1": 70.0,
+    "grade_2": null,
+    "grade_source": "cota-grade-nearest",
+    "perfil_metalico": 1,
+    "sp_per_face": {
+      "A": 4,
+      "C": 3,
+      "B": 4
+    },
+    "sp_total": 11,
+    "confidence": 0.85
+  },
+  "P228": {
+    "pilar": "P228",
+    "faces_found": [
+      "D",
+      "A",
+      "B",
+      "E",
+      "F"
+    ],
+    "chapa_vert": 0,
+    "chapa_horiz": 0,
+    "chapa_total": 0,
+    "grade_1": 70.0,
+    "grade_2": null,
+    "grade_source": "cota-grade-nearest",
+    "perfil_metalico": 0,
+    "sp_per_face": {
+      "D": 2,
+      "A": 2,
+      "B": 1,
+      "E": 2,
+      "F": 2
+    },
+    "sp_total": 9,
+    "confidence": 0.85
+  },
+  "P229": {
+    "pilar": "P229",
+    "faces_found": [
+      "A",
+      "C",
+      "D",
+      "B"
+    ],
+    "chapa_vert": 1,
+    "chapa_horiz": 0,
+    "chapa_total": 1,
+    "grade_1": 70.0,
+    "grade_2": null,
+    "grade_source": "cota-grade-nearest",
+    "perfil_metalico": 0,
+    "sp_per_face": {
+      "A": 4,
+      "C": 3,
+      "D": 2,
+      "B": 4
+    },
+    "sp_total": 13,
+    "confidence": 0.85
+  },
+  "P230": {
+    "pilar": "P230",
+    "faces_found": [
+      "C",
+      "D",
+      "A",
+      "B"
+    ],
+    "chapa_vert": 3,
+    "chapa_horiz": 3,
+    "chapa_total": 6,
+    "grade_1": 70.0,
+    "grade_2": null,
+    "grade_source": "cota-grade-nearest",
+    "perfil_metalico": 3,
+    "sp_per_face": {
+      "C": 4,
+      "D": 4,
+      "A": 4,
+      "B": 4
+    },
+    "sp_total": 16,
+    "confidence": 0.85
+  },
+  "P231": {
+    "pilar": "P231",
+    "faces_found": [
+      "C",
+      "D",
+      "A",
+      "B"
+    ],
+    "chapa_vert": 2,
+    "chapa_horiz": 2,
+    "chapa_total": 4,
+    "grade_1": 70.0,
+    "grade_2": null,
+    "grade_source": "cota-grade-nearest",
+    "perfil_metalico": 2,
+    "sp_per_face": {
+      "C": 4,
+      "D": 4,
+      "A": 4,
+      "B": 4
+    },
+    "sp_total": 16,
+    "confidence": 0.85
+  },
+  "P232": {
+    "pilar": "P232",
+    "faces_found": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "chapa_vert": 1,
+    "chapa_horiz": 0,
+    "chapa_total": 1,
+    "grade_1": 102.0,
+    "grade_2": null,
+    "grade_source": "cota-grade-nearest",
+    "perfil_metalico": 2,
+    "sp_per_face": {
+      "A": 4,
+      "B": 4,
+      "C": 3,
+      "D": 2
+    },
+    "sp_total": 13,
+    "confidence": 0.85
+  },
+  "P233": {
+    "pilar": "P233",
+    "faces_found": [
+      "C",
+      "D",
+      "A",
+      "B"
+    ],
+    "chapa_vert": 0,
+    "chapa_horiz": 0,
+    "chapa_total": 0,
+    "grade_1": 100.0,
+    "grade_2": null,
+    "grade_source": "cota-grade-nearest",
+    "perfil_metalico": 0,
+    "sp_per_face": {
+      "C": 3,
+      "D": 2,
+      "A": 4,
+      "B": 4
+    },
+    "sp_total": 13,
+    "confidence": 0.85
+  },
+  "P234": {
+    "pilar": "P234",
+    "faces_found": [
+      "C",
+      "D",
+      "A",
+      "B"
+    ],
+    "chapa_vert": 3,
+    "chapa_horiz": 2,
+    "chapa_total": 5,
+    "grade_1": 102.0,
+    "grade_2": null,
+    "grade_source": "cota-grade-nearest",
+    "perfil_metalico": 9,
+    "sp_per_face": {
+      "C": 4,
+      "D": 3,
+      "A": 4,
+      "B": 4
+    },
+    "sp_total": 15,
+    "confidence": 0.85
+  },
+  "P235": {
+    "pilar": "P235",
+    "faces_found": [
+      "D",
+      "C",
+      "A",
+      "B"
+    ],
+    "chapa_vert": 2,
+    "chapa_horiz": 2,
+    "chapa_total": 4,
+    "grade_1": 102.0,
+    "grade_2": null,
+    "grade_source": "cota-grade-nearest",
+    "perfil_metalico": 6,
+    "sp_per_face": {
+      "D": 3,
+      "C": 4,
+      "A": 4,
+      "B": 4
+    },
+    "sp_total": 15,
+    "confidence": 0.85
+  },
+  "P236": {
+    "pilar": "P236",
+    "faces_found": [
+      "B",
+      "A"
+    ],
+    "chapa_vert": 0,
+    "chapa_horiz": 1,
+    "chapa_total": 1,
+    "grade_1": 67.0,
+    "grade_2": null,
+    "grade_source": "cota-grade-nearest",
+    "perfil_metalico": 0,
+    "sp_per_face": {
+      "B": 4,
+      "A": 4
+    },
+    "sp_total": 8,
+    "confidence": 0.85
+  },
+  "P237": {
+    "pilar": "P237",
+    "faces_found": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "chapa_vert": 3,
+    "chapa_horiz": 3,
+    "chapa_total": 6,
+    "grade_1": 122.0,
+    "grade_2": null,
+    "grade_source": "cota-grade-nearest",
+    "perfil_metalico": 9,
+    "sp_per_face": {
+      "A": 4,
+      "B": 4,
+      "C": 4,
+      "D": 3
+    },
+    "sp_total": 15,
+    "confidence": 0.85
+  },
+  "P238": {
+    "pilar": "P238",
+    "faces_found": [
+      "D",
+      "C",
+      "B",
+      "A"
+    ],
+    "chapa_vert": 2,
+    "chapa_horiz": 2,
+    "chapa_total": 4,
+    "grade_1": 82.0,
+    "grade_2": 67.0,
+    "grade_source": "cota-grade-nearest",
+    "perfil_metalico": 9,
+    "sp_per_face": {
+      "D": 3,
+      "C": 4,
+      "B": 4,
+      "A": 4
+    },
+    "sp_total": 15,
+    "confidence": 0.85
+  },
+  "P239": {
+    "pilar": "P239",
+    "faces_found": [
+      "C",
+      "D",
+      "A",
+      "B"
+    ],
+    "chapa_vert": 2,
+    "chapa_horiz": 2,
+    "chapa_total": 4,
+    "grade_1": 67.0,
+    "grade_2": null,
+    "grade_source": "cota-grade-nearest",
+    "perfil_metalico": 6,
+    "sp_per_face": {
+      "C": 4,
+      "D": 4,
+      "A": 4,
+      "B": 4
+    },
+    "sp_total": 16,
+    "confidence": 0.85
+  },
+  "P240": {
+    "pilar": "P240",
+    "faces_found": [
+      "C",
+      "D",
+      "B",
+      "A"
+    ],
+    "chapa_vert": 3,
+    "chapa_horiz": 3,
+    "chapa_total": 6,
+    "grade_1": 67.0,
+    "grade_2": null,
+    "grade_source": "cota-grade-nearest",
+    "perfil_metalico": 9,
+    "sp_per_face": {
+      "C": 4,
+      "D": 4,
+      "B": 4,
+      "A": 4
+    },
+    "sp_total": 16,
+    "confidence": 0.85
+  },
+  "P241": {
+    "pilar": "P241",
+    "faces_found": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "chapa_vert": 3,
+    "chapa_horiz": 2,
+    "chapa_total": 5,
+    "grade_1": 122.0,
+    "grade_2": null,
+    "grade_source": "cota-grade-nearest",
+    "perfil_metalico": 8,
+    "sp_per_face": {
+      "A": 4,
+      "B": 4,
+      "C": 4,
+      "D": 3
+    },
+    "sp_total": 15,
+    "confidence": 0.85
+  },
+  "P243": {
+    "pilar": "P243",
+    "faces_found": [
+      "D"
+    ],
+    "chapa_vert": 1,
+    "chapa_horiz": 0,
+    "chapa_total": 1,
+    "grade_1": 102.0,
+    "grade_2": null,
+    "grade_source": "cota-grade-nearest",
+    "perfil_metalico": 0,
+    "sp_per_face": {
+      "D": 4
+    },
+    "sp_total": 4,
+    "confidence": 0.85
+  },
+  "P244": {
+    "pilar": "P244",
+    "faces_found": [
+      "A"
+    ],
+    "chapa_vert": 1,
+    "chapa_horiz": 0,
+    "chapa_total": 1,
+    "grade_1": 102.0,
+    "grade_2": null,
+    "grade_source": "cota-grade-nearest",
+    "perfil_metalico": 3,
+    "sp_per_face": {
+      "A": 4
+    },
+    "sp_total": 4,
+    "confidence": 0.85
+  },
+  "P245": {
+    "pilar": "P245",
+    "faces_found": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "chapa_vert": 2,
+    "chapa_horiz": 2,
+    "chapa_total": 4,
+    "grade_1": 102.0,
+    "grade_2": null,
+    "grade_source": "cota-grade-nearest",
+    "perfil_metalico": 6,
+    "sp_per_face": {
+      "A": 4,
+      "B": 4,
+      "C": 4,
+      "D": 4
+    },
+    "sp_total": 16,
+    "confidence": 0.85
+  },
+  "P412": {
+    "pilar": "P412",
+    "faces_found": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "chapa_vert": 2,
+    "chapa_horiz": 2,
+    "chapa_total": 4,
+    "grade_1": 102.0,
+    "grade_2": null,
+    "grade_source": "cota-grade-nearest",
+    "perfil_metalico": 6,
+    "sp_per_face": {
+      "A": 4,
+      "B": 4,
+      "C": 4,
+      "D": 4
+    },
+    "sp_total": 16,
+    "confidence": 0.85
+  },
+  "P438": {
+    "pilar": "P438",
+    "faces_found": [
+      "C",
+      "D",
+      "A",
+      "B"
+    ],
+    "chapa_vert": 2,
+    "chapa_horiz": 2,
+    "chapa_total": 4,
+    "grade_1": 82.0,
+    "grade_2": null,
+    "grade_source": "cota-grade-nearest",
+    "perfil_metalico": 6,
+    "sp_per_face": {
+      "C": 4,
+      "D": 4,
+      "A": 4,
+      "B": 4
+    },
+    "sp_total": 16,
+    "confidence": 0.85
+  }
+}

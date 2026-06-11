@@ -1,0 +1,144 @@
+{
+  "tipo": "vigas",
+  "score": 93.1,
+  "aprovado": true,
+  "limiar": 82.0,
+  "sub_tipos": {
+    "LV": {
+      "stog_dxf": "RB2 - CITTA DI LUCCA - TORRE 1 - 1°PAVIMENTO - LV - R00_R2018_ASCII_ODA.dxf",
+      "gerado_dxf": "LV_stog_quality.dxf",
+      "score": 89.2,
+      "detalhes": {
+        "id_match": {
+          "score": 30.0,
+          "max": 30,
+          "gt_count": 17,
+          "gerado_count": 17,
+          "id_match_rate": 1.0,
+          "hallucination_rate": 0.0,
+          "missed": [],
+          "hallucinated": []
+        },
+        "entity_coverage": {
+          "score": 29.2,
+          "max": 40,
+          "stog_total": 10581,
+          "gerado_total": 8283,
+          "global_ratio": 0.7828,
+          "critical_avg": 0.7067
+        },
+        "layer_presence": {
+          "score": 20.0,
+          "max": 20,
+          "present": 23,
+          "missing": 0,
+          "required_layers": 23,
+          "missing_list": []
+        },
+        "anti_hallucination": {
+          "score": 10.0,
+          "max": 10
+        }
+      },
+      "scorer": "kb-blended",
+      "kb_file": "RB2 - CITTA DI LUCCA - TORRE 1 - 1°PAVIMENTO - LV - R00_R2018_ASCII_ODA.dxf",
+      "aprovado": true,
+      "limiar": 85.0
+    },
+    "FV": {
+      "stog_dxf": "RB2 - CITTA DI LUCCA - TORRE 2 - 1°PAVIMENTO - FV - R01_R2018_ASCII_ODA.dxf",
+      "gerado_dxf": "FV_stog_quality.dxf",
+      "score": 98.9,
+      "detalhes": {
+        "id_match": {
+          "score": 30.0,
+          "max": 30,
+          "gt_count": 68,
+          "gerado_count": 17,
+          "id_match_rate": 1.0,
+          "hallucination_rate": 0.0,
+          "missed": [
+            "V1",
+            "V10",
+            "V11",
+            "V13",
+            "V14",
+            "V15",
+            "V17",
+            "V18",
+            "V19",
+            "V21",
+            "V22",
+            "V25",
+            "V26",
+            "V28",
+            "V29",
+            "V32",
+            "V38",
+            "V39",
+            "V4",
+            "V40",
+            "V41",
+            "V42",
+            "V43",
+            "V44",
+            "V45",
+            "V46",
+            "V47",
+            "V48",
+            "V49",
+            "V5",
+            "V50",
+            "V51",
+            "V52",
+            "V53",
+            "V54",
+            "V55",
+            "V56",
+            "V57",
+            "V58",
+            "V59",
+            "V6",
+            "V60",
+            "V61",
+            "V62",
+            "V63",
+            "V64",
+            "V65",
+            "V66",
+            "V67",
+            "V68",
+            "V8"
+          ],
+          "hallucinated": []
+        },
+        "entity_coverage": {
+          "score": 40.0,
+          "max": 40,
+          "stog_total": 1927,
+          "gerado_total": 1063,
+          "global_ratio": 1.0,
+          "critical_avg": 1.0
+        },
+        "layer_presence": {
+          "score": 18.9,
+          "max": 20,
+          "present": 17,
+          "missing": 1,
+          "required_layers": 18,
+          "missing_list": [
+            "SARRAFO DE PRESSAO"
+          ]
+        },
+        "anti_hallucination": {
+          "score": 10.0,
+          "max": 10
+        }
+      },
+      "scorer": "kb-blended",
+      "kb_file": "RB2 - CITTA DI LUCCA - TORRE 2 - 1°PAVIMENTO - FV - R01_R2018_ASCII_ODA.dxf",
+      "aprovado": true,
+      "limiar": 80.0
+    }
+  }
+}

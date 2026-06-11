@@ -25,8 +25,8 @@
       ]
     ],
     "area_cm2": 10000.0,
-    "confidence": 0.3,
-    "source": "label-only",
+    "confidence": 0.03,
+    "source": "fallback-lajes_ground_truth.json",
     "modo_selecionado": 0
   },
   "L315": {
@@ -55,8 +55,8 @@
       ]
     ],
     "area_cm2": 10000.0,
-    "confidence": 0.3,
-    "source": "label-only",
+    "confidence": 0.03,
+    "source": "fallback-lajes_ground_truth.json",
     "modo_selecionado": 0
   },
   "L318": {
@@ -85,8 +85,8 @@
       ]
     ],
     "area_cm2": 10000.0,
-    "confidence": 0.3,
-    "source": "label-only",
+    "confidence": 0.03,
+    "source": "fallback-lajes_ground_truth.json",
     "modo_selecionado": 0
   },
   "L319": {
@@ -115,8 +115,8 @@
       ]
     ],
     "area_cm2": 10000.0,
-    "confidence": 0.3,
-    "source": "label-only",
+    "confidence": 0.03,
+    "source": "fallback-lajes_ground_truth.json",
     "modo_selecionado": 0
   },
   "L320": {
@@ -145,8 +145,8 @@
       ]
     ],
     "area_cm2": 10000.0,
-    "confidence": 0.3,
-    "source": "label-only",
+    "confidence": 0.03,
+    "source": "fallback-lajes_ground_truth.json",
     "modo_selecionado": 0
   },
   "L321": {
@@ -175,8 +175,8 @@
       ]
     ],
     "area_cm2": 10000.0,
-    "confidence": 0.3,
-    "source": "label-only",
+    "confidence": 0.03,
+    "source": "fallback-lajes_ground_truth.json",
     "modo_selecionado": 0
   },
   "L324": {
@@ -205,8 +205,8 @@
       ]
     ],
     "area_cm2": 10000.0,
-    "confidence": 0.3,
-    "source": "label-only",
+    "confidence": 0.03,
+    "source": "fallback-lajes_ground_truth.json",
     "modo_selecionado": 0
   },
   "L325": {
@@ -235,8 +235,8 @@
       ]
     ],
     "area_cm2": 10000.0,
-    "confidence": 0.3,
-    "source": "label-only",
+    "confidence": 0.03,
+    "source": "fallback-lajes_ground_truth.json",
     "modo_selecionado": 0
   },
   "L328": {
@@ -265,8 +265,8 @@
       ]
     ],
     "area_cm2": 10000.0,
-    "confidence": 0.3,
-    "source": "label-only",
+    "confidence": 0.03,
+    "source": "fallback-lajes_ground_truth.json",
     "modo_selecionado": 0
   },
   "L329": {
@@ -295,8 +295,8 @@
       ]
     ],
     "area_cm2": 10000.0,
-    "confidence": 0.3,
-    "source": "label-only",
+    "confidence": 0.03,
+    "source": "fallback-lajes_ground_truth.json",
     "modo_selecionado": 0
   },
   "L330": {
@@ -325,8 +325,8 @@
       ]
     ],
     "area_cm2": 10000.0,
-    "confidence": 0.3,
-    "source": "label-only",
+    "confidence": 0.03,
+    "source": "fallback-lajes_ground_truth.json",
     "modo_selecionado": 0
   },
   "L336": {
@@ -355,8 +355,8 @@
       ]
     ],
     "area_cm2": 10000.0,
-    "confidence": 0.3,
-    "source": "label-only",
+    "confidence": 0.03,
+    "source": "fallback-lajes_ground_truth.json",
     "modo_selecionado": 0
   },
   "L343": {
@@ -385,8 +385,8 @@
       ]
     ],
     "area_cm2": 10000.0,
-    "confidence": 0.3,
-    "source": "label-only",
+    "confidence": 0.03,
+    "source": "fallback-lajes_ground_truth.json",
     "modo_selecionado": 0
   },
   "L344": {
@@ -415,8 +415,8 @@
       ]
     ],
     "area_cm2": 10000.0,
-    "confidence": 0.3,
-    "source": "label-only",
+    "confidence": 0.03,
+    "source": "fallback-lajes_ground_truth.json",
     "modo_selecionado": 0
   },
   "L345": {
@@ -445,8 +445,8 @@
       ]
     ],
     "area_cm2": 10000.0,
-    "confidence": 0.3,
-    "source": "label-only",
+    "confidence": 0.03,
+    "source": "fallback-lajes_ground_truth.json",
     "modo_selecionado": 0
   },
   "L354": {
@@ -475,8 +475,8 @@
       ]
     ],
     "area_cm2": 10000.0,
-    "confidence": 0.3,
-    "source": "label-only",
+    "confidence": 0.03,
+    "source": "fallback-lajes_ground_truth.json",
     "modo_selecionado": 0
   },
   "L355": {
@@ -505,8 +505,8 @@
       ]
     ],
     "area_cm2": 10000.0,
-    "confidence": 0.3,
-    "source": "label-only",
+    "confidence": 0.03,
+    "source": "fallback-lajes_ground_truth.json",
     "modo_selecionado": 0
   },
   "L358": {
@@ -535,8 +535,8 @@
       ]
     ],
     "area_cm2": 10000.0,
-    "confidence": 0.3,
-    "source": "label-only",
+    "confidence": 0.03,
+    "source": "fallback-lajes_ground_truth.json",
     "modo_selecionado": 0
   },
   "L359": {
@@ -565,8 +565,8 @@
       ]
     ],
     "area_cm2": 10000.0,
-    "confidence": 0.3,
-    "source": "label-only",
+    "confidence": 0.03,
+    "source": "fallback-lajes_ground_truth.json",
     "modo_selecionado": 0
   },
   "L360": {
@@ -595,8 +595,8 @@
       ]
     ],
     "area_cm2": 10000.0,
-    "confidence": 0.3,
-    "source": "label-only",
+    "confidence": 0.03,
+    "source": "fallback-lajes_ground_truth.json",
     "modo_selecionado": 0
   },
   "L361": {
@@ -625,8 +625,8 @@
       ]
     ],
     "area_cm2": 10000.0,
-    "confidence": 0.3,
-    "source": "label-only",
+    "confidence": 0.03,
+    "source": "fallback-lajes_ground_truth.json",
     "modo_selecionado": 0
   },
   "L365": {
@@ -655,8 +655,8 @@
       ]
     ],
     "area_cm2": 10000.0,
-    "confidence": 0.3,
-    "source": "label-only",
+    "confidence": 0.03,
+    "source": "fallback-lajes_ground_truth.json",
     "modo_selecionado": 0
   },
   "L366": {
@@ -685,8 +685,8 @@
       ]
     ],
     "area_cm2": 10000.0,
-    "confidence": 0.3,
-    "source": "label-only",
+    "confidence": 0.03,
+    "source": "fallback-lajes_ground_truth.json",
     "modo_selecionado": 0
   },
   "L367": {
@@ -715,8 +715,8 @@
       ]
     ],
     "area_cm2": 10000.0,
-    "confidence": 0.3,
-    "source": "label-only",
+    "confidence": 0.03,
+    "source": "fallback-lajes_ground_truth.json",
     "modo_selecionado": 0
   },
   "L368": {
@@ -745,8 +745,8 @@
       ]
     ],
     "area_cm2": 10000.0,
-    "confidence": 0.3,
-    "source": "label-only",
+    "confidence": 0.03,
+    "source": "fallback-lajes_ground_truth.json",
     "modo_selecionado": 0
   },
   "L369": {
@@ -775,8 +775,8 @@
       ]
     ],
     "area_cm2": 10000.0,
-    "confidence": 0.3,
-    "source": "label-only",
+    "confidence": 0.03,
+    "source": "fallback-lajes_ground_truth.json",
     "modo_selecionado": 0
   },
   "L370": {
@@ -805,15 +805,15 @@
       ]
     ],
     "area_cm2": 10000.0,
-    "confidence": 0.3,
-    "source": "label-only",
+    "confidence": 0.03,
+    "source": "fallback-lajes_ground_truth.json",
     "modo_selecionado": 0
   },
   "_meta": {
     "total": 26,
     "integrado_em": "2026-03-08",
     "fontes": [
-      "lajes_data.json"
+      "lajes_poligono.json"
     ]
   }
 }

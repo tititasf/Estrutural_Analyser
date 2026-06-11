@@ -1,4 +1,12 @@
 {
+  "P16": {
+    "b": 14.0,
+    "h": 60.0,
+    "confidence": 0.4,
+    "source": "proximity-fallback",
+    "dist_d1": 15496.2,
+    "dist_d2": 15662.0
+  },
   "P314": {
     "b": 19.0,
     "h": 36.0,
@@ -125,15 +133,15 @@
     "dist_d2": 131.2
   },
   "_meta": {
-    "total": 15,
-    "extraidos_bh_completo": 15,
+    "total": 16,
+    "extraidos_bh_completo": 16,
     "extraidos_parcial": 0,
     "sem_dados": 0,
     "cobertura_pct": 100.0,
     "max_dist": 300.0,
     "obra": "Obra_TREINO_9",
     "pavimento": "TORRE 2 - TÉRREO - PERIFERIA",
-    "extraido_em": "2026-03-09",
+    "extraido_em": "2026-05-07",
     "algoritmo": "dimension-proximity-matching"
   }
 }

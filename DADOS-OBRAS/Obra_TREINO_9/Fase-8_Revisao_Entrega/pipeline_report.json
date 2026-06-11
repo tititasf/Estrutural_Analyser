@@ -1,27 +1,37 @@
 {
   "obra": "Obra_TREINO_9",
-  "pavimento": "TORRE 2 - TÉRREO - PERIFERIA",
-  "timestamp": "2026-03-09T07:36:43.926728",
+  "pavimento": "TORRE 1 - 1PAVIMENTO",
+  "timestamp": "2026-05-14T02:06:04.496800",
   "fases": {
     "descoberta": "SKIP",
-    "eng_reversa": "OK",
-    "extracao_dimensional": "OK",
-    "motor_fase4": "OK",
-    "geracao_dxf_individual": "OK",
+    "eng_reversa": "SKIP",
+    "extracao_dimensional": "SKIP",
+    "motor_fase4": "SKIP",
+    "geracao_dxf_individual": "SKIP",
     "comparacao_individual": "OK",
-    "ancoras": "OK",
-    "consolidacao_coletivo": "OK",
+    "ancoras": "SKIP",
+    "consolidacao_coletivo": "SKIP",
     "validacao_coletivo": "OK",
-    "obras_salvas": "OK"
+    "obras_salvas": "SKIP",
+    "validacao_visual": "OK"
   },
   "scores": {
+    "visual": {
+      "score_pavimento": 68.9,
+      "tipos": [
+        "PL",
+        "LV",
+        "FV",
+        "LJ"
+      ]
+    },
     "coletivo": {
-      "pilares": 96.2,
+      "pilares": 100.0,
       "vigas": 100.0,
       "lajes": 100.0,
-      "global": 98.5,
+      "global": 100.0,
       "aprovado": true
     }
   },
-  "status": "APROVADO"
+  "status": "PARCIAL"
 }

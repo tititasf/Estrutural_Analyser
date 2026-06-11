@@ -1,21 +1,19 @@
 {
   "obra": "Obra_TREINO_9",
-  "pavimento": "TORRE 2 - TÉRREO - PERIFERIA",
+  "pavimento": "TORRE 1 - 1PAVIMENTO",
   "elementos": {
     "pilares": {
       "tipo": "pilares",
       "gt_count": 16,
-      "gerado_count": 15,
-      "correct": 15,
+      "gerado_count": 16,
+      "correct": 16,
       "hallucinated": [],
-      "missed": [
-        "P16"
-      ],
-      "id_match": 0.9375,
+      "missed": [],
+      "id_match": 1.0,
       "hallucination_rate": 0.0,
-      "count_match": 0.9375,
-      "score": 0.9625,
-      "score_percent": 96.2,
+      "count_match": 1.0,
+      "score": 1.0,
+      "score_percent": 100.0,
       "aprovado": true
     },
     "vigas": {
@@ -47,7 +45,7 @@
       "aprovado": true
     }
   },
-  "score_global": 0.985,
-  "score_global_percent": 98.5,
+  "score_global": 1.0,
+  "score_global_percent": 100.0,
   "aprovado": true
 }
