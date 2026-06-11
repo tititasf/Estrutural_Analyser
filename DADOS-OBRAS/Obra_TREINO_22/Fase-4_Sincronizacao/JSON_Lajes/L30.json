@@ -1,20 +1,20 @@
 {
   "numero": 30,
   "nome": "L30",
-  "comprimento": 70.5,
+  "comprimento": 140.6,
   "largura": 113.0,
-  "pavimento": "2 PAV",
+  "pavimento": "2PAV",
   "coordenadas": [
     [
       0.0,
       0.0
     ],
     [
-      70.5,
+      140.6,
       0.0
     ],
     [
-      70.5,
+      140.6,
       113.0
     ],
     [
@@ -26,10 +26,14 @@
       0.0
     ]
   ],
-  "area_cm2": 7966.5,
+  "area_cm2": 15887.8,
   "linhas_verticais": [
     {
-      "value": 70.5,
+      "value": 100.0,
+      "is_union": false
+    },
+    {
+      "value": 140.6,
       "is_union": false
     }
   ],

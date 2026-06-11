@@ -1,9 +1,9 @@
 {
   "number": "27",
   "name": "V27_B",
-  "floor": "2 PAV",
+  "floor": "2PAV",
   "side": "B",
-  "total_width": 15.0,
+  "total_width": 14.0,
   "total_height": "60.0",
   "panels": [
     {

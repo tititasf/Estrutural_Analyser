@@ -1,20 +1,20 @@
 {
   "numero": 10,
   "nome": "L10",
-  "comprimento": 115.5,
+  "comprimento": 187.5,
   "largura": 122.0,
-  "pavimento": "2 PAV",
+  "pavimento": "2PAV",
   "coordenadas": [
     [
       0.0,
       0.0
     ],
     [
-      115.5,
+      187.5,
       0.0
     ],
     [
-      115.5,
+      187.5,
       122.0
     ],
     [
@@ -26,14 +26,14 @@
       0.0
     ]
   ],
-  "area_cm2": 14091.0,
+  "area_cm2": 22875.0,
   "linhas_verticais": [
     {
       "value": 100.0,
       "is_union": false
     },
     {
-      "value": 115.5,
+      "value": 187.5,
       "is_union": false
     }
   ],

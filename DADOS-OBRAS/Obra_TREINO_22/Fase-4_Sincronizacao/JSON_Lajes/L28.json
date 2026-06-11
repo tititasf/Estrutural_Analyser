@@ -1,35 +1,43 @@
 {
   "numero": 28,
   "nome": "L28",
-  "comprimento": 100.0,
-  "largura": 100.0,
-  "pavimento": "2 PAV",
+  "comprimento": 295.0,
+  "largura": 244.0,
+  "pavimento": "2PAV",
   "coordenadas": [
     [
       0.0,
       0.0
     ],
     [
-      100.0,
+      295.0,
       0.0
     ],
     [
-      100.0,
-      100.0
+      295.0,
+      244.0
     ],
     [
       0.0,
-      100.0
+      244.0
     ],
     [
       0.0,
       0.0
     ]
   ],
-  "area_cm2": 10000.0,
+  "area_cm2": 71980.0,
   "linhas_verticais": [
     {
       "value": 100.0,
+      "is_union": false
+    },
+    {
+      "value": 200.0,
+      "is_union": false
+    },
+    {
+      "value": 295.0,
       "is_union": false
     }
   ],

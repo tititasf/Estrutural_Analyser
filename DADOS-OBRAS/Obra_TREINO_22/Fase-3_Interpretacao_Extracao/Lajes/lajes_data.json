@@ -680,8 +680,8 @@
   },
   "_meta": {
     "total": 36,
-    "pavimento": "2 PAV",
-    "extraido_em": "2026-03-09",
+    "pavimento": "2PAV",
+    "extraido_em": "2026-05-06",
     "com_paineis": 5,
     "com_coordenadas": 1,
     "nota": "AUX00 contem paineis individuais de forma, nao coordenadas estruturais da laje"

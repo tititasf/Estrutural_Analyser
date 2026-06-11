@@ -1,9 +1,9 @@
 {
   "number": "15",
   "name": "V15_A",
-  "floor": "2 PAV",
+  "floor": "2PAV",
   "side": "A",
-  "total_width": 15.0,
+  "total_width": 55.95,
   "total_height": "38.0",
   "panels": [
     {

@@ -1,0 +1,104 @@
+{
+  "tipo": "vigas",
+  "score": 90.6,
+  "aprovado": true,
+  "limiar": 82.0,
+  "sub_tipos": {
+    "LV": {
+      "stog_dxf": "STOG - NURBAN - 1° PAV.- LV - R00_R2018_ASCII_ODA.dxf",
+      "gerado_dxf": "LV_stog_quality.dxf",
+      "score": 93.8,
+      "detalhes": {
+        "id_match": {
+          "score": 30.0,
+          "max": 30,
+          "gt_count": 41,
+          "gerado_count": 41,
+          "id_match_rate": 1.0,
+          "hallucination_rate": 0.0,
+          "missed": [],
+          "hallucinated": []
+        },
+        "entity_coverage": {
+          "score": 36.9,
+          "max": 40,
+          "stog_total": 10485,
+          "gerado_total": 10634,
+          "global_ratio": 1.0,
+          "critical_avg": 0.8903
+        },
+        "layer_presence": {
+          "score": 16.9,
+          "max": 20,
+          "present": 22,
+          "missing": 4,
+          "required_layers": 26,
+          "missing_list": [
+            "Demarcação 1",
+            "SARRAFO DE PRESSAO",
+            "Demarcação 2",
+            "Laje_Perimetro"
+          ]
+        },
+        "anti_hallucination": {
+          "score": 10.0,
+          "max": 10
+        }
+      },
+      "scorer": "kb-blended",
+      "kb_file": "STOG - NURBAN - 1° PAV.- LV - R00_R2018_ASCII_ODA.dxf",
+      "aprovado": true,
+      "limiar": 85.0
+    },
+    "FV": {
+      "stog_dxf": "STOG - NURBAN - 1° PAV.- FV - R00_R2018_ASCII_ODA.dxf",
+      "gerado_dxf": "FV_stog_quality.dxf",
+      "score": 85.8,
+      "detalhes": {
+        "id_match": {
+          "score": 27.3,
+          "max": 30,
+          "gt_count": 45,
+          "gerado_count": 41,
+          "id_match_rate": 0.9111,
+          "hallucination_rate": 0.0,
+          "missed": [
+            "V40",
+            "V42",
+            "V44",
+            "V45"
+          ],
+          "hallucinated": []
+        },
+        "entity_coverage": {
+          "score": 31.7,
+          "max": 40,
+          "stog_total": 1897,
+          "gerado_total": 1270,
+          "global_ratio": 0.6695,
+          "critical_avg": 0.8469
+        },
+        "layer_presence": {
+          "score": 16.7,
+          "max": 20,
+          "present": 15,
+          "missing": 3,
+          "required_layers": 18,
+          "missing_list": [
+            "Demarcação 1",
+            "SARRAFO DE PRESSAO",
+            "Demarcação 2"
+          ]
+        },
+        "anti_hallucination": {
+          "score": 10.0,
+          "max": 10
+        }
+      },
+      "scorer": "kb-blended",
+      "kb_file": "STOG - NURBAN - 1° PAV.- FV - R00_R2018_ASCII_ODA.dxf",
+      "aprovado": true,
+      "limiar": 80.0
+    }
+  }
+}

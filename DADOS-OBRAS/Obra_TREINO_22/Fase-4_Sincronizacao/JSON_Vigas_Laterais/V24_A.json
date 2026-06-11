@@ -1,9 +1,9 @@
 {
   "number": "24",
   "name": "V24_A",
-  "floor": "2 PAV",
+  "floor": "2PAV",
   "side": "A",
-  "total_width": 15.0,
+  "total_width": 19.0,
   "total_height": "38.0",
   "panels": [
     {

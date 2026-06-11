@@ -1,9 +1,9 @@
 {
   "number": "37",
   "name": "V37_A",
-  "floor": "2 PAV",
+  "floor": "2PAV",
   "side": "A",
-  "total_width": 15.0,
+  "total_width": 50.0,
   "total_height": "320.0",
   "panels": [
     {

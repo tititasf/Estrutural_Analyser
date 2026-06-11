@@ -1,9 +1,9 @@
 {
   "number": "10",
   "name": "V10_B",
-  "floor": "2 PAV",
+  "floor": "2PAV",
   "side": "B",
-  "total_width": 15.0,
+  "total_width": 19.0,
   "total_height": "160.0",
   "panels": [
     {

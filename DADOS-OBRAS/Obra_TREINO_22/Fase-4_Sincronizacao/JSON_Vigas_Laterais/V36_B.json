@@ -1,9 +1,9 @@
 {
   "number": "36",
   "name": "V36_B",
-  "floor": "2 PAV",
+  "floor": "2PAV",
   "side": "B",
-  "total_width": 15.0,
+  "total_width": 50.0,
   "total_height": "38.0",
   "panels": [
     {

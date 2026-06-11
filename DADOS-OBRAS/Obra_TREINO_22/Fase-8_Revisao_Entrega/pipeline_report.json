@@ -1,20 +1,30 @@
 {
   "obra": "Obra_TREINO_22",
-  "pavimento": "2 PAV",
-  "timestamp": "2026-03-09T07:21:32.250256",
+  "pavimento": "1PAV",
+  "timestamp": "2026-05-14T12:53:21.604511",
   "fases": {
     "descoberta": "SKIP",
-    "eng_reversa": "OK",
-    "extracao_dimensional": "OK",
-    "motor_fase4": "OK",
-    "geracao_dxf_individual": "OK",
+    "eng_reversa": "SKIP",
+    "extracao_dimensional": "SKIP",
+    "motor_fase4": "SKIP",
+    "geracao_dxf_individual": "SKIP",
     "comparacao_individual": "OK",
-    "ancoras": "OK",
-    "consolidacao_coletivo": "OK",
+    "ancoras": "SKIP",
+    "consolidacao_coletivo": "SKIP",
     "validacao_coletivo": "OK",
-    "obras_salvas": "OK"
+    "obras_salvas": "SKIP",
+    "validacao_visual": "OK"
   },
   "scores": {
+    "visual": {
+      "score_pavimento": 40.6,
+      "tipos": [
+        "PL",
+        "LV",
+        "FV",
+        "LJ"
+      ]
+    },
     "coletivo": {
       "pilares": 100.0,
       "vigas": 100.0,
@@ -23,5 +33,5 @@
       "aprovado": true
     }
   },
-  "status": "APROVADO"
+  "status": "PARCIAL"
 }

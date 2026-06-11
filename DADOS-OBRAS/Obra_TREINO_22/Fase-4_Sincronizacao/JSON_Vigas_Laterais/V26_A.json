@@ -1,9 +1,9 @@
 {
   "number": "26",
   "name": "V26_A",
-  "floor": "2 PAV",
+  "floor": "2PAV",
   "side": "A",
-  "total_width": 15.0,
+  "total_width": 64.49,
   "total_height": "28.0",
   "panels": [
     {

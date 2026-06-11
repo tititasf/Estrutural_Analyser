@@ -1,9 +1,9 @@
 {
   "number": "21",
   "name": "V21_B",
-  "floor": "2 PAV",
+  "floor": "2PAV",
   "side": "B",
-  "total_width": 15.0,
+  "total_width": 26.7,
   "total_height": "38.0",
   "panels": [
     {

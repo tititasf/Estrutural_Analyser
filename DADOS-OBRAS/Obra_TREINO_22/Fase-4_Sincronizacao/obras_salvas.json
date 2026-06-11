@@ -1,6 +1,6 @@
 {
   "Obra_TREINO_22": {
-    "2 PAV": {
+    "2PAV": {
       "1": {
         "dados": {
           "numero": "1",
@@ -8,9 +8,9 @@
           "obra": "Obra_TREINO_22",
           "comprimento": "60",
           "largura": "48",
-          "pavimento": "2 PAV",
+          "pavimento": "2PAV",
           "pavimento_numero": "1",
-          "pavimento_anterior": "2 PAV",
+          "pavimento_anterior": "2PAV",
           "nivel_saida": "280.0",
           "nivel_chegada": "0.0",
           "nivel_diferencial": "",
@@ -26,9 +26,9 @@
             "par_8_9": "0"
           },
           "grades": {
-            "grade_1": "0",
+            "grade_1": "122",
             "distancia_1": "14",
-            "grade_2": "",
+            "grade_2": "92",
             "distancia_2": "",
             "grade_3": ""
           },
@@ -416,7 +416,7 @@
           "hachura_paineis": false,
           "m2_total": 0.0
         },
-        "item_id": "1_2 PAV",
+        "item_id": "1_2PAV",
         "locks": {}
       },
       "2": {
@@ -426,9 +426,9 @@
           "obra": "Obra_TREINO_22",
           "comprimento": "60",
           "largura": "38",
-          "pavimento": "2 PAV",
+          "pavimento": "2PAV",
           "pavimento_numero": "1",
-          "pavimento_anterior": "2 PAV",
+          "pavimento_anterior": "2PAV",
           "nivel_saida": "280.0",
           "nivel_chegada": "0.0",
           "nivel_diferencial": "",
@@ -444,7 +444,7 @@
             "par_8_9": "0"
           },
           "grades": {
-            "grade_1": "0",
+            "grade_1": "92",
             "distancia_1": "14",
             "grade_2": "",
             "distancia_2": "",
@@ -834,7 +834,7 @@
           "hachura_paineis": false,
           "m2_total": 0.0
         },
-        "item_id": "2_2 PAV",
+        "item_id": "2_2PAV",
         "locks": {}
       },
       "3": {
@@ -844,9 +844,9 @@
           "obra": "Obra_TREINO_22",
           "comprimento": "60",
           "largura": "38",
-          "pavimento": "2 PAV",
+          "pavimento": "2PAV",
           "pavimento_numero": "1",
-          "pavimento_anterior": "2 PAV",
+          "pavimento_anterior": "2PAV",
           "nivel_saida": "280.0",
           "nivel_chegada": "0.0",
           "nivel_diferencial": "",
@@ -862,7 +862,7 @@
             "par_8_9": "0"
           },
           "grades": {
-            "grade_1": "0",
+            "grade_1": "92",
             "distancia_1": "14",
             "grade_2": "",
             "distancia_2": "",
@@ -1252,7 +1252,7 @@
           "hachura_paineis": false,
           "m2_total": 0.0
         },
-        "item_id": "3_2 PAV",
+        "item_id": "3_2PAV",
         "locks": {}
       },
       "4": {
@@ -1262,9 +1262,9 @@
           "obra": "Obra_TREINO_22",
           "comprimento": "44",
           "largura": "42",
-          "pavimento": "2 PAV",
+          "pavimento": "2PAV",
           "pavimento_numero": "1",
-          "pavimento_anterior": "2 PAV",
+          "pavimento_anterior": "2PAV",
           "nivel_saida": "280.0",
           "nivel_chegada": "0.0",
           "nivel_diferencial": "",
@@ -1280,7 +1280,7 @@
             "par_8_9": "0"
           },
           "grades": {
-            "grade_1": "0",
+            "grade_1": "65",
             "distancia_1": "14",
             "grade_2": "",
             "distancia_2": "",
@@ -1670,7 +1670,7 @@
           "hachura_paineis": false,
           "m2_total": 0.0
         },
-        "item_id": "4_2 PAV",
+        "item_id": "4_2PAV",
         "locks": {}
       },
       "6": {
@@ -1680,9 +1680,9 @@
           "obra": "Obra_TREINO_22",
           "comprimento": "44",
           "largura": "42",
-          "pavimento": "2 PAV",
+          "pavimento": "2PAV",
           "pavimento_numero": "1",
-          "pavimento_anterior": "2 PAV",
+          "pavimento_anterior": "2PAV",
           "nivel_saida": "280.0",
           "nivel_chegada": "0.0",
           "nivel_diferencial": "",
@@ -1698,7 +1698,7 @@
             "par_8_9": "0"
           },
           "grades": {
-            "grade_1": "0",
+            "grade_1": "65",
             "distancia_1": "14",
             "grade_2": "",
             "distancia_2": "",
@@ -2088,7 +2088,7 @@
           "hachura_paineis": false,
           "m2_total": 0.0
         },
-        "item_id": "6_2 PAV",
+        "item_id": "6_2PAV",
         "locks": {}
       },
       "7": {
@@ -2098,9 +2098,9 @@
           "obra": "Obra_TREINO_22",
           "comprimento": "58",
           "largura": "38",
-          "pavimento": "2 PAV",
+          "pavimento": "2PAV",
           "pavimento_numero": "1",
-          "pavimento_anterior": "2 PAV",
+          "pavimento_anterior": "2PAV",
           "nivel_saida": "280.0",
           "nivel_chegada": "0.0",
           "nivel_diferencial": "",
@@ -2116,7 +2116,7 @@
             "par_8_9": "0"
           },
           "grades": {
-            "grade_1": "0",
+            "grade_1": "117",
             "distancia_1": "14",
             "grade_2": "",
             "distancia_2": "",
@@ -2506,7 +2506,7 @@
           "hachura_paineis": false,
           "m2_total": 0.0
         },
-        "item_id": "7_2 PAV",
+        "item_id": "7_2PAV",
         "locks": {}
       },
       "8": {
@@ -2516,9 +2516,9 @@
           "obra": "Obra_TREINO_22",
           "comprimento": "95",
           "largura": "38",
-          "pavimento": "2 PAV",
+          "pavimento": "2PAV",
           "pavimento_numero": "1",
-          "pavimento_anterior": "2 PAV",
+          "pavimento_anterior": "2PAV",
           "nivel_saida": "280.0",
           "nivel_chegada": "0.0",
           "nivel_diferencial": "",
@@ -2534,9 +2534,9 @@
             "par_8_9": "0"
           },
           "grades": {
-            "grade_1": "0",
+            "grade_1": "102",
             "distancia_1": "14",
-            "grade_2": "",
+            "grade_2": "65",
             "distancia_2": "",
             "grade_3": ""
           },
@@ -2924,7 +2924,7 @@
           "hachura_paineis": false,
           "m2_total": 0.0
         },
-        "item_id": "8_2 PAV",
+        "item_id": "8_2PAV",
         "locks": {}
       },
       "9": {
@@ -2934,9 +2934,9 @@
           "obra": "Obra_TREINO_22",
           "comprimento": "60",
           "largura": "48",
-          "pavimento": "2 PAV",
+          "pavimento": "2PAV",
           "pavimento_numero": "1",
-          "pavimento_anterior": "2 PAV",
+          "pavimento_anterior": "2PAV",
           "nivel_saida": "280.0",
           "nivel_chegada": "0.0",
           "nivel_diferencial": "",
@@ -2952,9 +2952,9 @@
             "par_8_9": "0"
           },
           "grades": {
-            "grade_1": "0",
+            "grade_1": "122",
             "distancia_1": "14",
-            "grade_2": "",
+            "grade_2": "102",
             "distancia_2": "",
             "grade_3": ""
           },
@@ -3342,7 +3342,7 @@
           "hachura_paineis": false,
           "m2_total": 0.0
         },
-        "item_id": "9_2 PAV",
+        "item_id": "9_2PAV",
         "locks": {}
       },
       "10": {
@@ -3352,9 +3352,9 @@
           "obra": "Obra_TREINO_22",
           "comprimento": "58",
           "largura": "38",
-          "pavimento": "2 PAV",
+          "pavimento": "2PAV",
           "pavimento_numero": "1",
-          "pavimento_anterior": "2 PAV",
+          "pavimento_anterior": "2PAV",
           "nivel_saida": "280.0",
           "nivel_chegada": "0.0",
           "nivel_diferencial": "",
@@ -3370,7 +3370,7 @@
             "par_8_9": "0"
           },
           "grades": {
-            "grade_1": "0",
+            "grade_1": "117",
             "distancia_1": "14",
             "grade_2": "",
             "distancia_2": "",
@@ -3760,7 +3760,7 @@
           "hachura_paineis": false,
           "m2_total": 0.0
         },
-        "item_id": "10_2 PAV",
+        "item_id": "10_2PAV",
         "locks": {}
       },
       "11": {
@@ -3770,9 +3770,9 @@
           "obra": "Obra_TREINO_22",
           "comprimento": "58",
           "largura": "38",
-          "pavimento": "2 PAV",
+          "pavimento": "2PAV",
           "pavimento_numero": "1",
-          "pavimento_anterior": "2 PAV",
+          "pavimento_anterior": "2PAV",
           "nivel_saida": "280.0",
           "nivel_chegada": "0.0",
           "nivel_diferencial": "",
@@ -3788,9 +3788,9 @@
             "par_8_9": "0"
           },
           "grades": {
-            "grade_1": "0",
+            "grade_1": "117",
             "distancia_1": "14",
-            "grade_2": "",
+            "grade_2": "75",
             "distancia_2": "",
             "grade_3": ""
           },
@@ -4178,7 +4178,7 @@
           "hachura_paineis": false,
           "m2_total": 0.0
         },
-        "item_id": "11_2 PAV",
+        "item_id": "11_2PAV",
         "locks": {}
       },
       "12": {
@@ -4188,9 +4188,9 @@
           "obra": "Obra_TREINO_22",
           "comprimento": "44",
           "largura": "42",
-          "pavimento": "2 PAV",
+          "pavimento": "2PAV",
           "pavimento_numero": "1",
-          "pavimento_anterior": "2 PAV",
+          "pavimento_anterior": "2PAV",
           "nivel_saida": "280.0",
           "nivel_chegada": "0.0",
           "nivel_diferencial": "",
@@ -4206,7 +4206,7 @@
             "par_8_9": "0"
           },
           "grades": {
-            "grade_1": "0",
+            "grade_1": "65",
             "distancia_1": "14",
             "grade_2": "",
             "distancia_2": "",
@@ -4596,7 +4596,7 @@
           "hachura_paineis": false,
           "m2_total": 0.0
         },
-        "item_id": "12_2 PAV",
+        "item_id": "12_2PAV",
         "locks": {}
       },
       "13": {
@@ -4606,9 +4606,9 @@
           "obra": "Obra_TREINO_22",
           "comprimento": "95",
           "largura": "38",
-          "pavimento": "2 PAV",
+          "pavimento": "2PAV",
           "pavimento_numero": "1",
-          "pavimento_anterior": "2 PAV",
+          "pavimento_anterior": "2PAV",
           "nivel_saida": "280.0",
           "nivel_chegada": "0.0",
           "nivel_diferencial": "",
@@ -4624,7 +4624,7 @@
             "par_8_9": "0"
           },
           "grades": {
-            "grade_1": "0",
+            "grade_1": "92",
             "distancia_1": "14",
             "grade_2": "",
             "distancia_2": "",
@@ -5014,7 +5014,7 @@
           "hachura_paineis": false,
           "m2_total": 0.0
         },
-        "item_id": "13_2 PAV",
+        "item_id": "13_2PAV",
         "locks": {}
       },
       "14": {
@@ -5024,9 +5024,9 @@
           "obra": "Obra_TREINO_22",
           "comprimento": "60",
           "largura": "48",
-          "pavimento": "2 PAV",
+          "pavimento": "2PAV",
           "pavimento_numero": "1",
-          "pavimento_anterior": "2 PAV",
+          "pavimento_anterior": "2PAV",
           "nivel_saida": "280.0",
           "nivel_chegada": "0.0",
           "nivel_diferencial": "",
@@ -5042,7 +5042,7 @@
             "par_8_9": "0"
           },
           "grades": {
-            "grade_1": "0",
+            "grade_1": "75",
             "distancia_1": "14",
             "grade_2": "",
             "distancia_2": "",
@@ -5432,7 +5432,7 @@
           "hachura_paineis": false,
           "m2_total": 0.0
         },
-        "item_id": "14_2 PAV",
+        "item_id": "14_2PAV",
         "locks": {}
       },
       "15": {
@@ -5442,9 +5442,9 @@
           "obra": "Obra_TREINO_22",
           "comprimento": "50",
           "largura": "24",
-          "pavimento": "2 PAV",
+          "pavimento": "2PAV",
           "pavimento_numero": "1",
-          "pavimento_anterior": "2 PAV",
+          "pavimento_anterior": "2PAV",
           "nivel_saida": "280.0",
           "nivel_chegada": "0.0",
           "nivel_diferencial": "",
@@ -5460,7 +5460,7 @@
             "par_8_9": "0"
           },
           "grades": {
-            "grade_1": "0",
+            "grade_1": "102",
             "distancia_1": "14",
             "grade_2": "",
             "distancia_2": "",
@@ -5850,7 +5850,7 @@
           "hachura_paineis": false,
           "m2_total": 0.0
         },
-        "item_id": "15_2 PAV",
+        "item_id": "15_2PAV",
         "locks": {}
       },
       "16": {
@@ -5860,9 +5860,9 @@
           "obra": "Obra_TREINO_22",
           "comprimento": "95",
           "largura": "38",
-          "pavimento": "2 PAV",
+          "pavimento": "2PAV",
           "pavimento_numero": "1",
-          "pavimento_anterior": "2 PAV",
+          "pavimento_anterior": "2PAV",
           "nivel_saida": "280.0",
           "nivel_chegada": "0.0",
           "nivel_diferencial": "",
@@ -5878,7 +5878,7 @@
             "par_8_9": "0"
           },
           "grades": {
-            "grade_1": "0",
+            "grade_1": "102",
             "distancia_1": "14",
             "grade_2": "",
             "distancia_2": "",
@@ -6268,7 +6268,7 @@
           "hachura_paineis": false,
           "m2_total": 0.0
         },
-        "item_id": "16_2 PAV",
+        "item_id": "16_2PAV",
         "locks": {}
       },
       "17": {
@@ -6278,9 +6278,9 @@
           "obra": "Obra_TREINO_22",
           "comprimento": "58",
           "largura": "38",
-          "pavimento": "2 PAV",
+          "pavimento": "2PAV",
           "pavimento_numero": "1",
-          "pavimento_anterior": "2 PAV",
+          "pavimento_anterior": "2PAV",
           "nivel_saida": "280.0",
           "nivel_chegada": "0.0",
           "nivel_diferencial": "",
@@ -6296,9 +6296,9 @@
             "par_8_9": "0"
           },
           "grades": {
-            "grade_1": "0",
+            "grade_1": "117",
             "distancia_1": "14",
-            "grade_2": "",
+            "grade_2": "41",
             "distancia_2": "",
             "grade_3": ""
           },
@@ -6686,7 +6686,7 @@
           "hachura_paineis": false,
           "m2_total": 0.0
         },
-        "item_id": "17_2 PAV",
+        "item_id": "17_2PAV",
         "locks": {}
       },
       "18": {
@@ -6696,9 +6696,9 @@
           "obra": "Obra_TREINO_22",
           "comprimento": "60",
           "largura": "58",
-          "pavimento": "2 PAV",
+          "pavimento": "2PAV",
           "pavimento_numero": "1",
-          "pavimento_anterior": "2 PAV",
+          "pavimento_anterior": "2PAV",
           "nivel_saida": "280.0",
           "nivel_chegada": "0.0",
           "nivel_diferencial": "",
@@ -6714,7 +6714,7 @@
             "par_8_9": "0"
           },
           "grades": {
-            "grade_1": "0",
+            "grade_1": "92",
             "distancia_1": "14",
             "grade_2": "",
             "distancia_2": "",
@@ -7104,7 +7104,7 @@
           "hachura_paineis": false,
           "m2_total": 0.0
         },
-        "item_id": "18_2 PAV",
+        "item_id": "18_2PAV",
         "locks": {}
       },
       "19": {
@@ -7114,9 +7114,9 @@
           "obra": "Obra_TREINO_22",
           "comprimento": "58",
           "largura": "38",
-          "pavimento": "2 PAV",
+          "pavimento": "2PAV",
           "pavimento_numero": "1",
-          "pavimento_anterior": "2 PAV",
+          "pavimento_anterior": "2PAV",
           "nivel_saida": "280.0",
           "nivel_chegada": "0.0",
           "nivel_diferencial": "",
@@ -7132,7 +7132,7 @@
             "par_8_9": "0"
           },
           "grades": {
-            "grade_1": "0",
+            "grade_1": "117",
             "distancia_1": "14",
             "grade_2": "",
             "distancia_2": "",
@@ -7522,7 +7522,7 @@
           "hachura_paineis": false,
           "m2_total": 0.0
         },
-        "item_id": "19_2 PAV",
+        "item_id": "19_2PAV",
         "locks": {}
       },
       "20": {
@@ -7532,9 +7532,9 @@
           "obra": "Obra_TREINO_22",
           "comprimento": "58",
           "largura": "38",
-          "pavimento": "2 PAV",
+          "pavimento": "2PAV",
           "pavimento_numero": "1",
-          "pavimento_anterior": "2 PAV",
+          "pavimento_anterior": "2PAV",
           "nivel_saida": "280.0",
           "nivel_chegada": "0.0",
           "nivel_diferencial": "",
@@ -7550,7 +7550,7 @@
             "par_8_9": "0"
           },
           "grades": {
-            "grade_1": "0",
+            "grade_1": "117",
             "distancia_1": "14",
             "grade_2": "",
             "distancia_2": "",
@@ -7940,7 +7940,7 @@
           "hachura_paineis": false,
           "m2_total": 0.0
         },
-        "item_id": "20_2 PAV",
+        "item_id": "20_2PAV",
         "locks": {}
       }
     }

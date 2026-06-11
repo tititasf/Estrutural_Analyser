@@ -1,9 +1,9 @@
 {
   "number": "13",
   "name": "V13_B",
-  "floor": "2 PAV",
+  "floor": "2PAV",
   "side": "B",
-  "total_width": 15.0,
+  "total_width": 14.0,
   "total_height": "160.0",
   "panels": [
     {
