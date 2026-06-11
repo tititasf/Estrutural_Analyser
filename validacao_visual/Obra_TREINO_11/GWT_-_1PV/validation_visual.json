@@ -1,0 +1,191 @@
+{
+  "obra": "Obra_TREINO_11",
+  "pavimento": "GWT - 1PV",
+  "tipos_validados": [
+    "PL",
+    "LV",
+    "FV",
+    "LJ"
+  ],
+  "score_pavimento": 70.2,
+  "resultados": {
+    "PL": {
+      "tipo": "PL",
+      "dxf_stog": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_11\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA-SCHWARTZ-GWT-1PV-PL-R00_R2018_ASCII_ODA.dxf",
+      "dxf_gen": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_11\\Fase-6_Execucao_CAD\\PL_stog_quality.dxf",
+      "prancha_format": false,
+      "estrutural": {
+        "total_entidades_stog": 5376,
+        "total_entidades_gen": 3864,
+        "struct_entidades_stog": 4259,
+        "struct_entidades_gen": 3119,
+        "ratio_struct": 0.732,
+        "layers_stog": 37,
+        "layers_gen": 37,
+        "layers_faltando": [],
+        "layers_extras": [],
+        "score_estrutural": 100,
+        "tipos_entidades_stog": {
+          "HATCH": 467,
+          "LWPOLYLINE": 1074,
+          "TEXT": 382,
+          "LINE": 1585,
+          "ELLIPSE": 32,
+          "ARC": 57,
+          "LEADER": 86,
+          "DIMENSION": 947,
+          "SPLINE": 11,
+          "SOLID": 2,
+          "INSERT": 519,
+          "CIRCLE": 1,
+          "OLE2FRAME": 1,
+          "MLINE": 11,
+          "ATTDEF": 1,
+          "MTEXT": 200
+        },
+        "tipos_entidades_gen": {
+          "LWPOLYLINE": 1274,
+          "DIMENSION": 676,
+          "INSERT": 537,
+          "TEXT": 680,
+          "HATCH": 208,
+          "MTEXT": 26,
+          "LINE": 463
+        }
+      },
+      "visual": null,
+      "score_final": 100
+    },
+    "LV": {
+      "tipo": "LV",
+      "dxf_stog": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_11\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA-SCHWARTZ-GWT-1PV-LV-R00_R2018_ASCII_ODA.dxf",
+      "dxf_gen": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_11\\Fase-6_Execucao_CAD\\LV_stog_quality.dxf",
+      "prancha_format": false,
+      "estrutural": {
+        "total_entidades_stog": 6690,
+        "total_entidades_gen": 5125,
+        "struct_entidades_stog": 6141,
+        "struct_entidades_gen": 4297,
+        "ratio_struct": 0.7,
+        "layers_stog": 39,
+        "layers_gen": 43,
+        "layers_faltando": [],
+        "layers_extras": [
+          "BARRA_ANCORAGEM",
+          "ESTRUTURACAO",
+          "HACHURACONCRETO",
+          "SARRAFO_2_2X7"
+        ],
+        "score_estrutural": 76,
+        "tipos_entidades_stog": {
+          "INSERT": 149,
+          "HATCH": 393,
+          "LWPOLYLINE": 480,
+          "TEXT": 592,
+          "LINE": 3968,
+          "OLE2FRAME": 1,
+          "DIMENSION": 830,
+          "MLINE": 1,
+          "ATTDEF": 1,
+          "CIRCLE": 17,
+          "ARC": 17,
+          "LEADER": 4,
+          "SOLID": 1,
+          "SPLINE": 6,
+          "MTEXT": 230
+        },
+        "tipos_entidades_gen": {
+          "LWPOLYLINE": 1218,
+          "HATCH": 688,
+          "LINE": 1933,
+          "INSERT": 140,
+          "TEXT": 340,
+          "DIMENSION": 806
+        }
+      },
+      "visual": null,
+      "score_final": 76
+    },
+    "FV": {
+      "tipo": "FV",
+      "dxf_stog": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_11\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA-SCHWARTZ-GWT-1PV-FV-R00_R2018_ASCII_ODA.dxf",
+      "dxf_gen": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_11\\Fase-6_Execucao_CAD\\FV_stog_quality.dxf",
+      "prancha_format": false,
+      "estrutural": {
+        "total_entidades_stog": 1729,
+        "total_entidades_gen": 692,
+        "struct_entidades_stog": 1593,
+        "struct_entidades_gen": 653,
+        "ratio_struct": 0.41,
+        "layers_stog": 33,
+        "layers_gen": 33,
+        "layers_faltando": [],
+        "layers_extras": [],
+        "score_estrutural": 60,
+        "tipos_entidades_stog": {
+          "TEXT": 282,
+          "LWPOLYLINE": 88,
+          "LINE": 993,
+          "ATTDEF": 1,
+          "OLE2FRAME": 1,
+          "INSERT": 33,
+          "HATCH": 97,
+          "DIMENSION": 189,
+          "CIRCLE": 17,
+          "ARC": 17,
+          "LEADER": 4,
+          "SOLID": 1,
+          "SPLINE": 6
+        },
+        "tipos_entidades_gen": {
+          "LWPOLYLINE": 43,
+          "LINE": 302,
+          "CIRCLE": 95,
+          "TEXT": 135,
+          "INSERT": 39,
+          "DIMENSION": 78
+        }
+      },
+      "visual": null,
+      "score_final": 60
+    },
+    "LJ": {
+      "tipo": "LJ",
+      "dxf_stog": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_11\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA-SCHWARTZ-GWT-1PV-LJ-R00_R2018_ASCII_ODA.dxf",
+      "dxf_gen": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_11\\Fase-6_Execucao_CAD\\LJ_stog_quality.dxf",
+      "prancha_format": false,
+      "estrutural": {
+        "total_entidades_stog": 970,
+        "total_entidades_gen": 251,
+        "struct_entidades_stog": 862,
+        "struct_entidades_gen": 239,
+        "ratio_struct": 0.277,
+        "layers_stog": 21,
+        "layers_gen": 21,
+        "layers_faltando": [],
+        "layers_extras": [],
+        "score_estrutural": 45,
+        "tipos_entidades_stog": {
+          "LINE": 426,
+          "INSERT": 37,
+          "LWPOLYLINE": 2,
+          "TEXT": 11,
+          "HATCH": 71,
+          "MTEXT": 255,
+          "CIRCLE": 18,
+          "DIMENSION": 150
+        },
+        "tipos_entidades_gen": {
+          "HATCH": 12,
+          "TEXT": 84,
+          "LINE": 55,
+          "DIMENSION": 60,
+          "MTEXT": 36,
+          "LWPOLYLINE": 4
+        }
+      },
+      "visual": null,
+      "score_final": 45
+    }
+  }
+}

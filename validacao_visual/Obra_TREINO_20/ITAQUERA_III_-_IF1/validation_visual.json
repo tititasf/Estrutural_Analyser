@@ -1,0 +1,262 @@
+{
+  "obra": "Obra_TREINO_20",
+  "pavimento": "ITAQUERA III - IF1",
+  "tipos_validados": [
+    "PL",
+    "LV",
+    "FV",
+    "LJ"
+  ],
+  "score_pavimento": 34.5,
+  "resultados": {
+    "PL": {
+      "tipo": "PL",
+      "dxf_stog": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_20\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA-UNITÁ-ITAQUERA III-IF1-PL-R00_R2018_ASCII_ODA.dxf",
+      "dxf_gen": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_20\\Fase-6_Execucao_CAD\\PL_stog_quality.dxf",
+      "prancha_format": false,
+      "estrutural": {
+        "total_entidades_stog": 3269,
+        "total_entidades_gen": 1531,
+        "struct_entidades_stog": 2818,
+        "struct_entidades_gen": 1231,
+        "ratio_struct": 0.437,
+        "layers_stog": 32,
+        "layers_gen": 22,
+        "layers_faltando": [
+          "1-2 PONTALETE",
+          "Demarcação 1",
+          "Demarcação 2",
+          "Laje_Perimetro",
+          "PONTALETE",
+          "SARR_2.2x15",
+          "SARR_2.2x20",
+          "SARR_2.2x6.3",
+          "SARR_3.5x10",
+          "SARR_3.5x7",
+          "SARR_7x10",
+          "SARR_7x7",
+          "SARR_EDITAR",
+          "cotas"
+        ],
+        "layers_extras": [
+          "CHAPA",
+          "MEIO_PONT",
+          "Nível",
+          "TEXTO_GERAL",
+          "Texto Seção"
+        ],
+        "score_estrutural": 20,
+        "tipos_entidades_stog": {
+          "HATCH": 268,
+          "LINE": 1184,
+          "LWPOLYLINE": 566,
+          "TEXT": 273,
+          "ELLIPSE": 32,
+          "ARC": 161,
+          "LEADER": 41,
+          "DIMENSION": 567,
+          "SPLINE": 11,
+          "SOLID": 2,
+          "INSERT": 107,
+          "CIRCLE": 1,
+          "OLE2FRAME": 1,
+          "MLINE": 1,
+          "ATTDEF": 1,
+          "MTEXT": 53
+        },
+        "tipos_entidades_gen": {
+          "LWPOLYLINE": 530,
+          "DIMENSION": 260,
+          "INSERT": 220,
+          "TEXT": 256,
+          "HATCH": 80,
+          "MTEXT": 10,
+          "LINE": 175
+        }
+      },
+      "visual": null,
+      "score_final": 20
+    },
+    "LV": {
+      "tipo": "LV",
+      "dxf_stog": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_20\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA-UNITÁ-ITAQUERA III-IF1-LV-R00_R2018_ASCII_ODA.dxf",
+      "dxf_gen": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_20\\Fase-6_Execucao_CAD\\LV_stog_quality.dxf",
+      "prancha_format": false,
+      "estrutural": {
+        "total_entidades_stog": 2849,
+        "total_entidades_gen": 1487,
+        "struct_entidades_stog": 2542,
+        "struct_entidades_gen": 1257,
+        "ratio_struct": 0.494,
+        "layers_stog": 33,
+        "layers_gen": 36,
+        "layers_faltando": [
+          "contorno de painel"
+        ],
+        "layers_extras": [
+          "BARRA_ANCORAGEM",
+          "ESTRUTURACAO",
+          "HACHURACONCRETO",
+          "SARRAFO_2_2X7"
+        ],
+        "score_estrutural": 53,
+        "tipos_entidades_stog": {
+          "HATCH": 182,
+          "LWPOLYLINE": 284,
+          "TEXT": 380,
+          "LINE": 1488,
+          "OLE2FRAME": 1,
+          "DIMENSION": 274,
+          "MLINE": 1,
+          "INSERT": 118,
+          "ATTDEF": 1,
+          "CIRCLE": 17,
+          "ARC": 17,
+          "LEADER": 4,
+          "SOLID": 1,
+          "SPLINE": 6,
+          "MTEXT": 75
+        },
+        "tipos_entidades_gen": {
+          "LWPOLYLINE": 383,
+          "HATCH": 195,
+          "LINE": 557,
+          "INSERT": 35,
+          "TEXT": 104,
+          "DIMENSION": 213
+        }
+      },
+      "visual": null,
+      "score_final": 53
+    },
+    "FV": {
+      "tipo": "FV",
+      "dxf_stog": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_20\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA-UNITÁ-ITAQUERA III-IF1-FV-R00_R2018_ASCII_ODA.dxf",
+      "dxf_gen": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_20\\Fase-6_Execucao_CAD\\FV_stog_quality.dxf",
+      "prancha_format": false,
+      "estrutural": {
+        "total_entidades_stog": 1224,
+        "total_entidades_gen": 115,
+        "struct_entidades_stog": 1084,
+        "struct_entidades_gen": 109,
+        "ratio_struct": 0.101,
+        "layers_stog": 33,
+        "layers_gen": 18,
+        "layers_faltando": [
+          "Demarcação 1",
+          "Demarcação 2",
+          "HACHURA MADEIRAS",
+          "REAPROVEITAMENTO",
+          "SARRAFO",
+          "SARRAFO DE PRESSAO",
+          "SARR_2.2x10",
+          "SARR_2.2x15",
+          "SARR_2.2x20",
+          "SARR_2.2x6.3",
+          "SARR_3.5x10",
+          "SARR_3.5x7",
+          "SARR_7x10",
+          "fundo",
+          "texto"
+        ],
+        "layers_extras": [],
+        "score_estrutural": 5,
+        "tipos_entidades_stog": {
+          "HATCH": 100,
+          "TEXT": 223,
+          "LWPOLYLINE": 57,
+          "LINE": 714,
+          "ATTDEF": 1,
+          "OLE2FRAME": 1,
+          "INSERT": 33,
+          "DIMENSION": 49,
+          "MLINE": 1,
+          "CIRCLE": 17,
+          "ARC": 17,
+          "LEADER": 4,
+          "SOLID": 1,
+          "SPLINE": 6
+        },
+        "tipos_entidades_gen": {
+          "LWPOLYLINE": 10,
+          "LINE": 47,
+          "CIRCLE": 13,
+          "TEXT": 27,
+          "INSERT": 6,
+          "DIMENSION": 12
+        }
+      },
+      "visual": null,
+      "score_final": 5
+    },
+    "LJ": {
+      "tipo": "LJ",
+      "dxf_stog": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_20\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA-UNITÁ-ITAQUERA III-IF1-LJ-R00_R2018_ASCII_ODA.dxf",
+      "dxf_gen": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_20\\Fase-6_Execucao_CAD\\LJ_stog_quality.dxf",
+      "prancha_format": false,
+      "estrutural": {
+        "total_entidades_stog": 733,
+        "total_entidades_gen": 698,
+        "struct_entidades_stog": 665,
+        "struct_entidades_gen": 687,
+        "ratio_struct": 1.033,
+        "layers_stog": 32,
+        "layers_gen": 9,
+        "layers_faltando": [
+          "241",
+          "CONCRETO",
+          "H2",
+          "H5",
+          "L-D",
+          "L-N",
+          "P-D",
+          "P-N",
+          "PENA_6",
+          "PIL-N",
+          "Pilares",
+          "SARRAFO",
+          "SARRAFO DE PRESSAO",
+          "SARR_2.2x10",
+          "SARR_2.2x15",
+          "SARR_2.2x20",
+          "SARR_2.2x6.3",
+          "SARR_2.2x7",
+          "SARR_3.5x10",
+          "SARR_3.5x7",
+          "SARR_7x10",
+          "SARR_EDITAR",
+          "VIG-D",
+          "VIG-N",
+          "VIGA",
+          "Vázio"
+        ],
+        "layers_extras": [
+          "3",
+          "4",
+          "7",
+          "9",
+          "AUX00"
+        ],
+        "score_estrutural": 60,
+        "tipos_entidades_stog": {
+          "HATCH": 64,
+          "LINE": 188,
+          "INSERT": 4,
+          "LWPOLYLINE": 148,
+          "TEXT": 158,
+          "DIMENSION": 171
+        },
+        "tipos_entidades_gen": {
+          "LWPOLYLINE": 48,
+          "HATCH": 11,
+          "TEXT": 114,
+          "LINE": 437,
+          "DIMENSION": 55,
+          "MTEXT": 33
+        }
+      },
+      "visual": null,
+      "score_final": 60
+    }
+  }
+}

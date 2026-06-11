@@ -1,0 +1,11 @@
+{
+  "timestamp": "2026-05-23T15:39:01Z",
+  "tipos_prontos": [
+    "LV",
+    "PL"
+  ],
+  "tipos_pendentes": [
+    "FV",
+    "LJ"
+  ]
+}

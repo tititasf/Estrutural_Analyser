@@ -1,0 +1,145 @@
+{
+  "obra": "Obra_TREINO_17",
+  "pavimento": "METROCASA9 DE JULHO - 1PV",
+  "tipos_validados": [
+    "LV",
+    "FV",
+    "LJ"
+  ],
+  "score_pavimento": 72.0,
+  "resultados": {
+    "LV": {
+      "tipo": "LV",
+      "dxf_stog": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_17\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA-UNITÁ-METROCASA9 DE JULHO-1PV-LV-R00_R2018_ASCII_ODA.dxf",
+      "dxf_gen": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_17\\Fase-6_Execucao_CAD\\LV_stog_quality.dxf",
+      "prancha_format": false,
+      "estrutural": {
+        "total_entidades_stog": 5112,
+        "total_entidades_gen": 3100,
+        "struct_entidades_stog": 4577,
+        "struct_entidades_gen": 2594,
+        "ratio_struct": 0.567,
+        "layers_stog": 39,
+        "layers_gen": 43,
+        "layers_faltando": [],
+        "layers_extras": [
+          "BARRA_ANCORAGEM",
+          "ESTRUTURACAO",
+          "HACHURACONCRETO",
+          "SARRAFO_2_2X7"
+        ],
+        "score_estrutural": 76,
+        "tipos_entidades_stog": {
+          "HATCH": 389,
+          "LWPOLYLINE": 604,
+          "TEXT": 511,
+          "LINE": 2525,
+          "OLE2FRAME": 1,
+          "DIMENSION": 735,
+          "MLINE": 1,
+          "INSERT": 139,
+          "ATTDEF": 1,
+          "CIRCLE": 17,
+          "ARC": 17,
+          "LEADER": 4,
+          "SOLID": 1,
+          "SPLINE": 6,
+          "MTEXT": 161
+        },
+        "tipos_entidades_gen": {
+          "LWPOLYLINE": 697,
+          "HATCH": 421,
+          "LINE": 1194,
+          "INSERT": 85,
+          "TEXT": 212,
+          "DIMENSION": 491
+        }
+      },
+      "visual": null,
+      "score_final": 76
+    },
+    "FV": {
+      "tipo": "FV",
+      "dxf_stog": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_17\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA-UNITÁ-METROCASA9 DE JULHO-1PV-FV-R00_R2018_ASCII_ODA.dxf",
+      "dxf_gen": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_17\\Fase-6_Execucao_CAD\\FV_stog_quality.dxf",
+      "prancha_format": false,
+      "estrutural": {
+        "total_entidades_stog": 1542,
+        "total_entidades_gen": 782,
+        "struct_entidades_stog": 1392,
+        "struct_entidades_gen": 765,
+        "ratio_struct": 0.55,
+        "layers_stog": 33,
+        "layers_gen": 33,
+        "layers_faltando": [],
+        "layers_extras": [],
+        "score_estrutural": 80,
+        "tipos_entidades_stog": {
+          "HATCH": 110,
+          "TEXT": 273,
+          "LWPOLYLINE": 86,
+          "LINE": 863,
+          "ATTDEF": 1,
+          "OLE2FRAME": 1,
+          "INSERT": 33,
+          "DIMENSION": 129,
+          "MLINE": 1,
+          "CIRCLE": 17,
+          "ARC": 17,
+          "LEADER": 4,
+          "SOLID": 1,
+          "SPLINE": 6
+        },
+        "tipos_entidades_gen": {
+          "LWPOLYLINE": 21,
+          "LINE": 579,
+          "CIRCLE": 51,
+          "TEXT": 80,
+          "INSERT": 17,
+          "DIMENSION": 34
+        }
+      },
+      "visual": null,
+      "score_final": 80
+    },
+    "LJ": {
+      "tipo": "LJ",
+      "dxf_stog": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_17\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA-UNITÁ-METROCASA9 DE JULHO-1PV-LA-R00_R2018_ASCII_ODA.dxf",
+      "dxf_gen": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_17\\Fase-6_Execucao_CAD\\LJ_stog_quality.dxf",
+      "prancha_format": false,
+      "estrutural": {
+        "total_entidades_stog": 1702,
+        "total_entidades_gen": 727,
+        "struct_entidades_stog": 1643,
+        "struct_entidades_gen": 711,
+        "ratio_struct": 0.433,
+        "layers_stog": 24,
+        "layers_gen": 24,
+        "layers_faltando": [],
+        "layers_extras": [],
+        "score_estrutural": 60,
+        "tipos_entidades_stog": {
+          "HATCH": 57,
+          "LINE": 688,
+          "INSERT": 2,
+          "LWPOLYLINE": 416,
+          "TEXT": 141,
+          "SOLID": 157,
+          "CIRCLE": 2,
+          "ARC": 2,
+          "DIMENSION": 237
+        },
+        "tipos_entidades_gen": {
+          "LWPOLYLINE": 36,
+          "HATCH": 16,
+          "TEXT": 68,
+          "LINE": 543,
+          "DIMENSION": 48,
+          "MTEXT": 16
+        }
+      },
+      "visual": null,
+      "score_final": 60
+    }
+  }
+}

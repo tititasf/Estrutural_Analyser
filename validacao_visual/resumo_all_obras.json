@@ -1,0 +1,175 @@
+{
+  "Obra_TREINO_1": {
+    "pavimento": "TIPO - 3 AO 12PAV",
+    "score": 79.8,
+    "tipos": [
+      "PL",
+      "LV",
+      "FV",
+      "LJ"
+    ]
+  },
+  "Obra_TREINO_10": {
+    "pavimento": "1PAV",
+    "score": 49.0,
+    "tipos": [
+      "LV",
+      "FV"
+    ]
+  },
+  "Obra_TREINO_11": {
+    "pavimento": "GWT - 1PV",
+    "score": 84.2,
+    "tipos": [
+      "PL",
+      "LV",
+      "FV",
+      "LJ"
+    ]
+  },
+  "Obra_TREINO_13": {
+    "pavimento": "TIPO",
+    "score": 67.5,
+    "tipos": [
+      "PL",
+      "LV",
+      "FV",
+      "LJ"
+    ]
+  },
+  "Obra_TREINO_14": {
+    "pavimento": "ARRAIA - 1PAV",
+    "score": 82.5,
+    "tipos": [
+      "PL",
+      "LV",
+      "FV",
+      "LJ"
+    ]
+  },
+  "Obra_TREINO_15": {
+    "pavimento": "IPEROIG - TIP",
+    "score": null,
+    "tipos": []
+  },
+  "Obra_TREINO_16": {
+    "pavimento": "VALDIR NIEMEYER - 1PV",
+    "score": 83.2,
+    "tipos": [
+      "PL",
+      "LV",
+      "FV",
+      "LJ"
+    ]
+  },
+  "Obra_TREINO_17": {
+    "pavimento": "METROCASA9 DE JULHO - 1PV",
+    "score": 79.7,
+    "tipos": [
+      "LV",
+      "FV",
+      "LJ"
+    ]
+  },
+  "Obra_TREINO_18": {
+    "pavimento": "1PV",
+    "score": 74.2,
+    "tipos": [
+      "PL",
+      "LV",
+      "FV",
+      "LJ"
+    ]
+  },
+  "Obra_TREINO_19": {
+    "pavimento": "1 SUBOLO",
+    "score": 92.3,
+    "tipos": [
+      "LV",
+      "FV",
+      "LJ"
+    ]
+  },
+  "Obra_TREINO_20": {
+    "pavimento": "ITAQUERA III - 1PV",
+    "score": 55.0,
+    "tipos": [
+      "PL"
+    ]
+  },
+  "Obra_TREINO_21": {
+    "pavimento": "12PAV",
+    "score": 89.2,
+    "tipos": [
+      "PL",
+      "LV",
+      "FV",
+      "LJ"
+    ]
+  },
+  "Obra_TREINO_22": {
+    "pavimento": "9 AO 12PAV",
+    "score": 32.0,
+    "tipos": [
+      "LJ"
+    ]
+  },
+  "Obra_TREINO_23": {
+    "pavimento": "SANTA CRUZ - 1PV",
+    "score": 78.2,
+    "tipos": [
+      "PL",
+      "LV",
+      "FV",
+      "LJ"
+    ]
+  },
+  "Obra_TREINO_3": {
+    "pavimento": "1 SUB - PERIFERIA - TORRE 1 - S01A",
+    "score": 58.5,
+    "tipos": [
+      "PL",
+      "LV",
+      "FV",
+      "LJ"
+    ]
+  },
+  "Obra_TREINO_5": {
+    "pavimento": "EMBRAMACO - 1PV",
+    "score": 74.3,
+    "tipos": [
+      "PL",
+      "LV",
+      "FV"
+    ]
+  },
+  "Obra_TREINO_6": {
+    "pavimento": "JFC - 12PV",
+    "score": 61.3,
+    "tipos": [
+      "PL",
+      "LV",
+      "LJ"
+    ]
+  },
+  "Obra_TREINO_8": {
+    "pavimento": "IONEJI - T1 - 1PAV",
+    "score": 93.8,
+    "tipos": [
+      "PL",
+      "LV",
+      "FV",
+      "LJ"
+    ]
+  },
+  "Obra_TREINO_9": {
+    "pavimento": "TORRE 1 - 1PAVIMENTO",
+    "score": 78.5,
+    "tipos": [
+      "PL",
+      "LV",
+      "FV",
+      "LJ"
+    ]
+  }
+}

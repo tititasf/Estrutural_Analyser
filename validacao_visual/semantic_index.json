@@ -1,0 +1,193 @@
+{
+  "items": [
+    {
+      "id": "V101",
+      "tipo": "LV",
+      "obra": "Obra_TREINO_1",
+      "modo": "item=V101",
+      "sem": {
+        "b": 14,
+        "h": 38,
+        "comprimento": 892,
+        "n_paineis": 8,
+        "has_holes": false,
+        "has_pillar_left": true,
+        "has_pillar_right": false
+      },
+      "score": {
+        "score": 67,
+        "ratio": 0.55,
+        "gen_struct": 2528,
+        "stog_struct": 4597,
+        "missing_layers": 2,
+        "extra_layers": 4
+      },
+      "ts": "2026-05-16T01:43:54"
+    },
+    {
+      "id": "P1",
+      "tipo": "PL",
+      "obra": "Obra_TREINO_1",
+      "modo": "item=P1",
+      "sem": {
+        "b": 19.0,
+        "h": 88.0,
+        "altura": 280.0,
+        "secao": "19x88",
+        "area_cm2": 1672.0,
+        "pavimento": "TIPO"
+      },
+      "score": {
+        "score": 90,
+        "ratio": 0.031,
+        "gen_struct": 162,
+        "stog_struct": 5187,
+        "missing_layers": 0,
+        "extra_layers": 0,
+        "item_mode": true,
+        "presence_pts": 50
+      },
+      "ts": "2026-05-21T21:15:35"
+    },
+    {
+      "id": "V101_A",
+      "tipo": "LV",
+      "obra": "Obra_TREINO_1",
+      "modo": "item=V101_A",
+      "sem": {
+        "b": 19.0,
+        "h": 120.0,
+        "comprimento": 518.0,
+        "n_paineis": 5,
+        "has_holes": true,
+        "has_pillar_left": true,
+        "has_pillar_right": true
+      },
+      "score": {
+        "score": 90,
+        "ratio": 0.054,
+        "gen_struct": 249,
+        "stog_struct": 4597,
+        "missing_layers": 0,
+        "extra_layers": 0,
+        "item_mode": true,
+        "presence_pts": 50
+      },
+      "ts": "2026-05-21T21:16:04"
+    },
+    {
+      "id": "V101_fundo",
+      "tipo": "FV",
+      "obra": "Obra_TREINO_1",
+      "modo": "item=V101_fundo",
+      "sem": {
+        "b": 19.0,
+        "comprimento": 518.0,
+        "n_paineis": 5,
+        "has_holes": true
+      },
+      "score": {
+        "score": 90,
+        "ratio": 0.068,
+        "gen_struct": 47,
+        "stog_struct": 694,
+        "missing_layers": 0,
+        "extra_layers": 0,
+        "item_mode": true,
+        "presence_pts": 50
+      },
+      "ts": "2026-05-21T21:16:29"
+    },
+    {
+      "id": "L101",
+      "tipo": "LJ",
+      "obra": "Obra_TREINO_1",
+      "modo": "item=L101",
+      "sem": {
+        "comprimento": 1420.2,
+        "largura": 302.0,
+        "area_cm2": 428900.4,
+        "n_linhas": 15,
+        "modo": 0
+      },
+      "score": {
+        "score": 90,
+        "ratio": 0.183,
+        "gen_struct": 248,
+        "stog_struct": 1356,
+        "missing_layers": 0,
+        "extra_layers": 0,
+        "item_mode": true,
+        "presence_pts": 50
+      },
+      "ts": "2026-05-21T21:16:59"
+    }
+  ],
+  "summary": {
+    "PL": {
+      "count": 1,
+      "score_avg": 90.0,
+      "varieties_secao": {
+        "19x88": 1
+      },
+      "b_range": [
+        19.0,
+        19.0
+      ],
+      "score_min": 90,
+      "score_max": 90,
+      "score_dist": {
+        "0-40": 0,
+        "40-70": 0,
+        "70-100": 1
+      }
+    },
+    "LV": {
+      "count": 2,
+      "score_avg": 78.5,
+      "score_min": 67,
+      "score_max": 90,
+      "score_dist": {
+        "0-40": 0,
+        "40-70": 1,
+        "70-100": 1
+      },
+      "comp_range": [
+        518.0,
+        892
+      ],
+      "with_holes": 1
+    },
+    "LJ": {
+      "count": 1,
+      "score_avg": 90.0,
+      "score_min": 90,
+      "score_max": 90,
+      "score_dist": {
+        "0-40": 0,
+        "40-70": 0,
+        "70-100": 1
+      },
+      "area_range_cm2": [
+        428900.4,
+        428900.4
+      ]
+    },
+    "FV": {
+      "count": 1,
+      "score_avg": 90.0,
+      "score_min": 90,
+      "score_max": 90,
+      "score_dist": {
+        "0-40": 0,
+        "40-70": 0,
+        "70-100": 1
+      },
+      "comp_range": [
+        518.0,
+        518.0
+      ],
+      "with_holes": 1
+    }
+  }
+}

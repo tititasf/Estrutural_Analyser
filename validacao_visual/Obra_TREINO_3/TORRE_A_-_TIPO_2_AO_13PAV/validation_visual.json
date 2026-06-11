@@ -1,0 +1,1190 @@
+{
+  "obra": "Obra_TREINO_3",
+  "pavimento": "TORRE A - TIPO 2 AO 13PAV",
+  "tipos_validados": [
+    "PL",
+    "LV",
+    "FV",
+    "LJ"
+  ],
+  "score_pavimento": 66.4,
+  "resultados": {
+    "PL": {
+      "tipo": "PL",
+      "dxf_stog": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_3\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA -CAPREM - RES.DIAMOND - TORRE A - TIPO 2° AO 13° PAV.- PL - PROJEÇÃO - R00_R2018_ASCII_ODA.dxf",
+      "dxf_gen": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_3\\Fase-6_Execucao_CAD\\PL_gerado.dxf",
+      "estrutural": {
+        "total_entidades_stog": 11123,
+        "total_entidades_gen": 36,
+        "struct_entidades_stog": 8695,
+        "struct_entidades_gen": 36,
+        "ratio_struct": 0.004,
+        "layers_stog": 28,
+        "layers_gen": 4,
+        "layers_faltando": [
+          "0",
+          "BARRA ANCORAGEM",
+          "CHAPA",
+          "CONCRETO",
+          "COTA",
+          "Defpoints",
+          "Demarcação 1",
+          "Demarcação 2",
+          "Hachura",
+          "MEIO_PONT",
+          "Madeira",
+          "NIVEL",
+          "Nível",
+          "Painéis",
+          "Perfil Metálico",
+          "Pilares",
+          "SARRAFO",
+          "SARR_2.2x10",
+          "SARR_2.2x7",
+          "TEXTO",
+          "TEXTO_GERAL",
+          "TIRAS REESCORAMENTO",
+          "TRAÇO",
+          "Texto Seção",
+          "Vigas"
+        ],
+        "layers_extras": [
+          "Cota Secao (2x)",
+          "Paineis",
+          "Texto Secao"
+        ],
+        "score_estrutural": 5,
+        "tipos_entidades_stog": {
+          "INSERT": 1511,
+          "LINE": 1739,
+          "HATCH": 847,
+          "LWPOLYLINE": 3868,
+          "TEXT": 764,
+          "DIMENSION": 2119,
+          "SOLID": 2,
+          "CIRCLE": 1,
+          "MTEXT": 133,
+          "ELLIPSE": 32,
+          "ARC": 57,
+          "LEADER": 38,
+          "SPLINE": 12
+        },
+        "tipos_entidades_gen": {
+          "LWPOLYLINE": 24,
+          "MTEXT": 12
+        }
+      },
+      "visual": {
+        "full": {
+          "raw_response": "Avaliação de fidelidade estrutural do gerado em relação ao original.\n\n**Score Global**: 85%\n\n**Elementos estruturais**: 90%\n\n*   Todos os pilares, vigas e lajes do original estão presentes no gerado, com exceção de alguns elementos menores que não afetam a estrutura principal.\n*   Observação: Faltam alguns detalhes de acabamento e conexões, mas não comprometem a estrutura.\n\n**Dimensões**: 95%\n\n*   As cotas estruturais (B×H pilares, largura vigas, espessura lajes) estão corretas na maioria dos casos.\n*   Observação: Há pequenos desvios em algumas dimensões, mas dentro da tolerância aceitável.\n\n**Layout espacial**: 92%\n\n*   A distribuição e posicionamento dos elementos são fiéis ao original, com algumas pequenas variações que não afetam a estrutura.\n*   Observação: Há algumas diferenças na orientação de alguns elementos, mas não comprometem a estrutura.\n\n**Nomenclatura**: 88%\n\n*   As labels (P1, V1, etc.) estão corretas e completas na maioria dos casos.\n*   Observação: Faltam algumas labels em alguns elementos, mas não afetam a estrutura.\n\n**Usabilidade**: 90%\n\n*   O gerado seria suficiente para orientar a execução em obra, com algumas adaptações necessárias.\n*   Observação: Seria necessário revisar e ajustar algumas dimensões e detalhes para garantir a correta execução.\n\n**Pontos críticos**:\n\n*   Faltam alguns detalhes de acabamento e conexões.\n*   Pequenos desvios em algumas dimensões.\n*   Diferenças na orientação de alguns elementos.\n\n**Pontos positivos**:\n\n*   A maioria dos elementos estruturais está correta.\n*   As dimensões estão corretas na maioria dos casos.\n*   O layout espacial é fiel ao original.\n\n**Suficiente para obra**: Sim\n\n**Resumo executivo**:\n\nO gerado apresenta uma boa fidelidade estrutural em relação ao original, com algumas pequenas variações e omissões que não comprometem a estrutura. Seria necessário revisar e ajustar algumas dimensões e detalhes para garantir a correta execução. No entanto, o gerado seria suficiente para orientar a execução em obra, com algumas adaptações necessárias.",
+          "parse_error": true,
+          "score_global": 85.0,
+          "score": 85.0,
+          "elementos_estruturais": 90.0,
+          "layout": 92.0
+        },
+        "tiles": [
+          {
+            "score": 80,
+            "tile_tem_conteudo": true,
+            "dimensoes": {
+              "ok": true,
+              "nota": "Cotas coincidem, mas há diferença no valor de uma cota (160 vs 150)"
+            },
+            "geometria": {
+              "ok": true,
+              "nota": "Formas e posições coincidem, mas há diferença na largura de uma viga"
+            },
+            "labels": {
+              "ok": true,
+              "nota": "Nomenclatura estrutural coincide"
+            },
+            "linhas": {
+              "ok": true,
+              "nota": "Tipos de linha adequados por elemento"
+            },
+            "elementos_ausentes": [],
+            "resumo": "Tile gerado tem pequenas diferenças em dimensões e geometria, mas estrutura geral coincide",
+            "tile_row": 0,
+            "tile_col": 0
+          },
+          {
+            "score": 0,
+            "tile_tem_conteudo": true,
+            "dimensoes": {
+              "ok": false,
+              "nota": "Não há dimensões/cotas presentes no DXF gerado"
+            },
+            "geometria": {
+              "ok": false,
+              "nota": "Não há geometria presente no DXF gerado"
+            },
+            "labels": {
+              "ok": false,
+              "nota": "Não há labels/nomenclatura presente no DXF gerado"
+            },
+            "linhas": {
+              "ok": false,
+              "nota": "Não há padrão de linhas presente no DXF gerado"
+            },
+            "elementos_ausentes": [],
+            "resumo": "O DXF gerado não possui elementos estruturais.",
+            "tile_row": 0,
+            "tile_col": 1
+          },
+          {
+            "score": 0,
+            "tile_tem_conteudo": false,
+            "dimensoes": {
+              "ok": null,
+              "nota": "Não há elementos estruturais para avaliar"
+            },
+            "geometria": {
+              "ok": null,
+              "nota": "Não há elementos estruturais para avaliar"
+            },
+            "labels": {
+              "ok": null,
+              "nota": "Não há elementos estruturais para avaliar"
+            },
+            "linhas": {
+              "ok": null,
+              "nota": "Não há elementos estruturais para avaliar"
+            },
+            "elementos_ausentes": [],
+            "resumo": "Tile está completamente vazio, sem elementos estruturais para comparar.",
+            "tile_row": 0,
+            "tile_col": 2
+          },
+          {
+            "score": 0,
+            "tile_tem_conteudo": false,
+            "dimensoes": {
+              "ok": true,
+              "nota": "não há elementos estruturais"
+            },
+            "geometria": {
+              "ok": true,
+              "nota": "não há elementos estruturais"
+            },
+            "labels": {
+              "ok": true,
+              "nota": "não há elementos estruturais"
+            },
+            "linhas": {
+              "ok": true,
+              "nota": "não há elementos estruturais"
+            },
+            "elementos_ausentes": [],
+            "resumo": "Tile vazio, sem elementos estruturais",
+            "tile_row": 1,
+            "tile_col": 0
+          },
+          {
+            "score": 100,
+            "tile_tem_conteudo": true,
+            "dimensoes": {
+              "ok": true,
+              "nota": "Valores de cotas coincidem"
+            },
+            "geometria": {
+              "ok": true,
+              "nota": "Formas, posições e proporções corretas"
+            },
+            "labels": {
+              "ok": true,
+              "nota": "Nomenclatura correta"
+            },
+            "linhas": {
+              "ok": true,
+              "nota": "Tipos de linha adequados"
+            },
+            "elementos_ausentes": [],
+            "resumo": "Tile apresenta alta coincidência entre elementos estruturais do STOG e do gerado",
+            "tile_row": 1,
+            "tile_col": 1
+          },
+          {
+            "score": 90,
+            "tile_tem_conteudo": true,
+            "dimensoes": {
+              "ok": true,
+              "nota": "As cotas parecem coincidir, mas há uma diferença de 2cm na cota da laje."
+            },
+            "geometria": {
+              "ok": true,
+              "nota": "As formas e posições dos elementos estruturais parecem corretas, mas há uma pequena diferença na proporção da viga."
+            },
+            "labels": {
+              "ok": true,
+              "nota": "Os textos P1/P2/V1/L1 estão presentes e corretos, mas há uma pequena diferença na posição do texto P2."
+            },
+            "linhas": {
+              "ok": true,
+              "nota": "Os tipos de linha parecem adequados para cada elemento, mas há uma pequena diferença na grossura da linha da viga."
+            },
+            "elementos_ausentes": [],
+            "resumo": "O tile gerado é muito similar ao original, com algumas pequenas diferenças.",
+            "tile_row": 1,
+            "tile_col": 2
+          },
+          {
+            "score": 100,
+            "tile_tem_conteudo": true,
+            "dimensoes": {
+              "ok": true,
+              "nota": "Cotas coincidem com o original"
+            },
+            "geometria": {
+              "ok": true,
+              "nota": "Formas, posições e proporções coincidem com o original"
+            },
+            "labels": {
+              "ok": true,
+              "nota": "Labels coincidem com o original"
+            },
+            "linhas": {
+              "ok": true,
+              "nota": "Padrão de linhas adequado"
+            },
+            "elementos_ausentes": [],
+            "resumo": "Tile gerado é idêntico ao original",
+            "tile_row": 2,
+            "tile_col": 0
+          },
+          {
+            "score": 100,
+            "tile_tem_conteudo": true,
+            "dimensoes": {
+              "ok": true,
+              "nota": "As dimensões de cotas e medidas estruturais coincidem perfeitamente entre os dois tiles."
+            },
+            "geometria": {
+              "ok": true,
+              "nota": "As formas, posições e proporções dos elementos estruturais estão corretas e idênticas nos dois tiles."
+            },
+            "labels": {
+              "ok": true,
+              "nota": "Os textos de nomenclatura P1/P2/V1/L1 etc. estão presentes e corretos em ambos os tiles."
+            },
+            "linhas": {
+              "ok": true,
+              "nota": "Os tipos de linha usados para representar os elementos estruturais são adequados e consistentes em ambos os tiles."
+            },
+            "elementos_ausentes": [],
+            "resumo": "Os tiles apresentam perfeita correspondência estrutural, sem qualquer diferença ou ausência de elementos estruturais.",
+            "tile_row": 2,
+            "tile_col": 1
+          },
+          {
+            "score": 0,
+            "tile_tem_conteudo": false,
+            "dimensoes": {
+              "ok": null,
+              "nota": ""
+            },
+            "geometria": {
+              "ok": null,
+              "nota": ""
+            },
+            "labels": {
+              "ok": null,
+              "nota": ""
+            },
+            "linhas": {
+              "ok": null,
+              "nota": ""
+            },
+            "elementos_ausentes": [],
+            "resumo": "Tile vazio",
+            "tile_row": 2,
+            "tile_col": 2
+          }
+        ],
+        "score_visual_medio": 83.0
+      },
+      "score_final": 75.2
+    },
+    "LV": {
+      "tipo": "LV",
+      "dxf_stog": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_3\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA - CAPREM - RES.DIAMOND - TORRE A - TIPO 2° AO 13° PAV.-  LV - PROJEÇÃO - R00_R2018_ASCII_ODA.dxf",
+      "dxf_gen": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_3\\Fase-6_Execucao_CAD\\LV_gerado.dxf",
+      "prancha_format": false,
+      "estrutural": {
+        "total_entidades_stog": 13455,
+        "total_entidades_gen": 2936,
+        "struct_entidades_stog": 11546,
+        "struct_entidades_gen": 2936,
+        "ratio_struct": 0.254,
+        "layers_stog": 37,
+        "layers_gen": 4,
+        "layers_faltando": [
+          "0",
+          "5",
+          "8",
+          "BARRA DE ANCORAGEM",
+          "CONCRETO",
+          "Cota Seção (2x)",
+          "Defpoints",
+          "Demarcação 1",
+          "Demarcação 2",
+          "Escoras",
+          "Forcador",
+          "GARFOS",
+          "HACHURA MADEIRAS",
+          "Hachura",
+          "Madeira",
+          "Painéis",
+          "Perfil Metálico",
+          "Pilares",
+          "SARR_2.2x7",
+          "SARR_3.5x7",
+          "SARR_EDITAR",
+          "SCO-___-LAJ",
+          "TENSOR",
+          "TEXTO",
+          "TIRAS REESCORAMENTO",
+          "TRAÇO",
+          "Texto Seção",
+          "Vigas",
+          "barrote",
+          "detalhes",
+          "fundo",
+          "material do compensado",
+          "presilha"
+        ],
+        "layers_extras": [
+          "Paineis",
+          "Texto Secao"
+        ],
+        "score_estrutural": 5,
+        "tipos_entidades_stog": {
+          "INSERT": 259,
+          "TEXT": 1179,
+          "MTEXT": 266,
+          "HATCH": 1646,
+          "LWPOLYLINE": 1703,
+          "LINE": 6171,
+          "DIMENSION": 2186,
+          "CIRCLE": 17,
+          "ARC": 17,
+          "LEADER": 4,
+          "SOLID": 1,
+          "SPLINE": 6
+        },
+        "tipos_entidades_gen": {
+          "LWPOLYLINE": 1098,
+          "MTEXT": 296,
+          "DIMENSION": 1542
+        }
+      },
+      "visual": {
+        "full": {
+          "raw_response": "**Avaliação da Fidelidade Estrutural do DXF Gerado**\n\n**Resumo Executivo:**\nO DXF gerado apresenta uma fidelidade estrutural satisfatória, com acertos notáveis na representação de elementos estruturais e dimensões, mas com algumas limitações na nomenclatura e usabilidade.\n\n**Pontuação Global:**\n85\n\n**Pontuação por Categoria:**\n\n*   **Elementos Estruturais:** 95\n*   **Dimensões:** 90\n*   **Layout Espacial:** 85\n*   **Nomenclatura:** 70\n*   **Usabilidade:** 80\n\n**Pontos Críticos:**\n\n*   Falta de nomenclatura correta e completa em alguns elementos estruturais.\n*   Algumas dimensões apresentam pequenas discrepâncias em relação ao DXF original.\n\n**Pontos Positivos:**\n\n*   Excelente representação de elementos estruturais, incluindo pilares, vigas e lajes.\n*   Dimensões estruturais apresentam alta precisão, com poucas discrepâncias.\n*   Layout espacial é fiel ao DXF original, com boa distribuição e posicionamento dos elementos.\n\n**Suficiente para Obra:**\ntrue\n\n**Conclusão:**\nO DXF gerado apresenta uma fidelidade estrutural satisfatória, com acertos notáveis na representação de elementos estruturais e dimensões. No entanto, é necessário melhorar a nomenclatura e a usabilidade para que o DXF seja suficiente para orientar a execução em obra. Com algumas ajustes, o DXF gerado pode ser uma ferramenta útil para os engenheiros civis.",
+          "parse_error": true,
+          "elementos_estruturais": 95.0,
+          "layout": 85.0
+        },
+        "tiles": [
+          {
+            "score": 100,
+            "tile_tem_conteudo": true,
+            "dimensoes": {
+              "ok": true,
+              "nota": "Cotas e medidas estruturais coincidem com o DXF original."
+            },
+            "geometria": {
+              "ok": true,
+              "nota": "Formas, posições e proporções dos elementos estruturais estão corretas em comparação ao DXF original."
+            },
+            "labels": {
+              "ok": true,
+              "nota": "Nomenclatura estrutural (P1/P2/V1/L1 etc.) coincide com o DXF original."
+            },
+            "linhas": {
+              "ok": true,
+              "nota": "Tipos de linha adequados por elemento estrutural, conforme o DXF original."
+            },
+            "elementos_ausentes": [],
+            "resumo": "O DXF gerado coincide com o DXF original em todos os aspectos estruturais.",
+            "tile_row": 0,
+            "tile_col": 0
+          },
+          {
+            "score": 95,
+            "tile_tem_conteudo": true,
+            "dimensoes": {
+              "ok": true,
+              "nota": "Valores de cotas/medidas estruturais coincidem, mas com pequenas diferenças nos decimais, sem impacto prático."
+            },
+            "geometria": {
+              "ok": true,
+              "nota": "Formas, posições e proporções dos elementos estruturais estão corretas."
+            },
+            "labels": {
+              "ok": true,
+              "nota": "Textos P1/P2/V1/L1 etc. presentes e corretos."
+            },
+            "linhas": {
+              "ok": true,
+              "nota": "Tipos de linha adequados por elemento."
+            },
+            "elementos_ausentes": [],
+            "resumo": "Tile gerado é muito similar ao original, com pequenas diferenças nos decimais das cotas.",
+            "tile_row": 0,
+            "tile_col": 1
+          },
+          {
+            "score": 100,
+            "tile_tem_conteudo": true,
+            "dimensoes": {
+              "ok": true,
+              "nota": "Os valores de cotas e medidas estruturais coincidem."
+            },
+            "geometria": {
+              "ok": true,
+              "nota": "As formas, posições e proporções dos elementos estruturais estão corretas."
+            },
+            "labels": {
+              "ok": true,
+              "nota": "Os textos P1/P2/V1/L1 etc. estão presentes e corretos."
+            },
+            "linhas": {
+              "ok": true,
+              "nota": "Os tipos de linha são adequados por elemento."
+            },
+            "elementos_ausentes": [],
+            "resumo": "Os elementos estruturais presentes neste tile estão corretos e coincidem com o DXF original.",
+            "tile_row": 0,
+            "tile_col": 2
+          },
+          {
+            "score": 100,
+            "tile_tem_conteudo": true,
+            "dimensoes": {
+              "ok": true,
+              "nota": "Valores de cotas coincidem."
+            },
+            "geometria": {
+              "ok": true,
+              "nota": "Formas, posições e proporções coincidem."
+            },
+            "labels": {
+              "ok": true,
+              "nota": "Textos P1/P2/V1/L1 etc. coincidem."
+            },
+            "linhas": {
+              "ok": true,
+              "nota": "Tipos de linha coincidem."
+            },
+            "elementos_ausentes": [],
+            "resumo": "Tile gerado está idêntico ao original.",
+            "tile_row": 1,
+            "tile_col": 0
+          },
+          {
+            "score": 100,
+            "tile_tem_conteudo": true,
+            "dimensoes": {
+              "ok": true,
+              "nota": "Valores de cotas/medidas estruturais coincidem."
+            },
+            "geometria": {
+              "ok": true,
+              "nota": "Formas, posições e proporções dos elementos estruturais estão corretas."
+            },
+            "labels": {
+              "ok": true,
+              "nota": "Textos P1/P2/V1/L1 etc. presentes e corretos."
+            },
+            "linhas": {
+              "ok": true,
+              "nota": "Tipos de linha adequados por elemento."
+            },
+            "elementos_ausentes": [],
+            "resumo": "Tiles DXF originais e gerados apresentam estruturas idênticas.",
+            "tile_row": 1,
+            "tile_col": 1
+          },
+          {
+            "score": 90,
+            "tile_tem_conteudo": true,
+            "dimensoes": {
+              "ok": true,
+              "nota": "As cotas estão corretas"
+            },
+            "geometria": {
+              "ok": true,
+              "nota": "As formas e posições dos elementos estruturais estão corretas"
+            },
+            "labels": {
+              "ok": true,
+              "nota": "Os textos P1/P2/V1/L1 estão presentes e corretos"
+            },
+            "linhas": {
+              "ok": true,
+              "nota": "Os tipos de linha estão adequados por elemento"
+            },
+            "elementos_ausentes": [],
+            "resumo": "O tile gerado está muito próximo do original, com apenas pequenas diferenças",
+            "tile_row": 1,
+            "tile_col": 2
+          },
+          {
+            "score": 100,
+            "tile_tem_conteudo": true,
+            "dimensoes": {
+              "ok": true,
+              "nota": "Cotas/medidas coincidem perfeitamente."
+            },
+            "geometria": {
+              "ok": true,
+              "nota": "Formas, posições e proporções dos elementos estruturais estão corretas."
+            },
+            "labels": {
+              "ok": true,
+              "nota": "Textos P1/P2/V1/L1 etc. presentes e corretos."
+            },
+            "linhas": {
+              "ok": true,
+              "nota": "Tipos de linha adequados por elemento."
+            },
+            "elementos_ausentes": [],
+            "resumo": "Tile gerado é idêntico ao original.",
+            "tile_row": 2,
+            "tile_col": 0
+          },
+          {
+            "score": 100,
+            "tile_tem_conteudo": true,
+            "dimensoes": {
+              "ok": true,
+              "nota": "As dimensões das vigas e pilares coincidem com o STOG."
+            },
+            "geometria": {
+              "ok": true,
+              "nota": "As formas, posições e proporções dos elementos estruturais estão corretas."
+            },
+            "labels": {
+              "ok": true,
+              "nota": "Os textos P1/P2/V1/L1 estão presentes e corretos."
+            },
+            "linhas": {
+              "ok": true,
+              "nota": "Os tipos de linha são adequados para cada elemento estrutural."
+            },
+            "elementos_ausentes": [],
+            "resumo": "O tile gerado coincide com o STOG em todos os aspectos estruturais.",
+            "tile_row": 2,
+            "tile_col": 1
+          },
+          {
+            "score": 100,
+            "tile_tem_conteudo": true,
+            "dimensoes": {
+              "ok": true,
+              "nota": "Cotas coincidem"
+            },
+            "geometria": {
+              "ok": true,
+              "nota": "Formas e posições coincidem"
+            },
+            "labels": {
+              "ok": true,
+              "nota": "Nomenclatura correta"
+            },
+            "linhas": {
+              "ok": true,
+              "nota": "Tipos de linha adequados"
+            },
+            "elementos_ausentes": [],
+            "resumo": "Tiles coincidem perfeitamente",
+            "tile_row": 2,
+            "tile_col": 2
+          }
+        ],
+        "score_visual_medio": 98.3
+      },
+      "score_final": 89.0
+    },
+    "FV": {
+      "tipo": "FV",
+      "dxf_stog": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_3\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA - CAPREM - RES.DIAMOND - TORRE A - TIPO 2° AO 13° PAV.- FV - PROJEÇÃO - R00_R2018_ASCII_ODA.dxf",
+      "dxf_gen": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_3\\Fase-6_Execucao_CAD\\FV_gerado.dxf",
+      "prancha_format": false,
+      "estrutural": {
+        "total_entidades_stog": 1857,
+        "total_entidades_gen": 2936,
+        "struct_entidades_stog": 1723,
+        "struct_entidades_gen": 2936,
+        "ratio_struct": 1.704,
+        "layers_stog": 28,
+        "layers_gen": 4,
+        "layers_faltando": [
+          "0",
+          "5",
+          "BARRA DE ANCORAGEM",
+          "CONCRETO",
+          "Defpoints",
+          "Demarcação 1",
+          "Demarcação 2",
+          "Escoras",
+          "Forcador",
+          "GARFOS",
+          "HACHURA MADEIRAS",
+          "Hachura",
+          "Madeira",
+          "Painéis",
+          "Perfil Metálico",
+          "Pilares",
+          "SARR_2.2x7",
+          "SARR_EDITAR",
+          "TEXTO",
+          "TIRAS REESCORAMENTO",
+          "TRAÇO",
+          "Vigas",
+          "fundo",
+          "material do compensado"
+        ],
+        "layers_extras": [
+          "Paineis",
+          "Texto Secao"
+        ],
+        "score_estrutural": 20,
+        "tipos_entidades_stog": {
+          "INSERT": 15,
+          "TEXT": 288,
+          "MTEXT": 43,
+          "HATCH": 115,
+          "LWPOLYLINE": 159,
+          "LINE": 981,
+          "DIMENSION": 211,
+          "CIRCLE": 17,
+          "ARC": 17,
+          "LEADER": 4,
+          "SOLID": 1,
+          "SPLINE": 6
+        },
+        "tipos_entidades_gen": {
+          "LWPOLYLINE": 1098,
+          "MTEXT": 296,
+          "DIMENSION": 1542
+        }
+      },
+      "visual": {
+        "full": {
+          "raw_response": "Avaliação do DXF gerado pelo pipeline de engenharia reversa:\n\n**Score Global**: 10\n\n**Elementos Estruturais**: 0 (nenhum elemento estrutural foi gerado corretamente)\n\n**Dimensões**: 0 (nenhuma dimensão estrutural foi gerada corretamente)\n\n**Layout Espacial**: 0 (nenhum elemento estrutural foi posicionado corretamente)\n\n**Nomenclatura**: 0 (nenhum label foi gerado corretamente)\n\n**Usabilidade**: 0 (o DXF gerado não é suficiente para orientar a execução em obra)\n\n**Pontos Críticos**:\n\n*   Nenhum elemento estrutural foi gerado corretamente.\n*   Nenhuma dimensão estrutural foi gerada corretamente.\n*   Nenhum elemento estrutural foi posicionado corretamente.\n*   Nenhum label foi gerado corretamente.\n\n**Pontos Positivos**:\n\n*   Nenhum.\n\n**Suficiente para Obra**: false\n\n**Resumo Executivo**: O DXF gerado pelo pipeline de engenharia reversa não é suficiente para orientar a execução em obra devido à ausência de elementos estruturais, dimensões e layout espacial corretos. Além disso, a nomenclatura dos elementos não foi gerada corretamente. É necessário revisar e melhorar o pipeline para garantir a fidelidade estrutural do DXF gerado.",
+          "parse_error": true,
+          "score_global": 10.0,
+          "score": 10.0,
+          "elementos_estruturais": 0.0,
+          "layout": 0.0
+        },
+        "tiles": [
+          {
+            "score": 0,
+            "tile_tem_conteudo": true,
+            "dimensoes": {
+              "ok": false,
+              "nota": "ausente"
+            },
+            "geometria": {
+              "ok": false,
+              "nota": "ausente"
+            },
+            "labels": {
+              "ok": false,
+              "nota": "ausente"
+            },
+            "linhas": {
+              "ok": false,
+              "nota": "ausente"
+            },
+            "elementos_ausentes": [
+              "pilares",
+              "vigas",
+              "lajes",
+              "cotas",
+              "nomenclatura estrutural"
+            ],
+            "resumo": "Tile completamente ausente de elementos estruturais",
+            "tile_row": 0,
+            "tile_col": 0
+          },
+          {
+            "score": null,
+            "tile_tem_conteudo": false,
+            "dimensoes": {
+              "ok": false,
+              "nota": "Não há elementos para comparar"
+            },
+            "geometria": {
+              "ok": false,
+              "nota": "Não há elementos para comparar"
+            },
+            "labels": {
+              "ok": false,
+              "nota": "Não há elementos para comparar"
+            },
+            "linhas": {
+              "ok": false,
+              "nota": "Não há elementos para comparar"
+            },
+            "elementos_ausentes": [],
+            "resumo": "Tile em branco/vazio, sem elementos estruturais para análise.",
+            "tile_row": 0,
+            "tile_col": 1
+          },
+          {
+            "score": 0,
+            "tile_tem_conteudo": true,
+            "dimensoes": {
+              "ok": false,
+              "nota": "A ausência de elementos estruturais impede a análise de dimensões"
+            },
+            "geometria": {
+              "ok": false,
+              "nota": "A ausência de elementos estruturais impede a análise de geometria"
+            },
+            "labels": {
+              "ok": false,
+              "nota": "A ausência de elementos estruturais impede a análise de labels"
+            },
+            "linhas": {
+              "ok": false,
+              "nota": "A ausência de elementos estruturais impede a análise de padrão de linhas"
+            },
+            "elementos_ausentes": [
+              "pilares",
+              "vigas",
+              "lajes"
+            ],
+            "resumo": "Tile vazio, sem elementos estruturais para análise",
+            "tile_row": 0,
+            "tile_col": 2
+          },
+          {
+            "score": 60,
+            "tile_tem_conteudo": true,
+            "dimensoes": {
+              "ok": false,
+              "nota": "Há algumas discrepâncias notáveis nas dimensões e cotas, especialmente em relação às medidas das vigas e lajes."
+            },
+            "geometria": {
+              "ok": false,
+              "nota": "A geometria dos elementos estruturais está geralmente correta, mas há algumas exceções."
+            },
+            "labels": {
+              "ok": false,
+              "nota": "A nomenclatura estrutural está presente e correta na maioria dos casos, mas há algumas exceções."
+            },
+            "linhas": {
+              "ok": false,
+              "nota": "O padrão de linhas está geralmente correto, mas há algumas exceções."
+            },
+            "elementos_ausentes": [
+              "Pilares",
+              "Vigas"
+            ],
+            "resumo": "O DXF gerado tem muitas semelhanças com o DXF original, mas há algumas discrepâncias significativas que afetam a precisão e a confiabilidade do resultado.",
+            "tile_row": 1,
+            "tile_col": 0
+          },
+          {
+            "score": 0,
+            "tile_tem_conteudo": true,
+            "dimensoes": {
+              "ok": false,
+              "nota": "As dimensões do DXF gerado não correspondem às do DXF original"
+            },
+            "geometria": {
+              "ok": false,
+              "nota": "A geometria dos elementos estruturais no DXF gerado está incorreta"
+            },
+            "labels": {
+              "ok": false,
+              "nota": "As nomenclaturas estruturais não estão corretas no DXF gerado"
+            },
+            "linhas": {
+              "ok": false,
+              "nota": "O padrão de linhas não foi mantido corretamente no DXF gerado"
+            },
+            "elementos_ausentes": [],
+            "resumo": "O DXF gerado não corresponde ao DXF original em nenhum aspecto",
+            "tile_row": 1,
+            "tile_col": 1
+          },
+          {
+            "score": 100,
+            "tile_tem_conteudo": true,
+            "dimensoes": {
+              "ok": true,
+              "nota": "Valores de cotas/medidas estruturais coincidem."
+            },
+            "geometria": {
+              "ok": true,
+              "nota": "Formas, posições e proporções dos elementos estruturais estão corretas."
+            },
+            "labels": {
+              "ok": true,
+              "nota": "Textos P1/P2/V1/L1 etc. presentes e corretos."
+            },
+            "linhas": {
+              "ok": true,
+              "nota": "Tipos de linha adequados por elemento."
+            },
+            "elementos_ausentes": [],
+            "resumo": "Tiles coincidem estruturalmente.",
+            "tile_row": 1,
+            "tile_col": 2
+          },
+          {
+            "raw_response": "O tile apresenta elementos estruturais, portanto, a análise será realizada.\n\n*   **Dimensões/Cotas**: Não há elementos estruturais suficientes no tile para avaliar as dimensões.\n*   **Geometria**: A geometria dos elementos estruturais está correta.\n*   **Labels/Nomenclatura**: Os textos P1/P2/V1/L1 etc. estão presentes e corretos.\n*   **Padrão de linhas**: Os tipos de linha são adequados para cada elemento.\n*   **Elementos ausentes**: Não há elementos estruturais ausentes.\n\n**Resultado:**\n\n*   **score:** 100\n*   **tile_tem_conteudo:** true\n*   **dimensoes:**\n    *   **ok:** false\n    *   **nota:** \"Não há elementos estruturais suficientes no tile para avaliar as dimensões.\"\n*   **geometria:**\n    *   **ok:** true\n    *   **nota:** \"A geometria dos elementos estruturais está correta.\"\n*   **labels:**\n    *   **ok:** true\n    *   **nota:** \"Os textos P1/P2/V1/L1 etc. estão presentes e corretos.\"\n*   **linhas:**\n    *   **ok:** true\n    *   **nota:** \"Os tipos de linha são adequados para cada elemento.\"\n*   **elementos_ausentes:** \\[\\]\n*   **resumo:** \"O tile apresenta elementos estruturais corretos, mas não há elementos suficientes para avaliar as dimensões.\"",
+            "parse_error": true,
+            "score": 100.0,
+            "tile_row": 2,
+            "tile_col": 0
+          },
+          {
+            "score": 100,
+            "tile_tem_conteudo": true,
+            "dimensoes": {
+              "ok": true,
+              "nota": "Dimensões coincidem com o STOG"
+            },
+            "geometria": {
+              "ok": true,
+              "nota": "Geometria correta"
+            },
+            "labels": {
+              "ok": true,
+              "nota": "Labels corretos"
+            },
+            "linhas": {
+              "ok": true,
+              "nota": "Tipos de linha adequados"
+            },
+            "elementos_ausentes": [],
+            "resumo": "Tile está perfeitamente alinhado com o STOG",
+            "tile_row": 2,
+            "tile_col": 1
+          },
+          {
+            "score": 100,
+            "tile_tem_conteudo": true,
+            "dimensoes": {
+              "ok": true,
+              "nota": "Todos os valores de cotas/medidas estruturais coincidem."
+            },
+            "geometria": {
+              "ok": true,
+              "nota": "As formas, posições e proporções dos elementos estruturais estão corretas."
+            },
+            "labels": {
+              "ok": true,
+              "nota": "Os textos P1/P2/V1/L1 etc. estão presentes e corretos."
+            },
+            "linhas": {
+              "ok": true,
+              "nota": "Os tipos de linha são adequados para cada elemento estrutural."
+            },
+            "elementos_ausentes": [],
+            "resumo": "O tile gerado é uma réplica exata do DXF original, sem nenhuma diferença nos elementos estruturais.",
+            "tile_row": 2,
+            "tile_col": 2
+          }
+        ],
+        "score_visual_medio": 24.2
+      },
+      "score_final": 23.8
+    },
+    "LJ": {
+      "tipo": "LJ",
+      "dxf_stog": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_3\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA -CAPREM - RES.DIAMOND - TORRE A - TIPO 2° AO 13° PAV.- LJ - PROJEÇÃO - R00_R2018_ASCII_ODA.dxf",
+      "dxf_gen": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_3\\Fase-6_Execucao_CAD\\LJ_gerado.dxf",
+      "estrutural": {
+        "total_entidades_stog": 1919,
+        "total_entidades_gen": 254,
+        "struct_entidades_stog": 1735,
+        "struct_entidades_gen": 254,
+        "ratio_struct": 0.146,
+        "layers_stog": 24,
+        "layers_gen": 4,
+        "layers_faltando": [
+          "0",
+          "AUX00",
+          "COTA",
+          "FORNECIMENTO",
+          "Hachura",
+          "MTH-230",
+          "MTH-DIM-PILAR",
+          "MTH-DIM-VIGA",
+          "MTH-EIXO-217",
+          "MTH-FACE-VIGA",
+          "MTH-PILAR-SEGUE",
+          "MTH-SOMBRA25",
+          "MTH-TIT1-PILAR",
+          "MTH-TIT1-VIGA",
+          "MTH-TXT-NEGRITO",
+          "MTH-TXT-NOTAS",
+          "MTH-VIGA-INVERTIDA",
+          "NOME LAJE",
+          "Painéis",
+          "SARRAFO",
+          "TIRAS REESCORAMENTO"
+        ],
+        "layers_extras": [
+          "Contorno",
+          "NOMENCLATURA",
+          "Paineis",
+          "Texto Secao"
+        ],
+        "score_estrutural": 5,
+        "tipos_entidades_stog": {
+          "HATCH": 182,
+          "LINE": 352,
+          "INSERT": 2,
+          "LWPOLYLINE": 357,
+          "TEXT": 393,
+          "MTEXT": 24,
+          "DIMENSION": 477,
+          "SOLID": 132
+        },
+        "tipos_entidades_gen": {
+          "LWPOLYLINE": 170,
+          "MTEXT": 84
+        }
+      },
+      "visual": {
+        "full": {
+          "raw_response": "O pipeline de engenharia reversa apresenta uma boa fidelidade estrutural com o DXF original, mas há algumas diferenças significativas. O gerado inclui todos os pilares, vigas e lajes do original, mas com algumas discrepâncias nas dimensões e layout espacial. Além disso, a nomenclatura dos elementos não é completamente correta. Embora o gerado seja suficiente para orientar a execução em obra, há alguns pontos críticos que precisam ser abordados.\n\n**Resumo executivo:** O pipeline de engenharia reversa apresenta uma boa fidelidade estrutural com o DXF original, mas há algumas diferenças significativas que precisam ser abordadas para garantir a usabilidade em obra.\n\n**Pontos críticos:**\n\n*   Diferenças nas dimensões dos pilares e vigas\n*   Discrepâncias no layout espacial dos elementos\n*   Nomenclatura dos elementos não é completamente correta\n\n**Pontos positivos:**\n\n*   O pipeline inclui todos os pilares, vigas e lajes do original\n*   O gerado é suficiente para orientar a execução em obra\n\n**Score global:** 80\n\n**Elementos estruturais:** 100\n\n**Dimensões:** 80\n\n**Layout:** 80\n\n**Nomenclatura:** 60\n\n**Usabilidade:** 80\n\n**Suficiente para obra:** true\n\n**Resumo executivo:** O pipeline de engenharia reversa apresenta uma boa fidelidade estrutural com o DXF original, mas há algumas diferenças significativas que precisam ser abordadas para garantir a usabilidade em obra.",
+          "parse_error": true,
+          "score_global": 80.0,
+          "score": 80.0,
+          "elementos_estruturais": 100.0,
+          "layout": 80.0
+        },
+        "tiles": [
+          {
+            "score": 100,
+            "tile_tem_conteudo": true,
+            "dimensoes": {
+              "ok": true,
+              "nota": "As cotas parecem coincidir com as do DXF original."
+            },
+            "geometria": {
+              "ok": true,
+              "nota": "As formas e posições dos elementos estruturais parecem estar corretas."
+            },
+            "labels": {
+              "ok": true,
+              "nota": "Os textos P1/P2/V1/L1 parecem estar corretos e presentes."
+            },
+            "linhas": {
+              "ok": true,
+              "nota": "Os tipos de linha parecem adequados por elemento."
+            },
+            "elementos_ausentes": [],
+            "resumo": "O DXF gerado parece coincidir com o DXF original.",
+            "tile_row": 0,
+            "tile_col": 0
+          },
+          {
+            "score": 100,
+            "tile_tem_conteudo": true,
+            "dimensoes": {
+              "ok": true,
+              "nota": "Cotas/medidas coincidem"
+            },
+            "geometria": {
+              "ok": true,
+              "nota": "Formas, posições e proporções corretas"
+            },
+            "labels": {
+              "ok": true,
+              "nota": "Textos P1/P2/V1/L1 corretos"
+            },
+            "linhas": {
+              "ok": true,
+              "nota": "Tipos de linha adequados"
+            },
+            "elementos_ausentes": [],
+            "resumo": "Tile gerado é idêntico ao original",
+            "tile_row": 0,
+            "tile_col": 1
+          },
+          {
+            "score": 100,
+            "tile_tem_conteudo": true,
+            "dimensoes": {
+              "ok": true,
+              "nota": "Dimensões coincidem"
+            },
+            "geometria": {
+              "ok": true,
+              "nota": "Formas, posições e proporções coincidem"
+            },
+            "labels": {
+              "ok": true,
+              "nota": "Labels coincidem"
+            },
+            "linhas": {
+              "ok": true,
+              "nota": "Tipos de linha coincidem"
+            },
+            "elementos_ausentes": [],
+            "resumo": "Tiles coincidem",
+            "tile_row": 0,
+            "tile_col": 2
+          },
+          {
+            "score": 0,
+            "tile_tem_conteudo": false,
+            "dimensoes": {
+              "ok": null,
+              "nota": "sem elementos estruturais"
+            },
+            "geometria": {
+              "ok": null,
+              "nota": "sem elementos estruturais"
+            },
+            "labels": {
+              "ok": null,
+              "nota": "sem elementos estruturais"
+            },
+            "linhas": {
+              "ok": null,
+              "nota": "sem elementos estruturais"
+            },
+            "elementos_ausentes": [],
+            "resumo": "Tile sem conteúdo estrutural",
+            "tile_row": 1,
+            "tile_col": 0
+          },
+          {
+            "score": 100,
+            "tile_tem_conteudo": true,
+            "dimensoes": {
+              "ok": true,
+              "nota": "As dimensões parecem estar corretas, pois as linhas que representam as medidas estão alinhadas corretamente com os elementos estruturais."
+            },
+            "geometria": {
+              "ok": true,
+              "nota": "As formas, posições e proporções dos elementos estruturais parecem estar corretas, pois as linhas que representam as vigas e pilares estão alinhadas corretamente com as medidas."
+            },
+            "labels": {
+              "ok": true,
+              "nota": "Os textos P1/P2/V1/L1 etc. parecem estar presentes e corretos, pois estão alinhados corretamente com os elementos estruturais."
+            },
+            "linhas": {
+              "ok": true,
+              "nota": "Os tipos de linha parecem estar adequados por elemento, pois as linhas que representam as vigas e pilares estão grossas e as linhas que representam as medidas estão finas."
+            },
+            "elementos_ausentes": [],
+            "resumo": "O tile gerado parece estar correto, pois as dimensões, geometria, labels e linhas estão corretas e não há elementos ausentes.",
+            "tile_row": 1,
+            "tile_col": 1
+          },
+          {
+            "score": 100,
+            "tile_tem_conteudo": true,
+            "dimensoes": {
+              "ok": true,
+              "nota": "Valores de cotas/medidas estruturais coincidem"
+            },
+            "geometria": {
+              "ok": true,
+              "nota": "Formas, posições e proporções dos elementos estruturais estão corretas"
+            },
+            "labels": {
+              "ok": true,
+              "nota": "Textos P1/P2/V1/L1 etc. presentes e corretos"
+            },
+            "linhas": {
+              "ok": true,
+              "nota": "Tipos de linha adequados por elemento"
+            },
+            "elementos_ausentes": [],
+            "resumo": "Tile gerado é idêntico ao original",
+            "tile_row": 1,
+            "tile_col": 2
+          },
+          {
+            "score": 100,
+            "tile_tem_conteudo": true,
+            "dimensoes": {
+              "ok": true,
+              "nota": "Valores de cotas/medidas estruturais coincidem"
+            },
+            "geometria": {
+              "ok": true,
+              "nota": "Formas, posições e proporções dos elementos estruturais estão corretas"
+            },
+            "labels": {
+              "ok": true,
+              "nota": "Textos P1/P2/V1/L1 etc. presentes e corretos"
+            },
+            "linhas": {
+              "ok": true,
+              "nota": "Tipos de linha adequados por elemento"
+            },
+            "elementos_ausentes": [],
+            "resumo": "Tile gerado é idêntico ao original",
+            "tile_row": 2,
+            "tile_col": 0
+          },
+          {
+            "score": 90,
+            "tile_tem_conteudo": true,
+            "dimensoes": {
+              "ok": true,
+              "nota": "As cotas parecem coincidir, mas é necessário verificar a precisão."
+            },
+            "geometria": {
+              "ok": true,
+              "nota": "A geometria parece correta, mas é essencial confirmar a precisão das dimensões."
+            },
+            "labels": {
+              "ok": true,
+              "nota": "Os textos de identificação estão presentes e parecem corretos."
+            },
+            "linhas": {
+              "ok": true,
+              "nota": "Os tipos de linha parecem adequados para cada elemento estrutural."
+            },
+            "elementos_ausentes": [],
+            "resumo": "O tile gerado apresenta uma boa correspondência com o projeto de referência, mas requer verificação detalhada para garantir precisão e exatidão.",
+            "tile_row": 2,
+            "tile_col": 1
+          },
+          {
+            "score": 100,
+            "tile_tem_conteudo": true,
+            "dimensoes": {
+              "ok": true,
+              "nota": "As cotas coincidem perfeitamente entre os dois tiles, sem nenhuma diferença detectada."
+            },
+            "geometria": {
+              "ok": true,
+              "nota": "A geometria dos elementos estruturais, incluindo pilares, vigas e lajes, está idêntica nos dois tiles, sem nenhuma variação significativa em formas, posições ou proporções."
+            },
+            "labels": {
+              "ok": true,
+              "nota": "Os textos de nomenclatura estrutural, como P1, P2, V1, L1, etc., estão presentes e corretos em ambos os tiles, sem nenhuma omissão ou erro de digitação."
+            },
+            "linhas": {
+              "ok": true,
+              "nota": "Os tipos de linha utilizados para cada elemento estrutural são adequados e consistentes entre os dois tiles, sem nenhuma incongruência observada."
+            },
+            "elementos_ausentes": [],
+            "resumo": "Os dois tiles apresentam uma correspondência perfeita em todos os aspectos estruturais analisados, sem nenhuma diferença ou erro detectado.",
+            "tile_row": 2,
+            "tile_col": 2
+          }
+        ],
+        "score_visual_medio": 85.6
+      },
+      "score_final": 77.5
+    }
+  }
+}

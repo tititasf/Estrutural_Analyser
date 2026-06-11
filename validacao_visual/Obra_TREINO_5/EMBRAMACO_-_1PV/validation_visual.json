@@ -1,0 +1,156 @@
+{
+  "obra": "Obra_TREINO_5",
+  "pavimento": "EMBRAMACO - 1PV",
+  "tipos_validados": [
+    "PL",
+    "LV",
+    "FV"
+  ],
+  "score_pavimento": 66.7,
+  "resultados": {
+    "PL": {
+      "tipo": "PL",
+      "dxf_stog": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_5\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA-D´URSO-EMBRAMACO-1PV-PL-R02_R2018_ASCII_ODA.dxf",
+      "dxf_gen": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_5\\Fase-6_Execucao_CAD\\PL_stog_quality.dxf",
+      "prancha_format": false,
+      "estrutural": {
+        "total_entidades_stog": 3381,
+        "total_entidades_gen": 14596,
+        "struct_entidades_stog": 2919,
+        "struct_entidades_gen": 11766,
+        "ratio_struct": 4.031,
+        "layers_stog": 32,
+        "layers_gen": 33,
+        "layers_faltando": [],
+        "layers_extras": [
+          "Nível"
+        ],
+        "score_estrutural": 44,
+        "tipos_entidades_stog": {
+          "HATCH": 249,
+          "LINE": 1276,
+          "LWPOLYLINE": 529,
+          "TEXT": 270,
+          "ELLIPSE": 32,
+          "ARC": 156,
+          "LEADER": 48,
+          "DIMENSION": 601,
+          "SPLINE": 11,
+          "SOLID": 2,
+          "INSERT": 127,
+          "CIRCLE": 8,
+          "OLE2FRAME": 1,
+          "MLINE": 1,
+          "ATTDEF": 3,
+          "MTEXT": 66,
+          "ARC_DIMENSION": 1
+        },
+        "tipos_entidades_gen": {
+          "LWPOLYLINE": 5044,
+          "DIMENSION": 2522,
+          "INSERT": 2054,
+          "TEXT": 2437,
+          "HATCH": 776,
+          "MTEXT": 97,
+          "LINE": 1666
+        }
+      },
+      "visual": null,
+      "score_final": 44
+    },
+    "LV": {
+      "tipo": "LV",
+      "dxf_stog": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_5\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA-D´URSO-EMBRAMACO-1PV-LV-R00_R2018_ASCII_ODA.dxf",
+      "dxf_gen": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_5\\Fase-6_Execucao_CAD\\LV_stog_quality.dxf",
+      "prancha_format": false,
+      "estrutural": {
+        "total_entidades_stog": 4768,
+        "total_entidades_gen": 6907,
+        "struct_entidades_stog": 4412,
+        "struct_entidades_gen": 5793,
+        "ratio_struct": 1.313,
+        "layers_stog": 40,
+        "layers_gen": 44,
+        "layers_faltando": [],
+        "layers_extras": [
+          "BARRA_ANCORAGEM",
+          "ESTRUTURACAO",
+          "HACHURACONCRETO",
+          "SARRAFO_2_2X7"
+        ],
+        "score_estrutural": 76,
+        "tipos_entidades_stog": {
+          "HATCH": 219,
+          "LWPOLYLINE": 297,
+          "TEXT": 458,
+          "LINE": 2668,
+          "OLE2FRAME": 1,
+          "DIMENSION": 762,
+          "MLINE": 1,
+          "INSERT": 130,
+          "ATTDEF": 1,
+          "CIRCLE": 17,
+          "ARC": 17,
+          "LEADER": 4,
+          "SOLID": 1,
+          "SPLINE": 6,
+          "MTEXT": 186
+        },
+        "tipos_entidades_gen": {
+          "LWPOLYLINE": 1677,
+          "HATCH": 939,
+          "LINE": 2607,
+          "INSERT": 175,
+          "TEXT": 462,
+          "DIMENSION": 1047
+        }
+      },
+      "visual": null,
+      "score_final": 76
+    },
+    "FV": {
+      "tipo": "FV",
+      "dxf_stog": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_5\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA-D´URSO-EMBRAMACO-1PV-FV-R01_R2018_ASCII_ODA.dxf",
+      "dxf_gen": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_5\\Fase-6_Execucao_CAD\\FV_stog_quality.dxf",
+      "prancha_format": false,
+      "estrutural": {
+        "total_entidades_stog": 1741,
+        "total_entidades_gen": 892,
+        "struct_entidades_stog": 1602,
+        "struct_entidades_gen": 881,
+        "ratio_struct": 0.55,
+        "layers_stog": 34,
+        "layers_gen": 34,
+        "layers_faltando": [],
+        "layers_extras": [],
+        "score_estrutural": 80,
+        "tipos_entidades_stog": {
+          "TEXT": 259,
+          "LWPOLYLINE": 61,
+          "LINE": 1046,
+          "ATTDEF": 2,
+          "OLE2FRAME": 1,
+          "INSERT": 33,
+          "HATCH": 98,
+          "DIMENSION": 194,
+          "MLINE": 1,
+          "CIRCLE": 18,
+          "ARC": 17,
+          "LEADER": 4,
+          "SOLID": 1,
+          "SPLINE": 6
+        },
+        "tipos_entidades_gen": {
+          "LWPOLYLINE": 15,
+          "LINE": 766,
+          "CIRCLE": 33,
+          "TEXT": 47,
+          "INSERT": 11,
+          "DIMENSION": 20
+        }
+      },
+      "visual": null,
+      "score_final": 80
+    }
+  }
+}

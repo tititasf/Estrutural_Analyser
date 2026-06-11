@@ -1,0 +1,200 @@
+{
+  "obra": "Obra_TREINO_1",
+  "pavimento": "TIPO - 3 AO 12PAV",
+  "tipos_validados": [
+    "PL",
+    "LV",
+    "FV",
+    "LJ"
+  ],
+  "score_pavimento": 79.8,
+  "resultados": {
+    "PL": {
+      "tipo": "PL",
+      "dxf_stog": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\ALIMONTI - PARAISO - TIPO - 3° AO 12° PAV.- PL - R00.dxf",
+      "dxf_gen": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-6_Execucao_CAD\\PL_stog_quality.dxf",
+      "prancha_format": false,
+      "estrutural": {
+        "total_entidades_stog": 6829,
+        "total_entidades_gen": 6674,
+        "struct_entidades_stog": 5187,
+        "struct_entidades_gen": 5544,
+        "ratio_struct": 1.069,
+        "layers_stog": 25,
+        "layers_gen": 28,
+        "layers_faltando": [
+          "SARR_7x7",
+          "Sarr 2.2x7",
+          "Texto Nível"
+        ],
+        "layers_extras": [
+          "00 - FELIPE",
+          "1",
+          "9",
+          "BARRA ANCORAGEM",
+          "Folhas",
+          "GRAVATA",
+          "NIVEL"
+        ],
+        "score_estrutural": 84,
+        "tipos_entidades_stog": {
+          "LINE": 2047,
+          "TEXT": 402,
+          "INSERT": 716,
+          "DIMENSION": 1440,
+          "MTEXT": 179,
+          "HATCH": 763,
+          "LWPOLYLINE": 1119,
+          "LEADER": 142,
+          "MLINE": 21
+        },
+        "tipos_entidades_gen": {
+          "LWPOLYLINE": 1435,
+          "DIMENSION": 1190,
+          "INSERT": 850,
+          "TEXT": 879,
+          "HATCH": 280,
+          "MTEXT": 35,
+          "LINE": 2005
+        }
+      },
+      "visual": null,
+      "score_final": 84
+    },
+    "LV": {
+      "tipo": "LV",
+      "dxf_stog": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\ALIMONTI - PARAISO - TIPO - 3° AO 12° PAV.- LV - R00.dxf",
+      "dxf_gen": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-6_Execucao_CAD\\LV_stog_quality.dxf",
+      "prancha_format": false,
+      "estrutural": {
+        "total_entidades_stog": 5358,
+        "total_entidades_gen": 6222,
+        "struct_entidades_stog": 4597,
+        "struct_entidades_gen": 5664,
+        "ratio_struct": 1.232,
+        "layers_stog": 18,
+        "layers_gen": 28,
+        "layers_faltando": [],
+        "layers_extras": [
+          "0",
+          "00 - FELIPE",
+          "BARRA DE ANCORAGEM",
+          "Escoras",
+          "Folhas",
+          "Forcador",
+          "GARFOS",
+          "Perfil Metálico",
+          "material do compensado",
+          "texto"
+        ],
+        "score_estrutural": 90,
+        "tipos_entidades_stog": {
+          "HATCH": 707,
+          "TEXT": 428,
+          "INSERT": 54,
+          "LWPOLYLINE": 662,
+          "DIMENSION": 1092,
+          "LINE": 2415
+        },
+        "tipos_entidades_gen": {
+          "LWPOLYLINE": 1973,
+          "HATCH": 403,
+          "LINE": 2208,
+          "INSERT": 155,
+          "TEXT": 483,
+          "DIMENSION": 1000
+        }
+      },
+      "visual": null,
+      "score_final": 90
+    },
+    "FV": {
+      "tipo": "FV",
+      "dxf_stog": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\ALIMONTI - PARAISO - TIPO - 3° AO 12° PAV.- FV - R00.dxf",
+      "dxf_gen": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-6_Execucao_CAD\\FV_stog_quality.dxf",
+      "prancha_format": false,
+      "estrutural": {
+        "total_entidades_stog": 694,
+        "total_entidades_gen": 971,
+        "struct_entidades_stog": 694,
+        "struct_entidades_gen": 905,
+        "ratio_struct": 1.304,
+        "layers_stog": 9,
+        "layers_gen": 19,
+        "layers_faltando": [
+          "00 - FELIPE"
+        ],
+        "layers_extras": [
+          "BARRA DE ANCORAGEM",
+          "CONCRETO",
+          "Escoras",
+          "Folhas",
+          "Forcador",
+          "GARFOS",
+          "Hachura",
+          "Madeira",
+          "Perfil Metálico",
+          "REAPROVEITAMENTO",
+          "material do compensado"
+        ],
+        "score_estrutural": 66,
+        "tipos_entidades_stog": {
+          "TEXT": 111,
+          "LINE": 319,
+          "DIMENSION": 189,
+          "LWPOLYLINE": 75
+        },
+        "tipos_entidades_gen": {
+          "LWPOLYLINE": 70,
+          "LINE": 375,
+          "CIRCLE": 165,
+          "TEXT": 171,
+          "INSERT": 66,
+          "DIMENSION": 124
+        }
+      },
+      "visual": null,
+      "score_final": 66
+    },
+    "LJ": {
+      "tipo": "LJ",
+      "dxf_stog": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\ALIMONTI - PARAISO - TIPO - 3° AO 12° PAV.- LJ - R00.dxf",
+      "dxf_gen": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-6_Execucao_CAD\\LJ_stog_quality.dxf",
+      "prancha_format": false,
+      "estrutural": {
+        "total_entidades_stog": 1412,
+        "total_entidades_gen": 2179,
+        "struct_entidades_stog": 1356,
+        "struct_entidades_gen": 2156,
+        "ratio_struct": 1.59,
+        "layers_stog": 10,
+        "layers_gen": 11,
+        "layers_faltando": [],
+        "layers_extras": [
+          "COTA"
+        ],
+        "score_estrutural": 79,
+        "tipos_entidades_stog": {
+          "HATCH": 56,
+          "LINE": 653,
+          "DIMENSION": 222,
+          "SOLID": 9,
+          "LWPOLYLINE": 218,
+          "CIRCLE": 4,
+          "TEXT": 240,
+          "MTEXT": 10
+        },
+        "tipos_entidades_gen": {
+          "LWPOLYLINE": 147,
+          "HATCH": 23,
+          "TEXT": 371,
+          "LINE": 1369,
+          "DIMENSION": 157,
+          "MTEXT": 112
+        }
+      },
+      "visual": null,
+      "score_final": 79
+    }
+  }
+}

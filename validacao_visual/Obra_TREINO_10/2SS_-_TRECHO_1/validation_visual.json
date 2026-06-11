@@ -1,0 +1,181 @@
+{
+  "obra": "Obra_TREINO_10",
+  "pavimento": "2SS - TRECHO 1",
+  "tipos_validados": [
+    "PL",
+    "LV",
+    "FV"
+  ],
+  "score_pavimento": 43.3,
+  "resultados": {
+    "PL": {
+      "tipo": "PL",
+      "dxf_stog": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_10\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\ROCONTEC - HOSPITAL ASSUNÇÃO -  2°SS - TRECHO 1- PL- R01_R2018_ASCII_ODA.dxf",
+      "dxf_gen": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_10\\Fase-6_Execucao_CAD\\PL_stog_quality.dxf",
+      "prancha_format": false,
+      "estrutural": {
+        "total_entidades_stog": 6557,
+        "total_entidades_gen": 2458,
+        "struct_entidades_stog": 5265,
+        "struct_entidades_gen": 1903,
+        "ratio_struct": 0.361,
+        "layers_stog": 33,
+        "layers_gen": 22,
+        "layers_faltando": [
+          "Cota Seção (2x)",
+          "Demarcação 1",
+          "Demarcação 2",
+          "Romaneio",
+          "SARR_3.5x7",
+          "SARR_7x7",
+          "SARR_EDITAR",
+          "Sarr 2.2x7",
+          "Sarrafo de Pressão",
+          "Texto Nível",
+          "cotas"
+        ],
+        "layers_extras": [
+          "GRAVATA"
+        ],
+        "score_estrutural": 26,
+        "tipos_entidades_stog": {
+          "HATCH": 532,
+          "LWPOLYLINE": 1238,
+          "TEXT": 467,
+          "LINE": 1835,
+          "ELLIPSE": 32,
+          "ARC": 57,
+          "LEADER": 125,
+          "DIMENSION": 1323,
+          "SPLINE": 11,
+          "SOLID": 2,
+          "INSERT": 583,
+          "CIRCLE": 1,
+          "OLE2FRAME": 1,
+          "MLINE": 17,
+          "ATTDEF": 2,
+          "MTEXT": 331
+        },
+        "tipos_entidades_gen": {
+          "LWPOLYLINE": 697,
+          "DIMENSION": 442,
+          "INSERT": 419,
+          "TEXT": 453,
+          "HATCH": 136,
+          "MTEXT": 17,
+          "LINE": 294
+        }
+      },
+      "visual": {
+        "full": {
+          "contagem": 80,
+          "secao_transversal": 75,
+          "dimensoes_bh": 70,
+          "nomenclatura": 85,
+          "hachura_concreto": 60,
+          "layout_espacial": 80,
+          "criticos": [
+            "dimensões B×H não totalmente comparáveis",
+            "hachura de concreto não exatamente correspondente"
+          ],
+          "observacoes": "O DXF gerado apresenta uma boa fidelidade estrutural, mas requer ajustes para garantir a precisão nas dimensões e na representação do concreto.",
+          "score_global": 75.75
+        },
+        "tiles": [
+          {
+            "error": "codec configuration error when writing image file"
+          }
+        ],
+        "score_visual_medio": 75.8
+      },
+      "score_final": 70.8
+    },
+    "LV": {
+      "tipo": "LV",
+      "dxf_stog": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_10\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\ROCONTEC - HOSPITAL ASSUNÇÃO - 2°SS - TRECHO 1 - LV - R00_R2018_ASCII_ODA.dxf",
+      "dxf_gen": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_10\\Fase-6_Execucao_CAD\\LV_stog_quality.dxf",
+      "prancha_format": false,
+      "estrutural": {
+        "total_entidades_stog": 0,
+        "total_entidades_gen": 0,
+        "struct_entidades_stog": 0,
+        "struct_entidades_gen": 0,
+        "ratio_struct": 0.0,
+        "layers_stog": 1,
+        "layers_gen": 1,
+        "layers_faltando": [],
+        "layers_extras": [],
+        "score_estrutural": 45,
+        "tipos_entidades_stog": {},
+        "tipos_entidades_gen": {}
+      },
+      "visual": {
+        "error": "dxf_gerado_vazio",
+        "score_global": 0
+      },
+      "score_final": 45
+    },
+    "FV": {
+      "tipo": "FV",
+      "dxf_stog": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_10\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\ROCONTEC - HOSPITAL ASSUNÇÃO - 2°SS - TRECHO 1 - FV - R00_R2018_ASCII_ODA.dxf",
+      "dxf_gen": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_10\\Fase-6_Execucao_CAD\\FV_stog_quality.dxf",
+      "prancha_format": false,
+      "estrutural": {
+        "total_entidades_stog": 0,
+        "total_entidades_gen": 1462,
+        "struct_entidades_stog": 0,
+        "struct_entidades_gen": 1436,
+        "ratio_struct": 1436.0,
+        "layers_stog": 1,
+        "layers_gen": 28,
+        "layers_faltando": [
+          "ERROR"
+        ],
+        "layers_extras": [
+          "0",
+          "00 - FELIPE",
+          "5",
+          "BARRA DE ANCORAGEM",
+          "CARIMBO",
+          "CONCRETO",
+          "COTA",
+          "Cotas",
+          "Demarcação 1",
+          "Demarcação 2",
+          "Escoras",
+          "Folhas",
+          "Forcador",
+          "GARFOS",
+          "HACHURA MADEIRAS",
+          "Hachura",
+          "Madeira",
+          "NOMENCLATURA",
+          "Painéis",
+          "Perfil Metálico",
+          "REAPROVEITAMENTO",
+          "Romaneio",
+          "SARRAFO DE PRESSAO",
+          "SARR_2.2x7",
+          "SARR_EDITAR",
+          "fundo",
+          "material do compensado",
+          "texto"
+        ],
+        "score_estrutural": 14,
+        "tipos_entidades_stog": {},
+        "tipos_entidades_gen": {
+          "LWPOLYLINE": 30,
+          "LINE": 1190,
+          "CIRCLE": 66,
+          "TEXT": 98,
+          "INSERT": 26,
+          "DIMENSION": 52
+        }
+      },
+      "visual": {
+        "error": "render_stog: [Errno 22] Invalid argument"
+      },
+      "score_final": 14
+    }
+  }
+}

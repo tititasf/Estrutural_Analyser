@@ -1,0 +1,211 @@
+{
+  "obra": "Obra_TREINO_16",
+  "pavimento": "VALDIR NIEMEYER - 1PV",
+  "tipos_validados": [
+    "PL",
+    "LV",
+    "FV",
+    "LJ"
+  ],
+  "score_pavimento": 65.2,
+  "resultados": {
+    "PL": {
+      "tipo": "PL",
+      "dxf_stog": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_16\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA-TRISUL-VALDIR NIEMEYER-1PV-PL-R02_R2018_ASCII_ODA.dxf",
+      "dxf_gen": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_16\\Fase-6_Execucao_CAD\\PL_stog_quality.dxf",
+      "prancha_format": false,
+      "estrutural": {
+        "total_entidades_stog": 10308,
+        "total_entidades_gen": 4910,
+        "struct_entidades_stog": 8547,
+        "struct_entidades_gen": 4580,
+        "ratio_struct": 0.536,
+        "layers_stog": 34,
+        "layers_gen": 18,
+        "layers_faltando": [
+          "00 - FELIPE",
+          "1-2 PONTALETE",
+          "A-DETL",
+          "Demarcação 1",
+          "Demarcação 2",
+          "Laje_Perimetro",
+          "PONTALETE",
+          "SARR_2.2x15",
+          "SARR_2.2x20",
+          "SARR_2.2x6.3",
+          "SARR_3.5x10",
+          "SARR_3.5x7",
+          "SARR_7x10",
+          "SARR_7x7",
+          "SARR_EDITAR",
+          "cotas"
+        ],
+        "layers_extras": [
+          "Nível"
+        ],
+        "score_estrutural": 40,
+        "tipos_entidades_stog": {
+          "HATCH": 657,
+          "LWPOLYLINE": 1229,
+          "TEXT": 660,
+          "LINE": 3720,
+          "ELLIPSE": 32,
+          "ARC": 673,
+          "LEADER": 134,
+          "DIMENSION": 2046,
+          "SPLINE": 11,
+          "SOLID": 2,
+          "INSERT": 933,
+          "CIRCLE": 1,
+          "OLE2FRAME": 1,
+          "MLINE": 1,
+          "ATTDEF": 3,
+          "MTEXT": 205
+        },
+        "tipos_entidades_gen": {
+          "LWPOLYLINE": 510,
+          "DIMENSION": 260,
+          "INSERT": 250,
+          "TEXT": 162,
+          "HATCH": 80,
+          "MTEXT": 10,
+          "LINE": 3638
+        }
+      },
+      "visual": null,
+      "score_final": 40
+    },
+    "LV": {
+      "tipo": "LV",
+      "dxf_stog": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_16\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA-TRISUL-VALDIR NIEMEYER-1PV-LV-R00_R2018_ASCII_ODA.dxf",
+      "dxf_gen": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_16\\Fase-6_Execucao_CAD\\LV_stog_quality.dxf",
+      "prancha_format": false,
+      "estrutural": {
+        "total_entidades_stog": 7511,
+        "total_entidades_gen": 7346,
+        "struct_entidades_stog": 6875,
+        "struct_entidades_gen": 6164,
+        "ratio_struct": 0.897,
+        "layers_stog": 41,
+        "layers_gen": 45,
+        "layers_faltando": [],
+        "layers_extras": [
+          "BARRA_ANCORAGEM",
+          "ESTRUTURACAO",
+          "HACHURACONCRETO",
+          "SARRAFO_2_2X7"
+        ],
+        "score_estrutural": 96,
+        "tipos_entidades_stog": {
+          "HATCH": 459,
+          "LWPOLYLINE": 799,
+          "TEXT": 754,
+          "LINE": 3939,
+          "OLE2FRAME": 1,
+          "DIMENSION": 1079,
+          "MLINE": 1,
+          "INSERT": 168,
+          "ATTDEF": 1,
+          "CIRCLE": 17,
+          "ARC": 17,
+          "LEADER": 6,
+          "SOLID": 1,
+          "SPLINE": 6,
+          "MTEXT": 263
+        },
+        "tipos_entidades_gen": {
+          "LWPOLYLINE": 1789,
+          "HATCH": 987,
+          "LINE": 2754,
+          "INSERT": 195,
+          "TEXT": 484,
+          "DIMENSION": 1137
+        }
+      },
+      "visual": null,
+      "score_final": 96
+    },
+    "FV": {
+      "tipo": "FV",
+      "dxf_stog": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_16\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA-TRISUL-VALDIR NIEMEYER-1PV-FV-R00_R2018_ASCII_ODA.dxf",
+      "dxf_gen": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_16\\Fase-6_Execucao_CAD\\FV_stog_quality.dxf",
+      "prancha_format": false,
+      "estrutural": {
+        "total_entidades_stog": 1868,
+        "total_entidades_gen": 1001,
+        "struct_entidades_stog": 1728,
+        "struct_entidades_gen": 944,
+        "ratio_struct": 0.546,
+        "layers_stog": 33,
+        "layers_gen": 33,
+        "layers_faltando": [],
+        "layers_extras": [],
+        "score_estrutural": 80,
+        "tipos_entidades_stog": {
+          "HATCH": 100,
+          "TEXT": 336,
+          "LWPOLYLINE": 127,
+          "LINE": 968,
+          "ATTDEF": 1,
+          "OLE2FRAME": 1,
+          "INSERT": 33,
+          "DIMENSION": 256,
+          "MLINE": 1,
+          "CIRCLE": 17,
+          "ARC": 17,
+          "LEADER": 4,
+          "SOLID": 1,
+          "SPLINE": 6
+        },
+        "tipos_entidades_gen": {
+          "LWPOLYLINE": 61,
+          "LINE": 445,
+          "CIRCLE": 138,
+          "TEXT": 186,
+          "INSERT": 57,
+          "DIMENSION": 114
+        }
+      },
+      "visual": null,
+      "score_final": 80
+    },
+    "LJ": {
+      "tipo": "LJ",
+      "dxf_stog": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_16\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA-TRISUL-VALDIR NIEMEYER-1PV-LJ-R00_R2018_ASCII_ODA.dxf",
+      "dxf_gen": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_16\\Fase-6_Execucao_CAD\\LJ_stog_quality.dxf",
+      "prancha_format": false,
+      "estrutural": {
+        "total_entidades_stog": 1475,
+        "total_entidades_gen": 233,
+        "struct_entidades_stog": 1314,
+        "struct_entidades_gen": 222,
+        "ratio_struct": 0.169,
+        "layers_stog": 22,
+        "layers_gen": 22,
+        "layers_faltando": [],
+        "layers_extras": [],
+        "score_estrutural": 45,
+        "tipos_entidades_stog": {
+          "HATCH": 128,
+          "LINE": 710,
+          "INSERT": 33,
+          "LWPOLYLINE": 2,
+          "TEXT": 11,
+          "ARC": 8,
+          "MTEXT": 310,
+          "DIMENSION": 273
+        },
+        "tipos_entidades_gen": {
+          "HATCH": 11,
+          "TEXT": 77,
+          "LINE": 53,
+          "DIMENSION": 55,
+          "MTEXT": 33,
+          "LWPOLYLINE": 4
+        }
+      },
+      "visual": null,
+      "score_final": 45
+    }
+  }
+}

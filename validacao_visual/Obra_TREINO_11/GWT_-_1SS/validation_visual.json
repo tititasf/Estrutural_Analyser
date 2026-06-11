@@ -1,0 +1,280 @@
+{
+  "obra": "Obra_TREINO_11",
+  "pavimento": "GWT - 1SS",
+  "tipos_validados": [
+    "PL",
+    "LV",
+    "FV",
+    "LJ"
+  ],
+  "score_pavimento": 10.0,
+  "resultados": {
+    "PL": {
+      "tipo": "PL",
+      "dxf_stog": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_11\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA-SCHWARTZ-GWT-1SS-PL-R01_R2018_ASCII_ODA.dxf",
+      "dxf_gen": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_11\\Fase-6_Execucao_CAD\\PL_stog_quality.dxf",
+      "prancha_format": false,
+      "estrutural": {
+        "total_entidades_stog": 0,
+        "total_entidades_gen": 3557,
+        "struct_entidades_stog": 0,
+        "struct_entidades_gen": 2797,
+        "ratio_struct": 2797.0,
+        "layers_stog": 1,
+        "layers_gen": 37,
+        "layers_faltando": [
+          "ERROR"
+        ],
+        "layers_extras": [
+          "0",
+          "BARRA ANCORAGEM",
+          "CARIMBO",
+          "CHAPA",
+          "CONCRETO",
+          "COTA",
+          "Demarcação 1",
+          "Demarcação 2",
+          "Folhas",
+          "Hachura",
+          "Laje_Perimetro",
+          "MEIO_PONT",
+          "Madeira",
+          "NIVEL",
+          "NOMENCLATURA",
+          "Nível",
+          "Painéis",
+          "Perfil Metálico",
+          "SARRAFO",
+          "SARRAFO DE PRESSAO",
+          "SARR_2.2x10",
+          "SARR_2.2x15",
+          "SARR_2.2x20",
+          "SARR_2.2x6.3",
+          "SARR_2.2x7",
+          "SARR_3.5x10",
+          "SARR_3.5x7",
+          "SARR_7x10",
+          "SARR_7x7",
+          "SARR_EDITAR",
+          "Sarr 2.2x7",
+          "Sarrafo de Pressão",
+          "TEXTO_GERAL",
+          "Texto Nível",
+          "Texto Seção",
+          "cotas",
+          "texto"
+        ],
+        "score_estrutural": 5,
+        "tipos_entidades_stog": {},
+        "tipos_entidades_gen": {
+          "LWPOLYLINE": 962,
+          "DIMENSION": 676,
+          "INSERT": 552,
+          "TEXT": 670,
+          "HATCH": 208,
+          "MTEXT": 26,
+          "LINE": 463
+        }
+      },
+      "visual": {
+        "error": "render_stog: "
+      },
+      "score_final": 5
+    },
+    "LV": {
+      "tipo": "LV",
+      "dxf_stog": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_11\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA-SCHWARTZ-GWT-1SS-LV-R00_R2018_ASCII_ODA.dxf",
+      "dxf_gen": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_11\\Fase-6_Execucao_CAD\\LV_stog_quality.dxf",
+      "prancha_format": false,
+      "estrutural": {
+        "total_entidades_stog": 0,
+        "total_entidades_gen": 5541,
+        "struct_entidades_stog": 0,
+        "struct_entidades_gen": 4641,
+        "ratio_struct": 4641.0,
+        "layers_stog": 1,
+        "layers_gen": 39,
+        "layers_faltando": [
+          "ERROR"
+        ],
+        "layers_extras": [
+          "0",
+          "5",
+          "BARRA DE ANCORAGEM",
+          "CARIMBO",
+          "CONCRETO",
+          "COTA",
+          "Demarcação 1",
+          "Demarcação 2",
+          "Escoras",
+          "Folhas",
+          "Forcador",
+          "GARFOS",
+          "HACHURA MADEIRAS",
+          "Hachura",
+          "Laje_Perimetro",
+          "Madeira",
+          "NOMENCLATURA",
+          "Painéis",
+          "Perfil Metálico",
+          "SARRAFO",
+          "SARRAFO DE PRESSAO",
+          "SARR_2.2x10",
+          "SARR_2.2x15",
+          "SARR_2.2x20",
+          "SARR_2.2x6.3",
+          "SARR_2.2x7",
+          "SARR_3.5x10",
+          "SARR_3.5x7",
+          "SARR_7x10",
+          "SARR_EDITAR",
+          "SCO-___-LAJ",
+          "TENSOR",
+          "barrote",
+          "cotas",
+          "detalhes",
+          "fundo",
+          "material do compensado",
+          "presilha",
+          "texto"
+        ],
+        "score_estrutural": 5,
+        "tipos_entidades_stog": {},
+        "tipos_entidades_gen": {
+          "LWPOLYLINE": 1330,
+          "HATCH": 750,
+          "LINE": 2101,
+          "INSERT": 150,
+          "TEXT": 340,
+          "DIMENSION": 870
+        }
+      },
+      "visual": {
+        "error": "render_stog: "
+      },
+      "score_final": 5
+    },
+    "FV": {
+      "tipo": "FV",
+      "dxf_stog": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_11\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA-SCHWARTZ-GWT-1SS-FV-R00_R2018_ASCII_ODA.dxf",
+      "dxf_gen": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_11\\Fase-6_Execucao_CAD\\FV_stog_quality.dxf",
+      "prancha_format": false,
+      "estrutural": {
+        "total_entidades_stog": 0,
+        "total_entidades_gen": 698,
+        "struct_entidades_stog": 0,
+        "struct_entidades_gen": 655,
+        "ratio_struct": 655.0,
+        "layers_stog": 1,
+        "layers_gen": 33,
+        "layers_faltando": [
+          "ERROR"
+        ],
+        "layers_extras": [
+          "0",
+          "5",
+          "BARRA DE ANCORAGEM",
+          "CARIMBO",
+          "CONCRETO",
+          "COTA",
+          "Demarcação 1",
+          "Demarcação 2",
+          "Escoras",
+          "Folhas",
+          "Forcador",
+          "GARFOS",
+          "HACHURA MADEIRAS",
+          "Hachura",
+          "Madeira",
+          "NOMENCLATURA",
+          "Painéis",
+          "Perfil Metálico",
+          "REAPROVEITAMENTO",
+          "SARRAFO",
+          "SARRAFO DE PRESSAO",
+          "SARR_2.2x10",
+          "SARR_2.2x15",
+          "SARR_2.2x20",
+          "SARR_2.2x6.3",
+          "SARR_2.2x7",
+          "SARR_3.5x10",
+          "SARR_3.5x7",
+          "SARR_7x10",
+          "SARR_EDITAR",
+          "fundo",
+          "material do compensado",
+          "texto"
+        ],
+        "score_estrutural": 9,
+        "tipos_entidades_stog": {},
+        "tipos_entidades_gen": {
+          "LWPOLYLINE": 47,
+          "LINE": 273,
+          "CIRCLE": 105,
+          "TEXT": 145,
+          "INSERT": 43,
+          "DIMENSION": 85
+        }
+      },
+      "visual": {
+        "error": "render_stog: "
+      },
+      "score_final": 9
+    },
+    "LJ": {
+      "tipo": "LJ",
+      "dxf_stog": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_11\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA-SCHWARTZ-GWT-1SS-LJ-R00_R2018_ASCII_ODA.dxf",
+      "dxf_gen": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_11\\Fase-6_Execucao_CAD\\LJ_stog_quality.dxf",
+      "prancha_format": false,
+      "estrutural": {
+        "total_entidades_stog": 0,
+        "total_entidades_gen": 797,
+        "struct_entidades_stog": 0,
+        "struct_entidades_gen": 769,
+        "ratio_struct": 769.0,
+        "layers_stog": 1,
+        "layers_gen": 21,
+        "layers_faltando": [
+          "ERROR"
+        ],
+        "layers_extras": [
+          "0",
+          "00 - FELIPE",
+          "CARIMBO",
+          "COTA",
+          "EST-G-Revision Clouds",
+          "EST-G-TEXT-Revision Cloud Tags",
+          "EST-LAJE-TEXT",
+          "EST-PILAR",
+          "EST-PILAR-TEXT",
+          "EST-SIMB",
+          "EST-SIMB-Spot Elevations",
+          "EST-TEXT",
+          "EST-VIGA",
+          "EST-VIGA-TEXT",
+          "FOLHA",
+          "Hachura",
+          "Painéis",
+          "Pilares",
+          "REAPROVEITAMENTO",
+          "VIGAS",
+          "Vázio"
+        ],
+        "score_estrutural": 21,
+        "tipos_entidades_stog": {},
+        "tipos_entidades_gen": {
+          "HATCH": 28,
+          "TEXT": 292,
+          "LINE": 151,
+          "DIMENSION": 188,
+          "MTEXT": 132,
+          "LWPOLYLINE": 6
+        }
+      },
+      "visual": {
+        "error": "render_stog: "
+      },
+      "score_final": 21
+    }
+  }
+}

@@ -1,0 +1,116 @@
+{
+  "obra": "Obra_TREINO_10",
+  "pavimento": "1PAV",
+  "tipos_validados": [
+    "LV",
+    "FV"
+  ],
+  "score_pavimento": 49.0,
+  "resultados": {
+    "LV": {
+      "tipo": "LV",
+      "dxf_stog": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_10\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\ROCONTEC - HOSPITAL ASSUNÇÃO - 1° PAV. - VG - R01_R2018_ASCII_ODA.dxf",
+      "dxf_gen": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_10\\Fase-6_Execucao_CAD\\LV_stog_quality.dxf",
+      "prancha_format": false,
+      "estrutural": {
+        "total_entidades_stog": 14059,
+        "total_entidades_gen": 5657,
+        "struct_entidades_stog": 12561,
+        "struct_entidades_gen": 4929,
+        "ratio_struct": 0.392,
+        "layers_stog": 36,
+        "layers_gen": 45,
+        "layers_faltando": [
+          "FELIPE"
+        ],
+        "layers_extras": [
+          "Romaneio",
+          "SARRAFO",
+          "SARR_2.2x10",
+          "SARR_2.2x15",
+          "SARR_2.2x20",
+          "SARR_2.2x6.3",
+          "SARR_3.5x10",
+          "SARR_7x10",
+          "SARR_EDITAR",
+          "cotas"
+        ],
+        "score_estrutural": 47,
+        "tipos_entidades_stog": {
+          "HATCH": 1194,
+          "LWPOLYLINE": 1311,
+          "TEXT": 1089,
+          "LINE": 7517,
+          "OLE2FRAME": 1,
+          "DIMENSION": 2098,
+          "MLINE": 1,
+          "INSERT": 296,
+          "ATTDEF": 2,
+          "CIRCLE": 17,
+          "ARC": 17,
+          "LEADER": 4,
+          "SOLID": 1,
+          "SPLINE": 6,
+          "MTEXT": 505
+        },
+        "tipos_entidades_gen": {
+          "LWPOLYLINE": 1810,
+          "HATCH": 618,
+          "LINE": 2095,
+          "INSERT": 110,
+          "TEXT": 330,
+          "DIMENSION": 694
+        }
+      },
+      "visual": null,
+      "score_final": 47
+    },
+    "FV": {
+      "tipo": "FV",
+      "dxf_stog": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_10\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\ROCONTEC - HOSPITAL ASSUNÇÃO - 1° PAV.- FV - R00_R2018_ASCII_ODA.dxf",
+      "dxf_gen": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_10\\Fase-6_Execucao_CAD\\FV_stog_quality.dxf",
+      "prancha_format": false,
+      "estrutural": {
+        "total_entidades_stog": 2731,
+        "total_entidades_gen": 1071,
+        "struct_entidades_stog": 2611,
+        "struct_entidades_gen": 1030,
+        "ratio_struct": 0.394,
+        "layers_stog": 28,
+        "layers_gen": 25,
+        "layers_faltando": [
+          "00 - FELIPE",
+          "Cotas",
+          "SARR_EDITAR"
+        ],
+        "layers_extras": [],
+        "score_estrutural": 51,
+        "tipos_entidades_stog": {
+          "LWPOLYLINE": 318,
+          "TEXT": 441,
+          "INSERT": 17,
+          "LINE": 1316,
+          "ATTDEF": 1,
+          "OLE2FRAME": 1,
+          "HATCH": 97,
+          "DIMENSION": 495,
+          "CIRCLE": 17,
+          "ARC": 17,
+          "LEADER": 4,
+          "SOLID": 1,
+          "SPLINE": 6
+        },
+        "tipos_entidades_gen": {
+          "LWPOLYLINE": 45,
+          "LINE": 691,
+          "CIRCLE": 99,
+          "TEXT": 119,
+          "INSERT": 41,
+          "DIMENSION": 76
+        }
+      },
+      "visual": null,
+      "score_final": 51
+    }
+  }
+}

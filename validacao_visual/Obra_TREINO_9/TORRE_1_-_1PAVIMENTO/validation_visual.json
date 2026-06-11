@@ -1,0 +1,186 @@
+{
+  "obra": "Obra_TREINO_9",
+  "pavimento": "TORRE 1 - 1PAVIMENTO",
+  "tipos_validados": [
+    "PL",
+    "LV",
+    "FV",
+    "LJ"
+  ],
+  "score_pavimento": 73.8,
+  "resultados": {
+    "PL": {
+      "tipo": "PL",
+      "dxf_stog": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_9\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\RB2 - CITTA DI LUCCA - TORRE 1 - 1°PAVIMENTO  - PL - R00_R2018_ASCII_ODA.dxf",
+      "dxf_gen": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_9\\Fase-6_Execucao_CAD\\PL_stog_quality.dxf",
+      "prancha_format": false,
+      "estrutural": {
+        "total_entidades_stog": 9424,
+        "total_entidades_gen": 4493,
+        "struct_entidades_stog": 7498,
+        "struct_entidades_gen": 4043,
+        "ratio_struct": 0.539,
+        "layers_stog": 27,
+        "layers_gen": 28,
+        "layers_faltando": [],
+        "layers_extras": [
+          "texto"
+        ],
+        "score_estrutural": 79,
+        "tipos_entidades_stog": {
+          "INSERT": 895,
+          "LINE": 3235,
+          "HATCH": 816,
+          "LWPOLYLINE": 1508,
+          "TEXT": 657,
+          "DIMENSION": 1800,
+          "SOLID": 2,
+          "CIRCLE": 1,
+          "MTEXT": 226,
+          "ELLIPSE": 32,
+          "ARC": 57,
+          "LEADER": 177,
+          "SPLINE": 12,
+          "MLINE": 6
+        },
+        "tipos_entidades_gen": {
+          "LWPOLYLINE": 768,
+          "DIMENSION": 416,
+          "INSERT": 322,
+          "TEXT": 410,
+          "HATCH": 128,
+          "MTEXT": 16,
+          "LINE": 2433
+        }
+      },
+      "visual": null,
+      "score_final": 79
+    },
+    "LV": {
+      "tipo": "LV",
+      "dxf_stog": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_9\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\RB2 - CITTA DI LUCCA - TORRE 1 - 1°PAVIMENTO - LV - R00_R2018_ASCII_ODA.dxf",
+      "dxf_gen": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_9\\Fase-6_Execucao_CAD\\LV_stog_quality.dxf",
+      "prancha_format": false,
+      "estrutural": {
+        "total_entidades_stog": 10581,
+        "total_entidades_gen": 5909,
+        "struct_entidades_stog": 9747,
+        "struct_entidades_gen": 5359,
+        "ratio_struct": 0.55,
+        "layers_stog": 37,
+        "layers_gen": 41,
+        "layers_faltando": [],
+        "layers_extras": [
+          "BARRA_ANCORAGEM",
+          "ESTRUTURACAO",
+          "HACHURACONCRETO",
+          "SARRAFO_2_2X7"
+        ],
+        "score_estrutural": 76,
+        "tipos_entidades_stog": {
+          "INSERT": 204,
+          "TEXT": 842,
+          "MTEXT": 386,
+          "HATCH": 626,
+          "LWPOLYLINE": 620,
+          "LINE": 6383,
+          "DIMENSION": 1475,
+          "CIRCLE": 17,
+          "ARC": 17,
+          "LEADER": 4,
+          "SOLID": 1,
+          "SPLINE": 6
+        },
+        "tipos_entidades_gen": {
+          "LWPOLYLINE": 1327,
+          "HATCH": 465,
+          "LINE": 3234,
+          "INSERT": 85,
+          "TEXT": 268,
+          "DIMENSION": 530
+        }
+      },
+      "visual": null,
+      "score_final": 76
+    },
+    "FV": {
+      "tipo": "FV",
+      "dxf_stog": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_9\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\RB2 - CITTA DI LUCCA - TORRE 1 - 1°PAVIMENTO  - FV - R00_R2018_ASCII_ODA.dxf",
+      "dxf_gen": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_9\\Fase-6_Execucao_CAD\\FV_stog_quality.dxf",
+      "prancha_format": false,
+      "estrutural": {
+        "total_entidades_stog": 2104,
+        "total_entidades_gen": 1063,
+        "struct_entidades_stog": 1882,
+        "struct_entidades_gen": 1035,
+        "ratio_struct": 0.55,
+        "layers_stog": 28,
+        "layers_gen": 28,
+        "layers_faltando": [],
+        "layers_extras": [],
+        "score_estrutural": 80,
+        "tipos_entidades_stog": {
+          "INSERT": 103,
+          "TEXT": 384,
+          "MTEXT": 43,
+          "HATCH": 115,
+          "LWPOLYLINE": 169,
+          "LINE": 1016,
+          "DIMENSION": 229,
+          "CIRCLE": 17,
+          "ARC": 17,
+          "LEADER": 4,
+          "SOLID": 1,
+          "SPLINE": 6
+        },
+        "tipos_entidades_gen": {
+          "LWPOLYLINE": 32,
+          "LINE": 788,
+          "CIRCLE": 70,
+          "TEXT": 91,
+          "INSERT": 28,
+          "DIMENSION": 54
+        }
+      },
+      "visual": null,
+      "score_final": 80
+    },
+    "LJ": {
+      "tipo": "LJ",
+      "dxf_stog": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_9\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\RB2 - CITTA DI LUCCA - TORRE 1 - 1°PAVIMENTO  - LJ - R01_R2018_ASCII_ODA.dxf",
+      "dxf_gen": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_9\\Fase-6_Execucao_CAD\\LJ_stog_quality.dxf",
+      "prancha_format": false,
+      "estrutural": {
+        "total_entidades_stog": 1364,
+        "total_entidades_gen": 583,
+        "struct_entidades_stog": 1312,
+        "struct_entidades_gen": 556,
+        "ratio_struct": 0.424,
+        "layers_stog": 20,
+        "layers_gen": 20,
+        "layers_faltando": [],
+        "layers_extras": [],
+        "score_estrutural": 60,
+        "tipos_entidades_stog": {
+          "HATCH": 48,
+          "LINE": 118,
+          "INSERT": 4,
+          "LWPOLYLINE": 646,
+          "TEXT": 232,
+          "MTEXT": 6,
+          "CIRCLE": 1,
+          "DIMENSION": 309
+        },
+        "tipos_entidades_gen": {
+          "HATCH": 27,
+          "TEXT": 81,
+          "LINE": 367,
+          "DIMENSION": 81,
+          "MTEXT": 27
+        }
+      },
+      "visual": null,
+      "score_final": 60
+    }
+  }
+}

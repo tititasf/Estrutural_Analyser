@@ -1,0 +1,189 @@
+{
+  "obra": "Obra_TREINO_8",
+  "pavimento": "IONEJI - T1 - 1PAV",
+  "tipos_validados": [
+    "PL",
+    "LV",
+    "FV",
+    "LJ"
+  ],
+  "score_pavimento": 89.0,
+  "resultados": {
+    "PL": {
+      "tipo": "PL",
+      "dxf_stog": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_8\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\P4 - CASA 8 - IONEJI - T1 - 1º PAV. - PL - R00_R2018_ASCII_ODA.dxf",
+      "dxf_gen": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_8\\Fase-6_Execucao_CAD\\PL_stog_quality.dxf",
+      "prancha_format": false,
+      "estrutural": {
+        "total_entidades_stog": 17112,
+        "total_entidades_gen": 17919,
+        "struct_entidades_stog": 13768,
+        "struct_entidades_gen": 14209,
+        "ratio_struct": 1.032,
+        "layers_stog": 39,
+        "layers_gen": 39,
+        "layers_faltando": [],
+        "layers_extras": [],
+        "score_estrutural": 100,
+        "tipos_entidades_stog": {
+          "LINE": 4883,
+          "DIMENSION": 3865,
+          "HATCH": 1457,
+          "TEXT": 1427,
+          "LWPOLYLINE": 3160,
+          "ELLIPSE": 32,
+          "ARC": 57,
+          "LEADER": 293,
+          "SPLINE": 11,
+          "SOLID": 2,
+          "INSERT": 1324,
+          "CIRCLE": 1,
+          "OLE2FRAME": 1,
+          "MLINE": 237,
+          "MTEXT": 362
+        },
+        "tipos_entidades_gen": {
+          "LWPOLYLINE": 5831,
+          "DIMENSION": 3094,
+          "INSERT": 2758,
+          "TEXT": 3119,
+          "HATCH": 952,
+          "MTEXT": 119,
+          "LINE": 2046
+        }
+      },
+      "visual": null,
+      "score_final": 100
+    },
+    "LV": {
+      "tipo": "LV",
+      "dxf_stog": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_8\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\P4-CASA 8-IONEJI-T1-1PAV-LV-R00_R2018_ASCII_ODA.dxf",
+      "dxf_gen": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_8\\Fase-6_Execucao_CAD\\LV_stog_quality.dxf",
+      "prancha_format": false,
+      "estrutural": {
+        "total_entidades_stog": 15996,
+        "total_entidades_gen": 17472,
+        "struct_entidades_stog": 14451,
+        "struct_entidades_gen": 14994,
+        "ratio_struct": 1.038,
+        "layers_stog": 36,
+        "layers_gen": 40,
+        "layers_faltando": [],
+        "layers_extras": [
+          "BARRA_ANCORAGEM",
+          "ESTRUTURACAO",
+          "HACHURACONCRETO",
+          "SARRAFO_2_2X7"
+        ],
+        "score_estrutural": 96,
+        "tipos_entidades_stog": {
+          "HATCH": 1202,
+          "LWPOLYLINE": 1435,
+          "TEXT": 1304,
+          "LINE": 8560,
+          "OLE2FRAME": 2,
+          "DIMENSION": 2574,
+          "MLINE": 2,
+          "INSERT": 329,
+          "ATTDEF": 2,
+          "CIRCLE": 34,
+          "ARC": 34,
+          "LEADER": 8,
+          "SOLID": 2,
+          "SPLINE": 12,
+          "MTEXT": 496
+        },
+        "tipos_entidades_gen": {
+          "LWPOLYLINE": 5241,
+          "HATCH": 2123,
+          "LINE": 6271,
+          "INSERT": 355,
+          "TEXT": 1178,
+          "DIMENSION": 2304
+        }
+      },
+      "visual": null,
+      "score_final": 96
+    },
+    "FV": {
+      "tipo": "FV",
+      "dxf_stog": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_8\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\P4-CASA 8-IONEJI-T1-1PAV-FV-R00_R2018_ASCII_ODA.dxf",
+      "dxf_gen": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_8\\Fase-6_Execucao_CAD\\FV_stog_quality.dxf",
+      "prancha_format": false,
+      "estrutural": {
+        "total_entidades_stog": 2196,
+        "total_entidades_gen": 2334,
+        "struct_entidades_stog": 2080,
+        "struct_entidades_gen": 2187,
+        "ratio_struct": 1.051,
+        "layers_stog": 25,
+        "layers_gen": 25,
+        "layers_faltando": [],
+        "layers_extras": [],
+        "score_estrutural": 100,
+        "tipos_entidades_stog": {
+          "TEXT": 332,
+          "LWPOLYLINE": 194,
+          "LINE": 1169,
+          "ATTDEF": 1,
+          "OLE2FRAME": 1,
+          "INSERT": 13,
+          "HATCH": 97,
+          "DIMENSION": 286,
+          "CIRCLE": 17,
+          "ARC": 17,
+          "LEADER": 4,
+          "SOLID": 1,
+          "SPLINE": 6,
+          "MTEXT": 58
+        },
+        "tipos_entidades_gen": {
+          "LWPOLYLINE": 151,
+          "LINE": 971,
+          "CIRCLE": 410,
+          "TEXT": 372,
+          "INSERT": 147,
+          "DIMENSION": 283
+        }
+      },
+      "visual": null,
+      "score_final": 100
+    },
+    "LJ": {
+      "tipo": "LJ",
+      "dxf_stog": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_8\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\P4-CASA 8-IONEJI-T1-1PAV-LJ-R00_R2018_ASCII_ODA.dxf",
+      "dxf_gen": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_8\\Fase-6_Execucao_CAD\\LJ_stog_quality.dxf",
+      "prancha_format": false,
+      "estrutural": {
+        "total_entidades_stog": 2905,
+        "total_entidades_gen": 1122,
+        "struct_entidades_stog": 2667,
+        "struct_entidades_gen": 1057,
+        "ratio_struct": 0.396,
+        "layers_stog": 15,
+        "layers_gen": 15,
+        "layers_faltando": [],
+        "layers_extras": [],
+        "score_estrutural": 60,
+        "tipos_entidades_stog": {
+          "LINE": 955,
+          "INSERT": 2,
+          "LWPOLYLINE": 130,
+          "TEXT": 10,
+          "HATCH": 236,
+          "MTEXT": 1085,
+          "CIRCLE": 150,
+          "DIMENSION": 337
+        },
+        "tipos_entidades_gen": {
+          "HATCH": 65,
+          "LINE": 858,
+          "DIMENSION": 195,
+          "LWPOLYLINE": 4
+        }
+      },
+      "visual": null,
+      "score_final": 60
+    }
+  }
+}

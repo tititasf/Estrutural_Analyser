@@ -1,0 +1,192 @@
+{
+  "12PAV": {
+    "obra": "Obra_TREINO_21",
+    "pavimento": "12PAV",
+    "tipos_validados": [
+      "PL",
+      "LV",
+      "FV",
+      "LJ"
+    ],
+    "score_pavimento": 80.2,
+    "resultados": {
+      "PL": {
+        "tipo": "PL",
+        "dxf_stog": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_21\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\STOG - NIK SUNSET - 12º PAVIMENTO - PL - R00_R2018_ASCII_ODA.dxf",
+        "dxf_gen": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_21\\Fase-6_Execucao_CAD\\PL_stog_quality.dxf",
+        "prancha_format": false,
+        "estrutural": {
+          "total_entidades_stog": 6162,
+          "total_entidades_gen": 5954,
+          "struct_entidades_stog": 4826,
+          "struct_entidades_gen": 5126,
+          "ratio_struct": 1.062,
+          "layers_stog": 28,
+          "layers_gen": 28,
+          "layers_faltando": [],
+          "layers_extras": [],
+          "score_estrutural": 100,
+          "tipos_entidades_stog": {
+            "HATCH": 597,
+            "DIMENSION": 1034,
+            "TEXT": 303,
+            "LWPOLYLINE": 973,
+            "LINE": 2199,
+            "ELLIPSE": 32,
+            "ARC": 57,
+            "LEADER": 114,
+            "SPLINE": 11,
+            "SOLID": 2,
+            "INSERT": 591,
+            "CIRCLE": 1,
+            "OLE2FRAME": 1,
+            "MLINE": 1,
+            "MTEXT": 246
+          },
+          "tipos_entidades_gen": {
+            "LWPOLYLINE": 1617,
+            "DIMENSION": 1090,
+            "INSERT": 564,
+            "TEXT": 885,
+            "HATCH": 264,
+            "MTEXT": 33,
+            "LINE": 1501
+          }
+        },
+        "visual": null,
+        "score_final": 100
+      },
+      "LV": {
+        "tipo": "LV",
+        "dxf_stog": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_21\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\STOG - NIK SUNSET - 12º PAVIMENTO - LV - R00_R2018_ASCII_ODA.dxf",
+        "dxf_gen": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_21\\Fase-6_Execucao_CAD\\LV_stog_quality.dxf",
+        "prancha_format": false,
+        "estrutural": {
+          "total_entidades_stog": 9468,
+          "total_entidades_gen": 11164,
+          "struct_entidades_stog": 8433,
+          "struct_entidades_gen": 9832,
+          "ratio_struct": 1.166,
+          "layers_stog": 44,
+          "layers_gen": 48,
+          "layers_faltando": [],
+          "layers_extras": [
+            "BARRA_ANCORAGEM",
+            "ESTRUTURACAO",
+            "HACHURACONCRETO",
+            "SARRAFO_2_2X7"
+          ],
+          "score_estrutural": 96,
+          "tipos_entidades_stog": {
+            "HATCH": 830,
+            "LWPOLYLINE": 897,
+            "TEXT": 670,
+            "LINE": 5307,
+            "OLE2FRAME": 1,
+            "DIMENSION": 1228,
+            "MLINE": 1,
+            "INSERT": 194,
+            "CIRCLE": 17,
+            "ARC": 17,
+            "LEADER": 9,
+            "SOLID": 1,
+            "SPLINE": 6,
+            "MTEXT": 290
+          },
+          "tipos_entidades_gen": {
+            "LWPOLYLINE": 4114,
+            "HATCH": 1162,
+            "LINE": 3900,
+            "INSERT": 170,
+            "TEXT": 642,
+            "DIMENSION": 1176
+          }
+        },
+        "visual": null,
+        "score_final": 96
+      },
+      "FV": {
+        "tipo": "FV",
+        "dxf_stog": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_21\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\STOG - NIK SUNSET - 12° PAV.- FV - R00_R2018_ASCII_ODA.dxf",
+        "dxf_gen": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_21\\Fase-6_Execucao_CAD\\FV_stog_quality.dxf",
+        "prancha_format": false,
+        "estrutural": {
+          "total_entidades_stog": 1118,
+          "total_entidades_gen": 557,
+          "struct_entidades_stog": 1006,
+          "struct_entidades_gen": 545,
+          "ratio_struct": 0.542,
+          "layers_stog": 24,
+          "layers_gen": 24,
+          "layers_faltando": [],
+          "layers_extras": [],
+          "score_estrutural": 80,
+          "tipos_entidades_stog": {
+            "LINE": 707,
+            "TEXT": 154,
+            "LWPOLYLINE": 58,
+            "ATTDEF": 1,
+            "OLE2FRAME": 1,
+            "INSERT": 9,
+            "HATCH": 97,
+            "DIMENSION": 46,
+            "CIRCLE": 17,
+            "ARC": 17,
+            "LEADER": 4,
+            "SOLID": 1,
+            "SPLINE": 6
+          },
+          "tipos_entidades_gen": {
+            "LWPOLYLINE": 16,
+            "LINE": 446,
+            "CIRCLE": 28,
+            "TEXT": 36,
+            "INSERT": 12,
+            "DIMENSION": 19
+          }
+        },
+        "visual": null,
+        "score_final": 80
+      },
+      "LJ": {
+        "tipo": "LJ",
+        "dxf_stog": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_21\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\STOG - NIK SUNSET - 12° PAV.- LJ - R00_R2018_ASCII_ODA.dxf",
+        "dxf_gen": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_21\\Fase-6_Execucao_CAD\\LJ_stog_quality.dxf",
+        "prancha_format": false,
+        "estrutural": {
+          "total_entidades_stog": 3606,
+          "total_entidades_gen": 796,
+          "struct_entidades_stog": 3541,
+          "struct_entidades_gen": 771,
+          "ratio_struct": 0.218,
+          "layers_stog": 16,
+          "layers_gen": 16,
+          "layers_faltando": [],
+          "layers_extras": [],
+          "score_estrutural": 45,
+          "tipos_entidades_stog": {
+            "HATCH": 57,
+            "LINE": 2564,
+            "INSERT": 2,
+            "LWPOLYLINE": 227,
+            "TEXT": 288,
+            "DIMENSION": 356,
+            "CIRCLE": 46,
+            "MTEXT": 60,
+            "MULTILEADER": 6
+          },
+          "tipos_entidades_gen": {
+            "LWPOLYLINE": 104,
+            "HATCH": 25,
+            "TEXT": 254,
+            "LINE": 213,
+            "DIMENSION": 125,
+            "MTEXT": 75
+          }
+        },
+        "visual": null,
+        "score_final": 45
+      }
+    }
+  }
+}

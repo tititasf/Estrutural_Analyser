@@ -1,0 +1,196 @@
+{
+  "1PV": {
+    "obra": "Obra_TREINO_18",
+    "pavimento": "1PV",
+    "tipos_validados": [
+      "PL",
+      "LV",
+      "FV",
+      "LJ"
+    ],
+    "score_pavimento": 79.0,
+    "resultados": {
+      "PL": {
+        "tipo": "PL",
+        "dxf_stog": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_18\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\ZAMBETA - LUXOR - 1PV - PL - R01 - 2°ETAPA_R2018_ASCII_ODA.dxf",
+        "dxf_gen": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_18\\Fase-6_Execucao_CAD\\PL_stog_quality.dxf",
+        "prancha_format": false,
+        "estrutural": {
+          "total_entidades_stog": 4607,
+          "total_entidades_gen": 2547,
+          "struct_entidades_stog": 3781,
+          "struct_entidades_gen": 2027,
+          "ratio_struct": 0.536,
+          "layers_stog": 25,
+          "layers_gen": 25,
+          "layers_faltando": [],
+          "layers_extras": [],
+          "score_estrutural": 80,
+          "tipos_entidades_stog": {
+            "DIMENSION": 868,
+            "HATCH": 269,
+            "TEXT": 364,
+            "LWPOLYLINE": 565,
+            "LINE": 1793,
+            "ELLIPSE": 32,
+            "ARC": 57,
+            "LEADER": 80,
+            "SPLINE": 11,
+            "SOLID": 2,
+            "INSERT": 443,
+            "CIRCLE": 1,
+            "OLE2FRAME": 1,
+            "MLINE": 1,
+            "MTEXT": 120
+          },
+          "tipos_entidades_gen": {
+            "LWPOLYLINE": 833,
+            "DIMENSION": 442,
+            "INSERT": 384,
+            "TEXT": 437,
+            "HATCH": 136,
+            "MTEXT": 17,
+            "LINE": 298
+          }
+        },
+        "visual": null,
+        "score_final": 80
+      },
+      "LV": {
+        "tipo": "LV",
+        "dxf_stog": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_18\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\ZAMBETA - LUXOR - 1PV - LV - R00 - 2°ETAPA_R2018_ASCII_ODA.dxf",
+        "dxf_gen": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_18\\Fase-6_Execucao_CAD\\LV_stog_quality.dxf",
+        "prancha_format": false,
+        "estrutural": {
+          "total_entidades_stog": 3519,
+          "total_entidades_gen": 6677,
+          "struct_entidades_stog": 3182,
+          "struct_entidades_gen": 6047,
+          "ratio_struct": 1.9,
+          "layers_stog": 27,
+          "layers_gen": 31,
+          "layers_faltando": [],
+          "layers_extras": [
+            "BARRA_ANCORAGEM",
+            "ESTRUTURACAO",
+            "HACHURACONCRETO",
+            "SARRAFO_2_2X7"
+          ],
+          "score_estrutural": 56,
+          "tipos_entidades_stog": {
+            "HATCH": 269,
+            "LWPOLYLINE": 327,
+            "TEXT": 425,
+            "LINE": 1900,
+            "OLE2FRAME": 1,
+            "DIMENSION": 473,
+            "MLINE": 1,
+            "INSERT": 61,
+            "ATTDEF": 1,
+            "CIRCLE": 17,
+            "ARC": 17,
+            "LEADER": 4,
+            "SOLID": 1,
+            "SPLINE": 6,
+            "MTEXT": 16
+          },
+          "tipos_entidades_gen": {
+            "LWPOLYLINE": 1681,
+            "HATCH": 455,
+            "LINE": 2573,
+            "INSERT": 175,
+            "TEXT": 604,
+            "DIMENSION": 1189
+          }
+        },
+        "visual": null,
+        "score_final": 56
+      },
+      "FV": {
+        "tipo": "FV",
+        "dxf_stog": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_18\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\ZAMBETA - LUXOR - 1PV - FV - R00 - 2°ETAPA_R2018_ASCII_ODA.dxf",
+        "dxf_gen": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_18\\Fase-6_Execucao_CAD\\FV_stog_quality.dxf",
+        "prancha_format": false,
+        "estrutural": {
+          "total_entidades_stog": 1350,
+          "total_entidades_gen": 1446,
+          "struct_entidades_stog": 1233,
+          "struct_entidades_gen": 1348,
+          "ratio_struct": 1.093,
+          "layers_stog": 26,
+          "layers_gen": 26,
+          "layers_faltando": [],
+          "layers_extras": [],
+          "score_estrutural": 100,
+          "tipos_entidades_stog": {
+            "TEXT": 205,
+            "LWPOLYLINE": 74,
+            "LINE": 792,
+            "ATTDEF": 1,
+            "OLE2FRAME": 1,
+            "INSERT": 14,
+            "HATCH": 97,
+            "DIMENSION": 121,
+            "CIRCLE": 17,
+            "ARC": 17,
+            "LEADER": 4,
+            "SOLID": 1,
+            "SPLINE": 6
+          },
+          "tipos_entidades_gen": {
+            "LWPOLYLINE": 102,
+            "LINE": 615,
+            "CIRCLE": 248,
+            "TEXT": 215,
+            "INSERT": 98,
+            "DIMENSION": 168
+          }
+        },
+        "visual": null,
+        "score_final": 100
+      },
+      "LJ": {
+        "tipo": "LJ",
+        "dxf_stog": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_18\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\ZAMBETA - LUXOR - 1PV - LJ - R00 - 2°ETAPA_R2018_ASCII_ODA.dxf",
+        "dxf_gen": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_18\\Fase-6_Execucao_CAD\\LJ_stog_quality.dxf",
+        "prancha_format": false,
+        "estrutural": {
+          "total_entidades_stog": 3117,
+          "total_entidades_gen": 1559,
+          "struct_entidades_stog": 3083,
+          "struct_entidades_gen": 1547,
+          "ratio_struct": 0.502,
+          "layers_stog": 25,
+          "layers_gen": 25,
+          "layers_faltando": [],
+          "layers_extras": [],
+          "score_estrutural": 80,
+          "tipos_entidades_stog": {
+            "LINE": 2121,
+            "HATCH": 22,
+            "INSERT": 2,
+            "LWPOLYLINE": 134,
+            "TEXT": 217,
+            "SOLID": 234,
+            "DIMENSION": 329,
+            "ARC": 24,
+            "MTEXT": 4,
+            "CIRCLE": 20,
+            "LEADER": 6,
+            "ARC_DIMENSION": 4
+          },
+          "tipos_entidades_gen": {
+            "LWPOLYLINE": 24,
+            "HATCH": 12,
+            "TEXT": 52,
+            "LINE": 1423,
+            "DIMENSION": 36,
+            "MTEXT": 12
+          }
+        },
+        "visual": null,
+        "score_final": 80
+      }
+    }
+  }
+}

@@ -1,0 +1,200 @@
+{
+  "obra": "Obra_TREINO_3",
+  "pavimento": "1 SUB - PERIFERIA - TORRE 1",
+  "tipos_validados": [
+    "PL",
+    "LV",
+    "FV",
+    "LJ"
+  ],
+  "score_pavimento": 53.5,
+  "resultados": {
+    "PL": {
+      "tipo": "PL",
+      "dxf_stog": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_3\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA -CAPREM - RES.DIAMOND - 1° SUB - PERIFERIA - TORRE 1 - S01A - PL - R00_R2018_ASCII_ODA.dxf",
+      "dxf_gen": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_3\\Fase-6_Execucao_CAD\\PL_gerado.dxf",
+      "prancha_format": false,
+      "estrutural": {
+        "total_entidades_stog": 1624,
+        "total_entidades_gen": 384,
+        "struct_entidades_stog": 1388,
+        "struct_entidades_gen": 330,
+        "ratio_struct": 0.238,
+        "layers_stog": 27,
+        "layers_gen": 32,
+        "layers_faltando": [],
+        "layers_extras": [
+          "CHAPA",
+          "GRAVATA",
+          "MEIO_PONT",
+          "SARRAFO DE PRESSAO",
+          "TEXTO_GERAL",
+          "texto"
+        ],
+        "score_estrutural": 39,
+        "tipos_entidades_stog": {
+          "INSERT": 130,
+          "LINE": 658,
+          "HATCH": 66,
+          "LWPOLYLINE": 294,
+          "TEXT": 221,
+          "DIMENSION": 99,
+          "SOLID": 2,
+          "CIRCLE": 1,
+          "MTEXT": 44,
+          "ELLIPSE": 32,
+          "ARC": 57,
+          "LEADER": 8,
+          "SPLINE": 12
+        },
+        "tipos_entidades_gen": {
+          "LWPOLYLINE": 82,
+          "DIMENSION": 68,
+          "INSERT": 38,
+          "TEXT": 50,
+          "HATCH": 16,
+          "MTEXT": 2,
+          "LINE": 128
+        }
+      },
+      "visual": null,
+      "score_final": 39
+    },
+    "LV": {
+      "tipo": "LV",
+      "dxf_stog": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_3\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA - CAPREM - RES.DIAMOND - 1° SUB - PERIFERIA - TORRE 1 - S01A - LV - R00_R2018_ASCII_ODA.dxf",
+      "dxf_gen": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_3\\Fase-6_Execucao_CAD\\LV_gerado.dxf",
+      "prancha_format": false,
+      "estrutural": {
+        "total_entidades_stog": 4656,
+        "total_entidades_gen": 21301,
+        "struct_entidades_stog": 4110,
+        "struct_entidades_gen": 18505,
+        "ratio_struct": 4.502,
+        "layers_stog": 35,
+        "layers_gen": 38,
+        "layers_faltando": [],
+        "layers_extras": [
+          "NOMENCLATURA",
+          "SARR_2.2x5",
+          "texto"
+        ],
+        "score_estrutural": 42,
+        "tipos_entidades_stog": {
+          "INSERT": 164,
+          "TEXT": 427,
+          "MTEXT": 177,
+          "HATCH": 378,
+          "LWPOLYLINE": 377,
+          "LINE": 2547,
+          "DIMENSION": 541,
+          "CIRCLE": 17,
+          "ARC": 17,
+          "LEADER": 4,
+          "SOLID": 1,
+          "SPLINE": 6
+        },
+        "tipos_entidades_gen": {
+          "LWPOLYLINE": 7164,
+          "HATCH": 2426,
+          "LINE": 7573,
+          "INSERT": 370,
+          "TEXT": 1260,
+          "DIMENSION": 2508
+        }
+      },
+      "visual": null,
+      "score_final": 42
+    },
+    "FV": {
+      "tipo": "FV",
+      "dxf_stog": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_3\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA - CAPREM - RES.DIAMOND -  1° SUB - PERIFERIA - TORRE 1 - S01A - FV - R00_R2018_ASCII_ODA.dxf",
+      "dxf_gen": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_3\\Fase-6_Execucao_CAD\\FV_gerado.dxf",
+      "prancha_format": false,
+      "estrutural": {
+        "total_entidades_stog": 1508,
+        "total_entidades_gen": 2206,
+        "struct_entidades_stog": 1286,
+        "struct_entidades_gen": 2022,
+        "ratio_struct": 1.572,
+        "layers_stog": 27,
+        "layers_gen": 27,
+        "layers_faltando": [],
+        "layers_extras": [],
+        "score_estrutural": 80,
+        "tipos_entidades_stog": {
+          "INSERT": 103,
+          "TEXT": 262,
+          "MTEXT": 43,
+          "HATCH": 115,
+          "LWPOLYLINE": 101,
+          "LINE": 750,
+          "DIMENSION": 89,
+          "CIRCLE": 17,
+          "ARC": 17,
+          "LEADER": 4,
+          "SOLID": 1,
+          "SPLINE": 6
+        },
+        "tipos_entidades_gen": {
+          "LWPOLYLINE": 188,
+          "LINE": 648,
+          "CIRCLE": 449,
+          "TEXT": 418,
+          "INSERT": 184,
+          "DIMENSION": 319
+        }
+      },
+      "visual": null,
+      "score_final": 80
+    },
+    "LJ": {
+      "tipo": "LJ",
+      "dxf_stog": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_3\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA -CAPREM - RES.DIAMOND - 1° SUB - PERIFERIA - TORRE 1 - S01A - LJ - R00_R2018_ASCII_ODA.dxf",
+      "dxf_gen": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_3\\Fase-6_Execucao_CAD\\LJ_gerado.dxf",
+      "prancha_format": false,
+      "estrutural": {
+        "total_entidades_stog": 1565,
+        "total_entidades_gen": 2611,
+        "struct_entidades_stog": 1507,
+        "struct_entidades_gen": 2569,
+        "ratio_struct": 1.705,
+        "layers_stog": 24,
+        "layers_gen": 28,
+        "layers_faltando": [],
+        "layers_extras": [
+          "1",
+          "3",
+          "4",
+          "7",
+          "9",
+          "AUX00",
+          "REAPROVEITAMENTO"
+        ],
+        "score_estrutural": 53,
+        "tipos_entidades_stog": {
+          "HATCH": 54,
+          "LINE": 661,
+          "INSERT": 4,
+          "LWPOLYLINE": 158,
+          "TEXT": 138,
+          "MTEXT": 6,
+          "SOLID": 57,
+          "ARC": 264,
+          "CIRCLE": 33,
+          "DIMENSION": 190
+        },
+        "tipos_entidades_gen": {
+          "LWPOLYLINE": 181,
+          "HATCH": 42,
+          "TEXT": 437,
+          "LINE": 1611,
+          "DIMENSION": 212,
+          "MTEXT": 128
+        }
+      },
+      "visual": null,
+      "score_final": 53
+    }
+  }
+}

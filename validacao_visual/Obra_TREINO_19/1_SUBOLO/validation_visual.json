@@ -1,0 +1,141 @@
+{
+  "obra": "Obra_TREINO_19",
+  "pavimento": "1 SUBOLO",
+  "tipos_validados": [
+    "LV",
+    "FV",
+    "LJ"
+  ],
+  "score_pavimento": 80.3,
+  "resultados": {
+    "LV": {
+      "tipo": "LV",
+      "dxf_stog": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_19\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\QUATTRI - INDIANOPOLIS - 1° SUBOLO - LV - PROJEÇÃO - R00_R2018_ASCII_ODA.dxf",
+      "dxf_gen": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_19\\Fase-6_Execucao_CAD\\LV_stog_quality.dxf",
+      "prancha_format": false,
+      "estrutural": {
+        "total_entidades_stog": 8771,
+        "total_entidades_gen": 10739,
+        "struct_entidades_stog": 7956,
+        "struct_entidades_gen": 9363,
+        "ratio_struct": 1.177,
+        "layers_stog": 39,
+        "layers_gen": 43,
+        "layers_faltando": [],
+        "layers_extras": [
+          "BARRA_ANCORAGEM",
+          "ESTRUTURACAO",
+          "HACHURACONCRETO",
+          "SARRAFO_2_2X7"
+        ],
+        "score_estrutural": 96,
+        "tipos_entidades_stog": {
+          "LINE": 5039,
+          "MTEXT": 258,
+          "LWPOLYLINE": 698,
+          "TEXT": 714,
+          "OLE2FRAME": 1,
+          "INSERT": 150,
+          "HATCH": 659,
+          "CIRCLE": 17,
+          "ARC": 17,
+          "LEADER": 4,
+          "SOLID": 1,
+          "SPLINE": 6,
+          "ATTDEF": 1,
+          "DIMENSION": 1206
+        },
+        "tipos_entidades_gen": {
+          "LWPOLYLINE": 3632,
+          "HATCH": 1186,
+          "LINE": 3813,
+          "INSERT": 190,
+          "TEXT": 660,
+          "DIMENSION": 1258
+        }
+      },
+      "visual": null,
+      "score_final": 96
+    },
+    "FV": {
+      "tipo": "FV",
+      "dxf_stog": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_19\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\QUATTRI - INDIANOPOLIS - 1° SUBOLO - FV - PROJEÇÃO - R00_R2018_ASCII_ODA.dxf",
+      "dxf_gen": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_19\\Fase-6_Execucao_CAD\\FV_stog_quality.dxf",
+      "prancha_format": false,
+      "estrutural": {
+        "total_entidades_stog": 1831,
+        "total_entidades_gen": 1367,
+        "struct_entidades_stog": 1717,
+        "struct_entidades_gen": 1277,
+        "ratio_struct": 0.744,
+        "layers_stog": 28,
+        "layers_gen": 28,
+        "layers_faltando": [],
+        "layers_extras": [],
+        "score_estrutural": 100,
+        "tipos_entidades_stog": {
+          "MTEXT": 1,
+          "LWPOLYLINE": 158,
+          "TEXT": 285,
+          "LINE": 976,
+          "OLE2FRAME": 1,
+          "INSERT": 11,
+          "HATCH": 97,
+          "DIMENSION": 245,
+          "CIRCLE": 17,
+          "ARC": 28,
+          "LEADER": 4,
+          "SOLID": 1,
+          "SPLINE": 6,
+          "ATTDEF": 1
+        },
+        "tipos_entidades_gen": {
+          "LWPOLYLINE": 94,
+          "LINE": 594,
+          "CIRCLE": 214,
+          "TEXT": 216,
+          "INSERT": 90,
+          "DIMENSION": 159
+        }
+      },
+      "visual": null,
+      "score_final": 100
+    },
+    "LJ": {
+      "tipo": "LJ",
+      "dxf_stog": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_19\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\QUATTRI - INDIANOPOLIS - 1° SUBOLO - LJ - PROJEÇÃO - R00_R2018_ASCII_ODA.dxf",
+      "dxf_gen": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_19\\Fase-6_Execucao_CAD\\LJ_stog_quality.dxf",
+      "prancha_format": false,
+      "estrutural": {
+        "total_entidades_stog": 1104,
+        "total_entidades_gen": 241,
+        "struct_entidades_stog": 1057,
+        "struct_entidades_gen": 216,
+        "ratio_struct": 0.204,
+        "layers_stog": 18,
+        "layers_gen": 18,
+        "layers_faltando": [],
+        "layers_extras": [],
+        "score_estrutural": 45,
+        "tipos_entidades_stog": {
+          "HATCH": 45,
+          "LINE": 389,
+          "INSERT": 2,
+          "LWPOLYLINE": 76,
+          "TEXT": 199,
+          "CIRCLE": 4,
+          "DIMENSION": 389
+        },
+        "tipos_entidades_gen": {
+          "HATCH": 25,
+          "TEXT": 75,
+          "LINE": 41,
+          "DIMENSION": 75,
+          "MTEXT": 25
+        }
+      },
+      "visual": null,
+      "score_final": 45
+    }
+  }
+}

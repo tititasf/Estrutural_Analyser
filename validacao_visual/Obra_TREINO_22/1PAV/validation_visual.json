@@ -1,0 +1,249 @@
+{
+  "obra": "Obra_TREINO_22",
+  "pavimento": "1PAV",
+  "tipos_validados": [
+    "PL",
+    "LV",
+    "FV",
+    "LJ"
+  ],
+  "score_pavimento": 52.2,
+  "resultados": {
+    "PL": {
+      "tipo": "PL",
+      "dxf_stog": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_22\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\STOG - NURBAN - 1° PAV.- PL - R00_R2018_ASCII_ODA.dxf",
+      "dxf_gen": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_22\\Fase-6_Execucao_CAD\\PL_stog_quality.dxf",
+      "prancha_format": false,
+      "estrutural": {
+        "total_entidades_stog": 8066,
+        "total_entidades_gen": 3874,
+        "struct_entidades_stog": 6741,
+        "struct_entidades_gen": 3271,
+        "ratio_struct": 0.485,
+        "layers_stog": 37,
+        "layers_gen": 23,
+        "layers_faltando": [
+          "Cota Seção (2x)",
+          "Demarcação 1",
+          "Demarcação 2",
+          "FELIPE",
+          "SARR_2.2x15",
+          "SARR_2.2x20",
+          "SARR_2.2x6.3",
+          "SARR_3.5x10",
+          "SARR_7x10",
+          "SARR_7x7",
+          "SARR_EDITAR",
+          "Sarr 2.2x7",
+          "Sarrafo de Pressão",
+          "Texto Nível"
+        ],
+        "layers_extras": [
+          "GRAVATA"
+        ],
+        "score_estrutural": 20,
+        "tipos_entidades_stog": {
+          "HATCH": 577,
+          "LWPOLYLINE": 1515,
+          "TEXT": 325,
+          "LINE": 3076,
+          "ELLIPSE": 32,
+          "ARC": 57,
+          "LEADER": 104,
+          "DIMENSION": 1553,
+          "SPLINE": 11,
+          "SOLID": 2,
+          "INSERT": 464,
+          "CIRCLE": 1,
+          "OLE2FRAME": 1,
+          "MLINE": 147,
+          "MTEXT": 201
+        },
+        "tipos_entidades_gen": {
+          "LWPOLYLINE": 1007,
+          "DIMENSION": 646,
+          "INSERT": 451,
+          "TEXT": 511,
+          "HATCH": 152,
+          "MTEXT": 19,
+          "LINE": 1088
+        }
+      },
+      "visual": null,
+      "score_final": 20
+    },
+    "LV": {
+      "tipo": "LV",
+      "dxf_stog": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_22\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\STOG - NURBAN - 1° PAV.- LV - R00_R2018_ASCII_ODA.dxf",
+      "dxf_gen": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_22\\Fase-6_Execucao_CAD\\LV_stog_quality.dxf",
+      "prancha_format": false,
+      "estrutural": {
+        "total_entidades_stog": 10485,
+        "total_entidades_gen": 10634,
+        "struct_entidades_stog": 9423,
+        "struct_entidades_gen": 9284,
+        "ratio_struct": 0.985,
+        "layers_stog": 49,
+        "layers_gen": 30,
+        "layers_faltando": [
+          "CHAPA REAPROV",
+          "COMPENSADO",
+          "DETALHE",
+          "Demarcação 1",
+          "Demarcação 2",
+          "HACHURA MADEIRAS",
+          "Laje_Perimetro",
+          "Reaproveitamento",
+          "SARRAFO",
+          "SARRAFO DE PRESSAO",
+          "SARR_2.2x10",
+          "SARR_2.2x15",
+          "SARR_2.2x20",
+          "SARR_2.2x6.3",
+          "SARR_3.5x10",
+          "SARR_7x10",
+          "SARR_EDITAR",
+          "Sarr 2.2x7",
+          "TEXTO VIGA",
+          "contorno de painel",
+          "cotas",
+          "fundo"
+        ],
+        "layers_extras": [
+          "BARRA_ANCORAGEM",
+          "ESTRUTURACAO",
+          "HACHURACONCRETO"
+        ],
+        "score_estrutural": 60,
+        "tipos_entidades_stog": {
+          "HATCH": 792,
+          "LWPOLYLINE": 1022,
+          "TEXT": 889,
+          "LINE": 5593,
+          "OLE2FRAME": 1,
+          "DIMENSION": 1635,
+          "MLINE": 2,
+          "INSERT": 255,
+          "CIRCLE": 17,
+          "ARC": 17,
+          "LEADER": 12,
+          "SOLID": 1,
+          "SPLINE": 6,
+          "MTEXT": 243
+        },
+        "tipos_entidades_gen": {
+          "LWPOLYLINE": 3569,
+          "HATCH": 1145,
+          "LINE": 3781,
+          "INSERT": 205,
+          "TEXT": 644,
+          "DIMENSION": 1290
+        }
+      },
+      "visual": null,
+      "score_final": 60
+    },
+    "FV": {
+      "tipo": "FV",
+      "dxf_stog": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_22\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\STOG - NURBAN - 1° PAV.- FV - R00_R2018_ASCII_ODA.dxf",
+      "dxf_gen": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_22\\Fase-6_Execucao_CAD\\FV_stog_quality.dxf",
+      "prancha_format": false,
+      "estrutural": {
+        "total_entidades_stog": 1897,
+        "total_entidades_gen": 1270,
+        "struct_entidades_stog": 1783,
+        "struct_entidades_gen": 1191,
+        "ratio_struct": 0.668,
+        "layers_stog": 25,
+        "layers_gen": 18,
+        "layers_faltando": [
+          "Demarcação 1",
+          "Demarcação 2",
+          "HACHURA MADEIRAS",
+          "REAPROVEITAMENTO",
+          "SARRAFO DE PRESSAO",
+          "fundo",
+          "texto"
+        ],
+        "layers_extras": [],
+        "score_estrutural": 59,
+        "tipos_entidades_stog": {
+          "TEXT": 316,
+          "LWPOLYLINE": 190,
+          "LINE": 967,
+          "ATTDEF": 1,
+          "OLE2FRAME": 1,
+          "INSERT": 11,
+          "HATCH": 97,
+          "DIMENSION": 269,
+          "CIRCLE": 17,
+          "ARC": 17,
+          "LEADER": 4,
+          "SOLID": 1,
+          "SPLINE": 6
+        },
+        "tipos_entidades_gen": {
+          "LWPOLYLINE": 83,
+          "LINE": 546,
+          "CIRCLE": 194,
+          "TEXT": 214,
+          "INSERT": 79,
+          "DIMENSION": 154
+        }
+      },
+      "visual": null,
+      "score_final": 59
+    },
+    "LJ": {
+      "tipo": "LJ",
+      "dxf_stog": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_22\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\STOG - NURBAN - 1° PAV.- LJ - R00_R2018_ASCII_ODA.dxf",
+      "dxf_gen": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_22\\Fase-6_Execucao_CAD\\LJ_stog_quality.dxf",
+      "prancha_format": false,
+      "estrutural": {
+        "total_entidades_stog": 1873,
+        "total_entidades_gen": 2262,
+        "struct_entidades_stog": 1853,
+        "struct_entidades_gen": 2226,
+        "ratio_struct": 1.201,
+        "layers_stog": 21,
+        "layers_gen": 15,
+        "layers_faltando": [
+          "23",
+          "32",
+          "38",
+          "8",
+          "P-D",
+          "PIL-N",
+          "Pilares",
+          "SARR_2.2x7",
+          "SARR_EDITAR"
+        ],
+        "layers_extras": [
+          "9",
+          "COTA",
+          "REAPROVEITAMENTO"
+        ],
+        "score_estrutural": 70,
+        "tipos_entidades_stog": {
+          "HATCH": 18,
+          "LINE": 970,
+          "INSERT": 2,
+          "LWPOLYLINE": 311,
+          "TEXT": 261,
+          "DIMENSION": 310,
+          "SOLID": 1
+        },
+        "tipos_entidades_gen": {
+          "LWPOLYLINE": 143,
+          "HATCH": 36,
+          "TEXT": 362,
+          "LINE": 1435,
+          "DIMENSION": 179,
+          "MTEXT": 107
+        }
+      },
+      "visual": null,
+      "score_final": 70
+    }
+  }
+}

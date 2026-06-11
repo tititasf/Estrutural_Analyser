@@ -1,0 +1,217 @@
+{
+  "obra": "Obra_TREINO_13",
+  "pavimento": "TIPO",
+  "tipos_validados": [
+    "PL",
+    "LV",
+    "FV",
+    "LJ"
+  ],
+  "score_pavimento": 67.5,
+  "resultados": {
+    "PL": {
+      "tipo": "PL",
+      "dxf_stog": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_13\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\SKR - LEAF - TIPO - PL - R00_R2018_ASCII_ODA.dxf",
+      "dxf_gen": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_13\\Fase-6_Execucao_CAD\\PL_stog_quality.dxf",
+      "prancha_format": false,
+      "estrutural": {
+        "total_entidades_stog": 12361,
+        "total_entidades_gen": 6035,
+        "struct_entidades_stog": 9713,
+        "struct_entidades_gen": 5342,
+        "ratio_struct": 0.55,
+        "layers_stog": 32,
+        "layers_gen": 32,
+        "layers_faltando": [
+          "Barra de Ancoragem",
+          "HACHURACONCRETO",
+          "contorno de painel"
+        ],
+        "layers_extras": [
+          "GRAVATA",
+          "SARR_3.5x7",
+          "SARR_7x7",
+          "SARR_EDITAR",
+          "Sarr 2.2x7"
+        ],
+        "score_estrutural": 66,
+        "tipos_entidades_stog": {
+          "DIMENSION": 2796,
+          "HATCH": 921,
+          "TEXT": 848,
+          "LWPOLYLINE": 1679,
+          "LINE": 3939,
+          "ELLIPSE": 32,
+          "ARC": 63,
+          "LEADER": 190,
+          "SPLINE": 11,
+          "SOLID": 2,
+          "INSERT": 1501,
+          "CIRCLE": 18,
+          "OLE2FRAME": 1,
+          "MLINE": 1,
+          "MTEXT": 357,
+          "ARC_DIMENSION": 2
+        },
+        "tipos_entidades_gen": {
+          "LWPOLYLINE": 984,
+          "DIMENSION": 696,
+          "INSERT": 501,
+          "TEXT": 624,
+          "HATCH": 192,
+          "MTEXT": 24,
+          "LINE": 3014
+        }
+      },
+      "visual": null,
+      "score_final": 66
+    },
+    "LV": {
+      "tipo": "LV",
+      "dxf_stog": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_13\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\SKR - LEAF - TIPO  - LV - R00_R2018_ASCII_ODA.dxf",
+      "dxf_gen": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_13\\Fase-6_Execucao_CAD\\LV_stog_quality.dxf",
+      "prancha_format": false,
+      "estrutural": {
+        "total_entidades_stog": 6871,
+        "total_entidades_gen": 11499,
+        "struct_entidades_stog": 6332,
+        "struct_entidades_gen": 9699,
+        "ratio_struct": 1.532,
+        "layers_stog": 33,
+        "layers_gen": 33,
+        "layers_faltando": [
+          "contorno de painel"
+        ],
+        "layers_extras": [
+          "TEXTO PILAR"
+        ],
+        "score_estrutural": 76,
+        "tipos_entidades_stog": {
+          "HATCH": 450,
+          "LWPOLYLINE": 623,
+          "TEXT": 688,
+          "LINE": 3671,
+          "OLE2FRAME": 1,
+          "DIMENSION": 1186,
+          "MLINE": 1,
+          "INSERT": 82,
+          "ATTDEF": 1,
+          "CIRCLE": 17,
+          "ARC": 17,
+          "LEADER": 4,
+          "SOLID": 1,
+          "SPLINE": 6,
+          "MTEXT": 123
+        },
+        "tipos_entidades_gen": {
+          "LWPOLYLINE": 3180,
+          "HATCH": 1570,
+          "LINE": 4249,
+          "INSERT": 230,
+          "TEXT": 726,
+          "DIMENSION": 1544
+        }
+      },
+      "visual": null,
+      "score_final": 76
+    },
+    "FV": {
+      "tipo": "FV",
+      "dxf_stog": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_13\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\SKR - LEAF - TIPO - FV - R00_R2018_ASCII_ODA.dxf",
+      "dxf_gen": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_13\\Fase-6_Execucao_CAD\\FV_stog_quality.dxf",
+      "prancha_format": false,
+      "estrutural": {
+        "total_entidades_stog": 2136,
+        "total_entidades_gen": 1697,
+        "struct_entidades_stog": 2019,
+        "struct_entidades_gen": 1577,
+        "ratio_struct": 0.781,
+        "layers_stog": 25,
+        "layers_gen": 27,
+        "layers_faltando": [],
+        "layers_extras": [
+          "00 - FELIPE",
+          "SARR_2.2x10"
+        ],
+        "score_estrutural": 98,
+        "tipos_entidades_stog": {
+          "TEXT": 312,
+          "LWPOLYLINE": 99,
+          "LINE": 1267,
+          "ATTDEF": 1,
+          "OLE2FRAME": 1,
+          "INSERT": 14,
+          "HATCH": 97,
+          "DIMENSION": 299,
+          "CIRCLE": 18,
+          "ARC": 17,
+          "LEADER": 4,
+          "SOLID": 1,
+          "SPLINE": 6
+        },
+        "tipos_entidades_gen": {
+          "LWPOLYLINE": 124,
+          "LINE": 668,
+          "CIRCLE": 303,
+          "TEXT": 270,
+          "INSERT": 120,
+          "DIMENSION": 212
+        }
+      },
+      "visual": null,
+      "score_final": 98
+    },
+    "LJ": {
+      "tipo": "LJ",
+      "dxf_stog": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_13\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\SKR - LEAF - TIPO - LJ - R00_R2018_ASCII_ODA.dxf",
+      "dxf_gen": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_13\\Fase-6_Execucao_CAD\\LJ_stog_quality.dxf",
+      "prancha_format": false,
+      "estrutural": {
+        "total_entidades_stog": 1566,
+        "total_entidades_gen": 4030,
+        "struct_entidades_stog": 1463,
+        "struct_entidades_gen": 3998,
+        "ratio_struct": 2.733,
+        "layers_stog": 28,
+        "layers_gen": 33,
+        "layers_faltando": [
+          "F-COTAS-FUROS VIGA",
+          "contorno de painel"
+        ],
+        "layers_extras": [
+          "00 - FELIPE",
+          "7",
+          "9",
+          "F-AUX",
+          "F-EIXO",
+          "F-LAJES-R",
+          "F-NÍVEL-PLANTA",
+          "F-PILARES-V",
+          "F-TEXTO"
+        ],
+        "score_estrutural": 30,
+        "tipos_entidades_stog": {
+          "LINE": 262,
+          "HATCH": 75,
+          "INSERT": 26,
+          "LWPOLYLINE": 459,
+          "TEXT": 344,
+          "SOLID": 28,
+          "CIRCLE": 3,
+          "DIMENSION": 367,
+          "MULTILEADER": 2
+        },
+        "tipos_entidades_gen": {
+          "LWPOLYLINE": 288,
+          "HATCH": 32,
+          "TEXT": 780,
+          "LINE": 2374,
+          "DIMENSION": 310,
+          "MTEXT": 246
+        }
+      },
+      "visual": null,
+      "score_final": 30
+    }
+  }
+}

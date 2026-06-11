@@ -1,0 +1,59 @@
+{
+  "obra": "Obra_TREINO_22",
+  "pavimento": "9 AO 12PAV",
+  "tipos_validados": [
+    "LJ"
+  ],
+  "score_pavimento": 32.0,
+  "resultados": {
+    "LJ": {
+      "tipo": "LJ",
+      "dxf_stog": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_22\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\STOG - NURBAN -  9° AO 12° PAV.- LJ - R00_R2018_ASCII_ODA.dxf",
+      "dxf_gen": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_22\\Fase-6_Execucao_CAD\\LJ_stog_quality.dxf",
+      "prancha_format": false,
+      "estrutural": {
+        "total_entidades_stog": 576,
+        "total_entidades_gen": 2273,
+        "struct_entidades_stog": 532,
+        "struct_entidades_gen": 2237,
+        "ratio_struct": 4.205,
+        "layers_stog": 15,
+        "layers_gen": 22,
+        "layers_faltando": [
+          "REAPROVEITAMENTO"
+        ],
+        "layers_extras": [
+          "23",
+          "32",
+          "38",
+          "7",
+          "8",
+          "P-D",
+          "PIL-N",
+          "Pilares",
+          "SARR_2.2x7",
+          "SARR_EDITAR"
+        ],
+        "score_estrutural": 32,
+        "tipos_entidades_stog": {
+          "HATCH": 42,
+          "LINE": 231,
+          "INSERT": 2,
+          "LWPOLYLINE": 48,
+          "TEXT": 86,
+          "DIMENSION": 167
+        },
+        "tipos_entidades_gen": {
+          "LWPOLYLINE": 148,
+          "HATCH": 36,
+          "TEXT": 362,
+          "LINE": 1441,
+          "DIMENSION": 179,
+          "MTEXT": 107
+        }
+      },
+      "visual": null,
+      "score_final": 32
+    }
+  }
+}

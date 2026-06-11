@@ -1,0 +1,202 @@
+{
+  "ARRAIA - 1PAV": {
+    "obra": "Obra_TREINO_14",
+    "pavimento": "ARRAIA - 1PAV",
+    "tipos_validados": [
+      "PL",
+      "LV",
+      "FV",
+      "LJ"
+    ],
+    "score_pavimento": 74.5,
+    "resultados": {
+      "PL": {
+        "tipo": "PL",
+        "dxf_stog": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_14\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA-STOG-ARRAIA-1PAV-PI-R00_R2018_ASCII_ODA.dxf",
+        "dxf_gen": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_14\\Fase-6_Execucao_CAD\\PL_stog_quality.dxf",
+        "prancha_format": false,
+        "estrutural": {
+          "total_entidades_stog": 13519,
+          "total_entidades_gen": 6776,
+          "struct_entidades_stog": 11492,
+          "struct_entidades_gen": 5996,
+          "ratio_struct": 0.522,
+          "layers_stog": 28,
+          "layers_gen": 29,
+          "layers_faltando": [],
+          "layers_extras": [
+            "Nível"
+          ],
+          "score_estrutural": 79,
+          "tipos_entidades_stog": {
+            "HATCH": 804,
+            "LWPOLYLINE": 1341,
+            "TEXT": 819,
+            "LINE": 4684,
+            "ATTDEF": 1,
+            "ELLIPSE": 32,
+            "ARC": 57,
+            "LEADER": 146,
+            "SPLINE": 12,
+            "SOLID": 2,
+            "INSERT": 1042,
+            "CIRCLE": 1724,
+            "OLE2FRAME": 1,
+            "DIMENSION": 2410,
+            "MLINE": 1,
+            "MTEXT": 443
+          },
+          "tipos_entidades_gen": {
+            "LWPOLYLINE": 1377,
+            "DIMENSION": 702,
+            "INSERT": 564,
+            "TEXT": 421,
+            "HATCH": 216,
+            "MTEXT": 27,
+            "LINE": 3469
+          }
+        },
+        "visual": null,
+        "score_final": 79
+      },
+      "LV": {
+        "tipo": "LV",
+        "dxf_stog": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_14\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA-STOG-ARRAIA-1PAV-VI-R00_R2018_ASCII_ODA.dxf",
+        "dxf_gen": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_14\\Fase-6_Execucao_CAD\\LV_stog_quality.dxf",
+        "prancha_format": false,
+        "estrutural": {
+          "total_entidades_stog": 13503,
+          "total_entidades_gen": 15564,
+          "struct_entidades_stog": 12553,
+          "struct_entidades_gen": 13586,
+          "ratio_struct": 1.082,
+          "layers_stog": 42,
+          "layers_gen": 46,
+          "layers_faltando": [],
+          "layers_extras": [
+            "BARRA_ANCORAGEM",
+            "ESTRUTURACAO",
+            "HACHURACONCRETO",
+            "SARRAFO_2_2X7"
+          ],
+          "score_estrutural": 96,
+          "tipos_entidades_stog": {
+            "HATCH": 785,
+            "TEXT": 1321,
+            "LWPOLYLINE": 2362,
+            "LINE": 6346,
+            "ATTDEF": 1,
+            "OLE2FRAME": 1,
+            "INSERT": 155,
+            "DIMENSION": 2149,
+            "MLINE": 1,
+            "CIRCLE": 44,
+            "ARC": 29,
+            "LEADER": 7,
+            "SOLID": 1,
+            "SPLINE": 6,
+            "MTEXT": 295
+          },
+          "tipos_entidades_gen": {
+            "LWPOLYLINE": 6059,
+            "HATCH": 1723,
+            "LINE": 4825,
+            "INSERT": 255,
+            "TEXT": 948,
+            "DIMENSION": 1754
+          }
+        },
+        "visual": null,
+        "score_final": 96
+      },
+      "FV": {
+        "tipo": "FV",
+        "dxf_stog": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_14\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA-STOG-ARRAIA-1PAV-FV-R00_R2018_ASCII_ODA.dxf",
+        "dxf_gen": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_14\\Fase-6_Execucao_CAD\\FV_stog_quality.dxf",
+        "prancha_format": false,
+        "estrutural": {
+          "total_entidades_stog": 2744,
+          "total_entidades_gen": 1908,
+          "struct_entidades_stog": 2609,
+          "struct_entidades_gen": 1779,
+          "ratio_struct": 0.682,
+          "layers_stog": 27,
+          "layers_gen": 28,
+          "layers_faltando": [],
+          "layers_extras": [
+            "5"
+          ],
+          "score_estrutural": 79,
+          "tipos_entidades_stog": {
+            "HATCH": 111,
+            "TEXT": 364,
+            "LWPOLYLINE": 81,
+            "LINE": 1580,
+            "ATTDEF": 1,
+            "OLE2FRAME": 1,
+            "INSERT": 17,
+            "DIMENSION": 472,
+            "MLINE": 1,
+            "CIRCLE": 17,
+            "ARC": 36,
+            "LEADER": 4,
+            "SOLID": 1,
+            "SPLINE": 6,
+            "MTEXT": 52
+          },
+          "tipos_entidades_gen": {
+            "LWPOLYLINE": 133,
+            "LINE": 806,
+            "CIRCLE": 325,
+            "TEXT": 294,
+            "INSERT": 129,
+            "DIMENSION": 221
+          }
+        },
+        "visual": null,
+        "score_final": 79
+      },
+      "LJ": {
+        "tipo": "LJ",
+        "dxf_stog": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_14\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\NOVA-STOG-ARRAIA-1PAV-LA-R00_R2018_ASCII_ODA.dxf",
+        "dxf_gen": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_14\\Fase-6_Execucao_CAD\\LJ_stog_quality.dxf",
+        "prancha_format": false,
+        "estrutural": {
+          "total_entidades_stog": 2918,
+          "total_entidades_gen": 457,
+          "struct_entidades_stog": 2458,
+          "struct_entidades_gen": 409,
+          "ratio_struct": 0.166,
+          "layers_stog": 26,
+          "layers_gen": 27,
+          "layers_faltando": [],
+          "layers_extras": [
+            "Hachura"
+          ],
+          "score_estrutural": 44,
+          "tipos_entidades_stog": {
+            "HATCH": 452,
+            "INSERT": 4,
+            "TEXT": 562,
+            "LWPOLYLINE": 440,
+            "LINE": 1134,
+            "DIMENSION": 301,
+            "CIRCLE": 13,
+            "MTEXT": 4,
+            "LEADER": 4,
+            "SOLID": 4
+          },
+          "tipos_entidades_gen": {
+            "HATCH": 48,
+            "TEXT": 144,
+            "LINE": 73,
+            "DIMENSION": 144,
+            "MTEXT": 48
+          }
+        },
+        "visual": null,
+        "score_final": 44
+      }
+    }
+  }
+}

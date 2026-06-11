@@ -1,0 +1,645 @@
+{
+  "obra": "Obra_TREINO_1",
+  "pavimento": "1PAV",
+  "tipos_validados": [
+    "PL",
+    "LV",
+    "FV",
+    "LJ"
+  ],
+  "score_pavimento": 47.4,
+  "resultados": {
+    "PL": {
+      "tipo": "PL",
+      "dxf_stog": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\ALIMONTI - PARAISO - 1° PAV.- PL - R00.dxf",
+      "dxf_gen": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-6_Execucao_CAD\\PL_stog_quality.dxf",
+      "prancha_format": false,
+      "estrutural": {
+        "total_entidades_stog": 8742,
+        "total_entidades_gen": 3877,
+        "struct_entidades_stog": 7043,
+        "struct_entidades_gen": 3254,
+        "ratio_struct": 0.462,
+        "layers_stog": 27,
+        "layers_gen": 25,
+        "layers_faltando": [
+          "00 - FELIPE",
+          "NIVEL 1° PAV.",
+          "Sarrafo de Pressão"
+        ],
+        "layers_extras": [
+          "SARR_EDITAR"
+        ],
+        "score_estrutural": 50,
+        "tipos_entidades_stog": {
+          "HATCH": 812,
+          "LINE": 3249,
+          "TEXT": 519,
+          "INSERT": 721,
+          "MTEXT": 194,
+          "DIMENSION": 1880,
+          "LWPOLYLINE": 1201,
+          "LEADER": 154,
+          "MLINE": 12
+        },
+        "tipos_entidades_gen": {
+          "LWPOLYLINE": 814,
+          "DIMENSION": 724,
+          "INSERT": 447,
+          "TEXT": 552,
+          "HATCH": 176,
+          "MTEXT": 22,
+          "LINE": 1142
+        }
+      },
+      "visual": {
+        "full": {
+          "raw_response": "**Avaliação da Fidelidade Estrutural**\n\n**Contagem (0-100):** 80\n\n*   O número de pilares visíveis no gerado (direita) é comparável ao STOG (esquerda), com uma pequena diferença na contagem.\n*   O gerado apresenta 5 pilares, enquanto o STOG apresenta 6 pilares.\n\n**Seção Transversal (0-100):** 75\n\n*   As formas das seções transversais dos pilares (retangular, L, T, U) coincidem entre STOG e gerado.\n*   No entanto, há uma pequena diferença na forma da seção transversal do pilar P02 no gerado.\n\n**Dimensões B×H (0-100):** 70\n\n*   As anotações de dimensão B×H (ex: 20x50, 25x60) estão presentes no gerado.\n*   No entanto, há uma pequena diferença nos valores das dimensões B×H do pilar P03 no gerado.\n\n**Nomenclatura (0-100):** 85\n\n*   Os labels de identificação dos pilares (P01, P02, etc.) estão presentes e correspondem ao STOG.\n*   No entanto, há uma pequena diferença na posição do label do pilar P01 no gerado.\n\n**Hachura de Concreto (0-100):** 60\n\n*   O padrão de hachura de concreto está presente nas seções dos pilares no gerado.\n*   No entanto, há uma pequena diferença no padrão de hachura de concreto do pilar P02 no gerado.\n\n**Layout Espacial (0-100):** 80\n\n*   A distribuição espacial relativa dos pilares (posições x/y) no gerado é fiel ao STOG.\n*   No entanto, há uma pequena diferença na posição do pilar P03 no gerado.\n\n**Criticos:**\n\n*   Falta de carimbo, selo ou bordas administrativas no gerado.\n*   Pequena diferença na contagem de pilares entre o gerado e o STOG.\n*   Pequena diferença na forma da seção transversal do pilar P02 no gerado.\n*   Pequena diferença nos valores das dimensões B×H do pilar P03 no gerado.\n*   Pequena diferença na posição do label do pilar P01 no gerado.\n*   Pequena diferença no padrão de hachura de concreto do pilar P02 no gerado.\n*   Pequena diferença na posição do pilar P03 no gerado.\n\n**Observações:**\n\n*   O gerado apresenta uma boa fidelidade estrutural em relação ao STOG, mas há algumas pequenas diferenças que precisam ser corrigidas.\n*   É importante verificar se as diferenças encontradas são críticas para o uso em obra.",
+          "parse_error": true,
+          "layout": 0.0,
+          "score_global": 0.0
+        },
+        "tiles": [
+          {
+            "tem_conteudo": true,
+            "geometria": 90,
+            "textos_labels": 80,
+            "elementos_ausentes": [],
+            "resumo": "A geometria e textos estão bem representados, mas há diferenças sutis nas linhas de cotas e detalhes gráficos.",
+            "score": 86.0,
+            "tile_tem_conteudo": true,
+            "tile_row": 0,
+            "tile_col": 0
+          },
+          {
+            "tem_conteudo": true,
+            "geometria": 80,
+            "textos_labels": 70,
+            "elementos_ausentes": [],
+            "resumo": "O DXF gerado apresenta diferenças nos textos e labels, mas a geometria está consistente com o original.",
+            "score": 76.0,
+            "tile_tem_conteudo": true,
+            "tile_row": 0,
+            "tile_col": 1
+          },
+          {
+            "tem_conteudo": true,
+            "geometria": 80,
+            "textos_labels": 70,
+            "elementos_ausentes": [],
+            "resumo": "Diferenças visíveis em nomenclatura e detalhes de elementos estruturais.",
+            "score": 76.0,
+            "tile_tem_conteudo": true,
+            "tile_row": 0,
+            "tile_col": 2
+          },
+          {
+            "tem_conteudo": true,
+            "geometria": 90,
+            "textos_labels": 60,
+            "elementos_ausentes": [
+              "pilar P11",
+              "linha de cota"
+            ],
+            "resumo": "Pilar P11 e linha de cota ausentes no DXF gerado",
+            "score": 78.0,
+            "tile_tem_conteudo": true,
+            "tile_row": 1,
+            "tile_col": 0
+          },
+          {
+            "raw_response": "**Resposta**\n\n*   **tem_conteudo**: true\n*   **geometria**: 80\n*   **textos_labels**: 70\n*   **elementos_ausentes**: []\n*   **resumo**: \"Pilares, vigas e lajes coincidem; ausência de textos e nomenclatura estrutural no DXF gerado.\"\n\n**Justificativa**\n\n*   **tem_conteudo**: O tile direito contém elementos estruturais visíveis, como pilares, vigas e lajes, embora ausentes de textos e nomenclatura estrutural.\n*   **geometria**: A geometria dos elementos estruturais é consistente entre o DXF original e o gerado, com formas, posições e proporções coincidentes. No entanto, há uma diferença de 20% na geometria, possivelmente devido à ausência de textos e nomenclatura estrutural no DXF gerado.\n*   **textos_labels**: Os textos, labels e nomenclatura estrutural estão ausentes no DXF gerado, o que resulta em uma pontuação de 70% para a consistência entre o DXF original e o gerado.\n*   **elementos_ausentes**: Não há elementos estruturais visíveis no DXF original que estejam ausentes no DXF gerado.\n*   **resumo**: O DXF gerado apresenta uma boa consistência com o DXF original em termos de geometria, mas falta a presença de textos e nomenclatura estrutural.",
+            "parse_error": true,
+            "score": 0.0,
+            "tile_tem_conteudo": true,
+            "tile_row": 1,
+            "tile_col": 1
+          },
+          {
+            "tem_conteudo": true,
+            "geometria": 80,
+            "textos_labels": 70,
+            "elementos_ausentes": [],
+            "resumo": "Diferenças em textos e labels",
+            "score": 76.0,
+            "tile_tem_conteudo": true,
+            "tile_row": 1,
+            "tile_col": 2
+          },
+          {
+            "raw_response": "**Análise de Diferenças entre Tiles de Pavimento Estrutural**\n\nApós uma análise detalhada dos dois tiles de pavimento estrutural, apresento os seguintes resultados:\n\n*   **tem_conteudo:** True\n*   **geometria:** 80\n*   **textos_labels:** 70\n*   **elementos_ausentes:** \\[\\]\n*   **resumo:** \"Diferenças em textos e labels, mas geometria estrutural consistente.\"\n\n**Explicação Detalhada:**\n\n*   **tem_conteudo:** Ambos os tiles apresentam elementos estruturais visíveis, como pilares, vigas e lajes, indicando que há conteúdo estrutural presente.\n*   **geometria:** A geometria dos elementos estruturais, incluindo formas, posições e proporções, é consistente entre os dois tiles. No entanto, observa-se uma leve discrepância na representação de algumas vigas e pilares, resultando em uma pontuação de 80%.\n*   **textos_labels:** Os textos, labels e nomenclatura estrutural (P1/P2/V1/L1 etc.) estão presentes em ambos os tiles, mas apresentam algumas discrepâncias. A nomenclatura não coincide completamente, e alguns labels estão ausentes ou mal posicionados, resultando em uma pontuação de 70%.\n*   **elementos_ausentes:** Não foram identificados elementos estruturais visíveis no tile de referência (esquerdo) que estejam ausentes no tile gerado (direito).\n\n**Conclusão:**\n\nEm resumo, os dois tiles de pavimento estrutural apresentam diferenças principalmente nos textos e labels, mas a geometria estrutural é consistente. A análise detalhada permitiu identificar as discrepâncias e fornecer uma avaliação precisa da consistência entre os tiles.",
+            "parse_error": true,
+            "score": 0.0,
+            "tile_tem_conteudo": true,
+            "tile_row": 2,
+            "tile_col": 0
+          },
+          {
+            "tem_conteudo": true,
+            "geometria": 100,
+            "textos_labels": 100,
+            "elementos_ausentes": [],
+            "resumo": "DXF gerado idêntico ao original",
+            "score": 100.0,
+            "tile_tem_conteudo": true,
+            "tile_row": 2,
+            "tile_col": 1
+          },
+          {
+            "tem_conteudo": true,
+            "geometria": 80,
+            "textos_labels": 70,
+            "elementos_ausentes": [
+              "pilar P1",
+              "cota 25"
+            ],
+            "resumo": "O tile direito apresenta diferenças em geometria e ausência de alguns elementos estruturais em relação ao tile esquerdo.",
+            "score": 76.0,
+            "tile_tem_conteudo": true,
+            "tile_row": 2,
+            "tile_col": 2
+          }
+        ],
+        "score_visual_medio": 18.9
+      },
+      "score_final": 22.0
+    },
+    "LV": {
+      "tipo": "LV",
+      "dxf_stog": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\ALIMONTI - PARAISO - 1° PAV.- LV - R00.dxf",
+      "dxf_gen": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-6_Execucao_CAD\\LV_stog_quality.dxf",
+      "prancha_format": false,
+      "estrutural": {
+        "total_entidades_stog": 8636,
+        "total_entidades_gen": 5961,
+        "struct_entidades_stog": 7752,
+        "struct_entidades_gen": 5403,
+        "ratio_struct": 0.697,
+        "layers_stog": 30,
+        "layers_gen": 18,
+        "layers_faltando": [
+          "0",
+          "00 - FELIPE",
+          "238",
+          "Romaneio",
+          "SCO-___-LAJ",
+          "Sarrafo de Pressão",
+          "TENSOR",
+          "TEXTO_GERAL",
+          "barrote",
+          "presilha",
+          "texto"
+        ],
+        "layers_extras": [],
+        "score_estrutural": 47,
+        "tipos_entidades_stog": {
+          "LINE": 4682,
+          "HATCH": 682,
+          "LWPOLYLINE": 822,
+          "TEXT": 550,
+          "INSERT": 171,
+          "ARC": 24,
+          "DIMENSION": 1428,
+          "MTEXT": 233,
+          "CIRCLE": 13,
+          "LEADER": 24,
+          "POINT": 3,
+          "ARC_DIMENSION": 4
+        },
+        "tipos_entidades_gen": {
+          "LWPOLYLINE": 1969,
+          "HATCH": 403,
+          "LINE": 1951,
+          "INSERT": 155,
+          "TEXT": 483,
+          "DIMENSION": 1000
+        }
+      },
+      "visual": {
+        "full": {
+          "altura_secao": 80,
+          "barras_longitudinais": 75,
+          "estribos": 70,
+          "faces_identificadas": 85,
+          "cotas_dimensoes": 70,
+          "continuidade_vigas": 80,
+          "criticos": [
+            "Ausência de identificação de face nas seções transversais ABCD"
+          ],
+          "observacoes": "O DXF gerado apresenta boa fidelidade estrutural em relação ao DXF original STOG, mas falta identificação de faces nas seções transversais ABCD.",
+          "score_global": 75.75
+        },
+        "tiles": [
+          {
+            "tem_conteudo": true,
+            "geometria": 90,
+            "textos_labels": 0,
+            "elementos_ausentes": [
+              "textos e labels"
+            ],
+            "resumo": "Geometria consistente, mas ausência de textos e labels.",
+            "score": 54.0,
+            "tile_tem_conteudo": true,
+            "tile_row": 0,
+            "tile_col": 0
+          },
+          {
+            "tem_conteudo": true,
+            "geometria": 90,
+            "textos_labels": 0,
+            "elementos_ausentes": [],
+            "resumo": "Falta de labels e nomenclatura no DXF gerado.",
+            "score": 54.0,
+            "tile_tem_conteudo": true,
+            "tile_row": 0,
+            "tile_col": 1
+          },
+          {
+            "tem_conteudo": true,
+            "geometria": 80,
+            "textos_labels": 70,
+            "elementos_ausentes": [],
+            "resumo": "Diferenças nos detalhes dos pilares e vigas, mas geometria e nomenclatura estrutural são consistentes.",
+            "score": 76.0,
+            "tile_tem_conteudo": true,
+            "tile_row": 0,
+            "tile_col": 2
+          },
+          {
+            "tem_conteudo": true,
+            "geometria": 100,
+            "textos_labels": 0,
+            "elementos_ausentes": [
+              "todos os textos, labels e nomenclatura estrutural"
+            ],
+            "resumo": "Tile gerado apresenta geometria estrutural perfeita, mas ausência total de textos, labels e nomenclatura estrutural.",
+            "score": 60.0,
+            "tile_tem_conteudo": true,
+            "tile_row": 1,
+            "tile_col": 0
+          },
+          {
+            "tem_conteudo": true,
+            "geometria": 80,
+            "textos_labels": 70,
+            "elementos_ausentes": [
+              "Pilar P1",
+              "Viga V1",
+              "Laje L1"
+            ],
+            "resumo": "Diferenças na geometria e ausência de alguns elementos estruturais.",
+            "score": 76.0,
+            "tile_tem_conteudo": true,
+            "tile_row": 1,
+            "tile_col": 1
+          },
+          {
+            "raw_response": "**Resposta**\n\n*   **tem_conteudo**: true\n*   **geometria**: 80\n*   **textos_labels**: 70\n*   **elementos_ausentes**: []\n*   **resumo**: \"Diferenças em cotas e textos de nomenclatura estrutural\"",
+            "parse_error": true,
+            "score": 0.0,
+            "tile_tem_conteudo": true,
+            "tile_row": 1,
+            "tile_col": 2
+          },
+          {
+            "tem_conteudo": true,
+            "geometria": 100,
+            "textos_labels": 100,
+            "elementos_ausentes": [],
+            "resumo": "Nenhuma diferença significativa encontrada",
+            "score": 100.0,
+            "tile_tem_conteudo": true,
+            "tile_row": 2,
+            "tile_col": 0
+          },
+          {
+            "tem_conteudo": true,
+            "geometria": 80,
+            "textos_labels": 70,
+            "elementos_ausentes": [],
+            "resumo": "Diferenças em geometria e textos, mas sem ausências de elementos estruturais",
+            "score": 76.0,
+            "tile_tem_conteudo": true,
+            "tile_row": 2,
+            "tile_col": 1
+          },
+          {
+            "tem_conteudo": true,
+            "geometria": 80,
+            "textos_labels": 70,
+            "elementos_ausentes": [
+              "pilar",
+              "viga",
+              "laje"
+            ],
+            "resumo": "Diferenças na geometria, textos, labels e nomenclatura, além de ausência de alguns elementos.",
+            "score": 76.0,
+            "tile_tem_conteudo": true,
+            "tile_row": 2,
+            "tile_col": 2
+          }
+        ],
+        "score_visual_medio": 72.1
+      },
+      "score_final": 69.6
+    },
+    "FV": {
+      "tipo": "FV",
+      "dxf_stog": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\ALIMONTI - PARAISO - 1° PAV.- FV - R00.dxf",
+      "dxf_gen": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-6_Execucao_CAD\\FV_stog_quality.dxf",
+      "prancha_format": false,
+      "estrutural": {
+        "total_entidades_stog": 748,
+        "total_entidades_gen": 793,
+        "struct_entidades_stog": 748,
+        "struct_entidades_gen": 727,
+        "ratio_struct": 0.972,
+        "layers_stog": 6,
+        "layers_gen": 9,
+        "layers_faltando": [],
+        "layers_extras": [
+          "0",
+          "00 - FELIPE",
+          "CARIMBO"
+        ],
+        "score_estrutural": 97,
+        "tipos_entidades_stog": {
+          "TEXT": 124,
+          "LINE": 340,
+          "DIMENSION": 188,
+          "LWPOLYLINE": 96
+        },
+        "tipos_entidades_gen": {
+          "LWPOLYLINE": 66,
+          "LINE": 366,
+          "TEXT": 171,
+          "INSERT": 66,
+          "DIMENSION": 124
+        }
+      },
+      "visual": {
+        "full": {
+          "raw_response": "Avaliação da fidelidade estrutural do DXF GERADO em relação ao DXF ORIGINAL STOG:\n\n*   Número de painéis/seções da forma no gerado: 80\n*   Dimensões gerais da forma (largura, altura total) no gerado: 75\n*   Padrão de lamelas/sarrafos (elementos lineares horizontais) no gerado: 70\n*   Aberturas, entalhes e recortes na forma no gerado: 65\n*   Proporções gerais (relação altura/largura) da forma no gerado: 80\n\nFalhas críticas que impediriam uso em obra:\n\n*   Ausência de alguns detalhes estruturais específicos na forma gerada.\n*   Pequenas discrepâncias nas dimensões de alguns painéis.\n\nNota técnica resumida:\n\nO DXF GERADO apresenta uma boa fidelidade estrutural em relação ao DXF ORIGINAL STOG, com algumas discrepâncias menores que não comprometem a estrutura geral da forma. No entanto, é importante revisar e corrigir as falhas críticas identificadas para garantir a precisão e a segurança da estrutura.",
+          "parse_error": true,
+          "score_global": 0.0
+        },
+        "tiles": [
+          {
+            "tem_conteudo": true,
+            "geometria": 90,
+            "textos_labels": 80,
+            "elementos_ausentes": [],
+            "resumo": "A geometria e textos estão consistentes, mas há pequenas diferenças nas posições dos textos",
+            "score": 86.0,
+            "tile_tem_conteudo": true,
+            "tile_row": 0,
+            "tile_col": 0
+          },
+          {
+            "tem_conteudo": true,
+            "geometria": 80,
+            "textos_labels": 70,
+            "elementos_ausentes": [],
+            "resumo": "A geometria dos elementos estruturais é semelhante, mas há algumas diferenças nos textos e labels.",
+            "score": 76.0,
+            "tile_tem_conteudo": true,
+            "tile_row": 0,
+            "tile_col": 1
+          },
+          {
+            "tem_conteudo": true,
+            "geometria": 100,
+            "textos_labels": 100,
+            "elementos_ausentes": [],
+            "resumo": "Tile consistente com elementos estruturais visíveis e geometria e textos coincidentes.",
+            "score": 100.0,
+            "tile_tem_conteudo": true,
+            "tile_row": 0,
+            "tile_col": 2
+          },
+          {
+            "raw_response": "A análise dos tiles esquerdo e direito revela diferenças significativas em elementos estruturais, geometria e textos/labels. Embora ambos os tiles contenham elementos estruturais visíveis, a geometria e a presença de textos/labels não são consistentes entre eles.\n\n**tem\\_conteudo**: true\n\n**geometria**: 40\n\n**textos\\_labels**: 30\n\n**elementos\\_ausentes**: [\"Pilar P1\", \"Viga V2\", \"Laje L3\"]\n\n**resumo**: \"Diferenças significativas em geometria e textos/labels entre os tiles esquerdo e direito.\"",
+            "parse_error": true,
+            "score": 0.0,
+            "tile_tem_conteudo": true,
+            "tile_row": 1,
+            "tile_col": 0
+          },
+          {
+            "tem_conteudo": true,
+            "geometria": 80,
+            "textos_labels": 70,
+            "elementos_ausentes": [],
+            "resumo": "Diferenças nos textos e labels, mas geometria e elementos estruturais consistentes.",
+            "score": 76.0,
+            "tile_tem_conteudo": true,
+            "tile_row": 1,
+            "tile_col": 1
+          },
+          {
+            "tem_conteudo": true,
+            "geometria": 80,
+            "textos_labels": 70,
+            "elementos_ausentes": [],
+            "resumo": "Elementos estruturais visíveis, geometria e textos labels consistentes, mas com algumas diferenças nas posições e proporções",
+            "score": 76.0,
+            "tile_tem_conteudo": true,
+            "tile_row": 1,
+            "tile_col": 2
+          },
+          {
+            "tem_conteudo": true,
+            "geometria": 80,
+            "textos_labels": 70,
+            "elementos_ausentes": [],
+            "resumo": "Diferenças em textos e labels, mas geometria estrutural consistente.",
+            "score": 76.0,
+            "tile_tem_conteudo": true,
+            "tile_row": 2,
+            "tile_col": 0
+          },
+          {
+            "tem_conteudo": true,
+            "geometria": 80,
+            "textos_labels": 70,
+            "elementos_ausentes": [],
+            "resumo": "Diferenças menores em geometria e textos",
+            "score": 76.0,
+            "tile_tem_conteudo": true,
+            "tile_row": 2,
+            "tile_col": 1
+          },
+          {
+            "raw_response": "A análise comparativa dos dois tiles, esquerdo (DXF ORIGINAL) e direito (DXF GERADO), revela uma consistência estrutural e uma boa correspondência entre os elementos visíveis. \n\n1. **tem_conteudo (true/false)**: True, pois ambos os tiles contêm elementos estruturais visíveis.\n\n2. **geometria (0-100)**: 80, devido à boa correspondência nas formas, posições e proporções dos elementos estruturais entre os dois tiles. No entanto, pequenas discrepâncias nas linhas e formas podem ser observadas, o que justifica a nota abaixo de 100.\n\n3. **textos_labels (0-100)**: 70, pois embora a maioria dos textos, labels e nomenclaturas estejam presentes e coincidam, algumas pequenas diferenças ou ausências de detalhes podem ser notadas, afetando a pontuação.\n\n4. **elementos_ausentes**: [], pois não foram identificados elementos estruturais visíveis no STOG (esquerdo) que estejam ausentes no gerado (direito).\n\n**Resumo**: \"Boa correspondência estrutural com pequenas discrepâncias em geometria e textos.\"",
+            "parse_error": true,
+            "elementos_estruturais": 2.0,
+            "score": 0.0,
+            "tile_tem_conteudo": true,
+            "tile_row": 2,
+            "tile_col": 2
+          }
+        ],
+        "score_visual_medio": 18.9
+      },
+      "score_final": 26.7
+    },
+    "LJ": {
+      "tipo": "LJ",
+      "dxf_stog": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-1_Ingestao\\Projetos_Finalizados_para_Engenharia_Reversa\\ALIMONTI - PARAISO - 1° PAV.- LJ - R01.dxf",
+      "dxf_gen": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-6_Execucao_CAD\\LJ_stog_quality.dxf",
+      "prancha_format": false,
+      "estrutural": {
+        "total_entidades_stog": 1392,
+        "total_entidades_gen": 2178,
+        "struct_entidades_stog": 1344,
+        "struct_entidades_gen": 2155,
+        "ratio_struct": 1.603,
+        "layers_stog": 10,
+        "layers_gen": 10,
+        "layers_faltando": [
+          "2"
+        ],
+        "layers_extras": [
+          "0"
+        ],
+        "score_estrutural": 56,
+        "tipos_entidades_stog": {
+          "HATCH": 48,
+          "LINE": 695,
+          "DIMENSION": 130,
+          "LWPOLYLINE": 213,
+          "ARC": 2,
+          "CIRCLE": 11,
+          "TEXT": 255,
+          "MTEXT": 38
+        },
+        "tipos_entidades_gen": {
+          "LWPOLYLINE": 147,
+          "HATCH": 23,
+          "TEXT": 371,
+          "LINE": 1368,
+          "DIMENSION": 157,
+          "MTEXT": 112
+        }
+      },
+      "visual": {
+        "full": {
+          "contagem_lajes": 80,
+          "vigas_borda": 75,
+          "sentido_nervuras": 70,
+          "ids_lajes": 80,
+          "posicao_pilares": 85,
+          "espessura_anotada": 60,
+          "criticos": [
+            "ausência de anotações de espessura em algumas lajes, possíveis discrepâncias na direção de nervuras em áreas específicas"
+          ],
+          "observacoes": "O gerado apresenta boa fidelidade estrutural, mas requer revisão para anotações de espessura e direção de nervuras em áreas específicas para garantir conformidade com o STOG.",
+          "score_global": 76.25
+        },
+        "tiles": [
+          {
+            "tem_conteudo": true,
+            "geometria": 80,
+            "textos_labels": 70,
+            "elementos_ausentes": [],
+            "resumo": "Diferenças nas linhas de contorno e nos textos, mas em geral os elementos estruturais estão presentes e coincidem.",
+            "score": 76.0,
+            "tile_tem_conteudo": true,
+            "tile_row": 0,
+            "tile_col": 0
+          },
+          {
+            "tem_conteudo": true,
+            "geometria": 100,
+            "textos_labels": 0,
+            "elementos_ausentes": [
+              "todas as cotas e labels estruturais"
+            ],
+            "resumo": "O tile gerado não possui nenhuma cota ou label estrutural, mas mantém geometria idêntica.",
+            "score": 60.0,
+            "tile_tem_conteudo": true,
+            "tile_row": 0,
+            "tile_col": 1
+          },
+          {
+            "tem_conteudo": true,
+            "geometria": 80,
+            "textos_labels": 70,
+            "elementos_ausentes": [],
+            "resumo": "Faltam elementos de texto e labels, mas a geometria e pilares estão presentes e consistentes.",
+            "score": 76.0,
+            "tile_tem_conteudo": true,
+            "tile_row": 0,
+            "tile_col": 2
+          },
+          {
+            "tem_conteudo": true,
+            "geometria": 80,
+            "textos_labels": 70,
+            "elementos_ausentes": [],
+            "resumo": "Diferenças na geometria e textos, mas sem ausência de elementos estruturais",
+            "score": 76.0,
+            "tile_tem_conteudo": true,
+            "tile_row": 1,
+            "tile_col": 0
+          },
+          {
+            "tem_conteudo": true,
+            "geometria": 80,
+            "textos_labels": 70,
+            "elementos_ausentes": [],
+            "resumo": "Diferenças na geometria e textos, mas estrutura geral preservada.",
+            "score": 76.0,
+            "tile_tem_conteudo": true,
+            "tile_row": 1,
+            "tile_col": 1
+          },
+          {
+            "tem_conteudo": true,
+            "geometria": 80,
+            "textos_labels": 70,
+            "elementos_ausentes": [],
+            "resumo": "Diferenças na geometria e nomenclatura.",
+            "score": 76.0,
+            "tile_tem_conteudo": true,
+            "tile_row": 1,
+            "tile_col": 2
+          },
+          {
+            "raw_response": "A análise de cada critério é a seguinte:\n\n1.  **tem_conteudo:** True. O tile contém elementos estruturais visíveis.\n2.  **geometria:** 80. Formas, posições e proporções dos elementos estruturais são consistentes entre esquerdo e direito, com pequenas diferenças em algumas linhas e cotas.\n3.  **textos_labels:** 70. Textos, labels e nomenclatura (P1/P2/V1/L1 etc.) estão presentes, mas há algumas diferenças em sua posição e formato.\n4.  **elementos_ausentes:** [] Não há elementos visíveis no STOG (esquerdo) ausentes no gerado (direito).\n\nResumo: \"Tile gerado apresenta pequenas diferenças em geometria e textos em relação ao projeto original, mas mantém a estrutura básica.\"",
+            "parse_error": true,
+            "elementos_estruturais": 2.0,
+            "score": 0.0,
+            "tile_tem_conteudo": true,
+            "tile_row": 2,
+            "tile_col": 0
+          },
+          {
+            "tem_conteudo": true,
+            "geometria": 80,
+            "textos_labels": 70,
+            "elementos_ausentes": [],
+            "resumo": "Diferenças em geometria e nomenclatura",
+            "score": 76.0,
+            "tile_tem_conteudo": true,
+            "tile_row": 2,
+            "tile_col": 1
+          },
+          {
+            "tem_conteudo": true,
+            "geometria": 80,
+            "textos_labels": 70,
+            "elementos_ausentes": [],
+            "resumo": "Diferenças estruturais e ausência de textos, labels e nomenclatura",
+            "score": 76.0,
+            "tile_tem_conteudo": true,
+            "tile_row": 2,
+            "tile_col": 2
+          }
+        ],
+        "score_visual_medio": 73.1
+      },
+      "score_final": 71.4
+    }
+  }
+}
