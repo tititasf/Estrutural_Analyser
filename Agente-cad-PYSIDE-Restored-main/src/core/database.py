@@ -272,6 +272,25 @@ class DatabaseManager:
             )
         ''')
 
+        # Tabela de Sugestões de Triagem (Fase 1 RAG → Fase 2)
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS obra_triagem (
+                id                TEXT PRIMARY KEY,
+                obra_name         TEXT NOT NULL,
+                file_path         TEXT NOT NULL,
+                file_name         TEXT NOT NULL,
+                file_ext          TEXT,
+                suggested_category TEXT,
+                suggested_order   INTEGER DEFAULT 0,
+                confidence        REAL DEFAULT 0.0,
+                status            TEXT DEFAULT 'pending',
+                classifier        TEXT,
+                notes             TEXT,
+                created_at        TEXT,
+                UNIQUE(obra_name, file_path)
+            )
+        ''')
+
         # Tabela de Scripts Gerados
         cursor.execute('''
             CREATE TABLE IF NOT EXISTS generated_scripts (
@@ -358,6 +377,10 @@ class DatabaseManager:
             _check_and_add_column(table, 'na_reasons_json', 'TEXT')
             _check_and_add_column(table, 'pkl_path', 'TEXT') # Path to serialized .pkl file
 
+        # CAD-10: Extra flat fields (Fase-4 chapa, grades, pontaletes, etc.)
+        _check_and_add_column('pillars', 'extra_data_json', 'TEXT')
+        _check_and_add_column('slabs', 'extra_data_json', 'TEXT')
+
         # DOCUMENTS
         _check_and_add_column('project_documents', 'work_name', 'TEXT')
         _check_and_add_column('project_documents', 'file_data', 'TEXT') # Base64 cache
@@ -369,6 +392,74 @@ class DatabaseManager:
         # CLIENTS
         _check_and_add_column('clients', 'address', 'TEXT')
         _check_and_add_column('clients', 'description', 'TEXT')
+
+        # ── ENGENHARIA REVERSA — tabelas N2/N4 (ER-2.11) ─────────────
+        cursor.executescript("""
+            CREATE TABLE IF NOT EXISTS reverse_eng_projetos (
+                id           INTEGER PRIMARY KEY,
+                obra_name    TEXT NOT NULL,
+                pavimento    TEXT NOT NULL,
+                classe       TEXT NOT NULL,
+                dxf_path     TEXT NOT NULL,
+                status       TEXT DEFAULT 'pending',
+                approved_at  DATETIME,
+                created_at   DATETIME DEFAULT CURRENT_TIMESTAMP,
+                UNIQUE(obra_name, pavimento, classe, dxf_path)
+            );
+
+            CREATE TABLE IF NOT EXISTS reverse_eng_fichas (
+                id              INTEGER PRIMARY KEY,
+                projeto_id      INTEGER REFERENCES reverse_eng_projetos(id),
+                obra_name       TEXT NOT NULL,
+                pavimento       TEXT NOT NULL,
+                classe          TEXT NOT NULL,
+                elemento_id     TEXT NOT NULL,
+                campos_json     TEXT NOT NULL DEFAULT '{}',
+                recorte_path    TEXT,
+                confianca       REAL DEFAULT 0.0,
+                status          TEXT DEFAULT 'draft',
+                aprovado_at     DATETIME,
+                rag_indexed     INTEGER DEFAULT 0,
+                created_at      DATETIME DEFAULT CURRENT_TIMESTAMP,
+                updated_at      DATETIME,
+                UNIQUE(obra_name, pavimento, elemento_id)
+            );
+
+            CREATE INDEX IF NOT EXISTS idx_ref_obra_classe
+                ON reverse_eng_fichas(obra_name, classe);
+
+            CREATE TABLE IF NOT EXISTS reverse_eng_recortes (
+                id            INTEGER PRIMARY KEY,
+                ficha_id      INTEGER REFERENCES reverse_eng_fichas(id),
+                obra_name     TEXT NOT NULL,
+                elemento_id   TEXT NOT NULL,
+                recorte_path  TEXT NOT NULL,
+                bbox_json     TEXT,
+                entity_count  INTEGER,
+                created_at    DATETIME DEFAULT CURRENT_TIMESTAMP
+            );
+
+            CREATE TABLE IF NOT EXISTS reverse_eng_obra_ficha (
+                id                   INTEGER PRIMARY KEY,
+                obra_name            TEXT NOT NULL,
+                pavimento            TEXT NOT NULL,
+                total_pil            INTEGER DEFAULT 0,
+                total_lv             INTEGER DEFAULT 0,
+                total_fv             INTEGER DEFAULT 0,
+                total_laj            INTEGER DEFAULT 0,
+                confianca_media      REAL DEFAULT 0.0,
+                resumo_json          TEXT DEFAULT '{}',
+                rag_indexed          INTEGER DEFAULT 0,
+                gerado_at            DATETIME,
+                created_at           DATETIME DEFAULT CURRENT_TIMESTAMP,
+                UNIQUE(obra_name, pavimento)
+            );
+        """)
+
+        # reverse_eng_recortes — colunas adicionadas no sprint ER-2
+        _check_and_add_column('reverse_eng_recortes', 'projeto_id', 'TEXT')
+        _check_and_add_column('reverse_eng_recortes', 'classe',     'TEXT')
+        _check_and_add_column('reverse_eng_recortes', 'status',     "TEXT DEFAULT 'manual'")
 
 
     def create_work(self, name: str, client_id: str = None):
@@ -904,11 +995,27 @@ class DatabaseManager:
             conn.close()
 
 
+    # Keys handled by dedicated columns — excluded from extra_data_json
+    _PILLAR_FIXED_KEYS = frozenset({
+        'id', 'project_id', 'name', 'type', 'area_val', 'area',
+        'points', 'points_json',
+        'sides_data', 'sides_data_json',
+        'links', 'links_json',
+        'confidence_map', 'conf_map_json',
+        'validated_fields', 'validated_fields_json',
+        'validated_link_classes', 'validated_link_classes_json',
+        'na_fields', 'na_fields_json',
+        'na_link_classes', 'na_link_classes_json',
+        'na_reasons', 'na_reasons_json',
+        'issues', 'issues_json',
+        'id_item', 'is_validated', 'pkl_path', 'extra_data_json',
+    })
+
     def save_pillar(self, p: Dict[str, Any], project_id: str):
         """Salva ou atualiza um pilar (UPSERT) vinculado a um projeto."""
         conn = self._get_conn()
         cursor = conn.cursor()
-        
+
         try:
             # Serialização segura
             points_json = json.dumps(p.get('points', []))
@@ -921,17 +1028,21 @@ class DatabaseManager:
             na_links_json = json.dumps(p.get('na_link_classes', {}))
             na_reasons_json = json.dumps(p.get('na_reasons', {}))
             issues_json = json.dumps(p.get('issues', []))
-            
+
+            # Extra flat fields (Fase-4: chapa, grades, pontaletes, etc.)
+            extra = {k: v for k, v in p.items() if k not in self._PILLAR_FIXED_KEYS}
+            extra_data_json = json.dumps(extra) if extra else None
+
             p_id = str(p.get('id', ''))
-            
+
             cursor.execute('''
                 INSERT INTO pillars (
-                    id, project_id, name, type, area, points_json, sides_data_json, 
+                    id, project_id, name, type, area, points_json, sides_data_json,
                     links_json, conf_map_json, validated_fields_json, validated_link_classes_json,
                     na_fields_json, na_link_classes_json, na_reasons_json,
-                    issues_json, id_item, is_validated, pkl_path
+                    issues_json, id_item, is_validated, pkl_path, extra_data_json
                 )
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 ON CONFLICT(id) DO UPDATE SET
                     project_id=excluded.project_id,
                     name=excluded.name,
@@ -948,14 +1059,15 @@ class DatabaseManager:
                     issues_json=excluded.issues_json,
                     id_item=excluded.id_item,
                     is_validated=excluded.is_validated,
-                    pkl_path=excluded.pkl_path
+                    pkl_path=excluded.pkl_path,
+                    extra_data_json=excluded.extra_data_json
             ''', (
                 p_id,
                 project_id,
-                p.get('name'), 
-                p.get('type'), 
-                float(p.get('area_val', 0.0)), 
-                points_json, 
+                p.get('name'),
+                p.get('type'),
+                float(p.get('area_val', 0.0)),
+                points_json,
                 sides_json,
                 links_json,
                 conf_map_json,
@@ -967,7 +1079,8 @@ class DatabaseManager:
                 issues_json,
                 p.get('id_item'),
                 1 if p.get('is_validated') else 0,
-                p.get('pkl_path')
+                p.get('pkl_path'),
+                extra_data_json,
             ))
             
             conn.commit()
@@ -1003,6 +1116,9 @@ class DatabaseManager:
                 p['id_item'] = p.get('id_item')
                 p['is_validated'] = bool(p['is_validated'])
                 p['pkl_path'] = p.get('pkl_path')
+                # Restore extra flat fields (Fase-4 chapa, grades, pontaletes, etc.)
+                extra = json.loads(p.get('extra_data_json') or '{}')
+                p.update(extra)
                 pillars.append(p)
         except Exception as e:
             logging.error(f"Erro ao carregar pilares: {e}")
@@ -1029,19 +1145,35 @@ class DatabaseManager:
         conn.commit()
         conn.close()
 
+    _SLAB_FIXED_KEYS = frozenset({
+        'id', 'project_id', 'name', 'type', 'area',
+        'points', 'points_json',
+        'links', 'links_json',
+        'validated_fields', 'validated_fields_json',
+        'validated_link_classes', 'validated_link_classes_json',
+        'na_fields', 'na_fields_json',
+        'na_link_classes', 'na_link_classes_json',
+        'na_reasons', 'na_reasons_json',
+        'issues', 'issues_json',
+        'id_item', 'is_validated', 'pkl_path', 'extra_data_json',
+    })
+
     def save_slab(self, s: Dict[str, Any], project_id: str):
         """Salva uma laje vinculada ao projeto."""
         conn = self._get_conn()
         cursor = conn.cursor()
         try:
+            extra = {k: v for k, v in s.items() if k not in self._SLAB_FIXED_KEYS}
+            extra_data_json = json.dumps(extra) if extra else None
+
             cursor.execute('''
                 INSERT INTO slabs (
-                    id, project_id, name, type, area, points_json, 
+                    id, project_id, name, type, area, points_json,
                     links_json, validated_fields_json, validated_link_classes_json,
                     na_fields_json, na_link_classes_json, na_reasons_json,
-                    issues_json, id_item, is_validated, pkl_path
+                    issues_json, id_item, is_validated, pkl_path, extra_data_json
                 )
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 ON CONFLICT(id) DO UPDATE SET
                     project_id=excluded.project_id,
                     name=excluded.name,
@@ -1057,11 +1189,12 @@ class DatabaseManager:
                     issues_json=excluded.issues_json,
                     id_item=excluded.id_item,
                     is_validated=excluded.is_validated,
-                    pkl_path=excluded.pkl_path
+                    pkl_path=excluded.pkl_path,
+                    extra_data_json=excluded.extra_data_json
             ''', (
-                s['id'], project_id, s.get('name'), 
+                s['id'], project_id, s.get('name'),
                 s.get('type', 'Laje'),
-                float(s.get('area', 0.0)), 
+                float(s.get('area', 0.0)),
                 json.dumps(s.get('points', [])),
                 json.dumps(s.get('links', {})),
                 json.dumps(s.get('validated_fields', [])),
@@ -1072,7 +1205,8 @@ class DatabaseManager:
                 json.dumps(s.get('issues', [])),
                 s.get('id_item'),
                 1 if s.get('is_validated') else 0,
-                s.get('pkl_path')
+                s.get('pkl_path'),
+                extra_data_json,
             ))
             
             conn.commit()
@@ -1105,6 +1239,9 @@ class DatabaseManager:
                 s['id_item'] = s.get('id_item')
                 s['is_validated'] = bool(s.get('is_validated', 0))
                 s['pkl_path'] = s.get('pkl_path')
+                # Restore extra flat fields (Fase-4 pontaletes, etc.)
+                extra = json.loads(s.get('extra_data_json') or '{}')
+                s.update(extra)
                 slabs.append(s)
         except Exception as e:
             logging.error(f"Erro ao carregar lajes: {e}")

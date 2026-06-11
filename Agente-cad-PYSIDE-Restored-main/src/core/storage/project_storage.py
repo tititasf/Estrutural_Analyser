@@ -16,7 +16,7 @@ class ProjectStorageManager:
 
     PHASE_CLASSES = {
         1: ["Estruturais dos Pavimentos, Estado Bruto (.DWG/.DXF)", "Documentos e Atas de Reunioes(.PDF/.MD)", "Detalhes Estruturais (.DWG/.PDF/.DXF/.MD)", "Projetos Finalizados para Engenharia Reversa"],
-        2: ["Estruturais Pavimentos Limpos", "Detalhamentos Específicos"],
+        2: ["Estruturais Pavimentos Limpos", "Detalhamentos Específicos", "Projetos Finalizados para Engenharia Reversa"],
         3: ["Estruturais Pavimentos Limpos", "Pilares", "Vigas", "Lajes"],
         4: ["JSON Pilares", "JSON Lajes", "JSON Vigas Laterais", "JSON Vigas Fundo"],
         5: ["Scripts Pilares", "Scripts Lajes", "Scripts Vigas Laterais", "Scripts Vigas Fundo"],

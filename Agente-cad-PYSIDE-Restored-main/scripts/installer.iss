@@ -1,12 +1,12 @@
 #define MyAppName "AgenteCAD"
 #ifndef MyAppVersion
-  #define MyAppVersion "1.0.0"
+  #define MyAppVersion "1.0.1"
 #endif
 #define MyAppPublisher "VisionEstrutural"
 #define MyAppURL "https://visionestrutural.com.br"
 #define MyAppExeName "main.exe"
 #ifndef OutputBaseFilename
-  #define OutputBaseFilename "AgenteCAD_Setup_v1.0.0"
+  #define OutputBaseFilename "AgenteCAD_Setup_v1.0.1"
 #endif
 
 [Setup]

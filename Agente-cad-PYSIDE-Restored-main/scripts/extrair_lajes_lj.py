@@ -1,22 +1,25 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-extrair_lajes_lj.py — Extrai coordenadas, dimensoes e area de lajes do LJ DXF.
+extrair_lajes_lj.py — Extrai dados de lajes a partir dos DXFs ESTRUTURAIS
+(Fase-2_Triagem/Estruturais_Pavimentos_Limpos/).
 
-Estrategia 1 (alta precisao): Layer "AUX00" tem codigos como "L11^J94X244"
-  - L11 = laje 11
-  - J = tipo (J=joist, A=aligeirada, etc)
-  - 94 = dimensao 1 em cm
-  - 244 = dimensao 2 em cm
-  -> area_cm2 = 94 * 244 = 22.936 cm2
+Arquitetura B (correta):
+  Fonte: desenhos estruturais do projetista (plantas de forma/estrutura)
+  NAO usa LJ DXFs de Projetos_Finalizados.
 
-Estrategia 2 (media precisao): LWPOLYLINE/LINE entities proximas ao label L{n}
-  -> extrair bounding box do poligono da laje
+Algoritmo:
+  1. Varre DXFs em Fase-2_Triagem/Estruturais_Pavimentos_Limpos/
+  2. Para cada DXF extrai TEXT/MTEXT:
+       - Nomes de laje: padrao L<num>[sufixo]
+  3. Para cada laje, busca nearest LWPOLYLINE -> bounding box -> dimensoes
+  4. Fallback: busca textos de span (plain numbers 50..5000) proximos
+  5. Agrega resultados por frequencia
+  6. Salva em Fase-3_Interpretacao_Extracao/Lajes/lajes_data.json
 
 CLI:
-  python scripts/extrair_lajes_lj.py \\
-    --obra ../DADOS-OBRAS/Obra_TREINO_21 \\
-    --pavimento "12 PAV"
+  python scripts/extrair_lajes_lj.py --obra PATH/Obra_TREINO_1
+  python scripts/extrair_lajes_lj.py --obra PATH/Obra_TREINO_1 --pavimento "12 PAV"
 """
 
 import argparse
@@ -37,508 +40,328 @@ def _load_ezdxf():
         sys.exit(1)
 
 
-def _find_dxf(rev_dir: Path, pattern: str) -> Path | None:
-    for f in rev_dir.iterdir():
-        if f.suffix.upper() == '.DXF' and pattern.upper() in f.name.upper():
-            return f
-    return None
+def dist2d(ax, ay, bx, by) -> float:
+    return math.sqrt((ax - bx) ** 2 + (ay - by) ** 2)
 
 
-def _dxf_from_discovery(obra: Path, pavimento: str, tipo: str) -> Path | None:
-    """Busca caminho DXF exato no dxf_discovery.json por obra/pavimento/tipo."""
-    import json as _json
-    disc = obra.parent / "dxf_discovery.json"
-    if not disc.exists():
-        return None
-    try:
-        with open(disc, encoding='utf-8') as f:
-            d = _json.load(f)
-        p = d.get(obra.name, {}).get(pavimento, {}).get(tipo)
-        return Path(p) if p else None
-    except Exception:
-        return None
-
-
-def parse_aux00_code(txt: str) -> dict | None:
-    """
-    Parseia codigo AUX00 no formato "L{n}^J{dim1}X{dim2}" ou "L{n}^{tipo}{dim1}X{dim2}".
-
-    Exemplos reais encontrados:
-    - "L11^J94X244" -> laje L11, tipo J, dim1=94, dim2=244
-    - "L5^A60X150" -> laje L5, tipo A, dim1=60, dim2=150
-
-    Retorna None se nao for um codigo de laje valido.
-    """
-    # Padrao principal: L{n}^{tipo}{dim1}X{dim2}
-    m = re.match(r'L(\d+)\^([A-Za-z])(\d+)X(\d+)', txt.strip(), re.IGNORECASE)
+def _normalize_laje_id(raw: str) -> str:
+    """Normaliza ID: L11A -> L11."""
+    m = re.match(r'^(L\d+)[A-Z]?$', raw.strip(), re.IGNORECASE)
     if m:
-        lid = f'L{m.group(1)}'
-        tipo = m.group(2).upper()
-        dim1 = float(m.group(3))
-        dim2 = float(m.group(4))
-        return {
-            'id': lid,
-            'tipo': tipo,
-            'dim1': dim1,
-            'dim2': dim2,
-            'area_cm2': round(dim1 * dim2, 1)
-        }
-
-    # Padrao alternativo: L{n} separado do codigo de dimensao
-    # Ex: texto "L11" com texto proximo "94X244"
-    m2 = re.match(r'L(\d+)$', txt.strip(), re.IGNORECASE)
-    if m2:
-        return {'id': f'L{m2.group(1)}', 'tipo': None, 'dim1': None, 'dim2': None, 'area_cm2': None}
-
-    # Padrao de dimensao isolado: "94X244"
-    m3 = re.match(r'^(\d+)X(\d+)$', txt.strip(), re.IGNORECASE)
-    if m3:
-        return {
-            'id': None,  # sera associado por proximidade
-            'tipo': None,
-            'dim1': float(m3.group(1)),
-            'dim2': float(m3.group(2)),
-            'area_cm2': round(float(m3.group(1)) * float(m3.group(2)), 1)
-        }
-
-    return None
+        return m.group(1).upper()
+    return raw.strip().upper()
 
 
-def dist2d(p1, p2) -> float:
-    return math.sqrt((p1[0] - p2[0]) ** 2 + (p1[1] - p2[1]) ** 2)
+def _select_structural_dxfs(struct_dir: Path, pavimento: str | None) -> list:
+    """Seleciona DXFs estruturais para o pavimento alvo."""
+    all_dxfs = sorted(struct_dir.glob("*.dxf")) + sorted(struct_dir.glob("*.DXF"))
+    seen_stems = set()
+    all_dxfs_dedup = []
+    for f in all_dxfs:
+        key = f.name.upper()
+        if key not in seen_stems:
+            seen_stems.add(key)
+            all_dxfs_dedup.append(f)
+    all_dxfs = all_dxfs_dedup
+
+    if not pavimento:
+        return all_dxfs
+
+    pav_upper = pavimento.upper()
+    keywords = set()
+    nums = re.findall(r'\d+', pav_upper)
+    keywords.update(nums)
+    for kw in ['TIPO', 'PADRAO', 'PAV', 'TERREO', 'COBERTURA', 'SUBSOLO', 'SUB', 'FUNDA']:
+        if kw in pav_upper:
+            keywords.add(kw)
+    if 'PAV' in pav_upper or any(c.isdigit() for c in pav_upper):
+        keywords.add('TIPO')
+
+    matched = [f for f in all_dxfs
+               if any(kw in f.name.upper() for kw in keywords)]
+
+    if matched:
+        print(f"[INFO] Pavimento '{pavimento}': {len(matched)} DXF(s) selecionado(s) "
+              f"(keywords: {keywords})")
+        return matched
+
+    print(f"[INFO] Pavimento '{pavimento}': sem DXF especifico — usando todos ({len(all_dxfs)})")
+    return all_dxfs
 
 
-def extract_laje_labels_with_dims(msp) -> dict:
+def extract_laje_data_from_dxf(dxf_path: Path, ezdxf_mod) -> list:
     """
-    Extrai labels de lajes do LJ DXF.
+    Extrai nomes de laje e tenta associar a LWPOLYLINE ou spans proximos.
 
-    Formato real descoberto no DXF:
-    - Layer "4" (TEXT): labels simples "L{n}" com posicao no plano
-    - Layer "AUX00" (TEXT/MTEXT): entradas multiline formato:
-        "L{n}\\n{dim1}X{dim2}\\n[notas]"
-      Onde dim1 e dim2 sao dimensoes de UM PAINEL individual de forma (chapa).
-      A mesma laje tem MULTIPLOS paineis (multiplas entradas AUX00).
-
-    Estrategia:
-    1. Coletar labels simples L{n} do layer "4" -> posicoes dos labels no plano
-    2. Coletar todos os paineis AUX00 por laje -> agregar posicoes e dimensoes
-    3. Para cada laje: calcular bounding box dos paineis como area aproximada
+    Returns list of:
+        {'id': 'L11', 'comprimento': float|None, 'largura': float|None,
+         'area': float|None, 'confidence': float, 'source': str, 'method': str}
     """
-    # Labels simples — varios layers usados por diferentes obras
-    # Obra_TREINO_21: layers '4','3','2' | Obra_TREINO_22: layer 'L-N' | outros: 'L-D','LAJE'
-    # Obra_TREINO_11: layer 'EST-LAJE-TEXT' | Obra_TREINO_16: layer 'A-FLOR-IDEN'
-    # Obra_TREINO_13: layer 'F-LAJES-NOME'
-    # Obra_TREINO_9: layer '10' | Obra_TREINO_6: layer '44' | Obra_TREINO_19: layer '226'
-    # Obra_TREINO_3: layer 'NOME LAJE' | Obra_TREINO_8: layer 'ES-LAJE-NOME'
-    # Obra_TREINO_18: layer 'MTH-TIT1-VIGA' (sistema MTH/MasterHouse)
-    # Obra_TREINO_14: layer 'FO-TEXTO-LAJES' (sistema FO/NOVA-STOG)
-    LABEL_LAYERS_EXACT = {'4', '3', '2', '10', '44', '226', 'L-N', 'L-D', 'LAJE', 'LAJES', 'NOME', 'NOME LAJE'}
-    # Substrings para match parcial (case-insensitive)
-    LABEL_LAYER_SUBSTRINGS = {'EST-LAJE', 'FLOR-IDEN', 'LAJE-IDEN', 'LAJE-TEXT', 'LAJES-NOME', 'LAJE-NOME',
-                               'F-LAJES', 'ES-LAJE', 'MTH-TIT1', 'TEXTO-LAJE'}
-
-    # Auto-detect: se nenhum layer conhecido contiver IDs L{n}, varrer todos os layers
-    # e identificar qual contém mais IDs L{n} (heurística para clientes com layers custom)
-    # Suporta variantes: L{n}, L.{n} (ponto), L{n}A (sufixo letra)
-    _LAJE_ID_PAT = re.compile(r'^L\.?\d+[A-Z]?$', re.IGNORECASE)
-
-    def _auto_detect_label_layer(msp_entities) -> set:
-        counts = {}
-        for e in msp_entities:
-            if e.dxftype() not in ('TEXT', 'MTEXT'):
-                continue
-            try:
-                txt = (e.plain_text() if e.dxftype() == 'MTEXT' else (e.dxf.text or '')).strip()
-            except Exception:
-                continue
-            if _LAJE_ID_PAT.match(txt):
-                counts[e.dxf.layer] = counts.get(e.dxf.layer, 0) + 1
-        if not counts:
-            return set()
-        max_count = max(counts.values())
-        return {lay for lay, n in counts.items() if n >= max(1, max_count * 0.5)}
-    labels_pos = {}  # lid -> lista de posicoes
-
-    # Primeira passagem com layers conhecidos; se vazio, auto-detectar
-    _msp_list = list(msp)
-    _known_hits = sum(
-        1 for e in _msp_list
-        if e.dxftype() in ('TEXT', 'MTEXT') and (
-            e.dxf.layer in LABEL_LAYERS_EXACT or
-            any(sub in e.dxf.layer.upper() for sub in LABEL_LAYER_SUBSTRINGS)
-        )
-    )
-    _extra_layers = _auto_detect_label_layer(_msp_list) if _known_hits == 0 else set()
-    if _extra_layers:
-        print(f"  [AUTO-DETECT] Layers de laje detectados automaticamente: {_extra_layers}")
-
-    for e in _msp_list:
-        if e.dxftype() not in ('TEXT', 'MTEXT'):
-            continue
-        layer = e.dxf.layer
-        layer_upper = layer.upper()
-        is_label_layer = (layer in LABEL_LAYERS_EXACT or
-                          layer_upper in {ll.upper() for ll in LABEL_LAYERS_EXACT} or
-                          re.match(r'^L-[ND]$', layer, re.IGNORECASE) or
-                          layer_upper in ('LAJE', 'LAJES', 'NOME') or
-                          any(sub in layer_upper for sub in LABEL_LAYER_SUBSTRINGS) or
-                          layer in _extra_layers)
-        if not is_label_layer:
-            continue
-        try:
-            if e.dxftype() == 'MTEXT':
-                txt = e.plain_text().strip()
-            else:
-                txt = e.dxf.text.strip()
-        except Exception:
-            continue
-
-        m = re.match(r'^L\.?(\d+[A-Za-z]?)$', txt, re.IGNORECASE)
-        if m:
-            lid = f'L{m.group(1).upper()}'
-            try:
-                pos = (e.dxf.insert.x, e.dxf.insert.y)
-            except Exception:
-                continue
-            if lid not in labels_pos:
-                labels_pos[lid] = []
-            labels_pos[lid].append(pos)
-
-    # Paineis AUX00 (formato multiline L{n}\n{dim1}X{dim2})
-    paineis_por_laje = {}  # lid -> lista de {dim1, dim2, area, pos}
-    for e in msp:
-        if e.dxftype() not in ('TEXT', 'MTEXT'):
-            continue
-        layer = e.dxf.layer
-        if 'AUX' not in layer.upper() and layer not in ('AUX00',):
-            continue
-        try:
-            if e.dxftype() == 'MTEXT':
-                raw = e.plain_text()
-            else:
-                raw = e.dxf.text
-            # Normalizar line breaks do DXF (pode ser \n, \r\n, ou \\P em MTEXT)
-            txt = raw.replace('\\P', '\n').replace('\r\n', '\n').strip()
-        except Exception:
-            continue
-
-        try:
-            pos = (e.dxf.insert.x, e.dxf.insert.y)
-        except Exception:
-            pos = None
-
-        lines = [l.strip() for l in txt.split('\n') if l.strip()]
-        if len(lines) < 2:
-            continue
-
-        # Primeira linha: L{n}
-        m_lid = re.match(r'^L(\d+)$', lines[0], re.IGNORECASE)
-        if not m_lid:
-            continue
-        lid = f'L{m_lid.group(1)}'
-
-        # Segunda linha: {dim1}X{dim2} (ou {dim1}x{dim2})
-        m_dim = re.match(r'^(\d+\.?\d*)x(\d+\.?\d*)$', lines[1], re.IGNORECASE)
-        if not m_dim:
-            continue
-        dim1 = float(m_dim.group(1))
-        dim2 = float(m_dim.group(2))
-
-        if lid not in paineis_por_laje:
-            paineis_por_laje[lid] = []
-        paineis_por_laje[lid].append({
-            'dim1': dim1,
-            'dim2': dim2,
-            'area_cm2': round(dim1 * dim2, 1),
-            'pos': pos,
-            'nota': lines[2] if len(lines) > 2 else None
-        })
-
-    # Consolidar: juntar labels_pos + paineis_por_laje
-    todas_lajes = set(labels_pos.keys()) | set(paineis_por_laje.keys())
-    result = {}
-
-    def _laje_sort_key(x):
-        """Ordena IDs como L1, L10, L305, L326A — suporta sufixo alfanumérico."""
-        m = re.match(r'^L\.?(\d+)([A-Za-z]?)$', x, re.IGNORECASE)
-        return (int(m.group(1)), m.group(2)) if m else (0, x)
-
-    for lid in sorted(todas_lajes, key=_laje_sort_key):
-        pos_label = labels_pos.get(lid, [None])[0]
-        paineis = paineis_por_laje.get(lid, [])
-
-        if paineis:
-            # Calcular area total somando paineis
-            area_total = round(sum(p['area_cm2'] for p in paineis), 1)
-            # Dimensao maxima de painel (maior painel indica escala da laje)
-            max_d1 = max(p['dim1'] for p in paineis)
-            max_d2 = max(p['dim2'] for p in paineis)
-            # Dimensoes unicas encontradas
-            dims_unicas = sorted(set(f"{p['dim1']}x{p['dim2']}" for p in paineis))
-            # Posicoes dos paineis para bounding box
-            pos_paineis = [p['pos'] for p in paineis if p['pos']]
-
-            result[lid] = {
-                'id': lid,
-                'n_paineis': len(paineis),
-                'area_total_paineis_cm2': area_total,
-                'maior_painel_dim1': max_d1,
-                'maior_painel_dim2': max_d2,
-                'dims_paineis_unicas': dims_unicas[:5],  # primeiras 5
-                'pos_label': pos_label,
-                'pos_paineis': pos_paineis,
-                'source': 'aux00-panels'
-            }
-        elif pos_label:
-            result[lid] = {
-                'id': lid,
-                'n_paineis': 0,
-                'area_total_paineis_cm2': None,
-                'maior_painel_dim1': None,
-                'maior_painel_dim2': None,
-                'dims_paineis_unicas': [],
-                'pos_label': pos_label,
-                'pos_paineis': [],
-                'source': 'label-only'
-            }
-
-    print(f"[DEBUG] Labels encontrados: {sorted(labels_pos.keys())}")
-    print(f"[DEBUG] Lajes com paineis AUX00: {sorted(paineis_por_laje.keys())}")
-
-    return result
-
-
-def extract_polylines_for_laje(msp, laje_pos: tuple, max_dist: float = 800.0) -> list:
-    """
-    Extrai LWPOLYLINE/LINE entities proximas ao label da laje.
-    Retorna lista de pontos do contorno.
-    """
-    if laje_pos is None:
+    try:
+        doc = ezdxf_mod.readfile(str(dxf_path))
+    except Exception as ex:
+        print(f"  [WARN] Nao foi possivel ler {dxf_path.name}: {ex}")
         return []
 
+    msp = doc.modelspace()
+
+    # Collect laje name labels
+    laje_names = []
+    # Collect LWPOLYLINE centroids and bboxes
     polylines = []
+    # Collect span texts (plain numbers)
+    span_texts = []
+
     for e in msp:
-        if e.dxftype() == 'LWPOLYLINE':
+        etype = e.dxftype()
+
+        if etype in ('TEXT', 'MTEXT'):
+            try:
+                txt = e.plain_text().strip() if etype == 'MTEXT' else e.dxf.text.strip()
+                pos = e.dxf.insert
+                x, y = float(pos.x), float(pos.y)
+            except Exception:
+                continue
+            if not txt:
+                continue
+
+            # Laje name
+            if re.match(r'^L\d+[A-Z]*$', txt, re.IGNORECASE):
+                lid = _normalize_laje_id(txt)
+                laje_names.append({'id': lid, 'raw': txt, 'x': x, 'y': y})
+                continue
+
+            # Span text (plain number 50..5000)
+            if '/' not in txt and 'x' not in txt.lower():
+                m = re.match(r'^(\d+\.?\d*)$', txt)
+                if m:
+                    val = float(m.group(1))
+                    if 50 <= val <= 5000:
+                        span_texts.append({'val': val, 'x': x, 'y': y})
+
+        elif etype == 'LWPOLYLINE':
             try:
                 pts = [(v[0], v[1]) for v in e.get_points()]
-                if not pts:
+                if len(pts) < 3:
                     continue
-                cx = sum(p[0] for p in pts) / len(pts)
-                cy = sum(p[1] for p in pts) / len(pts)
-                d = dist2d(laje_pos, (cx, cy))
-                if d <= max_dist:
-                    polylines.append({
-                        'type': 'LWPOLYLINE',
-                        'points': pts,
-                        'center': (round(cx, 1), round(cy, 1)),
-                        'dist': round(d, 1)
-                    })
+                xs = [p[0] for p in pts]
+                ys = [p[1] for p in pts]
+                cx = sum(xs) / len(xs)
+                cy = sum(ys) / len(ys)
+                w = max(xs) - min(xs)
+                h = max(ys) - min(ys)
+                # Filter: area must be reasonable for a laje (>= 1m2 = 10000 cm2)
+                area = w * h
+                if area < 10000:
+                    continue
+                polylines.append({
+                    'cx': cx, 'cy': cy,
+                    'w': round(w, 1), 'h': round(h, 1),
+                    'area': round(area, 1),
+                })
             except Exception:
                 continue
 
-    return sorted(polylines, key=lambda x: x['dist'])
+    results = []
 
+    for laje in laje_names:
+        lid = laje['id']
+        lx, ly = laje['x'], laje['y']
 
-def build_fichas(labels_data: dict, msp, pavimento: str) -> dict:
-    """
-    Constroi fichas de lajes compativel com Robo_Lajes.
-    Os dados AUX00 sao PAINEIS (chapas de forma), nao as coordenadas da laje.
-    A ficha reflete o que o Robo_Lajes pode usar: area total, dimensoes paineis, contagem.
-    """
-    fichas = {}
+        # Try to find nearest LWPOLYLINE
+        best_poly = None
+        best_poly_dist = float('inf')
+        for poly in polylines:
+            d = dist2d(lx, ly, poly['cx'], poly['cy'])
+            if d < best_poly_dist:
+                best_poly_dist = d
+                best_poly = poly
 
-    def _lsort(x):
-        m = re.match(r'^L\.?(\d+)([A-Za-z]?)$', x, re.IGNORECASE)
-        return (int(m.group(1)), m.group(2)) if m else (0, x)
-    for lid in sorted(labels_data.keys(), key=_lsort):
-        info = labels_data[lid]
-        pos_label = info.get('pos_label')
-        pos_paineis = info.get('pos_paineis', [])
-        n_paineis = info.get('n_paineis', 0)
-        area_total = info.get('area_total_paineis_cm2')
+        if best_poly and best_poly_dist < 5000:
+            comp = max(best_poly['w'], best_poly['h'])
+            larg = min(best_poly['w'], best_poly['h'])
+            if comp >= 50 and larg >= 50:
+                conf = 0.80 if best_poly_dist < 500 else 0.65 if best_poly_dist < 2000 else 0.50
+                results.append({
+                    'id': lid,
+                    'comprimento': comp,
+                    'largura': larg,
+                    'area': round(comp * larg, 1),
+                    'confidence': conf,
+                    'source': dxf_path.stem,
+                    'method': 'lwpolyline-bbox',
+                    'dist': round(best_poly_dist, 1),
+                })
+                continue
 
-        # Extrair contorno de LWPOLYLINE proximas ao label
-        polylines = []
-        ref_pos = pos_label
-        if ref_pos is None and pos_paineis:
-            # Usar centroide dos paineis como referencia
-            xs = [p[0] for p in pos_paineis]
-            ys = [p[1] for p in pos_paineis]
-            ref_pos = (sum(xs) / len(xs), sum(ys) / len(ys))
+        # Fallback: use nearby span texts for dimensions
+        nearby_spans = []
+        for s in span_texts:
+            d = dist2d(lx, ly, s['x'], s['y'])
+            if d < 3000:
+                nearby_spans.append((d, s['val']))
+        nearby_spans.sort()
 
-        if ref_pos:
-            polylines = extract_polylines_for_laje(msp, ref_pos, max_dist=1200.0)
-
-        coordenadas = []
-        if polylines:
-            best = polylines[0]
-            if len(best['points']) >= 3:
-                coordenadas = [[round(p[0], 1), round(p[1], 1)] for p in best['points']]
-
-        # Area do poligono (se encontrado)
-        area_poligono = None
-        if coordenadas and len(coordenadas) >= 3:
-            n = len(coordenadas)
-            area = 0.0
-            for i in range(n):
-                j = (i + 1) % n
-                area += coordenadas[i][0] * coordenadas[j][1]
-                area -= coordenadas[j][0] * coordenadas[i][1]
-            area_poligono = round(abs(area) / 2.0, 1)
-
-        # Confidence
-        source = info.get('source', 'unknown')
-        if source == 'aux00-panels' and n_paineis >= 3:
-            confidence = 0.85
-        elif source == 'aux00-panels':
-            confidence = 0.75
-        elif coordenadas:
-            confidence = 0.60
+        if len(nearby_spans) >= 2:
+            vals = sorted([v for _, v in nearby_spans[:4]], reverse=True)
+            comp = vals[0]
+            larg = vals[1]
+            results.append({
+                'id': lid,
+                'comprimento': round(comp, 1),
+                'largura': round(larg, 1),
+                'area': round(comp * larg, 1),
+                'confidence': 0.45,
+                'source': dxf_path.stem,
+                'method': 'span-proximity',
+                'dist': round(nearby_spans[0][0], 1),
+            })
+        elif len(nearby_spans) == 1:
+            val = nearby_spans[0][1]
+            results.append({
+                'id': lid,
+                'comprimento': round(val, 1),
+                'largura': round(val, 1),
+                'area': round(val * val, 1),
+                'confidence': 0.30,
+                'source': dxf_path.stem,
+                'method': 'span-single',
+                'dist': round(nearby_spans[0][0], 1),
+            })
         else:
-            confidence = 0.30
+            results.append({
+                'id': lid,
+                'comprimento': None,
+                'largura': None,
+                'area': None,
+                'confidence': 0.15,
+                'source': dxf_path.stem,
+                'method': 'name-only',
+                'dist': None,
+            })
 
-        fichas[lid] = {
-            'n_paineis': n_paineis,
-            'area_total_paineis_cm2': area_total,
-            'area_poligono_cm2': area_poligono,
-            'coordenadas': coordenadas,
-            'maior_painel': {
-                'dim1': info.get('maior_painel_dim1'),
-                'dim2': info.get('maior_painel_dim2'),
-            },
-            'dims_paineis': info.get('dims_paineis_unicas', []),
-            'pos_label': [round(x, 1) for x in pos_label] if pos_label else None,
-            'confidence': round(confidence, 2),
-            'source': source,
-            'nota': f'{n_paineis} paineis AUX00 encontrados' if n_paineis > 0 else 'Sem dados de paineis'
-        }
-
-    if fichas:
-        fichas['_meta'] = {
-            'total': len(fichas),
-            'pavimento': pavimento,
-            'extraido_em': datetime.now().strftime('%Y-%m-%d'),
-            'com_paineis': sum(1 for k, v in fichas.items()
-                               if not k.startswith('_') and isinstance(v, dict) and v.get('n_paineis', 0) > 0),
-            'com_coordenadas': sum(1 for k, v in fichas.items()
-                                   if not k.startswith('_') and isinstance(v, dict) and len(v.get('coordenadas', [])) >= 3),
-            'nota': 'AUX00 contem paineis individuais de forma, nao coordenadas estruturais da laje'
-        }
-
-    return fichas
+    return results
 
 
-def run(obra_path: str, pavimento: str) -> None:
+def run(obra_path: str, pavimento: str = None) -> None:
     ezdxf = _load_ezdxf()
     obra = Path(obra_path)
-    rev_dir = obra / "Fase-1_Ingestao" / "Projetos_Finalizados_para_Engenharia_Reversa"
+
+    struct_dir = obra / "Fase-2_Triagem" / "Estruturais_Pavimentos_Limpos"
     out_dir = obra / "Fase-3_Interpretacao_Extracao" / "Lajes"
     out_dir.mkdir(parents=True, exist_ok=True)
 
-    if not rev_dir.exists():
-        print(f"[ERROR] Diretorio nao encontrado: {rev_dir}")
+    if not struct_dir.exists():
+        print(f"[ERROR] Diretorio estrutural nao encontrado: {struct_dir}")
         sys.exit(1)
 
-    lj_dxf = (_dxf_from_discovery(obra, pavimento, 'LJ')
-              or _find_dxf(rev_dir, "- LJ -")
-              or _find_dxf(rev_dir, "LJ -")
-              or _find_dxf(rev_dir, "LJ_"))
-    if not lj_dxf:
-        print(f"[ERROR] LJ DXF nao encontrado em {rev_dir}")
-        dxfs = list(rev_dir.glob("*.DXF")) + list(rev_dir.glob("*.dxf"))
-        if dxfs:
-            print(f"  DXFs disponiveis: {[f.name for f in dxfs]}")
+    dxf_files = _select_structural_dxfs(struct_dir, pavimento)
+    if not dxf_files:
+        print(f"[ERROR] Nenhum DXF encontrado em {struct_dir}")
         sys.exit(1)
 
-    print(f"[INFO] === extrair_lajes_lj.py | {obra.name} | {pavimento} ===")
-    print(f"[INFO] LJ DXF: {lj_dxf.name}")
+    print(f"[INFO] === extrair_lajes_lj.py | {obra.name} ===")
+    print(f"[INFO] Fonte: {struct_dir}")
+    print(f"[INFO] DXFs selecionados: {len(dxf_files)}")
 
-    print("[INFO] Lendo DXF...")
-    doc = ezdxf.readfile(str(lj_dxf))
-    msp = doc.modelspace()
-    print(f"[INFO] {len(list(msp))} entidades")
+    # Aggregate: {lid: [results from each dxf]}
+    all_results: dict[str, list] = {}
 
-    print("[INFO] Extraindo labels e codigos de lajes...")
-    labels_data = extract_laje_labels_with_dims(msp)
-    print(f"[INFO] Lajes encontradas: {len(labels_data)}")
+    for dxf_path in dxf_files:
+        print(f"\n[INFO] Processando: {dxf_path.name}")
+        entries = extract_laje_data_from_dxf(dxf_path, ezdxf)
+        print(f"  Lajes encontradas: {len(entries)}")
 
-    if not labels_data:
-        print("[WARN] Nenhuma laje encontrada. Debug layers...")
-        layers_text = set()
-        for e in msp:
-            if e.dxftype() in ('TEXT', 'MTEXT'):
-                try:
-                    txt = e.plain_text() if e.dxftype() == 'MTEXT' else e.dxf.text
-                    if re.search(r'L\d+', txt):
-                        layers_text.add(e.dxf.layer)
-                except Exception:
-                    pass
-        print(f"  Layers com L{{n}} labels: {sorted(layers_text)}")
+        for entry in entries:
+            lid = entry['id']
+            if lid not in all_results:
+                all_results[lid] = []
+            all_results[lid].append(entry)
+
+    if not all_results:
+        print(f"\n[WARN] Nenhuma laje encontrada nos DXFs estruturais — "
+              f"output vazio (normal para obras sem labels L<n> nos estruturais)")
+        # Write empty result
+        empty = {"_meta": {
+            "total": 0,
+            "obra": obra.name,
+            "pavimento": pavimento or "todos",
+            "extraido_em": datetime.now().strftime("%Y-%m-%d"),
+            "nota": "Nenhuma laje encontrada nos DXFs estruturais",
+        }}
+        out_path = out_dir / "lajes_data.json"
+        out_path.write_text(json.dumps(empty, indent=2, ensure_ascii=False), encoding='utf-8')
+        print(f"[INFO] Salvo (vazio): {out_path}")
         return
 
-    print("[INFO] Construindo fichas com coordenadas...")
-    fichas = build_fichas(labels_data, msp, pavimento)
+    # For each laje, pick best result (highest confidence)
+    fichas: dict = {}
 
-    # Salvar
+    def _lsort(x):
+        m = re.match(r'^L(\d+)([A-Za-z]?)$', x, re.IGNORECASE)
+        return (int(m.group(1)), m.group(2)) if m else (0, x)
+
+    for lid in sorted(all_results.keys(), key=_lsort):
+        entries = all_results[lid]
+        # Pick entry with highest confidence
+        best = max(entries, key=lambda e: e['confidence'])
+
+        comp = best.get('comprimento')
+        larg = best.get('largura')
+        area = best.get('area')
+
+        fichas[lid] = {
+            'n_paineis': 1,
+            'area_total_paineis_cm2': area,
+            'comprimento_cm': comp,
+            'largura_cm': larg,
+            'confidence': round(best['confidence'], 2),
+            'source': f"structural-{best['method']}:{best['source']}",
+        }
+
+    # Meta
+    fichas['_meta'] = {
+        'total': len([k for k in fichas if not k.startswith('_')]),
+        'obra': obra.name,
+        'pavimento': pavimento or 'todos',
+        'extraido_em': datetime.now().strftime('%Y-%m-%d'),
+        'algoritmo': 'structural-text-proximity',
+        'fonte': str(struct_dir),
+        'dxfs_processados': len(dxf_files),
+        'com_dimensoes': sum(1 for k, v in fichas.items()
+                             if not k.startswith('_') and v.get('comprimento_cm') is not None),
+    }
+
     out_path = out_dir / "lajes_data.json"
-    with open(out_path, 'w', encoding='utf-8') as f:
-        json.dump(fichas, f, indent=2, ensure_ascii=False)
+    out_path.write_text(json.dumps(fichas, indent=2, ensure_ascii=False), encoding='utf-8')
 
-    meta = fichas.get('_meta', {})
-    print(f"\n[RESULTADO] Extracao de Lajes")
-    print(f"  Total lajes:        {meta.get('total', 0)}")
-    print(f"  Com dimensoes:      {meta.get('com_dimensoes', 0)}")
-    print(f"  Com coordenadas:    {meta.get('com_coordenadas', 0)}")
-    print(f"\n[INFO] Salvo em: {out_path}")
+    meta = fichas['_meta']
+    print(f"\n[RESULTADO] Extracao de Lajes (Estrutural)")
+    print(f"  Total lajes:        {meta['total']}")
+    print(f"  Com dimensoes:      {meta['com_dimensoes']}")
+    print(f"  Output: {out_path}")
 
-    # Atualizar ground truth
-    gt_path = out_dir / "lajes_ground_truth.json"
-    if gt_path.exists():
-        with open(gt_path, 'r', encoding='utf-8') as f:
-            gt = json.load(f)
-
-        atualizados = 0
-        for lid, data in fichas.items():
-            if lid.startswith('_'):
-                continue
-            if lid in gt and isinstance(data, dict):
-                if data.get('comprimento'):
-                    gt[lid]['comprimento'] = data['comprimento']
-                    gt[lid]['largura'] = data['largura']
-                    gt[lid]['area_cm2'] = data['area_cm2']
-                    gt[lid]['confidence'] = max(gt[lid].get('confidence', 0.25), data['confidence'])
-                    atualizados += 1
-                if data.get('coordenadas'):
-                    gt[lid]['coordenadas'] = data['coordenadas']
-
-        with open(gt_path, 'w', encoding='utf-8') as f:
-            json.dump(gt, f, indent=2, ensure_ascii=False)
-        print(f"[INFO] lajes_ground_truth.json atualizado: {atualizados} lajes com dimensoes")
-
-    # Amostra
+    # Sample
     print(f"\n[AMOSTRA] Primeiras lajes:")
     count = 0
-    def _lsort2(x):
-        m = re.match(r'^L\.?(\d+)([A-Za-z]?)$', x, re.IGNORECASE)
-        return (int(m.group(1)), m.group(2)) if m else (0, x)
-    for lid in sorted([k for k in fichas if not k.startswith('_')], key=_lsort2):
+    for lid in sorted([k for k in fichas if not k.startswith('_')], key=_lsort):
         v = fichas[lid]
-        if not isinstance(v, dict):
-            continue
-        c = v.get('comprimento')
-        l = v.get('largura')
-        a = v.get('area_cm2')
-        coords = len(v.get('coordenadas', []))
-        print(f"  {lid}: {c}x{l}cm | area={a}cm2 | coords={coords}pts | conf={v.get('confidence',0):.0%}")
+        c = v.get('comprimento_cm', '-')
+        l = v.get('largura_cm', '-')
+        a = v.get('area_total_paineis_cm2', '-')
+        print(f"  {lid}: {c}x{l}cm | area={a}cm2 | conf={v.get('confidence',0):.0%} | {v.get('source','')}")
         count += 1
         if count >= 8:
             break
 
 
 def main():
-    parser = argparse.ArgumentParser(description='Extrai dados de lajes do LJ DXF')
+    parser = argparse.ArgumentParser(
+        description='Extrai dados de lajes dos DXFs estruturais (Fase-2)'
+    )
     parser.add_argument('--obra', required=True, help='Path para o diretorio da obra')
-    parser.add_argument('--pavimento', required=True, help='Identificador do pavimento')
+    parser.add_argument('--pavimento', default=None,
+                        help='Pavimento (opcional)')
     args = parser.parse_args()
     run(args.obra, args.pavimento)
 

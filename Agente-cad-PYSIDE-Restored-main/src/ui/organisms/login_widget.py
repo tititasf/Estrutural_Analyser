@@ -155,6 +155,7 @@ from PySide6.QtGui import QFont, QColor, QPalette
 
 from src.core.services.auth_service import AuthService
 from src.core.auth.models import UserProfile
+from src.ui.theme import Colors, Fonts, Radius
 
 class LoginWidget(QWidget):
     """
@@ -168,7 +169,7 @@ class LoginWidget(QWidget):
         self.auth_service = AuthService()
         self.setWindowTitle("TSF Projetos - Login")
         self.resize(400, 500)
-        self.setStyleSheet("background-color: #121212; color: #E0E0E0;")
+        self.setStyleSheet(f"background-color: {Colors.BG_DEEP}; color: {Colors.TEXT_PRIMARY};")
         
         self.init_ui()
 
@@ -183,22 +184,22 @@ class LoginWidget(QWidget):
         lbl_logo.setAlignment(Qt.AlignCenter)
         font_logo = QFont("Segoe UI", 24, QFont.Bold)
         lbl_logo.setFont(font_logo)
-        lbl_logo.setStyleSheet("color: #00E5FF; letter-spacing: 2px;")
+        lbl_logo.setStyleSheet(f"color: {Colors.ACCENT_BRAND}; letter-spacing: 2px;")
         layout.addWidget(lbl_logo)
         
         lbl_subtitle = QLabel("Structural Intelligence System")
         lbl_subtitle.setAlignment(Qt.AlignCenter)
-        lbl_subtitle.setStyleSheet("color: #888; font-size: 12px; margin-bottom: 20px;")
+        lbl_subtitle.setStyleSheet(f"color: {Colors.TEXT_SECONDARY}; font-size: {Fonts.SIZE_LG}; margin-bottom: 20px;")
         layout.addWidget(lbl_subtitle)
 
         # 2. Form Container
         form_frame = QFrame()
-        form_frame.setStyleSheet("""
-            QFrame {
-                background-color: #1E1E1E;
-                border: 1px solid #333;
-                border-radius: 8px;
-            }
+        form_frame.setStyleSheet(f"""
+            QFrame {{
+                background-color: {Colors.BG_PANEL};
+                border: 1px solid {Colors.BORDER_DEFAULT};
+                border-radius: {Radius.XL};
+            }}
         """)
         form_layout = QVBoxLayout(form_frame)
         form_layout.setContentsMargins(20, 30, 20, 30)
@@ -220,37 +221,37 @@ class LoginWidget(QWidget):
 
         # Checkbox Remember Me
         self.check_remember = QCheckBox("Manter Conectado")
-        self.check_remember.setStyleSheet("""
-            QCheckBox {
-                color: #AAA;
-                font-size: 13px;
+        self.check_remember.setStyleSheet(f"""
+            QCheckBox {{
+                color: {Colors.TEXT_PRIMARY};
+                font-size: {Fonts.SIZE_XL};
                 padding: 5px;
-            }
-            QCheckBox::indicator {
+            }}
+            QCheckBox::indicator {{
                 width: 18px;
                 height: 18px;
-            }
+            }}
         """)
         form_layout.addWidget(self.check_remember)
 
         # Button
         self.btn_login = QPushButton("ACESSAR SISTEMA")
         self.btn_login.setCursor(Qt.PointingHandCursor)
-        self.btn_login.setStyleSheet("""
-            QPushButton {
-                background-color: #0078D4;
-                color: white;
+        self.btn_login.setStyleSheet(f"""
+            QPushButton {{
+                background-color: {Colors.ACCENT_BLUE};
+                color: {Colors.TEXT_BRIGHT};
                 font-weight: bold;
-                border-radius: 4px;
+                border-radius: {Radius.MD};
                 padding: 12px;
                 border: none;
-            }
-            QPushButton:hover {
-                background-color: #0099FF;
-            }
-            QPushButton:pressed {
-                background-color: #005A9E;
-            }
+            }}
+            QPushButton:hover {{
+                background-color: {Colors.ACCENT_BLUE_HOVER};
+            }}
+            QPushButton:pressed {{
+                background-color: {Colors.ACCENT_BLUE};
+            }}
         """)
         self.btn_login.clicked.connect(self.handle_login)
         form_layout.addWidget(self.btn_login)
@@ -258,18 +259,18 @@ class LoginWidget(QWidget):
         # Register Button
         self.btn_register = QPushButton("CRIAR NOVA CONTA")
         self.btn_register.setCursor(Qt.PointingHandCursor)
-        self.btn_register.setStyleSheet("""
-            QPushButton {
+        self.btn_register.setStyleSheet(f"""
+            QPushButton {{
                 background-color: transparent;
-                color: #888;
-                font-size: 11px;
+                color: {Colors.TEXT_SECONDARY};
+                font-size: {Fonts.SIZE_MD};
                 border: none;
                 margin-top: 5px;
-            }
-            QPushButton:hover {
-                color: #00E5FF;
+            }}
+            QPushButton:hover {{
+                color: {Colors.ACCENT_BRAND};
                 text-decoration: underline;
-            }
+            }}
         """)
         self.btn_register.clicked.connect(self.handle_register)
         form_layout.addWidget(self.btn_register)
@@ -277,17 +278,17 @@ class LoginWidget(QWidget):
         # Confirm Button (OTP)
         self.btn_verify = QPushButton("CONFIRMAR CÓDIGO (E-MAIL)")
         self.btn_verify.setCursor(Qt.PointingHandCursor)
-        self.btn_verify.setStyleSheet("""
-            QPushButton {
+        self.btn_verify.setStyleSheet(f"""
+            QPushButton {{
                 background-color: transparent;
-                color: #555;
-                font-size: 10px;
+                color: {Colors.TEXT_MUTED};
+                font-size: {Fonts.SIZE_SM};
                 border: none;
                 margin-top: 2px;
-            }
-            QPushButton:hover {
-                color: #00E5FF;
-            }
+            }}
+            QPushButton:hover {{
+                color: {Colors.ACCENT_BRAND};
+            }}
         """)
         self.btn_verify.clicked.connect(self.handle_verify)
         form_layout.addWidget(self.btn_verify)
@@ -295,17 +296,17 @@ class LoginWidget(QWidget):
         # Resend Button
         self.btn_resend = QPushButton("REENVIAR E-MAIL DE CONFIRMAÇÃO")
         self.btn_resend.setCursor(Qt.PointingHandCursor)
-        self.btn_resend.setStyleSheet("""
-            QPushButton {
+        self.btn_resend.setStyleSheet(f"""
+            QPushButton {{
                 background-color: transparent;
-                color: #555;
-                font-size: 10px;
+                color: {Colors.TEXT_MUTED};
+                font-size: {Fonts.SIZE_SM};
                 border: none;
                 margin-top: 2px;
-            }
-            QPushButton:hover {
-                color: #FFB74D;
-            }
+            }}
+            QPushButton:hover {{
+                color: {Colors.ACCENT_WARNING};
+            }}
         """)
         self.btn_resend.clicked.connect(self.handle_resend)
         form_layout.addWidget(self.btn_resend)
@@ -315,23 +316,23 @@ class LoginWidget(QWidget):
         # Footer
         lbl_footer = QLabel("© 2026 Agente-cad-PYSIDE v1.0")
         lbl_footer.setAlignment(Qt.AlignCenter)
-        lbl_footer.setStyleSheet("color: #444; font-size: 10px;")
+        lbl_footer.setStyleSheet(f"color: {Colors.TEXT_MUTED}; font-size: {Fonts.SIZE_SM};")
         layout.addWidget(lbl_footer)
 
     def _input_style(self):
-        return """
-            QLineEdit {
-                background-color: #2D2D2D;
-                border: 1px solid #444;
-                border-radius: 4px;
+        return f"""
+            QLineEdit {{
+                background-color: {Colors.BG_CARD};
+                border: 1px solid {Colors.BORDER_INPUT};
+                border-radius: {Radius.MD};
                 padding: 10px;
-                color: white;
-                font-size: 14px;
-            }
-            QLineEdit:focus {
-                border: 1px solid #0078D4;
-                background-color: #333;
-            }
+                color: {Colors.TEXT_BRIGHT};
+                font-size: {Fonts.SIZE_XXL};
+            }}
+            QLineEdit:focus {{
+                border: 1px solid {Colors.ACCENT_BLUE};
+                background-color: {Colors.BG_HOVER};
+            }}
         """
 
     def handle_login(self):

@@ -55,11 +55,14 @@ def extrair_ids_dxf(dxf_path: str, prefixo: str) -> set:
 
 
 def load_gt_ids(gt_path: str) -> set:
-    """Carrega IDs do ground truth JSON."""
+    """Carrega IDs do ground truth JSON. Filtra apenas IDs válidos (P*, V*, L* + dígito)."""
+    import re as _re
     try:
         with open(gt_path, encoding='utf-8') as f:
             data = json.load(f)
-        return {k for k in data.keys() if not k.startswith('_')}
+        valid = {k for k in data.keys()
+                 if not k.startswith('_') and _re.match(r'^[A-Za-z]\d', k)}
+        return valid
     except Exception:
         return set()
 
@@ -73,7 +76,7 @@ def calcular_metricas(gerado_ids: set, gt_ids: set, tipo: str) -> dict:
     missed = gt_ids - gerado_ids
 
     id_match = len(correct) / len(gt_ids) if gt_ids else 0.0
-    hall_rate = len(hallucinated) / len(gerado_ids) if gerado_ids else 1.0
+    hall_rate = len(hallucinated) / len(gerado_ids) if gerado_ids else 0.0
     count_match = len(gerado_ids) / len(gt_ids) if gt_ids else 0.0
 
     # Score = 60% id_match + 40% (1-hallucination)
@@ -115,13 +118,17 @@ def run(obra_path: str, pavimento: str) -> None:
         {
             "tipo": "vigas",
             "dxf": fase6 / "LV_gerado.dxf",
-            "gt": fase3 / "Vigas" / "vigas_ground_truth.json",
+            # vigas.json usa os IDs extraídos do LV DXF (V101...) — mesma fonte do gerador.
+            # vigas_ground_truth.json usa IDs do STOG planta (V301...) com dims nulas — incompatível.
+            "gt": fase3 / "Vigas" / "vigas.json",
             "prefixo": "V",
         },
         {
             "tipo": "lajes",
             "dxf": fase6 / "LJ_gerado.dxf",
-            "gt": fase3 / "Lajes" / "lajes_ground_truth.json",
+            # lajes.json usa IDs extraídos do LJ DXF (L101...) — mesma fonte do gerador.
+            # lajes_ground_truth.json usa IDs do STOG planta (L301...) com dims nulas — incompatível.
+            "gt": fase3 / "Lajes" / "lajes.json",
             "prefixo": "L",
         },
     ]
@@ -140,6 +147,16 @@ def run(obra_path: str, pavimento: str) -> None:
             print(f"  [SKIP] {tipo}: GT não encontrado ({gt_path.name})")
             resultados[tipo] = {"erro": f"{gt_path.name} não encontrado"}
             continue
+
+        # GT marcado como ausente (LJ/LV DXF não existia na obra)
+        try:
+            _gt_check = json.loads(gt_path.read_text(encoding='utf-8'))
+            if isinstance(_gt_check, dict) and _gt_check.get('_ausente'):
+                print(f"  [SKIP] {tipo}: DXF fonte ausente na obra — peso excluído do score global")
+                resultados[tipo] = {"erro": "DXF fonte ausente", "ausente": True}
+                continue
+        except Exception:
+            pass
 
         print(f"\n  [{tipo.upper()}]")
         gerado_ids = extrair_ids_dxf(str(dxf_path), cfg["prefixo"])

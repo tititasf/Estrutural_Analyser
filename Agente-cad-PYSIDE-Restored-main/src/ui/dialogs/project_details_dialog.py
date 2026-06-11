@@ -5,6 +5,7 @@ from PySide6.QtWidgets import (QDialog, QVBoxLayout, QHBoxLayout, QLabel,
                                QSplitter, QStackedWidget, QFrame, QScrollArea, QHeaderView)
 from PySide6.QtCore import Qt, QSize, Signal
 from PySide6.QtGui import QColor, QFont, QIcon, QCursor
+from src.ui.theme import Colors, Fonts, Radius
 
 # Helper de ofuscação (mantido para compatibilidade, embora não usado logicamente no novo UI)
 def _get_obf_str(key):
@@ -18,21 +19,21 @@ class ProjectDetailsDialog(QDialog):
         self.setWindowTitle(f"VISION AI - Detalhamento: {project_data.get('name', 'Sem Nome')}")
         self.resize(1000, 700)
         self.setStyleSheet("""
-            QDialog { background: #121212; color: #e0e0e0; }
-            QLabel { color: #ccc; }
+            QDialog { background: {Colors.BG_DEEP}; color: {Colors.TEXT_PRIMARY}; }
+            QLabel { color: {Colors.TEXT_PRIMARY}; }
             QTreeWidget { 
-                background: #1e1e1e; 
-                border: 1px solid #333; 
+                background: {Colors.BG_PANEL}; 
+                border: 1px solid {Colors.BORDER_DEFAULT}; 
                 border-radius: 6px;
-                color: #ddd;
+                color: {Colors.TEXT_BRIGHT};
                 font-size: 13px;
                 padding: 5px;
             }
             QTreeWidget::item { padding: 4px; }
-            QTreeWidget::item:selected { background: #004d40; color: #fff; }
-            QTreeWidget::item:hover { background: #2c2c2c; }
+            QTreeWidget::item:selected { background: rgba(0,77,64,1); color: {Colors.TEXT_BRIGHT}; }
+            QTreeWidget::item:hover { background: {Colors.BG_CARD}; }
             
-            QSplitter::handle { background: #333; width: 2px; }
+            QSplitter::handle { background: {Colors.BG_CARD}; width: 2px; }
             
         """)
         
@@ -62,17 +63,17 @@ class ProjectDetailsDialog(QDialog):
         # Header
         header = QHBoxLayout()
         title = QLabel(f"📂 {self.project_data.get('name', 'PROJETO').upper()}")
-        title.setStyleSheet("font-size: 18px; font-weight: bold; color: white;")
+        title.setStyleSheet(f"font-size: 18px; font-weight: bold; color: {Colors.TEXT_BRIGHT};")
         header.addWidget(title)
         header.addStretch()
         
         # Global Stats Tags
         total = sum(len(v) for v in self.items_cache.values())
-        self._add_header_tag(header, "ITENS TOTAIS", str(total), "#00d4ff")
+        self._add_header_tag(header, "ITENS TOTAIS", str(total), Colors.ACCENT_PRIMARY)
         
         # Mocking reuse calculation
         reuse_pct = "12%" 
-        self._add_header_tag(header, "REAPROVEITAMENTO", reuse_pct, "#00e676")
+        self._add_header_tag(header, "REAPROVEITAMENTO", reuse_pct, Colors.ACCENT_SUCCESS_ALT)
         
         main_layout.addLayout(header)
         main_layout.addSpacing(15)
@@ -122,7 +123,7 @@ class ProjectDetailsDialog(QDialog):
         l.addWidget(lbl_k)
         
         lbl_v = QLabel(value)
-        lbl_v.setStyleSheet("color: white; font-size: 11px; font-weight: bold;")
+        lbl_v.setStyleSheet(f"color: {Colors.TEXT_BRIGHT}; font-size: 11px; font-weight: bold;")
         l.addWidget(lbl_v)
         
         layout.addWidget(container)
@@ -143,7 +144,7 @@ class ProjectDetailsDialog(QDialog):
         btn_dl.setFixedSize(24, 24)
         btn_dl.setFlat(True)
         btn_dl.setCursor(Qt.PointingHandCursor)
-        btn_dl.setStyleSheet("color: #00d4ff; font-weight: bold;")
+        btn_dl.setStyleSheet(f"color: {Colors.ACCENT_PRIMARY}; font-weight: bold;")
         btn_dl.setToolTip("Baixar DXF")
         btn_dl.clicked.connect(lambda: self.download_requested.emit(dxf_name))
         
@@ -171,7 +172,7 @@ class ProjectDetailsDialog(QDialog):
         l = QVBoxLayout(w)
         l.setAlignment(Qt.AlignCenter)
         lbl = QLabel("Selecione um item na árvore para ver os detalhes.")
-        lbl.setStyleSheet("color: #666; font-size: 14px;")
+        lbl.setStyleSheet(f"color: {Colors.TEXT_DIM}; font-size: 14px;")
         l.addWidget(lbl)
         return w
 
@@ -194,7 +195,7 @@ class ProjectDetailsDialog(QDialog):
         # Header
         name = item_data.get('label') or item_data.get('name') or "?"
         header = QLabel(f"Detalhes do Elemento: {name}")
-        header.setStyleSheet("font-size: 18px; font-weight: bold; color: white; margin-bottom: 20px;")
+        header.setStyleSheet(f"font-size: 18px; font-weight: bold; color: {Colors.TEXT_BRIGHT}; margin-bottom: 20px;")
         self.details_layout.addWidget(header)
         
         # Info Grid
@@ -205,7 +206,7 @@ class ProjectDetailsDialog(QDialog):
         # Status Tag
         is_blue = item_data.get('is_fully_validated', False)
         status = "VALIDADO (AZUL)" if is_blue else "EM ANÁLISE"
-        s_color = "#00d4ff" if is_blue else "#ffab00"
+        s_color = Colors.ACCENT_PRIMARY if is_blue else Colors.ACCENT_WARNING_ALT
         
         lbl_st = QLabel(status)
         lbl_st.setStyleSheet(f"background: {s_color}22; color: {s_color}; padding: 6px; border-radius: 4px; font-weight: bold;")
@@ -214,7 +215,7 @@ class ProjectDetailsDialog(QDialog):
         
         # Validated Fields Tags
         lbl_f = QLabel("Campos Identificados:")
-        lbl_f.setStyleSheet("color: #ccc; font-weight: bold;")
+        lbl_f.setStyleSheet(f"color: {Colors.TEXT_PRIMARY}; font-weight: bold;")
         self.details_layout.addWidget(lbl_f)
         
         fields_container = QWidget()
@@ -230,7 +231,7 @@ class ProjectDetailsDialog(QDialog):
             # Or just list them
             for f in fields:
                 tag = QLabel(f"✔ {f}")
-                tag.setStyleSheet("background: #2e7d32; color: white; padding: 4px 8px; border-radius: 12px; margin: 2px;")
+                tag.setStyleSheet(f"background: rgba(46,125,50,1); color: {Colors.TEXT_BRIGHT}; padding: 4px 8px; border-radius: 12px; margin: 2px;")
                 self.details_layout.addWidget(tag)
 
         self.details_layout.addStretch()

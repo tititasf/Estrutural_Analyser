@@ -151,6 +151,7 @@ def _get_obf_str(key):
 from PySide6.QtWidgets import (QDialog, QVBoxLayout, QLabel, QPlainTextEdit, 
                                QDialogButtonBox, QWidget)
 from PySide6.QtCore import Qt
+from src.ui.theme import Colors, Fonts, Radius
 
 class InterpretationDialog(QDialog):
     def __init__(self, parent=None, field_label="", current_prompt="", current_patterns="", current_patterns_na=""):
@@ -159,25 +160,25 @@ class InterpretationDialog(QDialog):
         self.resize(600, 600)
         self.setStyleSheet("""
             QDialog {
-                background-color: #2b2b2b;
-                color: #ffffff;
+                background-color: {Colors.BG_PANEL};
+                color: {Colors.TEXT_BRIGHT};
             }
             QLabel {
-                color: #e0e0e0;
+                color: {Colors.TEXT_PRIMARY};
                 font-weight: bold;
                 font-size: 14px;
                 margin-top: 10px;
             }
             QPlainTextEdit {
-                background-color: #1e1e1e;
-                color: #a0ffaa;
-                border: 1px solid #444;
+                background-color: {Colors.BG_PANEL};
+                color: {Colors.ACCENT_SUCCESS_ALT};
+                border: 1px solid {Colors.BORDER_INPUT};
                 border-radius: 4px;
                 padding: 5px;
                 font-family: Consolas, monospace;
             }
             QPlainTextEdit:focus {
-                border: 1px solid #00cc66;
+                border: 1px solid {Colors.ACCENT_SUCCESS_ALT};
             }
         """)
 
@@ -206,7 +207,7 @@ class InterpretationDialog(QDialog):
         self.txt_patterns_na = QPlainTextEdit()
         self.txt_patterns_na.setPlaceholderText("Descreva quando este campo deve ser ignorado ou não se aplica...")
         self.txt_patterns_na.setPlainText(current_patterns_na)
-        self.txt_patterns_na.setStyleSheet("color: #ffaaaa;") # Leve tom avermelhado para diferenciar/alertar use
+        self.txt_patterns_na.setStyleSheet("color: rgba(255,170,170,1);") # Leve tom avermelhado para diferenciar/alertar use
 
         layout.addWidget(lbl_patterns_na)
         layout.addWidget(self.txt_patterns_na)

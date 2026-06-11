@@ -26,6 +26,47 @@ import sys
 from datetime import datetime
 from pathlib import Path
 
+# ── Item 4: MTEXT format-code stripper ───────────────────────────────────────
+# MTEXT raw group-code 1 embeds control sequences like {\fRomans|b0;P1\H0.7x;{30}}
+# that our streaming parser previously passed through verbatim.
+_RE_MTEXT_COLOR    = re.compile(r'\\[Cc]\d+;')
+_RE_MTEXT_HEIGHT   = re.compile(r'\\[Hh][\d.]+[xX]?;?')
+_RE_MTEXT_WIDTH    = re.compile(r'\\[Ww][\d.]+;')
+_RE_MTEXT_OBLIQUE  = re.compile(r'\\[Qq][\d.]+;')
+_RE_MTEXT_TRACKING = re.compile(r'\\[Tt][\d.]+;')
+_RE_MTEXT_ALIGN    = re.compile(r'\\[Aa]\d+;')
+_RE_MTEXT_FONT     = re.compile(r'\\[fF][^|;{}]*(?:\|[^;{}]*)*;')
+_RE_MTEXT_PARA_SET = re.compile(r'\\p[ilqt][^;]*;')  # \pi, \pl, \pq, \pt
+_RE_MTEXT_STACK    = re.compile(r'\\S([^;^{}]*)\^([^;{}]*);')
+_RE_MTEXT_TOGGLE   = re.compile(r'\\[LlOoKk]')
+_RE_MTEXT_NBSP     = re.compile(r'\\~')
+_RE_MTEXT_PARA     = re.compile(r'\\[Pp]')
+_RE_MTEXT_ESCSEMI  = re.compile(r'\\;')
+
+
+def _clean_mtext_format(raw: str) -> str:
+    """Limpa códigos de formatação MTEXT deixando apenas o texto puro."""
+    s = raw
+    s = _RE_MTEXT_PARA.sub('\n', s)       # \P → quebra de parágrafo
+    s = _RE_MTEXT_NBSP.sub(' ', s)         # \~ → espaço normal
+    s = _RE_MTEXT_STACK.sub(r'\1', s)      # \S{a}^{b}; → mantém numerador
+    s = _RE_MTEXT_COLOR.sub('', s)
+    s = _RE_MTEXT_HEIGHT.sub('', s)
+    s = _RE_MTEXT_WIDTH.sub('', s)
+    s = _RE_MTEXT_OBLIQUE.sub('', s)
+    s = _RE_MTEXT_TRACKING.sub('', s)
+    s = _RE_MTEXT_ALIGN.sub('', s)
+    s = _RE_MTEXT_FONT.sub('', s)
+    s = _RE_MTEXT_PARA_SET.sub('', s)
+    s = _RE_MTEXT_TOGGLE.sub('', s)
+    s = _RE_MTEXT_ESCSEMI.sub(';', s)
+    s = s.replace('{', '').replace('}', '')
+    s = s.replace('%%c', 'Ø').replace('%%C', 'Ø')
+    s = s.replace('%%d', '°').replace('%%D', '°')
+    s = s.replace('%%p', '±').replace('%%P', '±')
+    return s.strip()
+# ─────────────────────────────────────────────────────────────────────────────
+
 
 def _load_ezdxf():
     try:
@@ -73,7 +114,10 @@ def _stream_text_entities(dxf_path: Path) -> list[dict]:
                     if c == '8':
                         entity['layer'] = val
                     elif c == '1':
-                        entity['text'] = val.replace('\\P', '\n').replace('\\p', '\n')
+                        if etype == 'MTEXT':
+                            entity['text'] = _clean_mtext_format(val)
+                        else:
+                            entity['text'] = val.replace('\\P', '\n').replace('\\p', '\n')
                     elif c == '10' and entity['x'] is None:
                         try:
                             entity['x'] = float(val)
@@ -105,10 +149,11 @@ def _find_dxf(rev_dir: Path, pattern: str) -> Path | None:
     return None
 
 
-def _extract_pl_data(dxf_path: Path, ezdxf=None) -> tuple[dict, float | None]:
+def _extract_pl_data(dxf_path: Path, ezdxf=None) -> tuple[dict, float | None, dict]:
     """
     Lê PL DXF via parser streaming (sem ezdxf) — usa ~1% da RAM do ezdxf.
-    Extrai pilar_data e pe_direito em single-pass.
+    Extrai pilar_data, pe_direito e bh_dims em single-pass.
+    Retorna: (pilar_data, pe_direito, bh_dims)
     """
     entities = _stream_text_entities(dxf_path)
 
@@ -162,7 +207,8 @@ def _extract_pl_data(dxf_path: Path, ezdxf=None) -> tuple[dict, float | None]:
             else:
                 pilar_data[pid]['faces'].update(data['faces'])
 
-    return pilar_data, pe_direito
+    bh_dims = _extract_bh_dims_spatial(entities)
+    return pilar_data, pe_direito, bh_dims
 
 
 _VEM_DA_VIGA = re.compile(r'VEM\s+DA\s+V\d+', re.IGNORECASE)
@@ -344,30 +390,116 @@ def _extract_laje_ids_from_lj(dxf_path: Path, ezdxf=None) -> dict:
     return laje_data
 
 
-def build_pilares_ground_truth(pilar_data: dict, pe_direito: float | None, pavimento: str) -> dict:
+# ── Item 1: B×H spatial extraction via KDTree ────────────────────────────────
+_RE_BH = re.compile(r'\b(\d{2,3})\s*[xX]\s*(\d{2,3})\b')  # "30x50", "25 X 60"
+_RE_PID_POS = re.compile(r'[Pp](\d+)[._]([A-H])')           # "P12.A"
+
+
+def _extract_bh_dims_spatial(entities: list[dict]) -> dict:
+    """Extrai dimensões B×H de pilares usando proximidade espacial (KDTree).
+
+    Retorna dict: {pid: {'b': float, 'h': float, 'conf': float, 'cx': float, 'cy': float}}
+    cx/cy = centróide do grupo de labels do pilar em coordenadas DXF (cm).
+    Requer scipy. Silencia graciosamente se indisponível.
+    """
+    try:
+        from scipy.spatial import KDTree
+        import numpy as np
+    except ImportError:
+        return {}
+
+    # 1. Coletar textos de dimensão com posição (ex: "30x50" → b=30, h=50)
+    dim_pts, dim_vals = [], []
+    for ent in entities:
+        if ent.get('x') is None or ent.get('y') is None:
+            continue
+        m = _RE_BH.search(ent['text'])
+        if m:
+            b, h = int(m.group(1)), int(m.group(2))
+            if 10 <= b <= 300 and 10 <= h <= 300:
+                dim_pts.append([ent['x'], ent['y']])
+                dim_vals.append((float(b), float(h)))
+
+    # 2. Agrupar posições de labels de pilar por ID (centróide do grupo de faces)
+    pid_positions: dict[str, list] = {}
+    for ent in entities:
+        if ent.get('x') is None or ent.get('y') is None:
+            continue
+        for m in _RE_PID_POS.finditer(ent['text']):
+            pid = f'P{m.group(1)}'
+            pid_positions.setdefault(pid, []).append([ent['x'], ent['y']])
+
+    if not pid_positions:
+        return {}
+
+    # 3. Para cada pilar, calcular centróide e buscar dimensão mais próxima
+    # cx/cy são preservados mesmo quando dim não encontrada (para B2/LV-B3 em motor_fase4)
+    MAX_DIST = 600.0  # unidades DXF (~60 cm a escala 1:10) — ajustar se necessário
+    dim_tree = KDTree(np.array(dim_pts)) if dim_pts else None
+    result = {}
+    for pid, positions in pid_positions.items():
+        centroid = np.mean(positions, axis=0)
+        cx = round(float(centroid[0]), 2)
+        cy = round(float(centroid[1]), 2)
+
+        if dim_tree is not None:
+            dist, idx = dim_tree.query(centroid, k=1)
+            if dist <= MAX_DIST:
+                b, h = dim_vals[idx]
+                # Confidence cresce conforme proximidade: máx 0.78 a dist=0, mín 0.50 a dist=MAX
+                conf = round(0.78 - 0.28 * (dist / MAX_DIST), 2)
+                result[pid] = {'b': b, 'h': h, 'conf': conf, 'dist': round(float(dist), 1),
+                               'cx': cx, 'cy': cy}
+                continue
+
+        # Sem dimensão próxima, mas centróide disponível para georeferência
+        result[pid] = {'b': None, 'h': None, 'conf': 0.30, 'dist': None, 'cx': cx, 'cy': cy}
+
+    return result
+# ─────────────────────────────────────────────────────────────────────────────
+
+
+def build_pilares_ground_truth(pilar_data: dict, pe_direito: float | None, pavimento: str,
+                               bh_dims: dict | None = None) -> dict:
     """Gera fichas de pilares em formato Fase-3."""
     altura = pe_direito if pe_direito else 280.0
     fichas = {}
     def _pilar_sort_key(x):
         digits = ''.join(filter(str.isdigit, x[1:]))
         return (int(digits) if digits else 0, x)
+    bh = bh_dims or {}
+    n_bh_found = 0
     for pid in sorted(pilar_data.keys(), key=_pilar_sort_key):
+        spatial = bh.get(pid)
+        if spatial:
+            b_val = spatial['b']
+            h_val = spatial['h']
+            conf  = spatial['conf']
+            nota  = f"B×H extraído por proximidade espacial (dist={spatial['dist']} u)"
+            n_bh_found += 1
+        else:
+            b_val, h_val, conf = None, None, 0.30
+            nota = "B e H requerem verificação manual — nenhum texto dimensão encontrado próximo"
         fichas[pid] = {
-            "b": None,       # B: requer análise DXF espacial complexa
-            "h": None,       # H: requer análise DXF espacial complexa
+            "b": b_val,
+            "h": h_val,
             "altura": altura,
-            "confidence": 0.30,   # baixo — dims B/H não extraídas automaticamente
+            "confidence": conf,
             "source": "engenharia-reversa-ezdxf",
             "faces_encontradas": sorted(pilar_data[pid]['faces']),
-            "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente"
+            "nota": nota,
+            # Centróide do pilar em coordenadas DXF (cm) — usado por motor_fase4 para B2/LV-B3
+            "cx": spatial.get('cx') if spatial else None,
+            "cy": spatial.get('cy') if spatial else None,
         }
     fichas["_meta"] = {
         "total": len(pilar_data),
+        "bh_extraidos": n_bh_found,
         "obra": "engenharia-reversa",
         "pavimento": pavimento,
         "pe_direito_cm": pe_direito,
         "extraido_em": datetime.now().strftime("%Y-%m-%d"),
-        "confidence_nota": "IDs=ALTA | altura=MEDIA | B/H=BAIXA(requer revisao)"
+        "confidence_nota": "IDs=ALTA | altura=MEDIA | B/H=ESPACIAL(conf≈0.50-0.78) ou BAIXA(conf=0.30)"
     }
     return fichas
 
@@ -478,8 +610,10 @@ def run(obra_path: str, pavimento: str) -> None:
     pl_dxf = disc_paths.get('PL') or _find_dxf(rev_dir, "- PL -") or _find_dxf(rev_dir, "PL -") or _find_dxf(rev_dir, "PL_")
     if pl_dxf:
         print(f"[INFO] PL DXF: {pl_dxf.name}")
-        pilar_data, pe_direito = _extract_pl_data(pl_dxf, ezdxf)
-        pilares_gt = build_pilares_ground_truth(pilar_data, pe_direito, pavimento)
+        pilar_data, pe_direito, bh_dims = _extract_pl_data(pl_dxf, ezdxf)
+        if bh_dims:
+            print(f"[INFO] B×H spatial: {len(bh_dims)}/{len(pilar_data)} pilares com dims encontradas")
+        pilares_gt = build_pilares_ground_truth(pilar_data, pe_direito, pavimento, bh_dims)
         out_p = out_dir / "Pilares" / "pilares_ground_truth.json"
         out_p.parent.mkdir(parents=True, exist_ok=True)
         with open(out_p, 'w', encoding='utf-8') as f:
@@ -529,8 +663,9 @@ def run(obra_path: str, pavimento: str) -> None:
 
     # --- Resumo ---
     n_pilares = pilares_gt.get("_meta", {}).get("total", 0) if pilares_gt else 0
-    print(f"[INFO] === RESULTADO: {n_pilares} pilares (ground truth) ===")
-    print(f"[INFO] NOTA: IDs e count são CONFIÁVEIS. B/H requerem revisão manual ou análise visual.")
+    n_bh = pilares_gt.get("_meta", {}).get("bh_extraidos", 0) if pilares_gt else 0
+    print(f"[INFO] === RESULTADO: {n_pilares} pilares | B×H: {n_bh}/{n_pilares} extraídos ===")
+    print(f"[INFO] NOTA: IDs=ALTA | B/H={('ESPACIAL conf~0.5-0.78' if n_bh else 'BAIXA - revisao manual')}.")
     print(f"[INFO] Ground truth salvo em: {out_dir}")
 
 

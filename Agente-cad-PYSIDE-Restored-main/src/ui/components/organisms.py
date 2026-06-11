@@ -1,6 +1,7 @@
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QScrollArea, QFrame, QSplitter, QLabel, QTreeWidget, QTreeWidgetItem, QListWidget, QPushButton
 from PySide6.QtCore import Qt, Signal
 from .atoms import NavButton, MetricLabel, AISuggestionBox, SyncToggleButton
+from src.ui.theme import Colors, Fonts, Radius
 from .molecules_diagnostic import FloorListItem, ViewShortcutItem, EntityRow
 from .molecules_comparison import ScenarioSelector, ConflictCard, StressBarChart
 from src.ui.canvas import CADCanvas
@@ -16,33 +17,33 @@ class DiagnosticSidebar(QFrame):
         super().__init__()
         self.db = db
         self.setFixedWidth(280)
-        self.setStyleSheet("""
-            DiagnosticSidebar { 
-                background: #1e1e1e; 
-                border-right: 1px solid #333; 
-            }
-            QTreeWidget {
+        self.setStyleSheet(f"""
+            DiagnosticSidebar {{
+                background: {Colors.BG_PANEL};
+                border-right: 1px solid {Colors.BORDER_DEFAULT};
+            }}
+            QTreeWidget {{
                 background: transparent;
                 border: none;
-                color: #ddd;
-                font-size: 12px;
-            }
-            QTreeWidget::item {
+                color: {Colors.TEXT_PRIMARY};
+                font-size: {Fonts.SIZE_LG};
+            }}
+            QTreeWidget::item {{
                 padding: 8px;
-                border-bottom: 1px solid #2a2a2a;
-            }
-            QTreeWidget::item:selected {
-                background: #2a2a3e;
-                color: #00d4ff;
-            }
-            QHeaderView::section {
-                background: #252528;
-                color: #666;
+                border-bottom: 1px solid {Colors.BORDER_SUBTLE};
+            }}
+            QTreeWidget::item:selected {{
+                background: {Colors.BG_HOVER};
+                color: {Colors.ACCENT_PRIMARY};
+            }}
+            QHeaderView::section {{
+                background: {Colors.BG_SURFACE};
+                color: {Colors.TEXT_DIM};
                 padding: 5px;
-                font-size: 10px;
+                font-size: {Fonts.SIZE_SM};
                 font-weight: bold;
                 border: none;
-            }
+            }}
         """)
         
         layout = QVBoxLayout(self)
@@ -52,10 +53,10 @@ class DiagnosticSidebar(QFrame):
         # 1. Header
         header = QFrame()
         header.setFixedHeight(50)
-        header.setStyleSheet("border-bottom: 1px solid #333; background: #252528;")
+        header.setStyleSheet(f"border-bottom: 1px solid {Colors.BORDER_DEFAULT}; background: {Colors.BG_SURFACE};")
         head_layout = QHBoxLayout(header)
         lbl_head = QLabel("PROJETOS E ENTRADAS")
-        lbl_head.setStyleSheet("color: #aaa; font-weight: bold; font-size: 11px;")
+        lbl_head.setStyleSheet(f"color: {Colors.TEXT_PRIMARY}; font-weight: bold; font-size: {Fonts.SIZE_MD};")
         head_layout.addWidget(lbl_head)
         
         head_layout.addStretch()
@@ -64,9 +65,9 @@ class DiagnosticSidebar(QFrame):
         btn_refresh.setFixedSize(24, 24)
         btn_refresh.setCursor(Qt.PointingHandCursor)
         btn_refresh.setToolTip("Atualizar lista de obras")
-        btn_refresh.setStyleSheet("""
-            QPushButton { background: transparent; color: #666; border: none; font-size: 14px; }
-            QPushButton:hover { color: #00d4ff; }
+        btn_refresh.setStyleSheet(f"""
+            QPushButton {{ background: transparent; color: {Colors.TEXT_DIM}; border: none; font-size: 14px; }}
+            QPushButton:hover {{ color: {Colors.ACCENT_PRIMARY}; }}
         """)
         btn_refresh.clicked.connect(self.refresh)
         head_layout.addWidget(btn_refresh)
@@ -78,24 +79,18 @@ class DiagnosticSidebar(QFrame):
         self.tree.setHeaderLabel("OBRAS / ARQUIVOS BRUTOS")
         self.tree.setIndentation(15)
         self.tree.itemDoubleClicked.connect(self._on_item_double_clicked)
+        self.tree.itemActivated.connect(self._on_item_double_clicked)  # Enter key também abre
         layout.addWidget(self.tree)
         
         # 3. Footer / Stats
         self.lbl_stats = QLabel("Nenhuma obra carregada")
-        self.lbl_stats.setStyleSheet("color: #555; font-size: 10px; padding: 10px;")
+        self.lbl_stats.setStyleSheet(f"color: {Colors.TEXT_MUTED}; font-size: {Fonts.SIZE_SM}; padding: 10px;")
         layout.addWidget(self.lbl_stats)
 
     def set_database(self, db):
         self.db = db
         self.refresh()
 
-    def refresh(self):
-        """Atualiza a árvore com obras e documentos brutos filtrados."""
-        if not self.db:
-            return
-            
-        self.tree.clear()
-        
     def refresh(self):
         """Atualiza a árvore com obras e documentos brutos filtrados."""
         if not self.db:
@@ -202,55 +197,61 @@ class TechSheetPanel(QFrame):
     """
     filter_requested = Signal(str, str) # type, value
     extract_requested = Signal(str) # mode ('clean' or 'detail')
-    
+    apply_fix_requested = Signal()   # APPLY FIX — conectado em DiagnosticHub
+
     def __init__(self):
         super().__init__()
         self.setFixedWidth(300)
-        self.setStyleSheet("background: #1e1e1e; border-left: 1px solid #333;")
-        
+        self.setStyleSheet(f"background: {Colors.BG_PANEL}; border-left: 1px solid {Colors.BORDER_DEFAULT};")
+
         layout = QVBoxLayout(self)
         layout.setSpacing(10)
         layout.setContentsMargins(10, 10, 10, 10)
-        
+
         # 1. AI / Action Header
-        btn_ai_fix = QPushButton("🤖 APPLY FIX (AI Analysis)")
-        btn_ai_fix.setCursor(Qt.PointingHandCursor)
-        btn_ai_fix.setFixedHeight(40)
-        btn_ai_fix.setStyleSheet("""
-            QPushButton {
-                background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 #0078d4, stop:1 #00b4d4);
-                color: white; font-weight: bold; border: none; border-radius: 4px;
-                font-size: 12px;
-            }
-            QPushButton:hover { background: #0099ff; }
+        self.btn_ai_fix = QPushButton("🤖 APPLY FIX (AI Analysis)")
+        self.btn_ai_fix.setCursor(Qt.PointingHandCursor)
+        self.btn_ai_fix.setFixedHeight(40)
+        self.btn_ai_fix.setToolTip(
+            "Aplica estratégia de limpeza ao DXF carregado e re-renderiza.\n"
+            "Salva resultado filtrado em Fase-2_Triagem/ da obra ativa."
+        )
+        self.btn_ai_fix.setStyleSheet(f"""
+            QPushButton {{
+                background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 {Colors.ACCENT_BLUE}, stop:1 {Colors.ACCENT_TEAL});
+                color: {Colors.TEXT_BRIGHT}; font-weight: bold; border: none; border-radius: {Radius.MD};
+                font-size: {Fonts.SIZE_LG};
+            }}
+            QPushButton:hover {{ background: {Colors.ACCENT_BLUE_HOVER}; }}
         """)
-        layout.addWidget(btn_ai_fix)
+        self.btn_ai_fix.clicked.connect(self.apply_fix_requested)
+        layout.addWidget(self.btn_ai_fix)
         
         layout.addWidget(self._create_divider())
 
         # 2. Listas de Saída (Stage 1 -> Stage 2)
         lbl_outputs = QLabel("OUTPUTS / TRIAGEM (FASE 2)")
-        lbl_outputs.setStyleSheet("color: #aaa; font-weight: bold; font-size: 10px; margin-top: 10px;")
+        lbl_outputs.setStyleSheet(f"color: {Colors.TEXT_PRIMARY}; font-weight: bold; font-size: {Fonts.SIZE_SM}; margin-top: 10px;")
         layout.addWidget(lbl_outputs)
         
         # Lista A: Estruturais Limpos
         self.list_clean_struct = QListWidget()
         self.list_clean_struct.addItem("1-pavimento_clean.dxf (Exemplo)")
-        self.list_clean_struct.setStyleSheet("background: #252528; border: 1px solid #444; border-radius: 4px;")
+        self.list_clean_struct.setStyleSheet(f"background: {Colors.BG_SURFACE}; border: 1px solid {Colors.BORDER_INPUT}; border-radius: {Radius.MD};")
         
         layout.addWidget(QLabel("🏗️ Estruturais Pavimentos Limpos"))
         layout.addWidget(self.list_clean_struct)
         
         # Lista B: Detalhamentos
         self.list_details = QListWidget()
-        self.list_details.setStyleSheet("background: #252528; border: 1px solid #444; border-radius: 4px;")
+        self.list_details.setStyleSheet(f"background: {Colors.BG_SURFACE}; border: 1px solid {Colors.BORDER_INPUT}; border-radius: {Radius.MD};")
         
         layout.addWidget(QLabel("📐 Detalhamentos Específicos"))
         layout.addWidget(self.list_details)
         
         # Lista C: Recortes Finalizados
         self.list_finalized = QListWidget()
-        self.list_finalized.setStyleSheet("background: #252528; border: 1px solid #444; border-radius: 4px;")
+        self.list_finalized.setStyleSheet(f"background: {Colors.BG_SURFACE}; border: 1px solid {Colors.BORDER_INPUT}; border-radius: {Radius.MD};")
         
         layout.addWidget(QLabel("✅ Recortes de Itens Finalizados"))
         layout.addWidget(self.list_finalized)
@@ -259,7 +260,7 @@ class TechSheetPanel(QFrame):
         
         # 3. Ferramentas de Extração
         lbl_tools = QLabel("FERRAMENTAS DE EXTRAÇÃO")
-        lbl_tools.setStyleSheet("color: #aaa; font-weight: bold; font-size: 10px; margin-top: 5px;")
+        lbl_tools.setStyleSheet(f"color: {Colors.TEXT_PRIMARY}; font-weight: bold; font-size: {Fonts.SIZE_SM}; margin-top: 5px;")
         layout.addWidget(lbl_tools)
         
         tools_layout = QHBoxLayout()
@@ -274,11 +275,11 @@ class TechSheetPanel(QFrame):
         
         for btn in [btn_cut_clean, btn_cut_detail, btn_cut_finalized]:
             btn.setFixedHeight(45)
-            btn.setStyleSheet("""
-                QPushButton {
-                    background: #2d2d30; border: 1px solid #555; color: #ddd; border-radius: 4px; font-size: 10px;
-                }
-                QPushButton:hover { background: #3e3e42; border-color: #777; }
+            btn.setStyleSheet(f"""
+                QPushButton {{
+                    background: {Colors.BORDER_PANEL}; border: 1px solid {Colors.TEXT_MUTED}; color: {Colors.TEXT_PRIMARY}; border-radius: {Radius.MD}; font-size: {Fonts.SIZE_SM};
+                }}
+                QPushButton:hover {{ background: {Colors.BG_HOVER}; border-color: {Colors.TEXT_SECONDARY}; }}
             """)
             tools_layout.addWidget(btn)
             
@@ -287,7 +288,7 @@ class TechSheetPanel(QFrame):
         # 4. Filtros Rápidos (Container Dinâmico)
         layout.addWidget(self._create_divider())
         lbl_dynamic = QLabel("🎛️ TRIAGEM POR PADRÕES")
-        lbl_dynamic.setStyleSheet("color: #00E5FF; font-weight: bold; font-size: 10px; margin-top: 5px;")
+        lbl_dynamic.setStyleSheet(f"color: {Colors.ACCENT_BRAND}; font-weight: bold; font-size: {Fonts.SIZE_SM}; margin-top: 5px;")
         layout.addWidget(lbl_dynamic)
         
         # Scroll para filtros se houver muitos layers
@@ -329,19 +330,19 @@ class TechSheetPanel(QFrame):
 
     def _add_filter_group(self, title, f_type, items, labels=None):
         lbl = QLabel(title)
-        lbl.setStyleSheet("color: #777; font-size: 9px; font-weight: bold; margin-top: 8px; padding-left: 5px;")
+        lbl.setStyleSheet(f"color: {Colors.TEXT_DIM}; font-size: {Fonts.SIZE_XS}; font-weight: bold; margin-top: 8px; padding-left: 5px;")
         self.filters_layout.addWidget(lbl)
         
         for val in items:
             display_name = labels.get(val, str(val)) if labels else str(val)
             btn = QPushButton(display_name)
             btn.setToolTip(f"Filtrar por {f_type}: {val}")
-            btn.setStyleSheet("""
-                QPushButton {
-                    text-align: left; padding: 4px 8px; font-size: 10px;
-                    background: #252528; border: 1px solid #333; color: #bbb;
-                }
-                QPushButton:hover { background: #333336; color: #fff; border-color: #00E5FF; }
+            btn.setStyleSheet(f"""
+                QPushButton {{
+                    text-align: left; padding: 4px 8px; font-size: {Fonts.SIZE_SM};
+                    background: {Colors.BG_SURFACE}; border: 1px solid {Colors.BORDER_DEFAULT}; color: {Colors.TEXT_PRIMARY};
+                }}
+                QPushButton:hover {{ background: {Colors.BG_HOVER}; color: {Colors.TEXT_BRIGHT}; border-color: {Colors.ACCENT_PRIMARY}; }}
             """)
             # Fix mapping for color filters
             btn.clicked.connect(lambda _, t=f_type, v=val: self.filter_requested.emit(t, str(v)))
@@ -350,7 +351,7 @@ class TechSheetPanel(QFrame):
     def _create_divider(self):
         frame = QFrame()
         frame.setFrameShape(QFrame.HLine)
-        frame.setStyleSheet("color: #333;")
+        frame.setStyleSheet(f"color: {Colors.BORDER_DEFAULT};")
         return frame
 
 class DualCanvasManager(QWidget):
@@ -369,7 +370,7 @@ class DualCanvasManager(QWidget):
         # Toolbar de Controle
         toolbar = QFrame()
         toolbar.setFixedHeight(45)
-        toolbar.setStyleSheet("background: #252525; border-bottom: 1px solid #444;")
+        toolbar.setStyleSheet(f"background: {Colors.BG_CARD}; border-bottom: 1px solid {Colors.BORDER_INPUT};")
         tb_layout = QHBoxLayout(toolbar)
         
         tb_layout.addWidget(ScenarioSelector("BASE MODEL"))

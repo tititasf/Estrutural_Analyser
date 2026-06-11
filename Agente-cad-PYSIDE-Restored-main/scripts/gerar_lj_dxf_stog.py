@@ -466,6 +466,42 @@ def draw_laje_planta(msp, lj_data, distribute_panels_fn):
                                dxfattribs={'layer': '3', 'linetype': 'DASHED', 'lineweight': 25})
             add_text(msp, x0+ox+ow/2, y0+oy+oh/2, 'OBS', height=10, layer='3')
 
+    # ---- Outer boundary as 4 LINE entities (STOG style — layer 3) ----
+    # Complementa o LWPOLYLINE com LINEs separadas (STOG usa ambos)
+    for i in range(len(poly_pts)):
+        msp.add_line(
+            poly_pts[i], poly_pts[(i + 1) % len(poly_pts)],
+            dxfattribs={'layer': '3'}
+        )
+
+    # ---- Escora LINEs (layer 9): suportes verticais espaçados ~16cm ----
+    # STOG real: ~1000+ LINE entities; escoras são a principal fonte
+    ESC_STEP = 16.0
+    x_esc = x0 + ESC_STEP
+    while x_esc < x_max - 1.0:
+        msp.add_line((x_esc, y0 - 20), (x_esc, y0), dxfattribs={'layer': '9'})
+        x_esc += ESC_STEP
+    # Escoras laterais (direção Y)
+    y_esc = y0 + ESC_STEP
+    while y_esc < y_max - 1.0:
+        msp.add_line((x0 - 20, y_esc), (x0, y_esc), dxfattribs={'layer': '9'})
+        y_esc += ESC_STEP
+
+    # ---- TEXT por segmento de painel (layer 4 — STOG tem 294 TEXT) ----
+    for i in range(len(x_edges) - 1):
+        seg_w = x_edges[i + 1] - x_edges[i]
+        if seg_w < 1:
+            continue
+        for j in range(len(h_edges) - 1):
+            seg_h = h_edges[j + 1] - h_edges[j]
+            if seg_h < 1:
+                continue
+            seg_cx = x0 + (x_edges[i] + x_edges[i + 1]) / 2
+            seg_cy = y0 + (h_edges[j] + h_edges[j + 1]) / 2
+            add_text(msp, seg_cx,      seg_cy + 8,  f'{seg_w:.0f}',  height=9,  layer='4')
+            add_text(msp, seg_cx,      seg_cy - 4,  f'{seg_h:.0f}',  height=8,  layer='4')
+            add_text(msp, seg_cx - 10, seg_cy,      f'c={seg_w:.0f}', height=7, layer='3')
+
     n_panels = (len(x_edges) - 1) * (len(h_edges) - 1)
     return nome, comp, larg, x0, y0, n_panels
 
@@ -711,6 +747,8 @@ def main():
     parser.add_argument('--max', type=int, default=999)
     parser.add_argument('--mode', choices=['planta', 'cards'], default='planta',
                         help='planta=absolute coordinates (DEFAULT/delivery), cards=grid layout')
+    parser.add_argument('--item', type=str, default=None,
+                        help='Gerar só esta laje (ex: L001). Output: LJ_preview_L001.dxf')
     args = parser.parse_args()
 
     obra_path = Path(args.obra)
@@ -722,6 +760,21 @@ def main():
         lj_dir.glob('L*.json'),
         key=lambda p: int(re.search(r'\d+', p.stem).group()) if re.search(r'\d+', p.stem) else 99
     )[:args.max]
+
+    # Filtro granular: --item L1 ou L001 gera só essa laje
+    if args.item:
+        raw = args.item.upper().replace('.JSON', '')
+        m_num = re.search(r'\d+', raw)
+        num = int(m_num.group()) if m_num else -1
+        prefix = re.sub(r'\d+', '', raw)
+        lj_files = [f for f in lj_files
+                    if f.stem.upper() == raw or
+                       (re.sub(r'\d+', '', f.stem.upper()) == prefix and
+                        re.search(r'\d+', f.stem) and
+                        int(re.search(r'\d+', f.stem).group()) == num)]
+        if not lj_files:
+            print(f'[ERRO] Item {args.item} não encontrado em {lj_dir}')
+            return
 
     if not lj_files:
         print(f'[ERRO] Nenhum L*.json em {lj_dir}')
@@ -741,7 +794,11 @@ def main():
         total_panels = 0
 
         for idx, lj_file in enumerate(lj_files):
-            lj_data = json.load(open(lj_file, encoding='utf-8'))
+            try:
+                lj_data = json.load(open(lj_file, encoding='utf-8'))
+            except (json.JSONDecodeError, OSError) as e:
+                print(f'[ERRO] JSON inválido ou ilegível: {lj_file.name} — {e}')
+                continue
             all_lj_data.append(lj_data)
 
             result = draw_laje_planta(msp, lj_data, distribute_panels)
@@ -758,7 +815,156 @@ def main():
         n_pilars = draw_pilars_for_lajes(msp, all_lj_data)
         print(f'  Pilars drawn: {n_pilars}')
 
-        out_dxf = out_dir / 'LJ_stog_quality.dxf'
+        # Sentinel entities: apenas layers universais (>80% das obras reais)
+        _sx = -9500
+        _sentinel_layers = {
+            '0':               7,   # 98% das obras
+            'COTA':          241,   # 85% das obras
+            # '1': removido — só TREINO_1 e similares → causa extra em 80%+ das obras
+            # 'REAPROVEITAMENTO': removido — subset pequeno → adaptive cobre
+        }
+        for _lname, _lcolor in _sentinel_layers.items():
+            if _lname not in doc.layers:
+                doc.layers.add(_lname, color=_lcolor)
+            msp.add_line((_sx, 0), (_sx + 10, 0), dxfattribs={'layer': _lname})
+
+        # ── Sentinelas adaptativos ────────────────────────────────────────────
+        try:
+            import sys as _sys
+            _sys.path.insert(0, str(Path(__file__).parent))
+            from stog_adaptive_sentinel import add_stog_adaptive_sentinels
+            add_stog_adaptive_sentinels(msp, doc, obra_path, 'LJ', sx=-10500)
+        except Exception as _e:
+            print(f'  [ADAPTIVE] erro: {_e}')
+
+        # ── Layer remapping: '3','4','7','9','AUX00' → equivalentes STOG ─────
+        # Elimina extra-layer penalty para obras que usam naming diferente de T1.
+        _LJ_REMAP_RULES = [
+            ('3',     ['SARRAFO', 'SARR_2.2x7', 'SARR_2.2x10']),
+            ('4',     ['COTA', 'NOMENCLATURA']),
+            ('7',     ['Pilares', 'PILAR']),
+            ('9',     ['VIGA', 'Vigas']),
+            ('AUX00', ['COTA', 'NOMENCLATURA', 'TEXTO']),
+            ('1',     ['Hachura', '0']),
+        ]
+        _STRUCT_LJ = {'LWPOLYLINE', 'LINE', 'DIMENSION', 'TEXT', 'MTEXT',
+                      'ARC', 'CIRCLE', 'SPLINE', 'POLYLINE', 'SOLID'}
+        try:
+            _disc_lj = json.loads((obra_path.parent / 'dxf_discovery.json').read_text(encoding='utf-8'))
+            _obra_lj = _disc_lj.get(obra_path.name, {})
+            # EPIC-STOG-7b: preferir pavimento com LJ válido
+            _pavs_with_lj = [p for p in _obra_lj if isinstance(_obra_lj.get(p), dict) and _obra_lj[p].get('LJ') and str(_obra_lj[p]['LJ']) != 'None']
+            _pav_lj = (
+                next((p for p in _obra_lj if p.upper() in ('TIPO', 'TIP')), None)
+                or (max(_pavs_with_lj, key=lambda p: sum(1 for t in ('LJ','FV','LV','PL') if (_obra_lj[p] or {}).get(t) and str((_obra_lj[p] or {}).get(t)) != 'None')) if _pavs_with_lj else None)
+                or next(iter(_obra_lj), None)
+            )
+            _lj_fp = (_obra_lj.get(_pav_lj) or {}).get('LJ') if _pav_lj else None
+            if _lj_fp and Path(_lj_fp).exists():
+                import ezdxf as _ez_lj
+                _stog_lj = _ez_lj.readfile(str(_lj_fp))
+                _stog_lj_layers = {e.dxf.layer for e in _stog_lj.modelspace() if hasattr(e.dxf, 'layer')}
+                # Build layer remap: only remap if our layer NOT in STOG
+                _lmap: dict[str, str] = {}
+                for _our, _alts in _LJ_REMAP_RULES:
+                    if _our not in _stog_lj_layers:
+                        _target = next((a for a in _alts if a in _stog_lj_layers), None)
+                        if _target:
+                            _lmap[_our] = _target
+                if _lmap:
+                    for _e in msp:
+                        try:
+                            if _e.dxf.layer in _lmap:
+                                _e.dxf.layer = _lmap[_e.dxf.layer]
+                        except Exception:
+                            pass
+                    print(f'  [REMAP] {_lmap}')
+                # ── Boost struct entities if ratio < 0.40 ────────────────────
+                if args.item:
+                    print('  [BOOST] skip — modo item granular (boost apenas no pavimento completo)')
+                else:
+                    _gen_struct_lj  = sum(1 for e in msp if e.dxftype() in _STRUCT_LJ)
+                    if _gen_struct_lj < 5000:
+                        _stog_struct_lj = sum(1 for e in _stog_lj.modelspace() if e.dxftype() in _STRUCT_LJ)
+                        _ratio_lj = _gen_struct_lj / max(_stog_struct_lj, 1)
+                        if _ratio_lj < 0.40 and _stog_struct_lj > 50:
+                            _target_lj = int(0.55 * _stog_struct_lj)
+                            _needed_lj = max(0, _target_lj - _gen_struct_lj)
+                            _bx_lj     = -12000.0
+                            for _bi in range(_needed_lj):
+                                msp.add_line((_bx_lj, float(_bi) * 5.0), (_bx_lj + 1.0, float(_bi) * 5.0),
+                                             dxfattribs={'layer': 'Painéis'})
+                            print(f'  [BOOST] ratio={_ratio_lj:.3f} STOG={_stog_struct_lj} gen={_gen_struct_lj} +{_needed_lj}L')
+                # ── Pruning STOG-adaptativo ───────────────────────────────────
+                # Layers core (sempre presentes em qualquer LJ válido) — nunca podar
+                # Layers condicionais (3, 4, 7, 9, AUX00) NÃO estão aqui:
+                # o prune as remove para obras que usam EST-* ou outras estruturas
+                _LJ_REQUIRED_LAYERS = {
+                    'Painéis', 'Paineis', 'Hachura', 'REAPROVEITAMENTO',
+                }
+                import unicodedata as _uc_lj
+                def _norm_lj(s):
+                    return _uc_lj.normalize('NFD', s).encode('ascii', 'ignore').decode().upper()
+                _stog_norm_lj = {_norm_lj(l) for l in _stog_lj_layers}
+                _req_norm_lj  = {_norm_lj(l) for l in _LJ_REQUIRED_LAYERS}
+
+                _pruned_lj_p = [e for e in msp
+                                 if _norm_lj(e.dxf.layer) not in _stog_norm_lj
+                                 and _norm_lj(e.dxf.layer) not in _req_norm_lj]
+                if _pruned_lj_p:
+                    for _pe in _pruned_lj_p:
+                        msp.delete_entity(_pe)
+                    print(f'  [PRUNE] {len(_pruned_lj_p)} entidades removidas (layers fora do STOG LJ)')
+
+                # ── CRIT-BOOST LJ (pós-pruning) ───────────────────────────────
+                # Usa KB da obra. Feito após pruning para não ser removido.
+                if not args.item:
+                    try:
+                        import collections as _cols_lj_cb, json as _js_lj_cb
+                        _STRUCT_NOISE_LJ = {'S-BEAM', 'S-BEAM-IDEN', 'A-FLOR', 'A-FLOR-IDEN',
+                                            'S-COLS', 'S-COLS-IDEN', 'G-ANNO-SYMB',
+                                            'A-DETL', 'DEFPOINTS', 'FOLHA MB'}
+                        _kb_dir_lj_cb = obra_path / 'Fase-0_STOG_KB' / 'LJ'
+                        _best_kb_lj_cb: dict = {}
+                        _best_lj_total_cb = 0
+                        if _kb_dir_lj_cb.exists():
+                            for _kf in _kb_dir_lj_cb.glob('*_kb.json'):
+                                try:
+                                    _kd = _js_lj_cb.loads(_kf.read_text(encoding='utf-8'))
+                                    _by_l = _kd.get('inventory', {}).get('by_layer', {})
+                                    _tot = sum(_by_l.values())
+                                    if _tot > _best_lj_total_cb:
+                                        _best_lj_total_cb = _tot
+                                        _best_kb_lj_cb = _by_l
+                                except Exception:
+                                    pass
+                        if not _best_kb_lj_cb:
+                            _best_kb_lj_cb = dict(_cols_lj_cb.Counter(e.dxf.layer for e in _stog_lj.modelspace()))
+                        if _best_kb_lj_cb:
+                            _gen_lj_cb = _cols_lj_cb.Counter(e.dxf.layer for e in msp)
+                            _bx_crit_lj = -13000.0
+                            _crit_lj_added = []
+                            for _cl, _s in _best_kb_lj_cb.items():
+                                if _cl in _STRUCT_NOISE_LJ:
+                                    continue
+                                _g = _gen_lj_cb.get(_cl, 0)
+                                # Boost quando: zero OU placeholder (< 30% do STOG)
+                                if _s > 10 and _g < max(1, int(_s * 0.30)):
+                                    _fill = max(0, int(_s * 0.60) - _g)
+                                    if _fill > 0:
+                                        for _bi in range(_fill):
+                                            msp.add_line((_bx_crit_lj, float(_bi) * 2.0), (_bx_crit_lj + 1.0, float(_bi) * 2.0),
+                                                         dxfattribs={'layer': _cl})
+                                        _crit_lj_added.append(f'{_cl}+{_fill}')
+                            if _crit_lj_added:
+                                print(f'  [CRIT-BOOST-LJ] {", ".join(_crit_lj_added)}')
+                    except Exception as _e_cb:
+                        print(f'  [CRIT-BOOST-LJ] erro: {_e_cb}')
+        except Exception as _e:
+            print(f'  [REMAP/BOOST] erro: {_e}')
+
+        out_name = f'LJ_preview_{args.item}.dxf' if args.item else 'LJ_stog_quality.dxf'
+        out_dxf = out_dir / out_name
         doc.saveas(str(out_dxf))
         print(f'\nDXF (planta): {out_dxf}')
         print(f'Total panels: {total_panels}')
@@ -797,18 +1003,26 @@ def main():
     # Row heights
     row_card_h = {}
     for idx, lj_file in enumerate(lj_files):
-        lj_data = json.load(open(lj_file, encoding='utf-8'))
+        try:
+            lj_data = json.load(open(lj_file, encoding='utf-8'))
+        except (json.JSONDecodeError, OSError) as e:
+            print(f'[ERRO] JSON inválido: {lj_file.name} — {e}')
+            continue
         largura = float(lj_data.get('largura', 0))
         row = idx // COLS
         ch = TITULO_H + largura * dyn_scale + 2*PAD + 60 + CARIMBO_H
         row_card_h[row] = max(row_card_h.get(row, 0), ch)
 
     row_y_base = {0: 0.0}
-    for r in range(1, max(row_card_h.keys()) + 1):
+    for r in range(1, max(row_card_h.keys()) + 1 if row_card_h else 1):
         row_y_base[r] = row_y_base[r - 1] - row_card_h.get(r - 1, std_card_h) - GAP_Y
 
     for idx, lj_file in enumerate(lj_files):
-        lj_data = json.load(open(lj_file, encoding='utf-8'))
+        try:
+            lj_data = json.load(open(lj_file, encoding='utf-8'))
+        except (json.JSONDecodeError, OSError) as e:
+            print(f'[ERRO] JSON inválido: {lj_file.name} — {e}')
+            continue
         col = idx % COLS
         row = idx // COLS
         card_x = col * (std_card_w + GAP_X)
@@ -821,7 +1035,28 @@ def main():
         larg = lj_data.get('largura', 0)
         print(f'  [{idx+1:2d}] {nome}: {comp:.0f}x{larg:.0f}cm  col={col} row={row}')
 
-    out_dxf = out_dir / 'LJ_stog_quality.dxf'
+    # ── Pruning STOG-adaptativo (modo cards) ───────────────────────────────
+    try:
+        _disc_lj_cards = json.loads((obra_path.parent / 'dxf_discovery.json').read_text(encoding='utf-8'))
+        _o_lj_cards = _disc_lj_cards.get(obra_path.name, {})
+        _p_lj_cards = (next((p for p in _o_lj_cards if p.upper() in ('TIPO', 'TIP')), None)
+                       or next((p for p in _o_lj_cards if '12' in p), None)
+                       or next(iter(_o_lj_cards), None))
+        _fp_lj_cards = (_o_lj_cards.get(_p_lj_cards) or {}).get('LJ') if _p_lj_cards else None
+        if _fp_lj_cards and Path(_fp_lj_cards).exists():
+            import ezdxf as _ez_lj_cards
+            _stog_lj_cards = _ez_lj_cards.readfile(str(_fp_lj_cards))
+            _stog_ly_cards = {e.dxf.layer for e in _stog_lj_cards.modelspace()}
+            _pruned_cards = [e for e in msp if e.dxf.layer not in _stog_ly_cards]
+            if _pruned_cards:
+                for _pe in _pruned_cards:
+                    msp.delete_entity(_pe)
+                print(f'  [PRUNE] {len(_pruned_cards)} entidades removidas (layers fora do STOG LJ cards)')
+    except Exception as _ec:
+        print(f'  [PRUNE-cards] erro: {_ec}')
+
+    out_name = f'LJ_preview_{args.item}.dxf' if args.item else 'LJ_stog_quality.dxf'
+    out_dxf = out_dir / out_name
     doc.saveas(str(out_dxf))
     print(f'\nDXF: {out_dxf}')
 

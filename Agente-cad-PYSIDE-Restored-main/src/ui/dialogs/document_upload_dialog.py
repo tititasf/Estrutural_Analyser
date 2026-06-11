@@ -5,6 +5,7 @@ from PySide6.QtWidgets import (QDialog, QVBoxLayout, QHBoxLayout, QLabel,
                                QMessageBox, QAbstractItemView)
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QIcon, QColor
+from src.ui.theme import Colors, Fonts, Radius
 
 class DocumentUploadDialog(QDialog):
     def __init__(self, class_name="Geral", parent=None):
@@ -25,11 +26,11 @@ class DocumentUploadDialog(QDialog):
 
         # Header
         header = QLabel("📤 Importação de Documentos em Lote")
-        header.setStyleSheet("font-size: 18px; font-weight: bold; color: #00d4ff;")
+        header.setStyleSheet(f"font-size: 18px; font-weight: bold; color: {Colors.ACCENT_PRIMARY};")
         layout.addWidget(header)
         
         lbl_info = QLabel(f"Destino: {self.class_name}")
-        lbl_info.setStyleSheet("color: #aaa; font-weight: bold;")
+        lbl_info.setStyleSheet(f"color: {Colors.TEXT_SECONDARY}; font-weight: bold;")
         layout.addWidget(lbl_info)
 
         # Action Bar or Top Button
@@ -37,14 +38,14 @@ class DocumentUploadDialog(QDialog):
         self.btn_add_files = QPushButton("➕ Selecionar Arquivos")
         self.btn_add_files.setStyleSheet("""
             QPushButton {
-                background: #333;
-                color: white;
-                border: 1px solid #555;
+                background: {Colors.BG_CARD};
+                color: {Colors.TEXT_BRIGHT};
+                border: 1px solid {Colors.BORDER_INPUT};
                 padding: 8px 15px;
                 border-radius: 4px;
                 font-weight: bold;
             }
-            QPushButton:hover { background: #444; border-color: #00d4ff; }
+            QPushButton:hover { background: {Colors.BORDER_INPUT}; border-color: {Colors.ACCENT_PRIMARY}; }
         """)
         self.btn_add_files.clicked.connect(self.choose_files)
         top_bar.addWidget(self.btn_add_files)
@@ -64,26 +65,26 @@ class DocumentUploadDialog(QDialog):
         self.table.setSelectionBehavior(QAbstractItemView.SelectRows)
         self.table.setStyleSheet("""
             QTableWidget {
-                background: #1e1e21;
-                border: 1px solid #333;
+                background: {Colors.BG_PANEL};
+                border: 1px solid {Colors.BORDER_DEFAULT};
                 border-radius: 4px;
-                gridline-color: #333;
+                gridline-color: {Colors.BORDER_DEFAULT};
             }
             QHeaderView::section {
-                background: #252528;
+                background: {Colors.BG_SURFACE};
                 padding: 6px;
                 border: none;
                 font-weight: bold;
-                color: #ddd;
+                color: {Colors.TEXT_BRIGHT};
             }
             QLineEdit {
-                background: #111;
-                border: 1px solid #444;
-                color: #fff;
+                background: {Colors.BG_DEEP};
+                border: 1px solid {Colors.BORDER_INPUT};
+                color: {Colors.TEXT_BRIGHT};
                 padding: 6px;
                 min-height: 25px;
             }
-            QLineEdit:focus { border: 1px solid #00d4ff; }
+            QLineEdit:focus { border: 1px solid {Colors.ACCENT_PRIMARY}; }
         """)
         layout.addWidget(self.table)
         
@@ -95,7 +96,7 @@ class DocumentUploadDialog(QDialog):
         btn_layout.addStretch()
         
         btn_cancel = QPushButton("Cancelar")
-        btn_cancel.setStyleSheet("color: #888; border: none; padding: 10px;")
+        btn_cancel.setStyleSheet(f"color: {Colors.TEXT_SECONDARY}; border: none; padding: 10px;")
         btn_cancel.clicked.connect(self.reject)
         btn_layout.addWidget(btn_cancel)
 
@@ -103,14 +104,14 @@ class DocumentUploadDialog(QDialog):
         self.btn_finish.setEnabled(False)
         self.btn_finish.setStyleSheet("""
             QPushButton {
-                background: #00d4ff;
-                color: #000;
+                background: {Colors.ACCENT_PRIMARY};
+                color: {Colors.BG_DEEP};
                 border-radius: 4px;
                 padding: 10px 20px;
                 font-weight: bold;
             }
-            QPushButton:hover { background: #00b8e6; }
-            QPushButton:disabled { background: #333; color: #555; }
+            QPushButton:hover { background: {Colors.ACCENT_TEAL}; }
+            QPushButton:disabled { background: {Colors.BG_CARD}; color: {Colors.TEXT_MUTED}; }
         """)
         self.btn_finish.clicked.connect(self.validate_and_accept)
         btn_layout.addWidget(self.btn_finish)
@@ -161,7 +162,7 @@ class DocumentUploadDialog(QDialog):
         # Col 2: Remove Button
         btn_remove = QPushButton("❌")
         btn_remove.setCursor(Qt.PointingHandCursor)
-        btn_remove.setStyleSheet("background: transparent; color: #ff5555; border: none; font-weight: bold;")
+        btn_remove.setStyleSheet(f"background: transparent; color: {Colors.ACCENT_DANGER}; border: none; font-weight: bold;")
         btn_remove.clicked.connect(lambda: self.remove_row(row))
         self.table.setCellWidget(row, 2, btn_remove)
 

@@ -68,33 +68,37 @@ def get_insert_xy(e):
 
 
 def find_pl_dxf(obra_path: Path, pav_hint: str = "12") -> Path | None:
-    """Encontra o DXF PL do pavimento solicitado."""
+    """Encontra o DXF PL do pavimento solicitado (compatibilidade — retorna primeiro)."""
+    all_pl = find_all_pl_dxfs(obra_path)
+    if not all_pl:
+        return None
+    for f in all_pl:
+        if pav_hint in f.name:
+            return f
+    return all_pl[0]
+
+
+def find_all_pl_dxfs(obra_path: Path) -> list:
+    """Retorna TODOS os DXF PL da obra (secoes + projecoes)."""
     fase1 = obra_path / "Fase-1_Ingestao" / "Projetos_Finalizados_para_Engenharia_Reversa"
     if not fase1.exists():
         log.error(f"Pasta Fase-1 nao encontrada: {fase1}")
-        return None
+        return []
 
-    # Preferencia: arquivo especifico do pavimento
     candidates = []
     for f in fase1.iterdir():
         if f.suffix.lower() != '.dxf':
             continue
         fname = f.name.upper()
-        if '- PL -' not in fname and '- PL.' not in fname:
+        if '- PL -' not in fname and '- PL.' not in fname and '- PL  -' not in fname:
             continue
         candidates.append(f)
 
     if not candidates:
         log.error("Nenhum DXF PL encontrado")
-        return None
-
-    # Priorizar por pav_hint
-    for f in candidates:
-        if pav_hint in f.name:
-            return f
-
-    # Fallback: primeiro disponivel
-    return candidates[0]
+    else:
+        log.info(f"DXFs PL encontrados: {len(candidates)}")
+    return sorted(candidates)
 
 
 def extract_pilar_labels(msp) -> dict:
@@ -454,19 +458,29 @@ def main():
         output_dir.mkdir(parents=True, exist_ok=True)
         output_path = output_dir / "pilares_assembly.json"
 
-    # Encontrar DXF PL
-    dxf_path = find_pl_dxf(obra_path, args.pav)
-    if not dxf_path:
+    # Encontrar TODOS os DXF PL e processar em conjunto
+    dxf_files = find_all_pl_dxfs(obra_path)
+    if not dxf_files:
         log.error("DXF PL nao encontrado")
         sys.exit(1)
 
-    log.info(f"DXF PL: {dxf_path.name}")
-
-    # Processar
-    assembly = process_pl_dxf(dxf_path)
+    # Processar todos os arquivos e mesclar resultados
+    assembly: dict = {}
+    for dxf_path in dxf_files:
+        log.info(f"DXF PL: {dxf_path.name}")
+        file_assembly = process_pl_dxf(dxf_path)
+        for pid, data in file_assembly.items():
+            if pid not in assembly:
+                assembly[pid] = data
+            else:
+                # Mesclar: manter dados com mais faces / maior confianca
+                existing_conf = assembly[pid].get("confidence", 0)
+                new_conf = data.get("confidence", 0)
+                if new_conf > existing_conf:
+                    assembly[pid] = data
 
     if not assembly:
-        log.error("Nenhum dado extraido")
+        log.error("Nenhum dado extraido de nenhum DXF PL")
         sys.exit(1)
 
     # Salvar

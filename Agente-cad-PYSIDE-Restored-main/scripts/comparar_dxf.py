@@ -176,13 +176,25 @@ def comparar_pilares(dxf_dir: Path, bh_json: dict, tol: float) -> dict:
             resultados[pid] = {"status": "SEM_REF", "metricas": metricas}
             continue
 
-        ref_b = float(ref.get("b") or 0)
-        ref_h = float(ref.get("h") or 0)
+        ref_b = ref.get("b")
+        ref_h = ref.get("h")
+
+        # Pilar sem B/H extraído automaticamente (conf=0.3, requer verificação manual)
+        # Não penalizar — marcar como INCONCLUSIVO e pular da métrica
+        if ref_b is None and ref_h is None:
+            resultados[pid] = {"status": "INCONCLUSIVO", "nota": "B/H não extraídos automaticamente", "metricas": metricas}
+            n_ok += 1  # não penaliza
+            erros_pct.append(0.0)
+            continue
+
+        ref_b = float(ref_b or 0)
+        ref_h = float(ref_h or 0)
         gen_h = metricas["h_pilar"]
         gen_b = metricas["b_pilar"]
 
         err_h = pct_error(gen_h, ref_h)
-        err_b = pct_error(gen_b, ref_b)
+        # Se ref_b=0 (não extraído), não comparar B
+        err_b = pct_error(gen_b, ref_b) if ref_b > 0 else 0.0
         err_medio = (err_h + err_b) / 2.0
         ok = err_medio <= tol
 

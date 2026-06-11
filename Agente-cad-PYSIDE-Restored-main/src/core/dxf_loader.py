@@ -148,6 +148,7 @@ def _get_obf_str(key):
     }
     return _obf_map.get(key, key)
 
+import math
 import ezdxf
 from ezdxf.math import Matrix44
 from typing import List, Dict, Any, Tuple
@@ -196,17 +197,18 @@ class DXFLoader:
             self.doc = ezdxf.readfile(self.filepath)
             self.msp = self.doc.modelspace()
             
-            # [FIX] Mapear camadas ocultas ou congeladas
+            # [FIX v11] Mapear camadas ocultas ou congeladas (lógica corrigida)
+            # TRUE_GEOMETRY respeita apenas is_off/is_frozen (não plot=0, pois layers técnicas são válidas)
             self.hidden_layers = set()
             for layer in self.doc.layers:
-                if not layer.is_off() or layer.is_frozen():
-                    # Notas: ezdxf is_off() retorna True se desligada. 
-                    # Mas queremos capturar o estado real de invisibilidade
+                try:
+                    if layer.is_off() or layer.is_frozen():
+                        self.hidden_layers.add(layer.dxf.name.upper())
+                    elif self.mode != RenderMode.TRUE_GEOMETRY and layer.dxf.get('plot', 1) == 0:
+                        # Apenas em modos filtrados: esconder layers não-imprimíveis
+                        self.hidden_layers.add(layer.dxf.name.upper())
+                except Exception:
                     pass
-                if layer.dxf.get('plot', 1) == 0: # Não imprimível (comum em grelhas)
-                     self.hidden_layers.add(layer.dxf.name.upper())
-                if layer.is_off() or layer.is_frozen():
-                     self.hidden_layers.add(layer.dxf.name.upper())
 
             self.entities = {
                 'polylines': [],
@@ -237,15 +239,58 @@ class DXFLoader:
             from ezdxf.query import new as query_new
             container = query_new(container)
             
+        # ── Resolve altura padrão de texto a partir dos DIMSTYLEs ───────────────
+        _dimstyle_h: float = 2.5
+        try:
+            hs = [getattr(ds.dxf, 'dimtxt', 0) or 0 for ds in self.doc.dimstyles]
+            hs = [h for h in hs if h > 0]
+            if hs:
+                _dimstyle_h = max(hs)  # usa a maior altura de cota disponível
+        except Exception:
+            pass
+
         def clean_mtext(text):
+            """Remove todos os códigos de formatação MTEXT, preservando apenas o texto limpo."""
             import re
-            # Remove códigos formatadores do MTEXT como \P, \H1.5;, \fArial; etc.
-            # Referência: https://knowledge.autodesk.com/support/autocad/learn-explore/caas/CloudHelp/cloudhelp/2021/ENU/AutoCAD-Core/files/GUID-6E196024-5A1D-47C0-B77D-DD6651E497C1-htm.html
-            text = re.sub(r'\\P', '\n', text) # Nova linha
-            text = re.sub(r'\\\{|\\\}', '', text) # Chaves de agrupamento
-            text = re.sub(r'\\[a-zA-Z].*?;', '', text) # Códigos tipo \H, \f, \C
-            text = re.sub(r'\{|\}', '', text) # Chaves remanescentes
-            return text
+            if not text:
+                return text
+
+            # Multi-pass: repete até estabilizar
+            prev = None
+            iterations = 0
+            while prev != text and iterations < 10:
+                prev = text
+                iterations += 1
+
+                # \P \p = nova linha (antes de qualquer outra coisa)
+                text = re.sub(r'\\[Pp][^;]*;?', '\n', text)
+
+                # Grupo de fonte: {\cmd_sem_ponto_virgula;conteúdo} → conteúdo
+                # Captura tudo após o PRIMEIRO ponto-e-vírgula dentro do grupo
+                text = re.sub(r'\{\\[^;{}\n]*;([^}]*)\}', r'\1', text)
+
+                # Grupos vazios ou só com comandos
+                text = re.sub(r'\{[^}]*\}', '', text)
+
+                # Escapes de chaves literais: \{ \}
+                text = re.sub(r'\\([{}])', r'\1', text)
+
+                # Codes \Xvalor; (letra + conteúdo até ponto-e-vírgula)
+                # Cobre: \A1; \C4; \H2.5; \W0.8; \Q15; \T1; \S...; etc.
+                text = re.sub(r'\\[A-Za-z][^;\\{}]*;', '', text)
+
+                # Codes simples sem ponto-e-vírgula: \L \l \O \o \K \k \N \~
+                text = re.sub(r'\\[LlOoKkNn~IiUu]', '', text)
+
+                # Chaves residuais não pareadas
+                text = re.sub(r'[{}]', '', text)
+
+            # Espaço não-quebrável
+            text = text.replace('~', ' ')
+            # Remove espaços múltiplos e linhas em branco
+            text = re.sub(r'[ \t]+', ' ', text)
+            text = re.sub(r'\n{3,}', '\n\n', text)
+            return text.strip()
 
         def get_color_info(entity):
             # Resolve lineweight
@@ -258,31 +303,67 @@ class DXFLoader:
             if lw is None or lw < 0: lw = 25 # Default 0.25mm
             
             if override_color: return override_color, 256, lw
+
+            # 1) True color (RGB embarcado na entidade) — máxima fidelidade
+            try:
+                tc = entity.rgb
+                if tc is not None:
+                    aci = getattr(entity.dxf, 'color', 7)
+                    return (int(tc[0]), int(tc[1]), int(tc[2])), aci, lw
+            except Exception:
+                pass
+
             aci = entity.dxf.color # AutoCAD Color Index
             if aci == 256: # ByLayer
                 layer_name = override_layer or entity.dxf.layer
                 if layer_name in self.doc.layers:
-                    aci = self.doc.layers.get(layer_name).dxf.color
+                    lyr = self.doc.layers.get(layer_name)
+                    # Tenta true color da própria layer
+                    try:
+                        tc = lyr.rgb
+                        if tc is not None:
+                            return (int(tc[0]), int(tc[1]), int(tc[2])), 256, lw
+                    except Exception:
+                        pass
+                    aci = lyr.dxf.color
             elif aci == 0: # ByBlock
                 return (150, 150, 150), 0, lw
-            
-            aci_map = {
-                1: (255, 0, 0), 2: (255, 255, 0), 3: (0, 255, 0),
-                4: (0, 255, 255), 5: (0, 0, 255), 6: (255, 0, 255),
-                7: (255, 255, 255), 250: (50, 50, 50), 251: (80, 80, 80), 
-                252: (120, 120, 120), 253: (160, 160, 160), 254: (200, 200, 200)
-            }
-            return aci_map.get(aci, (200, 200, 200)), aci, lw
+
+            # 2) ACI → RGB via tabela completa de 255 cores do ezdxf
+            try:
+                rgb = ezdxf.colors.aci2rgb(aci)
+                return (rgb.r, rgb.g, rgb.b), aci, lw
+            except Exception:
+                pass
+
+            # 3) Fallback: cinza neutro
+            return (200, 200, 200), aci, lw
+
+        def get_linetype(entity) -> str:
+            """Resolve linetype para a entidade (BYLAYER → herda da layer)."""
+            lt = getattr(entity.dxf, 'linetype', None) or 'BYLAYER'
+            if lt.upper() in ('BYLAYER', ''):
+                layer_name = (override_layer or getattr(entity.dxf, 'layer', '0'))
+                try:
+                    lt = getattr(self.doc.layers.get(layer_name).dxf, 'linetype', 'CONTINUOUS') or 'CONTINUOUS'
+                except Exception:
+                    lt = 'CONTINUOUS'
+            return lt.upper()
 
         # [FIX v7] Keywords Proibidas (The Purge) - Busca agressiva em qualquer posição
-        mesh_keywords = [
-            'TRIANGUL', 'MALHA', 'MESH', 'PAV_TR', 'PAV_HACH', 'HACH',
-            'GRELHA', 'PLANILHA', 'AUXILIAR', 'DETALHE_', 'FORMAS_', 
-            'CAD_', 'REB_', 'FINA', 'SURFACE', '3D_MESH', 'CALCULO', 
-            'MODELO_ESTRUT', 'LINK', 'RIGID', 'STIFF', 'FEM', 'BAR'
-        ]
-        # Sufixos explícitos para garantir
-        prohibited_suffixes = ('_TR', '_MALHA', '_GRELHA', '_MESH', '_TRI', '_SURF', '_BAR', '_LINK')
+        # [FIX v11] TRUE_GEOMETRY: sem blacklist (renderização fiel completa)
+        if self.mode == RenderMode.TRUE_GEOMETRY:
+            mesh_keywords = []
+            prohibited_suffixes = ()
+        else:
+            mesh_keywords = [
+                'TRIANGUL', 'MALHA', 'MESH', 'PAV_TR', 'PAV_HACH', 'HACH',
+                'GRELHA', 'PLANILHA', 'AUXILIAR', 'DETALHE_', 'FORMAS_',
+                'CAD_', 'REB_', 'FINA', 'SURFACE', '3D_MESH', 'CALCULO',
+                'MODELO_ESTRUT', 'LINK', 'RIGID', 'STIFF', 'FEM', 'BAR'
+            ]
+            # Sufixos explícitos para garantir
+            prohibited_suffixes = ('_TR', '_MALHA', '_GRELHA', '_MESH', '_TRI', '_SURF', '_BAR', '_LINK')
 
         # ---------------------------------------------------------
         # MODE-SPECIFIC CONFIGURATION
@@ -294,9 +375,10 @@ class DXFLoader:
         z_flatten = self.mode in [RenderMode.COLOR_FLATTEN, RenderMode.COLOR_OMEGA]
         
         # Color Flags
-        color_strict = self.mode in [RenderMode.COLOR_BASIC, RenderMode.COLOR_LAYERS, RenderMode.COLOR_ORTHO, 
+        color_strict = self.mode in [RenderMode.COLOR_BASIC, RenderMode.COLOR_LAYERS, RenderMode.COLOR_ORTHO,
                                      RenderMode.COLOR_FLATTEN, RenderMode.COLOR_BLOCKS, RenderMode.COLOR_FAN, RenderMode.COLOR_OMEGA]
         color_1_7 = self.mode == RenderMode.COLOR_EXTENDED
+        color_1_4 = False  # [FIX v11] Nunca definido anteriormente → NameError engolido por except:pass descartava TODAS as linhas
         int_grid = self.mode in [RenderMode.COLOR_BLOCKS, RenderMode.COLOR_OMEGA]
         
         # [FIX v5] Heurística de Micro-Segmentação
@@ -404,7 +486,8 @@ class DXFLoader:
                     'start': (start.x, start.y),
                     'end': (end.x, end.y),
                     'layer': override_layer or line.dxf.layer,
-                    'color': rgb, 'aci': aci, 'lineweight': lw, 'is_block': is_block
+                    'color': rgb, 'aci': aci, 'lineweight': lw, 'is_block': is_block,
+                    'linetype': get_linetype(line)
                 })
             except: pass
 
@@ -450,19 +533,23 @@ class DXFLoader:
                 if self.mode == RenderMode.EDGE_CLEANER and aci >= 250:
                     continue
                 
-                # Variety: Native transform handles bulges (arcs) automatically
-                if total_matrix and use_native_transform:
+                # [FIX v12] LWPOLYLINE native .transform() is broken for reflection matrices
+                # (negative xscale/yscale → det < 0) — it negates X coordinates.
+                # For LWPOLYLINE we always use manual matrix multiplication which is correct.
+                # For POLYLINE (old format) the native transform is used as before.
+                _is_lwpoly = poly.dxftype() == 'LWPOLYLINE'
+                if total_matrix and use_native_transform and not _is_lwpoly:
                     poly_copy = poly.copy()
                     poly_copy.transform(total_matrix)
                     target_poly = poly_copy
                 else:
                     target_poly = poly
-                
+
                 # [MOD] Ignorar Malhas 3D (Polyface/Polygon) e Polilinhas 3D
                 if target_poly.dxftype() == 'POLYLINE':
-                    if target_poly.is_polyface_mesh or target_poly.is_polygon_mesh or target_poly.is_3d_polyline:
+                    if target_poly.is_poly_face_mesh or target_poly.is_polygon_mesh or target_poly.is_3d_polyline:
                         continue
-                
+
                 # Explode curves into segments for Mode 5
                 if explode_curves:
                     # flattening() returns Vec3 points
@@ -472,9 +559,10 @@ class DXFLoader:
                         points = [(p[0], p[1]) for p in target_poly.get_points()]
                     else:
                         points = [(v.dxf.location.x, v.dxf.location.y) for v in target_poly.vertices]
-                    
-                    if total_matrix and not use_native_transform:
-                        points = [(total_matrix.transform(ezdxf.math.Vec3(p[0], p[1])).x, 
+
+                    # Apply manual transform for: non-native mode OR LWPOLYLINE (native broken for reflections)
+                    if total_matrix and (not use_native_transform or _is_lwpoly):
+                        points = [(total_matrix.transform(ezdxf.math.Vec3(p[0], p[1])).x,
                                    total_matrix.transform(ezdxf.math.Vec3(p[0], p[1])).y) for p in points]
                     
                 # [FIX v8] Mode 18: Integer Grid
@@ -488,18 +576,24 @@ class DXFLoader:
                          continue
 
                 # [FIX v8] Mode 17: Area-Based Cleanup (Remover perímetros fechados minúsculos)
-                if self.mode == RenderMode.EDGE_CLEANER and target_poly.closed:
+                # [FIX v11] POLYLINE (old format) usa .is_closed, LWPOLYLINE usa .closed
+                _is_closed = (target_poly.is_closed
+                              if target_poly.dxftype() == 'POLYLINE'
+                              else target_poly.closed)
+
+                if self.mode == RenderMode.EDGE_CLEANER and _is_closed:
                     try:
                         if abs(target_poly.area()) < 10.0: # 10 cm² or units²
                             continue
                     except: pass
-                
+
                 if points:
                     self.entities['polylines'].append({
                         'points': points,
-                        'closed': target_poly.closed,
+                        'closed': _is_closed,
                         'layer': override_layer or target_poly.dxf.layer,
-                        'color': rgb, 'aci': aci, 'lineweight': lw, 'is_block': is_block
+                        'color': rgb, 'aci': aci, 'lineweight': lw, 'is_block': is_block,
+                        'linetype': get_linetype(poly)
                     })
             except: pass
 
@@ -509,18 +603,27 @@ class DXFLoader:
                 if layer in self.hidden_layers: continue
                 
                 rgb, aci, lw = get_color_info(circle)
-                
+
+                # [FIX v12] CIRCLE native .transform() is broken for reflection matrices —
+                # transforms center to -X. Use manual Vec3 multiplication for center.
                 if total_matrix:
+                    _raw_center = circle.dxf.center
+                    _new_center = total_matrix.transform(ezdxf.math.Vec3(_raw_center.x, _raw_center.y, 0))
                     circle = circle.copy()
-                    circle.transform(total_matrix)
-                
+                    circle.dxf.center = ezdxf.math.Vec3(_new_center.x, _new_center.y, 0)
+                    # Radius scales by uniform factor; approximate from matrix col-0 magnitude
+                    _sx = abs(total_matrix.get_row(0)[0])
+                    if _sx > 0:
+                        circle.dxf.radius = circle.dxf.radius * _sx
+
                 # Variety: Mode 5 can explode circles too
                 if explode_curves:
                     pts = [(p.x, p.y) for p in circle.flattening(distance=0.05)]
                     self.entities['polylines'].append({
                         'points': pts, 'closed': True,
                         'layer': override_layer or circle.dxf.layer,
-                        'color': rgb, 'aci': aci, 'lineweight': lw
+                        'color': rgb, 'aci': aci, 'lineweight': lw,
+                        'linetype': get_linetype(circle)
                     })
                     continue
 
@@ -541,27 +644,35 @@ class DXFLoader:
                 if layer in self.hidden_layers: continue
                 
                 rgb, aci, lw = get_color_info(arc)
-                
+
+                # [FIX v12] ARC native .transform() is broken for reflection matrices —
+                # transforms center to -X. Use manual Vec3 multiplication for center.
                 if total_matrix:
+                    _raw_center = arc.dxf.center
+                    _new_center = total_matrix.transform(ezdxf.math.Vec3(_raw_center.x, _raw_center.y, 0))
                     arc = arc.copy()
-                    arc.transform(total_matrix)
-                
+                    arc.dxf.center = ezdxf.math.Vec3(_new_center.x, _new_center.y, 0)
+                    _sx = abs(total_matrix.get_row(0)[0])
+                    if _sx > 0:
+                        arc.dxf.radius = arc.dxf.radius * _sx
+
                 if explode_curves:
                     pts = [(p.x, p.y) for p in arc.flattening(distance=0.05)]
                     self.entities['polylines'].append({
                         'points': pts, 'closed': False,
                         'layer': override_layer or arc.dxf.layer,
-                        'color': rgb, 'aci': aci, 'lineweight': lw, 'is_block': is_block
+                        'color': rgb, 'aci': aci, 'lineweight': lw, 'is_block': is_block,
+                        'linetype': get_linetype(arc)
                     })
                     continue
 
                 if arc.dxftype() == 'ARC':
                     self.entities['circles'].append({
-                        'center': (arc.dxf.center.x, arc.dxf.center.y), 
+                        'center': (arc.dxf.center.x, arc.dxf.center.y),
                         'radius': arc.dxf.radius,
-                        'start_angle': arc.dxf.start_angle, 
+                        'start_angle': arc.dxf.start_angle,
                         'end_angle': arc.dxf.end_angle,
-                        'layer': override_layer or arc.dxf.layer, 
+                        'layer': override_layer or arc.dxf.layer,
                         'color': rgb, 'aci': aci, 'lineweight': lw, 'is_block': is_block
                     })
                 else: 
@@ -579,17 +690,34 @@ class DXFLoader:
                     continue
                 
                 rgb, aci, lw = get_color_info(text)
-                
+
                 is_mtext = text.dxftype() == 'MTEXT'
                 # Para ATTRIB/ATTDEF usamos a propriedade 'text' se disponível, senão dxf.text
                 if text.dxftype() in ('ATTRIB', 'ATTDEF'):
                     content = text.dxf.text
                 else:
                     content = text.dxf.text if not is_mtext else (text.text if hasattr(text, 'text') else text.dxf.text)
-                
-                # Variety 2: Limpeza profunda de MTEXT para modos de fidelidade visual
-                if is_mtext and self.mode in [RenderMode.EDGE_CLEANER]:
+
+                # [FIX v13] MTEXT BYBLOCK color: extrair \\Cn; embedded ANTES de clean_mtext apagar
+                if is_mtext and aci == 0 and content:
+                    import re as _re
+                    _cm = _re.search(r'\\C(\d+);', content)
+                    if _cm:
+                        _embedded_aci = int(_cm.group(1))
+                        try:
+                            _ecolor = ezdxf.colors.aci2rgb(_embedded_aci)
+                            rgb = (_ecolor.r, _ecolor.g, _ecolor.b)
+                            aci = _embedded_aci
+                        except Exception:
+                            pass
+
+                # Limpa códigos MTEXT em TODOS os modos — nunca exibir raw codes
+                if is_mtext:
                     content = clean_mtext(content)
+
+                # [FIX v13] Textos vazios (ex: ATTDEFs de blocos template) não contribuem visualmente
+                if not content.strip():
+                    continue
                 
                 # Variety: Transformação
                 if total_matrix:
@@ -603,7 +731,20 @@ class DXFLoader:
                     target_text = text
                 
                 rotation = getattr(target_text.dxf, 'rotation', 0)
-                height = getattr(target_text.dxf, 'height', 2.5)
+                # MTEXT usa char_height; TEXT usa height
+                if is_mtext:
+                    height = getattr(target_text.dxf, 'char_height', 0) or 0
+                else:
+                    height = getattr(target_text.dxf, 'height', 0) or 0
+                if height == 0:
+                    # Tenta estilo de texto do próprio entity
+                    try:
+                        tstyle = self.doc.styles.get(getattr(target_text.dxf, 'style', 'Standard'))
+                        height = getattr(tstyle.dxf, 'height', 0) or 0
+                    except Exception:
+                        pass
+                if height == 0:
+                    height = _dimstyle_h  # fallback ao maior dimtxt encontrado
                 
                 halign = 0
                 valign = 0
@@ -630,16 +771,36 @@ class DXFLoader:
                     attachment = getattr(target_text.dxf, 'attachment_point', 1)
                 
                 self.entities['texts'].append({
-                    'text': content, 
+                    'text': content,
                     'pos': pos,
-                    'layer': override_layer or text.dxf.layer, 
+                    'layer': override_layer or text.dxf.layer,
                     'color': rgb, 'aci': aci, 'lineweight': lw, 'is_block': is_block,
                     'rotation': rotation, 'height': height,
                     'halign': halign, 'valign': valign, 'attachment': attachment,
-                    'width_factor': width_factor
+                    'width_factor': width_factor,
                 })
             except: pass
-            
+
+        # [FIX v13] LEADER geometry — setas de anotação não eram capturadas pelo loader
+        for leader in container.query('LEADER'):
+            try:
+                layer = (override_layer or leader.dxf.layer).upper()
+                if layer in self.hidden_layers: continue
+                rgb, aci, lw = get_color_info(leader)
+                verts = list(leader.vertices)
+                if len(verts) >= 2:
+                    if total_matrix:
+                        import ezdxf.math as _emath
+                        verts = [total_matrix.transform(_emath.Vec3(v[0], v[1], 0)) for v in verts]
+                    for i in range(len(verts) - 1):
+                        v0, v1 = verts[i], verts[i + 1]
+                        self.entities['lines'].append({
+                            'start': (v0.x, v0.y), 'end': (v1.x, v1.y),
+                            'layer': override_layer or leader.dxf.layer,
+                            'color': rgb, 'aci': aci, 'lineweight': lw, 'is_block': is_block,
+                        })
+            except: pass
+
         # Dimensions (Very common in structures)
         # [FIX v4] Proteção contra explosão de malha em blocos de dimensões
         for dim in container.query('DIMENSION'):
@@ -648,14 +809,38 @@ class DXFLoader:
                 if g_name in self.doc.blocks:
                     block = self.doc.blocks.get(g_name)
                     
-                    density_threshold = 100 if self.mode == RenderMode.COLOR_BLOCKS else 150
-                    
-                    if g_name.startswith('*D') or self.mode == RenderMode.COLOR_BLOCKS:
-                        line_count = len(block.query('LINE'))
-                        if line_count > density_threshold:
-                            continue
+                    # [FIX v11] TRUE_GEOMETRY: sem density guard para dimensions
+                    if self.mode != RenderMode.TRUE_GEOMETRY:
+                        density_threshold = 100 if self.mode == RenderMode.COLOR_BLOCKS else 150
+                        if g_name.startswith('*D') or self.mode == RenderMode.COLOR_BLOCKS:
+                            line_count = len(block.query('LINE'))
+                            if line_count > density_threshold:
+                                continue
                             
+                    # Marcar quantos textos existem antes de extrair
+                    _txt_before = len(self.entities['texts'])
                     self._extract_entities(block, override_layer=dim.dxf.layer, is_block=True)
+
+                    # Propagar ângulo da cota para textos extraídos com rotation=0
+                    # Normaliza: 0°/180° = horizontal (sem rotação)
+                    #            90°/270° = vertical (rotacionar 90°)
+                    _raw_angle = getattr(dim.dxf, 'angle', 0) or 0
+                    # Ângulo normalizado: só aplica se for realmente vertical
+                    if 45 < (_raw_angle % 360) <= 135 or 225 < (_raw_angle % 360) <= 315:
+                        _apply_angle = 90
+                    else:
+                        _apply_angle = 0  # horizontal: não mexe
+
+                    if _apply_angle:
+                        _txt_h = 2.5  # fallback
+                        for _i in range(_txt_before, len(self.entities['texts'])):
+                            _t = self.entities['texts'][_i]
+                            if _t.get('rotation', 0) == 0:
+                                _t['rotation'] = _apply_angle
+                                _txt_h = _t.get('height', 2.5)
+                                # Offset à direita para não sobrepor a linha de cota
+                                _px, _py = _t['pos']
+                                _t['pos'] = (_px + _txt_h * 2, _py)
             except: pass
 
         # [FIX v6/v7] Recursive INSERT Support with Density Guard
@@ -674,25 +859,61 @@ class DXFLoader:
                         continue
 
                 block = self.doc.blocks.get(insert.dxf.name)
-                # Density Guard Nuclear: Se o bloco for pesado, é malha.
-                density_threshold = 200 # Padrão tolerante
-                if self.mode == RenderMode.COLOR_BLOCKS: density_threshold = 100
-                
-                if len(block.query('LINE')) > density_threshold:
-                    continue
+                # [FIX v11] TRUE_GEOMETRY: sem density guard — renderiza todos os blocos fielmente
+                if self.mode != RenderMode.TRUE_GEOMETRY:
+                    density_threshold = 100 if self.mode == RenderMode.COLOR_BLOCKS else 200
+                    if len(block.query('LINE')) > density_threshold:
+                        continue
                 
                 # Matriz de transformação do INSERT
                 m = insert.matrix44()
                 if total_matrix:
-                    m = m @ total_matrix
-                
+                    # [FIX v12] Ordem correta: pai @ filho (filho mapeia local→pai, pai mapeia pai→mundo)
+                    m = total_matrix @ m
+
                 # [FIX v10] Mode 8: Force Internal Layers (Ghost Block Purge)
                 current_override = insert.dxf.layer if self.mode != RenderMode.COLOR_BLOCKS else None
                 self._extract_entities(block, override_layer=current_override, total_matrix=m, is_block=True)
+
+                # [FIX v12] Extrai ATTRIBs do INSERT (valores reais, não definições do bloco)
+                # Textos como "P9", "104X19" vivem em insert.attribs, não na definição do bloco
+                try:
+                    if insert.has_attribs:
+                        attrib_list = list(insert.attribs)
+                        if attrib_list:
+                            self._extract_entities(attrib_list, override_layer=current_override, total_matrix=m, is_block=True)
+                except Exception:
+                    pass
             except: pass
 
-        # [MOD] Ignorar permanentemente SOLID, TRACE e 3DFACE.
-        # Estas entidades agora são filtradas para garantir a limpeza do desenho estrutural.
+        # SOLID / TRACE — renderizar dentro de blocos (setas de dimensão) E no modelspace
+        # em TRUE_GEOMETRY (quadradinhos de pilar são SOLIDs diretamente no modelspace).
+        if is_block or self.mode == RenderMode.TRUE_GEOMETRY:
+            for solid in container.query('SOLID TRACE'):
+                try:
+                    layer = (override_layer or solid.dxf.layer).upper()
+                    if layer in self.hidden_layers: continue
+                    rgb, aci, lw = get_color_info(solid)
+                    # SOLID tem vtx0..vtx3 (triângulo ou quad). vtx3 == vtx2 para triângulo.
+                    pts = []
+                    for attr in ('vtx0', 'vtx1', 'vtx3', 'vtx2'):  # ordem correta para quad
+                        v = getattr(solid.dxf, attr, None)
+                        if v is None: continue
+                        if total_matrix:
+                            v = total_matrix.transform(v)
+                        pts.append((v.x, v.y))
+                    if len(pts) >= 3:
+                        # Fecha o polígono
+                        if pts[0] != pts[-1]:
+                            pts.append(pts[0])
+                        self.entities['hatches'].append({
+                            'paths': [pts],
+                            'layer': override_layer or solid.dxf.layer,
+                            'color': rgb, 'aci': aci, 'lineweight': lw,
+                            'is_block': True, 'solid': True, 'pattern_name': 'SOLID',
+                        })
+                except Exception:
+                    pass
 
         # Hatches - Alta Fidelidade com Transformação
         for hatch in container.query('HATCH'):
@@ -755,11 +976,14 @@ class DXFLoader:
                             paths_data.append(current_path)
                 
                 if paths_data:
+                    solid_fill   = getattr(hatch.dxf, 'solid_fill', 1)
+                    pattern_name = getattr(hatch.dxf, 'pattern_name', 'SOLID') or 'SOLID'
                     self.entities['hatches'].append({
                         'paths': paths_data,
                         'layer': override_layer or hatch.dxf.layer,
                         'color': rgb, 'aci': aci, 'lineweight': lw, 'is_block': is_block,
-                        'solid': True
+                        'solid': bool(solid_fill),
+                        'pattern_name': pattern_name.upper(),
                     })
             except: pass
 
@@ -785,10 +1009,15 @@ class DXFLoader:
                     })
                     continue
 
+                # [FIX v11] Converter major_axis+ratio → rx/ry/rotation esperados pelo canvas
+                import math as _math
+                maj = ellipse.dxf.major_axis
+                rx = _math.hypot(maj.x, maj.y)
+                ry = rx * ellipse.dxf.ratio
+                rot = _math.degrees(_math.atan2(maj.y, maj.x))
                 self.entities['ellipses'].append({
                    'center': (ellipse.dxf.center.x, ellipse.dxf.center.y),
-                   'major_axis': (ellipse.dxf.major_axis.x, ellipse.dxf.major_axis.y),
-                   'ratio': ellipse.dxf.ratio,
+                   'rx': rx, 'ry': ry, 'rotation': rot,
                    'start_param': ellipse.dxf.start_param,
                    'end_param': ellipse.dxf.end_param,
                    'layer': override_layer or ellipse.dxf.layer,
@@ -812,17 +1041,21 @@ class DXFLoader:
                     spline = spline.copy()
                     spline.transform(total_matrix)
                 
-                # Sempre fornecer pontos de controle transformados
-                control_points = [(p[0], p[1]) for p in spline.control_points]
-                
-                # Variety: Em modo de alta fidelidade, podemos também enviar o "fit_points"
-                self.entities['splines'].append({
-                   'control_points': control_points,
-                   'degree': spline.dxf.degree,
-                   'closed': spline.closed,
-                   'color': rgb, 'aci': aci, 'lineweight': lw, 'is_block': is_block,
-                   'layer': override_layer or spline.dxf.layer
-                })
+                # [FIX v11] Canvas espera 'points' (lista de pts). Usar flattening para fidelidade real.
+                # flattening() aproxima a spline em segmentos lineares com distância máxima de 0.05.
+                try:
+                    pts = [(p.x, p.y) for p in spline.flattening(distance=0.05)]
+                except Exception:
+                    pts = [(p[0], p[1]) for p in spline.control_points]
+
+                if pts:
+                    self.entities['splines'].append({
+                       'points': pts,
+                       'degree': spline.dxf.degree,
+                       'closed': spline.closed,
+                       'color': rgb, 'aci': aci, 'lineweight': lw, 'is_block': is_block,
+                       'layer': override_layer or spline.dxf.layer
+                    })
             except: pass
 
     @staticmethod

@@ -1,6 +1,7 @@
 from PySide6.QtWidgets import QWidget, QLabel, QPushButton, QHBoxLayout, QVBoxLayout, QFrame
 from PySide6.QtCore import Qt, QSize, Signal
 from PySide6.QtGui import QColor, QFont, QIcon
+from src.ui.theme import Colors, Fonts, Radius
 
 class StatusBadge(QLabel):
     """
@@ -22,11 +23,11 @@ class StatusBadge(QLabel):
     def _set_style(self):
         s = self._status.upper()
         if "VALID" in s or "OK" in s:
-            bg, color, border = "rgba(40, 167, 69, 0.2)", "#28a745", "#28a745"
+            bg, color, border = "rgba(40,167,69,51)", Colors.ACCENT_SUCCESS, Colors.ACCENT_SUCCESS
         elif "REVIS" in s or "WARN" in s:
-            bg, color, border = "rgba(255, 193, 7, 0.2)", "#ffc107", "#ffc107"
+            bg, color, border = "rgba(255,193,7,51)", Colors.ACCENT_WARNING, Colors.ACCENT_WARNING
         else: # ERROR, CRITICAL
-            bg, color, border = "rgba(220, 53, 69, 0.2)", "#dc3545", "#dc3545"
+            bg, color, border = "rgba(220,53,69,51)", Colors.ACCENT_DANGER, Colors.ACCENT_DANGER
             
         pad = "2px 6px" if self._compact else "4px 8px"
         font_size = "10px" if self._compact else "11px"
@@ -71,18 +72,18 @@ class NavButton(QPushButton):
                 padding-left: 15px;
                 background-color: transparent;
                 border: none;
-                color: #aaaaaa;
+                color: {Colors.TEXT_SECONDARY};
                 font-size: 13px;
                 border-left: 3px solid transparent;
             }
             NavButton:hover {
-                background-color: rgba(255, 255, 255, 0.05);
-                color: #ffffff;
+                background-color: rgba(255,255,255,13);
+                color: {Colors.TEXT_BRIGHT};
             }
             NavButton:checked {
-                background-color: rgba(0, 120, 212, 0.1);
-                color: #0078d4;
-                border-left: 3px solid #0078d4;
+                background-color: rgba(0,120,212,26);
+                color: {Colors.ACCENT_BLUE};
+                border-left: 3px solid {Colors.ACCENT_BLUE};
                 font-weight: bold;
             }
         """
@@ -98,12 +99,12 @@ class MetricLabel(QWidget):
         layout.setContentsMargins(0, 2, 0, 2)
         
         lbl_title = QLabel(label)
-        lbl_title.setStyleSheet("color: #888; font-size: 11px;")
+        lbl_title.setStyleSheet(f"color: {Colors.TEXT_SECONDARY}; font-size: 11px;")
         
         full_value = f"{value} {unit}" if unit else str(value)
         lbl_val = QLabel(full_value)
         
-        color = "#00E5FF" if highlight else "#EEE"
+        color = Colors.ACCENT_BRAND if highlight else Colors.TEXT_BRIGHT
         weight = "bold" if highlight else "normal"
         lbl_val.setStyleSheet(f"color: {color}; font-size: 12px; font-weight: {weight};")
         lbl_val.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
@@ -141,14 +142,14 @@ class DeltaBadge(QLabel):
         is_good = (val_float > 0 and inverse) or (val_float < 0 and not inverse)
         
         if val_float == 0:
-            color = "#888"
-            bg = "#333"
+            color = Colors.TEXT_SECONDARY
+            bg = Colors.BG_CARD
         elif is_good:
-            color = "#28a745"
-            bg = "rgba(40, 167, 69, 0.1)"
+            color = Colors.ACCENT_SUCCESS
+            bg = "rgba(40,167,69,26)"
         else:
-            color = "#dc3545"
-            bg = "rgba(220, 53, 69, 0.1)"
+            color = Colors.ACCENT_DANGER
+            bg = "rgba(220,53,69,26)"
             
         self.setStyleSheet(f"""
             DeltaBadge {{
@@ -174,7 +175,7 @@ class AISuggestionBox(QFrame):
         self.setStyleSheet("""
             #AIBox {
                 background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 rgba(30, 30, 40, 255), stop:1 rgba(40, 40, 60, 255));
-                border: 1px solid rgba(100, 100, 255, 0.3);
+                border: 1px solid rgba(100,100,255,76);
                 border-radius: 8px;
             }
         """)
@@ -183,13 +184,13 @@ class AISuggestionBox(QFrame):
         
         # Header com ícone
         hdr_lbl = QLabel("✨ AI Analysis")
-        hdr_lbl.setStyleSheet("color: #a0a0ff; font-weight: bold; font-size: 11px;")
+        hdr_lbl.setStyleSheet("color: rgba(160,160,255,1); font-weight: bold; font-size: 11px;")
         layout.addWidget(hdr_lbl)
         
         # Texto corpo
         self.lbl_text = QLabel(text)
         self.lbl_text.setWordWrap(True)
-        self.lbl_text.setStyleSheet("color: #ddd; font-size: 11px; margin-top: 5px;")
+        self.lbl_text.setStyleSheet(f"color: {Colors.TEXT_BRIGHT}; font-size: 11px; margin-top: 5px;")
         layout.addWidget(self.lbl_text)
         
         # Botão Ação
@@ -197,16 +198,16 @@ class AISuggestionBox(QFrame):
         self.btn_action.setCursor(Qt.PointingHandCursor)
         self.btn_action.setStyleSheet("""
             QPushButton {
-                background-color: rgba(0, 120, 212, 0.3);
-                border: 1px solid #0078d4;
-                color: #fff;
+                background-color: rgba(0,120,212,76);
+                border: 1px solid {Colors.ACCENT_BLUE};
+                color: {Colors.TEXT_BRIGHT};
                 border-radius: 4px;
                 padding: 4px;
                 font-size: 11px;
                 margin-top: 8px;
             }
             QPushButton:hover {
-                background-color: rgba(0, 120, 212, 0.5);
+                background-color: rgba(0,120,212,128);
             }
         """)
         self.btn_action.clicked.connect(self.apply_clicked.emit)
@@ -233,9 +234,9 @@ class SyncToggleButton(QPushButton):
             self.setText("SYNC ON")
             self.setStyleSheet("""
                 QPushButton {
-                    background-color: rgba(0, 229, 255, 0.15);
-                    border: 1px solid #00E5FF;
-                    color: #00E5FF;
+                    background-color: rgba(0,229,255,38);
+                    border: 1px solid {Colors.ACCENT_BRAND};
+                    color: {Colors.ACCENT_BRAND};
                     border-radius: 14px;
                     font-weight: bold; font-size: 10px;
                 }
@@ -246,14 +247,14 @@ class SyncToggleButton(QPushButton):
             self.setStyleSheet("""
                 QPushButton {
                     background-color: transparent;
-                    border: 1px solid #555;
-                    color: #777;
+                    border: 1px solid {Colors.BORDER_INPUT};
+                    color: {Colors.TEXT_MUTED};
                     border-radius: 14px;
                      font-weight: bold; font-size: 10px;
                 }
                 QPushButton:hover {
-                    border-color: #888;
-                    color: #aaa;
+                    border-color: {Colors.TEXT_SECONDARY};
+                    color: {Colors.TEXT_SECONDARY};
                 }
             """)
 
@@ -291,17 +292,17 @@ class AttachmentChip(QPushButton):
         self.setText(f"📎 {filename}")
         self.setStyleSheet("""
             QPushButton {
-                background-color: #2d2d30;
-                border: 1px solid #3e3e42;
-                color: #ddd;
+                background-color: {Colors.BORDER_PANEL};
+                border: 1px solid {Colors.BORDER_INPUT};
+                color: {Colors.TEXT_BRIGHT};
                 border-radius: 12px;
                 padding: 2px 10px;
                 font-size: 11px;
                 text-align: left;
             }
             QPushButton:hover {
-                background-color: #3e3e42;
-                border-color: #555;
+                background-color: {Colors.BG_HOVER};
+                border-color: {Colors.TEXT_MUTED};
             }
         """)
 
@@ -318,15 +319,15 @@ class UserAvatar(QLabel):
         self.setText(initials)
         
         # Cor de borda baseada no status
-        border_color = "#666"
-        if status == "Online": border_color = "#4caf50"
-        elif status == "Busy": border_color = "#f44336"
-        elif status == "Away": border_color = "#ffc107"
+        border_color = Colors.TEXT_DIM
+        if status == "Online": border_color = Colors.ACCENT_SUCCESS
+        elif status == "Busy": border_color = Colors.ACCENT_DANGER
+        elif status == "Away": border_color = Colors.ACCENT_WARNING
         
         self.setStyleSheet(f"""
             QLabel {{
-                background-color: #0078d4;
-                color: #fff;
+                background-color: {Colors.ACCENT_BLUE};
+                color: {Colors.TEXT_BRIGHT};
                 border: 2px solid {border_color};
                 border-radius: {size//2}px;
                 font-weight: bold;
@@ -339,14 +340,70 @@ class PriorityTag(QLabel):
     """
     Badge colorida para tags (VIP, Urgente).
     """
-    def __init__(self, text, color="#0078d4"):
+    def __init__(self, text, color=Colors.ACCENT_BLUE):
         super().__init__(text)
         self.setAlignment(Qt.AlignCenter)
         self.setStyleSheet(f"""
             background-color: {color};
-            color: white;
+            color: {Colors.TEXT_BRIGHT};
             padding: 2px 6px;
             border-radius: 4px;
             font-size: 9px;
             font-weight: bold;
         """)
+
+
+def make_section_header(title: str, subtitle: str = "", accent_color: str = "") -> QWidget:
+    """
+    Cria um cabeçalho de seção padronizado para uso em painéis e abas.
+
+    Args:
+        title:        Texto principal em maiúsculas (ex: "DOCUMENTAÇÃO").
+        subtitle:     Texto secundário opcional (ex: "12 itens").
+        accent_color: Cor de destaque do título. Padrão: Colors.ACCENT_PRIMARY.
+
+    Returns:
+        QWidget contendo o cabeçalho pronto para inserir em qualquer layout.
+
+    Uso:
+        header = make_section_header("PILARES", "42 registros")
+        layout.addWidget(header)
+    """
+    color = accent_color or Colors.ACCENT_PRIMARY
+
+    container = QWidget()
+    h_layout = QHBoxLayout(container)
+    h_layout.setContentsMargins(0, 0, 0, 0)
+    h_layout.setSpacing(8)
+
+    lbl_title = QLabel(title.upper())
+    lbl_title.setStyleSheet(
+        f"color: {color}; font-size: {Fonts.SIZE_MD}; "
+        f"font-weight: bold; letter-spacing: 1.5px; background: transparent;"
+    )
+    h_layout.addWidget(lbl_title)
+
+    if subtitle:
+        lbl_sub = QLabel(subtitle)
+        lbl_sub.setStyleSheet(
+            f"color: {Colors.TEXT_SECONDARY}; font-size: {Fonts.SIZE_SM}; "
+            f"background: transparent;"
+        )
+        h_layout.addWidget(lbl_sub)
+
+    h_layout.addStretch()
+
+    # Linha separadora abaixo do título
+    line = QFrame()
+    line.setFrameShape(QFrame.HLine)
+    line.setFixedHeight(1)
+    line.setStyleSheet(f"background-color: {Colors.BORDER_SUBTLE}; border: none;")
+
+    wrapper = QWidget()
+    v_layout = QVBoxLayout(wrapper)
+    v_layout.setContentsMargins(0, 0, 0, 4)
+    v_layout.setSpacing(4)
+    v_layout.addWidget(container)
+    v_layout.addWidget(line)
+
+    return wrapper

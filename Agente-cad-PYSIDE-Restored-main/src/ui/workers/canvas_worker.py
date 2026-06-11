@@ -1,6 +1,7 @@
 import time
 from PySide6.QtCore import QObject, Signal, QThread, QRunnable, QThreadPool, QPointF
 from PySide6.QtGui import QPainterPath, QTransform
+from src.ui.theme import Colors, Fonts, Radius
 
 class CanvasEntityWorker(QObject):
     """

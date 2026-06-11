@@ -23,6 +23,13 @@ CLI:
   python scripts/pipeline_e2e.py --obra DADOS-OBRAS/Obra_TREINO_21 --force  (reprocessa mesmo se output existe)
 """
 
+import os
+# Qt headless guard — DEVE vir antes de qualquer import PySide6/PyQt
+# Sem isso: subprocessos crasham com 0xC000012D / 0xC0000142 (DLL_INIT_FAILED)
+os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
+os.environ.setdefault("QT_LOGGING_RULES", "*.debug=false")
+os.environ.setdefault("QT_QPA_FONTDIR", "")
+
 import argparse
 import json
 import subprocess
@@ -45,16 +52,30 @@ def run_script(script_name: str, args_list: list, dry_run: bool = False) -> bool
     t0 = time.time()
     try:
         NIM_SCRIPTS = {"validar_visual_dxf.py"}
-        script_timeout = 300 if script_name in NIM_SCRIPTS else None
+        script_timeout = 900 if script_name in NIM_SCRIPTS else None  # 15min: render 4 tipos + 40 API calls
         try:
-            result = subprocess.run(cmd, capture_output=False, check=False, timeout=script_timeout)
+            # Use Popen directly to guarantee kill on timeout (subprocess.run on Windows
+            # can block indefinitely in the post-kill communicate() if child ignores signals)
+            proc = subprocess.Popen(cmd)
+            try:
+                proc.wait(timeout=script_timeout)
+                result_code = proc.returncode
+            except subprocess.TimeoutExpired:
+                proc.kill()
+                try:
+                    proc.wait(timeout=10)  # give 10s to die cleanly
+                except subprocess.TimeoutExpired:
+                    pass  # force-killed, move on
+                elapsed = time.time() - t0
+                print(f"        -> TIMEOUT ({elapsed:.1f}s) — {script_name} excedeu {script_timeout}s, continuando")
+                return False
         except subprocess.TimeoutExpired:
             elapsed = time.time() - t0
             print(f"        -> TIMEOUT ({elapsed:.1f}s) — {script_name} excedeu {script_timeout}s, continuando")
             return False
         elapsed = time.time() - t0
-        ok = result.returncode == 0
-        status = "OK" if ok else f"FALHOU (code {result.returncode})"
+        ok = result_code == 0
+        status = "OK" if ok else f"FALHOU (code {result_code})"
         print(f"        -> {status} ({elapsed:.1f}s)")
         return ok
     except Exception as ex:
@@ -68,7 +89,7 @@ def output_exists(path: Path) -> bool:
 
 
 def run_pipeline(obra_path: str, pavimento: str, dry_run: bool = False,
-                 force: bool = False) -> dict:
+                 force: bool = False, skip_nim: bool = False) -> dict:
     obra = Path(obra_path).resolve()
     obra_nome = obra.name
     fase3 = obra / "Fase-3_Interpretacao_Extracao"
@@ -146,10 +167,14 @@ def run_pipeline(obra_path: str, pavimento: str, dry_run: bool = False,
         print(f"  [SKIP] dados dimensionais ja existem")
         results["fases"]["extracao_dimensional"] = "SKIP"
     # Integrar fichas sempre (cria vigas.json + lajes.json para motor_fase4)
-    vigas_json = fase3 / "Vigas" / "vigas.json"
-    lajes_json = fase3 / "Lajes" / "lajes.json"
+    vigas_json  = fase3 / "Vigas"   / "vigas.json"
+    lajes_json  = fase3 / "Lajes"   / "lajes.json"
+    pilares_json = fase3 / "Pilares" / "pilares.json"
     if not output_exists(vigas_json) or not output_exists(lajes_json) or force:
         run_script("integrar_fichas_fase3.py", ["--obra", str(obra)], dry_run)
+    # Integrar pilares (cria pilares.json unificado — pilares_bh + pilares_assembly)
+    if not output_exists(pilares_json) or force:
+        run_script("integrar_fichas_pilares.py", ["--obra", str(obra)], dry_run)
 
     # ── Fase 3b: Validação Dimensional B/H (C2) ───────────────
     # Extrai B/H real do STOG PL (ground truth) e valida contra extrair_bh_pilares
@@ -284,19 +309,42 @@ def run_pipeline(obra_path: str, pavimento: str, dry_run: bool = False,
         results["fases"]["obras_salvas"] = "SKIP"
 
     # ── Fase 10: Validação Visual Autônoma (NVIDIA NIM) ───────────
+    pav_arg = pavimento or "TIPO"
+    pav_safe = pav_arg.replace(' ', '_').replace('/', '-')
+    vis_json_path = Path("D:/Agente-cad-PYSIDE/validacao_visual") / obra_nome / pav_safe / "validation_visual.json"
+
     if not dry_run:
         print("\n[FASE 10] Validação Visual Autônoma (NVIDIA NIM)")
-        pav_arg = pavimento or "TIPO"
-        ok_vis = run_script("validar_visual_dxf.py", [
-            "--obra", obra_nome,
-            "--pav", pav_arg,
-            "--quiet",
-        ], dry_run)
-        results["fases"]["validacao_visual"] = "OK" if ok_vis else "SKIP"
+        if skip_nim:
+            print(f"  [SKIP-NIM] --skip-nim ativo, usando resultado anterior")
+            results["fases"]["validacao_visual"] = "SKIP"
+        elif vis_json_path.exists():
+            # Score NIM já existe: reutilizar sempre (render DXF + 40 API calls custa 5-15min)
+            # Só re-roda se score=None (primeira vez ou falhou)
+            try:
+                _cached = json.loads(vis_json_path.read_text(encoding='utf-8'))
+                _cached_score = _cached.get("score_pavimento")
+            except Exception:
+                _cached_score = None
+            if _cached_score is not None:
+                print(f"  [NIM-CACHE] score={_cached_score} já existe, reutilizando (use --skip-nim para forçar skip)")
+                results["fases"]["validacao_visual"] = "OK"
+            else:
+                ok_vis = run_script("validar_visual_dxf.py", [
+                    "--obra", obra_nome,
+                    "--pav", pav_arg,
+                    "--quiet",
+                ], dry_run)
+                results["fases"]["validacao_visual"] = "OK" if ok_vis else "SKIP"
+        else:
+            ok_vis = run_script("validar_visual_dxf.py", [
+                "--obra", obra_nome,
+                "--pav", pav_arg,
+                "--quiet",
+            ], dry_run)
+            results["fases"]["validacao_visual"] = "OK" if ok_vis else "SKIP"
 
-        # Carregar score visual se disponível
-        pav_safe = pav_arg.replace(' ', '_').replace('/', '-')
-        vis_json_path = Path("D:/Agente-cad-PYSIDE/validacao_visual") / obra_nome / pav_safe / "validation_visual.json"
+        # Carregar score visual se disponível (resultado novo ou anterior)
         if vis_json_path.exists():
             try:
                 with open(vis_json_path, encoding='utf-8') as f:
@@ -393,9 +441,10 @@ def main():
     parser.add_argument('--pavimento', default='12 PAV', help='Pavimento (default: "12 PAV")')
     parser.add_argument('--dry-run', action='store_true', help='Mostrar o que faria sem executar')
     parser.add_argument('--force', action='store_true', help='Reprocessar mesmo se outputs existem')
+    parser.add_argument('--skip-nim', action='store_true', help='Pular NIM (Fase 10), reusar resultado anterior se existir')
     args = parser.parse_args()
 
-    results = run_pipeline(args.obra, args.pavimento, args.dry_run, args.force)
+    results = run_pipeline(args.obra, args.pavimento, args.dry_run, args.force, args.skip_nim)
 
     # Exit code
     if results.get("status") == "APROVADO":

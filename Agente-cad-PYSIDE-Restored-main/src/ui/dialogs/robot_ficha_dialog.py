@@ -3,6 +3,7 @@ from PySide6.QtWidgets import (QDialog, QVBoxLayout, QHBoxLayout, QLabel,
                                 QPushButton, QGroupBox)
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QColor
+from src.ui.theme import Colors, Fonts, Radius
 
 class RobotFichaDialog(QDialog):
     """
@@ -18,15 +19,15 @@ class RobotFichaDialog(QDialog):
         self.setWindowTitle(f"Ficha do Robô: {self.item_name}")
         self.resize(500, 750)
         self.setStyleSheet("""
-            QDialog { background-color: #121212; color: #e0e0e0; font-family: 'Segoe UI', Arial; }
-            QLabel { color: #b0b0b0; font-size: 11px; }
+            QDialog { background-color: {Colors.BG_DEEP}; color: {Colors.TEXT_PRIMARY}; font-family: 'Segoe UI', Arial; }
+            QLabel { color: {Colors.TEXT_SECONDARY}; font-size: 11px; }
             QLineEdit { 
-                background: #1e1e1e; border: 1px solid #333; border-radius: 4px; 
-                padding: 6px; color: #00d4ff; font-weight: bold; font-size: 13px;
+                background: {Colors.BG_PANEL}; border: 1px solid {Colors.BORDER_DEFAULT}; border-radius: 4px; 
+                padding: 6px; color: {Colors.ACCENT_PRIMARY}; font-weight: bold; font-size: 13px;
             }
             QGroupBox {
-                border: 1px solid #333; border-radius: 8px; margin-top: 15px;
-                font-weight: bold; color: #00d4ff; padding-top: 10px;
+                border: 1px solid {Colors.BORDER_DEFAULT}; border-radius: 8px; margin-top: 15px;
+                font-weight: bold; color: {Colors.ACCENT_PRIMARY}; padding-top: 10px;
             }
         """)
         
@@ -40,15 +41,15 @@ class RobotFichaDialog(QDialog):
         # Header Premium
         header = QFrame()
         header.setFixedHeight(70)
-        header.setStyleSheet("background: #1a1b1e; border-bottom: 2px solid #00d4ff;")
+        header.setStyleSheet(f"background: {Colors.BG_DEEP}; border-bottom: 2px solid #00d4ff;")
         h_layout = QVBoxLayout(header)
         
         title = QLabel(self.type_str.upper())
-        title.setStyleSheet("color: #00d4ff; font-weight: bold; font-size: 10px; letter-spacing: 1px;")
+        title.setStyleSheet(f"color: {Colors.ACCENT_PRIMARY}; font-weight: bold; font-size: 10px; letter-spacing: 1px;")
         h_layout.addWidget(title)
         
         name_label = QLabel(self.item_name)
-        name_label.setStyleSheet("color: white; font-weight: bold; font-size: 20px;")
+        name_label.setStyleSheet(f"color: {Colors.TEXT_BRIGHT}; font-weight: bold; font-size: 20px;")
         h_layout.addWidget(name_label)
         
         main_layout.addWidget(header)
@@ -151,7 +152,7 @@ class RobotFichaDialog(QDialog):
         # Botão Fechar
         footer = QFrame()
         footer.setFixedHeight(50)
-        footer.setStyleSheet("background: #1a1b1e; border-top: 1px solid #333;")
+        footer.setStyleSheet(f"background: {Colors.BG_DEEP}; border-top: 1px solid {Colors.BORDER_DEFAULT};")
         f_layout = QHBoxLayout(footer)
         
         btn_close = QPushButton("FECHAR")
@@ -159,9 +160,9 @@ class RobotFichaDialog(QDialog):
         btn_close.setFixedWidth(120)
         btn_close.setStyleSheet("""
             QPushButton {
-                background: #333; color: white; border-radius: 4px; font-weight: bold;
+                background: {Colors.BG_CARD}; color: {Colors.TEXT_BRIGHT}; border-radius: 4px; font-weight: bold;
             }
-            QPushButton:hover { background: #444; }
+            QPushButton:hover { background: {Colors.BORDER_INPUT}; }
         """)
         btn_close.clicked.connect(self.accept)
         f_layout.addStretch()

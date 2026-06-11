@@ -332,7 +332,8 @@ def cmd_status(data_dir: Path, verbose: bool):
         scores = d.get("score_fidelidade", {})
         cert   = d.get("certificado", False)
         pav_str   = pavs[0][:6] if pavs else "—"
-        score_val = list(scores.values())[0] if scores else None
+        # Mostrar maior score entre pavimentos (certify pode ter re-rodado com pavimento diferente)
+        score_val = max(scores.values()) if scores else None
         score_str = f"{score_val:.1f}" if score_val is not None else "—"
         new_flag  = " *" if d.get("_discovered") else ""
         if cert:

@@ -45,17 +45,11 @@ except ImportError:
     print("ERRO: ezdxf não instalado. Execute: pip install ezdxf[draw]")
     sys.exit(1)
 
-# ─── Providers de Visão (NVIDIA NIM preferido, fallback Anthropic) ────────────
+# ─── Provider de Visão (NVIDIA NIM) ──────────────────────────────────────────
 OPENAI_OK = False
-ANTHROPIC_OK = False
 try:
     from openai import OpenAI as _OpenAI
     OPENAI_OK = True
-except ImportError:
-    pass
-try:
-    import anthropic as _anthropic_mod
-    ANTHROPIC_OK = True
 except ImportError:
     pass
 
@@ -64,10 +58,10 @@ DATA_DIR_DEFAULT = Path("D:/Agente-cad-PYSIDE/DADOS-OBRAS")
 DISCOVERY_JSON   = DATA_DIR_DEFAULT / "dxf_discovery.json"
 TIPOS_DXF        = ["PL", "LV", "FV", "LJ"]
 GERADO_NOMES     = {
-    "PL": "PL_gerado.dxf",
-    "LV": "LV_gerado.dxf",
-    "FV": "FV_gerado.dxf",
-    "LJ": "LJ_gerado.dxf",
+    "PL": "PL_stog_quality.dxf",
+    "LV": "LV_stog_quality.dxf",
+    "FV": "FV_stog_quality.dxf",
+    "LJ": "LJ_stog_quality.dxf",
 }
 RENDER_DPI   = 150    # resolução PNG (maior = mais detalhe, mais lento)
 TILES_DEFAULT = 3     # grid N×N para fragmentação
@@ -76,7 +70,6 @@ MAX_IMG_KB   = 1800   # limite de tamanho de tile para API
 # Providers e modelos suportados
 NVIDIA_BASE_URL  = "https://integrate.api.nvidia.com/v1"
 NVIDIA_MODEL_DEF = "meta/llama-3.2-90b-vision-instruct"
-ANTHROPIC_MODEL  = "claude-opus-4-5"
 
 VISION_MODEL = NVIDIA_MODEL_DEF  # default
 
@@ -89,59 +82,212 @@ Você está comparando duas imagens de um mesmo TILE (fragmento) de um pavimento
 
 IMPORTANTE: O DXF gerado pode não ter carimbo, bordas ou elementos administrativos do STOG.
 Foque APENAS nos elementos estruturais: pilares, vigas, lajes, cotas, nomenclatura estrutural.
-Se o tile mostrar área em branco/vazia (sem elementos estruturais), retorne score=null.
+Se o tile mostrar área em branco/vazia (sem elementos estruturais), retorne tem_conteudo=false.
 
-Analise os elementos estruturais presentes neste tile:
-1. **Dimensões/Cotas**: Valores de cotas/medidas estruturais coincidem?
-2. **Geometria**: Formas, posições e proporções dos elementos estruturais estão corretas?
-3. **Labels/Nomenclatura**: Textos P1/P2/V1/L1 etc. presentes e corretos?
-4. **Padrão de linhas**: Tipos de linha adequados por elemento?
-5. **Elementos ausentes**: Algum elemento estrutural do STOG falta no gerado?
+Responda cada critério com um número inteiro de 0 a 100:
+1. tem_conteudo (true/false): Este tile contém elementos estruturais visíveis?
+2. geometria (0-100): Formas, posições e proporções dos elementos estruturais são consistentes entre esquerdo e direito?
+3. textos_labels (0-100): Textos, labels e nomenclatura (P1/P2/V1/L1 etc.) estão presentes e coincidem?
+4. elementos_ausentes: Liste elementos visíveis no STOG (esquerdo) mas ausentes no gerado (direito).
 
-Retorne JSON APENAS (sem markdown), com esta estrutura exata:
+Retorne JSON APENAS (sem markdown):
 {
-  "score": <0-100 ou null se tile vazio>,
-  "tile_tem_conteudo": true/false,
-  "dimensoes": {"ok": true/false, "nota": "..."},
-  "geometria": {"ok": true/false, "nota": "..."},
-  "labels": {"ok": true/false, "nota": "..."},
-  "linhas": {"ok": true/false, "nota": "..."},
-  "elementos_ausentes": ["lista ou []"],
-  "resumo": "frase curta"
+  "tem_conteudo": true,
+  "geometria": 80,
+  "textos_labels": 70,
+  "elementos_ausentes": [],
+  "resumo": "frase curta descrevendo diferenças"
 }"""
 
-PROMPT_FULL = """\
+# ─── Prompts específicos por classe ───────────────────────────────────────────
+
+PROMPT_FULL_PL = """\
 Você é um engenheiro civil especialista em projetos estruturais analisando desenhos CAD.
 
-Você está comparando dois DXFs de um pavimento estrutural tipo {tipo}:
+Você está comparando dois DXFs de PLANTA DE PILARES (PL):
 - Imagem ESQUERDA: DXF ORIGINAL STOG (projeto profissional de referência)
 - Imagem DIREITA: DXF GERADO automaticamente por pipeline de engenharia reversa
 
-Tipo: {tipo} — {desc_tipo}
+CONTEXTO: O gerado não terá carimbo, selo ou bordas administrativas.
+O pipeline extrai APENAS o conteúdo estrutural (seções transversais dos pilares).
+Avalie fidelidade estrutural — NÃO penalize ausência de elementos administrativos.
 
-CONTEXTO: O gerado não terá elementos administrativos (carimbo, selo, norte, bordas).
-O pipeline extrai APENAS o conteúdo estrutural. Avalie fidelidade estrutural, não completude administrativa.
-
-Avalie:
-1. **Elementos estruturais**: Todos os pilares/vigas/lajes do STOG estão no gerado?
-2. **Dimensões**: Cotas estruturais (B×H pilares, largura vigas, espessura lajes) corretas?
-3. **Layout espacial**: Distribuição e posicionamento dos elementos é fiel?
-4. **Nomenclatura**: Labels (P1, V1, etc.) corretos e completos?
-5. **Usabilidade**: O gerado seria suficiente para orientar execução em obra?
+Responda cada critério com um número inteiro de 0 a 100:
+1. contagem (0-100): O número de pilares visíveis no gerado (direita) é comparável ao STOG (esquerda)?
+   Conte os elementos presentes e avalie se a quantidade é proporcional.
+2. secao_transversal (0-100): As formas das seções transversais dos pilares (retangular, L, T, U) coincidem entre STOG e gerado?
+3. dimensoes_bh (0-100): As anotações de dimensão B×H (ex: 20x50, 25x60) estão presentes no gerado e os valores são comparáveis ao STOG?
+4. nomenclatura (0-100): Os labels de identificação dos pilares (P01, P02, etc.) estão presentes, posicionados e correspondem ao STOG?
+5. hachura_concreto (0-100): O padrão de hachura de concreto está presente nas seções dos pilares no gerado?
+6. layout_espacial (0-100): A distribuição espacial relativa dos pilares (posições x/y) no gerado é fiel ao STOG?
 
 Retorne JSON APENAS (sem markdown):
-{{
-  "score_global": <0-100>,
-  "elementos_estruturais": <0-100>,
-  "dimensoes": <0-100>,
-  "layout": <0-100>,
-  "nomenclatura": <0-100>,
-  "usabilidade": <0-100>,
-  "pontos_criticos": ["problemas sérios que impediriam uso em obra"],
-  "pontos_positivos": ["acertos notáveis do pipeline"],
-  "suficiente_para_obra": true/false,
-  "resumo_executivo": "2-3 frases avaliando qualidade estrutural do gerado"
-}}"""
+{
+  "contagem": 80,
+  "secao_transversal": 75,
+  "dimensoes_bh": 70,
+  "nomenclatura": 85,
+  "hachura_concreto": 60,
+  "layout_espacial": 80,
+  "criticos": ["lista de falhas críticas que impediriam uso em obra"],
+  "observacoes": "nota técnica resumida"
+}"""
+
+PROMPT_FULL_LV = """\
+Você é um engenheiro civil especialista em projetos estruturais analisando desenhos CAD.
+
+Você está comparando dois DXFs de LANÇAMENTO/DETALHE DE VIGAS (LV):
+- Imagem ESQUERDA: DXF ORIGINAL STOG (projeto profissional de referência)
+- Imagem DIREITA: DXF GERADO automaticamente por pipeline de engenharia reversa
+
+CONTEXTO: O gerado não terá carimbo, selo ou bordas administrativas.
+O pipeline extrai vistas laterais de vigas com cortes transversais (faces ABCD).
+Avalie fidelidade estrutural — NÃO penalize ausência de elementos administrativos.
+
+Responda cada critério com um número inteiro de 0 a 100:
+1. altura_secao (0-100): As alturas das vigas (h) no gerado são proporcionalmente consistentes com o STOG?
+2. barras_longitudinais (0-100): As barras de armadura longitudinal (topo e fundo da viga) estão visíveis no gerado de forma similar ao STOG?
+3. estribos (0-100): Os estribos (armadura transversal) estão visíveis no gerado com espaçamento comparável ao STOG?
+4. faces_identificadas (0-100): As identificações de face (FACE A, B, C, D ou similar) estão presentes e legíveis no gerado?
+5. cotas_dimensoes (0-100): As anotações dimensionais (comprimento de vão, altura) estão presentes e comparáveis ao STOG?
+6. continuidade_vigas (0-100): O layout de continuidade/sequência entre seções de viga é consistente entre STOG e gerado?
+
+Retorne JSON APENAS (sem markdown):
+{
+  "altura_secao": 80,
+  "barras_longitudinais": 75,
+  "estribos": 70,
+  "faces_identificadas": 85,
+  "cotas_dimensoes": 70,
+  "continuidade_vigas": 80,
+  "criticos": ["lista de falhas críticas que impediriam uso em obra"],
+  "observacoes": "nota técnica resumida"
+}"""
+
+PROMPT_FULL_FV = """\
+Você é um engenheiro civil especialista em projetos estruturais analisando desenhos CAD.
+
+Você está comparando dois DXFs de FORMA DE VIGAS (FV):
+- Imagem ESQUERDA: DXF ORIGINAL STOG (projeto profissional de referência)
+- Imagem DIREITA: DXF GERADO automaticamente por pipeline de engenharia reversa
+
+CONTEXTO: O gerado não terá carimbo, selo ou bordas administrativas.
+O pipeline extrai moldes/formas de vigas em vista de plano — painéis, lâminas e sarrafos.
+Avalie fidelidade estrutural — NÃO penalize ausência de elementos administrativos.
+
+Responda cada critério com um número inteiro de 0 a 100:
+1. numero_paineis (0-100): O número de painéis/seções da forma no gerado é comparável ao STOG?
+2. dimensoes_forma (0-100): As dimensões gerais da forma (largura, altura total) no gerado são comparáveis ao STOG?
+3. lamelas_sarrafos (0-100): O padrão de lamelas/sarrafos (elementos lineares horizontais) está representado no gerado de forma similar ao STOG?
+4. aberturas (0-100): As aberturas, entalhes e recortes na forma estão posicionados corretamente no gerado em relação ao STOG?
+5. proporcoes_gerais (0-100): As proporções gerais (relação altura/largura) da forma no gerado são consistentes com o STOG?
+
+Retorne JSON APENAS (sem markdown):
+{
+  "numero_paineis": 80,
+  "dimensoes_forma": 75,
+  "lamelas_sarrafos": 70,
+  "aberturas": 65,
+  "proporcoes_gerais": 80,
+  "criticos": ["lista de falhas críticas que impediriam uso em obra"],
+  "observacoes": "nota técnica resumida"
+}"""
+
+PROMPT_FULL_LJ = """\
+Você é um engenheiro civil especialista em projetos estruturais analisando desenhos CAD.
+
+Você está comparando dois DXFs de LANÇAMENTO DE LAJES (LJ):
+- Imagem ESQUERDA: DXF ORIGINAL STOG (projeto profissional de referência)
+- Imagem DIREITA: DXF GERADO automaticamente por pipeline de engenharia reversa
+
+CONTEXTO: O gerado não terá carimbo, selo ou bordas administrativas.
+O pipeline extrai a planta de lajes com layout de nervuras, vigas de borda e pilares.
+Avalie fidelidade estrutural — NÃO penalize ausência de elementos administrativos.
+
+Responda cada critério com um número inteiro de 0 a 100:
+1. contagem_lajes (0-100): O número de elementos de laje no gerado é comparável ao STOG?
+2. vigas_borda (0-100): As vigas de borda estão presentes e posicionadas corretamente no gerado em relação ao STOG?
+3. sentido_nervuras (0-100): A direção das nervuras/joists no gerado é consistente com o STOG?
+4. ids_lajes (0-100): Os identificadores de laje (L01, L02, etc.) estão presentes e correspondem ao STOG?
+5. posicao_pilares (0-100): As posições dos pilares/colunas no gerado são consistentes com o STOG?
+6. espessura_anotada (0-100): A espessura da laje está anotada no gerado de forma comparável ao STOG?
+
+Retorne JSON APENAS (sem markdown):
+{
+  "contagem_lajes": 80,
+  "vigas_borda": 75,
+  "sentido_nervuras": 70,
+  "ids_lajes": 80,
+  "posicao_pilares": 85,
+  "espessura_anotada": 60,
+  "criticos": ["lista de falhas críticas que impediriam uso em obra"],
+  "observacoes": "nota técnica resumida"
+}"""
+
+# Mapeamento tipo → prompt
+PROMPT_FULL_MAP = {
+    "PL": PROMPT_FULL_PL,
+    "LV": PROMPT_FULL_LV,
+    "FV": PROMPT_FULL_FV,
+    "LJ": PROMPT_FULL_LJ,
+}
+
+# Mantido para retrocompatibilidade (não usado internamente — usar PROMPT_FULL_MAP)
+PROMPT_FULL = PROMPT_FULL_LJ
+
+
+# ─── Funções de score determinístico por classe ───────────────────────────────
+
+def calcular_score_full_pl(res: dict) -> float:
+    """Score determinístico para Planta de Pilares (PL)."""
+    c  = float(res.get("contagem", 0) or 0)
+    st = float(res.get("secao_transversal", 0) or 0)
+    d  = float(res.get("dimensoes_bh", 0) or 0)
+    n  = float(res.get("nomenclatura", 0) or 0)
+    h  = float(res.get("hachura_concreto", 0) or 0)
+    ls = float(res.get("layout_espacial", 0) or 0)
+    return round(c*0.25 + st*0.20 + d*0.20 + n*0.15 + h*0.10 + ls*0.10, 2)
+
+
+def calcular_score_full_lv(res: dict) -> float:
+    """Score determinístico para Lançamento de Vigas (LV)."""
+    a  = float(res.get("altura_secao", 0) or 0)
+    bl = float(res.get("barras_longitudinais", 0) or 0)
+    e  = float(res.get("estribos", 0) or 0)
+    fi = float(res.get("faces_identificadas", 0) or 0)
+    cd = float(res.get("cotas_dimensoes", 0) or 0)
+    cv = float(res.get("continuidade_vigas", 0) or 0)
+    return round(a*0.20 + bl*0.25 + e*0.20 + fi*0.10 + cd*0.15 + cv*0.10, 2)
+
+
+def calcular_score_full_fv(res: dict) -> float:
+    """Score determinístico para Forma de Vigas (FV)."""
+    np_ = float(res.get("numero_paineis", 0) or 0)
+    df  = float(res.get("dimensoes_forma", 0) or 0)
+    ls  = float(res.get("lamelas_sarrafos", 0) or 0)
+    ab  = float(res.get("aberturas", 0) or 0)
+    pg  = float(res.get("proporcoes_gerais", 0) or 0)
+    return round(np_*0.25 + df*0.25 + ls*0.20 + ab*0.15 + pg*0.15, 2)
+
+
+def calcular_score_full_lj(res: dict) -> float:
+    """Score determinístico para Lançamento de Lajes (LJ)."""
+    cl = float(res.get("contagem_lajes", 0) or 0)
+    vb = float(res.get("vigas_borda", 0) or 0)
+    sn = float(res.get("sentido_nervuras", 0) or 0)
+    il = float(res.get("ids_lajes", 0) or 0)
+    pp = float(res.get("posicao_pilares", 0) or 0)
+    ea = float(res.get("espessura_anotada", 0) or 0)
+    return round(cl*0.25 + vb*0.20 + sn*0.15 + il*0.15 + pp*0.15 + ea*0.10, 2)
+
+
+# Mapeamento tipo → função de score
+SCORE_CALC_MAP = {
+    "PL": calcular_score_full_pl,
+    "LV": calcular_score_full_lv,
+    "FV": calcular_score_full_fv,
+    "LJ": calcular_score_full_lj,
+}
 
 DESC_TIPO = {
     "PL": "Planta de Pilares — locação e seção transversal dos pilares",
@@ -167,6 +313,277 @@ def encontrar_gerado(obra_dir: Path, tipo: str) -> Optional[Path]:
         return None
     p = fase6 / nome
     return p if p.exists() else None
+
+
+def detectar_prancha(dxf_path: Path) -> Optional[list]:
+    """
+    Detecta se um DXF STOG está em "formato prancha" (LO format):
+    múltiplos retângulos LWPOLYLINE de tamanho uniforme dispostos em grade.
+
+    Retorna lista de dicts com bounds dos frames detectados, ou None se
+    o DXF não estiver no formato prancha.
+
+    Estrutura de cada frame:
+      {'x0': float, 'y0': float, 'x1': float, 'y1': float,
+       'w': float, 'h': float,
+       'inner_x0': float, 'inner_y0': float,
+       'inner_x1': float, 'inner_y1': float}
+
+    inner_* = área interna (sem borda + sem carimbo inferior ~15% h)
+    """
+    try:
+        doc = ezdxf.readfile(str(dxf_path))
+        msp = doc.modelspace()
+    except Exception:
+        return None
+
+    # Coletar todos os LWPOLYLINE do model space
+    candidate_rects = []
+    for e in msp:
+        if e.dxftype() != 'LWPOLYLINE':
+            continue
+        try:
+            pts = [(pt[0], pt[1]) for pt in e.get_points()]
+            if len(pts) < 4:
+                continue
+            xs = [pt[0] for pt in pts]
+            ys = [pt[1] for pt in pts]
+            w = max(xs) - min(xs)
+            h = max(ys) - min(ys)
+            # Somente retângulos "grandes" com aspect ratio razoável (1:3 a 3:1)
+            if w < 300 or h < 200:
+                continue
+            ar = w / h if h > 0 else 0
+            if ar < 0.2 or ar > 8:
+                continue
+            candidate_rects.append({
+                'x0': min(xs), 'y0': min(ys),
+                'x1': max(xs), 'y1': max(ys),
+                'w': round(w), 'h': round(h)
+            })
+        except Exception:
+            continue
+
+    if len(candidate_rects) < 2:
+        return None  # Menos de 2 retângulos — não é prancha
+
+    # Agrupar por tamanho (tolerância 5%)
+    from collections import defaultdict
+    size_groups: dict = defaultdict(list)
+    for r in candidate_rects:
+        # Chave de tamanho arredondada a 50 unidades
+        key = (round(r['w'] / 50) * 50, round(r['h'] / 50) * 50)
+        size_groups[key].append(r)
+
+    # Encontrar grupo dominante (mais retângulos do mesmo tamanho)
+    dominant = max(size_groups.values(), key=len)
+    if len(dominant) < 2:
+        return None  # Sem grupo com 2+ retângulos iguais
+
+    # Eliminar duplicatas (mesma posição ±10 unidades)
+    unique_frames = []
+    for r in dominant:
+        is_dup = any(
+            abs(r['x0'] - u['x0']) < 10 and abs(r['y0'] - u['y0']) < 10
+            for u in unique_frames
+        )
+        if not is_dup:
+            unique_frames.append(r)
+
+    if len(unique_frames) < 2:
+        # Fallback: tentar detecção via INSERT blocks repetidos (carimbo)
+        return _detectar_prancha_via_inserts(doc)
+
+    # Calcular área interna (strip borda ~2% e carimbo inferior ~15%)
+    frames = []
+    for r in unique_frames:
+        border_x = r['w'] * 0.02
+        border_y = r['h'] * 0.02
+        carimbo_h = r['h'] * 0.15  # carimbo ocupa ~15% inferior
+        frames.append({
+            'x0': r['x0'], 'y0': r['y0'], 'x1': r['x1'], 'y1': r['y1'],
+            'w': r['w'], 'h': r['h'],
+            'inner_x0': r['x0'] + border_x,
+            'inner_y0': r['y0'] + carimbo_h,  # acima do carimbo
+            'inner_x1': r['x1'] - border_x,
+            'inner_y1': r['y1'] - border_y,
+        })
+
+    return frames
+
+
+def _detectar_prancha_via_inserts(doc) -> Optional[list]:
+    """
+    Fallback para detectar prancha format quando as bordas são LINEs (não LWPOLYLINEs).
+    Detecta repetição de INSERT blocks (carimbo) dispostos em grade regular.
+
+    Estratégia:
+    - Encontrar block name com ≥4 INSERT repetições no model space
+    - Verificar que posições formam grid regular (espaçamento uniforme em X e Y)
+    - Derivar frame bounds a partir das posições do carimbo + espaçamento do grid
+    - Carimbo está na parte inferior de cada frame
+    """
+    from collections import defaultdict, Counter
+
+    msp = doc.modelspace()
+    # Coletar posições de cada INSERT por block name
+    insert_positions: dict = defaultdict(list)
+    for e in msp:
+        if e.dxftype() != 'INSERT':
+            continue
+        try:
+            name = e.dxf.name
+            x, y = e.dxf.insert.x, e.dxf.insert.y
+            insert_positions[name].append((x, y))
+        except Exception:
+            continue
+
+    # Encontrar block mais repetido (≥4 ocorrências — candidato a carimbo)
+    candidates = [(name, positions) for name, positions in insert_positions.items()
+                  if len(positions) >= 4]
+    if not candidates:
+        return None
+
+    # Escolher o candidato com mais repetições
+    candidates.sort(key=lambda x: -len(x[1]))
+    block_name, positions = candidates[0]
+
+    if len(positions) < 4:
+        return None
+
+    # Verificar se posições formam grid regular
+    xs = sorted(set(round(p[0] / 10) * 10 for p in positions))
+    ys = sorted(set(round(p[1] / 10) * 10 for p in positions))
+
+    if len(xs) < 2 or len(ys) < 2:
+        return None  # Não forma grade 2D
+
+    # Calcular espaçamento médio entre colunas e linhas
+    x_spacings = [xs[i+1] - xs[i] for i in range(len(xs) - 1)]
+    y_spacings = [ys[i+1] - ys[i] for i in range(len(ys) - 1)]
+
+    if not x_spacings or not y_spacings:
+        return None
+
+    avg_dx = sum(x_spacings) / len(x_spacings)
+    avg_dy = sum(y_spacings) / len(y_spacings)
+
+    # Verificar regularidade (variação < 10%)
+    if any(abs(s - avg_dx) > abs(avg_dx) * 0.15 for s in x_spacings):
+        return None
+    if any(abs(s - avg_dy) > abs(avg_dy) * 0.15 for s in y_spacings):
+        return None
+
+    # Estimar tamanho do carimbo a partir do block definition
+    carimbo_w = abs(avg_dx)
+    carimbo_h_est = abs(avg_dy) * 0.17  # carimbo ~17% da altura do frame
+
+    # Calcular tamanho do frame a partir do espaçamento do grid
+    frame_w = abs(avg_dx)
+    frame_h = abs(avg_dy)
+
+    # Construir frames a partir das posições do carimbo
+    # O INSERT do carimbo está no canto inferior-esquerdo do frame
+    # (a posição do INSERT é o ponto de inserção do bloco, normalmente canto inf-esq)
+    border_frac = 0.015  # 1.5% de margem de borda
+    frames = []
+    for pos in positions:
+        x0 = pos[0]
+        y0 = pos[1]  # base inferior (carimbo está aqui)
+        x1 = x0 + frame_w
+        y1 = y0 + frame_h
+
+        # Área interna: acima do carimbo, dentro da borda
+        border_x = frame_w * border_frac
+        border_y = frame_h * border_frac
+        carimbo_strip = carimbo_h_est
+
+        frames.append({
+            'x0': x0, 'y0': y0, 'x1': x1, 'y1': y1,
+            'w': frame_w, 'h': frame_h,
+            'inner_x0': x0 + border_x,
+            'inner_y0': y0 + carimbo_strip,
+            'inner_x1': x1 - border_x,
+            'inner_y1': y1 - border_y,
+        })
+
+    return frames if len(frames) >= 2 else None
+
+
+def render_dxf_prancha_strip(dxf_path: Path, frames: list,
+                              dpi: int = RENDER_DPI) -> bytes:
+    """
+    Renderiza DXF em formato prancha mostrando APENAS o conteúdo interno
+    de cada frame (sem bordas, sem carimbo).
+
+    Estratégia: renderiza o DXF completo em cada subplot com limites de eixo
+    restritos à área interna do frame — matplotlib omite entidades fora do
+    viewport, produzindo uma visualização limpa do conteúdo de engenharia.
+
+    Retorna PNG bytes com fundo branco.
+    """
+    try:
+        doc = ezdxf.readfile(str(dxf_path))
+        ctx = RenderContext(doc)
+    except Exception as e:
+        raise RuntimeError(f"render_dxf_prancha_strip: erro ao ler DXF: {e}")
+
+    # Organizar frames em grid (máx 4 colunas)
+    n = len(frames)
+    cols = min(4, n)
+    rows = (n + cols - 1) // cols
+
+    # Tamanho da figura baseado no aspect ratio dos frames
+    frame_w = frames[0]['w']
+    frame_h = frames[0]['h'] - frames[0]['h'] * 0.15  # altura interna (sem carimbo)
+    aspect = frame_w / frame_h if frame_h > 0 else 1.5
+
+    fig_w = cols * 4 * aspect
+    fig_h = rows * 4
+    fig, axes = plt.subplots(rows, cols, figsize=(max(fig_w, 8), max(fig_h, 6)))
+    fig.patch.set_facecolor('#1a1a24')
+
+    # Normalizar axes para lista plana
+    if rows == 1 and cols == 1:
+        axes_flat = [axes]
+    elif rows == 1:
+        axes_flat = list(axes)
+    elif cols == 1:
+        axes_flat = [ax for ax in axes]
+    else:
+        axes_flat = [ax for row in axes for ax in row]
+
+    for ax in axes_flat:
+        ax.set_facecolor('#1a1a24')
+        ax.axis('off')
+
+    # Ordenar frames por posição (baixo→cima, esq→dir)
+    frames_sorted = sorted(frames, key=lambda f: (-round(f['y0'] / 50), round(f['x0'] / 50)))
+
+    for idx, frame in enumerate(frames_sorted):
+        if idx >= len(axes_flat):
+            break
+        ax = axes_flat[idx]
+        try:
+            backend = MatplotlibBackend(ax)
+            frontend = Frontend(ctx, backend)
+            frontend.draw_layout(doc.modelspace(), finalize=True)
+            # Restringir viewport à área interna do frame (strips border+carimbo)
+            ax.set_xlim(frame['inner_x0'], frame['inner_x1'])
+            ax.set_ylim(frame['inner_y0'], frame['inner_y1'])
+            ax.set_aspect('equal', adjustable='box')
+        except Exception as e:
+            ax.text(0.5, 0.5, f"err:\n{str(e)[:30]}",
+                    transform=ax.transAxes, fontsize=6, color='red',
+                    ha='center', va='center')
+
+    plt.tight_layout(pad=0.3)
+    buf = io.BytesIO()
+    fig.savefig(buf, format='png', dpi=dpi, bbox_inches='tight', facecolor='#1a1a24')
+    plt.close(fig)
+    buf.seek(0)
+    data = buf.read()
+    return _dark_to_white_bg(data)
 
 
 def render_dxf_to_array(dxf_path: Path, dpi: int = RENDER_DPI,
@@ -451,21 +868,90 @@ def png_to_base64(png_bytes: bytes, max_kb: int = MAX_IMG_KB) -> str:
 def _strip_json(text: str) -> str:
     """
     Extrai JSON de resposta de LLM.
-    Lida com: markdown fences, texto antes do JSON, "Resposta final:" etc.
+    Lida com: markdown fences, texto antes do JSON, JSON truncado, "Resposta final:" etc.
+    Estratégia em camadas:
+      1. Remove fences markdown (``` / ```json)
+      2. Extrai bloco { ... } mais externo (greedy)
+      3. Se JSON inválido por truncamento, tenta fechar com }}
+      4. Fallback: extrai { ... } mais curto (innermost match)
     """
     import re
     text = text.strip()
-    # Remove markdown fences
-    if text.startswith("```"):
-        lines = text.split('\n')
-        start = 1
-        end = len(lines) - 1 if lines and lines[-1].strip() == '```' else len(lines)
-        text = '\n'.join(lines[start:end]).strip()
-    # Se ainda tem texto antes do JSON, extrair o primeiro bloco { ... }
-    m = re.search(r'\{[\s\S]*\}', text)
-    if m:
-        text = m.group(0)
+
+    # 1. Remove markdown fences
+    if '```' in text:
+        # Remove tudo entre ``` e ```
+        text = re.sub(r'```(?:json)?\s*', '', text)
+        text = re.sub(r'```', '', text)
+        text = text.strip()
+
+    # 2. Tentar extrair o bloco JSON mais externo
+    def _try_parse_block(s: str) -> str | None:
+        """Retorna a substring JSON válida ou None."""
+        # Encontrar todos os blocos {…}
+        # Usar stack para encontrar o bloco mais externo equilibrado
+        start = s.find('{')
+        if start == -1:
+            return None
+        depth = 0
+        for i, ch in enumerate(s[start:], start):
+            if ch == '{':
+                depth += 1
+            elif ch == '}':
+                depth -= 1
+                if depth == 0:
+                    return s[start:i+1]
+        # JSON truncado — retornar o que encontramos (tentar fechar)
+        return s[start:] + '}' * depth if depth > 0 else None
+
+    block = _try_parse_block(text)
+    if block:
+        return block.strip()
+
     return text.strip()
+
+
+def _extract_score_fallback(text: str, key: str = "score_global") -> float | None:
+    """
+    Extrai valor numérico de score de texto bruto quando JSON parsing falha.
+    Lida com:
+      - JSON parcial: "score_global": 75
+      - Markdown: **Score Global:** 70
+      - Texto livre: Score Global: 70, score_global = 75
+    """
+    import re
+
+    # Mapeia chave JSON para variantes em linguagem natural (markdown do Llama)
+    ALIASES = {
+        "score_global":          [r"score\s*global",    r"score_global"],
+        "score":                 [r"\bscore\b",          r"score_final"],
+        "elementos_estruturais": [r"elementos?\s*estruturais?"],
+        "layout":                [r"\blayout\b"],
+        "dimensoes":             [r"dimens(?:o|ao|oes|ções)"],
+        "nomenclatura":          [r"nomenclatura"],
+    }
+    aliases = ALIASES.get(key, [key])
+
+    # Padrões a tentar para cada alias
+    for alias in aliases:
+        patterns = [
+            # JSON: "score_global": 75
+            rf'["\']?{alias}["\']?\s*[=:]\s*(\d+(?:\.\d+)?)',
+            # Markdown bold: **Score Global:** 70
+            rf'\*{{0,2}}{alias}\*{{0,2}}\s*[:\-]\s*(\d+(?:\.\d+)?)',
+            # Texto livre com separadores
+            rf'{alias}[^\d]{{0,20}}(\d+(?:\.\d+)?)',
+        ]
+        for pat in patterns:
+            m = re.search(pat, text, re.IGNORECASE)
+            if m:
+                try:
+                    val = float(m.group(1))
+                    if 0 <= val <= 100:
+                        return val
+                except ValueError:
+                    pass
+    return None
 
 
 def api_call_nvidia(client, prompt: str, image_bytes: bytes,
@@ -491,55 +977,38 @@ def api_call_nvidia(client, prompt: str, image_bytes: bytes,
             ],
         }],
     )
-    text = _strip_json(resp.choices[0].message.content)
+    raw = resp.choices[0].message.content
+    text = _strip_json(raw)
     try:
         return json.loads(text)
     except json.JSONDecodeError:
-        return {"raw_response": text, "parse_error": True}
-
-
-def api_call_anthropic(client, prompt: str, image_bytes: bytes,
-                       model: str, max_tokens: int = 1024) -> dict:
-    """Chama Claude vision (Anthropic API)."""
-    b64 = png_to_base64(image_bytes)
-    media_type = "image/png" if image_bytes[:4] == b'\x89PNG' else "image/jpeg"
-
-    msg = client.messages.create(
-        model=model,
-        max_tokens=max_tokens,
-        messages=[{
-            "role": "user",
-            "content": [
-                {
-                    "type": "image",
-                    "source": {
-                        "type": "base64",
-                        "media_type": media_type,
-                        "data": b64,
-                    },
-                },
-                {"type": "text", "text": prompt},
-            ],
-        }],
-    )
-    text = _strip_json(msg.content[0].text)
-    try:
-        return json.loads(text)
-    except json.JSONDecodeError:
-        return {"raw_response": text, "parse_error": True}
+        # Fallback: extrair campos numéricos via regex
+        result = {"raw_response": raw, "parse_error": True}
+        for key in ("score_global", "score", "elementos_estruturais", "layout"):
+            val = _extract_score_fallback(raw, key)
+            if val is not None:
+                result[key] = val
+        return result
 
 
 def api_call(client, prompt: str, image_bytes: bytes,
              model: str, max_tokens: int = 1024) -> dict:
-    """Dispatcher: detecta tipo de client e chama o provider correto."""
-    if hasattr(client, '_provider') and client._provider == 'nvidia':
-        return api_call_nvidia(client, prompt, image_bytes, model, max_tokens)
-    elif hasattr(client, 'messages'):
-        # Anthropic client
-        return api_call_anthropic(client, prompt, image_bytes, model, max_tokens)
-    else:
-        # OpenAI-compatible (NVIDIA ou outro)
-        return api_call_nvidia(client, prompt, image_bytes, model, max_tokens)
+    """Dispatcher: chama NVIDIA NIM (OpenAI-compatible)."""
+    return api_call_nvidia(client, prompt, image_bytes, model, max_tokens)
+
+
+def calcular_score_tile(res: dict) -> float | None:
+    """
+    Calcula score de tile a partir dos campos do PROMPT_TILE.
+    Fórmula determinística: geometria*0.60 + textos_labels*0.40
+    Retorna None se tile não tem conteúdo estrutural.
+    """
+    tem_conteudo = res.get("tem_conteudo", True)
+    if tem_conteudo is False:
+        return None
+    geo = float(res.get("geometria", 0) or 0)
+    txt = float(res.get("textos_labels", 0) or 0)
+    return round(geo * 0.60 + txt * 0.40, 2)
 
 
 def analisar_tiles(client, tiles_sbs: list, model: str,
@@ -551,9 +1020,12 @@ def analisar_tiles(client, tiles_sbs: list, model: str,
             print(f"    Tile ({r},{c}): {len(tile_bytes)//1024}KB → API...", end=" ")
         try:
             res = api_call(client, PROMPT_TILE, tile_bytes, model)
-            score = res.get("score", "?")
+            # Score determinístico (não depende de campo "score" do LLM)
+            score_det = calcular_score_tile(res)
+            res["score"] = score_det  # manter chave "score" para retrocompat
+            res["tile_tem_conteudo"] = res.get("tem_conteudo", True)
             if verbose:
-                print(f"score={score}")
+                print(f"score={score_det}")
         except Exception as e:
             res = {"error": str(e)}
             if verbose:
@@ -567,14 +1039,21 @@ def analisar_tiles(client, tiles_sbs: list, model: str,
 
 def analisar_full(client, sbs_bytes: bytes, tipo: str, model: str,
                   verbose: bool = True) -> dict:
-    """Analisa imagem completa (full side-by-side) via API."""
-    prompt = PROMPT_FULL.format(tipo=tipo, desc_tipo=DESC_TIPO.get(tipo, tipo))
+    """Analisa imagem completa (full side-by-side) via API com prompt específico por tipo."""
+    prompt = PROMPT_FULL_MAP.get(tipo, PROMPT_FULL_LJ)
     if verbose:
-        print(f"    Full image: {len(sbs_bytes)//1024}KB → API...", end=" ")
+        print(f"    Full image [{tipo}]: {len(sbs_bytes)//1024}KB → API...", end=" ")
     try:
-        res = api_call(client, prompt, sbs_bytes, model, max_tokens=1500)
+        res = api_call(client, prompt, sbs_bytes, model, max_tokens=2000)
+        # Calcular score_global determinístico a partir dos critérios respondidos
+        score_fn = SCORE_CALC_MAP.get(tipo, calcular_score_full_lj)
+        score_det = score_fn(res)
+        # Guardar score original do LLM para auditoria, mas usar o determinístico
+        if "score_global" in res:
+            res["score_global_llm"] = res["score_global"]
+        res["score_global"] = score_det
         if verbose:
-            print(f"score={res.get('score_global', '?')}")
+            print(f"score={score_det}")
     except Exception as e:
         res = {"error": str(e)}
         if verbose:
@@ -603,10 +1082,16 @@ def analisar_estrutural(dxf_stog: Path, dxf_gen: Path) -> dict:
             ent = {}
             lyr = {}
             for e in msp:
-                t = e.dxftype()
-                ent[t] = ent.get(t, 0) + 1
-                l = getattr(e.dxf, 'layer', '0')
-                lyr[l] = lyr.get(l, 0) + 1
+                try:
+                    t = e.dxftype()
+                    ent[t] = ent.get(t, 0) + 1
+                    try:
+                        l = e.dxf.layer
+                    except Exception:
+                        l = '0'
+                    lyr[l] = lyr.get(l, 0) + 1
+                except Exception:
+                    pass  # entidade com atributo problemático — ignora
             return ent, lyr
         except Exception as ex:
             return {}, {"ERROR": str(ex)}
@@ -684,6 +1169,7 @@ def validar_tipo(
         "tipo": tipo,
         "dxf_stog": str(dxf_stog),
         "dxf_gen": str(dxf_gen),
+        "prancha_format": False,  # atualizado abaixo se detectado
     }
 
     # 1. Análise estrutural (rápida, sem API)
@@ -705,6 +1191,14 @@ def validar_tipo(
         resultado["score_final"] = est["score_estrutural"]
         return resultado
 
+    # Guard: DXF gerado vazio (0 entidades) — LLM daria score incorreto para branco
+    if est["total_entidades_gen"] == 0:
+        if verbose:
+            print(f"    AVISO: DXF gerado vazio (0 entidades) — score = estrutural apenas")
+        resultado["visual"] = {"error": "dxf_gerado_vazio", "score_global": 0}
+        resultado["score_final"] = est["score_estrutural"]
+        return resultado
+
     # 2. Renderizar DXFs para PNG
     # Para PL: usar pilares individuais Fase-5 (mais representativo para comparação)
     obra_dir = dxf_stog.parent
@@ -716,40 +1210,76 @@ def validar_tipo(
 
     use_sample_pilares = (tipo == "PL")
 
-    if verbose:
-        print(f"    Renderizando STOG...", end=" ")
-    try:
-        png_stog = render_dxf_to_array(dxf_stog)
-        if verbose:
-            print(f"{len(png_stog)//1024}KB")
-    except Exception as e:
-        print(f"\n    ERRO render STOG: {e}")
-        resultado["visual"] = {"error": f"render_stog: {e}"}
-        resultado["score_final"] = est["score_estrutural"]
-        return resultado
-
-    if verbose:
-        print(f"    Renderizando Gerado (Fase-5 samples)...", end=" ")
-    try:
-        # Todos os tipos usam samples individuais da Fase-5 (escala legível)
-        png_gen = render_dxf_samples(obra_dir, tipo, n_sample=6, label_prefix=tipo)
-        if png_gen is None:
-            # Fallback: consolidated DXF
-            if verbose:
-                print(f"Fase-5 vazio, fallback consolidado...", end=" ")
-            png_gen = render_dxf_to_array(dxf_gen)
-        if verbose:
-            print(f"{len(png_gen)//1024}KB")
-    except Exception as e:
-        print(f"\n    ERRO render Gerado: {e}")
-        resultado["visual"] = {"error": f"render_gen: {e}"}
-        resultado["score_final"] = est["score_estrutural"]
-        return resultado
-
-    # Salvar PNGs individuais
+    # Verificar se nim_prerender_worker já renderizou os PNGs (evita render caro)
     out_dir.mkdir(parents=True, exist_ok=True)
-    (out_dir / f"{tipo}_stog.png").write_bytes(png_stog)
-    (out_dir / f"{tipo}_gerado.png").write_bytes(png_gen)
+    prerender_stog = out_dir / f"{tipo}_stog.png"
+    prerender_gen  = out_dir / f"{tipo}_gerado.png"
+    _prerender_used = False
+
+    if prerender_stog.exists() and prerender_gen.exists():
+        # Checar freshness: PNGs devem ser mais novos que ambos os DXFs
+        png_mtime  = min(prerender_stog.stat().st_mtime, prerender_gen.stat().st_mtime)
+        stog_mtime = dxf_stog.stat().st_mtime
+        gen_mtime  = dxf_gen.stat().st_mtime
+        if png_mtime >= max(stog_mtime, gen_mtime):
+            png_stog = prerender_stog.read_bytes()
+            png_gen  = prerender_gen.read_bytes()
+            _prerender_used = True
+            if verbose:
+                print(f"    [PRE-RENDER] usando PNGs prontos "
+                      f"({len(png_stog)//1024}KB + {len(png_gen)//1024}KB)")
+
+    if not _prerender_used:
+        # Detectar formato prancha (LO format) no STOG
+        prancha_frames = detectar_prancha(dxf_stog)
+        if prancha_frames:
+            resultado["prancha_format"] = True
+            resultado["prancha_n_frames"] = len(prancha_frames)
+            if verbose:
+                print(f"    Prancha format detectado: {len(prancha_frames)} frames — usando splitter")
+
+        if verbose:
+            print(f"    Renderizando STOG...", end=" ")
+        try:
+            if prancha_frames:
+                # Renderizar apenas conteúdo interno de cada frame (sem bordas/carimbo)
+                png_stog = render_dxf_prancha_strip(dxf_stog, prancha_frames)
+            else:
+                png_stog = render_dxf_to_array(dxf_stog)
+            if verbose:
+                print(f"{len(png_stog)//1024}KB{'  [prancha-strip]' if prancha_frames else ''}")
+        except Exception as e:
+            print(f"\n    ERRO render STOG: {e}")
+            resultado["visual"] = {"error": f"render_stog: {e}"}
+            resultado["score_final"] = est["score_estrutural"]
+            return resultado
+
+        if verbose:
+            print(f"    Renderizando Gerado...", end=" ")
+        try:
+            # LV e FV: usar DXF consolidado Fase-6 (planta com âncoras reais de engenharia reversa)
+            # PL e LJ: usar samples individuais Fase-5 (mais representativo para pilares/lajes)
+            if tipo in ("LV", "FV"):
+                # Consolidated DXF já posicionado com ancoras_vigas.json — mesmo nível do STOG
+                png_gen = render_dxf_to_array(dxf_gen)
+            else:
+                png_gen = render_dxf_samples(obra_dir, tipo, n_sample=6, label_prefix=tipo)
+                if png_gen is None:
+                    # Fallback: consolidated DXF
+                    if verbose:
+                        print(f"Fase-5 vazio, fallback consolidado...", end=" ")
+                    png_gen = render_dxf_to_array(dxf_gen)
+            if verbose:
+                print(f"{len(png_gen)//1024}KB")
+        except Exception as e:
+            print(f"\n    ERRO render Gerado: {e}")
+            resultado["visual"] = {"error": f"render_gen: {e}"}
+            resultado["score_final"] = est["score_estrutural"]
+            return resultado
+
+        # Salvar PNGs individuais (para uso futuro do nim_prerender_worker e cache)
+        (out_dir / f"{tipo}_stog.png").write_bytes(png_stog)
+        (out_dir / f"{tipo}_gerado.png").write_bytes(png_gen)
 
     # 3. Imagem side-by-side completa
     sbs_path = out_dir / f"{tipo}_sbs.png"
@@ -808,6 +1338,24 @@ def validar_tipo(
         if isinstance(st, (int, float)) and st is not None and tem_conteudo is not False:
             scores_tiles.append(float(st))
     score_tiles_avg = round(sum(scores_tiles) / len(scores_tiles), 1) if scores_tiles else None
+
+    # Retry inteligente: full_sg=0 explícito mas tiles bons (>70%) → LLM non-determinism
+    # Não retentar quando tiles também são ruins (layout genuinamente diferente)
+    if score_full == 0.0 and score_tiles_avg is not None and score_tiles_avg >= 70:
+        if verbose:
+            print(f"    RETRY full image (full_sg=0 mas tiles_avg={score_tiles_avg:.0f}%)...")
+        full_res2 = analisar_full(client, sbs_bytes, tipo, model, verbose=False)
+        sg2 = full_res2.get("score_global")
+        score_full2 = float(sg2) if isinstance(sg2, (int, float)) and sg2 is not None else None
+        if score_full2 is not None and score_full2 > 0:
+            if verbose:
+                print(f"    Retry OK: full_sg={score_full} → {score_full2} (retry)")
+            score_full = score_full2
+            full_res["score_global_retry"] = score_full2
+            full_res["score_global_original"] = 0.0
+            full_res["score_global"] = score_full2
+        elif verbose:
+            print(f"    Retry confirmou full_sg=0 — layout genuinamente diferente")
 
     if score_full is not None and score_tiles_avg is not None:
         # full=70%, tiles=30% — full image mais confiável para layouts diferentes
@@ -911,7 +1459,23 @@ def validar_pavimento(
 ) -> dict:
     """Valida todos os tipos disponíveis de um pavimento."""
     obra_dir = data_dir / obra_nome
-    pav_discovery = discovery.get(obra_nome, {}).get(pav_nome, {})
+    obra_disc = discovery.get(obra_nome, {})
+
+    # Fuzzy match: exact → case-insensitive → suffix → contains
+    pav_discovery = obra_disc.get(pav_nome, {})
+    if not pav_discovery:
+        pav_upper = pav_nome.upper()
+        for key, val in obra_disc.items():
+            if key.upper() == pav_upper:
+                pav_discovery = val; break
+        if not pav_discovery:
+            for key, val in obra_disc.items():
+                if key.upper().endswith(pav_upper):
+                    pav_discovery = val; break
+        if not pav_discovery:
+            for key, val in obra_disc.items():
+                if pav_upper in key.upper():
+                    pav_discovery = val; break
 
     if not pav_discovery:
         return {"erro": f"Pavimento '{pav_nome}' não encontrado em discovery para '{obra_nome}'"}
@@ -966,8 +1530,28 @@ def validar_pavimento(
         "resultados": resultados_tipo,
     }
 
-    # Salvar JSON do pavimento
+    # Salvar JSON do pavimento — merge com existente se só validamos tipo(s) específico(s)
     json_path = pav_out / "validation_visual.json"
+    if json_path.exists() and tipos is not None:
+        # Merge: preserva resultados anteriores, atualiza apenas os tipos recém-validados
+        try:
+            existing = json.loads(json_path.read_text(encoding="utf-8"))
+            merged_resultados = existing.get("resultados", {})
+            merged_resultados.update(resultados_tipo)
+            merged_tipos = list(merged_resultados.keys())
+            merged_scores = [r["score_final"] for r in merged_resultados.values()
+                             if "score_final" in r and isinstance(r["score_final"], (int, float))]
+            merged_score = round(sum(merged_scores) / len(merged_scores), 1) if merged_scores else None
+            resultado_pav = {
+                "obra": obra_nome,
+                "pavimento": pav_nome,
+                "tipos_validados": merged_tipos,
+                "score_pavimento": merged_score,
+                "resultados": merged_resultados,
+            }
+        except Exception:
+            pass  # Se falhar no merge, salva como está
+
     json_path.write_text(
         json.dumps(resultado_pav, indent=2, ensure_ascii=False),
         encoding="utf-8"
@@ -989,7 +1573,7 @@ def main():
     )
     parser.add_argument("--obra",     default=None,  help="Nome da obra (ex: Obra_TREINO_21)")
     parser.add_argument("--pav",      default=None,  help="Nome do pavimento (ex: 12PAV)")
-    parser.add_argument("--tipo",     default=None,  choices=["PL","LV","FV","LJ"], help="Validar só este tipo")
+    parser.add_argument("--tipo",     action="append", choices=["PL","LV","FV","LJ"], help="Validar este(s) tipo(s) (pode repetir: --tipo PL --tipo FV)")
     parser.add_argument("--data-dir", default=str(DATA_DIR_DEFAULT), help="Diretório DADOS-OBRAS/")
     parser.add_argument("--out-dir",  default="D:/Agente-cad-PYSIDE/validacao_visual", help="Onde salvar imagens/JSONs")
     parser.add_argument("--tiles",    default=TILES_DEFAULT, type=int, help=f"Grid N×N de tiles (default: {TILES_DEFAULT})")
@@ -1039,27 +1623,15 @@ def main():
                 model_used = NVIDIA_MODEL_DEF
             print(f"[INFO] Provider: NVIDIA NIM | Modelo: {model_used}")
         else:
-            # Fallback para Anthropic
-            anthropic_key = os.environ.get("ANTHROPIC_API_KEY", "")
-            if anthropic_key and ANTHROPIC_OK:
-                client = _anthropic_mod.Anthropic(api_key=anthropic_key)
-                if model_used == VISION_MODEL:
-                    model_used = ANTHROPIC_MODEL
-                print(f"[INFO] Provider: Anthropic | Modelo: {model_used}")
-            else:
-                if not OPENAI_OK:
-                    print("[AVISO] openai não instalado: pip install openai")
-                elif not nvidia_key:
-                    print("[AVISO] NVIDIA_API_KEY não encontrada.")
-                if not ANTHROPIC_OK:
-                    print("[AVISO] anthropic não instalado: pip install anthropic")
-                elif not os.environ.get("ANTHROPIC_API_KEY"):
-                    print("[AVISO] ANTHROPIC_API_KEY não encontrada.")
-                print("[AVISO] Nenhum provider disponível — rodando só análise estrutural.")
+            if not OPENAI_OK:
+                print("[AVISO] openai não instalado: pip install openai")
+            elif not nvidia_key:
+                print("[AVISO] NVIDIA_API_KEY não encontrada.")
+            print("[AVISO] Nenhum provider disponível — rodando só análise estrutural.")
 
     args.model = model_used
 
-    tipos = [args.tipo] if args.tipo else None
+    tipos = args.tipo if args.tipo else None  # action="append" → lista ou None
 
     # ─── Modo --all-obras ou --obras ──────────────────────────────────────────
     if args.all_obras or args.obras:

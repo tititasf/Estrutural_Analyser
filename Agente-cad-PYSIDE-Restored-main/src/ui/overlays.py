@@ -151,6 +151,7 @@ def _get_obf_str(key):
 from PySide6.QtWidgets import QGraphicsPolygonItem, QGraphicsSimpleTextItem, QGraphicsItem
 from PySide6.QtGui import QPolygonF, QBrush, QPen, QColor, QFont
 from PySide6.QtCore import Qt, Signal, QObject, QPointF
+from src.ui.theme import Colors, Fonts, Radius
 
 class SignalProxy(QObject):
     """Proxy para emitir sinais de itens gráficos que não herdam de QObject"""

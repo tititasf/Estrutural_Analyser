@@ -1,0 +1,1350 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TSF PROJETOS — Design System v2.0</title>
+<style>
+  :root {
+    --bg-deep: #121212;
+    --bg-primary: #1a1a2e;
+    --bg-secondary: #16213e;
+    --bg-panel: #1e1e1e;
+    --bg-card: #252525;
+    --bg-surface: #252528;
+    --bg-hover: #2a2a3e;
+    --bg-danger-dark: #332222;
+
+    --text-bright: #ffffff;
+    --text-primary: #e0e0e0;
+    --text-secondary: #888888;
+    --text-dim: #666666;
+    --text-muted: #555555;
+    --text-link: #00d4ff;
+
+    --border-default: #333333;
+    --border-input: #444444;
+    --border-subtle: #2a2a2a;
+    --border-panel: #2d2d30;
+    --border-accent: #00d4ff;
+
+    --accent-primary: #00d4ff;
+    --accent-brand: #00E5FF;
+    --accent-blue: #0078d4;
+    --accent-blue-hover: #0099ff;
+    --accent-teal: #00bcd4;
+    --accent-mint: #00ffcc;
+    --accent-slate: #6c7293;
+    --accent-success: #4caf50;
+    --accent-success-alt: #00cc66;
+    --accent-warning: #ff9800;
+    --accent-warning-alt: #ffb300;
+    --accent-danger: #f44336;
+    --accent-danger-alt: #f85149;
+    --accent-info: #e3b341;
+    --accent-gold: #FFD700;
+    --accent-purple: #a070ff;
+    --accent-magenta: #d63384;
+
+    --n1-accent: #4a9eff;
+    --n1-bg: #1b3a6b;
+    --n2-accent: #4acf7a;
+    --n2-bg: #1a4a2a;
+    --n3-accent: #cf8a4a;
+    --n3-bg: #4a2a1a;
+    --n4-accent: #a855f7;
+    --n4-bg: #2d1a4a;
+
+    --radius-sm: 3px;
+    --radius-md: 4px;
+    --radius-lg: 6px;
+    --radius-xl: 8px;
+    --radius-pill: 12px;
+
+    --font-main: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    --font-mono: 'Consolas', monospace;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg-deep);
+    color: var(--text-primary);
+    font-family: var(--font-main);
+    font-size: 13px;
+    line-height: 1.5;
+  }
+
+  /* ── TOP BAR ── */
+  .top-bar {
+    height: 48px;
+    background: var(--bg-deep);
+    border-bottom: 1px solid var(--border-default);
+    display: flex;
+    align-items: center;
+    padding: 0 20px;
+    gap: 16px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .logo {
+    font-size: 16px;
+    font-weight: bold;
+    color: var(--accent-brand);
+    letter-spacing: 1px;
+  }
+  .logo span { color: var(--text-secondary); font-weight: normal; font-size: 11px; margin-left: 8px; }
+  .version-badge {
+    background: var(--bg-card);
+    border: 1px solid var(--accent-primary);
+    color: var(--accent-primary);
+    font-size: 10px;
+    padding: 2px 8px;
+    border-radius: var(--radius-pill);
+    font-weight: bold;
+  }
+  .top-bar-nav {
+    display: flex;
+    gap: 2px;
+    margin-left: auto;
+  }
+  .top-bar-nav a {
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-size: 11px;
+    padding: 4px 12px;
+    border-radius: var(--radius-md);
+    transition: all 0.15s;
+  }
+  .top-bar-nav a:hover { background: var(--bg-hover); color: var(--text-primary); }
+  .top-bar-nav a.active { color: var(--accent-primary); border-bottom: 2px solid var(--accent-primary); }
+
+  /* ── LAYOUT ── */
+  .container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 32px 24px;
+    display: flex;
+    gap: 32px;
+  }
+  .sidebar-nav {
+    width: 200px;
+    flex-shrink: 0;
+    position: sticky;
+    top: 64px;
+    height: fit-content;
+    max-height: calc(100vh - 80px);
+    overflow-y: auto;
+  }
+  .sidebar-nav ul { list-style: none; }
+  .sidebar-nav li a {
+    display: block;
+    padding: 6px 12px;
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-size: 11px;
+    border-radius: var(--radius-md);
+    border-left: 2px solid transparent;
+    transition: all 0.15s;
+  }
+  .sidebar-nav li a:hover { color: var(--text-primary); background: var(--bg-hover); }
+  .sidebar-nav li a.section { color: var(--accent-primary); font-weight: bold; font-size: 10px; letter-spacing: 1px; text-transform: uppercase; padding-top: 16px; cursor: default; }
+  .sidebar-nav li a.section:hover { background: transparent; }
+  .main-content { flex: 1; min-width: 0; }
+
+  /* ── SECTIONS ── */
+  .section {
+    margin-bottom: 56px;
+    scroll-margin-top: 72px;
+  }
+  .section-title {
+    font-size: 20px;
+    font-weight: bold;
+    color: var(--text-bright);
+    border-bottom: 1px solid var(--border-default);
+    padding-bottom: 12px;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .section-title .num {
+    width: 28px;
+    height: 28px;
+    background: var(--accent-blue);
+    color: #fff;
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: bold;
+    flex-shrink: 0;
+  }
+  .subsection-title {
+    font-size: 12px;
+    font-weight: bold;
+    color: var(--accent-primary);
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin: 24px 0 12px;
+  }
+  .description {
+    color: var(--text-secondary);
+    font-size: 12px;
+    line-height: 1.6;
+    margin-bottom: 16px;
+    background: var(--bg-panel);
+    border: 1px solid var(--border-subtle);
+    border-left: 3px solid var(--accent-blue);
+    padding: 12px 16px;
+    border-radius: var(--radius-md);
+  }
+
+  /* ── COLOR GRID ── */
+  .color-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 8px;
+    margin-bottom: 24px;
+  }
+  .color-chip {
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    border: 1px solid var(--border-subtle);
+    cursor: pointer;
+    transition: transform 0.1s;
+  }
+  .color-chip:hover { transform: scale(1.02); }
+  .color-swatch {
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .color-info {
+    background: var(--bg-card);
+    padding: 8px 10px;
+  }
+  .color-token { font-size: 10px; color: var(--text-secondary); font-family: var(--font-mono); margin-bottom: 2px; }
+  .color-hex { font-size: 11px; color: var(--text-primary); font-family: var(--font-mono); font-weight: bold; }
+  .color-desc { font-size: 9px; color: var(--text-muted); margin-top: 3px; line-height: 1.3; }
+
+  /* ── NIVEAU CARDS ── */
+  .niveau-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+  .niveau-card {
+    border-radius: var(--radius-xl);
+    overflow: hidden;
+    border: 2px solid;
+  }
+  .niveau-header {
+    height: 72px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+  }
+  .niveau-id {
+    font-size: 22px;
+    font-weight: bold;
+  }
+  .niveau-desc-text {
+    font-size: 9px;
+    color: rgba(255,255,255,0.65);
+    text-align: center;
+  }
+  .niveau-body {
+    background: var(--bg-panel);
+    padding: 12px;
+  }
+  .niveau-body .row { display: flex; justify-content: space-between; font-size: 10px; margin-bottom: 6px; }
+  .niveau-body .row span:first-child { color: var(--text-dim); }
+  .niveau-body .row span:last-child { font-family: var(--font-mono); }
+  .niveau-progress {
+    height: 4px;
+    border-radius: 2px;
+    background: var(--bg-card);
+    margin-top: 8px;
+    overflow: hidden;
+  }
+  .niveau-progress-bar { height: 100%; border-radius: 2px; }
+
+  /* ── TYPOGRAPHY ── */
+  .type-scale { margin-bottom: 24px; }
+  .type-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .type-row:first-child { border-top: 1px solid var(--border-subtle); }
+  .type-token { font-family: var(--font-mono); font-size: 10px; color: var(--accent-primary); width: 120px; flex-shrink: 0; }
+  .type-size { font-family: var(--font-mono); font-size: 10px; color: var(--text-secondary); width: 40px; flex-shrink: 0; }
+  .type-preview { flex: 1; color: var(--text-primary); }
+  .type-use { font-size: 10px; color: var(--text-dim); text-align: right; min-width: 200px; }
+
+  /* ── SPACING ── */
+  .spacing-grid {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 24px;
+    align-items: flex-end;
+  }
+  .spacing-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+  }
+  .spacing-bar {
+    background: var(--accent-blue);
+    border-radius: 2px;
+    min-height: 4px;
+    width: 40px;
+  }
+  .spacing-label { font-size: 9px; color: var(--text-secondary); text-align: center; font-family: var(--font-mono); }
+  .spacing-token { font-size: 8px; color: var(--text-muted); font-family: var(--font-mono); }
+
+  /* ── HEIGHT TABLE ── */
+  .heights-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 24px;
+  }
+  .heights-table th {
+    background: var(--bg-surface);
+    color: var(--accent-primary);
+    font-size: 10px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 8px 12px;
+    text-align: left;
+    border-bottom: 1px solid var(--border-default);
+  }
+  .heights-table td {
+    padding: 8px 12px;
+    font-size: 11px;
+    border-bottom: 1px solid var(--border-subtle);
+    vertical-align: middle;
+  }
+  .heights-table tr:hover td { background: var(--bg-hover); }
+  .heights-table .px { font-family: var(--font-mono); color: var(--accent-primary); font-weight: bold; font-size: 13px; }
+  .height-bar-cell { width: 200px; }
+  .height-bar-wrap { background: var(--bg-card); border-radius: 2px; overflow: hidden; height: 8px; }
+  .height-bar-fill { height: 100%; background: var(--accent-blue); border-radius: 2px; }
+
+  /* ── COMPONENTS ── */
+  .component-grid {
+    display: grid;
+    gap: 24px;
+    margin-bottom: 24px;
+  }
+  .component-card {
+    background: var(--bg-panel);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-xl);
+    overflow: hidden;
+  }
+  .component-card-header {
+    background: var(--bg-surface);
+    padding: 10px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--border-default);
+  }
+  .component-card-header h3 { font-size: 12px; color: var(--text-primary); font-weight: 600; }
+  .component-tag { font-size: 9px; color: var(--text-muted); background: var(--bg-card); padding: 2px 6px; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle); }
+  .component-demo {
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .component-demo.vertical { flex-direction: column; align-items: flex-start; }
+  .component-demo.dark { background: var(--bg-deep); }
+  .component-code {
+    background: var(--bg-deep);
+    border-top: 1px solid var(--border-subtle);
+    padding: 12px 16px;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--text-dim);
+    line-height: 1.6;
+    display: none;
+  }
+
+  /* ── BUTTONS ── */
+  .btn { cursor: pointer; font-family: var(--font-main); transition: all 0.15s; border: none; }
+  .btn-primary { background: var(--accent-blue); color: #fff; padding: 8px 16px; border-radius: var(--radius-lg); font-size: 11px; font-weight: bold; }
+  .btn-primary:hover { background: var(--accent-blue-hover); }
+  .btn-secondary { background: var(--bg-card); color: var(--text-primary); padding: 5px 10px; border-radius: var(--radius-md); font-size: 11px; border: 1px solid var(--border-input); }
+  .btn-secondary:hover { background: #3a3a3a; }
+  .btn-accent { background: transparent; color: var(--accent-primary); padding: 4px 10px; border-radius: var(--radius-sm); font-size: 11px; border: 1px solid var(--accent-primary); }
+  .btn-accent:hover { background: var(--accent-primary); color: var(--bg-deep); }
+  .btn-danger { background: var(--bg-danger-dark); color: var(--accent-danger); padding: 5px 10px; border-radius: var(--radius-md); font-size: 11px; border: 1px solid var(--accent-danger); }
+  .btn-danger:hover { background: var(--accent-danger); color: #fff; }
+  .btn-success { background: var(--accent-success-alt); color: #000; padding: 6px 14px; border-radius: var(--radius-md); font-size: 11px; font-weight: bold; }
+  .btn-purple { background: var(--accent-purple); color: #fff; padding: 6px 14px; border-radius: var(--radius-md); font-size: 11px; font-weight: bold; }
+  .btn-tool { background: var(--bg-card); color: var(--text-primary); padding: 3px 10px; border-radius: var(--radius-sm); font-size: 10px; border: 1px solid var(--border-input); height: 24px; cursor: pointer; }
+  .btn-tool.active { background: var(--accent-blue); color: #fff; border-color: var(--accent-blue); }
+  .btn-tool:hover:not(.active) { background: var(--bg-hover); border-color: var(--accent-primary); }
+
+  /* ── STATUS BADGES ── */
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 8px;
+    border-radius: var(--radius-pill);
+    font-size: 10px;
+    font-weight: bold;
+  }
+  .badge-ok { background: rgba(76,175,80,0.15); color: var(--accent-success); border: 1px solid rgba(76,175,80,0.3); }
+  .badge-warn { background: rgba(255,152,0,0.15); color: var(--accent-warning); border: 1px solid rgba(255,152,0,0.3); }
+  .badge-err { background: rgba(244,67,54,0.15); color: var(--accent-danger); border: 1px solid rgba(244,67,54,0.3); }
+  .badge-info { background: rgba(0,212,255,0.10); color: var(--accent-primary); border: 1px solid rgba(0,212,255,0.25); }
+  .badge-arete { background: rgba(255,215,0,0.12); color: var(--accent-gold); border: 1px solid rgba(255,215,0,0.3); }
+
+  /* ── PROGRESS BARS ── */
+  .progress-wrap { width: 100%; }
+  .progress-slim { height: 4px; background: var(--bg-card); border-radius: 2px; overflow: hidden; margin-bottom: 8px; }
+  .progress-normal { height: 8px; background: var(--bg-card); border-radius: var(--radius-sm); overflow: hidden; margin-bottom: 8px; }
+  .progress-labeled { height: 14px; background: var(--bg-card); border-radius: var(--radius-sm); overflow: hidden; position: relative; margin-bottom: 8px; }
+  .progress-bar-fill { height: 100%; border-radius: inherit; }
+  .progress-text { position: absolute; top: 0; left: 0; right: 0; bottom: 0; display: flex; align-items: center; justify-content: center; font-size: 9px; color: var(--text-primary); }
+
+  /* ── INPUTS ── */
+  .input-field {
+    background: var(--bg-card);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-sm);
+    padding: 6px 10px;
+    color: var(--text-primary);
+    font-family: var(--font-main);
+    font-size: 11px;
+    outline: none;
+    width: 220px;
+    transition: border-color 0.15s;
+  }
+  .input-field:focus { border-color: var(--accent-primary); }
+  .select-field {
+    background: var(--bg-card);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-sm);
+    padding: 5px 10px;
+    color: var(--text-primary);
+    font-family: var(--font-main);
+    font-size: 11px;
+    outline: none;
+    width: 180px;
+  }
+  .select-field:focus { border-color: var(--accent-primary); }
+
+  /* ── METRIC CARD ── */
+  .metric-card {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid var(--border-panel);
+    border-radius: var(--radius-xl);
+    padding: 14px 16px;
+    min-width: 120px;
+  }
+  .metric-label { font-size: 10px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
+  .metric-value { font-size: 20px; font-weight: bold; color: var(--text-bright); line-height: 1; }
+  .metric-sub { font-size: 10px; margin-top: 4px; }
+
+  /* ── PIPELINE STEPS ── */
+  .pipeline { display: flex; gap: 0; margin-bottom: 16px; }
+  .pipeline-step {
+    flex: 1;
+    padding: 8px 12px;
+    border: 1px solid var(--border-default);
+    border-right: none;
+    background: var(--bg-card);
+    text-align: center;
+    position: relative;
+  }
+  .pipeline-step:last-child { border-right: 1px solid var(--border-default); border-radius: 0 var(--radius-md) var(--radius-md) 0; }
+  .pipeline-step:first-child { border-radius: var(--radius-md) 0 0 var(--radius-md); }
+  .pipeline-step.ok { border-top: 2px solid var(--accent-success); }
+  .pipeline-step.running { border-top: 2px solid var(--accent-primary); animation: pulse 1.5s infinite; }
+  .pipeline-step.pending { border-top: 2px solid var(--border-default); }
+  .pipeline-step.error { border-top: 2px solid var(--accent-danger); }
+  .step-icon { font-size: 14px; }
+  .step-label { font-size: 9px; color: var(--text-secondary); margin-top: 2px; }
+  .step-label.ok { color: var(--accent-success); }
+  .step-label.running { color: var(--accent-primary); font-weight: bold; }
+  .step-label.error { color: var(--accent-danger); }
+  @keyframes pulse { 0%,100%{ opacity:1; } 50%{ opacity:0.5; } }
+
+  /* ── SCORE LABEL ── */
+  .score-hero { text-align: center; }
+  .score-value { font-size: 36px; font-weight: bold; line-height: 1; }
+  .score-label-text { font-size: 10px; letter-spacing: 2px; margin-top: 4px; font-weight: bold; }
+
+  /* ── SECTION HEADER ── */
+  .section-header {
+    height: 24px;
+    background: var(--bg-surface);
+    border-bottom: 1px solid var(--border-default);
+    display: flex;
+    align-items: center;
+    padding: 0 12px;
+    font-size: 11px;
+    font-weight: bold;
+    color: var(--accent-primary);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  /* ── TERMINAL ── */
+  .terminal {
+    background: var(--bg-deep);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-sm);
+    padding: 10px;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--accent-success-alt);
+    height: 100px;
+    overflow-y: auto;
+    line-height: 1.6;
+  }
+  .terminal .t-dim { color: var(--text-dim); }
+  .terminal .t-warn { color: var(--accent-warning); }
+  .terminal .t-err { color: var(--accent-danger); }
+
+  /* ── LIST WIDGET ── */
+  .list-widget {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-input);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    width: 220px;
+  }
+  .list-item {
+    padding: 7px 12px;
+    font-size: 11px;
+    border-bottom: 1px solid var(--border-subtle);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--text-primary);
+    transition: all 0.1s;
+  }
+  .list-item:hover { background: var(--bg-hover); }
+  .list-item.selected { background: var(--bg-secondary); color: var(--accent-primary); }
+  .list-item .dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+
+  /* ── EMPTY STATE ── */
+  .empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 32px 20px;
+    gap: 8px;
+    background: var(--bg-panel);
+    border-radius: var(--radius-xl);
+    border: 1px dashed var(--border-default);
+  }
+  .empty-icon { font-size: 32px; color: var(--text-muted); }
+  .empty-msg { font-size: 13px; color: var(--text-secondary); font-weight: bold; }
+  .empty-detail { font-size: 11px; color: var(--text-muted); }
+
+  /* ── LAYOUT PATTERNS ── */
+  .layout-diagram {
+    background: var(--bg-deep);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-xl);
+    padding: 16px;
+    margin-bottom: 16px;
+    font-size: 10px;
+  }
+  .layout-diagram-title { font-size: 11px; font-weight: bold; color: var(--text-secondary); margin-bottom: 12px; }
+  .ld-row { display: flex; gap: 4px; height: 120px; }
+  .ld-sidebar { background: var(--bg-panel); border: 1px solid var(--border-default); border-radius: var(--radius-md); width: 80px; display: flex; align-items: center; justify-content: center; color: var(--text-muted); font-size: 9px; text-align: center; }
+  .ld-main { flex: 1; background: var(--bg-card); border: 1px solid var(--border-default); border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; color: var(--text-dim); font-size: 9px; text-align: center; }
+  .ld-col { flex: 1; border: 1px solid; border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: bold; }
+
+  /* ── ANTI-PATTERNS ── */
+  .anti-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+  .anti-card {
+    border-radius: var(--radius-lg);
+    padding: 14px;
+    border: 1px solid;
+  }
+  .anti-bad { background: rgba(244,67,54,0.05); border-color: rgba(244,67,54,0.25); }
+  .anti-good { background: rgba(76,175,80,0.05); border-color: rgba(76,175,80,0.25); }
+  .anti-label { font-size: 9px; font-weight: bold; letter-spacing: 1.5px; margin-bottom: 8px; text-transform: uppercase; }
+  .anti-bad .anti-label { color: var(--accent-danger); }
+  .anti-good .anti-label { color: var(--accent-success); }
+  .anti-code { font-family: var(--font-mono); font-size: 10px; line-height: 1.6; }
+  .anti-bad .anti-code { color: rgba(244,67,54,0.8); }
+  .anti-good .anti-code { color: rgba(76,175,80,0.9); }
+
+  /* ── DIVIDER ── */
+  .divider { height: 1px; background: var(--border-default); margin: 32px 0; }
+
+  /* ── TABS DEMO ── */
+  .tabs-demo { display: flex; background: var(--bg-deep); height: 32px; border-bottom: 1px solid var(--border-default); }
+  .tab-item {
+    padding: 4px 16px;
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    border-right: 1px solid var(--border-default);
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    height: 32px;
+    transition: all 0.1s;
+  }
+  .tab-item.selected { color: var(--accent-primary); border-bottom: 2px solid var(--accent-primary); background: var(--bg-secondary); }
+  .tab-item:hover:not(.selected) { color: var(--text-primary); background: var(--bg-hover); }
+
+  /* ── FASE BAR ── */
+  .fase-bar {
+    height: 22px;
+    background: #060e1a;
+    border-bottom: 1px solid #0f2040;
+    display: flex;
+    align-items: center;
+    padding: 0 12px;
+    font-size: 9px;
+    color: #3a7fd4;
+    font-weight: bold;
+    letter-spacing: 1px;
+  }
+
+  /* ── SCROLLBAR ── */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg-panel); }
+  ::-webkit-scrollbar-thumb { background: var(--border-input); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+
+  /* ── APP CHROME DEMO ── */
+  .chrome-demo {
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-xl);
+    overflow: hidden;
+    background: var(--bg-deep);
+    margin-bottom: 16px;
+  }
+  .chrome-topbar {
+    height: 40px;
+    background: var(--bg-deep);
+    border-bottom: 1px solid var(--border-default);
+    display: flex;
+    align-items: center;
+    padding: 0 16px;
+    gap: 12px;
+  }
+  .chrome-logo { font-size: 14px; font-weight: bold; color: var(--accent-brand); }
+  .chrome-sep { width: 1px; height: 20px; background: var(--border-default); }
+  .chrome-combo {
+    background: var(--bg-card);
+    border: 1px solid var(--border-default);
+    color: var(--text-secondary);
+    font-size: 10px;
+    padding: 3px 8px;
+    border-radius: var(--radius-sm);
+    font-family: var(--font-main);
+  }
+  .chrome-sync {
+    margin-left: auto;
+    font-size: 10px;
+    color: var(--accent-primary);
+    font-weight: bold;
+  }
+
+  /* ── TOOLTIP ── */
+  [data-tip] { position: relative; }
+  [data-tip]::after {
+    content: attr(data-tip);
+    position: absolute;
+    bottom: calc(100% + 6px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--bg-card);
+    color: var(--text-primary);
+    border: 1px solid var(--border-accent);
+    font-size: 10px;
+    padding: 4px 8px;
+    border-radius: var(--radius-md);
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.15s;
+    z-index: 50;
+  }
+  [data-tip]:hover::after { opacity: 1; }
+
+  .tag { font-family: var(--font-mono); font-size: 10px; background: var(--bg-card); border: 1px solid var(--border-input); color: var(--text-secondary); padding: 1px 5px; border-radius: var(--radius-sm); }
+
+  /* ── COPY FEEDBACK ── */
+  .copy-ok { position: fixed; bottom: 20px; right: 20px; background: var(--accent-success); color: #000; font-weight: bold; padding: 8px 16px; border-radius: var(--radius-pill); font-size: 11px; opacity: 0; pointer-events: none; transition: opacity 0.2s; z-index: 9999; }
+  .copy-ok.show { opacity: 1; }
+</style>
+</head>
+<body>
+
+<div class="top-bar">
+  <span class="logo">TSF PROJETOS <span>Design System</span></span>
+  <span class="version-badge">v2.0.0</span>
+  <nav class="top-bar-nav">
+    <a href="#paleta" class="active">Paleta</a>
+    <a href="#tipografia">Tipografia</a>
+    <a href="#espacamento">Espaçamento</a>
+    <a href="#componentes">Componentes</a>
+    <a href="#layouts">Layouts</a>
+    <a href="#antipadroes">Anti-Padrões</a>
+  </nav>
+</div>
+
+<div class="container">
+  <!-- SIDEBAR NAV -->
+  <aside class="sidebar-nav">
+    <ul>
+      <li><a href="#principios" class="section">Princípios</a></li>
+      <li><a href="#principios">P1–P5 Visuais</a></li>
+      <li><a href="#chrome">Chrome Demo</a></li>
+
+      <li><a href="#paleta" class="section">Paleta</a></li>
+      <li><a href="#bg">Backgrounds</a></li>
+      <li><a href="#textos">Textos</a></li>
+      <li><a href="#bordas">Bordas</a></li>
+      <li><a href="#accents">Accents</a></li>
+      <li><a href="#niveis">Níveis N1–N4</a></li>
+      <li><a href="#scores">Score Colors</a></li>
+
+      <li><a href="#tipografia" class="section">Tipografia</a></li>
+      <li><a href="#tipografia">Escala</a></li>
+
+      <li><a href="#espacamento" class="section">Espaçamento</a></li>
+      <li><a href="#spacing-scale">Scale</a></li>
+      <li><a href="#heights">Alturas</a></li>
+
+      <li><a href="#componentes" class="section">Componentes</a></li>
+      <li><a href="#botoes">Botões</a></li>
+      <li><a href="#badges">Badges</a></li>
+      <li><a href="#progress">Progress</a></li>
+      <li><a href="#inputs">Inputs</a></li>
+      <li><a href="#tabs">Tabs</a></li>
+      <li><a href="#metric">Metric Card</a></li>
+      <li><a href="#pipeline">Pipeline Steps</a></li>
+      <li><a href="#terminal">Terminal</a></li>
+      <li><a href="#lista">List Widget</a></li>
+      <li><a href="#empty">Empty State</a></li>
+
+      <li><a href="#layouts" class="section">Layouts</a></li>
+      <li><a href="#antipadroes" class="section">Anti-Padrões</a></li>
+    </ul>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main-content">
+
+    <!-- ═══════════════════════════════════════════
+         PRINCÍPIOS
+    ════════════════════════════════════════════ -->
+    <section class="section" id="principios">
+      <h2 class="section-title"><span class="num">P</span> Princípios Visuais</h2>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:24px;">
+        <div class="description"><strong style="color:var(--accent-primary)">P1 · Dark Professional</strong><br>
+        Background escuro industrial (#121212 base). Zero cores vibrantes em superfícies grandes. Zero branco puro como background.</div>
+        <div class="description"><strong style="color:var(--accent-primary)">P2 · Dados em Primeiro Lugar</strong><br>
+        Conteúdo técnico ocupa espaço dominante. Chrome da UI é visualmente recuado — menor, mais escuro, menos peso.</div>
+        <div class="description"><strong style="color:var(--accent-primary)">P3 · Hierarquia por Cor</strong><br>
+        Cor = Função. Ciano = interativo. Azul = ação primária. Verde/amarelo/vermelho = estado. Gold = excelência.</div>
+        <div class="description"><strong style="color:var(--accent-primary)">P4 · Feedback de Estado</strong><br>
+        Todo processo exibe estado visual. Nenhuma operação roda silenciosa. Áreas vazias usam EmptyStateWidget.</div>
+      </div>
+      <div class="description"><strong style="color:var(--accent-primary)">P5 · Densidade Informacional</strong><br>
+        Otimizado para 1920×1080+. Rows 20px, lista 24px, fontes 9–13px. Chrome vertical: TopBar 40px + FaseBar 22px + TabBar 32px = <strong style="color:var(--accent-primary)">94px overhead total</strong>.</div>
+
+      <!-- Chrome Demo -->
+      <div class="subsection-title" id="chrome">App Chrome Demo</div>
+      <div class="chrome-demo">
+        <div class="chrome-topbar">
+          <span class="chrome-logo">TSF PROJETOS</span>
+          <div class="chrome-sep"></div>
+          <span style="font-size:10px;color:var(--text-secondary)">Obra:</span>
+          <select class="chrome-combo"><option>Obra_TREINO_1</option></select>
+          <span style="font-size:10px;color:var(--text-secondary)">Pavimento:</span>
+          <select class="chrome-combo"><option>TIPO - 3 AO 12PAV</option></select>
+          <span class="chrome-sync">● SYNC</span>
+        </div>
+        <div class="fase-bar">FASE 3 · INTERPRETAÇÃO SEMÂNTICA · Structural Analyzer</div>
+        <div class="tabs-demo">
+          <div class="tab-item">Gerenciar Projetos</div>
+          <div class="tab-item">Diagnostic Hub</div>
+          <div class="tab-item selected">Structural Analyzer</div>
+          <div class="tab-item">Comparison Engine</div>
+          <div class="tab-item">Robo Pilares</div>
+        </div>
+        <div style="background:var(--bg-primary);height:120px;display:flex;align-items:center;justify-content:center;color:var(--text-muted);font-size:12px;">
+          ← Conteúdo do módulo →
+        </div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- ═══════════════════════════════════════════
+         PALETA
+    ════════════════════════════════════════════ -->
+    <section class="section" id="paleta">
+      <h2 class="section-title"><span class="num">2</span> Paleta de Cores</h2>
+
+      <div class="subsection-title" id="bg">2.1 Backgrounds</div>
+      <div class="color-grid">
+        <div class="color-chip" data-tip="Copiar" onclick="copyHex('#121212','BG_DEEP')">
+          <div class="color-swatch" style="background:#121212;"><span style="font-size:9px;color:#444">◐</span></div>
+          <div class="color-info"><div class="color-token">Colors.BG_DEEP</div><div class="color-hex">#121212</div><div class="color-desc">Janela raiz, dialogs, viewers DXF</div></div>
+        </div>
+        <div class="color-chip" onclick="copyHex('#1a1a2e','BG_PRIMARY')">
+          <div class="color-swatch" style="background:#1a1a2e;"></div>
+          <div class="color-info"><div class="color-token">Colors.BG_PRIMARY</div><div class="color-hex">#1a1a2e</div><div class="color-desc">Fundo geral (legado)</div></div>
+        </div>
+        <div class="color-chip" onclick="copyHex('#16213e','BG_SECONDARY')">
+          <div class="color-swatch" style="background:#16213e;"></div>
+          <div class="color-info"><div class="color-token">Colors.BG_SECONDARY</div><div class="color-hex">#16213e</div><div class="color-desc">Headers, tab pane selected</div></div>
+        </div>
+        <div class="color-chip" onclick="copyHex('#1e1e1e','BG_PANEL')">
+          <div class="color-swatch" style="background:#1e1e1e;"></div>
+          <div class="color-info"><div class="color-token">Colors.BG_PANEL</div><div class="color-hex">#1e1e1e</div><div class="color-desc">Painéis internos, sidebars</div></div>
+        </div>
+        <div class="color-chip" onclick="copyHex('#252525','BG_CARD')">
+          <div class="color-swatch" style="background:#252525;"></div>
+          <div class="color-info"><div class="color-token">Colors.BG_CARD</div><div class="color-hex">#252525</div><div class="color-desc">Cards, inputs, botões sec.</div></div>
+        </div>
+        <div class="color-chip" onclick="copyHex('#252528','BG_SURFACE')">
+          <div class="color-swatch" style="background:#252528;"></div>
+          <div class="color-info"><div class="color-token">Colors.BG_SURFACE</div><div class="color-hex">#252528</div><div class="color-desc">Headers de tabela</div></div>
+        </div>
+        <div class="color-chip" onclick="copyHex('#2a2a3e','BG_HOVER')">
+          <div class="color-swatch" style="background:#2a2a3e;"></div>
+          <div class="color-info"><div class="color-token">Colors.BG_HOVER</div><div class="color-hex">#2a2a3e</div><div class="color-desc">Hover state</div></div>
+        </div>
+        <div class="color-chip" onclick="copyHex('#332222','BG_DANGER_DARK')">
+          <div class="color-swatch" style="background:#332222;"></div>
+          <div class="color-info"><div class="color-token">Colors.BG_DANGER_DARK</div><div class="color-hex">#332222</div><div class="color-desc">Hover delete, danger btn</div></div>
+        </div>
+      </div>
+
+      <div class="subsection-title" id="textos">2.2 Textos</div>
+      <div class="color-grid">
+        <div class="color-chip" onclick="copyHex('#ffffff','TEXT_BRIGHT')"><div class="color-swatch" style="background:#222;border-bottom:1px solid #333;"><span style="color:#fff;font-weight:bold;font-size:12px;">Aa</span></div><div class="color-info"><div class="color-token">Colors.TEXT_BRIGHT</div><div class="color-hex">#ffffff</div><div class="color-desc">Ênfase máxima</div></div></div>
+        <div class="color-chip" onclick="copyHex('#e0e0e0','TEXT_PRIMARY')"><div class="color-swatch" style="background:#222;border-bottom:1px solid #333;"><span style="color:#e0e0e0;font-weight:bold;font-size:12px;">Aa</span></div><div class="color-info"><div class="color-token">Colors.TEXT_PRIMARY</div><div class="color-hex">#e0e0e0</div><div class="color-desc">Texto principal</div></div></div>
+        <div class="color-chip" onclick="copyHex('#888888','TEXT_SECONDARY')"><div class="color-swatch" style="background:#222;border-bottom:1px solid #333;"><span style="color:#888;font-weight:bold;font-size:12px;">Aa</span></div><div class="color-info"><div class="color-token">Colors.TEXT_SECONDARY</div><div class="color-hex">#888888</div><div class="color-desc">Labels, tabs inativas</div></div></div>
+        <div class="color-chip" onclick="copyHex('#666666','TEXT_DIM')"><div class="color-swatch" style="background:#222;border-bottom:1px solid #333;"><span style="color:#666;font-weight:bold;font-size:12px;">Aa</span></div><div class="color-info"><div class="color-token">Colors.TEXT_DIM</div><div class="color-hex">#666666</div><div class="color-desc">Timestamps, auxiliar</div></div></div>
+        <div class="color-chip" onclick="copyHex('#555555','TEXT_MUTED')"><div class="color-swatch" style="background:#222;border-bottom:1px solid #333;"><span style="color:#555;font-weight:bold;font-size:12px;">Aa</span></div><div class="color-info"><div class="color-token">Colors.TEXT_MUTED</div><div class="color-hex">#555555</div><div class="color-desc">Desabilitado, placeholder</div></div></div>
+        <div class="color-chip" onclick="copyHex('#00d4ff','TEXT_LINK')"><div class="color-swatch" style="background:#222;border-bottom:1px solid #333;"><span style="color:#00d4ff;font-weight:bold;font-size:12px;">Aa</span></div><div class="color-info"><div class="color-token">Colors.TEXT_LINK</div><div class="color-hex">#00d4ff</div><div class="color-desc">Links clicáveis</div></div></div>
+      </div>
+
+      <div class="subsection-title" id="accents">2.3 Accents — Ação & Brand</div>
+      <div class="color-grid">
+        <div class="color-chip" onclick="copyHex('#00d4ff','ACCENT_PRIMARY')"><div class="color-swatch" style="background:#00d4ff;"></div><div class="color-info"><div class="color-token">Colors.ACCENT_PRIMARY</div><div class="color-hex">#00d4ff</div><div class="color-desc">Ciano principal — seleção, link, focus</div></div></div>
+        <div class="color-chip" onclick="copyHex('#00E5FF','ACCENT_BRAND')"><div class="color-swatch" style="background:#00E5FF;"></div><div class="color-info"><div class="color-token">Colors.ACCENT_BRAND</div><div class="color-hex">#00E5FF</div><div class="color-desc">Logo, branding</div></div></div>
+        <div class="color-chip" onclick="copyHex('#0078d4','ACCENT_BLUE')"><div class="color-swatch" style="background:#0078d4;"></div><div class="color-info"><div class="color-token">Colors.ACCENT_BLUE</div><div class="color-hex">#0078d4</div><div class="color-desc">Botões primários, tab selected</div></div></div>
+        <div class="color-chip" onclick="copyHex('#4caf50','ACCENT_SUCCESS')"><div class="color-swatch" style="background:#4caf50;"></div><div class="color-info"><div class="color-token">Colors.ACCENT_SUCCESS</div><div class="color-hex">#4caf50</div><div class="color-desc">Verde sucesso</div></div></div>
+        <div class="color-chip" onclick="copyHex('#00cc66','ACCENT_SUCCESS_ALT')"><div class="color-swatch" style="background:#00cc66;"></div><div class="color-info"><div class="color-token">Colors.ACCENT_SUCCESS_ALT</div><div class="color-hex">#00cc66</div><div class="color-desc">Verde vivo — botões LISP/criar</div></div></div>
+        <div class="color-chip" onclick="copyHex('#ff9800','ACCENT_WARNING')"><div class="color-swatch" style="background:#ff9800;"></div><div class="color-info"><div class="color-token">Colors.ACCENT_WARNING</div><div class="color-hex">#ff9800</div><div class="color-desc">Laranja aviso</div></div></div>
+        <div class="color-chip" onclick="copyHex('#f44336','ACCENT_DANGER')"><div class="color-swatch" style="background:#f44336;"></div><div class="color-info"><div class="color-token">Colors.ACCENT_DANGER</div><div class="color-hex">#f44336</div><div class="color-desc">Vermelho erro</div></div></div>
+        <div class="color-chip" onclick="copyHex('#FFD700','ACCENT_GOLD')"><div class="color-swatch" style="background:#FFD700;"></div><div class="color-info"><div class="color-token">Colors.ACCENT_GOLD</div><div class="color-hex">#FFD700</div><div class="color-desc">Admin badge, score ARETE</div></div></div>
+        <div class="color-chip" onclick="copyHex('#a070ff','ACCENT_PURPLE')"><div class="color-swatch" style="background:#a070ff;"></div><div class="color-info"><div class="color-token">Colors.ACCENT_PURPLE</div><div class="color-hex">#a070ff</div><div class="color-desc">Overlay ativo, N4</div></div></div>
+        <div class="color-chip" onclick="copyHex('#d63384','ACCENT_MAGENTA')"><div class="color-swatch" style="background:#d63384;"></div><div class="color-info"><div class="color-token">Colors.ACCENT_MAGENTA</div><div class="color-hex">#d63384</div><div class="color-desc">Sync buttons</div></div></div>
+        <div class="color-chip" onclick="copyHex('#00ffcc','ACCENT_MINT')"><div class="color-swatch" style="background:#00ffcc;"></div><div class="color-info"><div class="color-token">Colors.ACCENT_MINT</div><div class="color-hex">#00ffcc</div><div class="color-desc">Add buttons</div></div></div>
+        <div class="color-chip" onclick="copyHex('#e3b341','ACCENT_INFO')"><div class="color-swatch" style="background:#e3b341;"></div><div class="color-info"><div class="color-token">Colors.ACCENT_INFO</div><div class="color-hex">#e3b341</div><div class="color-desc">Info / nota</div></div></div>
+      </div>
+
+      <!-- Níveis N1-N4 -->
+      <div class="subsection-title" id="niveis">2.4 Paleta de Níveis (Comparison Engine)</div>
+      <div class="niveau-grid">
+        <div class="niveau-card" style="border-color:#4a9eff44;">
+          <div class="niveau-header" style="background:#1b3a6b;">
+            <span class="niveau-id" style="color:#4a9eff;">N1</span>
+            <span class="niveau-desc-text">Estrutura Real<br>DXF estrutural original</span>
+          </div>
+          <div class="niveau-body">
+            <div class="row"><span>Accent</span><span style="color:#4a9eff;">#4a9eff</span></div>
+            <div class="row"><span>BG</span><span style="color:var(--text-dim);">#1b3a6b</span></div>
+            <div class="row"><span>Borda</span><span style="color:var(--text-dim);">#4a9eff44</span></div>
+            <div class="niveau-progress"><div class="niveau-progress-bar" style="width:85%;background:#4a9eff;"></div></div>
+          </div>
+        </div>
+        <div class="niveau-card" style="border-color:#4acf7a44;">
+          <div class="niveau-header" style="background:#1a4a2a;">
+            <span class="niveau-id" style="color:#4acf7a;">N2</span>
+            <span class="niveau-desc-text">STOG Real<br>Engenharia reversa</span>
+          </div>
+          <div class="niveau-body">
+            <div class="row"><span>Accent</span><span style="color:#4acf7a;">#4acf7a</span></div>
+            <div class="row"><span>BG</span><span style="color:var(--text-dim);">#1a4a2a</span></div>
+            <div class="row"><span>Borda</span><span style="color:var(--text-dim);">#4acf7a44</span></div>
+            <div class="niveau-progress"><div class="niveau-progress-bar" style="width:72%;background:#4acf7a;"></div></div>
+          </div>
+        </div>
+        <div class="niveau-card" style="border-color:#cf8a4a44;">
+          <div class="niveau-header" style="background:#4a2a1a;">
+            <span class="niveau-id" style="color:#cf8a4a;">N3</span>
+            <span class="niveau-desc-text">Robot Gerado<br>DXF gerado pelo robô</span>
+          </div>
+          <div class="niveau-body">
+            <div class="row"><span>Accent</span><span style="color:#cf8a4a;">#cf8a4a</span></div>
+            <div class="row"><span>BG</span><span style="color:var(--text-dim);">#4a2a1a</span></div>
+            <div class="row"><span>Borda</span><span style="color:var(--text-dim);">#cf8a4a44</span></div>
+            <div class="niveau-progress"><div class="niveau-progress-bar" style="width:60%;background:#cf8a4a;"></div></div>
+          </div>
+        </div>
+        <div class="niveau-card" style="border-color:#a855f744;">
+          <div class="niveau-header" style="background:#2d1a4a;">
+            <span class="niveau-id" style="color:#a855f7;">N4</span>
+            <span class="niveau-desc-text">Validação Visual<br>Placeholder futuro</span>
+          </div>
+          <div class="niveau-body">
+            <div class="row"><span>Accent</span><span style="color:#a855f7;">#a855f7</span></div>
+            <div class="row"><span>BG</span><span style="color:var(--text-dim);">#2d1a4a</span></div>
+            <div class="row"><span>Borda</span><span style="color:var(--text-dim);">#a855f744</span></div>
+            <div class="niveau-progress"><div class="niveau-progress-bar" style="width:40%;background:#a855f7;"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Score Colors -->
+      <div class="subsection-title" id="scores">2.5 Score Colors</div>
+      <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:24px;">
+        <div class="metric-card" style="border-color:rgba(255,215,0,0.3);">
+          <div class="metric-label">≥ 85%</div>
+          <div class="metric-value" style="color:#FFD700;">92%</div>
+          <div class="metric-sub" style="color:#FFD700;font-weight:bold;letter-spacing:2px;font-size:9px;">ARETE</div>
+        </div>
+        <div class="metric-card" style="border-color:rgba(76,175,80,0.3);">
+          <div class="metric-label">≥ 75%</div>
+          <div class="metric-value" style="color:#4caf50;">78%</div>
+          <div class="metric-sub" style="color:#4caf50;font-weight:bold;letter-spacing:2px;font-size:9px;">OK</div>
+        </div>
+        <div class="metric-card" style="border-color:rgba(255,152,0,0.3);">
+          <div class="metric-label">≥ 60%</div>
+          <div class="metric-value" style="color:#ff9800;">63%</div>
+          <div class="metric-sub" style="color:#ff9800;font-weight:bold;letter-spacing:2px;font-size:9px;">MELHORAR</div>
+        </div>
+        <div class="metric-card" style="border-color:rgba(244,67,54,0.3);">
+          <div class="metric-label">&lt; 60%</div>
+          <div class="metric-value" style="color:#f44336;">41%</div>
+          <div class="metric-sub" style="color:#f44336;font-weight:bold;letter-spacing:2px;font-size:9px;">INVESTIGAR</div>
+        </div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- ═══════════════════════════════════════════
+         TIPOGRAFIA
+    ════════════════════════════════════════════ -->
+    <section class="section" id="tipografia">
+      <h2 class="section-title"><span class="num">3</span> Tipografia</h2>
+      <div class="type-scale">
+        <div class="type-row"><span class="type-token">Fonts.SIZE_XS</span><span class="type-size">9px</span><span class="type-preview" style="font-size:9px;">Pipeline step labels, tooltips, fase bar</span><span class="type-use">timestamps, badges micro</span></div>
+        <div class="type-row"><span class="type-token">Fonts.SIZE_SM</span><span class="type-size">10px</span><span class="type-preview" style="font-size:10px;">Badges, metadata, lista compacta, field buttons</span><span class="type-use">list items, monospace values</span></div>
+        <div class="type-row"><span class="type-token">Fonts.SIZE_MD</span><span class="type-size">11px</span><span class="type-preview" style="font-size:11px;font-weight:600;color:var(--accent-primary)">PADRÃO — Labels, botões, corpo de tabela, tabs</span><span class="type-use">default para tudo</span></div>
+        <div class="type-row"><span class="type-token">Fonts.SIZE_LG</span><span class="type-size">12px</span><span class="type-preview" style="font-size:12px;">Sidebar items, métricas, tree nodes</span><span class="type-use">valores de campo</span></div>
+        <div class="type-row"><span class="type-token">Fonts.SIZE_XL</span><span class="type-size">13px</span><span class="type-preview" style="font-size:13px;">Títulos de seção, inputs, badge de nível</span><span class="type-use">subtítulos</span></div>
+        <div class="type-row"><span class="type-token">Fonts.SIZE_XXL</span><span class="type-size">14px</span><span class="type-preview" style="font-size:14px;font-weight:bold;">Subtítulos de painel, metric card values</span><span class="type-use">bold context</span></div>
+        <div class="type-row"><span class="type-token">Fonts.SIZE_TITLE</span><span class="type-size">16px</span><span class="type-preview" style="font-size:16px;font-weight:bold;color:var(--accent-brand);">TSF PROJETOS</span><span class="type-use">logo, títulos de módulo</span></div>
+        <div class="type-row"><span class="type-token">Fonts.SIZE_HERO</span><span class="type-size">20px</span><span class="type-preview" style="font-size:20px;font-weight:bold;color:#FFD700;">92%</span><span class="type-use">score hero, destaque máximo</span></div>
+      </div>
+      <div style="display:flex;gap:16px;margin-bottom:12px;">
+        <div class="metric-card" style="flex:1;">
+          <div class="metric-label">Font Family</div>
+          <div style="font-size:13px;font-weight:bold;color:var(--text-primary);margin-top:4px;">'Segoe UI', Tahoma, Verdana</div>
+          <div style="font-size:10px;color:var(--text-secondary);margin-top:4px;">Fonts.FAMILY · toda a interface</div>
+        </div>
+        <div class="metric-card" style="flex:1;">
+          <div class="metric-label">Mono Family</div>
+          <div style="font-size:13px;font-weight:bold;color:var(--accent-success-alt);margin-top:4px;font-family:var(--font-mono);">'Consolas', monospace</div>
+          <div style="font-size:10px;color:var(--text-secondary);margin-top:4px;">Fonts.FAMILY_MONO · código, terminal, paths</div>
+        </div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- ═══════════════════════════════════════════
+         ESPAÇAMENTO
+    ════════════════════════════════════════════ -->
+    <section class="section" id="espacamento">
+      <h2 class="section-title"><span class="num">4</span> Espaçamento</h2>
+
+      <div class="subsection-title" id="spacing-scale">Scale</div>
+      <div class="spacing-grid">
+        <div class="spacing-item"><div class="spacing-bar" style="height:2px;"></div><div class="spacing-label">2px</div><div class="spacing-token">XS</div></div>
+        <div class="spacing-item"><div class="spacing-bar" style="height:4px;"></div><div class="spacing-label">4px</div><div class="spacing-token">DENSE</div></div>
+        <div class="spacing-item"><div class="spacing-bar" style="height:8px;"></div><div class="spacing-label">8px</div><div class="spacing-token">BASE</div></div>
+        <div class="spacing-item"><div class="spacing-bar" style="height:12px;"></div><div class="spacing-label">12px</div><div class="spacing-token">LOOSE</div></div>
+        <div class="spacing-item"><div class="spacing-bar" style="height:16px;"></div><div class="spacing-label">16px</div><div class="spacing-token">LARGE</div></div>
+        <div class="spacing-item"><div class="spacing-bar" style="height:20px;"></div><div class="spacing-label">20px</div><div class="spacing-token">OUTER</div></div>
+      </div>
+
+      <div class="subsection-title" id="heights">Alturas Fixas do Chrome</div>
+      <table class="heights-table">
+        <thead><tr><th>Elemento</th><th>Altura</th><th>Visual</th><th>Código</th></tr></thead>
+        <tbody>
+          <tr><td>Barra de topo (logo + controles)</td><td class="px">40px</td><td class="height-bar-cell"><div class="height-bar-wrap"><div class="height-bar-fill" style="width:40%;background:var(--accent-blue);"></div></div></td><td><span class="tag">setFixedHeight(40)</span></td></tr>
+          <tr><td>Faixa descrição de fase</td><td class="px">22px</td><td class="height-bar-cell"><div class="height-bar-wrap"><div class="height-bar-fill" style="width:22%;background:#3a7fd4;"></div></div></td><td><span class="tag">setFixedHeight(22)</span></td></tr>
+          <tr><td>Container de tabs de módulo</td><td class="px">32px</td><td class="height-bar-cell"><div class="height-bar-wrap"><div class="height-bar-fill" style="width:32%;background:var(--accent-primary);"></div></div></td><td><span class="tag">setFixedHeight(32)</span></td></tr>
+          <tr><td>Tab de módulo (QTabBar)</td><td class="px">28px</td><td class="height-bar-cell"><div class="height-bar-wrap"><div class="height-bar-fill" style="width:28%;background:var(--accent-teal);"></div></div></td><td><span class="tag">height: 28px (QSS)</span></td></tr>
+          <tr><td>Project tabs (sub-nav)</td><td class="px">28px</td><td class="height-bar-cell"><div class="height-bar-wrap"><div class="height-bar-fill" style="width:28%;background:var(--accent-slate);"></div></div></td><td><span class="tag">setFixedHeight(28)</span></td></tr>
+          <tr><td>Botão compacto (toolbar)</td><td class="px">24px</td><td class="height-bar-cell"><div class="height-bar-wrap"><div class="height-bar-fill" style="width:24%;background:var(--accent-success);"></div></div></td><td><span class="tag">setFixedHeight(24)</span></td></tr>
+          <tr><td>Header de nível (Comparison Engine)</td><td class="px">72px</td><td class="height-bar-cell"><div class="height-bar-wrap"><div class="height-bar-fill" style="width:72%;background:#4a9eff;"></div></div></td><td><span class="tag">setFixedHeight(72)</span></td></tr>
+          <tr><td>Sidebar (padrão)</td><td class="px">280px</td><td class="height-bar-cell"><div class="height-bar-wrap"><div class="height-bar-fill" style="width:100%;background:var(--bg-panel);border:1px solid var(--border-default);"></div></div></td><td><span class="tag">setFixedWidth(280)</span></td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- ═══════════════════════════════════════════
+         COMPONENTES
+    ════════════════════════════════════════════ -->
+    <section class="section" id="componentes">
+      <h2 class="section-title"><span class="num">5</span> Componentes</h2>
+
+      <!-- BOTÕES -->
+      <div class="subsection-title" id="botoes">Botões</div>
+      <div class="component-card" style="margin-bottom:16px;">
+        <div class="component-card-header"><h3>Action Buttons</h3><span class="component-tag">5 variantes</span></div>
+        <div class="component-demo">
+          <button class="btn btn-primary">Iniciar Análise</button>
+          <button class="btn btn-secondary">Atualizar Listas</button>
+          <button class="btn btn-accent">▶ Selecionar</button>
+          <button class="btn btn-danger">✕ Excluir Item</button>
+          <button class="btn btn-success">✓ Criar Comando LISP</button>
+          <button class="btn btn-purple">⟳ Sincronizar</button>
+        </div>
+        <div class="component-demo" style="background:var(--bg-surface);padding:12px 20px;border-top:1px solid var(--border-subtle);">
+          <span style="font-size:10px;color:var(--text-muted);">Toolbar compacta (h=24px):</span>
+          <button class="btn-tool active">▶ SELECT</button>
+          <button class="btn-tool">/LINHA</button>
+          <button class="btn-tool">○ CIRC</button>
+          <button class="btn-tool">⌨ TEXTO</button>
+          <button class="btn-tool">→ COTA</button>
+          <button class="btn-tool">✕ MOVER</button>
+          <button class="btn-tool">⊥ ORTHO</button>
+        </div>
+      </div>
+
+      <!-- BADGES -->
+      <div class="subsection-title" id="badges">Status Badges</div>
+      <div class="component-card" style="margin-bottom:16px;">
+        <div class="component-card-header"><h3>Status Badges</h3><span class="component-tag">5 estados</span></div>
+        <div class="component-demo">
+          <span class="badge badge-ok">● OK</span>
+          <span class="badge badge-warn">⚠ AVISO</span>
+          <span class="badge badge-err">✕ ERRO</span>
+          <span class="badge badge-info">● SYNC</span>
+          <span class="badge badge-arete">★ ARETE</span>
+          <span class="badge" style="background:rgba(76,175,80,0.1);color:#4caf50;border:1px solid rgba(76,175,80,0.25);">✓ VALIDADO</span>
+          <span class="badge" style="background:rgba(255,215,0,0.1);color:#FFD700;border:1px solid rgba(255,215,0,0.25);">N1</span>
+          <span class="badge" style="background:rgba(74,207,122,0.1);color:#4acf7a;border:1px solid rgba(74,207,122,0.25);">N2</span>
+          <span class="badge" style="background:rgba(207,138,74,0.1);color:#cf8a4a;border:1px solid rgba(207,138,74,0.25);">N3</span>
+          <span class="badge" style="background:rgba(168,85,247,0.1);color:#a855f7;border:1px solid rgba(168,85,247,0.25);">N4</span>
+        </div>
+      </div>
+
+      <!-- PROGRESS BARS -->
+      <div class="subsection-title" id="progress">Progress Bars</div>
+      <div class="component-card" style="margin-bottom:16px;">
+        <div class="component-card-header"><h3>Progress Bars</h3><span class="component-tag">3 variantes</span></div>
+        <div class="component-demo vertical" style="padding:20px;gap:16px;">
+          <div style="width:100%;">
+            <div style="font-size:10px;color:var(--text-muted);margin-bottom:6px;">Slim (h=4px) — carregamento silencioso</div>
+            <div class="progress-slim"><div class="progress-bar-fill" style="width:65%;background:var(--accent-primary);"></div></div>
+          </div>
+          <div style="width:100%;">
+            <div style="font-size:10px;color:var(--text-muted);margin-bottom:6px;">Normal (h=8px) — progress geral</div>
+            <div class="progress-normal"><div class="progress-bar-fill" style="width:82%;background:var(--accent-success);"></div></div>
+          </div>
+          <div style="width:100%;">
+            <div style="font-size:10px;color:var(--text-muted);margin-bottom:6px;">Labeled (h=14px) — com valor</div>
+            <div class="progress-labeled"><div class="progress-bar-fill" style="width:73%;background:var(--accent-blue);"></div><div class="progress-text">73%</div></div>
+          </div>
+          <div style="width:100%;">
+            <div style="font-size:10px;color:var(--text-muted);margin-bottom:6px;">Nível colorido (N1 / N2 / N3)</div>
+            <div style="display:flex;gap:8px;">
+              <div style="flex:1;"><div class="progress-normal"><div class="progress-bar-fill" style="width:85%;background:#4a9eff;"></div></div></div>
+              <div style="flex:1;"><div class="progress-normal"><div class="progress-bar-fill" style="width:72%;background:#4acf7a;"></div></div></div>
+              <div style="flex:1;"><div class="progress-normal"><div class="progress-bar-fill" style="width:60%;background:#cf8a4a;"></div></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- INPUTS -->
+      <div class="subsection-title" id="inputs">Inputs & Selects</div>
+      <div class="component-card" style="margin-bottom:16px;">
+        <div class="component-card-header"><h3>Form Controls</h3></div>
+        <div class="component-demo" style="gap:16px;flex-wrap:wrap;">
+          <input class="input-field" type="text" placeholder="Digite o nome da obra...">
+          <select class="select-field"><option>Obra_TREINO_1</option><option>Obra_TREINO_10</option><option>Obra_TREINO_12</option></select>
+          <input class="input-field" type="text" value="V10" style="width:80px;">
+        </div>
+      </div>
+
+      <!-- TABS -->
+      <div class="subsection-title" id="tabs">Tabs</div>
+      <div class="component-card" style="margin-bottom:16px;">
+        <div class="component-card-header"><h3>Tab Navigation</h3><span class="component-tag">módulo + sub-tabs</span></div>
+        <div class="component-demo vertical dark" style="padding:0;gap:0;">
+          <div style="padding:8px 16px;font-size:10px;color:var(--text-muted);">ModuleNav (h=32px):</div>
+          <div class="tabs-demo">
+            <div class="tab-item">Gerenciar Projetos</div>
+            <div class="tab-item selected">Structural Analyzer</div>
+            <div class="tab-item">Comparison Engine</div>
+            <div class="tab-item">Robo Pilares</div>
+          </div>
+          <div style="padding:8px 16px;font-size:10px;color:var(--text-muted);margin-top:8px;">Sub-tabs coloridas (Comparison Engine N1/N2/N3/N4):</div>
+          <div style="display:flex;background:var(--bg-panel);padding:0 12px;gap:4px;border-bottom:1px solid var(--border-default);">
+            <div style="padding:6px 20px;font-size:11px;font-weight:bold;color:#4a9eff;border-bottom:2px solid #4a9eff;cursor:pointer;">N1</div>
+            <div style="padding:6px 20px;font-size:11px;color:var(--text-secondary);cursor:pointer;">N2</div>
+            <div style="padding:6px 20px;font-size:11px;color:var(--text-secondary);cursor:pointer;">N3</div>
+            <div style="padding:6px 20px;font-size:11px;color:var(--text-secondary);cursor:pointer;">N4</div>
+          </div>
+          <div style="height:40px;"></div>
+        </div>
+      </div>
+
+      <!-- METRIC CARDS -->
+      <div class="subsection-title" id="metric">Metric Cards</div>
+      <div class="component-card" style="margin-bottom:16px;">
+        <div class="component-card-header"><h3>Metric Cards</h3></div>
+        <div class="component-demo">
+          <div class="metric-card">
+            <div class="metric-label">Pilares</div>
+            <div class="metric-value">51</div>
+            <div class="metric-sub" style="color:var(--accent-success);">↑ 0 erros</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">Vigas</div>
+            <div class="metric-value">183</div>
+            <div class="metric-sub" style="color:var(--accent-success);">↑ 0 erros</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">Score</div>
+            <div class="metric-value" style="color:#FFD700;">92%</div>
+            <div class="metric-sub" style="color:#FFD700;font-weight:bold;letter-spacing:2px;font-size:9px;">ARETE</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">Lajes</div>
+            <div class="metric-value" style="color:var(--accent-warning);">14</div>
+            <div class="metric-sub" style="color:var(--accent-warning);">⚠ 2 pendentes</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PIPELINE STEPS -->
+      <div class="subsection-title" id="pipeline">Pipeline Steps</div>
+      <div class="component-card" style="margin-bottom:16px;">
+        <div class="component-card-header"><h3>Pipeline Steps</h3></div>
+        <div class="component-demo vertical" style="padding:20px;">
+          <div class="pipeline" style="width:100%;">
+            <div class="pipeline-step ok"><div class="step-icon">✓</div><div class="step-label ok">Fase 1</div></div>
+            <div class="pipeline-step ok"><div class="step-icon">✓</div><div class="step-label ok">Fase 2</div></div>
+            <div class="pipeline-step ok"><div class="step-icon">✓</div><div class="step-label ok">Fase 3</div></div>
+            <div class="pipeline-step running"><div class="step-icon">⟳</div><div class="step-label running">Fase 4</div></div>
+            <div class="pipeline-step pending"><div class="step-icon">○</div><div class="step-label">Fase 5</div></div>
+            <div class="pipeline-step pending"><div class="step-icon">○</div><div class="step-label">Fase 6</div></div>
+            <div class="pipeline-step error"><div class="step-icon">✕</div><div class="step-label error">Fase 7</div></div>
+            <div class="pipeline-step pending"><div class="step-icon">○</div><div class="step-label">Fase 8</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TERMINAL -->
+      <div class="subsection-title" id="terminal">Terminal de Eventos</div>
+      <div class="component-card" style="margin-bottom:16px;">
+        <div class="component-card-header"><h3>Terminal</h3><span class="component-tag">Consolas mono, verde</span></div>
+        <div class="component-demo vertical dark">
+          <div class="terminal">
+            <span class="t-dim">> [INFO] Carregando Obra_TREINO_1...</span><br>
+            > [INFO] DXF Fase-2 encontrado: TIPO - 3 AO 12PAV<br>
+            > [INFO] 51 pilares extraídos ✓<br>
+            > [INFO] 183 vigas extraídas ✓<br>
+            <span class="t-warn">> [WARN] LV-B4: holes stub — aguardando CONCRETO layer</span><br>
+            > [INFO] motor_fase4 concluído: 0 erros<br>
+            <span class="t-dim">> [DEBUG] Tempo total: 3.2s</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- LIST WIDGET -->
+      <div class="subsection-title" id="lista">List Widget</div>
+      <div class="component-card" style="margin-bottom:16px;">
+        <div class="component-card-header"><h3>List Widget</h3></div>
+        <div class="component-demo">
+          <div class="list-widget">
+            <div class="section-header">PILARES</div>
+            <div class="list-item selected"><div class="dot" style="background:#4caf50;"></div>P1 — 66×19</div>
+            <div class="list-item"><div class="dot" style="background:#4caf50;"></div>P2 — 40×40</div>
+            <div class="list-item"><div class="dot" style="background:#ff9800;"></div>P3 — 19×66</div>
+            <div class="list-item"><div class="dot" style="background:#4caf50;"></div>P4 — 30×60</div>
+            <div class="list-item"><div class="dot" style="background:#f44336;"></div>P5 — indefinido</div>
+          </div>
+          <div class="list-widget">
+            <div class="section-header">VIGAS</div>
+            <div class="list-item"><div class="dot" style="background:#4a9eff;"></div>V1 — LV h=30</div>
+            <div class="list-item selected"><div class="dot" style="background:#4a9eff;"></div>V10 — LV h=244</div>
+            <div class="list-item"><div class="dot" style="background:#4acf7a;"></div>V11 — FV</div>
+            <div class="list-item"><div class="dot" style="background:#4a9eff;"></div>V12 — LV h=122</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- EMPTY STATE -->
+      <div class="subsection-title" id="empty">Empty State</div>
+      <div class="component-card" style="margin-bottom:16px;">
+        <div class="component-card-header"><h3>Empty & Loading States</h3></div>
+        <div class="component-demo" style="gap:20px;align-items:stretch;">
+          <div class="empty-state" style="flex:1;">
+            <div class="empty-icon">○</div>
+            <div class="empty-msg">Nenhum projeto carregado</div>
+            <div class="empty-detail">Selecione uma obra para começar.</div>
+          </div>
+          <div class="empty-state" style="flex:1;border-color:var(--accent-primary)44;">
+            <div class="empty-icon" style="color:var(--accent-primary);font-size:24px;">⟳</div>
+            <div class="empty-msg" style="color:var(--text-primary);">Processando DXF...</div>
+            <div style="width:100%;margin-top:8px;">
+              <div class="progress-slim" style=""><div class="progress-bar-fill" style="width:40%;background:var(--accent-primary);animation:pulse 1s infinite;"></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- ═══════════════════════════════════════════
+         LAYOUTS
+    ════════════════════════════════════════════ -->
+    <section class="section" id="layouts">
+      <h2 class="section-title"><span class="num">6</span> Padrões de Layout</h2>
+
+      <div class="layout-diagram">
+        <div class="layout-diagram-title">L1 · SidebarLeft + ContentArea (Structural Analyzer)</div>
+        <div class="ld-row">
+          <div class="ld-sidebar" style="background:#1a3a1a;border-color:#2a5a2a;color:#4acf7a;">Sidebar<br>280px<br><span style="color:#1a4a2a;">Botões<br>Lista<br>Terminal</span></div>
+          <div class="ld-main" style="background:#1b3a6b44;border-color:#4a9eff33;color:#4a9eff;">
+            <div style="text-align:center;">Canvas / Detail Panel<br><span style="color:var(--text-dim);font-size:8px;">QSplitter stretch=1</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="layout-diagram">
+        <div class="layout-diagram-title">L2 · TriColumn Comparison (N1/N2/N3 tabs → fullscreen)</div>
+        <div style="display:flex;gap:4px;height:80px;">
+          <div class="ld-col" style="background:#1b3a6b;border-color:#4a9eff;color:#4a9eff;">N1<br><span style="font-size:8px;color:rgba(255,255,255,0.5);">Estrutura Real</span></div>
+          <div class="ld-col" style="background:#1a4a2a;border-color:#4acf7a;color:#4acf7a;">N2<br><span style="font-size:8px;color:rgba(255,255,255,0.5);">STOG Real</span></div>
+          <div class="ld-col" style="background:#4a2a1a;border-color:#cf8a4a;color:#cf8a4a;">N3<br><span style="font-size:8px;color:rgba(255,255,255,0.5);">Robot Gerado</span></div>
+          <div class="ld-col" style="background:#2d1a4a;border-color:#a855f7;color:#a855f7;">N4<br><span style="font-size:8px;color:rgba(255,255,255,0.5);">Placeholder</span></div>
+        </div>
+        <div style="font-size:9px;color:var(--text-muted);margin-top:6px;">Cada aba ocupa 100% do espaço disponível — sem colunas side-by-side. QTabWidget com documentMode=True.</div>
+      </div>
+
+      <div class="layout-diagram">
+        <div class="layout-diagram-title">L3 · App Chrome (empilhamento vertical)</div>
+        <div style="display:flex;flex-direction:column;gap:2px;">
+          <div style="height:20px;background:#0078d4;border-radius:3px;display:flex;align-items:center;padding:0 10px;font-size:9px;color:#fff;">TopBar — 40px</div>
+          <div style="height:8px;background:#3a7fd4;border-radius:2px;display:flex;align-items:center;padding:0 10px;font-size:7px;color:#fff;">FaseLabel — 22px</div>
+          <div style="height:10px;background:var(--accent-primary);opacity:0.7;border-radius:2px;display:flex;align-items:center;padding:0 10px;font-size:7px;color:#000;">TabBar — 32px</div>
+          <div style="height:50px;background:var(--bg-panel);border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:9px;color:var(--text-dim);">Conteúdo do Módulo (resto da tela)</div>
+        </div>
+        <div style="font-size:9px;color:var(--text-muted);margin-top:6px;">Total chrome overhead: 40 + 22 + 32 = <strong style="color:var(--accent-primary);">94px</strong></div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- ═══════════════════════════════════════════
+         ANTI-PADRÕES
+    ════════════════════════════════════════════ -->
+    <section class="section" id="antipadroes">
+      <h2 class="section-title"><span class="num">7</span> Anti-Padrões</h2>
+
+      <div class="anti-grid">
+        <div class="anti-card anti-bad"><div class="anti-label">✕ Proibido</div><div class="anti-code">color: "#00d4ff"  # hex literal inline</div></div>
+        <div class="anti-card anti-good"><div class="anti-label">✓ Correto</div><div class="anti-code">color: Colors.ACCENT_PRIMARY</div></div>
+
+        <div class="anti-card anti-bad"><div class="anti-label">✕ Proibido</div><div class="anti-code">col.setFixedWidth(540)  # coluna tab fixa</div></div>
+        <div class="anti-card anti-good"><div class="anti-label">✓ Correto</div><div class="anti-code">col.setSizePolicy(Expanding, Expanding)</div></div>
+
+        <div class="anti-card anti-bad"><div class="anti-label">✕ Proibido</div><div class="anti-code">win = QMainWindow()  # popup para feature</div></div>
+        <div class="anti-card anti-good"><div class="anti-label">✓ Correto</div><div class="anti-code">win.setWindowFlags(Qt.Widget)  # embed inline</div></div>
+
+        <div class="anti-card anti-bad"><div class="anti-label">✕ Proibido</div><div class="anti-code"># área vazia sem mensagem
+layout.addWidget(QWidget())</div></div>
+        <div class="anti-card anti-good"><div class="anti-label">✓ Correto</div><div class="anti-code">from src.ui.theme import EmptyStateWidget
+layout.addWidget(EmptyStateWidget(...))</div></div>
+
+        <div class="anti-card anti-bad"><div class="anti-label">✕ Proibido</div><div class="anti-code">font-size: 14px  # sem token Fonts.*</div></div>
+        <div class="anti-card anti-good"><div class="anti-label">✓ Correto</div><div class="anti-code">font-size: {Fonts.SIZE_XXL}</div></div>
+
+        <div class="anti-card anti-bad"><div class="anti-label">✕ Proibido</div><div class="anti-code">background: white  # paleta clara</div></div>
+        <div class="anti-card anti-good"><div class="anti-label">✓ Correto</div><div class="anti-code">background: {Colors.BG_PANEL}  # sempre dark</div></div>
+      </div>
+    </section>
+
+    <!-- FOOTER -->
+    <div style="text-align:center;color:var(--text-muted);font-size:10px;padding:32px 0;border-top:1px solid var(--border-subtle);">
+      TSF PROJETOS · Design System v2.0.0 · 2026-06-04<br>
+      Token source: <span style="font-family:var(--font-mono);color:var(--accent-primary);">src/ui/theme.py</span>
+    </div>
+
+  </main>
+</div>
+
+<div class="copy-ok" id="copyOk">Copiado!</div>
+
+<script>
+  function copyHex(hex, token) {
+    navigator.clipboard.writeText(hex).then(() => {
+      const el = document.getElementById('copyOk');
+      el.textContent = `${hex} copiado!`;
+      el.classList.add('show');
+      setTimeout(() => el.classList.remove('show'), 1800);
+    });
+  }
+
+  // Smooth scroll highlight nav
+  const navLinks = document.querySelectorAll('.top-bar-nav a');
+  const sections = document.querySelectorAll('.section');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        navLinks.forEach(a => a.classList.remove('active'));
+        const match = document.querySelector(`.top-bar-nav a[href="#${e.target.id}"]`);
+        if (match) match.classList.add('active');
+      }
+    });
+  }, { threshold: 0.3 });
+  sections.forEach(s => observer.observe(s));
+</script>
+</body>
+</html>

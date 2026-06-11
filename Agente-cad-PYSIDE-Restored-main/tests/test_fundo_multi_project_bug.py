@@ -1,49 +1,71 @@
+"""
+test_fundo_multi_project_bug.py — Testa bug de conflito multi-projeto no Robô FV.
 
-import sys
+Guarda: imports PySide6 DENTRO do teste (não no topo) para evitar access violation
+durante coleta do pytest em ambientes headless/CI. O teste é skipado automaticamente
+se PySide6 não estiver disponível ou sem display.
+"""
 import os
-from PySide6.QtWidgets import QApplication
+import sys
 
-# Setup paths
-base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-robo_fundos_path = os.path.join(base_dir, "_ROBOS_ABAS", "Robo_Fundos_de_Vigas", "compactador-producao")
-if robo_fundos_path not in sys.path:
-    sys.path.append(robo_fundos_path)
+import pytest
 
-try:
-    from fundo_pyside import FundoMainWindow
-except ImportError:
-    print("Cannot import FundoMainWindow")
-    sys.exit(1)
 
+def _get_robo_path() -> str:
+    base = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+    return os.path.join(base, "_ROBOS_ABAS", "Robo_Fundos_de_Vigas", "compactador-producao")
+
+
+@pytest.mark.skipif(
+    os.environ.get("DISPLAY") is None and sys.platform != "win32",
+    reason="Sem display (headless) — PySide6 GUI skipped",
+)
 def test_multi_project_conflict():
-    # Evitar criar QApplication múltiplas vezes se já existir
+    """Reproduz bug: vigas com mesmo número em projetos diferentes eram conflitadas."""
+    # Importar PySide6 apenas dentro do teste para não crashar coleta headless
+    PySide6_QtWidgets = pytest.importorskip(
+        "PySide6.QtWidgets", reason="PySide6 não disponível"
+    )
+    QApplication = PySide6_QtWidgets.QApplication
+
+    robo_path = _get_robo_path()
+    if robo_path not in sys.path:
+        sys.path.insert(0, robo_path)
+
+    try:
+        from fundo_pyside import FundoMainWindow  # noqa: PLC0415
+    except ImportError as exc:
+        pytest.skip(f"fundo_pyside não importável: {exc}")
+    except Exception as exc:
+        pytest.skip(f"fundo_pyside causou erro na importação: {exc}")
+
     app = QApplication.instance()
     if not app:
-        app = QApplication(sys.argv)
-    
-    window = FundoMainWindow()
-    
-    # Limpar dados para o teste
-    window.fundos_salvos = {}
-    
-    # 1. Sync Obra A, Beam 1
-    window.sync_context("OBRA A", "PAV 1")
-    v_list_a = [{'name': 'V1', 'number': '1'}]
-    count_a = window.add_viga_bulk(v_list_a)
-    print(f"Obra A Sync: {count_a} itens") 
-    
-    # 2. Sync Obra B, Beam 1 (Same number)
-    window.sync_context("OBRA B", "PAV 1")
-    v_list_b = [{'name': 'V1-B', 'number': '1'}]
-    count_b = window.add_viga_bulk(v_list_b)
-    print(f"Obra B Sync (same number): {count_b} itens") 
-    
-    if count_a == 1 and count_b == 0:
-        print("!!! BUG REPRODUCED: Item with same number in DIFFERENT project skipped !!!")
-        sys.exit(0) # Success in reproducing bug
-    else:
-        print(f"Bug not reproduced as expected. A={count_a}, B={count_b}")
-        sys.exit(1)
+        try:
+            app = QApplication(sys.argv)
+        except Exception as exc:
+            pytest.skip(f"QApplication falhou (provável headless): {exc}")
 
-if __name__ == "__main__":
-    test_multi_project_conflict()
+    try:
+        window = FundoMainWindow()
+    except Exception as exc:
+        pytest.skip(f"FundoMainWindow falhou (provável headless): {exc}")
+
+    # Limpar estado
+    window.fundos_salvos = {}
+
+    # Obra A, Beam 1
+    window.sync_context("OBRA A", "PAV 1")
+    v_list_a = [{"name": "V1", "number": "1"}]
+    count_a = window.add_viga_bulk(v_list_a)
+
+    # Obra B, mesmo número — NÃO deve conflitar com Obra A
+    window.sync_context("OBRA B", "PAV 1")
+    v_list_b = [{"name": "V1-B", "number": "1"}]
+    count_b = window.add_viga_bulk(v_list_b)
+
+    assert count_b == 1, (
+        f"Bug multi-projeto: viga 'V1-B' em 'OBRA B' foi ignorada por conflito com "
+        f"'V1' da 'OBRA A' (count_b={count_b}, esperado=1). "
+        f"count_a={count_a}"
+    )

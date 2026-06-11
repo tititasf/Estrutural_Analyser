@@ -6,6 +6,7 @@ from PySide6.QtCore import Qt, Signal, QSize
 from PySide6.QtGui import QColor, QFont
 
 from src.ui.components.atoms import EmailSourceIcon, AttachmentChip, UserAvatar, PriorityTag, StatusBadge
+from src.ui.theme import Colors, Fonts, Radius
 
 class EmailListItem(QFrame):
     """
@@ -22,10 +23,10 @@ class EmailListItem(QFrame):
         self.setStyleSheet("""
             #EmailItem {
                 background-color: transparent;
-                border-bottom: 1px solid #333;
+                border-bottom: 1px solid {Colors.BORDER_DEFAULT};
             }
             #EmailItem:hover {
-                background-color: #2d2d30;
+                background-color: {Colors.BORDER_PANEL};
             }
         """)
         
@@ -40,13 +41,13 @@ class EmailListItem(QFrame):
         
         # 2. Sender
         lbl_sender = QLabel(email_data.get('sender', 'Unknown'))
-        lbl_sender.setStyleSheet("color: #fff; font-weight: bold; font-size: 11px;")
+        lbl_sender.setStyleSheet(f"color: {Colors.TEXT_BRIGHT}; font-weight: bold; font-size: 11px;")
         lbl_sender.setFixedWidth(150)
         layout.addWidget(lbl_sender)
         
         # 3. Subject
         lbl_subj = QLabel(email_data.get('subject', '(Sem Assunto)'))
-        lbl_subj.setStyleSheet("color: #ccc; font-size: 11px;")
+        lbl_subj.setStyleSheet(f"color: {Colors.TEXT_PRIMARY}; font-size: 11px;")
         layout.addWidget(lbl_subj)
         
         # 4. Attachments Chips
@@ -61,7 +62,7 @@ class EmailListItem(QFrame):
         
         if len(attachments) > 2:
             lbl_more = QLabel(f"+{len(attachments)-2}")
-            lbl_more.setStyleSheet("color: #888; font-size: 10px;")
+            lbl_more.setStyleSheet(f"color: {Colors.TEXT_SECONDARY}; font-size: 10px;")
             att_layout.addWidget(lbl_more)
             
         layout.addLayout(att_layout)
@@ -73,7 +74,7 @@ class EmailListItem(QFrame):
         date_str = email_data.get('date', '')
         # Simplification: just show raw string or format
         lbl_date = QLabel(str(date_str)[:16]) 
-        lbl_date.setStyleSheet("color: #666; font-size: 10px;")
+        lbl_date.setStyleSheet(f"color: {Colors.TEXT_DIM}; font-size: 10px;")
         lbl_date.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
         layout.addWidget(lbl_date)
 
@@ -96,12 +97,12 @@ class DocumentRowItem(QFrame):
         self.setObjectName("DocRow")
         self.setStyleSheet("""
             #DocRow {
-                background-color: #1e1e1e;
+                background-color: {Colors.BG_PANEL};
                 border-radius: 4px;
                 margin-bottom: 2px;
             }
             #DocRow:hover {
-                background-color: #252526;
+                background-color: {Colors.BG_CARD};
             }
         """)
         
@@ -113,19 +114,19 @@ class DocumentRowItem(QFrame):
         lbl_ext = QLabel(ext)
         lbl_ext.setFixedSize(32, 32)
         lbl_ext.setAlignment(Qt.AlignCenter)
-        lbl_ext.setStyleSheet("background: #333; color: #aaa; border-radius: 4px; font-weight: bold; font-size: 10px;")
+        lbl_ext.setStyleSheet(f"background: {Colors.BG_CARD}; color: {Colors.TEXT_SECONDARY}; border-radius: 4px; font-weight: bold; font-size: 10px;")
         layout.addWidget(lbl_ext)
         
         # Info
         info_v = QVBoxLayout()
         info_v.setSpacing(2)
         lbl_name = QLabel(doc_data.get('name'))
-        lbl_name.setStyleSheet("color: #fff; font-weight: bold; font-size: 12px;")
+        lbl_name.setStyleSheet(f"color: {Colors.TEXT_BRIGHT}; font-weight: bold; font-size: 12px;")
         info_v.addWidget(lbl_name)
         
         details = f"{doc_data.get('size_str', '0 KB')} • {doc_data.get('date', 'Hoje')}"
         lbl_det = QLabel(details)
-        lbl_det.setStyleSheet("color: #888; font-size: 10px;")
+        lbl_det.setStyleSheet(f"color: {Colors.TEXT_SECONDARY}; font-size: 10px;")
         info_v.addWidget(lbl_det)
         layout.addLayout(info_v)
         
@@ -142,16 +143,16 @@ class DocumentRowItem(QFrame):
         btn_convert_work.setCursor(Qt.PointingHandCursor)
         btn_convert_work.setStyleSheet("""
             QPushButton {
-                background-color: rgba(0, 120, 212, 0.1);
-                border: 1px solid #444;
-                color: #aaa;
+                background-color: rgba(0,120,212,26);
+                border: 1px solid {Colors.BORDER_INPUT};
+                color: {Colors.TEXT_SECONDARY};
                 border-radius: 4px;
                 padding: 4px 10px;
                 font-weight: bold; font-size: 10px;
             }
             QPushButton:hover {
-                background-color: rgba(0, 120, 212, 0.3);
-                color: #fff;
+                background-color: rgba(0,120,212,76);
+                color: {Colors.TEXT_BRIGHT};
             }
         """)
         btn_convert_work.clicked.connect(lambda: self.convert_requested.emit(doc_data))
@@ -161,15 +162,15 @@ class DocumentRowItem(QFrame):
         btn_convert_pavement.setCursor(Qt.PointingHandCursor)
         btn_convert_pavement.setStyleSheet("""
             QPushButton {
-                background-color: rgba(40, 167, 69, 0.2);
-                border: 1px solid #28a745;
-                color: #28a745;
+                background-color: rgba(40,167,69,51);
+                border: 1px solid {Colors.ACCENT_SUCCESS};
+                color: {Colors.ACCENT_SUCCESS};
                 border-radius: 4px;
                 padding: 4px 10px;
                 font-weight: bold; font-size: 10px;
             }
             QPushButton:hover {
-                background-color: rgba(40, 167, 69, 0.4);
+                background-color: rgba(40,167,69,102);
             }
         """)
         btn_convert_pavement.clicked.connect(lambda: self.convert_to_pavement_requested.emit(doc_data))
@@ -198,10 +199,10 @@ class UserStatusRow(QFrame):
         info_v = QVBoxLayout()
         info_v.setSpacing(0)
         lbl_name = QLabel(name)
-        lbl_name.setStyleSheet("color: #ddd; font-weight: bold; font-size: 11px;")
+        lbl_name.setStyleSheet(f"color: {Colors.TEXT_BRIGHT}; font-weight: bold; font-size: 11px;")
         info_v.addWidget(lbl_name)
         lbl_role = QLabel(role)
-        lbl_role.setStyleSheet("color: #666; font-size: 9px;")
+        lbl_role.setStyleSheet(f"color: {Colors.TEXT_DIM}; font-size: 9px;")
         info_v.addWidget(lbl_role)
         layout.addLayout(info_v)
         
@@ -209,7 +210,7 @@ class UserStatusRow(QFrame):
         
         # Status dot
         dot = QLabel("●")
-        color = "#4caf50" if status == "Online" else "#666"
+        color = Colors.ACCENT_SUCCESS if status == "Online" else Colors.TEXT_DIM
         dot.setStyleSheet(f"color: {color}; font-size: 8px;")
         layout.addWidget(dot)
 
@@ -224,24 +225,24 @@ class ClientFormGroup(QWidget):
         layout.setSpacing(4)
         
         lbl = QLabel(label)
-        lbl.setStyleSheet("color: #ccc; font-size: 11px; font-weight: bold;")
+        lbl.setStyleSheet(f"color: {Colors.TEXT_PRIMARY}; font-size: 11px; font-weight: bold;")
         layout.addWidget(lbl)
         
         if input_type == "text":
             self.input = QLineEdit()
             self.input.setPlaceholderText(placeholder)
-            self.input.setStyleSheet("background: #252526; border: 1px solid #3e3e42; color: #fff; padding: 6px; border-radius: 4px;")
+            self.input.setStyleSheet(f"background: {Colors.BG_CARD}; border: 1px solid {Colors.BORDER_INPUT}; color: {Colors.TEXT_BRIGHT}; padding: 6px; border-radius: 4px;")
             layout.addWidget(self.input)
         elif input_type == "combo":
             self.input = QComboBox()
             self.input.addItems(options)
-            self.input.setStyleSheet("background: #252526; border: 1px solid #3e3e42; color: #fff; padding: 4px; border-radius: 4px;")
+            self.input.setStyleSheet(f"background: {Colors.BG_CARD}; border: 1px solid {Colors.BORDER_INPUT}; color: {Colors.TEXT_BRIGHT}; padding: 4px; border-radius: 4px;")
             layout.addWidget(self.input)
         elif input_type == "textarea":
             self.input = QTextEdit()
             self.input.setPlaceholderText(placeholder)
             self.input.setFixedHeight(60)
-            self.input.setStyleSheet("background: #252526; border: 1px solid #3e3e42; color: #fff; padding: 6px; border-radius: 4px;")
+            self.input.setStyleSheet(f"background: {Colors.BG_CARD}; border: 1px solid {Colors.BORDER_INPUT}; color: {Colors.TEXT_BRIGHT}; padding: 6px; border-radius: 4px;")
             layout.addWidget(self.input)
             
     def get_value(self):

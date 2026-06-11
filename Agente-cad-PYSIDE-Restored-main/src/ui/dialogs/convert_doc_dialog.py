@@ -5,6 +5,7 @@ from PySide6.QtWidgets import (
 )
 from PySide6.QtCore import Qt, QDate
 from src.ui.components.molecules_control import ClientFormGroup
+from src.ui.theme import Colors, Fonts, Radius
 
 class ConvertDocDialog(QDialog):
     """
@@ -17,9 +18,9 @@ class ConvertDocDialog(QDialog):
         self.setWindowTitle("Converter Documento em Obra")
         self.setFixedSize(450, 600)
         self.setStyleSheet("""
-            QDialog { background-color: #1e1e1e; color: white; }
-            QLabel { color: white; }
-            QDateEdit { background: #252526; color: white; border: 1px solid #3e3e42; }
+            QDialog { background-color: {Colors.BG_PANEL}; color: {Colors.TEXT_BRIGHT}; }
+            QLabel { color: {Colors.TEXT_BRIGHT}; }
+            QDateEdit { background: {Colors.BG_CARD}; color: {Colors.TEXT_BRIGHT}; border: 1px solid {Colors.BORDER_INPUT}; }
         """)
         
         self.setup_ui()
@@ -31,11 +32,11 @@ class ConvertDocDialog(QDialog):
         
         # Header Info
         header = QLabel("Vincular Documento à Obra")
-        header.setStyleSheet("font-size: 16px; font-weight: bold; color: #00d4ff;")
+        header.setStyleSheet(f"font-size: 16px; font-weight: bold; color: {Colors.ACCENT_PRIMARY};")
         layout.addWidget(header)
         
         doc_info = QLabel(f"Documento: <b>{self.doc_data.get('name')}</b>")
-        doc_info.setStyleSheet("color: #aaa; font-style: italic;")
+        doc_info.setStyleSheet(f"color: {Colors.TEXT_SECONDARY}; font-style: italic;")
         layout.addWidget(doc_info)
         
         layout.addSpacing(10)
@@ -50,11 +51,11 @@ class ConvertDocDialog(QDialog):
         # Dates
         date_layout = QHBoxLayout()
         
-        lbl_d1 = QLabel("Data Solicitação:"); lbl_d1.setStyleSheet("color:#ccc; font-weight:bold; font-size:11px;")
+        lbl_d1 = QLabel("Data Solicitação:"); lbl_d1.setStyleSheet(f"color:{Colors.TEXT_PRIMARY}; font-weight:bold; font-size:11px;")
         self.date_req = QDateEdit(QDate.currentDate())
         self.date_req.setCalendarPopup(True)
         
-        lbl_d2 = QLabel("Data Entrega:"); lbl_d2.setStyleSheet("color:#ccc; font-weight:bold; font-size:11px;")
+        lbl_d2 = QLabel("Data Entrega:"); lbl_d2.setStyleSheet(f"color:{Colors.TEXT_PRIMARY}; font-weight:bold; font-size:11px;")
         self.date_del = QDateEdit(QDate.currentDate().addDays(7))
         self.date_del.setCalendarPopup(True)
         
@@ -75,12 +76,12 @@ class ConvertDocDialog(QDialog):
         # Buttons
         btn_layout = QHBoxLayout()
         btn_cancel = QPushButton("Cancelar")
-        btn_cancel.setStyleSheet("background: transparent; border: 1px solid #555; color: #aaa;")
+        btn_cancel.setStyleSheet(f"background: transparent; border: 1px solid {Colors.BORDER_INPUT}; color: {Colors.TEXT_SECONDARY};")
         btn_cancel.clicked.connect(self.reject)
         
         btn_confirm = QPushButton("Confirmar Vínculo")
         btn_confirm.setCursor(Qt.PointingHandCursor)
-        btn_confirm.setStyleSheet("background: #0078d4; color: white; border: none; font-weight: bold; padding: 10px; border-radius: 4px;")
+        btn_confirm.setStyleSheet(f"background: {Colors.ACCENT_BLUE}; color: {Colors.TEXT_BRIGHT}; border: none; font-weight: bold; padding: 10px; border-radius: 4px;")
         btn_confirm.clicked.connect(self.confirm_conversion)
         
         btn_layout.addWidget(btn_cancel)
@@ -165,10 +166,10 @@ class ConvertToPavementDialog(QDialog):
         self.setWindowTitle("Converter em Pavimento")
         self.setFixedSize(450, 400)
         self.setStyleSheet("""
-            QDialog { background-color: #1a1a1b; color: white; }
-            QLabel { color: #aaa; }
-            QComboBox { background: #252528; color: white; border: 1px solid #333; padding: 6px; border-radius: 4px; }
-            QLineEdit { background: #252528; color: white; border: 1px solid #333; padding: 6px; border-radius: 4px; }
+            QDialog { background-color: {Colors.BG_DEEP}; color: {Colors.TEXT_BRIGHT}; }
+            QLabel { color: {Colors.TEXT_SECONDARY}; }
+            QComboBox { background: {Colors.BG_SURFACE}; color: {Colors.TEXT_BRIGHT}; border: 1px solid {Colors.BORDER_DEFAULT}; padding: 6px; border-radius: 4px; }
+            QLineEdit { background: {Colors.BG_SURFACE}; color: {Colors.TEXT_BRIGHT}; border: 1px solid {Colors.BORDER_DEFAULT}; padding: 6px; border-radius: 4px; }
         """)
         
         self.setup_ui()
@@ -180,7 +181,7 @@ class ConvertToPavementDialog(QDialog):
         layout.setSpacing(20)
         
         header = QLabel("Criar Pavimento a partir de Doc")
-        header.setStyleSheet("font-size: 18px; font-weight: bold; color: #28a745; margin-bottom: 5px;")
+        header.setStyleSheet(f"font-size: 18px; font-weight: bold; color: {Colors.ACCENT_SUCCESS}; margin-bottom: 5px;")
         layout.addWidget(header)
         
         # Nome do Pavimento
@@ -205,7 +206,7 @@ class ConvertToPavementDialog(QDialog):
         btn_new_work = QPushButton("+")
         btn_new_work.setFixedSize(32, 32)
         btn_new_work.setToolTip("Criar Nova Obra")
-        btn_new_work.setStyleSheet("background: #333; border: 1px solid #444; color: #00d4ff; font-weight: bold;")
+        btn_new_work.setStyleSheet(f"background: {Colors.BG_CARD}; border: 1px solid {Colors.BORDER_INPUT}; color: {Colors.ACCENT_PRIMARY}; font-weight: bold;")
         btn_new_work.clicked.connect(self.create_new_work)
         h_work.addWidget(btn_new_work)
         
@@ -218,11 +219,11 @@ class ConvertToPavementDialog(QDialog):
         btns = QHBoxLayout()
         btn_cancel = QPushButton("Cancelar")
         btn_cancel.clicked.connect(self.reject)
-        btn_cancel.setStyleSheet("background: transparent; color: #888; border: none; padding: 8px;")
+        btn_cancel.setStyleSheet(f"background: transparent; color: {Colors.TEXT_SECONDARY}; border: none; padding: 8px;")
         
         self.btn_confirm = QPushButton("Criar Pavimento")
         self.btn_confirm.setCursor(Qt.PointingHandCursor)
-        self.btn_confirm.setStyleSheet("background: #28a745; color: white; border: none; font-weight: bold; padding: 10px; border-radius: 4px;")
+        self.btn_confirm.setStyleSheet(f"background: {Colors.ACCENT_SUCCESS}; color: {Colors.TEXT_BRIGHT}; border: none; font-weight: bold; padding: 10px; border-radius: 4px;")
         self.btn_confirm.clicked.connect(self.handle_confirm)
         
         btns.addWidget(btn_cancel)

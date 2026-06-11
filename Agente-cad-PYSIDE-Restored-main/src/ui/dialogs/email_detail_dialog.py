@@ -4,6 +4,7 @@ from PySide6.QtWidgets import (
 )
 from PySide6.QtCore import Qt
 from src.ui.components.atoms import AttachmentChip
+from src.ui.theme import Colors, Fonts, Radius
 
 class EmailDetailDialog(QDialog):
     """
@@ -14,9 +15,9 @@ class EmailDetailDialog(QDialog):
         self.setWindowTitle("Visualização de Email")
         self.setMinimumSize(600, 700)
         self.setStyleSheet("""
-            QDialog { background-color: #1e1e1e; color: #fff; }
-            QLabel { color: #ddd; }
-            QTextEdit { background-color: #252526; border: 1px solid #3e3e42; color: #fff; padding: 10px; }
+            QDialog { background-color: {Colors.BG_PANEL}; color: {Colors.TEXT_BRIGHT}; }
+            QLabel { color: {Colors.TEXT_BRIGHT}; }
+            QTextEdit { background-color: {Colors.BG_CARD}; border: 1px solid {Colors.BORDER_INPUT}; color: {Colors.TEXT_BRIGHT}; padding: 10px; }
             QScrollArea { border: none; }
         """)
         
@@ -26,12 +27,12 @@ class EmailDetailDialog(QDialog):
         
         # 1. Header (Subject, Sender, Date)
         header_frame = QFrame()
-        header_frame.setStyleSheet("background-color: #2d2d30; border-radius: 6px;")
+        header_frame.setStyleSheet(f"background-color: {Colors.BORDER_PANEL}; border-radius: 6px;")
         h_layout = QVBoxLayout(header_frame)
         
         # Subject
         lbl_subj = QLabel(email_data.get('subject', '(Sem Assunto)'))
-        lbl_subj.setStyleSheet("font-size: 16px; font-weight: bold; color: #fff;")
+        lbl_subj.setStyleSheet(f"font-size: 16px; font-weight: bold; color: {Colors.TEXT_BRIGHT};")
         lbl_subj.setWordWrap(True)
         h_layout.addWidget(lbl_subj)
         
@@ -40,14 +41,14 @@ class EmailDetailDialog(QDialog):
         sender = email_data.get('sender', 'Unknown')
         date = email_data.get('date', 'Unknown')
         
-        lbl_sender = QLabel(f"De: <span style='color: #4ec9b0;'>{sender}</span>")
+        lbl_sender = QLabel(f"De: <span style='color: {Colors.ACCENT_TEAL};'>{sender}</span>")
         lbl_sender.setTextFormat(Qt.RichText)
         meta_layout.addWidget(lbl_sender)
         
         meta_layout.addStretch()
         
         lbl_date = QLabel(f"{date}")
-        lbl_date.setStyleSheet("color: #888;")
+        lbl_date.setStyleSheet(f"color: {Colors.TEXT_SECONDARY};")
         meta_layout.addWidget(lbl_date)
         
         h_layout.addLayout(meta_layout)
@@ -100,11 +101,11 @@ class EmailDetailDialog(QDialog):
         btn_close = QPushButton("Fechar")
         btn_close.setFixedSize(100, 35)
         btn_close.clicked.connect(self.accept)
-        btn_close.setStyleSheet("""
-            QPushButton {
-                background-color: #3e3e42; border: 1px solid #555; color: #fff; border-radius: 4px;
-            }
-            QPushButton:hover { background-color: #4e4e52; }
+        btn_close.setStyleSheet(f"""
+            QPushButton {{
+                background-color: {Colors.BG_HOVER}; border: 1px solid {Colors.BORDER_INPUT}; color: {Colors.TEXT_BRIGHT}; border-radius: 4px;
+            }}
+            QPushButton:hover {{ background-color: {Colors.BG_CARD}; }}
         """)
         footer.addWidget(btn_close)
         

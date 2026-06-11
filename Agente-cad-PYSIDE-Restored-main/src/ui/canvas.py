@@ -148,8 +148,8 @@ def _get_obf_str(key):
     }
     return _obf_map.get(key, key)
 
-from PySide6.QtWidgets import QGraphicsView, QGraphicsScene, QGraphicsItem, QGraphicsSimpleTextItem, QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QLabel, QInputDialog, QLineEdit, QGraphicsLineItem, QGraphicsPathItem, QGraphicsEllipseItem, QStyle, QStyleOptionGraphicsItem, QApplication
-from PySide6.QtCore import Qt, Signal, QMarginsF, QRectF, QPointF, QLineF
+from PySide6.QtWidgets import QGraphicsView, QGraphicsScene, QGraphicsItem, QGraphicsSimpleTextItem, QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QLabel, QInputDialog, QLineEdit, QGraphicsLineItem, QGraphicsPathItem, QGraphicsEllipseItem, QStyle, QStyleOptionGraphicsItem, QApplication, QFrame
+from PySide6.QtCore import Qt, Signal, QMarginsF, QRectF, QPointF, QLineF, QEventLoop
 from PySide6.QtGui import QPainter, QWheelEvent, QTransform, QPen, QColor, QBrush, QPainterPath, QFont, QCursor
 from src.ui.overlays import PillarGraphicsItem, SlabGraphicsItem
 from src.ui.overlays_beams import BeamGraphicsItem
@@ -157,6 +157,7 @@ from src.core.dxf_loader import RenderMode
 import math
 import os
 import base64
+from src.ui.theme import Colors, Fonts, Radius
 
 class DXFLineItem(QGraphicsLineItem):
     """Custom Line Item that disables default selection dashed line"""
@@ -191,6 +192,88 @@ class DXFEllipseItem(QGraphicsEllipseItem):
         # Disable default selection look (dashed box)
         option.state &= ~QStyle.State_Selected
         super().paint(painter, option, widget)
+
+# ── Mapeamento DXF pattern name → Qt.BrushStyle ──────────────────────────────
+_HATCH_QT_PATTERN: dict = {
+    # ANSI
+    'ANSI31': Qt.BDiagPattern,        # 45° diagonal /
+    'ANSI32': Qt.FDiagPattern,        # 45° diagonal \
+    'ANSI33': Qt.VerPattern,          # vertical lines
+    'ANSI34': Qt.HorPattern,          # horizontal lines
+    'ANSI35': Qt.DiagCrossPattern,    # diagonal X
+    'ANSI36': Qt.DiagCrossPattern,
+    'ANSI37': Qt.HorPattern,
+    'ANSI38': Qt.CrossPattern,
+    # ISO
+    'ISO02W100': Qt.HorPattern,
+    'ISO03W100': Qt.VerPattern,
+    'ISO04W100': Qt.BDiagPattern,
+    'ISO05W100': Qt.DiagCrossPattern,
+    # Estrutural / concreto
+    'NET':       Qt.CrossPattern,
+    'NET3':      Qt.CrossPattern,
+    'STEEL':     Qt.DiagCrossPattern,
+    'CROSS':     Qt.CrossPattern,
+    'BRICK':     Qt.HorPattern,
+    'AR-CONC':   Qt.Dense3Pattern,   # concreto pontilhado
+    'CONCRETE':  Qt.Dense3Pattern,
+    'AR-BRSTD':  Qt.HorPattern,
+    'AR-B816':   Qt.HorPattern,
+    'AR-B816C':  Qt.HorPattern,
+    'AR-B88':    Qt.HorPattern,
+    'AR-PARQ1':  Qt.DiagCrossPattern,
+    'AR-HBONE':  Qt.DiagCrossPattern,
+    'AR-RROOF':  Qt.FDiagPattern,
+    'AR-RSHKE':  Qt.BDiagPattern,
+    'AR-SAND':   Qt.Dense4Pattern,
+    'GRAVEL':    Qt.Dense4Pattern,
+    'SAND':      Qt.Dense5Pattern,
+    'DOTS':      Qt.Dense5Pattern,
+    'EARTH':     Qt.Dense6Pattern,
+    'SWAMP':     Qt.Dense6Pattern,
+    'GRASS':     Qt.Dense6Pattern,
+    'SOLID':     Qt.SolidPattern,
+    'TRIANG':    Qt.DiagCrossPattern,
+    'STARS':     Qt.Dense5Pattern,
+    'HONEY':     Qt.CrossPattern,
+    'HOUND':     Qt.BDiagPattern,
+    'LINE':      Qt.HorPattern,
+    'SQUARE':    Qt.CrossPattern,
+    'ZIGZAG':    Qt.FDiagPattern,
+    'BOX':       Qt.CrossPattern,
+    'ESCHER':    Qt.DiagCrossPattern,
+}
+
+# ── Mapeamento DXF linetype name → Qt.PenStyle ───────────────────────────────
+_LINETYPE_QT: dict = {
+    'CONTINUOUS':   Qt.SolidLine,
+    'BYLAYER':      Qt.SolidLine,
+    'BYBLOCK':      Qt.SolidLine,
+    'DASHED':       Qt.DashLine,
+    'DASHED2':      Qt.DashLine,
+    'DASHEDX2':     Qt.DashLine,
+    'HIDDEN':       Qt.DashLine,
+    'HIDDEN2':      Qt.DashLine,
+    'HIDDENX2':     Qt.DashLine,
+    'DOT':          Qt.DotLine,
+    'DOT2':         Qt.DotLine,
+    'DOTX2':        Qt.DotLine,
+    'CENTER':       Qt.DashDotLine,
+    'CENTER2':      Qt.DashDotLine,
+    'CENTERX2':     Qt.DashDotLine,
+    'PHANTOM':      Qt.DashDotDotLine,
+    'PHANTOM2':     Qt.DashDotDotLine,
+    'PHANTOMX2':    Qt.DashDotDotLine,
+    'DASHDOT':      Qt.DashDotLine,
+    'DASHDOT2':     Qt.DashDotLine,
+    'DASHDOTX2':    Qt.DashDotLine,
+    'DIVIDE':       Qt.DashDotDotLine,
+    'DIVIDE2':      Qt.DashDotDotLine,
+    'DIVIDEX2':     Qt.DashDotDotLine,
+    'BORDER':       Qt.DashLine,
+    'BORDER2':      Qt.DashLine,
+    'BORDERX2':     Qt.DashLine,
+}
 
 class CADCanvas(QGraphicsView):
     pillar_selected = Signal(int)
@@ -372,10 +455,10 @@ class CADCanvas(QGraphicsView):
         self.loading_label = QLabel(self)
         self.loading_label.setText("âŒ› Carregando DXF...")
         self.loading_label.setAlignment(Qt.AlignCenter)
-        self.loading_label.setStyleSheet("""
+        self.loading_label.setStyleSheet(f"""
             background: rgba(0, 0, 0, 180);
-            color: #00d4ff;
-            border: 2px solid #00d4ff;
+            color: {Colors.ACCENT_PRIMARY};
+            border: 2px solid {Colors.ACCENT_PRIMARY};
             border-radius: 8px;
             font-size: 16px;
             font-weight: bold;
@@ -383,11 +466,12 @@ class CADCanvas(QGraphicsView):
         """)
         self.loading_label.hide()
 
-    def set_loading(self, is_loading):
+    def set_loading(self, is_loading, text: str = ""):
         """Exibe ou esconde o overlay de carregamento."""
         if not hasattr(self, 'loading_label'): return
-        
+
         if is_loading:
+            self.loading_label.setText(text or "⌛ Carregando DXF...")
             self.loading_label.adjustSize()
             x = (self.width() - self.loading_label.width()) // 2
             y = (self.height() - self.loading_label.height()) // 2
@@ -397,6 +481,19 @@ class CADCanvas(QGraphicsView):
             QApplication.processEvents()
         else:
             self.loading_label.hide()
+
+    def update_loading_progress(self, pct: int, label: str = "Renderizando"):
+        """Atualiza o texto do overlay com percentual."""
+        if not hasattr(self, 'loading_label') or not self.loading_label.isVisible():
+            return
+        bar_filled = int(pct / 5)
+        bar = "█" * bar_filled + "░" * (20 - bar_filled)
+        self.loading_label.setText(f"⌛ {label}...\n[{bar}] {pct}%")
+        self.loading_label.adjustSize()
+        x = (self.width() - self.loading_label.width()) // 2
+        y = (self.height() - self.loading_label.height()) // 2
+        self.loading_label.move(x, y)
+        self.loading_label.raise_()
 
     def reset_state(self):
         """Limpa a cena e reseta referÃªncias."""
@@ -679,11 +776,11 @@ class CADCanvas(QGraphicsView):
 
     def _init_input_overlay(self):
         self.input_label = QLabel(self)
-        self.input_label.setStyleSheet("""
-            background: rgba(20, 20, 20, 220); 
-            color: #00ff00; 
-            border: 1px solid #00ff00;
-            padding: 8px; border-radius: 4px; 
+        self.input_label.setStyleSheet(f"""
+            background: rgba(20, 20, 20, 220);
+            color: {Colors.ACCENT_SUCCESS_ALT};
+            border: 1px solid {Colors.ACCENT_SUCCESS_ALT};
+            padding: 8px; border-radius: 4px;
             font-size: 14px;
             font-weight: bold; font-family: 'Consolas', monospace;
         """)
@@ -691,78 +788,162 @@ class CADCanvas(QGraphicsView):
         self.input_label.move(10, self.height() - 50)
 
     def _init_cad_toolbar(self):
-        """Cria barra de ferramentas superior (Header) horizontal"""
+        """Cria barra de ferramentas superior redesenhada — ghost buttons com grupos."""
         self.toolbar = QWidget(self)
         self.toolbar.setObjectName("CADToolbar")
-        # Estilo Header: Glassmorphism horizontal no topo
+
         self.toolbar.setStyleSheet("""
             QWidget#CADToolbar {
-                background: rgba(35, 35, 35, 240);
-                border-bottom: 2px solid rgba(160, 112, 255, 100);
-                border-radius: 0px;
+                background: qlineargradient(x1:0,y1:0,x2:0,y2:1,
+                    stop:0 rgba(24,24,30,255), stop:1 rgba(16,16,20,255));
+                border-bottom: 1px solid rgba(0,188,212,45);
             }
+
+            /* ── Base: ghost ── */
             QPushButton {
-                background: rgba(60, 60, 60, 180);
-                border: 1px solid #444;
-                border-radius: 4px;
-                color: #ddd;
-                font-family: 'Segoe UI', Arial;
-                font-size: 10px;
-                text-align: center;
-                padding: 2px;
+                background: transparent;
+                border: 1px solid transparent;
+                border-radius: 5px;
+                color: rgba(160,165,185,255);
+                font-family: 'Segoe UI Semibold', 'Segoe UI', Arial;
+                font-size: 11px;
+                font-weight: 600;
+                letter-spacing: 0.4px;
+                padding: 0px 12px;
+                min-width: 68px;
+                height: 28px;
             }
             QPushButton:hover {
-                background: rgba(100, 100, 100, 255);
-                border: 1px solid #777;
-                color: white;
+                background: rgba(255,255,255,18);
+                border: 1px solid rgba(255,255,255,36);
+                color: rgba(230,235,255,255);
             }
+            QPushButton:pressed {
+                background: rgba(255,255,255,10);
+            }
+
+            /* ── Ferramenta ativa ── */
             QPushButton[active="true"] {
-                background: rgba(100, 50, 200, 220);
-                border: 1px solid #a070ff;
-                color: white;
-                font-weight: bold;
+                background: rgba(0,188,212,41);
+                border: 1px solid rgba(0,188,212,140);
+                color: #00d4ff;
+            }
+            QPushButton[active="true"]:hover {
+                background: rgba(0,188,212,61);
+                border: 1px solid rgba(0,188,212,191);
+            }
+
+            /* ── EXCLUIR (danger) ── */
+            QPushButton#danger_btn {
+                color: rgba(200,80,80,200);
+            }
+            QPushButton#danger_btn:hover {
+                background: rgba(244,67,54,46);
+                border: 1px solid rgba(244,67,54,140);
+                color: #ff6b6b;
+            }
+
+            /* ── ORTHO ativo — roxo ── */
+            QPushButton#ortho_btn[active="true"] {
+                background: rgba(160,112,255,46);
+                border: 1px solid rgba(160,112,255,140);
+                color: #b388ff;
+            }
+            QPushButton#ortho_btn[active="true"]:hover {
+                background: rgba(160,112,255,66);
+            }
+
+            /* ── Separador vertical ── */
+            QFrame#vsep {
+                background: rgba(255,255,255,23);
+                min-width: 1px;
+                max-width: 1px;
+                min-height: 18px;
+                max-height: 18px;
             }
         """)
-        
+
         layout = QHBoxLayout(self.toolbar)
-        layout.setContentsMargins(15, 4, 15, 4)
-        layout.setSpacing(10)
+        layout.setContentsMargins(14, 0, 14, 0)
+        layout.setSpacing(3)
+
+        def vsep():
+            s = QFrame()
+            s.setObjectName("vsep")
+            s.setFrameShape(QFrame.VLine)
+            return s
 
         self.tool_buttons = {}
-        tools = [
-            ("ðŸ–±ï¸ SELECT", "select", "Selecionar (ESC)"),
-            ("ðŸ“ LINHA", "line", "Linha (L)"),
-            ("â­• CIRC", "circle", "CÃ­rculo (C)"),
-            ("ðŸ“ TEXTO", "text", "Texto (T)"),
-            ("ðŸ“ COTA", "dim", "Cota (D)"),
-            ("â†”ï¸ MOVER", "move", "Mover (M)"),
-            ("ðŸ—‘ï¸ EXCLUIR", "delete", "Excluir (DEL)"),
-            ("âš“ ORTHO", "ortho", "Alternar Ortho (F8)")
-        ]
 
-        for label, mode, tooltip in tools:
+        # ── Grupo 1: Navegação ──────────────────────────────────────────────
+        b_select = QPushButton("▷  SELECT")
+        b_select.setToolTip("Selecionar  ·  ESC")
+        b_select.setCursor(Qt.PointingHandCursor)
+        b_select.clicked.connect(lambda: self.set_edit_mode("select"))
+        self.tool_buttons["select"] = b_select
+        layout.addWidget(b_select)
+
+        layout.addSpacing(4)
+        layout.addWidget(vsep())
+        layout.addSpacing(4)
+
+        # ── Grupo 2: Desenho ────────────────────────────────────────────────
+        for label, mode, tip in [
+            ("╱  LINHA",  "line",   "Linha  ·  L"),
+            ("○  CIRC",   "circle", "Círculo  ·  C"),
+            ("T  TEXTO",  "text",   "Texto  ·  T"),
+            ("↔  COTA",   "dim",    "Cota  ·  D"),
+        ]:
             btn = QPushButton(label)
-            btn.setFixedSize(85, 32)
-            btn.setToolTip(tooltip)
+            btn.setToolTip(tip)
             btn.setCursor(Qt.PointingHandCursor)
-            
-            if mode == "delete":
-                btn.clicked.connect(self._delete_selection)
-                btn.setStyleSheet("QPushButton:hover { background: rgba(220, 50, 50, 255); border: 1px solid #ff4444; }")
-            elif mode == "ortho":
-                btn.clicked.connect(self.toggle_ortho)
-                self.tool_buttons[mode] = btn
-            else:
-                btn.clicked.connect(lambda checked=False, m=mode: self.set_edit_mode(m))
-                self.tool_buttons[mode] = btn
-                
+            btn.clicked.connect(lambda checked=False, m=mode: self.set_edit_mode(m))
+            self.tool_buttons[mode] = btn
             layout.addWidget(btn)
-        
+
+        layout.addSpacing(4)
+        layout.addWidget(vsep())
+        layout.addSpacing(4)
+
+        # ── Grupo 3: Transformar ────────────────────────────────────────────
+        b_move = QPushButton("⊕  MOVER")
+        b_move.setToolTip("Mover  ·  M")
+        b_move.setCursor(Qt.PointingHandCursor)
+        b_move.clicked.connect(lambda: self.set_edit_mode("move"))
+        self.tool_buttons["move"] = b_move
+        layout.addWidget(b_move)
+
+        layout.addSpacing(4)
+        layout.addWidget(vsep())
+        layout.addSpacing(4)
+
+        # ── Excluir (ação destrutiva) ───────────────────────────────────────
+        b_del = QPushButton("✕  EXCLUIR")
+        b_del.setObjectName("danger_btn")
+        b_del.setToolTip("Excluir seleção  ·  DEL")
+        b_del.setCursor(Qt.PointingHandCursor)
+        b_del.clicked.connect(self._delete_selection)
+        layout.addWidget(b_del)
+
+        layout.addSpacing(4)
+        layout.addWidget(vsep())
+        layout.addSpacing(4)
+
+        # ── Ortho (toggle) ──────────────────────────────────────────────────
+        b_ortho = QPushButton("⊥  ORTHO")
+        b_ortho.setObjectName("ortho_btn")
+        b_ortho.setToolTip("Ortogonal  ·  F8")
+        b_ortho.setCursor(Qt.PointingHandCursor)
+        b_ortho.clicked.connect(self.toggle_ortho)
+        self.tool_buttons["ortho"] = b_ortho
+        layout.addWidget(b_ortho)
+
+        layout.addStretch()
+
         # Modo inicial
         self.set_edit_mode('select')
 
-        # Ajuste inicial de posiÃ§Ã£o e tamanho
-        self.toolbar.setGeometry(0, 0, self.width(), 42)
+        self.toolbar.setGeometry(0, 0, self.width(), 40)
 
     def toggle_ortho(self):
         """Liga/Desliga modo ortogonal"""
@@ -840,7 +1021,7 @@ class CADCanvas(QGraphicsView):
     def resizeEvent(self, event):
         super().resizeEvent(event)
         if hasattr(self, 'toolbar'):
-            self.toolbar.setGeometry(0, 0, self.width(), 42)
+            self.toolbar.setGeometry(0, 0, self.width(), 40)
         if hasattr(self, 'input_label'):
             self.input_label.move(10, self.height() - 50)
         if hasattr(self, 'loading_label') and self.loading_label.isVisible():
@@ -1094,6 +1275,8 @@ class CADCanvas(QGraphicsView):
         prev_update_mode = self.viewportUpdateMode()
         self.setViewportUpdateMode(QGraphicsView.NoViewportUpdate)
         self.scene.blockSignals(True)
+        # NoIndex durante inserção em massa: evita recálculo BSP a cada addItem (O(n²) → O(n))
+        self.scene.setItemIndexMethod(QGraphicsScene.ItemIndexMethod.NoIndex)
 
         def _index_item(it, data, etype):
             if not it or not data: return
@@ -1117,31 +1300,48 @@ class CADCanvas(QGraphicsView):
         self.dxf_entities.extend(entities.get('polylines', []))
         self.dxf_entities.extend(entities.get('circles', []))
         
-        total_steps = len(entities.get('lines', [])) + len(entities.get('polylines', [])) + \
-                      len(entities.get('texts', [])) + len(entities.get('circles', []))
+        total_steps = (len(entities.get('lines', [])) + len(entities.get('polylines', [])) +
+                       len(entities.get('texts', [])) + len(entities.get('circles', [])) +
+                       len(entities.get('hatches', [])))
+        total_steps = max(total_steps, 1)
         current_step = 0
+        _BATCH = 2000  # processEvents a cada N itens — maior = mais rápido no bulk
 
         def update_prog():
             nonlocal current_step
             current_step += 1
-            if progress_callback and current_step % 50 == 0:
-                progress_callback(int((current_step / total_steps) * 100))
+            pct = min(int(current_step / total_steps * 100), 99)
+            if current_step % 200 == 0 and progress_callback:
+                progress_callback(pct)
+            if current_step % _BATCH == 0:
+                # ExcludeUserInputEvents: repaint/timer OK, mas bloqueia clicks/keys
+                # para evitar reentrância (scene.clear() enquanto loop ainda roda)
+                QApplication.processEvents(
+                    QEventLoop.ProcessEventsFlag.ExcludeUserInputEvents
+                )
         
         # Helper para criar Pen a partir de cor DXF
-        def get_pen(color_tuple, width=1, dxf_lw=-3):
+        def get_pen(color_tuple, width=1, dxf_lw=-3, linetype='CONTINUOUS'):
             if not color_tuple: color_tuple = (200, 200, 200)
-            
+
             actual_width = width
             cosmetic = True
-            
+
             # Se for Layout Exact, respeitar o lineweight do DXF
             # dxf_lw em 1/100mm. Ex: 50 = 0.5mm.
             if is_layout_exact and dxf_lw > 0:
                  actual_width = max(0.1, dxf_lw / 100.0) # mm no mundo real (cena)
-                 cosmetic = False # Lineweights reais tÃªm dimensÃ£o fÃ­sica
-            
+                 cosmetic = False # Lineweights reais têm dimensão física
+
             pen = QPen(QColor(*color_tuple), actual_width)
             pen.setCosmetic(cosmetic)
+
+            # Aplicar estilo de linha DXF
+            lt_key = (linetype or 'CONTINUOUS').upper()
+            qt_style = _LINETYPE_QT.get(lt_key, Qt.SolidLine)
+            if qt_style != Qt.SolidLine:
+                pen.setStyle(qt_style)
+
             return pen
 
         # Armazena linhas para cÃ¡lculo de interseÃ§Ã£o
@@ -1184,7 +1384,7 @@ class CADCanvas(QGraphicsView):
         for line in entities.get('lines', []):
             s, e = line['start'], line['end']
             item = DXFLineItem(s[0], s[1], e[0], e[1])
-            item.setPen(get_pen(line['color'], dxf_lw=line.get('lineweight', -3)))
+            item.setPen(get_pen(line['color'], dxf_lw=line.get('lineweight', -3), linetype=line.get('linetype', 'CONTINUOUS')))
             self.scene.addItem(item)
             item.setZValue(self.Z_BLOCK if line.get('is_block') else self.Z_LINE)
             item.setFlag(QGraphicsItem.ItemIsSelectable) 
@@ -1232,10 +1432,10 @@ class CADCanvas(QGraphicsView):
                     self._add_snap_point(mid, 'midpoint')
             
             item = DXFPathItem(path)
-            item.setPen(get_pen(poly['color'], dxf_lw=poly.get('lineweight', -3)))
+            item.setPen(get_pen(poly['color'], dxf_lw=poly.get('lineweight', -3), linetype=poly.get('linetype', 'CONTINUOUS')))
             self.scene.addItem(item)
             item.setZValue(self.Z_BLOCK if poly.get('is_block') else self.Z_LINE)
-            item.setFlag(QGraphicsItem.ItemIsSelectable) 
+            item.setFlag(QGraphicsItem.ItemIsSelectable)
             _index_item(item, poly, 'lwpolyline')
             update_prog()
 
@@ -1248,17 +1448,29 @@ class CADCanvas(QGraphicsView):
                 for i in range(1, len(pts)):
                     path.lineTo(pts[i][0], pts[i][1])
                 path.closeSubpath()
-            
+
             item = DXFPathItem(path)
-            # [AJUSTE] Hachuras "Normais": Preenchimento sólido semi-transparente
-            # Isso esconde a triangulação interna e mostra como uma área sólida.
-            # Usamos Qt.NoPen para que as bordas dos triângulos internos não apareçam.
-            it_color = QColor(*h['color'])
-            it_color.setAlpha(120) # [REVERT] Transparência preferida pelo usuário
-            item.setBrush(QBrush(it_color)) 
-            # [CRITICAL] REMOVER QUALQUER PEN DA HACHURA. 
-            item.setPen(Qt.NoPen) 
-            
+            item.setPen(Qt.NoPen)
+
+            it_color   = QColor(*h['color'])
+            pname      = h.get('pattern_name', 'SOLID').upper()
+            solid_fill = h.get('solid', True)
+
+            if solid_fill or pname == 'SOLID':
+                # Sólido semi-transparente (comportamento original)
+                it_color.setAlpha(120)
+                item.setBrush(QBrush(it_color))
+            else:
+                # Padrão vetorial → usa Qt brush style mapeado
+                qt_style = _HATCH_QT_PATTERN.get(pname)
+                if qt_style is not None:
+                    it_color.setAlpha(210)   # mais opaco para padrão ser visível
+                    item.setBrush(QBrush(it_color, qt_style))
+                else:
+                    # Padrão desconhecido → diagonal genérica para diferenciar de sólido
+                    it_color.setAlpha(180)
+                    item.setBrush(QBrush(it_color, Qt.BDiagPattern))
+
             self.scene.addItem(item)
             item.setZValue(self.Z_BLOCK if h.get('is_block') else self.Z_HATCH)
             item.setFlag(QGraphicsItem.ItemIsSelectable)
@@ -1294,7 +1506,7 @@ class CADCanvas(QGraphicsView):
             
             # [MOTOR DE TEXTO MULTI-ESTILO]
             style = getattr(self, 'text_style', 1)
-            
+
             if style == 1: # MODO 1: Geometria Pura (Alta Fidelidade)
                 item = QGraphicsSimpleTextItem(content)
                 item.setBrush(QColor(*txt['color']))
@@ -1306,9 +1518,8 @@ class CADCanvas(QGraphicsView):
                 scale_factor = dxf_h / font_base_size
                 transform = QTransform()
                 wf = txt.get('width_factor', 1.0)
+                # Apenas escala — rotação é feita via setRotation para respeitar a origem
                 transform.scale(scale_factor * wf, -scale_factor)
-                rotation = txt.get('rotation', 0)
-                if rotation: transform.rotate(-rotation)
                 item.setTransform(transform)
                 
             elif style == 2: # MODO 2: Outlined Path (Perfeito para Zoom)
@@ -1320,9 +1531,8 @@ class CADCanvas(QGraphicsView):
                 item = self.scene.addPath(path, QPen(Qt.NoPen), QBrush(QColor(*txt['color'])))
                 transform = QTransform()
                 wf = txt.get('width_factor', 1.0)
+                # Apenas escala — rotação via setRotation
                 transform.scale(wf, -1)
-                rotation = txt.get('rotation', 0)
-                if rotation: transform.rotate(-rotation)
                 item.setTransform(transform)
                 
             elif style == 3: # MODO 3: Cosmetic Hybrid
@@ -1348,46 +1558,67 @@ class CADCanvas(QGraphicsView):
                 f.setPixelSize(int(txt.get('height', 2.5) * 10))
                 item.setFont(f)
                 item.scale(0.1, -0.1)
-                rotation = txt.get('rotation', 0)
-                if rotation: item.setRotation(rotation)
-                
+
             elif style == 6: # MODO 6: Normalized Auto (Fix agressivo)
                 item = QGraphicsSimpleTextItem(content)
                 item.setBrush(QColor(*txt['color']))
-                # CAP mais agressivo: 0.5 unidades (Baseado no feedback de escala)
                 orig_h = txt.get('height', 2.5)
-                norm_h = min(orig_h, 0.5) 
+                norm_h = min(orig_h, 0.5)
                 f = QFont("Arial")
                 f.setPointSizeF(norm_h)
                 item.setFont(f)
                 item.scale(1, -1)
-                rotation = txt.get('rotation', 0)
-                if rotation: item.setRotation(rotation)
 
-            # [NOVO] Alinhamento Robusto e Origem de RotaÃ§Ã£o
-            # Garantir que textos rodem em torno do seu ponto de ancoragem CAD
+            # [AJUSTE] Alinhamento e rotação com origem de ancoragem correta
             brect = item.boundingRect()
-            
-            # Definir ponto de ancoragem local (Ã¢ncora do CAD)
-            anchor_x = 0
-            anchor_y = 0
-            if halign == 1: anchor_x = brect.width() / 2
-            elif halign == 2: anchor_x = brect.width()
-            
-            if valign == 2: anchor_y = brect.height() / 2 # Middle
-            elif valign == 3: anchor_y = brect.height()   # Top
-            
-            # Configurar origem de transformaÃ§Ã£o para a Ã¢ncora
-            item.setTransformOriginPoint(anchor_x, anchor_y)
-            
-            # Se for um estilo simples (3, 4, 5, 6) que usa rotation direta:
             rotation = txt.get('rotation', 0)
-            if style in (3, 4, 5, 6) and rotation:
-                item.setRotation(rotation)
-                
-            # Posicionamento Final: O ponto (pos_x, pos_y) do CAD deve coincidir com a Ã¢ncora
-            # Por padrÃ£o, setPos coloca o (0,0) local na coordenada. 
-            # Precisamos recuar a posiÃ§Ã£o do item para que a Ã¢ncora caia no (pos_x, pos_y).
+
+            # Para style 1: bounding rect está em coords locais (font 100pt).
+            # O setPos usa coords de cena (DXF units), então o offset precisa ser
+            # convertido: offset_cena = offset_local * scale_factor.
+            # Para outros estilos o font já está em DXF units ≈ sem conversão.
+            if style == 1:
+                dxf_h_val = txt.get('height', 2.5)
+                wf_val    = txt.get('width_factor', 1.0)
+                eff_sx = (dxf_h_val / 100.0) * wf_val   # escala X em cena
+                eff_sy =  dxf_h_val / 100.0              # escala Y em cena
+            else:
+                eff_sx = 1.0
+                eff_sy = 1.0
+
+            # Âncora em coords de CENA (subtraída de pos para centralizar)
+            anchor_x = 0.0
+            anchor_y = 0.0
+            is_block_txt = txt.get('is_block', False)
+
+            # halign=4 (MIDDLE): align_point é o centro H+V do texto
+            if halign == 4:
+                anchor_x =  brect.width()  * eff_sx / 2
+                anchor_y = -(brect.height() * eff_sy / 2)
+            else:
+                if halign == 1:   anchor_x =  brect.width()  * eff_sx / 2
+                elif halign == 2: anchor_x =  brect.width()  * eff_sx
+
+                # Y invertido: valign=2 (middle) → sobe para centro
+                if valign == 2:
+                    anchor_y = -(brect.height() * eff_sy / 2)
+                elif valign == 3:
+                    anchor_y = 0.0  # Top: py já é o topo
+                else:
+                    # valign=0 (baseline): insert.y é a baseline do texto.
+                    # Com scale(sx,-sy), o TOPO local fica em scene py.
+                    # Para colocar a baseline em py, subimos um text-height.
+                    # Aplicado apenas em textos de bloco (cotas) para não
+                    # deslocar textos standalone que já estavam OK.
+                    if is_block_txt and style == 1:
+                        anchor_y = -(brect.height() * eff_sy)
+
+            # Origem de rotação em coords LOCAIS (centro do bounding rect)
+            item.setTransformOriginPoint(brect.width() / 2, brect.height() / 2)
+            if rotation:
+                item.setRotation(-rotation)
+
+            # Posicionamento: ponto DXF coincide com a âncora calculada
             item.setPos(pos_x - anchor_x, pos_y - anchor_y)
                 
             item.setFlag(QGraphicsItem.ItemIsSelectable)
@@ -1476,15 +1707,26 @@ class CADCanvas(QGraphicsView):
             margin_x = width * 0.1
             margin_y = height * 0.1
             rect = rect.adjusted(-margin_x, -margin_y, margin_x, margin_y)
-            
+
             self.setSceneRect(rect)
             self.fitInView(rect, Qt.KeepAspectRatio)
+
+            # Pan headroom: após fitInView, expandir sceneRect com 2× o conteúdo
+            # de margem em cada direção. Não altera o zoom (fitInView já aplicou),
+            # mas garante que os scrollbars tenham range em X e Y mesmo quando o
+            # desenho é landscape e o eixo vertical cabia inteiro no viewport.
+            self.setSceneRect(rect.adjusted(-width * 2, -height * 2, width * 2, height * 2))
         else:
-            self.fitInView(self.scene.itemsBoundingRect(), Qt.KeepAspectRatio)
+            bb = self.scene.itemsBoundingRect()
+            self.fitInView(bb, Qt.KeepAspectRatio)
+            bw, bh = max(bb.width(), 1.0), max(bb.height(), 1.0)
+            self.setSceneRect(bb.adjusted(-bw * 2, -bh * 2, bw * 2, bh * 2))
 
         # -------------------------------------------------------------
-        # RESTAURAR ESTADO APÃ“S BATCH LOADING
+        # RESTAURAR ESTADO APÃ”S BATCH LOADING
         # -------------------------------------------------------------
+        # Reativar índice BSP para hit-testing eficiente após inserção completa
+        self.scene.setItemIndexMethod(QGraphicsScene.ItemIndexMethod.BspTreeIndex)
         self.scene.blockSignals(False)
         self.setViewportUpdateMode(prev_update_mode)
         self.update() # ForÃ§ar repaint final
@@ -1549,11 +1791,11 @@ class CADCanvas(QGraphicsView):
         """Mensagem fixa no topo do canvas para guiar o usuÃ¡rio"""
         from PySide6.QtWidgets import QLabel
         self.instruction_label = QLabel(self)
-        self.instruction_label.setStyleSheet("""
-            background: rgba(0, 40, 100, 220); 
-            color: white; 
-            padding: 12px; 
-            border: 1px solid #0078d4; 
+        self.instruction_label.setStyleSheet(f"""
+            background: rgba(0, 40, 100, 220);
+            color: {Colors.TEXT_BRIGHT};
+            padding: 12px;
+            border: 1px solid {Colors.ACCENT_BLUE};
             border-radius: 6px;
             font-family: Arial;
             font-size: 11px;
@@ -2114,17 +2356,18 @@ class CADCanvas(QGraphicsView):
 
     def clear_item_persistent_links(self, item_id):
         """Remove links visuais persistentes de um item especÃ­fico para evitar 'fantasmas' ao atualizar."""
-        print(f"[DEBUG_CANVAS] clear_item_persistent_links para {item_id}")
+        _dbg = os.environ.get('CAD_DEBUG_LOAD')
+        if _dbg: print(f"[DEBUG_CANVAS] clear_item_persistent_links para {item_id}")
         if item_id in self.persistent_links:
             items_to_remove = self.persistent_links[item_id]
-            print(f"[DEBUG_CANVAS] Removendo {len(items_to_remove)} itens do item {item_id}")
+            if _dbg: print(f"[DEBUG_CANVAS] Removendo {len(items_to_remove)} itens do item {item_id}")
             for item in items_to_remove:
                 # Remove da cena
                 try:
                     if item.scene():
                         self.scene.removeItem(item)
                 except Exception as e:
-                    print(f"[DEBUG_CANVAS] Erro ao remover item: {e}")
+                    if _dbg: print(f"[DEBUG_CANVAS] Erro ao remover item: {e}")
                 
                 # Remove dos grupos de controle
                 for group_key in ['beam', 'link', 'pillar', 'slab']:
@@ -2293,7 +2536,7 @@ class CADCanvas(QGraphicsView):
             item.setSelected(True)
             if item not in self.selected_items:
                 self.selected_items.append(item)
-                print(f"DEBUG: Pillar {p_id} added to selection. Total: {len(self.selected_items)}")
+                if os.environ.get('CAD_DEBUG_LOAD'): print(f"DEBUG: Pillar {p_id} added to selection. Total: {len(self.selected_items)}")
         
         self.pillar_selected.emit(p_id)
         self._on_selection_changed() # Força atualização visual imediata
@@ -2551,12 +2794,12 @@ class CADCanvas(QGraphicsView):
                     if self.selection_box: self.scene.removeItem(self.selection_box)
                     self.selection_box = None
                     self.box_start = None
-                    print("DEBUG: Selection Box Cancelled by Right Click")
+                    pass  # Selection Box Cancelled by Right Click
                     event.accept()
                     return
 
                 # [NEW] Right-Click Single Deselect (User Request)
-                scene_pos = self.mapToScene(event.pos())
+                scene_pos = self.mapToScene(event.position().toPoint())
                 items_at_pos = self.scene.items(scene_pos)
                 if items_at_pos:
                     for i in items_at_pos:
@@ -2568,7 +2811,7 @@ class CADCanvas(QGraphicsView):
                     return
 
                 # Logica Box Deselecao (Vermelho)
-                scene_pos = self.mapToScene(event.pos())
+                scene_pos = self.mapToScene(event.position().toPoint())
                 if self.deselect_box_start is None:
                     self.deselect_box_start = scene_pos
                     # Pen cosmÃ©tica (0) para linha fina e nÃ­tida
@@ -2599,12 +2842,12 @@ class CADCanvas(QGraphicsView):
         # 1. Handle Pan (Middle Button)
         if event.button() == Qt.MiddleButton:
             self._is_panning = True
-            self._last_pan_pos = event.pos()
+            self._last_pan_pos = event.position().toPoint()
             self.setCursor(Qt.ClosedHandCursor)
             event.accept()
             return
 
-        scene_pos = self.mapToScene(event.pos())
+        scene_pos = self.mapToScene(event.position().toPoint())
         snap_data = self.get_snap(scene_pos)
         snap_pos = snap_data['pos'] if snap_data else (scene_pos.x(), scene_pos.y())
         
@@ -2638,7 +2881,27 @@ class CADCanvas(QGraphicsView):
                 if self.deselect_box: self.scene.removeItem(self.deselect_box)
                 self.deselect_box = None
                 self.deselect_box_start = None
-                print("DEBUG: Deselection Box Cancelled by Left Click")
+                pass  # Deselection Box Cancelled by Left Click
+                event.accept()
+                return
+
+            # [FIX] Box em andamento: ignorar hit-test completamente.
+            # Qualquer clique deve finalizar o box, mesmo sobre hatches/sólidos.
+            if self.box_start is not None:
+                # Finalizar Box diretamente (sem hit-test)
+                rect = QRectF(self.box_start, scene_pos).normalized()
+                path = QPainterPath()
+                path.addRect(rect)
+                items = self.scene.items(path, Qt.IntersectsItemBoundingRect, Qt.DescendingOrder, QTransform())
+                for i in items:
+                    if i == self.selection_box: continue
+                    if isinstance(i, (DXFLineItem, DXFPathItem, QGraphicsSimpleTextItem, PillarGraphicsItem, SlabGraphicsItem, BeamGraphicsItem)) or (i.flags() & QGraphicsItem.ItemIsSelectable):
+                        i.setSelected(True)
+                        if i not in self.selected_items: self.selected_items.append(i)
+                self._on_selection_changed()
+                if self.selection_box: self.scene.removeItem(self.selection_box)
+                self.selection_box = None
+                self.box_start = None
                 event.accept()
                 return
 
@@ -2647,29 +2910,22 @@ class CADCanvas(QGraphicsView):
             if view_scale == 0: view_scale = 1 # Avoid div zero
             aperture_px = 15 # AUMENTADO DE 5 PARA 15
             aperture_scene = aperture_px / view_scale
-            
+
             p = scene_pos
             rect = QRectF(p.x() - aperture_scene/2, p.y() - aperture_scene/2, aperture_scene, aperture_scene)
-            
-            print(f"DEBUG click at: {p}, Scale: {view_scale:.4f}, Aperture: {aperture_scene:.2f}")
 
-            # Manual hit test - USANDO SHAPE PARA MAIOR PRECISÃƒO
+            # Manual hit test - USANDO SHAPE PARA MAIOR PRECISAO
             items_at_pos = self.scene.items(rect, Qt.IntersectsItemShape, Qt.DescendingOrder, QTransform())
-            
+
             # Filter for our actionable items
             valid_items = []
             for i in items_at_pos:
                 if i == self.selection_box: continue
                 if isinstance(i, (DXFLineItem, DXFPathItem, QGraphicsSimpleTextItem, PillarGraphicsItem, SlabGraphicsItem, BeamGraphicsItem)):
                     valid_items.append(i)
-                # Helper for standard items if any
                 elif isinstance(i, (QGraphicsLineItem, QGraphicsPathItem)) and i.flags() & QGraphicsItem.ItemIsSelectable:
                      valid_items.append(i)
 
-            print(f"DEBUG Valid Items count: {len(valid_items)}")
-            if valid_items:
-                 print(f"DEBUG First item type found: {type(valid_items[0])}")
-            
             # [MOD] Picking por Proximidade (Closest Hit)
             item = self._get_closest_item(scene_pos, valid_items)
 
@@ -2690,36 +2946,20 @@ class CADCanvas(QGraphicsView):
                         item.setSelected(True)
                         if item not in self.selected_items:
                             self.selected_items.append(item)
-                    print(f"DEBUG: Item selected (Closest Hit). Total: {len(self.selected_items)}")
+                    if os.environ.get('CAD_DEBUG_LOAD'): print(f"DEBUG: Item selected (Closest Hit). Total: {len(self.selected_items)}")
                 
                 self._on_selection_changed()
                 event.accept()
             else:
-                # Clique em Ã¡rea vazia - Iniciar/Finalizar Box
-                if self.box_start is None:
-                    self.box_start = scene_pos
-                    # Pen cosmÃ©tica (0) para linha fina e nÃ­tida
-                    self.selection_box = self.scene.addRect(QRectF(scene_pos, scene_pos), 
-                                                           QPen(QColor(0, 120, 215), 0), 
-                                                           QBrush(QColor(0, 120, 215, 60)))
-                    self.selection_box.setZValue(2000)
-                else:
-                    # Finalizar Box
-                    rect = QRectF(self.box_start, scene_pos).normalized()
-                    path = QPainterPath()
-                    path.addRect(rect)
-                    items = self.scene.items(path, Qt.IntersectsItemBoundingRect, Qt.DescendingOrder, QTransform())
-                    for i in items:
-                        if isinstance(i, (DXFLineItem, DXFPathItem, QGraphicsSimpleTextItem, PillarGraphicsItem, SlabGraphicsItem, BeamGraphicsItem)) or (i.flags() & QGraphicsItem.ItemIsSelectable):
-                            i.setSelected(True)
-                            if i not in self.selected_items: self.selected_items.append(i)
-                    
-                    self._on_selection_changed()
-                    if self.selection_box: self.scene.removeItem(self.selection_box)
-                    self.selection_box = None
-                    self.box_start = None
-                    print(f"DEBUG: Box selection finished. Total items in selection list: {len(self.selected_items)}")
-                
+                # Clique em área vazia sem box em andamento — iniciar box
+                # (se box_start != None, já foi tratado acima antes do hit-test)
+                self.box_start = scene_pos
+                self.selection_box = self.scene.addRect(
+                    QRectF(scene_pos, scene_pos),
+                    QPen(QColor(0, 120, 215), 0),
+                    QBrush(QColor(0, 120, 215, 60))
+                )
+                self.selection_box.setZValue(2000)
                 event.accept()
                 return
 
@@ -2934,17 +3174,29 @@ class CADCanvas(QGraphicsView):
     def mouseMoveEvent(self, event):
         # 1. Handle Pan
         if self._is_panning and self._last_pan_pos:
-            delta = event.pos() - self._last_pan_pos
-            self._last_pan_pos = event.pos()
+            delta = event.position().toPoint() - self._last_pan_pos
+            self._last_pan_pos = event.position().toPoint()
             h_bar = self.horizontalScrollBar()
             v_bar = self.verticalScrollBar()
+            # Se algum eixo ainda não tem range (sceneRect muito pequeno),
+            # expandir antes de tentar mover — permite pan infinito.
+            sc = self.transform().m11()
+            if sc > 1e-6:
+                if v_bar.maximum() == v_bar.minimum() and delta.y() != 0:
+                    sr = self.sceneRect()
+                    extra = abs(delta.y()) * 10 / sc
+                    self.setSceneRect(sr.adjusted(0, -extra, 0, extra))
+                if h_bar.maximum() == h_bar.minimum() and delta.x() != 0:
+                    sr = self.sceneRect()
+                    extra = abs(delta.x()) * 10 / sc
+                    self.setSceneRect(sr.adjusted(-extra, 0, extra, 0))
             h_bar.setValue(h_bar.value() - delta.x())
             v_bar.setValue(v_bar.value() - delta.y())
             event.accept()
             return
 
-        scene_pos = self.mapToScene(event.pos())
-        
+        scene_pos = self.mapToScene(event.position().toPoint())
+
         # [MOD] Pre-Highlighting (Hover)
         if self.edit_mode == 'select' and not self.picking_mode and not self._is_panning:
             view_scale = self.transform().m11()
@@ -3018,7 +3270,7 @@ class CADCanvas(QGraphicsView):
 
         # [MOD] Feedback Visual de Entrada NumÃ©rica perto do Mouse
         if hasattr(self, 'input_label') and self.input_label and self.input_label.isVisible():
-            self.input_label.move(event.pos().x() + 20, event.pos().y() + 20)
+            self.input_label.move(event.position().toPoint().x() + 20, event.position().toPoint().y() + 20)
 
         # OSNAP Visual
         if self.picking_mode or self.edit_mode:

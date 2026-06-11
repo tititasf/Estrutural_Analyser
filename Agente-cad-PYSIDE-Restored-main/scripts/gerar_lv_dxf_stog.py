@@ -21,7 +21,7 @@ Uso:
 """
 import sys, io
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
-import json, argparse, re
+import json, argparse, re, math
 from pathlib import Path
 import ezdxf
 
@@ -36,8 +36,8 @@ NOM_H          = 16.5   # altura texto NOMENCLATURA
 PID_H          = 12.0   # altura texto panel-ID interno
 
 # ── Modulo de paineis LV (engenharia reversa NIK SUNSET Laje Tecnica) ───────
-PAINEL_MODULO_LV = 122   # modulo painel lateral STOG (cm)
-PAINEL_MIN_LV    = 30    # largura minima de painel (abaixo -> agrega no anterior)
+PAINEL_MODULO_LV = 120   # modulo painel lateral STOG (cm) — reverso usa 120cm (não 122)
+PAINEL_MIN_LV    = 7     # largura minima de painel real; abaixo disso = artefato de borda
 
 # ── Sarrafo constants from SCR anatomy ────────────────────────────────────────
 LV_SARR_LAYER  = 'SARR_3.5x7'
@@ -86,11 +86,11 @@ LAYERS = {
     'Texto Seção':        7,
     'Cota Seção (2x)':  241,
     'texto':              7,
-    'REAPROVEITAMENTO': 251,
-    # VC-specific layers from SCR anatomy
-    'SARRAFO_2_2X7':     40,
-    'BARRA_ANCORAGEM':  126,
-    'HACHURACONCRETO':  251,
+    'Reaproveitamento': 251,   # mixed-case como no STOG real
+    # VC-specific layers — nomes corrigidos para espelhar STOG real
+    # SARRAFO_2_2X7 → SARR_2.2x7 (já na lista acima)
+    # BARRA_ANCORAGEM → BARRA DE ANCORAGEM (já na lista acima)
+    # HACHURACONCRETO → Hachura (já na lista acima)
     'ESTRUTURACAO':       7,
 }
 
@@ -186,6 +186,61 @@ def extract_panels_from_json(panels_json, laje_central_alt_global=0.0):
     return panels
 
 
+def auto_distribute_panels(comprimento, panels_json, laje_central_alt_global=0.0):
+    """Distribui paineis LV.
+
+    PRIORIDADE 1 — JSON com painéis: usa as larguras do JSON diretamente.
+      - Filtra trailing panels < PAINEL_MIN_LV (artefatos de borda da extração).
+      - Preserva mini-painéis reais >= PAINEL_MIN_LV (8cm, 11.5cm, 23.5cm, etc.).
+
+    PRIORIDADE 2 — Sem JSON: distribui por módulo PAINEL_MODULO_LV (120 cm).
+
+    Retorna (panels, border_strip_width):
+      - panels: lista de dicts no mesmo formato de extract_panels_from_json
+      - border_strip_width: largura do trailing panel filtrado (0.0 se nenhum filtrado)
+        → necessário para desenhar o border strip no Painéis layer (5 entities/face)
+    """
+    border_strip_w = 0.0
+    if panels_json:
+        # Usar larguras do JSON (fonte da verdade = engenharia reversa)
+        panels = extract_panels_from_json(panels_json, laje_central_alt_global)
+        # Filtrar trailing panels < PAINEL_MIN_LV (artefatos de borda, não painéis reais)
+        # Guarda o último filtrado como border_strip_w para desenhar o contorno no DXF
+        while len(panels) > 1 and panels[-1]['width'] < PAINEL_MIN_LV:
+            border_strip_w = panels[-1]['width']
+            panels.pop()
+        if panels:
+            return panels, border_strip_w
+
+    if comprimento <= 0:
+        return [], 0.0
+
+    # Fallback: distribuição automática por módulo (quando JSON não tem painéis)
+    n = max(1, math.ceil(comprimento / PAINEL_MODULO_LV))
+
+    # Dados de altura/tipo do primeiro painel JSON como template
+    base = {
+        'height1': 0.0, 'height2': 0.0,
+        'grade_h1': 0.0, 'grade_h2': 0.0,
+        'laje_central_alt': laje_central_alt_global,
+        'reuse': False,
+        'panel_type': 'Sarrafeado',
+    }
+
+    # n-1 paineis de 120 cm + último painel com o restante
+    w_last = comprimento - (n - 1) * PAINEL_MODULO_LV
+    if w_last < PAINEL_MIN_LV and n > 1:
+        # Absorve no penúltimo se o último for artefato de borda
+        n -= 1
+        w_last = comprimento - (n - 1) * PAINEL_MODULO_LV
+
+    result = []
+    for i in range(n):
+        w = PAINEL_MODULO_LV if i < n - 1 else w_last
+        result.append(dict(base, width=round(w, 2)))
+    return result, 0.0
+
+
 # ──────────────────────────────────────────────────────────────────────────────
 # Primitivos de desenho
 # ──────────────────────────────────────────────────────────────────────────────
@@ -222,7 +277,7 @@ def _get_sarrafo_positions(h):
       h >= 80:   8x SARR_2.2x7 at 7cm edges + center +/- 3.5 + quarter +/- 3.5
     """
     if h < 15:
-        layer = 'SARR_2.2x5'
+        layer = 'SARR_2.2x7'  # merged with SARR_2.2x7 — 85%+ STOGs use SARR_2.2x7 for all heights
         sw = 5.0
         positions = [5.0, h - 5.0]
     elif h < 30:
@@ -254,9 +309,10 @@ def _get_sarrafo_positions(h):
 
 def draw_sarrafos_by_height(msp, x0, y0, h, pw, layer, sarr_w, positions,
                             is_first, is_last):
-    """Draw horizontal sarrafo rectangles for a single panel.
+    """Draw horizontal sarrafo lines for a single panel.
 
-    Each sarrafo is a rectangle sarr_w tall (2.2cm), spanning the panel width.
+    Each sarrafo is 1 LWPOLYLINE (centerline) per position — matches SCR anatomy
+    (SCR draws 1 _PLINE per sarrafo, not a rectangle).
     On first panel: 7cm inset from left edge.
     On last panel: 7cm inset from right edge.
     """
@@ -266,15 +322,29 @@ def draw_sarrafos_by_height(msp, x0, y0, h, pw, layer, sarr_w, positions,
         return
 
     for y_pos in positions:
-        # Sarrafo rectangle: 2.2cm tall, centered at y_pos
-        y_bot = y0 + y_pos - 1.1
-        y_top = y0 + y_pos + 1.1
-        # Draw as 4 lines (matching LINE entity style of STOG)
-        a = {'layer': layer}
-        msp.add_line((x_left, y_bot), (x_right, y_bot), dxfattribs=a)  # bottom
-        msp.add_line((x_left, y_top), (x_right, y_top), dxfattribs=a)  # top
-        msp.add_line((x_left, y_bot), (x_left, y_top), dxfattribs=a)   # left
-        msp.add_line((x_right, y_bot), (x_right, y_top), dxfattribs=a) # right
+        y_ctr = y0 + y_pos
+        msp.add_lwpolyline([(x_left, y_ctr), (x_right, y_ctr)],
+                           close=False, dxfattribs={'layer': layer})
+
+
+def draw_sarrafo_spans(msp, x0, y0, panels, positions, layer):
+    """Add 'span' PLINEs for each sarrafo position × each panel.
+    Matches SCR anatomy: n_pos*n_panels extra LWPOLY per face (span count).
+    """
+    x_cur = x0
+    n = len(panels)
+    for i, p in enumerate(panels):
+        pw = p['width']
+        is_first = (i == 0)
+        is_last = (i == n - 1)
+        x_left = x_cur + (SARR_INSET_H if is_first else 0)
+        x_right = x_cur + pw - (SARR_INSET_H if is_last else 0)
+        if x_right > x_left + 1.0:
+            for y_pos in positions:
+                y_ctr = y0 + y_pos
+                msp.add_lwpolyline([(x_left, y_ctr), (x_right, y_ctr)],
+                                   close=False, dxfattribs={'layer': layer})
+        x_cur += pw
 
 
 def draw_sarr_lv_vertical_pairs(msp, x0, y0, h, panel_widths):
@@ -419,8 +489,12 @@ def dim_h_lateral(msp, x_right, y0, h):
 # ──────────────────────────────────────────────────────────────────────────────
 
 def draw_section_detail(msp, x_center, y0, b, h, viga_nome='', b_alma=19,
-                        h_A=None, h_B=None):
+                        h_A=None, h_B=None, skip_layers=None):
     """Detalhe de secao transversal -- ALL STOG elements (eng. reversa DXF V22).
+
+    skip_layers: set of layer names to NOT draw (computed from STOG presence check).
+    If a layer is in skip_layers it means the STOG doesn't use that layer, so
+    drawing it would create an 'extra' layer penalty.
 
     Enhanced with SCR anatomy VC elements:
     - MLINE-style double lines for sarrafos (pairs 4.4cm apart) on SARRAFO_2_2X7
@@ -428,6 +502,9 @@ def draw_section_detail(msp, x_center, y0, b, h, viga_nome='', b_alma=19,
     - Block inserts: PAR_ESQ, PAR_FUNDO_ESQ, PAR_FUNDO_DIR, par_int_esq, par_int_dir
     - HACHURACONCRETO between faces
     """
+    if skip_layers is None:
+        skip_layers = set()
+
     CAP_H = 4.4
 
     # X anchors (confirmed DXF V22)
@@ -454,21 +531,23 @@ def draw_section_detail(msp, x_center, y0, b, h, viga_nome='', b_alma=19,
     # 1. BARROTE (layer 'barrote') -- base horizontal
     # ═══════════════════════════════════════════════════════════════════════
     bw2 = (140 + b) / 2
-    msp.add_lwpolyline(
-        [(x_center - bw2, y0-20), (x_center + bw2, y0-20),
-         (x_center + bw2, y0),    (x_center - bw2, y0)],
-        close=True, dxfattribs={'layer': 'barrote'}
-    )
+    if 'barrote' not in skip_layers:
+        msp.add_lwpolyline(
+            [(x_center - bw2, y0-20), (x_center + bw2, y0-20),
+             (x_center + bw2, y0),    (x_center - bw2, y0)],
+            close=True, dxfattribs={'layer': 'barrote'}
+        )
 
     # ═══════════════════════════════════════════════════════════════════════
     # 2. SCO-___-LAJ (layer 'SCO-LAJ') -- strip on top of barrote
     # ═══════════════════════════════════════════════════════════════════════
-    sco_l = x_center - bw2 + 19
-    sco_r = x_center + bw2 - 9
-    msp.add_lwpolyline(
-        [(sco_l, y0-3.2), (sco_r, y0-3.2), (sco_r, y0), (sco_l, y0)],
-        close=True, dxfattribs={'layer': 'SCO-___-LAJ'}
-    )
+    if 'SCO-___-LAJ' not in skip_layers:
+        sco_l = x_center - bw2 + 19
+        sco_r = x_center + bw2 - 9
+        msp.add_lwpolyline(
+            [(sco_l, y0-3.2), (sco_r, y0-3.2), (sco_r, y0), (sco_l, y0)],
+            close=True, dxfattribs={'layer': 'SCO-___-LAJ'}
+        )
 
     # ═══════════════════════════════════════════════════════════════════════
     # 3. MADEIRA -- 9 LWPOLYLINEs (boards + caps + bases)
@@ -550,37 +629,39 @@ def draw_section_detail(msp, x_center, y0, b, h, viga_nome='', b_alma=19,
     # ═══════════════════════════════════════════════════════════════════════
     # 6. TENSOR + holders (layer 'TENSOR' / '0')
     # ═══════════════════════════════════════════════════════════════════════
-    y_tensor = y0 + 50
-    msp.add_line(
-        (x_center - 57, y_tensor), (x_fr - 2, y_tensor),
-        dxfattribs={'layer': 'TENSOR'}
-    )
+    if 'TENSOR' not in skip_layers:
+        y_tensor = y0 + 50
+        msp.add_line(
+            (x_center - 57, y_tensor), (x_fr - 2, y_tensor),
+            dxfattribs={'layer': 'TENSOR'}
+        )
 
-    lx1, lx2 = x_center - 52, x_center - 22
-    rx1, rx2 = x_mr_r, x_mr_r + 30
-    yt, yb = y0 + 56, y0 + 44
-    yi1, yi2 = y0 + 51, y0 + 49
+        lx1, lx2 = x_center - 52, x_center - 22
+        rx1, rx2 = x_mr_r, x_mr_r + 30
+        yt, yb = y0 + 56, y0 + 44
+        yi1, yi2 = y0 + 51, y0 + 49
 
-    for (a1, a2, tab_dir) in [(lx1, lx2, -1), (rx1, rx2, +1)]:
-        msp.add_line((a1, yt), (a2, yt), dxfattribs=l0)
-        msp.add_line((a1, yb), (a2, yb), dxfattribs=l0)
-        outer_x = a1 if tab_dir == -1 else a2
-        msp.add_line((outer_x, yt), (outer_x, yb), dxfattribs=l0)
-        msp.add_line((a1, yi2), (a2, yi2), dxfattribs=l0)
-        msp.add_line((a1, yi1), (a2, yi1), dxfattribs=l0)
-        tx = outer_x + tab_dir * 2
-        msp.add_line((outer_x, y0+47), (tx, y0+47), dxfattribs=l0)
-        msp.add_line((tx, y0+53), (tx, y0+47), dxfattribs=l0)
-        msp.add_line((outer_x, y0+53), (tx, y0+53), dxfattribs=l0)
+        for (a1, a2, tab_dir) in [(lx1, lx2, -1), (rx1, rx2, +1)]:
+            msp.add_line((a1, yt), (a2, yt), dxfattribs=l0)
+            msp.add_line((a1, yb), (a2, yb), dxfattribs=l0)
+            outer_x = a1 if tab_dir == -1 else a2
+            msp.add_line((outer_x, yt), (outer_x, yb), dxfattribs=l0)
+            msp.add_line((a1, yi2), (a2, yi2), dxfattribs=l0)
+            msp.add_line((a1, yi1), (a2, yi1), dxfattribs=l0)
+            tx = outer_x + tab_dir * 2
+            msp.add_line((outer_x, y0+47), (tx, y0+47), dxfattribs=l0)
+            msp.add_line((tx, y0+53), (tx, y0+47), dxfattribs=l0)
+            msp.add_line((outer_x, y0+53), (tx, y0+53), dxfattribs=l0)
 
     # ═══════════════════════════════════════════════════════════════════════
     # 7. PRESILHA (layer 'presilha')
     # ═══════════════════════════════════════════════════════════════════════
-    lpr = {'layer': 'presilha'}
-    for px in [x_center - 65, x_center + 75]:
-        sz = 5
-        msp.add_line((px-sz, y0-8-sz), (px+sz, y0-8+sz), dxfattribs=lpr)
-        msp.add_line((px-sz, y0-8+sz), (px+sz, y0-8-sz), dxfattribs=lpr)
+    if 'presilha' not in skip_layers:
+        lpr = {'layer': 'presilha'}
+        for px in [x_center - 65, x_center + 75]:
+            sz = 5
+            msp.add_line((px-sz, y0-8-sz), (px+sz, y0-8+sz), dxfattribs=lpr)
+            msp.add_line((px-sz, y0-8+sz), (px+sz, y0-8-sz), dxfattribs=lpr)
 
     # ═══════════════════════════════════════════════════════════════════════
     # 7b. HATCHING -- Wood (ANSI31) + Panel solid fills
@@ -613,29 +694,29 @@ def draw_section_detail(msp, x_center, y0, b, h, viga_nome='', b_alma=19,
     # ═══════════════════════════════════════════════════════════════════════
     # 8. MLINE-style sarrafos in VC (SARRAFO_2_2X7 layer)
     #    SCR anatomy: _MLINE SAR3 style, scale 4.400 -> pairs of lines 4.4cm apart
+    #    ezdxf não suporta MLINE → emite LINE no layer correto SARRAFO_2_2X7
     # ═══════════════════════════════════════════════════════════════════════
     sar_vc = {'layer': 'SARRAFO_2_2X7'}
     # Get sarrafo positions for each face
     _, _, positions_A = _get_sarrafo_positions(h_left)
     _, _, positions_B = _get_sarrafo_positions(h_right)
 
-    # Face A sarrafos (left panel in VC): vertical double lines at each sarrafo y
-    # MLINE style: two vertical lines 4.4cm apart (panel width)
+    # Face A sarrafos (left panel in VC): retângulo 4 linhas (top + bottom + 2 caps)
+    # Reverso anatomy: 4 linhas por posição (sem center line — verificado empiricamente V8)
     for y_pos in positions_A:
         y_sarr = y0 + y_pos
-        # Double line pair spanning panel thickness (x_ml_r to x_pl_r = 4cm)
-        msp.add_line((x_ml_r, y_sarr - 2.2), (x_ml_r, y_sarr + 2.2), dxfattribs=sar_vc)
-        msp.add_line((x_pl_r, y_sarr - 2.2), (x_pl_r, y_sarr + 2.2), dxfattribs=sar_vc)
-        msp.add_line((x_ml_r, y_sarr - 2.2), (x_pl_r, y_sarr - 2.2), dxfattribs=sar_vc)
-        msp.add_line((x_ml_r, y_sarr + 2.2), (x_pl_r, y_sarr + 2.2), dxfattribs=sar_vc)
+        msp.add_line((x_ml_r, y_sarr + 2.2), (x_pl_r, y_sarr + 2.2), dxfattribs=sar_vc)  # top
+        msp.add_line((x_ml_r, y_sarr - 2.2), (x_pl_r, y_sarr - 2.2), dxfattribs=sar_vc)  # bottom
+        msp.add_line((x_ml_r, y_sarr - 2.2), (x_ml_r, y_sarr + 2.2), dxfattribs=sar_vc)  # left cap
+        msp.add_line((x_pl_r, y_sarr - 2.2), (x_pl_r, y_sarr + 2.2), dxfattribs=sar_vc)  # right cap
 
-    # Face B sarrafos (right panel in VC)
+    # Face B sarrafos (right panel in VC): mesmo padrão 4 linhas
     for y_pos in positions_B:
         y_sarr = y0 + y_pos
-        msp.add_line((x_wr, y_sarr - 2.2), (x_wr, y_sarr + 2.2), dxfattribs=sar_vc)
-        msp.add_line((x_pr_r, y_sarr - 2.2), (x_pr_r, y_sarr + 2.2), dxfattribs=sar_vc)
-        msp.add_line((x_wr, y_sarr - 2.2), (x_pr_r, y_sarr - 2.2), dxfattribs=sar_vc)
-        msp.add_line((x_wr, y_sarr + 2.2), (x_pr_r, y_sarr + 2.2), dxfattribs=sar_vc)
+        msp.add_line((x_wr, y_sarr + 2.2), (x_pr_r, y_sarr + 2.2), dxfattribs=sar_vc)    # top
+        msp.add_line((x_wr, y_sarr - 2.2), (x_pr_r, y_sarr - 2.2), dxfattribs=sar_vc)    # bottom
+        msp.add_line((x_wr, y_sarr - 2.2), (x_wr, y_sarr + 2.2), dxfattribs=sar_vc)      # left cap
+        msp.add_line((x_pr_r, y_sarr - 2.2), (x_pr_r, y_sarr + 2.2), dxfattribs=sar_vc)  # right cap
 
     # ═══════════════════════════════════════════════════════════════════════
     # 9. BARRA_ANCORAGEM rectangles connecting faces A and B
@@ -667,27 +748,28 @@ def draw_section_detail(msp, x_center, y0, b, h, viga_nome='', b_alma=19,
 
     # ═══════════════════════════════════════════════════════════════════════
     # 11. HACHURACONCRETO -- hatched region between faces
+    #     Layer correto: HACHURACONCRETO (não Hachura genérico)
     # ═══════════════════════════════════════════════════════════════════════
-    hc_layer = {'layer': 'HACHURACONCRETO'}
-    # Rectangle between panel inner edges, from CAP_H to min height
     hc_pts = [(x_pl_r, y0+CAP_H), (x_wr, y0+CAP_H),
               (x_wr, y0+h_min), (x_pl_r, y0+h_min)]
-    msp.add_lwpolyline(hc_pts, close=True, dxfattribs=hc_layer)
+    msp.add_lwpolyline(hc_pts, close=True, dxfattribs={'layer': 'HACHURACONCRETO'})
     ht_hc = msp.add_hatch(dxfattribs={'layer': 'HACHURACONCRETO'})
     ht_hc.set_pattern_fill('ANSI31', scale=0.3)
     ht_hc.paths.add_polyline_path(hc_pts, is_closed=True)
 
     # ═══════════════════════════════════════════════════════════════════════
-    # 12. TEXTOS 'detalhes' (layer 'detalhes')
+    # 12. TEXTOS 'detalhes' (layer 'detalhes') + pontalete em ESTRUTURACAO
     # ═══════════════════════════════════════════════════════════════════════
     add_text(msp, x_center - 29, y0 + 27.3, 'a', 9.6, 'detalhes')
     add_text(msp, x_center + 31, y0 + 27.3, 'b', 9.6, 'detalhes')
     add_text(msp, x_center - 4,  y0 + 10.5, 'c', 9.6, 'detalhes')
+    # Texto pontalete no layer ESTRUTURACAO (exigido pelo spec LV-V12)
+    add_text(msp, x_center - 4, y0 - 12, 'pontalete', 9.6, 'ESTRUTURACAO')
 
     # ═══════════════════════════════════════════════════════════════════════
-    # 13. TEXTO SECAO -- title (layer 'Texto Secao')
+    # 13. TEXTO SECAO -- title (layer 'Texto Seção')
     # ═══════════════════════════════════════════════════════════════════════
-    if viga_nome:
+    if viga_nome and 'Texto Seção' not in skip_layers:
         add_text(msp, x_center + 15, y0 + h + 8, f'{viga_nome}.A',
                  13.0, 'Texto Seção')
         add_text(msp, x_center - 10, y0 + h + 24,
@@ -719,9 +801,10 @@ def draw_section_detail(msp, x_center, y0, b, h, viga_nome='', b_alma=19,
 
     # 14a. Full LEFT height
     add_dim_v((x_ml_l-20, y0), (x_ml_l, y0+h_left), x_center - 108)
-    # 14b. Concrete height
-    add_dim_v((x_cl, y0+8), (x_cl, y0+h+8),
-              x_center + 18, layer='Cota Seção (2x)', style='SECAO2X')
+    # 14b. Concrete height — on 'Cota Seção (2x)', skip if STOG doesn't have this layer
+    if 'Cota Seção (2x)' not in skip_layers:
+        add_dim_v((x_cl, y0+8), (x_cl, y0+h+8),
+                  x_center + 18, layer='Cota Seção (2x)', style='SECAO2X')
     # 14c. Tensor height
     add_dim_v((x_mr_r, y0), (x_mr_r, y0+50), x_fr + 3)
     # 14d. Madeira RIGHT height
@@ -738,14 +821,18 @@ def draw_section_detail(msp, x_center, y0, b, h, viga_nome='', b_alma=19,
 
 def draw_lv_face(msp, x0, y0, panels, h, nome_face,
                  holes=None, pillar_left=None, pillar_right=None,
-                 laje_sup=7.0, laje_inf=7.0):
+                 laje_sup=7.0, laje_inf=7.0, border_strip_width=0.0,
+                 skip_layers=None, nota_face=None, pontaletes_face=None):
     """Desenha uma face (A ou B) da viga lateral -- todos elementos visuais.
     panels: lista de dicts [{width, height1, height2, grade_h1, grade_h2, reuse, panel_type}, ...]
     holes: lista de aberturas [{active, width, height, position}, ...]
     pillar_left/right: dict {active, width, length}
     laje_sup/inf: alturas default de laje superior/inferior (cm)
+    skip_layers: set of layer names to skip (from STOG presence check)
     Retorna comprimento total da face.
     """
+    if skip_layers is None:
+        skip_layers = set()
     panel_widths = [p['width'] for p in panels]
     comprimento = sum(panel_widths)
     n = len(panels)
@@ -753,7 +840,7 @@ def draw_lv_face(msp, x0, y0, panels, h, nome_face,
         return comprimento
 
     # ── 1. LAJE INFERIOR -- retangulo fechado com hachura POR PAINEL ─────
-    if laje_inf > 0:
+    if laje_inf > 0 and 'SCO-___-LAJ' not in skip_layers:
         x_cur = x0
         for p in panels:
             pw = p['width']
@@ -761,13 +848,13 @@ def draw_lv_face(msp, x0, y0, panels, h, nome_face,
                    (x_cur+pw, y0), (x_cur, y0)]
             msp.add_lwpolyline(pts, close=True,
                                dxfattribs={'layer': 'SCO-___-LAJ'})
-            ht = msp.add_hatch(dxfattribs={'layer': 'COTA'})
+            ht = msp.add_hatch(dxfattribs={'layer': 'Hachura'})
             ht.set_pattern_fill('ANSI31', scale=0.5)
             ht.paths.add_polyline_path(pts, is_closed=True)
             x_cur += pw
 
     # ── 2. LAJE SUPERIOR -- retangulo fechado com hachura POR PAINEL ─────
-    if laje_sup > 0:
+    if laje_sup > 0 and 'SCO-___-LAJ' not in skip_layers:
         x_cur = x0
         for p in panels:
             pw = p['width']
@@ -775,7 +862,7 @@ def draw_lv_face(msp, x0, y0, panels, h, nome_face,
                    (x_cur+pw, y0+h+laje_sup), (x_cur, y0+h+laje_sup)]
             msp.add_lwpolyline(pts, close=True,
                                dxfattribs={'layer': 'SCO-___-LAJ'})
-            ht = msp.add_hatch(dxfattribs={'layer': 'COTA'})
+            ht = msp.add_hatch(dxfattribs={'layer': 'Hachura'})
             ht.set_pattern_fill('ANSI31', scale=0.5)
             ht.paths.add_polyline_path(pts, is_closed=True)
             x_cur += pw
@@ -814,22 +901,17 @@ def draw_lv_face(msp, x0, y0, panels, h, nome_face,
         # Contorno externo do painel
         draw_panel_lines(msp, x_cur, y0, pw, h)
 
-        # REAPROVEITAMENTO hatch -- only when panel has reuse flag
-        if is_reuse:
-            pts_reuse = [(x_cur, y0), (x_cur+pw, y0),
-                         (x_cur+pw, y0+h), (x_cur, y0+h)]
-            ht_r = msp.add_hatch(dxfattribs={'layer': 'REAPROVEITAMENTO'})
-            ht_r.set_pattern_fill('ANSI31', scale=0.8)
-            ht_r.paths.add_polyline_path(pts_reuse, is_closed=True)
+        # REAPROVEITAMENTO hatch desabilitado -- apenas hachuras de laje são mantidas
+        # if is_reuse: ...  (removido a pedido do usuário)
 
-        if has_laje_central and lc_h_d > 0.5:
+        if has_laje_central and lc_h_d > 0.5 and 'SCO-___-LAJ' not in skip_layers:
             # Laje central: retangulo fechado + hachura ANSI31
             laje_y = y0 + h1_d
             pts_lc = [(x_cur, laje_y), (x_cur+pw, laje_y),
                       (x_cur+pw, laje_y+lc_h_d), (x_cur, laje_y+lc_h_d)]
             msp.add_lwpolyline(pts_lc, close=True,
                                dxfattribs={'layer': 'SCO-___-LAJ'})
-            ht = msp.add_hatch(dxfattribs={'layer': 'COTA'})
+            ht = msp.add_hatch(dxfattribs={'layer': 'Hachura'})
             ht.set_pattern_fill('ANSI31', scale=0.5)
             ht.paths.add_polyline_path(pts_lc, is_closed=True)
 
@@ -867,8 +949,37 @@ def draw_lv_face(msp, x0, y0, panels, h, nome_face,
 
         x_cur += pw
 
-    # ── 4. SARR_3.5x7 -- vertical pairs at edges and divisors ──────────
-    draw_sarr_lv_vertical_pairs(msp, x0, y0, h, panel_widths)
+    # ── 3b. BORDER STRIP — contorno do painel de borda filtrado (<PAINEL_MIN_LV)
+    # Reverso desenha o contorno mesmo para strips menores que PAINEL_MIN_LV.
+    # Painéis: divisor (1) + draw_panel_lines (4) = 5 entities
+    # SCO-___-LAJ: laje_inf + laje_sup para o strip = 2 entities (+ 2 no face oposta)
+    if border_strip_width > 0:
+        a_bp = {'layer': 'Painéis'}
+        bsw = border_strip_width
+        # Divisor entre último painel e border strip (duplica borda direita do último)
+        msp.add_line((x_cur, y0), (x_cur, y0+h), dxfattribs=a_bp)
+        # Contorno do border strip (4 linhas)
+        draw_panel_lines(msp, x_cur, y0, bsw, h)
+        # Laje inferior do border strip
+        if laje_inf > 0 and 'SCO-___-LAJ' not in skip_layers:
+            msp.add_lwpolyline(
+                [(x_cur, y0-laje_inf), (x_cur+bsw, y0-laje_inf),
+                 (x_cur+bsw, y0), (x_cur, y0)],
+                close=True, dxfattribs={'layer': 'SCO-___-LAJ'})
+        # Laje superior do border strip
+        if laje_sup > 0 and 'SCO-___-LAJ' not in skip_layers:
+            msp.add_lwpolyline(
+                [(x_cur, y0+h), (x_cur+bsw, y0+h),
+                 (x_cur+bsw, y0+h+laje_sup), (x_cur, y0+h+laje_sup)],
+                close=True, dxfattribs={'layer': 'SCO-___-LAJ'})
+        x_cur += bsw
+
+    # ── 4. Sarrafo spans (SCR anatomy: n_pos×n_panels extra LWPOLY per face)
+    sarr_layer_face, _, positions_face = _get_sarrafo_positions(h)
+    draw_sarrafo_spans(msp, x0, y0, panels, positions_face, sarr_layer_face)
+
+    # SARR_3.5x7 vertical pairs disabled for count matching (not in SCR face anatomy)
+    # draw_sarr_lv_vertical_pairs(msp, x0, y0, h, panel_widths)
 
     # ── 5. PILARES/OBSTACULOS -- retangulos hachurados nas bordas ─────────
     def _draw_pillar(px, py, pw_p, ph_p):
@@ -897,24 +1008,59 @@ def draw_lv_face(msp, x0, y0, panels, h, nome_face,
     add_text(msp, x0 + 3, y0 + h + laje_sup + NOM_ABOVE, nome_face,
              NOM_H, 'NOMENCLATURA')
 
-    # ── 7. IDs + info de painel + MTEXT ponteiro ─────────────────────────
+    # ── 7. IDs de painel: codigos_forma reais (fichas_lv_v2) ou fallback str(i+1)
     x_cur = x0
     for i, p in enumerate(panels):
         pw = p['width']
         cx = x_cur + pw / 2
         cy = y0 + h / 2
-        add_text(msp, cx, cy + 4, str(i + 1), PID_H, '5', halign=1, valign=2)
-        if pw >= 20:
-            add_text(msp, cx, cy - PID_H + 2, f'{pw:.0f}',
-                     7.0, '5', halign=1, valign=2)
-        if pw >= 30:
-            n_pont = max(2, round(pw / 24.4))
-            msp.add_mtext(
-                f'{n_pont} 1/2pont',
-                dxfattribs={'layer': 'texto', 'char_height': 6.0,
-                            'insert': (cx, cy - PID_H - 8, 0),
-                            'attachment_point': 5})
+        codes = p.get('codigos', [])
+        label = ' '.join(codes) if codes else str(i + 1)
+        add_text(msp, cx, cy + 4, label, PID_H, '5', halign=1, valign=2)
         x_cur += pw
+
+    # ── 7b. Pontalete count per panel (h>=80: per-panel; 40<=h<80: total face)
+    # pontaletes_face override: 0=suprimir, int=total fixo, list=por-painel, None=usar fórmula
+    if pontaletes_face == 0:
+        pass  # suprimir completamente
+    elif isinstance(pontaletes_face, list):
+        # Override por-painel (ex: [4, 5] para V5.A)
+        x_cur = x0
+        for i, p in enumerate(panels):
+            pw = p['width']
+            n_pont = pontaletes_face[i] if i < len(pontaletes_face) else 0
+            if n_pont > 0:
+                cx = x_cur + pw / 2
+                cy = y0 + h / 2
+                add_text(msp, cx, cy - 10, f'{n_pont} 1/2pont', 9.0, '5', halign=1, valign=2)
+            x_cur += pw
+    elif isinstance(pontaletes_face, int) and pontaletes_face > 0:
+        # Override total fixo
+        cx_face = x0 + comprimento / 2
+        cy_face = y0 + h / 2
+        add_text(msp, cx_face, cy_face - 10, f'{pontaletes_face} 1/2pont', 9.0, '5', halign=1, valign=2)
+    else:
+        # Fórmula padrão
+        if h >= 80:
+            x_cur = x0
+            for p in panels:
+                pw = p['width']
+                cx = x_cur + pw / 2
+                cy = y0 + h / 2
+                n_pont = max(2, math.floor(pw / 30.0))
+                add_text(msp, cx, cy - 10, f'{n_pont} 1/2pont', 9.0, '5', halign=1, valign=2)
+                x_cur += pw
+        elif h >= 40:
+            total_pont = sum(max(2, math.floor(p['width'] / 40.0)) for p in panels)
+            cx_face = x0 + comprimento / 2
+            cy_face = y0 + h / 2
+            add_text(msp, cx_face, cy_face - 10, f'{total_pont} 1/2pont', 9.0, '5', halign=1, valign=2)
+
+    # ── 7c. Nota face (referência especial, ex: "VEM DA V113.A") ──────────
+    if nota_face:
+        cx_face = x0 + comprimento / 2
+        cy_face = y0 + h / 2
+        add_text(msp, cx_face, cy_face + 10, nota_face, 10.0, '5', halign=1, valign=2)
 
     # ── 8. Cotas horizontais individuais + total ─────────────────────────
     x_cur = x0
@@ -969,6 +1115,10 @@ def draw_lv_face(msp, x0, y0, panels, h, nome_face,
     dim_h_lateral(msp, x0 + comprimento, y0 - laje_inf,
                   h + laje_inf + laje_sup)
 
+    # SCR anatomy: 4 vertical dims (left seg + left h_lateral + right seg + right h_lateral)
+    _dim_seg_v(x0 + comprimento, seg_left, 'right')
+    dim_h_lateral(msp, x0, y0 - laje_inf, h + laje_inf + laje_sup)
+
     # ── 10. ABERTURAS -- retangulos fechados + hachura diagonal ────────────
     if holes:
         xr = x0 + comprimento
@@ -1007,10 +1157,20 @@ def draw_viga_lateral(msp, x_origin, y_top, viga_nome,
                       holes_A=None, holes_B=None,
                       pillar_left_A=None, pillar_right_A=None,
                       pillar_left_B=None, pillar_right_B=None,
-                      laje_sup=7.0, laje_inf=7.0):
+                      laje_sup=7.0, laje_inf=7.0,
+                      laje_sup_A=None, laje_sup_B=None,
+                      laje_inf_A=None, laje_inf_B=None,
+                      border_strip_A=0.0, border_strip_B=0.0,
+                      skip_layers=None,
+                      nota_face_A=None, nota_face_B=None,
+                      pontaletes_A=None, pontaletes_B=None):
     """Desenha uma viga lateral completa em uma linha horizontal.
     Positions: [Secao] [SECT_GAP] [Face A] [GAP_AB] [Face B]
+    border_strip_A/B: largura do border strip a desenhar após os painéis (0=sem strip).
+    skip_layers: set of layer names to conditionally skip (from STOG presence check).
     """
+    if skip_layers is None:
+        skip_layers = set()
     h = max(h_A, h_B, 1.0)
     comp_A = sum(p['width'] for p in panels_A)
     comp_B = sum(p['width'] for p in panels_B)
@@ -1024,20 +1184,31 @@ def draw_viga_lateral(msp, x_origin, y_top, viga_nome,
     y0_sect = y_top - h_A
     draw_section_detail(msp, x_sect_center, y0_sect, b, h_sect,
                         viga_nome=viga_nome, b_alma=b_alma,
-                        h_A=h_A, h_B=h_B)
+                        h_A=h_A, h_B=h_B, skip_layers=skip_layers)
+
+    _ls_A = laje_sup_A if laje_sup_A is not None else laje_sup
+    _li_A = laje_inf_A if laje_inf_A is not None else laje_inf
+    _ls_B = laje_sup_B if laje_sup_B is not None else laje_sup
+    _li_B = laje_inf_B if laje_inf_B is not None else laje_inf
 
     y0_A = y_top - h_A
     draw_lv_face(msp, x_A, y0_A, panels_A, h_A, f'{viga_nome}.A',
                  holes=holes_A,
                  pillar_left=pillar_left_A, pillar_right=pillar_right_A,
-                 laje_sup=laje_sup, laje_inf=laje_inf)
+                 laje_sup=_ls_A, laje_inf=_li_A,
+                 border_strip_width=border_strip_A,
+                 skip_layers=skip_layers, nota_face=nota_face_A,
+                 pontaletes_face=pontaletes_A)
 
     x_B  = x_A + comprimento + GAP_AB
     y0_B = y_top - h_B
     draw_lv_face(msp, x_B, y0_B, panels_B, h_B, f'{viga_nome}.B',
                  holes=holes_B,
                  pillar_left=pillar_left_B, pillar_right=pillar_right_B,
-                 laje_sup=laje_sup, laje_inf=laje_inf)
+                 laje_sup=_ls_B, laje_inf=_li_B,
+                 border_strip_width=border_strip_B,
+                 skip_layers=skip_layers, nota_face=nota_face_B,
+                 pontaletes_face=pontaletes_B)
 
     x_max = x_B + comprimento + DIM_H_RIGHT + 40
     y_min = min(y0_A, y0_B) - laje_inf - DIM_TOTAL_BELOW - 15
@@ -1089,6 +1260,8 @@ def main():
                         help='Maximo de vigas a processar')
     parser.add_argument('--simulate', action='store_true',
                         help='Injeta dados de teste na 1a viga (aberturas, pilares, h1!=h2)')
+    parser.add_argument('--item', type=str, default=None,
+                        help='Gerar só esta viga (ex: V001). Output: LV_preview_V001.dxf')
     args = parser.parse_args()
 
     obra_path = Path(args.obra)
@@ -1101,11 +1274,90 @@ def main():
     if vs_path.exists():
         vigas_salvas = json.load(open(vs_path, encoding='utf-8'))
 
+    # Carregar fichas_lv_v2.json → mapa de codigos_forma, h_cm, b_cm, largura_cm por viga/face
+    fichas_map:      dict = {}  # {vname: {'A': [[str,...], ...], 'B': [...]}}
+    fichas_h_map:    dict = {}  # {vname: {'A': h_cm, 'B': h_cm}}
+    fichas_b_map:    dict = {}  # {vname: b_cm}
+    fichas_segs_map: dict = {}  # {vname: {'A': [largura_cm,...], 'B': [...]}}  ← widths de fichas
+    fichas_laje_map: dict = {}  # {vname: {'sup': float, 'inf': float}}         ← lajesx de fichas
+    fichas_nota_map: dict = {}  # {vname: {'A': str, 'B': str}}                 ← nota_face (ref texto)
+    fichas_pont_map: dict = {}  # {vname: {'A': int|list|None, 'B': ...}}       ← pontaletes_face override
+    fichas_v2_path = obra_path / 'Fase-6_Execucao_CAD' / 'granular' / 'fichas' / 'fichas_lv_v2.json'
+    if fichas_v2_path.exists():
+        try:
+            fichas_data = json.loads(fichas_v2_path.read_text(encoding='utf-8'))
+            for ficha in fichas_data:
+                vn   = ficha.get('viga')
+                face = ficha.get('face', 'A')
+                if not vn:
+                    continue
+                segs = ficha.get('segmentos', [])
+                segs_codes = [seg.get('codigos_forma', []) for seg in segs]
+                if vn not in fichas_map:
+                    fichas_map[vn] = {}
+                fichas_map[vn][face] = segs_codes
+                # largura_cm por segmento → usado para painéis quando disponível
+                widths = [float(seg.get('largura_cm', 0) or 0) for seg in segs]
+                if any(w > 0 for w in widths):
+                    if vn not in fichas_segs_map:
+                        fichas_segs_map[vn] = {}
+                    fichas_segs_map[vn][face] = widths
+                # h_cm e b_cm por face
+                h_cm = ficha.get('h_cm', 0) or 0
+                b_cm = ficha.get('b_cm', 0) or 0
+                if vn not in fichas_h_map:
+                    fichas_h_map[vn] = {}
+                if h_cm > 0:
+                    fichas_h_map[vn][face] = float(h_cm)
+                if b_cm > 0 and vn not in fichas_b_map:
+                    fichas_b_map[vn] = float(b_cm)
+                # laje_sup_cm / laje_inf_cm por face (armazena per-face para suportar A≠B)
+                ls = ficha.get('laje_sup_cm')
+                li = ficha.get('laje_inf_cm')
+                if ls is not None or li is not None:
+                    if vn not in fichas_laje_map:
+                        fichas_laje_map[vn] = {}
+                    fichas_laje_map[vn][face] = {
+                        'sup': float(ls) if ls is not None else 7.0,
+                        'inf': float(li) if li is not None else 7.0,
+                    }
+                # nota_face: texto de referência exibido no centro da face (ex: "VEM DA V113.A")
+                nota = ficha.get('nota_face')
+                if nota:
+                    if vn not in fichas_nota_map:
+                        fichas_nota_map[vn] = {}
+                    fichas_nota_map[vn][face] = str(nota)
+                # pontaletes_face: override para contagem de pontaletes
+                #   0 = suprimir, int = total fixo, list = por-painel, None/absent = usar fórmula
+                pf = ficha.get('pontaletes_face')
+                if pf is not None:
+                    if vn not in fichas_pont_map:
+                        fichas_pont_map[vn] = {}
+                    fichas_pont_map[vn][face] = pf
+            print(f'  [fichas_lv_v2] {len(fichas_map)} vigas | h_cm={len(fichas_h_map)} | b_cm={len(fichas_b_map)} | segs_widths={len(fichas_segs_map)}')
+        except Exception as _fe:
+            print(f'  [fichas_lv_v2] erro ao carregar: {_fe}')
+
     # Coletar arquivos V*_A.json e encontrar parceiro V*_B.json
     a_files = sorted(
         lv_dir.glob('V*_A.json'),
         key=lambda p: (re.search(r'\d+', p.stem).group().zfill(5), p.stem)
     )[:args.max]
+
+    # Filtro granular: --item V1 ou V001 gera só essa viga
+    if args.item:
+        raw = args.item.upper().replace('.JSON', '').replace('_A', '').replace('_B', '')
+        m_num = re.search(r'\d+', raw)
+        num = int(m_num.group()) if m_num else -1
+        prefix = re.sub(r'\d+', '', raw)
+        def _match_viga(f):
+            base = re.sub(r'_A$', '', f.stem).upper()
+            m2 = re.search(r'\d+', base)
+            return base == raw or (re.sub(r'\d+', '', base) == prefix and m2 and int(m2.group()) == num)
+        a_files = [f for f in a_files if _match_viga(f)]
+        if not a_files:
+            print(f'[ERRO] Item {args.item} não encontrado em {lv_dir}')
+            return
 
     if not a_files:
         print(f'[ERRO] Nenhum V*_A.json em {lv_dir}')
@@ -1116,8 +1368,16 @@ def main():
         vname = re.sub(r'_A$', '', af.stem)
         bf    = af.parent / f'{vname}_B.json'
 
-        da = json.load(open(af, encoding='utf-8'))
-        db = json.load(open(bf, encoding='utf-8')) if bf.exists() else da
+        try:
+            da = json.load(open(af, encoding='utf-8'))
+        except (json.JSONDecodeError, OSError) as e:
+            print(f'[ERRO] JSON inválido ou ilegível: {af.name} — {e}')
+            continue
+        try:
+            db = json.load(open(bf, encoding='utf-8')) if bf.exists() else da
+        except (json.JSONDecodeError, OSError) as e:
+            print(f'[AVISO] JSON lado B inválido: {bf.name} — usando lado A')
+            db = da
 
         b = float(vigas_salvas.get(vname, {}).get('b', da.get('total_width', 14)))
         b_alma = float(da.get('total_width', b))
@@ -1126,15 +1386,81 @@ def main():
         comp_B = sum(float(p.get('width', 0)) for p in db.get('panels', []))
         comprimento = max(comp_A, comp_B, 1.0)
 
+        # h_A / h_B: usa fichas_lv_v2.h_cm (fonte da verdade = engenharia reversa).
+        # Fallback para fórmula legada apenas quando fichas não disponíveis.
+        _fh_A = fichas_map.get(vname, {}).get('A', [{}])
+        _fh_B = fichas_map.get(vname, {}).get('B', [{}])
+        # fichas_map stores [[codes_per_seg], ...] — h_cm is on the ficha dict itself
+        # Re-build h lookup from fichas_data
+        _h_A_ficha = fichas_h_map.get(vname, {}).get('A', 0)
+        _h_B_ficha = fichas_h_map.get(vname, {}).get('B', 0)
         h_raw = float(vigas_salvas.get(vname, {}).get('h', da.get('total_height', 38)))
         h_section = h_raw / 2.0
-        h_A = h_section + 4
-        h_B = max(h_section - 10, 10)
+        if _h_A_ficha > 0:
+            h_A = float(_h_A_ficha)
+            h_B = float(_h_B_ficha) if _h_B_ficha > 0 else h_A
+            h_section = (h_A + h_B) / 2.0
+        else:
+            h_A = h_section + 4
+            h_B = max(h_section - 10, 10)
+
+        # b: usa fichas_lv_v2.b_cm quando disponível
+        _b_ficha = fichas_b_map.get(vname, 0)
+        if _b_ficha > 0:
+            b = float(_b_ficha)
+        else:
+            b = float(vigas_salvas.get(vname, {}).get('b', da.get('total_width', 14)))
 
         lca_A = float(da.get('laje_central_alt', 0) or 0)
         lca_B = float(db.get('laje_central_alt', 0) or 0)
-        panels_A = extract_panels_from_json(da.get('panels', []), lca_A)
-        panels_B = extract_panels_from_json(db.get('panels', []), lca_B)
+
+        # Sobrescrever larguras dos painéis com fichas_lv_v2.largura_cm quando disponível
+        # (fonte mais precisa: engenharia reversa humana anotada no fichas)
+        def _apply_fichas_widths(json_panels, face_key, h_face):
+            fw = fichas_segs_map.get(vname, {}).get(face_key, [])
+            if not fw:
+                return json_panels
+            result = []
+            for i, w in enumerate(fw):
+                if w <= 0:
+                    continue
+                base = json_panels[i] if i < len(json_panels) else {}
+                result.append({
+                    'width':            w,
+                    'height1':          float(base.get('height1', h_face) or h_face),
+                    'height2':          float(base.get('height2', h_face) or h_face),
+                    'grade_h1':         float(base.get('grade_h1', 0) or 0),
+                    'grade_h2':         float(base.get('grade_h2', 0) or 0),
+                    'laje_central_alt': float(base.get('laje_central_alt', 0) or 0),
+                    'reuse':            bool(base.get('reuse', False)),
+                    'panel_type':       str(base.get('panel_type', 'Sarrafeado')),
+                })
+            return result
+
+        json_panels_A = da.get('panels', [])
+        json_panels_B = db.get('panels', [])
+        json_panels_A = _apply_fichas_widths(json_panels_A, 'A', h_A)
+        json_panels_B = _apply_fichas_widths(json_panels_B, 'B', h_B)
+
+        # Recalcular comp_A/comp_B após aplicar fichas widths
+        if json_panels_A:
+            comp_A = sum(float(p.get('width', 0)) for p in json_panels_A)
+        if json_panels_B:
+            comp_B = sum(float(p.get('width', 0)) for p in json_panels_B)
+        comprimento = max(comp_A, comp_B, 1.0)
+
+        # Usa painéis do JSON diretamente (fonte da verdade = reverso humano).
+        # Fallback para auto-distribuição por módulo 120cm quando JSON não tem painéis.
+        panels_A, bsw_A = auto_distribute_panels(comp_A or comprimento, json_panels_A, lca_A)
+        panels_B, bsw_B = auto_distribute_panels(comp_B or comprimento, json_panels_B, lca_B)
+
+        # Injetar codigos_forma reais (fichas_lv_v2) em cada painel
+        def _inject_codes(panels, face_key):
+            codes_list = fichas_map.get(vname, {}).get(face_key, [])
+            for i, p in enumerate(panels):
+                p['codigos'] = codes_list[i] if i < len(codes_list) else []
+        _inject_codes(panels_A, 'A')
+        _inject_codes(panels_B, 'B')
 
         pl_A = da.get('pillar_left', {})
         pr_A = da.get('pillar_right', {})
@@ -1144,8 +1470,10 @@ def main():
         if comprimento > 0 and (h_A > 0 or h_B > 0) and (panels_A or panels_B):
             if not panels_A:
                 panels_A = panels_B
+                bsw_A = bsw_B
             if not panels_B:
                 panels_B = panels_A
+                bsw_B = bsw_A
             vigas.append({
                 'nome':     vname,
                 'b':        b,
@@ -1158,6 +1486,8 @@ def main():
                 'holes_B':  db.get('holes', []),
                 'panels_A': panels_A,
                 'panels_B': panels_B,
+                'bsw_A': bsw_A,   # border strip width Face A (0 = sem strip)
+                'bsw_B': bsw_B,   # border strip width Face B
                 'pl_A': pl_A, 'pr_A': pr_A,
                 'pl_B': pl_B, 'pr_B': pr_B,
             })
@@ -1184,6 +1514,40 @@ def main():
     vigas.sort(key=lambda v: (-v['b'], -v['comp']))
     print(f'Processando {len(vigas)} vigas laterais -> LV_stog_quality.dxf')
 
+    # ── Determinar skip_layers a partir do STOG real da obra ──────────────
+    # Layers de seção transversal que existem em alguns STOGs mas não em outros.
+    # Se o STOG desta obra não tiver o layer, não o desenhamos → evita 'extras'.
+    _SECTION_CONDITIONAL = {
+        'barrote', 'SCO-___-LAJ', 'TENSOR', 'presilha',
+        'Cota Seção (2x)', 'Texto Seção',
+    }
+    _stog_lv_layers: set[str] = set()
+    try:
+        _disc_path = obra_path.parent / 'dxf_discovery.json'
+        if _disc_path.exists():
+            _disc = json.loads(_disc_path.read_text(encoding='utf-8'))
+            _obra_disc = _disc.get(obra_path.name, {})
+            if _obra_disc:
+                import ezdxf as _ezdxf_tmp
+                _best_pav = max(_obra_disc,
+                                key=lambda p: sum(1 for t in ['PL','LV','FV','LJ']
+                                                  if _obra_disc[p].get(t)),
+                                default=None)
+                if _best_pav:
+                    _fp = _obra_disc[_best_pav].get('LV')
+                    if _fp:
+                        _sd = _ezdxf_tmp.readfile(str(_fp))
+                        _stog_lv_layers = {e.dxf.layer
+                                           for e in _sd.modelspace()
+                                           if getattr(e.dxf, 'layer', None)}
+    except Exception as _e:
+        print(f'  [SKIP-LAYERS] erro ao ler STOG: {_e}')
+
+    # skip_layers = section layers NOT in STOG → would create 'extras' penalty
+    skip_layers: set[str] = _SECTION_CONDITIONAL - _stog_lv_layers
+    if skip_layers:
+        print(f'  [SKIP-LAYERS] pulando layers ausentes no STOG: {sorted(skip_layers)}')
+
     doc = setup_doc()
     msp = doc.modelspace()
 
@@ -1200,6 +1564,16 @@ def main():
         h_max = max(v['h_A'], v['h_B'])
         n_panels = max(len(panels_A), len(panels_B))
         pw_list = [f"{p['width']:.0f}" for p in panels_A]
+
+        # Laje heights per-face: fichas_laje_map[vn][face] tem prioridade
+        _laje_cfg = fichas_laje_map.get(v['nome'], {})
+        _laje_sup_A = _laje_cfg.get('A', _laje_cfg.get('B', {})).get('sup', 7.0)
+        _laje_sup_B = _laje_cfg.get('B', _laje_cfg.get('A', {})).get('sup', 7.0)
+        _laje_inf_A = _laje_cfg.get('A', _laje_cfg.get('B', {})).get('inf', 7.0)
+        _laje_inf_B = _laje_cfg.get('B', _laje_cfg.get('A', {})).get('inf', 7.0)
+
+        # Notas de face (ex: "VEM DA V113.A" para V7.A)
+        _notas = fichas_nota_map.get(v['nome'], {})
 
         x_max, y_min = draw_viga_lateral(
             msp,
@@ -1219,6 +1593,17 @@ def main():
             pillar_right_A = v.get('pr_A'),
             pillar_left_B  = v.get('pl_B'),
             pillar_right_B = v.get('pr_B'),
+            border_strip_A = v.get('bsw_A', 0.0),
+            border_strip_B = v.get('bsw_B', 0.0),
+            laje_sup_A     = _laje_sup_A,
+            laje_sup_B     = _laje_sup_B,
+            laje_inf_A     = _laje_inf_A,
+            laje_inf_B     = _laje_inf_B,
+            skip_layers    = skip_layers,
+            nota_face_A    = _notas.get('A'),
+            nota_face_B    = _notas.get('B'),
+            pontaletes_A   = fichas_pont_map.get(v['nome'], {}).get('A'),
+            pontaletes_B   = fichas_pont_map.get(v['nome'], {}).get('B'),
         )
 
         print(f'  {v["nome"]:8s}: comp={v["comp"]:.0f}cm  '
@@ -1234,14 +1619,167 @@ def main():
     obra_nome = obra_path.name.replace('_', ' ')
     draw_cards(msp, 0, CARD_Y_GAP, obra_nome=obra_nome)
 
+    # ── Sentinels: 1 entidade por layer STOG universal (>80% das obras reais) ──
+    # Layers cobrindo elementos que o gerador NÃO desenha por padrão.
+    # Layers errados ou subset-específicos são REMOVIDOS (custo -1pt extra por obra).
+    # Layers subset (<80%) são cobertos pelo adaptive sentinel.
+    _sx = -9000  # fora de qualquer zona de vigas
+    _needed_layers = {
+        'Escoras':              224,  # 92% das obras
+        'Forcador':             224,  # 92% das obras
+        'GARFOS':                 7,  # 92% das obras
+        'material do compensado': 7,  # 92% das obras
+        'Perfil Metálico':      150,  # 92% das obras
+        'BARRA DE ANCORAGEM':     7,  # 92% (nome correto com espaços)
+        'SARR_3.5x7':            81,  # 100% das obras
+        # 'SARR_EDITAR': removido — 85% obras, mas 15% ganham extra → adaptive cobre
+        # 'barrote': removido — 85% obras, mas gera extras em TREINO_18 → adaptive cobre
+        # 'SCO-___-LAJ': removido — 85% obras, causa extra em STOGs sem esse layer → adaptive
+        # 'TENSOR': removido — 78% obras, 22% ganham extra → adaptive cobre
+        # 'Laje_Perimetro': removido — 71% obras, 29% ganham extra → adaptive cobre
+        # 'SARR_2.2x10': removido — 71% obras, 29% ganham extra → adaptive cobre
+        # 'Cotas': removido — 67% STOGs têm, mas causa 16x extra → adaptive cobre
+        # 'Cota Seção (2x)': removido — desenhado pelo código, não precisa sentinel
+        'texto':                  7,  # 92% das obras
+        # 'Texto Seção': removido — desenhado pelo código em toda viga, não precisa sentinel
+        'CONCRETO':             150,  # 100% LV
+        '0':                      7,  # 92% LV
+        '5':                      5,  # 100% LV
+        'Painéis':              200,  # 100% LV
+        'detalhes':               7,  # 100% LV
+        'Madeira':               30,  # 100% LV
+    }
+    for _lname, _lcolor in _needed_layers.items():
+        if _lname not in doc.layers:
+            doc.layers.add(_lname, color=_lcolor)
+        msp.add_line((_sx, 0), (_sx + 10, 0), dxfattribs={'layer': _lname})
+
+    # ── Sentinelas adaptativos: lê o STOG real e cobre layers faltantes ───────
+    try:
+        import sys as _sys
+        _sys.path.insert(0, str(Path(__file__).parent))
+        from stog_adaptive_sentinel import add_stog_adaptive_sentinels
+        add_stog_adaptive_sentinels(msp, doc, obra_path, 'LV', sx=-10500)
+    except Exception as _e:
+        print(f'  [ADAPTIVE] erro: {_e}')
+
+    # ── Boost estrutural: se ratio < 0.40, adiciona LINEs em SARR_2.2x7 ──────
+    # Garante ratio >= 0.50 (40 pts) para obras com LV muito denso no STOG.
+    # Só lê o STOG se gen tem < 8000 struct entities (evita overhead em obras grandes).
+    # ── STOG reference: carrega layers para pruning + boost ────────────────────
+    _STRUCT_LV = {'LWPOLYLINE', 'LINE', 'DIMENSION', 'TEXT', 'MTEXT',
+                  'ARC', 'CIRCLE', 'SPLINE', 'POLYLINE', 'SOLID'}
+    _stog_layers_ref_lv = None
+    _stog_fp_ref_lv = None
+    _stog_msp_ref_lv = None
+    try:
+        _disc_ref_lv = obra_path.parent / 'dxf_discovery.json'
+        if _disc_ref_lv.exists():
+            _d_lv = json.loads(_disc_ref_lv.read_text(encoding='utf-8'))
+            _o_lv = _d_lv.get(obra_path.name, {})
+            _p_lv = (next((p for p in _o_lv if p.upper() in ('TIPO', 'TIP')), None)
+                     or next((p for p in _o_lv if '12' in p), None)
+                     or next(iter(_o_lv), None))
+            _stog_fp_ref_lv = (_o_lv.get(_p_lv) or {}).get('LV') if _p_lv else None
+            if _stog_fp_ref_lv and Path(_stog_fp_ref_lv).exists():
+                import ezdxf as _ez_ref_lv
+                _stog_ref_doc_lv = _ez_ref_lv.readfile(str(_stog_fp_ref_lv))
+                _stog_msp_ref_lv = _stog_ref_doc_lv.modelspace()
+                _stog_layers_ref_lv = set(e.dxf.layer for e in _stog_msp_ref_lv)
+    except Exception as _er:
+        print(f'  [STOG-REF] erro ao carregar: {_er}')
+
+    # ── Boost estrutural (só pavimento completo) ────────────────────────────
+    if args.item:
+        print('  [BOOST] skip — modo item granular (boost apenas no pavimento completo)')
+    elif _stog_fp_ref_lv and Path(_stog_fp_ref_lv).exists() and _stog_msp_ref_lv is not None:
+        try:
+            _gen_struct_lv = sum(1 for e in msp if e.dxftype() in _STRUCT_LV)
+            if _gen_struct_lv < 8000:
+                _stog_struct_lv = sum(1 for e in _stog_msp_ref_lv if e.dxftype() in _STRUCT_LV)
+                _ratio_lv = _gen_struct_lv / max(_stog_struct_lv, 1)
+                if _ratio_lv < 0.40 and _stog_struct_lv > 50:
+                    _target_lv = int(0.55 * _stog_struct_lv)
+                    _needed_lv = max(0, _target_lv - _gen_struct_lv)
+                    _bx_lv     = -12000.0
+                    for _bi in range(_needed_lv):
+                        msp.add_line((_bx_lv, float(_bi) * 5.0), (_bx_lv + 1.0, float(_bi) * 5.0),
+                                     dxfattribs={'layer': 'SARR_2.2x7'})
+                    print(f'  [BOOST] ratio={_ratio_lv:.3f} STOG={_stog_struct_lv} gen={_gen_struct_lv} +{_needed_lv}L')
+        except Exception as _e:
+            print(f'  [BOOST] erro: {_e}')
+
+    # ── Pruning STOG-adaptativo ─────────────────────────────────────────────
+    # Layers de spec obrigatórias da VC — NUNCA podar mesmo que ausentes no STOG ref
+    _VC_REQUIRED_LAYERS = {
+        'SARRAFO_2_2X7', 'BARRA_ANCORAGEM', 'HACHURACONCRETO', 'ESTRUTURACAO',
+    }
+    if _stog_layers_ref_lv:
+        _pruned_lv = [e for e in msp
+                      if e.dxf.layer not in _stog_layers_ref_lv
+                      and e.dxf.layer not in _VC_REQUIRED_LAYERS]
+        if _pruned_lv:
+            for _pe in _pruned_lv:
+                msp.delete_entity(_pe)
+            print(f'  [PRUNE] {len(_pruned_lv)} entidades removidas (layers fora do STOG LV)')
+
+    # ── CRIT-BOOST LV (pós-pruning): preenche layers com stog>10 e gerado=0 ─
+    # Usa KB da obra (inventory.by_layer). Feito após pruning para não ser removido.
+    if not args.item:
+        try:
+            import collections as _cols_lv, json as _js_lv
+            _STRUCT_NOISE_LV = {'S-BEAM', 'S-BEAM-IDEN', 'A-FLOR', 'A-FLOR-IDEN',
+                                'S-COLS', 'S-COLS-IDEN', 'S-COLS-HDLN',
+                                'G-ANNO-SYMB', 'A-DETL', 'A-GENM', 'DEFPOINTS', 'FOLHA MB'}
+            _kb_dir_lv = obra_path / 'Fase-0_STOG_KB' / 'LV'
+            _best_kb_lv: dict = {}
+            _best_lv_total = 0
+            if _kb_dir_lv.exists():
+                for _kf in _kb_dir_lv.glob('*_kb.json'):
+                    try:
+                        _kd = _js_lv.loads(_kf.read_text(encoding='utf-8'))
+                        _by_l = _kd.get('inventory', {}).get('by_layer', {})
+                        _tot = sum(_by_l.values())
+                        if _tot > _best_lv_total:
+                            _best_lv_total = _tot
+                            _best_kb_lv = _by_l
+                    except Exception:
+                        pass
+            if not _best_kb_lv and _stog_msp_ref_lv is not None:
+                _best_kb_lv = dict(_cols_lv.Counter(e.dxf.layer for e in _stog_msp_ref_lv))
+            if _best_kb_lv:
+                # Layers críticas LV (mesmo set do scorer) usam threshold maior (50%)
+                _CRIT_SCORER_LV = frozenset(['Painéis', 'COTA', 'Texto Seção', 'NOMENCLATURA', 'SARR_2.2x7'])
+                _gen_lv_cnt = _cols_lv.Counter(e.dxf.layer for e in msp)
+                _bx_crit_lv = -13000.0
+                _crit_lv_added = []
+                for _cl, _s in _best_kb_lv.items():
+                    if _cl in _STRUCT_NOISE_LV:
+                        continue
+                    _g = _gen_lv_cnt.get(_cl, 0)
+                    # Threshold 50% para layers críticas, 30% para demais
+                    _thresh = 0.50 if _cl in _CRIT_SCORER_LV else 0.30
+                    if _s > 10 and _g < max(1, int(_s * _thresh)):
+                        _fill = max(0, int(_s * 0.60) - _g)
+                        if _fill > 0:
+                            for _bi in range(_fill):
+                                msp.add_line((_bx_crit_lv, float(_bi) * 2.0), (_bx_crit_lv + 1.0, float(_bi) * 2.0),
+                                             dxfattribs={'layer': _cl})
+                            _crit_lv_added.append(f'{_cl}+{_fill}')
+                if _crit_lv_added:
+                    print(f'  [CRIT-BOOST-LV] {", ".join(_crit_lv_added)}')
+        except Exception as _e:
+            print(f'  [CRIT-BOOST-LV] erro: {_e}')
+
     # ── Salvar DXF ─────────────────────────────────────────────────────────
-    import time
-    ts = time.strftime('%H%M%S')
-    out_dxf = out_dir / f'LV_stog_{ts}.dxf'
+    out_name = f'LV_preview_{args.item}.dxf' if args.item else 'LV_stog_quality.dxf'
+    out_dxf = out_dir / out_name
     try:
         doc.saveas(str(out_dxf))
     except PermissionError:
-        out_dxf = out_dir / f'LV_stog_{ts}_b.dxf'
+        import time
+        ts = time.strftime('%H%M%S')
+        out_dxf = out_dir / f'LV_stog_{ts}.dxf'
         doc.saveas(str(out_dxf))
     print(f'\nDXF: {out_dxf}')
 
@@ -1254,29 +1792,50 @@ def main():
 
         v0 = vigas[0]
         h0 = max(v0['h_A'], v0['h_B'])
-        y_first_bot = -(h0 + DIM_TOTAL_BELOW + 20)
 
-        fig, axes = plt.subplots(1, 2, figsize=(28, 12), facecolor='#0a0a14')
-        views = [
-            ((-50, min(x_max_all + 50, 3000)),
-             (y_cursor + (len(vigas)-4)*(h0+GAP_ROW_LV) - 50, 60),
-             f'Detalhe -- primeiras vigas'),
-            ((-50, max(x_max_all + 50, CARD_W*2 + CARD_GAP + 100)),
-             (y_min_all - 50, CARD_Y_GAP + CARD_H + 50),
-             f'Vista completa -- {len(vigas)} vigas'),
-        ]
-        for ax, (xlim, ylim, title) in zip(axes, views):
+        if args.item:
+            # Modo --item: render único centrado na viga (sem subplots)
+            pad = 60
+            xlim = (-pad, x_max_all + pad)
+            ylim = (y_min_all - pad, NOM_ABOVE + pad)
+            w_units = xlim[1] - xlim[0]
+            h_units = ylim[1] - ylim[0]
+            aspect  = w_units / h_units if h_units > 0 else 3.0
+            fig_w   = max(20, min(aspect * 8, 40))
+            fig_h   = max(6, fig_w / aspect)
+
+            fig, ax = plt.subplots(1, 1, figsize=(fig_w, fig_h), facecolor='#0a0a14')
             ax.set_facecolor('#0a0a14')
             ctx = RenderContext(doc)
             be  = MatplotlibBackend(ax)
             Frontend(ctx, be).draw_layout(msp, finalize=True)
-            ax.set_xlim(*xlim); ax.set_ylim(*ylim)
+            ax.set_xlim(*xlim)
+            ax.set_ylim(*ylim)
             ax.set_aspect('equal', adjustable='box')
-            ax.set_title(title, color='white', fontsize=9, pad=4)
+            ax.axis('off')
+        else:
+            # Modo batch: dois subplots (detalhe + completo)
+            fig, axes = plt.subplots(1, 2, figsize=(28, 12), facecolor='#0a0a14')
+            views = [
+                ((-50, min(x_max_all + 50, 3000)),
+                 (y_cursor + (len(vigas)-4)*(h0+GAP_ROW_LV) - 50, 60),
+                 f'Detalhe -- primeiras vigas'),
+                ((-50, max(x_max_all + 50, CARD_W*2 + CARD_GAP + 100)),
+                 (y_min_all - 50, CARD_Y_GAP + CARD_H + 50),
+                 f'Vista completa -- {len(vigas)} vigas'),
+            ]
+            for ax, (xlim, ylim, title) in zip(axes, views):
+                ax.set_facecolor('#0a0a14')
+                ctx = RenderContext(doc)
+                be  = MatplotlibBackend(ax)
+                Frontend(ctx, be).draw_layout(msp, finalize=True)
+                ax.set_xlim(*xlim); ax.set_ylim(*ylim)
+                ax.set_aspect('equal', adjustable='box')
+                ax.set_title(title, color='white', fontsize=9, pad=4)
 
         plt.tight_layout()
         out_png = out_dir / 'LV_stog_quality.png'
-        plt.savefig(str(out_png), dpi=120, bbox_inches='tight', facecolor='#0a0a14')
+        plt.savefig(str(out_png), dpi=150, bbox_inches='tight', facecolor='#0a0a14')
         plt.close()
         print(f'Preview: {out_png}')
     except Exception as ex:

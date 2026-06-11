@@ -158,6 +158,26 @@ from PySide6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel,
 from PySide6.QtCore import Qt, Signal
 from .link_manager import LinkManager
 from src.ui.widgets.interpretation_dialog import InterpretationDialog
+from src.ui.theme import Colors, Fonts, Radius
+
+try:
+    from src.ui.widgets.comparison_tab import ComparisonTab
+    _COMPARISON_AVAILABLE = True
+except ImportError:
+    _COMPARISON_AVAILABLE = False
+
+try:
+    from src.core.services.correction_service import detect_divergences, apply_correction, append_correction_log, build_log_entry
+    from src.ui.dialogs.correction_dialog import CorrectionDialog
+    _CORRECTION_AVAILABLE = True
+except ImportError:
+    _CORRECTION_AVAILABLE = False
+
+try:
+    from src.ui.dialogs.generate_dxf_dialog import GenerateDXFDialog
+    _DXF_GEN_AVAILABLE = True
+except ImportError:
+    _DXF_GEN_AVAILABLE = False
 
 class DetailCard(QWidget):
     """
@@ -176,14 +196,18 @@ class DetailCard(QWidget):
     data_changed = Signal(dict)           # (dict) disparado quando qualquer dado muda (nome, dim, etc)
     log_requested = Signal(str)           # (str) pedido de log no console principal
     
-    # Estilos CSS Reutilizáveis
-    STYLE_DEFAULT = "background: #252525; border: 1px solid #444; padding: 4px 6px; border-radius: 4px; color: #eee; font-size: 13px;"
-    STYLE_VALID = "background: #252525; border: 1px solid #00cc66; padding: 4px 6px; border-radius: 4px; color: #eee; font-size: 13px; font-weight: bold;"
-    STYLE_NA = "background: #333311; border: 1px solid #ffd600; padding: 4px 6px; border-radius: 4px; color: #ffd600; font-size: 13px; font-style: italic;"
+    # Estilos CSS Reutilizáveis — usando tokens do design system
+    STYLE_DEFAULT = f"background: {Colors.BG_CARD}; border: 1px solid {Colors.BORDER_INPUT}; padding: 4px 6px; border-radius: {Radius.MD}; color: {Colors.TEXT_PRIMARY}; font-size: {Fonts.SIZE_XL};"
+    STYLE_VALID   = f"background: {Colors.BG_CARD}; border: 1px solid {Colors.ACCENT_SUCCESS_ALT}; padding: 4px 6px; border-radius: {Radius.MD}; color: {Colors.TEXT_PRIMARY}; font-size: {Fonts.SIZE_XL}; font-weight: bold;"
+    STYLE_NA      = f"background: rgba(51,51,17,230); border: 1px solid {Colors.ACCENT_INFO}; padding: 4px 6px; border-radius: {Radius.MD}; color: {Colors.ACCENT_INFO}; font-size: {Fonts.SIZE_XL}; font-style: italic;"
 
-    def __init__(self, item_data: dict, parent=None):
+    def __init__(self, item_data: dict, parent=None,
+                 obra_path=None, db=None, project_id: str = ''):
         super().__init__(parent)
-        self.item_data = item_data
+        self.item_data  = item_data
+        self.obra_path  = obra_path   # CAD-10.4: path da obra para aba Comparar
+        self.db         = db          # CAD-10.4: banco para aceitar/corrigir
+        self.project_id = project_id  # CAD-10.4: project_id para persistência
         
         # FIX: Migração de chave legada (segments -> pilar_segs)
         if self.item_data.get('type') == 'Pilar':
@@ -229,11 +253,11 @@ class DetailCard(QWidget):
             if 'viga_count_a' in self.fields:
                 self.fields['viga_count_a'].setText(str(na))
                 # Forçar atualização visual estilo readonly
-                self.fields['viga_count_a'].setStyleSheet("background: #333; color: #00d4ff; font-weight: bold; border: none;")
-                
+                self.fields['viga_count_a'].setStyleSheet(f"background: {Colors.BG_CARD}; color: {Colors.ACCENT_PRIMARY}; font-weight: bold; border: none;")
+
             if 'viga_count_b' in self.fields:
                 self.fields['viga_count_b'].setText(str(nb))
-                self.fields['viga_count_b'].setStyleSheet("background: #333; color: #00d4ff; font-weight: bold; border: none;")
+                self.fields['viga_count_b'].setStyleSheet(f"background: {Colors.BG_CARD}; color: {Colors.ACCENT_PRIMARY}; font-weight: bold; border: none;")
 
 
     def _add_linked_row(self, layout, label_text, field_id, pick_type='text', is_combo=False, combo_items=None, 
@@ -274,7 +298,7 @@ class DetailCard(QWidget):
         else:
             # Placeholder invisível ou label para campos sem input de texto (como apenas segmentos)
             w = QLabel("Vínculo Pendente")
-            w.setStyleSheet("color: #666; font-style: italic; font-size: 10px;")
+            w.setStyleSheet(f"color: {Colors.TEXT_DIM}; font-style: italic; font-size: 10px;")
             self.fields[field_id] = w
             
             # Tentar carregar valor inicial (se houver extração de texto automática)
@@ -290,16 +314,16 @@ class DetailCard(QWidget):
                 
             if initial_val:
                 w.setText(f"Dim: {initial_val}")
-                w.setStyleSheet("color: #00cc66; font-weight: bold; font-size: 10px;")
+                w.setStyleSheet(f"color: {Colors.ACCENT_SUCCESS_ALT}; font-weight: bold; font-size: 10px;")
             elif count > 0 and isinstance(w, QLabel):
                 w.setText(f"{count} Vínculo(s) Ok")
-                w.setStyleSheet("color: #00cc66; font-weight: bold; font-size: 10px;")
+                w.setStyleSheet(f"color: {Colors.ACCENT_SUCCESS_ALT}; font-weight: bold; font-size: 10px;")
 
         # Sub-container for the drawer (inline LinkManager)
         drawer_container = QWidget()
         drawer_container.hide()
-        drawer_container.setStyleSheet("""
-            QWidget { background: #181818; border-left: 2px solid #00d4ff; margin-bottom: 5px; }
+        drawer_container.setStyleSheet(f"""
+            QWidget {{ background: {Colors.BG_DEEP}; border-left: 2px solid {Colors.ACCENT_PRIMARY}; margin-bottom: 5px; }}
         """)
 
         if show_links:
@@ -326,11 +350,16 @@ class DetailCard(QWidget):
         row_layout.setContentsMargins(0, 0, 0, 0)
         row_layout.setSpacing(1)
 
-        # 1. Label (Largura aumentada para evitar truncamento - Task_01)
-        lbl = QLabel(label_text)
-        lbl.setFixedWidth(150) 
-        lbl.setWordWrap(True) 
-        lbl.setStyleSheet("font-size: 10px; color: #ccc; font-weight: bold;")
+        # 1. Label — strip [field_key] suffix, move to tooltip
+        import re as _re
+        _clean = _re.sub(r'\s*\[[\w_]+\]:?\s*$', '', label_text).rstrip(':').strip()
+        _tooltip_key = (_re.search(r'\[([\w_]+)\]', label_text) or type('', (), {'group': lambda s, n: ''})()).group(1)
+        lbl = QLabel(_clean + ":")
+        lbl.setFixedWidth(140)
+        lbl.setWordWrap(True)
+        if _tooltip_key:
+            lbl.setToolTip(f"Campo: {_tooltip_key}")
+        lbl.setStyleSheet(f"font-size: 9px; color: {Colors.TEXT_SECONDARY};")
         lbl.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
         row_layout.addWidget(lbl)
 
@@ -349,58 +378,60 @@ class DetailCard(QWidget):
         
         # Indicador Confiança
         conf_score = self.item_data.get('confidence_map', {}).get(field_id, 0.0)
-        color = "#ff4444"
-        if conf_score > 0.8: color = "#00c853"
-        elif conf_score > 0.4: color = "#ffd600"
+        color = Colors.ACCENT_DANGER
+        if conf_score > 0.8: color = Colors.ACCENT_SUCCESS_ALT
+        elif conf_score > 0.4: color = Colors.ACCENT_INFO
         
         conf_indicator = QLabel("●")
         conf_indicator.setFixedSize(8, 20) # Altura compatível com botões
         conf_indicator.setStyleSheet(f"color: {color}; font-size: 8px; margin-left: 2px;")
         actions_layout.addWidget(conf_indicator)
         
-        if btn_links: 
+        if btn_links:
             btn_links.setText("🔗 Vincular")
-            btn_links.setFixedWidth(80) 
-            btn_links.setFixedHeight(22)
+            btn_links.setFixedHeight(20)
+            btn_links.setFixedWidth(75)
+            btn_links.setToolTip("Gerenciar Vínculos")
             actions_layout.addWidget(btn_links)
-            
+
         if show_validate:
-            # Botão Express Validate (ao lado do link ou isolado)
             btn_express = QPushButton("✔ Validar")
-            btn_express.setFixedWidth(80)
-            btn_express.setFixedHeight(22)
+            btn_express.setFixedHeight(20)
+            btn_express.setFixedWidth(70)
+            btn_express.setToolTip("Validar campo")
             btn_express.setCheckable(True)
             btn_express.setChecked(field_id in self.item_data.get('validated_fields', []))
             btn_express.setProperty("class", "FieldBtn")
             btn_express.setCursor(Qt.PointingHandCursor)
             btn_express.setToolTip("Validação Express (Clique para desfazer)")
             # Estilo verde discreto
-            btn_express.setStyleSheet("""
-                QPushButton { color: #4CAF50; border: 1px solid #333; border-radius: 2px; font-size: 10px; font-weight: bold;}
-                QPushButton:hover { background: #4CAF50; color: white; border: 1px solid #4CAF50; }
-                QPushButton:checked { background: #1b3a24; color: #4CAF50; border: 1px solid #4CAF50; }
+            btn_express.setStyleSheet(f"""
+                QPushButton {{ color: {Colors.ACCENT_SUCCESS}; border: 1px solid {Colors.BORDER_DEFAULT}; border-radius: 2px; font-size: 10px; font-weight: bold;}}
+                QPushButton:hover {{ background: {Colors.ACCENT_SUCCESS}; color: {Colors.TEXT_BRIGHT}; border: 1px solid {Colors.ACCENT_SUCCESS}; }}
+                QPushButton:checked {{ background: rgba(27,58,36,1); color: {Colors.ACCENT_SUCCESS}; border: 1px solid {Colors.ACCENT_SUCCESS}; }}
             """)
             btn_express.clicked.connect(lambda checked, f_id=field_id: self._on_express_validate(f_id))
             actions_layout.addWidget(btn_express)
 
-        if btn_focus: 
+        if btn_focus:
             btn_focus.setText("🔍 Zoom")
-            btn_focus.setFixedWidth(70)
-            btn_focus.setFixedHeight(22)
+            btn_focus.setFixedHeight(20)
+            btn_focus.setFixedWidth(60)
+            btn_focus.setToolTip("Localizar no CAD")
             actions_layout.addWidget(btn_focus)
 
         if show_na:
-            # Botão N/A (🚫)
             btn_na = QPushButton("🚫 N/A")
-            btn_na.setFixedWidth(60)
-            btn_na.setFixedHeight(22)
+            btn_na.setFixedHeight(20)
+            btn_na.setFixedWidth(55)
+            btn_na.setToolTip("N/A — Não se aplica")
             btn_na.setProperty("class", "FieldBtn")
             btn_na.setCursor(Qt.PointingHandCursor)
             btn_na.setToolTip("Não se aplica / Omitir")
-            btn_na.setStyleSheet("""
-                QPushButton { color: #f44336; border: 1px solid #333; border-radius: 2px; font-size: 10px; font-weight: bold; }
-                QPushButton:hover { background: #f44336; color: white; }
-                QPushButton:checked { background: #ffd600; color: #333; border: 1px solid #ffd600; }
+            btn_na.setStyleSheet(f"""
+                QPushButton {{ color: {Colors.ACCENT_DANGER}; border: 1px solid {Colors.BORDER_DEFAULT}; border-radius: 2px; font-size: 10px; font-weight: bold; }}
+                QPushButton:hover {{ background: {Colors.ACCENT_DANGER}; color: {Colors.TEXT_BRIGHT}; }}
+                QPushButton:checked {{ background: {Colors.ACCENT_INFO}; color: {Colors.BORDER_DEFAULT}; border: 1px solid {Colors.ACCENT_INFO}; }}
             """)
             btn_na.setCheckable(True)
             btn_na.setChecked(field_id in self.item_data.get('na_fields', []))
@@ -816,25 +847,25 @@ class DetailCard(QWidget):
         header_layout.setContentsMargins(0,0,0,0)
         
         lbl = QLabel(label_text)
-        lbl.setStyleSheet("font-size: 11px; color: #00bcd4; font-weight: bold;")
-        
+        lbl.setStyleSheet(f"font-size: 11px; color: {Colors.ACCENT_TEAL}; font-weight: bold;")
+
         # Drawer for Pillar
         drawer = QWidget()
         drawer.hide()
-        drawer.setStyleSheet("background: #181818; border-left: 2px solid #00bcd4;")
+        drawer.setStyleSheet(f"background: {Colors.BG_DEEP}; border-left: 2px solid {Colors.ACCENT_TEAL};")
 
         btn_link = QPushButton("🔗 Vincular")
         btn_link.setCursor(Qt.PointingHandCursor)
         btn_link.setStyleSheet("""
-            QPushButton { border: 1px solid #444; border-radius: 4px; background: #222; color: #aaa; padding: 2px 6px; font-size: 10px; }
-            QPushButton:hover { background: #333; color: white; border-color: #666; }
+            QPushButton { border: 1px solid {Colors.BORDER_INPUT}; border-radius: 4px; background: {Colors.BG_PANEL}; color: {Colors.TEXT_SECONDARY}; padding: 2px 6px; font-size: 10px; }
+            QPushButton:hover { background: {Colors.BG_CARD}; color: {Colors.TEXT_BRIGHT}; border-color: {Colors.TEXT_DIM}; }
         """)
         btn_link.clicked.connect(lambda: self._toggle_link_drawer(prefix, drawer))
         
         btn_focus = QPushButton("🔍")
         btn_focus.setFixedSize(24, 20)
         btn_focus.setCursor(Qt.PointingHandCursor)
-        btn_focus.setStyleSheet("background: transparent; border: 1px solid #444; color: #aaa; font-size: 10px;")
+        btn_focus.setStyleSheet(f"background: transparent; border: 1px solid {Colors.BORDER_INPUT}; color: {Colors.TEXT_SECONDARY}; font-size: 10px;")
         btn_focus.clicked.connect(lambda checked=False, p=prefix: self.focus_requested.emit(p))
         
         header_layout.addWidget(lbl)
@@ -880,25 +911,25 @@ class DetailCard(QWidget):
         header_layout.setContentsMargins(0,0,0,0)
         
         lbl = QLabel(label_text)
-        lbl.setStyleSheet("font-size: 11px; color: #00bcd4; font-weight: bold;")
-        
+        lbl.setStyleSheet(f"font-size: 11px; color: {Colors.ACCENT_TEAL}; font-weight: bold;")
+
         # Drawer for Beam
         drawer = QWidget()
         drawer.hide()
-        drawer.setStyleSheet("background: #181818; border-left: 2px solid #00bcd4;")
+        drawer.setStyleSheet(f"background: {Colors.BG_DEEP}; border-left: 2px solid {Colors.ACCENT_TEAL};")
 
         btn_link = QPushButton("🔗 Vincular")
         btn_link.setCursor(Qt.PointingHandCursor)
         btn_link.setStyleSheet("""
-            QPushButton { border: 1px solid #444; border-radius: 4px; background: #222; color: #aaa; padding: 2px 6px; font-size: 10px; }
-            QPushButton:hover { background: #333; color: white; border-color: #666; }
+            QPushButton { border: 1px solid {Colors.BORDER_INPUT}; border-radius: 4px; background: {Colors.BG_PANEL}; color: {Colors.TEXT_SECONDARY}; padding: 2px 6px; font-size: 10px; }
+            QPushButton:hover { background: {Colors.BG_CARD}; color: {Colors.TEXT_BRIGHT}; border-color: {Colors.TEXT_DIM}; }
         """)
         btn_link.clicked.connect(lambda: self._toggle_link_drawer(prefix, drawer))
         
         btn_focus = QPushButton("🔍")
         btn_focus.setFixedSize(24, 20)
         btn_focus.setCursor(Qt.PointingHandCursor)
-        btn_focus.setStyleSheet("background: transparent; border: 1px solid #444; color: #aaa; font-size: 10px;")
+        btn_focus.setStyleSheet(f"background: transparent; border: 1px solid {Colors.BORDER_INPUT}; color: {Colors.TEXT_SECONDARY}; font-size: 10px;")
         btn_focus.clicked.connect(lambda checked=False, p=prefix: self.focus_requested.emit(p))
         
         header_layout.addWidget(lbl)
@@ -1020,7 +1051,7 @@ class DetailCard(QWidget):
                     new_text = "N/A - Não se aplica"
                     if w.text() != new_text:
                         w.setText(new_text)
-                        w.setStyleSheet("color: #ffd600; font-weight: bold; font-size: 10px; font-style: italic;")
+                        w.setStyleSheet(f"color: {Colors.ACCENT_INFO}; font-weight: bold; font-size: 10px; font-style: italic;")
                 else:
                     links = self.item_data.get('links', {}).get(fid, {})
                     count = 0
@@ -1033,27 +1064,27 @@ class DetailCard(QWidget):
                         txt = f"{count} Vínculo(s) ✅" if count > 0 else "Validado ✅"
                         if w.text() != txt:
                             w.setText(txt)
-                            w.setStyleSheet("color: #00cc66; font-weight: bold; font-size: 11px; background: rgba(0, 204, 102, 0.1); border: 1px solid #00cc66; border-radius: 4px; padding: 2px;")
+                            w.setStyleSheet(f"color: {Colors.ACCENT_SUCCESS_ALT}; font-weight: bold; font-size: 11px; background: rgba(0,204,102,26); border: 1px solid {Colors.ACCENT_SUCCESS_ALT}; border-radius: 4px; padding: 2px;")
                     elif count > 0:
                         txt = f"{count} Vínculo(s) Ok"
                         if w.text() != txt:
                             w.setText(txt)
-                            w.setStyleSheet("color: #00cc66; font-weight: bold; font-size: 10px;")
+                            w.setStyleSheet(f"color: {Colors.ACCENT_SUCCESS_ALT}; font-weight: bold; font-size: 10px;")
                     else:
                         if w.text() != "Vínculo Pendente":
                             w.setText("Vínculo Pendente")
-                            w.setStyleSheet("color: #666; font-style: italic; font-size: 10px;")
+                            w.setStyleSheet(f"color: {Colors.TEXT_DIM}; font-style: italic; font-size: 10px;")
 
             # 4. Indicators
             if fid in self.indicators:
                 indicator = self.indicators[fid]
                 if is_na:
-                    st = "color: #ffd600; font-size: 14px; margin-right: 5px;"
+                    st = f"color: {Colors.ACCENT_INFO}; font-size: 14px; margin-right: 5px;"
                 elif is_valid:
-                    st = "color: #00cc66; font-size: 14px; margin-right: 5px;"
+                    st = f"color: {Colors.ACCENT_SUCCESS_ALT}; font-size: 14px; margin-right: 5px;"
                 else:
                     conf = self.item_data.get('confidence_map', {}).get(fid, 0.0)
-                    clr = "#ff4444" if conf <= 0.4 else ("#ffd600" if conf <= 0.8 else "#00c853")
+                    clr = Colors.ACCENT_DANGER if conf <= 0.4 else (Colors.ACCENT_INFO if conf <= 0.8 else Colors.ACCENT_SUCCESS_ALT)
                     st = f"color: {clr}; font-size: 14px; margin-right: 5px;"
                 
                 if indicator.styleSheet() != st:
@@ -1086,7 +1117,7 @@ class DetailCard(QWidget):
             header_title = f"DADOS GERAIS - {elem_type}"
             
             header = QGroupBox(header_title)
-            header.setStyleSheet("QGroupBox { font-size: 10px; font-weight: bold; color: #ffb300; border: 1px solid #333; margin-top: 5px; padding-top: 8px; }")
+            header.setStyleSheet(f"QGroupBox {{ font-size: 10px; font-weight: bold; color: {Colors.ACCENT_PRIMARY}; border: 1px solid {Colors.BORDER_DEFAULT}; margin-top: 5px; padding-top: 8px; }}")
             h_layout = QFormLayout(header)
             h_layout.setContentsMargins(2, 2, 2, 2)
             h_layout.setSpacing(1)
@@ -1112,19 +1143,54 @@ class DetailCard(QWidget):
                  self._update_header_counts()
                  
             else: # Pilar (default)
-                self._add_linked_row(h_layout, "Dimensão:", "dim", "text")
-                self._add_linked_row(h_layout, "Segmentos:", "pilar_segs", "poly", hide_input=True)
-                
+                self._add_linked_row(h_layout, "Dimensão B×H [dim]:", "dim", "text")
+                self._add_linked_row(h_layout, "Segmentos Geometria [pilar_segs]:", "pilar_segs", "poly", hide_input=True)
+
                 # Formato (Apenas Pilar)
                 self.fields['format'] = QComboBox()
                 self.fields['format'].addItems(["Retangular", "Circular", "Em L", "Em T", "Em U"])
                 self.fields['format'].setCurrentText(self.item_data.get('format', 'Retangular'))
                 self.fields['format'].setFixedHeight(24)
-                self.fields['format'].setStyleSheet("background: #252525; border: 1px solid #444; border-radius: 3px; color: #eee;")
+                self.fields['format'].setStyleSheet(f"background: {Colors.BG_CARD}; border: 1px solid {Colors.BORDER_INPUT}; border-radius: 3px; color: {Colors.TEXT_BRIGHT};")
                 self.fields['format'].currentTextChanged.connect(lambda txt: self._on_field_changed('format', txt))
-                h_layout.addRow("Formato:", self.fields['format'])
-            
+                h_layout.addRow("Formato da Seção [format]:", self.fields['format'])
+
             layout.addWidget(header)
+
+            # ── GRUPO: Dimensional / Geometria Global (Pilares) ──────────────────
+            if 'PILAR' in elem_type:
+                grp_dim = QGroupBox("Dimensional / Geometria Global")
+                grp_dim.setStyleSheet(f"QGroupBox {{ font-size: 10px; font-weight: bold; color: {Colors.ACCENT_BLUE}; border: 1px solid {Colors.BORDER_DEFAULT}; margin-top: 4px; padding-top: 8px; }}")
+                f_dim = QFormLayout(grp_dim)
+                f_dim.setContentsMargins(2, 4, 2, 4)
+                f_dim.setSpacing(1)
+                self._add_linked_row(f_dim, "Altura Total do Pilar cm [altura]:", "altura", "text")
+                self._add_linked_row(f_dim, "Nível de Chegada cm [nivel_chegada]:", "nivel_chegada", "text")
+                self._add_linked_row(f_dim, "Nível de Saída cm [nivel_saida]:", "nivel_saida", "text")
+                self._add_linked_row(f_dim, "Pavimento [pavimento]:", "pavimento", "text")
+                self._add_linked_row(f_dim, "Modo de Distribuição Hachuras [modo_distribuicao]:", "modo_distribuicao", "text")
+                layout.addWidget(grp_dim)
+
+                # ── GRUPO: Assembly / Grades e Parafusos ─────────────────────────
+                grp_asm = QGroupBox("Assembly — Grades, Distâncias e Parafusos")
+                grp_asm.setStyleSheet(f"QGroupBox {{ font-size: 10px; font-weight: bold; color: {Colors.TEXT_SECONDARY}; border: 1px solid {Colors.BORDER_DEFAULT}; margin-top: 4px; padding-top: 8px; }}")
+                f_asm = QFormLayout(grp_asm)
+                f_asm.setContentsMargins(2, 4, 2, 4)
+                f_asm.setSpacing(1)
+                self._add_linked_row(f_asm, "Grade Principal 1 mm [grade_1]:", "grade_1", "text")
+                self._add_linked_row(f_asm, "Grade Secundária 2 mm [grade_2]:", "grade_2", "text")
+                self._add_linked_row(f_asm, "Grade Terciária 3 mm [grade_3]:", "grade_3", "text")
+                self._add_linked_row(f_asm, "Distância entre Grades 1 mm [distancia_1]:", "distancia_1", "text")
+                self._add_linked_row(f_asm, "Distância entre Grades 2 mm [distancia_2]:", "distancia_2", "text")
+                self._add_linked_row(f_asm, "Parafuso entre Hachuras 1-2 mm [par_1_2]:", "par_1_2", "text")
+                self._add_linked_row(f_asm, "Parafuso entre Hachuras 2-3 mm [par_2_3]:", "par_2_3", "text")
+                self._add_linked_row(f_asm, "Parafuso entre Hachuras 3-4 mm [par_3_4]:", "par_3_4", "text")
+                self._add_linked_row(f_asm, "Parafuso entre Hachuras 4-5 mm [par_4_5]:", "par_4_5", "text")
+                self._add_linked_row(f_asm, "Parafuso entre Hachuras 5-6 mm [par_5_6]:", "par_5_6", "text")
+                self._add_linked_row(f_asm, "Parafuso entre Hachuras 6-7 mm [par_6_7]:", "par_6_7", "text")
+                self._add_linked_row(f_asm, "Parafuso entre Hachuras 7-8 mm [par_7_8]:", "par_7_8", "text")
+                self._add_linked_row(f_asm, "Parafuso entre Hachuras 8-9 mm [par_8_9]:", "par_8_9", "text")
+                layout.addWidget(grp_asm)
 
         # Container para conteúdo dinâmico (Abas que mudam com o formato)
         self.dynamic_container = QWidget()
@@ -1152,7 +1218,7 @@ class DetailCard(QWidget):
         tabs = QTabWidget()
         tabs.setStyleSheet("""
             QTabBar::tab { padding: 8px 20px; font-weight: bold; }
-            QTabWidget::pane { border: 1px solid #444; }
+            QTabWidget::pane { border: 1px solid {Colors.BORDER_INPUT}; }
         """)
         
         tab = QWidget()
@@ -1161,25 +1227,64 @@ class DetailCard(QWidget):
         
         # --- DADOS GERAIS (Exclusivo para Laje aqui dentro) ---
         grp = QGroupBox("DADOS GERAIS - LAJE")
-        grp.setStyleSheet("QGroupBox { font-size: 11px; font-weight: bold; border: 1px solid #444; margin-top: 5px; padding-top: 10px; color: #00ffcc; }")
+        grp.setStyleSheet(f"QGroupBox {{ font-size: 11px; font-weight: bold; border: 1px solid {Colors.BORDER_INPUT}; margin-top: 5px; padding-top: 10px; color: {Colors.ACCENT_MINT}; }}")
         form = QFormLayout(grp)
         form.setSpacing(5)
         
         # Campos principais movidos para cá
-        self._add_linked_row(form, "Nº Item:", "id_item", "text", show_links=False, show_focus=False)
-        self._add_linked_row(form, "Nome:", "name", "text")
-        self._add_linked_row(form, "Dimensão:", "laje_dim", "text")
-        self._add_linked_row(form, "Nível (ex: +2.80):", "laje_nivel", "text")
-        self._add_linked_row(form, "Segmentos da Área:", "laje_outline_segs", "poly", hide_input=True)
-        self._add_linked_row(form, "Contorno da Ilha:", "laje_islands", "poly", hide_input=True)
+        self._add_linked_row(form, "Nº Item [id_item]:", "id_item", "text", show_links=False, show_focus=False)
+        self._add_linked_row(form, "Nome [name]:", "name", "text")
+        self._add_linked_row(form, "Dimensão C×L cm [laje_dim]:", "laje_dim", "text")
+        self._add_linked_row(form, "Nível / Pavimento ex: +2.80 [laje_nivel]:", "laje_nivel", "text")
+        self._add_linked_row(form, "Segmentos da Área (Geometria) [laje_outline_segs]:", "laje_outline_segs", "poly", hide_input=True)
+        self._add_linked_row(form, "Contorno da Ilha / Obstáculo [laje_islands]:", "laje_islands", "poly", hide_input=True)
 
         if "laje_dim" in self.fields:
              self.fields["laje_dim"].textChanged.connect(lambda t: self._clean_laje_dim_input(t))
+
+        # ── GRUPO: Cálculo / Métricas da Laje ────────────────────────────────
+        grp_calc = QGroupBox("Cálculo / Métricas da Laje")
+        grp_calc.setStyleSheet(f"QGroupBox {{ font-size: 10px; font-weight: bold; color: {Colors.ACCENT_MINT}; border: 1px solid {Colors.BORDER_DEFAULT}; margin-top: 5px; padding-top: 8px; }}")
+        f_calc = QFormLayout(grp_calc)
+        f_calc.setContentsMargins(2, 4, 2, 4)
+        f_calc.setSpacing(1)
+        self._add_linked_row(f_calc, "Área Total m² (calculada) [area]:", "area", "text")
+        self._add_linked_row(f_calc, "Modo de Cálculo 0=normal 1=espelho [modo_selecionado]:", "modo_selecionado", "text")
+        self._add_linked_row(f_calc, "Qtd. Linhas Verticais de Pontalete [laje_linhas_v_count]:", "laje_linhas_v_count", "text")
+        self._add_linked_row(f_calc, "Qtd. Linhas Horizontais de Pontalete [laje_linhas_h_count]:", "laje_linhas_h_count", "text")
+        self._add_linked_row(f_calc, "Uniões nos Bordos (sim/não) [unioes_nos_bordes]:", "unioes_nos_bordes", "text")
+        self._add_linked_row(f_calc, "Observações / Notas [observacoes]:", "observacoes", "text")
+        l.addWidget(grp_calc)
+
+        # ── GRUPO: Pontaletes / Escoras ───────────────────────────────────────
+        grp_pont = QGroupBox("Pontaletes / Escoras")
+        grp_pont.setStyleSheet(f"QGroupBox {{ font-size: 10px; font-weight: bold; color: {Colors.ACCENT_WARNING_ALT}; border: 1px solid {Colors.BORDER_DEFAULT}; margin-top: 5px; padding-top: 8px; }}")
+        f_pont = QFormLayout(grp_pont)
+        f_pont.setContentsMargins(2, 4, 2, 4)
+        f_pont.setSpacing(1)
+        self._add_linked_row(f_pont, "Total de Pontaletes (inteiros) [pont_total]:", "pont_total", "text")
+        self._add_linked_row(f_pont, "Meio Pontalete (complementos) [pont_meio]:", "pont_meio", "text")
+        self._add_linked_row(f_pont, "Linhas de Pontaletes (no comprimento) [pont_linhas]:", "pont_linhas", "text")
+        self._add_linked_row(f_pont, "Colunas de Pontaletes (na largura) [pont_colunas]:", "pont_colunas", "text")
+        self._add_linked_row(f_pont, "Tipo do Pontalete ex: PONTALETE [pont_tipo]:", "pont_tipo", "text")
+        self._add_linked_row(f_pont, "Altura do Pavimento cm [pont_altura_pav]:", "pont_altura_pav", "text")
+        self._add_linked_row(f_pont, "Comprimento da Laje cm (pontalete) [pont_comp_cm]:", "pont_comp_cm", "text")
+        self._add_linked_row(f_pont, "Largura da Laje cm (pontalete) [pont_larg_cm]:", "pont_larg_cm", "text")
+        l.addWidget(grp_pont)
         
         l.addWidget(grp)
         l.addStretch() # Empurrar tudo para cima
         
         tabs.addTab(tab, "Laje")
+
+        # ── Aba Comparar (CAD-10.4) ───────────────────────────────────────
+        if _COMPARISON_AVAILABLE:
+            cmp_tab = ComparisonTab(
+                self.item_data, self.obra_path, self.db, self.project_id, parent=self
+            )
+            cmp_tab.field_accepted.connect(lambda fid: self._refresh_dynamic_content())
+            tabs.addTab(cmp_tab, "Comparar")
+
         layout.addWidget(tabs)
 
     def _setup_pilar_complex_view(self, layout):
@@ -1197,11 +1302,29 @@ class DetailCard(QWidget):
             tab_l = QVBoxLayout(tab)
             tab_l.setContentsMargins(5, 5, 5, 5)
             tab_l.setSpacing(2)
-            
+
+            # ── GRUPO: Chapa / Forma da Peça (dados do robô / motor_fase4) ──────
+            grp_chapa = QGroupBox(f"Chapa / Forma da Peça — Lado {side}")
+            grp_chapa.setStyleSheet(f"QGroupBox {{ font-size: {Fonts.SIZE_SM}; font-weight: bold; color: {Colors.ACCENT_PRIMARY}; border: 1px solid {Colors.BORDER_DEFAULT}; margin-top: 5px; padding-top: 6px; }}")
+            f_chapa = QFormLayout(grp_chapa)
+            f_chapa.setContentsMargins(2, 4, 2, 4)
+            f_chapa.setSpacing(1)
+            # H1..H5: alturas das seções da chapa de forma (barriga superior/medio/inferior etc.)
+            self._add_linked_row(f_chapa, f"H1 Altura Seção Superior Chapa cm [p_s{side}_c_h1]:", f'p_s{side}_c_h1', "text")
+            self._add_linked_row(f_chapa, f"H2 Altura Seção Principal Chapa cm [p_s{side}_c_h2]:", f'p_s{side}_c_h2', "text")
+            self._add_linked_row(f_chapa, f"H3 Altura Seção Inferior Chapa cm [p_s{side}_c_h3]:", f'p_s{side}_c_h3', "text")
+            self._add_linked_row(f_chapa, f"H4 Altura Seção Extra 4 Chapa cm [p_s{side}_c_h4]:", f'p_s{side}_c_h4', "text")
+            self._add_linked_row(f_chapa, f"H5 Altura Seção Extra 5 Chapa cm [p_s{side}_c_h5]:", f'p_s{side}_c_h5', "text")
+            # Larg1..3: larguras das chapas de forma
+            self._add_linked_row(f_chapa, f"Larg1 Largura Principal Chapa mm [p_s{side}_c_larg1]:", f'p_s{side}_c_larg1', "text")
+            self._add_linked_row(f_chapa, f"Larg2 Largura Secundária Chapa mm [p_s{side}_c_larg2]:", f'p_s{side}_c_larg2', "text")
+            self._add_linked_row(f_chapa, f"Larg3 Largura Terciária Chapa mm [p_s{side}_c_larg3]:", f'p_s{side}_c_larg3', "text")
+            tab_l.addWidget(grp_chapa)
+
             # Lajes - Layout Vertical (Laje 2 abaixo da Laje 1) para compactar largura
             for i in [1, 2]:
                 grp = QGroupBox(f"Laje {i}")
-                grp.setStyleSheet("QGroupBox { font-size: 10px; font-weight: bold; border: 1px solid #333; margin-top: 5px; padding-top: 5px; }")
+                grp.setStyleSheet(f"QGroupBox {{ font-size: 10px; font-weight: bold; border: 1px solid {Colors.BORDER_DEFAULT}; margin-top: 5px; padding-top: 5px; }}")
                 f = QFormLayout(grp)
                 f.setSpacing(1)
                 f.setContentsMargins(2, 5, 2, 2)
@@ -1237,7 +1360,7 @@ class DetailCard(QWidget):
             
             for cat_name, cat_id, is_arrival in beam_categories:
                 v_grp = QGroupBox(cat_name)
-                v_grp.setStyleSheet("QGroupBox { font-size: 10px; color: #0078D4; border: 1px solid #333; margin-top: 10px; padding-top: 5px; }")
+                v_grp.setStyleSheet(f"QGroupBox {{ font-size: 10px; color: {Colors.ACCENT_BLUE}; border: 1px solid {Colors.BORDER_DEFAULT}; margin-top: 10px; padding-top: 5px; }}")
                 vf = QFormLayout(v_grp)
                 vf.setSpacing(1)
                 vf.setContentsMargins(2, 5, 2, 2)
@@ -1261,7 +1384,15 @@ class DetailCard(QWidget):
                 tab_l.addWidget(v_grp)
                 
             tabs.addTab(tab, f"Lado {side}")
-            
+
+        # ── Aba Comparar (CAD-10.4) ───────────────────────────────────────
+        if _COMPARISON_AVAILABLE:
+            cmp_tab = ComparisonTab(
+                self.item_data, self.obra_path, self.db, self.project_id, parent=self
+            )
+            cmp_tab.field_accepted.connect(lambda fid: self._refresh_dynamic_content())
+            tabs.addTab(cmp_tab, "Comparar")
+
         layout.addWidget(tabs)
 
     def _update_depth_from_dim(self, text, target_widget):
@@ -1316,7 +1447,7 @@ class DetailCard(QWidget):
                 # Botão Add
                 btn_add = QPushButton(" + Adicionar Segmento Completo")
                 btn_add.setFixedHeight(30)
-                btn_add.setStyleSheet("background: #004444; color: #00ffcc; border: 1px dashed #00ffcc; font-weight: bold; font-size: 11px;")
+                btn_add.setStyleSheet(f"background: rgba(0,68,68,1); color: {Colors.ACCENT_MINT}; border: 1px dashed {Colors.ACCENT_MINT}; font-weight: bold; font-size: 11px;")
                 btn_add.setCursor(Qt.PointingHandCursor)
                 btn_add.clicked.connect(lambda checked=False, l=segs_layout, p=prefix: self._add_rich_segment_pack(l, p))
                 tab_l.addWidget(btn_add)
@@ -1345,13 +1476,21 @@ class DetailCard(QWidget):
                 # Botão Adicionar Segmento Fundo
                 btn_add = QPushButton(" + Adicionar Segmento Fundo")
                 btn_add.setFixedHeight(30)
-                btn_add.setStyleSheet("background: #440044; color: #ff88ff; border: 1px dashed #ff88ff; font-weight: bold; font-size: 11px;")
+                btn_add.setStyleSheet("background: rgba(68,0,68,1); color: rgba(255,136,255,1); border: 1px dashed rgba(255,136,255,1); font-weight: bold; font-size: 11px;")
                 btn_add.setCursor(Qt.PointingHandCursor)
                 btn_add.clicked.connect(lambda checked=False, l=segs_layout, p=prefix: self._add_fundo_segment_pack(l, p))
                 tab_l.addWidget(btn_add)
             
             tabs.addTab(tab, label)
-            
+
+        # ── Aba Comparar (CAD-10.4) ───────────────────────────────────────
+        if _COMPARISON_AVAILABLE:
+            cmp_tab = ComparisonTab(
+                self.item_data, self.obra_path, self.db, self.project_id, parent=self
+            )
+            cmp_tab.field_accepted.connect(lambda fid: self._refresh_dynamic_content())
+            tabs.addTab(cmp_tab, "Comparar")
+
         layout.addWidget(tabs)
 
     def _add_rich_segment_pack(self, layout, prefix, idx_override=None):
@@ -1376,22 +1515,22 @@ class DetailCard(QWidget):
         # Grupo Principal do Segmento
         pack = QGroupBox(f"Segmento {idx}")
         # Estilo "Gigante" e visível
-        pack.setStyleSheet("""
-            QGroupBox { 
-                font-size: 12px; 
-                font-weight: bold; 
-                border: 2px solid #555; 
+        pack.setStyleSheet(f"""
+            QGroupBox {{
+                font-size: 12px;
+                font-weight: bold;
+                border: 2px solid {Colors.BORDER_INPUT};
                 border-radius: 6px;
-                margin-top: 10px; 
-                padding-top: 15px; 
-                background: #1e1e1e;
-            }
-            QGroupBox::title {
-                color: #00ffcc;
+                margin-top: 10px;
+                padding-top: 15px;
+                background: {Colors.BG_PANEL};
+            }}
+            QGroupBox::title {{
+                color: {Colors.ACCENT_MINT};
                 subcontrol-origin: margin;
                 left: 10px;
                 padding: 0 3px 0 3px;
-            }
+            }}
         """)
         
         # Layout principal do pack
@@ -1422,12 +1561,12 @@ class DetailCard(QWidget):
         # Round button "Para"
         rb_para = QRadioButton("Para")
         rb_para.setObjectName(f'{seg_uid}_tipo_comp_para')
-        rb_para.setStyleSheet("QRadioButton { font-size: 10px; color: #ccc; padding: 2px; }")
+        rb_para.setStyleSheet(f"QRadioButton {{ font-size: 10px; color: {Colors.TEXT_PRIMARY}; padding: 2px; }}")
         
         # Round button "Passa"
         rb_passa = QRadioButton("Passa")
         rb_passa.setObjectName(f'{seg_uid}_tipo_comp_passa')
-        rb_passa.setStyleSheet("QRadioButton { font-size: 10px; color: #ccc; padding: 2px; }")
+        rb_passa.setStyleSheet(f"QRadioButton {{ font-size: 10px; color: {Colors.TEXT_PRIMARY}; padding: 2px; }}")
         
         # ButtonGroup para garantir seleção única
         btn_group = QButtonGroup()
@@ -1539,7 +1678,7 @@ class DetailCard(QWidget):
         # Geralmente segmento 1 é obrigatório, mas vamos permitir flexibilidade
         if idx > 1:
             btn_rem = QPushButton("Remover Este Segmento")
-            btn_rem.setStyleSheet("color: #ff5555; background: transparent; border: 1px solid #ff5555; border-radius: 4px; padding: 4px;")
+            btn_rem.setStyleSheet(f"color: {Colors.ACCENT_DANGER}; background: transparent; border: 1px solid {Colors.ACCENT_DANGER}; border-radius: 4px; padding: 4px;")
             btn_rem.setCursor(Qt.PointingHandCursor)
             btn_rem.clicked.connect(lambda: self._remove_segment(pack, layout, prefix, idx))
             main_v.addWidget(btn_rem)
@@ -1598,14 +1737,14 @@ class DetailCard(QWidget):
             QGroupBox { 
                 font-size: 12px; 
                 font-weight: bold; 
-                border: 2px solid #5544aa; 
+                border: 2px solid rgba(85,68,170,1); 
                 border-radius: 6px;
                 margin-top: 10px; 
                 padding-top: 15px; 
-                background: #1e1e22;
+                background: {Colors.BG_PANEL};
             }
             QGroupBox::title {
-                color: #aa88ff;
+                color: rgba(170,136,255,1);
                 subcontrol-origin: margin;
                 left: 10px;
                 padding: 0 3px 0 3px;
@@ -1654,7 +1793,7 @@ class DetailCard(QWidget):
         # Botão Remover
         if idx > 1:
             btn_rem = QPushButton("Remover Este Segmento")
-            btn_rem.setStyleSheet("color: #ff5555; background: transparent; border: 1px solid #ff5555; border-radius: 4px; padding: 4px;")
+            btn_rem.setStyleSheet(f"color: {Colors.ACCENT_DANGER}; background: transparent; border: 1px solid {Colors.ACCENT_DANGER}; border-radius: 4px; padding: 4px;")
             btn_rem.setCursor(Qt.PointingHandCursor)
             btn_rem.clicked.connect(lambda: self._remove_segment(pack, layout, prefix, idx))
             main_v.addWidget(btn_rem)
@@ -1665,7 +1804,7 @@ class DetailCard(QWidget):
     def _create_radio_group(self, title, options, key_prefix, has_grade_input=False):
         """Cria um grupo de opções exclusivas (Sarrafo/Garfo/Grade) - Super Compacto"""
         grp = QGroupBox(title)
-        grp.setStyleSheet("QGroupBox { font-size: 9px; font-weight: bold; border: 1px solid #333; padding-top: 5px; margin-top: 2px; }")
+        grp.setStyleSheet(f"QGroupBox {{ font-size: 9px; font-weight: bold; border: 1px solid {Colors.BORDER_DEFAULT}; padding-top: 5px; margin-top: 2px; }}")
         l = QHBoxLayout(grp)
         l.setContentsMargins(4, 10, 4, 1) # Margens mínimas em Y
         l.setSpacing(8)
@@ -1678,7 +1817,7 @@ class DetailCard(QWidget):
         
         for opt in options:
             rb = QRadioButton(opt)
-            rb.setStyleSheet("QRadioButton { font-size: 10px; color: #ccc; }")
+            rb.setStyleSheet(f"QRadioButton {{ font-size: 10px; color: {Colors.TEXT_PRIMARY}; }}")
             if opt == current_val: rb.setChecked(True)
             bg.addButton(rb)
             l.addWidget(rb)
@@ -1709,7 +1848,7 @@ class DetailCard(QWidget):
     def _create_checkbox_group(self, title, options, key_prefix):
         """Cria Grid de Checkboxes compacta para Sarrafos (4 colunas)"""
         grp = QGroupBox(title)
-        grp.setStyleSheet("QGroupBox { font-size: 11px; border: 1px solid #444; padding-top: 5px; }")
+        grp.setStyleSheet(f"QGroupBox {{ font-size: 11px; border: 1px solid {Colors.BORDER_INPUT}; padding-top: 5px; }}")
         
         grid = QGridLayout()
         grid.setContentsMargins(5, 12, 5, 5)
@@ -1720,7 +1859,7 @@ class DetailCard(QWidget):
         # Vamos usar lógica de sufixo para posicionar
         for label, suffix in options:
             cb = QCheckBox(label)
-            cb.setStyleSheet("QCheckBox { font-size: 10px; color: #ccc; }")
+            cb.setStyleSheet(f"QCheckBox {{ font-size: 10px; color: {Colors.TEXT_PRIMARY}; }}")
             full_key = f"{key_prefix}_chk_{suffix}"
             self.fields[full_key] = cb
             if self.item_data.get(full_key, False): cb.setChecked(True)
@@ -1841,47 +1980,157 @@ class DetailCard(QWidget):
         btn_valid = QPushButton("VALIDAR (TREINAR IA)")
         btn_valid.setObjectName("Success")
         btn_valid.setCursor(Qt.PointingHandCursor)
-        btn_valid.setFixedHeight(35) # Altura menor
+        btn_valid.setFixedHeight(35)
         btn_valid.setToolTip("Salva e treina o padrão atual no banco de dados")
         btn_valid.clicked.connect(self.on_validate)
 
         btn_invalid = QPushButton("MARCAR FALHA")
         btn_invalid.setObjectName("Danger")
         btn_invalid.setCursor(Qt.PointingHandCursor)
-        btn_invalid.setFixedHeight(35) # Altura menor
+        btn_invalid.setFixedHeight(35)
         btn_invalid.setToolTip("Marca este item para revisão manual posterior")
         btn_invalid.clicked.connect(self.on_invalidate)
 
+        # CAD-11: Gerar DXF STOG
+        btn_dxf = QPushButton("GERAR DXF")
+        btn_dxf.setCursor(Qt.PointingHandCursor)
+        btn_dxf.setFixedHeight(35)
+        btn_dxf.setStyleSheet(
+            f"QPushButton {{ background: #1a3a5c; color: #00bcd4; border: 1px solid #00bcd4; "  # hardcoded-ok
+            f"border-radius: 4px; font-weight: bold; }} "
+            f"QPushButton:hover {{ background: #1e4a7a; }} "  # hardcoded-ok
+            f"QPushButton:disabled {{ color: #555; border-color: #555; }}"  # hardcoded-ok
+        )
+        btn_dxf.setToolTip("Gera o DXF STOG deste item a partir dos dados de Fase-4")
+        btn_dxf.clicked.connect(self._on_gerar_dxf)
+        if not _DXF_GEN_AVAILABLE:
+            btn_dxf.setEnabled(False)
+            btn_dxf.setToolTip("Módulo de geração DXF não disponível")
+
         v.addWidget(btn_valid)
         v.addWidget(btn_invalid)
-        
+        v.addWidget(btn_dxf)
+
         return v
+
+    def _on_gerar_dxf(self):
+        """CAD-11: Abre o dialog de geração DXF para o item atual."""
+        if not _DXF_GEN_AVAILABLE:
+            return
+        obra_path = getattr(self, 'obra_path', None)
+        if not obra_path:
+            QMessageBox.warning(
+                self, "Obra não vinculada",
+                "Este item não está vinculado a uma obra com Fase-4.\n"
+                "Execute 'Analise Geral' primeiro."
+            )
+            return
+        item_type = self.item_data.get('type', '')
+        item_id   = self.item_data.get('id_item', '')
+        GenerateDXFDialog.open_for_item(obra_path, item_type, item_id, parent=self)
 
     def on_validate(self):
         final_data = self.item_data.copy()
         validated = final_data.setdefault('validated_fields', [])
-        
+
         # Ensure sides_data exists
         if 'sides_data' not in final_data: final_data['sides_data'] = {}
-        
+
         for key, widget in self.fields.items():
             if isinstance(widget, QLineEdit): val = widget.text()
             elif isinstance(widget, QComboBox): val = widget.currentText()
             else: continue
-            
+
             final_data[key] = val
             # Ao validar o card todo, todos os campos preenchidos ganham selo de validado
             if val and key not in validated:
                 validated.append(key)
-        
+
         # [NOVO] SELO AZUL (Validação Completa de Contexto)
         # Só este botão concede o status de "Item 100% Validado" para curadoria
         final_data['is_fully_validated'] = True
-        
+
         self.refresh_validation_styles()
-            
+
+        # ── CAD-10.6: Detectar divergências com Fase-4 e oferecer realimentação ──
+        self._check_fase4_divergences(final_data)
+
         self.data_validated.emit(final_data)
         QMessageBox.information(self, "IA Training", "Dados enviados para o banco de padrões! (Selo Azul)")
+
+    def _check_fase4_divergences(self, final_data: dict):
+        """
+        Compara valores validados com Fase-4 e, se houver divergências,
+        abre CorrectionDialog para o usuário escolher a ação.
+        Aplicado só quando obra_path e correction_service disponíveis.
+        """
+        if not _CORRECTION_AVAILABLE:
+            return
+        obra_path = getattr(self, 'obra_path', None)
+        if not obra_path:
+            return
+
+        # Coletar campos preenchidos pelo usuário (flat + sides_data)
+        db_values: dict = {}
+        for key, widget in self.fields.items():
+            if isinstance(widget, QLineEdit):
+                v = widget.text()
+                if v:
+                    db_values[key] = v
+            elif isinstance(widget, QComboBox):
+                v = widget.currentText()
+                if v:
+                    db_values[key] = v
+
+        divergences = detect_divergences(final_data, obra_path, db_values)
+        if not divergences:
+            return
+
+        choices = CorrectionDialog.ask(
+            divergences,
+            item_id=final_data.get('id_item', ''),
+            parent=self,
+        )
+        if not choices:
+            return  # usuário cancelou
+
+        from pathlib import Path
+        obra = Path(obra_path)
+        item_id   = final_data.get('id_item', '')
+        item_type = final_data.get('type', 'pilar')
+
+        for choice in choices:
+            action    = choice.get('action', 'keep_db')
+            json_key  = choice.get('json_key', '')
+            field_id  = choice.get('field_id', '')
+            f4_value  = choice.get('f4_value')
+            db_value  = choice.get('db_value')
+
+            if action == 'use_f4':
+                # Atualiza o widget com o valor Fase-4
+                widget = self.fields.get(field_id)
+                if widget and isinstance(widget, QLineEdit):
+                    widget.setText(str(f4_value))
+                elif widget and isinstance(widget, QComboBox):
+                    idx = widget.findText(str(f4_value))
+                    if idx >= 0:
+                        widget.setCurrentIndex(idx)
+
+            elif action == 'log_correction':
+                # Registra correção no log (realimenta o interpretador)
+                from src.core.services.correction_service import _find_json_path
+                json_path = _find_json_path(obra, item_id, item_type)
+                if json_path:
+                    apply_correction(json_path, json_key, db_value)
+                    entry = build_log_entry(
+                        item_id=item_id,
+                        item_type=item_type,
+                        json_key=json_key,
+                        detail_field_id=field_id,
+                        old_value=f4_value,
+                        new_value=db_value,
+                    )
+                    append_correction_log(obra, entry)
 
     def on_invalidate(self):
         self.data_invalidated.emit(self.item_data)
@@ -1964,7 +2213,7 @@ class DetailCard(QWidget):
         layout.setSpacing(10)
         
         lbl_head = QLabel("🛠️ TRATAMENTO PRÉVIO - PERÍMETRO")
-        lbl_head.setStyleSheet("font-size: 13px; font-weight: bold; color: #00d4ff;")
+        lbl_head.setStyleSheet(f"font-size: 13px; font-weight: bold; color: {Colors.ACCENT_PRIMARY};")
         layout.addWidget(lbl_head)
 
         vigas = self.item_data.get('vigas_individuais', [])
@@ -1974,14 +2223,14 @@ class DetailCard(QWidget):
         else:
             # Header da "Tabela"
             header_frame = QFrame()
-            header_frame.setStyleSheet("background: #222; border-bottom: 1px solid #444;")
+            header_frame.setStyleSheet(f"background: {Colors.BG_PANEL}; border-bottom: 1px solid {Colors.BORDER_INPUT};")
             h_lay = QHBoxLayout(header_frame)
             h_lay.setContentsMargins(5, 5, 5, 5)
             
-            lbl_ref = QLabel("Referência"); lbl_ref.setStyleSheet("font-weight: bold; color: #aaa;")
-            lbl_tam = QLabel("Tamanho"); lbl_tam.setStyleSheet("font-weight: bold; color: #aaa;")
-            lbl_lnk = QLabel("Ações"); lbl_lnk.setStyleSheet("font-weight: bold; color: #aaa;")
-            lbl_val = QLabel("Soma (cm)"); lbl_val.setStyleSheet("font-weight: bold; color: #aaa;")
+            lbl_ref = QLabel("Referência"); lbl_ref.setStyleSheet(f"font-weight: bold; color: {Colors.TEXT_SECONDARY};")
+            lbl_tam = QLabel("Tamanho"); lbl_tam.setStyleSheet(f"font-weight: bold; color: {Colors.TEXT_SECONDARY};")
+            lbl_lnk = QLabel("Ações"); lbl_lnk.setStyleSheet(f"font-weight: bold; color: {Colors.TEXT_SECONDARY};")
+            lbl_val = QLabel("Soma (cm)"); lbl_val.setStyleSheet(f"font-weight: bold; color: {Colors.TEXT_SECONDARY};")
             
             h_lay.addWidget(lbl_ref, 2)
             h_lay.addWidget(lbl_tam, 2)
@@ -1995,7 +2244,7 @@ class DetailCard(QWidget):
                 field_key = f"ext_viga_{v_id}"
                 
                 row_container = QFrame()
-                row_container.setStyleSheet("border-bottom: 1px solid #222;")
+                row_container.setStyleSheet(f"border-bottom: 1px solid {Colors.BORDER_SUBTLE};")
                 row_v_lay = QVBoxLayout(row_container)
                 row_v_lay.setContentsMargins(0, 0, 0, 0)
                 row_v_lay.setSpacing(0)
@@ -2007,7 +2256,7 @@ class DetailCard(QWidget):
                 
                 # 1. Referência
                 lbl_v_id = QLabel(f"Viga_{v_id[:4]}")
-                lbl_v_id.setStyleSheet("color: #ddd; font-weight: bold;")
+                lbl_v_id.setStyleSheet(f"color: {Colors.TEXT_BRIGHT}; font-weight: bold;")
                 dr_lay.addWidget(lbl_v_id, 2)
                 
                 # 2. Tamanho (Original)
@@ -2021,7 +2270,7 @@ class DetailCard(QWidget):
                 
                 drawer = QWidget()
                 drawer.hide()
-                drawer.setStyleSheet("background: #141414; border-left: 3px solid #00d4ff; margin: 2px; border-radius: 2px;")
+                drawer.setStyleSheet(f"background: {Colors.BG_DEEP}; border-left: 3px solid {Colors.ACCENT_PRIMARY}; margin: 2px; border-radius: 2px;")
                 
                 # Botão ZOOM
                 btn_zoom = QPushButton("🔍")
@@ -2029,10 +2278,10 @@ class DetailCard(QWidget):
                 btn_zoom.setCursor(Qt.PointingHandCursor)
                 btn_zoom.setStyleSheet("""
                     QPushButton { 
-                        background: rgba(60, 60, 60, 180); border: 1px solid #444; border-radius: 3px;
-                        color: #ffca28; font-size: 13px; font-weight: bold; padding: 0px;
+                        background: rgba(60, 60, 60, 180); border: 1px solid {Colors.BORDER_INPUT}; border-radius: 3px;
+                        color: {Colors.ACCENT_INFO}; font-size: 13px; font-weight: bold; padding: 0px;
                     }
-                    QPushButton:hover { background: rgba(100, 100, 100, 255); border: 1px solid #ffca28; }
+                    QPushButton:hover { background: rgba(100, 100, 100, 255); border: 1px solid {Colors.ACCENT_INFO}; }
                 """)
                 btn_zoom.clicked.connect(lambda checked=False, f=field_key: self.focus_requested.emit(f))
                 
@@ -2040,12 +2289,12 @@ class DetailCard(QWidget):
                 btn_link = QPushButton("🔗")
                 btn_link.setFixedSize(24, 24)
                 btn_link.setCursor(Qt.PointingHandCursor)
-                btn_link.setStyleSheet("""
-                    QPushButton { 
-                        background: rgba(60, 60, 60, 180); border: 1px solid #444; border-radius: 3px;
-                        color: #00d4ff; font-size: 13px; font-weight: bold; padding: 0px;
-                    }
-                    QPushButton:hover { background: rgba(100, 100, 100, 255); border: 1px solid #00d4ff; }
+                btn_link.setStyleSheet(f"""
+                    QPushButton {{
+                        background: rgba(60, 60, 60, 180); border: 1px solid {Colors.BORDER_INPUT}; border-radius: 3px;
+                        color: {Colors.ACCENT_PRIMARY}; font-size: 13px; font-weight: bold; padding: 0px;
+                    }}
+                    QPushButton:hover {{ background: rgba(100, 100, 100, 255); border: 1px solid {Colors.ACCENT_PRIMARY}; }}
                 """)
                 btn_link.clicked.connect(lambda checked=False, f=field_key, d=drawer: self._toggle_link_drawer(f, d))
                 
@@ -2055,10 +2304,10 @@ class DetailCard(QWidget):
                 btn_del.setCursor(Qt.PointingHandCursor)
                 btn_del.setStyleSheet("""
                     QPushButton { 
-                        background: rgba(60, 60, 60, 180); border: 1px solid #444; border-radius: 3px;
-                        color: #ff5252; font-size: 13px; font-weight: bold; padding: 0px;
+                        background: rgba(60, 60, 60, 180); border: 1px solid {Colors.BORDER_INPUT}; border-radius: 3px;
+                        color: {Colors.ACCENT_DANGER}; font-size: 13px; font-weight: bold; padding: 0px;
                     }
-                    QPushButton:hover { background: rgba(220, 50, 50, 255); border: 1px solid #ff5252; }
+                    QPushButton:hover { background: rgba(220, 50, 50, 255); border: 1px solid {Colors.ACCENT_DANGER}; }
                 """)
                 btn_del.clicked.connect(lambda checked=False, vid=v_id, cont=row_container: self._remove_marco_row(vid, cont))
                 
@@ -2080,12 +2329,12 @@ class DetailCard(QWidget):
                 val_edit = QLineEdit(display_val)
                 val_edit.setFixedWidth(60)
                 val_edit.setAlignment(Qt.AlignCenter)
-                val_edit.setStyleSheet("""
-                    QLineEdit { 
-                        background: #181818; border: 1px solid #333; color: #00e676; 
+                val_edit.setStyleSheet(f"""
+                    QLineEdit {{
+                        background: {Colors.BG_DEEP}; border: 1px solid {Colors.BORDER_DEFAULT}; color: {Colors.ACCENT_SUCCESS_ALT};
                         font-weight: bold; border-radius: 4px; font-size: 12px; padding: 2px;
-                    }
-                    QLineEdit:focus { border: 1px solid #00e676; background: #202020; }
+                    }}
+                    QLineEdit:focus {{ border: 1px solid {Colors.ACCENT_SUCCESS_ALT}; background: {Colors.BG_CARD}; }}
                 """)
                 val_edit.textChanged.connect(lambda t, k=field_key: self._on_field_changed(k, t))
                 self.fields[field_key] = val_edit
@@ -2098,16 +2347,16 @@ class DetailCard(QWidget):
 
         # Botão Adicionar Nova Viga
         btn_add = QPushButton("➕ ADICIONAR VIGA MANUAL")
-        btn_add.setStyleSheet("""
-            QPushButton { background: #1a3a5a; color: #00d4ff; border: 1px dashed #00d4ff; padding: 8px; font-weight: bold; margin-top: 10px; border-radius: 4px;}
-            QPushButton:hover { background: #2a5a8a; border-style: solid; }
+        btn_add.setStyleSheet(f"""
+            QPushButton {{ background: rgba(26,58,90,1); color: {Colors.ACCENT_PRIMARY}; border: 1px dashed {Colors.ACCENT_PRIMARY}; padding: 8px; font-weight: bold; margin-top: 10px; border-radius: 4px;}}
+            QPushButton:hover {{ background: rgba(42,90,138,1); border-style: solid; }}
         """)
         btn_add.clicked.connect(self._add_manual_marco_row)
         layout.addWidget(btn_add)
 
         # Uniões do Marco (Separado)
         group_uniao = QGroupBox("FECHAMENTO DO MARCO (UNIÕES PONTAS)")
-        group_uniao.setStyleSheet("QGroupBox { font-size: 11px; font-weight: bold; color: #ffb300; border: 1px solid #333; margin-top: 20px; padding-top: 15px; }")
+        group_uniao.setStyleSheet(f"QGroupBox {{ font-size: 11px; font-weight: bold; color: {Colors.ACCENT_WARNING_ALT}; border: 1px solid {Colors.BORDER_DEFAULT}; margin-top: 20px; padding-top: 15px; }}")
         uniao_layout = QFormLayout(group_uniao)
         self._add_linked_row(uniao_layout, "Uniões Marco:", "unioes_marco", pick_type='poly', hide_input=True)
         layout.addWidget(group_uniao)
@@ -2332,9 +2581,9 @@ class DetailCard(QWidget):
     def _add_pillar_openings_table(self, container_layout, key_esq, key_dir):
         """Módulo de Aberturas de Pilares em formato de Tabela com Link no final"""
         grp = QGroupBox("Aberturas em Pilares (Esq / Dir)")
-        grp.setStyleSheet("""
-            QGroupBox { border: 1px solid #444; border-radius: 6px; margin-top: 10px; padding-top: 15px; background: #1a1a1e; }
-            QGroupBox::title { color: #00d4ff; subcontrol-origin: margin; left: 10px; }
+        grp.setStyleSheet(f"""
+            QGroupBox {{ border: 1px solid {Colors.BORDER_INPUT}; border-radius: 6px; margin-top: 10px; padding-top: 15px; background: {Colors.BG_PANEL}; }}
+            QGroupBox::title {{ color: {Colors.ACCENT_PRIMARY}; subcontrol-origin: margin; left: 10px; }}
         """)
         
         layout = QVBoxLayout(grp)
@@ -2347,7 +2596,7 @@ class DetailCard(QWidget):
         headers = ["Lado", "Distância (cm)", "Largura (cm)", "Ações"]
         for col, h in enumerate(headers):
             lbl = QLabel(h)
-            lbl.setStyleSheet("font-size: 10px; font-weight: bold; color: #888;")
+            lbl.setStyleSheet(f"font-size: 10px; font-weight: bold; color: {Colors.TEXT_SECONDARY};")
             grid.addWidget(lbl, 0, col)
 
         # Linha Pilar Esquerdo
@@ -2381,8 +2630,8 @@ class DetailCard(QWidget):
         """Módulo de Aberturas de Vigas em formato de Tabela"""
         grp = QGroupBox("Aberturas em Vigas (Topo / Fundo)")
         grp.setStyleSheet("""
-            QGroupBox { border: 1px solid #444; border-radius: 6px; margin-top: 10px; padding-top: 15px; background: #1a1a1e; }
-            QGroupBox::title { color: #ffca28; subcontrol-origin: margin; left: 10px; }
+            QGroupBox { border: 1px solid {Colors.BORDER_INPUT}; border-radius: 6px; margin-top: 10px; padding-top: 15px; background: {Colors.BG_PANEL}; }
+            QGroupBox::title { color: {Colors.ACCENT_INFO}; subcontrol-origin: margin; left: 10px; }
         """)
         
         layout = QVBoxLayout(grp)
@@ -2396,7 +2645,7 @@ class DetailCard(QWidget):
         for col, h in enumerate(headers):
             lbl = QLabel(h)
             lbl.setAlignment(Qt.AlignCenter)
-            lbl.setStyleSheet("font-size: 9px; font-weight: bold; color: #666; text-transform: uppercase;")
+            lbl.setStyleSheet(f"font-size: 9px; font-weight: bold; color: {Colors.TEXT_DIM}; text-transform: uppercase;")
             grid.addWidget(lbl, 0, col)
 
         # Configuração das 4 linhas solicitadas
@@ -2412,7 +2661,7 @@ class DetailCard(QWidget):
             
             # Label de Posição
             lbl_pos = QLabel(label)
-            lbl_pos.setStyleSheet("font-size: 10px; color: #aaa; font-weight: bold;")
+            lbl_pos.setStyleSheet(f"font-size: 10px; color: {Colors.TEXT_SECONDARY}; font-weight: bold;")
             grid.addWidget(lbl_pos, row_idx, 0, Qt.AlignVCenter)
             
             f_prof = self._create_opening_field(key, "prof", "0.0", 65)
@@ -2456,8 +2705,8 @@ class DetailCard(QWidget):
         
         bg = QButtonGroup(widget)
         rb1 = QRadioButton("H1"); rb2 = QRadioButton("H2")
-        rb1.setStyleSheet("font-size: 10px; color: #ccc;")
-        rb2.setStyleSheet("font-size: 10px; color: #ccc;")
+        rb1.setStyleSheet(f"font-size: 10px; color: {Colors.TEXT_PRIMARY};")
+        rb2.setStyleSheet(f"font-size: 10px; color: {Colors.TEXT_PRIMARY};")
         
         full_key = f"{key_prefix}_h_sel"
         current = self.item_data.get(full_key, "H1")
@@ -2482,7 +2731,7 @@ class DetailCard(QWidget):
         # Drawer
         drawer = QWidget()
         drawer.hide()
-        drawer.setStyleSheet("background: #141418; border-top: 1px solid #444; margin-top: 2px;")
+        drawer.setStyleSheet(f"background: {Colors.BG_DEEP}; border-top: 1px solid {Colors.BORDER_INPUT}; margin-top: 2px;")
 
         # Botão Vincular
         btn_link = QPushButton("Vinc.")
@@ -2501,9 +2750,9 @@ class DetailCard(QWidget):
         btn_valid.setChecked(field_id in self.item_data.get('validated_fields', []))
         btn_valid.setProperty("class", "FieldBtn")
         btn_valid.setCursor(Qt.PointingHandCursor)
-        btn_valid.setStyleSheet("""
-            QPushButton { font-size: 10px; font-weight: bold; padding: 0px; }
-            QPushButton:checked { color: #4CAF50; border-color: #4CAF50; }
+        btn_valid.setStyleSheet(f"""
+            QPushButton {{ font-size: 10px; font-weight: bold; padding: 0px; }}
+            QPushButton:checked {{ color: {Colors.ACCENT_SUCCESS}; border-color: {Colors.ACCENT_SUCCESS}; }}
         """)
         btn_valid.clicked.connect(lambda checked, f_id=field_id: self._on_express_validate(f_id))
         layout.addWidget(btn_valid)
@@ -2524,9 +2773,9 @@ class DetailCard(QWidget):
         btn_na.setChecked(field_id in self.item_data.get('na_fields', []))
         btn_na.setProperty("class", "FieldBtn")
         btn_na.setCursor(Qt.PointingHandCursor)
-        btn_na.setStyleSheet("""
-            QPushButton { font-size: 10px; font-weight: bold; padding: 0px; }
-            QPushButton:checked { color: #f44336; border-color: #f44336; }
+        btn_na.setStyleSheet(f"""
+            QPushButton {{ font-size: 10px; font-weight: bold; padding: 0px; }}
+            QPushButton:checked {{ color: {Colors.ACCENT_DANGER}; border-color: {Colors.ACCENT_DANGER}; }}
         """)
         btn_na.clicked.connect(lambda chk, f_id=field_id: self._on_na_clicked(f_id, chk))
         layout.addWidget(btn_na)

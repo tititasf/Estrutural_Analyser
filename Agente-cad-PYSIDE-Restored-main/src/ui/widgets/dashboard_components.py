@@ -2,6 +2,7 @@ from PySide6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel,
                                 QPushButton, QFrame, QSizePolicy, QScrollArea, QLineEdit)
 from PySide6.QtCore import Qt, Signal, QSize
 from PySide6.QtGui import QIcon, QFont, QPainter
+from src.ui.theme import Colors, Fonts, Radius
 
 class ElidedLabel(QLabel):
     """Label que elida o texto automaticamente com '...'"""
@@ -31,13 +32,13 @@ class BreadcrumbWidget(QWidget):
         for i, step in enumerate(steps):
             if i > 0:
                 sep = QLabel("›")
-                sep.setStyleSheet("color: #666; font-size: 18px;")
+                sep.setStyleSheet(f"color: {Colors.TEXT_DIM}; font-size: 18px;")
                 self.layout.addWidget(sep)
             
             btn = QPushButton(step.upper())
             btn.setFlat(True)
             is_last = (i == len(steps) - 1)
-            color = "#fff" if is_last else "#888"
+            color = Colors.TEXT_BRIGHT if is_last else Colors.TEXT_SECONDARY
             font_weight = "bold" if is_last else "normal"
             
             btn.setStyleSheet(f"""
@@ -49,7 +50,7 @@ class BreadcrumbWidget(QWidget):
                     font-size: 13px;
                     padding: 4px;
                 }}
-                QPushButton:hover {{ color: #00d4ff; }}
+                QPushButton:hover {{ color: {Colors.ACCENT_PRIMARY}; }}
             """)
             self.layout.addWidget(btn)
         
@@ -62,13 +63,13 @@ class MetricCard(QFrame):
         self.setFixedSize(140, 80)
         self.setStyleSheet("""
             MetricCard {
-                background: #252528;
-                border: 1px solid #333;
+                background: {Colors.BG_SURFACE};
+                border: 1px solid {Colors.BORDER_DEFAULT};
                 border-radius: 8px;
             }
-            QLabel#Title { color: #888; font-size: 10px; text-transform: uppercase; }
-            QLabel#Value { color: #fff; font-size: 18px; font-weight: bold; }
-            QLabel#Unit { color: #666; font-size: 11px; }
+            QLabel#Title { color: {Colors.TEXT_SECONDARY}; font-size: 10px; text-transform: uppercase; }
+            QLabel#Value { color: {Colors.TEXT_BRIGHT}; font-size: 18px; font-weight: bold; }
+            QLabel#Unit { color: {Colors.TEXT_DIM}; font-size: 11px; }
         """)
         
         layout = QVBoxLayout(self)
@@ -110,14 +111,14 @@ class DocumentItemWidget(QFrame):
         self.setFixedHeight(36) # Reduced from 50
         self.setStyleSheet("""
             DocumentItemWidget {
-                background: #222;
-                border: 1px solid #333;
+                background: {Colors.BG_PANEL};
+                border: 1px solid {Colors.BORDER_DEFAULT};
                 border-radius: 6px;
                 margin-bottom: 2px; # Reduced margin
             }
-            DocumentItemWidget:hover { border-color: #00d4ff; background: #282828; }
-            QLabel#DocName { color: #eee; font-weight: bold; font-size: 11px; } # Small font adjustment
-            QLabel#DocMeta { color: #666; font-size: 9px; }
+            DocumentItemWidget:hover { border-color: {Colors.ACCENT_PRIMARY}; background: {Colors.BG_PANEL}; }
+            QLabel#DocName { color: {Colors.TEXT_BRIGHT}; font-weight: bold; font-size: 11px; } # Small font adjustment
+            QLabel#DocMeta { color: {Colors.TEXT_DIM}; font-size: 9px; }
         """)
         
         layout = QHBoxLayout(self)
@@ -155,7 +156,7 @@ class DocumentItemWidget(QFrame):
         self.btn_del.setFixedSize(24, 24)
         self.btn_del.setFlat(True)
         self.btn_del.setToolTip("Remover")
-        self.btn_del.setStyleSheet("color: #666;")
+        self.btn_del.setStyleSheet(f"color: {Colors.TEXT_DIM};")
         self.btn_del.clicked.connect(self.delete_requested)
         layout.addWidget(self.btn_del)
 
@@ -176,10 +177,10 @@ class DocumentationCategoryRow(QWidget):
         self.is_expanded = False
         self.setStyleSheet("""
             QWidget { 
-                border-bottom: 1px solid #1f2029; 
+                border-bottom: 1px solid {Colors.BG_DEEP}; 
                 background: transparent;
             }
-            QWidget:hover { background: #1a1b22; }
+            QWidget:hover { background: {Colors.BG_DEEP}; }
         """)
         
         layout = QHBoxLayout(self)
@@ -187,19 +188,19 @@ class DocumentationCategoryRow(QWidget):
         
         # Seta de expansão
         self.arrow = QLabel("▸") # Right arrow for collapsed
-        self.arrow.setStyleSheet("color: #666; font-size: 14px; border: none; margin-right: 5px;")
+        self.arrow.setStyleSheet(f"color: {Colors.TEXT_DIM}; font-size: 14px; border: none; margin-right: 5px;")
         layout.addWidget(self.arrow)
 
         self.lbl_name = QLabel(name)
-        self.lbl_name.setStyleSheet("color: #ccc; font-size: 13px; border: none;")
+        self.lbl_name.setStyleSheet(f"color: {Colors.TEXT_PRIMARY}; font-size: 13px; border: none;")
         layout.addWidget(self.lbl_name)
         
         layout.addStretch()
         
         self.lbl_count = QLabel(f"{count:02d}")
         self.lbl_count.setStyleSheet("""
-            background-color: #2c2d3a; 
-            color: #8890b0; 
+            background-color: {Colors.BG_HOVER}; 
+            color: rgba(136,144,176,1); 
             padding: 4px 8px; 
             border-radius: 10px; 
             font-size: 11px; 
@@ -217,10 +218,10 @@ class DocumentationCategoryRow(QWidget):
         self.arrow.setText("▾" if expanded else "▸")
         self.setStyleSheet(f"""
             QWidget {{ 
-                border-bottom: 1px solid #1f2029; 
-                background: {"#16171d" if expanded else "transparent"};
+                border-bottom: 1px solid {Colors.BG_DEEP}; 
+                background: {Colors.BG_DEEP if expanded else "transparent"};
             }}
-            QWidget:hover {{ background: #1a1b22; }}
+            QWidget:hover {{ background: {Colors.BG_DEEP}; }}
         """)
 
 class DocumentationListWidget(QFrame):
@@ -230,9 +231,9 @@ class DocumentationListWidget(QFrame):
         super().__init__(parent)
         self.setStyleSheet("""
             DocumentationListWidget {
-                background-color: #121319; 
+                background-color: {Colors.BG_DEEP}; 
                 border-radius: 8px;
-                border: 1px solid #252630;
+                border: 1px solid {Colors.BG_SURFACE};
             }
         """)
         
@@ -246,12 +247,12 @@ class DocumentationListWidget(QFrame):
         
         header_row = QHBoxLayout()
         lbl = QLabel("DOCUMENTAÇÃO")
-        lbl.setStyleSheet("color: #6c7293; font-weight: bold; font-size: 11px; letter-spacing: 1.5px;")
+        lbl.setStyleSheet("color: rgba(108,114,147,1); font-weight: bold; font-size: 11px; letter-spacing: 1.5px;")
         header_row.addWidget(lbl)
         header_row.addStretch()
         
         icon_expand = QLabel("❉") # Snowflake/Burst icon
-        icon_expand.setStyleSheet("color: #00d4ff; font-size: 14px;")
+        icon_expand.setStyleSheet(f"color: {Colors.ACCENT_PRIMARY}; font-size: 14px;")
         header_row.addWidget(icon_expand)
         header_main.addLayout(header_row)
         
@@ -260,14 +261,14 @@ class DocumentationListWidget(QFrame):
         self.search_input.setPlaceholderText("🔍 Buscar documento...")
         self.search_input.setStyleSheet("""
             QLineEdit {
-                background: #1a1b22;
-                border: 1px solid #2d2d3a;
+                background: {Colors.BG_DEEP};
+                border: 1px solid {Colors.BG_HOVER};
                 border-radius: 6px;
                 padding: 6px 12px;
-                color: #fff;
+                color: {Colors.TEXT_BRIGHT};
                 font-size: 11px;
             }
-            QLineEdit:focus { border: 1px solid #00d4ff; background: #1f2029; }
+            QLineEdit:focus { border: 1px solid {Colors.ACCENT_PRIMARY}; background: {Colors.BG_DEEP}; }
         """)
         self.search_input.textChanged.connect(self._filter_items)
         header_main.addWidget(self.search_input)
@@ -346,7 +347,7 @@ class DocumentationListWidget(QFrame):
             # Decorate if main
             if d.get('is_main'):
                 doc_item.btn_del.setVisible(False)
-                doc_item.setStyleSheet("background: #1a2634; border: 1px solid #2a4654; border-radius: 5px;")
+                doc_item.setStyleSheet(f"background: rgba(26,38,52,1); border: 1px solid {Colors.BORDER_TEAL_DARK}; border-radius: 5px;")
             
             # Store data in widget to retrieve later or emit signals
             doc_item.setProperty("doc_data", d)

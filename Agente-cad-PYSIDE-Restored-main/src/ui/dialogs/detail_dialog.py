@@ -1,6 +1,7 @@
 from PySide6.QtWidgets import QDialog, QVBoxLayout, QPushButton, QHBoxLayout, QScrollArea, QWidget, QLabel
 from PySide6.QtCore import Qt
 from src.ui.widgets.detail_card import DetailCard
+from src.ui.theme import Colors, Fonts, Radius
 
 class DetailDialog(QDialog):
     """
@@ -14,8 +15,8 @@ class DetailDialog(QDialog):
         self.setWindowTitle(f"Detalhamento: {item_data.get('name', 'Item')}")
         self.resize(500, 700)
         self.setStyleSheet("""
-            QDialog { background-color: #1e1e1e; color: #e0e0e0; }
-            QLabel { color: #e0e0e0; }
+            QDialog { background-color: {Colors.BG_PANEL}; color: {Colors.TEXT_PRIMARY}; }
+            QLabel { color: {Colors.TEXT_PRIMARY}; }
         """)
         
         self.setup_ui()
@@ -27,19 +28,19 @@ class DetailDialog(QDialog):
         
         # Header
         header = QWidget()
-        header.setStyleSheet("background-color: #252528; border-bottom: 1px solid #333;")
+        header.setStyleSheet(f"background-color: {Colors.BG_SURFACE}; border-bottom: 1px solid {Colors.BORDER_DEFAULT};")
         header.setFixedHeight(50)
         h_layout = QHBoxLayout(header)
         h_layout.setContentsMargins(15, 0, 15, 0)
         
         title = QLabel(f"{self.item_data.get('type', 'Item').upper()} | {self.item_data.get('name', '')}")
-        title.setStyleSheet("font-weight: bold; font-size: 14px; color: #00d4ff;")
+        title.setStyleSheet(f"font-weight: bold; font-size: 14px; color: {Colors.ACCENT_PRIMARY};")
         h_layout.addWidget(title)
         h_layout.addStretch()
         
         if self.read_only:
             lbl_ro = QLabel("👁️ Modo Leitura")
-            lbl_ro.setStyleSheet("background: #333; padding: 4px 8px; border-radius: 4px; font-size: 10px; color: #aaa;")
+            lbl_ro.setStyleSheet(f"background: {Colors.BG_CARD}; padding: 4px 8px; border-radius: 4px; font-size: 10px; color: {Colors.TEXT_SECONDARY};")
             h_layout.addWidget(lbl_ro)
             
         layout.addWidget(header)
@@ -63,7 +64,7 @@ class DetailDialog(QDialog):
         
         # Footer Actions
         footer = QWidget()
-        footer.setStyleSheet("background-color: #252528; border-top: 1px solid #333;")
+        footer.setStyleSheet(f"background-color: {Colors.BG_SURFACE}; border-top: 1px solid {Colors.BORDER_DEFAULT};")
         f_layout = QHBoxLayout(footer)
         f_layout.setContentsMargins(15, 10, 15, 10)
         f_layout.addStretch()
@@ -72,9 +73,9 @@ class DetailDialog(QDialog):
         btn_close.clicked.connect(self.accept)
         btn_close.setStyleSheet("""
             QPushButton {
-                background: #444; color: white; border: none; padding: 8px 16px; border-radius: 4px;
+                background: {Colors.BORDER_INPUT}; color: {Colors.TEXT_BRIGHT}; border: none; padding: 8px 16px; border-radius: 4px;
             }
-            QPushButton:hover { background: #555; }
+            QPushButton:hover { background: {Colors.TEXT_MUTED}; }
         """)
         f_layout.addWidget(btn_close)
         

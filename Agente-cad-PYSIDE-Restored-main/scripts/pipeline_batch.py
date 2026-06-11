@@ -23,9 +23,14 @@ CLI:
   python scripts/pipeline_batch.py --data-dir DADOS-OBRAS --limit 3
 """
 
+import os
+# Qt headless guard — propagar para subprocessos pipeline_e2e.py
+os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
+os.environ.setdefault("QT_LOGGING_RULES", "*.debug=false")
+os.environ.setdefault("QT_QPA_FONTDIR", "")
+
 import argparse
 import json
-import os
 import subprocess
 import sys
 import time
@@ -68,10 +73,11 @@ def _release_lock():
 
 
 def run_pipeline_e2e(obra_path: str, pavimento: str,
-                     dry_run: bool = False, force: bool = False) -> dict:
+                     dry_run: bool = False, force: bool = False,
+                     skip_nim: bool = False) -> dict:
     """Executa pipeline_e2e.py para uma obra/pavimento. Retorna resultado."""
     cmd = [
-        sys.executable,
+        sys.executable, "-u",          # -u: unbuffered so logs flush to file immediately
         str(SCRIPT_DIR / "pipeline_e2e.py"),
         "--obra", obra_path,
         "--pavimento", pavimento,
@@ -80,16 +86,21 @@ def run_pipeline_e2e(obra_path: str, pavimento: str,
         cmd.append("--dry-run")
     if force:
         cmd.append("--force")
+    if skip_nim:
+        cmd.append("--skip-nim")
 
     t0 = time.time()
     try:
-        result = subprocess.run(cmd, capture_output=False, check=False)
+        result = subprocess.run(cmd, capture_output=False, check=False, timeout=900)
         elapsed = time.time() - t0
         return {
             "returncode": result.returncode,
             "elapsed": round(elapsed, 1),
             "status": {0: "APROVADO", 1: "PARCIAL"}.get(result.returncode, "REPROVADO"),
         }
+    except subprocess.TimeoutExpired:
+        elapsed = time.time() - t0
+        return {"returncode": -2, "elapsed": round(elapsed, 1), "status": "TIMEOUT", "error": "Excedeu 900s"}
     except Exception as ex:
         return {"returncode": -1, "elapsed": 0, "status": "ERRO", "error": str(ex)}
 
@@ -105,10 +116,12 @@ def load_discovery(data_dir: Path) -> dict:
         return json.load(f)
 
 
-def coletar_targets(discovery: dict, obra_filtro: str = None, parcial: bool = False) -> list:
+def coletar_targets(discovery: dict, obra_filtro: str = None,
+                    parcial: bool = False, sem_lj: bool = False) -> list:
     """
     Retorna lista de (obra_path, pavimento) para pavimentos com PL.
-    parcial=False (padrão): exige PL+LV+LJ
+    parcial=False + sem_lj=False (padrão): exige PL+LV+LJ
+    sem_lj=True: exige PL+LV, LJ opcional (score rescalado sem lajes)
     parcial=True: aceita qualquer pavimento com PL (mínimo)
     """
     targets = []
@@ -121,8 +134,14 @@ def coletar_targets(discovery: dict, obra_filtro: str = None, parcial: bool = Fa
             lj = tipos.get("LJ")
             if not pl:
                 continue
-            if not parcial and not (lv and lj):
-                continue
+            if parcial:
+                pass  # aceita qualquer pav com PL
+            elif sem_lj:
+                if not lv:
+                    continue  # precisa de LV, LJ opcional
+            else:
+                if not (lv and lj):
+                    continue  # modo padrão: exige PL+LV+LJ
             # Inferir obra_path a partir do path do DXF PL
             obra_path = str(Path(pl).parent.parent.parent)
             targets.append((obra_nome, pav, obra_path))
@@ -131,7 +150,8 @@ def coletar_targets(discovery: dict, obra_filtro: str = None, parcial: bool = Fa
 
 def run_batch(data_dir: str, obra_filtro: str = None,
               dry_run: bool = False, force: bool = False,
-              limit: int = 0, parcial: bool = False) -> dict:
+              limit: int = 0, parcial: bool = False,
+              skip_nim: bool = False) -> dict:
     data_path = Path(data_dir).resolve()
     discovery = load_discovery(data_path)
     targets = coletar_targets(discovery, obra_filtro, parcial=parcial)
@@ -155,7 +175,7 @@ def run_batch(data_dir: str, obra_filtro: str = None,
         print(f"\n[{i}/{len(targets)}] {obra_nome} | {pavimento}")
         print(f"  Path: {obra_path}")
 
-        res = run_pipeline_e2e(obra_path, pavimento, dry_run, force)
+        res = run_pipeline_e2e(obra_path, pavimento, dry_run, force, skip_nim)
         res.update({"obra": obra_nome, "pavimento": pavimento})
         resultados.append(res)
 
@@ -219,6 +239,8 @@ def main():
                         help='Apenas listar targets sem executar')
     parser.add_argument('--parcial', action='store_true',
                         help='Aceitar pavimentos com só PL (sem exigir LV+LJ)')
+    parser.add_argument('--skip-nim', action='store_true',
+                        help='Pular NIM (Fase 10) para economizar ~300s/pavimento')
     args = parser.parse_args()
 
     if args.list:
@@ -245,6 +267,7 @@ def main():
             force=args.force,
             limit=args.limit,
             parcial=args.parcial,
+            skip_nim=args.skip_nim,
         )
     finally:
         _release_lock()

@@ -5,11 +5,12 @@ from PySide6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel,
                                 QSizePolicy, QSpacerItem)
 from PySide6.QtCore import Qt, QSize, Signal, Property, QRect, QPoint, QEasingCurve, QPropertyAnimation
 from PySide6.QtGui import QPainter, QColor, QBrush, QPen, QPolygon, QFont, QLinearGradient
+from src.ui.theme import Colors, Fonts, Radius
 
 class DiamondNode(QWidget):
     clicked = Signal()
     
-    def __init__(self, phase_name: str, value: str, subtext: str, color: str = "#00d4ff"):
+    def __init__(self, phase_name: str, value: str, subtext: str, color: str = Colors.ACCENT_PRIMARY):
         super().__init__()
         self.phase_name = phase_name
         self.value = value
@@ -70,9 +71,9 @@ class DiamondNode(QWidget):
         
         # Gradient Fill
         grad = QLinearGradient(center_x, center_y - 50, center_x, center_y + 50)
-        bg_col = QColor("#1a1a1a")
+        bg_col = QColor(Colors.BG_DEEP)
         grad.setColorAt(0, bg_col)
-        grad.setColorAt(1, QColor("#121212"))
+        grad.setColorAt(1, QColor(Colors.BG_DEEP))
         painter.setBrush(grad)
         
         painter.drawPolygon(diamond)
@@ -81,7 +82,7 @@ class DiamondNode(QWidget):
         # Phase Name (Top Small)
         font_small = QFont("Inter", 7, QFont.Bold)
         painter.setFont(font_small)
-        painter.setPen(QColor("#666"))
+        painter.setPen(QColor(Colors.TEXT_DIM))
         painter.drawText(QRect(0, center_y - 42, width, 12), Qt.AlignCenter, self.phase_name.upper())
         
         # Value (Center Large)
@@ -92,11 +93,11 @@ class DiamondNode(QWidget):
         
         # Subtext (Bottom Small)
         painter.setFont(font_small)
-        painter.setPen(QColor("#888"))
+        painter.setPen(QColor(Colors.TEXT_SECONDARY))
         painter.drawText(QRect(0, center_y + 12, width, 12), Qt.AlignCenter, self.subtext.upper())
 
 class DetailPanel(QFrame):
-    def __init__(self, title: str, details: Dict[str, Any], color: str = "#00d4ff"):
+    def __init__(self, title: str, details: Dict[str, Any], color: str = Colors.ACCENT_PRIMARY):
         super().__init__()
         self.details = details
         self.color = color
@@ -105,14 +106,14 @@ class DetailPanel(QFrame):
         self.setObjectName("DetailPanel")
         self.setStyleSheet(f"""
             #DetailPanel {{
-                background-color: #1e1e1e;
-                border: 1px solid #333;
+                background-color: {Colors.BG_PANEL};
+                border: 1px solid {Colors.BORDER_DEFAULT};
                 border-left: 3px solid {color};
                 border-radius: 8px;
                 margin: 10px 0px;
             }}
-            #TitleLbl {{ color: white; font-weight: bold; font-size: 14px; margin-bottom: 5px; }}
-            QLabel {{ color: #aaa; font-size: 12px; }}
+            #TitleLbl {{ color: {Colors.TEXT_BRIGHT}; font-weight: bold; font-size: 14px; margin-bottom: 5px; }}
+            QLabel {{ color: {Colors.TEXT_SECONDARY}; font-size: 12px; }}
             .detail-value {{ color: {color}; font-weight: bold; font-family: 'Consolas'; font-size: 13px; }}
         """)
         self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
@@ -143,7 +144,7 @@ class DetailPanel(QFrame):
         pass
 
 class PipelineConnector(QWidget):
-    def __init__(self, color: str = "#333"):
+    def __init__(self, color: str = Colors.BG_CARD):
         super().__init__()
         self.color = color
         self.setMinimumHeight(40)
@@ -209,11 +210,11 @@ class DataPipelineView(QWidget):
             title="INGESTÃO",
             value=f"{stats.get('ingestion', {}).get('works', 0)} OBRAS",
             subtext=f"{stats.get('ingestion', {}).get('documents', 0)} DOCS",
-            color="#00d4ff",
+            color=Colors.ACCENT_PRIMARY,
             details=stats.get('ingestion', {}).get('details', {})
         )
         
-        self._add_connector("#00d4ff")
+        self._add_connector(Colors.ACCENT_PRIMARY)
         
         # Phase 2: Triagem
         self._add_phase(
@@ -221,11 +222,11 @@ class DataPipelineView(QWidget):
             title="TRIAGEM",
             value=f"{stats.get('triage', {}).get('processed', 0)} DXF",
             subtext="VALIDADOS",
-            color="#28a745",
+            color=Colors.ACCENT_SUCCESS,
             details=stats.get('triage', {}).get('details', {})
         )
         
-        self._add_connector("#28a745")
+        self._add_connector(Colors.ACCENT_SUCCESS)
         
         # Phase 3: Extração/Detecção
         self._add_phase(
@@ -237,7 +238,7 @@ class DataPipelineView(QWidget):
             details=stats.get('detection', {}).get('details', {})
         )
         
-        self._add_connector("#a333c8")
+        self._add_connector("#a333c8")  # hardcoded-ok: cor semântica de fase de pipeline
         
         # Phase 4: Reconhecimento (Johnson Robôs)
         self._add_phase(
@@ -245,11 +246,11 @@ class DataPipelineView(QWidget):
             title="RECONHECIMENTO",
             value=f"{stats.get('recognition', {}).get('total_johnson', 0)} JSONS",
             subtext="JOHNSON ROBÔS",
-            color="#fbbd08",
+            color="#fbbd08",  # hardcoded-ok: cor semântica de fase de pipeline
             details=stats.get('recognition', {}).get('details', {})
         )
-        
-        self._add_connector("#fbbd08")
+
+        self._add_connector("#fbbd08")  # hardcoded-ok: cor semântica de fase de pipeline
         
         # Phase 5: Robot Feed (.SCR)
         self._add_phase(
@@ -257,11 +258,11 @@ class DataPipelineView(QWidget):
             title="ROBOT FEED",
             value=f"{stats.get('robot_feed', {}).get('total_scripts', 0)} .SCR",
             subtext="GERADOS",
-            color="#db2828",
+            color="#db2828",  # hardcoded-ok: cor semântica de fase de pipeline
             details=stats.get('robot_feed', {}).get('details', {})
         )
 
-        self._add_connector("#db2828")
+        self._add_connector("#db2828")  # hardcoded-ok: cor semântica de fase de pipeline
 
         # Phase 6: Conversão (SCR -> DXF)
         self._add_phase(
@@ -269,11 +270,11 @@ class DataPipelineView(QWidget):
             title="CONVERSÃO",
             value=f"{stats.get('conversion', {}).get('total_dxf', 0)} DXF",
             subtext="POPULADOS",
-            color="#2185d0",
+            color="#2185d0",  # hardcoded-ok: cor semântica de fase de pipeline
             details=stats.get('conversion', {}).get('details', {})
         )
 
-        self._add_connector("#2185d0")
+        self._add_connector("#2185d0")  # hardcoded-ok: cor semântica de fase de pipeline
 
         # Phase 7: Unificação DXF
         self._add_phase(
@@ -281,11 +282,11 @@ class DataPipelineView(QWidget):
             title="UNIFICAÇÃO",
             value=f"{stats.get('unification', {}).get('total_unified', 0)} UNIF",
             subtext="PAVIMENTOS",
-            color="#e03997",
+            color="#e03997",  # hardcoded-ok: cor semântica de fase de pipeline
             details=stats.get('unification', {}).get('details', {})
         )
 
-        self._add_connector("#e03997")
+        self._add_connector("#e03997")  # hardcoded-ok: cor semântica de fase de pipeline
 
         # Phase 8: Entrega
         self._add_phase(

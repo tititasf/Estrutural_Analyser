@@ -1,19 +1,32 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-extrair_bh_pilares.py — Extrai dimensoes B e H de pilares do PL DXF via DIMENSION proximity.
+extrair_bh_pilares.py — Extrai dimensoes B e H de pilares a partir dos
+DXFs ESTRUTURAIS (Fase-2_Triagem/Estruturais_Pavimentos_Limpos/).
+
+Arquitetura B (correta):
+  Fonte: desenhos estruturais do projetista (plantas de forma/estrutura)
+  NAO usa Projetos_Finalizados (esse e apenas para comparacao de fidelidade STOG).
 
 Algoritmo:
-  1. Le MTEXT no layer "Texto Secao" -> posicoes dos pilares
-  2. Le DIMENSION no layer "Cota Secao (2x)" -> valores B e H
-  3. Para cada pilar: encontra as 2 DIMENSIONs mais proximas
-  4. Classifica: menor valor = B, maior valor = H
-  5. Salva em pilares_bh.json
+  1. Varre TODOS os DXFs em Fase-2_Triagem/Estruturais_Pavimentos_Limpos/
+  2. Para cada DXF extrai TEXT/MTEXT:
+       - Nomes de pilar: padrao P<num>[sufixo]  ex: P1, P7B, P11A
+       - Textos de dimensao: padrao <b>/<h> ou <b>x<h>  ex: 20/60, 19x50
+  3. Proximity matching: cada nome de pilar -> dimensao mais proxima
+  4. Normaliza ID: P7B -> P7 (remove sufixo de pavimento TQS)
+  5. Agrega resultados de todos os DXFs (maior confianca vence)
+  6. Salva em Fase-3_Interpretacao_Extracao/Pilares/pilares_bh.json
+
+Suporta tres convencoes de layer (auto-detectado):
+  - MTH-  : MTH-TIT1-PILAR (nomes) + MTH-DIM-PILAR (dims) — TQS padrao
+  - ES-   : ES-PILAR-NOME (nomes e dims intercalados)
+  - numerico: layers numericos (ex: 4=nomes, 3=dims)
+  - fallback: scan de todos os layers
 
 CLI:
-  python scripts/extrair_bh_pilares.py \\
-    --obra ../DADOS-OBRAS/Obra_TREINO_21 \\
-    --pavimento "12 PAV"
+  python scripts/extrair_bh_pilares.py --obra PATH/Obra_TREINO_3
+  python scripts/extrair_bh_pilares.py --obra PATH/Obra_TREINO_1 [--pavimento ignorado]
 """
 
 import argparse
@@ -34,546 +47,512 @@ def _load_ezdxf():
         sys.exit(1)
 
 
-def _find_dxf(rev_dir: Path, pattern: str) -> Path | None:
-    for f in rev_dir.iterdir():
-        if f.suffix.upper() == '.DXF' and pattern.upper() in f.name.upper():
-            return f
-    return None
+def dist2d(ax, ay, bx, by) -> float:
+    return math.sqrt((ax - bx) ** 2 + (ay - by) ** 2)
 
 
-def _dxf_from_discovery(obra: Path, pavimento: str, tipo: str) -> Path | None:
-    """Busca caminho DXF exato no dxf_discovery.json por obra/pavimento/tipo."""
-    disc = obra.parent / "dxf_discovery.json"
-    if not disc.exists():
-        return None
-    try:
-        import json as _json
-        with open(disc, encoding='utf-8') as f:
-            d = _json.load(f)
-        p = d.get(obra.name, {}).get(pavimento, {}).get(tipo)
-        return Path(p) if p else None
-    except Exception:
-        return None
+# ==============================================================================
+# SPRINT 2 — Geometria de pilar: bbox + ângulo de LWPOLYLINE
+# ==============================================================================
 
-
-def dist2d(p1, p2) -> float:
-    return math.sqrt((p1[0] - p2[0]) ** 2 + (p1[1] - p2[1]) ** 2)
-
-
-def get_dimension_center(e) -> tuple | None:
-    """Retorna o centro aproximado de uma DIMENSION entity."""
-    try:
-        # Ponto de definicao da dimensao (onde a cota aponta)
-        defpt = e.dxf.defpoint
-        return (defpt.x, defpt.y)
-    except Exception:
-        pass
-    try:
-        # Ponto medio da linha de dimensao
-        pt1 = e.dxf.defpoint2
-        pt2 = e.dxf.defpoint3
-        return ((pt1.x + pt2.x) / 2, (pt1.y + pt2.y) / 2)
-    except Exception:
-        pass
-    return None
-
-
-def get_dimension_angle(e) -> float | None:
-    """Retorna o angulo da DIMENSION em graus (0=horizontal, 90=vertical)."""
-    try:
-        angle = e.dxf.angle
-        return angle
-    except Exception:
-        pass
-    try:
-        # Calcular angulo a partir dos pontos de definicao
-        pt2 = e.dxf.defpoint2
-        pt3 = e.dxf.defpoint3
-        dx = pt3.x - pt2.x
-        dy = pt3.y - pt2.y
-        angle_rad = math.atan2(dy, dx)
-        return math.degrees(angle_rad) % 180
-    except Exception:
-        return None
-
-
-def classify_bh(val1: float, val2: float, angle1=None, angle2=None) -> dict:
+def _rect_from_lwpoly(pts: list) -> dict | None:
     """
-    Classifica quais das 2 cotas e B (menor) e H (maior).
-    B = lado menor, H = lado maior (convencao estrutural brasileira).
-
-    Se angulo disponivel:
-      - horizontal (angulo ~0 ou ~180): geralmente H (largura horizontal do pilar)
-      - vertical (angulo ~90): geralmente B (espessura)
-    Fallback: ordenar por valor (menor = B, maior = H)
+    Tenta interpretar uma LWPOLYLINE como retângulo.
+    Aceita 4 ou 5 pontos (5 = fechado: último == primeiro).
+    Retorna {'cx', 'cy', 'w', 'h', 'angle'} ou None.
+    angle = ângulo em graus do eixo longo em relação ao eixo X [0..180).
     """
-    # Fallback por valor
-    if val1 <= val2:
-        b_val, h_val = val1, val2
-    else:
-        b_val, h_val = val2, val1
-    return {"b": round(b_val, 1), "h": round(h_val, 1)}
+    if len(pts) not in (4, 5):
+        return None
+    # Desconsiderar ponto de fechamento se igual ao primeiro
+    uniq = pts[:4] if (len(pts) == 5 and
+                       abs(pts[4][0] - pts[0][0]) < 0.1 and
+                       abs(pts[4][1] - pts[0][1]) < 0.1) else pts
+    if len(uniq) != 4:
+        return None
+
+    xs = [p[0] for p in uniq]
+    ys = [p[1] for p in uniq]
+    w = max(xs) - min(xs)
+    h = max(ys) - min(ys)
+    if w < 1 or h < 1:
+        return None  # degenerado
+
+    cx = (max(xs) + min(xs)) / 2
+    cy = (max(ys) + min(ys)) / 2
+
+    # Ângulo do eixo longo: 0° = horizontal (w>h), 90° = vertical (h>w)
+    angle = 0.0 if w >= h else 90.0
+    # Refinamento: usar vetor entre vértices adjacentes para detectar rotação real
+    # (para retângulos axiais, angle 0/90 é exato; para rotacionados, aproximar)
+    try:
+        dx = uniq[1][0] - uniq[0][0]
+        dy = uniq[1][1] - uniq[0][1]
+        edge_len = math.sqrt(dx * dx + dy * dy)
+        if edge_len > 1:
+            raw_angle = math.degrees(math.atan2(abs(dy), abs(dx)))
+            # Normalizar ao eixo longo
+            angle = raw_angle if edge_len >= (w + h) / 2 else (90 - raw_angle)
+    except Exception:
+        pass
+
+    return {'cx': round(cx, 2), 'cy': round(cy, 2),
+            'geo_w': round(min(w, h), 1), 'geo_h': round(max(w, h), 1),
+            'angle': round(angle, 1)}
 
 
-def _extract_pilar_ids_from_entities(msp, layer_check_fn) -> dict:
-    """Helper: extrai IDs de pilares de entidades TEXT/MTEXT cujo layer passa no check."""
-    pilar_data = {}
+def extract_pilar_geometry(dxf_path: Path, ezdxf_mod,
+                           known_dims: dict | None = None) -> dict:
+    """
+    Sprint 2: Extrai geometria precisa de pilares (bbox + ângulo) de LWPOLYLINE.
+
+    Estratégia de layer detection (em ordem de prioridade):
+    1. Layers nomeados contendo 'PIL' ou 'PILAR' (TQS: MTH-PIL-*, ES: ES-PIL-*)
+    2. Layer '7' (convenção numérica observada em TREINO_1/PAVIMENTO-TIPO)
+    3. Scan de TODAS as layers: filtra por bbox compatível com pilar (10-300cm²)
+
+    known_dims: {pid: {'b': float, 'h': float, 'cx': float, 'cy': float}}
+                Se fornecido, melhora o match por proximidade + dimensão.
+
+    Retorna {pid: {'cx_geo', 'cy_geo', 'geo_w', 'geo_h', 'angle'}} — somente
+    pilares que tiveram match geométrico confirmado.
+    """
+    try:
+        doc = ezdxf_mod.readfile(str(dxf_path))
+        msp = doc.modelspace()
+    except Exception:
+        return {}
+
+    # Candidatos: todas as LWPOLYLINEs que parecem retângulos de pilar
+    candidates = []
     for e in msp:
-        if e.dxftype() not in ('MTEXT', 'TEXT'):
+        if e.dxftype() != 'LWPOLYLINE':
             continue
-        if not layer_check_fn(e.dxf.layer):
+        pts = list(e.get_points())
+        rect = _rect_from_lwpoly(pts)
+        if rect is None:
+            continue
+        # Filtrar por tamanho de pilar (b: 10-300cm, h: 10-400cm)
+        if not (10 <= rect['geo_w'] <= 300 and 10 <= rect['geo_h'] <= 400):
+            continue
+        candidates.append(rect)
+
+    if not candidates:
+        return {}
+
+    if not known_dims:
+        return {}
+
+    # Associar cada pilar ao retângulo mais próximo + dimensionalmente compatível
+    result = {}
+    for pid, info in known_dims.items():
+        b = float(info.get('b') or 0)
+        h_val = float(info.get('h') or 0)
+        px = float(info.get('cx') or 0)
+        py = float(info.get('cy') or 0)
+        if b <= 0 or h_val <= 0 or (px == 0 and py == 0):
+            continue
+
+        b_lo, b_hi = min(b, h_val) * 0.85, min(b, h_val) * 1.15
+        h_lo, h_hi = max(b, h_val) * 0.85, max(b, h_val) * 1.15
+
+        best, best_dist = None, float('inf')
+        for c in candidates:
+            # Tolerância dimensional ±15%
+            if not (b_lo <= c['geo_w'] <= b_hi and h_lo <= c['geo_h'] <= h_hi):
+                continue
+            d = dist2d(px, py, c['cx'], c['cy'])
+            if d < best_dist:
+                best, best_dist = c, d
+
+        # Aceitar se centróide geométrico está a menos de 200 unidades DXF
+        if best is not None and best_dist < 200:
+            result[pid] = {
+                'cx_geo': best['cx'], 'cy_geo': best['cy'],
+                'geo_w': best['geo_w'], 'geo_h': best['geo_h'],
+                'angle': best['angle'],
+                'geo_dist_to_label': round(best_dist, 1),
+            }
+
+    return result
+
+
+def _normalize_pilar_id(raw: str) -> str:
+    """
+    Normaliza ID do pilar: remove sufixo de pavimento TQS.
+    P7B  -> P7
+    P11A -> P11
+    P1   -> P1
+    PE1  -> PE1  (especiais: nao normalizar se tem letra entre P e num)
+    """
+    m = re.match(r'^(P[A-Z]?\d+)[A-Z]?$', raw.strip())
+    if m:
+        return m.group(1)
+    return raw.strip()
+
+
+def _parse_dim_text(txt: str):
+    """
+    Parseia texto de dimensao estrutural.
+    Retorna (b_cm, h_cm) ou None.
+    Formatos aceitos: '20/60', '19x50', '19X50', '60/24'
+    Range valido: 10-300 cm cada valor.
+    """
+    m = re.match(r'^(\d+)[/xX](\d+)$', txt.strip())
+    if not m:
+        return None
+    v1, v2 = int(m.group(1)), int(m.group(2))
+    if not (10 <= v1 <= 300 and 10 <= v2 <= 300):
+        return None
+    return (min(v1, v2), max(v1, v2))  # b=menor, h=maior
+
+
+def extract_from_dxf(dxf_path: Path, ezdxf_mod) -> tuple[list, list]:
+    """
+    Extrai nomes de pilar e textos de dimensao de um DXF estrutural.
+
+    Returns:
+        names: [{'id': 'P7', 'x': float, 'y': float, 'raw': 'P7B'}, ...]
+        dims:  [{'b': int, 'h': int, 'x': float, 'y': float, 'raw': '20/60'}, ...]
+    """
+    try:
+        doc = ezdxf_mod.readfile(str(dxf_path))
+    except Exception as ex:
+        print(f"  [WARN] Nao foi possivel ler {dxf_path.name}: {ex}")
+        return [], []
+
+    msp = doc.modelspace()
+    names = []
+    dims = []
+
+    for e in msp:
+        if e.dxftype() not in ('TEXT', 'MTEXT'):
             continue
         try:
             txt = e.plain_text().strip() if e.dxftype() == 'MTEXT' else e.dxf.text.strip()
+            pos = e.dxf.insert
+            x, y = float(pos.x), float(pos.y)
         except Exception:
             continue
-        matches = re.findall(r'[Pp](\d+)[._]([A-H])', txt)
-        for num, face in matches:
-            pid = f'P{num}'
-            if pid not in pilar_data:
-                pilar_data[pid] = {'positions': [], 'faces': set()}
-            pilar_data[pid]['faces'].add(face)
-            try:
-                pos = e.dxf.insert
-                pilar_data[pid]['positions'].append((pos.x, pos.y))
-            except Exception:
-                pass
-    return pilar_data
+
+        if not txt:
+            continue
+
+        # Verificar se e nome de pilar: P<num>[letras opcionais]
+        if re.match(r'^P[A-Z]?\d+[A-Z]*$', txt):
+            pid = _normalize_pilar_id(txt)
+            if pid:
+                names.append({'id': pid, 'raw': txt, 'x': x, 'y': y})
+            continue
+
+        # Verificar se e texto de dimensao b/h ou bxh
+        parsed = _parse_dim_text(txt)
+        if parsed:
+            b, h = parsed
+            dims.append({'b': b, 'h': h, 'raw': txt, 'x': x, 'y': y})
+
+    return names, dims
 
 
-def extract_pilar_positions(msp, ezdxf) -> dict:
+def match_names_to_dims(names: list, dims: list) -> list:
     """
-    Extrai posicoes dos pilares (MTEXT ou TEXT).
-
-    Estrategia 1: Layer "Texto Secao" (Obra_TREINO_21, 22, 13, etc.)
-    Estrategia 2 (fallback): Layer "NOMENCLATURA" (Obra_TREINO_6)
-    Estrategia 3 (fallback): Layer "0" (Obra_TREINO_3, catch-all)
-
-    Retorna: {pid: {"positions": [(x,y),...], "faces": set()}}
-    """
-    # Estrategia 1: layers que contem "TEXTO SE" ou "SECAO"
-    pilar_data = _extract_pilar_ids_from_entities(
-        msp,
-        lambda layer: any(tl in layer.upper() for tl in {"TEXTO SE", "TEXTO_SE", "SECAO"})
-    )
-
-    # Estrategia 2: layer NOMENCLATURA (se strategy 1 insuficiente)
-    if len(pilar_data) < 3:
-        fallback = _extract_pilar_ids_from_entities(
-            msp,
-            lambda layer: layer.upper() == 'NOMENCLATURA'
-        )
-        for pid, data in fallback.items():
-            if pid not in pilar_data:
-                pilar_data[pid] = data
-            else:
-                pilar_data[pid]['positions'].extend(data['positions'])
-                pilar_data[pid]['faces'].update(data['faces'])
-
-    # Estrategia 3: layer "0" (catch-all para obras com layer padrao)
-    if len(pilar_data) < 3:
-        fallback = _extract_pilar_ids_from_entities(
-            msp,
-            lambda layer: layer == '0'
-        )
-        for pid, data in fallback.items():
-            if pid not in pilar_data:
-                pilar_data[pid] = data
-            else:
-                pilar_data[pid]['positions'].extend(data['positions'])
-                pilar_data[pid]['faces'].update(data['faces'])
-
-    return pilar_data
-
-
-def get_pilar_center(pilar_data: dict, pid: str) -> tuple | None:
-    """Calcula centroide das posicoes do pilar."""
-    positions = pilar_data.get(pid, {}).get('positions', [])
-    if not positions:
-        return None
-    xs = [p[0] for p in positions]
-    ys = [p[1] for p in positions]
-    return (sum(xs) / len(xs), sum(ys) / len(ys))
-
-
-def extract_dimensions(msp) -> list:
-    """
-    Extrai DIMENSION entities do layer "Cota Secao (2x)" com valores no range B/H real (14-100cm).
-
-    IMPORTANTE: O layer "Cota Secao (2x)" contem:
-    - Valores 14-100cm: dimensoes B e H da secao transversal do pilar (O QUE QUEREMOS)
-    - Valores 100-200cm+: alturas de paineis de forma (NAO sao B/H do pilar)
-
-    Filtro: layer exato + range 14-100cm
-    """
-    def _extract_dims_from_layer_check(layer_check_fn):
-        """Helper: extrai DIMENSION de entidades cujo layer passa no check."""
-        result = []
-        for e in msp:
-            if e.dxftype() != 'DIMENSION':
-                continue
-            layer = e.dxf.layer
-            if not layer_check_fn(layer.upper()):
-                continue
-            try:
-                val = round(abs(e.get_measurement()), 1)
-            except Exception:
-                try:
-                    txt = str(e.dxf.text).strip()
-                    val_match = re.search(r'(\d+\.?\d*)', txt)
-                    val = float(val_match.group(1)) if val_match else None
-                except Exception:
-                    continue
-            if val is None:
-                continue
-            # Range valido para B/H de pilar (14cm min, 100cm max)
-            if val < 14 or val > 100:
-                continue
-            center = get_dimension_center(e)
-            if center is None:
-                continue
-            angle = get_dimension_angle(e)
-            result.append({
-                'center': center,
-                'value': val,
-                'angle': angle,
-                'layer': layer
-            })
-        return result
-
-    # Estrategia 1: Layer "Cota Secao (2x)" (Obra_TREINO_21 e obras padrao)
-    dims = _extract_dims_from_layer_check(
-        lambda lu: ("COTA SE" in lu and "2X" in lu)
-    )
-
-    # Estrategia 2 (fallback): Layer "COTA" generico quando Secao nao tem dados suficientes
-    if len(dims) < 10:
-        dims_cota = _extract_dims_from_layer_check(
-            lambda lu: lu in ("COTA", "COTAS") or (lu == "COTA" or lu == "COTAS")
-        )
-        dims = dims + dims_cota
-
-    return dims
-
-
-def find_bh_for_pilar(pilar_center: tuple, dims: list, max_dist: float = 300.0) -> dict:
-    """
-    Encontra as 2 DIMENSIONs mais proximas de um pilar e extrai B e H.
-
-    Usa max_dist amplo (default 1500) pois no DXF STOG as MTEXT labels das faces
-    estao distribuidas pelo drawing e as DIMENSIONs de secao ficam numa area adjacente.
-    A chave e pegar as 2 MAIS PROXIMAS dentro do range, independente da distancia absoluta.
+    Para cada pilar, encontra a dimensao mais proxima.
 
     Returns:
-        dict com b, h, confidence, source
+        [{'id': 'P7', 'b': 20, 'h': 60, 'dist': 194.2, 'raw_dim': '20/60'}, ...]
     """
-    if not dims:
-        return {"b": None, "h": None, "confidence": 0.0, "source": "no-dims-found"}
+    if not names or not dims:
+        return []
 
-    # Calcular distancias (sem limite de max_dist - pegar as mais proximas globalmente)
-    dists = [(dist2d(pilar_center, d['center']), d) for d in dims]
-    dists.sort(key=lambda x: x[0])
+    results = []
+    for p in names:
+        best = min(dims, key=lambda d: dist2d(p['x'], p['y'], d['x'], d['y']))
+        d = dist2d(p['x'], p['y'], best['x'], best['y'])
+        results.append({
+            'id': p['id'],
+            'raw_id': p['raw'],
+            'b': best['b'],
+            'h': best['h'],
+            'dist': round(d, 1),
+            'raw_dim': best['raw'],
+        })
 
-    if not dists:
-        return {"b": None, "h": None, "confidence": 0.0, "source": "no-dims-in-range"}
+    return results
 
-    if len(dists) == 1:
-        d1, dim1 = dists[0]
-        confidence = 0.30
-        return {
-            "b": None,
-            "h": dim1['value'],
-            "confidence": confidence,
-            "source": "single-dim-found",
-            "dist": round(d1, 1)
-        }
 
-    # Pegar as 2 mais proximas com valores DIFERENTES (evitar duplicatas)
-    chosen = []
-    seen_vals = set()
-    for d, dim in dists:
-        v = dim['value']
-        # Aceitar valor se nao e duplicata exata (margem 2cm)
-        is_dup = any(abs(v - sv) < 2.0 for sv in seen_vals)
-        if not is_dup:
-            chosen.append((d, dim))
-            seen_vals.add(v)
-        if len(chosen) >= 2:
-            break
-
-    if len(chosen) < 2:
-        # Fallback: pegar as 2 mais proximas mesmo com valores iguais
-        chosen = dists[:2]
-
-    d1, dim1 = chosen[0]
-    d2, dim2 = chosen[1]
-
-    bh = classify_bh(dim1['value'], dim2['value'], dim1.get('angle'), dim2.get('angle'))
-
-    # Confidence baseada na distancia das 2 dimensoes encontradas
-    avg_dist = (d1 + d2) / 2
-    if avg_dist < 300:
-        confidence = 0.90
-    elif avg_dist < 700:
-        confidence = 0.80
-    elif avg_dist < 1200:
-        confidence = 0.70
+def confidence_from_dist(d: float) -> float:
+    """Confidence baseada na distancia pilar-dimensao."""
+    if d < 50:
+        return 0.95   # dimensao colada no nome (ES-PILAR-NOME style)
+    elif d < 200:
+        return 0.90   # proximidade boa
+    elif d < 500:
+        return 0.80   # razoavel
+    elif d < 1200:
+        return 0.70
     else:
-        confidence = 0.55
-
-    return {
-        "b": bh["b"],
-        "h": bh["h"],
-        "confidence": round(confidence, 2),
-        "source": "dimension-proximity",
-        "dist_d1": round(d1, 1),
-        "dist_d2": round(d2, 1)
-    }
+        return 0.55
 
 
-def run(obra_path: str, pavimento: str, max_dist: float = 300.0) -> None:
+def _select_structural_dxfs(struct_dir: Path, pavimento: str | None) -> list:
+    """
+    Seleciona DXFs estruturais mais relevantes para o pavimento alvo.
+
+    Se pavimento especificado, prefere DXFs cujo nome contem keywords do pavimento.
+    Keywords derivadas: "TIPO" -> ["TIPO", "PADRAO", "STANDARD"]
+                        "12 PAV" -> ["12", "PAV", "TIPO"]
+                        "SUBSOLO" -> ["SUB", "SUBSOLO", "B1"]
+    Fallback: todos os DXFs.
+    """
+    all_dxfs = sorted(struct_dir.glob("*.dxf")) + sorted(struct_dir.glob("*.DXF"))
+    # Dedup (Windows case-insensitive)
+    seen_stems = set()
+    all_dxfs_dedup = []
+    for f in all_dxfs:
+        key = f.name.upper()
+        if key not in seen_stems:
+            seen_stems.add(key)
+            all_dxfs_dedup.append(f)
+    all_dxfs = all_dxfs_dedup
+
+    if not pavimento:
+        return all_dxfs
+
+    pav_upper = pavimento.upper()
+
+    # Derivar keywords a partir do pavimento
+    keywords = set()
+    # Numeros no pavimento (ex: "12 PAV" -> "12")
+    nums = re.findall(r'\d+', pav_upper)
+    keywords.update(nums)
+    # Palavras-chave estruturais
+    for kw in ['TIPO', 'PADRAO', 'PAV', 'TERREO', 'COBERTURA', 'SUBSOLO', 'SUB', 'FUNDA']:
+        if kw in pav_upper:
+            keywords.add(kw)
+    # TIPO como fallback universal (representa o pavimento padrao)
+    if 'PAV' in pav_upper or any(c.isdigit() for c in pav_upper):
+        keywords.add('TIPO')
+
+    # Filtrar DXFs que contem alguma keyword
+    matched = [f for f in all_dxfs
+               if any(kw in f.name.upper() for kw in keywords)]
+
+    if matched:
+        print(f"[INFO] Pavimento '{pavimento}': {len(matched)} DXF(s) selecionado(s) "
+              f"(keywords: {keywords})")
+        return matched
+
+    # Sem match: usar todos
+    print(f"[INFO] Pavimento '{pavimento}': sem DXF especifico — usando todos ({len(all_dxfs)})")
+    return all_dxfs
+
+
+def run(obra_path: str, pavimento: str = None) -> None:
     ezdxf = _load_ezdxf()
     obra = Path(obra_path)
-    rev_dir = obra / "Fase-1_Ingestao" / "Projetos_Finalizados_para_Engenharia_Reversa"
+
+    # Fonte: desenhos estruturais (arquitetura B correta)
+    struct_dir = obra / "Fase-2_Triagem" / "Estruturais_Pavimentos_Limpos"
     out_dir = obra / "Fase-3_Interpretacao_Extracao" / "Pilares"
     out_dir.mkdir(parents=True, exist_ok=True)
 
-    if not rev_dir.exists():
-        print(f"[ERROR] Diretorio nao encontrado: {rev_dir}")
+    if not struct_dir.exists():
+        print(f"[ERROR] Diretorio estrutural nao encontrado: {struct_dir}")
         sys.exit(1)
 
-    # Encontrar PL DXF (discovery primeiro, depois glob)
-    pl_dxf = (_dxf_from_discovery(obra, pavimento, 'PL')
-              or _find_dxf(rev_dir, "- PL -")
-              or _find_dxf(rev_dir, "PL -")
-              or _find_dxf(rev_dir, "PL_"))
-    if not pl_dxf:
-        print(f"[ERROR] PL DXF nao encontrado em {rev_dir}")
-        print("  Procurando qualquer DXF disponivel...")
-        dxfs = list(rev_dir.glob("*.DXF")) + list(rev_dir.glob("*.dxf"))
-        if dxfs:
-            print(f"  DXFs disponiveis: {[f.name for f in dxfs]}")
+    dxf_files = _select_structural_dxfs(struct_dir, pavimento)
+    if not dxf_files:
+        print(f"[ERROR] Nenhum DXF encontrado em {struct_dir}")
         sys.exit(1)
 
-    print(f"[INFO] === extrair_bh_pilares.py | {obra.name} | {pavimento} ===")
-    print(f"[INFO] PL DXF: {pl_dxf.name}")
-    print(f"[INFO] Max distancia proximity: {max_dist} unidades DXF")
+    print(f"[INFO] === extrair_bh_pilares.py | {obra.name} ===")
+    print(f"[INFO] Fonte: {struct_dir}")
+    print(f"[INFO] DXFs selecionados: {len(dxf_files)}")
 
-    # Ler DXF
-    print("[INFO] Lendo DXF (pode demorar para arquivos grandes)...")
-    doc = ezdxf.readfile(str(pl_dxf))
-    msp = doc.modelspace()
-    print(f"[INFO] DXF carregado: {len(list(msp))} entidades")
+    # Acumular resultados de todos os DXFs com frequencia de cada (b,h)
+    # {pid: {(b,h): {'count': int, 'dist_sum': float, 'sources': [str]}}}
+    freq_table: dict[str, dict] = {}
+    # Posições de labels por pilar (para centróide cx/cy — usado em B2/LV-B3)
+    positions_table: dict[str, list] = {}
 
-    # Extrair posicoes dos pilares
-    print("[INFO] Extraindo posicoes dos pilares (layer Texto Secao)...")
-    pilar_data = extract_pilar_positions(msp, ezdxf)
-    print(f"[INFO] Pilares encontrados: {len(pilar_data)}")
+    for dxf_path in dxf_files:
+        print(f"\n[INFO] Processando: {dxf_path.name}")
+        names, dims = extract_from_dxf(dxf_path, ezdxf)
+        print(f"  Nomes encontrados: {len(names)}  |  Dims encontradas: {len(dims)}")
 
-    if not pilar_data:
-        print("[WARN] Nenhum pilar encontrado no layer 'Texto Secao'")
-        print("[WARN] Tentando outros layers...")
+        if not names:
+            print(f"  [SKIP] Sem nomes de pilar neste DXF")
+            continue
 
-        # Debug: listar layers disponiveis
-        layers_found = set()
-        for e in msp:
-            if e.dxftype() == 'MTEXT':
-                layers_found.add(e.dxf.layer)
-        print(f"[DEBUG] Layers com MTEXT: {sorted(layers_found)[:20]}")
+        # Coletar posições de labels (para cx/cy) independentemente dos dims
+        for n in names:
+            pid = n['id']
+            positions_table.setdefault(pid, []).append([n['x'], n['y']])
 
-    # Extrair dimensoes
-    print("[INFO] Extraindo DIMENSION entities (layers de cota)...")
-    dims = extract_dimensions(msp)
-    print(f"[INFO] DIMENSIONs de cota encontradas: {len(dims)}")
+        if not dims:
+            print(f"  [SKIP] Sem textos de dimensao neste DXF")
+            continue
 
-    if not dims:
-        print("[WARN] Nenhuma DIMENSION encontrada")
-        print("[DEBUG] Tentando listar layers com DIMENSION...")
-        dim_layers = set()
-        for e in msp:
-            if e.dxftype() == 'DIMENSION':
-                dim_layers.add(e.dxf.layer)
-        print(f"[DEBUG] Layers com DIMENSION: {sorted(dim_layers)[:20]}")
+        matches = match_names_to_dims(names, dims)
+        print(f"  Matches: {len(matches)}")
 
-    # INVERSE PROXIMITY: cada DIMENSION vai para o pilar mais proximo
-    # Isso garante que cada dim e assignada a UM pilar, evitando pilares distantes
-    # peguem as mesmas dims de pilares proximos entre si.
-    pilar_centers = {}
-    for pid in pilar_data:
-        center = get_pilar_center(pilar_data, pid)
-        if center:
-            pilar_centers[pid] = center
+        for m in matches:
+            pid = m['id']
+            bh_key = (float(m['b']), float(m['h']))
+            if pid not in freq_table:
+                freq_table[pid] = {}
+            if bh_key not in freq_table[pid]:
+                freq_table[pid][bh_key] = {'count': 0, 'dist_sum': 0.0, 'sources': []}
+            freq_table[pid][bh_key]['count'] += 1
+            freq_table[pid][bh_key]['dist_sum'] += m['dist']
+            freq_table[pid][bh_key]['sources'].append(dxf_path.stem)
 
-    # Agrupar cada DIMENSION no pilar mais proximo
-    pilar_dims_assigned: dict[str, list] = {pid: [] for pid in pilar_centers}
-    for dim in dims:
-        if not pilar_centers:
-            break
-        nearest_pid = min(pilar_centers, key=lambda pid: dist2d(pilar_centers[pid], dim['center']))
-        pilar_dims_assigned[nearest_pid].append(dim)
+    if not freq_table:
+        print("\n[ERROR] Nenhum pilar extraido de nenhum DXF estrutural")
+        sys.exit(1)
 
-    print(f"[INFO] Inverse proximity: {len(dims)} dims assignadas a {len(pilar_centers)} pilares")
+    # Agregar por FREQUENCIA: para cada pilar, escolher (b,h) mais frequente
+    # Desempate: menor distancia media (match mais proximo)
+    aggregated: dict[str, dict] = {}
+    for pid, bh_map in freq_table.items():
+        best_bh = max(bh_map.items(),
+                      key=lambda kv: (kv[1]['count'], -kv[1]['dist_sum'] / kv[1]['count']))
+        bh_key, stats = best_bh
+        b, h = bh_key
+        avg_dist = stats['dist_sum'] / stats['count']
+        conf = confidence_from_dist(avg_dist)
+        sources = list(dict.fromkeys(stats['sources']))  # unique, preserving order
+        aggregated[pid] = {
+            'b':          b,
+            'h':          h,
+            'confidence': conf,
+            'source':     f"structural-freq({stats['count']}x):{sources[0]}",
+            'dist_d1':    round(avg_dist, 1),
+            'dist_d2':    round(avg_dist, 1),
+            'freq':       stats['count'],
+        }
 
-    # Processar cada pilar usando suas dims assignadas
-    result = {}
+    print(f"\n[INFO] Pilares unicos: {len(aggregated)}")
+
+    # Montar resultado final
+    result: dict = {}
+    pilares_ordenados = sorted(aggregated.keys(), key=lambda x: (len(x), x))
     extraidos = 0
     parciais = 0
 
-    pilares_ordenados = sorted(pilar_data.keys(), key=lambda x: int(x[1:]))
+    # Calcular centróides cx/cy por pilar (média das posições dos labels)
+    centroids: dict[str, tuple] = {}
+    for pid, pts in positions_table.items():
+        cx = round(sum(p[0] for p in pts) / len(pts), 2)
+        cy = round(sum(p[1] for p in pts) / len(pts), 2)
+        centroids[pid] = (cx, cy)
+
+    # Sprint 2: Extrair geometria precisa (LWPOLYLINE bbox + ângulo) por DXF
+    # known_dims: usa dados já aggregated + centroids calculados acima
+    known_for_geo = {
+        pid: {'b': aggregated[pid]['b'], 'h': aggregated[pid]['h'],
+              'cx': centroids.get(pid, (0, 0))[0],
+              'cy': centroids.get(pid, (0, 0))[1]}
+        for pid in aggregated
+    }
+    geo_data: dict[str, dict] = {}
+    for dxf_path in dxf_files:
+        geo = extract_pilar_geometry(dxf_path, ezdxf, known_for_geo)
+        for pid, ginfo in geo.items():
+            if pid not in geo_data:  # primeiro match wins (maior confiança DXF)
+                geo_data[pid] = ginfo
+    n_geo = len(geo_data)
+    print(f"\n[Sprint2] Geometria LWPOLYLINE: {n_geo}/{len(aggregated)} pilares com bbox preciso")
 
     for pid in pilares_ordenados:
-        center = pilar_centers.get(pid)
-        if center is None:
+        data = aggregated[pid]
+        b, h = data['b'], data['h']
+        cx, cy = centroids.get(pid, (None, None))
+
+        geo = geo_data.get(pid, {})
+        if b > 0 and h > 0:
             result[pid] = {
-                "b": None, "h": None, "confidence": 0.0, "source": "no-position"
-            }
-            continue
-
-        assigned = pilar_dims_assigned.get(pid, [])
-
-        if len(assigned) >= 2:
-            # Tem dims proprias: ordenar por distancia e pegar as 2 mais proximas
-            with_dist = [(dist2d(center, d['center']), d) for d in assigned]
-            with_dist.sort(key=lambda x: x[0])
-            d1, dim1 = with_dist[0]
-            d2, dim2 = with_dist[1]
-            # Verificar se tem 2 valores distintos
-            vals = sorted(set(round(d['value'], 0) for d in assigned))
-            if len(vals) >= 2:
-                # Usar as 2 mais proximas com valores diferentes
-                chosen = []
-                seen = set()
-                for d, dim in with_dist:
-                    v = round(dim['value'], 0)
-                    if v not in seen:
-                        chosen.append((d, dim))
-                        seen.add(v)
-                    if len(chosen) >= 2:
-                        break
-                d1, dim1 = chosen[0]
-                d2, dim2 = chosen[1] if len(chosen) > 1 else chosen[0]
-            else:
-                # Apenas 1 valor unico: faltam dados
-                bh_val = assigned[0]['value']
-                result[pid] = {
-                    "b": None, "h": bh_val, "confidence": 0.35,
-                    "source": "single-value-assigned",
-                    "nota": f"Apenas 1 valor unico {bh_val}cm nas dims assignadas"
-                }
-                parciais += 1
-                continue
-
-            bh = classify_bh(dim1['value'], dim2['value'])
-            avg_dist = (d1 + d2) / 2
-            confidence = 0.90 if avg_dist < 300 else (0.80 if avg_dist < 700 else 0.70)
-
-            result[pid] = {
-                "b": bh["b"],
-                "h": bh["h"],
-                "confidence": round(confidence, 2),
-                "source": "inverse-proximity",
-                "dims_assignadas": len(assigned),
-                "dist_d1": round(d1, 1),
-                "dist_d2": round(d2, 1)
+                'b':          b,
+                'h':          h,
+                'confidence': round(data['confidence'], 2),
+                'source':     data['source'],
+                'dist_d1':    data['dist_d1'],
+                'dist_d2':    data['dist_d2'],
+                'cx':         cx,
+                'cy':         cy,
+                # Sprint 2: geometria precisa (None se LWPOLYLINE não encontrada)
+                'cx_geo':     geo.get('cx_geo'),
+                'cy_geo':     geo.get('cy_geo'),
+                'angle':      geo.get('angle'),
+                'geo_w':      geo.get('geo_w'),
+                'geo_h':      geo.get('geo_h'),
             }
             extraidos += 1
-
-        elif len(assigned) == 1:
-            # Apenas 1 dim assignada
+        else:
             result[pid] = {
-                "b": None, "h": assigned[0]['value'], "confidence": 0.35,
-                "source": "single-dim-assigned"
+                'b':          None,
+                'h':          h if h > 0 else None,
+                'confidence': 0.0,
+                'source':     data['source'],
+                'cx':         cx,
+                'cy':         cy,
+                'cx_geo':     geo.get('cx_geo'),
+                'cy_geo':     geo.get('cy_geo'),
+                'angle':      geo.get('angle'),
+                'geo_w':      geo.get('geo_w'),
+                'geo_h':      geo.get('geo_h'),
             }
             parciais += 1
 
-        else:
-            # Sem dims assignadas — fallback para proximity global
-            bh = find_bh_for_pilar(center, dims, max_dist=float('inf'))
-            bh['source'] = 'proximity-fallback'
-            bh['confidence'] = min(bh.get('confidence', 0.3), 0.40)
-            result[pid] = bh
-            if bh.get("b") is not None and bh.get("h") is not None:
-                extraidos += 1
-            elif bh.get("h") is not None:
-                parciais += 1
-
-    # Meta
-    total = len(pilar_data)
+    total = len(result)
     cobertura = (extraidos / total * 100) if total > 0 else 0
 
     result["_meta"] = {
-        "total": total,
-        "extraidos_bh_completo": extraidos,
-        "extraidos_parcial": parciais,
-        "sem_dados": total - extraidos - parciais,
-        "cobertura_pct": round(cobertura, 1),
-        "max_dist": max_dist,
-        "obra": obra.name,
-        "pavimento": pavimento,
-        "extraido_em": datetime.now().strftime("%Y-%m-%d"),
-        "algoritmo": "dimension-proximity-matching"
+        "total":                   total,
+        "extraidos_bh_completo":   extraidos,
+        "extraidos_parcial":       parciais,
+        "sem_dados":               0,
+        "cobertura_pct":           round(cobertura, 1),
+        "obra":                    obra.name,
+        "pavimento":               pavimento or "todos",
+        "extraido_em":             datetime.now().strftime("%Y-%m-%d"),
+        "algoritmo":               "structural-text-proximity",
+        "fonte":                   str(struct_dir),
+        "dxfs_processados":        len(dxf_files),
     }
 
-    # Salvar resultado
     out_path = out_dir / "pilares_bh.json"
-    with open(out_path, 'w', encoding='utf-8') as f:
-        json.dump(result, f, indent=2, ensure_ascii=False)
+    out_path.write_text(json.dumps(result, indent=2, ensure_ascii=False), encoding='utf-8')
 
-    print(f"\n[RESULTADO] Extracao B/H de Pilares")
+    print(f"\n[RESULTADO] Extracao B/H de Pilares (Estrutural)")
     print(f"  Total pilares:      {total}")
     print(f"  B+H completos:      {extraidos} ({cobertura:.1f}%)")
-    print(f"  Apenas H:           {parciais}")
-    print(f"  Sem dados:          {total - extraidos - parciais}")
+    print(f"  Apenas parcial:     {parciais}")
     print(f"\n[INFO] Salvo em: {out_path}")
 
-    # Atualizar ground truth com B/H reais
-    gt_path = out_dir / "pilares_ground_truth.json"
-    if gt_path.exists():
-        with open(gt_path, 'r', encoding='utf-8') as f:
-            gt = json.load(f)
-
-        atualizados = 0
-        for pid, bh in result.items():
-            if pid.startswith('_'):
-                continue
-            if pid in gt and bh.get("b") is not None:
-                gt[pid]["b"] = bh["b"]
-                gt[pid]["h"] = bh["h"]
-                gt[pid]["confidence"] = max(gt[pid].get("confidence", 0.3), bh["confidence"])
-                gt[pid]["bh_source"] = bh.get("source")
-                atualizados += 1
-
-        if "_meta" in gt:
-            gt["_meta"]["bh_extraidos"] = atualizados
-            gt["_meta"]["bh_atualizado_em"] = datetime.now().strftime("%Y-%m-%d")
-
-        with open(gt_path, 'w', encoding='utf-8') as f:
-            json.dump(gt, f, indent=2, ensure_ascii=False)
-
-        print(f"[INFO] pilares_ground_truth.json atualizado: {atualizados} pilares com B/H")
-
-    # Exibir amostra dos resultados
-    print(f"\n[AMOSTRA] Primeiros 5 pilares extraidos:")
+    # Amostra
+    print(f"\n[AMOSTRA] Primeiros pilares extraidos:")
     count = 0
     for pid in pilares_ordenados[:10]:
         r = result.get(pid, {})
         if r.get("b") is not None:
-            print(f"  {pid}: B={r['b']}cm, H={r['h']}cm, conf={r['confidence']:.0%}")
+            print(f"  {pid}: B={r['b']}cm, H={r['h']}cm, conf={r['confidence']:.0%}, "
+                  f"dist={r.get('dist_d1', 0):.0f}, src={r['source']}")
             count += 1
-            if count >= 5:
+            if count >= 8:
                 break
 
 
 def main():
     parser = argparse.ArgumentParser(
-        description='Extrai dimensoes B/H de pilares do PL DXF via DIMENSION proximity'
+        description='Extrai dimensoes B/H de pilares dos DXFs estruturais (Fase-2)'
     )
-    parser.add_argument('--obra', required=True, help='Path para o diretorio da obra')
-    parser.add_argument('--pavimento', required=True, help='Identificador do pavimento (ex: "12 PAV")')
-    parser.add_argument('--max-dist', type=float, default=300.0,
-                        help='Distancia maxima de proximity em unidades DXF (default: 300)')
+    parser.add_argument('--obra', required=True,
+                        help='Path para o diretorio da obra')
+    parser.add_argument('--pavimento', default=None,
+                        help='Pavimento (opcional — processados todos por padrao)')
     args = parser.parse_args()
-    run(args.obra, args.pavimento, args.max_dist)
+    run(args.obra, args.pavimento)
 
 
 if __name__ == '__main__':

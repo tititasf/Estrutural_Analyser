@@ -158,9 +158,9 @@ from typing import Dict, List, Any, Optional
 try:
     import chromadb
     CHROMA_AVAILABLE = True
-except ImportError:
+except Exception:
     CHROMA_AVAILABLE = False
-    logging.warning("ChromaDB nao encontrado. Active Learning sera limitado.")
+    logging.warning("ChromaDB nao disponivel. Active Learning sera limitado.")
 
 class HierarchicalMemory:
     """

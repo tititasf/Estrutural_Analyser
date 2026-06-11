@@ -19,6 +19,7 @@ from src.ui.dialogs.create_client_dialog import CreateClientDialog
 from src.ui.dialogs.convert_doc_dialog import ConvertDocDialog, ConvertToPavementDialog
 from src.ui.dialogs.email_detail_dialog import EmailDetailDialog
 from src.core.services.email_service import EmailService, EmailSyncThread
+from src.ui.theme import Colors, Fonts, Radius
 
 class MetricCard(QFrame):
     def __init__(self, title, value, icon_text, parent=None):
@@ -31,18 +32,18 @@ class MetricCard(QFrame):
         layout.setContentsMargins(15, 10, 15, 10)
         
         icon_lbl = QLabel(icon_text)
-        icon_lbl.setStyleSheet("font-size: 24px; color: #0078d4;")
+        icon_lbl.setStyleSheet(f"font-size: 24px; color: {Colors.ACCENT_BLUE};")
         layout.addWidget(icon_lbl)
         
         v_layout = QVBoxLayout()
         v_layout.setSpacing(2)
         
         title_lbl = QLabel(title.upper())
-        title_lbl.setStyleSheet("color: #888; font-size: 10px; font-weight: bold; letter-spacing: 1px;")
+        title_lbl.setStyleSheet(f"color: {Colors.TEXT_SECONDARY}; font-size: 10px; font-weight: bold; letter-spacing: 1px;")
         v_layout.addWidget(title_lbl)
         
         self.value_lbl = QLabel(value)
-        self.value_lbl.setStyleSheet("color: #fff; font-size: 20px; font-weight: bold;")
+        self.value_lbl.setStyleSheet(f"color: {Colors.TEXT_BRIGHT}; font-size: 20px; font-weight: bold;")
         v_layout.addWidget(self.value_lbl)
         
         layout.addLayout(v_layout)
@@ -83,7 +84,7 @@ class CentralControle(QWidget):
         # 2. MIDDLE AREA (Splitter)
         self.splitter = QSplitter(Qt.Horizontal)
         self.splitter.setHandleWidth(1)
-        self.splitter.setStyleSheet("QSplitter::handle { background: #2d2d2d; }")
+        self.splitter.setStyleSheet(f"QSplitter::handle {{ background: {Colors.BG_CARD}; }}")
         
         # 2.1 Side Clients
         self.setup_clients_sidebar()
@@ -119,7 +120,7 @@ class CentralControle(QWidget):
         
     def setup_clients_sidebar(self):
         self.clients_panel = QFrame()
-        self.clients_panel.setStyleSheet("background: #1a1a1a; border-right: 1px solid #2d2d2d;")
+        self.clients_panel.setStyleSheet(f"background: {Colors.BG_DEEP}; border-right: 1px solid {Colors.BG_CARD};")
         layout = QVBoxLayout(self.clients_panel)
         layout.setContentsMargins(15, 20, 15, 20)
         
@@ -129,24 +130,24 @@ class CentralControle(QWidget):
         btn_reload = QPushButton("🔄")
         btn_reload.setFixedSize(24, 24)
         btn_reload.clicked.connect(self.load_clients)
-        btn_reload.setStyleSheet("border: none; color: #888;")
+        btn_reload.setStyleSheet(f"border: none; color: {Colors.TEXT_SECONDARY};")
         header_layout.addWidget(btn_reload)
         layout.addLayout(header_layout)
         
         self.search_client = QLineEdit()
         self.search_client.setPlaceholderText("Buscar cliente...")
-        self.search_client.setStyleSheet("background: #252526; border: 1px solid #3e3e42; padding: 6px; border-radius: 4px; color: #fff;")
+        self.search_client.setStyleSheet(f"background: {Colors.BG_CARD}; border: 1px solid {Colors.BORDER_INPUT}; padding: 6px; border-radius: 4px; color: {Colors.TEXT_BRIGHT};")
         layout.addWidget(self.search_client)
         
         self.tree_clients = QTreeView()
         self.tree_clients.setHeaderHidden(True)
-        self.tree_clients.setStyleSheet("background: transparent; border: none; color: #ddd;")
+        self.tree_clients.setStyleSheet(f"background: transparent; border: none; color: {Colors.TEXT_BRIGHT};")
         self.tree_clients.clicked.connect(self.on_client_selected)
         layout.addWidget(self.tree_clients)
         
         btn_new_client = QPushButton("+ Novo Cliente")
         btn_new_client.setCursor(Qt.PointingHandCursor)
-        btn_new_client.setStyleSheet("background-color: #0078d4; color: white; border-radius: 4px; padding: 8px; font-weight: bold;")
+        btn_new_client.setStyleSheet(f"background-color: {Colors.ACCENT_BLUE}; color: {Colors.TEXT_BRIGHT}; border-radius: 4px; padding: 8px; font-weight: bold;")
         btn_new_client.clicked.connect(self.open_new_client_dialog)
         layout.addWidget(btn_new_client)
 
@@ -159,22 +160,22 @@ class CentralControle(QWidget):
         # Client Header
         self.client_header = QFrame()
         self.client_header.setFixedHeight(80)
-        self.client_header.setStyleSheet("border-bottom: 1px solid #2d2d2d; background: #1e1e1e;")
+        self.client_header.setStyleSheet(f"border-bottom: 1px solid {Colors.BG_CARD}; background: {Colors.BG_PANEL};")
         head_lay = QHBoxLayout(self.client_header)
         head_lay.setContentsMargins(20, 10, 20, 10)
         
         self.avatar_lbl = QLabel("👤")
         self.avatar_lbl.setFixedSize(48, 48)
-        self.avatar_lbl.setStyleSheet("background: #333; border-radius: 24px; color: #aaa; font-size: 24px;")
+        self.avatar_lbl.setStyleSheet(f"background: {Colors.BG_CARD}; border-radius: 24px; color: {Colors.TEXT_SECONDARY}; font-size: 24px;")
         self.avatar_lbl.setAlignment(Qt.AlignCenter)
         head_lay.addWidget(self.avatar_lbl)
         
         info_v = QVBoxLayout()
         info_v.setSpacing(2)
         self.lbl_client_name = QLabel("Selecione um Cliente")
-        self.lbl_client_name.setStyleSheet("font-size: 16px; font-weight: bold; color: #fff;")
+        self.lbl_client_name.setStyleSheet(f"font-size: 16px; font-weight: bold; color: {Colors.TEXT_BRIGHT};")
         self.lbl_client_detail = QLabel("...")
-        self.lbl_client_detail.setStyleSheet("color: #888; font-size: 11px;")
+        self.lbl_client_detail.setStyleSheet(f"color: {Colors.TEXT_SECONDARY}; font-size: 11px;")
         info_v.addWidget(self.lbl_client_name)
         info_v.addWidget(self.lbl_client_detail)
         head_lay.addLayout(info_v)
@@ -182,7 +183,7 @@ class CentralControle(QWidget):
         
         btn_sync_email = QPushButton("Sync Email")
         btn_sync_email.clicked.connect(self.start_email_sync)
-        btn_sync_email.setStyleSheet("background: #2d2d30; border: 1px solid #444; color: #ccc; padding: 6px 12px; border-radius: 4px;")
+        btn_sync_email.setStyleSheet(f"background: {Colors.BORDER_PANEL}; border: 1px solid {Colors.BORDER_INPUT}; color: {Colors.TEXT_PRIMARY}; padding: 6px 12px; border-radius: 4px;")
         head_lay.addWidget(btn_sync_email)
         
         layout.addWidget(self.client_header)
@@ -191,8 +192,8 @@ class CentralControle(QWidget):
         self.tabs = QTabWidget()
         self.tabs.setStyleSheet("""
             QTabWidget::pane { border: none; }
-            QTabBar::tab { background: transparent; padding: 10px 20px; color: #888; font-weight: bold; border-bottom: 2px solid transparent; }
-            QTabBar::tab:selected { color: #0078d4; border-color: #0078d4; }
+            QTabBar::tab { background: transparent; padding: 10px 20px; color: {Colors.TEXT_SECONDARY}; font-weight: bold; border-bottom: 2px solid transparent; }
+            QTabBar::tab:selected { color: {Colors.ACCENT_BLUE}; border-color: {Colors.ACCENT_BLUE}; }
         """)
         
         self.tab_conversas = QWidget()
@@ -237,7 +238,7 @@ class CentralControle(QWidget):
 
     def setup_team_tracking(self):
         self.team_panel = QFrame()
-        self.team_panel.setStyleSheet("background: #1a1a1a; border-left: 1px solid #2d2d2d;")
+        self.team_panel.setStyleSheet(f"background: {Colors.BG_DEEP}; border-left: 1px solid {Colors.BG_CARD};")
         layout = QVBoxLayout(self.team_panel)
         layout.setContentsMargins(15, 20, 15, 20)
         

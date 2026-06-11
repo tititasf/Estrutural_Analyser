@@ -4,7 +4,7 @@ from PySide6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QListWidget,
                                  QComboBox, QInputDialog, QMenu, QToolButton, QTabWidget,
                                  QFrame, QScrollArea, QSplitter, QAbstractItemView, QProgressBar, QTextEdit, QGridLayout, QSizePolicy,
                                  QTreeWidget, QTreeWidgetItem)
-from PySide6.QtCore import Signal, Qt, QSize, QEvent
+from PySide6.QtCore import Signal, Qt, QSize, QEvent, QTimer
 from PySide6.QtGui import QIcon, QFont, QColor
 import json
 import re
@@ -13,10 +13,12 @@ import logging
 import shutil
 import uuid
 from datetime import datetime
+from pathlib import Path
 from src.core.services.auth_service import AuthService
 from src.core.services.sync_service import SyncService
 from src.ui.widgets.admin_dashboard import AdminDashboard
 from src.ui.widgets.central_controle import CentralControle
+from src.ui.widgets.data_pipeline import DataPipelineView
 from src.ui.widgets.dashboard_components import BreadcrumbWidget, MetricCard, DocumentItemWidget, DocumentationListWidget
 from src.ui.components.project_cards import ProjectCard
 from src.ui.dialogs.project_details_dialog import ProjectDetailsDialog
@@ -35,7 +37,9 @@ class ProjectManager(QWidget):
     project_created_globally = Signal(str, str, str) # work_name, project_name, project_id
     obra_created_globally = Signal(str) # work_name
     sync_complete_signal = Signal(bool, str) # success, project_id
-    request_tab_switch = Signal(int) # index of tab to switch to
+    request_tab_switch = Signal(int)              # index of tab to switch to
+    request_open_bruto = Signal(str, str)         # obra_name, file_path
+    request_open_reverse_hub = Signal(str, str)   # obra_name, file_path
 
     # Estrutura de dados das 8 fases do pipeline
     # Estrutura de dados das 8 fases do pipeline - Agora espelhada do Storage
@@ -65,6 +69,9 @@ class ProjectManager(QWidget):
         self.current_project_id = None
         self.current_work_name = None
         self.sync_complete_signal.connect(self._on_sync_complete)
+        # Lazy tab rendering — só renderiza o tab visível
+        self._classified_docs_cache: dict = {}
+        self._dirty_phases: set = set(range(1, 9))
         
         # Window Setup
         self.setWindowTitle("Gerenciador de Projetos - Vision AI")
@@ -76,41 +83,72 @@ class ProjectManager(QWidget):
         self.setup_ui()
         self.load_works_combo()
         self.load_projects()
+        # Força refresh dos documentos após o event loop iniciar
+        QTimer.singleShot(300, self._refresh_phase_tabs)
 
     def apply_styles(self):
-        # Current app styles + specific premium project styles
+        # DS v2.0 — tokens from src/ui/theme.py
         self.setStyleSheet(_resolve_css("""
             QWidget {
                 background-color: {Colors.BG_DEEP};
                 color: {Colors.TEXT_PRIMARY};
-                font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                font-size: 11px;
             }
             QPushButton#PrimaryButton {
-                background-color: {Colors.ACCENT_PRIMARY};
-                color: {Colors.BG_DEEP};
+                background-color: {Colors.ACCENT_BLUE};
+                color: {Colors.TEXT_BRIGHT};
                 font-weight: bold;
-                padding: 10px 20px;
+                padding: 6px 14px;
                 border: none;
                 border-radius: 6px;
+                font-size: 11px;
             }
-            QPushButton#PrimaryButton:hover { background-color: {Colors.ACCENT_TEAL}; }
-            
+            QPushButton#PrimaryButton:hover { background-color: {Colors.ACCENT_BLUE_HOVER}; }
+            QPushButton#PrimaryButton:pressed { background: #005A9E; }
+
             QTableWidget {
                 background-color: {Colors.BG_PANEL};
                 border: 1px solid {Colors.BORDER_DEFAULT};
                 gridline-color: {Colors.BORDER_SUBTLE};
-                font-size: 13px;
-                border-radius: 8px;
+                font-size: 11px;
+                border-radius: 6px;
             }
-            QTableWidget::item { padding: 8px; }
+            QTableWidget::item { padding: 6px 8px; color: {Colors.TEXT_PRIMARY}; }
+            QTableWidget::item:selected {
+                background: {Colors.BG_SECONDARY};
+                color: {Colors.ACCENT_PRIMARY};
+            }
             QHeaderView::section {
                 background-color: {Colors.BG_SURFACE};
                 color: {Colors.TEXT_SECONDARY};
-                padding: 8px;
+                padding: 6px 8px;
                 border: none;
+                border-bottom: 1px solid {Colors.BORDER_DEFAULT};
                 font-weight: bold;
-                text-transform: uppercase;
+                letter-spacing: 1px;
                 font-size: 10px;
+            }
+            QScrollBar:vertical {
+                border: none; background: {Colors.BG_PANEL}; width: 6px;
+            }
+            QScrollBar::handle:vertical {
+                background: {Colors.BORDER_INPUT}; border-radius: 3px; min-height: 20px;
+            }
+            QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical { height: 0px; }
+            QScrollBar:horizontal {
+                border: none; background: {Colors.BG_PANEL}; height: 6px;
+            }
+            QScrollBar::handle:horizontal {
+                background: {Colors.BORDER_INPUT}; border-radius: 3px; min-width: 20px;
+            }
+            QScrollBar::add-line:horizontal, QScrollBar::sub-line:horizontal { width: 0px; }
+            QToolTip {
+                background: {Colors.BG_CARD};
+                color: {Colors.TEXT_PRIMARY};
+                border: 1px solid {Colors.BORDER_ACCENT};
+                font-size: 11px;
+                padding: 4px 8px;
             }
         """))
 
@@ -119,22 +157,23 @@ class ProjectManager(QWidget):
         self.layout.setContentsMargins(0, 0, 0, 0)
         self.layout.setSpacing(0)
 
-        # 1. Top Bar Premium
+        # 1. Top Bar — DS: h=40px, logo 14px, margins 16/0
         self.top_bar = QFrame()
-        self.top_bar.setFixedHeight(60)
+        self.top_bar.setFixedHeight(40)
         self.top_bar.setObjectName("TopBar")
         self.top_bar.setStyleSheet(_resolve_css("""
-            #TopBar { 
-                background-color: {Colors.BG_DEEP}; 
-                border-bottom: 2px solid {Colors.BG_CARD}; 
+            #TopBar {
+                background-color: {Colors.BG_DEEP};
+                border-bottom: 1px solid {Colors.BORDER_DEFAULT};
             }
         """))
-        
+
         top_layout = QHBoxLayout(self.top_bar)
-        top_layout.setContentsMargins(20, 0, 20, 0)
-        
-        logo_lbl = QLabel("VISION AI")
-        logo_lbl.setStyleSheet(f"font-weight: bold; font-size: 18px; color: {Colors.ACCENT_PRIMARY};")
+        top_layout.setContentsMargins(16, 0, 16, 0)
+        top_layout.setSpacing(12)
+
+        logo_lbl = QLabel("GERENCIAR PROJETOS")
+        logo_lbl.setStyleSheet(f"font-weight: bold; font-size: 13px; color: {Colors.ACCENT_BRAND}; letter-spacing: 1px;")
         top_layout.addWidget(logo_lbl)
         
         top_layout.addSpacing(30)
@@ -145,30 +184,33 @@ class ProjectManager(QWidget):
         
         self.search_box = QLineEdit()
         self.search_box.setPlaceholderText("Buscar obras ou projetos...")
-        self.search_box.setFixedWidth(250)
+        self.search_box.setFixedWidth(220)
         self.search_box.setStyleSheet(_resolve_css("""
             QLineEdit {
-                background: {Colors.BG_SURFACE};
+                background: {Colors.BG_CARD};
                 border: 1px solid {Colors.BORDER_DEFAULT};
-                border-radius: 6px;
-                padding: 6px 12px;
-                color: {Colors.TEXT_BRIGHT};
+                border-radius: 4px;
+                padding: 4px 10px;
+                color: {Colors.TEXT_PRIMARY};
+                font-size: 11px;
             }
             QLineEdit:focus { border-color: {Colors.ACCENT_PRIMARY}; }
         """))
         top_layout.addWidget(self.search_box)
-        
+
         self.user_btn = QPushButton("ADMIN")
+        self.user_btn.setFixedHeight(24)
         self.user_btn.setStyleSheet(_resolve_css("""
             QPushButton {
                 background: {Colors.BG_CARD};
-                border-radius: 15px;
-                padding: 0 15px;
-                height: 30px;
-                color: {Colors.TEXT_SECONDARY};
+                border: 1px solid {Colors.BORDER_INPUT};
+                border-radius: 12px;
+                padding: 0 12px;
+                color: {Colors.ACCENT_GOLD};
                 font-weight: bold;
-                font-size: 11px;
+                font-size: 10px;
             }
+            QPushButton:hover { border-color: {Colors.ACCENT_GOLD}; }
         """))
         top_layout.addWidget(self.user_btn)
         
@@ -178,18 +220,26 @@ class ProjectManager(QWidget):
         self.tabs = QTabWidget()
         self.tabs.setObjectName("ProjectTabs")
         self.tabs.setStyleSheet(_resolve_css("""
-            QTabWidget::pane { border: none; background: {Colors.BG_DEEP}; }
+            QTabWidget::pane { border: none; border-top: 1px solid {Colors.BORDER_DEFAULT}; background: {Colors.BG_DEEP}; }
             QTabBar::tab {
-                background: transparent;
-                color: {Colors.TEXT_DIM};
-                padding: 12px 25px;
-                font-weight: bold;
-                font-size: 13px;
-                border-bottom: 3px solid transparent;
+                background: {Colors.BG_DEEP};
+                color: {Colors.TEXT_SECONDARY};
+                padding: 7px 18px;
+                font-weight: 500;
+                font-size: 11px;
+                border: none;
+                border-right: 1px solid {Colors.BORDER_DEFAULT};
+                border-bottom: 2px solid transparent;
+                min-width: 80px;
             }
             QTabBar::tab:selected {
+                background: {Colors.BG_SECONDARY};
                 color: {Colors.ACCENT_PRIMARY};
-                border-bottom: 3px solid {Colors.ACCENT_PRIMARY};
+                border-bottom: 2px solid {Colors.ACCENT_PRIMARY};
+            }
+            QTabBar::tab:hover:!selected {
+                background: {Colors.BG_HOVER};
+                color: {Colors.TEXT_PRIMARY};
             }
         """))
         
@@ -203,6 +253,13 @@ class ProjectManager(QWidget):
 
         self.central_tab = CentralControle(self.db, self.memory, self.auth_service)
         self.tabs.addTab(self.central_tab, "CENTRAL DE CONTROLE")
+
+        # PM-008: DataPipelineView na navegação principal (antes estava em AdminDashboard admin-only)
+        try:
+            self.data_pipeline_tab = DataPipelineView()
+            self.tabs.addTab(self.data_pipeline_tab, "📊 PIPELINE")
+        except Exception:
+            pass
             
         self.layout.addWidget(self.tabs)
 
@@ -213,25 +270,25 @@ class ProjectManager(QWidget):
         
         self.local_splitter = QSplitter(Qt.Horizontal)
         self.local_splitter.setHandleWidth(1)
-        self.local_splitter.setStyleSheet(f"QSplitter::handle {{ background: {Colors.BG_CARD}; }}")
+        self.local_splitter.setStyleSheet(f"QSplitter::handle {{ background: {Colors.BORDER_DEFAULT}; }}")
         
-        # --- SIDEBAR: OBRAS ---
+        # --- SIDEBAR: OBRAS — DS: 260px, margem 12/16 ---
         self.works_sidebar = QFrame()
-        self.works_sidebar.setFixedWidth(280)
+        self.works_sidebar.setFixedWidth(260)
         self.works_sidebar.setObjectName("WorksSidebar")
         self.works_sidebar.setStyleSheet(_resolve_css("""
             #WorksSidebar {
-                background-color: {Colors.BG_DEEP};
-                border-right: 1px solid {Colors.BG_CARD};
+                background-color: {Colors.BG_PANEL};
+                border-right: 1px solid {Colors.BORDER_DEFAULT};
             }
         """))
         sidebar_layout = QVBoxLayout(self.works_sidebar)
-        sidebar_layout.setContentsMargins(15, 20, 15, 20)
-        sidebar_layout.setSpacing(15)
+        sidebar_layout.setContentsMargins(12, 14, 12, 14)
+        sidebar_layout.setSpacing(8)
 
         sidebar_header = QHBoxLayout()
         sidebar_title = QLabel("MINHAS OBRAS")
-        sidebar_title.setStyleSheet(f"font-weight: bold; font-size: 11px; color: {Colors.TEXT_MUTED}; letter-spacing: 1px;")
+        sidebar_title.setStyleSheet(f"font-weight: bold; font-size: 10px; color: {Colors.TEXT_SECONDARY}; letter-spacing: 1.5px;")
         sidebar_header.addWidget(sidebar_title)
         
         sidebar_header.addStretch()
@@ -259,15 +316,18 @@ class ProjectManager(QWidget):
 
         # Busca Obras
         self.edit_search_works = QLineEdit()
-        self.edit_search_works.setPlaceholderText("🔍 Filtrar obras...")
+        self.edit_search_works.setPlaceholderText("Filtrar obras...")
+        self.edit_search_works.setFixedHeight(26)
         self.edit_search_works.setStyleSheet(_resolve_css("""
             QLineEdit {
-                background: {Colors.BG_SURFACE};
+                background: {Colors.BG_CARD};
                 border: 1px solid {Colors.BORDER_DEFAULT};
                 border-radius: 4px;
-                padding: 6px 10px;
+                padding: 4px 8px;
                 font-size: 11px;
+                color: {Colors.TEXT_PRIMARY};
             }
+            QLineEdit:focus { border-color: {Colors.ACCENT_PRIMARY}; }
         """))
         self.edit_search_works.textChanged.connect(self._filter_works_list)
         sidebar_layout.addWidget(self.edit_search_works)
@@ -277,24 +337,26 @@ class ProjectManager(QWidget):
         self.list_works.setObjectName("WorksList")
         self.list_works.setStyleSheet(_resolve_css("""
             #WorksList {
-                background: transparent;
-                border: none;
+                background: {Colors.BG_CARD};
+                border: 1px solid {Colors.BORDER_DEFAULT};
+                border-radius: 4px;
                 outline: none;
             }
             #WorksList::item {
-                padding: 10px;
-                border-radius: 6px;
+                padding: 7px 10px;
+                border-bottom: 1px solid {Colors.BORDER_SUBTLE};
                 color: {Colors.TEXT_SECONDARY};
-                margin-bottom: 2px;
+                font-size: 11px;
             }
             #WorksList::item:selected {
-                background-color: {Colors.BORDER_SUBTLE};
+                background-color: {Colors.BG_SECONDARY};
                 color: {Colors.ACCENT_PRIMARY};
                 font-weight: bold;
+                border-left: 2px solid {Colors.ACCENT_PRIMARY};
             }
             #WorksList::item:hover:!selected {
-                background-color: {Colors.BG_DEEP};
-                color: {Colors.TEXT_BRIGHT};
+                background-color: {Colors.BG_HOVER};
+                color: {Colors.TEXT_PRIMARY};
             }
         """))
         self.list_works.currentItemChanged.connect(self.load_projects)
@@ -302,19 +364,20 @@ class ProjectManager(QWidget):
 
         # Botão + Obra na base da sidebar
         btn_add_work_sidebar = QPushButton("+ Criar Nova Obra")
+        btn_add_work_sidebar.setFixedHeight(28)
         btn_add_work_sidebar.setStyleSheet(_resolve_css("""
             QPushButton {
                 background-color: transparent;
                 border: 1px dashed {Colors.BORDER_INPUT};
-                border-radius: 6px;
-                color: {Colors.ACCENT_PRIMARY};
+                border-radius: 4px;
+                color: {Colors.ACCENT_MINT};
                 font-weight: bold;
-                padding: 10px;
+                padding: 4px 10px;
                 font-size: 11px;
             }
             QPushButton:hover {
-                background-color: {Colors.BG_PANEL};
-                border-color: {Colors.ACCENT_PRIMARY};
+                background-color: {Colors.BG_HOVER};
+                border-color: {Colors.ACCENT_MINT};
             }
         """))
         btn_add_work_sidebar.clicked.connect(self.add_work)
@@ -325,28 +388,31 @@ class ProjectManager(QWidget):
         # --- CENTRAL AREA ---
         central_widget = QWidget()
         central_layout = QVBoxLayout(central_widget)
-        central_layout.setContentsMargins(25, 25, 25, 25)
+        central_layout.setContentsMargins(20, 16, 20, 16)
+        central_layout.setSpacing(10)
         
         # --- HEADER (Agora mais limpo) ---
         self.header_layout = QHBoxLayout()
-        self.header_layout.setContentsMargins(0, 0, 0, 15)
+        self.header_layout.setContentsMargins(0, 0, 0, 8)
+        self.header_layout.setSpacing(8)
         
         # No lugar do combo, colocamos o nome da obra selecionada em destaque
         self.lbl_selected_work = QLabel("Selecione uma Obra")
-        self.lbl_selected_work.setStyleSheet(f"font-size: 18px; font-weight: bold; color: {Colors.TEXT_BRIGHT};")
+        self.lbl_selected_work.setStyleSheet(f"font-size: 16px; font-weight: bold; color: {Colors.TEXT_BRIGHT}; letter-spacing: 0.5px;")
         self.header_layout.addWidget(self.lbl_selected_work)
         
         self.header_layout.addStretch()
         
         # Botão de Remover Obra (inicialmente escondido)
-        self.btn_delete_work = QPushButton("Remover Obra")
+        self.btn_delete_work = QPushButton("✕ Remover Obra")
+        self.btn_delete_work.setFixedHeight(26)
         self.btn_delete_work.setStyleSheet(_resolve_css("""
-            QPushButton { 
-                background: rgba(58,28,28,1); 
-                color: {Colors.ACCENT_DANGER}; 
-                border: 1px solid {Colors.ACCENT_DANGER}; 
-                border-radius: 4px; 
-                padding: 6px 12px;
+            QPushButton {
+                background: {Colors.BG_DANGER_DARK};
+                color: {Colors.ACCENT_DANGER};
+                border: 1px solid {Colors.ACCENT_DANGER};
+                border-radius: 4px;
+                padding: 3px 10px;
                 font-weight: bold;
                 font-size: 11px;
             }
@@ -358,17 +424,17 @@ class ProjectManager(QWidget):
         self.header_layout.addWidget(self.btn_delete_work)
         
         # Botão Sync Obra Completa
-        self.btn_sync_work = QPushButton("Sincronizar Obra")
+        self.btn_sync_work = QPushButton("⟳ Sincronizar Obra")
+        self.btn_sync_work.setFixedHeight(26)
         self.btn_sync_work.setStyleSheet(_resolve_css("""
             QPushButton {
-                background: rgba(26,50,75,1);
+                background: {Colors.BG_CARD};
                 color: {Colors.ACCENT_PRIMARY};
                 border: 1px solid {Colors.ACCENT_PRIMARY};
                 border-radius: 4px;
-                padding: 6px 12px;
+                padding: 3px 10px;
                 font-weight: bold;
                 font-size: 11px;
-                margin-left: 10px;
             }
             QPushButton:hover { background: {Colors.ACCENT_PRIMARY}; color: {Colors.BG_DEEP}; }
         """))
@@ -378,22 +444,17 @@ class ProjectManager(QWidget):
 
         self.header_layout.addStretch()
         
-        self.btn_new_project = QPushButton("Novo Pavimento")
-        self.btn_new_project.setObjectName("PrimaryButton")
-        self.btn_new_project.clicked.connect(self.create_new_project)
-        self.header_layout.addWidget(self.btn_new_project)
-        
         central_layout.addLayout(self.header_layout)
         
         # Título da seção de documentos abaixo do nome da obra
-        self.lbl_documents_title = QLabel("DOCUMENTOS")
+        self.lbl_documents_title = QLabel("DOCUMENTOS DO PROJETO")
         self.lbl_documents_title.setStyleSheet(_resolve_css("""
-            font-size: 24px; 
-            font-weight: bold; 
-            color: {Colors.ACCENT_PRIMARY}; 
-            margin-top: 10px;
-            margin-bottom: 5px;
+            font-size: 10px;
+            font-weight: bold;
+            color: {Colors.ACCENT_PRIMARY};
             letter-spacing: 2px;
+            padding: 0;
+            margin: 0;
         """))
         central_layout.addWidget(self.lbl_documents_title)
 
@@ -402,80 +463,138 @@ class ProjectManager(QWidget):
         self.phase_tabs = QTabWidget()
         self.phase_tabs.setObjectName("PhaseTabs")
         self.phase_tabs.setStyleSheet(_resolve_css("""
-            QTabWidget::pane { 
-                border: 1px solid {Colors.BORDER_DEFAULT}; 
-                background: {Colors.BG_DEEP}; 
-                border-radius: 8px;
+            QTabWidget::pane {
+                border: 1px solid {Colors.BORDER_DEFAULT};
+                background: {Colors.BG_DEEP};
+                border-radius: 6px;
             }
-            QTabBar::tab { 
-                background: {Colors.BG_CARD}; 
-                color: {Colors.TEXT_SECONDARY}; 
-                padding: 12px 25px; 
-                border: 1px solid {Colors.BORDER_DEFAULT}; 
+            QTabBar::tab {
+                background: {Colors.BG_PANEL};
+                color: {Colors.TEXT_SECONDARY};
+                padding: 6px 14px;
+                border: 1px solid {Colors.BORDER_DEFAULT};
                 border-bottom: none;
                 margin-right: 2px;
-                font-weight: bold;
+                font-weight: 500;
                 font-size: 11px;
+                border-radius: 4px 4px 0 0;
             }
-            QTabBar::tab:selected { 
-                background: {Colors.BG_DEEP}; 
-                color: {Colors.ACCENT_PRIMARY}; 
-                border-bottom: 3px solid {Colors.ACCENT_PRIMARY};
+            QTabBar::tab:selected {
+                background: {Colors.BG_SECONDARY};
+                color: {Colors.ACCENT_PRIMARY};
+                border-bottom: 2px solid {Colors.ACCENT_PRIMARY};
             }
             QTabBar::tab:hover:!selected {
-                background: {Colors.BORDER_SUBTLE};
-                color: {Colors.TEXT_SECONDARY};
+                background: {Colors.BG_HOVER};
+                color: {Colors.TEXT_PRIMARY};
             }
         """))
 
-        # Criar as 8 abas de fases (isso será movido daqui do loop para um método)
+        # Criar abas de fases + Pré-ficha intercalada após fase 2
+        # Layout: 1. Recepção | 2. Triagem | 2.1 Pré-ficha | 3. Pré-análise | … | 8. Revisão
+        _FICHA_IDX = 2
         self.phase_tab_widgets = {}
-        for phase_num in range(1, 9):
+        _QColor = __import__('PySide6.QtGui', fromlist=['QColor']).QColor
+
+        # Fases 1-2
+        for phase_num in range(1, 3):
             phase_tab = self._create_phase_tab(phase_num)
             phase_name = self._get_phase_name(phase_num)
             self.phase_tabs.addTab(phase_tab, f"{phase_num}. {phase_name}")
             self.phase_tab_widgets[phase_num] = phase_tab
-            
-        self.phase_tabs.setCurrentIndex(0) # Iniciar na Ingestão
+
+        # ── 2.1 Pré-ficha Obra (índice 2) ────────────────────────────────────────
+        ficha_tab = self._create_ficha_obra_tab()
+        self.phase_tabs.addTab(ficha_tab, "2.1 Pré-ficha Obra")
+        self.phase_tab_widgets['ficha'] = ficha_tab
+        self.phase_tabs.tabBar().setTabTextColor(_FICHA_IDX, _QColor('#e6b400'))
+
+        # Fases 3-8
+        for phase_num in range(3, 9):
+            phase_tab = self._create_phase_tab(phase_num)
+            phase_name = self._get_phase_name(phase_num)
+            self.phase_tabs.addTab(phase_tab, f"{phase_num}. {phase_name}")
+            self.phase_tab_widgets[phase_num] = phase_tab
+
+        # Spacer entre tabs 1-8 e a Ficha via stylesheet no tabBar
+        # (obtido via setTabData para indicar separação visual)
+        self.phase_tabs.setCurrentIndex(0)
+        self.phase_tabs.currentChanged.connect(self._on_phase_tab_switched)
         central_layout.addWidget(self.phase_tabs)
         self.local_splitter.addWidget(central_widget)
         
-        self.local_splitter.setSizes([280, 1]) # Proporções [Sidebar, Central]
+        self.local_splitter.setSizes([260, 1])  # DS: sidebar 260px
         layout.addWidget(self.local_splitter)
 
     def setup_pavimentos_container(self, parent_layout):
-        """Prepara o container de pavimentos para ser inserido na Fase 2."""
+        """Prepara o container de pavimentos (lista compacta) para Fase 2."""
+        # ── Toolbar: reload ───────────────────────────────────────────────────
+        toolbar = QHBoxLayout()
+        toolbar.setContentsMargins(0, 4, 0, 4)
+        toolbar.setSpacing(6)
+
+        self._lbl_pav_count = QLabel("Pavimentos Limpos")
+        self._lbl_pav_count.setStyleSheet(_resolve_css(
+            "color: {Colors.ACCENT_PRIMARY}; font-size: 11px; font-weight: bold;"
+            " background: transparent; border: none;"
+        ))
+        toolbar.addWidget(self._lbl_pav_count)
+        toolbar.addStretch()
+
+        btn_reload_pav = QPushButton("↻ Recarregar")
+        btn_reload_pav.setFixedHeight(24)
+        btn_reload_pav.setStyleSheet(_resolve_css("""
+            QPushButton {
+                background: {Colors.BG_CARD}; color: {Colors.TEXT_SECONDARY};
+                border: 1px solid {Colors.BORDER_DEFAULT}; border-radius: 4px;
+                padding: 1px 10px; font-size: 10px;
+            }
+            QPushButton:hover { color: {Colors.TEXT_PRIMARY}; border-color: {Colors.ACCENT_PRIMARY}; }
+        """))
+        btn_reload_pav.clicked.connect(self.load_projects)
+        toolbar.addWidget(btn_reload_pav)
+
+        parent_layout.addLayout(toolbar)
+
+        # ── Scroll area com lista compacta ────────────────────────────────────
         self.scroll_area = QScrollArea()
         self.scroll_area.setWidgetResizable(True)
         self.scroll_area.setStyleSheet(_resolve_css("""
-            QScrollArea { border: 1px solid {Colors.BORDER_DEFAULT}; background: {Colors.BG_DEEP}; border-radius: 8px; min-height: 400px; }
-            QScrollBar:vertical {
-                border: none; background: {Colors.BG_DEEP}; width: 8px; margin: 0;
+            QScrollArea {
+                border: 1px solid {Colors.BORDER_DEFAULT};
+                background: {Colors.BG_DEEP};
+                border-radius: 6px;
             }
-            QScrollBar::handle:vertical {
-                background: {Colors.BG_CARD}; min-height: 20px; border-radius: 4px;
-            }
+            QScrollBar:vertical { border: none; background: {Colors.BG_DEEP}; width: 6px; margin: 0; }
+            QScrollBar::handle:vertical { background: {Colors.BG_CARD}; min-height: 16px; border-radius: 3px; }
         """))
-        
+
         self.cards_container = QWidget()
         self.cards_container.setObjectName("CardsContainer")
         self.cards_container.setStyleSheet("#CardsContainer { background: transparent; }")
-        
-        self.cards_layout = QGridLayout(self.cards_container)
-        self.cards_layout.setSpacing(20)
-        self.cards_layout.setContentsMargins(20, 20, 20, 20)
+
+        # VBoxLayout compacto para linhas de cards
+        self.cards_layout = QVBoxLayout(self.cards_container)
+        self.cards_layout.setSpacing(2)
+        self.cards_layout.setContentsMargins(6, 6, 6, 6)
         self.cards_layout.setAlignment(Qt.AlignTop)
-        
+
         self.scroll_area.setWidget(self.cards_container)
         parent_layout.addWidget(self.scroll_area)
 
     def setup_pavement_selector_combo(self, parent_layout, phase_num=3):
-        """Prepara o seletor de pavimento (ComboBox) para a Fase 3, 4 ou 5."""
+        """Prepara o seletor de pavimento (ComboBox) para as Fases 3–7."""
         container = QFrame()
         container.setStyleSheet(f"background: {Colors.BG_PANEL}; border: 1px solid {Colors.BORDER_DEFAULT}; border-radius: 6px; padding: 10px;")
         layout = QHBoxLayout(container)
-        
-        phase_map = {3: 'INTERPRETAÇÃO/EXTRAÇÃO', 4: 'DADOS SYNC ROBOS', 5: 'SCRIPTS ROBOS SRC'}
+
+        phase_map = {
+            3: 'INTERPRETAÇÃO/EXTRAÇÃO',
+            4: 'DADOS SYNC ROBOS',
+            5: 'SCRIPTS ROBOS SRC',
+            6: 'CONVERSÃO SCRIPTS DXF',
+            7: 'UNIFICAÇÃO DXF PAVIMENTO',
+        }
         proc_text = phase_map.get(phase_num, 'PROCESSO')
         
         lbl = QLabel(f"📍 SELECIONE O PAVIMENTO PARA {proc_text}:")
@@ -538,6 +657,12 @@ class ProjectManager(QWidget):
         elif phase_num == 5:
             self.cmb_pavements_validation = cmb
             self.phase5_pavement_selector = container
+        elif phase_num == 6:
+            self.cmb_pavements_conversion = cmb
+            self.phase6_pavement_selector = container
+        elif phase_num == 7:
+            self.cmb_pavements_unification = cmb
+            self.phase7_pavement_selector = container
 
     def _on_pavement_combo_changed(self, index):
         """Handler para mudança de pavimento no combo da Fase 3, 4 ou 5."""
@@ -555,77 +680,138 @@ class ProjectManager(QWidget):
             self._refresh_all_phase4_lists()
         elif sender == getattr(self, 'cmb_pavements_validation', None):
             self._refresh_all_phase5_lists()
+        elif sender in (getattr(self, 'cmb_pavements_conversion', None),
+                        getattr(self, 'cmb_pavements_unification', None)):
+            self._refresh_phase_tabs()
 
     def setup_specs_container(self, parent_layout):
         """Prepara o formulário de especificações para ser inserido na Fase 1."""
         container = QFrame()
-        container.setStyleSheet(f"background: {Colors.BG_PANEL}; border: 1px solid {Colors.BORDER_DEFAULT}; border-radius: 8px;")
-        layout = QVBoxLayout(container)
-        layout.setContentsMargins(20, 20, 20, 20)
-        layout.setSpacing(15)
-        
-        title = QLabel("📝 ESPECIFICAÇÕES TÉCNICAS DA OBRA")
-        title.setStyleSheet(f"color: {Colors.ACCENT_PRIMARY}; font-weight: bold; font-size: 14px; border: none; background: transparent;")
-        layout.addWidget(title)
-
-        # 1. Nome da Obra (Full Row)
-        self.f_work_name = QLineEdit()
-        self.f_work_name.setPlaceholderText("Nome da Obra")
-        layout.addWidget(self._create_field_widget("🏢 NOME DA OBRA:", self.f_work_name))
-
-        # 2. Metrics Grid (2 Rows x 3 Cols)
-        grid = QGridLayout()
-        grid.setSpacing(15)
-        
-        self.f_pavements = QLineEdit()
-        self.f_pavements.setPlaceholderText("Ex: 15")
-        grid.addWidget(self._create_field_widget("🏗️ PAVIMENTOS:", self.f_pavements), 0, 0)
-        
-        self.f_towers = QLineEdit()
-        self.f_towers.setPlaceholderText("Ex: 2")
-        grid.addWidget(self._create_field_widget("🏢 TORRES:", self.f_towers), 0, 1)
-
-        self.f_pilares = QLineEdit()
-        self.f_pilares.setPlaceholderText("Total estimado")
-        grid.addWidget(self._create_field_widget("🟦 PILARES:", self.f_pilares), 0, 2)
-        
-        self.f_vigas = QLineEdit()
-        self.f_vigas.setPlaceholderText("Total estimado")
-        grid.addWidget(self._create_field_widget("🟩 VIGAS:", self.f_vigas), 1, 0)
-        
-        self.f_lajes = QLineEdit()
-        self.f_lajes.setPlaceholderText("Total estimado")
-        grid.addWidget(self._create_field_widget("🟪 LAJES:", self.f_lajes), 1, 1)
-
-        # Empty cell at 1, 2 stays empty
-        
-        layout.addLayout(grid)
-        
-        # 3. Observations (Smaller)
-        layout.addWidget(QLabel("📝 OBSERVAÇÕES E NOTAS TÉCNICAS:"))
-        self.txt_specs = QTextEdit()
-        self.txt_specs.setPlaceholderText("Especifique detalhes técnicos da obra aqui...")
-        self.txt_specs.setStyleSheet(_resolve_css("""
-            QTextEdit {
-                background: {Colors.BG_DEEP}; border: 1px solid {Colors.BORDER_DEFAULT}; border-radius: 6px;
-                color: {Colors.TEXT_PRIMARY}; padding: 10px; font-size: 12px; min-height: 50px; max-height: 80px;
+        container.setStyleSheet(_resolve_css("""
+            QFrame {
+                background: {Colors.BG_PANEL};
+                border: 1px solid {Colors.BORDER_SUBTLE};
+                border-radius: 6px;
             }
         """))
-        layout.addWidget(self.txt_specs)
-        
-        self.btn_save_work_specs = QPushButton("💾 SALVAR ESPECIFICAÇÕES")
+        root = QVBoxLayout(container)
+        root.setContentsMargins(16, 12, 16, 12)
+        root.setSpacing(0)
+
+        # ── Header row ──────────────────────────────────────────────
+        hdr = QHBoxLayout()
+        hdr.setContentsMargins(0, 0, 0, 8)
+        title_lbl = QLabel("Especificações da Obra")
+        title_lbl.setStyleSheet(_resolve_css("""
+            font-size: 11px; font-weight: 600;
+            color: {Colors.TEXT_SECONDARY}; letter-spacing: 0.5px;
+            border: none; background: transparent;
+        """))
+        hdr.addWidget(title_lbl)
+        hdr.addStretch()
+
+        self.btn_save_work_specs = QPushButton("Salvar")
         self.btn_save_work_specs.setCursor(Qt.PointingHandCursor)
-        self.btn_save_work_specs.setFixedHeight(40)
+        self.btn_save_work_specs.setFixedHeight(24)
         self.btn_save_work_specs.setStyleSheet(_resolve_css("""
             QPushButton {
-                background-color: {Colors.ACCENT_PRIMARY}; color: {Colors.BG_DEEP}; font-weight: bold;
-                border-radius: 6px; font-size: 11px;
+                background-color: {Colors.ACCENT_BLUE}; color: {Colors.TEXT_BRIGHT};
+                border-radius: 3px; font-size: 10px; font-weight: 600; padding: 0 10px;
             }
-            QPushButton:hover { background-color: {Colors.ACCENT_TEAL}; }
+            QPushButton:hover { background-color: #1a8fe3; }
+            QPushButton:disabled { background-color: {Colors.BG_SURFACE}; color: {Colors.TEXT_MUTED}; }
         """))
         self.btn_save_work_specs.clicked.connect(self.save_work_metadata)
-        layout.addWidget(self.btn_save_work_specs)
-        
+        hdr.addWidget(self.btn_save_work_specs)
+        root.addLayout(hdr)
+
+        # ── Separator ───────────────────────────────────────────────
+        sep = QFrame()
+        sep.setFrameShape(QFrame.HLine)
+        sep.setStyleSheet(_resolve_css("border: none; border-top: 1px solid {Colors.BORDER_SUBTLE}; margin: 0;"))
+        root.addWidget(sep)
+        root.addSpacing(10)
+
+        # ── Row 1: Nome da obra (full width) ────────────────────────
+        row1 = QHBoxLayout()
+        row1.setSpacing(8)
+        lbl_nome = QLabel("Obra")
+        lbl_nome.setFixedWidth(52)
+        lbl_nome.setStyleSheet(_resolve_css("font-size: 10px; color: {Colors.TEXT_MUTED}; border: none; background: transparent;"))
+        self.f_work_name = QLineEdit()
+        self.f_work_name.setPlaceholderText("Nome da obra")
+        self.f_work_name.setFixedHeight(24)
+        self.f_work_name.setStyleSheet(_resolve_css("""
+            QLineEdit { background: {Colors.BG_CARD}; border: 1px solid {Colors.BORDER_SUBTLE};
+                border-radius: 3px; padding: 0 8px; color: {Colors.TEXT_PRIMARY}; font-size: 11px; }
+            QLineEdit:focus { border-color: {Colors.ACCENT_BLUE}; }
+        """))
+        row1.addWidget(lbl_nome)
+        row1.addWidget(self.f_work_name)
+        root.addLayout(row1)
+        root.addSpacing(6)
+
+        # ── Row 2: Pavimentos · Torres · Pilares ────────────────────
+        row2 = QHBoxLayout()
+        row2.setSpacing(8)
+
+        def _inline_field(label, placeholder, attr_name):
+            lbl = QLabel(label)
+            lbl.setFixedWidth(52)
+            lbl.setStyleSheet(_resolve_css("font-size: 10px; color: {Colors.TEXT_MUTED}; border: none; background: transparent;"))
+            inp = QLineEdit()
+            inp.setPlaceholderText(placeholder)
+            inp.setFixedHeight(24)
+            inp.setStyleSheet(_resolve_css("""
+                QLineEdit { background: {Colors.BG_CARD}; border: 1px solid {Colors.BORDER_SUBTLE};
+                    border-radius: 3px; padding: 0 8px; color: {Colors.TEXT_PRIMARY}; font-size: 11px; }
+                QLineEdit:focus { border-color: {Colors.ACCENT_BLUE}; }
+            """))
+            setattr(self, attr_name, inp)
+            return lbl, inp
+
+        for label, placeholder, attr in [
+            ("Pavimentos", "Ex: 15", "f_pavements"),
+            ("Torres",     "Ex: 2",  "f_towers"),
+            ("Pilares",    "—",      "f_pilares"),
+        ]:
+            lbl, inp = _inline_field(label, placeholder, attr)
+            row2.addWidget(lbl)
+            row2.addWidget(inp, 1)
+        root.addLayout(row2)
+        root.addSpacing(6)
+
+        # ── Row 3: Vigas · Lajes ────────────────────────────────────
+        row3 = QHBoxLayout()
+        row3.setSpacing(8)
+        for label, placeholder, attr in [
+            ("Vigas",  "—", "f_vigas"),
+            ("Lajes",  "—", "f_lajes"),
+        ]:
+            lbl, inp = _inline_field(label, placeholder, attr)
+            row3.addWidget(lbl)
+            row3.addWidget(inp, 1)
+        row3.addStretch(1)  # keep left-aligned
+        root.addLayout(row3)
+        root.addSpacing(8)
+
+        # ── Notes ───────────────────────────────────────────────────
+        lbl_notes = QLabel("Observações")
+        lbl_notes.setStyleSheet(_resolve_css("font-size: 10px; color: {Colors.TEXT_MUTED}; border: none; background: transparent; margin-bottom: 2px;"))
+        root.addWidget(lbl_notes)
+
+        self.txt_specs = QTextEdit()
+        self.txt_specs.setPlaceholderText("Notas técnicas, restrições, observações…")
+        self.txt_specs.setFixedHeight(52)
+        self.txt_specs.setStyleSheet(_resolve_css("""
+            QTextEdit {
+                background: {Colors.BG_CARD}; border: 1px solid {Colors.BORDER_SUBTLE}; border-radius: 3px;
+                color: {Colors.TEXT_PRIMARY}; padding: 6px 8px; font-size: 11px;
+            }
+            QTextEdit:focus { border-color: {Colors.ACCENT_BLUE}; }
+        """))
+        root.addWidget(self.txt_specs)
+
         parent_layout.addWidget(container)
 
     def _create_field_widget(self, label_text, widget):
@@ -761,26 +947,301 @@ class ProjectManager(QWidget):
         }
         return names.get(phase_num, f"FASE {phase_num}")
 
+    def _create_ficha_obra_tab(self) -> QWidget:
+        """Aba Ficha da Obra — painel pré-interpretativo gerado após Pré-processar Todos."""
+        scroll = QScrollArea()
+        scroll.setWidgetResizable(True)
+        scroll.setStyleSheet("QScrollArea { border: none; background: transparent; }")
+
+        container = QWidget()
+        lay = QVBoxLayout(container)
+        lay.setContentsMargins(20, 20, 20, 20)
+        lay.setSpacing(14)
+
+        # ── Header ──────────────────────────────────────────────────────────
+        hdr = QHBoxLayout()
+        lbl_title = QLabel("📋  Ficha Pré-Interpretativa da Obra")
+        lbl_title.setStyleSheet(_resolve_css(
+            "color: #e6b400; font-size: 15px; font-weight: bold;"
+            " background: transparent; border: none;"
+        ))
+        hdr.addWidget(lbl_title)
+        hdr.addStretch()
+
+        btn_refresh_ficha = QPushButton("↻ Atualizar Ficha")
+        btn_refresh_ficha.setFixedHeight(26)
+        btn_refresh_ficha.setStyleSheet(_resolve_css("""
+            QPushButton {
+                background: rgba(230,180,0,31); color: #e6b400;
+                border: 1px solid #e6b400; border-radius: 4px;
+                padding: 1px 12px; font-size: 10px; font-weight: bold;
+            }
+            QPushButton:hover { background: rgba(230,180,0,64); }
+        """))
+        btn_refresh_ficha.clicked.connect(self._refresh_ficha_obra)
+        hdr.addWidget(btn_refresh_ficha)
+        lay.addLayout(hdr)
+
+        # ── Descrição ────────────────────────────────────────────────────────
+        desc = QLabel(
+            "Esta ficha é gerada automaticamente após executar <b>⚡ Pré-processar Todos</b> "
+            "no Diagnostic Hub. Consolida informações estruturais básicas da obra para "
+            "orientar a Fase 3 de Interpretação/Extração."
+        )
+        desc.setWordWrap(True)
+        desc.setStyleSheet(_resolve_css(
+            "color: {Colors.TEXT_SECONDARY}; font-size: 11px;"
+            " background: transparent; border: none;"
+        ))
+        lay.addWidget(desc)
+
+        # ── Campos da ficha (labels dinâmicos) ───────────────────────────────
+        fields_frame = QFrame()
+        fields_frame.setStyleSheet(_resolve_css("""
+            QFrame {
+                background: {Colors.BG_PANEL};
+                border: 1px solid #3a3000;
+                border-radius: 8px;
+            }
+        """))
+        fields_lay = QVBoxLayout(fields_frame)
+        fields_lay.setContentsMargins(16, 12, 16, 12)
+        fields_lay.setSpacing(8)
+
+        def _field_row(label: str, attr_name: str, default: str = "—") -> QLabel:
+            row_w = QWidget()
+            row_w.setStyleSheet("background: transparent; border: none;")
+            row_h = QHBoxLayout(row_w)
+            row_h.setContentsMargins(0, 0, 0, 0)
+            row_h.setSpacing(12)
+            lbl_k = QLabel(label)
+            lbl_k.setFixedWidth(200)
+            lbl_k.setStyleSheet(
+                "color: #8a9ab5; font-size: 11px; font-weight: bold;"
+                " background: transparent; border: none;"
+            )
+            lbl_v = QLabel(default)
+            lbl_v.setStyleSheet(
+                "color: #e0e4f0; font-size: 11px;"
+                " background: transparent; border: none;"
+            )
+            lbl_v.setWordWrap(True)
+            row_h.addWidget(lbl_k)
+            row_h.addWidget(lbl_v, 1)
+            fields_lay.addWidget(row_w)
+            setattr(self, f'_ficha_{attr_name}', lbl_v)
+            return lbl_v
+
+        _field_row("Obra",                      "obra_nome")
+        _field_row("Total de Pavimentos",        "total_pavimentos")
+        _field_row("Pavimentos Aprovados",       "pavimentos_aprovados")
+        _field_row("Pavimentos Processados",     "pavimentos_processados")
+        _field_row("Recortes Torre (limpos)",    "recortes_torre")
+        _field_row("Recortes Detalhe",           "recortes_detalhe")
+        _field_row("Detalhes de Ingestão (DXF)", "detalhes_ingestao")
+        _field_row("Docs de Ingestão (PDF/img)", "docs_ingestao")
+        _field_row("Status Extração PIL",        "status_pil")
+        _field_row("Status Extração VIG",        "status_vig")
+        _field_row("Status Extração LAJ",        "status_laj")
+        _field_row("Última execução pipeline",   "ultimo_pipeline")
+        _field_row("Observações da obra",        "observacoes")
+
+        lay.addWidget(fields_frame)
+
+        # ── Log do último Pré-processar Todos ────────────────────────────────
+        lbl_log_title = QLabel("Log — Último Pré-processamento")
+        lbl_log_title.setStyleSheet(
+            "color: #e6b400; font-size: 11px; font-weight: bold;"
+            " background: transparent; border: none; padding-top: 6px;"
+        )
+        lay.addWidget(lbl_log_title)
+
+        from PySide6.QtWidgets import QPlainTextEdit
+        self._ficha_log = QPlainTextEdit()
+        self._ficha_log.setReadOnly(True)
+        self._ficha_log.setMaximumHeight(180)
+        self._ficha_log.setPlaceholderText(
+            "Execute ⚡ Pré-processar Todos no Diagnostic Hub para gerar o log aqui."
+        )
+        self._ficha_log.setStyleSheet(_resolve_css("""
+            QPlainTextEdit {
+                background: {Colors.BG_DEEP}; color: {Colors.TEXT_SECONDARY};
+                border: 1px solid #3a3000; border-radius: 5px;
+                font-size: 10px; font-family: monospace;
+                padding: 6px;
+            }
+        """))
+        lay.addWidget(self._ficha_log)
+        lay.addStretch()
+
+        scroll.setWidget(container)
+        return scroll
+
+    def _refresh_ficha_obra(self):
+        """Popula os campos da Ficha da Obra a partir do DB."""
+        import sqlite3 as _sq3
+        DB = Path("D:/Agente-cad-PYSIDE/project_data.vision")
+        obra = self.current_work_name or ""
+
+        if not obra:
+            if hasattr(self, '_ficha_obra_nome'):
+                self._ficha_obra_nome.setText("— Selecione uma obra na sidebar")
+            return
+
+        try:
+            conn = _sq3.connect(str(DB), timeout=5)
+            conn.row_factory = _sq3.Row
+
+            # Pavimentos
+            cur = conn.execute(
+                "SELECT COUNT(*) FROM projects WHERE work_name=?", (obra,)
+            )
+            total_pav = cur.fetchone()[0]
+
+            cur = conn.execute(
+                "SELECT COUNT(*) FROM obra_triagem"
+                " WHERE obra_name=? AND status='approved'"
+                " AND suggested_category LIKE '%Bruto%'", (obra,)
+            )
+            pav_aprovados = cur.fetchone()[0]
+
+            # Recortes
+            cur = conn.execute(
+                "SELECT recorte_type, COUNT(*) as n FROM obra_recortes"
+                " WHERE obra_name=? GROUP BY recorte_type", (obra,)
+            )
+            recorte_counts = {r['recorte_type']: r['n'] for r in cur.fetchall()}
+
+            # Processados (recortes com status=approved)
+            cur = conn.execute(
+                "SELECT COUNT(DISTINCT pavimento_name) FROM obra_recortes"
+                " WHERE obra_name=? AND status='approved'", (obra,)
+            )
+            pav_processados = cur.fetchone()[0]
+
+            # Detalhes ingestão
+            cur = conn.execute(
+                "SELECT COUNT(*) FROM project_documents"
+                " WHERE work_name=? AND (category LIKE '%Detalhe%' OR category LIKE '%Detalhamento%')"
+                " AND extension != '.dwg'", (obra,)
+            )
+            det_count = cur.fetchone()[0]
+
+            cur = conn.execute(
+                "SELECT COUNT(*) FROM project_documents"
+                " WHERE work_name=? AND (category LIKE '%PDF%' OR category LIKE '%Reunio%')", (obra,)
+            )
+            docs_count = cur.fetchone()[0]
+
+            # PIL/VIG/LAJ
+            cur = conn.execute(
+                "SELECT SUM(pil_valid), SUM(pil_total),"
+                "       SUM(beam_valid), SUM(beam_total),"
+                "       SUM(slab_valid), SUM(slab_total)"
+                " FROM projects WHERE work_name=?", (obra,)
+            )
+            row = cur.fetchone()
+            pil_v, pil_t = (row[0] or 0), (row[1] or 0)
+            vig_v, vig_t = (row[2] or 0), (row[3] or 0)
+            laj_v, laj_t = (row[4] or 0), (row[5] or 0)
+
+            # Último pipeline
+            cur = conn.execute(
+                "SELECT MAX(created_at) FROM obra_recortes WHERE obra_name=?", (obra,)
+            )
+            ultimo = (cur.fetchone()[0] or '—')[:16].replace('T', ' ')
+
+            conn.close()
+
+            def _set(attr, val):
+                lbl = getattr(self, f'_ficha_{attr}', None)
+                if lbl:
+                    lbl.setText(str(val))
+
+            _set('obra_nome',            obra)
+            _set('total_pavimentos',     str(total_pav))
+            _set('pavimentos_aprovados', str(pav_aprovados))
+            _set('pavimentos_processados', str(pav_processados))
+            _set('recortes_torre',       str(recorte_counts.get('torre', 0)))
+            _set('recortes_detalhe',     str(recorte_counts.get('detalhe', 0)))
+            _set('detalhes_ingestao',    str(det_count))
+            _set('docs_ingestao',        str(docs_count))
+            _set('status_pil',           f"{pil_v}/{pil_t} extraídos")
+            _set('status_vig',           f"{vig_v}/{vig_t} extraídas")
+            _set('status_laj',           f"{laj_v}/{laj_t} extraídas")
+            _set('ultimo_pipeline',      ultimo)
+            _set('observacoes',          "Ficha gerada automaticamente pelo sistema.")
+
+        except Exception as e:
+            if hasattr(self, '_ficha_obra_nome'):
+                self._ficha_obra_nome.setText(f"Erro: {e}")
+
     def _create_phase_tab(self, phase_num):
         """Cria uma aba de fase com descrição e classes de itens."""
         scroll = QScrollArea()
         scroll.setWidgetResizable(True)
         scroll.setStyleSheet("QScrollArea { border: none; background: transparent; }")
-        
-        container = QWidget()
-        layout = QVBoxLayout(container)
-        layout.setContentsMargins(20, 20, 20, 20)
-        layout.setSpacing(20)
 
         container = QWidget()
         layout = QVBoxLayout(container)
         layout.setContentsMargins(20, 20, 20, 20)
         layout.setSpacing(20)
         
-        # Injetar Especificações Técnicas na Fase 1
+        # Injetar Especificações Técnicas + botão Indexar na Fase 1
         if phase_num == 1:
             self.setup_specs_container(layout)
             layout.addSpacing(10)
+
+            # Botão unificado: Indexar DB + RAG em sequência
+            ingest_row = QHBoxLayout()
+            ingest_row.setSpacing(10)
+            ingest_row.setContentsMargins(0, 0, 0, 0)
+
+            self._btn_ingest_all = QPushButton("⚡ Indexar Obra (DB + RAG + Triagem)")
+            self._btn_ingest_all.setToolTip(
+                "Executa as duas etapas de ingestão em sequência:\n"
+                "① Fase 1 → DB: registra arquivos físicos novos no banco\n"
+                "② RAG + Triagem: indexa vetorialmente e gera sugestões de triagem\n\n"
+                "Incremental — arquivos já processados são ignorados."
+            )
+            self._btn_ingest_all.setStyleSheet(f"""
+                QPushButton {{
+                    background: {Colors.BG_CARD}; color: {Colors.ACCENT_MINT};
+                    border: 1px solid {Colors.ACCENT_MINT}; border-radius: 4px;
+                    padding: 5px 12px; font-size: 11px; font-weight: bold;
+                }}
+                QPushButton:hover {{ background: rgba(0,230,170,31); }}
+                QPushButton:disabled {{ color: {Colors.TEXT_DIM}; border-color: {Colors.BORDER_DEFAULT}; }}
+            """)
+
+            self._lbl_index_badge = QLabel("—")
+            self._lbl_index_badge.setStyleSheet(
+                f"color: {Colors.TEXT_DIM}; font-size: 11px; font-weight: bold;"
+                " background: transparent; border: none; padding: 0 4px;"
+            )
+            self._lbl_index_badge.setToolTip("Arquivos indexados no DB para esta obra")
+
+            self._lbl_rag_status = QLabel("—")
+            self._lbl_rag_status.setStyleSheet(
+                f"color: {Colors.TEXT_DIM}; font-size: 11px;"
+                " background: transparent; border: none; padding: 0 4px;"
+            )
+
+            self._btn_ingest_all.clicked.connect(self._on_ingest_all_clicked)
+            ingest_row.addWidget(self._btn_ingest_all)
+            ingest_row.addWidget(self._lbl_index_badge)
+            ingest_row.addStretch()
+            ingest_row_w = QWidget()
+            ingest_row_w.setLayout(ingest_row)
+            layout.addWidget(ingest_row_w)
+
+            # Status RAG (linha separada abaixo do botão)
+            layout.addWidget(self._lbl_rag_status)
+            layout.addSpacing(6)
+
+            # Atualizar badges imediatamente
+            self._refresh_index_badge()
+            self._refresh_rag_badge()
 
         # Descrição da fase
         desc_label = QLabel(self.PHASE_DESCRIPTIONS.get(phase_num, ""))
@@ -794,17 +1255,34 @@ class ProjectManager(QWidget):
         """))
         layout.addWidget(desc_label)
 
-        # Injetar o ComboBox de seleção GLOBAL no topo da Fase 4 e 5
-        if phase_num in [4, 5]:
+        # Painel IA Triagem — sugestões do RAG para Fase 2
+        if phase_num == 2:
+            self._build_triagem_panel(layout)
+            layout.addSpacing(8)
+            self._build_preprocess_panel(layout)
+            layout.addSpacing(8)
+            self._build_projetos_finalizados_panel(layout)
+            layout.addSpacing(8)
+            self._build_detalhamentos_especificos_panel(layout)
+            layout.addSpacing(8)
+
+        # Injetar o ComboBox de seleção GLOBAL no topo das Fases 4, 5, 6 e 7
+        if phase_num in [4, 5, 6, 7]:
             self.setup_pavement_selector_combo(layout, phase_num=phase_num)
             layout.addSpacing(10)
         
         # Classes de itens desta fase
         classes = self.PHASE_CLASSES.get(phase_num, [])
         for class_name in classes:
+            # Phase 2: Detalhamentos e Projetos tem panels dedicados acima
+            if phase_num == 2 and class_name in (
+                "Detalhamentos Específicos",
+                "Projetos Finalizados para Engenharia Reversa"
+            ):
+                continue
             class_widget = self._create_class_widget(phase_num, class_name)
             layout.addWidget(class_widget)
-            
+
             # Injetar a grade de pavimentos na Fase 2 (TRIAGEM), classe Estruturais Pavimentos Limpos
             if phase_num == 2 and class_name == "Estruturais Pavimentos Limpos":
                 # Adicionar container de pavimentos dentro do frame da classe para ficar contextualizado
@@ -817,6 +1295,30 @@ class ProjectManager(QWidget):
                 docs_container = class_widget.property("docs_container")
                 if docs_container:
                     self.setup_pavement_selector_combo(docs_container.layout(), phase_num=3)
+
+            # PM-006: Injetar grid Eng. Reversa na Fase 2
+            if phase_num == 2 and class_name == "Projetos Finalizados para Engenharia Reversa":
+                docs_container = class_widget.property("docs_container")
+                if docs_container:
+                    self._build_eng_reversa_grid(docs_container.layout())
+
+            # PM-004: Injetar grid DXF granular na Fase 6
+            if phase_num == 6:
+                docs_container = class_widget.property("docs_container")
+                if docs_container:
+                    self._build_fase6_class_grid(docs_container.layout(), class_name)
+
+            # PM-005: Injetar grid consolidação na Fase 7
+            if phase_num == 7:
+                docs_container = class_widget.property("docs_container")
+                if docs_container:
+                    self._build_fase7_class_grid(docs_container.layout(), class_name)
+
+            # PM-007: Injetar dashboard na Fase 8
+            if phase_num == 8:
+                docs_container = class_widget.property("docs_container")
+                if docs_container:
+                    self._build_fase8_dashboard(docs_container.layout())
         
         layout.addStretch()
         scroll.setWidget(container)
@@ -873,7 +1375,19 @@ class ProjectManager(QWidget):
             btn_convert_all.setToolTip("Converte todos os arquivos DWG desta classe para DXF 2018 ASCII")
             btn_convert_all.clicked.connect(lambda: self._convert_all_dwg_in_class(phase_num, class_name))
             header_layout.addWidget(btn_convert_all)
-        
+
+        # Badge de contagem — todas as 4 classes da Fase 1
+        if phase_num == 1:
+            count_badge = QLabel("—")
+            count_badge.setFixedHeight(24)
+            count_badge.setStyleSheet(
+                f"color: {Colors.TEXT_DIM}; font-size: 11px; font-weight: bold;"
+                f" padding: 0 8px; background: transparent; border: none;"
+            )
+            count_badge.setToolTip("Contagem de arquivos nesta categoria (DWG | DXF convertidos)")
+            header_layout.addWidget(count_badge)
+            class_frame.setProperty("count_badge", count_badge)
+
         # Botão Adicionar Documento
         btn_add = QPushButton("+ Adicionar")
         btn_add.setStyleSheet(_resolve_css("""
@@ -907,7 +1421,7 @@ class ProjectManager(QWidget):
         docs_container = QWidget()
         docs_container_layout = QVBoxLayout(docs_container)
         docs_container_layout.setContentsMargins(0, 0, 0, 0)
-        docs_container_layout.setSpacing(5)
+        docs_container_layout.setSpacing(2)
         
         # Armazenar referência ao layout para atualização
         class_frame.setProperty("phase_num", phase_num)
@@ -1449,13 +1963,6 @@ class ProjectManager(QWidget):
 
 
 
-    def load_projects(self): # Override/Hook into existing load_projects logic
-        # ... existing code ...
-        # Preciso injetar o _load_phase3_initial após selecionar um projeto.
-        # Mas load_projects carrega a grade de projetos.
-        # Quando CLICA no projeto, aí sim carrega os dados.
-        pass
-
     def _load_phase3_initial(self):
         """Carrega os dados iniciais da fase 3 após selecionar um projeto."""
         self._refresh_phase_tabs()
@@ -1466,12 +1973,2523 @@ class ProjectManager(QWidget):
         if p_data:
             self.on_project_card_clicked(p_data)
 
+    # ─────────────────────────────────────────────────────────────────
+    # PM-006: Fase 2 — Grid Eng. Reversa
+    # ─────────────────────────────────────────────────────────────────
+
+    _ER_TIPOS = ["—", "PIL", "VIG", "LAJ", "FV"]
+
+    def _build_eng_reversa_grid(self, parent_layout):
+        """Constrói grid de cards DXF de Eng. Reversa para a obra/pav selecionados."""
+        work_name = self.current_work_name
+        if not work_name:
+            item = self.list_works.currentItem()
+            if item:
+                work_name = item.data(Qt.UserRole)
+        if not work_name:
+            parent_layout.addWidget(QLabel("Selecione uma obra para ver os DXFs de Eng. Reversa."))
+            return
+
+        dados_root = Path("D:/Agente-cad-PYSIDE/DADOS-OBRAS")
+        folder = dados_root / work_name / "Fase-1_Ingestao" / "Projetos_Finalizados_para_Engenharia_Reversa"
+
+        if not folder.exists():
+            lbl = QLabel(f"Pasta não encontrada:\n{folder}")
+            lbl.setStyleSheet(f"color: {Colors.TEXT_DIM}; font-size: 11px;")
+            parent_layout.addWidget(lbl)
+            return
+
+        dxfs = sorted(folder.glob("*.dxf")) + sorted(folder.glob("*.dwg"))
+        if not dxfs:
+            lbl = QLabel("Nenhum DXF/DWG encontrado nesta pasta.")
+            lbl.setStyleSheet(f"color: {Colors.TEXT_DIM}; font-size: 11px;")
+            parent_layout.addWidget(lbl)
+            return
+
+        # Ler classificações salvas (simple JSON sidecar)
+        sidecar = folder / "_eng_reversa_classif.json"
+        try:
+            saved = json.loads(sidecar.read_text(encoding='utf-8')) if sidecar.exists() else {}
+        except Exception:
+            saved = {}
+
+        grid = QWidget()
+        grid_lay = QVBoxLayout(grid)
+        grid_lay.setContentsMargins(0, 4, 0, 4)
+        grid_lay.setSpacing(4)
+
+        for f in dxfs:
+            row = QFrame()
+            row.setStyleSheet(f"""
+                QFrame {{
+                    background: {Colors.BG_DEEP}; border: 1px solid {Colors.BORDER_SUBTLE};
+                    border-radius: 4px; padding: 2px;
+                }}
+            """)
+            row_lay = QHBoxLayout(row)
+            row_lay.setContentsMargins(8, 4, 8, 4)
+            row_lay.setSpacing(8)
+
+            ext_badge = QLabel(f.suffix.upper())
+            ext_badge.setFixedWidth(36)
+            ext_badge.setAlignment(Qt.AlignCenter)
+            color = Colors.ACCENT_BLUE if f.suffix.lower() == '.dxf' else Colors.ACCENT_WARNING
+            ext_badge.setStyleSheet(
+                f"background: {color}; color: {Colors.TEXT_BRIGHT}; font-size: 9px;"
+                f" font-weight: bold; border-radius: 3px; padding: 1px 3px;"
+            )
+            row_lay.addWidget(ext_badge)
+
+            lbl_name = QLabel(f.stem[:50] + ("…" if len(f.stem) > 50 else ""))
+            lbl_name.setStyleSheet(f"color: {Colors.TEXT_PRIMARY}; font-size: 11px;")
+            lbl_name.setToolTip(str(f))
+            row_lay.addWidget(lbl_name, 1)
+
+            cmb_tipo = QComboBox()
+            cmb_tipo.setFixedWidth(72)
+            cmb_tipo.addItems(self._ER_TIPOS)
+            saved_tipo = saved.get(f.name, "—")
+            if saved_tipo in self._ER_TIPOS:
+                cmb_tipo.setCurrentText(saved_tipo)
+            cmb_tipo.setStyleSheet(f"""
+                QComboBox {{
+                    background: {Colors.BG_CARD}; color: {Colors.TEXT_PRIMARY};
+                    border: 1px solid {Colors.BORDER_DEFAULT}; border-radius: 3px;
+                    padding: 2px 4px; font-size: 11px;
+                }}
+            """)
+            # Salvar ao mudar
+            fname_cap = f.name  # captura para lambda
+            sidecar_cap = sidecar
+            saved_ref = saved
+
+            def _save_tipo(text, _fname=fname_cap, _sc=sidecar_cap, _sv=saved_ref):
+                _sv[_fname] = text
+                try:
+                    _sc.write_text(json.dumps(_sv, ensure_ascii=False, indent=2), encoding='utf-8')
+                except Exception:
+                    pass
+
+            cmb_tipo.currentTextChanged.connect(_save_tipo)
+            row_lay.addWidget(QLabel("Tipo:"))
+            row_lay.addWidget(cmb_tipo)
+
+            # Status visual
+            status = "✅" if saved.get(f.name, "—") != "—" else "⚠"
+            lbl_status = QLabel(status)
+            lbl_status.setStyleSheet(f"font-size: 13px;")
+            row_lay.addWidget(lbl_status)
+
+            grid_lay.addWidget(row)
+
+        parent_layout.addWidget(grid)
+
+    # ─────────────────────────────────────────────────────────────────
+    # PM-004: Fase 6 — DXF granular por classe
+    # ─────────────────────────────────────────────────────────────────
+
+    _FASE6_CLASS_MAP = {
+        "DXF Pilares":         ("DXF_Pilares",        "gerar_pl_dxf_stog.py"),
+        "DXF Vigas Laterais":  ("DXF_Vigas_Laterais", "gerar_lv_dxf_stog.py"),
+        "DXF Vigas Fundo":     ("DXF_Vigas_Fundo",    "gerar_fv_dxf_stog.py"),
+        "DXF Lajes":           ("DXF_Lajes",          "gerar_lj_dxf_stog.py"),
+    }
+
+    def _build_fase6_class_grid(self, parent_layout, class_name: str):
+        """Grid de DXFs gerados para a classe na Fase 6, com botões Gerar/Abrir."""
+        work_name = self.current_work_name or (
+            self.list_works.currentItem().data(Qt.UserRole)
+            if self.list_works.currentItem() else None
+        )
+        if not work_name:
+            return
+
+        folder_name, script_name = self._FASE6_CLASS_MAP.get(class_name, (None, None))
+        if not folder_name:
+            return
+
+        dados_root  = Path("D:/Agente-cad-PYSIDE/DADOS-OBRAS")
+        scripts_dir = Path("D:/Agente-cad-PYSIDE/Agente-cad-PYSIDE-Restored-main/scripts")
+        class_folder = dados_root / work_name / "Fase-6_Execucao_CAD" / folder_name
+
+        container = QWidget()
+        lay = QVBoxLayout(container)
+        lay.setContentsMargins(0, 4, 0, 4)
+        lay.setSpacing(4)
+
+        # Linha de cabeçalho: botão "Gerar Todos"
+        hdr = QHBoxLayout()
+        lbl_path = QLabel(str(class_folder) if class_folder.exists() else "⚠ pasta não encontrada")
+        lbl_path.setStyleSheet(f"color: {Colors.TEXT_DIM}; font-size: 10px;")
+        hdr.addWidget(lbl_path, 1)
+
+        btn_gerar_todos = QPushButton("⚡ Gerar Todos")
+        btn_gerar_todos.setFixedHeight(24)
+        btn_gerar_todos.setStyleSheet(f"""
+            QPushButton {{
+                background: {Colors.ACCENT_BLUE}; color: {Colors.TEXT_BRIGHT};
+                border-radius: 3px; padding: 2px 8px; font-size: 10px; font-weight: bold;
+            }}
+            QPushButton:hover {{ background: {Colors.ACCENT_BLUE_HOVER}; }}
+        """)
+        script_path = scripts_dir / script_name
+        btn_gerar_todos.clicked.connect(
+            lambda _, sp=script_path, wn=work_name: self._run_generator_script(sp, wn)
+        )
+        hdr.addWidget(btn_gerar_todos)
+        lay.addLayout(hdr)
+
+        # Lista de DXFs existentes
+        if class_folder.exists():
+            dxfs = sorted(class_folder.glob("*.dxf"))
+            if dxfs:
+                for dxf in dxfs[:30]:  # limitar a 30 para não sobrecarregar
+                    row = self._make_dxf_row(dxf, scripts_dir / script_name, work_name)
+                    lay.addWidget(row)
+            else:
+                lay.addWidget(self._dim_label("Nenhum DXF gerado ainda. Clique em 'Gerar Todos'."))
+        else:
+            lay.addWidget(self._dim_label(f"Pasta não encontrada: {class_folder.name}"))
+
+        parent_layout.addWidget(container)
+
+    def _make_dxf_row(self, dxf: Path, script: Path, work_name: str) -> QFrame:
+        row = QFrame()
+        row.setStyleSheet(f"background: {Colors.BG_DEEP}; border-radius: 3px;")
+        r = QHBoxLayout(row)
+        r.setContentsMargins(6, 3, 6, 3)
+        r.setSpacing(6)
+
+        lbl = QLabel(dxf.name[:60])
+        lbl.setStyleSheet(f"color: {Colors.TEXT_PRIMARY}; font-size: 11px;")
+        lbl.setToolTip(str(dxf))
+        r.addWidget(lbl, 1)
+
+        size_kb = dxf.stat().st_size // 1024
+        r.addWidget(self._dim_label(f"{size_kb} KB"))
+
+        btn_open = QPushButton("📂 Abrir")
+        btn_open.setFixedHeight(22)
+        btn_open.setStyleSheet(f"font-size: 10px; padding: 1px 6px; background: {Colors.BG_CARD}; color: {Colors.TEXT_SECONDARY}; border: 1px solid {Colors.BORDER_DEFAULT}; border-radius: 3px;")
+        btn_open.clicked.connect(lambda _, p=dxf: os.startfile(str(p)) if os.name == 'nt' else None)
+        r.addWidget(btn_open)
+
+        return row
+
+    def _run_generator_script(self, script: Path, work_name: str):
+        """Lança script gerador via subprocess."""
+        if not script.exists():
+            QMessageBox.warning(self, "Script", f"Script não encontrado:\n{script.name}")
+            return
+        import subprocess, sys as _sys, time as _time
+        _t0 = _time.monotonic()
+        # S5 — log estruturado de início de geração
+        print(f"[ROBO_{script.stem.upper()}] iniciando para {work_name}", flush=True)
+        proc = subprocess.Popen([_sys.executable, str(script), "--obra", work_name])
+        QMessageBox.information(self, "Geração", f"Gerando DXFs para '{work_name}'...\nAguarde e recarregue a fase.")
+        # Tenta logar duração se processo já terminou ao fechar o dialog
+        if proc.poll() is not None:
+            _dur = _time.monotonic() - _t0
+            print(f"[ROBO_{script.stem.upper()}] concluído em {_dur:.1f}s", flush=True)
+
+    def _dim_label(self, text: str) -> QLabel:
+        lbl = QLabel(text)
+        lbl.setStyleSheet(f"color: {Colors.TEXT_DIM}; font-size: 10px;")
+        return lbl
+
+    # ─────────────────────────────────────────────────────────────────
+    # PM-005: Fase 7 — Consolidação DXF por pavimento
+    # ─────────────────────────────────────────────────────────────────
+
+    _FASE7_CLASS_MAP = {
+        "DXF Consolidado por Pavimento": ("consolidado_pavimento", "consolidar_dxf_pav.py"),
+        "DXF Consolidado por Tipo":      ("consolidado_tipo",      "consolidar_dxf_tipo.py"),
+    }
+
+    def _build_fase7_class_grid(self, parent_layout, class_name: str):
+        """Grid de DXFs consolidados para Fase 7."""
+        work_name = self.current_work_name or (
+            self.list_works.currentItem().data(Qt.UserRole)
+            if self.list_works.currentItem() else None
+        )
+        if not work_name:
+            return
+
+        folder_name, script_name = self._FASE7_CLASS_MAP.get(class_name, (None, None))
+        if not folder_name:
+            return
+
+        dados_root  = Path("D:/Agente-cad-PYSIDE/DADOS-OBRAS")
+        scripts_dir = Path("D:/Agente-cad-PYSIDE/Agente-cad-PYSIDE-Restored-main/scripts")
+        class_folder = dados_root / work_name / "Fase-7_Consolidacao" / folder_name
+
+        container = QWidget()
+        lay = QVBoxLayout(container)
+        lay.setContentsMargins(0, 4, 0, 4)
+        lay.setSpacing(4)
+
+        hdr = QHBoxLayout()
+        hdr.addWidget(self._dim_label(str(class_folder)), 1)
+
+        script_path = scripts_dir / script_name
+        btn_consolidar = QPushButton("🔗 Gerar Consolidado")
+        btn_consolidar.setFixedHeight(24)
+        btn_consolidar.setStyleSheet(f"""
+            QPushButton {{
+                background: #4a2a7a; color: {Colors.TEXT_BRIGHT};
+                border-radius: 3px; padding: 2px 8px; font-size: 10px; font-weight: bold;
+            }}
+            QPushButton:hover {{ background: #6a3a9a; }}
+        """)
+        btn_consolidar.clicked.connect(
+            lambda _, sp=script_path, wn=work_name: self._run_generator_script(sp, wn)
+        )
+        hdr.addWidget(btn_consolidar)
+        lay.addLayout(hdr)
+
+        if class_folder.exists():
+            dxfs = sorted(class_folder.glob("*.dxf"))
+            if dxfs:
+                for dxf in dxfs[:20]:
+                    row = self._make_dxf_row(dxf, script_path, work_name)
+                    lay.addWidget(row)
+            else:
+                lay.addWidget(self._dim_label("Nenhum DXF consolidado. Clique em 'Gerar Consolidado'."))
+        else:
+            lay.addWidget(self._dim_label(f"Pasta '{folder_name}' ainda não criada."))
+
+        parent_layout.addWidget(container)
+
+    # ─────────────────────────────────────────────────────────────────
+    # PM-007: Fase 8 — Dashboard de Revisão e Entrega
+    # ─────────────────────────────────────────────────────────────────
+
+    def _build_fase8_dashboard(self, parent_layout):
+        """Dashboard por pavimento: score de completude, status DXF final, exportar."""
+        work_name = self.current_work_name or (
+            self.list_works.currentItem().data(Qt.UserRole)
+            if self.list_works.currentItem() else None
+        )
+        if not work_name:
+            parent_layout.addWidget(self._dim_label("Selecione uma obra."))
+            return
+
+        dados_root   = Path("D:/Agente-cad-PYSIDE/DADOS-OBRAS")
+        val_dir      = Path("D:/Agente-cad-PYSIDE/validacao_visual")
+        fase8_dir    = dados_root / work_name / "Fase-8_Revisao_Entrega"
+        cert_json    = val_dir / f"consolidado_{work_name}.json"
+
+        container = QWidget()
+        lay = QVBoxLayout(container)
+        lay.setContentsMargins(0, 4, 0, 4)
+        lay.setSpacing(6)
+
+        # ── Scores de validação ────────────────────────────────────
+        scores_row = QHBoxLayout()
+        if cert_json.exists():
+            try:
+                cert_data = json.loads(cert_json.read_text(encoding='utf-8'))
+                for pav_key, pav_data in cert_data.items():
+                    resultados = pav_data.get("resultados", {})
+                    pav_widget = QFrame()
+                    pav_widget.setStyleSheet(
+                        f"background: {Colors.BG_DEEP}; border: 1px solid {Colors.BORDER_DEFAULT};"
+                        f" border-radius: 4px; padding: 4px;"
+                    )
+                    pv = QVBoxLayout(pav_widget)
+                    pv.setSpacing(2)
+                    pv.addWidget(QLabel(f"<b>{pav_key}</b>"))
+                    for tipo in ["PL", "LV", "FV", "LJ"]:
+                        sc = resultados.get(tipo, {}).get("score_final")
+                        color = Colors.ACCENT_SUCCESS if sc and sc >= 75 else Colors.ACCENT_WARNING if sc else Colors.TEXT_DIM
+                        txt = f"{sc:.1f}%" if sc else "—"
+                        lbl = QLabel(f"{tipo}: {txt}")
+                        lbl.setStyleSheet(f"color: {color}; font-size: 11px;")
+                        pv.addWidget(lbl)
+                    scores_row.addWidget(pav_widget)
+            except Exception as e:
+                scores_row.addWidget(self._dim_label(f"Erro ao ler scores: {e}"))
+        else:
+            scores_row.addWidget(self._dim_label("Nenhuma validação encontrada. Execute a Fase-8 primeiro."))
+        scores_row.addStretch()
+        lay.addLayout(scores_row)
+
+        # ── DXF Final Validado ─────────────────────────────────────
+        if fase8_dir.exists():
+            dxf_final_dir = fase8_dir / "DXF_Final_Validado"
+            dxfs_finais = list(dxf_final_dir.glob("*.dxf")) if dxf_final_dir.exists() else []
+            if dxfs_finais:
+                lay.addWidget(QLabel(f"✅ DXFs Finais ({len(dxfs_finais)}):"))
+                for dxf in dxfs_finais[:10]:
+                    row = self._make_dxf_row(dxf, Path(), work_name)
+                    lay.addWidget(row)
+            else:
+                lay.addWidget(self._dim_label("Pasta DXF_Final_Validado vazia."))
+
+            # CERTIFICAÇÃO
+            cert_final = fase8_dir / "CERTIFICACAO_FINAL.md"
+            if cert_final.exists():
+                cert_ok = QLabel("🏆 CERTIFICAÇÃO FINAL — arquivo presente")
+                cert_ok.setStyleSheet(f"color: {Colors.ACCENT_SUCCESS}; font-weight: bold; font-size: 12px;")
+                lay.addWidget(cert_ok)
+        else:
+            lay.addWidget(self._dim_label(f"Fase-8 não inicializada para {work_name}."))
+
+        # ── Botão Exportar Pacote ──────────────────────────────────
+        btn_export = QPushButton("📦 Exportar Pacote de Entrega")
+        btn_export.setStyleSheet(f"""
+            QPushButton {{
+                background: {Colors.ACCENT_SUCCESS}; color: {Colors.TEXT_BRIGHT};
+                border-radius: 4px; padding: 6px 14px; font-weight: bold; font-size: 12px;
+            }}
+            QPushButton:hover {{ background: rgba(67,160,71,1); }}
+        """)
+        btn_export.clicked.connect(lambda: QMessageBox.information(
+            self, "Exportar", f"Pacote de entrega para '{work_name}':\n{fase8_dir}\n\n(pipeline de exportação a implementar)"
+        ))
+        lay.addWidget(btn_export)
+
+        parent_layout.addWidget(container)
+
+    # ─────────────────────────────────────────────────────────────────
+    # PM-002: Auto-indexação Fase 1 (filesystem scan)
+    # ─────────────────────────────────────────────────────────────────
+
+    _FASE1_FOLDER_MAP = {
+        "Estruturais_dos_Pavimentos_Estado_Bruto_DWG_DXF":
+            "Estruturais dos Pavimentos, Estado Bruto (.DWG/.DXF)",
+        "Documentos_e_Atas_de_Reunioes_PDF_MD":
+            "Documentos e Atas de Reunioes(.PDF/.MD)",
+        "Detalhes_Estruturais_DWG_PDF_DXF_MD":
+            "Detalhes Estruturais (.DWG/.PDF/.DXF/.MD)",
+        # canonical name — must match PHASE_CLASSES[1] exactly
+        "Projetos_Finalizados_para_Engenharia_Reversa":
+            "Projetos Finalizados para Engenharia Reversa",
+    }
+
+    # Normalizes legacy/variant category strings → canonical PHASE_CLASSES names
+    _CATEGORY_ALIASES = {
+        "projetos finalizados para engenharia reversa (suporte a dwg e dxf)":
+            "Projetos Finalizados para Engenharia Reversa",
+        "projetos finais para engenharia reversa (suporte a dwg e dxf)":
+            "Projetos Finalizados para Engenharia Reversa",
+        "estruturais dos pavimentos, estado bruto (.dxf)":
+            "Estruturais dos Pavimentos, Estado Bruto (.DWG/.DXF)",
+    }
+    _FASE1_EXTS = {'.dwg', '.dxf', '.pdf', '.md'}
+
+    def _scan_phase1_filesystem(self, work_name: str, existing_paths: set) -> list:
+        """Varre Fase-1_Ingestao e retorna arquivos não indexados como dicts."""
+        dados_root = Path("D:/Agente-cad-PYSIDE/DADOS-OBRAS")
+        fase1_dir  = dados_root / work_name / "Fase-1_Ingestao"
+        if not fase1_dir.exists():
+            return []
+        found = []
+        for folder_name, class_name in self._FASE1_FOLDER_MAP.items():
+            folder = fase1_dir / folder_name
+            if not folder.exists():
+                continue
+            for f in folder.iterdir():
+                if f.suffix.lower() not in self._FASE1_EXTS:
+                    continue
+                fpath = str(f.resolve())
+                if fpath in existing_paths:
+                    continue
+                found.append({
+                    'id':          None,
+                    'name':        f.name + '  ⚠ não indexado',
+                    'file_path':   fpath,
+                    'extension':   f.suffix.lower(),
+                    'phase':       1,
+                    'category':    class_name,
+                    '_not_indexed': True,
+                })
+        return found
+
+    # ── Index badge helpers ────────────────────────────────────────────────
+
+    # ── RAG Pipeline ──────────────────────────────────────────────────────────
+
+    def _on_rag_pipeline_clicked(self):
+        """Dispara o pipeline RAG semântico em QThread."""
+        work_name = self.current_work_name or (
+            self.list_works.currentItem().data(Qt.UserRole)
+            if self.list_works.currentItem() else ""
+        )
+        if not work_name:
+            QMessageBox.warning(self, "RAG", "Selecione uma obra antes de processar.")
+            return
+
+        from PySide6.QtCore import QThread, Signal as QSignal, QObject
+        import sys
+
+        class _Worker(QObject):
+            progress = QSignal(int, str)
+            finished = QSignal(dict)
+
+            def __init__(self, obra: str):
+                super().__init__()
+                self._obra = obra
+
+            def run(self):
+                try:
+                    _scripts = Path("D:/Agente-cad-PYSIDE/Agente-cad-PYSIDE-Restored-main/scripts")
+                    if str(_scripts.parent) not in sys.path:
+                        sys.path.insert(0, str(_scripts.parent))
+                    from scripts.obra_rag_pipeline import run_pipeline
+                    result = run_pipeline(
+                        self._obra,
+                        force=False,
+                        progress_cb=lambda pct, msg: self.progress.emit(pct, msg),
+                    )
+                    self.finished.emit(result)
+                except Exception as e:
+                    self.finished.emit({"status": "error", "errors": [str(e)],
+                                        "doc_chunks": 0, "dxf_indexed": 0,
+                                        "triagem_rows": 0, "duration_s": 0})
+
+        # Desabilitar botão durante execução
+        sender_btn = self.sender()
+        if sender_btn:
+            sender_btn.setEnabled(False)
+
+        if hasattr(self, '_lbl_rag_status'):
+            self._lbl_rag_status.setText("🔄 Processando...")
+            self._lbl_rag_status.setStyleSheet(
+                f"color: {Colors.ACCENT_WARNING}; font-size: 11px;"
+                " background: transparent; border: none; padding: 0 4px;"
+            )
+
+        self._rag_thread = QThread()
+        self._rag_worker = _Worker(work_name)
+        self._rag_worker.moveToThread(self._rag_thread)
+        self._rag_thread.started.connect(self._rag_worker.run)
+
+        def _on_progress(pct, msg):
+            if hasattr(self, '_lbl_rag_status'):
+                self._lbl_rag_status.setText(f"[{pct}%] {msg}")
+
+        def _on_finished(result):
+            self._rag_thread.quit()
+            if sender_btn:
+                sender_btn.setEnabled(True)
+            # Atualiza badge com estado real do DB (substitui o spinner de progresso)
+            QTimer.singleShot(100, self._refresh_rag_badge)
+            # Restaurar botão unificado se existir
+            if hasattr(self, '_btn_ingest_all'):
+                self._btn_ingest_all.setEnabled(True)
+                self._btn_ingest_all.setText("⚡ Indexar Obra (DB + RAG + Triagem)")
+            if result.get("errors"):
+                errs = "\n".join(result["errors"][:5])
+                QMessageBox.warning(self, "RAG — Avisos", f"Pipeline concluído com avisos:\n\n{errs}")
+            # Recarregar painel de triagem e navegar para Fase 2
+            def _show_triagem_results():
+                # Garantir aba externa "MEUS PROJETOS" (índice 0) está visível
+                if hasattr(self, 'tabs'):
+                    self.tabs.setCurrentIndex(0)
+                # Garantir que o painel está expandido
+                if hasattr(self, '_triagem_content_widget'):
+                    self._triagem_content_widget.setVisible(True)
+                if hasattr(self, '_btn_triagem_toggle'):
+                    self._btn_triagem_toggle.setText("▲")
+                # Navegar para a aba Fase 2 (índice 1) — dispara _on_phase_tab_switched
+                if hasattr(self, 'phase_tabs'):
+                    self.phase_tabs.setCurrentIndex(1)
+                # Forçar refresh do painel (garante render mesmo se tab já estava em idx 1)
+                if hasattr(self, '_triagem_list_layout'):
+                    self._refresh_triagem_panel()
+
+            QTimer.singleShot(200, _show_triagem_results)
+
+        self._rag_worker.progress.connect(_on_progress)
+        self._rag_worker.finished.connect(_on_finished)
+        self._rag_thread.start()
+
+    # Cache: {work_name: (timestamp, disco_count)}
+    _fs_count_cache: dict = {}
+    _FS_CACHE_TTL = 30  # segundos
+
+    def _get_index_counts(self, work_name: str) -> tuple[int, int]:
+        """Retorna (total_disco_fase1, total_db_fase1) para a obra atual.
+        Conta apenas arquivos da Fase-1_Ingestao no disco e phase=1 no DB.
+        Usa cache de 30s para o scan de disco (operação lenta).
+        """
+        import sqlite3 as _sq3
+        import time as _time
+        from pathlib import Path as _P
+        EXTS = {'.dwg', '.dxf', '.pdf', '.md'}
+        DADOS = _P("D:/Agente-cad-PYSIDE/DADOS-OBRAS")
+        DB    = _P("D:/Agente-cad-PYSIDE/project_data.vision")
+        if not work_name:
+            return 0, 0
+
+        # Cache do scan de disco (evita rglob a cada troca de obra)
+        now = _time.time()
+        cached = self._fs_count_cache.get(work_name)
+        if cached and (now - cached[0]) < self._FS_CACHE_TTL:
+            disco = cached[1]
+        else:
+            fase1_path = DADOS / work_name / "Fase-1_Ingestao"
+            if fase1_path.is_dir():
+                # Contar apenas as 4 pastas canônicas (idêntico ao _scan_phase1_filesystem)
+                import os as _os
+                disco = 0
+                for folder_name in self._FASE1_FOLDER_MAP:
+                    folder = fase1_path / folder_name
+                    if folder.is_dir():
+                        for fn in _os.listdir(str(folder)):
+                            if _os.path.splitext(fn)[1].lower() in EXTS:
+                                disco += 1
+            else:
+                disco = 0
+            self._fs_count_cache[work_name] = (now, disco)
+
+        try:
+            conn = _sq3.connect(str(DB))
+            cur  = conn.cursor()
+            # Filtra pelas mesmas extensões do scan de disco (bug: antes contava jpg/png)
+            cur.execute(
+                "SELECT COUNT(*) FROM project_documents"
+                " WHERE work_name=? AND phase=1"
+                " AND lower(extension) IN ('.dwg','.dxf','.pdf','.md')",
+                (work_name,)
+            )
+            db_n = cur.fetchone()[0]
+            conn.close()
+        except Exception:
+            db_n = 0
+        return disco, db_n
+
+    def _refresh_index_badge(self):
+        """Atualiza o badge de contagem disco/DB ao lado do botão Indexar."""
+        if not hasattr(self, '_lbl_index_badge'):
+            return
+        work_name = self.current_work_name or ""
+        disco, db_n = self._get_index_counts(work_name)
+        falta = disco - db_n
+        if disco == 0:
+            text  = "sem obra"
+            color = Colors.TEXT_DIM
+        elif db_n == disco:
+            text  = f"✅ {db_n}/{disco} indexados"
+            color = Colors.ACCENT_SUCCESS_ALT
+        elif db_n > disco:
+            # Mais entradas no DB do que arquivos no disco (indexações anteriores / multi-versão)
+            text  = f"📦 {db_n} DB / {disco} disco"
+            color = Colors.TEXT_SECONDARY
+        elif db_n == 0:
+            text  = f"❌ 0/{disco} indexados"
+            color = Colors.ACCENT_DANGER
+        else:
+            text  = f"⚠ {db_n}/{disco}  (+{falta} faltando)"
+            color = Colors.ACCENT_WARNING
+        self._lbl_index_badge.setText(text)
+        self._lbl_index_badge.setStyleSheet(
+            f"color: {color}; font-size: 11px; font-weight: bold;"
+            " background: transparent; border: none; padding: 0 4px;"
+        )
+
+    def _get_rag_counts(self, work_name: str) -> tuple[int, int, int]:
+        """Retorna (triagem_total, triagem_pending, dxf_indexed) para a obra."""
+        import sqlite3 as _sq3
+        DB = Path("D:/Agente-cad-PYSIDE/project_data.vision")
+        triagem_total   = 0
+        triagem_pending = 0
+        dxf_indexed     = 0
+        if not work_name:
+            return 0, 0, 0
+        try:
+            conn = _sq3.connect(str(DB))
+            cur = conn.execute(
+                "SELECT COUNT(*) FROM obra_triagem WHERE obra_name=?", (work_name,)
+            )
+            triagem_total = cur.fetchone()[0]
+            cur = conn.execute(
+                "SELECT COUNT(*) FROM obra_triagem WHERE obra_name=? AND status IN ('pending','review_required')",
+                (work_name,)
+            )
+            triagem_pending = cur.fetchone()[0]
+            conn.close()
+        except Exception:
+            pass
+        # LanceDB — contagem rápida (sem embedding)
+        try:
+            from scripts.obra_rag_utils import get_obra_db
+            db = get_obra_db(work_name)
+            tables = db.table_names() if hasattr(db, 'table_names') else []
+            if "obra_dxf_inventory" in tables:
+                tbl = db.open_table("obra_dxf_inventory")
+                dxf_indexed = tbl.count_rows()
+        except Exception:
+            pass
+        return triagem_total, triagem_pending, dxf_indexed
+
+    def _refresh_rag_badge(self):
+        """Atualiza o badge de estado RAG/Triagem ao lado do botão Indexar Obra."""
+        if not hasattr(self, '_lbl_rag_status'):
+            return
+        work_name = self.current_work_name or ""
+        triagem_total, triagem_pending, dxf_indexed = self._get_rag_counts(work_name)
+
+        if triagem_total == 0 and dxf_indexed == 0:
+            text  = "—"
+            color = Colors.TEXT_DIM
+        elif triagem_pending > 0:
+            text  = f"⏳ {triagem_pending} pendentes / {triagem_total} triagem"
+            if dxf_indexed:
+                text += f" / {dxf_indexed} DXFs"
+            color = Colors.ACCENT_WARNING
+        else:
+            # Tudo classificado
+            text  = f"✅ {triagem_total} triagem"
+            if dxf_indexed:
+                text += f" / {dxf_indexed} DXFs"
+            color = Colors.ACCENT_SUCCESS_ALT
+
+        self._lbl_rag_status.setText(text)
+        self._lbl_rag_status.setStyleSheet(
+            f"color: {color}; font-size: 11px; font-weight: bold;"
+            " background: transparent; border: none; padding: 0 4px;"
+        )
+
+    # ── EPIC 2: Triagem IA ──────────────────────────────────────────────────
+
+    _TRIAGEM_TO_FASE2 = {
+        "Estruturais dos Pavimentos, Estado Bruto (.DWG/.DXF)": "Estruturais Pavimentos Limpos",
+        "Projetos Finais Para Engenharia Reversa (suporte a dwg e dxf)": "Projetos Finalizados para Engenharia Reversa",
+        "Detalhes Estruturais (.DWG/.PDF/.DXF/.MD)": "Detalhamentos Específicos",
+        "Estruturais Pavimentos Limpos": "Estruturais Pavimentos Limpos",
+        "Detalhamentos Específicos": "Detalhamentos Específicos",
+        "Projetos Finalizados para Engenharia Reversa": "Projetos Finalizados para Engenharia Reversa",
+    }
+
+    def _build_triagem_panel(self, layout):
+        """Painel colapsável de sugestões IA — injetado no topo da Fase 2."""
+        outer = QFrame()
+        outer.setObjectName("TriagemPanel")
+        outer.setStyleSheet(_resolve_css("""
+            QFrame#TriagemPanel {
+                background: {Colors.BG_PANEL};
+                border: 1px solid {Colors.ACCENT_PRIMARY};
+                border-radius: 8px;
+            }
+        """))
+        outer_layout = QVBoxLayout(outer)
+        outer_layout.setContentsMargins(12, 10, 12, 10)
+        outer_layout.setSpacing(8)
+
+        # Header row
+        header = QHBoxLayout()
+        header.setSpacing(8)
+
+        self._lbl_triagem_summary = QLabel("🧠 Sugestões IA")
+        self._lbl_triagem_summary.setStyleSheet(_resolve_css(
+            "color: {Colors.ACCENT_PRIMARY}; font-size: 12px; font-weight: bold;"
+            " background: transparent; border: none;"
+        ))
+
+        btn_approve_all = QPushButton("✓ Aprovar ≥ 80%")
+        btn_approve_all.setToolTip("Aprova automaticamente todas as sugestões com confiança ≥ 80%")
+        btn_approve_all.setStyleSheet(_resolve_css("""
+            QPushButton {
+                background: rgba(0,200,120,38); color: {Colors.ACCENT_SUCCESS_ALT};
+                border: 1px solid {Colors.ACCENT_SUCCESS_ALT}; border-radius: 4px;
+                padding: 3px 10px; font-size: 11px; font-weight: bold;
+            }
+            QPushButton:hover { background: rgba(0,200,120,71); }
+        """))
+
+        btn_reload = QPushButton("↻")
+        btn_reload.setToolTip("Recarregar sugestões da obra atual")
+        btn_reload.setFixedWidth(28)
+        btn_reload.setStyleSheet(_resolve_css("""
+            QPushButton {
+                background: {Colors.BG_CARD}; color: {Colors.TEXT_SECONDARY};
+                border: 1px solid {Colors.BORDER_DEFAULT}; border-radius: 4px;
+                padding: 3px; font-size: 13px;
+            }
+            QPushButton:hover { color: {Colors.TEXT_PRIMARY}; }
+        """))
+
+        self._btn_triagem_toggle = QPushButton("▲")
+        self._btn_triagem_toggle.setFixedWidth(28)
+        self._btn_triagem_toggle.setStyleSheet(
+            "QPushButton { background: transparent; color: #888; border: none; font-size: 11px; }"
+        )
+
+        header.addWidget(self._lbl_triagem_summary)
+        header.addStretch()
+        header.addWidget(btn_approve_all)
+        header.addWidget(btn_reload)
+        header.addWidget(self._btn_triagem_toggle)
+        outer_layout.addLayout(header)
+
+        # Content (colapsável)
+        self._triagem_content_widget = QWidget()
+        content_layout = QVBoxLayout(self._triagem_content_widget)
+        content_layout.setContentsMargins(0, 4, 0, 0)
+        content_layout.setSpacing(0)
+
+        scroll = QScrollArea()
+        scroll.setMaximumHeight(1040)
+        scroll.setMinimumHeight(280)
+        scroll.setWidgetResizable(True)
+        scroll.setStyleSheet(_resolve_css("""
+            QScrollArea { border: none; background: transparent; }
+            QScrollBar:vertical { border: none; background: {Colors.BG_DEEP}; width: 6px; margin: 0; }
+            QScrollBar::handle:vertical { background: {Colors.BG_CARD}; min-height: 16px; border-radius: 3px; }
+        """))
+
+        self._triagem_list_container = QWidget()
+        self._triagem_list_container.setStyleSheet("background: transparent;")
+        self._triagem_list_layout = QVBoxLayout(self._triagem_list_container)
+        self._triagem_list_layout.setSpacing(1)
+        self._triagem_list_layout.setContentsMargins(0, 0, 0, 0)
+
+        scroll.setWidget(self._triagem_list_container)
+        content_layout.addWidget(scroll)
+        outer_layout.addWidget(self._triagem_content_widget)
+
+        layout.addWidget(outer)
+
+        def _toggle():
+            vis = not self._triagem_content_widget.isVisible()
+            self._triagem_content_widget.setVisible(vis)
+            self._btn_triagem_toggle.setText("▲" if vis else "▼")
+
+        self._btn_triagem_toggle.clicked.connect(_toggle)
+        btn_reload.clicked.connect(self._refresh_triagem_panel)
+        btn_approve_all.clicked.connect(self._approve_all_high_confidence_triagem)
+
+        self._refresh_triagem_panel()
+
+    def _load_triagem_rows(self) -> list:
+        """Carrega TODAS as sugestões de obra_triagem para a obra atual (todos os status)."""
+        import sqlite3 as _sq3
+        DB = Path("D:/Agente-cad-PYSIDE/project_data.vision")
+        work_name = self.current_work_name or ""
+        if not work_name:
+            return []
+        try:
+            conn = _sq3.connect(str(DB))
+            conn.row_factory = _sq3.Row
+            cur = conn.execute(
+                "SELECT * FROM obra_triagem WHERE obra_name=?"
+                " ORDER BY CASE status WHEN 'pending' THEN 0 WHEN 'review_required' THEN 1"
+                " WHEN 'approved' THEN 2 ELSE 3 END,"
+                " confidence DESC, suggested_order ASC",
+                (work_name,)
+            )
+            rows = [dict(r) for r in cur.fetchall()]
+            conn.close()
+            return rows
+        except Exception:
+            return []
+
+    def _count_triagem_total(self) -> int:
+        """Conta total de linhas em obra_triagem para a obra atual (qualquer status)."""
+        import sqlite3 as _sq3
+        DB = Path("D:/Agente-cad-PYSIDE/project_data.vision")
+        work_name = self.current_work_name or ""
+        if not work_name:
+            return 0
+        try:
+            conn = _sq3.connect(str(DB))
+            cur = conn.execute(
+                "SELECT COUNT(*) FROM obra_triagem WHERE obra_name=?", (work_name,)
+            )
+            total = cur.fetchone()[0]
+            conn.close()
+            return total
+        except Exception:
+            return 0
+
+    def _refresh_triagem_panel(self):
+        """Reconstrói a lista de cards de triagem."""
+        if not hasattr(self, '_triagem_list_layout'):
+            return
+        while self._triagem_list_layout.count():
+            item = self._triagem_list_layout.takeAt(0)
+            if item.widget():
+                item.widget().deleteLater()
+
+        rows = self._load_triagem_rows()
+
+        if not rows:
+            work = self.current_work_name or "..."
+            msg = (
+                f"Nenhuma sugestão para {work}.\n"
+                "Execute '🧠 Indexar Obra (RAG + Triagem)' na Fase 1 para gerar sugestões automáticas."
+            )
+            summary_txt = "🧠 Sugestões IA — nenhuma pendente"
+            lbl = QLabel(msg)
+            lbl.setWordWrap(True)
+            lbl.setStyleSheet(_resolve_css(
+                "color: {Colors.TEXT_DIM}; font-size: 11px; padding: 10px;"
+                " background: transparent; border: none;"
+            ))
+            self._triagem_list_layout.addWidget(lbl)
+            if hasattr(self, '_lbl_triagem_summary'):
+                self._lbl_triagem_summary.setText(summary_txt)
+        else:
+            # Summary diferenciado por status
+            n_pending  = sum(1 for r in rows if r['status'] in ('pending', 'review_required'))
+            n_approved = sum(1 for r in rows if r['status'] == 'approved')
+            n_rejected = sum(1 for r in rows if r['status'] == 'rejected')
+            parts = []
+            if n_pending:  parts.append(f"{n_pending} pendentes")
+            if n_approved: parts.append(f"✅ {n_approved} aprovados")
+            if n_rejected: parts.append(f"❌ {n_rejected} rejeitados")
+            summary = "🧠 Sugestões IA — " + ("  |  ".join(parts) if parts else "nenhuma pendente")
+            if hasattr(self, '_lbl_triagem_summary'):
+                self._lbl_triagem_summary.setText(summary)
+            # Agrupar por pavimento e ordenar canonicamente
+            groups: dict = {}
+            for row in rows:
+                pav = self._get_row_pav(row)
+                groups.setdefault(pav, []).append(row)
+            sorted_groups = sorted(groups.items(), key=lambda kv: self._pav_sort_key(kv[0]))
+            multi = len(sorted_groups) > 1
+            for pav_name, pav_rows in sorted_groups:
+                if multi:
+                    hdr = self._make_pavimento_section_header(pav_name)
+                    self._triagem_list_layout.addWidget(hdr)
+                for row in pav_rows:
+                    card = self._make_triagem_card(row)
+                    self._triagem_list_layout.addWidget(card)
+
+        self._triagem_list_layout.addStretch()
+
+    # ── Constantes de opções para chips combo ───────────────────────────────
+
+    _TRIAGEM_CAT_OPTIONS: list[tuple[str, str]] = [
+        ("Bruto",       "Estruturais dos Pavimentos, Estado Bruto (.DWG/.DXF)"),
+        ("Eng.Reversa", "Projetos Finalizados para Engenharia Reversa"),
+        ("Detalhe",     "Detalhes Estruturais (.DWG/.PDF/.DXF/.MD)"),
+        ("Limpas",      "Estruturais Pavimentos Limpos"),
+    ]
+    _PAV_OPTIONS: list[str] = [
+        "FUNDAÇÃO", "1º SUBSOLO", "2º SUBSOLO", "SUBSOLO",
+        "TÉRREO", "TIPO", "1º PAVIMENTO", "2º PAVIMENTO", "3º PAVIMENTO",
+        "4º PAVIMENTO", "5º PAVIMENTO", "ÁTICO", "COBERTURA",
+        "DECK", "BARRILETE", "CAIXA D'ÁGUA", "OUTROS",
+    ]
+    _ER_CLASS_OPTIONS: list[str] = ["Pilares", "Lateral de Viga", "Fundos de Viga", "Lajes", "GF", "Outros"]
+
+    # Mapeamento short-code → label completo (compatibilidade com valores salvos)
+    _ER_SHORT_TO_FULL: dict = {
+        "PIL":    "Pilares",
+        "LV":     "Lateral de Viga",
+        "FV":     "Fundos de Viga",
+        "LAJ":    "Lajes",
+        "GF":     "GF",
+        "OUTROS": "Outros",
+        # já completos (para idempotência)
+        "Pilares":         "Pilares",
+        "Lateral de Viga": "Lateral de Viga",
+        "Fundos de Viga":  "Fundos de Viga",
+        "Lajes":           "Lajes",
+        "Outros":          "Outros",
+    }
+
+    # Cor de fundo distinta por classe ER
+    _ER_CLASS_COLORS: dict = {
+        "Pilares":         "#9B59B6",   # roxo
+        "Lateral de Viga": "#2980B9",   # azul
+        "Fundos de Viga":  "#D35400",   # laranja
+        "Lajes":           "#27AE60",   # verde
+        "GF":              "#C0392B",   # vermelho
+        "Outros":          "#607D8B",   # cinza azul
+    }
+
+    def _make_combo_chip(
+        self,
+        label: str,
+        bg_color: str,
+        options: list,
+        on_select,
+        fixed_width: int = 82,
+    ) -> "QPushButton":
+        """Chip clicável que abre QMenu para seleção. on_select(str) chamado com o valor."""
+        from PySide6.QtWidgets import QMenu
+        btn = QPushButton(label)
+        btn.setFixedHeight(20)
+        if fixed_width:
+            btn.setFixedWidth(fixed_width)
+        btn.setCursor(Qt.CursorShape.PointingHandCursor)
+        btn.setStyleSheet(
+            f"QPushButton {{ color: {Colors.BG_DEEP}; background: {bg_color};"
+            " border-radius: 3px; padding: 0 6px; font-size: 10px; font-weight: bold;"
+            " border: none; text-align: center; }}"
+            f"QPushButton:hover {{ background: {bg_color}; border: 1px solid white; }}"
+        )
+        menu = QMenu(btn)
+        menu.setStyleSheet(_resolve_css("""
+            QMenu { background: {Colors.BG_PANEL}; border: 1px solid {Colors.BORDER_DEFAULT};
+                    color: {Colors.TEXT_PRIMARY}; font-size: 11px; }
+            QMenu::item:selected { background: {Colors.BG_CARD}; }
+        """))
+        def _refresh_menu():
+            menu.clear()
+            for opt in options:
+                act = menu.addAction(str(opt))
+                act.triggered.connect(lambda checked=False, o=opt: on_select(o))
+        _refresh_menu()
+        btn.clicked.connect(lambda: menu.exec(btn.mapToGlobal(btn.rect().bottomLeft())))
+        return btn
+
+    def _make_chip_with_conf(
+        self,
+        parent_layout,
+        chip_label: str,
+        bg_color: str,
+        options: list,
+        on_select,
+        chip_width: int,
+        conf: float,
+        conf_notes_key: str,
+        row_id: str,
+        notes: dict,
+        on_conf_save,
+    ):
+        """Adiciona ao layout um par [chip combo] [conf%] independentes."""
+        conf_color = (
+            Colors.ACCENT_SUCCESS_ALT if conf >= 0.85 else
+            Colors.ACCENT_WARNING     if conf >= 0.60 else
+            Colors.ACCENT_DANGER      if conf > 0    else
+            Colors.TEXT_DIM
+        )
+        chip = self._make_combo_chip(chip_label, bg_color, options, on_select, chip_width)
+        lbl_c = QLabel(f"{conf:.0%}" if conf > 0 else "—%")
+        lbl_c.setFixedWidth(30)
+        lbl_c.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        lbl_c.setStyleSheet(
+            f"color: {conf_color}; font-size: 10px; font-weight: bold;"
+            " background: transparent; border: none;"
+        )
+        parent_layout.addWidget(chip)
+        parent_layout.addWidget(lbl_c)
+
+    def _get_triagem_notes(self, row: dict) -> dict:
+        """Lê notas JSON do row de triagem (pavimento, er_class etc.)."""
+        import json as _json
+        try:
+            return _json.loads(row.get('notes') or '{}')
+        except Exception:
+            return {}
+
+    def _save_triagem_field(self, row_id: str, field: str, value: str):
+        """Salva campo em obra_triagem pelo id."""
+        import sqlite3 as _sq3
+        DB = Path("D:/Agente-cad-PYSIDE/project_data.vision")
+        try:
+            conn = _sq3.connect(str(DB))
+            conn.execute(f"UPDATE obra_triagem SET {field}=? WHERE id=?", (value, row_id))
+            conn.commit()
+            conn.close()
+        except Exception:
+            pass
+
+    def _save_triagem_notes_field(self, row_id: str, notes_key: str, value: str, current_notes: dict):
+        """Atualiza uma chave dentro do JSON notes de obra_triagem."""
+        import json as _json
+        import sqlite3 as _sq3
+        DB = Path("D:/Agente-cad-PYSIDE/project_data.vision")
+        current_notes[notes_key] = value
+        try:
+            conn = _sq3.connect(str(DB))
+            conn.execute("UPDATE obra_triagem SET notes=? WHERE id=?",
+                         (_json.dumps(current_notes, ensure_ascii=False), row_id))
+            conn.commit()
+            conn.close()
+        except Exception:
+            pass
+
+    def _make_triagem_card(self, row: dict) -> QWidget:
+        """Cria um card para uma sugestão de triagem."""
+        status = row.get('status', 'pending')
+
+        card = QFrame()
+        if status == 'approved':
+            card_bg = "rgba(0,200,120,15)"
+        else:
+            card_bg = Colors.BG_DEEP
+        card.setStyleSheet(
+            f"QFrame {{ background: {card_bg};"
+            f" border: 1px solid {Colors.BORDER_DEFAULT}; border-radius: 5px; }}"
+        )
+        card_layout = QHBoxLayout(card)
+        card_layout.setContentsMargins(8, 4, 8, 4)
+        card_layout.setSpacing(8)
+
+        conf = float(row.get('confidence', 0.0))
+        conf_color = (
+            Colors.ACCENT_SUCCESS_ALT if conf >= 0.85 else
+            Colors.ACCENT_WARNING if conf >= 0.60 else
+            Colors.ACCENT_DANGER
+        )
+        cat_color = Colors.ACCENT_WARNING if status == 'review_required' else Colors.ACCENT_PRIMARY
+
+        # Filename
+        fname = row.get('file_name', '')
+        lbl_file = QLabel(fname)
+        lbl_file.setToolTip(row.get('file_path', fname))
+        fname_color = Colors.TEXT_DIM if status == 'rejected' else Colors.TEXT_PRIMARY
+        lbl_file.setStyleSheet(
+            f"color: {fname_color}; font-size: 11px; background: transparent; border: none;"
+        )
+
+        row_id    = row['id']
+        file_name = row.get('file_name', '')
+        file_path = row.get('file_path', '')
+        notes     = self._get_triagem_notes(row)
+
+        # ── Chips com % independentes ─────────────────────────────────────────
+        cat = row.get('suggested_category', '')
+        if "Bruto" in cat:       cat_short = "Bruto"
+        elif "Reversa" in cat or "Engenharia" in cat: cat_short = "Eng.Reversa"
+        elif "Detalhe" in cat:   cat_short = "Detalhe"
+        elif "Limpos" in cat:    cat_short = "Limpas"
+        else:                    cat_short = cat[:12]
+
+        cat_options_labels = [lbl for lbl, _ in self._TRIAGEM_CAT_OPTIONS]
+
+        # Classificador automático (usado como fallback quando notes vazio)
+        inferred = self._classify_filename(file_name)
+
+        def _on_cat_change(opt_label):
+            full_cat = dict(self._TRIAGEM_CAT_OPTIONS).get(opt_label, opt_label)
+            self._save_triagem_field(row_id, 'suggested_category', full_cat)
+            self._save_triagem_field(row_id, 'confidence', '1.0')
+            QTimer.singleShot(60, self._refresh_triagem_panel)
+
+        # [Categoria] cat_conf%
+        cat_conf = conf  # confidence do RAG = confiança da categoria
+        self._make_chip_with_conf(
+            card_layout, cat_short, cat_color, cat_options_labels, _on_cat_change,
+            82, cat_conf, 'cat_confidence', row_id, notes, None
+        )
+
+        # [Classe ER] class_conf%  — mostrar se Eng.Reversa (manual ou inferido)
+        is_er = ("Reversa" in cat or "Engenharia" in cat or
+                 notes.get('er_class') or inferred['er_class'] != 'OUTROS')
+        if is_er:
+            er_class_current = notes.get('er_class') or inferred['er_class']
+            # Converter short code → label completo para exibição
+            er_class_display = self._ER_SHORT_TO_FULL.get(er_class_current, er_class_current)
+            # Cor distinta por classe
+            er_class_color = self._ER_CLASS_COLORS.get(er_class_display, "#607D8B")
+            cls_conf = float(notes.get('class_confidence', inferred['class_conf']))
+
+            def _on_class_change(opt, _notes=notes):
+                _notes['class_confidence'] = 1.0
+                self._save_triagem_notes_field(row_id, 'er_class', opt, _notes)
+                self._save_triagem_notes_field(row_id, 'class_confidence', 1.0, _notes)
+                QTimer.singleShot(60, self._refresh_triagem_panel)
+
+            self._make_chip_with_conf(
+                card_layout, er_class_display, er_class_color,
+                self._ER_CLASS_OPTIONS, _on_class_change,
+                115, cls_conf, 'class_confidence', row_id, notes, None
+            )
+
+        # [Pavimento] pav_conf%
+        pav_inferred = inferred['pav']
+        pav_inferred_conf = inferred['pav_conf']
+        pav_current = notes.get('pavimento') or pav_inferred
+        pav_short   = pav_current[:11] if len(pav_current) > 11 else pav_current
+        pav_conf    = float(notes.get('pav_confidence', pav_inferred_conf))
+
+        def _on_pav_change(opt, _notes=notes):
+            _notes['pav_confidence'] = 1.0
+            self._save_triagem_notes_field(row_id, 'pavimento', opt, _notes)
+            self._save_triagem_notes_field(row_id, 'pav_confidence', 1.0, _notes)
+            QTimer.singleShot(60, self._refresh_triagem_panel)
+
+        pav_chip = self._make_combo_chip(pav_short, Colors.BG_CARD, self._PAV_OPTIONS, _on_pav_change, 88)
+        pav_chip.setStyleSheet(
+            f"QPushButton {{ color: {Colors.TEXT_PRIMARY}; background: {Colors.BG_CARD};"
+            f" border: 1px solid {Colors.BORDER_DEFAULT}; border-radius: 3px; padding: 0 5px;"
+            " font-size: 10px; font-weight: bold; }}"
+            f"QPushButton:hover {{ border-color: {Colors.ACCENT_PRIMARY}; }}"
+        )
+        pav_conf_color = (
+            Colors.ACCENT_SUCCESS_ALT if pav_conf >= 0.85 else
+            Colors.ACCENT_WARNING     if pav_conf >= 0.60 else
+            Colors.TEXT_DIM
+        )
+        lbl_pav_conf = QLabel(f"{pav_conf:.0%}" if pav_conf > 0 else "—%")
+        lbl_pav_conf.setFixedWidth(30)
+        lbl_pav_conf.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        lbl_pav_conf.setStyleSheet(
+            f"color: {pav_conf_color}; font-size: 10px; font-weight: bold;"
+            " background: transparent; border: none;"
+        )
+
+        card_layout.addWidget(lbl_file, 1)
+        card_layout.addWidget(pav_chip)
+        card_layout.addWidget(lbl_pav_conf)
+
+        if status == 'approved':
+            lbl_badge = QLabel("✅")
+            lbl_badge.setFixedWidth(20)
+            lbl_badge.setStyleSheet("background: transparent; border: none;")
+            card_layout.addWidget(lbl_badge)
+        elif status == 'rejected':
+            lbl_badge = QLabel("❌")
+            lbl_badge.setFixedWidth(20)
+            lbl_badge.setStyleSheet("background: transparent; border: none;")
+            card_layout.addWidget(lbl_badge)
+        else:
+            # Pending / review_required — botoes de acao
+            btn_ok = QPushButton("✓")
+            btn_ok.setToolTip("Aprovar — adicionar à Fase 2")
+            btn_ok.setFixedSize(28, 24)
+            btn_ok.setStyleSheet(_resolve_css("""
+                QPushButton {
+                    background: rgba(0,200,120,38); color: {Colors.ACCENT_SUCCESS_ALT};
+                    border: 1px solid {Colors.ACCENT_SUCCESS_ALT}; border-radius: 4px;
+                    font-size: 12px; font-weight: bold; padding: 0;
+                }
+                QPushButton:hover { background: rgba(0,200,120,82); }
+            """))
+
+            btn_no = QPushButton("✗")
+            btn_no.setToolTip("Rejeitar — não incluir na Fase 2")
+            btn_no.setFixedSize(28, 24)
+            btn_no.setStyleSheet(_resolve_css("""
+                QPushButton {
+                    background: rgba(255,80,80,31); color: {Colors.ACCENT_DANGER};
+                    border: 1px solid {Colors.ACCENT_DANGER}; border-radius: 4px;
+                    font-size: 12px; font-weight: bold; padding: 0;
+                }
+                QPushButton:hover { background: rgba(255,80,80,71); }
+            """))
+
+            sug_cat = row.get('suggested_category', '')
+            btn_ok.clicked.connect(lambda _, rid=row_id, fn=file_name, fp=file_path,
+                                   sc=sug_cat, c=card:
+                                   self._approve_triagem_row(rid, fn, fp, sc, c))
+            btn_no.clicked.connect(lambda _, rid=row_id, c=card:
+                                   self._reject_triagem_row(rid, c))
+
+            card_layout.addWidget(btn_ok)
+            card_layout.addWidget(btn_no)
+
+        return card
+
+    def _approve_triagem_row(self, row_id: str, file_name: str, file_path: str,
+                             suggested_category: str, card_widget):
+        """Aprova uma sugestão: salva em project_documents fase=2 e atualiza triagem."""
+        import sqlite3 as _sq3
+        DB = Path("D:/Agente-cad-PYSIDE/project_data.vision")
+        work_name = self.current_work_name or ""
+        if not work_name:
+            return
+        fase2_cat = self._TRIAGEM_TO_FASE2.get(suggested_category, "Estruturais Pavimentos Limpos")
+        ext = Path(file_path).suffix.lower() if file_path else ""
+        try:
+            self.db.save_work_document(
+                work_name=work_name,
+                name=file_name,
+                file_path=file_path,
+                extension=ext,
+                storage_path=None,
+                phase=2,
+                category=fase2_cat,
+            )
+        except Exception as e:
+            QMessageBox.warning(self, "Triagem", f"Erro ao salvar documento:\n{e}")
+            return
+        try:
+            conn = _sq3.connect(str(DB))
+            conn.execute("UPDATE obra_triagem SET status='approved' WHERE id=?", (row_id,))
+            conn.commit()
+            conn.close()
+        except Exception:
+            pass
+        QTimer.singleShot(100, self._refresh_triagem_panel)
+        QTimer.singleShot(200, self._refresh_preprocess_panel)
+        QTimer.singleShot(200, self._refresh_projetos_finalizados_panel)
+        QTimer.singleShot(200, self._refresh_detalhamentos_panel)
+
+    def _reject_triagem_row(self, row_id: str, card_widget):
+        """Rejeita uma sugestão."""
+        import sqlite3 as _sq3
+        DB = Path("D:/Agente-cad-PYSIDE/project_data.vision")
+        try:
+            conn = _sq3.connect(str(DB))
+            conn.execute("UPDATE obra_triagem SET status='rejected' WHERE id=?", (row_id,))
+            conn.commit()
+            conn.close()
+        except Exception:
+            pass
+        QTimer.singleShot(100, self._refresh_triagem_panel)
+
+    def _refresh_triagem_summary(self):
+        """Atualiza o label de summary sem reconstruir toda a lista."""
+        rows = self._load_triagem_rows()
+        if not hasattr(self, '_lbl_triagem_summary'):
+            return
+        if not rows:
+            self._lbl_triagem_summary.setText("🧠 Sugestões IA — nenhuma pendente")
+        else:
+            high   = sum(1 for r in rows if r['confidence'] >= 0.80)
+            review = sum(1 for r in rows if r['status'] == 'review_required')
+            self._lbl_triagem_summary.setText(
+                f"🧠 Sugestões IA — {len(rows)} pendentes  "
+                f"({high} alta conf.  |  {review} revisar)"
+            )
+
+    def _approve_all_high_confidence_triagem(self):
+        """Aprova em lote todas as sugestões com confiança >= 80%."""
+        import sqlite3 as _sq3
+        DB = Path("D:/Agente-cad-PYSIDE/project_data.vision")
+        work_name = self.current_work_name or ""
+        if not work_name:
+            QMessageBox.warning(self, "Triagem", "Selecione uma obra primeiro.")
+            return
+        rows = self._load_triagem_rows()
+        high_rows = [r for r in rows if r['confidence'] >= 0.80]
+        if not high_rows:
+            QMessageBox.information(self, "Triagem", "Nenhuma sugestão com confiança ≥ 80%.")
+            return
+        approved = 0
+        errors   = []
+        for row in high_rows:
+            fase2_cat = self._TRIAGEM_TO_FASE2.get(
+                row.get('suggested_category', ''), "Estruturais Pavimentos Limpos"
+            )
+            ext = Path(row.get('file_path', '')).suffix.lower()
+            try:
+                self.db.save_work_document(
+                    work_name=work_name,
+                    name=row['file_name'],
+                    file_path=row['file_path'],
+                    extension=ext,
+                    storage_path=None,
+                    phase=2,
+                    category=fase2_cat,
+                )
+                approved += 1
+            except Exception as e:
+                errors.append(str(e))
+        if approved:
+            try:
+                conn = _sq3.connect(str(DB))
+                placeholders = ','.join('?' * len(high_rows))
+                conn.execute(
+                    f"UPDATE obra_triagem SET status='approved' WHERE id IN ({placeholders})",
+                    [r['id'] for r in high_rows],
+                )
+                conn.commit()
+                conn.close()
+            except Exception:
+                pass
+        msg = f"✅ {approved} arquivos aprovados e enviados para Fase 2."
+        if errors:
+            msg += f"\n\n⚠ {len(errors)} erros ao salvar."
+        QMessageBox.information(self, "Triagem — Aprovação em Lote", msg)
+        self._refresh_triagem_panel()
+        QTimer.singleShot(200, self._refresh_preprocess_panel)
+        QTimer.singleShot(200, self._refresh_projetos_finalizados_panel)
+
+    # ── Helpers: Classificador de Filename ─────────────────────────────────
+
+    def _classify_filename(self, filename: str) -> dict:
+        """
+        Classifica filename em pavimento, classe ER e categoria.
+        Retorna: {pav, pav_conf, er_class, class_conf, category, cat_conf}
+        Padrões aprendidos de dados reais (ALIMONTI, TMC, 1610.01, etc.)
+        """
+        import re
+        import unicodedata
+
+        # Normaliza acentos (É→E, Ã→A, etc.) antes de fazer .upper()
+        stem = unicodedata.normalize('NFKD', filename)
+        stem = ''.join(c for c in stem if not unicodedata.combining(c))
+        stem = re.sub(r'\.\w+$', '', stem.upper())  # sem extensão
+        # Normaliza sinais de grau/ordinal para 'O' (U+00B0=°, U+00BA=º nos filenames reais)
+        stem = stem.replace('\u00b0', 'O').replace('\u00ba', 'O')
+
+        result: dict = {
+            'pav': 'OUTROS', 'pav_conf': 0.0,
+            'er_class': 'OUTROS', 'class_conf': 0.0,
+            'category': '', 'cat_conf': 0.0,
+        }
+
+        # ── Classe ER ──────────────────────────────────────────────────────
+        # Tokens isolados por separadores (-, espaço) antes do Rev (R\d+)
+        # PL ≠ PLA (PLA = PLANTA)
+        ER_MAP = [
+            (r'(?<![A-Z])FV(?![A-Z])', 'FV'),
+            (r'(?<![A-Z])LV(?![A-Z])', 'LV'),
+            (r'(?<![A-Z])LJ(?![A-Z])', 'LAJ'),
+            (r'(?<![A-Z])LAJ(?![A-Z])', 'LAJ'),
+            (r'(?<![A-Z])GF(?![A-Z])', 'GF'),
+            # PL mas não PLA (e não EST-PL, etc.)
+            (r'[-\s]PL[-\s.]|[-\s]PL$', 'PIL'),
+        ]
+        for pat, cls in ER_MAP:
+            if re.search(pat, stem):
+                result['er_class'] = cls
+                result['class_conf'] = 0.90
+                break
+
+        # ── Categoria ──────────────────────────────────────────────────────
+        # Eng.Reversa: tem classe ER isolada antes de revisão
+        if re.search(r'[-\s](FV|LV|LJ|GF|LAJ)[-\s.]R\d|[-\s]PL[-\s.]R\d', stem):
+            result['category'] = 'Eng.Reversa'
+            result['cat_conf'] = 0.95
+        elif re.search(r'EST[-.]?(LO|EX|PE)[-.]', stem):
+            result['category'] = 'Bruto'
+            result['cat_conf'] = 0.88
+        elif re.search(r'\bLOC\b', stem):
+            result['category'] = 'Bruto'
+            result['cat_conf'] = 0.55
+
+        # ── Pavimento (do mais específico ao mais genérico) ─────────────────
+
+        # COB + DECK combo
+        if re.search(r'COB\w*\s*[-E]\s*DECK|DECK\s*[-E]\s*COB', stem):
+            result['pav'], result['pav_conf'] = 'COB/DECK', 0.95
+
+        # TIPO N-M  ("TIPO - 3 AO 12 PAV" ou "TIPO 3-12")
+        elif m := re.search(r'TIPO[-\s.]+(\d+)O?\s*AO\s*(\d+)', stem):
+            result['pav'] = f"TIPO {m.group(1)}-{m.group(2)}"
+            result['pav_conf'] = 0.93
+
+        # TIPO N  (TIP1, TIP2, TIPO 1…)
+        elif m := re.search(r'TIP[-\s.]?(\d+)\b|TIPO[-\s.]+(\d+)', stem):
+            n = m.group(1) or m.group(2)
+            result['pav'], result['pav_conf'] = f"TIPO {n}", 0.91
+
+        # TIPO  (TIP\b, TIPO)
+        elif re.search(r'\bTIPO\b|\bTIP\b', stem):
+            result['pav'], result['pav_conf'] = 'TIPO', 0.88
+
+        # N SUBSOLO  (1SUB, 2SUB, PLA-2SUB, 1º SUBSOLO…)
+        elif m := re.search(r'PLA-(\d+)SUB|[-\s.](\d+)O?\s*SUB\b|[-\s.](\d+)SUB[-\s.]', stem):
+            n = next(g for g in m.groups() if g)
+            result['pav'], result['pav_conf'] = f"{n}º SUBSOLO", 0.93
+
+        elif re.search(r'\bSUBSOL|\bSUB[-\s]SOL', stem):
+            result['pav'], result['pav_conf'] = 'SUBSOLO', 0.85
+
+        # FUNDAÇÃO  (FUN, FUND)
+        elif re.search(r'\bFUN\b|\bFUND\b|\bFUNDA', stem):
+            result['pav'], result['pav_conf'] = 'FUNDAÇÃO', 0.92
+
+        # TÉRREO  (TER, TERR, TERRE)
+        elif re.search(r'\bTERR\b|\bTERRE|\bTER\b', stem):
+            result['pav'], result['pav_conf'] = 'TÉRREO', 0.91
+
+        # COBERTURA  (COB, COBE)
+        elif re.search(r'\bCOBE\b|\bCOBER|\bCOB\b', stem):
+            result['pav'], result['pav_conf'] = 'COBERTURA', 0.91
+
+        # ÁTICO  (ATC, ATICO)
+        elif re.search(r'\bATC\b|\bATIC', stem):
+            result['pav'], result['pav_conf'] = 'ÁTICO', 0.90
+
+        # BARRILETE  (BARR, BARRI)
+        elif re.search(r'\bBARRI|\bBARR\b|\bBAR\b', stem):
+            result['pav'], result['pav_conf'] = 'BARRILETE', 0.90
+
+        # DECK
+        elif re.search(r'\bDECK\b', stem):
+            result['pav'], result['pav_conf'] = 'DECK', 0.90
+
+        # Nº PAVIMENTO explícito  (1PAV, 2PAV, 8PAV, PLA-1PAV, PLA-2PAV)
+        elif m := re.search(
+            r'PLA[-.](\d+)PAV|[-\s.](\d+)PAV\b|[-\s.](\d+)O?\s*PAV\b', stem
+        ):
+            n = next(g for g in m.groups() if g)
+            result['pav'], result['pav_conf'] = f"{n}º PAVIMENTO", 0.92
+
+        # Nº PV  (1PV, 2PV)
+        elif m := re.search(r'[-\s.](\d+)PV\b', stem):
+            result['pav'], result['pav_conf'] = f"{m.group(1)}º PAVIMENTO", 0.90
+
+        # Nº P  curto — ex: "-13P-", "-14P-" (isolado com separadores)
+        elif m := re.search(r'[-.](\d{1,2})P[-.]', stem):
+            result['pav'], result['pav_conf'] = f"{m.group(1)}º PAVIMENTO", 0.86
+
+        # Ordinal do estilo Eng.Reversa: "13° PAV" (° normalizado para O)
+        elif m := re.search(r'(\d+)O[-.\s]*PAV', stem):
+            result['pav'], result['pav_conf'] = f"{m.group(1)}º PAVIMENTO", 0.88
+
+        # LOC = planta de localização
+        elif re.search(r'\bLOC\b', stem):
+            result['pav'], result['pav_conf'] = 'LOCALIZAÇÃO', 0.65
+
+        # TAMPÃO
+        elif re.search(r'\bTAMP\b', stem):
+            result['pav'], result['pav_conf'] = 'TAMPÃO', 0.60
+
+        return result
+
+    def _infer_pav_from_filename(self, filename: str) -> str:
+        """Wrapper legado — retorna só o nome do pavimento."""
+        return self._classify_filename(filename)['pav']
+
+    @staticmethod
+    def _pav_sort_key(pav_name: str) -> tuple:
+        """Chave de ordenação canônica para nomes de pavimento."""
+        import re
+        p = pav_name.upper().strip().replace('°', 'O').replace('º', 'O')
+        if p in ('FUNDAÇÃO', 'FUNDACAO'):              return (0, 0)
+        m = re.match(r'(\d+)O?\s*SUBSOLO', p)
+        if m:                                           return (1, int(m.group(1)))
+        if 'SUBSOLO' in p:                              return (1, 0)
+        if p in ('TÉRREO', 'TERREO'):                   return (2, 0)
+        m = re.match(r'(\d+)O?\s*PAVIMENTO', p)
+        if m:                                           return (3, int(m.group(1)))
+        m = re.match(r'TIPO\s*(\d+)-(\d+)', p)
+        if m:                                           return (4, int(m.group(1)))
+        m = re.match(r'TIPO\s*(\d+)', p)
+        if m:                                           return (4, int(m.group(1)))
+        if 'TIPO' in p:                                 return (4, 0)
+        if p in ('ÁTICO', 'ATICO'):                     return (5, 0)
+        if p == 'COBERTURA':                            return (6, 0)
+        if p == 'COB/DECK':                             return (7, 0)
+        if p == 'DECK':                                 return (8, 0)
+        if p == 'BARRILETE':                            return (9, 0)
+        if 'CAIXA' in p:                                return (10, 0)
+        if p in ('LOCALIZAÇÃO', 'LOCALIZACAO', 'LOC'):  return (11, 0)
+        if p in ('TAMPÃO', 'TAMPAO'):                   return (12, 0)
+        return (99, 0)  # OUTROS
+
+    def _get_row_pav(self, row: dict) -> str:
+        """Pavimento do row: notes primeiro (correção manual), depois classifier."""
+        notes = self._get_triagem_notes(row)
+        pav = notes.get('pavimento', '')
+        if pav and pav != 'OUTROS':
+            return pav
+        return self._classify_filename(row.get('file_name', ''))['pav']
+
+    def _make_pavimento_section_header(self, pav_name: str) -> QWidget:
+        """Cria um separador visual de secao por pavimento."""
+        hdr = QWidget()
+        hdr.setStyleSheet("background: transparent;")
+        h = QHBoxLayout(hdr)
+        h.setContentsMargins(0, 8, 0, 2)
+        h.setSpacing(8)
+        line1 = QFrame()
+        line1.setFrameShape(QFrame.Shape.HLine)
+        line1.setStyleSheet(f"color: {Colors.BORDER_DEFAULT}; background: {Colors.BORDER_DEFAULT};")
+        lbl = QLabel(pav_name)
+        lbl.setStyleSheet(
+            f"color: {Colors.TEXT_SECONDARY}; font-size: 10px; font-weight: bold;"
+            " background: transparent; border: none; padding: 0 6px;"
+        )
+        line2 = QFrame()
+        line2.setFrameShape(QFrame.Shape.HLine)
+        line2.setStyleSheet(f"color: {Colors.BORDER_DEFAULT}; background: {Colors.BORDER_DEFAULT};")
+        h.addWidget(line1, 1)
+        h.addWidget(lbl)
+        h.addWidget(line2, 1)
+        return hdr
+
+    # ── Pré-Processamento Panel ─────────────────────────────────────────────
+
+    def _build_preprocess_panel(self, layout):
+        """Painel 'Pré-Processamento Diagnostic Hub' — brutos aprovados aguardando recorte."""
+        outer = QFrame()
+        outer.setObjectName("PreprocessPanel")
+        outer.setStyleSheet(_resolve_css("""
+            QFrame#PreprocessPanel {
+                background: {Colors.BG_PANEL};
+                border: 1px solid {Colors.ACCENT_TEAL};
+                border-radius: 8px;
+            }
+        """))
+        outer_layout = QVBoxLayout(outer)
+        outer_layout.setContentsMargins(12, 10, 12, 10)
+        outer_layout.setSpacing(8)
+
+        # Header
+        header = QHBoxLayout()
+        header.setSpacing(8)
+
+        self._lbl_preprocess_summary = QLabel("✂ Pré-Processamento — Estruturais Brutos Aprovados")
+        self._lbl_preprocess_summary.setStyleSheet(_resolve_css(
+            "color: {Colors.ACCENT_TEAL}; font-size: 12px; font-weight: bold;"
+            " background: transparent; border: none;"
+        ))
+
+        btn_open_hub = QPushButton("▶ Abrir Diagnostic Hub")
+        btn_open_hub.setToolTip("Navegar para o Diagnostic Hub para processar recortes")
+        btn_open_hub.setStyleSheet(_resolve_css("""
+            QPushButton {
+                background: rgba(0,180,180,38); color: {Colors.ACCENT_TEAL};
+                border: 1px solid {Colors.ACCENT_TEAL}; border-radius: 4px;
+                padding: 3px 12px; font-size: 11px; font-weight: bold;
+            }
+            QPushButton:hover { background: rgba(0,180,180,71); }
+        """))
+
+        btn_reload_pre = QPushButton("↻")
+        btn_reload_pre.setToolTip("Recarregar lista de aprovados")
+        btn_reload_pre.setFixedWidth(28)
+        btn_reload_pre.setStyleSheet(_resolve_css("""
+            QPushButton {
+                background: {Colors.BG_CARD}; color: {Colors.TEXT_SECONDARY};
+                border: 1px solid {Colors.BORDER_DEFAULT}; border-radius: 4px;
+                padding: 3px; font-size: 13px;
+            }
+            QPushButton:hover { color: {Colors.TEXT_PRIMARY}; }
+        """))
+
+        self._btn_preprocess_toggle = QPushButton("▲")
+        self._btn_preprocess_toggle.setFixedWidth(28)
+        self._btn_preprocess_toggle.setStyleSheet(
+            "QPushButton { background: transparent; color: #888; border: none; font-size: 11px; }"
+        )
+
+        header.addWidget(self._lbl_preprocess_summary)
+        header.addStretch()
+        header.addWidget(btn_open_hub)
+        header.addWidget(btn_reload_pre)
+        header.addWidget(self._btn_preprocess_toggle)
+        outer_layout.addLayout(header)
+
+        # Content colapsável
+        self._preprocess_content_widget = QWidget()
+        pre_content_layout = QVBoxLayout(self._preprocess_content_widget)
+        pre_content_layout.setContentsMargins(0, 4, 0, 0)
+        pre_content_layout.setSpacing(0)
+
+        pre_scroll = QScrollArea()
+        pre_scroll.setMaximumHeight(480)
+        pre_scroll.setMinimumHeight(160)
+        pre_scroll.setWidgetResizable(True)
+        pre_scroll.setStyleSheet(_resolve_css("""
+            QScrollArea { border: none; background: transparent; }
+            QScrollBar:vertical { border: none; background: {Colors.BG_DEEP}; width: 6px; margin: 0; }
+            QScrollBar::handle:vertical { background: {Colors.BG_CARD}; min-height: 16px; border-radius: 3px; }
+        """))
+
+        self._preprocess_list_container = QWidget()
+        self._preprocess_list_container.setStyleSheet("background: transparent;")
+        self._preprocess_list_layout = QVBoxLayout(self._preprocess_list_container)
+        self._preprocess_list_layout.setSpacing(4)
+        self._preprocess_list_layout.setContentsMargins(0, 0, 0, 0)
+
+        pre_scroll.setWidget(self._preprocess_list_container)
+        pre_content_layout.addWidget(pre_scroll)
+        outer_layout.addWidget(self._preprocess_content_widget)
+
+        layout.addWidget(outer)
+
+        def _toggle_pre():
+            vis = not self._preprocess_content_widget.isVisible()
+            self._preprocess_content_widget.setVisible(vis)
+            self._btn_preprocess_toggle.setText("▲" if vis else "▼")
+
+        self._btn_preprocess_toggle.clicked.connect(_toggle_pre)
+        btn_reload_pre.clicked.connect(self._refresh_preprocess_panel)
+        btn_open_hub.clicked.connect(lambda: self.request_tab_switch.emit(1))
+
+        self._refresh_preprocess_panel()
+
+    def _load_approved_brutos(self) -> list:
+        """Carrega brutos aprovados da obra atual a partir de obra_triagem."""
+        import sqlite3 as _sq3
+        DB = Path("D:/Agente-cad-PYSIDE/project_data.vision")
+        work_name = self.current_work_name or ""
+        if not work_name:
+            return []
+        try:
+            conn = _sq3.connect(str(DB))
+            conn.row_factory = _sq3.Row
+            cur = conn.execute(
+                "SELECT * FROM obra_triagem WHERE obra_name=? AND status='approved'"
+                " AND suggested_category LIKE '%Bruto%'"
+                " ORDER BY suggested_order ASC, file_name ASC",
+                (work_name,)
+            )
+            rows = [dict(r) for r in cur.fetchall()]
+            conn.close()
+            return rows
+        except Exception:
+            return []
+
+    def _refresh_preprocess_panel(self):
+        """Reconstrói a lista de brutos aprovados no painel de pré-processamento."""
+        if not hasattr(self, '_preprocess_list_layout'):
+            return
+        while self._preprocess_list_layout.count():
+            item = self._preprocess_list_layout.takeAt(0)
+            if item.widget():
+                item.widget().deleteLater()
+
+        rows = self._load_approved_brutos()
+
+        if not rows:
+            work = self.current_work_name or "..."
+            lbl = QLabel(
+                f"Nenhum bruto aprovado para {work}.\n"
+                "Aprove DXFs brutos no painel acima para iniciar o pré-processamento."
+            )
+            lbl.setWordWrap(True)
+            lbl.setStyleSheet(_resolve_css(
+                "color: {Colors.TEXT_DIM}; font-size: 11px; padding: 10px;"
+                " background: transparent; border: none;"
+            ))
+            self._preprocess_list_layout.addWidget(lbl)
+            if hasattr(self, '_lbl_preprocess_summary'):
+                self._lbl_preprocess_summary.setText(
+                    "✂ Pré-Processamento — nenhum bruto aprovado"
+                )
+        else:
+            if hasattr(self, '_lbl_preprocess_summary'):
+                self._lbl_preprocess_summary.setText(
+                    f"✂ Pré-Processamento — {len(rows)} brutos aprovados aguardando recorte"
+                )
+            # Agrupar por pavimento e ordenar canonicamente
+            groups: dict = {}
+            for row in rows:
+                pav = self._get_row_pav(row)
+                groups.setdefault(pav, []).append(row)
+            sorted_groups = sorted(groups.items(), key=lambda kv: self._pav_sort_key(kv[0]))
+            multi = len(sorted_groups) > 1
+            for pav_name, pav_rows in sorted_groups:
+                if multi:
+                    hdr = self._make_pavimento_section_header(pav_name)
+                    self._preprocess_list_layout.addWidget(hdr)
+                for row in pav_rows:
+                    card = self._make_preprocess_card(row)
+                    self._preprocess_list_layout.addWidget(card)
+
+        self._preprocess_list_layout.addStretch()
+
+    def _make_preprocess_card(self, row: dict) -> QWidget:
+        """Card de um bruto aprovado no painel de pré-processamento."""
+        fname_pre = row.get('file_name', '')
+        obra_pre  = row.get('obra_name', self.current_work_name or '')
+        status_label_pre, _ = self._get_recorte_status(obra_pre, fname_pre)
+        all_ok = "recortes OK" in status_label_pre
+        card_bg = "rgba(0,200,120,13)" if all_ok else Colors.BG_DEEP
+        card_border = Colors.ACCENT_SUCCESS_ALT if all_ok else Colors.BORDER_DEFAULT
+
+        card = QFrame()
+        card.setStyleSheet(
+            f"QFrame {{ background: {card_bg};"
+            f" border: 1px solid {card_border}; border-radius: 5px; }}"
+        )
+        card_layout = QHBoxLayout(card)
+        card_layout.setContentsMargins(8, 4, 8, 4)
+        card_layout.setSpacing(8)
+
+        fname = row.get('file_name', '')
+        lbl_file = QLabel(fname)
+        lbl_file.setToolTip(row.get('file_path', fname))
+        lbl_file.setStyleSheet(_resolve_css(
+            "color: {Colors.TEXT_PRIMARY}; font-size: 11px; background: transparent; border: none;"
+        ))
+
+        # Badge de status do recorte
+        status_label, status_color = self._get_recorte_status(
+            row.get('obra_name', self.current_work_name or ''), fname
+        )
+        lbl_status = QLabel(status_label)
+        lbl_status.setStyleSheet(
+            f"color: {status_color}; font-size: 10px; font-weight: bold;"
+            " background: transparent; border: none; padding: 0 4px;"
+        )
+
+        btn_process = QPushButton("✂ Recortar")
+        btn_process.setToolTip("Abrir no Diagnostic Hub para processar recortes")
+        btn_process.setFixedWidth(90)
+        btn_process.setStyleSheet(_resolve_css("""
+            QPushButton {
+                background: rgba(0,180,180,31); color: {Colors.ACCENT_TEAL};
+                border: 1px solid {Colors.ACCENT_TEAL}; border-radius: 4px;
+                font-size: 10px; font-weight: bold; padding: 2px 6px;
+            }
+            QPushButton:hover { background: rgba(0,180,180,64); }
+        """))
+
+        card_layout.addWidget(lbl_file, 1)
+        card_layout.addWidget(lbl_status)
+        card_layout.addWidget(btn_process)
+
+        file_path = row.get('file_path', '')
+        obra_name = row.get('obra_name', '')
+        btn_process.clicked.connect(
+            lambda _, fp=file_path, on=obra_name:
+            self._open_hub_with_bruto(on, fp)
+        )
+        return card
+
+    def _get_recorte_status(self, obra_name: str, file_name: str) -> tuple:
+        """
+        Consulta obra_recortes. Retorna (label, color) para badge do card.
+        label: str  |  color: str (hex)
+        """
+        import sqlite3 as _sq3
+        DB = Path("D:/Agente-cad-PYSIDE/project_data.vision")
+        try:
+            conn = _sq3.connect(str(DB))
+            row = conn.execute(
+                "SELECT COUNT(*) AS total,"
+                " SUM(CASE WHEN status='approved' THEN 1 ELSE 0 END) AS approved"
+                " FROM obra_recortes WHERE obra_name=? AND dxf_bruto_path LIKE ?",
+                (obra_name, f"%{file_name}%")
+            ).fetchone()
+            conn.close()
+            total, approved = row[0], (row[1] or 0)
+            if total == 0:
+                return ("⬜ sem recorte", Colors.TEXT_DIM)
+            if approved >= total:
+                return (f"✅ {total} recortes OK", Colors.ACCENT_SUCCESS_ALT)
+            return (f"🔶 {approved}/{total} aprovados", Colors.ACCENT_WARNING)
+        except Exception:
+            return ("⬜ sem recorte", Colors.TEXT_DIM)
+
+    def _open_hub_with_bruto(self, obra_name: str, file_path: str):
+        """Navega para Diagnostic Hub e sinaliza para carregar o bruto."""
+        self.request_tab_switch.emit(1)
+        # Emitir após tab switch para garantir que o hub está visível
+        from PySide6.QtCore import QTimer
+        QTimer.singleShot(150, lambda: self.request_open_bruto.emit(obra_name, file_path))
+
+    # ── Projetos Finalizados Panel ──────────────────────────────────────────
+
+    def _load_projetos_finalizados(self) -> list:
+        """Carrega projetos finalizados aprovados de obra_triagem."""
+        import sqlite3 as _sq3
+        DB = Path("D:/Agente-cad-PYSIDE/project_data.vision")
+        work_name = self.current_work_name or ""
+        if not work_name:
+            return []
+        try:
+            conn = _sq3.connect(str(DB))
+            conn.row_factory = _sq3.Row
+            cur = conn.execute(
+                "SELECT * FROM obra_triagem WHERE obra_name=? AND status='approved'"
+                " AND (suggested_category LIKE '%Engenharia Reversa%'"
+                "      OR suggested_category LIKE '%Projetos Finalizados%')"
+                " ORDER BY file_name ASC",
+                (work_name,)
+            )
+            rows = [dict(r) for r in cur.fetchall()]
+            conn.close()
+            return rows
+        except Exception:
+            return []
+
+    def _build_projetos_finalizados_panel(self, layout):
+        """Painel colapsavel de Projetos Finalizados para Engenharia Reversa."""
+        outer = QFrame()
+        outer.setObjectName("ProjetosFinalizadosPanel")
+        outer.setStyleSheet(_resolve_css("""
+            QFrame#ProjetosFinalizadosPanel {
+                background: {Colors.BG_PANEL};
+                border: 1px solid {Colors.ACCENT_PRIMARY};
+                border-radius: 8px;
+            }
+        """))
+        outer_layout = QVBoxLayout(outer)
+        outer_layout.setContentsMargins(12, 10, 12, 10)
+        outer_layout.setSpacing(8)
+
+        # Header
+        header = QHBoxLayout()
+        header.setSpacing(8)
+
+        self._lbl_projetos_summary = QLabel("Projetos Finalizados para Engenharia Reversa")
+        self._lbl_projetos_summary.setStyleSheet(_resolve_css(
+            "color: {Colors.ACCENT_PRIMARY}; font-size: 12px; font-weight: bold;"
+            " background: transparent; border: none;"
+        ))
+
+        btn_open_reverse = QPushButton("▶ Abrir Diagnostic Reverse Hub")
+        btn_open_reverse.setToolTip("Navegar para o Diagnostic Reverse Hub para processar eng. reversa")
+        btn_open_reverse.setStyleSheet(_resolve_css("""
+            QPushButton {
+                background: rgba(90,40,180,38); color: {Colors.ACCENT_PRIMARY};
+                border: 1px solid {Colors.ACCENT_PRIMARY}; border-radius: 4px;
+                padding: 3px 12px; font-size: 11px; font-weight: bold;
+            }
+            QPushButton:hover { background: rgba(90,40,180,71); }
+        """))
+
+        btn_reload_proj = QPushButton("↻")
+        btn_reload_proj.setToolTip("Recarregar lista de projetos finalizados")
+        btn_reload_proj.setFixedWidth(28)
+        btn_reload_proj.setStyleSheet(_resolve_css("""
+            QPushButton {
+                background: {Colors.BG_CARD}; color: {Colors.TEXT_SECONDARY};
+                border: 1px solid {Colors.BORDER_DEFAULT}; border-radius: 4px;
+                padding: 3px; font-size: 13px;
+            }
+            QPushButton:hover { color: {Colors.TEXT_PRIMARY}; }
+        """))
+
+        self._btn_projetos_toggle = QPushButton("▲")
+        self._btn_projetos_toggle.setFixedWidth(28)
+        self._btn_projetos_toggle.setStyleSheet(
+            "QPushButton { background: transparent; color: #888; border: none; font-size: 11px; }"
+        )
+
+        header.addWidget(self._lbl_projetos_summary)
+        header.addStretch()
+        header.addWidget(btn_open_reverse)
+        header.addWidget(btn_reload_proj)
+        header.addWidget(self._btn_projetos_toggle)
+        outer_layout.addLayout(header)
+
+        # Content colapsavel
+        self._projetos_content_widget = QWidget()
+        proj_content_layout = QVBoxLayout(self._projetos_content_widget)
+        proj_content_layout.setContentsMargins(0, 4, 0, 0)
+        proj_content_layout.setSpacing(0)
+
+        proj_scroll = QScrollArea()
+        proj_scroll.setMaximumHeight(480)
+        proj_scroll.setMinimumHeight(160)
+        proj_scroll.setWidgetResizable(True)
+        proj_scroll.setStyleSheet(_resolve_css("""
+            QScrollArea { border: none; background: transparent; }
+            QScrollBar:vertical { border: none; background: {Colors.BG_DEEP}; width: 6px; margin: 0; }
+            QScrollBar::handle:vertical { background: {Colors.BG_CARD}; min-height: 16px; border-radius: 3px; }
+        """))
+
+        self._projetos_list_container = QWidget()
+        self._projetos_list_container.setStyleSheet("background: transparent;")
+        self._projetos_list_layout = QVBoxLayout(self._projetos_list_container)
+        self._projetos_list_layout.setSpacing(4)
+        self._projetos_list_layout.setContentsMargins(0, 0, 0, 0)
+
+        proj_scroll.setWidget(self._projetos_list_container)
+        proj_content_layout.addWidget(proj_scroll)
+        outer_layout.addWidget(self._projetos_content_widget)
+
+        layout.addWidget(outer)
+
+        def _toggle_proj():
+            vis = not self._projetos_content_widget.isVisible()
+            self._projetos_content_widget.setVisible(vis)
+            self._btn_projetos_toggle.setText("▲" if vis else "▼")
+
+        self._btn_projetos_toggle.clicked.connect(_toggle_proj)
+        btn_reload_proj.clicked.connect(self._refresh_projetos_finalizados_panel)
+        btn_open_reverse.clicked.connect(lambda: self.request_tab_switch.emit(2))
+
+        self._refresh_projetos_finalizados_panel()
+
+    def _refresh_projetos_finalizados_panel(self):
+        """Reconstroi a lista de projetos finalizados."""
+        if not hasattr(self, '_projetos_list_layout'):
+            return
+        while self._projetos_list_layout.count():
+            item = self._projetos_list_layout.takeAt(0)
+            if item.widget():
+                item.widget().deleteLater()
+
+        rows = self._load_projetos_finalizados()
+
+        if not rows:
+            if hasattr(self, '_lbl_projetos_summary'):
+                self._lbl_projetos_summary.setText("Projetos Finalizados — nenhum aprovado")
+            lbl = QLabel("Nenhum projeto finalizado aprovado.")
+            lbl.setWordWrap(True)
+            lbl.setStyleSheet(_resolve_css(
+                "color: {Colors.TEXT_DIM}; font-size: 11px; padding: 10px;"
+                " background: transparent; border: none;"
+            ))
+            self._projetos_list_layout.addWidget(lbl)
+        else:
+            if hasattr(self, '_lbl_projetos_summary'):
+                self._lbl_projetos_summary.setText(
+                    f"Projetos Finalizados — {len(rows)} projetos finalizados"
+                )
+            # Agrupar por pavimento e subgrupo de classe
+            # Agrupar por pavimento e ordenar canonicamente
+            groups: dict = {}
+            for row in rows:
+                pav = self._get_row_pav(row)
+                groups.setdefault(pav, []).append(row)
+            sorted_groups = sorted(groups.items(), key=lambda kv: self._pav_sort_key(kv[0]))
+            multi = len(sorted_groups) > 1
+            for pav_name, pav_rows in sorted_groups:
+                if multi:
+                    hdr = self._make_pavimento_section_header(pav_name)
+                    self._projetos_list_layout.addWidget(hdr)
+                # Subgrupo por categoria
+                sub_groups: dict = {}
+                for row in pav_rows:
+                    cat = row.get('suggested_category', 'Outros')
+                    sub_groups.setdefault(cat, []).append(row)
+                for cat_name, cat_rows in sub_groups.items():
+                    if len(sub_groups) > 1:
+                        lbl_sub = QLabel(cat_name)
+                        lbl_sub.setStyleSheet(
+                            f"color: {Colors.TEXT_DIM}; font-size: 10px;"
+                            " background: transparent; border: none; padding: 2px 4px 0 4px;"
+                        )
+                        self._projetos_list_layout.addWidget(lbl_sub)
+                    for row in cat_rows:
+                        card = self._make_approved_item_card(row, show_er_class=True)
+                        self._projetos_list_layout.addWidget(card)
+
+        self._projetos_list_layout.addStretch()
+
+    def _make_approved_item_card(self, row: dict, show_er_class: bool = False) -> QWidget:
+        """Card harmonizado para items aprovados (Brutos e Projetos Finalizados)."""
+        card = QFrame()
+        card.setStyleSheet(_resolve_css("""
+            QFrame {
+                background: {Colors.BG_DEEP};
+                border: 1px solid {Colors.BORDER_DEFAULT};
+                border-radius: 5px;
+            }
+        """))
+        layout = QHBoxLayout(card)
+        layout.setContentsMargins(8, 4, 8, 4)
+        layout.setSpacing(6)
+
+        row_id = row.get('id', '')
+        fname  = row.get('file_name', '')
+        notes  = self._get_triagem_notes(row)
+
+        # Badge ✅
+        lbl_badge = QLabel("✅")
+        lbl_badge.setFixedWidth(18)
+        lbl_badge.setStyleSheet("background: transparent; border: none; font-size: 12px;")
+
+        # Filename
+        lbl_file = QLabel(fname)
+        lbl_file.setToolTip(row.get('file_path', fname))
+        lbl_file.setStyleSheet(_resolve_css(
+            "color: {Colors.TEXT_PRIMARY}; font-size: 11px; background: transparent; border: none;"
+        ))
+
+        cat = row.get('suggested_category', '')
+        if "Bruto" in cat:       cat_short, cat_color = "Bruto",       Colors.ACCENT_WARNING
+        elif "Reversa" in cat or "Engenharia" in cat: cat_short, cat_color = "Eng.Reversa", Colors.ACCENT_PRIMARY
+        elif "Detalhe" in cat:   cat_short, cat_color = "Detalhe",     Colors.ACCENT_SUCCESS_ALT
+        else:                    cat_short, cat_color = cat[:10],       Colors.TEXT_SECONDARY
+
+        cat_options_labels = [lbl for lbl, _ in self._TRIAGEM_CAT_OPTIONS]
+        inferred  = self._classify_filename(fname)
+        cat_conf  = float(row.get('confidence', 0.0))
+        pav_conf  = float(notes.get('pav_confidence', inferred['pav_conf']))
+        cls_conf  = float(notes.get('class_confidence', inferred['class_conf']))
+
+        def _on_cat_change(opt_label, _rid=row_id):
+            full_cat = dict(self._TRIAGEM_CAT_OPTIONS).get(opt_label, opt_label)
+            self._save_triagem_field(_rid, 'suggested_category', full_cat)
+            self._save_triagem_field(_rid, 'confidence', '1.0')
+            QTimer.singleShot(60, self._refresh_projetos_finalizados_panel)
+
+        pav_current = notes.get('pavimento') or inferred['pav']
+        pav_short   = pav_current[:11] if len(pav_current) > 11 else pav_current
+
+        def _on_pav_change(opt, _rid=row_id, _notes=notes):
+            _notes['pav_confidence'] = 1.0
+            self._save_triagem_notes_field(_rid, 'pavimento', opt, _notes)
+            self._save_triagem_notes_field(_rid, 'pav_confidence', 1.0, _notes)
+            QTimer.singleShot(60, self._refresh_projetos_finalizados_panel)
+
+        layout.addWidget(lbl_badge)
+        layout.addWidget(lbl_file, 1)
+
+        # [Categoria] cat_conf%
+        self._make_chip_with_conf(
+            layout, cat_short, cat_color, cat_options_labels, _on_cat_change,
+            82, cat_conf, 'cat_confidence', row_id, notes, None
+        )
+
+        # [Classe ER] cls_conf%  (apenas para Eng.Reversa)
+        if show_er_class:
+            er_class_current = notes.get('er_class') or inferred['er_class']
+            er_class_display  = self._ER_SHORT_TO_FULL.get(er_class_current, er_class_current)
+            er_class_color    = self._ER_CLASS_COLORS.get(er_class_display, "#607D8B")
+
+            def _on_class_change(opt, _rid=row_id, _notes=notes):
+                _notes['class_confidence'] = 1.0
+                self._save_triagem_notes_field(_rid, 'er_class', opt, _notes)
+                self._save_triagem_notes_field(_rid, 'class_confidence', 1.0, _notes)
+                QTimer.singleShot(60, self._refresh_projetos_finalizados_panel)
+
+            self._make_chip_with_conf(
+                layout, er_class_display, er_class_color,
+                self._ER_CLASS_OPTIONS, _on_class_change,
+                115, cls_conf, 'class_confidence', row_id, notes, None
+            )
+
+        # [Pavimento] pav_conf%
+        pav_chip = self._make_combo_chip(pav_short, Colors.BG_CARD, self._PAV_OPTIONS, _on_pav_change, 88)
+        pav_chip.setStyleSheet(
+            f"QPushButton {{ color: {Colors.TEXT_PRIMARY}; background: {Colors.BG_CARD};"
+            f" border: 1px solid {Colors.BORDER_DEFAULT}; border-radius: 3px; padding: 0 5px;"
+            " font-size: 10px; font-weight: bold; }}"
+            f"QPushButton:hover {{ border-color: {Colors.ACCENT_PRIMARY}; }}"
+        )
+        pav_conf_color = (
+            Colors.ACCENT_SUCCESS_ALT if pav_conf >= 0.85 else
+            Colors.ACCENT_WARNING     if pav_conf >= 0.60 else
+            Colors.TEXT_DIM
+        )
+        lbl_pav_conf = QLabel(f"{pav_conf:.0%}" if pav_conf > 0 else "—%")
+        lbl_pav_conf.setFixedWidth(28)
+        lbl_pav_conf.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        lbl_pav_conf.setStyleSheet(
+            f"color: {pav_conf_color}; font-size: 10px; font-weight: bold;"
+            " background: transparent; border: none;"
+        )
+        layout.addWidget(pav_chip)
+        layout.addWidget(lbl_pav_conf)
+
+        # Botão "Recortar" — só para Projetos Finalizados (show_er_class=True)
+        if show_er_class:
+            btn_recortar = QPushButton("✂ Recortar")
+            btn_recortar.setToolTip("Abrir no Diagnostic Reverse Hub para processar eng. reversa")
+            btn_recortar.setFixedWidth(90)
+            btn_recortar.setStyleSheet(_resolve_css("""
+                QPushButton {
+                    background: rgba(90,40,180,31); color: {Colors.ACCENT_PRIMARY};
+                    border: 1px solid {Colors.ACCENT_PRIMARY}; border-radius: 4px;
+                    font-size: 10px; font-weight: bold; padding: 2px 6px;
+                }
+                QPushButton:hover { background: rgba(90,40,180,71); }
+            """))
+            _fp = row.get('file_path', '')
+            _on = row.get('obra_name', self.current_work_name or '')
+            btn_recortar.clicked.connect(
+                lambda _, fp=_fp, on=_on: self._open_reverse_hub_with_projeto(on, fp)
+            )
+            layout.addWidget(btn_recortar)
+
+        return card
+
+    def _open_reverse_hub_with_projeto(self, obra_name: str, file_path: str):
+        """Navega para Diagnostic Reverse Hub e sinaliza a obra/arquivo."""
+        self.request_tab_switch.emit(2)
+        from PySide6.QtCore import QTimer
+        QTimer.singleShot(150, lambda: self.request_open_reverse_hub.emit(obra_name, file_path))
+
+    # ── Detalhamentos Especificos Panel ─────────────────────────────────────
+
+    # Extensions allowed in classes 2 and 3 (no DWG)
+    _DET_ALLOWED_EXT = {'.dxf', '.pdf', '.png', '.jpg', '.jpeg', '.tif', '.tiff', '.bmp'}
+
+    def _load_detalhamentos_3classes(self) -> dict:
+        """Carrega detalhamentos em 3 classes separadas.
+
+        Returns dict:
+          'recortados': list  — obra_recortes tipo=detalhe, status=approved
+          'triagem':    list  — obra_triagem approved categoria Detalhe (sem DWG)
+          'ingestao':   list  — project_documents categoria Detalhe (sem DWG)
+        """
+        import sqlite3 as _sq3
+        DB = Path("D:/Agente-cad-PYSIDE/project_data.vision")
+        work_name = self.current_work_name or ""
+        if not work_name:
+            return {'recortados': [], 'triagem': [], 'ingestao': []}
+
+        result = {'recortados': [], 'triagem': [], 'ingestao': []}
+        try:
+            conn = _sq3.connect(str(DB))
+            conn.row_factory = _sq3.Row
+
+            # ── Classe 1: Detalhes Recortados (obra_recortes) ─────────────────
+            cur = conn.execute(
+                "SELECT pavimento_name as file_name, output_path as file_path,"
+                " recorte_type, status, dxf_bruto_path"
+                " FROM obra_recortes WHERE obra_name=? AND recorte_type='detalhe'"
+                " AND status='approved'"
+                " ORDER BY pavimento_name ASC",
+                (work_name,)
+            )
+            result['recortados'] = [dict(r) for r in cur.fetchall()]
+
+            # ── Classe 2: Documentos de Ingestão (project_documents) ──────────
+            cur = conn.execute(
+                "SELECT name as file_name, file_path, extension, category, phase, id"
+                " FROM project_documents"
+                " WHERE work_name=?"
+                " AND (category LIKE '%Detalhe%' OR category LIKE '%Detalhamento%')"
+                " ORDER BY name ASC",
+                (work_name,)
+            )
+            for r in cur.fetchall():
+                row = dict(r)
+                ext = (row.get('extension') or '').lower()
+                if not ext.startswith('.'):
+                    ext = '.' + ext
+                if ext in self._DET_ALLOWED_EXT:
+                    row['_det_class'] = 'ingestao'
+                    result['ingestao'].append(row)
+
+            # ── Classe 3: Detalhes de Ingestão (obra_triagem) ─────────────────
+            cur = conn.execute(
+                "SELECT *, 'triagem' as recorte_type FROM obra_triagem"
+                " WHERE obra_name=? AND status='approved'"
+                " AND (suggested_category LIKE '%Detalhe%'"
+                "      OR suggested_category LIKE '%Detalhamento%')"
+                " ORDER BY file_name ASC",
+                (work_name,)
+            )
+            for r in cur.fetchall():
+                row = dict(r)
+                fp = row.get('file_path') or row.get('file_name', '')
+                ext = Path(fp).suffix.lower() if fp else ''
+                if ext in self._DET_ALLOWED_EXT:
+                    row['_det_class'] = 'triagem'
+                    result['triagem'].append(row)
+
+            conn.close()
+        except Exception:
+            pass
+        return result
+
+    def _load_detalhamentos_approved(self) -> list:
+        """Compatibilidade — retorna lista plana (usado por código legado)."""
+        d = self._load_detalhamentos_3classes()
+        return d['recortados'] + d['triagem'] + d['ingestao']
+
+    def _build_detalhamentos_especificos_panel(self, layout):
+        """Painel colapsavel de Detalhamentos Especificos."""
+        outer = QFrame()
+        outer.setObjectName("DetalhamentosPanel")
+        outer.setStyleSheet(_resolve_css("""
+            QFrame#DetalhamentosPanel {
+                background: {Colors.BG_PANEL};
+                border: 1px solid {Colors.ACCENT_WARNING};
+                border-radius: 8px;
+            }
+        """))
+        outer_layout = QVBoxLayout(outer)
+        outer_layout.setContentsMargins(12, 10, 12, 10)
+        outer_layout.setSpacing(8)
+
+        # Header
+        header = QHBoxLayout()
+        header.setSpacing(8)
+
+        self._lbl_detalhamentos_summary = QLabel("Detalhamentos Especificos")
+        self._lbl_detalhamentos_summary.setStyleSheet(_resolve_css(
+            "color: {Colors.ACCENT_WARNING}; font-size: 12px; font-weight: bold;"
+            " background: transparent; border: none;"
+        ))
+
+        btn_open_hub_det = QPushButton("▶ Abrir Diagnostic Hub")
+        btn_open_hub_det.setToolTip("Abrir Diagnostic Hub para processar todos os detalhamentos")
+        btn_open_hub_det.setStyleSheet(_resolve_css("""
+            QPushButton {
+                background: rgba(230,180,0,38); color: {Colors.ACCENT_WARNING};
+                border: 1px solid {Colors.ACCENT_WARNING}; border-radius: 4px;
+                padding: 3px 12px; font-size: 11px; font-weight: bold;
+            }
+            QPushButton:hover { background: rgba(230,180,0,71); }
+        """))
+
+        btn_reload_det = QPushButton("↻")
+        btn_reload_det.setToolTip("Recarregar lista de detalhamentos")
+        btn_reload_det.setFixedWidth(28)
+        btn_reload_det.setStyleSheet(_resolve_css("""
+            QPushButton {
+                background: {Colors.BG_CARD}; color: {Colors.TEXT_SECONDARY};
+                border: 1px solid {Colors.BORDER_DEFAULT}; border-radius: 4px;
+                padding: 3px; font-size: 13px;
+            }
+            QPushButton:hover { color: {Colors.TEXT_PRIMARY}; }
+        """))
+
+        self._btn_detalhamentos_toggle = QPushButton("▲")
+        self._btn_detalhamentos_toggle.setFixedWidth(28)
+        self._btn_detalhamentos_toggle.setStyleSheet(
+            "QPushButton { background: transparent; color: #888; border: none; font-size: 11px; }"
+        )
+
+        header.addWidget(self._lbl_detalhamentos_summary)
+        header.addStretch()
+        header.addWidget(btn_open_hub_det)
+        header.addWidget(btn_reload_det)
+        header.addWidget(self._btn_detalhamentos_toggle)
+        outer_layout.addLayout(header)
+
+        # Content colapsavel
+        self._detalhamentos_content_widget = QWidget()
+        det_content_layout = QVBoxLayout(self._detalhamentos_content_widget)
+        det_content_layout.setContentsMargins(0, 4, 0, 0)
+        det_content_layout.setSpacing(0)
+
+        det_scroll = QScrollArea()
+        det_scroll.setMaximumHeight(480)
+        det_scroll.setMinimumHeight(160)
+        det_scroll.setWidgetResizable(True)
+        det_scroll.setStyleSheet(_resolve_css("""
+            QScrollArea { border: none; background: transparent; }
+            QScrollBar:vertical { border: none; background: {Colors.BG_DEEP}; width: 6px; margin: 0; }
+            QScrollBar::handle:vertical { background: {Colors.BG_CARD}; min-height: 16px; border-radius: 3px; }
+        """))
+
+        self._detalhamentos_list_container = QWidget()
+        self._detalhamentos_list_container.setStyleSheet("background: transparent;")
+        self._detalhamentos_list_layout = QVBoxLayout(self._detalhamentos_list_container)
+        self._detalhamentos_list_layout.setSpacing(4)
+        self._detalhamentos_list_layout.setContentsMargins(0, 0, 0, 0)
+
+        det_scroll.setWidget(self._detalhamentos_list_container)
+        det_content_layout.addWidget(det_scroll)
+        outer_layout.addWidget(self._detalhamentos_content_widget)
+
+        layout.addWidget(outer)
+
+        def _toggle_det():
+            vis = not self._detalhamentos_content_widget.isVisible()
+            self._detalhamentos_content_widget.setVisible(vis)
+            self._btn_detalhamentos_toggle.setText("▲" if vis else "▼")
+
+        self._btn_detalhamentos_toggle.clicked.connect(_toggle_det)
+        btn_reload_det.clicked.connect(self._refresh_detalhamentos_panel)
+        btn_open_hub_det.clicked.connect(self._open_hub_for_all_detalhamentos)
+
+        self._refresh_detalhamentos_panel()
+
+    def _refresh_detalhamentos_panel(self):
+        """Reconstroi a lista de detalhamentos em 3 classes."""
+        if not hasattr(self, '_detalhamentos_list_layout'):
+            return
+        while self._detalhamentos_list_layout.count():
+            item = self._detalhamentos_list_layout.takeAt(0)
+            if item.widget():
+                item.widget().deleteLater()
+
+        classes = self._load_detalhamentos_3classes()
+        recortados = classes['recortados']
+        triagem    = classes['triagem']
+        ingestao   = classes['ingestao']
+        total      = len(recortados) + len(triagem) + len(ingestao)
+
+        if hasattr(self, '_lbl_detalhamentos_summary'):
+            if total == 0:
+                self._lbl_detalhamentos_summary.setText("Detalhamentos Especificos — nenhum")
+            else:
+                self._lbl_detalhamentos_summary.setText(
+                    f"Detalhamentos Especificos — {total} itens"
+                )
+
+        if total == 0:
+            lbl = QLabel("Nenhum detalhamento disponivel.")
+            lbl.setWordWrap(True)
+            lbl.setStyleSheet(_resolve_css(
+                "color: {Colors.TEXT_DIM}; font-size: 11px; padding: 10px;"
+                " background: transparent; border: none;"
+            ))
+            self._detalhamentos_list_layout.addWidget(lbl)
+            self._detalhamentos_list_layout.addStretch()
+            return
+
+        # Sub-section helper
+        def _add_section(title: str, color: str, rows: list, badge: str):
+            # Section header
+            lbl_sec = QLabel(f"  {title}  ({len(rows)})")
+            lbl_sec.setStyleSheet(
+                f"color: {color}; font-size: 10px; font-weight: bold;"
+                " background: transparent; border: none; padding: 4px 0 2px 0;"
+            )
+            self._detalhamentos_list_layout.addWidget(lbl_sec)
+
+            if not rows:
+                lbl_empty = QLabel("   Nenhum item.")
+                lbl_empty.setStyleSheet(_resolve_css(
+                    "color: {Colors.TEXT_DIM}; font-size: 10px;"
+                    " background: transparent; border: none; padding: 2px 0;"
+                ))
+                self._detalhamentos_list_layout.addWidget(lbl_empty)
+            else:
+                for row in rows:
+                    card = self._make_approved_item_card_detalhe(row, badge=badge)
+                    self._detalhamentos_list_layout.addWidget(card)
+
+        _add_section(
+            "Detalhes Recortados", "#E8A000",
+            recortados, "✂"
+        )
+        _add_section(
+            "Documentos de Ingestão", "#2980B9",
+            ingestao, "📄"
+        )
+        _add_section(
+            "Detalhes de Ingestão (DXF completos)", "#27AE60",
+            triagem, "📐"
+        )
+
+        self._detalhamentos_list_layout.addStretch()
+
+    def _make_approved_item_card_detalhe(self, row: dict, badge: str = "✅") -> QWidget:
+        """Card compacto para um item de detalhamento."""
+        card = QFrame()
+        card.setStyleSheet(_resolve_css("""
+            QFrame {
+                background: {Colors.BG_DEEP};
+                border: 1px solid {Colors.BORDER_DEFAULT};
+                border-radius: 5px;
+            }
+            QFrame:hover { border-color: {Colors.ACCENT_WARNING}; }
+        """))
+        layout = QHBoxLayout(card)
+        layout.setContentsMargins(8, 3, 8, 3)
+        layout.setSpacing(6)
+
+        # Badge
+        lbl_badge = QLabel(badge)
+        lbl_badge.setFixedWidth(18)
+        lbl_badge.setStyleSheet("background: transparent; border: none; font-size: 11px;")
+
+        # Filename
+        fname = row.get('file_name', row.get('name', ''))
+        fpath = row.get('file_path', row.get('output_path', fname))
+        lbl_file = QLabel(fname)
+        lbl_file.setToolTip(fpath)
+        lbl_file.setStyleSheet(_resolve_css(
+            "color: {Colors.TEXT_PRIMARY}; font-size: 11px; background: transparent; border: none;"
+        ))
+
+        # Extension badge (small)
+        ext = Path(fpath).suffix.upper().lstrip('.') if fpath else ''
+        if ext:
+            lbl_ext = QLabel(ext)
+            lbl_ext.setFixedWidth(32)
+            lbl_ext.setAlignment(Qt.AlignCenter)
+            lbl_ext.setStyleSheet(
+                "background: rgba(120,120,120,46); color: #aaa;"
+                " font-size: 9px; border-radius: 3px; border: none; padding: 1px 2px;"
+            )
+        else:
+            lbl_ext = None
+
+        # Open button
+        btn_open = QPushButton("👁 Abrir")
+        btn_open.setFixedHeight(22)
+        btn_open.setStyleSheet(_resolve_css("""
+            QPushButton {
+                background: {Colors.BG_CARD}; color: {Colors.TEXT_SECONDARY};
+                border: 1px solid {Colors.BORDER_DEFAULT}; border-radius: 3px;
+                padding: 1px 8px; font-size: 10px;
+            }
+            QPushButton:hover { color: {Colors.TEXT_PRIMARY}; border-color: {Colors.ACCENT_WARNING}; }
+        """))
+
+        def _open_file(checked=False, fp=fpath):
+            if fp and Path(fp).exists():
+                import subprocess, os
+                os.startfile(fp) if hasattr(os, 'startfile') else subprocess.Popen(['xdg-open', fp])
+            else:
+                QMessageBox.warning(self, "Arquivo", f"Arquivo não encontrado:\n{fp}")
+
+        btn_open.clicked.connect(_open_file)
+
+        layout.addWidget(lbl_badge)
+        layout.addWidget(lbl_file, 1)
+        if lbl_ext:
+            layout.addWidget(lbl_ext)
+        layout.addWidget(btn_open)
+        return card
+
+    def _open_hub_for_all_detalhamentos(self):
+        """Navega para Diagnostic Hub passando todos os detalhamentos das 3 classes."""
+        classes = self._load_detalhamentos_3classes()
+        all_paths = []
+        for row in classes['recortados']:
+            fp = row.get('file_path') or row.get('output_path', '')
+            if fp and Path(fp).exists():
+                all_paths.append(fp)
+        for row in classes['ingestao'] + classes['triagem']:
+            fp = row.get('file_path', '')
+            if fp and Path(fp).exists():
+                all_paths.append(fp)
+
+        if not all_paths:
+            QMessageBox.information(self, "Detalhamentos",
+                "Nenhum arquivo de detalhamento encontrado no disco.")
+            return
+
+        # Navega para aba Diagnostic Hub
+        self.request_tab_switch.emit(1)
+
+        # Emite sinal para hub carregar a lista de detalhamentos
+        from PySide6.QtCore import QTimer
+        def _emit():
+            if hasattr(self, 'request_load_file'):
+                self.request_load_file.emit(all_paths[0])
+        QTimer.singleShot(300, _emit)
+
+    def _on_ingest_all_clicked(self):
+        """Botão unificado: Fase1→DB + RAG + Triagem em sequência."""
+        work_name = self.current_work_name or (
+            self.list_works.currentItem().data(Qt.UserRole)
+            if self.list_works.currentItem() else ""
+        )
+        if not work_name:
+            QMessageBox.warning(self, "Ingestão", "Selecione uma obra antes de processar.")
+            return
+        if hasattr(self, '_btn_ingest_all'):
+            self._btn_ingest_all.setEnabled(False)
+            self._btn_ingest_all.setText("⏳ Indexando DB...")
+        # Fase 1: indexar DB
+        self._index_phase1_all(work_name)
+        from PySide6.QtCore import QTimer
+        QTimer.singleShot(3000, self._refresh_index_badge)
+        # Fase 2: RAG (após badge refresh)
+        def _start_rag():
+            if hasattr(self, '_btn_ingest_all'):
+                self._btn_ingest_all.setText("⏳ Indexando RAG...")
+            self._on_rag_pipeline_clicked()
+        QTimer.singleShot(3500, _start_rag)
+
+    def _on_index_clicked(self):
+        """Handler legado do botão Indexar (mantido para compatibilidade)."""
+        work_name = self.current_work_name or (
+            self.list_works.currentItem().data(Qt.UserRole)
+            if self.list_works.currentItem() else ""
+        )
+        self._index_phase1_all(work_name)
+        from PySide6.QtCore import QTimer
+        QTimer.singleShot(3000, self._refresh_index_badge)
+
+    def _index_phase1_all(self, work_name: str):
+        """Registra arquivos físicos da Fase 1 da obra que ainda não estão no DB."""
+        try:
+            import sys, subprocess
+            indexer = Path("D:/Agente-cad-PYSIDE/Agente-cad-PYSIDE-Restored-main/src/utils/auto_indexer.py")
+            if indexer.exists():
+                cmd = [sys.executable, str(indexer)]
+                if work_name:
+                    cmd.append(work_name)  # filtra pela obra atual
+                subprocess.Popen(cmd)  # sem cwd — auto_indexer usa paths absolutos
+                label = f"obra '{work_name}'" if work_name else "todas as obras"
+                QMessageBox.information(
+                    self, "Indexar",
+                    f"Indexação iniciada para {label}.\n"
+                    f"Apenas arquivos faltantes serão adicionados.\n"
+                    f"O badge atualizará em ~3 segundos."
+                )
+            else:
+                QMessageBox.warning(self, "Indexar", f"auto_indexer.py não encontrado:\n{indexer}")
+        except Exception as e:
+            QMessageBox.critical(self, "Erro", f"Falha ao indexar: {e}")
+
     def _classify_document(self, doc):
         """Classifica um documento em fase e classe baseado em nome, extensão ou valores persistidos."""
         # PRIORIDADE: Usar fase e categoria salvas no banco se existirem
         saved_phase = doc.get('phase')
         saved_cat = doc.get('category')
         if saved_phase and saved_cat:
+            # "Detalhamentos Específicos" são documentos de ingestão (Fase 1) → Detalhes Estruturais
+            # Mesmo que salvos com phase=2, devem aparecer na Fase 1 de exibição
+            if 'detalhamento' in saved_cat.lower():
+                return (1, "Detalhes Estruturais (.DWG/.PDF/.DXF/.MD)")
+            # Normalize legacy/variant category names to canonical PHASE_CLASSES values
+            canonical = self._CATEGORY_ALIASES.get(saved_cat.lower().strip())
+            if canonical:
+                saved_cat = canonical
             return (int(saved_phase), saved_cat)
 
         name = doc.get('name', '').lower()
@@ -1673,11 +4691,11 @@ class ProjectManager(QWidget):
             except Exception as e:
                 QMessageBox.critical(self, "Erro", f"Falha ao remover DXF: {e}")
 
-    def _refresh_phase_tabs(self):
-        """Atualiza todas as abas de fases com os documentos atuais."""
+    # ── Lazy tab rendering ────────────────────────────────────────────────────────
+
+    def _load_classified_docs(self) -> dict:
+        """Carrega e classifica documentos da obra/projeto atual. Sem tocar em widgets."""
         docs = []
-        p_name = "Nenhum selecionado"
-        
         work_name = self.current_work_name
         if not work_name:
             item = self.list_works.currentItem()
@@ -1688,177 +4706,191 @@ class ProjectManager(QWidget):
             if self.current_project_id:
                 p_data = self.db.get_project_by_id(self.current_project_id)
                 if p_data:
-                    p_name = p_data.get('name', 'Sem nome')
-                    
                     docs = self.db.get_project_documents(self.current_project_id)
-                    logging.info(f"📄 Carregados {len(docs)} documentos do projeto {p_name}")
-                    
-                    # Adicionar DXF principal se existir
                     if p_data.get('dxf_path'):
                         dxf_name = os.path.basename(p_data['dxf_path'])
-                        already_in = any(d.get('name') == dxf_name for d in docs)
-                        if not already_in:
+                        if not any(d.get('name') == dxf_name for d in docs):
                             docs.append({
                                 'id': 'main_dxf',
                                 'name': dxf_name + " (Principal)",
                                 'file_path': p_data['dxf_path'],
                                 'extension': '.dxf',
                                 'is_main': True,
-                                'file_version': p_data.get('file_version')
+                                'file_version': p_data.get('file_version'),
                             })
-            
-            # Buscar documentos da Obra (nível superior, sem projeto específico)
+
             if work_name:
-                work_docs = self.db.get_work_documents(work_name)
-                logging.info(f"📄 Carregados {len(work_docs)} documentos da obra {work_name}")
-                # Filtrar para não duplicar se por acaso algo vier repetido
-                existing_ids = set(d.get('id') for d in docs)
-                for wd in work_docs:
+                existing_ids = {d.get('id') for d in docs}
+                for wd in self.db.get_work_documents(work_name):
                     if wd.get('id') not in existing_ids:
                         docs.append(wd)
-            
-            logging.info(f"📊 Total de documentos a exibir: {len(docs)}")
-            
-            # Classificar documentos por fase/classe
-            classified_docs = {}
-            for doc in docs:
-                phase_num, class_name = self._classify_document(doc)
-                key = (phase_num, class_name)
-                if key not in classified_docs:
-                    classified_docs[key] = []
-                classified_docs[key].append(doc)
-            
-            logging.info(f"📂 Documentos classificados em {len(classified_docs)} categorias")
-            
-            # Atualizar cada aba de fase
-            for phase_num in range(1, 9):
-                phase_tab = self.phase_tab_widgets.get(phase_num)
-                if not phase_tab:
-                    continue
-                
-                # Encontrar o container da fase
-                scroll = phase_tab
-                container = scroll.widget()
-                if not container:
-                    continue
-                
-                # Atualizar widgets de classes
-                layout = container.layout()
-                if not layout:
-                    continue
-                
-                for i in range(layout.count()):
-                    item = layout.itemAt(i)
-                    if not item:
-                        continue
-                    widget = item.widget()
-                    if not widget:
-                        continue
-                    
-                    # Verificar se é um widget de classe (QFrame com propriedade class_name)
-                    class_name = widget.property("class_name")
-                    if class_name:
-                        # Encontrar o container de documentos
-                        docs_container = widget.property("docs_container")
-                        if docs_container:
-                            docs_layout = docs_container.layout()
-                            if docs_layout:
-                                # Limpar documentos existentes (exceto container de pavimentos injetado)
-                                for i in reversed(range(docs_layout.count())):
-                                    child = docs_layout.itemAt(i)
-                                    widget_to_check = child.widget()
-                                    if widget_to_check:
-                                        # Excluir containers especiais da limpeza
-                                        is_special = False
-                                        if hasattr(self, 'scroll_area') and widget_to_check == self.scroll_area: is_special = True
-                                        if hasattr(self, 'phase3_pavement_selector') and widget_to_check == self.phase3_pavement_selector: is_special = True
-                                        if hasattr(self, 'phase4_pavement_selector') and widget_to_check == self.phase4_pavement_selector: is_special = True
-                                        if hasattr(self, 'phase5_pavement_selector') and widget_to_check == self.phase5_pavement_selector: is_special = True
-                                        
-                                        if is_special:
-                                            continue
-                                        docs_layout.takeAt(i)
-                                        widget_to_check.deleteLater()
-                                    else:
-                                        # Remover spacers/stretches
-                                        docs_layout.takeAt(i)
-                                
-                                # Agrupar DWG e DXF correspondentes
-                                key = (phase_num, class_name)
-                                class_docs = classified_docs.get(key, [])
-                                
-                                # Separar DXFs para busca rápida
-                                dxfs_map = {} # Nome Base -> Doc
-                                others = []
-                                
-                                # Primeiro passo: Separar DXFs convertidos automaticamente ou por versão
-                                for d in class_docs:
-                                    name = d.get('name', '')
-                                    ext = d.get('extension', '').lower()
-                                    
-                                    # Tentar detectar padrão (Auto-DXF) ou (R2000), (R12), etc.
-                                    # Regex busca nomes que terminam com algo entre parênteses
-                                    match = re.search(r"^(.*?)\s*\(.*?\)$", name)
-                                    
-                                    if ext == '.dxf' and match:
-                                        base = match.group(1).strip()
-                                        if base not in dxfs_map: dxfs_map[base] = []
-                                        dxfs_map[base].append(d)
-                                    else:
-                                        others.append(d)
-                                
-                                # Segundo passo: Iterar sobre os outros e tentar casar
-                                final_list = [] # Lista de (Parent, Child) ou (Single, None)
-                                handled_dxfs_ids = set()
-                                
-                                for d in others:
-                                    ext = d.get('extension', '').lower()
-                                    name = d.get('name', '')
-                                    
-                                    children = []
-                                    if ext == '.dwg':
-                                        # Tenta achar todos os filhos DXF correspondentes
-                                        if name in dxfs_map:
-                                            children = dxfs_map[name]
-                                            for c in children:
-                                                handled_dxfs_ids.add(c.get('id'))
-                                    
-                                    # Adiciona o pai e o primeiro filho (ou None)
-                                    # Nota: A interface atual suporta apenas um filho por linha facilmente.
-                                    # Se houver múltiplos, vamos adicionar os outros como linhas separadas por enquanto
-                                    # ou poderíamos passar a lista. Vamos passar o primeiro e os outros sobram para o loop final.
-                                    primary_child = children[0] if children else None
-                                    final_list.append((d, primary_child))
-                                    
-                                    # Se houver mais filhos, eles serão processados no loop de órfãos para aparecerem abaixo
-                                
-                                # Adicionar DXFs que sobraram (órfãos, manuais ou extras de versões)
-                                for base, docs in dxfs_map.items():
-                                    for d in docs:
-                                        if d.get('id') not in handled_dxfs_ids:
-                                            final_list.append((d, None))
-                                        
-                                # Renderizar
-                                for parent_doc, child_doc in final_list:
-                                    doc_widget = self._create_document_item_widget(parent_doc, child_doc)
-                                    docs_layout.addWidget(doc_widget)
-                                
-                                docs_layout.addStretch()
+                existing_paths = {d.get('file_path', '') for d in docs}
+                docs.extend(self._scan_phase1_filesystem(work_name, existing_paths))
 
-                        # Se tiver uma árvore de banco de dados (Fase 3 ou 4), atualizar dados baseados no projeto atual
-                        tree = widget.property("db_tree")
-                        if tree:
-                            if phase_num == 3:
-                                self._refresh_phase3_data(class_name, tree)
-                            elif phase_num == 4:
-                                # Na fase 4, o refresh_phase4_data usa o pavimento selecionado no combo global
-                                self._refresh_phase4_data(class_name, tree)
-                            elif phase_num == 5:
-                                # Na fase 5, o refresh_phase5_data usa o pavimento selecionado no combo global
-                                self._refresh_phase5_data(class_name, tree)
-                                self._update_script_progress()
         except Exception as e:
-            logging.error(f"Erro ao atualizar abas de fases: {e}")
+            logging.error(f"[_load_classified_docs] {e}")
+
+        classified: dict = {}
+        for doc in docs:
+            phase_num, class_name = self._classify_document(doc)
+            classified.setdefault((phase_num, class_name), []).append(doc)
+        return classified
+
+    def _render_single_phase(self, phase_num: int, classified_docs: dict):
+        """Reconstrói os widgets de UM tab de fase usando classified_docs já calculado."""
+        phase_tab = self.phase_tab_widgets.get(phase_num)
+        if not phase_tab:
+            return
+        container = phase_tab.widget()
+        if not container:
+            return
+        layout = container.layout()
+        if not layout:
+            return
+
+        try:
+            for i in range(layout.count()):
+                item = layout.itemAt(i)
+                if not item:
+                    continue
+                widget = item.widget()
+                if not widget:
+                    continue
+
+                class_name = widget.property("class_name")
+                if class_name:
+                    docs_container = widget.property("docs_container")
+                    if docs_container:
+                        docs_layout = docs_container.layout()
+                        if docs_layout:
+                            # Limpar widgets existentes (preservar containers especiais)
+                            for j in reversed(range(docs_layout.count())):
+                                child = docs_layout.itemAt(j)
+                                w = child.widget()
+                                if w:
+                                    is_special = (
+                                        (hasattr(self, 'scroll_area') and w == self.scroll_area) or
+                                        (hasattr(self, 'phase3_pavement_selector') and w == self.phase3_pavement_selector) or
+                                        (hasattr(self, 'phase4_pavement_selector') and w == self.phase4_pavement_selector) or
+                                        (hasattr(self, 'phase5_pavement_selector') and w == self.phase5_pavement_selector)
+                                    )
+                                    if not is_special:
+                                        docs_layout.takeAt(j)
+                                        w.deleteLater()
+                                else:
+                                    docs_layout.takeAt(j)
+
+                            key = (phase_num, class_name)
+                            class_docs = classified_docs.get(key, [])
+
+                            # Badge
+                            count_badge = widget.property("count_badge")
+                            if count_badge:
+                                dwg_n = sum(1 for d in class_docs if d.get('extension', '').lower() == '.dwg')
+                                dxf_n = sum(1 for d in class_docs if d.get('extension', '').lower() == '.dxf')
+                                total_n = len(class_docs)
+                                if dwg_n > 0:
+                                    if dxf_n >= dwg_n:
+                                        badge_text, badge_color = f"{dwg_n} DWG  |  {dxf_n} DXF  OK", Colors.ACCENT_SUCCESS_ALT
+                                    elif dxf_n > 0:
+                                        badge_text, badge_color = f"{dwg_n} DWG  |  {dxf_n}/{dwg_n} DXF", Colors.ACCENT_WARNING
+                                    else:
+                                        badge_text, badge_color = f"{dwg_n} DWG  |  0 DXF", Colors.ACCENT_DANGER
+                                elif dxf_n > 0:
+                                    badge_text, badge_color = f"{dxf_n} DXF", Colors.ACCENT_SUCCESS_ALT
+                                elif total_n > 0:
+                                    badge_text, badge_color = f"{total_n} docs", Colors.TEXT_SECONDARY
+                                else:
+                                    badge_text, badge_color = "vazio", Colors.TEXT_DIM
+                                count_badge.setText(badge_text)
+                                count_badge.setStyleSheet(
+                                    f"color: {badge_color}; font-size: 11px; font-weight: bold;"
+                                    " padding: 0 8px; background: transparent; border: none;"
+                                )
+
+                            # Agrupar DWG↔DXF e renderizar
+                            dxfs_map: dict = {}
+                            others = []
+                            for d in class_docs:
+                                name = d.get('name', '')
+                                ext = d.get('extension', '').lower()
+                                match = re.search(r"^(.*?)\s*\(.*?\)$", name)
+                                if ext == '.dxf' and match:
+                                    base = match.group(1).strip()
+                                    dxfs_map.setdefault(base, []).append(d)
+                                else:
+                                    others.append(d)
+
+                            final_list = []
+                            handled_ids: set = set()
+                            for d in others:
+                                ext = d.get('extension', '').lower()
+                                name = d.get('name', '')
+                                children = []
+                                if ext == '.dwg' and name in dxfs_map:
+                                    children = dxfs_map[name]
+                                    for c in children:
+                                        handled_ids.add(c.get('id'))
+                                final_list.append((d, children[0] if children else None))
+                            for base, ds in dxfs_map.items():
+                                for d in ds:
+                                    if d.get('id') not in handled_ids:
+                                        final_list.append((d, None))
+
+                            _skip_simple = (phase_num == 2 and class_name == "Estruturais Pavimentos Limpos")
+                            if not _skip_simple:
+                                for parent_doc, child_doc in final_list:
+                                    docs_layout.addWidget(self._create_document_item_widget(parent_doc, child_doc))
+
+                            docs_layout.addStretch()
+
+                    # DB trees (fase 3/4/5)
+                    tree = widget.property("db_tree")
+                    if tree:
+                        if phase_num == 3:
+                            self._refresh_phase3_data(class_name, tree)
+                        elif phase_num == 4:
+                            self._refresh_phase4_data(class_name, tree)
+                        elif phase_num == 5:
+                            self._refresh_phase5_data(class_name, tree)
+                            self._update_script_progress()
+
+        except Exception as e:
+            import traceback
+            logging.error(f"[_render_single_phase] phase={phase_num} {e}\n{traceback.format_exc()}")
+
+    def _on_phase_tab_switched(self, idx: int):
+        """Renderiza o tab recém-selecionado se estiver dirty.
+        Layout: idx 0→fase1, 1→fase2, 2→pré-ficha, 3→fase3, …, 8→fase8
+        """
+        if idx == 2:  # 2.1 Pré-ficha Obra
+            self._refresh_ficha_obra()
+            return
+        # idx < 2  →  phase = idx + 1  (0→1, 1→2)
+        # idx > 2  →  phase = idx      (3→3, 4→4, …, 8→8)
+        phase_num = idx + 1 if idx < 2 else idx
+        if phase_num in self._dirty_phases:
+            self._render_single_phase(phase_num, self._classified_docs_cache)
+            self._dirty_phases.discard(phase_num)
+
+    def _refresh_phase_tabs(self):
+        """Carrega documentos e renderiza apenas o tab visível. Os demais são lazy.
+        Layout: idx 0→fase1, 1→fase2, 2→pré-ficha, 3→fase3, …, 8→fase8
+        """
+        try:
+            self._classified_docs_cache = self._load_classified_docs()
+            cur_idx = self.phase_tabs.currentIndex()
+            if cur_idx == 2:  # pré-ficha — não é uma fase numérica
+                self._refresh_ficha_obra()
+                self._dirty_phases = set(range(1, 9))
+            else:
+                visible = cur_idx + 1 if cur_idx < 2 else cur_idx
+                self._render_single_phase(visible, self._classified_docs_cache)
+                # Marcar todos os outros como dirty — serão renderizados ao clicar
+                self._dirty_phases = set(range(1, 9)) - {visible}
+        except Exception as e:
+            import traceback
+            logging.error(f"Erro ao atualizar abas de fases: {e}\n{traceback.format_exc()}")
 
     def _refresh_all_phase5_lists(self):
         """Atualiza todas as listas de itens da Fase 5."""
@@ -2191,17 +5223,15 @@ class ProjectManager(QWidget):
         else:
             main_container.setStyleSheet(_resolve_css("""
                 QFrame {
-                    background: {Colors.BG_SURFACE};
+                    background: {Colors.BG_DEEP};
                     border: 1px solid {Colors.BORDER_DEFAULT};
-                    border-radius: 4px;
-                    padding: 8px;
+                    border-radius: 5px;
                 }
                 QFrame:hover {
-                    background: {Colors.BORDER_SUBTLE};
-                    border-color: {Colors.BORDER_INPUT};
+                    border-color: {Colors.ACCENT_PRIMARY};
                 }
             """))
-            container_layout = QVBoxLayout(main_container) # Use VBox genericamente, mas com um item só
+            container_layout = QVBoxLayout(main_container)
             container_layout.setContentsMargins(0, 0, 0, 0)
         
         # --- Helper para criar linha ---
@@ -2214,29 +5244,30 @@ class ProjectManager(QWidget):
                     pass
             
             row_layout = QHBoxLayout(row_frame)
-            row_layout.setContentsMargins(10, 8, 10, 8)
-            
+            row_layout.setContentsMargins(8, 4, 8, 4)
+            row_layout.setSpacing(6)
+
             # Indentação para filho
             if is_child:
                 icon_link = QLabel("↳")
-                icon_link.setStyleSheet(f"color: {Colors.TEXT_DIM}; font-size: 16px; font-weight: bold; margin-right: 5px;")
+                icon_link.setStyleSheet(f"color: {Colors.TEXT_DIM}; font-size: 12px; font-weight: bold; margin-right: 4px;")
                 row_layout.addWidget(icon_link)
 
-            # Nome do documento (com largura flexível porém controlada)
+            # Nome do documento
             doc_name = item_doc.get('name', 'Sem nome')
             name_label = QLabel(doc_name)
-            name_label.setToolTip(doc_name) # Tooltip para nomes cortados
-            name_style = f
+            name_label.setToolTip(doc_name)
+            name_style = f"font-size: 11px; color: {Colors.TEXT_PRIMARY}; background: transparent; border: none;"
             if is_child: name_style += f" font-style: italic; color: {Colors.TEXT_SECONDARY};"
             name_label.setStyleSheet(name_style)
-            row_layout.addWidget(name_label, 1) # Stretch 1
-            
-            # Formato (Badge pequena)
+            row_layout.addWidget(name_label, 1)
+
+            # Formato (Badge)
             ext = item_doc.get('extension', '')
             format_label = QLabel(ext.upper() if ext else "N/A")
-            format_label.setFixedWidth(50)
+            format_label.setFixedWidth(38)
             format_label.setAlignment(Qt.AlignCenter)
-            format_label.setStyleSheet(f"color: {Colors.TEXT_SECONDARY}; font-size: 10px; padding: 2px 4px; background: {Colors.BG_DEEP}; border-radius: 3px; border: 1px solid {Colors.BORDER_DEFAULT};")
+            format_label.setStyleSheet(f"color: {Colors.TEXT_SECONDARY}; font-size: 9px; font-weight: bold; padding: 1px 3px; background: {Colors.BG_CARD}; border-radius: 3px; border: 1px solid {Colors.BORDER_DEFAULT};")
             row_layout.addWidget(format_label)
             
             # Versão (Alinhada como coluna)
@@ -2247,41 +5278,39 @@ class ProjectManager(QWidget):
                 version_label = QLabel()
                 if not version_val:
                     version_text = "⚠️ Pendente Scan"
-                    version_style = f
+                    version_style = f"color: {Colors.ACCENT_WARNING}; background: rgba(255,152,0,31); border: 1px solid {Colors.ACCENT_WARNING};"
                 elif version_val == "Desconhecido":
                     version_text = "❓ Desconhecido"
-                    version_style = f
+                    version_style = f"color: {Colors.TEXT_DIM}; background: transparent; border: 1px solid {Colors.BORDER_DEFAULT};"
                 else:
                     version_text = f"⚙️ {version_val}"
-                    version_style = f
+                    version_style = f"color: {Colors.ACCENT_SUCCESS_ALT}; background: rgba(0,204,102,26); border: 1px solid {Colors.ACCENT_SUCCESS_ALT};"
                 
                 version_label.setText(version_text)
                 version_label.setStyleSheet(f"""
-                    font-size: 10px; 
+                    font-size: 9px;
                     font-weight: bold;
-                    padding: 2px 8px; 
+                    padding: 1px 6px;
                     border-radius: 3px;
                     {version_style}
                 """)
-                version_label.setFixedWidth(160) # Largura fixa para agir como coluna
+                version_label.setFixedWidth(120)
                 version_label.setAlignment(Qt.AlignCenter)
                 row_layout.addWidget(version_label)
             else:
-                # Spacer para manter alinhamento se não for CAD
-                row_layout.addSpacing(160)
+                row_layout.addSpacing(120)
             
             row_layout.addStretch()
             
             # Botão Abrir
-            btn_open = QPushButton(" EYE ") # Using text fallback if icon fails font support
-            btn_open.setText("👁️")
-            btn_open.setFixedSize(28, 28)
+            btn_open = QPushButton("👁 Abrir")
+            btn_open.setFixedHeight(22)
             btn_open.setCursor(Qt.PointingHandCursor)
             btn_open.setToolTip("Abrir documento")
             btn_open.setStyleSheet(_resolve_css("""
                 QPushButton {
                     background: rgba(26,50,75,1); color: {Colors.ACCENT_PRIMARY}; border: 1px solid {Colors.ACCENT_PRIMARY};
-                    border-radius: 4px; font-weight: bold; font-size: 14px;
+                    border-radius: 3px; padding: 1px 8px; font-size: 10px; font-weight: bold;
                 }
                 QPushButton:hover { background: {Colors.ACCENT_PRIMARY}; color: {Colors.BG_DEEP}; }
             """))
@@ -2293,37 +5322,31 @@ class ProjectManager(QWidget):
 
             # Botões de conversão (para DWG Pai)
             if not is_child and ext.lower() == '.dwg':
-                 # Botão de conversão rápida: DXF 2018 ASCII
                  btn_quick_convert = QPushButton("⚡ DXF 2018")
-                 btn_quick_convert.setFixedHeight(28)
+                 btn_quick_convert.setFixedHeight(22)
                  btn_quick_convert.setCursor(Qt.PointingHandCursor)
                  btn_quick_convert.setToolTip("Conversão rápida para DXF 2018 ASCII")
                  btn_quick_convert.setStyleSheet(_resolve_css("""
                     QPushButton {
                         background: rgba(26,77,46,1); color: {Colors.ACCENT_SUCCESS_ALT}; border: 1px solid {Colors.ACCENT_SUCCESS_ALT};
-                        border-radius: 4px; padding: 4px 12px; font-size: 11px; font-weight: bold;
+                        border-radius: 3px; padding: 1px 8px; font-size: 10px; font-weight: bold;
                     }
                     QPushButton:hover { background: {Colors.ACCENT_SUCCESS_ALT}; color: {Colors.BG_DEEP}; }
                  """))
                  btn_quick_convert.clicked.connect(lambda checked=False, d=item_doc: self._convert_to_specific_version(d, "R2018", "dxf", False))
                  row_layout.addWidget(btn_quick_convert)
-                 
-                 # Botão de opções de conversão (menu dropdown)
+
                  btn_convert = QToolButton()
-                 btn_convert.setText("🔄 Opções")
-                 btn_convert.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
+                 btn_convert.setText("Opções ▾")
+                 btn_convert.setToolButtonStyle(Qt.ToolButtonTextOnly)
                  btn_convert.setPopupMode(QToolButton.InstantPopup)
                  btn_convert.setCursor(Qt.PointingHandCursor)
                  btn_convert.setStyleSheet(_resolve_css("""
                     QToolButton {
                         background: rgba(26,50,75,1); color: {Colors.ACCENT_PRIMARY}; border: 1px solid {Colors.ACCENT_PRIMARY};
-                        border-radius: 4px; padding: 6px 12px; font-size: 11px; font-weight: bold;
+                        border-radius: 3px; padding: 1px 8px; font-size: 10px; font-weight: bold;
                     }
-                    QToolButton::menu-indicator { 
-                        subcontrol-origin: padding;
-                        subcontrol-position: center right;
-                        right: 4px;
-                    }
+                    QToolButton::menu-indicator { width: 0; }
                     QToolButton:hover { background: {Colors.ACCENT_PRIMARY}; color: {Colors.BG_DEEP}; }
                  """))
                  
@@ -2376,13 +5399,13 @@ class ProjectManager(QWidget):
 
             # Botão excluir
             btn_delete = QPushButton("✕")
-            btn_delete.setFixedSize(28, 28)
+            btn_delete.setFixedSize(22, 22)
             btn_delete.setCursor(Qt.PointingHandCursor)
             btn_delete.setToolTip("Excluir documento")
             btn_delete.setStyleSheet(_resolve_css("""
                 QPushButton {
                     background: rgba(58,28,28,1); color: {Colors.ACCENT_DANGER}; border: 1px solid {Colors.ACCENT_DANGER};
-                    border-radius: 4px; font-weight: bold; font-size: 12px;
+                    border-radius: 3px; font-weight: bold; font-size: 10px;
                 }
                 QPushButton:hover { background: {Colors.ACCENT_DANGER}; color: {Colors.TEXT_BRIGHT}; }
             """))
@@ -2541,11 +5564,6 @@ class ProjectManager(QWidget):
             )
             
         except Exception as e:
-            self.setCursor(Qt.ArrowCursor)
-            logging.error(f"Erro na conversão em lote: {e}")
-            QMessageBox.critical(self, "Erro", f"Erro na conversão em lote:\n{str(e)}")
-
-    def _convert_to_specific_version(self, doc, version, target_format="dxf", is_binary=False, silent=False):
             self.setCursor(Qt.ArrowCursor)
             logging.error(f"Erro na conversão em lote: {e}")
             QMessageBox.critical(self, "Erro", f"Erro na conversão em lote:\n{str(e)}")
@@ -2885,91 +5903,116 @@ class ProjectManager(QWidget):
             item.setHidden(not show)
 
     def load_projects(self):
-        """Carrega os pavimentos filtrando pela obra selecionada usando Cards."""
-        # Limpar layout atual
+        """Carrega os pavimentos filtrando pela obra selecionada usando Cards.
+
+        Estratégia de performance:
+          - Fase A (síncrona, <1ms): atualiza header/botões/estado
+          - Fase B (QTimer 0ms): carrega cards + combos (leve)
+          - Fase C (QTimer 50ms): badge + triagem (I/O leve diferido)
+          - Fase D (QTimer 100ms): phase_tabs (I/O pesado, invisível ao user)
+        """
+        from PySide6.QtCore import QTimer as _QT
+
+        # ── Fase A: UI imediata ─────────────────────────────────────────────
         for i in reversed(range(self.cards_layout.count())):
             widget = self.cards_layout.itemAt(i).widget()
             if widget:
                 widget.setParent(None)
-        
-        # Reset column stretch if previously set with multiple cols
-        self.cards_layout.setColumnStretch(0, 1)
-                
+
         selected_item = self.list_works.currentItem()
         filter_work = selected_item.data(Qt.UserRole) if selected_item else None
-        
+
         self.current_work_name = filter_work if filter_work != "__NO_WORK__" else None
-        
-        # Mostrar botões de ação da obra (Esconder se for 'Sem Obra')
+
         has_work = bool(filter_work) and filter_work != "__NO_WORK__"
         self.btn_delete_work.setVisible(has_work)
         self.btn_sync_work.setVisible(has_work)
-        
-        # Atualiza o header
+
         display_text = selected_item.text().replace("📁 ", "").replace("🏢 ", "") if selected_item else "Selecione uma Obra"
         self.lbl_selected_work.setText(display_text)
-        
-        # Carregar metadados da obra na aba lateral
+
         self.load_work_metadata(filter_work)
 
-        try:
-            # Pega todos (poderia otimizar no SQL, mas ok)
-            projects = self.db.get_projects()
-        except Exception as e:
-            logging.error(f"load_projects failed: {e}")
-            return
-            
-        row = 0
-        col = 0
-        max_cols = 1 
-        
-        # Preparar lista para o Combo da Fase 3
-        filtered_projects = []
-        for p in projects:
-            p_work = p.get('work_name') or ""
-            if filter_work == "__NO_WORK__":
-                if p_work: continue
-            elif filter_work:
-                if p_work != filter_work: continue
-            filtered_projects.append(p)
+        # ── Fase B: cards + combos (diferido, roda antes do próximo repaint) ─
+        def _load_cards():
+            try:
+                projects = self.db.get_projects()
+            except Exception as e:
+                logging.error(f"load_projects failed: {e}")
+                return
 
-        # Atualizar Combos das Fases 3, 4 e 5
-        for combo_name in ['cmb_pavements_extraction', 'cmb_pavements_recognition', 'cmb_pavements_validation']:
-            if hasattr(self, combo_name):
-                cmb = getattr(self, combo_name)
-                cmb.blockSignals(True)
-                cmb.clear()
-                icon = "✅" if combo_name == 'cmb_pavements_validation' else ("🤖" if combo_name == 'cmb_pavements_recognition' else "🏗️")
-                for p in filtered_projects:
-                    cmb.addItem(f"{icon} {p.get('name', 'N/A')}", p)
-                cmb.blockSignals(False)
+            filtered_projects = []
+            for p in projects:
+                p_work = p.get('work_name') or ""
+                if filter_work == "__NO_WORK__":
+                    if p_work: continue
+                elif filter_work:
+                    if p_work != filter_work: continue
+                filtered_projects.append(p)
 
-        first_project = None
-        for p in filtered_projects:
-            if not first_project:
-                first_project = p
+            for combo_name in ['cmb_pavements_extraction', 'cmb_pavements_recognition', 'cmb_pavements_validation']:
+                if hasattr(self, combo_name):
+                    cmb = getattr(self, combo_name)
+                    cmb.blockSignals(True)
+                    cmb.clear()
+                    icon = "✅" if combo_name == 'cmb_pavements_validation' else ("🤖" if combo_name == 'cmb_pavements_recognition' else "🏗️")
+                    for p in filtered_projects:
+                        cmb.addItem(f"{icon} {p.get('name', 'N/A')}", p)
+                    cmb.blockSignals(False)
 
-            card = ProjectCard(p)
-            card.clicked.connect(self.on_project_card_clicked)
-            card.action_ficha.connect(self.open_details_dialog)
-            card.action_sync.connect(self.sync_single_project_card)
-            card.action_move.connect(self.move_project_to_work)
-            card.action_delete.connect(self.confirm_delete_project_card)
-            card.action_open_dxf.connect(self._open_project_main_dxf_from_card)
-            
-            self.cards_layout.addWidget(card, row, col)
-            
-            col += 1
-            if col >= max_cols:
-                col = 0
-                row += 1
-                
-        # Auto-selecionar o primeiro se existir
-        if first_project:
-            self.on_project_card_clicked(first_project)
-        else:
-            self.current_project_id = None
-            self._refresh_phase_tabs() # Limpa as abas
+            # Ordenar por pavement_name (canônico) → fallback por name
+            def _pav_sort_key(p):
+                pn = p.get('pavement_name') or p.get('name') or ''
+                import re
+                m = re.search(r'(\d+)', pn)
+                return (int(m.group(1)) if m else 9999, pn.lower())
+
+            filtered_projects = sorted(filtered_projects, key=_pav_sort_key)
+
+            # Atualizar contador no label
+            if hasattr(self, '_lbl_pav_count'):
+                self._lbl_pav_count.setText(
+                    f"Pavimentos Limpos — {len(filtered_projects)} pavimento(s)"
+                )
+
+            # Limpar layout VBox antes de popular
+            while self.cards_layout.count():
+                item = self.cards_layout.takeAt(0)
+                if item.widget():
+                    item.widget().setParent(None)
+
+            first_project = None
+            for p in filtered_projects:
+                if not first_project:
+                    first_project = p
+                card = ProjectCard(p)
+                card.clicked.connect(self.on_project_card_clicked)
+                card.action_ficha.connect(self.open_details_dialog)
+                card.action_sync.connect(self.sync_single_project_card)
+                card.action_move.connect(self.move_project_to_work)
+                card.action_delete.connect(self.confirm_delete_project_card)
+                card.action_open_dxf.connect(self._open_project_main_dxf_from_card)
+                self.cards_layout.addWidget(card)
+
+            self.cards_layout.addStretch()
+
+            # Fase D: phase_tabs pesado — deferir mais para não bloquear render dos cards
+            if first_project:
+                _QT.singleShot(100, lambda p=first_project: self.on_project_card_clicked(p))
+            else:
+                self.current_project_id = None
+                _QT.singleShot(100, self._refresh_phase_tabs)
+
+        _QT.singleShot(0, _load_cards)
+
+        # ── Fase C: badge (scan disco) + triagem (DB) — diferidos ───────────
+        _QT.singleShot(50, self._refresh_index_badge)
+        _QT.singleShot(80, self._refresh_rag_badge)
+        if hasattr(self, '_triagem_list_layout'):
+            _QT.singleShot(50, self._refresh_triagem_panel)
+        _QT.singleShot(80, self._refresh_preprocess_panel)
+        _QT.singleShot(80, self._refresh_projetos_finalizados_panel)
+        _QT.singleShot(80, self._refresh_detalhamentos_panel)
 
     def on_project_card_clicked(self, p):
         """Manipula o clique no card do projeto ou seleção via combo."""
@@ -2990,43 +6033,9 @@ class ProjectManager(QWidget):
         
         # Breadcrumbs Update
         self.breadcrumbs.set_path("Projetos", p.get('work_name') or "Sem Obra", p['name'])
-        
-        self._refresh_phase_tabs()
 
-    def create_new_project(self):
-        """Creates a new project (Pavimento) under the currently selected work."""
-        selected_item = self.list_works.currentItem()
-        current_work = selected_item.data(Qt.UserRole) if selected_item else None
-        
-        if not current_work or current_work == "__NO_WORK__":
-            work_name, ok = QInputDialog.getText(self, "Nova Obra", "Digite o nome da Obra para este projeto:")
-            if not ok or not work_name.strip(): return
-            current_work = work_name.strip()
-            
-        name, ok = QInputDialog.getText(self, "Novo Pavimento", f"Nome do Pavimento (Obra: {current_work}):")
-        if ok and name.strip():
-            try:
-                new_id = str(uuid.uuid4())
-                self.db.create_project(
-                    force_id=new_id,
-                    name=name.strip(),
-                    dxf_path="",  
-                    work_name=current_work,
-                    pavement_name=name.strip(),
-                    description="Novo projeto criado via Gerenciador",
-                    sync_status="pending"
-                )
-                
-                self.load_works_combo() 
-                items = self.list_works.findItems(f"📁 {current_work}", Qt.MatchContains)
-                if items: self.list_works.setCurrentItem(items[0])
-                
-                self.load_projects()
-                QMessageBox.information(self, "Sucesso", f"Pavimento '{name}' criado com sucesso!")
-                
-            except Exception as e:
-                QMessageBox.critical(self, "Erro", f"Falha ao criar projeto: {e}")
-
+        # Fix performance: defer phase tab rebuild para não travar o repaint do card
+        QTimer.singleShot(0, self._refresh_phase_tabs)
 
     def _update_docs_tab_list(self, docs):
         """Método mantido para compatibilidade - agora redireciona para _refresh_phase_tabs()"""

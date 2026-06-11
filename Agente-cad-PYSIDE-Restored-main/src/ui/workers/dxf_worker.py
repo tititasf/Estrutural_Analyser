@@ -10,6 +10,16 @@ except ImportError:
     fitz = None
 
 from src.core.dxf_loader import DXFLoader, RenderMode
+from src.ui.theme import Colors, Fonts, Radius
+
+# Mtime do loader — cache é invalidado automaticamente quando dxf_loader.py muda
+try:
+    _LOADER_PY = os.path.normpath(
+        os.path.join(os.path.dirname(__file__), '..', '..', 'core', 'dxf_loader.py')
+    )
+    _LOADER_MTIME: float = os.path.getmtime(_LOADER_PY) if os.path.exists(_LOADER_PY) else 0.0
+except Exception:
+    _LOADER_MTIME = 0.0
 
 class DXFLoadWorker(QObject):
     """
@@ -39,7 +49,8 @@ class DXFLoadWorker(QObject):
             if self.use_cache and os.path.exists(cache_path):
                 dxf_mtime = os.path.getmtime(self.file_path)
                 pkl_mtime = os.path.getmtime(cache_path)
-                if pkl_mtime > dxf_mtime:
+                # Cache válido só se mais novo que o DXF E que o loader
+                if pkl_mtime > dxf_mtime and pkl_mtime > _LOADER_MTIME:
                     try:
                         with open(cache_path, 'rb') as f:
                             data = pickle.load(f)

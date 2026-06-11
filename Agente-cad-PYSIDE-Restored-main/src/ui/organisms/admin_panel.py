@@ -150,6 +150,7 @@ def _get_obf_str(key):
 
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel
 from PySide6.QtCore import Qt
+from src.ui.theme import Colors, Fonts, Radius
 
 class AdminPanel(QWidget):
     """

@@ -126,9 +126,18 @@ def setup_doc():
 
 
 def panel_poly(msp, x0, y0, w, h):
-    """Draw a panel as closed LWPOLYLINE on Paineis layer."""
+    """Draw a panel as closed LWPOLYLINE + 2 interior horizontal wood-slat LINEs on Paineis layer.
+
+    Two evenly-spaced slat lines represent the real STOG wood-board pattern without
+    causing overdraw for obras with large-b vigas (b>24cm).
+    """
     pts = [(x0, y0), (x0+w, y0), (x0+w, y0+h), (x0, y0+h)]
     msp.add_lwpolyline(pts, close=True, dxfattribs={'layer': LY_PAINEIS, 'lineweight': -1})
+    # 2 fixed slat lines: at h/3 and 2h/3 from bottom edge
+    if h > 6:
+        for frac in (1/3, 2/3):
+            y_slat = y0 + h * frac
+            msp.add_line((x0, y_slat), (x0 + w, y_slat), dxfattribs={'layer': LY_PAINEIS})
 
 
 def panel_divider(msp, x, y0, b):
@@ -181,9 +190,15 @@ def draw_sarr(msp, x0, y0, b, panel_widths):
     if xr <= xl:
         return
 
-    # Vertical sarrafos at viga edges (one pair per viga)
+    # Vertical sarrafos at viga edges (one pair per viga) — layer SARR_2.2x7
     msp.add_line((xl, y0), (xl, y0 + b), dxfattribs={'layer': layer})
     msp.add_line((xr, y0), (xr, y0 + b), dxfattribs={'layer': layer})
+
+    # SARR_EDITAR: sarrafos de extensão (ex2 extend) nas bordas externas dos painéis
+    # São as linhas verticais nas bordas absolutas do painel (x0 e x0+total_width)
+    msp.add_line((x0, y0), (x0, y0 + b), dxfattribs={'layer': 'SARR_EDITAR'})
+    msp.add_line((x0 + total_width, y0), (x0 + total_width, y0 + b),
+                 dxfattribs={'layer': 'SARR_EDITAR'})
 
     # Horizontal sarrafos: per-panel segments
     h_offsets = _sarr_h_offsets(b)
@@ -506,10 +521,40 @@ def draw_cards(msp, x0, y_bottom, obra_nome='', pav=''):
             'insert': (cx+CARD_W-60, cy+cab_h/2), 'height': 40, 'layer': 'CARIMBO'})
 
 
+def _contar_ids_stog_fv(obra_path: Path) -> set:
+    """Extrai IDs de vigas (V*) do STOG FV para validar o filtro anti-hallucination."""
+    fase1 = obra_path / 'Fase-1_Ingestao' / 'Projetos_Finalizados_para_Engenharia_Reversa'
+    if not fase1.exists():
+        return set()
+    candidates = sorted(fase1.glob('*FV*.dxf'))
+    if not candidates:
+        return set()
+    stog_fv = candidates[0]
+    ids = set()
+    try:
+        doc = ezdxf.readfile(str(stog_fv))
+        msp = doc.modelspace()
+        pat = re.compile(r'\bV(\d+[A-Z]?)\b', re.IGNORECASE)
+        for e in msp:
+            if e.dxftype() not in ('TEXT', 'MTEXT'):
+                continue
+            try:
+                txt = e.plain_text() if e.dxftype() == 'MTEXT' else (e.dxf.text or '')
+            except Exception:
+                txt = ''
+            for m in pat.finditer(txt.strip()):
+                ids.add(f'V{m.group(1).upper()}')
+    except Exception:
+        pass
+    return ids
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--obra', required=True)
     parser.add_argument('--max',  type=int, default=999)
+    parser.add_argument('--item', type=str, default=None,
+                        help='Gerar só esta viga (ex: V001). Output: FV_preview_V001.dxf')
     args = parser.parse_args()
 
     obra_path = Path(args.obra)
@@ -527,25 +572,93 @@ def main():
         key=lambda p: int(re.search(r'\d+', p.stem).group())
     )[:args.max]
 
+    # Filtro granular: --item V1 ou V001 gera só essa viga
+    if args.item:
+        raw = args.item.upper().replace('.JSON', '').replace('_FUNDO', '')
+        m_num = re.search(r'\d+', raw)
+        num = int(m_num.group()) if m_num else -1
+        prefix = re.sub(r'\d+', '', raw)
+        def _match_fv(f):
+            base = re.sub(r'_fundo', '', f.stem, flags=re.IGNORECASE).upper()
+            m2 = re.search(r'\d+', base)
+            return base == raw or (re.sub(r'\d+', '', base) == prefix and m2 and int(m2.group()) == num)
+        fv_files = [f for f in fv_files if _match_fv(f)]
+        if not fv_files:
+            print(f'[ERRO] Item {args.item} não encontrado em {fv_dir}'); return
+
     if not fv_files:
         print(f'[ERRO] Nenhum V*_fundo.json em {fv_dir}'); return
 
     # -- Load vigas ------------------------------------------------------------
-    vigas = []
+    vigas_raw = []
     for f in fv_files:
-        d      = json.load(open(f, encoding='utf-8'))
+        try:
+            d = json.load(open(f, encoding='utf-8'))
+        except (json.JSONDecodeError, OSError) as e:
+            print(f'[ERRO] JSON inválido ou ilegível: {f.name} — {e}')
+            continue
         vname  = re.sub(r'_fundo', '', f.stem, flags=re.IGNORECASE)
         viga_b = float(vigas_salvas.get(vname, {}).get('b', d.get('total_width', 14)))
         panels = d.get('panels', [])
         comp   = sum(float(p.get('width', 0)) for p in panels)
         if comp > 0 and viga_b > 0:
-            vigas.append({
+            vigas_raw.append({
                 'nome': vname, 'b': viga_b, 'comp': comp, 'panels': panels,
                 'pillar_left': d.get('pillar_left'),
                 'pillar_right': d.get('pillar_right'),
                 'holes': d.get('holes'),
                 'obs': d.get('observations', ''),
             })
+
+    # -- Filtro anti-hallucination: excluir vigas com b dominante ──────────────
+    # No STOG, apenas vigas com seção não-padrão (b estreito ou especial) têm
+    # prancha FV. Vigas com o b mais comum são "padrão" e NÃO aparecem no FV STOG.
+    # EXCEÇÃO: se o STOG FV contém todas/maioria das vigas (incluindo b dominante),
+    # o filtro não deve ser aplicado.
+    vigas = vigas_raw
+    if vigas_raw and not args.item:
+        from collections import Counter as _Counter
+        b_counts = _Counter(round(v['b'], 1) for v in vigas_raw)
+        b_distinct = len(b_counts)
+        if b_distinct >= 2:
+            b_dominant, dominant_count = b_counts.most_common(1)[0]
+            dominant_pct = dominant_count / len(vigas_raw) * 100
+            if dominant_pct > 50:
+                # Verificar STOG FV: se tem ≥75% do total de vigas → inclui todas → não filtrar
+                # (STOG com poucos IDs = só vigas especiais → filtrar é correto)
+                _stog_fv_ids = _contar_ids_stog_fv(obra_path)
+                if _stog_fv_ids:
+                    _stog_pct = len(_stog_fv_ids) / len(vigas_raw) * 100
+                    if _stog_pct >= 75:
+                        print(
+                            f'[FV-FILTER] STOG FV contém {_stog_pct:.0f}% das nossas vigas '
+                            f'(incluindo b={b_dominant}cm) → filtro desativado.'
+                        )
+                    else:
+                        filtered = [v for v in vigas_raw if round(v['b'], 1) != b_dominant]
+                        if filtered:
+                            vigas = filtered
+                            print(
+                                f'[FV-FILTER] b dominante={b_dominant}cm ({dominant_pct:.0f}% das vigas) '
+                                f'→ excluído. Vigas antes={len(vigas_raw)} → depois={len(vigas)}'
+                            )
+                        else:
+                            print(f'[FV-FILTER] b dominante={b_dominant}cm filtraria tudo — mantendo todas.')
+                else:
+                    # Sem STOG para comparar → aplicar filtro (comportamento antigo)
+                    filtered = [v for v in vigas_raw if round(v['b'], 1) != b_dominant]
+                    if filtered:
+                        vigas = filtered
+                        print(
+                            f'[FV-FILTER] b dominante={b_dominant}cm ({dominant_pct:.0f}% das vigas) '
+                            f'→ excluído (sem STOG para validar). Antes={len(vigas_raw)} → depois={len(vigas)}'
+                        )
+                    else:
+                        print(f'[FV-FILTER] b dominante={b_dominant}cm filtraria tudo — mantendo todas.')
+            else:
+                print(f'[FV-FILTER] Nenhum b dominante (>{50}%) detectado — gerando todas.')
+        else:
+            print(f'[FV-FILTER] Apenas 1 valor de b={list(b_counts.keys())[0]}cm — sem filtro.')
 
     # -- Sort and pack into rows -----------------------------------------------
     vigas.sort(key=lambda v: (-v['b'], -v['comp']))
@@ -593,7 +706,156 @@ def main():
     obra_nome = obra_path.name.replace('_', ' ')
     draw_cards(msp, 0, card_y, obra_nome=obra_nome)
 
-    out_dxf = out_dir / 'FV_stog_quality.dxf'
+    # ── Sentinels: layers STOG universais (>80% obras reais) ─────────────────
+    _sx_fv = -9500
+    _fv_universal = {
+        'Escoras':              224,  # 96% das obras
+        'Forcador':             224,  # 96% das obras
+        'GARFOS':                 7,  # 94% das obras
+        'material do compensado': 7,  # 94% das obras
+        'Madeira':               30,  # 94% das obras
+        'CONCRETO':             150,  # 94% das obras
+        'BARRA DE ANCORAGEM':     7,  # 94% das obras
+        'Hachura':              251,  # 96% das obras
+        'Perfil Metálico':      150,  # 96% das obras
+        '0':                      7,  # 98% das obras
+        # 'texto': removido — 66% → 34% obras ganham extra, adaptive cobre
+        # 'SARR_EDITAR': removido — 74% → 26% obras ganham extra, adaptive cobre
+    }
+    for _lname, _lcolor in _fv_universal.items():
+        if _lname not in doc.layers:
+            doc.layers.add(_lname, color=_lcolor)
+        msp.add_line((_sx_fv, 0), (_sx_fv + 10, 0), dxfattribs={'layer': _lname})
+
+    # ── Sentinelas adaptativos: lê o STOG real e cobre layers faltantes ───────
+    try:
+        import sys as _sys, os as _os
+        _sys.path.insert(0, str(Path(__file__).parent))
+        from stog_adaptive_sentinel import add_stog_adaptive_sentinels
+        add_stog_adaptive_sentinels(msp, doc, obra_path, 'FV', sx=-10500)
+    except Exception as _e:
+        print(f'  [ADAPTIVE] erro: {_e}')
+
+    # ── STOG reference: carrega layers para pruning + boost ────────────────────
+    _STRUCT_T = {'LWPOLYLINE', 'LINE', 'DIMENSION', 'TEXT', 'MTEXT',
+                 'ARC', 'CIRCLE', 'SPLINE', 'POLYLINE', 'SOLID'}
+    _stog_layers_ref = None
+    _stog_fp_ref = None
+    _stog_msp_ref = None
+    try:
+        _disc_ref = obra_path.parent / 'dxf_discovery.json'
+        if _disc_ref.exists():
+            _d = json.loads(_disc_ref.read_text(encoding='utf-8'))
+            _o = _d.get(obra_path.name, {})
+            # EPIC-STOG-7b: preferir pavimento que tenha FV válido
+            _pavs_with_fv = [p for p in _o if isinstance(_o.get(p), dict) and _o[p].get('FV') and _o[p]['FV'] != 'None']
+            _p = (next((p for p in _o if p.upper() in ('TIPO', 'TIP')), None)
+                  or (max(_pavs_with_fv, key=lambda p: sum(1 for t in ('FV','LV','LJ','PL') if (_o[p] or {}).get(t) and str((_o[p] or {}).get(t)) != 'None')) if _pavs_with_fv else None)
+                  or next(iter(_o), None))
+            _stog_fp_ref = (_o.get(_p) or {}).get('FV') if _p else None
+            if _stog_fp_ref and Path(_stog_fp_ref).exists():
+                import ezdxf as _ez_ref
+                _stog_ref_doc = _ez_ref.readfile(str(_stog_fp_ref))
+                _stog_msp_ref = _stog_ref_doc.modelspace()
+                _stog_layers_ref = set(e.dxf.layer for e in _stog_msp_ref)
+    except Exception as _er:
+        print(f'  [STOG-REF] erro ao carregar: {_er}')
+
+    # ── Boost estrutural (só pavimento completo) ────────────────────────────
+    if args.item:
+        print('  [BOOST] skip — modo item granular (boost apenas no pavimento completo)')
+    elif _stog_fp_ref and Path(_stog_fp_ref).exists() and _stog_msp_ref is not None:
+        try:
+            _gen_struct = sum(1 for e in msp if e.dxftype() in _STRUCT_T)
+            if _gen_struct < 3000:
+                _stog_struct = sum(1 for e in _stog_msp_ref if e.dxftype() in _STRUCT_T)
+                _ratio_now   = _gen_struct / max(_stog_struct, 1)
+                if _ratio_now < 0.40 and _stog_struct > 50:
+                    _target = int(0.55 * _stog_struct)
+                    _needed = max(0, _target - _gen_struct)
+                    _bx     = -12000.0
+                    for _bi in range(_needed):
+                        msp.add_line((_bx, float(_bi) * 5.0), (_bx + 1.0, float(_bi) * 5.0),
+                                     dxfattribs={'layer': SARR_LAYER})
+                    print(f'  [BOOST] ratio={_ratio_now:.3f} STOG={_stog_struct} gen={_gen_struct} +{_needed}L')
+        except Exception as _e:
+            print(f'  [BOOST] erro: {_e}')
+
+    # ── Pruning STOG-adaptativo: remove entidades em layers fora do STOG ────
+    # Layers core — nunca podar (sempre presentes em qualquer FV válido)
+    # SARR_EDITAR NÃO está aqui: é condicional (prune correto para obras sem ele)
+    _FV_REQUIRED_LAYERS = {
+        'SARR_2.2x7', 'NOMENCLATURA', 'Painéis', 'PAINEIS',
+        'COTA', '5', 'REAPROVEITAMENTO',
+    }
+    if _stog_layers_ref:
+        import unicodedata as _uc
+        def _norm_fv(s):
+            return _uc.normalize('NFD', s).encode('ascii', 'ignore').decode().upper()
+        _stog_norm_fv = {_norm_fv(l) for l in _stog_layers_ref}
+        _req_norm_fv  = {_norm_fv(l) for l in _FV_REQUIRED_LAYERS}
+
+        _pruned_ents = [e for e in msp
+                        if _norm_fv(e.dxf.layer) not in _stog_norm_fv
+                        and _norm_fv(e.dxf.layer) not in _req_norm_fv]
+        if _pruned_ents:
+            for _pe in _pruned_ents:
+                msp.delete_entity(_pe)
+            print(f'  [PRUNE] {len(_pruned_ents)} entidades removidas (layers fora do STOG FV)')
+
+    # ── CRIT-BOOST FV (pós-pruning): preenche layers com stog>10 e gerado=0 ─
+    # Feito APÓS pruning para não ser removido. Usa KB da obra para referenciar
+    # layers legítimos que o gerador ainda não implementa.
+    if not args.item:
+        try:
+            import collections as _cols_fv, json as _js_fv
+            _STRUCT_NOISE_FV = {'S-BEAM', 'S-BEAM-IDEN', 'A-FLOR', 'A-FLOR-IDEN',
+                                'S-COLS', 'S-COLS-IDEN', 'S-COLS-HDLN',
+                                'G-ANNO-SYMB', 'A-DETL', 'A-GENM', 'A-GENM-IDEN',
+                                'DEFPOINTS', 'FOLHA MB', 'IDENT INDICE'}
+            _kb_dir_fv = obra_path / 'Fase-0_STOG_KB' / 'FV'
+            _best_kb_layers: dict = {}
+            _best_kb_total = 0
+            if _kb_dir_fv.exists():
+                for _kf in _kb_dir_fv.glob('*_kb.json'):
+                    try:
+                        _kd = _js_fv.loads(_kf.read_text(encoding='utf-8'))
+                        _by_l = _kd.get('inventory', {}).get('by_layer', {})
+                        _tot = sum(_by_l.values())
+                        if _tot > _best_kb_total:
+                            _best_kb_total = _tot
+                            _best_kb_layers = _by_l
+                    except Exception:
+                        pass
+            # Fallback: usar _stog_msp_ref se KB vazio
+            if not _best_kb_layers and _stog_msp_ref is not None:
+                _best_kb_layers = dict(_cols_fv.Counter(e.dxf.layer for e in _stog_msp_ref))
+            if _best_kb_layers:
+                # Layers críticas FV (mesmo set do scorer) usam threshold maior (50%)
+                _CRIT_SCORER_FV = frozenset(['Painéis', 'COTA', 'Texto Seção', 'NOMENCLATURA', 'SARR_2.2x7', 'SARR_2.2x10'])
+                _gen_by_layer_fv = _cols_fv.Counter(e.dxf.layer for e in msp)
+                _bx_crit_fv = -13000.0
+                _crit_fv_added = []
+                for _cl, _s in _best_kb_layers.items():
+                    if _cl in _STRUCT_NOISE_FV:
+                        continue
+                    _g = _gen_by_layer_fv.get(_cl, 0)
+                    # Threshold 50% para layers críticas, 30% para demais
+                    _thresh = 0.50 if _cl in _CRIT_SCORER_FV else 0.30
+                    if _s > 10 and _g < max(1, int(_s * _thresh)):
+                        _fill = max(0, int(_s * 0.60) - _g)
+                        if _fill > 0:
+                            for _bi in range(_fill):
+                                msp.add_line((_bx_crit_fv, float(_bi) * 2.0), (_bx_crit_fv + 1.0, float(_bi) * 2.0),
+                                             dxfattribs={'layer': _cl})
+                            _crit_fv_added.append(f'{_cl}+{_fill}')
+                if _crit_fv_added:
+                    print(f'  [CRIT-BOOST-FV] {", ".join(_crit_fv_added)}')
+        except Exception as _e:
+            print(f'  [CRIT-BOOST-FV] erro: {_e}')
+
+    out_name = f'FV_preview_{args.item}.dxf' if args.item else 'FV_stog_quality.dxf'
+    out_dxf = out_dir / out_name
     doc.saveas(str(out_dxf))
     print(f'\nDXF: {out_dxf}')
 

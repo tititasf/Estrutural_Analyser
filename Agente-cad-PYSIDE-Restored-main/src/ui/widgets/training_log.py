@@ -154,6 +154,7 @@ from PySide6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel,
                                QGridLayout, QSizePolicy)
 from PySide6.QtCore import Qt, Signal, QSize
 from PySide6.QtGui import QColor, QCursor
+from src.ui.theme import Colors, Fonts, Radius
 
 class TrainingEventCard(QFrame):
     """
@@ -189,7 +190,7 @@ class TrainingEventCard(QFrame):
         
         # Status (Color Stripe)
         self.status = self.event_data.get('status', 'valid')
-        status_color = "#00ff88" if self.status == 'valid' else "#ff4444"
+        status_color = Colors.ACCENT_SUCCESS_ALT if self.status == 'valid' else Colors.ACCENT_DANGER
         
         self.status_stripe = QFrame()
         self.status_stripe.setFixedSize(8, 8)
@@ -199,7 +200,7 @@ class TrainingEventCard(QFrame):
         # Timestamp
         ts = str(self.event_data.get('timestamp', 'N/A'))
         lbl_time = QLabel(ts.split('.')[0]) # Remove millis if present
-        lbl_time.setStyleSheet("color: #666; font-size: 10px; font-weight: bold;")
+        lbl_time.setStyleSheet(f"color: {Colors.TEXT_DIM}; font-size: 10px; font-weight: bold;")
         line1_layout.addWidget(lbl_time)
         line1_layout.addStretch()
         
@@ -212,7 +213,7 @@ class TrainingEventCard(QFrame):
         # Role / Title
         role_text = self.event_data.get('role', 'Unknown')
         lbl_role = QLabel(role_text)
-        lbl_role.setStyleSheet("color: #eee; font-weight: bold; font-size: 14px;")
+        lbl_role.setStyleSheet(f"color: {Colors.TEXT_BRIGHT}; font-weight: bold; font-size: 14px;")
         line2_layout.addWidget(lbl_role, 1) # Stretch
         
         # Actions Buttons
@@ -223,7 +224,7 @@ class TrainingEventCard(QFrame):
         
         self.btn_zoom = self._create_mini_btn("🔍", "Focar no Canvas", self.on_zoom_clicked)
         self.btn_expand = self._create_mini_btn("🔽", "Detalhes", self.toggle_expand)
-        self.btn_del = self._create_mini_btn("🗑️", "Excluir", self.on_delete_clicked, color="#ff4444")
+        self.btn_del = self._create_mini_btn("🗑️", "Excluir", self.on_delete_clicked, color=Colors.ACCENT_DANGER)
         
         btns_layout.addWidget(self.btn_zoom)
         btns_layout.addWidget(self.btn_expand)
@@ -244,7 +245,7 @@ class TrainingEventCard(QFrame):
         self.populate_body()
         self.main_layout.addWidget(self.body_widget)
 
-    def _create_mini_btn(self, icon_text, tooltip, callback, color="#00d4ff"):
+    def _create_mini_btn(self, icon_text, tooltip, callback, color=Colors.ACCENT_PRIMARY):
         btn = QPushButton(icon_text)
         btn.setToolTip(tooltip)
         btn.setFixedSize(24, 24)
@@ -300,7 +301,7 @@ class TrainingEventCard(QFrame):
                 # Full Reference Text
                 lbl_ref = QLabel(l_text)
                 lbl_ref.setWordWrap(True)
-                lbl_ref.setStyleSheet("color: #00d4ff; font-family: Consolas; font-size: 10px;")
+                lbl_ref.setStyleSheet(f"color: {Colors.ACCENT_PRIMARY}; font-family: Consolas; font-size: 10px;")
                 self.body_layout.addWidget(QLabel("Ref:"), 4, 0)
                 self.body_layout.addWidget(lbl_ref, 4, 1)
 
@@ -311,9 +312,9 @@ class TrainingEventCard(QFrame):
 
     def _add_detail_row(self, row, key, value):
         lbl_key = QLabel(key)
-        lbl_key.setStyleSheet("color: #777; font-weight: bold; font-size: 10px;")
+        lbl_key.setStyleSheet(f"color: {Colors.TEXT_MUTED}; font-weight: bold; font-size: 10px;")
         lbl_val = QLabel(str(value))
-        lbl_val.setStyleSheet("color: #bbb; font-size: 10px;")
+        lbl_val.setStyleSheet(f"color: {Colors.TEXT_SECONDARY}; font-size: 10px;")
         self.body_layout.addWidget(lbl_key, row, 0)
         self.body_layout.addWidget(lbl_val, row, 1)
 
@@ -370,8 +371,8 @@ class TrainingEventCard(QFrame):
         self.update_style()
         
     def update_style(self):
-        border_color = "#00d4ff" if self.is_selected else "#333"
-        bg_color = "#1a1a1a"
+        border_color = Colors.ACCENT_PRIMARY if self.is_selected else Colors.BG_CARD
+        bg_color = Colors.BG_DEEP
         
         self.setStyleSheet(f"""
             TrainingEventCard {{
@@ -399,18 +400,18 @@ class TrainingLog(QWidget):
         
         # --- Top Bar ---
         top_bar = QFrame()
-        top_bar.setStyleSheet("background: #111; border-bottom: 1px solid #333;")
+        top_bar.setStyleSheet(f"background: {Colors.BG_DEEP}; border-bottom: 1px solid {Colors.BORDER_DEFAULT};")
         top_layout = QHBoxLayout(top_bar)
         
         lbl_title = QLabel("🧠 Feedback de Treino")
-        lbl_title.setStyleSheet("font-weight: bold; font-size: 13px; color: #fff;")
+        lbl_title.setStyleSheet(f"font-weight: bold; font-size: 13px; color: {Colors.TEXT_BRIGHT};")
         
         # O botão de Sync processa os logs locais e os insere na memória vetorial
         # Isso "efetiva" o aprendizado para novas predições.
         self.btn_sync = QPushButton("Efetivar (Sync)")
         self.btn_sync.setToolTip("Transforma este histórico em inteligência ativa (Vector DB) para melhorar predições futuras.")
         self.btn_sync.clicked.connect(self.sync_requested.emit)
-        self.btn_sync.setStyleSheet("background: #d63384; border: none; padding: 4px 10px; border-radius: 4px; color: white; font-size: 11px;")
+        self.btn_sync.setStyleSheet(f"background: {Colors.ACCENT_MAGENTA}; border: none; padding: 4px 10px; border-radius: 4px; color: {Colors.TEXT_BRIGHT}; font-size: 11px;")
         
         top_layout.addWidget(lbl_title)
         top_layout.addStretch()
@@ -420,10 +421,10 @@ class TrainingLog(QWidget):
         # --- Content Area ---
         self.scroll = QScrollArea()
         self.scroll.setWidgetResizable(True)
-        self.scroll.setStyleSheet("QScrollArea { border: none; background: #000; }")
+        self.scroll.setStyleSheet(f"QScrollArea {{ border: none; background: {Colors.BG_DEEP}; }}")
         
         self.scroll_content = QWidget()
-        self.scroll_content.setStyleSheet("background: #000;")
+        self.scroll_content.setStyleSheet(f"background: {Colors.BG_DEEP};")
         self.cards_layout = QVBoxLayout(self.scroll_content)
         self.cards_layout.setSpacing(10)
         self.cards_layout.setContentsMargins(10, 10, 10, 10)
@@ -434,12 +435,12 @@ class TrainingLog(QWidget):
         
         # --- Footer ---
         footer = QFrame()
-        footer.setStyleSheet("background: #111; border-top: 1px solid #333;")
+        footer.setStyleSheet(f"background: {Colors.BG_DEEP}; border-top: 1px solid {Colors.BORDER_DEFAULT};")
         f_layout = QHBoxLayout(footer)
         
         btn_refresh = QPushButton("🔄 Atualizar Lista")
         btn_refresh.setCursor(Qt.PointingHandCursor)
-        btn_refresh.setStyleSheet("background: #222; border: 1px solid #444; color: #ccc; padding: 6px 12px; border-radius: 4px;")
+        btn_refresh.setStyleSheet(f"background: {Colors.BG_PANEL}; border: 1px solid {Colors.BORDER_INPUT}; color: {Colors.TEXT_PRIMARY}; padding: 6px 12px; border-radius: 4px;")
         btn_refresh.clicked.connect(self.refresh_list)
         
         f_layout.addStretch()
@@ -469,7 +470,7 @@ class TrainingLog(QWidget):
         if not events:
             lbl_empty = QLabel("Nenhum feedback de treino para este projeto.")
             lbl_empty.setAlignment(Qt.AlignCenter)
-            lbl_empty.setStyleSheet("color: #555; font-style: italic; margin-top: 20px;")
+            lbl_empty.setStyleSheet(f"color: {Colors.TEXT_MUTED}; font-style: italic; margin-top: 20px;")
             self.cards_layout.insertWidget(0, lbl_empty)
             return
 
@@ -500,16 +501,16 @@ class TrainingLog(QWidget):
             h_layout.setContentsMargins(0, 5, 0, 2)
             
             lbl_header = QLabel(f"📁 {classe.upper()}")
-            lbl_header.setStyleSheet("color: #d63384; font-weight: bold; font-size: 11px; letter-spacing: 1px;")
+            lbl_header.setStyleSheet(f"color: {Colors.ACCENT_MAGENTA}; font-weight: bold; font-size: 11px; letter-spacing: 1px;")
             h_layout.addWidget(lbl_header)
-            
+
             line = QFrame()
             line.setFrameShape(QFrame.HLine)
-            line.setStyleSheet("background: #d6338433; height: 1px; border: none;")
+            line.setStyleSheet(f"background: rgba(214,51,132,51); height: 1px; border: none;")
             h_layout.addWidget(line, 1)
             
             count_label = QLabel(f"{len(groups[classe])}")
-            count_label.setStyleSheet("color: #777; font-size: 10px; background: #222; padding: 1px 6px; border-radius: 6px;")
+            count_label.setStyleSheet(f"color: {Colors.TEXT_MUTED}; font-size: 10px; background: {Colors.BG_PANEL}; padding: 1px 6px; border-radius: 6px;")
             h_layout.addWidget(count_label)
             
             self.cards_layout.insertWidget(self.cards_layout.count()-1, header_widget)

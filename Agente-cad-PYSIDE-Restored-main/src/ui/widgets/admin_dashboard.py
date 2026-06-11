@@ -46,9 +46,10 @@ from PySide6.QtGui import QPainter, QLinearGradient, QColor, QGradient
 from src.ui.dialogs.project_details_dialog import ProjectDetailsDialog
 from src.ui.components.project_cards import CuradoriaCard
 from src.ui.widgets.data_pipeline import DataPipelineView
+from src.ui.theme import Colors, Fonts, Radius
 
 class DashboardCard(QFrame):
-    def __init__(self, title: str, value: str, subtext: str = "", color: str = "#007acc"):
+    def __init__(self, title: str, value: str, subtext: str = "", color: str = Colors.ACCENT_BLUE):
         super().__init__()
         self.setObjectName("DashboardCard")
         self.setFrameShape(QFrame.StyledPanel)
@@ -56,7 +57,7 @@ class DashboardCard(QFrame):
         layout = QVBoxLayout(self)
         
         lbl_title = QLabel(title)
-        lbl_title.setStyleSheet("color: #888; font-size: 14px; font-weight: bold;")
+        lbl_title.setStyleSheet(f"color: {Colors.TEXT_SECONDARY}; font-size: 14px; font-weight: bold;")
         layout.addWidget(lbl_title)
         
         self.lbl_value = QLabel(value)
@@ -65,15 +66,15 @@ class DashboardCard(QFrame):
         
         if subtext:
             lbl_sub = QLabel(subtext)
-            lbl_sub.setStyleSheet("color: #666; font-size: 12px;")
+            lbl_sub.setStyleSheet(f"color: {Colors.TEXT_DIM}; font-size: 12px;")
             layout.addWidget(lbl_sub)
             
         self.setStyleSheet(f"""
             #DashboardCard {{
-                background-color: #252525;
+                background-color: {Colors.BG_CARD};
                 border-radius: 12px;
                 padding: 15px;
-                border: 1px solid #333;
+                border: 1px solid {Colors.BORDER_DEFAULT};
             }}
             #DashboardCard:hover {{
                 border: 1px solid {color};
@@ -94,14 +95,14 @@ class AdminDashboard(QWidget):
         layout.setSpacing(20)
         
         header = QLabel("🛡️ Hub do Administrador - Inteligência da Comunidade")
-        header.setStyleSheet("font-size: 24px; font-weight: bold; color: #007acc;")
+        header.setStyleSheet(f"font-size: 24px; font-weight: bold; color: {Colors.ACCENT_BLUE};")
         layout.addWidget(header)
         
         self.tabs = QTabWidget()
         self.tabs.setStyleSheet("""
-            QTabWidget::pane { border: 1px solid #333; background: #1a1a1a; border-radius: 8px; }
-            QTabBar::tab { background: #252525; padding: 12px 25px; color: #888; font-weight: bold; }
-            QTabBar::tab:selected { background: #007acc; color: white; border-bottom: 2px solid #fff; }
+            QTabWidget::pane { border: 1px solid {Colors.BORDER_DEFAULT}; background: {Colors.BG_DEEP}; border-radius: 8px; }
+            QTabBar::tab { background: {Colors.BG_CARD}; padding: 12px 25px; color: {Colors.TEXT_SECONDARY}; font-weight: bold; }
+            QTabBar::tab:selected { background: {Colors.ACCENT_BLUE}; color: {Colors.TEXT_BRIGHT}; border-bottom: 2px solid #fff; }
         """)
         
         # 0. Community Projects List (Existing logic moved here)
@@ -136,21 +137,21 @@ class AdminDashboard(QWidget):
         
         # --- PAINEL ESQUERDO: Lista de Obras em Nuvem ---
         self.left_panel = QFrame()
-        self.left_panel.setStyleSheet("background: #1e1e1e; border-right: 1px solid #333;")
+        self.left_panel.setStyleSheet(f"background: {Colors.BG_PANEL}; border-right: 1px solid {Colors.BORDER_DEFAULT};")
         self.left_panel.setMinimumWidth(250)
         self.left_panel.setMaximumWidth(350)
         
         left_layout = QVBoxLayout(self.left_panel)
         
         lbl_works = QLabel("Obras em Nuvem")
-        lbl_works.setStyleSheet("font-size: 14px; font-weight: bold; color: #aaa; margin-bottom: 5px;")
+        lbl_works.setStyleSheet(f"font-size: 14px; font-weight: bold; color: {Colors.TEXT_SECONDARY}; margin-bottom: 5px;")
         left_layout.addWidget(lbl_works)
         
         self.list_cloud_works = QListWidget()
         self.list_cloud_works.setStyleSheet("""
-            QListWidget { background: #252525; border: 1px solid #333; border-radius: 4px; padding: 5px; }
-            QListWidget::item { padding: 10px; color: #ccc; border-bottom: 1px solid #333; }
-            QListWidget::item:selected { background: #007acc; color: white; border-radius: 4px; }
+            QListWidget { background: {Colors.BG_CARD}; border: 1px solid {Colors.BORDER_DEFAULT}; border-radius: 4px; padding: 5px; }
+            QListWidget::item { padding: 10px; color: {Colors.TEXT_PRIMARY}; border-bottom: 1px solid {Colors.BORDER_DEFAULT}; }
+            QListWidget::item:selected { background: {Colors.ACCENT_BLUE}; color: {Colors.TEXT_BRIGHT}; border-radius: 4px; }
         """)
         self.list_cloud_works.itemClicked.connect(self.on_cloud_work_selected)
         left_layout.addWidget(self.list_cloud_works)
@@ -158,8 +159,8 @@ class AdminDashboard(QWidget):
         btn_layout = QHBoxLayout()
         self.btn_refresh_cloud = QPushButton("🔄 Atualizar Lista")
         self.btn_refresh_cloud.setStyleSheet("""
-            QPushButton { background: #333; color: white; border: 1px solid #444; padding: 6px; border-radius: 4px; }
-            QPushButton:hover { background: #444; }
+            QPushButton { background: {Colors.BG_CARD}; color: {Colors.TEXT_BRIGHT}; border: 1px solid {Colors.BORDER_INPUT}; padding: 6px; border-radius: 4px; }
+            QPushButton:hover { background: {Colors.BORDER_INPUT}; }
         """)
         self.btn_refresh_cloud.clicked.connect(self.load_community_projects)
         btn_layout.addWidget(self.btn_refresh_cloud)
@@ -167,8 +168,8 @@ class AdminDashboard(QWidget):
         self.btn_sync_full_work = QPushButton("☁️ Baixar Obra Completa")
         self.btn_sync_full_work.setToolTip("Baixa todos os itens desta obra para o PC local.")
         self.btn_sync_full_work.setStyleSheet("""
-            QPushButton { background: #1a324b; color: #00d4ff; border: 1px solid #00d4ff; padding: 6px; border-radius: 4px; font-weight: bold;}
-            QPushButton:hover { background: #00d4ff; color: #000; }
+            QPushButton { background: rgba(26,50,75,1); color: {Colors.ACCENT_PRIMARY}; border: 1px solid {Colors.ACCENT_PRIMARY}; padding: 6px; border-radius: 4px; font-weight: bold;}
+            QPushButton:hover { background: {Colors.ACCENT_PRIMARY}; color: {Colors.BG_DEEP}; }
         """)
         self.btn_sync_full_work.clicked.connect(self.download_full_work)
         self.btn_sync_full_work.setVisible(False)
@@ -183,15 +184,15 @@ class AdminDashboard(QWidget):
         
         # Header da Obra
         self.lbl_selected_cloud_work = QLabel("Selecione uma Obra")
-        self.lbl_selected_cloud_work.setStyleSheet("font-size: 18px; font-weight: bold; color: white;")
+        self.lbl_selected_cloud_work.setStyleSheet(f"font-size: 18px; font-weight: bold; color: {Colors.TEXT_BRIGHT};")
         right_layout.addWidget(self.lbl_selected_cloud_work)
         
         # Abas de Detalhes
         self.work_tabs = QTabWidget()
         self.work_tabs.setStyleSheet("""
-            QTabWidget::pane { border: 1px solid #333; background: #1a1a1a; }
-            QTabBar::tab { background: #222; color: #888; padding: 8px 16px; margin-right: 2px; }
-            QTabBar::tab:selected { background: #007acc; color: white; }
+            QTabWidget::pane { border: 1px solid {Colors.BORDER_DEFAULT}; background: {Colors.BG_DEEP}; }
+            QTabBar::tab { background: {Colors.BG_PANEL}; color: {Colors.TEXT_SECONDARY}; padding: 8px 16px; margin-right: 2px; }
+            QTabBar::tab:selected { background: {Colors.ACCENT_BLUE}; color: {Colors.TEXT_BRIGHT}; }
         """)
         
         # Aba 1: Pavimentos (Cards)
@@ -217,7 +218,7 @@ class AdminDashboard(QWidget):
         self.specs_layout = QVBoxLayout(self.tab_cloud_specs)
         self.txt_cloud_specs = QTextEdit()
         self.txt_cloud_specs.setReadOnly(True)
-        self.txt_cloud_specs.setStyleSheet("background: #222; color: #ddd; border: 1px solid #333; padding: 10px;")
+        self.txt_cloud_specs.setStyleSheet(f"background: {Colors.BG_PANEL}; color: {Colors.TEXT_BRIGHT}; border: 1px solid {Colors.BORDER_DEFAULT}; padding: 10px;")
         self.txt_cloud_specs.setPlaceholderText("Selecione uma obra para ver as especificações globais.")
         self.specs_layout.addWidget(self.txt_cloud_specs)
         self.work_tabs.addTab(self.tab_cloud_specs, "📝 Especificações Técnicas")
@@ -226,7 +227,7 @@ class AdminDashboard(QWidget):
         self.tab_cloud_docs = QWidget()
         self.docs_layout = QVBoxLayout(self.tab_cloud_docs)
         self.list_cloud_docs = QListWidget()
-        self.list_cloud_docs.setStyleSheet("background: #222; color: #ddd; border: 1px solid #333;")
+        self.list_cloud_docs.setStyleSheet(f"background: {Colors.BG_PANEL}; color: {Colors.TEXT_BRIGHT}; border: 1px solid {Colors.BORDER_DEFAULT};")
         self.docs_layout.addWidget(self.list_cloud_docs)
         self.work_tabs.addTab(self.tab_cloud_docs, "📂 Documentos")
         
@@ -367,7 +368,7 @@ class AdminDashboard(QWidget):
         
         # Strategic Summary
         self.lbl_explanation = QLabel("Carregando análise estratégica...")
-        self.lbl_explanation.setStyleSheet("background: #252525; padding: 15px; border-radius: 8px; color: #ccc;")
+        self.lbl_explanation.setStyleSheet(f"background: {Colors.BG_CARD}; padding: 15px; border-radius: 8px; color: {Colors.TEXT_PRIMARY};")
         self.lbl_explanation.setWordWrap(True)
         layout.addWidget(self.lbl_explanation)
         
@@ -401,7 +402,7 @@ class AdminDashboard(QWidget):
             v_chart.addSeries(pie)
             v_chart.setTitle("Distribuição de Peso da Memória")
             v_chart.setBackgroundVisible(False)
-            v_chart.setTitleBrush(QColor("#fff"))
+            v_chart.setTitleBrush(QColor(Colors.TEXT_BRIGHT))
             self.vector_chart_view.setChart(v_chart)
 
         # Accuracy Explanation
@@ -427,7 +428,7 @@ class AdminDashboard(QWidget):
         a_chart.addSeries(a_series)
         a_chart.setTitle("Taxa de Precisão da IA (Active Learning)")
         a_chart.setBackgroundVisible(False)
-        a_chart.setTitleBrush(QColor("#fff"))
+        a_chart.setTitleBrush(QColor(Colors.TEXT_BRIGHT))
         self.accuracy_chart_view.setChart(a_chart)
 
     def import_for_training(self, project_id, total_items_fallback):
@@ -540,7 +541,7 @@ class AdminDashboard(QWidget):
             'total_links_validated': total_links_validated
         }
 
-    def _create_progress_bar(self, value: int, total: int, color_full="#00d4ff", color_partial="#28a745"):
+    def _create_progress_bar(self, value: int, total: int, color_full=Colors.ACCENT_PRIMARY, color_partial=Colors.ACCENT_SUCCESS):
         """Helper para criar barra de progresso com texto 'Val / Total'"""
         pct = 0
         if total > 0:
@@ -557,7 +558,7 @@ class AdminDashboard(QWidget):
         
         pbar.setStyleSheet(f"""
             QProgressBar {{ 
-                border: 0px; border-radius: 2px; text-align: center; color: #fff; background: #333;
+                border: 0px; border-radius: 2px; text-align: center; color: {Colors.TEXT_BRIGHT}; background: {Colors.BG_CARD};
                 font-size: 10px; font-weight: bold;
             }}
             QProgressBar::chunk {{ 

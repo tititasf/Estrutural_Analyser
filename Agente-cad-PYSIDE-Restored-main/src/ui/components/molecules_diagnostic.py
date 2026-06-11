@@ -2,6 +2,7 @@ from PySide6.QtWidgets import QWidget, QHBoxLayout, QVBoxLayout, QLabel, QPushBu
 from PySide6.QtCore import Qt, Signal, QSize
 from PySide6.QtGui import QColor, QIcon
 from .atoms import StatusBadge, NavButton
+from src.ui.theme import Colors, Fonts, Radius
 
 class FloorListItem(QWidget):
     """
@@ -25,10 +26,10 @@ class FloorListItem(QWidget):
         info_layout.setSpacing(2)
         
         self.lbl_name = QLabel(name)
-        self.lbl_name.setStyleSheet("color: white; font-weight: bold; font-size: 12px;")
+        self.lbl_name.setStyleSheet(f"color: {Colors.TEXT_BRIGHT}; font-weight: bold; font-size: 12px;")
         
         self.lbl_range = QLabel(level_range)
-        self.lbl_range.setStyleSheet("color: #888; font-size: 10px;")
+        self.lbl_range.setStyleSheet(f"color: {Colors.TEXT_SECONDARY}; font-size: 10px;")
         
         info_layout.addWidget(self.lbl_name)
         info_layout.addWidget(self.lbl_range)
@@ -51,8 +52,8 @@ class FloorListItem(QWidget):
         self._set_style()
 
     def _set_style(self):
-        bg = "rgba(0, 120, 212, 0.2)" if self._active else "transparent"
-        border = "1px solid #0078d4" if self._active else "1px solid transparent"
+        bg = "rgba(0,120,212,51)" if self._active else "transparent"
+        border = f"1px solid {Colors.ACCENT_BLUE}" if self._active else "1px solid transparent"
         
         self.setStyleSheet(f"""
             #FloorItem {{
@@ -61,7 +62,7 @@ class FloorListItem(QWidget):
                 border-radius: 6px;
             }}
             #FloorItem:hover {{
-                background-color: rgba(255, 255, 255, 0.05);
+                background-color: rgba(255,255,255,13);
             }}
         """)
 
@@ -88,7 +89,7 @@ class ViewShortcutItem(QWidget):
             text-align: left;
             background: transparent;
             border: none;
-            color: #ccc;
+            color: {Colors.TEXT_PRIMARY};
         """)
         self.btn.clicked.connect(lambda: self.clicked.emit(view_id))
         layout.addWidget(self.btn)
@@ -112,15 +113,15 @@ class EntityRow(QWidget):
         layout.setSpacing(2)
         
         lbl_key = QLabel(key)
-        lbl_key.setStyleSheet("color: #777; font-size: 10px; text-transform: uppercase;")
+        lbl_key.setStyleSheet(f"color: {Colors.TEXT_MUTED}; font-size: 10px; text-transform: uppercase;")
         layout.addWidget(lbl_key)
         
         if editable:
             self.editor = QLineEdit(str(value))
             self.editor.setStyleSheet("""
-                background: #252525;
-                border: 1px solid #444;
-                color: white;
+                background: {Colors.BG_CARD};
+                border: 1px solid {Colors.BORDER_INPUT};
+                color: {Colors.TEXT_BRIGHT};
                 padding: 4px;
                 border-radius: 4px;
             """)
@@ -128,5 +129,5 @@ class EntityRow(QWidget):
             layout.addWidget(self.editor)
         else:
             self.lbl_val = QLabel(str(value))
-            self.lbl_val.setStyleSheet("color: #ddd; font-weight: bold; padding-left: 2px;")
+            self.lbl_val.setStyleSheet(f"color: {Colors.TEXT_BRIGHT}; font-weight: bold; padding-left: 2px;")
             layout.addWidget(self.lbl_val)

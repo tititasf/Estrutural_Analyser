@@ -5,6 +5,7 @@ from PySide6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel,
                                QPushButton, QFrame, QScrollArea, QInputDialog, QMessageBox, QLineEdit)
 from PySide6.QtCore import Qt, Signal
 from src.ui.widgets.interpretation_dialog import InterpretationDialog
+from src.ui.theme import Colors, Fonts, Radius
 
 class LinkManager(QWidget):
     """
@@ -304,23 +305,23 @@ class LinkManager(QWidget):
         
         self.setStyleSheet("""
             QWidget { 
-                background-color: #121212;
-                color: #e0e0e0;
+                background-color: {Colors.BG_DEEP};
+                color: {Colors.TEXT_PRIMARY};
             }
-            QLabel { color: #e0e0e0; font-family: 'Segoe UI', sans-serif; font-size: 12px; }
-            .HeaderLabel { font-size: 14px; font-weight: bold; color: #00d4ff; margin-bottom: 5px; }
+            QLabel { color: {Colors.TEXT_PRIMARY}; font-family: 'Segoe UI', sans-serif; font-size: 12px; }
+            .HeaderLabel { font-size: 14px; font-weight: bold; color: {Colors.ACCENT_PRIMARY}; margin-bottom: 5px; }
             
             /* SLOT CARD DESIGN */
             .SlotFrame { 
-                background: #1e1e1e; 
-                border: 1px solid #333; 
+                background: {Colors.BG_PANEL}; 
+                border: 1px solid {Colors.BORDER_DEFAULT}; 
                 border-radius: 8px; 
                 padding: 10px; 
                 margin-bottom: 5px; 
             }
             .SlotFrameValidated { 
-                background: rgba(0, 230, 118, 0.05); 
-                border: 1px solid #00e676; 
+                background: rgba(0,230,118,13); 
+                border: 1px solid {Colors.ACCENT_SUCCESS_ALT}; 
                 border-radius: 8px; 
                 padding: 10px; 
                 margin-bottom: 5px; 
@@ -328,7 +329,7 @@ class LinkManager(QWidget):
             .SlotTitle { 
                 font-size: 12px; 
                 font-weight: bold; 
-                color: #fff; 
+                color: {Colors.TEXT_BRIGHT}; 
                 background: transparent; 
                 border: none;
                 padding: 2px;
@@ -336,28 +337,28 @@ class LinkManager(QWidget):
             
             /* LINK ITEM CARD DESIGN */
             .LinkItem { 
-                background: #252525; 
-                border-left: 3px solid #00d4ff; 
+                background: {Colors.BG_CARD}; 
+                border-left: 3px solid {Colors.ACCENT_PRIMARY}; 
                 border-radius: 4px; 
                 padding: 6px; 
                 margin-top: 5px; 
             }
             .LinkItemValidated { 
-                background: #1b3a24; 
-                border-left: 4px solid #4CAF50; 
+                background: rgba(27,58,36,1); 
+                border-left: 4px solid {Colors.ACCENT_SUCCESS}; 
                 border-radius: 4px; 
                 padding: 6px; 
                 margin-top: 5px; 
             }
             .LinkItemFailed { 
-                background: #3a1b1b; 
-                border-left: 4px solid #ff5252; 
+                background: rgba(58,27,27,1); 
+                border-left: 4px solid {Colors.ACCENT_DANGER}; 
                 border-radius: 4px; 
                 padding: 6px; 
                 margin-top: 5px; 
             }
             .LinkValue { 
-                color: #fff; 
+                color: {Colors.TEXT_BRIGHT}; 
                 font-weight: bold; 
                 font-size: 11px; 
                 font-family: 'Consolas', monospace; 
@@ -372,29 +373,29 @@ class LinkManager(QWidget):
             }
             
             QPushButton.AddBtn { 
-                background: #222; color: #ffb300; border: 1px dashed #444; 
+                background: {Colors.BG_PANEL}; color: {Colors.ACCENT_WARNING_ALT}; border: 1px dashed {Colors.BORDER_INPUT}; 
                 font-size: 11px; padding: 6px; text-align: center;
             }
-            QPushButton.AddBtn:hover { background: #333; color: #ffca28; }
+            QPushButton.AddBtn:hover { background: {Colors.BG_CARD}; color: {Colors.ACCENT_INFO}; }
             
-            QPushButton.ActionBtn { background: #333; border: none; color: white; }
-            QPushButton.ActionBtn:hover { background: #444; }
+            QPushButton.ActionBtn { background: {Colors.BG_CARD}; border: none; color: {Colors.TEXT_BRIGHT}; }
+            QPushButton.ActionBtn:hover { background: {Colors.BORDER_INPUT}; }
             
-            QPushButton.DelBtn { background: #333; color: #ff5252; }
-            QPushButton.DelBtn:hover { background: #462525; }
+            QPushButton.DelBtn { background: {Colors.BG_CARD}; color: {Colors.ACCENT_DANGER}; }
+            QPushButton.DelBtn:hover { background: #332222; }  /* hardcoded-ok: Colors.BG_DANGER_DARK */
 
             /* TRAINING BUTTONS */
-            QPushButton.TrainBtn { background: #222; border: 1px solid #333; }
-            QPushButton.TrainSuccess { color: #4CAF50; }
-            QPushButton.TrainSuccess:hover { background: #1b3a24; border-color: #4CAF50; }
-            QPushButton.TrainFail { color: #ff5252; }
-            QPushButton.TrainFail:hover { background: #3a1b1b; border-color: #ff5252; }
+            QPushButton.TrainBtn { background: {Colors.BG_PANEL}; border: 1px solid {Colors.BORDER_DEFAULT}; }
+            QPushButton.TrainSuccess { color: {Colors.ACCENT_SUCCESS}; }
+            QPushButton.TrainSuccess:hover { background: rgba(27,58,36,1); border-color: {Colors.ACCENT_SUCCESS}; }
+            QPushButton.TrainFail { color: {Colors.ACCENT_DANGER}; }
+            QPushButton.TrainFail:hover { background: rgba(58,27,27,1); border-color: {Colors.ACCENT_DANGER}; }
         """)
 
         # Container direto (Sem ScrollArea interna)
         self.slots_container = QVBoxLayout()
         self.slots_container.setSpacing(10)
-        self.slots_container.setContentsMargins(5, 5, 2, 2)
+        self.slots_container.setContentsMargins(8, 8, 8, 8)
         
         layout.addLayout(self.slots_container)
 
@@ -454,7 +455,7 @@ class LinkManager(QWidget):
                 
                 # Titulo
                 lbl_name = QLabel(slot['name'].upper())
-                lbl_name.setStyleSheet("font-weight: bold; color: #aaa; font-size: 11px;")
+                lbl_name.setStyleSheet(f"font-weight: bold; color: {Colors.TEXT_SECONDARY}; font-size: 11px;")
                 man_layout.addWidget(lbl_name)
                 
                 # Input Valor Manual
@@ -467,10 +468,10 @@ class LinkManager(QWidget):
                 inp_manual.setFixedWidth(60)
                 inp_manual.setStyleSheet("""
                     QLineEdit { 
-                        background: #333; border: 1px solid #555; color: #fff; 
+                        background: {Colors.BG_CARD}; border: 1px solid {Colors.BORDER_INPUT}; color: {Colors.TEXT_BRIGHT}; 
                         padding: 2px; border-radius: 3px; font-weight: bold;
                     }
-                    QLineEdit:focus { border: 1px solid #00d4ff; background: #444; }
+                    QLineEdit:focus { border: 1px solid {Colors.ACCENT_PRIMARY}; background: {Colors.BORDER_INPUT}; }
                 """)
                 
                 # Salvar alteração simulando um link de texto
@@ -488,7 +489,7 @@ class LinkManager(QWidget):
                 # Help Icon
                 btn_help = QPushButton("?")
                 btn_help.setFixedSize(20, 20)
-                btn_help.setStyleSheet("border: none; color: #666; font-weight: bold;")
+                btn_help.setStyleSheet(f"border: none; color: {Colors.TEXT_DIM}; font-weight: bold;")
                 btn_help.setToolTip(slot.get('help', ''))
                 man_layout.addWidget(btn_help)
                 
@@ -506,7 +507,7 @@ class LinkManager(QWidget):
             # Application of N/A Style to Title
             is_na_slot = slot_id in self.na_slots
             if is_na_slot:
-                st_lbl.setStyleSheet("color: #ff5252; text-decoration: line-through;")
+                st_lbl.setStyleSheet(f"color: {Colors.ACCENT_DANGER}; text-decoration: line-through;")
             
             header_layout.addWidget(st_lbl, 1)
             
@@ -522,13 +523,13 @@ class LinkManager(QWidget):
             
             if is_class_validated:
                 btn_val_class.setStyleSheet("""
-                    QPushButton { background: #1b3a24; color: #00e676; border: 1px solid #00e676; border-radius: 4px; }
-                    QPushButton:hover { background: #00e676; color: white; }
+                    QPushButton { background: rgba(27,58,36,1); color: {Colors.ACCENT_SUCCESS_ALT}; border: 1px solid {Colors.ACCENT_SUCCESS_ALT}; border-radius: 4px; }
+                    QPushButton:hover { background: {Colors.ACCENT_SUCCESS_ALT}; color: {Colors.TEXT_BRIGHT}; }
                 """)
             else:
                 btn_val_class.setStyleSheet("""
-                    QPushButton { background: transparent; color: #00e676; border: 1px solid #333; border-radius: 4px; }
-                    QPushButton:hover { background: #00e676; color: #121212; border: 1px solid #00e676; }
+                    QPushButton { background: transparent; color: {Colors.ACCENT_SUCCESS_ALT}; border: 1px solid {Colors.BORDER_DEFAULT}; border-radius: 4px; }
+                    QPushButton:hover { background: {Colors.ACCENT_SUCCESS_ALT}; color: {Colors.BG_DEEP}; border: 1px solid {Colors.ACCENT_SUCCESS_ALT}; }
                 """)
                 
             btn_val_class.clicked.connect(lambda checked, s_id=slot_id: self.slot_validated.emit(s_id, checked))
@@ -543,12 +544,12 @@ class LinkManager(QWidget):
             btn_na_class.setToolTip(f"Marcar '{slot['name']}' como Não se Aplica")
             btn_na_class.setStyleSheet(f"""
                 QPushButton {{ 
-                    background: {'#3a1b1b' if is_na_slot else 'transparent'}; 
-                    color: {'#ff5252' if is_na_slot else '#aaa'}; 
-                    border: 1px solid {'#ff5252' if is_na_slot else '#444'}; 
+                    background: {Colors.BG_DEEP if is_na_slot else 'transparent'}; 
+                    color: {Colors.ACCENT_DANGER if is_na_slot else Colors.TEXT_SECONDARY}; 
+                    border: 1px solid {Colors.ACCENT_DANGER if is_na_slot else Colors.BORDER_INPUT}; 
                     border-radius: 4px; 
                 }}
-                QPushButton:hover {{ background: #ff5252; color: white; }}
+                QPushButton:hover {{ background: {Colors.ACCENT_DANGER}; color: {Colors.TEXT_BRIGHT}; }}
             """)
             btn_na_class.clicked.connect(lambda checked, s_id=slot_id: self.slot_na_toggled.emit(s_id, checked))
             header_layout.addWidget(btn_na_class)
@@ -559,8 +560,8 @@ class LinkManager(QWidget):
             btn_interp.setCursor(Qt.PointingHandCursor)
             btn_interp.setToolTip(f"Detalhamento e Padrões para {slot['name']}")
             btn_interp.setStyleSheet("""
-                QPushButton { background: transparent; color: #b388ff; border: 1px solid #444; border-radius: 4px; }
-                QPushButton:hover { background: #b388ff; color: white; border: 1px solid #b388ff; }
+                QPushButton { background: transparent; color: #b388ff; border: 1px solid {Colors.BORDER_INPUT}; border-radius: 4px; }
+                QPushButton:hover { background: #b388ff; color: {Colors.TEXT_BRIGHT}; border: 1px solid #b388ff; }
             """)
             btn_interp.clicked.connect(lambda checked=False, s_id=slot_id, s_name=slot['name']: self._open_slot_interpretation(s_id, s_name))
             header_layout.addWidget(btn_interp)
@@ -607,7 +608,7 @@ class LinkManager(QWidget):
                     btn_ok.setChecked(is_valid)
                     btn_ok.setToolTip("Validar/Treinar IA (Clique novamente para desfazer)")
                     if is_valid: 
-                        btn_ok.setStyleSheet("background: #1b3a24; color: #4CAF50; border: 1px solid #4CAF50;")
+                        btn_ok.setStyleSheet(f"background: rgba(27,58,36,1); color: {Colors.ACCENT_SUCCESS}; border: 1px solid {Colors.ACCENT_SUCCESS};")
                         
                     btn_ok.clicked.connect(lambda checked, s=slot_id, l=link: self._handle_training_click(s, l, 'valid'))
 
@@ -618,7 +619,7 @@ class LinkManager(QWidget):
                     btn_err.setChecked(is_failed)
                     btn_err.setToolTip("Indicar Erro de IA (Clique novamente para desfazer)")
                     if is_failed:
-                        btn_err.setStyleSheet("background: #3a1b1b; color: #ff5252; border: 1px solid #ff5252;")
+                        btn_err.setStyleSheet(f"background: rgba(58,27,27,1); color: {Colors.ACCENT_DANGER}; border: 1px solid {Colors.ACCENT_DANGER};")
                         
                     btn_err.clicked.connect(lambda checked, s=slot_id, l=link: self._handle_training_click(s, l, 'fail'))
 
@@ -626,12 +627,12 @@ class LinkManager(QWidget):
                     
                     # Vertical Action Stack for "Micro Buttons"
                     actions_v = QVBoxLayout()
-                    actions_v.setSpacing(1)
-                    
-                    row1 = QHBoxLayout(); row1.setSpacing(1); row1.setContentsMargins(0,0,0,0)
+                    actions_v.setSpacing(4)
+
+                    row1 = QHBoxLayout(); row1.setSpacing(4); row1.setContentsMargins(0,0,0,0)
                     row1.addWidget(btn_focus); row1.addWidget(btn_del)
-                    
-                    row2 = QHBoxLayout(); row2.setSpacing(1); row2.setContentsMargins(0,0,0,0)
+
+                    row2 = QHBoxLayout(); row2.setSpacing(4); row2.setContentsMargins(0,0,0,0)
                     row2.addWidget(btn_ok); row2.addWidget(btn_err)
                     
                     actions_v.addLayout(row1)

@@ -155,6 +155,7 @@ from PySide6.QtWidgets import (QDialog, QVBoxLayout, QHBoxLayout, QWidget,
                                QMessageBox, QSizePolicy, QGridLayout)
 from PySide6.QtCore import Qt, Signal, QSize
 from PySide6.QtGui import QColor, QFont, QCursor
+from src.ui.theme import Colors, Fonts, Radius
 
 class TrainingEventCard(QFrame):
     """
@@ -201,7 +202,7 @@ class TrainingEventCard(QFrame):
         
         # Status Indicator (Color Stripe)
         self.status = ev.get('status', 'valid')
-        status_color = "#00c853" if self.status == 'valid' else "#ff4444"
+        status_color = Colors.ACCENT_SUCCESS_ALT if self.status == 'valid' else Colors.ACCENT_DANGER
         
         self.status_stripe = QFrame()
         self.status_stripe.setFixedWidth(4)
@@ -211,13 +212,13 @@ class TrainingEventCard(QFrame):
         # Timestamp
         lbl_time = QLabel(str(ev.get('timestamp', 'N/A')))
         lbl_time.setFixedWidth(130)
-        lbl_time.setStyleSheet("color: #888; font-size: 11px;")
+        lbl_time.setStyleSheet(f"color: {Colors.TEXT_SECONDARY}; font-size: 11px;")
         self.header_layout.addWidget(lbl_time)
         
         # Role / Title
         role_text = ev.get('role', 'Unknown')
         lbl_role = QLabel(role_text)
-        lbl_role.setStyleSheet("color: #eee; font-weight: bold; font-size: 13px;")
+        lbl_role.setStyleSheet(f"color: {Colors.TEXT_BRIGHT}; font-weight: bold; font-size: 13px;")
         self.header_layout.addWidget(lbl_role, 1) # Stretch
         
         
@@ -229,7 +230,7 @@ class TrainingEventCard(QFrame):
         
         btn_zoom = self._create_icon_btn("🔍", "Focar no Canvas", self.on_zoom_clicked)
         self.btn_expand = self._create_icon_btn("🔽", "Expandir Detalhes", self.toggle_expand)
-        btn_del = self._create_icon_btn("🗑️", "Excluir Treino", self.on_delete_clicked, color="#ff4444")
+        btn_del = self._create_icon_btn("🗑️", "Excluir Treino", self.on_delete_clicked, color=Colors.ACCENT_DANGER)
         
         actions_layout.addWidget(btn_zoom)
         actions_layout.addWidget(self.btn_expand)
@@ -242,11 +243,11 @@ class TrainingEventCard(QFrame):
         btn.setToolTip(tooltip)
         btn.setFixedSize(28, 26)
         btn.setCursor(Qt.PointingHandCursor)
-        style = "QPushButton { border: 1px solid #444; border-radius: 4px; background: #333; color: #eee; }"
-        style += "QPushButton:hover { background: #444; border-color: #666; }"
+        style = f
+        style += f"QPushButton:hover { background: {Colors.BORDER_INPUT}; border-color: {Colors.TEXT_DIM}; }"
         if color:
-             style = f"QPushButton {{ border: 1px solid {color}; border-radius: 4px; background: #332222; color: {color}; }}" \
-                     f"QPushButton:hover {{ background: {color}; color: #222; }}"
+             style = f"QPushButton {{ border: 1px solid {color}; border-radius: 4px; background: {Colors.BG_DANGER_DARK}; color: {color}; }}" \
+                     f"QPushButton:hover {{ background: {color}; color: {Colors.BG_DEEP}; }}"
         btn.setStyleSheet(style)
         btn.clicked.connect(callback)
         return btn
@@ -294,18 +295,18 @@ class TrainingEventCard(QFrame):
                 ref_layout.setContentsMargins(0,0,0,0)
                 
                 lbl_ref = QLabel(l_text if len(l_text) < 50 else l_text[:47] + "...")
-                lbl_ref.setStyleSheet("color: #00d4ff; font-family: Consolas;")
+                lbl_ref.setStyleSheet(f"color: {Colors.ACCENT_PRIMARY}; font-family: Consolas;")
                 ref_layout.addWidget(lbl_ref)
                 
                 btn_small_zoom = QPushButton("🔍")
                 btn_small_zoom.setFixedSize(20, 20)
                 btn_small_zoom.setCursor(Qt.PointingHandCursor)
-                btn_small_zoom.setStyleSheet("border: none; background: transparent; color: #00d4ff;")
+                btn_small_zoom.setStyleSheet(f"border: none; background: transparent; color: {Colors.ACCENT_PRIMARY};")
                 btn_small_zoom.clicked.connect(self.on_zoom_clicked)
                 ref_layout.addWidget(btn_small_zoom)
                 
                 lbl_key = QLabel("Ref. Link:")
-                lbl_key.setStyleSheet("color: #888; font-weight: bold;")
+                lbl_key.setStyleSheet(f"color: {Colors.TEXT_SECONDARY}; font-weight: bold;")
                 
                 self.body_layout.addWidget(lbl_key, 3, 0)
                 self.body_layout.addWidget(ref_container, 3, 1, 1, 3) # Span columns
@@ -336,9 +337,9 @@ class TrainingEventCard(QFrame):
 
     def _add_detail_row(self, row, key, value, col_start=0):
         lbl_key = QLabel(key)
-        lbl_key.setStyleSheet("color: #888; font-weight: bold;")
+        lbl_key.setStyleSheet(f"color: {Colors.TEXT_SECONDARY}; font-weight: bold;")
         lbl_val = QLabel(str(value))
-        lbl_val.setStyleSheet("color: #ccc;")
+        lbl_val.setStyleSheet(f"color: {Colors.TEXT_PRIMARY};")
         
         self.body_layout.addWidget(lbl_key, row, col_start)
         self.body_layout.addWidget(lbl_val, row, col_start+1)
@@ -380,8 +381,8 @@ class TrainingEventCard(QFrame):
         self.update_style()
         
     def update_style(self):
-        border = "1px solid #00d4ff" if self.is_selected else "1px solid #444"
-        bg = "#2a2a2a" if self.is_selected else "#1e1e1e"
+        border = f if self.is_selected else f"1px solid {Colors.BORDER_INPUT}"
+        bg = Colors.BORDER_SUBTLE if self.is_selected else Colors.BG_PANEL
         
         self.header_widget.setStyleSheet(f"""
             QWidget {{ background: {bg}; border-radius: 6px; }}
@@ -412,7 +413,7 @@ class TrainingLogDialog(QDialog):
         self.resize(900, 700)
         self.setWindowFlags(Qt.Window | Qt.WindowCloseButtonHint)
         
-        self.setStyleSheet("background-color: #121212; color: #eee;")
+        self.setStyleSheet(f"background-color: {Colors.BG_DEEP}; color: {Colors.TEXT_BRIGHT};")
         
         self.init_ui()
         self.load_data()
@@ -424,14 +425,14 @@ class TrainingLogDialog(QDialog):
         
         # Header Info
         info_frame = QFrame()
-        info_frame.setStyleSheet("background: #222; border: 1px solid #333; border-radius: 4px; padding: 5px;")
+        info_frame.setStyleSheet(f"background: {Colors.BG_PANEL}; border: 1px solid {Colors.BORDER_DEFAULT}; border-radius: 4px; padding: 5px;")
         l_info = QHBoxLayout(info_frame)
         lbl_icon = QLabel("💡")
         lbl_icon.setStyleSheet("font-size: 20px;")
         lbl_desc = QLabel("Gerencie o aprendizado da IA. Utilize 'Expandir' para ver detalhes técnicos ou 'Zoom' para localizar no projeto. "
                           "Exclua treinamentos incorretos para melhorar a precisão futura.")
         lbl_desc.setWordWrap(True)
-        lbl_desc.setStyleSheet("color: #aaa; font-size: 12px;")
+        lbl_desc.setStyleSheet(f"color: {Colors.TEXT_SECONDARY}; font-size: 12px;")
         l_info.addWidget(lbl_icon)
         l_info.addWidget(lbl_desc, 1)
         layout.addWidget(info_frame)
@@ -454,12 +455,12 @@ class TrainingLogDialog(QDialog):
         btn_layout = QHBoxLayout()
         btn_refresh = QPushButton("🔄 Atualizar Lista")
         btn_refresh.setCursor(Qt.PointingHandCursor)
-        btn_refresh.setStyleSheet("padding: 6px 15px; background: #333; border: 1px solid #555; border-radius: 4px;")
+        btn_refresh.setStyleSheet(f"padding: 6px 15px; background: {Colors.BG_CARD}; border: 1px solid {Colors.BORDER_INPUT}; border-radius: 4px;")
         btn_refresh.clicked.connect(self.load_data)
         
         btn_close = QPushButton("Fechar")
         btn_close.setCursor(Qt.PointingHandCursor)
-        btn_close.setStyleSheet("padding: 6px 15px; background: #444; border: 1px solid #555; border-radius: 4px;")
+        btn_close.setStyleSheet(f"padding: 6px 15px; background: {Colors.BORDER_INPUT}; border: 1px solid {Colors.BORDER_INPUT}; border-radius: 4px;")
         btn_close.clicked.connect(self.close)
         
         btn_layout.addStretch()

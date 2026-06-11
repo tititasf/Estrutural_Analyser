@@ -4,6 +4,7 @@ from PySide6.QtWidgets import (QDialog, QVBoxLayout, QHBoxLayout, QLabel,
 from PySide6.QtCore import Qt, Signal, QSize
 from src.core.auth.models import UserProfile, UserRole
 from src.core.services.auth_service import AuthService
+from src.ui.theme import Colors, Fonts, Radius
 
 class UserProfileDialog(QDialog):
     logout_requested = Signal()
@@ -43,19 +44,19 @@ class UserProfileDialog(QDialog):
         header_layout = QHBoxLayout(header_widget)
         header_layout.setContentsMargins(25, 20, 15, 20)
         
-        logo_lbl = QLabel("VISION ESTRUTURAL <font color='#00E5FF'>PRO</font>")
-        logo_lbl.setStyleSheet("font-size: 14px; font-weight: bold; letter-spacing: 1px; color: #888;")
+        logo_lbl = QLabel(f"VISION ESTRUTURAL <font color='{Colors.ACCENT_BRAND}'>PRO</font>")
+        logo_lbl.setStyleSheet(f"font-size: {Fonts.SIZE_XXL}; font-weight: bold; letter-spacing: 1px; color: {Colors.TEXT_SECONDARY};")
         header_layout.addWidget(logo_lbl)
         
         header_layout.addStretch()
         
         btn_close = QPushButton("✕")
         btn_close.setFixedSize(30, 30)
-        btn_close.setStyleSheet("""
-            QPushButton { 
-                background: transparent; color: #555; font-size: 18px; border: none; border-radius: 15px;
-            }
-            QPushButton:hover { background: #333; color: white; }
+        btn_close.setStyleSheet(f"""
+            QPushButton {{
+                background: transparent; color: {Colors.TEXT_MUTED}; font-size: 18px; border: none; border-radius: 15px;
+            }}
+            QPushButton:hover {{ background: {Colors.BG_CARD}; color: {Colors.TEXT_BRIGHT}; }}
         """)
         btn_close.setCursor(Qt.PointingHandCursor)
         btn_close.clicked.connect(self.reject)
@@ -83,19 +84,19 @@ class UserProfileDialog(QDialog):
 
         name_lbl = QLabel(self.user.full_name or "Usuário Vision")
         name_lbl.setAlignment(Qt.AlignCenter)
-        name_lbl.setStyleSheet("font-size: 24px; font-weight: bold; color: #FFF; margin-top: 10px;")
+        name_lbl.setStyleSheet(f"font-size: 24px; font-weight: bold; color: {Colors.TEXT_BRIGHT}; margin-top: 10px;")
         hero_layout.addWidget(name_lbl)
 
         email_lbl = QLabel(self.user.email)
         email_lbl.setAlignment(Qt.AlignCenter)
-        email_lbl.setStyleSheet("font-size: 14px; color: #00E5FF; opacity: 0.8;")
+        email_lbl.setStyleSheet(f"font-size: {Fonts.SIZE_XXL}; color: {Colors.ACCENT_BRAND}; opacity: 0.8;")
         hero_layout.addWidget(email_lbl)
 
         # Role Badge
         is_admin = self.user.role == UserRole.ADMIN
         role_text = "ADMINISTRADOR" if is_admin else "USUÁRIO"
-        role_color = "#FFD700" if is_admin else "#444"
-        role_bg = "rgba(255, 215, 0, 0.1)" if is_admin else "rgba(68, 68, 68, 0.5)"
+        role_color = Colors.ACCENT_GOLD if is_admin else Colors.TEXT_DIM
+        role_bg = "rgba(255,215,0,26)" if is_admin else "rgba(68,68,68,128)"
         
         role_badge = QLabel(role_text)
         role_badge.setAlignment(Qt.AlignCenter)
@@ -104,9 +105,9 @@ class UserProfileDialog(QDialog):
             background: {role_bg};
             color: {role_color};
             border: 1px solid {role_color};
-            border-radius: 12px;
+            border-radius: {Radius.PILL};
             padding: 4px;
-            font-size: 10px;
+            font-size: {Fonts.SIZE_SM};
             font-weight: bold;
             letter-spacing: 2px;
             margin-top: 10px;
@@ -127,9 +128,9 @@ class UserProfileDialog(QDialog):
         def add_detail(label, value):
             row = QHBoxLayout()
             l = QLabel(label)
-            l.setStyleSheet("color: #888; font-size: 12px;")
+            l.setStyleSheet(f"color: {Colors.TEXT_SECONDARY}; font-size: {Fonts.SIZE_LG};")
             v = QLabel(value)
-            v.setStyleSheet("color: #DDD; font-size: 13px; font-weight: 500;")
+            v.setStyleSheet(f"color: {Colors.TEXT_PRIMARY}; font-size: {Fonts.SIZE_XL}; font-weight: 500;")
             row.addWidget(l)
             row.addStretch()
             row.addWidget(v)
@@ -138,7 +139,7 @@ class UserProfileDialog(QDialog):
             # Subtle Line
             separator = QFrame()
             separator.setFixedHeight(1)
-            separator.setStyleSheet("background: #333;")
+            separator.setStyleSheet(f"background: {Colors.BORDER_DEFAULT};")
             details_layout.addWidget(separator)
 
         last_login_str = self.user.last_login.strftime("%d/%m/%Y %H:%M") if self.user.last_login else "Agora"
@@ -154,7 +155,7 @@ class UserProfileDialog(QDialog):
 
         # 4. Actions Area
         actions_header = QLabel("SEGURANÇA E ACESSO")
-        actions_header.setStyleSheet("color: #555; font-size: 10px; font-weight: bold; letter-spacing: 1px; margin-left: 40px; margin-bottom: 5px;")
+        actions_header.setStyleSheet(f"color: {Colors.TEXT_MUTED}; font-size: {Fonts.SIZE_SM}; font-weight: bold; letter-spacing: 1px; margin-left: 40px; margin-bottom: 5px;")
         container_layout.addWidget(actions_header)
 
         actions_section = QFrame()
@@ -182,40 +183,40 @@ class UserProfileDialog(QDialog):
         layout.addWidget(wrapper)
 
         # Estilos Detalhados
-        self.setStyleSheet("""
-            #ProfileContainer {
-                background-color: #121212;
-                border: 1px solid #222;
+        self.setStyleSheet(f"""
+            #ProfileContainer {{
+                background-color: {Colors.BG_DEEP};
+                border: 1px solid {Colors.BORDER_SUBTLE};
                 border-radius: 20px;
-            }
-            #HeroSection {
-                background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #1a1a1a, stop:1 #121212);
-                border-bottom: 1px solid #222;
-            }
-            #AvatarCircle {
-                background-color: #00E5FF;
-                color: #000;
+            }}
+            #HeroSection {{
+                background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 {Colors.BG_PANEL}, stop:1 {Colors.BG_DEEP});
+                border-bottom: 1px solid {Colors.BORDER_SUBTLE};
+            }}
+            #AvatarCircle {{
+                background-color: {Colors.ACCENT_BRAND};
+                color: {Colors.BG_DEEP};
                 font-size: 36px;
                 font-weight: bold;
                 border-radius: 50px;
-            }
-            QPushButton#BtnAccent {
-                background-color: #333;
-                color: #EEE;
-                border: 1px solid #444;
-                border-radius: 8px;
+            }}
+            QPushButton#BtnAccent {{
+                background-color: {Colors.BG_CARD};
+                color: {Colors.TEXT_PRIMARY};
+                border: 1px solid {Colors.BORDER_INPUT};
+                border-radius: {Radius.XL};
                 font-weight: bold;
-            }
-            QPushButton#BtnAccent:hover { background-color: #444; border-color: #00E5FF; }
-            
-            QPushButton#BtnLogout {
-                background-color: rgba(211, 47, 47, 0.1);
-                color: #D32F2F;
-                border: 1px solid rgba(211, 47, 47, 0.3);
-                border-radius: 8px;
+            }}
+            QPushButton#BtnAccent:hover {{ background-color: {Colors.BG_HOVER}; border-color: {Colors.ACCENT_BRAND}; }}
+
+            QPushButton#BtnLogout {{
+                background-color: rgba(211,47,47,26);
+                color: {Colors.ACCENT_DANGER};
+                border: 1px solid rgba(211,47,47,76);
+                border-radius: {Radius.XL};
                 font-weight: bold;
-            }
-            QPushButton#BtnLogout:hover { background-color: #D32F2F; color: white; }
+            }}
+            QPushButton#BtnLogout:hover {{ background-color: {Colors.ACCENT_DANGER}; color: {Colors.TEXT_BRIGHT}; }}
         """)
 
         # Shadow Effect

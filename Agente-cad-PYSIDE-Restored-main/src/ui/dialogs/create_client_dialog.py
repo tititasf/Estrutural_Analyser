@@ -1,6 +1,7 @@
 from PySide6.QtWidgets import QDialog, QVBoxLayout, QHBoxLayout, QPushButton, QLabel, QMessageBox, QFrame
 from PySide6.QtCore import Qt
 from src.ui.components.molecules_control import ClientFormGroup
+from src.ui.theme import Colors, Fonts, Radius
 
 class CreateClientDialog(QDialog):
     """
@@ -12,8 +13,8 @@ class CreateClientDialog(QDialog):
         self.setWindowTitle("Novo Cliente")
         self.setFixedSize(450, 650) # Increased size
         self.setStyleSheet("""
-            QDialog { background-color: #1e1e1e; color: white; }
-            QLabel { color: white; }
+            QDialog { background-color: {Colors.BG_PANEL}; color: {Colors.TEXT_BRIGHT}; }
+            QLabel { color: {Colors.TEXT_BRIGHT}; }
         """)
         
         self.setup_ui()
@@ -24,7 +25,7 @@ class CreateClientDialog(QDialog):
         layout.setSpacing(20) # Increased spacing
         
         header = QLabel("Cadastro de Cliente")
-        header.setStyleSheet("font-size: 16px; font-weight: bold; color: #0078d4;")
+        header.setStyleSheet(f"font-size: 16px; font-weight: bold; color: {Colors.ACCENT_BLUE};")
         layout.addWidget(header)
         
         # Forms
@@ -49,12 +50,12 @@ class CreateClientDialog(QDialog):
         # Actions
         btn_layout = QHBoxLayout()
         btn_cancel = QPushButton("Cancelar")
-        btn_cancel.setStyleSheet("background: transparent; border: 1px solid #555; color: #aaa;")
+        btn_cancel.setStyleSheet(f"background: transparent; border: 1px solid {Colors.BORDER_INPUT}; color: {Colors.TEXT_SECONDARY};")
         btn_cancel.clicked.connect(self.reject)
         
         btn_save = QPushButton("Salvar Cliente")
         btn_save.setCursor(Qt.PointingHandCursor)
-        btn_save.setStyleSheet("background: #0078d4; color: white; border: none; font-weight: bold; padding: 8px;")
+        btn_save.setStyleSheet(f"background: {Colors.ACCENT_BLUE}; color: {Colors.TEXT_BRIGHT}; border: none; font-weight: bold; padding: 8px;")
         btn_save.clicked.connect(self.save_client)
         
         btn_layout.addWidget(btn_cancel)

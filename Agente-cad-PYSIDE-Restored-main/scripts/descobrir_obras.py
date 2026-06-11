@@ -63,6 +63,8 @@ def parse_dxf_nome(nome_arquivo: str):
 
     # Normalizar ".- " → " - " (ex: "12° PAV.- FV" → "12° PAV - FV")
     stem_norm = re.sub(r'\.-\s+', ' - ', stem)
+    # Normalizar "WORD- " → "WORD - " (sem espaço antes do dash, ex: "TÉCNICA- LJ" → "TÉCNICA - LJ")
+    stem_norm = re.sub(r'(?<=\S)-\s+', ' - ', stem_norm)
 
     # Tentar separador " - " (STOG padrão) primeiro; fallback para "-" simples
     tokens = re.split(r'\s+-\s+', stem_norm)
@@ -132,6 +134,11 @@ def _normalizar_pav(pav_raw: str) -> str:
     # Colar número+PAV/PV sem espaço: "1 PAV" → "1PAV", "2 PV" → "2PV"
     pav = re.sub(r'(\d)\s+(PAV|PV)\b', r'\1\2', pav, flags=re.IGNORECASE)
 
+    # Normalizar " E " como separador entre palavras não-numéricas → " - "
+    # Ex: "COBERTURA E DECK" → "COBERTURA - DECK" (unifica com nomes usando hífen)
+    # Não aplica quando "E" está entre dígitos (ex: "2 E 3 PAV" seria ambíguo)
+    pav = re.sub(r'(?<![0-9])\s+E\s+(?![0-9])', ' - ', pav, flags=re.IGNORECASE)
+
     return pav.upper()
 
 
@@ -169,6 +176,67 @@ def descobrir_obra(obra_path: Path, preferir_maior_revisao: bool = True) -> dict
                 rev_max = max(revs.keys())
                 tipos_dict[tipo] = revs[rev_max]
         resultado[pav_nome] = tipos_dict
+
+    # Propagar tipos de pavimentos combinados para individuais
+    # Ex: "LO - 6PV - TIP - DINF" tem LV → propagar para "LO - 6PV" e "LO - TIP - DINF"
+    resultado = _propagar_tipos_combinados(resultado)
+
+    return resultado
+
+
+def _tokens(pav_nome: str) -> list:
+    return [t.strip() for t in pav_nome.split(' - ')]
+
+
+def _eh_subsequencia(sub: str, comb: str) -> bool:
+    """Verifica se tokens de `sub` são subsequência dos tokens de `comb`."""
+    sub_toks = _tokens(sub)
+    comb_toks = _tokens(comb)
+    it = iter(comb_toks)
+    return all(tok in it for tok in sub_toks)
+
+
+def _eh_mesmo_pav_ordem_invertida(pav1: str, pav2: str) -> bool:
+    """
+    Verifica se dois nomes de pavimento têm os mesmos tokens mas em ordem diferente.
+    Ex: "TRECHO 3 - 1SS" e "1SS - TRECHO 3" → mesmo pavimento, nomes invertidos.
+    """
+    return set(_tokens(pav1)) == set(_tokens(pav2))
+
+
+def _propagar_tipos_combinados(resultado: dict) -> dict:
+    """
+    Detecta pavimentos combinados (sem PL, mas com LV/FV/LJ)
+    e propaga seus tipos para pavimentos reais (com PL) se:
+      1. Tokens do real são subsequência do combinado (ex: "LO-6PV" em "LO-6PV-TIP-DINF")
+      2. Tokens são os mesmos em ordem invertida (ex: "TRECHO 3-1SS" ↔ "1SS-TRECHO 3")
+
+    Ex: "LO - 6PV - TIP - DINF" tem LV mas sem PL →
+        propaga LV para "LO - 6PV" e "LO - TIP - DINF".
+    Ex: "1SS - TRECHO 3" tem LJ mas sem PL →
+        propaga LJ para "TRECHO 3 - 1SS".
+    """
+    # Pavimentos reais (têm PL) e combinados (sem PL, têm pelo menos LV ou FV)
+    reais = {pav for pav, tipos in resultado.items() if tipos.get('PL') is not None}
+    combinados = {pav: tipos for pav, tipos in resultado.items()
+                  if tipos.get('PL') is None
+                  and any(tipos.get(t) for t in ('LV', 'FV', 'LJ', 'EVG'))}
+
+    for comb_pav, comb_tipos in combinados.items():
+        comb_tok_count = len(_tokens(comb_pav))
+        for real_pav in reais:
+            real_tok_count = len(_tokens(real_pav))
+            # Caso 1: mesmos tokens, ordem invertida (mesmo pav, nome diferente)
+            match = _eh_mesmo_pav_ordem_invertida(real_pav, comb_pav)
+            # Caso 2: tokens do real são subsequência do combinado (nome mais longo)
+            if not match and real_tok_count < comb_tok_count:
+                match = _eh_subsequencia(real_pav, comb_pav)
+            if not match:
+                continue
+            # Propagar tipos que o real não tem
+            for tipo, path in comb_tipos.items():
+                if path is not None and resultado[real_pav].get(tipo) is None:
+                    resultado[real_pav][tipo] = path
 
     return resultado
 

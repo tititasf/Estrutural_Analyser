@@ -28,6 +28,23 @@ except ImportError:
     sys.exit(1)
 
 
+def _setup_dimstyle_cota_vig(doc):
+    """Garante que o dimstyle COTA_VIG existe no documento destino."""
+    if "COTA_VIG" not in doc.dimstyles:
+        ds = doc.dimstyles.new("COTA_VIG")
+        ds.dxf.dimtxt  = 7.0
+        ds.dxf.dimasz  = 3.5
+        ds.dxf.dimscale = 1.0
+        ds.dxf.dimexo  = 2.0
+        ds.dxf.dimexe  = 2.0
+        ds.dxf.dimgap  = 1.5
+        ds.dxf.dimdec  = 1
+        ds.dxf.dimrnd  = 0
+        ds.dxf.dimclrd = 3
+        ds.dxf.dimclre = 3
+        ds.dxf.dimclrt = 3
+
+
 def transferir_com_offset(src_msp, dst_msp, offset_x: float, offset_y: float) -> int:
     """Copia entidades com translação. Retorna count copiados."""
     count = 0
@@ -72,6 +89,27 @@ def transferir_com_offset(src_msp, dst_msp, offset_x: float, offset_y: float) ->
                     'layer': entity.dxf.layer,
                 })
                 count += 1
+            elif tipo == 'DIMENSION':
+                # Recria dimensão linear com pontos transladados
+                # dimtype & 0x0F: 0=horizontal, 1=vertical, 2=angular, 3=diâmetro, 4=raio
+                dimtype = getattr(entity.dxf, 'dimtype', 0) & 0x0F
+                if dimtype not in (0, 1):
+                    continue  # só dimensões lineares (horizontal/vertical)
+                dp  = entity.dxf.defpoint   # ponto da linha de cota
+                dp2 = entity.dxf.defpoint2  # origem extensão 1
+                dp3 = entity.dxf.defpoint3  # origem extensão 2
+                layer = getattr(entity.dxf, 'layer', 'COTA')
+                angle = 90 if dimtype == 1 else 0
+                d = dst_msp.add_linear_dim(
+                    base=(dp.x  + offset_x, dp.y  + offset_y),
+                    p1  =(dp2.x + offset_x, dp2.y + offset_y),
+                    p2  =(dp3.x + offset_x, dp3.y + offset_y),
+                    angle=angle,
+                    dimstyle="COTA_VIG",
+                    dxfattribs={"layer": layer},
+                )
+                d.render()
+                count += 1
         except Exception:
             pass
     return count
@@ -100,10 +138,14 @@ def consolidar_vigas(obra_path: str, pavimento: str) -> None:
     # ── DXF LV (laterais A + B) ────────────────────────────────
     lv_doc = ezdxf.new('R2010')
     lv_msp = lv_doc.modelspace()
+    _setup_dimstyle_cota_vig(lv_doc)
+    lv_doc.layers.new("COTA").color = 3
 
     # ── DXF FV (fundos) ────────────────────────────────────────
     fv_doc = ezdxf.new('R2010')
     fv_msp = fv_doc.modelspace()
+    _setup_dimstyle_cota_vig(fv_doc)
+    fv_doc.layers.new("COTA").color = 3
 
     # Os DXFs de vigas são V{n}.dxf — um DXF por viga com todas as vistas
     dxf_files = sorted(dxf_vigas_dir.glob("V*.dxf"),
@@ -117,11 +159,18 @@ def consolidar_vigas(obra_path: str, pavimento: str) -> None:
     for dxf_file in dxf_files:
         vid = dxf_file.stem.upper()  # "V1", "V2", etc.
 
-        # Obter âncora (usar face A como referência principal)
+        # Obter âncora — suporta formato dict {'A': [x,y]} (legado) e list [x,y] (novo)
         if vid in ancoras:
-            anc = ancoras[vid].get('A') or ancoras[vid].get('B')
-            if anc:
-                ox, oy = anc[0], anc[1]
+            raw_anc = ancoras[vid]
+            if isinstance(raw_anc, list):
+                ox, oy = raw_anc[0], raw_anc[1]
+            elif isinstance(raw_anc, dict):
+                anc = raw_anc.get('A') or raw_anc.get('B') or next(iter(raw_anc.values()), None)
+                if anc:
+                    ox, oy = anc[0], anc[1]
+                else:
+                    ox, oy = 0, y_fallback
+                    y_fallback -= SPACING
             else:
                 ox, oy = 0, y_fallback
                 y_fallback -= SPACING
