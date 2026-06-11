@@ -986,5 +986,3805 @@
                 0.0
             ]
         ]
+    },
+    "F50_01": {
+        "numero": "F50_01",
+        "nome": "Fundo50_01",
+        "observacoes": null,
+        "pavimento": "Pav50_entidades",
+        "largura": 100.0,
+        "altura": 60.0,
+        "texto_esquerda": null,
+        "texto_direita": null,
+        "tipo_distribuicao": "122",
+        "tipo_painel_inicial": "244",
+        "sarrafo_esq": true,
+        "sarrafo_dir": true,
+        "paineis": [
+            100.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "recuos": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "aberturas": [
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ]
+        ],
+        "tipo_painel2": "E/T",
+        "comprimento_2": 0.0,
+        "largura_2": 0.0,
+        "p1_2": 0.0,
+        "p2_2": 0.0,
+        "p3_2": 0.0,
+        "recuos_2": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "aberturas_2": [
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ]
+        ]
+    },
+    "F50_02": {
+        "numero": "F50_02",
+        "nome": "Fundo50_02",
+        "observacoes": null,
+        "pavimento": "Pav50_entidades",
+        "largura": 120.0,
+        "altura": 65.0,
+        "texto_esquerda": null,
+        "texto_direita": null,
+        "tipo_distribuicao": "122",
+        "tipo_painel_inicial": "244",
+        "sarrafo_esq": true,
+        "sarrafo_dir": true,
+        "paineis": [
+            120.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "recuos": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "aberturas": [
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ]
+        ],
+        "tipo_painel2": "E/T",
+        "comprimento_2": 0.0,
+        "largura_2": 0.0,
+        "p1_2": 0.0,
+        "p2_2": 0.0,
+        "p3_2": 0.0,
+        "recuos_2": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "aberturas_2": [
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ]
+        ]
+    },
+    "F50_03": {
+        "numero": "F50_03",
+        "nome": "Fundo50_03",
+        "observacoes": null,
+        "pavimento": "Pav50_entidades",
+        "largura": 140.0,
+        "altura": 70.0,
+        "texto_esquerda": null,
+        "texto_direita": null,
+        "tipo_distribuicao": "122",
+        "tipo_painel_inicial": "244",
+        "sarrafo_esq": true,
+        "sarrafo_dir": true,
+        "paineis": [
+            140.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "recuos": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "aberturas": [
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ]
+        ],
+        "tipo_painel2": "E/T",
+        "comprimento_2": 0.0,
+        "largura_2": 0.0,
+        "p1_2": 0.0,
+        "p2_2": 0.0,
+        "p3_2": 0.0,
+        "recuos_2": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "aberturas_2": [
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ]
+        ]
+    },
+    "F50_04": {
+        "numero": "F50_04",
+        "nome": "Fundo50_04",
+        "observacoes": null,
+        "pavimento": "Pav50_entidades",
+        "largura": 160.0,
+        "altura": 75.0,
+        "texto_esquerda": null,
+        "texto_direita": null,
+        "tipo_distribuicao": "122",
+        "tipo_painel_inicial": "244",
+        "sarrafo_esq": true,
+        "sarrafo_dir": true,
+        "paineis": [
+            160.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "recuos": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "aberturas": [
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ]
+        ],
+        "tipo_painel2": "E/T",
+        "comprimento_2": 0.0,
+        "largura_2": 0.0,
+        "p1_2": 0.0,
+        "p2_2": 0.0,
+        "p3_2": 0.0,
+        "recuos_2": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "aberturas_2": [
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ]
+        ]
+    },
+    "F50_05": {
+        "numero": "F50_05",
+        "nome": "Fundo50_05",
+        "observacoes": null,
+        "pavimento": "Pav50_entidades",
+        "largura": 180.0,
+        "altura": 80.0,
+        "texto_esquerda": null,
+        "texto_direita": null,
+        "tipo_distribuicao": "122",
+        "tipo_painel_inicial": "244",
+        "sarrafo_esq": true,
+        "sarrafo_dir": true,
+        "paineis": [
+            180.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "recuos": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "aberturas": [
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ]
+        ],
+        "tipo_painel2": "E/T",
+        "comprimento_2": 0.0,
+        "largura_2": 0.0,
+        "p1_2": 0.0,
+        "p2_2": 0.0,
+        "p3_2": 0.0,
+        "recuos_2": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "aberturas_2": [
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ]
+        ]
+    },
+    "F50_06": {
+        "numero": "F50_06",
+        "nome": "Fundo50_06",
+        "observacoes": null,
+        "pavimento": "Pav50_entidades",
+        "largura": 200.0,
+        "altura": 85.0,
+        "texto_esquerda": null,
+        "texto_direita": null,
+        "tipo_distribuicao": "122",
+        "tipo_painel_inicial": "244",
+        "sarrafo_esq": true,
+        "sarrafo_dir": true,
+        "paineis": [
+            200.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "recuos": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "aberturas": [
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ]
+        ],
+        "tipo_painel2": "E/T",
+        "comprimento_2": 0.0,
+        "largura_2": 0.0,
+        "p1_2": 0.0,
+        "p2_2": 0.0,
+        "p3_2": 0.0,
+        "recuos_2": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "aberturas_2": [
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ]
+        ]
+    },
+    "F50_07": {
+        "numero": "F50_07",
+        "nome": "Fundo50_07",
+        "observacoes": null,
+        "pavimento": "Pav50_entidades",
+        "largura": 220.0,
+        "altura": 90.0,
+        "texto_esquerda": null,
+        "texto_direita": null,
+        "tipo_distribuicao": "122",
+        "tipo_painel_inicial": "244",
+        "sarrafo_esq": true,
+        "sarrafo_dir": true,
+        "paineis": [
+            220.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "recuos": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "aberturas": [
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ]
+        ],
+        "tipo_painel2": "E/T",
+        "comprimento_2": 0.0,
+        "largura_2": 0.0,
+        "p1_2": 0.0,
+        "p2_2": 0.0,
+        "p3_2": 0.0,
+        "recuos_2": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "aberturas_2": [
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ]
+        ]
+    },
+    "F50_08": {
+        "numero": "F50_08",
+        "nome": "Fundo50_08",
+        "observacoes": null,
+        "pavimento": "Pav50_entidades",
+        "largura": 240.0,
+        "altura": 95.0,
+        "texto_esquerda": null,
+        "texto_direita": null,
+        "tipo_distribuicao": "122",
+        "tipo_painel_inicial": "244",
+        "sarrafo_esq": true,
+        "sarrafo_dir": true,
+        "paineis": [
+            240.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "recuos": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "aberturas": [
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ]
+        ],
+        "tipo_painel2": "E/T",
+        "comprimento_2": 0.0,
+        "largura_2": 0.0,
+        "p1_2": 0.0,
+        "p2_2": 0.0,
+        "p3_2": 0.0,
+        "recuos_2": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "aberturas_2": [
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ]
+        ]
+    },
+    "F50_09": {
+        "numero": "F50_09",
+        "nome": "Fundo50_09",
+        "observacoes": null,
+        "pavimento": "Pav50_entidades",
+        "largura": 260.0,
+        "altura": 100.0,
+        "texto_esquerda": null,
+        "texto_direita": null,
+        "tipo_distribuicao": "122",
+        "tipo_painel_inicial": "244",
+        "sarrafo_esq": true,
+        "sarrafo_dir": true,
+        "paineis": [
+            244.0,
+            16.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "recuos": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "aberturas": [
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ]
+        ],
+        "tipo_painel2": "E/T",
+        "comprimento_2": 0.0,
+        "largura_2": 0.0,
+        "p1_2": 0.0,
+        "p2_2": 0.0,
+        "p3_2": 0.0,
+        "recuos_2": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "aberturas_2": [
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ]
+        ]
+    },
+    "F50_10": {
+        "numero": "F50_10",
+        "nome": "Fundo50_10",
+        "observacoes": null,
+        "pavimento": "Pav50_entidades",
+        "largura": 280.0,
+        "altura": 105.0,
+        "texto_esquerda": null,
+        "texto_direita": null,
+        "tipo_distribuicao": "122",
+        "tipo_painel_inicial": "244",
+        "sarrafo_esq": true,
+        "sarrafo_dir": true,
+        "paineis": [
+            244.0,
+            36.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "recuos": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "aberturas": [
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ]
+        ],
+        "tipo_painel2": "E/T",
+        "comprimento_2": 0.0,
+        "largura_2": 0.0,
+        "p1_2": 0.0,
+        "p2_2": 0.0,
+        "p3_2": 0.0,
+        "recuos_2": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "aberturas_2": [
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ]
+        ]
+    },
+    "F50_11": {
+        "numero": "F50_11",
+        "nome": "Fundo50_11",
+        "observacoes": null,
+        "pavimento": "Pav50_entidades",
+        "largura": 300.0,
+        "altura": 110.0,
+        "texto_esquerda": null,
+        "texto_direita": null,
+        "tipo_distribuicao": "122",
+        "tipo_painel_inicial": "244",
+        "sarrafo_esq": true,
+        "sarrafo_dir": true,
+        "paineis": [
+            244.0,
+            56.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "recuos": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "aberturas": [
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ]
+        ],
+        "tipo_painel2": "E/T",
+        "comprimento_2": 0.0,
+        "largura_2": 0.0,
+        "p1_2": 0.0,
+        "p2_2": 0.0,
+        "p3_2": 0.0,
+        "recuos_2": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "aberturas_2": [
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ]
+        ]
+    },
+    "F50_12": {
+        "numero": "F50_12",
+        "nome": "Fundo50_12",
+        "observacoes": null,
+        "pavimento": "Pav50_entidades",
+        "largura": 320.0,
+        "altura": 115.0,
+        "texto_esquerda": null,
+        "texto_direita": null,
+        "tipo_distribuicao": "122",
+        "tipo_painel_inicial": "244",
+        "sarrafo_esq": true,
+        "sarrafo_dir": true,
+        "paineis": [
+            244.0,
+            76.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "recuos": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "aberturas": [
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ]
+        ],
+        "tipo_painel2": "E/T",
+        "comprimento_2": 0.0,
+        "largura_2": 0.0,
+        "p1_2": 0.0,
+        "p2_2": 0.0,
+        "p3_2": 0.0,
+        "recuos_2": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "aberturas_2": [
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ]
+        ]
+    },
+    "F50_13": {
+        "numero": "F50_13",
+        "nome": "Fundo50_13",
+        "observacoes": null,
+        "pavimento": "Pav50_entidades",
+        "largura": 340.0,
+        "altura": 120.0,
+        "texto_esquerda": null,
+        "texto_direita": null,
+        "tipo_distribuicao": "122",
+        "tipo_painel_inicial": "244",
+        "sarrafo_esq": true,
+        "sarrafo_dir": true,
+        "paineis": [
+            244.0,
+            96.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "recuos": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "aberturas": [
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ]
+        ],
+        "tipo_painel2": "E/T",
+        "comprimento_2": 0.0,
+        "largura_2": 0.0,
+        "p1_2": 0.0,
+        "p2_2": 0.0,
+        "p3_2": 0.0,
+        "recuos_2": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "aberturas_2": [
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ]
+        ]
+    },
+    "F50_14": {
+        "numero": "F50_14",
+        "nome": "Fundo50_14",
+        "observacoes": null,
+        "pavimento": "Pav50_entidades",
+        "largura": 360.0,
+        "altura": 62.0,
+        "texto_esquerda": null,
+        "texto_direita": null,
+        "tipo_distribuicao": "122",
+        "tipo_painel_inicial": "244",
+        "sarrafo_esq": true,
+        "sarrafo_dir": true,
+        "paineis": [
+            244.0,
+            116.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "recuos": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "aberturas": [
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ]
+        ],
+        "tipo_painel2": "E/T",
+        "comprimento_2": 0.0,
+        "largura_2": 0.0,
+        "p1_2": 0.0,
+        "p2_2": 0.0,
+        "p3_2": 0.0,
+        "recuos_2": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "aberturas_2": [
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ]
+        ]
+    },
+    "F50_15": {
+        "numero": "F50_15",
+        "nome": "Fundo50_15",
+        "observacoes": null,
+        "pavimento": "Pav50_entidades",
+        "largura": 380.0,
+        "altura": 68.0,
+        "texto_esquerda": null,
+        "texto_direita": null,
+        "tipo_distribuicao": "122",
+        "tipo_painel_inicial": "244",
+        "sarrafo_esq": true,
+        "sarrafo_dir": true,
+        "paineis": [
+            244.0,
+            136.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "recuos": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "aberturas": [
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ]
+        ],
+        "tipo_painel2": "E/T",
+        "comprimento_2": 0.0,
+        "largura_2": 0.0,
+        "p1_2": 0.0,
+        "p2_2": 0.0,
+        "p3_2": 0.0,
+        "recuos_2": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "aberturas_2": [
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ]
+        ]
+    },
+    "F50_16": {
+        "numero": "F50_16",
+        "nome": "Fundo50_16",
+        "observacoes": null,
+        "pavimento": "Pav50_entidades",
+        "largura": 400.0,
+        "altura": 72.0,
+        "texto_esquerda": null,
+        "texto_direita": null,
+        "tipo_distribuicao": "122",
+        "tipo_painel_inicial": "244",
+        "sarrafo_esq": true,
+        "sarrafo_dir": true,
+        "paineis": [
+            244.0,
+            156.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "recuos": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "aberturas": [
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ]
+        ],
+        "tipo_painel2": "E/T",
+        "comprimento_2": 0.0,
+        "largura_2": 0.0,
+        "p1_2": 0.0,
+        "p2_2": 0.0,
+        "p3_2": 0.0,
+        "recuos_2": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "aberturas_2": [
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ]
+        ]
+    },
+    "F50_17": {
+        "numero": "F50_17",
+        "nome": "Fundo50_17",
+        "observacoes": null,
+        "pavimento": "Pav50_entidades",
+        "largura": 150.0,
+        "altura": 78.0,
+        "texto_esquerda": null,
+        "texto_direita": null,
+        "tipo_distribuicao": "122",
+        "tipo_painel_inicial": "244",
+        "sarrafo_esq": true,
+        "sarrafo_dir": true,
+        "paineis": [
+            150.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "recuos": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "aberturas": [
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ]
+        ],
+        "tipo_painel2": "E/T",
+        "comprimento_2": 0.0,
+        "largura_2": 0.0,
+        "p1_2": 0.0,
+        "p2_2": 0.0,
+        "p3_2": 0.0,
+        "recuos_2": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "aberturas_2": [
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ]
+        ]
+    },
+    "F50_18": {
+        "numero": "F50_18",
+        "nome": "Fundo50_18",
+        "observacoes": null,
+        "pavimento": "Pav50_entidades",
+        "largura": 170.0,
+        "altura": 82.0,
+        "texto_esquerda": null,
+        "texto_direita": null,
+        "tipo_distribuicao": "122",
+        "tipo_painel_inicial": "244",
+        "sarrafo_esq": true,
+        "sarrafo_dir": true,
+        "paineis": [
+            170.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "recuos": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "aberturas": [
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ]
+        ],
+        "tipo_painel2": "E/T",
+        "comprimento_2": 0.0,
+        "largura_2": 0.0,
+        "p1_2": 0.0,
+        "p2_2": 0.0,
+        "p3_2": 0.0,
+        "recuos_2": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "aberturas_2": [
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ]
+        ]
+    },
+    "F50_19": {
+        "numero": "F50_19",
+        "nome": "Fundo50_19",
+        "observacoes": null,
+        "pavimento": "Pav50_entidades",
+        "largura": 190.0,
+        "altura": 88.0,
+        "texto_esquerda": null,
+        "texto_direita": null,
+        "tipo_distribuicao": "122",
+        "tipo_painel_inicial": "244",
+        "sarrafo_esq": true,
+        "sarrafo_dir": true,
+        "paineis": [
+            190.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "recuos": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "aberturas": [
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ]
+        ],
+        "tipo_painel2": "E/T",
+        "comprimento_2": 0.0,
+        "largura_2": 0.0,
+        "p1_2": 0.0,
+        "p2_2": 0.0,
+        "p3_2": 0.0,
+        "recuos_2": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "aberturas_2": [
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ]
+        ]
+    },
+    "F50_20": {
+        "numero": "F50_20",
+        "nome": "Fundo50_20",
+        "observacoes": null,
+        "pavimento": "Pav50_entidades",
+        "largura": 210.0,
+        "altura": 92.0,
+        "texto_esquerda": null,
+        "texto_direita": null,
+        "tipo_distribuicao": "122",
+        "tipo_painel_inicial": "244",
+        "sarrafo_esq": true,
+        "sarrafo_dir": true,
+        "paineis": [
+            210.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "recuos": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "aberturas": [
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ]
+        ],
+        "tipo_painel2": "E/T",
+        "comprimento_2": 0.0,
+        "largura_2": 0.0,
+        "p1_2": 0.0,
+        "p2_2": 0.0,
+        "p3_2": 0.0,
+        "recuos_2": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "aberturas_2": [
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ]
+        ]
+    },
+    "F50_21": {
+        "numero": "F50_21",
+        "nome": "Fundo50_21",
+        "observacoes": null,
+        "pavimento": "Pav50_entidades",
+        "largura": 230.0,
+        "altura": 98.0,
+        "texto_esquerda": null,
+        "texto_direita": null,
+        "tipo_distribuicao": "122",
+        "tipo_painel_inicial": "244",
+        "sarrafo_esq": true,
+        "sarrafo_dir": true,
+        "paineis": [
+            230.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "recuos": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "aberturas": [
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ]
+        ],
+        "tipo_painel2": "E/T",
+        "comprimento_2": 0.0,
+        "largura_2": 0.0,
+        "p1_2": 0.0,
+        "p2_2": 0.0,
+        "p3_2": 0.0,
+        "recuos_2": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "aberturas_2": [
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ]
+        ]
+    },
+    "F50_22": {
+        "numero": "F50_22",
+        "nome": "Fundo50_22",
+        "observacoes": null,
+        "pavimento": "Pav50_entidades",
+        "largura": 250.0,
+        "altura": 102.0,
+        "texto_esquerda": null,
+        "texto_direita": null,
+        "tipo_distribuicao": "122",
+        "tipo_painel_inicial": "244",
+        "sarrafo_esq": true,
+        "sarrafo_dir": true,
+        "paineis": [
+            244.0,
+            6.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "recuos": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "aberturas": [
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ]
+        ],
+        "tipo_painel2": "E/T",
+        "comprimento_2": 0.0,
+        "largura_2": 0.0,
+        "p1_2": 0.0,
+        "p2_2": 0.0,
+        "p3_2": 0.0,
+        "recuos_2": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "aberturas_2": [
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ]
+        ]
+    },
+    "F50_23": {
+        "numero": "F50_23",
+        "nome": "Fundo50_23",
+        "observacoes": null,
+        "pavimento": "Pav50_entidades",
+        "largura": 270.0,
+        "altura": 108.0,
+        "texto_esquerda": null,
+        "texto_direita": null,
+        "tipo_distribuicao": "122",
+        "tipo_painel_inicial": "244",
+        "sarrafo_esq": true,
+        "sarrafo_dir": true,
+        "paineis": [
+            244.0,
+            26.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "recuos": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "aberturas": [
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ]
+        ],
+        "tipo_painel2": "E/T",
+        "comprimento_2": 0.0,
+        "largura_2": 0.0,
+        "p1_2": 0.0,
+        "p2_2": 0.0,
+        "p3_2": 0.0,
+        "recuos_2": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "aberturas_2": [
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ]
+        ]
+    },
+    "F50_24": {
+        "numero": "F50_24",
+        "nome": "Fundo50_24",
+        "observacoes": null,
+        "pavimento": "Pav50_entidades",
+        "largura": 290.0,
+        "altura": 112.0,
+        "texto_esquerda": null,
+        "texto_direita": null,
+        "tipo_distribuicao": "122",
+        "tipo_painel_inicial": "244",
+        "sarrafo_esq": true,
+        "sarrafo_dir": true,
+        "paineis": [
+            244.0,
+            46.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "recuos": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "aberturas": [
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ]
+        ],
+        "tipo_painel2": "E/T",
+        "comprimento_2": 0.0,
+        "largura_2": 0.0,
+        "p1_2": 0.0,
+        "p2_2": 0.0,
+        "p3_2": 0.0,
+        "recuos_2": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "aberturas_2": [
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ]
+        ]
+    },
+    "F50_25": {
+        "numero": "F50_25",
+        "nome": "Fundo50_25",
+        "observacoes": null,
+        "pavimento": "Pav50_entidades",
+        "largura": 310.0,
+        "altura": 118.0,
+        "texto_esquerda": null,
+        "texto_direita": null,
+        "tipo_distribuicao": "122",
+        "tipo_painel_inicial": "244",
+        "sarrafo_esq": true,
+        "sarrafo_dir": true,
+        "paineis": [
+            244.0,
+            66.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "recuos": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "aberturas": [
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ]
+        ],
+        "tipo_painel2": "E/T",
+        "comprimento_2": 0.0,
+        "largura_2": 0.0,
+        "p1_2": 0.0,
+        "p2_2": 0.0,
+        "p3_2": 0.0,
+        "recuos_2": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "aberturas_2": [
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ]
+        ]
+    },
+    "F50_26": {
+        "numero": "F50_26",
+        "nome": "Fundo50_26",
+        "observacoes": null,
+        "pavimento": "Pav50_entidades",
+        "largura": 330.0,
+        "altura": 61.0,
+        "texto_esquerda": null,
+        "texto_direita": null,
+        "tipo_distribuicao": "122",
+        "tipo_painel_inicial": "244",
+        "sarrafo_esq": true,
+        "sarrafo_dir": true,
+        "paineis": [
+            244.0,
+            86.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "recuos": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "aberturas": [
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ]
+        ],
+        "tipo_painel2": "E/T",
+        "comprimento_2": 0.0,
+        "largura_2": 0.0,
+        "p1_2": 0.0,
+        "p2_2": 0.0,
+        "p3_2": 0.0,
+        "recuos_2": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "aberturas_2": [
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ]
+        ]
+    },
+    "F50_27": {
+        "numero": "F50_27",
+        "nome": "Fundo50_27",
+        "observacoes": null,
+        "pavimento": "Pav50_entidades",
+        "largura": 350.0,
+        "altura": 67.0,
+        "texto_esquerda": null,
+        "texto_direita": null,
+        "tipo_distribuicao": "122",
+        "tipo_painel_inicial": "244",
+        "sarrafo_esq": true,
+        "sarrafo_dir": true,
+        "paineis": [
+            244.0,
+            106.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "recuos": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "aberturas": [
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ]
+        ],
+        "tipo_painel2": "E/T",
+        "comprimento_2": 0.0,
+        "largura_2": 0.0,
+        "p1_2": 0.0,
+        "p2_2": 0.0,
+        "p3_2": 0.0,
+        "recuos_2": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "aberturas_2": [
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ]
+        ]
+    },
+    "F50_28": {
+        "numero": "F50_28",
+        "nome": "Fundo50_28",
+        "observacoes": null,
+        "pavimento": "Pav50_entidades",
+        "largura": 370.0,
+        "altura": 73.0,
+        "texto_esquerda": null,
+        "texto_direita": null,
+        "tipo_distribuicao": "122",
+        "tipo_painel_inicial": "244",
+        "sarrafo_esq": true,
+        "sarrafo_dir": true,
+        "paineis": [
+            244.0,
+            126.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "recuos": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "aberturas": [
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ]
+        ],
+        "tipo_painel2": "E/T",
+        "comprimento_2": 0.0,
+        "largura_2": 0.0,
+        "p1_2": 0.0,
+        "p2_2": 0.0,
+        "p3_2": 0.0,
+        "recuos_2": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "aberturas_2": [
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ]
+        ]
+    },
+    "F50_29": {
+        "numero": "F50_29",
+        "nome": "Fundo50_29",
+        "observacoes": null,
+        "pavimento": "Pav50_entidades",
+        "largura": 390.0,
+        "altura": 79.0,
+        "texto_esquerda": null,
+        "texto_direita": null,
+        "tipo_distribuicao": "122",
+        "tipo_painel_inicial": "244",
+        "sarrafo_esq": true,
+        "sarrafo_dir": true,
+        "paineis": [
+            244.0,
+            146.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "recuos": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "aberturas": [
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ]
+        ],
+        "tipo_painel2": "E/T",
+        "comprimento_2": 0.0,
+        "largura_2": 0.0,
+        "p1_2": 0.0,
+        "p2_2": 0.0,
+        "p3_2": 0.0,
+        "recuos_2": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "aberturas_2": [
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ]
+        ]
+    },
+    "F50_30": {
+        "numero": "F50_30",
+        "nome": "Fundo50_30",
+        "observacoes": null,
+        "pavimento": "Pav50_entidades",
+        "largura": 410.0,
+        "altura": 83.0,
+        "texto_esquerda": null,
+        "texto_direita": null,
+        "tipo_distribuicao": "122",
+        "tipo_painel_inicial": "244",
+        "sarrafo_esq": true,
+        "sarrafo_dir": true,
+        "paineis": [
+            244.0,
+            166.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "recuos": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "aberturas": [
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ]
+        ],
+        "tipo_painel2": "E/T",
+        "comprimento_2": 0.0,
+        "largura_2": 0.0,
+        "p1_2": 0.0,
+        "p2_2": 0.0,
+        "p3_2": 0.0,
+        "recuos_2": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "aberturas_2": [
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ]
+        ]
+    },
+    "F50_31": {
+        "numero": "F50_31",
+        "nome": "Fundo50_31",
+        "observacoes": null,
+        "pavimento": "Pav50_entidades",
+        "largura": 108.0,
+        "altura": 89.0,
+        "texto_esquerda": null,
+        "texto_direita": null,
+        "tipo_distribuicao": "122",
+        "tipo_painel_inicial": "244",
+        "sarrafo_esq": true,
+        "sarrafo_dir": true,
+        "paineis": [
+            108.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "recuos": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "aberturas": [
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ]
+        ],
+        "tipo_painel2": "E/T",
+        "comprimento_2": 0.0,
+        "largura_2": 0.0,
+        "p1_2": 0.0,
+        "p2_2": 0.0,
+        "p3_2": 0.0,
+        "recuos_2": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "aberturas_2": [
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ]
+        ]
+    },
+    "F50_32": {
+        "numero": "F50_32",
+        "nome": "Fundo50_32",
+        "observacoes": null,
+        "pavimento": "Pav50_entidades",
+        "largura": 132.0,
+        "altura": 93.0,
+        "texto_esquerda": null,
+        "texto_direita": null,
+        "tipo_distribuicao": "122",
+        "tipo_painel_inicial": "244",
+        "sarrafo_esq": true,
+        "sarrafo_dir": true,
+        "paineis": [
+            132.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "recuos": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "aberturas": [
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ]
+        ],
+        "tipo_painel2": "E/T",
+        "comprimento_2": 0.0,
+        "largura_2": 0.0,
+        "p1_2": 0.0,
+        "p2_2": 0.0,
+        "p3_2": 0.0,
+        "recuos_2": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "aberturas_2": [
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ]
+        ]
+    },
+    "F50_33": {
+        "numero": "F50_33",
+        "nome": "Fundo50_33",
+        "observacoes": null,
+        "pavimento": "Pav50_entidades",
+        "largura": 156.0,
+        "altura": 99.0,
+        "texto_esquerda": null,
+        "texto_direita": null,
+        "tipo_distribuicao": "122",
+        "tipo_painel_inicial": "244",
+        "sarrafo_esq": true,
+        "sarrafo_dir": true,
+        "paineis": [
+            156.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "recuos": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "aberturas": [
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ]
+        ],
+        "tipo_painel2": "E/T",
+        "comprimento_2": 0.0,
+        "largura_2": 0.0,
+        "p1_2": 0.0,
+        "p2_2": 0.0,
+        "p3_2": 0.0,
+        "recuos_2": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "aberturas_2": [
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ]
+        ]
+    },
+    "F50_34": {
+        "numero": "F50_34",
+        "nome": "Fundo50_34",
+        "observacoes": null,
+        "pavimento": "Pav50_entidades",
+        "largura": 184.0,
+        "altura": 103.0,
+        "texto_esquerda": null,
+        "texto_direita": null,
+        "tipo_distribuicao": "122",
+        "tipo_painel_inicial": "244",
+        "sarrafo_esq": true,
+        "sarrafo_dir": true,
+        "paineis": [
+            184.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "recuos": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "aberturas": [
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ]
+        ],
+        "tipo_painel2": "E/T",
+        "comprimento_2": 0.0,
+        "largura_2": 0.0,
+        "p1_2": 0.0,
+        "p2_2": 0.0,
+        "p3_2": 0.0,
+        "recuos_2": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "aberturas_2": [
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ]
+        ]
+    },
+    "F50_35": {
+        "numero": "F50_35",
+        "nome": "Fundo50_35",
+        "observacoes": null,
+        "pavimento": "Pav50_entidades",
+        "largura": 204.0,
+        "altura": 109.0,
+        "texto_esquerda": null,
+        "texto_direita": null,
+        "tipo_distribuicao": "122",
+        "tipo_painel_inicial": "244",
+        "sarrafo_esq": true,
+        "sarrafo_dir": true,
+        "paineis": [
+            204.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "recuos": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "aberturas": [
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ]
+        ],
+        "tipo_painel2": "E/T",
+        "comprimento_2": 0.0,
+        "largura_2": 0.0,
+        "p1_2": 0.0,
+        "p2_2": 0.0,
+        "p3_2": 0.0,
+        "recuos_2": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "aberturas_2": [
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ]
+        ]
+    },
+    "F50_36": {
+        "numero": "F50_36",
+        "nome": "Fundo50_36",
+        "observacoes": null,
+        "pavimento": "Pav50_entidades",
+        "largura": 228.0,
+        "altura": 113.0,
+        "texto_esquerda": null,
+        "texto_direita": null,
+        "tipo_distribuicao": "122",
+        "tipo_painel_inicial": "244",
+        "sarrafo_esq": true,
+        "sarrafo_dir": true,
+        "paineis": [
+            228.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "recuos": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "aberturas": [
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ]
+        ],
+        "tipo_painel2": "E/T",
+        "comprimento_2": 0.0,
+        "largura_2": 0.0,
+        "p1_2": 0.0,
+        "p2_2": 0.0,
+        "p3_2": 0.0,
+        "recuos_2": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "aberturas_2": [
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ]
+        ]
+    },
+    "F50_37": {
+        "numero": "F50_37",
+        "nome": "Fundo50_37",
+        "observacoes": null,
+        "pavimento": "Pav50_entidades",
+        "largura": 252.0,
+        "altura": 119.0,
+        "texto_esquerda": null,
+        "texto_direita": null,
+        "tipo_distribuicao": "122",
+        "tipo_painel_inicial": "244",
+        "sarrafo_esq": true,
+        "sarrafo_dir": true,
+        "paineis": [
+            244.0,
+            8.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "recuos": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "aberturas": [
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ]
+        ],
+        "tipo_painel2": "E/T",
+        "comprimento_2": 0.0,
+        "largura_2": 0.0,
+        "p1_2": 0.0,
+        "p2_2": 0.0,
+        "p3_2": 0.0,
+        "recuos_2": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "aberturas_2": [
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ]
+        ]
+    },
+    "F50_38": {
+        "numero": "F50_38",
+        "nome": "Fundo50_38",
+        "observacoes": null,
+        "pavimento": "Pav50_entidades",
+        "largura": 276.0,
+        "altura": 63.0,
+        "texto_esquerda": null,
+        "texto_direita": null,
+        "tipo_distribuicao": "122",
+        "tipo_painel_inicial": "244",
+        "sarrafo_esq": true,
+        "sarrafo_dir": true,
+        "paineis": [
+            244.0,
+            32.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "recuos": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "aberturas": [
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ]
+        ],
+        "tipo_painel2": "E/T",
+        "comprimento_2": 0.0,
+        "largura_2": 0.0,
+        "p1_2": 0.0,
+        "p2_2": 0.0,
+        "p3_2": 0.0,
+        "recuos_2": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "aberturas_2": [
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ]
+        ]
+    },
+    "F50_39": {
+        "numero": "F50_39",
+        "nome": "Fundo50_39",
+        "observacoes": null,
+        "pavimento": "Pav50_entidades",
+        "largura": 304.0,
+        "altura": 69.0,
+        "texto_esquerda": null,
+        "texto_direita": null,
+        "tipo_distribuicao": "122",
+        "tipo_painel_inicial": "244",
+        "sarrafo_esq": true,
+        "sarrafo_dir": true,
+        "paineis": [
+            244.0,
+            60.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "recuos": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "aberturas": [
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ]
+        ],
+        "tipo_painel2": "E/T",
+        "comprimento_2": 0.0,
+        "largura_2": 0.0,
+        "p1_2": 0.0,
+        "p2_2": 0.0,
+        "p3_2": 0.0,
+        "recuos_2": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "aberturas_2": [
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ]
+        ]
+    },
+    "F50_40": {
+        "numero": "F50_40",
+        "nome": "Fundo50_40",
+        "observacoes": null,
+        "pavimento": "Pav50_entidades",
+        "largura": 328.0,
+        "altura": 74.0,
+        "texto_esquerda": null,
+        "texto_direita": null,
+        "tipo_distribuicao": "122",
+        "tipo_painel_inicial": "244",
+        "sarrafo_esq": true,
+        "sarrafo_dir": true,
+        "paineis": [
+            244.0,
+            84.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "recuos": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "aberturas": [
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ]
+        ],
+        "tipo_painel2": "E/T",
+        "comprimento_2": 0.0,
+        "largura_2": 0.0,
+        "p1_2": 0.0,
+        "p2_2": 0.0,
+        "p3_2": 0.0,
+        "recuos_2": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "aberturas_2": [
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ]
+        ]
+    },
+    "F50_41": {
+        "numero": "F50_41",
+        "nome": "Fundo50_41",
+        "observacoes": null,
+        "pavimento": "Pav50_entidades",
+        "largura": 112.0,
+        "altura": 81.0,
+        "texto_esquerda": null,
+        "texto_direita": null,
+        "tipo_distribuicao": "122",
+        "tipo_painel_inicial": "244",
+        "sarrafo_esq": true,
+        "sarrafo_dir": true,
+        "paineis": [
+            112.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "recuos": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "aberturas": [
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ]
+        ],
+        "tipo_painel2": "E/T",
+        "comprimento_2": 0.0,
+        "largura_2": 0.0,
+        "p1_2": 0.0,
+        "p2_2": 0.0,
+        "p3_2": 0.0,
+        "recuos_2": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "aberturas_2": [
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ]
+        ]
+    },
+    "F50_42": {
+        "numero": "F50_42",
+        "nome": "Fundo50_42",
+        "observacoes": null,
+        "pavimento": "Pav50_entidades",
+        "largura": 136.0,
+        "altura": 87.0,
+        "texto_esquerda": null,
+        "texto_direita": null,
+        "tipo_distribuicao": "122",
+        "tipo_painel_inicial": "244",
+        "sarrafo_esq": true,
+        "sarrafo_dir": true,
+        "paineis": [
+            136.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "recuos": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "aberturas": [
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ]
+        ],
+        "tipo_painel2": "E/T",
+        "comprimento_2": 0.0,
+        "largura_2": 0.0,
+        "p1_2": 0.0,
+        "p2_2": 0.0,
+        "p3_2": 0.0,
+        "recuos_2": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "aberturas_2": [
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ]
+        ]
+    },
+    "F50_43": {
+        "numero": "F50_43",
+        "nome": "Fundo50_43",
+        "observacoes": null,
+        "pavimento": "Pav50_entidades",
+        "largura": 164.0,
+        "altura": 91.0,
+        "texto_esquerda": null,
+        "texto_direita": null,
+        "tipo_distribuicao": "122",
+        "tipo_painel_inicial": "244",
+        "sarrafo_esq": true,
+        "sarrafo_dir": true,
+        "paineis": [
+            164.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "recuos": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "aberturas": [
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ]
+        ],
+        "tipo_painel2": "E/T",
+        "comprimento_2": 0.0,
+        "largura_2": 0.0,
+        "p1_2": 0.0,
+        "p2_2": 0.0,
+        "p3_2": 0.0,
+        "recuos_2": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "aberturas_2": [
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ]
+        ]
+    },
+    "F50_44": {
+        "numero": "F50_44",
+        "nome": "Fundo50_44",
+        "observacoes": null,
+        "pavimento": "Pav50_entidades",
+        "largura": 188.0,
+        "altura": 97.0,
+        "texto_esquerda": null,
+        "texto_direita": null,
+        "tipo_distribuicao": "122",
+        "tipo_painel_inicial": "244",
+        "sarrafo_esq": true,
+        "sarrafo_dir": true,
+        "paineis": [
+            188.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "recuos": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "aberturas": [
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ]
+        ],
+        "tipo_painel2": "E/T",
+        "comprimento_2": 0.0,
+        "largura_2": 0.0,
+        "p1_2": 0.0,
+        "p2_2": 0.0,
+        "p3_2": 0.0,
+        "recuos_2": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "aberturas_2": [
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ]
+        ]
+    },
+    "F50_45": {
+        "numero": "F50_45",
+        "nome": "Fundo50_45",
+        "observacoes": null,
+        "pavimento": "Pav50_entidades",
+        "largura": 208.0,
+        "altura": 104.0,
+        "texto_esquerda": null,
+        "texto_direita": null,
+        "tipo_distribuicao": "122",
+        "tipo_painel_inicial": "244",
+        "sarrafo_esq": true,
+        "sarrafo_dir": true,
+        "paineis": [
+            208.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "recuos": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "aberturas": [
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ]
+        ],
+        "tipo_painel2": "E/T",
+        "comprimento_2": 0.0,
+        "largura_2": 0.0,
+        "p1_2": 0.0,
+        "p2_2": 0.0,
+        "p3_2": 0.0,
+        "recuos_2": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "aberturas_2": [
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ]
+        ]
+    },
+    "F50_46": {
+        "numero": "F50_46",
+        "nome": "Fundo50_46",
+        "observacoes": null,
+        "pavimento": "Pav50_entidades",
+        "largura": 236.0,
+        "altura": 111.0,
+        "texto_esquerda": null,
+        "texto_direita": null,
+        "tipo_distribuicao": "122",
+        "tipo_painel_inicial": "244",
+        "sarrafo_esq": true,
+        "sarrafo_dir": true,
+        "paineis": [
+            236.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "recuos": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "aberturas": [
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ]
+        ],
+        "tipo_painel2": "E/T",
+        "comprimento_2": 0.0,
+        "largura_2": 0.0,
+        "p1_2": 0.0,
+        "p2_2": 0.0,
+        "p3_2": 0.0,
+        "recuos_2": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "aberturas_2": [
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ]
+        ]
+    },
+    "F50_47": {
+        "numero": "F50_47",
+        "nome": "Fundo50_47",
+        "observacoes": null,
+        "pavimento": "Pav50_entidades",
+        "largura": 264.0,
+        "altura": 116.0,
+        "texto_esquerda": null,
+        "texto_direita": null,
+        "tipo_distribuicao": "122",
+        "tipo_painel_inicial": "244",
+        "sarrafo_esq": true,
+        "sarrafo_dir": true,
+        "paineis": [
+            244.0,
+            20.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "recuos": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "aberturas": [
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ]
+        ],
+        "tipo_painel2": "E/T",
+        "comprimento_2": 0.0,
+        "largura_2": 0.0,
+        "p1_2": 0.0,
+        "p2_2": 0.0,
+        "p3_2": 0.0,
+        "recuos_2": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "aberturas_2": [
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ]
+        ]
+    },
+    "F50_48": {
+        "numero": "F50_48",
+        "nome": "Fundo50_48",
+        "observacoes": null,
+        "pavimento": "Pav50_entidades",
+        "largura": 288.0,
+        "altura": 66.0,
+        "texto_esquerda": null,
+        "texto_direita": null,
+        "tipo_distribuicao": "122",
+        "tipo_painel_inicial": "244",
+        "sarrafo_esq": true,
+        "sarrafo_dir": true,
+        "paineis": [
+            244.0,
+            44.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "recuos": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "aberturas": [
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ]
+        ],
+        "tipo_painel2": "E/T",
+        "comprimento_2": 0.0,
+        "largura_2": 0.0,
+        "p1_2": 0.0,
+        "p2_2": 0.0,
+        "p3_2": 0.0,
+        "recuos_2": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "aberturas_2": [
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ]
+        ]
+    },
+    "F50_49": {
+        "numero": "F50_49",
+        "nome": "Fundo50_49",
+        "observacoes": null,
+        "pavimento": "Pav50_entidades",
+        "largura": 312.0,
+        "altura": 76.0,
+        "texto_esquerda": null,
+        "texto_direita": null,
+        "tipo_distribuicao": "122",
+        "tipo_painel_inicial": "244",
+        "sarrafo_esq": true,
+        "sarrafo_dir": true,
+        "paineis": [
+            244.0,
+            68.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "recuos": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "aberturas": [
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ]
+        ],
+        "tipo_painel2": "E/T",
+        "comprimento_2": 0.0,
+        "largura_2": 0.0,
+        "p1_2": 0.0,
+        "p2_2": 0.0,
+        "p3_2": 0.0,
+        "recuos_2": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "aberturas_2": [
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ]
+        ]
+    },
+    "F50_50": {
+        "numero": "F50_50",
+        "nome": "Fundo50_50",
+        "observacoes": null,
+        "pavimento": "Pav50_entidades",
+        "largura": 336.0,
+        "altura": 86.0,
+        "texto_esquerda": null,
+        "texto_direita": null,
+        "tipo_distribuicao": "122",
+        "tipo_painel_inicial": "244",
+        "sarrafo_esq": true,
+        "sarrafo_dir": true,
+        "paineis": [
+            244.0,
+            92.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "recuos": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "aberturas": [
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ]
+        ],
+        "tipo_painel2": "E/T",
+        "comprimento_2": 0.0,
+        "largura_2": 0.0,
+        "p1_2": 0.0,
+        "p2_2": 0.0,
+        "p3_2": 0.0,
+        "recuos_2": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "aberturas_2": [
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0
+            ]
+        ]
     }
 }
