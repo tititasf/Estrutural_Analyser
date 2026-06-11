@@ -1,9 +1,9 @@
 {
   "number": "13",
   "name": "V13_A",
-  "floor": "LAJE TÉCNICA",
+  "floor": "12 PAV",
   "side": "A",
-  "total_width": 14.0,
+  "total_width": 55.0,
   "total_height": "38.0",
   "panels": [
     {
@@ -35,35 +35,7 @@
       "grade_h2": "0"
     },
     {
-      "width": 120.0,
-      "height1": 38.0,
-      "height2": 38.0,
-      "grade_h1": "0",
-      "grade_h2": "0"
-    },
-    {
-      "width": 120.0,
-      "height1": 38.0,
-      "height2": 38.0,
-      "grade_h1": "0",
-      "grade_h2": "0"
-    },
-    {
-      "width": 120.0,
-      "height1": 38.0,
-      "height2": 38.0,
-      "grade_h1": "0",
-      "grade_h2": "0"
-    },
-    {
-      "width": 120.0,
-      "height1": 38.0,
-      "height2": 38.0,
-      "grade_h1": "0",
-      "grade_h2": "0"
-    },
-    {
-      "width": 13.0,
+      "width": 108.0,
       "height1": 38.0,
       "height2": 38.0,
       "grade_h1": "0",
@@ -107,5 +79,34 @@
     "length": 0.0
   },
   "sarrafo_left_id": 0,
-  "sarrafo_right_id": 0
+  "sarrafo_right_id": 0,
+  "_sa_meta": {
+    "tipo": "FV",
+    "analisado_em": "2026-05-22 14:56",
+    "campos_extraidos": [
+      "floor",
+      "name",
+      "number",
+      "panels",
+      "total_height",
+      "total_width"
+    ],
+    "campos_defaulted": [],
+    "na_fields": [
+      "altura",
+      "comprimento",
+      "coordenadas",
+      "grade_1",
+      "grade_2",
+      "largura",
+      "linhas_horizontais",
+      "linhas_verticais",
+      "nome",
+      "numero",
+      "obstaculos",
+      "pavimento",
+      "reaproveitamento_dados"
+    ],
+    "completude_pct": 100.0
+  }
 }

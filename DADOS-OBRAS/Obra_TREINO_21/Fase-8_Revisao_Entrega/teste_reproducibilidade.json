@@ -1,0 +1,99 @@
+{
+  "obra": "Obra_TREINO_21",
+  "timestamp": "2026-04-30T17:59:59.681136+00:00",
+  "runs_solicitados": 3,
+  "runs_completos": 3,
+  "deterministico": true,
+  "reproducivel": true,
+  "diferencas": [],
+  "execucoes": [
+    {
+      "run": 1,
+      "ok": true,
+      "elapsed_s": 0.13,
+      "aprovado": true,
+      "score_fidelidade_global": "—",
+      "criterios_status": {
+        "C1_ids_match": "PASS",
+        "C2_dimensional_bh": "PASS",
+        "C3_assembly_grade": "FAIL",
+        "C4_dxf_individual": "PASS",
+        "C5_dxf_coletivo": "PASS",
+        "C6_fidelidade": "PASS",
+        "C7_multi_pav": "PASS",
+        "C8_reproducibilidade": "PASS"
+      }
+    },
+    {
+      "run": 2,
+      "ok": true,
+      "elapsed_s": 0.13,
+      "aprovado": true,
+      "score_fidelidade_global": "—",
+      "criterios_status": {
+        "C1_ids_match": "PASS",
+        "C2_dimensional_bh": "PASS",
+        "C3_assembly_grade": "FAIL",
+        "C4_dxf_individual": "PASS",
+        "C5_dxf_coletivo": "PASS",
+        "C6_fidelidade": "PASS",
+        "C7_multi_pav": "PASS",
+        "C8_reproducibilidade": "PASS"
+      }
+    },
+    {
+      "run": 3,
+      "ok": true,
+      "elapsed_s": 0.13,
+      "aprovado": true,
+      "score_fidelidade_global": "—",
+      "criterios_status": {
+        "C1_ids_match": "PASS",
+        "C2_dimensional_bh": "PASS",
+        "C3_assembly_grade": "FAIL",
+        "C4_dxf_individual": "PASS",
+        "C5_dxf_coletivo": "PASS",
+        "C6_fidelidade": "PASS",
+        "C7_multi_pav": "PASS",
+        "C8_reproducibilidade": "PASS"
+      }
+    }
+  ],
+  "snapshot_referencia": {
+    "aprovado": true,
+    "criterios": {
+      "C1_ids_match": {
+        "status": "PASS",
+        "tipo": "BLOCK"
+      },
+      "C2_dimensional_bh": {
+        "status": "PASS",
+        "tipo": "BLOCK"
+      },
+      "C3_assembly_grade": {
+        "status": "FAIL",
+        "tipo": "WARN"
+      },
+      "C4_dxf_individual": {
+        "status": "PASS",
+        "tipo": "BLOCK"
+      },
+      "C5_dxf_coletivo": {
+        "status": "PASS",
+        "tipo": "BLOCK"
+      },
+      "C6_fidelidade": {
+        "status": "PASS",
+        "tipo": "WARN"
+      },
+      "C7_multi_pav": {
+        "status": "PASS",
+        "tipo": "WARN"
+      },
+      "C8_reproducibilidade": {
+        "status": "PASS",
+        "tipo": "WARN"
+      }
+    }
+  }
+}

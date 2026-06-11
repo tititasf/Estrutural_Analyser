@@ -1,28 +1,28 @@
 {
   "L1": {
-    "comprimento": 294.5,
-    "largura": 294.5,
-    "area_cm2": 86730.2
+    "comprimento": 244.0,
+    "largura": 244.0,
+    "area_cm2": 59536.0
   },
   "L2": {
-    "comprimento": 294.5,
-    "largura": 294.5,
-    "area_cm2": 86730.2
+    "comprimento": 244.0,
+    "largura": 244.0,
+    "area_cm2": 59536.0
   },
   "L3": {
-    "comprimento": 294.5,
-    "largura": 294.5,
-    "area_cm2": 86730.2
+    "comprimento": 244.0,
+    "largura": 244.0,
+    "area_cm2": 59536.0
   },
   "L4": {
-    "comprimento": 294.5,
-    "largura": 294.5,
-    "area_cm2": 86730.2
+    "comprimento": 244.0,
+    "largura": 244.0,
+    "area_cm2": 59536.0
   },
   "L5": {
-    "comprimento": 294.5,
+    "comprimento": 244.0,
     "largura": 244.0,
-    "area_cm2": 71858.0
+    "area_cm2": 59536.0
   },
   "L6": {
     "comprimento": 244.0,
@@ -31,18 +31,18 @@
   },
   "L7": {
     "comprimento": 244.0,
-    "largura": 182.8,
-    "area_cm2": 44603.2
+    "largura": 244.0,
+    "area_cm2": 59536.0
   },
   "L8": {
-    "comprimento": 294.5,
-    "largura": 294.5,
-    "area_cm2": 86730.2
+    "comprimento": 244.0,
+    "largura": 244.0,
+    "area_cm2": 59536.0
   },
   "L9": {
-    "comprimento": 287.8,
+    "comprimento": 244.0,
     "largura": 244.0,
-    "area_cm2": 70223.2
+    "area_cm2": 59536.0
   },
   "L10": {
     "comprimento": 244.0,
@@ -50,48 +50,78 @@
     "area_cm2": 59536.0
   },
   "L11": {
-    "comprimento": 2154.4,
+    "comprimento": 244.0,
     "largura": 244.0,
-    "area_cm2": 525673.6
+    "area_cm2": 59536.0
   },
   "L12": {
     "comprimento": 244.0,
-    "largura": 213.5,
-    "area_cm2": 52094.0
+    "largura": 244.0,
+    "area_cm2": 59536.0
   },
   "L13": {
     "comprimento": 244.0,
-    "largura": 213.5,
-    "area_cm2": 52094.0
+    "largura": 244.0,
+    "area_cm2": 59536.0
   },
   "L14": {
-    "comprimento": 284.2,
+    "comprimento": 244.0,
     "largura": 244.0,
-    "area_cm2": 69344.8
+    "area_cm2": 59536.0
   },
   "L15": {
-    "comprimento": 294.5,
-    "largura": 294.5,
-    "area_cm2": 86730.2
+    "comprimento": 244.0,
+    "largura": 244.0,
+    "area_cm2": 59536.0
+  },
+  "L16": {
+    "comprimento": 244.0,
+    "largura": 244.0,
+    "area_cm2": 59536.0
   },
   "L17": {
-    "comprimento": 287.8,
+    "comprimento": 244.0,
     "largura": 244.0,
-    "area_cm2": 70223.2
+    "area_cm2": 59536.0
   },
   "L18": {
     "comprimento": 244.0,
-    "largura": 46.9,
-    "area_cm2": 11443.6
+    "largura": 244.0,
+    "area_cm2": 59536.0
   },
   "L19": {
     "comprimento": 244.0,
-    "largura": 46.9,
-    "area_cm2": 11443.6
+    "largura": 244.0,
+    "area_cm2": 59536.0
   },
   "L20": {
     "comprimento": 244.0,
-    "largura": 46.9,
-    "area_cm2": 11443.6
+    "largura": 244.0,
+    "area_cm2": 59536.0
+  },
+  "L21": {
+    "comprimento": 244.0,
+    "largura": 244.0,
+    "area_cm2": 59536.0
+  },
+  "L22": {
+    "comprimento": 244.0,
+    "largura": 244.0,
+    "area_cm2": 59536.0
+  },
+  "L23": {
+    "comprimento": 244.0,
+    "largura": 244.0,
+    "area_cm2": 59536.0
+  },
+  "L24": {
+    "comprimento": 244.0,
+    "largura": 244.0,
+    "area_cm2": 59536.0
+  },
+  "L25": {
+    "comprimento": 244.0,
+    "largura": 244.0,
+    "area_cm2": 59536.0
   }
 }

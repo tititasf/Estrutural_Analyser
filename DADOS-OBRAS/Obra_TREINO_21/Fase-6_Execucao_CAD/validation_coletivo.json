@@ -1,12 +1,12 @@
 {
   "obra": "Obra_TREINO_21",
-  "pavimento": "LAJE TÉCNICA",
+  "pavimento": "12 PAV",
   "elementos": {
     "pilares": {
       "tipo": "pilares",
-      "gt_count": 32,
-      "gerado_count": 32,
-      "correct": 32,
+      "gt_count": 33,
+      "gerado_count": 33,
+      "correct": 33,
       "hallucinated": [],
       "missed": [],
       "id_match": 1.0,
@@ -18,43 +18,34 @@
     },
     "vigas": {
       "tipo": "vigas",
-      "gt_count": 29,
-      "gerado_count": 30,
-      "correct": 29,
-      "hallucinated": [
-        "V13B"
-      ],
+      "gt_count": 34,
+      "gerado_count": 34,
+      "correct": 34,
+      "hallucinated": [],
       "missed": [],
       "id_match": 1.0,
-      "hallucination_rate": 0.0333,
-      "count_match": 1.0345,
-      "score": 0.9867,
-      "score_percent": 98.7,
+      "hallucination_rate": 0.0,
+      "count_match": 1.0,
+      "score": 1.0,
+      "score_percent": 100.0,
       "aprovado": true
     },
     "lajes": {
       "tipo": "lajes",
       "gt_count": 25,
-      "gerado_count": 19,
-      "correct": 19,
+      "gerado_count": 25,
+      "correct": 25,
       "hallucinated": [],
-      "missed": [
-        "L16",
-        "L21",
-        "L22",
-        "L23",
-        "L24",
-        "L25"
-      ],
-      "id_match": 0.76,
+      "missed": [],
+      "id_match": 1.0,
       "hallucination_rate": 0.0,
-      "count_match": 0.76,
-      "score": 0.856,
-      "score_percent": 85.6,
-      "aprovado": false
+      "count_match": 1.0,
+      "score": 1.0,
+      "score_percent": 100.0,
+      "aprovado": true
     }
   },
-  "score_global": 0.9593,
-  "score_global_percent": 95.9,
+  "score_global": 1.0,
+  "score_global_percent": 100.0,
   "aprovado": true
 }

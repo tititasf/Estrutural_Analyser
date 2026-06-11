@@ -1,0 +1,92 @@
+{
+  "tipo": "vigas",
+  "score": 92.2,
+  "aprovado": true,
+  "limiar": 82.0,
+  "sub_tipos": {
+    "LV": {
+      "stog_dxf": "STOG - NIK SUNSET - 12º PAVIMENTO - LV - R00_R2018_ASCII_ODA.dxf",
+      "gerado_dxf": "LV_stog_quality.dxf",
+      "score": 98.5,
+      "detalhes": {
+        "id_match": {
+          "score": 30.0,
+          "max": 30,
+          "gt_count": 34,
+          "gerado_count": 34,
+          "id_match_rate": 1.0,
+          "hallucination_rate": 0.0,
+          "missed": [],
+          "hallucinated": []
+        },
+        "entity_coverage": {
+          "score": 38.5,
+          "max": 40,
+          "stog_total": 9468,
+          "gerado_total": 11164,
+          "global_ratio": 1.0,
+          "critical_avg": 0.9478
+        },
+        "layer_presence": {
+          "score": 20.0,
+          "max": 20,
+          "present": 26,
+          "missing": 0,
+          "required_layers": 26,
+          "missing_list": []
+        },
+        "anti_hallucination": {
+          "score": 10.0,
+          "max": 10
+        }
+      },
+      "scorer": "kb-blended",
+      "kb_file": "STOG - NIK SUNSET - 12º PAVIMENTO - LV - R00_R2018_ASCII_ODA.dxf",
+      "aprovado": true,
+      "limiar": 85.0
+    },
+    "FV": {
+      "stog_dxf": "STOG - NIK SUNSET - 12° PAV.- FV - R00_R2018_ASCII_ODA.dxf",
+      "gerado_dxf": "FV_stog_quality.dxf",
+      "score": 82.8,
+      "detalhes": {
+        "id_match": {
+          "score": 24.0,
+          "max": 30,
+          "gt_count": 5,
+          "gerado_count": 4,
+          "id_match_rate": 0.8,
+          "hallucination_rate": 0.0,
+          "missed": [
+            "V32"
+          ],
+          "hallucinated": []
+        },
+        "entity_coverage": {
+          "score": 28.8,
+          "max": 40,
+          "stog_total": 1118,
+          "gerado_total": 557,
+          "global_ratio": 0.4982,
+          "critical_avg": 0.8146
+        },
+        "layer_presence": {
+          "score": 20.0,
+          "max": 20,
+          "present": 17,
+          "missing": 0,
+          "required_layers": 17,
+          "missing_list": []
+        },
+        "anti_hallucination": {
+          "score": 10.0,
+          "max": 10
+        }
+      },
+      "scorer": "kb-blended",
+      "kb_file": "STOG - NIK SUNSET - 12° PAV.- FV - R00_R2018_ASCII_ODA.dxf",
+      "aprovado": true,
+      "limiar": 80.0
+    }
+  }
+}

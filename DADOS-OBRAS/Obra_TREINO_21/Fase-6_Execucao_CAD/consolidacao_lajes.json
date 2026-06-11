@@ -1,7 +1,16 @@
 {
-  "lajes_consolidadas": 19,
-  "total_dxf": 19,
-  "sem_ancora": [],
+  "lajes_consolidadas": 25,
+  "total_dxf": 25,
+  "sem_ancora": [
+    "L7",
+    "L16",
+    "L20",
+    "L21",
+    "L22",
+    "L23",
+    "L24",
+    "L25"
+  ],
   "output": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_21\\Fase-6_Execucao_CAD\\LJ_gerado.dxf",
   "aprovado": true
 }

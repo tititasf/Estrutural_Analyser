@@ -1,10 +1,10 @@
 {
   "obra": "Obra_TREINO_21",
-  "pavimento": "LAJE TÉCNICA",
+  "pavimento": "12 PAV",
   "stats": {
-    "pilares": 32,
-    "vigas": 30,
-    "lajes": 19,
+    "pilares": 33,
+    "vigas": 34,
+    "lajes": 25,
     "errors": 0
   },
   "output_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_21\\Fase-4_Sincronizacao"

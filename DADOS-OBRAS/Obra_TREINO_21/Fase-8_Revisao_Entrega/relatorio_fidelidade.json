@@ -1,0 +1,46 @@
+{
+  "obra": "Obra_TREINO_21",
+  "pavimento": "12 PAV",
+  "timestamp": "2026-05-22T18:00:05.225359+00:00",
+  "fidelidade": {
+    "pilares": {
+      "score": 84.3,
+      "aprovado": false,
+      "limiar": 85.0
+    },
+    "vigas": {
+      "score": 91.2,
+      "aprovado": true,
+      "limiar": 82.0
+    },
+    "lajes": {
+      "score": 77.0,
+      "aprovado": true,
+      "limiar": 75.0
+    }
+  },
+  "score_global": 84.9,
+  "meta": 80.0,
+  "certificado": true,
+  "abaixo_limiar": [
+    {
+      "tipo": "pilares",
+      "score": 84.3,
+      "limiar": 85.0
+    }
+  ],
+  "observacoes": [
+    "Score coletivo (IDs): 100.0% ≥ 95% — pipeline de IDs aprovado."
+  ],
+  "fontes": {
+    "coletivo_score_global": 100.0,
+    "dimensional_bh": {
+      "score_pct": 100.0,
+      "aprovado": true
+    },
+    "pipeline_report": {
+      "status": "PARCIAL",
+      "coletivo_global": 100.0
+    }
+  }
+}

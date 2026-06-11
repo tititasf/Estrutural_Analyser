@@ -150,7 +150,8 @@
     "confidence": 0.25,
     "source": "engenharia-reversa-ezdxf",
     "sides_encontrados": [
-      "A"
+      "A",
+      "B"
     ],
     "nota": "Dims requerem verificação manual"
   },
@@ -346,9 +347,68 @@
     ],
     "nota": "Dims requerem verificação manual"
   },
+  "V30": {
+    "b": null,
+    "h": null,
+    "comprimento": null,
+    "confidence": 0.25,
+    "source": "engenharia-reversa-ezdxf",
+    "sides_encontrados": [
+      "A",
+      "B"
+    ],
+    "nota": "Dims requerem verificação manual"
+  },
+  "V31": {
+    "b": null,
+    "h": null,
+    "comprimento": null,
+    "confidence": 0.25,
+    "source": "engenharia-reversa-ezdxf",
+    "sides_encontrados": [
+      "A",
+      "B"
+    ],
+    "nota": "Dims requerem verificação manual"
+  },
+  "V32": {
+    "b": null,
+    "h": null,
+    "comprimento": null,
+    "confidence": 0.25,
+    "source": "engenharia-reversa-ezdxf",
+    "sides_encontrados": [
+      "A",
+      "B"
+    ],
+    "nota": "Dims requerem verificação manual"
+  },
+  "V32A": {
+    "b": null,
+    "h": null,
+    "comprimento": null,
+    "confidence": 0.25,
+    "source": "engenharia-reversa-ezdxf",
+    "sides_encontrados": [
+      "A",
+      "B"
+    ],
+    "nota": "Dims requerem verificação manual"
+  },
+  "V3046": {
+    "b": null,
+    "h": null,
+    "comprimento": null,
+    "confidence": 0.25,
+    "source": "engenharia-reversa-ezdxf",
+    "sides_encontrados": [
+      "B"
+    ],
+    "nota": "Dims requerem verificação manual"
+  },
   "_meta": {
-    "total": 29,
-    "pavimento": "LAJE TÉCNICA",
-    "extraido_em": "2026-03-09"
+    "total": 34,
+    "pavimento": "12 PAV",
+    "extraido_em": "2026-05-22"
   }
 }

@@ -3,7 +3,7 @@
     "b": 38.0,
     "h": 60.0,
     "altura": 652.0,
-    "confidence": 0.7,
+    "confidence": 0.8,
     "source": "engenharia-reversa-ezdxf",
     "faces_encontradas": [
       "A",
@@ -11,112 +11,7 @@
       "C",
       "D"
     ],
-    "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
-    "bh_source": "inverse-proximity"
-  },
-  "P2": {
-    "b": 38.0,
-    "h": 95.9,
-    "altura": 652.0,
-    "confidence": 0.7,
-    "source": "engenharia-reversa-ezdxf",
-    "faces_encontradas": [
-      "A",
-      "B",
-      "C",
-      "D"
-    ],
-    "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
-    "bh_source": "inverse-proximity"
-  },
-  "P3": {
-    "b": 38.0,
-    "h": 90.0,
-    "altura": 652.0,
-    "confidence": 0.7,
-    "source": "engenharia-reversa-ezdxf",
-    "faces_encontradas": [
-      "A",
-      "B",
-      "C",
-      "D"
-    ],
-    "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
-    "bh_source": "inverse-proximity"
-  },
-  "P4": {
-    "b": 38.0,
-    "h": 90.0,
-    "altura": 652.0,
-    "confidence": 0.4,
-    "source": "engenharia-reversa-ezdxf",
-    "faces_encontradas": [
-      "A",
-      "B",
-      "C",
-      "D"
-    ],
-    "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
-    "bh_source": "proximity-fallback"
-  },
-  "P5": {
-    "b": 38.0,
-    "h": 90.0,
-    "altura": 652.0,
-    "confidence": 0.4,
-    "source": "engenharia-reversa-ezdxf",
-    "faces_encontradas": [
-      "A",
-      "B",
-      "C",
-      "D"
-    ],
-    "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
-    "bh_source": "proximity-fallback"
-  },
-  "P6": {
-    "b": 38.0,
-    "h": 90.0,
-    "altura": 652.0,
-    "confidence": 0.4,
-    "source": "engenharia-reversa-ezdxf",
-    "faces_encontradas": [
-      "A",
-      "B",
-      "C",
-      "D"
-    ],
-    "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
-    "bh_source": "proximity-fallback"
-  },
-  "P7": {
-    "b": 38.0,
-    "h": 95.9,
-    "altura": 652.0,
-    "confidence": 0.7,
-    "source": "engenharia-reversa-ezdxf",
-    "faces_encontradas": [
-      "A",
-      "B",
-      "C",
-      "D"
-    ],
-    "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
-    "bh_source": "inverse-proximity"
-  },
-  "P8": {
-    "b": 38.0,
-    "h": 60.0,
-    "altura": 652.0,
-    "confidence": 0.7,
-    "source": "engenharia-reversa-ezdxf",
-    "faces_encontradas": [
-      "A",
-      "B",
-      "C",
-      "D"
-    ],
-    "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "nota": "B e H requerem verificação manual — nenhum texto dimensão encontrado próximo",
     "bh_source": "inverse-proximity"
   },
   "P9": {
@@ -131,21 +26,7 @@
       "C",
       "D"
     ],
-    "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
-    "bh_source": "inverse-proximity"
-  },
-  "P10": {
-    "b": 38.0,
-    "h": 92.0,
-    "altura": 652.0,
-    "confidence": 0.7,
-    "source": "engenharia-reversa-ezdxf",
-    "faces_encontradas": [
-      "A",
-      "C",
-      "D"
-    ],
-    "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "nota": "B e H requerem verificação manual — nenhum texto dimensão encontrado próximo",
     "bh_source": "inverse-proximity"
   },
   "P11": {
@@ -160,27 +41,12 @@
       "C",
       "D"
     ],
-    "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "nota": "B e H requerem verificação manual — nenhum texto dimensão encontrado próximo",
     "bh_source": "inverse-proximity"
   },
   "P12": {
-    "b": 38.0,
+    "b": 50.0,
     "h": 100.0,
-    "altura": 652.0,
-    "confidence": 0.8,
-    "source": "engenharia-reversa-ezdxf",
-    "faces_encontradas": [
-      "A",
-      "B",
-      "C",
-      "D"
-    ],
-    "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
-    "bh_source": "inverse-proximity"
-  },
-  "P13": {
-    "b": 38.0,
-    "h": 60.0,
     "altura": 652.0,
     "confidence": 0.7,
     "source": "engenharia-reversa-ezdxf",
@@ -190,8 +56,23 @@
       "C",
       "D"
     ],
-    "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "nota": "B e H requerem verificação manual — nenhum texto dimensão encontrado próximo",
     "bh_source": "inverse-proximity"
+  },
+  "P13": {
+    "b": 38.0,
+    "h": 60.0,
+    "altura": 652.0,
+    "confidence": 0.4,
+    "source": "engenharia-reversa-ezdxf",
+    "faces_encontradas": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "nota": "B e H requerem verificação manual — nenhum texto dimensão encontrado próximo",
+    "bh_source": "proximity-fallback"
   },
   "P14": {
     "b": 38.0,
@@ -205,14 +86,14 @@
       "C",
       "D"
     ],
-    "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "nota": "B e H requerem verificação manual — nenhum texto dimensão encontrado próximo",
     "bh_source": "inverse-proximity"
   },
   "P15": {
-    "b": 26.0,
+    "b": 38.0,
     "h": 50.0,
     "altura": 652.0,
-    "confidence": 0.7,
+    "confidence": 0.4,
     "source": "engenharia-reversa-ezdxf",
     "faces_encontradas": [
       "A",
@@ -220,14 +101,14 @@
       "C",
       "D"
     ],
-    "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
-    "bh_source": "inverse-proximity"
+    "nota": "B e H requerem verificação manual — nenhum texto dimensão encontrado próximo",
+    "bh_source": "proximity-fallback"
   },
   "P16": {
-    "b": 38.0,
+    "b": 50.0,
     "h": 60.0,
     "altura": 652.0,
-    "confidence": 0.7,
+    "confidence": 0.4,
     "source": "engenharia-reversa-ezdxf",
     "faces_encontradas": [
       "A",
@@ -235,8 +116,8 @@
       "C",
       "D"
     ],
-    "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
-    "bh_source": "inverse-proximity"
+    "nota": "B e H requerem verificação manual — nenhum texto dimensão encontrado próximo",
+    "bh_source": "proximity-fallback"
   },
   "P17": {
     "b": 38.0,
@@ -250,37 +131,7 @@
       "C",
       "D"
     ],
-    "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
-    "bh_source": "inverse-proximity"
-  },
-  "P18": {
-    "b": 38.0,
-    "h": 60.0,
-    "altura": 652.0,
-    "confidence": 0.7,
-    "source": "engenharia-reversa-ezdxf",
-    "faces_encontradas": [
-      "A",
-      "B",
-      "C",
-      "D"
-    ],
-    "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
-    "bh_source": "inverse-proximity"
-  },
-  "P19": {
-    "b": 38.0,
-    "h": 60.0,
-    "altura": 652.0,
-    "confidence": 0.7,
-    "source": "engenharia-reversa-ezdxf",
-    "faces_encontradas": [
-      "A",
-      "B",
-      "C",
-      "D"
-    ],
-    "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "nota": "B e H requerem verificação manual — nenhum texto dimensão encontrado próximo",
     "bh_source": "inverse-proximity"
   },
   "P20": {
@@ -295,12 +146,12 @@
       "C",
       "D"
     ],
-    "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "nota": "B e H requerem verificação manual — nenhum texto dimensão encontrado próximo",
     "bh_source": "inverse-proximity"
   },
   "P21": {
-    "b": 50.0,
-    "h": 100.0,
+    "b": 16.0,
+    "h": 50.0,
     "altura": 652.0,
     "confidence": 0.7,
     "source": "engenharia-reversa-ezdxf",
@@ -310,7 +161,7 @@
       "C",
       "D"
     ],
-    "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "nota": "B e H requerem verificação manual — nenhum texto dimensão encontrado próximo",
     "bh_source": "inverse-proximity"
   },
   "P22": {
@@ -325,7 +176,7 @@
       "C",
       "D"
     ],
-    "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "nota": "B e H requerem verificação manual — nenhum texto dimensão encontrado próximo",
     "bh_source": "inverse-proximity"
   },
   "P23": {
@@ -340,7 +191,7 @@
       "C",
       "D"
     ],
-    "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "nota": "B e H requerem verificação manual — nenhum texto dimensão encontrado próximo",
     "bh_source": "inverse-proximity"
   },
   "P24": {
@@ -355,11 +206,11 @@
       "C",
       "D"
     ],
-    "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "nota": "B e H requerem verificação manual — nenhum texto dimensão encontrado próximo",
     "bh_source": "inverse-proximity"
   },
   "P25": {
-    "b": 52.0,
+    "b": 60.0,
     "h": 62.0,
     "altura": 652.0,
     "confidence": 0.7,
@@ -370,27 +221,12 @@
       "C",
       "D"
     ],
-    "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "nota": "B e H requerem verificação manual — nenhum texto dimensão encontrado próximo",
     "bh_source": "inverse-proximity"
   },
-  "P26": {
+  "P33": {
     "b": 38.0,
-    "h": 60.0,
-    "altura": 652.0,
-    "confidence": 0.7,
-    "source": "engenharia-reversa-ezdxf",
-    "faces_encontradas": [
-      "A",
-      "B",
-      "C",
-      "D"
-    ],
-    "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
-    "bh_source": "inverse-proximity"
-  },
-  "P27": {
-    "b": 38.0,
-    "h": 95.9,
+    "h": 50.0,
     "altura": 652.0,
     "confidence": 0.4,
     "source": "engenharia-reversa-ezdxf",
@@ -400,12 +236,12 @@
       "C",
       "D"
     ],
-    "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "nota": "B e H requerem verificação manual — nenhum texto dimensão encontrado próximo",
     "bh_source": "proximity-fallback"
   },
-  "P28": {
+  "P34": {
     "b": 38.0,
-    "h": 90.0,
+    "h": 50.0,
     "altura": 652.0,
     "confidence": 0.4,
     "source": "engenharia-reversa-ezdxf",
@@ -415,12 +251,12 @@
       "C",
       "D"
     ],
-    "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "nota": "B e H requerem verificação manual — nenhum texto dimensão encontrado próximo",
     "bh_source": "proximity-fallback"
   },
-  "P29": {
+  "P40": {
     "b": 38.0,
-    "h": 90.0,
+    "h": 50.0,
     "altura": 652.0,
     "confidence": 0.4,
     "source": "engenharia-reversa-ezdxf",
@@ -430,12 +266,12 @@
       "C",
       "D"
     ],
-    "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "nota": "B e H requerem verificação manual — nenhum texto dimensão encontrado próximo",
     "bh_source": "proximity-fallback"
   },
-  "P30": {
+  "P41": {
     "b": 38.0,
-    "h": 90.0,
+    "h": 50.0,
     "altura": 652.0,
     "confidence": 0.4,
     "source": "engenharia-reversa-ezdxf",
@@ -445,12 +281,12 @@
       "C",
       "D"
     ],
-    "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "nota": "B e H requerem verificação manual — nenhum texto dimensão encontrado próximo",
     "bh_source": "proximity-fallback"
   },
-  "P31": {
+  "P42": {
     "b": 38.0,
-    "h": 90.0,
+    "h": 50.0,
     "altura": 652.0,
     "confidence": 0.4,
     "source": "engenharia-reversa-ezdxf",
@@ -460,14 +296,14 @@
       "C",
       "D"
     ],
-    "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
+    "nota": "B e H requerem verificação manual — nenhum texto dimensão encontrado próximo",
     "bh_source": "proximity-fallback"
   },
-  "P32": {
+  "P43": {
     "b": 38.0,
-    "h": 95.9,
+    "h": 50.0,
     "altura": 652.0,
-    "confidence": 0.7,
+    "confidence": 0.4,
     "source": "engenharia-reversa-ezdxf",
     "faces_encontradas": [
       "A",
@@ -475,17 +311,197 @@
       "C",
       "D"
     ],
-    "nota": "B e H requerem verificação manual — apenas ID e altura extraídos automaticamente",
-    "bh_source": "inverse-proximity"
+    "nota": "B e H requerem verificação manual — nenhum texto dimensão encontrado próximo",
+    "bh_source": "proximity-fallback"
+  },
+  "P44": {
+    "b": 38.0,
+    "h": 50.0,
+    "altura": 652.0,
+    "confidence": 0.4,
+    "source": "engenharia-reversa-ezdxf",
+    "faces_encontradas": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "nota": "B e H requerem verificação manual — nenhum texto dimensão encontrado próximo",
+    "bh_source": "proximity-fallback"
+  },
+  "P45": {
+    "b": 38.0,
+    "h": 50.0,
+    "altura": 652.0,
+    "confidence": 0.4,
+    "source": "engenharia-reversa-ezdxf",
+    "faces_encontradas": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "nota": "B e H requerem verificação manual — nenhum texto dimensão encontrado próximo",
+    "bh_source": "proximity-fallback"
+  },
+  "P46": {
+    "b": 38.0,
+    "h": 50.0,
+    "altura": 652.0,
+    "confidence": 0.4,
+    "source": "engenharia-reversa-ezdxf",
+    "faces_encontradas": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "nota": "B e H requerem verificação manual — nenhum texto dimensão encontrado próximo",
+    "bh_source": "proximity-fallback"
+  },
+  "P47": {
+    "b": 38.0,
+    "h": 50.0,
+    "altura": 652.0,
+    "confidence": 0.4,
+    "source": "engenharia-reversa-ezdxf",
+    "faces_encontradas": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "nota": "B e H requerem verificação manual — nenhum texto dimensão encontrado próximo",
+    "bh_source": "proximity-fallback"
+  },
+  "P48": {
+    "b": 38.0,
+    "h": 50.0,
+    "altura": 652.0,
+    "confidence": 0.4,
+    "source": "engenharia-reversa-ezdxf",
+    "faces_encontradas": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "nota": "B e H requerem verificação manual — nenhum texto dimensão encontrado próximo",
+    "bh_source": "proximity-fallback"
+  },
+  "P69": {
+    "b": 38.0,
+    "h": 50.0,
+    "altura": 652.0,
+    "confidence": 0.4,
+    "source": "engenharia-reversa-ezdxf",
+    "faces_encontradas": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "nota": "B e H requerem verificação manual — nenhum texto dimensão encontrado próximo",
+    "bh_source": "proximity-fallback"
+  },
+  "P74": {
+    "b": 38.0,
+    "h": 50.0,
+    "altura": 652.0,
+    "confidence": 0.4,
+    "source": "engenharia-reversa-ezdxf",
+    "faces_encontradas": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "nota": "B e H requerem verificação manual — nenhum texto dimensão encontrado próximo",
+    "bh_source": "proximity-fallback"
+  },
+  "P75": {
+    "b": 38.0,
+    "h": 50.0,
+    "altura": 652.0,
+    "confidence": 0.4,
+    "source": "engenharia-reversa-ezdxf",
+    "faces_encontradas": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "nota": "B e H requerem verificação manual — nenhum texto dimensão encontrado próximo",
+    "bh_source": "proximity-fallback"
+  },
+  "P76": {
+    "b": 38.0,
+    "h": 50.0,
+    "altura": 652.0,
+    "confidence": 0.4,
+    "source": "engenharia-reversa-ezdxf",
+    "faces_encontradas": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "nota": "B e H requerem verificação manual — nenhum texto dimensão encontrado próximo",
+    "bh_source": "proximity-fallback"
+  },
+  "P77": {
+    "b": 38.0,
+    "h": 50.0,
+    "altura": 652.0,
+    "confidence": 0.4,
+    "source": "engenharia-reversa-ezdxf",
+    "faces_encontradas": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "nota": "B e H requerem verificação manual — nenhum texto dimensão encontrado próximo",
+    "bh_source": "proximity-fallback"
+  },
+  "P78": {
+    "b": 38.0,
+    "h": 50.0,
+    "altura": 652.0,
+    "confidence": 0.4,
+    "source": "engenharia-reversa-ezdxf",
+    "faces_encontradas": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "nota": "B e H requerem verificação manual — nenhum texto dimensão encontrado próximo",
+    "bh_source": "proximity-fallback"
+  },
+  "P79": {
+    "b": 38.0,
+    "h": 50.0,
+    "altura": 652.0,
+    "confidence": 0.4,
+    "source": "engenharia-reversa-ezdxf",
+    "faces_encontradas": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "nota": "B e H requerem verificação manual — nenhum texto dimensão encontrado próximo",
+    "bh_source": "proximity-fallback"
   },
   "_meta": {
-    "total": 32,
+    "total": 33,
+    "bh_extraidos": 33,
     "obra": "engenharia-reversa",
-    "pavimento": "LAJE TÉCNICA",
+    "pavimento": "12 PAV",
     "pe_direito_cm": 652.0,
-    "extraido_em": "2026-03-09",
-    "confidence_nota": "IDs=ALTA | altura=MEDIA | B/H=BAIXA(requer revisao)",
-    "bh_extraidos": 32,
-    "bh_atualizado_em": "2026-03-09"
+    "extraido_em": "2026-05-22",
+    "confidence_nota": "IDs=ALTA | altura=MEDIA | B/H=ESPACIAL(conf≈0.50-0.78) ou BAIXA(conf=0.30)",
+    "bh_atualizado_em": "2026-05-22"
   }
 }

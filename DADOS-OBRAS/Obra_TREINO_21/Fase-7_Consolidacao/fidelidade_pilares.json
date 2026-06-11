@@ -1,0 +1,42 @@
+{
+  "tipo": "pilares",
+  "stog_dxf": "STOG - NIK SUNSET - 12º PAVIMENTO - PL - R00_R2018_ASCII_ODA.dxf",
+  "gerado_dxf": "PL_stog_quality.dxf",
+  "score": 90.7,
+  "aprovado": true,
+  "limiar": 85.0,
+  "detalhes": {
+    "id_match": {
+      "score": 30.0,
+      "max": 30,
+      "gt_count": 33,
+      "gerado_count": 33,
+      "id_match_rate": 1.0,
+      "hallucination_rate": 0.0,
+      "missed": [],
+      "hallucinated": []
+    },
+    "entity_coverage": {
+      "score": 30.7,
+      "max": 40,
+      "stog_total": 6162,
+      "gerado_total": 5954,
+      "global_ratio": 1.0,
+      "critical_avg": 0.6685
+    },
+    "layer_presence": {
+      "score": 20.0,
+      "max": 20,
+      "present": 20,
+      "missing": 0,
+      "required_layers": 20,
+      "missing_list": []
+    },
+    "anti_hallucination": {
+      "score": 10.0,
+      "max": 10
+    }
+  },
+  "scorer": "kb-blended",
+  "kb_file": "STOG - NIK SUNSET - 12º PAVIMENTO - PL - R00_R2018_ASCII_ODA.dxf"
+}
