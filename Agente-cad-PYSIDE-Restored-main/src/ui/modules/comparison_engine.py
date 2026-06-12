@@ -2993,7 +2993,7 @@ class NavSidebar(QFrame):
             cur.execute(
                 "SELECT elemento_id, confidence, status, recorte_path "
                 "FROM reverse_eng_recortes "
-                "WHERE obra_name=? AND classe=? ORDER BY elemento_id",
+                "WHERE obra_name=? AND classe=? ORDER BY elemento_id, created_at DESC",
                 (obra_name, db_cls)
             )
             all_rows = cur.fetchall()
@@ -4598,16 +4598,10 @@ class ComparisonEngineModule(QWidget):
             # Step 1: recorte N2
             col.pipeline.set_step(0, 'running', 'Localizando...')
             if is_er_flow:
-                # Usa o recorte_path já armazenado no item da lista (estado atual do DB)
-                # — evita re-consulta ao DB e garante consistência com o que a lista exibe
-                _saved = getattr(self.nav_sidebar, '_selected_recorte_path', '')
-                if _saved and Path(_saved).exists():
-                    n2_dxf = Path(_saved)
-                else:
-                    # Fallback: re-consulta caso o item venha de outra fonte (botão manual)
-                    n2_dxf = self._get_recorte_dxf_for_er(obra, classe, item_id)
+                # Sempre re-consulta o DB para garantir o recorte mais recente (pós-edição)
+                n2_dxf = self._get_recorte_dxf_for_er(obra, classe, item_id)
                 n2_bbox = None  # vista completa do recorte
-                _ce_log(f"N2 recorte_path={n2_dxf} (saved={bool(_saved)})")
+                _ce_log(f"N2 recorte_path={n2_dxf}")
             else:
                 n2_dxf  = self.tri_level._find_n2_dxf(obra, pav, classe)
                 n2_bbox = self.tri_level._get_n2_bbox_for(item_id, classe)
@@ -4675,7 +4669,7 @@ class ComparisonEngineModule(QWidget):
             cur = conn.cursor()
             cur.execute(
                 "SELECT recorte_path, status, confidence FROM reverse_eng_recortes "
-                "WHERE obra_name=? AND classe=? AND elemento_id=?",
+                "WHERE obra_name=? AND classe=? AND elemento_id=? ORDER BY created_at DESC",
                 (obra, db_cls, item_id)
             )
             rows = cur.fetchall()

@@ -723,12 +723,12 @@ class _CenterPanel(QFrame):
     def _save_granular_dxf_silent(self):
         """
         Versão silenciosa — chamada pelo botão Salvar do painel direito.
-        Só age se há deleções pendentes. Sem dialogs de sucesso.
+        Sempre salva se há canvas carregado. Sem dialogs de sucesso.
         """
         if not self._granular_dxf_path:
             return
-        if not self._granular_deleted:
-            return  # nada foi editado, não sobrescrever
+        if not self.canvas_granular.scene.items():
+            return  # canvas vazio, nada a salvar
 
         out_path = Path(self._granular_dxf_path)
 
@@ -827,6 +827,10 @@ class _CenterPanel(QFrame):
             self._granular_deleted = []
             self.canvas_granular.scene.clear()
             self.canvas_granular.set_loading(False)
+            return
+
+        # Se mesma path com edições pendentes, não recarregar (evita perda de edições)
+        if dxf_path == self._granular_dxf_path and self._granular_deleted:
             return
 
         self._granular_dxf_path = dxf_path
