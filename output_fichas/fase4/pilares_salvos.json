@@ -1,0 +1,1926 @@
+{
+  "1_1_PAVIMENTO": {
+    "dados": {
+      "numero": "1",
+      "nome": "P1",
+      "obra": "ALIMONTI PARAISO 1PAV",
+      "comprimento": "88.0",
+      "largura": "24.0",
+      "pavimento": "1_PAVIMENTO",
+      "pavimento_numero": "1",
+      "pavimento_anterior": "",
+      "nivel_saida": "813.5",
+      "nivel_chegada": "817.75",
+      "nivel_diferencial": "",
+      "altura": "425.0",
+      "parafusos": {
+        "par_1_2": "0",
+        "par_2_3": "0",
+        "par_3_4": "0",
+        "par_4_5": "0",
+        "par_5_6": "0",
+        "par_6_7": "0",
+        "par_7_8": "0",
+        "par_8_9": "0"
+      },
+      "grades": {
+        "grade_1": "",
+        "distancia_1": "",
+        "grade_2": "",
+        "distancia_2": "",
+        "grade_3": ""
+      },
+      "pilar_especial": {
+        "ativar_pilar_especial": false,
+        "tipo_pilar_especial": "L",
+        "modo_calculo": "NOVA",
+        "comprimentos": {
+          "comp_1": "",
+          "comp_2": "",
+          "comp_3": ""
+        },
+        "larguras": {
+          "larg_1": "",
+          "larg_2": "",
+          "larg_3": ""
+        },
+        "distancia": "",
+        "grades": {},
+        "detalhes_grades_especiais": {},
+        "altura_detalhes_especiais": {}
+      }
+    }
+  },
+  "2_1_PAVIMENTO": {
+    "dados": {
+      "numero": "2",
+      "nome": "P2",
+      "obra": "ALIMONTI PARAISO 1PAV",
+      "comprimento": "88.0",
+      "largura": "30.0",
+      "pavimento": "1_PAVIMENTO",
+      "pavimento_numero": "1",
+      "pavimento_anterior": "",
+      "nivel_saida": "813.67",
+      "nivel_chegada": "817.75",
+      "nivel_diferencial": "",
+      "altura": "408.0",
+      "parafusos": {
+        "par_1_2": "0",
+        "par_2_3": "0",
+        "par_3_4": "0",
+        "par_4_5": "0",
+        "par_5_6": "0",
+        "par_6_7": "0",
+        "par_7_8": "0",
+        "par_8_9": "0"
+      },
+      "grades": {
+        "grade_1": "",
+        "distancia_1": "",
+        "grade_2": "",
+        "distancia_2": "",
+        "grade_3": ""
+      },
+      "pilar_especial": {
+        "ativar_pilar_especial": false,
+        "tipo_pilar_especial": "L",
+        "modo_calculo": "NOVA",
+        "comprimentos": {
+          "comp_1": "",
+          "comp_2": "",
+          "comp_3": ""
+        },
+        "larguras": {
+          "larg_1": "",
+          "larg_2": "",
+          "larg_3": ""
+        },
+        "distancia": "",
+        "grades": {},
+        "detalhes_grades_especiais": {},
+        "altura_detalhes_especiais": {}
+      }
+    }
+  },
+  "3_1_PAVIMENTO": {
+    "dados": {
+      "numero": "3",
+      "nome": "P3",
+      "obra": "ALIMONTI PARAISO 1PAV",
+      "comprimento": "82.0",
+      "largura": "24.0",
+      "pavimento": "1_PAVIMENTO",
+      "pavimento_numero": "1",
+      "pavimento_anterior": "",
+      "nivel_saida": "813.67",
+      "nivel_chegada": "817.75",
+      "nivel_diferencial": "",
+      "altura": "408.0",
+      "parafusos": {
+        "par_1_2": "0",
+        "par_2_3": "0",
+        "par_3_4": "0",
+        "par_4_5": "0",
+        "par_5_6": "0",
+        "par_6_7": "0",
+        "par_7_8": "0",
+        "par_8_9": "0"
+      },
+      "grades": {
+        "grade_1": "",
+        "distancia_1": "",
+        "grade_2": "",
+        "distancia_2": "",
+        "grade_3": ""
+      },
+      "pilar_especial": {
+        "ativar_pilar_especial": false,
+        "tipo_pilar_especial": "L",
+        "modo_calculo": "NOVA",
+        "comprimentos": {
+          "comp_1": "",
+          "comp_2": "",
+          "comp_3": ""
+        },
+        "larguras": {
+          "larg_1": "",
+          "larg_2": "",
+          "larg_3": ""
+        },
+        "distancia": "",
+        "grades": {},
+        "detalhes_grades_especiais": {},
+        "altura_detalhes_especiais": {}
+      }
+    }
+  },
+  "4_1_PAVIMENTO": {
+    "dados": {
+      "numero": "4",
+      "nome": "P4",
+      "obra": "ALIMONTI PARAISO 1PAV",
+      "comprimento": "82.0",
+      "largura": "24.0",
+      "pavimento": "1_PAVIMENTO",
+      "pavimento_numero": "1",
+      "pavimento_anterior": "",
+      "nivel_saida": "813.67",
+      "nivel_chegada": "817.75",
+      "nivel_diferencial": "",
+      "altura": "408.0",
+      "parafusos": {
+        "par_1_2": "0",
+        "par_2_3": "0",
+        "par_3_4": "0",
+        "par_4_5": "0",
+        "par_5_6": "0",
+        "par_6_7": "0",
+        "par_7_8": "0",
+        "par_8_9": "0"
+      },
+      "grades": {
+        "grade_1": "",
+        "distancia_1": "",
+        "grade_2": "",
+        "distancia_2": "",
+        "grade_3": ""
+      },
+      "pilar_especial": {
+        "ativar_pilar_especial": false,
+        "tipo_pilar_especial": "L",
+        "modo_calculo": "NOVA",
+        "comprimentos": {
+          "comp_1": "",
+          "comp_2": "",
+          "comp_3": ""
+        },
+        "larguras": {
+          "larg_1": "",
+          "larg_2": "",
+          "larg_3": ""
+        },
+        "distancia": "",
+        "grades": {},
+        "detalhes_grades_especiais": {},
+        "altura_detalhes_especiais": {}
+      }
+    }
+  },
+  "5_1_PAVIMENTO": {
+    "dados": {
+      "numero": "5",
+      "nome": "P5",
+      "obra": "ALIMONTI PARAISO 1PAV",
+      "comprimento": "82.0",
+      "largura": "24.0",
+      "pavimento": "1_PAVIMENTO",
+      "pavimento_numero": "1",
+      "pavimento_anterior": "",
+      "nivel_saida": "813.67",
+      "nivel_chegada": "817.75",
+      "nivel_diferencial": "",
+      "altura": "408.0",
+      "parafusos": {
+        "par_1_2": "0",
+        "par_2_3": "0",
+        "par_3_4": "0",
+        "par_4_5": "0",
+        "par_5_6": "0",
+        "par_6_7": "0",
+        "par_7_8": "0",
+        "par_8_9": "0"
+      },
+      "grades": {
+        "grade_1": "",
+        "distancia_1": "",
+        "grade_2": "",
+        "distancia_2": "",
+        "grade_3": ""
+      },
+      "pilar_especial": {
+        "ativar_pilar_especial": false,
+        "tipo_pilar_especial": "L",
+        "modo_calculo": "NOVA",
+        "comprimentos": {
+          "comp_1": "",
+          "comp_2": "",
+          "comp_3": ""
+        },
+        "larguras": {
+          "larg_1": "",
+          "larg_2": "",
+          "larg_3": ""
+        },
+        "distancia": "",
+        "grades": {},
+        "detalhes_grades_especiais": {},
+        "altura_detalhes_especiais": {}
+      }
+    }
+  },
+  "6_1_PAVIMENTO": {
+    "dados": {
+      "numero": "6",
+      "nome": "P6",
+      "obra": "ALIMONTI PARAISO 1PAV",
+      "comprimento": "82.0",
+      "largura": "24.0",
+      "pavimento": "1_PAVIMENTO",
+      "pavimento_numero": "1",
+      "pavimento_anterior": "",
+      "nivel_saida": "813.5",
+      "nivel_chegada": "817.75",
+      "nivel_diferencial": "",
+      "altura": "425.0",
+      "parafusos": {
+        "par_1_2": "0",
+        "par_2_3": "0",
+        "par_3_4": "0",
+        "par_4_5": "0",
+        "par_5_6": "0",
+        "par_6_7": "0",
+        "par_7_8": "0",
+        "par_8_9": "0"
+      },
+      "grades": {
+        "grade_1": "",
+        "distancia_1": "",
+        "grade_2": "",
+        "distancia_2": "",
+        "grade_3": ""
+      },
+      "pilar_especial": {
+        "ativar_pilar_especial": false,
+        "tipo_pilar_especial": "L",
+        "modo_calculo": "NOVA",
+        "comprimentos": {
+          "comp_1": "",
+          "comp_2": "",
+          "comp_3": ""
+        },
+        "larguras": {
+          "larg_1": "",
+          "larg_2": "",
+          "larg_3": ""
+        },
+        "distancia": "",
+        "grades": {},
+        "detalhes_grades_especiais": {},
+        "altura_detalhes_especiais": {}
+      }
+    }
+  },
+  "7_1_PAVIMENTO": {
+    "dados": {
+      "numero": "7",
+      "nome": "P7",
+      "obra": "ALIMONTI PARAISO 1PAV",
+      "comprimento": "82.0",
+      "largura": "24.0",
+      "pavimento": "1_PAVIMENTO",
+      "pavimento_numero": "1",
+      "pavimento_anterior": "",
+      "nivel_saida": "813.67",
+      "nivel_chegada": "817.75",
+      "nivel_diferencial": "",
+      "altura": "408.0",
+      "parafusos": {
+        "par_1_2": "0",
+        "par_2_3": "0",
+        "par_3_4": "0",
+        "par_4_5": "0",
+        "par_5_6": "0",
+        "par_6_7": "0",
+        "par_7_8": "0",
+        "par_8_9": "0"
+      },
+      "grades": {
+        "grade_1": "",
+        "distancia_1": "",
+        "grade_2": "",
+        "distancia_2": "",
+        "grade_3": ""
+      },
+      "pilar_especial": {
+        "ativar_pilar_especial": false,
+        "tipo_pilar_especial": "L",
+        "modo_calculo": "NOVA",
+        "comprimentos": {
+          "comp_1": "",
+          "comp_2": "",
+          "comp_3": ""
+        },
+        "larguras": {
+          "larg_1": "",
+          "larg_2": "",
+          "larg_3": ""
+        },
+        "distancia": "",
+        "grades": {},
+        "detalhes_grades_especiais": {},
+        "altura_detalhes_especiais": {}
+      }
+    }
+  },
+  "8_1_PAVIMENTO": {
+    "dados": {
+      "numero": "8",
+      "nome": "P8",
+      "obra": "ALIMONTI PARAISO 1PAV",
+      "comprimento": "82.0",
+      "largura": "27.0",
+      "pavimento": "1_PAVIMENTO",
+      "pavimento_numero": "1",
+      "pavimento_anterior": "",
+      "nivel_saida": "813.67",
+      "nivel_chegada": "817.75",
+      "nivel_diferencial": "",
+      "altura": "408.0",
+      "parafusos": {
+        "par_1_2": "0",
+        "par_2_3": "0",
+        "par_3_4": "0",
+        "par_4_5": "0",
+        "par_5_6": "0",
+        "par_6_7": "0",
+        "par_7_8": "0",
+        "par_8_9": "0"
+      },
+      "grades": {
+        "grade_1": "",
+        "distancia_1": "",
+        "grade_2": "",
+        "distancia_2": "",
+        "grade_3": ""
+      },
+      "pilar_especial": {
+        "ativar_pilar_especial": false,
+        "tipo_pilar_especial": "L",
+        "modo_calculo": "NOVA",
+        "comprimentos": {
+          "comp_1": "",
+          "comp_2": "",
+          "comp_3": ""
+        },
+        "larguras": {
+          "larg_1": "",
+          "larg_2": "",
+          "larg_3": ""
+        },
+        "distancia": "",
+        "grades": {},
+        "detalhes_grades_especiais": {},
+        "altura_detalhes_especiais": {}
+      }
+    }
+  },
+  "9_1_PAVIMENTO": {
+    "dados": {
+      "numero": "9",
+      "nome": "P9",
+      "obra": "ALIMONTI PARAISO 1PAV",
+      "comprimento": "126.0",
+      "largura": "30.0",
+      "pavimento": "1_PAVIMENTO",
+      "pavimento_numero": "1",
+      "pavimento_anterior": "",
+      "nivel_saida": "813.67",
+      "nivel_chegada": "817.75",
+      "nivel_diferencial": "",
+      "altura": "408.0",
+      "parafusos": {
+        "par_1_2": "0",
+        "par_2_3": "0",
+        "par_3_4": "0",
+        "par_4_5": "0",
+        "par_5_6": "0",
+        "par_6_7": "0",
+        "par_7_8": "0",
+        "par_8_9": "0"
+      },
+      "grades": {
+        "grade_1": "",
+        "distancia_1": "",
+        "grade_2": "",
+        "distancia_2": "",
+        "grade_3": ""
+      },
+      "pilar_especial": {
+        "ativar_pilar_especial": false,
+        "tipo_pilar_especial": "L",
+        "modo_calculo": "NOVA",
+        "comprimentos": {
+          "comp_1": "",
+          "comp_2": "",
+          "comp_3": ""
+        },
+        "larguras": {
+          "larg_1": "",
+          "larg_2": "",
+          "larg_3": ""
+        },
+        "distancia": "",
+        "grades": {},
+        "detalhes_grades_especiais": {},
+        "altura_detalhes_especiais": {}
+      }
+    }
+  },
+  "11_1_PAVIMENTO": {
+    "dados": {
+      "numero": "11",
+      "nome": "P11",
+      "obra": "ALIMONTI PARAISO 1PAV",
+      "comprimento": "102.0",
+      "largura": "30.0",
+      "pavimento": "1_PAVIMENTO",
+      "pavimento_numero": "1",
+      "pavimento_anterior": "",
+      "nivel_saida": "813.67",
+      "nivel_chegada": "817.75",
+      "nivel_diferencial": "",
+      "altura": "408.0",
+      "parafusos": {
+        "par_1_2": "0",
+        "par_2_3": "0",
+        "par_3_4": "0",
+        "par_4_5": "0",
+        "par_5_6": "0",
+        "par_6_7": "0",
+        "par_7_8": "0",
+        "par_8_9": "0"
+      },
+      "grades": {
+        "grade_1": "",
+        "distancia_1": "",
+        "grade_2": "",
+        "distancia_2": "",
+        "grade_3": ""
+      },
+      "pilar_especial": {
+        "ativar_pilar_especial": false,
+        "tipo_pilar_especial": "L",
+        "modo_calculo": "NOVA",
+        "comprimentos": {
+          "comp_1": "",
+          "comp_2": "",
+          "comp_3": ""
+        },
+        "larguras": {
+          "larg_1": "",
+          "larg_2": "",
+          "larg_3": ""
+        },
+        "distancia": "",
+        "grades": {},
+        "detalhes_grades_especiais": {},
+        "altura_detalhes_especiais": {}
+      }
+    }
+  },
+  "12_1_PAVIMENTO": {
+    "dados": {
+      "numero": "12",
+      "nome": "P12",
+      "obra": "ALIMONTI PARAISO 1PAV",
+      "comprimento": "92.0",
+      "largura": "24.0",
+      "pavimento": "1_PAVIMENTO",
+      "pavimento_numero": "1",
+      "pavimento_anterior": "",
+      "nivel_saida": "813.67",
+      "nivel_chegada": "817.75",
+      "nivel_diferencial": "",
+      "altura": "408.0",
+      "parafusos": {
+        "par_1_2": "0",
+        "par_2_3": "0",
+        "par_3_4": "0",
+        "par_4_5": "0",
+        "par_5_6": "0",
+        "par_6_7": "0",
+        "par_7_8": "0",
+        "par_8_9": "0"
+      },
+      "grades": {
+        "grade_1": "",
+        "distancia_1": "",
+        "grade_2": "",
+        "distancia_2": "",
+        "grade_3": ""
+      },
+      "pilar_especial": {
+        "ativar_pilar_especial": false,
+        "tipo_pilar_especial": "L",
+        "modo_calculo": "NOVA",
+        "comprimentos": {
+          "comp_1": "",
+          "comp_2": "",
+          "comp_3": ""
+        },
+        "larguras": {
+          "larg_1": "",
+          "larg_2": "",
+          "larg_3": ""
+        },
+        "distancia": "",
+        "grades": {},
+        "detalhes_grades_especiais": {},
+        "altura_detalhes_especiais": {}
+      }
+    }
+  },
+  "13_1_PAVIMENTO": {
+    "dados": {
+      "numero": "13",
+      "nome": "P13",
+      "obra": "ALIMONTI PARAISO 1PAV",
+      "comprimento": "92.0",
+      "largura": "24.0",
+      "pavimento": "1_PAVIMENTO",
+      "pavimento_numero": "1",
+      "pavimento_anterior": "",
+      "nivel_saida": "813.67",
+      "nivel_chegada": "817.75",
+      "nivel_diferencial": "",
+      "altura": "408.0",
+      "parafusos": {
+        "par_1_2": "0",
+        "par_2_3": "0",
+        "par_3_4": "0",
+        "par_4_5": "0",
+        "par_5_6": "0",
+        "par_6_7": "0",
+        "par_7_8": "0",
+        "par_8_9": "0"
+      },
+      "grades": {
+        "grade_1": "",
+        "distancia_1": "",
+        "grade_2": "",
+        "distancia_2": "",
+        "grade_3": ""
+      },
+      "pilar_especial": {
+        "ativar_pilar_especial": false,
+        "tipo_pilar_especial": "L",
+        "modo_calculo": "NOVA",
+        "comprimentos": {
+          "comp_1": "",
+          "comp_2": "",
+          "comp_3": ""
+        },
+        "larguras": {
+          "larg_1": "",
+          "larg_2": "",
+          "larg_3": ""
+        },
+        "distancia": "",
+        "grades": {},
+        "detalhes_grades_especiais": {},
+        "altura_detalhes_especiais": {}
+      }
+    }
+  },
+  "15_1_PAVIMENTO": {
+    "dados": {
+      "numero": "15",
+      "nome": "P15",
+      "obra": "ALIMONTI PARAISO 1PAV",
+      "comprimento": "67.0",
+      "largura": "45.0",
+      "pavimento": "1_PAVIMENTO",
+      "pavimento_numero": "1",
+      "pavimento_anterior": "",
+      "nivel_saida": "813.82",
+      "nivel_chegada": "817.75",
+      "nivel_diferencial": "",
+      "altura": "393.0",
+      "parafusos": {
+        "par_1_2": "0",
+        "par_2_3": "0",
+        "par_3_4": "0",
+        "par_4_5": "0",
+        "par_5_6": "0",
+        "par_6_7": "0",
+        "par_7_8": "0",
+        "par_8_9": "0"
+      },
+      "grades": {
+        "grade_1": "",
+        "distancia_1": "",
+        "grade_2": "",
+        "distancia_2": "",
+        "grade_3": ""
+      },
+      "pilar_especial": {
+        "ativar_pilar_especial": false,
+        "tipo_pilar_especial": "L",
+        "modo_calculo": "NOVA",
+        "comprimentos": {
+          "comp_1": "",
+          "comp_2": "",
+          "comp_3": ""
+        },
+        "larguras": {
+          "larg_1": "",
+          "larg_2": "",
+          "larg_3": ""
+        },
+        "distancia": "",
+        "grades": {},
+        "detalhes_grades_especiais": {},
+        "altura_detalhes_especiais": {}
+      }
+    }
+  },
+  "16_1_PAVIMENTO": {
+    "dados": {
+      "numero": "16",
+      "nome": "P16",
+      "obra": "ALIMONTI PARAISO 1PAV",
+      "comprimento": "102.0",
+      "largura": "24.0",
+      "pavimento": "1_PAVIMENTO",
+      "pavimento_numero": "1",
+      "pavimento_anterior": "",
+      "nivel_saida": "814.27",
+      "nivel_chegada": "817.75",
+      "nivel_diferencial": "",
+      "altura": "348.0",
+      "parafusos": {
+        "par_1_2": "0",
+        "par_2_3": "0",
+        "par_3_4": "0",
+        "par_4_5": "0",
+        "par_5_6": "0",
+        "par_6_7": "0",
+        "par_7_8": "0",
+        "par_8_9": "0"
+      },
+      "grades": {
+        "grade_1": "",
+        "distancia_1": "",
+        "grade_2": "",
+        "distancia_2": "",
+        "grade_3": ""
+      },
+      "pilar_especial": {
+        "ativar_pilar_especial": false,
+        "tipo_pilar_especial": "L",
+        "modo_calculo": "NOVA",
+        "comprimentos": {
+          "comp_1": "",
+          "comp_2": "",
+          "comp_3": ""
+        },
+        "larguras": {
+          "larg_1": "",
+          "larg_2": "",
+          "larg_3": ""
+        },
+        "distancia": "",
+        "grades": {},
+        "detalhes_grades_especiais": {},
+        "altura_detalhes_especiais": {}
+      }
+    }
+  },
+  "17_1_PAVIMENTO": {
+    "dados": {
+      "numero": "17",
+      "nome": "P17",
+      "obra": "ALIMONTI PARAISO 1PAV",
+      "comprimento": "142.0",
+      "largura": "30.0",
+      "pavimento": "1_PAVIMENTO",
+      "pavimento_numero": "1",
+      "pavimento_anterior": "",
+      "nivel_saida": "813.82",
+      "nivel_chegada": "817.75",
+      "nivel_diferencial": "",
+      "altura": "393.0",
+      "parafusos": {
+        "par_1_2": "0",
+        "par_2_3": "0",
+        "par_3_4": "0",
+        "par_4_5": "0",
+        "par_5_6": "0",
+        "par_6_7": "0",
+        "par_7_8": "0",
+        "par_8_9": "0"
+      },
+      "grades": {
+        "grade_1": "",
+        "distancia_1": "",
+        "grade_2": "",
+        "distancia_2": "",
+        "grade_3": ""
+      },
+      "pilar_especial": {
+        "ativar_pilar_especial": false,
+        "tipo_pilar_especial": "L",
+        "modo_calculo": "NOVA",
+        "comprimentos": {
+          "comp_1": "",
+          "comp_2": "",
+          "comp_3": ""
+        },
+        "larguras": {
+          "larg_1": "",
+          "larg_2": "",
+          "larg_3": ""
+        },
+        "distancia": "",
+        "grades": {},
+        "detalhes_grades_especiais": {},
+        "altura_detalhes_especiais": {}
+      }
+    }
+  },
+  "18_1_PAVIMENTO": {
+    "dados": {
+      "numero": "18",
+      "nome": "P18",
+      "obra": "ALIMONTI PARAISO 1PAV",
+      "comprimento": "72.0",
+      "largura": "24.0",
+      "pavimento": "1_PAVIMENTO",
+      "pavimento_numero": "1",
+      "pavimento_anterior": "",
+      "nivel_saida": "813.82",
+      "nivel_chegada": "817.75",
+      "nivel_diferencial": "",
+      "altura": "393.0",
+      "parafusos": {
+        "par_1_2": "0",
+        "par_2_3": "0",
+        "par_3_4": "0",
+        "par_4_5": "0",
+        "par_5_6": "0",
+        "par_6_7": "0",
+        "par_7_8": "0",
+        "par_8_9": "0"
+      },
+      "grades": {
+        "grade_1": "",
+        "distancia_1": "",
+        "grade_2": "",
+        "distancia_2": "",
+        "grade_3": ""
+      },
+      "pilar_especial": {
+        "ativar_pilar_especial": false,
+        "tipo_pilar_especial": "L",
+        "modo_calculo": "NOVA",
+        "comprimentos": {
+          "comp_1": "",
+          "comp_2": "",
+          "comp_3": ""
+        },
+        "larguras": {
+          "larg_1": "",
+          "larg_2": "",
+          "larg_3": ""
+        },
+        "distancia": "",
+        "grades": {},
+        "detalhes_grades_especiais": {},
+        "altura_detalhes_especiais": {}
+      }
+    }
+  },
+  "19_1_PAVIMENTO": {
+    "dados": {
+      "numero": "19",
+      "nome": "P19",
+      "obra": "ALIMONTI PARAISO 1PAV",
+      "comprimento": "102.0",
+      "largura": "30.0",
+      "pavimento": "1_PAVIMENTO",
+      "pavimento_numero": "1",
+      "pavimento_anterior": "",
+      "nivel_saida": "813.67",
+      "nivel_chegada": "817.75",
+      "nivel_diferencial": "",
+      "altura": "408.0",
+      "parafusos": {
+        "par_1_2": "0",
+        "par_2_3": "0",
+        "par_3_4": "0",
+        "par_4_5": "0",
+        "par_5_6": "0",
+        "par_6_7": "0",
+        "par_7_8": "0",
+        "par_8_9": "0"
+      },
+      "grades": {
+        "grade_1": "",
+        "distancia_1": "",
+        "grade_2": "",
+        "distancia_2": "",
+        "grade_3": ""
+      },
+      "pilar_especial": {
+        "ativar_pilar_especial": false,
+        "tipo_pilar_especial": "L",
+        "modo_calculo": "NOVA",
+        "comprimentos": {
+          "comp_1": "",
+          "comp_2": "",
+          "comp_3": ""
+        },
+        "larguras": {
+          "larg_1": "",
+          "larg_2": "",
+          "larg_3": ""
+        },
+        "distancia": "",
+        "grades": {},
+        "detalhes_grades_especiais": {},
+        "altura_detalhes_especiais": {}
+      }
+    }
+  },
+  "20_1_PAVIMENTO": {
+    "dados": {
+      "numero": "20",
+      "nome": "P20",
+      "obra": "ALIMONTI PARAISO 1PAV",
+      "comprimento": "102.0",
+      "largura": "24.0",
+      "pavimento": "1_PAVIMENTO",
+      "pavimento_numero": "1",
+      "pavimento_anterior": "",
+      "nivel_saida": "813.67",
+      "nivel_chegada": "817.75",
+      "nivel_diferencial": "",
+      "altura": "408.0",
+      "parafusos": {
+        "par_1_2": "0",
+        "par_2_3": "0",
+        "par_3_4": "0",
+        "par_4_5": "0",
+        "par_5_6": "0",
+        "par_6_7": "0",
+        "par_7_8": "0",
+        "par_8_9": "0"
+      },
+      "grades": {
+        "grade_1": "",
+        "distancia_1": "",
+        "grade_2": "",
+        "distancia_2": "",
+        "grade_3": ""
+      },
+      "pilar_especial": {
+        "ativar_pilar_especial": false,
+        "tipo_pilar_especial": "L",
+        "modo_calculo": "NOVA",
+        "comprimentos": {
+          "comp_1": "",
+          "comp_2": "",
+          "comp_3": ""
+        },
+        "larguras": {
+          "larg_1": "",
+          "larg_2": "",
+          "larg_3": ""
+        },
+        "distancia": "",
+        "grades": {},
+        "detalhes_grades_especiais": {},
+        "altura_detalhes_especiais": {}
+      }
+    }
+  },
+  "21_1_PAVIMENTO": {
+    "dados": {
+      "numero": "21",
+      "nome": "P21",
+      "obra": "ALIMONTI PARAISO 1PAV",
+      "comprimento": "102.0",
+      "largura": "24.0",
+      "pavimento": "1_PAVIMENTO",
+      "pavimento_numero": "1",
+      "pavimento_anterior": "",
+      "nivel_saida": "813.67",
+      "nivel_chegada": "817.75",
+      "nivel_diferencial": "",
+      "altura": "408.0",
+      "parafusos": {
+        "par_1_2": "0",
+        "par_2_3": "0",
+        "par_3_4": "0",
+        "par_4_5": "0",
+        "par_5_6": "0",
+        "par_6_7": "0",
+        "par_7_8": "0",
+        "par_8_9": "0"
+      },
+      "grades": {
+        "grade_1": "",
+        "distancia_1": "",
+        "grade_2": "",
+        "distancia_2": "",
+        "grade_3": ""
+      },
+      "pilar_especial": {
+        "ativar_pilar_especial": false,
+        "tipo_pilar_especial": "L",
+        "modo_calculo": "NOVA",
+        "comprimentos": {
+          "comp_1": "",
+          "comp_2": "",
+          "comp_3": ""
+        },
+        "larguras": {
+          "larg_1": "",
+          "larg_2": "",
+          "larg_3": ""
+        },
+        "distancia": "",
+        "grades": {},
+        "detalhes_grades_especiais": {},
+        "altura_detalhes_especiais": {}
+      }
+    }
+  },
+  "23_1_PAVIMENTO": {
+    "dados": {
+      "numero": "23",
+      "nome": "P23",
+      "obra": "ALIMONTI PARAISO 1PAV",
+      "comprimento": "67.0",
+      "largura": "45.0",
+      "pavimento": "1_PAVIMENTO",
+      "pavimento_numero": "1",
+      "pavimento_anterior": "",
+      "nivel_saida": "813.82",
+      "nivel_chegada": "817.75",
+      "nivel_diferencial": "",
+      "altura": "393.0",
+      "parafusos": {
+        "par_1_2": "0",
+        "par_2_3": "0",
+        "par_3_4": "0",
+        "par_4_5": "0",
+        "par_5_6": "0",
+        "par_6_7": "0",
+        "par_7_8": "0",
+        "par_8_9": "0"
+      },
+      "grades": {
+        "grade_1": "",
+        "distancia_1": "",
+        "grade_2": "",
+        "distancia_2": "",
+        "grade_3": ""
+      },
+      "pilar_especial": {
+        "ativar_pilar_especial": false,
+        "tipo_pilar_especial": "L",
+        "modo_calculo": "NOVA",
+        "comprimentos": {
+          "comp_1": "",
+          "comp_2": "",
+          "comp_3": ""
+        },
+        "larguras": {
+          "larg_1": "",
+          "larg_2": "",
+          "larg_3": ""
+        },
+        "distancia": "",
+        "grades": {},
+        "detalhes_grades_especiais": {},
+        "altura_detalhes_especiais": {}
+      }
+    }
+  },
+  "24_1_PAVIMENTO": {
+    "dados": {
+      "numero": "24",
+      "nome": "P24",
+      "obra": "ALIMONTI PARAISO 1PAV",
+      "comprimento": "102.0",
+      "largura": "19.0",
+      "pavimento": "1_PAVIMENTO",
+      "pavimento_numero": "1",
+      "pavimento_anterior": "",
+      "nivel_saida": "813.82",
+      "nivel_chegada": "817.75",
+      "nivel_diferencial": "",
+      "altura": "393.0",
+      "parafusos": {
+        "par_1_2": "0",
+        "par_2_3": "0",
+        "par_3_4": "0",
+        "par_4_5": "0",
+        "par_5_6": "0",
+        "par_6_7": "0",
+        "par_7_8": "0",
+        "par_8_9": "0"
+      },
+      "grades": {
+        "grade_1": "",
+        "distancia_1": "",
+        "grade_2": "",
+        "distancia_2": "",
+        "grade_3": ""
+      },
+      "pilar_especial": {
+        "ativar_pilar_especial": false,
+        "tipo_pilar_especial": "L",
+        "modo_calculo": "NOVA",
+        "comprimentos": {
+          "comp_1": "",
+          "comp_2": "",
+          "comp_3": ""
+        },
+        "larguras": {
+          "larg_1": "",
+          "larg_2": "",
+          "larg_3": ""
+        },
+        "distancia": "",
+        "grades": {},
+        "detalhes_grades_especiais": {},
+        "altura_detalhes_especiais": {}
+      }
+    }
+  },
+  "25_1_PAVIMENTO": {
+    "dados": {
+      "numero": "25",
+      "nome": "P25",
+      "obra": "ALIMONTI PARAISO 1PAV",
+      "comprimento": "82.0",
+      "largura": "30.0",
+      "pavimento": "1_PAVIMENTO",
+      "pavimento_numero": "1",
+      "pavimento_anterior": "",
+      "nivel_saida": "813.5",
+      "nivel_chegada": "817.75",
+      "nivel_diferencial": "",
+      "altura": "425.0",
+      "parafusos": {
+        "par_1_2": "0",
+        "par_2_3": "0",
+        "par_3_4": "0",
+        "par_4_5": "0",
+        "par_5_6": "0",
+        "par_6_7": "0",
+        "par_7_8": "0",
+        "par_8_9": "0"
+      },
+      "grades": {
+        "grade_1": "",
+        "distancia_1": "",
+        "grade_2": "",
+        "distancia_2": "",
+        "grade_3": ""
+      },
+      "pilar_especial": {
+        "ativar_pilar_especial": false,
+        "tipo_pilar_especial": "L",
+        "modo_calculo": "NOVA",
+        "comprimentos": {
+          "comp_1": "",
+          "comp_2": "",
+          "comp_3": ""
+        },
+        "larguras": {
+          "larg_1": "",
+          "larg_2": "",
+          "larg_3": ""
+        },
+        "distancia": "",
+        "grades": {},
+        "detalhes_grades_especiais": {},
+        "altura_detalhes_especiais": {}
+      }
+    }
+  },
+  "26_1_PAVIMENTO": {
+    "dados": {
+      "numero": "26",
+      "nome": "P26",
+      "obra": "ALIMONTI PARAISO 1PAV",
+      "comprimento": "240.0",
+      "largura": "19.0",
+      "pavimento": "1_PAVIMENTO",
+      "pavimento_numero": "1",
+      "pavimento_anterior": "",
+      "nivel_saida": "813.82",
+      "nivel_chegada": "817.75",
+      "nivel_diferencial": "",
+      "altura": "393.0",
+      "parafusos": {
+        "par_1_2": "0",
+        "par_2_3": "0",
+        "par_3_4": "0",
+        "par_4_5": "0",
+        "par_5_6": "0",
+        "par_6_7": "0",
+        "par_7_8": "0",
+        "par_8_9": "0"
+      },
+      "grades": {
+        "grade_1": "",
+        "distancia_1": "",
+        "grade_2": "",
+        "distancia_2": "",
+        "grade_3": ""
+      },
+      "pilar_especial": {
+        "ativar_pilar_especial": true,
+        "tipo_pilar_especial": "L",
+        "modo_calculo": "NOVA",
+        "comprimentos": {
+          "comp_1": "",
+          "comp_2": "",
+          "comp_3": ""
+        },
+        "larguras": {
+          "larg_1": "",
+          "larg_2": "",
+          "larg_3": ""
+        },
+        "distancia": "",
+        "grades": {},
+        "detalhes_grades_especiais": {},
+        "altura_detalhes_especiais": {}
+      }
+    }
+  },
+  "27_1_PAVIMENTO": {
+    "dados": {
+      "numero": "27",
+      "nome": "P27",
+      "obra": "ALIMONTI PARAISO 1PAV",
+      "comprimento": "240.0",
+      "largura": "19.0",
+      "pavimento": "1_PAVIMENTO",
+      "pavimento_numero": "1",
+      "pavimento_anterior": "",
+      "nivel_saida": "813.82",
+      "nivel_chegada": "817.75",
+      "nivel_diferencial": "",
+      "altura": "393.0",
+      "parafusos": {
+        "par_1_2": "0",
+        "par_2_3": "0",
+        "par_3_4": "0",
+        "par_4_5": "0",
+        "par_5_6": "0",
+        "par_6_7": "0",
+        "par_7_8": "0",
+        "par_8_9": "0"
+      },
+      "grades": {
+        "grade_1": "",
+        "distancia_1": "",
+        "grade_2": "",
+        "distancia_2": "",
+        "grade_3": ""
+      },
+      "pilar_especial": {
+        "ativar_pilar_especial": true,
+        "tipo_pilar_especial": "L",
+        "modo_calculo": "NOVA",
+        "comprimentos": {
+          "comp_1": "",
+          "comp_2": "",
+          "comp_3": ""
+        },
+        "larguras": {
+          "larg_1": "",
+          "larg_2": "",
+          "larg_3": ""
+        },
+        "distancia": "",
+        "grades": {},
+        "detalhes_grades_especiais": {},
+        "altura_detalhes_especiais": {}
+      }
+    }
+  },
+  "28_1_PAVIMENTO": {
+    "dados": {
+      "numero": "28",
+      "nome": "P28",
+      "obra": "ALIMONTI PARAISO 1PAV",
+      "comprimento": "102.0",
+      "largura": "30.0",
+      "pavimento": "1_PAVIMENTO",
+      "pavimento_numero": "1",
+      "pavimento_anterior": "",
+      "nivel_saida": "813.67",
+      "nivel_chegada": "817.75",
+      "nivel_diferencial": "",
+      "altura": "408.0",
+      "parafusos": {
+        "par_1_2": "0",
+        "par_2_3": "0",
+        "par_3_4": "0",
+        "par_4_5": "0",
+        "par_5_6": "0",
+        "par_6_7": "0",
+        "par_7_8": "0",
+        "par_8_9": "0"
+      },
+      "grades": {
+        "grade_1": "",
+        "distancia_1": "",
+        "grade_2": "",
+        "distancia_2": "",
+        "grade_3": ""
+      },
+      "pilar_especial": {
+        "ativar_pilar_especial": false,
+        "tipo_pilar_especial": "L",
+        "modo_calculo": "NOVA",
+        "comprimentos": {
+          "comp_1": "",
+          "comp_2": "",
+          "comp_3": ""
+        },
+        "larguras": {
+          "larg_1": "",
+          "larg_2": "",
+          "larg_3": ""
+        },
+        "distancia": "",
+        "grades": {},
+        "detalhes_grades_especiais": {},
+        "altura_detalhes_especiais": {}
+      }
+    }
+  },
+  "29_1_PAVIMENTO": {
+    "dados": {
+      "numero": "29",
+      "nome": "P29",
+      "obra": "ALIMONTI PARAISO 1PAV",
+      "comprimento": "88.0",
+      "largura": "24.0",
+      "pavimento": "1_PAVIMENTO",
+      "pavimento_numero": "1",
+      "pavimento_anterior": "",
+      "nivel_saida": "813.67",
+      "nivel_chegada": "817.75",
+      "nivel_diferencial": "",
+      "altura": "408.0",
+      "parafusos": {
+        "par_1_2": "0",
+        "par_2_3": "0",
+        "par_3_4": "0",
+        "par_4_5": "0",
+        "par_5_6": "0",
+        "par_6_7": "0",
+        "par_7_8": "0",
+        "par_8_9": "0"
+      },
+      "grades": {
+        "grade_1": "",
+        "distancia_1": "",
+        "grade_2": "",
+        "distancia_2": "",
+        "grade_3": ""
+      },
+      "pilar_especial": {
+        "ativar_pilar_especial": false,
+        "tipo_pilar_especial": "L",
+        "modo_calculo": "NOVA",
+        "comprimentos": {
+          "comp_1": "",
+          "comp_2": "",
+          "comp_3": ""
+        },
+        "larguras": {
+          "larg_1": "",
+          "larg_2": "",
+          "larg_3": ""
+        },
+        "distancia": "",
+        "grades": {},
+        "detalhes_grades_especiais": {},
+        "altura_detalhes_especiais": {}
+      }
+    }
+  },
+  "30_1_PAVIMENTO": {
+    "dados": {
+      "numero": "30",
+      "nome": "P30",
+      "obra": "ALIMONTI PARAISO 1PAV",
+      "comprimento": "92.0",
+      "largura": "27.0",
+      "pavimento": "1_PAVIMENTO",
+      "pavimento_numero": "1",
+      "pavimento_anterior": "",
+      "nivel_saida": "813.67",
+      "nivel_chegada": "817.75",
+      "nivel_diferencial": "",
+      "altura": "408.0",
+      "parafusos": {
+        "par_1_2": "0",
+        "par_2_3": "0",
+        "par_3_4": "0",
+        "par_4_5": "0",
+        "par_5_6": "0",
+        "par_6_7": "0",
+        "par_7_8": "0",
+        "par_8_9": "0"
+      },
+      "grades": {
+        "grade_1": "",
+        "distancia_1": "",
+        "grade_2": "",
+        "distancia_2": "",
+        "grade_3": ""
+      },
+      "pilar_especial": {
+        "ativar_pilar_especial": false,
+        "tipo_pilar_especial": "L",
+        "modo_calculo": "NOVA",
+        "comprimentos": {
+          "comp_1": "",
+          "comp_2": "",
+          "comp_3": ""
+        },
+        "larguras": {
+          "larg_1": "",
+          "larg_2": "",
+          "larg_3": ""
+        },
+        "distancia": "",
+        "grades": {},
+        "detalhes_grades_especiais": {},
+        "altura_detalhes_especiais": {}
+      }
+    }
+  },
+  "31_1_PAVIMENTO": {
+    "dados": {
+      "numero": "31",
+      "nome": "P31",
+      "obra": "ALIMONTI PARAISO 1PAV",
+      "comprimento": "92.0",
+      "largura": "27.0",
+      "pavimento": "1_PAVIMENTO",
+      "pavimento_numero": "1",
+      "pavimento_anterior": "",
+      "nivel_saida": "813.82",
+      "nivel_chegada": "817.75",
+      "nivel_diferencial": "",
+      "altura": "393.0",
+      "parafusos": {
+        "par_1_2": "0",
+        "par_2_3": "0",
+        "par_3_4": "0",
+        "par_4_5": "0",
+        "par_5_6": "0",
+        "par_6_7": "0",
+        "par_7_8": "0",
+        "par_8_9": "0"
+      },
+      "grades": {
+        "grade_1": "",
+        "distancia_1": "",
+        "grade_2": "",
+        "distancia_2": "",
+        "grade_3": ""
+      },
+      "pilar_especial": {
+        "ativar_pilar_especial": false,
+        "tipo_pilar_especial": "L",
+        "modo_calculo": "NOVA",
+        "comprimentos": {
+          "comp_1": "",
+          "comp_2": "",
+          "comp_3": ""
+        },
+        "larguras": {
+          "larg_1": "",
+          "larg_2": "",
+          "larg_3": ""
+        },
+        "distancia": "",
+        "grades": {},
+        "detalhes_grades_especiais": {},
+        "altura_detalhes_especiais": {}
+      }
+    }
+  },
+  "32_1_PAVIMENTO": {
+    "dados": {
+      "numero": "32",
+      "nome": "P32",
+      "obra": "ALIMONTI PARAISO 1PAV",
+      "comprimento": "92.0",
+      "largura": "27.0",
+      "pavimento": "1_PAVIMENTO",
+      "pavimento_numero": "1",
+      "pavimento_anterior": "",
+      "nivel_saida": "813.67",
+      "nivel_chegada": "817.75",
+      "nivel_diferencial": "",
+      "altura": "408.0",
+      "parafusos": {
+        "par_1_2": "0",
+        "par_2_3": "0",
+        "par_3_4": "0",
+        "par_4_5": "0",
+        "par_5_6": "0",
+        "par_6_7": "0",
+        "par_7_8": "0",
+        "par_8_9": "0"
+      },
+      "grades": {
+        "grade_1": "",
+        "distancia_1": "",
+        "grade_2": "",
+        "distancia_2": "",
+        "grade_3": ""
+      },
+      "pilar_especial": {
+        "ativar_pilar_especial": false,
+        "tipo_pilar_especial": "L",
+        "modo_calculo": "NOVA",
+        "comprimentos": {
+          "comp_1": "",
+          "comp_2": "",
+          "comp_3": ""
+        },
+        "larguras": {
+          "larg_1": "",
+          "larg_2": "",
+          "larg_3": ""
+        },
+        "distancia": "",
+        "grades": {},
+        "detalhes_grades_especiais": {},
+        "altura_detalhes_especiais": {}
+      }
+    }
+  },
+  "33_1_PAVIMENTO": {
+    "dados": {
+      "numero": "33",
+      "nome": "P33",
+      "obra": "ALIMONTI PARAISO 1PAV",
+      "comprimento": "122.0",
+      "largura": "19.0",
+      "pavimento": "1_PAVIMENTO",
+      "pavimento_numero": "1",
+      "pavimento_anterior": "",
+      "nivel_saida": "813.67",
+      "nivel_chegada": "817.75",
+      "nivel_diferencial": "",
+      "altura": "408.0",
+      "parafusos": {
+        "par_1_2": "0",
+        "par_2_3": "0",
+        "par_3_4": "0",
+        "par_4_5": "0",
+        "par_5_6": "0",
+        "par_6_7": "0",
+        "par_7_8": "0",
+        "par_8_9": "0"
+      },
+      "grades": {
+        "grade_1": "",
+        "distancia_1": "",
+        "grade_2": "",
+        "distancia_2": "",
+        "grade_3": ""
+      },
+      "pilar_especial": {
+        "ativar_pilar_especial": false,
+        "tipo_pilar_especial": "L",
+        "modo_calculo": "NOVA",
+        "comprimentos": {
+          "comp_1": "",
+          "comp_2": "",
+          "comp_3": ""
+        },
+        "larguras": {
+          "larg_1": "",
+          "larg_2": "",
+          "larg_3": ""
+        },
+        "distancia": "",
+        "grades": {},
+        "detalhes_grades_especiais": {},
+        "altura_detalhes_especiais": {}
+      }
+    }
+  },
+  "34_1_PAVIMENTO": {
+    "dados": {
+      "numero": "34",
+      "nome": "P34",
+      "obra": "ALIMONTI PARAISO 1PAV",
+      "comprimento": "82.0",
+      "largura": "19.0",
+      "pavimento": "1_PAVIMENTO",
+      "pavimento_numero": "1",
+      "pavimento_anterior": "",
+      "nivel_saida": "813.67",
+      "nivel_chegada": "817.75",
+      "nivel_diferencial": "",
+      "altura": "408.0",
+      "parafusos": {
+        "par_1_2": "0",
+        "par_2_3": "0",
+        "par_3_4": "0",
+        "par_4_5": "0",
+        "par_5_6": "0",
+        "par_6_7": "0",
+        "par_7_8": "0",
+        "par_8_9": "0"
+      },
+      "grades": {
+        "grade_1": "",
+        "distancia_1": "",
+        "grade_2": "",
+        "distancia_2": "",
+        "grade_3": ""
+      },
+      "pilar_especial": {
+        "ativar_pilar_especial": false,
+        "tipo_pilar_especial": "L",
+        "modo_calculo": "NOVA",
+        "comprimentos": {
+          "comp_1": "",
+          "comp_2": "",
+          "comp_3": ""
+        },
+        "larguras": {
+          "larg_1": "",
+          "larg_2": "",
+          "larg_3": ""
+        },
+        "distancia": "",
+        "grades": {},
+        "detalhes_grades_especiais": {},
+        "altura_detalhes_especiais": {}
+      }
+    }
+  },
+  "35_1_PAVIMENTO": {
+    "dados": {
+      "numero": "35",
+      "nome": "P35",
+      "obra": "ALIMONTI PARAISO 1PAV",
+      "comprimento": "82.0",
+      "largura": "19.0",
+      "pavimento": "1_PAVIMENTO",
+      "pavimento_numero": "1",
+      "pavimento_anterior": "",
+      "nivel_saida": "813.67",
+      "nivel_chegada": "817.75",
+      "nivel_diferencial": "",
+      "altura": "408.0",
+      "parafusos": {
+        "par_1_2": "0",
+        "par_2_3": "0",
+        "par_3_4": "0",
+        "par_4_5": "0",
+        "par_5_6": "0",
+        "par_6_7": "0",
+        "par_7_8": "0",
+        "par_8_9": "0"
+      },
+      "grades": {
+        "grade_1": "",
+        "distancia_1": "",
+        "grade_2": "",
+        "distancia_2": "",
+        "grade_3": ""
+      },
+      "pilar_especial": {
+        "ativar_pilar_especial": false,
+        "tipo_pilar_especial": "L",
+        "modo_calculo": "NOVA",
+        "comprimentos": {
+          "comp_1": "",
+          "comp_2": "",
+          "comp_3": ""
+        },
+        "larguras": {
+          "larg_1": "",
+          "larg_2": "",
+          "larg_3": ""
+        },
+        "distancia": "",
+        "grades": {},
+        "detalhes_grades_especiais": {},
+        "altura_detalhes_especiais": {}
+      }
+    }
+  },
+  "61_1_PAVIMENTO": {
+    "dados": {
+      "numero": "61",
+      "nome": "P61",
+      "obra": "ALIMONTI PARAISO 1PAV",
+      "comprimento": "41.0",
+      "largura": "19.0",
+      "pavimento": "1_PAVIMENTO",
+      "pavimento_numero": "1",
+      "pavimento_anterior": "",
+      "nivel_saida": "813.82",
+      "nivel_chegada": "817.75",
+      "nivel_diferencial": "",
+      "altura": "393.0",
+      "parafusos": {
+        "par_1_2": "0",
+        "par_2_3": "0",
+        "par_3_4": "0",
+        "par_4_5": "0",
+        "par_5_6": "0",
+        "par_6_7": "0",
+        "par_7_8": "0",
+        "par_8_9": "0"
+      },
+      "grades": {
+        "grade_1": "",
+        "distancia_1": "",
+        "grade_2": "",
+        "distancia_2": "",
+        "grade_3": ""
+      },
+      "pilar_especial": {
+        "ativar_pilar_especial": false,
+        "tipo_pilar_especial": "L",
+        "modo_calculo": "NOVA",
+        "comprimentos": {
+          "comp_1": "",
+          "comp_2": "",
+          "comp_3": ""
+        },
+        "larguras": {
+          "larg_1": "",
+          "larg_2": "",
+          "larg_3": ""
+        },
+        "distancia": "",
+        "grades": {},
+        "detalhes_grades_especiais": {},
+        "altura_detalhes_especiais": {}
+      }
+    }
+  },
+  "62_1_PAVIMENTO": {
+    "dados": {
+      "numero": "62",
+      "nome": "P62",
+      "obra": "ALIMONTI PARAISO 1PAV",
+      "comprimento": "41.0",
+      "largura": "19.0",
+      "pavimento": "1_PAVIMENTO",
+      "pavimento_numero": "1",
+      "pavimento_anterior": "",
+      "nivel_saida": "813.82",
+      "nivel_chegada": "817.75",
+      "nivel_diferencial": "",
+      "altura": "393.0",
+      "parafusos": {
+        "par_1_2": "0",
+        "par_2_3": "0",
+        "par_3_4": "0",
+        "par_4_5": "0",
+        "par_5_6": "0",
+        "par_6_7": "0",
+        "par_7_8": "0",
+        "par_8_9": "0"
+      },
+      "grades": {
+        "grade_1": "",
+        "distancia_1": "",
+        "grade_2": "",
+        "distancia_2": "",
+        "grade_3": ""
+      },
+      "pilar_especial": {
+        "ativar_pilar_especial": false,
+        "tipo_pilar_especial": "L",
+        "modo_calculo": "NOVA",
+        "comprimentos": {
+          "comp_1": "",
+          "comp_2": "",
+          "comp_3": ""
+        },
+        "larguras": {
+          "larg_1": "",
+          "larg_2": "",
+          "larg_3": ""
+        },
+        "distancia": "",
+        "grades": {},
+        "detalhes_grades_especiais": {},
+        "altura_detalhes_especiais": {}
+      }
+    }
+  },
+  "101_1_PAVIMENTO": {
+    "dados": {
+      "numero": "101",
+      "nome": "P101",
+      "obra": "ALIMONTI PARAISO 1PAV",
+      "comprimento": "82.0",
+      "largura": "24.0",
+      "pavimento": "1_PAVIMENTO",
+      "pavimento_numero": "1",
+      "pavimento_anterior": "",
+      "nivel_saida": "813.67",
+      "nivel_chegada": "817.75",
+      "nivel_diferencial": "",
+      "altura": "408.0",
+      "parafusos": {
+        "par_1_2": "0",
+        "par_2_3": "0",
+        "par_3_4": "0",
+        "par_4_5": "0",
+        "par_5_6": "0",
+        "par_6_7": "0",
+        "par_7_8": "0",
+        "par_8_9": "0"
+      },
+      "grades": {
+        "grade_1": "",
+        "distancia_1": "",
+        "grade_2": "",
+        "distancia_2": "",
+        "grade_3": ""
+      },
+      "pilar_especial": {
+        "ativar_pilar_especial": false,
+        "tipo_pilar_especial": "L",
+        "modo_calculo": "NOVA",
+        "comprimentos": {
+          "comp_1": "",
+          "comp_2": "",
+          "comp_3": ""
+        },
+        "larguras": {
+          "larg_1": "",
+          "larg_2": "",
+          "larg_3": ""
+        },
+        "distancia": "",
+        "grades": {},
+        "detalhes_grades_especiais": {},
+        "altura_detalhes_especiais": {}
+      }
+    }
+  },
+  "102_1_PAVIMENTO": {
+    "dados": {
+      "numero": "102",
+      "nome": "P102",
+      "obra": "ALIMONTI PARAISO 1PAV",
+      "comprimento": "82.0",
+      "largura": "24.0",
+      "pavimento": "1_PAVIMENTO",
+      "pavimento_numero": "1",
+      "pavimento_anterior": "",
+      "nivel_saida": "813.67",
+      "nivel_chegada": "817.75",
+      "nivel_diferencial": "",
+      "altura": "408.0",
+      "parafusos": {
+        "par_1_2": "0",
+        "par_2_3": "0",
+        "par_3_4": "0",
+        "par_4_5": "0",
+        "par_5_6": "0",
+        "par_6_7": "0",
+        "par_7_8": "0",
+        "par_8_9": "0"
+      },
+      "grades": {
+        "grade_1": "",
+        "distancia_1": "",
+        "grade_2": "",
+        "distancia_2": "",
+        "grade_3": ""
+      },
+      "pilar_especial": {
+        "ativar_pilar_especial": false,
+        "tipo_pilar_especial": "L",
+        "modo_calculo": "NOVA",
+        "comprimentos": {
+          "comp_1": "",
+          "comp_2": "",
+          "comp_3": ""
+        },
+        "larguras": {
+          "larg_1": "",
+          "larg_2": "",
+          "larg_3": ""
+        },
+        "distancia": "",
+        "grades": {},
+        "detalhes_grades_especiais": {},
+        "altura_detalhes_especiais": {}
+      }
+    }
+  },
+  "103_1_PAVIMENTO": {
+    "dados": {
+      "numero": "103",
+      "nome": "P103",
+      "obra": "ALIMONTI PARAISO 1PAV",
+      "comprimento": "82.0",
+      "largura": "19.0",
+      "pavimento": "1_PAVIMENTO",
+      "pavimento_numero": "1",
+      "pavimento_anterior": "",
+      "nivel_saida": "813.82",
+      "nivel_chegada": "817.75",
+      "nivel_diferencial": "",
+      "altura": "393.0",
+      "parafusos": {
+        "par_1_2": "0",
+        "par_2_3": "0",
+        "par_3_4": "0",
+        "par_4_5": "0",
+        "par_5_6": "0",
+        "par_6_7": "0",
+        "par_7_8": "0",
+        "par_8_9": "0"
+      },
+      "grades": {
+        "grade_1": "",
+        "distancia_1": "",
+        "grade_2": "",
+        "distancia_2": "",
+        "grade_3": ""
+      },
+      "pilar_especial": {
+        "ativar_pilar_especial": false,
+        "tipo_pilar_especial": "L",
+        "modo_calculo": "NOVA",
+        "comprimentos": {
+          "comp_1": "",
+          "comp_2": "",
+          "comp_3": ""
+        },
+        "larguras": {
+          "larg_1": "",
+          "larg_2": "",
+          "larg_3": ""
+        },
+        "distancia": "",
+        "grades": {},
+        "detalhes_grades_especiais": {},
+        "altura_detalhes_especiais": {}
+      }
+    }
+  }
+}
