@@ -12,15 +12,15 @@ import json
 import sqlite3
 from pathlib import Path
 
-from PySide6.QtCore import Qt, Signal, QThread, QObject, QSize
+from PySide6.QtCore import Qt, Signal, QThread, QObject, QSize, QEvent
 from PySide6.QtWidgets import (
-    QWidget, QHBoxLayout, QVBoxLayout, QFrame, QLabel,
+    QWidget, QHBoxLayout, QVBoxLayout, QGridLayout, QFrame, QLabel,
     QPushButton, QListWidget, QListWidgetItem, QSplitter,
     QTabWidget, QTableWidget, QTableWidgetItem, QTextEdit,
     QProgressBar, QMessageBox, QSizePolicy, QScrollArea,
     QComboBox, QDialog, QDialogButtonBox, QLineEdit,
     QGraphicsLineItem, QGraphicsPathItem, QGraphicsEllipseItem,
-    QGraphicsSimpleTextItem, QRadioButton, QButtonGroup,
+    QGraphicsSimpleTextItem, QRadioButton, QButtonGroup, QApplication,
 )
 from PySide6.QtGui import QColor
 
@@ -1146,46 +1146,62 @@ class _RightPanel(QFrame):
             QListWidget::item:selected {{ background:{Colors.ACCENT_BLUE}; color:{Colors.TEXT_BRIGHT}; }}
             QListWidget::item:hover {{ background:{Colors.BG_CARD}; }}
         """)
-        self.lst_recortes.itemClicked.connect(self._on_recorte_clicked)
+        # currentItemChanged garante que setas do teclado também disparam o load
+        self.lst_recortes.currentItemChanged.connect(
+            lambda cur, _prev: self._on_recorte_clicked(cur) if cur is not None else None
+        )
         lay.addWidget(self.lst_recortes, 1)   # stretch — ocupa espaço disponível
 
         lay.addWidget(self._sep())
 
-        # ── Seção: Ações ──────────────────────────────────────────────
-        # Recortar (todas as entidades visíveis)
+        # ── Seção: Ações (2 colunas para liberar espaço vertical na lista) ──
+
+        def _row(*widgets):
+            fr = QFrame()
+            fr.setStyleSheet("background:transparent; border:none;")
+            rl = QHBoxLayout(fr)
+            rl.setContentsMargins(0, 0, 0, 0)
+            rl.setSpacing(4)
+            for w in widgets:
+                rl.addWidget(w)
+            return fr
+
+        # [✂ Recortar | ✂ Rec. Seleção]
         btn_rec = _btn("✂ Recortar", "#1b3a6b", "#2a5ab0")
         btn_rec.setToolTip("Recortar — exporta todas as entidades visíveis do canvas")
         btn_rec.clicked.connect(self._on_recortar)
-        lay.addWidget(btn_rec)
 
-        # Recortar Seleção (apenas itens selecionados via box select)
-        btn_rec_sel = _btn("✂ Recortar Seleção", "#4a1a7a", "#7a3ab0")
+        btn_rec_sel = _btn("✂ Rec. Seleção", "#4a1a7a", "#7a3ab0")
         btn_rec_sel.setToolTip(
             "Recortar Seleção — exporta apenas os itens selecionados (box select) do canvas"
         )
         btn_rec_sel.clicked.connect(self._on_recortar_selecao)
-        lay.addWidget(btn_rec_sel)
+        lay.addWidget(_row(btn_rec, btn_rec_sel))
 
         lay.addWidget(self._sep())
 
-        # 4 botões Processar por classe
         lbl_proc = QLabel("Processar Granulares:")
         lbl_proc.setStyleSheet(f"color:{Colors.TEXT_DIM}; font-size:9px; background:transparent;")
         lay.addWidget(lbl_proc)
 
-        for cls_key, cls_label, bg, hover in [
+        # [▶ Pilares | ▶ L.Vigas]  e  [▶ F.Vigas | ▶ Lajes]
+        _cls_defs = [
             ("PIL", "Pilares",  "#1b3a6b", "#2a5ab0"),
             ("LV",  "L.Vigas",  "#1a4a2a", "#2a7a4a"),
             ("FV",  "F.Vigas",  "#4a2a00", "#8a5a00"),
             ("LAJ", "Lajes",    "#4a002a", "#8a0050"),
-        ]:
-            b = _btn(f"▶ {cls_label}", bg, hover)
-            b.setToolTip(f"Processar Granulares {cls_label} — DXF selecionado")
-            b.clicked.connect(lambda _c, k=cls_key: self._on_processar_cls(k))
-            lay.addWidget(b)
+        ]
+        for (k0, l0, bg0, hv0), (k1, l1, bg1, hv1) in zip(_cls_defs[::2], _cls_defs[1::2]):
+            b0 = _btn(f"▶ {l0}", bg0, hv0)
+            b0.setToolTip(f"Processar Granulares {l0}")
+            b0.clicked.connect(lambda _c, k=k0: self._on_processar_cls(k))
+            b1 = _btn(f"▶ {l1}", bg1, hv1)
+            b1.setToolTip(f"Processar Granulares {l1}")
+            b1.clicked.connect(lambda _c, k=k1: self._on_processar_cls(k))
+            lay.addWidget(_row(b0, b1))
 
-        # ⚡ Processar TODOS — todos pavimentos × todas classes da obra
-        btn_tudo = _btn("⚡ Processar toda a Obra\n(todos pavimentos × classes)", "#3a1a5a", "#5a2a8a", h=44)
+        # ⚡ Processar toda a Obra (largura total)
+        btn_tudo = _btn("⚡ Processar toda a Obra\n(todos pavs × classes)", "#3a1a5a", "#5a2a8a", h=32)
         btn_tudo.setToolTip(
             "Roda PIL/LV/FV/LAJ em todos os pavimentos aprovados da obra.\n"
             "Cada classe usa o DXF correto automaticamente."
@@ -1193,9 +1209,9 @@ class _RightPanel(QFrame):
         btn_tudo.clicked.connect(self._on_processar_tudo)
         lay.addWidget(btn_tudo)
 
-        # 📋 Gerar fichas — apenas itens aprovados (treino)
+        # 📋 Gerar Ficha Obra (largura total)
         btn_ficha = _btn(
-            "📋 Gerar Ficha Obra\ne Fichas Granulares\n(itens aprovados)", "#1a3a1a", "#2a6a2a", h=52
+            "📋 Gerar Ficha Obra\ne Fichas Granulares\n(itens aprovados)", "#1a3a1a", "#2a6a2a", h=40
         )
         btn_ficha.setToolTip(
             "Para cada pavimento que tenha ≥ 1 recorte com status 'aprovado',\n"
@@ -1208,7 +1224,7 @@ class _RightPanel(QFrame):
 
         lay.addWidget(self._sep())
 
-        # ── Ajustar Classe do recorte selecionado ────────────────────
+        # ── Ajustar Classe (radios em grid 2×2) ──────────────────────
         lbl_cls_adj = QLabel("Ajustar Classe:")
         lbl_cls_adj.setStyleSheet(
             f"color:{Colors.TEXT_DIM}; font-size:9px; background:transparent;"
@@ -1220,9 +1236,9 @@ class _RightPanel(QFrame):
             f"background:{Colors.BG_CARD}; border:1px solid {Colors.BORDER_DEFAULT}; "
             f"border-radius:4px;"
         )
-        cls_lay = QVBoxLayout(cls_frame)
-        cls_lay.setContentsMargins(6, 4, 6, 4)
-        cls_lay.setSpacing(3)
+        cls_grid = QGridLayout(cls_frame)
+        cls_grid.setContentsMargins(6, 3, 6, 3)
+        cls_grid.setSpacing(2)
 
         self._cls_radios: dict[str, QRadioButton] = {}
         self._cls_group = QButtonGroup(self)
@@ -1240,35 +1256,34 @@ class _RightPanel(QFrame):
             rb.setStyleSheet(rb_style)
             self._cls_group.addButton(rb, i)
             self._cls_radios[key] = rb
-            cls_lay.addWidget(rb)
+            cls_grid.addWidget(rb, i // 2, i % 2)
 
         lay.addWidget(cls_frame)
 
         lay.addWidget(self._sep())
 
-        # Salvar / Aprovar / Excluir
-        btn_salvar  = _btn("💾 Salvar",  Colors.ACCENT_BLUE,    Colors.ACCENT_BLUE_HOVER)
-        btn_excluir = _btn("🗑 Excluir", Colors.ACCENT_DANGER,   "rgba(211,47,47,1)")
+        # [💾 Salvar | 🗑 Excluir]
+        btn_salvar  = _btn("💾 Salvar",  Colors.ACCENT_BLUE,   Colors.ACCENT_BLUE_HOVER)
+        btn_excluir = _btn("🗑 Excluir", Colors.ACCENT_DANGER,  "rgba(211,47,47,1)")
+        btn_salvar.clicked.connect(self._on_salvar)
+        btn_excluir.clicked.connect(self._on_excluir)
+        lay.addWidget(_row(btn_salvar, btn_excluir))
 
-        # Aprovar tudo ≥ 90%: auto-aprova sem revisão humana (NÃO entra como treino)
-        btn_auto_aprovar = _btn("⚡ Aprovar tudo ≥ 90%", "#1a4a1a", "#2a7a2a", h=36)
+        # ⚡ Aprovar tudo ≥ 90% (largura total)
+        btn_auto_aprovar = _btn("⚡ Aprovar tudo ≥ 90%", "#1a4a1a", "#2a7a2a", h=26)
         btn_auto_aprovar.setToolTip(
             "Aprova automaticamente todos os recortes com confiança ≥ 90%.\n"
             "⚠️ Estes NÃO são usados como dados de treino.\n"
             "Use apenas para avançar — revisão humana 1-a-1 gera dados reais."
         )
         btn_auto_aprovar.clicked.connect(self._on_aprovar_auto)
-
-        btn_aprovar = _btn("✅ Aprovar", Colors.ACCENT_SUCCESS,  "rgba(67,160,71,1)")
-        btn_aprovar.setToolTip("Aprova este recorte com revisão humana — gera dado de treino autêntico.")
-
-        btn_salvar.clicked.connect(self._on_salvar)
-        btn_aprovar.clicked.connect(self._on_aprovar)
-        btn_excluir.clicked.connect(self._on_excluir)
-        lay.addWidget(btn_salvar)
         lay.addWidget(btn_auto_aprovar)
+
+        # ✅ Aprovar (largura total)
+        btn_aprovar = _btn("✅ Aprovar", Colors.ACCENT_SUCCESS, "rgba(67,160,71,1)")
+        btn_aprovar.setToolTip("Aprova este recorte com revisão humana — gera dado de treino autêntico.")
+        btn_aprovar.clicked.connect(self._on_aprovar)
         lay.addWidget(btn_aprovar)
-        lay.addWidget(btn_excluir)
 
         lay.addWidget(self._sep())
 
@@ -1381,6 +1396,21 @@ class _RightPanel(QFrame):
             for rb in self._cls_radios.values():
                 rb.setChecked(False)
             self._cls_group.setExclusive(True)
+
+    def navigate(self, delta: int):
+        """Avança (delta=+1) ou retrocede (delta=-1) na lista de recortes."""
+        lst = self.lst_recortes
+        count = lst.count()
+        if count == 0:
+            return
+        cur = lst.currentRow()
+        if cur < 0:
+            new_row = 0 if delta > 0 else count - 1
+        else:
+            new_row = max(0, min(count - 1, cur + delta))
+        if new_row != cur:
+            lst.setCurrentRow(new_row)
+            # currentItemChanged dispara automaticamente → _on_recorte_clicked
 
     @staticmethod
     def _sep() -> QFrame:
@@ -1747,6 +1777,9 @@ class DiagnosticReverseHub(QWidget):
         # Worker de motor (para não bloquear UI)
         self._motor_worker: QThread | None = None
 
+        # Event filter global: setas do teclado navegam na lista mesmo com foco em outro widget
+        QApplication.instance().installEventFilter(self)
+
     # ── Slots públicos ───────────────────────────────────────────────
 
     def refresh_obras(self, obras: list[str] | None = None):
@@ -1758,6 +1791,21 @@ class DiagnosticReverseHub(QWidget):
         self._current_obra = obra_name
         self._left.set_obra(obra_name)
         self._load_obra_ficha(obra_name)
+
+    def eventFilter(self, obj, event) -> bool:
+        """Intercepta setas do teclado globalmente para navegar na lista do painel direito."""
+        if (
+            event.type() == QEvent.KeyPress
+            and self.isVisible()
+            and event.key() in (Qt.Key_Up, Qt.Key_Down)
+        ):
+            focused = QApplication.focusWidget()
+            # Não interceptar quando foco está em campo de texto
+            if not isinstance(focused, (QLineEdit, QTextEdit)):
+                delta = -1 if event.key() == Qt.Key_Up else 1
+                self._right.navigate(delta)
+                return True
+        return super().eventFilter(obj, event)
 
     # ── Slots internos ───────────────────────────────────────────────
 
