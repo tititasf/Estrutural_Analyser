@@ -2993,8 +2993,9 @@ class NavSidebar(QFrame):
             cur.execute(
                 "SELECT elemento_id, confidence, status, recorte_path "
                 "FROM reverse_eng_recortes "
-                "WHERE obra_name=? AND classe=? ORDER BY elemento_id, created_at DESC",
-                (obra_name, db_cls)
+                "WHERE (obra_name=? OR obra_name='') AND classe=? "
+                "ORDER BY elemento_id, CASE WHEN obra_name=? THEN 0 ELSE 1 END, created_at DESC",
+                (obra_name, db_cls, obra_name)
             )
             all_rows = cur.fetchall()
             conn.close()
@@ -4669,8 +4670,9 @@ class ComparisonEngineModule(QWidget):
             cur = conn.cursor()
             cur.execute(
                 "SELECT recorte_path, status, confidence FROM reverse_eng_recortes "
-                "WHERE obra_name=? AND classe=? AND elemento_id=? ORDER BY created_at DESC",
-                (obra, db_cls, item_id)
+                "WHERE (obra_name=? OR obra_name='') AND classe=? AND elemento_id=? "
+                "ORDER BY CASE WHEN obra_name=? THEN 0 ELSE 1 END, created_at DESC",
+                (obra, db_cls, item_id, obra)
             )
             rows = cur.fetchall()
             conn.close()
@@ -4802,9 +4804,9 @@ class ComparisonEngineModule(QWidget):
                 cur = conn.cursor()
                 cur.execute(
                     "SELECT campos_json, confianca, recorte_path FROM reverse_eng_fichas "
-                    "WHERE obra_name=? AND classe=? AND elemento_id=? "
-                    "ORDER BY ROWID DESC LIMIT 1",
-                    (obra, db_cls, item_id)
+                    "WHERE (obra_name=? OR obra_name='') AND classe=? AND elemento_id=? "
+                    "ORDER BY CASE WHEN obra_name=? THEN 0 ELSE 1 END, ROWID DESC LIMIT 1",
+                    (obra, db_cls, item_id, obra)
                 )
                 row = cur.fetchone()
                 conn.close()
@@ -4834,8 +4836,9 @@ class ComparisonEngineModule(QWidget):
             cur = conn.cursor()
             cur.execute(
                 "SELECT campos_json, confianca, status FROM reverse_eng_fichas "
-                "WHERE obra_name=? AND classe=? AND elemento_id=?",
-                (obra, db_cls, item_id)
+                "WHERE (obra_name=? OR obra_name='') AND classe=? AND elemento_id=? "
+                "ORDER BY CASE WHEN obra_name=? THEN 0 ELSE 1 END, ROWID DESC LIMIT 1",
+                (obra, db_cls, item_id, obra)
             )
             row = cur.fetchone()
             conn.close()
