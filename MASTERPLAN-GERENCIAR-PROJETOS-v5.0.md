@@ -99,16 +99,38 @@ Para cada classe (LV/PL/LJ/FV):
 
 ---
 
-## ESTADO ATUAL — O QUE FOI FEITO NESTA SESSÃO
+## ESTADO ATUAL — SESSÃO 2026-06-03
+
+### Trilha B (UI/Infra) — CONCLUÍDA ✅
+
+| Sprint | Item | Status |
+|--------|------|--------|
+| 0 | DXFVectorView vetorial N1/N2, OOM caps, viewport culling | ✅ COMMITADO |
+| 0 | Fix fundo branco `_resolve_css()`, labels duplicados, gate admin | ✅ COMMITADO |
+| 1 | CE-001: layout esquerdo 270px (Fase8+NavSidebar) | ✅ |
+| 1 | CE-003: botões → "Gerar Crop N3" | ✅ |
+| 1 | PM-001: 3 métodos duplicados removidos | ✅ |
+| 1 | PM-003: seletor pavimento Fases 6 e 7 | ✅ |
+| 2 | CE-002: botões "Iniciar Análise Geral" + "Fase 4" | ✅ |
+| 2 | CE-006: CE→SA via signal em main.py | ✅ |
+| 2 | PM-002: scan filesystem Fase 1 + botão "Indexar Tudo" | ✅ |
+| 3 | CE-004: N2 dinâmico via dxf_discovery.json | ✅ |
+| 3 | PM-006: Fase 2 classe 3 Eng. Reversa (grid + classificação) | ✅ |
+| 4 | CE-005 + PM-009: sync global bidirecional CE↔top bar↔Gerenciar Projetos | ✅ |
+| 4 | PM-004: Fase 6 grid DXF granular por classe + botão Gerar | ✅ |
+| 4 | PM-005: Fase 7 grid consolidação + botão Gerar Consolidado | ✅ |
+| 4 | PM-007: Fase 8 dashboard scores/certificação/exportar | ✅ |
+| 4 | PM-008: DataPipelineView aba "📊 PIPELINE" | ✅ |
+
+### Trilha A (Robot Quality Loop) — EM ANDAMENTO
 
 | Item | Status |
 |------|--------|
-| DXFVectorView — renderização vetorial N1/N2 | ✅ COMMITADO |
-| OOM protection — caps por tipo + sequential loading | ✅ COMMITADO |
-| Viewport culling (86% skip em zoom 500%) | ✅ COMMITADO |
-| Fix fundo branco `_resolve_css()` — 33 stylesheets | ✅ APLICADO |
-| Labels "1. 1. INGESTÃO" → "1. INGESTÃO" | ✅ APLICADO |
-| Gate admin removido — CURADORIA e CENTRAL sempre visíveis | ✅ APLICADO |
+| QA-001: pré-requisitos CE (bloqueante) | ✅ via CE-001/CE-004 |
+| QA-002: refinamento LV 4 vigas (V4–V7) ≥85% | 🔄 PRÓXIMO |
+| QA-003: expansão PL/LJ/FV 4× cada | ⏳ após QA-002 |
+| QA-004: harmonização semântica | ⏳ após QA-003 |
+| QA-005: E2E multi-obra | ⏳ após QA-004 |
 
 ---
 

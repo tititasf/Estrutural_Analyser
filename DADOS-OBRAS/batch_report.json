@@ -1,823 +1,664 @@
 {
-  "timestamp": "2026-05-07T00:25:03.341498",
-  "total": 116,
-  "aprovados": 116,
-  "parciais": 0,
-  "reprovados": 0,
-  "erros": 0,
-  "elapsed_s": 5746.7,
+  "timestamp": "2026-05-23T04:33:12.091206",
+  "total": 92,
+  "aprovados": 13,
+  "parciais": 21,
+  "reprovados": 47,
+  "erros": 11,
+  "elapsed_s": 9983.0,
   "resultados": [
     {
-      "returncode": 0,
-      "elapsed": 23.3,
-      "status": "APROVADO",
+      "returncode": 1,
+      "elapsed": 228.6,
+      "status": "PARCIAL",
       "obra": "Obra_TREINO_1",
       "pavimento": "13PAV"
     },
     {
       "returncode": 0,
-      "elapsed": 24.7,
+      "elapsed": 1111.3,
       "status": "APROVADO",
       "obra": "Obra_TREINO_1",
       "pavimento": "14PAV"
     },
     {
       "returncode": 0,
-      "elapsed": 24.8,
+      "elapsed": 1173.1,
       "status": "APROVADO",
       "obra": "Obra_TREINO_1",
       "pavimento": "1PAV"
     },
     {
       "returncode": 0,
-      "elapsed": 24.0,
+      "elapsed": 1122.3,
       "status": "APROVADO",
       "obra": "Obra_TREINO_1",
       "pavimento": "2PAV"
     },
     {
       "returncode": 0,
-      "elapsed": 24.5,
+      "elapsed": 1123.9,
       "status": "APROVADO",
       "obra": "Obra_TREINO_1",
       "pavimento": "PARAISO - COBERTURA - DECK"
     },
     {
-      "returncode": 0,
-      "elapsed": 22.1,
-      "status": "APROVADO",
+      "returncode": 1,
+      "elapsed": 229.4,
+      "status": "PARCIAL",
       "obra": "Obra_TREINO_1",
       "pavimento": "TIPO - 3 AO 12PAV"
     },
     {
       "returncode": 0,
-      "elapsed": 32.7,
+      "elapsed": 1095.1,
       "status": "APROVADO",
       "obra": "Obra_TREINO_1",
       "pavimento": "TÉRREO"
     },
     {
-      "returncode": 0,
-      "elapsed": 91.5,
-      "status": "APROVADO",
+      "returncode": 1,
+      "elapsed": 188.4,
+      "status": "PARCIAL",
       "obra": "Obra_TREINO_10",
       "pavimento": "1SS - TRECHO 1"
     },
     {
-      "returncode": 0,
-      "elapsed": 51.2,
-      "status": "APROVADO",
-      "obra": "Obra_TREINO_10",
-      "pavimento": "1SS - TRECHO 2"
-    },
-    {
-      "returncode": 0,
-      "elapsed": 198.7,
-      "status": "APROVADO",
+      "returncode": 1,
+      "elapsed": 706.6,
+      "status": "PARCIAL",
       "obra": "Obra_TREINO_10",
       "pavimento": "2SS - TRECHO 1"
     },
     {
       "returncode": 0,
-      "elapsed": 153.9,
-      "status": "APROVADO",
-      "obra": "Obra_TREINO_10",
-      "pavimento": "2SS - TRECHO 2"
-    },
-    {
-      "returncode": 0,
-      "elapsed": 31.8,
-      "status": "APROVADO",
-      "obra": "Obra_TREINO_10",
-      "pavimento": "4PAV"
-    },
-    {
-      "returncode": 0,
-      "elapsed": 24.4,
-      "status": "APROVADO",
-      "obra": "Obra_TREINO_10",
-      "pavimento": "5PAV"
-    },
-    {
-      "returncode": 0,
-      "elapsed": 23.8,
-      "status": "APROVADO",
-      "obra": "Obra_TREINO_10",
-      "pavimento": "6PAV"
-    },
-    {
-      "returncode": 0,
-      "elapsed": 24.3,
-      "status": "APROVADO",
-      "obra": "Obra_TREINO_10",
-      "pavimento": "7PAV"
-    },
-    {
-      "returncode": 0,
-      "elapsed": 23.5,
-      "status": "APROVADO",
-      "obra": "Obra_TREINO_10",
-      "pavimento": "8 E 9PAV"
-    },
-    {
-      "returncode": 0,
-      "elapsed": 56.2,
-      "status": "APROVADO",
-      "obra": "Obra_TREINO_10",
-      "pavimento": "HOSPITAL ASSUNÇÃO-1PAV"
-    },
-    {
-      "returncode": 0,
-      "elapsed": 56.4,
-      "status": "APROVADO",
-      "obra": "Obra_TREINO_10",
-      "pavimento": "HOSPITAL ASSUNÇÃO-2PAV"
-    },
-    {
-      "returncode": 0,
-      "elapsed": 56.0,
-      "status": "APROVADO",
-      "obra": "Obra_TREINO_10",
-      "pavimento": "HOSPITAL ASSUNÇÃO-3PAV",
-      "nota": "Re-run 2026-05-22: fixes NIM NON_BLOCKING + relatorio por pavimento"
-    },
-    {
-      "returncode": 0,
-      "elapsed": 17.0,
+      "elapsed": 1012.2,
       "status": "APROVADO",
       "obra": "Obra_TREINO_10",
       "pavimento": "TRECHO 3 - 1SS"
     },
     {
       "returncode": 0,
-      "elapsed": 158.6,
+      "elapsed": 439.4,
       "status": "APROVADO",
       "obra": "Obra_TREINO_10",
       "pavimento": "TRECHO 3 - 2SS"
     },
     {
-      "returncode": 0,
-      "elapsed": 21.2,
-      "status": "APROVADO",
-      "obra": "Obra_TREINO_10",
-      "pavimento": "TRECHO 3 - TÉRREO"
-    },
-    {
-      "returncode": 0,
-      "elapsed": 55.4,
-      "status": "APROVADO",
-      "obra": "Obra_TREINO_10",
-      "pavimento": "TÉRREO - TRECHO 1"
-    },
-    {
-      "returncode": 0,
-      "elapsed": 51.2,
-      "status": "APROVADO",
-      "obra": "Obra_TREINO_10",
-      "pavimento": "TÉRREO - TRECHO 2"
-    },
-    {
-      "returncode": 0,
-      "elapsed": 18.3,
-      "status": "APROVADO",
+      "returncode": 1,
+      "elapsed": 191.2,
+      "status": "PARCIAL",
       "obra": "Obra_TREINO_11",
       "pavimento": "GWT - 1PV"
     },
     {
-      "returncode": 0,
-      "elapsed": 201.3,
-      "status": "APROVADO",
+      "returncode": 1,
+      "elapsed": 327.3,
+      "status": "PARCIAL",
       "obra": "Obra_TREINO_11",
       "pavimento": "GWT - 1SS"
     },
     {
       "returncode": 0,
-      "elapsed": 18.6,
+      "elapsed": 127.8,
       "status": "APROVADO",
       "obra": "Obra_TREINO_11",
       "pavimento": "GWT - 2PV"
     },
     {
       "returncode": 0,
-      "elapsed": 18.8,
+      "elapsed": 169.8,
       "status": "APROVADO",
       "obra": "Obra_TREINO_11",
       "pavimento": "GWT - 5PV"
     },
     {
       "returncode": 0,
-      "elapsed": 18.9,
+      "elapsed": 153.6,
       "status": "APROVADO",
       "obra": "Obra_TREINO_11",
       "pavimento": "GWT - 6PV"
     },
     {
       "returncode": 0,
-      "elapsed": 30.2,
+      "elapsed": 207.0,
       "status": "APROVADO",
       "obra": "Obra_TREINO_11",
       "pavimento": "GWT - BCE"
     },
     {
       "returncode": 0,
-      "elapsed": 214.2,
+      "elapsed": 171.8,
       "status": "APROVADO",
       "obra": "Obra_TREINO_11",
       "pavimento": "GWT - TER"
     },
     {
       "returncode": 0,
-      "elapsed": 17.8,
+      "elapsed": 144.3,
       "status": "APROVADO",
       "obra": "Obra_TREINO_11",
       "pavimento": "GWT - TIP"
     },
     {
-      "returncode": 0,
-      "elapsed": 147.6,
-      "status": "APROVADO",
-      "obra": "Obra_TREINO_11",
-      "pavimento": "GWT - TRI - TRII - 1SS"
-    },
-    {
-      "returncode": 0,
-      "elapsed": 27.6,
-      "status": "APROVADO",
+      "returncode": 1,
+      "elapsed": 20.1,
+      "status": "PARCIAL",
       "obra": "Obra_TREINO_13",
       "pavimento": "1PV"
     },
     {
-      "returncode": 0,
-      "elapsed": 21.4,
-      "status": "APROVADO",
+      "returncode": 1,
+      "elapsed": 5.6,
+      "status": "PARCIAL",
       "obra": "Obra_TREINO_13",
       "pavimento": "1SI"
     },
     {
-      "returncode": 0,
-      "elapsed": 27.8,
-      "status": "APROVADO",
+      "returncode": 1,
+      "elapsed": 6.2,
+      "status": "PARCIAL",
       "obra": "Obra_TREINO_13",
       "pavimento": "1SS"
     },
     {
-      "returncode": 0,
-      "elapsed": 27.3,
-      "status": "APROVADO",
+      "returncode": 1,
+      "elapsed": 5.2,
+      "status": "PARCIAL",
       "obra": "Obra_TREINO_13",
       "pavimento": "2PV"
     },
     {
-      "returncode": 0,
-      "elapsed": 22.5,
-      "status": "APROVADO",
+      "returncode": 1,
+      "elapsed": 5.4,
+      "status": "PARCIAL",
       "obra": "Obra_TREINO_13",
       "pavimento": "2SI"
     },
     {
-      "returncode": 0,
-      "elapsed": 26.0,
-      "status": "APROVADO",
+      "returncode": 1,
+      "elapsed": 12.0,
+      "status": "PARCIAL",
       "obra": "Obra_TREINO_13",
       "pavimento": "2SS"
     },
     {
-      "returncode": 0,
-      "elapsed": 27.4,
-      "status": "APROVADO",
+      "returncode": 1,
+      "elapsed": 2.6,
+      "status": "PARCIAL",
       "obra": "Obra_TREINO_13",
       "pavimento": "3PV"
     },
     {
-      "returncode": 0,
-      "elapsed": 24.3,
-      "status": "APROVADO",
+      "returncode": 1,
+      "elapsed": 0.2,
+      "status": "PARCIAL",
       "obra": "Obra_TREINO_13",
       "pavimento": "3SS"
     },
     {
-      "returncode": 0,
-      "elapsed": 27.5,
-      "status": "APROVADO",
+      "returncode": 1,
+      "elapsed": 0.5,
+      "status": "PARCIAL",
       "obra": "Obra_TREINO_13",
       "pavimento": "4PV"
     },
     {
-      "returncode": 0,
-      "elapsed": 25.2,
-      "status": "APROVADO",
+      "returncode": 1,
+      "elapsed": 0.5,
+      "status": "PARCIAL",
       "obra": "Obra_TREINO_13",
       "pavimento": "4SS"
     },
     {
-      "returncode": 0,
-      "elapsed": 30.8,
-      "status": "APROVADO",
+      "returncode": 1,
+      "elapsed": 0.4,
+      "status": "PARCIAL",
       "obra": "Obra_TREINO_13",
       "pavimento": "5PV"
     },
     {
-      "returncode": 0,
-      "elapsed": 27.4,
-      "status": "APROVADO",
+      "returncode": 1,
+      "elapsed": 0.3,
+      "status": "PARCIAL",
       "obra": "Obra_TREINO_13",
       "pavimento": "6PV"
     },
     {
-      "returncode": 0,
-      "elapsed": 27.0,
-      "status": "APROVADO",
+      "returncode": 1,
+      "elapsed": 0.2,
+      "status": "PARCIAL",
       "obra": "Obra_TREINO_13",
       "pavimento": "ATICO"
     },
     {
-      "returncode": 0,
-      "elapsed": 27.1,
-      "status": "APROVADO",
+      "returncode": 1,
+      "elapsed": 0.0,
+      "status": "PARCIAL",
       "obra": "Obra_TREINO_13",
       "pavimento": "TER"
     },
     {
-      "returncode": 0,
-      "elapsed": 27.3,
-      "status": "APROVADO",
+      "returncode": 1,
+      "elapsed": 0.3,
+      "status": "PARCIAL",
       "obra": "Obra_TREINO_13",
       "pavimento": "TIPO"
     },
     {
-      "returncode": 0,
-      "elapsed": 28.4,
-      "status": "APROVADO",
+      "returncode": 3221225773,
+      "elapsed": 0.0,
+      "status": "REPROVADO",
       "obra": "Obra_TREINO_14",
       "pavimento": "ARRAIA - 1PAV"
     },
     {
-      "returncode": 0,
-      "elapsed": 80.1,
-      "status": "APROVADO",
+      "returncode": 3221225773,
+      "elapsed": 0.0,
+      "status": "REPROVADO",
       "obra": "Obra_TREINO_14",
       "pavimento": "ARRAIA - 2PAV"
     },
     {
-      "returncode": 0,
-      "elapsed": 60.9,
-      "status": "APROVADO",
+      "returncode": 3221225773,
+      "elapsed": 0.0,
+      "status": "REPROVADO",
       "obra": "Obra_TREINO_15",
       "pavimento": "LO - 6PV"
     },
     {
-      "returncode": 0,
-      "elapsed": 100.5,
-      "status": "APROVADO",
+      "returncode": 3221225773,
+      "elapsed": 0.0,
+      "status": "REPROVADO",
       "obra": "Obra_TREINO_15",
       "pavimento": "LO - TIP - DINF"
     },
     {
-      "returncode": 0,
-      "elapsed": 217.3,
-      "status": "APROVADO",
+      "returncode": 3221225773,
+      "elapsed": 0.0,
+      "status": "REPROVADO",
       "obra": "Obra_TREINO_16",
       "pavimento": "VALDIR NIEMEYER - 1PV"
     },
     {
-      "returncode": 0,
-      "elapsed": 177.1,
-      "status": "APROVADO",
+      "returncode": 3221225773,
+      "elapsed": 0.0,
+      "status": "REPROVADO",
       "obra": "Obra_TREINO_16",
       "pavimento": "VALDIR NIEMEYER - 4PV"
     },
     {
-      "returncode": 0,
-      "elapsed": 215.0,
-      "status": "APROVADO",
+      "returncode": 3221225794,
+      "elapsed": 0.0,
+      "status": "REPROVADO",
       "obra": "Obra_TREINO_16",
       "pavimento": "VALDIR NIEMEYER - TER"
     },
     {
-      "returncode": 0,
-      "elapsed": 177.9,
-      "status": "APROVADO",
+      "returncode": -1,
+      "elapsed": 0,
+      "status": "ERRO",
+      "error": "[WinError 1455] O arquivo de paginação é muito pequeno para que esta operação seja concluída",
       "obra": "Obra_TREINO_16",
       "pavimento": "VALDIR NIEMEYER - TP1"
     },
     {
-      "returncode": 0,
-      "elapsed": 174.7,
-      "status": "APROVADO",
+      "returncode": 3221225773,
+      "elapsed": 0.0,
+      "status": "REPROVADO",
       "obra": "Obra_TREINO_16",
       "pavimento": "VALDIR NIEMEYER - TP2"
     },
     {
-      "returncode": 0,
-      "elapsed": 211.6,
-      "status": "APROVADO",
+      "returncode": 3221225773,
+      "elapsed": 0.0,
+      "status": "REPROVADO",
       "obra": "Obra_TREINO_17",
       "pavimento": "METROCASA9 DE JULHO - 1PV"
     },
     {
-      "returncode": 0,
-      "elapsed": 20.2,
-      "status": "APROVADO",
+      "returncode": 3221225773,
+      "elapsed": 0.0,
+      "status": "REPROVADO",
       "obra": "Obra_TREINO_18",
       "pavimento": "1PV"
     },
     {
-      "returncode": 0,
-      "elapsed": 27.9,
-      "status": "APROVADO",
+      "returncode": -1,
+      "elapsed": 0,
+      "status": "ERRO",
+      "error": "[WinError 1455] O arquivo de paginação é muito pequeno para que esta operação seja concluída",
       "obra": "Obra_TREINO_18",
       "pavimento": "2PV"
     },
     {
-      "returncode": 0,
-      "elapsed": 19.5,
-      "status": "APROVADO",
+      "returncode": 3221225773,
+      "elapsed": 0.0,
+      "status": "REPROVADO",
       "obra": "Obra_TREINO_18",
       "pavimento": "TPIMPAR"
     },
     {
-      "returncode": 0,
-      "elapsed": 19.8,
-      "status": "APROVADO",
+      "returncode": 3221225773,
+      "elapsed": 0.0,
+      "status": "REPROVADO",
       "obra": "Obra_TREINO_18",
       "pavimento": "TPPAR"
     },
     {
-      "returncode": 0,
-      "elapsed": 20.2,
-      "status": "APROVADO",
+      "returncode": 3221225773,
+      "elapsed": 0.0,
+      "status": "REPROVADO",
       "obra": "Obra_TREINO_19",
       "pavimento": "1 SUBOLO"
     },
     {
-      "returncode": 0,
-      "elapsed": 10.5,
-      "status": "APROVADO",
-      "obra": "Obra_TREINO_20",
-      "pavimento": "ITAQUERA III - 1PV"
-    },
-    {
-      "returncode": 0,
-      "elapsed": 10.8,
-      "status": "APROVADO",
+      "returncode": 3221225773,
+      "elapsed": 0.0,
+      "status": "REPROVADO",
       "obra": "Obra_TREINO_20",
       "pavimento": "ITAQUERA III - IF1"
     },
     {
-      "returncode": 0,
-      "elapsed": 9.9,
-      "status": "APROVADO",
+      "returncode": 3221225773,
+      "elapsed": 0.0,
+      "status": "REPROVADO",
       "obra": "Obra_TREINO_20",
       "pavimento": "ITAQUERA III - TER"
     },
     {
-      "returncode": 0,
-      "elapsed": 23.4,
-      "status": "APROVADO",
+      "returncode": 3221225773,
+      "elapsed": 0.0,
+      "status": "REPROVADO",
       "obra": "Obra_TREINO_21",
       "pavimento": "12PAV"
     },
     {
-      "returncode": 0,
-      "elapsed": 25.2,
-      "status": "APROVADO",
+      "returncode": 3221225773,
+      "elapsed": 0.0,
+      "status": "REPROVADO",
       "obra": "Obra_TREINO_21",
       "pavimento": "1PAV"
     },
     {
-      "returncode": 0,
-      "elapsed": 26.9,
-      "status": "APROVADO",
-      "obra": "Obra_TREINO_21",
-      "pavimento": "2, 3 E PAV. TIPO"
-    },
-    {
-      "returncode": 0,
-      "elapsed": 22.1,
-      "status": "APROVADO",
+      "returncode": 3221225773,
+      "elapsed": 0.0,
+      "status": "REPROVADO",
       "obra": "Obra_TREINO_21",
       "pavimento": "LAJE TÉCNICA"
     },
     {
-      "returncode": 0,
-      "elapsed": 61.7,
-      "status": "APROVADO",
+      "returncode": 3221225773,
+      "elapsed": 0.0,
+      "status": "REPROVADO",
       "obra": "Obra_TREINO_22",
       "pavimento": "1PAV"
     },
     {
-      "returncode": 0,
-      "elapsed": 58.9,
-      "status": "APROVADO",
+      "returncode": 3221225773,
+      "elapsed": 0.0,
+      "status": "REPROVADO",
       "obra": "Obra_TREINO_22",
       "pavimento": "2PAV"
     },
     {
-      "returncode": 0,
-      "elapsed": 203.3,
-      "status": "APROVADO",
+      "returncode": 3221225773,
+      "elapsed": 0.0,
+      "status": "REPROVADO",
       "obra": "Obra_TREINO_23",
       "pavimento": "SANTA CRUZ - 1PV"
     },
     {
-      "returncode": 0,
-      "elapsed": 205.6,
-      "status": "APROVADO",
+      "returncode": 3221225773,
+      "elapsed": 0.0,
+      "status": "REPROVADO",
       "obra": "Obra_TREINO_23",
       "pavimento": "SANTA CRUZ - INF2"
     },
     {
-      "returncode": 0,
-      "elapsed": 211.2,
-      "status": "APROVADO",
+      "returncode": 3221225773,
+      "elapsed": 0.0,
+      "status": "REPROVADO",
       "obra": "Obra_TREINO_23",
       "pavimento": "SANTA CRUZ - TER"
     },
     {
-      "returncode": 0,
-      "elapsed": 19.7,
-      "status": "APROVADO",
+      "returncode": -1,
+      "elapsed": 0,
+      "status": "ERRO",
+      "error": "[WinError 1455] O arquivo de paginação é muito pequeno para que esta operação seja concluída",
       "obra": "Obra_TREINO_3",
       "pavimento": "1 SUB - PERIFERIA - TORRE 1 - S01A"
     },
     {
-      "returncode": 0,
-      "elapsed": 19.5,
-      "status": "APROVADO",
+      "returncode": 3221225773,
+      "elapsed": 0.0,
+      "status": "REPROVADO",
       "obra": "Obra_TREINO_3",
       "pavimento": "1 SUB - PERIFERIA - TORRE 1 - S02A"
     },
     {
-      "returncode": 0,
-      "elapsed": 21.1,
-      "status": "APROVADO",
+      "returncode": -1,
+      "elapsed": 0,
+      "status": "ERRO",
+      "error": "[WinError 1455] O arquivo de paginação é muito pequeno para que esta operação seja concluída",
       "obra": "Obra_TREINO_3",
       "pavimento": "1 SUB - PERIFERIA - TORRE 1 - S03A"
     },
     {
-      "returncode": 0,
-      "elapsed": 19.4,
-      "status": "APROVADO",
+      "returncode": 3221225773,
+      "elapsed": 0.0,
+      "status": "REPROVADO",
       "obra": "Obra_TREINO_3",
       "pavimento": "1 SUB - PERIFERIA - TORRE 1 - S04A"
     },
     {
-      "returncode": 0,
-      "elapsed": 27.0,
-      "status": "APROVADO",
+      "returncode": 3221225773,
+      "elapsed": 0.0,
+      "status": "REPROVADO",
       "obra": "Obra_TREINO_3",
       "pavimento": "1 SUBOLO - TB"
     },
     {
-      "returncode": 0,
-      "elapsed": 27.3,
-      "status": "APROVADO",
+      "returncode": 3221225773,
+      "elapsed": 0.0,
+      "status": "REPROVADO",
       "obra": "Obra_TREINO_3",
       "pavimento": "RES.DIAMOND - 1 SUBOLO"
     },
     {
-      "returncode": 0,
-      "elapsed": 31.6,
-      "status": "APROVADO",
+      "returncode": 3221225773,
+      "elapsed": 0.0,
+      "status": "REPROVADO",
       "obra": "Obra_TREINO_3",
       "pavimento": "RES.DIAMOND - TORRE A - TÉRREO"
     },
     {
-      "returncode": 0,
-      "elapsed": 33.0,
-      "status": "APROVADO",
+      "returncode": 3221225773,
+      "elapsed": 0.0,
+      "status": "REPROVADO",
       "obra": "Obra_TREINO_3",
       "pavimento": "TORRE 1 - TIPO 14 AO 17PAV"
     },
     {
-      "returncode": 0,
-      "elapsed": 35.9,
-      "status": "APROVADO",
+      "returncode": 3221225773,
+      "elapsed": 0.0,
+      "status": "REPROVADO",
       "obra": "Obra_TREINO_3",
       "pavimento": "TORRE 2 - TIPO 2 AO 13PAV"
     },
     {
-      "returncode": 0,
-      "elapsed": 35.5,
-      "status": "APROVADO",
+      "returncode": -1,
+      "elapsed": 0,
+      "status": "ERRO",
+      "error": "[WinError 1455] O arquivo de paginação é muito pequeno para que esta operação seja concluída",
       "obra": "Obra_TREINO_3",
       "pavimento": "TORRE A - 1PAV"
     },
     {
-      "returncode": 0,
-      "elapsed": 33.2,
-      "status": "APROVADO",
+      "returncode": 3221225773,
+      "elapsed": 0.0,
+      "status": "REPROVADO",
       "obra": "Obra_TREINO_3",
       "pavimento": "TORRE A - TIPO 2 AO 13PAV"
     },
     {
-      "returncode": 0,
-      "elapsed": 36.5,
-      "status": "APROVADO",
+      "returncode": 3221225773,
+      "elapsed": 0.0,
+      "status": "REPROVADO",
       "obra": "Obra_TREINO_3",
       "pavimento": "TORRE B - 1PAV"
     },
     {
-      "returncode": 0,
-      "elapsed": 19.6,
-      "status": "APROVADO",
+      "returncode": -1,
+      "elapsed": 0,
+      "status": "ERRO",
+      "error": "[WinError 1455] O arquivo de paginação é muito pequeno para que esta operação seja concluída",
       "obra": "Obra_TREINO_3",
       "pavimento": "TÉRREO - PERIFERIA - TORRE 1 - S01A"
     },
     {
-      "returncode": 0,
-      "elapsed": 18.4,
-      "status": "APROVADO",
+      "returncode": 3221225773,
+      "elapsed": 0.0,
+      "status": "REPROVADO",
       "obra": "Obra_TREINO_3",
       "pavimento": "TÉRREO - PERIFERIA - TORRE 1 - S02A"
     },
     {
-      "returncode": 0,
-      "elapsed": 20.2,
-      "status": "APROVADO",
+      "returncode": 3221225773,
+      "elapsed": 0.0,
+      "status": "REPROVADO",
       "obra": "Obra_TREINO_3",
       "pavimento": "TÉRREO - PERIFERIA - TORRE 1 - S03A"
     },
     {
-      "returncode": 0,
-      "elapsed": 18.7,
-      "status": "APROVADO",
+      "returncode": -1,
+      "elapsed": 0,
+      "status": "ERRO",
+      "error": "[WinError 1455] O arquivo de paginação é muito pequeno para que esta operação seja concluída",
       "obra": "Obra_TREINO_3",
       "pavimento": "TÉRREO - PERIFERIA - TORRE 1 - S04A"
     },
     {
-      "returncode": 0,
-      "elapsed": 31.6,
-      "status": "APROVADO",
+      "returncode": 3221225773,
+      "elapsed": 0.0,
+      "status": "REPROVADO",
       "obra": "Obra_TREINO_3",
       "pavimento": "TÉRREO - T2"
     },
     {
-      "returncode": 0,
-      "elapsed": 18.9,
-      "status": "APROVADO",
-      "obra": "Obra_TREINO_5",
-      "pavimento": "EMBRAMACO - 1PV"
-    },
-    {
-      "returncode": 0,
-      "elapsed": 18.7,
-      "status": "APROVADO",
-      "obra": "Obra_TREINO_5",
-      "pavimento": "EMBRAMACO - 2PV"
-    },
-    {
-      "returncode": 0,
-      "elapsed": 20.9,
-      "status": "APROVADO",
-      "obra": "Obra_TREINO_5",
-      "pavimento": "EMBRAMACO - N300",
-      "nota": "Re-run 2026-05-22: NON_BLOCKING fix"
-    },
-    {
-      "returncode": 0,
-      "elapsed": 18.9,
-      "status": "APROVADO",
-      "obra": "Obra_TREINO_5",
-      "pavimento": "EMBRAMACO - N300 - 500"
-    },
-    {
-      "returncode": 0,
-      "elapsed": 18.1,
-      "status": "APROVADO",
-      "obra": "Obra_TREINO_5",
-      "pavimento": "EMBRAMACO - PLA - RES"
-    },
-    {
-      "returncode": 0,
-      "elapsed": 20.1,
-      "status": "APROVADO",
-      "obra": "Obra_TREINO_5",
-      "pavimento": "EMBRAMACO - TER"
-    },
-    {
-      "returncode": 0,
-      "elapsed": 18.0,
-      "status": "APROVADO",
+      "returncode": 3221225773,
+      "elapsed": 0.0,
+      "status": "REPROVADO",
       "obra": "Obra_TREINO_6",
       "pavimento": "JFC - 10PV"
     },
     {
-      "returncode": 0,
-      "elapsed": 15.6,
-      "status": "APROVADO",
+      "returncode": 3221225773,
+      "elapsed": 0.0,
+      "status": "REPROVADO",
       "obra": "Obra_TREINO_6",
       "pavimento": "JFC - 11PV"
     },
     {
-      "returncode": 0,
-      "elapsed": 17.1,
-      "status": "APROVADO",
+      "returncode": 3221225773,
+      "elapsed": 0.0,
+      "status": "REPROVADO",
       "obra": "Obra_TREINO_6",
       "pavimento": "JFC - 12PV"
     },
     {
-      "returncode": 0,
-      "elapsed": 19.6,
-      "status": "APROVADO",
+      "returncode": 3221225773,
+      "elapsed": 0.0,
+      "status": "REPROVADO",
       "obra": "Obra_TREINO_6",
       "pavimento": "JFC - 1PV"
     },
     {
-      "returncode": 0,
-      "elapsed": 18.9,
-      "status": "APROVADO",
+      "returncode": 3221225773,
+      "elapsed": 0.0,
+      "status": "REPROVADO",
       "obra": "Obra_TREINO_6",
       "pavimento": "JFC - ATC"
     },
     {
-      "returncode": 0,
-      "elapsed": 17.8,
-      "status": "APROVADO",
+      "returncode": 3221225773,
+      "elapsed": 0.0,
+      "status": "REPROVADO",
       "obra": "Obra_TREINO_6",
       "pavimento": "JFC - TIP"
     },
     {
-      "returncode": 0,
-      "elapsed": 40.9,
-      "status": "APROVADO",
+      "returncode": 3221225773,
+      "elapsed": 0.0,
+      "status": "REPROVADO",
       "obra": "Obra_TREINO_8",
       "pavimento": "IONEJI - T1 - 1PAV"
     },
     {
-      "returncode": 0,
-      "elapsed": 35.7,
-      "status": "APROVADO",
-      "obra": "Obra_TREINO_8",
-      "pavimento": "IONEJI - T2 - 1PAV"
-    },
-    {
-      "returncode": 0,
-      "elapsed": 31.0,
-      "status": "APROVADO",
+      "returncode": -1,
+      "elapsed": 0,
+      "status": "ERRO",
+      "error": "[WinError 1455] O arquivo de paginação é muito pequeno para que esta operação seja concluída",
       "obra": "Obra_TREINO_9",
       "pavimento": "TORRE 1 - 1PAVIMENTO"
     },
     {
-      "returncode": 0,
-      "elapsed": 16.8,
-      "status": "APROVADO",
+      "returncode": 3221225773,
+      "elapsed": 0.0,
+      "status": "REPROVADO",
       "obra": "Obra_TREINO_9",
       "pavimento": "TORRE 1 - 1PAVIMENTO - PERIFERIA"
     },
     {
-      "returncode": 0,
-      "elapsed": 22.8,
-      "status": "APROVADO",
+      "returncode": -1,
+      "elapsed": 0,
+      "status": "ERRO",
+      "error": "[WinError 1455] O arquivo de paginação é muito pequeno para que esta operação seja concluída",
       "obra": "Obra_TREINO_9",
       "pavimento": "TORRE 1 - TIPO"
     },
     {
-      "returncode": 0,
-      "elapsed": 22.2,
-      "status": "APROVADO",
+      "returncode": 3221225773,
+      "elapsed": 0.0,
+      "status": "REPROVADO",
       "obra": "Obra_TREINO_9",
       "pavimento": "TORRE 1 - TÉRREO"
     },
     {
-      "returncode": 0,
-      "elapsed": 30.1,
-      "status": "APROVADO",
+      "returncode": 3221225773,
+      "elapsed": 0.0,
+      "status": "REPROVADO",
       "obra": "Obra_TREINO_9",
       "pavimento": "TORRE 2 - 1PAVIMENTO"
     },
     {
-      "returncode": 0,
-      "elapsed": 18.4,
-      "status": "APROVADO",
+      "returncode": -1,
+      "elapsed": 0,
+      "status": "ERRO",
+      "error": "[WinError 1455] O arquivo de paginação é muito pequeno para que esta operação seja concluída",
       "obra": "Obra_TREINO_9",
       "pavimento": "TORRE 2 - BARRILETE"
     },
     {
-      "returncode": 0,
-      "elapsed": 16.4,
-      "status": "APROVADO",
-      "obra": "Obra_TREINO_9",
-      "pavimento": "TORRE 2 - COBERTURA"
-    },
-    {
-      "returncode": 0,
-      "elapsed": 23.9,
-      "status": "APROVADO",
+      "returncode": 3221225773,
+      "elapsed": 0.0,
+      "status": "REPROVADO",
       "obra": "Obra_TREINO_9",
       "pavimento": "TORRE 2 - TIPO"
     },
     {
-      "returncode": 0,
-      "elapsed": 25.3,
-      "status": "APROVADO",
+      "returncode": -1,
+      "elapsed": 0,
+      "status": "ERRO",
+      "error": "[WinError 1455] O arquivo de paginação é muito pequeno para que esta operação seja concluída",
       "obra": "Obra_TREINO_9",
       "pavimento": "TORRE 2 - TÉRREO"
     },
     {
-      "returncode": 0,
-      "elapsed": 17.9,
-      "status": "APROVADO",
+      "returncode": 3221225773,
+      "elapsed": 0.0,
+      "status": "REPROVADO",
       "obra": "Obra_TREINO_9",
       "pavimento": "TORRE 2 - TÉRREO - PERIFERIA"
     }

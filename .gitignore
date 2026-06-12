@@ -5,8 +5,11 @@
 # Large binary release artifacts
 repository/targets/
 
-# Large binary data files
+# Large binary data files (DB principal + backups/WAL/SHM, >1GB)
 project_data.vision
+project_data.vision-wal
+project_data.vision-shm
+project_data.vision.bak_*
 
 # Python bytecode
 __pycache__/
