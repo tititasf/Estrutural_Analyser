@@ -2643,6 +2643,7 @@ class NavSidebar(QFrame):
         self._current_pav: str = ""       # pav key do discovery.json (ex: "13PAV")
         self._selected_classe = ""
         self._selected_item   = ""
+        self._selected_recorte_path = ""  # recorte_path do item ER selecionado (Qt.UserRole+1)
         self._tab_btns: dict  = {}
 
         self.setStyleSheet(f"background: {Colors.BG_PANEL}; border-top: 1px solid {Colors.BORDER_DEFAULT};")
@@ -3124,6 +3125,8 @@ class NavSidebar(QFrame):
         classe, item_id = data
         self._selected_classe = classe
         self._selected_item   = item_id
+        # Captura o recorte_path já salvo no item (estado atual do DB, sem re-consulta)
+        self._selected_recorte_path = item.data(Qt.UserRole + 1) or ""
         for btn in (self.btn_process, self.btn_gerar_n1,
                     self.btn_gerar_n2, self.btn_gerar_n3, self.btn_gerar_n4):
             btn.setEnabled(True)
@@ -4595,10 +4598,16 @@ class ComparisonEngineModule(QWidget):
             # Step 1: recorte N2
             col.pipeline.set_step(0, 'running', 'Localizando...')
             if is_er_flow:
-                # ER flow: usa recorte DXF individual (<1MB) — evita crash com STOG 7-8MB
-                n2_dxf  = self._get_recorte_dxf_for_er(obra, classe, item_id)
+                # Usa o recorte_path já armazenado no item da lista (estado atual do DB)
+                # — evita re-consulta ao DB e garante consistência com o que a lista exibe
+                _saved = getattr(self.nav_sidebar, '_selected_recorte_path', '')
+                if _saved and Path(_saved).exists():
+                    n2_dxf = Path(_saved)
+                else:
+                    # Fallback: re-consulta caso o item venha de outra fonte (botão manual)
+                    n2_dxf = self._get_recorte_dxf_for_er(obra, classe, item_id)
                 n2_bbox = None  # vista completa do recorte
-                _ce_log(f"N2 recorte_path={n2_dxf}")
+                _ce_log(f"N2 recorte_path={n2_dxf} (saved={bool(_saved)})")
             else:
                 n2_dxf  = self.tri_level._find_n2_dxf(obra, pav, classe)
                 n2_bbox = self.tri_level._get_n2_bbox_for(item_id, classe)
@@ -4778,10 +4787,10 @@ class ComparisonEngineModule(QWidget):
         return self._find_disk_dxf_for_er(obra, db_cls, item_id)
 
     def _ficha_n2_er(self, obra: str, classe: str, item_id: str) -> list:
-        """Ficha N2 para fluxo ER — prioriza o recorte ATUAL (pós edição/aprovação salvo
-        no Diagnostic Reverse Hub via reverse_eng_recortes). Usa cache de
-        reverse_eng_fichas apenas se apontar para esse MESMO recorte_path (evita
-        ficha desatualizada); senão extrai on-demand do recorte atual."""
+        """Ficha N2 para fluxo ER — mostra APENAS dados já salvos no DB.
+        Nunca roda motor on-demand (processamento pertence ao Diagnostic Reverse Hub).
+        Prioridade: reverse_eng_fichas cacheada (qualquer recorte_path) →
+        info básica de reverse_eng_recortes → mensagem orientativa."""
         import json as _json
         _cls_map = {"PL": "PIL", "LV": "LV", "FV": "FV", "LJ": "LAJ"}
         db_cls = _cls_map.get(classe, classe)
@@ -4789,9 +4798,9 @@ class ComparisonEngineModule(QWidget):
         # ── Tentativa 1: recorte atual (reverse_eng_recortes) ─────────────────
         record = self._get_recorte_record(obra, db_cls, item_id)
         if record:
-            recorte_path, rec_status, _rec_conf = record
+            recorte_path, rec_status, rec_conf = record
 
-            # 1a: cache reverse_eng_fichas — só usa se apontar para o MESMO recorte_path
+            # 1a: ficha cacheada em reverse_eng_fichas (aceita qualquer recorte_path salvo)
             try:
                 import sqlite3
                 db_path = r"D:/Agente-cad-PYSIDE/project_data.vision"
@@ -4799,30 +4808,29 @@ class ComparisonEngineModule(QWidget):
                 cur = conn.cursor()
                 cur.execute(
                     "SELECT campos_json, confianca, recorte_path FROM reverse_eng_fichas "
-                    "WHERE obra_name=? AND classe=? AND elemento_id=?",
+                    "WHERE obra_name=? AND classe=? AND elemento_id=? "
+                    "ORDER BY ROWID DESC LIMIT 1",
                     (obra, db_cls, item_id)
                 )
                 row = cur.fetchone()
                 conn.close()
-                if row and row[2] and Path(row[2]) == Path(recorte_path):
-                    campos_raw, conf, _ = row
+                if row and row[0]:
+                    campos_raw, conf, cached_path = row
                     campos = _json.loads(campos_raw) if campos_raw else {}
+                    source = "ficha salva" if (cached_path and Path(cached_path) == Path(recorte_path)) \
+                             else "ficha salva (recorte anterior)"
                     return self._format_ficha_rows(
-                        item_id, db_cls, campos, conf or 0.0,
-                        rec_status, "ficha cacheada (recorte atual)"
+                        item_id, db_cls, campos, conf or 0.0, rec_status, source
                     )
             except Exception as exc:
-                print(f"[CE] _ficha_n2_er cache check error: {exc}")
+                print(f"[CE] _ficha_n2_er cache error: {exc}")
 
-            # 1b: extrai on-demand do recorte ATUAL
-            try:
-                campos, conf = self._extrair_ficha_motor(db_cls, item_id, recorte_path, obra)
-                return self._format_ficha_rows(
-                    item_id, db_cls, campos, conf,
-                    rec_status, "recorte atual (on-demand)"
-                )
-            except Exception as exc:
-                return [("ER Error", str(exc))]
+            # 1b: sem ficha processada — mostra info básica do recorte salvo (sem motor)
+            return self._format_ficha_rows(
+                item_id, db_cls, {}, rec_conf or 0.0,
+                rec_status,
+                f"recorte salvo · processe no Diagnostic Hub para gerar ficha"
+            )
 
         # ── Tentativa 2: legado — reverse_eng_fichas por elemento_id ──────────
         try:
@@ -4847,20 +4855,13 @@ class ComparisonEngineModule(QWidget):
         except Exception as exc:
             print(f"[CE] _ficha_n2_er DB error: {exc}")
 
-        # ── Tentativa 3: motor reverso direto no DXF do disco ─────────────────
-        # Usado quando não há registro em reverse_eng_recortes nem reverse_eng_fichas
-        # (ex: disco tem recortes mas motor nunca rodou em batch para esse pavimento)
-        try:
-            dxf_path = self._find_disk_dxf_for_er(obra, db_cls, item_id)
-            if dxf_path is None:
-                return [("ER", f"'{item_id}' — sem recorte no DB e sem DXF no disco")]
-            campos, conf = self._extrair_ficha_motor(db_cls, item_id, str(dxf_path), obra)
-            return self._format_ficha_rows(
-                item_id, db_cls, campos, conf,
-                "disco", "disco (motor on-demand)"
-            )
-        except Exception as exc:
-            return [("ER Error", str(exc))]
+        # Não há registro no DB — não roda motor on-demand (processamento é do Diagnostic Hub)
+        return [
+            ("Elemento", item_id),
+            ("Classe",   db_cls),
+            ("Status",   "—"),
+            ("Info",     "Sem ficha salva — processe no Diagnostic Hub"),
+        ]
 
     def _find_disk_dxf_for_er(self, obra_name: str, classe: str, elem_id: str) -> "Path | None":
         """Encontra o melhor DXF no disco para (obra, classe, elem_id).
