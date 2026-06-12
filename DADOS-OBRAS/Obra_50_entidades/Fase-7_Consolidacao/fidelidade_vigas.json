@@ -1,0 +1,18 @@
+{
+  "tipo": "vigas",
+  "score": 0.0,
+  "aprovado": false,
+  "limiar": 82.0,
+  "sub_tipos": {
+    "LV": {
+      "score": null,
+      "aprovado": null,
+      "erro": "STOG não encontrado"
+    },
+    "FV": {
+      "score": null,
+      "aprovado": null,
+      "erro": "STOG não encontrado"
+    }
+  }
+}

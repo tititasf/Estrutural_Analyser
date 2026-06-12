@@ -1,0 +1,31 @@
+{
+  "obra": "OBRA-TESTE1",
+  "pavimento": "12 PAV",
+  "timestamp": "2026-05-20T20:41:41.830760",
+  "fases": {
+    "descoberta": "OK",
+    "eng_reversa": "FALHOU",
+    "extracao_dimensional": "OK",
+    "motor_fase4": "OK",
+    "geracao_dxf_individual": "OK",
+    "comparacao_individual": "FALHOU/SKIP",
+    "ancoras": "OK",
+    "consolidacao_coletivo": "OK",
+    "validacao_coletivo": "OK",
+    "obras_salvas": "SKIP",
+    "validacao_visual": "SKIP"
+  },
+  "scores": {
+    "coletivo": {
+      "pilares": null,
+      "vigas": null,
+      "lajes": null,
+      "global": 0.0,
+      "aprovado": false
+    }
+  },
+  "status": "REPROVADO",
+  "fases_falhou": [
+    "eng_reversa"
+  ]
+}

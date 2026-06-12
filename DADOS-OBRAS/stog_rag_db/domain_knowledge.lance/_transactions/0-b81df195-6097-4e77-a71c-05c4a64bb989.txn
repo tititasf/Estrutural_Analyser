@@ -1,0 +1,4 @@
+$b81df195-6097-4e77-a71c-05c4a64bb989²†3vector ÿÿÿÿÿÿÿÿÿ*fixed_size_list:float:409608text ÿÿÿÿÿÿÿÿÿ*string08%
+source_doc ÿÿÿÿÿÿÿÿÿ*string08#doc_type ÿÿÿÿÿÿÿÿÿ*string08"section ÿÿÿÿÿÿÿÿÿ*string08&source_path ÿÿÿÿÿÿÿÿÿ*string08tags ÿÿÿÿÿÿÿÿÿ*string08)sprint_validated ÿÿÿÿÿÿÿÿÿ*bool08"!
+lance.auto_cleanup.interval20"'
+lance.auto_cleanup.older_than14days

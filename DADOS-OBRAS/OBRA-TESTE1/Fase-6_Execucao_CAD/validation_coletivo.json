@@ -1,0 +1,18 @@
+{
+  "obra": "OBRA-TESTE1",
+  "pavimento": "12 PAV",
+  "elementos": {
+    "pilares": {
+      "erro": "PL_gerado.dxf não encontrado"
+    },
+    "vigas": {
+      "erro": "LV_gerado.dxf não encontrado"
+    },
+    "lajes": {
+      "erro": "LJ_gerado.dxf não encontrado"
+    }
+  },
+  "score_global": 0.0,
+  "score_global_percent": 0.0,
+  "aprovado": false
+}
