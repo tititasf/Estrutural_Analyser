@@ -1,0 +1,10 @@
+Item[0] type: detalhe
+[DiagnosticHub] Aviso DB reclassificar: database is locked
+ANTES : '🔶 detalhe_1 | TMC-EST-EX-1000-FUN-R01_R2018_ASCII_ODA | score=9064279'
+DEPOIS: '🔶 torre_1 | TMC-EST-EX-1000-FUN-R01_R2018_ASCII_ODA | score=9064279'
+MUDOU : True
+PASSOU NO TESTE: SIM
+2o click mesmo botao: '🔶 torre_1 | TMC-EST-EX-1000-FUN-R01_R2018_ASCII_ODA | score=9064279' (sem mudanca esperada: True)
+[DiagnosticHub] Aviso DB reclassificar: database is locked
+Voltando para detalhe: '🔶 detalhe_1 | TMC-EST-EX-1000-FUN-R01_R2018_ASCII_ODA | score=9064279'
+Mudou de volta: True
