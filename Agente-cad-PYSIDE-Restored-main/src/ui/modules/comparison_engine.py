@@ -34,9 +34,9 @@ from PySide6.QtWidgets import (
     QTableWidget, QTableWidgetItem, QHeaderView, QMessageBox,
     QScrollArea, QSplitter, QGroupBox, QTextEdit, QTabWidget,
     QTreeWidget, QTreeWidgetItem, QSizePolicy,
-    QListWidget, QListWidgetItem,
+    QListWidget, QListWidgetItem, QApplication, QLineEdit,
 )
-from PySide6.QtCore import Qt, QProcess, Signal, QRect, QRectF, QPointF, QThread, QObject, QTimer
+from PySide6.QtCore import Qt, QProcess, Signal, QRect, QRectF, QPointF, QThread, QObject, QTimer, QEvent
 from PySide6.QtGui import QColor, QFont, QPainter, QPen, QBrush, QPainterPath, QPixmap, QTransform
 
 from src.ui.components.organisms import DualCanvasManager
@@ -2722,7 +2722,10 @@ class NavSidebar(QFrame):
             }}
             QListWidget::item:hover {{ background: {Colors.BG_CARD}; }}
         """)
-        self.lst.itemClicked.connect(self._on_item_clicked)
+        # currentItemChanged: setas do teclado também disparam seleção
+        self.lst.currentItemChanged.connect(
+            lambda cur, _prev: self._on_item_clicked(cur) if cur is not None else None
+        )
         lay.addWidget(self.lst, 1)
 
         # ── Botões compactos ─────────────────────────────────────────
@@ -3182,6 +3185,20 @@ class NavSidebar(QFrame):
     def refresh_tree(self):
         """Re-escaneia previews e atualiza indicadores."""
         self._populate_list(self._current_classe)
+
+    def navigate(self, delta: int):
+        """Avança (+1) ou retrocede (-1) na lista de itens."""
+        count = self.lst.count()
+        if count == 0:
+            return
+        cur = self.lst.currentRow()
+        if cur < 0:
+            new_row = 0 if delta > 0 else count - 1
+        else:
+            new_row = max(0, min(count - 1, cur + delta))
+        if new_row != cur:
+            self.lst.setCurrentRow(new_row)
+            # currentItemChanged dispara → _on_item_clicked → item_selected signal
 
 
 class TriLevelArea(QWidget):
@@ -4288,6 +4305,23 @@ class ComparisonEngineModule(QWidget):
         self._retiring_analise_workers: list = []   # mantém refs até QThread terminar
         self._n1_loaded_pav  = ""   # controle: evita reload N1 quando só item muda
         self._seq_id         = 0    # sequence guard: cancela sequências N1→N2→N3 antigas
+
+        # Setas do teclado navegam na lista mesmo com foco em outro widget
+        QApplication.instance().installEventFilter(self)
+
+    def eventFilter(self, obj, event) -> bool:
+        """Intercepta ↑/↓ globalmente para navegar na lista de itens do NavSidebar."""
+        if (
+            event.type() == QEvent.KeyPress
+            and self.isVisible()
+            and event.key() in (Qt.Key_Up, Qt.Key_Down)
+        ):
+            focused = QApplication.focusWidget()
+            if not isinstance(focused, (QLineEdit, QTextEdit)):
+                delta = -1 if event.key() == Qt.Key_Up else 1
+                self.nav_sidebar.navigate(delta)
+                return True
+        return super().eventFilter(obj, event)
 
     def _on_obra_pav_changed(self, _text: str = ""):
         """Propaga mudança de obra/pav do Fase8Panel para o TriLevelArea e main.py.
