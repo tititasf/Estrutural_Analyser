@@ -981,14 +981,14 @@ def draw_abcd(msp, base_x, base_y, comp, larg, altura, nome, pj):
 
         # ── 5e-1. Cotas de offset do sarrafo (7cm cada lado, ciano) ──────────
         if not is_horiz and not is_short:
-            y_sarr_cota = y_bot - 22
+            # p1/p2 partem de y_bot (bordo inferior do painel) — extensões longas até a linha de cota
             for p1x, p2x in [(x_left, x_left + SARR_OFFSET),
                               (x_right - SARR_OFFSET, x_right)]:
                 try:
                     d = msp.add_linear_dim(
-                        base=((p1x + p2x) / 2, y_sarr_cota - 10),
-                        p1=(p1x, y_sarr_cota),
-                        p2=(p2x, y_sarr_cota),
+                        base=((p1x + p2x) / 2, y_bot - 19),
+                        p1=(p1x, y_bot),
+                        p2=(p2x, y_bot),
                         angle=0, dimstyle='PAINEL-NOVA',
                         dxfattribs={'layer': 'COTA', 'color': 4}
                     )
@@ -998,12 +998,12 @@ def draw_abcd(msp, base_x, base_y, comp, larg, altura, nome, pj):
                     pass
 
         # ── 5e. Cota horizontal (largura do painel, ciano) ───────────────────
-        y_hdim = y_bot - 43
+        # p1/p2 também em y_bot — extensão longa até a linha de cota em y_bot-43
         try:
             d = msp.add_linear_dim(
-                base=(x_left + larg_total / 2, y_hdim - 15),
-                p1=(x_left,  y_hdim),
-                p2=(x_right, y_hdim),
+                base=(x_left + larg_total / 2, y_bot - 43),
+                p1=(x_left,  y_bot),
+                p2=(x_right, y_bot),
                 angle=0, dimstyle='PAINEL-NOVA',
                 dxfattribs={'layer': 'COTA', 'color': 4}
             )
