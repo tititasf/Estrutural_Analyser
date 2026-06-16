@@ -731,15 +731,13 @@ def draw_abcd(msp, base_x, base_y, comp, larg, altura, nome, pj):
     h_low = (pd_cm - H_PARAFUSO) / 2   # bottom/top section height (=124 for pd=321)
 
     # ABCD PAIRED pattern (N2 ground truth 13_PAV):
-    # A=B → comp-direction (wide): panel width = grade_1
-    # C=D → larg-direction (narrow): panel width = larg_inner
-    grade_1_val = float(pj.get('grade_1', 0)) or (comp + 22)
-    larg_inner = larg - 5 if larg > 19 else larg
-
-    larg_a = grade_1_val   # face A = comp-direction, grade_1 panel width
-    larg_b = grade_1_val   # face B = comp-direction, paired with A
-    larg_c = larg_inner    # face C = larg-direction
-    larg_d = larg_inner    # face D = larg-direction, paired with C
+    # A=B → comp-direction: panel width = comp + 22 (NOT grade_1 — grade_1 can differ)
+    # C=D → larg-direction: panel width = min(larg, 19) per N2 observation
+    larg_a = comp + 22
+    larg_b = comp + 22
+    larg_inner = min(larg, 19) if larg >= 19 else larg  # N2: both larg=24 and larg=30 → 19
+    larg_c = larg_inner
+    larg_d = larg_inner
 
     x_a = base_x + X_OFFSET
     x_b = x_a + larg_a + GAP_AB
@@ -747,10 +745,10 @@ def draw_abcd(msp, base_x, base_y, comp, larg, altura, nome, pj):
     x_d = x_c + larg_c + GAP_CD
 
     face_info = [
-        ('A', x_a, larg_a, comp),   # (label, x_left, panel_width, concrete_dim)
-        ('B', x_b, larg_b, comp),   # B also spans comprimento (paired with A)
-        ('C', x_c, larg_c, larg),   # C spans largura
-        ('D', x_d, larg_d, larg),   # D also spans largura (paired with C)
+        ('A', x_a, larg_a, comp),      # (label, x_left, panel_width, concrete_dim)
+        ('B', x_b, larg_b, comp),      # B also spans comprimento (paired with A)
+        ('C', x_c, larg_c, larg_c),   # C: concrete_dim=larg_c (panel width, not larg)
+        ('D', x_d, larg_d, larg_c),   # D: same
     ]
 
     entity_count = 0
@@ -847,6 +845,17 @@ def draw_abcd(msp, base_x, base_y, comp, larg, altura, nome, pj):
         msp.add_line((x_right, y_mid), (x_left, y_mid),
                      dxfattribs={'layer': 'Painéis'})
         entity_count += 2
+
+        # Hachura ANSI31 cobrindo o painel completo [y_bot, y_mid] (N2 ground truth)
+        try:
+            hatch = msp.add_hatch(dxfattribs={'layer': 'Hachura', 'color': 7})
+            hatch.set_pattern_fill('ANSI31', scale=25.0, angle=0)
+            hatch.paths.add_polyline_path(
+                [(x_left, y0), (x_right, y0), (x_right, y_mid), (x_left, y_mid)],
+                is_closed=True)
+            entity_count += 1
+        except Exception:
+            pass
 
         # Faces C/D switch to horizontal sarrafos when dim >= 30 (verified P05+ SCR)
         is_horiz = (fid in ('C', 'D') and concrete_dim >= 30)
