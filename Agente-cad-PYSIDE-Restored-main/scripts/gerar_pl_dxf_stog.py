@@ -862,16 +862,7 @@ def draw_abcd(msp, base_x, base_y, comp, larg, altura, nome, pj):
                          dxfattribs={'layer': 'Painéis'})
             entity_count += 1
 
-        # Hachura ANSI31 cobrindo [y_bot, y_mid_face] — C/D: 221cm, A/B: 197cm (N2 ground truth)
-        try:
-            hatch = msp.add_hatch(dxfattribs={'layer': 'Hachura', 'color': 7})
-            hatch.set_pattern_fill('ANSI31', scale=25.0, angle=0)
-            hatch.paths.add_polyline_path(
-                [(x_left, y0), (x_right, y0), (x_right, y_mid_face), (x_left, y_mid_face)],
-                is_closed=True)
-            entity_count += 1
-        except Exception:
-            pass
+        # Hatches não são necessários na vista ABCD (user: "os hatchs dos paineis nao necessito")
 
         # Faces C/D switch to horizontal sarrafos when dim >= 30 (verified P05+ SCR)
         is_horiz = (fid in ('C', 'D') and concrete_dim >= 30)
@@ -923,12 +914,24 @@ def draw_abcd(msp, base_x, base_y, comp, larg, altura, nome, pj):
                                                dxfattribs={'layer': 'SARR_2.2x7', 'linetype': 'DASHED'})
                             entity_count += 1
                     else:
-                        # C/D: single continuous from y_bot+h1 to panel_top_face (=y_bot+260)
-                        for _ in range(repeat):
-                            msp.add_lwpolyline([(sx, y0 + h1), (sx, panel_top_face)],
-                                               close=False,
-                                               dxfattribs={'layer': 'SARR_2.2x7'})
-                            entity_count += 1
+                        if fid == 'C':
+                            # N2: 2 segments split at y_mid_face (=y_bot+221)
+                            for _ in range(repeat):
+                                msp.add_lwpolyline([(sx, y0 + h1), (sx, y_mid_face)],
+                                                   close=False,
+                                                   dxfattribs={'layer': 'SARR_2.2x7'})
+                                entity_count += 1
+                                msp.add_lwpolyline([(sx, y_mid_face), (sx, panel_top_face)],
+                                                   close=False,
+                                                   dxfattribs={'layer': 'SARR_2.2x7'})
+                                entity_count += 1
+                        else:
+                            # D: continuous from y_bot+h1 to panel_top_face (=y_bot+197)
+                            for _ in range(repeat):
+                                msp.add_lwpolyline([(sx, y0 + h1), (sx, panel_top_face)],
+                                                   close=False,
+                                                   dxfattribs={'layer': 'SARR_2.2x7'})
+                                entity_count += 1
 
         # ── 5c. Per-face DIMENSIONs ───────────────────────────────────────────
         # Short: 2 dims per face (verified P21/P22 SCR)
@@ -943,16 +946,15 @@ def draw_abcd(msp, base_x, base_y, comp, larg, altura, nome, pj):
                 dim_specs = [(y_bot, y0 + h1, ann_off), (y_bot, y_top, 50)]
             else:
                 dim_specs = [(y_bot, y0 + h1, ann_off), (y0 + h1, y_top, 50)]
-        elif fid in ('C', 'D'):
-            # C/D: 4 segments — 124 | 97 | 39 | remainder to y_top
+        elif fid == 'C':
+            # Face C: 2 cotas — combined (y_bot→y_mid_face=221) | above panel (→y_top=59)
+            # O segmento extra de 41cm é anotação manual no N2, não cota do robô.
             dim_specs = [
-                (y_bot, y_low, ann_off),
-                (y_low, y_mid_face, 50),
-                (y_mid_face, panel_top_face, 50),
+                (y_bot, y_mid_face, ann_off),
                 (panel_top_face, y_top, 50),
             ]
         else:
-            # A/B: 3 segments — h_low | H_PARAFUSO | remainder to y_top
+            # A, B, D: 3 cotas — h_low (124) | H_PARAFUSO (73 para P1-P8) | remainder
             dim_specs = [
                 (y_bot, y_low, ann_off),
                 (y_low, y_mid_face, 50),
@@ -1418,9 +1420,7 @@ def generate_pilar_zone(msp, pj: dict, zone: str, row_y: float = 0) -> int:
     grade_2 = float(pj.get('grade_2', 0))
 
     if zone == 'abcd':
-        n = draw_abcd(msp, 0, row_y, comp, larg, altura, nome, pj)
-        draw_extra_pl_layers(msp, 0, row_y, comp, larg, altura, nome)
-        return n
+        return draw_abcd(msp, 0, row_y, comp, larg, altura, nome, pj)
     elif zone == 'cima':
         cima_y = row_y + altura / 2
         return draw_cima(msp, 0, cima_y, comp, larg, grade_1, nome, pj)
