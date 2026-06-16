@@ -893,7 +893,7 @@ def draw_abcd(msp, base_x, base_y, comp, larg, altura, nome, pj):
         else:
             # Vertical sarrafos (standard for A/B and small C/D)
             sarr_xs = [x_left + SARR_OFFSET]
-            right_sx = x_left + concrete_dim - SARR_OFFSET
+            right_sx = x_right - SARR_OFFSET   # usa x_right (=x_left+larg_total) — A/B têm +22cm
             if right_sx > x_left + SARR_OFFSET:
                 sarr_xs.append(right_sx)
 
@@ -945,7 +945,7 @@ def draw_abcd(msp, base_x, base_y, comp, larg, altura, nome, pj):
         # ── 5c. Per-face DIMENSIONs ───────────────────────────────────────────
         # Short: 2 dims per face (verified P21/P22 SCR)
         # Normal: 3 dims per face
-        x_dim = x_left + concrete_dim
+        x_dim = x_right   # referência da cota no bordo direito real do painel (A/B: inclui +22cm)
         ann_off = 25 if fid in ('A', 'B') else 50
 
         if is_short:
