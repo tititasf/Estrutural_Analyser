@@ -476,115 +476,82 @@ def draw_cima(msp, ox, oy, comp, larg, grade_1, nome, pj):
         if e.dxftype() == 'LWPOLYLINE':
             e.dxf.color = 251
 
-    # ── 3a. div_a — helper compartilhado _div_segments (mesma fonte que GRADES).
-    # Valida sum(grade_1_div_a)≈chapa_full_w antes de usar o Fase-4;
-    # fallback bolt-avoidance garante que CIMA e GRADES sempre concordem.
-    div_a = _div_segments(pj, chapa_full_w)
+    # ── 3a. Layout de grades: ng grades de gw_c cm separadas por dg_c cm ───────
+    # Para ng=1: gw_c = chapa_full_w, dg_c = 0 → compatível com código anterior.
+    # Para ng=2: gw_c < chapa_full_w, duas grades lado a lado com gap dg_c.
+    # Mesma lógica de draw_grades (fonte única: GradeCalculator + _div_segments).
+    if _GradeCalculator:
+        ng_c, gw_c, dg_c = _GradeCalculator.calcular_grades(comp)
+    else:
+        ng_c, gw_c, dg_c = 1, chapa_full_w, 0.0
 
-    def _div_boundaries_local(values):
-        """Fronteiras dos quadradinhos Madeira (offsets desde corner_l),
-        normalizadas proporcionalmente para chapa_full_w."""
-        nums = [float(v) for v in values if v and float(v) > 0]
-        if len(nums) < 2:
-            return []
-        total = sum(nums)
-        cumsum = 0.0
-        bds = []
-        for v in nums[:-1]:
-            cumsum += v
-            bds.append(cumsum / total * chapa_full_w)
-        return bds
+    # div_a por grade (soma = gw_c); grade_1_div_a soma gw_c, não chapa_full_w
+    div_a = _div_segments(pj, gw_c)
 
-    _default_boundaries = _grade_boundaries_with_avoidance(chapa_full_w, bolt_offsets)
+    # Fronteiras cumulativas dentro de 1 grade (escala 0..gw_c)
+    _bounds_pg = []
+    _cs2 = 0.0
+    for _d in div_a[:-1]:
+        _cs2 += _d
+        _bounds_pg.append(_cs2)
 
-    # ── 3b. Madeira (peças sobre chapa C, layer Madeira color=126) ──────────
-    # ground truth: 1 peça de fundo (chapa_full_w x CORNER_W) + 2 cantos (CORNER_W x
-    # CORNER_W) nas pontas + N peças intermediárias (CORNER_W/2 x CORNER_W) nas
-    # fronteiras reais de grade_1_div_a; fallback 1/4,1/2,3/4 se ausente.
-    # Lado C (cima) espelha o lado A (baixo): mesmas fronteiras (_bounds_a).
+    # ── 3b/3d. Madeira por grade (lado C = topo, lado A = fundo) ─────────────
+    # Cada uma das ng_c grades recebe: fundo + canto_esq + canto_dir + N divisores.
     madeira_y0 = cy_t + TC
     madeira_h = CORNER_W
-    _bounds_a = _div_boundaries_local(div_a) or _default_boundaries
-    rp(corner_l, madeira_y0, chapa_full_w, madeira_h, 'Madeira')               # fundo
-    rp(corner_l, madeira_y0, CORNER_W, madeira_h, 'Madeira')                   # canto esquerdo
-    rp(corner_r - CORNER_W, madeira_y0, CORNER_W, madeira_h, 'Madeira')        # canto direito
-    for off in _bounds_a:
-        cx_mid = corner_l + off
-        rp(cx_mid - CORNER_W / 4.0, madeira_y0, CORNER_W / 2.0, madeira_h, 'Madeira')
-    for e in entities[-(3 + len(_bounds_a)):]:
-        e.dxf.color = 126
 
-    # ── 3d. Madeira espelho (lado A, fronteiras reais de grade_1_div_a) ──────
+    def _draw_madeira_row(y_m):
+        n0 = len(entities)
+        for gi in range(ng_c):
+            gx0 = corner_l + gi * (gw_c + dg_c)
+            gx1 = gx0 + gw_c
+            rp(gx0, y_m, gw_c, madeira_h, 'Madeira')                        # fundo
+            rp(gx0, y_m, CORNER_W, madeira_h, 'Madeira')                     # canto esq
+            rp(gx1 - CORNER_W, y_m, CORNER_W, madeira_h, 'Madeira')         # canto dir
+            for off in _bounds_pg:
+                cx_mid = gx0 + off
+                rp(cx_mid - CORNER_W / 4.0, y_m, CORNER_W / 2.0, madeira_h, 'Madeira')
+        for e in entities[n0:]:
+            e.dxf.color = 126
+
+    _draw_madeira_row(madeira_y0)           # lado C (topo)
     madeira_y0_a = cy_b - TC - CORNER_W
-    rp(corner_l, madeira_y0_a, chapa_full_w, madeira_h, 'Madeira')               # fundo
-    rp(corner_l, madeira_y0_a, CORNER_W, madeira_h, 'Madeira')                   # canto esquerdo
-    rp(corner_r - CORNER_W, madeira_y0_a, CORNER_W, madeira_h, 'Madeira')        # canto direito
-    for off in _bounds_a:
-        cx_mid = corner_l + off
-        rp(cx_mid - CORNER_W / 4.0, madeira_y0_a, CORNER_W / 2.0, madeira_h, 'Madeira')
-    for e in entities[-(3 + len(_bounds_a)):]:
-        e.dxf.color = 126
+    _draw_madeira_row(madeira_y0_a)         # lado A (fundo)
 
     # ── 3e. Perfil Metálico (2x "C-channel" além das peças Madeira) ──────────
-    # amostra P1: faixa estende PERFIL_EXT=18 (~EXTRA_GRAV-TC) alem de chapa_full_w
-    # em cada lado; outer height=10, inner height=outer-2*TC=6.
     PERFIL_EXT = EXTRA_GRAV - TC
     PERFIL_W_OUT = 10.0
     perfil_x0 = corner_l - PERFIL_EXT
     perfil_w = chapa_full_w + 2 * PERFIL_EXT
-    # lado C (acima do Madeira C)
     py0_c = madeira_y0 + madeira_h
     rp(perfil_x0, py0_c, perfil_w, PERFIL_W_OUT, 'Perfil Metálico')
     rp(perfil_x0, py0_c + TC, perfil_w, PERFIL_W_OUT - 2 * TC, 'Perfil Metálico')
-    # lado A (abaixo do Madeira A)
     py0_a2 = madeira_y0_a - PERFIL_W_OUT
     rp(perfil_x0, py0_a2, perfil_w, PERFIL_W_OUT, 'Perfil Metálico')
     rp(perfil_x0, py0_a2 + TC, perfil_w, PERFIL_W_OUT - 2 * TC, 'Perfil Metálico')
     for e in entities[-4:]:
         e.dxf.color = 224
 
-
-    # ── 3f. COTA catálogo de subdivisões de grade_1 (2 opções de módulo) ─────
-    # grade_1_div_a/b = listas de larguras de módulo (somam grade_1), extraídas
-    # do próprio recorte CIMA (ver motor_reverso_pil_zones.py). Cada valor é
-    # centrado em seu segmento ao longo de [corner_l, corner_r] (= chapa_full_w
-    # = grade_1), uma lista além do Perfil C, outra além do Perfil A.
+    # ── 3f. COTA de subdivisões — repetida para cada uma das ng_c grades ──────
     def _place_div_dim(values, y_base, offset):
-        # Valores (div_a/div_b) somam grade_1 e representam módulos reais do
-        # recorte, mas a geometria desenhada (corner_l..corner_r) é
-        # chapa_full_w = grade_1+22. Para que as bordas das cotas caiam
-        # exatamente sobre os quadradinhos de Madeira (3a/3b/3d, fronteiras
-        # de _div_boundaries), cada módulo é desenhado proporcionalmente:
-        # largura_i = v_i / soma(values) * chapa_full_w.
-        # O texto da cota mantém o valor real extraído (v_i).
-        nums = []
-        for raw_v in values:
-            try:
-                v = float(raw_v)
-            except (TypeError, ValueError):
-                continue
-            if v > 0:
-                nums.append(v)
-        total = sum(nums)
-        if not nums or total <= 0:
+        nums = [float(v) for v in values if v and float(v) > 0]
+        if not nums:
             return
+        total = sum(nums)
+        if total <= 0:
+            return
+        for gi in range(ng_c):
+            gx0 = corner_l + gi * (gw_c + dg_c)
+            cumsum = 0.0
+            for v in nums:
+                w = v / total * gw_c
+                x0 = gx0 + cumsum
+                x1 = min(gx0 + cumsum + w, gx0 + gw_c)
+                if x1 - x0 > 0.01:
+                    txt = f'{v:.0f}' if v == int(v) else f'{v:g}'
+                    entities.append(dim_h(msp, x0, x1, y_base, 'COTA', 'cotax2', offset=offset, text=txt))
+                cumsum += w
 
-        cumsum = 0.0
-        for v in nums:
-            w = v / total * chapa_full_w
-            x0 = corner_l + cumsum
-            x1 = min(corner_l + cumsum + w, corner_r)
-            if x1 - x0 > 0.01:
-                txt = f'{v:.0f}' if v == int(v) else f'{v:g}'
-                entities.append(dim_h(msp, x0, x1, y_base, 'COTA', 'cotax2', offset=offset, text=txt))
-            cumsum += w
-
-    # Apenas a cota da grade A (lado de baixo) é exibida — o lado B/C (cima)
-    # espelha o lado A em posição/quantidade de quadradinhos e não tem cota
-    # própria. Itens sem grade_1_div_a (não extraído) caem no mesmo fallback
-    # geométrico dos quadradinhos (_default_boundaries, com desvio de colisão
-    # grade x parafuso), então a cota usa os módulos derivados dessas mesmas
-    # fronteiras (convertidos para a escala grade_1) para ficar consistente.
     _place_div_dim(div_a, madeira_y0_a, offset=20)
 
 
