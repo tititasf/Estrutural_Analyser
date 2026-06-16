@@ -943,30 +943,28 @@ def draw_abcd(msp, base_x, base_y, comp, larg, altura, nome, pj):
                                 entity_count += 1
 
         # ── 5c. Per-face DIMENSIONs ───────────────────────────────────────────
-        # Short: 2 dims per face (verified P21/P22 SCR)
-        # Normal: 3 dims per face
-        x_dim = x_right   # referência da cota no bordo direito real do painel (A/B: inclui +22cm)
-        ann_off = 25 if fid in ('A', 'B') else 50
+        # N2 geometry: dim line at x_right+38, extension lines x_right+3→x_right+41
+        # color=4 (ciano) em todas as entidades de cota — igual ao SCR original
+        x_dim   = x_right   # bordo direito real (A/B: inclui +22cm)
+        ANN_OFF = 38        # N2: linha de cota a +38 do bordo
 
         if is_short:
-            # A/B: (y_bot→y_bot+h1) + (y_bot→y_top)
-            # C/D: (y_bot→y_bot+h1) + (y_bot+h1→y_top)
             if fid in ('A', 'B'):
-                dim_specs = [(y_bot, y0 + h1, ann_off), (y_bot, y_top, 50)]
+                dim_specs = [(y_bot, y0 + h1, 19), (y_bot, y_top, ANN_OFF)]
             else:
-                dim_specs = [(y_bot, y0 + h1, ann_off), (y0 + h1, y_top, 50)]
+                dim_specs = [(y_bot, y0 + h1, 19), (y0 + h1, y_top, ANN_OFF)]
         elif fid == 'C':
-            # Face C: 2 cotas — combined (y_bot→y_mid_face=221) | above panel (→y_top=59)
-            # O segmento extra de 41cm é anotação manual no N2, não cota do robô.
             dim_specs = [
-                (y_bot, y_mid_face, ann_off),
-                (panel_top_face, y_top, 50),
+                (y_bot,          y_mid_face,      ANN_OFF),  # 221
+                (panel_top_face, y_top,            ANN_OFF),  # 59
             ]
         else:
-            # A, B, D: 2 cotas — h1 strip (2cm) | laje zone acima do painel (N2: só esses visíveis)
+            # A, B, D: h1 (19) | h_low (38) | H_PARAFUSO (38) | laje (38) — igual ao N2
             dim_specs = [
-                (y_bot, y_bot + h1, ann_off),
-                (y_mid_face, y_top, 50),
+                (y_bot,        y_bot + h1,   19),      # 2
+                (y_bot,        y_low,         ANN_OFF), # 124
+                (y_low,        y_mid_face,    ANN_OFF), # 73
+                (y_mid_face,   y_top,         ANN_OFF), # 124 laje
             ]
         for p1y, p2y, ann_x_off in dim_specs:
             try:
@@ -974,16 +972,14 @@ def draw_abcd(msp, base_x, base_y, comp, larg, altura, nome, pj):
                     base=(x_dim + ann_x_off, (p1y + p2y) / 2),
                     p1=(x_dim, p1y), p2=(x_dim, p2y),
                     angle=90, dimstyle='PAINEL-NOVA',
-                    dxfattribs={'layer': 'COTA'}
+                    dxfattribs={'layer': 'COTA', 'color': 4}
                 )
                 d.render()
                 entity_count += 1
             except Exception:
                 pass
 
-        # ── 5e-1. Cotas de offset do sarrafo (7cm cada lado) ─────────────────
-        # N2: "7" e "7" visíveis na base do painel; horizontal DIMLINEAR mostrando
-        # o recuo do sarrafo em relação a cada aresta.
+        # ── 5e-1. Cotas de offset do sarrafo (7cm cada lado, ciano) ──────────
         if not is_horiz and not is_short:
             y_sarr_cota = y_bot - 22
             for p1x, p2x in [(x_left, x_left + SARR_OFFSET),
@@ -994,16 +990,14 @@ def draw_abcd(msp, base_x, base_y, comp, larg, altura, nome, pj):
                         p1=(p1x, y_sarr_cota),
                         p2=(p2x, y_sarr_cota),
                         angle=0, dimstyle='PAINEL-NOVA',
-                        dxfattribs={'layer': 'COTA'}
+                        dxfattribs={'layer': 'COTA', 'color': 4}
                     )
                     d.render()
                     entity_count += 1
                 except Exception:
                     pass
 
-        # ── 5e. Cota horizontal (largura do painel) ──────────────────────────
-        # N2: DIMLINEAR horizontal em y_bot - 43. Mostra largura total do painel.
-        # A/B: comp+22 = larg_total; C/D: larg_c = larg_total
+        # ── 5e. Cota horizontal (largura do painel, ciano) ───────────────────
         y_hdim = y_bot - 43
         try:
             d = msp.add_linear_dim(
@@ -1011,7 +1005,7 @@ def draw_abcd(msp, base_x, base_y, comp, larg, altura, nome, pj):
                 p1=(x_left,  y_hdim),
                 p2=(x_right, y_hdim),
                 angle=0, dimstyle='PAINEL-NOVA',
-                dxfattribs={'layer': 'COTA'}
+                dxfattribs={'layer': 'COTA', 'color': 4}
             )
             d.render()
             entity_count += 1
