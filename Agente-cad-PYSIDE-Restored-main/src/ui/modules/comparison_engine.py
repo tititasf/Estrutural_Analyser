@@ -2538,11 +2538,11 @@ class LevelColumn(QFrame):
         lay.addWidget(self.prog)
 
         # ── Ficha ────────────────────────────────────────────────────
-        lbl_ficha = QLabel(f"Ficha {nivel_id}")
-        lbl_ficha.setStyleSheet(
+        self.lbl_ficha = QLabel(f"Ficha {nivel_id}")
+        self.lbl_ficha.setStyleSheet(
             f"color: {accent}; font-size: 10px; font-weight: bold; padding-top: 2px;"
         )
-        lay.addWidget(lbl_ficha)
+        lay.addWidget(self.lbl_ficha)
 
         self.ficha_table = QTableWidget(0, 2)
         self.ficha_table.setHorizontalHeaderLabels(["Campo", "Valor"])
@@ -2605,6 +2605,125 @@ class LevelColumn(QFrame):
         self.prog.setVisible(active)
         if active:
             self.img_widget.clear_image("Processando...")
+
+    # ── PIL 3-panel mode ─────────────────────────────────────────────
+
+    def switch_to_pil_zones(self, zone_paths: dict, er_ficha: dict,
+                             zone_fichas: "dict | None" = None,
+                             accent: str = "#a855f7"):
+        """Replace viewer+ficha with 3-or-4-panel layout for PIL.
+
+        zone_paths:  {'ABCD': Path|None, 'CIMA': Path|None, 'GRADES': Path|None[, 'EFGH': Path|None]}
+        er_ficha:    full ficha dict (fallback when zone_fichas absent)
+        zone_fichas: {'ABCD': dict, 'CIMA': dict, 'GRADES': dict[, 'EFGH': dict]} from motor zones
+        EFGH panel added when zone_paths contains 'EFGH' key (subtipo U).
+        """
+        lay = self.layout()
+
+        # Determine zones to show (always CIMA|ABCD|GRADES; EFGH only if present)
+        show_efgh = 'EFGH' in zone_paths
+        active_zones = ['CIMA', 'ABCD', 'GRADES'] + (['EFGH'] if show_efgh else [])
+
+        if not getattr(self, '_pil_mode', False):
+            self.img_widget.setVisible(False)
+            self.lbl_ficha.setVisible(False)
+            self.ficha_table.setVisible(False)
+
+            splitter = QSplitter(Qt.Horizontal)
+            self._zone_views: dict = {}
+            self._zone_tables: dict = {}
+
+            for zone in active_zones:
+                panel = QWidget()
+                pv = QVBoxLayout(panel)
+                pv.setContentsMargins(2, 2, 2, 2)
+                pv.setSpacing(2)
+
+                zone_hdr = QLabel(zone)
+                zone_hdr.setAlignment(Qt.AlignCenter)
+                zone_hdr.setFixedHeight(20)
+                zone_hdr.setStyleSheet(
+                    f"color: {accent}; font-weight: bold; font-size: 11px; "
+                    f"background: {Colors.BG_DEEP}; border-radius: 3px;"
+                )
+                pv.addWidget(zone_hdr)
+
+                view = DXFVectorView(bg=Colors.BG_DEEP)
+                view.setMinimumHeight(180)
+                pv.addWidget(view, 1)
+
+                tbl = QTableWidget(0, 2)
+                tbl.setHorizontalHeaderLabels(["Campo", "Valor"])
+                tbl.horizontalHeader().setSectionResizeMode(
+                    0, QHeaderView.ResizeToContents)
+                tbl.horizontalHeader().setSectionResizeMode(
+                    1, QHeaderView.Stretch)
+                tbl.verticalHeader().setVisible(False)
+                tbl.setEditTriggers(QTableWidget.NoEditTriggers)
+                tbl.setFixedHeight(120)
+                tbl.setStyleSheet(self.ficha_table.styleSheet())
+                pv.addWidget(tbl)
+
+                self._zone_views[zone] = view
+                self._zone_tables[zone] = tbl
+                splitter.addWidget(panel)
+
+            # Insert splitter: after prog (index 2), before hidden lbl_ficha
+            lay.insertWidget(3, splitter)
+            self._pil_splitter = splitter
+            self._pil_mode = True
+
+        # Load DXFs into viewers
+        from pathlib import Path as _Path
+        for zone, view in self._zone_views.items():
+            p = zone_paths.get(zone)
+            if p and _Path(p).exists():
+                view.load_dxf(str(p), None)
+            else:
+                view.clear_image(f"Sem ficha {zone}")
+
+        self._update_pil_zone_fichas(er_ficha, zone_fichas)
+
+    def _update_pil_zone_fichas(self, er_ficha: dict, zone_fichas: "dict | None" = None):
+        """Populate each zone's mini-ficha table.
+        Uses zone_fichas[zone] if provided, else slices er_ficha via PIL_ZONE_FIELDS."""
+        try:
+            import sys as _sys, os as _os
+            _sys.path.insert(0, str(_os.path.join(
+                _os.path.dirname(__file__), '..', '..', '..')))
+            from src.core.services.dxf_generator import PIL_ZONE_FIELDS
+        except Exception:
+            PIL_ZONE_FIELDS = {
+                'ABCD':   ['nome', 'comprimento', 'largura', 'altura', 'pd_pavimento_cm'],
+                'CIMA':   ['nome', 'comprimento', 'largura', 'grade_1'],
+                'GRADES': ['nome', 'comprimento', 'largura', 'altura', 'grade_1', 'grade_2'],
+                'EFGH':   ['nome', 'larg1_E', 'larg1_F', 'h1_E', 'h2_E', 'h3_E', 'h1_F', 'h2_F', 'h3_F'],
+            }
+        for zone, tbl in self._zone_tables.items():
+            fields = PIL_ZONE_FIELDS.get(zone, [])
+            ficha_src = (zone_fichas or {}).get(zone) or er_ficha
+            tbl.setRowCount(0)
+            for field in fields:
+                val = ficha_src.get(field, ficha_src.get(field.replace('_', ''), None))
+                r = tbl.rowCount()
+                tbl.insertRow(r)
+                tbl.setRowHeight(r, 18)
+                fi = QTableWidgetItem(field)
+                vi = QTableWidgetItem(str(val) if val is not None else '—')
+                fi.setFlags(fi.flags() & ~Qt.ItemIsEditable)
+                vi.setFlags(vi.flags() & ~Qt.ItemIsEditable)
+                tbl.setItem(r, 0, fi)
+                tbl.setItem(r, 1, vi)
+
+    def restore_single_view(self):
+        """Restore N4 column to single-viewer layout (called on item/classe change)."""
+        if not getattr(self, '_pil_mode', False):
+            return
+        self._pil_splitter.setVisible(False)
+        self.img_widget.setVisible(True)
+        self.lbl_ficha.setVisible(True)
+        self.ficha_table.setVisible(True)
+        self._pil_mode = False
 
 
 class NavSidebar(QFrame):
@@ -3002,8 +3121,8 @@ class NavSidebar(QFrame):
 
             db_pav = self._pav_key_to_db_pav(pav_key) if pav_key else ""
 
-            _priority = {'aprovado': 0, 'auto_aprovado': 1, 'manual_sel': 2,
-                          'manual': 3, 'motor': 4}
+            _priority = {'aprovado': 0, 'manual_sel': 1, 'manual': 2,
+                          'auto_aprovado': 3, 'motor': 4}
             best: dict = {}
             for elem_id, conf, status, recorte_path in all_rows:
                 if not recorte_path:
@@ -3599,7 +3718,8 @@ class TriLevelArea(QWidget):
         """Retorna bbox do item no DXF STOG real.
         - LV: busca NOMENCLATURA no KB (ents do DXF de eng. reversa)
         - PL: usa _est_labels (posição no DXF estrutural) — N2 é crop do DXF estrutural
-        - FV/LJ: retorna None (auto-bbox = view completa)
+        - LJ: usa motor reverso no recorte _sel_ para enquadrar a área interna
+        - FV: retorna None (auto-bbox = view completa)
         """
         if classe == 'PL':
             pos = self._est_labels.get(item_id)
@@ -3614,7 +3734,10 @@ class TriLevelArea(QWidget):
             pad = 150
             return (min(xs)-pad, min(ys)-pad, max(xs)+pad, max(ys)+pad)
 
-        if classe in ('FV', 'LJ'):
+        if classe == 'LJ':
+            return self._get_lj_content_bbox_for(item_id)
+
+        if classe == 'FV':
             return None  # auto-bbox
 
         # LV: usa KB (NOMENCLATURA labels)
@@ -3661,6 +3784,66 @@ class TriLevelArea(QWidget):
         pad = 80
         return (min(all_xs)-pad, min(all_ys)-pad,
                 max(all_xs)+pad, min(cy+180, max(all_ys)+pad))
+
+    def _get_lj_content_bbox_for(self, item_id: str, pad: float = 45.0):
+        """BBox da área interna LAJ em coordenadas STOG, com folga para cotas."""
+        try:
+            import re as _re
+            import sys as _sys
+
+            recortes_dir = (DADOS_OBRAS_ROOT / self._current_obra /
+                            "Fase-2_Triagem" / "recortes_reversos")
+            if not recortes_dir.exists():
+                return None
+
+            pat_sel = _re.compile(rf"^LAJ_{_re.escape(item_id)}_sel_\d+\.dxf$", _re.I)
+            pat_motor = _re.compile(rf"^LAJ_{_re.escape(item_id)}_motor_\d+\.dxf$", _re.I)
+            sel_candidates: list[Path] = []
+            motor_candidates: list[Path] = []
+            def _suffix_rank(path: Path) -> tuple[int, float]:
+                m = _re.search(r"_(?:motor|sel)_(\d+)$", path.stem, _re.I)
+                num = int(m.group(1)) if m else 0
+                try:
+                    mtime = path.stat().st_mtime
+                except OSError:
+                    mtime = 0.0
+                return (num, mtime)
+            for dxf in recortes_dir.rglob("*.dxf"):
+                name = dxf.name
+                if pat_sel.match(name):
+                    sel_candidates.append(dxf)
+                elif pat_motor.match(name):
+                    motor_candidates.append(dxf)
+            dxf_path = (
+                max(sel_candidates, key=_suffix_rank) if sel_candidates else
+                max(motor_candidates, key=_suffix_rank) if motor_candidates else
+                None
+            )
+            if not dxf_path:
+                return None
+
+            scripts_dir = str(SCRIPTS_DIR)
+            if scripts_dir not in _sys.path:
+                _sys.path.insert(0, scripts_dir)
+            from motor_reverso_laj import extrair_ficha_laje
+
+            ficha = extrair_ficha_laje(str(dxf_path), item_id, self._current_obra)
+            coords = ficha.get("coordenadas") or []
+            if len(coords) < 3:
+                return None
+
+            xs = [float(c[0]) for c in coords]
+            ys = [float(c[1]) for c in coords]
+            raw_x0, raw_y0 = min(xs), min(ys)
+            pose = ficha.get("_stog_pose") or {}
+            off_x = float(pose.get("x", 0.0)) if pose and abs(raw_x0) <= 0.5 else 0.0
+            off_y = float(pose.get("y", 0.0)) if pose and abs(raw_y0) <= 0.5 else 0.0
+            abs_xs = [x + off_x for x in xs]
+            abs_ys = [y + off_y for y in ys]
+            return (min(abs_xs) - pad, min(abs_ys) - pad,
+                    max(abs_xs) + pad, max(abs_ys) + pad)
+        except Exception:
+            return None
 
     def _ficha_generic(self, classe: str, item_id: str) -> list:
         """Lê JSON de Fase-4_Sincronizacao para qualquer classe."""
@@ -3763,6 +3946,8 @@ class TriLevelArea(QWidget):
         """Reseta todos os steps de todos os níveis para 'pending'."""
         for col in self._columns:
             col.pipeline.reset()
+        # Restaura N4 para single-viewer caso esteja em modo PIL 3-panel
+        self._columns[3].restore_single_view()
 
     # ── Fichas ──────────────────────────────────────────────────────
 
@@ -4601,7 +4786,7 @@ class ComparisonEngineModule(QWidget):
             if is_er_flow:
                 # Sempre re-consulta o DB para garantir o recorte mais recente (pós-edição)
                 n2_dxf = self._get_recorte_dxf_for_er(obra, classe, item_id)
-                n2_bbox = None  # vista completa do recorte
+                n2_bbox = self.tri_level._get_n2_bbox_for(item_id, classe) if classe == "LJ" else None
                 _ce_log(f"N2 recorte_path={n2_dxf}")
             else:
                 n2_dxf  = self.tri_level._find_n2_dxf(obra, pav, classe)
@@ -4677,8 +4862,8 @@ class ComparisonEngineModule(QWidget):
             rows = cur.fetchall()
             conn.close()
 
-            _priority = {'aprovado': 0, 'auto_aprovado': 1, 'manual_sel': 2,
-                          'manual': 3, 'motor': 4}
+            _priority = {'aprovado': 0, 'manual_sel': 1, 'manual': 2,
+                          'auto_aprovado': 3, 'motor': 4}
             best = None
             for recorte_path, status, confidence in rows:
                 if not recorte_path or not Path(recorte_path).exists():
@@ -4791,6 +4976,18 @@ class ComparisonEngineModule(QWidget):
         _cls_map = {"PL": "PIL", "LV": "LV", "FV": "FV", "LJ": "LAJ"}
         db_cls = _cls_map.get(classe, classe)
 
+        if db_cls == "LAJ":
+            dxf_path = self._get_recorte_dxf_for_er(obra, classe, item_id)
+            if dxf_path:
+                try:
+                    campos, conf = self._extrair_ficha_motor(db_cls, item_id, str(dxf_path), obra)
+                    return self._format_ficha_rows(
+                        item_id, db_cls, campos, conf or 0.0,
+                        "extraido", "motor reverso LAJ"
+                    )
+                except Exception as exc:
+                    print(f"[CE] _ficha_n2_er LAJ motor error: {exc}")
+
         # ── Tentativa 1: recorte atual (reverse_eng_recortes) ─────────────────
         record = self._get_recorte_record(obra, db_cls, item_id)
         if record:
@@ -4877,8 +5074,17 @@ class ComparisonEngineModule(QWidget):
                 t = _ucd.normalize('NFKD', s)
                 return ''.join(c for c in t if not _ucd.combining(c)).upper()
 
-            best_sel: "Path | None" = None
-            best_motor: "Path | None" = None
+            def _suffix_rank(path: Path) -> tuple[int, float]:
+                m = _re.search(r'_(?:motor|sel)_(\d+)$', path.stem, _re.I)
+                num = int(m.group(1)) if m else 0
+                try:
+                    mtime = path.stat().st_mtime
+                except OSError:
+                    mtime = 0.0
+                return (num, mtime)
+
+            sel_candidates: list[Path] = []
+            motor_candidates: list[Path] = []
             pattern = _re.compile(
                 rf'^{_re.escape(classe)}_{_re.escape(elem_id)}_(motor|sel)_\d+$',
                 _re.IGNORECASE
@@ -4895,10 +5101,14 @@ class ComparisonEngineModule(QWidget):
                         continue
                     tag = m.group(1).lower()
                     if tag == 'sel':
-                        best_sel = dxf
-                    elif best_motor is None:
-                        best_motor = dxf
-            return best_sel or best_motor
+                        sel_candidates.append(dxf)
+                    else:
+                        motor_candidates.append(dxf)
+            if sel_candidates:
+                return max(sel_candidates, key=_suffix_rank)
+            if motor_candidates:
+                return max(motor_candidates, key=_suffix_rank)
+            return None
         except Exception:
             return None
 
@@ -5028,6 +5238,25 @@ class ComparisonEngineModule(QWidget):
             col.set_ficha(self._ficha_rows_from_dict(er_ficha, item_id, db_cls))
             col.pipeline.set_step(0, 'ok', '')
 
+            # ── PIL: 3-panel view (CIMA | ABCD | GRADES) ────────────────────────
+            if classe == 'PL':
+                col.pipeline.set_step(1, 'running', 'Gerando zonas N4...')
+                obra_dir_pil = DADOS_OBRAS_ROOT / obra
+                # N4 PIL: gera das fichas N2 (er_ficha) com pd_pavimento_cm injetado
+                # em subdir n4/ (sempre fresh — não usa cache N3 de Fase-4/N1).
+                zone_paths = self._generate_pil_zones_n4(obra_dir_pil, obra, item_id, er_ficha)
+                n_found = sum(1 for p in zone_paths.values() if p and p.exists())
+                n_total = len(zone_paths)
+                zone_fichas = self._get_pil_zone_fichas(obra, item_id, er_ficha)
+                col.switch_to_pil_zones(zone_paths, er_ficha, zone_fichas)
+                zones_label = '·'.join(z for z in ('CIMA', 'ABCD', 'GRADES', 'EFGH') if z in zone_paths)
+                col.pipeline.set_step(1, 'ok', zones_label)
+                col.pipeline.set_step(2, 'ok', f'{item_id} ({n_found}/{n_total} zonas)')
+                self.nav_sidebar.set_status(
+                    f"✅ N4 PIL {n_total}-panel — {item_id}", Colors.ACCENT_SUCCESS)
+                self.nav_sidebar._enable_item_btns()
+                return
+
             # Step 2: verificar script robô
             col.pipeline.set_step(1, 'running', 'Verificando script...')
             script_name = _N3_SCRIPTS.get(classe)
@@ -5046,8 +5275,10 @@ class ComparisonEngineModule(QWidget):
             col.pipeline.set_step(2, 'running', 'Procurando DXF...')
             obra_dir = DADOS_OBRAS_ROOT / obra
             n4_dxf = self._find_n4_dxf_strict(obra_dir, classe, item_id)
-            if n4_dxf and n4_dxf.exists():
-                col.load_content(str(n4_dxf), None)
+            force_regen = classe == "LJ"
+            if n4_dxf and n4_dxf.exists() and not force_regen:
+                n4_bbox = self.tri_level._get_n2_bbox_for(item_id, classe) if classe == "LJ" else None
+                col.load_content(str(n4_dxf), n4_bbox)
                 col.pipeline.set_step(2, 'ok', Path(n4_dxf).name[:25])
                 self.nav_sidebar.set_status(f"✅ N4 ok — {item_id}", Colors.ACCENT_SUCCESS)
                 self.nav_sidebar._enable_item_btns()
@@ -5069,6 +5300,19 @@ class ComparisonEngineModule(QWidget):
         import json as _json
         _cls_map = {"PL": "PIL", "LV": "LV", "FV": "FV", "LJ": "LAJ"}
         db_cls = _cls_map.get(classe, classe)
+
+        if db_cls == "LAJ":
+            try:
+                import sys as _sys
+                scripts_dir = str(Path(__file__).parent.parent.parent.parent / "scripts")
+                if scripts_dir not in _sys.path:
+                    _sys.path.insert(0, scripts_dir)
+                dxf_path = self._get_recorte_dxf_for_er(obra, classe, item_id)
+                if dxf_path:
+                    from motor_reverso_laj import extrair_ficha_laje
+                    return extrair_ficha_laje(str(dxf_path), item_id, obra)
+            except Exception:
+                pass
         # Tentativa 1: DB
         try:
             import sqlite3
@@ -5129,6 +5373,178 @@ class ComparisonEngineModule(QWidget):
                 result.append((k, str(v)))
         return result
 
+    def _find_or_generate_pil_zones(self, obra_dir: Path, item_id: str) -> dict:
+        """Find (or generate if missing) zone DXFs for a PIL item.
+        Returns {'ABCD': Path|None, 'CIMA': Path|None, 'GRADES': Path|None,
+                 'EFGH': Path|None}  — EFGH only when subtipo_pil == 'U'.
+        Generation uses the static Fase-4 JSON (fast, <1s per zone).
+        """
+        import subprocess as _sp, json as _json
+        out_dir = obra_dir / "Fase-6_Execucao_CAD"
+        out_dir.mkdir(parents=True, exist_ok=True)
+        script = SCRIPTS_DIR / "gerar_pl_dxf_stog.py"
+
+        # Detect subtipo from Fase-4 JSON
+        pj_path = obra_dir / "Fase-4_Sincronizacao" / "JSON_Pilares" / f"{item_id}.json"
+        subtipo = 'RETANGULAR'
+        if pj_path.exists():
+            try:
+                subtipo = _json.loads(pj_path.read_text('utf-8')).get('subtipo_pil', 'RETANGULAR')
+            except Exception:
+                pass
+
+        zones = ["ABCD", "CIMA", "GRADES"]
+        if subtipo == 'U':
+            zones.append("EFGH")
+
+        results = {}
+        for zone in zones:
+            expected = out_dir / f"PL_{zone}_preview_{item_id}.dxf"
+            if not expected.exists() and script.exists():
+                try:
+                    _sp.run(
+                        [sys.executable, str(script),
+                         "--obra", str(obra_dir),
+                         "--item", item_id,
+                         "--zone", zone.lower()],
+                        capture_output=True, timeout=30,
+                    )
+                except Exception as _e:
+                    print(f"[CE] PIL zone {zone} gen error: {_e}")
+            results[zone] = expected if expected.exists() else None
+        return results
+
+    def _get_pd_pavimento_cm(self, obra: str, item_id: str,
+                              obra_dir: "Path | None" = None) -> "float | None":
+        """Retorna pd_pavimento_cm para o item.
+
+        Prioridade:
+        1. Fase-4 JSON real (N1) — tem o campo explícito, valor preciso.
+        2. DB pavimento → arete_config.PD_PAVIMENTO_CM (ORDER BY id DESC para
+           pegar a ficha mais recente, que tende a ser do pavimento ativo).
+        """
+        # 1. Fase-4 N1 JSON (mais confiável — tem pd_pavimento_cm explícito)
+        if obra_dir is not None:
+            pj = obra_dir / "Fase-4_Sincronizacao" / "JSON_Pilares" / f"{item_id}.json"
+            if pj.exists():
+                try:
+                    import json as _j
+                    val = _j.loads(pj.read_text('utf-8')).get('pd_pavimento_cm')
+                    if val:
+                        return float(val)
+                except Exception:
+                    pass
+        # 2. DB pavimento → PD_PAVIMENTO_CM (ORDER BY id DESC = ficha mais recente)
+        try:
+            import sqlite3 as _sq
+            conn = _sq.connect(r"D:/Agente-cad-PYSIDE/project_data.vision")
+            cur = conn.cursor()
+            cur.execute(
+                "SELECT pavimento FROM reverse_eng_fichas "
+                "WHERE obra_name=? AND elemento_id=? ORDER BY id DESC LIMIT 1",
+                (obra, item_id),
+            )
+            row = cur.fetchone()
+            conn.close()
+            if row and row[0]:
+                import sys as _sys
+                arete_dir = str(Path(__file__).parent.parent.parent.parent / "scripts" / "arete")
+                if arete_dir not in _sys.path:
+                    _sys.path.insert(0, arete_dir)
+                from arete_config import PD_PAVIMENTO_CM
+                return PD_PAVIMENTO_CM.get(row[0])
+        except Exception as _e:
+            print(f"[CE] _get_pd_pavimento_cm: {_e}")
+        return None
+
+    def _generate_pil_zones_n4(self, obra_dir: Path, obra: str,
+                                item_id: str, er_ficha: dict) -> dict:
+        """Gera zonas PIL N4 a partir da ficha N2 (er_ficha).
+
+        - Usa er_ficha (N2) com pd_pavimento_cm injetado (não usa Fase-4/N1).
+        - Escreve em Fase-6_Execucao_CAD/n4/ (subdir separado do N3).
+        - Sempre regenera (sem cache — ficha pode ter mudado).
+        """
+        import subprocess as _sp, json as _json, tempfile as _tmp
+
+        # 1. Preparar ficha N2 com pd_pavimento_cm
+        campos = {k: v for k, v in er_ficha.items() if not k.startswith('_')}
+        if 'pd_pavimento_cm' not in campos:
+            # Fonte primária: Fase-4 N1 JSON do item (tem pd_pavimento_cm=321 para 13_PAV)
+            pd_cm = self._get_pd_pavimento_cm(obra, item_id, obra_dir=obra_dir)
+            if pd_cm is not None:
+                campos['pd_pavimento_cm'] = pd_cm
+
+        # subtipo_pil: da ficha N2 ou da Fase-4 N1 (para decidir zonas)
+        subtipo = campos.get('subtipo_pil', 'RETANGULAR')
+        if subtipo == 'RETANGULAR':
+            pj_n1 = obra_dir / "Fase-4_Sincronizacao" / "JSON_Pilares" / f"{item_id}.json"
+            if pj_n1.exists():
+                try:
+                    subtipo = _json.loads(pj_n1.read_text('utf-8')).get('subtipo_pil', 'RETANGULAR')
+                except Exception:
+                    pass
+
+        # 2. Escrever JSON N2 em temp dir com layout Fase-4
+        tmp_dir = Path(_tmp.gettempdir()) / f"ce_n4_PIL_{item_id}"
+        json_subdir = tmp_dir / "Fase-4_Sincronizacao" / "JSON_Pilares"
+        json_subdir.mkdir(parents=True, exist_ok=True)
+        out_dir_n4 = tmp_dir / "Fase-6_Execucao_CAD"
+        out_dir_n4.mkdir(parents=True, exist_ok=True)
+        (tmp_dir / "Fase-6_Execucao_CAD" / "n4").mkdir(parents=True, exist_ok=True)
+        json_path = json_subdir / f"{item_id}.json"
+        json_path.write_text(
+            _json.dumps(campos, indent=2, ensure_ascii=False), encoding='utf-8'
+        )
+
+        # 3. Gerar zonas N4 em out_dir_n4
+        script = SCRIPTS_DIR / "gerar_pl_dxf_stog.py"
+        zones = ["ABCD", "CIMA", "GRADES"]
+        if subtipo == 'U':
+            zones.append("EFGH")
+
+        results: dict = {}
+        for zone in zones:
+            expected = out_dir_n4 / f"PL_{zone}_preview_{item_id}.dxf"
+            if script.exists():
+                try:
+                    _sp.run(
+                        [sys.executable, str(script),
+                         "--obra", str(tmp_dir),
+                         "--item", item_id,
+                         "--zone", zone.lower()],
+                        capture_output=True, timeout=30,
+                    )
+                except Exception as _e:
+                    print(f"[CE] PIL N4 zone {zone} gen error: {_e}")
+            results[zone] = expected if expected.exists() else None
+        return results
+
+    def _get_pil_zone_fichas(self, obra: str, item_id: str,
+                              er_ficha: dict) -> "dict | None":
+        """
+        Extrai fichas N2 por zona PIL usando motor_reverso_pil_zones.
+        Retorna {'ABCD': dict, 'CIMA': dict, 'GRADES': dict} ou None se falhar.
+        """
+        try:
+            import sys as _sys
+            scripts_dir = str(Path(__file__).parent.parent.parent.parent / "scripts")
+            if scripts_dir not in _sys.path:
+                _sys.path.insert(0, scripts_dir)
+            from motor_reverso_pil_zones import extrair_fichas_pil_zones
+
+            recorte = self._find_disk_dxf_for_er(obra, "PIL", item_id)
+            if recorte is None:
+                return None
+
+            obra_root = DADOS_OBRAS_ROOT / obra
+            pavimento = er_ficha.get("pavimento")
+            return extrair_fichas_pil_zones(str(recorte), item_id,
+                                            str(obra_root), pavimento)
+        except Exception as _e:
+            print(f"[CE] _get_pil_zone_fichas error: {_e}")
+            return None
+
     def _find_n4_dxf_strict(self, obra_dir: Path, classe: str, item_id: str) -> "Path | None":
         """Procura APENAS em Fase-6/n4/ — sem fallback para N3."""
         prefixes = {"PL": "PL_preview_", "LV": "LV_preview_",
@@ -5180,7 +5596,13 @@ class ComparisonEngineModule(QWidget):
         temp_item = f"{base_id}_{ts_tag}"
 
         # Prepara dados para o JSON: remove campos internos, garante campos obrigatórios
-        ficha_clean = {k: v for k, v in er_ficha.items() if not k.startswith('_')}
+        ficha_clean = {
+            k: v for k, v in er_ficha.items()
+            if not k.startswith('_') or (
+                classe == "LJ"
+                and k in {"_hlaz", "_stog_pose"}
+            )
+        }
         ficha_clean.setdefault('name',     item_id)
         ficha_clean.setdefault('floor',    'Pavimento')
         ficha_clean.setdefault('panels',   [])
@@ -5249,7 +5671,8 @@ class ComparisonEngineModule(QWidget):
                     # Move para pasta n4 com nome canônico
                     canon = _out_dir / f"{_pfx_out}{_item_id}.dxf"
                     generated.replace(canon)
-                    _col.load_content(str(canon), None)
+                    n4_bbox = self.tri_level._get_n2_bbox_for(_item_id, _classe) if _classe == "LJ" else None
+                    _col.load_content(str(canon), n4_bbox)
                     _col.pipeline.set_step(2, 'ok', canon.name[:25])
                     self.nav_sidebar.set_status(f"✅ N4 gerado — {_item_id}", Colors.ACCENT_SUCCESS)
                 else:
