@@ -720,31 +720,13 @@ def draw_abcd(msp, base_x, base_y, comp, larg, altura, nome, pj):
     H_PAR_C      = 97.0   # face C parafuso zone (N2: always 97 in 13°PAV)
     H_C_EXTRA    = 41.0   # face C extra top section (N2: 262-221=41; was wrong 39 before)
     # TODO: derive H_PAR_C and H_C_EXTRA from N2 ficha; face D height varies per pilar
-    # N2 survey: P1-P8,P10 → only C at 262 (D=197=A/B); P9,P11,P17 → ALL at 262;
-    #            P12-P14 → C and D at 262; P15,P16 → none at 262 — controlled by robot template
-    # Lookup: faces that use panel_top=262 (H_PAR=97+H_C_EXTRA=41) per pilar
-    # Not in dict → default frozenset('C') (only C at 262, all other faces at 197)
-    _FACES_262_MAP = {
-        'P9':  frozenset('ABCD'),
-        'P11': frozenset('ABCD'),
-        'P17': frozenset('ABCD'),
-        'P12': frozenset('CD'),
-        'P13': frozenset('CD'),
-        'P14': frozenset('CD'),
-        'P15': frozenset(),
-        'P16': frozenset(),
-    }
-    _faces_at_262 = _FACES_262_MAP.get(nome, frozenset('C'))
-
     # Face view spans full pé-direito (pd), not just pilar height (altura)
-    pd_cm = float(pj.get('pd_pavimento_cm', altura))
+    pd_cm         = float(pj.get('pd_pavimento_cm', altura))
+    nivel_saida   = float(pj.get('nivel_saida',     altura))
+    nivel_chegada = float(pj.get('nivel_chegada',   0.0))
 
     y_top = base_y - 100
     y_bot = base_y - 100 - pd_cm
-
-    # h_low = distance from y_bot to y_low (including h1 strip) — FIXED=124 across 13°PAV
-    h1 = H1_DEFAULT
-    h_low = 124.0  # empirically fixed (N2 verified: all pilares 13°PAV → 124)
 
     # ABCD PAIRED pattern (N2 ground truth 13_PAV):
     # A=B → comp-direction: panel width = comp + 22 (NOT grade_1 — grade_1 can differ)
@@ -817,14 +799,10 @@ def draw_abcd(msp, base_x, base_y, comp, larg, altura, nome, pj):
     # ── 4. Header texts (nomenclatura layer, TEXT entities) ───────────────────
     # SCR: x=-6969 (≈x_a-49), y=280/255/230 (= base_y + 280/255/230)
     header_x = x_a - 49
-    # PD (pe-direito) e' carimbo de PAVIMENTO, nao do pilar: usa
-    # pd_pavimento_cm (injetado por ficha_adapter a partir de
-    # PD_PAVIMENTO_CM) quando disponivel; senao mantem fallback em `altura`.
-    pd_cm = float(pj.get('pd_pavimento_cm', altura))
     for i, txt in enumerate([
         f'CENARIOS - PD: {pd_cm/100:.2f}',
-        f'NIVEL DE SAIDA: 0,00',
-        f'NIVEL DE CHEGADA: {altura/100:.2f}',
+        f'NIVEL DE SAIDA: {nivel_saida/100:.2f}',
+        f'NIVEL DE CHEGADA: {nivel_chegada/100:.2f}',
     ]):
         msp.add_text(txt, dxfattribs={
             'layer': 'NOMENCLATURA',
@@ -840,9 +818,12 @@ def draw_abcd(msp, base_x, base_y, comp, larg, altura, nome, pj):
     for fid, x_left, larg_total, concrete_dim in face_info:
 
         # Painéis — N2 pattern: C/D faces are taller than A/B (N2 verified 13°PAV)
-        y0 = y_bot
-        y_low = y0 + h_low            # = y_bot + 124 (fixed across all 13°PAV pilares)
-        face_uses_262 = fid in _faces_at_262
+        y0      = y_bot
+        h1      = float(pj.get(f'h1_{fid}', H1_DEFAULT))
+        h2_face = float(pj.get(f'h2_{fid}', 244.0))
+        h_low   = h1 + h2_face / 2.0   # first sub-panel boundary (h2 splits into 2 equal boards)
+        y_low   = y0 + h_low
+        face_uses_262 = (fid == 'C')    # only face C uses H_PAR_C=97 + H_C_EXTRA=41 zone
         if face_uses_262:
             y_mid_face     = y_low + H_PAR_C         # = y_bot + 221 (H_PAR=97)
             panel_top_face = y_mid_face + H_C_EXTRA  # = y_bot + 262 (+H_C_EXTRA=41)
@@ -933,13 +914,6 @@ def draw_abcd(msp, base_x, base_y, comp, larg, altura, nome, pj):
                                                close=False,
                                                dxfattribs={'layer': 'SARR_2.2x7'})
                             entity_count += 1
-                        if face_uses_262:
-                            # Extra section: sarrafo extends from y_mid_face to panel_top_face
-                            for _ in range(repeat):
-                                msp.add_lwpolyline([(sx, y_mid_face), (sx, panel_top_face)],
-                                                   close=False,
-                                                   dxfattribs={'layer': 'SARR_2.2x7'})
-                                entity_count += 1
                     else:
                         if fid == 'C':
                             # 2 segments split at y_mid_face; second only when extra zone exists
@@ -973,32 +947,15 @@ def draw_abcd(msp, base_x, base_y, comp, larg, altura, nome, pj):
                 dim_specs = [(y_bot, y0 + h1, 19), (y_bot, y_top, ANN_OFF)]
             else:
                 dim_specs = [(y_bot, y0 + h1, 19), (y0 + h1, y_top, ANN_OFF)]
-        elif fid == 'C' and face_uses_262:
-            # C at 262: 221 combined (N2 pattern) + H_C_EXTRA + laje
-            dim_specs = [
-                (y_bot,          y_mid_face,       ANN_OFF),  # 221 (124+97)
-                (y_mid_face,     panel_top_face,   ANN_OFF),  # 41 (H_C_EXTRA)
-                (panel_top_face, y_top,             ANN_OFF),  # laje (59 for P9/P11/P17)
-            ]
         elif fid == 'C':
-            # C at 197 (P15/P16 — none at 262): individual cotas like A/B standard
+            # C at 262: 221 combined (N2 pattern: 124+97) + H_C_EXTRA(41) + laje
             dim_specs = [
-                (y_bot,        y_bot + h1,   19),
-                (y_bot,        y_low,         ANN_OFF),
-                (y_low,        y_mid_face,    ANN_OFF),
-                (y_mid_face,   y_top,         ANN_OFF),
-            ]
-        elif face_uses_262:
-            # A, B, D at 262: h1 + h_low + H_PAR + H_C_EXTRA + laje
-            dim_specs = [
-                (y_bot,          y_bot + h1,       19),
-                (y_bot,          y_low,             ANN_OFF),
-                (y_low,          y_mid_face,        ANN_OFF),
-                (y_mid_face,     panel_top_face,    ANN_OFF),
-                (panel_top_face, y_top,             ANN_OFF),
+                (y_bot,          y_mid_face,       ANN_OFF),  # 221 (h_low=124 + H_PAR_C=97)
+                (y_mid_face,     panel_top_face,   ANN_OFF),  # 41 (H_C_EXTRA)
+                (panel_top_face, y_top,             ANN_OFF),  # laje zone
             ]
         else:
-            # A, B, D standard (H_PAR=73): h1 + h_low + H_PARAFUSO + laje
+            # A, B, D: h1(2) + h_low(124) + H_PARAFUSO(73) + laje zone
             dim_specs = [
                 (y_bot,        y_bot + h1,   19),
                 (y_bot,        y_low,         ANN_OFF),
