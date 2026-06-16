@@ -920,7 +920,7 @@ def draw_abcd(msp, base_x, base_y, comp, larg, altura, nome, pj):
                         for _ in range(repeat):
                             msp.add_lwpolyline([(sx, y_low), (sx, y_mid_face)],
                                                close=False,
-                                               dxfattribs={'layer': 'SARR_2.2x7', 'linetype': 'DASHED'})
+                                               dxfattribs={'layer': 'SARR_2.2x7'})
                             entity_count += 1
                     else:
                         if fid == 'C':
@@ -963,10 +963,9 @@ def draw_abcd(msp, base_x, base_y, comp, larg, altura, nome, pj):
                 (panel_top_face, y_top, 50),
             ]
         else:
-            # A, B, D: 3 cotas — h_low (124) | H_PARAFUSO (73 para P1-P8) | remainder
+            # A, B, D: 2 cotas — h1 strip (2cm) | laje zone acima do painel (N2: só esses visíveis)
             dim_specs = [
-                (y_bot, y_low, ann_off),
-                (y_low, y_mid_face, 50),
+                (y_bot, y_bot + h1, ann_off),
                 (y_mid_face, y_top, 50),
             ]
         for p1y, p2y, ann_x_off in dim_specs:
@@ -981,6 +980,26 @@ def draw_abcd(msp, base_x, base_y, comp, larg, altura, nome, pj):
                 entity_count += 1
             except Exception:
                 pass
+
+        # ── 5e-1. Cotas de offset do sarrafo (7cm cada lado) ─────────────────
+        # N2: "7" e "7" visíveis na base do painel; horizontal DIMLINEAR mostrando
+        # o recuo do sarrafo em relação a cada aresta.
+        if not is_horiz and not is_short:
+            y_sarr_cota = y_bot - 22
+            for p1x, p2x in [(x_left, x_left + SARR_OFFSET),
+                              (x_right - SARR_OFFSET, x_right)]:
+                try:
+                    d = msp.add_linear_dim(
+                        base=((p1x + p2x) / 2, y_sarr_cota - 10),
+                        p1=(p1x, y_sarr_cota),
+                        p2=(p2x, y_sarr_cota),
+                        angle=0, dimstyle='PAINEL-NOVA',
+                        dxfattribs={'layer': 'COTA'}
+                    )
+                    d.render()
+                    entity_count += 1
+                except Exception:
+                    pass
 
         # ── 5e. Cota horizontal (largura do painel) ──────────────────────────
         # N2: DIMLINEAR horizontal em y_bot - 43. Mostra largura total do painel.
