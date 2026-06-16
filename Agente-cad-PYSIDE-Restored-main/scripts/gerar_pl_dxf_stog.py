@@ -1017,13 +1017,13 @@ def draw_grades(msp, base_x, base_y, grade_1, grade_2, comp, larg, altura, nome,
       - Cotas verticais segmentadas no lado direito do Grupo B (total em +50, segs em +30).
       - Cotas horizontais por segmento em y=base_y-12.8; cota total em y=base_y-40.
       - div_a = _div_segments(pj, gw_each): MESMA fonte que draw_cima (fonte única).
-      - div_b = grade_1_div_b se sum≈gw_each, senão reversed(div_a) (espelho).
+      - div_b = reversed(div_a) sempre — B é espelho de A (grade_1_div_b são offsets de parafusos).
     """
     BASE_H      = 2.2
     SARR_LW     = 7.0
     SARR_CW     = 3.5
     SARR_HH     = 10.0
-    GROUP_GAP   = 22.0   # padrão robot: distancia_grade1 fallback = 22
+    GROUP_GAP   = 40.0   # espaçamento visual entre Grupo A e Grupo B
     HORIZ_STEP  = 60.0
     HORIZ_FIRST = 30.0
 
@@ -1037,11 +1037,9 @@ def draw_grades(msp, base_x, base_y, grade_1, grade_2, comp, larg, altura, nome,
         return 0
 
     div_a = _div_segments(pj, gw_each)
-    _div_b_raw = [v for v in (pj.get('grade_1_div_b') or []) if v]
-    _div_b_sum = sum(float(v) for v in _div_b_raw)
-    div_b = ([float(v) for v in _div_b_raw]
-             if _div_b_raw and abs(_div_b_sum - gw_each) < 0.5
-             else list(reversed(div_a)))
+    # Grupo B é sempre o espelho de A — grade_1_div_b contém offsets de parafusos
+    # da face B (geometria diferente), não divisões de grade.
+    div_b = list(reversed(div_a))
 
     def draw_group(gx_start, divs):
         """Desenha todos os ng grades do grupo; retorna lista de posições relativas dos horizontais."""
