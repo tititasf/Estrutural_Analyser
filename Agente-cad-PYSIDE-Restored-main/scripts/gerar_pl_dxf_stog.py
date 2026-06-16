@@ -1007,22 +1007,24 @@ def draw_grades(msp, base_x, base_y, grade_1, grade_2, comp, larg, altura, nome,
     """
     Zona GRADES — motor universal baseado em GradeCalculator + _div_segments.
 
-    Anatomia (SCR Subsolo ground truth):
-      - Grupo 1 (div_a, lado A) e Grupo 2 (div_b, lado C) separados por GROUP_GAP=12.
-      - Por grupo: base SARR_2.2x7 (h=2.2) + sarrafos verticais esquerdos/direitos
-        SARR_2.2x7 (w=7) + sarrafos centrais SARR_3.5x7 (w=3.5) nas fronteiras div.
-      - Horizontais: primeiro a +30 de base+2.2 em SARR_2.2x10, demais a cada 60cm
-        em SARR_2.2x7 (até altura).
-      - Cotas por segmento em y=base_y-12.8; cota total em y=base_y-40 (layer COTA).
+    Anatomia (ROBO_GRADES.py ground truth):
+      - Grupo A (div_a) e Grupo B (div_b) separados por GROUP_GAP=22 (padrão robot).
+      - Por grupo: base SARR_2.2x7 (h=2.2) + sarrafos verticais SARR_2.2x7 (w=7)
+        + sarrafos centrais SARR_3.5x7 (w=3.5) nas fronteiras div.
+      - Horizontais: posições [30, 90, 150, …] step=60, todos em SARR_2.2x10,
+        desenhados enquanto posicao_relativa <= altura-10.
+      - Labels: {nome}.A em Grupo A e {nome}.B em Grupo B (layer NOMENCLATURA).
+      - Cotas verticais segmentadas no lado direito do Grupo B (total em +50, segs em +30).
+      - Cotas horizontais por segmento em y=base_y-12.8; cota total em y=base_y-40.
       - div_a = _div_segments(pj, gw_each): MESMA fonte que draw_cima (fonte única).
       - div_b = grade_1_div_b se sum≈gw_each, senão reversed(div_a) (espelho).
     """
-    BASE_H     = 2.2
-    SARR_LW    = 7.0
-    SARR_CW    = 3.5
-    SARR_HH    = 10.0
-    GROUP_GAP  = 12.0
-    HORIZ_STEP = 60.0
+    BASE_H      = 2.2
+    SARR_LW     = 7.0
+    SARR_CW     = 3.5
+    SARR_HH     = 10.0
+    GROUP_GAP   = 22.0   # padrão robot: distancia_grade1 fallback = 22
+    HORIZ_STEP  = 60.0
     HORIZ_FIRST = 30.0
 
     if _GradeCalculator:
@@ -1042,6 +1044,8 @@ def draw_grades(msp, base_x, base_y, grade_1, grade_2, comp, larg, altura, nome,
              else list(reversed(div_a)))
 
     def draw_group(gx_start, divs):
+        """Desenha todos os ng grades do grupo; retorna lista de posições relativas dos horizontais."""
+        horiz_ys = []
         for gi in range(ng):
             gx = gx_start + gi * (gw_each + dist_g)
             # base rect
@@ -1056,16 +1060,16 @@ def draw_grades(msp, base_x, base_y, grade_1, grade_2, comp, larg, altura, nome,
                 rect_lines(msp, bx - SARR_CW / 2, base_y + BASE_H, SARR_CW, altura, 'SARR_3.5x7')
             # right vert
             rect_lines(msp, gx + gw_each - SARR_LW, base_y + BASE_H, SARR_LW, altura, 'SARR_2.2x7')
-            # horizontal sarrafos
+            # horizontal sarrafos — todos SARR_2.2x10 (robot usa mesmo layer em todas posições)
             y_max = base_y + BASE_H + altura
             y_h = base_y + BASE_H + HORIZ_FIRST
-            first = True
             while y_h + SARR_HH <= y_max + 0.1:
-                lay = 'SARR_2.2x10' if first else 'SARR_2.2x7'
-                rect_lines(msp, gx, y_h, gw_each, SARR_HH, lay)
-                first = False
+                rect_lines(msp, gx, y_h, gw_each, SARR_HH, 'SARR_2.2x10')
+                rel = round(y_h - (base_y + BASE_H), 4)
+                if rel not in horiz_ys:
+                    horiz_ys.append(rel)
                 y_h += HORIZ_STEP
-            # cotas por segmento
+            # cotas horizontais por segmento
             x_seg = gx
             for d in divs:
                 try:
@@ -1079,7 +1083,7 @@ def draw_grades(msp, base_x, base_y, grade_1, grade_2, comp, larg, altura, nome,
                 except Exception:
                     pass
                 x_seg += d
-            # cota total
+            # cota total horizontal
             try:
                 t = msp.add_linear_dim(
                     base=(gx + gw_each / 2, base_y - 40),
@@ -1089,22 +1093,108 @@ def draw_grades(msp, base_x, base_y, grade_1, grade_2, comp, larg, altura, nome,
                 t.render()
             except Exception:
                 pass
-            # blocos GRA-E / GRA-D
-            for bname, bx in (('GRA-E', gx), ('GRA-D', gx + gw_each)):
+            # GRA-E: apex esq → inserir em gx; GRA-D: apex dir → inserir em gx+gw-7
+            for bname, bx in (('GRA-E', gx), ('GRA-D', gx + gw_each - 7)):
                 try:
                     msp.add_blockref(bname, (bx, base_y), dxfattribs={'layer': 'SARR_2.2x7'})
                 except Exception:
                     pass
+        return horiz_ys
 
-    msp.add_text(nome, dxfattribs={
+    group_total_w = ng * gw_each + (ng - 1) * dist_g
+    gx_b = base_x + group_total_w + GROUP_GAP
+
+    # Label Grupo A
+    msp.add_text(f'{nome}.A', dxfattribs={
         'layer': 'NOMENCLATURA',
         'insert': (base_x - 10, base_y),
         'height': 14,
         'rotation': 90,
     })
-    group_total_w = ng * gw_each + (ng - 1) * dist_g
     draw_group(base_x, div_a)
-    draw_group(base_x + group_total_w + GROUP_GAP, div_b)
+
+    # Label Grupo B
+    msp.add_text(f'{nome}.B', dxfattribs={
+        'layer': 'NOMENCLATURA',
+        'insert': (gx_b - 10, base_y),
+        'height': 14,
+        'rotation': 90,
+    })
+    horiz_ys = draw_group(gx_b, div_b)
+
+    # ── Cotas verticais no lado direito do Grupo B (última grade do conjunto) ──
+    x_right = gx_b + group_total_w
+    y0      = base_y + BASE_H          # fundo dos sarrafos verticais
+    y_top   = base_y + BASE_H + altura # topo dos sarrafos verticais
+
+    # Cota total em +50
+    try:
+        e = msp.add_linear_dim(
+            base=(x_right + 50, y0 + altura / 2),
+            p1=(x_right, y0), p2=(x_right, y_top),
+            angle=90, dimstyle='PAINEL-NOVA',
+            dxfattribs={'layer': 'COTA'})
+        e.render()
+    except Exception:
+        pass
+
+    # Cotas segmentadas em +30
+    if horiz_ys:
+        hy_sorted = sorted(set(horiz_ys))
+
+        # base → primeiro horizontal
+        fh = hy_sorted[0]
+        try:
+            e = msp.add_linear_dim(
+                base=(x_right + 30, y0 + fh / 2),
+                p1=(x_right, y0), p2=(x_right, y0 + fh),
+                angle=90, dimstyle='PAINEL-NOVA',
+                dxfattribs={'layer': 'COTA'})
+            e.render()
+        except Exception:
+            pass
+
+        for idx, hy in enumerate(hy_sorted):
+            y_h_abs = y0 + hy
+            # espessura do horizontal (10cm)
+            try:
+                e = msp.add_linear_dim(
+                    base=(x_right + 30, y_h_abs + SARR_HH / 2),
+                    p1=(x_right, y_h_abs), p2=(x_right, y_h_abs + SARR_HH),
+                    angle=90, dimstyle='PAINEL-NOVA',
+                    dxfattribs={'layer': 'COTA'})
+                e.render()
+            except Exception:
+                pass
+            # gap até o próximo horizontal
+            if idx < len(hy_sorted) - 1:
+                next_y = y0 + hy_sorted[idx + 1]
+                gap = next_y - (y_h_abs + SARR_HH)
+                if gap > 0.1:
+                    try:
+                        e = msp.add_linear_dim(
+                            base=(x_right + 30, y_h_abs + SARR_HH + gap / 2),
+                            p1=(x_right, y_h_abs + SARR_HH), p2=(x_right, next_y),
+                            angle=90, dimstyle='PAINEL-NOVA',
+                            dxfattribs={'layer': 'COTA'})
+                        e.render()
+                    except Exception:
+                        pass
+
+        # último horizontal → topo
+        y_last_top = y0 + hy_sorted[-1] + SARR_HH
+        top_gap = y_top - y_last_top
+        if top_gap > 0.1:
+            try:
+                e = msp.add_linear_dim(
+                    base=(x_right + 30, y_last_top + top_gap / 2),
+                    p1=(x_right, y_last_top), p2=(x_right, y_top),
+                    angle=90, dimstyle='PAINEL-NOVA',
+                    dxfattribs={'layer': 'COTA'})
+                e.render()
+            except Exception:
+                pass
+
     return 1
 
 

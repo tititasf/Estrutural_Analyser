@@ -104,40 +104,44 @@ def test_div_segments_source_is_shared(item_id, comp, gw_expected):
     )
 
 
+def _dims_horiz(dxf_path):
+    """Retorna medidas das cotas HORIZONTAIS (angle=0) do DXF — exclui cotas verticais."""
+    doc = ezdxf.readfile(str(dxf_path))
+    return [round(e.get_measurement(), 1)
+            for e in doc.modelspace().query("DIMENSION")
+            if abs(getattr(e.dxf, 'angle', 0.0)) < 1.0]
+
+
 @pytest.mark.parametrize("item_id,comp,gw_expected", ITEMS)
 def test_grades_n4_totais_corretos(item_id, comp, gw_expected):
-    """Cotas totais do N4 GRADES == gw_each em ambos os grupos (A e B)."""
+    """Cotas totais horizontais do N4 GRADES == gw_each em ambos os grupos (A e B)."""
     from utils.grade_calculator import GradeCalculator as GC
 
     dxf_path = N4_DIR / f"PL_GRADES_preview_{item_id}.dxf"
     assert dxf_path.exists(), f"DXF nao encontrado: {dxf_path}"
 
     ng, gw_each, _ = GC.calcular_grades(comp)
-    doc = ezdxf.readfile(str(dxf_path))
-    all_dims = [round(e.get_measurement(), 1)
-                for e in doc.modelspace().query("DIMENSION")]
+    h_dims = _dims_horiz(dxf_path)
 
-    totais = [d for d in all_dims if abs(d - gw_each) <= 0.5]
+    totais = [d for d in h_dims if abs(d - gw_each) <= 0.5]
     assert len(totais) == ng * 2, (
         f"[{item_id}] esperado {ng*2} cotas totais={gw_each:.0f}, "
-        f"encontrado {len(totais)} em {sorted(all_dims)}"
+        f"encontrado {len(totais)} em {sorted(h_dims)}"
     )
 
 
 @pytest.mark.parametrize("item_id,comp,gw_expected", ITEMS)
 def test_grades_n4_soma_segmentos(item_id, comp, gw_expected):
-    """Soma de todos os segmentos de subdivisao == 2 x ng x gw_each."""
+    """Soma dos segmentos horizontais de subdivisao == 2 x ng x gw_each."""
     from utils.grade_calculator import GradeCalculator as GC
 
     dxf_path = N4_DIR / f"PL_GRADES_preview_{item_id}.dxf"
     assert dxf_path.exists(), f"DXF nao encontrado: {dxf_path}"
 
     ng, gw_each, _ = GC.calcular_grades(comp)
-    doc = ezdxf.readfile(str(dxf_path))
-    all_dims = [round(e.get_measurement(), 1)
-                for e in doc.modelspace().query("DIMENSION")]
+    h_dims = _dims_horiz(dxf_path)
 
-    segs      = [d for d in all_dims if d < gw_each - 0.5 and d > 1]
+    segs      = [d for d in h_dims if d < gw_each - 0.5 and d > 1]
     soma_segs = round(sum(segs), 1)
     esperado  = round(ng * gw_each * 2, 1)
 
