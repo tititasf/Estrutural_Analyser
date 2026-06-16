@@ -862,6 +862,15 @@ def draw_abcd(msp, base_x, base_y, comp, larg, altura, nome, pj):
                          dxfattribs={'layer': 'Painéis'})
             entity_count += 1
 
+        # ── 5d. Retângulo da zona de laje (acima do painel → até nível superior) ───
+        # N2 ground truth: linhas em layer COTA formam o retângulo da laje.
+        # Zona: panel_top_face → y_top (124cm para A/B/D; 59cm para C em P1 13°PAV)
+        laje_bot = panel_top_face
+        msp.add_line((x_left,  laje_bot), (x_left,  y_top), dxfattribs={'layer': 'COTA'})
+        msp.add_line((x_right, laje_bot), (x_right, y_top), dxfattribs={'layer': 'COTA'})
+        msp.add_line((x_left,  y_top),    (x_right, y_top), dxfattribs={'layer': 'COTA'})
+        entity_count += 3
+
         # Hatches não são necessários na vista ABCD (user: "os hatchs dos paineis nao necessito")
 
         # Faces C/D switch to horizontal sarrafos when dim >= 30 (verified P05+ SCR)
@@ -973,7 +982,24 @@ def draw_abcd(msp, base_x, base_y, comp, larg, altura, nome, pj):
             except Exception:
                 pass
 
-        # ── 5e. Face label TEXT ───────────────────────────────────────────────
+        # ── 5e. Cota horizontal (largura do painel) ──────────────────────────
+        # N2: DIMLINEAR horizontal em y_bot - 43. Mostra largura total do painel.
+        # A/B: comp+22 = larg_total; C/D: larg_c = larg_total
+        y_hdim = y_bot - 43
+        try:
+            d = msp.add_linear_dim(
+                base=(x_left + larg_total / 2, y_hdim - 15),
+                p1=(x_left,  y_hdim),
+                p2=(x_right, y_hdim),
+                angle=0, dimstyle='PAINEL-NOVA',
+                dxfattribs={'layer': 'COTA'}
+            )
+            d.render()
+            entity_count += 1
+        except Exception:
+            pass
+
+        # ── 5f. Face label TEXT ───────────────────────────────────────────────
         msp.add_text(f'{nome}.{fid}', dxfattribs={
             'layer': 'NOMENCLATURA',
             'insert': (x_left - 15, y_bot + 5),
