@@ -554,7 +554,13 @@ def draw_cima(msp, ox, oy, comp, larg, grade_1, nome, pj):
 
     _place_div_dim(div_a, madeira_y0_a, offset=20)
 
-
+    # cota do gap dg_c entre grupos de Madeira (só quando ng_c > 1)
+    if ng_c > 1 and dg_c > 0.01:
+        for gi in range(ng_c - 1):
+            gap_x0 = corner_l + gi * (gw_c + dg_c) + gw_c
+            gap_x1 = gap_x0 + dg_c
+            entities.append(dim_h(msp, gap_x0, gap_x1, madeira_y0_a,
+                                  'COTA', 'cotax2', offset=20))
 
     # ── 3c. COTA texto interior (valores comp/larg_inner dentro do concreto) ─
     entities.append(msp.add_text(f'{comp:.0f}', dxfattribs={
@@ -1058,6 +1064,18 @@ def draw_grades(msp, base_x, base_y, grade_1, grade_2, comp, larg, altura, nome,
                 t.render()
             except Exception:
                 pass
+            # cota do gap entre grades consecutivas (só quando ng > 1)
+            if gi < ng - 1 and dist_g > 0.01:
+                try:
+                    g = msp.add_linear_dim(
+                        base=(gx + gw_each + dist_g / 2, base_y - 40),
+                        p1=(gx + gw_each, base_y),
+                        p2=(gx + gw_each + dist_g, base_y),
+                        angle=0, dimstyle='PAINEL-NOVA',
+                        dxfattribs={'layer': 'COTA'})
+                    g.render()
+                except Exception:
+                    pass
             # GRA-E: apex esq → inserir em gx; GRA-D: apex dir → inserir em gx+gw-7
             for bname, bx in (('GRA-E', gx), ('GRA-D', gx + gw_each - 7)):
                 try:

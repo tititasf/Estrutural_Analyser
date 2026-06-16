@@ -138,14 +138,16 @@ def test_grades_n4_soma_segmentos(item_id, comp, gw_expected):
     dxf_path = N4_DIR / f"PL_GRADES_preview_{item_id}.dxf"
     assert dxf_path.exists(), f"DXF nao encontrado: {dxf_path}"
 
-    ng, gw_each, _ = GC.calcular_grades(comp)
+    ng, gw_each, dist_g = GC.calcular_grades(comp)
     h_dims = _dims_horiz(dxf_path)
 
-    segs      = [d for d in h_dims if d < gw_each - 0.5 and d > 1]
+    # Exclui cotas de gap entre grades (dist_g) — são distintas das subdivisões
+    segs      = [d for d in h_dims if d < gw_each - 0.5 and d > 1
+                 and (dist_g < 0.5 or abs(d - dist_g) > 0.5)]
     soma_segs = round(sum(segs), 1)
     esperado  = round(ng * gw_each * 2, 1)
 
     assert abs(soma_segs - esperado) < 1.0, (
         f"[{item_id}] soma_segs={soma_segs} != esperado={esperado} "
-        f"(ng={ng}, gw={gw_each:.0f}, segs={segs})"
+        f"(ng={ng}, gw={gw_each:.0f}, dist_g={dist_g:.0f}, segs={segs})"
     )
