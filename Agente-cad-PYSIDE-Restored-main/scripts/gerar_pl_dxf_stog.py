@@ -17,6 +17,16 @@ import json, argparse, math
 from pathlib import Path
 import ezdxf
 
+# GradeCalculator — robô legado (calcular_grades, calculate_details_legacy)
+try:
+    _GC_PATH = str(Path(__file__).parent.parent /
+                   '_ROBOS_ABAS/Robo_Pilares/pilares-atualizado-09-25/src')
+    if _GC_PATH not in sys.path:
+        sys.path.insert(0, _GC_PATH)
+    from utils.grade_calculator import GradeCalculator as _GradeCalculator
+except Exception:
+    _GradeCalculator = None
+
 # ── Constantes da anatomia SCR (cm) ──────────────────────────────────────────
 T_CHAPA   = 1.2   # espessura da chapa compensada
 T_SARRAFO = 2.2   # sarrafo padrão SARR_2.2x7
@@ -231,34 +241,44 @@ def hatch_solid(msp, x0, y0, w, h, layer):
     return hatch
 
 
-def dim_h(msp, x0, x1, y_base, layer='COTA', dimstyle='PAINEL-NOVA', offset=8):
-    """Horizontal dimension."""
+def dim_h(msp, x0, x1, y_base, layer='COTA', dimstyle='PAINEL-NOVA', offset=8, text=None):
+    """Horizontal dimension. Returns the DIMENSION entity (for post-transform), or None.
+
+    `text`, se informado, sobrescreve o valor medido (geometria pode divergir
+    do valor real extraído do recorte — ex.: cotas de grade posicionadas
+    proporcionalmente sobre chapa_full_w mas exibindo o valor real do módulo).
+    """
     try:
-        d = msp.add_linear_dim(
+        kwargs = dict(
             base=(x0, y_base - offset),
             p1=(x0, y_base), p2=(x1, y_base),
             angle=0,
             dimstyle=dimstyle,
             dxfattribs={'layer': layer}
         )
+        if text is not None:
+            kwargs['text'] = text
+        d = msp.add_linear_dim(**kwargs)
         d.render()
+        return d.dimension
     except Exception:
-        pass
+        return None
 
 
 def dim_v(msp, y0, y1, x_base, layer='COTA', dimstyle='PAINEL-NOVA', offset=8):
-    """Vertical dimension."""
+    """Vertical dimension. Returns DIMENSION entity for post-transform, or None."""
     try:
         d = msp.add_linear_dim(
-            base=(x_base + offset, y0),
+            base=(x_base + offset, (y0 + y1) / 2.0),
             p1=(x_base, y0), p2=(x_base, y1),
             angle=90,
             dimstyle=dimstyle,
             dxfattribs={'layer': layer}
         )
         d.render()
+        return d.dimension
     except Exception:
-        pass
+        return None
 
 
 def mtext(msp, x, y, txt, height=5, layer='NOMENCLATURA', anchor=5):
@@ -268,6 +288,64 @@ def mtext(msp, x, y, txt, height=5, layer='NOMENCLATURA', anchor=5):
         'char_height': height,
         'attachment_point': anchor,
     })
+
+
+# ─── Helpers compartilhados CIMA + GRADES ────────────────────────────────────
+
+def _bolt_offsets_from_pj(pj, grade_w):
+    """Offsets dos parafusos intermediários medidos desde a borda esquerda da
+    grade (= corner_l/gx). Reproduz exatamente a seção de parafusos de
+    draw_cima: _bx_left = cx_l-12 = corner_l-1 → offset inicial = -1."""
+    bolt_xs = []
+    _bx = -1.0          # = cx_l-12 - corner_l  (corner_l = cx_l-11)
+    _limit = grade_w + 1.0
+    for i in range(1, 9):
+        sp = float(pj.get(f'par_{i}_{i+1}') or 0)
+        if sp <= 0:
+            break
+        _bx += sp
+        if _bx >= _limit - 1.0:
+            break
+        bolt_xs.append(_bx)
+    return bolt_xs
+
+
+def _grade_boundaries_with_avoidance(total_w, offsets, tol=3.0, step=5.0, max_shift=20.0):
+    """3 fronteiras intermediárias (4 módulos) com desvio de colisão grade×parafuso.
+    Porta da lógica do robô CIMA: ±3cm tolerância, passos ±5cm até ±20cm."""
+    def bounds(b2):
+        return [b2 / 2.0, b2, (total_w + b2) / 2.0]
+    def conflict(bnds):
+        return any(abs(b - o) <= tol for b in bnds for o in offsets)
+    b2 = total_w / 2.0
+    if not offsets or not conflict(bounds(b2)):
+        return bounds(b2)
+    n = 1
+    while n * step <= max_shift:
+        for cand in (b2 - n * step, b2 + n * step):
+            if 0 < cand < total_w and not conflict(bounds(cand)):
+                return bounds(cand)
+        n += 1
+    return bounds(b2)
+
+
+def _segments_from_boundaries(boundaries, total_w):
+    """Fronteiras intermediárias → larguras de cada módulo."""
+    bnds = [0.0] + list(boundaries) + [total_w]
+    return [b1 - b0 for b0, b1 in zip(bnds[:-1], bnds[1:])]
+
+
+def _div_segments(pj, grade_w, div_key='grade_1_div_a'):
+    """Fonte única de div_a/div_b: Fase-4 se sum≈grade_w, senão bolt-avoidance.
+    Garante que CIMA e GRADES usem exatamente os mesmos segmentos."""
+    raw = pj.get(div_key) or []
+    if raw:
+        s = sum(float(v) for v in raw if v)
+        if abs(s - grade_w) < 0.5:
+            return [float(v) for v in raw if v]
+    bolt_offs = _bolt_offsets_from_pj(pj, grade_w)
+    bnds = _grade_boundaries_with_avoidance(grade_w, bolt_offs)
+    return _segments_from_boundaries(bnds, grade_w)
 
 
 # ═════════════════════════════════════════════════════════════════════════════
@@ -292,13 +370,14 @@ def draw_cima(msp, ox, oy, comp, larg, grade_1, nome, pj):
     CORNER_H = 2.0    # corner piece height (2cm at top/bottom of concrete)
     SARR_H = 7.0      # sarrafo height per half-segment
     EXTRA_GRAV = 20.0 # gravata extension beyond corner piece
-    GRAV_OUTER_H = 7.0
-    GRAV_INNER_H = 3.0
     GRAV_BELOW_OUTER = 9.0   # outer gravata top = concrete_bottom - 9
-    GRAV_BELOW_INNER = 11.0  # inner gravata top = concrete_bottom - 11
 
+    # CIMA: concreto (interno) mede `comp`; `grade_1` é a medida EXTERNA
+    # (corner_l..corner_r, = comp + 22 pelas constantes SCR abaixo) — ver
+    # ground truth do recorte: "88(GRADE)"/"88" = externo, "66" = interno.
     hc = comp / 2.0
     hl = larg / 2.0
+    larg_inner = larg - 5 if larg > 19 else larg
 
     # ── Derived coordinates ───────────────────────────────────────────────────
     cx_l = ox - hc              # concrete left
@@ -312,10 +391,27 @@ def draw_cima(msp, ox, oy, comp, larg, grade_1, nome, pj):
     sarr_r  = chapa_r + TS      # sarrafo face D outer
     corner_l = sarr_l - CORNER_W   # corner extent left (= sarrafo B outer - 7)
     corner_r = sarr_r + CORNER_W   # corner extent right
-    grav_l   = corner_l - EXTRA_GRAV  # gravata left (fixed = -71 for standard SCR)
-    grav_r   = corner_r + EXTRA_GRAV  # gravata right
 
     chapa_full_w = corner_r - corner_l  # full width of horizontal chapas A/C
+
+    # ── Posições dos parafusos intermediários (cadeia par_1_2..par_8_9) ──────
+    # Calculado ANTES das grades (3a) para que o desvio de colisão grade x
+    # parafuso considere essas posições — mesma fórmula usada no desenho dos
+    # parafusos (seção 6, reaproveitada de lá).
+    _bx_left = cx_l - 12.0
+    _bx_right = corner_r + 1.0
+    _par_keys = [f'par_{i}_{i+1}' for i in range(1, 9)]
+    bolt_intermediate_xs = []
+    _bx = _bx_left
+    for pk in _par_keys:
+        sp = float(pj.get(pk) or 0)
+        if sp <= 0:
+            break
+        _bx += sp
+        if _bx >= _bx_right - 1:
+            break
+        bolt_intermediate_xs.append(_bx)
+    bolt_offsets = [bx - corner_l for bx in bolt_intermediate_xs]
 
     entities = []
 
@@ -328,115 +424,247 @@ def draw_cima(msp, ox, oy, comp, larg, grade_1, nome, pj):
         entities.append(e)
         return e
 
-    def hp(x0, y0, w, h, layer):
-        """HP command equivalent — solid hatch fill on SARRAFO."""
+    def hp_ansi(x0, y0, w, h):
+        """ANSI31 hatch fill on layer Hachura, color=7 (textura sarrafo/corner)."""
         pts = [(x0, y0), (x0+w, y0), (x0+w, y0+h), (x0, y0+h)]
-        hatch = msp.add_hatch(color=256, dxfattribs={'layer': layer})
+        hatch = msp.add_hatch(color=7, dxfattribs={'layer': 'Hachura'})
         hatch.paths.add_polyline_path(pts, is_closed=True)
-        hatch.set_pattern_fill('SOLID')
+        hatch.set_pattern_fill('ANSI31', scale=0.5)
         entities.append(hatch)
         return hatch
 
-    # ── 1. Chapas (4 PLINEs on hachura-chapa) ────────────────────────────────
-    rp(chapa_l, cy_b, TC, larg, 'Hachura', lw=18)             # face B (left vert)
-    rp(cx_r,    cy_b, TC, larg, 'Hachura', lw=18)             # face D (right vert)
-    rp(corner_l, cy_t, chapa_full_w, TC, 'Hachura', lw=18)    # face C (top horiz)
-    rp(corner_l, cy_b - TC, chapa_full_w, TC, 'Hachura', lw=18)  # face A (bot horiz)
+    # ── 1. Chapas (8 PLINEs on layer CHAPA — N2 duplica cada face 2x) ────────
+    chapa_bd_y0 = cy_b + (larg - larg_inner) / 2.0  # centered larg_inner span
+    for _ in range(2):
+        rp(chapa_l, chapa_bd_y0, TC, larg_inner, 'CHAPA', lw=18)        # face B (left vert)
+        rp(cx_r,    chapa_bd_y0, TC, larg_inner, 'CHAPA', lw=18)        # face D (right vert)
+        rp(corner_l, cy_t, chapa_full_w, TC, 'CHAPA', lw=18)            # face C (top horiz)
+        rp(corner_l, cy_b - TC, chapa_full_w, TC, 'CHAPA', lw=18)       # face A (bot horiz)
+
+    # ── 1b. Painéis: contorno do concreto (comp x larg_inner, centrado) ──────
+    rp(cx_l, oy - larg_inner / 2.0, comp, larg_inner, 'Painéis')
 
     # ── 2. COTA dim 1: total chapa width ─────────────────────────────────────
-    dim_h(msp, corner_l, corner_r, cy_b - TC - 5, 'COTA', 'cotax2', offset=5)
+    entities.append(dim_h(msp, corner_l, corner_r, cy_b - TC, 'COTA', 'cotax2', offset=48))
 
-    # ── 3. Sarrafos (8 PLINEs + 8 HP on SARRAFO) ────────────────────────────
+    # ── 3. Sarrafos (8 PLINEs on SARRAFO, color=251) + hachura ANSI31 ────────
     # Face B (left vertical), lower half
     rp(sarr_l, cy_b, TS, SARR_H, 'SARRAFO', lw=13)
-    hp(sarr_l, cy_b, TS, SARR_H, 'SARRAFO')
+    hp_ansi(sarr_l, cy_b, TS, SARR_H)
     # Face B upper half
     rp(sarr_l, cy_t - SARR_H, TS, SARR_H, 'SARRAFO', lw=13)
-    hp(sarr_l, cy_t - SARR_H, TS, SARR_H, 'SARRAFO')
+    hp_ansi(sarr_l, cy_t - SARR_H, TS, SARR_H)
     # Face D (right vertical), lower half
     rp(chapa_r, cy_b, TS, SARR_H, 'SARRAFO', lw=13)
-    hp(chapa_r, cy_b, TS, SARR_H, 'SARRAFO')
+    hp_ansi(chapa_r, cy_b, TS, SARR_H)
     # Face D upper half
     rp(chapa_r, cy_t - SARR_H, TS, SARR_H, 'SARRAFO', lw=13)
-    hp(chapa_r, cy_t - SARR_H, TS, SARR_H, 'SARRAFO')
+    hp_ansi(chapa_r, cy_t - SARR_H, TS, SARR_H)
     # Corner BL top: x[corner_l, sarr_l], y[cy_t-2, cy_t]
     rp(corner_l, cy_t - CORNER_H, CORNER_W, CORNER_H, 'SARRAFO', lw=13)
-    hp(corner_l, cy_t - CORNER_H, CORNER_W, CORNER_H, 'SARRAFO')
+    hp_ansi(corner_l, cy_t - CORNER_H, CORNER_W, CORNER_H)
     # Corner BL bottom: y[cy_b, cy_b+2]
     rp(corner_l, cy_b, CORNER_W, CORNER_H, 'SARRAFO', lw=13)
-    hp(corner_l, cy_b, CORNER_W, CORNER_H, 'SARRAFO')
+    hp_ansi(corner_l, cy_b, CORNER_W, CORNER_H)
     # Corner DR top:
     rp(sarr_r, cy_t - CORNER_H, CORNER_W, CORNER_H, 'SARRAFO', lw=13)
-    hp(sarr_r, cy_t - CORNER_H, CORNER_W, CORNER_H, 'SARRAFO')
+    hp_ansi(sarr_r, cy_t - CORNER_H, CORNER_W, CORNER_H)
     # Corner DR bottom:
     rp(sarr_r, cy_b, CORNER_W, CORNER_H, 'SARRAFO', lw=13)
-    hp(sarr_r, cy_b, CORNER_W, CORNER_H, 'SARRAFO')
+    hp_ansi(sarr_r, cy_b, CORNER_W, CORNER_H)
+    for e in entities[-16:]:
+        if e.dxftype() == 'LWPOLYLINE':
+            e.dxf.color = 251
 
-    # ── 4. COTA dims 2-5 ─────────────────────────────────────────────────────
-    # dim 2: concrete comp (horizontal)
-    dim_h(msp, cx_l, cx_r, cy_b - TC - 5 + 7, 'COTA', 'cotax2', offset=5)
-    # dim 3: concrete larg (vertical)
-    dim_v(msp, cy_b, cy_t, cx_r + 12, 'COTA', 'cotax2', offset=5)
-    # dim 4: left corner width
-    dim_h(msp, corner_l, sarr_l, cy_b + 2, 'COTA', 'cotax2', offset=5)
-    # dim 5: right corner width
-    dim_h(msp, sarr_r, corner_r, cy_b + 2, 'COTA', 'cotax2', offset=5)
+    # ── 3a. div_a — helper compartilhado _div_segments (mesma fonte que GRADES).
+    # Valida sum(grade_1_div_a)≈chapa_full_w antes de usar o Fase-4;
+    # fallback bolt-avoidance garante que CIMA e GRADES sempre concordem.
+    div_a = _div_segments(pj, chapa_full_w)
 
-    # ── 5. Gravatas (4 PLINEs on GRAVATA: 2 outer + 2 inner, horizontal) ─────
-    grav_w = grav_r - grav_l
-    # outer bottom A
-    rp(grav_l, cy_b - GRAV_BELOW_OUTER - GRAV_OUTER_H, grav_w, GRAV_OUTER_H, 'GRAVATA', lw=50)
-    # outer top C
-    rp(grav_l, cy_t + GRAV_BELOW_OUTER, grav_w, GRAV_OUTER_H, 'GRAVATA', lw=50)
-    # inner bottom A
-    rp(grav_l, cy_b - GRAV_BELOW_INNER - GRAV_INNER_H, grav_w, GRAV_INNER_H, 'GRAVATA', lw=50)
-    # inner top C
-    rp(grav_l, cy_t + GRAV_BELOW_INNER, grav_w, GRAV_INNER_H, 'GRAVATA', lw=50)
+    def _div_boundaries_local(values):
+        """Fronteiras dos quadradinhos Madeira (offsets desde corner_l),
+        normalizadas proporcionalmente para chapa_full_w."""
+        nums = [float(v) for v in values if v and float(v) > 0]
+        if len(nums) < 2:
+            return []
+        total = sum(nums)
+        cumsum = 0.0
+        bds = []
+        for v in nums[:-1]:
+            cumsum += v
+            bds.append(cumsum / total * chapa_full_w)
+        return bds
 
-    # ── 6. cota (lowercase) dims: gravata total width + small ────────────────
-    try:
-        d = msp.add_linear_dim(
-            base=(ox, cy_t + GRAV_BELOW_OUTER + GRAV_OUTER_H + 40),
-            p1=(grav_l, cy_t + GRAV_BELOW_OUTER + GRAV_OUTER_H),
-            p2=(grav_r, cy_t + GRAV_BELOW_OUTER + GRAV_OUTER_H),
-            angle=0, dimstyle='cotax2',
-            dxfattribs={'layer': 'COTA'}
-        )
-        d.render()
-    except Exception:
-        pass
-    try:
-        d = msp.add_linear_dim(
-            base=(cx_l - 15, cy_b - GRAV_BELOW_OUTER - 10),
-            p1=(cx_l, cy_b - GRAV_BELOW_OUTER),
-            p2=(chapa_l, cy_b - GRAV_BELOW_OUTER),
-            angle=0, dimstyle='cotax2',
-            dxfattribs={'layer': 'COTA'}
-        )
-        d.render()
-    except Exception:
-        pass
+    _default_boundaries = _grade_boundaries_with_avoidance(chapa_full_w, bolt_offsets)
 
-    # ── 7a. Texto Seção: rótulos das partes da seção transversal (STOG: 212) ──
-    secao_labels = [
-        ('SAR', sarr_l - TS - 4, oy),
-        ('CHP', chapa_l - TC/2,  oy),
-        ('CONC', ox,               oy),
-        ('CHP', chapa_r + TC/2,  oy),
-        ('SAR', chapa_r + TS + 4, oy),
-        ('GRV', grav_l + 2,       cy_b - GRAV_BELOW_OUTER - GRAV_OUTER_H/2),
-        ('GRV', grav_r - 10,      cy_b - GRAV_BELOW_OUTER - GRAV_OUTER_H/2),
-        (f'{comp:.0f}', cx_l + (cx_r-cx_l)/2, cy_b - TC - 15),
-        (f'{larg:.0f}', cx_r + 20, oy),
-    ]
-    for label, tx, ty in secao_labels:
-        entities.append(
-            msp.add_text(label, dxfattribs={
-                'layer': 'Texto Seção',
-                'insert': (tx, ty),
-                'height': 3.5,
-            })
-        )
+    # ── 3b. Madeira (peças sobre chapa C, layer Madeira color=126) ──────────
+    # ground truth: 1 peça de fundo (chapa_full_w x CORNER_W) + 2 cantos (CORNER_W x
+    # CORNER_W) nas pontas + N peças intermediárias (CORNER_W/2 x CORNER_W) nas
+    # fronteiras reais de grade_1_div_a; fallback 1/4,1/2,3/4 se ausente.
+    # Lado C (cima) espelha o lado A (baixo): mesmas fronteiras (_bounds_a).
+    madeira_y0 = cy_t + TC
+    madeira_h = CORNER_W
+    _bounds_a = _div_boundaries_local(div_a) or _default_boundaries
+    rp(corner_l, madeira_y0, chapa_full_w, madeira_h, 'Madeira')               # fundo
+    rp(corner_l, madeira_y0, CORNER_W, madeira_h, 'Madeira')                   # canto esquerdo
+    rp(corner_r - CORNER_W, madeira_y0, CORNER_W, madeira_h, 'Madeira')        # canto direito
+    for off in _bounds_a:
+        cx_mid = corner_l + off
+        rp(cx_mid - CORNER_W / 4.0, madeira_y0, CORNER_W / 2.0, madeira_h, 'Madeira')
+    for e in entities[-(3 + len(_bounds_a)):]:
+        e.dxf.color = 126
+
+    # ── 3d. Madeira espelho (lado A, fronteiras reais de grade_1_div_a) ──────
+    madeira_y0_a = cy_b - TC - CORNER_W
+    rp(corner_l, madeira_y0_a, chapa_full_w, madeira_h, 'Madeira')               # fundo
+    rp(corner_l, madeira_y0_a, CORNER_W, madeira_h, 'Madeira')                   # canto esquerdo
+    rp(corner_r - CORNER_W, madeira_y0_a, CORNER_W, madeira_h, 'Madeira')        # canto direito
+    for off in _bounds_a:
+        cx_mid = corner_l + off
+        rp(cx_mid - CORNER_W / 4.0, madeira_y0_a, CORNER_W / 2.0, madeira_h, 'Madeira')
+    for e in entities[-(3 + len(_bounds_a)):]:
+        e.dxf.color = 126
+
+    # ── 3e. Perfil Metálico (2x "C-channel" além das peças Madeira) ──────────
+    # amostra P1: faixa estende PERFIL_EXT=18 (~EXTRA_GRAV-TC) alem de chapa_full_w
+    # em cada lado; outer height=10, inner height=outer-2*TC=6.
+    PERFIL_EXT = EXTRA_GRAV - TC
+    PERFIL_W_OUT = 10.0
+    perfil_x0 = corner_l - PERFIL_EXT
+    perfil_w = chapa_full_w + 2 * PERFIL_EXT
+    # lado C (acima do Madeira C)
+    py0_c = madeira_y0 + madeira_h
+    rp(perfil_x0, py0_c, perfil_w, PERFIL_W_OUT, 'Perfil Metálico')
+    rp(perfil_x0, py0_c + TC, perfil_w, PERFIL_W_OUT - 2 * TC, 'Perfil Metálico')
+    # lado A (abaixo do Madeira A)
+    py0_a2 = madeira_y0_a - PERFIL_W_OUT
+    rp(perfil_x0, py0_a2, perfil_w, PERFIL_W_OUT, 'Perfil Metálico')
+    rp(perfil_x0, py0_a2 + TC, perfil_w, PERFIL_W_OUT - 2 * TC, 'Perfil Metálico')
+    for e in entities[-4:]:
+        e.dxf.color = 224
+
+
+    # ── 3f. COTA catálogo de subdivisões de grade_1 (2 opções de módulo) ─────
+    # grade_1_div_a/b = listas de larguras de módulo (somam grade_1), extraídas
+    # do próprio recorte CIMA (ver motor_reverso_pil_zones.py). Cada valor é
+    # centrado em seu segmento ao longo de [corner_l, corner_r] (= chapa_full_w
+    # = grade_1), uma lista além do Perfil C, outra além do Perfil A.
+    def _place_div_dim(values, y_base, offset):
+        # Valores (div_a/div_b) somam grade_1 e representam módulos reais do
+        # recorte, mas a geometria desenhada (corner_l..corner_r) é
+        # chapa_full_w = grade_1+22. Para que as bordas das cotas caiam
+        # exatamente sobre os quadradinhos de Madeira (3a/3b/3d, fronteiras
+        # de _div_boundaries), cada módulo é desenhado proporcionalmente:
+        # largura_i = v_i / soma(values) * chapa_full_w.
+        # O texto da cota mantém o valor real extraído (v_i).
+        nums = []
+        for raw_v in values:
+            try:
+                v = float(raw_v)
+            except (TypeError, ValueError):
+                continue
+            if v > 0:
+                nums.append(v)
+        total = sum(nums)
+        if not nums or total <= 0:
+            return
+
+        cumsum = 0.0
+        for v in nums:
+            w = v / total * chapa_full_w
+            x0 = corner_l + cumsum
+            x1 = min(corner_l + cumsum + w, corner_r)
+            if x1 - x0 > 0.01:
+                txt = f'{v:.0f}' if v == int(v) else f'{v:g}'
+                entities.append(dim_h(msp, x0, x1, y_base, 'COTA', 'cotax2', offset=offset, text=txt))
+            cumsum += w
+
+    # Apenas a cota da grade A (lado de baixo) é exibida — o lado B/C (cima)
+    # espelha o lado A em posição/quantidade de quadradinhos e não tem cota
+    # própria. Itens sem grade_1_div_a (não extraído) caem no mesmo fallback
+    # geométrico dos quadradinhos (_default_boundaries, com desvio de colisão
+    # grade x parafuso), então a cota usa os módulos derivados dessas mesmas
+    # fronteiras (convertidos para a escala grade_1) para ficar consistente.
+    _place_div_dim(div_a, madeira_y0_a, offset=20)
+
+
+
+    # ── 3c. COTA texto interior (valores comp/larg_inner dentro do concreto) ─
+    entities.append(msp.add_text(f'{comp:.0f}', dxfattribs={
+        'layer': 'COTA', 'insert': (ox - 3.5, oy - 1.75), 'height': 3.5,
+    }))
+    entities.append(msp.add_text(f'{larg_inner:.0f}', dxfattribs={
+        'layer': 'COTA', 'insert': (cx_l + 5, oy - 1.75), 'height': 3.5, 'rotation': 90,
+    }))
+
+    # ── 4. COTA dims 2-5 (posições do P1_CIMA.scr) ───────────────────────────
+    # dim 2: concrete comp — measurement at cy_b, base 4 ACIMA (offset=-4)
+    entities.append(dim_h(msp, cx_l, cx_r, cy_b, 'COTA', 'cotax2', offset=-4))
+    # dim 3: concrete larg (vertical) — base 30 à direita
+    entities.append(dim_v(msp, cy_b, cy_t, cx_r, 'COTA', 'cotax2', offset=30))
+    # dim 4: left corner width — measurement at cy_b+2, base 6 ACIMA (offset=-6)
+    entities.append(dim_h(msp, corner_l, sarr_l, cy_b + 2, 'COTA', 'cotax2', offset=-6))
+    # dim 5: right corner width — measurement at cy_b+2, base 6 ACIMA (offset=-6)
+    entities.append(dim_h(msp, sarr_r, corner_r, cy_b + 2, 'COTA', 'cotax2', offset=-6))
+
+    # ── 5. GRAVATA removida (não existe no recorte N2 ground truth) ───────────
+
+    # ── 6. Parafusos (PLINEs layer Hachura — posições do robô SCR) ───────────
+    # Robot: left_extremity = x_inicial - 12 = cx_l - 12 ≈ corner_l - 1
+    #        spacings = par_1_2, par_2_3, ... (NÃO distancia_1)
+    #        right_extremity = cx_r + 15.5 ≈ corner_r + 4.5
+    # y: altura_parafuso = larg + 36.8 (comp < 223) → cy_b - 24.4 a cy_t + 24.4
+    _bolt_half_extra = 18.4 if comp < 223 else 20.6
+    bolt_y0 = cy_b - _bolt_half_extra - 6
+    bolt_y1 = cy_t + _bolt_half_extra + 6
+
+    def _bolt_pline(bx, is_intermediate=False):
+        if is_intermediate:
+            # Sólido abaixo do concreto
+            entities.append(msp.add_lwpolyline(
+                [(bx - 0.5, bolt_y0), (bx + 0.5, bolt_y0),
+                 (bx + 0.5, cy_b - 2), (bx - 0.5, cy_b - 2)],
+                close=True, dxfattribs={'layer': 'Hachura'}
+            ))
+            # Tracejado através do concreto
+            entities.append(msp.add_lwpolyline(
+                [(bx - 0.5, cy_b - 2), (bx + 0.5, cy_b - 2),
+                 (bx + 0.5, cy_t + 2), (bx - 0.5, cy_t + 2)],
+                close=True, dxfattribs={'layer': 'Hachura', 'linetype': 'HIDDEN'}
+            ))
+            # Sólido acima do concreto
+            entities.append(msp.add_lwpolyline(
+                [(bx - 0.5, cy_t + 2), (bx + 0.5, cy_t + 2),
+                 (bx + 0.5, bolt_y1), (bx - 0.5, bolt_y1)],
+                close=True, dxfattribs={'layer': 'Hachura'}
+            ))
+        else:
+            # Extremidade: 1cm PLINE sólido do início ao fim
+            entities.append(msp.add_lwpolyline(
+                [(bx - 0.5, bolt_y0), (bx + 0.5, bolt_y0),
+                 (bx + 0.5, bolt_y1), (bx - 0.5, bolt_y1)],
+                close=True, dxfattribs={'layer': 'Hachura'}
+            ))
+
+    # bx_left/bx_right/bolt_intermediate_xs já calculados antes da seção 3
+    # (necessários para o desvio de colisão grade x parafuso de _default_boundaries).
+    bx_left, bx_right = _bx_left, _bx_right
+    _bolt_pline(bx_left, is_intermediate=False)
+    for bx in bolt_intermediate_xs:
+        _bolt_pline(bx, is_intermediate=True)
+    _bolt_pline(bx_right, is_intermediate=False)
+
+    # ── 6c. COTA dos parafusos: cadeia corner_l -> [centros dos parafusos
+    # intermediários] -> corner_r, sempre no TOPO do desenho (cy_t +
+    # _bolt_half_extra, alinhada à parte solida superior do Hachura/_bolt_pline
+    # que vai até bolt_y1). Extremidades coincidem com os painéis
+    # (corner_l/corner_r); os pontos centrais da cadeia ficam alinhados com o
+    # centro de cada parafuso intermediário (Hachura).
+    _bolt_y_base = cy_t + _bolt_half_extra
+    _bolt_chain = [corner_l] + bolt_intermediate_xs + [corner_r]
+    for _x0, _x1 in zip(_bolt_chain[:-1], _bolt_chain[1:]):
+        if _x1 - _x0 > 0.01:
+            entities.append(dim_h(msp, _x0, _x1, _bolt_y_base, 'COTA', 'cotax2', offset=-15))
 
     # ── 7. NOMENCLATURA: 1 MTEXT (nome) + 4 TEXT (face labels A/B/C/D) ───────
     msp.add_mtext(
@@ -455,13 +683,10 @@ def draw_cima(msp, ox, oy, comp, larg, grade_1, nome, pj):
         ('B', cx_r + 1, oy),
     ]:
         msp.add_text(txt, dxfattribs={
-            'layer': 'NOMENCLATURA',
+            'layer': 'TEXTO_GERAL',
             'insert': (tx, ty),
             'height': 4,
         })
-
-    # ── 8. Hachura PLINE (1 — height indicator, narrow vert rect) ───────────
-    e = rp(cx_r + 16, oy - hl - 24, 1.0, larg + 48, 'Hachura', lw=13)
 
     # ── 9. _SCALE 2.0 around (ox, oy) ─────────────────────────────────────────
     from ezdxf.math import Matrix44
@@ -510,45 +735,49 @@ def draw_abcd(msp, base_x, base_y, comp, larg, altura, nome, pj):
       nomenclatura — TEXT labels (face labels + header texts)
       cota        — INSERT SLIPTEE + SLIPTDD per face A/B
     """
-    # ── Constants (from SCR reverse engineering) ──────────────────────────────
+    # ── Constants (STOG PIL drawing standard) ────────────────────────────────
     SARR_OFFSET  = 7      # sarrafo position from left face edge
     X_OFFSET     = 80     # face A left offset from zone start
-    ESPACAMENTO  = 278    # spacing between faces (empirically derived from SCR)
-    H1_DEFAULT   = 2.0    # bottom gap segment height
+    GAP_AB       = 155    # gap: face A right edge → face B left edge (STOG standard)
+    GAP_BC       = 129    # gap: face B right edge → face C left edge
+    GAP_CD       = 129    # gap: face C right edge → face D left edge
+    H1_DEFAULT   = 2.0    # bottom chapa strip height
     H3_DEFAULT   = 34.0   # top segment height
+    H_PARAFUSO   = 73.0   # middle parafuso section height (STOG PIL standard)
 
-    # SCR coordinate system: y_top = base_y - 100, y_bot = base_y - 100 - altura
-    # (face view starts 100 units below row origin, spans downward by altura)
+    # Face view spans full pé-direito (pd), not just pilar height (altura)
+    pd_cm = float(pj.get('pd_pavimento_cm', altura))
+
     y_top = base_y - 100
-    y_bot = base_y - 100 - altura
+    y_bot = base_y - 100 - pd_cm
 
-    # Face heights (3 segments: h1=bottom gap, h2=middle, h3=top)
-    def get_face_heights():
-        h1 = H1_DEFAULT
-        h3 = min(H3_DEFAULT, altura - H1_DEFAULT - 1)
-        h2 = altura - h1 - h3
-        return h1, h2, h3
+    # Face height segments (pd-based)
+    h1 = H1_DEFAULT
+    h3 = min(H3_DEFAULT, pd_cm - H1_DEFAULT - 1)
+    h2 = pd_cm - h1 - h3
+    h_low = (pd_cm - H_PARAFUSO) / 2   # bottom/top section height (=124 for pd=321)
 
-    h1, h2, h3 = get_face_heights()
+    # ABCD PAIRED pattern (N2 ground truth 13_PAV):
+    # A=B → comp-direction (wide): panel width = grade_1
+    # C=D → larg-direction (narrow): panel width = larg_inner
+    grade_1_val = float(pj.get('grade_1', 0)) or (comp + 22)
+    larg_inner = larg - 5 if larg > 19 else larg
 
-    # Faces alternating pattern (verified against P02_ABCD.scr SLIPTEE/SLIPTDD):
-    # A spans comprimento, B spans largura, C spans comprimento, D spans largura
-    # Panel width = concrete_dim + 22 (chapa on each side)
-    larg_a = comp + 22   # face A panel: comprimento + chapa
-    larg_b = larg + 22   # face B panel: largura + chapa
-    larg_c = comp + 22   # face C panel: comprimento + chapa (alternates with A)
-    larg_d = larg + 22   # face D panel: largura + chapa (alternates with B)
+    larg_a = grade_1_val   # face A = comp-direction, grade_1 panel width
+    larg_b = grade_1_val   # face B = comp-direction, paired with A
+    larg_c = larg_inner    # face C = larg-direction
+    larg_d = larg_inner    # face D = larg-direction, paired with C
 
     x_a = base_x + X_OFFSET
-    x_b = x_a + larg_a + ESPACAMENTO
-    x_c = x_b + larg_b + ESPACAMENTO
-    x_d = x_c + larg_c + (ESPACAMENTO - 70)
+    x_b = x_a + larg_a + GAP_AB
+    x_c = x_b + larg_b + GAP_BC
+    x_d = x_c + larg_c + GAP_CD
 
     face_info = [
         ('A', x_a, larg_a, comp),   # (label, x_left, panel_width, concrete_dim)
-        ('B', x_b, larg_b, larg),   # face B concrete = largura
-        ('C', x_c, larg_c, comp),   # face C concrete = comprimento (same as A)
-        ('D', x_d, larg_d, larg),   # face D concrete = largura (same as B)
+        ('B', x_b, larg_b, comp),   # B also spans comprimento (paired with A)
+        ('C', x_c, larg_c, larg),   # C spans largura
+        ('D', x_d, larg_d, larg),   # D also spans largura (paired with C)
     ]
 
     entity_count = 0
@@ -601,8 +830,12 @@ def draw_abcd(msp, base_x, base_y, comp, larg, altura, nome, pj):
     # ── 4. Header texts (nomenclatura layer, TEXT entities) ───────────────────
     # SCR: x=-6969 (≈x_a-49), y=280/255/230 (= base_y + 280/255/230)
     header_x = x_a - 49
+    # PD (pe-direito) e' carimbo de PAVIMENTO, nao do pilar: usa
+    # pd_pavimento_cm (injetado por ficha_adapter a partir de
+    # PD_PAVIMENTO_CM) quando disponivel; senao mantem fallback em `altura`.
+    pd_cm = float(pj.get('pd_pavimento_cm', altura))
     for i, txt in enumerate([
-        f'CENARIOS - PD: {altura/100:.2f}',
+        f'CENARIOS - PD: {pd_cm/100:.2f}',
         f'NIVEL DE SAIDA: 0,00',
         f'NIVEL DE CHEGADA: {altura/100:.2f}',
     ]):
@@ -614,38 +847,33 @@ def draw_abcd(msp, base_x, base_y, comp, larg, altura, nome, pj):
         entity_count += 1
 
     # ── 5. Per-face drawing ────────────────────────────────────────────────────
-    # Dynamic furacao y-positions (verified P23-P27, P43, P45, P48 SCR):
-    # start y_bot+30, first gap 50, subsequent gaps 55, stop when y >= y_top-35
-    def _furacao_ys(yb, yt):
-        ys = []
-        y = yb + 30
-        gap = 50
-        while y <= (yt - 35):
-            ys.append(y)
-            y += gap
-            gap = 55
-        return ys
-
-    fura_ys = _furacao_ys(y_bot, y_top)
-
     # Short-pillar flag: alt < 280 → simplified sarrafo/dim structure (verified P21/P22/P44 SCR)
     is_short = altura < 280
 
     for fid, x_left, larg_total, concrete_dim in face_info:
 
-        # EPIC-STOG-7: Painéis — contornos reais da face do painel por segmento
-        # SCR: layer Painéis é ativado para retângulos de contorno de cada segmento
-        # Gera 3 PLINEs por face (h1, h2, h3 segments) = geometria real da face
+        # Painéis — N2 pattern: lines only up to y_mid (NOT full pd height)
         y0 = y_bot
-        h1_f, h2_f, h3_f = h1, h2, h3  # segmentos da face
-        for _seg_y, _seg_h in [(y0, h1_f), (y0 + h1_f, h2_f), (y0 + h1_f + h2_f, h3_f)]:
-            if _seg_h > 0.1:
-                msp.add_lwpolyline(
-                    [(x_left, _seg_y), (x_left + larg_total, _seg_y),
-                     (x_left + larg_total, _seg_y + _seg_h), (x_left, _seg_y + _seg_h)],
-                    close=True, dxfattribs={'layer': 'Painéis'}
-                )
-                entity_count += 1
+        y_low = y0 + h_low            # bottom of parafuso zone
+        y_mid = y_low + H_PARAFUSO   # top of parafuso zone
+        x_right = x_left + larg_total
+        # Bottom h1 strip (horizontal LINE)
+        msp.add_line((x_left, y0 + h1), (x_right, y0 + h1),
+                     dxfattribs={'layer': 'Painéis'})
+        entity_count += 1
+        # Left and right vertical edges from y_bot to y_mid
+        msp.add_line((x_left, y0), (x_left, y_mid),
+                     dxfattribs={'layer': 'Painéis'})
+        msp.add_line((x_right, y0), (x_right, y_mid),
+                     dxfattribs={'layer': 'Painéis'})
+        entity_count += 2
+        # Horizontal at y_low (bottom of parafuso zone)
+        msp.add_line((x_right, y_low), (x_left, y_low),
+                     dxfattribs={'layer': 'Painéis'})
+        # Horizontal at y_mid (top of parafuso zone)
+        msp.add_line((x_right, y_mid), (x_left, y_mid),
+                     dxfattribs={'layer': 'Painéis'})
+        entity_count += 2
 
         # Faces C/D switch to horizontal sarrafos when dim >= 30 (verified P05+ SCR)
         is_horiz = (fid in ('C', 'D') and concrete_dim >= 30)
@@ -683,17 +911,26 @@ def draw_abcd(msp, base_x, base_y, comp, larg, altura, nome, pj):
                                            dxfattribs={'layer': 'SARR_2.2x7'})
                         entity_count += 1
                 else:
-                    # Normal: DASHED segment + CONTINUOUS segment (verified P01-P20 SCR)
-                    for _ in range(repeat):
-                        msp.add_lwpolyline([(sx, y0 + h1), (sx, y0 + h1 + h2)],
-                                           close=False,
-                                           dxfattribs={'layer': 'SARR_2.2x7', 'linetype': 'DASHED'})
-                        entity_count += 1
-                    for _ in range(repeat):
-                        msp.add_lwpolyline([(sx, y0 + h1 + h2), (sx, y_top)],
-                                           close=False,
-                                           dxfattribs={'layer': 'SARR_2.2x7'})
-                        entity_count += 1
+                    # Wide faces (A/B, comp-dir): lower CONTINUOUS + DASHED, stop at y_mid
+                    # Narrow faces (C/D, larg-dir): lower CONTINUOUS + small DASHED above + CONTINUOUS top
+                    if fid in ('A', 'B'):
+                        for _ in range(repeat):
+                            msp.add_lwpolyline([(sx, y0 + h1), (sx, y_low)],
+                                               close=False,
+                                               dxfattribs={'layer': 'SARR_2.2x7'})
+                            entity_count += 1
+                        for _ in range(repeat):
+                            msp.add_lwpolyline([(sx, y_low), (sx, y_mid)],
+                                               close=False,
+                                               dxfattribs={'layer': 'SARR_2.2x7', 'linetype': 'DASHED'})
+                            entity_count += 1
+                    else:
+                        # C/D: single continuous from y_bot+h1 to y_mid
+                        for _ in range(repeat):
+                            msp.add_lwpolyline([(sx, y0 + h1), (sx, y_mid)],
+                                               close=False,
+                                               dxfattribs={'layer': 'SARR_2.2x7'})
+                            entity_count += 1
 
         # ── 5c. Per-face DIMENSIONs ───────────────────────────────────────────
         # Short: 2 dims per face (verified P21/P22 SCR)
@@ -710,9 +947,9 @@ def draw_abcd(msp, base_x, base_y, comp, larg, altura, nome, pj):
                 dim_specs = [(y_bot, y0 + h1, ann_off), (y0 + h1, y_top, 50)]
         else:
             dim_specs = [
-                (y_bot, y0 + h1, ann_off),
-                (y0 + h1, y0 + h1 + h2, 50),
-                (y0 + h1 + h2, y_top, 50),
+                (y_bot, y_low, ann_off),
+                (y_low, y_mid, 50),
+                (y_mid, y_top, 50),
             ]
         for p1y, p2y, ann_x_off in dim_specs:
             try:
@@ -726,37 +963,6 @@ def draw_abcd(msp, base_x, base_y, comp, larg, altura, nome, pj):
                 entity_count += 1
             except Exception:
                 pass
-
-        # ── 5d. SLIPTEE + SLIPTDD (faces A/B) + furacao (large faces) ────────
-        if fid in ('A', 'B'):
-            y_slip = y_bot + 3
-            try:
-                msp.add_blockref('SLIPTEE', (x_left, y_slip),
-                                 dxfattribs={'layer': 'COTA'})
-                msp.add_blockref('SLIPTDD', (x_left + concrete_dim, y_slip),
-                                 dxfattribs={'layer': 'COTA'})
-                entity_count += 2
-            except Exception:
-                pass
-
-        # Furacao through-bolt blocks (verified P07/P09/P10/P11/P12 SCR):
-        #   Face A: comp > 50  | Face B: comp > 50 (same cond as A, NOT larg>40)
-        #   Face C: comp >= 40 | Face D: larg >= 40
-        needs_furacao = (
-            (fid == 'A' and comp > 50) or
-            (fid == 'B' and comp > 50) or
-            (fid == 'C' and comp >= 40) or
-            (fid == 'D' and larg >= 40)
-        )
-        if needs_furacao:
-            x_fura = x_left + concrete_dim / 2
-            for y_abs in fura_ys:
-                try:
-                    msp.add_blockref('furacao', (x_fura, y_abs),
-                                     dxfattribs={'layer': 'COTA'})
-                    entity_count += 1
-                except Exception:
-                    pass
 
         # ── 5e. Face label TEXT ───────────────────────────────────────────────
         msp.add_text(f'{nome}.{fid}', dxfattribs={
@@ -799,199 +1005,107 @@ def draw_abcd(msp, base_x, base_y, comp, larg, altura, nome, pj):
 
 def draw_grades(msp, base_x, base_y, grade_1, grade_2, comp, larg, altura, nome, pj):
     """
-    Draw GRADES zone at base_x, base_y.
-    Exact anatomy from SCR reverse engineering (P01.scr, P11.scr CENARIOS_GRADES).
+    Zona GRADES — motor universal baseado em GradeCalculator + _div_segments.
 
-    When grade_1=0 (most pilars): draw 1 degenerate grade, width=larg.
-      - 12 LINEs on SARR_2.2x7 (base + degenerate left + degenerate right)
-      - 4 LINEs on SARR_2.2x10 (top sarrafo at y=-7.8 to 2.2)
-      - 6 DIMENSIONs on SARR_2.2x10 (current layer when dims are drawn)
-      - 2 INSERTs (GRA-E + GRA-D) on SARR_2.2x7
-      - 1 TEXT on NOMENCLATURA (uppercase! grade zone uses NOMENCLATURA)
-
-    When grade_1>0: draw 2 full grades of width=grade_1, with gap=22.
-      - Full vertical sarrafos (altura height)
-      - Horizontal sarrafos at intervals on SARR_2.2x10
-      - Interlocking: grade1 left=SARR_2.2x7/right=SARR_3.5x7
-                     grade2 left=SARR_3.5x7/right=SARR_2.2x7
-      - 1 DIMENSION gap on COTA (uppercase!)
+    Anatomia (SCR Subsolo ground truth):
+      - Grupo 1 (div_a, lado A) e Grupo 2 (div_b, lado C) separados por GROUP_GAP=12.
+      - Por grupo: base SARR_2.2x7 (h=2.2) + sarrafos verticais esquerdos/direitos
+        SARR_2.2x7 (w=7) + sarrafos centrais SARR_3.5x7 (w=3.5) nas fronteiras div.
+      - Horizontais: primeiro a +30 de base+2.2 em SARR_2.2x10, demais a cada 60cm
+        em SARR_2.2x7 (até altura).
+      - Cotas por segmento em y=base_y-12.8; cota total em y=base_y-40 (layer COTA).
+      - div_a = _div_segments(pj, gw_each): MESMA fonte que draw_cima (fonte única).
+      - div_b = grade_1_div_b se sum≈gw_each, senão reversed(div_a) (espelho).
     """
-    entity_count = 0
-    GRADE_GAP   = 22    # gap between grade 1 and grade 2
-    SARR_LEFT_W = 7.0   # SARR_2.2x7 width
-    SARR_RIGHT_W = 3.5  # SARR_3.5x7 width
-    BASE_H = 2.2        # base rectangle height
-    TOP_SARR_H = 10.0   # SARR_2.2x10 height
+    BASE_H     = 2.2
+    SARR_LW    = 7.0
+    SARR_CW    = 3.5
+    SARR_HH    = 10.0
+    GROUP_GAP  = 12.0
+    HORIZ_STEP = 60.0
+    HORIZ_FIRST = 30.0
 
-    def rect4(x0, y0, w, h, layer):
-        """Draw rectangle as 4 LINE entities (AutoCAD _LINE command)."""
-        nonlocal entity_count
-        pts = [(x0,y0),(x0+w,y0),(x0+w,y0+h),(x0,y0+h)]
-        for i in range(4):
-            p1 = pts[i]; p2 = pts[(i+1)%4]
-            msp.add_line(p1, p2, dxfattribs={'layer': layer})
-        entity_count += 4
+    if _GradeCalculator:
+        ng, gw_each, dist_g = _GradeCalculator.calcular_grades(comp)
+    else:
+        gw_each = comp + 22.0
+        ng = 1
+        dist_g = 0.0
+    if ng <= 0 or gw_each <= 0:
+        return 0
 
-    # ── Pilar name TEXT (always, on NOMENCLATURA uppercase) ──────────────────
+    div_a = _div_segments(pj, gw_each)
+    _div_b_raw = [v for v in (pj.get('grade_1_div_b') or []) if v]
+    _div_b_sum = sum(float(v) for v in _div_b_raw)
+    div_b = ([float(v) for v in _div_b_raw]
+             if _div_b_raw and abs(_div_b_sum - gw_each) < 0.5
+             else list(reversed(div_a)))
+
+    def draw_group(gx_start, divs):
+        for gi in range(ng):
+            gx = gx_start + gi * (gw_each + dist_g)
+            # base rect
+            rect_lines(msp, gx, base_y, gw_each, BASE_H, 'SARR_2.2x7')
+            # left vert
+            rect_lines(msp, gx, base_y + BASE_H, SARR_LW, altura, 'SARR_2.2x7')
+            # center sarrafos at div boundaries (not last)
+            cumsum = 0.0
+            for d in divs[:-1]:
+                cumsum += d
+                bx = gx + cumsum
+                rect_lines(msp, bx - SARR_CW / 2, base_y + BASE_H, SARR_CW, altura, 'SARR_3.5x7')
+            # right vert
+            rect_lines(msp, gx + gw_each - SARR_LW, base_y + BASE_H, SARR_LW, altura, 'SARR_2.2x7')
+            # horizontal sarrafos
+            y_max = base_y + BASE_H + altura
+            y_h = base_y + BASE_H + HORIZ_FIRST
+            first = True
+            while y_h + SARR_HH <= y_max + 0.1:
+                lay = 'SARR_2.2x10' if first else 'SARR_2.2x7'
+                rect_lines(msp, gx, y_h, gw_each, SARR_HH, lay)
+                first = False
+                y_h += HORIZ_STEP
+            # cotas por segmento
+            x_seg = gx
+            for d in divs:
+                try:
+                    e = msp.add_linear_dim(
+                        base=(x_seg + d / 2, base_y - 17.8),
+                        p1=(x_seg, base_y - 12.8),
+                        p2=(x_seg + d, base_y - 12.8),
+                        angle=0, dimstyle='PAINEL-NOVA',
+                        dxfattribs={'layer': 'COTA'})
+                    e.render()
+                except Exception:
+                    pass
+                x_seg += d
+            # cota total
+            try:
+                t = msp.add_linear_dim(
+                    base=(gx + gw_each / 2, base_y - 40),
+                    p1=(gx, base_y), p2=(gx + gw_each, base_y),
+                    angle=0, dimstyle='PAINEL-NOVA',
+                    dxfattribs={'layer': 'COTA'})
+                t.render()
+            except Exception:
+                pass
+            # blocos GRA-E / GRA-D
+            for bname, bx in (('GRA-E', gx), ('GRA-D', gx + gw_each)):
+                try:
+                    msp.add_blockref(bname, (bx, base_y), dxfattribs={'layer': 'SARR_2.2x7'})
+                except Exception:
+                    pass
+
     msp.add_text(nome, dxfattribs={
         'layer': 'NOMENCLATURA',
         'insert': (base_x - 10, base_y),
         'height': 14,
         'rotation': 90,
     })
-    entity_count += 1
-
-    if grade_1 <= 0:
-        # ── Degenerate grade (grade_1=0): width = larg ───────────────────────
-        gwidth = larg
-        gx = base_x
-
-        # Base rectangle (gwidth × 2.2) on SARR_2.2x7
-        rect4(gx, base_y, gwidth, BASE_H, 'SARR_2.2x7')
-
-        # Left vert (degenerate: height=0) on SARR_2.2x7
-        # SCR draws all 4 points at same Y=2.2 (zero-height rect)
-        for _ in range(4):
-            msp.add_line((gx, base_y + BASE_H), (gx + SARR_LEFT_W, base_y + BASE_H),
-                         dxfattribs={'layer': 'SARR_2.2x7'})
-        entity_count += 4
-
-        # Right vert (degenerate) on SARR_2.2x7
-        for _ in range(4):
-            msp.add_line((gx + SARR_LEFT_W, base_y + BASE_H), (gx + gwidth, base_y + BASE_H),
-                         dxfattribs={'layer': 'SARR_2.2x7'})
-        entity_count += 4
-
-        # Top sarrafo (SARR_2.2x10): from y=-7.8 to y=2.2 (= base_y-7.8 to base_y+2.2)
-        rect4(gx, base_y - TOP_SARR_H + BASE_H, gwidth, TOP_SARR_H, 'SARR_2.2x10')
-
-        # 6 DIMENSIONs on SARR_2.2x10 (current layer after top sarrafo)
-        dim_coords = [
-            # width at y offset -12.8
-            (gx, gx + gwidth, base_y - 12.8, 0),
-            # total height (2.2 to 282.2 = 280)
-            (gx + gwidth, gx + gwidth, base_y + BASE_H, 1),  # vertical
-            # sarrafo bottom to top (-7.8 to 2.2)
-            (gx + gwidth, gx + gwidth, base_y - TOP_SARR_H + BASE_H, 1),
-            (gx + gwidth, gx + gwidth, base_y - TOP_SARR_H + BASE_H, 1),
-            # another height
-            (gx + gwidth, gx + gwidth, base_y + BASE_H, 1),
-            # total width at y=-40
-            (gx, gx + gwidth, base_y - 40, 0),
-        ]
-        for i, (p1x, p2x, y_base, angle) in enumerate(dim_coords):
-            try:
-                if angle == 0:
-                    d = msp.add_linear_dim(
-                        base=(p1x, y_base - 5),
-                        p1=(p1x, y_base), p2=(p2x, y_base),
-                        angle=0, dimstyle='PAINEL-NOVA',
-                        dxfattribs={'layer': 'SARR_2.2x10'}
-                    )
-                else:
-                    d = msp.add_linear_dim(
-                        base=(p1x + 50, base_y + altura / 2),
-                        p1=(p1x, base_y + BASE_H),
-                        p2=(p2x, base_y + BASE_H + altura),
-                        angle=90, dimstyle='PAINEL-NOVA',
-                        dxfattribs={'layer': 'SARR_2.2x10'}
-                    )
-                d.render()
-                entity_count += 1
-            except Exception:
-                pass
-
-        # GRA-E and GRA-D inserts on SARR_2.2x7
-        try:
-            msp.add_blockref('GRA-E', (gx, base_y), dxfattribs={'layer': 'SARR_2.2x7'})
-            msp.add_blockref('GRA-D', (gx + gwidth, base_y), dxfattribs={'layer': 'SARR_2.2x7'})
-            entity_count += 2
-        except Exception:
-            pass
-
-    else:
-        # ── Full grades (grade_1>0): 2 grades of width=grade_1 ───────────────
-        gwidth = grade_1
-
-        for idx, gx in enumerate([base_x, base_x + gwidth + GRADE_GAP]):
-            # Determine which side gets SARR_2.2x7 vs SARR_3.5x7
-            # Grade 1: left=SARR_2.2x7, right=SARR_3.5x7
-            # Grade 2: left=SARR_3.5x7, right=SARR_2.2x7
-            if idx == 0:
-                layer_left  = 'SARR_2.2x7'
-                layer_right = 'SARR_3.5x7'
-            else:
-                layer_left  = 'SARR_3.5x7'
-                layer_right = 'SARR_2.2x7'
-
-            # Base rect on SARR_2.2x7
-            rect4(gx, base_y, gwidth, BASE_H, 'SARR_2.2x7')
-
-            # Left vertical (full height) on layer_left
-            rect4(gx, base_y + BASE_H, SARR_LEFT_W, altura, layer_left)
-
-            # Right vertical (full height) on layer_right
-            rect4(gx + gwidth - SARR_RIGHT_W, base_y + BASE_H, SARR_RIGHT_W, altura, layer_right)
-
-            # Horizontal sarrafos at intervals on SARR_2.2x10
-            # From P11 SCR: positions 30, 120, 210, 270 above base_y+BASE_H
-            horiz_offsets = [30.0, 120.0, 210.0, 270.0]
-            for off in horiz_offsets:
-                y_h = base_y + BASE_H + off
-                if y_h + TOP_SARR_H <= base_y + BASE_H + altura + 1:
-                    rect4(gx, y_h, gwidth, TOP_SARR_H, 'SARR_2.2x10')
-
-            # DIMENSIONs on SARR_2.2x10 (current layer)
-            # Grade 1: 2 dims (width at y=-12.8 and y=-40)
-            # Grade 2: 11 dims (width + height sections)
-            n_dims = 2 if idx == 0 else 11
-            for k in range(n_dims):
-                try:
-                    if k == 0:
-                        # Width dim
-                        d = msp.add_linear_dim(
-                            base=((gx + gwidth / 2), base_y - 17.8),
-                            p1=(gx, base_y - 12.8), p2=(gx + gwidth, base_y - 12.8),
-                            angle=0, dimstyle='PAINEL-NOVA',
-                            dxfattribs={'layer': 'SARR_2.2x10'}
-                        )
-                    else:
-                        # Height/section dim
-                        d = msp.add_linear_dim(
-                            base=(gx + gwidth + 30, base_y + BASE_H + k * 25),
-                            p1=(gx + gwidth, base_y + BASE_H),
-                            p2=(gx + gwidth, base_y + BASE_H + altura),
-                            angle=90, dimstyle='PAINEL-NOVA',
-                            dxfattribs={'layer': 'SARR_2.2x10'}
-                        )
-                    d.render()
-                    entity_count += 1
-                except Exception:
-                    pass
-
-            # GRA-E and GRA-D inserts on SARR_2.2x7
-            try:
-                msp.add_blockref('GRA-E', (gx, base_y), dxfattribs={'layer': 'SARR_2.2x7'})
-                msp.add_blockref('GRA-D', (gx + gwidth, base_y), dxfattribs={'layer': 'SARR_2.2x7'})
-                entity_count += 2
-            except Exception:
-                pass
-
-        # Gap dimension on COTA (uppercase!)
-        try:
-            d = msp.add_linear_dim(
-                base=(base_x + gwidth + GRADE_GAP / 2, base_y - 40),
-                p1=(base_x + gwidth, base_y),
-                p2=(base_x + gwidth + GRADE_GAP, base_y),
-                angle=0, dimstyle='PAINEL-NOVA',
-                dxfattribs={'layer': 'COTA'}
-            )
-            d.render()
-            entity_count += 1
-        except Exception:
-            pass
-
-    return entity_count
+    group_total_w = ng * gw_each + (ng - 1) * dist_g
+    draw_group(base_x, div_a)
+    draw_group(base_x + group_total_w + GROUP_GAP, div_b)
+    return 1
 
 
 # ═════════════════════════════════════════════════════════════════════════════
@@ -1067,46 +1181,197 @@ def draw_extra_pl_layers(msp, base_x, base_y, comp, larg, altura, nome):
 
 
 # ═════════════════════════════════════════════════════════════════════════════
+# EFGH — faces E/F do pilar em U (AR-1'.C)
+# ═════════════════════════════════════════════════════════════════════════════
+
+ZONE_EFGH_X = 8000   # faces E/F do U-shape após GRADES
+
+def draw_efgh(msp, base_x, base_y, pj: dict) -> int:
+    """
+    Desenha faces E e F do pilar em U (subtipo U).
+
+    Campos lidos de pj:
+      larg1_E / larg1_F — largura do painel de cada braço do U
+      h1_E/h2_E/h3_E   — segmentos de altura da face E
+      h1_F/h2_F/h3_F   — segmentos de altura da face F
+      nome              — label do pilar
+
+    Layout idêntico a draw_abcd mas com apenas 2 faces (E, F).
+    Se larg1_E=0 → omite o EFGH (pilar não tem faces U).
+    """
+    larg1_E = float(pj.get('larg1_E', 0.0))
+    larg1_F = float(pj.get('larg1_F', 0.0))
+    if larg1_E <= 0 and larg1_F <= 0:
+        return -1  # não é U-shape
+
+    nome   = pj.get('nome', '?')
+    ESPAC  = 278   # mesmo espaçamento entre faces do ABCD
+    X_OFF  = 80
+
+    y_top  = base_y - 100
+    altura = float(pj.get('altura', 280))
+    y_bot  = y_top - altura
+    entity_count = 0
+
+    face_info = []
+    if larg1_E > 0:
+        face_info.append(('E', base_x + X_OFF,              larg1_E))
+    if larg1_F > 0:
+        x_f = base_x + X_OFF + (larg1_E + ESPAC if larg1_E > 0 else 0)
+        face_info.append(('F', x_f, larg1_F))
+
+    # Nível lines spanning all EF panels
+    x_r = (face_info[-1][1] + face_info[-1][2] + 50) if face_info else base_x + 200
+    msp.add_lwpolyline([(base_x, y_top), (x_r, y_top)],
+                       close=False, dxfattribs={'layer': 'Nível', 'linetype': 'DASHED'})
+    msp.add_lwpolyline([(base_x, y_bot), (x_r, y_bot)],
+                       close=False, dxfattribs={'layer': 'Nível', 'linetype': 'DASHED'})
+    entity_count += 2
+
+    # Header label
+    msp.add_text(f'{nome} (E/F)', dxfattribs={
+        'layer': 'NOMENCLATURA',
+        'insert': (base_x + X_OFF, base_y + 20),
+        'height': 15,
+    })
+    entity_count += 1
+
+    for fid, x_left, larg_total in face_info:
+        h1_f = float(pj.get(f'h1_{fid}', 2.0))
+        h2_f = float(pj.get(f'h2_{fid}', 244.0))
+        h3_f = float(pj.get(f'h3_{fid}', 34.0))
+
+        y0 = y_bot
+        for _seg_y, _seg_h in [(y0, h1_f), (y0+h1_f, h2_f), (y0+h1_f+h2_f, h3_f)]:
+            if _seg_h > 0.1:
+                msp.add_lwpolyline(
+                    [(x_left, _seg_y), (x_left+larg_total, _seg_y),
+                     (x_left+larg_total, _seg_y+_seg_h), (x_left, _seg_y+_seg_h)],
+                    close=True, dxfattribs={'layer': 'Painéis'}
+                )
+                entity_count += 1
+
+        # Vertical sarrafos (mesma lógica ABCD face A: orientação vertical)
+        sarr_x = x_left + 7
+        y_sarr_split = y_bot + h1_f
+        # dashed lower segment
+        msp.add_lwpolyline([(sarr_x, y_bot), (sarr_x, y_sarr_split)],
+                           close=False,
+                           dxfattribs={'layer': 'SARR_2.2x7', 'linetype': 'DASHED'})
+        # continuous upper segment
+        msp.add_lwpolyline([(sarr_x, y_sarr_split), (sarr_x, y_top)],
+                           close=False,
+                           dxfattribs={'layer': 'SARR_2.2x7'})
+        entity_count += 2
+
+        # Face label
+        msp.add_text(fid, dxfattribs={
+            'layer': 'NOMENCLATURA',
+            'insert': (x_left + larg_total/2 - 5, y_top + 8),
+            'height': 12,
+        })
+        entity_count += 1
+
+        # Cota de largura
+        try:
+            d = msp.add_linear_dim(
+                base=(x_left + larg_total/2, y_bot - 30),
+                p1=(x_left, y_bot), p2=(x_left + larg_total, y_bot),
+                angle=0, dimstyle='PAINEL-NOVA',
+                dxfattribs={'layer': 'COTA'}
+            )
+            d.render()
+            entity_count += 1
+        except Exception:
+            pass
+
+    return entity_count
+
+
+# ═════════════════════════════════════════════════════════════════════════════
+# Zone generator — gera UMA zona por pilar em msp isolado (x=0)
+# ═════════════════════════════════════════════════════════════════════════════
+
+def generate_pilar_zone(msp, pj: dict, zone: str, row_y: float = 0) -> int:
+    """
+    Gera apenas a zona indicada para um pilar, com x-origem em 0.
+    Retorna contagem de entidades, ou -1 se zona é omitida (grade_1=0, EFGH).
+
+    Zonas:
+      'abcd'  — faces A/B/C/D com sarrafos verticais, x=0 (equiv. ZONE_ABCD_X=0)
+      'cima'  — seção transversal 2x, x=0 (ZONE_CIMA_X já é 0)
+      'grades'— grade de sarrafos, x=0 (equiv. ZONE_GRADES_X=0); omite se comp<=0
+      'efgh'  — faces E/F do pilar em U; omite se larg1_E=0 e larg1_F=0
+    """
+    nome    = pj.get('nome', f"P{pj.get('numero', '?')}")
+    comp    = float(pj.get('comprimento', 60))
+    larg    = float(pj.get('largura', 38))
+    altura  = float(pj.get('altura', 280))
+    grade_1 = float(pj.get('grade_1', 0))
+    grade_2 = float(pj.get('grade_2', 0))
+
+    if zone == 'abcd':
+        n = draw_abcd(msp, 0, row_y, comp, larg, altura, nome, pj)
+        draw_extra_pl_layers(msp, 0, row_y, comp, larg, altura, nome)
+        return n
+    elif zone == 'cima':
+        cima_y = row_y + altura / 2
+        return draw_cima(msp, 0, cima_y, comp, larg, grade_1, nome, pj)
+    elif zone == 'grades':
+        if comp <= 0:
+            return -1
+        return draw_grades(msp, 0, row_y, grade_1, grade_2, comp, larg, altura, nome, pj)
+    elif zone == 'efgh':
+        larg1_E = float(pj.get('larg1_E', 0.0))
+        larg1_F = float(pj.get('larg1_F', 0.0))
+        if larg1_E <= 0 and larg1_F <= 0:
+            return -1  # pilar sem faces E/F
+        return draw_efgh(msp, 0, row_y, pj)
+    return 0
+
+
+# ═════════════════════════════════════════════════════════════════════════════
 # Main generator — 3 zones per pilar
 # ═════════════════════════════════════════════════════════════════════════════
 
 def generate_pilar(msp, pj, row_y_offset):
     """
-    Generate all 3 zones for a single pilar at the appropriate Y offset.
+    Generate all zones for a single pilar at the appropriate Y offset.
+    Reads `subtipo_pil` from pj (RETANGULAR | U | ESPECIAL).
+    U-shape: adds EFGH zone at ZONE_EFGH_X with faces E/F.
     Returns total entity count.
     """
-    nome = pj.get('nome', f"P{pj.get('numero', '?')}")
-    comp = float(pj.get('comprimento', 60))
-    larg = float(pj.get('largura', 38))
-    altura = float(pj.get('altura', 280))
+    nome    = pj.get('nome', f"P{pj.get('numero', '?')}")
+    comp    = float(pj.get('comprimento', 60))
+    larg    = float(pj.get('largura', 38))
+    altura  = float(pj.get('altura', 280))
     grade_1 = float(pj.get('grade_1', 0))
     grade_2 = float(pj.get('grade_2', 0))
+    subtipo = pj.get('subtipo_pil', 'RETANGULAR')
 
     total_entities = 0
 
     # ── ZONE 1: ABCD (X:-7000) ──────────────────────────────────────────────
-    abcd_x = ZONE_ABCD_X
-    abcd_y = row_y_offset
-    n = draw_abcd(msp, abcd_x, abcd_y, comp, larg, altura, nome, pj)
+    n = draw_abcd(msp, ZONE_ABCD_X, row_y_offset, comp, larg, altura, nome, pj)
     total_entities += n
 
     # ── ZONE 2: CIMA (X:0, centered) ────────────────────────────────────────
-    cima_x = ZONE_CIMA_X
-    cima_y = row_y_offset + altura / 2   # center vertically on pilar height
-    n = draw_cima(msp, cima_x, cima_y, comp, larg, grade_1, nome, pj)
+    n = draw_cima(msp, ZONE_CIMA_X, row_y_offset + altura/2, comp, larg, grade_1, nome, pj)
     total_entities += n
 
-    # ── ZONE 3: GRADES (X:4000) ─────────────────────────────────────────────
-    # Always draw GRADES — degenerate (width=larg) when grade_1=0
-    grades_x = ZONE_GRADES_X
-    grades_y = row_y_offset
-    n = draw_grades(msp, grades_x, grades_y, grade_1, grade_2,
-                   comp, larg, altura, nome, pj)
+    # ── ZONE 3: GRADES (X:4000) ──────────────────────────────────────────────
+    n = draw_grades(msp, ZONE_GRADES_X, row_y_offset, grade_1, grade_2,
+                    comp, larg, altura, nome, pj)
     total_entities += n
+
+    # ── ZONE 4: EFGH (X:8000) — apenas subtipo U ─────────────────────────────
+    if subtipo == 'U' and (float(pj.get('larg1_E', 0)) > 0 or float(pj.get('larg1_F', 0)) > 0):
+        n = draw_efgh(msp, ZONE_EFGH_X, row_y_offset, pj)
+        if n > 0:
+            total_entities += n
 
     # ── ZONE EXTRA: layers STOG presentes mas ausentes no gerador ────────────
-    draw_extra_pl_layers(msp, ZONE_ABCD_X, row_y_offset,
-                         comp, larg, altura, nome)
+    draw_extra_pl_layers(msp, ZONE_ABCD_X, row_y_offset, comp, larg, altura, nome)
 
     return total_entities
 
@@ -1118,6 +1383,9 @@ def main():
     parser.add_argument('--max', type=int, default=999)
     parser.add_argument('--item', type=str, default=None,
                         help='Gerar só este pilar (ex: P001). Output: PL_preview_P001.dxf')
+    parser.add_argument('--zone', type=str, default='all',
+                        choices=['all', 'abcd', 'cima', 'grades', 'efgh'],
+                        help='Gerar apenas esta zona em DXF isolado (all=modo legado combinado)')
     args = parser.parse_args()
 
     obra_path = Path(args.obra)
@@ -1151,6 +1419,46 @@ def main():
         print(f'[ERRO] Nenhum P*.json em {json_dir}')
         return
 
+    # ── Zone mode: gera DXF isolado por zona (para viewer/G2 por zona) ────────
+    if args.zone != 'all':
+        zone = args.zone
+        zone_label = zone.upper()
+        modo = f'item={args.item}' if args.item else 'pavimento completo'
+        print(f'Processando {len(pilar_files)} pilares [{modo}] (zone={zone_label})')
+        print()
+        for idx, pf in enumerate(pilar_files):
+            try:
+                pj = json.load(open(pf, encoding='utf-8'))
+            except (json.JSONDecodeError, OSError) as e:
+                print(f'  [{idx+1:2d}] [ERRO] {pf.name} — {e}')
+                continue
+            nome  = pj.get('nome', pf.stem)
+            comp  = pj.get('comprimento', '?')
+            larg_v = pj.get('largura', '?')
+            altura = float(pj.get('altura', 280))
+
+            doc_z = setup_doc()
+            msp_z = doc_z.modelspace()
+            n = generate_pilar_zone(msp_z, pj, zone)
+
+            if n < 0:
+                if zone == 'grades':
+                    skip_reason = 'grade_1=0'
+                elif zone == 'efgh':
+                    skip_reason = 'larg1_E=larg1_F=0 (não é U-shape)'
+                else:
+                    skip_reason = 'não implementado'
+                print(f'  [{idx+1:2d}] {nome}: zone={zone_label} omitida ({skip_reason})')
+                continue
+
+            out_name = f'PL_{zone_label}_preview_{pf.stem}.dxf'
+            out_path = out_dir / out_name
+            doc_z.saveas(str(out_path))
+            print(f'  [{idx+1:2d}] {nome}: {comp}x{larg_v}cm h={altura:.0f}cm  '
+                  f'entities={n}  → {out_name}')
+        print(f'\nZone mode {zone_label} concluído.')
+        return
+
     obra_nome = obra_path.name
     modo = f'item={args.item}' if args.item else 'pavimento completo'
     print(f'Processando {len(pilar_files)} pilares [{modo}] (3 zones: ABCD/CIMA/GRADES)')
@@ -1181,7 +1489,9 @@ def main():
         n = generate_pilar(msp, pj, row_y)
         total_entities += n
 
-        print(f'  [{idx + 1:2d}] {nome}: {comp}x{larg_v}cm h={altura:.0f}cm  entities={n}')
+        subtipo = pj.get('subtipo_pil', 'RETANGULAR')
+        subtipo_tag = f'  [{subtipo}]' if subtipo != 'RETANGULAR' else ''
+        print(f'  [{idx + 1:2d}] {nome}: {comp}x{larg_v}cm h={altura:.0f}cm  entities={n}{subtipo_tag}')
 
         row_y -= (altura + row_gap)
 
