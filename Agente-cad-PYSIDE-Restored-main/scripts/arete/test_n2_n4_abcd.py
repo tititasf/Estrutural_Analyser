@@ -57,7 +57,23 @@ TEST_ITEMS = ["P1", "P11"]
 
 # ── Helpers -------------------------------------------------------------------
 
-def _recorte_n2(item_id: str) -> Path | None:
+def _recorte_n2(item_id: str, pav: str = PAV_13) -> Path | None:
+    """Recorte N2 do item, filtrado pelo pavimento (mesmo logic do CE fix)."""
+    conn = sqlite3.connect(str(DB_PATH))
+    cur = conn.cursor()
+    cur.execute(
+        "SELECT recorte_path FROM reverse_eng_fichas "
+        "WHERE obra_name=? AND classe='PIL' AND elemento_id=? AND pavimento=? "
+        "ORDER BY id DESC LIMIT 1",
+        (OBRA, item_id, pav),
+    )
+    row = cur.fetchone()
+    conn.close()
+    if row and row[0]:
+        p = Path(row[0])
+        if p.exists():
+            return p
+    # fallback: glob (pode pegar pavimento errado mas melhor que nada)
     for pattern in [f"*PL*/**/PIL_{item_id}_*dxf", f"**/*PIL_{item_id}_*dxf"]:
         found = sorted(RECORTES_ROOT.glob(pattern))
         if found:

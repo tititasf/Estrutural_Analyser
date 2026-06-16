@@ -4785,7 +4785,8 @@ class ComparisonEngineModule(QWidget):
             col.pipeline.set_step(0, 'running', 'Localizando...')
             if is_er_flow:
                 # Sempre re-consulta o DB para garantir o recorte mais recente (pós-edição)
-                n2_dxf = self._get_recorte_dxf_for_er(obra, classe, item_id)
+                # Passa pav para filtrar recorte pelo pavimento correto (evita cruzar COBERTURA/TIPO)
+                n2_dxf = self._get_recorte_dxf_for_er(obra, classe, item_id, pav=pav)
                 n2_bbox = self.tri_level._get_n2_bbox_for(item_id, classe) if classe == "LJ" else None
                 _ce_log(f"N2 recorte_path={n2_dxf}")
             else:
@@ -4927,15 +4928,41 @@ class ComparisonEngineModule(QWidget):
                 result.append((k, str(v)))
         return result
 
-    def _get_recorte_dxf_for_er(self, obra: str, classe: str, item_id: str) -> "Path | None":
+    def _get_recorte_dxf_for_er(self, obra: str, classe: str, item_id: str,
+                                pav: str = "") -> "Path | None":
         """Retorna o recorte DXF individual para o fluxo ER, refletindo o estado ATUAL
         (pós edição/aprovação) salvo no Diagnostic Reverse Hub.
+        Tentativa 0 (pav≠""): reverse_eng_fichas filtrado por pavimento (evita cruzar pav).
         Tentativa 1: reverse_eng_recortes (mais autoritativo — recorte atual aprovado/edição).
-        Tentativa 2: legado reverse_eng_fichas. Tentativa 3: disco.
+        Tentativa 2: legado reverse_eng_fichas sem filtro pav. Tentativa 3: disco.
         Estes são arquivos pequenos (<1MB) — seguros para carregar sem crash.
         """
         _cls_map = {"PL": "PIL", "LV": "LV", "FV": "FV", "LJ": "LAJ"}
         db_cls = _cls_map.get(classe, classe)
+
+        # Tentativa 0: reverse_eng_fichas filtrado por pavimento correto
+        # (reverse_eng_recortes não tem coluna pavimento; fichas têm pav exato)
+        if pav:
+            try:
+                import sqlite3
+                db_path = r"D:/Agente-cad-PYSIDE/project_data.vision"
+                conn = sqlite3.connect(db_path)
+                cur = conn.cursor()
+                cur.execute(
+                    "SELECT recorte_path FROM reverse_eng_fichas "
+                    "WHERE obra_name=? AND classe=? AND elemento_id=? AND pavimento=? "
+                    "ORDER BY id DESC LIMIT 1",
+                    (obra, db_cls, item_id, pav)
+                )
+                row = cur.fetchone()
+                conn.close()
+                if row and row[0]:
+                    p = Path(row[0])
+                    if p.exists():
+                        _ce_log(f"N2 recorte via pav={pav}: {p.name}")
+                        return p
+            except Exception as exc:
+                print(f"[CE] _get_recorte_dxf_for_er pav-filter error: {exc}")
 
         # Tentativa 1: reverse_eng_recortes (recorte atual)
         record = self._get_recorte_record(obra, db_cls, item_id)
@@ -4944,7 +4971,7 @@ class ComparisonEngineModule(QWidget):
             if p.exists():
                 return p
 
-        # Tentativa 2: legado reverse_eng_fichas
+        # Tentativa 2: legado reverse_eng_fichas sem filtro pav
         try:
             import sqlite3
             db_path = r"D:/Agente-cad-PYSIDE/project_data.vision"
@@ -4952,7 +4979,7 @@ class ComparisonEngineModule(QWidget):
             cur = conn.cursor()
             cur.execute(
                 "SELECT recorte_path FROM reverse_eng_fichas "
-                "WHERE obra_name=? AND classe=? AND elemento_id=?",
+                "WHERE obra_name=? AND classe=? AND elemento_id=? ORDER BY id DESC LIMIT 1",
                 (obra, db_cls, item_id)
             )
             row = cur.fetchone()
