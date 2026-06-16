@@ -717,9 +717,11 @@ def draw_abcd(msp, base_x, base_y, comp, larg, altura, nome, pj):
     H1_DEFAULT   = 2.0    # bottom chapa strip height
     H_PARAFUSO   = 73.0   # A/B parafuso zone height (varies by batch; 73 for P1-P17)
     # C/D face geometry constants (N2 ground truth 13_PAV — h_low=124 fixed across all pilares):
-    H_PAR_CD     = 97.0   # C/D parafuso zone always 97 (independent of A/B H_PARAFUSO)
-    H_CD_EXTRA   = 39.0   # C/D top section above y_mid_CD (panel_h_CD = 124+97+39 = 260)
-    # TODO: derive H_PAR_CD and H_CD_EXTRA from N2 ficha when those fields are stored
+    H_PAR_C      = 97.0   # face C parafuso zone (N2: always 97 in 13°PAV)
+    H_C_EXTRA    = 41.0   # face C extra top section (N2: 262-221=41; was wrong 39 before)
+    # TODO: derive H_PAR_C and H_C_EXTRA from N2 ficha; face D height varies per pilar
+    # N2 survey: P1-P8,P10 → only C at 262 (D=197=A/B); P9,P11,P17 → ALL at 262;
+    #            P12-P14 → C and D at 262; P15,P16 → none at 262 — controlled by robot template
 
     # Face view spans full pé-direito (pd), not just pilar height (altura)
     pd_cm = float(pj.get('pd_pavimento_cm', altura))
@@ -827,12 +829,13 @@ def draw_abcd(msp, base_x, base_y, comp, larg, altura, nome, pj):
         # Painéis — N2 pattern: C/D faces are taller than A/B (N2 verified 13°PAV)
         y0 = y_bot
         y_low = y0 + h_low            # = y_bot + 124 (fixed across all 13°PAV pilares)
-        if fid in ('C', 'D'):
-            # C/D: y_mid at 221, panel top at 260 (N2 ground truth — H_PAR_CD=97, H_CD_EXTRA=39)
-            y_mid_face     = y_low + H_PAR_CD    # = y_bot + 221
-            panel_top_face = y_mid_face + H_CD_EXTRA  # = y_bot + 260
+        if fid == 'C':
+            # Face C only: taller panel (N2 P1-P8,P10 verified — C always at 262, D=A/B=197)
+            # TODO: for some pilares (P9,P11,P17) ALL faces need 262; read from N2 ficha
+            y_mid_face     = y_low + H_PAR_C    # = y_bot + 221
+            panel_top_face = y_mid_face + H_C_EXTRA  # = y_bot + 262
         else:
-            # A/B: y_mid at 197, panel ends there (H_PARAFUSO=73 for P1-P17 group)
+            # A, B, D: y_mid at 197, panel ends there (H_PARAFUSO=73 for P1-P8 group)
             y_mid_face     = y_low + H_PARAFUSO  # = y_bot + 197
             panel_top_face = y_mid_face
         x_right = x_left + larg_total
