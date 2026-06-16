@@ -715,8 +715,11 @@ def draw_abcd(msp, base_x, base_y, comp, larg, altura, nome, pj):
     GAP_BC       = 129    # gap: face B right edge → face C left edge
     GAP_CD       = 129    # gap: face C right edge → face D left edge
     H1_DEFAULT   = 2.0    # bottom chapa strip height
-    H3_DEFAULT   = 34.0   # top segment height
-    H_PARAFUSO   = 73.0   # middle parafuso section height (STOG PIL standard)
+    H_PARAFUSO   = 73.0   # A/B parafuso zone height (varies by batch; 73 for P1-P17)
+    # C/D face geometry constants (N2 ground truth 13_PAV — h_low=124 fixed across all pilares):
+    H_PAR_CD     = 97.0   # C/D parafuso zone always 97 (independent of A/B H_PARAFUSO)
+    H_CD_EXTRA   = 39.0   # C/D top section above y_mid_CD (panel_h_CD = 124+97+39 = 260)
+    # TODO: derive H_PAR_CD and H_CD_EXTRA from N2 ficha when those fields are stored
 
     # Face view spans full pé-direito (pd), not just pilar height (altura)
     pd_cm = float(pj.get('pd_pavimento_cm', altura))
@@ -724,11 +727,9 @@ def draw_abcd(msp, base_x, base_y, comp, larg, altura, nome, pj):
     y_top = base_y - 100
     y_bot = base_y - 100 - pd_cm
 
-    # Face height segments (pd-based)
+    # h_low = distance from y_bot to y_low (including h1 strip) — FIXED=124 across 13°PAV
     h1 = H1_DEFAULT
-    h3 = min(H3_DEFAULT, pd_cm - H1_DEFAULT - 1)
-    h2 = pd_cm - h1 - h3
-    h_low = (pd_cm - H_PARAFUSO) / 2   # bottom/top section height (=124 for pd=321)
+    h_low = 124.0  # empirically fixed (N2 verified: all pilares 13°PAV → 124)
 
     # ABCD PAIRED pattern (N2 ground truth 13_PAV):
     # A=B → comp-direction: panel width = comp + 22 (NOT grade_1 — grade_1 can differ)
@@ -823,35 +824,47 @@ def draw_abcd(msp, base_x, base_y, comp, larg, altura, nome, pj):
 
     for fid, x_left, larg_total, concrete_dim in face_info:
 
-        # Painéis — N2 pattern: lines only up to y_mid (NOT full pd height)
+        # Painéis — N2 pattern: C/D faces are taller than A/B (N2 verified 13°PAV)
         y0 = y_bot
-        y_low = y0 + h_low            # bottom of parafuso zone
-        y_mid = y_low + H_PARAFUSO   # top of parafuso zone
+        y_low = y0 + h_low            # = y_bot + 124 (fixed across all 13°PAV pilares)
+        if fid in ('C', 'D'):
+            # C/D: y_mid at 221, panel top at 260 (N2 ground truth — H_PAR_CD=97, H_CD_EXTRA=39)
+            y_mid_face     = y_low + H_PAR_CD    # = y_bot + 221
+            panel_top_face = y_mid_face + H_CD_EXTRA  # = y_bot + 260
+        else:
+            # A/B: y_mid at 197, panel ends there (H_PARAFUSO=73 for P1-P17 group)
+            y_mid_face     = y_low + H_PARAFUSO  # = y_bot + 197
+            panel_top_face = y_mid_face
         x_right = x_left + larg_total
         # Bottom h1 strip (horizontal LINE)
         msp.add_line((x_left, y0 + h1), (x_right, y0 + h1),
                      dxfattribs={'layer': 'Painéis'})
         entity_count += 1
-        # Left and right vertical edges from y_bot to y_mid
-        msp.add_line((x_left, y0), (x_left, y_mid),
+        # Left and right vertical edges from y_bot to panel_top_face
+        msp.add_line((x_left, y0), (x_left, panel_top_face),
                      dxfattribs={'layer': 'Painéis'})
-        msp.add_line((x_right, y0), (x_right, y_mid),
+        msp.add_line((x_right, y0), (x_right, panel_top_face),
                      dxfattribs={'layer': 'Painéis'})
         entity_count += 2
         # Horizontal at y_low (bottom of parafuso zone)
         msp.add_line((x_right, y_low), (x_left, y_low),
                      dxfattribs={'layer': 'Painéis'})
-        # Horizontal at y_mid (top of parafuso zone)
-        msp.add_line((x_right, y_mid), (x_left, y_mid),
+        # Horizontal at y_mid_face (top of parafuso zone / inner divider)
+        msp.add_line((x_right, y_mid_face), (x_left, y_mid_face),
                      dxfattribs={'layer': 'Painéis'})
         entity_count += 2
+        if fid in ('C', 'D'):
+            # Top closing horizontal at panel_top_face (only for C/D)
+            msp.add_line((x_right, panel_top_face), (x_left, panel_top_face),
+                         dxfattribs={'layer': 'Painéis'})
+            entity_count += 1
 
-        # Hachura ANSI31 cobrindo o painel completo [y_bot, y_mid] (N2 ground truth)
+        # Hachura ANSI31 cobrindo [y_bot, y_mid_face] — C/D: 221cm, A/B: 197cm (N2 ground truth)
         try:
             hatch = msp.add_hatch(dxfattribs={'layer': 'Hachura', 'color': 7})
             hatch.set_pattern_fill('ANSI31', scale=25.0, angle=0)
             hatch.paths.add_polyline_path(
-                [(x_left, y0), (x_right, y0), (x_right, y_mid), (x_left, y_mid)],
+                [(x_left, y0), (x_right, y0), (x_right, y_mid_face), (x_left, y_mid_face)],
                 is_closed=True)
             entity_count += 1
         except Exception:
@@ -902,14 +915,14 @@ def draw_abcd(msp, base_x, base_y, comp, larg, altura, nome, pj):
                                                dxfattribs={'layer': 'SARR_2.2x7'})
                             entity_count += 1
                         for _ in range(repeat):
-                            msp.add_lwpolyline([(sx, y_low), (sx, y_mid)],
+                            msp.add_lwpolyline([(sx, y_low), (sx, y_mid_face)],
                                                close=False,
                                                dxfattribs={'layer': 'SARR_2.2x7', 'linetype': 'DASHED'})
                             entity_count += 1
                     else:
-                        # C/D: single continuous from y_bot+h1 to y_mid
+                        # C/D: single continuous from y_bot+h1 to panel_top_face (=y_bot+260)
                         for _ in range(repeat):
-                            msp.add_lwpolyline([(sx, y0 + h1), (sx, y_mid)],
+                            msp.add_lwpolyline([(sx, y0 + h1), (sx, panel_top_face)],
                                                close=False,
                                                dxfattribs={'layer': 'SARR_2.2x7'})
                             entity_count += 1
@@ -927,11 +940,20 @@ def draw_abcd(msp, base_x, base_y, comp, larg, altura, nome, pj):
                 dim_specs = [(y_bot, y0 + h1, ann_off), (y_bot, y_top, 50)]
             else:
                 dim_specs = [(y_bot, y0 + h1, ann_off), (y0 + h1, y_top, 50)]
-        else:
+        elif fid in ('C', 'D'):
+            # C/D: 4 segments — 124 | 97 | 39 | remainder to y_top
             dim_specs = [
                 (y_bot, y_low, ann_off),
-                (y_low, y_mid, 50),
-                (y_mid, y_top, 50),
+                (y_low, y_mid_face, 50),
+                (y_mid_face, panel_top_face, 50),
+                (panel_top_face, y_top, 50),
+            ]
+        else:
+            # A/B: 3 segments — h_low | H_PARAFUSO | remainder to y_top
+            dim_specs = [
+                (y_bot, y_low, ann_off),
+                (y_low, y_mid_face, 50),
+                (y_mid_face, y_top, 50),
             ]
         for p1y, p2y, ann_x_off in dim_specs:
             try:
