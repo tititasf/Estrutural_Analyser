@@ -848,21 +848,126 @@ def draw_abcd(msp, base_x, base_y, comp, larg, altura, nome, pj):
         elif _intervals and len(_intervals) >= 1:
             # Modo N2-fiel: replica todos os horizontais do N2 via Painéis intervals.
             # Cobre pilares simples (3 linhas) e complexos (P27-P32 com 5-7 segmentos).
+
+            # ── Abertura (opening) da face, se presente ────────────────────────
+            _abertura = pj.get(f'abertura_{fid}')
+            if _abertura:
+                _ab_lado   = _abertura.get('lado', '')
+                _ab_larg   = float(_abertura.get('largura', 0))
+                _ab_y_rel  = float(_abertura.get('y_rel', 0))
+                _ab_altura = float(_abertura.get('altura', 0))
+                # y_rel medido a partir da 1ª linha H (y0+h1) no N2
+                _ab_y_bot  = y0 + h1 + _ab_y_rel
+                _ab_y_top  = _ab_y_bot + _ab_altura
+                if _ab_lado == 'meio':
+                    _ab_x_off   = float(_abertura.get('x_offset', 0))
+                    _ab_x_inn_l = x_left + _ab_x_off
+                    _ab_x_inn_r = _ab_x_inn_l + _ab_larg
+                else:
+                    _ab_x_inn_l = _ab_x_inn_r = None
+            else:
+                _ab_y_bot = _ab_y_top = None
+                _ab_lado  = ''
+                _ab_larg  = 0.0
+
             y_cur = y0 + h1  # primeira linha = topo do strip h1
             msp.add_line((x_left, y_cur), (x_right, y_cur), dxfattribs={'layer': 'Painéis'})
             entity_count += 1
             for _iv in _intervals:
                 y_cur = round(y_cur + float(_iv), 4)
-                if y_cur <= y_top + 1.0:
+                if y_cur > y_top + 1.0:
+                    continue
+                _at_bot = _ab_y_bot is not None and abs(y_cur - _ab_y_bot) < 1.0
+                _at_top = _ab_y_top is not None and abs(y_cur - _ab_y_top) < 1.0
+                if _at_bot or _at_top:
+                    # Linha parcial na fronteira da abertura
+                    if _ab_lado == 'direito':
+                        _x_inn = x_right - _ab_larg
+                        if _at_bot:
+                            # Abertura inf: linha no lado DIREITO (base da abertura)
+                            msp.add_line((_x_inn, y_cur), (x_right, y_cur),
+                                         dxfattribs={'layer': 'Painéis'})
+                        else:
+                            # Abertura sup: linha no lado ESQUERDO (topo do painel esq)
+                            msp.add_line((x_left, y_cur), (_x_inn, y_cur),
+                                         dxfattribs={'layer': 'Painéis'})
+                    elif _ab_lado == 'esquerdo':
+                        _x_inn = x_left + _ab_larg
+                        if _at_bot:
+                            msp.add_line((x_left, y_cur), (_x_inn, y_cur),
+                                         dxfattribs={'layer': 'Painéis'})
+                        else:
+                            msp.add_line((_x_inn, y_cur), (x_right, y_cur),
+                                         dxfattribs={'layer': 'Painéis'})
+                    else:  # meio
+                        msp.add_line((x_left, y_cur), (_ab_x_inn_l, y_cur),
+                                     dxfattribs={'layer': 'Painéis'})
+                        msp.add_line((_ab_x_inn_r, y_cur), (x_right, y_cur),
+                                     dxfattribs={'layer': 'Painéis'})
+                        entity_count += 1  # duas linhas para abertura meio
+                    entity_count += 1
+                else:
                     msp.add_line((x_left, y_cur), (x_right, y_cur), dxfattribs={'layer': 'Painéis'})
                     entity_count += 1
+
             panel_top_face = min(y_cur, y_top)
             y_mid_face     = panel_top_face
             # y_low a partir do 1º interval (para SARR e dims)
             y_low = y0 + h1 + float(_intervals[0])
-            msp.add_line((x_left, y0), (x_left, panel_top_face), dxfattribs={'layer': 'Painéis'})
-            msp.add_line((x_right, y0), (x_right, panel_top_face), dxfattribs={'layer': 'Painéis'})
-            entity_count += 2
+
+            # Inner vertical(s) da abertura
+            if _abertura and _ab_y_bot is not None:
+                if _ab_lado == 'meio':
+                    msp.add_line((_ab_x_inn_l, _ab_y_bot), (_ab_x_inn_l, _ab_y_top),
+                                 dxfattribs={'layer': 'Painéis'})
+                    msp.add_line((_ab_x_inn_r, _ab_y_bot), (_ab_x_inn_r, _ab_y_top),
+                                 dxfattribs={'layer': 'Painéis'})
+                    entity_count += 2
+                elif _ab_lado == 'direito':
+                    _x_inn = x_right - _ab_larg
+                    msp.add_line((_x_inn, _ab_y_bot), (_x_inn, _ab_y_top),
+                                 dxfattribs={'layer': 'Painéis'})
+                    entity_count += 1
+                else:  # esquerdo
+                    _x_inn = x_left + _ab_larg
+                    msp.add_line((_x_inn, _ab_y_bot), (_x_inn, _ab_y_top),
+                                 dxfattribs={'layer': 'Painéis'})
+                    entity_count += 1
+
+            # Verticais de borda: splitadas onde há abertura de borda
+            if _abertura and _ab_y_bot is not None:
+                if _ab_lado == 'direito':
+                    msp.add_line((x_left, y0), (x_left, panel_top_face),
+                                 dxfattribs={'layer': 'Painéis'})
+                    entity_count += 1
+                    msp.add_line((x_right, y0), (x_right, _ab_y_bot),
+                                 dxfattribs={'layer': 'Painéis'})
+                    entity_count += 1
+                    if _ab_y_top < panel_top_face - 0.5:
+                        msp.add_line((x_right, _ab_y_top), (x_right, panel_top_face),
+                                     dxfattribs={'layer': 'Painéis'})
+                        entity_count += 1
+                elif _ab_lado == 'esquerdo':
+                    msp.add_line((x_right, y0), (x_right, panel_top_face),
+                                 dxfattribs={'layer': 'Painéis'})
+                    entity_count += 1
+                    msp.add_line((x_left, y0), (x_left, _ab_y_bot),
+                                 dxfattribs={'layer': 'Painéis'})
+                    entity_count += 1
+                    if _ab_y_top < panel_top_face - 0.5:
+                        msp.add_line((x_left, _ab_y_top), (x_left, panel_top_face),
+                                     dxfattribs={'layer': 'Painéis'})
+                        entity_count += 1
+                else:  # meio — ambas as bordas intactas
+                    msp.add_line((x_left, y0), (x_left, panel_top_face),
+                                 dxfattribs={'layer': 'Painéis'})
+                    msp.add_line((x_right, y0), (x_right, panel_top_face),
+                                 dxfattribs={'layer': 'Painéis'})
+                    entity_count += 2
+            else:
+                msp.add_line((x_left, y0), (x_left, panel_top_face), dxfattribs={'layer': 'Painéis'})
+                msp.add_line((x_right, y0), (x_right, panel_top_face), dxfattribs={'layer': 'Painéis'})
+                entity_count += 2
 
         else:
             # Modelo padrão: h_low/h_par (fallback quando N2 não tem intervals)

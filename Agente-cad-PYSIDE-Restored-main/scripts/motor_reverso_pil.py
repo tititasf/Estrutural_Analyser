@@ -205,6 +205,108 @@ def _extract_pil_from_dxf(dxf_path: str) -> dict:
                     if len(_ivs_mr) >= 1:
                         result[f'paineis_intervals_{_face}'] = _ivs_mr
 
+                    # ── Abertura: vertical Painéis dentro dos limites x da face ──
+                    _y_h0_mr = _p_hs_mr[0]
+                    _face_th_mr = _p_hs_mr[-1] - _p_hs_mr[0]   # altura total da face
+                    _hx_mr = []
+                    for _ehx in msp:
+                        if _ehx.dxftype() != 'LINE': continue
+                        if 'PAIN' not in _ehx.dxf.layer.upper(): continue
+                        if abs(_ehx.dxf.start.y - _ehx.dxf.end.y) > 0.5: continue
+                        _xc_hx = (_ehx.dxf.start.x + _ehx.dxf.end.x) / 2
+                        if (_x_mid_left <= _xc_hx <= _x_mid_right
+                                and _ehx.dxf.start.y >= _y_face_base):
+                            _hx_mr.extend([_ehx.dxf.start.x, _ehx.dxf.end.x])
+                    if _hx_mr and _face_th_mr > 0:
+                        _xl_mr = min(_hx_mr)
+                        _xr_mr = max(_hx_mr)
+                        # menor H por y → endpoints para filtro de abertura
+                        _mep_mr: dict = {}
+                        for _ehx2 in msp:
+                            if _ehx2.dxftype() != 'LINE': continue
+                            if 'PAIN' not in _ehx2.dxf.layer.upper(): continue
+                            if abs(_ehx2.dxf.start.y - _ehx2.dxf.end.y) > 0.5: continue
+                            _xc2 = (_ehx2.dxf.start.x + _ehx2.dxf.end.x) / 2
+                            if not (_x_mid_left <= _xc2 <= _x_mid_right
+                                    and _ehx2.dxf.start.y >= _y_face_base): continue
+                            _epy2 = round(_ehx2.dxf.start.y, 1)
+                            _epw2 = abs(_ehx2.dxf.start.x - _ehx2.dxf.end.x)
+                            _ex1  = round(min(_ehx2.dxf.start.x, _ehx2.dxf.end.x), 1)
+                            _ex2  = round(max(_ehx2.dxf.start.x, _ehx2.dxf.end.x), 1)
+                            if _epy2 not in _mep_mr or _epw2 < _mep_mr[_epy2][2]:
+                                _mep_mr[_epy2] = (_ex1, _ex2, _epw2)
+                        # coleta inner verts individuais
+                        _ivraw_mr = []
+                        for _evr in msp:
+                            if _evr.dxftype() != 'LINE': continue
+                            if 'PAIN' not in _evr.dxf.layer.upper(): continue
+                            _xs_r, _xe_r = _evr.dxf.start.x, _evr.dxf.end.x
+                            _ys_r, _ye_r = _evr.dxf.start.y, _evr.dxf.end.y
+                            if abs(_xs_r - _xe_r) > 0.5: continue
+                            _xv_r = (_xs_r + _xe_r) / 2
+                            if _xv_r <= _xl_mr + 2.0 or _xv_r >= _xr_mr - 2.0: continue
+                            if _xv_r < _x_mid_left or _xv_r > _x_mid_right: continue
+                            if abs(_ys_r - _ye_r) < 5.0: continue
+                            if max(_ys_r, _ye_r) < _y_face_base: continue
+                            _ivraw_mr.append({
+                                'x':     round(_xv_r, 1),
+                                'y_bot': round(min(_ys_r, _ye_r), 1),
+                                'y_top': round(max(_ys_r, _ye_r), 1),
+                            })
+                        # agrupa por x (±3cm), guarda segs individuais
+                        _grps_mr: list = []
+                        for _vv in sorted(_ivraw_mr, key=lambda v: v['x']):
+                            _placed = False
+                            for _g in _grps_mr:
+                                if abs(_vv['x'] - _g['x']) <= 3.0:
+                                    _g['y_bot'] = min(_g['y_bot'], _vv['y_bot'])
+                                    _g['y_top'] = max(_g['y_top'], _vv['y_top'])
+                                    _g['segs'].append({'y_bot': _vv['y_bot'], 'y_top': _vv['y_top']})
+                                    _placed = True; break
+                            if not _placed:
+                                _grps_mr.append({
+                                    'x': _vv['x'], 'y_bot': _vv['y_bot'], 'y_top': _vv['y_top'],
+                                    'segs': [{'y_bot': _vv['y_bot'], 'y_top': _vv['y_top']}],
+                                })
+                        # filtro ratio
+                        _rok_mr = [_g for _g in _grps_mr
+                                   if (_g['y_top'] - _g['y_bot']) / _face_th_mr < 0.45]
+                        if _rok_mr:
+                            def _ep_mr(_xv, _y):
+                                _ep = _mep_mr.get(_y)
+                                return _ep and min(abs(_xv - _ep[0]), abs(_xv - _ep[1])) <= 2.5
+                            if len(_rok_mr) >= 3:
+                                _ov_mr = []
+                                for _g in _rok_mr:
+                                    for _sg in sorted(_g['segs'], key=lambda s: s['y_bot']):
+                                        if _ep_mr(_g['x'], _sg['y_bot']) or _ep_mr(_g['x'], _sg['y_top']):
+                                            _g['y_bot_u'] = _sg['y_bot']
+                                            _g['y_top_u'] = _sg['y_top']
+                                            _ov_mr.append(_g); break
+                            else:
+                                for _g in _rok_mr:
+                                    _g['y_bot_u'] = _g['y_bot']; _g['y_top_u'] = _g['y_top']
+                                _ov_mr = _rok_mr
+                            if len(_ov_mr) == 1:
+                                _vv = _ov_mr[0]
+                                _dl = _vv['x'] - _xl_mr; _dr = _xr_mr - _vv['x']
+                                result[f'abertura_{_face}'] = {
+                                    'lado':    'esquerdo' if _dl <= _dr else 'direito',
+                                    'largura': round(_dl if _dl <= _dr else _dr, 1),
+                                    'y_rel':   round(_vv['y_bot_u'] - _y_h0_mr, 1),
+                                    'altura':  round(_vv['y_top_u'] - _vv['y_bot_u'], 1),
+                                }
+                            elif len(_ov_mr) == 2:
+                                _v1r, _v2r = _ov_mr
+                                result[f'abertura_{_face}'] = {
+                                    'lado':     'meio',
+                                    'largura':  round(_v2r['x'] - _v1r['x'], 1),
+                                    'x_offset': round(_v1r['x'] - _xl_mr, 1),
+                                    'y_rel':    round(min(_v1r['y_bot_u'], _v2r['y_bot_u']) - _y_h0_mr, 1),
+                                    'altura':   round(max(_v1r['y_top_u'], _v2r['y_top_u'])
+                                                     - min(_v1r['y_bot_u'], _v2r['y_bot_u']), 1),
+                                }
+
                 # Cotas desta face (valores > 10 excluem h1=2 e larguras 7/19)
                 _face_cotas_y = sorted(
                     [(_y, _v) for _fx, _y, _v in _cota_xy

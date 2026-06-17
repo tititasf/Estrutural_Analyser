@@ -5656,6 +5656,113 @@ class ComparisonEngineModule(QWidget):
                         result[f'paineis_intervals_{face}'] = _ivs
                         _ce_log(f"N2 DXF face {face}: paineis_intervals={_ivs}")
 
+                    # ── Abertura: verticais Painéis dentro dos limites x da face ──
+                    _y_h0_ce = _p_hs[0]
+                    _face_th_ce = _p_hs[-1] - _p_hs[0]
+                    _hx_ce = []
+                    for _ehx_ce in msp:
+                        if _ehx_ce.dxftype() != 'LINE': continue
+                        if 'PAIN' not in _ehx_ce.dxf.layer.upper(): continue
+                        if abs(_ehx_ce.dxf.start.y - _ehx_ce.dxf.end.y) > 0.5: continue
+                        _xc_ce = (_ehx_ce.dxf.start.x + _ehx_ce.dxf.end.x) / 2
+                        if (x_mid_left <= _xc_ce <= x_mid_right
+                                and _ehx_ce.dxf.start.y >= y_face_base):
+                            _hx_ce.extend([_ehx_ce.dxf.start.x, _ehx_ce.dxf.end.x])
+                    if _hx_ce and _face_th_ce > 0:
+                        _xl_ce = min(_hx_ce)
+                        _xr_ce = max(_hx_ce)
+                        # menor H por y → endpoints
+                        _mep_ce: dict = {}
+                        for _ehx2c in msp:
+                            if _ehx2c.dxftype() != 'LINE': continue
+                            if 'PAIN' not in _ehx2c.dxf.layer.upper(): continue
+                            if abs(_ehx2c.dxf.start.y - _ehx2c.dxf.end.y) > 0.5: continue
+                            _xc2c = (_ehx2c.dxf.start.x + _ehx2c.dxf.end.x) / 2
+                            if not (x_mid_left <= _xc2c <= x_mid_right
+                                    and _ehx2c.dxf.start.y >= y_face_base): continue
+                            _epy2c = round(_ehx2c.dxf.start.y, 1)
+                            _epw2c = abs(_ehx2c.dxf.start.x - _ehx2c.dxf.end.x)
+                            _ex1c  = round(min(_ehx2c.dxf.start.x, _ehx2c.dxf.end.x), 1)
+                            _ex2c  = round(max(_ehx2c.dxf.start.x, _ehx2c.dxf.end.x), 1)
+                            if _epy2c not in _mep_ce or _epw2c < _mep_ce[_epy2c][2]:
+                                _mep_ce[_epy2c] = (_ex1c, _ex2c, _epw2c)
+                        # coleta inner verts individuais
+                        _ivraw_ce = []
+                        for _ev_ce in msp:
+                            if _ev_ce.dxftype() != 'LINE': continue
+                            if 'PAIN' not in _ev_ce.dxf.layer.upper(): continue
+                            _xs_ce, _xe_ce = _ev_ce.dxf.start.x, _ev_ce.dxf.end.x
+                            _ys_ce, _ye_ce = _ev_ce.dxf.start.y, _ev_ce.dxf.end.y
+                            if abs(_xs_ce - _xe_ce) > 0.5: continue
+                            _xv_ce = (_xs_ce + _xe_ce) / 2
+                            if _xv_ce <= _xl_ce + 2.0 or _xv_ce >= _xr_ce - 2.0: continue
+                            if _xv_ce < x_mid_left or _xv_ce > x_mid_right: continue
+                            if abs(_ys_ce - _ye_ce) < 5.0: continue
+                            if max(_ys_ce, _ye_ce) < y_face_base: continue
+                            _ivraw_ce.append({
+                                'x':     round(_xv_ce, 1),
+                                'y_bot': round(min(_ys_ce, _ye_ce), 1),
+                                'y_top': round(max(_ys_ce, _ye_ce), 1),
+                            })
+                        # agrupa por x (±3cm), guarda segs individuais
+                        _grps_ce: list = []
+                        for _vv_ce in sorted(_ivraw_ce, key=lambda v: v['x']):
+                            _placed_ce = False
+                            for _g_ce in _grps_ce:
+                                if abs(_vv_ce['x'] - _g_ce['x']) <= 3.0:
+                                    _g_ce['y_bot'] = min(_g_ce['y_bot'], _vv_ce['y_bot'])
+                                    _g_ce['y_top'] = max(_g_ce['y_top'], _vv_ce['y_top'])
+                                    _g_ce['segs'].append({'y_bot': _vv_ce['y_bot'], 'y_top': _vv_ce['y_top']})
+                                    _placed_ce = True; break
+                            if not _placed_ce:
+                                _grps_ce.append({
+                                    'x': _vv_ce['x'], 'y_bot': _vv_ce['y_bot'], 'y_top': _vv_ce['y_top'],
+                                    'segs': [{'y_bot': _vv_ce['y_bot'], 'y_top': _vv_ce['y_top']}],
+                                })
+                        # filtro ratio
+                        _rok_ce = [_g for _g in _grps_ce
+                                   if (_g['y_top'] - _g['y_bot']) / _face_th_ce < 0.45]
+                        if _rok_ce:
+                            def _ep_ce(_xv, _y):
+                                _ep = _mep_ce.get(_y)
+                                return _ep and min(abs(_xv - _ep[0]), abs(_xv - _ep[1])) <= 2.5
+                            if len(_rok_ce) >= 3:
+                                _ov_ce = []
+                                for _g_ce in _rok_ce:
+                                    for _sg_ce in sorted(_g_ce['segs'], key=lambda s: s['y_bot']):
+                                        if _ep_ce(_g_ce['x'], _sg_ce['y_bot']) or _ep_ce(_g_ce['x'], _sg_ce['y_top']):
+                                            _g_ce['y_bot_u'] = _sg_ce['y_bot']
+                                            _g_ce['y_top_u'] = _sg_ce['y_top']
+                                            _ov_ce.append(_g_ce); break
+                            else:
+                                for _g_ce in _rok_ce:
+                                    _g_ce['y_bot_u'] = _g_ce['y_bot']
+                                    _g_ce['y_top_u'] = _g_ce['y_top']
+                                _ov_ce = _rok_ce
+                            _ab_ce: dict | None = None
+                            if len(_ov_ce) == 1:
+                                _vce = _ov_ce[0]
+                                _dl_ce = _vce['x'] - _xl_ce; _dr_ce = _xr_ce - _vce['x']
+                                _ab_ce = {
+                                    'lado':    'esquerdo' if _dl_ce <= _dr_ce else 'direito',
+                                    'largura': round(_dl_ce if _dl_ce <= _dr_ce else _dr_ce, 1),
+                                    'y_rel':   round(_vce['y_bot_u'] - _y_h0_ce, 1),
+                                    'altura':  round(_vce['y_top_u'] - _vce['y_bot_u'], 1),
+                                }
+                            elif len(_ov_ce) == 2:
+                                _v1c, _v2c = _ov_ce
+                                _ab_ce = {
+                                    'lado':     'meio',
+                                    'largura':  round(_v2c['x'] - _v1c['x'], 1),
+                                    'x_offset': round(_v1c['x'] - _xl_ce, 1),
+                                    'y_rel':    round(min(_v1c['y_bot_u'], _v2c['y_bot_u']) - _y_h0_ce, 1),
+                                    'altura':   round(max(_v1c['y_top_u'], _v2c['y_top_u'])
+                                                     - min(_v1c['y_bot_u'], _v2c['y_bot_u']), 1),
+                                }
+                            if _ab_ce is not None:
+                                result[f'abertura_{face}'] = _ab_ce
+                                _ce_log(f"N2 DXF face {face}: abertura={_ab_ce}")
+
                 # Cotas desta face: valores >10 (excluem h1=2, larguras=7/19)
                 face_cotas_y = sorted(
                     [(fy, v) for fx, fy, v in cota_xy
