@@ -5466,14 +5466,182 @@ class ComparisonEngineModule(QWidget):
             results[zone] = expected if expected.exists() else None
         return results
 
+    def _extract_pd_from_n2_dxf(self, dxf_path: "Path") -> "float | None":
+        """Extrai pd_pavimento_cm do DXF N2 medindo a maior cota vertical do ABCD.
+
+        O pd real de cada pilar está codificado como a cota total à esquerda do
+        bloco ABCD (ex: 321 para P10 13_PAV). Pode variar por pilar mesmo dentro
+        do mesmo pavimento.
+
+        Estratégia (ordem de prioridade):
+        1. DIMENSION entities → abs(defpoint2.y - defpoint3.y) — leitura direta das cotas
+        2. TEXT/MTEXT com valor numérico no intervalo plausível [150, 700]
+        3. Bounding-box geométrico (max_y - min_y de LINE/LWPOLYLINE)
+        Em todos os casos: retorna o MAIOR valor encontrado (pd é sempre o maior).
+        """
+        try:
+            import ezdxf as _ez
+            doc = _ez.readfile(str(dxf_path))
+            msp = doc.modelspace()
+            candidates: list[float] = []
+
+            for e in msp:
+                t = e.dxftype()
+                if t == "DIMENSION":
+                    try:
+                        val = abs(e.dxf.defpoint2.y - e.dxf.defpoint3.y)
+                        if 150.0 <= val <= 700.0:
+                            candidates.append(val)
+                    except Exception:
+                        pass
+                elif t in ("TEXT", "MTEXT"):
+                    try:
+                        raw = e.dxf.text if t == "TEXT" else e.text
+                        # Strip MTEXT escape sequences  {\f...;value}
+                        import re as _re
+                        raw = _re.sub(r'\{[^}]*\}', '', raw).strip()
+                        raw = raw.replace(",", ".")
+                        val = float(raw)
+                        if 150.0 <= val <= 700.0:
+                            candidates.append(val)
+                    except Exception:
+                        pass
+
+            if candidates:
+                pd = round(max(candidates), 1)
+                _ce_log(f"pd extraido do DXF N2: {pd} (de {len(candidates)} candidatos)")
+                return pd
+
+            # Fallback geométrico
+            ys: list[float] = []
+            for e in msp:
+                t = e.dxftype()
+                if t == "LINE":
+                    ys += [e.dxf.start.y, e.dxf.end.y]
+                elif t == "LWPOLYLINE":
+                    ys += [p[1] for p in e.get_points()]
+            if ys:
+                span = round(max(ys) - min(ys), 1)
+                if 150.0 <= span <= 700.0:
+                    _ce_log(f"pd extraido do DXF N2 (bbox): {span}")
+                    return span
+        except Exception as _e:
+            print(f"[CE] _extract_pd_from_n2_dxf: {_e}")
+        return None
+
+    def _extract_laje_per_face_from_n2_dxf(
+        self, dxf_path: "Path", pd_val: "float | None" = None
+    ) -> "dict[str, float]":
+        """Extrai laje_{face} e posicao_laje_{face} do DXF N2 por face ABCD.
+
+        Algoritmo:
+        1. Encontra x-posição dos labels "P{n}.{face}" (layer NOMENCLATURA).
+        2. Para cada face, coleta COTAs (TEXT, layer COTA, valor >10) no intervalo
+           x-label → x-próximo-label.
+        3. Se sum(cotas_face) < pd: zona vazia = posicao_laje; maior cota do topo = laje.
+
+        Retorna dict com chaves laje_A, posicao_laje_A, laje_B, etc. (0.0 = sem sub-painel).
+        """
+        import re as _re2
+        result: dict[str, float] = {}
+        try:
+            import ezdxf as _ez2
+            doc = _ez2.readfile(str(dxf_path))
+            msp = doc.modelspace()
+
+            # Face label x-positions
+            face_label_xs: dict[str, float] = {}
+            face_label_ys: list[float] = []
+            for e in msp:
+                if e.dxftype() == 'TEXT':
+                    m = _re2.match(r'^[A-Z]\d+\.([ABCDEFGH])$', e.dxf.text.strip())
+                    if m:
+                        face_label_xs[m.group(1)] = e.dxf.insert.x
+                        face_label_ys.append(e.dxf.insert.y)
+            # y_face_base: exclui cotas de largura (comprimento=82) abaixo da base
+            y_face_base = (min(face_label_ys) - 20.0) if face_label_ys else -1e9
+
+            if len(face_label_xs) < 2:
+                return result
+
+            # pd: maior cota plausível (DIMENSION ou TEXT)
+            if pd_val is None:
+                pd_cands: list[float] = []
+                for e in msp:
+                    t = e.dxftype()
+                    if t == 'DIMENSION':
+                        try:
+                            v = abs(e.dxf.defpoint2.y - e.dxf.defpoint3.y)
+                            if 150.0 <= v <= 700.0:
+                                pd_cands.append(v)
+                        except Exception:
+                            pass
+                    elif t in ('TEXT', 'MTEXT'):
+                        try:
+                            raw = e.dxf.text if t == 'TEXT' else e.text
+                            raw = _re2.sub(r'\{[^}]*\}', '', raw).strip().replace(',', '.')
+                            v = float(raw)
+                            if 150.0 <= v <= 700.0:
+                                pd_cands.append(v)
+                        except Exception:
+                            pass
+                pd_val = round(max(pd_cands), 1) if pd_cands else None
+
+            if pd_val is None:
+                return result
+
+            # COTA texts com posição x
+            # y >= y_face_base: exclui cotas de largura (ex: "82") abaixo da base
+            cota_xy: list[tuple[float, float, float]] = []
+            for e in msp:
+                if e.dxftype() == 'TEXT' and 'COTA' in e.dxf.layer.upper():
+                    try:
+                        v = float(e.dxf.text.strip().replace(',', '.'))
+                        if 2.0 <= v <= 700.0 and e.dxf.insert.y >= y_face_base:
+                            cota_xy.append((e.dxf.insert.x, e.dxf.insert.y, v))
+                    except Exception:
+                        pass
+
+            faces_sorted = sorted(face_label_xs.items(), key=lambda kv: kv[1])
+            for i, (face, x_face) in enumerate(faces_sorted):
+                # C/D usam H_C_EXTRA (tratado separadamente no gerador); A/B only
+                if face not in ('A', 'B'):
+                    continue
+                x_next = (faces_sorted[i + 1][1]
+                          if i + 1 < len(faces_sorted)
+                          else x_face + 600.0)
+
+                # Cotas desta face: valores >10 (excluem h1=2, larguras=7/19)
+                face_cotas_y = sorted(
+                    [(fy, v) for fx, fy, v in cota_xy
+                     if x_face <= fx <= x_next and v > 10.0],
+                    reverse=True,  # y decrescente = topo → base
+                )
+                face_vals = [v for _, v in face_cotas_y]
+
+                if face_vals:
+                    gap = round(pd_val - sum(face_vals), 1)
+                    if gap > 5.0:
+                        # Sub-painel de laje: primeiro valor do topo = altura do painel
+                        result[f'laje_{face}']         = float(face_vals[0])
+                        result[f'posicao_laje_{face}'] = gap
+                        _ce_log(
+                            f"N2 DXF face {face}: laje={face_vals[0]:.0f} "
+                            f"posicao={gap:.0f} (pd={pd_val}, sum={sum(face_vals):.0f})"
+                        )
+
+        except Exception as _e:
+            print(f"[CE] _extract_laje_per_face_from_n2_dxf: {_e}")
+        return result
+
     def _get_pd_pavimento_cm(self, obra: str, item_id: str,
                               obra_dir: "Path | None" = None) -> "float | None":
-        """Retorna pd_pavimento_cm para o item.
+        """Fallback de pd quando nao foi possivel extrair do DXF N2.
 
         Prioridade:
         1. Fase-4 JSON real (N1) — tem o campo explícito, valor preciso.
-        2. DB pavimento → arete_config.PD_PAVIMENTO_CM (ORDER BY id DESC para
-           pegar a ficha mais recente, que tende a ser do pavimento ativo).
+        2. DB pavimento → arete_config.PD_PAVIMENTO_CM (constante por pavimento).
+        Usar apenas como último recurso — prefira _extract_pd_from_n2_dxf().
         """
         # 1. Fase-4 N1 JSON (mais confiável — tem pd_pavimento_cm explícito)
         if obra_dir is not None:
@@ -5521,11 +5689,35 @@ class ComparisonEngineModule(QWidget):
 
         # 1. Preparar ficha N2 com pd_pavimento_cm
         campos = {k: v for k, v in er_ficha.items() if not k.startswith('_')}
-        if 'pd_pavimento_cm' not in campos:
-            # Fonte primária: Fase-4 N1 JSON do item (tem pd_pavimento_cm=321 para 13_PAV)
+
+        # Fonte primária: extrair pd da cota total do DXF N2 (varia por pilar,
+        # mesmo dentro do mesmo pavimento — nao usar constante por pav).
+        try:
+            pav = self.fase8_panel.current_pav_key
+        except Exception:
+            pav = ""
+        n2_dxf_path = self._get_recorte_dxf_for_er(obra, 'PL', item_id, pav=pav)
+        pd_from_dxf = self._extract_pd_from_n2_dxf(n2_dxf_path) if n2_dxf_path else None
+
+        if pd_from_dxf is not None:
+            campos['pd_pavimento_cm'] = pd_from_dxf
+            _ce_log(f"N4 PIL {item_id}: pd_pavimento_cm={pd_from_dxf} (DXF N2 geometry)")
+        elif 'pd_pavimento_cm' not in campos:
+            # Fallback: Fase-4 N1 JSON ou constante por pavimento
             pd_cm = self._get_pd_pavimento_cm(obra, item_id, obra_dir=obra_dir)
             if pd_cm is not None:
                 campos['pd_pavimento_cm'] = pd_cm
+                _ce_log(f"N4 PIL {item_id}: pd_pavimento_cm={pd_cm} (fallback N1/constante)")
+
+        # Per-face laje: extrair do DXF N2 e sobrescrever campos da ficha
+        # (fichas antigas no DB têm laje_B=0; a geometria N2 é fonte de verdade)
+        if n2_dxf_path:
+            _laje_fields = self._extract_laje_per_face_from_n2_dxf(
+                n2_dxf_path, pd_val=campos.get('pd_pavimento_cm')
+            )
+            if _laje_fields:
+                campos.update(_laje_fields)
+                _ce_log(f"N4 PIL {item_id}: per-face laje injetado: {_laje_fields}")
 
         # subtipo_pil: da ficha N2 ou da Fase-4 N1 (para decidir zonas)
         subtipo = campos.get('subtipo_pil', 'RETANGULAR')

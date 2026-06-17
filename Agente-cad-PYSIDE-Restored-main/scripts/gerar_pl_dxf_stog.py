@@ -863,6 +863,18 @@ def draw_abcd(msp, base_x, base_y, comp, larg, altura, nome, pj):
         msp.add_line((x_left,  y_top),    (x_right, y_top), dxfattribs={'layer': 'COTA'})
         entity_count += 3
 
+        # Sub-painel de laje: linha horizontal quando laje_{fid} > 0
+        # (ex.: face B com sub-painel de laje diferente de face A)
+        _laje_h = float(pj.get(f'laje_{fid}', 0.0))
+        if _laje_h > 0.0:
+            _y_laje_top = laje_bot + _laje_h
+            if _y_laje_top < y_top:
+                msp.add_line(
+                    (x_left, _y_laje_top), (x_right, _y_laje_top),
+                    dxfattribs={'layer': 'COTA'},
+                )
+                entity_count += 1
+
         # Hatches não são necessários na vista ABCD (user: "os hatchs dos paineis nao necessito")
 
         # Faces C/D switch to horizontal sarrafos when dim >= 30 (verified P05+ SCR)
@@ -956,12 +968,23 @@ def draw_abcd(msp, base_x, base_y, comp, larg, altura, nome, pj):
             ]
         else:
             # A, B, D: h1(2) + h_low(124) + H_PARAFUSO(73) + laje zone
-            dim_specs = [
-                (y_bot,        y_bot + h1,   19),
-                (y_bot,        y_low,         ANN_OFF),
-                (y_low,        y_mid_face,    ANN_OFF),
-                (y_mid_face,   y_top,         ANN_OFF),
-            ]
+            # Se laje_{fid} > 0: subdividir zona de laje em sub-painel + espaco acima
+            _laje_h_dim = float(pj.get(f'laje_{fid}', 0.0))
+            if _laje_h_dim > 0.0:
+                _y_laje_top_dim = y_mid_face + _laje_h_dim
+                dim_specs = [
+                    (y_bot,              y_bot + h1,       19),
+                    (y_bot,              y_low,             ANN_OFF),
+                    (y_low,              y_mid_face,        ANN_OFF),
+                    (y_mid_face,         _y_laje_top_dim,   ANN_OFF),  # sub-painel laje
+                ]
+            else:
+                dim_specs = [
+                    (y_bot,        y_bot + h1,   19),
+                    (y_bot,        y_low,         ANN_OFF),
+                    (y_low,        y_mid_face,    ANN_OFF),
+                    (y_mid_face,   y_top,         ANN_OFF),
+                ]
         for p1y, p2y, ann_x_off in dim_specs:
             try:
                 d = msp.add_linear_dim(

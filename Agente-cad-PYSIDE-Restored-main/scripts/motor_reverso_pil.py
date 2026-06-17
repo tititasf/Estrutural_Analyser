@@ -126,6 +126,82 @@ def _extract_pil_from_dxf(dxf_path: str) -> dict:
                 for suffix in ('h1','h2','h3','h4','h5','larg1','larg2','larg3','laje','posicao_laje'):
                     result[f'{suffix}_{face}'] = 0.0
 
+        # 6.5. Per-face laje extraction via COTA geometry
+        # Faces como B podem ter sub-painel de laje diferente de A.
+        # Detecta: sum(cotas_face > 10) < pd → zona vazia no topo = posicao_laje
+        _face_label_xs: dict[str, float] = {}
+        _face_label_ys: list[float] = []
+        for _e in msp:
+            if _e.dxftype() == 'TEXT':
+                _m = re.match(r'^[A-Z]\d+\.([ABCDEFGH])$', _e.dxf.text.strip())
+                if _m:
+                    _face_label_xs[_m.group(1)] = _e.dxf.insert.x
+                    _face_label_ys.append(_e.dxf.insert.y)
+        # y minimo dos labels = base aproximada do pilar; exclui cotas de largura
+        # colocadas abaixo (ex: "82" comprimento em y < y_base)
+        _y_face_base = (min(_face_label_ys) - 20.0) if _face_label_ys else -1e9
+
+        if len(_face_label_xs) >= 2:
+            # pd: maior valor plausivel em TODOS os textos (pd pode estar em
+            # layer nao-COTA, ex.: "NIVEL 2° PAV." com texto "321.0").
+            # Tambem verifica DIMENSION entities.
+            _pd_cands: list[float] = []
+            for _e in msp:
+                _et = _e.dxftype()
+                if _et == 'TEXT':
+                    try:
+                        _v = float(_e.dxf.text.strip().replace(',', '.'))
+                        if 150.0 <= _v <= 700.0:
+                            _pd_cands.append(_v)
+                    except Exception:
+                        pass
+                elif _et == 'DIMENSION':
+                    try:
+                        _v = abs(_e.dxf.defpoint2.y - _e.dxf.defpoint3.y)
+                        if 150.0 <= _v <= 700.0:
+                            _pd_cands.append(_v)
+                    except Exception:
+                        pass
+            _pd_val: float | None = round(max(_pd_cands), 1) if _pd_cands else None
+
+            # COTA texts com posicao x para discriminar por face
+            # Filtragem y >= _y_face_base exclui cotas de largura (comprimento=82)
+            # colocadas abaixo da base do pilar.
+            _cota_xy: list[tuple[float, float, float]] = []
+            for _e in msp:
+                if _e.dxftype() == 'TEXT' and 'COTA' in _e.dxf.layer.upper():
+                    try:
+                        _v = float(_e.dxf.text.strip().replace(',', '.'))
+                        if 2.0 <= _v <= 700.0 and _e.dxf.insert.y >= _y_face_base:
+                            _cota_xy.append((_e.dxf.insert.x, _e.dxf.insert.y, _v))
+                    except Exception:
+                        pass
+
+            _faces_sorted = sorted(_face_label_xs.items(), key=lambda kv: kv[1])
+            for _i, (_face, _x_face) in enumerate(_faces_sorted):
+                # C/D usam H_C_EXTRA: gerado separadamente; detecção de laje
+                # só faz sentido para A/B (painel laje diferente do padrão).
+                if _face not in ('A', 'B'):
+                    continue
+                _x_next = (_faces_sorted[_i + 1][1]
+                            if _i + 1 < len(_faces_sorted)
+                            else _x_face + 600.0)
+
+                # Cotas desta face (valores > 10 excluem h1=2 e larguras 7/19)
+                _face_cotas_y = sorted(
+                    [(_y, _v) for _fx, _y, _v in _cota_xy
+                     if _x_face <= _fx <= _x_next and _v > 10.0],
+                    reverse=True,  # y decrescente = topo → base
+                )
+                _face_vals = [_v for _, _v in _face_cotas_y]
+
+                if _face_vals and _pd_val:
+                    _gap = round(_pd_val - sum(_face_vals), 1)
+                    if _gap > 5.0:
+                        # Zona vazia no topo: laje_face = sub-painel (primeiro do topo)
+                        result[f'laje_{_face}']          = float(_face_vals[0])
+                        result[f'posicao_laje_{_face}']  = _gap
+
         # 7. grade_2/3, distancia, par
         result.setdefault('grade_2', 0.0)
         result.setdefault('grade_3', 0.0)
