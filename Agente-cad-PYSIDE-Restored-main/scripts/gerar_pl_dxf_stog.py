@@ -989,6 +989,18 @@ def draw_abcd(msp, base_x, base_y, comp, larg, altura, nome, pj):
                 (y_mid_face,     panel_top_face,   ANN_OFF),  # 41 (H_C_EXTRA)
                 (panel_top_face, y_top,             ANN_OFF),  # laje zone
             ]
+        elif _intervals and len(_intervals) >= 2:
+            # Intervalos N2-fiel: uma DIMENSION por segmento de Painéis (igual ao N2 original).
+            dim_specs = [(y_bot, y0 + h1, 19)]  # h1 strip
+            _y_p = y0 + h1
+            for _iv in _intervals:
+                _y_n = min(round(_y_p + float(_iv), 4), y_top)
+                dim_specs.append((_y_p, _y_n, ANN_OFF))
+                _y_p = _y_n
+                if _y_p >= y_top:
+                    break
+            if panel_top_face < y_top:
+                dim_specs.append((panel_top_face, y_top, ANN_OFF))  # laje
         else:
             # A, B, D: h1(2) + h_low(124) + H_PARAFUSO(73) + laje zone
             # Se laje_{fid} > 0: subdividir zona de laje em sub-painel + espaco acima
