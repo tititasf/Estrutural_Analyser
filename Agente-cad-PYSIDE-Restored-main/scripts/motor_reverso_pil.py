@@ -194,6 +194,13 @@ def _extract_pil_from_dxf(dxf_path: str) -> dict:
                     reverse=True,  # y decrescente = topo → base
                 )
                 _face_vals = [_v for _, _v in _face_cotas_y]
+                # Ascendente (base → topo): [h_low, h_par, laje_panel?]
+                _face_vals_asc = list(reversed(_face_vals))
+
+                # h_par: segunda cota da base (índice 1) = zona parafuso
+                # Extraído do N2 porque varia por pilar (P1=97, P10=73, etc.)
+                if len(_face_vals_asc) >= 2:
+                    result[f'h_par_{_face}'] = float(_face_vals_asc[1])
 
                 # Laje detectada: requer >= 3 cotas (h_low + H_PAR + laje_panel).
                 # Faces com 2 cotas (ex: P1.A: [97, 124]) têm H_PAR não-padrão
@@ -203,6 +210,22 @@ def _extract_pil_from_dxf(dxf_path: str) -> dict:
                     if _gap > 5.0:
                         result[f'laje_{_face}']         = float(_face_vals[0])
                         result[f'posicao_laje_{_face}'] = _gap
+
+        # Fallback geométrico para DXFs sem anotações de texto (ex: TIPO/12_PAV).
+        # SARR_2.2x7 span = (h_low - h1) + h_par = 122 + h_par → h_par = span - 122
+        if not _face_label_xs:
+            _sarr_ys: list[float] = []
+            for _e in msp:
+                if _e.dxf.layer == 'SARR_2.2x7':
+                    if _e.dxftype() == 'LINE':
+                        _sarr_ys += [_e.dxf.start.y, _e.dxf.end.y]
+                    elif _e.dxftype() == 'LWPOLYLINE':
+                        _sarr_ys += [p[1] for p in _e.get_points()]
+            if _sarr_ys:
+                _h_par_geom = round(max(_sarr_ys) - min(_sarr_ys) - 122.0, 1)
+                if 50.0 <= _h_par_geom <= 150.0:
+                    for _face in ('A', 'B'):
+                        result.setdefault(f'h_par_{_face}', _h_par_geom)
 
         # 7. grade_2/3, distancia, par
         result.setdefault('grade_2', 0.0)

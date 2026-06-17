@@ -5562,6 +5562,21 @@ class ComparisonEngineModule(QWidget):
             y_face_base = (min(face_label_ys) - 20.0) if face_label_ys else -1e9
 
             if len(face_label_xs) < 2:
+                # Fallback geométrico: DXFs sem labels de texto (ex: TIPO/12_PAV)
+                # SARR_2.2x7 span = (h_low - h1) + h_par = 122 + h_par
+                _sarr_ys_fb: list[float] = []
+                for _e_fb in msp:
+                    if _e_fb.dxf.layer == 'SARR_2.2x7':
+                        if _e_fb.dxftype() == 'LINE':
+                            _sarr_ys_fb += [_e_fb.dxf.start.y, _e_fb.dxf.end.y]
+                        elif _e_fb.dxftype() == 'LWPOLYLINE':
+                            _sarr_ys_fb += [p[1] for p in _e_fb.get_points()]
+                if _sarr_ys_fb:
+                    _h_par_fb = round(max(_sarr_ys_fb) - min(_sarr_ys_fb) - 122.0, 1)
+                    if 50.0 <= _h_par_fb <= 150.0:
+                        for _face_fb in ('A', 'B'):
+                            result[f'h_par_{_face_fb}'] = _h_par_fb
+                        _ce_log(f"N2 DXF geometric h_par={_h_par_fb:.0f} (sem labels)")
                 return result
 
             # pd: maior cota plausível (DIMENSION ou TEXT)
@@ -5618,6 +5633,12 @@ class ComparisonEngineModule(QWidget):
                     reverse=True,  # y decrescente = topo → base
                 )
                 face_vals = [v for _, v in face_cotas_y]
+                face_vals_asc = list(reversed(face_vals))  # base → topo
+
+                # h_par: 2ª cota da base = zona parafuso (varia por pilar)
+                if len(face_vals_asc) >= 2:
+                    result[f'h_par_{face}'] = float(face_vals_asc[1])
+                    _ce_log(f"N2 DXF face {face}: h_par={face_vals_asc[1]:.0f}")
 
                 # Laje detectada: requer >= 3 cotas (h_low + H_PAR + laje_panel).
                 # 2 cotas = H_PAR não-padrão (ex: P1.A=[97,124]) — sem sub-painel.

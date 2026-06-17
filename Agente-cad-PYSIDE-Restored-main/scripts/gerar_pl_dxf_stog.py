@@ -828,7 +828,9 @@ def draw_abcd(msp, base_x, base_y, comp, larg, altura, nome, pj):
             y_mid_face     = y_low + H_PAR_C         # = y_bot + 221 (H_PAR=97)
             panel_top_face = y_mid_face + H_C_EXTRA  # = y_bot + 262 (+H_C_EXTRA=41)
         else:
-            y_mid_face     = y_low + H_PARAFUSO      # = y_bot + 197 (H_PAR=73)
+            # h_par extrado do DXF N2 por face (varia por pilar); fallback=73
+            h_par_face     = float(pj.get(f'h_par_{fid}', H_PARAFUSO))
+            y_mid_face     = y_low + h_par_face
             panel_top_face = y_mid_face
         x_right = x_left + larg_total
         # Bottom h1 strip (horizontal LINE)
