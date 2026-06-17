@@ -410,6 +410,12 @@ def extrair_ficha_pilar(
     if fase4:
         # Fase-4 como base — confianca alta
         result = {k: v for k, v in fase4.items() if k != '_sa_meta'}
+        # Campos extraídos do DXF que NÃO existem no Fase-4 JSON (abertura, intervals)
+        # são promovidos ao top-level para uso pelo gerador STOG.
+        _DXF_PROMOTE = ('abertura_', 'paineis_intervals_')
+        for _k, _v in dxf_data.items():
+            if any(_k.startswith(_p) for _p in _DXF_PROMOTE):
+                result[_k] = _v
         # Override pavimento from recorte path hint
         result['_er_meta'] = {
             'source': 'fase4',
