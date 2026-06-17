@@ -823,11 +823,12 @@ def draw_abcd(msp, base_x, base_y, comp, larg, altura, nome, pj):
         h2_face = float(pj.get(f'h2_{fid}', 244.0))
         h_low   = h1 + h2_face / 2.0   # first sub-panel boundary
         y_low   = y0 + h_low
-        face_uses_262 = (fid == 'C')
         x_right = x_left + larg_total
 
-        # Intervalos extraídos diretamente do N2 (ground truth para A/B/D)
-        _intervals = pj.get(f'paineis_intervals_{fid}') if fid in ('A', 'B', 'D') else None
+        # Intervalos N2 (ground truth para todas as faces A/B/C/D)
+        _intervals = pj.get(f'paineis_intervals_{fid}')
+        # Face C usa modelo 262 apenas como fallback quando N2 não tem intervals
+        face_uses_262 = (fid == 'C') and not (_intervals and len(_intervals) >= 1)
 
         if face_uses_262:
             y_mid_face     = y_low + H_PAR_C
@@ -844,7 +845,7 @@ def draw_abcd(msp, base_x, base_y, comp, larg, altura, nome, pj):
                          dxfattribs={'layer': 'Painéis'})
             entity_count += 1
 
-        elif _intervals and len(_intervals) >= 2:
+        elif _intervals and len(_intervals) >= 1:
             # Modo N2-fiel: replica todos os horizontais do N2 via Painéis intervals.
             # Cobre pilares simples (3 linhas) e complexos (P27-P32 com 5-7 segmentos).
             y_cur = y0 + h1  # primeira linha = topo do strip h1
@@ -887,7 +888,7 @@ def draw_abcd(msp, base_x, base_y, comp, larg, altura, nome, pj):
         entity_count += 1
 
         # Sub-painel de laje: apenas no modelo padrão (intervals já incluem sub-painéis)
-        if not (_intervals and len(_intervals) >= 2) and not face_uses_262:
+        if not (_intervals and len(_intervals) >= 1) and not face_uses_262:
             _laje_h = float(pj.get(f'laje_{fid}', 0.0))
             if _laje_h > 0.0:
                 _y_laje_top = laje_bot + _laje_h
@@ -982,15 +983,8 @@ def draw_abcd(msp, base_x, base_y, comp, larg, altura, nome, pj):
                 dim_specs = [(y_bot, y0 + h1, 19), (y_bot, y_top, ANN_OFF)]
             else:
                 dim_specs = [(y_bot, y0 + h1, 19), (y0 + h1, y_top, ANN_OFF)]
-        elif fid == 'C':
-            # C at 262: 221 combined (N2 pattern: 124+97) + H_C_EXTRA(41) + laje
-            dim_specs = [
-                (y_bot,          y_mid_face,       ANN_OFF),  # 221 (h_low=124 + H_PAR_C=97)
-                (y_mid_face,     panel_top_face,   ANN_OFF),  # 41 (H_C_EXTRA)
-                (panel_top_face, y_top,             ANN_OFF),  # laje zone
-            ]
-        elif _intervals and len(_intervals) >= 2:
-            # Intervalos N2-fiel: uma DIMENSION por segmento de Painéis (igual ao N2 original).
+        elif _intervals and len(_intervals) >= 1:
+            # Intervalos N2-fiel: uma DIMENSION por segmento (A/B/C/D com intervals).
             dim_specs = [(y_bot, y0 + h1, 19)]  # h1 strip
             _y_p = y0 + h1
             for _iv in _intervals:
@@ -1001,6 +995,13 @@ def draw_abcd(msp, base_x, base_y, comp, larg, altura, nome, pj):
                     break
             if panel_top_face < y_top:
                 dim_specs.append((panel_top_face, y_top, ANN_OFF))  # laje
+        elif fid == 'C':
+            # C fallback 262 (quando N2 não tem intervals para face C)
+            dim_specs = [
+                (y_bot,          y_mid_face,       ANN_OFF),  # 221 (h_low=124 + H_PAR_C=97)
+                (y_mid_face,     panel_top_face,   ANN_OFF),  # 41 (H_C_EXTRA)
+                (panel_top_face, y_top,             ANN_OFF),  # laje zone
+            ]
         else:
             # A, B, D: h1(2) + h_low(124) + H_PARAFUSO(73) + laje zone
             # Se laje_{fid} > 0: subdividir zona de laje em sub-painel + espaco acima

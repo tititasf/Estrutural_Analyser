@@ -5619,8 +5619,7 @@ class ComparisonEngineModule(QWidget):
 
             faces_sorted = sorted(face_label_xs.items(), key=lambda kv: kv[1])
             for i, (face, x_face) in enumerate(faces_sorted):
-                # C/D usam H_C_EXTRA (tratado separadamente no gerador); A/B only
-                if face not in ('A', 'B'):
+                if face not in ('A', 'B', 'C', 'D'):
                     continue
                 x_next = (faces_sorted[i + 1][1]
                           if i + 1 < len(faces_sorted)
@@ -5653,7 +5652,7 @@ class ComparisonEngineModule(QWidget):
                     # draw_abcd sempre trata h1 separadamente.
                     if _ivs and abs(_ivs[0] - 2.0) < 0.5:
                         _ivs = _ivs[1:]
-                    if len(_ivs) >= 2:
+                    if len(_ivs) >= 1:
                         result[f'paineis_intervals_{face}'] = _ivs
                         _ce_log(f"N2 DXF face {face}: paineis_intervals={_ivs}")
 

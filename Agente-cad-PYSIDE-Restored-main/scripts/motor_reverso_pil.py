@@ -179,13 +179,31 @@ def _extract_pil_from_dxf(dxf_path: str) -> dict:
 
             _faces_sorted = sorted(_face_label_xs.items(), key=lambda kv: kv[1])
             for _i, (_face, _x_face) in enumerate(_faces_sorted):
-                # C/D usam H_C_EXTRA: gerado separadamente; detecção de laje
-                # só faz sentido para A/B (painel laje diferente do padrão).
-                if _face not in ('A', 'B'):
+                if _face not in ('A', 'B', 'C', 'D'):
                     continue
                 _x_next = (_faces_sorted[_i + 1][1]
                             if _i + 1 < len(_faces_sorted)
                             else _x_face + 600.0)
+                _x_mid_left  = ((_faces_sorted[_i - 1][1] + _x_face) / 2
+                                  if _i > 0 else _x_face - 600.0)
+                _x_mid_right = (_x_face + _x_next) / 2
+
+                # Intervals: linhas horizontais Painéis desta face (ground truth)
+                _p_hs_mr = sorted(set(
+                    round(_ep.dxf.start.y, 1) for _ep in msp
+                    if _ep.dxftype() == 'LINE'
+                    and 'PAIN' in _ep.dxf.layer.upper()
+                    and abs(_ep.dxf.start.y - _ep.dxf.end.y) < 0.5
+                    and _x_mid_left <= (_ep.dxf.start.x + _ep.dxf.end.x) / 2 <= _x_mid_right
+                    and _ep.dxf.start.y >= _y_face_base
+                ))
+                if len(_p_hs_mr) >= 2:
+                    _ivs_mr = [round(_p_hs_mr[_j + 1] - _p_hs_mr[_j], 1)
+                               for _j in range(len(_p_hs_mr) - 1)]
+                    if _ivs_mr and abs(_ivs_mr[0] - 2.0) < 0.5:
+                        _ivs_mr = _ivs_mr[1:]
+                    if len(_ivs_mr) >= 1:
+                        result[f'paineis_intervals_{_face}'] = _ivs_mr
 
                 # Cotas desta face (valores > 10 excluem h1=2 e larguras 7/19)
                 _face_cotas_y = sorted(
@@ -194,18 +212,15 @@ def _extract_pil_from_dxf(dxf_path: str) -> dict:
                     reverse=True,  # y decrescente = topo → base
                 )
                 _face_vals = [_v for _, _v in _face_cotas_y]
-                # Ascendente (base → topo): [h_low, h_par, laje_panel?]
                 _face_vals_asc = list(reversed(_face_vals))
 
                 # h_par: segunda cota da base (índice 1) = zona parafuso
-                # Extraído do N2 porque varia por pilar (P1=97, P10=73, etc.)
                 if len(_face_vals_asc) >= 2:
                     result[f'h_par_{_face}'] = float(_face_vals_asc[1])
 
-                # Laje detectada: requer >= 3 cotas (h_low + H_PAR + laje_panel).
-                # Faces com 2 cotas (ex: P1.A: [97, 124]) têm H_PAR não-padrão
-                # mas SEM sub-painel — evita falso positivo que injeta laje=H_PAR.
-                if len(_face_vals) >= 3 and _pd_val:
+                # Laje: só quando não há intervals (intervals já incluem sub-painéis)
+                _ivs_face_mr = result.get(f'paineis_intervals_{_face}')
+                if not _ivs_face_mr and len(_face_vals) >= 3 and _pd_val:
                     _gap = round(_pd_val - sum(_face_vals), 1)
                     if _gap > 5.0:
                         result[f'laje_{_face}']         = float(_face_vals[0])
