@@ -5619,10 +5619,11 @@ class ComparisonEngineModule(QWidget):
                 )
                 face_vals = [v for _, v in face_cotas_y]
 
-                if face_vals:
+                # Laje detectada: requer >= 3 cotas (h_low + H_PAR + laje_panel).
+                # 2 cotas = H_PAR não-padrão (ex: P1.A=[97,124]) — sem sub-painel.
+                if len(face_vals) >= 3:
                     gap = round(pd_val - sum(face_vals), 1)
                     if gap > 5.0:
-                        # Sub-painel de laje: primeiro valor do topo = altura do painel
                         result[f'laje_{face}']         = float(face_vals[0])
                         result[f'posicao_laje_{face}'] = gap
                         _ce_log(

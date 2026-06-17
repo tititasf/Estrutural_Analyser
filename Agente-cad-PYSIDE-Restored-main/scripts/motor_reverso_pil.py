@@ -195,12 +195,14 @@ def _extract_pil_from_dxf(dxf_path: str) -> dict:
                 )
                 _face_vals = [_v for _, _v in _face_cotas_y]
 
-                if _face_vals and _pd_val:
+                # Laje detectada: requer >= 3 cotas (h_low + H_PAR + laje_panel).
+                # Faces com 2 cotas (ex: P1.A: [97, 124]) têm H_PAR não-padrão
+                # mas SEM sub-painel — evita falso positivo que injeta laje=H_PAR.
+                if len(_face_vals) >= 3 and _pd_val:
                     _gap = round(_pd_val - sum(_face_vals), 1)
                     if _gap > 5.0:
-                        # Zona vazia no topo: laje_face = sub-painel (primeiro do topo)
-                        result[f'laje_{_face}']          = float(_face_vals[0])
-                        result[f'posicao_laje_{_face}']  = _gap
+                        result[f'laje_{_face}']         = float(_face_vals[0])
+                        result[f'posicao_laje_{_face}'] = _gap
 
         # 7. grade_2/3, distancia, par
         result.setdefault('grade_2', 0.0)
