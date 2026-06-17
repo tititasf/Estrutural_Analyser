@@ -821,61 +821,82 @@ def draw_abcd(msp, base_x, base_y, comp, larg, altura, nome, pj):
         y0      = y_bot
         h1      = float(pj.get(f'h1_{fid}', H1_DEFAULT))
         h2_face = float(pj.get(f'h2_{fid}', 244.0))
-        h_low   = h1 + h2_face / 2.0   # first sub-panel boundary (h2 splits into 2 equal boards)
+        h_low   = h1 + h2_face / 2.0   # first sub-panel boundary
         y_low   = y0 + h_low
-        face_uses_262 = (fid == 'C')    # only face C uses H_PAR_C=97 + H_C_EXTRA=41 zone
-        if face_uses_262:
-            y_mid_face     = y_low + H_PAR_C         # = y_bot + 221 (H_PAR=97)
-            panel_top_face = y_mid_face + H_C_EXTRA  # = y_bot + 262 (+H_C_EXTRA=41)
-        else:
-            # h_par extrado do DXF N2 por face (varia por pilar); fallback=73
-            h_par_face     = float(pj.get(f'h_par_{fid}', H_PARAFUSO))
-            y_mid_face     = y_low + h_par_face
-            panel_top_face = y_mid_face
+        face_uses_262 = (fid == 'C')
         x_right = x_left + larg_total
-        # Bottom h1 strip (horizontal LINE)
-        msp.add_line((x_left, y0 + h1), (x_right, y0 + h1),
-                     dxfattribs={'layer': 'Painéis'})
-        entity_count += 1
-        # Left and right vertical edges from y_bot to panel_top_face
-        msp.add_line((x_left, y0), (x_left, panel_top_face),
-                     dxfattribs={'layer': 'Painéis'})
-        msp.add_line((x_right, y0), (x_right, panel_top_face),
-                     dxfattribs={'layer': 'Painéis'})
-        entity_count += 2
-        # Horizontal at y_low (bottom of parafuso zone)
-        msp.add_line((x_right, y_low), (x_left, y_low),
-                     dxfattribs={'layer': 'Painéis'})
-        # Horizontal at y_mid_face (top of parafuso zone / inner divider)
-        msp.add_line((x_right, y_mid_face), (x_left, y_mid_face),
-                     dxfattribs={'layer': 'Painéis'})
-        entity_count += 2
-        if panel_top_face != y_mid_face:
-            # Top closing horizontal when extra section exists (H_C_EXTRA zone)
+
+        # Intervalos extraídos diretamente do N2 (ground truth para A/B/D)
+        _intervals = pj.get(f'paineis_intervals_{fid}') if fid in ('A', 'B', 'D') else None
+
+        if face_uses_262:
+            y_mid_face     = y_low + H_PAR_C
+            panel_top_face = y_mid_face + H_C_EXTRA
+            msp.add_line((x_left, y0 + h1), (x_right, y0 + h1), dxfattribs={'layer': 'Painéis'})
+            entity_count += 1
+            msp.add_line((x_left, y0), (x_left, panel_top_face), dxfattribs={'layer': 'Painéis'})
+            msp.add_line((x_right, y0), (x_right, panel_top_face), dxfattribs={'layer': 'Painéis'})
+            entity_count += 2
+            msp.add_line((x_right, y_low), (x_left, y_low), dxfattribs={'layer': 'Painéis'})
+            msp.add_line((x_right, y_mid_face), (x_left, y_mid_face), dxfattribs={'layer': 'Painéis'})
+            entity_count += 2
             msp.add_line((x_right, panel_top_face), (x_left, panel_top_face),
                          dxfattribs={'layer': 'Painéis'})
             entity_count += 1
 
-        # ── 5d. Retângulo da zona de laje (acima do painel → até nível superior) ───
-        # N2 ground truth: linhas em layer COTA formam o retângulo da laje.
-        # Zona: panel_top_face → y_top (124cm para A/B/D; 59cm para C em P1 13°PAV)
-        laje_bot = panel_top_face
-        msp.add_line((x_left,  laje_bot), (x_left,  y_top), dxfattribs={'layer': 'COTA'})
-        msp.add_line((x_right, laje_bot), (x_right, y_top), dxfattribs={'layer': 'COTA'})
-        msp.add_line((x_left,  y_top),    (x_right, y_top), dxfattribs={'layer': 'COTA'})
-        entity_count += 3
+        elif _intervals and len(_intervals) >= 2:
+            # Modo N2-fiel: replica todos os horizontais do N2 via Painéis intervals.
+            # Cobre pilares simples (3 linhas) e complexos (P27-P32 com 5-7 segmentos).
+            y_cur = y0 + h1  # primeira linha = topo do strip h1
+            msp.add_line((x_left, y_cur), (x_right, y_cur), dxfattribs={'layer': 'Painéis'})
+            entity_count += 1
+            for _iv in _intervals:
+                y_cur = round(y_cur + float(_iv), 4)
+                if y_cur <= y_top + 1.0:
+                    msp.add_line((x_left, y_cur), (x_right, y_cur), dxfattribs={'layer': 'Painéis'})
+                    entity_count += 1
+            panel_top_face = min(y_cur, y_top)
+            y_mid_face     = panel_top_face
+            # y_low a partir do 1º interval (para SARR e dims)
+            y_low = y0 + h1 + float(_intervals[0])
+            msp.add_line((x_left, y0), (x_left, panel_top_face), dxfattribs={'layer': 'Painéis'})
+            msp.add_line((x_right, y0), (x_right, panel_top_face), dxfattribs={'layer': 'Painéis'})
+            entity_count += 2
 
-        # Sub-painel de laje: linha horizontal quando laje_{fid} > 0
-        # (ex.: face B com sub-painel de laje diferente de face A)
-        _laje_h = float(pj.get(f'laje_{fid}', 0.0))
-        if _laje_h > 0.0:
-            _y_laje_top = laje_bot + _laje_h
-            if _y_laje_top < y_top:
-                msp.add_line(
-                    (x_left, _y_laje_top), (x_right, _y_laje_top),
-                    dxfattribs={'layer': 'COTA'},
-                )
-                entity_count += 1
+        else:
+            # Modelo padrão: h_low/h_par (fallback quando N2 não tem intervals)
+            h_par_face     = float(pj.get(f'h_par_{fid}', H_PARAFUSO))
+            y_mid_face     = y_low + h_par_face
+            panel_top_face = y_mid_face
+            msp.add_line((x_left, y0 + h1), (x_right, y0 + h1), dxfattribs={'layer': 'Painéis'})
+            entity_count += 1
+            msp.add_line((x_left, y0), (x_left, panel_top_face), dxfattribs={'layer': 'Painéis'})
+            msp.add_line((x_right, y0), (x_right, panel_top_face), dxfattribs={'layer': 'Painéis'})
+            entity_count += 2
+            msp.add_line((x_right, y_low), (x_left, y_low), dxfattribs={'layer': 'Painéis'})
+            msp.add_line((x_right, y_mid_face), (x_left, y_mid_face), dxfattribs={'layer': 'Painéis'})
+            entity_count += 2
+
+        # ── 5d. Retângulo da zona de laje (acima do painel → até nível superior) ───
+        laje_bot = panel_top_face
+        if laje_bot < y_top:
+            msp.add_line((x_left,  laje_bot), (x_left,  y_top), dxfattribs={'layer': 'COTA'})
+            msp.add_line((x_right, laje_bot), (x_right, y_top), dxfattribs={'layer': 'COTA'})
+            entity_count += 2
+        msp.add_line((x_left, y_top), (x_right, y_top), dxfattribs={'layer': 'COTA'})
+        entity_count += 1
+
+        # Sub-painel de laje: apenas no modelo padrão (intervals já incluem sub-painéis)
+        if not (_intervals and len(_intervals) >= 2) and not face_uses_262:
+            _laje_h = float(pj.get(f'laje_{fid}', 0.0))
+            if _laje_h > 0.0:
+                _y_laje_top = laje_bot + _laje_h
+                if _y_laje_top < y_top:
+                    msp.add_line(
+                        (x_left, _y_laje_top), (x_right, _y_laje_top),
+                        dxfattribs={'layer': 'COTA'},
+                    )
+                    entity_count += 1
 
         # Hatches não são necessários na vista ABCD (user: "os hatchs dos paineis nao necessito")
 

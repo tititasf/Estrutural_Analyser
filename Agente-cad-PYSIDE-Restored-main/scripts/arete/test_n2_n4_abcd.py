@@ -81,26 +81,79 @@ def _recorte_n2(item_id: str, pav: str = PAV_13) -> Path | None:
     return None
 
 
-def _get_er_ficha(item_id: str) -> dict:
+def _get_er_ficha(item_id: str, pav: str = PAV_13) -> dict:
     conn = sqlite3.connect(str(DB_PATH))
     cur = conn.cursor()
     cur.execute(
         "SELECT campos_json FROM reverse_eng_fichas "
-        "WHERE obra_name=? AND classe='PIL' AND elemento_id=? ORDER BY id DESC LIMIT 1",
-        (OBRA, item_id),
+        "WHERE obra_name=? AND classe='PIL' AND elemento_id=? AND pavimento=? "
+        "ORDER BY id DESC LIMIT 1",
+        (OBRA, item_id, pav),
     )
     row = cur.fetchone()
     conn.close()
     return json.loads(row[0]) if row and row[0] else {}
 
 
-def _generate_n4_abcd(item_id: str) -> Path | None:
-    """Gera PL_ABCD_preview_{item_id}.dxf via gerar_pl_dxf_stog.py com ficha N2."""
-    er_ficha = _get_er_ficha(item_id)
+def _extract_pd_from_n2_dxf(dxf_path: Path) -> float | None:
+    """Extrai pd da cota total do DXF N2 (maior dimensao vertical no ABCD).
+    Mesma logica de CE._extract_pd_from_n2_dxf — mantidos em sincronia.
+    """
+    import re
+    try:
+        doc = ezdxf.readfile(str(dxf_path))
+        msp = doc.modelspace()
+        candidates: list[float] = []
+        for e in msp:
+            t = e.dxftype()
+            if t == "DIMENSION":
+                try:
+                    val = abs(e.dxf.defpoint2.y - e.dxf.defpoint3.y)
+                    if 150.0 <= val <= 700.0:
+                        candidates.append(val)
+                except Exception:
+                    pass
+            elif t in ("TEXT", "MTEXT"):
+                try:
+                    raw = e.dxf.text if t == "TEXT" else e.text
+                    raw = re.sub(r'\{[^}]*\}', '', raw).strip().replace(",", ".")
+                    val = float(raw)
+                    if 150.0 <= val <= 700.0:
+                        candidates.append(val)
+                except Exception:
+                    pass
+        if candidates:
+            return round(max(candidates), 1)
+        # Fallback geometrico
+        ys: list[float] = []
+        for e in msp:
+            if e.dxftype() == "LINE":
+                ys += [e.dxf.start.y, e.dxf.end.y]
+            elif e.dxftype() == "LWPOLYLINE":
+                ys += [p[1] for p in e.get_points()]
+        if ys:
+            span = round(max(ys) - min(ys), 1)
+            if 150.0 <= span <= 700.0:
+                return span
+    except Exception as exc:
+        print(f"  [extract_pd] {exc}")
+    return None
+
+
+def _generate_n4_abcd(item_id: str, pav: str = PAV_13) -> Path | None:
+    """Gera PL_ABCD_preview_{item_id}.dxf via gerar_pl_dxf_stog.py com ficha N2.
+    pd_pavimento_cm e sempre extraido do DXF N2 (cota total ABCD = ground truth).
+    """
+    er_ficha = _get_er_ficha(item_id, pav)
     campos = {k: v for k, v in er_ficha.items() if not k.startswith("_")}
 
-    # Injetar pd_pavimento_cm do N1 (ausente na ficha N2 do DB)
-    if "pd_pavimento_cm" not in campos or not campos["pd_pavimento_cm"]:
+    # Fonte primaria: pd extraido da geometria do DXF N2 (varia por pilar)
+    n2_path = _recorte_n2(item_id, pav)
+    pd_from_dxf = _extract_pd_from_n2_dxf(n2_path) if n2_path else None
+    if pd_from_dxf is not None:
+        campos["pd_pavimento_cm"] = pd_from_dxf
+    elif "pd_pavimento_cm" not in campos or not campos["pd_pavimento_cm"]:
+        # Fallback: N1 JSON
         pj_n1 = OBRA_DIR / "Fase-4_Sincronizacao" / "JSON_Pilares" / f"{item_id}.json"
         if pj_n1.exists():
             pd_val = json.loads(pj_n1.read_text("utf-8")).get("pd_pavimento_cm")
@@ -229,7 +282,12 @@ def test_n4_abcd_gera(item_id):
 
 @pytest.mark.parametrize("item_id", TEST_ITEMS)
 def test_n4_span_correto(item_id):
-    """N4 span geometrico == pd_pavimento_cm N1 (321cm para 13_PAV)."""
+    """N4 span geometrico == pd extraido do DXF N2 (cota total ABCD)."""
+    n2_path = _recorte_n2(item_id)
+    assert n2_path, f"{item_id}: recorte N2 nao encontrado"
+    pd_esp = _extract_pd_from_n2_dxf(n2_path)
+    assert pd_esp, f"{item_id}: nao foi possivel extrair pd do DXF N2"
+
     n4_path = _generate_n4_abcd(item_id)
     assert n4_path, f"{item_id}: N4 nao gerado"
 
@@ -237,11 +295,8 @@ def test_n4_span_correto(item_id):
     assert ys, f"{item_id}: N4 nao tem geometria"
     span = round(max(ys) - min(ys), 1)
 
-    pj = OBRA_DIR / "Fase-4_Sincronizacao" / "JSON_Pilares" / f"{item_id}.json"
-    pd_esp = float(json.loads(pj.read_text("utf-8")).get("pd_pavimento_cm", 0))
-
     assert abs(span - pd_esp) <= TOL_CM, (
-        f"{item_id}: N4 span={span}cm != pd={pd_esp}cm (diff={abs(span-pd_esp):.1f}cm)"
+        f"{item_id}: N4 span={span}cm != pd_N2={pd_esp}cm (diff={abs(span-pd_esp):.1f}cm)"
     )
 
 

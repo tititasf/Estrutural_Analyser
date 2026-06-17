@@ -5327,7 +5327,7 @@ class ComparisonEngineModule(QWidget):
             col.pipeline.set_step(2, 'running', 'Procurando DXF...')
             obra_dir = DADOS_OBRAS_ROOT / obra
             n4_dxf = self._find_n4_dxf_strict(obra_dir, classe, item_id)
-            force_regen = classe == "LJ"
+            force_regen = classe in ("LJ", "FV")  # FV: always regen to use latest motor
             if n4_dxf and n4_dxf.exists() and not force_regen:
                 n4_bbox = self.tri_level._get_n2_bbox_for(item_id, classe) if classe == "LJ" else None
                 col.load_content(str(n4_dxf), n4_bbox)
@@ -5626,6 +5626,37 @@ class ComparisonEngineModule(QWidget):
                           if i + 1 < len(faces_sorted)
                           else x_face + 600.0)
 
+                # Limites de x por face: midpoints entre labels adjacentes evitam
+                # contaminação cruzada (ex: linhas de face C vazando para face B).
+                x_mid_left  = ((faces_sorted[i - 1][1] + x_face) / 2
+                                if i > 0 else x_face - 600.0)
+                x_mid_right = ((x_face + x_next) / 2)
+
+                # ── Painéis intervals (geometria real do N2) ──────────────────
+                # Linhas horizontais da layer Painéis dentro desta face.
+                # Representam TODAS as divisões de painel (incluindo sub-painéis
+                # complexos como P28/P30 com 5+ segmentos).
+                _p_hs = sorted(set(
+                    round(_ep.dxf.start.y, 1)
+                    for _ep in msp
+                    if _ep.dxftype() == 'LINE'
+                    and 'PAIN' in _ep.dxf.layer.upper()
+                    and abs(_ep.dxf.start.y - _ep.dxf.end.y) < 0.5
+                    and x_mid_left <= (_ep.dxf.start.x + _ep.dxf.end.x) / 2 <= x_mid_right
+                    and _ep.dxf.start.y >= y_face_base
+                ))
+                if len(_p_hs) >= 2:
+                    _ivs = [round(_p_hs[_j + 1] - _p_hs[_j], 1)
+                            for _j in range(len(_p_hs) - 1)]
+                    # Normalizar: se o primeiro intervalo = h1 (~2cm), remover.
+                    # Alguns DXFs têm linha Painéis em y_bot (P18); outros em y_bot+h1.
+                    # draw_abcd sempre trata h1 separadamente.
+                    if _ivs and abs(_ivs[0] - 2.0) < 0.5:
+                        _ivs = _ivs[1:]
+                    if len(_ivs) >= 2:
+                        result[f'paineis_intervals_{face}'] = _ivs
+                        _ce_log(f"N2 DXF face {face}: paineis_intervals={_ivs}")
+
                 # Cotas desta face: valores >10 (excluem h1=2, larguras=7/19)
                 face_cotas_y = sorted(
                     [(fy, v) for fx, fy, v in cota_xy
@@ -5635,14 +5666,20 @@ class ComparisonEngineModule(QWidget):
                 face_vals = [v for _, v in face_cotas_y]
                 face_vals_asc = list(reversed(face_vals))  # base → topo
 
-                # h_par: 2ª cota da base = zona parafuso (varia por pilar)
-                if len(face_vals_asc) >= 2:
+                # h_par: 2ª cota da base = zona parafuso (varia por pilar).
+                # Para pilares com intervals, h_par é intervals[1] (mais confiável).
+                _ivs_face = result.get(f'paineis_intervals_{face}')
+                if _ivs_face and len(_ivs_face) >= 2:
+                    result[f'h_par_{face}'] = float(_ivs_face[1])
+                    _ce_log(f"N2 DXF face {face}: h_par={_ivs_face[1]:.0f} (via intervals)")
+                elif len(face_vals_asc) >= 2:
                     result[f'h_par_{face}'] = float(face_vals_asc[1])
-                    _ce_log(f"N2 DXF face {face}: h_par={face_vals_asc[1]:.0f}")
+                    _ce_log(f"N2 DXF face {face}: h_par={face_vals_asc[1]:.0f} (via COTA)")
 
                 # Laje detectada: requer >= 3 cotas (h_low + H_PAR + laje_panel).
                 # 2 cotas = H_PAR não-padrão (ex: P1.A=[97,124]) — sem sub-painel.
-                if len(face_vals) >= 3:
+                # Não usar quando intervals já incluem o sub-painel (evita duplicação).
+                if not _ivs_face and len(face_vals) >= 3:
                     gap = round(pd_val - sum(face_vals), 1)
                     if gap > 5.0:
                         result[f'laje_{face}']         = float(face_vals[0])
