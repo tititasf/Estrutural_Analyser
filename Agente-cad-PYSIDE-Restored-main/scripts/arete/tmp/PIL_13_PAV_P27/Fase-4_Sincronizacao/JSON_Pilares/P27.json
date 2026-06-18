@@ -101,6 +101,7 @@
   "par_6_7": 0.0,
   "par_7_8": 0.0,
   "par_8_9": 0.0,
+  "h1_geom_A": 0.0,
   "paineis_intervals_A": [
     122.0,
     97.0,
@@ -109,12 +110,20 @@
     5.0,
     54.0
   ],
+  "abertura_A": {
+    "lado": "esquerdo",
+    "largura": 29.0,
+    "y_rel": 265.0,
+    "altura": 54.0
+  },
+  "h1_geom_B": 0.0,
   "paineis_intervals_B": [
     122.0,
     97.0,
     26.0,
     15.0
   ],
+  "h1_geom_C": 0.0,
   "paineis_intervals_C": [
     138.0,
     81.0,
@@ -122,11 +131,15 @@
     10.0,
     5.0
   ],
+  "larg_c_geom": 19.0,
+  "h1_geom_D": 0.0,
   "paineis_intervals_D": [
     138.0,
     81.0,
     26.0,
     15.0
   ],
+  "comprimento_geom": 142.5,
+  "_confianca": 0.95,
   "pd_pavimento_cm": 321.0
 }

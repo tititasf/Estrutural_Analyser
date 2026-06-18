@@ -101,19 +101,26 @@
   "par_6_7": 0.0,
   "par_7_8": 0.0,
   "par_8_9": 0.0,
+  "h1_geom_A": 0.0,
   "paineis_intervals_A": [
     122.0,
     73.0
   ],
+  "h1_geom_B": 0.0,
   "paineis_intervals_B": [
     122.0,
     73.0
   ],
+  "h1_geom_C": 0.0,
   "paineis_intervals_C": [
     195.0
   ],
+  "larg_c_geom": 19.0,
+  "h1_geom_D": 0.0,
   "paineis_intervals_D": [
     195.0
   ],
+  "comprimento_geom": 100.0,
+  "_confianca": 0.95,
   "pd_pavimento_cm": 321.0
 }

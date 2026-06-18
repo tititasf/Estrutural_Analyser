@@ -1521,6 +1521,7 @@ class DetailCard(QWidget):
                 btn_add.clicked.connect(lambda checked=False, l=segs_layout, p=prefix: self._add_fundo_segment_pack(l, p))
                 tab_l.addWidget(btn_add)
             
+            tab_l.addStretch()
             tabs.addTab(tab, label)
 
         # ── Aba Comparar (CAD-10.4) ───────────────────────────────────────

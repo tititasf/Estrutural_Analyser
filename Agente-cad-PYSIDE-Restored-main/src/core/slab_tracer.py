@@ -6,7 +6,7 @@ import math
 class SlabTracer:
     """
     Algoritmo 'Boundary Tracer' para Lajes.
-    Usa 'Path Finding' (Polygonize) para encontrar polÃ­gonos fechados formados por vigas/paredes.
+    Usa 'Path Finding' (Polygonize) para encontrar polÃƒÂ­gonos fechados formados por vigas/paredes.
     """
     def __init__(self, spatial_index):
         self.spatial_index = spatial_index
@@ -47,7 +47,7 @@ class SlabTracer:
             "COTA", "DIM", "DEFPOINT", "TEXT", "TEXTO", "EIXO", "AXIS",
             "HATCH", "HACH", "SIMBO", "SYMB", "LEADER", "ANNO", "OBS",
             "CORTE", "CUT", "SECTION", "DETALHE", "DETAIL", "CARIMBO",
-            "NIVEL", "NÃVEL", "LEVEL", "MEDIDA", "AUX", "AUXILIAR",
+            "NIVEL", "NÃƒÂVEL", "LEVEL", "MEDIDA", "AUX", "AUXILIAR",
         )
         structural_tokens = (
             "VIGA", "BEAM", "PILAR", "PIL", "PAREDE", "WALL", "LAJ",
@@ -106,7 +106,7 @@ class SlabTracer:
                     accepted.append(geom)
         return accepted, rejected, classified
 
-    def _select_best_laje_polygon(self, polygons, target_pt: Point):
+    def _select_best_laje_polygon(self, polygons, target_pt: Point, crop_bbox: tuple = None):
         containing = []
         for poly in polygons:
             if not poly.is_valid or poly.area <= 1e-6:
@@ -115,6 +115,13 @@ class SlabTracer:
                 containing.append(poly)
         if not containing:
             return None
+        # Filter out absurdly large polygons (likely merged with neighbors)
+        if crop_bbox:
+            cx0, cy0, cx1, cy1 = crop_bbox
+            crop_area = max(1.0, (cx1 - cx0) * (cy1 - cy0))
+            containing = [p for p in containing if p.area <= crop_area * 5.0]
+            if not containing:
+                return None
         containing.sort(key=lambda p: (p.area, len(p.exterior.coords)))
         best = containing[0]
         return self._clean_small_orthogonal_notches(best, target_pt)
@@ -163,7 +170,35 @@ class SlabTracer:
         y0 = (max(below_ys) + cy) / 2.0 - MARGIN_Y if below_ys else cy - MAX_HALF_Y
         y1 = (min(above_ys) + cy) / 2.0 + MARGIN_Y if above_ys else cy + MAX_HALF_Y
 
-        return self._shrink_laj_bbox_away_from_labels((x0, y0, x1, y1), label_id)
+        bbox = self._shrink_laj_bbox_away_from_labels((x0, y0, x1, y1), label_id)
+        # N2 teacher clamp: if teacher dims available, clamp bbox to max 1.5x N2 dims
+        teacher = getattr(self, "_laj_teacher_dims", {}) or {}
+        t = teacher.get(label_id, {}) if label_id else {}
+        # Fuzzy lookup if exact match fails
+        if not t or (not t.get("comprimento") and not t.get("largura")):
+            t = self._fuzzy_teacher_lookup(label_id) if label_id else {}
+        try:
+            tc = float(t.get("comprimento") or 0)
+            tl = float(t.get("largura") or 0)
+        except Exception:
+            tc = tl = 0
+        if tc > 20.0 and tl > 20.0:
+            cx_mid = (bbox[0] + bbox[2]) / 2.0
+            cy_mid = (bbox[1] + bbox[3]) / 2.0
+            # Clamp: expand if crop too small, shrink if too large
+            min_half_w = tc * 0.55  # at least 110% of N2 width
+            min_half_h = tl * 0.55  # at least 110% of N2 height
+            max_half_w = tc * 0.85  # at most 170% of N2 width
+            max_half_h = tl * 0.85  # at most 170% of N2 height
+            half_w = max(min_half_w, min(max_half_w, (bbox[2] - bbox[0]) / 2.0))
+            half_h = max(min_half_h, min(max_half_h, (bbox[3] - bbox[1]) / 2.0))
+            bbox = (
+                cx_mid - half_w,
+                cy_mid - half_h,
+                cx_mid + half_w,
+                cy_mid + half_h,
+            )
+        return bbox
 
     def _shrink_laj_bbox_away_from_labels(self, bbox: tuple, label_id: str, clearance: float = 5.0) -> tuple:
         centroids = getattr(self, "_laj_label_centroids", {}) or {}
@@ -262,7 +297,7 @@ class SlabTracer:
 
         return groups(h_raw), groups(v_raw)
 
-    def _canonical_laj_outline_from_n2_axes(self, lines, target_pt: Point, crop_bbox: tuple):
+    def _canonical_laj_outline_from_n2_axes(self, lines, target_pt: Point, crop_bbox: tuple, teacher: dict | None = None):
         """Build the slab outline from major panel/form axes with adaptive tolerances."""
         h_groups, v_groups = self._axis_groups_from_laj_lines(lines, crop_bbox)
         if len(h_groups) < 2 or len(v_groups) < 2:
@@ -292,10 +327,55 @@ class SlabTracer:
         if not bottom_options or not top_options or not left_options or not right_options:
             return None
 
-        bottom = min(bottom_options, key=lambda g: (abs(g["const"] - by0), -g["span"]))
-        top = min(top_options, key=lambda g: (abs(g["const"] - by1), -g["span"]))
-        left = min(left_options, key=lambda g: (abs(g["const"] - bx0), -g["span"]))
-        right = min(right_options, key=lambda g: (abs(g["const"] - bx1), -g["span"]))
+        # --- Teacher-guided axis selection (N2 dims constrain pair pick) ---
+        n2_comp, n2_larg = None, None
+        if teacher:
+            try:
+                n2_comp = float(teacher.get("comprimento") or teacher.get("comp") or 0.0)
+                n2_larg = float(teacher.get("largura") or teacher.get("larg") or 0.0)
+                if n2_comp <= 20.0 or n2_larg <= 20.0:
+                    n2_comp = n2_larg = None
+            except Exception:
+                n2_comp = n2_larg = None
+
+        if n2_comp and n2_larg and len(left_options) >= 1 and len(right_options) >= 1 and len(bottom_options) >= 1 and len(top_options) >= 1:
+            # Try pair selection guided by N2 dimensions
+            best_pair, best_score = None, float("inf")
+            for lo in left_options:
+                for ro in right_options:
+                    w = ro["const"] - lo["const"]
+                    if w <= 0:
+                        continue
+                    for bo in bottom_options:
+                        for to in top_options:
+                            h = to["const"] - bo["const"]
+                            if h <= 0:
+                                continue
+                            # Check both orientations
+                            d1 = abs(w - n2_comp) + abs(h - n2_larg)
+                            d2 = abs(w - n2_larg) + abs(h - n2_comp)
+                            d = min(d1, d2)
+                            # Penalize axes far from crop bbox edges
+                            edge_penalty = (abs(lo["const"] - bx0) + abs(ro["const"] - bx1) +
+                                            abs(bo["const"] - by0) + abs(to["const"] - by1)) * 0.02
+                            # Bonus for high span
+                            span_bonus = -(lo["span"] + ro["span"] + bo["span"] + to["span"]) * 0.005
+                            score = d + edge_penalty + span_bonus
+                            if score < best_score:
+                                best_score = score
+                                best_pair = (bo, to, lo, ro)
+            if best_pair:
+                bottom, top, left, right = best_pair
+            else:
+                bottom = min(bottom_options, key=lambda g: (abs(g["const"] - by0), -g["span"]))
+                top = min(top_options, key=lambda g: (abs(g["const"] - by1), -g["span"]))
+                left = min(left_options, key=lambda g: (abs(g["const"] - bx0), -g["span"]))
+                right = min(right_options, key=lambda g: (abs(g["const"] - bx1), -g["span"]))
+        else:
+            bottom = min(bottom_options, key=lambda g: (abs(g["const"] - by0), -g["span"]))
+            top = min(top_options, key=lambda g: (abs(g["const"] - by1), -g["span"]))
+            left = min(left_options, key=lambda g: (abs(g["const"] - bx0), -g["span"]))
+            right = min(right_options, key=lambda g: (abs(g["const"] - bx1), -g["span"]))
 
         x0, x1 = left["const"], right["const"]
         y0, y1 = bottom["const"], top["const"]
@@ -327,7 +407,7 @@ class SlabTracer:
         bx0, by0, bx1, by1 = crop_bbox
         bw = max(1.0, bx1 - bx0)
         bh = max(1.0, by1 - by0)
-        search_margin = max(80.0, min(bw, bh) * 0.18)
+        search_margin = max(80.0, min(bw, bh) * 0.25)
         v_candidates = [g for g in v_groups if bx0 - search_margin <= g["const"] <= bx1 + search_margin and g["span"] >= max(30.0, larg * 0.15)]
         h_candidates = [g for g in h_groups if by0 - search_margin <= g["const"] <= by1 + search_margin and g["span"] >= max(40.0, comp * 0.12)]
         if len(v_candidates) < 2 or len(h_candidates) < 2:
@@ -377,6 +457,90 @@ class SlabTracer:
             return None
         return poly
 
+    def _fuzzy_teacher_lookup(self, label_id: str):
+        """Try to match a DXF label (L1, L2...) to N2 teacher data using fuzzy heuristics."""
+        teacher_dict = getattr(self, "_laj_teacher_dims", {}) or {}
+        if not teacher_dict or not label_id:
+            return None
+
+        lid = str(label_id).upper().strip()
+
+        # Strategy 1: Exact match
+        if lid in teacher_dict:
+            return teacher_dict[lid]
+
+        # Strategy 2: Pavimento numbering convention (HIGHEST PRIORITY for multi-digit labels)
+        # L301 -> L1, L302 -> L2, L314 -> L14 (pavimento prefix stripped)
+        # Convention: L<ppp><nn> where ppp is pavimento code, nn is slab number
+        import re as _re_fuzzy
+        nums = _re_fuzzy.findall(r"\d+", lid)
+        if nums and len(nums[0]) >= 3:
+            full_num = nums[0]
+            # Try stripping 1, 2, or 3 leading digits as pavimento prefix
+            for strip_len in range(1, min(3, len(full_num))):
+                slab_num = full_num[strip_len:]
+                if not slab_num or int(slab_num) == 0:
+                    continue
+                # Try exact match L<slab_num> (with and without leading zeros)
+                candidate_key = f"L{slab_num}"
+                if candidate_key in teacher_dict:
+                    return teacher_dict[candidate_key]
+                # Try without leading zeros: "01" -> "1"
+                slab_num_int = str(int(slab_num))
+                candidate_key2 = f"L{slab_num_int}"
+                if candidate_key2 in teacher_dict:
+                    return teacher_dict[candidate_key2]
+                # Try exact match with slab_num_int only
+                if slab_num_int != slab_num:
+                    # Only do fuzzy if we haven't found exact match
+                    pass
+                # Try fuzzy match on slab_num_int only (NOT slab_num with zeros)
+                slab_candidates = []
+                for k in teacher_dict:
+                    k_nums = _re_fuzzy.findall(r"\d+", k)
+                    if slab_num_int in k_nums:
+                        slab_candidates.append(k)
+                if slab_candidates:
+                    slab_candidates.sort(key=len)
+                    # Prefer pure L<number> matches over complex names
+                    pure_matches = [k for k in slab_candidates if _re_fuzzy.match(r'^L\d+$', k)]
+                    if pure_matches:
+                        return teacher_dict[pure_matches[0]]
+                    return teacher_dict[slab_candidates[0]]
+                slab_candidates = []
+                for k in teacher_dict:
+                    k_nums = _re_fuzzy.findall(r"\d+", k)
+                    if slab_num in k_nums:
+                        slab_candidates.append(k)
+                if slab_candidates:
+                    slab_candidates.sort(key=len)
+                    return teacher_dict[slab_candidates[0]]
+
+        # Strategy 3: Match by extracting digits from label (general fallback)
+        # L1 -> look for LE1, LR1, L1A, LJ50_01, etc.
+        if nums:
+            num = nums[0]
+            # Find all N2 entries containing the same number
+            candidates = []
+            for k in teacher_dict:
+                k_nums = _re_fuzzy.findall(r"\d+", k)
+                if num in k_nums:
+                    candidates.append(k)
+            if candidates:
+                # Prefer shortest matching name
+                candidates.sort(key=len)
+                return teacher_dict[candidates[0]]
+
+        # Strategy 4: Match by prefix letters only
+        # LA -> matches N2 entry starting with LA
+        letters = _re_fuzzy.sub(r"[^A-Z]", "", lid)
+        if letters:
+            candidates = [k for k in teacher_dict if k.startswith(letters)]
+            if candidates:
+                candidates.sort(key=len)
+                return teacher_dict[candidates[0]]
+
+        return None
     def _should_prefer_n2_axes_outline(self, polygon: Polygon | None, axes_poly: Polygon | None, target_pt: Point) -> bool:
         if not axes_poly:
             return False
@@ -498,16 +662,16 @@ class SlabTracer:
         
     def _init_global_boundary(self):
         """
-        Calcula o 'Envelope' global do desenho para validar o que Ã© 'Exterior'.
+        Calcula o 'Envelope' global do desenho para validar o que ÃƒÂ© 'Exterior'.
         Prioridade: 
         1. Layers explicitos ('MARCO', 'CONTORNO', 'LIMITE').
-        2. Se nÃ£o achar, Convex Hull de toda a estrutura (Vigas/Paredes).
+        2. Se nÃƒÂ£o achar, Convex Hull de toda a estrutura (Vigas/Paredes).
         """
         marco_geoms = []
         structure_geoms = []
         
         # Iterar todos os itens do indice
-        # O spatial_index expÃµe 'items' (Dict[int, Any])
+        # O spatial_index expÃƒÂµe 'items' (Dict[int, Any])
         all_items = list(self.spatial_index.items.values()) if hasattr(self.spatial_index, 'items') else []
         
         invalid_layers = ['COTA', 'DIM', 'TEXT', 'EIXO', 'HATCH', 'MP_', 'OBS', 'TITULO']
@@ -525,11 +689,11 @@ class SlabTracer:
                 
             if not geom: continue
             
-            # Checar se Ã© Marco
+            # Checar se ÃƒÂ© Marco
             if any(k in layer for k in ['MARCO', 'CONTORNO', 'LIMITE', 'FRAME']):
                 marco_geoms.append(geom)
             
-            # Checar se Ã© Estrutura (para fallback)
+            # Checar se ÃƒÂ© Estrutura (para fallback)
             is_invalid = any(k in layer for k in invalid_layers)
             if not is_invalid:
                 structure_geoms.append(geom)
@@ -543,11 +707,11 @@ class SlabTracer:
                 self.global_boundary = unary_union(marco_geoms).convex_hull
         elif structure_geoms:
             # Fallback: Convex Hull de tudo
-            print(f"[INFO] Marco nÃ£o detectado. Usando Convex Hull da estrutura ({len(structure_geoms)} segmentos).")
+            print(f"[INFO] Marco nÃƒÂ£o detectado. Usando Convex Hull da estrutura ({len(structure_geoms)} segmentos).")
             try:
                 # Unary union de muitas linhas pode ser lento. 
                 # Otimizacao: Convex Hull dos PONTOS extremidades?
-                # Sim, extrair todos os pontos e fazer convex hull Ã© muito mais rapido.
+                # Sim, extrair todos os pontos e fazer convex hull ÃƒÂ© muito mais rapido.
                 all_points = []
                 for g in structure_geoms:
                     all_points.extend(g.coords)
@@ -560,7 +724,7 @@ class SlabTracer:
                 self.global_boundary = None
         
         if self.global_boundary:
-             # OtimizaÃ§Ã£o: Converter para apenas Exterior Ring se for Poligono (ignorar buracos internos do Hull)
+             # OtimizaÃƒÂ§ÃƒÂ£o: Converter para apenas Exterior Ring se for Poligono (ignorar buracos internos do Hull)
              if isinstance(self.global_boundary, Polygon):
                  self.global_boundary = self.global_boundary.exterior
              elif isinstance(self.global_boundary, MultiLineString):
@@ -591,10 +755,10 @@ class SlabTracer:
         try:
             noded_lines = unary_union(lines)
             polygons = list(polygonize(noded_lines))
-            selected = self._select_best_laje_polygon(polygons, target_pt)
-            teacher = (getattr(self, "_laj_teacher_dims", {}) or {}).get((label_id or "").upper())
+            selected = self._select_best_laje_polygon(polygons, target_pt, crop_bbox)
+            teacher = self._fuzzy_teacher_lookup(label_id)
             teacher_poly = self._teacher_laj_outline_from_n2_dims(lines, target_pt, crop_bbox, teacher) if crop_bbox else None
-            axes_poly = teacher_poly or (self._canonical_laj_outline_from_n2_axes(lines, target_pt, crop_bbox) if crop_bbox else None)
+            axes_poly = teacher_poly or (self._canonical_laj_outline_from_n2_axes(lines, target_pt, crop_bbox, teacher) if crop_bbox else None)
             if self._should_prefer_n2_axes_outline(selected, axes_poly, target_pt):
                 self.last_trace_diagnostics["outline_source"] = "n2_teacher_axes" if teacher_poly else "n2_axes"
                 result = axes_poly
@@ -665,18 +829,18 @@ class SlabTracer:
                     bbox_coverage = min(overlap / max(poly_area, 1.0), 1.0)
 
             # Weighted score with tightened edge weight (structural quality matters more)
-            score = 0.45 * n2_match + 0.20 * min(1.0, area_ratio) + 0.20 * edge_score + 0.15 * bbox_coverage
+            score = 0.50 * n2_match + 0.20 * min(1.0, area_ratio) + 0.20 * edge_score + 0.10 * bbox_coverage
             return round(score, 3)
         except Exception:
             return 0.0
 
     def detect_extensions(self, main_poly: Polygon, search_radius: float = 50.0) -> List[Dict]:
         """
-        Detecta e GERA 'acrÃ©scimos' (strips de 10 unidades) em bordas externas.
-        EstratÃ©gia: Generative Edge Extrusion (V4).
+        Detecta e GERA 'acrÃƒÂ©scimos' (strips de 10 unidades) em bordas externas.
+        EstratÃƒÂ©gia: Generative Edge Extrusion (V4).
         1. Para cada aresta da laje:
         2. Testar se aponta para o 'vazio' (Ray Cast).
-        3. Se for vazio, extrudar aresta em 10 unidades e criar polÃ­gono.
+        3. Se for vazio, extrudar aresta em 10 unidades e criar polÃƒÂ­gono.
         """
         if not main_poly or not self.spatial_index:
             return []
@@ -871,7 +1035,7 @@ class SlabTracer:
         """Detect slab labels and trace outlines using cascade: semantic + crop + polygonize + N2 axes + teacher."""
         slabs = []
         import re
-        slab_pattern = re.compile(r'^(L|LAJE)\s*[-_]?\s*\d+[a-zA-Z]*$', re.IGNORECASE)
+        slab_pattern = re.compile(r'^L[A-Z]*[-_]?\d+[A-Z0-9_]*$', re.IGNORECASE)
         label_centroids = {}
         label_points = {}
         for t in texts:
@@ -917,13 +1081,25 @@ class SlabTracer:
                 except Exception as e:
                     print(f"Erro detectando extensoes Laje {txt}: {e}")
             else:
+                # Fallback: use N2 teacher dims if available, else 50x50
                 cx, cy = pos
+                teacher_fallback = self._fuzzy_teacher_lookup(txt.upper())
+                if teacher_fallback:
+                    tc = float(teacher_fallback.get("comprimento") or teacher_fallback.get("comp") or 0)
+                    tl = float(teacher_fallback.get("largura") or teacher_fallback.get("larg") or 0)
+                    if tc > 0 and tl > 0:
+                        half_c, half_l = tc / 2.0, tl / 2.0
+                    else:
+                        half_c, half_l = 25.0, 25.0
+                else:
+                    half_c, half_l = 25.0, 25.0
                 points = [
-                    (cx - 25, cy - 25), (cx + 25, cy - 25),
-                    (cx + 25, cy + 25), (cx - 25, cy + 25),
-                    (cx - 25, cy - 25),
+                    (cx - half_c, cy - half_l), (cx + half_c, cy - half_l),
+                    (cx + half_c, cy + half_l), (cx - half_c, cy + half_l),
+                    (cx - half_c, cy - half_l),
                 ]
                 area = 0.0
+                print(f"[DEBUG] Fallback polygon for {txt}: {half_c*2:.0f}x{half_l*2:.0f} (teacher={teacher_fallback is not None})")
 
             confidence = diag.get("confidence_score", 0.0)
             slab = {

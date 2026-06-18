@@ -1360,6 +1360,19 @@ class MainWindow(QMainWindow):
         self.btn_process_with_context.clicked.connect(self._process_with_obra_context)
         left_layout.addWidget(self.btn_process_with_context)
 
+        self.btn_process_reverse = QPushButton("⚙️ Interpretar com Eng. Reversa")
+        self.btn_process_reverse.setObjectName("btn_interpretar_reversa")
+        self.btn_process_reverse.setToolTip(
+            "Aciona o Motor de Engenharia Reversa para interpretação profunda.\n"
+            "Requer que a imagem/DXF esteja devidamente carregada."
+        )
+        self.btn_process_reverse.setStyleSheet(
+            f"{_BTN_H} background: #3a1a3a; color: #cf5da0;"
+            f" border: 1px solid #6a2d6a;"
+        )
+        self.btn_process_reverse.clicked.connect(self._process_with_reverse_engineering)
+        left_layout.addWidget(self.btn_process_reverse)
+
         self.btn_refresh_data = QPushButton("🔄 Atualizar Listas")
         self.btn_refresh_data.setObjectName("Secondary")
         self.btn_refresh_data.setToolTip("Recarregar dados do projeto e atualizar listas (Pillars, Beams, Slabs)")
@@ -4548,16 +4561,27 @@ class MainWindow(QMainWindow):
                             
                      print(f"DEBUG: Viga {b['name']} restaurada (VALIDADA).")
                  
-                 # 2. Se NÃO VALIDADO, NÃO RESTAURA LINKS
+                 # 2. Nao validado: restaura campos + links dos campos validados
                  else:
-                     # Apenas restaura campos específicos se eles individualmente foram validados
                      vf = old.get('validated_fields', [])
                      if vf:
-                         b['validated_fields'] = vf
-                         for f in vf: 
-                             if f in old: b[f] = old[f]
+                         b['validated_fields'] = list(vf)
+                         # Restaura fields validados
+                         old_fields = old.get('fields', {})
+                         if 'fields' not in b:
+                             b['fields'] = {}
+                         for f in vf:
+                             if f in old_fields:
+                                 b['fields'][f] = old_fields[f]
+                         # RESTAURA LINKS dos campos validados
+                         old_links = old.get('links', {})
+                         if 'links' not in b:
+                             b['links'] = {}
+                         for f in vf:
+                             if f in old_links:
+                                 b['links'][f] = old_links[f]
                      
-                     print(f"DEBUG: Viga {b['name']} re-analisada (Não validada).")
+                     print(f"DEBUG: Viga {b['name']} re-analisada (Nao validada).")
 
         # 1.0b Finalizar Lista de Vigas Hierárquica
         self._populate_beam_tree(self.list_beams, self.beams_found, "lateral")
@@ -4651,7 +4675,33 @@ class MainWindow(QMainWindow):
             'level_layers': list(learned_level_layers) if learned_level_layers else None
         }
 
-        self.slabs_found = slab_tracer.detect_slabs_from_texts(texts, valid_layers=search_layers, search_radius=learned_contour_radius)
+
+        # --- CARREGAR N2 TEACHER DIMS (ground truth structural dimensions) ---
+        n2_teacher_dims = {}
+        try:
+            projects_repo = os.path.join(os.path.dirname(__file__), "projects_repo")
+            if self.current_project_id and os.path.isdir(projects_repo):
+                proj_n2_dir = os.path.join(projects_repo, self.current_project_id, "laje_data")
+                obras_json = os.path.join(proj_n2_dir, "obras.json")
+                if os.path.isfile(obras_json):
+                    with open(obras_json, "r", encoding="utf-8") as f:
+                        n2_data = json.load(f)
+                    for obra in n2_data.get("obras", []):
+                        for pav in obra.get("pavimentos", []):
+                            for laje in pav.get("lajes", []):
+                                nome = laje.get("nome", "").upper()
+                                if nome:
+                                    n2_teacher_dims[nome] = {
+                                        "comprimento": laje.get("comprimento"),
+                                        "largura": laje.get("largura"),
+                                        "area_cm2": laje.get("area_cm2"),
+                                        "coordenadas": laje.get("coordenadas"),
+                                        "pavimento": laje.get("pavimento"),
+                                    }
+                    self.log(f"🧠 N2 Teacher carregado: {len(n2_teacher_dims)} lajes com dimensoes estruturais")
+        except Exception as e:
+            self.log(f"⚠️ N2 Teacher nao carregado: {e}")
+        self.slabs_found = slab_tracer.detect_slabs_from_texts(texts, valid_layers=search_layers, search_radius=learned_contour_radius, teacher_dims=n2_teacher_dims)
         self.slabs_found.sort(key=nat_key)
         self.log(f"🔎 Lajes detectadas: {len(self.slabs_found)} (Busca por textos L#)")
         
@@ -4679,24 +4729,27 @@ class MainWindow(QMainWindow):
                      s['validated_fields'] = old.get('validated_fields', [])
                      print(f"DEBUG: Laje {s['name']} restaurada (VALIDADA).")
                  
-                 # 2. Se NÃO VALIDADO, NÃO RESTAURA LINKS NEM GEOMETRIA
-                 # Apenas restaura campos específicos se eles individualmente foram validados
+                 # 2. Nao validado: restaura campos + links dos campos validados
                  else:
-                     # Não restaura 'links' antigos (Geometria velha vai pro lixo)
-                     # Restaura apenas campos validados manualmente
                      vf = old.get('validated_fields', [])
                      if vf:
-                         s['validated_fields'] = vf
-                         # Restaura apenas os fields que estão na lista de validados
+                         s['validated_fields'] = list(vf)
+                         # Restaura fields validados
                          old_fields = old.get('fields', {})
+                         if 'fields' not in s:
+                             s['fields'] = {}
                          for f in vf:
-                             if f in old_fields: s['fields'][f] = old_fields[f]
-                         # Nota: Não restauramos links parciais aqui, pois geometria é link.
-                         # Se o usuário validou um campo de texto (ex: nome), ok.
-                         # Se validou geometria, deveria ter validado a laje toda ou teremos que ter lógica granular de link.
-                         # Assumindo que validação de geometria = validação do item.
-                     
-                     print(f"DEBUG: Laje {s['name']} re-analisada (Não validada).")
+                             if f in old_fields:
+                                 s['fields'][f] = old_fields[f]
+                         # RESTAURA LINKS dos campos validados
+                         old_links = old.get('links', {})
+                         if 'links' not in s:
+                             s['links'] = {}
+                         for f in vf:
+                             if f in old_links:
+                                 s['links'][f] = old_links[f]
+                    
+                     print(f"DEBUG: Laje {s['name']} re-analisada (Nao validada).")
              
              item_text = f"{s['id_item']} | {s['name']}"
              if s.get('is_validated'):
@@ -4715,6 +4768,9 @@ class MainWindow(QMainWindow):
         temp_pillars = []
         
         from src.core.perspective_mapper import PillarPerspectiveMapper
+        # === DIAGNOSTIC DUMP: SlabTracer detection analysis ===
+        self._dump_slab_diagnostics()
+
         # 2. Processar Pilares
         self.update_progress(50, "Analisando Pilares...")
         total_p = len(polylines)
@@ -4814,17 +4870,27 @@ class MainWindow(QMainWindow):
                             
                      print(f"DEBUG: Pilar {p_data['name']} restaurado (VALIDADO).")
                  
-                 # 2. Se NÃO VALIDADO, NÃO RESTAURA LINKS/GEOMETRIA
+                 # 2. Nao validado: restaura campos + links dos campos validados
                  else:
-                     # Apenas restaura campos específicos se eles individualmente foram validados
                      vf = old.get('validated_fields', [])
                      if vf:
-                         p_data['validated_fields'] = vf
-                         # Restaura apenas os fields que estão na lista de validados
-                         for f in vf: 
-                             if f in old: p_data[f] = old[f]
+                         p_data['validated_fields'] = list(vf)
+                         # Restaura fields validados
+                         old_fields = old.get('fields', {})
+                         if 'fields' not in p_data:
+                             p_data['fields'] = {}
+                         for f in vf:
+                             if f in old_fields:
+                                 p_data['fields'][f] = old_fields[f]
+                         # RESTAURA LINKS dos campos validados
+                         old_links = old.get('links', {})
+                         if 'links' not in p_data:
+                             p_data['links'] = {}
+                         for f in vf:
+                             if f in old_links:
+                                 p_data['links'][f] = old_links[f]
                      
-                     print(f"DEBUG: Pilar {p_data['name']} re-analisado (Não validado).")
+                     print(f"DEBUG: Pilar {p_data['name']} re-analisado (Nao validado).")
 
             self.pillars_found.append(p_data)
             
@@ -5087,6 +5153,52 @@ class MainWindow(QMainWindow):
             return items
         except: return []
 
+
+    def _process_with_reverse_engineering(self):
+        from PySide6.QtWidgets import QMessageBox
+        import sqlite3
+        import json
+        import os
+        
+        obra_nome = self.cmb_obras.currentText()
+        pavimento_nome = self.cmb_pavements.currentText()
+        
+        if not obra_nome or obra_nome == 'Selecionar Obra...':
+            QMessageBox.warning(self, 'Aviso', 'Selecione uma obra.')
+            return
+            
+        # Carregar Fichas do Vision DB
+        db_path = 'D:/Agente-cad-PYSIDE/project_data.vision'
+        self._reverse_eng_cache = {'P': {}, 'FV': {}, 'LV': {}, 'L': {}}
+        
+        try:
+            if os.path.exists(db_path):
+                conn = sqlite3.connect(db_path)
+                c = conn.cursor()
+                query = "SELECT classe, elemento_id, campos_json FROM reverse_eng_fichas WHERE obra_name=?"
+                params = [obra_nome]
+                if pavimento_nome and pavimento_nome != 'Selecionar Pavimento...':
+                    query += " AND (pavimento=? OR pavimento='')"
+                    params.append(pavimento_nome)
+                
+                c.execute(query, params)
+                for row in c.fetchall():
+                    cls, elem_id, campos_json = row
+                    try:
+                        self._reverse_eng_cache[cls][elem_id] = json.loads(campos_json)
+                    except:
+                        pass
+        except Exception as e:
+            self.log(f'⚠️ Erro ao carregar Eng. Reversa: {e}')
+            
+        # Dispara a analise cruzada (mesmo que a simples, porem injetando a cache)
+        self.log("🚀 Iniciando Interpretação com dados da Engenharia Reversa...")
+        self.process_pillars_action()
+        
+        # Limpar o cache para nao interferir em analises normais futuras
+        if hasattr(self, '_reverse_eng_cache'):
+            del self._reverse_eng_cache
+
     def _process_with_obra_context(self):
         """
         '🧠 Interpretar com Contexto' — Fase-3 análise com pré-contexto da Ficha da Obra.
@@ -5338,15 +5450,16 @@ class MainWindow(QMainWindow):
                 # Nota: Se já tiver contour mas acrescimo vazio, assume-se que não tem expansão ou já foi verificado.
                 # Mas aqui forçamos a deteção se a lista estiver literalmente vazia e não tivermos flag de 'checked'.
                 # Para simplificar e evitar reprocessamento pesado, só fazemos se contour foi recém gerado ou explicitamente faltante.
-                if not out_segs.get('acrescimo_borda') and 'points' in s and s['points']:
-                    try:
-                        poly = Polygon(s['points'])
-                        extensions = self.slab_tracer.detect_extensions(poly)
-                        if extensions:
-                            out_segs['acrescimo_borda'] = extensions
-                            count_ext_gen += 1
-                    except Exception as e:
-                        print(f"Erro gerando extensão laje {s.get('name')}: {e}")
+                # DESATIVADO: acrescimo_borda (foco em contorno puro)
+                # if not out_segs.get('acrescimo_borda') and 'points' in s and s['points']:
+                #     try:
+                #         poly = Polygon(s['points'])
+                #         extensions = self.slab_tracer.detect_extensions(poly)
+                #         if extensions:
+                #             out_segs['acrescimo_borda'] = extensions
+                #             count_ext_gen += 1
+                #     except Exception as e:
+                #         print(f"Erro gerando extensão laje {s.get('name')}: {e}")
                 
                 # 3. Mapear Linhas Internas (Robo Laje -> Canvas) [TASK_002]
                 if 'points' in s and s['points'] and (s.get('linhas_verticais') or s.get('linhas_horizontais')):
@@ -6064,31 +6177,69 @@ class MainWindow(QMainWindow):
         if 'viga_b_seg_1_comp_total_passa' not in b['links']:
             b['links']['viga_b_seg_1_comp_total_passa'] = {'seg_side_b': []}
         
-        def process_segments(side_key, tag, target_field_key):
+        def process_segments(side_key, tag, prefix_key, field_suffix):
             lines = classified.get(side_key, [])
             total_len = 0
-            for line in lines:
+            for i, line in enumerate(lines, start=1):
                 p1, p2 = line[0], line[-1]
                 length = ((p2[0]-p1[0])**2 + (p2[1]-p1[1])**2)**0.5
                 total_len += length
-                # Salvar no campo alvo (ex: viga_segs para fundo, ou viga_a_* para laterais)
+                
+                # Fatiamento para o Painel Direito
+                # 1. Avisar que o segmento existe
+                b[f'{prefix_key}_seg_{i}_exists'] = True
+                
+                # 2. Injetar a geometria na chave correta
+                target_field_key = f'{prefix_key}_seg_{i}_{field_suffix}'
+                
                 if target_field_key not in b['links']:
                     b['links'][target_field_key] = {}
                 
-                slot_key = side_key 
-                if slot_key not in b['links'][target_field_key]:
-                    b['links'][target_field_key][slot_key] = []
-                b['links'][target_field_key][slot_key].append({
+                if side_key not in b['links'][target_field_key]:
+                    b['links'][target_field_key][side_key] = []
+                    
+                b['links'][target_field_key][side_key].append({
                     'type': 'poly', 'points': line, 'len': length, 'tag': tag
                 })
             return total_len
 
-        len_a = process_segments('seg_side_a', 'Lado A', 'viga_a_seg_1_comp_total_passa')
-        len_b = process_segments('seg_side_b', 'Lado B', 'viga_b_seg_1_comp_total_passa')
+        def process_fundo_segments(side_key, tag):
+            lines = classified.get(side_key, [])
+            total_len = 0
+            for i, line in enumerate(lines, start=1):
+                p1, p2 = line[0], line[-1]
+                length = ((p2[0]-p1[0])**2 + (p2[1]-p1[1])**2)**0.5
+                total_len += length
+                
+                # Fatiar para o Painel Direito
+                # 1. Avisar ao DetailCard que este segmento existe
+                b[f'viga_fundo_seg_{i}_exists'] = True
+                
+                # 2. Injetar a geometria na chave de Área do segmento respectivo
+                target_field_key = f'viga_fundo_seg_{i}_area_segs'
+                if target_field_key not in b['links']:
+                    b['links'][target_field_key] = {}
+                
+                # O painel direito (link_manager) espera que o poligono se chame 'contour'
+                if 'contour' not in b['links'][target_field_key]:
+                    b['links'][target_field_key]['contour'] = []
+                    
+                b['links'][target_field_key]['contour'].append({
+                    'type': 'poly', 'points': line, 'len': length, 'tag': tag
+                })
+            return total_len
+
+        len_a = process_segments('seg_side_a', 'Lado A', 'viga_a', 'comp_total_passa')
+        len_b = process_segments('seg_side_b', 'Lado B', 'viga_b', 'comp_total_passa')
+        len_f = process_fundo_segments('seg_bottom', 'Fundo')
+        
         b['fields']['comprimento_total_a'] = round(len_a, 1)
         b['fields']['comprimento_total_b'] = round(len_b, 1)
+        b['fields']['comprimento_total_fundo'] = round(len_f, 1)
+        
         b['seg_a'] = len(classified.get('seg_side_a', []))
         b['seg_b'] = len(classified.get('seg_side_b', []))
+        b['seg_bottom'] = len(classified.get('seg_bottom', []))
 
         # 4. VISÃO DE CORTE
         has_corte = False
@@ -6102,14 +6253,13 @@ class MainWindow(QMainWindow):
         # 5. DIMENSÃO POR SEGMENTO
         # Associar textos de dimensão específicos a segmentos específicos baseados em proximidade
         if len(dim_texts) > 0:
-            # Buscar segmentos dos novos campos
-            seg_side_a_field = 'viga_a_seg_1_comp_total_passa'
-            seg_side_b_field = 'viga_b_seg_1_comp_total_passa'
-            
-            for side_key, field_key in [('seg_side_a', seg_side_a_field), ('seg_side_b', seg_side_b_field)]:
-                if field_key not in b['links']:
-                    continue
-                segments = b['links'][field_key].get(side_key, [])
+            for side_key, prefix_key in [('seg_side_a', 'viga_a'), ('seg_side_b', 'viga_b')]:
+                # varrer ate o limite razoavel de segmentos criados na memoria
+                for i in range(1, 10):
+                    field_key = f'{prefix_key}_seg_{i}_comp_total_passa'
+                    if field_key not in b['links']:
+                        continue
+                    segments = b['links'][field_key].get(side_key, [])
                 for seg in segments:
                     # Calcular centro do segmento
                     pts = seg['points']
@@ -6236,10 +6386,50 @@ class MainWindow(QMainWindow):
                 
                 if not is_start and not is_end:
                      b['links']['aberturas']['pilar'].append(s)
-        # 12. FUNDOS (Calculado a partir de seg_bottom)
-        len_bottom = process_segments('seg_bottom', 'Fundo', 'viga_segs')
-        b['fields']['comprimento_fundo'] = round(len_bottom, 1)
-        
+        # --- CRUZAMENTO DE DADOS DA ENGENHARIA REVERSA ---
+        is_reverse_eng = hasattr(self, '_reverse_eng_cache')
+        if is_reverse_eng:
+            b_name = b.get('name', '')
+            c_name = b_name
+            cls_key = 'LV'
+            if b_name.startswith('F.'): 
+                c_name = b_name[2:]
+                cls_key = 'FV'
+            elif b_name.startswith('L.'): 
+                c_name = b_name[2:]
+                cls_key = 'LV'
+                
+            f_data = self._reverse_eng_cache.get(cls_key, {}).get(c_name)
+            if f_data:
+                # 1. Marcar como Validado pela Eng. Reversa
+                b['is_validated'] = True
+                if 'validated_fields' not in b:
+                    b['validated_fields'] = []
+                
+                # 2. Copiar as Dimensoes Globais
+                b['fields']['dimensao'] = f"{f_data.get('total_width','')}x{f_data.get('total_height','')}"
+                if 'dimensao' not in b['validated_fields']: b['validated_fields'].append('dimensao')
+                
+                # 3. Fatiar e Traduzir Segmentos
+                segs = f_data.get('segments_rich', [])
+                for i, seg in enumerate(segs, start=1):
+                    comp_total = sum([p.get('width', 0) for p in seg.get('panels', [])])
+                    if cls_key == 'FV':
+                        b[f'viga_fundo_seg_{i}_exists'] = True
+                        b['fields'][f'viga_fundo_seg_{i}_largura'] = str(seg.get('total_width', ''))
+                        b['fields'][f'viga_fundo_seg_{i}_comprimento'] = str(comp_total)
+                        if f'viga_fundo_seg_{i}_largura' not in b['validated_fields']: b['validated_fields'].append(f'viga_fundo_seg_{i}_largura')
+                        if f'viga_fundo_seg_{i}_comprimento' not in b['validated_fields']: b['validated_fields'].append(f'viga_fundo_seg_{i}_comprimento')
+                    else:
+                        b[f'viga_a_seg_{i}_exists'] = True
+                        b[f'viga_b_seg_{i}_exists'] = True
+                        b['fields'][f'viga_a_seg_{i}_comp_total_passa'] = str(comp_total)
+                        b['fields'][f'viga_b_seg_{i}_comp_total_passa'] = str(comp_total)
+                        if f'viga_a_seg_{i}_comp_total_passa' not in b['validated_fields']: b['validated_fields'].append(f'viga_a_seg_{i}_comp_total_passa')
+                        if f'viga_b_seg_{i}_comp_total_passa' not in b['validated_fields']: b['validated_fields'].append(f'viga_b_seg_{i}_comp_total_passa')
+                
+                self.log(f"✅ Cruzamento Efetuado: {cls_key} {c_name} (Eng. Reversa aplicou {len(segs)} segmentos).")
+
         self.log(f"🧠 Viga {b['name']} pré-interpretada com sucesso.")
 
     def _process_slab_intelligent(self, s: Dict):
@@ -6571,6 +6761,10 @@ class MainWindow(QMainWindow):
                 # Tentar recalcular area se nao tiver
                 if area == 0:
                      _, area = self._get_slab_real_geometry(item_data)
+                try:
+                    area = float(str(area).replace(',', '.'))
+                except (ValueError, TypeError):
+                    area = 0.0
                 display_name = f"{name} ({area:.2f}m²)"
             else:
                 display_name = name
@@ -6696,8 +6890,13 @@ class MainWindow(QMainWindow):
             
         for p_name, segments in groups.items():
             parent_item = QTreeWidgetItem(tree_widget)
+            
+            clean_name = p_name
+            if clean_name.startswith('F.'): clean_name = clean_name[2:]
+            elif clean_name.startswith('L.'): clean_name = clean_name[2:]
+            
             prefix = "F." if list_type == 'fundo' else "L."
-            parent_item.setText(1, f"📁 {prefix}{p_name}")
+            parent_item.setText(1, f"📁 {prefix}{clean_name}")
             parent_item.setExpanded(True)
             parent_item.setFlags(parent_item.flags() & ~Qt.ItemIsSelectable)
             
@@ -6716,7 +6915,7 @@ class MainWindow(QMainWindow):
                     # Lado A
                     child_a = QTreeWidgetItem(parent_item)
                     child_a.setText(0, str(b.get('id_item', '00')))
-                    child_a.setText(1, f"{prefix}{p_name}.A")
+                    child_a.setText(1, f"{prefix}{clean_name}.A")
                     child_a.setText(2, str(status))
                     child_a.setText(3, pct_str)
                     child_a.setData(0, Qt.UserRole, str(b.get('id')))
@@ -6724,7 +6923,7 @@ class MainWindow(QMainWindow):
                     # Lado B
                     child_b = QTreeWidgetItem(parent_item)
                     child_b.setText(0, str(b.get('id_item', '00')))
-                    child_b.setText(1, f"{prefix}{p_name}.B")
+                    child_b.setText(1, f"{prefix}{clean_name}.B")
                     child_b.setText(2, str(status))
                     child_b.setText(3, pct_str)
                     child_b.setData(0, Qt.UserRole, str(b.get('id')))
@@ -6733,7 +6932,7 @@ class MainWindow(QMainWindow):
                     # Fundo
                     child_f = QTreeWidgetItem(parent_item)
                     child_f.setText(0, str(b.get('id_item', '00')))
-                    child_f.setText(1, f"{prefix}{p_name}.C-1")
+                    child_f.setText(1, f"{prefix}{clean_name}.C-1")
                     child_f.setText(2, str(status))
                     child_f.setText(3, pct_str)
                     child_f.setData(0, Qt.UserRole, str(b.get('id')))
@@ -6886,6 +7085,11 @@ class MainWindow(QMainWindow):
             name = str(x.get('name') or x.get('nome') or '')
             return [int(t) if t.isdigit() else t.lower() for t in re.split(r'(\d+)', name)]
 
+
+        # Bloquear sinais das tree widgets para evitar selecao automatica
+        trees = [self.list_slabs, self.list_slabs_valid, self.list_pillars, self.list_pillars_valid,
+                 self.list_beams, self.list_beams_fundo, self.list_beams_valid, self.list_beams_fundo_valid]
+        for tw in trees: tw.blockSignals(True)
         # 1. Limpar TODAS as listas (Já feito dentro dos populates, mas ok garantir)
         
         # 2. Popular Pilares
@@ -6954,7 +7158,164 @@ class MainWindow(QMainWindow):
              
              self._update_canvas_filter(self.module_tabs.currentIndex())
         # -------------------------------------------------
+        # Desbloquear sinais
+        for tw in trees: tw.blockSignals(False)
+
     
+    def _dump_slab_diagnostics(self):
+        """Write detailed slab detection diagnostics to JSON file for analysis."""
+        import json, datetime, os
+        from pathlib import Path
+        
+        try:
+            # Load N2 teacher data for comparison
+            n2_data = {}
+            try:
+                projects_repo = os.path.join(os.path.dirname(__file__), "projects_repo")
+                if self.current_project_id:
+                    proj_n2_dir = os.path.join(projects_repo, self.current_project_id, "laje_data")
+                    obras_json = os.path.join(proj_n2_dir, "obras.json")
+                    if os.path.isfile(obras_json):
+                        with open(obras_json, "r", encoding="utf-8") as f:
+                            raw = json.load(f)
+                        for obra in raw.get("obras", []):
+                            for pav in obra.get("pavimentos", []):
+                                for laje in pav.get("lajes", []):
+                                    nome = laje.get("nome", "").upper()
+                                    if nome:
+                                        n2_data[nome] = laje
+            except Exception as e:
+                self.log(f"[DIAG] N2 load error: {e}")
+            
+            slabs_report = []
+            for s in self.slabs_found:
+                name = s.get("name", "?")
+                entry = {
+                    "name": name,
+                    "id": s.get("id", "?"),
+                    "validated": s.get("is_validated", False),
+                    "validated_fields": s.get("validated_fields", []),
+                    "area": None,
+                    "points_count": 0,
+                    "confidence_score": s.get("confidence_score"),
+                    "confidence_level": s.get("confidence_level"),
+                    "n2_teacher_matched": s.get("n2_teacher_matched", False),
+                    "outline_source": s.get("outline_source", "?"),
+                    "polygon_area": None,
+                    "polygon_bounds": None,
+                    "polygon_dims": None,
+                    "internal_lines": {"h": 0, "v": 0},
+                    "issues": s.get("issues", []),
+                    "n2_comparison": None,
+                }
+                
+                # Area
+                area = s.get("area", 0)
+                try:
+                    entry["area"] = float(str(area).replace(",", "."))
+                except:
+                    entry["area"] = str(area)
+                
+                # Points and polygon info
+                pts = s.get("points", [])
+                if pts:
+                    entry["points_count"] = len(pts)
+                    from shapely.geometry import Polygon as ShapelyPolygon
+                    try:
+                        poly = ShapelyPolygon(pts)
+                        if poly.is_valid and not poly.is_empty:
+                            entry["polygon_area"] = round(poly.area, 2)
+                            bounds = [round(v, 2) for v in poly.bounds]
+                            entry["polygon_bounds"] = bounds
+                            entry["polygon_dims"] = {
+                                "width": round(bounds[2] - bounds[0], 2),
+                                "height": round(bounds[3] - bounds[1], 2),
+                            }
+                    except:
+                        pass
+                
+                # N2 comparison
+                n2_entry = n2_data.get(name.upper())
+                if n2_entry:
+                    n2_comp = {
+                        "comprimento_n2": n2_entry.get("comprimento"),
+                        "largura_n2": n2_entry.get("largura"),
+                        "area_n2_cm2": n2_entry.get("area_cm2"),
+                        "has_coords": bool(n2_entry.get("coordenadas")),
+                    }
+                    if entry["polygon_dims"] and n2_comp["comprimento"] and n2_comp["largura"]:
+                        pw = entry["polygon_dims"]["width"]
+                        ph = entry["polygon_dims"]["height"]
+                        tc = float(n2_comp["comprimento"])
+                        tl = float(n2_comp["largura"])
+                        # Best orientation match
+                        d1 = min(abs(pw - tc) + abs(ph - tl), abs(pw - tl) + abs(ph - tc))
+                        dim_delta = d1 / max(tc + tl, 1.0)
+                        n2_comp["dim_delta"] = round(dim_delta, 4)
+                        n2_comp["match_quality"] = "EXCELENTE" if dim_delta <= 0.02 else ("BOM" if dim_delta <= 0.05 else ("REGULAR" if dim_delta <= 0.10 else "RUIM"))
+                        n2_comp["detected_width"] = pw
+                        n2_comp["detected_height"] = ph
+                    entry["n2_comparison"] = n2_comp
+                
+                # Internal lines
+                entry["internal_lines"]["h"] = len(s.get("linhas_horizontais", []))
+                entry["internal_lines"]["v"] = len(s.get("linhas_verticais", []))
+                
+                # Links summary
+                links = s.get("links", {})
+                entry["link_slots"] = list(links.keys())
+                slabs_report.append(entry)
+            
+            # Summary statistics
+            total = len(slabs_report)
+            validated = [s for s in slabs_report if s["validated"]]
+            non_validated = [s for s in slabs_report if not s["validated"]]
+            
+            # N2 match analysis
+            n2_matched = [s for s in slabs_report if s.get("n2_comparison")]
+            n2_excellent = [s for s in n2_matched if s["n2_comparison"].get("match_quality") == "EXCELENTE"]
+            n2_bom = [s for s in n2_matched if s["n2_comparison"].get("match_quality") == "BOM"]
+            n2_regular = [s for s in n2_matched if s["n2_comparison"].get("match_quality") == "REGULAR"]
+            n2_ruim = [s for s in n2_matched if s["n2_comparison"].get("match_quality") == "RUIM"]
+            
+            report = {
+                "timestamp": datetime.datetime.now().isoformat(),
+                "project_id": getattr(self, "current_project_id", None),
+                "total_slabs": total,
+                "validated_count": len(validated),
+                "non_validated_count": len(non_validated),
+                "n2_available_count": len(n2_matched),
+                "n2_quality": {
+                    "excelente": len(n2_excellent),
+                    "bom": len(n2_bom),
+                    "regular": len(n2_regular),
+                    "ruim": len(n2_ruim),
+                },
+                "validated_slabs": [
+                    {"name": s["name"], "n2_quality": s.get("n2_comparison", {}).get("match_quality", "N/A")}
+                    for s in validated
+                ],
+                "non_validated_slabs": [
+                    {
+                        "name": s["name"],
+                        "confidence": s["confidence_score"],
+                        "confidence_level": s["confidence_level"],
+                        "n2_quality": s.get("n2_comparison", {}).get("match_quality", "N/A"),
+                        "dim_delta": s.get("n2_comparison", {}).get("dim_delta"),
+                    }
+                    for s in non_validated
+                ],
+                "slabs": slabs_report,
+            }
+            
+            out_path = Path(__file__).parent / "debug_slab_pav13.json"
+            out_path.write_text(json.dumps(report, indent=2, ensure_ascii=False, default=str), encoding="utf-8")
+            self.log(f"📊 Dump diagnostico: {total} lajes ({len(validated)} validadas, {len(n2_matched)} c/ N2) -> {out_path.name}")
+            self.log(f"   N2: {len(n2_excellent)} excelente, {len(n2_bom)} bom, {len(n2_regular)} regular, {len(n2_ruim)} ruim")
+        except Exception as e:
+            print(f"[DIAG DUMP ERROR] {e}")
+            import traceback
+            traceback.print_exc()
     def on_detail_data_changed(self, data):
         """Callback genérico para mudanças nos dados do DetailCard (remoção de links, etc)"""
         if not self.current_card: return
@@ -7092,6 +7453,10 @@ class MainWindow(QMainWindow):
         elif 'laje' in itype:
             area = item_data.get('area', 0.0)
             if area == 0: _, area = self._get_slab_real_geometry(item_data)
+            try:
+                area = float(str(area).replace(',', '.'))
+            except (ValueError, TypeError):
+                area = 0.0
             display_name = f"{new_name} ({area:.2f}m²)"
         
         # Atualizar todos os widgets em cache para este ID
@@ -7271,7 +7636,7 @@ class MainWindow(QMainWindow):
             except Exception as e:
                 self.log(f"⚠️ Erro ao salvar viga migrada: {e}")
 
-    def show_detail(self, item_data):
+    def show_detail(self, item_data, override_type=None):
         """Exibe os detalhes do item no painel direito."""
         # Migração automática se for viga (antes de exibir)
         if str(item_data.get('type') or '').lower() == 'viga':
@@ -7282,8 +7647,31 @@ class MainWindow(QMainWindow):
             child = self.detail_layout.takeAt(0)
             if child.widget(): child.widget().deleteLater()
 
+        # Injetar sincronização
+        display_data = item_data
+        if override_type:
+            display_data = item_data.copy()
+            # TÚNEL DE VALIDAÇÃO: Compartilhar as listas de validação na memória
+            display_data['validated_fields'] = item_data.setdefault('validated_fields', [])
+            display_data['validated_link_classes'] = item_data.setdefault('validated_link_classes', {})
+            display_data['is_validated'] = item_data.get('is_validated', False)
+            
+            display_data['type'] = override_type
+            orig_name = display_data.get('name', 'V?')
+            
+            if orig_name.startswith('F.'): orig_name = orig_name[2:]
+            elif orig_name.startswith('L.'): orig_name = orig_name[2:]
+            
+            if override_type == 'viga_lateral_a': display_data['name'] = f'L.{orig_name}.A'
+            elif override_type == 'viga_lateral_b': display_data['name'] = f'L.{orig_name}.B'
+            elif override_type and override_type.startswith('viga_fundo_c'): 
+                suffix = override_type.split('_')[-1]
+                if not suffix.isdigit(): suffix = '1'
+                display_data['name'] = f'F.{orig_name}.C-{suffix}'
+                display_data['type'] = 'viga_fundo_c' # DetailCard precisa do type original
+
         # Criar novo card
-        self.current_card = DetailCard(item_data)
+        self.current_card = DetailCard(display_data)
         
         # Conectar Sinais
         self.current_card.pick_requested.connect(self.on_pick_requested)

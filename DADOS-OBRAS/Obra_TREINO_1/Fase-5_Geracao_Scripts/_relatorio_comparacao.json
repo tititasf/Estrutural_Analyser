@@ -1,25 +1,25 @@
 {
   "_meta": {
-    "score_geral": 74.60000000000001,
+    "score_geral": 39.63333333333333,
     "status": "FAIL",
     "meta": 75.0,
     "tolerancia_pct": 5.0
   },
   "pilares": {
-    "match_rate": 100.0,
-    "avg_err_pct": 0.0,
-    "n_ok": 51,
+    "match_rate": 76.5,
+    "avg_err_pct": 6.0,
+    "n_ok": 39,
     "n_total": 51,
     "detalhes": {
       "P1": {
-        "status": "OK",
-        "ref_b": 19.0,
+        "status": "DIFF",
+        "ref_b": 24.0,
         "ref_h": 66.0,
         "gen_b": 19.0,
         "gen_h": 66.0,
-        "err_b_pct": 0.0,
+        "err_b_pct": 20.8,
         "err_h_pct": 0.0,
-        "err_medio_pct": 0.0,
+        "err_medio_pct": 10.4,
         "n_paineis": 12
       },
       "P10": {
@@ -89,14 +89,14 @@
         "n_paineis": 12
       },
       "P13": {
-        "status": "OK",
-        "ref_b": 19.0,
-        "ref_h": 98.0,
+        "status": "DIFF",
+        "ref_b": 24.0,
+        "ref_h": 70.0,
         "gen_b": 19.0,
         "gen_h": 98.0,
-        "err_b_pct": 0.0,
-        "err_h_pct": 0.0,
-        "err_medio_pct": 0.0,
+        "err_b_pct": 20.8,
+        "err_h_pct": 40.0,
+        "err_medio_pct": 30.4,
         "n_paineis": 12
       },
       "P14": {
@@ -111,14 +111,14 @@
         "n_paineis": 12
       },
       "P15": {
-        "status": "OK",
-        "ref_b": 19.0,
-        "ref_h": 100.0,
+        "status": "DIFF",
+        "ref_b": 45.0,
+        "ref_h": 45.0,
         "gen_b": 19.0,
         "gen_h": 100.0,
-        "err_b_pct": 0.0,
-        "err_h_pct": 0.0,
-        "err_medio_pct": 0.0,
+        "err_b_pct": 57.8,
+        "err_h_pct": 122.2,
+        "err_medio_pct": 90.0,
         "n_paineis": 12
       },
       "P16": {
@@ -133,14 +133,14 @@
         "n_paineis": 12
       },
       "P17": {
-        "status": "OK",
+        "status": "DIFF",
         "ref_b": 19.0,
-        "ref_h": 120.0,
+        "ref_h": 60.0,
         "gen_b": 19.0,
         "gen_h": 120.0,
         "err_b_pct": 0.0,
-        "err_h_pct": 0.0,
-        "err_medio_pct": 0.0,
+        "err_h_pct": 100.0,
+        "err_medio_pct": 50.0,
         "n_paineis": 12
       },
       "P18": {
@@ -166,14 +166,14 @@
         "n_paineis": 12
       },
       "P2": {
-        "status": "OK",
-        "ref_b": 19.0,
+        "status": "DIFF",
+        "ref_b": 30.0,
         "ref_h": 66.0,
         "gen_b": 19.0,
         "gen_h": 66.0,
-        "err_b_pct": 0.0,
+        "err_b_pct": 36.7,
         "err_h_pct": 0.0,
-        "err_medio_pct": 0.0,
+        "err_medio_pct": 18.3,
         "n_paineis": 12
       },
       "P20": {
@@ -243,25 +243,25 @@
         "n_paineis": 12
       },
       "P26": {
-        "status": "OK",
+        "status": "DIFF",
         "ref_b": 19.0,
-        "ref_h": 50.0,
+        "ref_h": 60.0,
         "gen_b": 19.0,
         "gen_h": 50.0,
         "err_b_pct": 0.0,
-        "err_h_pct": 0.0,
-        "err_medio_pct": 0.0,
+        "err_h_pct": 16.7,
+        "err_medio_pct": 8.3,
         "n_paineis": 12
       },
       "P27": {
         "status": "OK",
         "ref_b": 19.0,
-        "ref_h": 55.0,
+        "ref_h": 60.0,
         "gen_b": 19.0,
         "gen_h": 55.0,
         "err_b_pct": 0.0,
-        "err_h_pct": 0.0,
-        "err_medio_pct": 0.0,
+        "err_h_pct": 8.3,
+        "err_medio_pct": 4.2,
         "n_paineis": 12
       },
       "P28": {
@@ -287,14 +287,14 @@
         "n_paineis": 12
       },
       "P3": {
-        "status": "OK",
-        "ref_b": 19.0,
-        "ref_h": 66.0,
+        "status": "DIFF",
+        "ref_b": 24.0,
+        "ref_h": 60.0,
         "gen_b": 19.0,
         "gen_h": 66.0,
-        "err_b_pct": 0.0,
-        "err_h_pct": 0.0,
-        "err_medio_pct": 0.0,
+        "err_b_pct": 20.8,
+        "err_h_pct": 10.0,
+        "err_medio_pct": 15.4,
         "n_paineis": 12
       },
       "P30": {
@@ -364,14 +364,14 @@
         "n_paineis": 12
       },
       "P4": {
-        "status": "OK",
-        "ref_b": 19.0,
-        "ref_h": 66.0,
+        "status": "DIFF",
+        "ref_b": 24.0,
+        "ref_h": 60.0,
         "gen_b": 19.0,
         "gen_h": 66.0,
-        "err_b_pct": 0.0,
-        "err_h_pct": 0.0,
-        "err_medio_pct": 0.0,
+        "err_b_pct": 20.8,
+        "err_h_pct": 10.0,
+        "err_medio_pct": 15.4,
         "n_paineis": 12
       },
       "P41": {
@@ -474,14 +474,14 @@
         "n_paineis": 12
       },
       "P5": {
-        "status": "OK",
-        "ref_b": 19.0,
-        "ref_h": 66.0,
+        "status": "DIFF",
+        "ref_b": 24.0,
+        "ref_h": 60.0,
         "gen_b": 19.0,
         "gen_h": 66.0,
-        "err_b_pct": 0.0,
-        "err_h_pct": 0.0,
-        "err_medio_pct": 0.0,
+        "err_b_pct": 20.8,
+        "err_h_pct": 10.0,
+        "err_medio_pct": 15.4,
         "n_paineis": 12
       },
       "P50": {
@@ -507,14 +507,14 @@
         "n_paineis": 12
       },
       "P6": {
-        "status": "OK",
-        "ref_b": 19.0,
-        "ref_h": 66.0,
+        "status": "DIFF",
+        "ref_b": 24.0,
+        "ref_h": 60.0,
         "gen_b": 19.0,
         "gen_h": 66.0,
-        "err_b_pct": 0.0,
-        "err_h_pct": 0.0,
-        "err_medio_pct": 0.0,
+        "err_b_pct": 20.8,
+        "err_h_pct": 10.0,
+        "err_medio_pct": 15.4,
         "n_paineis": 12
       },
       "P61": {
@@ -540,14 +540,14 @@
         "n_paineis": 12
       },
       "P7": {
-        "status": "OK",
-        "ref_b": 19.0,
-        "ref_h": 66.0,
+        "status": "DIFF",
+        "ref_b": 24.0,
+        "ref_h": 60.0,
         "gen_b": 19.0,
         "gen_h": 66.0,
-        "err_b_pct": 0.0,
-        "err_h_pct": 0.0,
-        "err_medio_pct": 0.0,
+        "err_b_pct": 20.8,
+        "err_h_pct": 10.0,
+        "err_medio_pct": 15.4,
         "n_paineis": 12
       },
       "P8": {
@@ -562,573 +562,573 @@
         "n_paineis": 12
       },
       "P9": {
-        "status": "OK",
-        "ref_b": 19.0,
+        "status": "DIFF",
+        "ref_b": 30.0,
         "ref_h": 104.0,
         "gen_b": 19.0,
         "gen_h": 104.0,
-        "err_b_pct": 0.0,
+        "err_b_pct": 36.7,
         "err_h_pct": 0.0,
-        "err_medio_pct": 0.0,
+        "err_medio_pct": 18.3,
         "n_paineis": 12
       }
     }
   },
   "vigas": {
-    "match_rate": 100.0,
-    "avg_err_pct": 0.0,
-    "n_ok": 183,
+    "match_rate": 18.6,
+    "avg_err_pct": 33.9,
+    "n_ok": 34,
     "n_total": 183,
     "detalhes": {
       "V1": {
-        "status": "OK",
+        "status": "DIFF",
         "ref_b": 19.0,
         "ref_h": 66.0,
-        "ref_L": 55.0,
+        "ref_L": 418.0,
         "gen_L": 55.0,
         "gen_h": 66.0,
-        "err_L_pct": 0.0,
+        "err_L_pct": 86.8,
         "err_h_pct": 0.0,
-        "err_medio_pct": 0.0
+        "err_medio_pct": 43.4
       },
       "V10": {
-        "status": "OK",
+        "status": "DIFF",
         "ref_b": 14.0,
         "ref_h": 50.0,
-        "ref_L": 113.0,
+        "ref_L": 1009.0,
         "gen_L": 113.0,
         "gen_h": 50.0,
-        "err_L_pct": 0.0,
+        "err_L_pct": 88.8,
         "err_h_pct": 0.0,
-        "err_medio_pct": 0.0
+        "err_medio_pct": 44.4
       },
       "V11": {
-        "status": "OK",
+        "status": "DIFF",
         "ref_b": 19.0,
         "ref_h": 55.0,
-        "ref_L": 66.0,
+        "ref_L": 415.0,
         "gen_L": 66.0,
         "gen_h": 55.0,
-        "err_L_pct": 0.0,
+        "err_L_pct": 84.1,
         "err_h_pct": 0.0,
-        "err_medio_pct": 0.0
+        "err_medio_pct": 42.0
       },
       "V12": {
-        "status": "OK",
+        "status": "DIFF",
         "ref_b": 19.0,
         "ref_h": 80.0,
-        "ref_L": 80.0,
+        "ref_L": 415.0,
         "gen_L": 80.0,
         "gen_h": 80.0,
-        "err_L_pct": 0.0,
+        "err_L_pct": 80.7,
         "err_h_pct": 0.0,
-        "err_medio_pct": 0.0
+        "err_medio_pct": 40.4
       },
       "V13": {
-        "status": "OK",
+        "status": "DIFF",
         "ref_b": 19.0,
         "ref_h": 55.0,
-        "ref_L": 55.0,
+        "ref_L": 415.0,
         "gen_L": 55.0,
         "gen_h": 55.0,
-        "err_L_pct": 0.0,
+        "err_L_pct": 86.7,
         "err_h_pct": 0.0,
-        "err_medio_pct": 0.0
+        "err_medio_pct": 43.4
       },
       "V14": {
-        "status": "OK",
+        "status": "DIFF",
         "ref_b": 19.0,
         "ref_h": 98.0,
-        "ref_L": 125.0,
+        "ref_L": 415.0,
         "gen_L": 125.0,
         "gen_h": 98.0,
-        "err_L_pct": 0.0,
+        "err_L_pct": 69.9,
         "err_h_pct": 0.0,
-        "err_medio_pct": 0.0
+        "err_medio_pct": 34.9
       },
       "V15": {
-        "status": "OK",
+        "status": "DIFF",
         "ref_b": 19.0,
         "ref_h": 55.0,
-        "ref_L": 71.0,
+        "ref_L": 415.0,
         "gen_L": 71.0,
         "gen_h": 55.0,
-        "err_L_pct": 0.0,
+        "err_L_pct": 82.9,
         "err_h_pct": 0.0,
-        "err_medio_pct": 0.0
+        "err_medio_pct": 41.4
       },
       "V16": {
         "status": "OK",
         "ref_b": 24.0,
         "ref_h": 66.0,
-        "ref_L": 423.0,
+        "ref_L": 415.0,
         "gen_L": 423.0,
         "gen_h": 66.0,
-        "err_L_pct": 0.0,
+        "err_L_pct": 1.9,
         "err_h_pct": 0.0,
-        "err_medio_pct": 0.0
+        "err_medio_pct": 1.0
       },
       "V17": {
-        "status": "OK",
+        "status": "DIFF",
         "ref_b": 14.0,
         "ref_h": 55.0,
-        "ref_L": 52.0,
+        "ref_L": 415.0,
         "gen_L": 52.0,
         "gen_h": 55.0,
-        "err_L_pct": 0.0,
+        "err_L_pct": 87.5,
         "err_h_pct": 0.0,
-        "err_medio_pct": 0.0
+        "err_medio_pct": 43.7
       },
       "V18": {
-        "status": "OK",
+        "status": "DIFF",
         "ref_b": 19.0,
         "ref_h": 98.0,
-        "ref_L": 125.0,
+        "ref_L": 415.0,
         "gen_L": 125.0,
         "gen_h": 98.0,
-        "err_L_pct": 0.0,
+        "err_L_pct": 69.9,
         "err_h_pct": 0.0,
-        "err_medio_pct": 0.0
+        "err_medio_pct": 34.9
       },
       "V19": {
-        "status": "OK",
+        "status": "DIFF",
         "ref_b": 14.0,
         "ref_h": 55.0,
-        "ref_L": 52.0,
+        "ref_L": 415.0,
         "gen_L": 52.0,
         "gen_h": 55.0,
-        "err_L_pct": 0.0,
+        "err_L_pct": 87.5,
         "err_h_pct": 0.0,
-        "err_medio_pct": 0.0
+        "err_medio_pct": 43.7
       },
       "V2": {
-        "status": "OK",
+        "status": "DIFF",
         "ref_b": 19.0,
         "ref_h": 60.0,
-        "ref_L": 50.0,
+        "ref_L": 418.0,
         "gen_L": 50.0,
         "gen_h": 60.0,
-        "err_L_pct": 0.0,
+        "err_L_pct": 88.0,
         "err_h_pct": 0.0,
-        "err_medio_pct": 0.0
+        "err_medio_pct": 44.0
       },
       "V20": {
-        "status": "OK",
+        "status": "DIFF",
         "ref_b": 19.0,
         "ref_h": 55.0,
-        "ref_L": 101.5,
+        "ref_L": 415.0,
         "gen_L": 101.5,
         "gen_h": 55.0,
-        "err_L_pct": 0.0,
+        "err_L_pct": 75.5,
         "err_h_pct": 0.0,
-        "err_medio_pct": 0.0
+        "err_medio_pct": 37.8
       },
       "V201": {
-        "status": "OK",
+        "status": "DIFF",
         "ref_b": 19.0,
         "ref_h": 60.0,
-        "ref_L": 816.5,
+        "ref_L": 376.0,
         "gen_L": 816.5,
         "gen_h": 60.0,
-        "err_L_pct": 0.0,
+        "err_L_pct": 117.2,
         "err_h_pct": 0.0,
-        "err_medio_pct": 0.0
+        "err_medio_pct": 58.6
       },
       "V202": {
-        "status": "OK",
+        "status": "DIFF",
         "ref_b": 24.0,
         "ref_h": 100.0,
-        "ref_L": 60.0,
+        "ref_L": 376.0,
         "gen_L": 60.0,
         "gen_h": 100.0,
-        "err_L_pct": 0.0,
+        "err_L_pct": 84.0,
         "err_h_pct": 0.0,
-        "err_medio_pct": 0.0
+        "err_medio_pct": 42.0
       },
       "V203": {
-        "status": "OK",
+        "status": "DIFF",
         "ref_b": 60.0,
         "ref_h": 130.0,
-        "ref_L": 112.0,
+        "ref_L": 567.5,
         "gen_L": 112.0,
         "gen_h": 130.0,
-        "err_L_pct": 0.0,
+        "err_L_pct": 80.3,
         "err_h_pct": 0.0,
-        "err_medio_pct": 0.0
+        "err_medio_pct": 40.1
       },
       "V204": {
-        "status": "OK",
+        "status": "DIFF",
         "ref_b": 24.0,
         "ref_h": 98.0,
-        "ref_L": 60.0,
+        "ref_L": 613.0,
         "gen_L": 60.0,
         "gen_h": 98.0,
-        "err_L_pct": 0.0,
+        "err_L_pct": 90.2,
         "err_h_pct": 0.0,
-        "err_medio_pct": 0.0
+        "err_medio_pct": 45.1
       },
       "V205": {
-        "status": "OK",
+        "status": "DIFF",
         "ref_b": 45.0,
         "ref_h": 130.0,
-        "ref_L": 178.0,
+        "ref_L": 575.5,
         "gen_L": 178.0,
         "gen_h": 130.0,
-        "err_L_pct": 0.0,
+        "err_L_pct": 69.1,
         "err_h_pct": 0.0,
-        "err_medio_pct": 0.0
+        "err_medio_pct": 34.5
       },
       "V206": {
-        "status": "OK",
+        "status": "DIFF",
         "ref_b": 19.0,
         "ref_h": 60.0,
-        "ref_L": 60.0,
+        "ref_L": 244.0,
         "gen_L": 60.0,
         "gen_h": 60.0,
-        "err_L_pct": 0.0,
+        "err_L_pct": 75.4,
         "err_h_pct": 0.0,
-        "err_medio_pct": 0.0
+        "err_medio_pct": 37.7
       },
       "V207": {
-        "status": "OK",
+        "status": "DIFF",
         "ref_b": 24.0,
         "ref_h": 60.0,
-        "ref_L": 60.0,
+        "ref_L": 608.0,
         "gen_L": 60.0,
         "gen_h": 60.0,
-        "err_L_pct": 0.0,
+        "err_L_pct": 90.1,
         "err_h_pct": 0.0,
-        "err_medio_pct": 0.0
+        "err_medio_pct": 45.1
       },
       "V208": {
-        "status": "OK",
+        "status": "DIFF",
         "ref_b": 24.0,
         "ref_h": 60.0,
-        "ref_L": 161.0,
+        "ref_L": 571.5,
         "gen_L": 161.0,
         "gen_h": 60.0,
-        "err_L_pct": 0.0,
+        "err_L_pct": 71.8,
         "err_h_pct": 0.0,
-        "err_medio_pct": 0.0
+        "err_medio_pct": 35.9
       },
       "V209": {
-        "status": "OK",
+        "status": "DIFF",
         "ref_b": 19.0,
         "ref_h": 19.0,
-        "ref_L": 183.0,
+        "ref_L": 244.0,
         "gen_L": 183.0,
         "gen_h": 19.0,
-        "err_L_pct": 0.0,
+        "err_L_pct": 25.0,
         "err_h_pct": 0.0,
-        "err_medio_pct": 0.0
+        "err_medio_pct": 12.5
       },
       "V21": {
-        "status": "OK",
+        "status": "DIFF",
         "ref_b": 14.0,
         "ref_h": 55.0,
-        "ref_L": 81.0,
+        "ref_L": 455.0,
         "gen_L": 81.0,
         "gen_h": 55.0,
-        "err_L_pct": 0.0,
+        "err_L_pct": 82.2,
         "err_h_pct": 0.0,
-        "err_medio_pct": 0.0
+        "err_medio_pct": 41.1
       },
       "V210": {
-        "status": "OK",
+        "status": "DIFF",
         "ref_b": 19.0,
         "ref_h": 60.0,
-        "ref_L": 129.0,
+        "ref_L": 726.0,
         "gen_L": 129.0,
         "gen_h": 60.0,
-        "err_L_pct": 0.0,
+        "err_L_pct": 82.2,
         "err_h_pct": 0.0,
-        "err_medio_pct": 0.0
+        "err_medio_pct": 41.1
       },
       "V211": {
-        "status": "OK",
+        "status": "DIFF",
         "ref_b": 45.0,
         "ref_h": 45.0,
-        "ref_L": 159.5,
+        "ref_L": 199.0,
         "gen_L": 159.5,
         "gen_h": 45.0,
-        "err_L_pct": 0.0,
+        "err_L_pct": 19.8,
         "err_h_pct": 0.0,
-        "err_medio_pct": 0.0
+        "err_medio_pct": 9.9
       },
       "V212": {
-        "status": "OK",
+        "status": "DIFF",
         "ref_b": 19.0,
         "ref_h": 40.0,
-        "ref_L": 183.0,
+        "ref_L": 570.0,
         "gen_L": 183.0,
         "gen_h": 40.0,
-        "err_L_pct": 0.0,
+        "err_L_pct": 67.9,
         "err_h_pct": 0.0,
-        "err_medio_pct": 0.0
+        "err_medio_pct": 33.9
       },
       "V213": {
-        "status": "OK",
+        "status": "DIFF",
         "ref_b": 19.0,
         "ref_h": 50.0,
-        "ref_L": 180.0,
+        "ref_L": 570.0,
         "gen_L": 180.0,
         "gen_h": 50.0,
-        "err_L_pct": 0.0,
+        "err_L_pct": 68.4,
         "err_h_pct": 0.0,
-        "err_medio_pct": 0.0
+        "err_medio_pct": 34.2
       },
       "V214": {
-        "status": "OK",
+        "status": "DIFF",
         "ref_b": 30.0,
         "ref_h": 60.0,
-        "ref_L": 60.0,
+        "ref_L": 388.0,
         "gen_L": 60.0,
         "gen_h": 60.0,
-        "err_L_pct": 0.0,
+        "err_L_pct": 84.5,
         "err_h_pct": 0.0,
-        "err_medio_pct": 0.0
+        "err_medio_pct": 42.3
       },
       "V215": {
-        "status": "OK",
+        "status": "DIFF",
         "ref_b": 27.0,
         "ref_h": 70.0,
-        "ref_L": 60.0,
+        "ref_L": 388.0,
         "gen_L": 60.0,
         "gen_h": 70.0,
-        "err_L_pct": 0.0,
+        "err_L_pct": 84.5,
         "err_h_pct": 0.0,
-        "err_medio_pct": 0.0
+        "err_medio_pct": 42.3
       },
       "V216": {
-        "status": "OK",
+        "status": "DIFF",
         "ref_b": 19.0,
         "ref_h": 60.0,
-        "ref_L": 61.0,
+        "ref_L": 1093.8,
         "gen_L": 61.0,
         "gen_h": 60.0,
-        "err_L_pct": 0.0,
+        "err_L_pct": 94.4,
         "err_h_pct": 0.0,
-        "err_medio_pct": 0.0
+        "err_medio_pct": 47.2
       },
       "V217": {
-        "status": "OK",
+        "status": "DIFF",
         "ref_b": 27.0,
         "ref_h": 80.0,
-        "ref_L": 129.5,
+        "ref_L": 958.5,
         "gen_L": 129.5,
         "gen_h": 80.0,
-        "err_L_pct": 0.0,
+        "err_L_pct": 86.5,
         "err_h_pct": 0.0,
-        "err_medio_pct": 0.0
+        "err_medio_pct": 43.2
       },
       "V218": {
-        "status": "OK",
+        "status": "DIFF",
         "ref_b": 19.0,
         "ref_h": 100.0,
-        "ref_L": 100.0,
+        "ref_L": 732.0,
         "gen_L": 100.0,
         "gen_h": 100.0,
-        "err_L_pct": 0.0,
+        "err_L_pct": 86.3,
         "err_h_pct": 0.0,
-        "err_medio_pct": 0.0
+        "err_medio_pct": 43.2
       },
       "V219": {
-        "status": "OK",
+        "status": "DIFF",
         "ref_b": 30.0,
         "ref_h": 60.0,
-        "ref_L": 60.0,
+        "ref_L": 1008.7,
         "gen_L": 60.0,
         "gen_h": 60.0,
-        "err_L_pct": 0.0,
+        "err_L_pct": 94.1,
         "err_h_pct": 0.0,
-        "err_medio_pct": 0.0
+        "err_medio_pct": 47.0
       },
       "V22": {
-        "status": "OK",
+        "status": "DIFF",
         "ref_b": 19.0,
         "ref_h": 100.0,
-        "ref_L": 99.0,
+        "ref_L": 455.0,
         "gen_L": 99.0,
         "gen_h": 100.0,
-        "err_L_pct": 0.0,
+        "err_L_pct": 78.2,
         "err_h_pct": 0.0,
-        "err_medio_pct": 0.0
+        "err_medio_pct": 39.1
       },
       "V220": {
-        "status": "OK",
+        "status": "DIFF",
         "ref_b": 19.0,
         "ref_h": 60.0,
-        "ref_L": 90.0,
+        "ref_L": 383.0,
         "gen_L": 90.0,
         "gen_h": 60.0,
-        "err_L_pct": 0.0,
+        "err_L_pct": 76.5,
         "err_h_pct": 0.0,
-        "err_medio_pct": 0.0
+        "err_medio_pct": 38.3
       },
       "V221": {
-        "status": "OK",
+        "status": "DIFF",
         "ref_b": 24.0,
         "ref_h": 60.0,
-        "ref_L": 53.0,
+        "ref_L": 136.0,
         "gen_L": 53.0,
         "gen_h": 60.0,
-        "err_L_pct": 0.0,
+        "err_L_pct": 61.0,
         "err_h_pct": 0.0,
-        "err_medio_pct": 0.0
+        "err_medio_pct": 30.5
       },
       "V222": {
-        "status": "OK",
+        "status": "DIFF",
         "ref_b": 24.0,
         "ref_h": 98.0,
-        "ref_L": 54.0,
+        "ref_L": 398.0,
         "gen_L": 54.0,
         "gen_h": 98.0,
-        "err_L_pct": 0.0,
+        "err_L_pct": 86.4,
         "err_h_pct": 0.0,
-        "err_medio_pct": 0.0
+        "err_medio_pct": 43.2
       },
       "V223": {
-        "status": "OK",
+        "status": "DIFF",
         "ref_b": 19.0,
         "ref_h": 60.0,
-        "ref_L": 60.0,
+        "ref_L": 444.5,
         "gen_L": 60.0,
         "gen_h": 60.0,
-        "err_L_pct": 0.0,
+        "err_L_pct": 86.5,
         "err_h_pct": 0.0,
-        "err_medio_pct": 0.0
+        "err_medio_pct": 43.3
       },
       "V224": {
-        "status": "OK",
+        "status": "DIFF",
         "ref_b": 24.0,
         "ref_h": 60.0,
-        "ref_L": 70.0,
+        "ref_L": 440.0,
         "gen_L": 70.0,
         "gen_h": 60.0,
-        "err_L_pct": 0.0,
+        "err_L_pct": 84.1,
         "err_h_pct": 0.0,
-        "err_medio_pct": 0.0
+        "err_medio_pct": 42.0
       },
       "V225": {
-        "status": "OK",
+        "status": "DIFF",
         "ref_b": 27.0,
         "ref_h": 60.0,
-        "ref_L": 60.0,
+        "ref_L": 1152.5,
         "gen_L": 60.0,
         "gen_h": 60.0,
-        "err_L_pct": 0.0,
+        "err_L_pct": 94.8,
         "err_h_pct": 0.0,
-        "err_medio_pct": 0.0
+        "err_medio_pct": 47.4
       },
       "V227": {
-        "status": "OK",
+        "status": "DIFF",
         "ref_b": 19.0,
         "ref_h": 60.0,
-        "ref_L": 60.0,
+        "ref_L": 440.0,
         "gen_L": 60.0,
         "gen_h": 60.0,
-        "err_L_pct": 0.0,
+        "err_L_pct": 86.4,
         "err_h_pct": 0.0,
-        "err_medio_pct": 0.0
+        "err_medio_pct": 43.2
       },
       "V228": {
-        "status": "OK",
+        "status": "DIFF",
         "ref_b": 24.0,
         "ref_h": 98.0,
-        "ref_L": 112.0,
+        "ref_L": 402.0,
         "gen_L": 112.0,
         "gen_h": 98.0,
-        "err_L_pct": 0.0,
+        "err_L_pct": 72.1,
         "err_h_pct": 0.0,
-        "err_medio_pct": 0.0
+        "err_medio_pct": 36.1
       },
       "V229": {
-        "status": "OK",
+        "status": "DIFF",
         "ref_b": 19.0,
         "ref_h": 19.0,
-        "ref_L": 159.5,
+        "ref_L": 446.5,
         "gen_L": 159.5,
         "gen_h": 19.0,
-        "err_L_pct": 0.0,
+        "err_L_pct": 64.3,
         "err_h_pct": 0.0,
-        "err_medio_pct": 0.0
+        "err_medio_pct": 32.1
       },
       "V23": {
-        "status": "OK",
+        "status": "DIFF",
         "ref_b": 19.0,
         "ref_h": 55.0,
-        "ref_L": 81.0,
+        "ref_L": 455.0,
         "gen_L": 81.0,
         "gen_h": 55.0,
-        "err_L_pct": 0.0,
+        "err_L_pct": 82.2,
         "err_h_pct": 0.0,
-        "err_medio_pct": 0.0
+        "err_medio_pct": 41.1
       },
       "V230": {
-        "status": "OK",
+        "status": "DIFF",
         "ref_b": 45.0,
         "ref_h": 45.0,
-        "ref_L": 60.0,
+        "ref_L": 402.0,
         "gen_L": 60.0,
         "gen_h": 45.0,
-        "err_L_pct": 0.0,
+        "err_L_pct": 85.1,
         "err_h_pct": 0.0,
-        "err_medio_pct": 0.0
+        "err_medio_pct": 42.5
       },
       "V231": {
-        "status": "OK",
+        "status": "DIFF",
         "ref_b": 19.0,
         "ref_h": 60.0,
-        "ref_L": 232.5,
+        "ref_L": 308.0,
         "gen_L": 232.5,
         "gen_h": 60.0,
-        "err_L_pct": 0.0,
+        "err_L_pct": 24.5,
         "err_h_pct": 0.0,
-        "err_medio_pct": 0.0
+        "err_medio_pct": 12.3
       },
       "V232": {
-        "status": "OK",
+        "status": "DIFF",
         "ref_b": 19.0,
         "ref_h": 19.0,
-        "ref_L": 60.0,
+        "ref_L": 180.0,
         "gen_L": 60.0,
         "gen_h": 19.0,
-        "err_L_pct": 0.0,
+        "err_L_pct": 66.7,
         "err_h_pct": 0.0,
-        "err_medio_pct": 0.0
+        "err_medio_pct": 33.3
       },
       "V233": {
-        "status": "OK",
+        "status": "DIFF",
         "ref_b": 19.0,
         "ref_h": 100.0,
-        "ref_L": 60.0,
+        "ref_L": 630.0,
         "gen_L": 60.0,
         "gen_h": 100.0,
-        "err_L_pct": 0.0,
+        "err_L_pct": 90.5,
         "err_h_pct": 0.0,
-        "err_medio_pct": 0.0
+        "err_medio_pct": 45.2
       },
       "V234": {
-        "status": "OK",
+        "status": "DIFF",
         "ref_b": 24.0,
         "ref_h": 100.0,
-        "ref_L": 55.0,
+        "ref_L": 283.0,
         "gen_L": 55.0,
         "gen_h": 100.0,
-        "err_L_pct": 0.0,
+        "err_L_pct": 80.6,
         "err_h_pct": 0.0,
-        "err_medio_pct": 0.0
+        "err_medio_pct": 40.3
       },
       "V235": {
-        "status": "OK",
+        "status": "DIFF",
         "ref_b": 19.0,
         "ref_h": 100.0,
-        "ref_L": 50.0,
+        "ref_L": 455.0,
         "gen_L": 50.0,
         "gen_h": 100.0,
-        "err_L_pct": 0.0,
+        "err_L_pct": 89.0,
         "err_h_pct": 0.0,
-        "err_medio_pct": 0.0
+        "err_medio_pct": 44.5
       },
       "V236": {
         "status": "OK",
@@ -1145,12 +1145,12 @@
         "status": "OK",
         "ref_b": 24.0,
         "ref_h": 60.0,
-        "ref_L": 191.0,
+        "ref_L": 180.0,
         "gen_L": 191.0,
         "gen_h": 60.0,
-        "err_L_pct": 0.0,
+        "err_L_pct": 6.1,
         "err_h_pct": 0.0,
-        "err_medio_pct": 0.0
+        "err_medio_pct": 3.1
       },
       "V238": {
         "status": "OK",
@@ -1164,81 +1164,81 @@
         "err_medio_pct": 0.0
       },
       "V239": {
-        "status": "OK",
+        "status": "DIFF",
         "ref_b": 19.0,
         "ref_h": 60.0,
-        "ref_L": 50.0,
+        "ref_L": 260.0,
         "gen_L": 50.0,
         "gen_h": 60.0,
-        "err_L_pct": 0.0,
+        "err_L_pct": 80.8,
         "err_h_pct": 0.0,
-        "err_medio_pct": 0.0
+        "err_medio_pct": 40.4
       },
       "V24": {
-        "status": "OK",
+        "status": "DIFF",
         "ref_b": 19.0,
         "ref_h": 50.0,
-        "ref_L": 180.0,
+        "ref_L": 455.0,
         "gen_L": 180.0,
         "gen_h": 50.0,
-        "err_L_pct": 0.0,
+        "err_L_pct": 60.4,
         "err_h_pct": 0.0,
-        "err_medio_pct": 0.0
+        "err_medio_pct": 30.2
       },
       "V240": {
-        "status": "OK",
+        "status": "DIFF",
         "ref_b": 19.0,
         "ref_h": 60.0,
-        "ref_L": 60.0,
+        "ref_L": 19.0,
         "gen_L": 60.0,
         "gen_h": 60.0,
-        "err_L_pct": 0.0,
+        "err_L_pct": 215.8,
         "err_h_pct": 0.0,
-        "err_medio_pct": 0.0
+        "err_medio_pct": 107.9
       },
       "V241": {
-        "status": "OK",
+        "status": "DIFF",
         "ref_b": 19.0,
         "ref_h": 60.0,
-        "ref_L": 180.0,
+        "ref_L": 377.0,
         "gen_L": 180.0,
         "gen_h": 60.0,
-        "err_L_pct": 0.0,
+        "err_L_pct": 52.3,
         "err_h_pct": 0.0,
-        "err_medio_pct": 0.0
+        "err_medio_pct": 26.1
       },
       "V242": {
-        "status": "OK",
+        "status": "DIFF",
         "ref_b": 19.0,
         "ref_h": 60.0,
-        "ref_L": 60.0,
+        "ref_L": 377.0,
         "gen_L": 60.0,
         "gen_h": 60.0,
-        "err_L_pct": 0.0,
+        "err_L_pct": 84.1,
         "err_h_pct": 0.0,
-        "err_medio_pct": 0.0
+        "err_medio_pct": 42.0
       },
       "V243": {
-        "status": "OK",
+        "status": "DIFF",
         "ref_b": 19.0,
         "ref_h": 60.0,
-        "ref_L": 60.0,
+        "ref_L": 319.5,
         "gen_L": 60.0,
         "gen_h": 60.0,
-        "err_L_pct": 0.0,
+        "err_L_pct": 81.2,
         "err_h_pct": 0.0,
-        "err_medio_pct": 0.0
+        "err_medio_pct": 40.6
       },
       "V25": {
-        "status": "OK",
+        "status": "DIFF",
         "ref_b": 19.0,
         "ref_h": 120.0,
-        "ref_L": 50.5,
+        "ref_L": 415.0,
         "gen_L": 50.5,
         "gen_h": 120.0,
-        "err_L_pct": 0.0,
+        "err_L_pct": 87.8,
         "err_h_pct": 0.0,
-        "err_medio_pct": 0.0
+        "err_medio_pct": 43.9
       },
       "V250": {
         "status": "OK",
@@ -1296,125 +1296,125 @@
         "err_medio_pct": 0.0
       },
       "V27": {
-        "status": "OK",
+        "status": "DIFF",
         "ref_b": 19.0,
         "ref_h": 55.0,
-        "ref_L": 132.0,
+        "ref_L": 415.0,
         "gen_L": 132.0,
         "gen_h": 55.0,
-        "err_L_pct": 0.0,
+        "err_L_pct": 68.2,
         "err_h_pct": 0.0,
-        "err_medio_pct": 0.0
+        "err_medio_pct": 34.1
       },
       "V28": {
-        "status": "OK",
+        "status": "DIFF",
         "ref_b": 19.0,
         "ref_h": 60.0,
-        "ref_L": 132.0,
+        "ref_L": 474.0,
         "gen_L": 132.0,
         "gen_h": 60.0,
-        "err_L_pct": 0.0,
+        "err_L_pct": 72.2,
         "err_h_pct": 0.0,
-        "err_medio_pct": 0.0
+        "err_medio_pct": 36.1
       },
       "V29": {
-        "status": "OK",
+        "status": "DIFF",
         "ref_b": 19.0,
         "ref_h": 55.0,
-        "ref_L": 141.0,
+        "ref_L": 474.0,
         "gen_L": 141.0,
         "gen_h": 55.0,
-        "err_L_pct": 0.0,
+        "err_L_pct": 70.3,
         "err_h_pct": 0.0,
-        "err_medio_pct": 0.0
+        "err_medio_pct": 35.1
       },
       "V3": {
-        "status": "OK",
+        "status": "DIFF",
         "ref_b": 14.0,
         "ref_h": 50.0,
-        "ref_L": 178.5,
+        "ref_L": 418.0,
         "gen_L": 178.5,
         "gen_h": 50.0,
-        "err_L_pct": 0.0,
+        "err_L_pct": 57.3,
         "err_h_pct": 0.0,
-        "err_medio_pct": 0.0
+        "err_medio_pct": 28.6
       },
       "V30": {
-        "status": "OK",
+        "status": "DIFF",
         "ref_b": 19.0,
         "ref_h": 55.0,
-        "ref_L": 55.0,
+        "ref_L": 568.0,
         "gen_L": 55.0,
         "gen_h": 55.0,
-        "err_L_pct": 0.0,
+        "err_L_pct": 90.3,
         "err_h_pct": 0.0,
-        "err_medio_pct": 0.0
+        "err_medio_pct": 45.2
       },
       "V301": {
-        "status": "OK",
+        "status": "DIFF",
         "ref_b": 19.0,
         "ref_h": 55.0,
-        "ref_L": 55.0,
+        "ref_L": 418.0,
         "gen_L": 55.0,
         "gen_h": 55.0,
-        "err_L_pct": 0.0,
+        "err_L_pct": 86.8,
         "err_h_pct": 0.0,
-        "err_medio_pct": 0.0
+        "err_medio_pct": 43.4
       },
       "V302": {
-        "status": "OK",
+        "status": "DIFF",
         "ref_b": 19.0,
         "ref_h": 60.0,
-        "ref_L": 52.0,
+        "ref_L": 418.0,
         "gen_L": 52.0,
         "gen_h": 60.0,
-        "err_L_pct": 0.0,
+        "err_L_pct": 87.6,
         "err_h_pct": 0.0,
-        "err_medio_pct": 0.0
+        "err_medio_pct": 43.8
       },
       "V303": {
-        "status": "OK",
+        "status": "DIFF",
         "ref_b": 14.0,
         "ref_h": 50.0,
-        "ref_L": 113.0,
+        "ref_L": 418.0,
         "gen_L": 113.0,
         "gen_h": 50.0,
-        "err_L_pct": 0.0,
+        "err_L_pct": 73.0,
         "err_h_pct": 0.0,
-        "err_medio_pct": 0.0
+        "err_medio_pct": 36.5
       },
       "V304": {
-        "status": "OK",
+        "status": "DIFF",
         "ref_b": 19.0,
         "ref_h": 55.0,
-        "ref_L": 129.0,
+        "ref_L": 722.0,
         "gen_L": 129.0,
         "gen_h": 55.0,
-        "err_L_pct": 0.0,
+        "err_L_pct": 82.1,
         "err_h_pct": 0.0,
-        "err_medio_pct": 0.0
+        "err_medio_pct": 41.1
       },
       "V305": {
-        "status": "OK",
+        "status": "DIFF",
         "ref_b": 19.0,
         "ref_h": 50.0,
-        "ref_L": 260.0,
+        "ref_L": 570.0,
         "gen_L": 260.0,
         "gen_h": 50.0,
-        "err_L_pct": 0.0,
+        "err_L_pct": 54.4,
         "err_h_pct": 0.0,
-        "err_medio_pct": 0.0
+        "err_medio_pct": 27.2
       },
       "V306": {
-        "status": "OK",
+        "status": "DIFF",
         "ref_b": 14.0,
         "ref_h": 55.0,
-        "ref_L": 852.2,
+        "ref_L": 418.0,
         "gen_L": 852.2,
         "gen_h": 55.0,
-        "err_L_pct": 0.0,
+        "err_L_pct": 103.9,
         "err_h_pct": 0.0,
-        "err_medio_pct": 0.0
+        "err_medio_pct": 51.9
       },
       "V307": {
         "status": "OK",
@@ -1428,318 +1428,318 @@
         "err_medio_pct": 0.0
       },
       "V308": {
-        "status": "OK",
+        "status": "DIFF",
         "ref_b": 19.0,
         "ref_h": 100.0,
-        "ref_L": 100.0,
+        "ref_L": 718.0,
         "gen_L": 100.0,
         "gen_h": 100.0,
-        "err_L_pct": 0.0,
+        "err_L_pct": 86.1,
         "err_h_pct": 0.0,
-        "err_medio_pct": 0.0
+        "err_medio_pct": 43.0
       },
       "V309": {
-        "status": "OK",
+        "status": "DIFF",
         "ref_b": 19.0,
         "ref_h": 60.0,
-        "ref_L": 120.0,
+        "ref_L": 461.0,
         "gen_L": 120.0,
         "gen_h": 60.0,
-        "err_L_pct": 0.0,
+        "err_L_pct": 74.0,
         "err_h_pct": 0.0,
-        "err_medio_pct": 0.0
+        "err_medio_pct": 37.0
       },
       "V31": {
-        "status": "OK",
+        "status": "DIFF",
         "ref_b": 19.0,
         "ref_h": 55.0,
-        "ref_L": 55.0,
+        "ref_L": 568.0,
         "gen_L": 55.0,
         "gen_h": 55.0,
-        "err_L_pct": 0.0,
+        "err_L_pct": 90.3,
         "err_h_pct": 0.0,
-        "err_medio_pct": 0.0
+        "err_medio_pct": 45.2
       },
       "V310": {
-        "status": "OK",
+        "status": "DIFF",
         "ref_b": 14.0,
         "ref_h": 50.0,
-        "ref_L": 113.0,
+        "ref_L": 277.0,
         "gen_L": 113.0,
         "gen_h": 50.0,
-        "err_L_pct": 0.0,
+        "err_L_pct": 59.2,
         "err_h_pct": 0.0,
-        "err_medio_pct": 0.0
+        "err_medio_pct": 29.6
       },
       "V311": {
-        "status": "OK",
+        "status": "DIFF",
         "ref_b": 19.0,
         "ref_h": 55.0,
-        "ref_L": 66.0,
+        "ref_L": 415.0,
         "gen_L": 66.0,
         "gen_h": 55.0,
-        "err_L_pct": 0.0,
+        "err_L_pct": 84.1,
         "err_h_pct": 0.0,
-        "err_medio_pct": 0.0
+        "err_medio_pct": 42.0
       },
       "V312": {
-        "status": "OK",
+        "status": "DIFF",
         "ref_b": 19.0,
         "ref_h": 80.0,
-        "ref_L": 120.0,
+        "ref_L": 415.0,
         "gen_L": 120.0,
         "gen_h": 80.0,
-        "err_L_pct": 0.0,
+        "err_L_pct": 71.1,
         "err_h_pct": 0.0,
-        "err_medio_pct": 0.0
+        "err_medio_pct": 35.5
       },
       "V313": {
-        "status": "OK",
+        "status": "DIFF",
         "ref_b": 19.0,
         "ref_h": 55.0,
-        "ref_L": 55.0,
+        "ref_L": 461.0,
         "gen_L": 55.0,
         "gen_h": 55.0,
-        "err_L_pct": 0.0,
+        "err_L_pct": 88.1,
         "err_h_pct": 0.0,
-        "err_medio_pct": 0.0
+        "err_medio_pct": 44.0
       },
       "V314": {
-        "status": "OK",
+        "status": "DIFF",
         "ref_b": 19.0,
         "ref_h": 98.0,
-        "ref_L": 120.0,
+        "ref_L": 415.0,
         "gen_L": 120.0,
         "gen_h": 98.0,
-        "err_L_pct": 0.0,
+        "err_L_pct": 71.1,
         "err_h_pct": 0.0,
-        "err_medio_pct": 0.0
+        "err_medio_pct": 35.5
       },
       "V315": {
-        "status": "OK",
+        "status": "DIFF",
         "ref_b": 19.0,
         "ref_h": 55.0,
-        "ref_L": 55.0,
+        "ref_L": 415.0,
         "gen_L": 55.0,
         "gen_h": 55.0,
-        "err_L_pct": 0.0,
+        "err_L_pct": 86.7,
         "err_h_pct": 0.0,
-        "err_medio_pct": 0.0
+        "err_medio_pct": 43.4
       },
       "V316": {
-        "status": "OK",
+        "status": "DIFF",
         "ref_b": 19.0,
         "ref_h": 98.0,
-        "ref_L": 120.0,
+        "ref_L": 415.0,
         "gen_L": 120.0,
         "gen_h": 98.0,
-        "err_L_pct": 0.0,
+        "err_L_pct": 71.1,
         "err_h_pct": 0.0,
-        "err_medio_pct": 0.0
+        "err_medio_pct": 35.5
       },
       "V317": {
-        "status": "OK",
+        "status": "DIFF",
         "ref_b": 19.0,
         "ref_h": 55.0,
-        "ref_L": 52.0,
+        "ref_L": 415.0,
         "gen_L": 52.0,
         "gen_h": 55.0,
-        "err_L_pct": 0.0,
+        "err_L_pct": 87.5,
         "err_h_pct": 0.0,
-        "err_medio_pct": 0.0
+        "err_medio_pct": 43.7
       },
       "V318": {
-        "status": "OK",
+        "status": "DIFF",
         "ref_b": 19.0,
         "ref_h": 98.0,
-        "ref_L": 852.2,
+        "ref_L": 415.0,
         "gen_L": 852.2,
         "gen_h": 98.0,
-        "err_L_pct": 0.0,
+        "err_L_pct": 105.3,
         "err_h_pct": 0.0,
-        "err_medio_pct": 0.0
+        "err_medio_pct": 52.7
       },
       "V319": {
-        "status": "OK",
+        "status": "DIFF",
         "ref_b": 19.0,
         "ref_h": 55.0,
-        "ref_L": 52.0,
+        "ref_L": 415.0,
         "gen_L": 52.0,
         "gen_h": 55.0,
-        "err_L_pct": 0.0,
+        "err_L_pct": 87.5,
         "err_h_pct": 0.0,
-        "err_medio_pct": 0.0
+        "err_medio_pct": 43.7
       },
       "V320": {
-        "status": "OK",
+        "status": "DIFF",
         "ref_b": 19.0,
         "ref_h": 120.0,
-        "ref_L": 101.5,
+        "ref_L": 415.0,
         "gen_L": 101.5,
         "gen_h": 120.0,
-        "err_L_pct": 0.0,
+        "err_L_pct": 75.5,
         "err_h_pct": 0.0,
-        "err_medio_pct": 0.0
+        "err_medio_pct": 37.8
       },
       "V321": {
-        "status": "OK",
+        "status": "DIFF",
         "ref_b": 14.0,
         "ref_h": 55.0,
-        "ref_L": 81.0,
+        "ref_L": 455.0,
         "gen_L": 81.0,
         "gen_h": 55.0,
-        "err_L_pct": 0.0,
+        "err_L_pct": 82.2,
         "err_h_pct": 0.0,
-        "err_medio_pct": 0.0
+        "err_medio_pct": 41.1
       },
       "V322": {
-        "status": "OK",
+        "status": "DIFF",
         "ref_b": 19.0,
         "ref_h": 120.0,
-        "ref_L": 99.0,
+        "ref_L": 244.0,
         "gen_L": 99.0,
         "gen_h": 120.0,
-        "err_L_pct": 0.0,
+        "err_L_pct": 59.4,
         "err_h_pct": 0.0,
-        "err_medio_pct": 0.0
+        "err_medio_pct": 29.7
       },
       "V323": {
-        "status": "OK",
+        "status": "DIFF",
         "ref_b": 19.0,
         "ref_h": 55.0,
-        "ref_L": 81.0,
+        "ref_L": 455.0,
         "gen_L": 81.0,
         "gen_h": 55.0,
-        "err_L_pct": 0.0,
+        "err_L_pct": 82.2,
         "err_h_pct": 0.0,
-        "err_medio_pct": 0.0
+        "err_medio_pct": 41.1
       },
       "V324": {
-        "status": "OK",
+        "status": "DIFF",
         "ref_b": 19.0,
         "ref_h": 50.0,
-        "ref_L": 180.0,
+        "ref_L": 244.0,
         "gen_L": 180.0,
         "gen_h": 50.0,
-        "err_L_pct": 0.0,
+        "err_L_pct": 26.2,
         "err_h_pct": 0.0,
-        "err_medio_pct": 0.0
+        "err_medio_pct": 13.1
       },
       "V325": {
-        "status": "OK",
+        "status": "DIFF",
         "ref_b": 19.0,
         "ref_h": 120.0,
-        "ref_L": 50.5,
+        "ref_L": 307.0,
         "gen_L": 50.5,
         "gen_h": 120.0,
-        "err_L_pct": 0.0,
+        "err_L_pct": 83.6,
         "err_h_pct": 0.0,
-        "err_medio_pct": 0.0
+        "err_medio_pct": 41.8
       },
       "V326": {
-        "status": "OK",
+        "status": "DIFF",
         "ref_b": 19.0,
         "ref_h": 55.0,
-        "ref_L": 180.0,
+        "ref_L": 307.0,
         "gen_L": 180.0,
         "gen_h": 55.0,
-        "err_L_pct": 0.0,
+        "err_L_pct": 41.4,
         "err_h_pct": 0.0,
-        "err_medio_pct": 0.0
+        "err_medio_pct": 20.7
       },
       "V327": {
-        "status": "OK",
+        "status": "DIFF",
         "ref_b": 19.0,
         "ref_h": 55.0,
-        "ref_L": 132.0,
+        "ref_L": 474.0,
         "gen_L": 132.0,
         "gen_h": 55.0,
-        "err_L_pct": 0.0,
+        "err_L_pct": 72.2,
         "err_h_pct": 0.0,
-        "err_medio_pct": 0.0
+        "err_medio_pct": 36.1
       },
       "V328": {
-        "status": "OK",
+        "status": "DIFF",
         "ref_b": 19.0,
         "ref_h": 60.0,
-        "ref_L": 132.0,
+        "ref_L": 474.0,
         "gen_L": 132.0,
         "gen_h": 60.0,
-        "err_L_pct": 0.0,
+        "err_L_pct": 72.2,
         "err_h_pct": 0.0,
-        "err_medio_pct": 0.0
+        "err_medio_pct": 36.1
       },
       "V329": {
-        "status": "OK",
+        "status": "DIFF",
         "ref_b": 19.0,
         "ref_h": 55.0,
-        "ref_L": 55.0,
+        "ref_L": 474.0,
         "gen_L": 55.0,
         "gen_h": 55.0,
-        "err_L_pct": 0.0,
+        "err_L_pct": 88.4,
         "err_h_pct": 0.0,
-        "err_medio_pct": 0.0
+        "err_medio_pct": 44.2
       },
       "V330": {
-        "status": "OK",
+        "status": "DIFF",
         "ref_b": 19.0,
         "ref_h": 60.0,
-        "ref_L": 97.5,
+        "ref_L": 19.0,
         "gen_L": 97.5,
         "gen_h": 60.0,
-        "err_L_pct": 0.0,
+        "err_L_pct": 413.2,
         "err_h_pct": 0.0,
-        "err_medio_pct": 0.0
+        "err_medio_pct": 206.6
       },
       "V331": {
-        "status": "OK",
+        "status": "DIFF",
         "ref_b": 19.0,
         "ref_h": 55.0,
-        "ref_L": 99.0,
+        "ref_L": 220.0,
         "gen_L": 99.0,
         "gen_h": 55.0,
-        "err_L_pct": 0.0,
+        "err_L_pct": 55.0,
         "err_h_pct": 0.0,
-        "err_medio_pct": 0.0
+        "err_medio_pct": 27.5
       },
       "V332": {
-        "status": "OK",
+        "status": "DIFF",
         "ref_b": 19.0,
         "ref_h": 55.0,
-        "ref_L": 102.0,
+        "ref_L": 415.0,
         "gen_L": 102.0,
         "gen_h": 55.0,
-        "err_L_pct": 0.0,
+        "err_L_pct": 75.4,
         "err_h_pct": 0.0,
-        "err_medio_pct": 0.0
+        "err_medio_pct": 37.7
       },
       "V4": {
-        "status": "OK",
+        "status": "DIFF",
         "ref_b": 19.0,
         "ref_h": 55.0,
-        "ref_L": 76.0,
+        "ref_L": 722.0,
         "gen_L": 76.0,
         "gen_h": 55.0,
-        "err_L_pct": 0.0,
+        "err_L_pct": 89.5,
         "err_h_pct": 0.0,
-        "err_medio_pct": 0.0
+        "err_medio_pct": 44.7
       },
       "V401": {
-        "status": "OK",
+        "status": "DIFF",
         "ref_b": 19.0,
         "ref_h": 55.0,
-        "ref_L": 55.0,
+        "ref_L": 855.0,
         "gen_L": 55.0,
         "gen_h": 55.0,
-        "err_L_pct": 0.0,
+        "err_L_pct": 93.6,
         "err_h_pct": 0.0,
-        "err_medio_pct": 0.0
+        "err_medio_pct": 46.8
       },
       "V402": {
         "status": "OK",
         "ref_b": 19.0,
         "ref_h": 60.0,
-        "ref_L": 855.2,
+        "ref_L": 855.0,
         "gen_L": 855.2,
         "gen_h": 60.0,
         "err_L_pct": 0.0,
@@ -1747,37 +1747,37 @@
         "err_medio_pct": 0.0
       },
       "V403": {
-        "status": "OK",
+        "status": "DIFF",
         "ref_b": 14.0,
         "ref_h": 50.0,
-        "ref_L": 113.0,
+        "ref_L": 726.0,
         "gen_L": 113.0,
         "gen_h": 50.0,
-        "err_L_pct": 0.0,
+        "err_L_pct": 84.4,
         "err_h_pct": 0.0,
-        "err_medio_pct": 0.0
+        "err_medio_pct": 42.2
       },
       "V404": {
-        "status": "OK",
+        "status": "DIFF",
         "ref_b": 19.0,
         "ref_h": 55.0,
-        "ref_L": 129.0,
+        "ref_L": 722.0,
         "gen_L": 129.0,
         "gen_h": 55.0,
-        "err_L_pct": 0.0,
+        "err_L_pct": 82.1,
         "err_h_pct": 0.0,
-        "err_medio_pct": 0.0
+        "err_medio_pct": 41.1
       },
       "V405": {
-        "status": "OK",
+        "status": "DIFF",
         "ref_b": 19.0,
         "ref_h": 50.0,
-        "ref_L": 260.0,
+        "ref_L": 570.0,
         "gen_L": 260.0,
         "gen_h": 50.0,
-        "err_L_pct": 0.0,
+        "err_L_pct": 54.4,
         "err_h_pct": 0.0,
-        "err_medio_pct": 0.0
+        "err_medio_pct": 27.2
       },
       "V406": {
         "status": "OK",
@@ -1794,23 +1794,23 @@
         "status": "OK",
         "ref_b": 14.0,
         "ref_h": 55.0,
-        "ref_L": 855.2,
+        "ref_L": 842.5,
         "gen_L": 855.2,
         "gen_h": 55.0,
-        "err_L_pct": 0.0,
+        "err_L_pct": 1.5,
         "err_h_pct": 0.0,
-        "err_medio_pct": 0.0
+        "err_medio_pct": 0.8
       },
       "V408": {
-        "status": "OK",
+        "status": "DIFF",
         "ref_b": 19.0,
         "ref_h": 100.0,
-        "ref_L": 100.0,
+        "ref_L": 718.0,
         "gen_L": 100.0,
         "gen_h": 100.0,
-        "err_L_pct": 0.0,
+        "err_L_pct": 86.1,
         "err_h_pct": 0.0,
-        "err_medio_pct": 0.0
+        "err_medio_pct": 43.0
       },
       "V409": {
         "status": "OK",
@@ -1835,136 +1835,136 @@
         "err_medio_pct": 0.0
       },
       "V411": {
-        "status": "OK",
+        "status": "DIFF",
         "ref_b": 14.0,
         "ref_h": 50.0,
-        "ref_L": 113.0,
+        "ref_L": 277.0,
         "gen_L": 113.0,
         "gen_h": 50.0,
-        "err_L_pct": 0.0,
+        "err_L_pct": 59.2,
         "err_h_pct": 0.0,
-        "err_medio_pct": 0.0
+        "err_medio_pct": 29.6
       },
       "V412": {
-        "status": "OK",
+        "status": "DIFF",
         "ref_b": 19.0,
         "ref_h": 55.0,
-        "ref_L": 66.0,
+        "ref_L": 415.0,
         "gen_L": 66.0,
         "gen_h": 55.0,
-        "err_L_pct": 0.0,
+        "err_L_pct": 84.1,
         "err_h_pct": 0.0,
-        "err_medio_pct": 0.0
+        "err_medio_pct": 42.0
       },
       "V413": {
-        "status": "OK",
+        "status": "DIFF",
         "ref_b": 19.0,
         "ref_h": 55.0,
-        "ref_L": 55.0,
+        "ref_L": 415.0,
         "gen_L": 55.0,
         "gen_h": 55.0,
-        "err_L_pct": 0.0,
+        "err_L_pct": 86.7,
         "err_h_pct": 0.0,
-        "err_medio_pct": 0.0
+        "err_medio_pct": 43.4
       },
       "V414": {
-        "status": "OK",
+        "status": "DIFF",
         "ref_b": 19.0,
         "ref_h": 98.0,
-        "ref_L": 55.0,
+        "ref_L": 415.0,
         "gen_L": 55.0,
         "gen_h": 98.0,
-        "err_L_pct": 0.0,
+        "err_L_pct": 86.7,
         "err_h_pct": 0.0,
-        "err_medio_pct": 0.0
+        "err_medio_pct": 43.4
       },
       "V415": {
-        "status": "OK",
+        "status": "DIFF",
         "ref_b": 19.0,
         "ref_h": 55.0,
-        "ref_L": 55.0,
+        "ref_L": 415.0,
         "gen_L": 55.0,
         "gen_h": 55.0,
-        "err_L_pct": 0.0,
+        "err_L_pct": 86.7,
         "err_h_pct": 0.0,
-        "err_medio_pct": 0.0
+        "err_medio_pct": 43.4
       },
       "V416": {
-        "status": "OK",
+        "status": "DIFF",
         "ref_b": 19.0,
         "ref_h": 55.0,
-        "ref_L": 52.0,
+        "ref_L": 415.0,
         "gen_L": 52.0,
         "gen_h": 55.0,
-        "err_L_pct": 0.0,
+        "err_L_pct": 87.5,
         "err_h_pct": 0.0,
-        "err_medio_pct": 0.0
+        "err_medio_pct": 43.7
       },
       "V417": {
-        "status": "OK",
+        "status": "DIFF",
         "ref_b": 19.0,
         "ref_h": 98.0,
-        "ref_L": 55.0,
+        "ref_L": 303.0,
         "gen_L": 55.0,
         "gen_h": 98.0,
-        "err_L_pct": 0.0,
+        "err_L_pct": 81.8,
         "err_h_pct": 0.0,
-        "err_medio_pct": 0.0
+        "err_medio_pct": 40.9
       },
       "V418": {
-        "status": "OK",
+        "status": "DIFF",
         "ref_b": 19.0,
         "ref_h": 55.0,
-        "ref_L": 52.0,
+        "ref_L": 415.0,
         "gen_L": 52.0,
         "gen_h": 55.0,
-        "err_L_pct": 0.0,
+        "err_L_pct": 87.5,
         "err_h_pct": 0.0,
-        "err_medio_pct": 0.0
+        "err_medio_pct": 43.7
       },
       "V419": {
-        "status": "OK",
+        "status": "DIFF",
         "ref_b": 14.0,
         "ref_h": 55.0,
-        "ref_L": 81.0,
+        "ref_L": 455.0,
         "gen_L": 81.0,
         "gen_h": 55.0,
-        "err_L_pct": 0.0,
+        "err_L_pct": 82.2,
         "err_h_pct": 0.0,
-        "err_medio_pct": 0.0
+        "err_medio_pct": 41.1
       },
       "V420": {
-        "status": "OK",
+        "status": "DIFF",
         "ref_b": 19.0,
         "ref_h": 55.0,
-        "ref_L": 99.0,
+        "ref_L": 455.0,
         "gen_L": 99.0,
         "gen_h": 55.0,
-        "err_L_pct": 0.0,
+        "err_L_pct": 78.2,
         "err_h_pct": 0.0,
-        "err_medio_pct": 0.0
+        "err_medio_pct": 39.1
       },
       "V421": {
-        "status": "OK",
+        "status": "DIFF",
         "ref_b": 19.0,
         "ref_h": 100.0,
-        "ref_L": 81.0,
+        "ref_L": 455.0,
         "gen_L": 81.0,
         "gen_h": 100.0,
-        "err_L_pct": 0.0,
+        "err_L_pct": 82.2,
         "err_h_pct": 0.0,
-        "err_medio_pct": 0.0
+        "err_medio_pct": 41.1
       },
       "V422": {
-        "status": "OK",
+        "status": "DIFF",
         "ref_b": 19.0,
         "ref_h": 50.0,
-        "ref_L": 180.0,
+        "ref_L": 303.0,
         "gen_L": 180.0,
         "gen_h": 50.0,
-        "err_L_pct": 0.0,
+        "err_L_pct": 40.6,
         "err_h_pct": 0.0,
-        "err_medio_pct": 0.0
+        "err_medio_pct": 20.3
       },
       "V423": {
         "status": "OK",
@@ -1978,158 +1978,158 @@
         "err_medio_pct": 0.0
       },
       "V424": {
-        "status": "OK",
+        "status": "DIFF",
         "ref_b": 19.0,
         "ref_h": 55.0,
-        "ref_L": 132.0,
+        "ref_L": 474.0,
         "gen_L": 132.0,
         "gen_h": 55.0,
-        "err_L_pct": 0.0,
+        "err_L_pct": 72.2,
         "err_h_pct": 0.0,
-        "err_medio_pct": 0.0
+        "err_medio_pct": 36.1
       },
       "V425": {
-        "status": "OK",
+        "status": "DIFF",
         "ref_b": 19.0,
         "ref_h": 60.0,
-        "ref_L": 132.0,
+        "ref_L": 474.0,
         "gen_L": 132.0,
         "gen_h": 60.0,
-        "err_L_pct": 0.0,
+        "err_L_pct": 72.2,
         "err_h_pct": 0.0,
-        "err_medio_pct": 0.0
+        "err_medio_pct": 36.1
       },
       "V426": {
-        "status": "OK",
+        "status": "DIFF",
         "ref_b": 19.0,
         "ref_h": 55.0,
-        "ref_L": 55.0,
+        "ref_L": 422.0,
         "gen_L": 55.0,
         "gen_h": 55.0,
-        "err_L_pct": 0.0,
+        "err_L_pct": 87.0,
         "err_h_pct": 0.0,
-        "err_medio_pct": 0.0
+        "err_medio_pct": 43.5
       },
       "V427": {
-        "status": "OK",
+        "status": "DIFF",
         "ref_b": 19.0,
         "ref_h": 55.0,
-        "ref_L": 201.0,
+        "ref_L": 474.0,
         "gen_L": 201.0,
         "gen_h": 55.0,
-        "err_L_pct": 0.0,
+        "err_L_pct": 57.6,
         "err_h_pct": 0.0,
-        "err_medio_pct": 0.0
+        "err_medio_pct": 28.8
       },
       "V5": {
-        "status": "OK",
+        "status": "DIFF",
         "ref_b": 19.0,
         "ref_h": 50.0,
-        "ref_L": 180.0,
+        "ref_L": 570.0,
         "gen_L": 180.0,
         "gen_h": 50.0,
-        "err_L_pct": 0.0,
+        "err_L_pct": 68.4,
         "err_h_pct": 0.0,
-        "err_medio_pct": 0.0
+        "err_medio_pct": 34.2
       },
       "V51": {
-        "status": "OK",
+        "status": "DIFF",
         "ref_b": 19.0,
         "ref_h": 55.0,
-        "ref_L": 66.0,
+        "ref_L": 405.5,
         "gen_L": 66.0,
         "gen_h": 55.0,
-        "err_L_pct": 0.0,
+        "err_L_pct": 83.7,
         "err_h_pct": 0.0,
-        "err_medio_pct": 0.0
+        "err_medio_pct": 41.9
       },
       "V52": {
-        "status": "OK",
+        "status": "DIFF",
         "ref_b": 19.0,
         "ref_h": 55.0,
-        "ref_L": 821.0,
+        "ref_L": 246.0,
         "gen_L": 821.0,
         "gen_h": 55.0,
-        "err_L_pct": 0.0,
+        "err_L_pct": 233.7,
         "err_h_pct": 0.0,
-        "err_medio_pct": 0.0
+        "err_medio_pct": 116.9
       },
       "V53": {
-        "status": "OK",
+        "status": "DIFF",
         "ref_b": 14.0,
         "ref_h": 50.0,
-        "ref_L": 152.0,
+        "ref_L": 405.5,
         "gen_L": 152.0,
         "gen_h": 50.0,
-        "err_L_pct": 0.0,
+        "err_L_pct": 62.5,
         "err_h_pct": 0.0,
-        "err_medio_pct": 0.0
+        "err_medio_pct": 31.3
       },
       "V54": {
-        "status": "OK",
+        "status": "DIFF",
         "ref_b": 19.0,
         "ref_h": 55.0,
-        "ref_L": 80.0,
+        "ref_L": 244.0,
         "gen_L": 80.0,
         "gen_h": 55.0,
-        "err_L_pct": 0.0,
+        "err_L_pct": 67.2,
         "err_h_pct": 0.0,
-        "err_medio_pct": 0.0
+        "err_medio_pct": 33.6
       },
       "V55": {
         "status": "OK",
         "ref_b": 19.0,
         "ref_h": 50.0,
-        "ref_L": 260.0,
+        "ref_L": 244.0,
         "gen_L": 260.0,
         "gen_h": 50.0,
-        "err_L_pct": 0.0,
+        "err_L_pct": 6.6,
         "err_h_pct": 0.0,
-        "err_medio_pct": 0.0
+        "err_medio_pct": 3.3
       },
       "V56": {
-        "status": "OK",
+        "status": "DIFF",
         "ref_b": 19.0,
         "ref_h": 60.0,
-        "ref_L": 60.0,
+        "ref_L": 578.0,
         "gen_L": 60.0,
         "gen_h": 60.0,
-        "err_L_pct": 0.0,
+        "err_L_pct": 89.6,
         "err_h_pct": 0.0,
-        "err_medio_pct": 0.0
+        "err_medio_pct": 44.8
       },
       "V57": {
-        "status": "OK",
+        "status": "DIFF",
         "ref_b": 14.0,
         "ref_h": 55.0,
-        "ref_L": 821.0,
+        "ref_L": 246.0,
         "gen_L": 821.0,
         "gen_h": 55.0,
-        "err_L_pct": 0.0,
+        "err_L_pct": 233.7,
         "err_h_pct": 0.0,
-        "err_medio_pct": 0.0
+        "err_medio_pct": 116.9
       },
       "V58": {
-        "status": "OK",
+        "status": "DIFF",
         "ref_b": 19.0,
         "ref_h": 100.0,
-        "ref_L": 81.0,
+        "ref_L": 244.0,
         "gen_L": 81.0,
         "gen_h": 100.0,
-        "err_L_pct": 0.0,
+        "err_L_pct": 66.8,
         "err_h_pct": 0.0,
-        "err_medio_pct": 0.0
+        "err_medio_pct": 33.4
       },
       "V59": {
-        "status": "OK",
+        "status": "DIFF",
         "ref_b": 30.0,
         "ref_h": 60.0,
-        "ref_L": 182.5,
+        "ref_L": 246.0,
         "gen_L": 182.5,
         "gen_h": 60.0,
-        "err_L_pct": 0.0,
+        "err_L_pct": 25.8,
         "err_h_pct": 0.0,
-        "err_medio_pct": 0.0
+        "err_medio_pct": 12.9
       },
       "V6": {
         "status": "OK",
@@ -2143,279 +2143,279 @@
         "err_medio_pct": 0.0
       },
       "V60": {
-        "status": "OK",
+        "status": "DIFF",
         "ref_b": 14.0,
         "ref_h": 50.0,
-        "ref_L": 152.0,
+        "ref_L": 246.0,
         "gen_L": 152.0,
         "gen_h": 50.0,
-        "err_L_pct": 0.0,
+        "err_L_pct": 38.2,
         "err_h_pct": 0.0,
-        "err_medio_pct": 0.0
+        "err_medio_pct": 19.1
       },
       "V61": {
-        "status": "OK",
+        "status": "DIFF",
         "ref_b": 19.0,
         "ref_h": 55.0,
-        "ref_L": 66.0,
+        "ref_L": 244.0,
         "gen_L": 66.0,
         "gen_h": 55.0,
-        "err_L_pct": 0.0,
+        "err_L_pct": 73.0,
         "err_h_pct": 0.0,
-        "err_medio_pct": 0.0
+        "err_medio_pct": 36.5
       },
       "V62": {
-        "status": "OK",
+        "status": "DIFF",
         "ref_b": 19.0,
         "ref_h": 80.0,
-        "ref_L": 80.0,
+        "ref_L": 244.0,
         "gen_L": 80.0,
         "gen_h": 80.0,
-        "err_L_pct": 0.0,
+        "err_L_pct": 67.2,
         "err_h_pct": 0.0,
-        "err_medio_pct": 0.0
+        "err_medio_pct": 33.6
       },
       "V63": {
-        "status": "OK",
+        "status": "DIFF",
         "ref_b": 19.0,
         "ref_h": 55.0,
-        "ref_L": 55.0,
+        "ref_L": 246.0,
         "gen_L": 55.0,
         "gen_h": 55.0,
-        "err_L_pct": 0.0,
+        "err_L_pct": 77.6,
         "err_h_pct": 0.0,
-        "err_medio_pct": 0.0
+        "err_medio_pct": 38.8
       },
       "V64": {
-        "status": "OK",
+        "status": "DIFF",
         "ref_b": 24.0,
         "ref_h": 98.0,
-        "ref_L": 821.0,
+        "ref_L": 246.0,
         "gen_L": 821.0,
         "gen_h": 98.0,
-        "err_L_pct": 0.0,
+        "err_L_pct": 233.7,
         "err_h_pct": 0.0,
-        "err_medio_pct": 0.0
+        "err_medio_pct": 116.9
       },
       "V65": {
-        "status": "OK",
+        "status": "DIFF",
         "ref_b": 19.0,
         "ref_h": 55.0,
-        "ref_L": 55.0,
+        "ref_L": 244.0,
         "gen_L": 55.0,
         "gen_h": 55.0,
-        "err_L_pct": 0.0,
+        "err_L_pct": 77.5,
         "err_h_pct": 0.0,
-        "err_medio_pct": 0.0
+        "err_medio_pct": 38.7
       },
       "V66": {
-        "status": "OK",
+        "status": "DIFF",
         "ref_b": 19.0,
         "ref_h": 98.0,
-        "ref_L": 55.0,
+        "ref_L": 334.0,
         "gen_L": 55.0,
         "gen_h": 98.0,
-        "err_L_pct": 0.0,
+        "err_L_pct": 83.5,
         "err_h_pct": 0.0,
-        "err_medio_pct": 0.0
+        "err_medio_pct": 41.8
       },
       "V67": {
-        "status": "OK",
+        "status": "DIFF",
         "ref_b": 19.0,
         "ref_h": 55.0,
-        "ref_L": 55.0,
+        "ref_L": 246.0,
         "gen_L": 55.0,
         "gen_h": 55.0,
-        "err_L_pct": 0.0,
+        "err_L_pct": 77.6,
         "err_h_pct": 0.0,
-        "err_medio_pct": 0.0
+        "err_medio_pct": 38.8
       },
       "V68": {
-        "status": "OK",
+        "status": "DIFF",
         "ref_b": 24.0,
         "ref_h": 98.0,
-        "ref_L": 821.0,
+        "ref_L": 246.0,
         "gen_L": 821.0,
         "gen_h": 98.0,
-        "err_L_pct": 0.0,
+        "err_L_pct": 233.7,
         "err_h_pct": 0.0,
-        "err_medio_pct": 0.0
+        "err_medio_pct": 116.9
       },
       "V69": {
-        "status": "OK",
+        "status": "DIFF",
         "ref_b": 19.0,
         "ref_h": 55.0,
-        "ref_L": 55.0,
+        "ref_L": 182.0,
         "gen_L": 55.0,
         "gen_h": 55.0,
-        "err_L_pct": 0.0,
+        "err_L_pct": 69.8,
         "err_h_pct": 0.0,
-        "err_medio_pct": 0.0
+        "err_medio_pct": 34.9
       },
       "V7": {
-        "status": "OK",
+        "status": "DIFF",
         "ref_b": 14.0,
         "ref_h": 55.0,
-        "ref_L": 89.8,
+        "ref_L": 418.0,
         "gen_L": 89.8,
         "gen_h": 55.0,
-        "err_L_pct": 0.0,
+        "err_L_pct": 78.5,
         "err_h_pct": 0.0,
-        "err_medio_pct": 0.0
+        "err_medio_pct": 39.3
       },
       "V70": {
-        "status": "OK",
+        "status": "DIFF",
         "ref_b": 19.0,
         "ref_h": 55.0,
-        "ref_L": 96.5,
+        "ref_L": 182.0,
         "gen_L": 96.5,
         "gen_h": 55.0,
-        "err_L_pct": 0.0,
+        "err_L_pct": 47.0,
         "err_h_pct": 0.0,
-        "err_medio_pct": 0.0
+        "err_medio_pct": 23.5
       },
       "V71": {
-        "status": "OK",
+        "status": "DIFF",
         "ref_b": 19.0,
         "ref_h": 100.0,
-        "ref_L": 81.0,
+        "ref_L": 244.0,
         "gen_L": 81.0,
         "gen_h": 100.0,
-        "err_L_pct": 0.0,
+        "err_L_pct": 66.8,
         "err_h_pct": 0.0,
-        "err_medio_pct": 0.0
+        "err_medio_pct": 33.4
       },
       "V72": {
-        "status": "OK",
+        "status": "DIFF",
         "ref_b": 19.0,
         "ref_h": 55.0,
-        "ref_L": 821.0,
+        "ref_L": 244.0,
         "gen_L": 821.0,
         "gen_h": 55.0,
-        "err_L_pct": 0.0,
+        "err_L_pct": 236.5,
         "err_h_pct": 0.0,
-        "err_medio_pct": 0.0
+        "err_medio_pct": 118.2
       },
       "V73": {
-        "status": "OK",
+        "status": "DIFF",
         "ref_b": 19.0,
         "ref_h": 50.0,
-        "ref_L": 81.0,
+        "ref_L": 244.0,
         "gen_L": 81.0,
         "gen_h": 50.0,
-        "err_L_pct": 0.0,
+        "err_L_pct": 66.8,
         "err_h_pct": 0.0,
-        "err_medio_pct": 0.0
+        "err_medio_pct": 33.4
       },
       "V74": {
-        "status": "OK",
+        "status": "DIFF",
         "ref_b": 19.0,
         "ref_h": 50.0,
-        "ref_L": 180.0,
+        "ref_L": 244.0,
         "gen_L": 180.0,
         "gen_h": 50.0,
-        "err_L_pct": 0.0,
+        "err_L_pct": 26.2,
         "err_h_pct": 0.0,
-        "err_medio_pct": 0.0
+        "err_medio_pct": 13.1
       },
       "V75": {
-        "status": "OK",
+        "status": "DIFF",
         "ref_b": 19.0,
         "ref_h": 55.0,
-        "ref_L": 50.5,
+        "ref_L": 244.0,
         "gen_L": 50.5,
         "gen_h": 55.0,
-        "err_L_pct": 0.0,
+        "err_L_pct": 79.3,
         "err_h_pct": 0.0,
-        "err_medio_pct": 0.0
+        "err_medio_pct": 39.7
       },
       "V76": {
-        "status": "OK",
+        "status": "DIFF",
         "ref_b": 19.0,
         "ref_h": 55.0,
-        "ref_L": 55.0,
+        "ref_L": 90.0,
         "gen_L": 55.0,
         "gen_h": 55.0,
-        "err_L_pct": 0.0,
+        "err_L_pct": 38.9,
         "err_h_pct": 0.0,
-        "err_medio_pct": 0.0
+        "err_medio_pct": 19.4
       },
       "V77": {
-        "status": "OK",
+        "status": "DIFF",
         "ref_b": 19.0,
         "ref_h": 55.0,
-        "ref_L": 132.0,
+        "ref_L": 244.0,
         "gen_L": 132.0,
         "gen_h": 55.0,
-        "err_L_pct": 0.0,
+        "err_L_pct": 45.9,
         "err_h_pct": 0.0,
-        "err_medio_pct": 0.0
+        "err_medio_pct": 23.0
       },
       "V78": {
-        "status": "OK",
+        "status": "DIFF",
         "ref_b": 19.0,
         "ref_h": 60.0,
-        "ref_L": 132.0,
+        "ref_L": 244.0,
         "gen_L": 132.0,
         "gen_h": 60.0,
-        "err_L_pct": 0.0,
+        "err_L_pct": 45.9,
         "err_h_pct": 0.0,
-        "err_medio_pct": 0.0
+        "err_medio_pct": 23.0
       },
       "V79": {
-        "status": "OK",
+        "status": "DIFF",
         "ref_b": 19.0,
         "ref_h": 55.0,
-        "ref_L": 141.0,
+        "ref_L": 244.0,
         "gen_L": 141.0,
         "gen_h": 55.0,
-        "err_L_pct": 0.0,
+        "err_L_pct": 42.2,
         "err_h_pct": 0.0,
-        "err_medio_pct": 0.0
+        "err_medio_pct": 21.1
       },
       "V8": {
-        "status": "OK",
+        "status": "DIFF",
         "ref_b": 19.0,
         "ref_h": 100.0,
-        "ref_L": 100.0,
+        "ref_L": 718.0,
         "gen_L": 100.0,
         "gen_h": 100.0,
-        "err_L_pct": 0.0,
+        "err_L_pct": 86.1,
         "err_h_pct": 0.0,
-        "err_medio_pct": 0.0
+        "err_medio_pct": 43.0
       },
       "V80": {
-        "status": "OK",
+        "status": "DIFF",
         "ref_b": 19.0,
         "ref_h": 55.0,
-        "ref_L": 97.5,
+        "ref_L": 244.0,
         "gen_L": 97.5,
         "gen_h": 55.0,
-        "err_L_pct": 0.0,
+        "err_L_pct": 60.0,
         "err_h_pct": 0.0,
-        "err_medio_pct": 0.0
+        "err_medio_pct": 30.0
       },
       "V81": {
-        "status": "OK",
+        "status": "DIFF",
         "ref_b": 19.0,
         "ref_h": 55.0,
-        "ref_L": 99.0,
+        "ref_L": 244.0,
         "gen_L": 99.0,
         "gen_h": 55.0,
-        "err_L_pct": 0.0,
+        "err_L_pct": 59.4,
         "err_h_pct": 0.0,
-        "err_medio_pct": 0.0
+        "err_medio_pct": 29.7
       },
       "V9": {
-        "status": "OK",
+        "status": "DIFF",
         "ref_b": 14.0,
         "ref_h": 55.0,
-        "ref_L": 55.0,
+        "ref_L": 1009.0,
         "gen_L": 55.0,
         "gen_h": 55.0,
-        "err_L_pct": 0.0,
+        "err_L_pct": 94.5,
         "err_h_pct": 0.0,
-        "err_medio_pct": 0.0
+        "err_medio_pct": 47.3
       },
       "VF1": {
         "status": "OK",

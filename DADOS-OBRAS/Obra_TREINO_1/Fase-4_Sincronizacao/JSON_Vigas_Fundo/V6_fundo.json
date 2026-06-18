@@ -1,17 +1,57 @@
 {
   "number": "6",
-  "name": "V6_A",
+  "name": "V6",
   "floor": "Pavimento",
-  "side": "A",
-  "total_width": 19.0,
-  "total_height": "60.0",
+  "total_width": 35.4,
+  "total_height": 255.7,
   "panels": [
     {
-      "width": 60.0,
-      "height1": 60.0,
-      "height2": 60.0,
-      "grade_h1": "60.0",
-      "grade_h2": "60.0"
+      "width": 255.7,
+      "height1": 35.4,
+      "height2": 35.4,
+      "grade_h1": "255.7",
+      "grade_h2": "255.7"
+    }
+  ],
+  "segments_rich": [
+    {
+      "total_width": 255.7,
+      "panels": [
+        {
+          "width": 255.7,
+          "texts": [],
+          "vertices": [
+            {
+              "x": 0.0,
+              "y": 22.3
+            },
+            {
+              "x": 21.1,
+              "y": 0.0
+            },
+            {
+              "x": 255.7,
+              "y": 0.0
+            },
+            {
+              "x": 248.2,
+              "y": 19.0
+            },
+            {
+              "x": 29.3,
+              "y": 19.0
+            },
+            {
+              "x": 13.8,
+              "y": 35.4
+            },
+            {
+              "x": 0.0,
+              "y": 22.3
+            }
+          ]
+        }
+      ]
     }
   ],
   "holes": [
@@ -19,25 +59,29 @@
       "active": false,
       "width": 0.0,
       "height": 0.0,
-      "position": 0.0
+      "position": 0.0,
+      "text": null
     },
     {
       "active": false,
       "width": 0.0,
       "height": 0.0,
-      "position": 0.0
+      "position": 0.0,
+      "text": null
     },
     {
       "active": false,
       "width": 0.0,
       "height": 0.0,
-      "position": 0.0
+      "position": 0.0,
+      "text": null
     },
     {
       "active": false,
       "width": 0.0,
       "height": 0.0,
-      "position": 0.0
+      "position": 0.0,
+      "text": null
     }
   ],
   "pillar_left": {
@@ -50,35 +94,1780 @@
     "width": 0.0,
     "length": 0.0
   },
+  "label_left": "P25",
+  "label_right": "V57",
   "sarrafo_left_id": 0,
   "sarrafo_right_id": 0,
-  "_sa_meta": {
-    "tipo": "FV",
-    "analisado_em": "2026-06-04 18:15",
-    "campos_extraidos": [
-      "floor",
-      "name",
-      "number",
-      "panels",
-      "total_height",
-      "total_width"
+  "_n_linhas_folha": 1,
+  "_er_meta": {
+    "source": "dxf_geometry",
+    "dxf_path": "D:/Agente-cad-PYSIDE/DADOS-OBRAS/Obra_TREINO_1/Fase-2_Triagem/recortes_reversos\\ALIMONTI - PARAISO - TIPO - 3° AO 12° PAV.- FV - R00\\FV_V6_motor_178111349892.dxf",
+    "confianca": 0.9,
+    "n_pilar_gaps": 0,
+    "n_polys_atribuidos": 1
+  },
+  "_confianca": 0.9,
+  "_fase4_ref": {
+    "number": "6",
+    "name": "V6",
+    "floor": "Pavimento",
+    "total_width": 35.4,
+    "total_height": 255.7,
+    "panels": [
+      {
+        "width": 255.7,
+        "height1": 35.4,
+        "height2": 35.4,
+        "grade_h1": "255.7",
+        "grade_h2": "255.7"
+      }
     ],
-    "campos_defaulted": [],
-    "na_fields": [
-      "altura",
-      "comprimento",
-      "coordenadas",
-      "grade_1",
-      "grade_2",
-      "largura",
-      "linhas_horizontais",
-      "linhas_verticais",
-      "nome",
-      "numero",
-      "obstaculos",
-      "pavimento",
-      "reaproveitamento_dados"
+    "segments_rich": [
+      {
+        "total_width": 255.7,
+        "panels": [
+          {
+            "width": 255.7,
+            "texts": [],
+            "vertices": [
+              {
+                "x": 0.0,
+                "y": 22.3
+              },
+              {
+                "x": 21.1,
+                "y": 0.0
+              },
+              {
+                "x": 255.7,
+                "y": 0.0
+              },
+              {
+                "x": 248.2,
+                "y": 19.0
+              },
+              {
+                "x": 29.3,
+                "y": 19.0
+              },
+              {
+                "x": 13.8,
+                "y": 35.4
+              },
+              {
+                "x": 0.0,
+                "y": 22.3
+              }
+            ]
+          }
+        ]
+      }
     ],
-    "completude_pct": 100.0
+    "holes": [
+      {
+        "active": false,
+        "width": 0.0,
+        "height": 0.0,
+        "position": 0.0,
+        "text": null
+      },
+      {
+        "active": false,
+        "width": 0.0,
+        "height": 0.0,
+        "position": 0.0,
+        "text": null
+      },
+      {
+        "active": false,
+        "width": 0.0,
+        "height": 0.0,
+        "position": 0.0,
+        "text": null
+      },
+      {
+        "active": false,
+        "width": 0.0,
+        "height": 0.0,
+        "position": 0.0,
+        "text": null
+      }
+    ],
+    "pillar_left": {
+      "active": false,
+      "width": 0.0,
+      "length": 0.0
+    },
+    "pillar_right": {
+      "active": false,
+      "width": 0.0,
+      "length": 0.0
+    },
+    "label_left": "P25",
+    "label_right": "V57",
+    "sarrafo_left_id": 0,
+    "sarrafo_right_id": 0,
+    "_n_linhas_folha": 1,
+    "_er_meta": {
+      "source": "dxf_geometry",
+      "dxf_path": "D:/Agente-cad-PYSIDE/DADOS-OBRAS/Obra_TREINO_1/Fase-2_Triagem/recortes_reversos\\ALIMONTI - PARAISO - TIPO - 3° AO 12° PAV.- FV - R00\\FV_V6_motor_178111045154.dxf",
+      "confianca": 0.9,
+      "n_pilar_gaps": 0,
+      "n_polys_atribuidos": 1
+    },
+    "_confianca": 0.9,
+    "_fase4_ref": {
+      "number": "6",
+      "name": "V6",
+      "floor": "Pavimento",
+      "total_width": 35.4,
+      "total_height": 255.7,
+      "panels": [
+        {
+          "width": 255.7,
+          "height1": 35.4,
+          "height2": 35.4,
+          "grade_h1": "255.7",
+          "grade_h2": "255.7"
+        }
+      ],
+      "segments_rich": [
+        {
+          "total_width": 255.7,
+          "panels": [
+            {
+              "width": 255.7,
+              "texts": [],
+              "vertices": [
+                {
+                  "x": 0.0,
+                  "y": 22.3
+                },
+                {
+                  "x": 21.1,
+                  "y": 0.0
+                },
+                {
+                  "x": 255.7,
+                  "y": 0.0
+                },
+                {
+                  "x": 248.2,
+                  "y": 19.0
+                },
+                {
+                  "x": 29.3,
+                  "y": 19.0
+                },
+                {
+                  "x": 13.8,
+                  "y": 35.4
+                },
+                {
+                  "x": 0.0,
+                  "y": 22.3
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "holes": [
+        {
+          "active": false,
+          "width": 0.0,
+          "height": 0.0,
+          "position": 0.0,
+          "text": null
+        },
+        {
+          "active": false,
+          "width": 0.0,
+          "height": 0.0,
+          "position": 0.0,
+          "text": null
+        },
+        {
+          "active": false,
+          "width": 0.0,
+          "height": 0.0,
+          "position": 0.0,
+          "text": null
+        },
+        {
+          "active": false,
+          "width": 0.0,
+          "height": 0.0,
+          "position": 0.0,
+          "text": null
+        }
+      ],
+      "pillar_left": {
+        "active": false,
+        "width": 0.0,
+        "length": 0.0
+      },
+      "pillar_right": {
+        "active": false,
+        "width": 0.0,
+        "length": 0.0
+      },
+      "label_left": "P25",
+      "label_right": "V57",
+      "sarrafo_left_id": 0,
+      "sarrafo_right_id": 0,
+      "_n_linhas_folha": 1,
+      "_er_meta": {
+        "source": "dxf_geometry",
+        "dxf_path": "D:/Agente-cad-PYSIDE/DADOS-OBRAS/Obra_TREINO_1/Fase-2_Triagem/recortes_reversos\\ALIMONTI - PARAISO - TIPO - 3° AO 12° PAV.- FV - R00\\FV_V6_motor_178106540190.dxf",
+        "confianca": 0.9,
+        "n_pilar_gaps": 0,
+        "n_polys_atribuidos": 1
+      },
+      "_confianca": 0.9,
+      "_fase4_ref": {
+        "number": "6",
+        "name": "V6",
+        "floor": "Pavimento",
+        "total_width": 35.4,
+        "total_height": 255.7,
+        "panels": [
+          {
+            "width": 255.7,
+            "height1": 35.4,
+            "height2": 35.4,
+            "grade_h1": "255.7",
+            "grade_h2": "255.7"
+          }
+        ],
+        "segments_rich": [
+          {
+            "total_width": 255.7,
+            "panels": [
+              {
+                "width": 255.7,
+                "texts": [],
+                "vertices": [
+                  {
+                    "x": 0.0,
+                    "y": 22.3
+                  },
+                  {
+                    "x": 21.1,
+                    "y": 0.0
+                  },
+                  {
+                    "x": 255.7,
+                    "y": 0.0
+                  },
+                  {
+                    "x": 248.2,
+                    "y": 19.0
+                  },
+                  {
+                    "x": 29.3,
+                    "y": 19.0
+                  },
+                  {
+                    "x": 13.8,
+                    "y": 35.4
+                  },
+                  {
+                    "x": 0.0,
+                    "y": 22.3
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "holes": [
+          {
+            "active": false,
+            "width": 0.0,
+            "height": 0.0,
+            "position": 0.0,
+            "text": null
+          },
+          {
+            "active": false,
+            "width": 0.0,
+            "height": 0.0,
+            "position": 0.0,
+            "text": null
+          },
+          {
+            "active": false,
+            "width": 0.0,
+            "height": 0.0,
+            "position": 0.0,
+            "text": null
+          },
+          {
+            "active": false,
+            "width": 0.0,
+            "height": 0.0,
+            "position": 0.0,
+            "text": null
+          }
+        ],
+        "pillar_left": {
+          "active": false,
+          "width": 0.0,
+          "length": 0.0
+        },
+        "pillar_right": {
+          "active": false,
+          "width": 0.0,
+          "length": 0.0
+        },
+        "label_left": "P25",
+        "label_right": "V57",
+        "sarrafo_left_id": 0,
+        "sarrafo_right_id": 0,
+        "_n_linhas_folha": 1,
+        "_er_meta": {
+          "source": "dxf_geometry",
+          "dxf_path": "D:/Agente-cad-PYSIDE/DADOS-OBRAS/Obra_TREINO_1/Fase-2_Triagem/recortes_reversos\\ALIMONTI - PARAISO - TIPO - 3° AO 12° PAV.- FV - R00\\FV_V6_motor_178106520127.dxf",
+          "confianca": 0.9,
+          "n_pilar_gaps": 0,
+          "n_polys_atribuidos": 1
+        },
+        "_confianca": 0.9,
+        "_fase4_ref": {
+          "number": "6",
+          "name": "V6",
+          "floor": "Pavimento",
+          "total_width": 35.4,
+          "total_height": 255.7,
+          "panels": [
+            {
+              "width": 255.7,
+              "height1": 35.4,
+              "height2": 35.4,
+              "grade_h1": "255.7",
+              "grade_h2": "255.7"
+            }
+          ],
+          "segments_rich": [
+            {
+              "total_width": 255.7,
+              "panels": [
+                {
+                  "width": 255.7,
+                  "texts": [],
+                  "vertices": [
+                    {
+                      "x": 0.0,
+                      "y": 22.3
+                    },
+                    {
+                      "x": 21.1,
+                      "y": 0.0
+                    },
+                    {
+                      "x": 255.7,
+                      "y": 0.0
+                    },
+                    {
+                      "x": 248.2,
+                      "y": 19.0
+                    },
+                    {
+                      "x": 29.3,
+                      "y": 19.0
+                    },
+                    {
+                      "x": 13.8,
+                      "y": 35.4
+                    },
+                    {
+                      "x": 0.0,
+                      "y": 22.3
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "holes": [
+            {
+              "active": false,
+              "width": 0.0,
+              "height": 0.0,
+              "position": 0.0,
+              "text": null
+            },
+            {
+              "active": false,
+              "width": 0.0,
+              "height": 0.0,
+              "position": 0.0,
+              "text": null
+            },
+            {
+              "active": false,
+              "width": 0.0,
+              "height": 0.0,
+              "position": 0.0,
+              "text": null
+            },
+            {
+              "active": false,
+              "width": 0.0,
+              "height": 0.0,
+              "position": 0.0,
+              "text": null
+            }
+          ],
+          "pillar_left": {
+            "active": false,
+            "width": 0.0,
+            "length": 0.0
+          },
+          "pillar_right": {
+            "active": false,
+            "width": 0.0,
+            "length": 0.0
+          },
+          "label_left": "P25",
+          "label_right": "V57",
+          "sarrafo_left_id": 0,
+          "sarrafo_right_id": 0,
+          "_n_linhas_folha": 1,
+          "_er_meta": {
+            "source": "dxf_geometry",
+            "dxf_path": "D:/Agente-cad-PYSIDE/DADOS-OBRAS/Obra_TREINO_1/Fase-2_Triagem/recortes_reversos\\ALIMONTI - PARAISO - TIPO - 3° AO 12° PAV.- FV - R00\\FV_V6_motor_178106299005.dxf",
+            "confianca": 0.9,
+            "n_pilar_gaps": 0,
+            "n_polys_atribuidos": 1
+          },
+          "_confianca": 0.9,
+          "_fase4_ref": {
+            "number": "6",
+            "name": "V6",
+            "floor": "Pavimento",
+            "panels": [],
+            "holes": [
+              {
+                "active": false,
+                "width": 0.0,
+                "height": 0.0,
+                "position": 0.0
+              },
+              {
+                "active": false,
+                "width": 0.0,
+                "height": 0.0,
+                "position": 0.0
+              },
+              {
+                "active": false,
+                "width": 0.0,
+                "height": 0.0,
+                "position": 0.0
+              },
+              {
+                "active": false,
+                "width": 0.0,
+                "height": 0.0,
+                "position": 0.0
+              }
+            ],
+            "total_width": 19.0,
+            "total_height": 0.0,
+            "pillar_left": {
+              "active": false,
+              "width": 0.0,
+              "length": 0.0
+            },
+            "pillar_right": {
+              "active": false,
+              "width": 0.0,
+              "length": 0.0
+            },
+            "label_left": "L Esq",
+            "label_right": "L Dir",
+            "sarrafo_left_id": 0,
+            "sarrafo_right_id": 0,
+            "_er_meta": {
+              "source": "dxf_geometry",
+              "dxf_path": "D:/Agente-cad-PYSIDE/DADOS-OBRAS/Obra_TREINO_1/Fase-2_Triagem/recortes_reversos\\ALIMONTI - PARAISO - TIPO - 3° AO 12° PAV.- FV - R00\\FV_V6_motor_178106120544.dxf",
+              "confianca": 0.3,
+              "n_pilar_gaps": 0,
+              "n_polys_atribuidos": 0
+            },
+            "_confianca": 0.3,
+            "_fase4_ref": {
+              "number": "6",
+              "name": "V6",
+              "floor": "Pavimento",
+              "total_width": 35.4,
+              "total_height": 255.7,
+              "panels": [
+                {
+                  "width": 255.7,
+                  "height1": 35.4,
+                  "height2": 35.4,
+                  "grade_h1": "255.7",
+                  "grade_h2": "255.7"
+                }
+              ],
+              "segments_rich": [
+                {
+                  "total_width": 255.7,
+                  "panels": [
+                    {
+                      "width": 255.7,
+                      "texts": [],
+                      "vertices": [
+                        {
+                          "x": 0.0,
+                          "y": 22.3
+                        },
+                        {
+                          "x": 21.1,
+                          "y": 0.0
+                        },
+                        {
+                          "x": 255.7,
+                          "y": 0.0
+                        },
+                        {
+                          "x": 248.2,
+                          "y": 19.0
+                        },
+                        {
+                          "x": 29.3,
+                          "y": 19.0
+                        },
+                        {
+                          "x": 13.8,
+                          "y": 35.4
+                        },
+                        {
+                          "x": 0.0,
+                          "y": 22.3
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ],
+              "holes": [
+                {
+                  "active": false,
+                  "width": 0.0,
+                  "height": 0.0,
+                  "position": 0.0,
+                  "text": null
+                },
+                {
+                  "active": false,
+                  "width": 0.0,
+                  "height": 0.0,
+                  "position": 0.0,
+                  "text": null
+                },
+                {
+                  "active": false,
+                  "width": 0.0,
+                  "height": 0.0,
+                  "position": 0.0,
+                  "text": null
+                },
+                {
+                  "active": false,
+                  "width": 0.0,
+                  "height": 0.0,
+                  "position": 0.0,
+                  "text": null
+                }
+              ],
+              "pillar_left": {
+                "active": false,
+                "width": 0.0,
+                "length": 0.0
+              },
+              "pillar_right": {
+                "active": false,
+                "width": 0.0,
+                "length": 0.0
+              },
+              "label_left": "P25",
+              "label_right": "V57",
+              "sarrafo_left_id": 0,
+              "sarrafo_right_id": 0,
+              "_n_linhas_folha": 1,
+              "_er_meta": {
+                "source": "dxf_geometry",
+                "dxf_path": "D:/Agente-cad-PYSIDE/DADOS-OBRAS/Obra_TREINO_1/Fase-2_Triagem/recortes_reversos\\ALIMONTI - PARAISO - TIPO - 3° AO 12° PAV.- FV - R00\\FV_V6_motor_178111349892.dxf",
+                "confianca": 0.9,
+                "n_pilar_gaps": 0,
+                "n_polys_atribuidos": 1
+              },
+              "_confianca": 0.9,
+              "_fase4_ref": {
+                "number": "6",
+                "name": "V6",
+                "floor": "Pavimento",
+                "total_width": 35.4,
+                "total_height": 255.7,
+                "panels": [
+                  {
+                    "width": 255.7,
+                    "height1": 35.4,
+                    "height2": 35.4,
+                    "grade_h1": "255.7",
+                    "grade_h2": "255.7"
+                  }
+                ],
+                "segments_rich": [
+                  {
+                    "total_width": 255.7,
+                    "panels": [
+                      {
+                        "width": 255.7,
+                        "texts": [],
+                        "vertices": [
+                          {
+                            "x": 0.0,
+                            "y": 22.3
+                          },
+                          {
+                            "x": 21.1,
+                            "y": 0.0
+                          },
+                          {
+                            "x": 255.7,
+                            "y": 0.0
+                          },
+                          {
+                            "x": 248.2,
+                            "y": 19.0
+                          },
+                          {
+                            "x": 29.3,
+                            "y": 19.0
+                          },
+                          {
+                            "x": 13.8,
+                            "y": 35.4
+                          },
+                          {
+                            "x": 0.0,
+                            "y": 22.3
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ],
+                "holes": [
+                  {
+                    "active": false,
+                    "width": 0.0,
+                    "height": 0.0,
+                    "position": 0.0,
+                    "text": null
+                  },
+                  {
+                    "active": false,
+                    "width": 0.0,
+                    "height": 0.0,
+                    "position": 0.0,
+                    "text": null
+                  },
+                  {
+                    "active": false,
+                    "width": 0.0,
+                    "height": 0.0,
+                    "position": 0.0,
+                    "text": null
+                  },
+                  {
+                    "active": false,
+                    "width": 0.0,
+                    "height": 0.0,
+                    "position": 0.0,
+                    "text": null
+                  }
+                ],
+                "pillar_left": {
+                  "active": false,
+                  "width": 0.0,
+                  "length": 0.0
+                },
+                "pillar_right": {
+                  "active": false,
+                  "width": 0.0,
+                  "length": 0.0
+                },
+                "label_left": "P25",
+                "label_right": "V57",
+                "sarrafo_left_id": 0,
+                "sarrafo_right_id": 0,
+                "_n_linhas_folha": 1,
+                "_er_meta": {
+                  "source": "dxf_geometry",
+                  "dxf_path": "D:/Agente-cad-PYSIDE/DADOS-OBRAS/Obra_TREINO_1/Fase-2_Triagem/recortes_reversos\\ALIMONTI - PARAISO - TIPO - 3° AO 12° PAV.- FV - R00\\FV_V6_motor_178111045154.dxf",
+                  "confianca": 0.9,
+                  "n_pilar_gaps": 0,
+                  "n_polys_atribuidos": 1
+                },
+                "_confianca": 0.9,
+                "_fase4_ref": {
+                  "number": "6",
+                  "name": "V6",
+                  "floor": "Pavimento",
+                  "total_width": 35.4,
+                  "total_height": 255.7,
+                  "panels": [
+                    {
+                      "width": 255.7,
+                      "height1": 35.4,
+                      "height2": 35.4,
+                      "grade_h1": "255.7",
+                      "grade_h2": "255.7"
+                    }
+                  ],
+                  "segments_rich": [
+                    {
+                      "total_width": 255.7,
+                      "panels": [
+                        {
+                          "width": 255.7,
+                          "texts": [],
+                          "vertices": [
+                            {
+                              "x": 0.0,
+                              "y": 22.3
+                            },
+                            {
+                              "x": 21.1,
+                              "y": 0.0
+                            },
+                            {
+                              "x": 255.7,
+                              "y": 0.0
+                            },
+                            {
+                              "x": 248.2,
+                              "y": 19.0
+                            },
+                            {
+                              "x": 29.3,
+                              "y": 19.0
+                            },
+                            {
+                              "x": 13.8,
+                              "y": 35.4
+                            },
+                            {
+                              "x": 0.0,
+                              "y": 22.3
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ],
+                  "holes": [
+                    {
+                      "active": false,
+                      "width": 0.0,
+                      "height": 0.0,
+                      "position": 0.0,
+                      "text": null
+                    },
+                    {
+                      "active": false,
+                      "width": 0.0,
+                      "height": 0.0,
+                      "position": 0.0,
+                      "text": null
+                    },
+                    {
+                      "active": false,
+                      "width": 0.0,
+                      "height": 0.0,
+                      "position": 0.0,
+                      "text": null
+                    },
+                    {
+                      "active": false,
+                      "width": 0.0,
+                      "height": 0.0,
+                      "position": 0.0,
+                      "text": null
+                    }
+                  ],
+                  "pillar_left": {
+                    "active": false,
+                    "width": 0.0,
+                    "length": 0.0
+                  },
+                  "pillar_right": {
+                    "active": false,
+                    "width": 0.0,
+                    "length": 0.0
+                  },
+                  "label_left": "P25",
+                  "label_right": "V57",
+                  "sarrafo_left_id": 0,
+                  "sarrafo_right_id": 0,
+                  "_n_linhas_folha": 1,
+                  "_er_meta": {
+                    "source": "dxf_geometry",
+                    "dxf_path": "D:/Agente-cad-PYSIDE/DADOS-OBRAS/Obra_TREINO_1/Fase-2_Triagem/recortes_reversos\\ALIMONTI - PARAISO - TIPO - 3° AO 12° PAV.- FV - R00\\FV_V6_motor_178106540190.dxf",
+                    "confianca": 0.9,
+                    "n_pilar_gaps": 0,
+                    "n_polys_atribuidos": 1
+                  },
+                  "_confianca": 0.9,
+                  "_fase4_ref": {
+                    "number": "6",
+                    "name": "V6",
+                    "floor": "Pavimento",
+                    "total_width": 35.4,
+                    "total_height": 255.7,
+                    "panels": [
+                      {
+                        "width": 255.7,
+                        "height1": 35.4,
+                        "height2": 35.4,
+                        "grade_h1": "255.7",
+                        "grade_h2": "255.7"
+                      }
+                    ],
+                    "segments_rich": [
+                      {
+                        "total_width": 255.7,
+                        "panels": [
+                          {
+                            "width": 255.7,
+                            "texts": [],
+                            "vertices": [
+                              {
+                                "x": 0.0,
+                                "y": 22.3
+                              },
+                              {
+                                "x": 21.1,
+                                "y": 0.0
+                              },
+                              {
+                                "x": 255.7,
+                                "y": 0.0
+                              },
+                              {
+                                "x": 248.2,
+                                "y": 19.0
+                              },
+                              {
+                                "x": 29.3,
+                                "y": 19.0
+                              },
+                              {
+                                "x": 13.8,
+                                "y": 35.4
+                              },
+                              {
+                                "x": 0.0,
+                                "y": 22.3
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ],
+                    "holes": [
+                      {
+                        "active": false,
+                        "width": 0.0,
+                        "height": 0.0,
+                        "position": 0.0,
+                        "text": null
+                      },
+                      {
+                        "active": false,
+                        "width": 0.0,
+                        "height": 0.0,
+                        "position": 0.0,
+                        "text": null
+                      },
+                      {
+                        "active": false,
+                        "width": 0.0,
+                        "height": 0.0,
+                        "position": 0.0,
+                        "text": null
+                      },
+                      {
+                        "active": false,
+                        "width": 0.0,
+                        "height": 0.0,
+                        "position": 0.0,
+                        "text": null
+                      }
+                    ],
+                    "pillar_left": {
+                      "active": false,
+                      "width": 0.0,
+                      "length": 0.0
+                    },
+                    "pillar_right": {
+                      "active": false,
+                      "width": 0.0,
+                      "length": 0.0
+                    },
+                    "label_left": "P25",
+                    "label_right": "V57",
+                    "sarrafo_left_id": 0,
+                    "sarrafo_right_id": 0,
+                    "_n_linhas_folha": 1,
+                    "_er_meta": {
+                      "source": "dxf_geometry",
+                      "dxf_path": "D:/Agente-cad-PYSIDE/DADOS-OBRAS/Obra_TREINO_1/Fase-2_Triagem/recortes_reversos\\ALIMONTI - PARAISO - TIPO - 3° AO 12° PAV.- FV - R00\\FV_V6_motor_178106520127.dxf",
+                      "confianca": 0.9,
+                      "n_pilar_gaps": 0,
+                      "n_polys_atribuidos": 1
+                    },
+                    "_confianca": 0.9,
+                    "_fase4_ref": {
+                      "number": "6",
+                      "name": "V6",
+                      "floor": "Pavimento",
+                      "total_width": 35.4,
+                      "total_height": 255.7,
+                      "panels": [
+                        {
+                          "width": 255.7,
+                          "height1": 35.4,
+                          "height2": 35.4,
+                          "grade_h1": "255.7",
+                          "grade_h2": "255.7"
+                        }
+                      ],
+                      "segments_rich": [
+                        {
+                          "total_width": 255.7,
+                          "panels": [
+                            {
+                              "width": 255.7,
+                              "texts": [],
+                              "vertices": [
+                                {
+                                  "x": 0.0,
+                                  "y": 22.3
+                                },
+                                {
+                                  "x": 21.1,
+                                  "y": 0.0
+                                },
+                                {
+                                  "x": 255.7,
+                                  "y": 0.0
+                                },
+                                {
+                                  "x": 248.2,
+                                  "y": 19.0
+                                },
+                                {
+                                  "x": 29.3,
+                                  "y": 19.0
+                                },
+                                {
+                                  "x": 13.8,
+                                  "y": 35.4
+                                },
+                                {
+                                  "x": 0.0,
+                                  "y": 22.3
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ],
+                      "holes": [
+                        {
+                          "active": false,
+                          "width": 0.0,
+                          "height": 0.0,
+                          "position": 0.0,
+                          "text": null
+                        },
+                        {
+                          "active": false,
+                          "width": 0.0,
+                          "height": 0.0,
+                          "position": 0.0,
+                          "text": null
+                        },
+                        {
+                          "active": false,
+                          "width": 0.0,
+                          "height": 0.0,
+                          "position": 0.0,
+                          "text": null
+                        },
+                        {
+                          "active": false,
+                          "width": 0.0,
+                          "height": 0.0,
+                          "position": 0.0,
+                          "text": null
+                        }
+                      ],
+                      "pillar_left": {
+                        "active": false,
+                        "width": 0.0,
+                        "length": 0.0
+                      },
+                      "pillar_right": {
+                        "active": false,
+                        "width": 0.0,
+                        "length": 0.0
+                      },
+                      "label_left": "P25",
+                      "label_right": "V57",
+                      "sarrafo_left_id": 0,
+                      "sarrafo_right_id": 0,
+                      "_n_linhas_folha": 1,
+                      "_er_meta": {
+                        "source": "dxf_geometry",
+                        "dxf_path": "D:/Agente-cad-PYSIDE/DADOS-OBRAS/Obra_TREINO_1/Fase-2_Triagem/recortes_reversos\\ALIMONTI - PARAISO - TIPO - 3° AO 12° PAV.- FV - R00\\FV_V6_motor_178106299005.dxf",
+                        "confianca": 0.9,
+                        "n_pilar_gaps": 0,
+                        "n_polys_atribuidos": 1
+                      },
+                      "_confianca": 0.9,
+                      "_fase4_ref": {
+                        "number": "6",
+                        "name": "V6",
+                        "floor": "Pavimento",
+                        "panels": [],
+                        "holes": [
+                          {
+                            "active": false,
+                            "width": 0.0,
+                            "height": 0.0,
+                            "position": 0.0
+                          },
+                          {
+                            "active": false,
+                            "width": 0.0,
+                            "height": 0.0,
+                            "position": 0.0
+                          },
+                          {
+                            "active": false,
+                            "width": 0.0,
+                            "height": 0.0,
+                            "position": 0.0
+                          },
+                          {
+                            "active": false,
+                            "width": 0.0,
+                            "height": 0.0,
+                            "position": 0.0
+                          }
+                        ],
+                        "total_width": 19.0,
+                        "total_height": 0.0,
+                        "pillar_left": {
+                          "active": false,
+                          "width": 0.0,
+                          "length": 0.0
+                        },
+                        "pillar_right": {
+                          "active": false,
+                          "width": 0.0,
+                          "length": 0.0
+                        },
+                        "label_left": "L Esq",
+                        "label_right": "L Dir",
+                        "sarrafo_left_id": 0,
+                        "sarrafo_right_id": 0,
+                        "_er_meta": {
+                          "source": "dxf_geometry",
+                          "dxf_path": "D:/Agente-cad-PYSIDE/DADOS-OBRAS/Obra_TREINO_1/Fase-2_Triagem/recortes_reversos\\ALIMONTI - PARAISO - TIPO - 3° AO 12° PAV.- FV - R00\\FV_V6_motor_178106120544.dxf",
+                          "confianca": 0.3,
+                          "n_pilar_gaps": 0,
+                          "n_polys_atribuidos": 0
+                        },
+                        "_confianca": 0.3,
+                        "_fase4_ref": {
+                          "number": "6",
+                          "name": "V6",
+                          "floor": "Pavimento",
+                          "total_width": 35.4,
+                          "total_height": 255.7,
+                          "panels": [
+                            {
+                              "width": 255.7,
+                              "height1": 35.4,
+                              "height2": 35.4,
+                              "grade_h1": "255.7",
+                              "grade_h2": "255.7"
+                            }
+                          ],
+                          "segments_rich": [
+                            {
+                              "total_width": 255.7,
+                              "panels": [
+                                {
+                                  "width": 255.7,
+                                  "texts": [],
+                                  "vertices": [
+                                    {
+                                      "x": 0.0,
+                                      "y": -47.0
+                                    },
+                                    {
+                                      "x": 21.1,
+                                      "y": -69.3
+                                    },
+                                    {
+                                      "x": 255.7,
+                                      "y": -69.3
+                                    },
+                                    {
+                                      "x": 248.2,
+                                      "y": -50.3
+                                    },
+                                    {
+                                      "x": 29.3,
+                                      "y": -50.3
+                                    },
+                                    {
+                                      "x": 13.8,
+                                      "y": -33.9
+                                    },
+                                    {
+                                      "x": 0.0,
+                                      "y": -47.0
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ],
+                          "holes": [
+                            {
+                              "active": false,
+                              "width": 0.0,
+                              "height": 0.0,
+                              "position": 0.0,
+                              "text": null
+                            },
+                            {
+                              "active": false,
+                              "width": 0.0,
+                              "height": 0.0,
+                              "position": 0.0,
+                              "text": null
+                            },
+                            {
+                              "active": false,
+                              "width": 0.0,
+                              "height": 0.0,
+                              "position": 0.0,
+                              "text": null
+                            },
+                            {
+                              "active": false,
+                              "width": 0.0,
+                              "height": 0.0,
+                              "position": 0.0,
+                              "text": null
+                            }
+                          ],
+                          "pillar_left": {
+                            "active": false,
+                            "width": 0.0,
+                            "length": 0.0
+                          },
+                          "pillar_right": {
+                            "active": false,
+                            "width": 0.0,
+                            "length": 0.0
+                          },
+                          "label_left": "P25",
+                          "label_right": "V57",
+                          "sarrafo_left_id": 0,
+                          "sarrafo_right_id": 0,
+                          "_n_linhas_folha": 1,
+                          "_er_meta": {
+                            "source": "dxf_geometry",
+                            "dxf_path": "D:/Agente-cad-PYSIDE/DADOS-OBRAS/Obra_TREINO_1/Fase-2_Triagem/recortes_reversos\\ALIMONTI - PARAISO - TIPO - 3° AO 12° PAV.- FV - R00\\FV_V6_motor_178111349892.dxf",
+                            "confianca": 0.9,
+                            "n_pilar_gaps": 0,
+                            "n_polys_atribuidos": 1
+                          },
+                          "_confianca": 0.9,
+                          "_fase4_ref": {
+                            "number": "6",
+                            "name": "V6",
+                            "floor": "Pavimento",
+                            "total_width": 35.4,
+                            "total_height": 255.7,
+                            "panels": [
+                              {
+                                "width": 255.7,
+                                "height1": 35.4,
+                                "height2": 35.4,
+                                "grade_h1": "255.7",
+                                "grade_h2": "255.7"
+                              }
+                            ],
+                            "segments_rich": [
+                              {
+                                "total_width": 255.7,
+                                "panels": [
+                                  {
+                                    "width": 255.7,
+                                    "texts": [],
+                                    "vertices": [
+                                      {
+                                        "x": 0.0,
+                                        "y": -47.0
+                                      },
+                                      {
+                                        "x": 21.1,
+                                        "y": -69.3
+                                      },
+                                      {
+                                        "x": 255.7,
+                                        "y": -69.3
+                                      },
+                                      {
+                                        "x": 248.2,
+                                        "y": -50.3
+                                      },
+                                      {
+                                        "x": 29.3,
+                                        "y": -50.3
+                                      },
+                                      {
+                                        "x": 13.8,
+                                        "y": -33.9
+                                      },
+                                      {
+                                        "x": 0.0,
+                                        "y": -47.0
+                                      }
+                                    ]
+                                  }
+                                ]
+                              }
+                            ],
+                            "holes": [
+                              {
+                                "active": false,
+                                "width": 0.0,
+                                "height": 0.0,
+                                "position": 0.0,
+                                "text": null
+                              },
+                              {
+                                "active": false,
+                                "width": 0.0,
+                                "height": 0.0,
+                                "position": 0.0,
+                                "text": null
+                              },
+                              {
+                                "active": false,
+                                "width": 0.0,
+                                "height": 0.0,
+                                "position": 0.0,
+                                "text": null
+                              },
+                              {
+                                "active": false,
+                                "width": 0.0,
+                                "height": 0.0,
+                                "position": 0.0,
+                                "text": null
+                              }
+                            ],
+                            "pillar_left": {
+                              "active": false,
+                              "width": 0.0,
+                              "length": 0.0
+                            },
+                            "pillar_right": {
+                              "active": false,
+                              "width": 0.0,
+                              "length": 0.0
+                            },
+                            "label_left": "P25",
+                            "label_right": "V57",
+                            "sarrafo_left_id": 0,
+                            "sarrafo_right_id": 0,
+                            "_n_linhas_folha": 1,
+                            "_er_meta": {
+                              "source": "dxf_geometry",
+                              "dxf_path": "D:/Agente-cad-PYSIDE/DADOS-OBRAS/Obra_TREINO_1/Fase-2_Triagem/recortes_reversos\\ALIMONTI - PARAISO - TIPO - 3° AO 12° PAV.- FV - R00\\FV_V6_motor_178111045154.dxf",
+                              "confianca": 0.9,
+                              "n_pilar_gaps": 0,
+                              "n_polys_atribuidos": 1
+                            },
+                            "_confianca": 0.9,
+                            "_fase4_ref": {
+                              "number": "6",
+                              "name": "V6",
+                              "floor": "Pavimento",
+                              "total_width": 35.4,
+                              "total_height": 255.7,
+                              "panels": [
+                                {
+                                  "width": 255.7,
+                                  "height1": 35.4,
+                                  "height2": 35.4,
+                                  "grade_h1": "255.7",
+                                  "grade_h2": "255.7"
+                                }
+                              ],
+                              "segments_rich": [
+                                {
+                                  "total_width": 255.7,
+                                  "panels": [
+                                    {
+                                      "width": 255.7,
+                                      "texts": [],
+                                      "vertices": [
+                                        {
+                                          "x": 0.0,
+                                          "y": -47.0
+                                        },
+                                        {
+                                          "x": 21.1,
+                                          "y": -69.3
+                                        },
+                                        {
+                                          "x": 255.7,
+                                          "y": -69.3
+                                        },
+                                        {
+                                          "x": 248.2,
+                                          "y": -50.3
+                                        },
+                                        {
+                                          "x": 29.3,
+                                          "y": -50.3
+                                        },
+                                        {
+                                          "x": 13.8,
+                                          "y": -33.9
+                                        },
+                                        {
+                                          "x": 0.0,
+                                          "y": -47.0
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ],
+                              "holes": [
+                                {
+                                  "active": false,
+                                  "width": 0.0,
+                                  "height": 0.0,
+                                  "position": 0.0,
+                                  "text": null
+                                },
+                                {
+                                  "active": false,
+                                  "width": 0.0,
+                                  "height": 0.0,
+                                  "position": 0.0,
+                                  "text": null
+                                },
+                                {
+                                  "active": false,
+                                  "width": 0.0,
+                                  "height": 0.0,
+                                  "position": 0.0,
+                                  "text": null
+                                },
+                                {
+                                  "active": false,
+                                  "width": 0.0,
+                                  "height": 0.0,
+                                  "position": 0.0,
+                                  "text": null
+                                }
+                              ],
+                              "pillar_left": {
+                                "active": false,
+                                "width": 0.0,
+                                "length": 0.0
+                              },
+                              "pillar_right": {
+                                "active": false,
+                                "width": 0.0,
+                                "length": 0.0
+                              },
+                              "label_left": "P25",
+                              "label_right": "V57",
+                              "sarrafo_left_id": 0,
+                              "sarrafo_right_id": 0,
+                              "_n_linhas_folha": 1,
+                              "_er_meta": {
+                                "source": "dxf_geometry",
+                                "dxf_path": "D:/Agente-cad-PYSIDE/DADOS-OBRAS/Obra_TREINO_1/Fase-2_Triagem/recortes_reversos\\ALIMONTI - PARAISO - TIPO - 3° AO 12° PAV.- FV - R00\\FV_V6_motor_178106540190.dxf",
+                                "confianca": 0.9,
+                                "n_pilar_gaps": 0,
+                                "n_polys_atribuidos": 1
+                              },
+                              "_confianca": 0.9,
+                              "_fase4_ref": {
+                                "number": "6",
+                                "name": "V6",
+                                "floor": "Pavimento",
+                                "total_width": 35.4,
+                                "total_height": 255.7,
+                                "panels": [
+                                  {
+                                    "width": 255.7,
+                                    "height1": 35.4,
+                                    "height2": 35.4,
+                                    "grade_h1": "255.7",
+                                    "grade_h2": "255.7"
+                                  }
+                                ],
+                                "segments_rich": [
+                                  {
+                                    "total_width": 255.7,
+                                    "panels": [
+                                      {
+                                        "width": 255.7,
+                                        "texts": [],
+                                        "vertices": [
+                                          {
+                                            "x": 0.0,
+                                            "y": -47.0
+                                          },
+                                          {
+                                            "x": 21.1,
+                                            "y": -69.3
+                                          },
+                                          {
+                                            "x": 255.7,
+                                            "y": -69.3
+                                          },
+                                          {
+                                            "x": 248.2,
+                                            "y": -50.3
+                                          },
+                                          {
+                                            "x": 29.3,
+                                            "y": -50.3
+                                          },
+                                          {
+                                            "x": 13.8,
+                                            "y": -33.9
+                                          },
+                                          {
+                                            "x": 0.0,
+                                            "y": -47.0
+                                          }
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                ],
+                                "holes": [
+                                  {
+                                    "active": false,
+                                    "width": 0.0,
+                                    "height": 0.0,
+                                    "position": 0.0,
+                                    "text": null
+                                  },
+                                  {
+                                    "active": false,
+                                    "width": 0.0,
+                                    "height": 0.0,
+                                    "position": 0.0,
+                                    "text": null
+                                  },
+                                  {
+                                    "active": false,
+                                    "width": 0.0,
+                                    "height": 0.0,
+                                    "position": 0.0,
+                                    "text": null
+                                  },
+                                  {
+                                    "active": false,
+                                    "width": 0.0,
+                                    "height": 0.0,
+                                    "position": 0.0,
+                                    "text": null
+                                  }
+                                ],
+                                "pillar_left": {
+                                  "active": false,
+                                  "width": 0.0,
+                                  "length": 0.0
+                                },
+                                "pillar_right": {
+                                  "active": false,
+                                  "width": 0.0,
+                                  "length": 0.0
+                                },
+                                "label_left": "P25",
+                                "label_right": "V57",
+                                "sarrafo_left_id": 0,
+                                "sarrafo_right_id": 0,
+                                "_n_linhas_folha": 1,
+                                "_er_meta": {
+                                  "source": "dxf_geometry",
+                                  "dxf_path": "D:/Agente-cad-PYSIDE/DADOS-OBRAS/Obra_TREINO_1/Fase-2_Triagem/recortes_reversos\\ALIMONTI - PARAISO - TIPO - 3° AO 12° PAV.- FV - R00\\FV_V6_motor_178106520127.dxf",
+                                  "confianca": 0.9,
+                                  "n_pilar_gaps": 0,
+                                  "n_polys_atribuidos": 1
+                                },
+                                "_confianca": 0.9,
+                                "_fase4_ref": {
+                                  "number": "6",
+                                  "name": "V6",
+                                  "floor": "Pavimento",
+                                  "total_width": 35.4,
+                                  "total_height": 255.7,
+                                  "panels": [
+                                    {
+                                      "width": 255.7,
+                                      "height1": 35.4,
+                                      "height2": 35.4,
+                                      "grade_h1": "255.7",
+                                      "grade_h2": "255.7"
+                                    }
+                                  ],
+                                  "segments_rich": [
+                                    {
+                                      "total_width": 255.7,
+                                      "panels": [
+                                        {
+                                          "width": 255.7,
+                                          "texts": [],
+                                          "vertices": [
+                                            {
+                                              "x": 0.0,
+                                              "y": -47.0
+                                            },
+                                            {
+                                              "x": 21.1,
+                                              "y": -69.3
+                                            },
+                                            {
+                                              "x": 255.7,
+                                              "y": -69.3
+                                            },
+                                            {
+                                              "x": 248.2,
+                                              "y": -50.3
+                                            },
+                                            {
+                                              "x": 29.3,
+                                              "y": -50.3
+                                            },
+                                            {
+                                              "x": 13.8,
+                                              "y": -33.9
+                                            },
+                                            {
+                                              "x": 0.0,
+                                              "y": -47.0
+                                            }
+                                          ]
+                                        }
+                                      ]
+                                    }
+                                  ],
+                                  "holes": [
+                                    {
+                                      "active": false,
+                                      "width": 0.0,
+                                      "height": 0.0,
+                                      "position": 0.0,
+                                      "text": null
+                                    },
+                                    {
+                                      "active": false,
+                                      "width": 0.0,
+                                      "height": 0.0,
+                                      "position": 0.0,
+                                      "text": null
+                                    },
+                                    {
+                                      "active": false,
+                                      "width": 0.0,
+                                      "height": 0.0,
+                                      "position": 0.0,
+                                      "text": null
+                                    },
+                                    {
+                                      "active": false,
+                                      "width": 0.0,
+                                      "height": 0.0,
+                                      "position": 0.0,
+                                      "text": null
+                                    }
+                                  ],
+                                  "pillar_left": {
+                                    "active": false,
+                                    "width": 0.0,
+                                    "length": 0.0
+                                  },
+                                  "pillar_right": {
+                                    "active": false,
+                                    "width": 0.0,
+                                    "length": 0.0
+                                  },
+                                  "label_left": "P25",
+                                  "label_right": "V57",
+                                  "sarrafo_left_id": 0,
+                                  "sarrafo_right_id": 0,
+                                  "_n_linhas_folha": 1,
+                                  "_er_meta": {
+                                    "source": "dxf_geometry",
+                                    "dxf_path": "D:/Agente-cad-PYSIDE/DADOS-OBRAS/Obra_TREINO_1/Fase-2_Triagem/recortes_reversos\\ALIMONTI - PARAISO - TIPO - 3° AO 12° PAV.- FV - R00\\FV_V6_motor_178106299005.dxf",
+                                    "confianca": 0.9,
+                                    "n_pilar_gaps": 0,
+                                    "n_polys_atribuidos": 1
+                                  },
+                                  "_confianca": 0.9,
+                                  "_fase4_ref": {
+                                    "number": "6",
+                                    "name": "V6",
+                                    "floor": "Pavimento",
+                                    "panels": [],
+                                    "holes": [
+                                      {
+                                        "active": false,
+                                        "width": 0.0,
+                                        "height": 0.0,
+                                        "position": 0.0
+                                      },
+                                      {
+                                        "active": false,
+                                        "width": 0.0,
+                                        "height": 0.0,
+                                        "position": 0.0
+                                      },
+                                      {
+                                        "active": false,
+                                        "width": 0.0,
+                                        "height": 0.0,
+                                        "position": 0.0
+                                      },
+                                      {
+                                        "active": false,
+                                        "width": 0.0,
+                                        "height": 0.0,
+                                        "position": 0.0
+                                      }
+                                    ],
+                                    "total_width": 19.0,
+                                    "total_height": 0.0,
+                                    "pillar_left": {
+                                      "active": false,
+                                      "width": 0.0,
+                                      "length": 0.0
+                                    },
+                                    "pillar_right": {
+                                      "active": false,
+                                      "width": 0.0,
+                                      "length": 0.0
+                                    },
+                                    "label_left": "L Esq",
+                                    "label_right": "L Dir",
+                                    "sarrafo_left_id": 0,
+                                    "sarrafo_right_id": 0,
+                                    "_er_meta": {
+                                      "source": "dxf_geometry",
+                                      "dxf_path": "D:/Agente-cad-PYSIDE/DADOS-OBRAS/Obra_TREINO_1/Fase-2_Triagem/recortes_reversos\\ALIMONTI - PARAISO - TIPO - 3° AO 12° PAV.- FV - R00\\FV_V6_motor_178106120544.dxf",
+                                      "confianca": 0.3,
+                                      "n_pilar_gaps": 0,
+                                      "n_polys_atribuidos": 0
+                                    },
+                                    "_confianca": 0.3,
+                                    "_fase4_ref": {
+                                      "number": "6",
+                                      "name": "V6_A",
+                                      "floor": "Pavimento",
+                                      "side": "A",
+                                      "total_width": 19.0,
+                                      "total_height": "60.0",
+                                      "panels": [
+                                        {
+                                          "width": 60.0,
+                                          "height1": 60.0,
+                                          "height2": 60.0,
+                                          "grade_h1": "60.0",
+                                          "grade_h2": "60.0"
+                                        }
+                                      ],
+                                      "holes": [
+                                        {
+                                          "active": false,
+                                          "width": 0.0,
+                                          "height": 0.0,
+                                          "position": 0.0
+                                        },
+                                        {
+                                          "active": false,
+                                          "width": 0.0,
+                                          "height": 0.0,
+                                          "position": 0.0
+                                        },
+                                        {
+                                          "active": false,
+                                          "width": 0.0,
+                                          "height": 0.0,
+                                          "position": 0.0
+                                        },
+                                        {
+                                          "active": false,
+                                          "width": 0.0,
+                                          "height": 0.0,
+                                          "position": 0.0
+                                        }
+                                      ],
+                                      "pillar_left": {
+                                        "active": false,
+                                        "width": 0.0,
+                                        "length": 0.0
+                                      },
+                                      "pillar_right": {
+                                        "active": false,
+                                        "width": 0.0,
+                                        "length": 0.0
+                                      },
+                                      "sarrafo_left_id": 0,
+                                      "sarrafo_right_id": 0
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
   }
 }

@@ -1,84 +1,3469 @@
 {
   "number": "322",
-  "name": "V322_A",
+  "name": "V322",
   "floor": "Pavimento",
-  "side": "A",
   "total_width": 19.0,
-  "total_height": "120.0",
+  "total_height": 380.0,
   "panels": [
     {
-      "width": 244.0,
-      "height1": 120.0,
-      "height2": 120.0,
-      "grade_h1": "244.0",
-      "grade_h2": "244.0"
+      "width": 118.0,
+      "height1": 19.0,
+      "height2": 19.0,
+      "grade_h1": "118.0",
+      "grade_h2": "118.0"
+    },
+    {
+      "width": 262.0,
+      "height1": 19.0,
+      "height2": 19.0,
+      "grade_h1": "262.0",
+      "grade_h2": "262.0"
+    }
+  ],
+  "segments_rich": [
+    {
+      "total_width": 118.0,
+      "panels": [
+        {
+          "width": 118.0,
+          "texts": [
+            "P32"
+          ],
+          "vertices": [
+            {
+              "x": 0.0,
+              "y": 17.7
+            },
+            {
+              "x": 0.0,
+              "y": -1.3
+            },
+            {
+              "x": 118.0,
+              "y": -1.3
+            },
+            {
+              "x": 118.0,
+              "y": 17.7
+            },
+            {
+              "x": 0.0,
+              "y": 17.7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "total_width": 262.0,
+      "panels": [
+        {
+          "width": 122.0,
+          "texts": [],
+          "vertices": [
+            {
+              "x": 122.0,
+              "y": 0.0
+            },
+            {
+              "x": 0.0,
+              "y": 0.0
+            },
+            {
+              "x": 0.0,
+              "y": 19.0
+            },
+            {
+              "x": 122.0,
+              "y": 19.0
+            }
+          ]
+        },
+        {
+          "width": 140.0,
+          "texts": [
+            "P23"
+          ],
+          "vertices": [
+            {
+              "x": 0.0,
+              "y": 19.0
+            },
+            {
+              "x": 140.0,
+              "y": 19.0
+            },
+            {
+              "x": 140.0,
+              "y": 0.0
+            },
+            {
+              "x": 0.0,
+              "y": 0.0
+            }
+          ]
+        }
+      ]
     }
   ],
   "holes": [
     {
-      "active": false,
-      "width": 0.0,
-      "height": 0.0,
-      "position": 0.0
+      "active": true,
+      "width": 14.9,
+      "height": 19.0,
+      "position": 118.0,
+      "text": "P16"
     },
     {
       "active": false,
       "width": 0.0,
       "height": 0.0,
-      "position": 0.0
+      "position": 0.0,
+      "text": null
     },
     {
       "active": false,
       "width": 0.0,
       "height": 0.0,
-      "position": 0.0
+      "position": 0.0,
+      "text": null
     },
     {
       "active": false,
       "width": 0.0,
       "height": 0.0,
-      "position": 0.0
+      "position": 0.0,
+      "text": null
     }
   ],
   "pillar_left": {
-    "active": true,
+    "active": false,
     "width": 0.0,
-    "length": 60.0
+    "length": 0.0
   },
   "pillar_right": {
-    "active": true,
+    "active": false,
     "width": 0.0,
-    "length": 80.0
+    "length": 0.0
   },
+  "label_left": "V302",
+  "label_right": "P7",
   "sarrafo_left_id": 0,
   "sarrafo_right_id": 0,
-  "_sa_meta": {
-    "tipo": "FV",
-    "analisado_em": "2026-06-04 18:15",
-    "campos_extraidos": [
-      "floor",
-      "name",
-      "number",
-      "panels",
-      "total_height",
-      "total_width"
+  "_n_linhas_folha": 1,
+  "_er_meta": {
+    "source": "dxf_geometry",
+    "dxf_path": "D:/Agente-cad-PYSIDE/DADOS-OBRAS/Obra_TREINO_1/Fase-2_Triagem/recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- FV - R00_motor\\FV_V322_motor_178105102591.dxf",
+    "confianca": 0.9,
+    "n_pilar_gaps": 1,
+    "n_polys_atribuidos": 3
+  },
+  "_confianca": 0.9,
+  "_fase4_ref": {
+    "number": "322",
+    "name": "V322",
+    "floor": "Pavimento",
+    "total_width": 19.0,
+    "total_height": 380.0,
+    "panels": [
+      {
+        "width": 118.0,
+        "height1": 19.0,
+        "height2": 19.0,
+        "grade_h1": "118.0",
+        "grade_h2": "118.0"
+      },
+      {
+        "width": 262.0,
+        "height1": 19.0,
+        "height2": 19.0,
+        "grade_h1": "262.0",
+        "grade_h2": "262.0"
+      }
     ],
-    "campos_defaulted": [],
-    "na_fields": [
-      "altura",
-      "comprimento",
-      "coordenadas",
-      "grade_1",
-      "grade_2",
-      "largura",
-      "linhas_horizontais",
-      "linhas_verticais",
-      "nome",
-      "numero",
-      "obstaculos",
-      "pavimento",
-      "reaproveitamento_dados"
+    "segments_rich": [
+      {
+        "total_width": 118.0,
+        "panels": [
+          {
+            "width": 118.0,
+            "texts": [],
+            "vertices": [
+              {
+                "x": 0.0,
+                "y": 17.7
+              },
+              {
+                "x": 0.0,
+                "y": -1.3
+              },
+              {
+                "x": 118.0,
+                "y": -1.3
+              },
+              {
+                "x": 118.0,
+                "y": 17.7
+              },
+              {
+                "x": 0.0,
+                "y": 17.7
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "total_width": 262.0,
+        "panels": [
+          {
+            "width": 122.0,
+            "texts": [],
+            "vertices": [
+              {
+                "x": 122.0,
+                "y": 0.0
+              },
+              {
+                "x": 0.0,
+                "y": 0.0
+              },
+              {
+                "x": 0.0,
+                "y": 19.0
+              },
+              {
+                "x": 122.0,
+                "y": 19.0
+              },
+              {
+                "x": 122.0,
+                "y": 0.0
+              }
+            ]
+          },
+          {
+            "width": 140.0,
+            "texts": [],
+            "vertices": [
+              {
+                "x": 0.0,
+                "y": 19.0
+              },
+              {
+                "x": 140.0,
+                "y": 19.0
+              },
+              {
+                "x": 140.0,
+                "y": 0.0
+              },
+              {
+                "x": 0.0,
+                "y": 0.0
+              },
+              {
+                "x": 0.0,
+                "y": 19.0
+              }
+            ]
+          }
+        ]
+      }
     ],
-    "completude_pct": 100.0
+    "holes": [
+      {
+        "active": true,
+        "width": 14.9,
+        "height": 19.0,
+        "position": 118.0,
+        "text": "P16"
+      },
+      {
+        "active": false,
+        "width": 0.0,
+        "height": 0.0,
+        "position": 0.0,
+        "text": null
+      },
+      {
+        "active": false,
+        "width": 0.0,
+        "height": 0.0,
+        "position": 0.0,
+        "text": null
+      },
+      {
+        "active": false,
+        "width": 0.0,
+        "height": 0.0,
+        "position": 0.0,
+        "text": null
+      }
+    ],
+    "pillar_left": {
+      "active": false,
+      "width": 0.0,
+      "length": 0.0
+    },
+    "pillar_right": {
+      "active": false,
+      "width": 0.0,
+      "length": 0.0
+    },
+    "label_left": "V302",
+    "label_right": "P7",
+    "sarrafo_left_id": 0,
+    "sarrafo_right_id": 0,
+    "_n_linhas_folha": 1,
+    "_er_meta": {
+      "source": "dxf_geometry",
+      "dxf_path": "D:/Agente-cad-PYSIDE/DADOS-OBRAS/Obra_TREINO_1/Fase-2_Triagem/recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- FV - R00\\FV_V322_motor_178111331121.dxf",
+      "confianca": 0.9,
+      "n_pilar_gaps": 1,
+      "n_polys_atribuidos": 3
+    },
+    "_confianca": 0.9,
+    "_fase4_ref": {
+      "number": "322",
+      "name": "V322",
+      "floor": "Pavimento",
+      "total_width": 19.0,
+      "total_height": 380.0,
+      "panels": [
+        {
+          "width": 118.0,
+          "height1": 19.0,
+          "height2": 19.0,
+          "grade_h1": "118.0",
+          "grade_h2": "118.0"
+        },
+        {
+          "width": 262.0,
+          "height1": 19.0,
+          "height2": 19.0,
+          "grade_h1": "262.0",
+          "grade_h2": "262.0"
+        }
+      ],
+      "segments_rich": [
+        {
+          "total_width": 118.0,
+          "panels": [
+            {
+              "width": 118.0,
+              "texts": [
+                "P32"
+              ],
+              "vertices": [
+                {
+                  "x": 0.0,
+                  "y": 17.7
+                },
+                {
+                  "x": 0.0,
+                  "y": -1.3
+                },
+                {
+                  "x": 118.0,
+                  "y": -1.3
+                },
+                {
+                  "x": 118.0,
+                  "y": 17.7
+                },
+                {
+                  "x": 0.0,
+                  "y": 17.7
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "total_width": 262.0,
+          "panels": [
+            {
+              "width": 122.0,
+              "texts": [],
+              "vertices": [
+                {
+                  "x": 122.0,
+                  "y": 0.0
+                },
+                {
+                  "x": 0.0,
+                  "y": 0.0
+                },
+                {
+                  "x": 0.0,
+                  "y": 19.0
+                },
+                {
+                  "x": 122.0,
+                  "y": 19.0
+                }
+              ]
+            },
+            {
+              "width": 140.0,
+              "texts": [
+                "P23"
+              ],
+              "vertices": [
+                {
+                  "x": 0.0,
+                  "y": 19.0
+                },
+                {
+                  "x": 140.0,
+                  "y": 19.0
+                },
+                {
+                  "x": 140.0,
+                  "y": 0.0
+                },
+                {
+                  "x": 0.0,
+                  "y": 0.0
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "holes": [
+        {
+          "active": true,
+          "width": 14.9,
+          "height": 19.0,
+          "position": 118.0,
+          "text": "P16"
+        },
+        {
+          "active": false,
+          "width": 0.0,
+          "height": 0.0,
+          "position": 0.0,
+          "text": null
+        },
+        {
+          "active": false,
+          "width": 0.0,
+          "height": 0.0,
+          "position": 0.0,
+          "text": null
+        },
+        {
+          "active": false,
+          "width": 0.0,
+          "height": 0.0,
+          "position": 0.0,
+          "text": null
+        }
+      ],
+      "pillar_left": {
+        "active": false,
+        "width": 0.0,
+        "length": 0.0
+      },
+      "pillar_right": {
+        "active": false,
+        "width": 0.0,
+        "length": 0.0
+      },
+      "label_left": "V302",
+      "label_right": "P7",
+      "sarrafo_left_id": 0,
+      "sarrafo_right_id": 0,
+      "_n_linhas_folha": 1,
+      "_er_meta": {
+        "source": "dxf_geometry",
+        "dxf_path": "D:/Agente-cad-PYSIDE/DADOS-OBRAS/Obra_TREINO_1/Fase-2_Triagem/recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- FV - R00\\FV_V322_motor_178111040029.dxf",
+        "confianca": 0.9,
+        "n_pilar_gaps": 1,
+        "n_polys_atribuidos": 3
+      },
+      "_confianca": 0.9,
+      "_fase4_ref": {
+        "number": "322",
+        "name": "V322",
+        "floor": "Pavimento",
+        "total_width": 19.0,
+        "total_height": 380.0,
+        "panels": [
+          {
+            "width": 118.0,
+            "height1": 19.0,
+            "height2": 19.0,
+            "grade_h1": "118.0",
+            "grade_h2": "118.0"
+          },
+          {
+            "width": 262.0,
+            "height1": 19.0,
+            "height2": 19.0,
+            "grade_h1": "262.0",
+            "grade_h2": "262.0"
+          }
+        ],
+        "segments_rich": [
+          {
+            "total_width": 118.0,
+            "panels": [
+              {
+                "width": 118.0,
+                "texts": [
+                  "P32"
+                ],
+                "vertices": [
+                  {
+                    "x": 0.0,
+                    "y": 17.7
+                  },
+                  {
+                    "x": 0.0,
+                    "y": -1.3
+                  },
+                  {
+                    "x": 118.0,
+                    "y": -1.3
+                  },
+                  {
+                    "x": 118.0,
+                    "y": 17.7
+                  },
+                  {
+                    "x": 0.0,
+                    "y": 17.7
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "total_width": 262.0,
+            "panels": [
+              {
+                "width": 122.0,
+                "texts": [],
+                "vertices": [
+                  {
+                    "x": 122.0,
+                    "y": 0.0
+                  },
+                  {
+                    "x": 0.0,
+                    "y": 0.0
+                  },
+                  {
+                    "x": 0.0,
+                    "y": 19.0
+                  },
+                  {
+                    "x": 122.0,
+                    "y": 19.0
+                  }
+                ]
+              },
+              {
+                "width": 140.0,
+                "texts": [
+                  "P23"
+                ],
+                "vertices": [
+                  {
+                    "x": 0.0,
+                    "y": 19.0
+                  },
+                  {
+                    "x": 140.0,
+                    "y": 19.0
+                  },
+                  {
+                    "x": 140.0,
+                    "y": 0.0
+                  },
+                  {
+                    "x": 0.0,
+                    "y": 0.0
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "holes": [
+          {
+            "active": true,
+            "width": 14.9,
+            "height": 19.0,
+            "position": 118.0,
+            "text": "P16"
+          },
+          {
+            "active": false,
+            "width": 0.0,
+            "height": 0.0,
+            "position": 0.0,
+            "text": null
+          },
+          {
+            "active": false,
+            "width": 0.0,
+            "height": 0.0,
+            "position": 0.0,
+            "text": null
+          },
+          {
+            "active": false,
+            "width": 0.0,
+            "height": 0.0,
+            "position": 0.0,
+            "text": null
+          }
+        ],
+        "pillar_left": {
+          "active": false,
+          "width": 0.0,
+          "length": 0.0
+        },
+        "pillar_right": {
+          "active": false,
+          "width": 0.0,
+          "length": 0.0
+        },
+        "label_left": "V302",
+        "label_right": "P7",
+        "sarrafo_left_id": 0,
+        "sarrafo_right_id": 0,
+        "_n_linhas_folha": 1,
+        "_er_meta": {
+          "source": "dxf_geometry",
+          "dxf_path": "D:/Agente-cad-PYSIDE/DADOS-OBRAS/Obra_TREINO_1/Fase-2_Triagem/recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- FV - R00\\FV_V322_motor_178106535829.dxf",
+          "confianca": 0.9,
+          "n_pilar_gaps": 1,
+          "n_polys_atribuidos": 3
+        },
+        "_confianca": 0.9,
+        "_fase4_ref": {
+          "number": "322",
+          "name": "V322",
+          "floor": "Pavimento",
+          "total_width": 19.0,
+          "total_height": 380.0,
+          "panels": [
+            {
+              "width": 118.0,
+              "height1": 19.0,
+              "height2": 19.0,
+              "grade_h1": "118.0",
+              "grade_h2": "118.0"
+            },
+            {
+              "width": 262.0,
+              "height1": 19.0,
+              "height2": 19.0,
+              "grade_h1": "262.0",
+              "grade_h2": "262.0"
+            }
+          ],
+          "segments_rich": [
+            {
+              "total_width": 118.0,
+              "panels": [
+                {
+                  "width": 118.0,
+                  "texts": [
+                    "P32"
+                  ],
+                  "vertices": [
+                    {
+                      "x": 0.0,
+                      "y": 17.7
+                    },
+                    {
+                      "x": 0.0,
+                      "y": -1.3
+                    },
+                    {
+                      "x": 118.0,
+                      "y": -1.3
+                    },
+                    {
+                      "x": 118.0,
+                      "y": 17.7
+                    },
+                    {
+                      "x": 0.0,
+                      "y": 17.7
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "total_width": 262.0,
+              "panels": [
+                {
+                  "width": 122.0,
+                  "texts": [],
+                  "vertices": [
+                    {
+                      "x": 122.0,
+                      "y": 0.0
+                    },
+                    {
+                      "x": 0.0,
+                      "y": 0.0
+                    },
+                    {
+                      "x": 0.0,
+                      "y": 19.0
+                    },
+                    {
+                      "x": 122.0,
+                      "y": 19.0
+                    }
+                  ]
+                },
+                {
+                  "width": 140.0,
+                  "texts": [
+                    "P23"
+                  ],
+                  "vertices": [
+                    {
+                      "x": 0.0,
+                      "y": 19.0
+                    },
+                    {
+                      "x": 140.0,
+                      "y": 19.0
+                    },
+                    {
+                      "x": 140.0,
+                      "y": 0.0
+                    },
+                    {
+                      "x": 0.0,
+                      "y": 0.0
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "holes": [
+            {
+              "active": true,
+              "width": 14.9,
+              "height": 19.0,
+              "position": 118.0,
+              "text": "P16"
+            },
+            {
+              "active": false,
+              "width": 0.0,
+              "height": 0.0,
+              "position": 0.0,
+              "text": null
+            },
+            {
+              "active": false,
+              "width": 0.0,
+              "height": 0.0,
+              "position": 0.0,
+              "text": null
+            },
+            {
+              "active": false,
+              "width": 0.0,
+              "height": 0.0,
+              "position": 0.0,
+              "text": null
+            }
+          ],
+          "pillar_left": {
+            "active": false,
+            "width": 0.0,
+            "length": 0.0
+          },
+          "pillar_right": {
+            "active": false,
+            "width": 0.0,
+            "length": 0.0
+          },
+          "label_left": "V302",
+          "label_right": "P7",
+          "sarrafo_left_id": 0,
+          "sarrafo_right_id": 0,
+          "_n_linhas_folha": 1,
+          "_er_meta": {
+            "source": "dxf_geometry",
+            "dxf_path": "D:/Agente-cad-PYSIDE/DADOS-OBRAS/Obra_TREINO_1/Fase-2_Triagem/recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- FV - R00\\FV_V322_motor_178106515847.dxf",
+            "confianca": 0.9,
+            "n_pilar_gaps": 1,
+            "n_polys_atribuidos": 3
+          },
+          "_confianca": 0.9,
+          "_fase4_ref": {
+            "number": "322",
+            "name": "V322",
+            "floor": "Pavimento",
+            "total_width": 19.0,
+            "total_height": 380.0,
+            "panels": [
+              {
+                "width": 118.0,
+                "height1": 19.0,
+                "height2": 19.0,
+                "grade_h1": "118.0",
+                "grade_h2": "118.0"
+              },
+              {
+                "width": 262.0,
+                "height1": 19.0,
+                "height2": 19.0,
+                "grade_h1": "262.0",
+                "grade_h2": "262.0"
+              }
+            ],
+            "segments_rich": [
+              {
+                "total_width": 118.0,
+                "panels": [
+                  {
+                    "width": 118.0,
+                    "texts": [
+                      "P32"
+                    ],
+                    "vertices": [
+                      {
+                        "x": 0.0,
+                        "y": 17.7
+                      },
+                      {
+                        "x": 0.0,
+                        "y": -1.3
+                      },
+                      {
+                        "x": 118.0,
+                        "y": -1.3
+                      },
+                      {
+                        "x": 118.0,
+                        "y": 17.7
+                      },
+                      {
+                        "x": 0.0,
+                        "y": 17.7
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "total_width": 262.0,
+                "panels": [
+                  {
+                    "width": 122.0,
+                    "texts": [],
+                    "vertices": [
+                      {
+                        "x": 122.0,
+                        "y": 0.0
+                      },
+                      {
+                        "x": 0.0,
+                        "y": 0.0
+                      },
+                      {
+                        "x": 0.0,
+                        "y": 19.0
+                      },
+                      {
+                        "x": 122.0,
+                        "y": 19.0
+                      }
+                    ]
+                  },
+                  {
+                    "width": 140.0,
+                    "texts": [
+                      "P23"
+                    ],
+                    "vertices": [
+                      {
+                        "x": 0.0,
+                        "y": 19.0
+                      },
+                      {
+                        "x": 140.0,
+                        "y": 19.0
+                      },
+                      {
+                        "x": 140.0,
+                        "y": 0.0
+                      },
+                      {
+                        "x": 0.0,
+                        "y": 0.0
+                      }
+                    ]
+                  }
+                ]
+              }
+            ],
+            "holes": [
+              {
+                "active": true,
+                "width": 14.9,
+                "height": 19.0,
+                "position": 118.0,
+                "text": "P16"
+              },
+              {
+                "active": false,
+                "width": 0.0,
+                "height": 0.0,
+                "position": 0.0,
+                "text": null
+              },
+              {
+                "active": false,
+                "width": 0.0,
+                "height": 0.0,
+                "position": 0.0,
+                "text": null
+              },
+              {
+                "active": false,
+                "width": 0.0,
+                "height": 0.0,
+                "position": 0.0,
+                "text": null
+              }
+            ],
+            "pillar_left": {
+              "active": false,
+              "width": 0.0,
+              "length": 0.0
+            },
+            "pillar_right": {
+              "active": false,
+              "width": 0.0,
+              "length": 0.0
+            },
+            "label_left": "V302",
+            "label_right": "P7",
+            "sarrafo_left_id": 0,
+            "sarrafo_right_id": 0,
+            "_n_linhas_folha": 1,
+            "_er_meta": {
+              "source": "dxf_geometry",
+              "dxf_path": "D:/Agente-cad-PYSIDE/DADOS-OBRAS/Obra_TREINO_1/Fase-2_Triagem/recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- FV - R00\\FV_V322_motor_178106294666.dxf",
+              "confianca": 0.9,
+              "n_pilar_gaps": 1,
+              "n_polys_atribuidos": 3
+            },
+            "_confianca": 0.9,
+            "_fase4_ref": {
+              "number": "322",
+              "name": "V322",
+              "floor": "Pavimento",
+              "total_width": 19.0,
+              "total_height": 380.0,
+              "panels": [
+                {
+                  "width": 118.0,
+                  "height1": 19.0,
+                  "height2": 19.0,
+                  "grade_h1": "118.0",
+                  "grade_h2": "118.0"
+                },
+                {
+                  "width": 262.0,
+                  "height1": 19.0,
+                  "height2": 19.0,
+                  "grade_h1": "262.0",
+                  "grade_h2": "262.0"
+                }
+              ],
+              "segments_rich": [
+                {
+                  "total_width": 118.0,
+                  "panels": [
+                    {
+                      "width": 118.0,
+                      "texts": [
+                        "P32"
+                      ],
+                      "vertices": [
+                        {
+                          "x": 0.0,
+                          "y": 17.7
+                        },
+                        {
+                          "x": 0.0,
+                          "y": -1.3
+                        },
+                        {
+                          "x": 118.0,
+                          "y": -1.3
+                        },
+                        {
+                          "x": 118.0,
+                          "y": 17.7
+                        },
+                        {
+                          "x": 0.0,
+                          "y": 17.7
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "total_width": 262.0,
+                  "panels": [
+                    {
+                      "width": 122.0,
+                      "texts": [],
+                      "vertices": [
+                        {
+                          "x": 122.0,
+                          "y": 0.0
+                        },
+                        {
+                          "x": 0.0,
+                          "y": 0.0
+                        },
+                        {
+                          "x": 0.0,
+                          "y": 19.0
+                        },
+                        {
+                          "x": 122.0,
+                          "y": 19.0
+                        }
+                      ]
+                    },
+                    {
+                      "width": 140.0,
+                      "texts": [
+                        "P23"
+                      ],
+                      "vertices": [
+                        {
+                          "x": 0.0,
+                          "y": 19.0
+                        },
+                        {
+                          "x": 140.0,
+                          "y": 19.0
+                        },
+                        {
+                          "x": 140.0,
+                          "y": 0.0
+                        },
+                        {
+                          "x": 0.0,
+                          "y": 0.0
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ],
+              "holes": [
+                {
+                  "active": true,
+                  "width": 14.9,
+                  "height": 19.0,
+                  "position": 118.0,
+                  "text": "P16"
+                },
+                {
+                  "active": false,
+                  "width": 0.0,
+                  "height": 0.0,
+                  "position": 0.0,
+                  "text": null
+                },
+                {
+                  "active": false,
+                  "width": 0.0,
+                  "height": 0.0,
+                  "position": 0.0,
+                  "text": null
+                },
+                {
+                  "active": false,
+                  "width": 0.0,
+                  "height": 0.0,
+                  "position": 0.0,
+                  "text": null
+                }
+              ],
+              "pillar_left": {
+                "active": false,
+                "width": 0.0,
+                "length": 0.0
+              },
+              "pillar_right": {
+                "active": false,
+                "width": 0.0,
+                "length": 0.0
+              },
+              "label_left": "V302",
+              "label_right": "P7",
+              "sarrafo_left_id": 0,
+              "sarrafo_right_id": 0,
+              "_n_linhas_folha": 1,
+              "_er_meta": {
+                "source": "dxf_geometry",
+                "dxf_path": "D:/Agente-cad-PYSIDE/DADOS-OBRAS/Obra_TREINO_1/Fase-2_Triagem/recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- FV - R00\\FV_V322_motor_178106116579.dxf",
+                "confianca": 0.9,
+                "n_pilar_gaps": 1,
+                "n_polys_atribuidos": 3
+              },
+              "_confianca": 0.9,
+              "_fase4_ref": {
+                "number": "322",
+                "name": "V322",
+                "floor": "Pavimento",
+                "total_width": 19.0,
+                "total_height": 380.0,
+                "panels": [
+                  {
+                    "width": 118.0,
+                    "height1": 19.0,
+                    "height2": 19.0,
+                    "grade_h1": "118.0",
+                    "grade_h2": "118.0"
+                  },
+                  {
+                    "width": 262.0,
+                    "height1": 19.0,
+                    "height2": 19.0,
+                    "grade_h1": "262.0",
+                    "grade_h2": "262.0"
+                  }
+                ],
+                "segments_rich": [
+                  {
+                    "total_width": 118.0,
+                    "panels": [
+                      {
+                        "width": 118.0,
+                        "texts": [
+                          "P32"
+                        ],
+                        "vertices": [
+                          {
+                            "x": 0.0,
+                            "y": 17.7
+                          },
+                          {
+                            "x": 0.0,
+                            "y": -1.3
+                          },
+                          {
+                            "x": 118.0,
+                            "y": -1.3
+                          },
+                          {
+                            "x": 118.0,
+                            "y": 17.7
+                          },
+                          {
+                            "x": 0.0,
+                            "y": 17.7
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "total_width": 262.0,
+                    "panels": [
+                      {
+                        "width": 122.0,
+                        "texts": [],
+                        "vertices": [
+                          {
+                            "x": 122.0,
+                            "y": 0.0
+                          },
+                          {
+                            "x": 0.0,
+                            "y": 0.0
+                          },
+                          {
+                            "x": 0.0,
+                            "y": 19.0
+                          },
+                          {
+                            "x": 122.0,
+                            "y": 19.0
+                          }
+                        ]
+                      },
+                      {
+                        "width": 140.0,
+                        "texts": [
+                          "P23"
+                        ],
+                        "vertices": [
+                          {
+                            "x": 0.0,
+                            "y": 19.0
+                          },
+                          {
+                            "x": 140.0,
+                            "y": 19.0
+                          },
+                          {
+                            "x": 140.0,
+                            "y": 0.0
+                          },
+                          {
+                            "x": 0.0,
+                            "y": 0.0
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ],
+                "holes": [
+                  {
+                    "active": true,
+                    "width": 14.9,
+                    "height": 19.0,
+                    "position": 118.0,
+                    "text": "P16"
+                  },
+                  {
+                    "active": false,
+                    "width": 0.0,
+                    "height": 0.0,
+                    "position": 0.0,
+                    "text": null
+                  },
+                  {
+                    "active": false,
+                    "width": 0.0,
+                    "height": 0.0,
+                    "position": 0.0,
+                    "text": null
+                  },
+                  {
+                    "active": false,
+                    "width": 0.0,
+                    "height": 0.0,
+                    "position": 0.0,
+                    "text": null
+                  }
+                ],
+                "pillar_left": {
+                  "active": false,
+                  "width": 0.0,
+                  "length": 0.0
+                },
+                "pillar_right": {
+                  "active": false,
+                  "width": 0.0,
+                  "length": 0.0
+                },
+                "label_left": "V302",
+                "label_right": "P7",
+                "sarrafo_left_id": 0,
+                "sarrafo_right_id": 0,
+                "_n_linhas_folha": 1,
+                "_er_meta": {
+                  "source": "dxf_geometry",
+                  "dxf_path": "D:/Agente-cad-PYSIDE/DADOS-OBRAS/Obra_TREINO_1/Fase-2_Triagem/recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- FV - R00_motor\\FV_V322_motor_178105102591.dxf",
+                  "confianca": 0.9,
+                  "n_pilar_gaps": 1,
+                  "n_polys_atribuidos": 3
+                },
+                "_confianca": 0.9,
+                "_fase4_ref": {
+                  "number": "322",
+                  "name": "V322",
+                  "floor": "Pavimento",
+                  "total_width": 19.0,
+                  "total_height": 380.0,
+                  "panels": [
+                    {
+                      "width": 118.0,
+                      "height1": 19.0,
+                      "height2": 19.0,
+                      "grade_h1": "118.0",
+                      "grade_h2": "118.0"
+                    },
+                    {
+                      "width": 262.0,
+                      "height1": 19.0,
+                      "height2": 19.0,
+                      "grade_h1": "262.0",
+                      "grade_h2": "262.0"
+                    }
+                  ],
+                  "segments_rich": [
+                    {
+                      "total_width": 118.0,
+                      "panels": [
+                        {
+                          "width": 118.0,
+                          "texts": [],
+                          "vertices": [
+                            {
+                              "x": 0.0,
+                              "y": 17.7
+                            },
+                            {
+                              "x": 0.0,
+                              "y": -1.3
+                            },
+                            {
+                              "x": 118.0,
+                              "y": -1.3
+                            },
+                            {
+                              "x": 118.0,
+                              "y": 17.7
+                            },
+                            {
+                              "x": 0.0,
+                              "y": 17.7
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "total_width": 262.0,
+                      "panels": [
+                        {
+                          "width": 122.0,
+                          "texts": [],
+                          "vertices": [
+                            {
+                              "x": 122.0,
+                              "y": 0.0
+                            },
+                            {
+                              "x": 0.0,
+                              "y": 0.0
+                            },
+                            {
+                              "x": 0.0,
+                              "y": 19.0
+                            },
+                            {
+                              "x": 122.0,
+                              "y": 19.0
+                            },
+                            {
+                              "x": 122.0,
+                              "y": 0.0
+                            }
+                          ]
+                        },
+                        {
+                          "width": 140.0,
+                          "texts": [],
+                          "vertices": [
+                            {
+                              "x": 0.0,
+                              "y": 19.0
+                            },
+                            {
+                              "x": 140.0,
+                              "y": 19.0
+                            },
+                            {
+                              "x": 140.0,
+                              "y": 0.0
+                            },
+                            {
+                              "x": 0.0,
+                              "y": 0.0
+                            },
+                            {
+                              "x": 0.0,
+                              "y": 19.0
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ],
+                  "holes": [
+                    {
+                      "active": true,
+                      "width": 14.9,
+                      "height": 19.0,
+                      "position": 118.0,
+                      "text": "P16"
+                    },
+                    {
+                      "active": false,
+                      "width": 0.0,
+                      "height": 0.0,
+                      "position": 0.0,
+                      "text": null
+                    },
+                    {
+                      "active": false,
+                      "width": 0.0,
+                      "height": 0.0,
+                      "position": 0.0,
+                      "text": null
+                    },
+                    {
+                      "active": false,
+                      "width": 0.0,
+                      "height": 0.0,
+                      "position": 0.0,
+                      "text": null
+                    }
+                  ],
+                  "pillar_left": {
+                    "active": false,
+                    "width": 0.0,
+                    "length": 0.0
+                  },
+                  "pillar_right": {
+                    "active": false,
+                    "width": 0.0,
+                    "length": 0.0
+                  },
+                  "label_left": "V302",
+                  "label_right": "P7",
+                  "sarrafo_left_id": 0,
+                  "sarrafo_right_id": 0,
+                  "_n_linhas_folha": 1,
+                  "_er_meta": {
+                    "source": "dxf_geometry",
+                    "dxf_path": "D:/Agente-cad-PYSIDE/DADOS-OBRAS/Obra_TREINO_1/Fase-2_Triagem/recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- FV - R00\\FV_V322_motor_178111331121.dxf",
+                    "confianca": 0.9,
+                    "n_pilar_gaps": 1,
+                    "n_polys_atribuidos": 3
+                  },
+                  "_confianca": 0.9,
+                  "_fase4_ref": {
+                    "number": "322",
+                    "name": "V322",
+                    "floor": "Pavimento",
+                    "total_width": 19.0,
+                    "total_height": 380.0,
+                    "panels": [
+                      {
+                        "width": 118.0,
+                        "height1": 19.0,
+                        "height2": 19.0,
+                        "grade_h1": "118.0",
+                        "grade_h2": "118.0"
+                      },
+                      {
+                        "width": 262.0,
+                        "height1": 19.0,
+                        "height2": 19.0,
+                        "grade_h1": "262.0",
+                        "grade_h2": "262.0"
+                      }
+                    ],
+                    "segments_rich": [
+                      {
+                        "total_width": 118.0,
+                        "panels": [
+                          {
+                            "width": 118.0,
+                            "texts": [
+                              "P32"
+                            ],
+                            "vertices": [
+                              {
+                                "x": 0.0,
+                                "y": 17.7
+                              },
+                              {
+                                "x": 0.0,
+                                "y": -1.3
+                              },
+                              {
+                                "x": 118.0,
+                                "y": -1.3
+                              },
+                              {
+                                "x": 118.0,
+                                "y": 17.7
+                              },
+                              {
+                                "x": 0.0,
+                                "y": 17.7
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "total_width": 262.0,
+                        "panels": [
+                          {
+                            "width": 122.0,
+                            "texts": [],
+                            "vertices": [
+                              {
+                                "x": 122.0,
+                                "y": 0.0
+                              },
+                              {
+                                "x": 0.0,
+                                "y": 0.0
+                              },
+                              {
+                                "x": 0.0,
+                                "y": 19.0
+                              },
+                              {
+                                "x": 122.0,
+                                "y": 19.0
+                              }
+                            ]
+                          },
+                          {
+                            "width": 140.0,
+                            "texts": [
+                              "P23"
+                            ],
+                            "vertices": [
+                              {
+                                "x": 0.0,
+                                "y": 19.0
+                              },
+                              {
+                                "x": 140.0,
+                                "y": 19.0
+                              },
+                              {
+                                "x": 140.0,
+                                "y": 0.0
+                              },
+                              {
+                                "x": 0.0,
+                                "y": 0.0
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ],
+                    "holes": [
+                      {
+                        "active": true,
+                        "width": 14.9,
+                        "height": 19.0,
+                        "position": 118.0,
+                        "text": "P16"
+                      },
+                      {
+                        "active": false,
+                        "width": 0.0,
+                        "height": 0.0,
+                        "position": 0.0,
+                        "text": null
+                      },
+                      {
+                        "active": false,
+                        "width": 0.0,
+                        "height": 0.0,
+                        "position": 0.0,
+                        "text": null
+                      },
+                      {
+                        "active": false,
+                        "width": 0.0,
+                        "height": 0.0,
+                        "position": 0.0,
+                        "text": null
+                      }
+                    ],
+                    "pillar_left": {
+                      "active": false,
+                      "width": 0.0,
+                      "length": 0.0
+                    },
+                    "pillar_right": {
+                      "active": false,
+                      "width": 0.0,
+                      "length": 0.0
+                    },
+                    "label_left": "V302",
+                    "label_right": "P7",
+                    "sarrafo_left_id": 0,
+                    "sarrafo_right_id": 0,
+                    "_n_linhas_folha": 1,
+                    "_er_meta": {
+                      "source": "dxf_geometry",
+                      "dxf_path": "D:/Agente-cad-PYSIDE/DADOS-OBRAS/Obra_TREINO_1/Fase-2_Triagem/recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- FV - R00\\FV_V322_motor_178111040029.dxf",
+                      "confianca": 0.9,
+                      "n_pilar_gaps": 1,
+                      "n_polys_atribuidos": 3
+                    },
+                    "_confianca": 0.9,
+                    "_fase4_ref": {
+                      "number": "322",
+                      "name": "V322",
+                      "floor": "Pavimento",
+                      "total_width": 19.0,
+                      "total_height": 380.0,
+                      "panels": [
+                        {
+                          "width": 118.0,
+                          "height1": 19.0,
+                          "height2": 19.0,
+                          "grade_h1": "118.0",
+                          "grade_h2": "118.0"
+                        },
+                        {
+                          "width": 262.0,
+                          "height1": 19.0,
+                          "height2": 19.0,
+                          "grade_h1": "262.0",
+                          "grade_h2": "262.0"
+                        }
+                      ],
+                      "segments_rich": [
+                        {
+                          "total_width": 118.0,
+                          "panels": [
+                            {
+                              "width": 118.0,
+                              "texts": [
+                                "P32"
+                              ],
+                              "vertices": [
+                                {
+                                  "x": 0.0,
+                                  "y": 17.7
+                                },
+                                {
+                                  "x": 0.0,
+                                  "y": -1.3
+                                },
+                                {
+                                  "x": 118.0,
+                                  "y": -1.3
+                                },
+                                {
+                                  "x": 118.0,
+                                  "y": 17.7
+                                },
+                                {
+                                  "x": 0.0,
+                                  "y": 17.7
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "total_width": 262.0,
+                          "panels": [
+                            {
+                              "width": 122.0,
+                              "texts": [],
+                              "vertices": [
+                                {
+                                  "x": 122.0,
+                                  "y": 0.0
+                                },
+                                {
+                                  "x": 0.0,
+                                  "y": 0.0
+                                },
+                                {
+                                  "x": 0.0,
+                                  "y": 19.0
+                                },
+                                {
+                                  "x": 122.0,
+                                  "y": 19.0
+                                }
+                              ]
+                            },
+                            {
+                              "width": 140.0,
+                              "texts": [
+                                "P23"
+                              ],
+                              "vertices": [
+                                {
+                                  "x": 0.0,
+                                  "y": 19.0
+                                },
+                                {
+                                  "x": 140.0,
+                                  "y": 19.0
+                                },
+                                {
+                                  "x": 140.0,
+                                  "y": 0.0
+                                },
+                                {
+                                  "x": 0.0,
+                                  "y": 0.0
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ],
+                      "holes": [
+                        {
+                          "active": true,
+                          "width": 14.9,
+                          "height": 19.0,
+                          "position": 118.0,
+                          "text": "P16"
+                        },
+                        {
+                          "active": false,
+                          "width": 0.0,
+                          "height": 0.0,
+                          "position": 0.0,
+                          "text": null
+                        },
+                        {
+                          "active": false,
+                          "width": 0.0,
+                          "height": 0.0,
+                          "position": 0.0,
+                          "text": null
+                        },
+                        {
+                          "active": false,
+                          "width": 0.0,
+                          "height": 0.0,
+                          "position": 0.0,
+                          "text": null
+                        }
+                      ],
+                      "pillar_left": {
+                        "active": false,
+                        "width": 0.0,
+                        "length": 0.0
+                      },
+                      "pillar_right": {
+                        "active": false,
+                        "width": 0.0,
+                        "length": 0.0
+                      },
+                      "label_left": "V302",
+                      "label_right": "P7",
+                      "sarrafo_left_id": 0,
+                      "sarrafo_right_id": 0,
+                      "_n_linhas_folha": 1,
+                      "_er_meta": {
+                        "source": "dxf_geometry",
+                        "dxf_path": "D:/Agente-cad-PYSIDE/DADOS-OBRAS/Obra_TREINO_1/Fase-2_Triagem/recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- FV - R00\\FV_V322_motor_178106535829.dxf",
+                        "confianca": 0.9,
+                        "n_pilar_gaps": 1,
+                        "n_polys_atribuidos": 3
+                      },
+                      "_confianca": 0.9,
+                      "_fase4_ref": {
+                        "number": "322",
+                        "name": "V322",
+                        "floor": "Pavimento",
+                        "total_width": 19.0,
+                        "total_height": 380.0,
+                        "panels": [
+                          {
+                            "width": 118.0,
+                            "height1": 19.0,
+                            "height2": 19.0,
+                            "grade_h1": "118.0",
+                            "grade_h2": "118.0"
+                          },
+                          {
+                            "width": 262.0,
+                            "height1": 19.0,
+                            "height2": 19.0,
+                            "grade_h1": "262.0",
+                            "grade_h2": "262.0"
+                          }
+                        ],
+                        "segments_rich": [
+                          {
+                            "total_width": 118.0,
+                            "panels": [
+                              {
+                                "width": 118.0,
+                                "texts": [
+                                  "P32"
+                                ],
+                                "vertices": [
+                                  {
+                                    "x": 0.0,
+                                    "y": 17.7
+                                  },
+                                  {
+                                    "x": 0.0,
+                                    "y": -1.3
+                                  },
+                                  {
+                                    "x": 118.0,
+                                    "y": -1.3
+                                  },
+                                  {
+                                    "x": 118.0,
+                                    "y": 17.7
+                                  },
+                                  {
+                                    "x": 0.0,
+                                    "y": 17.7
+                                  }
+                                ]
+                              }
+                            ]
+                          },
+                          {
+                            "total_width": 262.0,
+                            "panels": [
+                              {
+                                "width": 122.0,
+                                "texts": [],
+                                "vertices": [
+                                  {
+                                    "x": 122.0,
+                                    "y": 0.0
+                                  },
+                                  {
+                                    "x": 0.0,
+                                    "y": 0.0
+                                  },
+                                  {
+                                    "x": 0.0,
+                                    "y": 19.0
+                                  },
+                                  {
+                                    "x": 122.0,
+                                    "y": 19.0
+                                  }
+                                ]
+                              },
+                              {
+                                "width": 140.0,
+                                "texts": [
+                                  "P23"
+                                ],
+                                "vertices": [
+                                  {
+                                    "x": 0.0,
+                                    "y": 19.0
+                                  },
+                                  {
+                                    "x": 140.0,
+                                    "y": 19.0
+                                  },
+                                  {
+                                    "x": 140.0,
+                                    "y": 0.0
+                                  },
+                                  {
+                                    "x": 0.0,
+                                    "y": 0.0
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        ],
+                        "holes": [
+                          {
+                            "active": true,
+                            "width": 14.9,
+                            "height": 19.0,
+                            "position": 118.0,
+                            "text": "P16"
+                          },
+                          {
+                            "active": false,
+                            "width": 0.0,
+                            "height": 0.0,
+                            "position": 0.0,
+                            "text": null
+                          },
+                          {
+                            "active": false,
+                            "width": 0.0,
+                            "height": 0.0,
+                            "position": 0.0,
+                            "text": null
+                          },
+                          {
+                            "active": false,
+                            "width": 0.0,
+                            "height": 0.0,
+                            "position": 0.0,
+                            "text": null
+                          }
+                        ],
+                        "pillar_left": {
+                          "active": false,
+                          "width": 0.0,
+                          "length": 0.0
+                        },
+                        "pillar_right": {
+                          "active": false,
+                          "width": 0.0,
+                          "length": 0.0
+                        },
+                        "label_left": "V302",
+                        "label_right": "P7",
+                        "sarrafo_left_id": 0,
+                        "sarrafo_right_id": 0,
+                        "_n_linhas_folha": 1,
+                        "_er_meta": {
+                          "source": "dxf_geometry",
+                          "dxf_path": "D:/Agente-cad-PYSIDE/DADOS-OBRAS/Obra_TREINO_1/Fase-2_Triagem/recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- FV - R00\\FV_V322_motor_178106515847.dxf",
+                          "confianca": 0.9,
+                          "n_pilar_gaps": 1,
+                          "n_polys_atribuidos": 3
+                        },
+                        "_confianca": 0.9,
+                        "_fase4_ref": {
+                          "number": "322",
+                          "name": "V322",
+                          "floor": "Pavimento",
+                          "total_width": 19.0,
+                          "total_height": 380.0,
+                          "panels": [
+                            {
+                              "width": 118.0,
+                              "height1": 19.0,
+                              "height2": 19.0,
+                              "grade_h1": "118.0",
+                              "grade_h2": "118.0"
+                            },
+                            {
+                              "width": 262.0,
+                              "height1": 19.0,
+                              "height2": 19.0,
+                              "grade_h1": "262.0",
+                              "grade_h2": "262.0"
+                            }
+                          ],
+                          "segments_rich": [
+                            {
+                              "total_width": 118.0,
+                              "panels": [
+                                {
+                                  "width": 118.0,
+                                  "texts": [
+                                    "P32"
+                                  ],
+                                  "vertices": [
+                                    {
+                                      "x": 0.0,
+                                      "y": 17.7
+                                    },
+                                    {
+                                      "x": 0.0,
+                                      "y": -1.3
+                                    },
+                                    {
+                                      "x": 118.0,
+                                      "y": -1.3
+                                    },
+                                    {
+                                      "x": 118.0,
+                                      "y": 17.7
+                                    },
+                                    {
+                                      "x": 0.0,
+                                      "y": 17.7
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "total_width": 262.0,
+                              "panels": [
+                                {
+                                  "width": 122.0,
+                                  "texts": [],
+                                  "vertices": [
+                                    {
+                                      "x": 122.0,
+                                      "y": 0.0
+                                    },
+                                    {
+                                      "x": 0.0,
+                                      "y": 0.0
+                                    },
+                                    {
+                                      "x": 0.0,
+                                      "y": 19.0
+                                    },
+                                    {
+                                      "x": 122.0,
+                                      "y": 19.0
+                                    }
+                                  ]
+                                },
+                                {
+                                  "width": 140.0,
+                                  "texts": [
+                                    "P23"
+                                  ],
+                                  "vertices": [
+                                    {
+                                      "x": 0.0,
+                                      "y": 19.0
+                                    },
+                                    {
+                                      "x": 140.0,
+                                      "y": 19.0
+                                    },
+                                    {
+                                      "x": 140.0,
+                                      "y": 0.0
+                                    },
+                                    {
+                                      "x": 0.0,
+                                      "y": 0.0
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ],
+                          "holes": [
+                            {
+                              "active": true,
+                              "width": 14.9,
+                              "height": 19.0,
+                              "position": 118.0,
+                              "text": "P16"
+                            },
+                            {
+                              "active": false,
+                              "width": 0.0,
+                              "height": 0.0,
+                              "position": 0.0,
+                              "text": null
+                            },
+                            {
+                              "active": false,
+                              "width": 0.0,
+                              "height": 0.0,
+                              "position": 0.0,
+                              "text": null
+                            },
+                            {
+                              "active": false,
+                              "width": 0.0,
+                              "height": 0.0,
+                              "position": 0.0,
+                              "text": null
+                            }
+                          ],
+                          "pillar_left": {
+                            "active": false,
+                            "width": 0.0,
+                            "length": 0.0
+                          },
+                          "pillar_right": {
+                            "active": false,
+                            "width": 0.0,
+                            "length": 0.0
+                          },
+                          "label_left": "V302",
+                          "label_right": "P7",
+                          "sarrafo_left_id": 0,
+                          "sarrafo_right_id": 0,
+                          "_n_linhas_folha": 1,
+                          "_er_meta": {
+                            "source": "dxf_geometry",
+                            "dxf_path": "D:/Agente-cad-PYSIDE/DADOS-OBRAS/Obra_TREINO_1/Fase-2_Triagem/recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- FV - R00\\FV_V322_motor_178106294666.dxf",
+                            "confianca": 0.9,
+                            "n_pilar_gaps": 1,
+                            "n_polys_atribuidos": 3
+                          },
+                          "_confianca": 0.9,
+                          "_fase4_ref": {
+                            "number": "322",
+                            "name": "V322",
+                            "floor": "Pavimento",
+                            "total_width": 19.0,
+                            "total_height": 380.0,
+                            "panels": [
+                              {
+                                "width": 118.0,
+                                "height1": 19.0,
+                                "height2": 19.0,
+                                "grade_h1": "118.0",
+                                "grade_h2": "118.0"
+                              },
+                              {
+                                "width": 262.0,
+                                "height1": 19.0,
+                                "height2": 19.0,
+                                "grade_h1": "262.0",
+                                "grade_h2": "262.0"
+                              }
+                            ],
+                            "segments_rich": [
+                              {
+                                "total_width": 118.0,
+                                "panels": [
+                                  {
+                                    "width": 118.0,
+                                    "texts": [
+                                      "P32"
+                                    ],
+                                    "vertices": [
+                                      {
+                                        "x": 0.0,
+                                        "y": 17.7
+                                      },
+                                      {
+                                        "x": 0.0,
+                                        "y": -1.3
+                                      },
+                                      {
+                                        "x": 118.0,
+                                        "y": -1.3
+                                      },
+                                      {
+                                        "x": 118.0,
+                                        "y": 17.7
+                                      },
+                                      {
+                                        "x": 0.0,
+                                        "y": 17.7
+                                      }
+                                    ]
+                                  }
+                                ]
+                              },
+                              {
+                                "total_width": 262.0,
+                                "panels": [
+                                  {
+                                    "width": 122.0,
+                                    "texts": [],
+                                    "vertices": [
+                                      {
+                                        "x": 122.0,
+                                        "y": 0.0
+                                      },
+                                      {
+                                        "x": 0.0,
+                                        "y": 0.0
+                                      },
+                                      {
+                                        "x": 0.0,
+                                        "y": 19.0
+                                      },
+                                      {
+                                        "x": 122.0,
+                                        "y": 19.0
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "width": 140.0,
+                                    "texts": [
+                                      "P23"
+                                    ],
+                                    "vertices": [
+                                      {
+                                        "x": 0.0,
+                                        "y": 19.0
+                                      },
+                                      {
+                                        "x": 140.0,
+                                        "y": 19.0
+                                      },
+                                      {
+                                        "x": 140.0,
+                                        "y": 0.0
+                                      },
+                                      {
+                                        "x": 0.0,
+                                        "y": 0.0
+                                      }
+                                    ]
+                                  }
+                                ]
+                              }
+                            ],
+                            "holes": [
+                              {
+                                "active": true,
+                                "width": 14.9,
+                                "height": 19.0,
+                                "position": 118.0,
+                                "text": "P16"
+                              },
+                              {
+                                "active": false,
+                                "width": 0.0,
+                                "height": 0.0,
+                                "position": 0.0,
+                                "text": null
+                              },
+                              {
+                                "active": false,
+                                "width": 0.0,
+                                "height": 0.0,
+                                "position": 0.0,
+                                "text": null
+                              },
+                              {
+                                "active": false,
+                                "width": 0.0,
+                                "height": 0.0,
+                                "position": 0.0,
+                                "text": null
+                              }
+                            ],
+                            "pillar_left": {
+                              "active": false,
+                              "width": 0.0,
+                              "length": 0.0
+                            },
+                            "pillar_right": {
+                              "active": false,
+                              "width": 0.0,
+                              "length": 0.0
+                            },
+                            "label_left": "V302",
+                            "label_right": "P7",
+                            "sarrafo_left_id": 0,
+                            "sarrafo_right_id": 0,
+                            "_n_linhas_folha": 1,
+                            "_er_meta": {
+                              "source": "dxf_geometry",
+                              "dxf_path": "D:/Agente-cad-PYSIDE/DADOS-OBRAS/Obra_TREINO_1/Fase-2_Triagem/recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- FV - R00\\FV_V322_motor_178106116579.dxf",
+                              "confianca": 0.9,
+                              "n_pilar_gaps": 1,
+                              "n_polys_atribuidos": 3
+                            },
+                            "_confianca": 0.9,
+                            "_fase4_ref": {
+                              "number": "322",
+                              "name": "V322",
+                              "floor": "Pavimento",
+                              "total_width": 19.0,
+                              "total_height": 380.0,
+                              "panels": [
+                                {
+                                  "width": 118.0,
+                                  "height1": 19.0,
+                                  "height2": 19.0,
+                                  "grade_h1": "118.0",
+                                  "grade_h2": "118.0"
+                                },
+                                {
+                                  "width": 262.0,
+                                  "height1": 19.0,
+                                  "height2": 19.0,
+                                  "grade_h1": "262.0",
+                                  "grade_h2": "262.0"
+                                }
+                              ],
+                              "segments_rich": [
+                                {
+                                  "total_width": 118.0,
+                                  "panels": [
+                                    {
+                                      "width": 118.0,
+                                      "texts": [
+                                        "P32"
+                                      ],
+                                      "vertices": [
+                                        {
+                                          "x": 0.0,
+                                          "y": -9.0
+                                        },
+                                        {
+                                          "x": 0.0,
+                                          "y": -28.0
+                                        },
+                                        {
+                                          "x": 118.0,
+                                          "y": -28.0
+                                        },
+                                        {
+                                          "x": 118.0,
+                                          "y": -9.0
+                                        },
+                                        {
+                                          "x": 0.0,
+                                          "y": -9.0
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "total_width": 262.0,
+                                  "panels": [
+                                    {
+                                      "width": 122.0,
+                                      "texts": [],
+                                      "vertices": [
+                                        {
+                                          "x": 122.0,
+                                          "y": -26.7
+                                        },
+                                        {
+                                          "x": 0.0,
+                                          "y": -26.7
+                                        },
+                                        {
+                                          "x": 0.0,
+                                          "y": -7.7
+                                        },
+                                        {
+                                          "x": 122.0,
+                                          "y": -7.7
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "width": 140.0,
+                                      "texts": [
+                                        "P23"
+                                      ],
+                                      "vertices": [
+                                        {
+                                          "x": 0.0,
+                                          "y": -7.7
+                                        },
+                                        {
+                                          "x": 140.0,
+                                          "y": -7.7
+                                        },
+                                        {
+                                          "x": 140.0,
+                                          "y": -26.7
+                                        },
+                                        {
+                                          "x": 0.0,
+                                          "y": -26.7
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ],
+                              "holes": [
+                                {
+                                  "active": true,
+                                  "width": 14.9,
+                                  "height": 19.0,
+                                  "position": 118.0,
+                                  "text": "P16"
+                                },
+                                {
+                                  "active": false,
+                                  "width": 0.0,
+                                  "height": 0.0,
+                                  "position": 0.0,
+                                  "text": null
+                                },
+                                {
+                                  "active": false,
+                                  "width": 0.0,
+                                  "height": 0.0,
+                                  "position": 0.0,
+                                  "text": null
+                                },
+                                {
+                                  "active": false,
+                                  "width": 0.0,
+                                  "height": 0.0,
+                                  "position": 0.0,
+                                  "text": null
+                                }
+                              ],
+                              "pillar_left": {
+                                "active": false,
+                                "width": 0.0,
+                                "length": 0.0
+                              },
+                              "pillar_right": {
+                                "active": false,
+                                "width": 0.0,
+                                "length": 0.0
+                              },
+                              "label_left": "V302",
+                              "label_right": "P7",
+                              "sarrafo_left_id": 0,
+                              "sarrafo_right_id": 0,
+                              "_n_linhas_folha": 1,
+                              "_er_meta": {
+                                "source": "dxf_geometry",
+                                "dxf_path": "D:/Agente-cad-PYSIDE/DADOS-OBRAS/Obra_TREINO_1/Fase-2_Triagem/recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- FV - R00_motor\\FV_V322_motor_178105102591.dxf",
+                                "confianca": 0.9,
+                                "n_pilar_gaps": 1,
+                                "n_polys_atribuidos": 3
+                              },
+                              "_confianca": 0.9,
+                              "_fase4_ref": {
+                                "number": "322",
+                                "name": "V322",
+                                "floor": "Pavimento",
+                                "total_width": 19.0,
+                                "total_height": 380.0,
+                                "panels": [
+                                  {
+                                    "width": 118.0,
+                                    "height1": 19.0,
+                                    "height2": 19.0,
+                                    "grade_h1": "118.0",
+                                    "grade_h2": "118.0"
+                                  },
+                                  {
+                                    "width": 262.0,
+                                    "height1": 19.0,
+                                    "height2": 19.0,
+                                    "grade_h1": "262.0",
+                                    "grade_h2": "262.0"
+                                  }
+                                ],
+                                "segments_rich": [
+                                  {
+                                    "total_width": 118.0,
+                                    "panels": [
+                                      {
+                                        "width": 118.0,
+                                        "texts": [],
+                                        "vertices": [
+                                          {
+                                            "x": 0.0,
+                                            "y": -9.0
+                                          },
+                                          {
+                                            "x": 0.0,
+                                            "y": -28.0
+                                          },
+                                          {
+                                            "x": 118.0,
+                                            "y": -28.0
+                                          },
+                                          {
+                                            "x": 118.0,
+                                            "y": -9.0
+                                          },
+                                          {
+                                            "x": 0.0,
+                                            "y": -9.0
+                                          }
+                                        ]
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "total_width": 262.0,
+                                    "panels": [
+                                      {
+                                        "width": 122.0,
+                                        "texts": [],
+                                        "vertices": [
+                                          {
+                                            "x": 122.0,
+                                            "y": -26.7
+                                          },
+                                          {
+                                            "x": 0.0,
+                                            "y": -26.7
+                                          },
+                                          {
+                                            "x": 0.0,
+                                            "y": -7.7
+                                          },
+                                          {
+                                            "x": 122.0,
+                                            "y": -7.7
+                                          },
+                                          {
+                                            "x": 122.0,
+                                            "y": -26.7
+                                          }
+                                        ]
+                                      },
+                                      {
+                                        "width": 140.0,
+                                        "texts": [],
+                                        "vertices": [
+                                          {
+                                            "x": 0.0,
+                                            "y": -7.7
+                                          },
+                                          {
+                                            "x": 140.0,
+                                            "y": -7.7
+                                          },
+                                          {
+                                            "x": 140.0,
+                                            "y": -26.7
+                                          },
+                                          {
+                                            "x": 0.0,
+                                            "y": -26.7
+                                          },
+                                          {
+                                            "x": 0.0,
+                                            "y": -7.7
+                                          }
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                ],
+                                "holes": [
+                                  {
+                                    "active": true,
+                                    "width": 14.9,
+                                    "height": 19.0,
+                                    "position": 118.0,
+                                    "text": "P16"
+                                  },
+                                  {
+                                    "active": false,
+                                    "width": 0.0,
+                                    "height": 0.0,
+                                    "position": 0.0,
+                                    "text": null
+                                  },
+                                  {
+                                    "active": false,
+                                    "width": 0.0,
+                                    "height": 0.0,
+                                    "position": 0.0,
+                                    "text": null
+                                  },
+                                  {
+                                    "active": false,
+                                    "width": 0.0,
+                                    "height": 0.0,
+                                    "position": 0.0,
+                                    "text": null
+                                  }
+                                ],
+                                "pillar_left": {
+                                  "active": false,
+                                  "width": 0.0,
+                                  "length": 0.0
+                                },
+                                "pillar_right": {
+                                  "active": false,
+                                  "width": 0.0,
+                                  "length": 0.0
+                                },
+                                "label_left": "V302",
+                                "label_right": "P7",
+                                "sarrafo_left_id": 0,
+                                "sarrafo_right_id": 0,
+                                "_n_linhas_folha": 1,
+                                "_er_meta": {
+                                  "source": "dxf_geometry",
+                                  "dxf_path": "D:/Agente-cad-PYSIDE/DADOS-OBRAS/Obra_TREINO_1/Fase-2_Triagem/recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- FV - R00\\FV_V322_motor_178111331121.dxf",
+                                  "confianca": 0.9,
+                                  "n_pilar_gaps": 1,
+                                  "n_polys_atribuidos": 3
+                                },
+                                "_confianca": 0.9,
+                                "_fase4_ref": {
+                                  "number": "322",
+                                  "name": "V322",
+                                  "floor": "Pavimento",
+                                  "total_width": 19.0,
+                                  "total_height": 380.0,
+                                  "panels": [
+                                    {
+                                      "width": 118.0,
+                                      "height1": 19.0,
+                                      "height2": 19.0,
+                                      "grade_h1": "118.0",
+                                      "grade_h2": "118.0"
+                                    },
+                                    {
+                                      "width": 262.0,
+                                      "height1": 19.0,
+                                      "height2": 19.0,
+                                      "grade_h1": "262.0",
+                                      "grade_h2": "262.0"
+                                    }
+                                  ],
+                                  "segments_rich": [
+                                    {
+                                      "total_width": 118.0,
+                                      "panels": [
+                                        {
+                                          "width": 118.0,
+                                          "texts": [
+                                            "P32"
+                                          ],
+                                          "vertices": [
+                                            {
+                                              "x": 0.0,
+                                              "y": -9.0
+                                            },
+                                            {
+                                              "x": 0.0,
+                                              "y": -28.0
+                                            },
+                                            {
+                                              "x": 118.0,
+                                              "y": -28.0
+                                            },
+                                            {
+                                              "x": 118.0,
+                                              "y": -9.0
+                                            },
+                                            {
+                                              "x": 0.0,
+                                              "y": -9.0
+                                            }
+                                          ]
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "total_width": 262.0,
+                                      "panels": [
+                                        {
+                                          "width": 122.0,
+                                          "texts": [],
+                                          "vertices": [
+                                            {
+                                              "x": 122.0,
+                                              "y": -26.7
+                                            },
+                                            {
+                                              "x": 0.0,
+                                              "y": -26.7
+                                            },
+                                            {
+                                              "x": 0.0,
+                                              "y": -7.7
+                                            },
+                                            {
+                                              "x": 122.0,
+                                              "y": -7.7
+                                            }
+                                          ]
+                                        },
+                                        {
+                                          "width": 140.0,
+                                          "texts": [
+                                            "P23"
+                                          ],
+                                          "vertices": [
+                                            {
+                                              "x": 0.0,
+                                              "y": -7.7
+                                            },
+                                            {
+                                              "x": 140.0,
+                                              "y": -7.7
+                                            },
+                                            {
+                                              "x": 140.0,
+                                              "y": -26.7
+                                            },
+                                            {
+                                              "x": 0.0,
+                                              "y": -26.7
+                                            }
+                                          ]
+                                        }
+                                      ]
+                                    }
+                                  ],
+                                  "holes": [
+                                    {
+                                      "active": true,
+                                      "width": 14.9,
+                                      "height": 19.0,
+                                      "position": 118.0,
+                                      "text": "P16"
+                                    },
+                                    {
+                                      "active": false,
+                                      "width": 0.0,
+                                      "height": 0.0,
+                                      "position": 0.0,
+                                      "text": null
+                                    },
+                                    {
+                                      "active": false,
+                                      "width": 0.0,
+                                      "height": 0.0,
+                                      "position": 0.0,
+                                      "text": null
+                                    },
+                                    {
+                                      "active": false,
+                                      "width": 0.0,
+                                      "height": 0.0,
+                                      "position": 0.0,
+                                      "text": null
+                                    }
+                                  ],
+                                  "pillar_left": {
+                                    "active": false,
+                                    "width": 0.0,
+                                    "length": 0.0
+                                  },
+                                  "pillar_right": {
+                                    "active": false,
+                                    "width": 0.0,
+                                    "length": 0.0
+                                  },
+                                  "label_left": "V302",
+                                  "label_right": "P7",
+                                  "sarrafo_left_id": 0,
+                                  "sarrafo_right_id": 0,
+                                  "_n_linhas_folha": 1,
+                                  "_er_meta": {
+                                    "source": "dxf_geometry",
+                                    "dxf_path": "D:/Agente-cad-PYSIDE/DADOS-OBRAS/Obra_TREINO_1/Fase-2_Triagem/recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- FV - R00\\FV_V322_motor_178111040029.dxf",
+                                    "confianca": 0.9,
+                                    "n_pilar_gaps": 1,
+                                    "n_polys_atribuidos": 3
+                                  },
+                                  "_confianca": 0.9,
+                                  "_fase4_ref": {
+                                    "number": "322",
+                                    "name": "V322",
+                                    "floor": "Pavimento",
+                                    "total_width": 19.0,
+                                    "total_height": 380.0,
+                                    "panels": [
+                                      {
+                                        "width": 118.0,
+                                        "height1": 19.0,
+                                        "height2": 19.0,
+                                        "grade_h1": "118.0",
+                                        "grade_h2": "118.0"
+                                      },
+                                      {
+                                        "width": 262.0,
+                                        "height1": 19.0,
+                                        "height2": 19.0,
+                                        "grade_h1": "262.0",
+                                        "grade_h2": "262.0"
+                                      }
+                                    ],
+                                    "segments_rich": [
+                                      {
+                                        "total_width": 118.0,
+                                        "panels": [
+                                          {
+                                            "width": 118.0,
+                                            "texts": [
+                                              "P32"
+                                            ],
+                                            "vertices": [
+                                              {
+                                                "x": 0.0,
+                                                "y": -9.0
+                                              },
+                                              {
+                                                "x": 0.0,
+                                                "y": -28.0
+                                              },
+                                              {
+                                                "x": 118.0,
+                                                "y": -28.0
+                                              },
+                                              {
+                                                "x": 118.0,
+                                                "y": -9.0
+                                              },
+                                              {
+                                                "x": 0.0,
+                                                "y": -9.0
+                                              }
+                                            ]
+                                          }
+                                        ]
+                                      },
+                                      {
+                                        "total_width": 262.0,
+                                        "panels": [
+                                          {
+                                            "width": 122.0,
+                                            "texts": [],
+                                            "vertices": [
+                                              {
+                                                "x": 122.0,
+                                                "y": -26.7
+                                              },
+                                              {
+                                                "x": 0.0,
+                                                "y": -26.7
+                                              },
+                                              {
+                                                "x": 0.0,
+                                                "y": -7.7
+                                              },
+                                              {
+                                                "x": 122.0,
+                                                "y": -7.7
+                                              }
+                                            ]
+                                          },
+                                          {
+                                            "width": 140.0,
+                                            "texts": [
+                                              "P23"
+                                            ],
+                                            "vertices": [
+                                              {
+                                                "x": 0.0,
+                                                "y": -7.7
+                                              },
+                                              {
+                                                "x": 140.0,
+                                                "y": -7.7
+                                              },
+                                              {
+                                                "x": 140.0,
+                                                "y": -26.7
+                                              },
+                                              {
+                                                "x": 0.0,
+                                                "y": -26.7
+                                              }
+                                            ]
+                                          }
+                                        ]
+                                      }
+                                    ],
+                                    "holes": [
+                                      {
+                                        "active": true,
+                                        "width": 14.9,
+                                        "height": 19.0,
+                                        "position": 118.0,
+                                        "text": "P16"
+                                      },
+                                      {
+                                        "active": false,
+                                        "width": 0.0,
+                                        "height": 0.0,
+                                        "position": 0.0,
+                                        "text": null
+                                      },
+                                      {
+                                        "active": false,
+                                        "width": 0.0,
+                                        "height": 0.0,
+                                        "position": 0.0,
+                                        "text": null
+                                      },
+                                      {
+                                        "active": false,
+                                        "width": 0.0,
+                                        "height": 0.0,
+                                        "position": 0.0,
+                                        "text": null
+                                      }
+                                    ],
+                                    "pillar_left": {
+                                      "active": false,
+                                      "width": 0.0,
+                                      "length": 0.0
+                                    },
+                                    "pillar_right": {
+                                      "active": false,
+                                      "width": 0.0,
+                                      "length": 0.0
+                                    },
+                                    "label_left": "V302",
+                                    "label_right": "P7",
+                                    "sarrafo_left_id": 0,
+                                    "sarrafo_right_id": 0,
+                                    "_n_linhas_folha": 1,
+                                    "_er_meta": {
+                                      "source": "dxf_geometry",
+                                      "dxf_path": "D:/Agente-cad-PYSIDE/DADOS-OBRAS/Obra_TREINO_1/Fase-2_Triagem/recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- FV - R00\\FV_V322_motor_178106535829.dxf",
+                                      "confianca": 0.9,
+                                      "n_pilar_gaps": 1,
+                                      "n_polys_atribuidos": 3
+                                    },
+                                    "_confianca": 0.9,
+                                    "_fase4_ref": {
+                                      "number": "322",
+                                      "name": "V322",
+                                      "floor": "Pavimento",
+                                      "total_width": 19.0,
+                                      "total_height": 380.0,
+                                      "panels": [
+                                        {
+                                          "width": 118.0,
+                                          "height1": 19.0,
+                                          "height2": 19.0,
+                                          "grade_h1": "118.0",
+                                          "grade_h2": "118.0"
+                                        },
+                                        {
+                                          "width": 262.0,
+                                          "height1": 19.0,
+                                          "height2": 19.0,
+                                          "grade_h1": "262.0",
+                                          "grade_h2": "262.0"
+                                        }
+                                      ],
+                                      "segments_rich": [
+                                        {
+                                          "total_width": 118.0,
+                                          "panels": [
+                                            {
+                                              "width": 118.0,
+                                              "texts": [
+                                                "P32"
+                                              ],
+                                              "vertices": [
+                                                {
+                                                  "x": 0.0,
+                                                  "y": -9.0
+                                                },
+                                                {
+                                                  "x": 0.0,
+                                                  "y": -28.0
+                                                },
+                                                {
+                                                  "x": 118.0,
+                                                  "y": -28.0
+                                                },
+                                                {
+                                                  "x": 118.0,
+                                                  "y": -9.0
+                                                },
+                                                {
+                                                  "x": 0.0,
+                                                  "y": -9.0
+                                                }
+                                              ]
+                                            }
+                                          ]
+                                        },
+                                        {
+                                          "total_width": 262.0,
+                                          "panels": [
+                                            {
+                                              "width": 122.0,
+                                              "texts": [],
+                                              "vertices": [
+                                                {
+                                                  "x": 122.0,
+                                                  "y": -26.7
+                                                },
+                                                {
+                                                  "x": 0.0,
+                                                  "y": -26.7
+                                                },
+                                                {
+                                                  "x": 0.0,
+                                                  "y": -7.7
+                                                },
+                                                {
+                                                  "x": 122.0,
+                                                  "y": -7.7
+                                                }
+                                              ]
+                                            },
+                                            {
+                                              "width": 140.0,
+                                              "texts": [
+                                                "P23"
+                                              ],
+                                              "vertices": [
+                                                {
+                                                  "x": 0.0,
+                                                  "y": -7.7
+                                                },
+                                                {
+                                                  "x": 140.0,
+                                                  "y": -7.7
+                                                },
+                                                {
+                                                  "x": 140.0,
+                                                  "y": -26.7
+                                                },
+                                                {
+                                                  "x": 0.0,
+                                                  "y": -26.7
+                                                }
+                                              ]
+                                            }
+                                          ]
+                                        }
+                                      ],
+                                      "holes": [
+                                        {
+                                          "active": true,
+                                          "width": 14.9,
+                                          "height": 19.0,
+                                          "position": 118.0,
+                                          "text": "P16"
+                                        },
+                                        {
+                                          "active": false,
+                                          "width": 0.0,
+                                          "height": 0.0,
+                                          "position": 0.0,
+                                          "text": null
+                                        },
+                                        {
+                                          "active": false,
+                                          "width": 0.0,
+                                          "height": 0.0,
+                                          "position": 0.0,
+                                          "text": null
+                                        },
+                                        {
+                                          "active": false,
+                                          "width": 0.0,
+                                          "height": 0.0,
+                                          "position": 0.0,
+                                          "text": null
+                                        }
+                                      ],
+                                      "pillar_left": {
+                                        "active": false,
+                                        "width": 0.0,
+                                        "length": 0.0
+                                      },
+                                      "pillar_right": {
+                                        "active": false,
+                                        "width": 0.0,
+                                        "length": 0.0
+                                      },
+                                      "label_left": "V302",
+                                      "label_right": "P7",
+                                      "sarrafo_left_id": 0,
+                                      "sarrafo_right_id": 0,
+                                      "_n_linhas_folha": 1,
+                                      "_er_meta": {
+                                        "source": "dxf_geometry",
+                                        "dxf_path": "D:/Agente-cad-PYSIDE/DADOS-OBRAS/Obra_TREINO_1/Fase-2_Triagem/recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- FV - R00\\FV_V322_motor_178106515847.dxf",
+                                        "confianca": 0.9,
+                                        "n_pilar_gaps": 1,
+                                        "n_polys_atribuidos": 3
+                                      },
+                                      "_confianca": 0.9,
+                                      "_fase4_ref": {
+                                        "number": "322",
+                                        "name": "V322",
+                                        "floor": "Pavimento",
+                                        "total_width": 19.0,
+                                        "total_height": 380.0,
+                                        "panels": [
+                                          {
+                                            "width": 118.0,
+                                            "height1": 19.0,
+                                            "height2": 19.0,
+                                            "grade_h1": "118.0",
+                                            "grade_h2": "118.0"
+                                          },
+                                          {
+                                            "width": 262.0,
+                                            "height1": 19.0,
+                                            "height2": 19.0,
+                                            "grade_h1": "262.0",
+                                            "grade_h2": "262.0"
+                                          }
+                                        ],
+                                        "segments_rich": [
+                                          {
+                                            "total_width": 118.0,
+                                            "panels": [
+                                              {
+                                                "width": 118.0,
+                                                "texts": [
+                                                  "P32"
+                                                ],
+                                                "vertices": [
+                                                  {
+                                                    "x": 0.0,
+                                                    "y": -9.0
+                                                  },
+                                                  {
+                                                    "x": 0.0,
+                                                    "y": -28.0
+                                                  },
+                                                  {
+                                                    "x": 118.0,
+                                                    "y": -28.0
+                                                  },
+                                                  {
+                                                    "x": 118.0,
+                                                    "y": -9.0
+                                                  },
+                                                  {
+                                                    "x": 0.0,
+                                                    "y": -9.0
+                                                  }
+                                                ]
+                                              }
+                                            ]
+                                          },
+                                          {
+                                            "total_width": 262.0,
+                                            "panels": [
+                                              {
+                                                "width": 122.0,
+                                                "texts": [],
+                                                "vertices": [
+                                                  {
+                                                    "x": 122.0,
+                                                    "y": -26.7
+                                                  },
+                                                  {
+                                                    "x": 0.0,
+                                                    "y": -26.7
+                                                  },
+                                                  {
+                                                    "x": 0.0,
+                                                    "y": -7.7
+                                                  },
+                                                  {
+                                                    "x": 122.0,
+                                                    "y": -7.7
+                                                  }
+                                                ]
+                                              },
+                                              {
+                                                "width": 140.0,
+                                                "texts": [
+                                                  "P23"
+                                                ],
+                                                "vertices": [
+                                                  {
+                                                    "x": 0.0,
+                                                    "y": -7.7
+                                                  },
+                                                  {
+                                                    "x": 140.0,
+                                                    "y": -7.7
+                                                  },
+                                                  {
+                                                    "x": 140.0,
+                                                    "y": -26.7
+                                                  },
+                                                  {
+                                                    "x": 0.0,
+                                                    "y": -26.7
+                                                  }
+                                                ]
+                                              }
+                                            ]
+                                          }
+                                        ],
+                                        "holes": [
+                                          {
+                                            "active": true,
+                                            "width": 14.9,
+                                            "height": 19.0,
+                                            "position": 118.0,
+                                            "text": "P16"
+                                          },
+                                          {
+                                            "active": false,
+                                            "width": 0.0,
+                                            "height": 0.0,
+                                            "position": 0.0,
+                                            "text": null
+                                          },
+                                          {
+                                            "active": false,
+                                            "width": 0.0,
+                                            "height": 0.0,
+                                            "position": 0.0,
+                                            "text": null
+                                          },
+                                          {
+                                            "active": false,
+                                            "width": 0.0,
+                                            "height": 0.0,
+                                            "position": 0.0,
+                                            "text": null
+                                          }
+                                        ],
+                                        "pillar_left": {
+                                          "active": false,
+                                          "width": 0.0,
+                                          "length": 0.0
+                                        },
+                                        "pillar_right": {
+                                          "active": false,
+                                          "width": 0.0,
+                                          "length": 0.0
+                                        },
+                                        "label_left": "V302",
+                                        "label_right": "P7",
+                                        "sarrafo_left_id": 0,
+                                        "sarrafo_right_id": 0,
+                                        "_n_linhas_folha": 1,
+                                        "_er_meta": {
+                                          "source": "dxf_geometry",
+                                          "dxf_path": "D:/Agente-cad-PYSIDE/DADOS-OBRAS/Obra_TREINO_1/Fase-2_Triagem/recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- FV - R00\\FV_V322_motor_178106294666.dxf",
+                                          "confianca": 0.9,
+                                          "n_pilar_gaps": 1,
+                                          "n_polys_atribuidos": 3
+                                        },
+                                        "_confianca": 0.9,
+                                        "_fase4_ref": {
+                                          "number": "322",
+                                          "name": "V322",
+                                          "floor": "Pavimento",
+                                          "total_width": 19.0,
+                                          "total_height": 380.0,
+                                          "panels": [
+                                            {
+                                              "width": 118.0,
+                                              "height1": 19.0,
+                                              "height2": 19.0,
+                                              "grade_h1": "118.0",
+                                              "grade_h2": "118.0"
+                                            },
+                                            {
+                                              "width": 262.0,
+                                              "height1": 19.0,
+                                              "height2": 19.0,
+                                              "grade_h1": "262.0",
+                                              "grade_h2": "262.0"
+                                            }
+                                          ],
+                                          "segments_rich": [
+                                            {
+                                              "total_width": 118.0,
+                                              "panels": [
+                                                {
+                                                  "width": 118.0,
+                                                  "texts": [
+                                                    "P32"
+                                                  ],
+                                                  "vertices": [
+                                                    {
+                                                      "x": 0.0,
+                                                      "y": -9.0
+                                                    },
+                                                    {
+                                                      "x": 0.0,
+                                                      "y": -28.0
+                                                    },
+                                                    {
+                                                      "x": 118.0,
+                                                      "y": -28.0
+                                                    },
+                                                    {
+                                                      "x": 118.0,
+                                                      "y": -9.0
+                                                    },
+                                                    {
+                                                      "x": 0.0,
+                                                      "y": -9.0
+                                                    }
+                                                  ]
+                                                }
+                                              ]
+                                            },
+                                            {
+                                              "total_width": 262.0,
+                                              "panels": [
+                                                {
+                                                  "width": 122.0,
+                                                  "texts": [],
+                                                  "vertices": [
+                                                    {
+                                                      "x": 122.0,
+                                                      "y": -26.7
+                                                    },
+                                                    {
+                                                      "x": 0.0,
+                                                      "y": -26.7
+                                                    },
+                                                    {
+                                                      "x": 0.0,
+                                                      "y": -7.7
+                                                    },
+                                                    {
+                                                      "x": 122.0,
+                                                      "y": -7.7
+                                                    }
+                                                  ]
+                                                },
+                                                {
+                                                  "width": 140.0,
+                                                  "texts": [
+                                                    "P23"
+                                                  ],
+                                                  "vertices": [
+                                                    {
+                                                      "x": 0.0,
+                                                      "y": -7.7
+                                                    },
+                                                    {
+                                                      "x": 140.0,
+                                                      "y": -7.7
+                                                    },
+                                                    {
+                                                      "x": 140.0,
+                                                      "y": -26.7
+                                                    },
+                                                    {
+                                                      "x": 0.0,
+                                                      "y": -26.7
+                                                    }
+                                                  ]
+                                                }
+                                              ]
+                                            }
+                                          ],
+                                          "holes": [
+                                            {
+                                              "active": true,
+                                              "width": 14.9,
+                                              "height": 19.0,
+                                              "position": 118.0,
+                                              "text": "P16"
+                                            },
+                                            {
+                                              "active": false,
+                                              "width": 0.0,
+                                              "height": 0.0,
+                                              "position": 0.0,
+                                              "text": null
+                                            },
+                                            {
+                                              "active": false,
+                                              "width": 0.0,
+                                              "height": 0.0,
+                                              "position": 0.0,
+                                              "text": null
+                                            },
+                                            {
+                                              "active": false,
+                                              "width": 0.0,
+                                              "height": 0.0,
+                                              "position": 0.0,
+                                              "text": null
+                                            }
+                                          ],
+                                          "pillar_left": {
+                                            "active": false,
+                                            "width": 0.0,
+                                            "length": 0.0
+                                          },
+                                          "pillar_right": {
+                                            "active": false,
+                                            "width": 0.0,
+                                            "length": 0.0
+                                          },
+                                          "label_left": "V302",
+                                          "label_right": "P7",
+                                          "sarrafo_left_id": 0,
+                                          "sarrafo_right_id": 0,
+                                          "_n_linhas_folha": 1,
+                                          "_er_meta": {
+                                            "source": "dxf_geometry",
+                                            "dxf_path": "D:/Agente-cad-PYSIDE/DADOS-OBRAS/Obra_TREINO_1/Fase-2_Triagem/recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- FV - R00\\FV_V322_motor_178106116579.dxf",
+                                            "confianca": 0.9,
+                                            "n_pilar_gaps": 1,
+                                            "n_polys_atribuidos": 3
+                                          },
+                                          "_confianca": 0.9,
+                                          "_fase4_ref": {
+                                            "number": "322",
+                                            "name": "V322_A",
+                                            "floor": "Pavimento",
+                                            "side": "A",
+                                            "total_width": 19.0,
+                                            "total_height": "120.0",
+                                            "panels": [
+                                              {
+                                                "width": 244.0,
+                                                "height1": 120.0,
+                                                "height2": 120.0,
+                                                "grade_h1": "244.0",
+                                                "grade_h2": "244.0"
+                                              }
+                                            ],
+                                            "holes": [
+                                              {
+                                                "active": false,
+                                                "width": 0.0,
+                                                "height": 0.0,
+                                                "position": 0.0
+                                              },
+                                              {
+                                                "active": false,
+                                                "width": 0.0,
+                                                "height": 0.0,
+                                                "position": 0.0
+                                              },
+                                              {
+                                                "active": false,
+                                                "width": 0.0,
+                                                "height": 0.0,
+                                                "position": 0.0
+                                              },
+                                              {
+                                                "active": false,
+                                                "width": 0.0,
+                                                "height": 0.0,
+                                                "position": 0.0
+                                              }
+                                            ],
+                                            "pillar_left": {
+                                              "active": true,
+                                              "width": 0.0,
+                                              "length": 60.0
+                                            },
+                                            "pillar_right": {
+                                              "active": true,
+                                              "width": 0.0,
+                                              "length": 80.0
+                                            },
+                                            "sarrafo_left_id": 0,
+                                            "sarrafo_right_id": 0
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
   }
 }

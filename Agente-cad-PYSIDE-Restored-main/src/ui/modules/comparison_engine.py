@@ -1177,6 +1177,8 @@ class ScoreSparkline(QWidget):
     def paintEvent(self, event):
         if not any(self._series.values()):
             return
+        if self.width() <= 0 or self.height() <= 0:
+            return
         p = QPainter(self)
         p.setRenderHint(QPainter.Antialiasing)
         w, h = self.width(), self.height()
