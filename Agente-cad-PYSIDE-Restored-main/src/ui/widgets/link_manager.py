@@ -93,7 +93,7 @@ class LinkManager(QWidget):
         ],
         '_laje_geom': [
              {'id': 'contour', 'name': 'Contorno Laje', 'type': 'poly', 'prompt': 'Desenhe o perímetro da laje. [Enter] para finalizar.', 'help': 'Geometria da área da laje.', 'patterns': 'Polilinha Fechada (LWPOLYLINE)\nLayer: ARQ_LAJE, CONCRETO\nDeve estar fechada.'},
-             {'id': 'acrescimo_borda', 'name': 'ACRESCIMO DE 10 CM POR ESTAR NO BORDE DA OBRA', 'type': 'poly', 'prompt': 'Desenhe o acréscimo de 10cm na direção do borde. [Enter] para finalizar.', 'help': 'Desenho extra de 10cm na direção do borde se a laje tocar o borde.', 'patterns': 'Linha ou Polilinha\nExtensão de exatos 10cm na direção externa.'}
+             {'id': 'acrescimo_borda', 'name': 'Acrescimo Borda (+10cm)', 'type': 'poly', 'prompt': 'Desenhe acréscimo de 10cm no borde. [Enter] para finalizar.', 'help': 'Extensão de 10cm no borde da obra.', 'patterns': 'Linha ou Polilinha\nExtensão de exatos 10cm na direção externa.'}
         ],
         '_laje_complex': [
              {'id': 'label', 'name': '1. Nome da Laje', 'type': 'text', 'prompt': 'Busque o texto identificador (Ex: L1).', 'help': 'Identificador da laje.'},
@@ -303,105 +303,144 @@ class LinkManager(QWidget):
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(0)
         
-        self.setStyleSheet("""
-            QWidget { 
-                background-color: {Colors.BG_DEEP};
-                color: {Colors.TEXT_PRIMARY};
-            }
-            QLabel { color: {Colors.TEXT_PRIMARY}; font-family: 'Segoe UI', sans-serif; font-size: 12px; }
-            .HeaderLabel { font-size: 14px; font-weight: bold; color: {Colors.ACCENT_PRIMARY}; margin-bottom: 5px; }
-            
-            /* SLOT CARD DESIGN */
-            .SlotFrame { 
-                background: {Colors.BG_PANEL}; 
-                border: 1px solid {Colors.BORDER_DEFAULT}; 
-                border-radius: 8px; 
-                padding: 10px; 
-                margin-bottom: 5px; 
-            }
-            .SlotFrameValidated { 
-                background: rgba(0,230,118,13); 
-                border: 1px solid {Colors.ACCENT_SUCCESS_ALT}; 
-                border-radius: 8px; 
-                padding: 10px; 
-                margin-bottom: 5px; 
-            }
-            .SlotTitle { 
-                font-size: 12px; 
-                font-weight: bold; 
-                color: {Colors.TEXT_BRIGHT}; 
-                background: transparent; 
+        self.setStyleSheet(f"""
+            LinkManager {{
+                background: {Colors.BG_DEEP};
                 border: none;
-                padding: 2px;
-            }
-            
-            /* LINK ITEM CARD DESIGN */
-            .LinkItem { 
-                background: {Colors.BG_CARD}; 
-                border-left: 3px solid {Colors.ACCENT_PRIMARY}; 
-                border-radius: 4px; 
-                padding: 6px; 
-                margin-top: 5px; 
-            }
-            .LinkItemValidated { 
-                background: rgba(27,58,36,1); 
-                border-left: 4px solid {Colors.ACCENT_SUCCESS}; 
-                border-radius: 4px; 
-                padding: 6px; 
-                margin-top: 5px; 
-            }
-            .LinkItemFailed { 
-                background: rgba(58,27,27,1); 
-                border-left: 4px solid {Colors.ACCENT_DANGER}; 
-                border-radius: 4px; 
-                padding: 6px; 
-                margin-top: 5px; 
-            }
-            .LinkValue { 
-                color: {Colors.TEXT_BRIGHT}; 
-                font-weight: bold; 
-                font-size: 11px; 
-                font-family: 'Consolas', monospace; 
-            }
-            
-            /* BUTTONS */
-            QPushButton {
-                border-radius: 4px;
-                font-weight: bold;
+            }}
+            QLabel {{
+                color: {Colors.TEXT_PRIMARY};
+                font-family: 'Segoe UI', sans-serif;
                 font-size: 10px;
-                padding: 4px 8px;
-            }
-            
-            QPushButton.AddBtn { 
-                background: {Colors.BG_PANEL}; color: {Colors.ACCENT_WARNING_ALT}; border: 1px dashed {Colors.BORDER_INPUT}; 
-                font-size: 11px; padding: 6px; text-align: center;
-            }
-            QPushButton.AddBtn:hover { background: {Colors.BG_CARD}; color: {Colors.ACCENT_INFO}; }
-            
-            QPushButton.ActionBtn { background: {Colors.BG_CARD}; border: none; color: {Colors.TEXT_BRIGHT}; }
-            QPushButton.ActionBtn:hover { background: {Colors.BORDER_INPUT}; }
-            
-            QPushButton.DelBtn { background: {Colors.BG_CARD}; color: {Colors.ACCENT_DANGER}; }
-            QPushButton.DelBtn:hover { background: #332222; }  /* hardcoded-ok: Colors.BG_DANGER_DARK */
-
-            /* TRAINING BUTTONS */
-            QPushButton.TrainBtn { background: {Colors.BG_PANEL}; border: 1px solid {Colors.BORDER_DEFAULT}; }
-            QPushButton.TrainSuccess { color: {Colors.ACCENT_SUCCESS}; }
-            QPushButton.TrainSuccess:hover { background: rgba(27,58,36,1); border-color: {Colors.ACCENT_SUCCESS}; }
-            QPushButton.TrainFail { color: {Colors.ACCENT_DANGER}; }
-            QPushButton.TrainFail:hover { background: rgba(58,27,27,1); border-color: {Colors.ACCENT_DANGER}; }
+            }}
+            .SlotFrame {{
+                background: {Colors.BG_CARD};
+                border: 1px solid {Colors.BORDER_SUBTLE};
+                border-radius: 3px;
+                padding: 3px 5px;
+                margin: 1px 0px;
+            }}
+            .SlotFrame:hover {{
+                border-color: {Colors.BORDER_DEFAULT};
+            }}
+            .SlotFrameValidated {{
+                background: rgba(30, 200, 90, 20);
+                border: 1px solid rgba(0, 200, 100, 60);
+                border-radius: 3px;
+                padding: 3px 5px;
+                margin: 1px 0px;
+            }}
+            .SlotTitle {{
+                font-size: 10px;
+                font-weight: 600;
+                color: {Colors.TEXT_MUTED};
+                background: transparent;
+                border: none;
+                padding: 0px;
+            }}
+            .LinkItem {{
+                background: {Colors.BG_DEEP};
+                border-left: 2px solid {Colors.BORDER_INPUT};
+                border-radius: 2px;
+                padding: 2px 4px;
+                margin: 1px 0px;
+            }}
+            .LinkItemValidated {{
+                background: rgba(40, 167, 69, 25);
+                border-left: 2px solid {Colors.ACCENT_SUCCESS};
+                border-radius: 2px;
+                padding: 2px 4px;
+                margin: 1px 0px;
+            }}
+            .LinkItemFailed {{
+                background: rgba(220, 53, 69, 25);
+                border-left: 2px solid {Colors.ACCENT_DANGER};
+                border-radius: 2px;
+                padding: 2px 4px;
+                margin: 1px 0px;
+            }}
+            .LinkValue {{
+                color: {Colors.TEXT_PRIMARY};
+                font-weight: 500;
+                font-size: 10px;
+                font-family: 'Consolas', 'Courier New', monospace;
+            }}
+            QPushButton {{
+                border-radius: 2px;
+                font-weight: 600;
+                font-size: 9px;
+                padding: 1px 5px;
+                border: 1px solid transparent;
+            }}
+            QPushButton.AddBtn {{
+                background: transparent;
+                color: {Colors.TEXT_MUTED};
+                border: 1px dashed {Colors.BORDER_SUBTLE};
+                font-size: 9px;
+                padding: 2px;
+                text-align: center;
+                margin-top: 1px;
+            }}
+            QPushButton.AddBtn:hover {{
+                background: {Colors.BG_CARD};
+                color: {Colors.ACCENT_TEAL};
+                border-color: {Colors.ACCENT_TEAL};
+            }}
+            QPushButton.ActionBtn {{
+                background: transparent;
+                border: 1px solid {Colors.BORDER_SUBTLE};
+                color: {Colors.TEXT_MUTED};
+                padding: 1px 4px;
+            }}
+            QPushButton.ActionBtn:hover {{
+                background: {Colors.BG_CARD};
+                color: {Colors.TEXT_BRIGHT};
+                border-color: {Colors.BORDER_INPUT};
+            }}
+            QPushButton.DelBtn {{
+                background: transparent;
+                border: 1px solid {Colors.BORDER_SUBTLE};
+                color: {Colors.ACCENT_DANGER};
+                padding: 1px 4px;
+            }}
+            QPushButton.DelBtn:hover {{
+                background: {Colors.ACCENT_DANGER};
+                color: {Colors.TEXT_BRIGHT};
+            }}
+            QPushButton.TrainBtn {{
+                background: transparent;
+                border: 1px solid {Colors.BORDER_SUBTLE};
+                padding: 1px 4px;
+            }}
+            QPushButton.TrainSuccess {{
+                color: {Colors.ACCENT_SUCCESS};
+            }}
+            QPushButton.TrainSuccess:hover {{
+                background: {Colors.ACCENT_SUCCESS};
+                color: {Colors.BG_DEEP};
+            }}
+            QPushButton.TrainFail {{
+                color: {Colors.ACCENT_DANGER};
+            }}
+            QPushButton.TrainFail:hover {{
+                background: {Colors.ACCENT_DANGER};
+                color: {Colors.BG_DEEP};
+            }}
         """)
 
         # Container direto (Sem ScrollArea interna)
         self.slots_container = QVBoxLayout()
-        self.slots_container.setSpacing(10)
-        self.slots_container.setContentsMargins(8, 8, 8, 8)
+        self.slots_container.setSpacing(3)
+        self.slots_container.setContentsMargins(2, 2, 2, 2)
         
         layout.addLayout(self.slots_container)
 
         self.refresh_list()
 
-    def refresh_list(self):
+    def refresh_list(self, partial=False):
+        """Rebuild all slot cards. Set partial=True to skip when unnecessary."""
+        if partial:
+            return  # Skip full rebuild, local updates handle visuals
         try:
             if self.slots_container is None: return
             
@@ -445,7 +484,7 @@ class LinkManager(QWidget):
                 slot_frame.setProperty("class", "SlotFrame")
                 
             sf_layout = QVBoxLayout(slot_frame)
-            sf_layout.setSpacing(5)
+            sf_layout.setSpacing(2)
 
             # --- MANUAL MODE RENDER ---
             if slot.get('mode') == 'manual':
@@ -487,8 +526,7 @@ class LinkManager(QWidget):
                 man_layout.addStretch()
                 
                 # Help Icon
-                btn_help = QPushButton("?")
-                btn_help.setFixedSize(20, 20)
+                btn_help = QPushButton("Ajuda")
                 btn_help.setStyleSheet(f"border: none; color: {Colors.TEXT_DIM}; font-weight: bold;")
                 btn_help.setToolTip(slot.get('help', ''))
                 man_layout.addWidget(btn_help)
@@ -514,8 +552,7 @@ class LinkManager(QWidget):
             # --- ACTION BUTTONS (CLASS LEVEL) ---
             
             # 1. Validate Class (✔) -> Valida todos os vínculos internos
-            btn_val_class = QPushButton("✔")
-            btn_val_class.setFixedSize(24, 20)
+            btn_val_class = QPushButton("Validar Tudo")
             btn_val_class.setCheckable(True)
             btn_val_class.setChecked(is_class_validated)
             btn_val_class.setCursor(Qt.PointingHandCursor)
@@ -523,7 +560,7 @@ class LinkManager(QWidget):
             
             if is_class_validated:
                 btn_val_class.setStyleSheet("""
-                    QPushButton { background: rgba(27,58,36,1); color: {Colors.ACCENT_SUCCESS_ALT}; border: 1px solid {Colors.ACCENT_SUCCESS_ALT}; border-radius: 4px; }
+                    QPushButton { background: rgba(27, 58, 36, 1); color: {Colors.ACCENT_SUCCESS_ALT}; border: 1px solid {Colors.ACCENT_SUCCESS_ALT}; border-radius: 4px; }
                     QPushButton:hover { background: {Colors.ACCENT_SUCCESS_ALT}; color: {Colors.TEXT_BRIGHT}; }
                 """)
             else:
@@ -532,12 +569,11 @@ class LinkManager(QWidget):
                     QPushButton:hover { background: {Colors.ACCENT_SUCCESS_ALT}; color: {Colors.BG_DEEP}; border: 1px solid {Colors.ACCENT_SUCCESS_ALT}; }
                 """)
                 
-            btn_val_class.clicked.connect(lambda checked, s_id=slot_id: self.slot_validated.emit(s_id, checked))
+            btn_val_class.clicked.connect(lambda checked, s_id=slot_id, sf=slot_frame: self._on_slot_class_validated(s_id, checked, sf))
             header_layout.addWidget(btn_val_class)
             
             # 2. N/A Class (🚫) -> Marca classe como N/A e limpa vínculos
-            btn_na_class = QPushButton("🚫")
-            btn_na_class.setFixedSize(24, 20)
+            btn_na_class = QPushButton("N/A")
             btn_na_class.setCheckable(True)
             btn_na_class.setChecked(is_na_slot)
             btn_na_class.setCursor(Qt.PointingHandCursor)
@@ -555,8 +591,7 @@ class LinkManager(QWidget):
             header_layout.addWidget(btn_na_class)
             
             # 3. Botão Interpretação (Nível de Classe/Slot)
-            btn_interp = QPushButton("📝")
-            btn_interp.setFixedSize(24, 20)
+            btn_interp = QPushButton("Info")
             btn_interp.setCursor(Qt.PointingHandCursor)
             btn_interp.setToolTip(f"Detalhamento e Padrões para {slot['name']}")
             btn_interp.setStyleSheet("""
@@ -590,54 +625,48 @@ class LinkManager(QWidget):
                     val_lbl = QLabel(val_text)
                     val_lbl.setProperty("class", "LinkValue")
                     
-                    btn_focus = QPushButton("🔍")
+                    btn_focus = QPushButton("Zoom")
                     btn_focus.setProperty("class", "ActionBtn")
-                    btn_focus.setFixedSize(24, 20)
                     btn_focus.clicked.connect(lambda checked=False, l=link: self.focus_requested.emit(l))
                     
-                    btn_del = QPushButton("❌")
+                    btn_del = QPushButton("Excluir")
                     btn_del.setProperty("class", "DelBtn")
-                    btn_del.setFixedSize(24, 20)
                     btn_del.clicked.connect(lambda checked=False, s_id=slot_id, l=link: self._remove_link(s_id, l))
                     
                     # New: Training Buttons (Validate and Error)
-                    btn_ok = QPushButton("✔")
+                    btn_ok = QPushButton("Validar")
                     btn_ok.setProperty("class", "TrainBtn TrainSuccess")
-                    btn_ok.setFixedSize(24, 20)
                     btn_ok.setCheckable(True)
                     btn_ok.setChecked(is_valid)
                     btn_ok.setToolTip("Validar/Treinar IA (Clique novamente para desfazer)")
                     if is_valid: 
-                        btn_ok.setStyleSheet(f"background: rgba(27,58,36,1); color: {Colors.ACCENT_SUCCESS}; border: 1px solid {Colors.ACCENT_SUCCESS};")
+                        btn_ok.setStyleSheet(f"background: rgba(27, 58, 36, 1); color: {Colors.ACCENT_SUCCESS}; border: 1px solid {Colors.ACCENT_SUCCESS};")
                         
                     btn_ok.clicked.connect(lambda checked, s=slot_id, l=link: self._handle_training_click(s, l, 'valid'))
 
-                    btn_err = QPushButton("⚠️")
+                    btn_err = QPushButton("Incorreto")
                     btn_err.setProperty("class", "TrainBtn TrainFail")
-                    btn_err.setFixedSize(24, 20)
                     btn_err.setCheckable(True)
                     btn_err.setChecked(is_failed)
                     btn_err.setToolTip("Indicar Erro de IA (Clique novamente para desfazer)")
                     if is_failed:
-                        btn_err.setStyleSheet(f"background: rgba(58,27,27,1); color: {Colors.ACCENT_DANGER}; border: 1px solid {Colors.ACCENT_DANGER};")
+                        btn_err.setStyleSheet(f"background: rgba(58, 27, 27, 1); color: {Colors.ACCENT_DANGER}; border: 1px solid {Colors.ACCENT_DANGER};")
                         
                     btn_err.clicked.connect(lambda checked, s=slot_id, l=link: self._handle_training_click(s, l, 'fail'))
 
                     lf_layout.addWidget(val_lbl, 1)
                     
-                    # Vertical Action Stack for "Micro Buttons"
-                    actions_v = QVBoxLayout()
-                    actions_v.setSpacing(4)
+                    # Horizontal Action Stack for "Text Buttons"
+                    actions_h = QHBoxLayout()
+                    actions_h.setSpacing(2)
+                    actions_h.setContentsMargins(0,0,0,0)
 
-                    row1 = QHBoxLayout(); row1.setSpacing(4); row1.setContentsMargins(0,0,0,0)
-                    row1.addWidget(btn_focus); row1.addWidget(btn_del)
-
-                    row2 = QHBoxLayout(); row2.setSpacing(4); row2.setContentsMargins(0,0,0,0)
-                    row2.addWidget(btn_ok); row2.addWidget(btn_err)
+                    actions_h.addWidget(btn_focus)
+                    actions_h.addWidget(btn_ok)
+                    actions_h.addWidget(btn_err)
+                    actions_h.addWidget(btn_del)
                     
-                    actions_v.addLayout(row1)
-                    actions_v.addLayout(row2)
-                    lf_layout.addLayout(actions_v)
+                    lf_layout.addLayout(actions_h)
                     
                     sf_layout.addWidget(link_frame)
 
@@ -685,7 +714,9 @@ class LinkManager(QWidget):
     def _handle_training_click(self, slot_id, link, target_status):
         """
         Gerencia o clique nos botões de treino (OK/Erro) com suporte a Toggle (Undo).
+        Atualiza o estado visual do botao LOCALMENTE antes de emitir o signal.
         """
+        sender = self.sender()
         is_already_checked = (target_status == 'valid' and link.get('validated')) or \
                              (target_status == 'fail' and link.get('failed'))
         
@@ -694,12 +725,79 @@ class LinkManager(QWidget):
             'Validado via Drawer' if target_status == 'valid' else 'Erro via Drawer'
         )
         
+        # ATUALIZA DADOS localmente
+        if status == 'valid':
+            link['validated'] = True
+            link.pop('failed', None)
+        elif status == 'fail':
+            link['failed'] = True
+            link.pop('validated', None)
+        elif status == 'removed':
+            link.pop('validated', None)
+            link.pop('failed', None)
+        
+        # ATUALIZA BOTAO visualmente (sem esperar refresh_list)
+        if sender:
+            # Forca o estado checked visual
+            sender.setChecked(status != 'removed')
+            if status == 'valid':
+                sender.setStyleSheet(f"background: rgba(27, 58, 36, 1); color: #4caf50; border: 1px solid #4caf50; font-weight: bold;")
+            elif status == 'fail':
+                sender.setStyleSheet(f"background: rgba(58, 27, 27, 1); color: #f44336; border: 1px solid #f44336; font-weight: bold;")
+            else:
+                sender.setStyleSheet(f"background: transparent; color: #888; border: 1px solid #444; font-weight: bold;")
+        
+        # ATUALIZA LINK FRAME (cor de fundo)
+        parent_frame = sender.parent().parent() if sender and sender.parent() else None
+        if parent_frame:
+            if status == 'valid':
+                parent_frame.setProperty("class", "LinkItemValidated")
+            elif status == 'fail':
+                parent_frame.setProperty("class", "LinkItemFailed")
+            else:
+                parent_frame.setProperty("class", "LinkItem")
+            parent_frame.style().unpolish(parent_frame)
+            parent_frame.style().polish(parent_frame)
+        
         self.training_requested.emit({
             'slot': slot_id,
             'link': link,
             'comment': comment,
             'status': status
         })
+
+    def _on_slot_class_validated(self, slot_id, checked, slot_frame):
+        """Validate all links in a slot class with local visual update, no rebuild"""
+        # Update all links in this slot
+        slot_links = self.links.get(slot_id, [])
+        for link in slot_links:
+            if checked:
+                link['validated'] = True
+                link['failed'] = False
+            else:
+                link['validated'] = False
+        
+        # Update slot frame appearance locally
+        if slot_frame:
+            if checked:
+                slot_frame.setProperty("class", "SlotFrameValidated")
+                self.validated_slots.add(slot_id)
+            else:
+                slot_frame.setProperty("class", "SlotFrame")
+                self.validated_slots.discard(slot_id)
+            slot_frame.style().unpolish(slot_frame)
+            slot_frame.style().polish(slot_frame)
+        
+        # Update link frames inside
+        if slot_frame:
+            for child in slot_frame.findChildren(type(slot_frame)):
+                cls = child.property('class') or ''
+                if 'LinkItem' in cls:
+                    child.setProperty("class", "LinkItemValidated" if checked else "LinkItem")
+                    child.style().unpolish(child)
+                    child.style().polish(child)
+        
+        self.slot_validated.emit(slot_id, checked)
 
     def _open_slot_interpretation(self, slot_id, slot_name):
         """Abre o diálogo de interpretação para uma CLASSE DE VÍNCULO (Slot) específica"""

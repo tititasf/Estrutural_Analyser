@@ -45,7 +45,7 @@ class UserProfileDialog(QDialog):
         header_layout.setContentsMargins(25, 20, 15, 20)
         
         logo_lbl = QLabel(f"VISION ESTRUTURAL <font color='{Colors.ACCENT_BRAND}'>PRO</font>")
-        logo_lbl.setStyleSheet(f"font-size: {Fonts.SIZE_XXL}; font-weight: bold; letter-spacing: 1px; color: {Colors.TEXT_SECONDARY};")
+        logo_lbl.setStyleSheet(f"font-size: {Fonts.SIZE_XXL}; font-weight: bold;  color: {Colors.TEXT_SECONDARY};")
         header_layout.addWidget(logo_lbl)
         
         header_layout.addStretch()
@@ -96,7 +96,7 @@ class UserProfileDialog(QDialog):
         is_admin = self.user.role == UserRole.ADMIN
         role_text = "ADMINISTRADOR" if is_admin else "USUÁRIO"
         role_color = Colors.ACCENT_GOLD if is_admin else Colors.TEXT_DIM
-        role_bg = "rgba(255,215,0,26)" if is_admin else "rgba(68,68,68,128)"
+        role_bg = "rgba(255, 215, 0, 26)" if is_admin else "rgba(68, 68, 68, 128)"
         
         role_badge = QLabel(role_text)
         role_badge.setAlignment(Qt.AlignCenter)
@@ -109,7 +109,7 @@ class UserProfileDialog(QDialog):
             padding: 4px;
             font-size: {Fonts.SIZE_SM};
             font-weight: bold;
-            letter-spacing: 2px;
+            
             margin-top: 10px;
         """)
         role_row = QHBoxLayout()
@@ -155,7 +155,7 @@ class UserProfileDialog(QDialog):
 
         # 4. Actions Area
         actions_header = QLabel("SEGURANÇA E ACESSO")
-        actions_header.setStyleSheet(f"color: {Colors.TEXT_MUTED}; font-size: {Fonts.SIZE_SM}; font-weight: bold; letter-spacing: 1px; margin-left: 40px; margin-bottom: 5px;")
+        actions_header.setStyleSheet(f"color: {Colors.TEXT_MUTED}; font-size: {Fonts.SIZE_SM}; font-weight: bold;  margin-left: 40px; margin-bottom: 5px;")
         container_layout.addWidget(actions_header)
 
         actions_section = QFrame()
@@ -210,9 +210,9 @@ class UserProfileDialog(QDialog):
             QPushButton#BtnAccent:hover {{ background-color: {Colors.BG_HOVER}; border-color: {Colors.ACCENT_BRAND}; }}
 
             QPushButton#BtnLogout {{
-                background-color: rgba(211,47,47,26);
+                background-color: rgba(211, 47, 47, 26);
                 color: {Colors.ACCENT_DANGER};
-                border: 1px solid rgba(211,47,47,76);
+                border: 1px solid rgba(211, 47, 47, 76);
                 border-radius: {Radius.XL};
                 font-weight: bold;
             }}

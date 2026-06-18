@@ -1,4 +1,4 @@
-import os
+﻿import os
 import sys
 import json
 import uuid
@@ -105,11 +105,12 @@ class PreProcessAllWorker(QThread):
     finished     = Signal(dict)       # ficha completa ao terminar
     error        = Signal(str)        # mensagem de erro fatal
 
-    def __init__(self, obra_name: str, obra_path: str, force: bool = False, parent=None):
+    def __init__(self, obra_name: str, obra_path: str, force: bool = False, analysis_mode: str = "baseline", parent=None):
         super().__init__(parent)
         self.obra_name = obra_name
         self.obra_path = Path(obra_path)
         self.force     = force
+        self.analysis_mode = analysis_mode
         self._abort    = False
 
     def abort(self):
@@ -311,7 +312,9 @@ class PreProcessAllWorker(QThread):
                     torre_vigas = raw_vigas
 
                     # ── Lajes (full detection + interpretation) ───────────────
-                    raw_lajes = SlabTracer(si).detect_slabs_from_texts(texts)
+                    raw_lajes = SlabTracer(si).detect_slabs_from_texts(
+                        texts,
+                    )
                     for s in raw_lajes:
                         process_slab_intelligent(s, texts)
                         lv = s.get('fields', {}).get('laje_nivel') or s.get('level') or s.get('nivel')
@@ -333,6 +336,7 @@ class PreProcessAllWorker(QThread):
                         'n_pilares': len(torre_pilares),
                         'n_vigas':   len(torre_vigas),
                         'n_lajes':   len(torre_lajes),
+                        'analysis_mode': self.analysis_mode,
                         'status':    'ok',
                     })
 
@@ -380,6 +384,7 @@ class PreProcessAllWorker(QThread):
                 'lajes_nivel_distinto': len(niveis_s) > 1,
                 'status':              pav_status,
                 'torres_count':        len(pav_list),
+                'analysis_mode':        self.analysis_mode,
             })
             self.progress.emit(
                 max(5, int((processed_n / max(total_torres, 1)) * 83) + 5),
@@ -437,6 +442,7 @@ class PreProcessAllWorker(QThread):
         ficha = {
             'obra':             self.obra_name,
             'gerado_em':        _dt.now().isoformat(),
+            'analysis_mode':    self.analysis_mode,
             'pavimentos':       ficha_pavs,
             'totais':           totais,
             'detalhes':         det_resumo,
@@ -445,7 +451,12 @@ class PreProcessAllWorker(QThread):
 
         # 7. Persist estado
         self.progress.emit(95, "Salvando ficha…")
-        estado_path = self.obra_path / "pre_processamento_estado.json"
+        estado_name = "pre_processamento_estado.json"
+        if self.analysis_mode == "context":
+            estado_name = "pre_processamento_estado_context.json"
+        elif self.analysis_mode == "engrev_assisted":
+            estado_name = "pre_processamento_estado_engrev_assisted.json"
+        estado_path = self.obra_path / estado_name
         try:
             estado_path.parent.mkdir(parents=True, exist_ok=True)
             estado_path.write_text(
@@ -453,6 +464,7 @@ class PreProcessAllWorker(QThread):
                     'obra_name': self.obra_name,
                     'last_run':  ficha['gerado_em'],
                     'status':    'completed',
+                    'analysis_mode': self.analysis_mode,
                     'ficha':     ficha,
                 }, indent=2, ensure_ascii=False),
                 encoding='utf-8',
@@ -730,7 +742,7 @@ class DiagnosticHubModule(QWidget):
             }}
             QListWidget::item {{ padding: 5px 8px; }}
             QListWidget::item:selected {{
-                background: rgba(0,180,180,64); color: {Colors.ACCENT_TEAL};
+                background: rgba(0, 180, 180, 64); color: {Colors.ACCENT_TEAL};
             }}
             QListWidget::item:hover {{ background: {Colors.BG_PANEL}; }}
         """)
@@ -904,11 +916,11 @@ class DiagnosticHubModule(QWidget):
         )
         self._btn_manual_crop.setStyleSheet(f"""
             QPushButton {{
-                background: rgba(180,120,0,38); color: {Colors.ACCENT_WARNING};
+                background: rgba(180, 120, 0, 38); color: {Colors.ACCENT_WARNING};
                 border: 1px solid {Colors.ACCENT_WARNING}; border-radius: 4px;
                 font-size: 11px; font-weight: bold; padding: 5px 10px;
             }}
-            QPushButton:hover {{ background: rgba(180,120,0,71); }}
+            QPushButton:hover {{ background: rgba(180, 120, 0, 71); }}
             QPushButton:disabled {{ color: {Colors.TEXT_DIM}; border-color: {Colors.TEXT_DIM}; }}
         """)
         self._btn_manual_crop.setEnabled(False)
@@ -923,11 +935,11 @@ class DiagnosticHubModule(QWidget):
         )
         self._btn_selection_crop.setStyleSheet(f"""
             QPushButton {{
-                background: rgba(120,60,180,38); color: #c08aff;
+                background: rgba(120, 60, 180, 38); color: #c08aff;
                 border: 1px solid #c08aff; border-radius: 4px;
                 font-size: 11px; font-weight: bold; padding: 5px 10px;
             }}
-            QPushButton:hover {{ background: rgba(120,60,180,71); }}
+            QPushButton:hover {{ background: rgba(120, 60, 180, 71); }}
             QPushButton:disabled {{ color: {Colors.TEXT_DIM}; border-color: {Colors.TEXT_DIM}; }}
         """)
         self._btn_selection_crop.setEnabled(False)
@@ -938,11 +950,11 @@ class DiagnosticHubModule(QWidget):
         self._btn_process_crops = QPushButton("⚙ Processar Auto")
         self._btn_process_crops.setStyleSheet(f"""
             QPushButton {{
-                background: rgba(0,180,180,38); color: {Colors.ACCENT_TEAL};
+                background: rgba(0, 180, 180, 38); color: {Colors.ACCENT_TEAL};
                 border: 1px solid {Colors.ACCENT_TEAL}; border-radius: 4px;
                 font-size: 11px; font-weight: bold; padding: 5px 10px;
             }}
-            QPushButton:hover {{ background: rgba(0,180,180,71); }}
+            QPushButton:hover {{ background: rgba(0, 180, 180, 71); }}
             QPushButton:disabled {{ color: {Colors.TEXT_DIM}; border-color: {Colors.TEXT_DIM}; }}
         """)
         self._btn_process_crops.setEnabled(False)
@@ -988,7 +1000,7 @@ class DiagnosticHubModule(QWidget):
             }}
             QListWidget::item {{ padding: 5px 8px; }}
             QListWidget::item:selected {{
-                background: rgba(0,180,180,51); color: {Colors.ACCENT_TEAL};
+                background: rgba(0, 180, 180, 51); color: {Colors.ACCENT_TEAL};
             }}
         """)
         self._list_recortes.itemClicked.connect(self._on_recorte_selected)
@@ -1002,11 +1014,11 @@ class DiagnosticHubModule(QWidget):
         )
         self._btn_save_crop.setStyleSheet(f"""
             QPushButton {{
-                background: rgba(80,80,220,31); color: #8888ff;
+                background: rgba(80, 80, 220, 31); color: #8888ff;
                 border: 1px solid #8888ff; border-radius: 4px;
                 font-size: 10px; font-weight: bold; padding: 4px 8px;
             }}
-            QPushButton:hover {{ background: rgba(80,80,220,71); }}
+            QPushButton:hover {{ background: rgba(80, 80, 220, 71); }}
             QPushButton:disabled {{ color: {Colors.TEXT_DIM}; border-color: {Colors.TEXT_DIM}; }}
         """)
         self._btn_save_crop.setEnabled(False)
@@ -1050,7 +1062,7 @@ class DiagnosticHubModule(QWidget):
                     background: {cls_color};
                     color: #111;
                 }}
-                QPushButton:hover:!checked {{ background: rgba(255,255,255,18); }}
+                QPushButton:hover:!checked {{ background: rgba(255, 255, 255, 18); }}
                 QPushButton:disabled {{
                     color: {Colors.TEXT_DIM};
                     border-color: {Colors.TEXT_DIM};
@@ -1077,11 +1089,11 @@ class DiagnosticHubModule(QWidget):
         self._btn_approve_crop = QPushButton("✓ Aprovar")
         self._btn_approve_crop.setStyleSheet(f"""
             QPushButton {{
-                background: rgba(0,200,120,31); color: {Colors.ACCENT_SUCCESS_ALT};
+                background: rgba(0, 200, 120, 31); color: {Colors.ACCENT_SUCCESS_ALT};
                 border: 1px solid {Colors.ACCENT_SUCCESS_ALT}; border-radius: 4px;
                 font-size: 10px; font-weight: bold; padding: 4px 8px;
             }}
-            QPushButton:hover {{ background: rgba(0,200,120,71); }}
+            QPushButton:hover {{ background: rgba(0, 200, 120, 71); }}
             QPushButton:disabled {{ color: {Colors.TEXT_DIM}; border-color: {Colors.TEXT_DIM}; }}
         """)
         self._btn_approve_crop.setEnabled(False)
@@ -1095,11 +1107,11 @@ class DiagnosticHubModule(QWidget):
         )
         self._btn_delete_crop.setStyleSheet(f"""
             QPushButton {{
-                background: rgba(255,80,80,26); color: {Colors.ACCENT_DANGER};
+                background: rgba(255, 80, 80, 26); color: {Colors.ACCENT_DANGER};
                 border: 1px solid {Colors.ACCENT_DANGER}; border-radius: 4px;
                 font-size: 10px; font-weight: bold; padding: 4px 8px;
             }}
-            QPushButton:hover {{ background: rgba(255,80,80,64); }}
+            QPushButton:hover {{ background: rgba(255, 80, 80, 64); }}
             QPushButton:disabled {{ color: {Colors.TEXT_DIM}; border-color: {Colors.TEXT_DIM}; }}
         """)
         self._btn_delete_crop.setEnabled(False)
@@ -1117,6 +1129,7 @@ class DiagnosticHubModule(QWidget):
 
         # Botão "⚡ Interpretar Obra Toda (Fase 3)"
         self._btn_process_all = QPushButton("⚡ Interpretar Obra Toda")
+        self._btn_process_all.setText("Iniciar Análise Geral")
         self._btn_process_all.setToolTip(
             "Roda o motor Structural Analyzer (Fase 3) em batch sobre\n"
             "todas as torres aprovadas de todos os pavimentos desta obra.\n\n"
@@ -1125,26 +1138,40 @@ class DiagnosticHubModule(QWidget):
         )
         self._btn_process_all.setStyleSheet(f"""
             QPushButton {{
-                background: rgba(180,80,200,31); color: {Colors.ACCENT_PURPLE};
+                background: rgba(180, 80, 200, 31); color: {Colors.ACCENT_PURPLE};
                 border: 1px solid {Colors.ACCENT_PURPLE}; border-radius: 4px;
                 font-size: 11px; font-weight: bold; padding: 5px 8px;
             }}
-            QPushButton:hover {{ background: rgba(180,80,200,64); }}
+            QPushButton:hover {{ background: rgba(180, 80, 200, 64); }}
             QPushButton:disabled {{ color: {Colors.TEXT_DIM}; border-color: {Colors.TEXT_DIM}; }}
         """)
         self._btn_process_all.setEnabled(False)
-        self._btn_process_all.clicked.connect(self._run_pre_process_all)
+        self._btn_process_all.clicked.connect(lambda: self._run_pre_process_all("baseline"))
         vlay.addWidget(self._btn_process_all)
+
+        self._btn_process_context = QPushButton("Interpretar com Contexto")
+        self._btn_process_context.setToolTip("Roda o Structural Analyzer em modo context, isolado do baseline.")
+        self._btn_process_context.setStyleSheet(self._btn_process_all.styleSheet())
+        self._btn_process_context.setEnabled(False)
+        self._btn_process_context.clicked.connect(lambda: self._run_pre_process_all("context"))
+        vlay.addWidget(self._btn_process_context)
+
+        self._btn_process_engrev = QPushButton("Interpretar com Eng. Reversa")
+        self._btn_process_engrev.setToolTip("Roda LAJ com filtro semântico N1 e estado separado.")
+        self._btn_process_engrev.setStyleSheet(self._btn_process_all.styleSheet())
+        self._btn_process_engrev.setEnabled(False)
+        self._btn_process_engrev.clicked.connect(lambda: self._run_pre_process_all("engrev_assisted"))
+        vlay.addWidget(self._btn_process_engrev)
 
         # Botão cancelar (oculto até processamento iniciar)
         self._btn_cancel_preprocess = QPushButton("⏹ Cancelar")
         self._btn_cancel_preprocess.setStyleSheet(f"""
             QPushButton {{
-                background: rgba(220,50,50,31); color: {Colors.ACCENT_DANGER};
+                background: rgba(220, 50, 50, 31); color: {Colors.ACCENT_DANGER};
                 border: 1px solid {Colors.ACCENT_DANGER}; border-radius: 4px;
                 font-size: 10px; padding: 3px 8px;
             }}
-            QPushButton:hover {{ background: rgba(220,50,50,64); }}
+            QPushButton:hover {{ background: rgba(220, 50, 50, 64); }}
         """)
         self._btn_cancel_preprocess.setVisible(False)
         self._btn_cancel_preprocess.clicked.connect(self._cancel_pre_process)
@@ -1155,7 +1182,7 @@ class DiagnosticHubModule(QWidget):
         self._lbl_preprocess_feedback.setWordWrap(True)
         self._lbl_preprocess_feedback.setStyleSheet(f"""
             color: {Colors.TEXT_DIM}; font-size: 10px;
-            background: rgba(0,0,0,46); border: 1px solid #2a2f3d;
+            background: rgba(0, 0, 0, 46); border: 1px solid #2a2f3d;
             border-radius: 4px; padding: 5px 8px;
         """)
         vlay.addWidget(self._lbl_preprocess_feedback)
@@ -1168,7 +1195,7 @@ class DiagnosticHubModule(QWidget):
         self._rag_progress.setStyleSheet(f"""
             QProgressBar {{
                 border: 1px solid {Colors.BORDER_DEFAULT}; border-radius: 3px;
-                background: rgba(0,0,0,51); height: 12px; font-size: 9px;
+                background: rgba(0, 0, 0, 51); height: 12px; font-size: 9px;
                 color: {Colors.TEXT_DIM};
             }}
             QProgressBar::chunk {{ background: {Colors.ACCENT_SUCCESS}; border-radius: 3px; }}
@@ -1181,7 +1208,7 @@ class DiagnosticHubModule(QWidget):
         self._lbl_rag_feedback.setWordWrap(True)
         self._lbl_rag_feedback.setStyleSheet(f"""
             color: {Colors.TEXT_DIM}; font-size: 10px;
-            background: rgba(0,0,0,46); border: 1px solid #2a2f3d;
+            background: rgba(0, 0, 0, 46); border: 1px solid #2a2f3d;
             border-radius: 4px; padding: 5px 8px;
         """)
         vlay.addWidget(self._lbl_rag_feedback)
@@ -1253,13 +1280,19 @@ class DiagnosticHubModule(QWidget):
             self._list_brutos.clear()
             self._lbl_brutos_count.setText("Brutos aprovados:")
             self._current_obra = None
-            self._btn_process_all.setEnabled(False)
+            self._set_preprocess_buttons_enabled(False)
             return
         self._current_obra = obra_name
         self._refresh_brutos_list(obra_name)
-        self._btn_process_all.setEnabled(True)
+        self._set_preprocess_buttons_enabled(True)
         # ── Carregar estado de pré-processamento existente ────────────────────
         self._load_preprocess_estado(obra_name)
+
+    def _set_preprocess_buttons_enabled(self, enabled: bool):
+        for attr in ("_btn_process_all", "_btn_process_context", "_btn_process_engrev"):
+            btn = getattr(self, attr, None)
+            if btn:
+                btn.setEnabled(enabled)
 
     def _refresh_brutos_list(self, obra_name: str):
         """Recarrega a lista de brutos aprovados para a obra."""
@@ -2432,7 +2465,7 @@ class DiagnosticHubModule(QWidget):
         if not estado_path.exists():
             self._lbl_preprocess_feedback.setText("—  Ficha não gerada. Clique em ⚡ Interpretar Obra Toda.")
             self._lbl_preprocess_feedback.setStyleSheet(
-                f"color: {Colors.TEXT_DIM}; font-size: 10px; background: rgba(0,0,0,46);"
+                f"color: {Colors.TEXT_DIM}; font-size: 10px; background: rgba(0, 0, 0, 46);"
                 " border: 1px solid #2a2f3d; border-radius: 4px; padding: 5px 8px;"
             )
             # Limpa ficha tab
@@ -2455,7 +2488,7 @@ class DiagnosticHubModule(QWidget):
                 f"{totais.get('pilares',0)}P / {totais.get('vigas',0)}V / {totais.get('lajes',0)}L"
             )
             self._lbl_preprocess_feedback.setStyleSheet(
-                "color: #00c864; font-size: 10px; background: rgba(0,0,0,46);"
+                "color: #00c864; font-size: 10px; background: rgba(0, 0, 0, 46);"
                 " border: 1px solid #00c864; border-radius: 4px; padding: 5px 8px;"
             )
             self._lbl_preprocess_feedback.setText(fb)
@@ -2463,14 +2496,19 @@ class DiagnosticHubModule(QWidget):
         except Exception as exc:
             self._lbl_preprocess_feedback.setText(f"⚠ Erro ao ler estado: {exc}")
 
-    def _run_pre_process_all(self):
+    def _run_pre_process_all(self, analysis_mode: str = "baseline"):
         """Inicia o worker de interpretação em batch (Fase 3 — Structural Analyzer)."""
         if not self._current_obra:
             QMessageBox.warning(self, "Interpretar Obra", "Selecione uma obra primeiro.")
             return
 
         obra_path = self._get_obra_root_path(self._current_obra)
-        estado_path = obra_path / "pre_processamento_estado.json"
+        estado_name = "pre_processamento_estado.json"
+        if analysis_mode == "context":
+            estado_name = "pre_processamento_estado_context.json"
+        elif analysis_mode == "engrev_assisted":
+            estado_name = "pre_processamento_estado_engrev_assisted.json"
+        estado_path = obra_path / estado_name
 
         # Se já processado, perguntar se quer reprocessar
         if estado_path.exists() and not QMessageBox.question(
@@ -2487,6 +2525,7 @@ class DiagnosticHubModule(QWidget):
             obra_name=self._current_obra,
             obra_path=str(obra_path),
             force=True,
+            analysis_mode=analysis_mode,
             parent=self,
         )
         self._preprocess_worker.progress.connect(self._on_preprocess_progress)
@@ -2495,11 +2534,11 @@ class DiagnosticHubModule(QWidget):
         self._preprocess_worker.error.connect(self._on_preprocess_error)
 
         # Atualizar UI
-        self._btn_process_all.setEnabled(False)
+        self._set_preprocess_buttons_enabled(False)
         self._btn_cancel_preprocess.setVisible(True)
         self._lbl_preprocess_feedback.setText("⏳  Interpretação em andamento…")
         self._lbl_preprocess_feedback.setStyleSheet(
-            "color: #7ab3e0; font-size: 10px; background: rgba(0,0,0,46);"
+            "color: #7ab3e0; font-size: 10px; background: rgba(0, 0, 0, 46);"
             " border: 1px solid #7ab3e0; border-radius: 4px; padding: 5px 8px;"
         )
 
@@ -2533,7 +2572,7 @@ class DiagnosticHubModule(QWidget):
         self._ficha_content_lay.addStretch()
 
         self._preprocess_worker.start()
-        print(f"[DiagnosticHub] PreProcess iniciado: {self._current_obra}", flush=True)
+        print(f"[DiagnosticHub] PreProcess iniciado: {self._current_obra} mode={analysis_mode}", flush=True)
 
     def _cancel_pre_process(self):
         """Aborta o worker de pré-processamento."""
@@ -2541,10 +2580,10 @@ class DiagnosticHubModule(QWidget):
             self._preprocess_worker.abort()
             self._lbl_preprocess_feedback.setText("⏹  Cancelado pelo usuário.")
             self._lbl_preprocess_feedback.setStyleSheet(
-                f"color: {Colors.TEXT_DIM}; font-size: 10px; background: rgba(0,0,0,46);"
+                f"color: {Colors.TEXT_DIM}; font-size: 10px; background: rgba(0, 0, 0, 46);"
                 " border: 1px solid #2a2f3d; border-radius: 4px; padding: 5px 8px;"
             )
-        self._btn_process_all.setEnabled(True)
+        self._set_preprocess_buttons_enabled(True)
         self._btn_cancel_preprocess.setVisible(False)
 
     def _on_preprocess_progress(self, pct: int, msg: str):
@@ -2584,7 +2623,7 @@ class DiagnosticHubModule(QWidget):
 
     def _on_preprocess_finished(self, ficha: dict):
         """Recebe a ficha completa e atualiza a UI."""
-        self._btn_process_all.setEnabled(True)
+        self._set_preprocess_buttons_enabled(True)
         self._btn_cancel_preprocess.setVisible(False)
         self._preprocess_worker = None
 
@@ -2598,7 +2637,7 @@ class DiagnosticHubModule(QWidget):
             f"{totais.get('pilares',0)}P / {totais.get('vigas',0)}V / {totais.get('lajes',0)}L"
         )
         self._lbl_preprocess_feedback.setStyleSheet(
-            "color: #00c864; font-size: 10px; background: rgba(0,0,0,46);"
+            "color: #00c864; font-size: 10px; background: rgba(0, 0, 0, 46);"
             " border: 1px solid #00c864; border-radius: 4px; padding: 5px 8px;"
         )
         self._lbl_preprocess_feedback.setText(fb)
@@ -2615,11 +2654,11 @@ class DiagnosticHubModule(QWidget):
 
     def _on_preprocess_error(self, msg: str):
         """Exibe erro do worker."""
-        self._btn_process_all.setEnabled(True)
+        self._set_preprocess_buttons_enabled(True)
         self._btn_cancel_preprocess.setVisible(False)
         self._preprocess_worker = None
         self._lbl_preprocess_feedback.setStyleSheet(
-            "color: #e74c3c; font-size: 10px; background: rgba(0,0,0,46);"
+            "color: #e74c3c; font-size: 10px; background: rgba(0, 0, 0, 46);"
             " border: 1px solid #e74c3c; border-radius: 4px; padding: 5px 8px;"
         )
         self._lbl_preprocess_feedback.setText(f"❌ Erro: {msg[:120]}")
@@ -2641,7 +2680,7 @@ class DiagnosticHubModule(QWidget):
 
         force = False  # incremental por padrão (botão manual removido)
 
-        self._btn_process_all.setEnabled(False)
+        self._set_preprocess_buttons_enabled(False)
         self._rag_progress.setValue(0)
         self._rag_progress.setVisible(True)
         self._lbl_rag_feedback.setText(f"⏳ Indexando RAG para {obra}...")
@@ -2657,7 +2696,7 @@ class DiagnosticHubModule(QWidget):
         self._lbl_rag_feedback.setText(f"⏳ {pct}% — {msg[:80]}")
 
     def _on_rag_finished(self, result: dict):
-        self._btn_process_all.setEnabled(True)
+        self._set_preprocess_buttons_enabled(True)
         self._rag_progress.setVisible(False)
         self._rag_worker = None
 
@@ -2671,7 +2710,7 @@ class DiagnosticHubModule(QWidget):
         color = "#00c864" if status == "ok" else "#e6b400"
         icon  = "✅" if status == "ok" else "⚠"
         self._lbl_rag_feedback.setStyleSheet(
-            f"color: {color}; font-size: 10px; background: rgba(0,0,0,46);"
+            f"color: {color}; font-size: 10px; background: rgba(0, 0, 0, 46);"
             " border: 1px solid; border-radius: 4px; padding: 5px 8px;"
         )
         self._lbl_rag_feedback.setText(
@@ -2681,11 +2720,11 @@ class DiagnosticHubModule(QWidget):
         )
 
     def _on_rag_error(self, msg: str):
-        self._btn_process_all.setEnabled(True)
+        self._set_preprocess_buttons_enabled(True)
         self._rag_progress.setVisible(False)
         self._rag_worker = None
         self._lbl_rag_feedback.setStyleSheet(
-            "color: #e74c3c; font-size: 10px; background: rgba(0,0,0,46);"
+            "color: #e74c3c; font-size: 10px; background: rgba(0, 0, 0, 46);"
             " border: 1px solid #e74c3c; border-radius: 4px; padding: 5px 8px;"
         )
         self._lbl_rag_feedback.setText(f"❌ Erro RAG: {msg[:120]}")
@@ -2952,7 +2991,7 @@ class DiagnosticHubModule(QWidget):
             QPushButton:hover {{ background: {Colors.ACCENT_BLUE_HOVER}; }}
             QPushButton:disabled {{ background: {Colors.BORDER_DEFAULT}; color: {Colors.TEXT_DIM}; }}
             QPushButton#pipeline_btn {{
-                background: rgba(26,74,26,1); border: 1px solid {Colors.ACCENT_SUCCESS};
+                background: rgba(26, 74, 26, 1); border: 1px solid {Colors.ACCENT_SUCCESS};
                 font-size: {Fonts.SIZE_MD}; padding: 3px 12px;
             }}
             QPushButton#pipeline_btn:hover {{ background: {Colors.ACCENT_SUCCESS}; }}

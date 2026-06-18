@@ -54,16 +54,16 @@ class BaseCard(QFrame):
         self.data = data
         self.setObjectName("BaseCard")
         self.setCursor(QCursor(Qt.PointingHandCursor))
-        self.setStyleSheet("""
-            #BaseCard {
+        self.setStyleSheet(f"""
+            #BaseCard {{
                 background-color: {Colors.BG_DEEP};
                 border-radius: 12px;
-                border: 1px solid {Colors.BG_HOVER};
-            }
-            #BaseCard:hover {
-                background-color: {Colors.BG_DEEP};
-                border: 1px solid {Colors.ACCENT_PRIMARY};
-            }
+                border: 1px solid rgba(255, 255, 255, int(05/100*255));
+            }}
+            #BaseCard:hover {{
+                border: 1px solid rgba(0, 212, 255, int(5/100*255));
+                background-color: {Colors.BG_HOVER};
+            }}
         """)
 
     def mousePressEvent(self, event):
@@ -100,11 +100,11 @@ class ProjectCard(BaseCard):
         # ── Status badge ──────────────────────────────────────────────
         status = (self.data.get('sync_status') or 'pending').upper()
         if status == 'SYNCED':
-            badge_bg, badge_fg = 'rgba(0,200,100,38)', '#00c864'
+            badge_bg, badge_fg = 'rgba(0, 200, 100, 38)', '#00c864'
         elif status == 'EXTRACTING':
-            badge_bg, badge_fg = 'rgba(0,217,255,38)', '#00d9ff'
+            badge_bg, badge_fg = 'rgba(0, 217, 255, 38)', '#00d9ff'
         else:
-            badge_bg, badge_fg = 'rgba(230,180,0,38)', '#e6b400'
+            badge_bg, badge_fg = 'rgba(230, 180, 0, 38)', '#e6b400'
 
         lbl_status = QLabel(status)
         lbl_status.setFixedWidth(72)
@@ -151,7 +151,7 @@ class ProjectCard(BaseCard):
             chip.setFixedHeight(20)
             chip.setStyleSheet(
                 f"color: {color}; font-size: 9px; font-weight: bold;"
-                f" background: rgba(0,0,0,64); border: 1px solid {color}40;"
+                f" background: rgba(0, 0, 0, 64); border: 1px solid {color}40;"
                 f" border-radius: 3px; padding: 0 5px;"
             )
             return chip
@@ -187,10 +187,10 @@ class ProjectCard(BaseCard):
         btn_dxf = QPushButton("👁 Abrir DXF")
         btn_dxf.setFixedHeight(24)
         btn_dxf.setStyleSheet(
-            "QPushButton { background: rgba(0,217,255,31); color: #00d9ff;"
+            "QPushButton { background: rgba(0, 217, 255, int(12/100*255)); color: #00d9ff;"
             " border: 1px solid #00d9ff; border-radius: 3px;"
             " font-size: 10px; font-weight: bold; padding: 1px 8px; }"
-            " QPushButton:hover { background: rgba(0,217,255,64); }"
+            " QPushButton:hover { background: rgba(0, 217, 255, int(25/100*255)); }"
         )
         btn_dxf.setCursor(Qt.PointingHandCursor)
         btn_dxf.clicked.connect(lambda: self.action_open_dxf.emit(self.data))
@@ -227,13 +227,12 @@ class CuradoriaCard(BaseCard):
         # --- 1. Header (P-ID, Name, Date, Status) ---
         header = QHBoxLayout()
         header.setSpacing(10)
-        
         pid = str(self.data.get('id', '???'))[:8]
         lbl_id = QLabel(pid.upper())
         lbl_id.setAlignment(Qt.AlignCenter)
         lbl_id.setFixedSize(70, 24)
-        lbl_id.setStyleSheet("""
-            background-color: {Colors.BG_HOVER}; color: rgba(136,144,176,1); 
+        lbl_id.setStyleSheet(f"""
+            background-color: {Colors.BG_HOVER}; color: #8890B0; 
             border-radius: 4px; font-family: monospace; font-size: 11px; font-weight: bold;
         """)
         header.addWidget(lbl_id)
@@ -263,7 +262,7 @@ class CuradoriaCard(BaseCard):
         
         work_name = self.data.get('metadata', {}).get('work_name') or self.data.get('work_name') or 'OBRA DESCONHECIDA'
         lbl_work = QLabel(work_name.upper())
-        lbl_work.setStyleSheet("color: rgba(136,144,176,1); font-size: 10px; font-weight: 600; letter-spacing: 0.5px;")
+        lbl_work.setStyleSheet("color: #8890B0; font-size: 10px; font-weight: 600; ")
         status_row.addWidget(lbl_work)
         
         status_row.addStretch()
@@ -327,7 +326,7 @@ class CuradoriaCard(BaseCard):
         # --- 3. Docs Section ---
         doc_header = QHBoxLayout()
         doc_title = QLabel("DOCUMENTOS POR CLASSE")
-        doc_title.setStyleSheet("color: {Colors.TEXT_SECONDARY}; font-size: 10px; font-weight: bold; letter-spacing: 0.5px;")
+        doc_title.setStyleSheet(f"color: {Colors.TEXT_SECONDARY}; font-size: 10px; font-weight: bold; ")
         doc_header.addWidget(doc_title)
         doc_header.addStretch()
         layout.addLayout(doc_header)
@@ -372,7 +371,7 @@ class CuradoriaCard(BaseCard):
         
         top = QHBoxLayout()
         lbl = QLabel(label)
-        lbl.setStyleSheet("color: {Colors.TEXT_SECONDARY}; font-size: 9px; font-weight: bold;")
+        lbl.setStyleSheet(f"color: {Colors.TEXT_SECONDARY}; font-size: 9px; font-weight: bold;")
         top.addWidget(lbl)
         top.addStretch()
         
@@ -395,7 +394,7 @@ class CuradoriaCard(BaseCard):
     def _add_doc_row(self, layout, name, count):
         row = QHBoxLayout()
         name_l = QLabel(name)
-        name_l.setStyleSheet("color: rgba(136,144,176,1); font-size: 10px;")
+        name_l.setStyleSheet("color: #8890B0; font-size: 10px;")
         row.addWidget(name_l)
         row.addStretch()
         
@@ -413,7 +412,7 @@ class CuradoriaCard(BaseCard):
         if is_primary:
              btn.setStyleSheet(f"""
                 QPushButton {{
-                    background-color: rgba(0,212,255,26);
+                    background-color: rgba(0, 212, 255, int(1/100*255));
                     border: 1px solid {color};
                     color: {color};
                     font-weight: bold; font-size: 10px; border-radius: 4px;
@@ -421,11 +420,11 @@ class CuradoriaCard(BaseCard):
                 QPushButton:hover {{ background-color: {color}; color: {Colors.BG_DEEP}; }}
             """)
         else:
-             btn.setStyleSheet("""
-                QPushButton {
+             btn.setStyleSheet(f"""
+                QPushButton {{
                     background-color: #252630; border: 1px solid {Colors.BORDER_INPUT};
                     color: {Colors.TEXT_SECONDARY}; font-weight: bold; font-size: 10px; border-radius: 4px;
-                }
-                QPushButton:hover { border: 1px solid {Colors.TEXT_DIM}; color: {Colors.TEXT_BRIGHT}; }
+                }}
+                QPushButton:hover {{ background-color: {Colors.BG_HOVER}; color: {Colors.TEXT_PRIMARY}; }}
             """)
         return btn

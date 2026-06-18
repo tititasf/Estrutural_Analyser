@@ -501,12 +501,12 @@ class TrainingLog(QWidget):
             h_layout.setContentsMargins(0, 5, 0, 2)
             
             lbl_header = QLabel(f"📁 {classe.upper()}")
-            lbl_header.setStyleSheet(f"color: {Colors.ACCENT_MAGENTA}; font-weight: bold; font-size: 11px; letter-spacing: 1px;")
+            lbl_header.setStyleSheet(f"color: {Colors.ACCENT_MAGENTA}; font-weight: bold; font-size: 11px; ")
             h_layout.addWidget(lbl_header)
 
             line = QFrame()
             line.setFrameShape(QFrame.HLine)
-            line.setStyleSheet(f"background: rgba(214,51,132,51); height: 1px; border: none;")
+            line.setStyleSheet(f"background: rgba(214, 51, 132, 51); height: 1px; border: none;")
             h_layout.addWidget(line, 1)
             
             count_label = QLabel(f"{len(groups[classe])}")

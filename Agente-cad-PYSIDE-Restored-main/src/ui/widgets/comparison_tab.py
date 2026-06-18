@@ -98,7 +98,7 @@ class ComparisonTab(QWidget):
         self._score_label = QLabel("—")
         self._score_label.setStyleSheet(
             f"color: {Colors.TEXT_PRIMARY}; font-size: 11px; padding: 3px 6px;"
-            f"background: rgba(0,0,0,76); border-radius: 4px;"
+            f"background: rgba(0, 0, 0, 76); border-radius: 4px;"
         )
         root.addWidget(self._score_label)
 
@@ -109,7 +109,7 @@ class ComparisonTab(QWidget):
         self._btn_refresh = QPushButton("↺ Atualizar")
         self._btn_refresh.setFixedHeight(26)
         self._btn_refresh.setStyleSheet(
-            f"background: rgba(0,80,80,1); color: {Colors.TEXT_BRIGHT};"
+            f"background: rgba(0, 80, 80, 1); color: {Colors.TEXT_BRIGHT};"
             "border: 1px solid #006666; border-radius: 4px; font-size: 11px;"  # hardcoded-ok
         )
         self._btn_refresh.clicked.connect(self._load_data)
@@ -117,7 +117,7 @@ class ComparisonTab(QWidget):
         self._btn_accept_all = QPushButton("✓ Aceitar Todos (Sem Conflito)")
         self._btn_accept_all.setFixedHeight(26)
         self._btn_accept_all.setStyleSheet(
-            f"background: rgba(0,80,20,1); color: #4caf50;"  # hardcoded-ok
+            f"background: rgba(0, 80, 20, 1); color: #4caf50;"  # hardcoded-ok
             "border: 1px solid #4caf50; border-radius: 4px; font-size: 11px;"  # hardcoded-ok
         )
         self._btn_accept_all.clicked.connect(self._on_accept_all)
@@ -143,10 +143,10 @@ class ComparisonTab(QWidget):
                 color: {Colors.TEXT_PRIMARY};
                 border: 1px solid {Colors.BORDER_DEFAULT};
                 font-size: 11px;
-                gridline-color: rgba(255,255,255,18);
+                gridline-color: rgba(255, 255, 255, 18);
             }}
             QHeaderView::section {{
-                background: rgba(20,40,40,1);
+                background: rgba(20, 40, 40, 1);
                 color: {Colors.TEXT_BRIGHT};
                 border: 1px solid {Colors.BORDER_DEFAULT};
                 padding: 3px;
@@ -154,7 +154,7 @@ class ComparisonTab(QWidget):
                 font-weight: bold;
             }}
             QTableWidget::item:selected {{
-                background: rgba(0,100,100,128);
+                background: rgba(0, 100, 100, 128);
             }}
         """)
 
@@ -269,7 +269,7 @@ class ComparisonTab(QWidget):
             btn_acc.setFixedSize(28, 22)
             btn_acc.setToolTip("Aceitar valor Fase-4")
             btn_acc.setStyleSheet(
-                "background: rgba(0,80,20,1); color: #4caf50;"  # hardcoded-ok
+                "background: rgba(0, 80, 20, 1); color: #4caf50;"  # hardcoded-ok
                 "border: 1px solid #4caf50; border-radius: 3px; font-size: 12px;"  # hardcoded-ok
             )
             fid = row.field_id
@@ -286,7 +286,7 @@ class ComparisonTab(QWidget):
             btn_save.setFixedSize(28, 22)
             btn_save.setToolTip("Salvar valor DB → Fase-4 (correção)")
             btn_save.setStyleSheet(
-                "background: rgba(80,30,0,1); color: #ff9800;"  # hardcoded-ok
+                "background: rgba(80, 30, 0, 1); color: #ff9800;"  # hardcoded-ok
                 "border: 1px solid #ff9800; border-radius: 3px; font-size: 12px;"  # hardcoded-ok
             )
             fid = row.field_id

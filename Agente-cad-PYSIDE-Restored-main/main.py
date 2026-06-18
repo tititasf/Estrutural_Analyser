@@ -1,4 +1,4 @@
-﻿import numpy as np # Force early initialization for Nuitka standalone
+import numpy as np # Force early initialization for Nuitka standalone
 import sys
 import os
 
@@ -240,7 +240,15 @@ class MainWindow(QMainWindow):
             
             if os.path.exists(style_path):
                 with open(style_path, "r", encoding="utf-8") as f:
-                    self.setStyleSheet(f.read())
+                    qss_content = f.read()
+                    print(f"[QSS DEBUG] Loaded {len(qss_content)} bytes from {style_path}")
+                    try:
+                        self.setStyleSheet(qss_content)
+                        print("[QSS DEBUG] Global stylesheet applied successfully")
+                    except Exception as parse_err:
+                        print(f"[QSS DEBUG] ERROR: {parse_err}")
+                        import traceback
+                        traceback.print_exc()
             else:
                 print(f"[MainWindow] Aviso: Arquivo de estilo não encontrado em {style_path}")
         except Exception as e:
@@ -3960,7 +3968,7 @@ class MainWindow(QMainWindow):
                  lm = self.current_card.embedded_managers.get(field_id)
                  if lm:
                      lm.links = field_slots # Atualiza dados
-                     lm.refresh_list()
+                     lm.refresh_list(partial=True)
             
             # b) Refresh Canvas (Redesenha geometria do item)
             item_data = self.current_card.item_data
@@ -5696,7 +5704,7 @@ class MainWindow(QMainWindow):
         if hasattr(self.current_card, 'embedded_managers'):
             lm = self.current_card.embedded_managers.get(field_id)
             if lm:
-                lm.refresh_list()
+                lm.refresh_list(partial=True)
 
         # self.tab_training.load_events(self.current_project_id)
 

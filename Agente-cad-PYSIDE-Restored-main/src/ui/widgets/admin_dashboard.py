@@ -168,7 +168,7 @@ class AdminDashboard(QWidget):
         self.btn_sync_full_work = QPushButton("☁️ Baixar Obra Completa")
         self.btn_sync_full_work.setToolTip("Baixa todos os itens desta obra para o PC local.")
         self.btn_sync_full_work.setStyleSheet("""
-            QPushButton { background: rgba(26,50,75,1); color: {Colors.ACCENT_PRIMARY}; border: 1px solid {Colors.ACCENT_PRIMARY}; padding: 6px; border-radius: 4px; font-weight: bold;}
+            QPushButton { background: rgba(26, 50, 75, 1); color: {Colors.ACCENT_PRIMARY}; border: 1px solid {Colors.ACCENT_PRIMARY}; padding: 6px; border-radius: 4px; font-weight: bold;}
             QPushButton:hover { background: {Colors.ACCENT_PRIMARY}; color: {Colors.BG_DEEP}; }
         """)
         self.btn_sync_full_work.clicked.connect(self.download_full_work)

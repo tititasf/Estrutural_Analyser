@@ -38,8 +38,8 @@ class Colors:
     ACCENT_TEAL = "#00bcd4"      # teal (sections, links manager)
     ACCENT_MINT = "#00ffcc"      # mint (add buttons, special groups)
     ACCENT_MAGENTA = "#d63384"   # magenta (sync buttons, training log)
-    ACCENT_FOREST = "rgba(26,74,26,1)"   # verde escuro (pipeline buttons SA)
-    ACCENT_FOREST_BORDER = "rgba(46,125,50,1)"  # borda verde escuro
+    ACCENT_FOREST = "rgba(26, 74, 26, 1)"   # verde escuro (pipeline buttons SA)
+    ACCENT_FOREST_BORDER = "rgba(46, 125, 50, 1)"  # borda verde escuro
     ACCENT_PURPLE = "#a070ff"           # roxo (overlay ativo, canvas active state)
     ACCENT_LINK_PURPLE = "#d500f9"      # roxo vibrante (indicador vínculos, progress bars)
     ACCENT_SLATE = "#6c7293"            # cinza-azulado (botões secundários, ações neutras)
@@ -47,9 +47,9 @@ class Colors:
     BORDER_TEAL_DARK = "#2a4654"        # borda azul-teal escuro (card principal)
 
     # Transparências
-    GLASS_WHITE_3 = "rgba(255,255,255,8)"   # frosted glass sutil (stats frames)
-    GLASS_WHITE_5 = "rgba(255,255,255,13)"   # frosted glass médio
-    GLASS_WHITE_10 = "rgba(255,255,255,26)"  # frosted glass forte
+    GLASS_WHITE_3 = "rgba(255, 255, 255, 8)"   # frosted glass sutil (stats frames)
+    GLASS_WHITE_5 = "rgba(255, 255, 255, 13)"   # frosted glass médio
+    GLASS_WHITE_10 = "rgba(255, 255, 255, 26)"  # frosted glass forte
 
     # Text
     TEXT_PRIMARY = "#e0e0e0"     # texto principal

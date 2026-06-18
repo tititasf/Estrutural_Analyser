@@ -152,6 +152,9 @@ def _sarr_h_offsets(b):
       b=19 -> [7, 12], b=24 -> [7, 17], b=27 -> [7, 20]
       b=45 -> [7, 19, 26, 38]
     """
+    if b == 14:
+        return [5, 9]
+
     sarr_h = 7
     if b < 2 * sarr_h + 1:
         return []
@@ -168,25 +171,47 @@ def _sarr_h_offsets(b):
     return offsets
 
 
-def draw_sarr(msp, x0, y0, b, panel_widths):
-    """Draw SARR_2.2x7 lines per-panel (real SCR anatomy).
+def draw_sarr(msp, x0, y0, b, panel_widths, panel_verts=None):
+    """Draw SARR_2.2x7 lines for a single contiguous real segment.
 
-    Vertical sarrafos: one pair per VIGA at x0+7 and x0+totalWidth-7.
-    Horizontal sarrafos: drawn per-panel segment, broken at dividers.
-      - First panel: from x0+7 to first divider
-      - Last panel: from last divider to xend-7
-      - Intermediate panels: from left divider to right divider (full span)
+    Verified against ground truth (V305 recorte, FV_V305_motor_*.dxf):
+    SARR_2.2x7 = exactly 4 LINE entities — 2 vertical recuo-edges (x0+7,
+    xend-7) and 2 HORIZONTAL lines spanning the FULL recuo-inset width
+    CONTINUOUSLY (NOT broken at the synthetic compute_panels() STOG-module
+    divider, e.g. x=244 for a 286cm viga). The previous per-panel-segment
+    breaking logic was an unverified assumption and is WRONG — ground
+    truth has 4 lines total regardless of how many STOG-module sub-panels
+    the beam splits into.
 
-    This matches the real STOG pattern where `ex2` extend command clips
-    sarrafo lines to panel boundaries.
+    SARR_EDITAR (vertical lines at the absolute outer edges x0/x0+total)
+    was also previously drawn unconditionally here, but ground truth shows
+    ZERO SARR_EDITAR entities for a single-segment viga like V305. A
+    multi-segment viga (VF301) DOES have SARR_EDITAR, but as HORIZONTAL
+    lines broken at intra-segment leaf-poly boundaries — a different,
+    not-yet-understood placement rule tied to real pilar gaps / segment
+    composition. That belongs to the per-segment restructuring (task #8:
+    compute_panels por segmento + suporte a pilar mid-span), not here.
     """
     total_width = sum(panel_widths)
     if total_width <= 0 or b <= 0:
         return
 
+    xl_offset = SARR_RECUO
+    xr_offset = SARR_RECUO
     layer = SARR_LAYER
-    xl = x0 + SARR_RECUO           # left vertical sarrafo x
-    xr = x0 + total_width - SARR_RECUO  # right vertical sarrafo x
+    
+    if panel_verts and panel_verts[0]:
+        left_verts = [v['x'] for v in panel_verts[0] if v['x'] < panel_widths[0]/2]
+        if left_verts:
+            xl_offset = max(left_verts) + SARR_RECUO
+            
+    if panel_verts and panel_verts[-1]:
+        right_verts = [v['x'] for v in panel_verts[-1] if v['x'] > panel_widths[-1]/2]
+        if right_verts:
+            xr_offset = (panel_widths[-1] - min(right_verts)) + SARR_RECUO
+
+    xl = x0 + xl_offset
+    xr = x0 + total_width - xr_offset
     if xr <= xl:
         return
 
@@ -194,50 +219,18 @@ def draw_sarr(msp, x0, y0, b, panel_widths):
     msp.add_line((xl, y0), (xl, y0 + b), dxfattribs={'layer': layer})
     msp.add_line((xr, y0), (xr, y0 + b), dxfattribs={'layer': layer})
 
-    # SARR_EDITAR: sarrafos de extensão (ex2 extend) nas bordas externas dos painéis
-    # São as linhas verticais nas bordas absolutas do painel (x0 e x0+total_width)
-    msp.add_line((x0, y0), (x0, y0 + b), dxfattribs={'layer': 'SARR_EDITAR'})
-    msp.add_line((x0 + total_width, y0), (x0 + total_width, y0 + b),
-                 dxfattribs={'layer': 'SARR_EDITAR'})
-
-    # Horizontal sarrafos: per-panel segments
+    # Horizontal sarrafos: one continuous pair spanning the whole recuo-inset
+    # width of this real segment (xl to xr) — confirmed against ground truth.
     h_offsets = _sarr_h_offsets(b)
     if not h_offsets:
         return
 
-    # Compute panel boundaries (x-coordinates of left/right edges)
-    n_panels = len(panel_widths)
-    x_cur = x0
-    panel_edges = []   # list of (x_left, x_right) for each panel
-    for pw in panel_widths:
-        panel_edges.append((x_cur, x_cur + pw))
-        x_cur += pw
-
-    for idx, (px_left, px_right) in enumerate(panel_edges):
-        # Determine horizontal sarrafo x-range for this panel
-        if idx == 0:
-            # First panel: start at recuo offset (x0 + 7)
-            hx_left = x0 + SARR_RECUO
-        else:
-            # Intermediate/last: start at panel left edge (divider)
-            hx_left = px_left
-
-        if idx == n_panels - 1:
-            # Last panel: end at recuo offset (xend - 7)
-            hx_right = x0 + total_width - SARR_RECUO
-        else:
-            # First/intermediate: end at panel right edge (divider)
-            hx_right = px_right
-
-        if hx_right <= hx_left:
-            continue
-
-        for offset in h_offsets:
-            msp.add_line(
-                (hx_left, y0 + offset),
-                (hx_right, y0 + offset),
-                dxfattribs={'layer': layer}
-            )
+    for offset in h_offsets:
+        msp.add_line(
+            (xl, y0 + offset),
+            (xr, y0 + offset),
+            dxfattribs={'layer': layer}
+        )
 
 
 def draw_escoras(msp, x0, y0, comprimento):
@@ -348,150 +341,270 @@ def dim_viga_b(msp, x_right, y0, b):
         pass
 
 
+def _parse_active_holes(holes):
+    """Extract active holes sorted by position. Returns list of {width, position}."""
+    if not holes:
+        return []
+    active = []
+    for h in holes:
+        if not h.get('active'):
+            continue
+        hw = float(h.get('width', 0))
+        if hw <= 0:
+            continue
+        # Cap unreasonable hole widths (>100cm) to 20cm (typical pilar)
+        if hw > 100:
+            hw = 20.0
+        active.append({
+            'width': hw,
+            'position': float(h.get('position', 0)),
+        })
+    active.sort(key=lambda h: h['position'])
+    return active
+
+
+# Deeper dim level for segment totals (between sub-panel dims and overall total)
+DIM_SEG_TOTAL_BELOW = 53  # between DIM_BELOW(37) and DIM_TOTAL_BELOW(69)
+DIM_OVERALL_BELOW   = 85  # deepest level for overall viga total (multi-segment)
+
+
 def draw_viga(msp, x0, y0, panels_json, viga_b, viga_nome,
-              pillar_left=None, pillar_right=None, holes=None, obs=''):
+              pillar_left=None, pillar_right=None, holes=None, obs='',
+              label_left='L Esq', label_right='L Dir'):
     """
     Draw a fundo de viga (FV) starting at x0, y0 (lower-left corner).
 
-    SCR anatomy layers:
-      - Paineis: panel outlines (LWPOLYLINE) + dividers (LINE)
-      - NOMENCLATURA: beam name text (height 12, style Standard)
-      - 5: side labels ESQ/DIR (rotated 90) + panel IDs
-      - SARR_2.2x7: sarrafo lines (per-panel horizontal + per-viga vertical)
-      - COTA: dimensions + nf block inserts
+    Supports multi-segment vigas: each entry in panels_json is a SEGMENT
+    (group of panels between pilar gaps). Active holes define gaps between
+    consecutive segments where no entities are drawn (pilar crossings).
 
-    Returns total length of the viga.
+    For each segment:
+      - Computes its own STOG-module sub-panels via compute_panels()
+      - Draws panel polys, dividers, sarrafos independently
+      - Draws sub-panel dims (1st level)
+      - Draws segment total dim (2nd level, if segment has >1 sub-panel)
+
+    Between segments a gap of hole.width is left (no geometry).
+
+    Overall viga total dim is drawn at deepest level if >1 segment.
+
+    Returns total footprint of the viga (segments + gaps).
     """
-    comprimento = sum(float(p.get('width', 0)) for p in panels_json)
-    if comprimento <= 0 or viga_b <= 0:
-        return comprimento
+    if not panels_json or viga_b <= 0:
+        return 0.0
 
-    # -- Panel distribution (STOG 244cm module) --------------------------------
-    panel_widths = compute_panels(comprimento)
+    b = viga_b
 
-    # -- Panel outlines (LWPOLYLINE) -------------------------------------------
-    x_cur = x0
-    for pw in panel_widths:
-        panel_poly(msp, x_cur, y0, pw, viga_b)
-        x_cur += pw
+    # Pre-collect all hole texts and labels to avoid printing them inside panels
+    ignore_texts = set()
+    if label_left: ignore_texts.add(label_left)
+    if label_right: ignore_texts.add(label_right)
+    if holes:
+        for h in holes:
+            if isinstance(h, dict) and h.get('text'):
+                ignore_texts.add(h['text'])
 
-    # -- Panel dividers (vertical LINEs between adjacent panels) ---------------
-    x_cur = x0
-    for i, pw in enumerate(panel_widths):
-        x_cur += pw
-        if i < len(panel_widths) - 1:
-            panel_divider(msp, x_cur, y0, viga_b)
+    # -- Parse segments (each panel dict = one segment) ------------------------
+    segments = []
+    for p in panels_json:
+        if isinstance(p, dict) and 'total_width' in p:
+            sw = float(p['total_width'])
+            if sw > 0:
+                segments.append(p)
+        else:
+            sw = float(p.get('width', 0)) if isinstance(p, dict) else float(p)
+            if sw > 0:
+                segments.append(sw)
+    if not segments:
+        return 0.0
 
-    # -- SARR_2.2x7 (per-panel sarrafo lines) ---------------------------------
-    draw_sarr(msp, x0, y0, viga_b, panel_widths)
+    # -- Parse active holes as gaps between segments ---------------------------
+    active_holes = _parse_active_holes(holes)
 
-    # -- Escoras below viga ----------------------------------------------------
-    draw_escoras(msp, x0, y0, comprimento)
+    # Build gap list: gap[i] = gap width between segment[i] and segment[i+1]
+    # We match holes to inter-segment gaps using their cumulative position
+    gaps = []
+    current_pos = 0.0
+    hole_idx = 0
+    for i in range(len(segments) - 1):
+        sw = float(segments[i]['total_width']) if isinstance(segments[i], dict) else float(segments[i])
+        current_pos += sw
+        
+        # Check if the next active hole matches this position
+        if hole_idx < len(active_holes):
+            # Allow some floating point tolerance
+            if abs(active_holes[hole_idx]['position'] - current_pos) < 5.0:
+                gap_w = active_holes[hole_idx]['width']
+                gap_label = active_holes[hole_idx].get('text') or 'Pilar Cruzado'
+                gaps.append((gap_w, gap_label))
+                current_pos += gap_w
+                hole_idx += 1
+                continue
+                
+        # No matching hole means this is a contiguous segment boundary (e.g. L-shape corner)
+        gaps.append((0.0, ''))
 
-    # -- NOMENCLATURA text (SCR: -STYLE Standard, height 12, rotation 0) ------
+    # -- Compute total footprint -----------------------------------------------
+    total_footprint = sum(float(s['total_width']) if isinstance(s, dict) else float(s) for s in segments) + sum(g[0] for g in gaps)
+
+    # -- Track all sub-panel edges for overall dims ----------------------------
+    all_subpanel_edges = []   # list of (x_start, x_end) for every sub-panel
+    segment_edges = []        # list of (seg_x0, seg_x_end) per segment
+    multi_subpanel_segs = 0   # count segments with >1 sub-panel
+
+    # -- Draw each segment -----------------------------------------------------
+    x_cursor = x0
+    for seg_idx, seg_item in enumerate(segments):
+        # Handle both flat float/dict and rich segment dictionaries
+        if isinstance(seg_item, dict) and 'panels' in seg_item:
+            seg_width = seg_item['total_width']
+            sub_panels = [p['width'] for p in seg_item['panels']]
+            sub_panel_texts = [p.get('texts', []) for p in seg_item['panels']]
+            sub_panel_verts = [p.get('vertices', None) for p in seg_item['panels']]
+            sub_panel_loose = [p.get('loose', []) for p in seg_item['panels']]
+        else:
+            # Fallback to legacy automatic computation
+            seg_width = float(seg_item) if not isinstance(seg_item, dict) else float(seg_item.get('width', 0))
+            sub_panels = compute_panels(seg_width)
+            sub_panel_texts = [[] for _ in sub_panels]
+            sub_panel_verts = [None for _ in sub_panels]
+            sub_panel_loose = [[] for _ in sub_panels]
+            
+        seg_x0 = x_cursor
+
+        if not sub_panels:
+            x_cursor += seg_width
+            if seg_idx < len(gaps):
+                x_cursor += gaps[seg_idx][0]
+            continue
+
+        # Draw panel outlines (LWPOLYLINE) for each sub-panel
+        xp = seg_x0
+        for pw, p_texts, p_verts, p_loose in zip(sub_panels, sub_panel_texts, sub_panel_verts, sub_panel_loose):
+            if p_verts:
+                # Custom polygon (e.g. chamfers, L-shapes)
+                pts = [(xp + v['x'], y0 + v['y']) for v in p_verts]
+                msp.add_lwpolyline(pts, close=True, dxfattribs={'layer': LY_PAINEIS, 'lineweight': -1})
+            else:
+                # Standard rectangular module
+                panel_poly(msp, xp, y0, pw, b)
+            
+            # Draw loose attached entities (L-corners, etc.)
+            for le in p_loose:
+                if le['type'] == 'LINE':
+                    msp.add_line((xp + le['start']['x'], y0 + le['start']['y']),
+                                 (xp + le['end']['x'], y0 + le['end']['y']),
+                                 dxfattribs={'layer': LY_PAINEIS, 'lineweight': -1})
+                elif le['type'] == 'TEXT':
+                    t = msp.add_text(le['text'], dxfattribs={'layer': LY_PAINEIS, 'height': 8})
+                    t.dxf.insert = (xp + le['insert']['x'], y0 + le['insert']['y'])
+                    
+            all_subpanel_edges.append((xp, xp + pw))
+            
+            # Draw any specific texts inside the panel (e.g. 'P1', 'V309')
+            if p_texts:
+                for idx, txt in enumerate(p_texts):
+                    if txt in ignore_texts: continue
+                    t = msp.add_text(txt, dxfattribs={'layer': '5', 'height': 8})
+                    t.dxf.insert = (xp + pw/2 - 5, y0 + b/2 + (idx * 10))
+                    
+            xp += pw
+
+        seg_x_end = seg_x0 + seg_width
+        segment_edges.append((seg_x0, seg_x_end))
+
+        # Draw panel dividers (vertical LINEs between adjacent sub-panels)
+        xp = seg_x0
+        for i, pw in enumerate(sub_panels):
+            xp += pw
+            if i < len(sub_panels) - 1:
+                panel_divider(msp, xp, y0, b)
+
+        # Draw sarrafos for this segment
+        draw_sarr(msp, seg_x0, y0, b, sub_panels, sub_panel_verts)
+
+        # Textos de inicio e fim de segmento (Labels ESQ / DIR)
+        if seg_idx == 0 and label_left:
+            add_text(msp, seg_x0, y0 - 30.0, label_left, 8, '5', halign=0, rotation=0)
+        
+        if seg_idx == len(segments) - 1 and label_right:
+            add_text(msp, seg_x_end, y0 - 30.0, label_right, 8, '5', halign=2, rotation=0)
+            
+        if seg_idx < len(gaps):
+            gap_label = gaps[seg_idx][1]
+            if gap_label and gap_label != 'Pilar Cruzado':
+                gap_center = seg_x_end + gaps[seg_idx][0] / 2
+                add_text(msp, gap_center, y0 - 30.0, gap_label, 8, '5', halign=1, rotation=0)
+
+        # Draw individual sub-panel dims (1st level, and tiers if present)
+        xp = seg_x0
+        for i, pw in enumerate(sub_panels):
+            p_item = seg_item['panels'][i] if isinstance(seg_item.get('panels'), list) and i < len(seg_item['panels']) else {}
+            if isinstance(p_item, dict) and 'tiers' in p_item and p_item['tiers']:
+                tiers = p_item['tiers']
+                for t_idx, tier_vals in enumerate(tiers):
+                    t_xp = xp
+                    y_off = DIM_BELOW + (t_idx * 15)  # Stack them downwards
+                    for tv in tier_vals:
+                        try:
+                            d = msp.add_linear_dim(
+                                base=(t_xp, y0 - y_off),
+                                p1=(t_xp, y0),
+                                p2=(t_xp + tv, y0),
+                                angle=0,
+                                dimstyle='PAINEL',
+                                dxfattribs={'layer': 'COTA'}
+                            )
+                            d.render()
+                        except Exception:
+                            pass
+                        t_xp += tv
+            else:
+                dim_panel(msp, xp, xp + pw, y0)
+            xp += pw
+
+        x_cursor = seg_x_end
+        if seg_idx < len(gaps):
+            gap_w = gaps[seg_idx][0]
+            x_cursor += gap_w
+
+        # Draw segment total dim (2nd level) if segment has >1 sub-panel
+        if len(sub_panels) > 1:
+            multi_subpanel_segs += 1
+            # Use DIM_TOTAL_BELOW for all segment total dimensions
+            seg_dim_y_offset = DIM_TOTAL_BELOW
+            try:
+                d = msp.add_linear_dim(
+                    base=(seg_x0, y0 - seg_dim_y_offset),
+                    p1=(seg_x0, y0),
+                    p2=(seg_x_end, y0),
+                    angle=0,
+                    dimstyle='PAINEL',
+                    dxfattribs={'layer': 'COTA'},
+                )
+                d.render()
+            except Exception:
+                pass
+
+        # Advance cursor past this segment + gap to next segment
+        x_cursor = seg_x_end
+        if seg_idx < len(gaps):
+            x_cursor += gaps[seg_idx][0]
+
+    # -- NOMENCLATURA text (once, above full viga) -----------------------------
     nom_text = f'{viga_nome}.C'
     if obs:
         nom_text = f'{nom_text} {obs}'
-    add_text(msp, x0 + 3, y0 + viga_b + NOM_ABOVE, nom_text,
+    add_text(msp, x0 + 3, y0 + b + NOM_ABOVE, nom_text,
              NOM_H, 'NOMENCLATURA', style='Standard')
 
-    # -- Side labels ESQ/DIR on layer 5 (rotated 90 degrees) ------------------
-    side_label_h = 8.0
-    # ESQ at left edge, vertically centered
-    esq_x = x0 - 5
-    esq_y = y0 + viga_b / 2
-    add_text(msp, esq_x, esq_y, 'ESQ', side_label_h, '5',
-             halign=1, valign=2, rotation=90)
-    # DIR at right edge, vertically centered
-    dir_x = x0 + comprimento + 5
-    dir_y = y0 + viga_b / 2
-    add_text(msp, dir_x, dir_y, 'DIR', side_label_h, '5',
-             halign=1, valign=2, rotation=90)
 
-    # -- Panel numbering: nf INSERT blocks at panel centers (layer COTA) ------
-    x_cur = x0
-    for i, pw in enumerate(panel_widths):
-        cx = x_cur + pw / 2
-        cy = y0 + viga_b / 2
-        nf_idx = i + 1
-        bname = f'nf{min(nf_idx, 10)}'
-        msp.add_blockref(bname, (cx, cy), dxfattribs={'layer': 'COTA'})
-        x_cur += pw
-
-    # -- Panel IDs as TEXT on layer 5 (centered inside each panel) ------------
-    x_cur = x0
-    for i, pw in enumerate(panel_widths):
-        cx = x_cur + pw / 2
-        cy = y0 + viga_b / 2
-        # Offset slightly below the nf block to avoid overlap
-        cy_text = cy - 10 if viga_b > 25 else cy
-        add_text(msp, cx, cy_text, str(i + 1), PID_H, '5', halign=1, valign=2)
-        x_cur += pw
-
-    # -- Individual panel dims -- 1st level ------------------------------------
-    x_cur = x0
-    for pw in panel_widths:
-        dim_panel(msp, x_cur, x_cur + pw, y0)
-        x_cur += pw
-
-    # -- Total viga dim -- 2nd level -------------------------------------------
-    if len(panel_widths) > 1:
-        dim_viga_total(msp, x0, x0 + comprimento, y0)
 
     # -- Vertical b dim -- right side ------------------------------------------
-    dim_viga_b(msp, x0 + comprimento, y0, viga_b)
+    rightmost_x = x0 + total_footprint
+    dim_viga_b(msp, rightmost_x, y0, b)
 
-    # -- Chanfros (pillar_left/right) ------------------------------------------
-    if pillar_left and pillar_left.get('active'):
-        pl_w = float(pillar_left.get('width', 0)) or 25
-        pl_l = float(pillar_left.get('length', 0)) or viga_b
-        pts = [(x0, y0), (x0 + pl_w, y0), (x0 + pl_w, y0 + pl_l), (x0, y0 + pl_l)]
-        msp.add_lwpolyline(pts, close=True,
-                           dxfattribs={'layer': LY_PAINEIS, 'linetype': 'DASHED', 'lineweight': 25})
-        h = msp.add_hatch(dxfattribs={'layer': 'COTA'})
-        h.set_pattern_fill('ANSI31', scale=0.5)
-        h.paths.add_polyline_path(pts, is_closed=True)
-        add_text(msp, x0 + pl_w/2, y0 + pl_l/2, 'PILAR', 5, '5', halign=1, valign=2)
-
-    if pillar_right and pillar_right.get('active'):
-        pr_w = float(pillar_right.get('width', 0)) or 25
-        pr_l = float(pillar_right.get('length', 0)) or viga_b
-        rx = x0 + comprimento - pr_w
-        pts = [(rx, y0), (rx + pr_w, y0), (rx + pr_w, y0 + pr_l), (rx, y0 + pr_l)]
-        msp.add_lwpolyline(pts, close=True,
-                           dxfattribs={'layer': LY_PAINEIS, 'linetype': 'DASHED', 'lineweight': 25})
-        h = msp.add_hatch(dxfattribs={'layer': 'COTA'})
-        h.set_pattern_fill('ANSI31', scale=0.5)
-        h.paths.add_polyline_path(pts, is_closed=True)
-        add_text(msp, rx + pr_w/2, y0 + pr_l/2, 'PILAR', 5, '5', halign=1, valign=2)
-
-    # -- Holes (openings) at 4 corners -----------------------------------------
-    if holes:
-        for i, hole in enumerate(holes):
-            if not hole.get('active'):
-                continue
-            hw = float(hole.get('width', 0))
-            hh = float(hole.get('height', 0))
-            hp = float(hole.get('position', 0))
-            if hw <= 0 or hh <= 0:
-                continue
-            if i == 0:    # top-left
-                hx, hy = x0 + hp, y0 + viga_b - hh
-            elif i == 1:  # bottom-left
-                hx, hy = x0 + hp, y0
-            elif i == 2:  # top-right
-                hx, hy = x0 + comprimento - hp - hw, y0 + viga_b - hh
-            else:         # bottom-right
-                hx, hy = x0 + comprimento - hp - hw, y0
-            pts = [(hx, hy), (hx+hw, hy), (hx+hw, hy+hh), (hx, hy+hh)]
-            msp.add_lwpolyline(pts, close=True,
-                               dxfattribs={'layer': LY_PAINEIS, 'linetype': 'DASHED', 'lineweight': 18})
-            ah = msp.add_hatch(dxfattribs={'layer': 'COTA'})
-            ah.set_pattern_fill('ANSI31', scale=0.3)
-            ah.paths.add_polyline_path(pts, is_closed=True)
-            add_text(msp, hx+hw/2, hy+hh/2, f'{hw:.0f}x{hh:.0f}', 4, '5', halign=1, valign=2)
-
-    return comprimento
+    return total_footprint
 
 
 def draw_cards(msp, x0, y_bottom, obra_nome='', pav=''):
@@ -598,17 +711,91 @@ def main():
             print(f'[ERRO] JSON inválido ou ilegível: {f.name} — {e}')
             continue
         vname  = re.sub(r'_fundo', '', f.stem, flags=re.IGNORECASE)
-        viga_b = float(vigas_salvas.get(vname, {}).get('b', d.get('total_width', 14)))
-        panels = d.get('panels', [])
-        comp   = sum(float(p.get('width', 0)) for p in panels)
+        # Priority: extracted formwork width (total_width), then vigas_salvas
+        v_b = d.get('total_width')
+        if not v_b or v_b <= 0:
+            v_b = vigas_salvas.get(vname, {}).get('b', 14)
+        viga_b = float(v_b)
+        
+        # Priority: segments_rich -> panels
+        panels = d.get('segments_rich', d.get('panels', []))
+        
+        comp   = sum(float(p.get('total_width', p.get('width', 0))) for p in panels)
         if comp > 0 and viga_b > 0:
-            vigas_raw.append({
+            viga_dict = {
                 'nome': vname, 'b': viga_b, 'comp': comp, 'panels': panels,
                 'pillar_left': d.get('pillar_left'),
                 'pillar_right': d.get('pillar_right'),
-                'holes': d.get('holes'),
+                'holes': d.get('holes', []),
                 'obs': d.get('observations', ''),
-            })
+                'label_left': d.get('label_left', 'L Esq'),
+                'label_right': d.get('label_right', 'L Dir'),
+            }
+            has_row_break = any(isinstance(p, dict) and p.get('row_break') for p in panels)
+            # Quebra se exceder MAX_ROW_W ou se o motor de extração detectou uma quebra de fileira (ex: chanfro em L)
+            if (comp > MAX_ROW_W or has_row_break) and len(panels) > 1:
+                parts = []
+                c_panels, c_holes = [], []
+                c_comp = 0.0
+                abs_pos = 0.0
+                holes_list = viga_dict.get('holes', [])
+                active_holes = [h for h in holes_list if h.get('active')]
+                hole_idx = 0
+                
+                for i, p in enumerate(panels):
+                    w = float(p.get('total_width', p.get('width', 0))) if isinstance(p, dict) else float(p)
+                    
+                    # Match hole by absolute position
+                    abs_pos += w
+                    gw = 0.0
+                    hole_text = None
+                    if hole_idx < len(active_holes):
+                        if abs(active_holes[hole_idx]['position'] - abs_pos) < 5.0:
+                            gw = active_holes[hole_idx]['width']
+                            hole_text = active_holes[hole_idx].get('text')
+                            hole_idx += 1
+                            
+                    is_break = isinstance(p, dict) and p.get('row_break')
+                    
+                    # Se estourar o limite OU se o próprio painel pede quebra, e já temos painéis na fileira atual
+                    if (c_comp + w > MAX_ROW_W or is_break) and c_panels:
+                        nm = viga_dict['nome'] if not parts else f"CONT. {viga_dict['nome']}"
+                        parts.append({
+                            **viga_dict, 'nome': nm, 'comp': c_comp,
+                            'panels': c_panels, 'holes': c_holes,
+                            'label_left': viga_dict['label_left'] if not parts else (c_holes[-1]['text'] if c_holes else 'L Esq'),
+                            'label_right': 'L Dir'
+                        })
+                        c_panels, c_holes = [], []
+                        c_comp = 0.0
+                        
+                    c_panels.append(p)
+                    c_comp += w
+                    
+                    if gw > 0:
+                        if i + 1 < len(panels):
+                            next_w = float(panels[i+1].get('total_width', panels[i+1].get('width', 0))) if isinstance(panels[i+1], dict) else float(panels[i+1])
+                            # Only add the hole if it and the next panel fit in the current row
+                            if c_comp + gw + next_w <= MAX_ROW_W:
+                                c_holes.append({
+                                    'active': True,
+                                    'width': gw,
+                                    'position': c_comp,
+                                    'text': hole_text
+                                })
+                                c_comp += gw
+                    
+                    abs_pos += gw
+                
+                if c_panels:
+                    nm = viga_dict['nome'] if not parts else f"CONT. {viga_dict['nome']}"
+                    parts.append({
+                        **viga_dict, 'nome': nm, 'comp': c_comp,
+                        'panels': c_panels, 'holes': c_holes
+                    })
+                vigas_raw.extend(parts)
+            else:
+                vigas_raw.append(viga_dict)
 
     # -- Filtro anti-hallucination: excluir vigas com b dominante ──────────────
     # No STOG, apenas vigas com seção não-padrão (b estreito ou especial) têm
@@ -694,7 +881,9 @@ def main():
                       pillar_left=v.get('pillar_left'),
                       pillar_right=v.get('pillar_right'),
                       holes=v.get('holes'),
-                      obs=v.get('obs', ''))
+                      obs=v.get('obs', ''),
+                      label_left=v.get('label_left', 'L Esq'),
+                      label_right=v.get('label_right', 'L Dir'))
             print(f'  {v["nome"]:8s}: {v["comp"]:.0f}x{v["b"]:.0f}cm  row={row_idx}')
             x_cursor += v['comp'] + GAP_VIGAS
 

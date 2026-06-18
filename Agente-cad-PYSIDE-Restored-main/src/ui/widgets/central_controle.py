@@ -39,7 +39,7 @@ class MetricCard(QFrame):
         v_layout.setSpacing(2)
         
         title_lbl = QLabel(title.upper())
-        title_lbl.setStyleSheet(f"color: {Colors.TEXT_SECONDARY}; font-size: 10px; font-weight: bold; letter-spacing: 1px;")
+        title_lbl.setStyleSheet(f"color: {Colors.TEXT_SECONDARY}; font-size: 10px; font-weight: bold; ")
         v_layout.addWidget(title_lbl)
         
         self.value_lbl = QLabel(value)

@@ -23,11 +23,11 @@ class StatusBadge(QLabel):
     def _set_style(self):
         s = self._status.upper()
         if "VALID" in s or "OK" in s:
-            bg, color, border = "rgba(40,167,69,51)", Colors.ACCENT_SUCCESS, Colors.ACCENT_SUCCESS
+            bg, color, border = "rgba(40, 167, 69, 51)", Colors.ACCENT_SUCCESS, Colors.ACCENT_SUCCESS
         elif "REVIS" in s or "WARN" in s:
-            bg, color, border = "rgba(255,193,7,51)", Colors.ACCENT_WARNING, Colors.ACCENT_WARNING
+            bg, color, border = "rgba(255, 193, 7, 51)", Colors.ACCENT_WARNING, Colors.ACCENT_WARNING
         else: # ERROR, CRITICAL
-            bg, color, border = "rgba(220,53,69,51)", Colors.ACCENT_DANGER, Colors.ACCENT_DANGER
+            bg, color, border = "rgba(220, 53, 69, 51)", Colors.ACCENT_DANGER, Colors.ACCENT_DANGER
             
         pad = "2px 6px" if self._compact else "4px 8px"
         font_size = "10px" if self._compact else "11px"
@@ -77,11 +77,11 @@ class NavButton(QPushButton):
                 border-left: 3px solid transparent;
             }
             NavButton:hover {
-                background-color: rgba(255,255,255,13);
+                background-color: rgba(255, 255, 255, 13);
                 color: {Colors.TEXT_BRIGHT};
             }
             NavButton:checked {
-                background-color: rgba(0,120,212,26);
+                background-color: rgba(0, 120, 212, 26);
                 color: {Colors.ACCENT_BLUE};
                 border-left: 3px solid {Colors.ACCENT_BLUE};
                 font-weight: bold;
@@ -146,10 +146,10 @@ class DeltaBadge(QLabel):
             bg = Colors.BG_CARD
         elif is_good:
             color = Colors.ACCENT_SUCCESS
-            bg = "rgba(40,167,69,26)"
+            bg = "rgba(40, 167, 69, 26)"
         else:
             color = Colors.ACCENT_DANGER
-            bg = "rgba(220,53,69,26)"
+            bg = "rgba(220, 53, 69, 26)"
             
         self.setStyleSheet(f"""
             DeltaBadge {{
@@ -175,7 +175,7 @@ class AISuggestionBox(QFrame):
         self.setStyleSheet("""
             #AIBox {
                 background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 rgba(30, 30, 40, 255), stop:1 rgba(40, 40, 60, 255));
-                border: 1px solid rgba(100,100,255,76);
+                border: 1px solid rgba(100, 100, 255, 76);
                 border-radius: 8px;
             }
         """)
@@ -184,7 +184,7 @@ class AISuggestionBox(QFrame):
         
         # Header com ícone
         hdr_lbl = QLabel("✨ AI Analysis")
-        hdr_lbl.setStyleSheet("color: rgba(160,160,255,1); font-weight: bold; font-size: 11px;")
+        hdr_lbl.setStyleSheet("color: rgba(160, 160, 255, 1); font-weight: bold; font-size: 11px;")
         layout.addWidget(hdr_lbl)
         
         # Texto corpo
@@ -198,7 +198,7 @@ class AISuggestionBox(QFrame):
         self.btn_action.setCursor(Qt.PointingHandCursor)
         self.btn_action.setStyleSheet("""
             QPushButton {
-                background-color: rgba(0,120,212,76);
+                background-color: rgba(0, 120, 212, 76);
                 border: 1px solid {Colors.ACCENT_BLUE};
                 color: {Colors.TEXT_BRIGHT};
                 border-radius: 4px;
@@ -207,7 +207,7 @@ class AISuggestionBox(QFrame):
                 margin-top: 8px;
             }
             QPushButton:hover {
-                background-color: rgba(0,120,212,128);
+                background-color: rgba(0, 120, 212, 128);
             }
         """)
         self.btn_action.clicked.connect(self.apply_clicked.emit)
@@ -234,7 +234,7 @@ class SyncToggleButton(QPushButton):
             self.setText("SYNC ON")
             self.setStyleSheet("""
                 QPushButton {
-                    background-color: rgba(0,229,255,38);
+                    background-color: rgba(0, 229, 255, 38);
                     border: 1px solid {Colors.ACCENT_BRAND};
                     color: {Colors.ACCENT_BRAND};
                     border-radius: 14px;
@@ -379,7 +379,7 @@ def make_section_header(title: str, subtitle: str = "", accent_color: str = "") 
     lbl_title = QLabel(title.upper())
     lbl_title.setStyleSheet(
         f"color: {color}; font-size: {Fonts.SIZE_MD}; "
-        f"font-weight: bold; letter-spacing: 1.5px; background: transparent;"
+        f"font-weight: bold;  background: transparent;"
     )
     h_layout.addWidget(lbl_title)
 

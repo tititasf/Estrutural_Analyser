@@ -184,7 +184,7 @@ class LoginWidget(QWidget):
         lbl_logo.setAlignment(Qt.AlignCenter)
         font_logo = QFont("Segoe UI", 24, QFont.Bold)
         lbl_logo.setFont(font_logo)
-        lbl_logo.setStyleSheet(f"color: {Colors.ACCENT_BRAND}; letter-spacing: 2px;")
+        lbl_logo.setStyleSheet(f"color: {Colors.ACCENT_BRAND}; ")
         layout.addWidget(lbl_logo)
         
         lbl_subtitle = QLabel("Structural Intelligence System")

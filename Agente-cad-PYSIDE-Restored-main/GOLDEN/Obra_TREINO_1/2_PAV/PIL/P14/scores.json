@@ -1,0 +1,21 @@
+{
+  "g1": {
+    "resultado": "PASS",
+    "campos_comparados": 102,
+    "n_diffs": 0
+  },
+  "g2": {
+    "resultado": "PASS",
+    "scores": {
+      "ABCD": "PASS",
+      "CIMA": "PASS",
+      "GRADES": "N/A"
+    },
+    "n_diffs_ent": 9,
+    "n_diffs_geom": 2,
+    "n_diffs_txt": 0
+  },
+  "n4_sha256": "13ab93bd707ca2069466244ae9cf9a9ddd616e67e0d97451ca78c6287447b6c3",
+  "selado_em": "2026-06-13T18:01:52.617774",
+  "proveniencia": "draft"
+}

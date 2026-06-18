@@ -52,7 +52,7 @@ class FloorListItem(QWidget):
         self._set_style()
 
     def _set_style(self):
-        bg = "rgba(0,120,212,51)" if self._active else "transparent"
+        bg = "rgba(0, 120, 212, 51)" if self._active else "transparent"
         border = f"1px solid {Colors.ACCENT_BLUE}" if self._active else "1px solid transparent"
         
         self.setStyleSheet(f"""
@@ -62,7 +62,7 @@ class FloorListItem(QWidget):
                 border-radius: 6px;
             }}
             #FloorItem:hover {{
-                background-color: rgba(255,255,255,13);
+                background-color: rgba(255, 255, 255, 13);
             }}
         """)
 

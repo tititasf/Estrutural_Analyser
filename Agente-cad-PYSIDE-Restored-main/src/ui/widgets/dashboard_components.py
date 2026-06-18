@@ -7,6 +7,8 @@ from src.ui.theme import Colors, Fonts, Radius
 class ElidedLabel(QLabel):
     """Label que elida o texto automaticamente com '...'"""
     def paintEvent(self, event):
+        if self.width() <= 0 or self.height() <= 0:
+            return
         painter = QPainter(self)
         metrics = self.fontMetrics()
         elided = metrics.elidedText(self.text(), Qt.ElideRight, self.width())
@@ -200,7 +202,7 @@ class DocumentationCategoryRow(QWidget):
         self.lbl_count = QLabel(f"{count:02d}")
         self.lbl_count.setStyleSheet("""
             background-color: {Colors.BG_HOVER}; 
-            color: rgba(136,144,176,1); 
+            color: rgba(136, 144, 176, 1); 
             padding: 4px 8px; 
             border-radius: 10px; 
             font-size: 11px; 
@@ -247,7 +249,7 @@ class DocumentationListWidget(QFrame):
         
         header_row = QHBoxLayout()
         lbl = QLabel("DOCUMENTAÇÃO")
-        lbl.setStyleSheet("color: rgba(108,114,147,1); font-weight: bold; font-size: 11px; letter-spacing: 1.5px;")
+        lbl.setStyleSheet("color: rgba(108, 114, 147, 1); font-weight: bold; font-size: 11px; ")
         header_row.addWidget(lbl)
         header_row.addStretch()
         
@@ -347,7 +349,7 @@ class DocumentationListWidget(QFrame):
             # Decorate if main
             if d.get('is_main'):
                 doc_item.btn_del.setVisible(False)
-                doc_item.setStyleSheet(f"background: rgba(26,38,52,1); border: 1px solid {Colors.BORDER_TEAL_DARK}; border-radius: 5px;")
+                doc_item.setStyleSheet(f"background: rgba(26, 38, 52, 1); border: 1px solid {Colors.BORDER_TEAL_DARK}; border-radius: 5px;")
             
             # Store data in widget to retrieve later or emit signals
             doc_item.setProperty("doc_data", d)

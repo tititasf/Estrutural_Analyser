@@ -20,6 +20,7 @@ import re
 import time
 import logging
 import sqlite3
+import unicodedata
 from pathlib import Path
 from typing import Optional
 
@@ -378,9 +379,80 @@ class RecorteMotor:
             y0 = (max(below_ys) + cy) / 2 - MARGIN_Y if below_ys else cy - MAX_HALF_Y
             y1 = (min(above_ys) + cy) / 2 + MARGIN_Y if above_ys else cy + MAX_HALF_Y
 
-            results.append((eid, pts, [(x0, y0, x1, y1)]))
+            bbox = self._expand_laj_bbox_from_panel_edges(
+                (x0, y0, x1, y1),
+                eid=eid,
+                all_centroids=all_centroids,
+            )
+            results.append((eid, pts, [bbox]))
 
         return results
+
+    def _expand_laj_bbox_from_panel_edges(
+        self,
+        bbox: tuple,
+        *,
+        eid: str,
+        all_centroids: dict[str, tuple],
+    ) -> tuple:
+        """Expand LAJ crop to nearby panel geometry so the slab frame closes."""
+        if not self._pkl:
+            return bbox
+
+        margin = 60.0
+        pad = 12.0
+        candidates = []
+
+        def _add_segment(x0, y0, x1, y1):
+            w = abs(x1 - x0)
+            h = abs(y1 - y0)
+            if max(w, h) < 20.0 or max(w, h) > 800.0:
+                return
+            if w >= 1.0 and h >= 1.0:
+                return
+            mx = (x0 + x1) / 2.0
+            my = (y0 + y1) / 2.0
+            if _pt_in_bbox(mx, my, bbox, margin=margin):
+                candidates.append((min(x0, x1), min(y0, y1), max(x0, x1), max(y0, y1)))
+
+        for ln in self._pkl.get('lines', []):
+            if _layer_key(ln.get('layer')) != 'PAINEIS':
+                continue
+            s = ln.get('start')
+            e = ln.get('end')
+            if not s or not e:
+                continue
+            _add_segment(float(s[0]), float(s[1]), float(e[0]), float(e[1]))
+
+        for pl in self._pkl.get('polylines', []):
+            if _layer_key(pl.get('layer')) != 'PAINEIS':
+                continue
+            pts = pl.get('points') or []
+            for a, b in zip(pts, pts[1:]):
+                _add_segment(float(a[0]), float(a[1]), float(b[0]), float(b[1]))
+
+        if len(candidates) < 3:
+            return bbox
+
+        panel_bbox = (
+            min(b[0] for b in candidates),
+            min(b[1] for b in candidates),
+            max(b[2] for b in candidates),
+            max(b[3] for b in candidates),
+        )
+        expanded = (
+            min(bbox[0], panel_bbox[0]) - pad,
+            min(bbox[1], panel_bbox[1]) - pad,
+            max(bbox[2], panel_bbox[2]) + pad,
+            max(bbox[3], panel_bbox[3]) + pad,
+        )
+        expanded = _shrink_bbox_away_from_laj_labels(expanded, eid, all_centroids)
+
+        w = expanded[2] - expanded[0]
+        h = expanded[3] - expanded[1]
+        if w <= 0 or h <= 0 or w > 1250 or h > 850:
+            return bbox
+        return expanded
 
     def _discover_by_expansion(self) -> list[tuple]:
         """Fallback: expansão de bbox sem frames."""
@@ -422,7 +494,7 @@ class RecorteMotor:
                         elif t == 'HATCH':
                             ents_existing.append(('hatch', {}))
                     n = len(ents_existing)
-                    conf = self._compute_confidence(ents_existing)
+                    conf = self._compute_confidence(ents_existing, elem_id=elem_id)
                     return {
                         'elemento_id': elem_id, 'recorte_path': str(existing_path),
                         'bbox_json': '{}', 'entity_count': n, 'status': 'motor',
@@ -459,7 +531,13 @@ class RecorteMotor:
         # Salvar DXF
         self._save_recorte_dxf(all_ents, out_path)
 
-        confidence = self._compute_confidence(all_ents)
+        confidence = self._compute_confidence(
+            all_ents,
+            elem_id=elem_id,
+            label_positions=label_positions,
+            search_bboxes=search_bboxes,
+            final_bbox=bbox,
+        )
 
         return {
             'elemento_id': elem_id,
@@ -492,7 +570,17 @@ class RecorteMotor:
 
         # ── Lines ────────────────────────────────────────────────────────────
         for i, ln in enumerate(lines):
+            if self.er_type == 'LAJ' and not _is_laj_relevant_entity('line', ln):
+                continue
             s, e2 = ln['start'], ln['end']
+            if self.er_type == 'LAJ':
+                clipped = _clip_line_to_bboxes(ln, bboxes)
+                if clipped:
+                    for j, clipped_ln in enumerate(clipped):
+                        key = ('l', i, j)
+                        if key not in seen:
+                            seen.add(key); found.append(('line', clipped_ln))
+                continue
             cx = (s[0] + e2[0]) / 2; cy = (s[1] + e2[1]) / 2
             # Captura se centróide OR qualquer extremidade está dentro
             if any(
@@ -507,10 +595,20 @@ class RecorteMotor:
 
         # ── Polylines ─────────────────────────────────────────────────────────
         for i, pl in enumerate(polys):
+            if self.er_type == 'LAJ' and not _is_laj_relevant_entity('poly', pl):
+                continue
             pts = pl['points']
             if not pts: continue
             # Excluir bordas do frame 9999999999
             if pl.get('is_block', False) and _is_frame_border(pts):
+                continue
+            if self.er_type == 'LAJ':
+                clipped = _clip_poly_to_bboxes(pl, bboxes)
+                if clipped:
+                    for j, clipped_pl in enumerate(clipped):
+                        key = ('p', i, j)
+                        if key not in seen:
+                            seen.add(key); found.append(('poly', clipped_pl))
                 continue
             cx = sum(p[0] for p in pts) / len(pts)
             cy = sum(p[1] for p in pts) / len(pts)
@@ -526,6 +624,8 @@ class RecorteMotor:
 
         # ── Textos ───────────────────────────────────────────────────────────
         for i, tx in enumerate(self._pkl.get('texts', [])):
+            if self.er_type == 'LAJ' and not _is_laj_relevant_entity('text', tx):
+                continue
             pos = tx.get('pos')
             if not pos: continue
             cx, cy = float(pos[0]), float(pos[1])
@@ -536,6 +636,8 @@ class RecorteMotor:
 
         # ── Hatches ──────────────────────────────────────────────────────────
         for i, ht in enumerate(self._pkl.get('hatches', [])):
+            if self.er_type == 'LAJ' and not _is_laj_relevant_entity('hatch', ht):
+                continue
             paths = ht.get('paths', [])
             if not paths: continue
             # Centróide de todos os pontos do boundary
@@ -585,7 +687,15 @@ class RecorteMotor:
     # ──────────────────────────────────────────────────────────────────────
     # Confiança do recorte
     # ──────────────────────────────────────────────────────────────────────
-    def _compute_confidence(self, ents: list) -> float:
+    def _compute_confidence(
+        self,
+        ents: list,
+        *,
+        elem_id: str | None = None,
+        label_positions: list | None = None,
+        search_bboxes: list | None = None,
+        final_bbox: tuple | None = None,
+    ) -> float:
         """Score 0-100 baseado em completude estrutural do recorte.
 
         Critérios:
@@ -597,6 +707,15 @@ class RecorteMotor:
         """
         if not ents:
             return 0.0
+
+        if self.er_type == 'LAJ':
+            return self._compute_laj_confidence(
+                ents,
+                elem_id=elem_id,
+                label_positions=label_positions,
+                search_bboxes=search_bboxes,
+                final_bbox=final_bbox,
+            )
 
         has_lines  = any(t == 'line'  for t, _ in ents)
         has_closed = any(t == 'poly'  and e.get('closed') for t, e in ents)
@@ -630,6 +749,110 @@ class RecorteMotor:
             count_score = max(0.0, hi / count)
 
         return round((0.6 * type_score + 0.4 * count_score) * 100, 1)
+
+    def _compute_laj_confidence(
+        self,
+        ents: list,
+        *,
+        elem_id: str | None = None,
+        label_positions: list | None = None,
+        search_bboxes: list | None = None,
+        final_bbox: tuple | None = None,
+    ) -> float:
+        """LAJ confidence calibrated against local slab-recorte evidence."""
+        layers = [(e.get('layer') or '').upper() for _, e in ents]
+        texts = [
+            str(e.get('text') or '').strip()
+            for typ, e in ents
+            if typ == 'text' and str(e.get('text') or '').strip()
+        ]
+
+        line_count = sum(1 for typ, _ in ents if typ == 'line')
+        poly_count = sum(1 for typ, _ in ents if typ == 'poly')
+        hatch_count = sum(1 for typ, _ in ents if typ == 'hatch')
+
+        label_re = re.compile(r'^L\d+$')
+        own_label_count = sum(1 for text in texts if elem_id and text == elem_id)
+        other_label_count = sum(1 for text in texts if label_re.match(text) and text != elem_id)
+        numeric_count = sum(
+            1 for text in texts
+            if re.fullmatch(r'\d+(?:[.,]\d+)?(?:/\d+(?:[.,]\d+)?)?', text)
+        )
+        has_height = any(re.fullmatch(r'h\s*=\s*\d+(?:[.,]\d+)?', text, re.I) for text in texts)
+        has_panel_layer = any(layer in ('PAINÉIS', 'PAINEIS') for layer in layers)
+        has_form_layer = any(layer in ('3', '4', '7', '1') for layer in layers)
+        contamination_count = sum(
+            1 for layer in layers
+            if layer in ('0', 'REAPROVEITAMENTO') or 'REAPROVEITAMENTO' in layer
+        )
+
+        pts = _all_pts_from_ents(ents)
+        bbox = final_bbox or (_pts_to_bbox(pts) if pts else None)
+        bbox_score = 0.0
+        bbox_penalty = 0.0
+        if bbox:
+            w = max(0.0, bbox[2] - bbox[0])
+            h = max(0.0, bbox[3] - bbox[1])
+            area = w * h
+            if 120 <= w <= 800 and 80 <= h <= 650:
+                bbox_score = 1.0
+            elif 80 <= w <= 1100 and 60 <= h <= 800:
+                bbox_score = 0.65
+            else:
+                bbox_score = 0.25
+            if w > 1200 or h > 900 or area > 700000:
+                bbox_penalty += 25.0
+
+        search_score = 1.0
+        if search_bboxes and bbox:
+            sx0, sy0, sx1, sy1 = _merge_bboxes(search_bboxes)
+            sw = max(1.0, sx1 - sx0)
+            sh = max(1.0, sy1 - sy0)
+            w = max(0.0, bbox[2] - bbox[0])
+            h = max(0.0, bbox[3] - bbox[1])
+            if w > sw * 1.35 or h > sh * 1.35:
+                search_score = 0.35
+            elif w > sw * 1.10 or h > sh * 1.10:
+                search_score = 0.70
+
+        count = len(ents)
+        if 60 <= count <= 220:
+            count_score = 1.0
+        elif 35 <= count < 60 or 220 < count <= 320:
+            count_score = 0.70
+        else:
+            count_score = 0.35
+
+        score = (
+            (18.0 if own_label_count >= 1 else 0.0) +
+            (16.0 if line_count >= 20 else max(0.0, line_count / 20.0) * 16.0) +
+            (14.0 if numeric_count >= 5 else max(0.0, numeric_count / 5.0) * 14.0) +
+            (10.0 if has_panel_layer else 0.0) +
+            (8.0 if has_form_layer else 0.0) +
+            (8.0 if has_height else 4.0 if own_label_count else 0.0) +
+            (14.0 * bbox_score) +
+            (6.0 * count_score) +
+            (6.0 * search_score)
+        )
+
+        if other_label_count:
+            score -= min(35.0, other_label_count * 15.0)
+        if contamination_count:
+            score -= min(35.0, contamination_count * 3.5)
+        if poly_count > 8:
+            score -= min(18.0, (poly_count - 8) * 1.5)
+        if hatch_count > 2:
+            score -= min(15.0, (hatch_count - 2) * 2.0)
+        score -= bbox_penalty
+
+        if own_label_count == 0:
+            score = min(score, 68.0)
+        if numeric_count < 3:
+            score = min(score, 78.0)
+        if count < 50:
+            score = min(score, 89.0)
+
+        return round(max(0.0, min(100.0, score)), 1)
 
     # ──────────────────────────────────────────────────────────────────────
     # Salvar DXF
@@ -744,6 +967,27 @@ class RecorteMotor:
                     )
             conn.commit()
             conn.close()
+            if self.er_type == 'LAJ':
+                try:
+                    from src.core.engrev_laj_recorte_learning_store import (
+                        record_engrev_laj_recorte_learning_event,
+                    )
+
+                    for r in results:
+                        if not r.get('recorte_path'):
+                            continue
+                        record_engrev_laj_recorte_learning_event(
+                            db_path,
+                            event_type="motor_generated",
+                            obra_name=obra_name,
+                            classe=self.er_type,
+                            elemento_id=r['elemento_id'],
+                            source_recorte_path=r['recorte_path'],
+                            notes="recorte_motor._register_db",
+                            features_extra={"source": "src.core.recorte_motor"},
+                        )
+                except Exception as exc:
+                    log.warning("Falha ao registrar learning events LAJ: %s", exc)
             log.info("DB registrado: %d recortes para '%s'", len(results), obra_name)
         except Exception as exc:
             log.error("Erro ao registrar DB: %s", exc)
@@ -771,6 +1015,178 @@ class RecorteMotor:
 
 def _pt_in_bbox(x: float, y: float, b: tuple, margin: float = 0) -> bool:
     return b[0] - margin <= x <= b[2] + margin and b[1] - margin <= y <= b[3] + margin
+
+
+def _layer_key(layer: str | None) -> str:
+    text = str(layer or '')
+    text = ''.join(
+        c for c in unicodedata.normalize('NFKD', text)
+        if not unicodedata.combining(c)
+    )
+    return text.upper()
+
+
+def _shrink_bbox_away_from_laj_labels(
+    bbox: tuple,
+    eid: str,
+    all_centroids: dict[str, tuple],
+    *,
+    clearance: float = 5.0,
+) -> tuple:
+    """Shrink the least painful side when expansion captures a neighboring slab label."""
+    if eid not in all_centroids:
+        return bbox
+    cx, cy = all_centroids[eid]
+    x0, y0, x1, y1 = bbox
+
+    for other_id, (ox, oy) in all_centroids.items():
+        if other_id == eid:
+            continue
+        if not (x0 <= ox <= x1 and y0 <= oy <= y1):
+            continue
+
+        options = []
+        if ox < cx and ox + clearance < cx:
+            value = ox + clearance
+            options.append(('x0', value, abs(value - x0)))
+        if ox > cx and ox - clearance > cx:
+            value = ox - clearance
+            options.append(('x1', value, abs(x1 - value)))
+        if oy < cy and oy + clearance < cy:
+            value = oy + clearance
+            options.append(('y0', value, abs(value - y0)))
+        if oy > cy and oy - clearance > cy:
+            value = oy - clearance
+            options.append(('y1', value, abs(y1 - value)))
+        if not options:
+            continue
+
+        side, value, _ = min(options, key=lambda item: item[2])
+        if side == 'x0':
+            x0 = max(x0, value)
+        elif side == 'x1':
+            x1 = min(x1, value)
+        elif side == 'y0':
+            y0 = max(y0, value)
+        elif side == 'y1':
+            y1 = min(y1, value)
+
+    return (x0, y0, x1, y1)
+
+
+def _is_laj_relevant_entity(typ: str, entity: dict) -> bool:
+    """Filter entities that are not local slab-recorte evidence."""
+    layer = _layer_key(entity.get('layer'))
+    if layer == '0' or 'REAPROVEITAMENTO' in layer:
+        return False
+
+    if typ in ('line', 'poly'):
+        if typ == 'line':
+            pts = [entity.get('start'), entity.get('end')]
+        else:
+            pts = entity.get('points') or []
+        pts = [p for p in pts if p]
+        if len(pts) >= 2:
+            xs = [float(p[0]) for p in pts]
+            ys = [float(p[1]) for p in pts]
+            w = max(xs) - min(xs)
+            h = max(ys) - min(ys)
+            if max(w, h) > 950:
+                return False
+
+    if typ == 'hatch':
+        paths = entity.get('paths') or []
+        pts = [pt for path in paths for pt in path]
+        if not pts:
+            return False
+        xs = [float(p[0]) for p in pts]
+        ys = [float(p[1]) for p in pts]
+        w = max(xs) - min(xs)
+        h = max(ys) - min(ys)
+        if max(w, h) > 650:
+            return False
+
+    return True
+
+
+def _clip_line_to_bboxes(line: dict, bboxes: list) -> list[dict]:
+    clipped = []
+    s = line.get('start')
+    e = line.get('end')
+    if not s or not e:
+        return clipped
+    for bbox in bboxes:
+        segment = _clip_segment_to_bbox(
+            float(s[0]), float(s[1]), float(e[0]), float(e[1]), bbox
+        )
+        if not segment:
+            continue
+        (x0, y0), (x1, y1) = segment
+        if abs(x1 - x0) < 1e-6 and abs(y1 - y0) < 1e-6:
+            continue
+        new_line = dict(line)
+        new_line['start'] = (x0, y0)
+        new_line['end'] = (x1, y1)
+        clipped.append(new_line)
+    return clipped
+
+
+def _clip_poly_to_bboxes(poly: dict, bboxes: list) -> list[dict]:
+    pts = poly.get('points') or []
+    if len(pts) < 2:
+        return []
+
+    segments = []
+    for a, b in zip(pts, pts[1:]):
+        pseudo = dict(poly)
+        pseudo['start'] = a
+        pseudo['end'] = b
+        for line in _clip_line_to_bboxes(pseudo, bboxes):
+            new_poly = dict(poly)
+            new_poly['points'] = [line['start'], line['end']]
+            new_poly['closed'] = False
+            segments.append(new_poly)
+
+    if poly.get('closed') and len(pts) > 2:
+        pseudo = dict(poly)
+        pseudo['start'] = pts[-1]
+        pseudo['end'] = pts[0]
+        for line in _clip_line_to_bboxes(pseudo, bboxes):
+            new_poly = dict(poly)
+            new_poly['points'] = [line['start'], line['end']]
+            new_poly['closed'] = False
+            segments.append(new_poly)
+
+    return segments
+
+
+def _clip_segment_to_bbox(x0: float, y0: float, x1: float, y1: float, bbox: tuple):
+    """Liang-Barsky segment clipping."""
+    xmin, ymin, xmax, ymax = bbox
+    dx = x1 - x0
+    dy = y1 - y0
+    p = [-dx, dx, -dy, dy]
+    q = [x0 - xmin, xmax - x0, y0 - ymin, ymax - y0]
+    u1, u2 = 0.0, 1.0
+
+    for pi, qi in zip(p, q):
+        if abs(pi) < 1e-12:
+            if qi < 0:
+                return None
+            continue
+        r = qi / pi
+        if pi < 0:
+            if r > u2:
+                return None
+            if r > u1:
+                u1 = r
+        else:
+            if r < u1:
+                return None
+            if r < u2:
+                u2 = r
+
+    return ((x0 + u1 * dx, y0 + u1 * dy), (x0 + u2 * dx, y0 + u2 * dy))
 
 
 def _merge_bboxes(bboxes: list) -> tuple:

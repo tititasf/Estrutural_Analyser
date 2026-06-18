@@ -173,6 +173,7 @@ def add_dim_on_paineis(msp, p1_x, p2_x, base_y, p_y, angle=0):
     Horizontal dimension between p1_x and p2_x.
     """
     try:
+        value = abs(float(p2_x) - float(p1_x))
         d = msp.add_linear_dim(
             base=(p1_x, base_y),
             p1=(p1_x, p_y),
@@ -181,6 +182,7 @@ def add_dim_on_paineis(msp, p1_x, p2_x, base_y, p_y, angle=0):
             dimstyle=DIMSTYLE_NAME,
             dxfattribs={'layer': 'Pain\u00e9is'}
         )
+        d.dimension.dxf.text = _format_dim_value(value)
         d.render()
         return d
     except Exception:
@@ -190,6 +192,7 @@ def add_dim_on_paineis(msp, p1_x, p2_x, base_y, p_y, angle=0):
 def add_dim_vertical_on_paineis(msp, p1_y, p2_y, base_x, p_x):
     """Vertical dimension on Painéis layer."""
     try:
+        value = abs(float(p2_y) - float(p1_y))
         d = msp.add_linear_dim(
             base=(base_x, p1_y),
             p1=(p_x, p1_y),
@@ -198,6 +201,7 @@ def add_dim_vertical_on_paineis(msp, p1_y, p2_y, base_x, p_x):
             dimstyle=DIMSTYLE_NAME,
             dxfattribs={'layer': 'Pain\u00e9is'}
         )
+        d.dimension.dxf.text = _format_dim_value(value)
         d.render()
         return d
     except Exception:
@@ -250,7 +254,201 @@ def add_mtext_aux(msp, x, y, text, height=8.0, layer='AUX00'):
 
 # -- Planta mode (REAL delivery format) --------------------------------------
 
-def draw_laje_planta(msp, lj_data, distribute_panels_fn):
+def _line_value(item):
+    return float(item.get('value', 0)) if isinstance(item, dict) else float(item)
+
+
+def _round_panel_cm(value):
+    return round(round(float(value) * 2) / 2, 1)
+
+
+def _format_dim_value(value):
+    value = round(float(value), 1)
+    if abs(value - round(value)) < 1e-6:
+        return str(int(round(value)))
+    return f"{value:.1f}"
+
+
+def _normalize_line_positions(lines, total):
+    """Mantem apenas divisoes internas; Fase-4 antigo inclui a borda final."""
+    result = []
+    seen = set()
+    for item in lines or []:
+        value = _round_panel_cm(_line_value(item))
+        if value <= 0.5 or value >= total - 0.5:
+            continue
+        if value in seen:
+            continue
+        seen.add(value)
+        out = dict(item) if isinstance(item, dict) else {'is_union': False}
+        out['value'] = value
+        result.append(out)
+    return sorted(result, key=_line_value)
+
+def _dedupe_sorted(values, tol=1e-6):
+    out = []
+    for value in sorted(values):
+        if not out or abs(value - out[-1]) > tol:
+            out.append(value)
+    return out
+
+def _axis_segments_in_polygon(poly_pts, axis, coord):
+    """Retorna trechos internos de uma linha horizontal/vertical no poligono."""
+    if len(poly_pts) < 3:
+        return []
+    pts = list(poly_pts)
+    if pts[0] != pts[-1]:
+        pts.append(pts[0])
+    hits = []
+    eps = 1e-7
+    for (x1, y1), (x2, y2) in zip(pts, pts[1:]):
+        if axis == 'h':
+            if abs(y1 - y2) <= eps:
+                continue
+            low, high = sorted((y1, y2))
+            if low - eps <= coord < high - eps:
+                t = (coord - y1) / (y2 - y1)
+                hits.append(x1 + t * (x2 - x1))
+        else:
+            if abs(x1 - x2) <= eps:
+                continue
+            low, high = sorted((x1, x2))
+            if low - eps <= coord < high - eps:
+                t = (coord - x1) / (x2 - x1)
+                hits.append(y1 + t * (y2 - y1))
+    hits = _dedupe_sorted(hits)
+    if len(hits) < 2:
+        return []
+    segments = []
+    for a, b in zip(hits[0::2], hits[1::2]):
+        if b - a > 0.5:
+            segments.append((a, b))
+    return segments
+
+def _add_clipped_axis_lines(msp, poly_pts, axis, coord, layer, lineweight=None):
+    segments = _axis_segments_in_polygon(poly_pts, axis, coord)
+    attribs = {'layer': layer}
+    if lineweight is not None:
+        attribs['lineweight'] = lineweight
+    for a, b in segments:
+        if axis == 'h':
+            msp.add_line((a, coord), (b, coord), dxfattribs=attribs)
+        else:
+            msp.add_line((coord, a), (coord, b), dxfattribs=attribs)
+    return len(segments)
+
+def _point_in_polygon(point, poly_pts):
+    x, y = point
+    inside = False
+    pts = list(poly_pts)
+    if pts and pts[0] != pts[-1]:
+        pts.append(pts[0])
+    for (x1, y1), (x2, y2) in zip(pts, pts[1:]):
+        if ((y1 > y) != (y2 > y)):
+            x_cross = (x2 - x1) * (y - y1) / ((y2 - y1) or 1e-9) + x1
+            if x < x_cross:
+                inside = not inside
+    return inside
+
+def _label_position(poly_pts, v_positions, h_positions, x0, y0, comp, larg):
+    xs = [x0] + [x0 + float(v) for v in v_positions] + [x0 + comp]
+    ys = [y0] + [y0 + float(h) for h in h_positions] + [y0 + larg]
+    best = None
+    for xa, xb in zip(sorted(xs), sorted(xs)[1:]):
+        for ya, yb in zip(sorted(ys), sorted(ys)[1:]):
+            if xb - xa < 35.0 or yb - ya < 18.0:
+                continue
+            cx = (xa + xb) / 2
+            cy = (ya + yb) / 2
+            if not _point_in_polygon((cx, cy), poly_pts):
+                continue
+            score = (xb - xa) * (yb - ya)
+            if best is None or score > best[0]:
+                best = (score, cx, cy)
+    if best:
+        return best[1], best[2]
+    # Fallback: centro do maior trecho horizontal interno, levemente fora das linhas.
+    return x0 + comp / 2, y0 + larg * 0.62
+
+def _add_dim_text(msp, x, y, value, rotation=0.0, height=8.0):
+    add_text(msp, x, y, _format_dim_value(value), height=height, layer='Pain\u00e9is', rotation=rotation)
+
+def _add_generated_laje_cotas(msp, poly_pts, x0, y0, comp, larg, v_positions, h_positions):
+    """Gera cotas internas no estilo N4, sem copiar a posição dos textos STOG."""
+    x_edges = [0.0] + list(v_positions) + [comp]
+    y_guides = [h_positions[0]] if h_positions else [larg / 2]
+    # Cotas horizontais principais: uma linha-guia interna por faixa.
+    for guide in y_guides:
+        abs_y = y0 + float(guide)
+        segments = _axis_segments_in_polygon(poly_pts, 'h', abs_y)
+        if not segments:
+            continue
+        for xa, xb in segments:
+            local_edges = [xa - x0, xb - x0]
+            local_edges.extend(v for v in x_edges[1:-1] if xa - x0 + 0.5 < v < xb - x0 - 0.5)
+            local_edges = _dedupe_sorted(local_edges)
+            for a, b in zip(local_edges, local_edges[1:]):
+                if b - a > 1.0:
+                    _add_dim_text(msp, x0 + (a + b) / 2, abs_y - 2.5, b - a)
+
+    # Cotas verticais principais: faixas internas no eixo Y.
+    y_edges = [0.0] + list(h_positions) + [larg]
+    guide_x = x0 + (v_positions[0] if v_positions else comp / 2)
+    guide_x += 8.0 if guide_x <= x0 + comp / 2 else -8.0
+    for a, b in zip(y_edges, y_edges[1:]):
+        if b - a > 1.0:
+            _add_dim_text(msp, guide_x, y0 + (a + b) / 2, b - a, rotation=90.0)
+
+    # Cotas horizontais de bordas deformadas: quando topo/base têm spans distintos.
+    ys = sorted({round(p[1], 1) for p in poly_pts})
+    edge_spans = []
+    for yy in (ys[0], ys[-1]):
+        segs = _axis_segments_in_polygon(poly_pts, 'h', yy + (0.01 if yy == ys[0] else -0.01))
+        if segs:
+            xa, xb = max(segs, key=lambda s: s[1] - s[0])
+            edge_spans.append((yy, xa, xb))
+    if len(edge_spans) == 2:
+        _, a0, b0 = edge_spans[0]
+        _, a1, b1 = edge_spans[1]
+        is_deformed_span = abs(a0 - a1) > 1.0 or abs(b0 - b1) > 1.0
+        if is_deformed_span:
+            for yy, xa, xb in edge_spans:
+                guide_y = yy - 8.0 if yy > y0 + larg / 2 else yy + 8.0
+                local_edges = [xa - x0, xb - x0]
+                local_edges.extend(v for v in x_edges[1:-1] if xa - x0 + 0.5 < v < xb - x0 - 0.5)
+                local_edges = _dedupe_sorted(local_edges)
+                for a, b in zip(local_edges, local_edges[1:]):
+                    if b - a > 1.0:
+                        _add_dim_text(msp, x0 + (a + b) / 2, guide_y, b - a)
+
+    # Cotas de degrau: pequenos offsets horizontais e alturas verticais dos recortes.
+    pts = list(poly_pts)
+    if pts and pts[0] != pts[-1]:
+        pts.append(pts[0])
+    step_ys = sorted(y for y in ys[1:-1] if all(abs(y - (y0 + h)) > 0.5 for h in h_positions))
+    for step_y in step_ys:
+        lower_guides = [y0 + h for h in h_positions if y0 + h < step_y - 0.5]
+        if not lower_guides:
+            continue
+        lower = max(lower_guides)
+        value = step_y - lower
+        if 1.0 <= value <= 35.0:
+            left_x = min(p[0] for p in poly_pts) + 12.0
+            right_x = max(p[0] for p in poly_pts) - 12.0
+            cy = (lower + step_y) / 2
+            _add_dim_text(msp, left_x, cy, value, rotation=90.0)
+            _add_dim_text(msp, right_x, cy, value, rotation=90.0)
+    for (x1, y1), (x2, y2) in zip(pts, pts[1:]):
+        if abs(y1 - y2) <= 0.5:
+            length = abs(x2 - x1)
+            if 1.0 <= length <= 35.0:
+                cx = (x1 + x2) / 2
+                cy = (y1 + y2) / 2
+                # Empurra para dentro da laje.
+                cy += -5.0 if cy > y0 + larg / 2 else 5.0
+                _add_dim_text(msp, cx, cy, length)
+
+def draw_laje_planta(msp, lj_data, distribute_panels_fn, include_context=True):
     """
     Draw a single laje in planta mode (absolute coordinates).
     Returns (nome, comp, larg, x0, y0, n_panels) or None if skipped.
@@ -261,24 +459,34 @@ def draw_laje_planta(msp, lj_data, distribute_panels_fn):
     coords = lj_data.get('coordenadas', [])
     lv     = lj_data.get('linhas_verticais', [])
     lh     = lj_data.get('linhas_horizontais', [])
+    cotas_paineis = lj_data.get('cotas_paineis') or []
     obstaculos = lj_data.get('obstaculos', [])
     reap   = lj_data.get('reaproveitamento_dados', {})
     sobras = lj_data.get('sobras_recebidas', [])
 
-    if comp <= 0 or larg <= 0:
-        return None
-
-    # SmartPanner if no panel divisions
-    if not lv and not lh and comp > 0 and larg > 0:
-        smart = distribute_panels_fn(comp, larg, obstaculos or None)
-        lv = smart['linhas_verticais']
-        lh = smart['linhas_horizontais']
-
     # Base position from coords or grid fallback
     if len(coords) >= 3:
-        x0 = min(c[0] for c in coords)
-        y0 = min(c[1] for c in coords)
-        poly_pts = [(c[0], c[1]) for c in coords]
+        raw_x0 = min(c[0] for c in coords)
+        raw_y0 = min(c[1] for c in coords)
+        raw_x1 = max(c[0] for c in coords)
+        raw_y1 = max(c[1] for c in coords)
+        pose = lj_data.get('_stog_pose') or {}
+        if pose and abs(raw_x0) <= 0.5 and abs(raw_y0) <= 0.5:
+            off_x = float(pose.get('x', 0.0))
+            off_y = float(pose.get('y', 0.0))
+        else:
+            off_x = 0.0
+            off_y = 0.0
+        x0 = raw_x0 + off_x
+        y0 = raw_y0 + off_y
+        x1 = raw_x1 + off_x
+        y1 = raw_y1 + off_y
+        coord_comp = round(x1 - x0, 2)
+        coord_larg = round(y1 - y0, 2)
+        if coord_comp > 0 and coord_larg > 0:
+            comp = coord_comp
+            larg = coord_larg
+        poly_pts = [(c[0] + off_x, c[1] + off_y) for c in coords]
         # Remove duplicate closing point
         if len(poly_pts) > 1 and poly_pts[0] == poly_pts[-1]:
             poly_pts = poly_pts[:-1]
@@ -286,6 +494,18 @@ def draw_laje_planta(msp, lj_data, distribute_panels_fn):
         x0 = 0.0
         y0 = 0.0
         poly_pts = [(x0, y0), (x0+comp, y0), (x0+comp, y0+larg), (x0, y0+larg)]
+
+    if comp <= 0 or larg <= 0:
+        return None
+
+    lv = _normalize_line_positions(lv, comp)
+    lh = _normalize_line_positions(lh, larg)
+
+    # SmartPanner if no panel divisions
+    if not lv and not lh and comp > 0 and larg > 0:
+        smart = distribute_panels_fn(comp, larg, obstaculos or None)
+        lv = _normalize_line_positions(smart['linhas_verticais'], comp)
+        lh = _normalize_line_positions(smart['linhas_horizontais'], larg)
 
     # Bounding box for this laje
     x_max = x0 + comp
@@ -295,20 +515,30 @@ def draw_laje_planta(msp, lj_data, distribute_panels_fn):
     msp.add_lwpolyline(poly_pts, close=True,
                         dxfattribs={'layer': '3', 'lineweight': 25})
 
-    # ---- Hachura: SOLID fill ----
-    try:
-        add_hatch_solid(msp, poly_pts, 'Hachura')
-    except Exception:
-        pass
+    # ---- Hachura/HLAZ: SOLID fill apenas nas tiras de uniao ----
+    for hz in lj_data.get('_hlaz', []) or []:
+        try:
+            hx = x0 + float(hz.get('x', 0))
+            hy = y0 + float(hz.get('y', 0))
+            hw = float(hz.get('width', 0))
+            hh = float(hz.get('height', 0))
+            if hw > 0 and hh > 0:
+                add_hatch_solid(msp, [(hx, hy), (hx + hw, hy), (hx + hw, hy + hh), (hx, hy + hh)], 'Hachura')
+        except Exception:
+            pass
 
     # ---- Layer 4: Label (TEXT h=15, not MTEXT) ----
-    cx = x0 + comp / 2
-    cy = y0 + larg / 2
+    cx, cy = _label_position(poly_pts, v_positions=[], h_positions=[], x0=x0, y0=y0, comp=comp, larg=larg)
     add_text(msp, cx, cy, nome, height=15.0, layer='4')
 
     # ---- Collect panel edge positions ----
-    v_positions = sorted(float(v.get('value', 0)) for v in lv)
-    h_positions = sorted(float(h.get('value', 0)) for h in lh)
+    v_positions = sorted(_line_value(v) for v in lv)
+    h_positions = sorted(_line_value(h) for h in lh)
+    cx, cy = _label_position(poly_pts, v_positions, h_positions, x0, y0, comp, larg)
+    # Reposiciona o nome se a primeira estimativa cair sobre linha interna.
+    for e in list(msp.query('TEXT[layer=="4"]')):
+        if str(getattr(e.dxf, 'text', '')) == str(nome):
+            e.dxf.insert = (cx, cy, 0.0)
 
     # Detect which are union points
     v_union_set = set()
@@ -322,105 +552,47 @@ def draw_laje_planta(msp, lj_data, distribute_panels_fn):
 
     # ---- Layer 3: Paired PLINEs at each division (sarrafo de pressao) ----
     # Vertical divisions
+    prev_xv = 0.0
     for xv in v_positions:
         abs_x = x0 + xv
         is_union = round(xv, 1) in v_union_set
         if is_union:
             # Sarrafo: two PLINEs 19cm apart on layer 3
-            add_paired_lines_v(msp, abs_x, y0, y_max, gap=SARRAFO_GAP, layer='3')
+            gap = max(1.0, xv - prev_xv)
+            add_paired_lines_v(msp, x0 + prev_xv, y0, y_max, gap=gap, layer='3')
         else:
             # Single division line on layer 3
-            msp.add_lwpolyline(
-                [(abs_x, y0), (abs_x, y_max)], close=False,
-                dxfattribs={'layer': '3'})
+            _add_clipped_axis_lines(msp, poly_pts, 'v', abs_x, '3')
+        prev_xv = xv
 
     # Horizontal divisions
+    prev_yh = 0.0
     for yh in h_positions:
         abs_y = y0 + yh
         is_union = round(yh, 1) in h_union_set
         if is_union:
-            add_paired_lines_h(msp, x0, x_max, abs_y, gap=SARRAFO_GAP, layer='3')
+            gap = max(1.0, yh - prev_yh)
+            add_paired_lines_h(msp, x0, x_max, y0 + prev_yh, gap=gap, layer='3')
         else:
-            msp.add_lwpolyline(
-                [(x0, abs_y), (x_max, abs_y)], close=False,
-                dxfattribs={'layer': '3'})
+            _add_clipped_axis_lines(msp, poly_pts, 'h', abs_y, '3')
+        prev_yh = yh
 
     # ---- Layer Painéis: panel boundary LINEs ----
     # Vertical panel boundaries
     for xv in v_positions:
         abs_x = x0 + xv
-        msp.add_line(
-            (abs_x, y0), (abs_x, y_max),
-            dxfattribs={'layer': 'Pain\u00e9is', 'lineweight': 18})
+        _add_clipped_axis_lines(msp, poly_pts, 'v', abs_x, 'Pain\u00e9is', lineweight=18)
 
     # Horizontal panel boundaries
     for yh in h_positions:
         abs_y = y0 + yh
-        msp.add_line(
-            (x0, abs_y), (x_max, abs_y),
-            dxfattribs={'layer': 'Pain\u00e9is', 'lineweight': 18})
+        _add_clipped_axis_lines(msp, poly_pts, 'h', abs_y, 'Pain\u00e9is', lineweight=18)
 
     # ---- Layer Painéis: DIMENSION per panel segment ----
     x_edges = [0.0] + v_positions + [comp]
     h_edges = [0.0] + h_positions + [larg]
 
-    # Horizontal dims below laje (per vertical segment)
-    dim_base_y = y0 - 30
-    for i in range(len(x_edges) - 1):
-        seg_w = x_edges[i+1] - x_edges[i]
-        if seg_w > 1:
-            add_dim_on_paineis(
-                msp,
-                x0 + x_edges[i], x0 + x_edges[i+1],
-                dim_base_y, y0
-            )
-
-    # Total horizontal dim further below
-    if len(x_edges) > 2:
-        add_dim_on_paineis(
-            msp,
-            x0, x0 + comp,
-            dim_base_y - 25, y0
-        )
-
-    # Vertical dims on the right side (per horizontal segment)
-    dim_base_x = x_max + 30
-    for j in range(len(h_edges) - 1):
-        seg_h = h_edges[j+1] - h_edges[j]
-        if seg_h > 1:
-            add_dim_vertical_on_paineis(
-                msp,
-                y0 + h_edges[j], y0 + h_edges[j+1],
-                dim_base_x, x_max
-            )
-
-    # Total vertical dim further right
-    if len(h_edges) > 2:
-        add_dim_vertical_on_paineis(
-            msp,
-            y0, y0 + larg,
-            dim_base_x + 25, x_max
-        )
-
-    # ---- AUX00 MTEXT per panel segment ----
-    for i in range(len(x_edges) - 1):
-        seg_w = x_edges[i+1] - x_edges[i]
-        if seg_w < 1:
-            continue
-        for j in range(len(h_edges) - 1):
-            seg_h = h_edges[j+1] - h_edges[j]
-            if seg_h < 1:
-                continue
-            seg_cx = x0 + (x_edges[i] + x_edges[i+1]) / 2
-            seg_cy = y0 + (h_edges[j] + h_edges[j+1]) / 2
-            # STOG format: \pxqc;L{n}^J{dim}X{dim}^Jc/rec.^Je=Xcm
-            esp = lj_data.get('espessura', lj_data.get('altura', 12))
-            try:
-                esp = float(esp) if esp else 12.0
-            except (ValueError, TypeError):
-                esp = 12.0
-            aux_text = f'\\pxqc;{nome}^J{seg_w:.0f}X{seg_h:.0f}^Jc/rec.^Je={esp:.0f}cm'
-            add_mtext_aux(msp, seg_cx, seg_cy, aux_text, height=8.0)
+    _add_generated_laje_cotas(msp, poly_pts, x0, y0, comp, larg, v_positions, h_positions)
 
     # ---- Layer 3: dim texts for pilar sizes (e.g. "19/50") ----
     # Positioned near pilar corners where pilars would be
@@ -476,31 +648,17 @@ def draw_laje_planta(msp, lj_data, distribute_panels_fn):
 
     # ---- Escora LINEs (layer 9): suportes verticais espaçados ~16cm ----
     # STOG real: ~1000+ LINE entities; escoras são a principal fonte
-    ESC_STEP = 16.0
-    x_esc = x0 + ESC_STEP
-    while x_esc < x_max - 1.0:
-        msp.add_line((x_esc, y0 - 20), (x_esc, y0), dxfattribs={'layer': '9'})
-        x_esc += ESC_STEP
+    if include_context:
+        ESC_STEP = 16.0
+        x_esc = x0 + ESC_STEP
+        while x_esc < x_max - 1.0:
+            msp.add_line((x_esc, y0 - 20), (x_esc, y0), dxfattribs={'layer': '9'})
+            x_esc += ESC_STEP
     # Escoras laterais (direção Y)
-    y_esc = y0 + ESC_STEP
-    while y_esc < y_max - 1.0:
-        msp.add_line((x0 - 20, y_esc), (x0, y_esc), dxfattribs={'layer': '9'})
-        y_esc += ESC_STEP
-
-    # ---- TEXT por segmento de painel (layer 4 — STOG tem 294 TEXT) ----
-    for i in range(len(x_edges) - 1):
-        seg_w = x_edges[i + 1] - x_edges[i]
-        if seg_w < 1:
-            continue
-        for j in range(len(h_edges) - 1):
-            seg_h = h_edges[j + 1] - h_edges[j]
-            if seg_h < 1:
-                continue
-            seg_cx = x0 + (x_edges[i] + x_edges[i + 1]) / 2
-            seg_cy = y0 + (h_edges[j] + h_edges[j + 1]) / 2
-            add_text(msp, seg_cx,      seg_cy + 8,  f'{seg_w:.0f}',  height=9,  layer='4')
-            add_text(msp, seg_cx,      seg_cy - 4,  f'{seg_h:.0f}',  height=8,  layer='4')
-            add_text(msp, seg_cx - 10, seg_cy,      f'c={seg_w:.0f}', height=7, layer='3')
+        y_esc = y0 + ESC_STEP
+        while y_esc < y_max - 1.0:
+            msp.add_line((x0 - 20, y_esc), (x0, y_esc), dxfattribs={'layer': '9'})
+            y_esc += ESC_STEP
 
     n_panels = (len(x_edges) - 1) * (len(h_edges) - 1)
     return nome, comp, larg, x0, y0, n_panels
@@ -660,8 +818,6 @@ def draw_laje_card(msp, lj_data, card_x, card_y, scale, distribute_panels_fn):
                 continue
             seg_cx = lx + (x_edges[i] + x_edges[i+1]) / 2 * scale
             seg_cy = ly + (y_edges[j] + y_edges[j+1]) / 2 * scale
-            aux_text = f'\\pxqc;{nome}^J{seg_w:.0f}X{seg_h:.0f}^Jc/rec.'
-            add_mtext_aux(msp, seg_cx, seg_cy, aux_text, height=4*scale)
 
     # Dimensions on Painéis
     dim_y = ly - PAD - 5
@@ -749,11 +905,15 @@ def main():
                         help='planta=absolute coordinates (DEFAULT/delivery), cards=grid layout')
     parser.add_argument('--item', type=str, default=None,
                         help='Gerar só esta laje (ex: L001). Output: LJ_preview_L001.dxf')
+    parser.add_argument('--json-dir', type=str, default=None,
+                        help='Diretorio alternativo de fichas JSON_Lajes')
+    parser.add_argument('--out-dir', type=str, default=None,
+                        help='Diretorio alternativo de saida DXF')
     args = parser.parse_args()
 
     obra_path = Path(args.obra)
-    lj_dir    = obra_path / 'Fase-4_Sincronizacao' / 'JSON_Lajes'
-    out_dir   = obra_path / 'Fase-6_Execucao_CAD'
+    lj_dir    = Path(args.json_dir) if args.json_dir else obra_path / 'Fase-4_Sincronizacao' / 'JSON_Lajes'
+    out_dir   = Path(args.out_dir) if args.out_dir else obra_path / 'Fase-6_Execucao_CAD'
     out_dir.mkdir(parents=True, exist_ok=True)
 
     lj_files = sorted(
@@ -801,7 +961,7 @@ def main():
                 continue
             all_lj_data.append(lj_data)
 
-            result = draw_laje_planta(msp, lj_data, distribute_panels)
+            result = draw_laje_planta(msp, lj_data, distribute_panels, include_context=not bool(args.item))
             if result is None:
                 nome = lj_data.get('nome', lj_file.stem)
                 print(f'  [{idx+1:2d}] {nome}: SKIP (dims=0)')
@@ -810,6 +970,24 @@ def main():
             nome, comp, larg, x0, y0, n_panels = result
             total_panels += n_panels
             print(f'  [{idx+1:2d}] {nome}: {comp:.0f}x{larg:.0f}cm  pos=({x0:.0f},{y0:.0f})  panels={n_panels}')
+
+        if args.item:
+            out_dxf = out_dir / f'LJ_preview_{args.item}.dxf'
+            doc.saveas(str(out_dxf))
+            print(f'\nDXF (planta): {out_dxf}')
+            print(f'Total panels: {total_panels}')
+
+            from collections import Counter
+            layer_counts = Counter(e.dxf.layer for e in msp)
+            type_counts = Counter(e.dxftype() for e in msp)
+            total = sum(layer_counts.values())
+            print(f'\n=== Entity Summary ({total} total) ===')
+            for ly, cnt in sorted(layer_counts.items(), key=lambda x: -x[1]):
+                print(f'  {ly:25s} {cnt:6d}')
+            print(f'\n=== Types ===')
+            for ty, cnt in sorted(type_counts.items(), key=lambda x: -x[1]):
+                print(f'  {ty:20s} {cnt:6d}')
+            return
 
         # Draw pilars at laje intersections
         n_pilars = draw_pilars_for_lajes(msp, all_lj_data)

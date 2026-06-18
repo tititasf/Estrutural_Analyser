@@ -126,7 +126,7 @@ class ProjectManager(QWidget):
                 border: none;
                 border-bottom: 1px solid {Colors.BORDER_DEFAULT};
                 font-weight: bold;
-                letter-spacing: 1px;
+                
                 font-size: 10px;
             }
             QScrollBar:vertical {
@@ -173,7 +173,7 @@ class ProjectManager(QWidget):
         top_layout.setSpacing(12)
 
         logo_lbl = QLabel("GERENCIAR PROJETOS")
-        logo_lbl.setStyleSheet(f"font-weight: bold; font-size: 13px; color: {Colors.ACCENT_BRAND}; letter-spacing: 1px;")
+        logo_lbl.setStyleSheet(f"font-weight: bold; font-size: 13px; color: {Colors.ACCENT_BRAND}; ")
         top_layout.addWidget(logo_lbl)
         
         top_layout.addSpacing(30)
@@ -288,7 +288,7 @@ class ProjectManager(QWidget):
 
         sidebar_header = QHBoxLayout()
         sidebar_title = QLabel("MINHAS OBRAS")
-        sidebar_title.setStyleSheet(f"font-weight: bold; font-size: 10px; color: {Colors.TEXT_SECONDARY}; letter-spacing: 1.5px;")
+        sidebar_title.setStyleSheet(f"font-weight: bold; font-size: 10px; color: {Colors.TEXT_SECONDARY}; ")
         sidebar_header.addWidget(sidebar_title)
         
         sidebar_header.addStretch()
@@ -398,7 +398,7 @@ class ProjectManager(QWidget):
         
         # No lugar do combo, colocamos o nome da obra selecionada em destaque
         self.lbl_selected_work = QLabel("Selecione uma Obra")
-        self.lbl_selected_work.setStyleSheet(f"font-size: 16px; font-weight: bold; color: {Colors.TEXT_BRIGHT}; letter-spacing: 0.5px;")
+        self.lbl_selected_work.setStyleSheet(f"font-size: 16px; font-weight: bold; color: {Colors.TEXT_BRIGHT}; ")
         self.header_layout.addWidget(self.lbl_selected_work)
         
         self.header_layout.addStretch()
@@ -452,7 +452,7 @@ class ProjectManager(QWidget):
             font-size: 10px;
             font-weight: bold;
             color: {Colors.ACCENT_PRIMARY};
-            letter-spacing: 2px;
+            
             padding: 0;
             margin: 0;
         """))
@@ -704,7 +704,7 @@ class ProjectManager(QWidget):
         title_lbl = QLabel("Especificações da Obra")
         title_lbl.setStyleSheet(_resolve_css("""
             font-size: 11px; font-weight: 600;
-            color: {Colors.TEXT_SECONDARY}; letter-spacing: 0.5px;
+            color: {Colors.TEXT_SECONDARY}; 
             border: none; background: transparent;
         """))
         hdr.addWidget(title_lbl)
@@ -972,11 +972,11 @@ class ProjectManager(QWidget):
         btn_refresh_ficha.setFixedHeight(26)
         btn_refresh_ficha.setStyleSheet(_resolve_css("""
             QPushButton {
-                background: rgba(230,180,0,31); color: #e6b400;
+                background: rgba(230, 180, 0, 31); color: #e6b400;
                 border: 1px solid #e6b400; border-radius: 4px;
                 padding: 1px 12px; font-size: 10px; font-weight: bold;
             }
-            QPushButton:hover { background: rgba(230,180,0,64); }
+            QPushButton:hover { background: rgba(230, 180, 0, 64); }
         """))
         btn_refresh_ficha.clicked.connect(self._refresh_ficha_obra)
         hdr.addWidget(btn_refresh_ficha)
@@ -1210,7 +1210,7 @@ class ProjectManager(QWidget):
                     border: 1px solid {Colors.ACCENT_MINT}; border-radius: 4px;
                     padding: 5px 12px; font-size: 11px; font-weight: bold;
                 }}
-                QPushButton:hover {{ background: rgba(0,230,170,31); }}
+                QPushButton:hover {{ background: rgba(0, 230, 170, 31); }}
                 QPushButton:disabled {{ color: {Colors.TEXT_DIM}; border-color: {Colors.BORDER_DEFAULT}; }}
             """)
 
@@ -1359,7 +1359,7 @@ class ProjectManager(QWidget):
             btn_convert_all = QPushButton("⚡ Converter Todos → DXF 2018")
             btn_convert_all.setStyleSheet(_resolve_css("""
                 QPushButton {
-                    background: rgba(26,77,46,1);
+                    background: rgba(26, 77, 46, 1);
                     color: {Colors.ACCENT_SUCCESS_ALT};
                     border: 1px solid {Colors.ACCENT_SUCCESS_ALT};
                     border-radius: 4px;
@@ -1688,7 +1688,7 @@ class ProjectManager(QWidget):
             # Botão Detalhes com ficha específica do robô
             btn = QPushButton("Ver Ficha Robô")
             btn.setCursor(Qt.PointingHandCursor)
-            btn.setStyleSheet(f"background: rgba(0,77,115,1); color: {Colors.TEXT_BRIGHT}; border-radius: 4px; padding: 2px; font-size: 10px;")
+            btn.setStyleSheet(f"background: rgba(0, 77, 115, 1); color: {Colors.TEXT_BRIGHT}; border-radius: 4px; padding: 2px; font-size: 10px;")
             btn.clicked.connect(lambda checked=False, d=item_data: self._open_robot_ficha(d))
             tree_widget.setItemWidget(tree_item, 3, btn)
 
@@ -2342,7 +2342,7 @@ class ProjectManager(QWidget):
                 background: {Colors.ACCENT_SUCCESS}; color: {Colors.TEXT_BRIGHT};
                 border-radius: 4px; padding: 6px 14px; font-weight: bold; font-size: 12px;
             }}
-            QPushButton:hover {{ background: rgba(67,160,71,1); }}
+            QPushButton:hover {{ background: rgba(67, 160, 71, 1); }}
         """)
         btn_export.clicked.connect(lambda: QMessageBox.information(
             self, "Exportar", f"Pacote de entrega para '{work_name}':\n{fase8_dir}\n\n(pipeline de exportação a implementar)"
@@ -2692,11 +2692,11 @@ class ProjectManager(QWidget):
         btn_approve_all.setToolTip("Aprova automaticamente todas as sugestões com confiança ≥ 80%")
         btn_approve_all.setStyleSheet(_resolve_css("""
             QPushButton {
-                background: rgba(0,200,120,38); color: {Colors.ACCENT_SUCCESS_ALT};
+                background: rgba(0, 200, 120, 38); color: {Colors.ACCENT_SUCCESS_ALT};
                 border: 1px solid {Colors.ACCENT_SUCCESS_ALT}; border-radius: 4px;
                 padding: 3px 10px; font-size: 11px; font-weight: bold;
             }
-            QPushButton:hover { background: rgba(0,200,120,71); }
+            QPushButton:hover { background: rgba(0, 200, 120, 71); }
         """))
 
         btn_reload = QPushButton("↻")
@@ -3011,7 +3011,7 @@ class ProjectManager(QWidget):
 
         card = QFrame()
         if status == 'approved':
-            card_bg = "rgba(0,200,120,15)"
+            card_bg = "rgba(0, 200, 120, 15)"
         else:
             card_bg = Colors.BG_DEEP
         card.setStyleSheet(
@@ -3147,11 +3147,11 @@ class ProjectManager(QWidget):
             btn_ok.setFixedSize(28, 24)
             btn_ok.setStyleSheet(_resolve_css("""
                 QPushButton {
-                    background: rgba(0,200,120,38); color: {Colors.ACCENT_SUCCESS_ALT};
+                    background: rgba(0, 200, 120, 38); color: {Colors.ACCENT_SUCCESS_ALT};
                     border: 1px solid {Colors.ACCENT_SUCCESS_ALT}; border-radius: 4px;
                     font-size: 12px; font-weight: bold; padding: 0;
                 }
-                QPushButton:hover { background: rgba(0,200,120,82); }
+                QPushButton:hover { background: rgba(0, 200, 120, 82); }
             """))
 
             btn_no = QPushButton("✗")
@@ -3159,11 +3159,11 @@ class ProjectManager(QWidget):
             btn_no.setFixedSize(28, 24)
             btn_no.setStyleSheet(_resolve_css("""
                 QPushButton {
-                    background: rgba(255,80,80,31); color: {Colors.ACCENT_DANGER};
+                    background: rgba(255, 80, 80, 31); color: {Colors.ACCENT_DANGER};
                     border: 1px solid {Colors.ACCENT_DANGER}; border-radius: 4px;
                     font-size: 12px; font-weight: bold; padding: 0;
                 }
-                QPushButton:hover { background: rgba(255,80,80,71); }
+                QPushButton:hover { background: rgba(255, 80, 80, 71); }
             """))
 
             sug_cat = row.get('suggested_category', '')
@@ -3522,11 +3522,11 @@ class ProjectManager(QWidget):
         btn_open_hub.setToolTip("Navegar para o Diagnostic Hub para processar recortes")
         btn_open_hub.setStyleSheet(_resolve_css("""
             QPushButton {
-                background: rgba(0,180,180,38); color: {Colors.ACCENT_TEAL};
+                background: rgba(0, 180, 180, 38); color: {Colors.ACCENT_TEAL};
                 border: 1px solid {Colors.ACCENT_TEAL}; border-radius: 4px;
                 padding: 3px 12px; font-size: 11px; font-weight: bold;
             }
-            QPushButton:hover { background: rgba(0,180,180,71); }
+            QPushButton:hover { background: rgba(0, 180, 180, 71); }
         """))
 
         btn_reload_pre = QPushButton("↻")
@@ -3670,7 +3670,7 @@ class ProjectManager(QWidget):
         obra_pre  = row.get('obra_name', self.current_work_name or '')
         status_label_pre, _ = self._get_recorte_status(obra_pre, fname_pre)
         all_ok = "recortes OK" in status_label_pre
-        card_bg = "rgba(0,200,120,13)" if all_ok else Colors.BG_DEEP
+        card_bg = "rgba(0, 200, 120, 13)" if all_ok else Colors.BG_DEEP
         card_border = Colors.ACCENT_SUCCESS_ALT if all_ok else Colors.BORDER_DEFAULT
 
         card = QFrame()
@@ -3704,11 +3704,11 @@ class ProjectManager(QWidget):
         btn_process.setFixedWidth(90)
         btn_process.setStyleSheet(_resolve_css("""
             QPushButton {
-                background: rgba(0,180,180,31); color: {Colors.ACCENT_TEAL};
+                background: rgba(0, 180, 180, 31); color: {Colors.ACCENT_TEAL};
                 border: 1px solid {Colors.ACCENT_TEAL}; border-radius: 4px;
                 font-size: 10px; font-weight: bold; padding: 2px 6px;
             }
-            QPushButton:hover { background: rgba(0,180,180,64); }
+            QPushButton:hover { background: rgba(0, 180, 180, 64); }
         """))
 
         card_layout.addWidget(lbl_file, 1)
@@ -3809,11 +3809,11 @@ class ProjectManager(QWidget):
         btn_open_reverse.setToolTip("Navegar para o Diagnostic Reverse Hub para processar eng. reversa")
         btn_open_reverse.setStyleSheet(_resolve_css("""
             QPushButton {
-                background: rgba(90,40,180,38); color: {Colors.ACCENT_PRIMARY};
+                background: rgba(90, 40, 180, 38); color: {Colors.ACCENT_PRIMARY};
                 border: 1px solid {Colors.ACCENT_PRIMARY}; border-radius: 4px;
                 padding: 3px 12px; font-size: 11px; font-weight: bold;
             }
-            QPushButton:hover { background: rgba(90,40,180,71); }
+            QPushButton:hover { background: rgba(90, 40, 180, 71); }
         """))
 
         btn_reload_proj = QPushButton("↻")
@@ -4051,11 +4051,11 @@ class ProjectManager(QWidget):
             btn_recortar.setFixedWidth(90)
             btn_recortar.setStyleSheet(_resolve_css("""
                 QPushButton {
-                    background: rgba(90,40,180,31); color: {Colors.ACCENT_PRIMARY};
+                    background: rgba(90, 40, 180, 31); color: {Colors.ACCENT_PRIMARY};
                     border: 1px solid {Colors.ACCENT_PRIMARY}; border-radius: 4px;
                     font-size: 10px; font-weight: bold; padding: 2px 6px;
                 }
-                QPushButton:hover { background: rgba(90,40,180,71); }
+                QPushButton:hover { background: rgba(90, 40, 180, 71); }
             """))
             _fp = row.get('file_path', '')
             _on = row.get('obra_name', self.current_work_name or '')
@@ -4181,11 +4181,11 @@ class ProjectManager(QWidget):
         btn_open_hub_det.setToolTip("Abrir Diagnostic Hub para processar todos os detalhamentos")
         btn_open_hub_det.setStyleSheet(_resolve_css("""
             QPushButton {
-                background: rgba(230,180,0,38); color: {Colors.ACCENT_WARNING};
+                background: rgba(230, 180, 0, 38); color: {Colors.ACCENT_WARNING};
                 border: 1px solid {Colors.ACCENT_WARNING}; border-radius: 4px;
                 padding: 3px 12px; font-size: 11px; font-weight: bold;
             }
-            QPushButton:hover { background: rgba(230,180,0,71); }
+            QPushButton:hover { background: rgba(230, 180, 0, 71); }
         """))
 
         btn_reload_det = QPushButton("↻")
@@ -4359,7 +4359,7 @@ class ProjectManager(QWidget):
             lbl_ext.setFixedWidth(32)
             lbl_ext.setAlignment(Qt.AlignCenter)
             lbl_ext.setStyleSheet(
-                "background: rgba(120,120,120,46); color: #aaa;"
+                "background: rgba(120, 120, 120, 46); color: #aaa;"
                 " font-size: 9px; border-radius: 3px; border: none; padding: 1px 2px;"
             )
         else:
@@ -5278,13 +5278,13 @@ class ProjectManager(QWidget):
                 version_label = QLabel()
                 if not version_val:
                     version_text = "⚠️ Pendente Scan"
-                    version_style = f"color: {Colors.ACCENT_WARNING}; background: rgba(255,152,0,31); border: 1px solid {Colors.ACCENT_WARNING};"
+                    version_style = f"color: {Colors.ACCENT_WARNING}; background: rgba(255, 152, 0, 31); border: 1px solid {Colors.ACCENT_WARNING};"
                 elif version_val == "Desconhecido":
                     version_text = "❓ Desconhecido"
                     version_style = f"color: {Colors.TEXT_DIM}; background: transparent; border: 1px solid {Colors.BORDER_DEFAULT};"
                 else:
                     version_text = f"⚙️ {version_val}"
-                    version_style = f"color: {Colors.ACCENT_SUCCESS_ALT}; background: rgba(0,204,102,26); border: 1px solid {Colors.ACCENT_SUCCESS_ALT};"
+                    version_style = f"color: {Colors.ACCENT_SUCCESS_ALT}; background: rgba(0, 204, 102, 26); border: 1px solid {Colors.ACCENT_SUCCESS_ALT};"
                 
                 version_label.setText(version_text)
                 version_label.setStyleSheet(f"""
@@ -5309,7 +5309,7 @@ class ProjectManager(QWidget):
             btn_open.setToolTip("Abrir documento")
             btn_open.setStyleSheet(_resolve_css("""
                 QPushButton {
-                    background: rgba(26,50,75,1); color: {Colors.ACCENT_PRIMARY}; border: 1px solid {Colors.ACCENT_PRIMARY};
+                    background: rgba(26, 50, 75, 1); color: {Colors.ACCENT_PRIMARY}; border: 1px solid {Colors.ACCENT_PRIMARY};
                     border-radius: 3px; padding: 1px 8px; font-size: 10px; font-weight: bold;
                 }
                 QPushButton:hover { background: {Colors.ACCENT_PRIMARY}; color: {Colors.BG_DEEP}; }
@@ -5328,7 +5328,7 @@ class ProjectManager(QWidget):
                  btn_quick_convert.setToolTip("Conversão rápida para DXF 2018 ASCII")
                  btn_quick_convert.setStyleSheet(_resolve_css("""
                     QPushButton {
-                        background: rgba(26,77,46,1); color: {Colors.ACCENT_SUCCESS_ALT}; border: 1px solid {Colors.ACCENT_SUCCESS_ALT};
+                        background: rgba(26, 77, 46, 1); color: {Colors.ACCENT_SUCCESS_ALT}; border: 1px solid {Colors.ACCENT_SUCCESS_ALT};
                         border-radius: 3px; padding: 1px 8px; font-size: 10px; font-weight: bold;
                     }
                     QPushButton:hover { background: {Colors.ACCENT_SUCCESS_ALT}; color: {Colors.BG_DEEP}; }
@@ -5343,7 +5343,7 @@ class ProjectManager(QWidget):
                  btn_convert.setCursor(Qt.PointingHandCursor)
                  btn_convert.setStyleSheet(_resolve_css("""
                     QToolButton {
-                        background: rgba(26,50,75,1); color: {Colors.ACCENT_PRIMARY}; border: 1px solid {Colors.ACCENT_PRIMARY};
+                        background: rgba(26, 50, 75, 1); color: {Colors.ACCENT_PRIMARY}; border: 1px solid {Colors.ACCENT_PRIMARY};
                         border-radius: 3px; padding: 1px 8px; font-size: 10px; font-weight: bold;
                     }
                     QToolButton::menu-indicator { width: 0; }
@@ -5404,7 +5404,7 @@ class ProjectManager(QWidget):
             btn_delete.setToolTip("Excluir documento")
             btn_delete.setStyleSheet(_resolve_css("""
                 QPushButton {
-                    background: rgba(58,28,28,1); color: {Colors.ACCENT_DANGER}; border: 1px solid {Colors.ACCENT_DANGER};
+                    background: rgba(58, 28, 28, 1); color: {Colors.ACCENT_DANGER}; border: 1px solid {Colors.ACCENT_DANGER};
                     border-radius: 3px; font-weight: bold; font-size: 10px;
                 }
                 QPushButton:hover { background: {Colors.ACCENT_DANGER}; color: {Colors.TEXT_BRIGHT}; }

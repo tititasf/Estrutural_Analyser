@@ -207,7 +207,7 @@ class InterpretationDialog(QDialog):
         self.txt_patterns_na = QPlainTextEdit()
         self.txt_patterns_na.setPlaceholderText("Descreva quando este campo deve ser ignorado ou não se aplica...")
         self.txt_patterns_na.setPlainText(current_patterns_na)
-        self.txt_patterns_na.setStyleSheet("color: rgba(255,170,170,1);") # Leve tom avermelhado para diferenciar/alertar use
+        self.txt_patterns_na.setStyleSheet("color: rgba(255, 170, 170, 1);") # Leve tom avermelhado para diferenciar/alertar use
 
         layout.addWidget(lbl_patterns_na)
         layout.addWidget(self.txt_patterns_na)

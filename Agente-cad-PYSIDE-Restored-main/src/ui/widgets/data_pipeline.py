@@ -38,6 +38,8 @@ class DiamondNode(QWidget):
         super().mousePressEvent(event)
 
     def paintEvent(self, event):
+        if self.width() <= 0 or self.height() <= 0:
+            return
         painter = QPainter(self)
         painter.setRenderHint(QPainter.Antialiasing)
         
@@ -152,6 +154,8 @@ class PipelineConnector(QWidget):
         self.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
 
     def paintEvent(self, event):
+        if self.width() <= 0 or self.height() <= 0:
+            return
         painter = QPainter(self)
         painter.setRenderHint(QPainter.Antialiasing)
         

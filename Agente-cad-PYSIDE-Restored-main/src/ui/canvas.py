@@ -795,8 +795,8 @@ class CADCanvas(QGraphicsView):
         self.toolbar.setStyleSheet("""
             QWidget#CADToolbar {
                 background: qlineargradient(x1:0,y1:0,x2:0,y2:1,
-                    stop:0 rgba(24,24,30,255), stop:1 rgba(16,16,20,255));
-                border-bottom: 1px solid rgba(0,188,212,45);
+                    stop:0 rgba(24, 24, 30, 255), stop:1 rgba(16, 16, 20, 255));
+                border-bottom: 1px solid rgba(0, 188, 212, 45);
             }
 
             /* ── Base: ghost ── */
@@ -804,58 +804,58 @@ class CADCanvas(QGraphicsView):
                 background: transparent;
                 border: 1px solid transparent;
                 border-radius: 5px;
-                color: rgba(160,165,185,255);
+                color: rgba(160, 165, 185, 255);
                 font-family: 'Segoe UI Semibold', 'Segoe UI', Arial;
                 font-size: 11px;
                 font-weight: 600;
-                letter-spacing: 0.4px;
+                
                 padding: 0px 12px;
                 min-width: 68px;
                 height: 28px;
             }
             QPushButton:hover {
-                background: rgba(255,255,255,18);
-                border: 1px solid rgba(255,255,255,36);
-                color: rgba(230,235,255,255);
+                background: rgba(255, 255, 255, 18);
+                border: 1px solid rgba(255, 255, 255, 36);
+                color: rgba(230, 235, 255, 255);
             }
             QPushButton:pressed {
-                background: rgba(255,255,255,10);
+                background: rgba(255, 255, 255, 10);
             }
 
             /* ── Ferramenta ativa ── */
             QPushButton[active="true"] {
-                background: rgba(0,188,212,41);
-                border: 1px solid rgba(0,188,212,140);
+                background: rgba(0, 188, 212, 41);
+                border: 1px solid rgba(0, 188, 212, 140);
                 color: #00d4ff;
             }
             QPushButton[active="true"]:hover {
-                background: rgba(0,188,212,61);
-                border: 1px solid rgba(0,188,212,191);
+                background: rgba(0, 188, 212, 61);
+                border: 1px solid rgba(0, 188, 212, 191);
             }
 
             /* ── EXCLUIR (danger) ── */
             QPushButton#danger_btn {
-                color: rgba(200,80,80,200);
+                color: rgba(200, 80, 80, 200);
             }
             QPushButton#danger_btn:hover {
-                background: rgba(244,67,54,46);
-                border: 1px solid rgba(244,67,54,140);
+                background: rgba(244, 67, 54, 46);
+                border: 1px solid rgba(244, 67, 54, 140);
                 color: #ff6b6b;
             }
 
             /* ── ORTHO ativo — roxo ── */
             QPushButton#ortho_btn[active="true"] {
-                background: rgba(160,112,255,46);
-                border: 1px solid rgba(160,112,255,140);
+                background: rgba(160, 112, 255, 46);
+                border: 1px solid rgba(160, 112, 255, 140);
                 color: #b388ff;
             }
             QPushButton#ortho_btn[active="true"]:hover {
-                background: rgba(160,112,255,66);
+                background: rgba(160, 112, 255, 66);
             }
 
             /* ── Separador vertical ── */
             QFrame#vsep {
-                background: rgba(255,255,255,23);
+                background: rgba(255, 255, 255, 23);
                 min-width: 1px;
                 max-width: 1px;
                 min-height: 18px;

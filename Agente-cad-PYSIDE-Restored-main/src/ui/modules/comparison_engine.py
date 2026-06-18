@@ -948,6 +948,8 @@ class DXFVectorView(QWidget):
     # ── Paint — puro vetorial com viewport culling ───────────────────
 
     def paintEvent(self, event):
+        if self.width() <= 0 or self.height() <= 0:
+            return
         p = QPainter(self)
         p.setRenderHint(QPainter.Antialiasing)
         p.fillRect(self.rect(), QColor(self._bg))
@@ -1254,7 +1256,7 @@ class Fase8Panel(QFrame):
             QPushButton#certify {{
                 background: {Colors.ACCENT_SUCCESS}; font-size: {Fonts.SIZE_LG}; padding: 7px 12px;
             }}
-            QPushButton#certify:hover {{ background: rgba(67,160,71,1); }}
+            QPushButton#certify:hover {{ background: rgba(67, 160, 71, 1); }}
             QComboBox {{
                 background: {Colors.BG_CARD}; color: {Colors.TEXT_PRIMARY}; border: 1px solid {Colors.BORDER_INPUT};
                 border-radius: {Radius.SM}; padding: 3px 6px; font-size: {Fonts.SIZE_MD};
@@ -1930,7 +1932,7 @@ class Fase8Panel(QFrame):
         self._comp_score_label = QLabel("—")
         self._comp_score_label.setStyleSheet(
             f"color: {Colors.ACCENT_MINT}; font-size: 10px; padding: 2px 4px;"
-            "background: rgba(0,0,0,76); border-radius: 3px;"
+            "background: rgba(0, 0, 0, 76); border-radius: 3px;"
         )
         vlay.addWidget(self._comp_score_label)
 
@@ -1946,10 +1948,10 @@ class Fase8Panel(QFrame):
             QTableWidget {{
                 background: {Colors.BG_CARD}; color: {Colors.TEXT_PRIMARY};
                 border: 1px solid {Colors.BORDER_DEFAULT}; font-size: 10px;
-                gridline-color: rgba(255,255,255,18);
+                gridline-color: rgba(255, 255, 255, 18);
             }}
             QHeaderView::section {{
-                background: rgba(20,40,40,1); color: {Colors.TEXT_BRIGHT};
+                background: rgba(20, 40, 40, 1); color: {Colors.TEXT_BRIGHT};
                 border: 1px solid {Colors.BORDER_DEFAULT}; padding: 2px;
                 font-size: 9px; font-weight: bold;
             }}
@@ -1984,7 +1986,7 @@ class Fase8Panel(QFrame):
         btn_load_all = QPushButton("📊 Calcular Todos")
         btn_load_all.setFixedHeight(24)
         btn_load_all.setStyleSheet(
-            f"background: rgba(0,60,80,1); color: {Colors.ACCENT_TEAL};"
+            f"background: rgba(0, 60, 80, 1); color: {Colors.ACCENT_TEAL};"
             "border: 1px solid #006666; border-radius: 3px; font-size: 10px;"  # hardcoded-ok
         )
         btn_load_all.clicked.connect(self._on_comp_load_all_scores)
@@ -1992,7 +1994,7 @@ class Fase8Panel(QFrame):
         self._btn_export_audit = QPushButton("⬇ Exportar Auditoria")
         self._btn_export_audit.setFixedHeight(24)
         self._btn_export_audit.setStyleSheet(
-            f"background: rgba(60,40,0,1); color: {Colors.ACCENT_WARNING};"
+            f"background: rgba(60, 40, 0, 1); color: {Colors.ACCENT_WARNING};"
             "border: 1px solid #aa6600; border-radius: 3px; font-size: 10px;"  # hardcoded-ok
         )
         self._btn_export_audit.clicked.connect(self._on_export_audit)
@@ -2264,6 +2266,8 @@ class ZoomableImageLabel(QWidget):
     # ── Paint ────────────────────────────────────────────────────────
 
     def paintEvent(self, event):
+        if self.width() <= 0 or self.height() <= 0:
+            return
         p = QPainter(self)
         p.setRenderHint(QPainter.SmoothPixmapTransform)
         p.setRenderHint(QPainter.Antialiasing)
@@ -2496,7 +2500,7 @@ class LevelColumn(QFrame):
 
         lbl_desc = QLabel(descricao.replace('\n', ' · '))
         lbl_desc.setStyleSheet(
-            "color: rgba(255,255,255,110); font-size: 8px; background: transparent;"
+            "color: rgba(255, 255, 255, 110); font-size: 8px; background: transparent;"
         )
         left_lay.addWidget(lbl_desc)
 
@@ -2909,12 +2913,12 @@ class NavSidebar(QFrame):
         sep.setStyleSheet(f"color: {Colors.BORDER_DEFAULT};")
         lay.addWidget(sep)
 
-        self.btn_analise = _mbtn("▶ Análise Geral", Colors.ACCENT_SUCCESS, "rgba(67,160,71,1)")
+        self.btn_analise = _mbtn("▶ Análise Geral", Colors.ACCENT_SUCCESS, "rgba(67, 160, 71, 1)")
         self.btn_analise.setToolTip("Processa o DXF estrutural N1 e preenche a lista de itens")
         self.btn_analise.clicked.connect(lambda: self.analise_requested.emit())
         lay.addWidget(self.btn_analise)
 
-        self.btn_fase4 = _mbtn("⚙ Fase 4 — Sync", Colors.ACCENT_WARNING, "rgba(245,124,0,1)")
+        self.btn_fase4 = _mbtn("⚙ Fase 4 — Sync", Colors.ACCENT_WARNING, "rgba(245, 124, 0, 1)")
         self.btn_fase4.setToolTip("Executa motor_fase4.py para o pavimento selecionado")
         self.btn_fase4.clicked.connect(lambda: self.fase4_requested.emit())
         lay.addWidget(self.btn_fase4)

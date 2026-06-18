@@ -1,0 +1,253 @@
+# -*- coding: utf-8 -*-
+"""
+roundtrip_ficha.py - Gate G1: round-trip N2 -> N4 -> N2prime -> diff.
+
+Pipeline:
+    1. Materializar ficha N2 (DB) -> JSON para o gerador
+    2. Gerar DXF N4
+    3. Re-extrair ficha N2prime do DXF N4 usando o motor reverso correspondente
+    4. Diff campo a campo N2 vs N2prime com tolerancias
+
+PASS do gate: todos os campos nao-nulos identicos dentro das tolerancias
+  - dimensoes (float): +-0.5 cm
+  - contagens (int): exato
+  - textos (str): exato
+  - listas/dicts: recursivo
+
+Uso:
+    python roundtrip_ficha.py PIL P1
+    python roundtrip_ficha.py PIL --todos
+"""
+
+import argparse
+import importlib
+import json
+import math
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).parent))
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
+from arete_config import (
+    PAV_13, MOTOR_FUNC, REPO_ROOT,
+    TOL_GEOMETRIA_PCT,
+)
+from ficha_adapter import (
+    query_fichas, query_ficha_item,
+    materializar_item, rodar_gerador, get_output_dxf_path,
+)
+
+# Tolerancia para campos dimensionais (cm)
+TOL_DIM_CM = 0.5
+
+
+def _load_motor(classe: str):
+    """Importa e retorna a funcao de extracao do motor reverso."""
+    mod_name, func_name = MOTOR_FUNC[classe]
+    scripts_dir = str(REPO_ROOT / "scripts")
+    if scripts_dir not in sys.path:
+        sys.path.insert(0, scripts_dir)
+    mod = importlib.import_module(mod_name)
+    return getattr(mod, func_name)
+
+
+def re_extrair(dxf_path: Path, classe: str,
+               elemento_id: str, obra_root: Path) -> dict:
+    """
+    Re-extrai ficha N2prime do DXF N4 gerado.
+    obra_root = adapter dir (tmp/PIL_P1); motor usa obra_root/Fase-4_Sincronizacao
+    """
+    func = _load_motor(classe)
+    try:
+        result = func(str(dxf_path), elemento_id, obra_root=str(obra_root))
+        if not result:
+            result = {}
+    except Exception as exc:
+        result = {"_extracao_erro": str(exc)}
+    return result
+
+
+def _normalizar(v):
+    if isinstance(v, float) and math.isnan(v):
+        return None
+    return v
+
+
+def diff_campos(n2: dict, n2_prime: dict, tol_dim: float = TOL_DIM_CM) -> dict:
+    """
+    Compara campos estruturais de N2 vs N2prime.
+    Ignora chaves de metadado: _er_meta, _sa_meta, _confianca, _extracao_*.
+    """
+    META_KEYS = {"_er_meta", "_sa_meta", "_confianca", "_confianca_extracao",
+                 "_extracao_erro", "dxf_validation", "fase4_vs_dxf_gaps"}
+
+    diffs = []
+    total = 0
+
+    def _cmp_val(campo, v_n2, v_n2p):
+        nonlocal total
+        v_n2  = _normalizar(v_n2)
+        v_n2p = _normalizar(v_n2p)
+        if v_n2 is None:
+            return
+        total += 1
+        if isinstance(v_n2, (int, float)) and isinstance(v_n2p, (int, float)):
+            if abs(float(v_n2) - float(v_n2p)) > tol_dim:
+                diffs.append({
+                    "campo": campo,
+                    "n2": v_n2, "n2p": v_n2p,
+                    "delta": round(float(v_n2p) - float(v_n2), 4),
+                    "tipo": "dim",
+                })
+        elif isinstance(v_n2, str):
+            if str(v_n2).strip() != str(v_n2p or "").strip():
+                diffs.append({"campo": campo, "n2": v_n2, "n2p": v_n2p, "tipo": "str"})
+        elif isinstance(v_n2, list):
+            if not isinstance(v_n2p, list) or len(v_n2) != len(v_n2p):
+                diffs.append({
+                    "campo": campo,
+                    "n2_len": len(v_n2),
+                    "n2p_len": len(v_n2p) if isinstance(v_n2p, list) else "?",
+                    "tipo": "list_len",
+                })
+            elif all(isinstance(x, dict) for x in v_n2):
+                for i, (a, b) in enumerate(zip(v_n2, v_n2p)):
+                    for k in a:
+                        if k not in META_KEYS:
+                            _cmp_val(f"{campo}[{i}].{k}", a.get(k), b.get(k) if isinstance(b, dict) else None)
+        elif isinstance(v_n2, dict):
+            if isinstance(v_n2p, dict):
+                for k in v_n2:
+                    if k not in META_KEYS:
+                        _cmp_val(f"{campo}.{k}", v_n2.get(k), v_n2p.get(k))
+            else:
+                diffs.append({"campo": campo, "n2": "dict", "n2p": type(v_n2p).__name__, "tipo": "type"})
+
+    for campo, val in n2.items():
+        if campo in META_KEYS:
+            continue
+        _cmp_val(campo, val, n2_prime.get(campo))
+
+    iguais = total - len(diffs)
+    return {
+        "pass": len(diffs) == 0 and total > 0,
+        "total": total,
+        "iguais": iguais,
+        "diffs": diffs,
+    }
+
+
+def roundtrip_item(classe: str, elemento_id: str,
+                   pavimento: str = PAV_13,
+                   verbose: bool = True) -> dict:
+    result = {
+        "gate": "G1",
+        "resultado": "FAIL",
+        "classe": classe,
+        "elemento_id": elemento_id,
+        "campos_comparados": 0,
+        "diffs": [],
+        "n4_path": None,
+        "log_gerador": "",
+        "erro": "",
+    }
+
+    row = query_ficha_item(classe, elemento_id, pavimento)
+    if row is None:
+        result["resultado"] = "BLOCKED"
+        result["erro"] = f"Ficha nao encontrada: {classe}/{elemento_id}/{pavimento}"
+        return result
+
+    n2 = row["campos_json"]
+    if not n2:
+        result["resultado"] = "BLOCKED"
+        result["erro"] = "campos_json vazio"
+        return result
+
+    obra_dir, _ = materializar_item(row)
+    ok_gen, log = rodar_gerador(obra_dir, classe, elemento_id)
+    result["log_gerador"] = log
+
+    if not ok_gen:
+        result["erro"] = "Gerador falhou"
+        return result
+
+    dxf_path = get_output_dxf_path(obra_dir, classe, elemento_id)
+    if not dxf_path.exists():
+        result["erro"] = f"DXF nao gerado: {dxf_path}"
+        return result
+
+    result["n4_path"] = str(dxf_path)
+
+    n2_prime = re_extrair(dxf_path, classe, elemento_id, obra_dir)
+
+    if "_extracao_erro" in n2_prime:
+        result["erro"] = f"Re-extracao falhou: {n2_prime['_extracao_erro']}"
+        return result
+
+    cmp = diff_campos(n2, n2_prime)
+    result["campos_comparados"] = cmp["total"]
+    result["diffs"]             = cmp["diffs"]
+    result["resultado"]         = "PASS" if cmp["pass"] else "FAIL"
+
+    if verbose:
+        status = "PASS" if cmp["pass"] else f"FAIL ({len(cmp['diffs'])} diffs)"
+        print(f"  G1 {classe}/{elemento_id}: {status}  [{cmp['iguais']}/{cmp['total']} campos iguais]")
+        if cmp["diffs"]:
+            for d in cmp["diffs"][:5]:
+                print(f"    delta {d['campo']}: N2={d.get('n2')} N2p={d.get('n2p')} [{d['tipo']}]")
+            if len(cmp["diffs"]) > 5:
+                print(f"    ... +{len(cmp['diffs'])-5} diffs")
+
+    return result
+
+
+def roundtrip_batch(classe: str, elemento_ids: list,
+                    pavimento: str = PAV_13) -> list:
+    n = len(elemento_ids)
+    resultados = []
+    for i, eid in enumerate(elemento_ids, 1):
+        print(f"[{i}/{n}] G1 {classe}/{eid} ...", end=" ", flush=True)
+        r = roundtrip_item(classe, eid, pavimento, verbose=False)
+        print(r["resultado"])
+        resultados.append(r)
+    return resultados
+
+
+def roundtrip_todos(classe: str, pavimento: str = PAV_13) -> list:
+    rows = query_fichas(classe, pavimento)
+    ids  = [r["elemento_id"] for r in rows]
+    print(f"Round-trip G1: {len(ids)} itens de {classe}/{pavimento}")
+    return roundtrip_batch(classe, ids, pavimento)
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Round-trip G1 - Arete AR-0.2")
+    parser.add_argument("classe", help="PIL|LV|FV|LAJ")
+    parser.add_argument("elementos", nargs="*", help="IDs dos elementos. Omitir com --todos.")
+    parser.add_argument("--todos",  action="store_true")
+    parser.add_argument("--pav",    default=PAV_13)
+    parser.add_argument("--json",   action="store_true")
+    args = parser.parse_args()
+
+    if args.todos:
+        rs = roundtrip_todos(args.classe, args.pav)
+    elif args.elementos:
+        rs = roundtrip_batch(args.classe, args.elementos, args.pav)
+    else:
+        parser.error("Forneca IDs ou use --todos")
+
+    n_pass = sum(1 for r in rs if r["resultado"] == "PASS")
+    n_fail = sum(1 for r in rs if r["resultado"] == "FAIL")
+    n_blk  = sum(1 for r in rs if r["resultado"] == "BLOCKED")
+    print(f"G1 {args.classe}: {n_pass}P / {n_fail}F / {n_blk}B  total={len(rs)}")
+
+    if args.json:
+        print(json.dumps(rs, indent=2, ensure_ascii=False, default=str))
+    elif n_fail:
+        print("FAILs:")
+        for r in rs:
+            if r["resultado"] == "FAIL":
+                nd = len(r["diffs"])
+                print(f"  {r['elemento_id']}: {nd} diffs -- {r['diffs'][:2]}")

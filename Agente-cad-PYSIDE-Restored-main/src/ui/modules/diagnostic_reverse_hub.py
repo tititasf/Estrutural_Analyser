@@ -27,6 +27,15 @@ from PySide6.QtGui import QColor
 from src.ui.theme import Colors, Fonts
 from src.ui.canvas import CADCanvas
 
+try:
+    from src.core.engrev_laj_recorte_learning_store import (
+        ensure_engrev_laj_recorte_learning_schema as _engrev_laj_recorte_learning_ensure_schema,
+        record_engrev_laj_recorte_learning_event as _record_engrev_laj_recorte_learning_event,
+    )
+except Exception:  # pragma: no cover - optional instrumentation
+    _engrev_laj_recorte_learning_ensure_schema = None
+    _record_engrev_laj_recorte_learning_event = None
+
 # ── Constantes ──────────────────────────────────────────────────────────────
 DADOS_OBRAS_ROOT = Path("D:/Agente-cad-PYSIDE/DADOS-OBRAS")
 DB_PATH = "D:/Agente-cad-PYSIDE/project_data.vision"
@@ -63,6 +72,30 @@ def _infer_cls_from_filename(fname: str) -> str:
     if _re.search(r'[-\s]PL[-\s.]|[-\s]PL$', stem): return "PIL"
     return "OUTROS"
 
+def _obra_name_from_path(path: str | Path) -> str:
+    """Resolve obra_name from a path under DADOS-OBRAS."""
+    try:
+        p = Path(path).resolve()
+        root = DADOS_OBRAS_ROOT.resolve()
+        rel = p.relative_to(root)
+        first = rel.parts[0] if rel.parts else ""
+        return first if first.startswith("Obra_") else ""
+    except Exception:
+        parts = Path(path).parts
+        for i, part in enumerate(parts):
+            if part == "DADOS-OBRAS" and i + 1 < len(parts):
+                cand = parts[i + 1]
+                return cand if cand.startswith("Obra_") else ""
+    return ""
+
+def _resolve_obra_name(candidate: str | None = None, recorte_path: str | Path | None = None) -> str:
+    """Never persist an empty obra_name when a recorte path identifies the obra."""
+    if candidate and str(candidate).strip():
+        return str(candidate).strip()
+    if recorte_path:
+        return _obra_name_from_path(recorte_path)
+    return ""
+
 # ── DB migration — garante colunas novas ─────────────────────────────────────
 
 def _db_ensure_schema():
@@ -74,6 +107,11 @@ def _db_ensure_schema():
             conn.execute("ALTER TABLE reverse_eng_recortes ADD COLUMN confidence REAL DEFAULT NULL")
         conn.commit()
         conn.close()
+    except Exception:
+        pass
+    try:
+        if _engrev_laj_recorte_learning_ensure_schema:
+            _engrev_laj_recorte_learning_ensure_schema()
     except Exception:
         pass
 
@@ -105,6 +143,115 @@ def _db_execute(sql: str, params: tuple = ()) -> bool:
         return True
     except Exception:
         return False
+
+
+def _record_laj_learning_event(
+    event_type: str,
+    *,
+    obra_name: str,
+    elemento_id: str,
+    recorte_path: str,
+    classe: str = "LAJ",
+    notes: str | None = None,
+    features_extra: dict | None = None,
+) -> None:
+    """Registra eventos LAJ sem alterar o fluxo nem treinar automaticamente."""
+    if classe != "LAJ" or not _record_engrev_laj_recorte_learning_event:
+        return
+    try:
+        source_path = recorte_path if event_type != "human_approved" else None
+        approved_path = recorte_path if event_type == "human_approved" else None
+        _record_engrev_laj_recorte_learning_event(
+            DB_PATH,
+            event_type=event_type,
+            obra_name=obra_name,
+            classe=classe,
+            elemento_id=elemento_id,
+            source_recorte_path=source_path,
+            approved_recorte_path=approved_path,
+            notes=notes,
+            features_extra=features_extra,
+        )
+    except Exception:
+        pass
+
+
+def _migrate_fichas_unique_constraint() -> None:
+    """Garante que reverse_eng_fichas tem UNIQUE(obra_name, pavimento, classe, elemento_id).
+
+    SQLite não suporta ALTER TABLE para adicionar UNIQUE — recriamos a tabela.
+    Roda uma vez no import; se constraint já correto, retorna imediatamente.
+    """
+    import logging as _log
+    _logger = _log.getLogger(__name__)
+    try:
+        conn = sqlite3.connect(DB_PATH)
+        # Verificar se tabela existe
+        tbl = conn.execute(
+            "SELECT name FROM sqlite_master WHERE type='table' AND name='reverse_eng_fichas'"
+        ).fetchone()
+        if not tbl:
+            conn.close()
+            return
+
+        # Checar se UNIQUE já inclui 'classe'
+        idx_list = conn.execute("PRAGMA index_list('reverse_eng_fichas')").fetchall()
+        for row in idx_list:
+            idx_name = row[1]
+            unique = row[2]
+            if unique:
+                cols = {c[2] for c in conn.execute(f"PRAGMA index_info('{idx_name}')").fetchall()}
+                if 'classe' in cols:
+                    conn.close()
+                    return  # Já OK
+
+        # Recriar com constraint correto (SQLite: drop + rename pattern)
+        _logger.info("Migrando reverse_eng_fichas: adicionando 'classe' ao UNIQUE constraint...")
+        conn.executescript("""
+            BEGIN;
+            CREATE TABLE IF NOT EXISTS _ref_fichas_new (
+                id              INTEGER PRIMARY KEY,
+                projeto_id      INTEGER,
+                obra_name       TEXT NOT NULL DEFAULT '',
+                pavimento       TEXT NOT NULL DEFAULT '',
+                classe          TEXT NOT NULL DEFAULT '',
+                elemento_id     TEXT NOT NULL DEFAULT '',
+                campos_json     TEXT NOT NULL DEFAULT '{}',
+                recorte_path    TEXT,
+                confianca       REAL DEFAULT 0.0,
+                status          TEXT DEFAULT 'draft',
+                aprovado_at     DATETIME,
+                rag_indexed     INTEGER DEFAULT 0,
+                created_at      DATETIME DEFAULT CURRENT_TIMESTAMP,
+                updated_at      DATETIME,
+                UNIQUE(obra_name, pavimento, classe, elemento_id)
+            );
+            INSERT OR IGNORE INTO _ref_fichas_new
+                SELECT id, projeto_id,
+                       COALESCE(obra_name,''), COALESCE(pavimento,''),
+                       COALESCE(classe,''),    COALESCE(elemento_id,''),
+                       COALESCE(campos_json,'{}'), recorte_path, COALESCE(confianca,0),
+                       COALESCE(status,'draft'), aprovado_at, COALESCE(rag_indexed,0),
+                       created_at, updated_at
+                FROM reverse_eng_fichas;
+            DROP TABLE reverse_eng_fichas;
+            ALTER TABLE _ref_fichas_new RENAME TO reverse_eng_fichas;
+            CREATE INDEX IF NOT EXISTS idx_ref_obra_classe
+                ON reverse_eng_fichas(obra_name, classe);
+            COMMIT;
+        """)
+        conn.close()
+        _logger.info("Migração reverse_eng_fichas concluída.")
+    except Exception as ex:
+        import logging as _log2
+        _log2.getLogger(__name__).warning("Migração reverse_eng_fichas falhou: %s", ex)
+
+
+# Executar migração na carga do módulo (idempotente — detecta se já migrado)
+try:
+    _migrate_fichas_unique_constraint()
+except Exception:
+    pass
 
 
 # ── Painel Esquerdo ──────────────────────────────────────────────────────────
@@ -420,6 +567,500 @@ class _DXFRenderProxy(QObject):
             self._canvas.set_loading(False)
 
 
+# ── Renderizador de Ficha Granular ───────────────────────────────────────────
+
+def _render_ficha_html(data: dict, classe: str = '', confianca: float = 0.0, elemento_id: str = '') -> str:
+    """Gera HTML rico para exibição de ficha granular N2."""
+    if not classe:
+        er_meta = data.get('_er_meta', {}) if isinstance(data.get('_er_meta'), dict) else {}
+        classe = str(data.get('classe', er_meta.get('classe', '')))
+    if not confianca:
+        confianca = float(data.get('_confianca', 0.0))
+    if not elemento_id:
+        elemento_id = str(data.get('name', data.get('nome', data.get('number', data.get('numero', '')))))
+
+    if confianca >= 0.85:
+        conf_color, conf_label = '#16a34a', f'{confianca*100:.0f}%'
+    elif confianca >= 0.6:
+        conf_color, conf_label = '#d97706', f'{confianca*100:.0f}%'
+    elif confianca > 0.0:
+        conf_color, conf_label = '#dc2626', f'{confianca*100:.0f}%'
+    else:
+        conf_color, conf_label = '#64748b', 'N/A'
+
+    cls_colors = {'PIL': '#3b82f6', 'LV': '#8b5cf6', 'FV': '#06b6d4', 'LAJ': '#10b981'}
+    cls_color = cls_colors.get(str(classe).upper(), '#64748b')
+
+    def _sec(title: str, kv: dict, color: str = '#3b82f6') -> str:
+        if not kv:
+            return ''
+        rows = ''
+        for k, v in kv.items():
+            vstr = json.dumps(v, ensure_ascii=False) if isinstance(v, (dict, list)) else str(v)
+            rows += (f'<tr><td style="color:#94a3b8;padding:2px 8px;white-space:nowrap;'
+                     f'font-size:10px;">{k}</td>'
+                     f'<td style="color:#e2e8f0;padding:2px 8px;font-size:10px;">{vstr}</td></tr>')
+        return (f'<div style="background:{color}22;color:{color};padding:3px 8px;margin-top:7px;'
+                f'border-left:3px solid {color};font-size:9px;text-transform:uppercase;'
+                f'">{title}</div>'
+                f'<table width="100%" style="border-collapse:collapse;">{rows}</table>')
+
+    def _sec_list(title: str, items: list, color: str = '#f59e0b') -> str:
+        if not items:
+            return ''
+        if items and isinstance(items[0], dict):
+            cols = list(items[0].keys())
+            hdrs = ''.join(f'<th style="color:#94a3b8;padding:2px 6px;border-bottom:1px solid #30363d;'
+                           f'text-align:left;font-size:9px;">{c}</th>' for c in cols)
+            drows = ''
+            for item in items:
+                drows += '<tr>' + ''.join(
+                    f'<td style="color:#e2e8f0;padding:2px 6px;border-bottom:1px solid #21262d;'
+                    f'font-size:10px;">{item.get(c, "")}</td>' for c in cols
+                ) + '</tr>'
+            tbl = f'<table width="100%" style="border-collapse:collapse;"><tr>{hdrs}</tr>{drows}</table>'
+        else:
+            vals = ', '.join(str(x) for x in items[:30])
+            if len(items) > 30:
+                vals += f' … ({len(items)} total)'
+            tbl = f'<div style="color:#e2e8f0;padding:4px 8px;font-size:10px;">{vals}</div>'
+        return (f'<div style="background:{color}22;color:{color};padding:3px 8px;margin-top:7px;'
+                f'border-left:3px solid {color};font-size:9px;text-transform:uppercase;">'
+                f'{title} ({len(items)})</div>{tbl}')
+
+    # Separar campos por tipo
+    scalars, dicts_, lists_, metas = {}, {}, {}, {}
+    for k, v in data.items():
+        if k.startswith('_'):
+            metas[k] = v
+        elif isinstance(v, list):
+            lists_[k] = v
+        elif isinstance(v, dict):
+            dicts_[k] = v
+        else:
+            scalars[k] = v
+
+    _IDENT = {'numero', 'number', 'name', 'nome', 'floor', 'side', 'pavimento', 'classe'}
+    _DIMS  = {'comprimento', 'largura', 'altura', 'total_width', 'total_height',
+              'area_cm2', 'width', 'height', 'grade_height1_global', 'grade_height2_global'}
+    _GRADE_K = {k for k in scalars if 'grade' in k.lower() and k not in _IDENT and k not in _DIMS}
+    _GRADE_K |= {k for k in scalars if k in {'distancia_1', 'distancia_2'}}
+    _BOLT_K  = {k for k in scalars if k.startswith('par_')}
+
+    ident  = {k: v for k, v in scalars.items() if k in _IDENT}
+    dims   = {k: v for k, v in scalars.items() if k in _DIMS and k not in ident}
+    grades = {k: v for k, v in scalars.items() if k in _GRADE_K}
+    bolts  = {k: v for k, v in scalars.items() if k in _BOLT_K}
+    others = {k: v for k, v in scalars.items()
+              if k not in ident and k not in dims and k not in grades and k not in bolts}
+
+    cls_badge = (f'<span style="background:{cls_color};color:white;padding:2px 8px;'
+                 f'border-radius:3px;font-size:11px;font-weight:bold;">{classe}</span>') if classe else ''
+    elem_span = (f'<span style="margin-left:8px;font-size:12px;color:#e2e8f0;'
+                 f'font-weight:bold;">{elemento_id}</span>') if elemento_id else ''
+    conf_badge = (f'<span style="background:{conf_color};color:white;padding:2px 7px;'
+                  f'border-radius:3px;font-size:10px;">{conf_label} confiança</span>')
+
+    # Exceções G2 (Arete) pendentes para este item — ver
+    # scripts/arete/exception_registry.py e
+    # scripts/arete/relatorios/AR-1prime-canonico/EXCECOES-FRONTEND.md
+    item_exceptions = []
+    if classe and elemento_id:
+        try:
+            import sys as _sys
+            from pathlib import Path as _Path
+            arete_dir = str(_Path(__file__).resolve().parent.parent.parent.parent / "scripts" / "arete")
+            if arete_dir not in _sys.path:
+                _sys.path.insert(0, arete_dir)
+            from exception_registry import get_item_exceptions
+            pavimento = data.get('pavimento') or data.get('floor') or None
+            item_exceptions = get_item_exceptions(classe, elemento_id, pavimento)
+        except Exception:
+            item_exceptions = []
+
+    exc_badge = ''
+    if item_exceptions:
+        exc_badge = (
+            '<span style="margin-left:8px;background:#f59e0b;color:#1a1300;padding:2px 8px;'
+            'border-radius:3px;font-size:10px;font-weight:bold;" '
+            f'title="{len(item_exceptions)} exceção(ões) G2 pendente(s)">⚠ EXCEÇÃO</span>'
+        )
+
+    parts = [
+        '<html><head><meta charset="utf-8"></head>',
+        '<body style="background:#0d1117;color:#c9d1d9;font-family:monospace;margin:0;padding:0;">',
+        '<div style="padding:8px 10px;">',
+        f'<div style="background:#161b22;padding:7px 10px;border-radius:5px;margin-bottom:8px;">',
+        f'  {cls_badge}{elem_span}{exc_badge}',
+        f'  <span style="float:right;">{conf_badge}</span>',
+        f'</div>',
+    ]
+
+    if item_exceptions:
+        exc_rows = ''
+        for exc in item_exceptions:
+            cats = ', '.join(exc.get('categorias_afetadas', []))
+            exc_rows += (
+                '<tr><td style="color:#f59e0b;padding:2px 8px;white-space:nowrap;'
+                f'font-size:10px;font-weight:bold;">{exc["id"]}</td>'
+                '<td style="color:#e2e8f0;padding:2px 8px;font-size:10px;">'
+                f'[{exc.get("status")}] categorias: {cats}<br>{exc["motivo"]}</td></tr>'
+            )
+        parts.append(
+            '<div style="background:rgba(245, 158, 11, 34);color:#f59e0b;padding:3px 8px;margin-top:0;'
+            'border-left:3px solid #f59e0b;font-size:9px;text-transform:uppercase;'
+            '">⚠ Exceção G2 Pendente — gate canônico FAIL, causa raiz '
+            'investigada (avaliação caso a caso futura)</div>'
+            f'<table width="100%" style="border-collapse:collapse;">{exc_rows}</table>'
+        )
+
+    parts.append(_sec('Identificação', ident, '#3b82f6'))
+    parts.append(_sec('Dimensões', dims, '#06b6d4'))
+    if grades:
+        parts.append(_sec('Grades / Armação', grades, '#8b5cf6'))
+    if bolts:
+        parts.append(_sec('Parafusos / Furação', bolts, '#f59e0b'))
+    if others:
+        parts.append(_sec('Outros Campos', others, '#64748b'))
+
+    # Dicionários (faces A-H, pilares, etc.)
+    for dk, dv in dicts_.items():
+        if not isinstance(dv, dict):
+            continue
+        if isinstance(dv.get('active'), bool) and not dv['active']:
+            continue
+        sub = {sk: sv for sk, sv in dv.items() if sk != 'active'}
+        parts.append(_sec(dk, sub, '#10b981'))
+
+    # Listas (panels, holes, pontaletes, etc.)
+    for lk, lv in lists_.items():
+        if not lv:
+            continue
+        filtered = lv
+        if lk == 'holes':
+            filtered = [x for x in lv if isinstance(x, dict) and x.get('active', False)]
+            if not filtered:
+                continue
+        parts.append(_sec_list(lk, filtered, '#f59e0b'))
+
+    # Metadados ao final
+    meta_filtered = {k: v for k, v in metas.items() if k != '_confianca'}
+    if meta_filtered:
+        meta_kv = {}
+        for k, v in meta_filtered.items():
+            meta_kv[k] = json.dumps(v, ensure_ascii=False) if isinstance(v, (dict, list)) else str(v)
+        meta_rows = ''
+        for k, v in meta_kv.items():
+            meta_rows += (f'<tr><td style="color:#4a5568;padding:2px 8px;font-size:9px;">{k}</td>'
+                          f'<td style="color:#718096;padding:2px 8px;font-size:9px;">{v}</td></tr>')
+        parts.append(
+            '<div style="background:#1a202c;color:#4a5568;padding:3px 8px;margin-top:8px;'
+            'border-left:3px solid #2d3748;font-size:9px;text-transform:uppercase;">Metadados</div>'
+            f'<table width="100%" style="border-collapse:collapse;">{meta_rows}</table>'
+        )
+
+    parts.append('</div></body></html>')
+    return ''.join(parts)
+
+
+# ── Renderizador de Ficha Obra ────────────────────────────────────────────────
+
+def _render_obra_html(data: dict) -> str:
+    """Gera HTML rico para Ficha da Obra — estatísticas, padrões, insights."""
+
+    obra_name   = data.get('obra_name', '?')
+    total       = data.get('total_fichas', 0)
+    conf_geral  = float(data.get('confianca_media_geral', 0))
+    pavimentos  = data.get('pavimentos', [])
+    gerado_em   = data.get('gerado_em', '')[:16].replace('T', ' ')
+    stats       = data.get('por_classe_stats', {})
+    por_classe  = data.get('por_classe', {})
+    insights    = data.get('insights', [])
+
+    # Cores de confiança
+    def _conf_color(c: float) -> str:
+        if c >= 0.85: return '#16a34a'
+        if c >= 0.65: return '#d97706'
+        return '#dc2626'
+
+    def _conf_label(c: float) -> str:
+        if c >= 0.85: return 'Excelente'
+        if c >= 0.65: return 'Boa'
+        if c >= 0.5:  return 'Moderada'
+        return 'Baixa'
+
+    NIVEL_CFG = {
+        'sucesso': ('#16a34a', '#052e16', '✅'),
+        'info':    ('#3b82f6', '#0c1a3a', 'ℹ'),
+        'aviso':   ('#d97706', '#2d1a06', '⚠'),
+        'alerta':  ('#dc2626', '#2d0806', '✗'),
+    }
+
+    CLS_COLOR  = {'PIL': '#3b82f6', 'LV': '#8b5cf6', 'FV': '#06b6d4', 'LAJ': '#10b981'}
+    CLS_ICON   = {'PIL': '🧱', 'LV': '🔷', 'FV': '🔹', 'LAJ': '⬛'}
+    CLS_LABEL  = {'PIL': 'Pilares', 'LV': 'Vigas Laterais', 'FV': 'Fundos de Viga', 'LAJ': 'Lajes'}
+
+    cc = _conf_color(conf_geral)
+
+    parts = [
+        '<html><head><meta charset="utf-8"></head>',
+        '<body style="background:#0d1117;color:#c9d1d9;font-family:monospace;margin:0;padding:0;">',
+        '<div style="padding:10px 12px;">',
+    ]
+
+    # ── Cabeçalho da obra ──
+    parts.append(f'''
+<div style="background:#161b22;border-radius:6px;padding:10px 14px;margin-bottom:10px;">
+  <div style="font-size:15px;font-weight:bold;color:#e2e8f0;">{obra_name}</div>
+  <div style="font-size:10px;color:#64748b;margin-top:2px;">
+    Ficha da Obra ER · {total} fichas · {len(pavimentos)} pavimento(s) · Gerado {gerado_em}
+  </div>
+  <div style="margin-top:6px;display:inline-block;">
+    <span style="background:{cc};color:white;padding:2px 10px;border-radius:3px;font-size:11px;font-weight:bold;">
+      {conf_geral*100:.0f}% confiança média — {_conf_label(conf_geral)}
+    </span>
+  </div>
+</div>
+''')
+
+    # ── Cards por classe (grade 2×2) ──
+    if stats:
+        parts.append('<div style="display:table;width:100%;border-collapse:separate;border-spacing:4px;">')
+        cls_list = [c for c in ('PIL', 'LV', 'FV', 'LAJ') if c in stats]
+        for i, cls in enumerate(cls_list):
+            s = stats[cls]
+            n = s.get('total', 0)
+            cm = s.get('confianca_media', 0)
+            baixa = s.get('baixa_confianca_count', 0)
+            pavs_cob = len(s.get('pavimentos_cobertos', []))
+            col = CLS_COLOR.get(cls, '#64748b')
+            icon = CLS_ICON.get(cls, '●')
+            lbl = CLS_LABEL.get(cls, cls)
+
+            # Badge de baixa confiança
+            badge_baixa = ''
+            if baixa > 0:
+                badge_baixa = (f'<span style="background:#7c2d12;color:#fca5a5;padding:1px 5px;'
+                               f'border-radius:2px;font-size:9px;margin-left:5px;">'
+                               f'{baixa} baixa conf.</span>')
+
+            # Mini bar de confiança
+            bar_w = int(cm * 100)
+            bar_color = _conf_color(cm)
+
+            if i % 2 == 0:
+                if i > 0:
+                    parts.append('</div>')
+                parts.append('<div style="display:table-row;">')
+
+            parts.append(f'''
+<div style="display:table-cell;width:50%;padding:4px;">
+  <div style="background:#161b22;border-left:3px solid {col};border-radius:4px;padding:8px 10px;">
+    <div style="font-size:12px;font-weight:bold;color:{col};">{icon} {lbl}</div>
+    <div style="font-size:20px;color:#e2e8f0;font-weight:bold;margin-top:2px;">
+      {n}
+      <span style="font-size:10px;color:#64748b;font-weight:normal;">elementos</span>
+      {badge_baixa}
+    </div>
+    <div style="background:#21262d;border-radius:2px;height:4px;margin-top:5px;">
+      <div style="background:{bar_color};width:{bar_w}%;height:4px;border-radius:2px;"></div>
+    </div>
+    <div style="font-size:9px;color:#64748b;margin-top:2px;">{cm*100:.0f}% conf. média · {pavs_cob} pavimento(s)</div>
+  </div>
+</div>''')
+
+        parts.append('</div></div>')
+
+    # ── Pavimentos cobertos ──
+    if pavimentos:
+        pav_cells = ''.join(
+            f'<span style="background:#1f2937;color:#94a3b8;padding:2px 7px;border-radius:3px;'
+            f'font-size:10px;margin:2px;display:inline-block;">{p}</span>'
+            for p in sorted(pavimentos)
+        )
+        parts.append(f'''
+<div style="background:#0f172a;border-radius:4px;padding:8px 10px;margin-top:8px;">
+  <div style="font-size:9px;color:#475569;text-transform:uppercase;margin-bottom:4px;">
+    Pavimentos Processados
+  </div>
+  <div>{pav_cells}</div>
+</div>
+''')
+
+    # ── Padrões por classe ──
+    for cls in ('PIL', 'LV', 'FV', 'LAJ'):
+        if cls not in por_classe:
+            continue
+        analise = por_classe[cls].get('analise', {})
+        if not analise:
+            continue
+        col = CLS_COLOR.get(cls, '#64748b')
+        lbl = CLS_LABEL.get(cls, cls)
+
+        rows_html = ''
+
+        def _dist_bar(dist: list, max_pct: float = 100.0) -> str:
+            html = ''
+            for item in dist[:5]:
+                bar_w = int(item['pct'] / max_pct * 90) if max_pct else 0
+                html += (f'<div style="margin-top:2px;font-size:9px;">'
+                         f'<span style="color:#94a3b8;display:inline-block;min-width:50px;">{item["valor"]}</span>'
+                         f'<span style="background:{col}44;display:inline-block;height:8px;width:{bar_w}px;'
+                         f'border-radius:2px;vertical-align:middle;margin:0 4px;"></span>'
+                         f'<span style="color:#64748b;">{item["count"]}× ({item["pct"]}%)</span>'
+                         f'</div>')
+            return html
+
+        # PIL
+        if cls == 'PIL':
+            for campo in ('comprimento', 'largura', 'altura'):
+                info = analise.get(campo)
+                if not info:
+                    continue
+                dom = info.get('dominante', '?')
+                dom_pct = info.get('dominante_pct', 0)
+                mn, mx, med = info.get('min', 0), info.get('max', 0), info.get('media', 0)
+                rows_html += (
+                    f'<tr><td style="color:#64748b;padding:2px 6px;font-size:9px;white-space:nowrap;">'
+                    f'{campo.title()}</td>'
+                    f'<td style="padding:2px 6px;">'
+                    f'<span style="color:#e2e8f0;font-size:10px;">dom: <b>{dom}</b> cm ({dom_pct}%)</span>'
+                    f'<span style="color:#64748b;font-size:9px;margin-left:8px;">min {mn} · max {mx} · méd {med}</span>'
+                    f'</td></tr>'
+                )
+                if campo == 'comprimento' and info.get('distribuicao'):
+                    rows_html += (f'<tr><td></td><td style="padding:1px 6px;">'
+                                  f'{_dist_bar(info["distribuicao"])}</td></tr>')
+
+            g2_taxa = analise.get('grade_2_taxa_presenca')
+            if g2_taxa is not None:
+                rows_html += (f'<tr><td style="color:#64748b;padding:2px 6px;font-size:9px;">Grade 2</td>'
+                              f'<td style="color:#94a3b8;padding:2px 6px;font-size:9px;">'
+                              f'presente em {g2_taxa}% dos pilares</td></tr>')
+
+            anom = analise.get('anomalias_comprimento', [])
+            if anom:
+                nomes = ', '.join(a['elemento'] for a in anom)
+                rows_html += (f'<tr><td style="color:#d97706;padding:2px 6px;font-size:9px;">Outliers</td>'
+                              f'<td style="color:#fbbf24;padding:2px 6px;font-size:9px;">{nomes}</td></tr>')
+
+        # LV / FV
+        elif cls in ('LV', 'FV'):
+            for campo in ('altura', 'largura'):
+                info = analise.get(campo)
+                if not info:
+                    continue
+                dom = info.get('dominante', '?')
+                dom_pct = info.get('dominante_pct', 0)
+                mn, mx, med = info.get('min', 0), info.get('max', 0), info.get('media', 0)
+                rows_html += (
+                    f'<tr><td style="color:#64748b;padding:2px 6px;font-size:9px;">{campo.title()}</td>'
+                    f'<td style="padding:2px 6px;">'
+                    f'<span style="color:#e2e8f0;font-size:10px;">dom: <b>{dom}</b> cm ({dom_pct}%)</span>'
+                    f'<span style="color:#64748b;font-size:9px;margin-left:8px;">min {mn} · max {mx} · méd {med}</span>'
+                    f'</td></tr>'
+                )
+                if campo == 'altura' and info.get('distribuicao'):
+                    rows_html += (f'<tr><td></td><td style="padding:1px 6px;">'
+                                  f'{_dist_bar(info["distribuicao"])}</td></tr>')
+
+            np_ = analise.get('num_paineis')
+            if np_:
+                rows_html += (f'<tr><td style="color:#64748b;padding:2px 6px;font-size:9px;">Painéis</td>'
+                              f'<td style="padding:2px 6px;">'
+                              f'<span style="color:#e2e8f0;font-size:10px;">dom: <b>{np_["dominante"]}</b> painéis ({np_["dominante_pct"]}%)</span>'
+                              f'</td></tr>')
+                if np_.get('distribuicao'):
+                    rows_html += (f'<tr><td></td><td style="padding:1px 6px;">'
+                                  f'{_dist_bar(np_["distribuicao"])}</td></tr>')
+
+            lp = analise.get('larguras_paineis', {})
+            if lp.get('distribuicao'):
+                rows_html += f'<tr><td style="color:#64748b;padding:2px 6px;font-size:9px;">Larg. painéis</td>'
+                rows_html += f'<td style="padding:1px 6px;">{_dist_bar(lp["distribuicao"], 80)}</td></tr>'
+
+            fp = analise.get('furos_presentes_pct', 0)
+            if fp > 0:
+                rows_html += (f'<tr><td style="color:#64748b;padding:2px 6px;font-size:9px;">Furos</td>'
+                              f'<td style="color:#94a3b8;padding:2px 6px;font-size:9px;">{fp}% dos elementos com furos ativos</td></tr>')
+
+            ple = analise.get('pilar_esq_pct', 0)
+            pld = analise.get('pilar_dir_pct', 0)
+            if ple > 0 or pld > 0:
+                rows_html += (f'<tr><td style="color:#64748b;padding:2px 6px;font-size:9px;">Pilares ext.</td>'
+                              f'<td style="color:#94a3b8;padding:2px 6px;font-size:9px;">'
+                              f'esq: {ple}% · dir: {pld}%</td></tr>')
+
+            anom = analise.get('anomalias_altura', [])
+            if anom:
+                nomes = ', '.join(a['elemento'] for a in anom[:4])
+                rows_html += (f'<tr><td style="color:#d97706;padding:2px 6px;font-size:9px;">Outliers</td>'
+                              f'<td style="color:#fbbf24;padding:2px 6px;font-size:9px;">{nomes}'
+                              f'{"…" if len(anom) > 4 else ""}</td></tr>')
+
+        # LAJ
+        elif cls == 'LAJ':
+            for campo, info_key in (('Área (cm²)', 'area'), ('Comprimento', 'comprimento'), ('Largura', 'largura')):
+                info = analise.get(info_key)
+                if not info:
+                    continue
+                mn, mx, med = info.get('min', 0), info.get('max', 0), info.get('media', 0)
+                rows_html += (f'<tr><td style="color:#64748b;padding:2px 6px;font-size:9px;">{campo}</td>'
+                              f'<td style="color:#e2e8f0;padding:2px 6px;font-size:9px;">'
+                              f'min {mn} · max {mx} · méd {med}</td></tr>')
+                if info_key == 'area' and info.get('distribuicao'):
+                    rows_html += (f'<tr><td></td><td style="padding:1px 6px;">'
+                                  f'{_dist_bar(info["distribuicao"])}</td></tr>')
+
+            pont = analise.get('pontaletes_por_laje', {})
+            if pont:
+                rows_html += (f'<tr><td style="color:#64748b;padding:2px 6px;font-size:9px;">Pontaletes</td>'
+                              f'<td style="color:#94a3b8;padding:2px 6px;font-size:9px;">'
+                              f'dom: {pont["dominante"]} por laje ({pont["dominante_pct"]}%)</td></tr>')
+
+        if rows_html:
+            parts.append(f'''
+<div style="margin-top:8px;">
+  <div style="background:{col}22;color:{col};padding:3px 8px;border-left:3px solid {col};
+              font-size:9px;text-transform:uppercase;">Padrões {lbl}</div>
+  <table width="100%" style="border-collapse:collapse;">{rows_html}</table>
+</div>
+''')
+
+    # ── Insights e alertas ──
+    if insights:
+        NIVEL_ORDER = ['alerta', 'aviso', 'sucesso', 'info']
+        sorted_insights = sorted(insights, key=lambda x: NIVEL_ORDER.index(x.get('nivel', 'info'))
+                                 if x.get('nivel', 'info') in NIVEL_ORDER else 99)
+
+        parts.append('''
+<div style="margin-top:10px;">
+  <div style="background:#1f2937;color:#94a3b8;padding:4px 8px;border-radius:4px 4px 0 0;
+              font-size:9px;text-transform:uppercase;">
+    Insights &amp; Conclusões
+  </div>
+''')
+        for ins in sorted_insights:
+            nivel = ins.get('nivel', 'info')
+            cfg = NIVEL_CFG.get(nivel, NIVEL_CFG['info'])
+            col_ins, bg_ins, icon_ins = cfg
+            cat = ins.get('categoria', '')
+            cat_badge = (f'<span style="background:#1e293b;color:#475569;padding:1px 5px;'
+                         f'border-radius:2px;font-size:8px;margin-left:6px;">{cat}</span>') if cat else ''
+            parts.append(
+                f'<div style="background:{bg_ins};border-left:3px solid {col_ins};'
+                f'padding:5px 8px;margin-top:2px;">'
+                f'<span style="color:{col_ins};font-size:10px;">{icon_ins}</span>'
+                f'<span style="color:#e2e8f0;font-size:10px;margin-left:6px;">{ins["texto"]}</span>'
+                f'{cat_badge}'
+                f'</div>'
+            )
+        parts.append('</div>')
+
+    parts.append('</div></body></html>')
+    return ''.join(parts)
+
+
 # ── Painel Central ───────────────────────────────────────────────────────────
 
 class _CenterPanel(QFrame):
@@ -492,7 +1133,7 @@ class _CenterPanel(QFrame):
             f"QPushButton {{ background:{Colors.BG_CARD}; color:{Colors.ACCENT_DANGER}; "
             f"border:1px solid {Colors.BORDER_DEFAULT}; border-radius:3px; "
             f"font-size:9px; padding:0 7px; }} "
-            f"QPushButton:hover {{ background:rgba(211,47,47,38); }}"
+            f"QPushButton:hover {{ background:rgba(211, 47, 47, 38); }}"
         )
 
         btn_fit = QPushButton("⊞ Fit")
@@ -570,7 +1211,7 @@ class _CenterPanel(QFrame):
             f"QPushButton {{ background:{Colors.BG_CARD}; color:{Colors.ACCENT_DANGER}; "
             f"border:1px solid {Colors.BORDER_DEFAULT}; border-radius:3px; "
             f"font-size:9px; padding:0 7px; }} "
-            f"QPushButton:hover {{ background:rgba(211,47,47,38); }}"
+            f"QPushButton:hover {{ background:rgba(211, 47, 47, 38); }}"
         )
 
         gbtn_save = QPushButton("💾 Salvar")
@@ -581,7 +1222,7 @@ class _CenterPanel(QFrame):
             f"QPushButton {{ background:{Colors.BG_CARD}; color:{Colors.ACCENT_SUCCESS}; "
             f"border:1px solid {Colors.BORDER_DEFAULT}; border-radius:3px; "
             f"font-size:9px; padding:0 7px; }} "
-            f"QPushButton:hover {{ background:rgba(67,160,71,38); }}"
+            f"QPushButton:hover {{ background:rgba(67, 160, 71, 38); }}"
         )
 
         gbtn_fit = QPushButton("⊞ Fit")
@@ -620,12 +1261,10 @@ class _CenterPanel(QFrame):
         self.canvas_granular.keyPressEvent = self._canvas_granular_key_press
 
         # ── Tab 3 — Ficha Granular ──
-        self._ficha_table = QTableWidget(0, 2)
-        self._ficha_table.setHorizontalHeaderLabels(["Campo", "Valor"])
-        self._ficha_table.horizontalHeader().setStretchLastSection(True)
+        self._ficha_table = QTextEdit()
+        self._ficha_table.setReadOnly(True)
         self._ficha_table.setStyleSheet(
-            f"background:{Colors.BG_CARD}; color:{Colors.TEXT_PRIMARY}; "
-            f"gridline-color:{Colors.BORDER_DEFAULT}; font-size:10px;"
+            f"background:#0d1117; color:#c9d1d9; border:none;"
         )
         self._tabs.addTab(self._ficha_table, "Ficha Granular")
 
@@ -864,32 +1503,39 @@ class _CenterPanel(QFrame):
         self._dxf_proxies.append(proxy)
         thread.start()
 
-    def load_ficha_granular(self, campos_json: str | None):
-        self._ficha_table.setRowCount(0)
+    def load_ficha_granular(self, campos_json: str | None,
+                             classe: str = '', confianca: float = 0.0, elemento_id: str = ''):
         if not campos_json:
+            self._ficha_table.setHtml(
+                '<html><body style="background:#0d1117;color:#4a5568;font-family:monospace;padding:16px;">'
+                'Nenhuma ficha disponível.<br>'
+                'Execute <b style="color:#60a5fa;">Gerar Fichas</b> para processar os recortes aprovados.'
+                '</body></html>'
+            )
             return
         try:
             data: dict = json.loads(campos_json)
         except Exception:
+            self._ficha_table.setPlainText(campos_json or '')
             return
-        for campo, valor in data.items():
-            row = self._ficha_table.rowCount()
-            self._ficha_table.insertRow(row)
-            self._ficha_table.setItem(row, 0, QTableWidgetItem(str(campo)))
-            self._ficha_table.setItem(row, 1, QTableWidgetItem(str(valor)))
+        html = _render_ficha_html(data, classe, confianca, elemento_id)
+        self._ficha_table.setHtml(html)
 
     def load_ficha_obra(self, resumo_json: str | None):
         if not resumo_json:
-            self._obra_text.setPlaceholderText(
-                "Execute 'Processar todos itens granulares da Obra'\npara gerar a ficha da obra."
+            self._obra_text.setHtml(
+                '<html><body style="background:#0d1117;color:#4a5568;font-family:monospace;padding:16px;">'
+                'Nenhuma ficha da obra gerada.<br>'
+                'Execute <b style="color:#60a5fa;">Gerar Fichas</b> para processar todos os recortes aprovados.'
+                '</body></html>'
             )
-            self._obra_text.clear()
             return
         try:
             data = json.loads(resumo_json)
-            self._obra_text.setText(json.dumps(data, ensure_ascii=False, indent=2))
+            html = _render_obra_html(data)
+            self._obra_text.setHtml(html)
         except Exception:
-            self._obra_text.setText(resumo_json)
+            self._obra_text.setPlainText(resumo_json or '')
 
     # ── Export scene → DXF ────────────────────────────────────────────
 
@@ -1022,8 +1668,16 @@ class _RecorteItemWidget(QWidget):
     _STYLE_CONF_LOW   = "background:#2b0000; color:#ef5350; border:1px solid #ef5350; border-radius:3px; font-size:8px; padding:0 3px;"
     _STYLE_CONF_NONE  = "background:transparent; color:#555; border:1px solid #333; border-radius:3px; font-size:8px; padding:0 3px;"
 
-    def __init__(self, text: str, status: str, confidence: float | None = None, parent=None):
+    def __init__(
+        self,
+        text: str,
+        status: str,
+        confidence: float | None = None,
+        cls_or_type: str | None = None,
+        parent=None,
+    ):
         super().__init__(parent)
+        self._cls_or_type = (cls_or_type or "").upper()
         self.setAttribute(Qt.WA_TranslucentBackground)
         h = QHBoxLayout(self)
         h.setContentsMargins(4, 1, 4, 1)
@@ -1058,11 +1712,12 @@ class _RecorteItemWidget(QWidget):
         return self._lbl_text.text()
 
     def set_confidence(self, confidence: float | None):
+        high_threshold = 95.0 if self._cls_or_type == "LAJ" else 90.0
         if confidence is None:
             self._lbl_conf.setText("—")
             self._lbl_conf.setStyleSheet(self._STYLE_CONF_NONE)
             self._lbl_conf.setToolTip("Confiança não calculada")
-        elif confidence >= 90:
+        elif confidence >= high_threshold:
             self._lbl_conf.setText(f"{confidence:.0f}%")
             self._lbl_conf.setStyleSheet(self._STYLE_CONF_HIGH)
             self._lbl_conf.setToolTip(f"Confiança alta: {confidence:.1f}%")
@@ -1098,7 +1753,7 @@ class _RightPanel(QFrame):
     processar_cls               = Signal(str)       # classe
     salvar_requested            = Signal()
     aprovar_requested           = Signal()
-    aprovar_auto_requested      = Signal()          # auto-aprova ≥90% (sem treino)
+    aprovar_auto_requested      = Signal()          # auto-aprova por limiar de classe (sem treino)
     excluir_requested           = Signal()
     processar_tudo              = Signal()
     gerar_ficha_requested       = Signal()          # gerar fichas obra para itens aprovados
@@ -1268,7 +1923,7 @@ class _RightPanel(QFrame):
 
         # [💾 Salvar | 🗑 Excluir]
         btn_salvar  = _btn("💾 Salvar",  Colors.ACCENT_BLUE,   Colors.ACCENT_BLUE_HOVER)
-        btn_excluir = _btn("🗑 Excluir", Colors.ACCENT_DANGER,  "rgba(211,47,47,1)")
+        btn_excluir = _btn("🗑 Excluir", Colors.ACCENT_DANGER,  "rgba(211, 47, 47, 1)")
         btn_salvar.clicked.connect(self._on_salvar)
         btn_excluir.clicked.connect(self._on_excluir)
         lay.addWidget(_row(btn_salvar, btn_excluir))
@@ -1284,7 +1939,7 @@ class _RightPanel(QFrame):
         lay.addWidget(btn_auto_aprovar)
 
         # ✅ Aprovar (largura total)
-        btn_aprovar = _btn("✅ Aprovar", Colors.ACCENT_SUCCESS, "rgba(67,160,71,1)")
+        btn_aprovar = _btn("✅ Aprovar", Colors.ACCENT_SUCCESS, "rgba(67, 160, 71, 1)")
         btn_aprovar.setToolTip("Aprova este recorte com revisão humana — gera dado de treino autêntico.")
         btn_aprovar.clicked.connect(self._on_aprovar)
         lay.addWidget(btn_aprovar)
@@ -1383,7 +2038,7 @@ class _RightPanel(QFrame):
             it.setData(Qt.UserRole + 3, status or "")
             self.lst_recortes.addItem(it)
             self.lst_recortes.setItemWidget(
-                it, _RecorteItemWidget(label, status or "", confidence)
+                it, _RecorteItemWidget(label, status or "", confidence, cls_or_type)
             )
 
     def _on_recorte_clicked(self, item: QListWidgetItem):
@@ -1582,7 +2237,7 @@ class _FichaMotorWorker(QObject):
             rows = conn.execute(f"""
                 SELECT id, elemento_id, classe, recorte_path, status, projeto_id
                 FROM reverse_eng_recortes
-                WHERE obra_name=? AND status IN {status_filter}
+                WHERE (obra_name=? OR obra_name='') AND status IN {status_filter}
                 ORDER BY classe, elemento_id
             """, (self.obra_name,)).fetchall()
             conn.close()
@@ -1692,7 +2347,7 @@ class _FichaMotorWorker(QObject):
                 (projeto_id, obra_name, pavimento, classe, elemento_id,
                  campos_json, recorte_path, confianca, status, created_at, updated_at)
             VALUES (?,?,?,?,?,?,?,?,'draft',?,?)
-            ON CONFLICT(obra_name, pavimento, elemento_id) DO UPDATE SET
+            ON CONFLICT(obra_name, pavimento, classe, elemento_id) DO UPDATE SET
                 campos_json=excluded.campos_json,
                 confianca=excluded.confianca,
                 recorte_path=excluded.recorte_path,
@@ -1848,8 +2503,14 @@ class DiagnosticReverseHub(QWidget):
             return
 
         # ── Diretório de saída ────────────────────────────────────────────────
+        obra_name = _resolve_obra_name(self._current_obra, self._selected_dxf_path)
+        if not obra_name:
+            QMessageBox.warning(self, "Recortar", "Nao foi possivel resolver a obra do recorte.")
+            return
+        self._current_obra = obra_name
+
         dxf_stem = Path(self._selected_dxf_path).stem
-        out_dir = DADOS_OBRAS_ROOT / self._current_obra / "Fase-2_Triagem" / "recortes_reversos" / dxf_stem
+        out_dir = DADOS_OBRAS_ROOT / obra_name / "Fase-2_Triagem" / "recortes_reversos" / dxf_stem
         out_dir.mkdir(parents=True, exist_ok=True)
 
         ts = int(time.time())
@@ -1875,12 +2536,21 @@ class DiagnosticReverseHub(QWidget):
                (obra_name, projeto_id, elemento_id, classe,
                 recorte_path, entity_count, status, created_at)
                VALUES (?,?,?,?,?,?,?,?)""",
-            (self._current_obra, self._selected_proj_id,
+            (obra_name, self._selected_proj_id,
              elemento_id, classe, str(out_path), n_ent, "manual", now)
         )
         if not ok:
             QMessageBox.warning(self, "Recortar", f"DXF salvo em {out_path.name}, mas erro ao registrar no banco.")
             return
+        _record_laj_learning_event(
+            "human_saved",
+            obra_name=obra_name,
+            elemento_id=elemento_id,
+            classe=classe,
+            recorte_path=str(out_path),
+            notes="manual_crop",
+            features_extra={"source": "diagnostic_reverse_hub._on_recortar"},
+        )
 
         # ── Atualizar lista de recortes sem reload completo ───────────────────
         cls_labels = dict(_CLASSES)
@@ -1945,8 +2615,14 @@ class DiagnosticReverseHub(QWidget):
             )
             return
 
+        obra_name = _resolve_obra_name(self._current_obra, self._selected_dxf_path)
+        if not obra_name:
+            QMessageBox.warning(self, "Recortar SeleÃ§Ã£o", "Nao foi possivel resolver a obra do recorte.")
+            return
+        self._current_obra = obra_name
+
         dxf_stem = Path(self._selected_dxf_path).stem
-        out_dir = DADOS_OBRAS_ROOT / self._current_obra / "Fase-2_Triagem" / "recortes_reversos" / dxf_stem
+        out_dir = DADOS_OBRAS_ROOT / obra_name / "Fase-2_Triagem" / "recortes_reversos" / dxf_stem
         out_dir.mkdir(parents=True, exist_ok=True)
 
         ts = int(time.time())
@@ -1970,13 +2646,23 @@ class DiagnosticReverseHub(QWidget):
                (obra_name, projeto_id, elemento_id, classe,
                 recorte_path, entity_count, status, created_at)
                VALUES (?,?,?,?,?,?,?,?)""",
-            (self._current_obra, self._selected_proj_id,
+            (obra_name, self._selected_proj_id,
              elemento_id, classe, str(out_path), n_ent, "manual_sel", now)
         )
         if not ok:
             QMessageBox.warning(self, "Recortar Seleção",
                                 f"DXF salvo em {out_path.name}, mas erro ao registrar no banco.")
             return
+
+        _record_laj_learning_event(
+            "human_saved",
+            obra_name=obra_name,
+            elemento_id=elemento_id,
+            classe=classe,
+            recorte_path=str(out_path),
+            notes="manual_selection",
+            features_extra={"source": "diagnostic_reverse_hub._on_recortar_selecao"},
+        )
 
         cls_labels = dict(_CLASSES)
         label = f"[sel] {cls_labels.get(classe, classe)} · {elemento_id}"
@@ -2027,10 +2713,16 @@ class DiagnosticReverseHub(QWidget):
             QMessageBox.warning(self, "Aviso", "Selecione uma classe antes de salvar.")
             return
 
+        obra_name = _resolve_obra_name(self._current_obra or self._left._current_obra, recorte_path)
+        if not obra_name:
+            QMessageBox.warning(self, "Aviso", "Nao foi possivel resolver a obra do recorte.")
+            return
+        self._current_obra = obra_name
+
         # Atualizar banco de dados
         _db_execute(
-            "UPDATE reverse_eng_recortes SET classe=? WHERE recorte_path=?",
-            (new_cls, recorte_path)
+            "UPDATE reverse_eng_recortes SET classe=?, obra_name=? WHERE recorte_path=?",
+            (new_cls, obra_name, recorte_path)
         )
         # Tentar também em obra_recortes (element_type)
         _db_execute(
@@ -2055,6 +2747,15 @@ class DiagnosticReverseHub(QWidget):
 
         # Se há edições DXF pendentes no Visualizador Granular → salvar junto
         self._center._save_granular_dxf_silent()
+        _record_laj_learning_event(
+            "human_saved",
+            obra_name=obra_name,
+            elemento_id=elem_id,
+            classe=new_cls,
+            recorte_path=recorte_path,
+            notes="class_or_dxf_saved",
+            features_extra={"source": "diagnostic_reverse_hub._on_salvar"},
+        )
 
     def _on_aprovar(self):
         """Aprova 1-a-1 com revisão humana — este recorte ENTRA nos dados de treino."""
@@ -2069,14 +2770,32 @@ class DiagnosticReverseHub(QWidget):
             QMessageBox.warning(self, "Aviso", "Item sem caminho associado.")
             return
 
+        obra_name = _resolve_obra_name(self._current_obra or self._left._current_obra, recorte_path)
+        if not obra_name:
+            QMessageBox.warning(self, "Aviso", "Nao foi possivel resolver a obra do recorte.")
+            return
+        self._current_obra = obra_name
+
         # status='aprovado' = revisão humana autêntica → usado em treino
         _db_execute(
-            "UPDATE reverse_eng_recortes SET status='aprovado' WHERE recorte_path=?",
-            (recorte_path,)
+            "UPDATE reverse_eng_recortes SET status='aprovado', obra_name=? WHERE recorte_path=?",
+            (obra_name, recorte_path)
         )
         _db_execute(
             "UPDATE obra_recortes SET status='aprovado' WHERE recorte_path=?",
             (recorte_path,)
+        )
+
+        elem_id = current.data(Qt.UserRole + 2) or ""
+        classe = current.data(Qt.UserRole + 1) or ""
+        _record_laj_learning_event(
+            "human_approved",
+            obra_name=obra_name,
+            elemento_id=elem_id,
+            classe=classe,
+            recorte_path=recorte_path,
+            notes="human_reviewed_approval",
+            features_extra={"source": "diagnostic_reverse_hub._on_aprovar"},
         )
 
         widget = lst.itemWidget(current)
@@ -2096,27 +2815,32 @@ class DiagnosticReverseHub(QWidget):
             return
         self._current_obra = obra_name
 
-        THRESHOLD = 90.0
+        threshold_sql = (
+            "((classe='LAJ' AND confidence >= 95.0) "
+            "OR (classe<>'LAJ' AND confidence >= 90.0))"
+        )
 
         # Contar quantos seriam aprovados
         rows = _db_query(
             "SELECT COUNT(*) FROM reverse_eng_recortes "
-            "WHERE obra_name=? AND confidence >= ? AND status='motor'",
-            (self._current_obra, THRESHOLD)
+            f"WHERE obra_name=? AND {threshold_sql} AND status='motor'",
+            (self._current_obra,)
         )
         count = rows[0][0] if rows else 0
 
         if count == 0:
             QMessageBox.information(
                 self, "Auto-Aprovar",
-                f"Nenhum recorte com confiança ≥ {THRESHOLD:.0f}% encontrado.\n"
+                "Nenhum recorte confiavel encontrado para auto-aprovacao.\n"
+                "Limiar: PIL/LV/FV >= 90%, LAJ >= 95%.\n"
                 "Execute os motores primeiro."
             )
             return
 
         reply = QMessageBox.question(
             self, "Auto-Aprovar",
-            f"Aprovar automaticamente {count} recorte(s) com confiança ≥ {THRESHOLD:.0f}%?\n\n"
+            f"Aprovar automaticamente {count} recorte(s) confiavel(is)?\n"
+            "Limiar: PIL/LV/FV >= 90%, LAJ >= 95%.\n\n"
             "⚠️ Estes NÃO serão usados como dados de treino.\n"
             f"Obra: {self._current_obra}",
             QMessageBox.Yes | QMessageBox.No,
@@ -2126,8 +2850,8 @@ class DiagnosticReverseHub(QWidget):
 
         _db_execute(
             "UPDATE reverse_eng_recortes SET status='auto_aprovado' "
-            "WHERE obra_name=? AND confidence >= ? AND status='motor'",
-            (self._current_obra, THRESHOLD)
+            f"WHERE obra_name=? AND {threshold_sql} AND status='motor'",
+            (self._current_obra,)
         )
 
         # Recarregar lista para refletir mudança
@@ -2159,10 +2883,10 @@ class DiagnosticReverseHub(QWidget):
             QMessageBox.information(self, "Gerar Ficha", "Motor ja esta em execucao. Aguarde.")
             return
 
-        # Contar recortes disponiveis
+        # Contar recortes disponiveis (incluir obra_name='' para recortes antigos sem obra)
         total_rows = _db_query(
             "SELECT COUNT(*) FROM reverse_eng_recortes "
-            "WHERE obra_name=? AND status IN ('aprovado','auto_aprovado')",
+            "WHERE (obra_name=? OR obra_name='') AND status IN ('aprovado','auto_aprovado')",
             (obra_name,)
         )
         total = total_rows[0][0] if total_rows else 0
@@ -2225,7 +2949,8 @@ class DiagnosticReverseHub(QWidget):
             sel_elem = selected.data(Qt.UserRole + 2)
             sel_cls  = selected.data(Qt.UserRole + 1)
             if sel_elem == elem_id and sel_cls == classe:
-                self._center.load_ficha_granular(campos_json)
+                self._center.load_ficha_granular(campos_json, classe=classe,
+                                                 confianca=conf, elemento_id=elem_id)
 
     def _on_ficha_concluido(self, n_ok: int, n_err: int):
         self._right.progress.setVisible(False)
@@ -2241,8 +2966,9 @@ class DiagnosticReverseHub(QWidget):
         selected = self._right.lst_recortes.currentItem()
         if selected:
             elem_id = selected.data(Qt.UserRole + 2)
+            sel_cls = selected.data(Qt.UserRole + 1) or ''
             if elem_id:
-                self._load_ficha_for_elemento(elem_id, self._current_obra)
+                self._load_ficha_for_elemento(elem_id, self._current_obra, classe=sel_cls)
 
         QMessageBox.information(
             self, "Fichas N2 Geradas",
@@ -2257,23 +2983,34 @@ class DiagnosticReverseHub(QWidget):
         self._right._lbl_motor_status.setText("Erro no motor")
         QMessageBox.critical(self, "Erro Motor ER-3", f"Erro ao gerar fichas:\n{msg}")
 
-    def _load_ficha_for_elemento(self, id_or_elem: str, obra_name: str):
-        """Carrega ficha granular para um elemento especifico em Tab 3.
-
-        Tenta primeiro por elemento_id na obra, depois por projeto_id (fallback legado).
-        """
+    def _load_ficha_for_elemento(self, id_or_elem: str, obra_name: str, classe: str = ''):
+        """Carrega ficha granular para um elemento especifico em Tab 3."""
+        # Tenta por elemento_id na obra (com fallback para obra_name='')
+        extra_cls = "AND classe=?" if classe else ""
+        params_with_cls = (obra_name, id_or_elem, classe) if classe else (obra_name, id_or_elem)
         rows = _db_query(
-            "SELECT campos_json FROM reverse_eng_fichas "
-            "WHERE obra_name=? AND elemento_id=? ORDER BY updated_at DESC LIMIT 1",
-            (obra_name, id_or_elem)
+            f"SELECT campos_json, classe, confianca FROM reverse_eng_fichas "
+            f"WHERE (obra_name=? OR obra_name='') AND elemento_id=? {extra_cls} "
+            f"ORDER BY CASE WHEN obra_name=? THEN 0 ELSE 1 END, updated_at DESC LIMIT 1",
+            (*params_with_cls, obra_name)
         )
         if not rows:
             # Fallback: proj_id numerico (legado)
             rows = _db_query(
-                "SELECT campos_json FROM reverse_eng_fichas WHERE projeto_id=? LIMIT 1",
+                "SELECT campos_json, classe, confianca FROM reverse_eng_fichas "
+                "WHERE projeto_id=? ORDER BY updated_at DESC LIMIT 1",
                 (id_or_elem,)
             )
-        self._center.load_ficha_granular(rows[0][0] if rows else None)
+        if rows:
+            campos_json, db_cls, db_conf = rows[0]
+            self._center.load_ficha_granular(
+                campos_json,
+                classe=classe or (db_cls or ''),
+                confianca=float(db_conf or 0.0),
+                elemento_id=id_or_elem,
+            )
+        else:
+            self._center.load_ficha_granular(None)
 
     def _on_excluir(self):
         """Exclui o recorte selecionado na lista direita (reverse_eng_recortes + arquivo físico)."""
@@ -2417,7 +3154,11 @@ class DiagnosticReverseHub(QWidget):
             QMessageBox.information(self, "Motor", "Motor já em execução. Aguarde terminar.")
             return
 
-        obra_name = self._current_obra
+        obra_name = _resolve_obra_name(self._current_obra, self._selected_dxf_path)
+        if not obra_name:
+            QMessageBox.warning(self, "Motor", "Nao foi possivel resolver a obra do projeto.")
+            return
+        self._current_obra = obra_name
         proj_id   = self._selected_proj_id
         dxf_path  = self._selected_dxf_path
         dxf_stem  = Path(dxf_path).stem
@@ -2467,6 +3208,9 @@ class DiagnosticReverseHub(QWidget):
             def run(self):
                 try:
                     from src.core.recorte_motor import RecorteMotor
+                    from src.core.engrev_laj_recorte_learning_store import (
+                        record_engrev_laj_recorte_learning_event as _learning_record_event,
+                    )
                     from datetime import datetime as _dt
                     import sqlite3 as _sql
 
@@ -2479,6 +3223,9 @@ class DiagnosticReverseHub(QWidget):
 
                     for task_idx, (cls, dxf_path, proj_id, out_dir) in enumerate(self._tasks):
                         from pathlib import Path as _P
+                        task_obra = _resolve_obra_name(self._obra, dxf_path) or _obra_name_from_path(out_dir)
+                        if not task_obra:
+                            raise RuntimeError(f"obra_name vazio para task {dxf_path}")
                         _P(out_dir).mkdir(parents=True, exist_ok=True)
                         dxf_name = _P(dxf_path).stem
 
@@ -2501,18 +3248,25 @@ class DiagnosticReverseHub(QWidget):
                                 # corretas usadas para treino — NUNCA sobrescrever arquivo
                                 # nem registro ao reprocessar classe/obra.
                                 cur.execute(
-                                    "SELECT recorte_path, entity_count, confidence "
+                                    "SELECT id, recorte_path, entity_count, confidence "
                                     "FROM reverse_eng_recortes "
-                                    "WHERE projeto_id=? AND elemento_id=? AND classe=? AND status='aprovado'",
-                                    (proj_id, elem_id, cls)
+                                    "WHERE projeto_id=? AND elemento_id=? AND classe=? "
+                                    "AND (obra_name=? OR obra_name='') AND status='aprovado' "
+                                    "ORDER BY CASE WHEN obra_name=? THEN 0 ELSE 1 END, created_at DESC",
+                                    (proj_id, elem_id, cls, task_obra, task_obra)
                                 )
                                 approved = cur.fetchone()
                                 if approved:
+                                    cur.execute(
+                                        "UPDATE reverse_eng_recortes SET obra_name=? WHERE id=?",
+                                        (task_obra, approved[0])
+                                    )
+                                    conn.commit()
                                     rec = {
                                         'elemento_id':  elem_id,
-                                        'recorte_path': approved[0],
-                                        'entity_count': approved[1],
-                                        'confidence':   approved[2],
+                                        'recorte_path': approved[1],
+                                        'entity_count': approved[2],
+                                        'confidence':   approved[3],
                                         'status':       'aprovado',
                                         '_skipped':     True,
                                     }
@@ -2550,21 +3304,35 @@ class DiagnosticReverseHub(QWidget):
                                         keep   = cur_st if cur_st in ('aprovado', 'auto_aprovado') else 'motor'
                                         cur.execute(
                                             "UPDATE reverse_eng_recortes "
-                                            "SET recorte_path=?, entity_count=?, status=?, confidence=? WHERE id=?",
-                                            (rec['recorte_path'], rec['entity_count'], keep,
+                                            "SET obra_name=?, recorte_path=?, bbox_json=?, entity_count=?, status=?, confidence=? WHERE id=?",
+                                            (task_obra, rec['recorte_path'], rec.get('bbox_json'), rec['entity_count'], keep,
                                              rec.get('confidence'), row[0])
                                         )
                                     else:
                                         cur.execute(
                                             "INSERT INTO reverse_eng_recortes "
                                             "(obra_name, projeto_id, elemento_id, classe, "
-                                            " recorte_path, entity_count, status, confidence, created_at) "
-                                            "VALUES (?,?,?,?,?,?,?,?,?)",
-                                            (self._obra, proj_id, rec['elemento_id'], cls,
-                                             rec['recorte_path'], rec['entity_count'], 'motor',
+                                            " recorte_path, bbox_json, entity_count, status, confidence, created_at) "
+                                            "VALUES (?,?,?,?,?,?,?,?,?,?)",
+                                            (task_obra, proj_id, rec['elemento_id'], cls,
+                                             rec['recorte_path'], rec.get('bbox_json'), rec['entity_count'], 'motor',
                                              rec.get('confidence'), now)
                                         )
                                     conn.commit()
+                                    if cls == "LAJ":
+                                        try:
+                                            _learning_record_event(
+                                                DB_PATH,
+                                                event_type="motor_generated",
+                                                obra_name=task_obra,
+                                                classe=cls,
+                                                elemento_id=rec['elemento_id'],
+                                                source_recorte_path=rec['recorte_path'],
+                                                notes="batch_motor_generated",
+                                                features_extra={"source": "diagnostic_reverse_hub._MotorWorker"},
+                                            )
+                                        except Exception:
+                                            pass
 
                                 global_done += 1
                                 all_results.append(rec)

@@ -30,7 +30,7 @@ class ProjectDetailsDialog(QDialog):
                 padding: 5px;
             }
             QTreeWidget::item { padding: 4px; }
-            QTreeWidget::item:selected { background: rgba(0,77,64,1); color: {Colors.TEXT_BRIGHT}; }
+            QTreeWidget::item:selected { background: rgba(0, 77, 64, 1); color: {Colors.TEXT_BRIGHT}; }
             QTreeWidget::item:hover { background: {Colors.BG_CARD}; }
             
             QSplitter::handle { background: {Colors.BG_CARD}; width: 2px; }
@@ -231,7 +231,7 @@ class ProjectDetailsDialog(QDialog):
             # Or just list them
             for f in fields:
                 tag = QLabel(f"✔ {f}")
-                tag.setStyleSheet(f"background: rgba(46,125,50,1); color: {Colors.TEXT_BRIGHT}; padding: 4px 8px; border-radius: 12px; margin: 2px;")
+                tag.setStyleSheet(f"background: rgba(46, 125, 50, 1); color: {Colors.TEXT_BRIGHT}; padding: 4px 8px; border-radius: 12px; margin: 2px;")
                 self.details_layout.addWidget(tag)
 
         self.details_layout.addStretch()

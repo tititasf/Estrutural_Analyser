@@ -188,6 +188,21 @@ def _extract_pil_from_dxf(dxf_path: str) -> dict:
                                   if _i > 0 else _x_face - 600.0)
                 _x_mid_right = (_x_face + _x_next) / 2
 
+                # y_face_top: max y das V com h≥10cm (exclui ticks de cota)
+                _y_face_top_mr = None
+                for _ev_ft in msp:
+                    if _ev_ft.dxftype() != 'LINE': continue
+                    if 'PAIN' not in _ev_ft.dxf.layer.upper(): continue
+                    if abs(_ev_ft.dxf.start.x - _ev_ft.dxf.end.x) > 0.5: continue
+                    _xv_ft = (_ev_ft.dxf.start.x + _ev_ft.dxf.end.x) / 2
+                    if not (_x_mid_left <= _xv_ft <= _x_mid_right): continue
+                    _hv_ft = abs(_ev_ft.dxf.start.y - _ev_ft.dxf.end.y)
+                    if _hv_ft < 10.0: continue
+                    if max(_ev_ft.dxf.start.y, _ev_ft.dxf.end.y) < _y_face_base: continue
+                    _yt_ft = max(_ev_ft.dxf.start.y, _ev_ft.dxf.end.y)
+                    if _y_face_top_mr is None or _yt_ft > _y_face_top_mr:
+                        _y_face_top_mr = _yt_ft
+
                 # Intervals: linhas horizontais Painéis desta face (ground truth)
                 _p_hs_mr = sorted(set(
                     round(_ep.dxf.start.y, 1) for _ep in msp
@@ -196,6 +211,7 @@ def _extract_pil_from_dxf(dxf_path: str) -> dict:
                     and abs(_ep.dxf.start.y - _ep.dxf.end.y) < 0.5
                     and _x_mid_left <= (_ep.dxf.start.x + _ep.dxf.end.x) / 2 <= _x_mid_right
                     and _ep.dxf.start.y >= _y_face_base
+                    and (_y_face_top_mr is None or _ep.dxf.start.y <= _y_face_top_mr + 0.5)
                 ))
                 if len(_p_hs_mr) >= 2:
                     _ivs_mr = [round(_p_hs_mr[_j + 1] - _p_hs_mr[_j], 1)
@@ -208,14 +224,17 @@ def _extract_pil_from_dxf(dxf_path: str) -> dict:
                     # ── Abertura: vertical Painéis dentro dos limites x da face ──
                     _y_h0_mr = _p_hs_mr[0]
                     _face_th_mr = _p_hs_mr[-1] - _p_hs_mr[0]   # altura total da face
+                    # xl/xr APENAS da linha H em y_h0 (base do painel, sempre full-width).
+                    # Usar todas as linhas H infla xr/xl com linhas de cota DIMENSION
+                    # que saem fora do painel real, causando lado/largura errados.
                     _hx_mr = []
                     for _ehx in msp:
                         if _ehx.dxftype() != 'LINE': continue
                         if 'PAIN' not in _ehx.dxf.layer.upper(): continue
                         if abs(_ehx.dxf.start.y - _ehx.dxf.end.y) > 0.5: continue
+                        if abs(_ehx.dxf.start.y - _y_h0_mr) > 0.5: continue  # só y_h0
                         _xc_hx = (_ehx.dxf.start.x + _ehx.dxf.end.x) / 2
-                        if (_x_mid_left <= _xc_hx <= _x_mid_right
-                                and _ehx.dxf.start.y >= _y_face_base):
+                        if _x_mid_left <= _xc_hx <= _x_mid_right:
                             _hx_mr.extend([_ehx.dxf.start.x, _ehx.dxf.end.x])
                     if _hx_mr and _face_th_mr > 0:
                         _xl_mr = min(_hx_mr)
@@ -248,6 +267,7 @@ def _extract_pil_from_dxf(dxf_path: str) -> dict:
                             if _xv_r < _x_mid_left or _xv_r > _x_mid_right: continue
                             if abs(_ys_r - _ye_r) < 5.0: continue
                             if max(_ys_r, _ye_r) < _y_face_base: continue
+                            if _y_face_top_mr is not None and max(_ys_r, _ye_r) > _y_face_top_mr + 1.0: continue
                             _ivraw_mr.append({
                                 'x':     round(_xv_r, 1),
                                 'y_bot': round(min(_ys_r, _ye_r), 1),
@@ -275,14 +295,23 @@ def _extract_pil_from_dxf(dxf_path: str) -> dict:
                             def _ep_mr(_xv, _y):
                                 _ep = _mep_mr.get(_y)
                                 return _ep and min(abs(_xv - _ep[0]), abs(_xv - _ep[1])) <= 2.5
-                            if len(_rok_mr) >= 3:
+                            _any_multi_mr = any(len(_g['segs']) > 1 for _g in _rok_mr)
+                            if len(_rok_mr) >= 3 or _any_multi_mr:
                                 _ov_mr = []
                                 for _g in _rok_mr:
+                                    _matched = None
                                     for _sg in sorted(_g['segs'], key=lambda s: s['y_bot']):
                                         if _ep_mr(_g['x'], _sg['y_bot']) or _ep_mr(_g['x'], _sg['y_top']):
-                                            _g['y_bot_u'] = _sg['y_bot']
-                                            _g['y_top_u'] = _sg['y_top']
-                                            _ov_mr.append(_g); break
+                                            _matched = _sg; break
+                                    if _matched:
+                                        _g['y_bot_u'] = _matched['y_bot']
+                                        _g['y_top_u'] = _matched['y_top']
+                                        _ov_mr.append(_g)
+                                    elif _any_multi_mr:
+                                        # sem endpoint match: usa menor segmento
+                                        _sh = min(_g['segs'], key=lambda s: s['y_top'] - s['y_bot'])
+                                        _g['y_bot_u'] = _sh['y_bot']; _g['y_top_u'] = _sh['y_top']
+                                        _ov_mr.append(_g)
                             else:
                                 for _g in _rok_mr:
                                     _g['y_bot_u'] = _g['y_bot']; _g['y_top_u'] = _g['y_top']
@@ -298,14 +327,37 @@ def _extract_pil_from_dxf(dxf_path: str) -> dict:
                                 }
                             elif len(_ov_mr) == 2:
                                 _v1r, _v2r = _ov_mr
-                                result[f'abertura_{_face}'] = {
-                                    'lado':     'meio',
-                                    'largura':  round(_v2r['x'] - _v1r['x'], 1),
-                                    'x_offset': round(_v1r['x'] - _xl_mr, 1),
-                                    'y_rel':    round(min(_v1r['y_bot_u'], _v2r['y_bot_u']) - _y_h0_mr, 1),
-                                    'altura':   round(max(_v1r['y_top_u'], _v2r['y_top_u'])
-                                                     - min(_v1r['y_bot_u'], _v2r['y_bot_u']), 1),
-                                }
+                                _lm = round(_v2r['x'] - _v1r['x'], 1)
+                                _xo = round(_v1r['x'] - _xl_mr, 1)
+                                # detecta slots múltiplos (empilhados)
+                                _sls: list = []
+                                for _sg1 in _v1r['segs']:
+                                    for _sg2 in _v2r['segs']:
+                                        _ol = max(_sg1['y_bot'], _sg2['y_bot'])
+                                        _oh = min(_sg1['y_top'], _sg2['y_top'])
+                                        if _oh - _ol >= 5.0:
+                                            _sb2 = round(_ol, 1); _st2 = round(_oh, 1)
+                                            if not any(abs(_sb2 - s[0]) < 5 for s in _sls):
+                                                _sls.append((_sb2, _st2))
+                                _sls.sort(key=lambda s: s[0])
+                                if len(_sls) <= 1:
+                                    result[f'abertura_{_face}'] = {
+                                        'lado':     'meio',
+                                        'largura':  _lm,
+                                        'x_offset': _xo,
+                                        'y_rel':    round(min(_v1r['y_bot_u'], _v2r['y_bot_u']) - _y_h0_mr, 1),
+                                        'altura':   round(max(_v1r['y_top_u'], _v2r['y_top_u'])
+                                                         - min(_v1r['y_bot_u'], _v2r['y_bot_u']), 1),
+                                    }
+                                else:
+                                    for _si, (_sb2, _st2) in enumerate(_sls, 1):
+                                        result[f'abertura_{_face}_{_si}'] = {
+                                            'lado':     'meio',
+                                            'largura':  _lm,
+                                            'x_offset': _xo,
+                                            'y_rel':    round(_sb2 - _y_h0_mr, 1),
+                                            'altura':   round(_st2 - _sb2, 1),
+                                        }
 
                 # Cotas desta face (valores > 10 excluem h1=2 e larguras 7/19)
                 _face_cotas_y = sorted(

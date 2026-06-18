@@ -499,7 +499,7 @@ class UpdaterGUI(QMainWindow):
                 font-size: 11px;
                 font-weight: 700;
                 color: #555555;
-                letter-spacing: 3px;
+                
                 margin-bottom: 20px;
                 border: none;
             }

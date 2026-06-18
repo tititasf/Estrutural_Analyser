@@ -143,7 +143,7 @@ class DocumentRowItem(QFrame):
         btn_convert_work.setCursor(Qt.PointingHandCursor)
         btn_convert_work.setStyleSheet("""
             QPushButton {
-                background-color: rgba(0,120,212,26);
+                background-color: rgba(0, 120, 212, 26);
                 border: 1px solid {Colors.BORDER_INPUT};
                 color: {Colors.TEXT_SECONDARY};
                 border-radius: 4px;
@@ -151,7 +151,7 @@ class DocumentRowItem(QFrame):
                 font-weight: bold; font-size: 10px;
             }
             QPushButton:hover {
-                background-color: rgba(0,120,212,76);
+                background-color: rgba(0, 120, 212, 76);
                 color: {Colors.TEXT_BRIGHT};
             }
         """)
@@ -162,7 +162,7 @@ class DocumentRowItem(QFrame):
         btn_convert_pavement.setCursor(Qt.PointingHandCursor)
         btn_convert_pavement.setStyleSheet("""
             QPushButton {
-                background-color: rgba(40,167,69,51);
+                background-color: rgba(40, 167, 69, 51);
                 border: 1px solid {Colors.ACCENT_SUCCESS};
                 color: {Colors.ACCENT_SUCCESS};
                 border-radius: 4px;
@@ -170,7 +170,7 @@ class DocumentRowItem(QFrame):
                 font-weight: bold; font-size: 10px;
             }
             QPushButton:hover {
-                background-color: rgba(40,167,69,102);
+                background-color: rgba(40, 167, 69, 102);
             }
         """)
         btn_convert_pavement.clicked.connect(lambda: self.convert_to_pavement_requested.emit(doc_data))

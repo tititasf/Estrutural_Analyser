@@ -199,7 +199,7 @@ class DetailCard(QWidget):
     # Estilos CSS Reutilizáveis — usando tokens do design system
     STYLE_DEFAULT = f"background: {Colors.BG_CARD}; border: 1px solid {Colors.BORDER_INPUT}; padding: 4px 6px; border-radius: {Radius.MD}; color: {Colors.TEXT_PRIMARY}; font-size: {Fonts.SIZE_XL};"
     STYLE_VALID   = f"background: {Colors.BG_CARD}; border: 1px solid {Colors.ACCENT_SUCCESS_ALT}; padding: 4px 6px; border-radius: {Radius.MD}; color: {Colors.TEXT_PRIMARY}; font-size: {Fonts.SIZE_XL}; font-weight: bold;"
-    STYLE_NA      = f"background: rgba(51,51,17,230); border: 1px solid {Colors.ACCENT_INFO}; padding: 4px 6px; border-radius: {Radius.MD}; color: {Colors.ACCENT_INFO}; font-size: {Fonts.SIZE_XL}; font-style: italic;"
+    STYLE_NA      = f"background: rgba(51, 51, 17, 230); border: 1px solid {Colors.ACCENT_INFO}; padding: 4px 6px; border-radius: {Radius.MD}; color: {Colors.ACCENT_INFO}; font-size: {Fonts.SIZE_XL}; font-style: italic;"
 
     def __init__(self, item_data: dict, parent=None,
                  obra_path=None, db=None, project_id: str = ''):
@@ -232,8 +232,8 @@ class DetailCard(QWidget):
         self.data_changed.connect(self._update_header_counts)
 
     def _scan_local_segments(self):
-        """Conta segmentos locais (A, B) para exibição no cabeçalho"""
-        sa, sb = {1}, {1}
+        """Conta segmentos locais (A, B, C) para exibicao no cabecalho"""
+        sa, sb, sc = {1}, {1}, {1}
         for k in self.item_data.keys():
             if '_seg_' in k:
                 try:
@@ -242,13 +242,14 @@ class DetailCard(QWidget):
                         idx = int(parts[parts.index('seg') + 1])
                         if k.startswith('viga_a_'): sa.add(idx)
                         elif k.startswith('viga_b_'): sb.add(idx)
+                        elif k.startswith('viga_fundo_'): sc.add(idx)
                 except: pass
-        return len(sa), len(sb)
+        return len(sa), len(sb), len(sc)
 
     def _update_header_counts(self, _=None):
         """Atualiza widgets de contagem no cabeçalho se existirem"""
-        if 'viga_count_a' in self.fields or 'viga_count_b' in self.fields:
-            na, nb = self._scan_local_segments()
+        if 'viga_count_a' in self.fields or 'viga_count_b' in self.fields or 'viga_count_c' in self.fields:
+            na, nb, nc = self._scan_local_segments()
             
             if 'viga_count_a' in self.fields:
                 self.fields['viga_count_a'].setText(str(na))
@@ -264,7 +265,7 @@ class DetailCard(QWidget):
                         show_links=True, show_focus=True, hide_input=False, show_validate=True, show_na=True):
         
         w = None
-        btn_links = None
+        btn_link = None
         btn_focus = None
         if not hide_input:
             if is_combo:
@@ -327,17 +328,16 @@ class DetailCard(QWidget):
         """)
 
         if show_links:
-            btn_links = QPushButton("🔗")
-            btn_links.setFixedSize(28, 24)
-            btn_links.setProperty("class", "FieldBtn")
-            btn_links.setStyleSheet("font-size: 12px; padding: 2px;")
-            btn_links.setCursor(Qt.PointingHandCursor)
-            btn_links.setToolTip("Gerenciar Vínculos (Expandir)")
-            btn_links.clicked.connect(lambda: self._toggle_link_drawer(field_id, drawer_container))
+            btn_link = QPushButton("Vincular")
+            btn_link.setFixedHeight(22)
+            btn_link.setStyleSheet(f"font-size: 10px; color: {Colors.ACCENT_PRIMARY}; background: transparent; border: none; font-weight: bold; text-align: right;")
+            btn_link.setCursor(Qt.PointingHandCursor)
+            btn_link.setToolTip("Gerenciar Vínculos (Expandir)")
+            btn_link.clicked.connect(lambda checked=False, f=field_id, c=drawer_container, b=btn_link: self._toggle_link_drawer(f, c, b))
 
         if show_focus:
-            btn_focus = QPushButton("🔍")
-            btn_focus.setFixedSize(28, 24)
+            btn_focus = QPushButton("🔍 Zoom")
+            # btn_focus.setFixedSize(28, 24)
             btn_focus.setProperty("class", "FieldBtn")
             btn_focus.setStyleSheet("font-size: 12px; padding: 2px;")
             btn_focus.setCursor(Qt.PointingHandCursor)
@@ -370,7 +370,7 @@ class DetailCard(QWidget):
             w.setMinimumWidth(20) # Permite encolher bastante se necessário
             row_layout.addWidget(w, stretch=1)
             
-        # 3. Bloco de Ações (Fixo à direita)
+        # 3. Bloco de Acoes (Fixo à direita)
         actions_frame = QWidget()
         actions_layout = QHBoxLayout(actions_frame)
         actions_layout.setContentsMargins(0, 0, 0, 0)
@@ -387,54 +387,56 @@ class DetailCard(QWidget):
         conf_indicator.setStyleSheet(f"color: {color}; font-size: 8px; margin-left: 2px;")
         actions_layout.addWidget(conf_indicator)
         
-        if btn_links:
-            btn_links.setText("🔗 Vincular")
-            btn_links.setFixedHeight(20)
-            btn_links.setFixedWidth(75)
-            btn_links.setToolTip("Gerenciar Vínculos")
-            actions_layout.addWidget(btn_links)
+        if btn_link:
+            btn_link.setText("Vínculos")
+            btn_link.setFixedHeight(22)
+            btn_link.setToolTip("Expandir Vínculos")
+            btn_link.setStyleSheet(f"""
+                QPushButton {{ font-size: 10px; color: {Colors.ACCENT_PRIMARY}; background: transparent; border: 1px solid transparent; font-weight: bold; border-radius: 4px; padding: 0 4px; }}
+                QPushButton:hover {{ background: rgba(0, 212, 255, int(1/100*255)); border: 1px solid {Colors.ACCENT_PRIMARY}; }}
+            """)
+            actions_layout.addWidget(btn_link)
 
         if show_validate:
-            btn_express = QPushButton("✔ Validar")
-            btn_express.setFixedHeight(20)
-            btn_express.setFixedWidth(70)
-            btn_express.setToolTip("Validar campo")
+            btn_express = QPushButton("Validar")
+            btn_express.setFixedHeight(22)
+            btn_express.setToolTip("Validação Express (Clique para desfazer)")
             btn_express.setCheckable(True)
             btn_express.setChecked(field_id in self.item_data.get('validated_fields', []))
             btn_express.setProperty("class", "FieldBtn")
             btn_express.setCursor(Qt.PointingHandCursor)
-            btn_express.setToolTip("Validação Express (Clique para desfazer)")
-            # Estilo verde discreto
+            
             btn_express.setStyleSheet(f"""
-                QPushButton {{ color: {Colors.ACCENT_SUCCESS}; border: 1px solid {Colors.BORDER_DEFAULT}; border-radius: 2px; font-size: 10px; font-weight: bold;}}
-                QPushButton:hover {{ background: {Colors.ACCENT_SUCCESS}; color: {Colors.TEXT_BRIGHT}; border: 1px solid {Colors.ACCENT_SUCCESS}; }}
-                QPushButton:checked {{ background: rgba(27,58,36,1); color: {Colors.ACCENT_SUCCESS}; border: 1px solid {Colors.ACCENT_SUCCESS}; }}
+                QPushButton {{ color: {Colors.TEXT_MUTED}; background: transparent; border: 1px solid transparent; border-radius: 4px; font-size: 10px; font-weight: bold; padding: 0 4px;}}
+                QPushButton:hover {{ background: rgba(0, 200, 100, int(1/100*255)); color: {Colors.ACCENT_SUCCESS}; border: 1px solid {Colors.ACCENT_SUCCESS}; }}
+                QPushButton:checked {{ background: rgba(0, 200, 100, int(2/100*255)); color: {Colors.ACCENT_SUCCESS}; border: 1px solid {Colors.ACCENT_SUCCESS}; }}
             """)
             btn_express.clicked.connect(lambda checked, f_id=field_id: self._on_express_validate(f_id))
             actions_layout.addWidget(btn_express)
 
         if btn_focus:
-            btn_focus.setText("🔍 Zoom")
-            btn_focus.setFixedHeight(20)
-            btn_focus.setFixedWidth(60)
+            btn_focus.setText("Focar")
+            btn_focus.setFixedHeight(22)
             btn_focus.setToolTip("Localizar no CAD")
+            btn_focus.setStyleSheet(f"""
+                QPushButton {{ color: {Colors.TEXT_MUTED}; background: transparent; border: 1px solid transparent; border-radius: 4px; font-size: 10px; padding: 0 4px;}}
+                QPushButton:hover {{ background: rgba(255, 255, 255, int(1/100*255)); color: {Colors.TEXT_PRIMARY}; border: 1px solid {Colors.BORDER_DEFAULT}; }}
+            """)
             actions_layout.addWidget(btn_focus)
 
         if show_na:
-            btn_na = QPushButton("🚫 N/A")
-            btn_na.setFixedHeight(20)
-            btn_na.setFixedWidth(55)
-            btn_na.setToolTip("N/A — Não se aplica")
-            btn_na.setProperty("class", "FieldBtn")
-            btn_na.setCursor(Qt.PointingHandCursor)
-            btn_na.setToolTip("Não se aplica / Omitir")
-            btn_na.setStyleSheet(f"""
-                QPushButton {{ color: {Colors.ACCENT_DANGER}; border: 1px solid {Colors.BORDER_DEFAULT}; border-radius: 2px; font-size: 10px; font-weight: bold; }}
-                QPushButton:hover {{ background: {Colors.ACCENT_DANGER}; color: {Colors.TEXT_BRIGHT}; }}
-                QPushButton:checked {{ background: {Colors.ACCENT_INFO}; color: {Colors.BORDER_DEFAULT}; border: 1px solid {Colors.ACCENT_INFO}; }}
-            """)
+            btn_na = QPushButton("N/A")
+            btn_na.setFixedHeight(22)
+            btn_na.setToolTip("Marcar como Não Aplicável")
             btn_na.setCheckable(True)
             btn_na.setChecked(field_id in self.item_data.get('na_fields', []))
+            btn_na.setProperty("class", "FieldBtn")
+            btn_na.setCursor(Qt.PointingHandCursor)
+            btn_na.setStyleSheet(f"""
+                QPushButton {{ color: {Colors.TEXT_MUTED}; background: transparent; border: 1px solid transparent; border-radius: 4px; font-size: 10px; font-weight: bold; padding: 0 4px;}}
+                QPushButton:hover {{ background: rgba(244, 67, 54, int(1/100*255)); color: {Colors.ACCENT_DANGER}; border: 1px solid {Colors.ACCENT_DANGER}; }}
+                QPushButton:checked {{ background: rgba(244, 67, 54, int(2/100*255)); color: {Colors.ACCENT_DANGER}; border: 1px solid {Colors.ACCENT_DANGER}; }}
+            """)
             btn_na.clicked.connect(lambda chk, f_id=field_id: self._on_na_clicked(f_id, chk))
             actions_layout.addWidget(btn_na)
         else:
@@ -442,7 +444,7 @@ class DetailCard(QWidget):
         
         # Guardar referências para bloqueio reativo
         self.action_btns[field_id] = {
-            'link': btn_links,
+            'link': btn_link,
             'focus': btn_focus,
             'na': btn_na,
             'express': btn_express if 'btn_express' in locals() else None
@@ -464,10 +466,11 @@ class DetailCard(QWidget):
             if not visible: field_widget.setText("0.0")
             field_widget.setVisible(True)
 
-    def _toggle_link_drawer(self, field_id, container):
+    def _toggle_link_drawer(self, field_id, container, btn=None):
         """Toggles the inline LinkManager drawer"""
         if container.isVisible():
             container.hide()
+            if btn: btn.setText("▶ Vincular")
         else:
             if container.layout() is None or container.layout().count() == 0:
                 self._load_link_manager_into(field_id, container)
@@ -680,7 +683,7 @@ class DetailCard(QWidget):
                 lm = self.embedded_managers[field_id]
                 lm.na_slots = set(slots_to_na)
                 lm.links = self.item_data['links'].get(field_id, {})
-                lm.refresh_list()
+                lm.refresh_list(partial=True)
             
             # Visual Clean
             widget = self.fields.get(field_id)
@@ -829,9 +832,34 @@ class DetailCard(QWidget):
         
         # Marca e atualiza visual
         self.mark_field_validated(field_id, True)
+        if field_id == "laje_outline_segs":
+            self._record_human_laje_outline_validated()
         
         if self.embedded_managers.get(field_id):
             return
+
+    def _record_human_laje_outline_validated(self):
+        try:
+            from src.core.engrev_laj_n1_interpretacao_learning_store import (
+                record_human_laje_outline_validated,
+            )
+            links = self.item_data.get('links', {}).get('laje_outline_segs', {})
+            elemento_id = (
+                self.item_data.get('id_item')
+                or self.item_data.get('name')
+                or self.item_data.get('nome')
+                or self.item_data.get('id')
+                or 'LAJ'
+            )
+            record_human_laje_outline_validated(
+                elemento_id=str(elemento_id),
+                laje_outline_segs=links,
+                obra_name=self.item_data.get('obra_name') or self.item_data.get('work_name'),
+                pavimento=self.item_data.get('pavimento') or self.item_data.get('pavement_name'),
+                analysis_mode=self.item_data.get('analysis_mode', 'engrev_assisted'),
+            )
+        except Exception as exc:
+            self.log_requested.emit(f"Falha ao registrar evento human_laje_outline_validated: {exc}")
 
     def _add_pilar_opening_group(self, form_layout, label_text, prefix):
         """Creates a specialized grouped row for Pillar Openings (Clean List)"""
@@ -854,16 +882,14 @@ class DetailCard(QWidget):
         drawer.hide()
         drawer.setStyleSheet(f"background: {Colors.BG_DEEP}; border-left: 2px solid {Colors.ACCENT_TEAL};")
 
-        btn_link = QPushButton("🔗 Vincular")
+        btn_link = QPushButton("Vincular")
+        btn_link.setFixedHeight(22)
         btn_link.setCursor(Qt.PointingHandCursor)
-        btn_link.setStyleSheet("""
-            QPushButton { border: 1px solid {Colors.BORDER_INPUT}; border-radius: 4px; background: {Colors.BG_PANEL}; color: {Colors.TEXT_SECONDARY}; padding: 2px 6px; font-size: 10px; }
-            QPushButton:hover { background: {Colors.BG_CARD}; color: {Colors.TEXT_BRIGHT}; border-color: {Colors.TEXT_DIM}; }
-        """)
-        btn_link.clicked.connect(lambda: self._toggle_link_drawer(prefix, drawer))
+        btn_link.setStyleSheet(f"font-size: 10px; color: {Colors.ACCENT_PRIMARY}; background: transparent; border: none; font-weight: bold; text-align: right;")
+        btn_link.clicked.connect(lambda checked=False, p=prefix, d=drawer, b=btn_link: self._toggle_link_drawer(p, d, b))
         
-        btn_focus = QPushButton("🔍")
-        btn_focus.setFixedSize(24, 20)
+        btn_focus = QPushButton("🔍 Zoom")
+        # btn_focus.setFixedSize(24, 20)
         btn_focus.setCursor(Qt.PointingHandCursor)
         btn_focus.setStyleSheet(f"background: transparent; border: 1px solid {Colors.BORDER_INPUT}; color: {Colors.TEXT_SECONDARY}; font-size: 10px;")
         btn_focus.clicked.connect(lambda checked=False, p=prefix: self.focus_requested.emit(p))
@@ -918,16 +944,14 @@ class DetailCard(QWidget):
         drawer.hide()
         drawer.setStyleSheet(f"background: {Colors.BG_DEEP}; border-left: 2px solid {Colors.ACCENT_TEAL};")
 
-        btn_link = QPushButton("🔗 Vincular")
+        btn_link = QPushButton("Vincular")
+        btn_link.setFixedHeight(22)
         btn_link.setCursor(Qt.PointingHandCursor)
-        btn_link.setStyleSheet("""
-            QPushButton { border: 1px solid {Colors.BORDER_INPUT}; border-radius: 4px; background: {Colors.BG_PANEL}; color: {Colors.TEXT_SECONDARY}; padding: 2px 6px; font-size: 10px; }
-            QPushButton:hover { background: {Colors.BG_CARD}; color: {Colors.TEXT_BRIGHT}; border-color: {Colors.TEXT_DIM}; }
-        """)
-        btn_link.clicked.connect(lambda: self._toggle_link_drawer(prefix, drawer))
+        btn_link.setStyleSheet(f"font-size: 10px; color: {Colors.ACCENT_PRIMARY}; background: transparent; border: none; font-weight: bold; text-align: right;")
+        btn_link.clicked.connect(lambda checked=False, p=prefix, d=drawer, b=btn_link: self._toggle_link_drawer(p, d, b))
         
-        btn_focus = QPushButton("🔍")
-        btn_focus.setFixedSize(24, 20)
+        btn_focus = QPushButton("🔍 Zoom")
+        # btn_focus.setFixedSize(24, 20)
         btn_focus.setCursor(Qt.PointingHandCursor)
         btn_focus.setStyleSheet(f"background: transparent; border: 1px solid {Colors.BORDER_INPUT}; color: {Colors.TEXT_SECONDARY}; font-size: 10px;")
         btn_focus.clicked.connect(lambda checked=False, p=prefix: self.focus_requested.emit(p))
@@ -1064,7 +1088,7 @@ class DetailCard(QWidget):
                         txt = f"{count} Vínculo(s) ✅" if count > 0 else "Validado ✅"
                         if w.text() != txt:
                             w.setText(txt)
-                            w.setStyleSheet(f"color: {Colors.ACCENT_SUCCESS_ALT}; font-weight: bold; font-size: 11px; background: rgba(0,204,102,26); border: 1px solid {Colors.ACCENT_SUCCESS_ALT}; border-radius: 4px; padding: 2px;")
+                            w.setStyleSheet(f"color: {Colors.ACCENT_SUCCESS_ALT}; font-weight: bold; font-size: 11px; background: rgba(0, 204, 102, 26); border: 1px solid {Colors.ACCENT_SUCCESS_ALT}; border-radius: 4px; padding: 2px;")
                     elif count > 0:
                         txt = f"{count} Vínculo(s) Ok"
                         if w.text() != txt:
@@ -1126,18 +1150,21 @@ class DetailCard(QWidget):
             self._add_linked_row(h_layout, "Nome:", "name", "text")
             
             if 'VIGA' in elem_type:
-                 # Campo Segmentos agora contém apenas seg_bottom (fundos)
-                 # self._add_linked_row(h_layout, "Segmentos:", "viga_segs", "poly", hide_input=True)
+                 itype = self.item_data.get('type', '').lower()
+                 na, nb, nc = self._scan_local_segments()
                  
-                 # Novos contadores de segmentos (Read Only via update loop)
-                 na, nb = self._scan_local_segments()
-                 self._add_linked_row(h_layout, "Qtd. Seg. A:", "viga_count_a", "text", show_links=False, show_focus=False, show_validate=False, show_na=False)
-                 self.fields['viga_count_a'].setText(str(na))
-                 self.fields['viga_count_a'].setReadOnly(True)
-                 
-                 self._add_linked_row(h_layout, "Qtd. Seg. B:", "viga_count_b", "text", show_links=False, show_focus=False, show_validate=False, show_na=False)
-                 self.fields['viga_count_b'].setText(str(nb))
-                 self.fields['viga_count_b'].setReadOnly(True)
+                 if itype == 'viga_fundo_c':
+                     self._add_linked_row(h_layout, "Qtd. Seg. C:", "viga_count_c", "text", show_links=False, show_focus=False, show_validate=False, show_na=False)
+                     self.fields['viga_count_c'].setText(str(nc))
+                     self.fields['viga_count_c'].setReadOnly(True)
+                 else:
+                     self._add_linked_row(h_layout, "Qtd. Seg. A:", "viga_count_a", "text", show_links=False, show_focus=False, show_validate=False, show_na=False)
+                     self.fields['viga_count_a'].setText(str(na))
+                     self.fields['viga_count_a'].setReadOnly(True)
+                     
+                     self._add_linked_row(h_layout, "Qtd. Seg. B:", "viga_count_b", "text", show_links=False, show_focus=False, show_validate=False, show_na=False)
+                     self.fields['viga_count_b'].setText(str(nb))
+                     self.fields['viga_count_b'].setReadOnly(True)
                  
                  # Trigger initial style
                  self._update_header_counts()
@@ -1270,6 +1297,7 @@ class DetailCard(QWidget):
         self._add_linked_row(f_pont, "Altura do Pavimento cm [pont_altura_pav]:", "pont_altura_pav", "text")
         self._add_linked_row(f_pont, "Comprimento da Laje cm (pontalete) [pont_comp_cm]:", "pont_comp_cm", "text")
         self._add_linked_row(f_pont, "Largura da Laje cm (pontalete) [pont_larg_cm]:", "pont_larg_cm", "text")
+        grp_pont.setVisible(False)
         l.addWidget(grp_pont)
         
         l.addWidget(grp)
@@ -1413,7 +1441,19 @@ class DetailCard(QWidget):
     def _setup_viga_complex_view(self, layout):
         """Implementa detalhamento rigoroso de Lado A, Lado B e Fundo"""
         tabs = QTabWidget()
-        sides_config = [('A', 'Lado A', False), ('B', 'Lado B', False), ('Fundo', 'Fundo', True)]
+        itype = self.item_data.get('type', '').lower()
+        if itype == 'viga_lateral_a':
+            sides_config = [('A', 'Lado A', False)]
+        elif itype == 'viga_lateral_b':
+            sides_config = [('B', 'Lado B', False)]
+        elif itype == 'viga_fundo_c':
+            sides_config = [('Fundo', 'Fundo Lado C', True)]
+        elif itype == 'viga_lateral':
+            sides_config = [('A', 'Lado A', False), ('B', 'Lado B', False)]
+        elif itype == 'viga_fundo':
+            sides_config = [('Fundo', 'Fundo', True)]
+        else:
+            sides_config = [('A', 'Lado A', False), ('B', 'Lado B', False), ('Fundo', 'Fundo Lado C', True)]
         
         for side, label, is_bottom in sides_config:
             tab = QWidget()
@@ -1447,7 +1487,7 @@ class DetailCard(QWidget):
                 # Botão Add
                 btn_add = QPushButton(" + Adicionar Segmento Completo")
                 btn_add.setFixedHeight(30)
-                btn_add.setStyleSheet(f"background: rgba(0,68,68,1); color: {Colors.ACCENT_MINT}; border: 1px dashed {Colors.ACCENT_MINT}; font-weight: bold; font-size: 11px;")
+                btn_add.setStyleSheet(f"background: rgba(0, 68, 68, 1); color: {Colors.ACCENT_MINT}; border: 1px dashed {Colors.ACCENT_MINT}; font-weight: bold; font-size: 11px;")
                 btn_add.setCursor(Qt.PointingHandCursor)
                 btn_add.clicked.connect(lambda checked=False, l=segs_layout, p=prefix: self._add_rich_segment_pack(l, p))
                 tab_l.addWidget(btn_add)
@@ -1476,7 +1516,7 @@ class DetailCard(QWidget):
                 # Botão Adicionar Segmento Fundo
                 btn_add = QPushButton(" + Adicionar Segmento Fundo")
                 btn_add.setFixedHeight(30)
-                btn_add.setStyleSheet("background: rgba(68,0,68,1); color: rgba(255,136,255,1); border: 1px dashed rgba(255,136,255,1); font-weight: bold; font-size: 11px;")
+                btn_add.setStyleSheet("background: rgba(68, 0, 68, 1); color: rgba(255, 136, 255, 1); border: 1px dashed rgba(255, 136, 255, 1); font-weight: bold; font-size: 11px;")
                 btn_add.setCursor(Qt.PointingHandCursor)
                 btn_add.clicked.connect(lambda checked=False, l=segs_layout, p=prefix: self._add_fundo_segment_pack(l, p))
                 tab_l.addWidget(btn_add)
@@ -1512,29 +1552,29 @@ class DetailCard(QWidget):
             
         seg_uid = f"{prefix}_seg_{idx}"
         
-        # Grupo Principal do Segmento
-        pack = QGroupBox(f"Segmento {idx}")
-        # Estilo "Gigante" e visível
-        pack.setStyleSheet(f"""
-            QGroupBox {{
-                font-size: 12px;
-                font-weight: bold;
-                border: 2px solid {Colors.BORDER_INPUT};
-                border-radius: 6px;
-                margin-top: 10px;
-                padding-top: 15px;
-                background: {Colors.BG_PANEL};
-            }}
-            QGroupBox::title {{
-                color: {Colors.ACCENT_MINT};
-                subcontrol-origin: margin;
-                left: 10px;
-                padding: 0 3px 0 3px;
-            }}
-        """)
+        # Grupo Principal do Segmento (Retratil)
+        pack = QWidget()
+        pack_layout = QVBoxLayout(pack)
+        pack_layout.setContentsMargins(0, 5, 0, 5)
+        pack_layout.setSpacing(0)
+        
+        btn_toggle = QPushButton(f"▼ Segmento {idx}")
+        btn_toggle.setStyleSheet(f"text-align: left; font-size: 13px; font-weight: bold; color: {Colors.ACCENT_MINT}; background: {Colors.BG_CARD}; padding: 8px; border: 1px solid {Colors.BORDER_INPUT}; border-radius: 4px;")
+        btn_toggle.setCursor(Qt.PointingHandCursor)
+        
+        content_frame = QFrame()
+        content_frame.setStyleSheet(f"border: 1px solid {Colors.BORDER_INPUT}; border-top: none; background: {Colors.BG_PANEL};")
+        
+        pack_layout.addWidget(btn_toggle)
+        pack_layout.addWidget(content_frame)
+        
+        btn_toggle.clicked.connect(lambda checked=False, cf=content_frame, btn=btn_toggle, i=idx: (
+            cf.setVisible(not cf.isVisible()),
+            btn.setText(f"▼ Segmento {i}" if cf.isVisible() else f"▶ Segmento {i}")
+        ))
         
         # Layout principal do pack
-        main_v = QVBoxLayout(pack)
+        main_v = QVBoxLayout(content_frame)
         main_v.setSpacing(10)
         
         # 1. Campos de Geometria (FormLayout)
@@ -1730,29 +1770,29 @@ class DetailCard(QWidget):
 
         seg_uid = f"{prefix}_seg_{idx}"
         
-        # Grupo Principal do Segmento
-        pack = QGroupBox(f"Segmento Fundo {idx}")
-        # Estilo "Gigante" e visível (Mesmo estilo do side)
-        pack.setStyleSheet("""
-            QGroupBox { 
-                font-size: 12px; 
-                font-weight: bold; 
-                border: 2px solid rgba(85,68,170,1); 
-                border-radius: 6px;
-                margin-top: 10px; 
-                padding-top: 15px; 
-                background: {Colors.BG_PANEL};
-            }
-            QGroupBox::title {
-                color: rgba(170,136,255,1);
-                subcontrol-origin: margin;
-                left: 10px;
-                padding: 0 3px 0 3px;
-            }
-        """)
+        # Grupo Principal do Segmento (Retratil)
+        pack = QWidget()
+        pack_layout = QVBoxLayout(pack)
+        pack_layout.setContentsMargins(0, 5, 0, 5)
+        pack_layout.setSpacing(0)
+        
+        btn_toggle = QPushButton(f"▼ Segmento Fundo {idx}")
+        btn_toggle.setStyleSheet(f"text-align: left; font-size: 13px; font-weight: bold; color: rgba(170, 136, 255, 1); background: {Colors.BG_CARD}; padding: 8px; border: 1px solid {Colors.BORDER_INPUT}; border-radius: 4px;")
+        btn_toggle.setCursor(Qt.PointingHandCursor)
+        
+        content_frame = QFrame()
+        content_frame.setStyleSheet(f"border: 1px solid {Colors.BORDER_INPUT}; border-top: none; background: {Colors.BG_PANEL};")
+        
+        pack_layout.addWidget(btn_toggle)
+        pack_layout.addWidget(content_frame)
+        
+        btn_toggle.clicked.connect(lambda checked=False, cf=content_frame, btn=btn_toggle, i=idx: (
+            cf.setVisible(not cf.isVisible()),
+            btn.setText(f"▼ Segmento Fundo {i}" if cf.isVisible() else f"▶ Segmento Fundo {i}")
+        ))
         
         # Layout principal do pack
-        main_v = QVBoxLayout(pack)
+        main_v = QVBoxLayout(content_frame)
         main_v.setSpacing(10)
         
         # 1. Campos de Engenharia (FormLayout)
@@ -2229,7 +2269,7 @@ class DetailCard(QWidget):
             
             lbl_ref = QLabel("Referência"); lbl_ref.setStyleSheet(f"font-weight: bold; color: {Colors.TEXT_SECONDARY};")
             lbl_tam = QLabel("Tamanho"); lbl_tam.setStyleSheet(f"font-weight: bold; color: {Colors.TEXT_SECONDARY};")
-            lbl_lnk = QLabel("Ações"); lbl_lnk.setStyleSheet(f"font-weight: bold; color: {Colors.TEXT_SECONDARY};")
+            lbl_lnk = QLabel("Acoes"); lbl_lnk.setStyleSheet(f"font-weight: bold; color: {Colors.TEXT_SECONDARY};")
             lbl_val = QLabel("Soma (cm)"); lbl_val.setStyleSheet(f"font-weight: bold; color: {Colors.TEXT_SECONDARY};")
             
             h_lay.addWidget(lbl_ref, 2)
@@ -2273,8 +2313,8 @@ class DetailCard(QWidget):
                 drawer.setStyleSheet(f"background: {Colors.BG_DEEP}; border-left: 3px solid {Colors.ACCENT_PRIMARY}; margin: 2px; border-radius: 2px;")
                 
                 # Botão ZOOM
-                btn_zoom = QPushButton("🔍")
-                btn_zoom.setFixedSize(24, 24)
+                btn_zoom = QPushButton("🔍 Zoom")
+                # btn_zoom.setFixedSize(24, 24)
                 btn_zoom.setCursor(Qt.PointingHandCursor)
                 btn_zoom.setStyleSheet("""
                     QPushButton { 
@@ -2286,21 +2326,15 @@ class DetailCard(QWidget):
                 btn_zoom.clicked.connect(lambda checked=False, f=field_key: self.focus_requested.emit(f))
                 
                 # Botão VINC
-                btn_link = QPushButton("🔗")
-                btn_link.setFixedSize(24, 24)
+                btn_link = QPushButton("Vincular")
+                btn_link.setFixedHeight(22)
                 btn_link.setCursor(Qt.PointingHandCursor)
-                btn_link.setStyleSheet(f"""
-                    QPushButton {{
-                        background: rgba(60, 60, 60, 180); border: 1px solid {Colors.BORDER_INPUT}; border-radius: 3px;
-                        color: {Colors.ACCENT_PRIMARY}; font-size: 13px; font-weight: bold; padding: 0px;
-                    }}
-                    QPushButton:hover {{ background: rgba(100, 100, 100, 255); border: 1px solid {Colors.ACCENT_PRIMARY}; }}
-                """)
-                btn_link.clicked.connect(lambda checked=False, f=field_key, d=drawer: self._toggle_link_drawer(f, d))
+                btn_link.setStyleSheet(f"font-size: 10px; color: {Colors.ACCENT_PRIMARY}; background: transparent; border: none; font-weight: bold; text-align: right;")
+                btn_link.clicked.connect(lambda checked=False, f=field_key, d=drawer, b=btn_link: self._toggle_link_drawer(f, d, b))
                 
                 # Botão EXCL
-                btn_del = QPushButton("✖")
-                btn_del.setFixedSize(24, 24)
+                btn_del = QPushButton("✖ Excluir")
+                # btn_del.setFixedSize(24, 24)
                 btn_del.setCursor(Qt.PointingHandCursor)
                 btn_del.setStyleSheet("""
                     QPushButton { 
@@ -2348,8 +2382,8 @@ class DetailCard(QWidget):
         # Botão Adicionar Nova Viga
         btn_add = QPushButton("➕ ADICIONAR VIGA MANUAL")
         btn_add.setStyleSheet(f"""
-            QPushButton {{ background: rgba(26,58,90,1); color: {Colors.ACCENT_PRIMARY}; border: 1px dashed {Colors.ACCENT_PRIMARY}; padding: 8px; font-weight: bold; margin-top: 10px; border-radius: 4px;}}
-            QPushButton:hover {{ background: rgba(42,90,138,1); border-style: solid; }}
+            QPushButton {{ background: rgba(26, 58, 90, 1); color: {Colors.ACCENT_PRIMARY}; border: 1px dashed {Colors.ACCENT_PRIMARY}; padding: 8px; font-weight: bold; margin-top: 10px; border-radius: 4px;}}
+            QPushButton:hover {{ background: rgba(42, 90, 138, 1); border-style: solid; }}
         """)
         btn_add.clicked.connect(self._add_manual_marco_row)
         layout.addWidget(btn_add)
@@ -2593,7 +2627,7 @@ class DetailCard(QWidget):
         grid = QGridLayout()
         grid.setSpacing(5)
         
-        headers = ["Lado", "Distância (cm)", "Largura (cm)", "Ações"]
+        headers = ["Lado", "Distância (cm)", "Largura (cm)", "Acoes"]
         for col, h in enumerate(headers):
             lbl = QLabel(h)
             lbl.setStyleSheet(f"font-size: 10px; font-weight: bold; color: {Colors.TEXT_SECONDARY};")
@@ -2606,7 +2640,7 @@ class DetailCard(QWidget):
         grid.addWidget(f_dist_e, 1, 1)
         grid.addWidget(f_larg_e, 1, 2)
         
-        # Ações Pilar Esquerdo
+        # Acoes Pilar Esquerdo
         actions_e, drawer_e = self._create_action_buttons_for_row(key_esq)
         grid.addWidget(actions_e, 1, 3)
         grid.addWidget(drawer_e, 2, 0, 1, 4) # Span 4 cols
@@ -2618,7 +2652,7 @@ class DetailCard(QWidget):
         grid.addWidget(f_dist_d, 3, 1)
         grid.addWidget(f_larg_d, 3, 2)
         
-        # Ações Pilar Direito
+        # Acoes Pilar Direito
         actions_d, drawer_d = self._create_action_buttons_for_row(key_dir)
         grid.addWidget(actions_d, 3, 3)
         grid.addWidget(drawer_d, 4, 0, 1, 4)
@@ -2641,7 +2675,7 @@ class DetailCard(QWidget):
         grid.setSpacing(4)
         grid.setVerticalSpacing(8)
         
-        headers = ["Posição", "Profundidade", "Boca/Largura", "Ref. (H)", "Ações"]
+        headers = ["Posição", "Profundidade", "Boca/Largura", "Ref. (H)", "Acoes"]
         for col, h in enumerate(headers):
             lbl = QLabel(h)
             lbl.setAlignment(Qt.AlignCenter)
@@ -2672,7 +2706,7 @@ class DetailCard(QWidget):
             grid.addWidget(f_boca, row_idx, 2, Qt.AlignCenter)
             grid.addWidget(h_sel, row_idx, 3, Qt.AlignCenter)
             
-            # Ações
+            # Acoes
             actions_w, drawer_w = self._create_action_buttons_for_row(key)
             grid.addWidget(actions_w, row_idx, 4)
             grid.addWidget(drawer_w, row_idx + 1, 0, 1, 5) # Span 5 cols
@@ -2734,8 +2768,8 @@ class DetailCard(QWidget):
         drawer.setStyleSheet(f"background: {Colors.BG_DEEP}; border-top: 1px solid {Colors.BORDER_INPUT}; margin-top: 2px;")
 
         # Botão Vincular
-        btn_link = QPushButton("Vinc.")
-        btn_link.setFixedSize(40, 22)
+        btn_link = QPushButton("Vincular")
+        btn_link.setFixedHeight(22)
         btn_link.setProperty("class", "FieldBtn")
         btn_link.setCursor(Qt.PointingHandCursor)
         btn_link.setToolTip("Vincular / Gerenciar")

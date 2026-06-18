@@ -255,9 +255,44 @@ def process_beam_intelligent(b: Dict) -> None:
             if not is_start and not is_end:
                 b['links']['aberturas']['pilar'].append(s)
 
-    # 12. Fundos
-    len_bottom = _process_segments('seg_bottom', 'Fundo', 'viga_segs')
+    # 12. Fundos (Geometria inteligente)
+    bottom_lines = classified.get('seg_bottom', [])
+    len_bottom = 0.0
+    
+    # Extrair largura base do texto de dimensao mestre (ex: 20x60 -> 20)
+    base_width = ""
+    if main_dim_text:
+        import re
+        match = re.search(r'(\d+)\s*[xX]\s*(\d+)', main_dim_text)
+        if match:
+            base_width = match.group(1)
+
+    for idx, line in enumerate(bottom_lines, 1):
+        p1, p2 = line[0], line[-1]
+        length = ((p2[0] - p1[0]) ** 2 + (p2[1] - p1[1]) ** 2) ** 0.5
+        len_bottom += length
+        
+        seg_uid = f"viga_fundo_c_seg_{idx}"
+        
+        # O DetailCard precisa saber que o segmento existe
+        b[f"{seg_uid}_exists"] = True
+        
+        # Injetar links para Área Geometria (Link Drawer espera a chave 'contour')
+        area_key = f"{seg_uid}_area_segs"
+        if area_key not in b['links']:
+            b['links'][area_key] = {'contour': []}
+            
+        b['links'][area_key]['contour'].append(
+            {'type': 'poly', 'points': line, 'len': length, 'tag': 'Geometria Fundo'}
+        )
+        
+        # Auto preencher campos derivados da geometria
+        b['fields'][f"{seg_uid}_comprimento_calculado"] = round(length, 1)
+        b['fields'][f"{seg_uid}_largura"] = base_width
+
     b['fields']['comprimento_fundo'] = round(len_bottom, 1)
+    b['seg_c'] = len(bottom_lines) # Quantidade de segmentos detectados
+
 
 
 # ──────────────────────────────────────────────────────────────────────────────

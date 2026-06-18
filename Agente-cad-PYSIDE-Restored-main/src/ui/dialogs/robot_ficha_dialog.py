@@ -45,7 +45,7 @@ class RobotFichaDialog(QDialog):
         h_layout = QVBoxLayout(header)
         
         title = QLabel(self.type_str.upper())
-        title.setStyleSheet(f"color: {Colors.ACCENT_PRIMARY}; font-weight: bold; font-size: 10px; letter-spacing: 1px;")
+        title.setStyleSheet(f"color: {Colors.ACCENT_PRIMARY}; font-weight: bold; font-size: 10px; ")
         h_layout.addWidget(title)
         
         name_label = QLabel(self.item_name)
