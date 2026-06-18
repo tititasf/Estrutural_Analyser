@@ -729,13 +729,14 @@ def draw_abcd(msp, base_x, base_y, comp, larg, altura, nome, pj):
     y_bot = base_y - 100 - pd_cm
 
     # ABCD PAIRED pattern (N2 ground truth 13_PAV):
-    # A=B → comp-direction: panel width = comp + 22 (NOT grade_1 — grade_1 can differ)
-    # C=D → larg-direction: panel width = min(larg, 19) per N2 observation
+    # A=B → comp-direction: panel width = comp + 22
+    # C=D → larg-direction: panel width from N2 DXF geometry (larg_c_geom)
+    # fallback: min(larg, 19) per historical SCR convention
     larg_a = comp + 22
     larg_b = comp + 22
-    larg_inner = min(larg, 19) if larg >= 19 else larg  # N2: both larg=24 and larg=30 → 19
-    larg_c = larg_inner
-    larg_d = larg_inner
+    _larg_c_raw = pj.get('larg_c_geom') or (min(larg, 19) if larg >= 19 else larg)
+    larg_c = float(_larg_c_raw)
+    larg_d = larg_c
 
     x_a = base_x + X_OFFSET
     x_b = x_a + larg_a + GAP_AB
@@ -819,7 +820,7 @@ def draw_abcd(msp, base_x, base_y, comp, larg, altura, nome, pj):
 
         # Painéis — N2 pattern: C/D faces are taller than A/B (N2 verified 13°PAV)
         y0      = y_bot
-        h1      = float(pj.get(f'h1_{fid}', H1_DEFAULT))
+        h1      = float(pj.get(f'h1_geom_{fid}', pj.get(f'h1_{fid}', H1_DEFAULT)))
         h2_face = float(pj.get(f'h2_{fid}', 244.0))
         h_low   = h1 + h2_face / 2.0   # first sub-panel boundary
         y_low   = y0 + h_low
