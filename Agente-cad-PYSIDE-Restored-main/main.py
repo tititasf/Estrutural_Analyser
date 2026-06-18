@@ -1573,13 +1573,18 @@ class MainWindow(QMainWindow):
         self.list_pillars.setColumnWidth(2, 60)
 
         self.list_beams = QTreeWidget()
-        self.list_beams.setHeaderLabels(["Item", "Nome", "Status", "%", "Seg. A", "Seg. B"])
+        self.list_beams.setHeaderLabels(["Item", "Nome", "Status", "%"])
         self.list_beams.setColumnWidth(0, 50)
-        self.list_beams.setColumnWidth(1, 120)
+        self.list_beams.setColumnWidth(1, 150)
         self.list_beams.setColumnWidth(2, 60)
         self.list_beams.setColumnWidth(3, 40)
-        self.list_beams.setColumnWidth(4, 60)
-        self.list_beams.setColumnWidth(5, 60)
+
+        self.list_beams_fundo = QTreeWidget()
+        self.list_beams_fundo.setHeaderLabels(["Item", "Nome", "Status", "%"])
+        self.list_beams_fundo.setColumnWidth(0, 50)
+        self.list_beams_fundo.setColumnWidth(1, 150)
+        self.list_beams_fundo.setColumnWidth(2, 60)
+        self.list_beams_fundo.setColumnWidth(3, 40)
         
         self.list_slabs = QTreeWidget()
         self.list_slabs.setHeaderLabels(["Item", "Nome", "Status", "%", "Ação"]) # + Ação
@@ -1599,6 +1604,9 @@ class MainWindow(QMainWindow):
         self.list_beams.itemClicked.connect(self.on_list_beam_clicked)
         self.list_beams.currentItemChanged.connect(lambda curr, prev: self.on_list_beam_clicked(curr, 0) if curr else None)
         
+        self.list_beams_fundo.itemClicked.connect(self.on_list_beam_clicked)
+        self.list_beams_fundo.currentItemChanged.connect(lambda curr, prev: self.on_list_beam_clicked(curr, 0) if curr else None)
+        
         self.list_slabs.itemClicked.connect(lambda item, col: self.on_list_slab_clicked(item))
         self.list_slabs.currentItemChanged.connect(lambda curr, prev: self.on_list_slab_clicked(curr) if curr else None)
         
@@ -1607,7 +1615,8 @@ class MainWindow(QMainWindow):
         
         # Adicionar Abas com Containers
         self.tabs_analysis_internal.addTab(create_tab_container(self.list_pillars, 'pillar', False), "Pilares")
-        self.tabs_analysis_internal.addTab(create_tab_container(self.list_beams, 'beam', False), "Vigas")
+        self.tabs_analysis_internal.addTab(create_tab_container(self.list_beams, 'beam', False), "Lat. de Vigas")
+        self.tabs_analysis_internal.addTab(create_tab_container(self.list_beams_fundo, 'beam_fundo', False), "Fun. de Vigas")
         self.tabs_analysis_internal.addTab(create_tab_container(self.list_slabs, 'slab', False), "Lajes")
         self.tabs_analysis_internal.addTab(self.list_issues, "⚠️ Pendências")
 
@@ -1634,13 +1643,18 @@ class MainWindow(QMainWindow):
         self.list_pillars_valid.setColumnWidth(2, 60)
 
         self.list_beams_valid = QTreeWidget()
-        self.list_beams_valid.setHeaderLabels(["Item", "Nome", "Status", "%", "Seg. A", "Seg. B"])
+        self.list_beams_valid.setHeaderLabels(["Item", "Nome", "Status", "%"])
         self.list_beams_valid.setColumnWidth(0, 50)
-        self.list_beams_valid.setColumnWidth(1, 120)
+        self.list_beams_valid.setColumnWidth(1, 150)
         self.list_beams_valid.setColumnWidth(2, 60)
         self.list_beams_valid.setColumnWidth(3, 40)
-        self.list_beams_valid.setColumnWidth(4, 60)
-        self.list_beams_valid.setColumnWidth(5, 60)
+
+        self.list_beams_fundo_valid = QTreeWidget()
+        self.list_beams_fundo_valid.setHeaderLabels(["Item", "Nome", "Status", "%"])
+        self.list_beams_fundo_valid.setColumnWidth(0, 50)
+        self.list_beams_fundo_valid.setColumnWidth(1, 150)
+        self.list_beams_fundo_valid.setColumnWidth(2, 60)
+        self.list_beams_fundo_valid.setColumnWidth(3, 40)
 
         self.list_slabs_valid = QTreeWidget()
         self.list_slabs_valid.setHeaderLabels(["Item", "Nome", "Status", "%", "Ação"])
@@ -1657,12 +1671,16 @@ class MainWindow(QMainWindow):
         self.list_beams_valid.itemClicked.connect(self.on_list_beam_clicked)
         self.list_beams_valid.currentItemChanged.connect(lambda curr, prev: self.on_list_beam_clicked(curr, 0) if curr else None)
         
+        self.list_beams_fundo_valid.itemClicked.connect(self.on_list_beam_clicked)
+        self.list_beams_fundo_valid.currentItemChanged.connect(lambda curr, prev: self.on_list_beam_clicked(curr, 0) if curr else None)
+        
         self.list_slabs_valid.itemClicked.connect(lambda item, col: self.on_list_slab_clicked(item))
         self.list_slabs_valid.currentItemChanged.connect(lambda curr, prev: self.on_list_slab_clicked(curr) if curr else None)
         
         # Adicionar Abas com Containers
         self.tabs_library_internal.addTab(create_tab_container(self.list_pillars_valid, 'pillar', True), "Pilares OK")
-        self.tabs_library_internal.addTab(create_tab_container(self.list_beams_valid, 'beam', True), "Vigas OK")
+        self.tabs_library_internal.addTab(create_tab_container(self.list_beams_valid, 'beam', True), "Lat. Vigas OK")
+        self.tabs_library_internal.addTab(create_tab_container(self.list_beams_fundo_valid, 'beam_fundo', True), "Fun. Vigas OK")
         self.tabs_library_internal.addTab(create_tab_container(self.list_slabs_valid, 'slab', True), "Lajes OK")
         
         # Conectar mudança de aba interna (Biblioteca)
@@ -4474,6 +4492,7 @@ class MainWindow(QMainWindow):
         # Limpar Listas
         self.list_pillars.clear()
         self.list_beams.clear()
+        if hasattr(self, "list_beams_fundo"): self.list_beams_fundo.clear()
         self.list_slabs.clear()
         
         # Resetar dados internos
@@ -4541,7 +4560,8 @@ class MainWindow(QMainWindow):
                      print(f"DEBUG: Viga {b['name']} re-analisada (Não validada).")
 
         # 1.0b Finalizar Lista de Vigas Hierárquica
-        self._populate_beam_tree(self.list_beams, self.beams_found)
+        self._populate_beam_tree(self.list_beams, self.beams_found, "lateral")
+        self._populate_beam_tree(self.list_beams_fundo, self.beams_found, "fundo")
 
         # 1.1 Detect Slabs (Lajes)
         self.update_progress(30, "Mapeando Lajes...")
@@ -4843,10 +4863,11 @@ class MainWindow(QMainWindow):
 
     def on_list_beam_clicked(self, item, column=0):
         beam_id = item.data(0, Qt.UserRole)
+        override_type = item.data(0, Qt.UserRole + 1)
         if not beam_id: return # Clicou no nó pai
         beam = next((b for b in self.beams_found if b['id'] == beam_id), None)
         if beam:
-            self.show_detail(beam)
+            self.show_detail(beam, override_type=override_type)
             # 1. Isolar no Canvas (Esconde todas as outras e mostra apenas esta)
             self.canvas.isolate_item(beam_id, 'beam', apply_zoom=False)
             
@@ -5943,7 +5964,8 @@ class MainWindow(QMainWindow):
                     is_in_valid_list = any(w.treeWidget() == valid_list for w in self.tree_item_map.get(p_id, []))
                     if not is_in_valid_list:
                         valid_beams = [b for b in self.beams_found if b.get('is_validated')]
-                        self._populate_beam_tree(valid_list, valid_beams)
+                        self._populate_beam_tree(valid_list, valid_beams, "lateral")
+                        self._populate_beam_tree(self.list_beams_fundo_valid, valid_beams, "fundo")
                 else:
                     for i in range(target_list.topLevelItemCount()):
                          it = target_list.topLevelItem(i)
@@ -6645,7 +6667,7 @@ class MainWindow(QMainWindow):
             tree_widget.resizeColumnToContents(1)
 
 
-    def _populate_beam_tree(self, tree_widget, beam_list):
+    def _populate_beam_tree(self, tree_widget, beam_list, list_type='lateral'):
         # Limpar cache de itens deste widget específico
         for iid, widgets in self.tree_item_map.items():
             safe = []
@@ -6674,56 +6696,48 @@ class MainWindow(QMainWindow):
             
         for p_name, segments in groups.items():
             parent_item = QTreeWidgetItem(tree_widget)
-            parent_item.setText(1, f"📂 {p_name}")
+            prefix = "F." if list_type == 'fundo' else "L."
+            parent_item.setText(1, f"📁 {prefix}{p_name}")
             parent_item.setExpanded(True)
             parent_item.setFlags(parent_item.flags() & ~Qt.ItemIsSelectable)
             
             for b in segments:
                 # Status
-                status = "❓"
-                if b.get('is_fully_validated'): status = "🔵"
-                elif b.get('is_validated'): status = "✅"
+                status = "⏱"
+                if b.get('is_fully_validated'): status = "✔️"
+                elif b.get('is_validated'): status = "✔️"
                 elif b.get('issues'): status = "⚠️"
-                
-                # Segmentos (Reais)
-                na, nb, _ = self._scan_beam_segments(b)
                 
                 # % Completitude
                 pct = self._calculate_completion(b)
                 pct_str = f"{int(pct)}%"
                 
-                child = QTreeWidgetItem(parent_item)
-                child.setText(0, str(b.get('id_item', '??')))
-                child.setText(1, str(b.get('name', 'V?')))
-                child.setText(2, str(status))
-                child.setText(3, str(pct_str))
-                child.setText(4, str(na))
-                child.setText(5, str(nb))
-                
-                # Registrar no Cache (Task_04)
-                child_id = b.get('id', '')
-                if child_id:
-                    if child_id not in self.tree_item_map: self.tree_item_map[child_id] = []
-                    self.tree_item_map[child_id].append(child)
-
-                child.setData(0, Qt.UserRole, child_id)
-                
-                # Cores
-                color = QColor("#aaaaaa")
-                if b.get('is_fully_validated'): color = QColor("#00d4ff")
-                elif b.get('is_validated'): color = Qt.green
-                elif b.get('issues'): color = Qt.red
-                
-                for col in range(4):
-                    child.setForeground(col, color)
-
-                # Sync Visual
-                status_code = "validated" if b.get('is_validated') else "default"
-                if hasattr(self.canvas, 'update_beam_status'):
-                     self.canvas.update_beam_status(b.get('id', ''), status_code)
-
-                # Sem botão na visualização de vigas, conforme solicitado
-                pass
+                if list_type == 'lateral':
+                    # Lado A
+                    child_a = QTreeWidgetItem(parent_item)
+                    child_a.setText(0, str(b.get('id_item', '00')))
+                    child_a.setText(1, f"{prefix}{p_name}.A")
+                    child_a.setText(2, str(status))
+                    child_a.setText(3, pct_str)
+                    child_a.setData(0, Qt.UserRole, str(b.get('id')))
+                    child_a.setData(0, Qt.UserRole + 1, 'viga_lateral_a')
+                    # Lado B
+                    child_b = QTreeWidgetItem(parent_item)
+                    child_b.setText(0, str(b.get('id_item', '00')))
+                    child_b.setText(1, f"{prefix}{p_name}.B")
+                    child_b.setText(2, str(status))
+                    child_b.setText(3, pct_str)
+                    child_b.setData(0, Qt.UserRole, str(b.get('id')))
+                    child_b.setData(0, Qt.UserRole + 1, 'viga_lateral_b')
+                else:
+                    # Fundo
+                    child_f = QTreeWidgetItem(parent_item)
+                    child_f.setText(0, str(b.get('id_item', '00')))
+                    child_f.setText(1, f"{prefix}{p_name}.C-1")
+                    child_f.setText(2, str(status))
+                    child_f.setText(3, pct_str)
+                    child_f.setData(0, Qt.UserRole, str(b.get('id')))
+                    child_f.setData(0, Qt.UserRole + 1, 'viga_fundo_c')
 
     def open_detail_window(self, item_data):
         """Abre a janela de detalhamento completa."""
@@ -6784,6 +6798,7 @@ class MainWindow(QMainWindow):
             self.canvas.scene.clear()
             self.list_pillars.clear()
             self.list_beams.clear()
+            if hasattr(self, "list_beams_fundo"): self.list_beams_fundo.clear()
             self.list_slabs.clear()
             self.current_project_id = None
             self.meta_widget.setEnabled(False)
@@ -6888,12 +6903,14 @@ class MainWindow(QMainWindow):
         # 3. Popular Vigas (Hierárquico)
         if hasattr(self, 'beams_found') and self.beams_found:
              self.beams_found.sort(key=nat_key)
-        self._populate_beam_tree(self.list_beams, self.beams_found)
+        self._populate_beam_tree(self.list_beams, self.beams_found, "lateral")
+        self._populate_beam_tree(self.list_beams_fundo, self.beams_found, "fundo")
         
         # Vigas Validadas
         valid_beams = [b for b in self.beams_found if b.get('is_validated')]
         valid_beams.sort(key=nat_key)
-        self._populate_beam_tree(self.list_beams_valid, valid_beams)
+        self._populate_beam_tree(self.list_beams_valid, valid_beams, "lateral")
+        self._populate_beam_tree(self.list_beams_fundo_valid, valid_beams, "fundo")
 
         # 4. Popular Lajes
         if hasattr(self, 'slabs_found') and self.slabs_found:
