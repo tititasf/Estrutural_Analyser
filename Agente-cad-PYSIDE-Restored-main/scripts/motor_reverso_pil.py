@@ -213,6 +213,27 @@ def _extract_pil_from_dxf(dxf_path: str) -> dict:
                     and _ep.dxf.start.y >= _y_face_base
                     and (_y_face_top_mr is None or _ep.dxf.start.y <= _y_face_top_mr + 0.5)
                 ))
+                # ── Trim spurious annotation-tick H from top of _p_hs_mr ──
+                # Se nenhuma PAIN-V (h≥3cm) termina em _p_hs_mr[-1], essa H é
+                # um bracket de cota STOG (não limite de painel) e deve ser
+                # removida para não gerar interval espúrio no IVS.
+                if len(_p_hs_mr) >= 2:
+                    _top_h_mr = _p_hs_mr[-1]
+                    _v_at_top = False
+                    for _ev_trim in msp:
+                        if _ev_trim.dxftype() != 'LINE': continue
+                        if 'PAIN' not in _ev_trim.dxf.layer.upper(): continue
+                        if abs(_ev_trim.dxf.start.x - _ev_trim.dxf.end.x) > 0.5: continue
+                        _xvt = (_ev_trim.dxf.start.x + _ev_trim.dxf.end.x) / 2
+                        if not (_x_mid_left <= _xvt <= _x_mid_right): continue
+                        _yvt_max = max(_ev_trim.dxf.start.y, _ev_trim.dxf.end.y)
+                        if abs(_yvt_max - _top_h_mr) < 1.0:
+                            if abs(_ev_trim.dxf.start.y - _ev_trim.dxf.end.y) >= 3.0:
+                                _v_at_top = True
+                                break
+                    if not _v_at_top:
+                        _p_hs_mr = _p_hs_mr[:-1]
+
                 if len(_p_hs_mr) >= 2:
                     _ivs_mr = [round(_p_hs_mr[_j + 1] - _p_hs_mr[_j], 1)
                                for _j in range(len(_p_hs_mr) - 1)]
