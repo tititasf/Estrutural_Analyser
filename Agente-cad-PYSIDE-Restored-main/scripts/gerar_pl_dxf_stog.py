@@ -1715,7 +1715,7 @@ def generate_pilar(msp, pj, row_y_offset):
     Returns total entity count.
     """
     nome    = pj.get('nome', f"P{pj.get('numero', '?')}")
-    comp    = float(pj.get('comprimento', 60))
+    comp    = float(pj.get('comprimento_geom') or pj.get('comprimento', 60))
     larg    = float(pj.get('largura', 38))
     altura  = float(pj.get('altura', 280))
     grade_1 = float(pj.get('grade_1', 0))

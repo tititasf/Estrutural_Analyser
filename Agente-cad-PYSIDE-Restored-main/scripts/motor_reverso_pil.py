@@ -141,6 +141,8 @@ def _extract_pil_from_dxf(dxf_path: str) -> dict:
         # colocadas abaixo (ex: "82" comprimento em y < y_base)
         _y_face_base = (min(_face_label_ys) - 20.0) if _face_label_ys else -1e9
 
+        _comp_geom_samples: list[float] = []  # amostras fw faces A/B → comp real
+
         if len(_face_label_xs) >= 2:
             # pd: maior valor plausivel em TODOS os textos (pd pode estar em
             # layer nao-COTA, ex.: "NIVEL 2° PAV." com texto "321.0").
@@ -264,6 +266,9 @@ def _extract_pil_from_dxf(dxf_path: str) -> dict:
                         if _fw_mr < 1.0:
                             pass  # skip degenerate face
                         else:
+                            # Coleta comp geometrico de faces A/B (fw = comp+22)
+                            if _face in ('A', 'B') and _fw_mr > 22:
+                                _comp_geom_samples.append(round(_fw_mr - 22, 1))
                             # y_face_body_top: penúltima H da face body (antes da zona de cota)
                             _y_body_top = (_p_hs_mr[-2] if len(_p_hs_mr) >= 2
                                            else _p_hs_mr[-1])
@@ -381,6 +386,11 @@ def _extract_pil_from_dxf(dxf_path: str) -> dict:
                         result[f'laje_{_face}']         = float(_face_vals[0])
                         result[f'posicao_laje_{_face}'] = _gap
 
+        # comprimento_geom: média das fw das faces A/B extraída das H lines (override Fase-4)
+        if _comp_geom_samples:
+            result['comprimento_geom'] = round(
+                sum(_comp_geom_samples) / len(_comp_geom_samples), 1)
+
         # Fallback geométrico para DXFs sem anotações de texto (ex: TIPO/12_PAV).
         # SARR_2.2x7 span = (h_low - h1) + h_par = 122 + h_par → h_par = span - 122
         if not _face_label_xs:
@@ -465,7 +475,7 @@ def extrair_ficha_pilar(
         result = {k: v for k, v in fase4.items() if k != '_sa_meta'}
         # Campos extraídos do DXF que NÃO existem no Fase-4 JSON (abertura, intervals)
         # são promovidos ao top-level para uso pelo gerador STOG.
-        _DXF_PROMOTE = ('abertura_', 'paineis_intervals_')
+        _DXF_PROMOTE = ('abertura_', 'paineis_intervals_', 'comprimento_geom')
         for _k, _v in dxf_data.items():
             if any(_k.startswith(_p) for _p in _DXF_PROMOTE):
                 result[_k] = _v
