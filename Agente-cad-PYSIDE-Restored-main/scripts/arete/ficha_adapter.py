@@ -153,16 +153,19 @@ def _enriquecer_lv_campos(campos: dict, elemento_id: str,
             return  # extração não produziu dados úteis
 
         # Enriquecer campos com geometria extraída
-        campos['h_A']       = geom['h_A']
-        campos['h_B']       = geom.get('h_B', geom['h_A'])
-        campos['b_geom']    = geom.get('b_geom', campos.get('total_width', 19.0))
-        campos['h_section'] = geom.get('h_section', 55.0)
-        campos['laje_sup_A'] = geom.get('laje_sup_A', 0.0)
-        campos['laje_inf_A'] = geom.get('laje_inf_A', 0.0)
-        campos['laje_sup_B'] = geom.get('laje_sup_B', 0.0)
-        campos['laje_inf_B'] = geom.get('laje_inf_B', 0.0)
-        campos['panels_A']   = geom.get('panels_A', [])
-        campos['panels_B']   = geom.get('panels_B', [])
+        campos['h_A']           = geom['h_A']
+        campos['h_B']           = geom.get('h_B', geom['h_A'])
+        campos['b_geom']        = geom.get('b_geom', campos.get('total_width', 19.0))
+        campos['h_section']     = geom.get('h_section', 55.0)
+        campos['h_section_all'] = geom.get('h_section_all', [])
+        campos['laje_sup_A']    = geom.get('laje_sup_A', 0.0)
+        campos['laje_inf_A']    = geom.get('laje_inf_A', 0.0)
+        campos['laje_sup_B']    = geom.get('laje_sup_B', 0.0)
+        campos['laje_inf_B']    = geom.get('laje_inf_B', 0.0)
+        campos['tipo_viga']     = geom.get('tipo_viga', 'sarrafeada')
+        campos['section_views'] = geom.get('section_views', [])
+        campos['panels_A']      = geom.get('panels_A', [])
+        campos['panels_B']      = geom.get('panels_B', [])
 
         # Atualizar total_width/total_height para compatibilidade com gerador legacy
         campos.setdefault('total_width', campos['b_geom'])
@@ -194,38 +197,65 @@ def _criar_fichas_lv_v2(obra_dir: Path, elemento_id: str, campos: dict) -> None:
     """
     Cria (ou atualiza) fichas_lv_v2.json em obra_dir com os dados da ficha
     enriquecida.  O gerador lê este arquivo com prioridade máxima para
-    h_cm, b_cm, laje_sup/inf e largura_cm por segmento.
+    h_cm, b_cm, laje_sup/inf, largura_cm e panel_type por segmento.
     """
     vname = re.sub(r'_[AB]$', '', elemento_id)
     b_cm  = float(campos.get('b_geom', campos.get('total_width', 19.0)) or 19.0)
 
-    entries = []
-    for face, pk, hk, lsk, lik in (
-        ('A', 'panels_A', 'h_A', 'laje_sup_A', 'laje_inf_A'),
-        ('B', 'panels_B', 'h_B', 'laje_sup_B', 'laje_inf_B'),
-    ):
-        h_cm = float(campos.get(hk, 0) or 0)
-        if h_cm <= 0:
-            continue
-        panels_src = campos.get(pk, campos.get('panels', []))
-        segs = [
-            {'largura_cm': float(p.get('width', 0))}
-            for p in panels_src
-            if float(p.get('width', 0)) > 0
-        ]
-        entries.append({
-            'viga':        vname,
-            'face':        face,
-            'h_cm':        h_cm,
-            'b_cm':        b_cm,
-            'laje_sup_cm': float(campos.get(lsk, 0) or 0),
-            'laje_inf_cm': float(campos.get(lik, 0) or 0),
-            'segmentos':   segs,
-        })
+    def _make_seg(p: dict, h_face: float) -> dict:
+        w = float(p.get('largura_cm', p.get('width', 0)) or 0)
+        return {
+            'largura_cm':      w,
+            'panel_type':      p.get('panel_type', 'Sarrafeado'),
+            'height1':         float(p.get('height1', h_face) or h_face),
+            'height2':         float(p.get('height2', 0) or 0),
+            'grade_h1':        float(p.get('grade_h1', 0) or 0),
+            'grade_h2':        float(p.get('grade_h2', 0) or 0),
+            'laje_sup_local':  float(p.get('slab_top', p.get('laje_sup_local', 0)) or 0),
+            'laje_inf_local':  float(p.get('slab_bottom', p.get('laje_inf_local', 0)) or 0),
+            'slab_top':        float(p.get('slab_top', 0) or 0),
+            'slab_bottom':     float(p.get('slab_bottom', 0) or 0),
+            'slab_center':     float(p.get('slab_center', 0) or 0),
+            'laje_central_alt':float(p.get('laje_central_alt', 0) or 0),
+            'holes':           p.get('holes', []),
+            'is_first':        bool(p.get('is_first', False)),
+            'is_last':         bool(p.get('is_last', False)),
+            'reuse':           bool(p.get('reuse', False)),
+            'codigos_forma':   p.get('codigos_forma', []),
+        }
 
-    if not entries:
+    # Consolidar numa única entrada por viga (face A + B juntos)
+    h_A  = float(campos.get('h_A', 0) or 0)
+    h_B  = float(campos.get('h_B', h_A) or h_A)
+    if h_A <= 0 and h_B <= 0:
         return
 
+    panels_A = campos.get('panels_A', campos.get('panels', []))
+    panels_B = campos.get('panels_B', [])
+    segs_A = [_make_seg(p, h_A) for p in panels_A
+               if float(p.get('largura_cm', p.get('width', 0)) or 0) > 0]
+    segs_B = [_make_seg(p, h_B) for p in panels_B
+               if float(p.get('largura_cm', p.get('width', 0)) or 0) > 0]
+
+    entry = {
+        'viga':          vname,
+        'face':          'A',
+        'h_cm':          h_A,
+        'h_B_cm':        h_B,
+        'b_cm':          b_cm,
+        'laje_sup_cm':   float(campos.get('laje_sup_A', 0) or 0),
+        'laje_inf_cm':   float(campos.get('laje_inf_A', 0) or 0),
+        'laje_sup_B_cm': float(campos.get('laje_sup_B', 0) or 0),
+        'laje_inf_B_cm': float(campos.get('laje_inf_B', 0) or 0),
+        'h_section_cm':  float(campos.get('h_section', 55.0) or 55.0),
+        'h_section_all': campos.get('h_section_all', []),
+        'tipo_viga':     campos.get('tipo_viga', 'sarrafeada'),
+        'section_views': campos.get('section_views', []),
+        'segmentos':     segs_A,
+        'segmentos_B':   segs_B,
+        'pillar_left':   campos.get('pillar_left', {'active': False}),
+        'pillar_right':  campos.get('pillar_right', {'active': False}),
+    }
     fichas_dir = obra_dir / 'Fase-6_Execucao_CAD' / 'granular' / 'fichas'
     fichas_dir.mkdir(parents=True, exist_ok=True)
     fichas_path = fichas_dir / 'fichas_lv_v2.json'
@@ -238,9 +268,9 @@ def _criar_fichas_lv_v2(obra_dir: Path, elemento_id: str, campos: dict) -> None:
         except Exception:
             existing = []
 
-    # Remover entradas antigas desta viga e adicionar as novas
+    # Remover entradas antigas desta viga e adicionar a nova (1 por viga)
     existing = [e for e in existing if e.get('viga') != vname]
-    existing.extend(entries)
+    existing.append(entry)
 
     fichas_path.write_text(
         json.dumps(existing, indent=2, ensure_ascii=False), encoding='utf-8'

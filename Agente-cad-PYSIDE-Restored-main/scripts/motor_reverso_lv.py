@@ -24,7 +24,7 @@ Estratégia de detecção de faces:
 
 from __future__ import annotations
 from pathlib import Path
-from collections import defaultdict
+from collections import defaultdict, Counter
 import json, re
 
 DADOS_OBRAS_ROOT = Path("D:/Agente-cad-PYSIDE/DADOS-OBRAS")
@@ -110,11 +110,17 @@ def _extract_lv_geom_from_dxf(dxf_path: str, elem_id: str = '') -> dict:
         'laje_sup_A': 0.0, 'laje_inf_A': 0.0,
         'laje_sup_B': 0.0, 'laje_inf_B': 0.0,
         'tipo_viga': 'sarrafeada',
+        # Múltiplas seções transversais (visões de corte por par A/B)
+        'section_views': [],  # [{h_A, h_B, b, laje_sup_A, laje_inf_A, ...}]
         # Lateral A/B (segmentos completos)
         'panels_A': [], 'panels_B': [],
         'pillar_left':  {'active': False, 'width': 0.0, 'length': 0.0},
         'pillar_right': {'active': False, 'width': 0.0, 'length': 0.0},
         'holes': [],
+        # Campos de identificação e referência
+        'continuation': '',    # 'Proxima Parte' se CONT. prefix no label
+        'text_left':    '',    # pilar/referência à esquerda (P19, etc.)
+        'text_right':   '',    # pilar/referência à direita
         '_confianca_extracao': 0.35,
     }
 
@@ -136,6 +142,7 @@ def _extract_lv_geom_from_dxf(dxf_path: str, elem_id: str = '') -> dict:
         cota_txts:    list = []   # (x, y, val)
         secao_txts:   list = []   # (x, y, val)  camada "Cota Seção (2x)"
         face_labels:  list = []   # (x, y, txt, side)  camada "Texto Seção" / "5"
+        other_labels: list = []   # (x, y, txt)  pilar/viga refs da camada "5"
 
         for e in msp:
             layer = e.dxf.layer
@@ -191,9 +198,13 @@ def _extract_lv_geom_from_dxf(dxf_path: str, elem_id: str = '') -> dict:
                         val = float(txt)
                         secao_txts.append((ix, iy, val))
                     elif layer in ('Texto Seção', '5', 'texto', 'NOMENCLATURA'):
-                        if re.search(r'\.[AB]$', txt.strip().upper()):
-                            side = 'A' if txt.strip().upper().endswith('.A') else 'B'
+                        tu = txt.strip().upper()
+                        if re.search(r'\.[AB]$', tu):
+                            side = 'A' if tu.endswith('.A') else 'B'
                             face_labels.append((ix, iy, txt.strip(), side))
+                        elif re.match(r'^P\d', tu) or re.match(r'^VF?\d', tu):
+                            # Pilar/viga labels (P19, VF203, etc.) — texto de referência
+                            other_labels.append((ix, iy, txt.strip()))
                 except Exception:
                     pass
 
@@ -343,6 +354,27 @@ def _extract_lv_geom_from_dxf(dxf_path: str, elem_id: str = '') -> dict:
         if face_A and face_B and face_A['y_top'] < face_B['y_top']:
             face_A, face_B = face_B, face_A
 
+        # ── 2b. Continuação e labels de pilar ─────────────────────────────────
+        # continuation: True se algum face_label tem prefixo "CONT." + contém elem_prefix
+        is_continuation = any(
+            'CONT.' in txt.strip().upper() and elem_prefix in txt.strip().upper()
+            for _, _, txt, _ in face_labels
+        )
+        result['continuation'] = 'Proxima Parte' if is_continuation else ''
+
+        # text_left / text_right: pilar mais próximo da borda esquerda/direita da face
+        if face_A and other_labels:
+            x_left  = face_A['x_left']
+            x_right = face_A['x_right']
+            y_range = (face_A['y_bot'] - 30, face_A['y_top'] + 30)
+            nearby  = [(x, y, t) for x, y, t in other_labels
+                       if y_range[0] <= y <= y_range[1]]
+            if nearby:
+                left_cands  = sorted([(abs(x - x_left), t) for x, y, t in nearby])
+                right_cands = sorted([(abs(x - x_right), t) for x, y, t in nearby])
+                result['text_left']  = left_cands[0][1]  if left_cands  else ''
+                result['text_right'] = right_cands[0][1] if right_cands else ''
+
         # ── 3. Segmentos completos por face ───────────────────────────────────
         # Constantes para classificação
         _GRADE_PAIR_SEP_MAX = 10.0   # separação máx entre duas pernas de um par (cm)
@@ -476,13 +508,18 @@ def _extract_lv_geom_from_dxf(dxf_path: str, elem_id: str = '') -> dict:
                 'grade_h1':       gh,
                 'grade_h2':       0.0,
                 'laje_central_alt': 0.0,
-                'laje_sup_local': 0.0,        # preenchido depois com laje da face
+                'laje_sup_local': 0.0,        # preenchido por _per_seg_slab
                 'laje_inf_local': 0.0,
+                'slab_top':       0.0,        # alias robot-schema
+                'slab_bottom':    0.0,
+                'slab_center':    0.0,
                 'is_first':       is_first,
                 'is_last':        is_last,
                 'holes':          holes,
                 'reuse':          False,
                 'codigos_forma':  [],
+                '_xl':            xl,         # guardado para per-seg slab lookup
+                '_xr':            xr,
             }
 
         panels_A = _panel_segments(face_A) if face_A else []
@@ -501,7 +538,10 @@ def _extract_lv_geom_from_dxf(dxf_path: str, elem_id: str = '') -> dict:
             if small:
                 result['b_geom'] = float(min(small))
             if large:
-                result['h_section'] = float(min(large))  # usar mínimo (evita ruído de outra viga)
+                # Guardar TODOS os valores de h distintos — cada um pode ser
+                # uma configuração de seção diferente (multiple section_views)
+                result['h_section'] = float(min(large))
+                result['h_section_all'] = [float(v) for v in large]
 
         # ── 5. Alturas (h_total, laje_sup, laje_inf) de COTA TEXT ────────────
         # Excluir TODAS as larguras de painel (não só as >100) e o valor de b.
@@ -509,52 +549,116 @@ def _extract_lv_geom_from_dxf(dxf_path: str, elem_id: str = '') -> dict:
         b_round = round(result['b_geom'])
 
         def _face_heights(fg: dict) -> tuple[float, float, float]:
+            """Extrai h_total, laje_sup, laje_inf de COTA TEXT.
+
+            Passo 1 (clássico STOG): COTA à DIREITA da face (x >= x_right-10).
+            Passo 2 (fallback per-face): COTA dentro da face, perto de y_top/y_bot.
+            """
             y_bot, y_top = fg['y_bot'], fg['y_top']
             x_left, x_right = fg['x_left'], fg['x_right']
             h_body = fg['h_body']
+            exclude = all_panel_ws | {b_round}
 
-            # Dimensões de altura ficam SEMPRE à direita da face em STOG (DIM_H_RIGHT)
-            # Permitir também pequena margem à esquerda para lajeInf que às vezes fica lá.
-            x_min_h = x_right - 10   # não tomar COTA de dentro da face ou à esquerda
-            x_max_h = x_right + 150  # largura da zona de cotas à direita
-
-            nearby = [
+            # ── Passo 1: margem direita (STOG clássico: DIM_H_RIGHT) ──────────
+            nearby_r = [
                 v for cx, cy, v in cota_txts
-                if (x_min_h <= cx <= x_max_h)
+                if (x_right - 10 <= cx <= x_right + 160)
                 and (y_bot - 100 <= cy <= y_top + 70)
                 and v > 0
             ]
-            # Excluir larguras de painel e b da seção
-            exclude = all_panel_ws | {b_round}
-            h_cands = sorted(
-                {round(v, 1) for v in nearby
+            h_cands_r = sorted(
+                {round(v, 1) for v in nearby_r
                  if 2 < v < 200 and round(v) not in exclude},
                 reverse=True,
             )
-            if not h_cands:
-                return h_body, 0.0, 0.0
+            h_total_opts = [v for v in h_cands_r if v >= h_body - 1]
+            if h_total_opts:
+                h_total = float(h_total_opts[0])
+                laje_total = round(h_total - h_body, 1)
+                if laje_total > 0:
+                    lo = sorted([v for v in h_cands_r if 2 < v <= min(35, laje_total+3)],
+                                reverse=True)
+                    laje_sup = float(lo[0]) if lo else laje_total
+                    laje_inf = max(0.0, round(laje_total - laje_sup, 1))
+                    return h_total, laje_sup, laje_inf
 
-            # h_total: maior valor >= h_body
-            h_total_opts = [v for v in h_cands if v >= h_body - 1]
-            h_total = float(h_total_opts[0]) if h_total_opts else float(h_body)
+            # ── Passo 2: COTA espalhada dentro da face (laje por segmento) ────
+            # COTAs de laje aparecem no range Y da face inteira (não só perto de y_top).
+            # Janela conservadora: excluir valores que podem ser larguras de segmento.
+            # x_left - 80: alguns COTAs de laje ficam ligeiramente à esquerda da face.
+            sup_nearby = [
+                v for cx, cy, v in cota_txts
+                if (x_left - 20 <= cx <= x_right + 80)
+                and (y_bot - 20 <= cy <= y_top + 80)
+                and 2 < v <= 35 and round(v) not in exclude
+            ]
+            inf_nearby = [
+                v for cx, cy, v in cota_txts
+                if (x_left - 20 <= cx <= x_right + 80)
+                and (y_bot - 80 <= cy <= y_bot + 40)
+                and 2 < v <= 35 and round(v) not in exclude
+            ]
+            # Usa o valor MAIS FREQUENTE (mode) — aparece 1x por segmento no face X range
+            # evita capturar COTA da seção transversal que aparece apenas 1x
+            laje_sup = float(Counter(sup_nearby).most_common(1)[0][0]) if sup_nearby else 0.0
+            laje_inf = float(Counter(inf_nearby).most_common(1)[0][0]) if inf_nearby else 0.0
 
-            laje_total = round(h_total - h_body, 1)
-            if laje_total <= 0:
-                return h_total, 0.0, 0.0
-
-            # Valor individual de laje (≤ laje_total+2 e ≤ 35 cm)
-            laje_opts = sorted(
-                [v for v in h_cands if 2 < v <= min(35, laje_total + 3)],
-                reverse=True,
-            )
-            if laje_opts:
-                laje_sup = float(laje_opts[0])
-                laje_inf = max(0.0, round(laje_total - laje_sup, 1))
-            else:
-                laje_sup = laje_total
+            # Verificar inconsistência: laje_sup e laje_inf apontando para o mesmo texto
+            if laje_sup > 0 and laje_inf > 0 and laje_sup == laje_inf:
                 laje_inf = 0.0
 
+            h_total = round(h_body + laje_sup + laje_inf, 1) if (laje_sup + laje_inf) > 0 else h_body
             return h_total, laje_sup, laje_inf
+
+        def _per_seg_slab(segs: list, fg: dict, ls_global: float, li_global: float) -> list:
+            """Refina laje_sup/inf por segmento com COTA texts no range X de cada painel.
+            Atualiza slab_top/slab_bottom (alias robot-schema) além de laje_sup/inf_local.
+            """
+            y_top = fg['y_top']
+            y_bot = fg['y_bot']
+            excl = all_panel_ws | {b_round}
+
+            for seg in segs:
+                xl = seg.get('_xl', 0.0)
+                xr = seg.get('_xr', 0.0)
+                if xl >= xr:
+                    seg['slab_top']    = ls_global
+                    seg['slab_bottom'] = li_global
+                    continue
+
+                # slab_top: COTA perto de y_top dentro do X do segmento
+                top_cota = [
+                    v for cx, cy, v in cota_txts
+                    if xl - 5 <= cx <= xr + 5
+                    and y_top - 45 <= cy <= y_top + 70
+                    and 2 < v <= 35 and round(v) not in excl
+                ]
+                # slab_bottom: COTA perto de y_bot
+                bot_cota = [
+                    v for cx, cy, v in cota_txts
+                    if xl - 5 <= cx <= xr + 5
+                    and y_bot - 70 <= cy <= y_bot + 45
+                    and 2 < v <= 35 and round(v) not in excl
+                ]
+                ls_seg = float(max(set(top_cota))) if top_cota else ls_global
+                li_seg = float(max(set(bot_cota))) if bot_cota else li_global
+
+                seg['laje_sup_local'] = ls_seg
+                seg['laje_inf_local'] = li_seg
+                seg['slab_top']       = ls_seg
+                seg['slab_bottom']    = li_seg
+
+                # slab_center: COTA na faixa central da face (indicador de laje embutida)
+                mid_y = (y_top + y_bot) / 2
+                center_cota = [
+                    v for cx, cy, v in cota_txts
+                    if xl - 5 <= cx <= xr + 5
+                    and mid_y - 60 <= cy <= mid_y + 60
+                    and 2 < v <= 35 and round(v) not in excl
+                    and v != ls_seg and v != li_seg
+                ]
+                seg['slab_center'] = float(max(set(center_cota))) if center_cota else 0.0
+            return segs
 
         h_tot_A, ls_A, li_A = _face_heights(face_A) if face_A else (0.0, 0.0, 0.0)
         h_tot_B, ls_B, li_B = _face_heights(face_B) if face_B else (0.0, 0.0, 0.0)
@@ -574,21 +678,23 @@ def _extract_lv_geom_from_dxf(dxf_path: str, elem_id: str = '') -> dict:
             return base
 
         # ── 7. Consolidar ─────────────────────────────────────────────────────
-        def _propagate_laje(segs: list, ls: float, li: float) -> list:
-            """Distribui laje_sup/inf da face para cada segmento."""
+        def _propagate_laje(segs: list, ls: float, li: float, fg: dict) -> list:
+            """Distribui laje globais como fallback e refina por segmento."""
             for s in segs:
                 s['laje_sup_local'] = ls
                 s['laje_inf_local'] = li
-                # height1 = h_body (sem lajes); se grade, height1 irrelevante
+                s['slab_top']       = ls
+                s['slab_bottom']    = li
                 if s['panel_type'] == 'Sarrafeado':
-                    s['height1'] = max(0.0, s['height1'] - 0.0)  # já correto
-            return segs
+                    s['height1'] = max(0.0, s['height1'] - 0.0)
+            # Refinamento per-segmento via COTA texts locais
+            return _per_seg_slab(segs, fg, ls, li)
 
         if face_A:
             result['h_A']        = h_tot_A if h_tot_A >= face_A['h_body'] else face_A['h_body']
             result['laje_sup_A'] = ls_A
             result['laje_inf_A'] = li_A
-            result['panels_A']   = _propagate_laje(panels_A, ls_A, li_A)
+            result['panels_A']   = _propagate_laje(panels_A, ls_A, li_A, face_A)
             result['pillar_left']  = _detect_pillar(face_A, 'left')
             result['pillar_right'] = _detect_pillar(face_A, 'right')
 
@@ -596,7 +702,7 @@ def _extract_lv_geom_from_dxf(dxf_path: str, elem_id: str = '') -> dict:
             result['h_B']        = h_tot_B if h_tot_B >= face_B['h_body'] else face_B['h_body']
             result['laje_sup_B'] = ls_B
             result['laje_inf_B'] = li_B
-            result['panels_B']   = _propagate_laje(panels_B, ls_B, li_B)
+            result['panels_B']   = _propagate_laje(panels_B, ls_B, li_B, face_B)
 
         # Espelhar se apenas uma face foi detectada
         if face_A and not face_B:
@@ -604,13 +710,47 @@ def _extract_lv_geom_from_dxf(dxf_path: str, elem_id: str = '') -> dict:
             result['laje_sup_B'] = ls_A
             result['laje_inf_B'] = li_A
             result['panels_B']   = _propagate_laje(
-                [dict(s) for s in panels_A], ls_A, li_A)
+                [dict(s) for s in panels_A], ls_A, li_A, face_A)
         elif face_B and not face_A:
             result['h_A']        = result['h_B']
             result['laje_sup_A'] = ls_B
             result['laje_inf_A'] = li_B
             result['panels_A']   = _propagate_laje(
-                [dict(s) for s in panels_B], ls_B, li_B)
+                [dict(s) for s in panels_B], ls_B, li_B, face_B)
+
+        # ── 7b. section_views: múltiplas seções transversais ─────────────────
+        # Cada par (hA, hB, laje_sup_A, laje_inf_A) distinto = uma Visão Corte
+        def _build_section_views() -> list:
+            h_A  = result.get('h_A', 0)
+            h_B  = result.get('h_B', 0)
+            ls_a = result.get('laje_sup_A', 0)
+            li_a = result.get('laje_inf_A', 0)
+            ls_b = result.get('laje_sup_B', 0)
+            li_b = result.get('laje_inf_B', 0)
+            b    = result.get('b_geom', 19.0)
+            views = [{'h_A': h_A, 'h_B': h_B, 'b': b,
+                      'laje_sup_A': ls_a, 'laje_inf_A': li_a,
+                      'laje_sup_B': ls_b, 'laje_inf_B': li_b,
+                      'h_section': result.get('h_section', 0)}]
+            # Detectar segmentos com laje diferente da global → seção adicional
+            seen_combos: set = {(round(ls_a,1), round(li_a,1), round(ls_b,1), round(li_b,1))}
+            panels_b_list = result.get('panels_B', [])
+            for i, seg_a in enumerate(result.get('panels_A', [])):
+                seg_b = panels_b_list[i] if i < len(panels_b_list) else {}
+                ls_sa = round(seg_a.get('slab_top', ls_a), 1)
+                li_sa = round(seg_a.get('slab_bottom', li_a), 1)
+                ls_sb = round(seg_b.get('slab_top', ls_b), 1)
+                li_sb = round(seg_b.get('slab_bottom', li_b), 1)
+                combo = (ls_sa, li_sa, ls_sb, li_sb)
+                if combo not in seen_combos:
+                    seen_combos.add(combo)
+                    views.append({'h_A': h_A, 'h_B': h_B, 'b': b,
+                                  'laje_sup_A': float(ls_sa), 'laje_inf_A': float(li_sa),
+                                  'laje_sup_B': float(ls_sb), 'laje_inf_B': float(li_sb),
+                                  'h_section': result.get('h_section', 0)})
+            return views
+
+        result['section_views'] = _build_section_views()
 
         # ── 8. Tipo de viga ───────────────────────────────────────────────────
         all_segs = result['panels_A'] + result['panels_B']
@@ -731,16 +871,22 @@ def extrair_ficha_lateral_viga(
         ] * 4
 
     # 4. Campos extras N2 (para ficha_adapter → fichas_lv_v2.json)
-    result['h_A']        = geom.get('h_A', 0.0)
-    result['h_B']        = geom.get('h_B', geom.get('h_A', 0.0))
-    result['b_geom']     = geom.get('b_geom', 19.0)
-    result['h_section']  = geom.get('h_section', 55.0)
-    result['laje_sup_A'] = geom.get('laje_sup_A', 0.0)
-    result['laje_inf_A'] = geom.get('laje_inf_A', 0.0)
-    result['laje_sup_B'] = geom.get('laje_sup_B', 0.0)
-    result['laje_inf_B'] = geom.get('laje_inf_B', 0.0)
-    result['panels_A']   = geom.get('panels_A', [])
-    result['panels_B']   = geom.get('panels_B', [])
+    result['h_A']           = geom.get('h_A', 0.0)
+    result['h_B']           = geom.get('h_B', geom.get('h_A', 0.0))
+    result['b_geom']        = geom.get('b_geom', 19.0)
+    result['h_section']     = geom.get('h_section', 55.0)
+    result['h_section_all'] = geom.get('h_section_all', [])
+    result['laje_sup_A']    = geom.get('laje_sup_A', 0.0)
+    result['laje_inf_A']    = geom.get('laje_inf_A', 0.0)
+    result['laje_sup_B']    = geom.get('laje_sup_B', 0.0)
+    result['laje_inf_B']    = geom.get('laje_inf_B', 0.0)
+    result['tipo_viga']     = geom.get('tipo_viga', 'sarrafeada')
+    result['section_views'] = geom.get('section_views', [])
+    result['continuation']  = geom.get('continuation', '')
+    result['text_left']     = geom.get('text_left', '')
+    result['text_right']    = geom.get('text_right', '')
+    result['panels_A']      = geom.get('panels_A', [])
+    result['panels_B']      = geom.get('panels_B', [])
 
     # 5. Metadados
     source = 'dxf_geom' if conf >= 0.55 else 'dxf_geom_parcial'
