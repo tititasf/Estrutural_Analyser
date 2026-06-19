@@ -5531,7 +5531,10 @@ class ComparisonEngineModule(QWidget):
             else:
                 # Gera DXF via temp JSON (Option B)
                 col.pipeline.set_step(2, 'running', 'Gerando via robô...')
-                self._start_n4_generation(classe, item_id, er_ficha, obra_dir, script, col)
+                if classe == 'LV':
+                    self._start_n4_lv_generation(item_id, er_ficha, obra_dir, col)
+                else:
+                    self._start_n4_generation(classe, item_id, er_ficha, obra_dir, script, col)
 
         except Exception as exc:
             print(f"[CE] _on_gerar_n4 error: {exc}")
@@ -5543,9 +5546,23 @@ class ComparisonEngineModule(QWidget):
     def _get_er_ficha_dict(self, obra: str, classe: str, item_id: str) -> dict:
         """Retorna a ficha ER como dicionário (para passar ao script robô).
         Tenta DB primeiro, depois motor on-demand no DXF do disco."""
-        import json as _json
+        import json as _json, re as _re
         _cls_map = {"PL": "PIL", "LV": "LV", "FV": "FV", "LJ": "LAJ"}
         db_cls = _cls_map.get(classe, classe)
+
+        # LV: fichas não estão no DB — ler de fichas_lv_v2.json (pré-gerado pelo motor)
+        if db_cls == "LV":
+            try:
+                fichas_path = DADOS_OBRAS_ROOT / obra / "Fase-6_Execucao_CAD" / "granular" / "fichas" / "fichas_lv_v2.json"
+                if fichas_path.exists():
+                    fichas_list = _json.loads(fichas_path.read_text('utf-8'))
+                    fichas_map  = {e['viga']: e for e in fichas_list}
+                    base_id = _re.sub(r'[_\.]([AB])$', '', item_id, flags=_re.IGNORECASE)
+                    entry = fichas_map.get(base_id) or fichas_map.get(item_id)
+                    if entry:
+                        return entry
+            except Exception:
+                pass
 
         if db_cls == "LAJ":
             try:
@@ -6154,11 +6171,63 @@ class ComparisonEngineModule(QWidget):
                     "FV": "FV_preview_", "LJ": "LJ_preview_"}
         pfx = prefixes.get(classe, f"{classe}_preview_")
         n4_dir = obra_dir / "Fase-6_Execucao_CAD" / "n4"
-        for cand in [item_id, item_id.split('_')[0] if '_' in item_id else item_id]:
+        base_id = item_id.split('_')[0] if '_' in item_id else item_id
+        # LV: gerar_lv_n4_fichas.py grava com sufixo _A (ex: LV_preview_V301_A.dxf)
+        cands = [f"{item_id}_A", f"{base_id}_A", item_id, base_id] if classe == 'LV' \
+                else [item_id, base_id]
+        for cand in cands:
             p = n4_dir / f"{pfx}{cand}.dxf"
             if p.exists():
                 return p
         return None
+
+    def _start_n4_lv_generation(self, item_id: str, er_ficha: dict,
+                                obra_dir: Path, col):
+        """Gera N4 LV via gerar_lv_n4_fichas.py (bypass DB — LV não está no DB)."""
+        if self._process and self._process.state() == QProcess.Running:
+            self.nav_sidebar.set_status("Já processando...", Colors.ACCENT_WARNING)
+            self.nav_sidebar._enable_item_btns()
+            return
+
+        import re as _re
+        base_id = _re.sub(r'[_\.]([AB])$', '', item_id, flags=_re.IGNORECASE)
+        n4_script = SCRIPTS_DIR / "arete" / "gerar_lv_n4_fichas.py"
+        out_dir    = obra_dir / "Fase-6_Execucao_CAD" / "n4"
+        out_dir.mkdir(parents=True, exist_ok=True)
+
+        self._process = QProcess(self)
+        self._process.setProcessChannelMode(QProcess.MergedChannels)
+        self._process.readyReadStandardOutput.connect(self._on_proc_out)
+
+        def _on_done(code, _sig,
+                     _base_id=base_id, _item_id=item_id,
+                     _out_dir=out_dir, _col=col, _er_ficha=er_ficha):
+            try:
+                # DXF gerado: LV_preview_{base_id}_A.dxf
+                dxf_path = _out_dir / f"LV_preview_{_base_id}_A.dxf"
+                if code == 0 and dxf_path.exists():
+                    b_cm = float((_er_ficha or {}).get('b_cm', 19) or 19)
+                    sect_total = max(190, int(b_cm) + 178)
+                    lv_zones = {
+                        'Visão Corte': (str(dxf_path), (-50, -9999, sect_total + 30, 9999)),
+                        'Lateral A-B': (str(dxf_path), (sect_total - 20, -9999, 99999, 9999)),
+                    }
+                    _col.switch_to_lv_zones(lv_zones, _er_ficha or {})
+                    _col.pipeline.set_step(2, 'ok', dxf_path.name[:25])
+                    self.nav_sidebar.set_status(f"✅ N4 LV gerado — {_item_id}", Colors.ACCENT_SUCCESS)
+                else:
+                    _col.pipeline.set_step(2, 'error', f'código {code}')
+                    self.nav_sidebar.set_status(f"❌ N4 LV falhou — {_item_id}", Colors.ACCENT_ERROR)
+            except Exception as _e:
+                print(f"[CE] _on_done LV n4: {_e}")
+            finally:
+                self.nav_sidebar._enable_item_btns()
+
+        self._process.finished.connect(_on_done)
+        self._process.start(
+            sys.executable,
+            [str(n4_script), base_id, "--out", str(out_dir)],
+        )
 
     def _start_n4_generation(self, classe: str, item_id: str, er_ficha: dict,
                               obra_dir: Path, script: Path, col):
