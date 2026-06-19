@@ -131,6 +131,122 @@ def _extract_pd_cm(recorte_path: Path) -> float | None:
     return None
 
 
+def _enriquecer_lv_campos(campos: dict, elemento_id: str,
+                          row: dict | None = None) -> None:
+    """
+    Enriquece *in-place* os campos de uma ficha LV naive com geometria extraída
+    do DXF recorte N2.  Chamado pelo materializar_item quando h_A está ausente.
+    """
+    try:
+        # Importar o motor (está no diretório pai de scripts/arete/)
+        from motor_reverso_lv import _extract_lv_geom_from_dxf
+
+        recorte = get_recorte_path(elemento_id, "LV", row=row)
+        if recorte is None or not recorte.exists():
+            return
+
+        geom = _extract_lv_geom_from_dxf(str(recorte), elemento_id)
+        geom.pop('_extracao_erro', None)
+        conf = geom.pop('_confianca_extracao', 0.4)
+
+        if geom.get('h_A', 0) <= 0:
+            return  # extração não produziu dados úteis
+
+        # Enriquecer campos com geometria extraída
+        campos['h_A']       = geom['h_A']
+        campos['h_B']       = geom.get('h_B', geom['h_A'])
+        campos['b_geom']    = geom.get('b_geom', campos.get('total_width', 19.0))
+        campos['h_section'] = geom.get('h_section', 55.0)
+        campos['laje_sup_A'] = geom.get('laje_sup_A', 0.0)
+        campos['laje_inf_A'] = geom.get('laje_inf_A', 0.0)
+        campos['laje_sup_B'] = geom.get('laje_sup_B', 0.0)
+        campos['laje_inf_B'] = geom.get('laje_inf_B', 0.0)
+        campos['panels_A']   = geom.get('panels_A', [])
+        campos['panels_B']   = geom.get('panels_B', [])
+
+        # Atualizar total_width/total_height para compatibilidade com gerador legacy
+        campos.setdefault('total_width', campos['b_geom'])
+        campos['total_height'] = campos['h_A']
+
+        # panels (para o _A.json) — se ainda não tiver, usar panels_A
+        if not campos.get('panels') and campos['panels_A']:
+            h_a = campos['h_A']
+            campos['panels'] = [
+                {
+                    'width': float(p.get('width', 0)),
+                    'height1': h_a, 'height2': h_a,
+                    'grade_h1': 0.0, 'grade_h2': 0.0,
+                    'laje_central_alt': 0.0, 'reuse': False,
+                    'panel_type': str(p.get('panel_type', 'Sarrafeado')),
+                }
+                for p in campos['panels_A'] if float(p.get('width', 0)) > 0
+            ]
+
+        if campos.get('_er_meta'):
+            campos['_er_meta']['enriched_by_dxf'] = True
+            campos['_er_meta']['dxf_conf'] = conf
+
+    except Exception:
+        pass  # enriquecimento é best-effort — jamais bloquear materialização
+
+
+def _criar_fichas_lv_v2(obra_dir: Path, elemento_id: str, campos: dict) -> None:
+    """
+    Cria (ou atualiza) fichas_lv_v2.json em obra_dir com os dados da ficha
+    enriquecida.  O gerador lê este arquivo com prioridade máxima para
+    h_cm, b_cm, laje_sup/inf e largura_cm por segmento.
+    """
+    vname = re.sub(r'_[AB]$', '', elemento_id)
+    b_cm  = float(campos.get('b_geom', campos.get('total_width', 19.0)) or 19.0)
+
+    entries = []
+    for face, pk, hk, lsk, lik in (
+        ('A', 'panels_A', 'h_A', 'laje_sup_A', 'laje_inf_A'),
+        ('B', 'panels_B', 'h_B', 'laje_sup_B', 'laje_inf_B'),
+    ):
+        h_cm = float(campos.get(hk, 0) or 0)
+        if h_cm <= 0:
+            continue
+        panels_src = campos.get(pk, campos.get('panels', []))
+        segs = [
+            {'largura_cm': float(p.get('width', 0))}
+            for p in panels_src
+            if float(p.get('width', 0)) > 0
+        ]
+        entries.append({
+            'viga':        vname,
+            'face':        face,
+            'h_cm':        h_cm,
+            'b_cm':        b_cm,
+            'laje_sup_cm': float(campos.get(lsk, 0) or 0),
+            'laje_inf_cm': float(campos.get(lik, 0) or 0),
+            'segmentos':   segs,
+        })
+
+    if not entries:
+        return
+
+    fichas_dir = obra_dir / 'Fase-6_Execucao_CAD' / 'granular' / 'fichas'
+    fichas_dir.mkdir(parents=True, exist_ok=True)
+    fichas_path = fichas_dir / 'fichas_lv_v2.json'
+
+    # Mesclar com entradas existentes (preservar outras vigas no mesmo arquivo)
+    existing: list = []
+    if fichas_path.exists():
+        try:
+            existing = json.loads(fichas_path.read_text(encoding='utf-8'))
+        except Exception:
+            existing = []
+
+    # Remover entradas antigas desta viga e adicionar as novas
+    existing = [e for e in existing if e.get('viga') != vname]
+    existing.extend(entries)
+
+    fichas_path.write_text(
+        json.dumps(existing, indent=2, ensure_ascii=False), encoding='utf-8'
+    )
+
+
 def materializar_item(row: dict, tmp_base: Path | None = None) -> tuple[Path, Path]:
     """
     Materializa a ficha N2 em disco no layout esperado pelo gerador.
@@ -177,7 +293,12 @@ def materializar_item(row: dict, tmp_base: Path | None = None) -> tuple[Path, Pa
     json_subdir = obra_dir / FASE4_SUBDIR[classe]
     json_subdir.mkdir(parents=True, exist_ok=True)
 
-    # Arquivo JSON
+    # Para LV: enriquecer campos com geometria extraída do DXF ANTES de escrever
+    # qualquer JSON, para que _A.json e _B.json já tenham os dados completos.
+    if classe == "LV" and not campos.get("h_A"):
+        _enriquecer_lv_campos(campos, elemento_id, row=row)
+
+    # Arquivo JSON (_A.json para LV, único para PIL/FV/LAJ)
     sufixo   = FASE4_SUFIXO[classe]
     filename = f"{elemento_id}{sufixo}.json"
     json_path = json_subdir / filename
@@ -185,17 +306,35 @@ def materializar_item(row: dict, tmp_base: Path | None = None) -> tuple[Path, Pa
         json.dumps(campos, indent=2, ensure_ascii=False), encoding="utf-8"
     )
 
-    # Para LV: criar também o _B.json (mesmo conteúdo com side=B).
-    # O gerador lê _A e _B; se _B não existe, usa _A — mas ter _B explícito
-    # garante que diffs de round-trip detectem divergência real.
     if classe == "LV":
+        # _B.json: mesmos campos mas com panels_B como panels (se disponível).
         campos_b = dict(campos)
         campos_b["side"] = "B"
-        campos_b["name"] = campos_b.get("name", elemento_id).replace("_A", "") + "_B"
+        campos_b["name"] = re.sub(r"_A$", "", campos_b.get("name", elemento_id)) + "_B"
+        if campos.get("panels_B"):
+            h_b = float(campos.get("h_B", campos.get("h_A", 0)) or 0)
+            panels_b_full = []
+            for p in campos["panels_B"]:
+                panels_b_full.append({
+                    "width":            float(p.get("width", 0)),
+                    "height1":          h_b,
+                    "height2":          h_b,
+                    "grade_h1":         float(p.get("grade_h1", 0) or 0),
+                    "grade_h2":         float(p.get("grade_h2", 0) or 0),
+                    "laje_central_alt": 0.0,
+                    "reuse":            bool(p.get("reuse", False)),
+                    "panel_type":       str(p.get("panel_type", "Sarrafeado")),
+                })
+            campos_b["panels"] = panels_b_full
         b_path = json_subdir / f"{elemento_id}_B.json"
         b_path.write_text(
             json.dumps(campos_b, indent=2, ensure_ascii=False), encoding="utf-8"
         )
+
+        # fichas_lv_v2.json: fonte de h_cm, b_cm, laje_sup/inf, largura_cm por segmento.
+        # É lida pelo gerador com prioridade máxima sobre qualquer fórmula.
+        if campos.get("h_A", 0):
+            _criar_fichas_lv_v2(obra_dir, elemento_id, campos)
 
     # Criar Fase-6_Execucao_CAD/ (destino do DXF gerado)
     (obra_dir / "Fase-6_Execucao_CAD").mkdir(parents=True, exist_ok=True)
