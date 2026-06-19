@@ -124,6 +124,17 @@ class SerializingBackend:
         self.ops = []
         self._bbox = bbox   # (x0, y0, x1, y1) para referência
         self._max_ops = 500_000   # limite de segurança contra OOM (DXFs enormes)
+        # Pré-extrai limites X para culling rápido (None = sem filtro)
+        if bbox:
+            self._cx0, self._cx1 = bbox[0], bbox[2]
+        else:
+            self._cx0 = self._cx1 = None
+
+    def _skip_x(self, *xs) -> bool:
+        """True se TODOS os pontos dados estão fora do intervalo X do bbox."""
+        if self._cx0 is None:
+            return False
+        return max(xs) < self._cx0 or min(xs) > self._cx1
 
     # ── Interface obrigatória ──────────────────────────────────────────────────
 
@@ -151,14 +162,14 @@ class SerializingBackend:
         return len(self.ops) >= self._max_ops
 
     def draw_point(self, pos, properties):
-        if self._over_limit():
+        if self._over_limit() or self._skip_x(pos.x):
             return
         color = _color_hex(properties.color)
         lw = properties.lineweight or 0.25
         self.ops.append(('point', color, lw, (pos.x, pos.y)))
 
     def draw_line(self, start, end, properties):
-        if self._over_limit():
+        if self._over_limit() or self._skip_x(start.x, end.x):
             return
         color = _color_hex(properties.color)
         lw = properties.lineweight or 0.25
@@ -173,6 +184,8 @@ class SerializingBackend:
         # Serializar como 'lines' batch: ('lines', color, lw, [(x0,y0,x1,y1), ...])
         segs = []
         for start, end in lines:
+            if self._skip_x(start.x, end.x):
+                continue
             segs.append((start.x, start.y, end.x, end.y))
             if len(segs) + len(self.ops) >= self._max_ops:
                 break
@@ -187,6 +200,11 @@ class SerializingBackend:
         try:
             cmds = _path_to_cmds(path)
             if cmds:
+                # Culling por X: verifica todos os valores X dos comandos
+                if self._cx0 is not None:
+                    xs = [c[1] for c in cmds]  # índice 1 = primeiro valor numérico (x)
+                    if self._skip_x(*xs):
+                        return
                 self.ops.append(('path', color, lw, cmds))
         except Exception:
             pass
@@ -200,6 +218,10 @@ class SerializingBackend:
             try:
                 cmds = _path_to_cmds(path)
                 if cmds:
+                    if self._cx0 is not None:
+                        xs = [c[1] for c in cmds]
+                        if self._skip_x(*xs):
+                            continue
                     self.ops.append(('fill', color, lw, cmds))
             except Exception:
                 pass
@@ -218,6 +240,8 @@ class SerializingBackend:
             except Exception:
                 pts = []
         if pts:
+            if self._skip_x(*(p[0] for p in pts)):
+                return
             self.ops.append(('polygon', color, lw, pts))
 
     def draw_image(self, image_data, properties):

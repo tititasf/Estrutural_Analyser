@@ -2727,8 +2727,8 @@ class LevelColumn(QFrame):
 
         zone_paths: {'Visão Corte': (dxf_path, bbox_or_None),
                      'Lateral A-B': (dxf_path, bbox_or_None)}
-        er_ficha:   full LV ficha dict
-        zone_fichas: optional per-zone field overrides
+        er_ficha:   full LV ficha dict (campos: h_cm, h_B_cm, b_cm, tipo_viga,
+                    segmentos, segmentos_B, laje_sup_cm, laje_inf_cm, ...)
         """
         ACCENT = "#4caf50"
         ZONES = ['Visão Corte', 'Lateral A-B']
@@ -2763,15 +2763,31 @@ class LevelColumn(QFrame):
                 view.setMinimumHeight(180)
                 pv.addWidget(view, 1)
 
-                tbl = QTableWidget(0, 2)
-                tbl.setHorizontalHeaderLabels(["Campo", "Valor"])
-                tbl.horizontalHeader().setSectionResizeMode(
-                    0, QHeaderView.ResizeToContents)
-                tbl.horizontalHeader().setSectionResizeMode(
-                    1, QHeaderView.Stretch)
+                if zone == 'Lateral A-B':
+                    # 4 colunas: #, Largura, Tipo, H grade
+                    tbl = QTableWidget(0, 4)
+                    tbl.setHorizontalHeaderLabels(["#", "Larg.", "Tipo", "H gr."])
+                    tbl.horizontalHeader().setSectionResizeMode(
+                        0, QHeaderView.ResizeToContents)
+                    tbl.horizontalHeader().setSectionResizeMode(
+                        1, QHeaderView.ResizeToContents)
+                    tbl.horizontalHeader().setSectionResizeMode(
+                        2, QHeaderView.Stretch)
+                    tbl.horizontalHeader().setSectionResizeMode(
+                        3, QHeaderView.ResizeToContents)
+                    tbl.setMaximumHeight(200)
+                else:
+                    # 2 colunas: Campo, Valor (seção transversal)
+                    tbl = QTableWidget(0, 2)
+                    tbl.setHorizontalHeaderLabels(["Campo", "Valor"])
+                    tbl.horizontalHeader().setSectionResizeMode(
+                        0, QHeaderView.ResizeToContents)
+                    tbl.horizontalHeader().setSectionResizeMode(
+                        1, QHeaderView.Stretch)
+                    tbl.setFixedHeight(140)
+
                 tbl.verticalHeader().setVisible(False)
                 tbl.setEditTriggers(QTableWidget.NoEditTriggers)
-                tbl.setFixedHeight(120)
                 tbl.setStyleSheet(self.ficha_table.styleSheet())
                 pv.addWidget(tbl)
 
@@ -2779,13 +2795,13 @@ class LevelColumn(QFrame):
                 self._zone_tables[zone] = tbl
                 splitter.addWidget(panel)
 
-            # Visão Corte ocupa ~25%, Lateral A-B ~75%
+            # Visão Corte ~25%, Lateral A-B ~75%
             splitter.setSizes([220, 780])
             lay.insertWidget(3, splitter)
             self._pil_splitter = splitter
             self._pil_mode = True
 
-        # Carregar DXFs (mesmo arquivo, bboxes diferentes)
+        # ── Carregar DXFs (mesmo arquivo, bboxes diferentes → culling por X) ──
         for zone, view in self._zone_views.items():
             entry = zone_paths.get(zone)
             if entry:
@@ -2797,27 +2813,85 @@ class LevelColumn(QFrame):
             else:
                 view.clear_image(f"Sem DXF — {zone}")
 
-        # Mini-fichas por zona
-        LV_ZONE_FIELDS = {
-            'Visão Corte': ['h_cm', 'h_B_cm', 'b_cm', 'tipo_viga', 'h_section_cm'],
-            'Lateral A-B': ['tipo_viga', 'laje_sup_cm', 'laje_inf_cm',
-                            'laje_sup_B_cm', 'laje_inf_B_cm', '_confianca'],
-        }
-        for zone, tbl in self._zone_tables.items():
-            fields = LV_ZONE_FIELDS.get(zone, [])
-            ficha_src = (zone_fichas or {}).get(zone) or er_ficha
-            tbl.setRowCount(0)
-            for field in fields:
-                val = ficha_src.get(field)
-                r = tbl.rowCount()
-                tbl.insertRow(r)
-                tbl.setRowHeight(r, 18)
-                fi = QTableWidgetItem(field)
-                vi = QTableWidgetItem(str(val) if val is not None else '—')
+        # ── Ficha Visão Corte: campos da seção transversal ──────────────────
+        vc_tbl = self._zone_tables.get('Visão Corte')
+        if vc_tbl:
+            VC_FIELDS = [
+                ('h_cm',        'H face A (cm)'),
+                ('h_B_cm',      'H face B (cm)'),
+                ('b_cm',        'b (cm)'),
+                ('tipo_viga',   'Tipo'),
+                ('h_section_cm','H seção'),
+                ('laje_sup_cm', 'Laje sup A'),
+                ('laje_inf_cm', 'Laje inf A'),
+            ]
+            ficha_vc = (zone_fichas or {}).get('Visão Corte') or er_ficha
+            vc_tbl.setRowCount(0)
+            for field, label in VC_FIELDS:
+                val = ficha_vc.get(field)
+                if val is None:
+                    continue
+                r = vc_tbl.rowCount()
+                vc_tbl.insertRow(r)
+                vc_tbl.setRowHeight(r, 17)
+                fi = QTableWidgetItem(label)
+                vi = QTableWidgetItem(str(val))
                 fi.setFlags(fi.flags() & ~Qt.ItemIsEditable)
                 vi.setFlags(vi.flags() & ~Qt.ItemIsEditable)
-                tbl.setItem(r, 0, fi)
-                tbl.setItem(r, 1, vi)
+                vc_tbl.setItem(r, 0, fi)
+                vc_tbl.setItem(r, 1, vi)
+
+        # ── Ficha Lateral A-B: por segmento, por face ───────────────────────
+        lat_tbl = self._zone_tables.get('Lateral A-B')
+        if lat_tbl:
+            ficha_lat = (zone_fichas or {}).get('Lateral A-B') or er_ficha
+            segs_A = ficha_lat.get('segmentos',   []) or []
+            segs_B = ficha_lat.get('segmentos_B', []) or []
+            lat_tbl.setRowCount(0)
+
+            _face_bg = QColor(Colors.BG_PANEL)
+            _face_fg = QColor(ACCENT)
+
+            for face_label, segs in [('Face A', segs_A), ('Face B', segs_B)]:
+                # ── cabeçalho de face (span 4 colunas) ──
+                r = lat_tbl.rowCount()
+                lat_tbl.insertRow(r)
+                lat_tbl.setRowHeight(r, 16)
+                hdr = QTableWidgetItem(f'— {face_label} —')
+                hdr.setTextAlignment(Qt.AlignCenter)
+                hdr.setFlags(hdr.flags() & ~Qt.ItemIsEditable)
+                hdr.setBackground(_face_bg)
+                hdr.setForeground(_face_fg)
+                lat_tbl.setItem(r, 0, hdr)
+                lat_tbl.setSpan(r, 0, 1, 4)
+
+                if not segs:
+                    r = lat_tbl.rowCount()
+                    lat_tbl.insertRow(r)
+                    lat_tbl.setRowHeight(r, 15)
+                    emp = QTableWidgetItem('sem segmentos')
+                    emp.setTextAlignment(Qt.AlignCenter)
+                    emp.setFlags(emp.flags() & ~Qt.ItemIsEditable)
+                    lat_tbl.setItem(r, 0, emp)
+                    lat_tbl.setSpan(r, 0, 1, 4)
+                    continue
+
+                for i, seg in enumerate(segs, 1):
+                    r = lat_tbl.rowCount()
+                    lat_tbl.insertRow(r)
+                    lat_tbl.setRowHeight(r, 15)
+                    larg = float(seg.get('largura_cm', seg.get('width', 0)) or 0)
+                    ptype = str(seg.get('panel_type', 'Sarf.'))
+                    pshort = {'Sarrafeado': 'Sarf.', 'Grade': 'Grade',
+                              'Misto': 'Misto'}.get(ptype, ptype[:5])
+                    gh = float(seg.get('grade_h1', 0) or 0)
+                    gh_str = f'{gh:.0f}' if gh > 0 else '—'
+                    for col, txt in [(0, str(i)), (1, f'{larg:.0f}'),
+                                     (2, pshort), (3, gh_str)]:
+                        it = QTableWidgetItem(txt)
+                        it.setTextAlignment(Qt.AlignCenter)
+                        it.setFlags(it.flags() & ~Qt.ItemIsEditable)
+                        lat_tbl.setItem(r, col, it)
 
     def restore_single_view(self):
         """Restore N4 column to single-viewer layout (called on item/classe change)."""
