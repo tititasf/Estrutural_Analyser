@@ -2765,6 +2765,7 @@ class LevelColumn(QFrame):
                 view.setMinimumHeight(180)
                 pv.addWidget(view, 1)
 
+                _FICHA_H = 160   # altura fixa igual para ambas as fichas (alinhamento)
                 if zone == 'Lateral A-B':
                     # 4 colunas: #, Largura, Tipo, H grade
                     tbl = QTableWidget(0, 4)
@@ -2777,7 +2778,6 @@ class LevelColumn(QFrame):
                         2, QHeaderView.Stretch)
                     tbl.horizontalHeader().setSectionResizeMode(
                         3, QHeaderView.ResizeToContents)
-                    tbl.setMaximumHeight(200)
                 else:
                     # 2 colunas: Campo, Valor (seção transversal)
                     tbl = QTableWidget(0, 2)
@@ -2786,8 +2786,8 @@ class LevelColumn(QFrame):
                         0, QHeaderView.ResizeToContents)
                     tbl.horizontalHeader().setSectionResizeMode(
                         1, QHeaderView.Stretch)
-                    tbl.setFixedHeight(140)
 
+                tbl.setFixedHeight(_FICHA_H)   # mesma altura → fichas alinhadas
                 tbl.verticalHeader().setVisible(False)
                 tbl.setEditTriggers(QTableWidget.NoEditTriggers)
                 tbl.setStyleSheet(self.ficha_table.styleSheet())
@@ -2797,8 +2797,8 @@ class LevelColumn(QFrame):
                 self._zone_tables[zone] = tbl
                 splitter.addWidget(panel)
 
-            # Visão Corte ~25%, Lateral A-B ~75%
-            splitter.setSizes([220, 780])
+            # Visão Corte ~26%, Lateral A-B ~74% (≈+20% de largura para o corte)
+            splitter.setSizes([264, 736])
             lay.insertWidget(3, splitter)
             self._pil_splitter = splitter
             self._pil_mode = True
