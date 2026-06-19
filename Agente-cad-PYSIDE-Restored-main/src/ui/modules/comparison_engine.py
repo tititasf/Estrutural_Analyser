@@ -2446,6 +2446,210 @@ class PipelineStepsWidget(QFrame):
         )
 
 
+# ── LV ficha helpers (reutilizados em N2 e N4) ───────────────────────────────
+
+def _lv_section_widget(er_ficha: dict, accent: str = "#4caf50") -> "QWidget":
+    """Widget de seções transversais numeradas para LV.
+    Mostra cada section_view como um card; se vazia, usa campos globais."""
+    from PySide6.QtWidgets import QScrollArea, QVBoxLayout, QHBoxLayout, QWidget as _QW, QLabel as _QL, QFrame as _QF
+    outer = _QW()
+    outer.setStyleSheet(f"background: {Colors.BG_DEEP};")
+    vlay = QVBoxLayout(outer)
+    vlay.setContentsMargins(0, 0, 0, 0)
+    vlay.setSpacing(3)
+
+    views = er_ficha.get('section_views') or []
+    if not views:
+        # Fallback: montar 1 card com campos globais
+        views = [{
+            'h_A':        er_ficha.get('h_cm', 0),
+            'h_B':        er_ficha.get('h_B_cm', 0),
+            'b':          er_ficha.get('b_cm', 0),
+            'tipo_viga':  er_ficha.get('tipo_viga', '—'),
+            'h_section':  er_ficha.get('h_section_cm', 0),
+            'laje_sup_A': er_ficha.get('laje_sup_cm', 0),
+            'laje_inf_A': er_ficha.get('laje_inf_cm', 0),
+            'laje_sup_B': er_ficha.get('laje_sup_B_cm', 0),
+            'laje_inf_B': er_ficha.get('laje_inf_B_cm', 0),
+        }]
+
+    n = len(views)
+    for idx, sv in enumerate(views, 1):
+        card = _QF()
+        card.setStyleSheet(
+            f"QFrame {{ background: {Colors.BG_PANEL}; border: 1px solid {accent}55; "
+            f"border-radius: 4px; margin: 1px; }}"
+        )
+        cl = QVBoxLayout(card)
+        cl.setContentsMargins(6, 4, 6, 4)
+        cl.setSpacing(2)
+
+        # cabeçalho do card
+        hdr = _QL(f"  Corte {idx} / {n}")
+        hdr.setStyleSheet(
+            f"color: {accent}; font-weight: bold; font-size: 10px; "
+            f"background: {accent}22; border-radius: 3px; padding: 2px 4px;"
+        )
+        cl.addWidget(hdr)
+
+        def _row(label, val, layout=cl):
+            if val is None or val == 0 or val == 0.0:
+                return
+            row_w = _QW()
+            rh = QHBoxLayout(row_w)
+            rh.setContentsMargins(0, 0, 0, 0)
+            rh.setSpacing(4)
+            lbl = _QL(label)
+            lbl.setStyleSheet(f"color: {Colors.TEXT_DIM}; font-size: 10px; min-width: 72px;")
+            val_lbl = _QL(str(val))
+            val_lbl.setStyleSheet(f"color: {Colors.TEXT_PRIMARY}; font-size: 10px; font-weight: bold;")
+            rh.addWidget(lbl)
+            rh.addWidget(val_lbl, 1)
+            layout.addWidget(row_w)
+
+        h_A = sv.get('h_A') or sv.get('h_cm') or er_ficha.get('h_cm')
+        h_B = sv.get('h_B') or sv.get('h_B_cm') or er_ficha.get('h_B_cm')
+        b   = sv.get('b')   or sv.get('b_cm')   or er_ficha.get('b_cm')
+
+        _row("H face A",   f"{h_A:.0f} cm" if h_A else None)
+        if h_B and h_B != h_A:
+            _row("H face B",   f"{h_B:.0f} cm")
+        _row("b",          f"{b:.0f} cm"   if b   else None)
+        _row("Tipo",       sv.get('tipo_viga') or er_ficha.get('tipo_viga'))
+        hs = sv.get('h_section') or sv.get('h_section_cm') or er_ficha.get('h_section_cm')
+        _row("H seção",    f"{hs:.0f} cm"  if hs  else None)
+
+        ls_A = sv.get('laje_sup_A') or sv.get('laje_sup') or er_ficha.get('laje_sup_cm')
+        li_A = sv.get('laje_inf_A') or sv.get('laje_inf') or er_ficha.get('laje_inf_cm')
+        ls_B = sv.get('laje_sup_B') or er_ficha.get('laje_sup_B_cm')
+        li_B = sv.get('laje_inf_B') or er_ficha.get('laje_inf_B_cm')
+
+        _row("Laje sup A", f"{ls_A:.0f} cm" if ls_A else None)
+        _row("Laje inf A", f"{li_A:.0f} cm" if li_A else None)
+        if ls_B and ls_B != ls_A:
+            _row("Laje sup B", f"{ls_B:.0f} cm")
+        if li_B and li_B != li_A:
+            _row("Laje inf B", f"{li_B:.0f} cm")
+        cont = er_ficha.get('continuation', '')
+        if cont:
+            _row("Continuação", cont)
+        tl = er_ficha.get('text_left', ''); tr = er_ficha.get('text_right', '')
+        if tl: _row("← Referência", tl)
+        if tr: _row("→ Referência", tr)
+
+        vlay.addWidget(card)
+
+    vlay.addStretch(1)
+
+    scroll = QScrollArea()
+    scroll.setWidgetResizable(True)
+    scroll.setWidget(outer)
+    scroll.setStyleSheet(
+        f"QScrollArea {{ border: none; background: {Colors.BG_DEEP}; }}"
+        f"QScrollBar:vertical {{ width: 6px; background: {Colors.BG_PANEL}; }}"
+        f"QScrollBar::handle:vertical {{ background: {accent}66; border-radius: 3px; }}"
+    )
+    return scroll
+
+
+def _lv_segs_table(er_ficha: dict, accent: str = "#4caf50",
+                   tbl_style: str = "") -> "QTableWidget":
+    """Tabela de segmentos por face (A+B) com 7 colunas: # Larg Tipo H1 L↑ L↓ ⚑."""
+    COLS = ["#", "Larg", "Tipo", "H1", "L↑", "L↓", "⚑"]
+    tbl = QTableWidget(0, len(COLS))
+    tbl.setHorizontalHeaderLabels(COLS)
+    hh = tbl.horizontalHeader()
+    for i, mode in enumerate([
+        QHeaderView.ResizeToContents,  # #
+        QHeaderView.ResizeToContents,  # Larg
+        QHeaderView.Stretch,           # Tipo
+        QHeaderView.ResizeToContents,  # H1
+        QHeaderView.ResizeToContents,  # L↑
+        QHeaderView.ResizeToContents,  # L↓
+        QHeaderView.ResizeToContents,  # ⚑
+    ]):
+        hh.setSectionResizeMode(i, mode)
+    tbl.verticalHeader().setVisible(False)
+    tbl.setEditTriggers(QTableWidget.NoEditTriggers)
+    tbl.setAlternatingRowColors(False)
+    if tbl_style:
+        tbl.setStyleSheet(tbl_style)
+    else:
+        tbl.setStyleSheet(f"""
+            QTableWidget {{ background: {Colors.BG_PANEL}; color: {Colors.TEXT_PRIMARY};
+                font-size: 10px; border: 1px solid {Colors.BORDER_DEFAULT}; gridline-color: {Colors.BG_DEEP}; }}
+            QHeaderView::section {{ background: {Colors.BG_DEEP}; color: {accent};
+                font-weight: bold; font-size: 9px; padding: 2px; border: none; }}
+            QTableWidget::item {{ padding: 1px 3px; }}
+        """)
+
+    _face_bg   = QColor(Colors.BG_DEEP)
+    _face_fg   = QColor(accent)
+    _alt_bg    = QColor(Colors.BG_PANEL)
+    _alt2_bg   = QColor("#1a2a1a")
+
+    _TYPE_SHORT = {'Sarrafeado': 'Sarf.', 'Grade': 'Grade', 'Misto': 'Misto',
+                   'gradeada': 'Grade', 'sarrafeada': 'Sarf.', 'invertida': 'Inv.'}
+
+    def _add_face(face_label: str, segs: list, face_idx: int):
+        # Linha de cabeçalho de face
+        r = tbl.rowCount()
+        tbl.insertRow(r)
+        tbl.setRowHeight(r, 18)
+        hdr_item = QTableWidgetItem(f"  {face_label}  —  {len(segs)} segmento{'s' if len(segs) != 1 else ''}")
+        hdr_item.setBackground(QBrush(_face_bg))
+        hdr_item.setForeground(QBrush(_face_fg))
+        hdr_item.setTextAlignment(Qt.AlignVCenter | Qt.AlignLeft)
+        hdr_item.setFlags(hdr_item.flags() & ~Qt.ItemIsEditable)
+        f = hdr_item.font(); f.setBold(True); f.setPointSize(9); hdr_item.setFont(f)
+        tbl.setItem(r, 0, hdr_item)
+        tbl.setSpan(r, 0, 1, len(COLS))
+
+        for i, seg in enumerate(segs, 1):
+            r = tbl.rowCount()
+            tbl.insertRow(r)
+            tbl.setRowHeight(r, 16)
+            bg = _alt_bg if i % 2 == 1 else _alt2_bg
+
+            larg = float(seg.get('largura_cm') or seg.get('width') or 0)
+            ptype = seg.get('panel_type') or 'Sarrafeado'
+            h1   = float(seg.get('height1') or seg.get('h1') or 0)
+            l_up = float(seg.get('slab_top') or seg.get('laje_sup_local') or 0)
+            l_dn = float(seg.get('slab_bottom') or seg.get('laje_inf_local') or 0)
+            gh1  = float(seg.get('grade_h1') or 0)
+
+            # Flags compactas
+            flags = []
+            if seg.get('is_first'): flags.append('P')
+            if seg.get('is_last'):  flags.append('U')
+            if seg.get('reuse'):    flags.append('R')
+            if gh1 > 0:             flags.append('G')
+
+            pshort = _TYPE_SHORT.get(ptype, ptype[:5])
+            vals = [
+                str(i),
+                f"{larg:.0f}" if larg else "—",
+                pshort,
+                f"{h1:.0f}" if h1 else "—",
+                f"{l_up:.0f}" if l_up else "—",
+                f"{l_dn:.0f}" if l_dn else "—",
+                " ".join(flags) if flags else "",
+            ]
+            for c, txt in enumerate(vals):
+                it = QTableWidgetItem(txt)
+                it.setTextAlignment(Qt.AlignCenter)
+                it.setFlags(it.flags() & ~Qt.ItemIsEditable)
+                it.setBackground(QBrush(bg))
+                tbl.setItem(r, c, it)
+
+    segs_A = er_ficha.get('segmentos',   []) or []
+    segs_B = er_ficha.get('segmentos_B', []) or []
+    if segs_A: _add_face("Face A", segs_A, 0)
+    if segs_B: _add_face("Face B", segs_B, 1)
+
+    return tbl
+
+
 class LevelColumn(QFrame):
     """Coluna de nível (N1/N2/N3): badge + header, viewer, pipeline steps, ficha."""
 
@@ -2591,7 +2795,8 @@ class LevelColumn(QFrame):
                 self.img_widget.clear_image()
 
     def set_ficha(self, rows: list):
-        """rows = [(label, value), ...] """
+        """rows = [(label, value), ...] — também restaura view padrão se estava em modo LV."""
+        self._restore_lv_ficha()   # limpa LV ficha estruturada se existir
         self.ficha_table.setRowCount(0)
         for label, value in rows:
             r = self.ficha_table.rowCount()
@@ -2608,6 +2813,45 @@ class LevelColumn(QFrame):
                 lbl_item.setText("")
             self.ficha_table.setItem(r, 0, lbl_item)
             self.ficha_table.setItem(r, 1, val_item)
+
+    def set_lv_ficha(self, er_ficha: dict, accent: str = "#4caf50"):
+        """Substitui a área de ficha por layout estruturado LV (seções + segmentos).
+        Esconde lbl_ficha + ficha_table e insere um QSplitter horizontal com:
+          - Esquerda: seções transversais numeradas (scroll cards)
+          - Direita: segmentos por face (tabela rica 7 colunas)
+        """
+        self._restore_lv_ficha()   # limpa anterior se houver
+        lay = self.layout()
+        self.lbl_ficha.setVisible(False)
+        self.ficha_table.setVisible(False)
+
+        splitter = QSplitter(Qt.Horizontal)
+        splitter.setHandleWidth(3)
+        splitter.setStyleSheet(
+            f"QSplitter::handle {{ background: {Colors.BORDER_DEFAULT}; }}"
+        )
+
+        sect_w = _lv_section_widget(er_ficha, accent)
+        segs_t = _lv_segs_table(er_ficha, accent)
+        segs_t.setMinimumHeight(120)
+
+        splitter.addWidget(sect_w)
+        splitter.addWidget(segs_t)
+        splitter.setSizes([200, 340])
+
+        # Inserir antes do último widget (prog ou ficha_table) no layout
+        lay.addWidget(splitter)
+        self._lv_ficha_splitter = splitter
+
+    def _restore_lv_ficha(self):
+        """Remove widget LV estruturado e restaura lbl_ficha + ficha_table."""
+        w = getattr(self, '_lv_ficha_splitter', None)
+        if w is not None:
+            w.setParent(None)
+            w.deleteLater()
+            self._lv_ficha_splitter = None
+        self.lbl_ficha.setVisible(True)
+        self.ficha_table.setVisible(True)
 
     def set_processing(self, active: bool):
         self.prog.setVisible(active)
@@ -2743,8 +2987,9 @@ class LevelColumn(QFrame):
             self.ficha_table.setVisible(False)
 
             splitter = QSplitter(Qt.Horizontal)
-            self._zone_views: dict = {}
-            self._zone_tables: dict = {}
+            self._zone_views:  dict = {}
+            self._zone_tables: dict = {}   # legado
+            self._zone_fichas: dict = {}   # novos widgets de ficha LV
 
             for zone in ZONES:
                 panel = QWidget()
@@ -2765,43 +3010,41 @@ class LevelColumn(QFrame):
                 view.setMinimumHeight(180)
                 pv.addWidget(view, 1)
 
-                _FICHA_H = 160   # altura fixa igual para ambas as fichas (alinhamento)
+                # Ficha estruturada (substituem as antigas tabelas simples)
                 if zone == 'Lateral A-B':
-                    # 4 colunas: #, Largura, Tipo, H grade
-                    tbl = QTableWidget(0, 4)
-                    tbl.setHorizontalHeaderLabels(["#", "Larg.", "Tipo", "H gr."])
-                    tbl.horizontalHeader().setSectionResizeMode(
-                        0, QHeaderView.ResizeToContents)
-                    tbl.horizontalHeader().setSectionResizeMode(
-                        1, QHeaderView.ResizeToContents)
-                    tbl.horizontalHeader().setSectionResizeMode(
-                        2, QHeaderView.Stretch)
-                    tbl.horizontalHeader().setSectionResizeMode(
-                        3, QHeaderView.ResizeToContents)
+                    ficha_w = _lv_segs_table(er_ficha or {}, ACCENT)
+                    ficha_w.setFixedHeight(160)
                 else:
-                    # 2 colunas: Campo, Valor (seção transversal)
-                    tbl = QTableWidget(0, 2)
-                    tbl.setHorizontalHeaderLabels(["Campo", "Valor"])
-                    tbl.horizontalHeader().setSectionResizeMode(
-                        0, QHeaderView.ResizeToContents)
-                    tbl.horizontalHeader().setSectionResizeMode(
-                        1, QHeaderView.Stretch)
+                    ficha_w = _lv_section_widget(er_ficha or {}, ACCENT)
+                    ficha_w.setFixedHeight(160)
+                pv.addWidget(ficha_w)
 
-                tbl.setFixedHeight(_FICHA_H)   # mesma altura → fichas alinhadas
-                tbl.verticalHeader().setVisible(False)
-                tbl.setEditTriggers(QTableWidget.NoEditTriggers)
-                tbl.setStyleSheet(self.ficha_table.styleSheet())
-                pv.addWidget(tbl)
-
-                self._zone_views[zone] = view
-                self._zone_tables[zone] = tbl
+                self._zone_views[zone]  = view
+                self._zone_fichas[zone] = ficha_w
                 splitter.addWidget(panel)
 
-            # Visão Corte ~26%, Lateral A-B ~74% (≈+20% de largura para o corte)
+            # Visão Corte ~26%, Lateral A-B ~74%
             splitter.setSizes([264, 736])
             lay.insertWidget(3, splitter)
             self._pil_splitter = splitter
             self._pil_mode = True
+
+        else:
+            # Já em modo LV — atualizar fichas sem recriar o layout
+            if 'Lateral A-B' in self._zone_fichas:
+                old = self._zone_fichas['Lateral A-B']
+                new = _lv_segs_table(er_ficha or {}, ACCENT)
+                new.setFixedHeight(160)
+                old.parent().layout().replaceWidget(old, new)
+                old.setParent(None); old.deleteLater()
+                self._zone_fichas['Lateral A-B'] = new
+            if 'Visão Corte' in self._zone_fichas:
+                old = self._zone_fichas['Visão Corte']
+                new = _lv_section_widget(er_ficha or {}, ACCENT)
+                new.setFixedHeight(160)
+                old.parent().layout().replaceWidget(old, new)
+                old.setParent(None); old.deleteLater()
+                self._zone_fichas['Visão Corte'] = new
 
         # ── Carregar DXFs (mesmo arquivo, bboxes diferentes → culling por X) ──
         for zone, view in self._zone_views.items():
@@ -2814,86 +3057,6 @@ class LevelColumn(QFrame):
                     view.clear_image(f"Sem DXF — {zone}")
             else:
                 view.clear_image(f"Sem DXF — {zone}")
-
-        # ── Ficha Visão Corte: campos da seção transversal ──────────────────
-        vc_tbl = self._zone_tables.get('Visão Corte')
-        if vc_tbl:
-            VC_FIELDS = [
-                ('h_cm',        'H face A (cm)'),
-                ('h_B_cm',      'H face B (cm)'),
-                ('b_cm',        'b (cm)'),
-                ('tipo_viga',   'Tipo'),
-                ('h_section_cm','H seção'),
-                ('laje_sup_cm', 'Laje sup A'),
-                ('laje_inf_cm', 'Laje inf A'),
-            ]
-            ficha_vc = (zone_fichas or {}).get('Visão Corte') or er_ficha
-            vc_tbl.setRowCount(0)
-            for field, label in VC_FIELDS:
-                val = ficha_vc.get(field)
-                if val is None:
-                    continue
-                r = vc_tbl.rowCount()
-                vc_tbl.insertRow(r)
-                vc_tbl.setRowHeight(r, 17)
-                fi = QTableWidgetItem(label)
-                vi = QTableWidgetItem(str(val))
-                fi.setFlags(fi.flags() & ~Qt.ItemIsEditable)
-                vi.setFlags(vi.flags() & ~Qt.ItemIsEditable)
-                vc_tbl.setItem(r, 0, fi)
-                vc_tbl.setItem(r, 1, vi)
-
-        # ── Ficha Lateral A-B: por segmento, por face ───────────────────────
-        lat_tbl = self._zone_tables.get('Lateral A-B')
-        if lat_tbl:
-            ficha_lat = (zone_fichas or {}).get('Lateral A-B') or er_ficha
-            segs_A = ficha_lat.get('segmentos',   []) or []
-            segs_B = ficha_lat.get('segmentos_B', []) or []
-            lat_tbl.setRowCount(0)
-
-            _face_bg = QColor(Colors.BG_PANEL)
-            _face_fg = QColor(ACCENT)
-
-            for face_label, segs in [('Face A', segs_A), ('Face B', segs_B)]:
-                # ── cabeçalho de face (span 4 colunas) ──
-                r = lat_tbl.rowCount()
-                lat_tbl.insertRow(r)
-                lat_tbl.setRowHeight(r, 16)
-                hdr = QTableWidgetItem(f'— {face_label} —')
-                hdr.setTextAlignment(Qt.AlignCenter)
-                hdr.setFlags(hdr.flags() & ~Qt.ItemIsEditable)
-                hdr.setBackground(_face_bg)
-                hdr.setForeground(_face_fg)
-                lat_tbl.setItem(r, 0, hdr)
-                lat_tbl.setSpan(r, 0, 1, 4)
-
-                if not segs:
-                    r = lat_tbl.rowCount()
-                    lat_tbl.insertRow(r)
-                    lat_tbl.setRowHeight(r, 15)
-                    emp = QTableWidgetItem('sem segmentos')
-                    emp.setTextAlignment(Qt.AlignCenter)
-                    emp.setFlags(emp.flags() & ~Qt.ItemIsEditable)
-                    lat_tbl.setItem(r, 0, emp)
-                    lat_tbl.setSpan(r, 0, 1, 4)
-                    continue
-
-                for i, seg in enumerate(segs, 1):
-                    r = lat_tbl.rowCount()
-                    lat_tbl.insertRow(r)
-                    lat_tbl.setRowHeight(r, 15)
-                    larg = float(seg.get('largura_cm', seg.get('width', 0)) or 0)
-                    ptype = str(seg.get('panel_type', 'Sarf.'))
-                    pshort = {'Sarrafeado': 'Sarf.', 'Grade': 'Grade',
-                              'Misto': 'Misto'}.get(ptype, ptype[:5])
-                    gh = float(seg.get('grade_h1', 0) or 0)
-                    gh_str = f'{gh:.0f}' if gh > 0 else '—'
-                    for col, txt in [(0, str(i)), (1, f'{larg:.0f}'),
-                                     (2, pshort), (3, gh_str)]:
-                        it = QTableWidgetItem(txt)
-                        it.setTextAlignment(Qt.AlignCenter)
-                        it.setFlags(it.flags() & ~Qt.ItemIsEditable)
-                        lat_tbl.setItem(r, col, it)
 
     def restore_single_view(self):
         """Restore N4 column to single-viewer layout (called on item/classe change)."""
@@ -4999,6 +5162,10 @@ class ComparisonEngineModule(QWidget):
             col.pipeline.set_step(2, 'running', '')
             if is_er_flow:
                 col.set_ficha(self._ficha_n2_er(obra, classe, item_id))
+                if classe == 'LV':
+                    er_ficha_lv = self._get_er_ficha_dict(obra, classe, item_id)
+                    if er_ficha_lv:
+                        col.set_lv_ficha(er_ficha_lv)
             else:
                 col.set_ficha(self.tri_level._ficha_n2_for(classe, item_id))
             col.pipeline.set_step(2, 'ok', '')
