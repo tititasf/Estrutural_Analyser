@@ -5510,10 +5510,11 @@ class ComparisonEngineModule(QWidget):
                 if classe == 'LV':
                     # 2-panel view: Visão Corte | Lateral A-B
                     # sect_total = max(SECT_W+SECT_GAP, b+178) = max(190, b+178)
+                    # Face A começa em x = sect_total — corte 15cm antes para não incluir painéis
                     b_cm = float((er_ficha or {}).get('b_cm', 19) or 19)
                     sect_total = max(190, int(b_cm) + 178)
-                    vc_bbox  = (-50, -9999, sect_total + 30, 9999)
-                    lat_bbox = (sect_total - 20, -9999, 99999, 9999)
+                    vc_bbox  = (-50, -9999, sect_total - 15, 9999)
+                    lat_bbox = (sect_total - 5, -9999, 99999, 9999)
                     lv_zones = {
                         'Visão Corte': (str(n4_dxf), vc_bbox),
                         'Lateral A-B': (str(n4_dxf), lat_bbox),
@@ -6209,8 +6210,8 @@ class ComparisonEngineModule(QWidget):
                     b_cm = float((_er_ficha or {}).get('b_cm', 19) or 19)
                     sect_total = max(190, int(b_cm) + 178)
                     lv_zones = {
-                        'Visão Corte': (str(dxf_path), (-50, -9999, sect_total + 30, 9999)),
-                        'Lateral A-B': (str(dxf_path), (sect_total - 20, -9999, 99999, 9999)),
+                        'Visão Corte': (str(dxf_path), (-50, -9999, sect_total - 15, 9999)),
+                        'Lateral A-B': (str(dxf_path), (sect_total - 5, -9999, 99999, 9999)),
                     }
                     _col.switch_to_lv_zones(lv_zones, _er_ficha or {})
                     _col.pipeline.set_step(2, 'ok', dxf_path.name[:25])
@@ -6348,8 +6349,8 @@ class ComparisonEngineModule(QWidget):
                         b_cm = float((_er_ficha or {}).get('b_cm', 19) or 19)
                         sect_total = max(190, int(b_cm) + 178)
                         lv_zones = {
-                            'Visão Corte': (str(canon), (-50, -9999, sect_total + 30, 9999)),
-                            'Lateral A-B': (str(canon), (sect_total - 20, -9999, 99999, 9999)),
+                            'Visão Corte': (str(canon), (-50, -9999, sect_total - 15, 9999)),
+                            'Lateral A-B': (str(canon), (sect_total - 5, -9999, 99999, 9999)),
                         }
                         _col.switch_to_lv_zones(lv_zones, _er_ficha or {})
                     else:

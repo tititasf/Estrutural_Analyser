@@ -29,14 +29,22 @@ warnings.filterwarnings('ignore')
 _MAX_DXF_MB = 30.0
 _SENTINEL_X = -5000
 
+# Layers administrativos/decorativos que NUNCA devem ser mostrados no viewer
+_SKIP_LAYERS_VIEWER = frozenset({'Folhas', 'CARIMBO', 'ESTRUTURACAO', 'Forcador', 'Perfil Metálico'})
+
 
 # ── Bbox helper ────────────────────────────────────────────────────────────────
 
 def get_bbox(doc, sentinel_x=_SENTINEL_X):
-    """Calcula bbox do conteúdo real (ignora sentinelas em x < sentinel_x)."""
+    """Calcula bbox do conteúdo real (ignora sentinelas em x < sentinel_x e layers admin)."""
     xs, ys = [], []
     try:
         for e in doc.modelspace():
+            try:
+                if e.dxf.layer in _SKIP_LAYERS_VIEWER:
+                    continue
+            except Exception:
+                pass
             t = e.dxftype()
             try:
                 if t == 'LWPOLYLINE':
@@ -265,12 +273,13 @@ def render_ops(dxf_path: Path, bbox) -> list:
     backend = SerializingBackend(bbox=bbox)
     ctx = RenderContext(doc)
 
-    # Forçar todos os layers visíveis (inclusive layers OFF no DXF)
-    def _force_all_visible(layers):
+    # Forçar layers visíveis, exceto layers administrativos (Folhas, CARIMBO, etc.)
+    # lp.layer = nome real do layer (ezdxf 1.x: LayerProperties.layer guarda o nome)
+    def _force_visible_except_admin(layers):
         for lp in layers:
-            lp.is_visible = True
+            lp.is_visible = (lp.layer not in _SKIP_LAYERS_VIEWER)
 
-    ctx.set_layer_properties_override(_force_all_visible)
+    ctx.set_layer_properties_override(_force_visible_except_admin)
 
     # Configuração máxima: exibe DEFPOINTS, hatches com padrão real
     config = Configuration(
