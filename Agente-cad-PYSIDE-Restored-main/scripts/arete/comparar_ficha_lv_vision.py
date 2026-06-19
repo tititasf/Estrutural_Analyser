@@ -76,19 +76,26 @@ def dxf_to_png(dxf_path: Path, png_path: Path | None = None,
 
         config = Configuration(show_defpoints=True, hatch_policy=HatchPolicy.NORMAL)
 
-        # Calcular bbox do conteúdo para determinar proporção
+        # Calcular bbox do conteúdo real (ignorar sentinelas X<-200 e layers de folha)
+        _SKIP_LAYERS = {'Folhas', 'CARIMBO', 'ESTRUTURACAO', 'Forcador', 'Perfil Metálico'}
+        _SENTINEL_X  = -200.0
         xs, ys = [], []
         for e in doc.modelspace():
             try:
+                if getattr(e.dxf, 'layer', '') in _SKIP_LAYERS:
+                    continue
                 t = e.dxftype()
                 if t == 'LINE':
-                    xs += [e.dxf.start.x, e.dxf.end.x]
-                    ys += [e.dxf.start.y, e.dxf.end.y]
+                    if e.dxf.start.x > _SENTINEL_X and e.dxf.end.x > _SENTINEL_X:
+                        xs += [e.dxf.start.x, e.dxf.end.x]
+                        ys += [e.dxf.start.y, e.dxf.end.y]
                 elif t == 'LWPOLYLINE':
                     for pt in e.get_points('xy'):
-                        xs.append(pt[0]); ys.append(pt[1])
+                        if pt[0] > _SENTINEL_X:
+                            xs.append(pt[0]); ys.append(pt[1])
                 elif t in ('TEXT', 'MTEXT') and hasattr(e.dxf, 'insert'):
-                    xs.append(e.dxf.insert.x); ys.append(e.dxf.insert.y)
+                    if e.dxf.insert.x > _SENTINEL_X:
+                        xs.append(e.dxf.insert.x); ys.append(e.dxf.insert.y)
             except Exception:
                 pass
 
@@ -112,6 +119,13 @@ def dxf_to_png(dxf_path: Path, png_path: Path | None = None,
         bk = MatplotlibBackend(ax)
         fe = Frontend(ctx, bk, config=config)
         fe.draw_layout(doc.modelspace())
+
+        # Forçar xlim/ylim ao bbox real (não ao bbox do matplotlib que inclui sentinelas)
+        if xs and ys:
+            pad_x = (max(xs) - min(xs)) * 0.02 + 5
+            pad_y = (max(ys) - min(ys)) * 0.05 + 5
+            ax.set_xlim(min(xs) - pad_x, max(xs) + pad_x)
+            ax.set_ylim(min(ys) - pad_y, max(ys) + pad_y)
 
         out = png_path or dxf_path.with_suffix('.png')
         plt.savefig(str(out), dpi=100, bbox_inches='tight',
