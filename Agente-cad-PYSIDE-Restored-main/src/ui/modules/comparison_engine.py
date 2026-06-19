@@ -2721,6 +2721,104 @@ class LevelColumn(QFrame):
                 tbl.setItem(r, 0, fi)
                 tbl.setItem(r, 1, vi)
 
+    def switch_to_lv_zones(self, zone_paths: dict, er_ficha: dict,
+                            zone_fichas: "dict | None" = None):
+        """Replace viewer+ficha with 2-panel layout for LV.
+
+        zone_paths: {'Visão Corte': (dxf_path, bbox_or_None),
+                     'Lateral A-B': (dxf_path, bbox_or_None)}
+        er_ficha:   full LV ficha dict
+        zone_fichas: optional per-zone field overrides
+        """
+        ACCENT = "#4caf50"
+        ZONES = ['Visão Corte', 'Lateral A-B']
+        lay = self.layout()
+        from pathlib import Path as _Path
+
+        if not getattr(self, '_pil_mode', False):
+            self.img_widget.setVisible(False)
+            self.lbl_ficha.setVisible(False)
+            self.ficha_table.setVisible(False)
+
+            splitter = QSplitter(Qt.Horizontal)
+            self._zone_views: dict = {}
+            self._zone_tables: dict = {}
+
+            for zone in ZONES:
+                panel = QWidget()
+                pv = QVBoxLayout(panel)
+                pv.setContentsMargins(2, 2, 2, 2)
+                pv.setSpacing(2)
+
+                zone_hdr = QLabel(zone)
+                zone_hdr.setAlignment(Qt.AlignCenter)
+                zone_hdr.setFixedHeight(20)
+                zone_hdr.setStyleSheet(
+                    f"color: {ACCENT}; font-weight: bold; font-size: 11px; "
+                    f"background: {Colors.BG_DEEP}; border-radius: 3px;"
+                )
+                pv.addWidget(zone_hdr)
+
+                view = DXFVectorView(bg=Colors.BG_DEEP)
+                view.setMinimumHeight(180)
+                pv.addWidget(view, 1)
+
+                tbl = QTableWidget(0, 2)
+                tbl.setHorizontalHeaderLabels(["Campo", "Valor"])
+                tbl.horizontalHeader().setSectionResizeMode(
+                    0, QHeaderView.ResizeToContents)
+                tbl.horizontalHeader().setSectionResizeMode(
+                    1, QHeaderView.Stretch)
+                tbl.verticalHeader().setVisible(False)
+                tbl.setEditTriggers(QTableWidget.NoEditTriggers)
+                tbl.setFixedHeight(120)
+                tbl.setStyleSheet(self.ficha_table.styleSheet())
+                pv.addWidget(tbl)
+
+                self._zone_views[zone] = view
+                self._zone_tables[zone] = tbl
+                splitter.addWidget(panel)
+
+            # Visão Corte ocupa ~25%, Lateral A-B ~75%
+            splitter.setSizes([220, 780])
+            lay.insertWidget(3, splitter)
+            self._pil_splitter = splitter
+            self._pil_mode = True
+
+        # Carregar DXFs (mesmo arquivo, bboxes diferentes)
+        for zone, view in self._zone_views.items():
+            entry = zone_paths.get(zone)
+            if entry:
+                path, bbox = entry if isinstance(entry, tuple) else (entry, None)
+                if path and _Path(str(path)).exists():
+                    view.load_dxf(str(path), bbox)
+                else:
+                    view.clear_image(f"Sem DXF — {zone}")
+            else:
+                view.clear_image(f"Sem DXF — {zone}")
+
+        # Mini-fichas por zona
+        LV_ZONE_FIELDS = {
+            'Visão Corte': ['h_cm', 'h_B_cm', 'b_cm', 'tipo_viga', 'h_section_cm'],
+            'Lateral A-B': ['tipo_viga', 'laje_sup_cm', 'laje_inf_cm',
+                            'laje_sup_B_cm', 'laje_inf_B_cm', '_confianca'],
+        }
+        for zone, tbl in self._zone_tables.items():
+            fields = LV_ZONE_FIELDS.get(zone, [])
+            ficha_src = (zone_fichas or {}).get(zone) or er_ficha
+            tbl.setRowCount(0)
+            for field in fields:
+                val = ficha_src.get(field)
+                r = tbl.rowCount()
+                tbl.insertRow(r)
+                tbl.setRowHeight(r, 18)
+                fi = QTableWidgetItem(field)
+                vi = QTableWidgetItem(str(val) if val is not None else '—')
+                fi.setFlags(fi.flags() & ~Qt.ItemIsEditable)
+                vi.setFlags(vi.flags() & ~Qt.ItemIsEditable)
+                tbl.setItem(r, 0, fi)
+                tbl.setItem(r, 1, vi)
+
     def restore_single_view(self):
         """Restore N4 column to single-viewer layout (called on item/classe change)."""
         if not getattr(self, '_pil_mode', False):
@@ -5335,11 +5433,27 @@ class ComparisonEngineModule(QWidget):
             n4_dxf = self._find_n4_dxf_strict(obra_dir, classe, item_id)
             force_regen = classe in ("LJ", "FV")  # FV: always regen to use latest motor
             if n4_dxf and n4_dxf.exists() and not force_regen:
-                n4_bbox = self.tri_level._get_n2_bbox_for(item_id, classe) if classe == "LJ" else None
-                col.load_content(str(n4_dxf), n4_bbox)
-                col.pipeline.set_step(2, 'ok', Path(n4_dxf).name[:25])
-                self.nav_sidebar.set_status(f"✅ N4 ok — {item_id}", Colors.ACCENT_SUCCESS)
-                self.nav_sidebar._enable_item_btns()
+                if classe == 'LV':
+                    # 2-panel view: Visão Corte | Lateral A-B
+                    # sect_total = max(SECT_W+SECT_GAP, b+178) = max(190, b+178)
+                    b_cm = float((er_ficha or {}).get('b_cm', 19) or 19)
+                    sect_total = max(190, int(b_cm) + 178)
+                    vc_bbox  = (-50, -9999, sect_total + 30, 9999)
+                    lat_bbox = (sect_total - 20, -9999, 99999, 9999)
+                    lv_zones = {
+                        'Visão Corte': (str(n4_dxf), vc_bbox),
+                        'Lateral A-B': (str(n4_dxf), lat_bbox),
+                    }
+                    col.switch_to_lv_zones(lv_zones, er_ficha or {})
+                    col.pipeline.set_step(2, 'ok', Path(n4_dxf).name[:25])
+                    self.nav_sidebar.set_status(f"✅ N4 LV — {item_id}", Colors.ACCENT_SUCCESS)
+                    self.nav_sidebar._enable_item_btns()
+                else:
+                    n4_bbox = self.tri_level._get_n2_bbox_for(item_id, classe) if classe == "LJ" else None
+                    col.load_content(str(n4_dxf), n4_bbox)
+                    col.pipeline.set_step(2, 'ok', Path(n4_dxf).name[:25])
+                    self.nav_sidebar.set_status(f"✅ N4 ok — {item_id}", Colors.ACCENT_SUCCESS)
+                    self.nav_sidebar._enable_item_btns()
             else:
                 # Gera DXF via temp JSON (Option B)
                 col.pipeline.set_step(2, 'running', 'Gerando via robô...')
@@ -6059,7 +6173,8 @@ class ComparisonEngineModule(QWidget):
         def _on_done(code, _sig,
                      _temp_files=temp_files, _out_dir=out_dir,
                      _pfx_out=pfx_out, _temp_item=temp_item,
-                     _item_id=item_id, _classe=classe, _col=col):
+                     _item_id=item_id, _classe=classe, _col=col,
+                     _er_ficha=er_ficha):
             # Remove JSONs temporários
             for tf in _temp_files:
                 try:
@@ -6086,8 +6201,17 @@ class ComparisonEngineModule(QWidget):
                     # Move para pasta n4 com nome canônico
                     canon = _out_dir / f"{_pfx_out}{_item_id}.dxf"
                     generated.replace(canon)
-                    n4_bbox = self.tri_level._get_n2_bbox_for(_item_id, _classe) if _classe == "LJ" else None
-                    _col.load_content(str(canon), n4_bbox)
+                    if _classe == 'LV':
+                        b_cm = float((_er_ficha or {}).get('b_cm', 19) or 19)
+                        sect_total = max(190, int(b_cm) + 178)
+                        lv_zones = {
+                            'Visão Corte': (str(canon), (-50, -9999, sect_total + 30, 9999)),
+                            'Lateral A-B': (str(canon), (sect_total - 20, -9999, 99999, 9999)),
+                        }
+                        _col.switch_to_lv_zones(lv_zones, _er_ficha or {})
+                    else:
+                        n4_bbox = self.tri_level._get_n2_bbox_for(_item_id, _classe) if _classe == "LJ" else None
+                        _col.load_content(str(canon), n4_bbox)
                     _col.pipeline.set_step(2, 'ok', canon.name[:25])
                     self.nav_sidebar.set_status(f"✅ N4 gerado — {_item_id}", Colors.ACCENT_SUCCESS)
                 else:
