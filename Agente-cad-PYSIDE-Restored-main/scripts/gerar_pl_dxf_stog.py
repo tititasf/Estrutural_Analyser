@@ -1037,6 +1037,20 @@ def draw_abcd(msp, base_x, base_y, comp, larg, altura, nome, pj):
                 msp.add_line((x_right, y0), (x_right, panel_top_face), dxfattribs={'layer': 'Painéis'})
                 entity_count += 2
 
+            # Fechar parede externa no topo do slot de abertura (mesma layer/cor da linha de laje)
+            for _ab in _aberturas:
+                _al = _ab['lado']
+                if _al == 'direito':
+                    msp.add_line((x_right - _ab['larg'], _ab['y_top']),
+                                 (x_right, _ab['y_top']),
+                                 dxfattribs={'layer': 'COTA'})
+                    entity_count += 1
+                elif _al == 'esquerdo':
+                    msp.add_line((x_left, _ab['y_top']),
+                                 (x_left + _ab['larg'], _ab['y_top']),
+                                 dxfattribs={'layer': 'COTA'})
+                    entity_count += 1
+
         else:
             # Modelo padrão: h_low/h_par (fallback quando N2 não tem intervals)
             h_par_face     = float(pj.get(f'h_par_{fid}', H_PARAFUSO))
@@ -1101,28 +1115,47 @@ def draw_abcd(msp, base_x, base_y, comp, larg, altura, nome, pj):
             # 1 sarrafo: draw TWICE per segment (robot artifact); 2: draw ONCE
             repeat = 2 if len(sarr_xs) == 1 else 1
 
+            # Sarrafo é cortado na abertura: calcula limite de topo por lado
+            _sarr_lim_esq = min((ab['y_bot'] for ab in _aberturas if ab['lado'] == 'esquerdo'),
+                                default=None)
+            _sarr_lim_dir = min((ab['y_bot'] for ab in _aberturas if ab['lado'] == 'direito'),
+                                default=None)
+
             for sx in sarr_xs:
+                # Topo efetivo do sarrafo para este sx (abertura corta o sarrafo)
+                _left_sx = x_left + SARR_OFFSET
+                _is_left_side = abs(sx - _left_sx) < 0.5
+                _sarr_stop = (_sarr_lim_esq if _is_left_side else _sarr_lim_dir)
+
                 if is_short:
                     # Short: single PLINE from y_bot+h1 to y_top, continuous (verified P21/P44 SCR)
-                    for _ in range(repeat):
-                        msp.add_lwpolyline([(sx, y0 + h1), (sx, y_top)],
-                                           close=False,
-                                           dxfattribs={'layer': 'SARR_2.2x7'})
-                        entity_count += 1
+                    _y_end = min(y_top, _sarr_stop) if _sarr_stop is not None else y_top
+                    if _y_end > y0 + h1:
+                        for _ in range(repeat):
+                            msp.add_lwpolyline([(sx, y0 + h1), (sx, _y_end)],
+                                               close=False,
+                                               dxfattribs={'layer': 'SARR_2.2x7'})
+                            entity_count += 1
                 else:
                     # Wide faces (A/B, comp-dir): lower CONTINUOUS + DASHED, stop at y_mid
                     # Narrow faces (C/D, larg-dir): lower CONTINUOUS + small DASHED above + CONTINUOUS top
                     if fid in ('A', 'B'):
-                        for _ in range(repeat):
-                            msp.add_lwpolyline([(sx, y0 + h1), (sx, y_low)],
-                                               close=False,
-                                               dxfattribs={'layer': 'SARR_2.2x7'})
-                            entity_count += 1
-                        for _ in range(repeat):
-                            msp.add_lwpolyline([(sx, y_low), (sx, y_mid_face)],
-                                               close=False,
-                                               dxfattribs={'layer': 'SARR_2.2x7'})
-                            entity_count += 1
+                        _y_low_eff = (min(y_low, _sarr_stop) if _sarr_stop is not None
+                                      else y_low)
+                        _y_mid_eff = (min(y_mid_face, _sarr_stop) if _sarr_stop is not None
+                                      else y_mid_face)
+                        if _y_low_eff > y0 + h1:
+                            for _ in range(repeat):
+                                msp.add_lwpolyline([(sx, y0 + h1), (sx, _y_low_eff)],
+                                                   close=False,
+                                                   dxfattribs={'layer': 'SARR_2.2x7'})
+                                entity_count += 1
+                        if _y_mid_eff > y_low:
+                            for _ in range(repeat):
+                                msp.add_lwpolyline([(sx, y_low), (sx, _y_mid_eff)],
+                                                   close=False,
+                                                   dxfattribs={'layer': 'SARR_2.2x7'})
+                                entity_count += 1
                     else:
                         if fid == 'C':
                             # 2 segments split at y_mid_face; second only when extra zone exists
