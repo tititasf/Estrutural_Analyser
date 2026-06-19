@@ -409,11 +409,11 @@ def draw_grade_mode(msp, x_cur, y_grade_top, pw, grade_h,
     msp.add_line((x_gi, y_grade_top - 2.2), (x_gi, y_grade_top),       dxfattribs=a22)
     msp.add_line((x_gf, y_grade_top - 2.2), (x_gf, y_grade_top),       dxfattribs=a22)
 
-    # Vertical legs (SARR_2.2x3.5 layer)
+    # Vertical legs (SARR_3.5x7 layer — mesmo layer do STOG humano N2)
     leg_h = grade_h - 2.2
     leg_w = 3.5
     inset_leg = 15.0  # 15cm inset from edges
-    a35 = {'layer': 'SARR_2.2x3.5'}
+    a35 = {'layer': 'SARR_3.5x7'}
 
     y_leg_top = y_grade_top - 2.2
     y_leg_bot = y_leg_top - leg_h
@@ -1279,6 +1279,7 @@ def main():
     fichas_h_map:    dict = {}  # {vname: {'A': h_cm, 'B': h_cm}}
     fichas_b_map:    dict = {}  # {vname: b_cm}
     fichas_segs_map: dict = {}  # {vname: {'A': [largura_cm,...], 'B': [...]}}  ← widths de fichas
+    fichas_panels_map: dict = {} # {vname: {'A': [seg_dict,...], 'B': [...]}}   ← segmentos completos
     fichas_laje_map: dict = {}  # {vname: {'sup': float, 'inf': float}}         ← lajesx de fichas
     fichas_nota_map: dict = {}  # {vname: {'A': str, 'B': str}}                 ← nota_face (ref texto)
     fichas_pont_map: dict = {}  # {vname: {'A': int|list|None, 'B': ...}}       ← pontaletes_face override
@@ -1291,35 +1292,60 @@ def main():
                 face = ficha.get('face', 'A')
                 if not vn:
                     continue
-                segs = ficha.get('segmentos', [])
+                segs   = ficha.get('segmentos', [])
+                segs_B = ficha.get('segmentos_B', [])
                 segs_codes = [seg.get('codigos_forma', []) for seg in segs]
                 if vn not in fichas_map:
                     fichas_map[vn] = {}
                 fichas_map[vn][face] = segs_codes
+                # códigos face B (segmentos_B campo da mesma entrada)
+                if segs_B:
+                    fichas_map[vn]['B'] = [seg.get('codigos_forma', []) for seg in segs_B]
+                # segmentos completos (panel_type, grade_h1, height1, ...) por face
+                if vn not in fichas_panels_map:
+                    fichas_panels_map[vn] = {}
+                if segs:
+                    fichas_panels_map[vn][face] = segs
+                if segs_B:
+                    fichas_panels_map[vn]['B'] = segs_B
                 # largura_cm por segmento → usado para painéis quando disponível
                 widths = [float(seg.get('largura_cm', 0) or 0) for seg in segs]
                 if any(w > 0 for w in widths):
                     if vn not in fichas_segs_map:
                         fichas_segs_map[vn] = {}
                     fichas_segs_map[vn][face] = widths
-                # h_cm e b_cm por face
-                h_cm = ficha.get('h_cm', 0) or 0
-                b_cm = ficha.get('b_cm', 0) or 0
+                if segs_B:
+                    ws_B = [float(seg.get('largura_cm', 0) or 0) for seg in segs_B]
+                    if any(w > 0 for w in ws_B):
+                        fichas_segs_map[vn]['B'] = ws_B
+                # h_cm e b_cm por face (h_B_cm armazenado como face 'B')
+                h_cm   = ficha.get('h_cm', 0) or 0
+                h_B_cm = ficha.get('h_B_cm', 0) or 0
+                b_cm   = ficha.get('b_cm', 0) or 0
                 if vn not in fichas_h_map:
                     fichas_h_map[vn] = {}
                 if h_cm > 0:
                     fichas_h_map[vn][face] = float(h_cm)
+                if h_B_cm > 0:
+                    fichas_h_map[vn]['B'] = float(h_B_cm)
                 if b_cm > 0 and vn not in fichas_b_map:
                     fichas_b_map[vn] = float(b_cm)
-                # laje_sup_cm / laje_inf_cm por face (armazena per-face para suportar A≠B)
-                ls = ficha.get('laje_sup_cm')
-                li = ficha.get('laje_inf_cm')
+                # laje por face (campos face A + campos face B no mesmo entry)
+                ls   = ficha.get('laje_sup_cm')
+                li   = ficha.get('laje_inf_cm')
+                ls_B = ficha.get('laje_sup_B_cm')
+                li_B = ficha.get('laje_inf_B_cm')
+                if vn not in fichas_laje_map:
+                    fichas_laje_map[vn] = {}
                 if ls is not None or li is not None:
-                    if vn not in fichas_laje_map:
-                        fichas_laje_map[vn] = {}
                     fichas_laje_map[vn][face] = {
-                        'sup': float(ls) if ls is not None else 7.0,
-                        'inf': float(li) if li is not None else 7.0,
+                        'sup': float(ls) if ls is not None else 0.0,
+                        'inf': float(li) if li is not None else 0.0,
+                    }
+                if ls_B is not None or li_B is not None:
+                    fichas_laje_map[vn]['B'] = {
+                        'sup': float(ls_B) if ls_B is not None else 0.0,
+                        'inf': float(li_B) if li_B is not None else 0.0,
                     }
                 # nota_face: texto de referência exibido no centro da face (ex: "VEM DA V113.A")
                 nota = ficha.get('nota_face')
@@ -1414,28 +1440,52 @@ def main():
         lca_A = float(da.get('laje_central_alt', 0) or 0)
         lca_B = float(db.get('laje_central_alt', 0) or 0)
 
-        # Sobrescrever larguras dos painéis com fichas_lv_v2.largura_cm quando disponível
+        # Sobrescrever larguras dos painéis com fichas_lv_v2.segmentos quando disponível
         # (fonte mais precisa: engenharia reversa humana anotada no fichas)
         def _apply_fichas_widths(json_panels, face_key, h_face):
-            fw = fichas_segs_map.get(vname, {}).get(face_key, [])
-            if not fw:
-                return json_panels
-            result = []
-            for i, w in enumerate(fw):
-                if w <= 0:
-                    continue
-                base = json_panels[i] if i < len(json_panels) else {}
-                result.append({
-                    'width':            w,
-                    'height1':          float(base.get('height1', h_face) or h_face),
-                    'height2':          float(base.get('height2', h_face) or h_face),
-                    'grade_h1':         float(base.get('grade_h1', 0) or 0),
-                    'grade_h2':         float(base.get('grade_h2', 0) or 0),
-                    'laje_central_alt': float(base.get('laje_central_alt', 0) or 0),
-                    'reuse':            bool(base.get('reuse', False)),
-                    'panel_type':       str(base.get('panel_type', 'Sarrafeado')),
-                })
-            return result
+            # Prioridade 1: segmentos completos de fichas_panels_map (nova extração granular)
+            fichas_segs = fichas_panels_map.get(vname, {}).get(face_key, [])
+            # Prioridade 2: apenas widths de fichas_segs_map (schema antigo)
+            widths_only = fichas_segs_map.get(vname, {}).get(face_key, [])
+
+            if fichas_segs:
+                result = []
+                for seg in fichas_segs:
+                    w = float(seg.get('largura_cm', seg.get('width', 0)) or 0)
+                    if w <= 0:
+                        continue
+                    ptype = str(seg.get('panel_type', 'Sarrafeado'))
+                    gh    = float(seg.get('grade_h1', 0) or 0)
+                    h1    = float(seg.get('height1', h_face if ptype == 'Sarrafeado' else 0) or 0) or h_face
+                    result.append({
+                        'width':            w,
+                        'height1':          h1,
+                        'height2':          h1,
+                        'grade_h1':         gh,
+                        'grade_h2':         gh,
+                        'laje_central_alt': float(seg.get('laje_central_alt', 0) or 0),
+                        'reuse':            bool(seg.get('reuse', False)),
+                        'panel_type':       ptype,
+                    })
+                return result
+            elif widths_only:
+                result = []
+                for i, w in enumerate(widths_only):
+                    if w <= 0:
+                        continue
+                    base = json_panels[i] if i < len(json_panels) else {}
+                    result.append({
+                        'width':            w,
+                        'height1':          float(base.get('height1', h_face) or h_face),
+                        'height2':          float(base.get('height2', h_face) or h_face),
+                        'grade_h1':         float(base.get('grade_h1', 0) or 0),
+                        'grade_h2':         float(base.get('grade_h2', 0) or 0),
+                        'laje_central_alt': float(base.get('laje_central_alt', 0) or 0),
+                        'reuse':            bool(base.get('reuse', False)),
+                        'panel_type':       str(base.get('panel_type', 'Sarrafeado')),
+                    })
+                return result
+            return json_panels
 
         json_panels_A = da.get('panels', [])
         json_panels_B = db.get('panels', [])

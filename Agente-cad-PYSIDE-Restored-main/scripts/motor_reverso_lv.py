@@ -1,24 +1,25 @@
 # -*- coding: utf-8 -*-
 """Motor Reverso LV — Extrai ficha N2 de recorte DXF STOG lateral viga.
 
-Produz todos os campos que o gerador gerar_lv_dxf_stog.py consome, incluindo:
-  h_A, h_B          — altura total de painéis Face A e B (h_body + lajesSup + lajesInf)
-  b_geom            — largura da seção transversal (de "Cota Seção (2x)" TEXT)
-  h_section         — altura da seção na VC (de "Cota Seção (2x)" TEXT)
-  laje_sup_A/B      — laje superior por face (de COTA TEXT perto da face)
-  laje_inf_A/B      — laje inferior por face
-  panels_A/B        — segmentos com largura_cm (de V-lines em Painéis)
-  pillar_left/right — pilar ativo se detectado (Madeira V-lines de borda)
-  holes             — aberturas (placeholder vazio por padrão)
+Schema de saída (2 partes):
+  VISÃO CORTE  → h_A/B, b_geom, h_section, laje_sup/inf por face, tipo_viga
+  LATERAL A/B  → panels_A/B: lista de segmentos completos, cada um com:
+                   largura_cm, panel_type (Sarrafeado|Grade|Misto),
+                   height1 (h_body), grade_h1, laje_sup_local, laje_inf_local,
+                   laje_central_alt, holes, is_first, is_last, codigos_forma
 
 Estratégia de detecção de faces:
   1. Usa face labels ("V13.A", "V13.B") da camada "Texto Seção" / "5"
      para ancorar cada face — robusto contra múltiplas vigas por sheet.
   2. Encontra par de H-lines da camada Painéis (h_body 8-130 cm) abaixo
      de cada label e alinhado horizontalmente com o label.
-  3. Extrai V-lines dentro do range xy da face → larguras dos painéis.
-  4. Associa COTA TEXT próximos à face → h_total, laje_sup, laje_inf.
-  5. Filtra "Cota Seção (2x)" por proximidade à face ativa.
+     Confirmação por COTA TEXT para descartar pares espúrios de LWPOLYLINE.
+  3. Extrai V-lines dentro do range xy da face → segmentos com largura.
+  4. Classifica cada segmento: Grade (pares SARR_3.5x7 internos) vs Sarrafeado.
+  5. Extrai grade_h de cada segmento Grade (span Y dos SARR_3.5x7).
+  6. Detecta aberturas (LWPOLYLINE DASHED nos cantos) por segmento.
+  7. Associa COTA TEXT próximos → h_total, laje_sup, laje_inf por face.
+  8. Propaga laje_sup_local / laje_inf_local para cada segmento.
 """
 
 from __future__ import annotations
@@ -65,8 +66,11 @@ def _lookup_fase4_lv(elem_id: str, obra_root: Path) -> dict | None:
 
 def _collect_seg_line(layer: str, x1: float, y1: float, x2: float, y2: float,
                       paineis_h: list, paineis_v: list,
-                      sarr_v: list, madeira_v: list) -> None:
-    """Classifica um segmento de linha nas listas corretas."""
+                      sarr_v: list, madeira_v: list,
+                      sarr3_v: list | None = None) -> None:
+    """Classifica um segmento de linha nas listas corretas.
+    sarr3_v: recebe especificamente SARR_3.5x7 V-lines (grade pernas).
+    """
     dx, dy = abs(x2 - x1), abs(y2 - y1)
     if layer == 'Painéis':
         if dy < _EPS_LINE and dx > 5:
@@ -76,6 +80,8 @@ def _collect_seg_line(layer: str, x1: float, y1: float, x2: float, y2: float,
     elif layer in ('SARR_2.2x7', 'SARR_EDITAR', 'SARR_3.5x7'):
         if dx < _EPS_LINE and dy > 5:
             sarr_v.append((min(x1, x2), min(y1, y2), max(y1, y2)))
+            if layer == 'SARR_3.5x7' and sarr3_v is not None:
+                sarr3_v.append((min(x1, x2), min(y1, y2), max(y1, y2)))
     elif layer == 'Madeira':
         if dx < _EPS_LINE and dy > 5:
             madeira_v.append((min(x1, x2), min(y1, y2), max(y1, y2)))
@@ -98,10 +104,13 @@ def _extract_lv_geom_from_dxf(dxf_path: str, elem_id: str = '') -> dict:
       _confianca_extracao
     """
     result: dict = {
+        # Visão Corte
         'h_A': 0.0, 'h_B': 0.0,
         'b_geom': 19.0, 'h_section': 55.0,
         'laje_sup_A': 0.0, 'laje_inf_A': 0.0,
         'laje_sup_B': 0.0, 'laje_inf_B': 0.0,
+        'tipo_viga': 'sarrafeada',
+        # Lateral A/B (segmentos completos)
         'panels_A': [], 'panels_B': [],
         'pillar_left':  {'active': False, 'width': 0.0, 'length': 0.0},
         'pillar_right': {'active': False, 'width': 0.0, 'length': 0.0},
@@ -118,13 +127,15 @@ def _extract_lv_geom_from_dxf(dxf_path: str, elem_id: str = '') -> dict:
         doc = ezdxf.readfile(str(dxf_path))
         msp = doc.modelspace()
 
-        paineis_h:   list = []   # (y, x_left, x_right)
-        paineis_v:   list = []   # (x, y_bot, y_top)
-        sarr_v:      list = []   # (x, y_bot, y_top)
-        madeira_v:   list = []   # (x, y_bot, y_top)
-        cota_txts:   list = []   # (x, y, val)
-        secao_txts:  list = []   # (x, y, val)  camada "Cota Seção (2x)"
-        face_labels: list = []   # (x, y, txt, side)  camada "Texto Seção" / "5"
+        paineis_h:    list = []   # (y, x_left, x_right)
+        paineis_v:    list = []   # (x, y_bot, y_top)
+        sarr_v:       list = []   # (x, y_bot, y_top)  todos sarrafos verticais
+        sarr3_v:      list = []   # (x, y_bot, y_top)  SARR_3.5x7 V-lines (grade pernas)
+        madeira_v:    list = []   # (x, y_bot, y_top)
+        holes_lwpoly: list = []   # (xl, yl, xr, yr) LWPOLYLINE DASHED = aberturas
+        cota_txts:    list = []   # (x, y, val)
+        secao_txts:   list = []   # (x, y, val)  camada "Cota Seção (2x)"
+        face_labels:  list = []   # (x, y, txt, side)  camada "Texto Seção" / "5"
 
         for e in msp:
             layer = e.dxf.layer
@@ -136,7 +147,7 @@ def _extract_lv_geom_from_dxf(dxf_path: str, elem_id: str = '') -> dict:
                     x1, y1 = float(p1[0]), float(p1[1])
                     x2, y2 = float(p2[0]), float(p2[1])
                     _collect_seg_line(layer, x1, y1, x2, y2,
-                                      paineis_h, paineis_v, sarr_v, madeira_v)
+                                      paineis_h, paineis_v, sarr_v, madeira_v, sarr3_v)
                 except Exception:
                     pass
 
@@ -147,7 +158,7 @@ def _extract_lv_geom_from_dxf(dxf_path: str, elem_id: str = '') -> dict:
                     if n == 2:
                         (x1, y1), (x2, y2) = pts[0], pts[1]
                         _collect_seg_line(layer, x1, y1, x2, y2,
-                                          paineis_h, paineis_v, sarr_v, madeira_v)
+                                          paineis_h, paineis_v, sarr_v, madeira_v, sarr3_v)
                     elif n >= 3:
                         closed = bool(e.closed)
                         limit = n if closed else n - 1
@@ -155,7 +166,17 @@ def _extract_lv_geom_from_dxf(dxf_path: str, elem_id: str = '') -> dict:
                             x1, y1 = pts[i]
                             x2, y2 = pts[(i + 1) % n]
                             _collect_seg_line(layer, x1, y1, x2, y2,
-                                              paineis_h, paineis_v, sarr_v, madeira_v)
+                                              paineis_h, paineis_v, sarr_v, madeira_v, sarr3_v)
+                        # LWPOLYLINE DASHED em Painéis = abertura/slot
+                        if layer == 'Painéis' and n >= 3:
+                            lt = str(e.dxf.get('linetype', '') or '').upper()
+                            if 'DASHED' in lt or 'HIDDEN' in lt:
+                                xs_p = [p[0] for p in pts]
+                                ys_p = [p[1] for p in pts]
+                                holes_lwpoly.append((
+                                    min(xs_p), min(ys_p),
+                                    max(xs_p), max(ys_p)
+                                ))
                 except Exception:
                     pass
 
@@ -322,10 +343,95 @@ def _extract_lv_geom_from_dxf(dxf_path: str, elem_id: str = '') -> dict:
         if face_A and face_B and face_A['y_top'] < face_B['y_top']:
             face_A, face_B = face_B, face_A
 
-        # ── 3. Larguras dos segmentos de painel (V-lines Painéis) ────────────
-        def _panel_widths(fg: dict) -> list:
+        # ── 3. Segmentos completos por face ───────────────────────────────────
+        # Constantes para classificação
+        _GRADE_PAIR_SEP_MAX = 10.0   # separação máx entre duas pernas de um par (cm)
+        _GRADE_FACE_MARGIN  = 30.0   # margem das bordas externas da face a ignorar
+        _GRADE_SEG_MARGIN   = 15.0   # extensão lateral para buscar pernas num segmento
+
+        def _face_is_grade(x_left: float, x_right: float,
+                            y_bot: float, y_top: float) -> bool:
+            """True se a face tem pares SARR_3.5x7 (grade pernas) dentro do range.
+
+            As pernas de grade no STOG humano ficam nas BORDAS dos segmentos
+            (junto às V-lines do Painéis), não no interior. Por isso classifica-se
+            a FACE inteira como Grade/Sarrafeado.
+
+            Nota: y_top é o topo das H-lines (h_body), mas pernas SARR_3.5x7 em
+            vigas grade podem se estender até h_total (acima do y_top das H-lines).
+            Usamos y_top + 150 como limite superior generoso.
+            """
+            inner_l = x_left + _GRADE_FACE_MARGIN
+            inner_r = x_right - _GRADE_FACE_MARGIN
+            # Range Y generoso: pernas podem ir além do y_top das H-lines (h_body)
+            y_lo = y_bot - 20
+            y_hi = y_top + 150
+            xs_inner = sorted(
+                x for x, yb, yt in sarr3_v
+                if inner_l <= x <= inner_r
+                and y_lo <= yb and yt <= y_hi
+            )
+            for i in range(len(xs_inner) - 1):
+                if xs_inner[i + 1] - xs_inner[i] <= _GRADE_PAIR_SEP_MAX:
+                    return True
+            return False
+
+        def _extract_grade_h(xl: float, xr: float,
+                              y_bot: float, y_top: float) -> float:
+            """Grade height para este segmento: span Y das pernas SARR_3.5x7 próximas."""
+            # Margem X: 15cm (pernas ficam nas bordas dos segmentos)
+            # Margem Y: 150cm acima do y_top para cobrir a altura total da forma
+            spans = [(yb, yt) for x, yb, yt in sarr3_v
+                     if xl - _GRADE_SEG_MARGIN <= x <= xr + _GRADE_SEG_MARGIN
+                     and y_bot - 20 <= yb and yt <= y_top + 150]
+            if not spans:
+                return 0.0
+            return round(max(yt for _, yt in spans) - min(yb for yb, _ in spans), 1)
+
+        def _detect_holes_seg(xl: float, xr: float,
+                               y_bot: float, y_top: float) -> list:
+            """Aberturas LWPOLYLINE DASHED nos cantos do segmento."""
+            result_h = []
+            for hxl, hyl, hxr, hyr in holes_lwpoly:
+                hw, hh = hxr - hxl, hyr - hyl
+                if hw <= 0 or hh <= 0:
+                    continue
+                cx = (hxl + hxr) / 2
+                if not (xl - 5 <= cx <= xr + 5):
+                    continue
+                cy = (hyl + hyr) / 2
+                if not (y_bot - 5 <= cy <= y_top + 5):
+                    continue
+                near_l  = (hxl - xl) < 12
+                near_r  = (xr - hxr) < 12
+                near_top = (y_top - hyr) < 12
+                near_bot = (hyl - y_bot) < 12
+                corner = None
+                if near_l and near_top:   corner = 'TL'
+                elif near_r and near_top: corner = 'TR'
+                elif near_l and near_bot: corner = 'BL'
+                elif near_r and near_bot: corner = 'BR'
+                if corner:
+                    pos = (y_top - hyr) if 'T' in corner else (hyl - y_bot)
+                    result_h.append({
+                        'active':   True,
+                        'corner':   corner,
+                        'width':    round(hw, 1),
+                        'height':   round(hh, 1),
+                        'position': round(max(pos, 0), 1),
+                    })
+            return result_h
+
+        def _panel_segments(fg: dict) -> list:
+            """Extrai lista de segmentos completos da face com classificação."""
             y_bot, y_top = fg['y_bot'], fg['y_top']
             x_left, x_right = fg['x_left'], fg['x_right']
+            h_body = fg['h_body']
+
+            # Classificação da face inteira (grade pernas ficam nas bordas de segmento)
+            face_grade = _face_is_grade(x_left, x_right, y_bot, y_top)
+            ptype_face = 'Grade' if face_grade else 'Sarrafeado'
+
             xs = [
                 x for x, yb, yt in paineis_v
                 if (x_left - 2 <= x <= x_right + 2)
@@ -336,22 +442,51 @@ def _extract_lv_geom_from_dxf(dxf_path: str, elem_id: str = '') -> dict:
             for x in xs:
                 if not deduped or abs(x - deduped[-1]) > 1.0:
                     deduped.append(x)
-            if len(deduped) < 2:
-                return [{'width': fg['total_w'], 'panel_type': 'Sarrafeado',
-                         'height1': 0.0, 'height2': 0.0, 'grade_h1': 0.0,
-                         'grade_h2': 0.0, 'laje_central_alt': 0.0, 'reuse': False}]
-            panels: list = []
-            for k in range(len(deduped) - 1):
-                w = round(deduped[k + 1] - deduped[k], 1)
-                if w > 5:
-                    panels.append({'width': w, 'panel_type': 'Sarrafeado',
-                                   'height1': 0.0, 'height2': 0.0, 'grade_h1': 0.0,
-                                   'grade_h2': 0.0, 'laje_central_alt': 0.0,
-                                   'reuse': False})
-            return panels
 
-        panels_A = _panel_widths(face_A) if face_A else []
-        panels_B = _panel_widths(face_B) if face_B else []
+            if len(deduped) < 2:
+                gh = _extract_grade_h(x_left, x_right, y_bot, y_top) if face_grade else 0.0
+                return [_make_seg(x_left, x_right, h_body, ptype_face, gh,
+                                  is_first=True, is_last=True)]
+
+            segs: list = []
+            n = len(deduped)
+            # Recalcular is_last corretamente com filtragem de w > 5
+            valid_ks = [k for k in range(n - 1)
+                        if round(deduped[k + 1] - deduped[k], 1) > 5]
+            for idx, k in enumerate(valid_ks):
+                xl, xr = deduped[k], deduped[k + 1]
+                gh = _extract_grade_h(xl, xr, y_bot, y_top) if face_grade else 0.0
+                segs.append(_make_seg(xl, xr, h_body, ptype_face, gh,
+                                      is_first=(idx == 0),
+                                      is_last=(idx == len(valid_ks) - 1)))
+            return segs
+
+        def _make_seg(xl: float, xr: float, h_body: float,
+                      ptype: str, gh: float,
+                      is_first: bool, is_last: bool) -> dict:
+            """Constrói o dict canônico de um segmento (campos do gerador)."""
+            w = round(xr - xl, 1)
+            holes = _detect_holes_seg(xl, xr, 0, h_body)  # y_bot/top corrigidos depois
+            return {
+                'largura_cm':     w,
+                'width':          w,          # backward compat com gerador
+                'panel_type':     ptype,
+                'height1':        h_body if ptype == 'Sarrafeado' else 0.0,
+                'height2':        0.0,
+                'grade_h1':       gh,
+                'grade_h2':       0.0,
+                'laje_central_alt': 0.0,
+                'laje_sup_local': 0.0,        # preenchido depois com laje da face
+                'laje_inf_local': 0.0,
+                'is_first':       is_first,
+                'is_last':        is_last,
+                'holes':          holes,
+                'reuse':          False,
+                'codigos_forma':  [],
+            }
+
+        panels_A = _panel_segments(face_A) if face_A else []
+        panels_B = _panel_segments(face_B) if face_B else []
 
         # ── 4. b e h_section de "Cota Seção (2x)" próximos à face ativa ─────
         # Filtrar textos dentro do range x das faces (± 250 cm)
@@ -439,11 +574,21 @@ def _extract_lv_geom_from_dxf(dxf_path: str, elem_id: str = '') -> dict:
             return base
 
         # ── 7. Consolidar ─────────────────────────────────────────────────────
+        def _propagate_laje(segs: list, ls: float, li: float) -> list:
+            """Distribui laje_sup/inf da face para cada segmento."""
+            for s in segs:
+                s['laje_sup_local'] = ls
+                s['laje_inf_local'] = li
+                # height1 = h_body (sem lajes); se grade, height1 irrelevante
+                if s['panel_type'] == 'Sarrafeado':
+                    s['height1'] = max(0.0, s['height1'] - 0.0)  # já correto
+            return segs
+
         if face_A:
             result['h_A']        = h_tot_A if h_tot_A >= face_A['h_body'] else face_A['h_body']
             result['laje_sup_A'] = ls_A
             result['laje_inf_A'] = li_A
-            result['panels_A']   = panels_A
+            result['panels_A']   = _propagate_laje(panels_A, ls_A, li_A)
             result['pillar_left']  = _detect_pillar(face_A, 'left')
             result['pillar_right'] = _detect_pillar(face_A, 'right')
 
@@ -451,21 +596,39 @@ def _extract_lv_geom_from_dxf(dxf_path: str, elem_id: str = '') -> dict:
             result['h_B']        = h_tot_B if h_tot_B >= face_B['h_body'] else face_B['h_body']
             result['laje_sup_B'] = ls_B
             result['laje_inf_B'] = li_B
-            result['panels_B']   = panels_B
+            result['panels_B']   = _propagate_laje(panels_B, ls_B, li_B)
 
         # Espelhar se apenas uma face foi detectada
         if face_A and not face_B:
             result['h_B']        = result['h_A']
             result['laje_sup_B'] = ls_A
             result['laje_inf_B'] = li_A
-            result['panels_B']   = panels_A[:]
+            result['panels_B']   = _propagate_laje(
+                [dict(s) for s in panels_A], ls_A, li_A)
         elif face_B and not face_A:
             result['h_A']        = result['h_B']
             result['laje_sup_A'] = ls_B
             result['laje_inf_A'] = li_B
-            result['panels_A']   = panels_B[:]
+            result['panels_A']   = _propagate_laje(
+                [dict(s) for s in panels_B], ls_B, li_B)
 
-        # ── 8. Confiança ──────────────────────────────────────────────────────
+        # ── 8. Tipo de viga ───────────────────────────────────────────────────
+        all_segs = result['panels_A'] + result['panels_B']
+        has_grade    = any(s.get('panel_type') == 'Grade' for s in all_segs)
+        has_sarr     = any(s.get('panel_type') == 'Sarrafeado' for s in all_segs)
+        # laje_inf real > 5cm = viga invertida (3cm pode ser só arredondamento)
+        has_laje_inf = (result['laje_inf_A'] > 5 or result['laje_inf_B'] > 5)
+        if has_grade and has_sarr:
+            tipo = 'mista'
+        elif has_grade:
+            tipo = 'gradeada'
+        else:
+            tipo = 'sarrafeada'
+        if has_laje_inf:
+            tipo = (tipo + '_invertida') if tipo != 'sarrafeada' else 'invertida'
+        result['tipo_viga'] = tipo
+
+        # ── 9. Confiança ──────────────────────────────────────────────────────
         conf = 0.45
         if my_labels:                          conf += 0.15
         if face_A and face_B:                  conf += 0.10

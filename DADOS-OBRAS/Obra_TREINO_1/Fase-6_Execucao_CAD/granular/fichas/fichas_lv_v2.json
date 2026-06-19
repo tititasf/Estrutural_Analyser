@@ -6,36 +6,110 @@
     "b_cm": 19.0,
     "laje_sup_cm": 15.0,
     "laje_inf_cm": 0.0,
+    "h_B_cm": 59.0,
+    "laje_sup_B_cm": 12.0,
+    "laje_inf_B_cm": 3.0,
+    "h_section_cm": 55.0,
+    "tipo_viga": "sarrafeada",
     "segmentos": [
       {
-        "largura_cm": 244.0
+        "largura_cm": 244.0,
+        "panel_type": "Sarrafeado",
+        "height1": 44.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 15.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": true,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 65.0
+        "largura_cm": 65.0,
+        "panel_type": "Sarrafeado",
+        "height1": 44.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 15.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 106.0
+        "largura_cm": 106.0,
+        "panel_type": "Sarrafeado",
+        "height1": 44.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 15.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": true,
+        "reuse": false,
+        "codigos_forma": []
       }
-    ]
-  },
-  {
-    "viga": "V13",
-    "face": "B",
-    "h_cm": 59.0,
-    "b_cm": 19.0,
-    "laje_sup_cm": 12.0,
-    "laje_inf_cm": 3.0,
-    "segmentos": [
+    ],
+    "segmentos_B": [
       {
-        "largura_cm": 244.0
+        "largura_cm": 244.0,
+        "panel_type": "Sarrafeado",
+        "height1": 44.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 12.0,
+        "laje_inf_local": 3.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": true,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 65.0
+        "largura_cm": 65.0,
+        "panel_type": "Sarrafeado",
+        "height1": 44.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 12.0,
+        "laje_inf_local": 3.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 106.0
+        "largura_cm": 106.0,
+        "panel_type": "Sarrafeado",
+        "height1": 44.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 12.0,
+        "laje_inf_local": 3.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": true,
+        "reuse": false,
+        "codigos_forma": []
       }
-    ]
+    ],
+    "pillar_left": {
+      "active": false,
+      "width": 0.0,
+      "length": 0.0
+    },
+    "pillar_right": {
+      "active": false,
+      "width": 0.0,
+      "length": 0.0
+    },
+    "_confianca": 0.93
   },
   {
     "viga": "V301",
@@ -44,93 +118,376 @@
     "b_cm": 19.0,
     "laje_sup_cm": 0.0,
     "laje_inf_cm": 0.0,
+    "h_B_cm": 125.0,
+    "laje_sup_B_cm": 0.0,
+    "laje_inf_B_cm": 0.0,
+    "h_section_cm": 55.0,
+    "tipo_viga": "sarrafeada",
     "segmentos": [
       {
-        "largura_cm": 244.0
+        "largura_cm": 244.0,
+        "panel_type": "Sarrafeado",
+        "height1": 125.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": true,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 28.7
+        "largura_cm": 28.7,
+        "panel_type": "Sarrafeado",
+        "height1": 125.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 21.8
+        "largura_cm": 21.8,
+        "panel_type": "Sarrafeado",
+        "height1": 125.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 111.0
+        "largura_cm": 111.0,
+        "panel_type": "Sarrafeado",
+        "height1": 125.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 19.0
+        "largura_cm": 19.0,
+        "panel_type": "Sarrafeado",
+        "height1": 125.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 21.2
+        "largura_cm": 21.2,
+        "panel_type": "Sarrafeado",
+        "height1": 125.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 46.5
+        "largura_cm": 46.5,
+        "panel_type": "Sarrafeado",
+        "height1": 125.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 22.3
+        "largura_cm": 22.3,
+        "panel_type": "Sarrafeado",
+        "height1": 125.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 15.1
+        "largura_cm": 15.1,
+        "panel_type": "Sarrafeado",
+        "height1": 125.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 111.0
+        "largura_cm": 111.0,
+        "panel_type": "Sarrafeado",
+        "height1": 125.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 21.8
+        "largura_cm": 21.8,
+        "panel_type": "Sarrafeado",
+        "height1": 125.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 41.2
+        "largura_cm": 41.2,
+        "panel_type": "Sarrafeado",
+        "height1": 125.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 244.0
+        "largura_cm": 244.0,
+        "panel_type": "Sarrafeado",
+        "height1": 125.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": true,
+        "reuse": false,
+        "codigos_forma": []
       }
-    ]
-  },
-  {
-    "viga": "V301",
-    "face": "B",
-    "h_cm": 125.0,
-    "b_cm": 19.0,
-    "laje_sup_cm": 0.0,
-    "laje_inf_cm": 0.0,
-    "segmentos": [
+    ],
+    "segmentos_B": [
       {
-        "largura_cm": 244.0
+        "largura_cm": 244.0,
+        "panel_type": "Sarrafeado",
+        "height1": 125.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": true,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 22.5
+        "largura_cm": 22.5,
+        "panel_type": "Sarrafeado",
+        "height1": 125.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 52.5
+        "largura_cm": 52.5,
+        "panel_type": "Sarrafeado",
+        "height1": 125.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 21.7
+        "largura_cm": 21.7,
+        "panel_type": "Sarrafeado",
+        "height1": 125.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 26.2
+        "largura_cm": 26.2,
+        "panel_type": "Sarrafeado",
+        "height1": 125.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 40.9
+        "largura_cm": 40.9,
+        "panel_type": "Sarrafeado",
+        "height1": 125.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 21.2
+        "largura_cm": 21.2,
+        "panel_type": "Sarrafeado",
+        "height1": 125.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 19.0
+        "largura_cm": 19.0,
+        "panel_type": "Sarrafeado",
+        "height1": 125.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 117.5
+        "largura_cm": 117.5,
+        "panel_type": "Sarrafeado",
+        "height1": 125.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 21.8
+        "largura_cm": 21.8,
+        "panel_type": "Sarrafeado",
+        "height1": 125.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 34.7
+        "largura_cm": 34.7,
+        "panel_type": "Sarrafeado",
+        "height1": 125.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 244.0
+        "largura_cm": 244.0,
+        "panel_type": "Sarrafeado",
+        "height1": 125.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": true,
+        "reuse": false,
+        "codigos_forma": []
       }
-    ]
+    ],
+    "pillar_left": {
+      "active": false,
+      "width": 0.0,
+      "length": 0.0
+    },
+    "pillar_right": {
+      "active": false,
+      "width": 0.0,
+      "length": 0.0
+    },
+    "_confianca": 0.8799999999999999
   },
   {
     "viga": "V302",
@@ -139,45 +496,152 @@
     "b_cm": 19.0,
     "laje_sup_cm": 14.0,
     "laje_inf_cm": 2.0,
+    "h_B_cm": 59.0,
+    "laje_sup_B_cm": 0.0,
+    "laje_inf_B_cm": 0.0,
+    "h_section_cm": 55.0,
+    "tipo_viga": "sarrafeada",
     "segmentos": [
       {
-        "largura_cm": 178.5
+        "largura_cm": 178.5,
+        "panel_type": "Sarrafeado",
+        "height1": 43.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 14.0,
+        "laje_inf_local": 2.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": true,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 22.0
+        "largura_cm": 22.0,
+        "panel_type": "Sarrafeado",
+        "height1": 43.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 14.0,
+        "laje_inf_local": 2.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 159.5
+        "largura_cm": 159.5,
+        "panel_type": "Sarrafeado",
+        "height1": 43.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 14.0,
+        "laje_inf_local": 2.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 110.0
+        "largura_cm": 110.0,
+        "panel_type": "Sarrafeado",
+        "height1": 43.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 14.0,
+        "laje_inf_local": 2.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": true,
+        "reuse": false,
+        "codigos_forma": []
       }
-    ]
-  },
-  {
-    "viga": "V302",
-    "face": "B",
-    "h_cm": 59.0,
-    "b_cm": 19.0,
-    "laje_sup_cm": 0.0,
-    "laje_inf_cm": 0.0,
-    "segmentos": [
+    ],
+    "segmentos_B": [
       {
-        "largura_cm": 244.0
+        "largura_cm": 244.0,
+        "panel_type": "Sarrafeado",
+        "height1": 59.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": true,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 157.5
+        "largura_cm": 157.5,
+        "panel_type": "Sarrafeado",
+        "height1": 59.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 98.9
+        "largura_cm": 98.9,
+        "panel_type": "Sarrafeado",
+        "height1": 59.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 170.0
+        "largura_cm": 170.0,
+        "panel_type": "Sarrafeado",
+        "height1": 59.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 244.0
+        "largura_cm": 244.0,
+        "panel_type": "Sarrafeado",
+        "height1": 59.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": true,
+        "reuse": false,
+        "codigos_forma": []
       }
-    ]
+    ],
+    "pillar_left": {
+      "active": false,
+      "width": 0.0,
+      "length": 0.0
+    },
+    "pillar_right": {
+      "active": false,
+      "width": 0.0,
+      "length": 0.0
+    },
+    "_confianca": 0.9299999999999999
   },
   {
     "viga": "V303",
@@ -186,48 +650,166 @@
     "b_cm": 19.0,
     "laje_sup_cm": 0.0,
     "laje_inf_cm": 0.0,
+    "h_B_cm": 59.0,
+    "laje_sup_B_cm": 7.0,
+    "laje_inf_B_cm": 7.0,
+    "h_section_cm": 55.0,
+    "tipo_viga": "invertida",
     "segmentos": [
       {
-        "largura_cm": 234.0
+        "largura_cm": 234.0,
+        "panel_type": "Sarrafeado",
+        "height1": 119.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": true,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 78.5
+        "largura_cm": 78.5,
+        "panel_type": "Sarrafeado",
+        "height1": 119.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 174.0
+        "largura_cm": 174.0,
+        "panel_type": "Sarrafeado",
+        "height1": 119.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 244.0
+        "largura_cm": 244.0,
+        "panel_type": "Sarrafeado",
+        "height1": 119.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": true,
+        "reuse": false,
+        "codigos_forma": []
       }
-    ]
-  },
-  {
-    "viga": "V303",
-    "face": "B",
-    "h_cm": 59.0,
-    "b_cm": 19.0,
-    "laje_sup_cm": 7.0,
-    "laje_inf_cm": 7.0,
-    "segmentos": [
+    ],
+    "segmentos_B": [
       {
-        "largura_cm": 244.0
+        "largura_cm": 244.0,
+        "panel_type": "Sarrafeado",
+        "height1": 45.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 7.0,
+        "laje_inf_local": 7.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": true,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 244.0
+        "largura_cm": 244.0,
+        "panel_type": "Sarrafeado",
+        "height1": 45.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 7.0,
+        "laje_inf_local": 7.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 66.5
+        "largura_cm": 66.5,
+        "panel_type": "Sarrafeado",
+        "height1": 45.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 7.0,
+        "laje_inf_local": 7.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 244.0
+        "largura_cm": 244.0,
+        "panel_type": "Sarrafeado",
+        "height1": 45.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 7.0,
+        "laje_inf_local": 7.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 106.9
+        "largura_cm": 106.9,
+        "panel_type": "Sarrafeado",
+        "height1": 45.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 7.0,
+        "laje_inf_local": 7.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 157.5
+        "largura_cm": 157.5,
+        "panel_type": "Sarrafeado",
+        "height1": 45.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 7.0,
+        "laje_inf_local": 7.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": true,
+        "reuse": false,
+        "codigos_forma": []
       }
-    ]
+    ],
+    "pillar_left": {
+      "active": false,
+      "width": 0.0,
+      "length": 0.0
+    },
+    "pillar_right": {
+      "active": false,
+      "width": 0.0,
+      "length": 0.0
+    },
+    "_confianca": 0.9299999999999999
   },
   {
     "viga": "V304",
@@ -236,66 +818,250 @@
     "b_cm": 19.0,
     "laje_sup_cm": 7.0,
     "laje_inf_cm": 8.0,
+    "h_B_cm": 60.0,
+    "laje_sup_B_cm": 7.0,
+    "laje_inf_B_cm": 8.0,
+    "h_section_cm": 55.0,
+    "tipo_viga": "invertida",
     "segmentos": [
       {
-        "largura_cm": 61.0
+        "largura_cm": 61.0,
+        "panel_type": "Sarrafeado",
+        "height1": 45.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 7.0,
+        "laje_inf_local": 8.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": true,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 68.0
+        "largura_cm": 68.0,
+        "panel_type": "Sarrafeado",
+        "height1": 45.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 7.0,
+        "laje_inf_local": 8.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 29.4
+        "largura_cm": 29.4,
+        "panel_type": "Sarrafeado",
+        "height1": 45.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 7.0,
+        "laje_inf_local": 8.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 176.0
+        "largura_cm": 176.0,
+        "panel_type": "Sarrafeado",
+        "height1": 45.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 7.0,
+        "laje_inf_local": 8.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 27.0
+        "largura_cm": 27.0,
+        "panel_type": "Sarrafeado",
+        "height1": 45.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 7.0,
+        "laje_inf_local": 8.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 172.0
+        "largura_cm": 172.0,
+        "panel_type": "Sarrafeado",
+        "height1": 45.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 7.0,
+        "laje_inf_local": 8.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 27.0
+        "largura_cm": 27.0,
+        "panel_type": "Sarrafeado",
+        "height1": 45.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 7.0,
+        "laje_inf_local": 8.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 176.0
+        "largura_cm": 176.0,
+        "panel_type": "Sarrafeado",
+        "height1": 45.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 7.0,
+        "laje_inf_local": 8.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": true,
+        "reuse": false,
+        "codigos_forma": []
       }
-    ]
-  },
-  {
-    "viga": "V304",
-    "face": "B",
-    "h_cm": 60.0,
-    "b_cm": 19.0,
-    "laje_sup_cm": 7.0,
-    "laje_inf_cm": 8.0,
-    "segmentos": [
+    ],
+    "segmentos_B": [
       {
-        "largura_cm": 61.0
+        "largura_cm": 61.0,
+        "panel_type": "Sarrafeado",
+        "height1": 45.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 7.0,
+        "laje_inf_local": 8.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": true,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 68.0
+        "largura_cm": 68.0,
+        "panel_type": "Sarrafeado",
+        "height1": 45.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 7.0,
+        "laje_inf_local": 8.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 29.4
+        "largura_cm": 29.4,
+        "panel_type": "Sarrafeado",
+        "height1": 45.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 7.0,
+        "laje_inf_local": 8.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 176.0
+        "largura_cm": 176.0,
+        "panel_type": "Sarrafeado",
+        "height1": 45.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 7.0,
+        "laje_inf_local": 8.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 27.0
+        "largura_cm": 27.0,
+        "panel_type": "Sarrafeado",
+        "height1": 45.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 7.0,
+        "laje_inf_local": 8.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 172.0
+        "largura_cm": 172.0,
+        "panel_type": "Sarrafeado",
+        "height1": 45.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 7.0,
+        "laje_inf_local": 8.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 27.0
+        "largura_cm": 27.0,
+        "panel_type": "Sarrafeado",
+        "height1": 45.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 7.0,
+        "laje_inf_local": 8.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 176.0
+        "largura_cm": 176.0,
+        "panel_type": "Sarrafeado",
+        "height1": 45.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 7.0,
+        "laje_inf_local": 8.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": true,
+        "reuse": false,
+        "codigos_forma": []
       }
-    ]
+    ],
+    "pillar_left": {
+      "active": false,
+      "width": 0.0,
+      "length": 0.0
+    },
+    "pillar_right": {
+      "active": false,
+      "width": 0.0,
+      "length": 0.0
+    },
+    "_confianca": 0.88
   },
   {
     "viga": "V305",
@@ -304,39 +1070,124 @@
     "b_cm": 19.0,
     "laje_sup_cm": 0.0,
     "laje_inf_cm": 0.0,
+    "h_B_cm": 59.0,
+    "laje_sup_B_cm": 0.0,
+    "laje_inf_B_cm": 0.0,
+    "h_section_cm": 55.0,
+    "tipo_viga": "sarrafeada",
     "segmentos": [
       {
-        "largura_cm": 221.0
+        "largura_cm": 221.0,
+        "panel_type": "Sarrafeado",
+        "height1": 59.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": true,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 184.0
+        "largura_cm": 184.0,
+        "panel_type": "Sarrafeado",
+        "height1": 59.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": true,
+        "reuse": false,
+        "codigos_forma": []
       }
-    ]
-  },
-  {
-    "viga": "V305",
-    "face": "B",
-    "h_cm": 59.0,
-    "b_cm": 19.0,
-    "laje_sup_cm": 0.0,
-    "laje_inf_cm": 0.0,
-    "segmentos": [
+    ],
+    "segmentos_B": [
       {
-        "largura_cm": 172.0
+        "largura_cm": 172.0,
+        "panel_type": "Sarrafeado",
+        "height1": 59.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": true,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 27.0
+        "largura_cm": 27.0,
+        "panel_type": "Sarrafeado",
+        "height1": 59.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 172.0
+        "largura_cm": 172.0,
+        "panel_type": "Sarrafeado",
+        "height1": 59.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 27.0
+        "largura_cm": 27.0,
+        "panel_type": "Sarrafeado",
+        "height1": 59.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 172.0
+        "largura_cm": 172.0,
+        "panel_type": "Sarrafeado",
+        "height1": 59.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": true,
+        "reuse": false,
+        "codigos_forma": []
       }
-    ]
+    ],
+    "pillar_left": {
+      "active": false,
+      "width": 0.0,
+      "length": 0.0
+    },
+    "pillar_right": {
+      "active": false,
+      "width": 0.0,
+      "length": 0.0
+    },
+    "_confianca": 0.9299999999999999
   },
   {
     "viga": "V306",
@@ -345,39 +1196,124 @@
     "b_cm": 19.0,
     "laje_sup_cm": 0.0,
     "laje_inf_cm": 0.0,
+    "h_B_cm": 44.0,
+    "laje_sup_B_cm": 0.0,
+    "laje_inf_B_cm": 0.0,
+    "h_section_cm": 55.0,
+    "tipo_viga": "sarrafeada",
     "segmentos": [
       {
-        "largura_cm": 122.0
+        "largura_cm": 122.0,
+        "panel_type": "Sarrafeado",
+        "height1": 59.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": true,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 104.0
+        "largura_cm": 104.0,
+        "panel_type": "Sarrafeado",
+        "height1": 59.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 81.2
+        "largura_cm": 81.2,
+        "panel_type": "Sarrafeado",
+        "height1": 59.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 170.0
+        "largura_cm": 170.0,
+        "panel_type": "Sarrafeado",
+        "height1": 59.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 242.0
+        "largura_cm": 242.0,
+        "panel_type": "Sarrafeado",
+        "height1": 59.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": true,
+        "reuse": false,
+        "codigos_forma": []
       }
-    ]
-  },
-  {
-    "viga": "V306",
-    "face": "B",
-    "h_cm": 44.0,
-    "b_cm": 19.0,
-    "laje_sup_cm": 0.0,
-    "laje_inf_cm": 0.0,
-    "segmentos": [
+    ],
+    "segmentos_B": [
       {
-        "largura_cm": 244.0
+        "largura_cm": 244.0,
+        "panel_type": "Sarrafeado",
+        "height1": 44.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": true,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 174.0
+        "largura_cm": 174.0,
+        "panel_type": "Sarrafeado",
+        "height1": 44.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": true,
+        "reuse": false,
+        "codigos_forma": []
       }
-    ]
+    ],
+    "pillar_left": {
+      "active": false,
+      "width": 0.0,
+      "length": 0.0
+    },
+    "pillar_right": {
+      "active": false,
+      "width": 0.0,
+      "length": 0.0
+    },
+    "_confianca": 0.8799999999999999
   },
   {
     "viga": "V308",
@@ -386,45 +1322,152 @@
     "b_cm": 19.0,
     "laje_sup_cm": 0.0,
     "laje_inf_cm": 0.0,
+    "h_B_cm": 59.0,
+    "laje_sup_B_cm": 0.0,
+    "laje_inf_B_cm": 0.0,
+    "h_section_cm": 55.0,
+    "tipo_viga": "sarrafeada",
     "segmentos": [
       {
-        "largura_cm": 244.0
+        "largura_cm": 244.0,
+        "panel_type": "Sarrafeado",
+        "height1": 59.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": true,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 244.0
+        "largura_cm": 244.0,
+        "panel_type": "Sarrafeado",
+        "height1": 59.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 196.5
+        "largura_cm": 196.5,
+        "panel_type": "Sarrafeado",
+        "height1": 59.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": true,
+        "reuse": false,
+        "codigos_forma": []
       }
-    ]
-  },
-  {
-    "viga": "V308",
-    "face": "B",
-    "h_cm": 59.0,
-    "b_cm": 19.0,
-    "laje_sup_cm": 0.0,
-    "laje_inf_cm": 0.0,
-    "segmentos": [
+    ],
+    "segmentos_B": [
       {
-        "largura_cm": 124.0
+        "largura_cm": 124.0,
+        "panel_type": "Sarrafeado",
+        "height1": 59.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": true,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 22.0
+        "largura_cm": 22.0,
+        "panel_type": "Sarrafeado",
+        "height1": 59.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 244.0
+        "largura_cm": 244.0,
+        "panel_type": "Sarrafeado",
+        "height1": 59.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 180.0
+        "largura_cm": 180.0,
+        "panel_type": "Sarrafeado",
+        "height1": 59.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 27.0
+        "largura_cm": 27.0,
+        "panel_type": "Sarrafeado",
+        "height1": 59.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 121.0
+        "largura_cm": 121.0,
+        "panel_type": "Sarrafeado",
+        "height1": 59.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": true,
+        "reuse": false,
+        "codigos_forma": []
       }
-    ]
+    ],
+    "pillar_left": {
+      "active": false,
+      "width": 0.0,
+      "length": 0.0
+    },
+    "pillar_right": {
+      "active": false,
+      "width": 0.0,
+      "length": 0.0
+    },
+    "_confianca": 0.9299999999999999
   },
   {
     "viga": "V310",
@@ -433,27 +1476,68 @@
     "b_cm": 19.0,
     "laje_sup_cm": 14.0,
     "laje_inf_cm": 0.0,
+    "h_B_cm": 59.0,
+    "laje_sup_B_cm": 13.0,
+    "laje_inf_B_cm": 8.0,
+    "h_section_cm": 55.0,
+    "tipo_viga": "invertida",
     "segmentos": [
       {
-        "largura_cm": 91.0
+        "largura_cm": 91.0,
+        "panel_type": "Sarrafeado",
+        "height1": 40.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 14.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": true,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 61.0
+        "largura_cm": 61.0,
+        "panel_type": "Sarrafeado",
+        "height1": 40.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 14.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": true,
+        "reuse": false,
+        "codigos_forma": []
       }
-    ]
-  },
-  {
-    "viga": "V310",
-    "face": "B",
-    "h_cm": 59.0,
-    "b_cm": 19.0,
-    "laje_sup_cm": 13.0,
-    "laje_inf_cm": 8.0,
-    "segmentos": [
+    ],
+    "segmentos_B": [
       {
-        "largura_cm": 171.0
+        "largura_cm": 171.0,
+        "panel_type": "Sarrafeado",
+        "height1": 38.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 13.0,
+        "laje_inf_local": 8.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": true,
+        "is_last": true,
+        "reuse": false,
+        "codigos_forma": []
       }
-    ]
+    ],
+    "pillar_left": {
+      "active": false,
+      "width": 0.0,
+      "length": 0.0
+    },
+    "pillar_right": {
+      "active": false,
+      "width": 0.0,
+      "length": 0.0
+    },
+    "_confianca": 0.9299999999999999
   },
   {
     "viga": "V311",
@@ -462,30 +1546,82 @@
     "b_cm": 19.0,
     "laje_sup_cm": 16.0,
     "laje_inf_cm": 0.0,
+    "h_B_cm": 59.0,
+    "laje_sup_B_cm": 15.0,
+    "laje_inf_B_cm": 0.0,
+    "h_section_cm": 55.0,
+    "tipo_viga": "sarrafeada",
     "segmentos": [
       {
-        "largura_cm": 244.0
+        "largura_cm": 244.0,
+        "panel_type": "Sarrafeado",
+        "height1": 43.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 16.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": true,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 171.0
+        "largura_cm": 171.0,
+        "panel_type": "Sarrafeado",
+        "height1": 43.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 16.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": true,
+        "reuse": false,
+        "codigos_forma": []
       }
-    ]
-  },
-  {
-    "viga": "V311",
-    "face": "B",
-    "h_cm": 59.0,
-    "b_cm": 19.0,
-    "laje_sup_cm": 15.0,
-    "laje_inf_cm": 0.0,
-    "segmentos": [
+    ],
+    "segmentos_B": [
       {
-        "largura_cm": 244.0
+        "largura_cm": 244.0,
+        "panel_type": "Sarrafeado",
+        "height1": 44.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 15.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": true,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 171.0
+        "largura_cm": 171.0,
+        "panel_type": "Sarrafeado",
+        "height1": 44.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 15.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": true,
+        "reuse": false,
+        "codigos_forma": []
       }
-    ]
+    ],
+    "pillar_left": {
+      "active": false,
+      "width": 0.0,
+      "length": 0.0
+    },
+    "pillar_right": {
+      "active": false,
+      "width": 0.0,
+      "length": 0.0
+    },
+    "_confianca": 0.93
   },
   {
     "viga": "V312",
@@ -494,66 +1630,250 @@
     "b_cm": 19.0,
     "laje_sup_cm": 6.0,
     "laje_inf_cm": 0.0,
+    "h_B_cm": 109.0,
+    "laje_sup_B_cm": 0.0,
+    "laje_inf_B_cm": 0.0,
+    "h_section_cm": 55.0,
+    "tipo_viga": "sarrafeada",
     "segmentos": [
       {
-        "largura_cm": 29.0
+        "largura_cm": 29.0,
+        "panel_type": "Sarrafeado",
+        "height1": 103.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 6.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": true,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 28.8
+        "largura_cm": 28.8,
+        "panel_type": "Sarrafeado",
+        "height1": 103.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 6.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 34.2
+        "largura_cm": 34.2,
+        "panel_type": "Sarrafeado",
+        "height1": 103.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 6.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 105.0
+        "largura_cm": 105.0,
+        "panel_type": "Sarrafeado",
+        "height1": 103.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 6.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 7.0
+        "largura_cm": 7.0,
+        "panel_type": "Sarrafeado",
+        "height1": 103.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 6.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 19.3
+        "largura_cm": 19.3,
+        "panel_type": "Sarrafeado",
+        "height1": 103.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 6.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 122.0
+        "largura_cm": 122.0,
+        "panel_type": "Sarrafeado",
+        "height1": 103.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 6.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 185.0
+        "largura_cm": 185.0,
+        "panel_type": "Sarrafeado",
+        "height1": 103.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 6.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": true,
+        "reuse": false,
+        "codigos_forma": []
       }
-    ]
-  },
-  {
-    "viga": "V312",
-    "face": "B",
-    "h_cm": 109.0,
-    "b_cm": 19.0,
-    "laje_sup_cm": 0.0,
-    "laje_inf_cm": 0.0,
-    "segmentos": [
+    ],
+    "segmentos_B": [
       {
-        "largura_cm": 185.0
+        "largura_cm": 185.0,
+        "panel_type": "Sarrafeado",
+        "height1": 109.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": true,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 122.0
+        "largura_cm": 122.0,
+        "panel_type": "Sarrafeado",
+        "height1": 109.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 19.3
+        "largura_cm": 19.3,
+        "panel_type": "Sarrafeado",
+        "height1": 109.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 7.0
+        "largura_cm": 7.0,
+        "panel_type": "Sarrafeado",
+        "height1": 109.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 105.0
+        "largura_cm": 105.0,
+        "panel_type": "Sarrafeado",
+        "height1": 109.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 34.2
+        "largura_cm": 34.2,
+        "panel_type": "Sarrafeado",
+        "height1": 109.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 28.8
+        "largura_cm": 28.8,
+        "panel_type": "Sarrafeado",
+        "height1": 109.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 29.0
+        "largura_cm": 29.0,
+        "panel_type": "Sarrafeado",
+        "height1": 109.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": true,
+        "reuse": false,
+        "codigos_forma": []
       }
-    ]
+    ],
+    "pillar_left": {
+      "active": false,
+      "width": 0.0,
+      "length": 0.0
+    },
+    "pillar_right": {
+      "active": false,
+      "width": 0.0,
+      "length": 0.0
+    },
+    "_confianca": 0.9299999999999999
   },
   {
     "viga": "V314",
@@ -562,72 +1882,278 @@
     "b_cm": 19.0,
     "laje_sup_cm": 7.0,
     "laje_inf_cm": 0.0,
+    "h_B_cm": 110.0,
+    "laje_sup_B_cm": 0.0,
+    "laje_inf_B_cm": 0.0,
+    "h_section_cm": 55.0,
+    "tipo_viga": "sarrafeada",
     "segmentos": [
       {
-        "largura_cm": 29.0
+        "largura_cm": 29.0,
+        "panel_type": "Sarrafeado",
+        "height1": 103.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 7.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": true,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 28.8
+        "largura_cm": 28.8,
+        "panel_type": "Sarrafeado",
+        "height1": 103.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 7.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 122.3
+        "largura_cm": 122.3,
+        "panel_type": "Sarrafeado",
+        "height1": 103.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 7.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 23.8
+        "largura_cm": 23.8,
+        "panel_type": "Sarrafeado",
+        "height1": 103.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 7.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 27.0
+        "largura_cm": 27.0,
+        "panel_type": "Sarrafeado",
+        "height1": 103.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 7.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 93.0
+        "largura_cm": 93.0,
+        "panel_type": "Sarrafeado",
+        "height1": 103.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 7.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 186.2
+        "largura_cm": 186.2,
+        "panel_type": "Sarrafeado",
+        "height1": 103.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 7.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 23.8
+        "largura_cm": 23.8,
+        "panel_type": "Sarrafeado",
+        "height1": 103.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 7.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 34.0
+        "largura_cm": 34.0,
+        "panel_type": "Sarrafeado",
+        "height1": 103.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 7.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": true,
+        "reuse": false,
+        "codigos_forma": []
       }
-    ]
-  },
-  {
-    "viga": "V314",
-    "face": "B",
-    "h_cm": 110.0,
-    "b_cm": 19.0,
-    "laje_sup_cm": 0.0,
-    "laje_inf_cm": 0.0,
-    "segmentos": [
+    ],
+    "segmentos_B": [
       {
-        "largura_cm": 34.0
+        "largura_cm": 34.0,
+        "panel_type": "Sarrafeado",
+        "height1": 110.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": true,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 23.8
+        "largura_cm": 23.8,
+        "panel_type": "Sarrafeado",
+        "height1": 110.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 186.2
+        "largura_cm": 186.2,
+        "panel_type": "Sarrafeado",
+        "height1": 110.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 93.0
+        "largura_cm": 93.0,
+        "panel_type": "Sarrafeado",
+        "height1": 110.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 27.0
+        "largura_cm": 27.0,
+        "panel_type": "Sarrafeado",
+        "height1": 110.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 23.8
+        "largura_cm": 23.8,
+        "panel_type": "Sarrafeado",
+        "height1": 110.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 122.3
+        "largura_cm": 122.3,
+        "panel_type": "Sarrafeado",
+        "height1": 110.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 28.8
+        "largura_cm": 28.8,
+        "panel_type": "Sarrafeado",
+        "height1": 110.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 29.0
+        "largura_cm": 29.0,
+        "panel_type": "Sarrafeado",
+        "height1": 110.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": true,
+        "reuse": false,
+        "codigos_forma": []
       }
-    ]
+    ],
+    "pillar_left": {
+      "active": false,
+      "width": 0.0,
+      "length": 0.0
+    },
+    "pillar_right": {
+      "active": false,
+      "width": 0.0,
+      "length": 0.0
+    },
+    "_confianca": 0.9299999999999999
   },
   {
     "viga": "V315",
@@ -636,36 +2162,110 @@
     "b_cm": 19.0,
     "laje_sup_cm": 15.0,
     "laje_inf_cm": 0.0,
+    "h_B_cm": 59.0,
+    "laje_sup_B_cm": 15.0,
+    "laje_inf_B_cm": 0.0,
+    "h_section_cm": 55.0,
+    "tipo_viga": "sarrafeada",
     "segmentos": [
       {
-        "largura_cm": 244.0
+        "largura_cm": 244.0,
+        "panel_type": "Sarrafeado",
+        "height1": 44.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 15.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": true,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 70.0
+        "largura_cm": 70.0,
+        "panel_type": "Sarrafeado",
+        "height1": 44.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 15.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 101.0
+        "largura_cm": 101.0,
+        "panel_type": "Sarrafeado",
+        "height1": 44.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 15.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": true,
+        "reuse": false,
+        "codigos_forma": []
       }
-    ]
-  },
-  {
-    "viga": "V315",
-    "face": "B",
-    "h_cm": 59.0,
-    "b_cm": 19.0,
-    "laje_sup_cm": 15.0,
-    "laje_inf_cm": 0.0,
-    "segmentos": [
+    ],
+    "segmentos_B": [
       {
-        "largura_cm": 244.0
+        "largura_cm": 244.0,
+        "panel_type": "Sarrafeado",
+        "height1": 44.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 15.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": true,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 70.0
+        "largura_cm": 70.0,
+        "panel_type": "Sarrafeado",
+        "height1": 44.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 15.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 101.0
+        "largura_cm": 101.0,
+        "panel_type": "Sarrafeado",
+        "height1": 44.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 15.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": true,
+        "reuse": false,
+        "codigos_forma": []
       }
-    ]
+    ],
+    "pillar_left": {
+      "active": false,
+      "width": 0.0,
+      "length": 0.0
+    },
+    "pillar_right": {
+      "active": false,
+      "width": 0.0,
+      "length": 0.0
+    },
+    "_confianca": 0.93
   },
   {
     "viga": "V316",
@@ -674,78 +2274,306 @@
     "b_cm": 19.0,
     "laje_sup_cm": 0.0,
     "laje_inf_cm": 0.0,
+    "h_B_cm": 110.0,
+    "laje_sup_B_cm": 0.0,
+    "laje_inf_B_cm": 0.0,
+    "h_section_cm": 55.0,
+    "tipo_viga": "sarrafeada",
     "segmentos": [
       {
-        "largura_cm": 29.0
+        "largura_cm": 29.0,
+        "panel_type": "Sarrafeado",
+        "height1": 103.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": true,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 28.8
+        "largura_cm": 28.8,
+        "panel_type": "Sarrafeado",
+        "height1": 103.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 34.2
+        "largura_cm": 34.2,
+        "panel_type": "Sarrafeado",
+        "height1": 103.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 105.0
+        "largura_cm": 105.0,
+        "panel_type": "Sarrafeado",
+        "height1": 103.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 7.0
+        "largura_cm": 7.0,
+        "panel_type": "Sarrafeado",
+        "height1": 103.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 19.3
+        "largura_cm": 19.3,
+        "panel_type": "Sarrafeado",
+        "height1": 103.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 93.0
+        "largura_cm": 93.0,
+        "panel_type": "Sarrafeado",
+        "height1": 103.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 186.2
+        "largura_cm": 186.2,
+        "panel_type": "Sarrafeado",
+        "height1": 103.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 23.8
+        "largura_cm": 23.8,
+        "panel_type": "Sarrafeado",
+        "height1": 103.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 34.0
+        "largura_cm": 34.0,
+        "panel_type": "Sarrafeado",
+        "height1": 103.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": true,
+        "reuse": false,
+        "codigos_forma": []
       }
-    ]
-  },
-  {
-    "viga": "V316",
-    "face": "B",
-    "h_cm": 110.0,
-    "b_cm": 19.0,
-    "laje_sup_cm": 0.0,
-    "laje_inf_cm": 0.0,
-    "segmentos": [
+    ],
+    "segmentos_B": [
       {
-        "largura_cm": 34.0
+        "largura_cm": 34.0,
+        "panel_type": "Sarrafeado",
+        "height1": 110.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": true,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 23.8
+        "largura_cm": 23.8,
+        "panel_type": "Sarrafeado",
+        "height1": 110.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 186.2
+        "largura_cm": 186.2,
+        "panel_type": "Sarrafeado",
+        "height1": 110.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 93.0
+        "largura_cm": 93.0,
+        "panel_type": "Sarrafeado",
+        "height1": 110.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 18.9
+        "largura_cm": 18.9,
+        "panel_type": "Sarrafeado",
+        "height1": 110.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 7.0
+        "largura_cm": 7.0,
+        "panel_type": "Sarrafeado",
+        "height1": 110.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 105.0
+        "largura_cm": 105.0,
+        "panel_type": "Sarrafeado",
+        "height1": 110.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 34.2
+        "largura_cm": 34.2,
+        "panel_type": "Sarrafeado",
+        "height1": 110.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 28.8
+        "largura_cm": 28.8,
+        "panel_type": "Sarrafeado",
+        "height1": 110.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 29.0
+        "largura_cm": 29.0,
+        "panel_type": "Sarrafeado",
+        "height1": 110.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": true,
+        "reuse": false,
+        "codigos_forma": []
       }
-    ]
+    ],
+    "pillar_left": {
+      "active": false,
+      "width": 0.0,
+      "length": 0.0
+    },
+    "pillar_right": {
+      "active": false,
+      "width": 0.0,
+      "length": 0.0
+    },
+    "_confianca": 0.8799999999999999
   },
   {
     "viga": "V317",
@@ -754,36 +2582,110 @@
     "b_cm": 19.0,
     "laje_sup_cm": 15.0,
     "laje_inf_cm": 0.0,
+    "h_B_cm": 59.0,
+    "laje_sup_B_cm": 12.0,
+    "laje_inf_B_cm": 3.0,
+    "h_section_cm": 55.0,
+    "tipo_viga": "sarrafeada",
     "segmentos": [
       {
-        "largura_cm": 244.0
+        "largura_cm": 244.0,
+        "panel_type": "Sarrafeado",
+        "height1": 44.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 15.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": true,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 65.0
+        "largura_cm": 65.0,
+        "panel_type": "Sarrafeado",
+        "height1": 44.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 15.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 106.0
+        "largura_cm": 106.0,
+        "panel_type": "Sarrafeado",
+        "height1": 44.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 15.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": true,
+        "reuse": false,
+        "codigos_forma": []
       }
-    ]
-  },
-  {
-    "viga": "V317",
-    "face": "B",
-    "h_cm": 59.0,
-    "b_cm": 19.0,
-    "laje_sup_cm": 12.0,
-    "laje_inf_cm": 3.0,
-    "segmentos": [
+    ],
+    "segmentos_B": [
       {
-        "largura_cm": 244.0
+        "largura_cm": 244.0,
+        "panel_type": "Sarrafeado",
+        "height1": 44.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 12.0,
+        "laje_inf_local": 3.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": true,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 63.0
+        "largura_cm": 63.0,
+        "panel_type": "Sarrafeado",
+        "height1": 44.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 12.0,
+        "laje_inf_local": 3.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 108.0
+        "largura_cm": 108.0,
+        "panel_type": "Sarrafeado",
+        "height1": 44.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 12.0,
+        "laje_inf_local": 3.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": true,
+        "reuse": false,
+        "codigos_forma": []
       }
-    ]
+    ],
+    "pillar_left": {
+      "active": false,
+      "width": 0.0,
+      "length": 0.0
+    },
+    "pillar_right": {
+      "active": false,
+      "width": 0.0,
+      "length": 0.0
+    },
+    "_confianca": 0.93
   },
   {
     "viga": "V318",
@@ -792,72 +2694,278 @@
     "b_cm": 19.0,
     "laje_sup_cm": 3.0,
     "laje_inf_cm": 3.0,
+    "h_B_cm": 109.0,
+    "laje_sup_B_cm": 0.0,
+    "laje_inf_B_cm": 0.0,
+    "h_section_cm": 55.0,
+    "tipo_viga": "sarrafeada",
     "segmentos": [
       {
-        "largura_cm": 29.0
+        "largura_cm": 29.0,
+        "panel_type": "Sarrafeado",
+        "height1": 103.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 3.0,
+        "laje_inf_local": 3.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": true,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 28.8
+        "largura_cm": 28.8,
+        "panel_type": "Sarrafeado",
+        "height1": 103.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 3.0,
+        "laje_inf_local": 3.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 122.3
+        "largura_cm": 122.3,
+        "panel_type": "Sarrafeado",
+        "height1": 103.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 3.0,
+        "laje_inf_local": 3.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 23.8
+        "largura_cm": 23.8,
+        "panel_type": "Sarrafeado",
+        "height1": 103.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 3.0,
+        "laje_inf_local": 3.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 27.0
+        "largura_cm": 27.0,
+        "panel_type": "Sarrafeado",
+        "height1": 103.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 3.0,
+        "laje_inf_local": 3.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 93.0
+        "largura_cm": 93.0,
+        "panel_type": "Sarrafeado",
+        "height1": 103.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 3.0,
+        "laje_inf_local": 3.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 186.2
+        "largura_cm": 186.2,
+        "panel_type": "Sarrafeado",
+        "height1": 103.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 3.0,
+        "laje_inf_local": 3.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 23.8
+        "largura_cm": 23.8,
+        "panel_type": "Sarrafeado",
+        "height1": 103.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 3.0,
+        "laje_inf_local": 3.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 34.0
+        "largura_cm": 34.0,
+        "panel_type": "Sarrafeado",
+        "height1": 103.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 3.0,
+        "laje_inf_local": 3.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": true,
+        "reuse": false,
+        "codigos_forma": []
       }
-    ]
-  },
-  {
-    "viga": "V318",
-    "face": "B",
-    "h_cm": 109.0,
-    "b_cm": 19.0,
-    "laje_sup_cm": 0.0,
-    "laje_inf_cm": 0.0,
-    "segmentos": [
+    ],
+    "segmentos_B": [
       {
-        "largura_cm": 34.0
+        "largura_cm": 34.0,
+        "panel_type": "Sarrafeado",
+        "height1": 109.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": true,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 23.8
+        "largura_cm": 23.8,
+        "panel_type": "Sarrafeado",
+        "height1": 109.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 186.2
+        "largura_cm": 186.2,
+        "panel_type": "Sarrafeado",
+        "height1": 109.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 93.0
+        "largura_cm": 93.0,
+        "panel_type": "Sarrafeado",
+        "height1": 109.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 27.0
+        "largura_cm": 27.0,
+        "panel_type": "Sarrafeado",
+        "height1": 109.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 23.8
+        "largura_cm": 23.8,
+        "panel_type": "Sarrafeado",
+        "height1": 109.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 122.3
+        "largura_cm": 122.3,
+        "panel_type": "Sarrafeado",
+        "height1": 109.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 28.8
+        "largura_cm": 28.8,
+        "panel_type": "Sarrafeado",
+        "height1": 109.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 29.0
+        "largura_cm": 29.0,
+        "panel_type": "Sarrafeado",
+        "height1": 109.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": true,
+        "reuse": false,
+        "codigos_forma": []
       }
-    ]
+    ],
+    "pillar_left": {
+      "active": false,
+      "width": 0.0,
+      "length": 0.0
+    },
+    "pillar_right": {
+      "active": false,
+      "width": 0.0,
+      "length": 0.0
+    },
+    "_confianca": 0.9299999999999999
   },
   {
     "viga": "V319",
@@ -866,36 +2974,110 @@
     "b_cm": 19.0,
     "laje_sup_cm": 0.0,
     "laje_inf_cm": 0.0,
+    "h_B_cm": 44.0,
+    "laje_sup_B_cm": 0.0,
+    "laje_inf_B_cm": 0.0,
+    "h_section_cm": 55.0,
+    "tipo_viga": "sarrafeada",
     "segmentos": [
       {
-        "largura_cm": 122.0
+        "largura_cm": 122.0,
+        "panel_type": "Sarrafeado",
+        "height1": 44.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": true,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 113.0
+        "largura_cm": 113.0,
+        "panel_type": "Sarrafeado",
+        "height1": 44.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 180.0
+        "largura_cm": 180.0,
+        "panel_type": "Sarrafeado",
+        "height1": 44.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": true,
+        "reuse": false,
+        "codigos_forma": []
       }
-    ]
-  },
-  {
-    "viga": "V319",
-    "face": "B",
-    "h_cm": 44.0,
-    "b_cm": 19.0,
-    "laje_sup_cm": 0.0,
-    "laje_inf_cm": 0.0,
-    "segmentos": [
+    ],
+    "segmentos_B": [
       {
-        "largura_cm": 122.0
+        "largura_cm": 122.0,
+        "panel_type": "Sarrafeado",
+        "height1": 44.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": true,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 113.0
+        "largura_cm": 113.0,
+        "panel_type": "Sarrafeado",
+        "height1": 44.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 180.0
+        "largura_cm": 180.0,
+        "panel_type": "Sarrafeado",
+        "height1": 44.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": true,
+        "reuse": false,
+        "codigos_forma": []
       }
-    ]
+    ],
+    "pillar_left": {
+      "active": false,
+      "width": 0.0,
+      "length": 0.0
+    },
+    "pillar_right": {
+      "active": false,
+      "width": 0.0,
+      "length": 0.0
+    },
+    "_confianca": 0.9299999999999999
   },
   {
     "viga": "V320",
@@ -904,78 +3086,306 @@
     "b_cm": 19.0,
     "laje_sup_cm": 0.0,
     "laje_inf_cm": 0.0,
+    "h_B_cm": 110.0,
+    "laje_sup_B_cm": 0.0,
+    "laje_inf_B_cm": 0.0,
+    "h_section_cm": 55.0,
+    "tipo_viga": "sarrafeada",
     "segmentos": [
       {
-        "largura_cm": 29.0
+        "largura_cm": 29.0,
+        "panel_type": "Sarrafeado",
+        "height1": 103.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": true,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 28.8
+        "largura_cm": 28.8,
+        "panel_type": "Sarrafeado",
+        "height1": 103.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 34.2
+        "largura_cm": 34.2,
+        "panel_type": "Sarrafeado",
+        "height1": 103.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 105.0
+        "largura_cm": 105.0,
+        "panel_type": "Sarrafeado",
+        "height1": 103.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 7.0
+        "largura_cm": 7.0,
+        "panel_type": "Sarrafeado",
+        "height1": 103.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 19.3
+        "largura_cm": 19.3,
+        "panel_type": "Sarrafeado",
+        "height1": 103.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 93.0
+        "largura_cm": 93.0,
+        "panel_type": "Sarrafeado",
+        "height1": 103.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 186.2
+        "largura_cm": 186.2,
+        "panel_type": "Sarrafeado",
+        "height1": 103.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 23.8
+        "largura_cm": 23.8,
+        "panel_type": "Sarrafeado",
+        "height1": 103.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 34.0
+        "largura_cm": 34.0,
+        "panel_type": "Sarrafeado",
+        "height1": 103.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": true,
+        "reuse": false,
+        "codigos_forma": []
       }
-    ]
-  },
-  {
-    "viga": "V320",
-    "face": "B",
-    "h_cm": 110.0,
-    "b_cm": 19.0,
-    "laje_sup_cm": 0.0,
-    "laje_inf_cm": 0.0,
-    "segmentos": [
+    ],
+    "segmentos_B": [
       {
-        "largura_cm": 34.0
+        "largura_cm": 34.0,
+        "panel_type": "Sarrafeado",
+        "height1": 110.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": true,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 23.8
+        "largura_cm": 23.8,
+        "panel_type": "Sarrafeado",
+        "height1": 110.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 186.2
+        "largura_cm": 186.2,
+        "panel_type": "Sarrafeado",
+        "height1": 110.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 93.0
+        "largura_cm": 93.0,
+        "panel_type": "Sarrafeado",
+        "height1": 110.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 18.6
+        "largura_cm": 18.6,
+        "panel_type": "Sarrafeado",
+        "height1": 110.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 7.0
+        "largura_cm": 7.0,
+        "panel_type": "Sarrafeado",
+        "height1": 110.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 105.0
+        "largura_cm": 105.0,
+        "panel_type": "Sarrafeado",
+        "height1": 110.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 34.2
+        "largura_cm": 34.2,
+        "panel_type": "Sarrafeado",
+        "height1": 110.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 28.8
+        "largura_cm": 28.8,
+        "panel_type": "Sarrafeado",
+        "height1": 110.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 29.0
+        "largura_cm": 29.0,
+        "panel_type": "Sarrafeado",
+        "height1": 110.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": true,
+        "reuse": false,
+        "codigos_forma": []
       }
-    ]
+    ],
+    "pillar_left": {
+      "active": false,
+      "width": 0.0,
+      "length": 0.0
+    },
+    "pillar_right": {
+      "active": false,
+      "width": 0.0,
+      "length": 0.0
+    },
+    "_confianca": 0.8799999999999999
   },
   {
     "viga": "V321",
@@ -984,30 +3394,82 @@
     "b_cm": 19.0,
     "laje_sup_cm": 12.0,
     "laje_inf_cm": 15.0,
+    "h_B_cm": 59.0,
+    "laje_sup_B_cm": 14.0,
+    "laje_inf_B_cm": 0.0,
+    "h_section_cm": 55.0,
+    "tipo_viga": "invertida",
     "segmentos": [
       {
-        "largura_cm": 244.0
+        "largura_cm": 244.0,
+        "panel_type": "Sarrafeado",
+        "height1": 44.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 12.0,
+        "laje_inf_local": 15.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": true,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 171.0
+        "largura_cm": 171.0,
+        "panel_type": "Sarrafeado",
+        "height1": 44.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 12.0,
+        "laje_inf_local": 15.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": true,
+        "reuse": false,
+        "codigos_forma": []
       }
-    ]
-  },
-  {
-    "viga": "V321",
-    "face": "B",
-    "h_cm": 59.0,
-    "b_cm": 19.0,
-    "laje_sup_cm": 14.0,
-    "laje_inf_cm": 0.0,
-    "segmentos": [
+    ],
+    "segmentos_B": [
       {
-        "largura_cm": 244.0
+        "largura_cm": 244.0,
+        "panel_type": "Sarrafeado",
+        "height1": 45.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 14.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": true,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 211.0
+        "largura_cm": 211.0,
+        "panel_type": "Sarrafeado",
+        "height1": 45.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 14.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": true,
+        "reuse": false,
+        "codigos_forma": []
       }
-    ]
+    ],
+    "pillar_left": {
+      "active": false,
+      "width": 0.0,
+      "length": 0.0
+    },
+    "pillar_right": {
+      "active": false,
+      "width": 0.0,
+      "length": 0.0
+    },
+    "_confianca": 0.93
   },
   {
     "viga": "V322",
@@ -1016,72 +3478,278 @@
     "b_cm": 19.0,
     "laje_sup_cm": 3.0,
     "laje_inf_cm": 1.0,
+    "h_B_cm": 107.0,
+    "laje_sup_B_cm": 0.0,
+    "laje_inf_B_cm": 0.0,
+    "h_section_cm": 55.0,
+    "tipo_viga": "sarrafeada",
     "segmentos": [
       {
-        "largura_cm": 29.0
+        "largura_cm": 29.0,
+        "panel_type": "Sarrafeado",
+        "height1": 105.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 3.0,
+        "laje_inf_local": 1.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": true,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 28.8
+        "largura_cm": 28.8,
+        "panel_type": "Sarrafeado",
+        "height1": 105.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 3.0,
+        "laje_inf_local": 1.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 122.3
+        "largura_cm": 122.3,
+        "panel_type": "Sarrafeado",
+        "height1": 105.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 3.0,
+        "laje_inf_local": 1.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 23.8
+        "largura_cm": 23.8,
+        "panel_type": "Sarrafeado",
+        "height1": 105.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 3.0,
+        "laje_inf_local": 1.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 27.0
+        "largura_cm": 27.0,
+        "panel_type": "Sarrafeado",
+        "height1": 105.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 3.0,
+        "laje_inf_local": 1.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 93.0
+        "largura_cm": 93.0,
+        "panel_type": "Sarrafeado",
+        "height1": 105.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 3.0,
+        "laje_inf_local": 1.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 186.2
+        "largura_cm": 186.2,
+        "panel_type": "Sarrafeado",
+        "height1": 105.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 3.0,
+        "laje_inf_local": 1.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 23.8
+        "largura_cm": 23.8,
+        "panel_type": "Sarrafeado",
+        "height1": 105.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 3.0,
+        "laje_inf_local": 1.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 34.0
+        "largura_cm": 34.0,
+        "panel_type": "Sarrafeado",
+        "height1": 105.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 3.0,
+        "laje_inf_local": 1.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": true,
+        "reuse": false,
+        "codigos_forma": []
       }
-    ]
-  },
-  {
-    "viga": "V322",
-    "face": "B",
-    "h_cm": 107.0,
-    "b_cm": 19.0,
-    "laje_sup_cm": 0.0,
-    "laje_inf_cm": 0.0,
-    "segmentos": [
+    ],
+    "segmentos_B": [
       {
-        "largura_cm": 34.0
+        "largura_cm": 34.0,
+        "panel_type": "Sarrafeado",
+        "height1": 107.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": true,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 23.8
+        "largura_cm": 23.8,
+        "panel_type": "Sarrafeado",
+        "height1": 107.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 186.2
+        "largura_cm": 186.2,
+        "panel_type": "Sarrafeado",
+        "height1": 107.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 93.0
+        "largura_cm": 93.0,
+        "panel_type": "Sarrafeado",
+        "height1": 107.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 27.0
+        "largura_cm": 27.0,
+        "panel_type": "Sarrafeado",
+        "height1": 107.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 23.8
+        "largura_cm": 23.8,
+        "panel_type": "Sarrafeado",
+        "height1": 107.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 122.3
+        "largura_cm": 122.3,
+        "panel_type": "Sarrafeado",
+        "height1": 107.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 28.8
+        "largura_cm": 28.8,
+        "panel_type": "Sarrafeado",
+        "height1": 107.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 29.0
+        "largura_cm": 29.0,
+        "panel_type": "Sarrafeado",
+        "height1": 107.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": true,
+        "reuse": false,
+        "codigos_forma": []
       }
-    ]
+    ],
+    "pillar_left": {
+      "active": false,
+      "width": 0.0,
+      "length": 0.0
+    },
+    "pillar_right": {
+      "active": false,
+      "width": 0.0,
+      "length": 0.0
+    },
+    "_confianca": 0.9299999999999999
   },
   {
     "viga": "V323",
@@ -1090,30 +3758,82 @@
     "b_cm": 19.0,
     "laje_sup_cm": 14.0,
     "laje_inf_cm": 0.0,
+    "h_B_cm": 54.0,
+    "laje_sup_B_cm": 0.0,
+    "laje_inf_B_cm": 0.0,
+    "h_section_cm": 50.0,
+    "tipo_viga": "sarrafeada",
     "segmentos": [
       {
-        "largura_cm": 211.0
+        "largura_cm": 211.0,
+        "panel_type": "Sarrafeado",
+        "height1": 40.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 14.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": true,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 244.0
+        "largura_cm": 244.0,
+        "panel_type": "Sarrafeado",
+        "height1": 40.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 14.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": true,
+        "reuse": false,
+        "codigos_forma": []
       }
-    ]
-  },
-  {
-    "viga": "V323",
-    "face": "B",
-    "h_cm": 54.0,
-    "b_cm": 19.0,
-    "laje_sup_cm": 0.0,
-    "laje_inf_cm": 0.0,
-    "segmentos": [
+    ],
+    "segmentos_B": [
       {
-        "largura_cm": 138.0
+        "largura_cm": 138.0,
+        "panel_type": "Sarrafeado",
+        "height1": 54.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": true,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 122.0
+        "largura_cm": 122.0,
+        "panel_type": "Sarrafeado",
+        "height1": 54.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": true,
+        "reuse": false,
+        "codigos_forma": []
       }
-    ]
+    ],
+    "pillar_left": {
+      "active": false,
+      "width": 0.0,
+      "length": 0.0
+    },
+    "pillar_right": {
+      "active": false,
+      "width": 0.0,
+      "length": 0.0
+    },
+    "_confianca": 0.93
   },
   {
     "viga": "V324",
@@ -1122,30 +3842,82 @@
     "b_cm": 19.0,
     "laje_sup_cm": 0.0,
     "laje_inf_cm": 0.0,
+    "h_B_cm": 54.0,
+    "laje_sup_B_cm": 0.0,
+    "laje_inf_B_cm": 0.0,
+    "h_section_cm": 50.0,
+    "tipo_viga": "sarrafeada",
     "segmentos": [
       {
-        "largura_cm": 90.0
+        "largura_cm": 90.0,
+        "panel_type": "Sarrafeado",
+        "height1": 54.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": true,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 90.0
+        "largura_cm": 90.0,
+        "panel_type": "Sarrafeado",
+        "height1": 54.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": true,
+        "reuse": false,
+        "codigos_forma": []
       }
-    ]
-  },
-  {
-    "viga": "V324",
-    "face": "B",
-    "h_cm": 54.0,
-    "b_cm": 19.0,
-    "laje_sup_cm": 0.0,
-    "laje_inf_cm": 0.0,
-    "segmentos": [
+    ],
+    "segmentos_B": [
       {
-        "largura_cm": 90.0
+        "largura_cm": 90.0,
+        "panel_type": "Sarrafeado",
+        "height1": 54.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": true,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 90.0
+        "largura_cm": 90.0,
+        "panel_type": "Sarrafeado",
+        "height1": 54.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": true,
+        "reuse": false,
+        "codigos_forma": []
       }
-    ]
+    ],
+    "pillar_left": {
+      "active": false,
+      "width": 0.0,
+      "length": 0.0
+    },
+    "pillar_right": {
+      "active": false,
+      "width": 0.0,
+      "length": 0.0
+    },
+    "_confianca": 0.9299999999999999
   },
   {
     "viga": "V325",
@@ -1154,60 +3926,222 @@
     "b_cm": 19.0,
     "laje_sup_cm": 14.0,
     "laje_inf_cm": 7.0,
+    "h_B_cm": 109.0,
+    "laje_sup_B_cm": 0.0,
+    "laje_inf_B_cm": 0.0,
+    "h_section_cm": 55.0,
+    "tipo_viga": "invertida",
     "segmentos": [
       {
-        "largura_cm": 29.0
+        "largura_cm": 29.0,
+        "panel_type": "Sarrafeado",
+        "height1": 103.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 14.0,
+        "laje_inf_local": 7.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": true,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 28.8
+        "largura_cm": 28.8,
+        "panel_type": "Sarrafeado",
+        "height1": 103.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 14.0,
+        "laje_inf_local": 7.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 38.2
+        "largura_cm": 38.2,
+        "panel_type": "Sarrafeado",
+        "height1": 103.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 14.0,
+        "laje_inf_local": 7.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 108.0
+        "largura_cm": 108.0,
+        "panel_type": "Sarrafeado",
+        "height1": 103.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 14.0,
+        "laje_inf_local": 7.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 19.3
+        "largura_cm": 19.3,
+        "panel_type": "Sarrafeado",
+        "height1": 103.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 14.0,
+        "laje_inf_local": 7.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 122.0
+        "largura_cm": 122.0,
+        "panel_type": "Sarrafeado",
+        "height1": 103.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 14.0,
+        "laje_inf_local": 7.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 185.0
+        "largura_cm": 185.0,
+        "panel_type": "Sarrafeado",
+        "height1": 103.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 14.0,
+        "laje_inf_local": 7.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": true,
+        "reuse": false,
+        "codigos_forma": []
       }
-    ]
-  },
-  {
-    "viga": "V325",
-    "face": "B",
-    "h_cm": 109.0,
-    "b_cm": 19.0,
-    "laje_sup_cm": 0.0,
-    "laje_inf_cm": 0.0,
-    "segmentos": [
+    ],
+    "segmentos_B": [
       {
-        "largura_cm": 185.0
+        "largura_cm": 185.0,
+        "panel_type": "Sarrafeado",
+        "height1": 109.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": true,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 122.0
+        "largura_cm": 122.0,
+        "panel_type": "Sarrafeado",
+        "height1": 109.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 15.3
+        "largura_cm": 15.3,
+        "panel_type": "Sarrafeado",
+        "height1": 109.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 112.0
+        "largura_cm": 112.0,
+        "panel_type": "Sarrafeado",
+        "height1": 109.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 34.2
+        "largura_cm": 34.2,
+        "panel_type": "Sarrafeado",
+        "height1": 109.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 28.8
+        "largura_cm": 28.8,
+        "panel_type": "Sarrafeado",
+        "height1": 109.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 29.0
+        "largura_cm": 29.0,
+        "panel_type": "Sarrafeado",
+        "height1": 109.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": true,
+        "reuse": false,
+        "codigos_forma": []
       }
-    ]
+    ],
+    "pillar_left": {
+      "active": false,
+      "width": 0.0,
+      "length": 0.0
+    },
+    "pillar_right": {
+      "active": false,
+      "width": 0.0,
+      "length": 0.0
+    },
+    "_confianca": 0.9299999999999999
   },
   {
     "viga": "V326",
@@ -1216,30 +4150,82 @@
     "b_cm": 19.0,
     "laje_sup_cm": 0.0,
     "laje_inf_cm": 0.0,
+    "h_B_cm": 54.0,
+    "laje_sup_B_cm": 0.0,
+    "laje_inf_B_cm": 0.0,
+    "h_section_cm": 50.0,
+    "tipo_viga": "sarrafeada",
     "segmentos": [
       {
-        "largura_cm": 90.0
+        "largura_cm": 90.0,
+        "panel_type": "Sarrafeado",
+        "height1": 54.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": true,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 90.0
+        "largura_cm": 90.0,
+        "panel_type": "Sarrafeado",
+        "height1": 54.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": true,
+        "reuse": false,
+        "codigos_forma": []
       }
-    ]
-  },
-  {
-    "viga": "V326",
-    "face": "B",
-    "h_cm": 54.0,
-    "b_cm": 19.0,
-    "laje_sup_cm": 0.0,
-    "laje_inf_cm": 0.0,
-    "segmentos": [
+    ],
+    "segmentos_B": [
       {
-        "largura_cm": 90.0
+        "largura_cm": 90.0,
+        "panel_type": "Sarrafeado",
+        "height1": 54.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": true,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 90.0
+        "largura_cm": 90.0,
+        "panel_type": "Sarrafeado",
+        "height1": 54.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": true,
+        "reuse": false,
+        "codigos_forma": []
       }
-    ]
+    ],
+    "pillar_left": {
+      "active": false,
+      "width": 0.0,
+      "length": 0.0
+    },
+    "pillar_right": {
+      "active": false,
+      "width": 0.0,
+      "length": 0.0
+    },
+    "_confianca": 0.9299999999999999
   },
   {
     "viga": "V327",
@@ -1248,30 +4234,82 @@
     "b_cm": 14.0,
     "laje_sup_cm": 0.0,
     "laje_inf_cm": 0.0,
+    "h_B_cm": 54.0,
+    "laje_sup_B_cm": 0.0,
+    "laje_inf_B_cm": 0.0,
+    "h_section_cm": 50.0,
+    "tipo_viga": "sarrafeada",
     "segmentos": [
       {
-        "largura_cm": 122.0
+        "largura_cm": 122.0,
+        "panel_type": "Sarrafeado",
+        "height1": 54.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": true,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 134.0
+        "largura_cm": 134.0,
+        "panel_type": "Sarrafeado",
+        "height1": 54.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": true,
+        "reuse": false,
+        "codigos_forma": []
       }
-    ]
-  },
-  {
-    "viga": "V327",
-    "face": "B",
-    "h_cm": 54.0,
-    "b_cm": 14.0,
-    "laje_sup_cm": 0.0,
-    "laje_inf_cm": 0.0,
-    "segmentos": [
+    ],
+    "segmentos_B": [
       {
-        "largura_cm": 122.0
+        "largura_cm": 122.0,
+        "panel_type": "Sarrafeado",
+        "height1": 54.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": true,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 138.0
+        "largura_cm": 138.0,
+        "panel_type": "Sarrafeado",
+        "height1": 54.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": true,
+        "reuse": false,
+        "codigos_forma": []
       }
-    ]
+    ],
+    "pillar_left": {
+      "active": false,
+      "width": 0.0,
+      "length": 0.0
+    },
+    "pillar_right": {
+      "active": false,
+      "width": 0.0,
+      "length": 0.0
+    },
+    "_confianca": 0.9299999999999999
   },
   {
     "viga": "V328",
@@ -1280,30 +4318,82 @@
     "b_cm": 19.0,
     "laje_sup_cm": 0.0,
     "laje_inf_cm": 0.0,
+    "h_B_cm": 59.0,
+    "laje_sup_B_cm": 0.0,
+    "laje_inf_B_cm": 0.0,
+    "h_section_cm": 55.0,
+    "tipo_viga": "sarrafeada",
     "segmentos": [
       {
-        "largura_cm": 122.0
+        "largura_cm": 122.0,
+        "panel_type": "Sarrafeado",
+        "height1": 59.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": true,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 138.0
+        "largura_cm": 138.0,
+        "panel_type": "Sarrafeado",
+        "height1": 59.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": true,
+        "reuse": false,
+        "codigos_forma": []
       }
-    ]
-  },
-  {
-    "viga": "V328",
-    "face": "B",
-    "h_cm": 59.0,
-    "b_cm": 19.0,
-    "laje_sup_cm": 0.0,
-    "laje_inf_cm": 0.0,
-    "segmentos": [
+    ],
+    "segmentos_B": [
       {
-        "largura_cm": 244.0
+        "largura_cm": 244.0,
+        "panel_type": "Sarrafeado",
+        "height1": 59.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": true,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 230.0
+        "largura_cm": 230.0,
+        "panel_type": "Sarrafeado",
+        "height1": 59.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": true,
+        "reuse": false,
+        "codigos_forma": []
       }
-    ]
+    ],
+    "pillar_left": {
+      "active": false,
+      "width": 0.0,
+      "length": 0.0
+    },
+    "pillar_right": {
+      "active": false,
+      "width": 0.0,
+      "length": 0.0
+    },
+    "_confianca": 0.9299999999999999
   },
   {
     "viga": "V329",
@@ -1312,30 +4402,82 @@
     "b_cm": 19.0,
     "laje_sup_cm": 0.0,
     "laje_inf_cm": 0.0,
+    "h_B_cm": 64.0,
+    "laje_sup_B_cm": 0.0,
+    "laje_inf_B_cm": 0.0,
+    "h_section_cm": 55.0,
+    "tipo_viga": "sarrafeada",
     "segmentos": [
       {
-        "largura_cm": 98.0
+        "largura_cm": 98.0,
+        "panel_type": "Sarrafeado",
+        "height1": 50.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": true,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 95.0
+        "largura_cm": 95.0,
+        "panel_type": "Sarrafeado",
+        "height1": 50.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": true,
+        "reuse": false,
+        "codigos_forma": []
       }
-    ]
-  },
-  {
-    "viga": "V329",
-    "face": "B",
-    "h_cm": 64.0,
-    "b_cm": 19.0,
-    "laje_sup_cm": 0.0,
-    "laje_inf_cm": 0.0,
-    "segmentos": [
+    ],
+    "segmentos_B": [
       {
-        "largura_cm": 98.0
+        "largura_cm": 98.0,
+        "panel_type": "Sarrafeado",
+        "height1": 64.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": true,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 95.0
+        "largura_cm": 95.0,
+        "panel_type": "Sarrafeado",
+        "height1": 64.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": true,
+        "reuse": false,
+        "codigos_forma": []
       }
-    ]
+    ],
+    "pillar_left": {
+      "active": false,
+      "width": 0.0,
+      "length": 0.0
+    },
+    "pillar_right": {
+      "active": false,
+      "width": 0.0,
+      "length": 0.0
+    },
+    "_confianca": 0.9299999999999999
   },
   {
     "viga": "V330",
@@ -1344,60 +4486,222 @@
     "b_cm": 19.0,
     "laje_sup_cm": 0.0,
     "laje_inf_cm": 0.0,
+    "h_B_cm": 120.0,
+    "laje_sup_B_cm": 0.0,
+    "laje_inf_B_cm": 0.0,
+    "h_section_cm": 55.0,
+    "tipo_viga": "gradeada",
     "segmentos": [
       {
-        "largura_cm": 97.7
+        "largura_cm": 97.7,
+        "panel_type": "Grade",
+        "height1": 0.0,
+        "grade_h1": 104.8,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": true,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 14.3
+        "largura_cm": 14.3,
+        "panel_type": "Grade",
+        "height1": 0.0,
+        "grade_h1": 104.8,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 28.0
+        "largura_cm": 28.0,
+        "panel_type": "Grade",
+        "height1": 0.0,
+        "grade_h1": 104.8,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 187.9
+        "largura_cm": 187.9,
+        "panel_type": "Grade",
+        "height1": 0.0,
+        "grade_h1": 104.8,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 10.1
+        "largura_cm": 10.1,
+        "panel_type": "Grade",
+        "height1": 0.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 46.0
+        "largura_cm": 46.0,
+        "panel_type": "Grade",
+        "height1": 0.0,
+        "grade_h1": 107.8,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 154.0
+        "largura_cm": 154.0,
+        "panel_type": "Grade",
+        "height1": 0.0,
+        "grade_h1": 107.8,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 21.9
+        "largura_cm": 21.9,
+        "panel_type": "Grade",
+        "height1": 0.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 68.1
+        "largura_cm": 68.1,
+        "panel_type": "Grade",
+        "height1": 0.0,
+        "grade_h1": 104.8,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": true,
+        "reuse": false,
+        "codigos_forma": []
       }
-    ]
-  },
-  {
-    "viga": "V330",
-    "face": "B",
-    "h_cm": 120.0,
-    "b_cm": 19.0,
-    "laje_sup_cm": 0.0,
-    "laje_inf_cm": 0.0,
-    "segmentos": [
+    ],
+    "segmentos_B": [
       {
-        "largura_cm": 244.0
+        "largura_cm": 244.0,
+        "panel_type": "Grade",
+        "height1": 0.0,
+        "grade_h1": 104.8,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": true,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 244.0
+        "largura_cm": 244.0,
+        "panel_type": "Grade",
+        "height1": 0.0,
+        "grade_h1": 104.8,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 28.0
+        "largura_cm": 28.0,
+        "panel_type": "Grade",
+        "height1": 0.0,
+        "grade_h1": 104.8,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 14.3
+        "largura_cm": 14.3,
+        "panel_type": "Grade",
+        "height1": 0.0,
+        "grade_h1": 104.8,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 97.7
+        "largura_cm": 97.7,
+        "panel_type": "Grade",
+        "height1": 0.0,
+        "grade_h1": 104.8,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": true,
+        "reuse": false,
+        "codigos_forma": []
       }
-    ]
+    ],
+    "pillar_left": {
+      "active": false,
+      "width": 0.0,
+      "length": 0.0
+    },
+    "pillar_right": {
+      "active": false,
+      "width": 0.0,
+      "length": 0.0
+    },
+    "_confianca": 0.8799999999999999
   },
   {
     "viga": "V331",
@@ -1406,30 +4710,82 @@
     "b_cm": 14.0,
     "laje_sup_cm": 0.0,
     "laje_inf_cm": 0.0,
+    "h_B_cm": 44.0,
+    "laje_sup_B_cm": 0.0,
+    "laje_inf_B_cm": 0.0,
+    "h_section_cm": 40.0,
+    "tipo_viga": "sarrafeada",
     "segmentos": [
       {
-        "largura_cm": 122.0
+        "largura_cm": 122.0,
+        "panel_type": "Sarrafeado",
+        "height1": 44.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": true,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 79.0
+        "largura_cm": 79.0,
+        "panel_type": "Sarrafeado",
+        "height1": 44.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": true,
+        "reuse": false,
+        "codigos_forma": []
       }
-    ]
-  },
-  {
-    "viga": "V331",
-    "face": "B",
-    "h_cm": 44.0,
-    "b_cm": 14.0,
-    "laje_sup_cm": 0.0,
-    "laje_inf_cm": 0.0,
-    "segmentos": [
+    ],
+    "segmentos_B": [
       {
-        "largura_cm": 122.0
+        "largura_cm": 122.0,
+        "panel_type": "Sarrafeado",
+        "height1": 44.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": true,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 79.0
+        "largura_cm": 79.0,
+        "panel_type": "Sarrafeado",
+        "height1": 44.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": true,
+        "reuse": false,
+        "codigos_forma": []
       }
-    ]
+    ],
+    "pillar_left": {
+      "active": false,
+      "width": 0.0,
+      "length": 0.0
+    },
+    "pillar_right": {
+      "active": false,
+      "width": 0.0,
+      "length": 0.0
+    },
+    "_confianca": 0.75
   },
   {
     "viga": "V332",
@@ -1438,36 +4794,110 @@
     "b_cm": 19.0,
     "laje_sup_cm": 15.0,
     "laje_inf_cm": 0.0,
+    "h_B_cm": 59.0,
+    "laje_sup_B_cm": 0.0,
+    "laje_inf_B_cm": 0.0,
+    "h_section_cm": 55.0,
+    "tipo_viga": "sarrafeada",
     "segmentos": [
       {
-        "largura_cm": 244.0
+        "largura_cm": 244.0,
+        "panel_type": "Sarrafeado",
+        "height1": 44.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 15.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": true,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 171.0
+        "largura_cm": 171.0,
+        "panel_type": "Sarrafeado",
+        "height1": 44.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 15.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": true,
+        "reuse": false,
+        "codigos_forma": []
       }
-    ]
-  },
-  {
-    "viga": "V332",
-    "face": "B",
-    "h_cm": 59.0,
-    "b_cm": 19.0,
-    "laje_sup_cm": 0.0,
-    "laje_inf_cm": 0.0,
-    "segmentos": [
+    ],
+    "segmentos_B": [
       {
-        "largura_cm": 244.0
+        "largura_cm": 244.0,
+        "panel_type": "Sarrafeado",
+        "height1": 59.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": true,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 40.0
+        "largura_cm": 40.0,
+        "panel_type": "Sarrafeado",
+        "height1": 59.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 40.0
+        "largura_cm": 40.0,
+        "panel_type": "Sarrafeado",
+        "height1": 59.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 244.0
+        "largura_cm": 244.0,
+        "panel_type": "Sarrafeado",
+        "height1": 59.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": true,
+        "reuse": false,
+        "codigos_forma": []
       }
-    ]
+    ],
+    "pillar_left": {
+      "active": false,
+      "width": 0.0,
+      "length": 0.0
+    },
+    "pillar_right": {
+      "active": false,
+      "width": 0.0,
+      "length": 0.0
+    },
+    "_confianca": 0.93
   },
   {
     "viga": "VF203",
@@ -1476,42 +4906,138 @@
     "b_cm": 19.0,
     "laje_sup_cm": 0.0,
     "laje_inf_cm": 0.0,
+    "h_B_cm": 59.0,
+    "laje_sup_B_cm": 0.0,
+    "laje_inf_B_cm": 0.0,
+    "h_section_cm": 55.0,
+    "tipo_viga": "sarrafeada",
     "segmentos": [
       {
-        "largura_cm": 244.0
+        "largura_cm": 244.0,
+        "panel_type": "Sarrafeado",
+        "height1": 59.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": true,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 244.0
+        "largura_cm": 244.0,
+        "panel_type": "Sarrafeado",
+        "height1": 59.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 244.0
+        "largura_cm": 244.0,
+        "panel_type": "Sarrafeado",
+        "height1": 59.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": true,
+        "reuse": false,
+        "codigos_forma": []
       }
-    ]
-  },
-  {
-    "viga": "VF203",
-    "face": "B",
-    "h_cm": 59.0,
-    "b_cm": 19.0,
-    "laje_sup_cm": 0.0,
-    "laje_inf_cm": 0.0,
-    "segmentos": [
+    ],
+    "segmentos_B": [
       {
-        "largura_cm": 244.0
+        "largura_cm": 244.0,
+        "panel_type": "Sarrafeado",
+        "height1": 59.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": true,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 167.5
+        "largura_cm": 167.5,
+        "panel_type": "Sarrafeado",
+        "height1": 59.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 26.4
+        "largura_cm": 26.4,
+        "panel_type": "Sarrafeado",
+        "height1": 59.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 244.0
+        "largura_cm": 244.0,
+        "panel_type": "Sarrafeado",
+        "height1": 59.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 169.0
+        "largura_cm": 169.0,
+        "panel_type": "Sarrafeado",
+        "height1": 59.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": true,
+        "reuse": false,
+        "codigos_forma": []
       }
-    ]
+    ],
+    "pillar_left": {
+      "active": false,
+      "width": 0.0,
+      "length": 0.0
+    },
+    "pillar_right": {
+      "active": false,
+      "width": 0.0,
+      "length": 0.0
+    },
+    "_confianca": 0.8799999999999999
   },
   {
     "viga": "VF301",
@@ -1520,44 +5046,151 @@
     "b_cm": 19.0,
     "laje_sup_cm": 0.0,
     "laje_inf_cm": 0.0,
+    "h_B_cm": 59.0,
+    "laje_sup_B_cm": 0.0,
+    "laje_inf_B_cm": 0.0,
+    "h_section_cm": 55.0,
+    "tipo_viga": "sarrafeada",
     "segmentos": [
       {
-        "largura_cm": 244.0
+        "largura_cm": 244.0,
+        "panel_type": "Sarrafeado",
+        "height1": 59.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": true,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 161.5
+        "largura_cm": 161.5,
+        "panel_type": "Sarrafeado",
+        "height1": 59.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 40.4
+        "largura_cm": 40.4,
+        "panel_type": "Sarrafeado",
+        "height1": 59.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 244.0
+        "largura_cm": 244.0,
+        "panel_type": "Sarrafeado",
+        "height1": 59.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 174.0
+        "largura_cm": 174.0,
+        "panel_type": "Sarrafeado",
+        "height1": 59.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": true,
+        "reuse": false,
+        "codigos_forma": []
       }
-    ]
-  },
-  {
-    "viga": "VF301",
-    "face": "B",
-    "h_cm": 59.0,
-    "b_cm": 19.0,
-    "laje_sup_cm": 0.0,
-    "laje_inf_cm": 0.0,
-    "segmentos": [
+    ],
+    "segmentos_B": [
       {
-        "largura_cm": 244.0
+        "largura_cm": 244.0,
+        "panel_type": "Sarrafeado",
+        "height1": 59.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": true,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 244.0
+        "largura_cm": 244.0,
+        "panel_type": "Sarrafeado",
+        "height1": 59.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 122.0
+        "largura_cm": 122.0,
+        "panel_type": "Sarrafeado",
+        "height1": 59.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": false,
+        "reuse": false,
+        "codigos_forma": []
       },
       {
-        "largura_cm": 196.0
+        "largura_cm": 196.0,
+        "panel_type": "Sarrafeado",
+        "height1": 59.0,
+        "grade_h1": 0.0,
+        "laje_sup_local": 0.0,
+        "laje_inf_local": 0.0,
+        "laje_central_alt": 0.0,
+        "holes": [],
+        "is_first": false,
+        "is_last": true,
+        "reuse": false,
+        "codigos_forma": []
       }
-    ]
+    ],
+    "pillar_left": {
+      "active": false,
+      "width": 0.0,
+      "length": 0.0
+    },
+    "pillar_right": {
+      "active": false,
+      "width": 0.0,
+      "length": 0.0
+    },
+    "_confianca": 0.8799999999999999
   }
 ]
