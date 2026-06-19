@@ -1,0 +1,1563 @@
+[
+  {
+    "viga": "V13",
+    "face": "A",
+    "h_cm": 59.0,
+    "b_cm": 19.0,
+    "laje_sup_cm": 15.0,
+    "laje_inf_cm": 0.0,
+    "segmentos": [
+      {
+        "largura_cm": 244.0
+      },
+      {
+        "largura_cm": 65.0
+      },
+      {
+        "largura_cm": 106.0
+      }
+    ]
+  },
+  {
+    "viga": "V13",
+    "face": "B",
+    "h_cm": 59.0,
+    "b_cm": 19.0,
+    "laje_sup_cm": 12.0,
+    "laje_inf_cm": 3.0,
+    "segmentos": [
+      {
+        "largura_cm": 244.0
+      },
+      {
+        "largura_cm": 65.0
+      },
+      {
+        "largura_cm": 106.0
+      }
+    ]
+  },
+  {
+    "viga": "V301",
+    "face": "A",
+    "h_cm": 125.0,
+    "b_cm": 19.0,
+    "laje_sup_cm": 0.0,
+    "laje_inf_cm": 0.0,
+    "segmentos": [
+      {
+        "largura_cm": 244.0
+      },
+      {
+        "largura_cm": 28.7
+      },
+      {
+        "largura_cm": 21.8
+      },
+      {
+        "largura_cm": 111.0
+      },
+      {
+        "largura_cm": 19.0
+      },
+      {
+        "largura_cm": 21.2
+      },
+      {
+        "largura_cm": 46.5
+      },
+      {
+        "largura_cm": 22.3
+      },
+      {
+        "largura_cm": 15.1
+      },
+      {
+        "largura_cm": 111.0
+      },
+      {
+        "largura_cm": 21.8
+      },
+      {
+        "largura_cm": 41.2
+      },
+      {
+        "largura_cm": 244.0
+      }
+    ]
+  },
+  {
+    "viga": "V301",
+    "face": "B",
+    "h_cm": 125.0,
+    "b_cm": 19.0,
+    "laje_sup_cm": 0.0,
+    "laje_inf_cm": 0.0,
+    "segmentos": [
+      {
+        "largura_cm": 244.0
+      },
+      {
+        "largura_cm": 22.5
+      },
+      {
+        "largura_cm": 52.5
+      },
+      {
+        "largura_cm": 21.7
+      },
+      {
+        "largura_cm": 26.2
+      },
+      {
+        "largura_cm": 40.9
+      },
+      {
+        "largura_cm": 21.2
+      },
+      {
+        "largura_cm": 19.0
+      },
+      {
+        "largura_cm": 117.5
+      },
+      {
+        "largura_cm": 21.8
+      },
+      {
+        "largura_cm": 34.7
+      },
+      {
+        "largura_cm": 244.0
+      }
+    ]
+  },
+  {
+    "viga": "V302",
+    "face": "A",
+    "h_cm": 59.0,
+    "b_cm": 19.0,
+    "laje_sup_cm": 14.0,
+    "laje_inf_cm": 2.0,
+    "segmentos": [
+      {
+        "largura_cm": 178.5
+      },
+      {
+        "largura_cm": 22.0
+      },
+      {
+        "largura_cm": 159.5
+      },
+      {
+        "largura_cm": 110.0
+      }
+    ]
+  },
+  {
+    "viga": "V302",
+    "face": "B",
+    "h_cm": 59.0,
+    "b_cm": 19.0,
+    "laje_sup_cm": 0.0,
+    "laje_inf_cm": 0.0,
+    "segmentos": [
+      {
+        "largura_cm": 244.0
+      },
+      {
+        "largura_cm": 157.5
+      },
+      {
+        "largura_cm": 98.9
+      },
+      {
+        "largura_cm": 170.0
+      },
+      {
+        "largura_cm": 244.0
+      }
+    ]
+  },
+  {
+    "viga": "V303",
+    "face": "A",
+    "h_cm": 119.0,
+    "b_cm": 19.0,
+    "laje_sup_cm": 0.0,
+    "laje_inf_cm": 0.0,
+    "segmentos": [
+      {
+        "largura_cm": 234.0
+      },
+      {
+        "largura_cm": 78.5
+      },
+      {
+        "largura_cm": 174.0
+      },
+      {
+        "largura_cm": 244.0
+      }
+    ]
+  },
+  {
+    "viga": "V303",
+    "face": "B",
+    "h_cm": 59.0,
+    "b_cm": 19.0,
+    "laje_sup_cm": 7.0,
+    "laje_inf_cm": 7.0,
+    "segmentos": [
+      {
+        "largura_cm": 244.0
+      },
+      {
+        "largura_cm": 244.0
+      },
+      {
+        "largura_cm": 66.5
+      },
+      {
+        "largura_cm": 244.0
+      },
+      {
+        "largura_cm": 106.9
+      },
+      {
+        "largura_cm": 157.5
+      }
+    ]
+  },
+  {
+    "viga": "V304",
+    "face": "A",
+    "h_cm": 60.0,
+    "b_cm": 19.0,
+    "laje_sup_cm": 7.0,
+    "laje_inf_cm": 8.0,
+    "segmentos": [
+      {
+        "largura_cm": 61.0
+      },
+      {
+        "largura_cm": 68.0
+      },
+      {
+        "largura_cm": 29.4
+      },
+      {
+        "largura_cm": 176.0
+      },
+      {
+        "largura_cm": 27.0
+      },
+      {
+        "largura_cm": 172.0
+      },
+      {
+        "largura_cm": 27.0
+      },
+      {
+        "largura_cm": 176.0
+      }
+    ]
+  },
+  {
+    "viga": "V304",
+    "face": "B",
+    "h_cm": 60.0,
+    "b_cm": 19.0,
+    "laje_sup_cm": 7.0,
+    "laje_inf_cm": 8.0,
+    "segmentos": [
+      {
+        "largura_cm": 61.0
+      },
+      {
+        "largura_cm": 68.0
+      },
+      {
+        "largura_cm": 29.4
+      },
+      {
+        "largura_cm": 176.0
+      },
+      {
+        "largura_cm": 27.0
+      },
+      {
+        "largura_cm": 172.0
+      },
+      {
+        "largura_cm": 27.0
+      },
+      {
+        "largura_cm": 176.0
+      }
+    ]
+  },
+  {
+    "viga": "V305",
+    "face": "A",
+    "h_cm": 59.0,
+    "b_cm": 19.0,
+    "laje_sup_cm": 0.0,
+    "laje_inf_cm": 0.0,
+    "segmentos": [
+      {
+        "largura_cm": 221.0
+      },
+      {
+        "largura_cm": 184.0
+      }
+    ]
+  },
+  {
+    "viga": "V305",
+    "face": "B",
+    "h_cm": 59.0,
+    "b_cm": 19.0,
+    "laje_sup_cm": 0.0,
+    "laje_inf_cm": 0.0,
+    "segmentos": [
+      {
+        "largura_cm": 172.0
+      },
+      {
+        "largura_cm": 27.0
+      },
+      {
+        "largura_cm": 172.0
+      },
+      {
+        "largura_cm": 27.0
+      },
+      {
+        "largura_cm": 172.0
+      }
+    ]
+  },
+  {
+    "viga": "V306",
+    "face": "A",
+    "h_cm": 59.0,
+    "b_cm": 19.0,
+    "laje_sup_cm": 0.0,
+    "laje_inf_cm": 0.0,
+    "segmentos": [
+      {
+        "largura_cm": 122.0
+      },
+      {
+        "largura_cm": 104.0
+      },
+      {
+        "largura_cm": 81.2
+      },
+      {
+        "largura_cm": 170.0
+      },
+      {
+        "largura_cm": 242.0
+      }
+    ]
+  },
+  {
+    "viga": "V306",
+    "face": "B",
+    "h_cm": 44.0,
+    "b_cm": 19.0,
+    "laje_sup_cm": 0.0,
+    "laje_inf_cm": 0.0,
+    "segmentos": [
+      {
+        "largura_cm": 244.0
+      },
+      {
+        "largura_cm": 174.0
+      }
+    ]
+  },
+  {
+    "viga": "V308",
+    "face": "A",
+    "h_cm": 59.0,
+    "b_cm": 19.0,
+    "laje_sup_cm": 0.0,
+    "laje_inf_cm": 0.0,
+    "segmentos": [
+      {
+        "largura_cm": 244.0
+      },
+      {
+        "largura_cm": 244.0
+      },
+      {
+        "largura_cm": 196.5
+      }
+    ]
+  },
+  {
+    "viga": "V308",
+    "face": "B",
+    "h_cm": 59.0,
+    "b_cm": 19.0,
+    "laje_sup_cm": 0.0,
+    "laje_inf_cm": 0.0,
+    "segmentos": [
+      {
+        "largura_cm": 124.0
+      },
+      {
+        "largura_cm": 22.0
+      },
+      {
+        "largura_cm": 244.0
+      },
+      {
+        "largura_cm": 180.0
+      },
+      {
+        "largura_cm": 27.0
+      },
+      {
+        "largura_cm": 121.0
+      }
+    ]
+  },
+  {
+    "viga": "V310",
+    "face": "A",
+    "h_cm": 54.0,
+    "b_cm": 19.0,
+    "laje_sup_cm": 14.0,
+    "laje_inf_cm": 0.0,
+    "segmentos": [
+      {
+        "largura_cm": 91.0
+      },
+      {
+        "largura_cm": 61.0
+      }
+    ]
+  },
+  {
+    "viga": "V310",
+    "face": "B",
+    "h_cm": 59.0,
+    "b_cm": 19.0,
+    "laje_sup_cm": 13.0,
+    "laje_inf_cm": 8.0,
+    "segmentos": [
+      {
+        "largura_cm": 171.0
+      }
+    ]
+  },
+  {
+    "viga": "V311",
+    "face": "A",
+    "h_cm": 59.0,
+    "b_cm": 19.0,
+    "laje_sup_cm": 16.0,
+    "laje_inf_cm": 0.0,
+    "segmentos": [
+      {
+        "largura_cm": 244.0
+      },
+      {
+        "largura_cm": 171.0
+      }
+    ]
+  },
+  {
+    "viga": "V311",
+    "face": "B",
+    "h_cm": 59.0,
+    "b_cm": 19.0,
+    "laje_sup_cm": 15.0,
+    "laje_inf_cm": 0.0,
+    "segmentos": [
+      {
+        "largura_cm": 244.0
+      },
+      {
+        "largura_cm": 171.0
+      }
+    ]
+  },
+  {
+    "viga": "V312",
+    "face": "A",
+    "h_cm": 109.0,
+    "b_cm": 19.0,
+    "laje_sup_cm": 6.0,
+    "laje_inf_cm": 0.0,
+    "segmentos": [
+      {
+        "largura_cm": 29.0
+      },
+      {
+        "largura_cm": 28.8
+      },
+      {
+        "largura_cm": 34.2
+      },
+      {
+        "largura_cm": 105.0
+      },
+      {
+        "largura_cm": 7.0
+      },
+      {
+        "largura_cm": 19.3
+      },
+      {
+        "largura_cm": 122.0
+      },
+      {
+        "largura_cm": 185.0
+      }
+    ]
+  },
+  {
+    "viga": "V312",
+    "face": "B",
+    "h_cm": 109.0,
+    "b_cm": 19.0,
+    "laje_sup_cm": 0.0,
+    "laje_inf_cm": 0.0,
+    "segmentos": [
+      {
+        "largura_cm": 185.0
+      },
+      {
+        "largura_cm": 122.0
+      },
+      {
+        "largura_cm": 19.3
+      },
+      {
+        "largura_cm": 7.0
+      },
+      {
+        "largura_cm": 105.0
+      },
+      {
+        "largura_cm": 34.2
+      },
+      {
+        "largura_cm": 28.8
+      },
+      {
+        "largura_cm": 29.0
+      }
+    ]
+  },
+  {
+    "viga": "V314",
+    "face": "A",
+    "h_cm": 110.0,
+    "b_cm": 19.0,
+    "laje_sup_cm": 7.0,
+    "laje_inf_cm": 0.0,
+    "segmentos": [
+      {
+        "largura_cm": 29.0
+      },
+      {
+        "largura_cm": 28.8
+      },
+      {
+        "largura_cm": 122.3
+      },
+      {
+        "largura_cm": 23.8
+      },
+      {
+        "largura_cm": 27.0
+      },
+      {
+        "largura_cm": 93.0
+      },
+      {
+        "largura_cm": 186.2
+      },
+      {
+        "largura_cm": 23.8
+      },
+      {
+        "largura_cm": 34.0
+      }
+    ]
+  },
+  {
+    "viga": "V314",
+    "face": "B",
+    "h_cm": 110.0,
+    "b_cm": 19.0,
+    "laje_sup_cm": 0.0,
+    "laje_inf_cm": 0.0,
+    "segmentos": [
+      {
+        "largura_cm": 34.0
+      },
+      {
+        "largura_cm": 23.8
+      },
+      {
+        "largura_cm": 186.2
+      },
+      {
+        "largura_cm": 93.0
+      },
+      {
+        "largura_cm": 27.0
+      },
+      {
+        "largura_cm": 23.8
+      },
+      {
+        "largura_cm": 122.3
+      },
+      {
+        "largura_cm": 28.8
+      },
+      {
+        "largura_cm": 29.0
+      }
+    ]
+  },
+  {
+    "viga": "V315",
+    "face": "A",
+    "h_cm": 59.0,
+    "b_cm": 19.0,
+    "laje_sup_cm": 15.0,
+    "laje_inf_cm": 0.0,
+    "segmentos": [
+      {
+        "largura_cm": 244.0
+      },
+      {
+        "largura_cm": 70.0
+      },
+      {
+        "largura_cm": 101.0
+      }
+    ]
+  },
+  {
+    "viga": "V315",
+    "face": "B",
+    "h_cm": 59.0,
+    "b_cm": 19.0,
+    "laje_sup_cm": 15.0,
+    "laje_inf_cm": 0.0,
+    "segmentos": [
+      {
+        "largura_cm": 244.0
+      },
+      {
+        "largura_cm": 70.0
+      },
+      {
+        "largura_cm": 101.0
+      }
+    ]
+  },
+  {
+    "viga": "V316",
+    "face": "A",
+    "h_cm": 103.0,
+    "b_cm": 19.0,
+    "laje_sup_cm": 0.0,
+    "laje_inf_cm": 0.0,
+    "segmentos": [
+      {
+        "largura_cm": 29.0
+      },
+      {
+        "largura_cm": 28.8
+      },
+      {
+        "largura_cm": 34.2
+      },
+      {
+        "largura_cm": 105.0
+      },
+      {
+        "largura_cm": 7.0
+      },
+      {
+        "largura_cm": 19.3
+      },
+      {
+        "largura_cm": 93.0
+      },
+      {
+        "largura_cm": 186.2
+      },
+      {
+        "largura_cm": 23.8
+      },
+      {
+        "largura_cm": 34.0
+      }
+    ]
+  },
+  {
+    "viga": "V316",
+    "face": "B",
+    "h_cm": 110.0,
+    "b_cm": 19.0,
+    "laje_sup_cm": 0.0,
+    "laje_inf_cm": 0.0,
+    "segmentos": [
+      {
+        "largura_cm": 34.0
+      },
+      {
+        "largura_cm": 23.8
+      },
+      {
+        "largura_cm": 186.2
+      },
+      {
+        "largura_cm": 93.0
+      },
+      {
+        "largura_cm": 18.9
+      },
+      {
+        "largura_cm": 7.0
+      },
+      {
+        "largura_cm": 105.0
+      },
+      {
+        "largura_cm": 34.2
+      },
+      {
+        "largura_cm": 28.8
+      },
+      {
+        "largura_cm": 29.0
+      }
+    ]
+  },
+  {
+    "viga": "V317",
+    "face": "A",
+    "h_cm": 59.0,
+    "b_cm": 19.0,
+    "laje_sup_cm": 15.0,
+    "laje_inf_cm": 0.0,
+    "segmentos": [
+      {
+        "largura_cm": 244.0
+      },
+      {
+        "largura_cm": 65.0
+      },
+      {
+        "largura_cm": 106.0
+      }
+    ]
+  },
+  {
+    "viga": "V317",
+    "face": "B",
+    "h_cm": 59.0,
+    "b_cm": 19.0,
+    "laje_sup_cm": 12.0,
+    "laje_inf_cm": 3.0,
+    "segmentos": [
+      {
+        "largura_cm": 244.0
+      },
+      {
+        "largura_cm": 63.0
+      },
+      {
+        "largura_cm": 108.0
+      }
+    ]
+  },
+  {
+    "viga": "V318",
+    "face": "A",
+    "h_cm": 109.0,
+    "b_cm": 19.0,
+    "laje_sup_cm": 3.0,
+    "laje_inf_cm": 3.0,
+    "segmentos": [
+      {
+        "largura_cm": 29.0
+      },
+      {
+        "largura_cm": 28.8
+      },
+      {
+        "largura_cm": 122.3
+      },
+      {
+        "largura_cm": 23.8
+      },
+      {
+        "largura_cm": 27.0
+      },
+      {
+        "largura_cm": 93.0
+      },
+      {
+        "largura_cm": 186.2
+      },
+      {
+        "largura_cm": 23.8
+      },
+      {
+        "largura_cm": 34.0
+      }
+    ]
+  },
+  {
+    "viga": "V318",
+    "face": "B",
+    "h_cm": 109.0,
+    "b_cm": 19.0,
+    "laje_sup_cm": 0.0,
+    "laje_inf_cm": 0.0,
+    "segmentos": [
+      {
+        "largura_cm": 34.0
+      },
+      {
+        "largura_cm": 23.8
+      },
+      {
+        "largura_cm": 186.2
+      },
+      {
+        "largura_cm": 93.0
+      },
+      {
+        "largura_cm": 27.0
+      },
+      {
+        "largura_cm": 23.8
+      },
+      {
+        "largura_cm": 122.3
+      },
+      {
+        "largura_cm": 28.8
+      },
+      {
+        "largura_cm": 29.0
+      }
+    ]
+  },
+  {
+    "viga": "V319",
+    "face": "A",
+    "h_cm": 44.0,
+    "b_cm": 19.0,
+    "laje_sup_cm": 0.0,
+    "laje_inf_cm": 0.0,
+    "segmentos": [
+      {
+        "largura_cm": 122.0
+      },
+      {
+        "largura_cm": 113.0
+      },
+      {
+        "largura_cm": 180.0
+      }
+    ]
+  },
+  {
+    "viga": "V319",
+    "face": "B",
+    "h_cm": 44.0,
+    "b_cm": 19.0,
+    "laje_sup_cm": 0.0,
+    "laje_inf_cm": 0.0,
+    "segmentos": [
+      {
+        "largura_cm": 122.0
+      },
+      {
+        "largura_cm": 113.0
+      },
+      {
+        "largura_cm": 180.0
+      }
+    ]
+  },
+  {
+    "viga": "V320",
+    "face": "A",
+    "h_cm": 103.0,
+    "b_cm": 19.0,
+    "laje_sup_cm": 0.0,
+    "laje_inf_cm": 0.0,
+    "segmentos": [
+      {
+        "largura_cm": 29.0
+      },
+      {
+        "largura_cm": 28.8
+      },
+      {
+        "largura_cm": 34.2
+      },
+      {
+        "largura_cm": 105.0
+      },
+      {
+        "largura_cm": 7.0
+      },
+      {
+        "largura_cm": 19.3
+      },
+      {
+        "largura_cm": 93.0
+      },
+      {
+        "largura_cm": 186.2
+      },
+      {
+        "largura_cm": 23.8
+      },
+      {
+        "largura_cm": 34.0
+      }
+    ]
+  },
+  {
+    "viga": "V320",
+    "face": "B",
+    "h_cm": 110.0,
+    "b_cm": 19.0,
+    "laje_sup_cm": 0.0,
+    "laje_inf_cm": 0.0,
+    "segmentos": [
+      {
+        "largura_cm": 34.0
+      },
+      {
+        "largura_cm": 23.8
+      },
+      {
+        "largura_cm": 186.2
+      },
+      {
+        "largura_cm": 93.0
+      },
+      {
+        "largura_cm": 18.6
+      },
+      {
+        "largura_cm": 7.0
+      },
+      {
+        "largura_cm": 105.0
+      },
+      {
+        "largura_cm": 34.2
+      },
+      {
+        "largura_cm": 28.8
+      },
+      {
+        "largura_cm": 29.0
+      }
+    ]
+  },
+  {
+    "viga": "V321",
+    "face": "A",
+    "h_cm": 71.0,
+    "b_cm": 19.0,
+    "laje_sup_cm": 12.0,
+    "laje_inf_cm": 15.0,
+    "segmentos": [
+      {
+        "largura_cm": 244.0
+      },
+      {
+        "largura_cm": 171.0
+      }
+    ]
+  },
+  {
+    "viga": "V321",
+    "face": "B",
+    "h_cm": 59.0,
+    "b_cm": 19.0,
+    "laje_sup_cm": 14.0,
+    "laje_inf_cm": 0.0,
+    "segmentos": [
+      {
+        "largura_cm": 244.0
+      },
+      {
+        "largura_cm": 211.0
+      }
+    ]
+  },
+  {
+    "viga": "V322",
+    "face": "A",
+    "h_cm": 109.0,
+    "b_cm": 19.0,
+    "laje_sup_cm": 3.0,
+    "laje_inf_cm": 1.0,
+    "segmentos": [
+      {
+        "largura_cm": 29.0
+      },
+      {
+        "largura_cm": 28.8
+      },
+      {
+        "largura_cm": 122.3
+      },
+      {
+        "largura_cm": 23.8
+      },
+      {
+        "largura_cm": 27.0
+      },
+      {
+        "largura_cm": 93.0
+      },
+      {
+        "largura_cm": 186.2
+      },
+      {
+        "largura_cm": 23.8
+      },
+      {
+        "largura_cm": 34.0
+      }
+    ]
+  },
+  {
+    "viga": "V322",
+    "face": "B",
+    "h_cm": 107.0,
+    "b_cm": 19.0,
+    "laje_sup_cm": 0.0,
+    "laje_inf_cm": 0.0,
+    "segmentos": [
+      {
+        "largura_cm": 34.0
+      },
+      {
+        "largura_cm": 23.8
+      },
+      {
+        "largura_cm": 186.2
+      },
+      {
+        "largura_cm": 93.0
+      },
+      {
+        "largura_cm": 27.0
+      },
+      {
+        "largura_cm": 23.8
+      },
+      {
+        "largura_cm": 122.3
+      },
+      {
+        "largura_cm": 28.8
+      },
+      {
+        "largura_cm": 29.0
+      }
+    ]
+  },
+  {
+    "viga": "V323",
+    "face": "A",
+    "h_cm": 54.0,
+    "b_cm": 19.0,
+    "laje_sup_cm": 14.0,
+    "laje_inf_cm": 0.0,
+    "segmentos": [
+      {
+        "largura_cm": 211.0
+      },
+      {
+        "largura_cm": 244.0
+      }
+    ]
+  },
+  {
+    "viga": "V323",
+    "face": "B",
+    "h_cm": 54.0,
+    "b_cm": 19.0,
+    "laje_sup_cm": 0.0,
+    "laje_inf_cm": 0.0,
+    "segmentos": [
+      {
+        "largura_cm": 138.0
+      },
+      {
+        "largura_cm": 122.0
+      }
+    ]
+  },
+  {
+    "viga": "V324",
+    "face": "A",
+    "h_cm": 54.0,
+    "b_cm": 19.0,
+    "laje_sup_cm": 0.0,
+    "laje_inf_cm": 0.0,
+    "segmentos": [
+      {
+        "largura_cm": 90.0
+      },
+      {
+        "largura_cm": 90.0
+      }
+    ]
+  },
+  {
+    "viga": "V324",
+    "face": "B",
+    "h_cm": 54.0,
+    "b_cm": 19.0,
+    "laje_sup_cm": 0.0,
+    "laje_inf_cm": 0.0,
+    "segmentos": [
+      {
+        "largura_cm": 90.0
+      },
+      {
+        "largura_cm": 90.0
+      }
+    ]
+  },
+  {
+    "viga": "V325",
+    "face": "A",
+    "h_cm": 124.0,
+    "b_cm": 19.0,
+    "laje_sup_cm": 14.0,
+    "laje_inf_cm": 7.0,
+    "segmentos": [
+      {
+        "largura_cm": 29.0
+      },
+      {
+        "largura_cm": 28.8
+      },
+      {
+        "largura_cm": 38.2
+      },
+      {
+        "largura_cm": 108.0
+      },
+      {
+        "largura_cm": 19.3
+      },
+      {
+        "largura_cm": 122.0
+      },
+      {
+        "largura_cm": 185.0
+      }
+    ]
+  },
+  {
+    "viga": "V325",
+    "face": "B",
+    "h_cm": 109.0,
+    "b_cm": 19.0,
+    "laje_sup_cm": 0.0,
+    "laje_inf_cm": 0.0,
+    "segmentos": [
+      {
+        "largura_cm": 185.0
+      },
+      {
+        "largura_cm": 122.0
+      },
+      {
+        "largura_cm": 15.3
+      },
+      {
+        "largura_cm": 112.0
+      },
+      {
+        "largura_cm": 34.2
+      },
+      {
+        "largura_cm": 28.8
+      },
+      {
+        "largura_cm": 29.0
+      }
+    ]
+  },
+  {
+    "viga": "V326",
+    "face": "A",
+    "h_cm": 54.0,
+    "b_cm": 19.0,
+    "laje_sup_cm": 0.0,
+    "laje_inf_cm": 0.0,
+    "segmentos": [
+      {
+        "largura_cm": 90.0
+      },
+      {
+        "largura_cm": 90.0
+      }
+    ]
+  },
+  {
+    "viga": "V326",
+    "face": "B",
+    "h_cm": 54.0,
+    "b_cm": 19.0,
+    "laje_sup_cm": 0.0,
+    "laje_inf_cm": 0.0,
+    "segmentos": [
+      {
+        "largura_cm": 90.0
+      },
+      {
+        "largura_cm": 90.0
+      }
+    ]
+  },
+  {
+    "viga": "V327",
+    "face": "A",
+    "h_cm": 54.0,
+    "b_cm": 14.0,
+    "laje_sup_cm": 0.0,
+    "laje_inf_cm": 0.0,
+    "segmentos": [
+      {
+        "largura_cm": 122.0
+      },
+      {
+        "largura_cm": 134.0
+      }
+    ]
+  },
+  {
+    "viga": "V327",
+    "face": "B",
+    "h_cm": 54.0,
+    "b_cm": 14.0,
+    "laje_sup_cm": 0.0,
+    "laje_inf_cm": 0.0,
+    "segmentos": [
+      {
+        "largura_cm": 122.0
+      },
+      {
+        "largura_cm": 138.0
+      }
+    ]
+  },
+  {
+    "viga": "V328",
+    "face": "A",
+    "h_cm": 59.0,
+    "b_cm": 19.0,
+    "laje_sup_cm": 0.0,
+    "laje_inf_cm": 0.0,
+    "segmentos": [
+      {
+        "largura_cm": 122.0
+      },
+      {
+        "largura_cm": 138.0
+      }
+    ]
+  },
+  {
+    "viga": "V328",
+    "face": "B",
+    "h_cm": 59.0,
+    "b_cm": 19.0,
+    "laje_sup_cm": 0.0,
+    "laje_inf_cm": 0.0,
+    "segmentos": [
+      {
+        "largura_cm": 244.0
+      },
+      {
+        "largura_cm": 230.0
+      }
+    ]
+  },
+  {
+    "viga": "V329",
+    "face": "A",
+    "h_cm": 50.0,
+    "b_cm": 19.0,
+    "laje_sup_cm": 0.0,
+    "laje_inf_cm": 0.0,
+    "segmentos": [
+      {
+        "largura_cm": 98.0
+      },
+      {
+        "largura_cm": 95.0
+      }
+    ]
+  },
+  {
+    "viga": "V329",
+    "face": "B",
+    "h_cm": 64.0,
+    "b_cm": 19.0,
+    "laje_sup_cm": 0.0,
+    "laje_inf_cm": 0.0,
+    "segmentos": [
+      {
+        "largura_cm": 98.0
+      },
+      {
+        "largura_cm": 95.0
+      }
+    ]
+  },
+  {
+    "viga": "V330",
+    "face": "A",
+    "h_cm": 110.0,
+    "b_cm": 19.0,
+    "laje_sup_cm": 0.0,
+    "laje_inf_cm": 0.0,
+    "segmentos": [
+      {
+        "largura_cm": 97.7
+      },
+      {
+        "largura_cm": 14.3
+      },
+      {
+        "largura_cm": 28.0
+      },
+      {
+        "largura_cm": 187.9
+      },
+      {
+        "largura_cm": 10.1
+      },
+      {
+        "largura_cm": 46.0
+      },
+      {
+        "largura_cm": 154.0
+      },
+      {
+        "largura_cm": 21.9
+      },
+      {
+        "largura_cm": 68.1
+      }
+    ]
+  },
+  {
+    "viga": "V330",
+    "face": "B",
+    "h_cm": 120.0,
+    "b_cm": 19.0,
+    "laje_sup_cm": 0.0,
+    "laje_inf_cm": 0.0,
+    "segmentos": [
+      {
+        "largura_cm": 244.0
+      },
+      {
+        "largura_cm": 244.0
+      },
+      {
+        "largura_cm": 28.0
+      },
+      {
+        "largura_cm": 14.3
+      },
+      {
+        "largura_cm": 97.7
+      }
+    ]
+  },
+  {
+    "viga": "V331",
+    "face": "A",
+    "h_cm": 44.0,
+    "b_cm": 14.0,
+    "laje_sup_cm": 0.0,
+    "laje_inf_cm": 0.0,
+    "segmentos": [
+      {
+        "largura_cm": 122.0
+      },
+      {
+        "largura_cm": 79.0
+      }
+    ]
+  },
+  {
+    "viga": "V331",
+    "face": "B",
+    "h_cm": 44.0,
+    "b_cm": 14.0,
+    "laje_sup_cm": 0.0,
+    "laje_inf_cm": 0.0,
+    "segmentos": [
+      {
+        "largura_cm": 122.0
+      },
+      {
+        "largura_cm": 79.0
+      }
+    ]
+  },
+  {
+    "viga": "V332",
+    "face": "A",
+    "h_cm": 59.0,
+    "b_cm": 19.0,
+    "laje_sup_cm": 15.0,
+    "laje_inf_cm": 0.0,
+    "segmentos": [
+      {
+        "largura_cm": 244.0
+      },
+      {
+        "largura_cm": 171.0
+      }
+    ]
+  },
+  {
+    "viga": "V332",
+    "face": "B",
+    "h_cm": 59.0,
+    "b_cm": 19.0,
+    "laje_sup_cm": 0.0,
+    "laje_inf_cm": 0.0,
+    "segmentos": [
+      {
+        "largura_cm": 244.0
+      },
+      {
+        "largura_cm": 40.0
+      },
+      {
+        "largura_cm": 40.0
+      },
+      {
+        "largura_cm": 244.0
+      }
+    ]
+  },
+  {
+    "viga": "VF203",
+    "face": "A",
+    "h_cm": 59.0,
+    "b_cm": 19.0,
+    "laje_sup_cm": 0.0,
+    "laje_inf_cm": 0.0,
+    "segmentos": [
+      {
+        "largura_cm": 244.0
+      },
+      {
+        "largura_cm": 244.0
+      },
+      {
+        "largura_cm": 244.0
+      }
+    ]
+  },
+  {
+    "viga": "VF203",
+    "face": "B",
+    "h_cm": 59.0,
+    "b_cm": 19.0,
+    "laje_sup_cm": 0.0,
+    "laje_inf_cm": 0.0,
+    "segmentos": [
+      {
+        "largura_cm": 244.0
+      },
+      {
+        "largura_cm": 167.5
+      },
+      {
+        "largura_cm": 26.4
+      },
+      {
+        "largura_cm": 244.0
+      },
+      {
+        "largura_cm": 169.0
+      }
+    ]
+  },
+  {
+    "viga": "VF301",
+    "face": "A",
+    "h_cm": 59.0,
+    "b_cm": 19.0,
+    "laje_sup_cm": 0.0,
+    "laje_inf_cm": 0.0,
+    "segmentos": [
+      {
+        "largura_cm": 244.0
+      },
+      {
+        "largura_cm": 161.5
+      },
+      {
+        "largura_cm": 40.4
+      },
+      {
+        "largura_cm": 244.0
+      },
+      {
+        "largura_cm": 174.0
+      }
+    ]
+  },
+  {
+    "viga": "VF301",
+    "face": "B",
+    "h_cm": 59.0,
+    "b_cm": 19.0,
+    "laje_sup_cm": 0.0,
+    "laje_inf_cm": 0.0,
+    "segmentos": [
+      {
+        "largura_cm": 244.0
+      },
+      {
+        "largura_cm": 244.0
+      },
+      {
+        "largura_cm": 122.0
+      },
+      {
+        "largura_cm": 196.0
+      }
+    ]
+  }
+]
