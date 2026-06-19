@@ -879,11 +879,13 @@ class DXFVectorView(QWidget):
             self.ready.emit()
             return
 
-        # Extrair bbox computada pelo subprocess (primeiro op)
+        # Extrair fit_bbox computada pelo subprocess (bbox real do conteúdo filtrado)
         if op0 == 'bbox':
             computed_bbox = ops[0][1]
             raw_ops = ops[1:]
-            if computed_bbox and not self._dxf_bbox:
+            if computed_bbox:
+                # Sempre atualizar: worker retorna fit_bbox com Y real do conteúdo
+                # (corrige zoom minúsculo quando bbox explícito tem Y=-9999..9999)
                 self._dxf_bbox = computed_bbox
         else:
             raw_ops = ops
@@ -923,7 +925,7 @@ class DXFVectorView(QWidget):
         ww, wh = self.width(), self.height()
         if ww <= 0 or wh <= 0 or dw <= 0 or dh <= 0:
             return
-        s = min(ww / dw, wh / dh) * 0.92
+        s = min(ww / dw, wh / dh) * 0.88
         cx_dxf = (x0 + x1) / 2
         cy_dxf = (y0 + y1) / 2
         # Y-flip: widget_y = oy - dxf_y * s → oy = wh/2 + cy_dxf * s

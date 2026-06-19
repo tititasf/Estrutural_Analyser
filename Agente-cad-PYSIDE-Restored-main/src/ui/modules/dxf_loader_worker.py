@@ -260,17 +260,34 @@ class SerializingBackend:
 
 def render_ops(dxf_path: Path, bbox) -> list:
     """Renderiza DXF usando ezdxf Frontend + backend serializador.
-    Retorna lista de ops Python puras (pickle-safe)."""
+    Retorna (ops, fit_bbox) onde fit_bbox é a bbox REAL do conteúdo filtrado
+    (Y range do conteúdo real, X range do corte explícito) para zoom correto."""
     import ezdxf
     from ezdxf.addons.drawing import RenderContext, Frontend
     from ezdxf.addons.drawing.config import Configuration, HatchPolicy
 
     doc = ezdxf.readfile(str(dxf_path))
 
-    if bbox is None:
-        bbox = get_bbox(doc)
+    # Sempre calcular bbox real do conteúdo (exclui skip layers e sentinelas)
+    content_bbox = get_bbox(doc)
 
-    backend = SerializingBackend(bbox=bbox)
+    if bbox is None:
+        culling_bbox = content_bbox
+        fit_bbox = content_bbox
+    else:
+        culling_bbox = bbox
+        # fit_bbox: Y range real do conteúdo + X range do corte explícito
+        # Evita zoom minúsculo causado por Y=-9999..9999 nos bboxes de split
+        if content_bbox:
+            bx0, _by0, bx1, _by1 = bbox
+            cx0, cy0, cx1, cy1 = content_bbox
+            fx0 = max(bx0, cx0) if bx0 > -5000 else cx0
+            fx1 = min(bx1, cx1) if bx1 < 50000 else cx1
+            fit_bbox = (fx0, cy0, fx1, cy1) if fx0 < fx1 else content_bbox
+        else:
+            fit_bbox = bbox
+
+    backend = SerializingBackend(bbox=culling_bbox)
     ctx = RenderContext(doc)
 
     # Forçar layers visíveis, exceto layers administrativos (Folhas, CARIMBO, etc.)
@@ -290,7 +307,7 @@ def render_ops(dxf_path: Path, bbox) -> list:
     frontend = Frontend(ctx, backend, config=config)
     frontend.draw_layout(doc.modelspace())
 
-    return backend.ops, bbox
+    return backend.ops, fit_bbox
 
 
 # ── Protocolo I/O ──────────────────────────────────────────────────────────────
