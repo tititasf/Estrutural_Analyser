@@ -60,6 +60,61 @@ _CLS_FILTER: dict[str, set] = {
 
 import re as _re, unicodedata as _ucd
 
+# ── Pavimento helpers ──────────────────────────────────────────────────────────
+
+_PAV_ALIASES = {
+    'TERREO': 'TÉRREO', 'TER': 'TÉRREO',
+    'ATICO': 'ÁTICO',   'ATC': 'ÁTICO',
+    'FUNDA': 'FUNDAÇÃO', 'FUN': 'FUNDAÇÃO',
+    'COBER': 'COBERTURA', 'COB': 'COBERTURA',
+}
+
+def _extract_pav_from_triagem(notes_text: str | None, fname: str | None) -> str:
+    """Extrai o rótulo de pavimento para agrupamento na lista ER.
+
+    Prioridade:
+    1. Campo `pav=X` no notes da triagem (autoritativo — preenchido pelo classificador)
+    2. Padrão `Nº PAV` no nome do arquivo (ex: "13? PAV" → "13º PAV")
+    3. Palavras-chave conhecidas no nome do arquivo (TIPO, TÉRREO, COBERTURA …)
+    """
+    # 1. notes texto simples: auto_approve=true | pav=TIPO
+    if notes_text and isinstance(notes_text, str):
+        m = _re.search(r'pav=([^\s|]+)', notes_text, _re.IGNORECASE)
+        if m:
+            raw = m.group(1).upper()
+            return _PAV_ALIASES.get(raw, raw)
+
+    # 2. Número + PAV no filename (aceita qualquer char entre Nº e "PAV")
+    stem = Path(fname or '').stem
+    m = _re.search(r'(\d+)\D{0,4}PAV', stem, _re.IGNORECASE)
+    if m:
+        return f"{m.group(1)}º PAV"
+
+    # 3. Palavras-chave no filename (normalizado — remove acentos para comparar)
+    norm = _ucd.normalize('NFKD', stem)
+    norm = ''.join(c for c in norm if not _ucd.combining(c)).upper()
+    if 'TIPO' in norm:       return 'TIPO'
+    if 'TERREO' in norm:     return 'TÉRREO'
+    if 'COBERT' in norm:     return 'COBERTURA'
+    if 'ATICO' in norm:      return 'ÁTICO'
+    if 'FUNDA' in norm:      return 'FUNDAÇÃO'
+    return 'Outros'
+
+
+_PAV_SORT = {
+    'FUNDAÇÃO': -2, 'TÉRREO': -1,
+    'TIPO': 900, 'COBERTURA': 950, 'ÁTICO': 980, 'Outros': 999,
+}
+
+def _pav_sort_key(item) -> tuple:
+    """Ordena grupos de pavimento: FUNDAÇÃO < TÉRREO < Nº PAV (numérico) < TIPO < COB < ÁTICO."""
+    p_cls = item[0] if isinstance(item, tuple) else item
+    if p_cls in _PAV_SORT:
+        return (_PAV_SORT[p_cls], p_cls)
+    m = _re.search(r'(\d+)', p_cls)
+    return (int(m.group(1)) if m else 500, p_cls)
+
+
 def _infer_cls_from_filename(fname: str) -> str:
     """Infere classe ER a partir do nome do arquivo (fallback quando notes não tem er_class)."""
     stem = _ucd.normalize('NFKD', fname)
@@ -402,26 +457,29 @@ class _LeftPanel(QFrame):
             "WHERE obra_name=? AND status='approved' "
             "AND (suggested_category LIKE '%Engenharia Reversa%' "
             "     OR suggested_category LIKE '%Projetos Finalizados%') "
-            "ORDER BY file_name ASC",
+            "ORDER BY suggested_order ASC, file_name ASC",
             (self._current_obra,)
         )
 
+        import re
         # Filtrar pela classe selecionada (via notes JSON ou inferência por filename)
         accepted = _CLS_FILTER.get(self._current_cls, set())
         filtered = []
-        for (row_id, fname, fpath, notes_json) in rows:
+        for (row_id, fname, fpath, notes_text) in rows:
             er_class = "OUTROS"
-            if notes_json:
+            if notes_text:
                 try:
-                    notes = json.loads(notes_json)
+                    notes = json.loads(notes_text)
                     er_class = notes.get("er_class", "OUTROS")
                 except Exception:
                     pass
             if er_class == "OUTROS" or er_class not in accepted:
                 # fallback: inferir pelo nome do arquivo
                 er_class = _infer_cls_from_filename(fname or "")
+                
             if er_class in accepted:
-                filtered.append((row_id, fname, fpath))
+                pav_class = _extract_pav_from_triagem(notes_text, fname)
+                filtered.append((pav_class, row_id, fname, fpath))
 
         if not filtered:
             ph = QListWidgetItem("— sem itens para esta classe —")
@@ -431,12 +489,29 @@ class _LeftPanel(QFrame):
             return
 
         color = QColor(_CLS_COLORS.get(self._current_cls, Colors.ACCENT_SUCCESS))
-        for (row_id, fname, fpath) in filtered:
-            label = Path(fname).stem if fname else str(row_id)
-            it = QListWidgetItem(label)
-            it.setData(Qt.UserRole, (str(row_id), fpath or ""))
-            it.setForeground(color)
-            self.lst.addItem(it)
+
+        # Agrupar por pavimento, ordenar logicamente (FUND < TER < 1PAV < Nº PAV < TIPO < COB < ÁTICO)
+        grouped = {}
+        for p_cls, row_id, fname, fpath in filtered:
+            grouped.setdefault(p_cls, []).append((row_id, fname, fpath))
+
+        from PySide6.QtGui import QFont
+        for p_cls, items in sorted(grouped.items(), key=_pav_sort_key):
+            header = QListWidgetItem(f"━━━ {p_cls.upper()} ━━━")
+            header.setFlags(header.flags() & ~Qt.ItemIsSelectable & ~Qt.ItemIsEnabled)
+            header.setTextAlignment(Qt.AlignCenter)
+            font = QFont()
+            font.setBold(True)
+            header.setFont(font)
+            header.setForeground(QColor("#00ff9d"))
+            self.lst.addItem(header)
+            
+            for (row_id, fname, fpath) in items:
+                label = Path(fname).stem if fname else str(row_id)
+                it = QListWidgetItem(label)
+                it.setData(Qt.UserRole, (str(row_id), fpath or ""))
+                it.setForeground(color)
+                self.lst.addItem(it)
 
     def _on_item_clicked(self, item: QListWidgetItem):
         data = item.data(Qt.UserRole)
@@ -1260,24 +1335,35 @@ class _CenterPanel(QFrame):
         gbtn_fit.clicked.connect(self._fit_granular)
         self.canvas_granular.keyPressEvent = self._canvas_granular_key_press
 
-        # ── Tab 3 — Ficha Granular ──
+        # ── Tab 3 — Fichas Granulares [F5] ──
         self._ficha_table = QTextEdit()
         self._ficha_table.setReadOnly(True)
         self._ficha_table.setStyleSheet(
             f"background:#0d1117; color:#c9d1d9; border:none;"
         )
-        self._tabs.addTab(self._ficha_table, "Ficha Granular")
+        self._tabs.addTab(self._ficha_table, "Fichas Granulares [F5]")
+        
+        # ── Tab 4 — Ficha Pavimentos [F4] ──
+        self._pav_text = QTextEdit()
+        self._pav_text.setReadOnly(True)
+        self._pav_text.setPlaceholderText(
+            "Execute a geração de fichas para consolidar a ficha do pavimento atual."
+        )
+        self._pav_text.setStyleSheet(
+            f"background:{Colors.BG_CARD}; color:{Colors.TEXT_PRIMARY}; font-size:10px;"
+        )
+        self._tabs.addTab(self._pav_text, "Ficha Pavimentos [F4]")
 
-        # ── Tab 4 — Ficha Obra ER ──
+        # ── Tab 5 — Ficha Obra ER [F6] ──
         self._obra_text = QTextEdit()
         self._obra_text.setReadOnly(True)
         self._obra_text.setPlaceholderText(
-            "Execute 'Processar todos itens granulares da Obra'\npara gerar a ficha da obra."
+            "Execute 'Gerar Fichas' para consolidar a ficha global da obra (Base N1)."
         )
         self._obra_text.setStyleSheet(
             f"background:{Colors.BG_CARD}; color:{Colors.TEXT_PRIMARY}; font-size:10px;"
         )
-        self._tabs.addTab(self._obra_text, "Ficha Obra Engenharia Reversa")
+        self._tabs.addTab(self._obra_text, "Ficha Obra ER [F6]")
 
         # Lazy load: dispara carregamento do completo só ao ativar a aba
         self._tabs.currentChanged.connect(self._on_tab_changed)
@@ -1868,15 +1954,15 @@ class _RightPanel(QFrame):
         btn_tudo.clicked.connect(self._on_processar_tudo)
         lay.addWidget(btn_tudo)
 
-        # 📋 Gerar Ficha Obra (largura total)
+        # 📋 Gerar Fichas (largura total)
         btn_ficha = _btn(
-            "📋 Gerar Ficha Obra\ne Fichas Granulares\n(itens aprovados)", "#1a3a1a", "#2a6a2a", h=40
+            "📋 Gerar Fichas\n[F4-Pavimentos] [F5-Granulares]\ne [F6-Obra ER]", "#1a3a1a", "#2a6a2a", h=50
         )
         btn_ficha.setToolTip(
-            "Para cada pavimento que tenha ≥ 1 recorte com status 'aprovado',\n"
-            "gera a Ficha Granular (campos N2) e consolida a Ficha Obra ER.\n"
-            "Somente itens aprovados 1-a-1 entram no processamento.\n"
-            "(Motor de extração ER-3 — em construção)"
+            "Processa todos os itens aprovados para gerar simultaneamente:\n"
+            "- Fichas Granulares (F5) N2 para cada recorte\n"
+            "- Fichas de Pavimentos (F4) agrupadas por classe\n"
+            "- Ficha Obra Engenharia Reversa (F6) consolidada global"
         )
         btn_ficha.clicked.connect(self._on_gerar_ficha)
         lay.addWidget(btn_ficha)
@@ -2338,10 +2424,46 @@ class _FichaMotorWorker(QObject):
 
     def _salvar_ficha(self, obra_name, pavimento, classe, elemento_id,
                       campos_json, recorte_path, confianca, projeto_id):
-        """INSERT OR REPLACE em reverse_eng_fichas."""
+        """INSERT OR REPLACE em reverse_eng_fichas com MERGE de segmentos validados."""
         import sqlite3 as _sql
+        import json as _json
         from datetime import datetime as _dt
         conn = _sql.connect(DB_PATH)
+        
+        # --- BLOCO DE PRESERVAÇÃO DE INTEGRIDADE ---
+        cursor = conn.cursor()
+        cursor.execute("""
+            SELECT campos_json FROM reverse_eng_fichas
+            WHERE obra_name=? AND pavimento=? AND classe=? AND elemento_id=?
+        """, (obra_name, pavimento, classe, elemento_id))
+        row = cursor.fetchone()
+        
+        if row and row[0]:
+            try:
+                old_data = _json.loads(row[0])
+                new_data = _json.loads(campos_json)
+                
+                if 'validated_fields' in old_data:
+                    new_data['validated_fields'] = old_data['validated_fields']
+                if 'links' in old_data:
+                    new_data['links'] = old_data['links']
+                    
+                # Merge de segmentos
+                if 'segmentos' in old_data and 'segmentos' in new_data:
+                    old_segs = old_data['segmentos']
+                    new_segs = new_data['segmentos']
+                    # Se o usuário inseriu segmentos manualmente, a lista velha é maior
+                    if len(old_segs) > len(new_segs):
+                        for i in range(len(new_segs), len(old_segs)):
+                            new_segs.append(old_segs[i])
+                    # (Opcional) Podemos mesclar as keys "validadas" de old_segs para new_segs aqui
+                    new_data['segmentos'] = new_segs
+                    
+                campos_json = _json.dumps(new_data, ensure_ascii=False)
+            except Exception as e:
+                print(f"[ERRO INTEGRITY] Falha ao mesclar JSON: {e}")
+        # -------------------------------------------
+
         conn.execute("""
             INSERT INTO reverse_eng_fichas
                 (projeto_id, obra_name, pavimento, classe, elemento_id,
