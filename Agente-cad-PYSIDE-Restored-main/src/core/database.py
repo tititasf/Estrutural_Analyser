@@ -224,6 +224,24 @@ class DatabaseManager:
             )
         ''')
 
+        # Tabela ADITIVA: separação da viga em elementos FV (Fundo) e LV (Lateral).
+        # 1 linha por (viga x classe); segmentos aninhados em campos_json. NÃO substitui `beams`.
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS beam_elements (
+                id TEXT PRIMARY KEY,
+                project_id TEXT,
+                parent_beam_id TEXT,
+                viga_nome TEXT,
+                classe TEXT,                 -- 'FV' | 'LV'
+                campos_json TEXT,            -- segmentos aninhados (FV: fundo; LV: lados A/B + VC)
+                n_segmentos INTEGER DEFAULT 0,
+                is_validated BOOLEAN DEFAULT 0,
+                created_at TEXT,
+                updated_at TEXT,
+                FOREIGN KEY(project_id) REFERENCES projects(id)
+            )
+        ''')
+
         # Tabela de Pré-processamento (Marco DXF)
         cursor.execute('''
             CREATE TABLE IF NOT EXISTS pre_processing (
@@ -775,7 +793,77 @@ class DatabaseManager:
         finally:
             conn.close()
 
-    def create_project(self, name: str, dxf_path: str = "", author_name: str = "Local", force_id: str = None, 
+    def materialize_beam_elements(self, project_id: str) -> dict:
+        """Fase 2 — separa cada viga (beams) em 1 elemento FV (fundo) + 1 LV (lateral),
+        com segmentos aninhados, gravando na tabela aditiva `beam_elements`.
+        NÃO altera `beams`. Idempotente (UPSERT por id determinístico).
+        Retorna {'vigas': n, 'fv': nfv, 'lv': nlv}.
+        """
+        import datetime
+        conn = self._get_conn()
+        now = datetime.datetime.now().isoformat(timespec="seconds")
+        stats = {"vigas": 0, "fv": 0, "lv": 0}
+        try:
+            cur = conn.execute(
+                "SELECT id, name, data_json, is_validated FROM beams WHERE project_id=?",
+                [str(project_id)],
+            )
+            # Agrega por NOME de viga: uma viga pode estar fragmentada em vários `beams`.
+            # 1 viga = 1 ficha FV + 1 ficha LV; segmentos de todos os fragmentos são somados.
+            vigas = {}  # viga_nome -> {seg_bottom, seg_a, seg_b, beam_ids, validated}
+            for beam_id, name, data_json, is_validated in cur.fetchall():
+                try:
+                    bd = json.loads(data_json) if data_json else {}
+                except Exception:
+                    bd = {}
+                viga_nome = name or bd.get("name") or beam_id
+                classified = ((bd.get("geometry") or {}).get("classified") or {})
+                v = vigas.setdefault(viga_nome, {
+                    "seg_bottom": [], "seg_a": [], "seg_b": [], "beam_ids": [], "validated": 0,
+                })
+                v["seg_bottom"] += (classified.get("seg_bottom") or [])
+                v["seg_a"] += (classified.get("seg_side_a") or [])
+                v["seg_b"] += (classified.get("seg_side_b") or [])
+                v["beam_ids"].append(beam_id)
+                v["validated"] = v["validated"] or int(is_validated or 0)
+
+            stats["vigas"] = len(vigas)
+            for viga_nome, v in vigas.items():
+                is_validated = v["validated"]
+                elementos = [
+                    ("FV", {"viga": viga_nome, "segmentos_fundo": v["seg_bottom"],
+                            "beam_ids": v["beam_ids"]}, len(v["seg_bottom"])),
+                    ("LV", {"viga": viga_nome, "segmentos_a": v["seg_a"], "segmentos_b": v["seg_b"],
+                            "visoes_corte": [], "beam_ids": v["beam_ids"]}, len(v["seg_a"]) + len(v["seg_b"])),
+                ]
+                for classe, campos, n_seg in elementos:
+                    el_id = f"BE-{classe}-{project_id}-{viga_nome}"
+                    conn.execute(
+                        """
+                        INSERT INTO beam_elements
+                            (id, project_id, parent_beam_id, viga_nome, classe,
+                             campos_json, n_segmentos, is_validated, created_at, updated_at)
+                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                        ON CONFLICT(id) DO UPDATE SET
+                            campos_json=excluded.campos_json,
+                            n_segmentos=excluded.n_segmentos,
+                            is_validated=excluded.is_validated,
+                            updated_at=excluded.updated_at
+                        """,
+                        (el_id, str(project_id), ",".join(v["beam_ids"]), viga_nome, classe,
+                         json.dumps(campos, ensure_ascii=False), n_seg,
+                         int(is_validated or 0), now, now),
+                    )
+                    stats["fv" if classe == "FV" else "lv"] += 1
+            conn.commit()
+            return stats
+        except Exception as e:
+            logging.error(f"Erro ao materializar beam_elements: {e}")
+            return stats
+        finally:
+            conn.close()
+
+    def create_project(self, name: str, dxf_path: str = "", author_name: str = "Local", force_id: str = None,
                        work_name: str = None, pavement_name: str = None, description: str = None, 
                        client_id: str = None, level_arrival: str = None, level_exit: str = None, file_version: str = None, **kwargs) -> str:
         """Cria novo projeto e retorna ID, aceitando metadados adicionais."""

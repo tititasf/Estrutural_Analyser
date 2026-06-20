@@ -17,7 +17,7 @@ Fazer o **"Análise Geral"** (motor dinâmico, zero hardcode) **convergir para o
 
 ## 1. Princípios Inegociáveis
 
-1. **Eng. Reversa = consulta, nunca geração.** Consome fichas N2/F5 como gabarito.
+1. **Eng. Reversa = consulta, nunca geração.** Consome fichas N2/F5 como gabarito. **NÃO gera nem sobrescreve F5** (`reverse_eng_fichas` são imutáveis; se reextrair, versionar via `status`). O **comparativo F7×F5** do loop é gravado em `engrev_*_learning.vision` + `*_calibrator_versions`, **nunca** em cima da F5. O que melhora é o **motor** (`transformation_rules`) e a **F7/N1**; a F5 fica fixa. Hoje o botão Eng Reversa faz só consulta+confirmação — ligar o `autovalidate_v3` para produzir o comparativo é o **S0**.
 2. **Coordenadas do N2 = verdade.** `comprimento`/`largura` do N2 podem estar errados (5/98 lajes inconsistentes). Em conflito, a geometria de coordenadas vence.
 3. **Zero hardcode.** Toda tolerância escala com as dims do teacher. Nenhuma constante fixa por obra.
 4. **Generalização gated.** Parâmetro só vira default global após passar em **≥ 2 obras**.
@@ -187,6 +187,8 @@ Os parâmetros aprendidos **NÃO** vão para um JSON novo. Vivem nas tabelas que
 | **PIL** (pilar) | ❌ a descrever | pendente | **dono descreve o vínculo geométrico → Athena formaliza** |
 
 > Cada classe que entra no loop ganha seu `engrev_{classe}_*` (replicando o pattern `engrev_laj_*`). LV e PIL precisam primeiro da **descrição do vínculo geométrico pelo dono** (que então é formalizada no plano), como hoje existe para LAJ/FV, antes de entrar no loop.
+
+> **⚠️ Mismatch estrutural FV/LV (achado 2026-06-20):** no **N1 a viga é UM item** (`beams`, com fundo+laterais juntos), mas no **N2 são fichas separadas** (`reverse_eng_fichas`: FV=271, LV=229). Logo, na **Fase C de FV e LV** o loop precisa **decompor a viga N1** nos aspectos *fundo* (campos `viga_fundo_*`) e *laterais* (campos `viga_a_seg_*`/`viga_b_seg_*`) para comparar 1:1 com o N2. Pilares e Lajes não têm esse problema.
 
 > **GATING (decisão do dono):** nenhuma classe inicia o loop sem ordem explícita do dono. Este masterplan é **planejamento**; a execução é disparada manualmente, classe a classe.
 
