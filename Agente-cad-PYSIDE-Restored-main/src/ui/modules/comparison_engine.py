@@ -1238,6 +1238,7 @@ class Fase8Panel(QFrame):
 
     def __init__(self):
         super().__init__()
+        self._auto_select_initial_obra = False
         self.setStyleSheet(f"""
             QFrame {{
                 background: {Colors.BG_SECONDARY};
@@ -1466,6 +1467,7 @@ class Fase8Panel(QFrame):
 
         for o in obras:
             self.cmb_obra.addItem(o)
+        self.cmb_obra.setCurrentIndex(-1)
         self.cmb_obra.blockSignals(False)
 
         # Seleciona primeira obra com validação existente (score real)
@@ -1474,7 +1476,7 @@ class Fase8Panel(QFrame):
              if (VALIDACAO_DIR / f"consolidado_{o}.json").exists()),
             obras[0] if obras else None
         )
-        if primeira_com_score:
+        if self._auto_select_initial_obra and primeira_com_score:
             idx = self.cmb_obra.findText(primeira_com_score)
             if idx >= 0:
                 self.cmb_obra.setCurrentIndex(idx)
@@ -1540,6 +1542,7 @@ class Fase8Panel(QFrame):
             if fase1.exists():
                 self.cmb_pav.addItem("1PV")
 
+        self.cmb_pav.setCurrentIndex(-1)
         self.cmb_pav.blockSignals(False)
 
         # Carregar scores existentes
@@ -2761,17 +2764,32 @@ class LevelColumn(QFrame):
 
         lay.addWidget(hdr)
 
-        # ── Viewer (DXF vetorial ou PNG raster) — 1.7x maior em Y ────
+        # ── Splitter vertical: viewer (cima) + ficha (baixo) ─────────
+        splitter_vf = QSplitter(Qt.Vertical)
+        splitter_vf.setHandleWidth(4)
+        splitter_vf.setStyleSheet(
+            f"QSplitter::handle {{ background: {Colors.BORDER_DEFAULT}; }}"
+            f"QSplitter::handle:hover {{ background: {accent}66; }}"
+        )
+
+        # ── Viewer (DXF vetorial ou PNG raster) ──────────────────────
         border_style = f"border: 1px solid {Colors.BORDER_DEFAULT}; border-radius: 2px;"
         if mode == 'dxf':
             self.img_widget: DXFVectorView | ZoomableImageLabel = DXFVectorView(bg=Colors.BG_DEEP)
         else:
             self.img_widget = ZoomableImageLabel(bg=Colors.BG_DEEP)
-        self.img_widget.setMinimumHeight(440)
+        self.img_widget.setMinimumHeight(160)
         self.img_widget.setStyleSheet(border_style)
-        lay.addWidget(self.img_widget, 1)
+        splitter_vf.addWidget(self.img_widget)
 
-        # ── Barra de progresso ───────────────────────────────────────
+        # ── Painel inferior: progresso + ficha ────────────────────────
+        bottom_w = QWidget()
+        bottom_w.setStyleSheet("background: transparent;")
+        bottom_lay = QVBoxLayout(bottom_w)
+        bottom_lay.setContentsMargins(0, 0, 0, 0)
+        bottom_lay.setSpacing(2)
+
+        # Barra de progresso
         self.prog = QProgressBar()
         self.prog.setRange(0, 0)
         self.prog.setFixedHeight(4)
@@ -2780,36 +2798,44 @@ class LevelColumn(QFrame):
             f"QProgressBar {{ border: none; background: {Colors.BG_DEEP}; }}"
             f"QProgressBar::chunk {{ background: {accent}; }}"
         )
-        lay.addWidget(self.prog)
+        bottom_lay.addWidget(self.prog)
 
-        # ── Ficha ────────────────────────────────────────────────────
+        # Ficha
         self.lbl_ficha = QLabel(f"Ficha {nivel_id}")
         self.lbl_ficha.setStyleSheet(
-            f"color: {accent}; font-size: 10px; font-weight: bold; padding-top: 2px;"
+            f"color: {accent}; font-size: 10px; font-weight: bold; padding: 2px 4px;"
+            f"background: {Colors.BG_CARD}; border-bottom: 1px solid {accent}44;"
         )
-        lay.addWidget(self.lbl_ficha)
+        self.lbl_ficha.setFixedHeight(18)
+        bottom_lay.addWidget(self.lbl_ficha)
 
-        # ── Ficha SA-style: scroll area com campos por seção ──────────
+        # Ficha SA-style: scroll area com campos por seção
         self._ficha_accent = accent
         ficha_scroll = QScrollArea()
         ficha_scroll.setWidgetResizable(True)
-        ficha_scroll.setFixedHeight(260)
+        ficha_scroll.setMinimumHeight(80)
         ficha_scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         ficha_scroll.setStyleSheet(f"""
-            QScrollArea {{ background: transparent; border: 1px solid rgba(255,255,255,10);
-                           border-radius:4px; }}
+            QScrollArea {{ background: transparent; border: none; }}
             QScrollBar:vertical {{ background:{Colors.BG_DEEP}; width:5px; }}
             QScrollBar::handle:vertical {{ background:{Colors.BORDER_DEFAULT}; border-radius:2px; }}
         """)
         self._ficha_inner = QWidget()
-        self._ficha_inner.setStyleSheet(f"background: transparent;")
+        self._ficha_inner.setStyleSheet("background: transparent;")
         self._ficha_vlay = QVBoxLayout(self._ficha_inner)
         self._ficha_vlay.setContentsMargins(0, 0, 0, 0)
         self._ficha_vlay.setSpacing(0)
         self._ficha_vlay.addStretch()
         ficha_scroll.setWidget(self._ficha_inner)
         self._ficha_scroll = ficha_scroll
-        lay.addWidget(ficha_scroll)
+        bottom_lay.addWidget(ficha_scroll, 1)
+
+        splitter_vf.addWidget(bottom_w)
+        splitter_vf.setSizes([420, 220])  # viewer 420px, ficha 220px por padrão
+        splitter_vf.setStretchFactor(0, 1)
+        splitter_vf.setStretchFactor(1, 0)
+        self._splitter_vf = splitter_vf
+        lay.addWidget(splitter_vf, 1)
 
         # Compat: manter ficha_table como objeto oculto para não quebrar código existente
         self.ficha_table = QTableWidget(0, 2)
@@ -2915,14 +2941,13 @@ class LevelColumn(QFrame):
 
     def set_lv_ficha(self, er_ficha: dict, accent: str = "#4caf50"):
         """Substitui a área de ficha por layout estruturado LV (seções + segmentos).
-        Esconde lbl_ficha + ficha_table e insere um QSplitter horizontal com:
+        Esconde splitter_vf e insere um QSplitter horizontal com:
           - Esquerda: seções transversais numeradas (scroll cards)
           - Direita: segmentos por face (tabela rica 7 colunas)
         """
         self._restore_lv_ficha()   # limpa anterior se houver
         lay = self.layout()
-        self.lbl_ficha.setVisible(False)
-        self._ficha_scroll.setVisible(False)
+        self._splitter_vf.setVisible(False)
 
         splitter = QSplitter(Qt.Horizontal)
         splitter.setHandleWidth(3)
@@ -2943,14 +2968,13 @@ class LevelColumn(QFrame):
         self._lv_ficha_splitter = splitter
 
     def _restore_lv_ficha(self):
-        """Remove widget LV estruturado e restaura lbl_ficha + ficha_scroll."""
+        """Remove widget LV estruturado e restaura splitter_vf."""
         w = getattr(self, '_lv_ficha_splitter', None)
         if w is not None:
             w.setParent(None)
             w.deleteLater()
             self._lv_ficha_splitter = None
-        self.lbl_ficha.setVisible(True)
-        self._ficha_scroll.setVisible(True)
+        self._splitter_vf.setVisible(True)
 
     def set_processing(self, active: bool):
         self.prog.setVisible(active)
@@ -2976,9 +3000,7 @@ class LevelColumn(QFrame):
         active_zones = ['CIMA', 'ABCD', 'GRADES'] + (['EFGH'] if show_efgh else [])
 
         if not getattr(self, '_pil_mode', False):
-            self.img_widget.setVisible(False)
-            self.lbl_ficha.setVisible(False)
-            self._ficha_scroll.setVisible(False)
+            self._splitter_vf.setVisible(False)
 
             splitter = QSplitter(Qt.Horizontal)
             self._zone_views: dict = {}
@@ -3019,8 +3041,8 @@ class LevelColumn(QFrame):
                 self._zone_tables[zone] = tbl
                 splitter.addWidget(panel)
 
-            # Insert splitter: after prog (index 2), before hidden lbl_ficha
-            lay.insertWidget(3, splitter)
+            # Inserir splitter PIL após o header (index 1)
+            lay.insertWidget(1, splitter)
             self._pil_splitter = splitter
             self._pil_mode = True
 
@@ -3081,9 +3103,7 @@ class LevelColumn(QFrame):
         from pathlib import Path as _Path
 
         if not getattr(self, '_pil_mode', False):
-            self.img_widget.setVisible(False)
-            self.lbl_ficha.setVisible(False)
-            self._ficha_scroll.setVisible(False)
+            self._splitter_vf.setVisible(False)
 
             splitter = QSplitter(Qt.Horizontal)
             self._zone_views:  dict = {}
@@ -3124,7 +3144,7 @@ class LevelColumn(QFrame):
 
             # Visão Corte ~26%, Lateral A-B ~74%
             splitter.setSizes([264, 736])
-            lay.insertWidget(3, splitter)
+            lay.insertWidget(1, splitter)
             self._pil_splitter = splitter
             self._pil_mode = True
 
@@ -3162,9 +3182,7 @@ class LevelColumn(QFrame):
         if not getattr(self, '_pil_mode', False):
             return
         self._pil_splitter.setVisible(False)
-        self.img_widget.setVisible(True)
-        self.lbl_ficha.setVisible(True)
-        self._ficha_scroll.setVisible(True)
+        self._splitter_vf.setVisible(True)
         self._pil_mode = False
 
 
