@@ -1,0 +1,444 @@
+[
+  {
+    "elem_id": "V301",
+    "recorte": "FV_V301_motor_178105102566.dxf",
+    "rec_hash": "d7619f97f3b25fa8a3e3ed0b0bf123ba",
+    "b_fv": 19.0,
+    "comp": 3202.0,
+    "n_panels": 14,
+    "panel_widths": [
+      305.5,
+      100.0,
+      100.0,
+      318.0,
+      318.0,
+      200.0,
+      318.0,
+      318.0,
+      100.0,
+      100.0,
+      629.5,
+      106.0,
+      41.5,
+      247.5
+    ],
+    "n_holes": 13,
+    "n_rows": 3,
+    "conf": 0.9,
+    "status": "OK",
+    "error": null
+  },
+  {
+    "elem_id": "V302",
+    "recorte": "FV_V302_motor_178105102570.dxf",
+    "rec_hash": "a864cf4f35c7b5e70dc0400ff5040929",
+    "b_fv": 19.0,
+    "comp": 2154.0,
+    "n_panels": 4,
+    "panel_widths": [
+      375.0,
+      387.5,
+      1153.0,
+      238.5
+    ],
+    "n_holes": 3,
+    "n_rows": 2,
+    "conf": 0.9,
+    "status": "OK",
+    "error": null
+  },
+  {
+    "elem_id": "V303",
+    "recorte": "FV_V303_motor_178105102572.dxf",
+    "rec_hash": "0ac74c4399df54ca378ce6cd2217c9f2",
+    "b_fv": 19.0,
+    "comp": 1486.0,
+    "n_panels": 4,
+    "panel_widths": [
+      192.5,
+      387.5,
+      662.0,
+      244.0
+    ],
+    "n_holes": 3,
+    "n_rows": 2,
+    "conf": 0.9,
+    "status": "OK",
+    "error": null
+  },
+  {
+    "elem_id": "V304",
+    "recorte": "FV_V304_motor_178105102574.dxf",
+    "rec_hash": "369e3f57b0b7ab64bbb4d518cfb411c2",
+    "b_fv": 19.0,
+    "comp": 707.0,
+    "n_panels": 2,
+    "panel_widths": [
+      129.0,
+      578.0
+    ],
+    "n_holes": 1,
+    "n_rows": 1,
+    "conf": 0.9,
+    "status": "OK",
+    "error": null
+  },
+  {
+    "elem_id": "V305",
+    "recorte": "FV_V305_motor_178105102576.dxf",
+    "rec_hash": "643d8d6715764375a19d372108674ce1",
+    "b_fv": 19.0,
+    "comp": 286.0,
+    "n_panels": 1,
+    "panel_widths": [
+      286.0
+    ],
+    "n_holes": 0,
+    "n_rows": 1,
+    "conf": 0.9,
+    "status": "OK",
+    "error": null
+  },
+  {
+    "elem_id": "V306",
+    "recorte": "FV_V306_motor_178105102577.dxf",
+    "rec_hash": "f1d27e4355479cc7ba9ec13466672ff7",
+    "b_fv": 19.0,
+    "comp": 672.0,
+    "n_panels": 2,
+    "panel_widths": [
+      254.0,
+      418.0
+    ],
+    "n_holes": 1,
+    "n_rows": 1,
+    "conf": 0.9,
+    "status": "OK",
+    "error": null
+  },
+  {
+    "elem_id": "V307",
+    "recorte": "FV_V307_motor_178105102579.dxf",
+    "rec_hash": "f7d1bbae89e707e18a83855b65db1e9e",
+    "b_fv": 35.4,
+    "comp": 255.7,
+    "n_panels": 1,
+    "panel_widths": [
+      255.7
+    ],
+    "n_holes": 0,
+    "n_rows": 1,
+    "conf": 0.9,
+    "status": "OK",
+    "error": null
+  },
+  {
+    "elem_id": "V308",
+    "recorte": "FV_V308_motor_178105102580.dxf",
+    "rec_hash": "a38cd4c8f7c95c720e4a7bee27d59a03",
+    "b_fv": 19.0,
+    "comp": 253.0,
+    "n_panels": 1,
+    "panel_widths": [
+      253.0
+    ],
+    "n_holes": 0,
+    "n_rows": 1,
+    "conf": 0.9,
+    "status": "OK",
+    "error": null
+  },
+  {
+    "elem_id": "V309",
+    "recorte": "FV_V309_motor_178105102582.dxf",
+    "rec_hash": "c89e85017326a7c5afc03be794d1331e",
+    "b_fv": 19.0,
+    "comp": 320.0,
+    "n_panels": 1,
+    "panel_widths": [
+      320.0
+    ],
+    "n_holes": 0,
+    "n_rows": 1,
+    "conf": 0.9,
+    "status": "OK",
+    "error": null
+  },
+  {
+    "elem_id": "V309A",
+    "recorte": "FV_V309A_motor_178105102601.dxf",
+    "rec_hash": "9057fb79b96e4ad604ceba3bfaecacc6",
+    "b_fv": 19.0,
+    "comp": 461.0,
+    "n_panels": 1,
+    "panel_widths": [
+      461.0
+    ],
+    "n_holes": 0,
+    "n_rows": 1,
+    "conf": 0.9,
+    "status": "OK",
+    "error": null
+  },
+  {
+    "elem_id": "V310",
+    "recorte": "FV_V310_motor_178105102583.dxf",
+    "rec_hash": "2a638b3b3ca756fbe4cab0319ea17d9b",
+    "b_fv": 14.0,
+    "comp": 152.0,
+    "n_panels": 1,
+    "panel_widths": [
+      152.0
+    ],
+    "n_holes": 0,
+    "n_rows": 1,
+    "conf": 0.9,
+    "status": "OK",
+    "error": null
+  },
+  {
+    "elem_id": "V311",
+    "recorte": "FV_V311_motor_178105102584.dxf",
+    "rec_hash": "823de864442cf3da723ab5d5891c959a",
+    "b_fv": 19.0,
+    "comp": 447.0,
+    "n_panels": 1,
+    "panel_widths": [
+      447.0
+    ],
+    "n_holes": 0,
+    "n_rows": 1,
+    "conf": 0.9,
+    "status": "OK",
+    "error": null
+  },
+  {
+    "elem_id": "V312",
+    "recorte": "FV_V312_motor_178105102586.dxf",
+    "rec_hash": "bc822b872f63451f49d13d0e0a3f945e",
+    "b_fv": 19.0,
+    "comp": 461.0,
+    "n_panels": 1,
+    "panel_widths": [
+      461.0
+    ],
+    "n_holes": 0,
+    "n_rows": 1,
+    "conf": 0.9,
+    "status": "OK",
+    "error": null
+  },
+  {
+    "elem_id": "V319",
+    "recorte": "FV_V319_motor_178105102587.dxf",
+    "rec_hash": "68bdd8652ccdaf22ed24e789cca642fe",
+    "b_fv": 19.0,
+    "comp": 351.0,
+    "n_panels": 1,
+    "panel_widths": [
+      351.0
+    ],
+    "n_holes": 0,
+    "n_rows": 1,
+    "conf": 0.9,
+    "status": "OK",
+    "error": null
+  },
+  {
+    "elem_id": "V320",
+    "recorte": "FV_V320_motor_178105102589.dxf",
+    "rec_hash": "9a6a8de6e89d9a938d287e2fbe2a657c",
+    "b_fv": 19.0,
+    "comp": 380.0,
+    "n_panels": 2,
+    "panel_widths": [
+      120.5,
+      259.5
+    ],
+    "n_holes": 1,
+    "n_rows": 1,
+    "conf": 0.9,
+    "status": "OK",
+    "error": null
+  },
+  {
+    "elem_id": "V321",
+    "recorte": "FV_V321_motor_178105102590.dxf",
+    "rec_hash": "ef2030b335563092594a63351b4c6997",
+    "b_fv": 19.0,
+    "comp": 398.0,
+    "n_panels": 1,
+    "panel_widths": [
+      398.0
+    ],
+    "n_holes": 0,
+    "n_rows": 1,
+    "conf": 0.9,
+    "status": "OK",
+    "error": null
+  },
+  {
+    "elem_id": "V322",
+    "recorte": "FV_V322_motor_178105102591.dxf",
+    "rec_hash": "38b70a7918abbfad3f36660f95226d85",
+    "b_fv": 19.0,
+    "comp": 380.0,
+    "n_panels": 2,
+    "panel_widths": [
+      118.0,
+      262.0
+    ],
+    "n_holes": 1,
+    "n_rows": 1,
+    "conf": 0.9,
+    "status": "OK",
+    "error": null
+  },
+  {
+    "elem_id": "V325",
+    "recorte": "FV_V325_motor_178105102593.dxf",
+    "rec_hash": "16d7007de07cbe9ff893e93bb0be40eb",
+    "b_fv": 19.0,
+    "comp": 461.0,
+    "n_panels": 1,
+    "panel_widths": [
+      461.0
+    ],
+    "n_holes": 0,
+    "n_rows": 1,
+    "conf": 0.9,
+    "status": "OK",
+    "error": null
+  },
+  {
+    "elem_id": "V327",
+    "recorte": "FV_V327_motor_178105102595.dxf",
+    "rec_hash": "69f1691981c74f9807369bcedc326570",
+    "b_fv": 14.0,
+    "comp": 260.0,
+    "n_panels": 1,
+    "panel_widths": [
+      260.0
+    ],
+    "n_holes": 0,
+    "n_rows": 1,
+    "conf": 0.9,
+    "status": "OK",
+    "error": null
+  },
+  {
+    "elem_id": "V329",
+    "recorte": "FV_V329_motor_178105102596.dxf",
+    "rec_hash": "708e648af08067c861cc6c5ae0ce7c7c",
+    "b_fv": 19.0,
+    "comp": 141.0,
+    "n_panels": 1,
+    "panel_widths": [
+      141.0
+    ],
+    "n_holes": 0,
+    "n_rows": 1,
+    "conf": 0.9,
+    "status": "OK",
+    "error": null
+  },
+  {
+    "elem_id": "V330",
+    "recorte": "FV_V330_motor_178105102598.dxf",
+    "rec_hash": "c08c84571f209cb7a8d13030a84425e6",
+    "b_fv": 19.0,
+    "comp": 311.0,
+    "n_panels": 1,
+    "panel_widths": [
+      311.0
+    ],
+    "n_holes": 0,
+    "n_rows": 1,
+    "conf": 0.9,
+    "status": "OK",
+    "error": null
+  },
+  {
+    "elem_id": "V331",
+    "recorte": "FV_V331_motor_178105102599.dxf",
+    "rec_hash": "da6f763f689e81ea977140f24050f4f6",
+    "b_fv": 14.0,
+    "comp": 201.0,
+    "n_panels": 1,
+    "panel_widths": [
+      201.0
+    ],
+    "n_holes": 0,
+    "n_rows": 1,
+    "conf": 0.9,
+    "status": "OK",
+    "error": null
+  },
+  {
+    "elem_id": "V332",
+    "recorte": "FV_V332_motor_178105102600.dxf",
+    "rec_hash": "5208a3492c52e222176b1ae786613c57",
+    "b_fv": 19.0,
+    "comp": 442.0,
+    "n_panels": 1,
+    "panel_widths": [
+      442.0
+    ],
+    "n_holes": 0,
+    "n_rows": 1,
+    "conf": 0.9,
+    "status": "OK",
+    "error": null
+  },
+  {
+    "elem_id": "VF202",
+    "recorte": "FV_VF202_motor_178105102602.dxf",
+    "rec_hash": "7112cfc323055a874ed0797b813581d7",
+    "b_fv": 14.0,
+    "comp": 152.0,
+    "n_panels": 1,
+    "panel_widths": [
+      152.0
+    ],
+    "n_holes": 0,
+    "n_rows": 1,
+    "conf": 0.9,
+    "status": "OK",
+    "error": null
+  },
+  {
+    "elem_id": "VF203",
+    "recorte": "FV_VF203_motor_178105102604.dxf",
+    "rec_hash": "0e91b46a583fb754967f0ada1396268f",
+    "b_fv": 14.0,
+    "comp": 828.5,
+    "n_panels": 2,
+    "panel_widths": [
+      413.0,
+      415.5
+    ],
+    "n_holes": 1,
+    "n_rows": 1,
+    "conf": 0.9,
+    "status": "OK",
+    "error": null
+  },
+  {
+    "elem_id": "VF301",
+    "recorte": "FV_VF301_motor_178105102606.dxf",
+    "rec_hash": "645f7c42b60037bf93484bde324b7564",
+    "b_fv": 14.0,
+    "comp": 1229.0,
+    "n_panels": 3,
+    "panel_widths": [
+      405.5,
+      418.0,
+      405.5
+    ],
+    "n_holes": 2,
+    "n_rows": 1,
+    "conf": 0.9,
+    "status": "OK",
+    "error": null
+  }
+]

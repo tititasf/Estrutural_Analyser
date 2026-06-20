@@ -1,0 +1,425 @@
+Total FV JSONs: 208
+
+[OK] V101            | b= 19.0 comp=  367.0 | segments_rich | holes=0 | L=P16      R=P103    
+[OK] V103            | b= 24.0 comp= 1158.0 | segments_rich | holes=3 | L=P16      R=V123     4seg
+[OK] V105            | b= 19.0 comp= 1137.5 | segments_rich | holes=2 | L=P12      R=P18      3seg
+[OK] V106            | b= 19.0 comp=  330.0 | segments_rich | holes=0 | L=P27      R=V109.C - V111.C
+[OK] V108            | b= 24.0 comp= 1143.0 | segments_rich | holes=3 | L=P27      R=V123     4seg
+[OK] V10             | b= 14.0 comp=  152.0 | segments_rich | holes=0 | L=V53      R=V52     
+[OK] V110            | b= 19.0 comp=  707.0 | segments_rich | holes=1 | L=P24      R=P27      2seg
+[OK] V112            | b= 19.0 comp=  286.0 | segments_rich | holes=0 | L=P26      R=P27     
+[OK] V114            | b= 19.0 comp=  441.5 | segments_rich | holes=0 | L=P28      R=P19     
+[OK] V115            | b= 19.0 comp=  464.0 | segments_rich | holes=0 | L=P11      R=CORT.   
+[OK] V116            | b= 19.0 comp=  425.0 | segments_rich | holes=0 | L=P29      R=P20     
+[OK] V117            | b= 24.0 comp=  220.0 | segments_rich | holes=0 | L=P20      R=P12     
+[OK] V118            | b= 19.0 comp=  440.0 | segments_rich | holes=0 | L=P12      R=CORT.   
+[OK] V119            | b= 19.0 comp=  444.5 | segments_rich | holes=0 | L=P29      R=P21     
+[OK] V11             | b= 19.0 comp=  447.0 | segments_rich | holes=0 | L=P28      R=P19     
+[FAIL] V120            | b= 19.0 comp=  435.0 | segments_rich | holes=0 | L=P13      R=L Dir   
+     -> label_right MISSING
+[FAIL] V121            | b= 19.0 comp= 1099.5 | segments_rich | holes=2 | L=P30      R=L Dir    3seg
+     -> label_right MISSING
+[OK] V123            | b= 24.0 comp= 1005.0 | segments_rich | holes=3 | L=P31      R=CORT.    4seg
+[OK] V124            | b= 19.0 comp=  630.0 | segments_rich | holes=0 | L=P32      R=V103    
+[OK] V125            | b= 19.0 comp=  385.0 | segments_rich | holes=0 | L=CORT.    R=P24     
+[FAIL] V126            | b= 19.0 comp=  334.0 | segments_rich | holes=0 | L=P16      R=L Dir   
+     -> label_right MISSING
+[OK] V127            | b= 19.0 comp=  244.0 | segments_rich | holes=0 | L=CORT.    R=P26     
+[OK] V129            | b= 19.0 comp=  136.5 | segments_rich | holes=0 | L=P17      R=P103    
+[OK] V12             | b= 19.0 comp=  461.0 | segments_rich | holes=0 | L=P11      R=P2      
+[OK] V131            | b= 14.0 comp=  251.0 | segments_rich | holes=0 | L=CORT.    R=P27     
+[OK] V132            | b= 19.0 comp=  251.0 | segments_rich | holes=0 | L=CORT.    R=P27     
+[OK] V133            | b= 19.0 comp=  141.0 | segments_rich | holes=0 | L=P27      R=P18     
+[FAIL] V13             | b= 19.0 comp=  415.0 | panels        | holes=0 | L=-        R=-        2seg
+     -> label_left MISSING
+     -> label_right MISSING
+     -> HOLES MISMATCH: 0 active vs 1 gaps
+[FAIL] V14             | b= 19.0 comp=  415.0 | panels        | holes=0 | L=-        R=-        2seg
+     -> label_left MISSING
+     -> label_right MISSING
+     -> HOLES MISMATCH: 0 active vs 1 gaps
+[FAIL] V15             | b= 19.0 comp=  415.0 | panels        | holes=0 | L=-        R=-        2seg
+     -> label_left MISSING
+     -> label_right MISSING
+     -> HOLES MISMATCH: 0 active vs 1 gaps
+[FAIL] V16             | b= 24.0 comp=  415.0 | panels        | holes=0 | L=-        R=-        2seg
+     -> label_left MISSING
+     -> label_right MISSING
+     -> HOLES MISMATCH: 0 active vs 1 gaps
+[FAIL] V17             | b= 14.0 comp=  415.0 | panels        | holes=0 | L=-        R=-        2seg
+     -> label_left MISSING
+     -> label_right MISSING
+     -> HOLES MISMATCH: 0 active vs 1 gaps
+[FAIL] V18             | b= 19.0 comp=  415.0 | panels        | holes=0 | L=-        R=-        2seg
+     -> label_left MISSING
+     -> label_right MISSING
+     -> HOLES MISMATCH: 0 active vs 1 gaps
+[OK] V19             | b= 19.0 comp=  351.0 | segments_rich | holes=0 | L=P32      R=P20     
+[OK] V1              | b= 19.0 comp= 1229.0 | segments_rich | holes=2 | L=P1       R=P9       3seg
+[OK] V201            | b= 24.0 comp= 2295.0 | segments_rich | holes=4 | L=P1       R=P4       5seg
+[OK] V202            | b= 19.0 comp=  362.0 | segments_rich | holes=0 | L=P4       R=P5      
+[FAIL] V203            | b= 60.0 comp=  567.5 | panels        | holes=0 | L=-        R=-        5seg
+     -> label_left MISSING
+     -> label_right MISSING
+     -> HOLES MISMATCH: 0 active vs 4 gaps
+[OK] V204            | b= 24.0 comp=  543.0 | segments_rich | holes=1 | L=P12      R=V225     2seg
+[OK] V205            | b= 19.0 comp= 1126.5 | segments_rich | holes=2 | L=V225     R=P18      3seg
+[OK] V206            | b= 24.0 comp=  596.0 | segments_rich | holes=0 | L=V219     R=V221    
+[OK] V207            | b= 24.0 comp=  528.0 | segments_rich | holes=1 | L=P20      R=V225     2seg
+[FAIL] V208            | b= 24.0 comp=  571.5 | panels        | holes=0 | L=-        R=-        3seg
+     -> label_left MISSING
+     -> label_right MISSING
+     -> HOLES MISMATCH: 0 active vs 2 gaps
+[FAIL] V209            | b= 19.0 comp=  244.0 | panels        | holes=0 | L=-        R=-       
+     -> label_left MISSING
+     -> label_right MISSING
+[OK] V20             | b= 19.0 comp=  361.0 | segments_rich | holes=1 | L=V52      R=P6       2seg
+[OK] V210            | b= 19.0 comp=  129.0 | segments_rich | holes=0 | L=P24      R=P26     
+[OK] V211            | b= 14.0 comp=  203.0 | segments_rich | holes=0 | L=P23      R=V232    
+[FAIL] V212            | b= 19.0 comp=  570.0 | panels        | holes=0 | L=-        R=-        3seg
+     -> label_left MISSING
+     -> label_right MISSING
+     -> HOLES MISMATCH: 0 active vs 2 gaps
+[OK] V213            | b= 19.0 comp=  286.0 | segments_rich | holes=0 | L=P26      R=V232    
+[OK] V214            | b= 35.4 comp=  379.4 | segments_rich | holes=0 | L=P25      R=V216     CHANFRO
+[OK] V215            | b= 27.0 comp=  362.0 | segments_rich | holes=0 | L=P30      R=P31     
+[OK] V216            | b= 19.0 comp= 1028.8 | segments_rich | holes=2 | L=V214     R=P12      3seg
+[OK] V217            | b= 19.0 comp=  660.5 | segments_rich | holes=0 | L=P31      R=P33     
+[OK] V218            | b= 19.0 comp=  544.0 | segments_rich | holes=1 | L=P33      R=P35      2seg
+[FAIL] V219            | b= 19.0 comp=  320.0 | segments_rich | holes=0 | L=P31      R=L Dir   
+     -> label_right MISSING
+[OK] V21             | b= 19.0 comp=  398.0 | segments_rich | holes=0 | L=P33      R=P24     
+[FAIL] V220            | b= 19.0 comp=  383.0 | segments_rich | holes=0 | L=L Esq    R=P35     
+     -> label_left MISSING
+[OK] V221            | b= 24.0 comp=  136.0 | segments_rich | holes=0 | L=P20      R=P12     
+[OK] V222            | b= 19.0 comp=  398.0 | segments_rich | holes=0 | L=P12      R=P3      
+[OK] V223            | b= 19.0 comp=  444.5 | segments_rich | holes=0 | L=P30      R=P21     
+[OK] V224            | b= 19.0 comp=  440.0 | segments_rich | holes=0 | L=P13      R=P4      
+[FAIL] V225            | b= 60.0 comp= 1254.5 | segments_rich | holes=4 | L=P13      R=L Dir    5seg
+     -> label_right MISSING
+[OK] V227            | b= 19.0 comp=  434.0 | segments_rich | holes=0 | L=V217     R=P15     
+[OK] V228            | b= 19.0 comp=  402.0 | segments_rich | holes=0 | L=V203     R=P5      
+[OK] V229            | b= 45.0 comp=  356.5 | segments_rich | holes=0 | L=P23      R=P15     
+[OK] V22             | b= 19.0 comp=  361.0 | segments_rich | holes=1 | L=V2       R=P7       2seg
+[OK] V230            | b= 24.0 comp=  308.0 | segments_rich | holes=0 | L=P15      R=P6      
+[FAIL] V231            | b= 19.0 comp=  308.0 | panels        | holes=0 | L=-        R=-        2seg
+     -> label_left MISSING
+     -> label_right MISSING
+     -> HOLES MISMATCH: 0 active vs 1 gaps
+[FAIL] V232            | b= 19.0 comp=  180.0 | panels        | holes=0 | L=-        R=-       
+     -> label_left MISSING
+     -> label_right MISSING
+[OK] V233            | b= 19.0 comp=  398.0 | segments_rich | holes=0 | L=P33      R=P24     
+[OK] V234            | b= 19.0 comp=  278.0 | segments_rich | holes=0 | L=P16      R=P61     
+[FAIL] V235            | b= 19.0 comp=  455.0 | panels        | holes=0 | L=-        R=-        2seg
+     -> label_left MISSING
+     -> label_right MISSING
+     -> HOLES MISMATCH: 0 active vs 1 gaps
+[FAIL] V236            | b= 19.0 comp=  180.0 | panels        | holes=0 | L=-        R=-       
+     -> label_left MISSING
+     -> label_right MISSING
+[OK] V237            | b= 24.0 comp=  136.5 | segments_rich | holes=0 | L=P17      R=P103    
+[FAIL] V238            | b= 19.0 comp=  180.0 | panels        | holes=0 | L=-        R=-       
+     -> label_left MISSING
+     -> label_right MISSING
+[OK] V239            | b= 14.0 comp=  260.0 | segments_rich | holes=0 | L=V217     R=P62     
+[FAIL] V23             | b= 19.0 comp=  455.0 | panels        | holes=0 | L=-        R=-        2seg
+     -> label_left MISSING
+     -> label_right MISSING
+     -> HOLES MISMATCH: 0 active vs 1 gaps
+[OK] V240            | b= 19.0 comp=  260.0 | segments_rich | holes=0 | L=V217     R=P62     
+[OK] V241            | b= 19.0 comp=  141.0 | segments_rich | holes=0 | L=P27      R=P18     
+[OK] V242            | b= 19.0 comp=  377.0 | segments_rich | holes=0 | L=P7       R=P8      
+[OK] V243            | b= 19.0 comp=  319.5 | segments_rich | holes=0 | L=P103     R=P8      
+[FAIL] V24             | b= 19.0 comp=  455.0 | panels        | holes=0 | L=-        R=-        2seg
+     -> label_left MISSING
+     -> label_right MISSING
+     -> HOLES MISMATCH: 0 active vs 1 gaps
+[FAIL] V250            | b= 19.0 comp=   99.3 | panels        | holes=0 | L=-        R=-       
+     -> label_left MISSING
+     -> label_right MISSING
+[FAIL] V251            | b= 30.0 comp=  842.5 | panels        | holes=0 | L=-        R=-        4seg
+     -> label_left MISSING
+     -> label_right MISSING
+     -> HOLES MISMATCH: 0 active vs 3 gaps
+[FAIL] V252            | b= 24.0 comp=  816.5 | panels        | holes=0 | L=-        R=-        4seg
+     -> label_left MISSING
+     -> label_right MISSING
+     -> HOLES MISMATCH: 0 active vs 3 gaps
+[FAIL] V253            | b= 24.0 comp=  225.0 | panels        | holes=0 | L=-        R=-       
+     -> label_left MISSING
+     -> label_right MISSING
+[OK] V25             | b= 19.0 comp=  461.0 | segments_rich | holes=0 | L=P17      R=P8      
+[FAIL] V26             | b= 19.0 comp=  180.0 | panels        | holes=0 | L=-        R=-       
+     -> label_left MISSING
+     -> label_right MISSING
+[OK] V27             | b= 14.0 comp=  260.0 | segments_rich | holes=0 | L=V8       R=V5      
+[FAIL] V28             | b= 19.0 comp=  474.0 | panels        | holes=0 | L=-        R=-        2seg
+     -> label_left MISSING
+     -> label_right MISSING
+     -> HOLES MISMATCH: 0 active vs 1 gaps
+[OK] V29             | b= 19.0 comp=  141.0 | segments_rich | holes=0 | L=P27      R=P18     
+[OK] V2              | b= 19.0 comp= 2172.5 | segments_rich | holes=3 | L=V9       R=P14      4seg
+[OK] V301            | b= 19.0 comp= 3202.0 | segments_rich | holes=13 | L=V309     R=V322     14seg
+[OK] V302            | b= 19.0 comp= 2154.0 | segments_rich | holes=3 | L=V322     R=P14      4seg
+[OK] V303            | b= 19.0 comp= 1486.0 | segments_rich | holes=3 | L=V310     R=P22      4seg
+[FAIL] V304            | b= 19.0 comp=  707.0 | segments_rich | holes=1 | L=L Esq    R=L Dir    2seg
+     -> label_left MISSING
+     -> label_right MISSING
+[OK] V305            | b= 19.0 comp=  286.0 | segments_rich | holes=0 | L=P26      R=P27     
+[OK] V306            | b= 19.0 comp=  672.0 | segments_rich | holes=1 | L=V307     R=V321     2seg
+[OK] V307            | b= 35.4 comp=  255.7 | segments_rich | holes=0 | L=P25      R=V306     CHANFRO
+[OK] V308            | b= 19.0 comp=  253.0 | segments_rich | holes=0 | L=P33      R=P34     
+[OK] V309A           | b= 19.0 comp=  461.0 | segments_rich | holes=0 | L=P10      R=P1      
+[OK] V309            | b= 19.0 comp=  320.0 | segments_rich | holes=0 | L=P25      R=P10     
+[OK] V30             | b= 19.0 comp=  442.0 | segments_rich | holes=0 | L=V2       R=P8      
+[OK] V310            | b= 14.0 comp=  152.0 | segments_rich | holes=0 | L=V303     R=V302    
+[OK] V311            | b= 19.0 comp=  447.0 | segments_rich | holes=0 | L=P28      R=P19     
+[OK] V312            | b= 19.0 comp=  461.0 | segments_rich | holes=0 | L=P11      R=P2      
+[FAIL] V313            | b= 19.0 comp=  461.0 | panels        | holes=0 | L=-        R=-        2seg
+     -> label_left MISSING
+     -> label_right MISSING
+     -> HOLES MISMATCH: 0 active vs 1 gaps
+[FAIL] V314            | b= 19.0 comp=  415.0 | panels        | holes=0 | L=-        R=-        2seg
+     -> label_left MISSING
+     -> label_right MISSING
+     -> HOLES MISMATCH: 0 active vs 1 gaps
+[FAIL] V315            | b= 19.0 comp=  415.0 | panels        | holes=0 | L=-        R=-        2seg
+     -> label_left MISSING
+     -> label_right MISSING
+     -> HOLES MISMATCH: 0 active vs 1 gaps
+[FAIL] V316            | b= 19.0 comp=  415.0 | panels        | holes=0 | L=-        R=-        2seg
+     -> label_left MISSING
+     -> label_right MISSING
+     -> HOLES MISMATCH: 0 active vs 1 gaps
+[FAIL] V317            | b= 19.0 comp=  415.0 | panels        | holes=0 | L=-        R=-        2seg
+     -> label_left MISSING
+     -> label_right MISSING
+     -> HOLES MISMATCH: 0 active vs 1 gaps
+[FAIL] V318            | b= 19.0 comp=  415.0 | panels        | holes=0 | L=-        R=-        2seg
+     -> label_left MISSING
+     -> label_right MISSING
+     -> HOLES MISMATCH: 0 active vs 1 gaps
+[OK] V319            | b= 19.0 comp=  351.0 | segments_rich | holes=0 | L=P32      R=P20     
+[OK] V31             | b= 14.0 comp=  201.0 | segments_rich | holes=0 | L=V4       R=V2      
+[OK] V320            | b= 19.0 comp=  380.0 | segments_rich | holes=1 | L=V302     R=P6       2seg
+[OK] V321            | b= 19.0 comp=  398.0 | segments_rich | holes=0 | L=P33      R=P24     
+[OK] V322            | b= 19.0 comp=  380.0 | segments_rich | holes=1 | L=V302     R=P7       2seg
+[FAIL] V323            | b= 19.0 comp=  455.0 | panels        | holes=0 | L=-        R=-        2seg
+     -> label_left MISSING
+     -> label_right MISSING
+     -> HOLES MISMATCH: 0 active vs 1 gaps
+[FAIL] V324            | b= 19.0 comp=  244.0 | panels        | holes=0 | L=-        R=-       
+     -> label_left MISSING
+     -> label_right MISSING
+[OK] V325            | b= 19.0 comp=  461.0 | segments_rich | holes=0 | L=P17      R=P8      
+[FAIL] V326            | b= 19.0 comp=  307.0 | panels        | holes=0 | L=-        R=-        2seg
+     -> label_left MISSING
+     -> label_right MISSING
+     -> HOLES MISMATCH: 0 active vs 1 gaps
+[OK] V327            | b= 14.0 comp=  260.0 | segments_rich | holes=0 | L=V308     R=V305    
+[FAIL] V328            | b= 19.0 comp=  474.0 | panels        | holes=0 | L=-        R=-        2seg
+     -> label_left MISSING
+     -> label_right MISSING
+     -> HOLES MISMATCH: 0 active vs 1 gaps
+[OK] V329            | b= 19.0 comp=  141.0 | segments_rich | holes=0 | L=P27      R=P18     
+[OK] V330            | b= 19.0 comp=  311.0 | segments_rich | holes=0 | L=P18      R=V301    
+[OK] V331            | b= 14.0 comp=  201.0 | segments_rich | holes=0 | L=V304     R=V302    
+[OK] V332            | b= 19.0 comp=  442.0 | segments_rich | holes=0 | L=V302     R=P9      
+[OK] V3              | b= 19.0 comp= 1486.0 | segments_rich | holes=3 | L=V10      R=P22      4seg
+[FAIL] V401            | b= 19.0 comp=  855.0 | panels        | holes=0 | L=-        R=-        4seg
+     -> label_left MISSING
+     -> label_right MISSING
+     -> HOLES MISMATCH: 0 active vs 3 gaps
+[FAIL] V402            | b= 19.0 comp=  855.0 | panels        | holes=0 | L=-        R=-        4seg
+     -> label_left MISSING
+     -> label_right MISSING
+     -> HOLES MISMATCH: 0 active vs 3 gaps
+[FAIL] V403            | b= 14.0 comp=  726.0 | panels        | holes=0 | L=-        R=-        3seg
+     -> label_left MISSING
+     -> label_right MISSING
+     -> HOLES MISMATCH: 0 active vs 2 gaps
+[FAIL] V404            | b= 19.0 comp=  722.0 | panels        | holes=0 | L=-        R=-        3seg
+     -> label_left MISSING
+     -> label_right MISSING
+     -> HOLES MISMATCH: 0 active vs 2 gaps
+[FAIL] V405            | b= 19.0 comp=  570.0 | panels        | holes=0 | L=-        R=-        3seg
+     -> label_left MISSING
+     -> label_right MISSING
+     -> HOLES MISMATCH: 0 active vs 2 gaps
+[FAIL] V406            | b= 19.0 comp=   60.0 | panels        | holes=0 | L=-        R=-       
+     -> label_left MISSING
+     -> label_right MISSING
+[FAIL] V407            | b= 14.0 comp=  842.5 | panels        | holes=0 | L=-        R=-        4seg
+     -> label_left MISSING
+     -> label_right MISSING
+     -> HOLES MISMATCH: 0 active vs 3 gaps
+[FAIL] V408            | b= 19.0 comp=  718.0 | panels        | holes=0 | L=-        R=-        3seg
+     -> label_left MISSING
+     -> label_right MISSING
+     -> HOLES MISMATCH: 0 active vs 2 gaps
+[FAIL] V409            | b= 19.0 comp=   60.0 | panels        | holes=0 | L=-        R=-       
+     -> label_left MISSING
+     -> label_right MISSING
+[FAIL] V410            | b= 19.0 comp=  855.2 | panels        | holes=0 | L=-        R=-        4seg
+     -> label_left MISSING
+     -> label_right MISSING
+     -> HOLES MISMATCH: 0 active vs 3 gaps
+[FAIL] V411            | b= 14.0 comp=  277.0 | panels        | holes=0 | L=-        R=-        2seg
+     -> label_left MISSING
+     -> label_right MISSING
+     -> HOLES MISMATCH: 0 active vs 1 gaps
+[FAIL] V412            | b= 19.0 comp=  415.0 | panels        | holes=0 | L=-        R=-        2seg
+     -> label_left MISSING
+     -> label_right MISSING
+     -> HOLES MISMATCH: 0 active vs 1 gaps
+[FAIL] V413            | b= 19.0 comp=  415.0 | panels        | holes=0 | L=-        R=-        2seg
+     -> label_left MISSING
+     -> label_right MISSING
+     -> HOLES MISMATCH: 0 active vs 1 gaps
+[FAIL] V414            | b= 19.0 comp=  415.0 | panels        | holes=0 | L=-        R=-        2seg
+     -> label_left MISSING
+     -> label_right MISSING
+     -> HOLES MISMATCH: 0 active vs 1 gaps
+[FAIL] V415            | b= 19.0 comp=  415.0 | panels        | holes=0 | L=-        R=-        2seg
+     -> label_left MISSING
+     -> label_right MISSING
+     -> HOLES MISMATCH: 0 active vs 1 gaps
+[FAIL] V416            | b= 19.0 comp=  415.0 | panels        | holes=0 | L=-        R=-        2seg
+     -> label_left MISSING
+     -> label_right MISSING
+     -> HOLES MISMATCH: 0 active vs 1 gaps
+[FAIL] V417            | b= 19.0 comp=  303.0 | panels        | holes=0 | L=-        R=-        2seg
+     -> label_left MISSING
+     -> label_right MISSING
+     -> HOLES MISMATCH: 0 active vs 1 gaps
+[FAIL] V418            | b= 19.0 comp=  415.0 | panels        | holes=0 | L=-        R=-        2seg
+     -> label_left MISSING
+     -> label_right MISSING
+     -> HOLES MISMATCH: 0 active vs 1 gaps
+[FAIL] V419            | b= 14.0 comp=  455.0 | panels        | holes=0 | L=-        R=-        2seg
+     -> label_left MISSING
+     -> label_right MISSING
+     -> HOLES MISMATCH: 0 active vs 1 gaps
+[FAIL] V420            | b= 19.0 comp=  455.0 | panels        | holes=0 | L=-        R=-        2seg
+     -> label_left MISSING
+     -> label_right MISSING
+     -> HOLES MISMATCH: 0 active vs 1 gaps
+[FAIL] V421            | b= 19.0 comp=  455.0 | panels        | holes=0 | L=-        R=-        2seg
+     -> label_left MISSING
+     -> label_right MISSING
+     -> HOLES MISMATCH: 0 active vs 1 gaps
+[FAIL] V422            | b= 19.0 comp=  303.0 | panels        | holes=0 | L=-        R=-        2seg
+     -> label_left MISSING
+     -> label_right MISSING
+     -> HOLES MISMATCH: 0 active vs 1 gaps
+[FAIL] V423            | b= 19.0 comp=  180.0 | panels        | holes=0 | L=-        R=-       
+     -> label_left MISSING
+     -> label_right MISSING
+[FAIL] V424            | b= 19.0 comp=  474.0 | panels        | holes=0 | L=-        R=-        2seg
+     -> label_left MISSING
+     -> label_right MISSING
+     -> HOLES MISMATCH: 0 active vs 1 gaps
+[FAIL] V425            | b= 19.0 comp=  474.0 | panels        | holes=0 | L=-        R=-        2seg
+     -> label_left MISSING
+     -> label_right MISSING
+     -> HOLES MISMATCH: 0 active vs 1 gaps
+[FAIL] V426            | b= 19.0 comp=  422.0 | panels        | holes=0 | L=-        R=-        2seg
+     -> label_left MISSING
+     -> label_right MISSING
+     -> HOLES MISMATCH: 0 active vs 1 gaps
+[FAIL] V427            | b= 19.0 comp=  474.0 | panels        | holes=0 | L=-        R=-        2seg
+     -> label_left MISSING
+     -> label_right MISSING
+     -> HOLES MISMATCH: 0 active vs 1 gaps
+[FAIL] V4              | b= 19.0 comp=  707.0 | segments_rich | holes=1 | L=L Esq    R=L Dir    2seg
+     -> label_left MISSING
+     -> label_right MISSING
+[OK] V51             | b= 19.0 comp= 3308.0 | segments_rich | holes=5 | L=V59      R=V72      6seg
+[OK] V52             | b= 19.0 comp= 2508.5 | segments_rich | holes=3 | L=V59      R=P13      4seg
+[FAIL] V53             | b= 19.0 comp= 1825.5 | segments_rich | holes=4 | L=V60      R=L Dir    5seg
+     -> label_right MISSING
+[OK] V54             | b= 19.0 comp=  707.0 | segments_rich | holes=1 | L=P24      R=P27      2seg
+[OK] V55             | b= 19.0 comp=  286.0 | segments_rich | holes=0 | L=P26      R=P27     
+[OK] V56             | b= 35.4 comp=  255.7 | segments_rich | holes=0 | L=P25      R=V57      CHANFRO
+[FAIL] V57             | b= 19.0 comp= 2344.0 | segments_rich | holes=4 | L=V56      R=L Dir    5seg
+     -> label_right MISSING
+[OK] V58             | b= 19.0 comp=  253.0 | segments_rich | holes=0 | L=V65      R=P34     
+[OK] V59             | b= 19.0 comp=  781.0 | segments_rich | holes=1 | L=P30      R=P1       2seg
+[OK] V5              | b= 19.0 comp=  286.0 | segments_rich | holes=0 | L=P26      R=P27     
+[OK] V60             | b= 14.0 comp=  152.0 | segments_rich | holes=0 | L=V53      R=V52     
+[OK] V61             | b= 19.0 comp=  441.5 | segments_rich | holes=0 | L=P28      R=P19     
+[OK] V62             | b= 19.0 comp=  455.5 | segments_rich | holes=0 | L=P11      R=P2      
+[OK] V63             | b= 19.0 comp=  394.0 | segments_rich | holes=0 | L=P28      R=P19     
+[OK] V64             | b= 19.0 comp=  382.0 | segments_rich | holes=0 | L=P11      R=P3      
+[OK] V65             | b= 19.0 comp=  387.0 | segments_rich | holes=0 | L=P29      R=P20     
+[OK] V66             | b= 19.0 comp=  376.0 | segments_rich | holes=0 | L=P12      R=P3      
+[OK] V67             | b= 19.0 comp=  394.0 | segments_rich | holes=0 | L=P31      R=P22     
+[OK] V68             | b= 19.0 comp=  382.0 | segments_rich | holes=0 | L=P14      R=P5      
+[OK] V69             | b= 19.0 comp=  346.0 | segments_rich | holes=0 | L=P32      R=P23     
+[OK] V6              | b= 35.4 comp=  255.7 | segments_rich | holes=0 | L=P25      R=V57      CHANFRO
+[OK] V70             | b= 19.0 comp=  351.0 | segments_rich | holes=1 | L=V52      R=P22      2seg
+[OK] V71             | b= 19.0 comp=  398.0 | segments_rich | holes=0 | L=P33      R=P5      
+[OK] V72             | b= 19.0 comp=  361.0 | segments_rich | holes=1 | L=V52      R=P7       2seg
+[FAIL] V73             | b= 19.0 comp=  244.0 | panels        | holes=0 | L=-        R=-       
+     -> label_left MISSING
+     -> label_right MISSING
+[FAIL] V74             | b= 19.0 comp=  244.0 | panels        | holes=0 | L=-        R=-       
+     -> label_left MISSING
+     -> label_right MISSING
+[OK] V75             | b= 19.0 comp=  455.5 | segments_rich | holes=0 | L=P17      R=P16     
+[FAIL] V76             | b= 19.0 comp=   90.0 | panels        | holes=0 | L=-        R=-       
+     -> label_left MISSING
+     -> label_right MISSING
+[OK] V77             | b= 14.0 comp=  260.0 | segments_rich | holes=0 | L=V58      R=V55     
+[FAIL] V78             | b= 19.0 comp=  244.0 | panels        | holes=0 | L=-        R=-       
+     -> label_left MISSING
+     -> label_right MISSING
+[OK] V79             | b= 19.0 comp=  141.0 | segments_rich | holes=0 | L=P27      R=V54     
+[OK] V7              | b= 19.0 comp=  672.0 | segments_rich | holes=1 | L=V56      R=V21      2seg
+[OK] V80             | b= 19.0 comp=  442.0 | segments_rich | holes=0 | L=P17      R=P8      
+[OK] V81             | b= 14.0 comp=  201.0 | segments_rich | holes=0 | L=V54      R=V52     
+[OK] V8              | b= 19.0 comp=  544.0 | segments_rich | holes=1 | L=P33      R=P35      2seg
+[OK] V9              | b= 19.0 comp=  781.0 | segments_rich | holes=1 | L=P25      R=P1       2seg
+[OK] VF1             | b= 14.0 comp= 1229.0 | segments_rich | holes=2 | L=P1       R=P9       3seg
+[OK] VF202           | b= 14.0 comp=  152.0 | segments_rich | holes=0 | L=V303     R=V302    
+[OK] VF203           | b= 14.0 comp=  828.5 | segments_rich | holes=1 | L=P28      R=P30      2seg
+[FAIL] VF251           | b= 19.0 comp=   99.3 | panels        | holes=0 | L=-        R=-       
+     -> label_left MISSING
+     -> label_right MISSING
+[FAIL] VF2             | b= 19.0 comp=    0.0 | panels        | holes=0 | L=L Esq    R=L Dir   
+     -> SEM DADOS
+     -> label_left MISSING
+     -> label_right MISSING
+[OK] VF301           | b= 14.0 comp= 1229.0 | segments_rich | holes=2 | L=P1       R=P9       3seg
+[OK] VF3             | b= 14.0 comp=  413.0 | segments_rich | holes=0 | L=P28      R=P29     
+[FAIL] VF401           | b= 14.0 comp=  855.2 | panels        | holes=0 | L=-        R=-        4seg
+     -> label_left MISSING
+     -> label_right MISSING
+     -> HOLES MISMATCH: 0 active vs 3 gaps
+[FAIL] VF402           | b= 14.0 comp=  335.5 | panels        | holes=0 | L=-        R=-        2seg
+     -> label_left MISSING
+     -> label_right MISSING
+     -> HOLES MISMATCH: 0 active vs 1 gaps
+[FAIL] VF403           | b= 14.0 comp=  161.8 | panels        | holes=0 | L=-        R=-       
+     -> label_left MISSING
+     -> label_right MISSING
+[FAIL] VF404           | b= 14.0 comp=   71.0 | panels        | holes=0 | L=-        R=-       
+     -> label_left MISSING
+     -> label_right MISSING
+[FAIL] VF405           | b= 14.0 comp=   50.0 | panels        | holes=0 | L=-        R=-       
+     -> label_left MISSING
+     -> label_right MISSING
+[FAIL] VF406           | b= 14.0 comp=   55.0 | panels        | holes=0 | L=-        R=-       
+     -> label_left MISSING
+     -> label_right MISSING
+[OK] VF51            | b= 14.0 comp= 3010.0 | segments_rich | holes=5 | L=P1       R=P4       6seg
+[FAIL] VF52            | b= 19.0 comp=    0.0 | panels        | holes=0 | L=L Esq    R=L Dir   
+     -> SEM DADOS
+     -> label_left MISSING
+     -> label_right MISSING
+[FAIL] VF53            | b= 14.0 comp= 1898.5 | segments_rich | holes=3 | L=VF52     R=L Dir    4seg
+     -> label_right MISSING
+
+================================================================================
+RESULTADO: 124/208 OK, 84 com problemas

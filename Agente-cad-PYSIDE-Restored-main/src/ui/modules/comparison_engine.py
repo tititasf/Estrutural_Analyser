@@ -1513,26 +1513,45 @@ class Fase8Panel(QFrame):
         return f"[—]  {k}"
 
     def _on_obra_changed(self, obra_name: str):
-        """Atualiza combo de pavimentos ao trocar de obra.
-        Bloqueia signals do cmb_pav durante populate para evitar múltiplos
-        disparos de _on_obra_pav_changed → _load_n1_dxf_for_pav → QThread crash."""
+        """Atualiza combo de pavimentos buscando do banco de dados unificado."""
         self.cmb_pav.blockSignals(True)
         self.cmb_pav.clear()
         if not obra_name:
             self.cmb_pav.blockSignals(False)
             return
-        disc_path = DADOS_OBRAS_ROOT / "dxf_discovery.json"
-        if disc_path.exists():
-            disc = json.loads(disc_path.read_text(encoding='utf-8', errors='replace'))
-            pavs = sorted(disc.get(obra_name, {}).keys())
-            for p in pavs:
-                label = self._pav_display_label(p)
-                self.cmb_pav.addItem(label, p)   # userData = chave real para lookup
-        # Fallback: Fase-1
-        if self.cmb_pav.count() == 0:
+            
+        try:
+            import sqlite3
+            from pathlib import Path as _P
+            db_path = str(_P("D:/Agente-cad-PYSIDE/project_data.vision"))
+            conn = sqlite3.connect(db_path)
+            
+            # Buscar os pavimentos encontrados na base de recortes aprovados ou fichas
+            cur = conn.execute("""
+                SELECT DISTINCT pavimento FROM reverse_eng_fichas WHERE obra_name=? AND pavimento != ''
+                UNION
+                SELECT DISTINCT pavimento FROM reverse_eng_recortes WHERE (obra_name=? OR obra_name='') AND status='aprovado' AND pavimento != ''
+            """, (obra_name, obra_name))
+            
+            pavs = [row[0] for row in cur.fetchall() if row[0]]
+            conn.close()
+            
+            # Adicionar a opção TODOS no topo para facilitar analise massiva
+            self.cmb_pav.addItem("TODOS", "TODOS")
+            
+            for p in sorted(pavs):
+                label = self._pav_display_label(p) if hasattr(self, '_pav_display_label') else p
+                self.cmb_pav.addItem(label, p)
+                
+        except Exception as e:
+            print("Erro ao carregar pavimentos para ComboBox no ComparisonEngine:", e)
+            
+        # Fallback se o banco não retornar nada
+        if self.cmb_pav.count() == 1: # Só tem o TODOS
             fase1 = DADOS_OBRAS_ROOT / obra_name / "Fase-1_Ingestao"
             if fase1.exists():
                 self.cmb_pav.addItem("1PV")
+                
         self.cmb_pav.blockSignals(False)
 
         # Carregar scores existentes

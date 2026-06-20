@@ -1,0 +1,1610 @@
+{
+  "obra": "Obra_TREINO_1",
+  "pavimento": "13_PAV",
+  "total": 20,
+  "pass": 0,
+  "blocked": 0,
+  "fail": 20,
+  "items": [
+    {
+      "id": "L301",
+      "recorte": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- LJ - R00\\LAJ_L301_motor_178111331366.dxf",
+      "resultado": "FAIL",
+      "conteudo_pass": false,
+      "marco_pass": true,
+      "ref_bbox_abs": [
+        2742.57,
+        2610.94,
+        3148.07,
+        2793.94
+      ],
+      "n4_bbox_abs": [
+        2742.57,
+        2610.94,
+        3148.07,
+        2793.94
+      ],
+      "comprimento": 405.5,
+      "largura": 183.0,
+      "linhas_verticais": [
+        {
+          "value": 243.9,
+          "is_union": false
+        }
+      ],
+      "linhas_horizontais": [
+        {
+          "value": 102.0,
+          "is_union": false
+        },
+        {
+          "value": 122.0,
+          "is_union": true
+        }
+      ],
+      "hlaz": null,
+      "stog_pose": {
+        "x": 2742.57,
+        "y": 2610.94
+      },
+      "n4": "D:\\Agente-cad-PYSIDE\\test_output\\arete_lj\\13_PAV_refine_dims_batch_v2\\n4\\LJ_preview_L301.dxf",
+      "recorte_sha256": "22bbf5cde887b5ebc5de0540e9c0d82ffddf344af9ee683df300eabc15b95ebc",
+      "n4_sha256": "64a080f7b5bcc51375d5018ad0a9a1724f2f0a64fd77f738fb88e1435b5bed08",
+      "png": "D:\\Agente-cad-PYSIDE\\test_output\\arete_lj\\13_PAV_refine_dims_batch_v2\\png\\ARETE_LJ_L301.png",
+      "diffs": {
+        "cotas_paineis": {
+          "ref": [
+            20.0,
+            61.0,
+            102.0,
+            161.5,
+            244.0
+          ],
+          "n4": [
+            161.5,
+            161.5,
+            161.5,
+            244.0,
+            244.0,
+            244.0
+          ]
+        }
+      },
+      "n4_has_aux00": false,
+      "n4_has_c_equals": false,
+      "n4_texts": [
+        "L301",
+        "244",
+        "161.5",
+        "244",
+        "161.5",
+        "244",
+        "161.5"
+      ]
+    },
+    {
+      "id": "L302",
+      "recorte": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- LJ - R00\\LAJ_L302_motor_178111331368.dxf",
+      "resultado": "FAIL",
+      "conteudo_pass": false,
+      "marco_pass": true,
+      "ref_bbox_abs": [
+        3167.07,
+        2610.94,
+        3585.07,
+        2793.94
+      ],
+      "n4_bbox_abs": [
+        3167.07,
+        2610.94,
+        3585.07,
+        2793.94
+      ],
+      "comprimento": 418.0,
+      "largura": 183.0,
+      "linhas_verticais": [
+        {
+          "value": 243.9,
+          "is_union": false
+        }
+      ],
+      "linhas_horizontais": [
+        {
+          "value": 102.1,
+          "is_union": false
+        },
+        {
+          "value": 122.1,
+          "is_union": true
+        }
+      ],
+      "hlaz": null,
+      "stog_pose": {
+        "x": 3167.07,
+        "y": 2610.94
+      },
+      "n4": "D:\\Agente-cad-PYSIDE\\test_output\\arete_lj\\13_PAV_refine_dims_batch_v2\\n4\\LJ_preview_L302.dxf",
+      "recorte_sha256": "07bd86232367d567c1ea2616c4e37810065162dea1e8192c5d0bbfbedc10eafa",
+      "n4_sha256": "536fdf353ce8a9503a372ae7f5710fb8faf8455122b6d4fc1bb255d337d3438b",
+      "png": "D:\\Agente-cad-PYSIDE\\test_output\\arete_lj\\13_PAV_refine_dims_batch_v2\\png\\ARETE_LJ_L302.png",
+      "diffs": {
+        "cotas_paineis": {
+          "ref": [
+            20.0,
+            61.0,
+            102.0,
+            174.0,
+            244.0
+          ],
+          "n4": [
+            174.0,
+            174.0,
+            174.0,
+            244.0,
+            244.0,
+            244.0
+          ]
+        }
+      },
+      "n4_has_aux00": false,
+      "n4_has_c_equals": false,
+      "n4_texts": [
+        "L302",
+        "244",
+        "174",
+        "244",
+        "174",
+        "244",
+        "174"
+      ]
+    },
+    {
+      "id": "L303",
+      "recorte": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- LJ - R00\\LAJ_L303_motor_178111331370.dxf",
+      "resultado": "FAIL",
+      "conteudo_pass": false,
+      "marco_pass": true,
+      "ref_bbox_abs": [
+        3604.07,
+        2610.94,
+        4022.07,
+        2793.94
+      ],
+      "n4_bbox_abs": [
+        3604.07,
+        2610.94,
+        4022.07,
+        2793.94
+      ],
+      "comprimento": 418.0,
+      "largura": 183.0,
+      "linhas_verticais": [
+        {
+          "value": 243.9,
+          "is_union": false
+        }
+      ],
+      "linhas_horizontais": [
+        {
+          "value": 102.1,
+          "is_union": false
+        },
+        {
+          "value": 122.1,
+          "is_union": true
+        }
+      ],
+      "hlaz": null,
+      "stog_pose": {
+        "x": 3604.07,
+        "y": 2610.94
+      },
+      "n4": "D:\\Agente-cad-PYSIDE\\test_output\\arete_lj\\13_PAV_refine_dims_batch_v2\\n4\\LJ_preview_L303.dxf",
+      "recorte_sha256": "0cf87b81e007d7f238eed5b673af568eee4fded48f111594d5ddaf85509574bb",
+      "n4_sha256": "406e03e754c99600c95468ddd447808f170479940e42a1feaf07d12a38744809",
+      "png": "D:\\Agente-cad-PYSIDE\\test_output\\arete_lj\\13_PAV_refine_dims_batch_v2\\png\\ARETE_LJ_L303.png",
+      "diffs": {
+        "cotas_paineis": {
+          "ref": [
+            20.0,
+            61.0,
+            102.0,
+            174.0,
+            244.0
+          ],
+          "n4": [
+            174.0,
+            174.0,
+            174.0,
+            244.0,
+            244.0,
+            244.0
+          ]
+        }
+      },
+      "n4_has_aux00": false,
+      "n4_has_c_equals": false,
+      "n4_texts": [
+        "L303",
+        "244",
+        "174",
+        "244",
+        "174",
+        "244",
+        "174"
+      ]
+    },
+    {
+      "id": "L304",
+      "recorte": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- LJ - R00\\LAJ_L304_motor_178111331371.dxf",
+      "resultado": "FAIL",
+      "conteudo_pass": false,
+      "marco_pass": true,
+      "ref_bbox_abs": [
+        4041.07,
+        2610.94,
+        4459.07,
+        2793.94
+      ],
+      "n4_bbox_abs": [
+        4041.07,
+        2610.94,
+        4459.07,
+        2793.94
+      ],
+      "comprimento": 418.0,
+      "largura": 183.0,
+      "linhas_verticais": [
+        {
+          "value": 243.9,
+          "is_union": false
+        }
+      ],
+      "linhas_horizontais": [
+        {
+          "value": 102.1,
+          "is_union": false
+        },
+        {
+          "value": 122.1,
+          "is_union": true
+        }
+      ],
+      "hlaz": null,
+      "stog_pose": {
+        "x": 4041.07,
+        "y": 2610.94
+      },
+      "n4": "D:\\Agente-cad-PYSIDE\\test_output\\arete_lj\\13_PAV_refine_dims_batch_v2\\n4\\LJ_preview_L304.dxf",
+      "recorte_sha256": "5e90f77b3be42b4ac3adc7771af14fa176b479fd7589cd617c26937b064447fc",
+      "n4_sha256": "e3f622060065a62abf02529eb4e562e5f71fb913632104ba7abacdab63bb8ba3",
+      "png": "D:\\Agente-cad-PYSIDE\\test_output\\arete_lj\\13_PAV_refine_dims_batch_v2\\png\\ARETE_LJ_L304.png",
+      "diffs": {
+        "cotas_paineis": {
+          "ref": [
+            20.0,
+            61.0,
+            102.0,
+            174.0,
+            244.0
+          ],
+          "n4": [
+            174.0,
+            174.0,
+            174.0,
+            244.0,
+            244.0,
+            244.0
+          ]
+        }
+      },
+      "n4_has_aux00": false,
+      "n4_has_c_equals": false,
+      "n4_texts": [
+        "L304",
+        "244",
+        "174",
+        "244",
+        "174",
+        "244",
+        "174"
+      ]
+    },
+    {
+      "id": "L305",
+      "recorte": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- LJ - R00\\LAJ_L305_motor_178111331373.dxf",
+      "resultado": "FAIL",
+      "conteudo_pass": false,
+      "marco_pass": true,
+      "ref_bbox_abs": [
+        4478.07,
+        2610.94,
+        4896.07,
+        2793.94
+      ],
+      "n4_bbox_abs": [
+        4478.07,
+        2610.94,
+        4896.07,
+        2793.94
+      ],
+      "comprimento": 418.0,
+      "largura": 183.0,
+      "linhas_verticais": [
+        {
+          "value": 243.9,
+          "is_union": false
+        }
+      ],
+      "linhas_horizontais": [
+        {
+          "value": 102.1,
+          "is_union": false
+        },
+        {
+          "value": 122.1,
+          "is_union": true
+        }
+      ],
+      "hlaz": null,
+      "stog_pose": {
+        "x": 4478.07,
+        "y": 2610.94
+      },
+      "n4": "D:\\Agente-cad-PYSIDE\\test_output\\arete_lj\\13_PAV_refine_dims_batch_v2\\n4\\LJ_preview_L305.dxf",
+      "recorte_sha256": "f9e782d09202d74f01447e61f638e060610defb9ecbd00ff77d0ca08566310b1",
+      "n4_sha256": "9e061099e3ca64875e8f0399bfc3efbacdfc681446673804f420907470118e32",
+      "png": "D:\\Agente-cad-PYSIDE\\test_output\\arete_lj\\13_PAV_refine_dims_batch_v2\\png\\ARETE_LJ_L305.png",
+      "diffs": {
+        "cotas_paineis": {
+          "ref": [
+            20.0,
+            61.0,
+            102.0,
+            174.0,
+            244.0
+          ],
+          "n4": [
+            174.0,
+            174.0,
+            174.0,
+            244.0,
+            244.0,
+            244.0
+          ]
+        }
+      },
+      "n4_has_aux00": false,
+      "n4_has_c_equals": false,
+      "n4_texts": [
+        "L305",
+        "244",
+        "174",
+        "244",
+        "174",
+        "244",
+        "174"
+      ]
+    },
+    {
+      "id": "L306",
+      "recorte": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- LJ - R00\\LAJ_L306_motor_178111331375.dxf",
+      "resultado": "FAIL",
+      "conteudo_pass": false,
+      "marco_pass": true,
+      "ref_bbox_abs": [
+        4915.07,
+        2610.94,
+        5333.07,
+        2793.94
+      ],
+      "n4_bbox_abs": [
+        4915.07,
+        2610.94,
+        5333.07,
+        2793.94
+      ],
+      "comprimento": 418.0,
+      "largura": 183.0,
+      "linhas_verticais": [
+        {
+          "value": 243.9,
+          "is_union": false
+        }
+      ],
+      "linhas_horizontais": [
+        {
+          "value": 102.1,
+          "is_union": false
+        },
+        {
+          "value": 122.1,
+          "is_union": true
+        }
+      ],
+      "hlaz": null,
+      "stog_pose": {
+        "x": 4915.07,
+        "y": 2610.94
+      },
+      "n4": "D:\\Agente-cad-PYSIDE\\test_output\\arete_lj\\13_PAV_refine_dims_batch_v2\\n4\\LJ_preview_L306.dxf",
+      "recorte_sha256": "4b3f1453e644ae240b4e4957a063c750cb24ec06fc80bc22bd3af78e5a73d21c",
+      "n4_sha256": "3f0ef5af4874870f5b47166f1916c2f46b2bd4291d3072a763f4b7c124ac4d50",
+      "png": "D:\\Agente-cad-PYSIDE\\test_output\\arete_lj\\13_PAV_refine_dims_batch_v2\\png\\ARETE_LJ_L306.png",
+      "diffs": {
+        "cotas_paineis": {
+          "ref": [
+            20.0,
+            61.0,
+            102.0,
+            122.0,
+            174.0,
+            244.0
+          ],
+          "n4": [
+            174.0,
+            174.0,
+            174.0,
+            244.0,
+            244.0,
+            244.0
+          ]
+        }
+      },
+      "n4_has_aux00": false,
+      "n4_has_c_equals": false,
+      "n4_texts": [
+        "L306",
+        "244",
+        "174",
+        "244",
+        "174",
+        "244",
+        "174"
+      ]
+    },
+    {
+      "id": "L307",
+      "recorte": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- LJ - R00\\LAJ_L307_motor_178111331377.dxf",
+      "resultado": "FAIL",
+      "conteudo_pass": false,
+      "marco_pass": true,
+      "ref_bbox_abs": [
+        5352.07,
+        2606.58,
+        5770.07,
+        2789.58
+      ],
+      "n4_bbox_abs": [
+        5352.07,
+        2606.58,
+        5770.07,
+        2789.58
+      ],
+      "comprimento": 418.0,
+      "largura": 183.0,
+      "linhas_verticais": [
+        {
+          "value": 243.9,
+          "is_union": false
+        }
+      ],
+      "linhas_horizontais": [
+        {
+          "value": 101.9,
+          "is_union": false
+        },
+        {
+          "value": 121.9,
+          "is_union": true
+        }
+      ],
+      "hlaz": null,
+      "stog_pose": {
+        "x": 5352.07,
+        "y": 2606.58
+      },
+      "n4": "D:\\Agente-cad-PYSIDE\\test_output\\arete_lj\\13_PAV_refine_dims_batch_v2\\n4\\LJ_preview_L307.dxf",
+      "recorte_sha256": "2be4681d930d638d9020b8b956ea0f368938dfd1fe146d6c9c36eb8801868809",
+      "n4_sha256": "4aa5a11d21a69a90b3caa4f46a47dbc83ebe89117aa82f8b80e0f29283cfa1e2",
+      "png": "D:\\Agente-cad-PYSIDE\\test_output\\arete_lj\\13_PAV_refine_dims_batch_v2\\png\\ARETE_LJ_L307.png",
+      "diffs": {
+        "cotas_paineis": {
+          "ref": [
+            20.0,
+            61.0,
+            102.0,
+            174.0,
+            244.0
+          ],
+          "n4": [
+            174.0,
+            174.0,
+            174.0,
+            244.0,
+            244.0,
+            244.0
+          ]
+        }
+      },
+      "n4_has_aux00": false,
+      "n4_has_c_equals": false,
+      "n4_texts": [
+        "L307",
+        "244",
+        "174",
+        "244",
+        "174",
+        "244",
+        "174"
+      ]
+    },
+    {
+      "id": "L308",
+      "recorte": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- LJ - R00\\LAJ_L308_sel_1781121913.dxf",
+      "resultado": "FAIL",
+      "conteudo_pass": false,
+      "marco_pass": true,
+      "ref_bbox_abs": [
+        5789.07,
+        2610.94,
+        6078.07,
+        2793.94
+      ],
+      "n4_bbox_abs": [
+        5789.07,
+        2610.94,
+        6078.07,
+        2793.94
+      ],
+      "comprimento": 289.0,
+      "largura": 183.0,
+      "linhas_verticais": [
+        {
+          "value": 122.0,
+          "is_union": false
+        }
+      ],
+      "linhas_horizontais": [
+        {
+          "value": 102.0,
+          "is_union": false
+        },
+        {
+          "value": 122.0,
+          "is_union": true
+        }
+      ],
+      "hlaz": [
+        {
+          "x": 0.0,
+          "y": 102.0,
+          "width": 289.0,
+          "height": 20.0
+        }
+      ],
+      "stog_pose": {
+        "x": 5789.07,
+        "y": 2610.94
+      },
+      "n4": "D:\\Agente-cad-PYSIDE\\test_output\\arete_lj\\13_PAV_refine_dims_batch_v2\\n4\\LJ_preview_L308.dxf",
+      "recorte_sha256": "e18b6ade835ca674cf5edaab79db986a8cb0449738aa264b7db43321986c167b",
+      "n4_sha256": "8e436e25f98279aac6d33a928298d3823b95ee1e48dc6475378266dd36a727f1",
+      "png": "D:\\Agente-cad-PYSIDE\\test_output\\arete_lj\\13_PAV_refine_dims_batch_v2\\png\\ARETE_LJ_L308.png",
+      "diffs": {
+        "cotas_paineis": {
+          "ref": [
+            20.0,
+            61.0,
+            102.0,
+            122.0,
+            167.0
+          ],
+          "n4": [
+            122.0,
+            122.0,
+            122.0,
+            167.0,
+            167.0,
+            167.0
+          ]
+        }
+      },
+      "n4_has_aux00": false,
+      "n4_has_c_equals": false,
+      "n4_texts": [
+        "L308",
+        "122",
+        "167",
+        "122",
+        "167",
+        "122",
+        "167"
+      ]
+    },
+    {
+      "id": "L309",
+      "recorte": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- LJ - R00\\LAJ_L309_motor_178111331380.dxf",
+      "resultado": "FAIL",
+      "conteudo_pass": false,
+      "marco_pass": true,
+      "ref_bbox_abs": [
+        2742.57,
+        2280.94,
+        3148.07,
+        2591.94
+      ],
+      "n4_bbox_abs": [
+        2742.57,
+        2280.94,
+        3148.07,
+        2591.94
+      ],
+      "comprimento": 405.5,
+      "largura": 311.0,
+      "linhas_verticais": [
+        {
+          "value": 243.9,
+          "is_union": false
+        }
+      ],
+      "linhas_horizontais": [
+        {
+          "value": 122.0,
+          "is_union": false
+        },
+        {
+          "value": 169.0,
+          "is_union": false
+        },
+        {
+          "value": 189.0,
+          "is_union": true
+        }
+      ],
+      "hlaz": null,
+      "stog_pose": {
+        "x": 2742.57,
+        "y": 2280.94
+      },
+      "n4": "D:\\Agente-cad-PYSIDE\\test_output\\arete_lj\\13_PAV_refine_dims_batch_v2\\n4\\LJ_preview_L309.dxf",
+      "recorte_sha256": "dabbd7e3b171f68ce6b6fed3be13bd4d2f7c77d61167cf72da229e5f4f67d738",
+      "n4_sha256": "43160e205c7968ad62c54ec86d0cab582b9ed0c29b8353c4c6c1886a995088de",
+      "png": "D:\\Agente-cad-PYSIDE\\test_output\\arete_lj\\13_PAV_refine_dims_batch_v2\\png\\ARETE_LJ_L309.png",
+      "diffs": {
+        "cotas_paineis": {
+          "ref": [
+            20.0,
+            47.0,
+            91.5,
+            122.0,
+            122.0,
+            161.5,
+            244.0
+          ],
+          "n4": [
+            161.5,
+            161.5,
+            161.5,
+            161.5,
+            244.0,
+            244.0,
+            244.0,
+            244.0
+          ]
+        }
+      },
+      "n4_has_aux00": false,
+      "n4_has_c_equals": false,
+      "n4_texts": [
+        "L309",
+        "244",
+        "161.5",
+        "244",
+        "161.5",
+        "244",
+        "161.5",
+        "244",
+        "161.5"
+      ]
+    },
+    {
+      "id": "L310",
+      "recorte": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- LJ - R00\\LAJ_L310_motor_178111331382.dxf",
+      "resultado": "FAIL",
+      "conteudo_pass": false,
+      "marco_pass": true,
+      "ref_bbox_abs": [
+        3167.07,
+        2280.94,
+        3585.07,
+        2591.94
+      ],
+      "n4_bbox_abs": [
+        3167.07,
+        2280.94,
+        3585.07,
+        2591.94
+      ],
+      "comprimento": 418.0,
+      "largura": 311.0,
+      "linhas_verticais": [
+        {
+          "value": 243.9,
+          "is_union": false
+        }
+      ],
+      "linhas_horizontais": [
+        {
+          "value": 122.0,
+          "is_union": false
+        },
+        {
+          "value": 169.0,
+          "is_union": false
+        },
+        {
+          "value": 189.0,
+          "is_union": true
+        }
+      ],
+      "hlaz": null,
+      "stog_pose": {
+        "x": 3167.07,
+        "y": 2280.94
+      },
+      "n4": "D:\\Agente-cad-PYSIDE\\test_output\\arete_lj\\13_PAV_refine_dims_batch_v2\\n4\\LJ_preview_L310.dxf",
+      "recorte_sha256": "84d46b3472f0b1f4458dd16053458c632faf1d9e966b858f2744564f75aca5bb",
+      "n4_sha256": "0fca56d69f457af39695966d73e3be2bb0392ed15be4975493fc4dba436ab9c5",
+      "png": "D:\\Agente-cad-PYSIDE\\test_output\\arete_lj\\13_PAV_refine_dims_batch_v2\\png\\ARETE_LJ_L310.png",
+      "diffs": {
+        "cotas_paineis": {
+          "ref": [
+            20.0,
+            47.0,
+            122.0,
+            122.0,
+            174.0,
+            244.0
+          ],
+          "n4": [
+            174.0,
+            174.0,
+            174.0,
+            174.0,
+            244.0,
+            244.0,
+            244.0,
+            244.0
+          ]
+        }
+      },
+      "n4_has_aux00": false,
+      "n4_has_c_equals": false,
+      "n4_texts": [
+        "L310",
+        "244",
+        "174",
+        "244",
+        "174",
+        "244",
+        "174",
+        "244",
+        "174"
+      ]
+    },
+    {
+      "id": "L311",
+      "recorte": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- LJ - R00\\LAJ_L311_motor_178111331384.dxf",
+      "resultado": "FAIL",
+      "conteudo_pass": false,
+      "marco_pass": true,
+      "ref_bbox_abs": [
+        3604.07,
+        2280.94,
+        4022.07,
+        2591.94
+      ],
+      "n4_bbox_abs": [
+        3604.07,
+        2280.94,
+        4022.07,
+        2591.94
+      ],
+      "comprimento": 418.0,
+      "largura": 311.0,
+      "linhas_verticais": [
+        {
+          "value": 243.9,
+          "is_union": false
+        }
+      ],
+      "linhas_horizontais": [
+        {
+          "value": 122.0,
+          "is_union": false
+        },
+        {
+          "value": 169.0,
+          "is_union": false
+        },
+        {
+          "value": 189.0,
+          "is_union": true
+        }
+      ],
+      "hlaz": null,
+      "stog_pose": {
+        "x": 3604.07,
+        "y": 2280.94
+      },
+      "n4": "D:\\Agente-cad-PYSIDE\\test_output\\arete_lj\\13_PAV_refine_dims_batch_v2\\n4\\LJ_preview_L311.dxf",
+      "recorte_sha256": "5b316ed96937fd54d2f226e44fc5ef95d7f23f5af1650e6ea64a9ce6630e28e2",
+      "n4_sha256": "48b93b5d501053bb08dc24817d82b67d49576b751751395b0bf28ea3585c0e29",
+      "png": "D:\\Agente-cad-PYSIDE\\test_output\\arete_lj\\13_PAV_refine_dims_batch_v2\\png\\ARETE_LJ_L311.png",
+      "diffs": {
+        "cotas_paineis": {
+          "ref": [
+            20.0,
+            47.0,
+            122.0,
+            122.0,
+            174.0,
+            244.0
+          ],
+          "n4": [
+            174.0,
+            174.0,
+            174.0,
+            174.0,
+            244.0,
+            244.0,
+            244.0,
+            244.0
+          ]
+        }
+      },
+      "n4_has_aux00": false,
+      "n4_has_c_equals": false,
+      "n4_texts": [
+        "L311",
+        "244",
+        "174",
+        "244",
+        "174",
+        "244",
+        "174",
+        "244",
+        "174"
+      ]
+    },
+    {
+      "id": "L312",
+      "recorte": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- LJ - R00\\LAJ_L312_sel_1781576266.dxf",
+      "resultado": "FAIL",
+      "conteudo_pass": false,
+      "marco_pass": true,
+      "ref_bbox_abs": [
+        4041.07,
+        2280.94,
+        4459.07,
+        2402.94
+      ],
+      "n4_bbox_abs": [
+        4041.07,
+        2280.94,
+        4459.07,
+        2402.94
+      ],
+      "comprimento": 418.0,
+      "largura": 122.0,
+      "linhas_verticais": [
+        {
+          "value": 243.9,
+          "is_union": false
+        }
+      ],
+      "linhas_horizontais": [],
+      "hlaz": [
+        {
+          "x": 0.0,
+          "y": 122.0,
+          "width": 418.0,
+          "height": 47.0
+        }
+      ],
+      "stog_pose": {
+        "x": 4041.07,
+        "y": 2280.94
+      },
+      "n4": "D:\\Agente-cad-PYSIDE\\test_output\\arete_lj\\13_PAV_refine_dims_batch_v2\\n4\\LJ_preview_L312.dxf",
+      "recorte_sha256": "7aa140c431a8a0820629b0218d928872c3260c9bc1af55d3f46a29f231be5311",
+      "n4_sha256": "af6c8a8989892821c1b17d056ee3d08abc8075514ed18100ec707803b12e30c5",
+      "png": "D:\\Agente-cad-PYSIDE\\test_output\\arete_lj\\13_PAV_refine_dims_batch_v2\\png\\ARETE_LJ_L312.png",
+      "diffs": {
+        "cotas_paineis": {
+          "ref": [
+            20.0,
+            47.0,
+            122.0,
+            174.0,
+            244.0
+          ],
+          "n4": [
+            174.0,
+            174.0,
+            244.0,
+            244.0
+          ]
+        }
+      },
+      "n4_has_aux00": false,
+      "n4_has_c_equals": false,
+      "n4_texts": [
+        "L312",
+        "244",
+        "174",
+        "244",
+        "174"
+      ]
+    },
+    {
+      "id": "L313",
+      "recorte": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- LJ - R00\\LAJ_L313_motor_178111331388.dxf",
+      "resultado": "FAIL",
+      "conteudo_pass": false,
+      "marco_pass": true,
+      "ref_bbox_abs": [
+        4478.07,
+        2280.94,
+        4896.07,
+        2591.94
+      ],
+      "n4_bbox_abs": [
+        4478.07,
+        2280.94,
+        4896.07,
+        2591.94
+      ],
+      "comprimento": 418.0,
+      "largura": 311.0,
+      "linhas_verticais": [
+        {
+          "value": 243.9,
+          "is_union": false
+        }
+      ],
+      "linhas_horizontais": [
+        {
+          "value": 122.0,
+          "is_union": false
+        },
+        {
+          "value": 169.0,
+          "is_union": false
+        },
+        {
+          "value": 189.0,
+          "is_union": true
+        }
+      ],
+      "hlaz": null,
+      "stog_pose": {
+        "x": 4478.07,
+        "y": 2280.94
+      },
+      "n4": "D:\\Agente-cad-PYSIDE\\test_output\\arete_lj\\13_PAV_refine_dims_batch_v2\\n4\\LJ_preview_L313.dxf",
+      "recorte_sha256": "e60afc629c5780787fe294ce69e8ea393592b33bdc4ca360b12bd50d8e6e8a2f",
+      "n4_sha256": "461e060b78eacdced22a96638fc74124d4d097ceceb1515349af176fa5be1457",
+      "png": "D:\\Agente-cad-PYSIDE\\test_output\\arete_lj\\13_PAV_refine_dims_batch_v2\\png\\ARETE_LJ_L313.png",
+      "diffs": {
+        "cotas_paineis": {
+          "ref": [
+            20.0,
+            47.0,
+            122.0,
+            122.0,
+            174.0,
+            244.0
+          ],
+          "n4": [
+            174.0,
+            174.0,
+            174.0,
+            174.0,
+            244.0,
+            244.0,
+            244.0,
+            244.0
+          ]
+        }
+      },
+      "n4_has_aux00": false,
+      "n4_has_c_equals": false,
+      "n4_texts": [
+        "L313",
+        "244",
+        "174",
+        "244",
+        "174",
+        "244",
+        "174",
+        "244",
+        "174"
+      ]
+    },
+    {
+      "id": "L316",
+      "recorte": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- LJ - R00\\LAJ_L316_motor_178111331395.dxf",
+      "resultado": "FAIL",
+      "conteudo_pass": false,
+      "marco_pass": true,
+      "ref_bbox_abs": [
+        5789.07,
+        2280.94,
+        6078.07,
+        2591.94
+      ],
+      "n4_bbox_abs": [
+        5789.07,
+        2280.94,
+        6078.07,
+        2591.94
+      ],
+      "comprimento": 289.0,
+      "largura": 311.0,
+      "linhas_verticais": [
+        {
+          "value": 122.0,
+          "is_union": false
+        },
+        {
+          "value": 141.9,
+          "is_union": true
+        },
+        {
+          "value": 202.4,
+          "is_union": false
+        }
+      ],
+      "linhas_horizontais": [
+        {
+          "value": 244.0,
+          "is_union": false
+        }
+      ],
+      "hlaz": null,
+      "stog_pose": {
+        "x": 5789.07,
+        "y": 2280.94
+      },
+      "n4": "D:\\Agente-cad-PYSIDE\\test_output\\arete_lj\\13_PAV_refine_dims_batch_v2\\n4\\LJ_preview_L316.dxf",
+      "recorte_sha256": "5268aacd130607b2b08e68a4e9d7b100b47e13f4ef26c9f95ba995cb23097ea9",
+      "n4_sha256": "5642a965a904bba1edaba97ab5667adf019448f02d89c2715e22d0ee99e73787",
+      "png": "D:\\Agente-cad-PYSIDE\\test_output\\arete_lj\\13_PAV_refine_dims_batch_v2\\png\\ARETE_LJ_L316.png",
+      "diffs": {
+        "cotas_paineis": {
+          "ref": [
+            20.0,
+            60.5,
+            67.0,
+            81.5,
+            122.0,
+            244.0
+          ],
+          "n4": [
+            20.0,
+            20.0,
+            60.5,
+            60.5,
+            86.5,
+            86.5,
+            122.0,
+            122.0
+          ]
+        }
+      },
+      "n4_has_aux00": false,
+      "n4_has_c_equals": false,
+      "n4_texts": [
+        "L316",
+        "122",
+        "20",
+        "60.5",
+        "86.5",
+        "122",
+        "20",
+        "60.5",
+        "86.5"
+      ]
+    },
+    {
+      "id": "L326",
+      "recorte": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- LJ - R00\\LAJ_L326_motor_178111331413.dxf",
+      "resultado": "FAIL",
+      "conteudo_pass": false,
+      "marco_pass": true,
+      "ref_bbox_abs": [
+        2914.33,
+        1577.94,
+        3148.07,
+        1648.94
+      ],
+      "n4_bbox_abs": [
+        2914.33,
+        1577.94,
+        3148.07,
+        1648.94
+      ],
+      "comprimento": 233.74,
+      "largura": 71.0,
+      "linhas_verticais": [
+        {
+          "value": 116.8,
+          "is_union": false
+        }
+      ],
+      "linhas_horizontais": [
+        {
+          "value": 35.6,
+          "is_union": false
+        }
+      ],
+      "hlaz": null,
+      "stog_pose": {
+        "x": 2914.33,
+        "y": 1577.94
+      },
+      "n4": "D:\\Agente-cad-PYSIDE\\test_output\\arete_lj\\13_PAV_refine_dims_batch_v2\\n4\\LJ_preview_L326.dxf",
+      "recorte_sha256": "3bb7a54f42839e84f4e73acf8dbc8a4c1e2b6b5890ba42b7c79806580c3cd1c9",
+      "n4_sha256": "a422d8ed8c73f4631ab55022fc68e2fd202192c5211ecf6f1fbbc5165864a57c",
+      "png": "D:\\Agente-cad-PYSIDE\\test_output\\arete_lj\\13_PAV_refine_dims_batch_v2\\png\\ARETE_LJ_L326.png",
+      "diffs": {
+        "cotas_paineis": {
+          "ref": [
+            2.5,
+            42.0,
+            79.5,
+            114.5
+          ],
+          "n4": [
+            116.5,
+            116.5,
+            117.0,
+            117.0
+          ]
+        }
+      },
+      "n4_has_aux00": false,
+      "n4_has_c_equals": false,
+      "n4_texts": [
+        "L326",
+        "117",
+        "116.7",
+        "117",
+        "116.7"
+      ]
+    },
+    {
+      "id": "L327",
+      "recorte": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- LJ - R00\\LAJ_L327_sel_1781576357.dxf",
+      "resultado": "FAIL",
+      "conteudo_pass": false,
+      "marco_pass": true,
+      "ref_bbox_abs": [
+        3169.57,
+        1577.94,
+        3585.07,
+        1648.94
+      ],
+      "n4_bbox_abs": [
+        3169.57,
+        1577.94,
+        3585.07,
+        1648.94
+      ],
+      "comprimento": 415.5,
+      "largura": 71.0,
+      "linhas_verticais": [
+        {
+          "value": 235.9,
+          "is_union": false
+        }
+      ],
+      "linhas_horizontais": [
+        {
+          "value": 35.5,
+          "is_union": false
+        }
+      ],
+      "hlaz": null,
+      "stog_pose": {
+        "x": 3169.57,
+        "y": 1577.94
+      },
+      "n4": "D:\\Agente-cad-PYSIDE\\test_output\\arete_lj\\13_PAV_refine_dims_batch_v2\\n4\\LJ_preview_L327.dxf",
+      "recorte_sha256": "2c3d3a9806d7629e051b368a8339f6cc1bc4a5edf0a24b96482b9c0b4f199e16",
+      "n4_sha256": "38026dc071a6fd5bfc006dae0f2eddf995dbd3f79cc795a61914797ad7b260ba",
+      "png": "D:\\Agente-cad-PYSIDE\\test_output\\arete_lj\\13_PAV_refine_dims_batch_v2\\png\\ARETE_LJ_L327.png",
+      "diffs": {
+        "cotas_paineis": {
+          "ref": [
+            2.5,
+            2.5,
+            2.5,
+            16.5,
+            30.5,
+            35.5,
+            35.5,
+            177.0,
+            179.5,
+            236.0,
+            238.5
+          ],
+          "n4": [
+            2.5,
+            19.0,
+            177.0,
+            179.5,
+            236.0,
+            236.0
+          ]
+        }
+      },
+      "n4_has_aux00": false,
+      "n4_has_c_equals": false,
+      "n4_texts": [
+        "L327",
+        "236",
+        "176.9",
+        "236",
+        "179.5",
+        "2.5",
+        "19"
+      ]
+    },
+    {
+      "id": "L328",
+      "recorte": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- LJ - R00\\LAJ_L328_motor_178111331416.dxf",
+      "resultado": "FAIL",
+      "conteudo_pass": false,
+      "marco_pass": true,
+      "ref_bbox_abs": [
+        3604.07,
+        1578.0,
+        4022.07,
+        1649.0
+      ],
+      "n4_bbox_abs": [
+        3604.07,
+        1578.0,
+        4022.07,
+        1649.0
+      ],
+      "comprimento": 418.0,
+      "largura": 71.0,
+      "linhas_verticais": [
+        {
+          "value": 199.9,
+          "is_union": false
+        }
+      ],
+      "linhas_horizontais": [
+        {
+          "value": 35.6,
+          "is_union": false
+        }
+      ],
+      "hlaz": null,
+      "stog_pose": {
+        "x": 3604.07,
+        "y": 1578.0
+      },
+      "n4": "D:\\Agente-cad-PYSIDE\\test_output\\arete_lj\\13_PAV_refine_dims_batch_v2\\n4\\LJ_preview_L328.dxf",
+      "recorte_sha256": "1b1daeffb3935a16899ff3bde8bdc40331b35e43104e3630fde8081ac2dfb4b3",
+      "n4_sha256": "2a08ceb884000618f43cfa434b8a05a1171891cfd95e3637967104a36f46aa7c",
+      "png": "D:\\Agente-cad-PYSIDE\\test_output\\arete_lj\\13_PAV_refine_dims_batch_v2\\png\\ARETE_LJ_L328.png",
+      "diffs": {
+        "cotas_paineis": {
+          "ref": [
+            2.5,
+            2.5,
+            16.5,
+            16.5,
+            16.5,
+            35.5,
+            35.5,
+            197.5,
+            200.0,
+            215.5,
+            218.0
+          ],
+          "n4": [
+            2.5,
+            2.5,
+            19.0,
+            19.0,
+            197.5,
+            197.5,
+            200.0,
+            215.5,
+            215.5,
+            218.0
+          ]
+        }
+      },
+      "n4_has_aux00": false,
+      "n4_has_c_equals": false,
+      "n4_texts": [
+        "L328",
+        "197.5",
+        "215.5",
+        "197.5",
+        "215.5",
+        "200",
+        "218",
+        "2.5",
+        "19",
+        "19",
+        "2.5"
+      ]
+    },
+    {
+      "id": "L329",
+      "recorte": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- LJ - R00\\LAJ_L329_motor_178111331418.dxf",
+      "resultado": "FAIL",
+      "conteudo_pass": false,
+      "marco_pass": true,
+      "ref_bbox_abs": [
+        4041.07,
+        1578.0,
+        4459.07,
+        1649.0
+      ],
+      "n4_bbox_abs": [
+        4041.07,
+        1578.0,
+        4459.07,
+        1649.0
+      ],
+      "comprimento": 418.0,
+      "largura": 71.0,
+      "linhas_verticais": [
+        {
+          "value": 204.9,
+          "is_union": false
+        }
+      ],
+      "linhas_horizontais": [
+        {
+          "value": 35.6,
+          "is_union": false
+        }
+      ],
+      "hlaz": null,
+      "stog_pose": {
+        "x": 4041.07,
+        "y": 1578.0
+      },
+      "n4": "D:\\Agente-cad-PYSIDE\\test_output\\arete_lj\\13_PAV_refine_dims_batch_v2\\n4\\LJ_preview_L329.dxf",
+      "recorte_sha256": "ba5d3a642b0a4b027fa6d76688db51c2eaa72fba7aceb8e4360d291d5e99af75",
+      "n4_sha256": "d27dacf7e4cd9d0b18f5eb49737835c5108ec59a2a20135a759e00aa14f60bce",
+      "png": "D:\\Agente-cad-PYSIDE\\test_output\\arete_lj\\13_PAV_refine_dims_batch_v2\\png\\ARETE_LJ_L329.png",
+      "diffs": {
+        "cotas_paineis": {
+          "ref": [
+            2.5,
+            2.5,
+            2.5,
+            2.5,
+            16.5,
+            16.5,
+            16.5,
+            35.5,
+            35.5,
+            202.5,
+            205.0,
+            210.5,
+            213.0
+          ],
+          "n4": [
+            2.5,
+            2.5,
+            19.0,
+            19.0,
+            202.5,
+            202.5,
+            205.0,
+            210.5,
+            210.5,
+            213.0
+          ]
+        }
+      },
+      "n4_has_aux00": false,
+      "n4_has_c_equals": false,
+      "n4_texts": [
+        "L329",
+        "202.5",
+        "210.5",
+        "202.5",
+        "210.5",
+        "205",
+        "213",
+        "2.5",
+        "19",
+        "19",
+        "2.5"
+      ]
+    },
+    {
+      "id": "L330",
+      "recorte": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- LJ - R00\\LAJ_L330_motor_178111331421.dxf",
+      "resultado": "FAIL",
+      "conteudo_pass": false,
+      "marco_pass": true,
+      "ref_bbox_abs": [
+        4478.07,
+        1578.0,
+        4896.07,
+        1649.0
+      ],
+      "n4_bbox_abs": [
+        4478.07,
+        1578.0,
+        4896.07,
+        1649.0
+      ],
+      "comprimento": 418.0,
+      "largura": 71.0,
+      "linhas_verticais": [
+        {
+          "value": 199.9,
+          "is_union": false
+        }
+      ],
+      "linhas_horizontais": [
+        {
+          "value": 35.6,
+          "is_union": false
+        }
+      ],
+      "hlaz": null,
+      "stog_pose": {
+        "x": 4478.07,
+        "y": 1578.0
+      },
+      "n4": "D:\\Agente-cad-PYSIDE\\test_output\\arete_lj\\13_PAV_refine_dims_batch_v2\\n4\\LJ_preview_L330.dxf",
+      "recorte_sha256": "53e45a8c325b8ab869ccb28b65533586f695a268a3145e358e1c05cb7d7c4328",
+      "n4_sha256": "77143f93c667857d19282373d051295e608fe6f3be7a5070ab1bfeeed4686a6c",
+      "png": "D:\\Agente-cad-PYSIDE\\test_output\\arete_lj\\13_PAV_refine_dims_batch_v2\\png\\ARETE_LJ_L330.png",
+      "diffs": {
+        "cotas_paineis": {
+          "ref": [
+            2.5,
+            2.5,
+            2.5,
+            2.5,
+            16.5,
+            16.5,
+            16.5,
+            35.5,
+            35.5,
+            197.5,
+            200.0,
+            215.5,
+            218.0
+          ],
+          "n4": [
+            2.5,
+            2.5,
+            19.0,
+            19.0,
+            197.5,
+            197.5,
+            200.0,
+            215.5,
+            215.5,
+            218.0
+          ]
+        }
+      },
+      "n4_has_aux00": false,
+      "n4_has_c_equals": false,
+      "n4_texts": [
+        "L330",
+        "197.5",
+        "215.5",
+        "197.5",
+        "215.5",
+        "200",
+        "218",
+        "2.5",
+        "19",
+        "19",
+        "2.5"
+      ]
+    },
+    {
+      "id": "L331",
+      "recorte": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- LJ - R00\\LAJ_L331_motor_178111331423.dxf",
+      "resultado": "FAIL",
+      "conteudo_pass": false,
+      "marco_pass": true,
+      "ref_bbox_abs": [
+        4915.07,
+        1578.0,
+        5333.07,
+        1649.0
+      ],
+      "n4_bbox_abs": [
+        4915.07,
+        1578.0,
+        5333.07,
+        1649.0
+      ],
+      "comprimento": 418.0,
+      "largura": 71.0,
+      "linhas_verticais": [
+        {
+          "value": 173.9,
+          "is_union": false
+        }
+      ],
+      "linhas_horizontais": [
+        {
+          "value": 35.6,
+          "is_union": false
+        }
+      ],
+      "hlaz": null,
+      "stog_pose": {
+        "x": 4915.07,
+        "y": 1578.0
+      },
+      "n4": "D:\\Agente-cad-PYSIDE\\test_output\\arete_lj\\13_PAV_refine_dims_batch_v2\\n4\\LJ_preview_L331.dxf",
+      "recorte_sha256": "8a93d3078f1250b98dcf2b79b611a2c165c72d6a5b7307ddb3e5b1012b02fd92",
+      "n4_sha256": "675fde25f34b2910cda1f5b55a4d8b9687c7956e14bf0d05e627d5aee76931e4",
+      "png": "D:\\Agente-cad-PYSIDE\\test_output\\arete_lj\\13_PAV_refine_dims_batch_v2\\png\\ARETE_LJ_L331.png",
+      "diffs": {
+        "cotas_paineis": {
+          "ref": [
+            2.5,
+            2.5,
+            16.5,
+            16.5,
+            35.5,
+            35.5,
+            171.5,
+            174.0,
+            244.0,
+            244.0
+          ],
+          "n4": [
+            2.5,
+            19.0,
+            171.5,
+            171.5,
+            174.0,
+            244.0,
+            244.0,
+            244.0
+          ]
+        }
+      },
+      "n4_has_aux00": false,
+      "n4_has_c_equals": false,
+      "n4_texts": [
+        "L331",
+        "171.5",
+        "244",
+        "171.5",
+        "244",
+        "174",
+        "244",
+        "19",
+        "2.5"
+      ]
+    }
+  ]
+}
