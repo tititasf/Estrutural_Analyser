@@ -2789,46 +2789,32 @@ class LevelColumn(QFrame):
         )
         lay.addWidget(self.lbl_ficha)
 
-        self.ficha_table = QTableWidget(0, 2)
-        self.ficha_table.setHorizontalHeaderLabels(["Campo", "Valor"])
-        self.ficha_table.horizontalHeader().setSectionResizeMode(0, QHeaderView.ResizeToContents)
-        self.ficha_table.horizontalHeader().setSectionResizeMode(1, QHeaderView.Stretch)
-        self.ficha_table.verticalHeader().setVisible(False)
-        self.ficha_table.setEditTriggers(QTableWidget.NoEditTriggers)
-        self.ficha_table.setAlternatingRowColors(True)
-        self.ficha_table.setShowGrid(False)
-        self.ficha_table.setFixedHeight(240)
-        self.ficha_table.setStyleSheet(f"""
-            QTableWidget {{
-                background: transparent; 
-                color: {Colors.TEXT_PRIMARY};
-                font-size: 11px; 
-                border: 1px solid rgba(255, 255, 255, 10);
-                border-radius: 6px;
-            }}
-            QTableWidget::item {{
-                border-bottom: 1px solid rgba(255, 255, 255, 5);
-                padding: 4px 8px;
-            }}
-            QTableWidget::item:alternate {{
-                background: rgba(255, 255, 255, 3);
-            }}
-            QTableWidget::item:hover {{
-                background: rgba(180, 80, 200, 15);
-            }}
-            QHeaderView::section {{
-                background: {bg_color}; 
-                color: {accent};
-                border: none; 
-                border-bottom: 2px solid {accent};
-                font-size: 11px; 
-                font-weight: bold;
-                padding: 6px 8px;
-                text-transform: uppercase;
-                letter-spacing: 1px;
-            }}
+        # ── Ficha SA-style: scroll area com campos por seção ──────────
+        self._ficha_accent = accent
+        ficha_scroll = QScrollArea()
+        ficha_scroll.setWidgetResizable(True)
+        ficha_scroll.setFixedHeight(260)
+        ficha_scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        ficha_scroll.setStyleSheet(f"""
+            QScrollArea {{ background: transparent; border: 1px solid rgba(255,255,255,10);
+                           border-radius:4px; }}
+            QScrollBar:vertical {{ background:{Colors.BG_DEEP}; width:5px; }}
+            QScrollBar::handle:vertical {{ background:{Colors.BORDER_DEFAULT}; border-radius:2px; }}
         """)
-        lay.addWidget(self.ficha_table)
+        self._ficha_inner = QWidget()
+        self._ficha_inner.setStyleSheet(f"background: transparent;")
+        self._ficha_vlay = QVBoxLayout(self._ficha_inner)
+        self._ficha_vlay.setContentsMargins(0, 0, 0, 0)
+        self._ficha_vlay.setSpacing(0)
+        self._ficha_vlay.addStretch()
+        ficha_scroll.setWidget(self._ficha_inner)
+        self._ficha_scroll = ficha_scroll
+        lay.addWidget(ficha_scroll)
+
+        # Compat: manter ficha_table como objeto oculto para não quebrar código existente
+        self.ficha_table = QTableWidget(0, 2)
+        self.ficha_table.setVisible(False)
+        self.ficha_table.setParent(self)  # filho mas fora do layout
 
     # ── Conteúdo ─────────────────────────────────────────────────────
 
@@ -2846,25 +2832,86 @@ class LevelColumn(QFrame):
             else:
                 self.img_widget.clear_image()
 
+    def _clear_ficha_vlay(self):
+        """Remove todos os widgets filhos do layout da ficha dinâmica."""
+        while self._ficha_vlay.count() > 0:
+            item = self._ficha_vlay.takeAt(0)
+            if item.widget():
+                item.widget().deleteLater()
+
     def set_ficha(self, rows: list):
-        """rows = [(label, value), ...] — também restaura view padrão se estava em modo LV."""
-        self._restore_lv_ficha()   # limpa LV ficha estruturada se existir
-        self.ficha_table.setRowCount(0)
+        """rows = [(label, value), ...] — renderiza ficha SA-style com seções e campos.
+        Marcadores especiais:
+          label == '=='  → header de seção (value = título)
+          label == '---' → separador fino
+          label == '⚠ ...' → aviso laranja
+        """
+        self._restore_lv_ficha()
+        self._clear_ficha_vlay()
+
+        accent = self._ficha_accent
+        _ODD  = "background: rgba(255,255,255,4);"
+        _EVEN = "background: transparent;"
+        _FIELD_H = 22
+        _SECTION_SS = (f"background: rgba(30,60,100,0.7); color: {accent}; "
+                       f"font-size: 10px; font-weight: bold; padding: 3px 8px; "
+                       f"border-left: 3px solid {accent}; letter-spacing: 0.5px;")
+        _LBL_SS = (f"color: {Colors.TEXT_SECONDARY}; font-size: 11px; "
+                   f"padding: 0 8px; min-width: 140px; max-width: 180px;")
+        _VAL_SS = (f"color: {Colors.TEXT_PRIMARY}; font-size: 11px; "
+                   f"padding: 0 6px; border: none; background: transparent;")
+        _WARN_SS = (f"color: #f59e0b; font-size: 10px; padding: 2px 8px; "
+                    f"background: rgba(245,158,11,0.08);")
+
+        row_idx = 0
         for label, value in rows:
-            r = self.ficha_table.rowCount()
-            self.ficha_table.insertRow(r)
-            self.ficha_table.setRowHeight(r, 20)
-            lbl_item = QTableWidgetItem(str(label))
-            val_item = QTableWidgetItem(str(value))
-            lbl_item.setFlags(lbl_item.flags() & ~Qt.ItemIsEditable)
-            val_item.setFlags(val_item.flags() & ~Qt.ItemIsEditable)
-            if str(label) == "---":
-                sep_color = QColor(Colors.BORDER_DEFAULT)
-                lbl_item.setBackground(QBrush(sep_color))
-                val_item.setBackground(QBrush(sep_color))
-                lbl_item.setText("")
-            self.ficha_table.setItem(r, 0, lbl_item)
-            self.ficha_table.setItem(r, 1, val_item)
+            label = str(label)
+            value = str(value) if value is not None else "—"
+
+            if label == "==":
+                # Seção com título
+                sec = QLabel(value.upper())
+                sec.setStyleSheet(_SECTION_SS)
+                sec.setFixedHeight(20)
+                self._ficha_vlay.addWidget(sec)
+                row_idx = 0
+                continue
+
+            if label == "---":
+                sep = QFrame()
+                sep.setFrameShape(QFrame.HLine)
+                sep.setFixedHeight(1)
+                sep.setStyleSheet(f"background: rgba(255,255,255,8); border:none;")
+                self._ficha_vlay.addWidget(sep)
+                continue
+
+            # Campo normal: row com label + valor
+            row_w = QWidget()
+            row_w.setFixedHeight(_FIELD_H)
+            row_w.setStyleSheet(_ODD if row_idx % 2 else _EVEN)
+            rh = QHBoxLayout(row_w)
+            rh.setContentsMargins(0, 0, 0, 0)
+            rh.setSpacing(0)
+
+            lbl_w = QLabel(label)
+            lbl_w.setStyleSheet(_LBL_SS)
+            lbl_w.setAlignment(Qt.AlignVCenter | Qt.AlignLeft)
+
+            if label.startswith("⚠"):
+                lbl_w.setStyleSheet(_WARN_SS)
+                val_w = QLabel(value)
+                val_w.setStyleSheet(_WARN_SS)
+            else:
+                val_w = QLabel(value)
+                val_w.setStyleSheet(_VAL_SS)
+                val_w.setAlignment(Qt.AlignVCenter | Qt.AlignLeft)
+
+            rh.addWidget(lbl_w)
+            rh.addWidget(val_w, 1)
+            self._ficha_vlay.addWidget(row_w)
+            row_idx += 1
+
+        self._ficha_vlay.addStretch()
 
     def set_lv_ficha(self, er_ficha: dict, accent: str = "#4caf50"):
         """Substitui a área de ficha por layout estruturado LV (seções + segmentos).
@@ -2875,7 +2922,7 @@ class LevelColumn(QFrame):
         self._restore_lv_ficha()   # limpa anterior se houver
         lay = self.layout()
         self.lbl_ficha.setVisible(False)
-        self.ficha_table.setVisible(False)
+        self._ficha_scroll.setVisible(False)
 
         splitter = QSplitter(Qt.Horizontal)
         splitter.setHandleWidth(3)
@@ -2896,14 +2943,14 @@ class LevelColumn(QFrame):
         self._lv_ficha_splitter = splitter
 
     def _restore_lv_ficha(self):
-        """Remove widget LV estruturado e restaura lbl_ficha + ficha_table."""
+        """Remove widget LV estruturado e restaura lbl_ficha + ficha_scroll."""
         w = getattr(self, '_lv_ficha_splitter', None)
         if w is not None:
             w.setParent(None)
             w.deleteLater()
             self._lv_ficha_splitter = None
         self.lbl_ficha.setVisible(True)
-        self.ficha_table.setVisible(True)
+        self._ficha_scroll.setVisible(True)
 
     def set_processing(self, active: bool):
         self.prog.setVisible(active)
@@ -2931,7 +2978,7 @@ class LevelColumn(QFrame):
         if not getattr(self, '_pil_mode', False):
             self.img_widget.setVisible(False)
             self.lbl_ficha.setVisible(False)
-            self.ficha_table.setVisible(False)
+            self._ficha_scroll.setVisible(False)
 
             splitter = QSplitter(Qt.Horizontal)
             self._zone_views: dict = {}
@@ -3036,7 +3083,7 @@ class LevelColumn(QFrame):
         if not getattr(self, '_pil_mode', False):
             self.img_widget.setVisible(False)
             self.lbl_ficha.setVisible(False)
-            self.ficha_table.setVisible(False)
+            self._ficha_scroll.setVisible(False)
 
             splitter = QSplitter(Qt.Horizontal)
             self._zone_views:  dict = {}
@@ -3117,7 +3164,7 @@ class LevelColumn(QFrame):
         self._pil_splitter.setVisible(False)
         self.img_widget.setVisible(True)
         self.lbl_ficha.setVisible(True)
-        self.ficha_table.setVisible(True)
+        self._ficha_scroll.setVisible(True)
         self._pil_mode = False
 
 
@@ -4467,32 +4514,63 @@ class TriLevelArea(QWidget):
         return self._ficha_n1_for('LV', vn)
 
     def _ficha_n1_for(self, classe: str, item_id: str) -> list:
-        """Ficha N1 class-aware — lê Fase-3 para qualquer classe."""
-        import re as _re
-        rows = [("Nome", item_id), ("Classe", classe)]
-        # Normaliza chave para busca em Fase-3: V301_A/V301_fundo → V301
+        """Ficha N1 class-aware — lê Fase-3 / Fase-4 para qualquer classe.
+        Retorna lista de tuplas (label, value) com marcadores:
+          ('==', 'TÍTULO')  → seção
+          ('---', '')       → separador
+          ('⚠ aviso', msg) → warning
+        """
+        import re as _re, json as _json
+
+        def _fmt(v, default="—"):
+            if v is None: return default
+            if isinstance(v, float) and v == int(v): return str(int(v))
+            return str(v) if str(v).strip() else default
+
+        def _pct(v): return f"{v*100:.1f}%" if v else "—"
+        def _bool(v): return "Sim" if v else "Não"
+        def _linhas(lst):
+            if not isinstance(lst, list) or not lst: return "—"
+            vals = [f"{l.get('value', l) if isinstance(l, dict) else l:.0f}" for l in lst[:4]]
+            extra = f" +{len(lst)-4}" if len(lst) > 4 else ""
+            return f"{len(lst)}× [{', '.join(vals)}{extra}] cm"
+        def _anc(v):
+            if isinstance(v, (list, tuple)) and len(v) >= 2:
+                return f"({v[0]:.0f}, {v[1]:.0f})"
+            return _fmt(v)
+
+        # Normaliza chave: V301_A/V301_fundo → V301
         viga_key = _re.sub(r'[_.]([A-Da-d]|fundo)$', '', item_id, flags=_re.I)
+        rows: list = []
+
+        # ── Header: Nome / Item
+        rows += [
+            ("==", f"{classe}  ·  {item_id}"),
+            ("Nº Item", _fmt(item_id)),
+            ("Classe", classe),
+        ]
 
         if classe == 'LV':
             vd  = self._vigas_fase3.get(viga_key) or self._vigas_fase3.get(item_id, {})
             fr  = self._fichas_rev.get(viga_key) or self._fichas_rev.get(item_id, {})
             anc = self._ancoras.get(viga_key) or self._ancoras.get(item_id, {})
             rows += [
-                ("---", ""),
-                ("b estrutural (cm)", vd.get("b", "—")),
-                ("h estrutural (cm)", vd.get("h", "—")),
-                ("Compr. bruto (cm)", vd.get("comprimento_original", "—")),
-                ("Compr. enriquecido (cm)", vd.get("comprimento", "—")),
-                ("Status enriquecimento", vd.get("comprimento_enrich_status", "—")),
-                ("Confidence", f"{vd.get('confidence',0)*100:.1f}%" if vd.get('confidence') else "—"),
-                ("Source", vd.get("source", "—")),
-                ("Faces", ", ".join(vd.get("sides", []))),
-                ("has_lv", str(fr.get("has_lv", "—"))),
-                ("has_fv", str(fr.get("has_fv", "—"))),
-                ("Pavimentos", ", ".join(fr.get("pavimentos", []))),
-                ("Altura estrutural (cm)", fr.get("altura_cm", "—")),
-                ("Âncora A (x, y)", str(anc.get("A", "—"))),
-                ("Âncora B (x, y)", str(anc.get("B", "—"))),
+                ("==", "CONFIGURAÇÃO DA VIGA"),
+                ("b estrutural (cm)", _fmt(vd.get("b"))),
+                ("h estrutural (cm)", _fmt(vd.get("h"))),
+                ("Comprimento bruto (cm)", _fmt(vd.get("comprimento_original"))),
+                ("Comprimento (cm)", _fmt(vd.get("comprimento"))),
+                ("Status comprimento", _fmt(vd.get("comprimento_enrich_status"))),
+                ("Faces", ", ".join(vd.get("sides", [])) or "—"),
+                ("has_lv", _bool(fr.get("has_lv"))),
+                ("has_fv", _bool(fr.get("has_fv"))),
+                ("==", "DADOS GERAIS - VIGA LATERAL"),
+                ("Altura estrutural (cm)", _fmt(fr.get("altura_cm"))),
+                ("Pavimentos", ", ".join(fr.get("pavimentos", [])) or "—"),
+                ("Âncora A", _anc(anc.get("A"))),
+                ("Âncora B", _anc(anc.get("B"))),
+                ("Confidence", _pct(vd.get("confidence"))),
+                ("Source", _fmt(vd.get("source"))),
             ]
 
         elif classe == 'PL':
@@ -4500,60 +4578,71 @@ class TriLevelArea(QWidget):
             pa  = self._pilares_assembly.get(item_id, {})
             pos = self._est_labels.get(item_id)
             rows += [
-                ("---", ""),
-                ("b (cm)", pd_.get("b", "—")),
-                ("h (cm)", pd_.get("h", "—")),
-                ("Altura (cm)", pd_.get("altura", "—")),
-                ("Confidence", f"{pd_.get('confidence',0)*100:.1f}%" if pd_.get('confidence') else "—"),
-                ("Source", pd_.get("source", "—")),
-                ("---", ""),
-                ("grade_1", pa.get("grade_1", "—")),
-                ("grade_2", pa.get("grade_2", "—")),
-                ("distancia_1", pa.get("distancia_1", "—")),
+                ("==", "DIMENSIONAMENTO"),
+                ("b (cm)", _fmt(pd_.get("b"))),
+                ("h (cm)", _fmt(pd_.get("h"))),
+                ("Altura (cm)", _fmt(pd_.get("altura"))),
+                ("Nível saída", _fmt(pd_.get("nivel_saida"))),
+                ("Nível chegada", _fmt(pd_.get("nivel_chegada"))),
+                ("==", "DADOS GERAIS - PILAR"),
+                ("grade_1", _fmt(pa.get("grade_1"))),
+                ("grade_2", _fmt(pa.get("grade_2"))),
+                ("distancia_1", _fmt(pa.get("distancia_1"))),
                 ("Pos. estrutural (x,y)", f"({pos[0]:.0f}, {pos[1]:.0f})" if pos else "—"),
+                ("Confidence", _pct(pd_.get("confidence"))),
+                ("Source", _fmt(pd_.get("source"))),
             ]
 
         elif classe == 'FV':
             fv = self._vigas_fundo_fase3.get(viga_key) or self._vigas_fundo_fase3.get(item_id, {})
             rows += [
-                ("---", ""),
-                ("b (cm)", fv.get("b", "—")),
-                ("h (cm)", fv.get("h", "—")),
-                ("Comprimento (cm)", fv.get("comprimento", "—")),
-                ("Confidence", f"{fv.get('confidence',0)*100:.1f}%" if fv.get('confidence') else "—"),
-                ("Source", fv.get("source", "—")),
+                ("==", "CONFIGURAÇÃO DO FUNDO DE VIGA"),
+                ("b (cm)", _fmt(fv.get("b"))),
+                ("h (cm)", _fmt(fv.get("h"))),
+                ("Comprimento (cm)", _fmt(fv.get("comprimento"))),
+                ("==", "DADOS GERAIS"),
+                ("Confidence", _pct(fv.get("confidence"))),
+                ("Source", _fmt(fv.get("source"))),
             ]
 
         elif classe == 'LJ':
             lj = self._lajes_fase3.get(item_id, {})
             pont = self._lajes_pontaletes.get(item_id, {})
-            # Fallback Fase-4: Fase-3 usa schema diferente (comprimento_cm vs comprimento)
-            # → preferir JSON Fase-4 que tem os campos corretos
+            # Fallback Fase-4: schema Fase-3 diferente (comprimento_cm ≠ comprimento)
             if self._current_obra and 'comprimento' not in lj:
-                _f4 = (DADOS_OBRAS_ROOT / self._current_obra
-                       / "Fase-4_Sincronizacao" / "JSON_Lajes" / f"{item_id}.json")
-                if _f4.exists():
+                _f4p = (DADOS_OBRAS_ROOT / self._current_obra
+                        / "Fase-4_Sincronizacao" / "JSON_Lajes" / f"{item_id}.json")
+                if _f4p.exists():
                     try:
-                        import json as _json
-                        lj = _json.loads(_f4.read_text(encoding='utf-8'))
+                        lj = _json.loads(_f4p.read_text(encoding='utf-8'))
                         if isinstance(lj.get('pontaletes'), dict):
                             pont = lj['pontaletes']
                     except Exception:
                         lj = {}
+            # Formatar área
+            area = lj.get("area_cm2")
+            area_str = f"{area:.0f} cm²  ({area/10000:.2f} m²)" if area else "—"
+            # Formatar modo
+            modo = lj.get("modo_selecionado")
+            modo_str = {0: "Normal (0)", 1: "Espelho (1)"}.get(modo, _fmt(modo))
             rows += [
-                ("---", ""),
-                ("Comprimento (cm)", lj.get("comprimento", "—")),
-                ("Largura (cm)", lj.get("largura", "—")),
-                ("Área (cm²)", lj.get("area_cm2", "—")),
-                ("Modo selecionado", lj.get("modo_selecionado", "—")),
-                ("Lin. Verticais", lj.get("linhas_verticais", "—")),
-                ("Lin. Horizontais", lj.get("linhas_horizontais", "—")),
-                ("Uniões nos bordos", lj.get("unioes_nos_bordes", "—")),
-                ("Observações", lj.get("observacoes", "—") or "—"),
-                ("Pontaletes total", pont.get("total", "—") if isinstance(pont, dict) else "—"),
+                ("==", "CÁLCULO / MÉTRICAS DA LAJE"),
+                ("Área Total (calculada)", area_str),
+                ("Modo de Cálculo", modo_str),
+                ("Lin. Verticais de Pont.", _linhas(lj.get("linhas_verticais"))),
+                ("Lin. Horizontais de Pont.", _linhas(lj.get("linhas_horizontais"))),
+                ("Uniões nos Bordos", _bool(lj.get("unioes_nos_bordes"))),
+                ("Observações / Notas", _fmt(lj.get("observacoes")) or "—"),
+                ("==", "DADOS GERAIS - LAJE"),
+                ("Nome", _fmt(lj.get("nome") or item_id)),
+                ("Comprimento C (cm)", _fmt(lj.get("comprimento"))),
+                ("Largura L (cm)", _fmt(lj.get("largura"))),
+                ("Pontaletes total", _fmt(pont.get("total")) if isinstance(pont, dict) else "—"),
             ]
 
-        if all(v == "—" for k, v in rows[2:] if k != "---"):
+        # Checar se todos valores são "—" (ficha vazia)
+        data_rows = [v for (k, v) in rows if k not in ("==", "---", "Classe") and k not in (f"{classe}  ·  {item_id}", "Nº Item")]
+        if all(v == "—" for v in data_rows):
             rows.append(("⚠ Fase-3", "Rode Análise Geral para popular esta ficha"))
         return rows
 
