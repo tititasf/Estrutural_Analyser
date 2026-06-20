@@ -3961,10 +3961,34 @@ class TriLevelArea(QWidget):
                     self._discovery = {}
         return self._discovery
 
+    @staticmethod
+    def _find_n1_project_dxf(obra_name: str, pav_name: str) -> "Path | None":
+        """Busca dxf_path gravado em projects — o mesmo DXF que o SA carregou para análise."""
+        if not obra_name or not pav_name:
+            return None
+        try:
+            import sqlite3
+            from pathlib import Path as _P
+            conn = sqlite3.connect(r"D:/Agente-cad-PYSIDE/project_data.vision")
+            cur = conn.execute(
+                "SELECT dxf_path FROM projects WHERE work_name=? AND pavement_name=? LIMIT 1",
+                (obra_name, pav_name))
+            row = cur.fetchone()
+            conn.close()
+            if row and row[0]:
+                p = _P(row[0])
+                if p.exists():
+                    return p
+        except Exception as e:
+            print(f"[CE] _find_n1_project_dxf error: {e}")
+        return None
+
     def _find_n1_dxf(self, obra_dir: Path) -> "Path | None":
-        """Retorna DXF limpo do pavimento atual de Fase-2_Triagem/Estruturais_Pavimentos_Limpos/.
-        Usa tokens derivados do nome do pavimento classificado na triagem.
-        Fallback: DXF bruto de Fase-1_Ingestao se limpo não encontrado."""
+        """Retorna DXF do pavimento atual — usa projects.dxf_path (mesmo que o SA).
+        Fallback: Estruturais_Pavimentos_Limpos → Fase-1 bruto."""
+        p = self._find_n1_project_dxf(self._current_obra, self._current_pav or "")
+        if p:
+            return p
         return self._find_n1_clean_dxf(obra_dir, self._current_pav or "")
 
     def _find_n1_clean_dxf(self, obra_dir: Path, pav: str) -> "Path | None":
@@ -4954,9 +4978,12 @@ class ComparisonEngineModule(QWidget):
             print(f"[CE] _on_obra_pav_changed error: {exc}")
 
     def _load_n1_dxf_for_pav(self, obra: str, pav: str):
-        """Carrega DXF limpo do pavimento no N1 viewer (visão completa, sem bbox de item)."""
-        obra_dir = DADOS_OBRAS_ROOT / obra
-        n1_dxf = self.tri_level._find_n1_clean_dxf(obra_dir, pav)
+        """Carrega DXF do pavimento no N1 viewer — usa projects.dxf_path (mesmo que SA)."""
+        # Prioridade: recorte gravado pelo SA em projects.dxf_path
+        n1_dxf = self.tri_level._find_n1_project_dxf(obra, pav)
+        if not n1_dxf:
+            obra_dir = DADOS_OBRAS_ROOT / obra
+            n1_dxf = self.tri_level._find_n1_clean_dxf(obra_dir, pav)
         col = self.tri_level._columns[0]
         col.pipeline.reset()
         if n1_dxf and n1_dxf.exists():
@@ -5130,8 +5157,10 @@ class ComparisonEngineModule(QWidget):
                     col.pipeline.set_step(1, 'ok', f'{item_id} (pav completo)')
             else:
                 # DXF não carregado (primeira vez ou após reset) — carrega e faz zoom
-                obra_dir = DADOS_OBRAS_ROOT / obra
-                n1_dxf = self.tri_level._find_n1_clean_dxf(obra_dir, pav)
+                n1_dxf = self.tri_level._find_n1_project_dxf(obra, pav)
+                if not n1_dxf:
+                    obra_dir = DADOS_OBRAS_ROOT / obra
+                    n1_dxf = self.tri_level._find_n1_clean_dxf(obra_dir, pav)
                 if n1_dxf and n1_dxf.exists():
                     col.load_content(str(n1_dxf), n1_bbox)
                     col.pipeline.set_step(1, 'ok', item_id)
