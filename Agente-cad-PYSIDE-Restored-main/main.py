@@ -1209,6 +1209,8 @@ class MainWindow(QMainWindow):
             # ── Detectar classificação de pavimento ──────────────────────────
             # Número + P/PV/PAV: 13P, 14P, 1PV, 2PV, 1PAV, 8PAV
             m_num = _re.search(r'[-_ ](\d{1,2})P(?:AV?|V)?(?:[-_ ]|$)', up)
+            if not m_num: m_num = _re.match(r'^(\d{1,2})\s*PAV', up)
+            if not m_num: m_num = _re.match(r'^PAV\s*(\d{1,2})(?:\s|$)', up)
             if m_num:
                 n = m_num.group(1)
                 return f"[{n}º PAV]  {short}"
@@ -1234,7 +1236,7 @@ class MainWindow(QMainWindow):
             m_id = _re.search(r'[-_](\d{3,5})[-_]', name)
             if m_id:
                 return f"[{m_id.group(1)}]  {short}"
-            return f"■  {short}"
+            return short
 
         self._pav_card_label = _pav_card_label  # expõe para outros métodos
 
@@ -5409,25 +5411,25 @@ class MainWindow(QMainWindow):
                             return (0, 0)
                     n1_report['PIL']['total'], n1_report['PIL']['validados'] = _count_tbl('pillars')
                     n1_report['LAJ']['total'], n1_report['LAJ']['validados'] = _count_tbl('slabs')
-                    # Vigas: 1 ficha FV + 1 ficha LV por viga; segmentos divergem (fundo vs lados A/B)
+                    # Vigas: 1 ficha FV + 1 ficha LV por viga (split persistido em beam_elements).
+                    # Sincroniza o split a partir dos beams persistidos (idempotente, derivado — não toca beams).
                     try:
-                        c.execute("SELECT data_json, is_validated FROM beams WHERE project_id=?", [str(_pid)])
-                        _nv = 0; _val = 0; _fv_seg = 0; _lv_seg = 0
-                        for _dj, _isv in c.fetchall():
-                            _nv += 1
-                            if _isv == 1:
-                                _val += 1
-                            try:
-                                _cl = ((json.loads(_dj) if _dj else {}).get('geometry', {}) or {}).get('classified', {}) or {}
-                                _fv_seg += len(_cl.get('seg_bottom') or [])
-                                _lv_seg += len(_cl.get('seg_side_a') or []) + len(_cl.get('seg_side_b') or [])
-                            except Exception:
-                                pass
-                        for _k in ('FV', 'LV'):
-                            n1_report[_k]['total'] = _nv
-                            n1_report[_k]['validados'] = _val
-                        n1_report['FV']['segmentos'] = _fv_seg
-                        n1_report['LV']['segmentos'] = _lv_seg
+                        if hasattr(self, "db") and hasattr(self.db, "materialize_beam_elements"):
+                            self.db.materialize_beam_elements(_pid)
+                    except Exception:
+                        pass
+                    try:
+                        c.execute(
+                            "SELECT classe, COUNT(*), COALESCE(SUM(n_segmentos),0), "
+                            "COALESCE(SUM(CASE WHEN is_validated=1 THEN 1 ELSE 0 END),0) "
+                            "FROM beam_elements WHERE project_id=? AND classe IN ('FV','LV') GROUP BY classe",
+                            [str(_pid)]
+                        )
+                        for _cls, _n, _seg, _val in c.fetchall():
+                            if _cls in ('FV', 'LV'):
+                                n1_report[_cls]['total'] = _n
+                                n1_report[_cls]['segmentos'] = _seg
+                                n1_report[_cls]['validados'] = _val
                     except Exception:
                         pass
 
