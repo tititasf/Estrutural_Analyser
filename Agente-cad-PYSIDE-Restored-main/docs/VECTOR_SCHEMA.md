@@ -545,3 +545,16 @@ class PilarSchema(BaseModel):
 | 1.0.0 | 2026-01-21 | Schema inicial |
 | 1.1.0 | Planejado | Adicao de embeddings multimodais |
 | 2.0.0 | Planejado | Schema para engenharia reversa |
+
+---
+
+## 11. Reconciliacao Fichas Granulares F5/F7
+
+Atualizacao Etapa 1 (2026-06-20): o schema operacional de item granular passa a ser documentado em
+`docs/SCHEMA-FICHA-GRANULAR.md`, derivado de `reverse_eng_fichas.campos_json` real.
+
+Este `VECTOR_SCHEMA.md` permanece como modelo vetorial amplo. Para itens de ficha:
+
+- F5/N2 e F7/N1 usam o envelope `_ficha`, `_schema` e `_semantic_refs`.
+- Nenhuma migracao destrutiva foi aplicada.
+- O acoplamento final de `_semantic_refs` com `domain_knowledge` fica pendente para a etapa semantica/RAG.
