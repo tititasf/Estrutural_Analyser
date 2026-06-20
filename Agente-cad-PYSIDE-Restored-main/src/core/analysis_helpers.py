@@ -183,8 +183,8 @@ def process_beam_intelligent(b: Dict) -> None:
 
     # 6. Apoios (Início / Fim)
     all_pts: list = []
-    for seg_list in classified.values():
-        for line in seg_list:
+    for key in ['seg_side_a', 'seg_side_b', 'seg_bottom']:
+        for line in classified.get(key, []):
             all_pts.extend(line)
 
     if all_pts:
@@ -256,7 +256,11 @@ def process_beam_intelligent(b: Dict) -> None:
                 b['links']['aberturas']['pilar'].append(s)
 
     # 12. Fundos (Geometria inteligente)
-    bottom_lines = classified.get('seg_bottom', [])
+    # Tenta pegar os grupos de polilinhas reais agrupados pelo deduplicador neural
+    bottom_groups = classified.get('merged_bottom_groups', [])
+    if not bottom_groups:
+        bottom_groups = [[line] for line in classified.get('seg_bottom', [])]
+        
     len_bottom = 0.0
     
     # Extrair largura base do texto de dimensao mestre (ex: 20x60 -> 20)
@@ -267,31 +271,36 @@ def process_beam_intelligent(b: Dict) -> None:
         if match:
             base_width = match.group(1)
 
-    for idx, line in enumerate(bottom_lines, 1):
-        p1, p2 = line[0], line[-1]
-        length = ((p2[0] - p1[0]) ** 2 + (p2[1] - p1[1]) ** 2) ** 0.5
+    for idx, group in enumerate(bottom_groups, 1):
+        # A length do segmento é calculada previamente em merged_bottom_lengths
+        lengths_list = classified.get('merged_bottom_lengths', [])
+        if idx - 1 < len(lengths_list):
+            length = lengths_list[idx - 1]
+        else:
+            length = 0.0
+            if group:
+                p1, p2 = group[0][0], group[0][-1]
+                length = ((p2[0] - p1[0]) ** 2 + (p2[1] - p1[1]) ** 2) ** 0.5
+                
         len_bottom += length
         
-        seg_uid = f"viga_fundo_c_seg_{idx}"
-        
-        # O DetailCard precisa saber que o segmento existe
+        seg_uid = f"viga_fundo_seg_{idx}"
         b[f"{seg_uid}_exists"] = True
         
-        # Injetar links para Área Geometria (Link Drawer espera a chave 'contour')
         area_key = f"{seg_uid}_area_segs"
         if area_key not in b['links']:
             b['links'][area_key] = {'contour': []}
             
-        b['links'][area_key]['contour'].append(
-            {'type': 'poly', 'points': line, 'len': length, 'tag': 'Geometria Fundo'}
-        )
+        for line in group:
+            b['links'][area_key]['contour'].append(
+                {'type': 'poly', 'points': line, 'len': length, 'tag': 'Geometria Fundo'}
+            )
         
-        # Auto preencher campos derivados da geometria
         b['fields'][f"{seg_uid}_comprimento_calculado"] = round(length, 1)
         b['fields'][f"{seg_uid}_largura"] = base_width
 
     b['fields']['comprimento_fundo'] = round(len_bottom, 1)
-    b['seg_c'] = len(bottom_lines) # Quantidade de segmentos detectados
+    b['seg_c'] = len(bottom_groups)
 
 
 
@@ -418,8 +427,8 @@ def correlate_sides_data(pilares: List[Dict], vigas: List[Dict], search_radius: 
         geo = v.get('geometry', {})
         classified = geo.get('classified', {})
         all_pts: list = []
-        for seg_list in classified.values():
-            for line in seg_list:
+        for key in ['seg_side_a', 'seg_side_b', 'seg_bottom']:
+            for line in classified.get(key, []):
                 all_pts.extend(line)
         if all_pts:
             cx = sum(p[0] for p in all_pts) / len(all_pts)

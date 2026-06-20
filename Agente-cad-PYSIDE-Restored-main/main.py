@@ -4678,8 +4678,9 @@ class MainWindow(QMainWindow):
 
         # --- CARREGAR N2 TEACHER DIMS (ground truth structural dimensions) ---
         n2_teacher_dims = {}
+        projects_repo = os.path.join(os.path.dirname(__file__), 'projects_repo')
         try:
-            projects_repo = os.path.join(os.path.dirname(__file__), "projects_repo")
+
             if self.current_project_id and os.path.isdir(projects_repo):
                 proj_n2_dir = os.path.join(projects_repo, self.current_project_id, "laje_data")
                 obras_json = os.path.join(proj_n2_dir, "obras.json")
@@ -4691,6 +4692,9 @@ class MainWindow(QMainWindow):
                             for laje in pav.get("lajes", []):
                                 nome = laje.get("nome", "").upper()
                                 if nome:
+                                    comp_val = laje.get("comprimento") or 0
+                                    if nome in n2_teacher_dims and (not comp_val or float(comp_val) <= 20):
+                                        continue  # nao sobrescrever entry valida com uma invalida
                                     n2_teacher_dims[nome] = {
                                         "comprimento": laje.get("comprimento"),
                                         "largura": laje.get("largura"),
@@ -4701,6 +4705,34 @@ class MainWindow(QMainWindow):
                     self.log(f"🧠 N2 Teacher carregado: {len(n2_teacher_dims)} lajes com dimensoes estruturais")
         except Exception as e:
             self.log(f"⚠️ N2 Teacher nao carregado: {e}")
+        # Fallback: se N2 teacher vazio, procurar em todos os projetos
+        if not n2_teacher_dims:
+            self.log(f'N2 Teacher fallback: current_project_id={self.current_project_id}, projects_repo exists={os.path.isdir(projects_repo)}')
+            for _obras_path in _glob.glob(os.path.join(projects_repo, '*', 'laje_data', 'obras.json')):
+                try:
+                    with open(_obras_path, 'r', encoding='utf-8') as _f:
+                        _n2 = json.load(_f)
+                    _count_before = len(n2_teacher_dims)
+                    for _obra in _n2.get('obras', []):
+                        for _pav in _obra.get('pavimentos', []):
+                            for _laje in _pav.get('lajes', []):
+                                _nome = _laje.get('nome', '').upper()
+                                if _nome:
+                                    _comp = _laje.get('comprimento') or 0
+                                    if _nome in n2_teacher_dims and (not _comp or float(_comp) <= 20):
+                                        continue
+                                    n2_teacher_dims[_nome] = {
+                                        'comprimento': _laje.get('comprimento'),
+                                        'largura': _laje.get('largura'),
+                                        'area_cm2': _laje.get('area_cm2'),
+                                        'coordenadas': _laje.get('coordenadas'),
+                                        'pavimento': _laje.get('pavimento'),
+                                    }
+                    _added = len(n2_teacher_dims) - _count_before
+                    if _added > 0:
+                        self.log(f'N2 Teacher fallback: +{_added} lajes de {_obras_path}')
+                except Exception:
+                    pass
         self.slabs_found = slab_tracer.detect_slabs_from_texts(texts, valid_layers=search_layers, search_radius=learned_contour_radius, teacher_dims=n2_teacher_dims)
         self.slabs_found.sort(key=nat_key)
         self.log(f"🔎 Lajes detectadas: {len(self.slabs_found)} (Busca por textos L#)")
@@ -5155,22 +5187,275 @@ class MainWindow(QMainWindow):
 
 
     def _process_with_reverse_engineering(self):
-        from PySide6.QtWidgets import QMessageBox
+        """Consultar e utilizar fichas N2 existentes como base de conhecimento."""
+        from PySide6.QtWidgets import QMessageBox, QDialog, QVBoxLayout, QLabel, QPushButton, QTextEdit
         import sqlite3
         import json
         import os
-        
-        obra_nome = self.cmb_obras.currentText()
+        import glob
+
+        obra_nome = self.cmb_works.currentText()
         pavimento_nome = self.cmb_pavements.currentText()
-        
+
         if not obra_nome or obra_nome == 'Selecionar Obra...':
             QMessageBox.warning(self, 'Aviso', 'Selecione uma obra.')
             return
-            
-        # Carregar Fichas do Vision DB
+
+        # === ETAPA 1: BUSCAR FICHAS N2 ===
+        self.log(f"🔍 Consultando fichas N2 para obra '{obra_nome}', pavimento '{pavimento_nome}'...")
+
         db_path = 'D:/Agente-cad-PYSIDE/project_data.vision'
-        self._reverse_eng_cache = {'P': {}, 'FV': {}, 'LV': {}, 'L': {}}
+        n2_report = {
+            'PIL': {'fichas': 0, 'recortes': 0, 'com_dims': 0},
+            'FV':  {'fichas': 0, 'recortes': 0, 'com_dims': 0},
+            'LV':  {'fichas': 0, 'recortes': 0, 'com_dims': 0},
+            'LAJ': {'fichas': 0, 'recortes': 0, 'obras_json': 0, 'com_coords': 0},
+        }
+        obra_ficha_info = None
+        n2_available = False
+
+        try:
+            if os.path.exists(db_path):
+                conn = sqlite3.connect(db_path)
+                c = conn.cursor()
+
+                # 1a. reverse_eng_recortes - contagem por classe
+                query_rec = "SELECT classe, COUNT(*) FROM reverse_eng_recortes WHERE obra_name=?"
+                params = [obra_nome]
+                if pavimento_nome and pavimento_nome != 'Selecionar Pavimento...':
+                    # Tentar match por pavimento no elemento_id ou path
+                    pass  # recortes nao tem coluna pavimento, filtrar depois
+                c.execute(query_rec, params)
+                for row in c.fetchall():
+                    cls = row[0]
+                    if cls in n2_report:
+                        n2_report[cls]['recortes'] = row[1]
+
+                # 1b. reverse_eng_fichas - contagem por classe
+                query_fic = "SELECT classe, COUNT(*) FROM reverse_eng_fichas WHERE obra_name=?"
+                params_fic = [obra_nome]
+                if pavimento_nome and pavimento_nome != 'Selecionar Pavimento...':
+                    query_fic += " AND (pavimento=? OR pavimento='')"
+                    params_fic.append(pavimento_nome)
+                c.execute(query_fic, params_fic)
+                for row in c.fetchall():
+                    cls = row[0]
+                    if cls in n2_report:
+                        n2_report[cls]['fichas'] = row[1]
+                        n2_available = True
+
+                # 1c. Verificar granularidade - quantas fichas tem dims
+                for cls in n2_report:
+                    c.execute(
+                        "SELECT campos_json FROM reverse_eng_fichas WHERE obra_name=? AND classe=?",
+                        [obra_nome, cls]
+                    )
+                    for r in c.fetchall():
+                        try:
+                            campos = json.loads(r[0]) if r[0] else {}
+                            if campos.get('b') or campos.get('h') or campos.get('total_width'):
+                                n2_report[cls]['com_dims'] += 1
+                        except:
+                            pass
+
+                # 1d. reverse_eng_obra_ficha - ficha geral da obra
+                c.execute("SELECT total_pil, total_lv, total_fv, total_laj, confianca_media, resumo_json FROM reverse_eng_obra_ficha WHERE obra_name=?", [obra_nome])
+                row = c.fetchone()
+                if row:
+                    obra_ficha_info = {
+                        'total_pil': row[0], 'total_lv': row[1], 'total_fv': row[2],
+                        'total_laj': row[3], 'confianca': row[4]
+                    }
+                    n2_available = True
+
+                conn.close()
+        except Exception as e:
+            self.log(f"❌ Erro ao consultar fichas N2: {e}")
+
+        # 1e. Verificar obras.json (lajes com coordenadas)
+        projects_repo = os.path.join(os.path.dirname(__file__), "projects_repo")
+        obras_json_found = None
+        for obras_path in glob.glob(os.path.join(projects_repo, "*", "laje_data", "obras.json")):
+            try:
+                with open(obras_path, "r", encoding="utf-8") as f:
+                    data = json.load(f)
+                for obra in data.get("obras", []):
+                    for pav in obra.get("pavimentos", []):
+                        lajes = pav.get("lajes", [])
+                        for laje in lajes:
+                            if laje.get("coordenadas"):
+                                n2_report['LAJ']['com_coords'] += 1
+                        n2_report['LAJ']['obras_json'] += len(lajes)
+                if n2_report['LAJ']['obras_json'] > 0 and not obras_json_found:
+                    obras_json_found = obras_path
+            except:
+                pass
+
+        if n2_report['LAJ']['obras_json'] > 0:
+            n2_available = True
+
+        # === ETAPA 2: RELATÓRIO ===
+        report_lines = []
+        report_lines.append(f"🔍 RELATÓRIO DE FICHAS N2\n")
+        report_lines.append(f"Obra: {obra_nome}")
+        report_lines.append(f"Pavimento: {pavimento_nome or 'Todos'}\n")
+
+        if obra_ficha_info:
+            report_lines.append(f"📊 Ficha da Obra (global):")
+            report_lines.append(f"  Pilares: {obra_ficha_info['total_pil']}")
+            report_lines.append(f"  Vigas Laterais: {obra_ficha_info['total_lv']}")
+            report_lines.append(f"  Vigas Fundo: {obra_ficha_info['total_fv']}")
+            report_lines.append(f"  Lajes: {obra_ficha_info['total_laj']}")
+            report_lines.append(f"  Confiança média: {obra_ficha_info['confianca']:.1%}\n")
+
+        report_lines.append("📋 Fichas Granulares N2:")
+        for cls, label in [('PIL', 'Pilares'), ('FV', 'Vigas Fundo'), ('LV', 'Vigas Laterais'), ('LAJ', 'Lajes')]:
+            info = n2_report[cls]
+            if cls == 'LAJ':
+                report_lines.append(f"  {label}: {info['fichas']} fichas, {info['recortes']} recortes, {info['obras_json']} no obras.json ({info['com_coords']} com coordenadas)")
+            else:
+                report_lines.append(f"  {label}: {info['fichas']} fichas, {info['recortes']} recortes ({info['com_dims']} com dims)")
+
+        # Verificar ficha do pavimento por classe
+        report_lines.append("\n🏠 Ficha do Pavimento por Classe:")
+        for cls, label in [('PIL', 'Pilares'), ('FV', 'Vigas Fundo'), ('LV', 'Vigas Laterais'), ('LAJ', 'Lajes')]:
+            has_pav_ficha = n2_report[cls]['fichas'] > 0 or n2_report[cls]['recortes'] > 0
+            status = "✅ Encontrada" if has_pav_ficha else "❌ Não encontrada"
+            report_lines.append(f"  {label}: {status}")
+
+        if not n2_available:
+            report_lines.append("\n⚠️ Nenhuma ficha N2 encontrada para esta obra/pavimento.")
+            report_lines.append("Execute o sistema de triagem Fase-2 primeiro para gerar as fichas N2.")
+
+        report_text = "\n".join(report_lines)
+        self.log(f"\n{report_text}\n")
+
+        # === ETAPA 3: CONFIRMAÇÃO ===
+        if not n2_available:
+            QMessageBox.warning(self, "Fichas N2 Não Encontradas",
+                f"Nenhuma ficha N2 encontrada para a obra '{obra_nome}'.\n\n"
+                f"Execute a triagem Fase-2 primeiro para gerar as fichas N2.")
+            return
+
+        # Dialog de confirmação gigante
+        dialog = QDialog(self)
+        dialog.setWindowTitle("Auditoria de Fichas (Master Plan F1-F8) & Confirmação de Análise")
+        dialog.resize(1100, 700)
         
+        main_layout = QVBoxLayout(dialog)
+        
+        # Cabeçalho
+        header = QLabel("<h3>Ecossistema de Conhecimento Estrutural (Fichas Fº1 a Fº8)</h3><p>Valide a coerência e os dados encontrados antes de injetar no Motor.</p>")
+        header.setAlignment(Qt.AlignCenter)
+        main_layout.addWidget(header)
+        
+        # Colunas
+        grid = QGridLayout()
+        
+        def create_group(title, content_html, row, col):
+            gb = QGroupBox(title)
+            gb.setStyleSheet("QGroupBox { font-weight: bold; font-size: 11px; border: 1px solid #3d4454; border-radius: 4px; margin-top: 10px; } QGroupBox::title { subcontrol-origin: margin; left: 10px; padding: 0 3px; color: #00ff9d; }")
+            l = QVBoxLayout(gb)
+            txt = QTextEdit()
+            txt.setReadOnly(True)
+            txt.setHtml(content_html)
+            txt.setStyleSheet("background: #1e222d; border: none; font-size: 11px;")
+            l.addWidget(txt)
+            grid.addWidget(gb, row, col)
+        
+        # --- Fase 1 ---
+        html_f1 = f"""
+        <b>ID:</b> <span style="color:#00c864">Fº1-OBRA</span><br><br>
+        <i>Origem: Fase 1 (Triagem/Ingestão)</i><br>
+        <b>Status:</b> {'✅ Concluído' if obra_ficha_info else '⚠️ Pendente'}<br><br>
+        <b>Métricas Macros:</b><br>
+        Pilares: {obra_ficha_info.get('total_pil', 0) if obra_ficha_info else 0}<br>
+        Lajes: {obra_ficha_info.get('total_laj', 0) if obra_ficha_info else 0}<br>
+        Confiança: {obra_ficha_info.get('confianca', 0):.1%} se houver.
+        """
+        create_group("Fº1: Ficha Pré-Obra", html_f1, 0, 0)
+        
+        # --- Fase 2 ---
+        html_f2_f3 = f"""
+        <b>ID:</b> <span style="color:#00c864">Fº2-OBRA-PAVIMENTO</span><br>
+        <i>Origem: Diagnostic Hub Pré</i><br>
+        <b>Status:</b> Fichas iniciais geolocalizadas.<br><br>
+        
+        <b>ID:</b> <span style="color:#00c864">Fº3-OBRA</span><br>
+        <i>Origem: Compreensão Global Motor</i><br>
+        <b>Status:</b> <span style="color:#ffb800">🚀 Em Desenvolvimento</span><br>
+        O Cérebro Global consolidado para análise de contexto futuro.
+        """
+        create_group("Fº2 & Fº3: Ficha Pavimento/Obra Global", html_f2_f3, 0, 1)
+        
+        # --- Fase 2.5 (N2) ---
+        n2_str = ""
+        for cls, label in [('PIL', 'Pilares'), ('FV', 'Vigas Fundo'), ('LV', 'Vigas Laterais'), ('LAJ', 'Lajes')]:
+            info = n2_report[cls]
+            n2_str += f"<b>{label}:</b> {info['fichas']} fichas / {info['recortes']} recortes<br>"
+        
+        html_f4_f5 = f"""
+        <b>IDs:</b> <span style="color:#00c864">Fº4-OBRA-PAVIMENTO-CLASSE</span><br>
+        <b>IDs:</b> <span style="color:#00c864">Fº5-OBRA-PAVIMENTO-CLASSE-ITEM</span><br>
+        <i>Origem: Diagnostic Reverse (Teacher)</i><br>
+        <b>Status:</b> {'✅ Gabaritos Encontrados' if n2_available else '❌ Não encontrados'}<br><br>
+        {n2_str}
+        <br>Gabaritos extraídos que populam a base N2 e N4.
+        """
+        create_group("Fº4 & Fº5: Engenharia Reversa (Teacher)", html_f4_f5, 0, 2)
+        
+        # --- Fase 3 (N1) ---
+        html_f6 = f"""
+        <b>ID:</b> <span style="color:#00c864">Fº6-OBRA</span><br>
+        <i>Origem: Structural Analyzer</i><br>
+        <b>Status:</b> Será gerado agora se prosseguir.<br><br>
+        Esta é a ficha do Cego/Motor Inteligente. Terá a <b>mesma profundidade de detalhismo</b> que a Fº5 (N2). Popula a base N1.
+        """
+        create_group("Fº6: Motor Structural Analyzer", html_f6, 1, 0)
+        
+        # --- Fase 4 (N3/N4) ---
+        html_f7_f8 = f"""
+        <b>ID:</b> <span style="color:#00c864">Fº7 / Fº8</span><br>
+        <i>Origem: Comparison Engine</i><br>
+        <b>Status:</b> Pós-Conversão.<br><br>
+        A Fº7 é a versão da Fº6 convertida para N3.<br>
+        A Fº8 é a versão da Fº5 convertida para N4 (O Gabarito Mestre).
+        """
+        create_group("Fº7 & Fº8: Comparison Engine Match", html_f7_f8, 1, 1)
+        
+        # --- Resumo/Avisos ---
+        warn_txt = ""
+        if not n2_available:
+            warn_txt = "<span style='color:red;'>⚠️ ATENÇÃO: Nenhuma Ficha Fº4/Fº5 (Teacher N2) foi encontrada para ser usada! Motor rodará cego.</span>"
+        else:
+            warn_txt = "<span style='color:#00c864;'>✅ Base de conhecimento carregada. Motor usará Engenharia Reversa.</span>"
+        
+        html_warn = f"<b>Sumário:</b> Obra {obra_nome} | Pav: {pavimento_nome or 'Todos'}<br><br>{warn_txt}"
+        create_group("Avisos", html_warn, 1, 2)
+        
+        main_layout.addLayout(grid)
+        
+        # Botões
+        btn_layout = QHBoxLayout()
+        btn_proceed = QPushButton("✅ Prosseguir e Gerar Fº6")
+        btn_proceed.setStyleSheet("background: #00c864; color: black; font-weight: bold; height: 30px;")
+        btn_cancel = QPushButton("❌ Cancelar")
+        btn_proceed.clicked.connect(lambda: dialog.accept())
+        btn_cancel.clicked.connect(lambda: dialog.reject())
+        btn_layout.addStretch()
+        btn_layout.addWidget(btn_cancel)
+        btn_layout.addWidget(btn_proceed)
+        main_layout.addLayout(btn_layout)
+
+        if dialog.exec() != QDialog.Accepted:
+            self.log("Análise com Eng Reversa cancelada pelo usuário.")
+            return
+
+        # === ETAPA 4: CARREGAR E USAR N2 TEACHER ===
+        self.log("✅ Prosseguindo com fichas N2 como base de conhecimento...")
+
+        # Carregar cache de fichas do Vision DB
+        self._reverse_eng_cache = {'P': {}, 'FV': {}, 'LV': {}, 'L': {}}
         try:
             if os.path.exists(db_path):
                 conn = sqlite3.connect(db_path)
@@ -5180,7 +5465,6 @@ class MainWindow(QMainWindow):
                 if pavimento_nome and pavimento_nome != 'Selecionar Pavimento...':
                     query += " AND (pavimento=? OR pavimento='')"
                     params.append(pavimento_nome)
-                
                 c.execute(query, params)
                 for row in c.fetchall():
                     cls, elem_id, campos_json = row
@@ -5188,14 +5472,16 @@ class MainWindow(QMainWindow):
                         self._reverse_eng_cache[cls][elem_id] = json.loads(campos_json)
                     except:
                         pass
+                conn.close()
+            self.log(f"Cache Eng Reversa: {sum(len(v) for v in self._reverse_eng_cache.values())} fichas carregadas")
         except Exception as e:
-            self.log(f'⚠️ Erro ao carregar Eng. Reversa: {e}')
-            
-        # Dispara a analise cruzada (mesmo que a simples, porem injetando a cache)
+            self.log(f"❌ Erro ao carregar cache Eng Reversa: {e}")
+
+        # Dispara a análise usando process_pillars_action (que carrega N2 teacher internamente)
         self.log("🚀 Iniciando Interpretação com dados da Engenharia Reversa...")
         self.process_pillars_action()
-        
-        # Limpar o cache para nao interferir em analises normais futuras
+
+        # Limpar o cache
         if hasattr(self, '_reverse_eng_cache'):
             del self._reverse_eng_cache
 
@@ -6141,6 +6427,12 @@ class MainWindow(QMainWindow):
         geo = b.get('geometry', {})
         classified = geo.get('classified', {})
         
+        # --- PROTEÇÃO DE DADOS ---
+        # Se a viga já veio do Banco de Dados com vínculos processados, não podemos esmagar!
+        has_links = len(b.get('links', {})) > 5  # Viga pré-processada tem muitos vínculos
+        if has_links:
+            return  # Já está inteligente, abortar xerox
+
         # --- ESTRUTURA BASE ---
         b.update({
             'type': 'Viga',
@@ -6289,8 +6581,8 @@ class MainWindow(QMainWindow):
         # 6. APOIOS (INCIAL / FINAL)
         # Identificar eixo principal da viga para ordenar elementos
         all_pts = []
-        for seg_list in classified.values():
-            for line in seg_list:
+        for key in ['seg_side_a', 'seg_side_b', 'seg_bottom']:
+            for line in classified.get(key, []):
                 all_pts.extend(line)
         
         if all_pts:
@@ -7288,20 +7580,20 @@ class MainWindow(QMainWindow):
                 "n2_quality": {
                     "excelente": len(n2_excellent),
                     "bom": len(n2_bom),
-                    "regular": len(n2_regular),
                     "ruim": len(n2_ruim),
                 },
                 "validated_slabs": [
-                    {"name": s["name"], "n2_quality": s.get("n2_comparison", {}).get("match_quality", "N/A")}
-                    for s in validated
+                    {
+                        "name": s["name"],
+                    } for s in validated
                 ],
                 "non_validated_slabs": [
                     {
                         "name": s["name"],
                         "confidence": s["confidence_score"],
                         "confidence_level": s["confidence_level"],
-                        "n2_quality": s.get("n2_comparison", {}).get("match_quality", "N/A"),
-                        "dim_delta": s.get("n2_comparison", {}).get("dim_delta"),
+                        "n2_quality": (s.get("n2_comparison") or {}).get("match_quality", "N/A"),
+                        "dim_delta": (s.get("n2_comparison") or {}).get("dim_delta"),
                     }
                     for s in non_validated
                 ],

@@ -1343,7 +1343,7 @@ class _CenterPanel(QFrame):
         )
         self._tabs.addTab(self._ficha_table, "Fichas Granulares [F5]")
         
-        # ── Tab 4 — Ficha Pavimentos [F4] ──
+        # ── Tab 4 — Ficha Pavimento/Classe [F4] ──
         self._pav_text = QTextEdit()
         self._pav_text.setReadOnly(True)
         self._pav_text.setPlaceholderText(
@@ -1352,7 +1352,7 @@ class _CenterPanel(QFrame):
         self._pav_text.setStyleSheet(
             f"background:{Colors.BG_CARD}; color:{Colors.TEXT_PRIMARY}; font-size:10px;"
         )
-        self._tabs.addTab(self._pav_text, "Ficha Pavimentos [F4]")
+        self._tabs.addTab(self._pav_text, "Ficha Pavimento/Classe [F4]")
 
         # ── Tab 5 — Ficha Obra ER [F6] ──
         self._obra_text = QTextEdit()
@@ -1606,6 +1606,26 @@ class _CenterPanel(QFrame):
             return
         html = _render_ficha_html(data, classe, confianca, elemento_id)
         self._ficha_table.setHtml(html)
+
+    def load_ficha_pavimento_classe(self, resumo_json: str | None):
+        if not resumo_json:
+            self._pav_text.setHtml(
+                '<html><body style="background:#0d1117;color:#4a5568;font-family:monospace;padding:16px;">'
+                'Nenhuma ficha F4 disponível para este pavimento/classe.<br>'
+                'Execute <b style="color:#60a5fa;">Gerar Fichas</b> para compilar os recortes.'
+                '</body></html>'
+            )
+            return
+        # Apenas joga o JSON parseado de forma visual
+        import json
+        try:
+            data = json.loads(resumo_json)
+            formatted = json.dumps(data, indent=2, ensure_ascii=False)
+            self._pav_text.setHtml(
+                f'<html><body style="background:#0d1117;color:#c9d1d9;font-family:monospace;padding:16px;"><pre>{formatted}</pre></body></html>'
+            )
+        except:
+            self._pav_text.setPlainText(resumo_json)
 
     def load_ficha_obra(self, resumo_json: str | None):
         if not resumo_json:
@@ -2548,7 +2568,25 @@ class DiagnosticReverseHub(QWidget):
         # [FIX] Injetar canvas no _RightPanel para pré-verificação de seleção
         self._right._canvas_ref = self._center.canvas
         # Recorte clicado na lista direita → carrega DXF granular no centro
-        self._right.recorte_selected.connect(self._center.load_dxf_granular)
+        self._right.recorte_selected.connect(self._on_recorte_selected_wrapper)
+
+    def _on_recorte_selected_wrapper(self, dxf_path: str):
+        from PySide6.QtCore import Qt
+        # 1. Carrega o DXF no canvas central
+        self._center.load_dxf_granular(dxf_path)
+        
+        # 2. Obtem os dados do recorte clicado para carregar a Ficha N2 (F5) e o Pavimento (F4)
+        selected = self._right.lst_recortes.currentItem()
+        if selected:
+            elem_id = selected.data(Qt.UserRole + 2)
+            classe = selected.data(Qt.UserRole + 1) or ''
+            obra_name = self._current_obra or self._left._current_obra
+            if elem_id and obra_name:
+                self._load_ficha_for_elemento(elem_id, obra_name, classe)
+        # Refresh do F4 e F6
+        if self._selected_proj_id and self._current_obra:
+            self._load_ficha_f4(self._selected_proj_id, self._current_obra)
+            self._load_ficha_obra(self._current_obra)
         # Motores de recorte automático
         self._right.processar_cls.connect(self._on_processar_cls)
         self._right.processar_tudo.connect(self._on_processar_tudo)
@@ -2601,8 +2639,8 @@ class DiagnosticReverseHub(QWidget):
         recorte = self._get_recorte_path(proj_id)
         self._center.load_dxf_granular(recorte)
 
-        # Tab 3: ficha granular (busca pelo elemento_id na obra)
-        self._load_ficha_for_elemento(proj_id, obra_name)
+        # Tab 4: ficha de pavimento/classe (busca todas as fichas granulares vinculadas a esse doc)
+        self._load_ficha_f4(proj_id, obra_name)
 
         # Painel Direito: lista de recortes do item selecionado
         self._right.load_recortes(proj_id, obra_name, dxf_path)
@@ -3099,11 +3137,46 @@ class DiagnosticReverseHub(QWidget):
             "Acesse Tab 'Ficha Granular' para ver os campos N2.\n"
             "Acesse Tab 'Ficha Obra Engenharia Reversa' para o resumo da obra."
         )
+        # Tenta recarregar a ficha do item selecionado atualmente para atualizar a UI em tempo real
+        from PySide6.QtCore import Qt
+        selected = self._right.lst_recortes.currentItem()
+        if selected:
+            elem_id = selected.data(Qt.UserRole + 2)
+            classe = selected.data(Qt.UserRole + 1) or ''
+            obra_name = self._current_obra or self._left._current_obra
+            if elem_id and obra_name:
+                self._load_ficha_for_elemento(elem_id, obra_name, classe)
+        # Refresh do F4 e F6
+        if self._selected_proj_id and self._current_obra:
+            self._load_ficha_f4(self._selected_proj_id, self._current_obra)
+            self._load_ficha_obra(self._current_obra)
 
     def _on_ficha_erro(self, msg: str):
         self._right.progress.setVisible(False)
         self._right._lbl_motor_status.setText("Erro no motor")
         QMessageBox.critical(self, "Erro Motor ER-3", f"Erro ao gerar fichas:\n{msg}")
+
+    def _load_ficha_f4(self, proj_id: str, obra_name: str):
+        """Carrega e agrupa todas as fichas N2 do proj_id para formar a Ficha F4."""
+        rows = _db_query(
+            "SELECT elemento_id, classe, confianca, campos_json FROM reverse_eng_fichas "
+            "WHERE projeto_id=? ORDER BY classe, elemento_id",
+            (proj_id,)
+        )
+        if not rows:
+            self._center.load_ficha_pavimento_classe(None)
+            return
+        
+        # Agrupa para a F4
+        summary = {"obra": obra_name, "documento_origem_id": proj_id, "elementos_extraidos": len(rows), "itens": []}
+        import json
+        for r in rows:
+            try:
+                c = json.loads(r[3])
+            except:
+                c = {}
+            summary["itens"].append({"id": r[0], "classe": r[1], "confianca": r[2], "dados": c})
+        self._center.load_ficha_pavimento_classe(json.dumps(summary))
 
     def _load_ficha_for_elemento(self, id_or_elem: str, obra_name: str, classe: str = ''):
         """Carrega ficha granular para um elemento especifico em Tab 3."""

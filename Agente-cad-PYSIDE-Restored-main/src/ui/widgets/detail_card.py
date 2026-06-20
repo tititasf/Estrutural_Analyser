@@ -376,15 +376,23 @@ class DetailCard(QWidget):
         actions_layout.setContentsMargins(0, 0, 0, 0)
         actions_layout.setSpacing(1)
         
-        # Indicador Confiança
-        conf_score = self.item_data.get('confidence_map', {}).get(field_id, 0.0)
+        # Indicador Confianca (WCAG AA: cor + tooltip + accessibleName)
+        conf_score = self.item_data.get("confidence_map", {}).get(field_id, 0.0)
         color = Colors.ACCENT_DANGER
-        if conf_score > 0.8: color = Colors.ACCENT_SUCCESS_ALT
-        elif conf_score > 0.4: color = Colors.ACCENT_INFO
+        conf_status = "Atencao"
+        if conf_score > 0.8:
+            color = Colors.ACCENT_SUCCESS_ALT
+            conf_status = "Confirmado"
+        elif conf_score > 0.4:
+            color = Colors.ACCENT_INFO
+            conf_status = "Revisar"
         
-        conf_indicator = QLabel("●")
-        conf_indicator.setFixedSize(8, 20) # Altura compatível com botões
-        conf_indicator.setStyleSheet(f"color: {color}; font-size: 8px; margin-left: 2px;")
+        conf_indicator = QLabel("*")
+        conf_indicator.setFixedSize(10, 20)
+        conf_indicator.setStyleSheet(f"color: {color}; font-size: 10px; font-weight: bold; margin-left: 2px;")
+        conf_pct = int(conf_score * 100) if conf_score else 0
+        conf_indicator.setToolTip(f"Confidence: {conf_pct}% - {conf_status}")
+        conf_indicator.setAccessibleName(f"Confidence {conf_pct} por cento, {conf_status}")
         actions_layout.addWidget(conf_indicator)
         
         if btn_link:
@@ -1241,6 +1249,93 @@ class DetailCard(QWidget):
 
     # ... (keeps existing helper methods until _setup_laje_complex_view)
 
+    def _build_ficha_granular_tab(self) -> QWidget:
+        from PySide6.QtGui import QColor, QFont, QBrush
+        
+        container = QWidget()
+        lay = QVBoxLayout(container)
+        lay.setContentsMargins(10, 10, 10, 10)
+        
+        table = QTableWidget()
+        table.setColumnCount(2)
+        table.setHorizontalHeaderLabels(["Propriedade", "Valor Extraído"])
+        table.horizontalHeader().setStretchLastSection(True)
+        table.setShowGrid(False)
+        table.setAlternatingRowColors(True)
+        table.setStyleSheet(f"""
+            QTableWidget {{
+                background: transparent; 
+                color: {Colors.TEXT_PRIMARY};
+                font-size: 11px; 
+                border: none;
+            }}
+            QTableWidget::item {{
+                border-bottom: 1px solid rgba(255, 255, 255, 10);
+                padding: 6px 10px;
+            }}
+            QTableWidget::item:alternate {{
+                background: rgba(255, 255, 255, 3);
+            }}
+            QTableWidget::item:hover {{
+                background: rgba(180, 80, 200, 15);
+            }}
+            QHeaderView::section {{
+                background: {Colors.BG_CARD}; 
+                color: {Colors.ACCENT_PRIMARY};
+                border: none; 
+                border-bottom: 2px solid {Colors.ACCENT_PRIMARY};
+                font-size: 11px; 
+                font-weight: bold;
+                padding: 8px 10px;
+                text-transform: uppercase;
+                letter-spacing: 1px;
+            }}
+        """)
+        
+        rows = []
+        rows.append(("ID Item", str(self.item_data.get("id_item", ""))))
+        rows.append(("Nome", str(self.item_data.get("name", ""))))
+        rows.append(("Tipo", str(self.item_data.get("type", ""))))
+        
+        fields = self.item_data.get("fields", {})
+        for k, v in fields.items():
+            if k not in ["name", "id_item", "type"]:
+                rows.append((k, str(v)))
+                
+        metrics = self.item_data.get("metrics", {})
+        if metrics:
+            rows.append(("---", ""))
+            rows.append(("MÉTRICAS DA GEOMETRIA", "VALOR"))
+            for k, v in metrics.items():
+                rows.append((k, str(v)))
+                
+        table.setRowCount(len(rows))
+        for i, (k, v) in enumerate(rows):
+            item_k = QTableWidgetItem(k)
+            item_v = QTableWidgetItem(v)
+            if k == "---":
+                item_k.setText("")
+                item_v.setText("")
+                item_k.setBackground(QBrush(QColor(Colors.BORDER_DEFAULT)))
+                item_v.setBackground(QBrush(QColor(Colors.BORDER_DEFAULT)))
+            elif k == "MÉTRICAS DA GEOMETRIA":
+                item_k.setForeground(QBrush(QColor(Colors.ACCENT_PURPLE)))
+                item_v.setForeground(QBrush(QColor(Colors.ACCENT_PURPLE)))
+                font = QFont()
+                font.setBold(True)
+                item_k.setFont(font)
+                item_v.setFont(font)
+                
+            table.setItem(i, 0, item_k)
+            table.setItem(i, 1, item_v)
+            
+        table.resizeColumnsToContents()
+        if table.columnWidth(0) < 180:
+            table.setColumnWidth(0, 180)
+            
+        lay.addWidget(table)
+        return container
+
     def _setup_laje_complex_view(self, layout):
         tabs = QTabWidget()
         tabs.setStyleSheet("""
@@ -1304,6 +1399,10 @@ class DetailCard(QWidget):
         l.addStretch() # Empurrar tudo para cima
         
         tabs.addTab(tab, "Laje")
+
+        # ── Aba Ficha Granular [F5] ──
+        ficha_tab = self._build_ficha_granular_tab()
+        tabs.addTab(ficha_tab, "📋 Ficha Granular [F5]")
 
         # ── Aba Comparar (CAD-10.4) ───────────────────────────────────────
         if _COMPARISON_AVAILABLE:
@@ -1412,6 +1511,10 @@ class DetailCard(QWidget):
                 tab_l.addWidget(v_grp)
                 
             tabs.addTab(tab, f"Lado {side}")
+
+        # ── Aba Ficha Granular [F5] ──
+        ficha_tab = self._build_ficha_granular_tab()
+        tabs.addTab(ficha_tab, "📋 Ficha Granular [F5]")
 
         # ── Aba Comparar (CAD-10.4) ───────────────────────────────────────
         if _COMPARISON_AVAILABLE:
@@ -1524,7 +1627,11 @@ class DetailCard(QWidget):
             tab_l.addStretch()
             tabs.addTab(tab, label)
 
-        # ── Aba Comparar (CAD-10.4) ───────────────────────────────────────
+        # ── Aba Ficha Granular [F5] ──
+        ficha_tab = self._build_ficha_granular_tab()
+        tabs.addTab(ficha_tab, "📋 Ficha Granular [F5]")
+
+        # ── Aba Comparar (CAD-10.4) ──
         if _COMPARISON_AVAILABLE:
             cmp_tab = ComparisonTab(
                 self.item_data, self.obra_path, self.db, self.project_id, parent=self

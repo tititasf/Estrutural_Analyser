@@ -1012,11 +1012,33 @@ class DatabaseManager:
     })
 
     def save_pillar(self, p: Dict[str, Any], project_id: str):
-        """Salva ou atualiza um pilar (UPSERT) vinculado a um projeto."""
+        """Salva ou atualiza um pilar (UPSERT) vinculado a um projeto com proteção de dados validados."""
         conn = self._get_conn()
         cursor = conn.cursor()
 
         try:
+            # --- LÓGICA DE PRESERVAÇÃO DE DADOS VALIDADOS ---
+            p_id = str(p.get('id', ''))
+            cursor.execute('SELECT extra_data_json, validated_fields_json, na_fields_json, is_validated FROM pillars WHERE id = ?', (p_id,))
+            row = cursor.fetchone()
+            if row:
+                import json
+                old_extra = json.loads(row[0]) if row[0] else {}
+                val_fields = json.loads(row[1]) if row[1] else []
+                if val_fields:
+                    p['validated_fields'] = list(set(p.get('validated_fields', []) + val_fields))
+                    for vf in val_fields:
+                        if vf in old_extra:
+                            p[vf] = old_extra[vf]
+                            
+                na_fields = json.loads(row[2]) if row[2] else []
+                if na_fields:
+                    p['na_fields'] = list(set(p.get('na_fields', []) + na_fields))
+                    
+                if row[3]:
+                    p['is_validated'] = True
+            # ------------------------------------------------
+
             # Serialização segura
             points_json = json.dumps(p.get('points', []))
             sides_json = json.dumps(p.get('sides_data', {}))
@@ -1159,10 +1181,32 @@ class DatabaseManager:
     })
 
     def save_slab(self, s: Dict[str, Any], project_id: str):
-        """Salva uma laje vinculada ao projeto."""
+        """Salva uma laje vinculada ao projeto com proteção de dados validados."""
         conn = self._get_conn()
         cursor = conn.cursor()
         try:
+            # --- LÓGICA DE PRESERVAÇÃO DE DADOS VALIDADOS ---
+            s_id = str(s.get('id', ''))
+            cursor.execute('SELECT extra_data_json, validated_fields_json, na_fields_json, is_validated FROM slabs WHERE id = ?', (s_id,))
+            row = cursor.fetchone()
+            if row:
+                import json
+                old_extra = json.loads(row[0]) if row[0] else {}
+                val_fields = json.loads(row[1]) if row[1] else []
+                if val_fields:
+                    s['validated_fields'] = list(set(s.get('validated_fields', []) + val_fields))
+                    for vf in val_fields:
+                        if vf in old_extra:
+                            s[vf] = old_extra[vf]
+                            
+                na_fields = json.loads(row[2]) if row[2] else []
+                if na_fields:
+                    s['na_fields'] = list(set(s.get('na_fields', []) + na_fields))
+                    
+                if row[3]:
+                    s['is_validated'] = True
+            # ------------------------------------------------
+
             extra = {k: v for k, v in s.items() if k not in self._SLAB_FIXED_KEYS}
             extra_data_json = json.dumps(extra) if extra else None
 
@@ -1259,10 +1303,53 @@ class DatabaseManager:
             conn.close()
 
     def save_beam(self, b: Dict[str, Any], project_id: str):
-        """Salva uma viga vinculada ao projeto."""
+        """Salva uma viga vinculada ao projeto com proteção de dados validados."""
         conn = self._get_conn()
         cursor = conn.cursor()
         try:
+            # --- LÓGICA DE PRESERVAÇÃO DE DADOS VALIDADOS ---
+            cursor.execute('SELECT data_json FROM beams WHERE id = ?', (b['id'],))
+            row = cursor.fetchone()
+            if row:
+                import json, re
+                old_b = json.loads(row[0])
+                val_fields = old_b.get('validated_fields', [])
+                
+                if val_fields:
+                    b['validated_fields'] = list(set(b.get('validated_fields', []) + val_fields))
+                    
+                    # Restaura os valores numéricos/textuais dos campos validados
+                    for vf in val_fields:
+                        if vf in old_b.get('fields', {}):
+                            if 'fields' not in b: b['fields'] = {}
+                            b['fields'][vf] = old_b['fields'][vf]
+                            
+                    # Restaura os vínculos gráficos (links) de segmentos inteiros se algum campo do segmento foi validado
+                    val_prefixes = set()
+                    for vf in val_fields:
+                        m = re.match(r'(.*_seg_\d+)', vf)
+                        if m:
+                            val_prefixes.add(m.group(1))
+                            
+                    if val_prefixes and 'links' in old_b:
+                        if 'links' not in b: b['links'] = {}
+                        for link_key, link_val in old_b['links'].items():
+                            for prefix in val_prefixes:
+                                if link_key.startswith(prefix):
+                                    b['links'][link_key] = link_val
+                                    break
+                                    
+                # Preserva NA fields
+                na_fields = old_b.get('na_fields', [])
+                if na_fields:
+                    b['na_fields'] = list(set(b.get('na_fields', []) + na_fields))
+                    
+                # Preserva is_validated da viga inteira
+                if old_b.get('is_validated'):
+                    b['is_validated'] = True
+            # ------------------------------------------------
+
+            import json
             cursor.execute('''
                 INSERT INTO beams (
                     id, project_id, name, data_json, 

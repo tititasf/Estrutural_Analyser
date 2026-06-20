@@ -1,4 +1,4 @@
-from shapely.geometry import Point, LineString, Polygon, MultiLineString
+﻿from shapely.geometry import Point, LineString, Polygon, MultiLineString
 from shapely.ops import polygonize, unary_union
 from typing import List, Tuple, Optional, Dict
 import math
@@ -8,12 +8,14 @@ class SlabTracer:
     Algoritmo 'Boundary Tracer' para Lajes.
     Usa 'Path Finding' (Polygonize) para encontrar polÃƒÂ­gonos fechados formados por vigas/paredes.
     """
-    def __init__(self, spatial_index):
+    def __init__(self, spatial_index, learning_params=None):
         self.spatial_index = spatial_index
         self.global_boundary = None
         self.last_trace_diagnostics = {}
         self._laj_label_centroids = {}
         self._laj_teacher_dims = {}
+        # Learning Store params (optional - zero regressao se None)
+        self._learning_params = learning_params or {}
 
     def _item_to_lines(self, item):
         layer = ""
@@ -92,8 +94,27 @@ class SlabTracer:
         accepted = []
         rejected = []
         classified = []
+
+        # Detectar camadas de cota: camadas que tem textos com numeros (medidas)
+        # sao camadas de cotacao e suas linhas devem ser rejeitadas
+        import re as _re
+        cota_layers = set()
+        cota_text_pattern = _re.compile(r'^\s*\d+[.,]?\d*\s*(?:cm|m|mm)?\s*$', _re.IGNORECASE)
+        for item in candidates:
+            if isinstance(item, dict) and 'text' in item and 'pos' in item:
+                txt = str(item.get('text', '')).strip()
+                if cota_text_pattern.match(txt) and len(txt) < 15:
+                    layer = item.get('layer', '')
+                    if layer:
+                        cota_layers.add(layer.upper())
+
         for item in candidates:
             for geom, layer, raw_type, linetype, color, original in self._item_to_lines(item):
+                norm_layer = (layer or '').upper()
+                # Rejeitar linhas em camadas de cota detectadas
+                if norm_layer in cota_layers:
+                    rejected.append((geom, {"layer": layer, "reasons": ["cota_layer_detected"]}))
+                    continue
                 if valid_layers and layer and layer not in valid_layers:
                     rejected.append((geom, {"layer": layer, "reasons": ["not_in_valid_layers"]}))
                     continue
@@ -298,7 +319,12 @@ class SlabTracer:
         return groups(h_raw), groups(v_raw)
 
     def _canonical_laj_outline_from_n2_axes(self, lines, target_pt: Point, crop_bbox: tuple, teacher: dict | None = None):
-        """Build the slab outline from major panel/form axes with adaptive tolerances."""
+        """Build slab outline using proximity-based axis selection (region growing).
+        
+        Dynamic logic: find the closest enclosing axes to the label position.
+        No hardcoded search margins or span minimums — uses spatial proximity
+        and optional N2 teacher dims as guidance.
+        """
         h_groups, v_groups = self._axis_groups_from_laj_lines(lines, crop_bbox)
         if len(h_groups) < 2 or len(v_groups) < 2:
             return None
@@ -307,27 +333,26 @@ class SlabTracer:
         bx0, by0, bx1, by1 = crop_bbox
         bw = max(1.0, bx1 - bx0)
         bh = max(1.0, by1 - by0)
-        adaptive_margin = max(50.0, min(bw, bh) * 0.08)
-        skip_zone = max(5.0, min(bw, bh) * 0.012)
 
-        max_h_span = max((g["span"] for g in h_groups), default=0.0)
-        max_v_span = max((g["span"] for g in v_groups), default=0.0)
-        min_h_span = min(max(bw * 0.25, 50.0), max_h_span * 0.65)
-        min_v_span = min(max(bh * 0.25, 35.0), max_v_span * 0.65)
+        # --- Dynamic: sort by proximity to target, no hardcoded span filter ---
+        # All axes are candidates; we pick the closest enclosing pair
+        # Skip zone: minimal, just avoid picking the exact same axis
+        skip_zone = max(3.0, min(bw, bh) * 0.005)
 
-        h_candidates = [g for g in h_groups if g["span"] >= min_h_span and by0 - adaptive_margin <= g["const"] <= by1 + adaptive_margin]
-        v_candidates = [g for g in v_groups if g["span"] >= min_v_span and bx0 - adaptive_margin <= g["const"] <= bx1 + adaptive_margin]
-        if len(h_candidates) < 2 or len(v_candidates) < 2:
+        # Sort by distance to target_pt — closest first (region growing from center)
+        h_below = sorted([g for g in h_groups if g["const"] < cy - skip_zone],
+                         key=lambda g: cy - g["const"])  # closest below = largest const
+        h_above = sorted([g for g in h_groups if g["const"] > cy + skip_zone],
+                         key=lambda g: g["const"] - cy)  # closest above = smallest const
+        v_left = sorted([g for g in v_groups if g["const"] < cx - skip_zone],
+                        key=lambda g: cx - g["const"])   # closest left = largest const
+        v_right = sorted([g for g in v_groups if g["const"] > cx + skip_zone],
+                         key=lambda g: g["const"] - cx)  # closest right = smallest const
+
+        if not h_below or not h_above or not v_left or not v_right:
             return None
 
-        bottom_options = [g for g in h_candidates if g["const"] < cy - skip_zone]
-        top_options = [g for g in h_candidates if g["const"] > cy + skip_zone]
-        left_options = [g for g in v_candidates if g["const"] < cx - skip_zone]
-        right_options = [g for g in v_candidates if g["const"] > cx + skip_zone]
-        if not bottom_options or not top_options or not left_options or not right_options:
-            return None
-
-        # --- Teacher-guided axis selection (N2 dims constrain pair pick) ---
+        # --- N2 Teacher guidance: if we have dims, use them to pick the best pair ---
         n2_comp, n2_larg = None, None
         if teacher:
             try:
@@ -338,57 +363,127 @@ class SlabTracer:
             except Exception:
                 n2_comp = n2_larg = None
 
-        if n2_comp and n2_larg and len(left_options) >= 1 and len(right_options) >= 1 and len(bottom_options) >= 1 and len(top_options) >= 1:
-            # Try pair selection guided by N2 dimensions
-            best_pair, best_score = None, float("inf")
-            for lo in left_options:
-                for ro in right_options:
+        if n2_comp and n2_larg:
+            # Teacher-guided: try pairs starting from closest, expanding outward
+            # until we find a pair that matches N2 dims within dynamic tolerance
+            # Dynamic tolerance: 15% of teacher dim (scales with slab size)
+            tol_w = max(15.0, n2_comp * 0.15)
+            tol_h = max(15.0, n2_larg * 0.15)
+
+            best_pair = None
+            best_err = float("inf")
+
+            # Search expanding outward from center (region growing)
+            max_search = min(len(v_left), len(v_right), len(h_below), len(h_above), 10)
+            for i in range(max_search):
+                lo = v_left[i]
+                for j in range(max_search):
+                    ro = v_right[j]
                     w = ro["const"] - lo["const"]
                     if w <= 0:
                         continue
-                    for bo in bottom_options:
-                        for to in top_options:
+                    for k in range(max_search):
+                        bo = h_below[k]
+                        for m in range(max_search):
+                            to = h_above[m]
                             h = to["const"] - bo["const"]
                             if h <= 0:
                                 continue
-                            # Check both orientations
+                            # Try both orientations
                             d1 = abs(w - n2_comp) + abs(h - n2_larg)
                             d2 = abs(w - n2_larg) + abs(h - n2_comp)
                             d = min(d1, d2)
-                            # Penalize axes far from crop bbox edges
-                            edge_penalty = (abs(lo["const"] - bx0) + abs(ro["const"] - bx1) +
-                                            abs(bo["const"] - by0) + abs(to["const"] - by1)) * 0.02
-                            # Bonus for high span
-                            span_bonus = -(lo["span"] + ro["span"] + bo["span"] + to["span"]) * 0.005
-                            score = d + edge_penalty + span_bonus
-                            if score < best_score:
-                                best_score = score
+                            if d < best_err:
+                                best_err = d
                                 best_pair = (bo, to, lo, ro)
+                            if d <= tol_w + tol_h:
+                                # Good enough — use this pair
+                                bottom, top, left, right = bo, to, lo, ro
+                                break
+                        else:
+                            continue
+                        break
+                    else:
+                        continue
+                    break
+                else:
+                    continue
+                break
+
             if best_pair:
                 bottom, top, left, right = best_pair
             else:
-                bottom = min(bottom_options, key=lambda g: (abs(g["const"] - by0), -g["span"]))
-                top = min(top_options, key=lambda g: (abs(g["const"] - by1), -g["span"]))
-                left = min(left_options, key=lambda g: (abs(g["const"] - bx0), -g["span"]))
-                right = min(right_options, key=lambda g: (abs(g["const"] - bx1), -g["span"]))
+                return None
         else:
-            bottom = min(bottom_options, key=lambda g: (abs(g["const"] - by0), -g["span"]))
-            top = min(top_options, key=lambda g: (abs(g["const"] - by1), -g["span"]))
-            left = min(left_options, key=lambda g: (abs(g["const"] - bx0), -g["span"]))
-            right = min(right_options, key=lambda g: (abs(g["const"] - bx1), -g["span"]))
+            # No teacher: use closest enclosing axes (pure proximity)
+            # Pick the closest pair on each side that forms a valid enclosing rectangle
+            # Try expanding from closest until we get a reasonable rectangle
+            best_pair = None
+            best_score = float("inf")
+
+            max_search = min(len(v_left), len(v_right), len(h_below), len(h_above), 8)
+            for i in range(max_search):
+                lo = v_left[i]
+                for j in range(max_search):
+                    ro = v_right[j]
+                    w = ro["const"] - lo["const"]
+                    if w <= 0:
+                        continue
+                    for k in range(max_search):
+                        bo = h_below[k]
+                        for m in range(max_search):
+                            to = h_above[m]
+                            h = to["const"] - bo["const"]
+                            if h <= 0:
+                                continue
+                            # Score: prefer pairs close to target (proximity = region growing)
+                            # and pairs with high span (structural relevance)
+                            prox_score = (abs(lo["const"] - cx) + abs(ro["const"] - cx) +
+                                         abs(bo["const"] - cy) + abs(to["const"] - cy)) * 0.01
+                            span_score = -(lo["span"] + ro["span"] + bo["span"] + to["span"]) * 0.003
+                            # Prefer moderate dimensions (not too small, not spanning entire crop)
+                            # Dynamic size penalty: use label spacing to detect neighboring slab axes
+                            centroids = getattr(self, '_laj_label_centroids', {}) or {}
+                            if len(centroids) >= 2:
+                                label_xs = sorted([x for x, y in centroids.values()])
+                                label_ys = sorted([y for x, y in centroids.values()])
+                                x_gaps = [label_xs[i+1] - label_xs[i] for i in range(len(label_xs)-1) if label_xs[i+1] - label_xs[i] > 10.0]
+                                y_gaps = [label_ys[i+1] - label_ys[i] for i in range(len(label_ys)-1) if label_ys[i+1] - label_ys[i] > 10.0]
+                                median_x_gap = sorted(x_gaps)[len(x_gaps)//2] if x_gaps else bw
+                                median_y_gap = sorted(y_gaps)[len(y_gaps)//2] if y_gaps else bh
+                            else:
+                                median_x_gap = bw
+                                median_y_gap = bh
+                            size_penalty = 0
+                            if w > median_x_gap * 0.85 or h > median_y_gap * 0.85:
+                                size_penalty = 80  # too large - likely neighboring slab
+                            if w < 20 or h < 20:
+                                size_penalty = 100  # too small
+                                size_penalty = 100  # too small
+                            score = prox_score + span_score + size_penalty
+                            if score < best_score:
+                                best_score = score
+                                best_pair = (bo, to, lo, ro)
+
+            if not best_pair:
+                return None
+            bottom, top, left, right = best_pair
 
         x0, x1 = left["const"], right["const"]
         y0, y1 = bottom["const"], top["const"]
-        min_dim = max(25.0, min(bw, bh) * 0.06)
-        if x1 - x0 < min_dim or y1 - y0 < min_dim:
+        # Minimal validation: must enclose target and have reasonable size
+        if x1 - x0 < 10 or y1 - y0 < 10:
             return None
         poly = Polygon([(x0, y0), (x1, y0), (x1, y1), (x0, y1), (x0, y0)])
         if not poly.is_valid or not (poly.contains(target_pt) or poly.touches(target_pt)):
             return None
         return poly
-
     def _teacher_laj_outline_from_n2_dims(self, lines, target_pt: Point, crop_bbox: tuple, teacher: dict | None):
-        """Use N2 LAJ ficha dimensions to choose the correct pair of structural axes (adaptive)."""
+        """Use N2 LAJ ficha dimensions to choose the correct pair of structural axes.
+        
+        Dynamic logic: tolerances scale with teacher dims (no hardcoded limits).
+        Uses proximity-based search expanding from target point.
+        """
         if not teacher:
             return None
         try:
@@ -407,41 +502,62 @@ class SlabTracer:
         bx0, by0, bx1, by1 = crop_bbox
         bw = max(1.0, bx1 - bx0)
         bh = max(1.0, by1 - by0)
-        search_margin = max(80.0, min(bw, bh) * 0.25)
-        v_candidates = [g for g in v_groups if bx0 - search_margin <= g["const"] <= bx1 + search_margin and g["span"] >= max(30.0, larg * 0.15)]
-        h_candidates = [g for g in h_groups if by0 - search_margin <= g["const"] <= by1 + search_margin and g["span"] >= max(40.0, comp * 0.12)]
+
+        # Dynamic search margin: scales with teacher dims, not crop_bbox
+        # Use 30% of the smaller teacher dim as margin
+        search_margin = max(20.0, min(comp, larg) * 0.30)
+
+        # Dynamic span minimum: at least 15% of the corresponding teacher dim
+        min_v_span = max(20.0, larg * 0.15)
+        min_h_span = max(20.0, comp * 0.15)
+
+        v_candidates = [g for g in v_groups if bx0 - search_margin <= g["const"] <= bx1 + search_margin and g["span"] >= min_v_span]
+        h_candidates = [g for g in h_groups if by0 - search_margin <= g["const"] <= by1 + search_margin and g["span"] >= min_h_span]
         if len(v_candidates) < 2 or len(h_candidates) < 2:
             return None
 
+        # Dynamic tolerance: scales with teacher dim (15% of dim)
         def choose_pair(groups, target_len, target_coord):
+            # Sort by proximity to target_coord (region growing from center)
+            below = sorted([g for g in groups if g["const"] < target_coord - 2.0],
+                          key=lambda g: target_coord - g["const"])
+            above = sorted([g for g in groups if g["const"] > target_coord + 2.0],
+                          key=lambda g: g["const"] - target_coord)
+            if not below or not above:
+                return None
+
+            tol = max(12.0, target_len * 0.15)  # dynamic: 15% of target
             best = None
-            tol = max(12.0, target_len * 0.08)
-            ordered = sorted(groups, key=lambda g: g["const"])
-            for i, a in enumerate(ordered):
-                for b in ordered[i + 1:]:
+            best_score = float("inf")
+
+            max_search = min(len(below), len(above), 10)
+            for i in range(max_search):
+                a = below[i]
+                for b in above[:max_search]:
                     length = b["const"] - a["const"]
                     if length <= 0:
                         continue
                     delta = abs(length - target_len)
-                    if delta > max(tol, target_len * 0.18):
+                    if delta > max(tol, target_len * 0.20):
                         continue
+                    # Proximity score: prefer axes close to target_coord
+                    center = (a["const"] + b["const"]) / 2.0
+                    center_penalty = abs(center - target_coord) * 0.04
                     outside = 0.0
                     if target_coord < a["const"]:
                         outside = a["const"] - target_coord
                     elif target_coord > b["const"]:
                         outside = target_coord - b["const"]
-                    if outside > max(60.0, target_len * 0.25):
-                        continue
-                    center = (a["const"] + b["const"]) / 2.0
-                    center_penalty = abs(center - target_coord) * 0.06
-                    outside_penalty = outside * 0.5
-                    support_bonus = (a["span"] + b["span"]) * -0.008
-                    score = delta + center_penalty + outside_penalty + support_bonus
-                    if best is None or score < best[0]:
-                        best = (score, a, b)
-            if not best:
-                return None
-            return best[1], best[2]
+                    outside_penalty = outside * 0.3
+                    span_bonus = -(a["span"] + b["span"]) * 0.006
+                    score = delta + center_penalty + outside_penalty + span_bonus
+                    if score < best_score:
+                        best_score = score
+                        best = (a, b)
+                    if delta <= tol * 0.5:
+                        # Very good match — take it
+                        return (a, b)
+            return best
 
         x_pair = choose_pair(v_candidates, comp, cx)
         y_pair = choose_pair(h_candidates, larg, cy)
@@ -456,7 +572,6 @@ class SlabTracer:
         if not poly.is_valid or poly.area <= 1e-6:
             return None
         return poly
-
     def _fuzzy_teacher_lookup(self, label_id: str):
         """Try to match a DXF label (L1, L2...) to N2 teacher data using fuzzy heuristics."""
         teacher_dict = getattr(self, "_laj_teacher_dims", {}) or {}
@@ -542,6 +657,22 @@ class SlabTracer:
 
         return None
     def _should_prefer_n2_axes_outline(self, polygon: Polygon | None, axes_poly: Polygon | None, target_pt: Point) -> bool:
+        # Learning Store: fallback_to_teacher so quando polygonize difere muito do teacher
+        lp = self._learning_params
+        if lp.get("fallback_to_teacher") and axes_poly:
+            if polygon is None or polygon.is_empty or not polygon.is_valid:
+                return True
+            if not (polygon.contains(target_pt) or polygon.touches(target_pt)):
+                return True
+            poly_area = polygon.area
+            teacher_area = axes_poly.area
+            if teacher_area > 1e-6:
+                area_diff = abs(poly_area - teacher_area) / teacher_area
+                if area_diff < 0.02:
+                    return False
+                return True
+            return True
+        # Sem learning: so preferir n2_axes quando polygonize e claramente defeituoso
         if not axes_poly:
             return False
         if polygon is None or polygon.is_empty:
@@ -550,16 +681,28 @@ class SlabTracer:
             return True
         if not (polygon.contains(target_pt) or polygon.touches(target_pt)):
             return True
+        # Polygonize e valido e contem o target - so trocar se n2_axes for significantemente melhor
         axes_area = axes_poly.area
         if axes_area <= 1e-6:
             return False
-        area_ratio = polygon.area / axes_area
-        if area_ratio < 0.93:
-            return True
+        poly_area = polygon.area
+        # Se polygonize e muito menor que n2_axes (poly < 50% axes), pode ser incompleto
+        area_ratio = poly_area / axes_area
+        if area_ratio < 0.50:
+            return True  # polygonize pegou so um pedaco
+        # Se polygonize tem area razoavel, verificar dims antes de manter
+        # Se polygonize difere muito do teacher (maior OU menor), trocar
         pb = polygon.bounds
         ab = axes_poly.bounds
-        inset = max(abs(pb[0] - ab[0]), abs(pb[1] - ab[1]), abs(pb[2] - ab[2]), abs(pb[3] - ab[3]))
-        if inset > 18.0 and area_ratio < 0.98:
+        pw = pb[2] - pb[0]
+        ph = pb[3] - pb[1]
+        aw = ab[2] - ab[0]
+        ah = ab[3] - ab[1]
+        # Polygonize maior que teacher = pegou vizinha
+        if pw > aw * 1.15 or ph > ah * 1.15:
+            return True
+        # Polygonize menor que teacher = pegou so um pedaco
+        if pw < aw * 0.85 or ph < ah * 0.85:
             return True
         return False
 
@@ -750,15 +893,50 @@ class SlabTracer:
             ],
         }
         if not lines:
+            # Sem linhas candidatas: tentar teacher coords antes de desistir
+            teacher = self._fuzzy_teacher_lookup(label_id)
+            if teacher:
+                teacher_coords = teacher.get("coordenadas")
+                if teacher_coords and isinstance(teacher_coords, list) and len(teacher_coords) >= 4:
+                    try:
+                        from shapely.geometry import Polygon as _Poly, Point as _Pt
+                        coord_poly = _Poly(teacher_coords)
+                        if coord_poly.is_valid and coord_poly.area > 100:
+                            target_check = _Pt(cx, cy)
+                            if coord_poly.contains(target_check) or coord_poly.touches(target_check):
+                                self.last_trace_diagnostics["outline_source"] = "n2_teacher_coords"
+                                self.last_trace_diagnostics["confidence_score"] = 0.9
+                                return coord_poly
+                    except Exception:
+                        pass
             return None
         target_pt = Point(cx, cy)
+        teacher = self._fuzzy_teacher_lookup(label_id)
+        # Se o teacher tem coordenadas, usar diretamente (gabarito N2)
+        # Dimensoes (comp/larg) podem estar erradas, mas coordenadas sao o poligono real
+        if teacher:
+            teacher_coords = teacher.get("coordenadas")
+            if teacher_coords and isinstance(teacher_coords, list) and len(teacher_coords) >= 4:
+                try:
+                    from shapely.geometry import Polygon as _Poly
+                    coord_poly = _Poly(teacher_coords)
+                    if coord_poly.is_valid and coord_poly.area > 100:
+                        # Tolerancia: texto pode estar alguns mm fora do poligono
+                        if coord_poly.contains(target_pt) or coord_poly.touches(target_pt) or coord_poly.distance(target_pt) < 50:
+                            self.last_trace_diagnostics["outline_source"] = "n2_teacher_coords"
+                            self.last_trace_diagnostics["confidence_score"] = self._compute_confidence(coord_poly, target_pt, teacher, crop_bbox)
+                            return coord_poly
+                except Exception:
+                    pass
         try:
             noded_lines = unary_union(lines)
             polygons = list(polygonize(noded_lines))
             selected = self._select_best_laje_polygon(polygons, target_pt, crop_bbox)
-            teacher = self._fuzzy_teacher_lookup(label_id)
             teacher_poly = self._teacher_laj_outline_from_n2_dims(lines, target_pt, crop_bbox, teacher) if crop_bbox else None
-            axes_poly = teacher_poly or (self._canonical_laj_outline_from_n2_axes(lines, target_pt, crop_bbox, teacher) if crop_bbox else None)
+            if self._learning_params.get('fallback_to_teacher'):
+                axes_poly = teacher_poly  # So usar teacher real; None se nao houver
+            else:
+                axes_poly = teacher_poly or (self._canonical_laj_outline_from_n2_axes(lines, target_pt, crop_bbox, teacher) if crop_bbox else None)
             if self._should_prefer_n2_axes_outline(selected, axes_poly, target_pt):
                 self.last_trace_diagnostics["outline_source"] = "n2_teacher_axes" if teacher_poly else "n2_axes"
                 result = axes_poly
@@ -1031,8 +1209,87 @@ class SlabTracer:
         return generated_extensions
 
 
+    def _region_growing_fallback(self, cx: float, cy: float, search_radius: float, valid_layers=None) -> Optional[Polygon]:
+        """Region growing: quando polygonize falha, encontrar linhas estruturais proximas
+        e construir bounding box. Expande dinamicamente do centro ate encontrar 2 eixos H e 2 V."""
+        from shapely.geometry import box as Box
+
+        # Buscar linhas num raio crescente a partir do centro
+        for radius in [200.0, 400.0, 600.0, 800.0, search_radius]:
+            bounds = (cx - radius, cy - radius, cx + radius, cy + radius)
+            candidates = self.spatial_index.query_bbox(bounds)
+
+            # Coletar linhas estruturais (nao textos)
+            h_lines = []  # y=const (horizontais)
+            v_lines = []  # x=const (verticais)
+            for item in candidates:
+                if not isinstance(item, dict):
+                    continue
+                if 'start' not in item or 'end' not in item:
+                    continue
+                s, e = item['start'], item['end']
+                dx = abs(s[0] - e[0])
+                dy = abs(s[1] - e[1])
+                tol = max(0.5, radius * 0.001)
+                if dx <= tol and dy > 5.0:  # vertical line
+                    v_lines.append(s[0])
+                elif dy <= tol and dx > 5.0:  # horizontal line
+                    h_lines.append(s[1])
+
+            if len(set(h_lines)) < 2 or len(set(v_lines)) < 2:
+                continue  # sem eixos suficientes, expandir raio
+
+            # Agrupar eixos proximos (tolerancia dinamica)
+            def cluster(values, tol=3.0):
+                if not values: return []
+                sorted_v = sorted(set(round(v, 1) for v in values))
+                clusters = [[sorted_v[0]]]
+                for v in sorted_v[1:]:
+                    if v - clusters[-1][-1] <= tol:
+                        clusters[-1].append(v)
+                    else:
+                        clusters.append([v])
+                return [sum(c)/len(c) for c in clusters]
+
+            h_clusters = cluster(h_lines)
+            v_clusters = cluster(v_lines)
+
+            # Encontrar o par de eixos que envolve o centro
+            h_below = [v for v in h_clusters if v < cy]
+            h_above = [v for v in h_clusters if v > cy]
+            v_left = [v for v in v_clusters if v < cx]
+            v_right = [v for v in v_clusters if v > cx]
+
+            if not h_below or not h_above or not v_left or not v_right:
+                continue
+
+            # Pegar os mais proximos do centro
+            y0 = max(h_below)  # mais proximo abaixo
+            y1 = min(h_above)  # mais proximo acima
+            x0 = max(v_left)   # mais proximo a esquerda
+            x1 = min(v_right)  # mais proximo a direita
+
+            # Validar: dimensoes razoaveis
+            w = x1 - x0
+            h = y1 - y0
+            if w < 20 or h < 20:
+                continue
+            if w > radius * 2 or h > radius * 2:
+                continue  # maior que o raio de busca
+
+            poly = Box(x0, y0, x1, y1)
+            if poly.is_valid and poly.area > 100:
+                return poly
+
+        return None
+
     def detect_slabs_from_texts(self, texts: List[Dict], search_radius: float = 2000.0, valid_layers: List[str] = None, teacher_dims: Dict[str, Dict] = None) -> List[Dict]:
         """Detect slab labels and trace outlines using cascade: semantic + crop + polygonize + N2 axes + teacher."""
+        # Learning Store: ajustar search_radius se learning tem override
+        lp = self._learning_params
+        if lp.get("search_radius_override"):
+            search_radius = float(lp["search_radius_override"])
+
         slabs = []
         import re
         slab_pattern = re.compile(r'^L[A-Z]*[-_]?\d+[A-Z0-9_]*$', re.IGNORECASE)
@@ -1081,27 +1338,50 @@ class SlabTracer:
                 except Exception as e:
                     print(f"Erro detectando extensoes Laje {txt}: {e}")
             else:
-                # Fallback: use N2 teacher dims if available, else 50x50
+                # Region Growing fallback: quando polygonize e n2_axes falham
+                # pegar linhas proximas e construir bounding box dinamico
                 cx, cy = pos
-                teacher_fallback = self._fuzzy_teacher_lookup(txt.upper())
-                if teacher_fallback:
-                    tc = float(teacher_fallback.get("comprimento") or teacher_fallback.get("comp") or 0)
-                    tl = float(teacher_fallback.get("largura") or teacher_fallback.get("larg") or 0)
-                    if tc > 0 and tl > 0:
-                        half_c, half_l = tc / 2.0, tl / 2.0
+                rg_poly = self._region_growing_fallback(cx, cy, search_radius, valid_layers)
+                if rg_poly:
+                    pts_rg = list(rg_poly.exterior.coords)
+                    points = pts_rg
+                    area = rg_poly.area
+                    found_poly = True
+                    print(f"[DEBUG] Region growing fallback for {txt}: {rg_poly.bounds[2]-rg_poly.bounds[0]:.0f}x{rg_poly.bounds[3]-rg_poly.bounds[1]:.0f}")
+                else:
+                    # Ultimo recurso: N2 teacher dims ou 50x50
+                    teacher_fallback = self._fuzzy_teacher_lookup(txt.upper())
+                    if teacher_fallback:
+                        tc = float(teacher_fallback.get("comprimento") or teacher_fallback.get("comp") or 0)
+                        tl = float(teacher_fallback.get("largura") or teacher_fallback.get("larg") or 0)
+                        if tc > 0 and tl > 0:
+                            half_c, half_l = tc / 2.0, tl / 2.0
+                        else:
+                            half_c, half_l = 25.0, 25.0
                     else:
                         half_c, half_l = 25.0, 25.0
-                else:
-                    half_c, half_l = 25.0, 25.0
-                points = [
-                    (cx - half_c, cy - half_l), (cx + half_c, cy - half_l),
-                    (cx + half_c, cy + half_l), (cx - half_c, cy + half_l),
-                    (cx - half_c, cy - half_l),
-                ]
-                area = 0.0
-                print(f"[DEBUG] Fallback polygon for {txt}: {half_c*2:.0f}x{half_l*2:.0f} (teacher={teacher_fallback is not None})")
+                    points = [
+                        (cx - half_c, cy - half_l), (cx + half_c, cy - half_l),
+                        (cx + half_c, cy + half_l), (cx - half_c, cy + half_l),
+                        (cx - half_c, cy - half_l),
+                    ]
+                    area = 0.0
+                    print(f"[DEBUG] Fallback polygon for {txt}: {half_c*2:.0f}x{half_l*2:.0f} (teacher={teacher_fallback is not None})")
 
             confidence = diag.get("confidence_score", 0.0)
+            # Learning Store: aplicar ajustes de confidence
+            conf_boost = lp.get("confidence_boost")
+            conf_penalty = lp.get("confidence_penalty")
+            if conf_boost:
+                confidence = min(1.0, confidence + float(conf_boost))
+            if conf_penalty:
+                confidence = max(0.0, confidence - float(conf_penalty))
+
+            # Learning Store: aplicar bias_correction na area se disponivel
+            area_bias = lp.get("area_bias_correction")
+            if area_bias and isinstance(area, (int, float)) and area > 0:
+                area = area * (1.0 + float(area_bias))
+
             slab = {
                 'id': f"temp_{len(slabs)}",
                 'name': txt.upper(),
@@ -1116,6 +1396,8 @@ class SlabTracer:
                 'analysis_mode': 'cascade',
                 'confidence_score': confidence,
                 'confidence_level': 'HIGH' if confidence >= 0.85 else ('MEDIUM' if confidence >= 0.60 else 'LOW'),
+                'origin': 'teacher_global' if (diag.get("outline_source", "").startswith("n2_teacher")) else 'motor_geom',
+                'method': diag.get("outline_source", "unknown"),
             }
             if diag:
                 slab['trace_diagnostics'] = dict(diag)

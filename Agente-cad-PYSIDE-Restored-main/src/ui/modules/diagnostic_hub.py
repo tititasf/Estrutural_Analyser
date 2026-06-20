@@ -1,4 +1,4 @@
-﻿import os
+import os
 import sys
 import json
 import uuid
@@ -821,10 +821,18 @@ class DiagnosticHubModule(QWidget):
 
         # Tab 3 — FICHA DA OBRA (cor diferente: ouro #e6b400)
         self._ficha_tab_widget = self._build_ficha_tab()
-        self._canvas_tabs.addTab(self._ficha_tab_widget, "📋 Pré-ficha")
+        self._canvas_tabs.addTab(self._ficha_tab_widget, "📋 Ficha Pré-Pavimentos/Detalhes [F2]")
         self._canvas_tabs.tabBar().setTabTextColor(
             3, __import__('PySide6.QtGui', fromlist=['QColor']).QColor('#e6b400')
         )
+
+        # Tab 4 - FICHA GLOBAL [F3]
+        self._ficha_f3_tab_widget = self._build_ficha_f3_tab()
+        self._canvas_tabs.addTab(self._ficha_f3_tab_widget, "📋 Ficha Global [F3]")
+        self._canvas_tabs.tabBar().setTabTextColor(
+            4, __import__('PySide6.QtGui', fromlist=['QColor']).QColor('#b450c8')
+        )
+
 
         vlay.addWidget(self._canvas_tabs, 1)
 
@@ -1127,16 +1135,13 @@ class DiagnosticHubModule(QWidget):
         sep2.setStyleSheet(f"color: {Colors.BORDER_DEFAULT};")
         vlay.addWidget(sep2)
 
-        # Botão "⚡ Interpretar Obra Toda (Fase 3)"
-        self._btn_process_all = QPushButton("⚡ Interpretar Obra Toda")
-        self._btn_process_all.setText("Iniciar Análise Geral")
-        self._btn_process_all.setToolTip(
-            "Roda o motor Structural Analyzer (Fase 3) em batch sobre\n"
-            "todas as torres aprovadas de todos os pavimentos desta obra.\n\n"
-            "Gera: Ficha Pré-Interpretativa (Nível B) + seeds RAG semântico.\n"
-            "Somente recortes com status 'aprovado' são processados."
+        # Botão "Iniciar pré-análise Pavimento Limpo"
+        self._btn_process_limpo = QPushButton("Analisar todos os Pavimentos Limpos [Gerar F2]")
+        self._btn_process_limpo.setToolTip(
+            "Roda o motor para pré-analisar todos os pavimentos limpos (cortes STOG).\n"
+            "Preenche a pré-ficha de pavimento de forma complementar."
         )
-        self._btn_process_all.setStyleSheet(f"""
+        self._btn_process_limpo.setStyleSheet(f"""
             QPushButton {{
                 background: rgba(180, 80, 200, 31); color: {Colors.ACCENT_PURPLE};
                 border: 1px solid {Colors.ACCENT_PURPLE}; border-radius: 4px;
@@ -1145,23 +1150,37 @@ class DiagnosticHubModule(QWidget):
             QPushButton:hover {{ background: rgba(180, 80, 200, 64); }}
             QPushButton:disabled {{ color: {Colors.TEXT_DIM}; border-color: {Colors.TEXT_DIM}; }}
         """)
-        self._btn_process_all.setEnabled(False)
-        self._btn_process_all.clicked.connect(lambda: self._run_pre_process_all("baseline"))
-        vlay.addWidget(self._btn_process_all)
+        self._btn_process_limpo.setEnabled(False)
+        self._btn_process_limpo.clicked.connect(lambda: self._run_pre_process_all("baseline"))
+        vlay.addWidget(self._btn_process_limpo)
 
-        self._btn_process_context = QPushButton("Interpretar com Contexto")
-        self._btn_process_context.setToolTip("Roda o Structural Analyzer em modo context, isolado do baseline.")
-        self._btn_process_context.setStyleSheet(self._btn_process_all.styleSheet())
-        self._btn_process_context.setEnabled(False)
-        self._btn_process_context.clicked.connect(lambda: self._run_pre_process_all("context"))
-        vlay.addWidget(self._btn_process_context)
+        # Botão "Iniciar pré-análise Detalhes"
+        self._btn_process_detalhes = QPushButton("Analisar todos os Detalhes [Insights p/ F2]")
+        self._btn_process_detalhes.setToolTip(
+            "Extrai insights e comentários apenas dos cortes de detalhes para anexar à pré-ficha."
+        )
+        self._btn_process_detalhes.setStyleSheet(self._btn_process_limpo.styleSheet())
+        self._btn_process_detalhes.setEnabled(False)
+        self._btn_process_detalhes.clicked.connect(lambda: self._run_pre_process_all("detalhes"))
+        vlay.addWidget(self._btn_process_detalhes)
 
-        self._btn_process_engrev = QPushButton("Interpretar com Eng. Reversa")
-        self._btn_process_engrev.setToolTip("Roda LAJ com filtro semântico N1 e estado separado.")
-        self._btn_process_engrev.setStyleSheet(self._btn_process_all.styleSheet())
-        self._btn_process_engrev.setEnabled(False)
-        self._btn_process_engrev.clicked.connect(lambda: self._run_pre_process_all("engrev_assisted"))
-        vlay.addWidget(self._btn_process_engrev)
+        # Botão "Analisar todas fichas e gerar Ficha da Obra [F3]"
+        self._btn_process_f3 = QPushButton("Analisar todas fichas e gerar Ficha da Obra [F3]")
+        self._btn_process_f3.setToolTip(
+            "Aciona o motor de compreensão global que analisa todas as fichas granulares N2 "
+            "e produz a visão coesa da Ficha Global da Obra (F3)."
+        )
+        self._btn_process_f3.setStyleSheet("""
+            QPushButton {
+                background: rgba(180, 80, 200, 31); color: #b450c8;
+                border: 1px solid #b450c8; border-radius: 4px;
+                padding: 4px; font-weight: bold; font-size: 11px;
+            }
+            QPushButton:hover { background: rgba(180, 80, 200, 64); }
+        """)
+        self._btn_process_f3.setEnabled(False)
+        self._btn_process_f3.clicked.connect(self._run_process_f3)
+        vlay.addWidget(self._btn_process_f3)
 
         # Botão cancelar (oculto até processamento iniciar)
         self._btn_cancel_preprocess = QPushButton("⏹ Cancelar")
@@ -1289,7 +1308,7 @@ class DiagnosticHubModule(QWidget):
         self._load_preprocess_estado(obra_name)
 
     def _set_preprocess_buttons_enabled(self, enabled: bool):
-        for attr in ("_btn_process_all", "_btn_process_context", "_btn_process_engrev"):
+        for attr in ("_btn_process_limpo", "_btn_process_detalhes", "_btn_process_f3"):
             btn = getattr(self, attr, None)
             if btn:
                 btn.setEnabled(enabled)
@@ -1314,13 +1333,51 @@ class DiagnosticHubModule(QWidget):
             pass
 
         self._list_brutos.clear()
+        
+        # Agrupar por classe do pavimento
+        from PySide6.QtGui import QColor, QFont
+        import re
+        grouped = {}
         for row in rows:
-            item = QListWidgetItem(row['file_name'])
-            item.setData(Qt.UserRole, row)
-            # Check if already processed
-            status_icon = self._get_recorte_icon(obra_name, row['file_name'])
-            item.setText(f"{status_icon} {row['file_name']}")
-            self._list_brutos.addItem(item)
+            cls = 'Outros'
+            # A classe foi salva como string ex: "auto_approve=true | pav=TERREO" na coluna notes
+            notes = row.get('notes', '')
+            if notes and isinstance(notes, str):
+                match = re.search(r'pav=([^\s|]+)', notes)
+                if match:
+                    cls = match.group(1).upper()
+            
+            # Fallback se a Triagem não conseguiu salvar o pav
+            if cls == 'Outros':
+                fname = row.get('file_name', '').upper()
+                if '-TER-' in fname or 'TERREO' in fname: cls = 'TÉRREO'
+                elif '-TIP-' in fname or 'TIPO' in fname: cls = 'TIPO'
+                elif '-COB-' in fname or 'COBER' in fname: cls = 'COBERTURA'
+                elif '-FUN-' in fname or 'FUNDA' in fname: cls = 'FUNDAÇÃO'
+                elif '1PV' in fname or '1PAV' in fname: cls = '1º PAV'
+                elif '13P' in fname: cls = '13º PAV'
+                elif '14P' in fname: cls = '14º PAV'
+                elif 'ATC' in fname or 'ATICO' in fname: cls = 'ÁTICO'
+            
+            grouped.setdefault(cls, []).append(row)
+            
+        for cls, items in sorted(grouped.items()):
+            # Cria item de cabeçalho (divisória visual não clicável)
+            header = QListWidgetItem(f"━━━ {cls.upper()} ━━━")
+            header.setFlags(header.flags() & ~Qt.ItemIsSelectable & ~Qt.ItemIsEnabled)
+            header.setTextAlignment(Qt.AlignCenter)
+            font = QFont()
+            font.setBold(True)
+            header.setFont(font)
+            header.setForeground(QColor("#00ff9d"))
+            self._list_brutos.addItem(header)
+            
+            for row in items:
+                item = QListWidgetItem(row['file_name'])
+                item.setData(Qt.UserRole, row)
+                status_icon = self._get_recorte_icon(obra_name, row['file_name'])
+                item.setText(f"{status_icon} {row['file_name']}")
+                self._list_brutos.addItem(item)
 
         count = len(rows)
         self._lbl_brutos_count.setText(f"Brutos aprovados: {count}")
@@ -2513,8 +2570,8 @@ class DiagnosticHubModule(QWidget):
         # Se já processado, perguntar se quer reprocessar
         if estado_path.exists() and not QMessageBox.question(
             self,
-            "Ficha já gerada",
-            f"A obra '{self._current_obra}' já tem uma ficha gerada.\n\n"
+            "Fichas F2 já geradas",
+            f"A obra '{self._current_obra}' já possui as fichas [F2] dos pavimentos geradas.\n\n"
             "Deseja reprocessar tudo (pode demorar)?",
             QMessageBox.Yes | QMessageBox.No,
         ) == QMessageBox.Yes:
@@ -2734,7 +2791,107 @@ class DiagnosticHubModule(QWidget):
     # Ficha da Obra tab (Tab 3 do _canvas_tabs)
     # ─────────────────────────────────────────────
 
+
+    def _build_ficha_f3_tab(self) -> QWidget:
+        container = QWidget()
+        main_lay = QVBoxLayout(container)
+        main_lay.setContentsMargins(16, 14, 16, 14)
+        main_lay.setSpacing(10)
+        hdr = QLabel("📋 Ficha Global [F3]")
+        hdr.setStyleSheet("color: #b450c8; font-size: 13px; font-weight: bold; background: transparent;")
+        main_lay.addWidget(hdr)
+        sep = QLabel("━" * 60)
+        sep.setStyleSheet("color: #333333; font-size: 10px; background: transparent;")
+        main_lay.addWidget(sep)
+        self._ficha_f3_status_lbl = QLabel("⏳  Execute 'Analisar todas fichas e gerar Ficha da Obra [F3]' no menu lateral.")
+        self._ficha_f3_status_lbl.setWordWrap(True)
+        self._ficha_f3_status_lbl.setStyleSheet("color: #8a9ab5; font-size: 11px; background: transparent;")
+        main_lay.addWidget(self._ficha_f3_status_lbl)
+        scroll = QScrollArea()
+        scroll.setWidgetResizable(True)
+        scroll.setStyleSheet('''
+            QScrollArea { border: none; background: #1a1a1a; }
+            QScrollBar:vertical { background: #2a2a2a; width: 8px; border-radius: 4px; }
+            QScrollBar::handle:vertical { background: #4a4a4a; border-radius: 4px; }
+        ''')
+        self._ficha_f3_content = QWidget()
+        self._ficha_f3_content.setStyleSheet("background: #1a1a1a;")
+        self._ficha_f3_content_lay = QVBoxLayout(self._ficha_f3_content)
+        self._ficha_f3_content_lay.setContentsMargins(0, 4, 0, 4)
+        self._ficha_f3_content_lay.setSpacing(8)
+        self._ficha_f3_content_lay.addStretch()
+        scroll.setWidget(self._ficha_f3_content)
+        main_lay.addWidget(scroll, 1)
+        return container
+
+    def _run_process_f3(self):
+        if not getattr(self, '_current_obra', None):
+            QMessageBox.warning(self, "Aviso", "Selecione uma obra primeiro.")
+            return
+        self._btn_process_f3.setEnabled(False)
+        self._btn_process_detalhes.setEnabled(False)
+        self._btn_process_limpo.setEnabled(False)
+        self._btn_cancel_preprocess.setVisible(True)
+        self._ficha_f3_status_lbl.setText("⏳ Gerando Ficha Global F3 (Consolidando fichas granulares N2)...")
+        self._ficha_f3_status_lbl.setStyleSheet("color: #e6b400; font-size: 11px; font-weight: bold; background: transparent;")
+        
+        # Consolida de verdade!
+        try:
+            import sys as _sys
+            from pathlib import Path as _P
+            scripts_dir = str(_P(__file__).resolve().parent.parent.parent.parent / "scripts")
+            if scripts_dir not in _sys.path:
+                _sys.path.insert(0, scripts_dir)
+            from motor_reverso_obra import consolidar_obra_er
+            DB_PATH = str(_P("D:/Agente-cad-PYSIDE/project_data.vision"))
+            consolidar_obra_er(self._current_obra, db_path=DB_PATH)
+        except Exception as e:
+            print("Erro ao consolidar F3:", e)
+        
+        QTimer.singleShot(500, self._finish_process_f3)
+
+    def _finish_process_f3(self):
+        self._btn_process_f3.setEnabled(True)
+        self._btn_process_detalhes.setEnabled(True)
+        self._btn_process_limpo.setEnabled(True)
+        self._btn_cancel_preprocess.setVisible(False)
+        self._ficha_f3_status_lbl.setText("✅ Ficha Global F3 Carregada!")
+        self._ficha_f3_status_lbl.setStyleSheet("color: #00c864; font-size: 11px; font-weight: bold; background: transparent;")
+        
+        # Limpar o conteudo atual da F3
+        while self._ficha_f3_content_lay.count():
+            item = self._ficha_f3_content_lay.takeAt(0)
+            if item.widget():
+                item.widget().deleteLater()
+                
+        # Buscar a F3 do banco
+        try:
+            import sqlite3
+            import json
+            from pathlib import Path as _P
+            DB_PATH = str(_P("D:/Agente-cad-PYSIDE/project_data.vision"))
+            conn = sqlite3.connect(DB_PATH)
+            cur = conn.execute("SELECT data_json FROM reverse_eng_obra_ficha WHERE obra_name=? ORDER BY updated_at DESC LIMIT 1", (self._current_obra,))
+            row = cur.fetchone()
+            if row:
+                f3_data = json.loads(row[0])
+                formatted = json.dumps(f3_data, indent=2, ensure_ascii=False)
+                lbl = QLabel(f'<pre style="color:#c9d1d9;font-family:monospace;font-size:11px;">{formatted}</pre>')
+                lbl.setWordWrap(True)
+                self._ficha_f3_content_lay.addWidget(lbl)
+            else:
+                lbl = QLabel("Nenhuma Ficha F3 consolidada encontrada para esta obra.")
+                lbl.setStyleSheet("color: #8a9ab5;")
+                self._ficha_f3_content_lay.addWidget(lbl)
+            conn.close()
+        except Exception as e:
+            lbl = QLabel(f"Erro ao exibir F3: {e}")
+            self._ficha_f3_content_lay.addWidget(lbl)
+        
+        self._ficha_f3_content_lay.addStretch()
+
     def _build_ficha_tab(self) -> QWidget:
+
         """
         Constrói o widget da aba 📋 FICHA DA OBRA.
 
@@ -2753,7 +2910,7 @@ class DiagnosticHubModule(QWidget):
         main_lay.setSpacing(10)
 
         # ── Cabeçalho ─────────────────────────────────────────────────────────
-        hdr = QLabel("📋 Ficha Pré-Interpretativa da Obra")
+        hdr = QLabel("📋 Ficha Pré-Pavimentos/Detalhes [F2]")
         hdr.setStyleSheet(
             f"color: #e6b400; font-size: 13px; font-weight: bold; background: transparent;"
         )

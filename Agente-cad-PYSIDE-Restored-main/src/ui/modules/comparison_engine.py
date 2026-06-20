@@ -2571,16 +2571,40 @@ def _lv_segs_table(er_ficha: dict, accent: str = "#4caf50",
         hh.setSectionResizeMode(i, mode)
     tbl.verticalHeader().setVisible(False)
     tbl.setEditTriggers(QTableWidget.NoEditTriggers)
-    tbl.setAlternatingRowColors(False)
+    tbl.setAlternatingRowColors(True)
+    tbl.setShowGrid(False)
     if tbl_style:
         tbl.setStyleSheet(tbl_style)
     else:
         tbl.setStyleSheet(f"""
-            QTableWidget {{ background: {Colors.BG_PANEL}; color: {Colors.TEXT_PRIMARY};
-                font-size: 10px; border: 1px solid {Colors.BORDER_DEFAULT}; gridline-color: {Colors.BG_DEEP}; }}
-            QHeaderView::section {{ background: {Colors.BG_DEEP}; color: {accent};
-                font-weight: bold; font-size: 9px; padding: 2px; border: none; }}
-            QTableWidget::item {{ padding: 1px 3px; }}
+            QTableWidget {{
+                background: transparent; 
+                color: {Colors.TEXT_PRIMARY};
+                font-size: 11px; 
+                border: 1px solid rgba(255, 255, 255, 10);
+                border-radius: 6px;
+            }}
+            QTableWidget::item {{
+                border-bottom: 1px solid rgba(255, 255, 255, 5);
+                padding: 4px 6px;
+            }}
+            QTableWidget::item:alternate {{
+                background: rgba(255, 255, 255, 3);
+            }}
+            QTableWidget::item:hover {{
+                background: rgba(180, 80, 200, 15);
+            }}
+            QHeaderView::section {{
+                background: {Colors.BG_DEEP}; 
+                color: {accent};
+                border: none; 
+                border-bottom: 2px solid {accent};
+                font-size: 10px; 
+                font-weight: bold;
+                padding: 4px 6px;
+                text-transform: uppercase;
+                letter-spacing: 1px;
+            }}
         """)
 
     _face_bg   = QColor(Colors.BG_DEEP)
@@ -2763,17 +2787,36 @@ class LevelColumn(QFrame):
         self.ficha_table.verticalHeader().setVisible(False)
         self.ficha_table.setEditTriggers(QTableWidget.NoEditTriggers)
         self.ficha_table.setAlternatingRowColors(True)
+        self.ficha_table.setShowGrid(False)
         self.ficha_table.setFixedHeight(240)
         self.ficha_table.setStyleSheet(f"""
             QTableWidget {{
-                background: {Colors.BG_PANEL}; color: {Colors.TEXT_PRIMARY};
-                font-size: 10px; border: 1px solid {Colors.BORDER_DEFAULT};
-                gridline-color: {Colors.BORDER_SUBTLE};
+                background: transparent; 
+                color: {Colors.TEXT_PRIMARY};
+                font-size: 11px; 
+                border: 1px solid rgba(255, 255, 255, 10);
+                border-radius: 6px;
             }}
-            QTableWidget::item:alternate {{ background: {Colors.BG_CARD}; }}
+            QTableWidget::item {{
+                border-bottom: 1px solid rgba(255, 255, 255, 5);
+                padding: 4px 8px;
+            }}
+            QTableWidget::item:alternate {{
+                background: rgba(255, 255, 255, 3);
+            }}
+            QTableWidget::item:hover {{
+                background: rgba(180, 80, 200, 15);
+            }}
             QHeaderView::section {{
-                background: {bg_color}; color: {accent};
-                border: none; padding: 3px; font-size: 10px; font-weight: bold;
+                background: {bg_color}; 
+                color: {accent};
+                border: none; 
+                border-bottom: 2px solid {accent};
+                font-size: 11px; 
+                font-weight: bold;
+                padding: 6px 8px;
+                text-transform: uppercase;
+                letter-spacing: 1px;
             }}
         """)
         lay.addWidget(self.ficha_table)

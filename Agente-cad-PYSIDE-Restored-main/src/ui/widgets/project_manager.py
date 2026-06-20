@@ -105,29 +105,37 @@ class ProjectManager(QWidget):
                 font-size: 11px;
             }
             QPushButton#PrimaryButton:hover { background-color: {Colors.ACCENT_BLUE_HOVER}; }
-            QPushButton#PrimaryButton:pressed { background: #005A9E; }
-
             QTableWidget {
-                background-color: {Colors.BG_PANEL};
-                border: 1px solid {Colors.BORDER_DEFAULT};
-                gridline-color: {Colors.BORDER_SUBTLE};
-                font-size: 11px;
+                background: transparent; 
+                color: {Colors.TEXT_PRIMARY};
+                font-size: 11px; 
+                border: 1px solid rgba(255, 255, 255, 10);
                 border-radius: 6px;
+                gridline-color: transparent;
             }
-            QTableWidget::item { padding: 6px 8px; color: {Colors.TEXT_PRIMARY}; }
+            QTableWidget::item {
+                border-bottom: 1px solid rgba(255, 255, 255, 5);
+                padding: 6px 8px;
+            }
+            QTableWidget::item:alternate {
+                background: rgba(255, 255, 255, 3);
+            }
+            QTableWidget::item:hover {
+                background: rgba(180, 80, 200, 15);
+            }
             QTableWidget::item:selected {
-                background: {Colors.BG_SECONDARY};
-                color: {Colors.ACCENT_PRIMARY};
+                background: rgba(180, 80, 200, 30);
+                color: {Colors.TEXT_PRIMARY};
             }
             QHeaderView::section {
                 background-color: {Colors.BG_SURFACE};
                 color: {Colors.TEXT_SECONDARY};
-                padding: 6px 8px;
+                font-weight: bold; font-size: 11px;
                 border: none;
-                border-bottom: 1px solid {Colors.BORDER_DEFAULT};
-                font-weight: bold;
-                
-                font-size: 10px;
+                border-bottom: 2px solid {Colors.ACCENT_PRIMARY};
+                padding: 6px 8px;
+                text-transform: uppercase;
+                letter-spacing: 1px;
             }
             QScrollBar:vertical {
                 border: none; background: {Colors.BG_PANEL}; width: 6px;
@@ -505,7 +513,7 @@ class ProjectManager(QWidget):
 
         # ── 2.1 Pré-ficha Obra (índice 2) ────────────────────────────────────────
         ficha_tab = self._create_ficha_obra_tab()
-        self.phase_tabs.addTab(ficha_tab, "2.1 Pré-ficha Obra")
+        self.phase_tabs.addTab(ficha_tab, "2.1 Ficha Pré-Obra [F1]")
         self.phase_tab_widgets['ficha'] = ficha_tab
         self.phase_tabs.tabBar().setTabTextColor(_FICHA_IDX, _QColor('#e6b400'))
 
@@ -960,7 +968,7 @@ class ProjectManager(QWidget):
 
         # ── Header ──────────────────────────────────────────────────────────
         hdr = QHBoxLayout()
-        lbl_title = QLabel("📋  Ficha Pré-Interpretativa da Obra")
+        lbl_title = QLabel("📋  Ficha Pré-Obra [F1]")
         lbl_title.setStyleSheet(_resolve_css(
             "color: #e6b400; font-size: 15px; font-weight: bold;"
             " background: transparent; border: none;"
@@ -1133,17 +1141,21 @@ class ProjectManager(QWidget):
             )
             docs_count = cur.fetchone()[0]
 
-            # PIL/VIG/LAJ
-            cur = conn.execute(
-                "SELECT SUM(pil_valid), SUM(pil_total),"
-                "       SUM(beam_valid), SUM(beam_total),"
-                "       SUM(slab_valid), SUM(slab_total)"
-                " FROM projects WHERE work_name=?", (obra,)
-            )
-            row = cur.fetchone()
-            pil_v, pil_t = (row[0] or 0), (row[1] or 0)
-            vig_v, vig_t = (row[2] or 0), (row[3] or 0)
-            laj_v, laj_t = (row[4] or 0), (row[5] or 0)
+            # PIL/VIG/LAJ extraídos da Engenharia Reversa
+            cur = conn.execute("SELECT COUNT(*) FROM reverse_eng_fichas WHERE obra_name=? AND classe='PL'", (obra,))
+            pil_t = cur.fetchone()[0]
+            cur = conn.execute("SELECT COUNT(*) FROM reverse_eng_fichas WHERE obra_name=? AND classe='PL' AND status='approved'", (obra,))
+            pil_v = cur.fetchone()[0]
+
+            cur = conn.execute("SELECT COUNT(*) FROM reverse_eng_fichas WHERE obra_name=? AND classe IN ('VL', 'VF')", (obra,))
+            vig_t = cur.fetchone()[0]
+            cur = conn.execute("SELECT COUNT(*) FROM reverse_eng_fichas WHERE obra_name=? AND classe IN ('VL', 'VF') AND status='approved'", (obra,))
+            vig_v = cur.fetchone()[0]
+
+            cur = conn.execute("SELECT COUNT(*) FROM reverse_eng_fichas WHERE obra_name=? AND classe='LAJ'", (obra,))
+            laj_t = cur.fetchone()[0]
+            cur = conn.execute("SELECT COUNT(*) FROM reverse_eng_fichas WHERE obra_name=? AND classe='LAJ' AND status='approved'", (obra,))
+            laj_v = cur.fetchone()[0]
 
             # Último pipeline
             cur = conn.execute(
