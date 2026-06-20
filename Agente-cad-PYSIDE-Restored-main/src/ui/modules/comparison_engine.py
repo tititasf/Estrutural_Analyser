@@ -1482,35 +1482,35 @@ class Fase8Panel(QFrame):
 
     @staticmethod
     def _pav_display_label(pav_key: str) -> str:
-        """Formata nome do pavimento classificado para exibição no combo.
-        Ex: '13PAV' → '[13PAV] 13º Pavimento' | 'TIPO - 3 AO 12PAV' → '[TIPO] Pavimento Tipo 3-12'"""
+        """Formata nome do pavimento para exibição no combo — mesmo padrão do SA/main."""
         import re as _re
         k = pav_key.strip()
-        # Detecta número(s) no início (ex: "13PAV", "14PAV", "1PAV", "2PAV")
-        m = _re.match(r'^(\d+)\s*PAV', k, _re.I)
+        up = k.upper()
+        # Nome curto: remove sufixo _R20XX_ASCII_ODA e extensão
+        short = _re.sub(r'_R\d{4}_ASCII_ODA.*$', '', k, flags=_re.I)
+        short = _re.sub(r'\.(DXF|DWG)$', '', short, flags=_re.I).strip()
+        # Número + P/PV/PAV nos dois formatos: filename (13P-) e código (13PAV)
+        m = _re.search(r'[-_ ](\d{1,2})P(?:AV?|V)?(?:[-_ ]|$)', up)
+        if not m:
+            m = _re.match(r'^(\d{1,2})\s*PAV', up)
         if m:
-            n = m.group(1)
-            return f"[{k}]  {n}º Pavimento"
-        # TIPO
-        if _re.search(r'TIPO', k, _re.I):
-            return f"[TIPO]  Pavimento Tipo"
-        # Terreo
-        if _re.search(r'TER|TÉRREO|TERREO', k, _re.I):
-            return f"[TER]  Térreo"
-        # Cobertura / Deck
-        if _re.search(r'COB|DECK|BARR', k, _re.I):
-            return f"[COB]  Cobertura / Deck"
-        # Ático
-        if _re.search(r'ATC|ÁTIC|ATIC', k, _re.I):
-            return f"[ATC]  Ático"
-        # Fundação
-        if _re.search(r'FUN|FUND', k, _re.I):
-            return f"[FUN]  Fundação"
-        # Subsolo
-        if _re.search(r'SUB', k, _re.I):
-            return f"[SUB]  Subsolo"
-        # fallback: exibir como está
-        return f"[—]  {k}"
+            return f"[{m.group(1)}º PAV]  {short}"
+        if _re.search(r'[-_]TER[-_]|TERREO|TÉRREO', up):
+            return f"[TÉRREO]  {short}"
+        if _re.search(r'[-_]FUN[-_]|FUNDA', up):
+            return f"[FUNDAÇÃO]  {short}"
+        if _re.search(r'[-_]TIP[-_]|TIPO', up):
+            return f"[TIPO]  {short}"
+        if _re.search(r'[-_]COB[E_-]|COBER|DECK|BARR', up):
+            return f"[COBERTURA]  {short}"
+        if _re.search(r'[-_]ATC[-_]|ATICO|ÁTICO', up):
+            return f"[ÁTICO]  {short}"
+        if _re.search(r'[-_]SUB[-_]|SUBSOLO', up):
+            return f"[SUBSOLO]  {short}"
+        m_id = _re.search(r'[-_](\d{3,5})[-_]', k)
+        if m_id:
+            return f"[{m_id.group(1)}]  {short}"
+        return f"■  {short}"
 
     def _on_obra_changed(self, obra_name: str):
         """Atualiza combo de pavimentos buscando do banco de dados unificado."""

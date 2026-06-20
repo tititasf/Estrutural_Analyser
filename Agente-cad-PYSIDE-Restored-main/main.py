@@ -1,4 +1,4 @@
-import numpy as np # Force early initialization for Nuitka standalone
+﻿import numpy as np # Force early initialization for Nuitka standalone
 import sys
 import os
 
@@ -765,8 +765,9 @@ class MainWindow(QMainWindow):
         filtered = [p for p in all_projects if p.get('work_name') == work_name]
 
         for p in filtered:
-            display_name = p.get('pavement_name') or p.get('name')
-            self.cmb_pavements.addItem(display_name, p['id'])
+            raw_name = p.get('pavement_name') or p.get('name')
+            fmt = getattr(self, '_pav_card_label', lambda n: n)(raw_name)
+            self.cmb_pavements.addItem(fmt, (p['id'], raw_name))
 
         self.cmb_pavements.blockSignals(False)
         self.sync_robots_with_master_context(work_name)
@@ -790,14 +791,20 @@ class MainWindow(QMainWindow):
         if self.cmb_pavements.count() > 0:
             self._on_pavement_changed()
 
+    def _current_pavement_name(self) -> str:
+        """Retorna o nome raw do pavimento selecionado no cmb_pavements."""
+        d = self.cmb_pavements.currentData()
+        return d[1] if isinstance(d, tuple) and len(d) > 1 else self.cmb_pavements.currentText()
+
     def _on_pavement_changed(self):
         """Carrega o projeto selecionado (ABRE EM ABA)."""
         idx = self.cmb_pavements.currentIndex()
         print(f"[PAV_CHANGED] idx={idx} text='{self.cmb_pavements.currentText()}'", flush=True)
         if idx < 0: return
         
-        project_id = self.cmb_pavements.itemData(idx)
-        project_name = self.cmb_pavements.currentText()
+        _pav_data = self.cmb_pavements.itemData(idx)
+        project_id = _pav_data[0] if isinstance(_pav_data, tuple) else _pav_data
+        project_name = _pav_data[1] if isinstance(_pav_data, tuple) else self.cmb_pavements.currentText()
 
         # Reverse sync: SA sidebar combo de pavimentos (busca por raw_name no userData)
         if hasattr(self, 'sa_cmb_pavimentos'):
@@ -1050,8 +1057,9 @@ class MainWindow(QMainWindow):
         # Filtro consistente com o work_name (inclusive se vazio)
         filtered = [p for p in all_projects if (p.get('work_name') or "") == work_name]
         for p in filtered:
-            display_name = p.get('pavement_name') or p.get('name')
-            self.cmb_pavements.addItem(display_name, p['id'])
+            raw_name = p.get('pavement_name') or p.get('name')
+            fmt = getattr(self, '_pav_card_label', lambda n: n)(raw_name)
+            self.cmb_pavements.addItem(fmt, (p['id'], raw_name))
         self.cmb_pavements.blockSignals(False)
 
         # 3. Sincronizar robôs com o contexto da aba ativa
@@ -1064,7 +1072,9 @@ class MainWindow(QMainWindow):
         # Buscar pelo ID do projeto (UserRole) é mais seguro que pelo texto
         idx_found = -1
         for i in range(self.cmb_pavements.count()):
-            if str(self.cmb_pavements.itemData(i)) == str(project_id):
+            _d = self.cmb_pavements.itemData(i)
+            _pid = _d[0] if isinstance(_d, tuple) else _d
+            if str(_pid) == str(project_id):
                 idx_found = i
                 break
         
@@ -1225,6 +1235,8 @@ class MainWindow(QMainWindow):
             if m_id:
                 return f"[{m_id.group(1)}]  {short}"
             return f"■  {short}"
+
+        self._pav_card_label = _pav_card_label  # expõe para outros métodos
 
         def _sa_populate_pavimentos(obra_name: str):
             self.sa_cmb_pavimentos.blockSignals(True)
@@ -1417,14 +1429,6 @@ class MainWindow(QMainWindow):
             "Futuro: reaproveitamento de grades e paineis entre pavimentos via F1/F2/F3. "
             "Etapa 1 apenas reserva o botao; nao roda logica de contexto."
         )
-        self.btn_process_with_context.setToolTip(
-            "Roda a análise com pré-contexto da Ficha da Obra e RAG semântico.\n"
-            "Requer Ficha gerada (Tab 1 → Processar Todos)."
-        )
-        self.btn_process_with_context.setToolTip(
-            "Futuro: reaproveitamento de grades e paineis entre pavimentos via F1/F2/F3. "
-            "Etapa 1 apenas reserva o botao; nao roda logica de contexto."
-        )
         self.btn_process_with_context.setStyleSheet(
             f"{_BTN_H} background: #1a3a2a; color: #5dcfa0;"
             f" border: 1px solid #2d6a4a;"
@@ -1435,14 +1439,6 @@ class MainWindow(QMainWindow):
         self.btn_process_reverse = QPushButton("⚙️ Interpretar com Eng. Reversa")
         self.btn_process_reverse.setObjectName("btn_interpretar_reversa")
         self.btn_process_reverse.setText("Analisar com Eng Reversa (F5/N2)")
-        self.btn_process_reverse.setToolTip(
-            "Consulta fichas N2/F5 da Engenharia Reversa. "
-            "Nao gera DXF e nao roda o motor da Analise Geral."
-        )
-        self.btn_process_reverse.setToolTip(
-            "Aciona o Motor de Engenharia Reversa para interpretação profunda.\n"
-            "Requer que a imagem/DXF esteja devidamente carregada."
-        )
         self.btn_process_reverse.setToolTip(
             "Consulta fichas N2/F5 da Engenharia Reversa. "
             "Nao gera DXF e nao roda o motor da Analise Geral."
@@ -1880,7 +1876,7 @@ class MainWindow(QMainWindow):
             QMessageBox.warning(self, "Aviso", "O Robo Lajes não tem uma Obra selecionada. Selecione uma Obra na barra superior.")
             return
             
-        pavimento_nome = self.cmb_pavements.currentText()
+        pavimento_nome = self._current_pavement_name()
         if not pavimento_nome:
             from PySide6.QtWidgets import QMessageBox
             QMessageBox.warning(self, "Aviso", "Selecione um Pavimento na barra superior.")
@@ -2030,7 +2026,7 @@ class MainWindow(QMainWindow):
 
         # Contexto
         obra_nome = self.cmb_works.currentText()
-        pavimento_nome = self.cmb_pavements.currentText()
+        pavimento_nome = self._current_pavement_name()
         
         if not obra_nome or not pavimento_nome:
             QMessageBox.warning(self, "Aviso", "Selecione Obra e Pavimento.")
@@ -2198,7 +2194,7 @@ class MainWindow(QMainWindow):
 
         # Contexto
         obra_nome = self.cmb_works.currentText()
-        pavimento_nome = self.cmb_pavements.currentText()
+        pavimento_nome = self._current_pavement_name()
         
         if not obra_nome or not pavimento_nome:
             QMessageBox.warning(self, "Aviso", "Selecione Obra e Pavimento.")
@@ -2299,7 +2295,7 @@ class MainWindow(QMainWindow):
 
         # 2. Verificar Contexto (Obra/Pavimento)
         obra_nome = self.cmb_works.currentText()
-        pavimento_nome = self.cmb_pavements.currentText()
+        pavimento_nome = self._current_pavement_name()
 
         if not obra_nome or not pavimento_nome:
             QMessageBox.warning(self, "Aviso", "Selecione uma Obra e um Pavimento na barra superior.")
@@ -2644,15 +2640,15 @@ class MainWindow(QMainWindow):
         self.module_tabs.addTab("Robo Laje")                   # 8
 
         # Tooltips dos módulos
-        self.module_tabs.setTabToolTip(0, "Fase 1 — Ingestão: Cadastro de obras, importação de DXFs e documentos.")
-        self.module_tabs.setTabToolTip(1, "Fase 2 — Triagem: Separação estrutural/detalhes, recorte e limpeza de DXFs.")
-        self.module_tabs.setTabToolTip(2, "Fase 2.5 — Engenharia Reversa: Motor Reverso granular STOG→Ficha (N2), aprovação e alimentação do CE.")
-        self.module_tabs.setTabToolTip(3, "Fase 3 — Interpretação Semântica: Leitura dos DXFs limpos e geração de fichas.")
-        self.module_tabs.setTabToolTip(4, "Fases 7+8 — Validação: N1=Estrutura Real | N2=STOG Eng.Rev. | N3=Robot via Ficha SA | N4=Robot via Ficha Eng.Rev.")
-        self.module_tabs.setTabToolTip(5, "Fases 4,5,6 — Robô Pilares: gera DXF STOG para pilares (PL).")
-        self.module_tabs.setTabToolTip(6, "Fases 4,5,6 — Robô Laterais de Viga (LV): gera faces laterais em DXF STOG.")
-        self.module_tabs.setTabToolTip(7, "Fases 4,5,6 — Robô Fundo de Vigas (FV): gera fundo/sofito das vigas.")
-        self.module_tabs.setTabToolTip(8, "Fases 4,5,6 — Robô Laje (LJ): gera painéis de laje em DXF STOG.")
+        self.module_tabs.setTabToolTip(0, "Etapa 1 — Ingestão: Cadastro de obras, importação de DXFs e documentos.")
+        self.module_tabs.setTabToolTip(1, "Etapa 2 — Triagem: Separação estrutural/detalhes, recorte e limpeza de DXFs.")
+        self.module_tabs.setTabToolTip(2, "Etapa 2.5 — Engenharia Reversa: Motor Reverso granular STOG→Ficha (N2), aprovação e alimentação do CE.")
+        self.module_tabs.setTabToolTip(3, "Etapa 3 — Interpretação Semântica: Leitura dos DXFs limpos e geração de fichas.")
+        self.module_tabs.setTabToolTip(4, "Etapas 7+8 — Validação: N1=Estrutura Real | N2=STOG Eng.Rev. | N3=Robot via Ficha SA | N4=Robot via Ficha Eng.Rev.")
+        self.module_tabs.setTabToolTip(5, "Etapas 4,5,6 — Robô Pilares: gera DXF STOG para pilares (PL).")
+        self.module_tabs.setTabToolTip(6, "Etapas 4,5,6 — Robô Laterais de Viga (LV): gera faces laterais em DXF STOG.")
+        self.module_tabs.setTabToolTip(7, "Etapas 4,5,6 — Robô Fundo de Vigas (FV): gera fundo/sofito das vigas.")
+        self.module_tabs.setTabToolTip(8, "Etapas 4,5,6 — Robô Laje (LJ): gera painéis de laje em DXF STOG.")
 
         # ── Faixa de Fase (acima das tabs) ──────────────────────────
         # Descreve a fase ativa para clareza do operador
@@ -3690,7 +3686,7 @@ class MainWindow(QMainWindow):
     # ─────────────────────────────────────────────
 
     def _build_pipeline_status_bar(self):
-        """Barra de status de pipeline na base da janela (F1…F8 com checkmarks)."""
+        """Barra de status de pipeline na base da janela (ETAPAº1…ETAPAº8 com checkmarks)."""
         bar = QFrame()
         bar.setFixedHeight(28)
         bar.setStyleSheet("background: #0d1117; border-top: 1px solid #21262d;")
@@ -3707,12 +3703,12 @@ class MainWindow(QMainWindow):
 
         self._fase_labels = {}
         fase_names = {
-            1: "F1: Ingestão", 2: "F2: Triagem", 3: "F3: Interpretação",
-            4: "F4: Sincronização", 5: "F5: Scripts", 6: "F6: CAD",
-            7: "F7: Validação", 8: "F8: Certificação",
+            1: "ETAPAº1: Ingestão", 2: "ETAPAº2: Triagem", 3: "ETAPAº3: Interpretação",
+            4: "ETAPAº4: Sincronização", 5: "ETAPAº5: Scripts", 6: "ETAPAº6: CAD",
+            7: "ETAPAº7: Validação", 8: "ETAPAº8: Certificação",
         }
         for i in range(1, 9):
-            lbl = QLabel(f"○F{i}")   # ○ = fase pendente (atualizado ao carregar obra)
+            lbl = QLabel(f"○ETAPAº{i}")   # ○ = etapa pendente (atualizado ao carregar obra)
             lbl.setToolTip(fase_names[i])
             lbl.setStyleSheet("color: #444; font-size: 10px; padding: 0 3px;")
             lay.addWidget(lbl)
@@ -3757,10 +3753,10 @@ class MainWindow(QMainWindow):
                 continue
             done = (_Path(obra_path) / subdir).exists()
             if done:
-                lbl.setText(f"✓F{fase_num}")
+                lbl.setText(f"✓ETAPAº{fase_num}")
                 lbl.setStyleSheet("color: #4caf50; font-size: 10px; padding: 0 3px;")
             else:
-                lbl.setText(f"○F{fase_num}")
+                lbl.setText(f"○ETAPAº{fase_num}")
                 lbl.setStyleSheet("color: #444; font-size: 10px; padding: 0 3px;")
 
     def _on_analysis_tab_changed(self, index):
@@ -5023,7 +5019,7 @@ class MainWindow(QMainWindow):
         self.hide_progress()
         try:
             obra_f7 = self.cmb_works.currentText() if hasattr(self, "cmb_works") else ""
-            pav_f7 = self.cmb_pavements.currentText() if hasattr(self, "cmb_pavements") else ""
+            pav_f7 = self._current_pavement_name() if hasattr(self, "cmb_pavements") else ""
             if self.current_project_id and hasattr(self.db, "save_fase3_fichas"):
                 n_f7 = self.db.save_fase3_fichas(
                     self.current_project_id,
@@ -5286,7 +5282,7 @@ class MainWindow(QMainWindow):
 
     def _process_with_reverse_engineering(self):
         """Consultar e utilizar fichas N2 existentes como base de conhecimento."""
-        from PySide6.QtWidgets import QMessageBox, QDialog, QVBoxLayout, QLabel, QPushButton, QTextEdit
+        from PySide6.QtWidgets import QMessageBox, QDialog, QVBoxLayout, QGridLayout, QGroupBox, QLabel, QPushButton, QTextEdit, QFrame
         import sqlite3
         import json
         import os
@@ -5296,7 +5292,7 @@ class MainWindow(QMainWindow):
         obra_nome = self.cmb_works.currentText() if hasattr(self, "cmb_works") else ""
         if (not obra_nome or obra_nome == 'Selecionar Obra...') and hasattr(self, "sa_cmb_obras"):
             obra_nome = self.sa_cmb_obras.currentText()
-        pavimento_nome = self.cmb_pavements.currentText() if hasattr(self, "cmb_pavements") else ""
+        pavimento_nome = self._current_pavement_name() if hasattr(self, "cmb_pavements") else ""
         if (not pavimento_nome or pavimento_nome == 'Selecionar Pavimento...') and hasattr(self, "sa_cmb_pavimentos"):
             data = self.sa_cmb_pavimentos.currentData()
             if isinstance(data, tuple) and len(data) > 1:
@@ -5321,6 +5317,14 @@ class MainWindow(QMainWindow):
         }
         obra_ficha_info = None
         n2_available = False
+        # N1 (Structural Analyzer / Fº7) — fichas, validados e SEGMENTOS por classe (4 classes)
+        # Viga: 1 ficha FV + 1 ficha LV por viga; segmentos divergem (fundo=seg_bottom; lateral=seg_side_a+b).
+        n1_report = {
+            'PIL': {'label': 'Pilares',        'total': 0, 'validados': 0, 'segmentos': 0},
+            'FV':  {'label': 'Vigas Fundo',    'total': 0, 'validados': 0, 'segmentos': 0},
+            'LV':  {'label': 'Vigas Laterais', 'total': 0, 'validados': 0, 'segmentos': 0},
+            'LAJ': {'label': 'Lajes',          'total': 0, 'validados': 0, 'segmentos': 0},
+        }
 
         try:
             if os.path.exists(db_path):
@@ -5388,6 +5392,44 @@ class MainWindow(QMainWindow):
                         'total_laj': row[3], 'confianca': row[4]
                     }
                     n2_available = True
+
+                # 1f. N1 (Fº7) — itens salvos e validados por classe (estado persistido do pavimento)
+                # PIL←pillars, LAJ←slabs. FV e LV derivam de `beams` (a viga N1 contém fundo+laterais).
+                _pid = getattr(self, 'current_project_id', None)
+                if _pid:
+                    def _count_tbl(_tbl):
+                        try:
+                            c.execute(
+                                f"SELECT COUNT(*), COALESCE(SUM(CASE WHEN is_validated=1 THEN 1 ELSE 0 END), 0) "
+                                f"FROM {_tbl} WHERE project_id=?", [str(_pid)]
+                            )
+                            _rr = c.fetchone()
+                            return (_rr[0] or 0, _rr[1] or 0) if _rr else (0, 0)
+                        except Exception:
+                            return (0, 0)
+                    n1_report['PIL']['total'], n1_report['PIL']['validados'] = _count_tbl('pillars')
+                    n1_report['LAJ']['total'], n1_report['LAJ']['validados'] = _count_tbl('slabs')
+                    # Vigas: 1 ficha FV + 1 ficha LV por viga; segmentos divergem (fundo vs lados A/B)
+                    try:
+                        c.execute("SELECT data_json, is_validated FROM beams WHERE project_id=?", [str(_pid)])
+                        _nv = 0; _val = 0; _fv_seg = 0; _lv_seg = 0
+                        for _dj, _isv in c.fetchall():
+                            _nv += 1
+                            if _isv == 1:
+                                _val += 1
+                            try:
+                                _cl = ((json.loads(_dj) if _dj else {}).get('geometry', {}) or {}).get('classified', {}) or {}
+                                _fv_seg += len(_cl.get('seg_bottom') or [])
+                                _lv_seg += len(_cl.get('seg_side_a') or []) + len(_cl.get('seg_side_b') or [])
+                            except Exception:
+                                pass
+                        for _k in ('FV', 'LV'):
+                            n1_report[_k]['total'] = _nv
+                            n1_report[_k]['validados'] = _val
+                        n1_report['FV']['segmentos'] = _fv_seg
+                        n1_report['LV']['segmentos'] = _lv_seg
+                    except Exception:
+                        pass
 
                 conn.close()
         except Exception as e:
@@ -5467,20 +5509,20 @@ class MainWindow(QMainWindow):
 
         # Dialog de confirmação gigante
         dialog = QDialog(self)
-        dialog.setWindowTitle("Auditoria de Fichas (Master Plan F1-F8) & Confirmação de Análise")
+        dialog.setWindowTitle("Auditoria de Fichas (Master Plan F1-F9) & Confirmação de Análise")
         dialog.resize(1100, 700)
-        
+
         main_layout = QVBoxLayout(dialog)
-        
+
         # Cabeçalho
-        header = QLabel("<h3>Ecossistema de Conhecimento Estrutural (Fichas Fº1 a Fº8)</h3><p>Valide a coerência e os dados encontrados antes de injetar no Motor.</p>")
+        header = QLabel("<h3>Ecossistema de Conhecimento Estrutural (Fichas Fº1 a Fº9)</h3><p>Valide a coerência e os dados encontrados antes de injetar no Motor.</p>")
         header.setAlignment(Qt.AlignCenter)
         main_layout.addWidget(header)
         
         # Colunas
         grid = QGridLayout()
         
-        def create_group(title, content_html, row, col):
+        def create_group(title, content_html, row, col, colspan=1):
             gb = QGroupBox(title)
             gb.setStyleSheet("QGroupBox { font-weight: bold; font-size: 11px; border: 1px solid #3d4454; border-radius: 4px; margin-top: 10px; } QGroupBox::title { subcontrol-origin: margin; left: 10px; padding: 0 3px; color: #00ff9d; }")
             l = QVBoxLayout(gb)
@@ -5489,12 +5531,12 @@ class MainWindow(QMainWindow):
             txt.setHtml(content_html)
             txt.setStyleSheet("background: #1e222d; border: none; font-size: 11px;")
             l.addWidget(txt)
-            grid.addWidget(gb, row, col)
+            grid.addWidget(gb, row, col, 1, colspan)
         
         # --- Fase 1 ---
         html_f1 = f"""
         <b>ID:</b> <span style="color:#00c864">Fº1-OBRA</span><br><br>
-        <i>Origem: Fase 1 (Triagem/Ingestão)</i><br>
+        <i>Origem: Etapa 1 (Triagem/Ingestão)</i><br>
         <b>Status:</b> {'✅ Concluído' if obra_ficha_info else '⚠️ Pendente'}<br><br>
         <b>Métricas Macros:</b><br>
         Pilares: {obra_ficha_info.get('total_pil', 0) if obra_ficha_info else 0}<br>
@@ -5532,41 +5574,64 @@ class MainWindow(QMainWindow):
         """
         create_group("Fº4 & Fº5: Engenharia Reversa (Teacher)", html_f4_f5, 0, 2)
         
-        # --- Fase 3 (N1) ---
+        # --- Fº6: Obra Eng. Reversa (consolidação obra do gabarito N2) ---
         html_f6 = f"""
         <b>ID:</b> <span style="color:#00c864">Fº6-OBRA</span><br>
-        <i>Origem: Structural Analyzer</i><br>
-        <b>Status:</b> Será gerado agora se prosseguir.<br><br>
-        Esta é a ficha do Cego/Motor Inteligente. Terá a <b>mesma profundidade de detalhismo</b> que a Fº5 (N2). Popula a base N1.
+        <i>Origem: Diagnostic Reverse Hub (consolidação)</i><br>
+        <b>Status:</b> {'✅ Consolidada' if obra_ficha_info else '⚠️ Pendente'}<br><br>
+        Consolida as fichas Fº4/Fº5 de todos os pavimentos — a visão-OBRA do gabarito (N2).<br><br>
+        Pilares: {obra_ficha_info.get('total_pil', 0) if obra_ficha_info else 0} |
+        Lajes: {obra_ficha_info.get('total_laj', 0) if obra_ficha_info else 0}<br>
+        Confiança: {obra_ficha_info.get('confianca', 0):.1%} se houver.
         """
-        create_group("Fº6: Motor Structural Analyzer", html_f6, 1, 0)
-        
-        # --- Fase 4 (N3/N4) ---
-        html_f7_f8 = f"""
-        <b>ID:</b> <span style="color:#00c864">Fº7 / Fº8</span><br>
-        <i>Origem: Comparison Engine</i><br>
+        create_group("Fº6: Obra Engenharia Reversa", html_f6, 1, 0)
+
+        # --- Fº7: Motor Structural Analyzer (N1) ---
+        def _pct(d):
+            return (d['validados'] / d['total'] * 100) if d['total'] else 0.0
+        # PIL/LAJ contam itens próprios; FV/LV compartilham `beams` (não somar para o total)
+        n1_total = n1_report['PIL']['total'] + n1_report['FV']['total'] + n1_report['LAJ']['total']
+        n1_str = ""
+        for _k in ('PIL', 'FV', 'LV', 'LAJ'):
+            _d = n1_report[_k]
+            _seg = f" · <b>{_d['segmentos']}</b> segmentos" if _k in ('FV', 'LV') else ""
+            n1_str += f"<b>{_d['label']}:</b> {_d['total']} fichas — {_d['validados']} validados ({_pct(_d):.0f}%){_seg}<br>"
+        html_f7 = f"""
+        <b>ID:</b> <span style="color:#00c864">Fº7-OBRA-PAVIMENTO-CLASSE-ITEM</span><br>
+        <i>Origem: Structural Analyzer (botão "Análise Geral")</i><br>
+        <b>Status:</b> {'✅ Carregada do banco (estado salvo do pavimento)' if n1_total else '⚠️ Ainda não gerada — rode a "Análise Geral"'}<br><br>
+        Interpretação do <b>motor</b> (o candidato, chamado <b>N1</b>) — a ser treinada até bater com o gabarito da Engenharia Reversa (Fº5/N2). É <b>(re)gerada</b> pela "Análise Geral" e <b>carregada do banco</b> ao abrir o pavimento (todos os itens salvos, com os campos já validados).<br><br>
+        <b>Fichas por classe (validadas):</b><br>
+        {n1_str}
+        <span style="color:#7a8290; font-size:10px;">Cada viga gera 1 ficha de Fundo + 1 ficha de Lateral (por isso a contagem de fichas coincide). A divergência real está nos <b>segmentos dentro de cada ficha</b> (fundo; lados A/B + visões-corte) — o motor ainda não os extrai; isso vem com o refactor da viga (ver SPEC-VIGA-SPLIT-FV-LV).</span>
+        """
+        create_group("Fº7: Structural Analyzer — interpretação do motor (N1)", html_f7, 1, 1)
+
+        # --- Fº8 & Fº9: Comparison Engine (N3 / N4) ---
+        html_f8_f9 = f"""
+        <b>ID:</b> <span style="color:#00c864">Fº8 / Fº9</span><br>
+        <i>Origem: Comparison Engine (Robô)</i><br>
         <b>Status:</b> Pós-Conversão.<br><br>
-        A Fº7 é a versão da Fº6 convertida para N3.<br>
-        A Fº8 é a versão da Fº5 convertida para N4 (O Gabarito Mestre).
+        A Fº8 é a versão da Fº7 (N1) convertida pelo Robô → <b>N3</b>.<br>
+        A Fº9 é a versão da Fº5 (N2) convertida pelo Robô → <b>N4</b> (O Gabarito Mestre).
         """
-        create_group("Fº7 & Fº8: Comparison Engine Match", html_f7_f8, 1, 1)
-        
+        create_group("Fº8 & Fº9: Comparison Engine Match", html_f8_f9, 1, 2)
+
         # --- Resumo/Avisos ---
         warn_txt = ""
         if not n2_available:
             warn_txt = "<span style='color:red;'>⚠️ ATENÇÃO: Nenhuma Ficha Fº4/Fº5 (Teacher N2) foi encontrada para ser usada! Motor rodará cego.</span>"
         else:
             warn_txt = "<span style='color:#00c864;'>✅ Fichas F5/N2 encontradas para consulta. O motor não será executado neste botão.</span>"
-        
+
         html_warn = f"<b>Sumário:</b> Obra {obra_nome} | Pav: {pavimento_nome or 'Todos'}<br><br>{warn_txt}"
-        create_group("Avisos", html_warn, 1, 2)
+        create_group("Avisos", html_warn, 2, 0, colspan=3)
         
         main_layout.addLayout(grid)
         
         # Botões
         btn_layout = QHBoxLayout()
-        btn_proceed = QPushButton("✅ Prosseguir e Gerar Fº6")
-        btn_proceed.setText("Confirmar consulta F5/N2")
+        btn_proceed = QPushButton("Confirmar consulta F5/N2")
         btn_proceed.setStyleSheet("background: #00c864; color: black; font-weight: bold; height: 30px;")
         btn_cancel = QPushButton("❌ Cancelar")
         btn_proceed.clicked.connect(lambda: dialog.accept())
@@ -8542,7 +8607,7 @@ class MainWindow(QMainWindow):
         try:
             # Obter contexto
             obra_nome = self.cmb_works.currentText()
-            pavimento_nome = self.cmb_pavements.currentText()
+            pavimento_nome = self._current_pavement_name()
 
             if not obra_nome or not pavimento_nome:
                 QMessageBox.warning(self, "Aviso", "Selecione obra e pavimento na barra superior.")
@@ -8647,7 +8712,7 @@ class MainWindow(QMainWindow):
         try:
             # Obter contexto
             obra_nome = self.cmb_works.currentText()
-            pavimento_nome = self.cmb_pavements.currentText()
+            pavimento_nome = self._current_pavement_name()
 
             if not obra_nome or not pavimento_nome:
                 QMessageBox.warning(self, "Aviso", "Selecione obra e pavimento na barra superior.")
@@ -8780,6 +8845,21 @@ class MainWindow(QMainWindow):
 def main():
     app = QApplication(sys.argv)
     app.setStyle('Fusion')
+
+    # Suprimir warnings cosmÃ©ticos de QSS parse
+    from PySide6.QtCore import qInstallMessageHandler, QtMsgType
+    def _qss_msg_handler(msg_type, ctx, msg):
+        if msg_type == QtMsgType.QtWarningMsg and 'stylesheet' in msg.lower():
+            return
+        if msg_type == QtMsgType.QtWarningMsg and 'parse' in msg.lower():
+            return
+        # Demais mensagens: comportamento padrÃ£o
+        from PySide6.QtCore import QtMsgType as _t
+        if msg_type == _t.QtCriticalMsg:
+            print(f'[Qt Critical] {msg}', file=sys.stderr)
+        elif msg_type == _t.QtFatalMsg:
+            print(f'[Qt Fatal] {msg}', file=sys.stderr)
+    qInstallMessageHandler(_qss_msg_handler)
     
     # --- Auth Flow Integration ---
     auth_service = AuthService()
