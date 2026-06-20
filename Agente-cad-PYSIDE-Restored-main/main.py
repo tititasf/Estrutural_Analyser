@@ -1190,11 +1190,41 @@ class MainWindow(QMainWindow):
         import re as _re
 
         def _pav_card_label(name: str) -> str:
-            """Extrai nível numérico do nome e formata como card prefix."""
-            m = _re.search(r'[-_](\d{3,5})[-_]', name)
-            if m:
-                return f"[{m.group(1)}]  {name}"
-            return f"■  {name}"
+            """Extrai classificação do pavimento e formata como badge + nome curto."""
+            up = name.upper()
+            # Nome curto: remove sufixo _R20XX_ASCII_ODA e extensão .DXF/.DWG
+            short = _re.sub(r'_R\d{4}_ASCII_ODA.*$', '', name, flags=_re.I)
+            short = _re.sub(r'\.(DXF|DWG)$', '', short, flags=_re.I).strip()
+
+            # ── Detectar classificação de pavimento ──────────────────────────
+            # Número + P/PV/PAV: 13P, 14P, 1PV, 2PV, 1PAV, 8PAV
+            m_num = _re.search(r'[-_ ](\d{1,2})P(?:AV?|V)?(?:[-_ ]|$)', up)
+            if m_num:
+                n = m_num.group(1)
+                return f"[{n}º PAV]  {short}"
+            # Terreo
+            if _re.search(r'[-_]TER[-_]|TERREO|TÉRREO', up):
+                return f"[TÉRREO]  {short}"
+            # Fundação
+            if _re.search(r'[-_]FUN[-_]|FUNDA', up):
+                return f"[FUNDAÇÃO]  {short}"
+            # Tipo
+            if _re.search(r'[-_]TIP[-_]|TIPO', up):
+                return f"[TIPO]  {short}"
+            # Cobertura
+            if _re.search(r'[-_]COB[E_-]|COBER|DECK|BARR', up):
+                return f"[COBERTURA]  {short}"
+            # Ático
+            if _re.search(r'[-_]ATC[-_]|ATICO|ÁTICO', up):
+                return f"[ÁTICO]  {short}"
+            # Subsolo
+            if _re.search(r'[-_]SUB[-_]|SUBSOLO', up):
+                return f"[SUBSOLO]  {short}"
+            # Fallback: código numérico original
+            m_id = _re.search(r'[-_](\d{3,5})[-_]', name)
+            if m_id:
+                return f"[{m_id.group(1)}]  {short}"
+            return f"■  {short}"
 
         def _sa_populate_pavimentos(obra_name: str):
             self.sa_cmb_pavimentos.blockSignals(True)
