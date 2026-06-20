@@ -1,0 +1,7 @@
+$924a37df-ab4f-41d6-81ad-52b8d90f9790²3vector ÿÿÿÿÿÿÿÿÿ*fixed_size_list:float:409608text ÿÿÿÿÿÿÿÿÿ*string08$	obra_name ÿÿÿÿÿÿÿÿÿ*string08#dxf_path ÿÿÿÿÿÿÿÿÿ*string08#dxf_name ÿÿÿÿÿÿÿÿÿ*string08(source_folder ÿÿÿÿÿÿÿÿÿ*string08*classified_type ÿÿÿÿÿÿÿÿÿ*string08-classified_subtype ÿÿÿÿÿÿÿÿÿ*string08$
+confidence ÿÿÿÿÿÿÿÿÿ*float08-pavimento_inferred	 ÿÿÿÿÿÿÿÿÿ*string08,classifier_method
+ ÿÿÿÿÿÿÿÿÿ*string08&entity_count ÿÿÿÿÿÿÿÿÿ*int3208%
+top_layers ÿÿÿÿÿÿÿÿÿ*string08%
+created_at ÿÿÿÿÿÿÿÿÿ*string08"!
+lance.auto_cleanup.interval20"'
+lance.auto_cleanup.older_than14days
