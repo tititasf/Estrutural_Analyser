@@ -1482,35 +1482,32 @@ class Fase8Panel(QFrame):
 
     @staticmethod
     def _pav_display_label(pav_key: str) -> str:
-        """Formata nome do pavimento para exibição no combo — mesmo padrão do SA/main."""
+        """Formata nome do pavimento para exibição — suporta '13_PAV', '13PAV' e filenames."""
         import re as _re
         k = pav_key.strip()
         up = k.upper()
-        # Nome curto: remove sufixo _R20XX_ASCII_ODA e extensão
-        short = _re.sub(r'_R\d{4}_ASCII_ODA.*$', '', k, flags=_re.I)
-        short = _re.sub(r'\.(DXF|DWG)$', '', short, flags=_re.I).strip()
-        # Número + P/PV/PAV nos dois formatos: filename (13P-) e código (13PAV)
-        m = _re.search(r'[-_ ](\d{1,2})P(?:AV?|V)?(?:[-_ ]|$)', up)
-        if not m:
-            m = _re.match(r'^(\d{1,2})\s*PAV', up)
+        # Variantes com underscore do DB: 13_PAV, 1_PAV, TER_REO, etc.
+        # 1) código N_PAV ou NPAV no início
+        m = _re.match(r'^(\d{1,2})_?PAV', up)
         if m:
-            return f"[{m.group(1)}º PAV]  {short}"
-        if _re.search(r'[-_]TER[-_]|TERREO|TÉRREO', up):
-            return f"[TÉRREO]  {short}"
-        if _re.search(r'[-_]FUN[-_]|FUNDA', up):
-            return f"[FUNDAÇÃO]  {short}"
-        if _re.search(r'[-_]TIP[-_]|TIPO', up):
-            return f"[TIPO]  {short}"
-        if _re.search(r'[-_]COB[E_-]|COBER|DECK|BARR', up):
-            return f"[COBERTURA]  {short}"
-        if _re.search(r'[-_]ATC[-_]|ATICO|ÁTICO', up):
-            return f"[ÁTICO]  {short}"
-        if _re.search(r'[-_]SUB[-_]|SUBSOLO', up):
-            return f"[SUBSOLO]  {short}"
-        m_id = _re.search(r'[-_](\d{3,5})[-_]', k)
-        if m_id:
-            return f"[{m_id.group(1)}]  {short}"
-        return f"■  {short}"
+            return f"[{m.group(1)}º PAV]  {k}"
+        # 2) padrão filename: -13P- ou _13PAV_
+        m = _re.search(r'[-_ ](\d{1,2})P(?:AV?|V)?(?:[-_ ]|$)', up)
+        if m:
+            return f"[{m.group(1)}º PAV]  {k}"
+        if _re.search(r'TER|TÉRREO|TERREO', up):
+            return f"[TÉRREO]  {k}"
+        if _re.search(r'FUN|FUNDA', up):
+            return f"[FUNDAÇÃO]  {k}"
+        if _re.search(r'TIP|TIPO', up):
+            return f"[TIPO]  {k}"
+        if _re.search(r'COB|COBER|DECK|BARR', up):
+            return f"[COBERTURA]  {k}"
+        if _re.search(r'ATC|ATICO|ÁTICO', up):
+            return f"[ÁTICO]  {k}"
+        if _re.search(r'SUB|SUBSOLO', up):
+            return f"[SUBSOLO]  {k}"
+        return f"■  {k}"
 
     def _on_obra_changed(self, obra_name: str):
         """Atualiza combo de pavimentos buscando do banco de dados unificado."""
@@ -1525,24 +1522,36 @@ class Fase8Panel(QFrame):
             from pathlib import Path as _P
             db_path = str(_P("D:/Agente-cad-PYSIDE/project_data.vision"))
             conn = sqlite3.connect(db_path)
-            
-            # Buscar os pavimentos encontrados na base de recortes aprovados ou fichas
-            cur = conn.execute("""
-                SELECT DISTINCT pavimento FROM reverse_eng_fichas WHERE obra_name=? AND pavimento != ''
-                UNION
-                SELECT DISTINCT pavimento FROM reverse_eng_recortes WHERE (obra_name=? OR obra_name='') AND status='aprovado' AND pavimento != ''
-            """, (obra_name, obra_name))
-            
-            pavs = [row[0] for row in cur.fetchall() if row[0]]
+
+            # Buscar pavimentos de reverse_eng_fichas (fonte primária)
+            pavs_set = set()
+            try:
+                cur = conn.execute(
+                    "SELECT DISTINCT pavimento FROM reverse_eng_fichas WHERE obra_name=? AND pavimento != ''",
+                    (obra_name,))
+                pavs_set.update(row[0] for row in cur.fetchall() if row[0])
+            except Exception:
+                pass
+
+            # Tentar reverse_eng_recortes (pode não ter coluna pavimento)
+            try:
+                cur = conn.execute(
+                    "SELECT DISTINCT pavimento FROM reverse_eng_recortes WHERE (obra_name=? OR obra_name='') AND status='aprovado' AND pavimento != ''",
+                    (obra_name,))
+                pavs_set.update(row[0] for row in cur.fetchall() if row[0])
+            except Exception:
+                pass
+
             conn.close()
-            
+            pavs = sorted(pavs_set)
+
             # Adicionar a opção TODOS no topo para facilitar analise massiva
             self.cmb_pav.addItem("TODOS", "TODOS")
-            
-            for p in sorted(pavs):
-                label = self._pav_display_label(p) if hasattr(self, '_pav_display_label') else p
+
+            for p in pavs:
+                label = self._pav_display_label(p)
                 self.cmb_pav.addItem(label, p)
-                
+
         except Exception as e:
             print("Erro ao carregar pavimentos para ComboBox no ComparisonEngine:", e)
             
@@ -2230,7 +2239,9 @@ class Fase8Panel(QFrame):
         if idx >= 0:
             self.cmb_obra.setCurrentIndex(idx)
         if pav:
-            pav_idx = self.cmb_pav.findText(pav)
+            pav_idx = self.cmb_pav.findData(pav)
+            if pav_idx < 0:
+                pav_idx = self.cmb_pav.findText(pav)  # fallback texto direto
             if pav_idx >= 0:
                 self.cmb_pav.setCurrentIndex(pav_idx)
 
