@@ -1482,68 +1482,47 @@ class Fase8Panel(QFrame):
 
     @staticmethod
     def _pav_display_label(pav_key: str) -> str:
-        """Formata nome do pavimento para exibição — suporta '13_PAV', '13PAV' e filenames."""
+        """Formata nome do pavimento para exibição — suporta '13_PAV', '13PAV' e filenames DXF."""
         import re as _re
         k = pav_key.strip()
         up = k.upper()
-        # Variantes com underscore do DB: 13_PAV, 1_PAV, TER_REO, etc.
+        # Nome curto: remove sufixo _R20XX_ASCII_ODA e extensão .DXF/.DWG (igual ao SA)
+        short = _re.sub(r'_R\d{4}_ASCII_ODA.*$', '', k, flags=_re.I)
+        short = _re.sub(r'\.(DXF|DWG)$', '', short, flags=_re.I).strip()
         # 1) código N_PAV ou NPAV no início
         m = _re.match(r'^(\d{1,2})_?PAV', up)
-        if m:
-            return f"[{m.group(1)}º PAV]  {k}"
-        # 2) padrão filename: -13P- ou _13PAV_
+        if m: return f"[{m.group(1)}º PAV]  {short}"
+        # 2) padrão filename: -13P- ou -1PV- ou -13PAV-
         m = _re.search(r'[-_ ](\d{1,2})P(?:AV?|V)?(?:[-_ ]|$)', up)
-        if m:
-            return f"[{m.group(1)}º PAV]  {k}"
-        if _re.search(r'TER|TÉRREO|TERREO', up):
-            return f"[TÉRREO]  {k}"
-        if _re.search(r'FUN|FUNDA', up):
-            return f"[FUNDAÇÃO]  {k}"
-        if _re.search(r'TIP|TIPO', up):
-            return f"[TIPO]  {k}"
-        if _re.search(r'COB|COBER|DECK|BARR', up):
-            return f"[COBERTURA]  {k}"
-        if _re.search(r'ATC|ATICO|ÁTICO', up):
-            return f"[ÁTICO]  {k}"
-        if _re.search(r'SUB|SUBSOLO', up):
-            return f"[SUBSOLO]  {k}"
-        return f"■  {k}"
+        if m: return f"[{m.group(1)}º PAV]  {short}"
+        if _re.search(r'TER|TÉRREO|TERREO', up): return f"[TÉRREO]  {short}"
+        if _re.search(r'FUN|FUNDA', up): return f"[FUNDAÇÃO]  {short}"
+        if _re.search(r'TIP|TIPO', up): return f"[TIPO]  {short}"
+        if _re.search(r'COB|COBER|DECK|BARR', up): return f"[COBERTURA]  {short}"
+        if _re.search(r'ATC|ATICO|ÁTICO', up): return f"[ÁTICO]  {short}"
+        if _re.search(r'SUB|SUBSOLO', up): return f"[SUBSOLO]  {short}"
+        return short
 
     def _on_obra_changed(self, obra_name: str):
-        """Atualiza combo de pavimentos buscando do banco de dados unificado."""
+        """Atualiza combo de pavimentos a partir da tabela projects (mesmos 'limpos' que o SA)."""
         self.cmb_pav.blockSignals(True)
         self.cmb_pav.clear()
         if not obra_name:
             self.cmb_pav.blockSignals(False)
             return
-            
+
         try:
             import sqlite3
             from pathlib import Path as _P
             db_path = str(_P("D:/Agente-cad-PYSIDE/project_data.vision"))
             conn = sqlite3.connect(db_path)
 
-            # Buscar pavimentos de reverse_eng_fichas (fonte primária)
-            pavs_set = set()
-            try:
-                cur = conn.execute(
-                    "SELECT DISTINCT pavimento FROM reverse_eng_fichas WHERE obra_name=? AND pavimento != ''",
-                    (obra_name,))
-                pavs_set.update(row[0] for row in cur.fetchall() if row[0])
-            except Exception:
-                pass
-
-            # Tentar reverse_eng_recortes (pode não ter coluna pavimento)
-            try:
-                cur = conn.execute(
-                    "SELECT DISTINCT pavimento FROM reverse_eng_recortes WHERE (obra_name=? OR obra_name='') AND status='aprovado' AND pavimento != ''",
-                    (obra_name,))
-                pavs_set.update(row[0] for row in cur.fetchall() if row[0])
-            except Exception:
-                pass
-
+            # Buscar pavimentos dos projetos — mesma fonte que o SA usa no cmb_pavements
+            cur = conn.execute(
+                "SELECT DISTINCT pavement_name FROM projects WHERE work_name=? AND pavement_name != '' ORDER BY pavement_name",
+                (obra_name,))
+            pavs = [row[0] for row in cur.fetchall() if row[0]]
             conn.close()
-            pavs = sorted(pavs_set)
 
             # Adicionar a opção TODOS no topo para facilitar analise massiva
             self.cmb_pav.addItem("TODOS", "TODOS")
@@ -1554,13 +1533,13 @@ class Fase8Panel(QFrame):
 
         except Exception as e:
             print("Erro ao carregar pavimentos para ComboBox no ComparisonEngine:", e)
-            
+
         # Fallback se o banco não retornar nada
-        if self.cmb_pav.count() == 1: # Só tem o TODOS
+        if self.cmb_pav.count() == 1:  # Só tem o TODOS
             fase1 = DADOS_OBRAS_ROOT / obra_name / "Fase-1_Ingestao"
             if fase1.exists():
                 self.cmb_pav.addItem("1PV")
-                
+
         self.cmb_pav.blockSignals(False)
 
         # Carregar scores existentes
@@ -3466,29 +3445,33 @@ class NavSidebar(QFrame):
 
     @staticmethod
     def _pav_key_to_db_pav(pav_key: str) -> str:
-        """Converte pav_key do dxf_discovery.json para o formato de pavimento do DB.
+        """Converte pav_key para o formato de pavimento do DB (reverse_eng_fichas.pavimento).
 
-        Exemplos:
-          '13PAV'                    → '13_PAV'
-          'TIPO - 3 AO 12PAV'       → '12_PAV'
-          'PARAISO - COBERTURA...'  → 'COBERTURA'
-          'TËRREO' / 'TERREO'       → 'TERREO'
-          '1PAV'                    → '1_PAV'
+        Suporta:
+          '13PAV', '13_PAV'                      → '13_PAV'
+          'TIPO - 3 AO 12PAV'                    → '12_PAV'
+          'TMC-EST-PE-6000-13P-R03_R2018_...'   → '13_PAV'  (DXF filename do projects)
+          'TMC-EST-EX-3000-1PV-R00_R2018_...'   → '1_PAV'
+          'PARAISO - COBERTURA...'               → 'COBERTURA'
+          'TËRREO' / 'TERREO' / '-TER-'         → 'TERREO'
         """
         import re as _re, unicodedata as _ucd
-        # Normalizar unicode (remove acentos: Ë→E, º→o etc.)
         s = _ucd.normalize('NFKD', pav_key)
         s = ''.join(c for c in s if not _ucd.combining(c)).upper().strip()
 
-        if 'TERREO' in s or 'TRREO' in s:
+        if 'TERREO' in s or 'TRREO' in s or _re.search(r'[-_ ]TER[-_ ]', s):
             return 'TERREO'
         if 'COB' in s:
             return 'COBERTURA'
-        # Número antes de PAV: "13PAV" → ['13'], "TIPO - 3 AO 12PAV" → ['3','12']
+        # Número seguido de PAV: "13PAV", "13_PAV", "TIPO - 3 AO 12PAV"
         matches = _re.findall(r'(\d+)\s*PAV', s)
         if matches:
-            return f"{matches[-1]}_PAV"   # último número (ex: 12 de "3 AO 12PAV")
-        if 'TIPO' in s:
+            return f"{matches[-1]}_PAV"
+        # DXF filename style: -13P- ou -1PV- (número + P ou PV entre separadores)
+        matches = _re.findall(r'[-_ ](\d{1,2})P(?:V)?(?:[-_ ]|$)', s)
+        if matches:
+            return f"{matches[-1]}_PAV"
+        if 'TIPO' in s or _re.search(r'[-_ ]TIP[-_ ]', s):
             return 'TIPO'
         return pav_key.strip()
 
@@ -3993,21 +3976,25 @@ class TriLevelArea(QWidget):
         clean_folder = obra_dir / "Fase-2_Triagem" / "Estruturais_Pavimentos_Limpos"
         pav_up = pav.upper().strip()
 
-        # Tokens de busca derivados do nome do pavimento (ex: "13PAV" → ["13", "PAVIMENTO_13", "PAVIMENTO-13"])
+        # Tokens de busca derivados do nome do pavimento (ex: "13PAV" → ["PAVIMENTO_13", ...])
         def _pav_tokens(name: str) -> list[str]:
             name_up = name.upper()
             tokens: list[str] = []
-            # Número principal (ex: "13PAV" → "13")
-            nums = _re.findall(r'\d+', name_up)
-            if nums:
-                n = nums[0]
+            # Prioriza número de padrão DXF-style: -13P- ou -1PV- (antes do primeiro número genérico)
+            m_dxf = _re.search(r'[-_ ](\d{1,2})P(?:AV?|V)?[-_ ]', name_up)
+            if m_dxf:
+                n = m_dxf.group(1)
+            else:
+                nums = _re.findall(r'\d+', name_up)
+                n = nums[0] if nums else None
+            if n:
                 tokens += [f"PAVIMENTO_{n}", f"PAVIMENTO-{n}", f"PAVIMENTO {n}",
                            f"{n}-PAV", f"{n}_PAV", f"{n}PAV",
                            f"{n}-PAVIMENTO", f"{n}_PAVIMENTO"]
-            # Keywords especiais
+            # Keywords especiais — chaves curtas para cobrir abreviações DXF (-TER-, -TIP-, -COB-)
             kw_map = {
-                "TERR": ["TERREO", "TÉRREO", "TERREO"],
-                "TIPO": ["TIPO", "PAVIMENTO-TIPO", "PAVIMENTO_TIPO"],
+                "TER":  ["TERREO", "TÉRREO"],
+                "TIP":  ["TIPO", "PAVIMENTO-TIPO", "PAVIMENTO_TIPO"],
                 "COB":  ["COBERTURA", "COB"],
                 "ATC":  ["ATICO", "ÁTICO", "ATTICO"],
                 "FUN":  ["FUNDACAO", "FUNDAÇÃO"],
