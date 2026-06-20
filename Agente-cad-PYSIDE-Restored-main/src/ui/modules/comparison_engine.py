@@ -3401,11 +3401,24 @@ class NavSidebar(QFrame):
 
         item_ids: list[str] = []
         if json_dir.exists():
-            item_ids = sorted(
+            all_stems = sorted(
                 f.stem for f in json_dir.glob("*.json")
                 if not f.stem.startswith("_") and not f.stem.startswith("vigas")
                    and not f.stem.startswith("fichas")
             )
+            db_names = self._db_item_names_for_pav(cls)
+            if db_names is not None:
+                db_set = set(db_names)
+                if cls == "PL":
+                    # Pilar: stem do JSON = nome no DB (ex: 'P18' == 'P18.json')
+                    item_ids = [s for s in all_stems if s in db_set]
+                elif cls in ("LV", "FV"):
+                    # Viga: stem começa com nome no DB (ex: 'V302_A' começa com 'V302')
+                    item_ids = [s for s in all_stems if any(s == n or s.startswith(n + "_") for n in db_set)]
+                else:
+                    item_ids = all_stems
+            else:
+                item_ids = all_stems
         # fallback LV estático
         if not item_ids and cls == "LV":
             item_ids = VIGAS_LV_LIST
@@ -3427,6 +3440,57 @@ class NavSidebar(QFrame):
             it.setData(Qt.UserRole, (cls, iid))
             it.setForeground(color_ok if n3_ok else color_dim)
             self.lst.addItem(it)
+
+    def _db_item_names_for_pav(self, cls: str) -> "list[str] | None":
+        """Retorna prefixos de JSON para filtrar itens do pavimento atual via DB.
+
+        Para PL: pillars.name é idêntico ao stem do JSON ('P18' → 'P18.json').
+        Para LV/FV: beams.name pode ser 'V302' ou 'F.V303.C-1' — extrai prefixo
+            'V\d+[A-Z]?' para filtrar stems ('V302_A', 'V302_fundo').
+        Retorna None se pavimento não selecionado ou DB inacessível.
+        """
+        import re as _re
+        if not self._current_pav or self._current_obra_dir is None:
+            return None
+        obra_name = self._current_obra_dir.name
+        try:
+            import sqlite3 as _sql
+            conn = _sql.connect(r"D:/Agente-cad-PYSIDE/project_data.vision")
+            row = conn.execute(
+                "SELECT id FROM projects WHERE work_name=? AND pavement_name=? LIMIT 1",
+                (obra_name, self._current_pav)
+            ).fetchone()
+            if not row:
+                conn.close()
+                return None
+            project_id = row[0]
+            if cls == "PL":
+                rows = conn.execute(
+                    "SELECT DISTINCT name FROM pillars WHERE project_id=? ORDER BY name",
+                    (project_id,)
+                ).fetchall()
+                names = [r[0] for r in rows if r[0]]
+            elif cls in ("LV", "FV"):
+                rows = conn.execute(
+                    "SELECT DISTINCT name FROM beams WHERE project_id=? ORDER BY name",
+                    (project_id,)
+                ).fetchall()
+                # Normaliza nomes para prefixo de viga: 'F.V303.C-1' → 'V303', 'V302' → 'V302'
+                prefixes: set[str] = set()
+                for (n,) in rows:
+                    if not n:
+                        continue
+                    m = _re.search(r'(V\d+[A-Z]?)', n.upper())
+                    if m:
+                        prefixes.add(m.group(1))
+                names = sorted(prefixes)
+            else:
+                names = None
+            conn.close()
+            return names if names else None
+        except Exception as e:
+            print(f"[CE] _db_item_names_for_pav error: {e}")
+            return None
 
     # ── Flow switcher: Estrutural N1/N3 ←→ Eng. Reversa N2/N4 ──────────
     def _select_flow(self, flow: str):
@@ -3631,10 +3695,9 @@ class NavSidebar(QFrame):
 
     # ── Set pav (chamado quando troca pavimento no combo) ─────────────
     def set_pav(self, pav_key: str):
-        """Atualiza o pavimento atual e repopula a lista se no fluxo ER."""
+        """Atualiza o pavimento atual e repopula a lista."""
         self._current_pav = pav_key
-        if self._current_flow == "reverso":
-            self._populate_list(self._current_classe)
+        self._populate_list(self._current_classe)
 
     # ── Click item ────────────────────────────────────────────────────
     def _on_item_clicked(self, item):
