@@ -298,10 +298,10 @@ def render_ops(dxf_path: Path, bbox) -> list:
 
     ctx.set_layer_properties_override(_force_visible_except_admin)
 
-    # Configuração máxima: exibe DEFPOINTS, hatches com padrão real
+    # HatchPolicy.IGNORE: suprime todos os HATCHs (ANSI31 concreto/madeira) que nublam a view
     config = Configuration(
-        show_defpoints=True,                 # exibe layer DEFPOINTS (cotas, etc.)
-        hatch_policy=HatchPolicy.NORMAL,     # padrão real: ANSI31 mostra linhas diagonais
+        show_defpoints=True,
+        hatch_policy=HatchPolicy.IGNORE,
     )
 
     frontend = Frontend(ctx, backend, config=config)

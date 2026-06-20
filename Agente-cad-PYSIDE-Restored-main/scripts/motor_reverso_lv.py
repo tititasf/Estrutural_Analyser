@@ -719,7 +719,8 @@ def _extract_lv_geom_from_dxf(dxf_path: str, elem_id: str = '') -> dict:
                 [dict(s) for s in panels_B], ls_B, li_B, face_B)
 
         # ── 7b. section_views: múltiplas seções transversais ─────────────────
-        # Cada par (hA, hB, laje_sup_A, laje_inf_A) distinto = uma Visão Corte
+        # Estratégia A: labels CONT.* no DXF → cada grupo tem faces próprias com h distinto
+        # Estratégia B: segmentos com laje diferente da global → seção adicional
         def _build_section_views() -> list:
             h_A  = result.get('h_A', 0)
             h_B  = result.get('h_B', 0)
@@ -728,11 +729,46 @@ def _extract_lv_geom_from_dxf(dxf_path: str, elem_id: str = '') -> dict:
             ls_b = result.get('laje_sup_B', 0)
             li_b = result.get('laje_inf_B', 0)
             b    = result.get('b_geom', 19.0)
+            h_s  = result.get('h_section', 0)
+
+            # View 1: valores primários (face_A/face_B já extraídos)
             views = [{'h_A': h_A, 'h_B': h_B, 'b': b,
                       'laje_sup_A': ls_a, 'laje_inf_A': li_a,
                       'laje_sup_B': ls_b, 'laje_inf_B': li_b,
-                      'h_section': result.get('h_section', 0)}]
-            # Detectar segmentos com laje diferente da global → seção adicional
+                      'h_section': h_s, 'label': elem_prefix}]
+
+            # Estratégia A: labels de continuação "CONT.* V301.*"
+            # Esses labels NÃO começam com elem_prefix + '.' mas contêm elem_prefix
+            cont_labels = [
+                (lx, ly, txt, side) for lx, ly, txt, side in face_labels
+                if elem_prefix in txt.strip().upper()
+                and not txt.strip().upper().startswith(elem_prefix + '.')
+            ]
+            if cont_labels:
+                cont_face_A = cont_face_B = None
+                for lx, ly, txt, side in cont_labels:
+                    pair = _find_pair_for_label(lx, ly)
+                    if pair:
+                        if side == 'A' and cont_face_A is None:
+                            cont_face_A = pair
+                        elif side == 'B' and cont_face_B is None:
+                            cont_face_B = pair
+                if cont_face_A or cont_face_B:
+                    c_h_A, c_ls_a, c_li_a = (_face_heights(cont_face_A)
+                                               if cont_face_A else (0.0, 0.0, 0.0))
+                    c_h_B, c_ls_b, c_li_b = (_face_heights(cont_face_B)
+                                               if cont_face_B else (c_h_A, c_ls_a, c_li_a))
+                    # CONT. sempre gera uma view extra (mesmo h idêntico = span visualmente distinto)
+                    # fallback: usa h primário quando extração retorna 0
+                    eff_h_A = c_h_A if c_h_A > 0 else h_A
+                    eff_h_B = c_h_B if c_h_B > 0 else h_B
+                    cont_lbl = next(txt for _, _, txt, _ in cont_labels)
+                    views.append({'h_A': eff_h_A, 'h_B': eff_h_B, 'b': b,
+                                  'laje_sup_A': c_ls_a, 'laje_inf_A': c_li_a,
+                                  'laje_sup_B': c_ls_b, 'laje_inf_B': c_li_b,
+                                  'h_section': h_s, 'label': cont_lbl})
+
+            # Estratégia B: segmentos com laje diferente da global → seção adicional
             seen_combos: set = {(round(ls_a,1), round(li_a,1), round(ls_b,1), round(li_b,1))}
             panels_b_list = result.get('panels_B', [])
             for i, seg_a in enumerate(result.get('panels_A', [])):
@@ -747,7 +783,7 @@ def _extract_lv_geom_from_dxf(dxf_path: str, elem_id: str = '') -> dict:
                     views.append({'h_A': h_A, 'h_B': h_B, 'b': b,
                                   'laje_sup_A': float(ls_sa), 'laje_inf_A': float(li_sa),
                                   'laje_sup_B': float(ls_sb), 'laje_inf_B': float(li_sb),
-                                  'h_section': result.get('h_section', 0)})
+                                  'h_section': h_s, 'label': ''})
             return views
 
         result['section_views'] = _build_section_views()

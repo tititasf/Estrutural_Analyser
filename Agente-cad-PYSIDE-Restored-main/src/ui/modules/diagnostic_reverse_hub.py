@@ -2570,23 +2570,6 @@ class DiagnosticReverseHub(QWidget):
         # Recorte clicado na lista direita → carrega DXF granular no centro
         self._right.recorte_selected.connect(self._on_recorte_selected_wrapper)
 
-    def _on_recorte_selected_wrapper(self, dxf_path: str):
-        from PySide6.QtCore import Qt
-        # 1. Carrega o DXF no canvas central
-        self._center.load_dxf_granular(dxf_path)
-        
-        # 2. Obtem os dados do recorte clicado para carregar a Ficha N2 (F5) e o Pavimento (F4)
-        selected = self._right.lst_recortes.currentItem()
-        if selected:
-            elem_id = selected.data(Qt.UserRole + 2)
-            classe = selected.data(Qt.UserRole + 1) or ''
-            obra_name = self._current_obra or self._left._current_obra
-            if elem_id and obra_name:
-                self._load_ficha_for_elemento(elem_id, obra_name, classe)
-        # Refresh do F4 e F6
-        if self._selected_proj_id and self._current_obra:
-            self._load_ficha_f4(self._selected_proj_id, self._current_obra)
-            self._load_ficha_obra(self._current_obra)
         # Motores de recorte automático
         self._right.processar_cls.connect(self._on_processar_cls)
         self._right.processar_tudo.connect(self._on_processar_tudo)
@@ -2598,6 +2581,21 @@ class DiagnosticReverseHub(QWidget):
 
         # Event filter global: setas do teclado navegam na lista mesmo com foco em outro widget
         QApplication.instance().installEventFilter(self)
+
+
+    def _on_recorte_selected_wrapper(self, dxf_path: str):
+        from PySide6.QtCore import Qt
+        # 1. Carrega o DXF no canvas central
+        self._center.load_dxf_granular(dxf_path)
+        
+        # 2. Obtem os dados do recorte clicado para carregar a Ficha N2 (F5) e o Pavimento (F4)
+        selected = self._right.lst_recortes.currentItem()
+        if selected:
+            elem_id = selected.data(Qt.UserRole + 2)
+            classe = selected.data(Qt.UserRole + 1) or ''
+            obra_name = self._current_obra or getattr(self._left, '_current_obra', '')
+            if elem_id and obra_name:
+                self._load_ficha_for_elemento(elem_id, obra_name, classe)
 
     # ── Slots públicos ───────────────────────────────────────────────
 
@@ -3155,6 +3153,17 @@ class DiagnosticReverseHub(QWidget):
         self._right.progress.setVisible(False)
         self._right._lbl_motor_status.setText("Erro no motor")
         QMessageBox.critical(self, "Erro Motor ER-3", f"Erro ao gerar fichas:\n{msg}")
+
+    def _load_ficha_obra(self, obra_name: str):
+        """Carrega a Ficha F6 consolidada da obra no painel central."""
+        rows = _db_query(
+            "SELECT resumo_json FROM reverse_eng_obra_ficha WHERE obra_name=? ORDER BY gerado_at DESC LIMIT 1",
+            (obra_name,)
+        )
+        if rows:
+            self._center.load_ficha_obra(rows[0][0])
+        else:
+            self._center.load_ficha_obra(None)
 
     def _load_ficha_f4(self, proj_id: str, obra_name: str):
         """Carrega e agrupa todas as fichas N2 do proj_id para formar a Ficha F4."""

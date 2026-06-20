@@ -2842,9 +2842,11 @@ class DiagnosticHubModule(QWidget):
             scripts_dir = str(_P(__file__).resolve().parent.parent.parent.parent / "scripts")
             if scripts_dir not in _sys.path:
                 _sys.path.insert(0, scripts_dir)
-            from motor_reverso_obra import consolidar_obra_er
+            from motor_reverso_obra import consolidar_ficha_obra, salvar_ficha_obra
             DB_PATH = str(_P("D:/Agente-cad-PYSIDE/project_data.vision"))
-            consolidar_obra_er(self._current_obra, db_path=DB_PATH)
+            # O motor atual gera e depois salva
+            resumo = consolidar_ficha_obra(self._current_obra)
+            salvar_ficha_obra(self._current_obra, '', resumo)
         except Exception as e:
             print("Erro ao consolidar F3:", e)
         
@@ -2864,20 +2866,68 @@ class DiagnosticHubModule(QWidget):
             if item.widget():
                 item.widget().deleteLater()
                 
-        # Buscar a F3 do banco
+        # Buscar a F3 do banco e renderizar como Dashboard
         try:
             import sqlite3
             import json
             from pathlib import Path as _P
             DB_PATH = str(_P("D:/Agente-cad-PYSIDE/project_data.vision"))
             conn = sqlite3.connect(DB_PATH)
-            cur = conn.execute("SELECT data_json FROM reverse_eng_obra_ficha WHERE obra_name=? ORDER BY updated_at DESC LIMIT 1", (self._current_obra,))
+            cur = conn.execute("SELECT resumo_json FROM reverse_eng_obra_ficha WHERE obra_name=? ORDER BY gerado_at DESC LIMIT 1", (self._current_obra,))
             row = cur.fetchone()
+            
             if row:
                 f3_data = json.loads(row[0])
-                formatted = json.dumps(f3_data, indent=2, ensure_ascii=False)
-                lbl = QLabel(f'<pre style="color:#c9d1d9;font-family:monospace;font-size:11px;">{formatted}</pre>')
+                
+                # Extrair dados para o dashboard
+                total_fichas = f3_data.get('total_fichas', 0)
+                conf_media = f3_data.get('confianca_media_geral', 0.0) * 100
+                insights = f3_data.get('insights', [])
+                pavimentos = f3_data.get('pavimentos', [])
+                
+                # Montar HTML premium
+                html = f"""
+                <div style="font-family: 'Segoe UI', Arial, sans-serif; color: #E2E8F0; max-width: 800px; padding: 10px;">
+                    <div style="background: rgba(180, 80, 200, 0.15); border-left: 4px solid #b450c8; padding: 15px; border-radius: 4px; margin-bottom: 20px;">
+                        <h2 style="margin: 0 0 10px 0; color: #b450c8; font-size: 18px;">📋 Ficha Global [F3] - Relatório Executivo</h2>
+                        <table style="width: 100%; border-collapse: collapse;">
+                            <tr>
+                                <td style="padding: 5px 0;"><b>Total de Peças Analisadas (F5):</b> <span style="color:#00c864;">{total_fichas}</span></td>
+                                <td style="padding: 5px 0;"><b>Grau de Confiança (IA):</b> <span style="color:#e6b400;">{conf_media:.1f}%</span></td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 5px 0;"><b>Pavimentos Cobertos:</b> {len(pavimentos)}</td>
+                                <td style="padding: 5px 0;"><b>Motor Versão:</b> N2 → N4</td>
+                            </tr>
+                        </table>
+                    </div>
+                    
+                    <h3 style="color: #94A3B8; font-size: 14px; border-bottom: 1px solid #334155; padding-bottom: 5px;">⚠️ Insights do Structural Analyzer</h3>
+                    <ul style="margin: 10px 0; padding-left: 20px; line-height: 1.6;">
+                """
+                
+                if insights:
+                    for insight in insights:
+                        html += f"<li>{insight}</li>"
+                else:
+                    html += "<li style='color: #64748B;'>Nenhum desvio crítico ou outlier foi encontrado pelo motor.</li>"
+                    
+                html += """
+                    </ul>
+                    
+                    <h3 style="color: #94A3B8; font-size: 14px; border-bottom: 1px solid #334155; padding-bottom: 5px; margin-top: 20px;">📦 Distribuição Granular (Resumo Bruto)</h3>
+                    <div style="background: rgba(15, 23, 42, 0.6); padding: 10px; border-radius: 4px;">
+                """
+                
+                # Montar um mini json das stats para nao poluir
+                stats = f3_data.get('por_classe_stats', {})
+                html += f'<pre style="color:#8b9eb3; font-family: monospace; font-size: 11px; margin: 0;">{json.dumps(stats, indent=2, ensure_ascii=False)}</pre>'
+                
+                html += "</div></div>"
+                
+                lbl = QLabel(html)
                 lbl.setWordWrap(True)
+                lbl.setTextFormat(Qt.RichText)
                 self._ficha_f3_content_lay.addWidget(lbl)
             else:
                 lbl = QLabel("Nenhuma Ficha F3 consolidada encontrada para esta obra.")
