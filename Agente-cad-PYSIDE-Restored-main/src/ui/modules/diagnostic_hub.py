@@ -1350,6 +1350,9 @@ class DiagnosticHubModule(QWidget):
             # Fallback se a Triagem não conseguiu salvar o pav
             if cls == 'Outros':
                 fname = row.get('file_name', '').upper()
+                m_pav = re.search(r'(\d{1,2})\s*(?:PAV|PV|P)(?:\b|[-_])', fname)
+                if m_pav:
+                    cls = f"{int(m_pav.group(1))}Âº PAV"
                 if '-TER-' in fname or 'TERREO' in fname: cls = 'TÉRREO'
                 elif '-TIP-' in fname or 'TIPO' in fname: cls = 'TIPO'
                 elif '-COB-' in fname or 'COBER' in fname: cls = 'COBERTURA'

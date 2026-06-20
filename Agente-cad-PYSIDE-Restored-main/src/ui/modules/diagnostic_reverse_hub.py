@@ -26,6 +26,7 @@ from PySide6.QtGui import QColor
 
 from src.ui.theme import Colors, Fonts
 from src.ui.canvas import CADCanvas
+from src.core.ficha_utils import ensure_db_backup, stamp_ficha_json
 
 try:
     from src.core.engrev_laj_recorte_learning_store import (
@@ -237,6 +238,9 @@ def _migrate_fichas_unique_constraint() -> None:
     SQLite não suporta ALTER TABLE para adicionar UNIQUE — recriamos a tabela.
     Roda uma vez no import; se constraint já correto, retorna imediatamente.
     """
+    # Etapa 1: proibido recriar/drop de tabelas no banco real.
+    # A deduplicacao fica a cargo dos INSERTs e dos indices existentes.
+    return
     import logging as _log
     _logger = _log.getLogger(__name__)
     try:
@@ -289,7 +293,7 @@ def _migrate_fichas_unique_constraint() -> None:
                        COALESCE(status,'draft'), aprovado_at, COALESCE(rag_indexed,0),
                        created_at, updated_at
                 FROM reverse_eng_fichas;
-            DROP TABLE reverse_eng_fichas;
+            -- recriacao destrutiva desabilitada na Etapa 1.
             ALTER TABLE _ref_fichas_new RENAME TO reverse_eng_fichas;
             CREATE INDEX IF NOT EXISTS idx_ref_obra_classe
                 ON reverse_eng_fichas(obra_name, classe);
@@ -2448,7 +2452,23 @@ class _FichaMotorWorker(QObject):
         import sqlite3 as _sql
         import json as _json
         from datetime import datetime as _dt
+        ensure_db_backup(DB_PATH)
         conn = _sql.connect(DB_PATH)
+        try:
+            campos_json = _json.dumps(
+                stamp_ficha_json(
+                    campos_json,
+                    "F5",
+                    obra_name,
+                    pavimento,
+                    classe,
+                    elemento_id,
+                    source="diagnostic_reverse_hub",
+                ),
+                ensure_ascii=False,
+            )
+        except Exception:
+            pass
         
         # --- BLOCO DE PRESERVAÇÃO DE INTEGRIDADE ---
         cursor = conn.cursor()
@@ -2465,6 +2485,8 @@ class _FichaMotorWorker(QObject):
                 
                 if 'validated_fields' in old_data:
                     new_data['validated_fields'] = old_data['validated_fields']
+                if 'na_fields' in old_data:
+                    new_data['na_fields'] = old_data['na_fields']
                 if 'links' in old_data:
                     new_data['links'] = old_data['links']
                     
@@ -3185,7 +3207,16 @@ class DiagnosticReverseHub(QWidget):
             except:
                 c = {}
             summary["itens"].append({"id": r[0], "classe": r[1], "confianca": r[2], "dados": c})
-        self._center.load_ficha_pavimento_classe(json.dumps(summary))
+        classes = sorted({str(r[1] or "") for r in rows if r[1]})
+        summary = stamp_ficha_json(
+            summary,
+            "F4",
+            obra_name,
+            proj_id,
+            "+".join(classes) if classes else "CLASSE",
+            source="diagnostic_reverse_hub",
+        )
+        self._center.load_ficha_pavimento_classe(json.dumps(summary, ensure_ascii=False))
 
     def _load_ficha_for_elemento(self, id_or_elem: str, obra_name: str, classe: str = ''):
         """Carrega ficha granular para um elemento especifico em Tab 3."""

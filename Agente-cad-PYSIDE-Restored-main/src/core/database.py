@@ -710,6 +710,71 @@ class DatabaseManager:
     def _get_conn(self):
         return sqlite3.connect(self.db_path)
 
+    def save_fase3_fichas(self, project_id: str, obra_name: str, pavimento: str,
+                          items_by_class: Dict[str, List[Dict[str, Any]]]) -> int:
+        """Materializa fichas F7/N1 em fase3_fichas com IDs canonicos."""
+        from src.core.ficha_utils import canonical_classe, ensure_db_backup, ficha_id, stamp_ficha_json
+
+        ensure_db_backup(self.db_path)
+        conn = self._get_conn()
+        saved = 0
+        try:
+            for classe, items in (items_by_class or {}).items():
+                cls = canonical_classe(classe)
+                for idx, item in enumerate(items or [], start=1):
+                    item_code = (
+                        item.get("name")
+                        or item.get("nome")
+                        or item.get("codigo")
+                        or item.get("id_item")
+                        or idx
+                    )
+                    fid = ficha_id("F7", obra_name, pavimento, cls, item_code)
+                    dados = stamp_ficha_json(
+                        item,
+                        "F7",
+                        obra_name,
+                        pavimento,
+                        cls,
+                        item_code,
+                        source="structural_analyzer",
+                    )
+                    conn.execute(
+                        """
+                        INSERT INTO fase3_fichas
+                            (id, obra_id, pavimento, tipo, codigo, dados_json,
+                             confidence, revisado, dna_vector)
+                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                        ON CONFLICT(id) DO UPDATE SET
+                            obra_id=excluded.obra_id,
+                            pavimento=excluded.pavimento,
+                            tipo=excluded.tipo,
+                            codigo=excluded.codigo,
+                            dados_json=excluded.dados_json,
+                            confidence=excluded.confidence,
+                            dna_vector=excluded.dna_vector
+                        """,
+                        (
+                            fid,
+                            project_id,
+                            dados["_ficha"]["pavimento"],
+                            cls,
+                            str(item_code),
+                            json.dumps(dados, ensure_ascii=False),
+                            float(item.get("confidence", item.get("confianca", 0.0)) or 0.0),
+                            0,
+                            json.dumps(item.get("dna_vector", []), ensure_ascii=False),
+                        ),
+                    )
+                    saved += 1
+            conn.commit()
+            return saved
+        except Exception as e:
+            logging.error(f"Erro ao salvar fase3_fichas F7: {e}")
+            return saved
+        finally:
+            conn.close()
+
     def create_project(self, name: str, dxf_path: str = "", author_name: str = "Local", force_id: str = None, 
                        work_name: str = None, pavement_name: str = None, description: str = None, 
                        client_id: str = None, level_arrival: str = None, level_exit: str = None, file_version: str = None, **kwargs) -> str:

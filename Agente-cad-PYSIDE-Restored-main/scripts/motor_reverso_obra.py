@@ -479,8 +479,25 @@ def consolidar_ficha_obra(obra_name: str, pavimento: str | None = None) -> dict:
     return resumo
 
 
+def consolidar_obra_er(obra_name: str, pavimento: str | None = None) -> dict:
+    """Alias publico esperado pela UI para gerar a F6 obra-reversa."""
+    return consolidar_ficha_obra(obra_name, pavimento)
+
+
 def salvar_ficha_obra(obra_name: str, pavimento: str, resumo: dict) -> bool:
     """Salva ou atualiza reverse_eng_obra_ficha."""
+    try:
+        from src.core.ficha_utils import ensure_db_backup, stamp_ficha_json
+        ensure_db_backup(DB_PATH)
+        resumo = stamp_ficha_json(
+            resumo,
+            "F6",
+            obra_name,
+            pavimento or "GERAL",
+            source="motor_reverso_obra",
+        )
+    except Exception:
+        pass
     stats = resumo.get('por_classe_stats', resumo.get('por_classe', {}))
 
     def _total(cls: str) -> int:

@@ -1230,12 +1230,45 @@ class MainWindow(QMainWindow):
             self.sa_cmb_pavimentos.blockSignals(True)
             self.sa_cmb_pavimentos.clear()
             try:
-                for p in self.db.get_projects():
-                    if (p.get('work_name') or '') == obra_name:
-                        nm = p.get('pavement_name') or p.get('name') or ''
-                        display = _pav_card_label(nm)
-                        # userData = (project_id, raw_name) para busca precisa
-                        self.sa_cmb_pavimentos.addItem(display, (p['id'], nm))
+                projects = [p for p in self.db.get_projects() if (p.get('work_name') or '') == obra_name]
+                added = set()
+                try:
+                    import sqlite3 as _sql
+                    conn = _sql.connect(getattr(self.db, "db_path", "D:/Agente-cad-PYSIDE/project_data.vision"))
+                    conn.row_factory = _sql.Row
+                    rows = conn.execute(
+                        "SELECT file_name, file_path FROM obra_triagem "
+                        "WHERE obra_name=? AND status='approved' "
+                        "AND suggested_category LIKE '%Bruto%' "
+                        "ORDER BY suggested_order ASC, file_name ASC",
+                        (obra_name,),
+                    ).fetchall()
+                    conn.close()
+                    for row in rows:
+                        fname = row["file_name"] or ""
+                        fpath = row["file_path"] or ""
+                        match = None
+                        for p in projects:
+                            if fname and fname in (p.get('pavement_name') or p.get('name') or p.get('dxf_path') or ''):
+                                match = p
+                                break
+                            if fpath and fpath == (p.get('dxf_path') or ''):
+                                match = p
+                                break
+                        if match:
+                            nm = match.get('pavement_name') or match.get('name') or fname
+                            display = _pav_card_label(fname or nm)
+                            self.sa_cmb_pavimentos.addItem(display, (match['id'], nm))
+                            added.add(str(match['id']))
+                except Exception:
+                    pass
+                for p in projects:
+                    if str(p.get('id')) in added:
+                        continue
+                    nm = p.get('pavement_name') or p.get('name') or ''
+                    display = _pav_card_label(nm)
+                    # userData = (project_id, raw_name) para busca precisa
+                    self.sa_cmb_pavimentos.addItem(display, (p['id'], nm))
             except Exception:
                 pass
             self.sa_cmb_pavimentos.blockSignals(False)
@@ -1379,9 +1412,18 @@ class MainWindow(QMainWindow):
 
         self.btn_process_with_context = QPushButton("🧠 Interpretar com Contexto")
         self.btn_process_with_context.setObjectName("btn_interpretar_contexto")
+        self.btn_process_with_context.setText("Análise com Contexto (futuro)")
+        self.btn_process_with_context.setToolTip(
+            "Futuro: reaproveitamento de grades e paineis entre pavimentos via F1/F2/F3. "
+            "Etapa 1 apenas reserva o botao; nao roda logica de contexto."
+        )
         self.btn_process_with_context.setToolTip(
             "Roda a análise com pré-contexto da Ficha da Obra e RAG semântico.\n"
             "Requer Ficha gerada (Tab 1 → Processar Todos)."
+        )
+        self.btn_process_with_context.setToolTip(
+            "Futuro: reaproveitamento de grades e paineis entre pavimentos via F1/F2/F3. "
+            "Etapa 1 apenas reserva o botao; nao roda logica de contexto."
         )
         self.btn_process_with_context.setStyleSheet(
             f"{_BTN_H} background: #1a3a2a; color: #5dcfa0;"
@@ -1392,9 +1434,18 @@ class MainWindow(QMainWindow):
 
         self.btn_process_reverse = QPushButton("⚙️ Interpretar com Eng. Reversa")
         self.btn_process_reverse.setObjectName("btn_interpretar_reversa")
+        self.btn_process_reverse.setText("Analisar com Eng Reversa (F5/N2)")
+        self.btn_process_reverse.setToolTip(
+            "Consulta fichas N2/F5 da Engenharia Reversa. "
+            "Nao gera DXF e nao roda o motor da Analise Geral."
+        )
         self.btn_process_reverse.setToolTip(
             "Aciona o Motor de Engenharia Reversa para interpretação profunda.\n"
             "Requer que a imagem/DXF esteja devidamente carregada."
+        )
+        self.btn_process_reverse.setToolTip(
+            "Consulta fichas N2/F5 da Engenharia Reversa. "
+            "Nao gera DXF e nao roda o motor da Analise Geral."
         )
         self.btn_process_reverse.setStyleSheet(
             f"{_BTN_H} background: #3a1a3a; color: #cf5da0;"
@@ -4970,6 +5021,23 @@ class MainWindow(QMainWindow):
         self.canvas.draw_slabs(self.slabs_found)
         self.canvas.draw_beams(self.beams_found)
         self.hide_progress()
+        try:
+            obra_f7 = self.cmb_works.currentText() if hasattr(self, "cmb_works") else ""
+            pav_f7 = self.cmb_pavements.currentText() if hasattr(self, "cmb_pavements") else ""
+            if self.current_project_id and hasattr(self.db, "save_fase3_fichas"):
+                n_f7 = self.db.save_fase3_fichas(
+                    self.current_project_id,
+                    obra_f7,
+                    pav_f7,
+                    {
+                        "PIL": self.pillars_found,
+                        "LV": getattr(self, "beams_found", []),
+                        "LAJ": getattr(self, "slabs_found", []),
+                    },
+                )
+                self.log(f"F7/N1 materializada em fase3_fichas: {n_f7} ficha(s).")
+        except Exception as ex:
+            self.log(f"Erro ao materializar F7/N1: {ex}")
         print(f"[ANALISE] concluída: PL={len(self.pillars_found)} BM={len(getattr(self,'beams_found',[]))} SL={len(getattr(self,'slabs_found',[]))}", flush=True)
         self.log(f"Análise finalizada: {len(self.pillars_found)} Pilares, {len(self.beams_found)} Vigas e {len(self.slabs_found)} Lajes.")
         self.btn_save.setEnabled(True)
@@ -5223,9 +5291,19 @@ class MainWindow(QMainWindow):
         import json
         import os
         import glob
+        from src.core.ficha_utils import canonical_pavimento, ficha_id
 
-        obra_nome = self.cmb_works.currentText()
-        pavimento_nome = self.cmb_pavements.currentText()
+        obra_nome = self.cmb_works.currentText() if hasattr(self, "cmb_works") else ""
+        if (not obra_nome or obra_nome == 'Selecionar Obra...') and hasattr(self, "sa_cmb_obras"):
+            obra_nome = self.sa_cmb_obras.currentText()
+        pavimento_nome = self.cmb_pavements.currentText() if hasattr(self, "cmb_pavements") else ""
+        if (not pavimento_nome or pavimento_nome == 'Selecionar Pavimento...') and hasattr(self, "sa_cmb_pavimentos"):
+            data = self.sa_cmb_pavimentos.currentData()
+            if isinstance(data, tuple) and len(data) > 1:
+                pavimento_nome = data[1]
+            else:
+                pavimento_nome = self.sa_cmb_pavimentos.currentText()
+        pavimento_db = canonical_pavimento(pavimento_nome) if pavimento_nome else ""
 
         if not obra_nome or obra_nome == 'Selecionar Obra...':
             QMessageBox.warning(self, 'Aviso', 'Selecione uma obra.')
@@ -5234,7 +5312,7 @@ class MainWindow(QMainWindow):
         # === ETAPA 1: BUSCAR FICHAS N2 ===
         self.log(f"🔍 Consultando fichas N2 para obra '{obra_nome}', pavimento '{pavimento_nome}'...")
 
-        db_path = 'D:/Agente-cad-PYSIDE/project_data.vision'
+        db_path = getattr(getattr(self, "db", None), "db_path", 'D:/Agente-cad-PYSIDE/project_data.vision')
         n2_report = {
             'PIL': {'fichas': 0, 'recortes': 0, 'com_dims': 0},
             'FV':  {'fichas': 0, 'recortes': 0, 'com_dims': 0},
@@ -5249,12 +5327,22 @@ class MainWindow(QMainWindow):
                 conn = sqlite3.connect(db_path)
                 c = conn.cursor()
 
-                # 1a. reverse_eng_recortes - contagem por classe
-                query_rec = "SELECT classe, COUNT(*) FROM reverse_eng_recortes WHERE obra_name=?"
+                # 1a. reverse_eng_recortes - contagem por classe, apenas recortes validados
+                query_rec = (
+                    "SELECT classe, COUNT(*) FROM reverse_eng_recortes "
+                    "WHERE (obra_name=? OR obra_name='') "
+                    "AND status IN ('aprovado','auto_aprovado','approved')"
+                )
                 params = [obra_nome]
-                if pavimento_nome and pavimento_nome != 'Selecionar Pavimento...':
-                    # Tentar match por pavimento no elemento_id ou path
-                    pass  # recortes nao tem coluna pavimento, filtrar depois
+                if pavimento_db:
+                    import re as _re_pav
+                    rec_like = f"%{pavimento_db}%"
+                    raw_like = f"%{pavimento_nome}%"
+                    n_match = _re_pav.search(r"(\d+)_PAV", pavimento_db)
+                    num_like = f"%{n_match.group(1)}%PAV%" if n_match else rec_like
+                    query_rec += " AND (recorte_path LIKE ? OR recorte_path LIKE ? OR recorte_path LIKE ? OR projeto_id LIKE ?)"
+                    params.extend([rec_like, raw_like, num_like, rec_like])
+                query_rec += " GROUP BY classe"
                 c.execute(query_rec, params)
                 for row in c.fetchall():
                     cls = row[0]
@@ -5264,9 +5352,10 @@ class MainWindow(QMainWindow):
                 # 1b. reverse_eng_fichas - contagem por classe
                 query_fic = "SELECT classe, COUNT(*) FROM reverse_eng_fichas WHERE obra_name=?"
                 params_fic = [obra_nome]
-                if pavimento_nome and pavimento_nome != 'Selecionar Pavimento...':
-                    query_fic += " AND (pavimento=? OR pavimento='')"
-                    params_fic.append(pavimento_nome)
+                if pavimento_db:
+                    query_fic += " AND pavimento=?"
+                    params_fic.append(pavimento_db)
+                query_fic += " GROUP BY classe"
                 c.execute(query_fic, params_fic)
                 for row in c.fetchall():
                     cls = row[0]
@@ -5276,10 +5365,12 @@ class MainWindow(QMainWindow):
 
                 # 1c. Verificar granularidade - quantas fichas tem dims
                 for cls in n2_report:
-                    c.execute(
-                        "SELECT campos_json FROM reverse_eng_fichas WHERE obra_name=? AND classe=?",
-                        [obra_nome, cls]
-                    )
+                    q_dims = "SELECT campos_json FROM reverse_eng_fichas WHERE obra_name=? AND classe=?"
+                    p_dims = [obra_nome, cls]
+                    if pavimento_db:
+                        q_dims += " AND pavimento=?"
+                        p_dims.append(pavimento_db)
+                    c.execute(q_dims, p_dims)
                     for r in c.fetchall():
                         try:
                             campos = json.loads(r[0]) if r[0] else {}
@@ -5345,6 +5436,13 @@ class MainWindow(QMainWindow):
                 report_lines.append(f"  {label}: {info['fichas']} fichas, {info['recortes']} recortes, {info['obras_json']} no obras.json ({info['com_coords']} com coordenadas)")
             else:
                 report_lines.append(f"  {label}: {info['fichas']} fichas, {info['recortes']} recortes ({info['com_dims']} com dims)")
+
+        report_lines.append("")
+        for cls, label in [('PIL', 'Pilares'), ('FV', 'Vigas Fundo'), ('LV', 'Vigas Laterais'), ('LAJ', 'Lajes')]:
+            f4_id = ficha_id("F4", obra_nome, pavimento_db or pavimento_nome or "GERAL", cls)
+            report_lines.append(f"ID F4 {label}: {f4_id}")
+        report_lines.append(f"ID F6 Obra ER: {ficha_id('F6', obra_nome)}")
+        report_lines.append(f"ID F7/N1 alvo: {ficha_id('F7', obra_nome, pavimento_db or pavimento_nome or 'GERAL', 'CLASSE', 'ITEM')}")
 
         # Verificar ficha do pavimento por classe
         report_lines.append("\n🏠 Ficha do Pavimento por Classe:")
@@ -5458,7 +5556,7 @@ class MainWindow(QMainWindow):
         if not n2_available:
             warn_txt = "<span style='color:red;'>⚠️ ATENÇÃO: Nenhuma Ficha Fº4/Fº5 (Teacher N2) foi encontrada para ser usada! Motor rodará cego.</span>"
         else:
-            warn_txt = "<span style='color:#00c864;'>✅ Base de conhecimento carregada. Motor usará Engenharia Reversa.</span>"
+            warn_txt = "<span style='color:#00c864;'>✅ Fichas F5/N2 encontradas para consulta. O motor não será executado neste botão.</span>"
         
         html_warn = f"<b>Sumário:</b> Obra {obra_nome} | Pav: {pavimento_nome or 'Todos'}<br><br>{warn_txt}"
         create_group("Avisos", html_warn, 1, 2)
@@ -5468,6 +5566,7 @@ class MainWindow(QMainWindow):
         # Botões
         btn_layout = QHBoxLayout()
         btn_proceed = QPushButton("✅ Prosseguir e Gerar Fº6")
+        btn_proceed.setText("Confirmar consulta F5/N2")
         btn_proceed.setStyleSheet("background: #00c864; color: black; font-weight: bold; height: 30px;")
         btn_cancel = QPushButton("❌ Cancelar")
         btn_proceed.clicked.connect(lambda: dialog.accept())
@@ -5482,24 +5581,24 @@ class MainWindow(QMainWindow):
             return
 
         # === ETAPA 4: CARREGAR E USAR N2 TEACHER ===
-        self.log("✅ Prosseguindo com fichas N2 como base de conhecimento...")
+        self.log("Confirmada consulta F5/N2. Nenhum DXF sera gerado e a Analise Geral nao sera executada.")
 
         # Carregar cache de fichas do Vision DB
-        self._reverse_eng_cache = {'P': {}, 'FV': {}, 'LV': {}, 'L': {}}
+        self._reverse_eng_cache = {'PIL': {}, 'FV': {}, 'LV': {}, 'LAJ': {}}
         try:
             if os.path.exists(db_path):
                 conn = sqlite3.connect(db_path)
                 c = conn.cursor()
                 query = "SELECT classe, elemento_id, campos_json FROM reverse_eng_fichas WHERE obra_name=?"
                 params = [obra_nome]
-                if pavimento_nome and pavimento_nome != 'Selecionar Pavimento...':
-                    query += " AND (pavimento=? OR pavimento='')"
-                    params.append(pavimento_nome)
+                if pavimento_db:
+                    query += " AND pavimento=?"
+                    params.append(pavimento_db)
                 c.execute(query, params)
                 for row in c.fetchall():
                     cls, elem_id, campos_json = row
                     try:
-                        self._reverse_eng_cache[cls][elem_id] = json.loads(campos_json)
+                        self._reverse_eng_cache.setdefault(cls, {})[elem_id] = json.loads(campos_json)
                     except:
                         pass
                 conn.close()
@@ -5508,8 +5607,14 @@ class MainWindow(QMainWindow):
             self.log(f"❌ Erro ao carregar cache Eng Reversa: {e}")
 
         # Dispara a análise usando process_pillars_action (que carrega N2 teacher internamente)
-        self.log("🚀 Iniciando Interpretação com dados da Engenharia Reversa...")
-        self.process_pillars_action()
+        self.log("Consulta F5/N2 carregada; Analise Geral nao foi executada.")
+        QMessageBox.information(
+            self,
+            "Consulta F5/N2 carregada",
+            "As fichas de Engenharia Reversa foram carregadas para consulta.\n\n"
+            "Este botao nao executa Analise Geral, nao usa teacher no motor e nao gera DXF."
+        )
+        return
 
         # Limpar o cache
         if hasattr(self, '_reverse_eng_cache'):
@@ -5528,6 +5633,17 @@ class MainWindow(QMainWindow):
         Nota: A integração profunda (feedback automático ao motor) será implementada em
         sprint futuro conforme MASTERPLAN-CAD-ANALYZER EPIC 4.5+.
         """
+        from PySide6.QtWidgets import QMessageBox as _QMB
+        _QMB.information(
+            self,
+            "Análise com Contexto (futuro)",
+            "Este botão fica reservado para a etapa futura de contexto F1/F2/F3.\n\n"
+            "Intenção: reaproveitar grades e paineis entre pavimentos e usar a ficha "
+            "global da obra como memoria operacional.\n\n"
+            "Na Etapa 1 ele não executa interpretação nem altera dados."
+        )
+        self.log("Análise com Contexto: reservado para etapa futura; nenhuma ação executada.")
+        return
         if not self.dxf_data:
             from PySide6.QtWidgets import QMessageBox as _QMB
             _QMB.information(
