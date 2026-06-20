@@ -3159,6 +3159,7 @@ class NavSidebar(QFrame):
         self._selected_item   = ""
         self._selected_recorte_path = ""  # recorte_path do item ER selecionado (Qt.UserRole+1)
         self._tab_btns: dict  = {}
+        self._lj_filter: "set[str] | None" = None  # stems LJ válidos do DXF atual
 
         self.setStyleSheet(f"background: {Colors.BG_PANEL}; border-top: 1px solid {Colors.BORDER_DEFAULT};")
 
@@ -3417,6 +3418,9 @@ class NavSidebar(QFrame):
                     item_ids = [s for s in all_stems if any(s == n or s.startswith(n + "_") for n in db_set)]
                 else:
                     item_ids = all_stems
+            elif cls == "LJ" and self._lj_filter is not None:
+                # Laje: filtrar pelos labels do DXF ativo (populado após scan async)
+                item_ids = [s for s in all_stems if s in self._lj_filter]
             else:
                 item_ids = all_stems
         # fallback LV estático
@@ -3446,7 +3450,7 @@ class NavSidebar(QFrame):
 
         Para PL: pillars.name é idêntico ao stem do JSON ('P18' → 'P18.json').
         Para LV/FV: beams.name pode ser 'V302' ou 'F.V303.C-1' — extrai prefixo
-            'V\d+[A-Z]?' para filtrar stems ('V302_A', 'V302_fundo').
+            V\\d+[A-Z]? para filtrar stems ('V302_A', 'V302_fundo').
         Retorna None se pavimento não selecionado ou DB inacessível.
         """
         import re as _re
@@ -3484,6 +3488,9 @@ class NavSidebar(QFrame):
                     if m:
                         prefixes.add(m.group(1))
                 names = sorted(prefixes)
+            elif cls == 'LJ':
+                # Lajes: sem tabela DB — usa filtro de labels do DXF scan (set_lj_filter)
+                names = None
             else:
                 names = None
             conn.close()
@@ -3691,12 +3698,20 @@ class NavSidebar(QFrame):
     def set_obra(self, obra_dir_str: str):
         from pathlib import Path as _P
         self._current_obra_dir = _P(obra_dir_str) if obra_dir_str else None
+        self._lj_filter = None  # resetar filtro LJ ao mudar obra
         self._populate_list(self._current_classe)
+
+    def set_lj_filter(self, est_labels: dict):
+        """Chamado quando scan do DXF conclui — filtra lista LJ pelos labels do DXF ativo."""
+        self._lj_filter = {k for k in est_labels if k.startswith('L') and k[1:].isdigit()}
+        if self._current_classe == 'LJ':
+            self._populate_list('LJ')
 
     # ── Set pav (chamado quando troca pavimento no combo) ─────────────
     def set_pav(self, pav_key: str):
         """Atualiza o pavimento atual e repopula a lista."""
         self._current_pav = pav_key
+        self._lj_filter = None  # resetar filtro LJ ao mudar pavimento (scan novo será iniciado)
         self._populate_list(self._current_classe)
 
     # ── Click item ────────────────────────────────────────────────────
@@ -3788,6 +3803,8 @@ class NavSidebar(QFrame):
 
 class TriLevelArea(QWidget):
     """Área central: 3 colunas com scroll horizontal + fichas de dados."""
+
+    scan_done = Signal(dict)   # emitido quando scan do DXF estrutural conclui; payload = est_labels
 
     def __init__(self):
         super().__init__()
@@ -4001,6 +4018,7 @@ class TriLevelArea(QWidget):
                 data = _pickle.load(f)
             self._est_labels   = data.get('labels', {})
             self._est_ents_raw = data.get('ents', [])
+            self.scan_done.emit(self._est_labels)
         except Exception:
             pass
         finally:
@@ -4190,8 +4208,11 @@ class TriLevelArea(QWidget):
 
     def _get_n1_bbox_for(self, item_id: str, R: int = 134):
         """Retorna bbox do item no DXF estrutural usando labels escaneados.
-        R=134 (era 267/2) e pad=34 (era 67/2) → zoom 6x mais perto que original."""
-        pos = self._est_labels.get(item_id)
+        R=134 (era 267/2) e pad=34 (era 67/2) → zoom 6x mais perto que original.
+        Normaliza sufixos de face: V301_A/V301_fundo → V301."""
+        import re as _re
+        label_id = _re.sub(r'[_.]([A-Da-d]|fundo)$', '', item_id, flags=_re.I)
+        pos = self._est_labels.get(label_id) or self._est_labels.get(item_id)
         if not pos:
             return None
         cx, cy = pos
@@ -4447,12 +4468,15 @@ class TriLevelArea(QWidget):
 
     def _ficha_n1_for(self, classe: str, item_id: str) -> list:
         """Ficha N1 class-aware — lê Fase-3 para qualquer classe."""
+        import re as _re
         rows = [("Nome", item_id), ("Classe", classe)]
+        # Normaliza chave para busca em Fase-3: V301_A/V301_fundo → V301
+        viga_key = _re.sub(r'[_.]([A-Da-d]|fundo)$', '', item_id, flags=_re.I)
 
         if classe == 'LV':
-            vd  = self._vigas_fase3.get(item_id, {})
-            fr  = self._fichas_rev.get(item_id, {})
-            anc = self._ancoras.get(item_id, {})
+            vd  = self._vigas_fase3.get(viga_key) or self._vigas_fase3.get(item_id, {})
+            fr  = self._fichas_rev.get(viga_key) or self._fichas_rev.get(item_id, {})
+            anc = self._ancoras.get(viga_key) or self._ancoras.get(item_id, {})
             rows += [
                 ("---", ""),
                 ("b estrutural (cm)", vd.get("b", "—")),
@@ -4490,7 +4514,7 @@ class TriLevelArea(QWidget):
             ]
 
         elif classe == 'FV':
-            fv = self._vigas_fundo_fase3.get(item_id, {})
+            fv = self._vigas_fundo_fase3.get(viga_key) or self._vigas_fundo_fase3.get(item_id, {})
             rows += [
                 ("---", ""),
                 ("b (cm)", fv.get("b", "—")),
@@ -4503,12 +4527,29 @@ class TriLevelArea(QWidget):
         elif classe == 'LJ':
             lj = self._lajes_fase3.get(item_id, {})
             pont = self._lajes_pontaletes.get(item_id, {})
+            # Fallback Fase-4: Fase-3 usa schema diferente (comprimento_cm vs comprimento)
+            # → preferir JSON Fase-4 que tem os campos corretos
+            if self._current_obra and 'comprimento' not in lj:
+                _f4 = (DADOS_OBRAS_ROOT / self._current_obra
+                       / "Fase-4_Sincronizacao" / "JSON_Lajes" / f"{item_id}.json")
+                if _f4.exists():
+                    try:
+                        import json as _json
+                        lj = _json.loads(_f4.read_text(encoding='utf-8'))
+                        if isinstance(lj.get('pontaletes'), dict):
+                            pont = lj['pontaletes']
+                    except Exception:
+                        lj = {}
             rows += [
                 ("---", ""),
                 ("Comprimento (cm)", lj.get("comprimento", "—")),
                 ("Largura (cm)", lj.get("largura", "—")),
                 ("Área (cm²)", lj.get("area_cm2", "—")),
                 ("Modo selecionado", lj.get("modo_selecionado", "—")),
+                ("Lin. Verticais", lj.get("linhas_verticais", "—")),
+                ("Lin. Horizontais", lj.get("linhas_horizontais", "—")),
+                ("Uniões nos bordos", lj.get("unioes_nos_bordes", "—")),
+                ("Observações", lj.get("observacoes", "—") or "—"),
                 ("Pontaletes total", pont.get("total", "—") if isinstance(pont, dict) else "—"),
             ]
 
@@ -4973,6 +5014,8 @@ class ComparisonEngineModule(QWidget):
         # Conectar obra/pav da Fase8 ao TriLevelArea (CE-004)
         self.fase8_panel.cmb_obra.currentTextChanged.connect(self._on_obra_pav_changed)
         self.fase8_panel.cmb_pav.currentTextChanged.connect(self._on_obra_pav_changed)
+        # Quando scan do DXF conclui → filtrar lista LJ pelos labels do DXF ativo
+        self.tri_level.scan_done.connect(self.nav_sidebar.set_lj_filter)
         # Disparar carga inicial após construção (500ms delay para event loop estabilizar)
         QTimer.singleShot(500, self._on_obra_pav_changed)
 
