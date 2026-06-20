@@ -1,0 +1,199 @@
+{
+  "number": "319",
+  "name": "V319",
+  "floor": "Pavimento",
+  "total_width": 19.0,
+  "total_height": 351.0,
+  "panels": [
+    {
+      "width": 351.0,
+      "height1": 19.0,
+      "height2": 19.0,
+      "grade_h1": "351.0",
+      "grade_h2": "351.0"
+    }
+  ],
+  "segments_rich": [
+    {
+      "total_width": 351.0,
+      "panels": [
+        {
+          "width": 351.0,
+          "texts": [
+            "P29"
+          ],
+          "vertices": [
+            {
+              "x": 0.0,
+              "y": 19.0
+            },
+            {
+              "x": 0.0,
+              "y": 0.0
+            },
+            {
+              "x": 351.0,
+              "y": 0.0
+            },
+            {
+              "x": 351.0,
+              "y": 19.0
+            },
+            {
+              "x": 0.0,
+              "y": 19.0
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "holes": [
+    {
+      "active": false,
+      "width": 0.0,
+      "height": 0.0,
+      "position": 0.0,
+      "text": null
+    },
+    {
+      "active": false,
+      "width": 0.0,
+      "height": 0.0,
+      "position": 0.0,
+      "text": null
+    },
+    {
+      "active": false,
+      "width": 0.0,
+      "height": 0.0,
+      "position": 0.0,
+      "text": null
+    },
+    {
+      "active": false,
+      "width": 0.0,
+      "height": 0.0,
+      "position": 0.0,
+      "text": null
+    }
+  ],
+  "pillar_left": {
+    "active": false,
+    "width": 0.0,
+    "length": 0.0
+  },
+  "pillar_right": {
+    "active": false,
+    "width": 0.0,
+    "length": 0.0
+  },
+  "label_left": "P32",
+  "label_right": "P20",
+  "sarrafo_left_id": 0,
+  "sarrafo_right_id": 0,
+  "_n_linhas_folha": 1,
+  "_er_meta": {
+    "source": "dxf_geometry",
+    "dxf_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- FV - R00_motor\\FV_V319_motor_178105102587.dxf",
+    "confianca": 0.9,
+    "n_pilar_gaps": 0,
+    "n_polys_atribuidos": 1
+  },
+  "_confianca": 0.9,
+  "_fase4_ref": {
+    "number": "319",
+    "name": "V319",
+    "floor": "Pavimento",
+    "total_width": 19.0,
+    "total_height": 351.0,
+    "panels": [
+      {
+        "width": 351.0,
+        "height1": 19.0,
+        "height2": 19.0,
+        "grade_h1": "351.0",
+        "grade_h2": "351.0"
+      }
+    ],
+    "segments_rich": [
+      {
+        "total_width": 351.0,
+        "panels": [
+          {
+            "width": 351.0,
+            "texts": [
+              "P29"
+            ],
+            "vertices": [
+              {
+                "x": 0.0,
+                "y": 19.0
+              },
+              {
+                "x": 0.0,
+                "y": 0.0
+              },
+              {
+                "x": 351.0,
+                "y": 0.0
+              },
+              {
+                "x": 351.0,
+                "y": 19.0
+              },
+              {
+                "x": 0.0,
+                "y": 19.0
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "holes": [
+      {
+        "active": false,
+        "width": 0.0,
+        "height": 0.0,
+        "position": 0.0,
+        "text": null
+      },
+      {
+        "active": false,
+        "width": 0.0,
+        "height": 0.0,
+        "position": 0.0,
+        "text": null
+      },
+      {
+        "active": false,
+        "width": 0.0,
+        "height": 0.0,
+        "position": 0.0,
+        "text": null
+      },
+      {
+        "active": false,
+        "width": 0.0,
+        "height": 0.0,
+        "position": 0.0,
+        "text": null
+      }
+    ],
+    "pillar_left": {
+      "active": false,
+      "width": 0.0,
+      "length": 0.0
+    },
+    "pillar_right": {
+      "active": false,
+      "width": 0.0,
+      "length": 0.0
+    },
+    "label_left": "P32",
+    "label_right": "P20",
+    "sarrafo_left_id": 0,
+    "sarrafo_right_id": 0
+  }
+}

@@ -1,0 +1,541 @@
+{
+  "number": "303",
+  "name": "V303",
+  "floor": "Pavimento",
+  "total_width": 19.0,
+  "total_height": 1486.0,
+  "panels": [
+    {
+      "width": 192.5,
+      "height1": 19.0,
+      "height2": 19.0,
+      "grade_h1": "192.5",
+      "grade_h2": "192.5"
+    },
+    {
+      "width": 387.5,
+      "height1": 19.0,
+      "height2": 19.0,
+      "grade_h1": "387.5",
+      "grade_h2": "387.5"
+    },
+    {
+      "width": 662.0,
+      "height1": 19.0,
+      "height2": 19.0,
+      "grade_h1": "662.0",
+      "grade_h2": "662.0"
+    },
+    {
+      "width": 244.0,
+      "height1": 19.0,
+      "height2": 19.0,
+      "grade_h1": "244.0",
+      "grade_h2": "244.0"
+    }
+  ],
+  "segments_rich": [
+    {
+      "total_width": 192.5,
+      "panels": [
+        {
+          "width": 192.5,
+          "texts": [],
+          "vertices": [
+            {
+              "x": 0.0,
+              "y": 19.0
+            },
+            {
+              "x": 0.0,
+              "y": 0.0
+            },
+            {
+              "x": 192.5,
+              "y": 0.0
+            },
+            {
+              "x": 192.5,
+              "y": 19.0
+            },
+            {
+              "x": 0.0,
+              "y": 19.0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "total_width": 387.5,
+      "panels": [
+        {
+          "width": 244.0,
+          "texts": [],
+          "vertices": [
+            {
+              "x": 244.0,
+              "y": 0.0
+            },
+            {
+              "x": 0.0,
+              "y": 0.0
+            },
+            {
+              "x": 0.0,
+              "y": 19.0
+            },
+            {
+              "x": 244.0,
+              "y": 19.0
+            }
+          ]
+        },
+        {
+          "width": 143.5,
+          "texts": [],
+          "vertices": [
+            {
+              "x": 0.0,
+              "y": 19.0
+            },
+            {
+              "x": 143.5,
+              "y": 19.0
+            },
+            {
+              "x": 143.5,
+              "y": 0.0
+            },
+            {
+              "x": 0.0,
+              "y": 0.0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "total_width": 662.0,
+      "panels": [
+        {
+          "width": 244.0,
+          "texts": [],
+          "vertices": [
+            {
+              "x": 244.0,
+              "y": 0.0
+            },
+            {
+              "x": 0.0,
+              "y": 0.0
+            },
+            {
+              "x": 0.0,
+              "y": 19.0
+            },
+            {
+              "x": 244.0,
+              "y": 19.0
+            }
+          ]
+        },
+        {
+          "width": 174.0,
+          "texts": [],
+          "vertices": [
+            {
+              "x": 0.0,
+              "y": 19.0
+            },
+            {
+              "x": 174.0,
+              "y": 19.0
+            },
+            {
+              "x": 174.0,
+              "y": 0.0
+            },
+            {
+              "x": 0.0,
+              "y": 0.0
+            }
+          ]
+        },
+        {
+          "width": 244.0,
+          "texts": [
+            "V310",
+            "P19"
+          ],
+          "vertices": [
+            {
+              "x": 244.0,
+              "y": 0.0
+            },
+            {
+              "x": 0.0,
+              "y": 0.0
+            },
+            {
+              "x": 0.0,
+              "y": 19.0
+            },
+            {
+              "x": 244.0,
+              "y": 19.0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "total_width": 244.0,
+      "panels": [
+        {
+          "width": 244.0,
+          "texts": [
+            "P20"
+          ],
+          "vertices": [
+            {
+              "x": 244.0,
+              "y": 0.0
+            },
+            {
+              "x": 0.0,
+              "y": 0.0
+            },
+            {
+              "x": 0.0,
+              "y": 19.0
+            },
+            {
+              "x": 244.0,
+              "y": 19.0
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "holes": [
+    {
+      "active": true,
+      "width": 14.9,
+      "height": 19.0,
+      "position": 192.5,
+      "text": "P19"
+    },
+    {
+      "active": true,
+      "width": 18.3,
+      "height": 19.0,
+      "position": 594.9,
+      "text": "P20"
+    },
+    {
+      "active": true,
+      "width": 225.0,
+      "height": 19.0,
+      "position": 1242.0,
+      "text": null
+    },
+    {
+      "active": false,
+      "width": 0.0,
+      "height": 0.0,
+      "position": 0.0,
+      "text": null
+    }
+  ],
+  "pillar_left": {
+    "active": false,
+    "width": 0.0,
+    "length": 0.0
+  },
+  "pillar_right": {
+    "active": false,
+    "width": 0.0,
+    "length": 0.0
+  },
+  "label_left": "V310",
+  "label_right": "P22",
+  "sarrafo_left_id": 0,
+  "sarrafo_right_id": 0,
+  "_n_linhas_folha": 2,
+  "_er_meta": {
+    "source": "dxf_geometry",
+    "dxf_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- FV - R00_motor\\FV_V303_motor_178105102572.dxf",
+    "confianca": 0.9,
+    "n_pilar_gaps": 3,
+    "n_polys_atribuidos": 7
+  },
+  "_confianca": 0.9,
+  "_fase4_ref": {
+    "number": "303",
+    "name": "V303",
+    "floor": "Pavimento",
+    "total_width": 19.0,
+    "total_height": 1486.0,
+    "panels": [
+      {
+        "width": 192.5,
+        "height1": 19.0,
+        "height2": 19.0,
+        "grade_h1": "192.5",
+        "grade_h2": "192.5"
+      },
+      {
+        "width": 387.5,
+        "height1": 19.0,
+        "height2": 19.0,
+        "grade_h1": "387.5",
+        "grade_h2": "387.5"
+      },
+      {
+        "width": 662.0,
+        "height1": 19.0,
+        "height2": 19.0,
+        "grade_h1": "662.0",
+        "grade_h2": "662.0"
+      },
+      {
+        "width": 244.0,
+        "height1": 19.0,
+        "height2": 19.0,
+        "grade_h1": "244.0",
+        "grade_h2": "244.0"
+      }
+    ],
+    "segments_rich": [
+      {
+        "total_width": 192.5,
+        "panels": [
+          {
+            "width": 192.5,
+            "texts": [],
+            "vertices": [
+              {
+                "x": 0.0,
+                "y": 19.0
+              },
+              {
+                "x": 0.0,
+                "y": 0.0
+              },
+              {
+                "x": 192.5,
+                "y": 0.0
+              },
+              {
+                "x": 192.5,
+                "y": 19.0
+              },
+              {
+                "x": 0.0,
+                "y": 19.0
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "total_width": 387.5,
+        "panels": [
+          {
+            "width": 244.0,
+            "texts": [],
+            "vertices": [
+              {
+                "x": 244.0,
+                "y": 0.0
+              },
+              {
+                "x": 0.0,
+                "y": 0.0
+              },
+              {
+                "x": 0.0,
+                "y": 19.0
+              },
+              {
+                "x": 244.0,
+                "y": 19.0
+              }
+            ]
+          },
+          {
+            "width": 143.5,
+            "texts": [],
+            "vertices": [
+              {
+                "x": 0.0,
+                "y": 19.0
+              },
+              {
+                "x": 143.5,
+                "y": 19.0
+              },
+              {
+                "x": 143.5,
+                "y": 0.0
+              },
+              {
+                "x": 0.0,
+                "y": 0.0
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "total_width": 662.0,
+        "panels": [
+          {
+            "width": 244.0,
+            "texts": [],
+            "vertices": [
+              {
+                "x": 244.0,
+                "y": 0.0
+              },
+              {
+                "x": 0.0,
+                "y": 0.0
+              },
+              {
+                "x": 0.0,
+                "y": 19.0
+              },
+              {
+                "x": 244.0,
+                "y": 19.0
+              }
+            ]
+          },
+          {
+            "width": 174.0,
+            "texts": [],
+            "vertices": [
+              {
+                "x": 0.0,
+                "y": 19.0
+              },
+              {
+                "x": 174.0,
+                "y": 19.0
+              },
+              {
+                "x": 174.0,
+                "y": 0.0
+              },
+              {
+                "x": 0.0,
+                "y": 0.0
+              }
+            ]
+          },
+          {
+            "width": 244.0,
+            "texts": [
+              "P19",
+              "V310"
+            ],
+            "vertices": [
+              {
+                "x": 244.0,
+                "y": 0.0
+              },
+              {
+                "x": 0.0,
+                "y": 0.0
+              },
+              {
+                "x": 0.0,
+                "y": 19.0
+              },
+              {
+                "x": 244.0,
+                "y": 19.0
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "total_width": 244.0,
+        "panels": [
+          {
+            "width": 244.0,
+            "texts": [
+              "P20"
+            ],
+            "vertices": [
+              {
+                "x": 244.0,
+                "y": 0.0
+              },
+              {
+                "x": 0.0,
+                "y": 0.0
+              },
+              {
+                "x": 0.0,
+                "y": 19.0
+              },
+              {
+                "x": 244.0,
+                "y": 19.0
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "holes": [
+      {
+        "active": true,
+        "width": 14.9,
+        "height": 19.0,
+        "position": 192.5,
+        "text": "P19"
+      },
+      {
+        "active": true,
+        "width": 18.3,
+        "height": 19.0,
+        "position": 594.9,
+        "text": "P20"
+      },
+      {
+        "active": true,
+        "width": 225.0,
+        "height": 19.0,
+        "position": 1242.0,
+        "text": null
+      },
+      {
+        "active": false,
+        "width": 0.0,
+        "height": 0.0,
+        "position": 0.0,
+        "text": null
+      }
+    ],
+    "pillar_left": {
+      "active": false,
+      "width": 0.0,
+      "length": 0.0
+    },
+    "pillar_right": {
+      "active": false,
+      "width": 0.0,
+      "length": 0.0
+    },
+    "label_left": "V310",
+    "label_right": "P22",
+    "sarrafo_left_id": 0,
+    "sarrafo_right_id": 0
+  }
+}

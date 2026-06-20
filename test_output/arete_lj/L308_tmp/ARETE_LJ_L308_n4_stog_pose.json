@@ -1,0 +1,147 @@
+{
+  "resultado": "PASS",
+  "ref": {
+    "outline": {
+      "comprimento": 289.0,
+      "largura": 183.0,
+      "coordenadas": [
+        [
+          0.0,
+          0.0
+        ],
+        [
+          289.0,
+          0.0
+        ],
+        [
+          289.0,
+          183.0
+        ],
+        [
+          0.0,
+          183.0
+        ],
+        [
+          0.0,
+          0.0
+        ]
+      ]
+    },
+    "linhas_verticais": [
+      {
+        "value": 122.0,
+        "is_union": false
+      }
+    ],
+    "linhas_horizontais": [
+      {
+        "value": 102.0,
+        "is_union": false
+      },
+      {
+        "value": 122.0,
+        "is_union": true
+      }
+    ],
+    "cotas_valor": [
+      20.0,
+      61.0,
+      102.0,
+      122.0,
+      167.0
+    ],
+    "hlaz": [
+      {
+        "x": 0.0,
+        "y": 102.0,
+        "width": 289.0,
+        "height": 20.0
+      }
+    ],
+    "nomes": [
+      "L308"
+    ],
+    "contexto_ignorado": [
+      "19/120",
+      "19/120",
+      "19/120",
+      "19/55",
+      "19/66",
+      "19/71",
+      "852.12",
+      "P49",
+      "P8",
+      "h=13"
+    ],
+    "obstaculos": [],
+    "modo_selecionado": 1
+  },
+  "n4": {
+    "outline": {
+      "comprimento": 289.0,
+      "largura": 183.0,
+      "coordenadas": [
+        [
+          0.0,
+          0.0
+        ],
+        [
+          289.0,
+          0.0
+        ],
+        [
+          289.0,
+          183.0
+        ],
+        [
+          0.0,
+          183.0
+        ],
+        [
+          0.0,
+          0.0
+        ]
+      ]
+    },
+    "linhas_verticais": [
+      {
+        "value": 122.0,
+        "is_union": false
+      }
+    ],
+    "linhas_horizontais": [
+      {
+        "value": 102.0,
+        "is_union": false
+      },
+      {
+        "value": 122.0,
+        "is_union": true
+      }
+    ],
+    "cotas_valor": [
+      20.0,
+      61.0,
+      102.0,
+      122.0,
+      167.0
+    ],
+    "hlaz": [
+      {
+        "x": 0.0,
+        "y": 102.0,
+        "width": 289.0,
+        "height": 20.0
+      }
+    ],
+    "nomes": [
+      "L308"
+    ],
+    "contexto_ignorado": [],
+    "obstaculos": [],
+    "modo_selecionado": 1
+  },
+  "pass": true,
+  "diffs": {},
+  "png_path": "D:\\Agente-cad-PYSIDE\\test_output\\arete_lj\\L308_tmp\\ARETE_LJ_L308_n4_stog_pose.png"
+}

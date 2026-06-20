@@ -1,0 +1,61 @@
+{
+  "numero": 308,
+  "nome": "L308",
+  "comprimento": 289.0,
+  "largura": 183.0,
+  "pavimento": "Pavimento",
+  "coordenadas": [
+    [
+      0.0,
+      0.0
+    ],
+    [
+      289.0,
+      0.0
+    ],
+    [
+      289.0,
+      183.0
+    ],
+    [
+      0.0,
+      183.0
+    ],
+    [
+      0.0,
+      0.0
+    ]
+  ],
+  "area_cm2": 52887.0,
+  "linhas_verticais": [
+    {
+      "value": 122.0,
+      "is_union": false
+    }
+  ],
+  "linhas_horizontais": [
+    {
+      "value": 102.0,
+      "is_union": false
+    },
+    {
+      "value": 122.0,
+      "is_union": true
+    }
+  ],
+  "obstaculos": [],
+  "modo_selecionado": 1,
+  "unioes_nos_bordes": false,
+  "observacoes": "",
+  "pontaletes": {},
+  "_hlaz": [
+    {
+      "x": 0.0,
+      "y": 102.0,
+      "width": 289.0,
+      "height": 20.0
+    }
+  ],
+  "name": "L308",
+  "floor": "Pavimento"
+}

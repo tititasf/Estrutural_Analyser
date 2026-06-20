@@ -1,0 +1,2294 @@
+{
+  "obra": "Obra_TREINO_1",
+  "pavimento": "13_PAV",
+  "total": 20,
+  "pass": 19,
+  "blocked": 0,
+  "fail": 1,
+  "items": [
+    {
+      "id": "L301",
+      "recorte": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- LJ - R00\\LAJ_L301_motor_178111331366.dxf",
+      "resultado": "PASS",
+      "conteudo_pass": true,
+      "marco_pass": true,
+      "ref_bbox_abs": [
+        2742.57,
+        2610.94,
+        3148.07,
+        2793.94
+      ],
+      "n4_bbox_abs": [
+        2742.57,
+        2610.94,
+        3148.07,
+        2793.94
+      ],
+      "comprimento": 405.5,
+      "largura": 183.0,
+      "linhas_verticais": [
+        {
+          "value": 243.9,
+          "is_union": false
+        }
+      ],
+      "linhas_horizontais": [
+        {
+          "value": 102.0,
+          "is_union": false
+        },
+        {
+          "value": 122.0,
+          "is_union": true
+        }
+      ],
+      "hlaz": null,
+      "stog_pose": {
+        "x": 2742.57,
+        "y": 2610.94
+      },
+      "n4": "D:\\Agente-cad-PYSIDE\\test_output\\arete_lj\\13_PAV_approved_all_batch\\n4\\LJ_preview_L301.dxf",
+      "recorte_sha256": "22bbf5cde887b5ebc5de0540e9c0d82ffddf344af9ee683df300eabc15b95ebc",
+      "n4_sha256": "9b015696b7e6d8194311b4d01cb600eaab9f7ad547131e5cc420e0bc6179db0f",
+      "png": "D:\\Agente-cad-PYSIDE\\test_output\\arete_lj\\13_PAV_approved_all_batch\\png\\ARETE_LJ_L301.png",
+      "diffs": {},
+      "n4_has_aux00": false,
+      "n4_has_c_equals": false,
+      "n4_texts": [
+        "161.5",
+        "244",
+        "61",
+        "20",
+        "102",
+        "L301"
+      ]
+    },
+    {
+      "id": "L302",
+      "recorte": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- LJ - R00\\LAJ_L302_motor_178111331368.dxf",
+      "resultado": "PASS",
+      "conteudo_pass": true,
+      "marco_pass": true,
+      "ref_bbox_abs": [
+        3167.07,
+        2610.94,
+        3585.07,
+        2793.94
+      ],
+      "n4_bbox_abs": [
+        3167.07,
+        2610.94,
+        3585.07,
+        2793.94
+      ],
+      "comprimento": 418.0,
+      "largura": 183.0,
+      "linhas_verticais": [
+        {
+          "value": 243.9,
+          "is_union": false
+        }
+      ],
+      "linhas_horizontais": [
+        {
+          "value": 102.1,
+          "is_union": false
+        },
+        {
+          "value": 122.1,
+          "is_union": true
+        }
+      ],
+      "hlaz": null,
+      "stog_pose": {
+        "x": 3167.07,
+        "y": 2610.94
+      },
+      "n4": "D:\\Agente-cad-PYSIDE\\test_output\\arete_lj\\13_PAV_approved_all_batch\\n4\\LJ_preview_L302.dxf",
+      "recorte_sha256": "07bd86232367d567c1ea2616c4e37810065162dea1e8192c5d0bbfbedc10eafa",
+      "n4_sha256": "ebb9b4ac4557c50ecbb0fdec00360a41fbfb7e8e60543f9dcbb12094bb45ffa6",
+      "png": "D:\\Agente-cad-PYSIDE\\test_output\\arete_lj\\13_PAV_approved_all_batch\\png\\ARETE_LJ_L302.png",
+      "diffs": {},
+      "n4_has_aux00": false,
+      "n4_has_c_equals": false,
+      "n4_texts": [
+        "174",
+        "244",
+        "61",
+        "20",
+        "102",
+        "L302"
+      ]
+    },
+    {
+      "id": "L303",
+      "recorte": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- LJ - R00\\LAJ_L303_motor_178111331370.dxf",
+      "resultado": "PASS",
+      "conteudo_pass": true,
+      "marco_pass": true,
+      "ref_bbox_abs": [
+        3604.07,
+        2610.94,
+        4022.07,
+        2793.94
+      ],
+      "n4_bbox_abs": [
+        3604.07,
+        2610.94,
+        4022.07,
+        2793.94
+      ],
+      "comprimento": 418.0,
+      "largura": 183.0,
+      "linhas_verticais": [
+        {
+          "value": 243.9,
+          "is_union": false
+        }
+      ],
+      "linhas_horizontais": [
+        {
+          "value": 102.1,
+          "is_union": false
+        },
+        {
+          "value": 122.1,
+          "is_union": true
+        }
+      ],
+      "hlaz": null,
+      "stog_pose": {
+        "x": 3604.07,
+        "y": 2610.94
+      },
+      "n4": "D:\\Agente-cad-PYSIDE\\test_output\\arete_lj\\13_PAV_approved_all_batch\\n4\\LJ_preview_L303.dxf",
+      "recorte_sha256": "0cf87b81e007d7f238eed5b673af568eee4fded48f111594d5ddaf85509574bb",
+      "n4_sha256": "ab2ccb314929ea297a1c5c721a75d1c935da670d78cf96c1494cef00aaba2e49",
+      "png": "D:\\Agente-cad-PYSIDE\\test_output\\arete_lj\\13_PAV_approved_all_batch\\png\\ARETE_LJ_L303.png",
+      "diffs": {},
+      "n4_has_aux00": false,
+      "n4_has_c_equals": false,
+      "n4_texts": [
+        "174",
+        "244",
+        "61",
+        "20",
+        "102",
+        "L303"
+      ]
+    },
+    {
+      "id": "L304",
+      "recorte": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- LJ - R00\\LAJ_L304_motor_178111331371.dxf",
+      "resultado": "PASS",
+      "conteudo_pass": true,
+      "marco_pass": true,
+      "ref_bbox_abs": [
+        4041.07,
+        2610.94,
+        4459.07,
+        2793.94
+      ],
+      "n4_bbox_abs": [
+        4041.07,
+        2610.94,
+        4459.07,
+        2793.94
+      ],
+      "comprimento": 418.0,
+      "largura": 183.0,
+      "linhas_verticais": [
+        {
+          "value": 243.9,
+          "is_union": false
+        }
+      ],
+      "linhas_horizontais": [
+        {
+          "value": 102.1,
+          "is_union": false
+        },
+        {
+          "value": 122.1,
+          "is_union": true
+        }
+      ],
+      "hlaz": null,
+      "stog_pose": {
+        "x": 4041.07,
+        "y": 2610.94
+      },
+      "n4": "D:\\Agente-cad-PYSIDE\\test_output\\arete_lj\\13_PAV_approved_all_batch\\n4\\LJ_preview_L304.dxf",
+      "recorte_sha256": "5e90f77b3be42b4ac3adc7771af14fa176b479fd7589cd617c26937b064447fc",
+      "n4_sha256": "fcb1b93906eb61a0b049c79c6c84216a3c96b03b271563fe2af868841a1840cd",
+      "png": "D:\\Agente-cad-PYSIDE\\test_output\\arete_lj\\13_PAV_approved_all_batch\\png\\ARETE_LJ_L304.png",
+      "diffs": {},
+      "n4_has_aux00": false,
+      "n4_has_c_equals": false,
+      "n4_texts": [
+        "174",
+        "244",
+        "61",
+        "20",
+        "102",
+        "L304"
+      ]
+    },
+    {
+      "id": "L305",
+      "recorte": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- LJ - R00\\LAJ_L305_motor_178111331373.dxf",
+      "resultado": "PASS",
+      "conteudo_pass": true,
+      "marco_pass": true,
+      "ref_bbox_abs": [
+        4478.07,
+        2610.94,
+        4896.07,
+        2793.94
+      ],
+      "n4_bbox_abs": [
+        4478.07,
+        2610.94,
+        4896.07,
+        2793.94
+      ],
+      "comprimento": 418.0,
+      "largura": 183.0,
+      "linhas_verticais": [
+        {
+          "value": 243.9,
+          "is_union": false
+        }
+      ],
+      "linhas_horizontais": [
+        {
+          "value": 102.1,
+          "is_union": false
+        },
+        {
+          "value": 122.1,
+          "is_union": true
+        }
+      ],
+      "hlaz": null,
+      "stog_pose": {
+        "x": 4478.07,
+        "y": 2610.94
+      },
+      "n4": "D:\\Agente-cad-PYSIDE\\test_output\\arete_lj\\13_PAV_approved_all_batch\\n4\\LJ_preview_L305.dxf",
+      "recorte_sha256": "f9e782d09202d74f01447e61f638e060610defb9ecbd00ff77d0ca08566310b1",
+      "n4_sha256": "89c325611869f6fba54b1e81f206232e7ad2ebd75c52f33847476b5d8699e138",
+      "png": "D:\\Agente-cad-PYSIDE\\test_output\\arete_lj\\13_PAV_approved_all_batch\\png\\ARETE_LJ_L305.png",
+      "diffs": {},
+      "n4_has_aux00": false,
+      "n4_has_c_equals": false,
+      "n4_texts": [
+        "174",
+        "244",
+        "61",
+        "20",
+        "102",
+        "L305"
+      ]
+    },
+    {
+      "id": "L306",
+      "recorte": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- LJ - R00\\LAJ_L306_motor_178111331375.dxf",
+      "resultado": "PASS",
+      "conteudo_pass": true,
+      "marco_pass": true,
+      "ref_bbox_abs": [
+        4915.07,
+        2610.94,
+        5333.07,
+        2793.94
+      ],
+      "n4_bbox_abs": [
+        4915.07,
+        2610.94,
+        5333.07,
+        2793.94
+      ],
+      "comprimento": 418.0,
+      "largura": 183.0,
+      "linhas_verticais": [
+        {
+          "value": 243.9,
+          "is_union": false
+        }
+      ],
+      "linhas_horizontais": [
+        {
+          "value": 102.1,
+          "is_union": false
+        },
+        {
+          "value": 122.1,
+          "is_union": true
+        }
+      ],
+      "hlaz": null,
+      "stog_pose": {
+        "x": 4915.07,
+        "y": 2610.94
+      },
+      "n4": "D:\\Agente-cad-PYSIDE\\test_output\\arete_lj\\13_PAV_approved_all_batch\\n4\\LJ_preview_L306.dxf",
+      "recorte_sha256": "4b3f1453e644ae240b4e4957a063c750cb24ec06fc80bc22bd3af78e5a73d21c",
+      "n4_sha256": "3235f0b0b94ead84eb5f6eef5c2f3682c402bede30d7adb12a95b63ffa0e05a8",
+      "png": "D:\\Agente-cad-PYSIDE\\test_output\\arete_lj\\13_PAV_approved_all_batch\\png\\ARETE_LJ_L306.png",
+      "diffs": {},
+      "n4_has_aux00": false,
+      "n4_has_c_equals": false,
+      "n4_texts": [
+        "174",
+        "244",
+        "61",
+        "20",
+        "102",
+        "122",
+        "L306"
+      ]
+    },
+    {
+      "id": "L307",
+      "recorte": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- LJ - R00\\LAJ_L307_motor_178111331377.dxf",
+      "resultado": "PASS",
+      "conteudo_pass": true,
+      "marco_pass": true,
+      "ref_bbox_abs": [
+        5352.07,
+        2606.58,
+        5770.07,
+        2789.58
+      ],
+      "n4_bbox_abs": [
+        5352.07,
+        2606.58,
+        5770.07,
+        2789.58
+      ],
+      "comprimento": 418.0,
+      "largura": 183.0,
+      "linhas_verticais": [
+        {
+          "value": 243.9,
+          "is_union": false
+        }
+      ],
+      "linhas_horizontais": [
+        {
+          "value": 101.9,
+          "is_union": false
+        },
+        {
+          "value": 121.9,
+          "is_union": true
+        }
+      ],
+      "hlaz": null,
+      "stog_pose": {
+        "x": 5352.07,
+        "y": 2606.58
+      },
+      "n4": "D:\\Agente-cad-PYSIDE\\test_output\\arete_lj\\13_PAV_approved_all_batch\\n4\\LJ_preview_L307.dxf",
+      "recorte_sha256": "2be4681d930d638d9020b8b956ea0f368938dfd1fe146d6c9c36eb8801868809",
+      "n4_sha256": "2210267b6df63e761c30196610e33f354c43d1e6705851011d4f302cc6afb4ec",
+      "png": "D:\\Agente-cad-PYSIDE\\test_output\\arete_lj\\13_PAV_approved_all_batch\\png\\ARETE_LJ_L307.png",
+      "diffs": {},
+      "n4_has_aux00": false,
+      "n4_has_c_equals": false,
+      "n4_texts": [
+        "174",
+        "244",
+        "61",
+        "20",
+        "102",
+        "L307"
+      ]
+    },
+    {
+      "id": "L308",
+      "recorte": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- LJ - R00\\LAJ_L308_sel_1781121913.dxf",
+      "resultado": "PASS",
+      "conteudo_pass": true,
+      "marco_pass": true,
+      "ref_bbox_abs": [
+        5789.07,
+        2610.94,
+        6078.07,
+        2793.94
+      ],
+      "n4_bbox_abs": [
+        5789.07,
+        2610.94,
+        6078.07,
+        2793.94
+      ],
+      "comprimento": 289.0,
+      "largura": 183.0,
+      "linhas_verticais": [
+        {
+          "value": 122.0,
+          "is_union": false
+        }
+      ],
+      "linhas_horizontais": [
+        {
+          "value": 102.0,
+          "is_union": false
+        },
+        {
+          "value": 122.0,
+          "is_union": true
+        }
+      ],
+      "hlaz": [
+        {
+          "x": 0.0,
+          "y": 102.0,
+          "width": 289.0,
+          "height": 20.0
+        }
+      ],
+      "stog_pose": {
+        "x": 5789.07,
+        "y": 2610.94
+      },
+      "n4": "D:\\Agente-cad-PYSIDE\\test_output\\arete_lj\\13_PAV_approved_all_batch\\n4\\LJ_preview_L308.dxf",
+      "recorte_sha256": "e18b6ade835ca674cf5edaab79db986a8cb0449738aa264b7db43321986c167b",
+      "n4_sha256": "326e9992be67ee352717d98460019391abc8e9bfefd606791714f22263c07855",
+      "png": "D:\\Agente-cad-PYSIDE\\test_output\\arete_lj\\13_PAV_approved_all_batch\\png\\ARETE_LJ_L308.png",
+      "diffs": {},
+      "n4_has_aux00": false,
+      "n4_has_c_equals": false,
+      "n4_texts": [
+        "L308",
+        "61",
+        "167",
+        "20",
+        "102",
+        "122"
+      ]
+    },
+    {
+      "id": "L309",
+      "recorte": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- LJ - R00\\LAJ_L309_motor_178111331380.dxf",
+      "resultado": "PASS",
+      "conteudo_pass": true,
+      "marco_pass": true,
+      "ref_bbox_abs": [
+        2742.57,
+        2280.94,
+        3148.07,
+        2591.94
+      ],
+      "n4_bbox_abs": [
+        2742.57,
+        2280.94,
+        3148.07,
+        2591.94
+      ],
+      "comprimento": 405.5,
+      "largura": 311.0,
+      "linhas_verticais": [
+        {
+          "value": 243.9,
+          "is_union": false
+        }
+      ],
+      "linhas_horizontais": [
+        {
+          "value": 122.0,
+          "is_union": false
+        },
+        {
+          "value": 169.0,
+          "is_union": false
+        },
+        {
+          "value": 189.0,
+          "is_union": true
+        }
+      ],
+      "hlaz": null,
+      "stog_pose": {
+        "x": 2742.57,
+        "y": 2280.94
+      },
+      "n4": "D:\\Agente-cad-PYSIDE\\test_output\\arete_lj\\13_PAV_approved_all_batch\\n4\\LJ_preview_L309.dxf",
+      "recorte_sha256": "dabbd7e3b171f68ce6b6fed3be13bd4d2f7c77d61167cf72da229e5f4f67d738",
+      "n4_sha256": "416627cbd72709f9d6f7dca3f6bf5f3da251a16287b08c782d3dd6fd4b5d4cab",
+      "png": "D:\\Agente-cad-PYSIDE\\test_output\\arete_lj\\13_PAV_approved_all_batch\\png\\ARETE_LJ_L309.png",
+      "diffs": {},
+      "n4_has_aux00": false,
+      "n4_has_c_equals": false,
+      "n4_texts": [
+        "161.5",
+        "244",
+        "122",
+        "47",
+        "20",
+        "122",
+        "91.5",
+        "L309"
+      ]
+    },
+    {
+      "id": "L310",
+      "recorte": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- LJ - R00\\LAJ_L310_motor_178111331382.dxf",
+      "resultado": "PASS",
+      "conteudo_pass": true,
+      "marco_pass": true,
+      "ref_bbox_abs": [
+        3167.07,
+        2280.94,
+        3585.07,
+        2591.94
+      ],
+      "n4_bbox_abs": [
+        3167.07,
+        2280.94,
+        3585.07,
+        2591.94
+      ],
+      "comprimento": 418.0,
+      "largura": 311.0,
+      "linhas_verticais": [
+        {
+          "value": 243.9,
+          "is_union": false
+        }
+      ],
+      "linhas_horizontais": [
+        {
+          "value": 122.0,
+          "is_union": false
+        },
+        {
+          "value": 169.0,
+          "is_union": false
+        },
+        {
+          "value": 189.0,
+          "is_union": true
+        }
+      ],
+      "hlaz": null,
+      "stog_pose": {
+        "x": 3167.07,
+        "y": 2280.94
+      },
+      "n4": "D:\\Agente-cad-PYSIDE\\test_output\\arete_lj\\13_PAV_approved_all_batch\\n4\\LJ_preview_L310.dxf",
+      "recorte_sha256": "84d46b3472f0b1f4458dd16053458c632faf1d9e966b858f2744564f75aca5bb",
+      "n4_sha256": "c60c5988cf3726c8c9a5f89aa495bfa133e40b9237d118ef0f647f04933cd632",
+      "png": "D:\\Agente-cad-PYSIDE\\test_output\\arete_lj\\13_PAV_approved_all_batch\\png\\ARETE_LJ_L310.png",
+      "diffs": {},
+      "n4_has_aux00": false,
+      "n4_has_c_equals": false,
+      "n4_texts": [
+        "174",
+        "244",
+        "122",
+        "47",
+        "20",
+        "122",
+        "L310"
+      ]
+    },
+    {
+      "id": "L311",
+      "recorte": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- LJ - R00\\LAJ_L311_motor_178111331384.dxf",
+      "resultado": "PASS",
+      "conteudo_pass": true,
+      "marco_pass": true,
+      "ref_bbox_abs": [
+        3604.07,
+        2280.94,
+        4022.07,
+        2591.94
+      ],
+      "n4_bbox_abs": [
+        3604.07,
+        2280.94,
+        4022.07,
+        2591.94
+      ],
+      "comprimento": 418.0,
+      "largura": 311.0,
+      "linhas_verticais": [
+        {
+          "value": 243.9,
+          "is_union": false
+        }
+      ],
+      "linhas_horizontais": [
+        {
+          "value": 122.0,
+          "is_union": false
+        },
+        {
+          "value": 169.0,
+          "is_union": false
+        },
+        {
+          "value": 189.0,
+          "is_union": true
+        }
+      ],
+      "hlaz": null,
+      "stog_pose": {
+        "x": 3604.07,
+        "y": 2280.94
+      },
+      "n4": "D:\\Agente-cad-PYSIDE\\test_output\\arete_lj\\13_PAV_approved_all_batch\\n4\\LJ_preview_L311.dxf",
+      "recorte_sha256": "5b316ed96937fd54d2f226e44fc5ef95d7f23f5af1650e6ea64a9ce6630e28e2",
+      "n4_sha256": "6a75c00ff95e3e33375f4d8719569ea2078a46d2a456deb7e4c915e0c5758ef0",
+      "png": "D:\\Agente-cad-PYSIDE\\test_output\\arete_lj\\13_PAV_approved_all_batch\\png\\ARETE_LJ_L311.png",
+      "diffs": {},
+      "n4_has_aux00": false,
+      "n4_has_c_equals": false,
+      "n4_texts": [
+        "174",
+        "244",
+        "122",
+        "47",
+        "20",
+        "122",
+        "L311"
+      ]
+    },
+    {
+      "id": "L312",
+      "recorte": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- LJ - R00\\LAJ_L312_sel_1781576266.dxf",
+      "resultado": "FAIL",
+      "conteudo_pass": false,
+      "marco_pass": false,
+      "ref_bbox_abs": [
+        4041.07,
+        2158.94,
+        4459.07,
+        2496.94
+      ],
+      "n4_bbox_abs": [
+        4041.07,
+        2280.94,
+        4459.07,
+        2591.94
+      ],
+      "comprimento": 418.0,
+      "largura": 338.0,
+      "linhas_verticais": [
+        {
+          "value": 122.0,
+          "is_union": false
+        },
+        {
+          "value": 244.0,
+          "is_union": false
+        }
+      ],
+      "linhas_horizontais": [
+        {
+          "value": 244.0,
+          "is_union": false
+        },
+        {
+          "value": 291.0,
+          "is_union": false
+        }
+      ],
+      "hlaz": [
+        {
+          "x": 0.0,
+          "y": 244.0,
+          "width": 418.0,
+          "height": 47.0
+        }
+      ],
+      "stog_pose": {
+        "x": 4041.07,
+        "y": 2158.94
+      },
+      "n4": "D:\\Agente-cad-PYSIDE\\test_output\\arete_lj\\13_PAV_approved_all_batch\\n4\\LJ_preview_L312.dxf",
+      "recorte_sha256": "7aa140c431a8a0820629b0218d928872c3260c9bc1af55d3f46a29f231be5311",
+      "n4_sha256": "ef590d43f972d7fa7ebc260b3f0912d831c45bfeed2e4f37804c85b276e293fd",
+      "png": "D:\\Agente-cad-PYSIDE\\test_output\\arete_lj\\13_PAV_approved_all_batch\\png\\ARETE_LJ_L312.png",
+      "diffs": {
+        "outline": {
+          "ref": {
+            "comprimento": 418.0,
+            "largura": 338.0,
+            "coordenadas": [
+              [
+                0.0,
+                0.0
+              ],
+              [
+                418.0,
+                0.0
+              ],
+              [
+                418.0,
+                338.0
+              ],
+              [
+                0.0,
+                338.0
+              ],
+              [
+                0.0,
+                0.0
+              ]
+            ]
+          },
+          "n4": {
+            "comprimento": 418.0,
+            "largura": 311.0,
+            "coordenadas": [
+              [
+                0.0,
+                0.0
+              ],
+              [
+                418.0,
+                0.0
+              ],
+              [
+                418.0,
+                311.0
+              ],
+              [
+                0.0,
+                311.0
+              ],
+              [
+                0.0,
+                0.0
+              ]
+            ]
+          }
+        },
+        "linhas_verticais": {
+          "ref": [
+            {
+              "value": 122.0,
+              "is_union": false
+            },
+            {
+              "value": 244.0,
+              "is_union": false
+            }
+          ],
+          "n4": [
+            {
+              "value": 244.0,
+              "is_union": false
+            }
+          ]
+        },
+        "linhas_horizontais": {
+          "ref": [
+            {
+              "value": 244.0,
+              "is_union": false
+            },
+            {
+              "value": 291.0,
+              "is_union": false
+            }
+          ],
+          "n4": [
+            {
+              "value": 122.0,
+              "is_union": false
+            },
+            {
+              "value": 169.0,
+              "is_union": false
+            },
+            {
+              "value": 189.0,
+              "is_union": true
+            }
+          ]
+        },
+        "cotas_valor": {
+          "ref": [
+            47.0,
+            47.0,
+            122.0,
+            122.0,
+            174.0,
+            244.0
+          ],
+          "n4": [
+            20.0,
+            47.0,
+            122.0,
+            122.0,
+            174.0,
+            244.0
+          ]
+        },
+        "hlaz": {
+          "ref": [
+            {
+              "x": 0.0,
+              "y": 244.0,
+              "width": 418.0,
+              "height": 47.0
+            }
+          ],
+          "n4": [
+            {
+              "x": 0.0,
+              "y": 122.0,
+              "width": 418.0,
+              "height": 47.0
+            }
+          ]
+        },
+        "detalhes_stog": {
+          "ref": {
+            "lines": [
+              {
+                "layer": "Painéis",
+                "start": [
+                  -20.5,
+                  213.0
+                ],
+                "end": [
+                  -17.5,
+                  216.0
+                ]
+              },
+              {
+                "layer": "Painéis",
+                "start": [
+                  0.0,
+                  214.5
+                ],
+                "end": [
+                  244.0,
+                  214.5
+                ]
+              },
+              {
+                "layer": "Painéis",
+                "start": [
+                  0.0,
+                  244.0
+                ],
+                "end": [
+                  418.0,
+                  244.0
+                ]
+              },
+              {
+                "layer": "Painéis",
+                "start": [
+                  0.0,
+                  291.0
+                ],
+                "end": [
+                  418.0,
+                  291.0
+                ]
+              },
+              {
+                "layer": "Painéis",
+                "start": [
+                  0.0,
+                  311.0
+                ],
+                "end": [
+                  418.0,
+                  311.0
+                ]
+              },
+              {
+                "layer": "Painéis",
+                "start": [
+                  1.5,
+                  216.0
+                ],
+                "end": [
+                  -1.5,
+                  213.0
+                ]
+              },
+              {
+                "layer": "Painéis",
+                "start": [
+                  158.0,
+                  123.5
+                ],
+                "end": [
+                  161.0,
+                  120.5
+                ]
+              },
+              {
+                "layer": "Painéis",
+                "start": [
+                  158.0,
+                  245.5
+                ],
+                "end": [
+                  161.0,
+                  242.5
+                ]
+              },
+              {
+                "layer": "Painéis",
+                "start": [
+                  158.0,
+                  292.5
+                ],
+                "end": [
+                  161.0,
+                  289.5
+                ]
+              },
+              {
+                "layer": "Painéis",
+                "start": [
+                  158.0,
+                  312.5
+                ],
+                "end": [
+                  161.0,
+                  309.5
+                ]
+              },
+              {
+                "layer": "Painéis",
+                "start": [
+                  159.5,
+                  244.0
+                ],
+                "end": [
+                  159.5,
+                  122.0
+                ]
+              },
+              {
+                "layer": "Painéis",
+                "start": [
+                  159.5,
+                  291.0
+                ],
+                "end": [
+                  159.5,
+                  244.0
+                ]
+              },
+              {
+                "layer": "Painéis",
+                "start": [
+                  159.5,
+                  311.0
+                ],
+                "end": [
+                  159.5,
+                  291.0
+                ]
+              },
+              {
+                "layer": "Painéis",
+                "start": [
+                  159.5,
+                  433.0
+                ],
+                "end": [
+                  159.5,
+                  311.0
+                ]
+              },
+              {
+                "layer": "Painéis",
+                "start": [
+                  161.0,
+                  242.5
+                ],
+                "end": [
+                  158.0,
+                  245.5
+                ]
+              },
+              {
+                "layer": "Painéis",
+                "start": [
+                  161.0,
+                  289.5
+                ],
+                "end": [
+                  158.0,
+                  292.5
+                ]
+              },
+              {
+                "layer": "Painéis",
+                "start": [
+                  161.0,
+                  309.5
+                ],
+                "end": [
+                  158.0,
+                  312.5
+                ]
+              },
+              {
+                "layer": "Painéis",
+                "start": [
+                  161.0,
+                  431.5
+                ],
+                "end": [
+                  158.0,
+                  434.5
+                ]
+              },
+              {
+                "layer": "Painéis",
+                "start": [
+                  166.0,
+                  453.5
+                ],
+                "end": [
+                  169.0,
+                  450.5
+                ]
+              },
+              {
+                "layer": "Painéis",
+                "start": [
+                  168.0,
+                  452.0
+                ],
+                "end": [
+                  170.5,
+                  452.0
+                ]
+              },
+              {
+                "layer": "Painéis",
+                "start": [
+                  242.5,
+                  213.0
+                ],
+                "end": [
+                  245.5,
+                  216.0
+                ]
+              },
+              {
+                "layer": "Painéis",
+                "start": [
+                  244.0,
+                  122.0
+                ],
+                "end": [
+                  244.0,
+                  433.0
+                ]
+              },
+              {
+                "layer": "Painéis",
+                "start": [
+                  244.0,
+                  214.5
+                ],
+                "end": [
+                  418.0,
+                  214.5
+                ]
+              },
+              {
+                "layer": "Painéis",
+                "start": [
+                  245.5,
+                  216.0
+                ],
+                "end": [
+                  242.5,
+                  213.0
+                ]
+              },
+              {
+                "layer": "Painéis",
+                "start": [
+                  416.5,
+                  213.0
+                ],
+                "end": [
+                  419.5,
+                  216.0
+                ]
+              },
+              {
+                "layer": "Painéis",
+                "start": [
+                  438.5,
+                  216.0
+                ],
+                "end": [
+                  435.5,
+                  213.0
+                ]
+              }
+            ],
+            "polylines": [
+              {
+                "layer": "3",
+                "points": [
+                  [
+                    -19.0,
+                    433.0
+                  ],
+                  [
+                    -19.0,
+                    201.0
+                  ]
+                ],
+                "closed": false
+              },
+              {
+                "layer": "3",
+                "points": [
+                  [
+                    0.0,
+                    103.0
+                  ],
+                  [
+                    418.0,
+                    103.0
+                  ]
+                ],
+                "closed": false
+              },
+              {
+                "layer": "3",
+                "points": [
+                  [
+                    0.0,
+                    201.0
+                  ],
+                  [
+                    0.0,
+                    433.0
+                  ]
+                ],
+                "closed": false
+              },
+              {
+                "layer": "3",
+                "points": [
+                  [
+                    15.5,
+                    433.0
+                  ],
+                  [
+                    418.0,
+                    433.0
+                  ]
+                ],
+                "closed": false
+              },
+              {
+                "layer": "3",
+                "points": [
+                  [
+                    418.0,
+                    122.0
+                  ],
+                  [
+                    0.0,
+                    122.0
+                  ]
+                ],
+                "closed": false
+              },
+              {
+                "layer": "3",
+                "points": [
+                  [
+                    418.0,
+                    433.0
+                  ],
+                  [
+                    418.0,
+                    201.0
+                  ]
+                ],
+                "closed": false
+              },
+              {
+                "layer": "3",
+                "points": [
+                  [
+                    418.0,
+                    452.0
+                  ],
+                  [
+                    15.5,
+                    452.0
+                  ]
+                ],
+                "closed": false
+              },
+              {
+                "layer": "3",
+                "points": [
+                  [
+                    437.0,
+                    201.0
+                  ],
+                  [
+                    437.0,
+                    433.0
+                  ]
+                ],
+                "closed": false
+              }
+            ],
+            "texts": [
+              {
+                "layer": "4",
+                "text": "L312",
+                "insert": [
+                  185.5,
+                  347.5
+                ]
+              },
+              {
+                "layer": "Painéis",
+                "text": "122",
+                "insert": [
+                  170.0,
+                  196.5
+                ]
+              },
+              {
+                "layer": "Painéis",
+                "text": "122",
+                "insert": [
+                  170.0,
+                  385.5
+                ]
+              },
+              {
+                "layer": "Painéis",
+                "text": "174",
+                "insert": [
+                  331.0,
+                  235.5
+                ]
+              },
+              {
+                "layer": "Painéis",
+                "text": "20",
+                "insert": [
+                  170.0,
+                  314.5
+                ]
+              },
+              {
+                "layer": "Painéis",
+                "text": "244",
+                "insert": [
+                  122.0,
+                  235.5
+                ]
+              },
+              {
+                "layer": "Painéis",
+                "text": "47",
+                "insert": [
+                  170.0,
+                  281.0
+                ]
+              }
+            ]
+          },
+          "n4": {
+            "lines": [
+              {
+                "layer": "Painéis",
+                "start": [
+                  -20.5,
+                  91.0
+                ],
+                "end": [
+                  -17.5,
+                  94.0
+                ]
+              },
+              {
+                "layer": "Painéis",
+                "start": [
+                  0.0,
+                  92.5
+                ],
+                "end": [
+                  244.0,
+                  92.5
+                ]
+              },
+              {
+                "layer": "Painéis",
+                "start": [
+                  0.0,
+                  122.0
+                ],
+                "end": [
+                  418.0,
+                  122.0
+                ]
+              },
+              {
+                "layer": "Painéis",
+                "start": [
+                  0.0,
+                  169.0
+                ],
+                "end": [
+                  418.0,
+                  169.0
+                ]
+              },
+              {
+                "layer": "Painéis",
+                "start": [
+                  0.0,
+                  189.0
+                ],
+                "end": [
+                  418.0,
+                  189.0
+                ]
+              },
+              {
+                "layer": "Painéis",
+                "start": [
+                  1.5,
+                  94.0
+                ],
+                "end": [
+                  -1.5,
+                  91.0
+                ]
+              },
+              {
+                "layer": "Painéis",
+                "start": [
+                  158.0,
+                  1.5
+                ],
+                "end": [
+                  161.0,
+                  -1.5
+                ]
+              },
+              {
+                "layer": "Painéis",
+                "start": [
+                  158.0,
+                  123.5
+                ],
+                "end": [
+                  161.0,
+                  120.5
+                ]
+              },
+              {
+                "layer": "Painéis",
+                "start": [
+                  158.0,
+                  170.5
+                ],
+                "end": [
+                  161.0,
+                  167.5
+                ]
+              },
+              {
+                "layer": "Painéis",
+                "start": [
+                  158.0,
+                  190.5
+                ],
+                "end": [
+                  161.0,
+                  187.5
+                ]
+              },
+              {
+                "layer": "Painéis",
+                "start": [
+                  159.5,
+                  122.0
+                ],
+                "end": [
+                  159.5,
+                  0.0
+                ]
+              },
+              {
+                "layer": "Painéis",
+                "start": [
+                  159.5,
+                  169.0
+                ],
+                "end": [
+                  159.5,
+                  122.0
+                ]
+              },
+              {
+                "layer": "Painéis",
+                "start": [
+                  159.5,
+                  189.0
+                ],
+                "end": [
+                  159.5,
+                  169.0
+                ]
+              },
+              {
+                "layer": "Painéis",
+                "start": [
+                  159.5,
+                  311.0
+                ],
+                "end": [
+                  159.5,
+                  189.0
+                ]
+              },
+              {
+                "layer": "Painéis",
+                "start": [
+                  161.0,
+                  120.5
+                ],
+                "end": [
+                  158.0,
+                  123.5
+                ]
+              },
+              {
+                "layer": "Painéis",
+                "start": [
+                  161.0,
+                  167.5
+                ],
+                "end": [
+                  158.0,
+                  170.5
+                ]
+              },
+              {
+                "layer": "Painéis",
+                "start": [
+                  161.0,
+                  187.5
+                ],
+                "end": [
+                  158.0,
+                  190.5
+                ]
+              },
+              {
+                "layer": "Painéis",
+                "start": [
+                  161.0,
+                  309.5
+                ],
+                "end": [
+                  158.0,
+                  312.5
+                ]
+              },
+              {
+                "layer": "Painéis",
+                "start": [
+                  166.0,
+                  331.5
+                ],
+                "end": [
+                  169.0,
+                  328.5
+                ]
+              },
+              {
+                "layer": "Painéis",
+                "start": [
+                  168.0,
+                  330.0
+                ],
+                "end": [
+                  170.5,
+                  330.0
+                ]
+              },
+              {
+                "layer": "Painéis",
+                "start": [
+                  242.5,
+                  91.0
+                ],
+                "end": [
+                  245.5,
+                  94.0
+                ]
+              },
+              {
+                "layer": "Painéis",
+                "start": [
+                  244.0,
+                  0.0
+                ],
+                "end": [
+                  244.0,
+                  311.0
+                ]
+              },
+              {
+                "layer": "Painéis",
+                "start": [
+                  244.0,
+                  92.5
+                ],
+                "end": [
+                  418.0,
+                  92.5
+                ]
+              },
+              {
+                "layer": "Painéis",
+                "start": [
+                  245.5,
+                  94.0
+                ],
+                "end": [
+                  242.5,
+                  91.0
+                ]
+              },
+              {
+                "layer": "Painéis",
+                "start": [
+                  416.5,
+                  91.0
+                ],
+                "end": [
+                  419.5,
+                  94.0
+                ]
+              },
+              {
+                "layer": "Painéis",
+                "start": [
+                  438.5,
+                  94.0
+                ],
+                "end": [
+                  435.5,
+                  91.0
+                ]
+              }
+            ],
+            "polylines": [
+              {
+                "layer": "3",
+                "points": [
+                  [
+                    -19.0,
+                    311.0
+                  ],
+                  [
+                    -19.0,
+                    79.0
+                  ]
+                ],
+                "closed": false
+              },
+              {
+                "layer": "3",
+                "points": [
+                  [
+                    0.0,
+                    -19.0
+                  ],
+                  [
+                    418.0,
+                    -19.0
+                  ]
+                ],
+                "closed": false
+              },
+              {
+                "layer": "3",
+                "points": [
+                  [
+                    0.0,
+                    79.0
+                  ],
+                  [
+                    0.0,
+                    311.0
+                  ]
+                ],
+                "closed": false
+              },
+              {
+                "layer": "3",
+                "points": [
+                  [
+                    15.5,
+                    311.0
+                  ],
+                  [
+                    418.0,
+                    311.0
+                  ]
+                ],
+                "closed": false
+              },
+              {
+                "layer": "3",
+                "points": [
+                  [
+                    418.0,
+                    0.0
+                  ],
+                  [
+                    0.0,
+                    0.0
+                  ]
+                ],
+                "closed": false
+              },
+              {
+                "layer": "3",
+                "points": [
+                  [
+                    418.0,
+                    311.0
+                  ],
+                  [
+                    418.0,
+                    79.0
+                  ]
+                ],
+                "closed": false
+              },
+              {
+                "layer": "3",
+                "points": [
+                  [
+                    418.0,
+                    330.0
+                  ],
+                  [
+                    15.5,
+                    330.0
+                  ]
+                ],
+                "closed": false
+              },
+              {
+                "layer": "3",
+                "points": [
+                  [
+                    437.0,
+                    79.0
+                  ],
+                  [
+                    437.0,
+                    311.0
+                  ]
+                ],
+                "closed": false
+              }
+            ],
+            "texts": [
+              {
+                "layer": "4",
+                "text": "L312",
+                "insert": [
+                  185.5,
+                  225.5
+                ]
+              },
+              {
+                "layer": "Painéis",
+                "text": "122",
+                "insert": [
+                  170.0,
+                  74.5
+                ]
+              },
+              {
+                "layer": "Painéis",
+                "text": "122",
+                "insert": [
+                  170.0,
+                  263.5
+                ]
+              },
+              {
+                "layer": "Painéis",
+                "text": "174",
+                "insert": [
+                  331.0,
+                  113.5
+                ]
+              },
+              {
+                "layer": "Painéis",
+                "text": "20",
+                "insert": [
+                  170.0,
+                  192.5
+                ]
+              },
+              {
+                "layer": "Painéis",
+                "text": "244",
+                "insert": [
+                  122.0,
+                  113.5
+                ]
+              },
+              {
+                "layer": "Painéis",
+                "text": "47",
+                "insert": [
+                  170.0,
+                  159.0
+                ]
+              }
+            ]
+          }
+        },
+        "modo_selecionado": {
+          "ref": 0,
+          "n4": 1
+        }
+      },
+      "n4_has_aux00": false,
+      "n4_has_c_equals": false,
+      "n4_texts": [
+        "47",
+        "122",
+        "122",
+        "174",
+        "20",
+        "244",
+        "L312"
+      ]
+    },
+    {
+      "id": "L313",
+      "recorte": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- LJ - R00\\LAJ_L313_motor_178111331388.dxf",
+      "resultado": "PASS",
+      "conteudo_pass": true,
+      "marco_pass": true,
+      "ref_bbox_abs": [
+        4478.07,
+        2280.94,
+        4896.07,
+        2591.94
+      ],
+      "n4_bbox_abs": [
+        4478.07,
+        2280.94,
+        4896.07,
+        2591.94
+      ],
+      "comprimento": 418.0,
+      "largura": 311.0,
+      "linhas_verticais": [
+        {
+          "value": 243.9,
+          "is_union": false
+        }
+      ],
+      "linhas_horizontais": [
+        {
+          "value": 122.0,
+          "is_union": false
+        },
+        {
+          "value": 169.0,
+          "is_union": false
+        },
+        {
+          "value": 189.0,
+          "is_union": true
+        }
+      ],
+      "hlaz": null,
+      "stog_pose": {
+        "x": 4478.07,
+        "y": 2280.94
+      },
+      "n4": "D:\\Agente-cad-PYSIDE\\test_output\\arete_lj\\13_PAV_approved_all_batch\\n4\\LJ_preview_L313.dxf",
+      "recorte_sha256": "e60afc629c5780787fe294ce69e8ea393592b33bdc4ca360b12bd50d8e6e8a2f",
+      "n4_sha256": "bcf26bb46a67680e4e3253520067cae7cf8a0ead6daba63571d57dd8b0d1824c",
+      "png": "D:\\Agente-cad-PYSIDE\\test_output\\arete_lj\\13_PAV_approved_all_batch\\png\\ARETE_LJ_L313.png",
+      "diffs": {},
+      "n4_has_aux00": false,
+      "n4_has_c_equals": false,
+      "n4_texts": [
+        "174",
+        "244",
+        "122",
+        "47",
+        "20",
+        "122",
+        "L313"
+      ]
+    },
+    {
+      "id": "L316",
+      "recorte": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- LJ - R00\\LAJ_L316_motor_178111331395.dxf",
+      "resultado": "PASS",
+      "conteudo_pass": true,
+      "marco_pass": true,
+      "ref_bbox_abs": [
+        5789.07,
+        2280.94,
+        6078.07,
+        2591.94
+      ],
+      "n4_bbox_abs": [
+        5789.07,
+        2280.94,
+        6078.07,
+        2591.94
+      ],
+      "comprimento": 289.0,
+      "largura": 311.0,
+      "linhas_verticais": [
+        {
+          "value": 122.0,
+          "is_union": false
+        },
+        {
+          "value": 141.9,
+          "is_union": true
+        },
+        {
+          "value": 202.4,
+          "is_union": false
+        }
+      ],
+      "linhas_horizontais": [
+        {
+          "value": 244.0,
+          "is_union": false
+        }
+      ],
+      "hlaz": null,
+      "stog_pose": {
+        "x": 5789.07,
+        "y": 2280.94
+      },
+      "n4": "D:\\Agente-cad-PYSIDE\\test_output\\arete_lj\\13_PAV_approved_all_batch\\n4\\LJ_preview_L316.dxf",
+      "recorte_sha256": "5268aacd130607b2b08e68a4e9d7b100b47e13f4ef26c9f95ba995cb23097ea9",
+      "n4_sha256": "cae55fdc359133d7558e1f582151fad9afcb8300dbd7d03345fc4cc20bf391bd",
+      "png": "D:\\Agente-cad-PYSIDE\\test_output\\arete_lj\\13_PAV_approved_all_batch\\png\\ARETE_LJ_L316.png",
+      "diffs": {},
+      "n4_has_aux00": false,
+      "n4_has_c_equals": false,
+      "n4_texts": [
+        "81.5",
+        "67",
+        "244",
+        "60.5",
+        "20",
+        "122",
+        "L316"
+      ]
+    },
+    {
+      "id": "L326",
+      "recorte": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- LJ - R00\\LAJ_L326_motor_178111331413.dxf",
+      "resultado": "PASS",
+      "conteudo_pass": true,
+      "marco_pass": true,
+      "ref_bbox_abs": [
+        2914.33,
+        1577.94,
+        3148.07,
+        1648.94
+      ],
+      "n4_bbox_abs": [
+        2914.33,
+        1577.94,
+        3148.07,
+        1648.94
+      ],
+      "comprimento": 233.74,
+      "largura": 71.0,
+      "linhas_verticais": [
+        {
+          "value": 116.8,
+          "is_union": false
+        }
+      ],
+      "linhas_horizontais": [
+        {
+          "value": 35.6,
+          "is_union": false
+        }
+      ],
+      "hlaz": null,
+      "stog_pose": {
+        "x": 2914.33,
+        "y": 1577.94
+      },
+      "n4": "D:\\Agente-cad-PYSIDE\\test_output\\arete_lj\\13_PAV_approved_all_batch\\n4\\LJ_preview_L326.dxf",
+      "recorte_sha256": "3bb7a54f42839e84f4e73acf8dbc8a4c1e2b6b5890ba42b7c79806580c3cd1c9",
+      "n4_sha256": "3c8142ec1991bd5ed80e001bc7ffdd0996d1449a44ca921d1e4d18438b774447",
+      "png": "D:\\Agente-cad-PYSIDE\\test_output\\arete_lj\\13_PAV_approved_all_batch\\png\\ARETE_LJ_L326.png",
+      "diffs": {},
+      "n4_has_aux00": false,
+      "n4_has_c_equals": false,
+      "n4_texts": [
+        "79.4",
+        "41.9",
+        "114.4",
+        "2.5",
+        "L326"
+      ]
+    },
+    {
+      "id": "L327",
+      "recorte": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- LJ - R00\\LAJ_L327_sel_1781576357.dxf",
+      "resultado": "PASS",
+      "conteudo_pass": true,
+      "marco_pass": true,
+      "ref_bbox_abs": [
+        3169.57,
+        1577.94,
+        3630.88,
+        1648.94
+      ],
+      "n4_bbox_abs": [
+        3169.57,
+        1577.94,
+        3630.88,
+        1648.94
+      ],
+      "comprimento": 461.31,
+      "largura": 71.0,
+      "linhas_verticais": [
+        {
+          "value": 235.9,
+          "is_union": false
+        },
+        {
+          "value": 413.0,
+          "is_union": false
+        },
+        {
+          "value": 415.5,
+          "is_union": false
+        }
+      ],
+      "linhas_horizontais": [
+        {
+          "value": 35.5,
+          "is_union": false
+        },
+        {
+          "value": 66.0,
+          "is_union": false
+        }
+      ],
+      "hlaz": null,
+      "stog_pose": {
+        "x": 3169.57,
+        "y": 1577.94
+      },
+      "n4": "D:\\Agente-cad-PYSIDE\\test_output\\arete_lj\\13_PAV_approved_all_batch\\n4\\LJ_preview_L327.dxf",
+      "recorte_sha256": "2c3d3a9806d7629e051b368a8339f6cc1bc4a5edf0a24b96482b9c0b4f199e16",
+      "n4_sha256": "8519d5ca563136d2f049dee3984a3d5407a0a9d14015b7ae1f336a2f2800b669",
+      "png": "D:\\Agente-cad-PYSIDE\\test_output\\arete_lj\\13_PAV_approved_all_batch\\png\\ARETE_LJ_L327.png",
+      "diffs": {},
+      "n4_has_aux00": false,
+      "n4_has_c_equals": false,
+      "n4_texts": [
+        "35.5",
+        "2.5",
+        "2.5",
+        "177",
+        "30.5",
+        "2.5",
+        "35.5",
+        "16.5",
+        "179.5",
+        "L327",
+        "236",
+        "238.5"
+      ]
+    },
+    {
+      "id": "L328",
+      "recorte": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- LJ - R00\\LAJ_L328_motor_178111331416.dxf",
+      "resultado": "PASS",
+      "conteudo_pass": true,
+      "marco_pass": true,
+      "ref_bbox_abs": [
+        3604.07,
+        1577.94,
+        4022.07,
+        1648.94
+      ],
+      "n4_bbox_abs": [
+        3604.07,
+        1577.94,
+        4022.07,
+        1648.94
+      ],
+      "comprimento": 418.0,
+      "largura": 71.0,
+      "linhas_verticais": [
+        {
+          "value": 199.9,
+          "is_union": false
+        }
+      ],
+      "linhas_horizontais": [
+        {
+          "value": 35.6,
+          "is_union": false
+        }
+      ],
+      "hlaz": null,
+      "stog_pose": {
+        "x": 3604.07,
+        "y": 1577.94
+      },
+      "n4": "D:\\Agente-cad-PYSIDE\\test_output\\arete_lj\\13_PAV_approved_all_batch\\n4\\LJ_preview_L328.dxf",
+      "recorte_sha256": "1b1daeffb3935a16899ff3bde8bdc40331b35e43104e3630fde8081ac2dfb4b3",
+      "n4_sha256": "1a88f9d9ce2396a77b131f65cb1d2f2934861c2dc98d354954a618fb38fb10c7",
+      "png": "D:\\Agente-cad-PYSIDE\\test_output\\arete_lj\\13_PAV_approved_all_batch\\png\\ARETE_LJ_L328.png",
+      "diffs": {},
+      "n4_has_aux00": false,
+      "n4_has_c_equals": false,
+      "n4_texts": [
+        "16.5",
+        "2.5",
+        "16.5",
+        "2.5",
+        "200",
+        "218",
+        "35.5",
+        "35.5",
+        "197.5",
+        "215.5",
+        "16.5",
+        "L328"
+      ]
+    },
+    {
+      "id": "L329",
+      "recorte": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- LJ - R00\\LAJ_L329_motor_178111331418.dxf",
+      "resultado": "PASS",
+      "conteudo_pass": true,
+      "marco_pass": true,
+      "ref_bbox_abs": [
+        4043.57,
+        1577.94,
+        4509.93,
+        1648.94
+      ],
+      "n4_bbox_abs": [
+        4043.57,
+        1577.94,
+        4509.93,
+        1648.94
+      ],
+      "comprimento": 466.36,
+      "largura": 71.0,
+      "linhas_verticais": [
+        {
+          "value": 202.4,
+          "is_union": false
+        },
+        {
+          "value": 413.0,
+          "is_union": false
+        },
+        {
+          "value": 415.5,
+          "is_union": false
+        }
+      ],
+      "linhas_horizontais": [
+        {
+          "value": 35.6,
+          "is_union": false
+        }
+      ],
+      "hlaz": null,
+      "stog_pose": {
+        "x": 4043.57,
+        "y": 1577.94
+      },
+      "n4": "D:\\Agente-cad-PYSIDE\\test_output\\arete_lj\\13_PAV_approved_all_batch\\n4\\LJ_preview_L329.dxf",
+      "recorte_sha256": "ba5d3a642b0a4b027fa6d76688db51c2eaa72fba7aceb8e4360d291d5e99af75",
+      "n4_sha256": "c902c93f48c21edbdc246dc2ca54533b0d42cfd64518922a01ae353926fd2517",
+      "png": "D:\\Agente-cad-PYSIDE\\test_output\\arete_lj\\13_PAV_approved_all_batch\\png\\ARETE_LJ_L329.png",
+      "diffs": {},
+      "n4_has_aux00": false,
+      "n4_has_c_equals": false,
+      "n4_texts": [
+        "2.5",
+        "16.5",
+        "2.5",
+        "16.5",
+        "2.5",
+        "205",
+        "213",
+        "35.5",
+        "35.5",
+        "202.5",
+        "210.5",
+        "16.5",
+        "L329"
+      ]
+    },
+    {
+      "id": "L330",
+      "recorte": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- LJ - R00\\LAJ_L330_motor_178111331421.dxf",
+      "resultado": "PASS",
+      "conteudo_pass": true,
+      "marco_pass": true,
+      "ref_bbox_abs": [
+        4480.57,
+        1577.94,
+        4946.93,
+        1648.94
+      ],
+      "n4_bbox_abs": [
+        4480.57,
+        1577.94,
+        4946.93,
+        1648.94
+      ],
+      "comprimento": 466.36,
+      "largura": 71.0,
+      "linhas_verticais": [
+        {
+          "value": 197.4,
+          "is_union": false
+        },
+        {
+          "value": 413.0,
+          "is_union": false
+        },
+        {
+          "value": 415.5,
+          "is_union": false
+        }
+      ],
+      "linhas_horizontais": [
+        {
+          "value": 35.6,
+          "is_union": false
+        }
+      ],
+      "hlaz": null,
+      "stog_pose": {
+        "x": 4480.57,
+        "y": 1577.94
+      },
+      "n4": "D:\\Agente-cad-PYSIDE\\test_output\\arete_lj\\13_PAV_approved_all_batch\\n4\\LJ_preview_L330.dxf",
+      "recorte_sha256": "53e45a8c325b8ab869ccb28b65533586f695a268a3145e358e1c05cb7d7c4328",
+      "n4_sha256": "cc395cfec7c6844e70c7e44e42fd329592f7a8497a2046cf8f7b5b2e5b5926f3",
+      "png": "D:\\Agente-cad-PYSIDE\\test_output\\arete_lj\\13_PAV_approved_all_batch\\png\\ARETE_LJ_L330.png",
+      "diffs": {},
+      "n4_has_aux00": false,
+      "n4_has_c_equals": false,
+      "n4_texts": [
+        "2.5",
+        "16.5",
+        "2.5",
+        "16.5",
+        "2.5",
+        "200",
+        "218",
+        "35.5",
+        "35.5",
+        "197.5",
+        "215.5",
+        "16.5",
+        "L330"
+      ]
+    },
+    {
+      "id": "L331",
+      "recorte": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- LJ - R00\\LAJ_L331_motor_178111331423.dxf",
+      "resultado": "PASS",
+      "conteudo_pass": true,
+      "marco_pass": true,
+      "ref_bbox_abs": [
+        4915.07,
+        1577.94,
+        5333.07,
+        1648.94
+      ],
+      "n4_bbox_abs": [
+        4915.07,
+        1577.94,
+        5333.07,
+        1648.94
+      ],
+      "comprimento": 418.0,
+      "largura": 71.0,
+      "linhas_verticais": [
+        {
+          "value": 173.9,
+          "is_union": false
+        }
+      ],
+      "linhas_horizontais": [
+        {
+          "value": 35.6,
+          "is_union": false
+        }
+      ],
+      "hlaz": null,
+      "stog_pose": {
+        "x": 4915.07,
+        "y": 1577.94
+      },
+      "n4": "D:\\Agente-cad-PYSIDE\\test_output\\arete_lj\\13_PAV_approved_all_batch\\n4\\LJ_preview_L331.dxf",
+      "recorte_sha256": "8a93d3078f1250b98dcf2b79b611a2c165c72d6a5b7307ddb3e5b1012b02fd92",
+      "n4_sha256": "4502d1b350d60a0a9e7d149ba0b6e033b97f413d913af4b55d5409ab2590c742",
+      "png": "D:\\Agente-cad-PYSIDE\\test_output\\arete_lj\\13_PAV_approved_all_batch\\png\\ARETE_LJ_L331.png",
+      "diffs": {},
+      "n4_has_aux00": false,
+      "n4_has_c_equals": false,
+      "n4_texts": [
+        "16.5",
+        "2.5",
+        "174",
+        "244",
+        "35.5",
+        "35.5",
+        "171.5",
+        "244",
+        "16.5",
+        "L331"
+      ]
+    }
+  ]
+}
