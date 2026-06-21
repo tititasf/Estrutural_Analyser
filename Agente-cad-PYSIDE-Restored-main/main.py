@@ -503,11 +503,19 @@ class MainWindow(QMainWindow):
              self.cmb_works.setCurrentIndex(-1)
              
         self.cmb_works.blockSignals(False)
-        
+
         # Force pavement update if work selected
         if self.cmb_works.currentIndex() >= 0:
             self._on_work_changed()
-    
+
+        # Preencher combos de TODOS os robôs — só na primeira chamada para evitar spam de DB
+        if not getattr(self, '_robos_initial_sync_done', False):
+            try:
+                self._sync_robos_obras_e_pavimentos(global_work_name=self.cmb_works.currentText() or None)
+                self._robos_initial_sync_done = True
+            except Exception as _e:
+                self.log(f"[sync_robos] erro: {_e}")
+
     def _debug_works_pavements_documents(self, works: list):
         """Depura todas as obras, seus pavimentos e documentos."""
         print("\n" + "="*80)
@@ -790,6 +798,120 @@ class MainWindow(QMainWindow):
         # Auto-selecionar primeiro pavimento (blockSignals impediu que currentIndexChanged fosse emitido)
         if self.cmb_pavements.count() > 0:
             self._on_pavement_changed()
+
+    def _sync_robos_obras_e_pavimentos(self, global_work_name=None):
+        """
+        Sincronização central e robusta de TODOS os robôs com o banco de dados.
+        Preenche as obras (baseado em db.get_all_works) e os pavimentos (db.get_projects).
+        Se global_work_name for passado, força a seleção desta obra nos robôs.
+        """
+        try:
+            works = self.db.get_all_works()
+            all_projects = self.db.get_projects()
+            
+            def get_pavs(work_name):
+                filtered = [p for p in all_projects if p.get('work_name') == work_name]
+                raw_pavs = sorted(list(set([p.get('pavement_name') or p.get('name') for p in filtered if (p.get('pavement_name') or p.get('name'))])))
+                return raw_pavs
+
+            # ----- Laje -----
+            if getattr(self, 'robo_laje', None) and hasattr(self.robo_laje, 'obra_control'):
+                try:
+                    c = self.robo_laje.obra_control.obra_combo
+                    c.blockSignals(True)
+                    curr_nome = global_work_name if global_work_name else (c.currentData().nome if c.currentData() and hasattr(c.currentData(), 'nome') else c.currentText())
+                    c.clear()
+                    from laje_src.models.obra import Obra as LajeObra
+                    from laje_src.models.pavimento import Pavimento as LajePavimento
+                    for w in works:
+                        obra_mock = LajeObra(nome=w)
+                        for p in get_pavs(w):
+                            obra_mock.pavimentos.append(LajePavimento(nome=p))
+                        c.addItem(f"📁 {w}", obra_mock)
+                    
+                    found = False
+                    for i in range(c.count()):
+                        dt = c.itemData(i)
+                        if dt and getattr(dt, 'nome', '') == curr_nome:
+                            c.setCurrentIndex(i)
+                            found = True
+                            break
+                    if not found: c.setCurrentIndex(0 if c.count() > 0 else -1)
+                    c.blockSignals(False)
+                    
+                    if global_work_name and found:
+                        if hasattr(self.robo_laje.obra_control, 'obra_changed'):
+                            self.robo_laje.obra_control.obra_changed.emit(c.currentData())
+                except Exception as e:
+                    self.log(f"Erro Laje: {e}")
+
+            # ----- Pilares -----
+            # Usa add_global_obra (API pública: vm.sync_global_context) para cada obra,
+            # depois chama populate_filters no SidebarWidget para atualizar o combo_obra.
+            if getattr(self, 'robo_pilares', None) and hasattr(self.robo_pilares, 'add_global_obra'):
+                try:
+                    for w in works:
+                        self.robo_pilares.add_global_obra(w)
+
+                    # Atualizar combo_obra da UI via SidebarWidget.populate_filters
+                    from PySide6.QtWidgets import QWidget as _QW2
+                    for _sw in self.robo_pilares.findChildren(_QW2):
+                        if hasattr(_sw, 'populate_filters') and callable(_sw.populate_filters):
+                            _sw.populate_filters()
+                            # Se há obra alvo, selecionar
+                            if global_work_name and hasattr(_sw, 'combo_obra'):
+                                _cmb = _sw.combo_obra
+                                for _i in range(_cmb.count()):
+                                    _d = _cmb.itemData(_i)
+                                    if _d and getattr(_d, 'nome', '') == global_work_name:
+                                        _cmb.setCurrentIndex(_i)
+                                        break
+                            break
+                except Exception as e:
+                    self.log(f"Erro Pilares: {e}")
+
+            # ----- Viga Lateral (LV) — usa project_data interno -----
+            if getattr(self, 'robo_viga', None) and hasattr(self.robo_viga, 'project_data'):
+                try:
+                    for w in works:
+                        if w not in self.robo_viga.project_data:
+                            self.robo_viga.project_data[w] = {}
+                        for p in get_pavs(w):
+                            if p not in self.robo_viga.project_data[w]:
+                                self.robo_viga.project_data[w][p] = {
+                                    'vigas': {},
+                                    'metadata': {'in': '', 'out': '', 'segment_classes': ['Lista Geral']}
+                                }
+                    self.robo_viga.update_obra_combo()   # reconstrói cmb_obra a partir de project_data
+                    if global_work_name:
+                        # garante seleção da obra e carrega pav
+                        self.robo_viga.add_global_obra(global_work_name)
+                except Exception as e:
+                    self.log(f"Erro Viga: {e}")
+
+            # ----- Fundo de Viga (FV) — usa obras_metadata interno -----
+            if getattr(self, 'robo_fundo', None) and hasattr(self.robo_fundo, 'obras_metadata'):
+                try:
+                    for w in works:
+                        if w not in self.robo_fundo.obras_metadata:
+                            self.robo_fundo.obras_metadata[w] = set()
+                        for p in get_pavs(w):
+                            self.robo_fundo.obras_metadata[w].add(p)
+                    curr = self.robo_fundo.combo_obra.currentText()
+                    self.robo_fundo.combo_obra.blockSignals(True)
+                    self.robo_fundo.combo_obra.clear()
+                    self.robo_fundo.combo_obra.addItems(sorted(works))
+                    target = global_work_name or curr
+                    idx = self.robo_fundo.combo_obra.findText(target)
+                    self.robo_fundo.combo_obra.setCurrentIndex(idx if idx >= 0 else 0)
+                    self.robo_fundo.combo_obra.blockSignals(False)
+                    self.robo_fundo._update_combo_pavimentos()
+                except Exception as e:
+                    self.log(f"Erro Fundo: {e}")
+
+        except Exception as e:
+            self.log(f"Erro geral _sync_robos_obras_e_pavimentos: {e}")
+
 
     def _current_pavement_name(self) -> str:
         """Retorna o nome raw do pavimento selecionado no cmb_pavements."""
@@ -1696,8 +1818,8 @@ class MainWindow(QMainWindow):
         self.list_beams.itemClicked.connect(self.on_list_beam_clicked)
         self.list_beams.currentItemChanged.connect(lambda curr, prev: self.on_list_beam_clicked(curr, 0) if curr else None)
         
-        self.list_beams_fundo.itemClicked.connect(self.on_list_beam_clicked)
-        self.list_beams_fundo.currentItemChanged.connect(lambda curr, prev: self.on_list_beam_clicked(curr, 0) if curr else None)
+        self.list_beams_fundo.itemClicked.connect(self.on_list_beam_fundo_clicked)
+        self.list_beams_fundo.currentItemChanged.connect(lambda curr, prev: self.on_list_beam_fundo_clicked(curr, 0) if curr else None)
         
         self.list_slabs.itemClicked.connect(lambda item, col: self.on_list_slab_clicked(item))
         self.list_slabs.currentItemChanged.connect(lambda curr, prev: self.on_list_slab_clicked(curr) if curr else None)
@@ -1763,8 +1885,8 @@ class MainWindow(QMainWindow):
         self.list_beams_valid.itemClicked.connect(self.on_list_beam_clicked)
         self.list_beams_valid.currentItemChanged.connect(lambda curr, prev: self.on_list_beam_clicked(curr, 0) if curr else None)
         
-        self.list_beams_fundo_valid.itemClicked.connect(self.on_list_beam_clicked)
-        self.list_beams_fundo_valid.currentItemChanged.connect(lambda curr, prev: self.on_list_beam_clicked(curr, 0) if curr else None)
+        self.list_beams_fundo_valid.itemClicked.connect(self.on_list_beam_fundo_clicked)
+        self.list_beams_fundo_valid.currentItemChanged.connect(lambda curr, prev: self.on_list_beam_fundo_clicked(curr, 0) if curr else None)
         
         self.list_slabs_valid.itemClicked.connect(lambda item, col: self.on_list_slab_clicked(item))
         self.list_slabs_valid.currentItemChanged.connect(lambda curr, prev: self.on_list_slab_clicked(curr) if curr else None)
@@ -3774,21 +3896,18 @@ class MainWindow(QMainWindow):
         self._update_canvas_filter(index)
 
     def _update_canvas_filter(self, index):
-        # print(f"[DEBUG_TAB] Updating Canvas Filter for Index: {index}")
+        # Tabs: 0=Pilares, 1=Lat. de Vigas, 2=Fun. de Vigas, 3=Lajes, else=All
         if index == 0:
             self.canvas.set_category_visibility('pillar')
         elif index == 1:
             self.canvas.set_category_visibility('beam')
             if hasattr(self, 'beams_found'): self.canvas.draw_beams(self.beams_found)
         elif index == 2:
-            # print(f"[DEBUG_TAB] Setting category visibility to 'slab'")
-            if hasattr(self, 'slabs_found'):
-                 pass # print(f"[DEBUG_TAB] Redrawing {len(self.slabs_found)} slabs") 
-            else:
-                 pass # print(f"[DEBUG_TAB] No slabs_found attribute!") 
-                 
+            # Fun. de Vigas — realça polígonos de fundo (âmbar) no DXF
+            self.canvas.set_category_visibility('beam_fundo')
+            if hasattr(self, 'beams_found'): self.canvas.draw_beam_fundos(self.beams_found)
+        elif index == 3:
             self.canvas.set_category_visibility('slab')
-            # Forçar redesenho para garantir que todos os vínculos sejam exibidos
             if hasattr(self, 'slabs_found'): self.canvas.draw_slabs(self.slabs_found)
         else:
             self.canvas.set_category_visibility('all')
@@ -4598,7 +4717,14 @@ class MainWindow(QMainWindow):
         
         # 1. Motores - Vigas
         from src.core.beam_tracer import BeamTracer
-        beam_tracer = BeamTracer(self.spatial_index)
+        from src.core.learning.learning_store_factory import LearningStoreFactory
+        _bb_store = LearningStoreFactory.create(
+            self.current_project_id or 'global',
+            'bottom_beam',
+            os.path.dirname(__file__)
+        )
+        self._bottom_beam_store = _bb_store
+        beam_tracer = BeamTracer(self.spatial_index, learning_params_bottom=_bb_store.get_learning_params())
         all_lines_and_polys = []
         for l in lines+polylines:
             if 'points' in l: all_lines_and_polys.append(l)
@@ -5069,6 +5195,18 @@ class MainWindow(QMainWindow):
             self.canvas.focus_on_beam_geometry(beam)
             # NOVO: Desenhar também os vínculos salvos (Labels, Dimensões, etc)
             self.canvas.draw_item_links(beam)
+
+    def on_list_beam_fundo_clicked(self, item, column=0):
+        """Clique em item da lista Fun. de Vigas: destaca APENAS o fundo desta viga + zoom."""
+        if not item:
+            return
+        beam_id = item.data(0, Qt.UserRole)
+        if not beam_id:
+            return  # nó pai (grupo)
+        beam = next((b for b in self.beams_found if b['id'] == beam_id), None)
+        if beam:
+            self.show_detail(beam, override_type='viga_fundo_c')
+            self.canvas.draw_single_beam_fundo(beam, apply_zoom=True)
 
     def on_list_slab_clicked(self, item, column=0):
         slab_id = item.data(0, Qt.UserRole)
@@ -5647,10 +5785,9 @@ class MainWindow(QMainWindow):
             self.log("Análise com Eng Reversa cancelada pelo usuário.")
             return
 
-        # === ETAPA 4: CARREGAR E USAR N2 TEACHER ===
-        self.log("Confirmada consulta F5/N2. Nenhum DXF sera gerado e a Analise Geral nao sera executada.")
+        # === ETAPA 4: CARREGAR CACHE N2 ===
+        self.log("🔄 Carregando fichas N2 e executando Análise Geral para comparação FV...")
 
-        # Carregar cache de fichas do Vision DB
         self._reverse_eng_cache = {'PIL': {}, 'FV': {}, 'LV': {}, 'LAJ': {}}
         try:
             if os.path.exists(db_path):
@@ -5669,23 +5806,180 @@ class MainWindow(QMainWindow):
                     except:
                         pass
                 conn.close()
-            self.log(f"Cache Eng Reversa: {sum(len(v) for v in self._reverse_eng_cache.values())} fichas carregadas")
+            n2_fv = self._reverse_eng_cache.get('FV', {})
+            self.log(f"Cache Eng Reversa: {sum(len(v) for v in self._reverse_eng_cache.values())} fichas | FV={len(n2_fv)}")
         except Exception as e:
             self.log(f"❌ Erro ao carregar cache Eng Reversa: {e}")
+            n2_fv = {}
 
-        # Dispara a análise usando process_pillars_action (que carrega N2 teacher internamente)
-        self.log("Consulta F5/N2 carregada; Analise Geral nao foi executada.")
-        QMessageBox.information(
-            self,
-            "Consulta F5/N2 carregada",
-            "As fichas de Engenharia Reversa foram carregadas para consulta.\n\n"
-            "Este botao nao executa Analise Geral, nao usa teacher no motor e nao gera DXF."
-        )
-        return
+        # === ETAPA 5: RODAR ANÁLISE GERAL + COMPARAR ===
+        self.log("⚙️ Executando Análise Geral (motor FV)...")
+        self.process_pillars_action()
+        # process_pillars_action é síncrona — comparar direto após retorno
+        self._compare_fv_n1_n2(n2_fv)
 
         # Limpar o cache
         if hasattr(self, '_reverse_eng_cache'):
             del self._reverse_eng_cache
+
+    def _compare_fv_n1_n2(self, n2_fv: dict):
+        """Compara resultado do motor (N1) vs fichas N2 para Fundo de Vigas.
+        Exibe painel de delta e grava eventos em engrev_fv_n1_interpretacao_learning.vision."""
+        from PySide6.QtWidgets import (QDialog, QVBoxLayout, QHBoxLayout, QLabel,
+                                        QTableWidget, QTableWidgetItem, QPushButton,
+                                        QHeaderView, QProgressBar)
+        from PySide6.QtGui import QColor
+        from PySide6.QtCore import Qt
+        import re
+
+        beams = getattr(self, 'beams_found', [])
+        if not beams:
+            self.log("⚠️ Nenhuma viga encontrada no motor para comparar com N2.")
+            return
+        if not n2_fv:
+            self.log("⚠️ Cache N2 FV vazio — rode a Eng. Reversa (Fase-2) para esta obra/pavimento.")
+            return
+
+        # --- Comparação elemento a elemento ---
+        rows = []
+        matched = 0
+        total_score = 0.0
+
+        for b in beams:
+            bname = b.get('name', b.get('parent_name', ''))
+            # Normalizar: V301 → V301, F.V301 → V301
+            clean = re.sub(r'^[FLfl]\.', '', bname).strip()
+            n2 = n2_fv.get(clean) or n2_fv.get(bname)
+            if not n2:
+                rows.append({'name': bname, 'n2': False,
+                             'n1_segs': b.get('seg_c', b.get('seg_bottom', 0)),
+                             'n2_segs': '-', 'n1_comp': b.get('fields', {}).get('comprimento_total_fundo', 0),
+                             'n2_comp': '-', 'n1_h': '', 'n2_h': '-', 'score': None})
+                continue
+
+            matched += 1
+            n2_panels  = n2.get('panels', [])
+            n2_segs    = len(n2_panels)
+            n2_comp    = n2.get('total_height', 0)   # comprimento em unidades DXF
+            n2_h       = n2.get('total_width', 0)    # espessura fundo (h)
+
+            n1_segs    = b.get('seg_c', 0) or len([k for k in b.get('links', {}) if 'viga_fundo_seg' in k and 'area_segs' in k])
+            n1_comp    = b.get('fields', {}).get('comprimento_total_fundo', 0) or 0
+            # Parse h do texto de dimensão "20x60" → 20
+            dim_text   = b.get('fields', {}).get('dimensao', '')
+            m = re.search(r'(\d+)\s*[xX]\s*(\d+)', dim_text or '')
+            n1_h       = float(m.group(1)) if m else 0.0
+
+            # Score: até 3 critérios (segs, comprimento ±5%, h ±2)
+            s = 0.0
+            segs_ok = (n2_segs > 0 and n1_segs == n2_segs)
+            comp_ok = (n2_comp > 0 and abs(n1_comp - n2_comp) / n2_comp < 0.05) if n2_comp else False
+            h_ok    = (n2_h > 0 and abs(n1_h - n2_h) <= 2) if n2_h else False
+            s += 33.3 if segs_ok else 0
+            s += 33.3 if comp_ok else 0
+            s += 33.3 if h_ok    else 0
+            total_score += s
+
+            rows.append({'name': bname, 'n2': True,
+                         'n1_segs': n1_segs, 'n2_segs': n2_segs,
+                         'n1_comp': round(n1_comp, 1), 'n2_comp': round(n2_comp, 1),
+                         'n1_h': n1_h, 'n2_h': n2_h,
+                         'segs_ok': segs_ok, 'comp_ok': comp_ok, 'h_ok': h_ok,
+                         'score': round(s, 0)})
+
+            # Feedback para engrev_fv learning store
+            try:
+                from src.core.engrev_fv_n1_interpretacao_learning_store import record_engrev_fv_n1_interpretacao_event
+                pav_nome = self._current_pavement_name() if hasattr(self, '_current_pavement_name') else ''
+                obra_n = getattr(self, '_current_obra_name', None) or ''
+                record_engrev_fv_n1_interpretacao_event(
+                    event_type='engrev_assisted_generated',
+                    elemento_id=bname,
+                    analysis_mode='engrev_assisted',
+                    obra_name=obra_n,
+                    pavimento=pav_nome,
+                    features={
+                        'panels_n1': n1_segs, 'panels_n2': n2_segs,
+                        'comprimento_n1': n1_comp, 'comprimento_n2': n2_comp,
+                        'h_n1': n1_h, 'h_n2': n2_h,
+                        'segs_matched': 1 if segs_ok else 0,
+                        'score': round(s, 1),
+                    },
+                )
+            except Exception as _fe:
+                self.log(f"[Learning FV] Erro feedback: {_fe}")
+
+        avg_score = total_score / matched if matched else 0.0
+        self.log(f"📊 Comparação FV: {matched}/{len(beams)} vigas matchadas N2 | Score médio: {avg_score:.0f}% | {matched} eventos gravados em engrev_fv learning store")
+
+        # --- Dialog de comparação ---
+        dlg = QDialog(self)
+        dlg.setWindowTitle(f"FV Loop — Comparação N1 vs N2 ({matched} matchadas | Score: {avg_score:.0f}%)")
+        dlg.resize(1100, 620)
+        layout = QVBoxLayout(dlg)
+
+        # Header score
+        bar = QProgressBar()
+        bar.setRange(0, 100)
+        bar.setValue(int(avg_score))
+        bar.setFormat(f"Score FV: {avg_score:.1f}% ({matched} vigas matchadas de {len(beams)})")
+        bar.setStyleSheet("QProgressBar::chunk { background: #00c864; } QProgressBar { height: 22px; font-weight: bold; }")
+        layout.addWidget(bar)
+
+        # Tabela
+        tbl = QTableWidget()
+        tbl.setColumnCount(9)
+        tbl.setHorizontalHeaderLabels(["Viga", "N2?", "Segs N1", "Segs N2", "✓S", "Comp N1", "Comp N2", "✓C", "Score"])
+        tbl.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        tbl.setRowCount(len(rows))
+        tbl.setAlternatingRowColors(True)
+        tbl.setEditTriggers(QTableWidget.NoEditTriggers)
+
+        green  = QColor("#1a472a")
+        red    = QColor("#4a1a1a")
+        yellow = QColor("#3a3a00")
+        gray   = QColor("#2a2a2a")
+
+        for i, r in enumerate(rows):
+            def _item(txt, bg=None):
+                it = QTableWidgetItem(str(txt))
+                it.setTextAlignment(Qt.AlignCenter)
+                if bg: it.setBackground(bg)
+                return it
+
+            tbl.setItem(i, 0, _item(r['name']))
+            tbl.setItem(i, 1, _item("✓" if r['n2'] else "✗", green if r['n2'] else red))
+            if r['n2']:
+                tbl.setItem(i, 2, _item(r['n1_segs'], green if r.get('segs_ok') else red))
+                tbl.setItem(i, 3, _item(r['n2_segs']))
+                tbl.setItem(i, 4, _item("✓" if r.get('segs_ok') else "✗", green if r.get('segs_ok') else red))
+                tbl.setItem(i, 5, _item(r['n1_comp'], green if r.get('comp_ok') else red))
+                tbl.setItem(i, 6, _item(r['n2_comp']))
+                tbl.setItem(i, 7, _item("✓" if r.get('comp_ok') else "✗", green if r.get('comp_ok') else red))
+                score_bg = green if r['score'] >= 66 else (yellow if r['score'] >= 33 else red)
+                tbl.setItem(i, 8, _item(f"{r['score']:.0f}%", score_bg))
+            else:
+                for col in range(2, 9):
+                    tbl.setItem(i, col, _item("-", gray))
+
+        layout.addWidget(tbl)
+
+        from PySide6.QtCore import QTimer as _QT
+        btn_rerun = QPushButton("🔄 Re-analisar com params atualizados")
+        btn_rerun.setStyleSheet("background:#005a9e; color:white; font-weight:bold; height:28px;")
+        def _rerun():
+            dlg.accept()
+            _QT.singleShot(200, lambda: (self.process_pillars_action(), self._compare_fv_n1_n2(n2_fv)))
+        btn_rerun.clicked.connect(_rerun)
+        btn_close = QPushButton("Fechar")
+        btn_close.clicked.connect(dlg.accept)
+        hl = QHBoxLayout()
+        hl.addWidget(btn_rerun)
+        hl.addStretch()
+        hl.addWidget(btn_close)
+        layout.addLayout(hl)
+
+        dlg.exec()
 
     def _process_with_obra_context(self):
         """
@@ -6526,13 +6820,13 @@ class MainWindow(QMainWindow):
         p_id = item_data['id']
         name = item_data.get('name', 'Sem Nome')
         elem_type = item_data.get('type', 'Pilar').lower()
-        
+
         # 1. Registrar Treino para TODOS os campos validados do item
         # Isso garante que a IA aprenda o layout completo confirmado pelo humano.
         if retrain_fields:
             validated_fields = item_data.get('validated_fields', [])
             links_dict = item_data.get('links', {})
-            
+
             for f_id in validated_fields:
                 field_links = links_dict.get(f_id, {})
                 # Se for um campo validado e tiver vínculos, registramos como conhecimento "Ground Truth"
@@ -6541,6 +6835,32 @@ class MainWindow(QMainWindow):
                         lk['validated'] = True
                         lk.pop('failed', None)
                         self._log_training_action(item_data, f_id, slot_id, lk, status='valid', comment='Card Validation')
+
+        # 1b. Learning Store FV: gravar human_fundo_outline_validated ao validar viga_fundo_c
+        if 'viga_fundo' in elem_type:
+            try:
+                from src.core.engrev_fv_n1_interpretacao_learning_store import record_human_fundo_outline_validated
+                import re as _re
+                fields = item_data.get('fields', {})
+                pav_nome = self._current_pavement_name() if hasattr(self, '_current_pavement_name') else ''
+                obra_n = getattr(self, '_current_obra_name', None) or ''
+                dim_text = fields.get('dimensao', '')
+                _m = _re.search(r'(\d+)\s*[xX]\s*(\d+)', dim_text or '')
+                h_n1 = float(_m.group(1)) if _m else None
+                record_human_fundo_outline_validated(
+                    elemento_id=item_data.get('name', 'V?'),
+                    obra_name=obra_n,
+                    pavimento=pav_nome,
+                    features={
+                        'panels_n1': item_data.get('seg_c', item_data.get('seg_bottom', 0)),
+                        'comprimento_n1': fields.get('comprimento_total_fundo'),
+                        'h_n1': h_n1,
+                    },
+                    notes='card_validated_by_user',
+                )
+                self.log(f"🧠 Learning FV: human_fundo_outline_validated gravado para {item_data.get('name')}")
+            except Exception as _e:
+                self.log(f"[Learning FV] Erro ao gravar feedback: {_e}")
 
         # 2. Salvar imediatamente no projeto e atualizar UI
         if self.current_project_id:
@@ -6643,8 +6963,27 @@ class MainWindow(QMainWindow):
         # --- PROTEÇÃO DE DADOS ---
         # Se a viga já veio do Banco de Dados com vínculos processados, não podemos esmagar!
         has_links = len(b.get('links', {})) > 5  # Viga pré-processada tem muitos vínculos
-        if has_links:
-            return  # Já está inteligente, abortar xerox
+        seg_bottom_empty = not b.get('links', {}).get('viga_segs', {}).get('seg_bottom', [])
+        if has_links and not seg_bottom_empty:
+            return  # Já processada com fundo OK — manter
+        if has_links and seg_bottom_empty:
+            # Fundo ainda não processado (ou DB antigo) — só reprocessar fundos
+            # Garante que seg_bottom e seg_c existam sem sobrescrever o resto
+            geo_inner = b.get('geometry', {})
+            classified_inner = geo_inner.get('classified', {})
+            b['links'].setdefault('viga_segs', {'seg_bottom': []})
+            if 'seg_bottom' not in b['links']['viga_segs']:
+                b['links']['viga_segs']['seg_bottom'] = []
+            bottom_groups_i = classified_inner.get('merged_bottom_groups', [])
+            lengths_i = classified_inner.get('merged_bottom_lengths', [])
+            for i, grp in enumerate(bottom_groups_i, start=1):
+                length_i = lengths_i[i-1] if (i-1) < len(lengths_i) else 0.0
+                for line in grp:
+                    b['links']['viga_segs']['seg_bottom'].append(
+                        {'type': 'poly', 'points': line, 'len': length_i, 'tag': 'Fundo'}
+                    )
+            b['seg_c'] = len(b['links']['viga_segs']['seg_bottom'])
+            return
 
         # --- ESTRUTURA BASE ---
         b.update({
@@ -6708,35 +7047,65 @@ class MainWindow(QMainWindow):
                 })
             return total_len
 
-        def process_fundo_segments(side_key, tag):
-            lines = classified.get(side_key, [])
-            total_len = 0
-            for i, line in enumerate(lines, start=1):
-                p1, p2 = line[0], line[-1]
-                length = ((p2[0]-p1[0])**2 + (p2[1]-p1[1])**2)**0.5
-                total_len += length
-                
-                # Fatiar para o Painel Direito
-                # 1. Avisar ao DetailCard que este segmento existe
-                b[f'viga_fundo_seg_{i}_exists'] = True
-                
-                # 2. Injetar a geometria na chave de Área do segmento respectivo
-                target_field_key = f'viga_fundo_seg_{i}_area_segs'
-                if target_field_key not in b['links']:
-                    b['links'][target_field_key] = {}
-                
-                # O painel direito (link_manager) espera que o poligono se chame 'contour'
-                if 'contour' not in b['links'][target_field_key]:
-                    b['links'][target_field_key]['contour'] = []
-                    
-                b['links'][target_field_key]['contour'].append({
-                    'type': 'poly', 'points': line, 'len': length, 'tag': tag
-                })
-            return total_len
+        def is_closed_poly(pts):
+            """Retorna True se a polyline é um polígono fechado (primeiro ~= último)."""
+            if not pts or len(pts) < 4:
+                return False
+            dx = abs(pts[0][0] - pts[-1][0])
+            dy = abs(pts[0][1] - pts[-1][1])
+            return dx < 2.0 and dy < 2.0
+
+        def process_fundo_segments():
+            """Usa merged_bottom_groups quando disponível; filtra apenas polígonos fechados."""
+            bottom_groups = classified.get('merged_bottom_groups', [])
+            lengths_list = classified.get('merged_bottom_lengths', [])
+
+            if bottom_groups:
+                # Caminho preferencial: grupos pré-fundidos pelo BeamTracer
+                total_len = 0.0
+                for i, group in enumerate(bottom_groups, start=1):
+                    length = lengths_list[i - 1] if (i - 1) < len(lengths_list) else 0.0
+                    if not length and group:
+                        p1, p2 = group[0][0], group[0][-1]
+                        length = ((p2[0]-p1[0])**2 + (p2[1]-p1[1])**2)**0.5
+                    total_len += length
+
+                    b[f'viga_fundo_seg_{i}_exists'] = True
+                    area_key = f'viga_fundo_seg_{i}_area_segs'
+                    if area_key not in b['links']:
+                        b['links'][area_key] = {'contour': []}
+
+                    for line in group:
+                        link_entry = {'type': 'poly', 'points': line, 'len': length, 'tag': 'Fundo'}
+                        b['links'][area_key]['contour'].append(link_entry)
+                        b['links']['viga_segs']['seg_bottom'].append(link_entry)
+                return total_len
+            else:
+                # Fallback: usar seg_bottom bruto mas apenas polígonos fechados
+                lines = classified.get('seg_bottom', [])
+                total_len = 0.0
+                seg_idx = 0
+                for line in lines:
+                    if not is_closed_poly(line):
+                        continue  # ignora divisórias perpendiculares
+                    seg_idx += 1
+                    p1, p2 = line[0], line[-1]
+                    length = ((p2[0]-p1[0])**2 + (p2[1]-p1[1])**2)**0.5
+                    total_len += length
+
+                    b[f'viga_fundo_seg_{seg_idx}_exists'] = True
+                    area_key = f'viga_fundo_seg_{seg_idx}_area_segs'
+                    if area_key not in b['links']:
+                        b['links'][area_key] = {'contour': []}
+
+                    link_entry = {'type': 'poly', 'points': line, 'len': length, 'tag': 'Fundo'}
+                    b['links'][area_key]['contour'].append(link_entry)
+                    b['links']['viga_segs']['seg_bottom'].append(link_entry)
+                return total_len
 
         len_a = process_segments('seg_side_a', 'Lado A', 'viga_a', 'comp_total_passa')
         len_b = process_segments('seg_side_b', 'Lado B', 'viga_b', 'comp_total_passa')
-        len_f = process_fundo_segments('seg_bottom', 'Fundo')
+        len_f = process_fundo_segments()
         
         b['fields']['comprimento_total_a'] = round(len_a, 1)
         b['fields']['comprimento_total_b'] = round(len_b, 1)
@@ -6745,6 +7114,8 @@ class MainWindow(QMainWindow):
         b['seg_a'] = len(classified.get('seg_side_a', []))
         b['seg_b'] = len(classified.get('seg_side_b', []))
         b['seg_bottom'] = len(classified.get('seg_bottom', []))
+        # seg_c = número real de painéis de fundo detectados (merged_bottom_groups ou polígonos fechados)
+        b['seg_c'] = len(b['links']['viga_segs']['seg_bottom'])
 
         # 4. VISÃO DE CORTE
         has_corte = False

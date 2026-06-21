@@ -413,14 +413,17 @@ class _LeftPanel(QFrame):
         current = self._current_obra
         self.cmb_obra.clear()
         for obra in obras:
-            self.cmb_obra.addItem(obra)
+            self.cmb_obra.addItem(f"📁 {obra}", obra)
         if current:
-            idx = self.cmb_obra.findText(current)
+            idx = self.cmb_obra.findData(current)
             if idx >= 0:
                 self.cmb_obra.setCurrentIndex(idx)
+        else:
+            self.cmb_obra.setCurrentIndex(-1)
         self.cmb_obra.blockSignals(False)
 
     def _on_cmb_obra_changed(self, obra_name: str):
+        obra_name = self.cmb_obra.currentData() or obra_name
         if obra_name and obra_name != self._current_obra:
             self._current_obra = obra_name
             self._refresh_list()

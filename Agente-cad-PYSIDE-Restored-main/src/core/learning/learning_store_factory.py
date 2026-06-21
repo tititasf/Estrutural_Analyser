@@ -38,8 +38,9 @@ class LearningStoreFactory:
             from .slab_learning_store import SlabLearningStore
             return SlabLearningStore(project_uuid, base_dir)
 
-        # Outras classes: usar base ate que as subclasses sejam criadas
-        # FASE 2: bottom_beam_learning_store.py
-        # FASE 3: lateral_beam_learning_store.py
-        # FASE 4: pillar_learning_store.py
+        if class_type == "bottom_beam":
+            from .bottom_beam_learning_store import BottomBeamLearningStore
+            return BottomBeamLearningStore(project_uuid, base_dir)
+
+        # lateral_beam e pillar: usar base até subclasses serem criadas
         return LearningStoreBase(project_uuid, class_type, base_dir)

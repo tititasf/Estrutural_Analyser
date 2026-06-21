@@ -1049,7 +1049,7 @@ class CADCanvas(QGraphicsView):
                 if si in self.item_groups.get(key, []):
                     self.item_groups[key].remove(si)
                 
-        cats = ['pillar', 'slab', 'beam']
+        cats = ['pillar', 'slab', 'beam', 'beam_fundo']
         for c in cats:
             should_show = (category_to_show == 'all') or (category_to_show == c)
             toggle_list(c, should_show)
@@ -1961,6 +1961,79 @@ class CADCanvas(QGraphicsView):
                 # AJUSTE 2: Desenhar vÃ­nculos de segmentos para a visÃ£o global
                 self.draw_item_links(b_data, destination='beam', clear=False)
 
+    def clear_beam_fundos(self):
+        """Remove visualizações de fundos de viga da cena."""
+        for item in self.item_groups.get('beam_fundo', []):
+            try:
+                if item.scene(): self.scene.removeItem(item)
+            except RuntimeError:
+                pass
+        self.item_groups['beam_fundo'] = []
+        self.scene.update()
+
+    def _collect_fundo_polys(self, b_data: dict) -> list:
+        """Retorna lista de dicts {'points': [...]} com geometria de fundo de uma viga.
+        Prioriza viga_segs['seg_bottom']; fallback: viga_fundo_seg_*_area_segs['contour']."""
+        links = b_data.get('links', {})
+        seg_bottom_list = links.get('viga_segs', {}).get('seg_bottom', [])
+        if seg_bottom_list:
+            return seg_bottom_list
+        # Fallback: coletar contornos dos segmentos de fundo individualmente
+        result = []
+        import re
+        for key, val in links.items():
+            if re.match(r'viga_fundo_seg_\d+_area_segs', key) and isinstance(val, dict):
+                for lk in val.get('contour', []):
+                    if isinstance(lk, dict) and lk.get('points'):
+                        result.append(lk)
+        return result
+
+    def _draw_fundo_polys(self, poly_list: list, pen, store_in_group: bool = True) -> list:
+        """Desenha lista de polys na cena com o pen dado. Retorna QGraphicsItems criados."""
+        created = []
+        for lk in poly_list:
+            pts = lk.get('points', [])
+            if not pts or len(pts) < 2:
+                continue
+            if pts and len(pts[0]) > 2:
+                pts = [(p[0], p[1]) for p in pts]
+            path = QPainterPath()
+            path.moveTo(pts[0][0], pts[0][1])
+            for p in pts[1:]:
+                path.lineTo(p[0], p[1])
+            item = self.scene.addPath(path, pen)
+            item.setZValue(12)
+            if store_in_group:
+                self.item_groups.setdefault('beam_fundo', []).append(item)
+            created.append(item)
+        return created
+
+    def draw_beam_fundos(self, beams_data: list):
+        """Destaca polígonos de fundo de TODAS as vigas em âmbar (visão global da aba)."""
+        self.clear_beam_fundos()
+        amber_pen = QPen(QColor(255, 165, 0, 220), 2)
+        amber_pen.setCosmetic(True)
+        for b_data in beams_data:
+            polys = self._collect_fundo_polys(b_data)
+            self._draw_fundo_polys(polys, amber_pen, store_in_group=True)
+        self.scene.update()
+
+    def draw_single_beam_fundo(self, beam_data: dict, apply_zoom: bool = True):
+        """Destaca polígono de fundo de UMA viga em âmbar e aplica zoom."""
+        self.clear_beam_fundos()
+        amber_pen = QPen(QColor(255, 165, 0, 220), 3)
+        amber_pen.setCosmetic(True)
+        polys = self._collect_fundo_polys(beam_data)
+        items = self._draw_fundo_polys(polys, amber_pen, store_in_group=True)
+        self.scene.update()
+        if apply_zoom and items:
+            rect = items[0].sceneBoundingRect()
+            for it in items[1:]:
+                rect = rect.united(it.sceneBoundingRect())
+            margin = 500
+            self.fitInView(rect.adjusted(-margin, -margin, margin, margin), Qt.KeepAspectRatio)
+            self.centerOn(rect.center())
+
     def draw_focus_beams(self, beams_visual_data: list):
         """Desenha vigas APENAS para o foco atual (pilar selecionado)"""
         self.clear_beams()
@@ -2400,7 +2473,7 @@ class CADCanvas(QGraphicsView):
                 for v in container.values(): collect_lines(v)
             elif isinstance(container, list):
                 for lk in container:
-                     if isinstance(lk, dict) and 'points' in lk and lk.get('type') == 'line':
+                     if isinstance(lk, dict) and 'points' in lk and lk.get('type') in ('line', 'poly', 'geometry'):
                          line_sources.append(lk['points'])
 
         if links:

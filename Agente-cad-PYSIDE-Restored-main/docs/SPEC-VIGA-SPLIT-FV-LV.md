@@ -62,8 +62,8 @@ A viga N1 (`beams.data_json`) **já carrega os segmentos**:
 - **Fase 0 — Modelo de dados. ✅ CONCLUÍDA (2026-06-20).** Tabela aditiva `beam_elements` criada (`src/core/database.py · _create_tables_if_not_exist`): `id, project_id, parent_beam_id, viga_nome, classe∈{FV,LV}, campos_json, n_segmentos, is_validated, created_at, updated_at`. **1 linha por (viga × classe).** `beams` preservada.
 - **Fase 1 — UI (display real, seguro). ✅ CONCLUÍDA (2026-06-20).** Card Fº7 lê de `beam_elements` (segmentos FV vs LV) → divergem na tela. (`main.py · _process_with_reverse_engineering`)
 - **Fase 2 — Geração de fichas. ✅ CONCLUÍDA (2026-06-20).** `DatabaseManager.materialize_beam_elements(project_id)`: **agrega por nome de viga** (V302 fragmentado em 5 beams → 1 ficha FV + 1 LV, segmentos somados). Idempotente (UPSERT). Sincronizado ao abrir o card. **Pav 13: 136 vigas → 136 FV (655 segs) + 136 LV (860 segs).** Falta: aninhar dims/campos por segmento (hoje guarda geometria dos segmentos); espelhar schema N2 (`segments_rich`).
-- **Fase 3 — Motor/detecção.** `beam_tracer` decompõe explicitamente a viga nos elementos FV/LV por segmento.
-- **Fase 4 — Comparison.** Comparar FV e LV independentemente vs N2 (lembrando: N2-LV ainda em ajuste → marcar como referência fraca).
+- **Fase 3 — Motor/detecção. ✅ ESTRUTURAL CONCLUÍDA (2026-06-20).** Split FV/LV ligado ao fluxo do motor (`main.py · process_pillars_action` chama `materialize_beam_elements` após análise). `campos_json` agora tem segmentos **aninhados como sub-fichas** (`{seg_index, lado, geometry, + dims se validados}`) + `segment_class` + `dim`. **Isolamento das 4 classes OK.** Pendente de REFINAMENTO (dono, classe por classe): extração de **visões-corte (VC)** (`visoes_corte` hoje vazio); dims por segmento (só quando validado); precisão geométrica do motor (resolvida pelo loop de treino). `beam_tracer.detect_beams` NÃO foi reescrito — split é pós-processamento da viga detectada (arquitetura correta: detecção=geometria, classificação FV/LV=derivada).
+- **Fase 4 — Comparison. ⏳ EM OUTRO CHAT.** Comparar FV(N1)×FV(N2) e LV(N1)×LV(N2) lendo FV/LV de `beam_elements`. N2-LV = referência fraca. (coordenado com o chat que alinha o Comparison Engine)
 
 **Gate de cada fase:** contagens batem com a inspeção manual de 1 viga conhecida; nenhuma regressão nos robôs (FV/LV já consomem a viga) nem no Comparison.
 
@@ -73,6 +73,26 @@ A viga N1 (`beams.data_json`) **já carrega os segmentos**:
 - Migrar `beams` destrutivamente → **proibido**; usar representação aditiva.
 - Basear LV no N2 atual → N2-LV ainda em ajuste; tratar como referência fraca.
 - Quebrar robôs FV/LV (que já leem a viga) → validar que continuam funcionando após Fase 2/3.
+
+## 5.1 Pendências Consolidadas (alinhamento p/ os loops de treino) — 2026-06-20
+
+> Levantado durante a execução. Estado: **terreno sendo preparado** para os loopings de treino (refino classe a classe pelo dono/outros chats).
+
+**A) Viga Split (este spec)**
+- VC (visões-corte) de LV: `visoes_corte` ainda vazio — extrair no refino.
+- Dims por segmento: só presentes quando o item foi validado; motor precisa extrair de forma geral.
+- `fase3_fichas` ainda agrupa vigas sob "LV" (legado) — FV/LV canônico agora é `beam_elements`; **Comparison deve migrar para `beam_elements`** (chat do Comparison).
+
+**B) Etapa 1 — Fundação Fichas & Botões** (ver `MASTERPLAN-FICHAS-F1-F9`, `PROMPT-ETAPA-1-CODEX`)
+- F3/F4/F5 preenchimento dinâmico; persistência de campos validados (nunca sobrepor); IDs rastreáveis F1–F9; ajustes UI R1–R7.
+
+**C) Loop de Treino — Etapa 2** (ver `MASTERPLAN-LOOP-TREINO-MOTOR`, `PROMPT-ETAPA-2-LAJE-CODEX`)
+- S0: fix `consolidar_obra_er` (F6); ligar `autovalidate_v3` ao botão Eng Reversa.
+- Ataque por classe A(geometria)→B(campos)→C(entrevista). **LV e PIL: falta o dono descrever o vínculo geométrico.**
+- N2-LV ainda em ajuste pelo dono → referência fraca até estabilizar.
+
+**D) Semântica / RAG**
+- 902 fichas com `rag_indexed=0` (nunca indexadas); tabela `semantic_rag_kb` vazia (bridge a popular do `domain_knowledge`).
 
 ## 5. Referência
 - `docs/MASTERPLAN-LOOP-TREINO-MOTOR.md` (mismatch FV/LV já anotado em §6)

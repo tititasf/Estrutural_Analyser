@@ -810,7 +810,20 @@ class DatabaseManager:
             )
             # Agrega por NOME de viga: uma viga pode estar fragmentada em vários `beams`.
             # 1 viga = 1 ficha FV + 1 ficha LV; segmentos de todos os fragmentos são somados.
-            vigas = {}  # viga_nome -> {seg_bottom, seg_a, seg_b, beam_ids, validated}
+            # Cada segmento vira uma sub-ficha {seg_index, lado, geometry, dims...} aninhada.
+            def _seg_fields(bd, lado, idx):
+                """Coleta campos por-segmento (viga_{lado}_seg_{idx}_*) + de lado (seg_{lado}_*)."""
+                out = {}
+                pa = f"viga_{lado}_seg_{idx}_"
+                for k, val in bd.items():
+                    if isinstance(k, str) and k.startswith(pa):
+                        out[k[len(pa):]] = val
+                for k in (f"seg_{lado}_dim", f"seg_{lado}_h1", f"seg_{lado}_comprimento_total", f"seg_{lado}_laje_sup"):
+                    if bd.get(k) is not None:
+                        out.setdefault(k.replace(f"seg_{lado}_", ""), bd.get(k))
+                return out
+
+            vigas = {}  # viga_nome -> {fundo[], lado_a[], lado_b[], beam_ids, validated, segment_class, dim}
             for beam_id, name, data_json, is_validated in cur.fetchall():
                 try:
                     bd = json.loads(data_json) if data_json else {}
@@ -819,22 +832,27 @@ class DatabaseManager:
                 viga_nome = name or bd.get("name") or beam_id
                 classified = ((bd.get("geometry") or {}).get("classified") or {})
                 v = vigas.setdefault(viga_nome, {
-                    "seg_bottom": [], "seg_a": [], "seg_b": [], "beam_ids": [], "validated": 0,
+                    "fundo": [], "lado_a": [], "lado_b": [], "beam_ids": [],
+                    "validated": 0, "segment_class": bd.get("segment_class"), "dim": bd.get("dim"),
                 })
-                v["seg_bottom"] += (classified.get("seg_bottom") or [])
-                v["seg_a"] += (classified.get("seg_side_a") or [])
-                v["seg_b"] += (classified.get("seg_side_b") or [])
+                for i, g in enumerate(classified.get("seg_bottom") or [], start=1):
+                    v["fundo"].append({"seg_index": len(v["fundo"]) + 1, "geometry": g})
+                for i, g in enumerate(classified.get("seg_side_a") or [], start=1):
+                    v["lado_a"].append({"seg_index": len(v["lado_a"]) + 1, "lado": "A", "geometry": g, **_seg_fields(bd, "a", i)})
+                for i, g in enumerate(classified.get("seg_side_b") or [], start=1):
+                    v["lado_b"].append({"seg_index": len(v["lado_b"]) + 1, "lado": "B", "geometry": g, **_seg_fields(bd, "b", i)})
                 v["beam_ids"].append(beam_id)
                 v["validated"] = v["validated"] or int(is_validated or 0)
 
             stats["vigas"] = len(vigas)
             for viga_nome, v in vigas.items():
                 is_validated = v["validated"]
+                _base = {"viga": viga_nome, "segment_class": v["segment_class"],
+                         "dim": v["dim"], "beam_ids": v["beam_ids"]}
                 elementos = [
-                    ("FV", {"viga": viga_nome, "segmentos_fundo": v["seg_bottom"],
-                            "beam_ids": v["beam_ids"]}, len(v["seg_bottom"])),
-                    ("LV", {"viga": viga_nome, "segmentos_a": v["seg_a"], "segmentos_b": v["seg_b"],
-                            "visoes_corte": [], "beam_ids": v["beam_ids"]}, len(v["seg_a"]) + len(v["seg_b"])),
+                    ("FV", {**_base, "segmentos_fundo": v["fundo"]}, len(v["fundo"])),
+                    ("LV", {**_base, "segmentos_a": v["lado_a"], "segmentos_b": v["lado_b"],
+                            "visoes_corte": []}, len(v["lado_a"]) + len(v["lado_b"])),
                 ]
                 for classe, campos, n_seg in elementos:
                     el_id = f"BE-{classe}-{project_id}-{viga_nome}"

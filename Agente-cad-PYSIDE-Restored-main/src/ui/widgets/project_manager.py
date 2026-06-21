@@ -5903,7 +5903,7 @@ class ProjectManager(QWidget):
         except Exception as e:
             logging.error(f"Erro ao carregar obras: {e}")
             
-        self.list_works.setCurrentRow(0)
+        self.list_works.setCurrentRow(-1)
         self.list_works.blockSignals(False)
 
     def _filter_works_list(self, text):

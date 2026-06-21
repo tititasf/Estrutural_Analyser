@@ -1450,37 +1450,46 @@ class Fase8Panel(QFrame):
     # ─────────────────────────────────────────────
 
     def _populate_obras(self):
-        """Lista obras disponíveis ordenando TREINO primeiro, depois outras."""
+        """Lista todas as obras do banco (mesma lista harmoniosa do SA e dos robôs)."""
         self.cmb_obra.blockSignals(True)
         self.cmb_obra.clear()
-        if not DADOS_OBRAS_ROOT.exists():
-            self.cmb_obra.blockSignals(False)
-            return
 
-        all_obras = [d.name for d in DADOS_OBRAS_ROOT.iterdir()
-                     if d.is_dir() and d.name.startswith("Obra_")]
-        # TREINO primeiro (ordenadas numericamente), depois outras alfabeticamente
-        treino = sorted([o for o in all_obras if "TREINO" in o],
-                        key=lambda x: int(x.split("_")[-1]) if x.split("_")[-1].isdigit() else 999)
-        outros = sorted([o for o in all_obras if "TREINO" not in o])
-        obras = treino + outros
+        try:
+            import sqlite3 as _sql
+            _conn = _sql.connect("D:/Agente-cad-PYSIDE/project_data.vision")
+            works = [r[0] for r in _conn.execute(
+                "SELECT name FROM works ORDER BY name ASC"
+            ).fetchall() if r[0]]
+            _conn.close()
+        except Exception as _e:
+            _ce_log(f"[CE] _populate_obras erro ao carregar obras: {_e}")
+            works = []
 
-        for o in obras:
-            self.cmb_obra.addItem(o)
-        self.cmb_obra.setCurrentIndex(-1)
+        for o in works:
+            self.cmb_obra.addItem(f"📁 {o}", o)
         self.cmb_obra.blockSignals(False)
 
-        # Seleciona primeira obra com validação existente (score real)
-        primeira_com_score = next(
-            (o for o in treino
-             if (VALIDACAO_DIR / f"consolidado_{o}.json").exists()),
-            obras[0] if obras else None
-        )
-        if self._auto_select_initial_obra and primeira_com_score:
-            idx = self.cmb_obra.findText(primeira_com_score)
-            if idx >= 0:
-                self.cmb_obra.setCurrentIndex(idx)
-            self._on_obra_changed(primeira_com_score)
+        if works:
+            # Preferir a primeira obra que tenha pavimentos reais no banco
+            try:
+                import sqlite3 as _sql2
+                _c2 = _sql2.connect("D:/Agente-cad-PYSIDE/project_data.vision")
+                _obras_com_pav = {r[0] for r in _c2.execute(
+                    "SELECT DISTINCT work_name FROM projects "
+                    "WHERE pavement_name IS NOT NULL AND pavement_name != ''"
+                ).fetchall()}
+                _c2.close()
+            except Exception:
+                _obras_com_pav = set()
+
+            _target = 0
+            for _i in range(self.cmb_obra.count()):
+                if self.cmb_obra.itemData(_i) in _obras_com_pav:
+                    _target = _i
+                    break
+            self.cmb_obra.setCurrentIndex(_target)
+        else:
+            self.cmb_obra.setCurrentIndex(-1)
 
     @staticmethod
     def _pav_display_label(pav_key: str) -> str:
@@ -1507,6 +1516,7 @@ class Fase8Panel(QFrame):
 
     def _on_obra_changed(self, obra_name: str):
         """Atualiza combo de pavimentos a partir da tabela projects (mesmos 'limpos' que o SA)."""
+        obra_name = self.cmb_obra.currentData() or obra_name
         self.cmb_pav.blockSignals(True)
         self.cmb_pav.clear()
         if not obra_name:
@@ -1515,39 +1525,37 @@ class Fase8Panel(QFrame):
 
         try:
             import sqlite3
-            from pathlib import Path as _P
-            db_path = str(_P("D:/Agente-cad-PYSIDE/project_data.vision"))
-            conn = sqlite3.connect(db_path)
-
-            # Buscar pavimentos dos projetos — mesma fonte que o SA usa no cmb_pavements
-            cur = conn.execute(
-                "SELECT DISTINCT pavement_name FROM projects WHERE work_name=? AND pavement_name != '' ORDER BY pavement_name",
-                (obra_name,))
-            pavs = [row[0] for row in cur.fetchall() if row[0]]
+            conn = sqlite3.connect("D:/Agente-cad-PYSIDE/project_data.vision")
+            pavs = [row[0] for row in conn.execute(
+                "SELECT DISTINCT pavement_name FROM projects "
+                "WHERE work_name=? AND pavement_name IS NOT NULL AND pavement_name != '' "
+                "ORDER BY pavement_name",
+                (obra_name,)
+            ).fetchall() if row[0]]
             conn.close()
 
-            # Adicionar a opção TODOS no topo para facilitar analise massiva
             self.cmb_pav.addItem("TODOS", "TODOS")
-
             for p in pavs:
-                label = self._pav_display_label(p)
-                self.cmb_pav.addItem(label, p)
+                self.cmb_pav.addItem(self._pav_display_label(p), p)
 
         except Exception as e:
-            print("Erro ao carregar pavimentos para ComboBox no ComparisonEngine:", e)
+            print(f"[CE] _on_obra_changed erro ao carregar pavimentos: {e}")
 
-        # Fallback se o banco não retornar nada
-        if self.cmb_pav.count() == 1:  # Só tem o TODOS
+        # Fallback: se só tem TODOS, tenta pasta Fase-1
+        if self.cmb_pav.count() == 1:
             fase1 = DADOS_OBRAS_ROOT / obra_name / "Fase-1_Ingestao"
             if fase1.exists():
-                self.cmb_pav.addItem("1PV")
+                self.cmb_pav.addItem("1PV", "1PV")
 
-        self.cmb_pav.setCurrentIndex(-1)
+        # Auto-seleciona primeiro pav real (índice 1 pula "TODOS")
+        # Se só existe "TODOS", mantém -1 para não disparar load sem pav válido
         self.cmb_pav.blockSignals(False)
+        if self.cmb_pav.count() > 1:
+            self.cmb_pav.setCurrentIndex(1)
+        else:
+            self.cmb_pav.setCurrentIndex(-1)
 
-        # Carregar scores existentes
         self._load_scores_for_obra(obra_name)
-        # Atualizar status N1/N2/N3
         self._refresh_processing_status(obra_name)
 
     def _refresh_processing_status(self, obra_name: str):
@@ -1652,7 +1660,7 @@ class Fase8Panel(QFrame):
     # ─────────────────────────────────────────────
 
     def _on_validate_clicked(self):
-        obra = self.cmb_obra.currentText()
+        obra = (self.cmb_obra.currentData() or self.cmb_obra.currentText())
         pav  = self.current_pav_key
         tipos = [t for t, cb in self._chk_tipos.items() if cb.isChecked()]
 
@@ -1737,7 +1745,7 @@ class Fase8Panel(QFrame):
     # ─────────────────────────────────────────────
 
     def _on_certify(self):
-        obra = self.cmb_obra.currentText()
+        obra = (self.cmb_obra.currentData() or self.cmb_obra.currentText())
         pav  = self.current_pav_key
         if not self._last_result:
             QMessageBox.warning(self, "Certificar", "Valide a obra primeiro.")
@@ -1832,7 +1840,7 @@ class Fase8Panel(QFrame):
 
     def _load_trend(self):
         """Carrega eventos de treinamento da obra selecionada e atualiza sparkline."""
-        obra = self.cmb_obra.currentText()
+        obra = (self.cmb_obra.currentData() or self.cmb_obra.currentText())
         events_path = VALIDACAO_DIR / "training_events.json"
         if not events_path.exists():
             self._lbl_trend_info.setText("Nenhum evento ainda — valide obras primeiro.")
@@ -2022,7 +2030,7 @@ class Fase8Panel(QFrame):
         return tab
 
     def _comp_obra_path(self) -> str | None:
-        obra_name = self.cmb_obra.currentText()
+        obra_name = (self.cmb_obra.currentData() or self.cmb_obra.currentText())
         if not obra_name:
             return None
         return str(DADOS_OBRAS_ROOT / obra_name)
@@ -2217,7 +2225,7 @@ class Fase8Panel(QFrame):
 
     def set_obra(self, obra_name: str, pav: str = ""):
         """Seleciona obra e pav programaticamente (chamado do main.py)."""
-        idx = self.cmb_obra.findText(obra_name)
+        idx = self.cmb_obra.findData(obra_name)
         if idx >= 0:
             self.cmb_obra.setCurrentIndex(idx)
         if pav:
@@ -2831,9 +2839,9 @@ class LevelColumn(QFrame):
         bottom_lay.addWidget(ficha_scroll, 1)
 
         splitter_vf.addWidget(bottom_w)
-        splitter_vf.setSizes([420, 220])  # viewer 420px, ficha 220px por padrão
-        splitter_vf.setStretchFactor(0, 1)
-        splitter_vf.setStretchFactor(1, 0)
+        splitter_vf.setSizes([700, 300])  # 70% viewer / 30% ficha
+        splitter_vf.setStretchFactor(0, 7)
+        splitter_vf.setStretchFactor(1, 3)
         self._splitter_vf = splitter_vf
         lay.addWidget(splitter_vf, 1)
 
@@ -2940,14 +2948,13 @@ class LevelColumn(QFrame):
         self._ficha_vlay.addStretch()
 
     def set_lv_ficha(self, er_ficha: dict, accent: str = "#4caf50"):
-        """Substitui a área de ficha por layout estruturado LV (seções + segmentos).
-        Esconde splitter_vf e insere um QSplitter horizontal com:
+        """Layout estruturado LV (seções + segmentos) na área de ficha (30% inferior).
+        Mantém viewer DXF visível no topo (70%) — NÃO esconde _splitter_vf.
           - Esquerda: seções transversais numeradas (scroll cards)
           - Direita: segmentos por face (tabela rica 7 colunas)
         """
         self._restore_lv_ficha()   # limpa anterior se houver
-        lay = self.layout()
-        self._splitter_vf.setVisible(False)
+        self._clear_ficha_vlay()   # limpa ficha genérica anterior
 
         splitter = QSplitter(Qt.Horizontal)
         splitter.setHandleWidth(3)
@@ -2957,24 +2964,24 @@ class LevelColumn(QFrame):
 
         sect_w = _lv_section_widget(er_ficha, accent)
         segs_t = _lv_segs_table(er_ficha, accent)
-        segs_t.setMinimumHeight(120)
+        segs_t.setMinimumHeight(100)
 
         splitter.addWidget(sect_w)
         splitter.addWidget(segs_t)
         splitter.setSizes([200, 340])
 
-        # Inserir antes do último widget (prog ou ficha_table) no layout
-        lay.addWidget(splitter)
+        # Inserir na área de ficha (dentro do _ficha_vlay, abaixo do viewer)
+        self._ficha_vlay.addWidget(splitter, 1)
         self._lv_ficha_splitter = splitter
 
     def _restore_lv_ficha(self):
-        """Remove widget LV estruturado e restaura splitter_vf."""
+        """Remove widget LV estruturado da área de ficha."""
         w = getattr(self, '_lv_ficha_splitter', None)
         if w is not None:
             w.setParent(None)
             w.deleteLater()
             self._lv_ficha_splitter = None
-        self._splitter_vf.setVisible(True)
+        self._splitter_vf.setVisible(True)  # garante visibilidade (idempotente)
 
     def set_processing(self, active: bool):
         self.prog.setVisible(active)
@@ -4571,7 +4578,16 @@ class TriLevelArea(QWidget):
         if classe == 'LV':
             vd  = self._vigas_fase3.get(viga_key) or self._vigas_fase3.get(item_id, {})
             fr  = self._fichas_rev.get(viga_key) or self._fichas_rev.get(item_id, {})
-            anc = self._ancoras.get(viga_key) or self._ancoras.get(item_id, {})
+            _anc_raw = self._ancoras.get(viga_key) or self._ancoras.get(item_id)
+            # ancoras_vigas.json: valores podem ser dict {'A':..,'B':..} ou list [x,y]
+            if isinstance(_anc_raw, dict):
+                anc_a, anc_b = _anc_raw.get("A"), _anc_raw.get("B")
+            elif isinstance(_anc_raw, (list, tuple)) and len(_anc_raw) >= 2:
+                anc_a, anc_b = _anc_raw[0], _anc_raw[1]
+            else:
+                anc_a, anc_b = None, None
+            if not isinstance(vd, dict): vd = {}
+            if not isinstance(fr, dict): fr = {}
             rows += [
                 ("==", "CONFIGURAÇÃO DA VIGA"),
                 ("b estrutural (cm)", _fmt(vd.get("b"))),
@@ -4584,9 +4600,9 @@ class TriLevelArea(QWidget):
                 ("has_fv", _bool(fr.get("has_fv"))),
                 ("==", "DADOS GERAIS - VIGA LATERAL"),
                 ("Altura estrutural (cm)", _fmt(fr.get("altura_cm"))),
-                ("Pavimentos", ", ".join(fr.get("pavimentos", [])) or "—"),
-                ("Âncora A", _anc(anc.get("A"))),
-                ("Âncora B", _anc(anc.get("B"))),
+                ("Pavimentos", ", ".join(fr.get("pavimentos", [])) if isinstance(fr.get("pavimentos"), list) else "—"),
+                ("Âncora A", _anc(anc_a)),
+                ("Âncora B", _anc(anc_b)),
                 ("Confidence", _pct(vd.get("confidence"))),
                 ("Source", _fmt(vd.get("source"))),
             ]
@@ -5158,8 +5174,9 @@ class ComparisonEngineModule(QWidget):
         Também auto-dispara Análise Geral em background se não estiver em cache.
         Guard: ignora chamadas com pav vazio (durante populate do combo)."""
         try:
-            obra = self.fase8_panel.cmb_obra.currentText()
+            obra = (self.fase8_panel.cmb_obra.currentData() or self.fase8_panel.cmb_obra.currentText())
             pav  = self.fase8_panel.current_pav_key
+            _ce_log(f"[CE] _on_obra_pav_changed obra={obra!r} pav={pav!r}")
             # Guard: não processar enquanto combo está sendo populado (pav vazio = populate em andamento)
             if not obra or not pav:
                 return
@@ -5272,7 +5289,7 @@ class ComparisonEngineModule(QWidget):
 
     def _on_iniciar_analise(self):
         """CE-002: Botão Análise Geral manual — força re-processamento mesmo com cache."""
-        obra = self.fase8_panel.cmb_obra.currentText()
+        obra = (self.fase8_panel.cmb_obra.currentData() or self.fase8_panel.cmb_obra.currentText())
         pav  = self.fase8_panel.current_pav_key
         self.analise_geral_requested.emit(obra, pav)
         # Limpa cache e re-dispara
@@ -5312,7 +5329,7 @@ class ComparisonEngineModule(QWidget):
             if seq >= 0 and seq != self._seq_id:
                 return
 
-            obra = self.fase8_panel.cmb_obra.currentText()
+            obra = (self.fase8_panel.cmb_obra.currentData() or self.fase8_panel.cmb_obra.currentText())
             pav  = self.fase8_panel.current_pav_key
             if not obra or not item_id:
                 self.nav_sidebar._enable_item_btns()
@@ -5410,7 +5427,7 @@ class ComparisonEngineModule(QWidget):
         try:
             if seq >= 0 and seq != self._seq_id:
                 return
-            obra = self.fase8_panel.cmb_obra.currentText()
+            obra = (self.fase8_panel.cmb_obra.currentData() or self.fase8_panel.cmb_obra.currentText())
             pav  = self.fase8_panel.current_pav_key
             if not obra or not item_id:
                 self.nav_sidebar._enable_item_btns()
@@ -5818,7 +5835,7 @@ class ComparisonEngineModule(QWidget):
         try:
             if seq >= 0 and seq != self._seq_id:
                 return
-            obra = self.fase8_panel.cmb_obra.currentText()
+            obra = (self.fase8_panel.cmb_obra.currentData() or self.fase8_panel.cmb_obra.currentText())
             if not obra or not item_id:
                 self.nav_sidebar._enable_item_btns()
                 return
@@ -5878,7 +5895,7 @@ class ComparisonEngineModule(QWidget):
             self.nav_sidebar._enable_item_btns()
             return
 
-        obra = self.fase8_panel.cmb_obra.currentText()
+        obra = (self.fase8_panel.cmb_obra.currentData() or self.fase8_panel.cmb_obra.currentText())
         obra_dir = str(DADOS_OBRAS_ROOT / obra)
 
         self._process = QProcess(self)
@@ -5892,7 +5909,7 @@ class ComparisonEngineModule(QWidget):
 
     def _on_n3_gen_done(self, code: int, col, classe: str, item_id: str):
         try:
-            obra_dir = DADOS_OBRAS_ROOT / self.fase8_panel.cmb_obra.currentText()
+            obra_dir = DADOS_OBRAS_ROOT / (self.fase8_panel.cmb_obra.currentData() or self.fase8_panel.cmb_obra.currentText())
         except RuntimeError:
             # Widget C++ já deletado (usuário navegou para outra aba durante geração)
             return
@@ -5919,7 +5936,7 @@ class ComparisonEngineModule(QWidget):
         try:
             if seq >= 0 and seq != self._seq_id:
                 return
-            obra = self.fase8_panel.cmb_obra.currentText()
+            obra = (self.fase8_panel.cmb_obra.currentData() or self.fase8_panel.cmb_obra.currentText())
             if not obra or not item_id:
                 self.nav_sidebar._enable_item_btns()
                 return
@@ -6848,7 +6865,7 @@ class ComparisonEngineModule(QWidget):
         Após conclusão: carrega N1 (DXF estrutural do pavimento) automaticamente.
         Se há item selecionado no NavSidebar: zoom centrado no item.
         Se não: exibe DXF completo do pavimento em N1."""
-        obra = self.fase8_panel.cmb_obra.currentText()
+        obra = (self.fase8_panel.cmb_obra.currentData() or self.fase8_panel.cmb_obra.currentText())
         pav  = self.fase8_panel.current_pav_key
         if not obra:
             return
@@ -6929,7 +6946,7 @@ class ComparisonEngineModule(QWidget):
             self.nav_sidebar.btn_process_all.setEnabled(True)
             return
 
-        obra = self.fase8_panel.cmb_obra.currentText()
+        obra = (self.fase8_panel.cmb_obra.currentData() or self.fase8_panel.cmb_obra.currentText())
         obra_dir = str(DADOS_OBRAS_ROOT / obra)
         self._pending_classe = classe
         self._pending_item   = item_id
