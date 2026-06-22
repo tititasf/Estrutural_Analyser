@@ -1,4 +1,4 @@
-﻿import numpy as np # Force early initialization for Nuitka standalone
+import numpy as np # Force early initialization for Nuitka standalone
 import sys
 import os
 
@@ -3920,7 +3920,7 @@ class MainWindow(QMainWindow):
         # [FIX] Se receber um objeto de link direto (do LinkManager), foca apenas nele
         if isinstance(field_id, dict):
             # É um link individual -> Highlight único
-            self.canvas.highlight_link(field_id, color=QColor(255, 255, 0))
+            self.canvas.highlight_link(field_id)
             self.log(f"📍 Focando vínculo individual via LinkManager")
             return
 
@@ -3936,7 +3936,10 @@ class MainWindow(QMainWindow):
             if isinstance(slot_data, list):
                 for link in slot_data:
                     if 'pos' in link or 'points' in link:
-                        valid_links.append(link)
+                        payload = dict(link)
+                        payload['_field_id'] = field_id
+                        payload['_slot_name'] = slot
+                        valid_links.append(payload)
         
         if valid_links:
             # 1. Destacar o Item Pai em Amarelo (Persistente) -> REMOVIDO A PEDIDO DO CLIENTE
@@ -3944,7 +3947,7 @@ class MainWindow(QMainWindow):
             #     self.canvas.highlight_item_yellow(item_data['id'])
             
             # 2. Destacar TODOS os Links Específicos em Amarelo (Zoom no conjunto)
-            self.canvas.highlight_multiple_links(valid_links, color=QColor(255, 255, 0))
+            self.canvas.highlight_multiple_links(valid_links)
             
             slot_names = list(links_data.keys())
             self.log(f"📍 Focando {len(valid_links)} vínculos (Slots: {slot_names})")
@@ -3964,10 +3967,12 @@ class MainWindow(QMainWindow):
         if isinstance(slot_request, dict):
             slot_id = slot_request.get('slot', 'main')
             pick_type = slot_request.get('type', 'text')
+            self.current_pick_request = dict(slot_request)
         else:
             parts = str(slot_request).split('|')
             slot_id = parts[0]
             pick_type = parts[1] if len(parts) > 1 else 'text'
+            self.current_pick_request = {}
         
         # [FORÇAR] Modo texto para Dimensões
         if 'dim' in field_id.lower() or 'dim' in slot_id.lower():
@@ -3991,6 +3996,7 @@ class MainWindow(QMainWindow):
         if self.current_card and hasattr(self, 'current_pick_field'):
             field_id = self.current_pick_field
             slot_id = getattr(self, 'current_pick_slot', 'main')
+            pick_request = getattr(self, 'current_pick_request', {}) or {}
             
             item_data = self.current_card.item_data
             itype = item_data.get('type', '').lower()
@@ -3999,6 +4005,41 @@ class MainWindow(QMainWindow):
             field = self.current_card.fields.get(field_id)
             
             value = pick_data.get('text', '')
+
+            if isinstance(pick_request, dict) and pick_request.get('ficha_target'):
+                links_dict = self.current_card.item_data.setdefault('links', {})
+                field_slots = links_dict.setdefault(field_id, {})
+                if isinstance(field_slots, list):
+                    field_slots = {'label': field_slots}
+                    links_dict[field_id] = field_slots
+                target_link = None
+                for lk in field_slots.get(slot_id, []) or []:
+                    if isinstance(lk, dict) and lk.get('id') == pick_request.get('link_id'):
+                        target_link = lk
+                        break
+                if target_link is not None:
+                    ficha_key = pick_request.get('ficha_key')
+                    target_link.setdefault('ficha_links', {}).setdefault(ficha_key, [])
+                    pick_data['role'] = f"Ficha_{ficha_key}"
+                    target_link['ficha_links'][ficha_key] = [pick_data]
+                    if pick_data.get('text'):
+                        target_link.setdefault('ficha', {})[ficha_key] = str(pick_data.get('text'))
+                    elif pick_data.get('points'):
+                        target_link.setdefault('ficha', {})[ficha_key] = 'Geometria vinculada'
+                    if self.current_card and hasattr(self.current_card, 'embedded_managers'):
+                        lm = self.current_card.embedded_managers.get(field_id)
+                        if lm:
+                            lm.links = field_slots
+                            lm.refresh_list()
+                    self.on_detail_validation_changed({'item': self.current_card.item_data, 'field_id': field_id, 'slot_id': slot_id, 'scope': 'ficha_link'})
+                    self.canvas.draw_item_links(self.current_card.item_data)
+                    self.log(f"Ficha do vinculo atualizada: {field_id}.{slot_id}.{ficha_key}")
+                else:
+                    self.log(f"⚠️ Vinculo alvo da ficha nao encontrado: {field_id}.{slot_id}")
+                for attr in ('current_pick_field', 'current_pick_slot', 'current_pick_request'):
+                    if hasattr(self, attr):
+                        delattr(self, attr)
+                return
             
             # Especial: Se for um slot de Vazio (X), forçar nome "SEM LAJE"
             if slot_id == 'void_x':
@@ -4368,6 +4409,7 @@ class MainWindow(QMainWindow):
             # 5. Limpar o estado de pick para evitar múltiplas execuções acidentais
             if hasattr(self, 'current_pick_field'): delattr(self, 'current_pick_field')
             if hasattr(self, 'current_pick_slot'): delattr(self, 'current_pick_slot')
+            if hasattr(self, 'current_pick_request'): delattr(self, 'current_pick_request')
 
     def on_element_focused_on_table(self, data):
         """Disparado quando user clica num vínculo ou viga na tabela"""
@@ -4377,8 +4419,8 @@ class MainWindow(QMainWindow):
             color = QColor(255, 0, 0)
             if self.current_card:
                 t = self.current_card.item_data.get('type', '').lower()
-                if 'pilar' in t: color = QColor(0, 180, 0)
-                elif 'laje' in t: color = QColor(0, 80, 255)
+                if 'pilar' in t: color = QColor(255, 213, 0)
+                elif 'laje' in t: color = QColor(0, 150, 255)
                 elif 'viga' in t: color = QColor(139, 69, 19)
                 
             # É um objeto de link completo (com coordenadas)
@@ -4645,6 +4687,404 @@ class MainWindow(QMainWindow):
 
         self.log("✅ Listas de projeto atualizadas com sucesso.")
 
+    # ──────────────────────────────────────────────────────────────────────
+    # PRÉ-PROCESSAMENTO DO PAVIMENTO (convenção de pilares do recorte detalhe)
+    # ──────────────────────────────────────────────────────────────────────
+
+    def _get_detail_cut_path(self, obra_name: str, pavimento_name: str) -> str | None:
+        """Retorna o path do DXF de detalhe aprovado para obra/pavimento."""
+        try:
+            import sqlite3
+            con = sqlite3.connect(r'D:/Agente-cad-PYSIDE/project_data.vision')
+            row = con.execute(
+                "SELECT output_path FROM obra_recortes "
+                "WHERE obra_name=? AND pavimento_name=? AND recorte_type='detalhe' AND status='approved' "
+                "ORDER BY recorte_index LIMIT 1",
+                (obra_name, pavimento_name),
+            ).fetchone()
+            con.close()
+            return row[0] if row else None
+        except Exception:
+            return None
+
+    def _parse_pillar_convention(self, dxf_path: str) -> dict:
+        """
+        Lê o DXF de detalhe e extrai a convenção de pilares de forma genérica:
+        - NÃO busca textos hardcoded (NASCE/SEGUE/MORRE).
+        - Localiza o bloco de convenção pelo cabeçalho (texto contendo palavras
+          estruturais como CONVENÇÃO, PILAR, LEGENDA) e coleta todos os textos
+          dentro da área ao redor do bloco.
+        - Para cada label encontrado, gera uma assinatura geométrica (CROSS/DIAG/EMPTY)
+          analisando as linhas próximas.
+        Retorna dict {label_da_prancha: {sig, diagonal_count, ...}}.
+        """
+        import math, re as _re, ezdxf as _ez
+
+        # Palavras que identificam o cabeçalho da seção de convenção na prancha.
+        # Genérico: qualquer projeto que tenha "CONVENÇÃO", "LEGENDA" ou "PILAR"
+        # no título do bloco será reconhecido.
+        HEADER_KEYWORDS = ('CONVEN', 'LEGENDA', 'CONVENTION', 'PILAR', 'PILLAR', 'SYMBOL')
+        # Raio de busca ao redor de CADA label candidate para encontrar linhas vizinhas
+        LABEL_LINE_R = 150.0
+        # Raio ao redor do cabeçalho para encontrar labels candidatos
+        HEADER_LABEL_R = 600.0
+        ORTHO_TOL = 8.0
+
+        try:
+            doc = _ez.readfile(dxf_path)
+        except Exception as e:
+            return {'error': str(e)}
+
+        msp = doc.modelspace()
+        all_texts = []   # (text_str, pos_x, pos_y)
+        all_lines = []   # {'s': (x,y), 'e': (x,y)}
+
+        for e in msp:
+            t = e.dxftype()
+            if t == 'TEXT':
+                try:
+                    txt = e.dxf.text.strip()
+                    ins = e.dxf.insert
+                    all_texts.append((txt, float(ins.x), float(ins.y)))
+                except Exception:
+                    pass
+            elif t == 'MTEXT':
+                try:
+                    txt = e.plain_mtext().strip()
+                    ins = e.dxf.insert
+                    all_texts.append((txt, float(ins.x), float(ins.y)))
+                except Exception:
+                    pass
+            elif t == 'LINE':
+                try:
+                    s, en = e.dxf.start, e.dxf.end
+                    all_lines.append({'s': (s.x, s.y), 'e': (en.x, en.y)})
+                except Exception:
+                    pass
+
+        def dist(a, b):
+            return math.sqrt((a[0] - b[0]) ** 2 + (a[1] - b[1]) ** 2)
+
+        def lc(l):
+            return ((l['s'][0] + l['e'][0]) / 2, (l['s'][1] + l['e'][1]) / 2)
+
+        def angle(l):
+            dx = l['e'][0] - l['s'][0]; dy = l['e'][1] - l['s'][1]
+            return math.degrees(math.atan2(dy, dx)) % 180
+
+        def geom_sig(lines_near):
+            diagonals = [l for l in lines_near
+                         if abs(angle(l)) > ORTHO_TOL
+                         and abs(angle(l) - 90) > ORTHO_TOL
+                         and abs(angle(l) - 180) > ORTHO_TOL]
+            diag_angles = [round(angle(l)) for l in diagonals]
+            cross = False
+            parallel_diag = False
+            if len(diagonals) >= 2:
+                a_set = sorted(set(diag_angles))
+                for i in range(len(a_set)):
+                    for j in range(i + 1, len(a_set)):
+                        if abs(a_set[i] + a_set[j] - 180) < 20:
+                            cross = True
+                if not cross and (max(diag_angles) - min(diag_angles)) < 20:
+                    parallel_diag = True
+            if cross:
+                sig = 'CROSS'
+            elif parallel_diag:
+                sig = 'DIAG'
+            elif not diagonals:
+                sig = 'EMPTY'
+            else:
+                sig = f'DIAG_{len(diagonals)}'
+            return sig, len(diagonals), diag_angles, cross, parallel_diag
+
+        # 1. Localizar cabeçalho da seção de convenção
+        header_pos = None
+        for txt, px, py in all_texts:
+            upper = txt.upper()
+            if any(kw in upper for kw in HEADER_KEYWORDS):
+                header_pos = (px, py)
+                break
+
+        # 2. Coletar labels candidatos ao redor do cabeçalho
+        # Labels de legenda são palavras curtas (≤3 palavras) sem pontuação de heading.
+        # Excluímos notas longas (frases) e cabeçalhos de seção (terminam em ':').
+        if header_pos:
+            def _is_legend_label(txt):
+                t = txt.strip()
+                if not t or len(t) <= 1:
+                    return False
+                if t.endswith(':') or t.endswith(')'):
+                    return False
+                if _re.fullmatch(r'[\d\s\.,;:\-/()]+', t):
+                    return False
+                words = t.split()
+                if len(words) > 3:
+                    return False
+                # Exclui textos que começam com dígito seguido de ')' — nota numerada
+                if _re.match(r'^\d+\)', t):
+                    return False
+                return True
+
+            candidates = [
+                (txt, px, py)
+                for txt, px, py in all_texts
+                if dist((px, py), header_pos) < HEADER_LABEL_R
+                and not any(kw in txt.upper() for kw in HEADER_KEYWORDS)
+                and _is_legend_label(txt)
+            ]
+        else:
+            # Sem cabeçalho identificado: sem fallback hardcoded — retorna vazio com aviso
+            return {'_warning': 'Cabeçalho de convenção não localizado no DXF de detalhe.'}
+
+        # 3. Para cada label candidato, gerar assinatura geométrica
+        convention = {}
+        for txt, px, py in candidates:
+            near = [l for l in all_lines if dist(lc(l), (px, py)) < LABEL_LINE_R]
+            sig, diag_count, diag_angles, cross, parallel_diag = geom_sig(near)
+            label_key = txt.strip().upper()
+            convention[label_key] = {
+                'label': txt.strip(),
+                'label_pos': (px, py),
+                'line_count': len(near),
+                'diagonal_count': diag_count,
+                'cross_pattern': cross,
+                'parallel_diag': parallel_diag,
+                'diag_angles': diag_angles,
+                'sig': sig,
+            }
+
+        return convention
+
+    def _pillar_geom_sig(self, pillar_pts: list) -> str:
+        """Calcula a assinatura geométrica das linhas internas de um pilar do DXF do pavimento."""
+        import math
+        if not pillar_pts:
+            return 'EMPTY'
+        try:
+            xs = [float(p[0]) for p in pillar_pts]; ys = [float(p[1]) for p in pillar_pts]
+            x0, x1, y0, y1 = min(xs), max(xs), min(ys), max(ys)
+        except Exception:
+            return 'EMPTY'
+
+        MARGIN = 2.0
+        ORTHO_TOL = 8.0
+
+        def angle(l):
+            dx = float(l['end'][0]) - float(l['start'][0])
+            dy = float(l['end'][1]) - float(l['start'][1])
+            return math.degrees(math.atan2(dy, dx)) % 180
+
+        lines_in = []
+        for l in (self.dxf_data.get('lines') or []):
+            try:
+                sx, sy = float(l['start'][0]), float(l['start'][1])
+                ex, ey = float(l['end'][0]), float(l['end'][1])
+            except Exception:
+                continue
+            mx, my = (sx + ex) / 2, (sy + ey) / 2
+            if x0 - MARGIN <= mx <= x1 + MARGIN and y0 - MARGIN <= my <= y1 + MARGIN:
+                lines_in.append(l)
+
+        diagonals = [l for l in lines_in
+                     if abs(angle(l)) > ORTHO_TOL
+                     and abs(angle(l) - 90) > ORTHO_TOL
+                     and abs(angle(l) - 180) > ORTHO_TOL]
+        diag_angles = [round(angle(l)) for l in diagonals]
+
+        cross = False
+        parallel_diag = False
+        if len(diagonals) >= 2:
+            a_set = sorted(set(diag_angles))
+            for i in range(len(a_set)):
+                for j in range(i + 1, len(a_set)):
+                    if abs(a_set[i] + a_set[j] - 180) < 20:
+                        cross = True
+            if not cross and (max(diag_angles) - min(diag_angles)) < 20:
+                parallel_diag = True
+
+        if cross: return 'CROSS'
+        if parallel_diag: return 'DIAG'
+        if not diagonals: return 'EMPTY'
+        return f'DIAG_{len(diagonals)}'
+
+    def _classify_pillar_hatch(self, pillar_pts: list, convention: dict) -> str:
+        """
+        Dado o polígono do pilar e a convenção extraída do detalhe,
+        retorna o label exato da prancha (ex: 'NASCE', 'SEGUE', 'MORRE' ou qualquer
+        outro texto que o escritório de projeto tenha usado) ou 'INDETERMINADO'.
+        Não há nenhum texto hardcoded — o match é feito pela assinatura geométrica.
+        """
+        if not pillar_pts or not convention or '_warning' in convention or 'error' in convention:
+            return 'INDETERMINADO'
+
+        pillar_sig = self._pillar_geom_sig(pillar_pts)
+
+        # Buscar na convenção da prancha qual label tem a mesma assinatura
+        for label_key, info in convention.items():
+            if isinstance(info, dict) and info.get('sig') == pillar_sig:
+                return info.get('label', label_key)
+
+        return 'INDETERMINADO'
+
+    def _run_pavimento_preprocess(self) -> dict:
+        """Extrai obra e pavimento do projeto atual via DB e roda o pré-processamento."""
+        result = {'convention': {}, 'detalhe_path': None, 'obra': '', 'pavimento': ''}
+        obra = ''
+        pav = ''
+
+        # Fonte primária: DB via current_project_id
+        if self.current_project_id and hasattr(self, 'db') and self.db:
+            try:
+                projects = self.db.get_projects() or []
+                proj = next((p for p in projects
+                             if str(p.get('id')) == str(self.current_project_id)), None)
+                if proj:
+                    obra = (proj.get('work_name') or '').strip()
+                    pav  = (proj.get('pavement_name') or proj.get('name') or '').strip()
+            except Exception:
+                pass
+
+        # Fallback: current_project_name no formato "obra / pav" ou só "pav"
+        if not obra or not pav:
+            name = self.current_project_name or ''
+            parts = name.split(' / ')
+            if len(parts) >= 2:
+                obra = obra or parts[0].strip()
+                pav  = pav  or parts[1].strip()
+            else:
+                pav = pav or name.strip()
+
+        result['obra'] = obra
+        result['pavimento'] = pav
+        if not pav:
+            return result
+
+        path = self._get_detail_cut_path(obra, pav)
+        result['detalhe_path'] = path
+        if path and __import__('os').path.exists(path):
+            result['convention'] = self._parse_pillar_convention(path)
+        return result
+
+    def _show_preprocess_dialog(self, data: dict) -> None:
+        """Mostra janela de pré-processamento com resultados encontrados."""
+        from PySide6.QtWidgets import (QDialog, QVBoxLayout, QHBoxLayout,
+                                       QLabel, QFrame, QPushButton, QScrollArea,
+                                       QWidget, QGridLayout)
+        from PySide6.QtCore import Qt
+
+        dlg = QDialog(self)
+        dlg.setWindowTitle('Pré-Processamento do Pavimento')
+        dlg.setMinimumWidth(520)
+        dlg.setStyleSheet("""
+            QDialog { background: #1a1a2e; color: #e0e0e0; }
+            QLabel { color: #e0e0e0; }
+            QFrame { border-radius: 4px; }
+        """)
+
+        root = QVBoxLayout(dlg)
+        root.setSpacing(10)
+        root.setContentsMargins(16, 14, 16, 14)
+
+        # Cabeçalho
+        hdr = QLabel(f"<b>Obra:</b> {data.get('obra','?')}  |  <b>Pavimento:</b> {data.get('pavimento','?')}")
+        hdr.setStyleSheet('font-size: 11px; color: #90caf9;')
+        root.addWidget(hdr)
+
+        path = data.get('detalhe_path') or ''
+        path_lbl = QLabel(f"Recorte detalhe: {'✅ ' + __import__('os').path.basename(path) if path else '❌ não encontrado'}")
+        path_lbl.setStyleSheet('font-size: 9px; color: #888;')
+        root.addWidget(path_lbl)
+
+        # ── Convenção de Pilares ──────────────────────────────────────────
+        sec_frame = QFrame()
+        sec_frame.setStyleSheet('QFrame { background: rgba(100,180,255,0.07); border: 1px solid #334; padding: 6px; }')
+        sec_lay = QVBoxLayout(sec_frame)
+        sec_lay.setSpacing(6)
+
+        sec_title = QLabel('CONVENÇÃO DE PILARES')
+        sec_title.setStyleSheet('font-size: 11px; font-weight: bold; color: #64b5f6;')
+        sec_lay.addWidget(sec_title)
+
+        conv = data.get('convention', {})
+        warn = conv.get('_warning') if isinstance(conv, dict) else None
+        err = conv.get('error') if isinstance(conv, dict) else None
+        real_conv = {k: v for k, v in (conv or {}).items()
+                     if isinstance(v, dict) and 'sig' in v}
+
+        if err:
+            msg = QLabel(f"⚠ {err}")
+            msg.setStyleSheet('color: #ff7043; font-size: 10px;')
+            sec_lay.addWidget(msg)
+        elif warn or not real_conv:
+            msg = QLabel(f"⚠ {warn or 'Nenhuma convenção encontrada no recorte de detalhe.'}")
+            msg.setStyleSheet('color: #ffb74d; font-size: 10px;')
+            sec_lay.addWidget(msg)
+        else:
+            # Renderiza dinamicamente — qualquer label que a prancha tiver
+            SIG_ICONS = {'CROSS': '✗ CRUZ', 'DIAG': '/// DIAG', 'EMPTY': '□ VAZIO'}
+            CYCLE_COLORS = ['#81c784', '#64b5f6', '#ef9a9a', '#ffb74d', '#ce93d8']
+            grid = QGridLayout()
+            grid.setSpacing(6)
+            for col, (label_key, info) in enumerate(real_conv.items()):
+                color = CYCLE_COLORS[col % len(CYCLE_COLORS)]
+                display = info.get('label', label_key)
+                name_lbl = QLabel(display)
+                name_lbl.setAlignment(Qt.AlignCenter)
+                name_lbl.setStyleSheet(f'font-weight: bold; font-size: 11px; color: {color};')
+                grid.addWidget(name_lbl, 0, col)
+                sig_lbl = QLabel(SIG_ICONS.get(info.get('sig', ''), info.get('sig', '?')))
+                sig_lbl.setAlignment(Qt.AlignCenter)
+                sig_lbl.setStyleSheet('font-size: 10px; color: #ccc;')
+                grid.addWidget(sig_lbl, 1, col)
+                diag_lbl = QLabel(f"{info.get('diagonal_count', 0)} diag.")
+                diag_lbl.setAlignment(Qt.AlignCenter)
+                diag_lbl.setStyleSheet('font-size: 9px; color: #888;')
+                grid.addWidget(diag_lbl, 2, col)
+                ok_lbl = QLabel('✅ detectado')
+                ok_lbl.setAlignment(Qt.AlignCenter)
+                ok_lbl.setStyleSheet(f'font-size: 9px; color: {color};')
+                grid.addWidget(ok_lbl, 3, col)
+            sec_lay.addLayout(grid)
+            note = QLabel(f'<i style="color:#555">{len(real_conv)} tipo(s) de pilar detectados nesta prancha</i>')
+            note.setTextFormat(Qt.RichText)
+            note.setStyleSheet('font-size: 9px;')
+            sec_lay.addWidget(note)
+        root.addWidget(sec_frame)
+
+        # ── Futuras seções (em desenvolvimento) ──────────────────────────
+        future_items = [
+            ('Nível de chegada / saída do pavimento', False),
+            ('Detalhes especiais para pilares', False),
+            ('Detalhes especiais para vigas', False),
+            ('Detalhes especiais para lajes', False),
+        ]
+        fut_frame = QFrame()
+        fut_frame.setStyleSheet('QFrame { background: rgba(255,255,255,0.03); border: 1px solid #333; padding: 4px; }')
+        fut_lay = QVBoxLayout(fut_frame)
+        fut_lay.setSpacing(3)
+        fut_title = QLabel('OUTROS PRÉ-PROCESSAMENTOS')
+        fut_title.setStyleSheet('font-size: 10px; font-weight: bold; color: #666;')
+        fut_lay.addWidget(fut_title)
+        for item_name, done in future_items:
+            icon = '✅' if done else '🔧'
+            state = '' if done else '  <i style="color:#555">em desenvolvimento</i>'
+            lbl = QLabel(f'{icon} {item_name}{state}')
+            lbl.setStyleSheet('font-size: 9px; color: #666;')
+            lbl.setTextFormat(Qt.RichText)
+            fut_lay.addWidget(lbl)
+        root.addWidget(fut_frame)
+
+        # Botão fechar
+        btn = QPushButton('Continuar Análise Geral  ▶')
+        btn.setStyleSheet('background: #1565c0; color: white; font-size: 11px; padding: 6px 18px; border-radius: 4px; border: none;')
+        btn.clicked.connect(dlg.accept)
+        root.addWidget(btn, alignment=Qt.AlignRight)
+
+        dlg.exec()
+
+    # ──────────────────────────────────────────────────────────────────────
+
     def process_pillars_action(self):
         if not self.dxf_data:
             # CAD-UI-4.3: feedback explícito — não silenciar
@@ -4658,8 +5098,14 @@ class MainWindow(QMainWindow):
                 "Alternativa: Use '▶ Interpretar DXF' (painel azul no Tab 0) para carregar dados da Fase-3."
             )
             return
+
+        # ── Pré-processamento: convenção do recorte de detalhe ────────────
+        self.pavimento_preprocess = self._run_pavimento_preprocess()
+        self._show_preprocess_dialog(self.pavimento_preprocess)
+        # ──────────────────────────────────────────────────────────────────
+
         import uuid # Garantir import
-        
+
         # --- Snapshot de Dados Validados (Modo Incremental Automático) ---
         # Agora a análise geral SEMPRE preserva o que está validado/editado.
         # Para refazer um item do zero, o usuário deve excluí-lo da biblioteca.
@@ -4717,14 +5163,10 @@ class MainWindow(QMainWindow):
         
         # 1. Motores - Vigas
         from src.core.beam_tracer import BeamTracer
-        from src.core.learning.learning_store_factory import LearningStoreFactory
-        _bb_store = LearningStoreFactory.create(
-            self.current_project_id or 'global',
-            'bottom_beam',
-            os.path.dirname(__file__)
-        )
-        self._bottom_beam_store = _bb_store
-        beam_tracer = BeamTracer(self.spatial_index, learning_params_bottom=_bb_store.get_learning_params())
+        # N1 da Analise Geral precisa rodar cru, sem teacher N2 e sem parametros
+        # aprendidos que possam virar atalho do gabarito. Feedback/learning fica
+        # no comparador posterior e nas validacoes humanas preservadas.
+        beam_tracer = BeamTracer(self.spatial_index)
         all_lines_and_polys = []
         for l in lines+polylines:
             if 'points' in l: all_lines_and_polys.append(l)
@@ -4788,6 +5230,24 @@ class MainWindow(QMainWindow):
                      
                      print(f"DEBUG: Viga {b['name']} re-analisada (Nao validada).")
 
+        # 1.0a Preservar Vigas Validadas Órfãs (que sumiram do DXF)
+        detected_beam_names = {b['name'] for b in self.beams_found}
+        for name, old_b in preserved_beams.items():
+            if name not in detected_beam_names:
+                self.beams_found.append(old_b)
+                self.log(f"🛡️ Mantendo viga validada órfã: {name}")
+
+        # Reordenar para incluir as órfãs
+        self.beams_found.sort(key=nat_key)
+        
+        # Reatribuir IDs posicionais limpos
+        for i, b in enumerate(self.beams_found):
+            b_unique_id = f"{self.current_project_id}_b_{i+1}" if self.current_project_id else str(uuid.uuid4())
+            b['id'] = b_unique_id
+            b['id_item'] = f"{i+1:02}"
+            b['id_num'] = i+1
+            b['project_id'] = self.current_project_id
+
         # 1.0b Finalizar Lista de Vigas Hierárquica
         self._populate_beam_tree(self.list_beams, self.beams_found, "lateral")
         self._populate_beam_tree(self.list_beams_fundo, self.beams_found, "fundo")
@@ -4805,7 +5265,6 @@ class MainWindow(QMainWindow):
         
         
         has_validated = False
-        search_layers = None
         
         if preserved_slabs:
             potential_layers = []
@@ -4858,12 +5317,11 @@ class MainWindow(QMainWindow):
                             dist = (dx**2 + dy**2)**0.5
                             if dist > max_text_dist: max_text_dist = dist
 
-            search_layers = None
             if potential_layers:
                 from collections import Counter
                 common = Counter(potential_layers).most_common(5)
-                search_layers = [c[0] for c in common]
-                self.log(f"🧠 Aprendizado Laje: Layers={search_layers}")
+                learned_layers = {c[0] for c in common}
+                self.log(f"🧠 Aprendizado Laje: layers observadas={list(learned_layers)} (diagnostico; nao filtra N1)")
             
             if max_diag > 0:
                 learned_contour_radius = max_diag * 1.5
@@ -4880,65 +5338,15 @@ class MainWindow(QMainWindow):
             'level_layers': list(learned_level_layers) if learned_level_layers else None
         }
 
-
-        # --- CARREGAR N2 TEACHER DIMS (ground truth structural dimensions) ---
-        n2_teacher_dims = {}
-        projects_repo = os.path.join(os.path.dirname(__file__), 'projects_repo')
-        try:
-
-            if self.current_project_id and os.path.isdir(projects_repo):
-                proj_n2_dir = os.path.join(projects_repo, self.current_project_id, "laje_data")
-                obras_json = os.path.join(proj_n2_dir, "obras.json")
-                if os.path.isfile(obras_json):
-                    with open(obras_json, "r", encoding="utf-8") as f:
-                        n2_data = json.load(f)
-                    for obra in n2_data.get("obras", []):
-                        for pav in obra.get("pavimentos", []):
-                            for laje in pav.get("lajes", []):
-                                nome = laje.get("nome", "").upper()
-                                if nome:
-                                    comp_val = laje.get("comprimento") or 0
-                                    if nome in n2_teacher_dims and (not comp_val or float(comp_val) <= 20):
-                                        continue  # nao sobrescrever entry valida com uma invalida
-                                    n2_teacher_dims[nome] = {
-                                        "comprimento": laje.get("comprimento"),
-                                        "largura": laje.get("largura"),
-                                        "area_cm2": laje.get("area_cm2"),
-                                        "coordenadas": laje.get("coordenadas"),
-                                        "pavimento": laje.get("pavimento"),
-                                    }
-                    self.log(f"🧠 N2 Teacher carregado: {len(n2_teacher_dims)} lajes com dimensoes estruturais")
-        except Exception as e:
-            self.log(f"⚠️ N2 Teacher nao carregado: {e}")
-        # Fallback: se N2 teacher vazio, procurar em todos os projetos
-        if not n2_teacher_dims:
-            self.log(f'N2 Teacher fallback: current_project_id={self.current_project_id}, projects_repo exists={os.path.isdir(projects_repo)}')
-            for _obras_path in _glob.glob(os.path.join(projects_repo, '*', 'laje_data', 'obras.json')):
-                try:
-                    with open(_obras_path, 'r', encoding='utf-8') as _f:
-                        _n2 = json.load(_f)
-                    _count_before = len(n2_teacher_dims)
-                    for _obra in _n2.get('obras', []):
-                        for _pav in _obra.get('pavimentos', []):
-                            for _laje in _pav.get('lajes', []):
-                                _nome = _laje.get('nome', '').upper()
-                                if _nome:
-                                    _comp = _laje.get('comprimento') or 0
-                                    if _nome in n2_teacher_dims and (not _comp or float(_comp) <= 20):
-                                        continue
-                                    n2_teacher_dims[_nome] = {
-                                        'comprimento': _laje.get('comprimento'),
-                                        'largura': _laje.get('largura'),
-                                        'area_cm2': _laje.get('area_cm2'),
-                                        'coordenadas': _laje.get('coordenadas'),
-                                        'pavimento': _laje.get('pavimento'),
-                                    }
-                    _added = len(n2_teacher_dims) - _count_before
-                    if _added > 0:
-                        self.log(f'N2 Teacher fallback: +{_added} lajes de {_obras_path}')
-                except Exception:
-                    pass
-        self.slabs_found = slab_tracer.detect_slabs_from_texts(texts, valid_layers=search_layers, search_radius=learned_contour_radius, teacher_dims=n2_teacher_dims)
+        # N2/F5 e layers aprendidas sao usados apenas como diagnostico/comparacao.
+        # O N1 da Analise Geral deve detectar LAJ sem filtro duro de layer e sem
+        # teacher_dims, mantendo coerencia com o loop headless de treino.
+        self.slabs_found = slab_tracer.detect_slabs_from_texts(
+            texts,
+            valid_layers=None,
+            search_radius=learned_contour_radius,
+            teacher_dims=None,
+        )
         self.slabs_found.sort(key=nat_key)
         self.log(f"🔎 Lajes detectadas: {len(self.slabs_found)} (Busca por textos L#)")
         
@@ -4985,6 +5393,30 @@ class MainWindow(QMainWindow):
                          for f in vf:
                              if f in old_links:
                                  s['links'][f] = old_links[f]
+
+                     # Preserva validacoes humanas por slot mesmo quando o campo
+                     # inteiro ainda nao foi validado. Isso e essencial para
+                     # exemplos como visao de corte/pilares da laje, mesmo
+                     # quando ainda nao ha validacao do campo completo.
+                     old_vlc = old.get('validated_link_classes', {})
+                     if isinstance(old_vlc, dict) and old_vlc:
+                         s['validated_link_classes'] = dict(old_vlc)
+                         old_links = old.get('links', {})
+                         if 'links' not in s:
+                             s['links'] = {}
+                         for f, slots in old_vlc.items():
+                             if f not in old_links:
+                                 continue
+                             if f not in s['links']:
+                                 s['links'][f] = {}
+                             if isinstance(old_links[f], dict):
+                                 for slot in slots or []:
+                                     if slot in old_links[f]:
+                                         s['links'][f][slot] = old_links[f][slot]
+
+                     old_nlc = old.get('na_link_classes', {})
+                     if isinstance(old_nlc, dict) and old_nlc:
+                         s['na_link_classes'] = dict(old_nlc)
                     
                      print(f"DEBUG: Laje {s['name']} re-analisada (Nao validada).")
              
@@ -4998,6 +5430,43 @@ class MainWindow(QMainWindow):
 
              item.setData(0, Qt.UserRole, s_unique_id)
              self.list_slabs.addTopLevelItem(item)
+
+        # Preservar Lajes Validadas Órfãs
+        detected_slab_names = {s['name'] for s in self.slabs_found}
+        for name, old_s in preserved_slabs.items():
+            if name not in detected_slab_names:
+                self.slabs_found.append(old_s)
+                self.log(f"🛡️ Mantendo laje validada órfã: {name}")
+
+        self.slabs_found.sort(key=nat_key)
+        
+        # Reatribuir IDs posicionais limpos
+        for i, s in enumerate(self.slabs_found):
+             s_unique_id = f"{self.current_project_id}_l_{i+1}" if self.current_project_id else str(uuid.uuid4())
+             s['id'] = s_unique_id
+             s['id_item'] = f"{i+1:02}"
+
+        self._infer_slab_levels_from_context(self.slabs_found)
+        self.pavimento_pillar_report = self._build_pillar_report(self.slabs_found)
+        n_report = len(self.pavimento_pillar_report)
+        n_nasce = sum(1 for p in self.pavimento_pillar_report.values() if p.get('classification') == 'NASCE')
+        self.log(f"📋 Relatório de pilares do pavimento: {n_report} pilar(es) detectados, {n_nasce} NASCE (a desconsiderar nas vigas/pilares).")
+
+        # Part A — relatório consolidado de níveis
+        self.pavimento_nivel_report = self._build_nivel_report(self.slabs_found, self.pavimento_pillar_report)
+        nr_sum = self.pavimento_nivel_report.get('summary', {})
+        n_confirms = nr_sum.get('confirmed', 0)
+        n_inferred = nr_sum.get('inferred', 0)
+        n_unknown = nr_sum.get('unknown', 0)
+        n_hall = nr_sum.get('hallucination_suspects', 0)
+        self.log(f"📐 Relatório de níveis: {n_confirms} confirmados, {n_inferred} inferidos, {n_unknown} desconhecidos" +
+                 (f", {n_hall} suspeitos de alucinação" if n_hall else "") + ".")
+
+        # ── Pré-validação interativa (Pilares + Visão de Cortes) ──────────────
+        if not self._run_pre_validation_dialog():
+            self.log("⚠ Pré-validação cancelada pelo usuário — análise interrompida.")
+            self.update_progress(0, "Cancelado.")
+            return
 
         walker = BeamWalker(self.spatial_index)
         from shapely.geometry import Polygon
@@ -5130,9 +5599,25 @@ class MainWindow(QMainWindow):
                      print(f"DEBUG: Pilar {p_data['name']} re-analisado (Nao validado).")
 
             self.pillars_found.append(p_data)
+
+        # Preservar Pilares Validados Órfãos
+        detected_pillar_names = {p['name'] for p in self.pillars_found}
+        for name, old_p in preserved_pillars.items():
+            if name not in detected_pillar_names:
+                self.pillars_found.append(old_p)
+                self.log(f"🛡️ Mantendo pilar validado órfão: {name}")
+
+        # Reordenar para incluir os órfãos
+        self.pillars_found.sort(key=nat_key)
+        
+        # Reatribuir IDs
+        for i, p in enumerate(self.pillars_found):
+            unique_id = f"{self.current_project_id}_p_{i+1}" if self.current_project_id else str(uuid.uuid4())
+            p['id'] = unique_id
+            p['id_item'] = f"{i+1:02}"
             
-            # Atualização de UI Delegada para _update_all_lists_ui() no final do loop
-            # Isso evita redundância e duplicação na lista de issues.
+        # Atualização de UI Delegada para _update_all_lists_ui() no final do loop
+        # Isso evita redundância e duplicação na lista de issues.
 
         # 3. Desenho no Canvas e UI
         self.update_progress(95, "Finalizando...")
@@ -5162,6 +5647,37 @@ class MainWindow(QMainWindow):
                 self.log(f"F7/N1 materializada em fase3_fichas: {n_f7} ficha(s).")
         except Exception as ex:
             self.log(f"Erro ao materializar F7/N1: {ex}")
+        try:
+            if self.current_project_id:
+                # ===== LIMPEZA DO BANCO =====
+                # Excluir dados obsoletos para evitar o acúmulo de itens fantasmas
+                # Os itens validados foram mantidos nas listas *_found.
+                try:
+                    conn = self.db._get_conn()
+                    conn.execute("DELETE FROM pillars WHERE project_id = ?", (self.current_project_id,))
+                    conn.execute("DELETE FROM slabs WHERE project_id = ?", (self.current_project_id,))
+                    conn.execute("DELETE FROM beams WHERE project_id = ?", (self.current_project_id,))
+                    conn.commit()
+                except Exception as e:
+                    self.log(f"Erro ao limpar banco para análise: {e}")
+                finally:
+                    conn.close()
+                # ============================
+
+                for p in getattr(self, 'pillars_found', []):
+                    self.db.save_pillar(p, self.current_project_id)
+                for s in getattr(self, 'slabs_found', []):
+                    self.db.save_slab(s, self.current_project_id)
+                for b in getattr(self, 'beams_found', []):
+                    self.db.save_beam(b, self.current_project_id)
+                self.log(
+                    "💾 Autosave Análise Geral: "
+                    f"{len(getattr(self, 'pillars_found', []))} pilares, "
+                    f"{len(getattr(self, 'slabs_found', []))} lajes e "
+                    f"{len(getattr(self, 'beams_found', []))} vigas salvos."
+                )
+        except Exception as ex:
+            self.log(f"❌ Erro no autosave da Análise Geral: {ex}")
         print(f"[ANALISE] concluída: PL={len(self.pillars_found)} BM={len(getattr(self,'beams_found',[]))} SL={len(getattr(self,'slabs_found',[]))}", flush=True)
         self.log(f"Análise finalizada: {len(self.pillars_found)} Pilares, {len(self.beams_found)} Vigas e {len(self.slabs_found)} Lajes.")
         self.btn_save.setEnabled(True)
@@ -6217,6 +6733,10 @@ class MainWindow(QMainWindow):
             count_ext_gen = 0
             for s in self.slabs_found:
                 if 'links' not in s: s['links'] = {}
+                self._ensure_slab_level_links(s)
+                self._ensure_slab_cut_view_links(s)
+                self._ensure_slab_neighbor_level_links(s)
+                self._ensure_slab_support_pillar_links(s)
                 
                 # REPARO: Remover chave duplicada 'extensions' se existir
                 if 'extensions' in s: del s['extensions']
@@ -6598,6 +7118,7 @@ class MainWindow(QMainWindow):
             comment = "Campo marcado como Não se Aplica pelo usuário"
             
         propagate = train_data.get('propagate', False)
+        ui_refresh = train_data.get('ui_refresh', True)
 
         # 1. Registrar o Treino Individual
         self._log_training_action(p_data, field_id, slot_id, link_obj, status, comment)
@@ -6608,7 +7129,8 @@ class MainWindow(QMainWindow):
             link_obj.pop('failed', None)
             self.log(f"🔄 Vínculo resetado para '{field_id}:{slot_id}'")
             self.current_card.refresh_validation_styles()
-            self._update_all_lists_ui()
+            if ui_refresh:
+                self._update_all_lists_ui()
         elif status == 'valid':
             # Marcar o link individual como validado
             link_obj['validated'] = True
@@ -6618,7 +7140,8 @@ class MainWindow(QMainWindow):
             
             # Apenas atualizar visualmente sem marcar como "Validado Final"
             self.current_card.refresh_validation_styles()
-            self._update_all_lists_ui()
+            if ui_refresh:
+                self._update_all_lists_ui()
         else:
             # Marcar o link individual como falho
             link_obj['failed'] = True
@@ -6725,6 +7248,12 @@ class MainWindow(QMainWindow):
             slots = LinkManager.SLOT_CONFIG['_beam_dim']
         elif 'laje_dim' in field_id and '_laje_dim' in LinkManager.SLOT_CONFIG:
             slots = LinkManager.SLOT_CONFIG['_laje_dim']
+        elif 'laje_visao_corte' in field_id and '_laje_cut_view' in LinkManager.SLOT_CONFIG:
+            slots = LinkManager.SLOT_CONFIG['_laje_cut_view']
+        elif 'laje_vizinhas_niveis' in field_id and '_laje_neighbor_levels' in LinkManager.SLOT_CONFIG:
+            slots = LinkManager.SLOT_CONFIG['_laje_neighbor_levels']
+        elif 'laje_pilares_apoio' in field_id and '_laje_support_pillars' in LinkManager.SLOT_CONFIG:
+            slots = LinkManager.SLOT_CONFIG['_laje_support_pillars']
         elif 'laje_nivel' in field_id and '_laje_level' in LinkManager.SLOT_CONFIG:
             slots = LinkManager.SLOT_CONFIG['_laje_level']
         elif field_id.endswith('_dim') and 'dim' in LinkManager.SLOT_CONFIG:
@@ -7308,6 +7837,1621 @@ class MainWindow(QMainWindow):
 
         self.log(f"🧠 Viga {b['name']} pré-interpretada com sucesso.")
 
+    def _ensure_slab_level_links(self, slab: Dict) -> Dict:
+        links = slab.setdefault('links', {})
+        level_links = links.setdefault('laje_nivel', {})
+        if not isinstance(level_links, dict):
+            level_links = {}
+            links['laje_nivel'] = level_links
+        level_links.setdefault('label', [])
+        return level_links
+
+    def _append_unique_slab_link(self, target: list, link: dict) -> None:
+        if not isinstance(target, list) or not isinstance(link, dict):
+            return
+        if link.get('points'):
+            for existing in target:
+                if isinstance(existing, dict) and self._same_cut_view_signature(link, existing):
+                    return
+        elif link in target:
+            return
+        target.append(link)
+
+    def _same_text_link_signature(self, a: dict, b: dict, tol: float = 8.0) -> bool:
+        if not isinstance(a, dict) or not isinstance(b, dict):
+            return False
+        if str(a.get('text') or '').strip() != str(b.get('text') or '').strip():
+            return False
+        if a.get('source_slab') and b.get('source_slab') and a.get('source_slab') != b.get('source_slab'):
+            return False
+        pa = a.get('pos')
+        pb = b.get('pos')
+        if pa and pb:
+            try:
+                return ((float(pa[0]) - float(pb[0])) ** 2 + (float(pa[1]) - float(pb[1])) ** 2) ** 0.5 <= tol
+            except Exception:
+                return False
+        return bool(a.get('source_slab') and a.get('source_slab') == b.get('source_slab'))
+
+    def _append_unique_neighbor_level_link(self, target: list, link: dict) -> bool:
+        if not isinstance(target, list) or not isinstance(link, dict):
+            return False
+        for existing in target:
+            if self._same_text_link_signature(existing, link):
+                return False
+        target.append(link)
+        return True
+
+    def _neighbor_direction_slot(self, direction: str) -> str:
+        d = str(direction or '').strip().lower()
+        mapping = {
+            'top': 'neighbor_north',
+            'north': 'neighbor_north',
+            'norte': 'neighbor_north',
+            'bottom': 'neighbor_south',
+            'south': 'neighbor_south',
+            'sul': 'neighbor_south',
+            'right': 'neighbor_east',
+            'east': 'neighbor_east',
+            'leste': 'neighbor_east',
+            'left': 'neighbor_west',
+            'west': 'neighbor_west',
+            'oeste': 'neighbor_west',
+        }
+        return mapping.get(d, 'neighbor_north')
+
+    def _direction_from_link_pos(self, slab: Dict, link: dict) -> str:
+        pos = link.get('pos') if isinstance(link, dict) else None
+        pts = slab.get('points') or []
+        if not pos or not pts:
+            return 'north'
+        try:
+            xs = [float(p[0]) for p in pts]
+            ys = [float(p[1]) for p in pts]
+            cx = (min(xs) + max(xs)) / 2.0
+            cy = (min(ys) + max(ys)) / 2.0
+            dx = float(pos[0]) - cx
+            dy = float(pos[1]) - cy
+            if abs(dx) >= abs(dy):
+                return 'east' if dx >= 0 else 'west'
+            return 'north' if dy >= 0 else 'south'
+        except Exception:
+            return 'north'
+
+    def _ensure_slab_neighbor_level_links(self, slab: Dict) -> Dict:
+        links = slab.setdefault('links', {})
+        neighbor_links = links.setdefault('laje_vizinhas_niveis', {})
+        if not isinstance(neighbor_links, dict):
+            neighbor_links = {}
+            links['laje_vizinhas_niveis'] = neighbor_links
+        for slot in ('neighbor_north', 'neighbor_east', 'neighbor_west', 'neighbor_south'):
+            neighbor_links.setdefault(slot, [])
+
+        # Migra textos antigos que ficavam dentro de laje_visao_corte.
+        cut_links = links.get('laje_visao_corte', {})
+        if isinstance(cut_links, dict):
+            for old in cut_links.get('neighbor_level_text', []) or []:
+                if not isinstance(old, dict):
+                    continue
+                direction = old.get('source_direction') or self._direction_from_link_pos(slab, old)
+                slot = self._neighbor_direction_slot(direction)
+                migrated = dict(old)
+                migrated['role'] = slot
+                self._append_unique_neighbor_level_link(neighbor_links[slot], migrated)
+
+        validated = slab.setdefault('validated_link_classes', {})
+        if isinstance(validated, dict):
+            old_slots = set(validated.get('laje_visao_corte') or [])
+            if 'neighbor_level_text' in old_slots:
+                new_slots = set(validated.get('laje_vizinhas_niveis') or [])
+                for slot, vals in neighbor_links.items():
+                    if vals:
+                        new_slots.add(slot)
+                if new_slots:
+                    validated['laje_vizinhas_niveis'] = sorted(new_slots)
+        return neighbor_links
+
+    def _ensure_slab_cut_view_links(self, slab: Dict) -> Dict:
+        links = slab.setdefault('links', {})
+        cut_links = links.setdefault('laje_visao_corte', {})
+        if not isinstance(cut_links, dict):
+            cut_links = {}
+            links['laje_visao_corte'] = cut_links
+        cut_links.setdefault('cut_view_geom', [])
+
+        # Migra dados antigos sem apagar a fonte original. Assim as validacoes
+        # humanas ja feitas em laje_nivel.cut_view_* continuam aproveitadas.
+        old_level_links = links.get('laje_nivel', {})
+        if isinstance(old_level_links, dict):
+            for old in old_level_links.get('cut_view_geom', []) or []:
+                self._append_unique_slab_link(cut_links['cut_view_geom'], old)
+
+        validated = slab.setdefault('validated_link_classes', {})
+        if isinstance(validated, dict):
+            old_slots = set(validated.get('laje_nivel') or [])
+            new_slots = set(validated.get('laje_visao_corte') or [])
+            if 'cut_view_geom' in old_slots:
+                new_slots.add('cut_view_geom')
+            if new_slots:
+                validated['laje_visao_corte'] = sorted(new_slots)
+        return cut_links
+
+    def _ensure_slab_support_pillar_links(self, slab: Dict) -> Dict:
+        links = slab.setdefault('links', {})
+        pillar_links = links.setdefault('laje_pilares_apoio', {})
+        if not isinstance(pillar_links, dict):
+            pillar_links = {}
+            links['laje_pilares_apoio'] = pillar_links
+        pillar_links.setdefault('pillar_geom', [])
+        pillar_links.setdefault('pillar_label', [])
+        return pillar_links
+
+    def _parse_slab_level_value(self, raw):
+        if raw is None:
+            return None
+        text = str(raw).strip()
+        if not text or text.upper() in {'N/A', 'POLYLINE'}:
+            return None
+        upper = text.upper()
+        if 'H=' in upper or upper.startswith('H') or upper.startswith('D='):
+            return None
+        import re
+        m = re.search(r'[+-]?\d+(?:[\.,]\d+)?', text)
+        if not m:
+            return None
+        try:
+            return float(m.group(0).replace(',', '.'))
+        except Exception:
+            return None
+
+    def _format_slab_level_value(self, value: float) -> str:
+        text = f"{float(value):.2f}"
+        return text.rstrip('0').rstrip('.') if '.' in text else text
+
+    def _slab_cut_links(self, slab: Dict) -> list:
+        cut_links = self._ensure_slab_cut_view_links(slab)
+        cuts = []
+        vals = cut_links.get('cut_view_geom', [])
+        if isinstance(vals, list):
+            cuts.extend(vals)
+        return cuts
+
+    def _slab_has_cut_view(self, slab: Dict) -> bool:
+        return bool(self._slab_cut_links(slab))
+
+    def _own_slab_level_links(self, slab: Dict) -> list:
+        level_links = self._ensure_slab_level_links(slab)
+        out = []
+        for link in level_links.get('label', []) or []:
+            if isinstance(link, dict) and self._parse_slab_level_value(link.get('text')) is not None:
+                out.append(link)
+        return out
+
+    def _slab_name_dim_links(self, slab: Dict) -> list:
+        links = slab.get('links', {}) if isinstance(slab.get('links'), dict) else {}
+        out = []
+        for field_id, slot_id in (('name', 'label'), ('laje_dim', 'label')):
+            field_links = links.get(field_id, {})
+            if not isinstance(field_links, dict):
+                continue
+            for link in field_links.get(slot_id, []) or []:
+                if isinstance(link, dict) and link.get('text'):
+                    out.append(link)
+        return out
+
+    def _slab_level_source(self, slab: Dict, include_neighbor_context: bool = True) -> dict | None:
+        fields = slab.get('fields', {}) if isinstance(slab.get('fields'), dict) else {}
+        level_links = self._ensure_slab_level_links(slab)
+        neighbor_links = self._ensure_slab_neighbor_level_links(slab)
+        validated_fields = slab.get('validated_fields', [])
+        if isinstance(validated_fields, dict):
+            validated_fields = list(validated_fields.keys())
+        validated_fields = set(validated_fields or [])
+        validated_slots = slab.get('validated_link_classes', {})
+        level_valid_slots = set()
+        if isinstance(validated_slots, dict):
+            slots = validated_slots.get('laje_nivel', [])
+            if isinstance(slots, list):
+                level_valid_slots = set(slots)
+        cut_valid_slots = set()
+        if isinstance(validated_slots, dict):
+            slots = validated_slots.get('laje_vizinhas_niveis', [])
+            if isinstance(slots, list):
+                cut_valid_slots = set(slots)
+
+        raw_candidates = []
+        if fields.get('laje_nivel') is not None:
+            raw_candidates.append(('field', fields.get('laje_nivel'), 'laje_nivel' in validated_fields))
+        if slab.get('laje_nivel') is not None:
+            raw_candidates.append(('flat', slab.get('laje_nivel'), 'laje_nivel' in validated_fields))
+        for link in level_links.get('label', []) or []:
+            if not isinstance(link, dict):
+                continue
+            raw_candidates.append(('label', link.get('text'), bool(link.get('validated')) or 'label' in level_valid_slots))
+        if include_neighbor_context:
+            for slot in ('neighbor_north', 'neighbor_east', 'neighbor_west', 'neighbor_south'):
+                for link in neighbor_links.get(slot, []) or []:
+                    if isinstance(link, dict):
+                        raw_candidates.append((slot, link.get('text'), bool(link.get('validated')) or slot in cut_valid_slots))
+
+        best = None
+        for kind, raw, is_human in raw_candidates:
+            value = self._parse_slab_level_value(raw)
+            if value is None:
+                continue
+            item = {'value': value, 'text': str(raw), 'kind': kind, 'human': bool(is_human)}
+            if item['human']:
+                return item
+            if best is None:
+                best = item
+        return best
+
+    def _slab_has_human_level(self, slab: Dict) -> bool:
+        source = self._slab_level_source(slab, include_neighbor_context=False)
+        return bool(source and source.get('human'))
+
+    def _cut_link_bbox(self, link: dict):
+        pts = link.get('points') if isinstance(link, dict) else None
+        if not pts:
+            return None
+        try:
+            xs = [float(p[0]) for p in pts]
+            ys = [float(p[1]) for p in pts]
+            return min(xs), min(ys), max(xs), max(ys)
+        except Exception:
+            return None
+
+    def _same_cut_view_signature(self, a: dict, b: dict, tol: float = 25.0) -> bool:
+        ba = self._cut_link_bbox(a)
+        bb = self._cut_link_bbox(b)
+        if not ba or not bb:
+            return False
+        ac = ((ba[0] + ba[2]) / 2.0, (ba[1] + ba[3]) / 2.0)
+        bc = ((bb[0] + bb[2]) / 2.0, (bb[1] + bb[3]) / 2.0)
+        if ((ac[0] - bc[0]) ** 2 + (ac[1] - bc[1]) ** 2) ** 0.5 > tol:
+            return False
+        aw, ah = ba[2] - ba[0], ba[3] - ba[1]
+        bw, bh = bb[2] - bb[0], bb[3] - bb[1]
+        return abs(aw - bw) <= tol and abs(ah - bh) <= tol
+
+    def _slab_polygon_map(self, slabs: list[Dict]) -> dict:
+        from shapely.geometry import Polygon
+        result = {}
+        for slab in slabs:
+            pts = slab.get('points') or []
+            if len(pts) < 3:
+                continue
+            try:
+                poly = Polygon(pts)
+                if poly.is_valid and not poly.is_empty and poly.area > 0:
+                    result[slab.get('id') or slab.get('name')] = poly
+            except Exception:
+                continue
+        return result
+
+    def _classify_slab_boundary_marker(self, pts: list, geom, bbox: tuple[float, float, float, float]) -> str:
+        """Separa apoio compacto de pilar de marco de visao de corte."""
+        if not pts or not bbox:
+            return 'cut_view'
+        w, h = bbox[2] - bbox[0], bbox[3] - bbox[1]
+        if w <= 0 or h <= 0:
+            return 'cut_view'
+        closed = len(pts) >= 4 and pts[0] == pts[-1]
+        aspect = max(w / max(h, 1.0), h / max(w, 1.0))
+        fill_ratio = 0.0
+        try:
+            area = abs(float(getattr(geom, 'area', 0.0) or 0.0))
+            fill_ratio = area / max(w * h, 1.0)
+        except Exception:
+            pass
+
+        # Pilares automaticos ficam restritos aos casos quase solidos:
+        # retangulos simples ou formas circulares/compactas com muitos pontos.
+        # Os T de visao de corte vistos no treino tem cerca de 8-9 vertices e
+        # nao devem ser filtrados como pilar.
+        if closed and aspect <= 4.0 and len(pts) <= 6 and fill_ratio >= 0.70:
+            return 'pillar'
+        if closed and aspect <= 2.5 and len(pts) >= 10 and fill_ratio >= 0.65:
+            return 'pillar'
+        return 'cut_view'
+
+    def _points_bbox_tuple(self, pts: list):
+        if not pts:
+            return None
+        try:
+            xs = [float(p[0]) for p in pts]
+            ys = [float(p[1]) for p in pts]
+            return min(xs), min(ys), max(xs), max(ys)
+        except Exception:
+            return None
+
+    def _bbox_center_tuple(self, bbox):
+        return ((bbox[0] + bbox[2]) / 2.0, (bbox[1] + bbox[3]) / 2.0) if bbox else (0.0, 0.0)
+
+    def _slab_bounds(self, slab: Dict):
+        return self._points_bbox_tuple(slab.get('points') or [])
+
+    def _slab_cut_direction(self, slab: Dict, pts: list) -> str:
+        sb = self._slab_bounds(slab)
+        cb = self._points_bbox_tuple(pts)
+        if not sb or not cb:
+            return ''
+        sx, sy = self._bbox_center_tuple(sb)
+        cx, cy = self._bbox_center_tuple(cb)
+        dx, dy = cx - sx, cy - sy
+        if abs(dx) > abs(dy):
+            return 'Leste' if dx > 0 else 'Oeste'
+        return 'Norte' if dy > 0 else 'Sul'
+
+    def _nearest_dxf_text(self, point, pattern=None, max_dist=900.0):
+        import re
+        if not getattr(self, 'dxf_data', None):
+            return None
+        best = None
+        rx = re.compile(pattern, re.IGNORECASE) if pattern else None
+        px, py = point
+        for t in self.dxf_data.get('texts', []) or []:
+            txt = str(t.get('text') or '').strip()
+            if not txt:
+                continue
+            if rx and not rx.search(txt):
+                continue
+            pos = t.get('pos') or (0, 0)
+            try:
+                dist = ((float(pos[0]) - px) ** 2 + (float(pos[1]) - py) ** 2) ** 0.5
+            except Exception:
+                continue
+            if dist <= max_dist and (best is None or dist < best[0]):
+                best = (dist, t)
+        return best[1] if best else None
+
+    def _slab_dim_text(self, slab: Dict) -> str:
+        fields = slab.get('fields', {}) if isinstance(slab.get('fields'), dict) else {}
+        raw = fields.get('laje_dim') or slab.get('laje_dim')
+        if raw:
+            return str(raw)
+        links = slab.get('links', {}) if isinstance(slab.get('links'), dict) else {}
+        for link in (links.get('laje_dim', {}) or {}).get('label', []) if isinstance(links.get('laje_dim', {}), dict) else []:
+            if isinstance(link, dict) and link.get('text'):
+                return str(link.get('text'))
+        return ''
+
+    def _slab_height_value(self, slab: Dict) -> str:
+        import re
+        raw = self._slab_dim_text(slab)
+        m = re.search(r'\d+(?:[\.,]\d+)?', raw or '')
+        return m.group(0).replace(',', '.') if m else raw
+
+    def _opposite_direction_key(self, direction: str) -> str:
+        # Mapeia direcao do corte para a chave usada por _orthogonal_neighbor_slabs.
+        # O vizinho esta NO MESMO LADO que 'direction' (Norte -> laje vizinha ao norte -> 'top').
+        d = str(direction or '').lower()
+        if d.startswith('n'): return 'top'
+        if d.startswith('s'): return 'bottom'
+        if d.startswith('l') or d.startswith('e'): return 'right'
+        if d.startswith('o') or d.startswith('w'): return 'left'
+        return ''
+
+    def _neighbor_by_direction(self, slab: Dict, slabs: list[Dict], poly_map: dict, direction: str):
+        target_key = self._opposite_direction_key(direction)
+        best = None
+        for dist, dir_key, other in self._orthogonal_neighbor_slabs(slab, slabs, poly_map, max_dist=85.0):
+            if dir_key == target_key and (best is None or dist < best[0]):
+                best = (dist, other)
+        return best[1] if best else None
+
+    def _polygon_x_at_y(self, pts: list, y_mid: float) -> list:
+        """Intersecoes em X do poligono fechado para a scanline Y=y_mid."""
+        xs = []
+        n = len(pts)
+        for i in range(n):
+            x1, y1 = float(pts[i][0]), float(pts[i][1])
+            x2, y2 = float(pts[(i + 1) % n][0]), float(pts[(i + 1) % n][1])
+            if y1 == y2:
+                continue
+            if min(y1, y2) <= y_mid <= max(y1, y2):
+                xs.append(x1 + (y_mid - y1) * (x2 - x1) / (y2 - y1))
+        return xs
+
+    def _polygon_y_at_x(self, pts: list, x_mid: float) -> list:
+        """Intersecoes em Y do poligono fechado para a scanline X=x_mid."""
+        ys = []
+        n = len(pts)
+        for i in range(n):
+            x1, y1 = float(pts[i][0]), float(pts[i][1])
+            x2, y2 = float(pts[(i + 1) % n][0]), float(pts[(i + 1) % n][1])
+            if x1 == x2:
+                continue
+            if min(x1, x2) <= x_mid <= max(x1, x2):
+                ys.append(y1 + (x_mid - x1) * (y2 - y1) / (x2 - x1))
+        return ys
+
+    def _parse_cut_poly_sections(self, pts: list, direction: str) -> dict:
+        """
+        Decompoe o poligono em degrau da visao de corte.
+
+        Retorna:
+          beam_height      — altura estrutural real da viga (eixo de elevacao)
+          bw               — largura da nervura da viga no plano
+          own_slab_h       — espessura da laje propria (eixo de elevacao)
+          neigh_slab_h     — espessura da laje vizinha
+          own_dist_topo    — distancia do topo da laje propria ao topo da viga
+          own_dist_fundo   — distancia do fundo da viga ao fundo da laje propria
+          neigh_dist_topo  — idem para laje vizinha
+          neigh_dist_fundo — idem para laje vizinha
+          own_overhang     — saliencia horizontal da laje propria alem da nervura
+          neigh_overhang   — saliencia horizontal da laje vizinha
+
+        Convencao de eixos no DXF:
+          Corte E-W (Leste/Oeste): Y = elevacao estrutural, maior Y = topo
+          Corte N-S (Norte/Sul):   X = elevacao estrutural, menor X = topo
+        """
+        if not pts:
+            return {}
+        try:
+            d = str(direction or '').strip().lower()
+            ns_cut = d.startswith('n') or d.startswith('s')
+            all_xs = [float(p[0]) for p in pts]
+            all_ys = [float(p[1]) for p in pts]
+
+            if ns_cut:
+                # Fatias em Y; extensao X = eixo de elevacao (menor X = topo estrutural)
+                ys_uniq = sorted(set(round(float(p[1]), 2) for p in pts))
+                bands = []
+                for i in range(len(ys_uniq) - 1):
+                    y_mid = (ys_uniq[i] + ys_uniq[i + 1]) / 2
+                    xv = self._polygon_x_at_y(pts, y_mid)
+                    if len(xv) >= 2:
+                        bands.append({
+                            'coord_min': ys_uniq[i], 'coord_max': ys_uniq[i + 1],
+                            'span': ys_uniq[i + 1] - ys_uniq[i],
+                            'width': max(xv) - min(xv),
+                        })
+                if not bands:
+                    return {}
+                beam = max(bands, key=lambda b: b['width'])
+                x_min = min(all_xs)
+                x_max = max(all_xs)
+                beam_height = round(x_max - x_min, 1)
+                bw = round(beam['span'], 1)
+                neighbor_toward_positive = d.startswith('n')
+                if neighbor_toward_positive:
+                    tab_n = [b for b in bands if b['coord_min'] >= beam['coord_max']]
+                    tab_o = [b for b in bands if b['coord_max'] <= beam['coord_min']]
+                else:
+                    tab_n = [b for b in bands if b['coord_max'] <= beam['coord_min']]
+                    tab_o = [b for b in bands if b['coord_min'] >= beam['coord_max']]
+
+                def _tab_ns(tab_bands):
+                    if not tab_bands:
+                        return None
+                    b = min(tab_bands, key=lambda bb: abs(
+                        (bb['coord_min'] + bb['coord_max']) / 2
+                        - (beam['coord_min'] + beam['coord_max']) / 2))
+                    y_mid = (b['coord_min'] + b['coord_max']) / 2
+                    xv = self._polygon_x_at_y(pts, y_mid)
+                    if len(xv) < 2:
+                        return None
+                    tx_min = min(xv)
+                    tx_max = max(xv)
+                    return {
+                        'slab_h': round(tx_max - tx_min, 1),
+                        'dist_topo': round(tx_min - x_min, 1),
+                        'dist_fundo': round(x_max - tx_max, 1),
+                        'overhang': round(sum(bb['span'] for bb in tab_bands), 1),
+                    }
+
+                own_d = _tab_ns(tab_o)
+                neigh_d = _tab_ns(tab_n)
+            else:
+                # Fatias em X; extensao Y = eixo de elevacao (maior Y = topo estrutural)
+                xs_uniq = sorted(set(round(float(p[0]), 2) for p in pts))
+                bands = []
+                for i in range(len(xs_uniq) - 1):
+                    x_mid = (xs_uniq[i] + xs_uniq[i + 1]) / 2
+                    yv = self._polygon_y_at_x(pts, x_mid)
+                    if len(yv) >= 2:
+                        bands.append({
+                            'coord_min': xs_uniq[i], 'coord_max': xs_uniq[i + 1],
+                            'span': xs_uniq[i + 1] - xs_uniq[i],
+                            'width': max(yv) - min(yv),
+                        })
+                if not bands:
+                    return {}
+                beam = max(bands, key=lambda b: b['width'])
+                y_min = min(all_ys)
+                y_max = max(all_ys)
+                beam_height = round(y_max - y_min, 1)
+                bw = round(beam['span'], 1)
+                neighbor_toward_positive = d.startswith('l') or d.startswith('e')
+                if neighbor_toward_positive:
+                    tab_n = [b for b in bands if b['coord_min'] >= beam['coord_max']]
+                    tab_o = [b for b in bands if b['coord_max'] <= beam['coord_min']]
+                else:
+                    tab_n = [b for b in bands if b['coord_max'] <= beam['coord_min']]
+                    tab_o = [b for b in bands if b['coord_min'] >= beam['coord_max']]
+
+                def _tab_ew(tab_bands):
+                    if not tab_bands:
+                        return None
+                    b = min(tab_bands, key=lambda bb: abs(
+                        (bb['coord_min'] + bb['coord_max']) / 2
+                        - (beam['coord_min'] + beam['coord_max']) / 2))
+                    x_mid = (b['coord_min'] + b['coord_max']) / 2
+                    yv = self._polygon_y_at_x(pts, x_mid)
+                    if len(yv) < 2:
+                        return None
+                    ty_min = min(yv)
+                    ty_max = max(yv)
+                    return {
+                        'slab_h': round(ty_max - ty_min, 1),
+                        'dist_topo': round(y_max - ty_max, 1),
+                        'dist_fundo': round(ty_min - y_min, 1),
+                        'overhang': round(sum(bb['span'] for bb in tab_bands), 1),
+                    }
+
+                own_d = _tab_ew(tab_o)
+                neigh_d = _tab_ew(tab_n)
+
+            return {
+                'beam_height': beam_height,
+                'bw': bw,
+                'own_slab_h': (own_d or {}).get('slab_h', 0),
+                'neigh_slab_h': (neigh_d or {}).get('slab_h', 0),
+                'own_dist_topo': (own_d or {}).get('dist_topo', 0),
+                'own_dist_fundo': (own_d or {}).get('dist_fundo', 0),
+                'neigh_dist_topo': (neigh_d or {}).get('dist_topo', 0),
+                'neigh_dist_fundo': (neigh_d or {}).get('dist_fundo', 0),
+                'own_overhang': (own_d or {}).get('overhang', 0),
+                'neigh_overhang': (neigh_d or {}).get('overhang', 0),
+                # compatibilidade legado
+                'beam_bottom_dim': bw,
+                'own_tab_h': (own_d or {}).get('slab_h', 0),
+                'neighbor_tab_h': (neigh_d or {}).get('slab_h', 0),
+            }
+        except Exception:
+            return {}
+
+    def _infer_slab_position(self, own_tab_h: float, own_h: float, beam_h: float) -> str:
+        """Infere posicao da laje (topo/fundo/centro) com base nas abas do corte."""
+        if own_h <= 0 or beam_h <= 0:
+            return 'centro'
+        flush_tol = own_h * 0.15
+        if own_tab_h <= flush_tol:
+            return 'topo'
+        if abs(own_tab_h - own_h) <= flush_tol:
+            return 'fundo'
+        return 'centro'
+
+    def _auto_fill_cut_view_ficha(self, slab: Dict, link: dict, slabs: list[Dict], poly_map: dict) -> None:
+        if not isinstance(link, dict):
+            return
+        import re as _re
+        ficha = link.setdefault('ficha', {})
+        pts = link.get('points') or []
+        bb = self._points_bbox_tuple(pts)
+        center = self._bbox_center_tuple(bb)
+        direction = ficha.get('direction') or self._slab_cut_direction(slab, pts)
+        neighbor = self._neighbor_by_direction(slab, slabs, poly_map, direction) if direction else None
+        own_h_str = self._slab_height_value(slab)
+        neigh_h_str = self._slab_height_value(neighbor) if neighbor else ''
+
+        ficha.setdefault('direction', direction)
+        ficha.setdefault('side_b_laje_name', slab.get('name') or '')
+        ficha.setdefault('side_b_laje_height', self._slab_dim_text(slab) or own_h_str)
+        ficha.setdefault('side_a_laje_name', (neighbor or {}).get('name') or 'nulo')
+        ficha.setdefault('side_a_laje_height', self._slab_dim_text(neighbor) if neighbor else 'nulo')
+        ficha.setdefault('beam_lajes_side_a', '1' if neighbor else '0')
+        ficha.setdefault('beam_lajes_side_b', '1')
+        ficha.setdefault('own_height', own_h_str)
+        ficha.setdefault('neighbor_height', neigh_h_str or 'nulo')
+
+        # --- extrai dimensoes geometricas diretamente do poligono ---
+        geo = self._parse_cut_poly_sections(pts, direction)
+        if geo:
+            beam_h = geo.get('beam_height', 0.0)
+            bw     = geo.get('bw', 0.0)
+            own_slab_h   = geo.get('own_slab_h', 0.0)
+            neigh_slab_h = geo.get('neigh_slab_h', 0.0)
+            own_dt  = geo.get('own_dist_topo', 0.0)
+            own_df  = geo.get('own_dist_fundo', 0.0)
+            neigh_dt  = geo.get('neigh_dist_topo', 0.0)
+            neigh_df  = geo.get('neigh_dist_fundo', 0.0)
+
+            ficha.setdefault('beam_height', str(beam_h))
+            ficha.setdefault('beam_bottom_dim', str(bw))
+            # dist_top  = distancia laje_topo -> topo_viga (0 se nivelado no topo)
+            # dist_bottom = distancia fundo_viga -> fundo_laje
+            ficha.setdefault('own_dist_top',       str(own_dt))
+            ficha.setdefault('own_dist_bottom',    str(own_df))
+            ficha.setdefault('neighbor_dist_top',  str(neigh_dt))
+            ficha.setdefault('neighbor_dist_bottom', str(neigh_df))
+            ficha.setdefault('own_slab_height',    str(own_slab_h))
+            ficha.setdefault('neigh_slab_height',  str(neigh_slab_h) if neigh_slab_h else 'nulo')
+
+            try:
+                own_h_val = float(own_h_str or 0)
+            except Exception:
+                own_h_val = 0.0
+            pos = self._infer_slab_position(own_dt, own_h_val, beam_h)
+            ficha.setdefault('own_position', pos)
+            neigh_h_val = 0.0
+            try:
+                neigh_h_val = float(neigh_h_str or 0)
+            except Exception:
+                pass
+            n_pos = self._infer_slab_position(neigh_dt, neigh_h_val, beam_h) if neigh_h_val else 'nulo'
+            ficha.setdefault('neighbor_position', n_pos if neighbor else 'nulo')
+        else:
+            ficha.setdefault('own_position', 'centro')
+            ficha.setdefault('neighbor_position', 'centro' if neighbor else 'nulo')
+            ficha.setdefault('own_dist_top', '')
+            ficha.setdefault('own_dist_bottom', '')
+            ficha.setdefault('neighbor_dist_top', '')
+            ficha.setdefault('neighbor_dist_bottom', '')
+            ficha.setdefault('own_slab_height', '')
+            ficha.setdefault('neigh_slab_height', 'nulo')
+
+        # --- nome e dimensoes da viga via textos DXF proximos ---
+        beam_name = self._nearest_dxf_text(center, r'^(VF?\d+|V\d+)$', max_dist=1400.0)
+        if beam_name:
+            ficha.setdefault('beam_name', str(beam_name.get('text') or ''))
+        beam_dim_txt = self._nearest_dxf_text(center, r'\d+\s*[xX/]\s*\d+', max_dist=450.0)
+        if beam_dim_txt:
+            txt = str(beam_dim_txt.get('text') or '')
+            nums = _re.findall(r'\d+(?:[\.,]\d+)?', txt)
+            if nums:
+                ficha.setdefault('beam_bottom_dim', nums[0].replace(',', '.'))
+            if len(nums) >= 2:
+                ficha.setdefault('beam_height', nums[1].replace(',', '.'))
+            fl = link.setdefault('ficha_links', {})
+            for key in ('beam_bottom_dim', 'beam_height'):
+                fl.setdefault(key, [])
+                if not fl[key]:
+                    lk = dict(beam_dim_txt)
+                    lk['role'] = f'Ficha_{key}'
+                    fl[key] = [lk]
+        if beam_name:
+            fl = link.setdefault('ficha_links', {})
+            fl.setdefault('beam_name', [])
+            if not fl['beam_name']:
+                lk = dict(beam_name)
+                lk['role'] = 'Ficha_beam_name'
+                fl['beam_name'] = [lk]
+
+    def _pillar_face_from_edge_overlap(self, pillar_pts: list, slab_pts: list, horizontal: bool):
+        """
+        Determina a face do pilar (A/B/C/D) que coincide com a aresta da laje,
+        usando sobreposição de arestas — não comparação de centroide.
+
+        Convenção de faces:
+          HORIZONTAL (pw >= ph):  A=baixo(y0)  B=cima(y1)  C=esq(x0)  D=dir(x1)
+          VERTICAL   (ph >  pw):  A=esq(x0)   B=dir(x1)   C=cima(y1) D=baixo(y0)
+
+        Retorna (lado, face_label) ou ('NULO','NULO') se só toca em canto.
+        """
+        try:
+            pxs = [float(p[0]) for p in pillar_pts]
+            pys = [float(p[1]) for p in pillar_pts]
+        except Exception:
+            return 'NULO', 'NULO'
+
+        px0, px1, py0, py1 = min(pxs), max(pxs), min(pys), max(pys)
+
+        # Arestas do pilar: (eixo, coord_fixa, range_min, range_max, label)
+        if horizontal:
+            p_edges = {
+                'A': ('H', py0, px0, px1, 'BAIXO'),
+                'B': ('H', py1, px0, px1, 'CIMA'),
+                'C': ('V', px0, py0, py1, 'ESQ'),
+                'D': ('V', px1, py0, py1, 'DIR'),
+            }
+        else:
+            p_edges = {
+                'A': ('V', px0, py0, py1, 'ESQ'),
+                'B': ('V', px1, py0, py1, 'DIR'),
+                'C': ('H', py1, px0, px1, 'CIMA'),
+                'D': ('H', py0, px0, px1, 'BAIXO'),
+            }
+
+        # Arestas da laje separadas por orientação
+        s_h, s_v = [], []
+        n = len(slab_pts)
+        TOL_AX = 3.0
+        for i in range(n):
+            x1s, y1s = float(slab_pts[i][0]), float(slab_pts[i][1])
+            x2s, y2s = float(slab_pts[(i + 1) % n][0]), float(slab_pts[(i + 1) % n][1])
+            if abs(y1s - y2s) < TOL_AX:
+                s_h.append(((y1s + y2s) / 2, min(x1s, x2s), max(x1s, x2s)))
+            elif abs(x1s - x2s) < TOL_AX:
+                s_v.append(((x1s + x2s) / 2, min(y1s, y2s), max(y1s, y2s)))
+
+        TOL_PERP = 4.0
+        MIN_OVERLAP = 1.0  # sobreposição mínima para não contar apenas canto
+
+        best_side, best_label, best_ov = 'NULO', 'NULO', 0.0
+
+        for side, (axis, fixed, r0, r1, label) in p_edges.items():
+            edges_to_check = s_h if axis == 'H' else s_v
+            for s_fixed, s_r0, s_r1 in edges_to_check:
+                if abs(fixed - s_fixed) < TOL_PERP:
+                    ov = min(r1, s_r1) - max(r0, s_r0)
+                    if ov > MIN_OVERLAP and ov > best_ov:
+                        best_ov = ov
+                        best_side = side
+                        best_label = label
+
+        return best_side, best_label
+
+    def _auto_fill_pillar_ficha(self, slab: Dict, link: dict) -> None:
+        if not isinstance(link, dict):
+            return
+        ficha = link.setdefault('ficha', {})
+        pts = link.get('points') or []
+        pb = self._points_bbox_tuple(pts)
+        if not pb:
+            return
+        pw, ph = pb[2] - pb[0], pb[3] - pb[1]
+        orientation = 'RETANGULAR HORIZONTAL' if pw >= ph else 'RETANGULAR VERTICAL'
+        horizontal = pw >= ph
+
+        # Detectar face por sobreposição de arestas (não por centroide)
+        slab_pts = slab.get('points') or []
+        side, face = self._pillar_face_from_edge_overlap(pts, slab_pts, horizontal)
+
+        ficha.setdefault('pillar_orientation', orientation)
+        ficha.setdefault('pillar_side', side)
+        ficha.setdefault('touch_face', face)
+
+        # Classificar hatch usando convenção pré-processada do detalhe
+        convention = (getattr(self, 'pavimento_preprocess', None) or {}).get('convention', {})
+        hatch_class = self._classify_pillar_hatch(pts, convention)
+        ficha.setdefault('hatch_description', hatch_class)
+
+        name_txt = self._nearest_dxf_text(self._bbox_center_tuple(pb), r'^P\d+', max_dist=140.0)
+        if name_txt:
+            ficha.setdefault('pillar_name', str(name_txt.get('text') or ''))
+            fl = link.setdefault('ficha_links', {})
+            fl.setdefault('pillar_name', [])
+            if not fl['pillar_name']:
+                lk = dict(name_txt)
+                lk['role'] = 'Ficha_pillar_name'
+                fl['pillar_name'] = [lk]
+
+    def _extract_beam_texts(self) -> list[dict]:
+        """
+        Extrai textos do DXF que parecem nomes de vigas (ex: V301, V12).
+        Retorna lista de {text, pos, layer}.
+        """
+        import re as _re
+        BEAM_RE = _re.compile(r'^[Vv]\s*\d{2,}')
+        result: list[dict] = []
+        for t in (self.dxf_data or {}).get('texts', []) or []:
+            txt = str(t.get('text') or '').strip()
+            if not txt or not BEAM_RE.match(txt):
+                continue
+            pos = t.get('pos') or [0, 0]
+            result.append({'text': txt, 'pos': list(pos), 'layer': t.get('layer', '')})
+        return result
+
+    def _run_pre_validation_dialog(self) -> bool:
+        """
+        Abre o diálogo de pré-validação (Pilares + Visão de Cortes).
+        Retorna True se o usuário confirmou, False se cancelou.
+        Aplica o resultado diretamente nas estruturas de dados.
+        """
+        from src.ui.widgets.pre_validation_dialog import PreValidationDialog
+
+        preproc = getattr(self, 'pavimento_preprocess', {}) or {}
+        obra = preproc.get('obra') or ''
+        pavimento = preproc.get('pavimento') or ''
+        convention = preproc.get('convention') or {}
+
+        beam_texts = self._extract_beam_texts() if getattr(self, 'dxf_data', None) else []
+
+        # Arquivo de convenção salva (um por obra em DADOS-OBRAS/{obra}/)
+        _dados_root = os.path.normpath(
+            os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'DADOS-OBRAS')
+        )
+        _convention_file: str | None = (
+            os.path.join(_dados_root, obra, 'convencao_pilares.json') if obra else None
+        )
+
+        _db_path = getattr(self.db, 'db_path', None)
+
+        dlg = PreValidationDialog(
+            pillar_report=self.pavimento_pillar_report,
+            nivel_report=self.pavimento_nivel_report,
+            slabs=self.slabs_found,
+            convention=convention,
+            obra=obra,
+            pavimento=pavimento,
+            beam_texts=beam_texts,
+            canvas=getattr(self, 'canvas', None),
+            convention_file=_convention_file,
+            db_path=_db_path,
+            parent=self,
+        )
+
+        from PySide6.QtWidgets import QDialog
+        if dlg.exec_() != QDialog.Accepted:
+            return False
+
+        result = dlg.get_result()
+        self._apply_pre_validation_result(result)
+        return True
+
+    def _apply_pre_validation_result(self, result: dict) -> None:
+        """
+        Aplica as decisões do diálogo de pré-validação nas estruturas internas:
+        - Atualiza pavimento_pillar_report com overrides de classificação
+        - Grava term_type_map em pavimento_preprocess
+        - Armazena cut_view_assignments nos fichas dos cortes das lajes
+        """
+        term_map = result.get('term_type_map') or {}
+        pillar_overrides = result.get('pillar_overrides') or {}
+        cut_assignments = result.get('cut_view_assignments') or {}
+
+        # Salva mapeamento de termos no preprocess para uso posterior
+        preproc = getattr(self, 'pavimento_preprocess', {}) or {}
+        preproc['term_type_map'] = term_map
+        self.pavimento_preprocess = preproc
+
+        # Aplica overrides de pilares
+        for key, override in pillar_overrides.items():
+            if key in self.pavimento_pillar_report:
+                entry = self.pavimento_pillar_report[key]
+                entry['classification'] = override.get('classification', entry.get('classification'))
+                entry['physical_type'] = override.get('physical_type', 'unknown')
+                entry['ignore_in_beams'] = bool(override.get('ignore_in_beams', False))
+
+        if not cut_assignments:
+            return
+
+        # Aplica associações de viga nos fichas dos cortes
+        for slab in (self.slabs_found or []):
+            slab_name = slab.get('name') or '?'
+            links = slab.get('links') or {}
+            cut_links = links.get('laje_visao_corte', {})
+            if not isinstance(cut_links, dict):
+                continue
+            for cut in cut_links.get('cut_view_geom', []) or []:
+                if not isinstance(cut, dict):
+                    continue
+                pts = cut.get('points') or []
+                try:
+                    xs = [float(p[0]) for p in pts]
+                    ys = [float(p[1]) for p in pts]
+                    cx = (min(xs) + max(xs)) / 2.0
+                    cy = (min(ys) + max(ys)) / 2.0
+                    uid = f"{slab_name}_{round(cx)}_{round(cy)}"
+                except Exception:
+                    continue
+                assign = cut_assignments.get(uid)
+                if assign:
+                    ficha = cut.setdefault('ficha', {})
+                    ficha['beam_name'] = assign.get('beam_name') or ''
+                    ficha['beam_name_confidence'] = assign.get('confidence', 0.0)
+
+        n_pil = sum(1 for k, v in pillar_overrides.items()
+                    if v.get('classification') and v['classification'] != 'INDETERMINADO')
+        n_cuts_assigned = sum(1 for a in cut_assignments.values() if a.get('beam_name'))
+        self.log(f"✅ Pré-validação aplicada: {n_pil} pilar(es) com classificação, "
+                 f"{n_cuts_assigned} corte(s) com viga associada.")
+
+    def _build_pillar_report(self, slabs: list[Dict]) -> dict:
+        """
+        Consolida, a partir dos vínculos das lajes, um relatório de todos os pilares
+        detectados no pavimento.
+
+        Estrutura retornada:
+          { pillar_key: {
+              'name': str,
+              'bbox': (x0,y0,x1,y1),
+              'points': list,
+              'orientation': str,
+              'classification': 'NASCE'|'SEGUE'|'MORRE'|'INDETERMINADO',
+              'ignore_in_beams': bool,   # True se NASCE
+              'lajes': [{'laje': str, 'side': str, 'face': str}],
+          }}
+
+        pillar_key = nome do pilar se disponível, senão hash da bbox arredondada.
+        Pilares encontrados em múltiplas lajes são mesclados em uma única entrada.
+        """
+        report: dict = {}
+
+        for slab in slabs:
+            slab_name = slab.get('name') or '?'
+            links = slab.get('links') or {}
+            pillar_field = links.get('laje_pilares_apoio', {})
+            if not isinstance(pillar_field, dict):
+                continue
+            for link in pillar_field.get('pillar_geom', []) or []:
+                if not isinstance(link, dict):
+                    continue
+                pts = link.get('points') or []
+                ficha = link.get('ficha') or {}
+                name = ficha.get('pillar_name') or ''
+                side = ficha.get('pillar_side') or 'NULO'
+                face = ficha.get('touch_face') or 'NULO'
+                orientation = ficha.get('pillar_orientation') or ''
+                classification = ficha.get('hatch_description') or 'INDETERMINADO'
+
+                # Chave de identidade: nome ou posição arredondada
+                if name:
+                    key = name.strip().upper()
+                elif pts:
+                    try:
+                        xs = [float(p[0]) for p in pts]; ys = [float(p[1]) for p in pts]
+                        key = f"bbox_{round(min(xs))}_{round(min(ys))}_{round(max(xs))}_{round(max(ys))}"
+                    except Exception:
+                        key = str(id(link))
+                else:
+                    continue
+
+                laje_entry = {'laje': slab_name, 'side': side, 'face': face}
+
+                if key in report:
+                    # Mescla: adiciona laje se ainda não listada
+                    existing_lajes = [e['laje'] for e in report[key]['lajes']]
+                    if slab_name not in existing_lajes:
+                        report[key]['lajes'].append(laje_entry)
+                    # Atualiza classification se era INDETERMINADO
+                    if report[key]['classification'] == 'INDETERMINADO' and classification != 'INDETERMINADO':
+                        report[key]['classification'] = classification
+                        report[key]['ignore_in_beams'] = (classification == 'NASCE')
+                else:
+                    bbox = None
+                    if pts:
+                        try:
+                            xs = [float(p[0]) for p in pts]; ys = [float(p[1]) for p in pts]
+                            bbox = (min(xs), min(ys), max(xs), max(ys))
+                        except Exception:
+                            pass
+                    report[key] = {
+                        'name': name or key,
+                        'bbox': bbox,
+                        'points': pts,
+                        'orientation': orientation,
+                        'classification': classification,
+                        'ignore_in_beams': (classification == 'NASCE'),
+                        'lajes': [laje_entry],
+                    }
+
+        return report
+
+    def get_pillar_report(self) -> dict:
+        """Acesso ao relatório de pilares do pavimento atual. Retorna {} se não gerado."""
+        return getattr(self, 'pavimento_pillar_report', {})
+
+    # ──────────────────────────────────────────────────────────────────────────
+    # Part B — Inferência de nível via delta do corte de viga
+    # ──────────────────────────────────────────────────────────────────────────
+
+    def _cut_view_level_delta(self, cut_link: dict, own_position: str, neighbor_position: str,
+                              slab: dict, neighbor: dict) -> float | None:
+        """
+        Calcula a diferença de nível (delta em cm) entre esta laje e a vizinha
+        usando as abas geométricas do corte de viga.
+
+        Positivo = esta laje está ACIMA da vizinha.
+        Retorna None se não for possível calcular.
+
+        Lógica:
+          - own_dist_top = distância do topo da viga até o topo da aba desta laje
+          - neighbor_dist_top = mesmo para a vizinha
+          - Se as posições diferem, a diferença das dist_top dá o delta vertical.
+        """
+        if not isinstance(cut_link, dict):
+            return None
+        ficha = cut_link.get('ficha') or {}
+        try:
+            own_dt = float(ficha.get('own_dist_top') or 0)
+            neigh_dt = float(ficha.get('neighbor_dist_top') or 0)
+        except Exception:
+            return None
+        if own_dt == 0.0 and neigh_dt == 0.0:
+            return None
+        # delta positivo = esta laje está mais acima que a vizinha
+        return round(neigh_dt - own_dt, 2)
+
+    def _infer_slab_level_from_cut_deltas(self, slabs: list[Dict],
+                                          level_sources: dict,
+                                          poly_map: dict) -> int:
+        """
+        Para cada laje sem nível confirmado que tenha corte de viga:
+        - encontra a laje vizinha no corte (ficha.side_a_laje_name)
+        - se a vizinha tem nível confirmado, aplica delta
+        - se não, marca para revisão com o delta disponível
+
+        Retorna o número de lajes com nível aplicado por este método.
+        """
+        applied = 0
+        for slab in slabs:
+            if self._slab_has_human_level(slab):
+                continue
+            if level_sources.get(slab.get('id') or slab.get('name')):
+                continue  # já tem nível por outro caminho
+
+            cuts = self._slab_cut_links(slab)
+            if not cuts:
+                continue
+
+            candidate_values: list[dict] = []
+            for cut in cuts:
+                if not isinstance(cut, dict):
+                    continue
+                ficha = cut.get('ficha') or {}
+                neighbor_name = (ficha.get('side_a_laje_name') or '').strip()
+                if not neighbor_name or neighbor_name.lower() == 'nulo':
+                    continue
+
+                # Localiza a laje vizinha pelo nome
+                neighbor = next((s for s in slabs if (s.get('name') or '') == neighbor_name), None)
+                if not neighbor:
+                    continue
+
+                n_src = level_sources.get(neighbor.get('id') or neighbor.get('name'))
+                if not n_src:
+                    continue
+
+                own_pos = ficha.get('own_position') or 'centro'
+                neigh_pos = ficha.get('neighbor_position') or 'centro'
+                delta = self._cut_view_level_delta(cut, own_pos, neigh_pos, slab, neighbor)
+                if delta is None:
+                    continue
+
+                calc_level = n_src['value'] + delta
+                confidence = 0.80 if n_src.get('human') else 0.55
+                candidate_values.append({
+                    'value': round(calc_level, 2),
+                    'confidence': confidence,
+                    'delta': delta,
+                    'source_slab': neighbor_name,
+                    'source_level': n_src['value'],
+                    'human_source': bool(n_src.get('human')),
+                    'method': 'cut_view_delta',
+                })
+
+            if not candidate_values:
+                continue
+
+            # Escolhe o de maior confiança; em empate, usa a média
+            candidate_values.sort(key=lambda x: x['confidence'], reverse=True)
+            best = candidate_values[0]
+            self._apply_inferred_slab_level(
+                slab, best['value'],
+                f"cut_view_delta from {best['source_slab']} (Δ={best['delta']:+.1f}cm)",
+                candidate_values
+            )
+            # Enriquece o level_inference com metadados de confiança
+            slab['level_inference']['confidence'] = best['confidence']
+            slab['level_inference']['method'] = 'cut_view_delta'
+            level_sources[slab.get('id') or slab.get('name')] = {
+                'value': best['value'],
+                'slab': slab.get('name'),
+                'human': False,
+                'kind': 'cut_view_delta',
+                'confidence': best['confidence'],
+            }
+            applied += 1
+
+        return applied
+
+    # ──────────────────────────────────────────────────────────────────────────
+    # Part A — Relatório consolidado de níveis do pavimento
+    # ──────────────────────────────────────────────────────────────────────────
+
+    def _build_nivel_report(self, slabs: list[Dict],
+                            pillar_report: dict | None = None) -> dict:
+        """
+        Constrói e retorna o relatório consolidado de níveis para todas as lajes
+        e todos os pilares do pavimento.
+
+        Estrutura:
+          {
+            'lajes': {
+              name: {
+                'name': str,
+                'level': float | None,
+                'level_str': str,
+                'confidence': float,           # 1.0=humano, 0.8=cut_delta_human_src, 0.55=inferido, 0.0=desconhecido
+                'source_type': str,            # 'human_direct'|'text_label'|'cut_view_delta'|'neighbor_inferred'|'unknown'
+                'inference': dict,             # cópia de slab['level_inference'] se existir
+                'neighbors': dict,             # {north/south/east/west: name_or_level}
+                'warnings': list[str],
+                'has_cut_view': bool,
+              }
+            },
+            'pilares': {
+              key: {
+                'name': str,
+                'level': float | None,
+                'level_str': str,
+                'laje_source': str,
+                'ignore_in_beams': bool,
+                'classification': str,
+                'warnings': list[str],
+              }
+            },
+            'summary': {
+              'total_lajes': int,
+              'confirmed': int,
+              'inferred': int,
+              'unknown': int,
+              'hallucination_suspects': int,
+              'median_level': float | None,
+            }
+          }
+        """
+        import statistics
+
+        lajes_report: dict = {}
+        pilares_report: dict = {}
+
+        # ── 1. Lajes ──────────────────────────────────────────────────────────
+        all_levels: list[float] = []
+        for slab in slabs:
+            name = slab.get('name') or str(slab.get('id') or id(slab))
+
+            src = self._slab_level_source(slab, include_neighbor_context=True)
+            inference = slab.get('level_inference') or {}
+            has_cut = self._slab_has_cut_view(slab)
+
+            # Determina level/confidence/source_type
+            if src:
+                level_val = src['value']
+                is_human = bool(src.get('human'))
+                kind = src.get('kind', '')
+                if is_human:
+                    source_type = 'human_direct'
+                    confidence = 1.0
+                elif kind == 'cut_view_delta':
+                    source_type = 'cut_view_delta'
+                    confidence = float(inference.get('confidence', 0.80))
+                elif kind in ('field', 'flat', 'label'):
+                    source_type = 'text_label'
+                    confidence = 0.90
+                elif inference.get('status') == 'inferred':
+                    source_type = 'neighbor_inferred'
+                    confidence = float(inference.get('confidence', 0.55))
+                else:
+                    source_type = 'auto_linked'
+                    confidence = 0.65
+            else:
+                level_val = None
+                source_type = 'unknown'
+                confidence = 0.0
+
+            if level_val is not None:
+                all_levels.append(level_val)
+
+            # Direções dos vizinhos (nomes)
+            neighbor_links = self._ensure_slab_neighbor_level_links(slab)
+            neighbors: dict = {}
+            for slot in ('neighbor_north', 'neighbor_south', 'neighbor_east', 'neighbor_west'):
+                links_in_slot = neighbor_links.get(slot) or []
+                names = [l.get('source_slab') for l in links_in_slot if isinstance(l, dict) and l.get('source_slab')]
+                if names:
+                    neighbors[slot.replace('neighbor_', '')] = names[0]
+
+            lajes_report[name] = {
+                'name': name,
+                'level': level_val,
+                'level_str': self._format_slab_level_value(level_val) if level_val is not None else '',
+                'confidence': confidence,
+                'source_type': source_type,
+                'inference': inference,
+                'neighbors': neighbors,
+                'warnings': [],
+                'has_cut_view': has_cut,
+            }
+
+        # ── 2. Quality gate — detecta níveis alucinados ───────────────────────
+        known_levels = [e['level'] for e in lajes_report.values() if e['level'] is not None]
+        median_level = statistics.median(known_levels) if known_levels else None
+        OUTLIER_THRESHOLD_CM = 200.0
+
+        for entry in lajes_report.values():
+            if entry['level'] is None:
+                continue
+            if median_level is not None:
+                delta = abs(entry['level'] - median_level)
+                if delta > OUTLIER_THRESHOLD_CM:
+                    entry['warnings'].append(
+                        f"Nivel {entry['level_str']} diverge {delta:.0f}cm da mediana ({median_level:.2f}cm) — possivel alucinacao"
+                    )
+            if entry['confidence'] < 0.6 and entry['source_type'] not in ('unknown',):
+                entry['warnings'].append("Confianca baixa na inferencia de nivel")
+
+        # ── 3. Pilares ────────────────────────────────────────────────────────
+        pr = pillar_report or {}
+        for key, pillar in pr.items():
+            # Nível do pilar = máximo nível das lajes que ele toca
+            touching_levels: list[float] = []
+            laje_src = ''
+            for laje_entry in pillar.get('lajes', []):
+                lj_name = laje_entry.get('laje') or ''
+                rep = lajes_report.get(lj_name)
+                if rep and rep['level'] is not None:
+                    touching_levels.append(rep['level'])
+                    if not laje_src or rep['confidence'] > lajes_report.get(laje_src, {}).get('confidence', 0):
+                        laje_src = lj_name
+
+            if touching_levels:
+                p_level = max(touching_levels)
+            else:
+                p_level = None
+
+            p_warnings = []
+            if p_level is None:
+                p_warnings.append("Sem laje com nivel confirmado nas adjacentes")
+
+            pilares_report[key] = {
+                'name': pillar.get('name') or key,
+                'level': p_level,
+                'level_str': self._format_slab_level_value(p_level) if p_level is not None else '',
+                'laje_source': laje_src,
+                'ignore_in_beams': bool(pillar.get('ignore_in_beams')),
+                'classification': pillar.get('classification') or 'INDETERMINADO',
+                'warnings': p_warnings,
+            }
+
+        # ── 4. Sumário ────────────────────────────────────────────────────────
+        confirmed = sum(1 for e in lajes_report.values() if e['confidence'] >= 0.9)
+        inferred = sum(1 for e in lajes_report.values() if 0.0 < e['confidence'] < 0.9)
+        unknown = sum(1 for e in lajes_report.values() if e['confidence'] == 0.0)
+        hallucination_suspects = sum(1 for e in lajes_report.values() if e['warnings'])
+
+        return {
+            'lajes': lajes_report,
+            'pilares': pilares_report,
+            'summary': {
+                'total_lajes': len(lajes_report),
+                'confirmed': confirmed,
+                'inferred': inferred,
+                'unknown': unknown,
+                'hallucination_suspects': hallucination_suspects,
+                'median_level': median_level,
+            },
+        }
+
+    def get_nivel_report(self) -> dict:
+        """Acesso ao relatório de níveis do pavimento atual. Retorna {} se não gerado."""
+        return getattr(self, 'pavimento_nivel_report', {})
+
+    def is_pillar_nasce(self, pillar_name: str) -> bool:
+        """True se o pilar é NASCE neste pavimento (deve ser desconsiderado nas vigas)."""
+        report = self.get_pillar_report()
+        key = (pillar_name or '').strip().upper()
+        entry = report.get(key)
+        if entry:
+            return bool(entry.get('ignore_in_beams'))
+        return False
+
+    def _auto_link_slab_cut_views(self, slabs: list[Dict]) -> tuple[int, int]:
+        if not getattr(self, 'dxf_data', None):
+            return 0, 0
+        from shapely.geometry import LineString, Polygon
+        poly_map = self._slab_polygon_map(slabs)
+        added_cuts = 0
+        added_pillars = 0
+        candidates = []
+        for item in self.dxf_data.get('polylines', []) or []:
+            pts = item.get('points') or []
+            if len(pts) < 5 or len(pts) > 24:
+                continue
+            try:
+                xs = [float(p[0]) for p in pts]
+                ys = [float(p[1]) for p in pts]
+                w, h = max(xs) - min(xs), max(ys) - min(ys)
+                if w < 5 or h < 5 or w > 180 or h > 180:
+                    continue
+                if w / max(h, 1.0) > 5.0 or h / max(w, 1.0) > 5.0:
+                    continue
+                geom = Polygon(pts) if pts[0] == pts[-1] else LineString(pts)
+                if geom.is_empty:
+                    continue
+                bbox = (min(xs), min(ys), max(xs), max(ys))
+                marker_kind = self._classify_slab_boundary_marker(pts, geom, bbox)
+                candidates.append((item, geom, bbox, marker_kind))
+            except Exception:
+                continue
+
+        for slab in slabs:
+            cut_links = self._ensure_slab_cut_view_links(slab)
+            pillar_links = self._ensure_slab_support_pillar_links(slab)
+            existing = cut_links.get('cut_view_geom', []) or []
+            existing_pillars = pillar_links.get('pillar_geom', []) or []
+            for link in existing:
+                self._auto_fill_cut_view_ficha(slab, link, slabs, poly_map)
+            for link in existing_pillars:
+                self._auto_fill_pillar_ficha(slab, link)
+            has_validated_cut = any(isinstance(link, dict) and link.get('validated') for link in existing)
+            poly = poly_map.get(slab.get('id') or slab.get('name'))
+            if not poly:
+                continue
+            minx, miny, maxx, maxy = poly.bounds
+            min_dim = max(1.0, min(maxx - minx, maxy - miny))
+            max_dist = max(35.0, min(120.0, min_dim * 0.18))
+            ranked = []
+            for item, geom, _bbox, marker_kind in candidates:
+                try:
+                    dist = geom.distance(poly.boundary)
+                    if dist <= max_dist and geom.distance(poly) <= max_dist:
+                        ranked.append((dist, item, marker_kind))
+                except Exception:
+                    continue
+            cut_count = 0
+            pillar_count = 0
+            for dist, item, marker_kind in sorted(ranked, key=lambda x: x[0])[:10]:
+                pts = item.get('points') or []
+                duplicate = False
+                probe = {'points': pts}
+                target_existing = existing_pillars if marker_kind == 'pillar' else existing
+                for link in target_existing:
+                    if isinstance(link, dict) and self._same_cut_view_signature(probe, link):
+                        duplicate = True
+                        break
+                if duplicate:
+                    continue
+
+                if marker_kind == 'pillar':
+                    if pillar_count >= 8:
+                        continue
+                    new_link = {
+                        'type': 'poly',
+                        'points': pts,
+                        'text': 'Pilar de apoio detectado',
+                        'role': 'Pillar_support_geom_auto',
+                        'is_inferred': True,
+                        'source': 'compact_geometry_near_slab_boundary',
+                        'distance_to_slab': round(float(dist), 3),
+                        'layer': item.get('layer'),
+                    }
+                    self._auto_fill_pillar_ficha(slab, new_link)
+                    pillar_links['pillar_geom'].append(new_link)
+                    pillar_count += 1
+                    added_pillars += 1
+                    continue
+
+                if has_validated_cut:
+                    continue
+                if cut_count >= 4:
+                    continue
+                new_link = {
+                    'type': 'poly',
+                    'points': pts,
+                    'text': 'Visao de corte detectada',
+                    'role': 'Cut_view_geom_auto',
+                    'is_inferred': True,
+                    'source': 'geometry_near_slab_boundary',
+                    'distance_to_slab': round(float(dist), 3),
+                    'layer': item.get('layer'),
+                }
+                self._auto_fill_cut_view_ficha(slab, new_link, slabs, poly_map)
+                cut_links['cut_view_geom'].append(new_link)
+                cut_count += 1
+                added_cuts += 1
+        return added_cuts, added_pillars
+
+    def _neighbor_slabs(self, target: Dict, slabs: list[Dict], poly_map: dict, max_dist: float = 45.0) -> list[tuple[float, Dict]]:
+        target_poly = poly_map.get(target.get('id') or target.get('name'))
+        if not target_poly:
+            return []
+        result = []
+        for other in slabs:
+            if other is target:
+                continue
+            other_poly = poly_map.get(other.get('id') or other.get('name'))
+            if not other_poly:
+                continue
+            try:
+                dist = target_poly.distance(other_poly)
+            except Exception:
+                continue
+            if dist <= max_dist:
+                result.append((float(dist), other))
+        result.sort(key=lambda x: x[0])
+        return result
+
+    def _orthogonal_neighbor_slabs(self, target: Dict, slabs: list[Dict], poly_map: dict, max_dist: float = 45.0) -> list[tuple[float, str, Dict]]:
+        target_poly = poly_map.get(target.get('id') or target.get('name'))
+        if not target_poly:
+            return []
+        try:
+            ta = target_poly.bounds
+            tcx = (ta[0] + ta[2]) / 2.0
+            tcy = (ta[1] + ta[3]) / 2.0
+            tw = max(1.0, ta[2] - ta[0])
+            th = max(1.0, ta[3] - ta[1])
+        except Exception:
+            return []
+
+        result = []
+        for other in slabs:
+            if other is target:
+                continue
+            other_poly = poly_map.get(other.get('id') or other.get('name'))
+            if not other_poly:
+                continue
+            try:
+                dist = float(target_poly.distance(other_poly))
+                if dist > max_dist:
+                    continue
+                ob = other_poly.bounds
+                ocx = (ob[0] + ob[2]) / 2.0
+                ocy = (ob[1] + ob[3]) / 2.0
+                ow = max(1.0, ob[2] - ob[0])
+                oh = max(1.0, ob[3] - ob[1])
+                x_overlap = max(0.0, min(ta[2], ob[2]) - max(ta[0], ob[0]))
+                y_overlap = max(0.0, min(ta[3], ob[3]) - max(ta[1], ob[1]))
+                vertical = x_overlap >= min(tw, ow) * 0.12 and abs(ocy - tcy) >= abs(ocx - tcx)
+                horizontal = y_overlap >= min(th, oh) * 0.12 and abs(ocx - tcx) >= abs(ocy - tcy)
+                if not (vertical or horizontal):
+                    continue
+                if vertical:
+                    direction = 'top' if ocy > tcy else 'bottom'
+                else:
+                    direction = 'right' if ocx > tcx else 'left'
+                result.append((dist, direction, other))
+            except Exception:
+                continue
+        result.sort(key=lambda x: (x[1], x[0]))
+        return result
+
+    def _auto_link_slab_neighbor_level_texts(self, slabs: list[Dict], poly_map: dict) -> int:
+        added = 0
+        for slab in slabs:
+            neighbor_links = self._ensure_slab_neighbor_level_links(slab)
+            for dist, direction, other in self._orthogonal_neighbor_slabs(slab, slabs, poly_map):
+                slot = self._neighbor_direction_slot(direction)
+                neighbor_texts = neighbor_links.setdefault(slot, [])
+                for level_link in self._own_slab_level_links(other):
+                    new_link = dict(level_link)
+                    new_link['type'] = new_link.get('type') or 'text'
+                    new_link['role'] = slot
+                    new_link['source'] = 'orthogonal_neighbor_level'
+                    new_link['source_slab'] = other.get('name')
+                    new_link['source_direction'] = direction
+                    new_link['distance_to_slab'] = round(float(dist), 3)
+                    new_link['is_inferred'] = True
+                    new_link.pop('validated', None)
+                    if self._append_unique_neighbor_level_link(neighbor_texts, new_link):
+                        added += 1
+                for text_link in self._slab_name_dim_links(other):
+                    new_link = dict(text_link)
+                    new_link['role'] = slot
+                    new_link['source'] = 'orthogonal_neighbor_identity'
+                    new_link['source_slab'] = other.get('name')
+                    new_link['source_direction'] = direction
+                    new_link['distance_to_slab'] = round(float(dist), 3)
+                    new_link['is_inferred'] = True
+                    new_link.pop('validated', None)
+                    if self._append_unique_neighbor_level_link(neighbor_texts, new_link):
+                        added += 1
+        return added
+
+    def _choose_consensus_level(self, sources: list[dict], tol: float = 0.05) -> dict | None:
+        if not sources:
+            return None
+        groups = []
+        for src in sources:
+            placed = False
+            for group in groups:
+                if abs(group['value'] - src['value']) <= tol:
+                    group['items'].append(src)
+                    group['value'] = sum(i['value'] for i in group['items']) / len(group['items'])
+                    placed = True
+                    break
+            if not placed:
+                groups.append({'value': src['value'], 'items': [src]})
+        groups.sort(key=lambda g: (sum(2 if i.get('human') else 1 for i in g['items']), len(g['items'])), reverse=True)
+        best = groups[0]
+        if len(groups) > 1 and abs(best['value'] - groups[1]['value']) > tol:
+            best['ambiguous'] = True
+        return best
+
+    def _apply_inferred_slab_level(self, slab: Dict, value: float, reason: str, sources: list[dict]):
+        text = self._format_slab_level_value(value)
+        fields = slab.setdefault('fields', {})
+        fields['laje_nivel'] = text
+        slab['laje_nivel'] = text
+        level_links = self._ensure_slab_level_links(slab)
+        if not level_links.get('label'):
+            src_name = sources[0].get('slab') if sources else None
+            level_links['label'].append({
+                'type': 'text',
+                'text': text,
+                'role': 'Nivel inferido',
+                'is_inferred': True,
+                'source': reason,
+                'source_slab': src_name,
+            })
+        slab['level_inference'] = {
+            'status': 'inferred',
+            'reason': reason,
+            'value': text,
+            'sources': sources[:5],
+        }
+
+    def _infer_slab_levels_from_context(self, slabs: list[Dict]) -> None:
+        if not slabs:
+            return
+        auto_cuts, auto_pillars = self._auto_link_slab_cut_views(slabs)
+        poly_map = self._slab_polygon_map(slabs)
+        auto_neighbor_levels = self._auto_link_slab_neighbor_level_texts(slabs, poly_map)
+
+        level_sources = {}
+        for slab in slabs:
+            source = self._slab_level_source(slab, include_neighbor_context=False)
+            if source:
+                source = dict(source)
+                source['slab'] = slab.get('name')
+                source['has_cut'] = self._slab_has_cut_view(slab)
+                level_sources[slab.get('id') or slab.get('name')] = source
+
+        inferred_count = 0
+        for slab in slabs:
+            key = slab.get('id') or slab.get('name')
+            if self._slab_has_human_level(slab):
+                continue
+
+            current_source = self._slab_level_source(slab, include_neighbor_context=False)
+            level_links = self._ensure_slab_level_links(slab)
+            has_explicit_level_label = any(
+                isinstance(link, dict) and self._parse_slab_level_value(link.get('text')) is not None
+                for link in (level_links.get('label', []) or [])
+            )
+            if current_source and (current_source.get('kind') == 'label' or has_explicit_level_label):
+                # Existe texto explicito vinculado; deixa para validacao humana.
+                continue
+
+            has_cut = self._slab_has_cut_view(slab)
+            sources = []
+            reason = ''
+
+            if has_cut:
+                for own_cut in self._slab_cut_links(slab):
+                    if not isinstance(own_cut, dict):
+                        continue
+                    for other in slabs:
+                        if other is slab:
+                            continue
+                        other_src = level_sources.get(other.get('id') or other.get('name'))
+                        if not other_src:
+                            continue
+                        for other_cut in self._slab_cut_links(other):
+                            if isinstance(other_cut, dict) and self._same_cut_view_signature(own_cut, other_cut):
+                                sources.append(dict(other_src))
+                                break
+                reason = 'cut_view_paired_with_validated_slab'
+            else:
+                for _dist, other in self._neighbor_slabs(slab, slabs, poly_map):
+                    if self._slab_has_cut_view(other):
+                        continue
+                    src = level_sources.get(other.get('id') or other.get('name'))
+                    if src:
+                        sources.append(dict(src))
+                reason = 'normal_neighbor_level_consensus'
+
+            consensus = self._choose_consensus_level(sources)
+            if consensus and not consensus.get('ambiguous'):
+                self._apply_inferred_slab_level(slab, consensus['value'], reason, consensus['items'])
+                inferred_count += 1
+            elif has_cut:
+                slab['level_inference'] = {
+                    'status': 'needs_review',
+                    'reason': 'cut_view_without_paired_level',
+                    'cut_views': len(self._slab_cut_links(slab)),
+                }
+
+        # Part B — segunda passagem: usa delta geométrico dos cortes de viga
+        delta_count = self._infer_slab_level_from_cut_deltas(slabs, level_sources, poly_map)
+
+        if auto_cuts or auto_pillars or auto_neighbor_levels or inferred_count or delta_count:
+            self.log(f"🧭 Lajes: {auto_cuts} visão(ões) de corte, {auto_pillars} pilar(es) de apoio, {auto_neighbor_levels} texto(s) de nível vizinho; {inferred_count} nível(is) por contexto, {delta_count} por delta de corte.")
+
     def _process_slab_intelligent(self, s: Dict):
         """
         Inteligência para Lajes:
@@ -7326,7 +9470,10 @@ class MainWindow(QMainWindow):
             'links': {
                 'name': {'label': [{'text': s['name'], 'type': 'text', 'pos': s.get('pos', (0,0)), 'role': 'Identificador Laje'}]},
                 'laje_dim': {'label': []}, # UI Field: laje_dim
-                'laje_nivel': {'label': [], 'cut_view_geom': [], 'cut_view_text': []}, # UI Field: laje_nivel
+                'laje_visao_corte': {'cut_view_geom': []}, # UI Field: laje_visao_corte
+                'laje_vizinhas_niveis': {'neighbor_north': [], 'neighbor_east': [], 'neighbor_west': [], 'neighbor_south': []}, # UI Field: laje_vizinhas_niveis
+                'laje_pilares_apoio': {'pillar_geom': [], 'pillar_label': []}, # UI Field: laje_pilares_apoio
+                'laje_nivel': {'label': []}, # UI Field: laje_nivel
                 'laje_outline_segs': {'contour': [], 'acrescimo_borda': []}, # UI Field: laje_outline_segs
                 '_laje_complex': {'label': [], 'dim': [], 'cut_view': []} 
             }
@@ -7536,8 +9683,9 @@ class MainWindow(QMainWindow):
             
         elif 'laje' in itype:
             # --- LAJES ---
-            # name, laje_dim, laje_nivel, laje_outline_segs, laje_islands
-            return 5
+            # name, laje_dim, laje_visao_corte, laje_vizinhas_niveis, laje_pilares_apoio,
+            # laje_nivel, laje_outline_segs, laje_islands
+            return 8
             
         return 10 # Default fallback
 
@@ -8192,6 +10340,38 @@ class MainWindow(QMainWindow):
             print(f"[DIAG DUMP ERROR] {e}")
             import traceback
             traceback.print_exc()
+
+    def on_detail_validation_changed(self, payload):
+        """Sincronizacao leve para cliques de Validar por campo/slot."""
+        if not self.current_card:
+            return
+
+        try:
+            item_data = payload.get('item') if isinstance(payload, dict) else None
+            if item_data is None:
+                item_data = self.current_card.item_data
+
+            itype = str(item_data.get('type') or '').lower()
+
+            if self.current_project_id:
+                if 'viga' in itype:
+                    self.db.save_beam(item_data, self.current_project_id)
+                elif 'pilar' in itype:
+                    self.db.save_pillar(item_data, self.current_project_id)
+                elif 'laje' in itype:
+                    self.db.save_slab(item_data, self.current_project_id)
+
+            self._sync_list_item_text(item_data)
+
+            if self.canvas and self.canvas.scene:
+                self.canvas.scene.update()
+            if self.canvas:
+                self.canvas.viewport().update()
+        except Exception as e:
+            import traceback
+            self.log(f"❌ Erro em on_detail_validation_changed: {e}")
+            print(traceback.format_exc())
+
     def on_detail_data_changed(self, data):
         """Callback genérico para mudanças nos dados do DetailCard (remoção de links, etc)"""
         if not self.current_card: return
@@ -8555,6 +10735,7 @@ class MainWindow(QMainWindow):
         self.current_card.data_validated.connect(self.on_card_validated)
         self.current_card.element_removed.connect(self.on_element_removed)
         self.current_card.data_changed.connect(self.on_detail_data_changed)
+        self.current_card.validation_changed.connect(self.on_detail_validation_changed)
         self.current_card.research_requested.connect(self.on_research_requested)
         self.current_card.element_focused.connect(self.on_element_focused_on_table)
         self.current_card.training_requested.connect(self.on_train_requested)
