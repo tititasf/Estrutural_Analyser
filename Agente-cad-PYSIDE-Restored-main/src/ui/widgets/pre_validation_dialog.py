@@ -1805,38 +1805,45 @@ class PreValidationDialog(QDialog):
             own_lado, neigh_lado = self._DIR_TO_LADO.get(
                 laje1_dir.upper(), ('', ''))
 
-            # ── Laje 1 (própria) ─────────────────────────────────────────────
-            laje1_text = self._laje_info_text(
+            # Coluna Laje A recebe a laje que é Lado A; coluna Laje B recebe Lado B.
+            # own_lado determina qual laje é A — a outra vai para B.
+            laje2_dir = self._DIR_OPPOSITE.get(laje1_dir.upper(), '—') \
+                        if laje1_dir not in ('—', '') else '—'
+            wall = cut['neigh_laje'] in ('—', '', None, 'nulo', 'NULO')
+
+            own_text = self._laje_info_text(
                 cut['own_laje'], laje1_dir,
                 cut['own_pos'], cut['own_dist_top'], cut['own_dist_bot'],
                 own_lado,
             )
-            lbl1 = QLabel(laje1_text)
-            lbl1.setWordWrap(True)
-            lbl1.setAlignment(Qt.AlignLeft | Qt.AlignTop)
-            lbl1.setStyleSheet(
-                f"color:{Colors.ACCENT_MINT}; font-size:9px; "
-                f"padding:4px; background:transparent;"
-            )
-            tbl.setCellWidget(row, self._CUT_COL_LAJE1, lbl1)
-
-            # ── Laje 2 (vizinha) ─────────────────────────────────────────────
-            laje2_dir = self._DIR_OPPOSITE.get(laje1_dir.upper(), '—') \
-                        if laje1_dir not in ('—', '') else '—'
-            laje2_text = self._laje_info_text(
+            neigh_text = self._laje_info_text(
                 cut['neigh_laje'], laje2_dir,
                 cut['neigh_pos'], cut['neigh_dist_top'], cut['neigh_dist_bot'],
                 neigh_lado,
             )
-            lbl2 = QLabel(laje2_text)
-            lbl2.setWordWrap(True)
-            lbl2.setAlignment(Qt.AlignLeft | Qt.AlignTop)
-            wall = cut['neigh_laje'] in ('—', '', None, 'nulo', 'NULO')
-            lbl2.setStyleSheet(
-                f"color:{Colors.TEXT_MUTED if wall else '#90caf9'}; font-size:9px; "
-                f"padding:4px; background:transparent;"
-            )
-            tbl.setCellWidget(row, self._CUT_COL_LAJE2, lbl2)
+
+            def _make_laje_lbl(text, is_wall, is_own):
+                lbl = QLabel(text)
+                lbl.setWordWrap(True)
+                lbl.setAlignment(Qt.AlignLeft | Qt.AlignTop)
+                if is_own:
+                    color = Colors.ACCENT_MINT
+                elif is_wall:
+                    color = Colors.TEXT_MUTED
+                else:
+                    color = '#90caf9'
+                lbl.setStyleSheet(
+                    f"color:{color}; font-size:9px; padding:4px; background:transparent;"
+                )
+                return lbl
+
+            # own_lado == 'A' → own vai para col A, neigh para col B; caso contrário, inverte
+            if own_lado != 'B':
+                tbl.setCellWidget(row, self._CUT_COL_LAJE1, _make_laje_lbl(own_text,  False, True))
+                tbl.setCellWidget(row, self._CUT_COL_LAJE2, _make_laje_lbl(neigh_text, wall, False))
+            else:
+                tbl.setCellWidget(row, self._CUT_COL_LAJE1, _make_laje_lbl(neigh_text, wall, False))
+                tbl.setCellWidget(row, self._CUT_COL_LAJE2, _make_laje_lbl(own_text,  False, True))
 
             # ── Status (combobox) ────────────────────────────────────────────
             st_combo = QComboBox()
