@@ -1672,7 +1672,7 @@ class PreValidationDialog(QDialog):
     _CUT_THUMB_W  = 440
     _CUT_THUMB_H  = 210
     _CUT_COL_FOTO_W = 450
-    _CUT_ROW_H    = 270
+    _CUT_ROW_H    = 310
     _CUT_LAJE_COL_W = 276   # largura das colunas Laje A / Laje B (+20%)
 
     def _laje_info_text(self, laje_name: str, direction: str,
@@ -1718,14 +1718,18 @@ class PreValidationDialog(QDialog):
         # Nivel
         lines.append(f'Nivel da laje: {nivel}' if nivel else 'Nivel da laje:')
 
-        # Posicao geografica
+        # Posicao geografica (onde a viga esta em relacao a esta laje)
         if direction and direction not in ('—', ''):
-            pos_geo = f'no {direction} da laje'
+            lines.append(f'Posicao da viga: no {direction} da laje')
         else:
-            pos_geo = ''
-        if position and position not in ('—', 'centro', 'nulo', ''):
-            pos_geo = f'{pos_geo}  [{position}]' if pos_geo else position
-        lines.append(f'Posicao da viga: {pos_geo}' if pos_geo else 'Posicao da viga:')
+            lines.append('Posicao da viga:')
+
+        # Classificacao estrutural vertical (topo / centro / fundo)
+        pos_clean = str(position or '').strip()
+        if pos_clean and pos_clean not in ('—', 'nulo', ''):
+            lines.append(f'Classificacao vertical: {pos_clean}')
+        else:
+            lines.append('Classificacao vertical:')
 
         return '\n'.join(lines)
 
