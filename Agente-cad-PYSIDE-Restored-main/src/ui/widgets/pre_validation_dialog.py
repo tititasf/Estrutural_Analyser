@@ -886,6 +886,22 @@ class PreValidationDialog(QDialog):
         'E': 'W', 'W': 'E',
     }
 
+    # Mapeamento direcao -> (own_lado, neigh_lado)
+    # Viga Horizontal (corte N-S): Sul=A (baixo), Norte=B (cima)
+    # Viga Vertical   (corte E-W): Oeste=A (esq), Leste=B (dir)
+    _DIR_TO_LADO: dict[str, tuple[str, str]] = {
+        'NORTE': ('A', 'B'),  # own=Sul(A), neigh=Norte(B)
+        'SUL':   ('B', 'A'),  # own=Norte(B), neigh=Sul(A)
+        'LESTE': ('A', 'B'),  # own=Oeste(A), neigh=Leste(B)
+        'OESTE': ('B', 'A'),  # own=Leste(B), neigh=Oeste(A)
+    }
+
+    @staticmethod
+    def _dir_beam_type(direction: str) -> str:
+        """'H' para viga horizontal (corte N-S), 'V' para vertical (corte E-W)."""
+        d = str(direction or '').upper()
+        return 'H' if d in ('NORTE', 'SUL', 'N', 'S') else 'V'
+
     def _find_neighbor_laje(self, cx: float, cy: float,
                              own_laje: str, direction: str,
                              probe_dist: float = 150.0) -> str:
@@ -1631,23 +1647,48 @@ class PreValidationDialog(QDialog):
     _CUT_LAJE_COL_W = 230   # largura das colunas Laje 1 / Laje 2
 
     def _laje_info_text(self, laje_name: str, direction: str,
-                        position: str, dist_top, dist_bot) -> str:
-        """Formata o bloco multilinhas de informação de uma laje no corte."""
-        if not laje_name or laje_name == '—':
+                        position: str, dist_top, dist_bot,
+                        lado: str = '') -> str:
+        """
+        Formata o bloco de informacao de uma laje no corte.
+
+        Exibe duas referencias:
+          - Geografica: direcao do corte em relacao a esta laje
+          - Viga:       Lado A ou Lado B da viga (H: Sul=A/Norte=B; V: Oeste=A/Leste=B)
+        """
+        if not laje_name or laje_name in ('—', 'nulo', 'NULO'):
             return 'Parede\n(sem laje vizinha)'
         h = self._slab_height_map.get(laje_name, '')
-        parts = [laje_name]
+        lines = []
+
+        # Linha 1: nome + Lado A/B
+        header = laje_name
+        if lado:
+            header += f'  |  Lado {lado}'
+        lines.append(header)
+
+        # Linha 2: referencia geografica (onde o corte esta em relacao a esta laje)
+        geo_parts = []
         if direction and direction not in ('—', ''):
-            parts.append(direction)
+            geo_parts.append(f'Corte ao {direction}')
         if h:
-            parts.append(f"H:{h}")
-        lines = [' — '.join(parts)]
-        if position and position not in ('—', ''):
-            lines.append(f"Classif: {position}")
-        if dist_top not in ('—', None, ''):
-            lines.append(f"Dist. topo: {dist_top}cm")
+            geo_parts.append(f'H:{h}')
+        if geo_parts:
+            lines.append('  '.join(geo_parts))
+
+        # Linha 3: posicao (classificacao)
+        if position and position not in ('—', 'centro', 'nulo', ''):
+            lines.append(f'Pos: {position}')
+
+        # Linha 4: distancias geometricas
+        dist_parts = []
+        if dist_top not in ('—', None, '', '0', 0):
+            dist_parts.append(f'Topo:{dist_top}cm')
         if dist_bot not in ('—', None, ''):
-            lines.append(f"Dist. fundo: {dist_bot}cm")
+            dist_parts.append(f'Fundo:{dist_bot}cm')
+        if dist_parts:
+            lines.append('  '.join(dist_parts))
+
         return '\n'.join(lines)
 
     def _build_cut_view_table(self) -> QTableWidget:
@@ -1708,17 +1749,25 @@ class PreValidationDialog(QDialog):
                         _make_item(f"{conf_pct}%", Qt.AlignCenter,
                                    color=_confidence_color(conf_pct)))
 
-            # ── H × W ───────────────────────────────────────────────────────
+            # ── H × W  +  tipo de viga ──────────────────────────────────────
             bh = cut['beam_h']; bw = cut['beam_w']
-            dim_str = f"{bh} × {bw}" if bh not in ('—', '') else '—'
+            laje1_dir = cut['direction']
+            viga_tipo = self._dir_beam_type(laje1_dir)    # 'H' ou 'V'
+            tipo_label = 'Horiz.' if viga_tipo == 'H' else 'Vert.'
+            dim_str = (f"{bh} × {bw}  [{tipo_label}]"
+                       if bh not in ('—', '') else '—')
             tbl.setItem(row, self._CUT_COL_DIM,
                         _make_item(dim_str, Qt.AlignCenter))
 
+            # ── Lados A/B da viga para cada laje ────────────────────────────
+            own_lado, neigh_lado = self._DIR_TO_LADO.get(
+                laje1_dir.upper(), ('', ''))
+
             # ── Laje 1 (própria) ─────────────────────────────────────────────
-            laje1_dir  = cut['direction']
             laje1_text = self._laje_info_text(
                 cut['own_laje'], laje1_dir,
-                cut['own_pos'], cut['own_dist_top'], cut['own_dist_bot']
+                cut['own_pos'], cut['own_dist_top'], cut['own_dist_bot'],
+                own_lado,
             )
             lbl1 = QLabel(laje1_text)
             lbl1.setWordWrap(True)
@@ -1730,16 +1779,17 @@ class PreValidationDialog(QDialog):
             tbl.setCellWidget(row, self._CUT_COL_LAJE1, lbl1)
 
             # ── Laje 2 (vizinha) ─────────────────────────────────────────────
-            laje2_dir  = self._DIR_OPPOSITE.get(laje1_dir.upper(), '—') \
-                         if laje1_dir not in ('—', '') else '—'
+            laje2_dir = self._DIR_OPPOSITE.get(laje1_dir.upper(), '—') \
+                        if laje1_dir not in ('—', '') else '—'
             laje2_text = self._laje_info_text(
                 cut['neigh_laje'], laje2_dir,
-                cut['neigh_pos'], cut['neigh_dist_top'], cut['neigh_dist_bot']
+                cut['neigh_pos'], cut['neigh_dist_top'], cut['neigh_dist_bot'],
+                neigh_lado,
             )
             lbl2 = QLabel(laje2_text)
             lbl2.setWordWrap(True)
             lbl2.setAlignment(Qt.AlignLeft | Qt.AlignTop)
-            wall = cut['neigh_laje'] in ('—', '', None)
+            wall = cut['neigh_laje'] in ('—', '', None, 'nulo', 'NULO')
             lbl2.setStyleSheet(
                 f"color:{Colors.TEXT_MUTED if wall else '#90caf9'}; font-size:9px; "
                 f"padding:4px; background:transparent;"
