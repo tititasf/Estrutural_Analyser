@@ -1672,8 +1672,8 @@ class PreValidationDialog(QDialog):
     _CUT_THUMB_W  = 440
     _CUT_THUMB_H  = 210
     _CUT_COL_FOTO_W = 450
-    _CUT_ROW_H    = 220
-    _CUT_LAJE_COL_W = 230   # largura das colunas Laje 1 / Laje 2
+    _CUT_ROW_H    = 270
+    _CUT_LAJE_COL_W = 276   # largura das colunas Laje A / Laje B (+20%)
 
     def _laje_info_text(self, laje_name: str, direction: str,
                         position: str, dist_top, dist_bot,
@@ -1681,47 +1681,56 @@ class PreValidationDialog(QDialog):
         """
         Formata o bloco de informacao de uma laje no corte.
 
-        Exibe duas referencias:
-          - Geografica: direcao do corte em relacao a esta laje
-          - Viga:       Lado A ou Lado B da viga (H: Sul=A/Norte=B; V: Oeste=A/Leste=B)
+        Formato:
+          Nome: L311
+          Altura: 12
+          Distancia do topo da viga: 0
+          Distancia do fundo da viga: 43
+          Nivel da laje: 852.19
+          Posicao da viga em relacao a laje: no Sul da laje
         """
         if not laje_name or laje_name in ('—', 'nulo', 'NULO'):
             return 'Parede\n(sem laje vizinha)'
-        h = self._slab_height_map.get(laje_name, '')
+
+        h     = self._slab_height_map.get(laje_name, '')
+        nivel = self._slab_nivel_map.get(laje_name, '')
+
         lines = []
 
-        # Linha 1: nome + Lado A/B
-        header = laje_name
+        # Nome (+ Lado A/B)
+        nome_line = f'Nome: {laje_name}'
         if lado:
-            header += f'  |  Lado {lado}'
-        lines.append(header)
+            nome_line += f'  |  Lado {lado}'
+        lines.append(nome_line)
 
-        # Linha 2: referencia geografica (onde o corte esta em relacao a esta laje)
-        geo_parts = []
+        # Altura
+        lines.append(f'Altura: {h}' if h else 'Altura:')
+
+        # Distancias
+        def _fmt_dist(v) -> str:
+            return str(v) if v not in ('—', None, '') else ''
+
+        dt = _fmt_dist(dist_top)
+        df = _fmt_dist(dist_bot)
+        lines.append(f'Distancia do topo da viga: {dt}' if dt else 'Distancia do topo da viga:')
+        lines.append(f'Distancia do fundo da viga: {df}' if df else 'Distancia do fundo da viga:')
+
+        # Nivel
+        lines.append(f'Nivel da laje: {nivel}' if nivel else 'Nivel da laje:')
+
+        # Posicao geografica
         if direction and direction not in ('—', ''):
-            geo_parts.append(f'Corte ao {direction}')
-        if h:
-            geo_parts.append(f'H:{h}')
-        if geo_parts:
-            lines.append('  '.join(geo_parts))
-
-        # Linha 3: posicao (classificacao)
+            pos_geo = f'no {direction} da laje'
+        else:
+            pos_geo = ''
         if position and position not in ('—', 'centro', 'nulo', ''):
-            lines.append(f'Pos: {position}')
-
-        # Linha 4: distancias geometricas
-        dist_parts = []
-        if dist_top not in ('—', None, '', '0', 0):
-            dist_parts.append(f'Topo:{dist_top}cm')
-        if dist_bot not in ('—', None, ''):
-            dist_parts.append(f'Fundo:{dist_bot}cm')
-        if dist_parts:
-            lines.append('  '.join(dist_parts))
+            pos_geo = f'{pos_geo}  [{position}]' if pos_geo else position
+        lines.append(f'Posicao da viga: {pos_geo}' if pos_geo else 'Posicao da viga:')
 
         return '\n'.join(lines)
 
     def _build_cut_view_table(self) -> QTableWidget:
-        cols = ["Viga Assoc.", "Conf %", "H × W", "Laje 1", "Laje 2", "Status", "Foto"]
+        cols = ["Viga Assoc.", "Conf %", "H × W", "Laje A", "Laje B", "Status", "Foto"]
         tbl = QTableWidget(0, len(cols))
         tbl.setHorizontalHeaderLabels(cols)
         hdr = tbl.horizontalHeader()
