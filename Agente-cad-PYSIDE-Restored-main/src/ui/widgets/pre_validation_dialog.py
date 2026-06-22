@@ -1365,7 +1365,7 @@ class PreValidationDialog(QDialog):
             hdr.setSectionResizeMode(col, QHeaderView.Interactive)
             tbl.setColumnWidth(col, self._PIL_LADO_COL_W)
         hdr.setSectionResizeMode(self._PIL_COL_OVERRIDE, QHeaderView.Interactive)
-        tbl.setColumnWidth(self._PIL_COL_OVERRIDE, 150)
+        tbl.setColumnWidth(self._PIL_COL_OVERRIDE, 180)
         hdr.setSectionResizeMode(self._PIL_COL_FOTO, QHeaderView.Fixed)
         tbl.setColumnWidth(self._PIL_COL_FOTO, self._PIL_COL_FOTO_W)
         tbl.setSelectionBehavior(QAbstractItemView.SelectRows)
