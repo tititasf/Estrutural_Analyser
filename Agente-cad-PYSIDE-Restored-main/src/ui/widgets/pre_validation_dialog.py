@@ -268,6 +268,7 @@ class PreValidationDialog(QDialog):
 
         # Mapas de suporte (construídos antes dos dados)
         self._slab_height_map: dict[str, str] = self._build_slab_height_map()
+        self._slab_nivel_map:  dict[str, str] = self._build_slab_nivel_map()
         self._slab_poly_map: dict[str, list] = self._build_slab_poly_map()
 
         # Estado editável
@@ -306,6 +307,11 @@ class PreValidationDialog(QDialog):
             m = re.search(r'\d+(?:[.,]\d+)?', str(raw))
             result[name] = m.group(0) if m else ''
         return result
+
+    def _build_slab_nivel_map(self) -> dict[str, str]:
+        """Extrai nivel (level_str) de cada laje via nivel_report."""
+        lajes_nr = (self._nivel_report or {}).get('lajes', {})
+        return {name: (entry.get('level_str') or '') for name, entry in lajes_nr.items()}
 
     def _build_slab_poly_map(self) -> dict[str, list]:
         """Constrói mapa nome_laje → lista de pontos do polígono."""
@@ -417,29 +423,37 @@ class PreValidationDialog(QDialog):
 
         return False
 
+    @staticmethod
+    def _side_cell_laje_block(ln: str, h: str, nivel: str) -> str:
+        """Formata um bloco multi-linha para uma laje em célula Lado-A/B/C/D."""
+        lines = [f'Laje: {ln}', f'Altura: {h}' if h else 'Altura:', f'Nivel: {nivel}' if nivel else 'Nivel:']
+        return '\n'.join(lines)
+
+    _VIGA_CELL_TEXT = 'Viga:\nAltura:\nNivel:'
+
     def _get_side_cell(self, pillar: dict, side: str) -> str:
         """
         Retorna o texto para a célula do lado (A/B/C/D) de um pilar.
 
         Estratégias em ordem de prioridade:
-        1. Lajes entries vindas do analisador → "(L301, H:12)"
+        1. Lajes entries vindas do analisador → bloco multi-linha "Laje:/Altura:/Nivel:"
         2. Amostragem múltipla ao longo da aresta (25 / 50 / 75 %) dentro de
-           qualquer polígono de laje → "VIGA"
-           (cobre: ponto médio fora por floating-point e arestas que entram
-           parcialmente no polígono)
-        3. Aresta colínear com borda do polígono de laje (overlap ≥ 5 u) → "VIGA"
-           (cobre: aresta coincidente com fronteira do polígono, onde ray-casting
-           é não-determinístico — caso típico de lados C e D)
-        4. Nada encontrado → "nulo"
+           qualquer polígono de laje → bloco VIGA
+        3. Aresta colínear com borda do polígono de laje (overlap ≥ 5 u) → bloco VIGA
+           (cobre aresta coincidente com fronteira, onde ray-casting é não-det.)
+        4. Projeção perpendicular para FORA da aresta → bloco VIGA
+           (detecta lajes adjacentes nos lados C/D cujo limite coincide com a borda)
+        5. Nada encontrado → "nulo"
         """
         lajes_entries = [e for e in (pillar.get('lajes') or []) if e.get('side') == side]
         if lajes_entries:
             parts: list[str] = []
             for e in lajes_entries:
                 ln = e.get('laje') or '?'
-                h = self._slab_height_map.get(ln) or ''
-                parts.append(f"({ln}, H:{h})" if h else f"({ln})")
-            return '\n'.join(parts)
+                h     = self._slab_height_map.get(ln) or ''
+                nivel = self._slab_nivel_map.get(ln) or ''
+                parts.append(self._side_cell_laje_block(ln, h, nivel))
+            return '\n\n'.join(parts)
 
         bbox = pillar.get('bbox')
         orientation = pillar.get('orientation') or 'horizontal'
@@ -458,12 +472,27 @@ class PreValidationDialog(QDialog):
         for slab_name, poly_pts in self._slab_poly_map.items():
             for px, py in samples:
                 if self._point_in_polygon(px, py, poly_pts):
-                    return 'VIGA'
+                    return self._VIGA_CELL_TEXT
 
         # ── Estratégia 3: sobreposição colínear com borda do polígono ─────────
         for slab_name, poly_pts in self._slab_poly_map.items():
             if self._edge_overlaps_poly_boundary((ex0, ey0), (ex1, ey1), poly_pts):
-                return 'VIGA'
+                return self._VIGA_CELL_TEXT
+
+        # ── Estratégia 4: projeção perpendicular para fora da aresta ──────────
+        # Para lados C/D onde a borda do pilar coincide com a borda do polígono
+        # de laje adjacente — ray-casting on-boundary é não-determinístico.
+        horiz = (orientation or '').lower() != 'vertical'
+        outward_dirs = {
+            True:  {'A': (0.0, -1.0), 'B': (0.0, 1.0), 'C': (-1.0, 0.0), 'D': (1.0, 0.0)},
+            False: {'A': (-1.0, 0.0), 'B': (1.0, 0.0), 'C': (0.0, 1.0), 'D': (0.0, -1.0)},
+        }
+        dx, dy = outward_dirs[horiz].get(side, (0.0, 0.0))
+        for delta in (4.0, 12.0, 25.0):
+            for px, py in samples:
+                for poly_pts in self._slab_poly_map.values():
+                    if self._point_in_polygon(px + dx * delta, py + dy * delta, poly_pts):
+                        return self._VIGA_CELL_TEXT
 
         return 'nulo'
 
@@ -1469,7 +1498,7 @@ class PreValidationDialog(QDialog):
                     cell_text = self._get_side_cell(pillar, side)
                     item = _make_item(cell_text)
                     item.setToolTip(cell_text)
-                    if cell_text == 'VIGA':
+                    if cell_text.startswith('Viga:'):
                         item.setForeground(QBrush(QColor(Colors.ACCENT_WARNING_ALT)))
                     elif cell_text == 'nulo':
                         item.setForeground(QBrush(QColor(Colors.TEXT_MUTED)))
@@ -1540,7 +1569,7 @@ class PreValidationDialog(QDialog):
                 cell_text = self._get_side_cell(pillar, side)
                 it = _make_item(cell_text)
                 it.setToolTip(cell_text)
-                if cell_text == 'VIGA':
+                if cell_text.startswith('Viga:'):
                     it.setForeground(QBrush(QColor(Colors.ACCENT_WARNING_ALT)))
                 elif cell_text == 'nulo':
                     it.setForeground(QBrush(QColor(Colors.TEXT_MUTED)))
