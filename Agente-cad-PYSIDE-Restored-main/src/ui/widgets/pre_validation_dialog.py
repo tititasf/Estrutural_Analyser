@@ -286,6 +286,10 @@ class PreValidationDialog(QDialog):
         self._saved_term_examples: dict[str, list | None] = {}
         self._btn_save_conv: QPushButton | None = None  # injetado em _build_footer
 
+        # ── Histórico de pré-ficha (persistência por geometria) ───────────────
+        self._history_path: str | None = self._resolve_history_path()
+        self._pf_history: dict = self._load_pf_history()
+
         # Sobrescreve _term_type_map com convenção salva (se existir) ANTES de _build_ui
         if convention_file and os.path.isfile(convention_file):
             self._load_saved_convention(convention_file)
@@ -832,6 +836,108 @@ class PreValidationDialog(QDialog):
             if self._btn_save_conv:
                 self._btn_save_conv.setText(f"  Erro: {e}  ")
 
+    # ── Histórico de pré-ficha (por geometria) ────────────────────────────────
+
+    def _resolve_history_path(self) -> str | None:
+        """Retorna path do JSON de histórico ao lado do convention_file (mesma pasta)."""
+        base = None
+        if self._convention_file:
+            base = os.path.dirname(self._convention_file)
+        elif self._db_path:
+            base = os.path.dirname(self._db_path)
+        if not base:
+            return None
+        pav_slug = re.sub(r'[^\w\-]', '_', self._pavimento)[:60]
+        return os.path.join(base, f'preficha_history_{pav_slug}.json')
+
+    @staticmethod
+    def _pillar_geo_key(pillar: dict) -> str:
+        """Chave geométrica de pilar: bbox arredondada a 1 decimal."""
+        bbox = pillar.get('bbox') or []
+        if len(bbox) < 4:
+            return ''
+        return ','.join(f'{round(float(v), 1)}' for v in bbox[:4])
+
+    @staticmethod
+    def _cv_geo_key(pts: list) -> str:
+        """Chave geométrica de corte: centro do polígono arredondado a 0.5u."""
+        if not pts:
+            return ''
+        cx = sum(float(p[0]) for p in pts) / len(pts)
+        cy = sum(float(p[1]) for p in pts) / len(pts)
+        return f'{round(cx * 2) / 2},{round(cy * 2) / 2}'
+
+    def _load_pf_history(self) -> dict:
+        """Carrega histórico salvo; retorna dict vazio se não existir."""
+        if not self._history_path or not os.path.isfile(self._history_path):
+            return {'pilares': {}, 'cut_views': {}}
+        try:
+            with open(self._history_path, encoding='utf-8') as f:
+                data = json.load(f)
+            return {
+                'pilares':   data.get('pilares', {}),
+                'cut_views': data.get('cut_views', {}),
+            }
+        except Exception:
+            return {'pilares': {}, 'cut_views': {}}
+
+    def _save_pf_history(self) -> None:
+        """Persiste estado atual dos combos de pilar e corte, keyed por geometria."""
+        if not self._history_path:
+            return
+        pilares: dict = dict(self._pf_history.get('pilares', {}))
+        cut_views: dict = dict(self._pf_history.get('cut_views', {}))
+        now = datetime.now().isoformat(timespec='seconds')
+
+        # Pilares
+        for key, pillar in self._pillar_report.items():
+            geo = self._pillar_geo_key(pillar)
+            if not geo:
+                continue
+            combo = self._pillar_combos.get(key)
+            classif = combo.currentText() if combo else (pillar.get('classification') or '')
+            pilares[geo] = {
+                'geo_key':      geo,
+                'last_name':    key,
+                'classification': classif,
+                'physical_type': self._physical_type_for(classif),
+                'saved_at':     now,
+            }
+
+        # Cortes de viga
+        for cut in self._cut_view_data:
+            geo = self._cv_geo_key(cut.get('pts', []))
+            if not geo:
+                continue
+            uid = cut['uid']
+            beam_combo  = self._cut_combos.get(uid)
+            status_combo = self._cut_status_combos.get(uid)
+            beam_name = beam_combo.currentData() if beam_combo else ''
+            beam_text = beam_combo.currentText() if beam_combo else ''
+            status    = status_combo.currentData() if status_combo else 'ok'
+            cut_views[geo] = {
+                'geo_key':    geo,
+                'beam_name':  beam_name or beam_text,
+                'status':     status,
+                'own_laje':   cut.get('own_laje', ''),
+                'saved_at':   now,
+            }
+
+        data = {
+            'version':   2,
+            'obra':      self._obra,
+            'pavimento': self._pavimento,
+            'saved_at':  now,
+            'pilares':   pilares,
+            'cut_views': cut_views,
+        }
+        try:
+            os.makedirs(os.path.dirname(self._history_path), exist_ok=True)
+            with open(self._history_path, 'w', encoding='utf-8') as f:
+                json.dump(data, f, indent=2, ensure_ascii=False)
+        except Exception:
+            pass
+
     def _make_conv_placeholder(self, w: int, h: int, text: str = "Sem exemplo") -> QLabel:
         lb = QLabel(text)
         lb.setAlignment(Qt.AlignCenter)
@@ -1184,7 +1290,7 @@ class PreValidationDialog(QDialog):
             f"  border:none; padding:6px 16px; }}"
             f"QPushButton:hover {{ background:#00e5ff; }}"
         )
-        btn_confirm.clicked.connect(self.accept)
+        btn_confirm.clicked.connect(self._confirm_and_save)
 
         lay.addWidget(btn_cancel)
         lay.addWidget(btn_save)
@@ -1448,6 +1554,13 @@ class PreValidationDialog(QDialog):
 
             name = pillar.get('name') or key
             classif = pillar.get('classification') or 'INDETERMINADO'
+
+            # ── Restaura override do histórico por geometria ─────────────────
+            geo_key = self._pillar_geo_key(pillar)
+            hist_pil = self._pf_history.get('pilares', {}).get(geo_key)
+            if hist_pil and hist_pil.get('classification'):
+                classif = hist_pil['classification']
+
             phys = self._physical_type_for(classif)
             ignore = PHYS_IGNORE.get(phys, False)
 
@@ -1769,6 +1882,10 @@ class PreValidationDialog(QDialog):
             uid      = cut['uid']
             conf_pct = cut['conf_pct']
 
+            # ── Histórico por geometria ──────────────────────────────────────
+            cv_geo   = self._cv_geo_key(cut.get('pts', []))
+            hist_cv  = self._pf_history.get('cut_views', {}).get(cv_geo, {})
+
             # ── Viga Assoc. (combobox editável) ─────────────────────────────
             beam_combo = QComboBox()
             beam_combo.setEditable(True)
@@ -1780,8 +1897,20 @@ class PreValidationDialog(QDialog):
                     f"{cand['text']}  ({cand['dist']:.0f}u, {cand['conf_pct']}%)",
                     cand['text']
                 )
-            # Seleciona melhor candidato se confiança ≥ 40%
-            if cut['beam_name'] and candidates and conf_pct >= 40:
+            # Restaura do histórico (prioridade máxima); senão usa candidato automático
+            hist_beam = hist_cv.get('beam_name', '')
+            if hist_beam:
+                # Tenta achar nos candidatos; senão insere manualmente
+                found = False
+                for i in range(beam_combo.count()):
+                    if beam_combo.itemData(i) == hist_beam or beam_combo.itemText(i).startswith(hist_beam):
+                        beam_combo.setCurrentIndex(i)
+                        found = True
+                        break
+                if not found:
+                    beam_combo.insertItem(1, f'{hist_beam}  [histórico]', hist_beam)
+                    beam_combo.setCurrentIndex(1)
+            elif cut['beam_name'] and candidates and conf_pct >= 40:
                 beam_combo.setCurrentIndex(1)
             tbl.setCellWidget(row, self._CUT_COL_VIGA, beam_combo)
             self._cut_combos[uid] = beam_combo
@@ -1856,6 +1985,13 @@ class PreValidationDialog(QDialog):
             mi_s = st_combo.model().item(2)
             if mi_v: mi_v.setForeground(QBrush(QColor('#ffb74d')))
             if mi_s: mi_s.setForeground(QBrush(QColor('#ff9800')))
+            # Restaura status do histórico
+            hist_status = hist_cv.get('status', '')
+            if hist_status:
+                for i in range(st_combo.count()):
+                    if st_combo.itemData(i) == hist_status:
+                        st_combo.setCurrentIndex(i)
+                        break
             tbl.setCellWidget(row, self._CUT_COL_STATUS, st_combo)
             self._cut_status_combos[uid] = st_combo
 
@@ -1878,6 +2014,13 @@ class PreValidationDialog(QDialog):
                     it = tbl.item(row, col)
                     if it:
                         it.setBackground(QBrush(QColor('#1a1506')))
+
+    # ── Confirmar + persistir histórico ───────────────────────────────────────
+
+    def _confirm_and_save(self) -> None:
+        """Salva histórico de pré-ficha (geometria → override) e aceita o diálogo."""
+        self._save_pf_history()
+        self.accept()
 
     # ── Resultado ─────────────────────────────────────────────────────────────
 
