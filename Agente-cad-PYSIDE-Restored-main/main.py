@@ -5448,6 +5448,8 @@ class MainWindow(QMainWindow):
 
         self._infer_slab_levels_from_context(self.slabs_found)
         self.pavimento_pillar_report = self._build_pillar_report(self.slabs_found)
+        # Aplica rejeições do histórico de pré-ficha antes da pré-validação
+        self._apply_preficha_rejections(self.pavimento_pillar_report)
         n_report = len(self.pavimento_pillar_report)
         n_nasce = sum(1 for p in self.pavimento_pillar_report.values() if p.get('classification') == 'NASCE')
         self.log(f"📋 Relatório de pilares do pavimento: {n_report} pilar(es) detectados, {n_nasce} NASCE (a desconsiderar nas vigas/pilares).")
@@ -7615,11 +7617,11 @@ class MainWindow(QMainWindow):
                 total_len = 0.0
                 seg_idx = 0
                 for line in lines:
-                    if not is_closed_poly(line):
-                        continue  # ignora divisórias perpendiculares
-                    seg_idx += 1
                     p1, p2 = line[0], line[-1]
                     length = ((p2[0]-p1[0])**2 + (p2[1]-p1[1])**2)**0.5
+                    if not is_closed_poly(line) and length < 30:
+                        continue  # ignora divisórias perpendiculares curtas
+                    seg_idx += 1
                     total_len += length
 
                     b[f'viga_fundo_seg_{seg_idx}_exists'] = True
@@ -8738,6 +8740,115 @@ class MainWindow(QMainWindow):
         n_cuts_assigned = sum(1 for a in cut_assignments.values() if a.get('beam_name'))
         self.log(f"✅ Pré-validação aplicada: {n_pil} pilar(es) com classificação, "
                  f"{n_cuts_assigned} corte(s) com viga associada.")
+
+    def _apply_preficha_rejections(self, pillar_report: dict) -> None:
+        """
+        Lê o histórico de pré-ficha do pavimento atual e, para cada pilar cujo
+        geo_key (bbox) foi rejeitado anteriormente (classificação em _NAO_SE_APLICA),
+        tenta encontrar uma geometria alternativa no relatório que tenha o mesmo nome
+        mas bbox diferente.
+
+        Comportamento:
+          - Se encontrar alternativa → substitui os dados de geometria no report
+            e marca 'geometry_swapped': True para a pré-ficha exibir.
+          - Se não encontrar alternativa → apenas marca 'geometry_previously_rejected'
+            para a pré-ficha exibir o aviso ⚠.
+          - Em ambos os casos, NÃO apaga o entry — a pré-ficha decide o que mostrar.
+        """
+        import json as _json, re as _re
+
+        preproc = getattr(self, 'pavimento_preprocess', {}) or {}
+        obra     = preproc.get('obra') or ''
+        pavimento = preproc.get('pavimento') or ''
+        if not obra or not pavimento:
+            return
+
+        _dados_root = os.path.normpath(
+            os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'DADOS-OBRAS')
+        )
+        pav_slug = _re.sub(r'[^\w\-]', '_', pavimento)[:60]
+        history_path = os.path.join(_dados_root, obra, f'preficha_history_{pav_slug}.json')
+
+        if not os.path.isfile(history_path):
+            return
+
+        try:
+            with open(history_path, encoding='utf-8') as fh:
+                hist = _json.load(fh)
+        except Exception:
+            return
+
+        rejected_pilares = hist.get('pilares', {})
+        if not rejected_pilares:
+            return
+
+        _NAO_SE_APLICA = {
+            'NÃO PILAR — OBJETO SÓLIDO', 'NÃO PILAR — APENAS VISUAL',
+            'GEOMETRIA ERRADA — ATUAL SÓLIDA', 'GEOMETRIA ERRADA — ATUAL APENAS VISUAL',
+        }
+
+        # Mapa: nome_pilar → lista de (geo_key, entry) para busca de alternativa
+        name_to_entries: dict[str, list[tuple[str, dict]]] = {}
+        for key, entry in pillar_report.items():
+            pts = entry.get('points') or []
+            if not pts:
+                continue
+            try:
+                xs = [float(p[0]) for p in pts]; ys = [float(p[1]) for p in pts]
+                gk = f'{round(min(xs),1)},{round(min(ys),1)},{round(max(xs),1)},{round(max(ys),1)}'
+            except Exception:
+                continue
+            name = (entry.get('name') or key).strip().upper()
+            name_to_entries.setdefault(name, []).append((gk, key, entry))
+
+        for key, entry in list(pillar_report.items()):
+            pts = entry.get('points') or []
+            if not pts:
+                continue
+            try:
+                xs = [float(p[0]) for p in pts]; ys = [float(p[1]) for p in pts]
+                geo_key = f'{round(min(xs),1)},{round(min(ys),1)},{round(max(xs),1)},{round(max(ys),1)}'
+            except Exception:
+                continue
+
+            hist_entry = rejected_pilares.get(geo_key)
+            if not hist_entry:
+                continue
+            if hist_entry.get('classification', '').upper() not in {c.upper() for c in _NAO_SE_APLICA}:
+                continue
+
+            # Esta geometria foi rejeitada para este nome
+            entry['geometry_previously_rejected'] = True
+            entry['rejected_geo_key'] = geo_key
+
+            # Tenta achar alternativa: mesmo nome, bbox diferente
+            name = (entry.get('name') or key).strip().upper()
+            candidates = [
+                (gk, alt_key, alt_entry)
+                for gk, alt_key, alt_entry in name_to_entries.get(name, [])
+                if gk != geo_key and alt_key != key
+                and gk not in rejected_pilares
+            ]
+            if candidates:
+                # Usa o candidato mais próximo (menor área = mais específico)
+                def _area(c):
+                    try:
+                        pts2 = c[2].get('points') or []
+                        xs2=[float(p[0]) for p in pts2]; ys2=[float(p[1]) for p in pts2]
+                        return (max(xs2)-min(xs2))*(max(ys2)-min(ys2))
+                    except Exception:
+                        return 1e12
+                best_gk, best_key, best_entry = min(candidates, key=_area)
+                # Transfere geometria do candidato para este entry
+                entry['points']      = best_entry.get('points', entry['points'])
+                entry['bbox']        = best_entry.get('bbox',   entry['bbox'])
+                entry['orientation'] = best_entry.get('orientation', entry['orientation'])
+                entry['geometry_swapped'] = True
+                entry['swapped_from_key'] = best_key
+                self.log(
+                    f"🔄 Pré-ficha: geometria de {key} substituída "
+                    f"(bbox rejeitada → alternativa {best_key})"
+                )
 
     def _build_pillar_report(self, slabs: list[Dict]) -> dict:
         """
@@ -9903,7 +10014,10 @@ class MainWindow(QMainWindow):
         from PySide6.QtWidgets import QTreeWidgetItem
         from PySide6.QtGui import QColor
 
-        # Agrupar por parent_name
+        import re
+        def nat_key(name):
+            return [int(text) if text.isdigit() else text.lower() for text in re.split(r'(\d+)', name)]
+            
         from collections import OrderedDict
         groups = OrderedDict()
         for b in beam_list:
@@ -9912,14 +10026,18 @@ class MainWindow(QMainWindow):
                  groups[p_name] = []
             groups[p_name].append(b)
             
-        for p_name, segments in groups.items():
+        sorted_groups = OrderedDict(sorted(groups.items(), key=lambda x: nat_key(x[0])))
+            
+        for p_name, segments in sorted_groups.items():
             parent_item = QTreeWidgetItem(tree_widget)
             
             clean_name = p_name
             if clean_name.startswith('F.'): clean_name = clean_name[2:]
             elif clean_name.startswith('L.'): clean_name = clean_name[2:]
+            elif clean_name.startswith('FV-'): clean_name = clean_name[3:]
+            elif clean_name.startswith('LV-'): clean_name = clean_name[3:]
             
-            prefix = "F." if list_type == 'fundo' else "L."
+            prefix = "FV-" if list_type == 'fundo' else "LV-"
             parent_item.setText(1, f"📁 {prefix}{clean_name}")
             parent_item.setExpanded(True)
             parent_item.setFlags(parent_item.flags() & ~Qt.ItemIsSelectable)
@@ -9956,7 +10074,7 @@ class MainWindow(QMainWindow):
                     # Fundo
                     child_f = QTreeWidgetItem(parent_item)
                     child_f.setText(0, str(b.get('id_item', '00')))
-                    child_f.setText(1, f"{prefix}{clean_name}.C-1")
+                    child_f.setText(1, f"{prefix}{clean_name}.C")
                     child_f.setText(2, str(status))
                     child_f.setText(3, pct_str)
                     child_f.setData(0, Qt.UserRole, str(b.get('id')))

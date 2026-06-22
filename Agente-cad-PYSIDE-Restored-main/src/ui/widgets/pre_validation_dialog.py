@@ -1558,8 +1558,12 @@ class PreValidationDialog(QDialog):
             # ── Restaura override do histórico por geometria ─────────────────
             geo_key = self._pillar_geo_key(pillar)
             hist_pil = self._pf_history.get('pilares', {}).get(geo_key)
+            geo_foi_rejeitada  = bool(pillar.get('geometry_previously_rejected'))
+            geo_foi_substituida = bool(pillar.get('geometry_swapped'))
             if hist_pil and hist_pil.get('classification'):
                 classif = hist_pil['classification']
+                if classif.upper() in _NAO_SE_APLICA_CLASSIFS:
+                    geo_foi_rejeitada = True
 
             phys = self._physical_type_for(classif)
             ignore = PHYS_IGNORE.get(phys, False)
@@ -1574,11 +1578,29 @@ class PreValidationDialog(QDialog):
             conf_color = _confidence_color(conf_pct)
 
             # ── Nome: fonte maior + negrito ──────────────────────────────────
-            nome_item = _make_item(name, bold=True)
+            if geo_foi_substituida:
+                nome_display = f'↺ {name}'
+            elif geo_foi_rejeitada:
+                nome_display = f'⚠ {name}'
+            else:
+                nome_display = name
+            nome_item = _make_item(nome_display, bold=True)
             f = nome_item.font()
             f.setPixelSize(18)
             f.setBold(True)
             nome_item.setFont(f)
+            if geo_foi_substituida:
+                nome_item.setForeground(QBrush(QColor('#00e5ff')))
+                nome_item.setToolTip(
+                    f'↺ Geometria substituída: bbox anterior rejeitada para "{name}".\n'
+                    f'SA usou geometria alternativa — valide se está correta.'
+                )
+            elif geo_foi_rejeitada:
+                nome_item.setForeground(QBrush(QColor('#ff9800')))
+                nome_item.setToolTip(
+                    f'⚠ Geometria desta bbox foi rejeitada anteriormente para "{name}".\n'
+                    f'Sem alternativa disponível nesta análise.'
+                )
             nome_item.setData(Qt.UserRole, key)   # guarda key para lookup dinâmico
             tbl.setItem(row, self._PIL_COL_NOME, nome_item)
 
@@ -1692,11 +1714,24 @@ class PreValidationDialog(QDialog):
         new_classif = combo.currentText()
         if new_classif in (_SEPARADOR_ITEM, _SEPARADOR_GEOM):
             return
+        pillar = self._pillar_report.get(key, {})
         if key in self._pillar_report:
             phys = self._physical_type_for(new_classif)
             self._pillar_report[key]['classification'] = new_classif
             self._pillar_report[key]['physical_type'] = phys
             self._pillar_report[key]['ignore_in_beams'] = PHYS_IGNORE.get(phys, False)
+        # Persiste imediatamente no histórico quando é uma rejeição de geometria
+        if new_classif.upper() in _NAO_SE_APLICA_CLASSIFS:
+            geo = self._pillar_geo_key(pillar)
+            if geo:
+                self._pf_history.setdefault('pilares', {})[geo] = {
+                    'geo_key':        geo,
+                    'last_name':      key,
+                    'classification': new_classif,
+                    'physical_type':  self._physical_type_for(new_classif),
+                    'saved_at':       datetime.now().isoformat(timespec='seconds'),
+                }
+                self._save_pf_history()
         row = self._pillar_rows.get(key)
         if row is not None:
             self._paint_row(row, new_classif)
