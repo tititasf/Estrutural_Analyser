@@ -1972,14 +1972,10 @@ class CADCanvas(QGraphicsView):
         self.scene.update()
 
     def _collect_fundo_polys(self, b_data: dict) -> list:
-        """Retorna lista de dicts {'points': [...]} com geometria de fundo de uma viga.
-        Prioriza viga_fundo_seg_*_area_segs['contour'] (polígonos processados usados pelos
-        campos do card FV); fallback: viga_segs['seg_bottom'] (linhas brutas legadas).
-        Manter esta prioridade garante que draw_single_beam_fundo e on_focus_requested
-        mostrem a mesma geometria."""
+        """Retorna polígonos de fundo de uma viga a partir de viga_fundo_seg_*_area_segs['contour'].
+        Única fonte de verdade — mesma geometria usada pelos campos do card FV e pelo zoom."""
         links = b_data.get('links', {})
         import re as _re
-        # Prioridade: polígonos processados dos segmentos de fundo (mesma fonte dos campos do card)
         result = []
         for key in sorted(links.keys()):
             if _re.match(r'viga_fundo_seg_\d+_area_segs', key) and isinstance(links[key], dict):
@@ -1991,20 +1987,7 @@ class CADCanvas(QGraphicsView):
                             '_slot_name': lk.get('_slot_name', 'contour'),
                             'tag': lk.get('tag', 'fundo'),
                         })
-        if result:
-            return result
-        # Fallback: linhas brutas do seg_bottom (vigas legadas sem area_segs processados)
-        seg_bottom_list = links.get('viga_segs', {}).get('seg_bottom', [])
-        return [
-            {
-                **lk,
-                '_field_id': lk.get('_field_id', 'viga_segs'),
-                '_slot_name': lk.get('_slot_name', 'seg_bottom'),
-                'tag': lk.get('tag', 'fundo'),
-            }
-            for lk in seg_bottom_list
-            if isinstance(lk, dict)
-        ]
+        return result
 
     def _draw_fundo_polys(self, poly_list: list, pen, store_in_group: bool = True) -> list:
         """Desenha lista de polys na cena com o pen dado. Retorna QGraphicsItems criados."""
