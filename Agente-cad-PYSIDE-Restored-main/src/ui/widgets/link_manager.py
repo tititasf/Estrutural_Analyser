@@ -769,6 +769,22 @@ class LinkManager(QWidget):
         return '•'
 
     def _ficha_fields_for_link(self, slot_id):
+        if 'viga_fundo' in self.field_id and slot_id == 'contour':
+            return [
+                ('apoio_inicial', 'Apoio inicial', 'Viga/Pilar inicial', False, 'text'),
+                ('apoio_final', 'Apoio final', 'Viga/Pilar final', False, 'text'),
+                ('largura_total_fundo', 'Largura total do fundo', 'cm', False, 'text'),
+                ('comprimento_total_fundo', 'Comprimento total do fundo', 'cm', False, 'text'),
+                ('abertura_especial', 'Abertura especial', 'tipo/posicao/dimensao', False, 'text'),
+                ('chanfro_esq_top', 'Chanfro esquerda topo', 'cm ou N/A', False, 'text'),
+                ('chanfro_esq_fun', 'Chanfro esquerda fundo', 'cm ou N/A', False, 'text'),
+                ('chanfro_dir_top', 'Chanfro direita topo', 'cm ou N/A', False, 'text'),
+                ('chanfro_dir_fun', 'Chanfro direita fundo', 'cm ou N/A', False, 'text'),
+                ('abertura_topo_esq', 'Abertura topo/esq.', 'profundidade x boca / ref.', False, 'text'),
+                ('abertura_topo_dir', 'Abertura topo/dir.', 'profundidade x boca / ref.', False, 'text'),
+                ('abertura_fundo_esq', 'Abertura fundo/esq.', 'profundidade x boca / ref.', False, 'text'),
+                ('abertura_fundo_dir', 'Abertura fundo/dir.', 'profundidade x boca / ref.', False, 'text'),
+            ]
         if self.field_id == 'laje_visao_corte' and slot_id == 'cut_view_geom':
             return [
                 ('direction', 'Direcao', 'Norte/Sul/Leste/Oeste', False, 'text'),
@@ -854,6 +870,11 @@ class LinkManager(QWidget):
 
         if self.field_id == 'laje_pilares_apoio' and slot_id == 'pillar_geom':
             hint = QLabel('Regra faces: A=baixo/esq, B=cima/dir, C=esq/cima, D=dir/baixo; A/B sao faces maiores.')
+            hint.setWordWrap(True)
+            hint.setStyleSheet(f"color: {Colors.TEXT_DIM}; font-size: 9px; font-weight: normal;")
+            lay.addWidget(hint)
+        elif 'viga_fundo' in self.field_id and slot_id == 'contour':
+            hint = QLabel('Valores informacionais derivados da geometria do contorno. O vinculo editavel e apenas Segmentos de Area.')
             hint.setWordWrap(True)
             hint.setStyleSheet(f"color: {Colors.TEXT_DIM}; font-size: 9px; font-weight: normal;")
             lay.addWidget(hint)

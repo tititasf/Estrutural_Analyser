@@ -5847,7 +5847,12 @@ class MainWindow(QMainWindow):
                                     for lk in existing_contour
                                 )
                                 if not has_good_pts:
-                                    b['links'][link_key]['contour'] = [{'points': geom, 'type': 'polygon'}]
+                                    b['links'][link_key]['contour'] = [{
+                                        'points': geom,
+                                        'type': 'polygon',
+                                        'tag': 'Fundo',
+                                        'ficha': seg.get('ficha', {}),
+                                    }]
                                     print(f" -> Added {link_key} contour (bbox fallback) to Beam {b.get('name')}")
                                 else:
                                     print(f" -> Kept existing {link_key} contour for Beam {b.get('name')}")
@@ -7708,6 +7713,124 @@ class MainWindow(QMainWindow):
             if 'viga_fundo_seg' in k and '_area_segs' in k
         )
 
+        def _fmt_fv_num(value):
+            try:
+                n = float(value)
+            except Exception:
+                return str(value or '')
+            return str(int(n)) if abs(n - int(n)) < 0.05 else f"{n:.1f}"
+
+        def _support_label(s):
+            if not isinstance(s, dict):
+                return ''
+            for key in ('name', 'text', 'label', 'id_item', 'id'):
+                val = s.get(key)
+                if val:
+                    return str(val)
+            return ''
+
+        def _link_points(link):
+            pts = link.get('points') if isinstance(link, dict) else []
+            return [tuple(p) for p in pts or [] if isinstance(p, (list, tuple)) and len(p) >= 2]
+
+        def _dim_width_hint():
+            dim_text = (
+                b.get('fields', {}).get('dimensao')
+                or b.get('fields', {}).get('dim')
+                or b.get('dim')
+                or ''
+            )
+            nums = [float(n.replace(',', '.')) for n in re.findall(r'\d+(?:[,.]\d+)?', str(dim_text))]
+            return min(nums) if nums else None
+
+        def _fundo_geometry_metrics(points, length_hint=None):
+            if not points:
+                return _dim_width_hint(), length_hint or 0.0
+            xs = [float(p[0]) for p in points]
+            ys = [float(p[1]) for p in points]
+            dx = max(xs) - min(xs) if xs else 0.0
+            dy = max(ys) - min(ys) if ys else 0.0
+            is_h = b.get('is_h', dx >= dy)
+            largura = dy if is_h else dx
+            comprimento = dx if is_h else dy
+            if largura <= 0.1:
+                largura = _dim_width_hint() or largura
+            if length_hint:
+                comprimento = float(length_hint)
+            return largura, comprimento
+
+        def _corner_flags(points):
+            fields = {
+                'chanfro_esq_top': 'N/A',
+                'chanfro_esq_fun': 'N/A',
+                'chanfro_dir_top': 'N/A',
+                'chanfro_dir_fun': 'N/A',
+                'abertura_topo_esq': 'N/A',
+                'abertura_topo_dir': 'N/A',
+                'abertura_fundo_esq': 'N/A',
+                'abertura_fundo_dir': 'N/A',
+            }
+            if not points:
+                return fields, ''
+            uniq = []
+            for p in points:
+                if p not in uniq:
+                    uniq.append(p)
+            if len(uniq) <= 4:
+                return fields, ''
+            xs = [float(p[0]) for p in uniq]
+            ys = [float(p[1]) for p in uniq]
+            min_x, max_x = min(xs), max(xs)
+            min_y, max_y = min(ys), max(ys)
+            tol_x = max((max_x - min_x) * 0.12, 5.0)
+            tol_y = max((max_y - min_y) * 0.12, 5.0)
+            corners = {
+                'chanfro_esq_top': (min_x, min_y),
+                'chanfro_esq_fun': (min_x, max_y),
+                'chanfro_dir_top': (max_x, min_y),
+                'chanfro_dir_fun': (max_x, max_y),
+            }
+            for field, (cx, cy) in corners.items():
+                has_corner = any(abs(float(x) - cx) <= 2.0 and abs(float(y) - cy) <= 2.0 for x, y in uniq)
+                near_x = any(abs(float(x) - cx) <= tol_x and abs(float(y) - cy) > 2.0 for x, y in uniq)
+                near_y = any(abs(float(y) - cy) <= tol_y and abs(float(x) - cx) > 2.0 for x, y in uniq)
+                if not has_corner and near_x and near_y:
+                    fields[field] = 'Detectado'
+            return fields, f"{len(uniq) - 4} vertice(s) extra na geometria"
+
+        def _refresh_fundo_link_fichas():
+            links = b.setdefault('links', {})
+            apoios = links.get('apoios', {}) if isinstance(links.get('apoios'), dict) else {}
+            apoio_ini = ', '.join(filter(None, [_support_label(s) for s in apoios.get('inicio', [])]))
+            apoio_fim = ', '.join(filter(None, [_support_label(s) for s in apoios.get('fim', [])]))
+            aberturas_map = links.get('aberturas', {}) if isinstance(links.get('aberturas'), dict) else {}
+            aberturas = aberturas_map.get('pilar', [])
+            abertura_txt = f"{len(aberturas)} interferencia(s) por pilar" if aberturas else ''
+            for key, slots in list(links.items()):
+                if not (isinstance(key, str) and key.startswith('viga_fundo_seg_') and key.endswith('_area_segs')):
+                    continue
+                contours = slots.get('contour') if isinstance(slots, dict) else None
+                if not isinstance(contours, list):
+                    continue
+                for link in contours:
+                    if not isinstance(link, dict):
+                        continue
+                    pts = _link_points(link)
+                    largura, comprimento = _fundo_geometry_metrics(pts, link.get('len'))
+                    corner_data, corner_note = _corner_flags(pts)
+                    ficha = dict(link.get('ficha') or {})
+                    ficha.update({
+                        'apoio_inicial': apoio_ini or ficha.get('apoio_inicial') or '',
+                        'apoio_final': apoio_fim or ficha.get('apoio_final') or '',
+                        'largura_total_fundo': _fmt_fv_num(largura),
+                        'comprimento_total_fundo': _fmt_fv_num(comprimento),
+                        'abertura_especial': abertura_txt or corner_note or ficha.get('abertura_especial') or 'N/A',
+                    })
+                    for ck, cv in corner_data.items():
+                        ficha[ck] = cv if cv != 'N/A' else ficha.get(ck) or cv
+                    link['ficha'] = ficha
+                    link['tag'] = link.get('tag') or 'Fundo'
+
         def _run_lv_motors_patch():
             """Roda os motores LV Para e Passa para vigas já processadas que ainda não têm
             as chaves comprimento_total, ou que têm mais segmentos do que spans do bottom
@@ -7786,6 +7909,7 @@ class MainWindow(QMainWindow):
                         b['links'][tkey][sk] = [{'type': 'poly', 'points': best_ln, 'len': sl, 'tag': tag}]
             _run_motor('comprimento_total')
             _run_motor('comp_total_passa')
+            _refresh_fundo_link_fichas()
 
         if has_links and not seg_bottom_empty and has_fundo_contours:
             # Sincronizar name link com nome normalizado (se divergiu de DB antigo)
@@ -8339,6 +8463,8 @@ class MainWindow(QMainWindow):
                 
                 if not is_start and not is_end:
                      b['links']['aberturas']['pilar'].append(s)
+
+        _refresh_fundo_link_fichas()
         # --- CRUZAMENTO DE DADOS DA ENGENHARIA REVERSA ---
         is_reverse_eng = hasattr(self, '_reverse_eng_cache')
         if is_reverse_eng:

@@ -238,6 +238,51 @@ def process_beam_fv(b: dict, spatial_index=None, visual_obstacles=None) -> dict:
     # dim: texto mais próximo da posição real do beam
     dim_text = _parse_dim_text(dim_texts, beam_pos=beam_pos)
     h_n1 = _parse_h(dim_text)
+    apoio_inicial = ""
+    apoio_final = ""
+    supports = (b.get("geometry", {}) or {}).get("support_candidates", []) or []
+    if supports:
+        def _support_key(s):
+            pts = s.get("points") or []
+            if pts:
+                cx = sum(p[0] for p in pts) / len(pts)
+                cy = sum(p[1] for p in pts) / len(pts)
+                return cx if is_horizontal else cy
+            pos = s.get("pos") or (0, 0)
+            return pos[0] if is_horizontal else pos[1]
+
+        def _support_label(s):
+            for key in ("name", "text", "label", "id_item", "id"):
+                if s.get(key):
+                    return str(s.get(key))
+            return ""
+
+        ordered = sorted(supports, key=_support_key)
+        apoio_inicial = _support_label(ordered[0]) if ordered else ""
+        apoio_final = _support_label(ordered[-1]) if len(ordered) > 1 else ""
+
+    for seg in segmentos_fundo:
+        seg_len = seg.get("length")
+        if seg_len is None and seg.get("coord"):
+            try:
+                seg_len = abs(float(seg["coord"][1]) - float(seg["coord"][0]))
+            except Exception:
+                seg_len = 0.0
+        seg["ficha"] = {
+            "apoio_inicial": apoio_inicial,
+            "apoio_final": apoio_final,
+            "largura_total_fundo": round(float(h_n1 or 0), 1),
+            "comprimento_total_fundo": round(float(seg_len or 0), 1),
+            "abertura_especial": "N/A",
+            "chanfro_esq_top": "N/A",
+            "chanfro_esq_fun": "N/A",
+            "chanfro_dir_top": "N/A",
+            "chanfro_dir_fun": "N/A",
+            "abertura_topo_esq": "N/A",
+            "abertura_topo_dir": "N/A",
+            "abertura_fundo_esq": "N/A",
+            "abertura_fundo_dir": "N/A",
+        }
 
     viga_nome = b.get("name", "?")
     if viga_nome != "?":

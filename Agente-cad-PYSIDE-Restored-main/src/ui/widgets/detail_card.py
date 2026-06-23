@@ -1990,25 +1990,13 @@ class DetailCard(QWidget):
         # Dimensão (Movido dos Dados Gerais para cá)
         self._add_linked_row(form, "Dimensão:", "dim", "text")
         
-        self._add_linked_row(form, "Largura Total do Fundo:", f'{seg_uid}_largura', "text")
-        self._add_linked_row(form, "Comprimento Total do Fundo:", f'{seg_uid}_comprimento', "poly")
-        self._add_linked_row(form, "Localização Inicial (Ref.):", f'{seg_uid}_local_ini', "text", hide_input=True)
-        self._add_linked_row(form, "Localização Final (Ref.):", f'{seg_uid}_local_fim', "text", hide_input=True)
-        
-        self._add_linked_row(form, "Abertura Especial (Personalizada):", f'{seg_uid}_abert_especial', "poly")
-        
-        # Chanfros
-        self._add_linked_row(form, "Chanfro Esquerda Topo:", f'{seg_uid}_chanfro_esq_top', "poly")
-        self._add_linked_row(form, "Chanfro Esquerda Fundo:", f'{seg_uid}_chanfro_esq_fun', "poly")
-        self._add_linked_row(form, "Chanfro Direita Topo:", f'{seg_uid}_chanfro_dir_top', "poly")
-        self._add_linked_row(form, "Chanfro Direita Fundo:", f'{seg_uid}_chanfro_dir_fun', "poly")
+        info = QLabel("Largura, comprimento, apoios, chanfros e aberturas sao ficha do vinculo geometrico.")
+        info.setWordWrap(True)
+        info.setStyleSheet(f"font-size: 10px; color: {Colors.TEXT_SECONDARY}; font-style: italic;")
+        form.addRow("", info)
         
         main_v.addWidget(form_w)
 
-        # Aberturas (TABELA) - Agora após todos os campos
-        self._add_beam_openings_table(main_v, f'{seg_uid}_abert_top_esq', f'{seg_uid}_abert_top_dir', 
-                                      f'{seg_uid}_abert_fun_esq', f'{seg_uid}_abert_fun_dir')
-        
         # 2. Continuidade (Radio)
         cont_opts_fundo = ["Obstáculo", "Recorte", "Último Seg."]
         main_v.addWidget(self._create_radio_group("Continuidade (Fundo)", cont_opts_fundo, f"{seg_uid}_continuidade"))

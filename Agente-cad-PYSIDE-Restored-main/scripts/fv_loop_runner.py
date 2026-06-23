@@ -159,6 +159,29 @@ def load_n1_fv(obra_name: str, pav_filter: str | None, db_path: Path) -> list[di
                 cj = {}
 
             extra = beams_extra.get(viga_nome, {})
+            seg_fichas = [
+                s.get("ficha") for s in cj.get("segmentos_fundo", [])
+                if isinstance(s, dict) and isinstance(s.get("ficha"), dict)
+            ]
+            ficha0 = seg_fichas[0] if seg_fichas else {}
+
+            def _ficha_float(ficha: dict, key: str) -> float:
+                try:
+                    return float(str(ficha.get(key, 0)).replace(",", ".") or 0)
+                except Exception:
+                    return 0.0
+
+            ficha_comp = sum(_ficha_float(f, "comprimento_total_fundo") for f in seg_fichas)
+            ficha_h = _ficha_float(ficha0, "largura_total_fundo")
+            abertura_n1 = sum(
+                1 for f in seg_fichas
+                if str(f.get("abertura_especial", "")).strip().lower() not in {"", "n/a", "0"}
+            )
+            chanfro_n1 = sum(
+                1 for f in seg_fichas
+                for k in ("chanfro_esq_top", "chanfro_esq_fun", "chanfro_dir_top", "chanfro_dir_fun")
+                if str(f.get(k, "")).strip().lower() not in {"", "n/a", "0"}
+            )
 
             # Prioridade: campos escritos pelo headless runner (mais precisos)
             # → fallback para cálculo legacy dos segmentos
@@ -172,6 +195,8 @@ def load_n1_fv(obra_name: str, pav_filter: str | None, db_path: Path) -> list[di
 
             # comprimento: headless > beams.validated_fields > geometry sum
             comprimento = (
+                ficha_comp
+                or
                 cj.get("comprimento_total_fundo")
                 or extra.get("comprimento_total_fundo")
                 or sum(_seg_length(s.get("geometry", [])) for s in cj.get("segmentos_fundo", []) if s.get("geometry"))
@@ -180,6 +205,8 @@ def load_n1_fv(obra_name: str, pav_filter: str | None, db_path: Path) -> list[di
 
             # h: h_espessura (headless, proxima ao beam) > dim text > validated
             h = (
+                ficha_h
+                or
                 cj.get("h_espessura")
                 or _parse_h(cj.get("dim") or extra.get("dimensao"))
             )
@@ -189,6 +216,10 @@ def load_n1_fv(obra_name: str, pav_filter: str | None, db_path: Path) -> list[di
                 "panels_n1": panels_n1,
                 "comprimento_n1": float(comprimento),
                 "h_n1": h or 0.0,
+                "apoio_inicial_n1": ficha0.get("apoio_inicial", ""),
+                "apoio_final_n1": ficha0.get("apoio_final", ""),
+                "aberturas_n1": abertura_n1,
+                "chanfros_n1": chanfro_n1,
                 "raw_n_segmentos": n_seg,
             })
 
@@ -218,18 +249,29 @@ def compare_fv(
         n2_panels = len(n2.get("panels", []))
         n2_comp = float(n2.get("total_height", 0) or 0)
         n2_h = float(n2.get("total_width", 0) or 0)
+        n2_holes = len([h for h in n2.get("holes", []) if isinstance(h, dict) and h.get("active")])
 
         n1_segs = b["panels_n1"]
         n1_comp = b["comprimento_n1"]
         n1_h = b["h_n1"] or 0.0
+        n1_holes = int(b.get("aberturas_n1") or 0)
 
         segs_ok = n2_panels > 0 and n1_segs == n2_panels
         comp_ok = (
             n2_comp > 0 and abs(n1_comp - n2_comp) / n2_comp < 0.05
         ) if n2_comp else False
         h_ok = (n2_h > 0 and abs(n1_h - n2_h) <= 2) if n2_h else False
+        holes_ok = n1_holes == n2_holes if (n1_holes or n2_holes) else None
 
-        score = (33.3 if segs_ok else 0) + (33.3 if comp_ok else 0) + (33.3 if h_ok else 0)
+        if holes_ok is None:
+            score = (33.3 if segs_ok else 0) + (33.3 if comp_ok else 0) + (33.3 if h_ok else 0)
+        else:
+            score = (
+                (25 if segs_ok else 0)
+                + (25 if comp_ok else 0)
+                + (25 if h_ok else 0)
+                + (25 if holes_ok else 0)
+            )
 
         results.append({
             "viga": vn,
@@ -240,9 +282,17 @@ def compare_fv(
             "comprimento_n2": round(n2_comp, 1),
             "h_n1": n1_h,
             "h_n2": n2_h,
+            "apoio_inicial_n1": b.get("apoio_inicial_n1", ""),
+            "apoio_final_n1": b.get("apoio_final_n1", ""),
+            "label_left_n2": n2.get("label_left", ""),
+            "label_right_n2": n2.get("label_right", ""),
+            "aberturas_n1": n1_holes,
+            "aberturas_n2": n2_holes,
+            "chanfros_n1": b.get("chanfros_n1", 0),
             "segs_ok": segs_ok,
             "comp_ok": comp_ok,
             "h_ok": h_ok,
+            "holes_ok": holes_ok,
             "score": round(score, 1),
         })
 
@@ -279,7 +329,15 @@ def record_events(
                     "comprimento_n2": r["comprimento_n2"],
                     "h_n1": r["h_n1"],
                     "h_n2": r["h_n2"],
+                    "apoio_inicial_n1": r.get("apoio_inicial_n1", ""),
+                    "apoio_final_n1": r.get("apoio_final_n1", ""),
+                    "label_left_n2": r.get("label_left_n2", ""),
+                    "label_right_n2": r.get("label_right_n2", ""),
+                    "aberturas_n1": r.get("aberturas_n1", 0),
+                    "aberturas_n2": r.get("aberturas_n2", 0),
+                    "chanfros_n1": r.get("chanfros_n1", 0),
                     "segs_matched": 1 if r["segs_ok"] else 0,
+                    "holes_matched": None if r.get("holes_ok") is None else (1 if r["holes_ok"] else 0),
                     "score": r["score"],
                 },
                 learning_db_path=learning_db,
