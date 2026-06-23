@@ -5105,6 +5105,25 @@ class MainWindow(QMainWindow):
         # ──────────────────────────────────────────────────────────────────
 
         import uuid # Garantir import
+        import re as _re_norm
+
+        def _normalize_beam_name(name: str) -> str:
+            """F.V305.C-1 → FV-V305.C | L.V305.A-1 → LV-V305.A"""
+            if not name or name.startswith('FV-') or name.startswith('LV-'):
+                return name
+            m = _re_norm.match(r'^F\.(.+?)\.C(?:-\d+)?$', name)
+            if m:
+                return f'FV-{m.group(1)}.C'
+            m = _re_norm.match(r'^F\.(.+?)(?:-\d+)?$', name)
+            if m:
+                return f'FV-{m.group(1)}.C'
+            m = _re_norm.match(r'^L\.(.+?)\.([AB])(?:-\d+)?$', name)
+            if m:
+                return f'LV-{m.group(1)}.{m.group(2)}'
+            m = _re_norm.match(r'^L\.(.+?)(?:-\d+)?$', name)
+            if m:
+                return f'LV-{m.group(1)}'
+            return name
 
         # --- Snapshot de Dados Validados (Modo Incremental Automático) ---
         # Agora a análise geral SEMPRE preserva o que está validado/editado.
@@ -5119,11 +5138,11 @@ class MainWindow(QMainWindow):
              if p.get('is_validated') or p.get('validated_fields') or p.get('links'):
                  preserved_pillars[p.get('name')] = p
                  
-        # Snapshot Vigas
+        # Snapshot Vigas (chave normalizada para migração de DB antigo F.V→FV-)
         if hasattr(self, 'beams_found'):
              for b in self.beams_found:
                  if b.get('is_validated') or b.get('validated_fields') or b.get('links'):
-                     preserved_beams[b.get('name')] = b
+                     preserved_beams[_normalize_beam_name(b.get('name', ''))] = b
                      
         # Snapshot Lajes
         if hasattr(self, 'slabs_found'):
@@ -5426,6 +5445,10 @@ class MainWindow(QMainWindow):
                     ys = [p[1] for p in pts]
                     visual_obstacles.append({'type': 'VISAO_CORTE', 'bbox': (min(xs), min(ys), max(xs), max(ys))})
         self.beams_found = beam_tracer.detect_beams(texts, all_lines_and_polys, visual_obstacles=visual_obstacles)
+
+        # Normalizar nomes: F.V305.C-1 → FV-V305.C | L.V305.A-1 → LV-V305.A
+        for _b in self.beams_found:
+            _b['name'] = _normalize_beam_name(_b['name'])
 
         self.beams_found.sort(key=nat_key)
         
@@ -5757,72 +5780,69 @@ class MainWindow(QMainWindow):
                 for s in getattr(self, 'slabs_found', []):
                     self.db.save_slab(s, self.current_project_id)
                 try:
-                    import sqlite3 as _sq3
                     from scripts.analise_geral_headless import process_beam_fv, upsert_beam_element_fv
-                    _fv_conn = _sq3.connect(self.db.db_path)
-                    try:
-                        for b in getattr(self, 'beams_found', []):
-                            # Process Fundo de Viga logic
-                            fv_data = process_beam_fv(b, getattr(self, 'spatial_index', None), visual_obstacles)
-                            
-                            # Update the beam dictionary (UI integration) BEFORE saving
-                            if 'links' not in b:
-                                b['links'] = {}
-                            
-                            is_h = b.get('is_h', True)
-                            b_pos = b.get('pos', [0, 0])
-                            h_beam = fv_data.get('h_n1') or 20.0
-                            half_h = h_beam / 2.0
-                            
-                            segs = fv_data.get('segmentos_fundo', [])
-                            print(f"Beam {b.get('name')} FV segments: {len(segs)}")
-                            
-                            # Extract contour data
-                            for seg in segs:
-                                idx = seg.get('seg_index')
-                                # try to get coordinates from the new format (merged_coords contains tuples of min, max)
-                                p_min, p_max = None, None
-                                _coord = seg.get('coord')
-                                if _coord is not None:
-                                    p_min, p_max = _coord
-                                
-                                if idx and p_min is not None and p_max is not None:
-                                    # Construct a 4-point polygon around the segment
-                                    if is_h:
-                                        geom = [
-                                            [p_min, b_pos[1] - half_h],
-                                            [p_max, b_pos[1] - half_h],
-                                            [p_max, b_pos[1] + half_h],
-                                            [p_min, b_pos[1] + half_h]
-                                        ]
-                                    else:
-                                        geom = [
-                                            [b_pos[0] - half_h, p_min],
-                                            [b_pos[0] + half_h, p_min],
-                                            [b_pos[0] + half_h, p_max],
-                                            [b_pos[0] - half_h, p_max]
-                                        ]
-                                    link_key = f"viga_fundo_seg_{idx}_area_segs"
-                                    if link_key not in b['links']:
-                                        b['links'][link_key] = {}
-                                    b['links'][link_key]['contour'] = [{'points': geom, 'type': 'polygon'}]
-                                    print(f" -> Added {link_key} contour to Beam {b.get('name')}")
-                            
-                            # Now save the beam
-                            self.db.save_beam(b, self.current_project_id)
-                            
-                            # Also populate the beam_elements for headless loop
+
+                    # FASE 1: Processar dados FV e atualizar links em memória (sem acesso ao DB)
+                    _fv_results = []
+                    for b in getattr(self, 'beams_found', []):
+                        fv_data = process_beam_fv(b, getattr(self, 'spatial_index', None), visual_obstacles)
+
+                        if 'links' not in b:
+                            b['links'] = {}
+
+                        is_h = b.get('is_h', True)
+                        b_pos = b.get('pos', [0, 0])
+                        h_beam = fv_data.get('h_n1') or 20.0
+                        half_h = h_beam / 2.0
+
+                        segs = fv_data.get('segmentos_fundo', [])
+                        print(f"Beam {b.get('name')} FV segments: {len(segs)}")
+
+                        for seg in segs:
+                            idx = seg.get('seg_index')
+                            p_min, p_max = None, None
+                            _coord = seg.get('coord')
+                            if _coord is not None:
+                                p_min, p_max = _coord
+
+                            if idx and p_min is not None and p_max is not None:
+                                if is_h:
+                                    geom = [
+                                        [p_min, b_pos[1] - half_h],
+                                        [p_max, b_pos[1] - half_h],
+                                        [p_max, b_pos[1] + half_h],
+                                        [p_min, b_pos[1] + half_h]
+                                    ]
+                                else:
+                                    geom = [
+                                        [b_pos[0] - half_h, p_min],
+                                        [b_pos[0] + half_h, p_min],
+                                        [b_pos[0] + half_h, p_max],
+                                        [b_pos[0] - half_h, p_max]
+                                    ]
+                                link_key = f"viga_fundo_seg_{idx}_area_segs"
+                                if link_key not in b['links']:
+                                    b['links'][link_key] = {}
+                                b['links'][link_key]['contour'] = [{'points': geom, 'type': 'polygon'}]
+                                print(f" -> Added {link_key} contour to Beam {b.get('name')}")
+
+                        _fv_results.append(fv_data)
+
+                    # FASE 2: Salvar todos os beams (cada save_beam abre/fecha sua própria conexão)
+                    for b in getattr(self, 'beams_found', []):
+                        self.db.save_beam(b, self.current_project_id)
+
+                    # FASE 3: Upsert FV na tabela headless (única conexão, sem conflito)
+                    import sqlite3 as _sq3
+                    with _sq3.connect(self.db.db_path) as _fv_conn:
+                        for fv_data in _fv_results:
                             upsert_beam_element_fv(_fv_conn, self.current_project_id, fv_data["viga_nome"], fv_data["panels_n1"], fv_data)
-                        
-                        _fv_conn.commit()
-                    finally:
-                        _fv_conn.close()
+
                 except Exception as _fv_err:
                     import traceback
                     print(f"⚠ Erro ao popular dados Fundo de Viga: {_fv_err}")
                     print(traceback.format_exc())
                     self.log(f"⚠ Erro ao popular dados Fundo de Viga: {_fv_err}")
-                    # Fallback to standard save if FV fails
                     for b in getattr(self, 'beams_found', []):
                         self.db.save_beam(b, self.current_project_id)
                 
@@ -7655,6 +7675,10 @@ class MainWindow(QMainWindow):
             if 'viga_fundo_seg' in k and '_area_segs' in k
         )
         if has_links and not seg_bottom_empty and has_fundo_contours:
+            # Sincronizar name link com nome normalizado (se divergiu de DB antigo)
+            _name_lbl = b.get('links', {}).get('name', {}).get('label', [])
+            if _name_lbl and isinstance(_name_lbl, list) and _name_lbl[0].get('text') != b.get('name'):
+                _name_lbl[0]['text'] = b['name']
             return  # Já processada com fundo OK — manter
         if has_links and not seg_bottom_empty and not has_fundo_contours:
             # seg_bottom populado (legado) mas fundo links ausentes — migrar
@@ -7667,6 +7691,10 @@ class MainWindow(QMainWindow):
                 elif not b['links'][area_key].get('contour'):
                     b['links'][area_key]['contour'] = [seg_entry]
             b['seg_c'] = len(existing_segs)
+            # Sincronizar name link com nome normalizado
+            _name_lbl = b['links'].get('name', {}).get('label', [])
+            if _name_lbl and isinstance(_name_lbl, list) and _name_lbl[0].get('text') != b['name']:
+                _name_lbl[0]['text'] = b['name']
             return
         if has_links and seg_bottom_empty:
             # Fundo ainda não processado (ou DB antigo) — só reprocessar fundos
@@ -8051,13 +8079,23 @@ class MainWindow(QMainWindow):
             b_name = b.get('name', '')
             c_name = b_name
             cls_key = 'LV'
-            if b_name.startswith('F.'): 
-                c_name = b_name[2:]
+            if b_name.startswith('FV-'):
+                c_name = b_name[3:]          # FV-V305.C → V305.C
+                c_name = c_name.removesuffix('.C')  # → V305
                 cls_key = 'FV'
-            elif b_name.startswith('L.'): 
+            elif b_name.startswith('LV-'):
+                c_name = b_name[3:]          # LV-V305.A → V305.A
+                c_name = c_name[:-2] if c_name.endswith(('.A', '.B')) else c_name  # → V305
+                cls_key = 'LV'
+            elif b_name.startswith('F.'):
+                c_name = b_name[2:]
+                import re as _re_rv
+                c_name = _re_rv.sub(r'\.C(?:-\d+)?$', '', c_name)
+                cls_key = 'FV'
+            elif b_name.startswith('L.'):
                 c_name = b_name[2:]
                 cls_key = 'LV'
-                
+
             f_data = self._reverse_eng_cache.get(cls_key, {}).get(c_name)
             if f_data:
                 # 1. Marcar como Validado pela Eng. Reversa
@@ -11091,17 +11129,18 @@ class MainWindow(QMainWindow):
             
             display_data['type'] = override_type
             orig_name = display_data.get('name', 'V?')
-            
-            if orig_name.startswith('F.'): orig_name = orig_name[2:]
-            elif orig_name.startswith('L.'): orig_name = orig_name[2:]
-            
-            if override_type == 'viga_lateral_a': display_data['name'] = f'L.{orig_name}.A'
-            elif override_type == 'viga_lateral_b': display_data['name'] = f'L.{orig_name}.B'
-            elif override_type and override_type.startswith('viga_fundo_c'): 
-                suffix = override_type.split('_')[-1]
-                if not suffix.isdigit(): suffix = '1'
-                display_data['name'] = f'F.{orig_name}.C-{suffix}'
-                display_data['type'] = 'viga_fundo_c' # DetailCard precisa do type original
+
+            # Extrair nome base (sem prefixo FV-/LV-/F./L. e sem sufixo .C/.A/.B/-N)
+            import re as _re_disp
+            _m_base = _re_disp.match(r'^(?:FV-|LV-|F\.|L\.)(.+?)(?:\.(?:C|A|B)(?:-\d+)?)?$', orig_name)
+            if _m_base:
+                orig_name = _m_base.group(1)
+
+            if override_type == 'viga_lateral_a': display_data['name'] = f'LV-{orig_name}.A'
+            elif override_type == 'viga_lateral_b': display_data['name'] = f'LV-{orig_name}.B'
+            elif override_type and override_type.startswith('viga_fundo_c'):
+                display_data['name'] = f'FV-{orig_name}.C'
+                display_data['type'] = 'viga_fundo_c'
 
         # Criar novo card
         self.current_card = DetailCard(display_data)
