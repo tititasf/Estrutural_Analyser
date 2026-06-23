@@ -4246,8 +4246,9 @@ class MainWindow(QMainWindow):
             if 'marcodxf' in itype or 'contorno' in itype:
                 self.canvas.draw_marco_dxf(item_data)
             elif 'viga' in itype:
-                # Foca/Desenha geometria da viga atualizada (SEM ZOOM AUTOMATICO NO PICK)
-                self.canvas.focus_on_beam_geometry(item_data, apply_zoom=False)
+                # Sub-itens LV/FV têm type='viga_lateral_a' etc.; para esses, não redesenhar via focus_on_beam_geometry
+                if itype not in {'viga_lateral_a', 'viga_lateral_b', 'viga_fundo_c'}:
+                    self.canvas.focus_on_beam_geometry(item_data, apply_zoom=False)
 
             # --- OVERHAUL: Lógica Inteligente para novos campos ---
             # 1. Comprimento Total (Geometria) - Campo "para"
@@ -4415,14 +4416,30 @@ class MainWindow(QMainWindow):
         """Disparado quando user clica num vínculo ou viga na tabela"""
         from PySide6.QtGui import QColor
         if isinstance(data, dict):
-            # Determinar Cor Base
+            self.canvas.highlight_link(data)
+            return
+            # Se o link tem _field_id, redireciona para on_focus_requested para usar
+            # item_data como fonte autoritativa (posição correta + cor via _semantic_highlight_color)
+            f_id = data.get('_field_id')
+            if f_id and self.current_card:
+                self.on_focus_requested(f_id)
+                return
+
+            # Fallback: destaque direto do link (sem _field_id conhecido)
             color = QColor(255, 0, 0)
             if self.current_card:
                 t = self.current_card.item_data.get('type', '').lower()
-                if 'pilar' in t: color = QColor(255, 213, 0)
-                elif 'laje' in t: color = QColor(0, 150, 255)
-                elif 'viga' in t: color = QColor(139, 69, 19)
-                
+                _tag = str(data.get('tag', '')).lower()
+                _fld = f_id.lower() if f_id else ''
+                if 'fundo' in _tag or 'fundo' in _fld:
+                    color = QColor(255, 120, 0)
+                elif 'pilar' in t:
+                    color = QColor(255, 213, 0)
+                elif 'laje' in t:
+                    color = QColor(0, 150, 255)
+                else:
+                    color = QColor(255, 213, 0)
+
             # É um objeto de link completo (com coordenadas)
             self.canvas.highlight_link(data, color)
         elif isinstance(data, str) and data != '-':
@@ -5823,8 +5840,17 @@ class MainWindow(QMainWindow):
                                 link_key = f"viga_fundo_seg_{idx}_area_segs"
                                 if link_key not in b['links']:
                                     b['links'][link_key] = {}
-                                b['links'][link_key]['contour'] = [{'points': geom, 'type': 'polygon'}]
-                                print(f" -> Added {link_key} contour to Beam {b.get('name')}")
+                                # Não sobrescreve contour já populada por _process_beam_intelligent
+                                existing_contour = b['links'][link_key].get('contour', [])
+                                has_good_pts = any(
+                                    isinstance(lk, dict) and lk.get('points')
+                                    for lk in existing_contour
+                                )
+                                if not has_good_pts:
+                                    b['links'][link_key]['contour'] = [{'points': geom, 'type': 'polygon'}]
+                                    print(f" -> Added {link_key} contour (bbox fallback) to Beam {b.get('name')}")
+                                else:
+                                    print(f" -> Kept existing {link_key} contour for Beam {b.get('name')}")
 
                         _fv_results.append(fv_data)
 
@@ -5876,17 +5902,24 @@ class MainWindow(QMainWindow):
     def on_list_beam_clicked(self, item, column=0):
         beam_id = item.data(0, Qt.UserRole)
         override_type = item.data(0, Qt.UserRole + 1)
+        tipo_comp = item.data(0, Qt.UserRole + 2)  # 'para' ou 'passa', somente para LV
         if not beam_id: return # Clicou no nó pai
         beam = next((b for b in self.beams_found if b['id'] == beam_id), None)
         if beam:
-            self.show_detail(beam, override_type=override_type)
+            self.show_detail(beam, override_type=override_type, tipo_comp=tipo_comp)
             # 1. Isolar no Canvas (Esconde todas as outras e mostra apenas esta)
             self.canvas.isolate_item(beam_id, 'beam', apply_zoom=False)
-            
-            # 2. Focar na viga (geometria completa e zoom detalhado)
-            self.canvas.focus_on_beam_geometry(beam)
-            # NOVO: Desenhar também os vínculos salvos (Labels, Dimensões, etc)
-            self.canvas.draw_item_links(beam)
+
+            # Para sub-itens LV-A/LV-B, não chamar focus_on_beam_geometry (desenha tudo em marrom)
+            # e usar display_data (com type correto) para filtragem no draw_item_links
+            _is_lv_fv = (override_type in {'viga_lateral_a', 'viga_lateral_b', 'viga_fundo_c'})
+            if not _is_lv_fv:
+                self.canvas.focus_on_beam_geometry(beam)
+                self.canvas.draw_item_links(beam)
+            else:
+                # draw_item_links usa type do current_card.item_data (que tem override_type como type)
+                if self.current_card:
+                    self.canvas.draw_item_links(self.current_card.item_data)
 
     def on_list_beam_fundo_clicked(self, item, column=0):
         """Clique em item da lista Fun. de Vigas: destaca APENAS o fundo desta viga + zoom."""
@@ -7674,11 +7707,92 @@ class MainWindow(QMainWindow):
             for k in b.get('links', {})
             if 'viga_fundo_seg' in k and '_area_segs' in k
         )
+
+        def _run_lv_motors_patch():
+            """Roda os motores LV Para e Passa para vigas já processadas que ainda não têm
+            as chaves comprimento_total, ou que têm mais segmentos do que spans do bottom
+            (fallback antigo criava 1 segmento por linha lateral em vez de 1 por span)."""
+            _lengths_check = classified.get('merged_bottom_lengths', [])
+            _expected_segs = len(_lengths_check) if _lengths_check else 1
+            _existing_para = [k for k in b.get('links', {}) if 'comprimento_total' in k and 'viga_a' in k]
+            if _existing_para:
+                # já tem chaves — verificar se número de segmentos bate com spans do bottom
+                _existing_count = len(_existing_para)
+                if _existing_count == _expected_segs:
+                    return  # número correto de segmentos, não precisa re-rodar
+                # número errado (fallback antigo) — limpar e re-rodar
+                for k in list(b.get('links', {}).keys()):
+                    if 'comprimento_total' in k or ('comp_total_passa' in k and 'viga_' in k):
+                        del b['links'][k]
+                for k in list(b.keys()):
+                    if '_seg_' in k and '_exists' in k and ('viga_a' in k or 'viga_b' in k):
+                        del b[k]
+            _lengths  = classified.get('merged_bottom_lengths', [])
+            _coords   = classified.get('merged_bottom_groups_coords', [])
+            _side_a   = classified.get('seg_side_a', [])
+            _side_b   = classified.get('seg_side_b', [])
+            _is_h     = b.get('is_h', True)
+            _beam_pos = b.get('pos', (0, 0))
+
+            def _lr(ln):
+                if _is_h: return min(p[0] for p in ln), max(p[0] for p in ln)
+                return min(p[1] for p in ln), max(p[1] for p in ln)
+
+            def _best(raw_lines, smin, smax):
+                best_r, best_l = 0.0, None
+                for ln in raw_lines:
+                    if len(ln) < 2: continue
+                    lmin, lmax = _lr(ln)
+                    ll = lmax - lmin
+                    if ll <= 0: continue
+                    ov = min(lmax, smax) - max(lmin, smin)
+                    r = ov / ll
+                    if r > 0.3 and r > best_r: best_r, best_l = r, ln
+                return best_l
+
+            def _run_motor(suffix):
+                if _lengths and _coords:
+                    for i, length in enumerate(_lengths, start=1):
+                        smin, smax = _coords[i - 1]
+                        for side_raw, tag, pk, sk in [
+                            (_side_a, 'Lado A', 'viga_a', 'seg_side_a'),
+                            (_side_b, 'Lado B', 'viga_b', 'seg_side_b'),
+                        ]:
+                            b[f'{pk}_seg_{i}_exists'] = True
+                            tkey = f'{pk}_seg_{i}_{suffix}'
+                            if tkey not in b['links']: b['links'][tkey] = {}
+                            matched = _best(side_raw, smin, smax)
+                            if matched is not None:
+                                p1, p2 = matched[0], matched[-1]
+                                sl = ((p2[0]-p1[0])**2 + (p2[1]-p1[1])**2)**0.5
+                                b['links'][tkey][sk] = [{'type': 'poly', 'points': matched, 'len': sl, 'tag': tag}]
+                            else:
+                                synth = [(smin, _beam_pos[1]), (smax, _beam_pos[1])] if _is_h else [(_beam_pos[0], smin), (_beam_pos[0], smax)]
+                                b['links'][tkey][sk] = [{'type': 'poly', 'points': synth, 'len': length, 'tag': tag}]
+                else:
+                    # Fallback: melhor linha única para seg_1
+                    for side_raw, tag, pk, sk in [
+                        (_side_a, 'Lado A', 'viga_a', 'seg_side_a'),
+                        (_side_b, 'Lado B', 'viga_b', 'seg_side_b'),
+                    ]:
+                        lines_f = [ln for ln in side_raw if len(ln) >= 2]
+                        if not lines_f: continue
+                        best_ln = max(lines_f, key=lambda ln: ((ln[-1][0]-ln[0][0])**2+(ln[-1][1]-ln[0][1])**2)**0.5)
+                        p1, p2 = best_ln[0], best_ln[-1]
+                        sl = ((p2[0]-p1[0])**2 + (p2[1]-p1[1])**2)**0.5
+                        b[f'{pk}_seg_1_exists'] = True
+                        tkey = f'{pk}_seg_1_{suffix}'
+                        if tkey not in b['links']: b['links'][tkey] = {}
+                        b['links'][tkey][sk] = [{'type': 'poly', 'points': best_ln, 'len': sl, 'tag': tag}]
+            _run_motor('comprimento_total')
+            _run_motor('comp_total_passa')
+
         if has_links and not seg_bottom_empty and has_fundo_contours:
             # Sincronizar name link com nome normalizado (se divergiu de DB antigo)
             _name_lbl = b.get('links', {}).get('name', {}).get('label', [])
             if _name_lbl and isinstance(_name_lbl, list) and _name_lbl[0].get('text') != b.get('name'):
                 _name_lbl[0]['text'] = b['name']
+            _run_lv_motors_patch()  # garante que motor Para também populou
             return  # Já processada com fundo OK — manter
         if has_links and not seg_bottom_empty and not has_fundo_contours:
             # seg_bottom populado (legado) mas fundo links ausentes — migrar
@@ -7695,6 +7809,7 @@ class MainWindow(QMainWindow):
             _name_lbl = b['links'].get('name', {}).get('label', [])
             if _name_lbl and isinstance(_name_lbl, list) and _name_lbl[0].get('text') != b['name']:
                 _name_lbl[0]['text'] = b['name']
+            _run_lv_motors_patch()
             return
         if has_links and seg_bottom_empty:
             # Fundo ainda não processado (ou DB antigo) — só reprocessar fundos
@@ -7744,11 +7859,11 @@ class MainWindow(QMainWindow):
                         b['links'][area_key] = {'contour': []}
                         
                     entry = {'type': 'poly', 'points': raw_line, 'len': length_i, 'tag': 'Fundo'}
-                    print(f"DEBUG: Append to contour in raw line path for Viga {b.get('name')}")
                     b['links'][area_key]['contour'].append(entry)
                     b['links']['viga_segs']['seg_bottom'].append(entry)
                     
             b['seg_c'] = len(b['links']['viga_segs']['seg_bottom'])
+            _run_lv_motors_patch()
             return
 
         # --- ESTRUTURA BASE ---
@@ -7781,11 +7896,15 @@ class MainWindow(QMainWindow):
             b['links']['dimensoes'].append(dim_texts[0])
 
         # 3. SEGMENTOS E COMPRIMENTOS
-        # Inicializar novos campos para segmentos laterais (A e B)
+        # Inicializar chaves para seg_1 de ambos os motores (Para e Passa)
         if 'viga_a_seg_1_comp_total_passa' not in b['links']:
             b['links']['viga_a_seg_1_comp_total_passa'] = {'seg_side_a': []}
         if 'viga_b_seg_1_comp_total_passa' not in b['links']:
             b['links']['viga_b_seg_1_comp_total_passa'] = {'seg_side_b': []}
+        if 'viga_a_seg_1_comprimento_total' not in b['links']:
+            b['links']['viga_a_seg_1_comprimento_total'] = {'seg_side_a': []}
+        if 'viga_b_seg_1_comprimento_total' not in b['links']:
+            b['links']['viga_b_seg_1_comprimento_total'] = {'seg_side_b': []}
         
         def process_segments(side_key, tag, prefix_key, field_suffix):
             lines = classified.get(side_key, [])
@@ -7821,17 +7940,56 @@ class MainWindow(QMainWindow):
             dy = abs(pts[0][1] - pts[-1][1])
             return dx < 2.0 and dy < 2.0
 
+        def _close_lines_to_polygon(lines, is_h, beam_offset=None):
+            """Une 2+ linhas paralelas em 1 polígono fechado (área do fundo).
+            Ordena por coordenada transversal: linha inferior primeiro.
+            Com 1 linha e beam_offset disponível, cria retângulo com 4 pontos."""
+            if len(lines) == 1:
+                ln = list(lines[0])
+                if beam_offset and beam_offset > 0:
+                    # Orientar esq→dir (H) ou baixo→cima (V)
+                    if is_h:
+                        if ln[0][0] > ln[-1][0]: ln = list(reversed(ln))
+                        ln2 = [(p[0], p[1] + beam_offset) for p in ln]
+                    else:
+                        if ln[0][1] > ln[-1][1]: ln = list(reversed(ln))
+                        ln2 = [(p[0] + beam_offset, p[1]) for p in ln]
+                    return ln + list(reversed(ln2))
+                return ln
+            def mid_transversal(ln):
+                return sum(p[1] for p in ln) / len(ln) if is_h else sum(p[0] for p in ln) / len(ln)
+            sorted_ln = sorted(lines, key=mid_transversal)
+            ln1 = list(sorted_ln[0])   # linha inferior/esquerda
+            ln2 = list(sorted_ln[-1])  # linha superior/direita
+            # Garantir orientação: ln1 e ln2 percorridos na mesma direção (esq→dir ou baixo→cima)
+            if is_h:
+                if ln1 and ln1[0][0] > ln1[-1][0]: ln1 = list(reversed(ln1))
+                if ln2 and ln2[0][0] > ln2[-1][0]: ln2 = list(reversed(ln2))
+            else:
+                if ln1 and ln1[0][1] > ln1[-1][1]: ln1 = list(reversed(ln1))
+                if ln2 and ln2[0][1] > ln2[-1][1]: ln2 = list(reversed(ln2))
+            # Polígono: ln1 esq→dir, ln2 dir→esq (fecha a área)
+            return ln1 + list(reversed(ln2))
+
         def process_fundo_segments():
             """Popula segmentos de fundo usando merged_bottom_lengths/coords do BeamTracer.
-            
+
             Hierarquia:
             1. merged_bottom_lengths + merged_bottom_groups_coords (dados reais do BeamTracer)
             2. seg_bottom bruto (fallback)
+
+            Quando múltiplas linhas se sobrepõem ao mesmo span (linhas A e B do fundo),
+            fecha-as em 1 polígono de área em vez de armazenar 2 vínculos de linha separados.
             """
             lengths_list = classified.get('merged_bottom_lengths', [])
             coords_list = classified.get('merged_bottom_groups_coords', [])
             seg_bottom_raw = classified.get('seg_bottom', [])
             is_h = b.get('is_h', True)
+
+            # Altura da viga para criar retângulo quando só 1 linha é encontrada
+            _dim_text = b.get('fields', {}).get('dimensao', '') or ''
+            _m_dim = re.search(r'(\d+)\s*[xX]\s*(\d+)', _dim_text)
+            h_beam = float(_m_dim.group(1)) if _m_dim else 20.0
 
             if lengths_list:
                 # Caminho preferencial: usar os comprimentos/coords já calculados
@@ -7844,8 +8002,8 @@ class MainWindow(QMainWindow):
                     if area_key not in b['links']:
                         b['links'][area_key] = {'contour': []}
 
-                    # Tentar associar geometria real do seg_bottom que cai dentro deste span
-                    geom_found = False
+                    # Coletar TODAS as linhas que se sobrepõem >= 30% ao span
+                    matching_lines = []
                     if i <= len(coords_list) and seg_bottom_raw:
                         span_min, span_max = coords_list[i - 1]
                         for raw_line in seg_bottom_raw:
@@ -7857,34 +8015,45 @@ class MainWindow(QMainWindow):
                             else:
                                 line_min = min(p[1] for p in raw_line)
                                 line_max = max(p[1] for p in raw_line)
-                            # Se a linha raw se sobrepoe >= 50% ao span, associa
                             overlap = min(line_max, span_max) - max(line_min, span_min)
                             line_len = line_max - line_min
                             if line_len > 0 and overlap / line_len > 0.3:
-                                link_entry = {'type': 'poly', 'points': raw_line, 'len': length, 'tag': 'Fundo'}
-                                b['links'][area_key]['contour'].append(link_entry)
-                                b['links']['viga_segs']['seg_bottom'].append(link_entry)
-                                geom_found = True
+                                matching_lines.append(raw_line)
 
-                    # Fallback: criar geometria sintética a partir das coords
-                    if not geom_found and i <= len(coords_list):
+                    if matching_lines:
+                        # Fechar 2+ linhas em 1 polígono; 1 linha → retângulo com h_beam
+                        pts = _close_lines_to_polygon(matching_lines, is_h, beam_offset=h_beam)
+                        link_entry = {'type': 'poly', 'points': pts, 'len': length, 'tag': 'Fundo'}
+                        b['links'][area_key]['contour'] = [link_entry]
+                        b['links']['viga_segs']['seg_bottom'].append(link_entry)
+                    elif i <= len(coords_list):
+                        # Fallback sintético: retângulo de 4 pontos usando h_beam
                         span_min, span_max = coords_list[i - 1]
                         beam_pos = b.get('pos', (0, 0))
+                        half_h = h_beam / 2.0
                         if is_h:
-                            synth_line = [(span_min, beam_pos[1]), (span_max, beam_pos[1])]
+                            synth_line = [
+                                (span_min, beam_pos[1] - half_h),
+                                (span_max, beam_pos[1] - half_h),
+                                (span_max, beam_pos[1] + half_h),
+                                (span_min, beam_pos[1] + half_h),
+                            ]
                         else:
-                            synth_line = [(beam_pos[0], span_min), (beam_pos[0], span_max)]
+                            synth_line = [
+                                (beam_pos[0] - half_h, span_min),
+                                (beam_pos[0] + half_h, span_min),
+                                (beam_pos[0] + half_h, span_max),
+                                (beam_pos[0] - half_h, span_max),
+                            ]
                         link_entry = {'type': 'poly', 'points': synth_line, 'len': length, 'tag': 'Fundo'}
-                        b['links'][area_key]['contour'].append(link_entry)
+                        b['links'][area_key]['contour'] = [link_entry]
                         b['links']['viga_segs']['seg_bottom'].append(link_entry)
-                    elif not geom_found and not coords_list and seg_bottom_raw:
-                        # coords_list vazio mas há raw segments (DB desatualizado):
-                        # usar o i-ésimo raw_seg como aproximação para este comprimento lógico
+                    elif not coords_list and seg_bottom_raw:
                         raw_candidates = [s for s in seg_bottom_raw if len(s) >= 2]
                         if i - 1 < len(raw_candidates):
                             raw_line = raw_candidates[i - 1]
                             link_entry = {'type': 'poly', 'points': raw_line, 'len': length, 'tag': 'Fundo'}
-                            b['links'][area_key]['contour'].append(link_entry)
+                            b['links'][area_key]['contour'] = [link_entry]
                             b['links']['viga_segs']['seg_bottom'].append(link_entry)
 
                 return total_len
@@ -7914,8 +8083,105 @@ class MainWindow(QMainWindow):
             else:
                 return 0.0
 
-        len_a = process_segments('seg_side_a', 'Lado A', 'viga_a', 'comp_total_passa')
-        len_b = process_segments('seg_side_b', 'Lado B', 'viga_b', 'comp_total_passa')
+        def _process_lv_base(target_suffix):
+            """Motor base para laterais de viga. Cada motor especializado chama esta função
+            com o sufixo de chave que deve ser populado.
+            - 'comprimento_total'  → Motor Para  (vigas que param num apoio)
+            - 'comp_total_passa'   → Motor Passa (vigas que passam por um apoio)
+            """
+            lengths_list = classified.get('merged_bottom_lengths', [])
+            coords_list  = classified.get('merged_bottom_groups_coords', [])
+            side_a_raw   = classified.get('seg_side_a', [])
+            side_b_raw   = classified.get('seg_side_b', [])
+            is_h         = b.get('is_h', True)
+            beam_pos     = b.get('pos', (0, 0))
+
+            def line_range(ln):
+                if is_h:
+                    return min(p[0] for p in ln), max(p[0] for p in ln)
+                return min(p[1] for p in ln), max(p[1] for p in ln)
+
+            def best_overlap(raw_lines, span_min, span_max):
+                best, best_ratio = None, 0.0
+                for ln in raw_lines:
+                    if len(ln) < 2:
+                        continue
+                    lmin, lmax = line_range(ln)
+                    ov = min(lmax, span_max) - max(lmin, span_min)
+                    ll = lmax - lmin
+                    if ll > 0:
+                        r = ov / ll
+                        if r > 0.3 and r > best_ratio:
+                            best_ratio, best = r, ln
+                return best
+
+            total_a = total_b = 0.0
+
+            if lengths_list and coords_list:
+                for i, length in enumerate(lengths_list, start=1):
+                    span_min, span_max = coords_list[i - 1]
+                    for side_raw, tag, prefix_key, slot_key in [
+                        (side_a_raw, 'Lado A', 'viga_a', 'seg_side_a'),
+                        (side_b_raw, 'Lado B', 'viga_b', 'seg_side_b'),
+                    ]:
+                        b[f'{prefix_key}_seg_{i}_exists'] = True
+                        target_key = f'{prefix_key}_seg_{i}_{target_suffix}'
+                        if target_key not in b['links']:
+                            b['links'][target_key] = {}
+                        matched = best_overlap(side_raw, span_min, span_max)
+                        if matched is not None:
+                            p1, p2 = matched[0], matched[-1]
+                            seg_len = ((p2[0]-p1[0])**2 + (p2[1]-p1[1])**2)**0.5
+                            b['links'][target_key][slot_key] = [{'type': 'poly', 'points': matched, 'len': seg_len, 'tag': tag}]
+                            if prefix_key == 'viga_a': total_a += seg_len
+                            else: total_b += seg_len
+                        else:
+                            if is_h:
+                                synth = [(span_min, beam_pos[1]), (span_max, beam_pos[1])]
+                            else:
+                                synth = [(beam_pos[0], span_min), (beam_pos[0], span_max)]
+                            b['links'][target_key][slot_key] = [{'type': 'poly', 'points': synth, 'len': length, 'tag': tag}]
+                            if prefix_key == 'viga_a': total_a += length
+                            else: total_b += length
+            else:
+                # Fallback: sem spans do bottom, criar apenas seg_1 com a melhor linha (mais comprida)
+                for side_raw_f, tag_f, pk_f, sk_f in [
+                    (side_a_raw, 'Lado A', 'viga_a', 'seg_side_a'),
+                    (side_b_raw, 'Lado B', 'viga_b', 'seg_side_b'),
+                ]:
+                    lines_f = [ln for ln in side_raw_f if len(ln) >= 2]
+                    if not lines_f:
+                        continue
+                    best_ln = max(lines_f, key=lambda ln: ((ln[-1][0]-ln[0][0])**2+(ln[-1][1]-ln[0][1])**2)**0.5)
+                    p1f, p2f = best_ln[0], best_ln[-1]
+                    sl_f = ((p2f[0]-p1f[0])**2 + (p2f[1]-p1f[1])**2)**0.5
+                    b[f'{pk_f}_seg_1_exists'] = True
+                    tkey_f = f'{pk_f}_seg_1_{target_suffix}'
+                    if tkey_f not in b['links']:
+                        b['links'][tkey_f] = {}
+                    b['links'][tkey_f][sk_f] = [{'type': 'poly', 'points': best_ln, 'len': sl_f, 'tag': tag_f}]
+                    if pk_f == 'viga_a':
+                        total_a += sl_f
+                    else:
+                        total_b += sl_f
+
+            return total_a, total_b
+
+        def process_lv_para_segments():
+            """Motor LV — Vigas que Param: popula {prefix}_seg_{i}_comprimento_total."""
+            return _process_lv_base('comprimento_total')
+
+        def process_lv_passa_segments():
+            """Motor LV — Vigas que Passam: popula {prefix}_seg_{i}_comp_total_passa."""
+            return _process_lv_base('comp_total_passa')
+
+        # Rodar os dois motores independentes
+        len_a_para,  len_b_para  = process_lv_para_segments()
+        len_a_passa, len_b_passa = process_lv_passa_segments()
+        # Comprimento de referência: usar Passa como primário (tem vínculo geométrico)
+        len_a = len_a_passa
+        len_b = len_b_passa
+
         len_f = process_fundo_segments()
         
         b['fields']['comprimento_total_a'] = round(len_a, 1)
@@ -8729,12 +8995,26 @@ class MainWindow(QMainWindow):
         neigh_h_str = self._slab_height_value(neighbor) if neighbor else ''
 
         ficha.setdefault('direction', direction)
-        ficha.setdefault('side_b_laje_name', slab.get('name') or '')
-        ficha.setdefault('side_b_laje_height', self._slab_dim_text(slab) or own_h_str)
-        ficha.setdefault('side_a_laje_name', (neighbor or {}).get('name') or 'nulo')
-        ficha.setdefault('side_a_laje_height', self._slab_dim_text(neighbor) if neighbor else 'nulo')
-        ficha.setdefault('beam_lajes_side_a', '1' if neighbor else '0')
-        ficha.setdefault('beam_lajes_side_b', '1')
+        # Lado A = fundo/esquerda (Sul ou Oeste do beam), Lado B = topo/direita (Norte ou Leste do beam).
+        # direction = direcao do centro da laje atual ate o poligono do corte:
+        #   "Norte"/"Leste" → laje atual esta ao Sul/Oeste do beam → Lado A
+        #   "Sul"/"Oeste"   → laje atual esta ao Norte/Leste do beam → Lado B
+        _d = (direction or '').lower()
+        _current_is_a = _d.startswith('n') or _d.startswith('l') or _d.startswith('e')
+        if _current_is_a:
+            ficha['side_a_laje_name']   = slab.get('name') or ''
+            ficha['side_a_laje_height'] = self._slab_dim_text(slab) or own_h_str
+            ficha['side_b_laje_name']   = (neighbor or {}).get('name') or 'nulo'
+            ficha['side_b_laje_height'] = self._slab_dim_text(neighbor) if neighbor else 'nulo'
+            ficha['beam_lajes_side_a']  = '1'
+            ficha['beam_lajes_side_b']  = '1' if neighbor else '0'
+        else:
+            ficha['side_b_laje_name']   = slab.get('name') or ''
+            ficha['side_b_laje_height'] = self._slab_dim_text(slab) or own_h_str
+            ficha['side_a_laje_name']   = (neighbor or {}).get('name') or 'nulo'
+            ficha['side_a_laje_height'] = self._slab_dim_text(neighbor) if neighbor else 'nulo'
+            ficha['beam_lajes_side_a']  = '1' if neighbor else '0'
+            ficha['beam_lajes_side_b']  = '1'
         ficha.setdefault('own_height', own_h_str)
         ficha.setdefault('neighbor_height', neigh_h_str or 'nulo')
 
@@ -10351,22 +10631,30 @@ class MainWindow(QMainWindow):
                 pct_str = f"{int(pct)}%"
                 
                 if list_type == 'lateral':
-                    # Lado A
-                    child_a = QTreeWidgetItem(parent_item)
-                    child_a.setText(0, str(b.get('id_item', '00')))
-                    child_a.setText(1, f"{prefix}{clean_name}.A")
-                    child_a.setText(2, str(status))
-                    child_a.setText(3, pct_str)
-                    child_a.setData(0, Qt.UserRole, str(b.get('id')))
-                    child_a.setData(0, Qt.UserRole + 1, 'viga_lateral_a')
-                    # Lado B
-                    child_b = QTreeWidgetItem(parent_item)
-                    child_b.setText(0, str(b.get('id_item', '00')))
-                    child_b.setText(1, f"{prefix}{clean_name}.B")
-                    child_b.setText(2, str(status))
-                    child_b.setText(3, pct_str)
-                    child_b.setData(0, Qt.UserRole, str(b.get('id')))
-                    child_b.setData(0, Qt.UserRole + 1, 'viga_lateral_b')
+                    # 3 níveis: pasta-mãe → "LV-V305 Para" / "LV-V305 Passa" → ".A Para" / ".B Para"
+                    for tipo_comp, tipo_suffix in [('para', 'Para'), ('passa', 'Passa')]:
+                        sub_folder = QTreeWidgetItem(parent_item)
+                        sub_folder.setText(1, f"📁 {prefix}{clean_name} {tipo_suffix}")
+                        sub_folder.setExpanded(True)
+                        sub_folder.setFlags(sub_folder.flags() & ~Qt.ItemIsSelectable)
+
+                        child_a = QTreeWidgetItem(sub_folder)
+                        child_a.setText(0, str(b.get('id_item', '00')))
+                        child_a.setText(1, f"{prefix}{clean_name}.A {tipo_suffix}")
+                        child_a.setText(2, str(status))
+                        child_a.setText(3, pct_str)
+                        child_a.setData(0, Qt.UserRole, str(b.get('id')))
+                        child_a.setData(0, Qt.UserRole + 1, 'viga_lateral_a')
+                        child_a.setData(0, Qt.UserRole + 2, tipo_comp)
+
+                        child_b = QTreeWidgetItem(sub_folder)
+                        child_b.setText(0, str(b.get('id_item', '00')))
+                        child_b.setText(1, f"{prefix}{clean_name}.B {tipo_suffix}")
+                        child_b.setText(2, str(status))
+                        child_b.setText(3, pct_str)
+                        child_b.setData(0, Qt.UserRole, str(b.get('id')))
+                        child_b.setData(0, Qt.UserRole + 1, 'viga_lateral_b')
+                        child_b.setData(0, Qt.UserRole + 2, tipo_comp)
                 else:
                     # Fundo
                     child_f = QTreeWidgetItem(parent_item)
@@ -10770,11 +11058,11 @@ class MainWindow(QMainWindow):
 
             if self.current_project_id:
                 if 'viga' in itype:
-                    self.db.save_beam(item_data, self.current_project_id)
+                    self.db.save_beam(item_data, self.current_project_id, trust_current_validation=True)
                 elif 'pilar' in itype:
-                    self.db.save_pillar(item_data, self.current_project_id)
+                    self.db.save_pillar(item_data, self.current_project_id, trust_current_validation=True)
                 elif 'laje' in itype:
-                    self.db.save_slab(item_data, self.current_project_id)
+                    self.db.save_slab(item_data, self.current_project_id, trust_current_validation=True)
 
             self._sync_list_item_text(item_data)
 
@@ -10828,14 +11116,17 @@ class MainWindow(QMainWindow):
                  self.log(f"⚠️ Item {item_data.get('name')} invalidado devido a falta de vínculos.")
             
             if 'viga' in itype:
-                if self.current_project_id: self.db.save_beam(item_data, self.current_project_id)
-                # Passamos clear=False para não destruir o que o outro acabou de desenhar
-                self.canvas.focus_on_beam_geometry(item_data, apply_zoom=False, clear=False)
+                if self.current_project_id: self.db.save_beam(item_data, self.current_project_id, trust_current_validation=True)
+                # Sub-itens LV-A/LV-B/FV têm type='viga_lateral_a' etc.; evitar focus_on_beam_geometry
+                # que desenharia todos os links em marrom causando duplo destaque com draw_item_links
+                _is_viga_subitem = itype in {'viga_lateral_a', 'viga_lateral_b', 'viga_fundo_c'}
+                if not _is_viga_subitem:
+                    self.canvas.focus_on_beam_geometry(item_data, apply_zoom=False, clear=False)
                 self.canvas.draw_item_links(item_data, destination='focus', clear=False)
                 # AJUSTE 1 & 2: Atualiza também a visão global (persistente) para não deixar "fantasmas"
                 self.canvas.draw_item_links(item_data, destination='beam', clear=False)
             elif 'pilar' in itype:
-                if self.current_project_id: self.db.save_pillar(item_data, self.current_project_id)
+                if self.current_project_id: self.db.save_pillar(item_data, self.current_project_id, trust_current_validation=True)
                 # FIX GHOST: Atualizar geometria se houver vínculo de perímetro vindo da IA
                 self.canvas.update_item_visuals(item_data)
                 self.canvas.draw_item_links(item_data, destination='focus', clear=False)
@@ -10858,8 +11149,8 @@ class MainWindow(QMainWindow):
                         visual_data['points'] = coords
                     except: pass
                 
-                if self.current_project_id: self.db.save_slab(item_data, self.current_project_id)
-                
+                if self.current_project_id: self.db.save_slab(item_data, self.current_project_id, trust_current_validation=True)
+
                 # Atualizar Polígono Principal (Cinza) e Texto no Canvas
                 self.canvas.update_item_visuals(visual_data)
                 
@@ -11107,12 +11398,12 @@ class MainWindow(QMainWindow):
             except Exception as e:
                 self.log(f"⚠️ Erro ao salvar viga migrada: {e}")
 
-    def show_detail(self, item_data, override_type=None):
+    def show_detail(self, item_data, override_type=None, tipo_comp=None):
         """Exibe os detalhes do item no painel direito."""
         # Migração automática se for viga (antes de exibir)
         if str(item_data.get('type') or '').lower() == 'viga':
             self._migrate_beam_data(item_data)
-        
+
         # Limpar anterior
         while self.detail_layout.count():
             child = self.detail_layout.takeAt(0)
@@ -11126,8 +11417,11 @@ class MainWindow(QMainWindow):
             display_data['validated_fields'] = item_data.setdefault('validated_fields', [])
             display_data['validated_link_classes'] = item_data.setdefault('validated_link_classes', {})
             display_data['is_validated'] = item_data.get('is_validated', False)
-            
+
             display_data['type'] = override_type
+            # Tipo para/passa da subpasta LV (define qual campo "Linha Comprimento" mostrar)
+            if tipo_comp:
+                display_data['_tipo_comp'] = tipo_comp
             orig_name = display_data.get('name', 'V?')
 
             # Extrair nome base (sem prefixo FV-/LV-/F./L. e sem sufixo .C/.A/.B/-N)
@@ -11136,8 +11430,12 @@ class MainWindow(QMainWindow):
             if _m_base:
                 orig_name = _m_base.group(1)
 
-            if override_type == 'viga_lateral_a': display_data['name'] = f'LV-{orig_name}.A'
-            elif override_type == 'viga_lateral_b': display_data['name'] = f'LV-{orig_name}.B'
+            # Sufixo de tipo no nome do card (ex: "LV-V305.A Para" / "LV-V305.A Passa")
+            _tipo_suffix = {'para': ' Para', 'passa': ' Passa'}.get(tipo_comp, '')
+            if override_type == 'viga_lateral_a':
+                display_data['name'] = f'LV-{orig_name}.A{_tipo_suffix}'
+            elif override_type == 'viga_lateral_b':
+                display_data['name'] = f'LV-{orig_name}.B{_tipo_suffix}'
             elif override_type and override_type.startswith('viga_fundo_c'):
                 display_data['name'] = f'FV-{orig_name}.C'
                 display_data['type'] = 'viga_fundo_c'
@@ -11163,59 +11461,36 @@ class MainWindow(QMainWindow):
         self.right_panel.setCurrentIndex(1)
     
     def _update_all_beams_tipo_comp(self, tipo: str):
-        """
-        Atualiza todos os round buttons de tipo de comprimento (passa/para) 
-        de todas as vigas para o tipo especificado.
-        tipo: 'passa' ou 'para'
+        """Define o modo Para/Passa padrão de todas as vigas (sidebar global).
+        Grava '_tipo_comp' na raiz de cada beam e salva no DB.
+        Se houver um card LV aberto, recria-o com o novo tipo.
+        tipo: 'para' ou 'passa'
         """
         if not self.beams_found:
             return
-        
+
         updated_count = 0
-        
-        # Atualizar todos os beams_found
         for beam in self.beams_found:
             if str(beam.get('type') or '').lower() != 'viga':
                 continue
-            
-            # Atualizar todos os segmentos (A e B)
-            # Procurar todos os campos nos links que começam com viga_a_seg_ ou viga_b_seg_
-            links = beam.get('links', {})
-            segmentos_encontrados = set()
-            
-            # Primeiro, identificar todos os segmentos únicos pelos campos nos links
-            for field_key in links.keys():
-                if ('viga_a_seg_' in field_key or 'viga_b_seg_' in field_key) and '_tipo_comp' not in field_key:
-                    # Extrair o seg_uid baseado no field_key
-                    # Ex: viga_a_seg_1_comp_total_passa -> viga_a_seg_1
-                    parts = field_key.split('_')
-                    if len(parts) >= 4 and parts[0] == 'viga' and parts[2] == 'seg':
-                        seg_idx = parts[3]
-                        side = parts[1]  # 'a' ou 'b'
-                        seg_uid = f'viga_{side}_seg_{seg_idx}'
-                        segmentos_encontrados.add(seg_uid)
-            
-            # Atualizar tipo_comp para cada segmento encontrado
-            for seg_uid in segmentos_encontrados:
-                tipo_comp_key = f'{seg_uid}_tipo_comp'
-                beam[tipo_comp_key] = tipo
-                updated_count += 1
-            
-            # Salvar no banco
+            beam['_tipo_comp'] = tipo  # chave raiz — lida por _add_rich_segment_pack
+            updated_count += 1
             if self.current_project_id:
                 try:
                     self.db.save_beam(beam, self.current_project_id)
                 except Exception as e:
                     self.log(f"⚠️ Erro ao salvar viga {beam.get('name', 'N/A')}: {e}")
-        
-        # Atualizar o DetailCard atual se estiver exibindo uma viga
-        if self.current_card and str(self.current_card.item_data.get('type') or '').lower() == 'viga':
-            self.current_card.update_all_tipo_comp_buttons(tipo)
-        
-        # Atualizar todos os DetailCards abertos (se houver múltiplos)
-        # Por enquanto, apenas atualizamos o atual
-        
-        self.log(f"✅ Atualizados {updated_count} segmentos de vigas para tipo '{tipo}'")
+
+        # Recriar o card LV aberto com o novo tipo, se houver
+        if self.current_card:
+            card_type = str(self.current_card.item_data.get('type') or '').lower()
+            if any(x in card_type for x in ('lateral_a', 'lateral_b')):
+                beam_id = self.current_card.item_data.get('id')
+                beam = next((bm for bm in self.beams_found if bm['id'] == beam_id), None)
+                if beam:
+                    self.show_detail(beam, override_type=card_type, tipo_comp=tipo)
+
+        self.log(f"✅ {updated_count} vigas atualizadas para modo '{tipo}'")
     
 
 
