@@ -268,9 +268,9 @@ def process_beam_fv(b: dict, spatial_index=None, visual_obstacles=None) -> dict:
                 seg_len = abs(float(seg["coord"][1]) - float(seg["coord"][0]))
             except Exception:
                 seg_len = 0.0
+        seg["apoio_inicial"] = apoio_inicial
+        seg["apoio_final"] = apoio_final
         seg["ficha"] = {
-            "apoio_inicial": apoio_inicial,
-            "apoio_final": apoio_final,
             "largura_total_fundo": round(float(h_n1 or 0), 1),
             "comprimento_total_fundo": round(float(seg_len or 0), 1),
             "abertura_especial": "N/A",

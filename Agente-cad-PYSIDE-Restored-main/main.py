@@ -7801,8 +7801,6 @@ class MainWindow(QMainWindow):
         def _refresh_fundo_link_fichas():
             links = b.setdefault('links', {})
             apoios = links.get('apoios', {}) if isinstance(links.get('apoios'), dict) else {}
-            apoio_ini = ', '.join(filter(None, [_support_label(s) for s in apoios.get('inicio', [])]))
-            apoio_fim = ', '.join(filter(None, [_support_label(s) for s in apoios.get('fim', [])]))
             aberturas_map = links.get('aberturas', {}) if isinstance(links.get('aberturas'), dict) else {}
             aberturas = aberturas_map.get('pilar', [])
             abertura_txt = f"{len(aberturas)} interferencia(s) por pilar" if aberturas else ''
@@ -7819,9 +7817,9 @@ class MainWindow(QMainWindow):
                     largura, comprimento = _fundo_geometry_metrics(pts, link.get('len'))
                     corner_data, corner_note = _corner_flags(pts)
                     ficha = dict(link.get('ficha') or {})
+                    ficha.pop('apoio_inicial', None)
+                    ficha.pop('apoio_final', None)
                     ficha.update({
-                        'apoio_inicial': apoio_ini or ficha.get('apoio_inicial') or '',
-                        'apoio_final': apoio_fim or ficha.get('apoio_final') or '',
                         'largura_total_fundo': _fmt_fv_num(largura),
                         'comprimento_total_fundo': _fmt_fv_num(comprimento),
                         'abertura_especial': abertura_txt or corner_note or ficha.get('abertura_especial') or 'N/A',
@@ -7830,6 +7828,31 @@ class MainWindow(QMainWindow):
                         ficha[ck] = cv if cv != 'N/A' else ficha.get(ck) or cv
                     link['ficha'] = ficha
                     link['tag'] = link.get('tag') or 'Fundo'
+
+            def _field_link_for_support(support):
+                if not isinstance(support, dict):
+                    return {}
+                link = dict(support)
+                slots = {}
+                if link.get('text') or link.get('pos'):
+                    slots['label'] = [dict(link)]
+                if link.get('points'):
+                    slots['geometry'] = [dict(link)]
+                return slots
+
+            fields = b.setdefault('fields', {})
+            for key in list(links.keys()):
+                if not (isinstance(key, str) and key.startswith('viga_fundo_seg_') and key.endswith('_area_segs')):
+                    continue
+                seg_prefix = key[:-len('_area_segs')]
+                ini_key = f'{seg_prefix}_local_ini'
+                fim_key = f'{seg_prefix}_local_fim'
+                if apoios.get('inicio'):
+                    fields[ini_key] = ', '.join(filter(None, [_support_label(s) for s in apoios.get('inicio', [])]))
+                    links[ini_key] = _field_link_for_support(apoios['inicio'][0])
+                if apoios.get('fim'):
+                    fields[fim_key] = ', '.join(filter(None, [_support_label(s) for s in apoios.get('fim', [])]))
+                    links[fim_key] = _field_link_for_support(apoios['fim'][0])
 
         def _run_lv_motors_patch():
             """Roda os motores LV Para e Passa para vigas já processadas que ainda não têm
@@ -10453,7 +10476,7 @@ class MainWindow(QMainWindow):
             # 9. chanfro_dir_top
             # 10. chanfro_dir_fun
             # (dim é global)
-            FIELDS_PER_BOTTOM_SEG = 10
+            FIELDS_PER_BOTTOM_SEG = 3
             
             # Contar Segmentos Ativos
             na, nb, nf = self._scan_beam_segments(item_data)

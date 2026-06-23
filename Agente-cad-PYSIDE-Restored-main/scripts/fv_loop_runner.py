@@ -163,7 +163,9 @@ def load_n1_fv(obra_name: str, pav_filter: str | None, db_path: Path) -> list[di
                 s.get("ficha") for s in cj.get("segmentos_fundo", [])
                 if isinstance(s, dict) and isinstance(s.get("ficha"), dict)
             ]
+            segmentos = [s for s in cj.get("segmentos_fundo", []) if isinstance(s, dict)]
             ficha0 = seg_fichas[0] if seg_fichas else {}
+            seg0 = segmentos[0] if segmentos else {}
 
             def _ficha_float(ficha: dict, key: str) -> float:
                 try:
@@ -216,8 +218,8 @@ def load_n1_fv(obra_name: str, pav_filter: str | None, db_path: Path) -> list[di
                 "panels_n1": panels_n1,
                 "comprimento_n1": float(comprimento),
                 "h_n1": h or 0.0,
-                "apoio_inicial_n1": ficha0.get("apoio_inicial", ""),
-                "apoio_final_n1": ficha0.get("apoio_final", ""),
+                "apoio_inicial_n1": seg0.get("apoio_inicial") or ficha0.get("apoio_inicial", ""),
+                "apoio_final_n1": seg0.get("apoio_final") or ficha0.get("apoio_final", ""),
                 "aberturas_n1": abertura_n1,
                 "chanfros_n1": chanfro_n1,
                 "raw_n_segmentos": n_seg,

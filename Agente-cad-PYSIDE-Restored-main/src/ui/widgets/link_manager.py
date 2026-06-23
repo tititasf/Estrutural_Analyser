@@ -771,8 +771,6 @@ class LinkManager(QWidget):
     def _ficha_fields_for_link(self, slot_id):
         if 'viga_fundo' in self.field_id and slot_id == 'contour':
             return [
-                ('apoio_inicial', 'Apoio inicial', 'Viga/Pilar inicial', False, 'text'),
-                ('apoio_final', 'Apoio final', 'Viga/Pilar final', False, 'text'),
                 ('largura_total_fundo', 'Largura total do fundo', 'cm', False, 'text'),
                 ('comprimento_total_fundo', 'Comprimento total do fundo', 'cm', False, 'text'),
                 ('abertura_especial', 'Abertura especial', 'tipo/posicao/dimensao', False, 'text'),
@@ -874,7 +872,7 @@ class LinkManager(QWidget):
             hint.setStyleSheet(f"color: {Colors.TEXT_DIM}; font-size: 9px; font-weight: normal;")
             lay.addWidget(hint)
         elif 'viga_fundo' in self.field_id and slot_id == 'contour':
-            hint = QLabel('Valores informacionais derivados da geometria do contorno. O vinculo editavel e apenas Segmentos de Area.')
+            hint = QLabel('Valores informacionais derivados da geometria do contorno. Apoios ficam em campos vinculaveis proprios.')
             hint.setWordWrap(True)
             hint.setStyleSheet(f"color: {Colors.TEXT_DIM}; font-size: 9px; font-weight: normal;")
             lay.addWidget(hint)

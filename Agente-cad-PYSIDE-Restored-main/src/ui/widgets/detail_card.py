@@ -1989,8 +1989,11 @@ class DetailCard(QWidget):
         
         # Dimensão (Movido dos Dados Gerais para cá)
         self._add_linked_row(form, "Dimensão:", "dim", "text")
+
+        self._add_linked_row(form, "Apoio Inicial:", f'{seg_uid}_local_ini', "text", hide_input=True)
+        self._add_linked_row(form, "Apoio Final:", f'{seg_uid}_local_fim', "text", hide_input=True)
         
-        info = QLabel("Largura, comprimento, apoios, chanfros e aberturas sao ficha do vinculo geometrico.")
+        info = QLabel("Largura, comprimento, chanfros e aberturas sao ficha do vinculo geometrico.")
         info.setWordWrap(True)
         info.setStyleSheet(f"font-size: 10px; color: {Colors.TEXT_SECONDARY}; font-style: italic;")
         form.addRow("", info)
