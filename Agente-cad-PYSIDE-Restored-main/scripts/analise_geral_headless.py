@@ -125,67 +125,129 @@ def upsert_beam_element_fv(conn: sqlite3.Connection, project_id: str, viga_nome:
 
 # ── motor FV (extração sem GUI) ───────────────────────────────────────────────
 
-def process_beam_fv(b: dict) -> dict:
+def process_beam_fv(b: dict, spatial_index=None, visual_obstacles=None) -> dict:
     """
     Extrai dados FV de um beam do BeamTracer.
-
     Fixes aplicados:
     - dim_text: usa texto de dimensão MAIS PRÓXIMO da posição do beam label
-      (evita capturar centenas de textos do DXF inteiro via region growing)
-    - panels_n1: len(merged_bottom_lengths) — painéis separados por pilares
-      (merged_bottom_lengths são os spans entre pilares, já corretamente calculados
-      em _find_beam_geometry. Cada entry = 1 painel. Mais preciso que contagem bruta.)
-    - comprimento: sum(merged_bottom_lengths) — soma dos spans reais
-    - fallback: se merged_bottom_lengths vazio → len(seg_bottom) e soma raw
+    - panels_n1: len(merged_bottom_lengths)
+    - bridging: obstáculos visuais (Pilares NASCE, Visão Corte) são superados fundindo spans adjacentes
     """
+    visual_obstacles = visual_obstacles or []
     geo = b.get("geometry", {})
     classified = geo.get("classified", {})
-    dim_texts = geo.get("dimension_texts", [])
     beam_pos = b.get("pos")
+    dim_texts = []
+    if beam_pos and spatial_index:
+        cands = spatial_index.query_bbox((beam_pos[0]-300, beam_pos[1]-300, beam_pos[0]+300, beam_pos[1]+300))
+        for cand in cands:
+            if isinstance(cand, dict) and 'text' in cand:
+                dim_texts.append(cand)
 
     merged_groups = classified.get("merged_bottom_groups", [])
     merged_lengths = classified.get("merged_bottom_lengths", [])
+    merged_coords = classified.get("merged_bottom_groups_coords", [])
     seg_bottom_raw = classified.get("seg_bottom", [])
 
-    # panels + comprimento via merged_lengths (mais preciso)
+    # BRIDGING LOGIC: se houver coords, podemos fundir gaps que caem dentro de visual_obstacles
+    if merged_coords and len(merged_coords) > 1 and visual_obstacles and beam_pos:
+        is_h = b.get("is_h", True)
+        new_coords = []
+        new_lengths = []
+        
+        cur_min, cur_max = merged_coords[0]
+        
+        for i in range(1, len(merged_coords)):
+            nxt_min, nxt_max = merged_coords[i]
+            gap_mid = (cur_max + nxt_min) / 2.0
+            
+            # Ponto do gap a ser checado contra as bboxes
+            gap_pt = (gap_mid, beam_pos[1]) if is_h else (beam_pos[0], gap_mid)
+            
+            bridged = False
+            for obs in visual_obstacles:
+                bx1, by1, bx2, by2 = obs['bbox']
+                # Expansão leve na bbox para capturar imperfeições
+                if bx1 - 10 <= gap_pt[0] <= bx2 + 10 and by1 - 10 <= gap_pt[1] <= by2 + 10:
+                    bridged = True
+                    break
+                    
+            if bridged:
+                cur_max = max(cur_max, nxt_max)
+            else:
+                new_coords.append((cur_min, cur_max))
+                new_lengths.append(cur_max - cur_min)
+                cur_min, cur_max = nxt_min, nxt_max
+                
+        new_coords.append((cur_min, cur_max))
+        new_lengths.append(cur_max - cur_min)
+        
+        merged_coords = new_coords
+        merged_lengths = new_lengths
+
+    is_horizontal = b.get('is_h', True)
+    
     if merged_lengths:
         panels_n1 = len(merged_lengths)
         comprimento = sum(merged_lengths)
-        # segmentos_fundo: 1 por span detectado
         segmentos_fundo = [
-            {
-                "seg_index": i + 1,
-                "length": merged_lengths[i],
-                "logical": True,
-            }
+            {"seg_index": i + 1, "length": merged_lengths[i],
+             "coord": merged_coords[i] if i < len(merged_coords) else None,
+             "logical": True}
             for i in range(len(merged_lengths))
         ]
     elif merged_groups:
         panels_n1 = len(merged_groups)
-        comprimento = sum(
-            _seg_length_2pts(g[0][0], g[0][1]) for g in merged_groups if g and len(g[0]) >= 2
-        )
-        segmentos_fundo = [
-            {"seg_index": i + 1, "geometry": grp[0] if grp else [], "logical": True}
-            for i, grp in enumerate(merged_groups)
-        ]
+        comprimento = sum(_seg_length_2pts(g[0][0], g[0][1]) for g in merged_groups if g and len(g[0]) >= 2)
+        segmentos_fundo = []
+        for i, grp in enumerate(merged_groups):
+            p_min, p_max = None, None
+            if grp and len(grp[0]) >= 2:
+                if is_horizontal:
+                    p_min = min(grp[0][0][0], grp[0][-1][0])
+                    p_max = max(grp[0][0][0], grp[0][-1][0])
+                else:
+                    p_min = min(grp[0][0][1], grp[0][-1][1])
+                    p_max = max(grp[0][0][1], grp[0][-1][1])
+            segmentos_fundo.append({
+                "seg_index": i + 1, 
+                "geometry": grp[0] if grp else [], 
+                "coord": (p_min, p_max) if p_min is not None else None, 
+                "logical": True
+            })
     else:
-        # fallback: segmentos brutos
         panels_n1 = len(seg_bottom_raw)
-        comprimento = sum(
-            _seg_length_2pts(s[0], s[-1]) for s in seg_bottom_raw if len(s) >= 2
-        )
-        segmentos_fundo = [
-            {"seg_index": i + 1, "geometry": s, "logical": False}
-            for i, s in enumerate(seg_bottom_raw)
-        ]
+        comprimento = sum(_seg_length_2pts(s[0], s[-1]) for s in seg_bottom_raw if len(s) >= 2)
+        segmentos_fundo = []
+        for i, s in enumerate(seg_bottom_raw):
+            p_min, p_max = None, None
+            if len(s) >= 2:
+                if is_horizontal:
+                    p_min = min(s[0][0], s[-1][0])
+                    p_max = max(s[0][0], s[-1][0])
+                else:
+                    p_min = min(s[0][1], s[-1][1])
+                    p_max = max(s[0][1], s[-1][1])
+            segmentos_fundo.append({
+                "seg_index": i + 1, 
+                "geometry": s, 
+                "coord": (p_min, p_max) if p_min is not None else None, 
+                "logical": False
+            })
 
     # dim: texto mais próximo da posição real do beam
     dim_text = _parse_dim_text(dim_texts, beam_pos=beam_pos)
     h_n1 = _parse_h(dim_text)
 
+    viga_nome = b.get("name", "?")
+    if viga_nome != "?":
+        if viga_nome.endswith("-1"):
+            viga_nome = viga_nome[:-2] + ".C"
+        elif not viga_nome.endswith(".C"):
+            viga_nome = viga_nome + ".C"
+
     return {
-        "viga_nome": b.get("name", "?"),
+        "viga_nome": viga_nome,
         "panels_n1": panels_n1,
         "comprimento_fundo": round(comprimento, 1),
         "dim_text": dim_text,
@@ -262,7 +324,16 @@ def run(
             all_lines_and_polys.append({"points": [l["start"], l["end"]]})
 
     beam_tracer = BeamTracer(spatial_index)
-    beams_found = beam_tracer.detect_beams(texts, all_lines_and_polys)
+    # 4.5 Obter Obstáculos Visuais
+    print("  Carregando obstáculos visuais do DB...")
+    try:
+        from scripts.motor_reverso_fv import _get_visual_obstacles
+        visual_obstacles = _get_visual_obstacles(str(project_id))
+        print(f"  Obstáculos visuais encontrados: {len(visual_obstacles)}")
+    except Exception as e:
+        print(f"  [WARN] Falha ao carregar obstáculos visuais: {e}")
+        visual_obstacles = []
+    beams_found = beam_tracer.detect_beams(texts, all_lines_and_polys, visual_obstacles=visual_obstacles)
     print(f"  Beams detectados: {len(beams_found)}")
 
     # debug de um beam específico
@@ -285,6 +356,7 @@ def run(
         else:
             print(f"\n  [WARN] Beam '{debug_beam}' não encontrado na análise.")
 
+
     # 5. Processar cada beam FV e salvar no DB
     print("  Salvando resultados em beam_elements...")
     conn = sqlite3.connect(str(db_path))
@@ -293,10 +365,10 @@ def run(
         for b in beams_found:
             name = b.get("name", "")
             # Excluir fragmentos L.* e F.*
-            if re.match(r"^[LlFf]\.", name):
+            if re.match(r"^[LlFf]\.", name) or re.match(r"^[LF]V-", name):
                 continue
 
-            fv = process_beam_fv(b)
+            fv = process_beam_fv(b, spatial_index, visual_obstacles)
 
             campos = {
                 "viga": name,
@@ -318,7 +390,20 @@ def run(
     finally:
         conn.close()
 
-    # 6. fv_loop_runner comparação
+    # 6. Render headless (limpo + vínculos) para inspeção visual
+    try:
+        from scripts.fv_render_loop import render_pavimento
+        render_dir = ROOT / "sandbox_fv_loop"
+        prefix = f"fv_{obra_name}_{pav_filter or 'all'}".replace(" ", "_")
+        pngs = render_pavimento(dxf_data, beams_found, render_dir, prefix=prefix)
+        if pngs:
+            print("\n  [Render visual]")
+            print(f"    limpo:    {pngs.get('limpo')}")
+            print(f"    vínculos: {pngs.get('vinculos')}  ({pngs.get('beams_desenhados')} vigas)")
+    except Exception as e:
+        print(f"  [WARN] Render visual falhou: {e}")
+
+    # 7. fv_loop_runner comparação
     print("\n" + "=" * 60)
     print("  Rodando comparação FV (fv_loop_runner)...")
     print("=" * 60)

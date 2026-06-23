@@ -5161,96 +5161,6 @@ class MainWindow(QMainWindow):
         texts = self.dxf_data.get('texts', [])
         lines = self.dxf_data.get('lines', [])
         
-        # 1. Motores - Vigas
-        from src.core.beam_tracer import BeamTracer
-        # N1 da Analise Geral precisa rodar cru, sem teacher N2 e sem parametros
-        # aprendidos que possam virar atalho do gabarito. Feedback/learning fica
-        # no comparador posterior e nas validacoes humanas preservadas.
-        beam_tracer = BeamTracer(self.spatial_index)
-        all_lines_and_polys = []
-        for l in lines+polylines:
-            if 'points' in l: all_lines_and_polys.append(l)
-            elif 'start' in l: all_lines_and_polys.append({'points': [l['start'], l['end']]})
-
-        self.update_progress(10, "Buscando Vigas...")
-        self.beams_found = beam_tracer.detect_beams(texts, all_lines_and_polys)
-        # NATURAL SORT
-        import re
-        def nat_key(x):
-            return [int(t) if t.isdigit() else t.lower() for t in re.split(r'(\d+)', x.get('name', ''))]
-        self.beams_found.sort(key=nat_key)
-        
-        for i, b in enumerate(self.beams_found):
-            b_unique_id = f"{self.current_project_id}_b_{i+1}" if self.current_project_id else str(uuid.uuid4())
-            b['id'] = b_unique_id
-            b['id_item'] = f"{i+1:02}"
-            b['id_num'] = i+1
-            b['project_id'] = self.current_project_id
-            
-            # Processamento Inteligente Inicial
-            self._process_beam_intelligent(b)
-
-            # RESTAURAÇÃO (Incremental)
-            if incremental and b['name'] in preserved_beams:
-                 old = preserved_beams[b['name']]
-                 
-                 # 1. Se VALIDADO, restaura tudo
-                 if old.get('is_validated', False):
-                     b['is_validated'] = True
-                     b['links'] = old.get('links', {})
-                     b['confidence_map'] = old.get('confidence_map', {})
-                     b['validated_fields'] = old.get('validated_fields', [])
-                     
-                     # Restaura campos em geral
-                     for f, v in old.items():
-                         if f not in ['links', 'confidence_map', 'validated_fields', 'is_validated', 'issues']:
-                            b[f] = v
-                            
-                     print(f"DEBUG: Viga {b['name']} restaurada (VALIDADA).")
-                 
-                 # 2. Nao validado: restaura campos + links dos campos validados
-                 else:
-                     vf = old.get('validated_fields', [])
-                     if vf:
-                         b['validated_fields'] = list(vf)
-                         # Restaura fields validados
-                         old_fields = old.get('fields', {})
-                         if 'fields' not in b:
-                             b['fields'] = {}
-                         for f in vf:
-                             if f in old_fields:
-                                 b['fields'][f] = old_fields[f]
-                         # RESTAURA LINKS dos campos validados
-                         old_links = old.get('links', {})
-                         if 'links' not in b:
-                             b['links'] = {}
-                         for f in vf:
-                             if f in old_links:
-                                 b['links'][f] = old_links[f]
-                     
-                     print(f"DEBUG: Viga {b['name']} re-analisada (Nao validada).")
-
-        # 1.0a Preservar Vigas Validadas Órfãs (que sumiram do DXF)
-        detected_beam_names = {b['name'] for b in self.beams_found}
-        for name, old_b in preserved_beams.items():
-            if name not in detected_beam_names:
-                self.beams_found.append(old_b)
-                self.log(f"🛡️ Mantendo viga validada órfã: {name}")
-
-        # Reordenar para incluir as órfãs
-        self.beams_found.sort(key=nat_key)
-        
-        # Reatribuir IDs posicionais limpos
-        for i, b in enumerate(self.beams_found):
-            b_unique_id = f"{self.current_project_id}_b_{i+1}" if self.current_project_id else str(uuid.uuid4())
-            b['id'] = b_unique_id
-            b['id_item'] = f"{i+1:02}"
-            b['id_num'] = i+1
-            b['project_id'] = self.current_project_id
-
-        # 1.0b Finalizar Lista de Vigas Hierárquica
-        self._populate_beam_tree(self.list_beams, self.beams_found, "lateral")
-        self._populate_beam_tree(self.list_beams_fundo, self.beams_found, "fundo")
 
         # 1.1 Detect Slabs (Lajes)
         self.update_progress(30, "Mapeando Lajes...")
@@ -5341,6 +5251,10 @@ class MainWindow(QMainWindow):
         # N2/F5 e layers aprendidas sao usados apenas como diagnostico/comparacao.
         # O N1 da Analise Geral deve detectar LAJ sem filtro duro de layer e sem
         # teacher_dims, mantendo coerencia com o loop headless de treino.
+        import re as _re_nat
+        def nat_key(x):
+            return [int(t) if t.isdigit() else t.lower() for t in _re_nat.split(r'(\d+)', x.get('name', ''))]
+
         self.slabs_found = slab_tracer.detect_slabs_from_texts(
             texts,
             valid_layers=None,
@@ -5478,6 +5392,114 @@ class MainWindow(QMainWindow):
         from src.core.perspective_mapper import PillarPerspectiveMapper
         # === DIAGNOSTIC DUMP: SlabTracer detection analysis ===
         self._dump_slab_diagnostics()
+
+        # 1. Motores - Vigas
+        from src.core.beam_tracer import BeamTracer
+        # N1 da Analise Geral precisa rodar cru, sem teacher N2 e sem parametros
+        # aprendidos que possam virar atalho do gabarito. Feedback/learning fica
+        # no comparador posterior e nas validacoes humanas preservadas.
+        beam_tracer = BeamTracer(self.spatial_index)
+        all_lines_and_polys = []
+        for l in lines+polylines:
+            if 'points' in l: all_lines_and_polys.append(l)
+            elif 'start' in l: all_lines_and_polys.append({'points': [l['start'], l['end']]})
+
+        self.update_progress(10, "Buscando Vigas...")
+
+        # Coletar obstáculos visuais (Pilares e Cortes) para Fundo de Vigas
+        visual_obstacles = []
+        # 1. Pilares consolidados no report
+        if hasattr(self, 'pavimento_pillar_report'):
+            for p_name, p_data in self.pavimento_pillar_report.items():
+                if p_data.get('classification') == 'NASCE':
+                    continue
+                bbox = p_data.get('bbox')
+                if bbox:
+                    visual_obstacles.append({'type': 'PILAR_SOLIDO', 'bbox': bbox})
+        # 2. Cortes na laje validados/extraidos
+        for s_item in getattr(self, 'slabs_found', []):
+            cut_links = s_item.get('links', {}).get('laje_visao_corte', {}).get('cut_view_geom', [])
+            for link in cut_links:
+                pts = link.get('points', [])
+                if pts:
+                    xs = [p[0] for p in pts]
+                    ys = [p[1] for p in pts]
+                    visual_obstacles.append({'type': 'VISAO_CORTE', 'bbox': (min(xs), min(ys), max(xs), max(ys))})
+        self.beams_found = beam_tracer.detect_beams(texts, all_lines_and_polys, visual_obstacles=visual_obstacles)
+
+        self.beams_found.sort(key=nat_key)
+        
+        for i, b in enumerate(self.beams_found):
+            b_unique_id = f"{self.current_project_id}_b_{i+1}" if self.current_project_id else str(uuid.uuid4())
+            b['id'] = b_unique_id
+            b['id_item'] = f"{i+1:02}"
+            b['id_num'] = i+1
+            b['project_id'] = self.current_project_id
+            
+            # Processamento Inteligente Inicial
+            self._process_beam_intelligent(b)
+
+            # RESTAURAÇÃO (Incremental)
+            if incremental and b['name'] in preserved_beams:
+                 old = preserved_beams[b['name']]
+                 
+                 # 1. Se VALIDADO, restaura tudo
+                 if old.get('is_validated', False):
+                     b['is_validated'] = True
+                     b['links'] = old.get('links', {})
+                     b['confidence_map'] = old.get('confidence_map', {})
+                     b['validated_fields'] = old.get('validated_fields', [])
+                     
+                     # Restaura campos em geral
+                     for f, v in old.items():
+                         if f not in ['links', 'confidence_map', 'validated_fields', 'is_validated', 'issues']:
+                            b[f] = v
+                            
+                     print(f"DEBUG: Viga {b['name']} restaurada (VALIDADA).")
+                 
+                 # 2. Nao validado: restaura campos + links dos campos validados
+                 else:
+                     vf = old.get('validated_fields', [])
+                     if vf:
+                         b['validated_fields'] = list(vf)
+                         # Restaura fields validados
+                         old_fields = old.get('fields', {})
+                         if 'fields' not in b:
+                             b['fields'] = {}
+                         for f in vf:
+                             if f in old_fields:
+                                 b['fields'][f] = old_fields[f]
+                         # RESTAURA LINKS dos campos validados
+                         old_links = old.get('links', {})
+                         if 'links' not in b:
+                             b['links'] = {}
+                         for f in vf:
+                             if f in old_links:
+                                 b['links'][f] = old_links[f]
+                     
+                     print(f"DEBUG: Viga {b['name']} re-analisada (Nao validada).")
+
+        # 1.0a Preservar Vigas Validadas Órfãs (que sumiram do DXF)
+        detected_beam_names = {b['name'] for b in self.beams_found}
+        for name, old_b in preserved_beams.items():
+            if name not in detected_beam_names:
+                self.beams_found.append(old_b)
+                self.log(f"🛡️ Mantendo viga validada órfã: {name}")
+
+        # Reordenar para incluir as órfãs
+        self.beams_found.sort(key=nat_key)
+        
+        # Reatribuir IDs posicionais limpos
+        for i, b in enumerate(self.beams_found):
+            b_unique_id = f"{self.current_project_id}_b_{i+1}" if self.current_project_id else str(uuid.uuid4())
+            b['id'] = b_unique_id
+            b['id_item'] = f"{i+1:02}"
+            b['id_num'] = i+1
+            b['project_id'] = self.current_project_id
+
+        # 1.0b Finalizar Lista de Vigas Hierárquica
+        self._populate_beam_tree(self.list_beams, self.beams_found, "lateral")
+        self._populate_beam_tree(self.list_beams_fundo, self.beams_found, "fundo")
 
         # 2. Processar Pilares
         self.update_progress(50, "Analisando Pilares...")
@@ -5618,6 +5640,7 @@ class MainWindow(QMainWindow):
             p['id'] = unique_id
             p['id_item'] = f"{i+1:02}"
             
+
         # Atualização de UI Delegada para _update_all_lists_ui() no final do loop
         # Isso evita redundância e duplicação na lista de issues.
 
@@ -5651,9 +5674,72 @@ class MainWindow(QMainWindow):
             self.log(f"Erro ao materializar F7/N1: {ex}")
         try:
             if self.current_project_id:
+                # ===== PRÉ-SAVE: merge DB → memória (2ª camada de proteção) =====
+                # O DELETE abaixo invalida a proteção dentro de save_slab (que lê o DB
+                # antes de salvar). Esta etapa garante que qualquer dado validado
+                # humanamente que esteja no DB mas ausente na memória seja resgatado
+                # ANTES do apagamento, indexando por NOME de laje/pilar/viga.
+                try:
+                    import sqlite3 as _sq3
+                    _conn_bk = self.db._get_conn()
+                    _conn_bk.row_factory = _sq3.Row
+                    # Lajes
+                    _slab_map = {s.get('name'): s for s in getattr(self, 'slabs_found', []) if s.get('name')}
+                    for _row in _conn_bk.execute(
+                        "SELECT name, validated_fields_json, validated_link_classes_json, "
+                        "is_validated, links_json, na_link_classes_json "
+                        "FROM slabs WHERE project_id=? "
+                        "AND (is_validated=1 OR length(COALESCE(validated_fields_json,'[]'))>2 "
+                        "     OR length(COALESCE(validated_link_classes_json,'{}'))>2)",
+                        (self.current_project_id,)
+                    ):
+                        _tgt = _slab_map.get(_row['name'])
+                        if not _tgt:
+                            continue
+                        if _row['is_validated'] and not _tgt.get('is_validated'):
+                            _tgt['is_validated'] = True
+                            _old_lk = json.loads(_row['links_json'] or '{}')
+                            if _old_lk and not _tgt.get('links'):
+                                _tgt['links'] = _old_lk
+                        _db_vf = json.loads(_row['validated_fields_json'] or '[]')
+                        if _db_vf:
+                            _cur_vf = set(_tgt.get('validated_fields') or [])
+                            _tgt['validated_fields'] = list(_cur_vf | set(_db_vf))
+                        _db_vlc = json.loads(_row['validated_link_classes_json'] or '{}')
+                        if isinstance(_db_vlc, dict) and _db_vlc:
+                            _cur_vlc = _tgt.setdefault('validated_link_classes', {})
+                            for _f, _slots in _db_vlc.items():
+                                _s = _cur_vlc.setdefault(_f, [])
+                                for _sl in (_slots or []):
+                                    if _sl not in _s:
+                                        _s.append(_sl)
+                    # Pilares
+                    _pil_map = {p.get('name'): p for p in getattr(self, 'pillars_found', []) if p.get('name')}
+                    for _row in _conn_bk.execute(
+                        "SELECT name, data_json FROM pillars WHERE project_id=?",
+                        (self.current_project_id,)
+                    ):
+                        _tgt = _pil_map.get(_row['name'])
+                        if not _tgt:
+                            continue
+                        try:
+                            _pd = json.loads(_row['data_json'] or '{}')
+                        except Exception:
+                            continue
+                        if _pd.get('is_validated') and not _tgt.get('is_validated'):
+                            _tgt['is_validated'] = True
+                        _db_vf = _pd.get('validated_fields', [])
+                        if _db_vf:
+                            _cur_vf = set(_tgt.get('validated_fields') or [])
+                            _tgt['validated_fields'] = list(_cur_vf | set(_db_vf))
+                    _conn_bk.close()
+                except Exception as _e_bk:
+                    self.log(f"⚠ Pré-save merge DB→mem: {_e_bk}")
+                # ===== FIM PRÉ-SAVE =========================================
+
                 # ===== LIMPEZA DO BANCO =====
                 # Excluir dados obsoletos para evitar o acúmulo de itens fantasmas
-                # Os itens validados foram mantidos nas listas *_found.
+                # Os itens validados foram mantidos nas listas *_found (reforçado acima).
                 try:
                     conn = self.db._get_conn()
                     conn.execute("DELETE FROM pillars WHERE project_id = ?", (self.current_project_id,))
@@ -5670,8 +5756,76 @@ class MainWindow(QMainWindow):
                     self.db.save_pillar(p, self.current_project_id)
                 for s in getattr(self, 'slabs_found', []):
                     self.db.save_slab(s, self.current_project_id)
-                for b in getattr(self, 'beams_found', []):
-                    self.db.save_beam(b, self.current_project_id)
+                try:
+                    import sqlite3 as _sq3
+                    from scripts.analise_geral_headless import process_beam_fv, upsert_beam_element_fv
+                    _fv_conn = _sq3.connect(self.db.db_path)
+                    try:
+                        for b in getattr(self, 'beams_found', []):
+                            # Process Fundo de Viga logic
+                            fv_data = process_beam_fv(b, getattr(self, 'spatial_index', None), visual_obstacles)
+                            
+                            # Update the beam dictionary (UI integration) BEFORE saving
+                            if 'links' not in b:
+                                b['links'] = {}
+                            
+                            is_h = b.get('is_h', True)
+                            b_pos = b.get('pos', [0, 0])
+                            h_beam = fv_data.get('h_n1') or 20.0
+                            half_h = h_beam / 2.0
+                            
+                            segs = fv_data.get('segmentos_fundo', [])
+                            print(f"Beam {b.get('name')} FV segments: {len(segs)}")
+                            
+                            # Extract contour data
+                            for seg in segs:
+                                idx = seg.get('seg_index')
+                                # try to get coordinates from the new format (merged_coords contains tuples of min, max)
+                                p_min, p_max = None, None
+                                _coord = seg.get('coord')
+                                if _coord is not None:
+                                    p_min, p_max = _coord
+                                
+                                if idx and p_min is not None and p_max is not None:
+                                    # Construct a 4-point polygon around the segment
+                                    if is_h:
+                                        geom = [
+                                            [p_min, b_pos[1] - half_h],
+                                            [p_max, b_pos[1] - half_h],
+                                            [p_max, b_pos[1] + half_h],
+                                            [p_min, b_pos[1] + half_h]
+                                        ]
+                                    else:
+                                        geom = [
+                                            [b_pos[0] - half_h, p_min],
+                                            [b_pos[0] + half_h, p_min],
+                                            [b_pos[0] + half_h, p_max],
+                                            [b_pos[0] - half_h, p_max]
+                                        ]
+                                    link_key = f"viga_fundo_seg_{idx}_area_segs"
+                                    if link_key not in b['links']:
+                                        b['links'][link_key] = {}
+                                    b['links'][link_key]['contour'] = [{'points': geom, 'type': 'polygon'}]
+                                    print(f" -> Added {link_key} contour to Beam {b.get('name')}")
+                            
+                            # Now save the beam
+                            self.db.save_beam(b, self.current_project_id)
+                            
+                            # Also populate the beam_elements for headless loop
+                            upsert_beam_element_fv(_fv_conn, self.current_project_id, fv_data["viga_nome"], fv_data["panels_n1"], fv_data)
+                        
+                        _fv_conn.commit()
+                    finally:
+                        _fv_conn.close()
+                except Exception as _fv_err:
+                    import traceback
+                    print(f"⚠ Erro ao popular dados Fundo de Viga: {_fv_err}")
+                    print(traceback.format_exc())
+                    self.log(f"⚠ Erro ao popular dados Fundo de Viga: {_fv_err}")
+                    # Fallback to standard save if FV fails
+                    for b in getattr(self, 'beams_found', []):
+                        self.db.save_beam(b, self.current_project_id)
+                
                 self.log(
                     "💾 Autosave Análise Geral: "
                     f"{len(getattr(self, 'pillars_found', []))} pilares, "
@@ -7495,24 +7649,77 @@ class MainWindow(QMainWindow):
         # Se a viga já veio do Banco de Dados com vínculos processados, não podemos esmagar!
         has_links = len(b.get('links', {})) > 5  # Viga pré-processada tem muitos vínculos
         seg_bottom_empty = not b.get('links', {}).get('viga_segs', {}).get('seg_bottom', [])
-        if has_links and not seg_bottom_empty:
+        has_fundo_contours = any(
+            b.get('links', {}).get(k, {}).get('contour')
+            for k in b.get('links', {})
+            if 'viga_fundo_seg' in k and '_area_segs' in k
+        )
+        if has_links and not seg_bottom_empty and has_fundo_contours:
             return  # Já processada com fundo OK — manter
+        if has_links and not seg_bottom_empty and not has_fundo_contours:
+            # seg_bottom populado (legado) mas fundo links ausentes — migrar
+            existing_segs = b['links'].get('viga_segs', {}).get('seg_bottom', [])
+            for seg_idx, seg_entry in enumerate(existing_segs, start=1):
+                area_key = f'viga_fundo_seg_{seg_idx}_area_segs'
+                if area_key not in b['links']:
+                    b['links'][area_key] = {'contour': [seg_entry]}
+                    b[f'viga_fundo_seg_{seg_idx}_exists'] = True
+                elif not b['links'][area_key].get('contour'):
+                    b['links'][area_key]['contour'] = [seg_entry]
+            b['seg_c'] = len(existing_segs)
+            return
         if has_links and seg_bottom_empty:
             # Fundo ainda não processado (ou DB antigo) — só reprocessar fundos
-            # Garante que seg_bottom e seg_c existam sem sobrescrever o resto
             geo_inner = b.get('geometry', {})
             classified_inner = geo_inner.get('classified', {})
             b['links'].setdefault('viga_segs', {'seg_bottom': []})
             if 'seg_bottom' not in b['links']['viga_segs']:
                 b['links']['viga_segs']['seg_bottom'] = []
-            bottom_groups_i = classified_inner.get('merged_bottom_groups', [])
+            
             lengths_i = classified_inner.get('merged_bottom_lengths', [])
-            for i, grp in enumerate(bottom_groups_i, start=1):
-                length_i = lengths_i[i-1] if (i-1) < len(lengths_i) else 0.0
-                for line in grp:
-                    b['links']['viga_segs']['seg_bottom'].append(
-                        {'type': 'poly', 'points': line, 'len': length_i, 'tag': 'Fundo'}
-                    )
+            coords_i = classified_inner.get('merged_bottom_groups_coords', [])
+            seg_bottom_raw_i = classified_inner.get('seg_bottom', [])
+            is_h_i = b.get('is_h', True)
+            
+            if lengths_i:
+                for idx, length_i in enumerate(lengths_i, start=1):
+                    b[f'viga_fundo_seg_{idx}_exists'] = True
+                    area_key = f'viga_fundo_seg_{idx}_area_segs'
+                    if area_key not in b['links']:
+                        b['links'][area_key] = {'contour': []}
+                    
+                    # Construir geometria sintética ou associar real
+                    if idx <= len(coords_i):
+                        span_min, span_max = coords_i[idx - 1]
+                        beam_pos = b.get('pos', (0, 0))
+                        if is_h_i:
+                            synth = [(span_min, beam_pos[1]), (span_max, beam_pos[1])]
+                        else:
+                            synth = [(beam_pos[0], span_min), (beam_pos[0], span_max)]
+                        entry = {'type': 'poly', 'points': synth, 'len': length_i, 'tag': 'Fundo'}
+                        b['links'][area_key]['contour'].append(entry)
+                        b['links']['viga_segs']['seg_bottom'].append(entry)
+            elif seg_bottom_raw_i:
+                seg_idx = 0
+                for raw_line in seg_bottom_raw_i:
+                    if len(raw_line) < 2:
+                        continue
+                    p1, p2 = raw_line[0], raw_line[-1]
+                    length_i = ((p2[0]-p1[0])**2 + (p2[1]-p1[1])**2)**0.5
+                    if length_i < 30:
+                        continue
+                    seg_idx += 1
+                    
+                    b[f'viga_fundo_seg_{seg_idx}_exists'] = True
+                    area_key = f'viga_fundo_seg_{seg_idx}_area_segs'
+                    if area_key not in b['links']:
+                        b['links'][area_key] = {'contour': []}
+                        
+                    entry = {'type': 'poly', 'points': raw_line, 'len': length_i, 'tag': 'Fundo'}
+                    print(f"DEBUG: Append to contour in raw line path for Viga {b.get('name')}")
+                    b['links'][area_key]['contour'].append(entry)
+                    b['links']['viga_segs']['seg_bottom'].append(entry)
+                    
             b['seg_c'] = len(b['links']['viga_segs']['seg_bottom'])
             return
 
@@ -7587,18 +7794,21 @@ class MainWindow(QMainWindow):
             return dx < 2.0 and dy < 2.0
 
         def process_fundo_segments():
-            """Usa merged_bottom_groups quando disponível; filtra apenas polígonos fechados."""
-            bottom_groups = classified.get('merged_bottom_groups', [])
+            """Popula segmentos de fundo usando merged_bottom_lengths/coords do BeamTracer.
+            
+            Hierarquia:
+            1. merged_bottom_lengths + merged_bottom_groups_coords (dados reais do BeamTracer)
+            2. seg_bottom bruto (fallback)
+            """
             lengths_list = classified.get('merged_bottom_lengths', [])
+            coords_list = classified.get('merged_bottom_groups_coords', [])
+            seg_bottom_raw = classified.get('seg_bottom', [])
+            is_h = b.get('is_h', True)
 
-            if bottom_groups:
-                # Caminho preferencial: grupos pré-fundidos pelo BeamTracer
+            if lengths_list:
+                # Caminho preferencial: usar os comprimentos/coords já calculados
                 total_len = 0.0
-                for i, group in enumerate(bottom_groups, start=1):
-                    length = lengths_list[i - 1] if (i - 1) < len(lengths_list) else 0.0
-                    if not length and group:
-                        p1, p2 = group[0][0], group[0][-1]
-                        length = ((p2[0]-p1[0])**2 + (p2[1]-p1[1])**2)**0.5
+                for i, length in enumerate(lengths_list, start=1):
                     total_len += length
 
                     b[f'viga_fundo_seg_{i}_exists'] = True
@@ -7606,17 +7816,57 @@ class MainWindow(QMainWindow):
                     if area_key not in b['links']:
                         b['links'][area_key] = {'contour': []}
 
-                    for line in group:
-                        link_entry = {'type': 'poly', 'points': line, 'len': length, 'tag': 'Fundo'}
+                    # Tentar associar geometria real do seg_bottom que cai dentro deste span
+                    geom_found = False
+                    if i <= len(coords_list) and seg_bottom_raw:
+                        span_min, span_max = coords_list[i - 1]
+                        for raw_line in seg_bottom_raw:
+                            if len(raw_line) < 2:
+                                continue
+                            if is_h:
+                                line_min = min(p[0] for p in raw_line)
+                                line_max = max(p[0] for p in raw_line)
+                            else:
+                                line_min = min(p[1] for p in raw_line)
+                                line_max = max(p[1] for p in raw_line)
+                            # Se a linha raw se sobrepoe >= 50% ao span, associa
+                            overlap = min(line_max, span_max) - max(line_min, span_min)
+                            line_len = line_max - line_min
+                            if line_len > 0 and overlap / line_len > 0.3:
+                                link_entry = {'type': 'poly', 'points': raw_line, 'len': length, 'tag': 'Fundo'}
+                                b['links'][area_key]['contour'].append(link_entry)
+                                b['links']['viga_segs']['seg_bottom'].append(link_entry)
+                                geom_found = True
+
+                    # Fallback: criar geometria sintética a partir das coords
+                    if not geom_found and i <= len(coords_list):
+                        span_min, span_max = coords_list[i - 1]
+                        beam_pos = b.get('pos', (0, 0))
+                        if is_h:
+                            synth_line = [(span_min, beam_pos[1]), (span_max, beam_pos[1])]
+                        else:
+                            synth_line = [(beam_pos[0], span_min), (beam_pos[0], span_max)]
+                        link_entry = {'type': 'poly', 'points': synth_line, 'len': length, 'tag': 'Fundo'}
                         b['links'][area_key]['contour'].append(link_entry)
                         b['links']['viga_segs']['seg_bottom'].append(link_entry)
+                    elif not geom_found and not coords_list and seg_bottom_raw:
+                        # coords_list vazio mas há raw segments (DB desatualizado):
+                        # usar o i-ésimo raw_seg como aproximação para este comprimento lógico
+                        raw_candidates = [s for s in seg_bottom_raw if len(s) >= 2]
+                        if i - 1 < len(raw_candidates):
+                            raw_line = raw_candidates[i - 1]
+                            link_entry = {'type': 'poly', 'points': raw_line, 'len': length, 'tag': 'Fundo'}
+                            b['links'][area_key]['contour'].append(link_entry)
+                            b['links']['viga_segs']['seg_bottom'].append(link_entry)
+
                 return total_len
-            else:
-                # Fallback: usar seg_bottom bruto mas apenas polígonos fechados
-                lines = classified.get('seg_bottom', [])
+            elif seg_bottom_raw:
+                # Fallback: usar seg_bottom bruto
                 total_len = 0.0
                 seg_idx = 0
-                for line in lines:
+                for line in seg_bottom_raw:
+                    if len(line) < 2:
+                        continue
                     p1, p2 = line[0], line[-1]
                     length = ((p2[0]-p1[0])**2 + (p2[1]-p1[1])**2)**0.5
                     if not is_closed_poly(line) and length < 30:
@@ -7633,6 +7883,8 @@ class MainWindow(QMainWindow):
                     b['links'][area_key]['contour'].append(link_entry)
                     b['links']['viga_segs']['seg_bottom'].append(link_entry)
                 return total_len
+            else:
+                return 0.0
 
         len_a = process_segments('seg_side_a', 'Lado A', 'viga_a', 'comp_total_passa')
         len_b = process_segments('seg_side_b', 'Lado B', 'viga_b', 'comp_total_passa')
@@ -8676,7 +8928,7 @@ class MainWindow(QMainWindow):
         )
 
         from PySide6.QtWidgets import QDialog
-        if dlg.exec_() != QDialog.Accepted:
+        if dlg.exec() != QDialog.Accepted:
             return False
 
         result = dlg.get_result()
@@ -8734,6 +8986,8 @@ class MainWindow(QMainWindow):
                     ficha = cut.setdefault('ficha', {})
                     ficha['beam_name'] = assign.get('beam_name') or ''
                     ficha['beam_name_confidence'] = assign.get('confidence', 0.0)
+                    # NÃO marca validated_link_classes aqui — apenas ação humana deve
+                    # incrementar essa lista (fonte da % de completude da lista esquerda)
 
         n_pil = sum(1 for k, v in pillar_overrides.items()
                     if v.get('classification') and v['classification'] != 'INDETERMINADO')
@@ -8830,7 +9084,7 @@ class MainWindow(QMainWindow):
                 and gk not in rejected_pilares
             ]
             if candidates:
-                # Usa o candidato mais próximo (menor área = mais específico)
+                # Usa o candidato de menor área (mais específico)
                 def _area(c):
                     try:
                         pts2 = c[2].get('points') or []
@@ -8838,16 +9092,20 @@ class MainWindow(QMainWindow):
                         return (max(xs2)-min(xs2))*(max(ys2)-min(ys2))
                     except Exception:
                         return 1e12
+                import copy as _copy
                 best_gk, best_key, best_entry = min(candidates, key=_area)
-                # Transfere geometria do candidato para este entry
-                entry['points']      = best_entry.get('points', entry['points'])
-                entry['bbox']        = best_entry.get('bbox',   entry['bbox'])
-                entry['orientation'] = best_entry.get('orientation', entry['orientation'])
-                entry['geometry_swapped'] = True
-                entry['swapped_from_key'] = best_key
+                # Injeta linha alternativa na pré-ficha (não substitui — mostra ambas)
+                alt_key = f'{key}__ALT'
+                if alt_key not in pillar_report:
+                    alt_entry = _copy.deepcopy(best_entry)
+                    alt_entry['name']                 = entry.get('name') or key
+                    alt_entry['geometry_alt_candidate'] = True
+                    alt_entry['alt_for_original_key']   = key
+                    alt_entry['classification'] = alt_entry.get('classification') or 'INDETERMINADO'
+                    pillar_report[alt_key] = alt_entry
                 self.log(
-                    f"🔄 Pré-ficha: geometria de {key} substituída "
-                    f"(bbox rejeitada → alternativa {best_key})"
+                    f"↺ Pré-ficha: candidato alt. para {key} injetado como {alt_key} "
+                    f"(bbox: {best_gk})"
                 )
 
     def _build_pillar_report(self, slabs: list[Dict]) -> dict:
@@ -9820,18 +10078,19 @@ class MainWindow(QMainWindow):
         done_fields = val_fields | na_fields
         total_done = len(done_fields)
         
-        # 3. Bônus por Slots (Vínculos dentro dos campos)
-        # Cada slot resolvido conta uma fração para dar sensação de progresso
+        # 3. Bônus por Slots — apenas para campos já concluídos pelo humano.
+        # Slots de campos não validados são ignorados para evitar % fantasma
+        # (a análise geral pode marcar na_link_classes automaticamente).
         v_slots = item_data.get('validated_link_classes', {})
         n_slots = item_data.get('na_link_classes', {})
-        
+
         done_slots_count = 0
-        if isinstance(v_slots, dict):
-            for slots in v_slots.values(): done_slots_count += len(slots)
-        if isinstance(n_slots, dict):
-            for slots in n_slots.values(): done_slots_count += len(slots)
-            
-        total_points = total_done + (done_slots_count * 0.1) # 0.1 bonus por slot
+        if isinstance(v_slots, dict) and isinstance(n_slots, dict):
+            for field_key in done_fields:   # só campos que o humano tocou
+                done_slots_count += len(v_slots.get(field_key, []))
+                done_slots_count += len(n_slots.get(field_key, []))
+
+        total_points = total_done + (done_slots_count * 0.1)  # 0.1 bonus por slot
         
         # 4. Total Esperado Dinâmico
         total_expected = self._calculate_total_fields(item_data)
@@ -10093,8 +10352,8 @@ class MainWindow(QMainWindow):
         if hasattr(dlg.card, 'data_changed'):
             dlg.card.data_changed.connect(lambda: self.canvas.draw_item_links(item_data)) # Redesenha links
             
-        dlg.exec_()
-        
+        dlg.exec()
+
         # Após fechar, garantir refresh
         self._update_all_lists_ui()
 
