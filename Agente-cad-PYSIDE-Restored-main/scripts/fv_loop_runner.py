@@ -52,6 +52,17 @@ def _parse_h(dim_text: str | None) -> float | None:
     return min(first, second)
 
 
+def _parse_dim_pair(dim_text: str | None) -> tuple[float, float] | None:
+    if not dim_text:
+        return None
+    m = re.search(r"\(?\s*(\d+(?:[.,]\d+)?)\s*[/xX]\s*(\d+(?:[.,]\d+)?)\s*\)?", str(dim_text))
+    if not m:
+        return None
+    first = float(m.group(1).replace(",", "."))
+    second = float(m.group(2).replace(",", "."))
+    return min(first, second), max(first, second)
+
+
 def _normalize_viga(name: str) -> str:
     return re.sub(r"^[FLfl]\.", "", name).strip()
 
@@ -152,6 +163,8 @@ def load_n1_fv(obra_name: str, pav_filter: str | None, db_path: Path) -> list[di
         result = []
         for row in rows:
             viga_nome = row["viga_nome"]
+            if viga_nome.endswith(".C") or viga_nome.startswith("FV-"):
+                continue
             n_seg = row["n_segmentos"] or 0
             try:
                 cj = json.loads(row["campos_json"] or "{}")
@@ -175,6 +188,16 @@ def load_n1_fv(obra_name: str, pav_filter: str | None, db_path: Path) -> list[di
 
             ficha_comp = sum(_ficha_float(f, "comprimento_total_fundo") for f in seg_fichas)
             ficha_h = _ficha_float(ficha0, "largura_total_fundo")
+            dim_text_n1 = seg0.get("dim_text") or cj.get("dim") or extra.get("dimensao") or ""
+            dim_pair_n1 = _parse_dim_pair(dim_text_n1)
+            dim_width_n1 = (
+                float(seg0.get("dim_width") or 0)
+                or (dim_pair_n1[0] if dim_pair_n1 else 0.0)
+            )
+            dim_height_n1 = (
+                float(seg0.get("dim_height") or 0)
+                or (dim_pair_n1[1] if dim_pair_n1 else 0.0)
+            )
             abertura_n1 = sum(
                 1 for f in seg_fichas
                 if str(f.get("abertura_especial", "")).strip().lower() not in {"", "n/a", "0"}
@@ -218,6 +241,9 @@ def load_n1_fv(obra_name: str, pav_filter: str | None, db_path: Path) -> list[di
                 "panels_n1": panels_n1,
                 "comprimento_n1": float(comprimento),
                 "h_n1": h or 0.0,
+                "dim_text_n1": dim_text_n1,
+                "dim_width_n1": dim_width_n1,
+                "dim_height_n1": dim_height_n1,
                 "apoio_inicial_n1": seg0.get("apoio_inicial") or ficha0.get("apoio_inicial", ""),
                 "apoio_final_n1": seg0.get("apoio_final") or ficha0.get("apoio_final", ""),
                 "aberturas_n1": abertura_n1,
@@ -256,6 +282,8 @@ def compare_fv(
         n1_segs = b["panels_n1"]
         n1_comp = b["comprimento_n1"]
         n1_h = b["h_n1"] or 0.0
+        n1_dim_width = float(b.get("dim_width_n1") or 0.0)
+        n1_dim_height = float(b.get("dim_height_n1") or 0.0)
         n1_holes = int(b.get("aberturas_n1") or 0)
 
         segs_ok = n2_panels > 0 and n1_segs == n2_panels
@@ -263,17 +291,14 @@ def compare_fv(
             n2_comp > 0 and abs(n1_comp - n2_comp) / n2_comp < 0.05
         ) if n2_comp else False
         h_ok = (n2_h > 0 and abs(n1_h - n2_h) <= 2) if n2_h else False
+        dim_geom_ok = (n1_dim_width > 0 and n1_h > 0 and abs(n1_dim_width - n1_h) <= 2)
+        dim_ok = (n2_h > 0 and n1_dim_width > 0 and abs(n1_dim_width - n2_h) <= 2 and dim_geom_ok) if n2_h else False
         holes_ok = n1_holes == n2_holes if (n1_holes or n2_holes) else None
 
-        if holes_ok is None:
-            score = (33.3 if segs_ok else 0) + (33.3 if comp_ok else 0) + (33.3 if h_ok else 0)
-        else:
-            score = (
-                (25 if segs_ok else 0)
-                + (25 if comp_ok else 0)
-                + (25 if h_ok else 0)
-                + (25 if holes_ok else 0)
-            )
+        checks = [segs_ok, comp_ok, h_ok, dim_ok]
+        if holes_ok is not None:
+            checks.append(holes_ok)
+        score = 100.0 * sum(1 for ok in checks if ok) / len(checks)
 
         results.append({
             "viga": vn,
@@ -284,6 +309,11 @@ def compare_fv(
             "comprimento_n2": round(n2_comp, 1),
             "h_n1": n1_h,
             "h_n2": n2_h,
+            "dim_text_n1": b.get("dim_text_n1", ""),
+            "dim_width_n1": n1_dim_width,
+            "dim_height_n1": n1_dim_height,
+            "dim_ok": dim_ok,
+            "dim_geom_ok": dim_geom_ok,
             "apoio_inicial_n1": b.get("apoio_inicial_n1", ""),
             "apoio_final_n1": b.get("apoio_final_n1", ""),
             "label_left_n2": n2.get("label_left", ""),
@@ -331,6 +361,11 @@ def record_events(
                     "comprimento_n2": r["comprimento_n2"],
                     "h_n1": r["h_n1"],
                     "h_n2": r["h_n2"],
+                    "dim_text_n1": r.get("dim_text_n1", ""),
+                    "dim_width_n1": r.get("dim_width_n1", 0),
+                    "dim_height_n1": r.get("dim_height_n1", 0),
+                    "dim_matched": 1 if r.get("dim_ok") else 0,
+                    "dim_geom_matched": 1 if r.get("dim_geom_ok") else 0,
                     "apoio_inicial_n1": r.get("apoio_inicial_n1", ""),
                     "apoio_final_n1": r.get("apoio_final_n1", ""),
                     "label_left_n2": r.get("label_left_n2", ""),
@@ -364,7 +399,7 @@ def print_report(results: list[dict], obra: str, pav: str | None):
     print()
 
     # Header
-    print(f"{'Viga':<10} {'SegsN1':>6} {'SegsN2':>6} {'S':>3} {'CompN1':>8} {'CompN2':>8} {'C':>3} {'hN1':>5} {'hN2':>5} {'H':>3} {'Score':>6}")
+    print(f"{'Viga':<10} {'SegsN1':>6} {'SegsN2':>6} {'S':>3} {'CompN1':>8} {'CompN2':>8} {'C':>3} {'hN1':>5} {'hN2':>5} {'H':>3} {'Dim':>5} {'D':>3} {'Score':>6}")
     print("-" * 70)
 
     for r in results:
@@ -374,11 +409,12 @@ def print_report(results: list[dict], obra: str, pav: str | None):
         s = "OK" if r["segs_ok"] else "--"
         c = "OK" if r["comp_ok"] else "--"
         h = "OK" if r["h_ok"] else "--"
+        d = "OK" if r.get("dim_ok") else "--"
         score_str = f"{r['score']:.0f}%"
         print(
             f"{r['viga']:<10} {r['panels_n1']:>6} {r['panels_n2']:>6} {s:>3} "
             f"{r['comprimento_n1']:>8.1f} {r['comprimento_n2']:>8.1f} {c:>3} "
-            f"{r['h_n1']:>5} {r['h_n2']:>5} {h:>3} {score_str:>6}"
+            f"{r['h_n1']:>5} {r['h_n2']:>5} {h:>3} {r.get('dim_width_n1', 0):>5.0f} {d:>3} {score_str:>6}"
         )
 
     print()
@@ -386,11 +422,13 @@ def print_report(results: list[dict], obra: str, pav: str | None):
     segs_fail = sum(1 for r in matched if not r["segs_ok"])
     comp_fail = sum(1 for r in matched if not r["comp_ok"])
     h_fail = sum(1 for r in matched if not r["h_ok"])
+    dim_fail = sum(1 for r in matched if not r.get("dim_ok"))
     print("DIAGNOSTICO:")
     if matched:
         print(f"  Segmentos (panels) errados: {segs_fail}/{len(matched)} ({100*segs_fail/len(matched):.0f}%)")
         print(f"  Comprimento fora +-5%:      {comp_fail}/{len(matched)} ({100*comp_fail/len(matched):.0f}%)")
         print(f"  h fora +-2cm:               {h_fail}/{len(matched)} ({100*h_fail/len(matched):.0f}%)")
+        print(f"  Dimensao textual divergente:{dim_fail}/{len(matched)} ({100*dim_fail/len(matched):.0f}%)")
     print(f"{'='*70}\n")
 
 

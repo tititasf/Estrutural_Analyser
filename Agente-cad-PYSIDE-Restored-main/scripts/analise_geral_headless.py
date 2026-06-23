@@ -38,6 +38,20 @@ DB_PATH = Path("D:/Agente-cad-PYSIDE/project_data.vision")
 
 # ── helpers ───────────────────────────────────────────────────────────────────
 
+DIM_RE = re.compile(r"\(?\s*(\d+(?:[.,]\d+)?)\s*[/xX]\s*(\d+(?:[.,]\d+)?)\s*\)?")
+
+
+def _parse_dim_pair(dim_text: str | None) -> tuple[float, float] | None:
+    if not dim_text:
+        return None
+    m = DIM_RE.search(str(dim_text))
+    if not m:
+        return None
+    first = float(m.group(1).replace(",", "."))
+    second = float(m.group(2).replace(",", "."))
+    return min(first, second), max(first, second)
+
+
 def _parse_dim_text(texts: list, beam_pos: tuple | None = None) -> str | None:
     """Retorna o texto de dimensão mais próximo do beam (ou o primeiro válido).
     beam_pos: (x, y) da posição do label do beam no DXF.
@@ -45,7 +59,7 @@ def _parse_dim_text(texts: list, beam_pos: tuple | None = None) -> str | None:
     candidates = []
     for t in texts:
         txt = t.get("text", "").strip()
-        if re.search(r"\d+[/xX]\d+", txt):
+        if _parse_dim_pair(txt):
             if beam_pos and "pos" in t:
                 p = t["pos"]
                 dist = math.sqrt((p[0] - beam_pos[0]) ** 2 + (p[1] - beam_pos[1]) ** 2)
@@ -63,14 +77,86 @@ def _parse_h(dim_text: str | None) -> float | None:
     Para FV (fundo de viga), h é sempre a dimensão MENOR (espessura da seção).
     Ex: '19/55' → min(19,55)=19  |  '120/19' → min(120,19)=19  |  '24/66' → min(24,66)=24
     """
-    if not dim_text:
+    pair = _parse_dim_pair(dim_text)
+    return pair[0] if pair else None
+
+
+def _axis_point(coord_value: float, beam_pos: tuple, is_horizontal: bool) -> tuple[float, float]:
+    return (coord_value, beam_pos[1]) if is_horizontal else (beam_pos[0], coord_value)
+
+
+def _dist_point_to_axis_span(pos: tuple, coord: tuple, beam_pos: tuple, is_horizontal: bool) -> float:
+    if is_horizontal:
+        along = min(max(pos[0], coord[0]), coord[1])
+        return math.hypot(pos[0] - along, pos[1] - beam_pos[1])
+    along = min(max(pos[1], coord[0]), coord[1])
+    return math.hypot(pos[0] - beam_pos[0], pos[1] - along)
+
+
+def _query_texts(spatial_index, bbox: tuple) -> list[dict]:
+    if not spatial_index:
+        return []
+    return [c for c in spatial_index.query_bbox(bbox) if isinstance(c, dict) and c.get("text")]
+
+
+def _find_segment_dim(seg: dict, beam_pos: tuple, is_horizontal: bool, spatial_index) -> dict | None:
+    coord = seg.get("coord")
+    if not coord or not beam_pos:
         return None
-    m = re.search(r"(\d+(?:[.,]\d+)?)\s*[/xX]\s*(\d+(?:[.,]\d+)?)", dim_text)
-    if not m:
+    pad_axis = 120.0
+    pad_trans = 260.0
+    if is_horizontal:
+        bbox = (coord[0] - pad_axis, beam_pos[1] - pad_trans, coord[1] + pad_axis, beam_pos[1] + pad_trans)
+    else:
+        bbox = (beam_pos[0] - pad_trans, coord[0] - pad_axis, beam_pos[0] + pad_trans, coord[1] + pad_axis)
+    candidates = []
+    for t in _query_texts(spatial_index, bbox):
+        pair = _parse_dim_pair(t.get("text", ""))
+        if not pair or not t.get("pos"):
+            continue
+        score = _dist_point_to_axis_span(t["pos"], coord, beam_pos, is_horizontal)
+        candidates.append((score, t, pair))
+    if not candidates:
         return None
-    first = float(m.group(1).replace(",", "."))
-    second = float(m.group(2).replace(",", "."))
-    return min(first, second)
+    score, text_link, pair = min(candidates, key=lambda x: x[0])
+    if score > pad_trans * 1.5:
+        return None
+    link = dict(text_link)
+    link["type"] = link.get("type") or "text"
+    link["role"] = "Dimensao fundo de viga"
+    return {"text": link.get("text", ""), "link": link, "width": pair[0], "height": pair[1], "score": score}
+
+
+def _is_support_label(text: str, current_beam: str = "") -> bool:
+    txt = str(text or "").strip().upper()
+    if not txt or _parse_dim_pair(txt):
+        return False
+    if current_beam and txt == current_beam.upper():
+        return False
+    return bool(re.match(r"^(?:P|V|VF|VP|CONT)[A-Z0-9_.-]*\d[A-Z0-9_.-]*$", txt))
+
+
+def _find_support_text(endpoint: tuple, spatial_index, current_beam: str = "") -> dict | None:
+    if not endpoint or not spatial_index:
+        return None
+    radius = 320.0
+    bbox = (endpoint[0] - radius, endpoint[1] - radius, endpoint[0] + radius, endpoint[1] + radius)
+    candidates = []
+    for t in _query_texts(spatial_index, bbox):
+        if not _is_support_label(t.get("text", ""), current_beam):
+            continue
+        pos = t.get("pos")
+        if not pos:
+            continue
+        dist = math.hypot(pos[0] - endpoint[0], pos[1] - endpoint[1])
+        candidates.append((dist, t))
+    if not candidates:
+        return None
+    _, link = min(candidates, key=lambda x: x[0])
+    out = dict(link)
+    out["type"] = out.get("type") or "text"
+    out["role"] = "Apoio fundo de viga"
+    return out
 
 
 def _seg_length_2pts(p1, p2) -> float:
@@ -268,11 +354,35 @@ def process_beam_fv(b: dict, spatial_index=None, visual_obstacles=None) -> dict:
                 seg_len = abs(float(seg["coord"][1]) - float(seg["coord"][0]))
             except Exception:
                 seg_len = 0.0
-        seg["apoio_inicial"] = apoio_inicial
-        seg["apoio_final"] = apoio_final
+
+        seg_dim = _find_segment_dim(seg, beam_pos, is_horizontal, spatial_index) if beam_pos else None
+        seg_dim_text = (seg_dim or {}).get("text") or dim_text
+        seg_dim_pair = _parse_dim_pair(seg_dim_text)
+        seg_width = (seg_dim or {}).get("width") or (seg_dim_pair[0] if seg_dim_pair else h_n1) or 0
+        seg_height = (seg_dim or {}).get("height") or (seg_dim_pair[1] if seg_dim_pair else 0)
+
+        start_link = end_link = None
+        if seg.get("coord") and beam_pos:
+            start_pt = _axis_point(float(seg["coord"][0]), beam_pos, is_horizontal)
+            end_pt = _axis_point(float(seg["coord"][1]), beam_pos, is_horizontal)
+            start_link = _find_support_text(start_pt, spatial_index, b.get("name", ""))
+            end_link = _find_support_text(end_pt, spatial_index, b.get("name", ""))
+
+        seg["dim_text"] = seg_dim_text
+        if seg_dim:
+            seg["dim_link"] = seg_dim.get("link")
+            seg["dim_width"] = round(float(seg_width or 0), 1)
+            seg["dim_height"] = round(float(seg_height or 0), 1)
+        seg["apoio_inicial"] = (start_link or {}).get("text") or apoio_inicial
+        seg["apoio_final"] = (end_link or {}).get("text") or apoio_final
+        if start_link:
+            seg["apoio_inicial_link"] = start_link
+        if end_link:
+            seg["apoio_final_link"] = end_link
         seg["ficha"] = {
-            "largura_total_fundo": round(float(h_n1 or 0), 1),
+            "largura_total_fundo": round(float(seg_width or 0), 1),
             "comprimento_total_fundo": round(float(seg_len or 0), 1),
+            "altura_total": round(float(seg_height or 0), 1),
             "abertura_especial": "N/A",
             "chanfro_esq_top": "N/A",
             "chanfro_esq_fun": "N/A",

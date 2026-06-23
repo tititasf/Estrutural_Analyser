@@ -3904,8 +3904,11 @@ class MainWindow(QMainWindow):
             if hasattr(self, 'beams_found'): self.canvas.draw_beams(self.beams_found)
         elif index == 2:
             # Fun. de Vigas — realça polígonos de fundo (âmbar) no DXF
+            print(f"[FV-TAB] antes set_vis: beam={len(self.canvas.item_groups.get('beam',[]))}, beam_fundo={len(self.canvas.item_groups.get('beam_fundo',[]))}, beam_visuals={len(self.canvas.beam_visuals)}")
             self.canvas.set_category_visibility('beam_fundo')
+            print(f"[FV-TAB] após set_vis: beam={len(self.canvas.item_groups.get('beam',[]))}, beam_fundo={len(self.canvas.item_groups.get('beam_fundo',[]))}, beam_visuals={len(self.canvas.beam_visuals)}")
             if hasattr(self, 'beams_found'): self.canvas.draw_beam_fundos(self.beams_found)
+            print(f"[FV-TAB] após draw_fundos: beam_fundo={len(self.canvas.item_groups.get('beam_fundo',[]))}")
         elif index == 3:
             self.canvas.set_category_visibility('slab')
             if hasattr(self, 'slabs_found'): self.canvas.draw_slabs(self.slabs_found)
@@ -5857,6 +5860,21 @@ class MainWindow(QMainWindow):
                                 else:
                                     print(f" -> Kept existing {link_key} contour for Beam {b.get('name')}")
 
+                                field_prefix = f"viga_fundo_seg_{idx}"
+                                b.setdefault('fields', {})
+                                if seg.get('dim_text'):
+                                    b['fields'][f'{field_prefix}_dim'] = seg.get('dim_text')
+                                    if seg.get('dim_link'):
+                                        b['links'][f'{field_prefix}_dim'] = {'label': [seg.get('dim_link')]}
+                                if seg.get('apoio_inicial'):
+                                    b['fields'][f'{field_prefix}_local_ini'] = seg.get('apoio_inicial')
+                                    if seg.get('apoio_inicial_link'):
+                                        b['links'][f'{field_prefix}_local_ini'] = {'label': [seg.get('apoio_inicial_link')]}
+                                if seg.get('apoio_final'):
+                                    b['fields'][f'{field_prefix}_local_fim'] = seg.get('apoio_final')
+                                    if seg.get('apoio_final_link'):
+                                        b['links'][f'{field_prefix}_local_fim'] = {'label': [seg.get('apoio_final_link')]}
+
                         _fv_results.append(fv_data)
 
                     # FASE 2: Salvar todos os beams (cada save_beam abre/fecha sua própria conexão)
@@ -7743,6 +7761,91 @@ class MainWindow(QMainWindow):
             nums = [float(n.replace(',', '.')) for n in re.findall(r'\d+(?:[,.]\d+)?', str(dim_text))]
             return min(nums) if nums else None
 
+        def _parse_dim_pair_text(text):
+            m = re.search(r'\(?\s*(\d+(?:[,.]\d+)?)\s*[/xX]\s*(\d+(?:[,.]\d+)?)\s*\)?', str(text or ''))
+            if not m:
+                return None
+            a = float(m.group(1).replace(',', '.'))
+            c = float(m.group(2).replace(',', '.'))
+            return min(a, c), max(a, c)
+
+        def _is_support_text(text):
+            txt = str(text or '').strip().upper()
+            if not txt or _parse_dim_pair_text(txt):
+                return False
+            if txt == str(b.get('name') or '').upper():
+                return False
+            return bool(re.match(r'^(?:P|V|VF|VP|CONT)[A-Z0-9_.-]*\d[A-Z0-9_.-]*$', txt))
+
+        def _nearest_text_to_point(point, predicate, radius=320.0):
+            candidates = []
+            if hasattr(self, 'spatial_index') and self.spatial_index and point:
+                try:
+                    raw = self.spatial_index.query_bbox((point[0]-radius, point[1]-radius, point[0]+radius, point[1]+radius))
+                except Exception:
+                    raw = []
+            else:
+                raw = []
+            raw.extend(geo.get('texts', []) or [])
+            raw.extend(geo.get('dimension_texts', []) or [])
+            for item in raw:
+                if not isinstance(item, dict) or 'text' not in item or not predicate(item.get('text', '')):
+                    continue
+                pos = item.get('pos')
+                if not pos:
+                    continue
+                dist = ((float(pos[0]) - point[0]) ** 2 + (float(pos[1]) - point[1]) ** 2) ** 0.5
+                if dist <= radius:
+                    candidates.append((dist, item))
+            if not candidates:
+                return None
+            link = dict(min(candidates, key=lambda x: x[0])[1])
+            link['type'] = link.get('type') or 'text'
+            return link
+
+        def _score_text_to_points(pos, points):
+            if not points or not pos:
+                return float('inf')
+            xs = [float(p[0]) for p in points]
+            ys = [float(p[1]) for p in points]
+            min_x, max_x = min(xs), max(xs)
+            min_y, max_y = min(ys), max(ys)
+            cx = min(max(float(pos[0]), min_x), max_x)
+            cy = min(max(float(pos[1]), min_y), max_y)
+            return ((float(pos[0]) - cx) ** 2 + (float(pos[1]) - cy) ** 2) ** 0.5
+
+        def _nearest_dim_to_points(points):
+            if not points:
+                return None
+            xs = [float(p[0]) for p in points]
+            ys = [float(p[1]) for p in points]
+            pad = 260.0
+            raw = []
+            if hasattr(self, 'spatial_index') and self.spatial_index:
+                try:
+                    raw = self.spatial_index.query_bbox((min(xs)-pad, min(ys)-pad, max(xs)+pad, max(ys)+pad))
+                except Exception:
+                    raw = []
+            raw.extend(geo.get('texts', []) or [])
+            raw.extend(geo.get('dimension_texts', []) or [])
+            candidates = []
+            for item in raw:
+                if not isinstance(item, dict) or 'text' not in item:
+                    continue
+                pair = _parse_dim_pair_text(item.get('text'))
+                if not pair or not item.get('pos'):
+                    continue
+                candidates.append((_score_text_to_points(item['pos'], points), item, pair))
+            if not candidates:
+                return None
+            score, link, pair = min(candidates, key=lambda x: x[0])
+            if score > pad * 1.5:
+                return None
+            out = dict(link)
+            out['type'] = out.get('type') or 'text'
+            out['role'] = 'Dimensao fundo de viga'
+            return {'link': out, 'width': pair[0], 'height': pair[1], 'text': out.get('text', '')}
+
         def _fundo_geometry_metrics(points, length_hint=None):
             if not points:
                 return _dim_width_hint(), length_hint or 0.0
@@ -7810,11 +7913,17 @@ class MainWindow(QMainWindow):
                 contours = slots.get('contour') if isinstance(slots, dict) else None
                 if not isinstance(contours, list):
                     continue
+                seg_prefix = key[:-len('_area_segs')]
                 for link in contours:
                     if not isinstance(link, dict):
                         continue
                     pts = _link_points(link)
                     largura, comprimento = _fundo_geometry_metrics(pts, link.get('len'))
+                    dim_info = _nearest_dim_to_points(pts)
+                    if dim_info:
+                        largura = dim_info.get('width') or largura
+                        b.setdefault('fields', {})[f'{seg_prefix}_dim'] = dim_info.get('text') or ''
+                        links[f'{seg_prefix}_dim'] = {'label': [dim_info['link']]}
                     corner_data, corner_note = _corner_flags(pts)
                     ficha = dict(link.get('ficha') or {})
                     ficha.pop('apoio_inicial', None)
@@ -7822,6 +7931,7 @@ class MainWindow(QMainWindow):
                     ficha.update({
                         'largura_total_fundo': _fmt_fv_num(largura),
                         'comprimento_total_fundo': _fmt_fv_num(comprimento),
+                        'altura_total': _fmt_fv_num(dim_info.get('height')) if dim_info else ficha.get('altura_total', ''),
                         'abertura_especial': abertura_txt or corner_note or ficha.get('abertura_especial') or 'N/A',
                     })
                     for ck, cv in corner_data.items():
@@ -7847,12 +7957,26 @@ class MainWindow(QMainWindow):
                 seg_prefix = key[:-len('_area_segs')]
                 ini_key = f'{seg_prefix}_local_ini'
                 fim_key = f'{seg_prefix}_local_fim'
+                contours = links.get(key, {}).get('contour', [])
+                pts = _link_points(contours[0]) if contours else []
+                if pts:
+                    is_h_pts = b.get('is_h', (max(p[0] for p in pts) - min(p[0] for p in pts)) >= (max(p[1] for p in pts) - min(p[1] for p in pts)))
+                    start_pt = min(pts, key=lambda p: p[0] if is_h_pts else p[1])
+                    end_pt = max(pts, key=lambda p: p[0] if is_h_pts else p[1])
+                    start_text = _nearest_text_to_point(start_pt, _is_support_text)
+                    end_text = _nearest_text_to_point(end_pt, _is_support_text)
+                    if start_text:
+                        fields[ini_key] = start_text.get('text', '')
+                        links[ini_key] = {'label': [start_text]}
+                    if end_text:
+                        fields[fim_key] = end_text.get('text', '')
+                        links[fim_key] = {'label': [end_text]}
                 if apoios.get('inicio'):
                     fields[ini_key] = ', '.join(filter(None, [_support_label(s) for s in apoios.get('inicio', [])]))
-                    links[ini_key] = _field_link_for_support(apoios['inicio'][0])
+                    links.setdefault(ini_key, _field_link_for_support(apoios['inicio'][0]))
                 if apoios.get('fim'):
                     fields[fim_key] = ', '.join(filter(None, [_support_label(s) for s in apoios.get('fim', [])]))
-                    links[fim_key] = _field_link_for_support(apoios['fim'][0])
+                    links.setdefault(fim_key, _field_link_for_support(apoios['fim'][0]))
 
         def _run_lv_motors_patch():
             """Roda os motores LV Para e Passa para vigas já processadas que ainda não têm

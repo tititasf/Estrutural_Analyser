@@ -1989,7 +1989,7 @@ class DetailCard(QWidget):
         self._add_linked_row(form, "Segmentos de Área (Geometria):", f'{seg_uid}_area_segs', "poly", hide_input=True)
         
         # Dimensão (Movido dos Dados Gerais para cá)
-        self._add_linked_row(form, "Dimensão:", "dim", "text")
+        self._add_linked_row(form, "Dimensão:", f'{seg_uid}_dim', "text")
         form.addRow("", self._create_fundo_metric_tags(seg_uid))
 
         self._add_linked_row(form, "Apoio Inicial:", f'{seg_uid}_local_ini', "text", hide_input=True)
@@ -2059,7 +2059,8 @@ class DetailCard(QWidget):
                 return str(value)
 
         dim_text = (
-            self._get_initial_value('dim')
+            self._get_initial_value(f'{seg_uid}_dim')
+            or self._get_initial_value('dim')
             or self.item_data.get('dim')
             or self.item_data.get('dimensao')
             or self.item_data.get('fields', {}).get('dim')
