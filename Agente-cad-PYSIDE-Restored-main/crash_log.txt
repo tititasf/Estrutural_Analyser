@@ -1,19 +1,26 @@
 CRITICAL STARTUP ERROR:
 Traceback (most recent call last):
-  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\main.py", line 7998, in <module>
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\main.py", line 9048, in <module>
     main()
     ~~~~^^
-  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\main.py", line 7992, in main
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\main.py", line 9042, in main
     start_app(dummy_user)
     ~~~~~~~~~^^^^^^^^^^^^
-  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\main.py", line 7959, in start_app
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\main.py", line 9002, in start_app
     window = MainWindow()
-  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\main.py", line 211, in __init__
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\main.py", line 230, in __init__
     self.init_ui()
     ~~~~~~~~~~~~^^
-  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\main.py", line 2535, in init_ui
-    structural_widget = self._setup_structural_analyzer_area()
-  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\main.py", line 1076, in _setup_structural_analyzer_area
-    background: {Colors.BG_INPUT}; color: {Colors.TEXT_PRIMARY};
-                 ^^^^^^^^^^^^^^^
-AttributeError: type object 'Colors' has no attribute 'BG_INPUT'
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\main.py", line 2763, in init_ui
+    self.comparison_module = ComparisonEngineModule()
+                             ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\src\ui\modules\comparison_engine.py", line 5082, in __init__
+    self.fase8_panel = Fase8Panel()
+                       ~~~~~~~~~~^^
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\src\ui\modules\comparison_engine.py", line 1446, in __init__
+    self._populate_obras()
+    ~~~~~~~~~~~~~~~~~~~~^^
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\src\ui\modules\comparison_engine.py", line 1471, in _populate_obras
+    (o for o in treino
+                ^^^^^^
+NameError: name 'treino' is not defined

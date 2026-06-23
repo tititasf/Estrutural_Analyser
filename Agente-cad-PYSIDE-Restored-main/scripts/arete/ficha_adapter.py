@@ -164,6 +164,7 @@ def _enriquecer_lv_campos(campos: dict, elemento_id: str,
         campos['laje_inf_B']    = geom.get('laje_inf_B', 0.0)
         campos['tipo_viga']     = geom.get('tipo_viga', 'sarrafeada')
         campos['section_views'] = geom.get('section_views', [])
+        campos['face_units']    = geom.get('face_units', [])
         campos['panels_A']      = geom.get('panels_A', [])
         campos['panels_B']      = geom.get('panels_B', [])
 
@@ -251,6 +252,7 @@ def _criar_fichas_lv_v2(obra_dir: Path, elemento_id: str, campos: dict) -> None:
         'h_section_all': campos.get('h_section_all', []),
         'tipo_viga':     campos.get('tipo_viga', 'sarrafeada'),
         'section_views': campos.get('section_views', []),
+        'face_units':    campos.get('face_units', []),
         'segmentos':     segs_A,
         'segmentos_B':   segs_B,
         'pillar_left':   campos.get('pillar_left', {'active': False}),
@@ -325,7 +327,7 @@ def materializar_item(row: dict, tmp_base: Path | None = None) -> tuple[Path, Pa
 
     # Para LV: enriquecer campos com geometria extraída do DXF ANTES de escrever
     # qualquer JSON, para que _A.json e _B.json já tenham os dados completos.
-    if classe == "LV" and not campos.get("h_A"):
+    if classe == "LV" and (not campos.get("h_A") or not campos.get("face_units")):
         _enriquecer_lv_campos(campos, elemento_id, row=row)
 
     # Arquivo JSON (_A.json para LV, único para PIL/FV/LAJ)

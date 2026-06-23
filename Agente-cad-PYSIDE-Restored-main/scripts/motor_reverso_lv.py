@@ -25,7 +25,7 @@ Estratégia de detecção de faces:
 from __future__ import annotations
 from pathlib import Path
 from collections import defaultdict, Counter
-import json, re
+import json, re, unicodedata
 
 DADOS_OBRAS_ROOT = Path("D:/Agente-cad-PYSIDE/DADOS-OBRAS")
 
@@ -43,6 +43,16 @@ _LABEL_X_GAP = 80     # máximo de distância x entre label e face (cm)
 # ──────────────────────────────────────────────────────────────────────────────
 # Helpers internos
 # ──────────────────────────────────────────────────────────────────────────────
+
+# Segmentos laterais curtos (por exemplo, retornos de 60 cm) tambem sao
+# unidades validas. A atribuicao A/B continua restrita ao contexto dos labels.
+_MIN_FACE_W = 40
+
+
+def _layer_key(value: str) -> str:
+    normalized = unicodedata.normalize('NFKD', str(value))
+    return normalized.encode('ascii', 'ignore').decode('ascii').upper()
+
 
 def _infer_obra_root(recorte_path: str) -> Path | None:
     p = Path(recorte_path)
@@ -112,6 +122,7 @@ def _extract_lv_geom_from_dxf(dxf_path: str, elem_id: str = '') -> dict:
         'tipo_viga': 'sarrafeada',
         # Múltiplas seções transversais (visões de corte por par A/B)
         'section_views': [],  # [{h_A, h_B, b, laje_sup_A, laje_inf_A, ...}]
+        'face_units': [],     # [{label, side, h_total, panels, bbox}] por bloco visual
         # Lateral A/B (segmentos completos)
         'panels_A': [], 'panels_B': [],
         'pillar_left':  {'active': False, 'width': 0.0, 'length': 0.0},
@@ -137,15 +148,24 @@ def _extract_lv_geom_from_dxf(dxf_path: str, elem_id: str = '') -> dict:
         paineis_v:    list = []   # (x, y_bot, y_top)
         sarr_v:       list = []   # (x, y_bot, y_top)  todos sarrafos verticais
         sarr3_v:      list = []   # (x, y_bot, y_top)  SARR_3.5x7 V-lines (grade pernas)
+        sarr_lines:   list = []   # (layer, xl, yb, xr, yt) linhas SARR reais
         madeira_v:    list = []   # (x, y_bot, y_top)
         holes_lwpoly: list = []   # (xl, yl, xr, yr) LWPOLYLINE DASHED = aberturas
+        reap_boxes:   list = []   # (xl, yl, xr, yr) HATCH REAPROVEITAMENTO
+        laje_boxes:   list = []   # (xl, yl, xr, yr) HATCH Hachura de laje/faixas
         cota_txts:    list = []   # (x, y, val)
+        panel_num_txts: list = [] # (x, y, val) numeros desenhados na layer Paineis
         secao_txts:   list = []   # (x, y, val)  camada "Cota Seção (2x)"
         face_labels:  list = []   # (x, y, txt, side)  camada "Texto Seção" / "5"
         other_labels: list = []   # (x, y, txt)  pilar/viga refs da camada "5"
+        pontalete_txts: list = [] # (x, y, count, txt, layer, color, height) textos "N 1/2pont"
+
+        concrete_profiles: list = []
+        concrete_lines: list = []
 
         for e in msp:
             layer = e.dxf.layer
+            layer_key = _layer_key(layer)
             etype = e.dxftype()
 
             if etype == 'LINE':
@@ -155,6 +175,14 @@ def _extract_lv_geom_from_dxf(dxf_path: str, elem_id: str = '') -> dict:
                     x2, y2 = float(p2[0]), float(p2[1])
                     _collect_seg_line(layer, x1, y1, x2, y2,
                                       paineis_h, paineis_v, sarr_v, madeira_v, sarr3_v)
+                    if layer in ('SARR_2.2x7', 'SARR_EDITAR', 'SARR_3.5x7'):
+                        sarr_lines.append((
+                            layer,
+                            min(x1, x2), min(y1, y2),
+                            max(x1, x2), max(y1, y2),
+                        ))
+                    if layer == 'CONCRETO':
+                        concrete_lines.append(((x1, y1), (x2, y2)))
                 except Exception:
                     pass
 
@@ -184,6 +212,21 @@ def _extract_lv_geom_from_dxf(dxf_path: str, elem_id: str = '') -> dict:
                                     min(xs_p), min(ys_p),
                                     max(xs_p), max(ys_p)
                                 ))
+                        if layer == 'CONCRETO':
+                            concrete_profiles.append([
+                                (float(x), float(y)) for x, y in pts
+                            ])
+                except Exception:
+                    pass
+
+            elif etype == 'POLYLINE':
+                try:
+                    pts = [
+                        (float(v.dxf.location[0]), float(v.dxf.location[1]))
+                        for v in e.vertices
+                    ]
+                    if layer == 'CONCRETO' and len(pts) >= 3:
+                        concrete_profiles.append(pts)
                 except Exception:
                     pass
 
@@ -194,17 +237,51 @@ def _extract_lv_geom_from_dxf(dxf_path: str, elem_id: str = '') -> dict:
                     if layer == 'COTA':
                         val = float(txt)
                         cota_txts.append((ix, iy, val))
-                    elif 'Cota Seção' in layer or layer.upper().startswith('COTA SECAO'):
+                    elif layer_key.startswith('PAINE'):
+                        try:
+                            panel_num_txts.append((ix, iy, float(txt)))
+                        except Exception:
+                            pass
+                    elif layer_key.startswith('COTA SECAO'):
                         val = float(txt)
                         secao_txts.append((ix, iy, val))
                     elif layer in ('Texto Seção', '5', 'texto', 'NOMENCLATURA'):
                         tu = txt.strip().upper()
+                        mpont = re.search(r'(\d+)\s*(?:1/2)?\s*PONT', tu)
+                        if mpont:
+                            pontalete_txts.append((
+                                ix, iy, int(mpont.group(1)), txt.strip(),
+                                layer,
+                                int(e.dxf.get('color', 256) or 256),
+                                float(e.dxf.get('height', 8.0) or 8.0),
+                            ))
                         if re.search(r'\.[AB]$', tu):
                             side = 'A' if tu.endswith('.A') else 'B'
                             face_labels.append((ix, iy, txt.strip(), side))
                         elif re.match(r'^P\d', tu) or re.match(r'^VF?\d', tu):
                             # Pilar/viga labels (P19, VF203, etc.) — texto de referência
                             other_labels.append((ix, iy, txt.strip()))
+                except Exception:
+                    pass
+
+            elif etype == 'HATCH':
+                try:
+                    layer_u = str(layer).upper()
+                    if layer_u in ('REAPROVEITAMENTO', 'HACHURA'):
+                        xs_h = []
+                        ys_h = []
+                        for path in e.paths:
+                            verts = getattr(path, 'vertices', None)
+                            if verts:
+                                for v in verts:
+                                    xs_h.append(float(v[0]))
+                                    ys_h.append(float(v[1]))
+                        if xs_h and ys_h:
+                            box = (min(xs_h), min(ys_h), max(xs_h), max(ys_h))
+                            if layer_u == 'REAPROVEITAMENTO':
+                                reap_boxes.append(box)
+                            elif layer_u == 'HACHURA':
+                                laje_boxes.append(box)
                 except Exception:
                     pass
 
@@ -220,9 +297,18 @@ def _extract_lv_geom_from_dxf(dxf_path: str, elem_id: str = '') -> dict:
 
         ys: list = []  # (y_repr, xl, xr, width)
         for y_k, spans in y_groups.items():
-            xl_min = min(s[0] for s in spans)
-            xr_max = max(s[1] for s in spans)
-            ys.append((y_k, xl_min, xr_max, xr_max - xl_min))
+            spans_sorted = sorted(spans)
+            merged: list = []
+            cur_l, cur_r = spans_sorted[0]
+            for xl, xr in spans_sorted[1:]:
+                if xl <= cur_r + 5:
+                    cur_r = max(cur_r, xr)
+                else:
+                    merged.append((cur_l, cur_r))
+                    cur_l, cur_r = xl, xr
+            merged.append((cur_l, cur_r))
+            for xl_min, xr_max in merged:
+                ys.append((y_k, xl_min, xr_max, xr_max - xl_min))
         ys.sort(key=lambda t: t[0], reverse=True)  # y decrescente
 
         # ── 2. Busca direta de face por label + confirmação por COTA ─────────
@@ -269,16 +355,28 @@ def _extract_lv_geom_from_dxf(dxf_path: str, elem_id: str = '') -> dict:
                         'total_w': round(x_right - min(xl_t, xl_b), 1),
                     }
                     # Confirmação COTA: h_body deve aparecer como cota próxima
-                    cota_near = {
-                        round(v) for cx, cy, v in cota_txts
-                        if (x_right - 10 <= cx <= x_right + 160)
+                    pair_left = min(xl_t, xl_b)
+                    allow_left_cota = lx < xl_t - 15.0
+                    cota_near = [
+                        v for cx, cy, v in cota_txts
+                        if (
+                            (x_right - 10 <= cx <= x_right + 160)
+                            or (
+                                allow_left_cota
+                                and abs(cx - lx) <= 35.0
+                                and cx <= xl_t + 10.0
+                            )
+                        )
                         and (y_bot - 40 <= cy <= y_top + 40)
-                    }
-                    if round(h_body) in cota_near:
+                    ]
+                    if any(abs(float(v) - h_body) <= 1.5 for v in cota_near):
                         if best_confirmed is None:
                             best_confirmed = pair
                     else:
-                        if best_fallback is None or h_body > best_fallback['h_body']:
+                        # A borda inferior correta e a primeira geometria
+                        # valida abaixo do topo. Preferir menor altura evita
+                        # unir duas fileiras vizinhas quando nao ha COTA.
+                        if best_fallback is None or h_body < best_fallback['h_body']:
                             best_fallback = pair
 
                 if best_confirmed is not None:
@@ -314,6 +412,137 @@ def _extract_lv_geom_from_dxf(dxf_path: str, elem_id: str = '') -> dict:
                 used.add(j)
                 break
 
+        def _geometric_pair_candidates() -> list:
+            """Pares de bordas horizontais que podem formar um segmento."""
+            candidates = []
+            seen = set()
+            for i, (y_top, xl_t, xr_t, _wt) in enumerate(ys):
+                for y_bot, xl_b, xr_b, _wb in ys[i + 1:]:
+                    h_body = y_top - y_bot
+                    if not (20 < h_body < _H_BODY_MAX):
+                        continue
+                    overlap = min(xr_t, xr_b) - max(xl_t, xl_b)
+                    min_width = min(xr_t - xl_t, xr_b - xl_b)
+                    if overlap < 20 or min_width <= 0:
+                        continue
+                    if overlap / min_width < 0.60:
+                        continue
+                    pair = {
+                        'y_bot': y_bot,
+                        'y_top': y_top,
+                        'h_body': round(h_body, 1),
+                        'x_left': min(xl_t, xl_b),
+                        'x_right': max(xr_t, xr_b),
+                        'total_w': round(
+                            max(xr_t, xr_b) - min(xl_t, xl_b), 1),
+                    }
+                    key = (
+                        round(pair['x_left'], 1),
+                        round(pair['x_right'], 1),
+                        round(pair['y_bot'], 1),
+                        round(pair['y_top'], 1),
+                    )
+                    if key not in seen:
+                        seen.add(key)
+                        candidates.append(pair)
+            return candidates
+
+        geometric_pairs = _geometric_pair_candidates()
+
+        def _row_pairs_for_anchor(anchor: dict) -> list:
+            """Expande um label para desenhos independentes da mesma fileira."""
+            row_y_tol = 8.0
+            anchor_h = float(anchor.get('h_body', 0))
+            anchor_left = float(anchor.get('x_left', 0))
+            anchor_right = float(anchor.get('x_right', 0))
+            row_candidates = [anchor]
+            for pair in geometric_pairs:
+                same_base = abs(pair['y_bot'] - anchor['y_bot']) <= row_y_tol
+                same_top = abs(pair['y_top'] - anchor['y_top']) <= row_y_tol
+                if not (same_base or same_top):
+                    continue
+                if abs(pair['h_body'] - anchor_h) > 25:
+                    continue
+                if anchor_h > 0 and pair['h_body'] < anchor_h * 0.55:
+                    continue
+                overlap_anchor = (
+                    min(pair['x_right'], anchor_right)
+                    - max(pair['x_left'], anchor_left)
+                )
+                if overlap_anchor > 0.60 * min(
+                        pair['total_w'], anchor_right - anchor_left):
+                    continue
+                row_candidates.append(pair)
+
+            # Candidatos repetidos podem usar bordas internas diferentes.
+            # Agrupar por faixa X e manter a altura mais proxima do anchor.
+            row_candidates.sort(key=lambda p: (
+                p['x_left'], abs(p['h_body'] - anchor_h)))
+            selected = []
+            for pair in row_candidates:
+                duplicate_idx = None
+                for idx, current in enumerate(selected):
+                    overlap = (
+                        min(pair['x_right'], current['x_right'])
+                        - max(pair['x_left'], current['x_left'])
+                    )
+                    min_w = min(pair['total_w'], current['total_w'])
+                    if min_w > 0 and overlap / min_w > 0.70:
+                        duplicate_idx = idx
+                        break
+                if duplicate_idx is None:
+                    selected.append(pair)
+                elif (
+                    abs(pair['h_body'] - anchor_h)
+                    < abs(selected[duplicate_idx]['h_body'] - anchor_h)
+                ):
+                    selected[duplicate_idx] = pair
+            selected.sort(key=lambda p: p['x_left'])
+            return selected
+
+        def _infer_anchor_from_row(lx: float, ly: float) -> dict | None:
+            """Infere segmento sem par completo usando uma borda e a fileira."""
+            best = None
+            best_score = None
+            for pair in geometric_pairs:
+                if not (ly - _LABEL_Y_GAP <= pair['y_top'] <= ly + 5):
+                    continue
+                for edge_y, edge_xl, edge_xr, _w in ys:
+                    shares_row = (
+                        abs(edge_y - pair['y_bot']) <= _EPS_Y
+                        or abs(edge_y - pair['y_top']) <= _EPS_Y
+                    )
+                    if not shares_row:
+                        continue
+                    x_dist = (
+                        edge_xl - lx if lx < edge_xl
+                        else lx - edge_xr if lx > edge_xr
+                        else 0.0
+                    )
+                    if x_dist > _LABEL_X_GAP:
+                        continue
+                    # Nao substituir pelo proprio par: este fallback existe
+                    # para uma faixa X orfa na mesma base/topo.
+                    overlap = (
+                        min(edge_xr, pair['x_right'])
+                        - max(edge_xl, pair['x_left'])
+                    )
+                    if overlap > 0.60 * min(
+                            edge_xr - edge_xl, pair['total_w']):
+                        continue
+                    score = abs(ly - pair['y_top']) + x_dist
+                    if best_score is None or score < best_score:
+                        best_score = score
+                        best = {
+                            'y_bot': pair['y_bot'],
+                            'y_top': pair['y_top'],
+                            'h_body': pair['h_body'],
+                            'x_left': edge_xl,
+                            'x_right': edge_xr,
+                            'total_w': round(edge_xr - edge_xl, 1),
+                        }
+            return best
+
         # Filtrar labels do elemento atual (elem_prefix = "V13", etc.)
         my_labels = [(lx, ly, txt, side) for lx, ly, txt, side in face_labels
                      if txt.upper().startswith(elem_prefix + '.')]
@@ -348,7 +577,8 @@ def _extract_lv_geom_from_dxf(dxf_path: str, elem_id: str = '') -> dict:
 
         if face_A is None and face_B is None:
             result['_confianca_extracao'] = 0.3
-            return result
+            if not secao_txts:
+                return result
 
         # Garantir que A é a face mais alta
         if face_A and face_B and face_A['y_top'] < face_B['y_top']:
@@ -454,6 +684,30 @@ def _extract_lv_geom_from_dxf(dxf_path: str, elem_id: str = '') -> dict:
                     })
             return result_h
 
+        def _reuse_regions_seg(xl: float, xr: float,
+                               y_bot: float, y_top: float) -> list:
+            """Retorna faixas de reaproveitamento recortadas no corpo do segmento."""
+            seg_area = max((xr - xl) * (y_top - y_bot), 1.0)
+            regions = []
+            for hxl, hyl, hxr, hyr in reap_boxes:
+                ix1, ix2 = max(xl, hxl), min(xr, hxr)
+                iy1, iy2 = max(y_bot, hyl), min(y_top, hyr)
+                ox = ix2 - ix1
+                oy = iy2 - iy1
+                if ox <= 0.5 or oy <= 0.5:
+                    continue
+                overlap_ratio = (ox * oy) / seg_area
+                width_ratio = ox / max(xr - xl, 1.0)
+                if overlap_ratio < 0.05 and width_ratio < 0.60:
+                    continue
+                regions.append({
+                    'x_offset': round(ix1 - xl, 1),
+                    'y_offset': round(iy1 - y_bot, 1),
+                    'width': round(ox, 1),
+                    'height': round(oy, 1),
+                })
+            return regions
+
         def _panel_segments(fg: dict) -> list:
             """Extrai lista de segmentos completos da face com classificação."""
             y_bot, y_top = fg['y_bot'], fg['y_top']
@@ -477,7 +731,8 @@ def _extract_lv_geom_from_dxf(dxf_path: str, elem_id: str = '') -> dict:
 
             if len(deduped) < 2:
                 gh = _extract_grade_h(x_left, x_right, y_bot, y_top) if face_grade else 0.0
-                return [_make_seg(x_left, x_right, h_body, ptype_face, gh,
+                return [_make_seg(x_left, x_right, y_bot, y_top,
+                                  h_body, ptype_face, gh,
                                   is_first=True, is_last=True)]
 
             segs: list = []
@@ -488,17 +743,20 @@ def _extract_lv_geom_from_dxf(dxf_path: str, elem_id: str = '') -> dict:
             for idx, k in enumerate(valid_ks):
                 xl, xr = deduped[k], deduped[k + 1]
                 gh = _extract_grade_h(xl, xr, y_bot, y_top) if face_grade else 0.0
-                segs.append(_make_seg(xl, xr, h_body, ptype_face, gh,
+                segs.append(_make_seg(xl, xr, y_bot, y_top,
+                                      h_body, ptype_face, gh,
                                       is_first=(idx == 0),
                                       is_last=(idx == len(valid_ks) - 1)))
             return segs
 
-        def _make_seg(xl: float, xr: float, h_body: float,
+        def _make_seg(xl: float, xr: float, y_bot: float, y_top: float,
+                      h_body: float,
                       ptype: str, gh: float,
                       is_first: bool, is_last: bool) -> dict:
             """Constrói o dict canônico de um segmento (campos do gerador)."""
             w = round(xr - xl, 1)
-            holes = _detect_holes_seg(xl, xr, 0, h_body)  # y_bot/top corrigidos depois
+            holes = _detect_holes_seg(xl, xr, y_bot, y_top)
+            reuse_regions = _reuse_regions_seg(xl, xr, y_bot, y_top)
             return {
                 'largura_cm':     w,
                 'width':          w,          # backward compat com gerador
@@ -516,7 +774,8 @@ def _extract_lv_geom_from_dxf(dxf_path: str, elem_id: str = '') -> dict:
                 'is_first':       is_first,
                 'is_last':        is_last,
                 'holes':          holes,
-                'reuse':          False,
+                'reuse':          bool(reuse_regions),
+                'reuse_regions':  reuse_regions,
                 'codigos_forma':  [],
                 '_xl':            xl,         # guardado para per-seg slab lookup
                 '_xr':            xr,
@@ -525,12 +784,452 @@ def _extract_lv_geom_from_dxf(dxf_path: str, elem_id: str = '') -> dict:
         panels_A = _panel_segments(face_A) if face_A else []
         panels_B = _panel_segments(face_B) if face_B else []
 
+        def _extract_section_views_local() -> list:
+            """Detecta e interpreta cada visao de corte por cluster espacial."""
+            if not secao_txts:
+                return []
+
+            small_points = sorted(
+                [p for p in secao_txts if 5 <= p[2] <= 30],
+                key=lambda p: (-p[1], p[0]),
+            )
+            large_points = [p for p in secao_txts if p[2] > 30]
+            clusters = []
+            used_large = set()
+            for small_point in small_points:
+                sx, sy, _sv = small_point
+                candidates = [
+                    (idx, point) for idx, point in enumerate(large_points)
+                    if idx not in used_large
+                    and abs(point[0] - sx) <= 90
+                    and 0 < point[1] - sy <= 230
+                ]
+                if not candidates:
+                    continue
+                best_idx, best_large = min(
+                    candidates,
+                    key=lambda item: (
+                        abs(item[1][0] - sx)
+                        + abs(item[1][1] - sy)
+                    ),
+                )
+                used_large.add(best_idx)
+                clusters.append([small_point, best_large])
+
+            cluster_centers = [
+                (
+                    sum(p[0] for p in cluster) / len(cluster),
+                    sum(p[1] for p in cluster) / len(cluster),
+                )
+                for cluster in clusters
+            ]
+            views = []
+            for cluster_idx, cluster in enumerate(clusters):
+                values = [float(p[2]) for p in cluster if p[2] > 0]
+                small = [v for v in values if 5 <= v <= 30]
+                large = [v for v in values if v > 30]
+                if not small or not large:
+                    continue
+
+                b = min(small)
+                h_section = max(large)
+                cx = sum(p[0] for p in cluster) / len(cluster)
+                cy = sum(p[1] for p in cluster) / len(cluster)
+                nearby = [
+                    (x, y, float(v)) for x, y, v in cota_txts
+                    if abs(x - cx) <= 155 and abs(y - cy) <= 175
+                    and min(
+                        range(len(cluster_centers)),
+                        key=lambda idx: (
+                            (x - cluster_centers[idx][0]) ** 2
+                            + (y - cluster_centers[idx][1]) ** 2
+                        ),
+                    ) == cluster_idx
+                ]
+                total_candidates = [
+                    v for _x, _y, v in nearby
+                    if h_section < v <= h_section + 20
+                ]
+                h_total = (
+                    Counter(round(v, 1) for v in total_candidates)
+                    .most_common(1)[0][0]
+                    if total_candidates else h_section + 4.0
+                )
+
+                def _side_data(side: str) -> tuple[float, float]:
+                    vals = [
+                        (x, y, v) for x, y, v in nearby
+                        if (x < cx - 25 if side == 'A' else x > cx + 25)
+                    ]
+                    slab_candidates = [
+                        v for _x, y, v in vals
+                        if y >= cy and 8 <= v <= 25
+                    ]
+                    slab = max(slab_candidates) if slab_candidates else 0.0
+                    expected_body = h_total - slab if slab else h_section
+                    body_candidates = [
+                        v for _x, y, v in vals
+                        if 25 < v < h_total
+                        and abs(y - cy) <= 80
+                        and abs(v - h_section) > 1
+                    ]
+                    body = (
+                        min(body_candidates,
+                            key=lambda v: abs(v - expected_body))
+                        if body_candidates else 0.0
+                    )
+                    return float(body), float(slab)
+
+                def _concrete_geometry() -> dict:
+                    candidates = []
+                    max_distance = max(150.0, h_section * 1.8)
+                    for points in concrete_profiles:
+                        xs = [point[0] for point in points]
+                        ys = [point[1] for point in points]
+                        pcx = (min(xs) + max(xs)) / 2.0
+                        pcy = (min(ys) + max(ys)) / 2.0
+                        distance = ((pcx - cx) ** 2 + (pcy - cy) ** 2) ** 0.5
+                        if distance <= max_distance:
+                            candidates.append((distance, points))
+                    if not candidates:
+                        return {}
+
+                    candidates.sort(key=lambda item: item[0])
+                    nearest = candidates[0][0]
+                    selected = [
+                        points for distance, points in candidates
+                        if distance <= nearest + 65.0
+                    ]
+                    all_points = [point for points in selected for point in points]
+
+                    def _visual_primitives() -> list:
+                        allowed_layers = {
+                            'CONCRETO', 'Painéis', 'Madeira', 'Hachura',
+                            'SARR_3.5x7', 'COTA', 'Cota Seção (2x)',
+                            'detalhes',
+                        }
+                        core_x_min = min(point[0] for point in all_points)
+                        core_x_max = max(point[0] for point in all_points)
+                        core_y_min = min(point[1] for point in all_points)
+                        core_y_max = max(point[1] for point in all_points)
+
+                        def _inside_bounds(
+                            x_min: float,
+                            y_min: float,
+                            x_max: float,
+                            y_max: float,
+                            layer: str,
+                        ) -> bool:
+                            margin_x = 85.0 if layer in {
+                                'COTA', 'Cota Seção (2x)'
+                            } else 38.0
+                            margin_y = 70.0 if layer in {
+                                'COTA', 'Cota Seção (2x)'
+                            } else 38.0
+                            return not (
+                                x_max < core_x_min - margin_x
+                                or x_min > core_x_max + margin_x
+                                or y_max < core_y_min - margin_y
+                                or y_min > core_y_max + margin_y
+                            )
+
+                        def _rel(point) -> list:
+                            return [
+                                round(float(point[0]) - cx, 3),
+                                round(float(point[1]) - cy, 3),
+                            ]
+
+                        primitives = []
+                        for entity in msp:
+                            layer = str(entity.dxf.layer)
+                            if layer not in allowed_layers:
+                                continue
+                            etype = entity.dxftype()
+                            primitive = None
+                            try:
+                                if etype == 'LINE':
+                                    points = [
+                                        entity.dxf.start,
+                                        entity.dxf.end,
+                                    ]
+                                    xs = [float(point[0]) for point in points]
+                                    ys = [float(point[1]) for point in points]
+                                    if _inside_bounds(
+                                        min(xs), min(ys), max(xs), max(ys),
+                                        layer,
+                                    ):
+                                        primitive = {
+                                            'kind': 'line',
+                                            'layer': layer,
+                                            'points': [_rel(point) for point in points],
+                                        }
+                                elif etype in ('LWPOLYLINE', 'POLYLINE'):
+                                    if etype == 'LWPOLYLINE':
+                                        points = list(entity.get_points('xy'))
+                                        closed = bool(entity.closed)
+                                    else:
+                                        points = [
+                                            (
+                                                float(vertex.dxf.location[0]),
+                                                float(vertex.dxf.location[1]),
+                                            )
+                                            for vertex in entity.vertices
+                                        ]
+                                        closed = bool(entity.is_closed)
+                                    if len(points) >= 2:
+                                        xs = [float(point[0]) for point in points]
+                                        ys = [float(point[1]) for point in points]
+                                        if _inside_bounds(
+                                            min(xs), min(ys), max(xs), max(ys),
+                                            layer,
+                                        ):
+                                            primitive = {
+                                                'kind': 'polyline',
+                                                'layer': layer,
+                                                'closed': closed,
+                                                'points': [
+                                                    _rel(point) for point in points
+                                                ],
+                                            }
+                                elif etype == 'TEXT':
+                                    insert = entity.dxf.insert
+                                    x = float(insert[0])
+                                    y = float(insert[1])
+                                    if _inside_bounds(x, y, x, y, layer):
+                                        primitive = {
+                                            'kind': 'text',
+                                            'layer': layer,
+                                            'text': str(entity.dxf.text),
+                                            'insert': _rel(insert),
+                                            'align_point': _rel(
+                                                entity.dxf.get(
+                                                    'align_point', insert
+                                                ) or insert
+                                            ),
+                                            'height': round(float(
+                                                entity.dxf.get(
+                                                    'height', 7.0
+                                                ) or 7.0
+                                            ), 3),
+                                            'rotation': round(float(
+                                                entity.dxf.get(
+                                                    'rotation', 0.0
+                                                ) or 0.0
+                                            ), 3),
+                                            'halign': int(entity.dxf.get(
+                                                'halign', 0
+                                            ) or 0),
+                                            'valign': int(entity.dxf.get(
+                                                'valign', 0
+                                            ) or 0),
+                                        }
+                                elif etype == 'HATCH':
+                                    paths = []
+                                    for path in entity.paths:
+                                        vertices = getattr(
+                                            path, 'vertices', None
+                                        )
+                                        if not vertices:
+                                            continue
+                                        points = [
+                                            (float(v[0]), float(v[1]))
+                                            for v in vertices
+                                        ]
+                                        if len(points) >= 3:
+                                            paths.append(points)
+                                    if paths:
+                                        xs = [
+                                            point[0] for path in paths
+                                            for point in path
+                                        ]
+                                        ys = [
+                                            point[1] for path in paths
+                                            for point in path
+                                        ]
+                                        if _inside_bounds(
+                                            min(xs), min(ys), max(xs), max(ys),
+                                            layer,
+                                        ):
+                                            primitive = {
+                                                'kind': 'hatch',
+                                                'layer': layer,
+                                                'paths': [
+                                                    [
+                                                        _rel(point)
+                                                        for point in path
+                                                    ]
+                                                    for path in paths
+                                                ],
+                                                'pattern': str(
+                                                    entity.dxf.get(
+                                                        'pattern_name',
+                                                        'ANSI31',
+                                                    ) or 'ANSI31'
+                                                ),
+                                                'scale': round(float(
+                                                    entity.dxf.get(
+                                                        'pattern_scale', 1.0
+                                                    ) or 1.0
+                                                ), 4),
+                                                'angle': round(float(
+                                                    entity.dxf.get(
+                                                        'pattern_angle', 0.0
+                                                    ) or 0.0
+                                                ), 4),
+                                                'solid': bool(
+                                                    entity.dxf.get(
+                                                        'solid_fill', 0
+                                                    )
+                                                ),
+                                            }
+                            except Exception:
+                                primitive = None
+                            if primitive is not None:
+                                primitive['color'] = int(entity.dxf.get(
+                                    'color', 256
+                                ) or 256)
+                                primitive['linetype'] = str(entity.dxf.get(
+                                    'linetype', 'BYLAYER'
+                                ) or 'BYLAYER')
+                                primitives.append(primitive)
+                        return primitives
+
+                    verticals = []
+                    for points in selected:
+                        loop = points + [points[0]]
+                        for p1, p2 in zip(loop, loop[1:]):
+                            if abs(p1[0] - p2[0]) <= 0.5:
+                                length = abs(p1[1] - p2[1])
+                                if length >= max(25.0, h_section):
+                                    verticals.append((p1[0], length))
+
+                    body_left = body_right = None
+                    expected_span = max(2.0 * b, 1.0)
+                    unique_x = sorted({round(x, 3) for x, _length in verticals})
+                    pairs = [
+                        (left, right) for pos, left in enumerate(unique_x)
+                        for right in unique_x[pos + 1:]
+                    ]
+                    if pairs:
+                        body_left, body_right = min(
+                            pairs,
+                            key=lambda pair: (
+                                abs((pair[1] - pair[0]) - expected_span)
+                                + abs(((pair[0] + pair[1]) / 2.0) - cx) * 0.2
+                            ),
+                        )
+
+                    min_x = min(point[0] for point in all_points)
+                    max_x = max(point[0] for point in all_points)
+                    extension_left = (
+                        max(0.0, (body_left - min_x) / 2.0)
+                        if body_left is not None else 0.0
+                    )
+                    extension_right = (
+                        max(0.0, (max_x - body_right) / 2.0)
+                        if body_right is not None else 0.0
+                    )
+                    has_left = extension_left >= 3.0
+                    has_right = extension_right >= 3.0
+                    topology = (
+                        'bilateral' if has_left and has_right
+                        else 'extension_left' if has_left
+                        else 'extension_right' if has_right
+                        else 'u_straight'
+                    )
+
+                    nearby_lines = []
+                    for p1, p2 in concrete_lines:
+                        mx = (p1[0] + p2[0]) / 2.0
+                        my = (p1[1] + p2[1]) / 2.0
+                        if abs(mx - cx) <= 90 and abs(my - cy) <= max_distance:
+                            nearby_lines.append([
+                                [round(p1[0] - cx, 2), round(p1[1] - cy, 2)],
+                                [round(p2[0] - cx, 2), round(p2[1] - cy, 2)],
+                            ])
+                    if any(
+                        abs(line[0][1] - line[1][1]) <= 0.5
+                        and abs(line[1][0] - line[0][0]) > expected_span * 1.8
+                        for line in nearby_lines
+                    ):
+                        topology = f'{topology}_wide_bottom'
+
+                    return {
+                        'topology': topology,
+                        'extension_left_cm': round(extension_left, 1),
+                        'extension_right_cm': round(extension_right, 1),
+                        'body_width_cm': round(
+                            (body_right - body_left) / 2.0, 1
+                        ) if body_left is not None else float(b),
+                        'profiles': [
+                            [
+                                [round(x - cx, 2), round(y - cy, 2)]
+                                for x, y in points
+                            ]
+                            for points in selected
+                        ],
+                        'segments': nearby_lines,
+                        'visual_primitives': _visual_primitives(),
+                        'source': 'concrete_layer_geometry',
+                    }
+
+                body_a, slab_a = _side_data('A')
+                body_b, slab_b = _side_data('B')
+                concrete_geometry = _concrete_geometry()
+                views.append({
+                    'label': '',
+                    'b': float(b),
+                    'h_section': float(h_section),
+                    'h_A': float(h_total),
+                    'h_B': float(h_total),
+                    'h_body_A': body_a,
+                    'h_body_B': body_b,
+                    'laje_sup_A': slab_a,
+                    'laje_inf_A': 0.0,
+                    'laje_sup_B': slab_b,
+                    'laje_inf_B': 0.0,
+                    'topology': concrete_geometry.get('topology', 'unknown'),
+                    'extension_left_cm': concrete_geometry.get(
+                        'extension_left_cm', 0.0),
+                    'extension_right_cm': concrete_geometry.get(
+                        'extension_right_cm', 0.0),
+                    'body_width_cm': concrete_geometry.get(
+                        'body_width_cm', float(b)),
+                    'concrete_profiles': concrete_geometry.get('profiles', []),
+                    'concrete_segments': concrete_geometry.get('segments', []),
+                    'visual_primitives': concrete_geometry.get(
+                        'visual_primitives', []),
+                    'profile_source': concrete_geometry.get('source', ''),
+                    'bbox': {
+                        'x_left': round(cx - 155, 1),
+                        'x_right': round(cx + 155, 1),
+                        'y_bot': round(cy - 175, 1),
+                        'y_top': round(cy + 175, 1),
+                    },
+                    'source': 'section_text_cluster',
+                })
+            views.sort(key=lambda v: (
+                -(v.get('bbox') or {}).get('y_top', 0),
+                (v.get('bbox') or {}).get('x_left', 0),
+            ))
+            for idx, view in enumerate(views, 1):
+                view['label'] = f'Corte {idx}'
+            return views
+
+        local_section_views = _extract_section_views_local()
+
         # ── 4. b e h_section de "Cota Seção (2x)" próximos à face ativa ─────
         # Filtrar textos dentro do range x das faces (± 250 cm)
         fa_xl = face_A['x_left']  if face_A else 0
         fa_xr = face_A['x_right'] if face_A else 9999
         secao_near = [v for cx, cy, v in secao_txts
                       if (fa_xl - 50 <= cx <= fa_xr + 250) and v > 0]
+        secao_all = [v for _cx, _cy, v in secao_txts if v > 0]
+        if len({round(v, 1) for v in secao_near}) < 2 and secao_all:
+            # Recortes LV podem ter continuação deslocada para outra coluna do
+            # mesmo DXF. Nesses casos a segunda "Cota Seção (2x)" fica fora do
+            # range da face primária, mas ainda pertence à única viga do recorte.
+            secao_near = secao_all
         if secao_near:
             vals_s = sorted(set(secao_near))
             small = [v for v in vals_s if 5 <= v <= 30]
@@ -542,11 +1241,36 @@ def _extract_lv_geom_from_dxf(dxf_path: str, elem_id: str = '') -> dict:
                 # uma configuração de seção diferente (multiple section_views)
                 result['h_section'] = float(min(large))
                 result['h_section_all'] = [float(v) for v in large]
+        if local_section_views:
+            result['b_geom'] = float(local_section_views[0]['b'])
+            result['h_section'] = float(
+                local_section_views[0]['h_section'])
+            result['h_section_all'] = [
+                float(v['h_section']) for v in local_section_views
+            ]
 
         # ── 5. Alturas (h_total, laje_sup, laje_inf) de COTA TEXT ────────────
         # Excluir TODAS as larguras de painel (não só as >100) e o valor de b.
         all_panel_ws = {round(p['width']) for p in panels_A + panels_B}
         b_round = round(result['b_geom'])
+
+        def _has_laje_box(xl: float, xr: float, y_bot: float, y_top: float,
+                          where: str) -> bool:
+            """Confirma se ha hachura/faixa de laje perto do topo ou base."""
+            if not laje_boxes:
+                return False
+            if where == 'top':
+                y1, y2 = y_top - 2.0, y_top + 90.0
+            else:
+                y1, y2 = y_bot - 90.0, y_bot + 2.0
+            for hxl, hyl, hxr, hyr in laje_boxes:
+                ox = min(xr, hxr) - max(xl, hxl)
+                oy = min(y2, hyr) - max(y1, hyl)
+                if ox <= 2.0 or oy <= 1.0:
+                    continue
+                if ox / max(xr - xl, 1.0) >= 0.20:
+                    return True
+            return False
 
         def _face_heights(fg: dict) -> tuple[float, float, float]:
             """Extrai h_total, laje_sup, laje_inf de COTA TEXT.
@@ -578,8 +1302,20 @@ def _extract_lv_geom_from_dxf(dxf_path: str, elem_id: str = '') -> dict:
                 if laje_total > 0:
                     lo = sorted([v for v in h_cands_r if 2 < v <= min(35, laje_total+3)],
                                 reverse=True)
+                    if not (
+                        _has_laje_box(x_left, x_right, y_bot, y_top, 'top')
+                        or _has_laje_box(x_left, x_right, y_bot, y_top, 'bottom')
+                    ):
+                        return h_body, 0.0, 0.0
+                    if not lo and laje_total > 35:
+                        # Diferencas grandes geralmente sao outra cota vertical
+                        # do desenho, nao espessura de laje. Sem cota local
+                        # plausivel, manter apenas o corpo da face.
+                        return h_body, 0.0, 0.0
                     laje_sup = float(lo[0]) if lo else laje_total
                     laje_inf = max(0.0, round(laje_total - laje_sup, 1))
+                    if laje_sup > 35 or laje_inf > 35:
+                        return h_body, 0.0, 0.0
                     return h_total, laje_sup, laje_inf
 
             # ── Passo 2: COTA espalhada dentro da face (laje por segmento) ────
@@ -605,6 +1341,11 @@ def _extract_lv_geom_from_dxf(dxf_path: str, elem_id: str = '') -> dict:
 
             # Verificar inconsistência: laje_sup e laje_inf apontando para o mesmo texto
             if laje_sup > 0 and laje_inf > 0 and laje_sup == laje_inf:
+                laje_inf = 0.0
+
+            if laje_sup > 0 and not _has_laje_box(x_left, x_right, y_bot, y_top, 'top'):
+                laje_sup = 0.0
+            if laje_inf > 0 and not _has_laje_box(x_left, x_right, y_bot, y_top, 'bottom'):
                 laje_inf = 0.0
 
             h_total = round(h_body + laje_sup + laje_inf, 1) if (laje_sup + laje_inf) > 0 else h_body
@@ -642,6 +1383,10 @@ def _extract_lv_geom_from_dxf(dxf_path: str, elem_id: str = '') -> dict:
                 ]
                 ls_seg = float(max(set(top_cota))) if top_cota else ls_global
                 li_seg = float(max(set(bot_cota))) if bot_cota else li_global
+                if ls_seg > 0 and not _has_laje_box(xl, xr, y_bot, y_top, 'top'):
+                    ls_seg = 0.0
+                if li_seg > 0 and not _has_laje_box(xl, xr, y_bot, y_top, 'bottom'):
+                    li_seg = 0.0
 
                 seg['laje_sup_local'] = ls_seg
                 seg['laje_inf_local'] = li_seg
@@ -718,6 +1463,203 @@ def _extract_lv_geom_from_dxf(dxf_path: str, elem_id: str = '') -> dict:
             result['panels_A']   = _propagate_laje(
                 [dict(s) for s in panels_B], ls_B, li_B, face_B)
 
+        # 7a. Unidades visuais por face/continuação. Mantém panels_A/B para
+        # compatibilidade, mas expõe o modelo correto para validação N2 vision:
+        # cada label da viga vira uma ficha unitária com seus próprios segmentos.
+        def _build_face_units() -> list:
+            units: list = []
+            units_by_bbox: dict = {}
+
+            def _pontaletes_for_pair(pair: dict) -> list[dict] | int:
+                xl = float(pair.get('x_left', 0.0))
+                xr = float(pair.get('x_right', 0.0))
+                yb = float(pair.get('y_bot', 0.0))
+                yt = float(pair.get('y_top', 0.0))
+                vals = [
+                    {
+                        'x_offset': round(x - xl, 1),
+                        'y_offset': round(y - yb, 1),
+                        'count': count,
+                        'text': _txt,
+                    }
+                    for x, y, count, _txt, _layer, _color, _height in pontalete_txts
+                    if xl - 8.0 <= x <= xr + 8.0 and yb - 8.0 <= y <= yt + 8.0
+                ]
+                for value, (_x, _y, _count, _txt, _layer, _color, _height) in zip(vals, [
+                    item for item in pontalete_txts
+                    if xl - 8.0 <= item[0] <= xr + 8.0 and yb - 8.0 <= item[1] <= yt + 8.0
+                ]):
+                    value['layer'] = _layer
+                    value['color'] = _color
+                    value['height'] = round(_height, 1)
+                if not vals:
+                    return 0
+                return vals
+
+            def _grade_layer_style(pair: dict, segs: list) -> str:
+                if not any(seg.get('panel_type') == 'Grade' for seg in segs):
+                    return 'native'
+                xl = float(pair.get('x_left', 0.0))
+                xr = float(pair.get('x_right', 0.0))
+                yb = float(pair.get('y_bot', 0.0))
+                yt = float(pair.get('y_top', 0.0))
+                has_sarr = any(
+                    not (x2 < xl - 4.0 or x1 > xr + 4.0 or y2 < yb - 4.0 or y1 > yt + 4.0)
+                    for _layer, x1, y1, x2, y2 in sarr_lines
+                )
+                return 'native' if has_sarr else 'paineis'
+
+            def _local_total_height(pair: dict, segs: list, current: float) -> float:
+                """Promove h_total local quando há detalhe de laje/miolo confirmado.
+
+                Algumas unidades trazem h_body pelas H-lines e uma cota total
+                maior no mesmo bloco (ex.: 103 corpo, 124 total). Só aceitamos
+                esse total quando a própria segmentação encontrou slab/laje
+                local, evitando reintroduzir cotas externas como altura.
+                """
+                if not any(
+                    float(seg.get('slab_center', 0) or 0) > 0
+                    or float(seg.get('laje_sup_local', 0) or 0) > 0
+                    or float(seg.get('laje_inf_local', 0) or 0) > 0
+                    for seg in segs
+                ):
+                    return current
+                xl = float(pair.get('x_left', 0.0))
+                xr = float(pair.get('x_right', 0.0))
+                yb = float(pair.get('y_bot', 0.0))
+                yt = float(pair.get('y_top', 0.0))
+                h_body = float(pair.get('h_body', 0.0) or 0.0)
+                if h_body < 80.0:
+                    return current
+                candidates = [
+                    round(v, 1) for cx, cy, v in (cota_txts + panel_num_txts)
+                    if xl - 25.0 <= cx <= xr + 90.0
+                    and yb - 85.0 <= cy <= yt + 95.0
+                    and h_body - 1.0 <= v <= h_body + 60.0
+                    and round(v) not in (all_panel_ws | {b_round})
+                ]
+                if not candidates:
+                    return current
+                return max(float(current or h_body), max(candidates))
+
+            relevant_labels = [
+                (lx, ly, txt, side) for lx, ly, txt, side in face_labels
+                if elem_prefix and elem_prefix in txt.strip().upper()
+            ]
+            relevant_labels.sort(key=lambda t: (-t[1], t[0]))
+            for lx, ly, txt, side in relevant_labels:
+                anchor = (
+                    _find_pair_for_label(lx, ly)
+                    or _infer_anchor_from_row(lx, ly)
+                )
+                if not anchor:
+                    continue
+                anchor_key = (
+                    round(anchor.get('x_left', 0.0), 1),
+                    round(anchor.get('x_right', 0.0), 1),
+                    round(anchor.get('y_bot', 0.0), 1),
+                    round(anchor.get('y_top', 0.0), 1),
+                )
+                anchor_center = (
+                    float(anchor.get('x_left', 0))
+                    + float(anchor.get('x_right', 0))
+                ) / 2
+                for pair in _row_pairs_for_anchor(anchor):
+                    key = (
+                        round(pair.get('x_left', 0.0), 1),
+                        round(pair.get('x_right', 0.0), 1),
+                        round(pair.get('y_bot', 0.0), 1),
+                        round(pair.get('y_top', 0.0), 1),
+                    )
+                    is_named_anchor = key == anchor_key
+                    pair_center = (
+                        float(pair.get('x_left', 0))
+                        + float(pair.get('x_right', 0))
+                    ) / 2
+                    side_distance = abs(pair_center - anchor_center)
+                    if key in units_by_bbox:
+                        existing = units_by_bbox[key]
+                        if (
+                            is_named_anchor
+                            or side_distance < existing.get(
+                                '_side_distance', float('inf'))
+                        ):
+                            existing['side'] = side
+                            existing['_side_distance'] = side_distance
+                        if is_named_anchor and not existing.get('label'):
+                            existing['label'] = txt.strip()
+                            existing['label_x'] = round(lx, 1)
+                            existing['label_y'] = round(ly, 1)
+                            existing['label_source'] = 'text'
+                        continue
+
+                    h_total, ls_u, li_u = _face_heights(pair)
+                    segs_u = _propagate_laje(
+                        _panel_segments(pair), ls_u, li_u, pair)
+                    h_total = _local_total_height(pair, segs_u, h_total)
+                    unit = {
+                        'label': txt.strip() if is_named_anchor else '',
+                        'side': side,
+                        'label_x': round(lx, 1) if is_named_anchor else None,
+                        'label_y': round(ly, 1) if is_named_anchor else None,
+                        'label_source': (
+                            'text' if is_named_anchor else 'row_inference'),
+                        '_side_distance': side_distance,
+                        'bbox': {
+                            'x_left': round(pair.get('x_left', 0.0), 1),
+                            'x_right': round(pair.get('x_right', 0.0), 1),
+                            'y_bot': round(pair.get('y_bot', 0.0), 1),
+                            'y_top': round(pair.get('y_top', 0.0), 1),
+                        },
+                        'h_body': pair.get('h_body', 0.0),
+                        'h_total': (
+                            h_total if h_total > 0
+                            else pair.get('h_body', 0.0)),
+                        'laje_sup': ls_u,
+                        'laje_inf': li_u,
+                        'pontaletes_face': _pontaletes_for_pair(pair),
+                        'grade_layer_style': _grade_layer_style(pair, segs_u),
+                        'segments_count': len(segs_u),
+                        'panels': segs_u,
+                    }
+                    units_by_bbox[key] = unit
+                    units.append(unit)
+            present_sides = {u.get('side') for u in units if u.get('side')}
+            if len(units) >= 2 and len(present_sides) == 1:
+                # Alguns recortes trazem o mesmo sufixo em todas as fileiras
+                # (ex.: V331.B/V331.B). Nesse caso o desenho, nao o texto,
+                # define a ficha A/B: fileira superior = A, inferior = B.
+                row_keys = sorted(
+                    {
+                        round(float((u.get('bbox') or {}).get('y_top', 0.0)) / 8.0) * 8.0
+                        for u in units
+                    },
+                    reverse=True,
+                )
+                row_side = {
+                    row_key: ('A' if idx % 2 == 0 else 'B')
+                    for idx, row_key in enumerate(row_keys)
+                }
+                for unit in units:
+                    bbox = unit.get('bbox') or {}
+                    row_key = round(float(bbox.get('y_top', 0.0)) / 8.0) * 8.0
+                    inferred_side = row_side.get(row_key, unit.get('side'))
+                    unit['side'] = inferred_side
+                    label = unit.get('label') or ''
+                    if label and re.search(r'\.[AB]$', label.strip(), re.IGNORECASE):
+                        unit['label'] = re.sub(
+                            r'\.[AB]$',
+                            f'.{inferred_side}',
+                            label.strip(),
+                            flags=re.IGNORECASE,
+                        )
+
+            for unit in units:
+                unit.pop('_side_distance', None)
+            return units
+
+        result['face_units'] = _build_face_units()
+
         # ── 7b. section_views: múltiplas seções transversais ─────────────────
         # Estratégia A: labels CONT.* no DXF → cada grupo tem faces próprias com h distinto
         # Estratégia B: segmentos com laje diferente da global → seção adicional
@@ -730,6 +1672,12 @@ def _extract_lv_geom_from_dxf(dxf_path: str, elem_id: str = '') -> dict:
             li_b = result.get('laje_inf_B', 0)
             b    = result.get('b_geom', 19.0)
             h_s  = result.get('h_section', 0)
+            h_section_values = [
+                float(v) for v in result.get('h_section_all', [])
+                if isinstance(v, (int, float)) and float(v) > 0
+            ]
+            if not h_section_values and h_s:
+                h_section_values = [float(h_s)]
 
             # View 1: valores primários (face_A/face_B já extraídos)
             views = [{'h_A': h_A, 'h_B': h_B, 'b': b,
@@ -784,9 +1732,28 @@ def _extract_lv_geom_from_dxf(dxf_path: str, elem_id: str = '') -> dict:
                                   'laje_sup_A': float(ls_sa), 'laje_inf_A': float(li_sa),
                                   'laje_sup_B': float(ls_sb), 'laje_inf_B': float(li_sb),
                                   'h_section': h_s, 'label': ''})
+
+            # As cotas da camada "Cota Seção (2x)" podem trazer mais de uma
+            # altura transversal para a mesma viga. Preservar a ordem visual
+            # evita repetir o menor valor em views de continuação.
+            if h_section_values:
+                while len(views) < len(h_section_values):
+                    base = dict(views[-1]) if views else {
+                        'h_A': h_A, 'h_B': h_B, 'b': b,
+                        'laje_sup_A': ls_a, 'laje_inf_A': li_a,
+                        'laje_sup_B': ls_b, 'laje_inf_B': li_b,
+                    }
+                    base['label'] = f'{elem_prefix}_secao_{len(views) + 1}'
+                    views.append(base)
+                for idx, view in enumerate(views):
+                    view['h_section'] = h_section_values[min(idx, len(h_section_values) - 1)]
             return views
 
-        result['section_views'] = _build_section_views()
+        result['section_views'] = (
+            local_section_views
+            if local_section_views
+            else _build_section_views()
+        )
 
         # ── 8. Tipo de viga ───────────────────────────────────────────────────
         all_segs = result['panels_A'] + result['panels_B']
@@ -921,6 +1888,7 @@ def extrair_ficha_lateral_viga(
     result['continuation']  = geom.get('continuation', '')
     result['text_left']     = geom.get('text_left', '')
     result['text_right']    = geom.get('text_right', '')
+    result['face_units']    = geom.get('face_units', [])
     result['panels_A']      = geom.get('panels_A', [])
     result['panels_B']      = geom.get('panels_B', [])
 

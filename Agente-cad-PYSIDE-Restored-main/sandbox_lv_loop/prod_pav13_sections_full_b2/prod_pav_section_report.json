@@ -1,0 +1,320 @@
+{
+  "obra": "Obra_TREINO_1",
+  "pav_label": "13° PAV",
+  "items": [
+    "V312",
+    "V314",
+    "V315",
+    "V316",
+    "V317",
+    "V318",
+    "V319",
+    "V320",
+    "V321",
+    "V322"
+  ],
+  "summary": [
+    {
+      "item": "V312",
+      "ok": true,
+      "recorte_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- LV - R00\\LV_V312_motor_178111332933.dxf",
+      "n2_sections": 1,
+      "n4_sections": 1,
+      "roundtrip_passed": 1,
+      "roundtrip_total": 1,
+      "avg_coarse_visual": 20.3,
+      "min_coarse_visual": 20.3
+    },
+    {
+      "item": "V314",
+      "ok": true,
+      "recorte_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- LV - R00\\LV_V314_motor_178111332943.dxf",
+      "n2_sections": 1,
+      "n4_sections": 1,
+      "roundtrip_passed": 1,
+      "roundtrip_total": 1,
+      "avg_coarse_visual": 18.2,
+      "min_coarse_visual": 18.2
+    },
+    {
+      "item": "V315",
+      "ok": true,
+      "recorte_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- LV - R00\\LV_V315_motor_178111332954.dxf",
+      "n2_sections": 1,
+      "n4_sections": 1,
+      "roundtrip_passed": 1,
+      "roundtrip_total": 1,
+      "avg_coarse_visual": 30.1,
+      "min_coarse_visual": 30.1
+    },
+    {
+      "item": "V316",
+      "ok": true,
+      "recorte_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- LV - R00\\LV_V316_motor_178111332965.dxf",
+      "n2_sections": 1,
+      "n4_sections": 1,
+      "roundtrip_passed": 1,
+      "roundtrip_total": 1,
+      "avg_coarse_visual": 18.0,
+      "min_coarse_visual": 18.0
+    },
+    {
+      "item": "V317",
+      "ok": true,
+      "recorte_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- LV - R00\\LV_V317_motor_178111332975.dxf",
+      "n2_sections": 1,
+      "n4_sections": 1,
+      "roundtrip_passed": 1,
+      "roundtrip_total": 1,
+      "avg_coarse_visual": 29.4,
+      "min_coarse_visual": 29.4
+    },
+    {
+      "item": "V318",
+      "ok": true,
+      "recorte_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- LV - R00\\LV_V318_motor_178111332987.dxf",
+      "n2_sections": 1,
+      "n4_sections": 1,
+      "roundtrip_passed": 1,
+      "roundtrip_total": 1,
+      "avg_coarse_visual": 17.2,
+      "min_coarse_visual": 17.2
+    },
+    {
+      "item": "V319",
+      "ok": true,
+      "recorte_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- LV - R00\\LV_V319_motor_178111332999.dxf",
+      "n2_sections": 1,
+      "n4_sections": 1,
+      "roundtrip_passed": 1,
+      "roundtrip_total": 1,
+      "avg_coarse_visual": 33.6,
+      "min_coarse_visual": 33.6
+    },
+    {
+      "item": "V320",
+      "ok": true,
+      "recorte_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- LV - R00\\LV_V320_motor_178111333024.dxf",
+      "n2_sections": 1,
+      "n4_sections": 1,
+      "roundtrip_passed": 1,
+      "roundtrip_total": 1,
+      "avg_coarse_visual": 24.4,
+      "min_coarse_visual": 24.4
+    },
+    {
+      "item": "V321",
+      "ok": true,
+      "recorte_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- LV - R00\\LV_V321_motor_178111333036.dxf",
+      "n2_sections": 1,
+      "n4_sections": 1,
+      "roundtrip_passed": 1,
+      "roundtrip_total": 1,
+      "avg_coarse_visual": 21.2,
+      "min_coarse_visual": 21.2
+    },
+    {
+      "item": "V322",
+      "ok": true,
+      "recorte_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- LV - R00\\LV_V322_motor_178111333046.dxf",
+      "n2_sections": 1,
+      "n4_sections": 1,
+      "roundtrip_passed": 1,
+      "roundtrip_total": 1,
+      "avg_coarse_visual": 25.4,
+      "min_coarse_visual": 25.4
+    }
+  ],
+  "rows": [
+    {
+      "item": "V312",
+      "view_idx": 1,
+      "n2_png": "sandbox_lv_loop\\prod_pav13_sections_full_b2\\V312\\n2_section_01.png",
+      "n4_png": "sandbox_lv_loop\\prod_pav13_sections_full_b2\\V312\\n4_section_01.png",
+      "visual_metric": {
+        "mask_iou": 0.0218,
+        "density_ratio": 0.5387,
+        "coarse_visual_score": 20.3,
+        "note": "metrica preliminar; veredito final exige inspecao visual do agente"
+      },
+      "roundtrip": {
+        "passed": true,
+        "n4_section_count": 1,
+        "b_cm": 19.0,
+        "h_section": 120.0,
+        "primitives": 94
+      }
+    },
+    {
+      "item": "V314",
+      "view_idx": 1,
+      "n2_png": "sandbox_lv_loop\\prod_pav13_sections_full_b2\\V314\\n2_section_01.png",
+      "n4_png": "sandbox_lv_loop\\prod_pav13_sections_full_b2\\V314\\n4_section_01.png",
+      "visual_metric": {
+        "mask_iou": 0.0382,
+        "density_ratio": 0.4489,
+        "coarse_visual_score": 18.2,
+        "note": "metrica preliminar; veredito final exige inspecao visual do agente"
+      },
+      "roundtrip": {
+        "passed": true,
+        "n4_section_count": 1,
+        "b_cm": 19.0,
+        "h_section": 120.0,
+        "primitives": 100
+      }
+    },
+    {
+      "item": "V315",
+      "view_idx": 1,
+      "n2_png": "sandbox_lv_loop\\prod_pav13_sections_full_b2\\V315\\n2_section_01.png",
+      "n4_png": "sandbox_lv_loop\\prod_pav13_sections_full_b2\\V315\\n4_section_01.png",
+      "visual_metric": {
+        "mask_iou": 0.0203,
+        "density_ratio": 0.8227,
+        "coarse_visual_score": 30.1,
+        "note": "metrica preliminar; veredito final exige inspecao visual do agente"
+      },
+      "roundtrip": {
+        "passed": true,
+        "n4_section_count": 1,
+        "b_cm": 19.0,
+        "h_section": 55.0,
+        "primitives": 66
+      }
+    },
+    {
+      "item": "V316",
+      "view_idx": 1,
+      "n2_png": "sandbox_lv_loop\\prod_pav13_sections_full_b2\\V316\\n2_section_01.png",
+      "n4_png": "sandbox_lv_loop\\prod_pav13_sections_full_b2\\V316\\n4_section_01.png",
+      "visual_metric": {
+        "mask_iou": 0.0422,
+        "density_ratio": 0.4361,
+        "coarse_visual_score": 18.0,
+        "note": "metrica preliminar; veredito final exige inspecao visual do agente"
+      },
+      "roundtrip": {
+        "passed": true,
+        "n4_section_count": 1,
+        "b_cm": 19.0,
+        "h_section": 120.0,
+        "primitives": 84
+      }
+    },
+    {
+      "item": "V317",
+      "view_idx": 1,
+      "n2_png": "sandbox_lv_loop\\prod_pav13_sections_full_b2\\V317\\n2_section_01.png",
+      "n4_png": "sandbox_lv_loop\\prod_pav13_sections_full_b2\\V317\\n4_section_01.png",
+      "visual_metric": {
+        "mask_iou": 0.011,
+        "density_ratio": 0.8185,
+        "coarse_visual_score": 29.4,
+        "note": "metrica preliminar; veredito final exige inspecao visual do agente"
+      },
+      "roundtrip": {
+        "passed": true,
+        "n4_section_count": 1,
+        "b_cm": 19.0,
+        "h_section": 55.0,
+        "primitives": 66
+      }
+    },
+    {
+      "item": "V318",
+      "view_idx": 1,
+      "n2_png": "sandbox_lv_loop\\prod_pav13_sections_full_b2\\V318\\n2_section_01.png",
+      "n4_png": "sandbox_lv_loop\\prod_pav13_sections_full_b2\\V318\\n4_section_01.png",
+      "visual_metric": {
+        "mask_iou": 0.0361,
+        "density_ratio": 0.425,
+        "coarse_visual_score": 17.2,
+        "note": "metrica preliminar; veredito final exige inspecao visual do agente"
+      },
+      "roundtrip": {
+        "passed": true,
+        "n4_section_count": 1,
+        "b_cm": 19.0,
+        "h_section": 120.0,
+        "primitives": 100
+      }
+    },
+    {
+      "item": "V319",
+      "view_idx": 1,
+      "n2_png": "sandbox_lv_loop\\prod_pav13_sections_full_b2\\V319\\n2_section_01.png",
+      "n4_png": "sandbox_lv_loop\\prod_pav13_sections_full_b2\\V319\\n4_section_01.png",
+      "visual_metric": {
+        "mask_iou": 0.0105,
+        "density_ratio": 0.9397,
+        "coarse_visual_score": 33.6,
+        "note": "metrica preliminar; veredito final exige inspecao visual do agente"
+      },
+      "roundtrip": {
+        "passed": true,
+        "n4_section_count": 1,
+        "b_cm": 19.0,
+        "h_section": 55.0,
+        "primitives": 66
+      }
+    },
+    {
+      "item": "V320",
+      "view_idx": 1,
+      "n2_png": "sandbox_lv_loop\\prod_pav13_sections_full_b2\\V320\\n2_section_01.png",
+      "n4_png": "sandbox_lv_loop\\prod_pav13_sections_full_b2\\V320\\n4_section_01.png",
+      "visual_metric": {
+        "mask_iou": 0.0286,
+        "density_ratio": 0.6444,
+        "coarse_visual_score": 24.4,
+        "note": "metrica preliminar; veredito final exige inspecao visual do agente"
+      },
+      "roundtrip": {
+        "passed": true,
+        "n4_section_count": 1,
+        "b_cm": 19.0,
+        "h_section": 120.0,
+        "primitives": 85
+      }
+    },
+    {
+      "item": "V321",
+      "view_idx": 1,
+      "n2_png": "sandbox_lv_loop\\prod_pav13_sections_full_b2\\V321\\n2_section_01.png",
+      "n4_png": "sandbox_lv_loop\\prod_pav13_sections_full_b2\\V321\\n4_section_01.png",
+      "visual_metric": {
+        "mask_iou": 0.0096,
+        "density_ratio": 0.5886,
+        "coarse_visual_score": 21.2,
+        "note": "metrica preliminar; veredito final exige inspecao visual do agente"
+      },
+      "roundtrip": {
+        "passed": true,
+        "n4_section_count": 1,
+        "b_cm": 19.0,
+        "h_section": 55.0,
+        "primitives": 66
+      }
+    },
+    {
+      "item": "V322",
+      "view_idx": 1,
+      "n2_png": "sandbox_lv_loop\\prod_pav13_sections_full_b2\\V322\\n2_section_01.png",
+      "n4_png": "sandbox_lv_loop\\prod_pav13_sections_full_b2\\V322\\n4_section_01.png",
+      "visual_metric": {
+        "mask_iou": 0.0152,
+        "density_ratio": 0.6971,
+        "coarse_visual_score": 25.4,
+        "note": "metrica preliminar; veredito final exige inspecao visual do agente"
+      },
+      "roundtrip": {
+        "passed": true,
+        "n4_section_count": 1,
+        "b_cm": 19.0,
+        "h_section": 120.0,
+        "primitives": 68
+      }
+    }
+  ]
+}

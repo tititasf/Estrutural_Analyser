@@ -188,12 +188,13 @@ class DetailCard(QWidget):
     data_invalidated = Signal(dict)
     element_focused = Signal(object) # (str para nome ou dict para link direto)
     element_removed = Signal(dict)   # (dict com slot e link removido)
-    pick_requested = Signal(str, str) # (field_id, type)
+    pick_requested = Signal(str, object) # (field_id, type/request)
     focus_requested = Signal(str)    # (field_id) disparado pelo botão de lupa
     research_requested = Signal(str, str) # field_id, slot_id
     training_requested = Signal(str, dict) # field_id, train_data
     config_updated = Signal(str, list)      # field_key, slots_config
     data_changed = Signal(dict)           # (dict) disparado quando qualquer dado muda (nome, dim, etc)
+    validation_changed = Signal(dict)     # (dict) mudanca leve: somente estado de validacao/treino
     log_requested = Signal(str)           # (str) pedido de log no console principal
     
     # Estilos CSS Reutilizáveis — usando tokens do design system
@@ -221,15 +222,17 @@ class DetailCard(QWidget):
                 if 'main' in ps and 'segments' not in ps:
                     ps['segments'] = ps.pop('main')
 
-        self.fields = {} 
-        self.indicators = {} 
+        self.fields = {}
+        self.indicators = {}
         self.action_btns = {} # field_id -> { 'link': btn, 'focus': btn, 'na': btn, 'express': btn }
         self.embedded_managers = {}
-        self._tipo_comp_buttons = {}  # Armazena referências aos round buttons de tipo comprimento 
+        self._tipo_comp_buttons = {}  # Armazena referências aos round buttons de tipo comprimento
+        self._link_conf_badges  = {}  # field_id -> QLabel do badge XX% de confiança vínculos
         self.init_ui()
         
         # Conectar sinal interno para auto-atualização do cabeçalho
         self.data_changed.connect(self._update_header_counts)
+        self.validation_changed.connect(self._update_header_counts)
 
     def _scan_local_segments(self):
         """Conta segmentos locais (A, B, C) para exibicao no cabecalho"""
@@ -405,6 +408,29 @@ class DetailCard(QWidget):
             """)
             actions_layout.addWidget(btn_link)
 
+            # Badge de % confiança dos vínculos (entre Vínculos e Validar)
+            _lc = self._calc_field_links_confidence(field_id)
+            _lc_pct = int(_lc * 100)
+            if _lc_pct > 80:
+                _lc_color = '#66bb6a'   # verde
+                _lc_tip   = 'Alta confiança'
+            elif _lc_pct > 40:
+                _lc_color = '#ffa726'   # amarelo/laranja
+                _lc_tip   = 'Confiança média — revisar'
+            else:
+                _lc_color = '#ef5350'   # vermelho
+                _lc_tip   = 'Baixa confiança — verificar vínculos'
+            _lc_lbl = QLabel(f'{_lc_pct}%')
+            _lc_lbl.setFixedHeight(22)
+            _lc_lbl.setStyleSheet(
+                f'color: {_lc_color}; font-size: 9px; font-weight: bold;'
+                f' padding: 0 3px; border: 1px solid {_lc_color};'
+                f' border-radius: 3px;'
+            )
+            _lc_lbl.setToolTip(f'Confiança dos vínculos: {_lc_pct}% — {_lc_tip}')
+            self._link_conf_badges[field_id] = _lc_lbl
+            actions_layout.addWidget(_lc_lbl)
+
         if show_validate:
             btn_express = QPushButton("Validar")
             btn_express.setFixedHeight(22)
@@ -520,7 +546,13 @@ class DetailCard(QWidget):
         current_valid_slots = valid_slots_map.get(field_id, [])
              
         # Create Manager
-        lm = LinkManager(field_id, current_links, na_slots=current_na_slots, validated_slots=current_valid_slots, parent=self)
+        lm = LinkManager(
+            field_id, current_links,
+            na_slots=current_na_slots,
+            validated_slots=current_valid_slots,
+            confidence_map=self.item_data.get('confidence_map', {}),
+            parent=self,
+        )
         self.embedded_managers[field_id] = lm
         
         # Connect Signals (Similar to original dialog logic)
@@ -528,8 +560,12 @@ class DetailCard(QWidget):
         lm.focus_requested.connect(lambda l: self.element_focused.emit(l))
         lm.remove_requested.connect(lambda data: self._remove_link(field_id, data, lm))
         lm.research_requested.connect(lambda s_id: self.research_requested.emit(field_id, s_id))
-        lm.training_requested.connect(lambda t_data: self.training_requested.emit(field_id, t_data))
+        lm.training_requested.connect(lambda t_data: self._on_link_training_requested(field_id, t_data))
         lm.config_changed.connect(lambda k, v: self.config_updated.emit(k, v))
+        lm.link_data_changed.connect(lambda f=field_id: (
+            self._refresh_link_conf_badge(f),
+            self.data_changed.emit(self.item_data),
+        ))
         
         # New Signals for Hierarchy
         lm.slot_na_toggled.connect(lambda s_id, is_na: self._on_slot_na_toggled(field_id, s_id, is_na))
@@ -602,11 +638,26 @@ class DetailCard(QWidget):
                  else:
                      print(f"[DetailCard] AVISO: Link não encontrado para remoção em {slot_id} (Provavelmente removido pelo LinkManager?)")
                 
-            # SEMPRE executa limpeza visual e atualização de labels
-            if field_id in self.item_data.get('validated_fields', []):
-                self.item_data['validated_fields'].remove(field_id)
+            # Se o link sendo removido estava validado, propaga a desvalidação para o slot
+            if link.get('validated'):
+                self._on_link_training_requested(field_id, {
+                    'status': 'removed',
+                    'slot': slot_id,
+                    'link': link,
+                    'light_sync': True
+                })
+                
+            # Verificar se restaram vínculos validados no campo. Se não, desvalida o campo inteiro.
+            has_validated_links = False
+            for s_id, s_links in field_links.items():
+                if any(l.get('validated') for l in s_links):
+                    has_validated_links = True
+                    break
+                    
+            if not has_validated_links and field_id in self.item_data.get('validated_fields', []):
+                self.undo_field_validation(field_id)
             
-            # Recalcular is_validated se necessário
+            # Recalcular is_validated da Ficha inteira
             if not self.item_data.get('validated_fields'):
                 self.item_data['is_validated'] = False
 
@@ -618,7 +669,47 @@ class DetailCard(QWidget):
             self.element_removed.emit({'slot': slot_id, 'link': link})
             dlg.refresh_list()
 
-    def mark_field_validated(self, field_id, is_valid=True):
+    def _on_link_training_requested(self, field_id, t_data):
+        """Intercepta o treino granular do link para propagar (vice-versa) para a validação do campo."""
+        status = t_data.get('status')
+        slot_id = t_data.get('slot')
+        light_sync = bool(t_data.get('light_sync'))
+
+        if not light_sync:
+            # Propaga o evento original apenas quando ha intencao de registrar treino.
+            self.training_requested.emit(field_id, t_data)
+        
+        # Se foi removida a validação de um vínculo, e o slot também estava validado, removemos a do slot
+        if status == 'removed' and slot_id:
+            valid_map = self.item_data.get('validated_link_classes', {})
+            if field_id in valid_map and slot_id in valid_map[field_id]:
+                valid_map[field_id].remove(slot_id)
+                self.validation_changed.emit({
+                    'item': self.item_data,
+                    'field_id': field_id,
+                    'slot_id': slot_id,
+                    'is_valid': False,
+                    'scope': 'slot'
+                })
+                # Atualizar a UI do próprio Header/LinkManager seria necessário, 
+                # mas o refresh_validation_styles pode não dar conta de atualizar o checkbox do Header.
+                # O Header checkbox é gerido por LinkManager._on_slot_validated.
+                # Então avisamos o LinkManager para desmarcar seu header:
+                if field_id in self.embedded_managers:
+                    self.embedded_managers[field_id]._sync_slot_validation_ui(slot_id, False, refresh=not light_sync)
+
+        if light_sync:
+            self.validation_changed.emit({
+                'item': self.item_data,
+                'field_id': field_id,
+                'slot_id': slot_id,
+                'is_valid': status == 'valid',
+                'scope': 'link',
+            })
+        else:
+            self.refresh_validation_styles()
+
+    def mark_field_validated(self, field_id, is_valid=True, emit_data_changed=True):
         """Aplica estilo visual de validação no widget do campo de forma otimizada"""
         validated = self.item_data.setdefault('validated_fields', [])
         
@@ -648,8 +739,17 @@ class DetailCard(QWidget):
         else:
             validated.remove(field_id)
             
+        self._refresh_link_conf_badge(field_id)
         self.refresh_validation_styles()
-        self.data_changed.emit(self.item_data)
+        if emit_data_changed:
+            self.data_changed.emit(self.item_data)
+        else:
+            self.validation_changed.emit({
+                'item': self.item_data,
+                'field_id': field_id,
+                'is_valid': is_valid,
+                'scope': 'field',
+            })
 
     def _on_na_clicked(self, field_id, checked):
         """Gerencia o estado 'Não se Aplica' de um campo com justificativa"""
@@ -777,7 +877,8 @@ class DetailCard(QWidget):
                  'link': target_link,
                  'comment': "Expresso: Validado pelo usuário",
                  'status': "valid",
-                 'propagate': False
+                 'propagate': False,
+                 'ui_refresh': False
              })
 
         # --- SMART VALIDATION CASCADE ---
@@ -822,7 +923,8 @@ class DetailCard(QWidget):
                          'link': current_links[slot_id][0], # Usa o primeiro link como exemplo
                          'comment': f"Smart Validation: Slot {slot_id} validado.",
                          'status': "valid",
-                         'propagate': False
+                         'propagate': False,
+                         'ui_refresh': False
                      })
                  else:
                      # Vazio -> Marca N/A (Não se aplica a este item)
@@ -835,11 +937,12 @@ class DetailCard(QWidget):
                      self.training_requested.emit(field_id, {
                          'status': 'na',
                          'comment': f"Smart Validation: Slot {slot_id} vazio marcado como N/A",
-                         'slot': slot_id
+                         'slot': slot_id,
+                         'ui_refresh': False
                      })
         
         # Marca e atualiza visual
-        self.mark_field_validated(field_id, True)
+        self.mark_field_validated(field_id, True, emit_data_changed=False)
         if field_id == "laje_outline_segs":
             self._record_human_laje_outline_validated()
         
@@ -1034,82 +1137,95 @@ class DetailCard(QWidget):
         validated_fields = set(self.item_data.get('validated_fields', []))
         na_fields = set(self.item_data.get('na_fields', []))
         
-        for fid, w in self.fields.items():
-            if isinstance(w, QButtonGroup): continue
-            
-            is_valid = fid in validated_fields
-            is_na = fid in na_fields
-            
-            # 1. Input Fields (Optimized Stylesheet)
-            if isinstance(w, (QLineEdit, QComboBox)):
-                if not is_na and fid.endswith(('_prof', '_boca', '_dist', '_larg', '_h_sel')):
-                     # Verificar N/A herdado de tabelas de abertura
-                     # Prefixo pai é o fid sem o sufixo
-                     parent_na = False
-                     for suf in ['_prof', '_boca', '_dist', '_larg', '_h_sel']:
-                         if fid.endswith(suf):
-                             parent_id = fid[:-len(suf)]
-                             if parent_id in na_fields:
-                                 is_na = True
-                                 parent_na = True
-                                 break
+        for fid, w in list(self.fields.items()):
+            try:
+                if isinstance(w, QButtonGroup): continue
                 
-                target_style = self.STYLE_NA if is_na else (self.STYLE_VALID if is_valid else self.STYLE_DEFAULT)
-                if w.styleSheet() != target_style:
-                    w.setStyleSheet(target_style)
+                is_valid = fid in validated_fields
+                is_na = fid in na_fields
                 
-                target_enabled = not is_na
-                if w.isEnabled() != target_enabled:
-                    w.setEnabled(target_enabled)
-
-            # 2. Action Buttons
-            btns = self.action_btns.get(fid, {})
-            if btns:
-                for bkey in ['focus', 'express']:
-                    b = btns.get(bkey)
-                    if b and b.isEnabled() == is_na: # Toggle only if needed
-                        b.setEnabled(not is_na)
-                
-                b_na = btns.get('na')
-                if b_na:
-                    if b_na.isChecked() != is_na:
-                        b_na.blockSignals(True)
-                        b_na.setChecked(is_na)
-                        b_na.blockSignals(False)
-            
-            # 3. Linked Labels (hide_input=True)
-            if isinstance(w, QLabel):
-                if is_na:
-                    new_text = "N/A - Não se aplica"
-                    if w.text() != new_text:
-                        w.setText(new_text)
-                        w.setStyleSheet(f"color: {Colors.ACCENT_INFO}; font-weight: bold; font-size: 10px; font-style: italic;")
-                else:
-                    links = self.item_data.get('links', {}).get(fid, {})
-                    count = 0
-                    if isinstance(links, dict):
-                        count = len(links.get('seg_bottom', [])) if fid == 'viga_segs' else sum(len(l) for l in links.values())
-                    elif isinstance(links, list):
-                        count = len(links)
+                # 1. Input Fields (Optimized Stylesheet)
+                if isinstance(w, (QLineEdit, QComboBox)):
+                    if not is_na and fid.endswith(('_prof', '_boca', '_dist', '_larg', '_h_sel')):
+                         # Verificar N/A herdado de tabelas de abertura
+                         # Prefixo pai é o fid sem o sufixo
+                         parent_na = False
+                         for suf in ['_prof', '_boca', '_dist', '_larg', '_h_sel']:
+                             if fid.endswith(suf):
+                                 parent_id = fid[:-len(suf)]
+                                 if parent_id in na_fields:
+                                     is_na = True
+                                     parent_na = True
+                                     break
                     
-                    if is_valid:
-                        txt = f"{count} Vínculo(s) ✅" if count > 0 else "Validado ✅"
-                        if w.text() != txt:
-                            w.setText(txt)
-                            w.setStyleSheet(f"color: {Colors.ACCENT_SUCCESS_ALT}; font-weight: bold; font-size: 11px; background: rgba(0, 204, 102, 26); border: 1px solid {Colors.ACCENT_SUCCESS_ALT}; border-radius: 4px; padding: 2px;")
-                    elif count > 0:
-                        txt = f"{count} Vínculo(s) Ok"
-                        if w.text() != txt:
-                            w.setText(txt)
-                            w.setStyleSheet(f"color: {Colors.ACCENT_SUCCESS_ALT}; font-weight: bold; font-size: 10px;")
-                    else:
-                        if w.text() != "Vínculo Pendente":
-                            w.setText("Vínculo Pendente")
-                            w.setStyleSheet(f"color: {Colors.TEXT_DIM}; font-style: italic; font-size: 10px;")
+                    target_style = self.STYLE_NA if is_na else (self.STYLE_VALID if is_valid else self.STYLE_DEFAULT)
+                    if w.styleSheet() != target_style:
+                        w.setStyleSheet(target_style)
+                    
+                    target_enabled = not is_na
+                    if w.isEnabled() != target_enabled:
+                        w.setEnabled(target_enabled)
 
-            # 4. Indicators
-            if fid in self.indicators:
-                indicator = self.indicators[fid]
+                # 2. Action Buttons
+                btns = self.action_btns.get(fid, {})
+                if btns:
+                    for bkey in ['focus', 'express']:
+                        b = btns.get(bkey)
+                        if b and b.isEnabled() == is_na: # Toggle only if needed
+                            b.setEnabled(not is_na)
+                    
+                    b_valid = btns.get('express')
+                    if b_valid:
+                        if b_valid.isChecked() != is_valid:
+                            b_valid.blockSignals(True)
+                            b_valid.setChecked(is_valid)
+                            b_valid.blockSignals(False)
+
+                    b_na = btns.get('na')
+                    if b_na:
+                        if b_na.isChecked() != is_na:
+                            b_na.blockSignals(True)
+                            b_na.setChecked(is_na)
+                            b_na.blockSignals(False)
+                
+                # 3. Linked Labels (hide_input=True)
+                if isinstance(w, QLabel):
+                    if is_na:
+                        new_text = "N/A - Não se aplica"
+                        if w.text() != new_text:
+                            w.setText(new_text)
+                            w.setStyleSheet(f"color: {Colors.ACCENT_INFO}; font-weight: bold; font-size: 10px; font-style: italic;")
+                    else:
+                        links = self.item_data.get('links', {}).get(fid, {})
+                        count = 0
+                        if isinstance(links, dict):
+                            count = len(links.get('seg_bottom', [])) if fid == 'viga_segs' else sum(len(l) for l in links.values())
+                        elif isinstance(links, list):
+                            count = len(links)
+                        
+                        if is_valid:
+                            txt = f"{count} Vínculo(s) ✅" if count > 0 else "Validado ✅"
+                            if w.text() != txt:
+                                w.setText(txt)
+                                w.setStyleSheet(f"color: {Colors.ACCENT_SUCCESS_ALT}; font-weight: bold; font-size: 11px; background: rgba(0, 204, 102, 26); border: 1px solid {Colors.ACCENT_SUCCESS_ALT}; border-radius: 4px; padding: 2px;")
+                        elif count > 0:
+                            txt = f"{count} Vínculo(s) Ok"
+                            if w.text() != txt:
+                                w.setText(txt)
+                                w.setStyleSheet(f"color: {Colors.ACCENT_SUCCESS_ALT}; font-weight: bold; font-size: 10px;")
+                        else:
+                            if w.text() != "Vínculo Pendente":
+                                w.setText("Vínculo Pendente")
+                                w.setStyleSheet(f"color: {Colors.TEXT_DIM}; font-style: italic; font-size: 10px;")
+            except RuntimeError:
+                pass
+
+        # 4. Indicators
+        for fid, w in list(self.indicators.items()):
+            try:
+                is_valid = fid in validated_fields
+                is_na = fid in na_fields
+                indicator = w
                 if is_na:
                     st = f"color: {Colors.ACCENT_INFO}; font-size: 14px; margin-right: 5px;"
                 elif is_valid:
@@ -1121,13 +1237,18 @@ class DetailCard(QWidget):
                 
                 if indicator.styleSheet() != st:
                     indicator.setStyleSheet(st)
+            except RuntimeError:
+                pass
         
         # Async-like update for LinkManagers
-        for fid, lm in self.embedded_managers.items():
-            if lm.isVisible(): # Optimization: Refresh only if visible
-                lm.na_slots = set(self.item_data.get('na_link_classes', {}).get(fid, []))
-                lm.validated_slots = set(self.item_data.get('validated_link_classes', {}).get(fid, []))
-                lm.refresh_list()
+        for fid, lm in list(self.embedded_managers.items()):
+            try:
+                if lm.isVisible(): # Optimization: Refresh only if visible
+                    lm.na_slots = set(self.item_data.get('na_link_classes', {}).get(fid, []))
+                    lm.validated_slots = set(self.item_data.get('validated_link_classes', {}).get(fid, []))
+                    lm.refresh_list()
+            except RuntimeError:
+                pass
 
     def init_ui(self):
         main_layout = QVBoxLayout(self)
@@ -1155,7 +1276,17 @@ class DetailCard(QWidget):
             h_layout.setSpacing(1)
             
             self._add_linked_row(h_layout, "Nº Item:", "id_item", "text", show_links=False, show_focus=False, show_validate=False, show_na=False)
+            # Tratamento de Nome Especial
+            display_name = self.item_data.get('name', '')
+            itype = self.item_data.get('type', '').lower()
+            if itype == 'viga_fundo_c':
+                if display_name.endswith('-1'):
+                    display_name = display_name[:-2] + '.C'
+                elif not display_name.endswith('.C'):
+                    display_name = display_name + '.C'
+            
             self._add_linked_row(h_layout, "Nome:", "name", "text")
+            self.fields['name'].setText(display_name)
             
             if 'VIGA' in elem_type:
                  itype = self.item_data.get('type', '').lower()
@@ -1357,7 +1488,13 @@ class DetailCard(QWidget):
         self._add_linked_row(form, "Nº Item [id_item]:", "id_item", "text", show_links=False, show_focus=False)
         self._add_linked_row(form, "Nome [name]:", "name", "text")
         self._add_linked_row(form, "Dimensão C×L cm [laje_dim]:", "laje_dim", "text")
+        self._add_linked_row(form, "Visao de Corte [laje_visao_corte]:", "laje_visao_corte", "poly", hide_input=True)
+        self._add_linked_row(form, "Níveis / Lajes Vizinhas [laje_vizinhas_niveis]:", "laje_vizinhas_niveis", "text", hide_input=True)
+        self._add_linked_row(form, "Pilares de Apoio da Laje [laje_pilares_apoio]:", "laje_pilares_apoio", "poly", hide_input=True)
         self._add_linked_row(form, "Nível / Pavimento ex: +2.80 [laje_nivel]:", "laje_nivel", "text")
+        nivel_box = self._build_nivel_detail_box()
+        if nivel_box:
+            form.addRow("", nivel_box)
         self._add_linked_row(form, "Segmentos da Área (Geometria) [laje_outline_segs]:", "laje_outline_segs", "poly", hide_input=True)
         self._add_linked_row(form, "Contorno da Ilha / Obstáculo [laje_islands]:", "laje_islands", "poly", hide_input=True)
 
@@ -1576,12 +1713,19 @@ class DetailCard(QWidget):
                 
                 # Lógica de Carga:
                 existing_indices = set([1]) # Sempre garanta pelo menos o 1
-                for key in self.item_data.keys():
-                    if key.startswith(f"{prefix}_seg_"):
+                all_keys = list(self.item_data.keys())
+                if 'fields' in self.item_data and isinstance(self.item_data['fields'], dict):
+                    all_keys.extend(self.item_data['fields'].keys())
+                if 'links' in self.item_data and isinstance(self.item_data['links'], dict):
+                    all_keys.extend(self.item_data['links'].keys())
+                if 'validated_fields' in self.item_data and isinstance(self.item_data['validated_fields'], list):
+                    all_keys.extend(self.item_data['validated_fields'])
+                    
+                for key in all_keys:
+                    if f"{prefix}_seg_" in key:
                         try:
-                            parts = key.split('_')
-                            idx = int(parts[parts.index('seg') + 1])
-                            existing_indices.add(idx)
+                            idx_str = key.split(f"{prefix}_seg_")[1].split('_')[0]
+                            existing_indices.add(int(idx_str))
                         except: pass
                 
                 for i in sorted(list(existing_indices)):
@@ -1605,12 +1749,19 @@ class DetailCard(QWidget):
                 
                 # Carga de Segmentos Existentes
                 existing_indices = set([1]) # Sempre garanta pelo menos o 1
-                for key in self.item_data.keys():
-                    if key.startswith(f"{prefix}_seg_"):
+                all_keys = list(self.item_data.keys())
+                if 'fields' in self.item_data and isinstance(self.item_data['fields'], dict):
+                    all_keys.extend(self.item_data['fields'].keys())
+                if 'links' in self.item_data and isinstance(self.item_data['links'], dict):
+                    all_keys.extend(self.item_data['links'].keys())
+                if 'validated_fields' in self.item_data and isinstance(self.item_data['validated_fields'], list):
+                    all_keys.extend(self.item_data['validated_fields'])
+                    
+                for key in all_keys:
+                    if f"{prefix}_seg_" in key:
                         try:
-                            parts = key.split('_')
-                            idx = int(parts[parts.index('seg') + 1])
-                            existing_indices.add(idx)
+                            idx_str = key.split(f"{prefix}_seg_")[1].split('_')[0]
+                            existing_indices.add(int(idx_str))
                         except: pass
                 
                 for i in sorted(list(existing_indices)):
@@ -1701,66 +1852,14 @@ class DetailCard(QWidget):
         else:
             side_label = ""  # Fallback (não deveria acontecer neste método)
         
-        # 1. Comprimento Total (Renomeado para "A-comp. total viga para" ou "B-comp. total viga para")
-        # Adicionar round buttons de seleção única entre "passa" e "para"
-        row_layout = QHBoxLayout()
-        row_layout.setContentsMargins(0, 0, 0, 0)
-        
-        # Round button "Para"
-        rb_para = QRadioButton("Para")
-        rb_para.setObjectName(f'{seg_uid}_tipo_comp_para')
-        rb_para.setStyleSheet(f"QRadioButton {{ font-size: 10px; color: {Colors.TEXT_PRIMARY}; padding: 2px; }}")
-        
-        # Round button "Passa"
-        rb_passa = QRadioButton("Passa")
-        rb_passa.setObjectName(f'{seg_uid}_tipo_comp_passa')
-        rb_passa.setStyleSheet(f"QRadioButton {{ font-size: 10px; color: {Colors.TEXT_PRIMARY}; padding: 2px; }}")
-        
-        # ButtonGroup para garantir seleção única
-        btn_group = QButtonGroup()
-        btn_group.addButton(rb_para, 0)  # 0 = Para
-        btn_group.addButton(rb_passa, 1)  # 1 = Passa
-        
-        # Carregar estado salvo
-        tipo_comp_key = f'{seg_uid}_tipo_comp'
-        tipo_salvo = self.item_data.get(tipo_comp_key, 'para')  # Default: 'para'
-        if tipo_salvo == 'passa':
-            rb_passa.setChecked(True)
+        # Campo "Linha Comprimento" — substitui os dois campos separados (Para/Passa)
+        # A chave usada depende do tipo_comp do contexto (subpasta "Vigas Param." ou "Vigas Passam.")
+        _tipo_comp = self.item_data.get('_tipo_comp', 'passa')
+        if _tipo_comp == 'para':
+            linha_comp_key = f'{seg_uid}_comprimento_total'
         else:
-            rb_para.setChecked(True)
-        
-        # Conectar mudanças para salvar
-        def on_tipo_changed(checked):
-            if checked:
-                tipo = 'passa' if btn_group.checkedId() == 1 else 'para'
-                self.item_data[tipo_comp_key] = tipo
-                self._on_field_changed(tipo_comp_key, tipo)
-        
-        rb_para.toggled.connect(on_tipo_changed)
-        rb_passa.toggled.connect(on_tipo_changed)
-        
-        # Armazenar referências para atualização externa
-        if not hasattr(self, '_tipo_comp_buttons'):
-            self._tipo_comp_buttons = {}
-        self._tipo_comp_buttons[seg_uid] = {
-            'group': btn_group,
-            'rb_para': rb_para,
-            'rb_passa': rb_passa,
-            'key': tipo_comp_key
-        }
-        
-        row_layout.addWidget(rb_para)
-        row_layout.addWidget(rb_passa)
-        row_layout.addStretch()
-        
-        # Adicionar row ao form
-        form.addRow("Tipo:", row_layout)
-        
-        # 2. Campo "Comprimento Viga Para"
-        self._add_linked_row(form, "Comprimento Viga Para:", f'{seg_uid}_comprimento_total', "poly")
-        
-        # 3. Campo "Comprimento Viga Passa"
-        self._add_linked_row(form, "Comprimento Viga Passa:", f'{seg_uid}_comp_total_passa', "poly")
+            linha_comp_key = f'{seg_uid}_comp_total_passa'
+        self._add_linked_row(form, "Linha Comprimento:", linha_comp_key, "poly")
         
         # 4. Campo "Ajuste Comprimento"
         # Agora puramente manual, sem botões de ação (Task_02)
@@ -1834,32 +1933,8 @@ class DetailCard(QWidget):
         layout.addWidget(pack)
     
     def update_all_tipo_comp_buttons(self, tipo: str):
-        """
-        Atualiza todos os round buttons de tipo de comprimento (passa/para) para o tipo especificado.
-        tipo: 'passa' ou 'para'
-        """
-        if not hasattr(self, '_tipo_comp_buttons'):
-            return
-        
-        for seg_uid, button_data in self._tipo_comp_buttons.items():
-            btn_group = button_data['group']
-            key = button_data['key']
-            
-            # Atualizar estado do botão (bloquear sinais temporariamente para evitar loops)
-            button_data['rb_para'].blockSignals(True)
-            button_data['rb_passa'].blockSignals(True)
-            
-            if tipo == 'passa':
-                button_data['rb_passa'].setChecked(True)
-            else:
-                button_data['rb_para'].setChecked(True)
-            
-            button_data['rb_para'].blockSignals(False)
-            button_data['rb_passa'].blockSignals(False)
-            
-            # Salvar no item_data
-            self.item_data[key] = tipo
-            self._on_field_changed(key, tipo)
+        """Atualiza o tipo para/passa de contexto do card (substituiu os radio buttons removidos)."""
+        self.item_data['_tipo_comp'] = tipo
 
     def _add_fundo_segment_pack(self, layout, prefix, idx_override=None):
         """Cria um Box Completo de Segmento de Fundo"""
@@ -2032,15 +2107,34 @@ class DetailCard(QWidget):
         layout.removeWidget(widget)
         widget.deleteLater()
         
+        seg_prefix = f"{prefix}_seg_{idx}"
+        
         # Limpar do self.fields para não ser salvo novamente
-        keys_to_remove = [k for k in self.fields.keys() if k.startswith(f"{prefix}_seg_{idx}")]
+        keys_to_remove = [k for k in self.fields.keys() if k.startswith(seg_prefix)]
         for k in keys_to_remove:
             del self.fields[k]
+            
+        # Remover campos da lista de validados
+        validated_fields = self.item_data.get('validated_fields', [])
+        fields_to_unvalidate = [k for k in validated_fields if k.startswith(seg_prefix)]
+        for k in fields_to_unvalidate:
+            self.undo_field_validation(k)
         
-        # Removendo imediatamente do item_data para garantir consistência visual x dados
-        keys_data_remove = [k for k in self.item_data.keys() if k.startswith(f"{prefix}_seg_{idx}")]
+        # Remover metadados e vínculos (links)
+        for data_dict_name in ['links', 'validated_link_classes', 'na_link_classes', 'field_metadata']:
+            data_dict = self.item_data.get(data_dict_name, {})
+            keys_to_delete = [k for k in data_dict.keys() if k.startswith(seg_prefix)]
+            for k in keys_to_delete:
+                del data_dict[k]
+        
+        # Removendo imediatamente do item_data plano para garantir consistência visual x dados
+        keys_data_remove = [k for k in self.item_data.keys() if k.startswith(seg_prefix)]
         for k in keys_data_remove:
             del self.item_data[k]
+            
+        # Recalcular is_validated se necessário
+        if not self.item_data.get('validated_fields'):
+            self.item_data['is_validated'] = False
             
         self.data_changed.emit(self.item_data)
 
@@ -2118,6 +2212,65 @@ class DetailCard(QWidget):
             except Exception: pass
             
         return None
+
+    def _calc_field_links_confidence(self, field_id) -> float:
+        """Confiança dos vínculos de um campo — escala de 0.0 a 1.0.
+
+        Hierarquia por vínculo (maior prioridade primeiro):
+        1. link._link_conf    → valor explícito do analyzer
+        2. link.validated=True ou slot em validated_link_classes → 1.0 (humano confirmou)
+        3. Vínculo presente mas sem confirmação → 0.65 (detectado automaticamente)
+        4. Sem vínculos → 0.0 (nada detectado para este campo)
+        confidence_map[field_id] só é usado se não há vínculos E o mapa tem dado.
+        """
+        links_field = self.item_data.get('links', {}).get(field_id, {})
+        if isinstance(links_field, list):
+            links_field = {'label': links_field}
+        vlc = self.item_data.get('validated_link_classes', {}).get(field_id, [])
+        scores = []
+        if isinstance(links_field, dict):
+            for slot_id, slot_list in links_field.items():
+                for lk in (slot_list or []):
+                    if not isinstance(lk, dict):
+                        continue
+                    if '_link_conf' in lk:
+                        scores.append(float(lk['_link_conf']))
+                    elif lk.get('validated') or slot_id in vlc:
+                        scores.append(1.0)
+                    else:
+                        # Detectado automaticamente mas não confirmado pelo humano
+                        scores.append(0.65)
+        if not scores:
+            # Sem vínculos: usar confidence_map se disponível, senão 0
+            fallback = float(self.item_data.get('confidence_map', {}).get(field_id, 0.0))
+            return fallback
+        return sum(scores) / len(scores)
+
+    def _refresh_link_conf_badge(self, field_id: str) -> None:
+        """Atualiza dinamicamente o badge XX% de um campo após validar/desvalidar."""
+        badge = self._link_conf_badges.get(field_id)
+        if badge is None:
+            return
+        try:
+            lc = self._calc_field_links_confidence(field_id)
+            lc_pct = int(lc * 100)
+            if lc_pct > 80:
+                color = '#66bb6a'
+                tip   = 'Alta confiança'
+            elif lc_pct > 40:
+                color = '#ffa726'
+                tip   = 'Confiança média — revisar'
+            else:
+                color = '#ef5350'
+                tip   = 'Baixa confiança — verificar vínculos'
+            badge.setText(f'{lc_pct}%')
+            badge.setStyleSheet(
+                f'color: {color}; font-size: 9px; font-weight: bold;'
+                f' padding: 0 3px; border: 1px solid {color}; border-radius: 3px;'
+            )
+            badge.setToolTip(f'Confiança dos vínculos: {lc_pct}% — {tip}')
+        except RuntimeError:
+            pass  # widget C++ já deletado
 
     def _create_action_buttons(self):
         # Layout Vertical para economizar largura no painel
@@ -2328,12 +2481,152 @@ class DetailCard(QWidget):
                 pass
 
     def _is_descendant(self, widget, ancestor):
+        b_name = self.item_data.get('name', 'Sem Nome')
+        if override_type != 'viga_lateral':
+            if b_name.endswith('-1'):
+                b_name = b_name[:-2] + '.C'
+            elif not b_name.endswith('.C'):
+                b_name = b_name + '.C'
+                
+        lbl_title.setText(f"Viga {'Lateral' if override_type == 'viga_lateral' else 'Fundo'}: {b_name}")
         """Verifica se widget é descendente de ancestor (para limpeza segura)"""
         p = widget
         while p:
             if p == ancestor: return True
             p = p.parentWidget()
         return False
+
+    def _build_nivel_detail_box(self) -> QFrame | None:
+        """
+        Constrói um box colapsável de detalhes de compreensão para o campo laje_nivel.
+        Lê level_inference do item_data. Retorna None se não houver dados relevantes.
+        """
+        inference = self.item_data.get('level_inference') or {}
+        # Também tenta obter o relatório completo do pavimento se disponível via parent chain
+        nivel_report_entry: dict = {}
+        try:
+            main_win = self.window()
+            if hasattr(main_win, 'get_nivel_report'):
+                nr = main_win.get_nivel_report()
+                slab_name = self.item_data.get('name') or ''
+                nivel_report_entry = (nr.get('lajes') or {}).get(slab_name, {})
+        except Exception:
+            pass
+
+        has_inference = bool(inference)
+        has_entry = bool(nivel_report_entry)
+        if not has_inference and not has_entry:
+            return None
+
+        # ── Container ──────────────────────────────────────────────────────────
+        container = QFrame()
+        container.setObjectName("NivelDetailBox")
+        container_layout = QVBoxLayout(container)
+        container_layout.setContentsMargins(0, 0, 0, 0)
+        container_layout.setSpacing(0)
+
+        # ── Botão toggle ───────────────────────────────────────────────────────
+        toggle_btn = QPushButton("▶  Detalhes de compreensão do Nível")
+        toggle_btn.setCheckable(True)
+        toggle_btn.setChecked(False)
+        toggle_btn.setStyleSheet(
+            f"QPushButton {{ text-align:left; padding:2px 4px; font-size:9px; "
+            f"color:{Colors.ACCENT_MINT}; background:transparent; border:none; }}"
+            f"QPushButton:checked {{ color:{Colors.ACCENT_WARNING_ALT}; }}"
+        )
+        container_layout.addWidget(toggle_btn)
+
+        # ── Painel de detalhes (inicialmente oculto) ───────────────────────────
+        panel = QFrame()
+        panel.setVisible(False)
+        panel.setStyleSheet(
+            f"QFrame {{ background:{Colors.BG_SECONDARY}; "
+            f"border:1px solid {Colors.BORDER_DEFAULT}; border-radius:4px; padding:4px; }}"
+        )
+        panel_layout = QVBoxLayout(panel)
+        panel_layout.setContentsMargins(6, 4, 6, 4)
+        panel_layout.setSpacing(3)
+
+        def _lbl(text: str, color: str = '') -> QLabel:
+            lb = QLabel(text)
+            lb.setWordWrap(True)
+            style = f"font-size:9px; color:{color};" if color else "font-size:9px;"
+            lb.setStyleSheet(style)
+            return lb
+
+        def _conf_color(conf: float) -> str:
+            if conf >= 0.9:
+                return '#4caf50'   # verde
+            if conf >= 0.7:
+                return '#ffc107'   # amarelo
+            if conf >= 0.5:
+                return '#ff9800'   # laranja
+            return '#f44336'       # vermelho
+
+        SOURCE_LABELS = {
+            'human_direct': 'Texto humano vinculado diretamente',
+            'text_label': 'Texto vinculado (não validado)',
+            'cut_view_delta': 'Calculado por delta geométrico do corte',
+            'neighbor_inferred': 'Inferido por consenso de vizinhas',
+            'auto_linked': 'Auto-vinculado (semi-automático)',
+            'unknown': 'Desconhecido — sem fonte detectada',
+        }
+
+        # Dados do relatório (preferência) ou do inference direto
+        source_type = nivel_report_entry.get('source_type') or inference.get('reason') or '—'
+        confidence = float(nivel_report_entry.get('confidence', 0) or inference.get('confidence', 0) or 0)
+        level_str = nivel_report_entry.get('level_str') or inference.get('value') or '—'
+        warnings = nivel_report_entry.get('warnings') or []
+        neighbors = nivel_report_entry.get('neighbors') or {}
+        status = inference.get('status') or ''
+
+        source_label = SOURCE_LABELS.get(source_type, source_type)
+        conf_pct = f"{confidence * 100:.0f}%"
+        conf_color = _conf_color(confidence)
+
+        panel_layout.addWidget(_lbl(f"Fonte: {source_label}"))
+        panel_layout.addWidget(_lbl(f"Nível: {level_str}   |   Confiança: {conf_pct}", conf_color))
+
+        if status and status not in ('inferred',):
+            panel_layout.addWidget(_lbl(f"Status: {status}", '#90a4ae'))
+
+        # Detalhes da inferência
+        inf_reason = inference.get('reason') or ''
+        if inf_reason:
+            panel_layout.addWidget(_lbl(f"Razão: {inf_reason}", '#90a4ae'))
+
+        inf_sources = inference.get('sources') or []
+        if inf_sources:
+            src_names = ', '.join(
+                str(s.get('slab') or s.get('source_slab') or '?')
+                for s in inf_sources[:3]
+                if isinstance(s, dict)
+            )
+            if src_names:
+                panel_layout.addWidget(_lbl(f"Lajes usadas: {src_names}", '#b0bec5'))
+
+        # Vizinhas
+        if neighbors:
+            DIR_MAP = {'north': 'N', 'south': 'S', 'east': 'L', 'west': 'O'}
+            nb_parts = [f"{DIR_MAP.get(d, d)}: {v}" for d, v in neighbors.items()]
+            panel_layout.addWidget(_lbl("Vizinhas: " + ' | '.join(nb_parts), '#78909c'))
+
+        # Warnings
+        for w in warnings:
+            sep = QFrame()
+            sep.setFrameShape(QFrame.HLine)
+            sep.setStyleSheet(f"color:{Colors.BORDER_DEFAULT};")
+            panel_layout.addWidget(sep)
+            panel_layout.addWidget(_lbl(f"⚠  {w}", '#ef9a9a'))
+
+        container_layout.addWidget(panel)
+
+        def _toggle(checked: bool):
+            panel.setVisible(checked)
+            toggle_btn.setText(("▼" if checked else "▶") + "  Detalhes de compreensão do Nível")
+
+        toggle_btn.toggled.connect(_toggle)
+        return container
 
     def _clean_laje_dim_input(self, text):
         """Limpa entrada de dimensão de laje (ex: 'd=12' -> '12')"""
@@ -2596,19 +2889,20 @@ class DetailCard(QWidget):
             field_links = links_dict.get(field_id, {})
             if isinstance(field_links, dict) and slot_id in field_links:
                 for lk in field_links[slot_id]:
-                    # Treinar como válido se ainda não for
-                    if not lk.get('validated'):
-                         self.training_requested.emit(field_id, {
-                             'slot': slot_id, 'link': lk, 'status': 'valid'
-                         })
                     lk['validated'] = True
                     lk.pop('failed', None)
         else:
             # UNDO SLOT
             self.undo_slot_validation(field_id, slot_id)
 
-        self.refresh_validation_styles()
-        self.data_changed.emit(self.item_data)
+        self._refresh_link_conf_badge(field_id)
+        self.validation_changed.emit({
+            'item': self.item_data,
+            'field_id': field_id,
+            'slot_id': slot_id,
+            'is_valid': checked,
+            'scope': 'slot',
+        })
 
     def undo_slot_validation(self, field_id, slot_id):
         """Remove a validação de um slot e seus vínculos (Undo)"""
@@ -2622,17 +2916,11 @@ class DetailCard(QWidget):
         field_links = links_dict.get(field_id, {})
         if isinstance(field_links, dict) and slot_id in field_links:
             for lk in field_links[slot_id]:
-                # Só pedimos remoção se estava validado/erro (para não limpar o que já estava limpo)
-                if lk.get('validated') or lk.get('failed'):
-                    self.training_requested.emit(field_id, {
-                        'slot': slot_id, 'link': lk, 'status': 'removed'
-                    })
                 lk.pop('validated', None)
                 lk.pop('failed', None)
         
-        # Se LM aberto, refresh
         if field_id in self.embedded_managers:
-            self.embedded_managers[field_id].refresh_list()
+            self.embedded_managers[field_id]._sync_slot_validation_ui(slot_id, False, refresh=False)
 
     def undo_field_validation(self, field_id):
         """Desfaz toda a validação de um campo (Undo de alto nível)"""
@@ -2648,8 +2936,14 @@ class DetailCard(QWidget):
                 self.undo_slot_validation(field_id, s_id)
         
         # Reset visual
+        self._refresh_link_conf_badge(field_id)
         self.refresh_validation_styles()
-        self.data_changed.emit(self.item_data)
+        self.validation_changed.emit({
+            'item': self.item_data,
+            'field_id': field_id,
+            'is_valid': False,
+            'scope': 'field_undo',
+        })
         self.log_requested.emit(f"🔄 Validação do campo '{field_id}' desfeita.")
 
     def _on_slot_na_toggled(self, field_id, slot_id, is_na):

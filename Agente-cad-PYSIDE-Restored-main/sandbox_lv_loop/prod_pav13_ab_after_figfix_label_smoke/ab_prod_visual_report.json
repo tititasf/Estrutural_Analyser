@@ -1,0 +1,129 @@
+{
+  "source_dir": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\sandbox_lv_loop\\prod_pav13_sections_arete_gap1800",
+  "summary": [
+    {
+      "item": "V13",
+      "ok": true,
+      "face_units": 2,
+      "units_A": 1,
+      "units_B": 1,
+      "segments": 6,
+      "rendered": 2
+    },
+    {
+      "item": "V310",
+      "ok": true,
+      "face_units": 2,
+      "units_A": 1,
+      "units_B": 1,
+      "segments": 3,
+      "rendered": 2
+    }
+  ],
+  "rows": [
+    {
+      "item": "V13",
+      "unit_idx": 1,
+      "label": "V13.A",
+      "side": "A",
+      "segments": 3,
+      "n2_png": "sandbox_lv_loop\\prod_pav13_ab_after_figfix_label_smoke\\V13\\n2_ab_unit_01_A.png",
+      "n4_png": "sandbox_lv_loop\\prod_pav13_ab_after_figfix_label_smoke\\V13\\n4_units\\n4_face_unit_01_V13_A.png",
+      "visual_metric": {
+        "mask_iou": 0.0708,
+        "density_ratio": 0.7262,
+        "coarse_visual_score": 30.0,
+        "note": "metrica preliminar; veredito final exige inspecao visual do agente"
+      },
+      "fields": {
+        "h_body": 44.0,
+        "h_total": 44.0,
+        "laje_sup": 0.0,
+        "laje_inf": 0.0,
+        "panel_types": [
+          "Sarrafeado"
+        ]
+      }
+    },
+    {
+      "item": "V13",
+      "unit_idx": 2,
+      "label": "V13.B",
+      "side": "B",
+      "segments": 3,
+      "n2_png": "sandbox_lv_loop\\prod_pav13_ab_after_figfix_label_smoke\\V13\\n2_ab_unit_02_B.png",
+      "n4_png": "sandbox_lv_loop\\prod_pav13_ab_after_figfix_label_smoke\\V13\\n4_units\\n4_face_unit_02_V13_B.png",
+      "visual_metric": {
+        "mask_iou": 0.0817,
+        "density_ratio": 0.7587,
+        "coarse_visual_score": 31.9,
+        "note": "metrica preliminar; veredito final exige inspecao visual do agente"
+      },
+      "fields": {
+        "h_body": 44.0,
+        "h_total": 44.0,
+        "laje_sup": 0.0,
+        "laje_inf": 0.0,
+        "panel_types": [
+          "Sarrafeado"
+        ]
+      }
+    },
+    {
+      "item": "V310",
+      "unit_idx": 1,
+      "label": "V310.A",
+      "side": "A",
+      "segments": 1,
+      "n2_png": "sandbox_lv_loop\\prod_pav13_ab_after_figfix_label_smoke\\V310\\n2_ab_unit_01_A.png",
+      "n4_png": "sandbox_lv_loop\\prod_pav13_ab_after_figfix_label_smoke\\V310\\n4_units\\n4_face_unit_01_V310_A.png",
+      "visual_metric": {
+        "mask_iou": 0.0013,
+        "density_ratio": 0.5675,
+        "coarse_visual_score": 19.9,
+        "note": "metrica preliminar; veredito final exige inspecao visual do agente"
+      },
+      "fields": {
+        "h_body": 38.0,
+        "h_total": 38.0,
+        "laje_sup": 0.0,
+        "laje_inf": 0.0,
+        "panel_types": [
+          "Sarrafeado"
+        ]
+      }
+    },
+    {
+      "item": "V310",
+      "unit_idx": 2,
+      "label": "V310.B",
+      "side": "B",
+      "segments": 2,
+      "n2_png": "sandbox_lv_loop\\prod_pav13_ab_after_figfix_label_smoke\\V310\\n2_ab_unit_02_B.png",
+      "n4_png": "sandbox_lv_loop\\prod_pav13_ab_after_figfix_label_smoke\\V310\\n4_units\\n4_face_unit_02_V310_B.png",
+      "visual_metric": {
+        "mask_iou": 0.0603,
+        "density_ratio": 0.5853,
+        "coarse_visual_score": 24.4,
+        "note": "metrica preliminar; veredito final exige inspecao visual do agente"
+      },
+      "fields": {
+        "h_body": 40.0,
+        "h_total": 40.0,
+        "laje_sup": 0.0,
+        "laje_inf": 0.0,
+        "panel_types": [
+          "Sarrafeado"
+        ]
+      }
+    }
+  ],
+  "totals": {
+    "items": 2,
+    "units_rendered": 4,
+    "avg_coarse_visual": 26.5,
+    "min_coarse_visual": 19.9,
+    "missing_A": [],
+    "missing_B": []
+  }
+}

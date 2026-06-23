@@ -757,6 +757,19 @@ class DatabaseManager:
                         item_code,
                         source="structural_analyzer",
                     )
+                    class NumpyEncoder(json.JSONEncoder):
+                        def default(self, obj):
+                            import numpy as np
+                            if isinstance(obj, np.integer):
+                                return int(obj)
+                            if isinstance(obj, np.floating):
+                                return float(obj)
+                            if isinstance(obj, np.ndarray):
+                                return obj.tolist()
+                            if isinstance(obj, np.bool_):
+                                return bool(obj)
+                            return super(NumpyEncoder, self).default(obj)
+
                     conn.execute(
                         """
                         INSERT INTO fase3_fichas
@@ -778,10 +791,10 @@ class DatabaseManager:
                             dados["_ficha"]["pavimento"],
                             cls,
                             str(item_code),
-                            json.dumps(dados, ensure_ascii=False),
+                            json.dumps(dados, ensure_ascii=False, cls=NumpyEncoder),
                             float(item.get("confidence", item.get("confianca", 0.0)) or 0.0),
                             0,
-                            json.dumps(item.get("dna_vector", []), ensure_ascii=False),
+                            json.dumps(item.get("dna_vector", []), ensure_ascii=False, cls=NumpyEncoder),
                         ),
                     )
                     saved += 1
@@ -1182,8 +1195,9 @@ class DatabaseManager:
         'id_item', 'is_validated', 'pkl_path', 'extra_data_json',
     })
 
-    def save_pillar(self, p: Dict[str, Any], project_id: str):
-        """Salva ou atualiza um pilar (UPSERT) vinculado a um projeto com proteção de dados validados."""
+    def save_pillar(self, p: Dict[str, Any], project_id: str, trust_current_validation: bool = False):
+        """Salva ou atualiza um pilar (UPSERT) vinculado a um projeto com proteção de dados validados.
+        trust_current_validation=True: usa estado atual como autoritativo (ação do usuário, não merge)."""
         conn = self._get_conn()
         cursor = conn.cursor()
 
@@ -1192,8 +1206,7 @@ class DatabaseManager:
             p_id = str(p.get('id', ''))
             cursor.execute('SELECT extra_data_json, validated_fields_json, na_fields_json, is_validated FROM pillars WHERE id = ?', (p_id,))
             row = cursor.fetchone()
-            if row:
-                import json
+            if row and not trust_current_validation:
                 old_extra = json.loads(row[0]) if row[0] else {}
                 val_fields = json.loads(row[1]) if row[1] else []
                 if val_fields:
@@ -1201,11 +1214,11 @@ class DatabaseManager:
                     for vf in val_fields:
                         if vf in old_extra:
                             p[vf] = old_extra[vf]
-                            
+
                 na_fields = json.loads(row[2]) if row[2] else []
                 if na_fields:
                     p['na_fields'] = list(set(p.get('na_fields', []) + na_fields))
-                    
+
                 if row[3]:
                     p['is_validated'] = True
             # ------------------------------------------------
@@ -1351,17 +1364,22 @@ class DatabaseManager:
         'id_item', 'is_validated', 'pkl_path', 'extra_data_json',
     })
 
-    def save_slab(self, s: Dict[str, Any], project_id: str):
-        """Salva uma laje vinculada ao projeto com proteção de dados validados."""
+    def save_slab(self, s: Dict[str, Any], project_id: str, trust_current_validation: bool = False):
+        """Salva uma laje vinculada ao projeto com proteção de dados validados.
+        trust_current_validation=True: usa estado atual como autoritativo (ação do usuário, não merge)."""
         conn = self._get_conn()
         cursor = conn.cursor()
         try:
             # --- LÓGICA DE PRESERVAÇÃO DE DADOS VALIDADOS ---
             s_id = str(s.get('id', ''))
-            cursor.execute('SELECT extra_data_json, validated_fields_json, na_fields_json, is_validated FROM slabs WHERE id = ?', (s_id,))
+            cursor.execute(
+                'SELECT extra_data_json, validated_fields_json, na_fields_json, '
+                'is_validated, validated_link_classes_json, na_link_classes_json '
+                'FROM slabs WHERE id = ?',
+                (s_id,)
+            )
             row = cursor.fetchone()
-            if row:
-                import json
+            if row and not trust_current_validation:
                 old_extra = json.loads(row[0]) if row[0] else {}
                 val_fields = json.loads(row[1]) if row[1] else []
                 if val_fields:
@@ -1369,11 +1387,29 @@ class DatabaseManager:
                     for vf in val_fields:
                         if vf in old_extra:
                             s[vf] = old_extra[vf]
-                            
+
                 na_fields = json.loads(row[2]) if row[2] else []
                 if na_fields:
                     s['na_fields'] = list(set(s.get('na_fields', []) + na_fields))
-                    
+
+                old_val_links = json.loads(row[4]) if len(row) > 4 and row[4] else {}
+                if isinstance(old_val_links, dict) and old_val_links:
+                    new_val_links = s.setdefault('validated_link_classes', {})
+                    if isinstance(new_val_links, dict):
+                        for field_id, slots in old_val_links.items():
+                            merged = set(new_val_links.get(field_id, []) or [])
+                            merged.update(slots or [])
+                            new_val_links[field_id] = list(merged)
+
+                old_na_links = json.loads(row[5]) if len(row) > 5 and row[5] else {}
+                if isinstance(old_na_links, dict) and old_na_links:
+                    new_na_links = s.setdefault('na_link_classes', {})
+                    if isinstance(new_na_links, dict):
+                        for field_id, slots in old_na_links.items():
+                            merged = set(new_na_links.get(field_id, []) or [])
+                            merged.update(slots or [])
+                            new_na_links[field_id] = list(merged)
+
                 if row[3]:
                     s['is_validated'] = True
             # ------------------------------------------------
@@ -1473,57 +1509,114 @@ class DatabaseManager:
         finally:
             conn.close()
 
-    def save_beam(self, b: Dict[str, Any], project_id: str):
-        """Salva uma viga vinculada ao projeto com proteção de dados validados."""
+    def save_beam(self, b: Dict[str, Any], project_id: str, trust_current_validation: bool = False):
+        """Salva uma viga vinculada ao projeto com proteção de dados validados.
+        trust_current_validation=True: usa estado atual como autoritativo (ação do usuário, não merge)."""
         conn = self._get_conn()
         cursor = conn.cursor()
         try:
             # --- LÓGICA DE PRESERVAÇÃO DE DADOS VALIDADOS ---
             cursor.execute('SELECT data_json FROM beams WHERE id = ?', (b['id'],))
             row = cursor.fetchone()
-            if row:
-                import json, re
+            if row and not trust_current_validation:
+                import re
                 old_b = json.loads(row[0])
                 val_fields = old_b.get('validated_fields', [])
                 
                 if val_fields:
                     b['validated_fields'] = list(set(b.get('validated_fields', []) + val_fields))
                     
-                    # Restaura os valores numéricos/textuais dos campos validados
-                    for vf in val_fields:
-                        if vf in old_b.get('fields', {}):
-                            if 'fields' not in b: b['fields'] = {}
-                            b['fields'][vf] = old_b['fields'][vf]
-                            
-                    # Restaura os vínculos gráficos (links) de segmentos inteiros se algum campo do segmento foi validado
+                    # 1. Mapear prefixos de segmentos que possuem algo validado
                     val_prefixes = set()
                     for vf in val_fields:
                         m = re.match(r'(.*_seg_\d+)', vf)
                         if m:
                             val_prefixes.add(m.group(1))
                             
+                    # 2. Restaurar campos do nível raiz E do dicionário 'fields'
+                    for vf in val_fields:
+                        if vf in old_b:
+                            b[vf] = old_b[vf]
+                        if 'fields' in old_b and vf in old_b['fields']:
+                            b.setdefault('fields', {})[vf] = old_b['fields'][vf]
+                            
+                    # 3. Restaurar TODOS os dados (campos, chaves, etc) para segmentos validados
+                    for pfx in val_prefixes:
+                        # Varre chaves raiz
+                        for k, v in old_b.items():
+                            if k.startswith(pfx):
+                                b[k] = v
+                        # Varre dicionário fields
+                        if 'fields' in old_b:
+                            for k, v in old_b['fields'].items():
+                                if k.startswith(pfx):
+                                    b.setdefault('fields', {})[k] = v
+                                    
+                        # Preservar field_metadata
+                        if 'field_metadata' in old_b:
+                            for k, v in old_b['field_metadata'].items():
+                                if k.startswith(pfx):
+                                    b.setdefault('field_metadata', {})[k] = v
+
+                    # 4. Restaura os vínculos gráficos (links)
                     if val_prefixes and 'links' in old_b:
-                        if 'links' not in b: b['links'] = {}
+                        b.setdefault('links', {})
                         for link_key, link_val in old_b['links'].items():
-                            for prefix in val_prefixes:
-                                if link_key.startswith(prefix):
-                                    b['links'][link_key] = link_val
-                                    break
+                            if any(link_key.startswith(p) for p in val_prefixes) or link_key in val_fields:
+                                # Previne que vínculos vazios antigos (oriundos de bugs) sobrescrevam novos gerados
+                                if isinstance(link_val, dict) and 'contour' in link_val:
+                                    if not link_val['contour'] and link_key in b['links'] and b['links'][link_key].get('contour'):
+                                        continue # Mantém o novo que não está vazio
+                                b['links'][link_key] = link_val
                                     
                 # Preserva NA fields
                 na_fields = old_b.get('na_fields', [])
                 if na_fields:
                     b['na_fields'] = list(set(b.get('na_fields', []) + na_fields))
+
+                old_val_links = old_b.get('validated_link_classes', {})
+                if isinstance(old_val_links, dict) and old_val_links:
+                    new_val_links = b.setdefault('validated_link_classes', {})
+                    if isinstance(new_val_links, dict):
+                        for field_id, slots in old_val_links.items():
+                            merged = set(new_val_links.get(field_id, []) or [])
+                            merged.update(slots or [])
+                            new_val_links[field_id] = list(merged)
+
+                old_na_links = old_b.get('na_link_classes', {})
+                if isinstance(old_na_links, dict) and old_na_links:
+                    new_na_links = b.setdefault('na_link_classes', {})
+                    if isinstance(new_na_links, dict):
+                        for field_id, slots in old_na_links.items():
+                            merged = set(new_na_links.get(field_id, []) or [])
+                            merged.update(slots or [])
+                            new_na_links[field_id] = list(merged)
                     
                 # Preserva is_validated da viga inteira
                 if old_b.get('is_validated'):
                     b['is_validated'] = True
             # ------------------------------------------------
 
-            import json
+            class NumpyEncoder(json.JSONEncoder):
+                def default(self, obj):
+                    import numpy as np
+                    if isinstance(obj, np.integer):
+                        return int(obj)
+                    if isinstance(obj, np.floating):
+                        return float(obj)
+                    if isinstance(obj, np.ndarray):
+                        return obj.tolist()
+                    if isinstance(obj, np.bool_):
+                        return bool(obj)
+                    return super(NumpyEncoder, self).default(obj)
+
+            # Nenhuma chave efêmera a filtrar — _tipo_comp é persistido intencionalmente
+            # (permite restaurar último modo Para/Passa ao reabrir o card)
+            b_to_save = dict(b)
+
             cursor.execute('''
                 INSERT INTO beams (
-                    id, project_id, name, data_json, 
+                    id, project_id, name, data_json,
                     validated_fields_json, validated_link_classes_json,
                     na_fields_json, na_link_classes_json, na_reasons_json,
                     id_item, is_validated, pkl_path
@@ -1542,9 +1635,9 @@ class DatabaseManager:
                     is_validated=excluded.is_validated,
                     pkl_path=excluded.pkl_path
             ''', (
-                b['id'], project_id, b.get('name'), 
-                json.dumps(b), 
-                json.dumps(b.get('validated_fields', [])),
+                b['id'], project_id, b.get('name'),
+                json.dumps(b_to_save, cls=NumpyEncoder),
+                json.dumps(b.get('validated_fields', []), cls=NumpyEncoder),
                 json.dumps(b.get('validated_link_classes', {})),
                 json.dumps(b.get('na_fields', [])),
                 json.dumps(b.get('na_link_classes', {})),

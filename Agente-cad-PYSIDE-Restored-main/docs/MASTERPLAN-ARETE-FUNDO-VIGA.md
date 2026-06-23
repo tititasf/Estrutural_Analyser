@@ -51,6 +51,9 @@ simultaneamente com outra sessão.
 - **Aberturas:** onde um pilar atravessa a viga → segmento com gap (`pillar_left`/`pillar_right`).
 - **Escoras:** suportes da fôrma do fundo.
 - Painéis modulados (padrão ~244cm); `holes` = aberturas na fôrma.
+- **Prefichas e Obstáculos Visuais (AUXÍLIO INFORMACIONAL PARA TREINO/LOOP):** O motor reverso e a análise geral N1 precisam distinguir obstáculos reais de desenhos apenas visuais no DXF.
+  - **Pilares (NASCE):** Pilares "Nasce" sobre a viga e anomalias de geometria visual não cortam o fundo da viga; devem ser transpassados (bridging).
+  - **Visão Corte de Vigas:** Representações de vigas cruzando transversalmente (VISAO_CORTE) são ignoradas como interrupção física do fundo. O segmento do fundo da viga continua direto por baixo do corte visual.
 
 ---
 

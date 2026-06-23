@@ -1,0 +1,25 @@
+{
+  "stage": "60",
+  "summary": "Contagem VC parece correta, mas h_section da segunda VC diverge e segmentos A/B nao pareiam.",
+  "diffs": [
+    {
+      "path": "section_views[2].h_section",
+      "extractor": 55.0,
+      "vision": 120.0,
+      "severity": "high",
+      "note": "visual/DXF text support"
+    },
+    {
+      "path": "segments_A_vs_B.count_balance",
+      "extractor": 13,
+      "vision": 12,
+      "severity": "high",
+      "note": "A/B nao pareiam nesta extracao; precisa validacao por unidade"
+    }
+  ],
+  "next_actions": [
+    "Criar crop/bbox unitario para cada face/continuidade.",
+    "Corrigir associacao de section_views no motor_reverso_lv.",
+    "Reexecutar V301 e comparar se h_section_all preserva 55 e 120."
+  ]
+}

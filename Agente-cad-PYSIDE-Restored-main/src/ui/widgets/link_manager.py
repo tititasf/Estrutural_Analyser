@@ -1,4 +1,4 @@
-import json
+﻿import json
 import logging
 import uuid
 from PySide6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel, 
@@ -14,12 +14,13 @@ class LinkManager(QWidget):
     """
     focus_requested = Signal(dict)
     remove_requested = Signal(dict)
-    pick_requested = Signal(str) # slot_id|role
+    pick_requested = Signal(object) # slot_id|role ou dict de sub-vinculo
     research_requested = Signal(str) # slot_id
     element_removed = Signal(dict)
     training_requested = Signal(dict) # {slot, link, comment, status}
     config_changed = Signal(str, list) # field_key, updated_slots_config
     metadata_changed = Signal(str, str, dict) # slot_id, type="interpretation", data={prompt, patterns}
+    link_data_changed = Signal()
     
     # New Signals for Hierarchy Validation
     slot_validated = Signal(str, bool) # slot_id, checked
@@ -146,9 +147,20 @@ class LinkManager(QWidget):
              {'id': 'label', 'name': 'Vínculo de Texto (Dimensão)', 'type': 'text', 'prompt': 'Busque o texto de dimensão (Ex: H=12).', 'help': 'Texto identificador da espessura/dimensão da laje.', 'patterns': 'REGEX: [HhDd][= :]?\\d+\nExemplos: H=12, d=10, h=15\nLayer: ARQ_TXT_LAJE'}
         ],
         '_laje_level': [
-             {'id': 'label', 'name': 'Vínculo Texto (Nível)', 'type': 'text', 'prompt': 'Busque o texto de nível da laje (Ex: +2.80).', 'help': 'Cota de nível da laje.', 'patterns': 'REGEX: [+-]?\\d+\\.\\d+|[+-]?\\d+\nExemplos: +2.80, 280, N+2.80\nPrioridade: Texto próximo ao centro.'},
-             {'id': 'cut_view_geom', 'name': 'Visão de Corte (Geometria)', 'type': 'poly', 'prompt': 'Desenhe a referência de visão de corte da viga que contorna a laje. [Enter] para finalizar.', 'help': 'Referência geométrica de viga para definir o nível.'},
-             {'id': 'cut_view_text', 'name': 'Visao corte texto', 'type': 'text', 'prompt': 'Busque textos de visão de corte.', 'help': 'Vínculo de texto normal, similar ao nível.', 'patterns': 'Texto indicando corte ou vista.'}
+             {'id': 'label', 'name': 'Vinculo Texto (Nivel)', 'type': 'text', 'prompt': 'Busque o texto de nivel proprio da laje (Ex: +2.80).', 'help': 'Cota de nivel textual da propria laje. Nao use geometria de corte aqui.', 'patterns': 'REGEX: [+-]?\\d+\\.\\d+|[+-]?\\d+\nExemplos: +2.80, 280, N+2.80\nPrioridade: texto proprio da laje.'}
+        ],
+        '_laje_cut_view': [
+             {'id': 'cut_view_geom', 'name': 'Visao de Corte (Geometria)', 'type': 'poly', 'prompt': 'Desenhe a geometria da visao de corte da viga que toca/contorna a laje. [Enter] para finalizar.', 'help': 'Referencia geometrica de corte/desnivel usada antes do nivel textual para inferir contexto.'}
+        ],
+        '_laje_neighbor_levels': [
+             {'id': 'neighbor_north', 'name': '↑ Vizinha Norte', 'type': 'text', 'prompt': 'Vincule nomes, alturas ou niveis da laje vizinha ao norte.', 'help': 'Textos de consciencia contextual da laje vizinha ao norte.'},
+             {'id': 'neighbor_east', 'name': '→ Vizinha Leste', 'type': 'text', 'prompt': 'Vincule nomes, alturas ou niveis da laje vizinha ao leste.', 'help': 'Textos de consciencia contextual da laje vizinha ao leste.'},
+             {'id': 'neighbor_west', 'name': '← Vizinha Oeste', 'type': 'text', 'prompt': 'Vincule nomes, alturas ou niveis da laje vizinha ao oeste.', 'help': 'Textos de consciencia contextual da laje vizinha ao oeste.'},
+             {'id': 'neighbor_south', 'name': '↓ Vizinha Sul', 'type': 'text', 'prompt': 'Vincule nomes, alturas ou niveis da laje vizinha ao sul.', 'help': 'Textos de consciencia contextual da laje vizinha ao sul.'}
+        ],
+        '_laje_support_pillars': [
+             {'id': 'pillar_geom', 'name': 'Geometria dos Pilares de Apoio', 'type': 'poly', 'prompt': 'Desenhe a geometria dos pilares que apoiam/tocam a laje. [Enter] para finalizar.', 'help': 'Pilares retangulares, circulares, L, U ou T. Separado de visao de corte.'},
+             {'id': 'pillar_label', 'name': 'Texto/Nome do Pilar', 'type': 'text', 'prompt': 'Busque o texto do pilar de apoio (ex: P21).', 'help': 'Identificador textual do pilar de apoio da laje.'}
         ],
         '_laje_islands': [
              {'id': 'contour', 'name': 'Contorno da Ilha', 'type': 'poly', 'prompt': 'Desenhe o contorno da ilha (polígono fechado). [Enter] para finalizar.', 'help': 'Define a geometria do furo interno.'}
@@ -203,13 +215,14 @@ class LinkManager(QWidget):
         ]
     }
 
-    def __init__(self, field_id, current_links, na_slots=None, validated_slots=None, parent=None):
+    def __init__(self, field_id, current_links, na_slots=None, validated_slots=None,
+                 confidence_map=None, parent=None):
         super().__init__(parent)
         self.field_id = field_id
-        # links agora é um dicionário: {slot_id: [links...]}
         self.links = current_links if isinstance(current_links, dict) else {}
         self.na_slots = set(na_slots) if na_slots else set()
         self.validated_slots = set(validated_slots) if validated_slots else set()
+        self.confidence_map = confidence_map or {}
         self.metadata_cache = {}
         self.init_ui()
 
@@ -226,6 +239,12 @@ class LinkManager(QWidget):
              return self.SLOT_CONFIG['_fundo_segs']
         if 'laje_dim' in field_id or ('dim' in field_id and 'laje' in field_id):
              return self.SLOT_CONFIG['_laje_dim']
+        if 'laje_visao_corte' in field_id:
+             return self.SLOT_CONFIG['_laje_cut_view']
+        if 'laje_vizinhas_niveis' in field_id:
+             return self.SLOT_CONFIG['_laje_neighbor_levels']
+        if 'laje_pilares_apoio' in field_id:
+             return self.SLOT_CONFIG['_laje_support_pillars']
         if 'laje_nivel' in field_id:
              return self.SLOT_CONFIG['_laje_level']
         
@@ -388,14 +407,14 @@ class LinkManager(QWidget):
             }}
             QPushButton.ActionBtn {{
                 background: transparent;
-                border: 1px solid {Colors.BORDER_SUBTLE};
-                color: {Colors.TEXT_MUTED};
+                border: 1px solid {Colors.ACCENT_INFO};
+                color: {Colors.ACCENT_INFO};
                 padding: 1px 4px;
             }}
             QPushButton.ActionBtn:hover {{
-                background: {Colors.BG_CARD};
-                color: {Colors.TEXT_BRIGHT};
-                border-color: {Colors.BORDER_INPUT};
+                background: {Colors.ACCENT_INFO};
+                color: {Colors.BG_DEEP};
+                border-color: {Colors.ACCENT_INFO};
             }}
             QPushButton.DelBtn {{
                 background: transparent;
@@ -617,17 +636,46 @@ class LinkManager(QWidget):
                     else:
                         link_frame.setProperty("class", "LinkItem")
                         
-                    lf_layout = QHBoxLayout(link_frame)
+                    lf_layout = QVBoxLayout(link_frame)
+                    lf_layout.setContentsMargins(4, 3, 4, 3)
+                    lf_layout.setSpacing(3)
+                    top_layout = QHBoxLayout()
+                    top_layout.setContentsMargins(0, 0, 0, 0)
                     
                     val_text = str(link.get('text', 'Geometria'))
                     if len(val_text) > 30: val_text = val_text[:27] + "..."
-                    
+
                     val_lbl = QLabel(val_text)
                     val_lbl.setProperty("class", "LinkValue")
-                    
+
+                    # Badge de confiança individual do vínculo
+                    _fb = float(self.confidence_map.get(self.field_id, 0.0))
+                    if '_link_conf' in link:
+                        _lc = float(link['_link_conf'])
+                    elif link.get('validated') or slot_id in self.validated_slots:
+                        _lc = 1.0
+                    elif _fb > 0:
+                        _lc = _fb
+                    else:
+                        # Presente mas sem confidence explícita → detectado automaticamente
+                        _lc = 0.65
+                    _lc_pct = int(_lc * 100)
+                    if _lc_pct > 80:
+                        _lc_col = '#66bb6a'
+                    elif _lc_pct > 40:
+                        _lc_col = '#ffa726'
+                    else:
+                        _lc_col = '#ef5350'
+                    conf_lbl = QLabel(f'{_lc_pct}%')
+                    conf_lbl.setStyleSheet(
+                        f'color:{_lc_col}; font-size:9px; font-weight:bold;'
+                        f' padding:0 3px; border:1px solid {_lc_col}; border-radius:3px;'
+                    )
+                    conf_lbl.setToolTip(f'Confiança deste vínculo: {_lc_pct}%')
+
                     btn_focus = QPushButton("Zoom")
                     btn_focus.setProperty("class", "ActionBtn")
-                    btn_focus.clicked.connect(lambda checked=False, l=link: self.focus_requested.emit(l))
+                    btn_focus.clicked.connect(lambda checked=False, l=link, s_id=slot_id: self._emit_focus_link(l, s_id))
                     
                     btn_del = QPushButton("Excluir")
                     btn_del.setProperty("class", "DelBtn")
@@ -654,8 +702,9 @@ class LinkManager(QWidget):
                         
                     btn_err.clicked.connect(lambda checked, s=slot_id, l=link: self._handle_training_click(s, l, 'fail'))
 
-                    lf_layout.addWidget(val_lbl, 1)
-                    
+                    top_layout.addWidget(val_lbl, 1)
+                    top_layout.addWidget(conf_lbl)
+
                     # Horizontal Action Stack for "Text Buttons"
                     actions_h = QHBoxLayout()
                     actions_h.setSpacing(2)
@@ -666,7 +715,11 @@ class LinkManager(QWidget):
                     actions_h.addWidget(btn_err)
                     actions_h.addWidget(btn_del)
                     
-                    lf_layout.addLayout(actions_h)
+                    top_layout.addLayout(actions_h)
+                    lf_layout.addLayout(top_layout)
+                    ficha_widget = self._build_link_ficha(link, slot_id)
+                    if ficha_widget:
+                        lf_layout.addWidget(ficha_widget)
                     
                     sf_layout.addWidget(link_frame)
 
@@ -700,6 +753,165 @@ class LinkManager(QWidget):
     def _on_pick_clicked(self, slot):
         # Transmite o pedido de captura para o DetailCard -> MainWindow
         self.pick_requested.emit(f"{slot['id']}|{slot['type']}")
+
+    def _emit_focus_link(self, link, slot_id):
+        payload = dict(link) if isinstance(link, dict) else {'value': link}
+        payload['_field_id'] = self.field_id
+        payload['_slot_name'] = slot_id
+        self.focus_requested.emit(payload)
+
+    def _direction_arrow(self, value: str) -> str:
+        text = (value or '').strip().lower()
+        if text.startswith('n'): return '↑'
+        if text.startswith('s'): return '↓'
+        if text.startswith('l') or text.startswith('e'): return '→'
+        if text.startswith('o') or text.startswith('w'): return '←'
+        return '•'
+
+    def _ficha_fields_for_link(self, slot_id):
+        if self.field_id == 'laje_visao_corte' and slot_id == 'cut_view_geom':
+            return [
+                ('direction', 'Direcao', 'Norte/Sul/Leste/Oeste', False, 'text'),
+                ('own_position', 'Laje atual posicao', 'topo/fundo/centro', False, 'text'),
+                ('own_dist_bottom', 'Laje atual dist. fundo', 'cm', False, 'text'),
+                ('own_dist_top', 'Laje atual dist. topo', 'cm', False, 'text'),
+                ('own_height', 'Laje atual altura', 'h cm', True, 'text'),
+                ('neighbor_position', 'Laje vizinha posicao', 'topo/fundo/centro', False, 'text'),
+                ('neighbor_dist_bottom', 'Vizinha dist. fundo', 'cm', False, 'text'),
+                ('neighbor_dist_top', 'Vizinha dist. topo', 'cm', False, 'text'),
+                ('neighbor_height', 'Vizinha altura', 'h cm', True, 'text'),
+                ('beam_name', 'Nome da viga', 'Vxxx', True, 'text'),
+                ('beam_bottom_dim', 'Dimensao fundo viga', 'largura/fundo', True, 'text'),
+                ('beam_height', 'Altura viga', 'h', True, 'text'),
+                ('beam_lajes_side_a', 'Lajes lado A', 'qtd/texto', False, 'text'),
+                ('beam_lajes_side_b', 'Lajes lado B', 'qtd/texto', False, 'text'),
+                ('side_a_laje_name', 'Lado A nome laje', 'Lxxx', True, 'text'),
+                ('side_a_laje_height', 'Lado A altura laje', 'h', True, 'text'),
+                ('side_b_laje_name', 'Lado B nome laje', 'Lxxx', True, 'text'),
+                ('side_b_laje_height', 'Lado B altura laje', 'h', True, 'text'),
+            ]
+        if self.field_id == 'laje_pilares_apoio' and slot_id == 'pillar_geom':
+            return [
+                ('pillar_side', 'Lado do Pilar', 'A/B/C/D', False, 'text'),
+                ('touch_face', 'Face que toca a laje', 'baixo/cima/esq/dir', False, 'text'),
+                ('pillar_orientation', 'Orientacao pilar', 'horizontal/vertical', False, 'text'),
+                ('hatch_description', 'Descricao hatch interno', 'situacao do hatch', False, 'text'),
+                ('pillar_name', 'Nome do pilar', 'Pxxx', True, 'text'),
+            ]
+        return []
+
+    def _build_link_ficha(self, link, slot_id):
+        fields = self._ficha_fields_for_link(slot_id)
+        if not fields or not isinstance(link, dict):
+            return None
+        if not link.get('id'):
+            link['id'] = str(uuid.uuid4())
+        ficha = link.setdefault('ficha', {})
+        ficha_links = link.setdefault('ficha_links', {})
+
+        frame = QFrame()
+        frame.setStyleSheet(f"""
+            QFrame {{
+                background: rgba(255, 255, 255, 6);
+                border-left: 2px solid {Colors.ACCENT_INFO};
+                border-radius: 3px;
+                margin-top: 2px;
+                padding: 3px;
+            }}
+            QLabel {{
+                color: {Colors.TEXT_SECONDARY};
+                font-size: 9px;
+                font-weight: bold;
+            }}
+            QLineEdit {{
+                background: {Colors.BG_DEEP};
+                color: {Colors.TEXT_BRIGHT};
+                border: 1px solid {Colors.BORDER_INPUT};
+                border-radius: 3px;
+                font-size: 10px;
+                padding: 2px 4px;
+            }}
+            QPushButton {{
+                font-size: 9px;
+                padding: 1px 4px;
+                border-radius: 2px;
+                border: 1px solid {Colors.BORDER_SUBTLE};
+                background: transparent;
+                color: {Colors.ACCENT_INFO};
+            }}
+            QPushButton:hover {{
+                background: {Colors.ACCENT_INFO};
+                color: {Colors.BG_DEEP};
+            }}
+        """)
+        lay = QVBoxLayout(frame)
+        lay.setContentsMargins(4, 3, 4, 3)
+        lay.setSpacing(3)
+
+        title = QLabel('FICHA DO VINCULO')
+        title.setStyleSheet(f"color: {Colors.ACCENT_INFO}; font-size: 9px; font-weight: bold;")
+        lay.addWidget(title)
+
+        if self.field_id == 'laje_pilares_apoio' and slot_id == 'pillar_geom':
+            hint = QLabel('Regra faces: A=baixo/esq, B=cima/dir, C=esq/cima, D=dir/baixo; A/B sao faces maiores.')
+            hint.setWordWrap(True)
+            hint.setStyleSheet(f"color: {Colors.TEXT_DIM}; font-size: 9px; font-weight: normal;")
+            lay.addWidget(hint)
+
+        for key, label, placeholder, linkable, pick_type in fields:
+            row = QHBoxLayout()
+            row.setContentsMargins(0, 0, 0, 0)
+            row.setSpacing(3)
+            name_lbl = QLabel(label)
+            name_lbl.setFixedWidth(110)
+            row.addWidget(name_lbl)
+
+            if key == 'direction':
+                arrow = QLabel(self._direction_arrow(str(ficha.get(key, ''))))
+                arrow.setFixedWidth(16)
+                arrow.setStyleSheet(f"color: {Colors.ACCENT_INFO}; font-size: 15px; font-weight: bold;")
+                row.addWidget(arrow)
+            else:
+                arrow = None
+
+            edit = QLineEdit(str(ficha.get(key, '')))
+            edit.setPlaceholderText(placeholder)
+            edit.editingFinished.connect(lambda e=edit, k=key, a=arrow: self._update_ficha_value(link, k, e.text(), a))
+            row.addWidget(edit, 1)
+
+            if linkable:
+                count = len(ficha_links.get(key, []) or [])
+                btn_pick = QPushButton(f"Vincular {count}" if count else "Vincular 1")
+                btn_pick.clicked.connect(lambda checked=False, l=link, s=slot_id, k=key, p=pick_type: self._request_ficha_pick(l, s, k, p))
+                row.addWidget(btn_pick)
+                btn_clear = QPushButton("Excluir")
+                btn_clear.clicked.connect(lambda checked=False, l=link, k=key: self._clear_ficha_links(l, k))
+                row.addWidget(btn_clear)
+
+            lay.addLayout(row)
+        return frame
+
+    def _update_ficha_value(self, link, key, value, arrow_label=None):
+        link.setdefault('ficha', {})[key] = value
+        if arrow_label is not None:
+            arrow_label.setText(self._direction_arrow(value))
+        self.link_data_changed.emit()
+
+    def _request_ficha_pick(self, link, slot_id, ficha_key, pick_type):
+        if not link.get('id'):
+            link['id'] = str(uuid.uuid4())
+        self.pick_requested.emit({
+            'slot': slot_id,
+            'type': pick_type,
+            'link_id': link.get('id'),
+            'ficha_key': ficha_key,
+            'ficha_target': True,
+        })
+
+    def _clear_ficha_links(self, link, ficha_key):
+        link.setdefault('ficha_links', {})[ficha_key] = []
+        self.link_data_changed.emit()
+        self.refresh_list()
 
     def _remove_link(self, slot_id, link):
         # Transmite o pedido de remoção
@@ -763,8 +975,11 @@ class LinkManager(QWidget):
             'slot': slot_id,
             'link': link,
             'comment': comment,
-            'status': status
+            'status': status,
+            'light_sync': True,
+            'ui_refresh': False
         })
+        self.link_data_changed.emit()
 
     def _on_slot_class_validated(self, slot_id, checked, slot_frame):
         """Validate all links in a slot class with local visual update, no rebuild"""
@@ -798,6 +1013,15 @@ class LinkManager(QWidget):
                     child.style().polish(child)
         
         self.slot_validated.emit(slot_id, checked)
+
+    def _sync_slot_validation_ui(self, slot_id, is_valid, refresh=True):
+        """Updates the slot visual state when changed externally (e.g., undo link)"""
+        if is_valid:
+            self.validated_slots.add(slot_id)
+        else:
+            self.validated_slots.discard(slot_id)
+        if refresh:
+            self.refresh_list()
 
     def _open_slot_interpretation(self, slot_id, slot_name):
         """Abre o diálogo de interpretação para uma CLASSE DE VÍNCULO (Slot) específica"""

@@ -279,6 +279,7 @@ class PreValidationDialog(QDialog):
         self._pillar_rows: dict[str, int] = {}           # key → row index
         self._phys_labels: dict[str, QLabel] = {}        # key → QLabel de Tipo Físico
         self._cut_status_combos: dict[str, QComboBox] = {}  # uid → status combobox
+        self._cut_row_meta: dict[str, dict] = {}             # uid → {'row', 'is_hist'}
         self._cut_view_data: list[dict] = self._collect_cut_views()
 
         self._convention_file: str | None = convention_file
@@ -1542,10 +1543,13 @@ class PreValidationDialog(QDialog):
         self._phys_labels.clear()
         nr_pilares = (self._nivel_report or {}).get('pilares', {})
 
-        sorted_items = sorted(
-            self._pillar_report.items(),
-            key=lambda kv: self._natural_sort_key(kv[0]),
-        )
+        def _pil_sort_key(kv):
+            k = kv[0]
+            if k.endswith('__ALT'):
+                return self._natural_sort_key(k[:-5]) + [1]
+            return self._natural_sort_key(k) + [0]
+
+        sorted_items = sorted(self._pillar_report.items(), key=_pil_sort_key)
         for key, pillar in sorted_items:
             row = tbl.rowCount()
             tbl.insertRow(row)
@@ -1555,12 +1559,15 @@ class PreValidationDialog(QDialog):
             name = pillar.get('name') or key
             classif = pillar.get('classification') or 'INDETERMINADO'
 
+            geo_is_alt      = bool(pillar.get('geometry_alt_candidate'))
+            alt_original_key = pillar.get('alt_for_original_key', '')
+
             # ── Restaura override do histórico por geometria ─────────────────
             geo_key = self._pillar_geo_key(pillar)
             hist_pil = self._pf_history.get('pilares', {}).get(geo_key)
             geo_foi_rejeitada  = bool(pillar.get('geometry_previously_rejected'))
             geo_foi_substituida = bool(pillar.get('geometry_swapped'))
-            if hist_pil and hist_pil.get('classification'):
+            if hist_pil and hist_pil.get('classification') and not geo_is_alt:
                 classif = hist_pil['classification']
                 if classif.upper() in _NAO_SE_APLICA_CLASSIFS:
                     geo_foi_rejeitada = True
@@ -1578,8 +1585,8 @@ class PreValidationDialog(QDialog):
             conf_color = _confidence_color(conf_pct)
 
             # ── Nome: fonte maior + negrito ──────────────────────────────────
-            if geo_foi_substituida:
-                nome_display = f'↺ {name}'
+            if geo_is_alt:
+                nome_display = f'↺ {name} (candidato alt.)'
             elif geo_foi_rejeitada:
                 nome_display = f'⚠ {name}'
             else:
@@ -1589,11 +1596,12 @@ class PreValidationDialog(QDialog):
             f.setPixelSize(18)
             f.setBold(True)
             nome_item.setFont(f)
-            if geo_foi_substituida:
+            if geo_is_alt:
                 nome_item.setForeground(QBrush(QColor('#00e5ff')))
                 nome_item.setToolTip(
-                    f'↺ Geometria substituída: bbox anterior rejeitada para "{name}".\n'
-                    f'SA usou geometria alternativa — valide se está correta.'
+                    f'↺ Candidato de geometria alternativa para "{alt_original_key}".\n'
+                    f'A bbox original foi rejeitada — esta pode ser a geometria correta.\n'
+                    f'Classifique conforme o tipo real do pilar.'
                 )
             elif geo_foi_rejeitada:
                 nome_item.setForeground(QBrush(QColor('#ff9800')))
@@ -1904,12 +1912,58 @@ class PreValidationDialog(QDialog):
         self._populate_cut_view_table()
         return tbl
 
+    # Mapa de cor de fundo da linha por (status_data, is_hist)
+    _CUT_ROW_BG: dict[tuple, str] = {
+        ('ok',     False): '#0a1a2e',   # azul escuro — válido novo
+        ('ok',     True):  '#0a2010',   # verde escuro — válido histórico
+        ('visual', False): '#2a1800',   # laranja escuro — errata visual
+        ('visual', True):  '#2a1800',
+        ('solida', False): '#2a0000',   # vermelho escuro — errata sólida
+        ('solida', True):  '#2a0000',
+    }
+
+    def _paint_cut_row(self, row: int, status: str, is_hist: bool) -> None:
+        """Pinta fundo da linha com base no status + tag histórico/novo."""
+        tbl = self._cut_table
+        bg_hex = self._CUT_ROW_BG.get((status, is_hist), '#0a1a2e')
+        bg = QColor(bg_hex)
+        # Células item (Conf, Dim)
+        for col in (self._CUT_COL_CONF, self._CUT_COL_DIM):
+            it = tbl.item(row, col)
+            if it:
+                it.setBackground(QBrush(bg))
+        # Labels de laje (cols Laje A/B)
+        for col in (self._CUT_COL_LAJE1, self._CUT_COL_LAJE2):
+            w = tbl.cellWidget(row, col)
+            if isinstance(w, QLabel):
+                ss = re.sub(r'background:[^;]+;', '', w.styleSheet())
+                w.setStyleSheet(ss + f' background:{bg_hex};')
+
+    def _on_cut_status_changed(self, uid: str) -> None:
+        """Repinta a linha quando o usuário muda o status do corte."""
+        meta = self._cut_row_meta.get(uid, {})
+        row  = meta.get('row', -1)
+        is_hist = meta.get('is_hist', False)
+        combo = self._cut_status_combos.get(uid)
+        if combo and row >= 0:
+            status = combo.currentData() or 'ok'
+            self._paint_cut_row(row, status, is_hist)
+
     def _populate_cut_view_table(self):
         tbl = self._cut_table
         tbl.setRowCount(0)
         self._cut_status_combos.clear()
+        self._cut_row_meta.clear()
 
-        for cut in self._cut_view_data:
+        # ── Ordena por (status_order, is_hist) ──────────────────────────────
+        _st_order = {'ok': 0, 'visual': 1, 'solida': 2}
+        def _cut_sort_key(cut):
+            geo = self._cv_geo_key(cut.get('pts', []))
+            h = self._pf_history.get('cut_views', {}).get(geo, {})
+            st = h.get('status', 'ok')
+            return (_st_order.get(st, 0), 1 if h else 0)
+
+        for cut in sorted(self._cut_view_data, key=_cut_sort_key):
             row = tbl.rowCount()
             tbl.insertRow(row)
             tbl.setRowHeight(row, self._CUT_ROW_H)
@@ -1920,6 +1974,7 @@ class PreValidationDialog(QDialog):
             # ── Histórico por geometria ──────────────────────────────────────
             cv_geo   = self._cv_geo_key(cut.get('pts', []))
             hist_cv  = self._pf_history.get('cut_views', {}).get(cv_geo, {})
+            is_hist  = bool(hist_cv)   # True = dado carregado do histórico
 
             # ── Viga Assoc. (combobox editável) ─────────────────────────────
             beam_combo = QComboBox()
@@ -2009,7 +2064,7 @@ class PreValidationDialog(QDialog):
                 tbl.setCellWidget(row, self._CUT_COL_LAJE1, _make_laje_lbl(neigh_text, wall, False))
                 tbl.setCellWidget(row, self._CUT_COL_LAJE2, _make_laje_lbl(own_text,  False, True))
 
-            # ── Status (combobox) ────────────────────────────────────────────
+            # ── Status + TAG (container widget) ─────────────────────────────
             st_combo = QComboBox()
             st_combo.setStyleSheet("font-size:9px;")
             st_combo.view().setWordWrap(True)
@@ -2022,13 +2077,35 @@ class PreValidationDialog(QDialog):
             if mi_s: mi_s.setForeground(QBrush(QColor('#ff9800')))
             # Restaura status do histórico
             hist_status = hist_cv.get('status', '')
+            initial_status = 'ok'
             if hist_status:
                 for i in range(st_combo.count()):
                     if st_combo.itemData(i) == hist_status:
                         st_combo.setCurrentIndex(i)
+                        initial_status = hist_status
                         break
-            tbl.setCellWidget(row, self._CUT_COL_STATUS, st_combo)
+            # Tag visual (DADO-HISTORICO / DADO-NOVO)
+            tag_text  = 'DADO-HISTÓRICO' if is_hist else 'DADO-NOVO'
+            tag_color = '#66bb6a'         if is_hist else '#64b5f6'
+            tag_lbl = QLabel(f'TAG:{tag_text}')
+            tag_lbl.setStyleSheet(
+                f'color:{tag_color}; font-size:7px; font-weight:bold;'
+                f' padding:1px; background:transparent;'
+            )
+            st_container = QWidget()
+            st_container.setStyleSheet('background:transparent;')
+            st_lay = QVBoxLayout(st_container)
+            st_lay.setContentsMargins(2, 2, 2, 2)
+            st_lay.setSpacing(1)
+            st_lay.addWidget(st_combo)
+            st_lay.addWidget(tag_lbl)
+            tbl.setCellWidget(row, self._CUT_COL_STATUS, st_container)
             self._cut_status_combos[uid] = st_combo
+            self._cut_row_meta[uid] = {'row': row, 'is_hist': is_hist}
+
+            # Conecta repintura dinâmica
+            st_combo.currentIndexChanged.connect(
+                lambda _, u=uid: self._on_cut_status_changed(u))
 
             # ── Mini viewer ──────────────────────────────────────────────────
             viewer = self._make_cut_viewer(cut['pts'])
@@ -2039,16 +2116,8 @@ class PreValidationDialog(QDialog):
                             _make_item('—', Qt.AlignCenter,
                                        color=QColor(Colors.TEXT_MUTED)))
 
-            # Destaca baixa confiança
-            if conf_pct < 50:
-                skip = {self._CUT_COL_VIGA, self._CUT_COL_LAJE1,
-                        self._CUT_COL_LAJE2, self._CUT_COL_STATUS, self._CUT_COL_FOTO}
-                for col in range(tbl.columnCount()):
-                    if col in skip:
-                        continue
-                    it = tbl.item(row, col)
-                    if it:
-                        it.setBackground(QBrush(QColor('#1a1506')))
+            # ── Cor de fundo da linha (status + tag) ────────────────────────
+            self._paint_cut_row(row, initial_status, is_hist)
 
     # ── Confirmar + persistir histórico ───────────────────────────────────────
 

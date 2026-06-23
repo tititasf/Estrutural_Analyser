@@ -1,0 +1,64 @@
+{
+  "summary": [
+    {
+      "item": "V301",
+      "sections": 2,
+      "avg_slot_coarse_visual": 24.2,
+      "min_slot_coarse_visual": 15.4
+    },
+    {
+      "item": "V302",
+      "sections": 1,
+      "avg_slot_coarse_visual": 40.7,
+      "min_slot_coarse_visual": 40.7
+    },
+    {
+      "item": "V305",
+      "sections": 1,
+      "avg_slot_coarse_visual": 23.4,
+      "min_slot_coarse_visual": 23.4
+    },
+    {
+      "item": "V308",
+      "sections": 2,
+      "avg_slot_coarse_visual": 30.1,
+      "min_slot_coarse_visual": 26.9
+    },
+    {
+      "item": "V310",
+      "sections": 1,
+      "avg_slot_coarse_visual": 26.8,
+      "min_slot_coarse_visual": 26.8
+    },
+    {
+      "item": "V311",
+      "sections": 1,
+      "avg_slot_coarse_visual": 27.3,
+      "min_slot_coarse_visual": 27.3
+    },
+    {
+      "item": "V322",
+      "sections": 1,
+      "avg_slot_coarse_visual": 25.4,
+      "min_slot_coarse_visual": 25.4
+    },
+    {
+      "item": "V327",
+      "sections": 1,
+      "avg_slot_coarse_visual": 31.2,
+      "min_slot_coarse_visual": 31.2
+    },
+    {
+      "item": "V330",
+      "sections": 2,
+      "avg_slot_coarse_visual": 28.8,
+      "min_slot_coarse_visual": 27.1
+    },
+    {
+      "item": "V331",
+      "sections": 1,
+      "avg_slot_coarse_visual": 30.5,
+      "min_slot_coarse_visual": 30.5
+    }
+  ]
+}

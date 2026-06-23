@@ -32,6 +32,33 @@ FICHAS_PATH = OBRA_DIR / "Fase-6_Execucao_CAD/granular/fichas/fichas_lv_v2.json"
 N4_OUT      = OBRA_DIR / "Fase-6_Execucao_CAD/n4"
 
 
+def _entry_from_motor_ficha(elem: str, ficha: dict) -> dict:
+    """Converte a ficha live do motor no contrato fichas_lv_v2."""
+    h_a = float(ficha.get('h_A', ficha.get('h_cm', 0)) or 0)
+    h_b = float(ficha.get('h_B', ficha.get('h_B_cm', h_a)) or h_a)
+    b = float(ficha.get('b_geom', ficha.get('b_cm', 19)) or 19)
+    return {
+        'viga': elem,
+        'face': 'A',
+        'h_cm': h_a,
+        'h_B_cm': h_b,
+        'b_cm': b,
+        'laje_sup_cm': float(ficha.get('laje_sup_A', 0) or 0),
+        'laje_inf_cm': float(ficha.get('laje_inf_A', 0) or 0),
+        'laje_sup_B_cm': float(ficha.get('laje_sup_B', 0) or 0),
+        'laje_inf_B_cm': float(ficha.get('laje_inf_B', 0) or 0),
+        'h_section_cm': float(ficha.get('h_section', 55) or 55),
+        'h_section_all': ficha.get('h_section_all', []),
+        'tipo_viga': ficha.get('tipo_viga', 'sarrafeada'),
+        'section_views': ficha.get('section_views', []),
+        'face_units': ficha.get('face_units', []),
+        'segmentos': ficha.get('panels_A', ficha.get('segmentos', [])),
+        'segmentos_B': ficha.get('panels_B', ficha.get('segmentos_B', [])),
+        'pillar_left': ficha.get('pillar_left', {'active': False}),
+        'pillar_right': ficha.get('pillar_right', {'active': False}),
+    }
+
+
 def _make_fake_fase4(viga_name: str, entry: dict, fase4_dir: Path) -> None:
     """Cria _A.json e _B.json fake na pasta Fase-4 a partir da ficha."""
     elem_base = viga_name
@@ -46,6 +73,7 @@ def _make_fake_fase4(viga_name: str, entry: dict, fase4_dir: Path) -> None:
                 'grade_h2':         float(s.get('grade_h2', 0) or 0),
                 'laje_central_alt': float(s.get('laje_central_alt', 0) or 0),
                 'reuse':            bool(s.get('reuse', False)),
+                'reuse_regions':    s.get('reuse_regions', []),
                 'panel_type':       s.get('panel_type', 'Sarrafeado'),
             }
             for s in segs if float(s.get('largura_cm', 0) or 0) > 0
@@ -171,10 +199,30 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('elementos', nargs='*', help='V301 V303 ...')
     parser.add_argument('--out', default=str(N4_OUT))
+    parser.add_argument('--obra', default=str(OBRA_DIR))
+    parser.add_argument('--entry-json',
+                        help='Ficha live do motor para um unico elemento')
     args = parser.parse_args()
 
-    fichas = json.loads(FICHAS_PATH.read_text(encoding='utf-8'))
-    fichas_map = {e['viga']: e for e in fichas}
+    if args.entry_json:
+        raw_entry = json.loads(
+            Path(args.entry_json).read_text(encoding='utf-8'))
+        elem = args.elementos[0] if args.elementos else (
+            raw_entry.get('viga') or raw_entry.get('name'))
+        if not elem:
+            raise SystemExit('Elemento ausente em --entry-json')
+        entry = (
+            raw_entry if raw_entry.get('viga')
+            else _entry_from_motor_ficha(elem, raw_entry)
+        )
+        fichas_map = {elem: entry}
+    else:
+        fichas_path = (
+            Path(args.obra)
+            / "Fase-6_Execucao_CAD/granular/fichas/fichas_lv_v2.json"
+        )
+        fichas = json.loads(fichas_path.read_text(encoding='utf-8'))
+        fichas_map = {e['viga']: e for e in fichas}
 
     elems = args.elementos or sorted(fichas_map.keys())
     out_dir = Path(args.out)

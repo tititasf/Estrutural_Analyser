@@ -201,7 +201,18 @@ def validar_com_vision(ficha: dict, png_path: Path) -> dict:
         'tipo_viga':    ficha.get('tipo_viga', '?'),
         'n_segmentos_A': len(ficha.get('panels_A', [])),
         'n_segmentos_B': len(ficha.get('panels_B', [])),
+        'n_face_units': len(ficha.get('face_units', [])),
+        'face_units': [
+            {
+                'label': u.get('label'),
+                'side': u.get('side'),
+                'n_segmentos': len(u.get('panels', [])),
+                'h_total': u.get('h_total'),
+            }
+            for u in ficha.get('face_units', [])
+        ],
         'h_section':    ficha.get('h_section', 0),
+        'h_section_all': ficha.get('h_section_all', []),
     }
 
     prompt = _VISION_PROMPT.format(ficha_json=json.dumps(ficha_resumo, indent=2, ensure_ascii=False))
@@ -271,6 +282,7 @@ def comparar_elemento(elem: str, usar_vision: bool = True,
         'tipo_viga': ficha.get('tipo_viga'),
         'n_segsA':   len(ficha.get('panels_A', [])),
         'n_segsB':   len(ficha.get('panels_B', [])),
+        'n_face_units': len(ficha.get('face_units', [])),
         'n_sv':      len(ficha.get('section_views', [])),
         'conf':      ficha.get('_confianca', 0),
         '_source':   ficha.get('_er_meta', {}).get('source', '?'),

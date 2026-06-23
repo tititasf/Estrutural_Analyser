@@ -453,16 +453,16 @@ class CentralControle(QWidget):
 
     def open_new_client_dialog(self):
         dlg = CreateClientDialog(self.db, self)
-        if dlg.exec_():
+        if dlg.exec():
             self.load_clients() # Refresh list
 
     def open_convert_dialog(self, doc_data):
         dlg = ConvertDocDialog(doc_data, self.db, self)
-        dlg.exec_()
+        dlg.exec()
 
     def open_pavement_convert_dialog(self, doc_data):
         dlg = ConvertToPavementDialog(doc_data, self.db, self)
-        dlg.exec_()
+        dlg.exec()
 
     def download_attachment(self, doc_data):
         """Baixa anexo ou abre link do Drive."""

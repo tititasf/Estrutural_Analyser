@@ -23,6 +23,8 @@ Fazer o **"Análise Geral"** (motor dinâmico, zero hardcode) **convergir para o
 4. **Generalização gated.** Parâmetro só vira default global após passar em **≥ 2 obras**.
 5. **Validação semântica antes de ajustar.** Ao corrigir um campo divergente, consultar `domain_knowledge` para confirmar a regra (ex.: `grade_1 = comprimento+22`).
 6. **Nada destrutivo de DB.** Aprendizado grava parâmetros versionados, nunca sobrescreve gabarito nem fichas validadas.
+7. **Humano validado vence sempre.** Campos, recortes, contornos, links e itens com validacao humana (`is_validated=1`, `validated_fields_json`, `status='aprovado'` ou equivalente) sao fonte de verdade operacional. O loop pode ler esses dados como professor, pode registrar divergencias e pode propor ajustes no motor, mas **nunca sobrescreve, apaga ou rebaixa dado validado por humano**. Quando houver conflito entre N1 automatico, N2 reverso e validacao humana, a decisao humana validada prevalece.
+8. **Entrevista e acao manual sao parte do loop.** O agente executor pode fazer perguntas pontuais ao dono ou pedir uma acao manual pequena (ex.: validar um item, marcar um contorno correto, confirmar uma regra de campo, enviar print/PNG ou aprovar/reprovar um caso) quando isso reduzir ambiguidade e aumentar a compreensao do motor. Essas intervencoes devem ser registradas como aprendizado reutilizavel (`training_events`, `engrev_*_learning.vision`, `domain_knowledge` ou documentacao da classe), nao como hardcode silencioso.
 
 ---
 
@@ -40,12 +42,15 @@ PARA cada OBRA:
                       → hit-rate por item + lista de campos divergentes
       4. DIAGNÓSTICO= para cada divergência, classificar:
                       (a) erro de parâmetro do motor   → ajustar parâmetro dinâmico
-                      (b) regra semântica mal aplicada  → consultar domain_knowledge
+                      (b) regra semântica mal aplicada  → consultar domain_knowledge (ex: ignorar pilares NASCE e VISAO_CORTE no Fundo de Viga)
                       (c) gabarito inconsistente (comp/larg) → confiar na coordenada
+                      (d) dado humano validado existente → preservar e usar como verdade
+                      (e) ambiguidade operacional → perguntar ao dono ou pedir validacao manual pontual
       5. AJUSTE     = atualizar parâmetros dinâmicos do motor (NÃO constantes):
                       - tolerâncias ∝ dims do teacher
                       - filtro de camadas de cota (rejeita linhas de camadas c/ textos numéricos)
                       - _should_prefer_n2_axes_outline (comparação bidirecional de dims)
+                      - nunca escrever por cima de campos/itens validados por humano
       6. GATE-CLASSE= repetir 2–5 até hit-rate = 100% na classe
                       → registrar parâmetros aprendidos (com proveniência: obra/pav/classe)
 
@@ -77,7 +82,7 @@ O fluxo **Análise Geral (N1)** e o **Eng. Reversa (N2/F5)** usam nomes de campo
 |--------|------------------------------|----------------------------------------|
 | PIL | `Pilar_p_sA_l1_n`, `Pilar_p_sA_l1_h`, `Pilar_dim` (granular por linha/lado) | `h1_A..h5_A`, `larg1_A..larg3_A`, `laje_A`, `comprimento` (colunas consolidadas) |
 | VIG/FV | `Viga_name`, `Viga_dim`, `Viga_viga_a_seg_1_ini_name` | `total_width`, `total_height`, `segments_rich`, `holes`, `sarrafo_left/right_id` |
-| LAJ | `Laje_laje_dim`, `Laje_laje_outline_segs`, `Laje_laje_nivel` | `comprimento`, `largura`, `linhas_verticais/horizontais`, `obstaculos`, `coordenadas` |
+| LAJ | `Laje_laje_dim`, `Laje_laje_visao_corte`, `Laje_laje_vizinhas_niveis`, `Laje_laje_pilares_apoio`, `Laje_laje_nivel`, `Laje_laje_outline_segs` | `comprimento`, `largura`, `linhas_verticais/horizontais`, `obstaculos`, `coordenadas`, `visao_corte`, `vizinhas_niveis`, `pilares_apoio` |
 
 **Consequência:** o Comparison Engine alinha **geometria (coordenadas)** mas não os **campos** → hit-rate de coordenada OK, campos não convergem. **Bloqueia a convergência field-level do loop.**
 
@@ -148,6 +153,83 @@ Os parâmetros aprendidos **NÃO** vão para um JSON novo. Vivem nas tabelas que
 **PASSO 5 — Calibração.** Quando hit-rate da classe sobe, registrar `*_calibrator_versions` (`params_json` com k's que escalam com dims do teacher, `metrics_json`, `status=candidate`).
 
 **PASSO 6 — Promoção.** `status candidate→promoted` + `transformation_rules.is_production=1` somente após manter 100% em **≥2 obras** (G-Generalização) sem regressão (G-Regressão).
+
+**PASSO 7 — Preservacao humana.** Antes de qualquer UPSERT em N1/F7 ou tabela espelho (`beam_elements`, `slab_elements` etc.), verificar se existe dado humano validado no item/campo correspondente. Se existir, preservar o valor validado, gravar o delta como evento de aprendizado e ajustar o motor para convergir futuramente. O loop nao deve "corrigir" a decisao humana automaticamente.
+
+**PASSO 8 — Perguntas e microtarefas ao dono.** Se o diagnostico numerico/visual nao explicar uma divergencia, o agente pode pedir ao dono uma decisao ou acao manual pequena e objetiva: validar/reprovar um elemento, selecionar o boundary certo, confirmar qual campo e fonte de verdade, ou explicar uma convencao de desenho. A resposta vira conhecimento persistente antes da proxima iteracao.
+
+## 5.1.1 PROCEDIMENTO — Interpretacao Visual no Loop (ferramenta obrigatoria da Fase A)
+
+> A interpretacao visual complementa o score numerico. Ela serve para o agente entender **o que esta sendo analisado** no desenho estrutural limpo e verificar se os vinculos/contornos detectados pela aba da classe em teste realmente correspondem ao item estrutural correto.
+
+Para cada rodada relevante do loop de uma classe (LAJ, FV, LV, PIL), o agente deve poder gerar e inspecionar tres tipos de imagem headless:
+
+1. **Estrutural limpo.** Render do pavimento/DXF limpo, sem contornos, sem overlays de itens e sem vinculos destacados. Objetivo: enxergar a geometria base como o motor recebeu, avaliar densidade, linhas auxiliares, cotas, vazios, regiões conectadas e possiveis fontes de poluicao.
+2. **Estrutural + vinculos da classe em teste.** Mesmo render limpo, mas com destaque dos contornos/vinculos detectados pela aba da classe da Análise Geral que esta no loop. Exemplos: poligonos de LAJ, segmentos de fundo FV, laterais LV, contornos/arestas PIL. Objetivo: validar visualmente se o motor fechou o boundary correto, se pegou vizinho, se cortou borda, se incluiu linhas/cotas/pontaletes indevidos, ou se perdeu parte do item.
+3. **Estrutural + vinculos de um unico item.** Quando o diagnostico por classe ficar poluido ou ambiguo, gerar uma imagem focada em um item especifico (`L302`, `V302`, `P12` etc.), mantendo o estrutural limpo de fundo e destacando apenas os vinculos/contornos daquele item. Objetivo: isolar a causa do erro sem interferencia visual de outros itens.
+
+### Uso no diagnostico
+
+- O agente deve comparar o diagnostico numerico N1xN2 com a imagem correspondente antes de alterar o motor em problemas de geometria.
+- Se o PNG de classe mostrar muitos overlays, o agente deve gerar o modo de item unico para pelo menos um caso representativo do erro.
+- Se ainda houver ambiguidade visual, o agente pode pedir ao dono uma microacao manual: confirmar boundary correto, validar/reprovar o item, apontar qual linha pertence ao item, ou explicar uma convencao do desenho.
+- As conclusoes visuais devem virar evento/nota de aprendizado: exemplo, "boundary pequeno por crop cortando borda", "region growing vazou para componente vizinho", "linha de cota foi confundida com borda", "texto de dimensao capturado longe do label".
+
+### Artefatos esperados
+
+- PNG limpo: `{classe}_{obra}_{pav}_limpo.png`
+- PNG da classe: `{classe}_{obra}_{pav}_vinculos.png`
+- PNG de item unico: `{classe}_{obra}_{pav}_{item}_vinculos.png`
+
+Esses renders devem ser headless, sem PySide6/Qt, e nao podem depender de filtro fixo por layer. Eles sao ferramenta de interpretacao do loop, nao fonte de verdade por si so; a fonte de verdade continua sendo N2/F5 e qualquer validacao humana existente.
+
+## 5.1.2 PROCEDIMENTO LAJ — Nivel por visao de corte de vigas
+
+Para LAJ, o campo `laje_nivel` deve representar apenas o texto de nivel proprio da laje. A visao de corte das vigas ao redor da laje e os pilares de apoio sao vinculos semanticos separados, processados antes do nivel textual quando o texto proprio nao existe.
+
+Regras operacionais:
+
+- `laje_nivel` aceita somente `label` (`Vinculo Texto (Nivel)`). Nao registrar geometria de corte nem pilar neste campo.
+- `laje_visao_corte` deve aceitar multiplos vinculos `cut_view_geom`, pois uma laje pode ser contornada por 4 ou mais vigas e ter mais de uma visao de corte relevante. Cada vinculo pode ter ficha propria editavel com direcao, viga, lajes lado A/B, alturas e distancias.
+- `laje_vizinhas_niveis` e campo proprio, separado da visao de corte. Suas classes de vinculo sao `neighbor_north` (↑ Vizinha Norte), `neighbor_east` (→ Vizinha Leste), `neighbor_west` (← Vizinha Oeste) e `neighbor_south` (↓ Vizinha Sul).
+- `laje_vizinhas_niveis` deve ser preenchido com nomes, alturas e niveis das lajes vizinhas ortogonais, mesmo quando a laje atual nao possui `cut_view_geom`. A visao de corte nao e pre-condicao para capturar esses textos; ela apenas muda como a inferencia usa o contexto.
+- `laje_pilares_apoio` deve aceitar `pillar_geom` e `pillar_label`, separando pilares retangulares, circulares, L, U ou T das geometrias de visao de corte.
+- Diferenca visual esperada: pilares sao geometrias compactas/fechadas de apoio e nao carregam cotas/referencias de lajes; visao de corte tem marco de corte/desnivel, cotas/textos e referencias das lajes vizinhas.
+- Se a laje tem texto explicito de nivel validado por humano, esse valor vence e nao pode ser sobrescrito.
+- Se a laje nao tem texto explicito, mas tem `laje_visao_corte`, ela e tratada como laje especial. O motor deve primeiro tentar parear a mesma geometria de corte com outra laje que tenha nivel validado, ou ler textos/medidas da ficha do proprio corte e do campo `laje_vizinhas_niveis`. Nao usar automaticamente o nivel de uma vizinha comum so porque esta encostada.
+- Se a laje nao tem visao de corte, o motor pode buscar vizinhas sem visao de corte e com nivel textual/validado. Havendo consenso, preencher `laje_nivel` como inferido e deixar para validacao humana.
+- Vizinhas com visao de corte nao entram como referencia de nivel comum, porque provavelmente representam descontinuidade/desnivel especial.
+- Toda conclusao inferida deve registrar proveniencia (`level_inference`, fonte da laje vizinha, tipo de vinculo, confianca) e ficar revisavel; nao marcar como humano-validado automaticamente.
+- Migração: vinculos humanos antigos em `laje_nivel.cut_view_geom` devem ser reaproveitados em `laje_visao_corte`; textos antigos de `laje_visao_corte.neighbor_level_text` devem ser migrados logicamente para `laje_vizinhas_niveis`, sem exigir nova validacao manual.
+
+### Registro LAJ — Obra_TREINO_1 pav. 13 (checkpoint 2026-06-21)
+
+Comando de loop:
+
+```bash
+python -X utf8 scripts/laje_analise_geral_headless.py --obra Obra_TREINO_1 --pav 13
+```
+
+Iteracoes registradas:
+
+- Baseline inicial do clone LAJ: 12,2% de score medio.
+- Remocao de filtro implicito por layer de cota no `SlabTracer`: queda temporaria para 11,1%, confirmando que layer numerico nao pode ser usado como filtro fixo.
+- Preferencia de eixos estruturais, crop adaptativo e fallback de linhas/cotas: subida para 67,8%.
+- Selecao por eixos elite + fallback de linhas: 71,1%.
+- Selecao por pares de bordas paralelas: 80,0%.
+- Ajuste de contagem de linhas para preservar `raw = estimado + 1` em painéis altos: L323 passou de 70% para 100%, score medio 81,1%.
+- Aumento da penalizacao de `pair_gap` na selecao por pares: L309 e L320 passaram para 100%, score medio 85,6%.
+- Tentativa rejeitada: heuristica de "faixa baixa" com eixos completos regrediu para 75,6% por estreitar L327/L330; foi revertida.
+- UI alinhada ao loop: o botao Análise Geral agora executa LAJ com `valid_layers=None` e `teacher_dims=None`, e FV com `BeamTracer` cru, sem parametros de learning store como entrada do N1. N2/F5 permanece apenas para consulta/comparacao posterior.
+
+Estado atual:
+
+- N1 detectado: 31 lajes.
+- N2 comparado: 27 fichas LAJ.
+- Score medio: 85,6%.
+- Falhas restantes principais: L308, L312, L319, L326, L329, L331.
+- Diagnostico agregado: 6/27 fora de CxL/area (+-5%), 1/27 com linhas/cotas divergentes, 0/27 pontaletes divergentes.
+- Renders headless gerados em `sandbox_laje_loop/`: estrutural limpo, overlay da classe LAJ e focos por item (`--debug-laje L319`, `--debug-laje L329`, etc.).
 
 ## 5.2 PROCEDIMENTO — Fase C por classe: Entrevista & Mapa de Campos (resolve GAP #V, POR CLASSE)
 

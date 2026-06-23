@@ -2534,6 +2534,10 @@ def _lv_section_widget(er_ficha: dict, accent: str = "#4caf50") -> "QWidget":
         _row("H face A",   f"{h_A:.0f} cm" if h_A else None)
         if h_B and h_B != h_A:
             _row("H face B",   f"{h_B:.0f} cm")
+        body_A = sv.get('h_body_A')
+        body_B = sv.get('h_body_B')
+        _row("Corpo A", f"{body_A:.0f} cm" if body_A else None)
+        _row("Corpo B", f"{body_B:.0f} cm" if body_B else None)
         _row("b",          f"{b:.0f} cm"   if b   else None)
         _row("Tipo",       sv.get('tipo_viga') or er_ficha.get('tipo_viga'))
         hs = sv.get('h_section') or sv.get('h_section_cm') or er_ficha.get('h_section_cm')
@@ -2572,8 +2576,8 @@ def _lv_section_widget(er_ficha: dict, accent: str = "#4caf50") -> "QWidget":
     return scroll
 
 
-def _lv_segs_table(er_ficha: dict, accent: str = "#4caf50",
-                   tbl_style: str = "") -> "QTableWidget":
+def _lv_segs_table_legacy(er_ficha: dict, accent: str = "#4caf50",
+                          tbl_style: str = "") -> "QTableWidget":
     """Tabela de segmentos por face (A+B) com 7 colunas: # Larg Tipo H1 L↑ L↓ ⚑."""
     COLS = ["#", "Larg", "Tipo", "H1", "L↑", "L↓", "⚑"]
     tbl = QTableWidget(0, len(COLS))
@@ -2686,12 +2690,184 @@ def _lv_segs_table(er_ficha: dict, accent: str = "#4caf50",
                 it.setBackground(QBrush(bg))
                 tbl.setItem(r, c, it)
 
-    segs_A = er_ficha.get('segmentos',   []) or []
-    segs_B = er_ficha.get('segmentos_B', []) or []
-    if segs_A: _add_face("Face A", segs_A, 0)
-    if segs_B: _add_face("Face B", segs_B, 1)
+    face_units = er_ficha.get('face_units') or []
+    if face_units:
+        for unit_idx, unit in enumerate(face_units):
+            segs = unit.get('segments') or unit.get('panels') or []
+            if not segs:
+                continue
+            label = unit.get('label') or f"Face {unit.get('side', '?')}"
+            _add_face(label, segs, unit_idx)
+    else:
+        segs_A = er_ficha.get('segmentos',   []) or []
+        segs_B = er_ficha.get('segmentos_B', []) or []
+        if segs_A:
+            _add_face("Face A", segs_A, 0)
+        if segs_B:
+            _add_face("Face B", segs_B, 1)
 
     return tbl
+
+
+def _lv_segs_table(er_ficha: dict, accent: str = "#4caf50",
+                   tbl_style: str = "") -> "QWidget":
+    """Cards de segmentos LV agrupados exclusivamente pelo lado A/B."""
+    import re as _re
+    from PySide6.QtWidgets import (
+        QScrollArea, QVBoxLayout, QHBoxLayout,
+        QWidget as _QW, QLabel as _QL, QFrame as _QF,
+    )
+    accent_color = QColor(accent)
+    accent_soft = (
+        f"rgba({accent_color.red()}, {accent_color.green()}, "
+        f"{accent_color.blue()}, 34)"
+    )
+    accent_border = (
+        f"rgba({accent_color.red()}, {accent_color.green()}, "
+        f"{accent_color.blue()}, 85)"
+    )
+    accent_handle = (
+        f"rgba({accent_color.red()}, {accent_color.green()}, "
+        f"{accent_color.blue()}, 102)"
+    )
+
+    def _unit_side(unit: dict) -> str:
+        side = str(unit.get('side') or '').strip().upper()
+        if side in ('A', 'B'):
+            return side
+        label = str(unit.get('label') or '').strip().upper()
+        match = _re.search(r'\.([AB])$', label)
+        return match.group(1) if match else ''
+
+    grouped = {'A': [], 'B': []}
+    face_units = er_ficha.get('face_units') or []
+    for unit in face_units:
+        side = _unit_side(unit)
+        if side in grouped:
+            grouped[side].append(unit)
+
+    # Compatibilidade com fichas antigas sem face_units.
+    if not face_units:
+        for side, key in (('A', 'segmentos'), ('B', 'segmentos_B')):
+            panels = er_ficha.get(key) or []
+            if panels:
+                grouped[side].append({
+                    'side': side,
+                    'label': f'Face {side}',
+                    'panels': panels,
+                    'h_body': er_ficha.get(
+                        'h_cm' if side == 'A' else 'h_B_cm', 0),
+                    'laje_sup': er_ficha.get(
+                        'laje_sup_cm' if side == 'A' else 'laje_sup_B_cm', 0),
+                    'laje_inf': er_ficha.get(
+                        'laje_inf_cm' if side == 'A' else 'laje_inf_B_cm', 0),
+                })
+
+    outer = _QW()
+    outer.setStyleSheet(f"background: {Colors.BG_DEEP};")
+    vlay = QVBoxLayout(outer)
+    vlay.setContentsMargins(0, 0, 0, 0)
+    vlay.setSpacing(3)
+
+    summary = _QL(
+        f"Segmentos A: {len(grouped['A'])}    |    "
+        f"Segmentos B: {len(grouped['B'])}"
+    )
+    summary.setStyleSheet(
+        f"color: {accent}; font-weight: bold; font-size: 10px; "
+        f"background: {accent_soft}; border: 1px solid {accent_border}; "
+        "border-radius: 4px; padding: 4px 7px;"
+    )
+    vlay.addWidget(summary)
+
+    def _row(layout, label: str, value):
+        if value is None or value == '' or value == 0 or value == 0.0:
+            return
+        row_w = _QW()
+        rh = QHBoxLayout(row_w)
+        rh.setContentsMargins(0, 0, 0, 0)
+        rh.setSpacing(4)
+        lbl = _QL(label)
+        lbl.setStyleSheet(
+            f"color: {Colors.TEXT_DIM}; font-size: 10px; min-width: 76px;")
+        val = _QL(str(value))
+        val.setWordWrap(True)
+        val.setStyleSheet(
+            f"color: {Colors.TEXT_PRIMARY}; font-size: 10px; "
+            "font-weight: bold;"
+        )
+        rh.addWidget(lbl)
+        rh.addWidget(val, 1)
+        layout.addWidget(row_w)
+
+    for side in ('A', 'B'):
+        total = len(grouped[side])
+        for idx, unit in enumerate(grouped[side], 1):
+            panels = unit.get('segments') or unit.get('panels') or []
+            widths = [
+                float(p.get('largura_cm', p.get('width', 0)) or 0)
+                for p in panels
+            ]
+            types = sorted({
+                str(p.get('panel_type') or 'Sarrafeado') for p in panels
+            })
+            reuse_count = sum(bool(p.get('reuse')) for p in panels)
+            holes_count = sum(len(p.get('holes') or []) for p in panels)
+            h_body = float(
+                unit.get('h_body', unit.get('h_total', 0)) or 0)
+
+            card = _QF()
+            card.setStyleSheet(
+                f"QFrame {{ background: {Colors.BG_PANEL}; "
+                f"border: 1px solid {accent_border}; border-radius: 4px; "
+                "margin: 1px; }}"
+            )
+            cl = QVBoxLayout(card)
+            cl.setContentsMargins(6, 4, 6, 4)
+            cl.setSpacing(2)
+
+            hdr = _QL(f"  Segmento {side} {idx} / {total}")
+            hdr.setStyleSheet(
+                f"color: {accent}; font-weight: bold; font-size: 10px; "
+                f"background: {accent_soft}; border-radius: 3px; "
+                "padding: 2px 4px;"
+            )
+            cl.addWidget(hdr)
+
+            _row(cl, "Refer\u00eancia", unit.get('label') or f'Face {side}')
+            _row(cl, "Pain\u00e9is", len(panels))
+            _row(cl, "Largura",
+                 f"{sum(widths):.0f} cm" if widths else None)
+            _row(cl, "Composi\u00e7\u00e3o",
+                 " + ".join(f"{w:.0f}" for w in widths) if widths else None)
+            _row(cl, "Altura", f"{h_body:.0f} cm" if h_body else None)
+            _row(cl, "Tipo", " / ".join(types) if types else None)
+            laje_sup = float(unit.get('laje_sup', 0) or 0)
+            laje_inf = float(unit.get('laje_inf', 0) or 0)
+            _row(cl, "Laje sup.", f"{laje_sup:.0f} cm" if laje_sup else None)
+            _row(cl, "Laje inf.", f"{laje_inf:.0f} cm" if laje_inf else None)
+            _row(cl, "Reaprov.", reuse_count if reuse_count else None)
+            _row(cl, "Aberturas", holes_count if holes_count else None)
+            vlay.addWidget(card)
+
+    if not grouped['A'] and not grouped['B']:
+        empty = _QL("Nenhum segmento A/B identificado")
+        empty.setAlignment(Qt.AlignCenter)
+        empty.setStyleSheet(
+            f"color: {Colors.TEXT_DIM}; font-size: 10px; padding: 12px;")
+        vlay.addWidget(empty)
+
+    vlay.addStretch(1)
+    scroll = QScrollArea()
+    scroll.setWidgetResizable(True)
+    scroll.setWidget(outer)
+    scroll.setStyleSheet(
+        f"QScrollArea {{ border: none; background: {Colors.BG_DEEP}; }}"
+        f"QScrollBar:vertical {{ width: 6px; background: {Colors.BG_PANEL}; }}"
+        f"QScrollBar::handle:vertical {{ background: {accent_handle}; "
+        "border-radius: 3px; }}"
+    )
+    return scroll
 
 
 class LevelColumn(QFrame):
@@ -5993,16 +6169,15 @@ class ComparisonEngineModule(QWidget):
             col.pipeline.set_step(2, 'running', 'Procurando DXF...')
             obra_dir = DADOS_OBRAS_ROOT / obra
             n4_dxf = self._find_n4_dxf_strict(obra_dir, classe, item_id)
-            force_regen = classe in ("LJ", "FV")  # FV: always regen to use latest motor
+            # LV also regenerates: the selected recorte is extracted with the
+            # current motor, so an older cached DXF must not win.
+            force_regen = classe in ("LJ", "FV", "LV")
             if n4_dxf and n4_dxf.exists() and not force_regen:
                 if classe == 'LV':
                     # 2-panel view: Visão Corte | Lateral A-B
                     # sect_total = max(SECT_W+SECT_GAP, b+178) = max(190, b+178)
                     # Face A começa em x = sect_total — corte 15cm antes para não incluir painéis
-                    b_cm = float((er_ficha or {}).get('b_cm', 19) or 19)
-                    sect_total = max(190, int(b_cm) + 178)
-                    vc_bbox  = (-50, -9999, sect_total - 15, 9999)
-                    lat_bbox = (sect_total - 5, -9999, 99999, 9999)
+                    vc_bbox, lat_bbox = self._lv_n4_zone_bboxes(er_ficha or {})
                     lv_zones = {
                         'Visão Corte': (str(n4_dxf), vc_bbox),
                         'Lateral A-B': (str(n4_dxf), lat_bbox),
@@ -6042,16 +6217,32 @@ class ComparisonEngineModule(QWidget):
         # LV: fichas não estão no DB — ler de fichas_lv_v2.json (pré-gerado pelo motor)
         if db_cls == "LV":
             try:
-                fichas_path = DADOS_OBRAS_ROOT / obra / "Fase-6_Execucao_CAD" / "granular" / "fichas" / "fichas_lv_v2.json"
-                if fichas_path.exists():
-                    fichas_list = _json.loads(fichas_path.read_text('utf-8'))
-                    fichas_map  = {e['viga']: e for e in fichas_list}
-                    base_id = _re.sub(r'[_\.]([AB])$', '', item_id, flags=_re.IGNORECASE)
-                    entry = fichas_map.get(base_id) or fichas_map.get(item_id)
-                    if entry:
-                        return entry
-            except Exception:
-                pass
+                import sys as _sys
+                scripts_dir = str(
+                    Path(__file__).parent.parent.parent.parent / "scripts")
+                if scripts_dir not in _sys.path:
+                    _sys.path.insert(0, scripts_dir)
+                dxf_path = self._get_recorte_dxf_for_er(
+                    obra, classe, item_id,
+                    pav=self.fase8_panel.current_pav_key,
+                )
+                if dxf_path:
+                    from motor_reverso_lv import extrair_ficha_lateral_viga
+                    ficha = extrair_ficha_lateral_viga(
+                        str(dxf_path),
+                        item_id,
+                        obra_name=obra,
+                        obra_root=DADOS_OBRAS_ROOT / obra,
+                    )
+                    if ficha:
+                        _ce_log(
+                            f"LV ficha live {item_id}: "
+                            f"face_units={len(ficha.get('face_units') or [])} "
+                            f"sections={len(ficha.get('section_views') or [])}"
+                        )
+                        return ficha
+            except Exception as exc:
+                _ce_log(f"LV ficha live falhou {item_id}: {exc}")
 
         if db_cls == "LAJ":
             try:
@@ -6670,6 +6861,72 @@ class ComparisonEngineModule(QWidget):
                 return p
         return None
 
+    def _lv_n4_zone_bboxes(self, er_ficha: dict) -> tuple:
+        """Bboxes de visualizacao LV N4: corte com zoom finito e lateral separada."""
+        er_ficha = er_ficha or {}
+        b_cm = float(er_ficha.get('b_cm', er_ficha.get('b_geom', 19)) or 19)
+        sect_total = max(190, int(b_cm) + 178, 1800)
+        section_views = er_ficha.get('section_views') or []
+
+        y_section = -150.0
+        x_points: list[float] = []
+        y_points: list[float] = []
+        for sv in section_views:
+            try:
+                h_sec = float(
+                    sv.get('h_section', sv.get('h_section_cm', 0)) or 0
+                )
+            except Exception:
+                h_sec = 0.0
+            h_sec = max(h_sec, 55.0)
+            y_center = y_section + h_sec / 2.0
+            primitives = (
+                (sv.get('raw') or {}).get('visual_primitives')
+                or sv.get('visual_primitives')
+                or []
+            )
+
+            def _add_point(pt):
+                try:
+                    x_points.append(95.0 + float(pt[0]))
+                    y_points.append(y_center + float(pt[1]))
+                except Exception:
+                    pass
+
+            for prim in primitives:
+                kind = prim.get('kind')
+                if kind in ('line', 'polyline'):
+                    for pt in prim.get('points') or []:
+                        _add_point(pt)
+                elif kind == 'text':
+                    _add_point(prim.get('insert') or [0.0, 0.0])
+                elif kind == 'hatch':
+                    for path in prim.get('paths') or []:
+                        for pt in path:
+                            _add_point(pt)
+
+            if not primitives:
+                x_points.extend([25.0, min(sect_total - 25.0, 165.0)])
+                y_points.extend([y_center - h_sec / 2.0 - 45.0,
+                                 y_center + h_sec / 2.0 + 45.0])
+            y_section -= max(h_sec + 90.0, 180.0)
+
+        if x_points and y_points:
+            vc_bbox = (
+                max(-80.0, min(x_points) - 35.0),
+                min(y_points) - 35.0,
+                min(float(sect_total - 15), max(x_points) + 35.0),
+                max(y_points) + 35.0,
+            )
+            y_min_section = vc_bbox[1]
+            y_max_section = vc_bbox[3]
+        else:
+            vc_bbox = (-60.0, -250.0, float(sect_total - 15), 80.0)
+            y_min_section, y_max_section = vc_bbox[1], vc_bbox[3]
+
+        lat_bbox = (sect_total - 5, y_min_section - 120, 99999, y_max_section + 120)
+        return vc_bbox, lat_bbox
+
     def _start_n4_lv_generation(self, item_id: str, er_ficha: dict,
                                 obra_dir: Path, col):
         """Gera N4 LV via gerar_lv_n4_fichas.py (bypass DB — LV não está no DB)."""
@@ -6678,11 +6935,17 @@ class ComparisonEngineModule(QWidget):
             self.nav_sidebar._enable_item_btns()
             return
 
-        import re as _re
+        import re as _re, tempfile as _tempfile, uuid as _uuid
         base_id = _re.sub(r'[_\.]([AB])$', '', item_id, flags=_re.IGNORECASE)
         n4_script = SCRIPTS_DIR / "arete" / "gerar_lv_n4_fichas.py"
         out_dir    = obra_dir / "Fase-6_Execucao_CAD" / "n4"
         out_dir.mkdir(parents=True, exist_ok=True)
+        entry_path = Path(_tempfile.gettempdir()) / (
+            f"ce_lv_{base_id}_{_uuid.uuid4().hex}.json")
+        entry_path.write_text(
+            json.dumps(er_ficha, ensure_ascii=False, indent=2),
+            encoding="utf-8",
+        )
 
         self._process = QProcess(self)
         self._process.setProcessChannelMode(QProcess.MergedChannels)
@@ -6690,16 +6953,16 @@ class ComparisonEngineModule(QWidget):
 
         def _on_done(code, _sig,
                      _base_id=base_id, _item_id=item_id,
-                     _out_dir=out_dir, _col=col, _er_ficha=er_ficha):
+                     _out_dir=out_dir, _col=col, _er_ficha=er_ficha,
+                     _entry_path=entry_path):
             try:
                 # DXF gerado: LV_preview_{base_id}_A.dxf
                 dxf_path = _out_dir / f"LV_preview_{_base_id}_A.dxf"
                 if code == 0 and dxf_path.exists():
-                    b_cm = float((_er_ficha or {}).get('b_cm', 19) or 19)
-                    sect_total = max(190, int(b_cm) + 178)
+                    vc_bbox, lat_bbox = self._lv_n4_zone_bboxes(_er_ficha or {})
                     lv_zones = {
-                        'Visão Corte': (str(dxf_path), (-50, -9999, sect_total - 15, 9999)),
-                        'Lateral A-B': (str(dxf_path), (sect_total - 5, -9999, 99999, 9999)),
+                        'Visão Corte': (str(dxf_path), vc_bbox),
+                        'Lateral A-B': (str(dxf_path), lat_bbox),
                     }
                     _col.switch_to_lv_zones(lv_zones, _er_ficha or {})
                     _col.pipeline.set_step(2, 'ok', dxf_path.name[:25])
@@ -6710,12 +6973,21 @@ class ComparisonEngineModule(QWidget):
             except Exception as _e:
                 print(f"[CE] _on_done LV n4: {_e}")
             finally:
+                try:
+                    _entry_path.unlink(missing_ok=True)
+                except Exception:
+                    pass
                 self.nav_sidebar._enable_item_btns()
 
         self._process.finished.connect(_on_done)
         self._process.start(
             sys.executable,
-            [str(n4_script), base_id, "--out", str(out_dir)],
+            [
+                str(n4_script), base_id,
+                "--out", str(out_dir),
+                "--obra", str(obra_dir),
+                "--entry-json", str(entry_path),
+            ],
         )
 
     def _start_n4_generation(self, classe: str, item_id: str, er_ficha: dict,
@@ -6834,11 +7106,10 @@ class ComparisonEngineModule(QWidget):
                     canon = _out_dir / f"{_pfx_out}{_item_id}.dxf"
                     generated.replace(canon)
                     if _classe == 'LV':
-                        b_cm = float((_er_ficha or {}).get('b_cm', 19) or 19)
-                        sect_total = max(190, int(b_cm) + 178)
+                        vc_bbox, lat_bbox = self._lv_n4_zone_bboxes(_er_ficha or {})
                         lv_zones = {
-                            'Visão Corte': (str(canon), (-50, -9999, sect_total - 15, 9999)),
-                            'Lateral A-B': (str(canon), (sect_total - 5, -9999, 99999, 9999)),
+                            'Visão Corte': (str(canon), vc_bbox),
+                            'Lateral A-B': (str(canon), lat_bbox),
                         }
                         _col.switch_to_lv_zones(lv_zones, _er_ficha or {})
                     else:

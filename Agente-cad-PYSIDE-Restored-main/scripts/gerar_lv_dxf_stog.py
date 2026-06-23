@@ -50,6 +50,7 @@ SECT_W         = 160    # largura reservada para o detalhe de secao (cm)
 SECT_GAP       = 30     # gap entre secao e Face A
 SECT_PANEL_W   = 4      # espessura do painel na secao (Paineis layer)
 SECT_BOARD_W   = 14     # espessura tabua externa (Madeira layer)
+LV_FACE_X0_MIN = 1800.0  # afasta A/B para o viewer isolar a visao-corte
 
 # ── Cards de folha ───────────────────────────────────────────────────────────
 CARD_W     = 1485
@@ -181,6 +182,7 @@ def extract_panels_from_json(panels_json, laje_central_alt_global=0.0):
             'grade_h2':         float(p.get('grade_h2', 0) or 0),
             'laje_central_alt': lca,
             'reuse':            bool(p.get('reuse', False)),
+            'reuse_regions':    p.get('reuse_regions', []),
             'panel_type':       str(p.get('panel_type', 'Sarrafeado')),
         })
     return panels
@@ -245,8 +247,13 @@ def auto_distribute_panels(comprimento, panels_json, laje_central_alt_global=0.0
 # Primitivos de desenho
 # ──────────────────────────────────────────────────────────────────────────────
 
-def add_text(msp, x, y, text, height, layer, halign=0, valign=0):
+def add_text(msp, x, y, text, height, layer, halign=0, valign=0, color=None):
     attribs = {'insert': (x, y), 'height': height, 'layer': layer}
+    if color not in (None, 256):
+        try:
+            attribs['color'] = int(color)
+        except Exception:
+            pass
     if halign or valign:
         attribs['halign'] = halign
         attribs['valign'] = valign
@@ -385,7 +392,7 @@ def draw_sarr_lv_vertical_pairs(msp, x0, y0, h, panel_widths):
 
 
 def draw_grade_mode(msp, x_cur, y_grade_top, pw, grade_h,
-                    is_first, is_last):
+                    is_first, is_last, layer_override=None):
     """Draw grade (Grade panel type) elements.
 
     Grade mode anatomy from SCR:
@@ -403,7 +410,9 @@ def draw_grade_mode(msp, x_cur, y_grade_top, pw, grade_h,
         return
 
     # Horizontal rect (SARR_2.2x7 layer)
-    a22 = {'layer': 'SARR_2.2x7'}
+    layer22 = layer_override or 'SARR_2.2x7'
+    layer35 = layer_override or 'SARR_3.5x7'
+    a22 = {'layer': layer22}
     msp.add_line((x_gi, y_grade_top - 2.2), (x_gf, y_grade_top - 2.2), dxfattribs=a22)
     msp.add_line((x_gi, y_grade_top),       (x_gf, y_grade_top),       dxfattribs=a22)
     msp.add_line((x_gi, y_grade_top - 2.2), (x_gi, y_grade_top),       dxfattribs=a22)
@@ -413,7 +422,7 @@ def draw_grade_mode(msp, x_cur, y_grade_top, pw, grade_h,
     leg_h = grade_h - 2.2
     leg_w = 3.5
     inset_leg = 15.0  # 15cm inset from edges
-    a35 = {'layer': 'SARR_3.5x7'}
+    a35 = {'layer': layer35}
 
     y_leg_top = y_grade_top - 2.2
     y_leg_bot = y_leg_top - leg_h
@@ -770,11 +779,11 @@ def draw_section_detail(msp, x_center, y0, b, h, viga_nome='', b_alma=19,
     # 13. TEXTO SECAO -- title (layer 'Texto Seção')
     # ═══════════════════════════════════════════════════════════════════════
     if viga_nome and 'Texto Seção' not in skip_layers:
-        add_text(msp, x_center + 15, y0 + h + 8, f'{viga_nome}.A',
-                 13.0, 'Texto Seção')
-        add_text(msp, x_center - 10, y0 + h + 24,
+        add_text(msp, x_center + 15, y0 + h + 14, f'{viga_nome}.A',
+                 8.0, 'Texto Seção')
+        add_text(msp, x_center - 10, y0 + h + 34,
                  f'{viga_nome} ({int(b_alma)}x{int(h)})',
-                 10.0, 'Texto Seção')
+                 8.0, 'Texto Seção')
 
     # ═══════════════════════════════════════════════════════════════════════
     # 14. DIMENSOES -- 6 cotas da secao transversal
@@ -822,7 +831,9 @@ def draw_section_detail(msp, x_center, y0, b, h, viga_nome='', b_alma=19,
 def draw_lv_face(msp, x0, y0, panels, h, nome_face,
                  holes=None, pillar_left=None, pillar_right=None,
                  laje_sup=7.0, laje_inf=7.0, border_strip_width=0.0,
-                 skip_layers=None, nota_face=None, pontaletes_face=None):
+                 skip_layers=None, nota_face=None, pontaletes_face=None,
+                 fallback_panel_ids=True, nom_height=None,
+                 reverse_grade_style=False, suppress_sarrafo_spans=False):
     """Desenha uma face (A ou B) da viga lateral -- todos elementos visuais.
     panels: lista de dicts [{width, height1, height2, grade_h1, grade_h2, reuse, panel_type}, ...]
     holes: lista de aberturas [{active, width, height, position}, ...]
@@ -840,11 +851,23 @@ def draw_lv_face(msp, x0, y0, panels, h, nome_face,
         return comprimento
 
     # ── 1. LAJE INFERIOR -- retangulo fechado com hachura POR PAINEL ─────
-    if laje_inf > 0 and 'SCO-___-LAJ' not in skip_layers:
+    has_local_inf = any(
+        float(p.get('laje_inf_local', p.get('slab_bottom', 0)) or 0) > 0
+        for p in panels
+    )
+    has_laje_inf = has_local_inf or laje_inf > 0
+    if has_laje_inf and 'SCO-___-LAJ' not in skip_layers:
         x_cur = x0
         for p in panels:
             pw = p['width']
-            pts = [(x_cur, y0-laje_inf), (x_cur+pw, y0-laje_inf),
+            li = (
+                float(p.get('laje_inf_local', p.get('slab_bottom', 0)) or 0)
+                if has_local_inf else float(laje_inf or 0)
+            )
+            if li <= 0:
+                x_cur += pw
+                continue
+            pts = [(x_cur, y0-li), (x_cur+pw, y0-li),
                    (x_cur+pw, y0), (x_cur, y0)]
             msp.add_lwpolyline(pts, close=True,
                                dxfattribs={'layer': 'SCO-___-LAJ'})
@@ -854,12 +877,24 @@ def draw_lv_face(msp, x0, y0, panels, h, nome_face,
             x_cur += pw
 
     # ── 2. LAJE SUPERIOR -- retangulo fechado com hachura POR PAINEL ─────
-    if laje_sup > 0 and 'SCO-___-LAJ' not in skip_layers:
+    has_local_sup = any(
+        float(p.get('laje_sup_local', p.get('slab_top', 0)) or 0) > 0
+        for p in panels
+    )
+    has_laje_sup = has_local_sup or laje_sup > 0
+    if has_laje_sup and 'SCO-___-LAJ' not in skip_layers:
         x_cur = x0
         for p in panels:
             pw = p['width']
+            ls = (
+                float(p.get('laje_sup_local', p.get('slab_top', 0)) or 0)
+                if has_local_sup else float(laje_sup or 0)
+            )
+            if ls <= 0:
+                x_cur += pw
+                continue
             pts = [(x_cur, y0+h), (x_cur+pw, y0+h),
-                   (x_cur+pw, y0+h+laje_sup), (x_cur, y0+h+laje_sup)]
+                   (x_cur+pw, y0+h+ls), (x_cur, y0+h+ls)]
             msp.add_lwpolyline(pts, close=True,
                                dxfattribs={'layer': 'SCO-___-LAJ'})
             ht = msp.add_hatch(dxfattribs={'layer': 'Hachura'})
@@ -901,8 +936,28 @@ def draw_lv_face(msp, x0, y0, panels, h, nome_face,
         # Contorno externo do painel
         draw_panel_lines(msp, x_cur, y0, pw, h)
 
-        # REAPROVEITAMENTO hatch desabilitado -- apenas hachuras de laje são mantidas
-        # if is_reuse: ...  (removido a pedido do usuário)
+        # Reproduz somente as faixas detectadas no N2. O fallback de painel
+        # inteiro atende fichas antigas que possuem apenas o booleano reuse.
+        if is_reuse:
+            reuse_regions = p.get('reuse_regions') or [
+                {'x_offset': 0.0, 'y_offset': 0.0, 'width': pw, 'height': h}
+            ]
+            for region in reuse_regions:
+                rx1 = x_cur + max(0.0, float(region.get('x_offset', 0) or 0))
+                ry1 = y0 + max(0.0, float(region.get('y_offset', 0) or 0))
+                rw = max(0.0, float(region.get('width', pw) or 0))
+                rh = max(0.0, float(region.get('height', h) or 0))
+                rx2 = min(x_cur + pw, rx1 + rw)
+                ry2 = min(y0 + h, ry1 + rh)
+                if rx2 - rx1 <= 0.5 or ry2 - ry1 <= 0.5:
+                    continue
+                pts_reuse = [(rx1, ry1), (rx2, ry1),
+                             (rx2, ry2), (rx1, ry2)]
+                ht_reuse = msp.add_hatch(
+                    dxfattribs={'layer': 'Reaproveitamento'})
+                ht_reuse.set_pattern_fill('ANSI31', scale=1.0)
+                ht_reuse.paths.add_polyline_path(
+                    pts_reuse, is_closed=True)
 
         if has_laje_central and lc_h_d > 0.5 and 'SCO-___-LAJ' not in skip_layers:
             # Laje central: retangulo fechado + hachura ANSI31
@@ -917,10 +972,15 @@ def draw_lv_face(msp, x0, y0, panels, h, nome_face,
 
         # ── Sarrafos / Grades for H1 zone ──────────────────────────────
         h1_zone = h1_d if has_laje_central else h
-        if panel_type == 'Grade' and gh1 > 0:
+        if panel_type == 'Grade' and gh1 > 0 and not reverse_grade_style:
             # Grade mode
             y_grade_top = y0 + h1_zone if has_laje_central else y0 + h
-            draw_grade_mode(msp, x_cur, y_grade_top, pw, gh1, is_first, is_last)
+            draw_grade_mode(
+                msp, x_cur, y_grade_top, pw, gh1, is_first, is_last,
+                layer_override=None,
+            )
+        elif panel_type == 'Grade':
+            pass
         else:
             # Standard sarrafo mode: horizontal sarrafos by height
             sarr_layer, sarr_w, positions = _get_sarrafo_positions(h1_zone)
@@ -975,8 +1035,9 @@ def draw_lv_face(msp, x0, y0, panels, h, nome_face,
         x_cur += bsw
 
     # ── 4. Sarrafo spans (SCR anatomy: n_pos×n_panels extra LWPOLY per face)
-    sarr_layer_face, _, positions_face = _get_sarrafo_positions(h)
-    draw_sarrafo_spans(msp, x0, y0, panels, positions_face, sarr_layer_face)
+    if not suppress_sarrafo_spans:
+        sarr_layer_face, _, positions_face = _get_sarrafo_positions(h)
+        draw_sarrafo_spans(msp, x0, y0, panels, positions_face, sarr_layer_face)
 
     # SARR_3.5x7 vertical pairs disabled for count matching (not in SCR face anatomy)
     # draw_sarr_lv_vertical_pairs(msp, x0, y0, h, panel_widths)
@@ -1005,8 +1066,9 @@ def draw_lv_face(msp, x0, y0, panels, h, nome_face,
             _draw_pillar(x0 + comprimento - pr_len - pw_pr, y0, pw_pr, h)
 
     # ── 6. NOMENCLATURA acima do topo ─────────────────────────────────────
-    add_text(msp, x0 + 3, y0 + h + laje_sup + NOM_ABOVE, nome_face,
-             NOM_H, 'NOMENCLATURA')
+    if nome_face:
+        add_text(msp, x0 + 3, y0 + h + laje_sup + NOM_ABOVE, nome_face,
+                 float(nom_height or NOM_H), 'NOMENCLATURA')
 
     # ── 7. IDs de painel: codigos_forma reais (fichas_lv_v2) ou fallback str(i+1)
     x_cur = x0
@@ -1015,14 +1077,36 @@ def draw_lv_face(msp, x0, y0, panels, h, nome_face,
         cx = x_cur + pw / 2
         cy = y0 + h / 2
         codes = p.get('codigos', [])
-        label = ' '.join(codes) if codes else str(i + 1)
-        add_text(msp, cx, cy + 4, label, PID_H, '5', halign=1, valign=2)
+        label = ' '.join(codes) if codes else (str(i + 1) if fallback_panel_ids else '')
+        if label:
+            add_text(msp, cx, cy + 4, label, PID_H, '5', halign=1, valign=2)
         x_cur += pw
 
     # ── 7b. Pontalete count per panel (h>=80: per-panel; 40<=h<80: total face)
     # pontaletes_face override: 0=suprimir, int=total fixo, list=por-painel, None=usar fórmula
     if pontaletes_face == 0:
         pass  # suprimir completamente
+    elif (
+        isinstance(pontaletes_face, list)
+        and pontaletes_face
+        and isinstance(pontaletes_face[0], dict)
+    ):
+        for item in pontaletes_face:
+            try:
+                n_pont = int(item.get('count', 0) or 0)
+                if n_pont <= 0:
+                    continue
+                cx = x0 + float(item.get('x_offset', 0) or 0)
+                cy = y0 + float(item.get('y_offset', h / 2) or h / 2)
+                layer = str(item.get('layer') or '5')
+                height = float(item.get('height') or 9.0)
+                color = item.get('color')
+                add_text(
+                    msp, cx, cy, str(item.get('text') or f'{n_pont} 1/2pont'),
+                    height, layer, halign=1, valign=2, color=color,
+                )
+            except Exception:
+                continue
     elif isinstance(pontaletes_face, list):
         # Override por-painel (ex: [4, 5] para V5.A)
         x_cur = x0
@@ -1151,6 +1235,111 @@ def draw_lv_face(msp, x0, y0, panels, h, nome_face,
 # Viga lateral completa (secao + Face A + Face B)
 # ──────────────────────────────────────────────────────────────────────────────
 
+def _section_visual_attribs(primitive):
+    attribs = {'layer': str(primitive.get('layer') or '0')}
+    try:
+        color = int(primitive.get('color', 256) or 256)
+        if color != 256:
+            attribs['color'] = color
+    except Exception:
+        pass
+    linetype = str(primitive.get('linetype') or 'BYLAYER')
+    if linetype and linetype != 'BYLAYER':
+        attribs['linetype'] = linetype
+    return attribs
+
+
+def draw_section_visual_primitives(msp, section_view, x_center, y_center):
+    """Desenha visao-corte a partir das primitivas extraidas do N2."""
+    if not section_view:
+        return False
+    raw = section_view.get('raw') or {}
+    primitives = (
+        raw.get('visual_primitives')
+        or section_view.get('visual_primitives')
+        or []
+    )
+    if not primitives:
+        return False
+
+    doc = msp.doc
+
+    def point(value):
+        if not value or len(value) < 2:
+            return (x_center, y_center)
+        return (x_center + float(value[0]), y_center + float(value[1]))
+
+    drew = False
+    for primitive in primitives:
+        layer = str(primitive.get('layer') or '0')
+        if layer not in doc.layers:
+            doc.layers.add(layer)
+        attribs = _section_visual_attribs(primitive)
+        kind = primitive.get('kind')
+        try:
+            if kind == 'line':
+                points = primitive.get('points') or []
+                if len(points) == 2:
+                    msp.add_line(point(points[0]), point(points[1]),
+                                 dxfattribs=attribs)
+                    drew = True
+            elif kind == 'polyline':
+                points = primitive.get('points') or []
+                if len(points) >= 2:
+                    msp.add_lwpolyline(
+                        [point(value) for value in points],
+                        close=bool(primitive.get('closed')),
+                        dxfattribs=attribs,
+                    )
+                    drew = True
+            elif kind == 'text':
+                insert = point(primitive.get('insert') or [0.0, 0.0])
+                text = msp.add_text(
+                    str(primitive.get('text') or ''),
+                    dxfattribs={
+                        **attribs,
+                        'insert': insert,
+                        'height': float(primitive.get('height', 7.0) or 7.0),
+                        'rotation': float(primitive.get('rotation', 0.0) or 0.0),
+                    },
+                )
+                halign = int(primitive.get('halign', 0) or 0)
+                valign = int(primitive.get('valign', 0) or 0)
+                if halign or valign:
+                    text.dxf.halign = halign
+                    text.dxf.valign = valign
+                    text.dxf.align_point = point(
+                        primitive.get('align_point')
+                        or primitive.get('insert')
+                        or [0.0, 0.0]
+                    )
+                drew = True
+            elif kind == 'hatch':
+                paths = primitive.get('paths') or []
+                if not paths:
+                    continue
+                hatch = msp.add_hatch(dxfattribs=attribs)
+                if primitive.get('solid'):
+                    color = int(primitive.get('color', 7) or 7)
+                    hatch.set_solid_fill(color=color if 1 <= color <= 255 else 7)
+                else:
+                    hatch.set_pattern_fill(
+                        str(primitive.get('pattern') or 'ANSI31'),
+                        scale=float(primitive.get('scale', 1.0) or 1.0),
+                        angle=float(primitive.get('angle', 0.0) or 0.0),
+                    )
+                for path in paths:
+                    if len(path) >= 3:
+                        hatch.paths.add_polyline_path(
+                            [point(value) for value in path],
+                            is_closed=True,
+                        )
+                        drew = True
+        except Exception:
+            continue
+    return drew
+
+
 def draw_viga_lateral(msp, x_origin, y_top, viga_nome,
                       h_A, h_B, b, h_section=None, b_alma=19,
                       panels_A=None, panels_B=None,
@@ -1163,7 +1352,8 @@ def draw_viga_lateral(msp, x_origin, y_top, viga_nome,
                       border_strip_A=0.0, border_strip_B=0.0,
                       skip_layers=None,
                       nota_face_A=None, nota_face_B=None,
-                      pontaletes_A=None, pontaletes_B=None):
+                      pontaletes_A=None, pontaletes_B=None,
+                      section_views=None):
     """Desenha uma viga lateral completa em uma linha horizontal.
     Positions: [Secao] [SECT_GAP] [Face A] [GAP_AB] [Face B]
     border_strip_A/B: largura do border strip a desenhar após os painéis (0=sem strip).
@@ -1176,15 +1366,20 @@ def draw_viga_lateral(msp, x_origin, y_top, viga_nome,
     comp_B = sum(p['width'] for p in panels_B)
     comprimento = max(comp_A, comp_B, 1.0)
 
-    sect_total = max(SECT_W + SECT_GAP, int(b) + 178)
+    sect_total = max(SECT_W + SECT_GAP, int(b) + 178, LV_FACE_X0_MIN)
     x_A = x_origin + sect_total
     x_sect_center = max(x_origin + 40, x_A - 124 - int(b))
 
     h_sect = h_section if h_section else h_A
     y0_sect = y_top - h_A
-    draw_section_detail(msp, x_sect_center, y0_sect, b, h_sect,
-                        viga_nome=viga_nome, b_alma=b_alma,
-                        h_A=h_A, h_B=h_B, skip_layers=skip_layers)
+    section_view = (section_views or [None])[0]
+    y_center_sect = y0_sect + h_sect / 2.0
+    if not draw_section_visual_primitives(
+        msp, section_view, x_sect_center, y_center_sect
+    ):
+        draw_section_detail(msp, x_sect_center, y0_sect, b, h_sect,
+                            viga_nome=viga_nome, b_alma=b_alma,
+                            h_A=h_A, h_B=h_B, skip_layers=skip_layers)
 
     _ls_A = laje_sup_A if laje_sup_A is not None else laje_sup
     _li_A = laje_inf_A if laje_inf_A is not None else laje_inf
@@ -1218,6 +1413,144 @@ def draw_viga_lateral(msp, x_origin, y_top, viga_nome,
 # ──────────────────────────────────────────────────────────────────────────────
 # Cards de folha
 # ──────────────────────────────────────────────────────────────────────────────
+
+def _panel_from_face_unit_segment(seg: dict, h_face: float) -> dict:
+    """Converte segmento de face_unit N2 para panel consumido pelo gerador."""
+    ptype = str(seg.get('panel_type', 'Sarrafeado'))
+    h1 = float(seg.get('height1', h_face if ptype == 'Sarrafeado' else 0) or 0)
+    if h1 <= 0 and ptype == 'Sarrafeado':
+        h1 = h_face
+    slab_center = float(seg.get('slab_center', seg.get('laje_central_alt', 0)) or 0)
+    central_alt = float(seg.get('laje_central_alt', slab_center) or slab_center)
+    if h1 < 80.0:
+        slab_center = 0.0
+        central_alt = 0.0
+    return {
+        'width':            float(seg.get('largura_cm', seg.get('width', 0)) or 0),
+        'height1':          h1,
+        'height2':          float(seg.get('height2', 0) or 0),
+        'grade_h1':         float(seg.get('grade_h1', 0) or 0),
+        'grade_h2':         float(seg.get('grade_h2', 0) or 0),
+        'laje_central_alt': central_alt,
+        'slab_center':      slab_center,
+        'laje_sup_local':   float(seg.get('laje_sup_local', seg.get('slab_top', 0)) or 0),
+        'laje_inf_local':   float(seg.get('laje_inf_local', seg.get('slab_bottom', 0)) or 0),
+        'slab_top':         float(seg.get('slab_top', seg.get('laje_sup_local', 0)) or 0),
+        'slab_bottom':      float(seg.get('slab_bottom', seg.get('laje_inf_local', 0)) or 0),
+        'reuse':            bool(seg.get('reuse', False)),
+        'reuse_regions':    seg.get('reuse_regions', []),
+        'panel_type':       ptype,
+        'codigos':          seg.get('codigos_forma', []),
+    }
+
+
+def draw_viga_lateral_face_units(msp, x_origin, y_top, viga_nome, face_units,
+                                 section_views=None, b=19.0, skip_layers=None):
+    """Desenha viga LV com unidades/continuacoes detectadas no N2.
+
+    A geometria original do recorte serve para extrair dados e ordenar as
+    unidades. A ficha N4 deve ser limpa/legivel, entao as laterais sao
+    reorganizadas em colunas A/B em vez de preservar coordenadas do recorte.
+    """
+    if skip_layers is None:
+        skip_layers = set()
+    valid_units = []
+    for unit in face_units or []:
+        bbox = unit.get('bbox') or {}
+        segs = unit.get('segments') or unit.get('panels') or []
+        if bbox and segs:
+            valid_units.append(unit)
+    if not valid_units:
+        return x_origin, y_top
+
+    min_x = min(float((u.get('bbox') or {}).get('x_left', 0)) for u in valid_units)
+    max_y = max(float((u.get('bbox') or {}).get('y_top', 0)) for u in valid_units)
+    section_col_w = 210.0
+    face_x0 = x_origin + max(section_col_w + 60.0, LV_FACE_X0_MIN)
+
+    y_section = y_top - 150.0
+    for idx, sv in enumerate(section_views or []):
+        h_sec = float(sv.get('h_section', 0) or sv.get('h_section_cm', 0) or 0)
+        if h_sec <= 0:
+            continue
+        h_a = float(sv.get('h_A', h_sec) or h_sec)
+        h_b = float(sv.get('h_B', h_sec) or h_sec)
+        label = viga_nome if idx == 0 else f'{viga_nome}-{idx + 1}'
+        if not draw_section_visual_primitives(
+            msp, sv, x_origin + 95, y_section + h_sec / 2.0
+        ):
+            draw_section_detail(msp, x_origin + 95, y_section, b, h_sec,
+                                viga_nome=label, b_alma=b, h_A=h_a, h_B=h_b,
+                                skip_layers=skip_layers)
+        y_section -= max(h_sec + 90.0, 180.0)
+
+    prepared_units = []
+    for unit in valid_units:
+        bbox = unit.get('bbox') or {}
+        h_face = float(unit.get('h_body', unit.get('h_total', 0)) or 0)
+        if h_face <= 0:
+            h_face = max(1.0, float(bbox.get('y_top', 0)) - float(bbox.get('y_bot', 0)))
+        panels = [
+            _panel_from_face_unit_segment(seg, h_face)
+            for seg in (unit.get('segments') or unit.get('panels') or [])
+            if float(seg.get('largura_cm', seg.get('width', 0)) or 0) > 0
+        ]
+        if not panels:
+            continue
+        prepared_units.append((unit, bbox, h_face, panels))
+
+    side_order = {'A': 0, 'B': 1}
+    prepared_units.sort(key=lambda item: (
+        side_order.get(str(item[0].get('side') or '').upper(), 2),
+        -float((item[1] or {}).get('y_top', 0)),
+        float((item[1] or {}).get('x_left', 0)),
+    ))
+
+    col_widths = {'A': 0.0, 'B': 0.0, '?': 0.0}
+    for unit, _bbox, _h_face, panels in prepared_units:
+        side = str(unit.get('side') or '?').upper()
+        side = side if side in ('A', 'B') else '?'
+        col_widths[side] = max(
+            col_widths.get(side, 0.0),
+            sum(p['width'] for p in panels) + DIM_H_RIGHT + 50,
+        )
+
+    col_gap = 170.0
+    x_cols = {'A': face_x0}
+    x_cols['B'] = x_cols['A'] + max(col_widths.get('A', 0.0), 260.0) + col_gap
+    x_cols['?'] = x_cols['B'] + max(col_widths.get('B', 0.0), 260.0) + col_gap
+    y_cursors = {side: y_top - 150.0 for side in ('A', 'B', '?')}
+    x_max = face_x0
+    y_min = y_top
+
+    for unit, _bbox, h_face, panels in prepared_units:
+        side = str(unit.get('side') or '?').upper()
+        side = side if side in ('A', 'B') else '?'
+        x0 = x_cols[side]
+        y0 = y_cursors[side] - h_face
+        label = str(unit.get('label') or '')
+        grade_layer_style = str(unit.get('grade_layer_style') or 'native')
+        reverse_grade = grade_layer_style == 'paineis'
+        draw_lv_face(
+            msp, x0, y0, panels, h_face, label,
+            holes=[],
+            pillar_left={'active': False, 'width': 0.0, 'length': 0.0},
+            pillar_right={'active': False, 'width': 0.0, 'length': 0.0},
+            laje_sup=float(unit.get('laje_sup', 0) or 0),
+            laje_inf=float(unit.get('laje_inf', 0) or 0),
+            skip_layers=skip_layers,
+            pontaletes_face=unit.get('pontaletes_face', 0),
+            fallback_panel_ids=False,
+            nom_height=8.0,
+            reverse_grade_style=reverse_grade,
+            suppress_sarrafo_spans=reverse_grade,
+        )
+        x_max = max(x_max, x0 + sum(p['width'] for p in panels) + DIM_H_RIGHT + 40)
+        y_min = min(y_min, y0 - DIM_TOTAL_BELOW - 30)
+        y_cursors[side] = y0 - DIM_TOTAL_BELOW - 110.0
+
+    return max(x_max, x_cols.get('B', face_x0) + col_widths.get('B', 0.0) + 80), y_min
+
 
 def draw_cards(msp, x0, y_bottom, obra_nome=''):
     """Desenha 2 blocos Folhas 1485x1050 (bordas + carimbo)."""
@@ -1280,6 +1613,7 @@ def main():
     fichas_b_map:    dict = {}  # {vname: b_cm}
     fichas_segs_map: dict = {}  # {vname: {'A': [largura_cm,...], 'B': [...]}}  ← widths de fichas
     fichas_panels_map: dict = {} # {vname: {'A': [seg_dict,...], 'B': [...]}}   ← segmentos completos
+    fichas_face_units_map: dict = {} # {vname: [face_unit,...]}                 ← unidades visuais N2
     fichas_laje_map: dict = {}  # {vname: {'sup': float, 'inf': float}}         ← lajesx de fichas
     fichas_nota_map: dict = {}  # {vname: {'A': str, 'B': str}}                 ← nota_face (ref texto)
     fichas_pont_map: dict = {}  # {vname: {'A': int|list|None, 'B': ...}}       ← pontaletes_face override
@@ -1294,6 +1628,9 @@ def main():
                     continue
                 segs   = ficha.get('segmentos', [])
                 segs_B = ficha.get('segmentos_B', [])
+                face_units = ficha.get('face_units', [])
+                if face_units:
+                    fichas_face_units_map[vn] = face_units
                 segs_codes = [seg.get('codigos_forma', []) for seg in segs]
                 if vn not in fichas_map:
                     fichas_map[vn] = {}
@@ -1540,6 +1877,11 @@ def main():
                 'bsw_B': bsw_B,   # border strip width Face B
                 'pl_A': pl_A, 'pr_A': pr_A,
                 'pl_B': pl_B, 'pr_B': pr_B,
+                'face_units': fichas_face_units_map.get(vname, []),
+                'section_views': next(
+                    (f.get('section_views', []) for f in fichas_data if f.get('viga') == vname),
+                    []
+                ) if 'fichas_data' in locals() else [],
             })
 
     if not vigas:
@@ -1606,6 +1948,25 @@ def main():
     y_min_all   = 0.0
 
     for v in vigas:
+        if v.get('face_units'):
+            x_max, y_min = draw_viga_lateral_face_units(
+                msp,
+                x_origin=0.0,
+                y_top=y_cursor,
+                viga_nome=v['nome'],
+                face_units=v.get('face_units', []),
+                section_views=v.get('section_views', []),
+                b=v['b'],
+                skip_layers=skip_layers,
+            )
+            h_span = abs(y_cursor - y_min)
+            print(f'  {v["nome"]:8s}: face_units={len(v.get("face_units", []))}  '
+                  f'sections={len(v.get("section_views", []))}  b={v["b"]:.0f}')
+            x_max_all = max(x_max_all, x_max)
+            y_min_all = min(y_min_all, y_min)
+            y_cursor -= max(h_span + GAP_ROW_LV, 250.0)
+            continue
+
         panels_A = v['panels_A']
         panels_B = v['panels_B']
         if not panels_A:
@@ -1654,6 +2015,7 @@ def main():
             nota_face_B    = _notas.get('B'),
             pontaletes_A   = fichas_pont_map.get(v['nome'], {}).get('A'),
             pontaletes_B   = fichas_pont_map.get(v['nome'], {}).get('B'),
+            section_views  = v.get('section_views', []),
         )
 
         print(f'  {v["nome"]:8s}: comp={v["comp"]:.0f}cm  '

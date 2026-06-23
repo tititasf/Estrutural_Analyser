@@ -128,7 +128,7 @@ if __name__ == "__main__":
 
     n_ok   = sum(1 for r in rs if r["ok"])
     n_fail = len(rs) - n_ok
-    print(f"\n═══ {n_ok}/{len(rs)} PASS | {n_fail} FAIL ═══")
+    print(f"\n=== {n_ok}/{len(rs)} PASS | {n_fail} FAIL ===")
     if n_fail:
         for r in rs:
             if not r["ok"]:

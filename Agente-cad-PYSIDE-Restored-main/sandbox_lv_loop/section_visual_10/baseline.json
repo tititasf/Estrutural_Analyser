@@ -1,0 +1,2170 @@
+{
+  "obra": "Obra_TREINO_1",
+  "items": [
+    "V301",
+    "V302",
+    "V305",
+    "V308",
+    "V310",
+    "V311",
+    "V322",
+    "V327",
+    "V330",
+    "V331"
+  ],
+  "section_contract": {
+    "identity": [
+      "label",
+      "side_context",
+      "continuation"
+    ],
+    "geometry": [
+      "b_cm",
+      "h_section",
+      "h_A",
+      "h_B",
+      "h_body_A",
+      "h_body_B",
+      "laje_sup_A",
+      "laje_inf_A",
+      "laje_sup_B",
+      "laje_inf_B",
+      "level_beam",
+      "level_opposite",
+      "level_ceiling",
+      "bottom",
+      "topology",
+      "body_width_cm",
+      "extension_left_cm",
+      "extension_right_cm",
+      "concrete_profiles"
+    ],
+    "assembly": [
+      "mode_h1_A",
+      "mode_h1_B",
+      "mode_h2_A",
+      "mode_h2_B",
+      "grade_h1_A",
+      "grade_h1_B",
+      "grade_h2_A",
+      "grade_h2_B",
+      "sarrafo_left",
+      "sarrafo_right",
+      "barrote",
+      "anchor_bars",
+      "concrete_hatch",
+      "pontalete"
+    ]
+  },
+  "generator_consumed": [
+    "b_cm",
+    "h_A",
+    "h_B",
+    "h_section",
+    "label"
+  ],
+  "beams": [
+    {
+      "item": "V301",
+      "official_recorte": {
+        "id": 7,
+        "obra_name": "Obra_TREINO_1",
+        "projeto_id": "35396c02-4623-4653-a7f4-3807fe3568c6",
+        "elemento_id": "V301",
+        "recorte_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- LV - R00\\LV_V301_motor_178111332829.dxf",
+        "status": "aprovado",
+        "confidence": 100.0,
+        "created_at": "2026-06-09T14:41:54.977699",
+        "sha256": "52a4c6a73bb6edaec239f4219fcc743e36453488b42b872f4eeb65c1217f41fe"
+      },
+      "section_count": 2,
+      "rendered_pairs": 2,
+      "avg_field_coverage_pct": 44.4,
+      "avg_visual_score": 25.6
+    },
+    {
+      "item": "V302",
+      "official_recorte": {
+        "id": 8,
+        "obra_name": "Obra_TREINO_1",
+        "projeto_id": "35396c02-4623-4653-a7f4-3807fe3568c6",
+        "elemento_id": "V302",
+        "recorte_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- LV - R00\\LV_V302_motor_178111332849.dxf",
+        "status": "aprovado",
+        "confidence": 100.0,
+        "created_at": "2026-06-09T14:42:41.520181",
+        "sha256": "59251dc661532d8873bce93095d5eacbb7cbc180b8351391847c23400bd38bdd"
+      },
+      "section_count": 1,
+      "rendered_pairs": 1,
+      "avg_field_coverage_pct": 44.4,
+      "avg_visual_score": 20.7
+    },
+    {
+      "item": "V305",
+      "official_recorte": {
+        "id": 20,
+        "obra_name": "Obra_TREINO_1",
+        "projeto_id": "35396c02-4623-4653-a7f4-3807fe3568c6",
+        "elemento_id": "V305",
+        "recorte_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- LV - R00\\LV_V305_motor_178111332881.dxf",
+        "status": "aprovado",
+        "confidence": 100.0,
+        "created_at": "2026-06-09T22:42:58.019073",
+        "sha256": "077a524211abedbb5703e2200d120007528b529bbff7ae7fb75aa5647a764d11"
+      },
+      "section_count": 1,
+      "rendered_pairs": 1,
+      "avg_field_coverage_pct": 44.4,
+      "avg_visual_score": 29.9
+    },
+    {
+      "item": "V308",
+      "official_recorte": {
+        "id": 22,
+        "obra_name": "Obra_TREINO_1",
+        "projeto_id": "35396c02-4623-4653-a7f4-3807fe3568c6",
+        "elemento_id": "V308",
+        "recorte_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- LV - R00\\LV_V308_motor_178111332904.dxf",
+        "status": "aprovado",
+        "confidence": 100.0,
+        "created_at": "2026-06-09T22:42:58.019073",
+        "sha256": "1ace666ce191413450b35a3aa89f6362cf0b08b404f89b7d1f4bbb3cf9450d9c"
+      },
+      "section_count": 2,
+      "rendered_pairs": 2,
+      "avg_field_coverage_pct": 44.4,
+      "avg_visual_score": 11.5
+    },
+    {
+      "item": "V310",
+      "official_recorte": {
+        "id": 23,
+        "obra_name": "Obra_TREINO_1",
+        "projeto_id": "35396c02-4623-4653-a7f4-3807fe3568c6",
+        "elemento_id": "V310",
+        "recorte_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- LV - R00\\LV_V310_motor_178111332912.dxf",
+        "status": "aprovado",
+        "confidence": 100.0,
+        "created_at": "2026-06-09T22:42:58.019073",
+        "sha256": "adaf38de1f89f5b55c01b7167d15be876dc5cbea228958f11d18163ebfb03ffc"
+      },
+      "section_count": 1,
+      "rendered_pairs": 1,
+      "avg_field_coverage_pct": 44.4,
+      "avg_visual_score": 30.3
+    },
+    {
+      "item": "V311",
+      "official_recorte": {
+        "id": 24,
+        "obra_name": "Obra_TREINO_1",
+        "projeto_id": "35396c02-4623-4653-a7f4-3807fe3568c6",
+        "elemento_id": "V311",
+        "recorte_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- LV - R00\\LV_V311_motor_178111332923.dxf",
+        "status": "aprovado",
+        "confidence": 100.0,
+        "created_at": "2026-06-09T22:42:58.019073",
+        "sha256": "2e15efb7ff7397787f27b26314d9f01ed32038df91bac71990ff4adf5ce904d2"
+      },
+      "section_count": 1,
+      "rendered_pairs": 1,
+      "avg_field_coverage_pct": 44.4,
+      "avg_visual_score": 27.2
+    },
+    {
+      "item": "V322",
+      "official_recorte": {
+        "id": 34,
+        "obra_name": "Obra_TREINO_1",
+        "projeto_id": "35396c02-4623-4653-a7f4-3807fe3568c6",
+        "elemento_id": "V322",
+        "recorte_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- LV - R00\\LV_V322_motor_178111333046.dxf",
+        "status": "aprovado",
+        "confidence": 100.0,
+        "created_at": "2026-06-09T22:42:58.019073",
+        "sha256": "a4d25004ea159dad395cb00afa446e65d052babd74925f646ed032dfff7c954b"
+      },
+      "section_count": 1,
+      "rendered_pairs": 1,
+      "avg_field_coverage_pct": 44.4,
+      "avg_visual_score": 18.2
+    },
+    {
+      "item": "V327",
+      "official_recorte": {
+        "id": 39,
+        "obra_name": "Obra_TREINO_1",
+        "projeto_id": "35396c02-4623-4653-a7f4-3807fe3568c6",
+        "elemento_id": "V327",
+        "recorte_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- LV - R00\\LV_V327_motor_178111333096.dxf",
+        "status": "aprovado",
+        "confidence": 100.0,
+        "created_at": "2026-06-09T22:42:58.019073",
+        "sha256": "ba4d533de456646f5336e5fbaebf47b0877f6e40328e691c131fe0891027bb73"
+      },
+      "section_count": 1,
+      "rendered_pairs": 1,
+      "avg_field_coverage_pct": 44.4,
+      "avg_visual_score": 25.5
+    },
+    {
+      "item": "V330",
+      "official_recorte": {
+        "id": 42,
+        "obra_name": "Obra_TREINO_1",
+        "projeto_id": "35396c02-4623-4653-a7f4-3807fe3568c6",
+        "elemento_id": "V330",
+        "recorte_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- LV - R00\\LV_V330_motor_178111333126.dxf",
+        "status": "aprovado",
+        "confidence": 100.0,
+        "created_at": "2026-06-09T22:42:58.019073",
+        "sha256": "aba3d38bbd4ba8e37a21773dfe7b161166811e833345e885a3855cd125691b26"
+      },
+      "section_count": 2,
+      "rendered_pairs": 2,
+      "avg_field_coverage_pct": 44.4,
+      "avg_visual_score": 20.8
+    },
+    {
+      "item": "V331",
+      "official_recorte": {
+        "id": 43,
+        "obra_name": "Obra_TREINO_1",
+        "projeto_id": "35396c02-4623-4653-a7f4-3807fe3568c6",
+        "elemento_id": "V331",
+        "recorte_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- LV - R00\\LV_V331_motor_178111333134.dxf",
+        "status": "aprovado",
+        "confidence": 100.0,
+        "created_at": "2026-06-09T22:42:58.019073",
+        "sha256": "ec230545b294e09825c18719f27b64986a7fc53093c0f87134d495eedb236e07"
+      },
+      "section_count": 1,
+      "rendered_pairs": 1,
+      "avg_field_coverage_pct": 44.4,
+      "avg_visual_score": 31.3
+    }
+  ],
+  "pairs": [
+    {
+      "item": "V301",
+      "view_idx": 1,
+      "view": {
+        "idx": 1,
+        "label": "Corte 1",
+        "h_A": 59.0,
+        "h_B": 59.0,
+        "b_cm": 19.0,
+        "h_section": 55.0,
+        "laje_sup_A": 13.0,
+        "laje_inf_A": 0.0,
+        "laje_sup_B": 10.0,
+        "laje_inf_B": 0.0,
+        "raw": {
+          "label": "Corte 1",
+          "b": 19.0,
+          "h_section": 55.0,
+          "h_A": 59.0,
+          "h_B": 59.0,
+          "h_body_A": 44.0,
+          "h_body_B": 40.0,
+          "laje_sup_A": 13.0,
+          "laje_inf_A": 0.0,
+          "laje_sup_B": 10.0,
+          "laje_inf_B": 0.0,
+          "topology": "bilateral",
+          "extension_left_cm": 27.8,
+          "extension_right_cm": 27.8,
+          "body_width_cm": 19.0,
+          "concrete_profiles": [
+            [
+              [
+                -29.95,
+                35.25
+              ],
+              [
+                -29.95,
+                -44.75
+              ],
+              [
+                8.05,
+                -44.75
+              ],
+              [
+                8.05,
+                31.25
+              ],
+              [
+                63.65,
+                31.25
+              ],
+              [
+                63.65,
+                51.25
+              ],
+              [
+                8.45,
+                51.25
+              ],
+              [
+                8.45,
+                65.25
+              ],
+              [
+                -29.95,
+                65.25
+              ]
+            ],
+            [
+              [
+                -85.55,
+                39.25
+              ],
+              [
+                -85.55,
+                65.25
+              ],
+              [
+                -29.95,
+                65.25
+              ],
+              [
+                -29.95,
+                65.25
+              ],
+              [
+                8.45,
+                65.25
+              ],
+              [
+                8.05,
+                -44.75
+              ],
+              [
+                -29.95,
+                -44.75
+              ],
+              [
+                -29.95,
+                39.25
+              ]
+            ]
+          ],
+          "concrete_segments": [],
+          "profile_source": "concrete_layer_geometry",
+          "bbox": {
+            "x_left": 5147.1,
+            "x_right": 5457.1,
+            "y_bot": 7957.6,
+            "y_top": 8307.6
+          },
+          "source": "section_text_cluster"
+        }
+      },
+      "n2_png": "V301\\n2_section_01.png",
+      "n4_png": "V301\\n4_section_01_Corte.png",
+      "field_report": {
+        "contract_fields": 36,
+        "present_fields": [
+          "label",
+          "b_cm",
+          "h_section",
+          "h_A",
+          "h_B",
+          "h_body_A",
+          "h_body_B",
+          "laje_sup_A",
+          "laje_inf_A",
+          "laje_sup_B",
+          "laje_inf_B",
+          "topology",
+          "body_width_cm",
+          "extension_left_cm",
+          "extension_right_cm",
+          "concrete_profiles"
+        ],
+        "missing_fields": [
+          "side_context",
+          "continuation",
+          "level_beam",
+          "level_opposite",
+          "level_ceiling",
+          "bottom",
+          "mode_h1_A",
+          "mode_h1_B",
+          "mode_h2_A",
+          "mode_h2_B",
+          "grade_h1_A",
+          "grade_h1_B",
+          "grade_h2_A",
+          "grade_h2_B",
+          "sarrafo_left",
+          "sarrafo_right",
+          "barrote",
+          "anchor_bars",
+          "concrete_hatch",
+          "pontalete"
+        ],
+        "coverage_pct": 44.4,
+        "generator_consumed_fields": [
+          "b_cm",
+          "h_A",
+          "h_B",
+          "h_section",
+          "label"
+        ],
+        "generator_coverage_pct": 100.0
+      },
+      "visual_metric": {
+        "mask_iou": 0.0101,
+        "density_ratio": 0.9915,
+        "coarse_visual_score": 35.4,
+        "note": "metrica preliminar; veredito final exige inspecao visual do agente"
+      }
+    },
+    {
+      "item": "V301",
+      "view_idx": 2,
+      "view": {
+        "idx": 2,
+        "label": "Corte 2",
+        "h_A": 124.0,
+        "h_B": 124.0,
+        "b_cm": 19.0,
+        "h_section": 120.0,
+        "laje_sup_A": 13.0,
+        "laje_inf_A": 0.0,
+        "laje_sup_B": 10.0,
+        "laje_inf_B": 0.0,
+        "raw": {
+          "label": "Corte 2",
+          "b": 19.0,
+          "h_section": 120.0,
+          "h_A": 124.0,
+          "h_B": 124.0,
+          "h_body_A": 109.0,
+          "h_body_B": 105.0,
+          "laje_sup_A": 13.0,
+          "laje_inf_A": 0.0,
+          "laje_sup_B": 10.0,
+          "laje_inf_B": 0.0,
+          "topology": "bilateral",
+          "extension_left_cm": 27.8,
+          "extension_right_cm": 27.8,
+          "body_width_cm": 19.0,
+          "concrete_profiles": [
+            [
+              [
+                -29.75,
+                148.75
+              ],
+              [
+                -29.75,
+                -61.25
+              ],
+              [
+                8.25,
+                -61.25
+              ],
+              [
+                8.25,
+                144.75
+              ],
+              [
+                63.85,
+                144.75
+              ],
+              [
+                63.85,
+                164.75
+              ],
+              [
+                8.65,
+                164.75
+              ],
+              [
+                8.65,
+                178.75
+              ],
+              [
+                -29.75,
+                178.75
+              ]
+            ],
+            [
+              [
+                -85.35,
+                152.75
+              ],
+              [
+                -85.35,
+                178.75
+              ],
+              [
+                -29.75,
+                178.75
+              ],
+              [
+                -29.75,
+                178.75
+              ],
+              [
+                8.65,
+                178.75
+              ],
+              [
+                8.25,
+                -61.25
+              ],
+              [
+                -29.75,
+                -61.25
+              ],
+              [
+                -29.75,
+                152.75
+              ]
+            ]
+          ],
+          "concrete_segments": [],
+          "profile_source": "concrete_layer_geometry",
+          "bbox": {
+            "x_left": 5146.9,
+            "x_right": 5456.9,
+            "y_bot": 7592.9,
+            "y_top": 7942.9
+          },
+          "source": "section_text_cluster"
+        }
+      },
+      "n2_png": "V301\\n2_section_02.png",
+      "n4_png": "V301\\n4_section_02_Corte.png",
+      "field_report": {
+        "contract_fields": 36,
+        "present_fields": [
+          "label",
+          "b_cm",
+          "h_section",
+          "h_A",
+          "h_B",
+          "h_body_A",
+          "h_body_B",
+          "laje_sup_A",
+          "laje_inf_A",
+          "laje_sup_B",
+          "laje_inf_B",
+          "topology",
+          "body_width_cm",
+          "extension_left_cm",
+          "extension_right_cm",
+          "concrete_profiles"
+        ],
+        "missing_fields": [
+          "side_context",
+          "continuation",
+          "level_beam",
+          "level_opposite",
+          "level_ceiling",
+          "bottom",
+          "mode_h1_A",
+          "mode_h1_B",
+          "mode_h2_A",
+          "mode_h2_B",
+          "grade_h1_A",
+          "grade_h1_B",
+          "grade_h2_A",
+          "grade_h2_B",
+          "sarrafo_left",
+          "sarrafo_right",
+          "barrote",
+          "anchor_bars",
+          "concrete_hatch",
+          "pontalete"
+        ],
+        "coverage_pct": 44.4,
+        "generator_consumed_fields": [
+          "b_cm",
+          "h_A",
+          "h_B",
+          "h_section",
+          "label"
+        ],
+        "generator_coverage_pct": 100.0
+      },
+      "visual_metric": {
+        "mask_iou": 0.0234,
+        "density_ratio": 0.4073,
+        "coarse_visual_score": 15.8,
+        "note": "metrica preliminar; veredito final exige inspecao visual do agente"
+      }
+    },
+    {
+      "item": "V302",
+      "view_idx": 1,
+      "view": {
+        "idx": 1,
+        "label": "Corte 1",
+        "h_A": 59.0,
+        "h_B": 59.0,
+        "b_cm": 19.0,
+        "h_section": 55.0,
+        "laje_sup_A": 14.0,
+        "laje_inf_A": 0.0,
+        "laje_sup_B": 12.0,
+        "laje_inf_B": 0.0,
+        "raw": {
+          "label": "Corte 1",
+          "b": 19.0,
+          "h_section": 55.0,
+          "h_A": 59.0,
+          "h_B": 59.0,
+          "h_body_A": 43.0,
+          "h_body_B": 45.0,
+          "laje_sup_A": 14.0,
+          "laje_inf_A": 0.0,
+          "laje_sup_B": 12.0,
+          "laje_inf_B": 0.0,
+          "topology": "bilateral",
+          "extension_left_cm": 27.8,
+          "extension_right_cm": 30.0,
+          "body_width_cm": 19.0,
+          "concrete_profiles": [
+            [
+              [
+                -85.1,
+                37.25
+              ],
+              [
+                -85.1,
+                65.25
+              ],
+              [
+                68.5,
+                65.25
+              ],
+              [
+                68.5,
+                41.25
+              ],
+              [
+                8.5,
+                41.25
+              ],
+              [
+                8.5,
+                -44.75
+              ],
+              [
+                -29.5,
+                -44.75
+              ],
+              [
+                -29.5,
+                37.25
+              ]
+            ]
+          ],
+          "concrete_segments": [],
+          "profile_source": "concrete_layer_geometry",
+          "bbox": {
+            "x_left": 3554.8,
+            "x_right": 3864.8,
+            "y_bot": 6809.0,
+            "y_top": 7159.0
+          },
+          "source": "section_text_cluster"
+        }
+      },
+      "n2_png": "V302\\n2_section_01.png",
+      "n4_png": "V302\\n4_section_01_Corte.png",
+      "field_report": {
+        "contract_fields": 36,
+        "present_fields": [
+          "label",
+          "b_cm",
+          "h_section",
+          "h_A",
+          "h_B",
+          "h_body_A",
+          "h_body_B",
+          "laje_sup_A",
+          "laje_inf_A",
+          "laje_sup_B",
+          "laje_inf_B",
+          "topology",
+          "body_width_cm",
+          "extension_left_cm",
+          "extension_right_cm",
+          "concrete_profiles"
+        ],
+        "missing_fields": [
+          "side_context",
+          "continuation",
+          "level_beam",
+          "level_opposite",
+          "level_ceiling",
+          "bottom",
+          "mode_h1_A",
+          "mode_h1_B",
+          "mode_h2_A",
+          "mode_h2_B",
+          "grade_h1_A",
+          "grade_h1_B",
+          "grade_h2_A",
+          "grade_h2_B",
+          "sarrafo_left",
+          "sarrafo_right",
+          "barrote",
+          "anchor_bars",
+          "concrete_hatch",
+          "pontalete"
+        ],
+        "coverage_pct": 44.4,
+        "generator_consumed_fields": [
+          "b_cm",
+          "h_A",
+          "h_B",
+          "h_section",
+          "label"
+        ],
+        "generator_coverage_pct": 100.0
+      },
+      "visual_metric": {
+        "mask_iou": 0.0092,
+        "density_ratio": 0.5752,
+        "coarse_visual_score": 20.7,
+        "note": "metrica preliminar; veredito final exige inspecao visual do agente"
+      }
+    },
+    {
+      "item": "V305",
+      "view_idx": 1,
+      "view": {
+        "idx": 1,
+        "label": "Corte 1",
+        "h_A": 59.0,
+        "h_B": 59.0,
+        "b_cm": 19.0,
+        "h_section": 55.0,
+        "laje_sup_A": 0.0,
+        "laje_inf_A": 0.0,
+        "laje_sup_B": 0.0,
+        "laje_inf_B": 0.0,
+        "raw": {
+          "label": "Corte 1",
+          "b": 19.0,
+          "h_section": 55.0,
+          "h_A": 59.0,
+          "h_B": 59.0,
+          "h_body_A": 0.0,
+          "h_body_B": 0.0,
+          "laje_sup_A": 0.0,
+          "laje_inf_A": 0.0,
+          "laje_sup_B": 0.0,
+          "laje_inf_B": 0.0,
+          "topology": "u_straight",
+          "extension_left_cm": 0.0,
+          "extension_right_cm": 0.0,
+          "body_width_cm": 19.0,
+          "concrete_profiles": [
+            [
+              [
+                -29.5,
+                65.25
+              ],
+              [
+                8.5,
+                65.25
+              ],
+              [
+                8.5,
+                37.25
+              ],
+              [
+                8.5,
+                -44.75
+              ],
+              [
+                -29.5,
+                -44.75
+              ],
+              [
+                -29.5,
+                65.25
+              ]
+            ]
+          ],
+          "concrete_segments": [],
+          "profile_source": "concrete_layer_geometry",
+          "bbox": {
+            "x_left": 3730.5,
+            "x_right": 4040.5,
+            "y_bot": 5660.4,
+            "y_top": 6010.4
+          },
+          "source": "section_text_cluster"
+        }
+      },
+      "n2_png": "V305\\n2_section_01.png",
+      "n4_png": "V305\\n4_section_01_Corte.png",
+      "field_report": {
+        "contract_fields": 36,
+        "present_fields": [
+          "label",
+          "b_cm",
+          "h_section",
+          "h_A",
+          "h_B",
+          "h_body_A",
+          "h_body_B",
+          "laje_sup_A",
+          "laje_inf_A",
+          "laje_sup_B",
+          "laje_inf_B",
+          "topology",
+          "body_width_cm",
+          "extension_left_cm",
+          "extension_right_cm",
+          "concrete_profiles"
+        ],
+        "missing_fields": [
+          "side_context",
+          "continuation",
+          "level_beam",
+          "level_opposite",
+          "level_ceiling",
+          "bottom",
+          "mode_h1_A",
+          "mode_h1_B",
+          "mode_h2_A",
+          "mode_h2_B",
+          "grade_h1_A",
+          "grade_h1_B",
+          "grade_h2_A",
+          "grade_h2_B",
+          "sarrafo_left",
+          "sarrafo_right",
+          "barrote",
+          "anchor_bars",
+          "concrete_hatch",
+          "pontalete"
+        ],
+        "coverage_pct": 44.4,
+        "generator_consumed_fields": [
+          "b_cm",
+          "h_A",
+          "h_B",
+          "h_section",
+          "label"
+        ],
+        "generator_coverage_pct": 100.0
+      },
+      "visual_metric": {
+        "mask_iou": 0.0481,
+        "density_ratio": 0.7638,
+        "coarse_visual_score": 29.9,
+        "note": "metrica preliminar; veredito final exige inspecao visual do agente"
+      }
+    },
+    {
+      "item": "V308",
+      "view_idx": 1,
+      "view": {
+        "idx": 1,
+        "label": "Corte 1",
+        "h_A": 59.0,
+        "h_B": 59.0,
+        "b_cm": 19.0,
+        "h_section": 55.0,
+        "laje_sup_A": 0.0,
+        "laje_inf_A": 0.0,
+        "laje_sup_B": 0.0,
+        "laje_inf_B": 0.0,
+        "raw": {
+          "label": "Corte 1",
+          "b": 19.0,
+          "h_section": 55.0,
+          "h_A": 59.0,
+          "h_B": 59.0,
+          "h_body_A": 0.0,
+          "h_body_B": 0.0,
+          "laje_sup_A": 0.0,
+          "laje_inf_A": 0.0,
+          "laje_sup_B": 0.0,
+          "laje_inf_B": 0.0,
+          "topology": "u_straight",
+          "extension_left_cm": 0.0,
+          "extension_right_cm": 0.0,
+          "body_width_cm": 19.0,
+          "concrete_profiles": [
+            [
+              [
+                -29.5,
+                65.25
+              ],
+              [
+                -29.5,
+                65.25
+              ],
+              [
+                8.5,
+                65.25
+              ],
+              [
+                8.5,
+                37.25
+              ],
+              [
+                8.5,
+                37.25
+              ],
+              [
+                8.5,
+                -44.75
+              ],
+              [
+                -29.5,
+                -44.75
+              ],
+              [
+                -29.5,
+                65.25
+              ]
+            ]
+          ],
+          "concrete_segments": [],
+          "profile_source": "concrete_layer_geometry",
+          "bbox": {
+            "x_left": 2312.7,
+            "x_right": 2622.7,
+            "y_bot": 4511.8,
+            "y_top": 4861.8
+          },
+          "source": "section_text_cluster"
+        }
+      },
+      "n2_png": "V308\\n2_section_01.png",
+      "n4_png": "V308\\n4_section_01_Corte.png",
+      "field_report": {
+        "contract_fields": 36,
+        "present_fields": [
+          "label",
+          "b_cm",
+          "h_section",
+          "h_A",
+          "h_B",
+          "h_body_A",
+          "h_body_B",
+          "laje_sup_A",
+          "laje_inf_A",
+          "laje_sup_B",
+          "laje_inf_B",
+          "topology",
+          "body_width_cm",
+          "extension_left_cm",
+          "extension_right_cm",
+          "concrete_profiles"
+        ],
+        "missing_fields": [
+          "side_context",
+          "continuation",
+          "level_beam",
+          "level_opposite",
+          "level_ceiling",
+          "bottom",
+          "mode_h1_A",
+          "mode_h1_B",
+          "mode_h2_A",
+          "mode_h2_B",
+          "grade_h1_A",
+          "grade_h1_B",
+          "grade_h2_A",
+          "grade_h2_B",
+          "sarrafo_left",
+          "sarrafo_right",
+          "barrote",
+          "anchor_bars",
+          "concrete_hatch",
+          "pontalete"
+        ],
+        "coverage_pct": 44.4,
+        "generator_consumed_fields": [
+          "b_cm",
+          "h_A",
+          "h_B",
+          "h_section",
+          "label"
+        ],
+        "generator_coverage_pct": 100.0
+      },
+      "visual_metric": {
+        "mask_iou": 0.0178,
+        "density_ratio": 0.3167,
+        "coarse_visual_score": 12.2,
+        "note": "metrica preliminar; veredito final exige inspecao visual do agente"
+      }
+    },
+    {
+      "item": "V308",
+      "view_idx": 2,
+      "view": {
+        "idx": 2,
+        "label": "Corte 2",
+        "h_A": 59.0,
+        "h_B": 59.0,
+        "b_cm": 19.0,
+        "h_section": 55.0,
+        "laje_sup_A": 0.0,
+        "laje_inf_A": 0.0,
+        "laje_sup_B": 12.0,
+        "laje_inf_B": 0.0,
+        "raw": {
+          "label": "Corte 2",
+          "b": 19.0,
+          "h_section": 55.0,
+          "h_A": 59.0,
+          "h_B": 59.0,
+          "h_body_A": 0.0,
+          "h_body_B": 45.0,
+          "laje_sup_A": 0.0,
+          "laje_inf_A": 0.0,
+          "laje_sup_B": 12.0,
+          "laje_inf_B": 0.0,
+          "topology": "extension_right",
+          "extension_left_cm": 0.0,
+          "extension_right_cm": 27.8,
+          "body_width_cm": 19.0,
+          "concrete_profiles": [
+            [
+              [
+                72.09,
+                41.25
+              ],
+              [
+                72.09,
+                65.25
+              ],
+              [
+                -21.51,
+                65.25
+              ],
+              [
+                -21.51,
+                37.25
+              ],
+              [
+                -21.51,
+                37.25
+              ],
+              [
+                -21.51,
+                -44.75
+              ],
+              [
+                16.49,
+                -44.75
+              ],
+              [
+                16.49,
+                41.25
+              ]
+            ]
+          ],
+          "concrete_segments": [],
+          "profile_source": "concrete_layer_geometry",
+          "bbox": {
+            "x_left": 2551.6,
+            "x_right": 2861.6,
+            "y_bot": 4511.8,
+            "y_top": 4861.8
+          },
+          "source": "section_text_cluster"
+        }
+      },
+      "n2_png": "V308\\n2_section_02.png",
+      "n4_png": "V308\\n4_section_02_Corte.png",
+      "field_report": {
+        "contract_fields": 36,
+        "present_fields": [
+          "label",
+          "b_cm",
+          "h_section",
+          "h_A",
+          "h_B",
+          "h_body_A",
+          "h_body_B",
+          "laje_sup_A",
+          "laje_inf_A",
+          "laje_sup_B",
+          "laje_inf_B",
+          "topology",
+          "body_width_cm",
+          "extension_left_cm",
+          "extension_right_cm",
+          "concrete_profiles"
+        ],
+        "missing_fields": [
+          "side_context",
+          "continuation",
+          "level_beam",
+          "level_opposite",
+          "level_ceiling",
+          "bottom",
+          "mode_h1_A",
+          "mode_h1_B",
+          "mode_h2_A",
+          "mode_h2_B",
+          "grade_h1_A",
+          "grade_h1_B",
+          "grade_h2_A",
+          "grade_h2_B",
+          "sarrafo_left",
+          "sarrafo_right",
+          "barrote",
+          "anchor_bars",
+          "concrete_hatch",
+          "pontalete"
+        ],
+        "coverage_pct": 44.4,
+        "generator_consumed_fields": [
+          "b_cm",
+          "h_A",
+          "h_B",
+          "h_section",
+          "label"
+        ],
+        "generator_coverage_pct": 100.0
+      },
+      "visual_metric": {
+        "mask_iou": 0.0134,
+        "density_ratio": 0.2823,
+        "coarse_visual_score": 10.8,
+        "note": "metrica preliminar; veredito final exige inspecao visual do agente"
+      }
+    },
+    {
+      "item": "V310",
+      "view_idx": 1,
+      "view": {
+        "idx": 1,
+        "label": "Corte 1",
+        "h_A": 54.0,
+        "h_B": 54.0,
+        "b_cm": 19.0,
+        "h_section": 50.0,
+        "laje_sup_A": 14.0,
+        "laje_inf_A": 0.0,
+        "laje_sup_B": 12.0,
+        "laje_inf_B": 0.0,
+        "raw": {
+          "label": "Corte 1",
+          "b": 19.0,
+          "h_section": 50.0,
+          "h_A": 54.0,
+          "h_B": 54.0,
+          "h_body_A": 38.0,
+          "h_body_B": 40.0,
+          "laje_sup_A": 14.0,
+          "laje_inf_A": 0.0,
+          "laje_sup_B": 12.0,
+          "laje_inf_B": 0.0,
+          "topology": "bilateral",
+          "extension_left_cm": 27.8,
+          "extension_right_cm": 30.0,
+          "body_width_cm": 19.0,
+          "concrete_profiles": [
+            [
+              [
+                -85.1,
+                32.25
+              ],
+              [
+                -85.1,
+                60.25
+              ],
+              [
+                68.5,
+                60.25
+              ],
+              [
+                68.5,
+                36.25
+              ],
+              [
+                8.5,
+                36.25
+              ],
+              [
+                8.5,
+                -39.75
+              ],
+              [
+                -29.5,
+                -39.75
+              ],
+              [
+                -29.5,
+                32.25
+              ],
+              [
+                -85.1,
+                32.25
+              ]
+            ]
+          ],
+          "concrete_segments": [],
+          "profile_source": "concrete_layer_geometry",
+          "bbox": {
+            "x_left": 3621.4,
+            "x_right": 3931.4,
+            "y_bot": 4068.9,
+            "y_top": 4418.9
+          },
+          "source": "section_text_cluster"
+        }
+      },
+      "n2_png": "V310\\n2_section_01.png",
+      "n4_png": "V310\\n4_section_01_Corte.png",
+      "field_report": {
+        "contract_fields": 36,
+        "present_fields": [
+          "label",
+          "b_cm",
+          "h_section",
+          "h_A",
+          "h_B",
+          "h_body_A",
+          "h_body_B",
+          "laje_sup_A",
+          "laje_inf_A",
+          "laje_sup_B",
+          "laje_inf_B",
+          "topology",
+          "body_width_cm",
+          "extension_left_cm",
+          "extension_right_cm",
+          "concrete_profiles"
+        ],
+        "missing_fields": [
+          "side_context",
+          "continuation",
+          "level_beam",
+          "level_opposite",
+          "level_ceiling",
+          "bottom",
+          "mode_h1_A",
+          "mode_h1_B",
+          "mode_h2_A",
+          "mode_h2_B",
+          "grade_h1_A",
+          "grade_h1_B",
+          "grade_h2_A",
+          "grade_h2_B",
+          "sarrafo_left",
+          "sarrafo_right",
+          "barrote",
+          "anchor_bars",
+          "concrete_hatch",
+          "pontalete"
+        ],
+        "coverage_pct": 44.4,
+        "generator_consumed_fields": [
+          "b_cm",
+          "h_A",
+          "h_B",
+          "h_section",
+          "label"
+        ],
+        "generator_coverage_pct": 100.0
+      },
+      "visual_metric": {
+        "mask_iou": 0.0024,
+        "density_ratio": 0.8615,
+        "coarse_visual_score": 30.3,
+        "note": "metrica preliminar; veredito final exige inspecao visual do agente"
+      }
+    },
+    {
+      "item": "V311",
+      "view_idx": 1,
+      "view": {
+        "idx": 1,
+        "label": "Corte 1",
+        "h_A": 59.0,
+        "h_B": 59.0,
+        "b_cm": 19.0,
+        "h_section": 55.0,
+        "laje_sup_A": 14.0,
+        "laje_inf_A": 0.0,
+        "laje_sup_B": 13.0,
+        "laje_inf_B": 0.0,
+        "raw": {
+          "label": "Corte 1",
+          "b": 19.0,
+          "h_section": 55.0,
+          "h_A": 59.0,
+          "h_B": 59.0,
+          "h_body_A": 43.0,
+          "h_body_B": 44.0,
+          "laje_sup_A": 14.0,
+          "laje_inf_A": 0.0,
+          "laje_sup_B": 13.0,
+          "laje_inf_B": 0.0,
+          "topology": "bilateral",
+          "extension_left_cm": 27.8,
+          "extension_right_cm": 30.0,
+          "body_width_cm": 19.0,
+          "concrete_profiles": [
+            [
+              [
+                -85.1,
+                38.25
+              ],
+              [
+                -85.1,
+                66.25
+              ],
+              [
+                68.5,
+                66.25
+              ],
+              [
+                68.5,
+                40.25
+              ],
+              [
+                8.5,
+                40.25
+              ],
+              [
+                8.5,
+                -43.75
+              ],
+              [
+                -29.5,
+                -43.75
+              ],
+              [
+                -29.5,
+                38.25
+              ],
+              [
+                -85.1,
+                38.25
+              ]
+            ]
+          ],
+          "concrete_segments": [],
+          "profile_source": "concrete_layer_geometry",
+          "bbox": {
+            "x_left": 5189.8,
+            "x_right": 5499.8,
+            "y_bot": 4510.8,
+            "y_top": 4860.8
+          },
+          "source": "section_text_cluster"
+        }
+      },
+      "n2_png": "V311\\n2_section_01.png",
+      "n4_png": "V311\\n4_section_01_Corte.png",
+      "field_report": {
+        "contract_fields": 36,
+        "present_fields": [
+          "label",
+          "b_cm",
+          "h_section",
+          "h_A",
+          "h_B",
+          "h_body_A",
+          "h_body_B",
+          "laje_sup_A",
+          "laje_inf_A",
+          "laje_sup_B",
+          "laje_inf_B",
+          "topology",
+          "body_width_cm",
+          "extension_left_cm",
+          "extension_right_cm",
+          "concrete_profiles"
+        ],
+        "missing_fields": [
+          "side_context",
+          "continuation",
+          "level_beam",
+          "level_opposite",
+          "level_ceiling",
+          "bottom",
+          "mode_h1_A",
+          "mode_h1_B",
+          "mode_h2_A",
+          "mode_h2_B",
+          "grade_h1_A",
+          "grade_h1_B",
+          "grade_h2_A",
+          "grade_h2_B",
+          "sarrafo_left",
+          "sarrafo_right",
+          "barrote",
+          "anchor_bars",
+          "concrete_hatch",
+          "pontalete"
+        ],
+        "coverage_pct": 44.4,
+        "generator_consumed_fields": [
+          "b_cm",
+          "h_A",
+          "h_B",
+          "h_section",
+          "label"
+        ],
+        "generator_coverage_pct": 100.0
+      },
+      "visual_metric": {
+        "mask_iou": 0.0302,
+        "density_ratio": 0.7197,
+        "coarse_visual_score": 27.2,
+        "note": "metrica preliminar; veredito final exige inspecao visual do agente"
+      }
+    },
+    {
+      "item": "V322",
+      "view_idx": 1,
+      "view": {
+        "idx": 1,
+        "label": "Corte 1",
+        "h_A": 124.0,
+        "h_B": 124.0,
+        "b_cm": 19.0,
+        "h_section": 120.0,
+        "laje_sup_A": 13.0,
+        "laje_inf_A": 0.0,
+        "laje_sup_B": 13.0,
+        "laje_inf_B": 0.0,
+        "raw": {
+          "label": "Corte 1",
+          "b": 19.0,
+          "h_section": 120.0,
+          "h_A": 124.0,
+          "h_B": 124.0,
+          "h_body_A": 109.0,
+          "h_body_B": 109.0,
+          "laje_sup_A": 13.0,
+          "laje_inf_A": 0.0,
+          "laje_sup_B": 13.0,
+          "laje_inf_B": 0.0,
+          "topology": "bilateral",
+          "extension_left_cm": 19.3,
+          "extension_right_cm": 22.0,
+          "body_width_cm": 19.0,
+          "concrete_profiles": [
+            [
+              [
+                -68.39,
+                150.75
+              ],
+              [
+                -68.39,
+                176.75
+              ],
+              [
+                52.19,
+                176.75
+              ],
+              [
+                52.19,
+                150.75
+              ],
+              [
+                8.25,
+                150.75
+              ],
+              [
+                8.25,
+                -63.25
+              ],
+              [
+                -29.75,
+                -63.25
+              ],
+              [
+                -29.75,
+                150.75
+              ],
+              [
+                -68.39,
+                150.75
+              ]
+            ]
+          ],
+          "concrete_segments": [],
+          "profile_source": "concrete_layer_geometry",
+          "bbox": {
+            "x_left": 1984.6,
+            "x_right": 2294.6,
+            "y_bot": 2103.2,
+            "y_top": 2453.2
+          },
+          "source": "section_text_cluster"
+        }
+      },
+      "n2_png": "V322\\n2_section_01.png",
+      "n4_png": "V322\\n4_section_01_Corte.png",
+      "field_report": {
+        "contract_fields": 36,
+        "present_fields": [
+          "label",
+          "b_cm",
+          "h_section",
+          "h_A",
+          "h_B",
+          "h_body_A",
+          "h_body_B",
+          "laje_sup_A",
+          "laje_inf_A",
+          "laje_sup_B",
+          "laje_inf_B",
+          "topology",
+          "body_width_cm",
+          "extension_left_cm",
+          "extension_right_cm",
+          "concrete_profiles"
+        ],
+        "missing_fields": [
+          "side_context",
+          "continuation",
+          "level_beam",
+          "level_opposite",
+          "level_ceiling",
+          "bottom",
+          "mode_h1_A",
+          "mode_h1_B",
+          "mode_h2_A",
+          "mode_h2_B",
+          "grade_h1_A",
+          "grade_h1_B",
+          "grade_h2_A",
+          "grade_h2_B",
+          "sarrafo_left",
+          "sarrafo_right",
+          "barrote",
+          "anchor_bars",
+          "concrete_hatch",
+          "pontalete"
+        ],
+        "coverage_pct": 44.4,
+        "generator_consumed_fields": [
+          "b_cm",
+          "h_A",
+          "h_B",
+          "h_section",
+          "label"
+        ],
+        "generator_coverage_pct": 100.0
+      },
+      "visual_metric": {
+        "mask_iou": 0.0059,
+        "density_ratio": 0.5104,
+        "coarse_visual_score": 18.2,
+        "note": "metrica preliminar; veredito final exige inspecao visual do agente"
+      }
+    },
+    {
+      "item": "V327",
+      "view_idx": 1,
+      "view": {
+        "idx": 1,
+        "label": "Corte 1",
+        "h_A": 54.0,
+        "h_B": 54.0,
+        "b_cm": 14.0,
+        "h_section": 50.0,
+        "laje_sup_A": 0.0,
+        "laje_inf_A": 0.0,
+        "laje_sup_B": 0.0,
+        "laje_inf_B": 0.0,
+        "raw": {
+          "label": "Corte 1",
+          "b": 14.0,
+          "h_section": 50.0,
+          "h_A": 54.0,
+          "h_B": 54.0,
+          "h_body_A": 0.0,
+          "h_body_B": 0.0,
+          "laje_sup_A": 0.0,
+          "laje_inf_A": 0.0,
+          "laje_sup_B": 0.0,
+          "laje_inf_B": 0.0,
+          "topology": "u_straight",
+          "extension_left_cm": 0.0,
+          "extension_right_cm": 0.0,
+          "body_width_cm": 14.0,
+          "concrete_profiles": [
+            [
+              [
+                -24.5,
+                60.25
+              ],
+              [
+                3.5,
+                60.25
+              ],
+              [
+                3.5,
+                32.25
+              ],
+              [
+                3.5,
+                -39.75
+              ],
+              [
+                -24.5,
+                -39.75
+              ],
+              [
+                -24.5,
+                60.25
+              ]
+            ]
+          ],
+          "concrete_segments": [],
+          "profile_source": "concrete_layer_geometry",
+          "bbox": {
+            "x_left": 5168.0,
+            "x_right": 5478.0,
+            "y_bot": 2219.7,
+            "y_top": 2569.7
+          },
+          "source": "section_text_cluster"
+        }
+      },
+      "n2_png": "V327\\n2_section_01.png",
+      "n4_png": "V327\\n4_section_01_Corte.png",
+      "field_report": {
+        "contract_fields": 36,
+        "present_fields": [
+          "label",
+          "b_cm",
+          "h_section",
+          "h_A",
+          "h_B",
+          "h_body_A",
+          "h_body_B",
+          "laje_sup_A",
+          "laje_inf_A",
+          "laje_sup_B",
+          "laje_inf_B",
+          "topology",
+          "body_width_cm",
+          "extension_left_cm",
+          "extension_right_cm",
+          "concrete_profiles"
+        ],
+        "missing_fields": [
+          "side_context",
+          "continuation",
+          "level_beam",
+          "level_opposite",
+          "level_ceiling",
+          "bottom",
+          "mode_h1_A",
+          "mode_h1_B",
+          "mode_h2_A",
+          "mode_h2_B",
+          "grade_h1_A",
+          "grade_h1_B",
+          "grade_h2_A",
+          "grade_h2_B",
+          "sarrafo_left",
+          "sarrafo_right",
+          "barrote",
+          "anchor_bars",
+          "concrete_hatch",
+          "pontalete"
+        ],
+        "coverage_pct": 44.4,
+        "generator_consumed_fields": [
+          "b_cm",
+          "h_A",
+          "h_B",
+          "h_section",
+          "label"
+        ],
+        "generator_coverage_pct": 100.0
+      },
+      "visual_metric": {
+        "mask_iou": 0.0312,
+        "density_ratio": 0.6704,
+        "coarse_visual_score": 25.5,
+        "note": "metrica preliminar; veredito final exige inspecao visual do agente"
+      }
+    },
+    {
+      "item": "V330",
+      "view_idx": 1,
+      "view": {
+        "idx": 1,
+        "label": "Corte 1",
+        "h_A": 75.0,
+        "h_B": 75.0,
+        "b_cm": 19.0,
+        "h_section": 71.0,
+        "laje_sup_A": 0.0,
+        "laje_inf_A": 0.0,
+        "laje_sup_B": 0.0,
+        "laje_inf_B": 0.0,
+        "raw": {
+          "label": "Corte 1",
+          "b": 19.0,
+          "h_section": 71.0,
+          "h_A": 75.0,
+          "h_B": 75.0,
+          "h_body_A": 0.0,
+          "h_body_B": 58.0,
+          "laje_sup_A": 0.0,
+          "laje_inf_A": 0.0,
+          "laje_sup_B": 0.0,
+          "laje_inf_B": 0.0,
+          "topology": "u_straight_wide_bottom",
+          "extension_left_cm": 0.0,
+          "extension_right_cm": 0.0,
+          "body_width_cm": 19.0,
+          "concrete_profiles": [
+            [
+              [
+                -27.75,
+                66.25
+              ],
+              [
+                -27.75,
+                66.25
+              ],
+              [
+                10.25,
+                66.25
+              ],
+              [
+                10.25,
+                38.25
+              ],
+              [
+                10.25,
+                38.25
+              ],
+              [
+                10.25,
+                -49.75
+              ],
+              [
+                -27.75,
+                -49.75
+              ],
+              [
+                -27.75,
+                66.25
+              ]
+            ]
+          ],
+          "concrete_segments": [
+            [
+              [
+                -79.58,
+                -75.76
+              ],
+              [
+                -79.58,
+                -49.75
+              ]
+            ],
+            [
+              [
+                68.05,
+                -75.76
+              ],
+              [
+                68.05,
+                -49.75
+              ]
+            ],
+            [
+              [
+                68.05,
+                -49.75
+              ],
+              [
+                -79.58,
+                -49.75
+              ]
+            ]
+          ],
+          "profile_source": "concrete_layer_geometry",
+          "bbox": {
+            "x_left": 6717.2,
+            "x_right": 7027.2,
+            "y_bot": 2213.7,
+            "y_top": 2563.7
+          },
+          "source": "section_text_cluster"
+        }
+      },
+      "n2_png": "V330\\n2_section_01.png",
+      "n4_png": "V330\\n4_section_01_Corte.png",
+      "field_report": {
+        "contract_fields": 36,
+        "present_fields": [
+          "label",
+          "b_cm",
+          "h_section",
+          "h_A",
+          "h_B",
+          "h_body_A",
+          "h_body_B",
+          "laje_sup_A",
+          "laje_inf_A",
+          "laje_sup_B",
+          "laje_inf_B",
+          "topology",
+          "body_width_cm",
+          "extension_left_cm",
+          "extension_right_cm",
+          "concrete_profiles"
+        ],
+        "missing_fields": [
+          "side_context",
+          "continuation",
+          "level_beam",
+          "level_opposite",
+          "level_ceiling",
+          "bottom",
+          "mode_h1_A",
+          "mode_h1_B",
+          "mode_h2_A",
+          "mode_h2_B",
+          "grade_h1_A",
+          "grade_h1_B",
+          "grade_h2_A",
+          "grade_h2_B",
+          "sarrafo_left",
+          "sarrafo_right",
+          "barrote",
+          "anchor_bars",
+          "concrete_hatch",
+          "pontalete"
+        ],
+        "coverage_pct": 44.4,
+        "generator_consumed_fields": [
+          "b_cm",
+          "h_A",
+          "h_B",
+          "h_section",
+          "label"
+        ],
+        "generator_coverage_pct": 100.0
+      },
+      "visual_metric": {
+        "mask_iou": 0.0397,
+        "density_ratio": 0.3652,
+        "coarse_visual_score": 15.4,
+        "note": "metrica preliminar; veredito final exige inspecao visual do agente"
+      }
+    },
+    {
+      "item": "V330",
+      "view_idx": 2,
+      "view": {
+        "idx": 2,
+        "label": "Corte 2",
+        "h_A": 124.0,
+        "h_B": 124.0,
+        "b_cm": 19.0,
+        "h_section": 120.0,
+        "laje_sup_A": 0.0,
+        "laje_inf_A": 0.0,
+        "laje_sup_B": 0.0,
+        "laje_inf_B": 0.0,
+        "raw": {
+          "label": "Corte 2",
+          "b": 19.0,
+          "h_section": 120.0,
+          "h_A": 124.0,
+          "h_B": 124.0,
+          "h_body_A": 0.0,
+          "h_body_B": 107.0,
+          "laje_sup_A": 0.0,
+          "laje_inf_A": 0.0,
+          "laje_sup_B": 0.0,
+          "laje_inf_B": 0.0,
+          "topology": "u_straight_wide_bottom",
+          "extension_left_cm": 0.0,
+          "extension_right_cm": 0.0,
+          "body_width_cm": 19.0,
+          "concrete_profiles": [
+            [
+              [
+                -27.75,
+                115.25
+              ],
+              [
+                -27.75,
+                115.25
+              ],
+              [
+                10.25,
+                115.25
+              ],
+              [
+                10.25,
+                87.25
+              ],
+              [
+                10.25,
+                87.25
+              ],
+              [
+                10.25,
+                -98.75
+              ],
+              [
+                -27.75,
+                -98.75
+              ],
+              [
+                -27.75,
+                115.25
+              ]
+            ]
+          ],
+          "concrete_segments": [
+            [
+              [
+                -79.58,
+                -124.76
+              ],
+              [
+                -79.58,
+                -98.75
+              ]
+            ],
+            [
+              [
+                68.05,
+                -124.76
+              ],
+              [
+                68.05,
+                -98.75
+              ]
+            ],
+            [
+              [
+                68.05,
+                -98.75
+              ],
+              [
+                -79.58,
+                -98.75
+              ]
+            ]
+          ],
+          "profile_source": "concrete_layer_geometry",
+          "bbox": {
+            "x_left": 6935.5,
+            "x_right": 7245.5,
+            "y_bot": 2164.7,
+            "y_top": 2514.7
+          },
+          "source": "section_text_cluster"
+        }
+      },
+      "n2_png": "V330\\n2_section_02.png",
+      "n4_png": "V330\\n4_section_02_Corte.png",
+      "field_report": {
+        "contract_fields": 36,
+        "present_fields": [
+          "label",
+          "b_cm",
+          "h_section",
+          "h_A",
+          "h_B",
+          "h_body_A",
+          "h_body_B",
+          "laje_sup_A",
+          "laje_inf_A",
+          "laje_sup_B",
+          "laje_inf_B",
+          "topology",
+          "body_width_cm",
+          "extension_left_cm",
+          "extension_right_cm",
+          "concrete_profiles"
+        ],
+        "missing_fields": [
+          "side_context",
+          "continuation",
+          "level_beam",
+          "level_opposite",
+          "level_ceiling",
+          "bottom",
+          "mode_h1_A",
+          "mode_h1_B",
+          "mode_h2_A",
+          "mode_h2_B",
+          "grade_h1_A",
+          "grade_h1_B",
+          "grade_h2_A",
+          "grade_h2_B",
+          "sarrafo_left",
+          "sarrafo_right",
+          "barrote",
+          "anchor_bars",
+          "concrete_hatch",
+          "pontalete"
+        ],
+        "coverage_pct": 44.4,
+        "generator_consumed_fields": [
+          "b_cm",
+          "h_A",
+          "h_B",
+          "h_section",
+          "label"
+        ],
+        "generator_coverage_pct": 100.0
+      },
+      "visual_metric": {
+        "mask_iou": 0.0026,
+        "density_ratio": 0.7439,
+        "coarse_visual_score": 26.2,
+        "note": "metrica preliminar; veredito final exige inspecao visual do agente"
+      }
+    },
+    {
+      "item": "V331",
+      "view_idx": 1,
+      "view": {
+        "idx": 1,
+        "label": "Corte 1",
+        "h_A": 44.0,
+        "h_B": 44.0,
+        "b_cm": 14.0,
+        "h_section": 40.0,
+        "laje_sup_A": 0.0,
+        "laje_inf_A": 0.0,
+        "laje_sup_B": 0.0,
+        "laje_inf_B": 0.0,
+        "raw": {
+          "label": "Corte 1",
+          "b": 14.0,
+          "h_section": 40.0,
+          "h_A": 44.0,
+          "h_B": 44.0,
+          "h_body_A": 0.0,
+          "h_body_B": 0.0,
+          "laje_sup_A": 0.0,
+          "laje_inf_A": 0.0,
+          "laje_sup_B": 0.0,
+          "laje_inf_B": 0.0,
+          "topology": "u_straight",
+          "extension_left_cm": 0.0,
+          "extension_right_cm": 0.0,
+          "body_width_cm": 14.0,
+          "concrete_profiles": [
+            [
+              [
+                -24.5,
+                50.25
+              ],
+              [
+                3.5,
+                50.25
+              ],
+              [
+                3.5,
+                22.25
+              ],
+              [
+                3.5,
+                -29.75
+              ],
+              [
+                -24.5,
+                -29.75
+              ],
+              [
+                -24.5,
+                50.25
+              ]
+            ]
+          ],
+          "concrete_segments": [],
+          "profile_source": "concrete_layer_geometry",
+          "bbox": {
+            "x_left": 2043.3,
+            "x_right": 2353.3,
+            "y_bot": 1081.1,
+            "y_top": 1431.1
+          },
+          "source": "section_text_cluster"
+        }
+      },
+      "n2_png": "V331\\n2_section_01.png",
+      "n4_png": "V331\\n4_section_01_Corte.png",
+      "field_report": {
+        "contract_fields": 36,
+        "present_fields": [
+          "label",
+          "b_cm",
+          "h_section",
+          "h_A",
+          "h_B",
+          "h_body_A",
+          "h_body_B",
+          "laje_sup_A",
+          "laje_inf_A",
+          "laje_sup_B",
+          "laje_inf_B",
+          "topology",
+          "body_width_cm",
+          "extension_left_cm",
+          "extension_right_cm",
+          "concrete_profiles"
+        ],
+        "missing_fields": [
+          "side_context",
+          "continuation",
+          "level_beam",
+          "level_opposite",
+          "level_ceiling",
+          "bottom",
+          "mode_h1_A",
+          "mode_h1_B",
+          "mode_h2_A",
+          "mode_h2_B",
+          "grade_h1_A",
+          "grade_h1_B",
+          "grade_h2_A",
+          "grade_h2_B",
+          "sarrafo_left",
+          "sarrafo_right",
+          "barrote",
+          "anchor_bars",
+          "concrete_hatch",
+          "pontalete"
+        ],
+        "coverage_pct": 44.4,
+        "generator_consumed_fields": [
+          "b_cm",
+          "h_A",
+          "h_B",
+          "h_section",
+          "label"
+        ],
+        "generator_coverage_pct": 100.0
+      },
+      "visual_metric": {
+        "mask_iou": 0.0062,
+        "density_ratio": 0.8832,
+        "coarse_visual_score": 31.3,
+        "note": "metrica preliminar; veredito final exige inspecao visual do agente"
+      }
+    }
+  ]
+}

@@ -37,6 +37,7 @@ extração antiga por COTA TEXT (_extract_fv_from_dxf_text_fallback).
 from pathlib import Path
 import json
 import re
+import sqlite3
 
 DADOS_OBRAS_ROOT = Path("D:/Agente-cad-PYSIDE/DADOS-OBRAS")
 
@@ -44,7 +45,44 @@ GAP_PILAR_MIN = 2.0      # cm — gap minimo entre polys para contar como pilar 
 Y_TOL_ROW = 60.0         # cm — tolerancia p/ agrupar polys/labels na mesma "linha"
 B_FV_MIN, B_FV_MAX = 10.0, 40.0   # faixa plausivel de largura de viga (b_fv)
 
-_ELEM_CODE_RE = re.compile(r'([A-Z]+\d+[A-Z]?)\.C')
+# Match V1.C, V1-V2.C, V1 / V2.C
+_ELEM_CODE_RE = re.compile(r'([A-Z]+\d+[A-Z]?(?:[-/\s]+[A-Z]+\d+[A-Z]?)*)\.C')
+
+def _get_visual_obstacles(project_id: str) -> list[dict]:
+    """Retorna bounding boxes de objetos visuais (pilares NASCE ou cortes) que não interrompem a viga."""
+    obstacles = []
+    if not project_id:
+        return obstacles
+    try:
+        conn = sqlite3.connect("D:/Agente-cad-PYSIDE/project_data.vision")
+        rows = conn.execute("SELECT links_json FROM slabs WHERE project_id = ?", (project_id,)).fetchall()
+        for r in rows:
+            if not r[0]: continue
+            links = json.loads(r[0])
+            # 1. Pilares "NASCE"
+            pillar_geom = links.get('laje_pilares_apoio', {}).get('pillar_geom', [])
+            for link in pillar_geom:
+                if not isinstance(link, dict): continue
+                ficha = link.get('ficha', {})
+                if ficha.get('hatch_description') == 'NASCE':
+                    pts = link.get('points', [])
+                    if pts:
+                        xs = [p[0] for p in pts]
+                        ys = [p[1] for p in pts]
+                        obstacles.append({'type': 'NASCE', 'bbox': (min(xs), min(ys), max(xs), max(ys))})
+            # 2. Visão Corte
+            cut_geom = links.get('laje_visao_corte', {}).get('cut_view_geom', [])
+            for link in cut_geom:
+                if not isinstance(link, dict): continue
+                pts = link.get('points', [])
+                if pts:
+                    xs = [p[0] for p in pts]
+                    ys = [p[1] for p in pts]
+                    obstacles.append({'type': 'VISAO_CORTE', 'bbox': (min(xs), min(ys), max(xs), max(ys))})
+        conn.close()
+    except Exception as e:
+        print(f"Erro ao carregar visual obstacles do SQLite: {e}")
+    return obstacles
 
 
 def _infer_obra_root(recorte_path: str) -> Path | None:
@@ -75,9 +113,19 @@ def _base_code(elemento_id: str) -> str:
     """'V330_A' -> 'V330'; 'V330' -> 'V330'."""
     return elemento_id.split('_')[0] if '_' in elemento_id else elemento_id
 
+def _normalize_name(name: str) -> str:
+    return re.sub(r'[-/\s]+', '-', name.strip())
 
 def _elem_codes(text: str):
-    return _ELEM_CODE_RE.findall(text.upper())
+    matches = _ELEM_CODE_RE.findall(text.upper())
+    res = []
+    for m in matches:
+        norm = _normalize_name(m)
+        res.append(norm)
+        # Se for um nome composto (ex: V1-V2), também adicionamos as partes soltas (V1, V2)
+        if '-' in norm:
+            res.extend(norm.split('-'))
+    return res
 
 
 def _poly_bboxes(msp):
@@ -303,10 +351,11 @@ def _row_polys_for_label(polys, nom_x, nom_y, noms, target):
     return [row_polys[i] for i in included]
 
 
-def _segments_and_holes_for_row(final_polys, msp_texts, nom_y, b_fv_hint=None, loose_entities=None):
+def _segments_and_holes_for_row(final_polys, msp_texts, nom_y, b_fv_hint=None, loose_entities=None, visual_obstacles=None):
     """Agrupa polys de UMA linha em segmentos (gap<=GAP_PILAR_MIN funde; gap
     maior = pilar cruzado real, vira 'hole'). Retorna (segments, holes_raw,
     b_fv_poly, segments_rich) onde holes_raw é lista de (width, position_relative_a_essa_linha, gap_text)."""
+    visual_obstacles = visual_obstacles or []
     heights = [round(p[3] - p[2], 1) for p in final_polys]
     from collections import Counter
     b_fv_poly = Counter(heights).most_common(1)[0][0] if heights else b_fv_hint
@@ -424,6 +473,26 @@ def _segments_and_holes_for_row(final_polys, msp_texts, nom_y, b_fv_hint=None, l
         cur = final_polys[i+1]
         gap = round(cur[0] - prev[1], 1)
         if gap > GAP_PILAR_MIN:
+            # Check if gap is just a visual obstacle
+            is_visual = False
+            if visual_obstacles:
+                gap_cx = (prev[1] + cur[0]) / 2.0
+                gap_cy = (prev[2] + prev[3] + cur[2] + cur[3]) / 4.0
+                for obs in visual_obstacles:
+                    x0, y0, x1, y1 = obs['bbox']
+                    # Apply a tolerance of 20 cm around the center of the gap
+                    if (x0 - 20) <= gap_cx <= (x1 + 20) and (y0 - 20) <= gap_cy <= (y1 + 20):
+                        is_visual = True
+                        break
+
+            if is_visual:
+                cur_width = round(cur_width + gap + (cur[1] - cur[0]), 1)
+                # Create a dummy poly for the gap so total_width perfectly matches panels sum
+                dummy_poly = (prev[1], cur[0], prev[2], prev[3])
+                current_segment_polys.append(dummy_poly)
+                current_segment_polys.append(cur)
+                continue
+
             # Finalize rich segment before adding to list (it might adjust cur_width)
             rich_seg, cur_width = _finalize_segment_rich(current_segment_polys, cur_width, cur[0])
             
@@ -454,7 +523,7 @@ def _segments_and_holes_for_row(final_polys, msp_texts, nom_y, b_fv_hint=None, l
     return segments, holes_raw, b_fv_poly, segments_rich
 
 
-def _extract_fv_from_geometry(msp, elemento_id: str) -> dict | None:
+def _extract_fv_from_geometry(msp, elemento_id: str, visual_obstacles: list[dict] = None) -> dict | None:
     """Extração geométrica universal (ver docstring do módulo). Retorna None se
     não houver geometria suficiente (paineis/labels) — caller deve usar fallback.
 
@@ -474,6 +543,7 @@ def _extract_fv_from_geometry(msp, elemento_id: str) -> dict | None:
         return None
 
     target = _base_code(elemento_id).upper()
+    target = _normalize_name(target)
     noms = _nomenclatura_labels(msp)
 
     own = [n for n in noms if target in _elem_codes(n[0])]
@@ -510,7 +580,7 @@ def _extract_fv_from_geometry(msp, elemento_id: str) -> dict | None:
         if not final_polys:
             continue
         all_final_polys.extend(final_polys)
-        segs, holes_raw, b_fv_poly, segs_rich = _segments_and_holes_for_row(final_polys, msp_texts, nom_y, loose_entities=loose_entities)
+        segs, holes_raw, b_fv_poly, segs_rich = _segments_and_holes_for_row(final_polys, msp_texts, nom_y, loose_entities=loose_entities, visual_obstacles=visual_obstacles)
         if b_fv_poly:
             b_fv_candidates.append(b_fv_poly)
         n_polys_total += len(final_polys)
@@ -636,15 +706,19 @@ def _extract_fv_from_dxf_text_fallback(dxf_path: str) -> dict:
     return result
 
 
-def _extract_fv_from_dxf(dxf_path: str, elemento_id: str = "V1") -> dict:
+def _extract_fv_from_dxf(dxf_path: str, elemento_id: str = "V1", project_id: str = None) -> dict:
     """Extrai campos FV do DXF recorte: 1) geometria (paineis+nomenclatura), 2) fallback texto."""
     try:
         import ezdxf
-        doc = ezdxf.readfile(str(dxf_path))
+        doc = ezdxf.readfile(dxf_path)
         msp = doc.modelspace()
-        geo = _extract_fv_from_geometry(msp, elemento_id)
-        if geo is not None:
-            return geo
+        
+        visual_obstacles = _get_visual_obstacles(project_id)
+
+        # 1) Tenta Extração Universal por Geometria
+        geom_res = _extract_fv_from_geometry(msp, elemento_id, visual_obstacles)
+        if geom_res is not None:
+            return geom_res
     except Exception as ex:
         return {'panels': [], 'holes': [], '_confianca_extracao': 0.3, '_extracao_erro': str(ex)}
     return _extract_fv_from_dxf_text_fallback(dxf_path)
@@ -655,6 +729,7 @@ def extrair_ficha_fundo_viga(
     elemento_id: str,
     obra_name: str | None = None,
     obra_root: str | Path | None = None,
+    project_id: str = None,
 ) -> dict:
     """Extrai a ficha N2 SEMPRE a partir da geometria do recorte aprovado.
 
@@ -668,7 +743,7 @@ def extrair_ficha_fundo_viga(
     if obra_name and obra_root_path is None:
         obra_root_path = DADOS_OBRAS_ROOT / obra_name
 
-    dxf_data = _extract_fv_from_dxf(recorte_path, elemento_id)
+    dxf_data = _extract_fv_from_dxf(recorte_path, elemento_id, project_id=project_id)
     dxf_conf = dxf_data.pop('_confianca_extracao', 0.4)
     dxf_data.pop('_extracao_erro', None)
     n_pilar_gaps = dxf_data.pop('_n_pilar_gaps', 0)

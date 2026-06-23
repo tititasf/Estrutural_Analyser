@@ -95,26 +95,9 @@ class SlabTracer:
         rejected = []
         classified = []
 
-        # Detectar camadas de cota: camadas que tem textos com numeros (medidas)
-        # sao camadas de cotacao e suas linhas devem ser rejeitadas
-        import re as _re
-        cota_layers = set()
-        cota_text_pattern = _re.compile(r'^\s*\d+[.,]?\d*\s*(?:cm|m|mm)?\s*$', _re.IGNORECASE)
-        for item in candidates:
-            if isinstance(item, dict) and 'text' in item and 'pos' in item:
-                txt = str(item.get('text', '')).strip()
-                if cota_text_pattern.match(txt) and len(txt) < 15:
-                    layer = item.get('layer', '')
-                    if layer:
-                        cota_layers.add(layer.upper())
-
         for item in candidates:
             for geom, layer, raw_type, linetype, color, original in self._item_to_lines(item):
                 norm_layer = (layer or '').upper()
-                # Rejeitar linhas em camadas de cota detectadas
-                if norm_layer in cota_layers:
-                    rejected.append((geom, {"layer": layer, "reasons": ["cota_layer_detected"]}))
-                    continue
                 if valid_layers and layer and layer not in valid_layers:
                     rejected.append((geom, {"layer": layer, "reasons": ["not_in_valid_layers"]}))
                     continue
@@ -126,6 +109,40 @@ class SlabTracer:
                 else:
                     accepted.append(geom)
         return accepted, rejected, classified
+
+    def _collect_laje_preferred_outline_lines(self, candidates):
+        """Collect high-confidence outline lines without using layer names as a filter.
+
+        Some training DXFs use numeric layers for both dimensions and structure.  The
+        safer signal in those files is entity styling: real slab/form edges are often
+        continuous green/ACI-3 lines, while auxiliary dimensions are gray/white/magenta.
+        This set is only a preference for axis ranking; the full candidate set remains
+        available as fallback.
+        """
+        preferred = []
+        for item in candidates:
+            for geom, layer, raw_type, linetype, color, original in self._item_to_lines(item):
+                if geom.length <= 1e-6:
+                    continue
+                info = self._classify_laje_candidate_line(geom, layer, raw_type, linetype, color)
+                if not info.get("accepted"):
+                    continue
+                aci = None
+                if isinstance(original, dict):
+                    aci = original.get("aci")
+                rgb_green = False
+                if isinstance(color, (list, tuple)) and len(color) >= 3:
+                    rgb_green = int(color[1]) >= 180 and int(color[0]) <= 80 and int(color[2]) <= 80
+                color_text = str(color or "").upper()
+                layer_text = str(layer or "").upper()
+                if (
+                    aci == 3
+                    or rgb_green
+                    or "0, 255, 0" in color_text
+                    or any(tok in layer_text for tok in ("VIGA", "LAJ", "FORMA", "CONCRETO", "CONTORNO"))
+                ):
+                    preferred.append(geom)
+        return preferred
 
     def _select_best_laje_polygon(self, polygons, target_pt: Point, crop_bbox: tuple = None):
         containing = []
@@ -192,6 +209,19 @@ class SlabTracer:
         y1 = (min(above_ys) + cy) / 2.0 + MARGIN_Y if above_ys else cy + MAX_HALF_Y
 
         bbox = self._shrink_laj_bbox_away_from_labels((x0, y0, x1, y1), label_id)
+        # Do not let label-based shrinking cut the opposite structural edge.
+        # Several LAJ labels sit close to one side of the slab; a too-tight crop
+        # leaves the real boundary outside polygonize/axis selection.
+        bx0, by0, bx1, by1 = bbox
+        min_half_x = min(500.0, max(180.0, median_x_gap * 0.45))
+        min_half_y = min(420.0, max(160.0, median_y_gap * 0.60))
+        if (bx1 - bx0) / 2.0 < min_half_x:
+            bx0 = min(bx0, cx - min_half_x)
+            bx1 = max(bx1, cx + min_half_x)
+        if (by1 - by0) / 2.0 < min_half_y:
+            by0 = min(by0, cy - min_half_y)
+            by1 = max(by1, cy + min_half_y)
+        bbox = (bx0, by0, bx1, by1)
         # N2 teacher clamp: if teacher dims available, clamp bbox to max 1.5x N2 dims
         teacher = getattr(self, "_laj_teacher_dims", {}) or {}
         t = teacher.get(label_id, {}) if label_id else {}
@@ -318,14 +348,20 @@ class SlabTracer:
 
         return groups(h_raw), groups(v_raw)
 
-    def _canonical_laj_outline_from_n2_axes(self, lines, target_pt: Point, crop_bbox: tuple, teacher: dict | None = None):
+    def _canonical_laj_outline_from_n2_axes(self, lines, target_pt: Point, crop_bbox: tuple, teacher: dict | None = None, preferred_lines=None):
         """Build slab outline using proximity-based axis selection (region growing).
         
         Dynamic logic: find the closest enclosing axes to the label position.
         No hardcoded search margins or span minimums — uses spatial proximity
         and optional N2 teacher dims as guidance.
         """
-        h_groups, v_groups = self._axis_groups_from_laj_lines(lines, crop_bbox)
+        source_lines = lines
+        if preferred_lines:
+            pref_h, pref_v = self._axis_groups_from_laj_lines(preferred_lines, crop_bbox)
+            if len(pref_h) >= 2 and len(pref_v) >= 2:
+                source_lines = preferred_lines
+
+        h_groups, v_groups = self._axis_groups_from_laj_lines(source_lines, crop_bbox)
         if len(h_groups) < 2 or len(v_groups) < 2:
             return None
 
@@ -416,8 +452,136 @@ class SlabTracer:
                 return None
         else:
             # No teacher: use closest enclosing axes (pure proximity)
-            # Pick the closest pair on each side that forms a valid enclosing rectangle
-            # Try expanding from closest until we get a reasonable rectangle
+            # Prefer strong outline axes closest to each side of the label.  This
+            # avoids closing tiny rectangles on dimension/auxiliary geometry near
+            # the text while still staying local to the seed.
+            max_h_span = max((g["span"] for g in h_groups), default=0.0)
+            max_v_span = max((g["span"] for g in v_groups), default=0.0)
+            min_h_span = max(25.0, max_h_span * 0.80)
+            min_v_span = max(25.0, max_v_span * 0.80)
+            strong_h = [g for g in h_groups if g["span"] >= min_h_span]
+            strong_v = [g for g in v_groups if g["span"] >= min_v_span]
+
+            def paired_side_candidates(groups, side, min_pair_span):
+                ordered = sorted(groups, key=lambda g: g["const"])
+                max_gap = max(8.0, min(bw, bh) * 0.08)
+                pairs = []
+                for a, b in zip(ordered, ordered[1:]):
+                    gap = b["const"] - a["const"]
+                    if gap < 4.0 or gap > max_gap:
+                        continue
+                    span = max(a["span"], b["span"])
+                    if span < min_pair_span:
+                        continue
+                    if side == "below":
+                        if b["const"] >= cy - skip_zone:
+                            continue
+                        inner_const = b["const"]
+                        dist = cy - inner_const
+                    elif side == "above":
+                        if a["const"] <= cy + skip_zone:
+                            continue
+                        inner_const = a["const"]
+                        dist = inner_const - cy
+                    elif side == "left":
+                        if b["const"] >= cx - skip_zone:
+                            continue
+                        inner_const = b["const"]
+                        dist = cx - inner_const
+                    else:
+                        if a["const"] <= cx + skip_zone:
+                            continue
+                        inner_const = a["const"]
+                        dist = inner_const - cx
+                    pair = dict(b if side in ("below", "left") else a)
+                    pair["const"] = inner_const
+                    pair["span"] = span
+                    pair["pair_gap"] = gap
+                    pair["pair_outer_const"] = a["const"] if side in ("below", "left") else b["const"]
+                    pair["pair_dist"] = dist
+                    pairs.append(pair)
+                return sorted(pairs, key=lambda g: g["pair_dist"])
+
+            pair_min_h_span = max(80.0, max_h_span * 0.35)
+            pair_min_v_span = max(80.0, max_v_span * 0.35)
+            ph_below = paired_side_candidates(h_groups, "below", pair_min_h_span)
+            ph_above = paired_side_candidates(h_groups, "above", pair_min_h_span)
+            pv_left = paired_side_candidates(v_groups, "left", pair_min_v_span)
+            pv_right = paired_side_candidates(v_groups, "right", pair_min_v_span)
+            if ph_below and ph_above and pv_left and pv_right:
+                centroids_all = getattr(self, '_laj_label_centroids', {}) or {}
+                pair_best = None
+                pair_best_score = float("inf")
+                for bo in ph_below[:5]:
+                    for to in ph_above[:5]:
+                        for lo in pv_left[:5]:
+                            for ro in pv_right[:5]:
+                                x0, x1 = lo["const"], ro["const"]
+                                y0, y1 = bo["const"], to["const"]
+                                w, h = x1 - x0, y1 - y0
+                                if w < 20 or h < 20:
+                                    continue
+                                poly = Polygon([(x0, y0), (x1, y0), (x1, y1), (x0, y1), (x0, y0)])
+                                if not poly.is_valid or not (poly.contains(target_pt) or poly.touches(target_pt)):
+                                    continue
+                                left_d = cx - x0
+                                right_d = x1 - cx
+                                bottom_d = cy - y0
+                                top_d = y1 - cy
+                                prox_score = (left_d + right_d + bottom_d + top_d) * 0.025
+                                balance_score = abs(left_d - right_d) * 0.35 + abs(bottom_d - top_d) * 0.35
+                                span_score = -(lo["span"] + ro["span"] + bo["span"] + to["span"]) * 0.004
+                                pair_gap_score = (lo.get("pair_gap", 0) + ro.get("pair_gap", 0) + bo.get("pair_gap", 0) + to.get("pair_gap", 0)) * 0.45
+                                label_penalty = 0.0
+                                for other, (ox, oy) in centroids_all.items():
+                                    if abs(ox - cx) < 1e-6 and abs(oy - cy) < 1e-6:
+                                        continue
+                                    if x0 < ox < x1 and y0 < oy < y1:
+                                        label_penalty += 500.0
+                                score = prox_score + balance_score + span_score + pair_gap_score + label_penalty
+                                if score < pair_best_score:
+                                    pair_best_score = score
+                                    pair_best = poly
+                if pair_best is not None:
+                    return pair_best
+
+            if len(strong_h) >= 2 and len(strong_v) >= 2:
+                elite_h_span = max_h_span * 0.95
+                elite_v_span = max_v_span * 0.95
+
+                def side_candidates(groups, side, elite_span):
+                    if side == "below":
+                        vals = [g for g in groups if g["const"] < cy - skip_zone]
+                        dist = lambda g: cy - g["const"]
+                    elif side == "above":
+                        vals = [g for g in groups if g["const"] > cy + skip_zone]
+                        dist = lambda g: g["const"] - cy
+                    elif side == "left":
+                        vals = [g for g in groups if g["const"] < cx - skip_zone]
+                        dist = lambda g: cx - g["const"]
+                    else:
+                        vals = [g for g in groups if g["const"] > cx + skip_zone]
+                        dist = lambda g: g["const"] - cx
+
+                    elite = [g for g in vals if g["span"] >= elite_span]
+                    pool = elite if elite else vals
+                    return sorted(pool, key=dist)
+
+                sh_below = side_candidates(strong_h, "below", elite_h_span)
+                sh_above = side_candidates(strong_h, "above", elite_h_span)
+                sv_left = side_candidates(strong_v, "left", elite_v_span)
+                sv_right = side_candidates(strong_v, "right", elite_v_span)
+                if sh_below and sh_above and sv_left and sv_right:
+                    bottom, top, left, right = sh_below[0], sh_above[0], sv_left[0], sv_right[0]
+                    x0, x1 = left["const"], right["const"]
+                    y0, y1 = bottom["const"], top["const"]
+                    if x1 - x0 >= 10 and y1 - y0 >= 10:
+                        poly = Polygon([(x0, y0), (x1, y0), (x1, y1), (x0, y1), (x0, y0)])
+                        if poly.is_valid and (poly.contains(target_pt) or poly.touches(target_pt)):
+                            return poly
+
+            # Fallback: pick a balanced enclosing pair, but penalize tiny/auxiliary
+            # axes and rectangles that include another slab label.
             best_pair = None
             best_score = float("inf")
 
@@ -436,11 +600,24 @@ class SlabTracer:
                             h = to["const"] - bo["const"]
                             if h <= 0:
                                 continue
+                            if lo["span"] < min_v_span or ro["span"] < min_v_span or bo["span"] < min_h_span or to["span"] < min_h_span:
+                                continue
                             # Score: prefer pairs close to target (proximity = region growing)
                             # and pairs with high span (structural relevance)
-                            prox_score = (abs(lo["const"] - cx) + abs(ro["const"] - cx) +
-                                         abs(bo["const"] - cy) + abs(to["const"] - cy)) * 0.01
+                            left_d = cx - lo["const"]
+                            right_d = ro["const"] - cx
+                            bottom_d = cy - bo["const"]
+                            top_d = to["const"] - cy
+                            prox_score = (left_d + right_d + bottom_d + top_d) * 0.03
+                            balance_score = abs(left_d - right_d) * 0.30 + abs(bottom_d - top_d) * 0.30
                             span_score = -(lo["span"] + ro["span"] + bo["span"] + to["span"]) * 0.003
+                            other_label_penalty = 0.0
+                            centroids_all = getattr(self, '_laj_label_centroids', {}) or {}
+                            for other, (ox, oy) in centroids_all.items():
+                                if abs(ox - cx) < 1e-6 and abs(oy - cy) < 1e-6:
+                                    continue
+                                if lo["const"] < ox < ro["const"] and bo["const"] < oy < to["const"]:
+                                    other_label_penalty += 500.0
                             # Prefer moderate dimensions (not too small, not spanning entire crop)
                             # Dynamic size penalty: use label spacing to detect neighboring slab axes
                             centroids = getattr(self, '_laj_label_centroids', {}) or {}
@@ -459,8 +636,7 @@ class SlabTracer:
                                 size_penalty = 80  # too large - likely neighboring slab
                             if w < 20 or h < 20:
                                 size_penalty = 100  # too small
-                                size_penalty = 100  # too small
-                            score = prox_score + span_score + size_penalty
+                            score = prox_score + balance_score + span_score + size_penalty + other_label_penalty
                             if score < best_score:
                                 best_score = score
                                 best_pair = (bo, to, lo, ro)
@@ -686,6 +862,12 @@ class SlabTracer:
         if axes_area <= 1e-6:
             return False
         poly_area = polygon.area
+        # Without teacher dimensions, a valid polygonized outline that is larger
+        # than the axis rectangle is usually the more complete boundary.  Do not
+        # replace it with a smaller local axes box.
+        if not self._fuzzy_teacher_lookup(getattr(self, "last_trace_diagnostics", {}).get("label_id")):
+            if poly_area >= axes_area * 0.85:
+                return False
         # Se polygonize e muito menor que n2_axes (poly < 50% axes), pode ser incompleto
         area_ratio = poly_area / axes_area
         if area_ratio < 0.50:
@@ -879,11 +1061,13 @@ class SlabTracer:
         bounds = (cx - search_radius, cy - search_radius, cx + search_radius, cy + search_radius)
         candidates = self.spatial_index.query_bbox(bounds)
         lines, rejected, classified = self._collect_laje_candidate_lines(candidates, valid_layers=valid_layers)
+        preferred_lines = self._collect_laje_preferred_outline_lines(candidates)
         crop_bbox = self._laj_crop_bbox_from_labels(label_id or "", start_point, search_radius)
         self.last_trace_diagnostics = {
             "candidate_line_count": len(classified),
             "accepted_line_count": len(lines),
             "rejected_line_count": len(rejected),
+            "preferred_line_count": len(preferred_lines),
             "label_id": label_id,
             "n2_axes_crop_bbox": crop_bbox,
             "outline_source": "none",
@@ -936,7 +1120,7 @@ class SlabTracer:
             if self._learning_params.get('fallback_to_teacher'):
                 axes_poly = teacher_poly  # So usar teacher real; None se nao houver
             else:
-                axes_poly = teacher_poly or (self._canonical_laj_outline_from_n2_axes(lines, target_pt, crop_bbox, teacher) if crop_bbox else None)
+                axes_poly = teacher_poly or (self._canonical_laj_outline_from_n2_axes(lines, target_pt, crop_bbox, teacher, preferred_lines=preferred_lines) if crop_bbox else None)
             if self._should_prefer_n2_axes_outline(selected, axes_poly, target_pt):
                 self.last_trace_diagnostics["outline_source"] = "n2_teacher_axes" if teacher_poly else "n2_axes"
                 result = axes_poly

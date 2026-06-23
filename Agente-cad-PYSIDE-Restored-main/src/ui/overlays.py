@@ -175,22 +175,23 @@ class PillarGraphicsItem(QGraphicsPolygonItem):
         
         # Estilo Base
         # Estilo Base (Mais suave)
-        self.default_brush = QBrush(QColor(0, 100, 255, 30)) 
-        self.hover_brush = QBrush(QColor(0, 150, 255, 60))
-        self.selected_brush = QBrush(QColor(255, 165, 0, 40)) 
+        self.default_brush = QBrush(QColor(255, 213, 0, 25)) 
+        self.hover_brush = QBrush(QColor(255, 213, 0, 55))
+        self.selected_brush = QBrush(QColor(255, 213, 0, 70)) 
         
         self.is_validated = False
         self.setBrush(self.default_brush)
         
         # Pens de contorno (Destaque principal solicitado)
-        self.default_pen = QPen(Qt.NoPen)
-        self.hover_pen = QPen(QColor(0, 150, 255), 2)
+        self.default_pen = QPen(QColor(255, 213, 0), 2)
+        self.default_pen.setCosmetic(True)
+        self.hover_pen = QPen(QColor(255, 213, 0), 3)
         self.hover_pen.setCosmetic(True)
         
-        self.selected_pen = QPen(QColor(255, 165, 0), 4) # Laranja grosso no contorno
+        self.selected_pen = QPen(QColor(255, 213, 0), 4)
         self.selected_pen.setCosmetic(True)
         
-        self.validated_pen = QPen(QColor(76, 175, 80), 3)
+        self.validated_pen = QPen(QColor(255, 213, 0), 3)
         self.validated_pen.setCosmetic(True)
 
         self.uncertain_pen = self.default_pen # Desativado visual laranja/amarelo por solicitação
@@ -215,7 +216,7 @@ class PillarGraphicsItem(QGraphicsPolygonItem):
         # Label (Opcional)
         if label:
             self.text_item = QGraphicsSimpleTextItem(label, self)
-            font = QFont("Inter", 10, QFont.Bold) 
+            font = QFont("Inter", 14, QFont.Bold) 
             self.text_item.setFont(font)
             self.text_item.setBrush(QBrush(Qt.white))
             center = poly.boundingRect().center()
@@ -253,7 +254,7 @@ class PillarGraphicsItem(QGraphicsPolygonItem):
             self.setBrush(QBrush(QColor(255, 215, 0, 50)))
             self.setPen(self.uncertain_pen)
         elif self.visual_status == "validated":
-            self.setBrush(QBrush(QColor(76, 175, 80, 50)))
+            self.setBrush(QBrush(QColor(255, 213, 0, 45)))
             self.setPen(self.validated_pen)
         else:
             self.setBrush(self.default_brush)
@@ -308,11 +309,11 @@ class SlabGraphicsItem(QGraphicsPolygonItem):
         self.setPolygon(poly)
         
         # Estilos Base
-        self.default_brush = QBrush(QColor(255, 255, 255, 30)) # Branco semi-transparente
-        self.validated_brush = QBrush(QColor(76, 175, 80, 50)) # Verde suave
-        self.default_pen = QPen(QColor(0, 50, 150), 2) # Azul Escuro
+        self.default_brush = QBrush(QColor(0, 150, 255, 30)) # Azul semi-transparente
+        self.validated_brush = QBrush(QColor(0, 150, 255, 50)) # Azul suave
+        self.default_pen = QPen(QColor(0, 150, 255), 2)
         self.default_pen.setCosmetic(True)
-        self.validated_pen = QPen(QColor(0, 50, 150), 3) # Azul Escuro (mais grosso se validado)
+        self.validated_pen = QPen(QColor(0, 150, 255), 3)
         self.validated_pen.setCosmetic(True)
 
         self.is_validated = False
@@ -332,7 +333,7 @@ class SlabGraphicsItem(QGraphicsPolygonItem):
             self.text_item = QGraphicsSimpleTextItem(label, self)
             font = QFont("Arial", 16, QFont.Bold) 
             self.text_item.setFont(font)
-            self.text_item.setBrush(QBrush(QColor(200, 200, 200))) # Text claro
+            self.text_item.setBrush(QBrush(QColor(255, 255, 255)))
             
             center = poly.boundingRect().center()
             self.text_item.setPos(center.x(), center.y())
@@ -357,10 +358,10 @@ class SlabGraphicsItem(QGraphicsPolygonItem):
             self.setBrush(self.validated_brush)
             self.setPen(self.validated_pen)
             if hasattr(self, 'text_item'):
-                self.text_item.setBrush(QBrush(QColor(76, 175, 80)))
+                self.text_item.setBrush(QBrush(QColor(255, 255, 255)))
         else:
             self.setBrush(self.default_brush)
             self.setPen(self.default_pen)
             if hasattr(self, 'text_item'):
-                 self.text_item.setBrush(QBrush(QColor(200, 200, 200)))
+                 self.text_item.setBrush(QBrush(QColor(255, 255, 255)))
 

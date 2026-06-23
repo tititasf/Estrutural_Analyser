@@ -1877,12 +1877,26 @@ class _RightPanel(QFrame):
 
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.setFixedWidth(230)
-        self.setStyleSheet(f"background:{Colors.BG_SECONDARY};")
+        self.setFixedWidth(250)
+        self.setStyleSheet(f"background:{Colors.BG_SECONDARY}; border: none;")
 
-        lay = QVBoxLayout(self)
+        main_layout = QVBoxLayout(self)
+        main_layout.setContentsMargins(0, 0, 0, 0)
+        main_layout.setSpacing(0)
+
+        scroll = QScrollArea(self)
+        scroll.setWidgetResizable(True)
+        scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        scroll.setStyleSheet("QScrollArea { border: none; background: transparent; }")
+        
+        container = QFrame(scroll)
+        container.setStyleSheet("background: transparent;")
+        lay = QVBoxLayout(container)
         lay.setContentsMargins(6, 8, 6, 8)
         lay.setSpacing(5)
+
+        scroll.setWidget(container)
+        main_layout.addWidget(scroll)
 
         def _btn(text: str, bg: str, hover: str, h: int = 26) -> QPushButton:
             b = QPushButton(text)
@@ -1922,7 +1936,8 @@ class _RightPanel(QFrame):
         self.lst_recortes.currentItemChanged.connect(
             lambda cur, _prev: self._on_recorte_clicked(cur) if cur is not None else None
         )
-        lay.addWidget(self.lst_recortes, 1)   # stretch — ocupa espaço disponível
+        self.lst_recortes.setMinimumHeight(200)
+        lay.addWidget(self.lst_recortes)
 
         lay.addWidget(self._sep())
 
@@ -2089,6 +2104,7 @@ class _RightPanel(QFrame):
             f"color:{Colors.TEXT_DIM}; font-size:8px; background:transparent;"
         )
         lay.addWidget(self._lbl_motor_detail)
+        lay.addStretch()
 
     # ── API pública ───────────────────────────────────────────────────
 
@@ -2367,7 +2383,7 @@ class _FichaMotorWorker(QObject):
                 self.progresso.emit(i + 1, total, f"{classe} \u00b7 {elem_id}")
 
                 try:
-                    campos, conf = self._extrair_ficha(classe, elem_id, recorte_path)
+                    campos, conf = self._extrair_ficha(classe, elem_id, recorte_path, proj_id)
 
                     # Inferir pavimento do recorte_path
                     pavimento = self._inferir_pavimento(recorte_path)
@@ -2401,7 +2417,7 @@ class _FichaMotorWorker(QObject):
         except Exception as ex:
             self.erro.emit(str(ex))
 
-    def _extrair_ficha(self, classe: str, elem_id: str, recorte_path: str) -> tuple:
+    def _extrair_ficha(self, classe: str, elem_id: str, recorte_path: str, project_id: str = None) -> tuple:
         """Chama o motor reverso correto para a classe."""
         import sys as _sys
         from pathlib import Path as _P
@@ -2418,7 +2434,7 @@ class _FichaMotorWorker(QObject):
             result = extrair_ficha_lateral_viga(recorte_path, elem_id, self.obra_name)
         elif classe == 'FV':
             from motor_reverso_fv import extrair_ficha_fundo_viga
-            result = extrair_ficha_fundo_viga(recorte_path, elem_id, self.obra_name)
+            result = extrair_ficha_fundo_viga(recorte_path, elem_id, self.obra_name, project_id=project_id)
         elif classe == 'LAJ':
             from motor_reverso_laj import extrair_ficha_laje
             result = extrair_ficha_laje(recorte_path, elem_id, self.obra_name)

@@ -1,0 +1,33 @@
+{
+  "schema": "lv_section_visual_agent_v1",
+  "iteration": 1,
+  "status": "ganho_parcial_nao_promovido",
+  "baseline_visual_pct": 10.8,
+  "iteration_visual_pct": 23.0,
+  "delta_points": 12.2,
+  "topology_validation": {
+    "approved_pairs": 13,
+    "total_pairs": 13,
+    "classes_observed": [
+      "u_straight",
+      "extension_right",
+      "bilateral",
+      "u_straight_wide_bottom"
+    ]
+  },
+  "approved_changes": [
+    "perfil CONCRETO estruturado na ficha",
+    "extensoes esquerda e direita medidas",
+    "fundo largo identificado",
+    "N4 experimental sem molde L obrigatorio",
+    "componentes sem evidencia suprimidos"
+  ],
+  "remaining_critical_gaps": [
+    "hatches e preenchimentos",
+    "cotas e textos em escala",
+    "paineis, madeira e sarrafos com anatomia completa",
+    "componentes SCR condicionados por evidencia",
+    "reextracao da ficha a partir do N4"
+  ],
+  "gate_40": "pendente"
+}

@@ -170,18 +170,42 @@ class RecorteMotor:
         # 2. Labels
         if self.er_type == 'PIL':
             label_pat = re.compile(r'^(P\d+)\.[A-Z]$')
+            pat_multi_sec = None
+            pat_extract_names = None
         else:
-            label_pat = re.compile(r'^(?:CONT\.\s+)?(V[A-Z]?\d+)\.[A-Z]$')
+            # Padrão 1: seção só no final — "V1.A", "V1-V2.A"
+            label_pat = re.compile(
+                r'^(?:CONT\.\s+)?'
+                r'(V[A-Z]?\d+(?:[A-Z])?(?:\s*[-/eE]\s*V[A-Z]?\d+(?:[A-Z])?)*)\s*\.\s*[A-Z]$'
+            )
+            # Padrão 2: seção em cada viga — "V323.C - V328.C"
+            pat_multi_sec = re.compile(
+                r'^(?:CONT\.\s+)?'
+                r'(V[A-Z]?\d+(?:[A-Z])?)\s*\.\s*[A-Z]'
+                r'(\s*[-/eE]\s*V[A-Z]?\d+(?:[A-Z])?\s*\.\s*[A-Z])+$'
+            )
+            pat_extract_names = re.compile(r'(V[A-Z]?\d+(?:[A-Z])?)\s*\.\s*[A-Z]')
 
         elem_labels: dict[str, list] = {}
         for e in msp:
             if not hasattr(e.dxf, 'layer'): continue
             if 'Se' not in e.dxf.layer: continue
             if e.dxftype() != 'TEXT': continue
-            m = label_pat.match(e.dxf.text.strip())
+            txt = e.dxf.text.strip()
+
+            eid = None
+            m = label_pat.match(txt)
             if m:
+                eid_raw = m.group(1)
+                eid = re.sub(r'\s*[-/eE]\s*', '-', eid_raw)
+            elif pat_multi_sec and pat_multi_sec.match(txt):
+                names = pat_extract_names.findall(txt)
+                if names:
+                    eid = '-'.join(names)
+
+            if eid:
                 p = e.dxf.insert
-                elem_labels.setdefault(m.group(1), []).append((float(p.x), float(p.y)))
+                elem_labels.setdefault(eid, []).append((float(p.x), float(p.y)))
 
         if not elem_labels:
             log.warning("Nenhuma label encontrada em 'Texto Seção' — fallback")
@@ -283,9 +307,34 @@ class RecorteMotor:
           - conteúdo estende max ~120 unidades ABAIXO do min(label_y)
           - conteúdo estende max ~50 unidades ACIMA do max(label_y)
           - largura do fundo: ~1250-1345 unidades à direita da label
+
+        Suporta formatos de label:
+          - Viga simples:   "V312.A"
+          - Multi (final):  "V313-V315V-V317.A"  (seção só no fim)
+          - Multi (cada):   "V323.C - V328.C"    (seção em cada viga)
+          - Com CONT.:      "CONT. V312.A"
         """
         msp = self._dxf.modelspace()
-        label_pat = re.compile(r'^(?:CONT\.\s+)?(V[A-Z]?\d+(?:[A-Z])?)\.[A-Z]$')
+
+        # Padrão 1: seção no final — "V1.A", "V1-V2.A", "CONT. V1.A"
+        pat_single_sec = re.compile(
+            r'^(?:CONT\.\s+)?'
+            r'(V[A-Z]?\d+(?:[A-Z])?'        # primeira viga
+            r'(?:\s*[-/eE]\s*V[A-Z]?\d+(?:[A-Z])?)*'  # vigas adicionais
+            r')\s*\.\s*[A-Z]$'
+        )
+
+        # Padrão 2: seção em cada viga — "V323.C - V328.C", "V1.A-V2.A"
+        pat_multi_sec = re.compile(
+            r'^(?:CONT\.\s+)?'
+            r'(V[A-Z]?\d+(?:[A-Z])?)\s*\.\s*[A-Z]'   # primeira viga.seção
+            r'(\s*[-/eE]\s*'                             # separador
+            r'V[A-Z]?\d+(?:[A-Z])?\s*\.\s*[A-Z]'       # próxima viga.seção
+            r')+$'                                       # uma ou mais repetições
+        )
+
+        # Extrator de todos os nomes de viga de um texto multi-seção
+        pat_extract_names = re.compile(r'(V[A-Z]?\d+(?:[A-Z])?)\s*\.\s*[A-Z]')
 
         elem_labels: dict[str, list] = {}
         for e in msp:
@@ -293,9 +342,23 @@ class RecorteMotor:
             if e.dxf.layer != 'NOMENCLATURA': continue
             if e.dxftype() not in ('TEXT', 'MTEXT'): continue
             txt = (e.dxf.text if e.dxftype() == 'TEXT' else e.text).strip()
-            m = label_pat.match(txt)
+
+            eid = None
+
+            # Tenta padrão 1 (seção apenas no final): "V312.A", "V313-V315V-V317.A"
+            m = pat_single_sec.match(txt)
             if m:
-                eid = m.group(1)
+                eid_raw = m.group(1)
+                eid = re.sub(r'\s*[-/eE]\s*', '-', eid_raw)
+            else:
+                # Tenta padrão 2 (seção em cada viga): "V323.C - V328.C"
+                m2 = pat_multi_sec.match(txt)
+                if m2:
+                    names = pat_extract_names.findall(txt)
+                    if names:
+                        eid = '-'.join(names)
+
+            if eid:
                 p = e.dxf.insert
                 elem_labels.setdefault(eid, []).append((float(p.x), float(p.y)))
 
@@ -1246,8 +1309,10 @@ def _is_frame_border(pts: list) -> bool:
 
 
 def _sort_key_elem(eid: str) -> tuple:
-    """Ordenação: P1 < P2 < P10 < P11; VF301 < V301 < V302."""
-    m = re.match(r'^([A-Z]+)(\d+)$', eid)
+    """Ordenação: P1 < P2 < P10 < P11; VF301 < V301 < V302; V323-V328 usa primeiro número."""
+    # Para IDs compostos como "V323-V328", pegar a primeira parte
+    first_part = eid.split('-')[0]
+    m = re.match(r'^([A-Z]+)(\d+)', first_part)
     if m:
         return (m.group(1), int(m.group(2)))
     return (eid, 0)

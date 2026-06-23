@@ -1,0 +1,6 @@
+{
+  "stage": 80,
+  "reason": "N2 section views and face_units visually audited for V301; fine details and N4 remain pending",
+  "n4_status": "generated_but_visual_blocked",
+  "n4_promote_to_90": false
+}

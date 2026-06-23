@@ -1587,14 +1587,13 @@ class ProjectManager(QWidget):
 
     def _open_detail_dialog(self, item_data):
         from src.ui.dialogs.detail_dialog import DetailDialog
-        # Abrir em modo leitura/edição (direto no objeto, mas sem redesenho de canvas pois nao tem canvas aqui)
         # Se salvar, o objeto é atualizado na mem. Precisa salvar no DB?
         # O DetailDialog atual edita o dict.
         # Precisamos de um botão "Salvar" no dialog se aberto daqui.
         # Ou instruir o usuário que aqui é visualização.
         
         dlg = DetailDialog(item_data, parent=self)
-        dlg.exec_()
+        dlg.exec()
         
         # Opcional: Salvar no DB se houve alteração (DetailCard edita in-place)
         # Como DetailDialog não tem botão salvar explicito ainda (eu removi/ocultei), 
@@ -1608,6 +1607,12 @@ class ProjectManager(QWidget):
             t = item_data["type"].lower()
             if "pilar" in t: self.db.save_pillar(item_data, self.current_project_id)
             elif "laje" in t: self.db.save_slab(item_data, self.current_project_id)
+            elif "viga" in t or "fundo" in t: self.db.save_beam(item_data, self.current_project_id)
+        
+        try:
+            self._refresh_all_phase3_lists()
+        except Exception:
+            pass
 
     def _refresh_all_phase4_lists(self):
         """Atualiza todas as listas de dados de robôs na Fase 4."""
@@ -1708,7 +1713,7 @@ class ProjectManager(QWidget):
         """Abre a ficha técnica específica do robô (Fase 4)."""
         from src.ui.dialogs.robot_ficha_dialog import RobotFichaDialog
         dlg = RobotFichaDialog(item_data, parent=self)
-        dlg.exec_()
+        dlg.exec()
 
     def _read_robot_pilares_data(self, pav_nome):
         path = os.path.join(self.base_dir, "_ROBOS_ABAS", "Robo_Pilares", "pilares-atualizado-09-25", "src", "core", "pilares_salvos.json")
@@ -4601,7 +4606,7 @@ class ProjectManager(QWidget):
              pass
 
         dialog = DocumentUploadDialog(class_name=class_name, parent=self)
-        if dialog.exec_():
+        if dialog.exec():
             data_list = dialog.get_data()
             if not isinstance(data_list, list):
                 data_list = [data_list] # Fallback for backward compatibility just in case
@@ -6060,7 +6065,7 @@ class ProjectManager(QWidget):
             return
             
         dialog = DocumentUploadDialog(class_name="Geral", parent=self)
-        if dialog.exec_():
+        if dialog.exec():
             data = dialog.get_data()
             file_path = data['path']
             display_name = data['name']

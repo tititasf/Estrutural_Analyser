@@ -1,0 +1,11 @@
+{
+  "source": "reverse_eng_recortes",
+  "id": 7,
+  "obra_name": "Obra_TREINO_1",
+  "pavimento": null,
+  "classe": "LV",
+  "elemento_id": "V301",
+  "recorte_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- LV - R00\\LV_V301_motor_178111332829.dxf",
+  "confidence": 100.0,
+  "status": "aprovado"
+}

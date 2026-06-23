@@ -1,0 +1,91 @@
+{
+  "stage": "pending_vision",
+  "extractor_confidence": 0.93,
+  "counts": {
+    "section_views": 2,
+    "face_units": 8,
+    "segments_A": 4,
+    "segments_B": 2
+  },
+  "ready_for_agent_vision": true,
+  "score_formula": {
+    "section_views": 25,
+    "segments_A": 25,
+    "segments_B": 25,
+    "main_dimensions": 15,
+    "details_provenance": 10
+  },
+  "extractor_health": {
+    "section_heights": [
+      55.0,
+      120.0
+    ],
+    "unique_section_heights": [
+      55.0,
+      120.0
+    ],
+    "segments_A": 4,
+    "segments_B": 2,
+    "face_units": [
+      {
+        "idx": 1,
+        "label": "CONT. V301.A",
+        "side": "A",
+        "segments": 4,
+        "h_total": 133.0
+      },
+      {
+        "idx": 2,
+        "label": "V301.A",
+        "side": "A",
+        "segments": 4,
+        "h_total": 132.0
+      },
+      {
+        "idx": 3,
+        "label": "CONT. V301.A",
+        "side": "A",
+        "segments": 4,
+        "h_total": 132.0
+      },
+      {
+        "idx": 4,
+        "label": "V301.B",
+        "side": "B",
+        "segments": 2,
+        "h_total": 132.0
+      },
+      {
+        "idx": 5,
+        "label": "CONT. V301.A",
+        "side": "A",
+        "segments": 4,
+        "h_total": 133.0
+      },
+      {
+        "idx": 6,
+        "label": "CONT. V301.B",
+        "side": "B",
+        "segments": 4,
+        "h_total": 131.0
+      },
+      {
+        "idx": 7,
+        "label": "CONT. V301.B",
+        "side": "B",
+        "segments": 4,
+        "h_total": 132.0
+      },
+      {
+        "idx": 8,
+        "label": "CONT. V301.B",
+        "side": "B",
+        "segments": 4,
+        "h_total": 133.0
+      }
+    ],
+    "component_crops": 3,
+    "warnings": [],
+    "ready_for_stage_80": true
+  }
+}

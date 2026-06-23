@@ -1,0 +1,3021 @@
+{
+  "source_dir": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\sandbox_lv_loop\\prod_pav13_sections_arete_gap1800",
+  "summary": [
+    {
+      "item": "V13",
+      "ok": true,
+      "face_units": 2,
+      "units_A": 1,
+      "units_B": 1,
+      "segments": 6,
+      "rendered": 2
+    },
+    {
+      "item": "V301",
+      "ok": true,
+      "face_units": 16,
+      "units_A": 8,
+      "units_B": 8,
+      "segments": 63,
+      "rendered": 16
+    },
+    {
+      "item": "V302",
+      "ok": true,
+      "face_units": 15,
+      "units_A": 7,
+      "units_B": 8,
+      "segments": 34,
+      "rendered": 15
+    },
+    {
+      "item": "V303",
+      "ok": true,
+      "face_units": 8,
+      "units_A": 6,
+      "units_B": 2,
+      "segments": 16,
+      "rendered": 8
+    },
+    {
+      "item": "V304",
+      "ok": true,
+      "face_units": 5,
+      "units_A": 3,
+      "units_B": 2,
+      "segments": 13,
+      "rendered": 5
+    },
+    {
+      "item": "V305",
+      "ok": true,
+      "face_units": 2,
+      "units_A": 1,
+      "units_B": 1,
+      "segments": 7,
+      "rendered": 2
+    },
+    {
+      "item": "V306",
+      "ok": true,
+      "face_units": 9,
+      "units_A": 6,
+      "units_B": 3,
+      "segments": 18,
+      "rendered": 9
+    },
+    {
+      "item": "V308",
+      "ok": true,
+      "face_units": 2,
+      "units_A": 1,
+      "units_B": 1,
+      "segments": 9,
+      "rendered": 2
+    },
+    {
+      "item": "V310",
+      "ok": true,
+      "face_units": 2,
+      "units_A": 1,
+      "units_B": 1,
+      "segments": 3,
+      "rendered": 2
+    },
+    {
+      "item": "V311",
+      "ok": true,
+      "face_units": 2,
+      "units_A": 1,
+      "units_B": 1,
+      "segments": 4,
+      "rendered": 2
+    },
+    {
+      "item": "V312",
+      "ok": true,
+      "face_units": 4,
+      "units_A": 2,
+      "units_B": 2,
+      "segments": 16,
+      "rendered": 4
+    },
+    {
+      "item": "V314",
+      "ok": true,
+      "face_units": 2,
+      "units_A": 1,
+      "units_B": 1,
+      "segments": 18,
+      "rendered": 2
+    },
+    {
+      "item": "V315",
+      "ok": true,
+      "face_units": 2,
+      "units_A": 1,
+      "units_B": 1,
+      "segments": 6,
+      "rendered": 2
+    },
+    {
+      "item": "V316",
+      "ok": true,
+      "face_units": 4,
+      "units_A": 2,
+      "units_B": 2,
+      "segments": 19,
+      "rendered": 4
+    },
+    {
+      "item": "V317",
+      "ok": true,
+      "face_units": 2,
+      "units_A": 1,
+      "units_B": 1,
+      "segments": 6,
+      "rendered": 2
+    },
+    {
+      "item": "V318",
+      "ok": true,
+      "face_units": 2,
+      "units_A": 1,
+      "units_B": 1,
+      "segments": 18,
+      "rendered": 2
+    },
+    {
+      "item": "V319",
+      "ok": true,
+      "face_units": 2,
+      "units_A": 1,
+      "units_B": 1,
+      "segments": 6,
+      "rendered": 2
+    },
+    {
+      "item": "V320",
+      "ok": true,
+      "face_units": 4,
+      "units_A": 2,
+      "units_B": 2,
+      "segments": 19,
+      "rendered": 4
+    },
+    {
+      "item": "V321",
+      "ok": true,
+      "face_units": 4,
+      "units_A": 2,
+      "units_B": 2,
+      "segments": 7,
+      "rendered": 4
+    },
+    {
+      "item": "V322",
+      "ok": true,
+      "face_units": 3,
+      "units_A": 1,
+      "units_B": 2,
+      "segments": 15,
+      "rendered": 3
+    },
+    {
+      "item": "V323",
+      "ok": true,
+      "face_units": 2,
+      "units_A": 1,
+      "units_B": 1,
+      "segments": 4,
+      "rendered": 2
+    },
+    {
+      "item": "V324",
+      "ok": true,
+      "face_units": 2,
+      "units_A": 1,
+      "units_B": 1,
+      "segments": 4,
+      "rendered": 2
+    },
+    {
+      "item": "V325",
+      "ok": true,
+      "face_units": 4,
+      "units_A": 2,
+      "units_B": 2,
+      "segments": 14,
+      "rendered": 4
+    },
+    {
+      "item": "V326",
+      "ok": true,
+      "face_units": 2,
+      "units_A": 1,
+      "units_B": 1,
+      "segments": 4,
+      "rendered": 2
+    },
+    {
+      "item": "V327",
+      "ok": true,
+      "face_units": 2,
+      "units_A": 1,
+      "units_B": 1,
+      "segments": 4,
+      "rendered": 2
+    },
+    {
+      "item": "V328",
+      "ok": true,
+      "face_units": 2,
+      "units_A": 1,
+      "units_B": 1,
+      "segments": 4,
+      "rendered": 2
+    },
+    {
+      "item": "V329",
+      "ok": true,
+      "face_units": 2,
+      "units_A": 1,
+      "units_B": 1,
+      "segments": 4,
+      "rendered": 2
+    },
+    {
+      "item": "V330",
+      "ok": true,
+      "face_units": 2,
+      "units_A": 1,
+      "units_B": 1,
+      "segments": 14,
+      "rendered": 2
+    },
+    {
+      "item": "V331",
+      "ok": true,
+      "face_units": 2,
+      "units_A": 1,
+      "units_B": 1,
+      "segments": 4,
+      "rendered": 2
+    },
+    {
+      "item": "V332",
+      "ok": true,
+      "face_units": 2,
+      "units_A": 1,
+      "units_B": 1,
+      "segments": 6,
+      "rendered": 2
+    }
+  ],
+  "rows": [
+    {
+      "item": "V13",
+      "unit_idx": 1,
+      "label": "V13.A",
+      "side": "A",
+      "segments": 3,
+      "n2_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V13\\n2_ab_unit_01_A.png",
+      "n4_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V13\\n4_units\\n4_face_unit_01_V13_A.png",
+      "visual_metric": {
+        "mask_iou": 0.0582,
+        "density_ratio": 0.8471,
+        "coarse_visual_score": 33.4,
+        "note": "metrica preliminar; veredito final exige inspecao visual do agente"
+      },
+      "fields": {
+        "h_body": 44.0,
+        "h_total": 78.0,
+        "laje_sup": 0.0,
+        "laje_inf": 0.0,
+        "panel_types": [
+          "Sarrafeado"
+        ]
+      }
+    },
+    {
+      "item": "V13",
+      "unit_idx": 2,
+      "label": "V13.B",
+      "side": "B",
+      "segments": 3,
+      "n2_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V13\\n2_ab_unit_02_B.png",
+      "n4_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V13\\n4_units\\n4_face_unit_02_V13_B.png",
+      "visual_metric": {
+        "mask_iou": 0.0817,
+        "density_ratio": 0.7587,
+        "coarse_visual_score": 31.9,
+        "note": "metrica preliminar; veredito final exige inspecao visual do agente"
+      },
+      "fields": {
+        "h_body": 44.0,
+        "h_total": 44.0,
+        "laje_sup": 0.0,
+        "laje_inf": 0.0,
+        "panel_types": [
+          "Sarrafeado"
+        ]
+      }
+    },
+    {
+      "item": "V301",
+      "unit_idx": 1,
+      "label": "V301.A",
+      "side": "A",
+      "segments": 4,
+      "n2_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V301\\n2_ab_unit_01_A.png",
+      "n4_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V301\\n4_units\\n4_face_unit_01_V301_A.png",
+      "visual_metric": {
+        "mask_iou": 0.1732,
+        "density_ratio": 0.9004,
+        "coarse_visual_score": 42.8,
+        "note": "metrica preliminar; veredito final exige inspecao visual do agente"
+      },
+      "fields": {
+        "h_body": 44.0,
+        "h_total": 44.0,
+        "laje_sup": 0.0,
+        "laje_inf": 0.0,
+        "panel_types": [
+          "Sarrafeado"
+        ]
+      }
+    },
+    {
+      "item": "V301",
+      "unit_idx": 2,
+      "label": "",
+      "side": "A",
+      "segments": 4,
+      "n2_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V301\\n2_ab_unit_02_A.png",
+      "n4_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V301\\n4_units\\n4_face_unit_02_face_2_A.png",
+      "visual_metric": {
+        "mask_iou": 0.1914,
+        "density_ratio": 0.9354,
+        "coarse_visual_score": 45.2,
+        "note": "metrica preliminar; veredito final exige inspecao visual do agente"
+      },
+      "fields": {
+        "h_body": 44.0,
+        "h_total": 44.0,
+        "laje_sup": 0.0,
+        "laje_inf": 0.0,
+        "panel_types": [
+          "Sarrafeado"
+        ]
+      }
+    },
+    {
+      "item": "V301",
+      "unit_idx": 3,
+      "label": "CONT. V301.A",
+      "side": "A",
+      "segments": 4,
+      "n2_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V301\\n2_ab_unit_03_A.png",
+      "n4_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V301\\n4_units\\n4_face_unit_03_CONT__V301_A.png",
+      "visual_metric": {
+        "mask_iou": 0.0116,
+        "density_ratio": 0.9206,
+        "coarse_visual_score": 33.0,
+        "note": "metrica preliminar; veredito final exige inspecao visual do agente"
+      },
+      "fields": {
+        "h_body": 45.0,
+        "h_total": 45.0,
+        "laje_sup": 0.0,
+        "laje_inf": 0.0,
+        "panel_types": [
+          "Sarrafeado"
+        ]
+      }
+    },
+    {
+      "item": "V301",
+      "unit_idx": 4,
+      "label": "",
+      "side": "A",
+      "segments": 3,
+      "n2_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V301\\n2_ab_unit_04_A.png",
+      "n4_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V301\\n4_units\\n4_face_unit_04_face_4_A.png",
+      "visual_metric": {
+        "mask_iou": 0.164,
+        "density_ratio": 0.9795,
+        "coarse_visual_score": 44.9,
+        "note": "metrica preliminar; veredito final exige inspecao visual do agente"
+      },
+      "fields": {
+        "h_body": 44.0,
+        "h_total": 65.0,
+        "laje_sup": 0.0,
+        "laje_inf": 0.0,
+        "panel_types": [
+          "Sarrafeado"
+        ]
+      }
+    },
+    {
+      "item": "V301",
+      "unit_idx": 5,
+      "label": "CONT. V301.A",
+      "side": "A",
+      "segments": 4,
+      "n2_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V301\\n2_ab_unit_05_A.png",
+      "n4_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V301\\n4_units\\n4_face_unit_05_CONT__V301_A.png",
+      "visual_metric": {
+        "mask_iou": 0.1935,
+        "density_ratio": 0.8442,
+        "coarse_visual_score": 42.1,
+        "note": "metrica preliminar; veredito final exige inspecao visual do agente"
+      },
+      "fields": {
+        "h_body": 44.0,
+        "h_total": 44.0,
+        "laje_sup": 0.0,
+        "laje_inf": 0.0,
+        "panel_types": [
+          "Sarrafeado"
+        ]
+      }
+    },
+    {
+      "item": "V301",
+      "unit_idx": 6,
+      "label": "",
+      "side": "A",
+      "segments": 4,
+      "n2_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V301\\n2_ab_unit_06_A.png",
+      "n4_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V301\\n4_units\\n4_face_unit_06_face_6_A.png",
+      "visual_metric": {
+        "mask_iou": 0.1729,
+        "density_ratio": 0.9112,
+        "coarse_visual_score": 43.1,
+        "note": "metrica preliminar; veredito final exige inspecao visual do agente"
+      },
+      "fields": {
+        "h_body": 44.0,
+        "h_total": 44.0,
+        "laje_sup": 0.0,
+        "laje_inf": 0.0,
+        "panel_types": [
+          "Sarrafeado"
+        ]
+      }
+    },
+    {
+      "item": "V301",
+      "unit_idx": 7,
+      "label": "V301.B",
+      "side": "B",
+      "segments": 4,
+      "n2_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V301\\n2_ab_unit_07_B.png",
+      "n4_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V301\\n4_units\\n4_face_unit_07_V301_B.png",
+      "visual_metric": {
+        "mask_iou": 0.1369,
+        "density_ratio": 0.773,
+        "coarse_visual_score": 36.0,
+        "note": "metrica preliminar; veredito final exige inspecao visual do agente"
+      },
+      "fields": {
+        "h_body": 22.0,
+        "h_total": 65.0,
+        "laje_sup": 0.0,
+        "laje_inf": 0.0,
+        "panel_types": [
+          "Sarrafeado"
+        ]
+      }
+    },
+    {
+      "item": "V301",
+      "unit_idx": 8,
+      "label": "",
+      "side": "B",
+      "segments": 4,
+      "n2_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V301\\n2_ab_unit_08_B.png",
+      "n4_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V301\\n4_units\\n4_face_unit_08_face_8_B.png",
+      "visual_metric": {
+        "mask_iou": 0.1262,
+        "density_ratio": 0.8629,
+        "coarse_visual_score": 38.4,
+        "note": "metrica preliminar; veredito final exige inspecao visual do agente"
+      },
+      "fields": {
+        "h_body": 21.0,
+        "h_total": 21.0,
+        "laje_sup": 0.0,
+        "laje_inf": 0.0,
+        "panel_types": [
+          "Sarrafeado"
+        ]
+      }
+    },
+    {
+      "item": "V301",
+      "unit_idx": 9,
+      "label": "CONT. V301.A",
+      "side": "A",
+      "segments": 4,
+      "n2_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V301\\n2_ab_unit_09_A.png",
+      "n4_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V301\\n4_units\\n4_face_unit_09_CONT__V301_A.png",
+      "visual_metric": {
+        "mask_iou": 0.1927,
+        "density_ratio": 0.919,
+        "coarse_visual_score": 44.7,
+        "note": "metrica preliminar; veredito final exige inspecao visual do agente"
+      },
+      "fields": {
+        "h_body": 44.0,
+        "h_total": 44.0,
+        "laje_sup": 0.0,
+        "laje_inf": 0.0,
+        "panel_types": [
+          "Sarrafeado"
+        ]
+      }
+    },
+    {
+      "item": "V301",
+      "unit_idx": 10,
+      "label": "",
+      "side": "A",
+      "segments": 4,
+      "n2_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V301\\n2_ab_unit_10_A.png",
+      "n4_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V301\\n4_units\\n4_face_unit_10_face_10_A.png",
+      "visual_metric": {
+        "mask_iou": 0.0055,
+        "density_ratio": 0.778,
+        "coarse_visual_score": 27.6,
+        "note": "metrica preliminar; veredito final exige inspecao visual do agente"
+      },
+      "fields": {
+        "h_body": 45.0,
+        "h_total": 45.0,
+        "laje_sup": 0.0,
+        "laje_inf": 0.0,
+        "panel_types": [
+          "Sarrafeado"
+        ]
+      }
+    },
+    {
+      "item": "V301",
+      "unit_idx": 11,
+      "label": "CONT. V301.B",
+      "side": "B",
+      "segments": 4,
+      "n2_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V301\\n2_ab_unit_11_B.png",
+      "n4_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V301\\n4_units\\n4_face_unit_11_CONT__V301_B.png",
+      "visual_metric": {
+        "mask_iou": 0.1819,
+        "density_ratio": 0.9519,
+        "coarse_visual_score": 45.1,
+        "note": "metrica preliminar; veredito final exige inspecao visual do agente"
+      },
+      "fields": {
+        "h_body": 40.0,
+        "h_total": 40.0,
+        "laje_sup": 0.0,
+        "laje_inf": 0.0,
+        "panel_types": [
+          "Sarrafeado"
+        ]
+      }
+    },
+    {
+      "item": "V301",
+      "unit_idx": 12,
+      "label": "",
+      "side": "B",
+      "segments": 4,
+      "n2_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V301\\n2_ab_unit_12_B.png",
+      "n4_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V301\\n4_units\\n4_face_unit_12_face_12_B.png",
+      "visual_metric": {
+        "mask_iou": 0.0056,
+        "density_ratio": 0.5731,
+        "coarse_visual_score": 20.4,
+        "note": "metrica preliminar; veredito final exige inspecao visual do agente"
+      },
+      "fields": {
+        "h_body": 38.0,
+        "h_total": 38.0,
+        "laje_sup": 0.0,
+        "laje_inf": 0.0,
+        "panel_types": [
+          "Sarrafeado"
+        ]
+      }
+    },
+    {
+      "item": "V301",
+      "unit_idx": 13,
+      "label": "CONT. V301.B",
+      "side": "B",
+      "segments": 2,
+      "n2_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V301\\n2_ab_unit_13_B.png",
+      "n4_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V301\\n4_units\\n4_face_unit_13_CONT__V301_B.png",
+      "visual_metric": {
+        "mask_iou": 0.1294,
+        "density_ratio": 0.7598,
+        "coarse_visual_score": 35.0,
+        "note": "metrica preliminar; veredito final exige inspecao visual do agente"
+      },
+      "fields": {
+        "h_body": 21.0,
+        "h_total": 21.0,
+        "laje_sup": 0.0,
+        "laje_inf": 0.0,
+        "panel_types": [
+          "Sarrafeado"
+        ]
+      }
+    },
+    {
+      "item": "V301",
+      "unit_idx": 14,
+      "label": "",
+      "side": "B",
+      "segments": 4,
+      "n2_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V301\\n2_ab_unit_14_B.png",
+      "n4_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V301\\n4_units\\n4_face_unit_14_face_14_B.png",
+      "visual_metric": {
+        "mask_iou": 0.1165,
+        "density_ratio": 0.7314,
+        "coarse_visual_score": 33.2,
+        "note": "metrica preliminar; veredito final exige inspecao visual do agente"
+      },
+      "fields": {
+        "h_body": 21.0,
+        "h_total": 21.0,
+        "laje_sup": 0.0,
+        "laje_inf": 0.0,
+        "panel_types": [
+          "Sarrafeado"
+        ]
+      }
+    },
+    {
+      "item": "V301",
+      "unit_idx": 15,
+      "label": "CONT. V301.B",
+      "side": "B",
+      "segments": 4,
+      "n2_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V301\\n2_ab_unit_15_B.png",
+      "n4_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V301\\n4_units\\n4_face_unit_15_CONT__V301_B.png",
+      "visual_metric": {
+        "mask_iou": 0.1177,
+        "density_ratio": 0.9957,
+        "coarse_visual_score": 42.5,
+        "note": "metrica preliminar; veredito final exige inspecao visual do agente"
+      },
+      "fields": {
+        "h_body": 21.0,
+        "h_total": 21.0,
+        "laje_sup": 0.0,
+        "laje_inf": 0.0,
+        "panel_types": [
+          "Sarrafeado"
+        ]
+      }
+    },
+    {
+      "item": "V301",
+      "unit_idx": 16,
+      "label": "",
+      "side": "B",
+      "segments": 6,
+      "n2_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V301\\n2_ab_unit_16_B.png",
+      "n4_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V301\\n4_units\\n4_face_unit_16_face_16_B.png",
+      "visual_metric": {
+        "mask_iou": 0.1249,
+        "density_ratio": 0.7173,
+        "coarse_visual_score": 33.2,
+        "note": "metrica preliminar; veredito final exige inspecao visual do agente"
+      },
+      "fields": {
+        "h_body": 21.0,
+        "h_total": 21.0,
+        "laje_sup": 0.0,
+        "laje_inf": 0.0,
+        "panel_types": [
+          "Sarrafeado"
+        ]
+      }
+    },
+    {
+      "item": "V302",
+      "unit_idx": 1,
+      "label": "V302.B",
+      "side": "B",
+      "segments": 2,
+      "n2_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V302\\n2_ab_unit_01_B.png",
+      "n4_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V302\\n4_units\\n4_face_unit_01_V302_B.png",
+      "visual_metric": {
+        "mask_iou": 0.199,
+        "density_ratio": 0.9453,
+        "coarse_visual_score": 46.0,
+        "note": "metrica preliminar; veredito final exige inspecao visual do agente"
+      },
+      "fields": {
+        "h_body": 44.0,
+        "h_total": 66.0,
+        "laje_sup": 0.0,
+        "laje_inf": 0.0,
+        "panel_types": [
+          "Sarrafeado"
+        ]
+      }
+    },
+    {
+      "item": "V302",
+      "unit_idx": 2,
+      "label": "",
+      "side": "B",
+      "segments": 2,
+      "n2_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V302\\n2_ab_unit_02_B.png",
+      "n4_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V302\\n4_units\\n4_face_unit_02_face_2_B.png",
+      "visual_metric": {
+        "mask_iou": 0.0807,
+        "density_ratio": 0.8897,
+        "coarse_visual_score": 36.4,
+        "note": "metrica preliminar; veredito final exige inspecao visual do agente"
+      },
+      "fields": {
+        "h_body": 45.0,
+        "h_total": 45.0,
+        "laje_sup": 0.0,
+        "laje_inf": 0.0,
+        "panel_types": [
+          "Sarrafeado"
+        ]
+      }
+    },
+    {
+      "item": "V302",
+      "unit_idx": 3,
+      "label": "V302.A",
+      "side": "A",
+      "segments": 4,
+      "n2_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V302\\n2_ab_unit_03_A.png",
+      "n4_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V302\\n4_units\\n4_face_unit_03_V302_A.png",
+      "visual_metric": {
+        "mask_iou": 0.2592,
+        "density_ratio": 0.9678,
+        "coarse_visual_score": 50.7,
+        "note": "metrica preliminar; veredito final exige inspecao visual do agente"
+      },
+      "fields": {
+        "h_body": 43.0,
+        "h_total": 59.0,
+        "laje_sup": 0.0,
+        "laje_inf": 0.0,
+        "panel_types": [
+          "Sarrafeado"
+        ]
+      }
+    },
+    {
+      "item": "V302",
+      "unit_idx": 4,
+      "label": "",
+      "side": "A",
+      "segments": 2,
+      "n2_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V302\\n2_ab_unit_04_A.png",
+      "n4_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V302\\n4_units\\n4_face_unit_04_face_4_A.png",
+      "visual_metric": {
+        "mask_iou": 0.1687,
+        "density_ratio": 0.8751,
+        "coarse_visual_score": 41.6,
+        "note": "metrica preliminar; veredito final exige inspecao visual do agente"
+      },
+      "fields": {
+        "h_body": 56.0,
+        "h_total": 66.0,
+        "laje_sup": 0.0,
+        "laje_inf": 0.0,
+        "panel_types": [
+          "Sarrafeado"
+        ]
+      }
+    },
+    {
+      "item": "V302",
+      "unit_idx": 5,
+      "label": "",
+      "side": "A",
+      "segments": 2,
+      "n2_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V302\\n2_ab_unit_05_A.png",
+      "n4_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V302\\n4_units\\n4_face_unit_05_face_5_A.png",
+      "visual_metric": {
+        "mask_iou": 0.1638,
+        "density_ratio": 0.6421,
+        "coarse_visual_score": 33.1,
+        "note": "metrica preliminar; veredito final exige inspecao visual do agente"
+      },
+      "fields": {
+        "h_body": 24.0,
+        "h_total": 24.0,
+        "laje_sup": 0.0,
+        "laje_inf": 0.0,
+        "panel_types": [
+          "Sarrafeado"
+        ]
+      }
+    },
+    {
+      "item": "V302",
+      "unit_idx": 6,
+      "label": "CONT. V302.A",
+      "side": "A",
+      "segments": 4,
+      "n2_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V302\\n2_ab_unit_06_A.png",
+      "n4_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V302\\n4_units\\n4_face_unit_06_CONT__V302_A.png",
+      "visual_metric": {
+        "mask_iou": 0.3508,
+        "density_ratio": 0.6005,
+        "coarse_visual_score": 43.8,
+        "note": "metrica preliminar; veredito final exige inspecao visual do agente"
+      },
+      "fields": {
+        "h_body": 44.0,
+        "h_total": 44.0,
+        "laje_sup": 0.0,
+        "laje_inf": 0.0,
+        "panel_types": [
+          "Sarrafeado"
+        ]
+      }
+    },
+    {
+      "item": "V302",
+      "unit_idx": 7,
+      "label": "",
+      "side": "A",
+      "segments": 2,
+      "n2_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V302\\n2_ab_unit_07_A.png",
+      "n4_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V302\\n4_units\\n4_face_unit_07_face_7_A.png",
+      "visual_metric": {
+        "mask_iou": 0.1948,
+        "density_ratio": 0.8211,
+        "coarse_visual_score": 41.4,
+        "note": "metrica preliminar; veredito final exige inspecao visual do agente"
+      },
+      "fields": {
+        "h_body": 59.0,
+        "h_total": 59.0,
+        "laje_sup": 0.0,
+        "laje_inf": 0.0,
+        "panel_types": [
+          "Sarrafeado"
+        ]
+      }
+    },
+    {
+      "item": "V302",
+      "unit_idx": 8,
+      "label": "CONT. V302.B",
+      "side": "B",
+      "segments": 2,
+      "n2_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V302\\n2_ab_unit_08_B.png",
+      "n4_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V302\\n4_units\\n4_face_unit_08_CONT__V302_B.png",
+      "visual_metric": {
+        "mask_iou": 0.0299,
+        "density_ratio": 0.5631,
+        "coarse_visual_score": 21.7,
+        "note": "metrica preliminar; veredito final exige inspecao visual do agente"
+      },
+      "fields": {
+        "h_body": 45.0,
+        "h_total": 45.0,
+        "laje_sup": 0.0,
+        "laje_inf": 0.0,
+        "panel_types": [
+          "Sarrafeado"
+        ]
+      }
+    },
+    {
+      "item": "V302",
+      "unit_idx": 9,
+      "label": "",
+      "side": "B",
+      "segments": 2,
+      "n2_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V302\\n2_ab_unit_09_B.png",
+      "n4_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V302\\n4_units\\n4_face_unit_09_face_9_B.png",
+      "visual_metric": {
+        "mask_iou": 0.1882,
+        "density_ratio": 0.8685,
+        "coarse_visual_score": 42.6,
+        "note": "metrica preliminar; veredito final exige inspecao visual do agente"
+      },
+      "fields": {
+        "h_body": 44.0,
+        "h_total": 44.0,
+        "laje_sup": 0.0,
+        "laje_inf": 0.0,
+        "panel_types": [
+          "Sarrafeado"
+        ]
+      }
+    },
+    {
+      "item": "V302",
+      "unit_idx": 10,
+      "label": "CONT. V302.A",
+      "side": "A",
+      "segments": 1,
+      "n2_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V302\\n2_ab_unit_10_A.png",
+      "n4_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V302\\n4_units\\n4_face_unit_10_CONT__V302_A.png",
+      "visual_metric": {
+        "mask_iou": 0.0833,
+        "density_ratio": 0.8127,
+        "coarse_visual_score": 33.9,
+        "note": "metrica preliminar; veredito final exige inspecao visual do agente"
+      },
+      "fields": {
+        "h_body": 44.0,
+        "h_total": 44.0,
+        "laje_sup": 0.0,
+        "laje_inf": 0.0,
+        "panel_types": [
+          "Sarrafeado"
+        ]
+      }
+    },
+    {
+      "item": "V302",
+      "unit_idx": 11,
+      "label": "",
+      "side": "A",
+      "segments": 3,
+      "n2_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V302\\n2_ab_unit_11_A.png",
+      "n4_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V302\\n4_units\\n4_face_unit_11_face_11_A.png",
+      "visual_metric": {
+        "mask_iou": 0.0636,
+        "density_ratio": 0.8575,
+        "coarse_visual_score": 34.1,
+        "note": "metrica preliminar; veredito final exige inspecao visual do agente"
+      },
+      "fields": {
+        "h_body": 59.0,
+        "h_total": 59.0,
+        "laje_sup": 0.0,
+        "laje_inf": 0.0,
+        "panel_types": [
+          "Sarrafeado"
+        ]
+      }
+    },
+    {
+      "item": "V302",
+      "unit_idx": 12,
+      "label": "CONT. V302.B",
+      "side": "B",
+      "segments": 2,
+      "n2_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V302\\n2_ab_unit_12_B.png",
+      "n4_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V302\\n4_units\\n4_face_unit_12_CONT__V302_B.png",
+      "visual_metric": {
+        "mask_iou": 0.237,
+        "density_ratio": 0.9868,
+        "coarse_visual_score": 49.9,
+        "note": "metrica preliminar; veredito final exige inspecao visual do agente"
+      },
+      "fields": {
+        "h_body": 44.0,
+        "h_total": 44.0,
+        "laje_sup": 0.0,
+        "laje_inf": 0.0,
+        "panel_types": [
+          "Sarrafeado"
+        ]
+      }
+    },
+    {
+      "item": "V302",
+      "unit_idx": 13,
+      "label": "",
+      "side": "B",
+      "segments": 2,
+      "n2_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V302\\n2_ab_unit_13_B.png",
+      "n4_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V302\\n4_units\\n4_face_unit_13_face_13_B.png",
+      "visual_metric": {
+        "mask_iou": 0.155,
+        "density_ratio": 0.9567,
+        "coarse_visual_score": 43.6,
+        "note": "metrica preliminar; veredito final exige inspecao visual do agente"
+      },
+      "fields": {
+        "h_body": 45.0,
+        "h_total": 59.0,
+        "laje_sup": 0.0,
+        "laje_inf": 0.0,
+        "panel_types": [
+          "Sarrafeado"
+        ]
+      }
+    },
+    {
+      "item": "V302",
+      "unit_idx": 14,
+      "label": "CONT. V302.B",
+      "side": "B",
+      "segments": 2,
+      "n2_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V302\\n2_ab_unit_14_B.png",
+      "n4_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V302\\n4_units\\n4_face_unit_14_CONT__V302_B.png",
+      "visual_metric": {
+        "mask_iou": 0.0748,
+        "density_ratio": 0.5508,
+        "coarse_visual_score": 24.1,
+        "note": "metrica preliminar; veredito final exige inspecao visual do agente"
+      },
+      "fields": {
+        "h_body": 45.0,
+        "h_total": 45.5,
+        "laje_sup": 0.0,
+        "laje_inf": 0.0,
+        "panel_types": [
+          "Sarrafeado"
+        ]
+      }
+    },
+    {
+      "item": "V302",
+      "unit_idx": 15,
+      "label": "",
+      "side": "B",
+      "segments": 2,
+      "n2_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V302\\n2_ab_unit_15_B.png",
+      "n4_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V302\\n4_units\\n4_face_unit_15_face_15_B.png",
+      "visual_metric": {
+        "mask_iou": 0.1955,
+        "density_ratio": 0.8727,
+        "coarse_visual_score": 43.3,
+        "note": "metrica preliminar; veredito final exige inspecao visual do agente"
+      },
+      "fields": {
+        "h_body": 44.0,
+        "h_total": 44.0,
+        "laje_sup": 0.0,
+        "laje_inf": 0.0,
+        "panel_types": [
+          "Sarrafeado"
+        ]
+      }
+    },
+    {
+      "item": "V303",
+      "unit_idx": 1,
+      "label": "V303.A",
+      "side": "A",
+      "segments": 1,
+      "n2_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V303\\n2_ab_unit_01_A.png",
+      "n4_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V303\\n4_units\\n4_face_unit_01_V303_A.png",
+      "visual_metric": {
+        "mask_iou": 0.0962,
+        "density_ratio": 0.7658,
+        "coarse_visual_score": 33.1,
+        "note": "metrica preliminar; veredito final exige inspecao visual do agente"
+      },
+      "fields": {
+        "h_body": 43.0,
+        "h_total": 43.0,
+        "laje_sup": 0.0,
+        "laje_inf": 0.0,
+        "panel_types": [
+          "Sarrafeado"
+        ]
+      }
+    },
+    {
+      "item": "V303",
+      "unit_idx": 2,
+      "label": "",
+      "side": "A",
+      "segments": 2,
+      "n2_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V303\\n2_ab_unit_02_A.png",
+      "n4_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V303\\n4_units\\n4_face_unit_02_face_2_A.png",
+      "visual_metric": {
+        "mask_iou": 0.2106,
+        "density_ratio": 0.8404,
+        "coarse_visual_score": 43.1,
+        "note": "metrica preliminar; veredito final exige inspecao visual do agente"
+      },
+      "fields": {
+        "h_body": 44.0,
+        "h_total": 44.0,
+        "laje_sup": 0.0,
+        "laje_inf": 0.0,
+        "panel_types": [
+          "Sarrafeado"
+        ]
+      }
+    },
+    {
+      "item": "V303",
+      "unit_idx": 3,
+      "label": "CONT. V303.A",
+      "side": "A",
+      "segments": 2,
+      "n2_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V303\\n2_ab_unit_03_A.png",
+      "n4_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V303\\n4_units\\n4_face_unit_03_CONT__V303_A.png",
+      "visual_metric": {
+        "mask_iou": 0.2342,
+        "density_ratio": 0.9967,
+        "coarse_visual_score": 50.1,
+        "note": "metrica preliminar; veredito final exige inspecao visual do agente"
+      },
+      "fields": {
+        "h_body": 44.0,
+        "h_total": 44.0,
+        "laje_sup": 0.0,
+        "laje_inf": 0.0,
+        "panel_types": [
+          "Sarrafeado"
+        ]
+      }
+    },
+    {
+      "item": "V303",
+      "unit_idx": 4,
+      "label": "",
+      "side": "A",
+      "segments": 2,
+      "n2_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V303\\n2_ab_unit_04_A.png",
+      "n4_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V303\\n4_units\\n4_face_unit_04_face_4_A.png",
+      "visual_metric": {
+        "mask_iou": 0.1944,
+        "density_ratio": 0.8381,
+        "coarse_visual_score": 42.0,
+        "note": "metrica preliminar; veredito final exige inspecao visual do agente"
+      },
+      "fields": {
+        "h_body": 44.0,
+        "h_total": 44.0,
+        "laje_sup": 0.0,
+        "laje_inf": 0.0,
+        "panel_types": [
+          "Sarrafeado"
+        ]
+      }
+    },
+    {
+      "item": "V303",
+      "unit_idx": 5,
+      "label": "CONT. V303.A",
+      "side": "A",
+      "segments": 2,
+      "n2_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V303\\n2_ab_unit_05_A.png",
+      "n4_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V303\\n4_units\\n4_face_unit_05_CONT__V303_A.png",
+      "visual_metric": {
+        "mask_iou": 0.2421,
+        "density_ratio": 0.9751,
+        "coarse_visual_score": 49.9,
+        "note": "metrica preliminar; veredito final exige inspecao visual do agente"
+      },
+      "fields": {
+        "h_body": 44.0,
+        "h_total": 44.0,
+        "laje_sup": 0.0,
+        "laje_inf": 0.0,
+        "panel_types": [
+          "Sarrafeado"
+        ]
+      }
+    },
+    {
+      "item": "V303",
+      "unit_idx": 6,
+      "label": "",
+      "side": "A",
+      "segments": 2,
+      "n2_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V303\\n2_ab_unit_06_A.png",
+      "n4_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V303\\n4_units\\n4_face_unit_06_face_6_A.png",
+      "visual_metric": {
+        "mask_iou": 0.1907,
+        "density_ratio": 0.8226,
+        "coarse_visual_score": 41.2,
+        "note": "metrica preliminar; veredito final exige inspecao visual do agente"
+      },
+      "fields": {
+        "h_body": 44.0,
+        "h_total": 44.0,
+        "laje_sup": 0.0,
+        "laje_inf": 0.0,
+        "panel_types": [
+          "Sarrafeado"
+        ]
+      }
+    },
+    {
+      "item": "V303",
+      "unit_idx": 7,
+      "label": "V303.B",
+      "side": "B",
+      "segments": 4,
+      "n2_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V303\\n2_ab_unit_07_B.png",
+      "n4_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V303\\n4_units\\n4_face_unit_07_V303_B.png",
+      "visual_metric": {
+        "mask_iou": 0.3368,
+        "density_ratio": 0.6459,
+        "coarse_visual_score": 44.5,
+        "note": "metrica preliminar; veredito final exige inspecao visual do agente"
+      },
+      "fields": {
+        "h_body": 44.0,
+        "h_total": 44.0,
+        "laje_sup": 0.0,
+        "laje_inf": 0.0,
+        "panel_types": [
+          "Sarrafeado"
+        ]
+      }
+    },
+    {
+      "item": "V303",
+      "unit_idx": 8,
+      "label": "",
+      "side": "B",
+      "segments": 1,
+      "n2_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V303\\n2_ab_unit_08_B.png",
+      "n4_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V303\\n4_units\\n4_face_unit_08_face_8_B.png",
+      "visual_metric": {
+        "mask_iou": 0.0928,
+        "density_ratio": 0.7844,
+        "coarse_visual_score": 33.5,
+        "note": "metrica preliminar; veredito final exige inspecao visual do agente"
+      },
+      "fields": {
+        "h_body": 45.0,
+        "h_total": 59.0,
+        "laje_sup": 0.0,
+        "laje_inf": 0.0,
+        "panel_types": [
+          "Sarrafeado"
+        ]
+      }
+    },
+    {
+      "item": "V304",
+      "unit_idx": 1,
+      "label": "V304.A",
+      "side": "A",
+      "segments": 2,
+      "n2_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V304\\n2_ab_unit_01_A.png",
+      "n4_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V304\\n4_units\\n4_face_unit_01_V304_A.png",
+      "visual_metric": {
+        "mask_iou": 0.0596,
+        "density_ratio": 0.8915,
+        "coarse_visual_score": 35.1,
+        "note": "metrica preliminar; veredito final exige inspecao visual do agente"
+      },
+      "fields": {
+        "h_body": 45.0,
+        "h_total": 59.0,
+        "laje_sup": 0.0,
+        "laje_inf": 0.0,
+        "panel_types": [
+          "Sarrafeado"
+        ]
+      }
+    },
+    {
+      "item": "V304",
+      "unit_idx": 2,
+      "label": "",
+      "side": "A",
+      "segments": 5,
+      "n2_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V304\\n2_ab_unit_02_A.png",
+      "n4_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V304\\n4_units\\n4_face_unit_02_face_2_A.png",
+      "visual_metric": {
+        "mask_iou": 0.2551,
+        "density_ratio": 0.9675,
+        "coarse_visual_score": 50.4,
+        "note": "metrica preliminar; veredito final exige inspecao visual do agente"
+      },
+      "fields": {
+        "h_body": 59.0,
+        "h_total": 60.0,
+        "laje_sup": 0.0,
+        "laje_inf": 0.0,
+        "panel_types": [
+          "Sarrafeado"
+        ]
+      }
+    },
+    {
+      "item": "V304",
+      "unit_idx": 3,
+      "label": "",
+      "side": "A",
+      "segments": 1,
+      "n2_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V304\\n2_ab_unit_03_A.png",
+      "n4_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V304\\n4_units\\n4_face_unit_03_face_3_A.png",
+      "visual_metric": {
+        "mask_iou": 0.0344,
+        "density_ratio": 0.9251,
+        "coarse_visual_score": 34.6,
+        "note": "metrica preliminar; veredito final exige inspecao visual do agente"
+      },
+      "fields": {
+        "h_body": 59.0,
+        "h_total": 59.0,
+        "laje_sup": 0.0,
+        "laje_inf": 0.0,
+        "panel_types": [
+          "Sarrafeado"
+        ]
+      }
+    },
+    {
+      "item": "V304",
+      "unit_idx": 4,
+      "label": "V304.B",
+      "side": "B",
+      "segments": 2,
+      "n2_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V304\\n2_ab_unit_04_B.png",
+      "n4_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V304\\n4_units\\n4_face_unit_04_V304_B.png",
+      "visual_metric": {
+        "mask_iou": 0.0513,
+        "density_ratio": 0.6823,
+        "coarse_visual_score": 27.2,
+        "note": "metrica preliminar; veredito final exige inspecao visual do agente"
+      },
+      "fields": {
+        "h_body": 45.0,
+        "h_total": 60.0,
+        "laje_sup": 0.0,
+        "laje_inf": 0.0,
+        "panel_types": [
+          "Sarrafeado"
+        ]
+      }
+    },
+    {
+      "item": "V304",
+      "unit_idx": 5,
+      "label": "",
+      "side": "B",
+      "segments": 3,
+      "n2_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V304\\n2_ab_unit_05_B.png",
+      "n4_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V304\\n4_units\\n4_face_unit_05_face_5_B.png",
+      "visual_metric": {
+        "mask_iou": 0.3249,
+        "density_ratio": 0.6715,
+        "coarse_visual_score": 44.6,
+        "note": "metrica preliminar; veredito final exige inspecao visual do agente"
+      },
+      "fields": {
+        "h_body": 45.0,
+        "h_total": 45.0,
+        "laje_sup": 0.0,
+        "laje_inf": 0.0,
+        "panel_types": [
+          "Sarrafeado"
+        ]
+      }
+    },
+    {
+      "item": "V305",
+      "unit_idx": 1,
+      "label": "V305.A",
+      "side": "A",
+      "segments": 2,
+      "n2_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V305\\n2_ab_unit_01_A.png",
+      "n4_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V305\\n4_units\\n4_face_unit_01_V305_A.png",
+      "visual_metric": {
+        "mask_iou": 0.0064,
+        "density_ratio": 0.8095,
+        "coarse_visual_score": 28.7,
+        "note": "metrica preliminar; veredito final exige inspecao visual do agente"
+      },
+      "fields": {
+        "h_body": 59.0,
+        "h_total": 59.0,
+        "laje_sup": 0.0,
+        "laje_inf": 0.0,
+        "panel_types": [
+          "Sarrafeado"
+        ]
+      }
+    },
+    {
+      "item": "V305",
+      "unit_idx": 2,
+      "label": "V305.B",
+      "side": "B",
+      "segments": 5,
+      "n2_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V305\\n2_ab_unit_02_B.png",
+      "n4_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V305\\n4_units\\n4_face_unit_02_V305_B.png",
+      "visual_metric": {
+        "mask_iou": 0.0961,
+        "density_ratio": 0.6663,
+        "coarse_visual_score": 29.6,
+        "note": "metrica preliminar; veredito final exige inspecao visual do agente"
+      },
+      "fields": {
+        "h_body": 59.0,
+        "h_total": 59.0,
+        "laje_sup": 0.0,
+        "laje_inf": 0.0,
+        "panel_types": [
+          "Sarrafeado"
+        ]
+      }
+    },
+    {
+      "item": "V306",
+      "unit_idx": 1,
+      "label": "V306.A",
+      "side": "A",
+      "segments": 2,
+      "n2_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V306\\n2_ab_unit_01_A.png",
+      "n4_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V306\\n4_units\\n4_face_unit_01_V306_A.png",
+      "visual_metric": {
+        "mask_iou": 0.1069,
+        "density_ratio": 0.7825,
+        "coarse_visual_score": 34.3,
+        "note": "metrica preliminar; veredito final exige inspecao visual do agente"
+      },
+      "fields": {
+        "h_body": 40.0,
+        "h_total": 40.0,
+        "laje_sup": 0.0,
+        "laje_inf": 0.0,
+        "panel_types": [
+          "Sarrafeado"
+        ]
+      }
+    },
+    {
+      "item": "V306",
+      "unit_idx": 2,
+      "label": "",
+      "side": "A",
+      "segments": 2,
+      "n2_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V306\\n2_ab_unit_02_A.png",
+      "n4_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V306\\n4_units\\n4_face_unit_02_face_2_A.png",
+      "visual_metric": {
+        "mask_iou": 0.1754,
+        "density_ratio": 0.8161,
+        "coarse_visual_score": 40.0,
+        "note": "metrica preliminar; veredito final exige inspecao visual do agente"
+      },
+      "fields": {
+        "h_body": 40.0,
+        "h_total": 40.0,
+        "laje_sup": 0.0,
+        "laje_inf": 0.0,
+        "panel_types": [
+          "Sarrafeado"
+        ]
+      }
+    },
+    {
+      "item": "V306",
+      "unit_idx": 3,
+      "label": "CONT. V306.A",
+      "side": "A",
+      "segments": 2,
+      "n2_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V306\\n2_ab_unit_03_A.png",
+      "n4_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V306\\n4_units\\n4_face_unit_03_CONT__V306_A.png",
+      "visual_metric": {
+        "mask_iou": 0.2196,
+        "density_ratio": 0.8586,
+        "coarse_visual_score": 44.3,
+        "note": "metrica preliminar; veredito final exige inspecao visual do agente"
+      },
+      "fields": {
+        "h_body": 40.0,
+        "h_total": 40.0,
+        "laje_sup": 0.0,
+        "laje_inf": 0.0,
+        "panel_types": [
+          "Sarrafeado"
+        ]
+      }
+    },
+    {
+      "item": "V306",
+      "unit_idx": 4,
+      "label": "",
+      "side": "A",
+      "segments": 2,
+      "n2_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V306\\n2_ab_unit_04_A.png",
+      "n4_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V306\\n4_units\\n4_face_unit_04_face_4_A.png",
+      "visual_metric": {
+        "mask_iou": 0.1825,
+        "density_ratio": 0.8159,
+        "coarse_visual_score": 40.4,
+        "note": "metrica preliminar; veredito final exige inspecao visual do agente"
+      },
+      "fields": {
+        "h_body": 40.0,
+        "h_total": 40.0,
+        "laje_sup": 0.0,
+        "laje_inf": 0.0,
+        "panel_types": [
+          "Sarrafeado"
+        ]
+      }
+    },
+    {
+      "item": "V306",
+      "unit_idx": 5,
+      "label": "CONT. V306.A",
+      "side": "A",
+      "segments": 2,
+      "n2_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V306\\n2_ab_unit_05_A.png",
+      "n4_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V306\\n4_units\\n4_face_unit_05_CONT__V306_A.png",
+      "visual_metric": {
+        "mask_iou": 0.2277,
+        "density_ratio": 0.9411,
+        "coarse_visual_score": 47.7,
+        "note": "metrica preliminar; veredito final exige inspecao visual do agente"
+      },
+      "fields": {
+        "h_body": 59.0,
+        "h_total": 59.0,
+        "laje_sup": 0.0,
+        "laje_inf": 0.0,
+        "panel_types": [
+          "Sarrafeado"
+        ]
+      }
+    },
+    {
+      "item": "V306",
+      "unit_idx": 6,
+      "label": "",
+      "side": "A",
+      "segments": 2,
+      "n2_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V306\\n2_ab_unit_06_A.png",
+      "n4_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V306\\n4_units\\n4_face_unit_06_face_6_A.png",
+      "visual_metric": {
+        "mask_iou": 0.1396,
+        "density_ratio": 0.7904,
+        "coarse_visual_score": 36.7,
+        "note": "metrica preliminar; veredito final exige inspecao visual do agente"
+      },
+      "fields": {
+        "h_body": 59.0,
+        "h_total": 59.0,
+        "laje_sup": 0.0,
+        "laje_inf": 0.0,
+        "panel_types": [
+          "Sarrafeado"
+        ]
+      }
+    },
+    {
+      "item": "V306",
+      "unit_idx": 7,
+      "label": "V306.B",
+      "side": "B",
+      "segments": 2,
+      "n2_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V306\\n2_ab_unit_07_B.png",
+      "n4_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V306\\n4_units\\n4_face_unit_07_V306_B.png",
+      "visual_metric": {
+        "mask_iou": 0.2842,
+        "density_ratio": 0.7019,
+        "coarse_visual_score": 43.0,
+        "note": "metrica preliminar; veredito final exige inspecao visual do agente"
+      },
+      "fields": {
+        "h_body": 44.0,
+        "h_total": 59.0,
+        "laje_sup": 0.0,
+        "laje_inf": 0.0,
+        "panel_types": [
+          "Sarrafeado"
+        ]
+      }
+    },
+    {
+      "item": "V306",
+      "unit_idx": 8,
+      "label": "",
+      "side": "B",
+      "segments": 2,
+      "n2_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V306\\n2_ab_unit_08_B.png",
+      "n4_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V306\\n4_units\\n4_face_unit_08_face_8_B.png",
+      "visual_metric": {
+        "mask_iou": 0.1868,
+        "density_ratio": 0.8316,
+        "coarse_visual_score": 41.2,
+        "note": "metrica preliminar; veredito final exige inspecao visual do agente"
+      },
+      "fields": {
+        "h_body": 44.0,
+        "h_total": 44.0,
+        "laje_sup": 0.0,
+        "laje_inf": 0.0,
+        "panel_types": [
+          "Sarrafeado"
+        ]
+      }
+    },
+    {
+      "item": "V306",
+      "unit_idx": 9,
+      "label": "",
+      "side": "B",
+      "segments": 2,
+      "n2_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V306\\n2_ab_unit_09_B.png",
+      "n4_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V306\\n4_units\\n4_face_unit_09_face_9_B.png",
+      "visual_metric": {
+        "mask_iou": 0.1286,
+        "density_ratio": 0.9362,
+        "coarse_visual_score": 41.1,
+        "note": "metrica preliminar; veredito final exige inspecao visual do agente"
+      },
+      "fields": {
+        "h_body": 43.0,
+        "h_total": 43.0,
+        "laje_sup": 0.0,
+        "laje_inf": 0.0,
+        "panel_types": [
+          "Sarrafeado"
+        ]
+      }
+    },
+    {
+      "item": "V308",
+      "unit_idx": 1,
+      "label": "V308.A",
+      "side": "A",
+      "segments": 3,
+      "n2_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V308\\n2_ab_unit_01_A.png",
+      "n4_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V308\\n4_units\\n4_face_unit_01_V308_A.png",
+      "visual_metric": {
+        "mask_iou": 0.3958,
+        "density_ratio": 0.9593,
+        "coarse_visual_score": 59.3,
+        "note": "metrica preliminar; veredito final exige inspecao visual do agente"
+      },
+      "fields": {
+        "h_body": 59.0,
+        "h_total": 95.0,
+        "laje_sup": 0.0,
+        "laje_inf": 0.0,
+        "panel_types": [
+          "Sarrafeado"
+        ]
+      }
+    },
+    {
+      "item": "V308",
+      "unit_idx": 2,
+      "label": "V308.B",
+      "side": "B",
+      "segments": 6,
+      "n2_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V308\\n2_ab_unit_02_B.png",
+      "n4_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V308\\n4_units\\n4_face_unit_02_V308_B.png",
+      "visual_metric": {
+        "mask_iou": 0.3924,
+        "density_ratio": 0.9289,
+        "coarse_visual_score": 58.0,
+        "note": "metrica preliminar; veredito final exige inspecao visual do agente"
+      },
+      "fields": {
+        "h_body": 59.0,
+        "h_total": 96.0,
+        "laje_sup": 0.0,
+        "laje_inf": 0.0,
+        "panel_types": [
+          "Sarrafeado"
+        ]
+      }
+    },
+    {
+      "item": "V310",
+      "unit_idx": 1,
+      "label": "V310.A",
+      "side": "A",
+      "segments": 1,
+      "n2_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V310\\n2_ab_unit_01_A.png",
+      "n4_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V310\\n4_units\\n4_face_unit_01_V310_A.png",
+      "visual_metric": {
+        "mask_iou": 0.076,
+        "density_ratio": 0.7838,
+        "coarse_visual_score": 32.4,
+        "note": "metrica preliminar; veredito final exige inspecao visual do agente"
+      },
+      "fields": {
+        "h_body": 38.0,
+        "h_total": 59.0,
+        "laje_sup": 0.0,
+        "laje_inf": 0.0,
+        "panel_types": [
+          "Sarrafeado"
+        ]
+      }
+    },
+    {
+      "item": "V310",
+      "unit_idx": 2,
+      "label": "V310.B",
+      "side": "B",
+      "segments": 2,
+      "n2_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V310\\n2_ab_unit_02_B.png",
+      "n4_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V310\\n4_units\\n4_face_unit_02_V310_B.png",
+      "visual_metric": {
+        "mask_iou": 0.027,
+        "density_ratio": 0.8315,
+        "coarse_visual_score": 30.9,
+        "note": "metrica preliminar; veredito final exige inspecao visual do agente"
+      },
+      "fields": {
+        "h_body": 40.0,
+        "h_total": 40.0,
+        "laje_sup": 0.0,
+        "laje_inf": 0.0,
+        "panel_types": [
+          "Sarrafeado"
+        ]
+      }
+    },
+    {
+      "item": "V311",
+      "unit_idx": 1,
+      "label": "V311.A",
+      "side": "A",
+      "segments": 2,
+      "n2_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V311\\n2_ab_unit_01_A.png",
+      "n4_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V311\\n4_units\\n4_face_unit_01_V311_A.png",
+      "visual_metric": {
+        "mask_iou": 0.0994,
+        "density_ratio": 0.9544,
+        "coarse_visual_score": 39.9,
+        "note": "metrica preliminar; veredito final exige inspecao visual do agente"
+      },
+      "fields": {
+        "h_body": 43.0,
+        "h_total": 43.0,
+        "laje_sup": 0.0,
+        "laje_inf": 0.0,
+        "panel_types": [
+          "Sarrafeado"
+        ]
+      }
+    },
+    {
+      "item": "V311",
+      "unit_idx": 2,
+      "label": "V311.B",
+      "side": "B",
+      "segments": 2,
+      "n2_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V311\\n2_ab_unit_02_B.png",
+      "n4_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V311\\n4_units\\n4_face_unit_02_V311_B.png",
+      "visual_metric": {
+        "mask_iou": 0.0139,
+        "density_ratio": 0.703,
+        "coarse_visual_score": 25.5,
+        "note": "metrica preliminar; veredito final exige inspecao visual do agente"
+      },
+      "fields": {
+        "h_body": 44.0,
+        "h_total": 44.0,
+        "laje_sup": 0.0,
+        "laje_inf": 0.0,
+        "panel_types": [
+          "Sarrafeado"
+        ]
+      }
+    },
+    {
+      "item": "V312",
+      "unit_idx": 1,
+      "label": "V312.A",
+      "side": "A",
+      "segments": 6,
+      "n2_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V312\\n2_ab_unit_01_A.png",
+      "n4_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V312\\n4_units\\n4_face_unit_01_V312_A.png",
+      "visual_metric": {
+        "mask_iou": 0.0296,
+        "density_ratio": 0.89,
+        "coarse_visual_score": 33.1,
+        "note": "metrica preliminar; veredito final exige inspecao visual do agente"
+      },
+      "fields": {
+        "h_body": 103.0,
+        "h_total": 124.0,
+        "laje_sup": 0.0,
+        "laje_inf": 0.0,
+        "panel_types": [
+          "Sarrafeado"
+        ]
+      }
+    },
+    {
+      "item": "V312",
+      "unit_idx": 2,
+      "label": "",
+      "side": "A",
+      "segments": 2,
+      "n2_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V312\\n2_ab_unit_02_A.png",
+      "n4_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V312\\n4_units\\n4_face_unit_02_face_2_A.png",
+      "visual_metric": {
+        "mask_iou": 0.1377,
+        "density_ratio": 0.9502,
+        "coarse_visual_score": 42.2,
+        "note": "metrica preliminar; veredito final exige inspecao visual do agente"
+      },
+      "fields": {
+        "h_body": 109.0,
+        "h_total": 109.0,
+        "laje_sup": 0.0,
+        "laje_inf": 0.0,
+        "panel_types": [
+          "Sarrafeado"
+        ]
+      }
+    },
+    {
+      "item": "V312",
+      "unit_idx": 3,
+      "label": "V312.B",
+      "side": "B",
+      "segments": 2,
+      "n2_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V312\\n2_ab_unit_03_B.png",
+      "n4_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V312\\n4_units\\n4_face_unit_03_V312_B.png",
+      "visual_metric": {
+        "mask_iou": 0.0441,
+        "density_ratio": 0.6136,
+        "coarse_visual_score": 24.3,
+        "note": "metrica preliminar; veredito final exige inspecao visual do agente"
+      },
+      "fields": {
+        "h_body": 109.0,
+        "h_total": 109.0,
+        "laje_sup": 0.0,
+        "laje_inf": 0.0,
+        "panel_types": [
+          "Sarrafeado"
+        ]
+      }
+    },
+    {
+      "item": "V312",
+      "unit_idx": 4,
+      "label": "",
+      "side": "B",
+      "segments": 6,
+      "n2_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V312\\n2_ab_unit_04_B.png",
+      "n4_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V312\\n4_units\\n4_face_unit_04_face_4_B.png",
+      "visual_metric": {
+        "mask_iou": 0.0243,
+        "density_ratio": 0.5471,
+        "coarse_visual_score": 20.7,
+        "note": "metrica preliminar; veredito final exige inspecao visual do agente"
+      },
+      "fields": {
+        "h_body": 103.0,
+        "h_total": 124.0,
+        "laje_sup": 0.0,
+        "laje_inf": 0.0,
+        "panel_types": [
+          "Sarrafeado"
+        ]
+      }
+    },
+    {
+      "item": "V314",
+      "unit_idx": 1,
+      "label": "V314.A",
+      "side": "A",
+      "segments": 9,
+      "n2_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V314\\n2_ab_unit_01_A.png",
+      "n4_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V314\\n4_units\\n4_face_unit_01_V314_A.png",
+      "visual_metric": {
+        "mask_iou": 0.0222,
+        "density_ratio": 0.7872,
+        "coarse_visual_score": 29.0,
+        "note": "metrica preliminar; veredito final exige inspecao visual do agente"
+      },
+      "fields": {
+        "h_body": 103.0,
+        "h_total": 124.0,
+        "laje_sup": 0.0,
+        "laje_inf": 0.0,
+        "panel_types": [
+          "Sarrafeado"
+        ]
+      }
+    },
+    {
+      "item": "V314",
+      "unit_idx": 2,
+      "label": "V314.B",
+      "side": "B",
+      "segments": 9,
+      "n2_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V314\\n2_ab_unit_02_B.png",
+      "n4_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V314\\n4_units\\n4_face_unit_02_V314_B.png",
+      "visual_metric": {
+        "mask_iou": 0.034,
+        "density_ratio": 0.9729,
+        "coarse_visual_score": 36.3,
+        "note": "metrica preliminar; veredito final exige inspecao visual do agente"
+      },
+      "fields": {
+        "h_body": 110.0,
+        "h_total": 110.0,
+        "laje_sup": 0.0,
+        "laje_inf": 0.0,
+        "panel_types": [
+          "Sarrafeado"
+        ]
+      }
+    },
+    {
+      "item": "V315",
+      "unit_idx": 1,
+      "label": "V315.A",
+      "side": "A",
+      "segments": 3,
+      "n2_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V315\\n2_ab_unit_01_A.png",
+      "n4_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V315\\n4_units\\n4_face_unit_01_V315_A.png",
+      "visual_metric": {
+        "mask_iou": 0.0076,
+        "density_ratio": 0.9579,
+        "coarse_visual_score": 34.0,
+        "note": "metrica preliminar; veredito final exige inspecao visual do agente"
+      },
+      "fields": {
+        "h_body": 44.0,
+        "h_total": 44.0,
+        "laje_sup": 0.0,
+        "laje_inf": 0.0,
+        "panel_types": [
+          "Sarrafeado"
+        ]
+      }
+    },
+    {
+      "item": "V315",
+      "unit_idx": 2,
+      "label": "V315.B",
+      "side": "B",
+      "segments": 3,
+      "n2_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V315\\n2_ab_unit_02_B.png",
+      "n4_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V315\\n4_units\\n4_face_unit_02_V315_B.png",
+      "visual_metric": {
+        "mask_iou": 0.0133,
+        "density_ratio": 0.7654,
+        "coarse_visual_score": 27.7,
+        "note": "metrica preliminar; veredito final exige inspecao visual do agente"
+      },
+      "fields": {
+        "h_body": 44.0,
+        "h_total": 44.0,
+        "laje_sup": 0.0,
+        "laje_inf": 0.0,
+        "panel_types": [
+          "Sarrafeado"
+        ]
+      }
+    },
+    {
+      "item": "V316",
+      "unit_idx": 1,
+      "label": "V316.A",
+      "side": "A",
+      "segments": 6,
+      "n2_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V316\\n2_ab_unit_01_A.png",
+      "n4_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V316\\n4_units\\n4_face_unit_01_V316_A.png",
+      "visual_metric": {
+        "mask_iou": 0.0278,
+        "density_ratio": 0.8941,
+        "coarse_visual_score": 33.1,
+        "note": "metrica preliminar; veredito final exige inspecao visual do agente"
+      },
+      "fields": {
+        "h_body": 103.0,
+        "h_total": 124.0,
+        "laje_sup": 0.0,
+        "laje_inf": 0.0,
+        "panel_types": [
+          "Sarrafeado"
+        ]
+      }
+    },
+    {
+      "item": "V316",
+      "unit_idx": 2,
+      "label": "",
+      "side": "A",
+      "segments": 4,
+      "n2_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V316\\n2_ab_unit_02_A.png",
+      "n4_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V316\\n4_units\\n4_face_unit_02_face_2_A.png",
+      "visual_metric": {
+        "mask_iou": 0.067,
+        "density_ratio": 0.8019,
+        "coarse_visual_score": 32.4,
+        "note": "metrica preliminar; veredito final exige inspecao visual do agente"
+      },
+      "fields": {
+        "h_body": 110.0,
+        "h_total": 110.0,
+        "laje_sup": 0.0,
+        "laje_inf": 0.0,
+        "panel_types": [
+          "Sarrafeado"
+        ]
+      }
+    },
+    {
+      "item": "V316",
+      "unit_idx": 3,
+      "label": "V316.B",
+      "side": "B",
+      "segments": 4,
+      "n2_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V316\\n2_ab_unit_03_B.png",
+      "n4_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V316\\n4_units\\n4_face_unit_03_V316_B.png",
+      "visual_metric": {
+        "mask_iou": 0.1162,
+        "density_ratio": 0.7052,
+        "coarse_visual_score": 32.2,
+        "note": "metrica preliminar; veredito final exige inspecao visual do agente"
+      },
+      "fields": {
+        "h_body": 110.0,
+        "h_total": 110.0,
+        "laje_sup": 0.0,
+        "laje_inf": 0.0,
+        "panel_types": [
+          "Sarrafeado"
+        ]
+      }
+    },
+    {
+      "item": "V316",
+      "unit_idx": 4,
+      "label": "",
+      "side": "B",
+      "segments": 5,
+      "n2_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V316\\n2_ab_unit_04_B.png",
+      "n4_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V316\\n4_units\\n4_face_unit_04_face_4_B.png",
+      "visual_metric": {
+        "mask_iou": 0.0179,
+        "density_ratio": 0.6784,
+        "coarse_visual_score": 24.9,
+        "note": "metrica preliminar; veredito final exige inspecao visual do agente"
+      },
+      "fields": {
+        "h_body": 103.0,
+        "h_total": 103.0,
+        "laje_sup": 0.0,
+        "laje_inf": 0.0,
+        "panel_types": [
+          "Sarrafeado"
+        ]
+      }
+    },
+    {
+      "item": "V317",
+      "unit_idx": 1,
+      "label": "V317.A",
+      "side": "A",
+      "segments": 3,
+      "n2_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V317\\n2_ab_unit_01_A.png",
+      "n4_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V317\\n4_units\\n4_face_unit_01_V317_A.png",
+      "visual_metric": {
+        "mask_iou": 0.0587,
+        "density_ratio": 0.8193,
+        "coarse_visual_score": 32.5,
+        "note": "metrica preliminar; veredito final exige inspecao visual do agente"
+      },
+      "fields": {
+        "h_body": 44.0,
+        "h_total": 82.0,
+        "laje_sup": 0.0,
+        "laje_inf": 0.0,
+        "panel_types": [
+          "Sarrafeado"
+        ]
+      }
+    },
+    {
+      "item": "V317",
+      "unit_idx": 2,
+      "label": "V317.B",
+      "side": "B",
+      "segments": 3,
+      "n2_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V317\\n2_ab_unit_02_B.png",
+      "n4_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V317\\n4_units\\n4_face_unit_02_V317_B.png",
+      "visual_metric": {
+        "mask_iou": 0.0731,
+        "density_ratio": 0.7639,
+        "coarse_visual_score": 31.5,
+        "note": "metrica preliminar; veredito final exige inspecao visual do agente"
+      },
+      "fields": {
+        "h_body": 44.0,
+        "h_total": 44.0,
+        "laje_sup": 0.0,
+        "laje_inf": 0.0,
+        "panel_types": [
+          "Sarrafeado"
+        ]
+      }
+    },
+    {
+      "item": "V318",
+      "unit_idx": 1,
+      "label": "V318.A",
+      "side": "A",
+      "segments": 9,
+      "n2_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V318\\n2_ab_unit_01_A.png",
+      "n4_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V318\\n4_units\\n4_face_unit_01_V318_A.png",
+      "visual_metric": {
+        "mask_iou": 0.0208,
+        "density_ratio": 0.9072,
+        "coarse_visual_score": 33.1,
+        "note": "metrica preliminar; veredito final exige inspecao visual do agente"
+      },
+      "fields": {
+        "h_body": 103.0,
+        "h_total": 124.0,
+        "laje_sup": 0.0,
+        "laje_inf": 0.0,
+        "panel_types": [
+          "Sarrafeado"
+        ]
+      }
+    },
+    {
+      "item": "V318",
+      "unit_idx": 2,
+      "label": "V318.B",
+      "side": "B",
+      "segments": 9,
+      "n2_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V318\\n2_ab_unit_02_B.png",
+      "n4_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V318\\n4_units\\n4_face_unit_02_V318_B.png",
+      "visual_metric": {
+        "mask_iou": 0.0304,
+        "density_ratio": 0.9732,
+        "coarse_visual_score": 36.0,
+        "note": "metrica preliminar; veredito final exige inspecao visual do agente"
+      },
+      "fields": {
+        "h_body": 109.0,
+        "h_total": 109.0,
+        "laje_sup": 0.0,
+        "laje_inf": 0.0,
+        "panel_types": [
+          "Sarrafeado"
+        ]
+      }
+    },
+    {
+      "item": "V319",
+      "unit_idx": 1,
+      "label": "V319.A",
+      "side": "A",
+      "segments": 3,
+      "n2_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V319\\n2_ab_unit_01_A.png",
+      "n4_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V319\\n4_units\\n4_face_unit_01_V319_A.png",
+      "visual_metric": {
+        "mask_iou": 0.0059,
+        "density_ratio": 0.7956,
+        "coarse_visual_score": 28.2,
+        "note": "metrica preliminar; veredito final exige inspecao visual do agente"
+      },
+      "fields": {
+        "h_body": 44.0,
+        "h_total": 44.0,
+        "laje_sup": 0.0,
+        "laje_inf": 0.0,
+        "panel_types": [
+          "Sarrafeado"
+        ]
+      }
+    },
+    {
+      "item": "V319",
+      "unit_idx": 2,
+      "label": "V319.B",
+      "side": "B",
+      "segments": 3,
+      "n2_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V319\\n2_ab_unit_02_B.png",
+      "n4_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V319\\n4_units\\n4_face_unit_02_V319_B.png",
+      "visual_metric": {
+        "mask_iou": 0.0151,
+        "density_ratio": 0.7983,
+        "coarse_visual_score": 28.9,
+        "note": "metrica preliminar; veredito final exige inspecao visual do agente"
+      },
+      "fields": {
+        "h_body": 44.0,
+        "h_total": 44.0,
+        "laje_sup": 0.0,
+        "laje_inf": 0.0,
+        "panel_types": [
+          "Sarrafeado"
+        ]
+      }
+    },
+    {
+      "item": "V320",
+      "unit_idx": 1,
+      "label": "V320.A",
+      "side": "A",
+      "segments": 6,
+      "n2_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V320\\n2_ab_unit_01_A.png",
+      "n4_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V320\\n4_units\\n4_face_unit_01_V320_A.png",
+      "visual_metric": {
+        "mask_iou": 0.0274,
+        "density_ratio": 0.8989,
+        "coarse_visual_score": 33.2,
+        "note": "metrica preliminar; veredito final exige inspecao visual do agente"
+      },
+      "fields": {
+        "h_body": 103.0,
+        "h_total": 124.0,
+        "laje_sup": 0.0,
+        "laje_inf": 0.0,
+        "panel_types": [
+          "Sarrafeado"
+        ]
+      }
+    },
+    {
+      "item": "V320",
+      "unit_idx": 2,
+      "label": "",
+      "side": "A",
+      "segments": 4,
+      "n2_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V320\\n2_ab_unit_02_A.png",
+      "n4_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V320\\n4_units\\n4_face_unit_02_face_2_A.png",
+      "visual_metric": {
+        "mask_iou": 0.0595,
+        "density_ratio": 0.7898,
+        "coarse_visual_score": 31.5,
+        "note": "metrica preliminar; veredito final exige inspecao visual do agente"
+      },
+      "fields": {
+        "h_body": 109.0,
+        "h_total": 109.0,
+        "laje_sup": 0.0,
+        "laje_inf": 0.0,
+        "panel_types": [
+          "Sarrafeado"
+        ]
+      }
+    },
+    {
+      "item": "V320",
+      "unit_idx": 3,
+      "label": "V320.B",
+      "side": "B",
+      "segments": 4,
+      "n2_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V320\\n2_ab_unit_03_B.png",
+      "n4_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V320\\n4_units\\n4_face_unit_03_V320_B.png",
+      "visual_metric": {
+        "mask_iou": 0.1166,
+        "density_ratio": 0.6793,
+        "coarse_visual_score": 31.4,
+        "note": "metrica preliminar; veredito final exige inspecao visual do agente"
+      },
+      "fields": {
+        "h_body": 110.0,
+        "h_total": 110.0,
+        "laje_sup": 0.0,
+        "laje_inf": 0.0,
+        "panel_types": [
+          "Sarrafeado"
+        ]
+      }
+    },
+    {
+      "item": "V320",
+      "unit_idx": 4,
+      "label": "",
+      "side": "B",
+      "segments": 5,
+      "n2_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V320\\n2_ab_unit_04_B.png",
+      "n4_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V320\\n4_units\\n4_face_unit_04_face_4_B.png",
+      "visual_metric": {
+        "mask_iou": 0.0129,
+        "density_ratio": 0.6885,
+        "coarse_visual_score": 24.9,
+        "note": "metrica preliminar; veredito final exige inspecao visual do agente"
+      },
+      "fields": {
+        "h_body": 105.0,
+        "h_total": 105.0,
+        "laje_sup": 0.0,
+        "laje_inf": 0.0,
+        "panel_types": [
+          "Sarrafeado"
+        ]
+      }
+    },
+    {
+      "item": "V321",
+      "unit_idx": 1,
+      "label": "V321.A",
+      "side": "A",
+      "segments": 2,
+      "n2_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V321\\n2_ab_unit_01_A.png",
+      "n4_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V321\\n4_units\\n4_face_unit_01_V321_A.png",
+      "visual_metric": {
+        "mask_iou": 0.0297,
+        "density_ratio": 0.4517,
+        "coarse_visual_score": 17.7,
+        "note": "metrica preliminar; veredito final exige inspecao visual do agente"
+      },
+      "fields": {
+        "h_body": 44.0,
+        "h_total": 71.0,
+        "laje_sup": 0.0,
+        "laje_inf": 0.0,
+        "panel_types": [
+          "Sarrafeado"
+        ]
+      }
+    },
+    {
+      "item": "V321",
+      "unit_idx": 2,
+      "label": "",
+      "side": "A",
+      "segments": 2,
+      "n2_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V321\\n2_ab_unit_02_A.png",
+      "n4_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V321\\n4_units\\n4_face_unit_02_face_2_A.png",
+      "visual_metric": {
+        "mask_iou": 0.0312,
+        "density_ratio": 0.5033,
+        "coarse_visual_score": 19.6,
+        "note": "metrica preliminar; veredito final exige inspecao visual do agente"
+      },
+      "fields": {
+        "h_body": 40.0,
+        "h_total": 40.0,
+        "laje_sup": 0.0,
+        "laje_inf": 0.0,
+        "panel_types": [
+          "Sarrafeado"
+        ]
+      }
+    },
+    {
+      "item": "V321",
+      "unit_idx": 3,
+      "label": "V321.B",
+      "side": "B",
+      "segments": 2,
+      "n2_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V321\\n2_ab_unit_03_B.png",
+      "n4_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V321\\n4_units\\n4_face_unit_03_V321_B.png",
+      "visual_metric": {
+        "mask_iou": 0.0827,
+        "density_ratio": 0.8335,
+        "coarse_visual_score": 34.5,
+        "note": "metrica preliminar; veredito final exige inspecao visual do agente"
+      },
+      "fields": {
+        "h_body": 45.0,
+        "h_total": 45.0,
+        "laje_sup": 0.0,
+        "laje_inf": 0.0,
+        "panel_types": [
+          "Sarrafeado"
+        ]
+      }
+    },
+    {
+      "item": "V321",
+      "unit_idx": 4,
+      "label": "",
+      "side": "B",
+      "segments": 1,
+      "n2_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V321\\n2_ab_unit_04_B.png",
+      "n4_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V321\\n4_units\\n4_face_unit_04_face_4_B.png",
+      "visual_metric": {
+        "mask_iou": 0.0068,
+        "density_ratio": 0.6858,
+        "coarse_visual_score": 24.4,
+        "note": "metrica preliminar; veredito final exige inspecao visual do agente"
+      },
+      "fields": {
+        "h_body": 45.0,
+        "h_total": 45.0,
+        "laje_sup": 0.0,
+        "laje_inf": 0.0,
+        "panel_types": [
+          "Sarrafeado"
+        ]
+      }
+    },
+    {
+      "item": "V322",
+      "unit_idx": 1,
+      "label": "V322.A",
+      "side": "A",
+      "segments": 9,
+      "n2_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V322\\n2_ab_unit_01_A.png",
+      "n4_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V322\\n4_units\\n4_face_unit_01_V322_A.png",
+      "visual_metric": {
+        "mask_iou": 0.0462,
+        "density_ratio": 0.9025,
+        "coarse_visual_score": 34.6,
+        "note": "metrica preliminar; veredito final exige inspecao visual do agente"
+      },
+      "fields": {
+        "h_body": 105.0,
+        "h_total": 130.0,
+        "laje_sup": 0.0,
+        "laje_inf": 0.0,
+        "panel_types": [
+          "Sarrafeado"
+        ]
+      }
+    },
+    {
+      "item": "V322",
+      "unit_idx": 2,
+      "label": "V322.B",
+      "side": "B",
+      "segments": 3,
+      "n2_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V322\\n2_ab_unit_02_B.png",
+      "n4_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V322\\n4_units\\n4_face_unit_02_V322_B.png",
+      "visual_metric": {
+        "mask_iou": 0.0201,
+        "density_ratio": 0.6061,
+        "coarse_visual_score": 22.5,
+        "note": "metrica preliminar; veredito final exige inspecao visual do agente"
+      },
+      "fields": {
+        "h_body": 55.0,
+        "h_total": 55.0,
+        "laje_sup": 0.0,
+        "laje_inf": 0.0,
+        "panel_types": [
+          "Sarrafeado"
+        ]
+      }
+    },
+    {
+      "item": "V322",
+      "unit_idx": 3,
+      "label": "",
+      "side": "B",
+      "segments": 3,
+      "n2_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V322\\n2_ab_unit_03_B.png",
+      "n4_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V322\\n4_units\\n4_face_unit_03_face_3_B.png",
+      "visual_metric": {
+        "mask_iou": 0.0174,
+        "density_ratio": 0.8699,
+        "coarse_visual_score": 31.6,
+        "note": "metrica preliminar; veredito final exige inspecao visual do agente"
+      },
+      "fields": {
+        "h_body": 59.0,
+        "h_total": 59.0,
+        "laje_sup": 0.0,
+        "laje_inf": 0.0,
+        "panel_types": [
+          "Sarrafeado"
+        ]
+      }
+    },
+    {
+      "item": "V323",
+      "unit_idx": 1,
+      "label": "V323.A",
+      "side": "A",
+      "segments": 2,
+      "n2_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V323\\n2_ab_unit_01_A.png",
+      "n4_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V323\\n4_units\\n4_face_unit_01_V323_A.png",
+      "visual_metric": {
+        "mask_iou": 0.0144,
+        "density_ratio": 0.6802,
+        "coarse_visual_score": 24.7,
+        "note": "metrica preliminar; veredito final exige inspecao visual do agente"
+      },
+      "fields": {
+        "h_body": 40.0,
+        "h_total": 40.0,
+        "laje_sup": 0.0,
+        "laje_inf": 0.0,
+        "panel_types": [
+          "Sarrafeado"
+        ]
+      }
+    },
+    {
+      "item": "V323",
+      "unit_idx": 2,
+      "label": "V323.B",
+      "side": "B",
+      "segments": 2,
+      "n2_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V323\\n2_ab_unit_02_B.png",
+      "n4_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V323\\n4_units\\n4_face_unit_02_V323_B.png",
+      "visual_metric": {
+        "mask_iou": 0.0727,
+        "density_ratio": 0.9132,
+        "coarse_visual_score": 36.7,
+        "note": "metrica preliminar; veredito final exige inspecao visual do agente"
+      },
+      "fields": {
+        "h_body": 54.0,
+        "h_total": 54.0,
+        "laje_sup": 0.0,
+        "laje_inf": 0.0,
+        "panel_types": [
+          "Sarrafeado"
+        ]
+      }
+    },
+    {
+      "item": "V324",
+      "unit_idx": 1,
+      "label": "V324.A",
+      "side": "A",
+      "segments": 2,
+      "n2_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V324\\n2_ab_unit_01_A.png",
+      "n4_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V324\\n4_units\\n4_face_unit_01_V324_A.png",
+      "visual_metric": {
+        "mask_iou": 0.031,
+        "density_ratio": 0.9772,
+        "coarse_visual_score": 36.2,
+        "note": "metrica preliminar; veredito final exige inspecao visual do agente"
+      },
+      "fields": {
+        "h_body": 54.0,
+        "h_total": 54.0,
+        "laje_sup": 0.0,
+        "laje_inf": 0.0,
+        "panel_types": [
+          "Sarrafeado"
+        ]
+      }
+    },
+    {
+      "item": "V324",
+      "unit_idx": 2,
+      "label": "V324.B",
+      "side": "B",
+      "segments": 2,
+      "n2_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V324\\n2_ab_unit_02_B.png",
+      "n4_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V324\\n4_units\\n4_face_unit_02_V324_B.png",
+      "visual_metric": {
+        "mask_iou": 0.0429,
+        "density_ratio": 0.8769,
+        "coarse_visual_score": 33.5,
+        "note": "metrica preliminar; veredito final exige inspecao visual do agente"
+      },
+      "fields": {
+        "h_body": 54.0,
+        "h_total": 54.0,
+        "laje_sup": 0.0,
+        "laje_inf": 0.0,
+        "panel_types": [
+          "Sarrafeado"
+        ]
+      }
+    },
+    {
+      "item": "V325",
+      "unit_idx": 1,
+      "label": "V325.A",
+      "side": "A",
+      "segments": 5,
+      "n2_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V325\\n2_ab_unit_01_A.png",
+      "n4_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V325\\n4_units\\n4_face_unit_01_V325_A.png",
+      "visual_metric": {
+        "mask_iou": 0.0345,
+        "density_ratio": 0.7482,
+        "coarse_visual_score": 28.4,
+        "note": "metrica preliminar; veredito final exige inspecao visual do agente"
+      },
+      "fields": {
+        "h_body": 103.0,
+        "h_total": 124.0,
+        "laje_sup": 0.0,
+        "laje_inf": 0.0,
+        "panel_types": [
+          "Sarrafeado"
+        ]
+      }
+    },
+    {
+      "item": "V325",
+      "unit_idx": 2,
+      "label": "",
+      "side": "A",
+      "segments": 2,
+      "n2_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V325\\n2_ab_unit_02_A.png",
+      "n4_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V325\\n4_units\\n4_face_unit_02_face_2_A.png",
+      "visual_metric": {
+        "mask_iou": 0.0866,
+        "density_ratio": 0.6713,
+        "coarse_visual_score": 29.1,
+        "note": "metrica preliminar; veredito final exige inspecao visual do agente"
+      },
+      "fields": {
+        "h_body": 110.0,
+        "h_total": 110.0,
+        "laje_sup": 0.0,
+        "laje_inf": 0.0,
+        "panel_types": [
+          "Sarrafeado"
+        ]
+      }
+    },
+    {
+      "item": "V325",
+      "unit_idx": 3,
+      "label": "V325.B",
+      "side": "B",
+      "segments": 2,
+      "n2_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V325\\n2_ab_unit_03_B.png",
+      "n4_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V325\\n4_units\\n4_face_unit_03_V325_B.png",
+      "visual_metric": {
+        "mask_iou": 0.044,
+        "density_ratio": 0.611,
+        "coarse_visual_score": 24.2,
+        "note": "metrica preliminar; veredito final exige inspecao visual do agente"
+      },
+      "fields": {
+        "h_body": 109.0,
+        "h_total": 109.0,
+        "laje_sup": 0.0,
+        "laje_inf": 0.0,
+        "panel_types": [
+          "Sarrafeado"
+        ]
+      }
+    },
+    {
+      "item": "V325",
+      "unit_idx": 4,
+      "label": "",
+      "side": "B",
+      "segments": 5,
+      "n2_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V325\\n2_ab_unit_04_B.png",
+      "n4_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V325\\n4_units\\n4_face_unit_04_face_4_B.png",
+      "visual_metric": {
+        "mask_iou": 0.0217,
+        "density_ratio": 0.5792,
+        "coarse_visual_score": 21.7,
+        "note": "metrica preliminar; veredito final exige inspecao visual do agente"
+      },
+      "fields": {
+        "h_body": 102.0,
+        "h_total": 124.0,
+        "laje_sup": 0.0,
+        "laje_inf": 0.0,
+        "panel_types": [
+          "Sarrafeado"
+        ]
+      }
+    },
+    {
+      "item": "V326",
+      "unit_idx": 1,
+      "label": "V326.A",
+      "side": "A",
+      "segments": 2,
+      "n2_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V326\\n2_ab_unit_01_A.png",
+      "n4_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V326\\n4_units\\n4_face_unit_01_V326_A.png",
+      "visual_metric": {
+        "mask_iou": 0.0227,
+        "density_ratio": 0.9449,
+        "coarse_visual_score": 34.5,
+        "note": "metrica preliminar; veredito final exige inspecao visual do agente"
+      },
+      "fields": {
+        "h_body": 54.0,
+        "h_total": 54.0,
+        "laje_sup": 0.0,
+        "laje_inf": 0.0,
+        "panel_types": [
+          "Sarrafeado"
+        ]
+      }
+    },
+    {
+      "item": "V326",
+      "unit_idx": 2,
+      "label": "V326.B",
+      "side": "B",
+      "segments": 2,
+      "n2_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V326\\n2_ab_unit_02_B.png",
+      "n4_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V326\\n4_units\\n4_face_unit_02_V326_B.png",
+      "visual_metric": {
+        "mask_iou": 0.0302,
+        "density_ratio": 0.9105,
+        "coarse_visual_score": 33.8,
+        "note": "metrica preliminar; veredito final exige inspecao visual do agente"
+      },
+      "fields": {
+        "h_body": 54.0,
+        "h_total": 54.0,
+        "laje_sup": 0.0,
+        "laje_inf": 0.0,
+        "panel_types": [
+          "Sarrafeado"
+        ]
+      }
+    },
+    {
+      "item": "V327",
+      "unit_idx": 1,
+      "label": "V327.A",
+      "side": "A",
+      "segments": 2,
+      "n2_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V327\\n2_ab_unit_01_A.png",
+      "n4_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V327\\n4_units\\n4_face_unit_01_V327_A.png",
+      "visual_metric": {
+        "mask_iou": 0.0149,
+        "density_ratio": 0.8665,
+        "coarse_visual_score": 31.3,
+        "note": "metrica preliminar; veredito final exige inspecao visual do agente"
+      },
+      "fields": {
+        "h_body": 54.0,
+        "h_total": 54.0,
+        "laje_sup": 0.0,
+        "laje_inf": 0.0,
+        "panel_types": [
+          "Sarrafeado"
+        ]
+      }
+    },
+    {
+      "item": "V327",
+      "unit_idx": 2,
+      "label": "V327.B",
+      "side": "B",
+      "segments": 2,
+      "n2_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V327\\n2_ab_unit_02_B.png",
+      "n4_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V327\\n4_units\\n4_face_unit_02_V327_B.png",
+      "visual_metric": {
+        "mask_iou": 0.0083,
+        "density_ratio": 0.8485,
+        "coarse_visual_score": 30.2,
+        "note": "metrica preliminar; veredito final exige inspecao visual do agente"
+      },
+      "fields": {
+        "h_body": 54.0,
+        "h_total": 54.0,
+        "laje_sup": 0.0,
+        "laje_inf": 0.0,
+        "panel_types": [
+          "Sarrafeado"
+        ]
+      }
+    },
+    {
+      "item": "V328",
+      "unit_idx": 1,
+      "label": "V328.A",
+      "side": "A",
+      "segments": 2,
+      "n2_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V328\\n2_ab_unit_01_A.png",
+      "n4_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V328\\n4_units\\n4_face_unit_01_V328_A.png",
+      "visual_metric": {
+        "mask_iou": 0.0204,
+        "density_ratio": 0.7445,
+        "coarse_visual_score": 27.4,
+        "note": "metrica preliminar; veredito final exige inspecao visual do agente"
+      },
+      "fields": {
+        "h_body": 59.0,
+        "h_total": 59.0,
+        "laje_sup": 0.0,
+        "laje_inf": 0.0,
+        "panel_types": [
+          "Sarrafeado"
+        ]
+      }
+    },
+    {
+      "item": "V328",
+      "unit_idx": 2,
+      "label": "V328.B",
+      "side": "B",
+      "segments": 2,
+      "n2_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V328\\n2_ab_unit_02_B.png",
+      "n4_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V328\\n4_units\\n4_face_unit_02_V328_B.png",
+      "visual_metric": {
+        "mask_iou": 0.0114,
+        "density_ratio": 0.803,
+        "coarse_visual_score": 28.8,
+        "note": "metrica preliminar; veredito final exige inspecao visual do agente"
+      },
+      "fields": {
+        "h_body": 59.0,
+        "h_total": 59.0,
+        "laje_sup": 0.0,
+        "laje_inf": 0.0,
+        "panel_types": [
+          "Sarrafeado"
+        ]
+      }
+    },
+    {
+      "item": "V329",
+      "unit_idx": 1,
+      "label": "V329.A",
+      "side": "A",
+      "segments": 2,
+      "n2_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V329\\n2_ab_unit_01_A.png",
+      "n4_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V329\\n4_units\\n4_face_unit_01_V329_A.png",
+      "visual_metric": {
+        "mask_iou": 0.0302,
+        "density_ratio": 0.8419,
+        "coarse_visual_score": 31.4,
+        "note": "metrica preliminar; veredito final exige inspecao visual do agente"
+      },
+      "fields": {
+        "h_body": 50.0,
+        "h_total": 50.0,
+        "laje_sup": 0.0,
+        "laje_inf": 0.0,
+        "panel_types": [
+          "Sarrafeado"
+        ]
+      }
+    },
+    {
+      "item": "V329",
+      "unit_idx": 2,
+      "label": "V329.B",
+      "side": "B",
+      "segments": 2,
+      "n2_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V329\\n2_ab_unit_02_B.png",
+      "n4_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V329\\n4_units\\n4_face_unit_02_V329_B.png",
+      "visual_metric": {
+        "mask_iou": 0.0174,
+        "density_ratio": 0.8487,
+        "coarse_visual_score": 30.8,
+        "note": "metrica preliminar; veredito final exige inspecao visual do agente"
+      },
+      "fields": {
+        "h_body": 64.0,
+        "h_total": 64.0,
+        "laje_sup": 0.0,
+        "laje_inf": 0.0,
+        "panel_types": [
+          "Sarrafeado"
+        ]
+      }
+    },
+    {
+      "item": "V330",
+      "unit_idx": 1,
+      "label": "V330.A",
+      "side": "A",
+      "segments": 7,
+      "n2_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V330\\n2_ab_unit_01_A.png",
+      "n4_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V330\\n4_units\\n4_face_unit_01_V330_A.png",
+      "visual_metric": {
+        "mask_iou": 0.0341,
+        "density_ratio": 0.5243,
+        "coarse_visual_score": 20.6,
+        "note": "metrica preliminar; veredito final exige inspecao visual do agente"
+      },
+      "fields": {
+        "h_body": 25.0,
+        "h_total": 25.0,
+        "laje_sup": 0.0,
+        "laje_inf": 0.0,
+        "panel_types": [
+          "Grade"
+        ]
+      }
+    },
+    {
+      "item": "V330",
+      "unit_idx": 2,
+      "label": "V330.B",
+      "side": "B",
+      "segments": 7,
+      "n2_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V330\\n2_ab_unit_02_B.png",
+      "n4_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V330\\n4_units\\n4_face_unit_02_V330_B.png",
+      "visual_metric": {
+        "mask_iou": 0.0598,
+        "density_ratio": 0.4092,
+        "coarse_visual_score": 18.2,
+        "note": "metrica preliminar; veredito final exige inspecao visual do agente"
+      },
+      "fields": {
+        "h_body": 107.0,
+        "h_total": 107.0,
+        "laje_sup": 0.0,
+        "laje_inf": 0.0,
+        "panel_types": [
+          "Grade"
+        ]
+      }
+    },
+    {
+      "item": "V331",
+      "unit_idx": 1,
+      "label": "V331.A",
+      "side": "A",
+      "segments": 2,
+      "n2_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V331\\n2_ab_unit_01_A.png",
+      "n4_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V331\\n4_units\\n4_face_unit_01_V331_A.png",
+      "visual_metric": {
+        "mask_iou": 0.0168,
+        "density_ratio": 0.9845,
+        "coarse_visual_score": 35.6,
+        "note": "metrica preliminar; veredito final exige inspecao visual do agente"
+      },
+      "fields": {
+        "h_body": 44.0,
+        "h_total": 44.0,
+        "laje_sup": 0.0,
+        "laje_inf": 0.0,
+        "panel_types": [
+          "Sarrafeado"
+        ]
+      }
+    },
+    {
+      "item": "V331",
+      "unit_idx": 2,
+      "label": "V331.B",
+      "side": "B",
+      "segments": 2,
+      "n2_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V331\\n2_ab_unit_02_B.png",
+      "n4_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V331\\n4_units\\n4_face_unit_02_V331_B.png",
+      "visual_metric": {
+        "mask_iou": 0.0165,
+        "density_ratio": 0.885,
+        "coarse_visual_score": 32.0,
+        "note": "metrica preliminar; veredito final exige inspecao visual do agente"
+      },
+      "fields": {
+        "h_body": 44.0,
+        "h_total": 44.0,
+        "laje_sup": 0.0,
+        "laje_inf": 0.0,
+        "panel_types": [
+          "Sarrafeado"
+        ]
+      }
+    },
+    {
+      "item": "V332",
+      "unit_idx": 1,
+      "label": "V332.A",
+      "side": "A",
+      "segments": 2,
+      "n2_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V332\\n2_ab_unit_01_A.png",
+      "n4_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V332\\n4_units\\n4_face_unit_01_V332_A.png",
+      "visual_metric": {
+        "mask_iou": 0.0147,
+        "density_ratio": 0.9424,
+        "coarse_visual_score": 33.9,
+        "note": "metrica preliminar; veredito final exige inspecao visual do agente"
+      },
+      "fields": {
+        "h_body": 44.0,
+        "h_total": 44.0,
+        "laje_sup": 0.0,
+        "laje_inf": 0.0,
+        "panel_types": [
+          "Sarrafeado"
+        ]
+      }
+    },
+    {
+      "item": "V332",
+      "unit_idx": 2,
+      "label": "V332.B",
+      "side": "B",
+      "segments": 4,
+      "n2_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V332\\n2_ab_unit_02_B.png",
+      "n4_png": "sandbox_lv_loop\\prod_pav13_ab_arete_slab_center_total_full\\V332\\n4_units\\n4_face_unit_02_V332_B.png",
+      "visual_metric": {
+        "mask_iou": 0.0642,
+        "density_ratio": 0.764,
+        "coarse_visual_score": 30.9,
+        "note": "metrica preliminar; veredito final exige inspecao visual do agente"
+      },
+      "fields": {
+        "h_body": 59.0,
+        "h_total": 59.0,
+        "laje_sup": 0.0,
+        "laje_inf": 0.0,
+        "panel_types": [
+          "Sarrafeado"
+        ]
+      }
+    }
+  ],
+  "totals": {
+    "items": 30,
+    "units_rendered": 114,
+    "avg_coarse_visual": 34.9,
+    "min_coarse_visual": 17.7,
+    "missing_A": [],
+    "missing_B": []
+  }
+}
