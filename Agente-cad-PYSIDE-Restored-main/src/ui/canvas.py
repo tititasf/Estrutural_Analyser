@@ -1,4 +1,4 @@
-﻿
+
 # Helper de ofuscaÃ§Ã£o (adicionado automaticamente)
 def _get_obf_str(key):
     """Retorna string ofuscada"""
@@ -2009,22 +2009,22 @@ class CADCanvas(QGraphicsView):
         return created
 
     def draw_beam_fundos(self, beams_data: list):
-        """Destaca polígonos de fundo de TODAS as vigas em âmbar (visão global da aba)."""
+        """Destaca polígonos de fundo de TODAS as vigas em laranja (visão global da aba)."""
         self.clear_beam_fundos()
-        amber_pen = QPen(QColor(255, 165, 0, 220), 2)
-        amber_pen.setCosmetic(True)
+        orange_pen = QPen(QColor(255, 120, 0, 220), 2)
+        orange_pen.setCosmetic(True)
         for b_data in beams_data:
             polys = self._collect_fundo_polys(b_data)
-            self._draw_fundo_polys(polys, amber_pen, store_in_group=True)
+            self._draw_fundo_polys(polys, orange_pen, store_in_group=True)
         self.scene.update()
 
     def draw_single_beam_fundo(self, beam_data: dict, apply_zoom: bool = True):
-        """Destaca polígono de fundo de UMA viga em âmbar e aplica zoom."""
+        """Destaca polígono de fundo de UMA viga em laranja e aplica zoom."""
         self.clear_beam_fundos()
-        amber_pen = QPen(QColor(255, 165, 0, 220), 3)
-        amber_pen.setCosmetic(True)
+        orange_pen = QPen(QColor(255, 120, 0, 220), 3)
+        orange_pen.setCosmetic(True)
         polys = self._collect_fundo_polys(beam_data)
-        items = self._draw_fundo_polys(polys, amber_pen, store_in_group=True)
+        items = self._draw_fundo_polys(polys, orange_pen, store_in_group=True)
         self.scene.update()
         if apply_zoom and items:
             rect = items[0].sceneBoundingRect()
@@ -2045,15 +2045,40 @@ class CADCanvas(QGraphicsView):
                                b_data['end'][0], b_data['end'][1], pen)
             self.beam_visuals.append(line)
 
+    def _semantic_highlight_color(self, link=None, field_id='', slot_name='', target=None, fallback=None):
+        link = link or {}
+        field = str(field_id or link.get('_field_id') or '').lower()
+        slot = str(slot_name or link.get('_slot_name') or link.get('slot') or link.get('role') or '').lower()
+        role = str(link.get('role') or link.get('source') or '').lower()
+        target_type = str((target or {}).get('type') or '').lower()
+        target_name = str((target or {}).get('name') or '').lower()
+        l_type = str(link.get('type') or '').lower()
+
+        if l_type == 'text' or ('text' in link and link.get('pos')):
+            return QColor(255, 255, 255)
+        if 'visao_corte' in field or 'cut_view' in slot or 'cut_view' in role or 'visao' in slot:
+            return QColor(255, 152, 0)
+        if 'pilares_apoio' in field or 'pillar' in slot or 'pilar' in slot or 'pillar' in role or 'pilar' in target_type:
+            return QColor(255, 213, 0)
+        if 'laje' in field or 'laje' in target_type or target_name.startswith('l'):
+            return QColor(0, 150, 255)
+        return fallback if isinstance(fallback, QColor) else QColor(255, 213, 0)
+
+    def _style_highlight_text(self, item, color=None):
+        text_color = color if isinstance(color, QColor) else QColor(255, 255, 255)
+        item.setBrush(QBrush(text_color))
+        font = QFont("Arial", 14)
+        font.setBold(True)
+        item.setFont(font)
+        item.setZValue(215)
+        item.setFlag(QGraphicsSimpleTextItem.ItemIgnoresTransformations)
 
     def highlight_multiple_links(self, links, color=None, apply_zoom=True):
         """Destaca mÃºltiplos vÃ­nculos simultaneamente e aplica zoom no conjunto"""
         if not links: return []
         
         self.clear_beams()
-        base_color = color if color else QColor(255, 0, 0)
-        pen = QPen(base_color, 4) 
-        pen.setCosmetic(True)
+        base_color = color if isinstance(color, QColor) else None
         
         items_created = []
 
@@ -2062,22 +2087,23 @@ class CADCanvas(QGraphicsView):
         for link in links:
             item = None
             l_type = link.get('type')
+            link_color = base_color if base_color else self._semantic_highlight_color(link)
+            pen = QPen(link_color, 4)
+            pen.setCosmetic(True)
             
             if l_type == 'text' and 'pos' in link:
                 item = self.scene.addSimpleText(link['text'])
                 item.setPos(link['pos'][0], link['pos'][1])
-                item.setBrush(QBrush(base_color))
-                item.setZValue(101)
-                item.setFlag(QGraphicsSimpleTextItem.ItemIgnoresTransformations)
-            elif (l_type == 'line' or l_type == 'poly' or l_type == 'geometry') and 'points' in link:
+                self._style_highlight_text(item, QColor(255, 255, 255))
+            elif (l_type in ('line', 'poly', 'geometry', 'polygon')) and 'points' in link:
                 pts = link['points']
                 if len(pts) >= 2:
                     path = QPainterPath()
                     path.moveTo(pts[0][0], pts[0][1])
                     for p in pts[1:]: path.lineTo(p[0], p[1])
-                    if l_type == 'poly' or (len(pts) > 2 and pts[0] == pts[-1]):
+                    if l_type in ('poly', 'geometry', 'polygon') or (len(pts) > 2 and pts[0] == pts[-1]):
                         path.closeSubpath()
-                    
+
                     item = self.scene.addPath(path, pen)
                     item.setZValue(100)
             elif l_type == 'circle' and 'pos' in link and 'radius' in link:
@@ -2125,14 +2151,14 @@ class CADCanvas(QGraphicsView):
         from PySide6.QtGui import QPainterPath
         
         # ... (Colors logic remains same) ...
-        base_color = QColor(255, 0, 0) # Default Red
+        base_color = QColor(255, 213, 0) # Default amarelo
         type_str = target.get('type', '').lower()
-        if target.get('is_validated') and not 'laje' in type_str:
-            base_color = QColor(76, 175, 80) # Verde para Validados (Exceto Laje)
-        elif 'laje' in type_str:
-            base_color = QColor(0, 50, 150) # Azul Escuro (Marco)
+        if 'laje' in type_str:
+            base_color = QColor(0, 150, 255) # Azul para Lajes
         elif 'pilar' in type_str:
-            base_color = QColor(0, 180, 0) # Verde Escuro
+            base_color = QColor(255, 213, 0) # Amarelo para Pilares
+        elif target.get('is_validated'):
+            base_color = QColor(76, 175, 80) # Verde para Validados
         else:
              base_color = QColor(139, 69, 19) # Viga = Marrom
             
@@ -2158,7 +2184,15 @@ class CADCanvas(QGraphicsView):
             
             for slot_name, link_list in slots_to_process:
                 # Custom Pen for specific slab slots to highlight them
-                local_pen = pen
+                slot_color = self._semantic_highlight_color(
+                    {'_field_id': field_id, '_slot_name': slot_name},
+                    field_id=field_id,
+                    slot_name=slot_name,
+                    target=target,
+                    fallback=base_color,
+                )
+                local_pen = QPen(slot_color, 2)
+                local_pen.setCosmetic(True)
                 if destination == 'slab':
                      if 'acrescimo' in slot_name.lower():
                           local_pen = QPen(QColor(255, 165, 0), 3) # Laranja para AcrÃ©scimos
@@ -2181,9 +2215,7 @@ class CADCanvas(QGraphicsView):
                         item = self.scene.addSimpleText(link.get('text', ''))
                         pos = link['pos']
                         item.setPos(pos[0], pos[1])
-                        item.setBrush(QBrush(base_color))
-                        item.setZValue(105)
-                        item.setFlag(QGraphicsSimpleTextItem.ItemIgnoresTransformations)
+                        self._style_highlight_text(item, QColor(255, 255, 255))
                     # Geometria (Linhas/Polys)
                     elif (l_type in ['line', 'poly', 'geometry']):
                         if not link.get('points'):
@@ -2269,11 +2301,11 @@ class CADCanvas(QGraphicsView):
         target = next((d for d in data_list if d.get('name') == name), None)
         
         # Cor Base
-        base_color = QColor(255, 0, 0) # Default Red
+        base_color = QColor(255, 213, 0) # Default amarelo
         if target:
             t_type = target.get('type', '').lower()
-            if 'laje' in t_type: base_color = QColor(0, 50, 150)
-            elif 'pilar' in t_type: base_color = QColor(0, 180, 0)
+            if 'laje' in t_type: base_color = QColor(0, 150, 255)
+            elif 'pilar' in t_type: base_color = QColor(255, 213, 0)
             else: base_color = QColor(139, 69, 19) # Viga = Marrom
             
         pen = QPen(base_color, 3) 
@@ -2296,9 +2328,7 @@ class CADCanvas(QGraphicsView):
                         if l_type == 'text':
                             t_item = self.scene.addSimpleText(link['text'])
                             t_item.setPos(link.get('pos', [0, 0])[0], link.get('pos', [0, 0])[1])
-                            t_item.setBrush(QBrush(base_color))
-                            t_item.setZValue(101)
-                            t_item.setFlag(QGraphicsSimpleTextItem.ItemIgnoresTransformations)
+                            self._style_highlight_text(t_item, QColor(255, 255, 255))
                             self.beam_visuals.append(t_item)
                             items_to_focus.append(t_item)
                         # Process both lines and generic geometry links
@@ -2554,8 +2584,8 @@ class CADCanvas(QGraphicsView):
         items_to_focus = []
         l_type = link_data.get('type')
         
-        # Cor customizada ou ciano brilhante padrÃ£o
-        target_color = color if color and isinstance(color, QColor) else QColor(0, 255, 255)
+        # Cor semantica do vinculo quando nenhuma cor explicita for fornecida.
+        target_color = color if color and isinstance(color, QColor) else self._semantic_highlight_color(link_data)
         
         pen = QPen(target_color, 2)
         pen.setCosmetic(True)
@@ -2563,11 +2593,7 @@ class CADCanvas(QGraphicsView):
         if l_type == 'text' and 'pos' in link_data:
             item = self.scene.addSimpleText(link_data.get('text', '?'))
             item.setPos(link_data['pos'][0], link_data['pos'][1])
-            item.setBrush(QBrush(target_color))
-            item.setZValue(205)
-            # Ignora transformaÃ§Ãµes para manter texto legÃ­vel
-            from PySide6.QtWidgets import QGraphicsSimpleTextItem
-            item.setFlag(QGraphicsSimpleTextItem.ItemIgnoresTransformations)
+            self._style_highlight_text(item, QColor(255, 255, 255))
             self.beam_visuals.append(item)
             items_to_focus.append(item)
             
@@ -2579,14 +2605,14 @@ class CADCanvas(QGraphicsView):
              self.beam_visuals.append(item)
              items_to_focus.append(item)
              
-        elif l_type in ('line', 'poly', 'geometry') and 'points' in link_data:
+        elif l_type in ('line', 'poly', 'geometry', 'polygon') and 'points' in link_data:
              pts = link_data['points']
              if len(pts) >= 2:
                  path = QPainterPath()
                  path.moveTo(pts[0][0], pts[0][1])
                  for p in pts[1:]: path.lineTo(p[0], p[1])
-                 if l_type == 'poly' or l_type == 'geometry': path.closeSubpath()
-                 
+                 if l_type in ('poly', 'geometry', 'polygon'): path.closeSubpath()
+
                  item = self.scene.addPath(path, pen)
                  item.setZValue(205)
                  self.beam_visuals.append(item)
@@ -3332,13 +3358,19 @@ class CADCanvas(QGraphicsView):
         # 2. Box Selection Preview
         if self.edit_mode == 'select' and self.box_start:
             if self.selection_box:
-                self.selection_box.setRect(QRectF(self.box_start, scene_pos).normalized())
+                try:
+                    self.selection_box.setRect(QRectF(self.box_start, scene_pos).normalized())
+                except RuntimeError:
+                    self.selection_box = None
             return
 
         # 2b. Deselection Box Preview (Right Click)
         if self.edit_mode == 'select' and self.deselect_box_start:
              if self.deselect_box:
-                 self.deselect_box.setRect(QRectF(self.deselect_box_start, scene_pos).normalized())
+                 try:
+                     self.deselect_box.setRect(QRectF(self.deselect_box_start, scene_pos).normalized())
+                 except RuntimeError:
+                     self.deselect_box = None
              return
 
         # [MOD] Feedback Visual de Entrada NumÃ©rica perto do Mouse
