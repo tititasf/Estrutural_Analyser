@@ -67,6 +67,42 @@ def _normalize_viga(name: str) -> str:
     return re.sub(r"^[FLfl]\.", "", name).strip()
 
 
+def _normalize_label(name: str | None) -> str:
+    txt = str(name or "").strip().upper()
+    txt = re.sub(r"^[FL]\.", "", txt)
+    return re.sub(r"\s+", "", txt)
+
+
+def _support_pair_ok(n1_ini: str | None, n1_fim: str | None, n2_left: str | None, n2_right: str | None) -> bool:
+    n1_pair = {_normalize_label(n1_ini), _normalize_label(n1_fim)} - {""}
+    n2_pair = {_normalize_label(n2_left), _normalize_label(n2_right)} - {""}
+    return bool(n1_pair and n2_pair and n1_pair == n2_pair)
+
+
+def _candidate_score(n1: dict, n2: dict) -> float:
+    n2_panels = len(n2.get("panels", []))
+    n2_comp = float(n2.get("total_height", 0) or 0)
+    n2_h = float(n2.get("total_width", 0) or 0)
+    n1_panels = int(n1.get("panels_n1") or 0)
+    n1_comp = float(n1.get("comprimento_n1") or 0)
+    n1_h = float(n1.get("h_n1") or 0)
+    n1_dim = float(n1.get("dim_width_n1") or 0)
+
+    checks = [
+        n2_panels > 0 and n1_panels == n2_panels,
+        n2_comp > 0 and abs(n1_comp - n2_comp) / n2_comp < 0.05,
+        n2_h > 0 and abs(n1_h - n2_h) <= 2,
+        n2_h > 0 and n1_dim > 0 and abs(n1_dim - n2_h) <= 2,
+        _support_pair_ok(
+            n1.get("apoio_inicial_n1"),
+            n1.get("apoio_final_n1"),
+            n2.get("label_left"),
+            n2.get("label_right"),
+        ),
+    ]
+    return 100.0 * sum(1 for ok in checks if ok) / len(checks)
+
+
 # ── DB loaders ────────────────────────────────────────────────────────────────
 
 def load_n2_fv(obra_name: str, pav_filter: str | None, db_path: Path) -> dict[str, dict]:
@@ -285,6 +321,12 @@ def compare_fv(
         n1_dim_width = float(b.get("dim_width_n1") or 0.0)
         n1_dim_height = float(b.get("dim_height_n1") or 0.0)
         n1_holes = int(b.get("aberturas_n1") or 0)
+        apoios_ok = _support_pair_ok(
+            b.get("apoio_inicial_n1"),
+            b.get("apoio_final_n1"),
+            n2.get("label_left"),
+            n2.get("label_right"),
+        )
 
         segs_ok = n2_panels > 0 and n1_segs == n2_panels
         comp_ok = (
@@ -299,6 +341,15 @@ def compare_fv(
         if holes_ok is not None:
             checks.append(holes_ok)
         score = 100.0 * sum(1 for ok in checks if ok) / len(checks)
+        best_alt_name = ""
+        best_alt_score = 0.0
+        for cand in n1_list:
+            if cand is b:
+                continue
+            alt_score = _candidate_score(cand, n2)
+            if alt_score > best_alt_score:
+                best_alt_score = alt_score
+                best_alt_name = cand.get("viga_nome", "")
 
         results.append({
             "viga": vn,
@@ -318,6 +369,7 @@ def compare_fv(
             "apoio_final_n1": b.get("apoio_final_n1", ""),
             "label_left_n2": n2.get("label_left", ""),
             "label_right_n2": n2.get("label_right", ""),
+            "apoios_ok": apoios_ok,
             "aberturas_n1": n1_holes,
             "aberturas_n2": n2_holes,
             "chanfros_n1": b.get("chanfros_n1", 0),
@@ -326,6 +378,8 @@ def compare_fv(
             "h_ok": h_ok,
             "holes_ok": holes_ok,
             "score": round(score, 1),
+            "best_alt_viga": best_alt_name,
+            "best_alt_score": round(best_alt_score, 1),
         })
 
     return results
@@ -370,6 +424,7 @@ def record_events(
                     "apoio_final_n1": r.get("apoio_final_n1", ""),
                     "label_left_n2": r.get("label_left_n2", ""),
                     "label_right_n2": r.get("label_right_n2", ""),
+                    "apoios_matched": 1 if r.get("apoios_ok") else 0,
                     "aberturas_n1": r.get("aberturas_n1", 0),
                     "aberturas_n2": r.get("aberturas_n2", 0),
                     "chanfros_n1": r.get("chanfros_n1", 0),
@@ -423,12 +478,26 @@ def print_report(results: list[dict], obra: str, pav: str | None):
     comp_fail = sum(1 for r in matched if not r["comp_ok"])
     h_fail = sum(1 for r in matched if not r["h_ok"])
     dim_fail = sum(1 for r in matched if not r.get("dim_ok"))
+    apoio_fail = sum(1 for r in matched if not r.get("apoios_ok"))
     print("DIAGNOSTICO:")
     if matched:
         print(f"  Segmentos (panels) errados: {segs_fail}/{len(matched)} ({100*segs_fail/len(matched):.0f}%)")
         print(f"  Comprimento fora +-5%:      {comp_fail}/{len(matched)} ({100*comp_fail/len(matched):.0f}%)")
         print(f"  h fora +-2cm:               {h_fail}/{len(matched)} ({100*h_fail/len(matched):.0f}%)")
         print(f"  Dimensao textual divergente:{dim_fail}/{len(matched)} ({100*dim_fail/len(matched):.0f}%)")
+        print(f"  Apoios inicial/final diverg.:{apoio_fail}/{len(matched)} ({100*apoio_fail/len(matched):.0f}%)")
+        swaps = [
+            r for r in matched
+            if r.get("best_alt_viga") and r.get("best_alt_score", 0) > r.get("score", 0)
+        ]
+        swaps = sorted(swaps, key=lambda r: r.get("best_alt_score", 0) - r.get("score", 0), reverse=True)[:8]
+        if swaps:
+            print("  Possiveis trocas de identidade:")
+            for r in swaps:
+                print(
+                    f"    {r['viga']}: exato={r['score']:.0f}% | "
+                    f"alt={r['best_alt_viga']} ({r['best_alt_score']:.0f}%)"
+                )
     print(f"{'='*70}\n")
 
 

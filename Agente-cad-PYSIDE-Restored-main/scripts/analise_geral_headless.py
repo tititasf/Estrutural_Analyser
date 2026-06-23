@@ -127,6 +127,32 @@ def _find_segment_dim(seg: dict, beam_pos: tuple, is_horizontal: bool, spatial_i
     return {"text": link.get("text", ""), "link": link, "width": pair[0], "height": pair[1], "score": score}
 
 
+def _choose_segment_dim(seg_dim: dict | None, dim_text: str | None, h_n1: float | None, seg_len: float | None) -> dict:
+    """Prefere a dimensao vinculada ao segmento e usa a global apenas como fallback."""
+    global_pair = _parse_dim_pair(dim_text)
+    if not seg_dim:
+        if not global_pair:
+            return {"text": dim_text or "", "width": h_n1 or 0, "height": 0, "link": None}
+        return {
+            "text": dim_text or "",
+            "width": global_pair[0],
+            "height": global_pair[1],
+            "link": None,
+        }
+
+    local_width = float(seg_dim.get("width") or 0)
+    local_score = float(seg_dim.get("score") or 9999)
+    global_width = float((global_pair or (h_n1 or 0, 0))[0] or 0)
+    return {
+        "text": seg_dim.get("text") or dim_text or "",
+        "width": local_width or global_width,
+        "height": float(seg_dim.get("height") or (global_pair[1] if global_pair else 0) or 0),
+        "link": seg_dim.get("link"),
+        "score": local_score,
+        "source": "segment",
+    }
+
+
 def _is_support_label(text: str, current_beam: str = "") -> bool:
     txt = str(text or "").strip().upper()
     if not txt or _parse_dim_pair(txt):
@@ -356,10 +382,10 @@ def process_beam_fv(b: dict, spatial_index=None, visual_obstacles=None) -> dict:
                 seg_len = 0.0
 
         seg_dim = _find_segment_dim(seg, beam_pos, is_horizontal, spatial_index) if beam_pos else None
-        seg_dim_text = (seg_dim or {}).get("text") or dim_text
-        seg_dim_pair = _parse_dim_pair(seg_dim_text)
-        seg_width = (seg_dim or {}).get("width") or (seg_dim_pair[0] if seg_dim_pair else h_n1) or 0
-        seg_height = (seg_dim or {}).get("height") or (seg_dim_pair[1] if seg_dim_pair else 0)
+        chosen_dim = _choose_segment_dim(seg_dim, dim_text, h_n1, seg_len)
+        seg_dim_text = chosen_dim.get("text") or ""
+        seg_width = chosen_dim.get("width") or 0
+        seg_height = chosen_dim.get("height") or 0
 
         start_link = end_link = None
         if seg.get("coord") and beam_pos:
@@ -369,10 +395,12 @@ def process_beam_fv(b: dict, spatial_index=None, visual_obstacles=None) -> dict:
             end_link = _find_support_text(end_pt, spatial_index, b.get("name", ""))
 
         seg["dim_text"] = seg_dim_text
-        if seg_dim:
-            seg["dim_link"] = seg_dim.get("link")
-            seg["dim_width"] = round(float(seg_width or 0), 1)
-            seg["dim_height"] = round(float(seg_height or 0), 1)
+        if chosen_dim.get("link"):
+            seg["dim_link"] = chosen_dim.get("link")
+        seg["dim_width"] = round(float(seg_width or 0), 1)
+        seg["dim_height"] = round(float(seg_height or 0), 1)
+        if chosen_dim.get("source"):
+            seg["dim_source"] = chosen_dim.get("source")
         seg["apoio_inicial"] = (start_link or {}).get("text") or apoio_inicial
         seg["apoio_final"] = (end_link or {}).get("text") or apoio_final
         if start_link:

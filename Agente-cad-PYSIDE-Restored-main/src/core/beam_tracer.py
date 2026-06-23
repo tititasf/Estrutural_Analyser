@@ -656,8 +656,8 @@ class BeamTracer:
                     p_max = max(p[1] for p in all_side_pts)
             else:
                 # Fallback extremo caso não tenha linhas laterais também
-                center = beam['pos'][0] if is_horizontal else beam['pos'][1]
-                p_min, p_max = center - 50, center + 50
+                axis_center = center[0] if is_horizontal else center[1]
+                p_min, p_max = axis_center - 50, axis_center + 50
             base_panel = [(p_min, p_max)]
             final_groups = _apply_obstacles_to_panels(base_panel, visual_obstacles)
             classified['merged_bottom_lengths'] = _widths_from_groups(final_groups)
