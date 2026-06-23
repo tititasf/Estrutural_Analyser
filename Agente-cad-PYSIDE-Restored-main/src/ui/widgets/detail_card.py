@@ -150,6 +150,7 @@ def _get_obf_str(key):
 
 import uuid
 import math
+import re
 from PySide6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel, 
                                 QTabWidget, QTableWidget, QTableWidgetItem, 
                                 QPushButton, QHeaderView, QFrame, QMessageBox,
@@ -1989,6 +1990,7 @@ class DetailCard(QWidget):
         
         # Dimensão (Movido dos Dados Gerais para cá)
         self._add_linked_row(form, "Dimensão:", "dim", "text")
+        form.addRow("", self._create_fundo_metric_tags(seg_uid))
 
         self._add_linked_row(form, "Apoio Inicial:", f'{seg_uid}_local_ini', "text", hide_input=True)
         self._add_linked_row(form, "Apoio Final:", f'{seg_uid}_local_fim', "text", hide_input=True)
@@ -2014,6 +2016,64 @@ class DetailCard(QWidget):
             
         layout.addWidget(pack)
 
+
+    def _create_fundo_metric_tags(self, seg_uid):
+        values = self._get_fundo_metric_values(seg_uid)
+        row = QWidget()
+        lay = QVBoxLayout(row)
+        lay.setContentsMargins(0, 0, 0, 0)
+        lay.setSpacing(2)
+
+        for label, value in [
+            ("Comp. total", values.get('comprimento_total_fundo') or "N/D"),
+            ("Altura total", values.get('altura_total') or "N/D"),
+            ("Largura total", values.get('largura_total_fundo') or "N/D"),
+        ]:
+            tag = QLabel(f"{label}: {value}")
+            tag.setStyleSheet(
+                f"font-size: 9px; color: {Colors.TEXT_PRIMARY};"
+                f" background: {Colors.BG_DEEP}; border: 1px solid {Colors.BORDER_INPUT};"
+                f" border-radius: 3px; padding: 2px 5px;"
+            )
+            tag.setToolTip("Informacional dinamico; valor derivado dos vinculos.")
+            lay.addWidget(tag)
+        return row
+
+    def _get_fundo_metric_values(self, seg_uid):
+        links = self.item_data.get('links', {}) if isinstance(self.item_data, dict) else {}
+        contour = links.get(f'{seg_uid}_area_segs', {}).get('contour', [])
+        ficha = {}
+        if isinstance(contour, list):
+            for link in contour:
+                if isinstance(link, dict) and isinstance(link.get('ficha'), dict):
+                    ficha = link.get('ficha') or {}
+                    break
+
+        def _fmt(value):
+            if value in (None, ''):
+                return ''
+            try:
+                n = float(str(value).replace(',', '.'))
+                return str(int(n)) if abs(n - int(n)) < 0.05 else f"{n:.1f}"
+            except Exception:
+                return str(value)
+
+        dim_text = (
+            self._get_initial_value('dim')
+            or self.item_data.get('dim')
+            or self.item_data.get('dimensao')
+            or self.item_data.get('fields', {}).get('dim')
+            or self.item_data.get('fields', {}).get('dimensao')
+            or ''
+        )
+        nums = [float(n.replace(',', '.')) for n in re.findall(r'\d+(?:[,.]\d+)?', str(dim_text))]
+        altura = max(nums) if nums else ''
+
+        return {
+            'comprimento_total_fundo': _fmt(ficha.get('comprimento_total_fundo')),
+            'largura_total_fundo': _fmt(ficha.get('largura_total_fundo')),
+            'altura_total': _fmt(altura),
+        }
 
     def _create_radio_group(self, title, options, key_prefix, has_grade_input=False):
         """Cria um grupo de opções exclusivas (Sarrafo/Garfo/Grade) - Super Compacto"""
