@@ -1973,20 +1973,38 @@ class CADCanvas(QGraphicsView):
 
     def _collect_fundo_polys(self, b_data: dict) -> list:
         """Retorna lista de dicts {'points': [...]} com geometria de fundo de uma viga.
-        Prioriza viga_segs['seg_bottom']; fallback: viga_fundo_seg_*_area_segs['contour']."""
+        Prioriza viga_fundo_seg_*_area_segs['contour'] (polígonos processados usados pelos
+        campos do card FV); fallback: viga_segs['seg_bottom'] (linhas brutas legadas).
+        Manter esta prioridade garante que draw_single_beam_fundo e on_focus_requested
+        mostrem a mesma geometria."""
         links = b_data.get('links', {})
-        seg_bottom_list = links.get('viga_segs', {}).get('seg_bottom', [])
-        if seg_bottom_list:
-            return seg_bottom_list
-        # Fallback: coletar contornos dos segmentos de fundo individualmente
+        import re as _re
+        # Prioridade: polígonos processados dos segmentos de fundo (mesma fonte dos campos do card)
         result = []
-        import re
-        for key, val in links.items():
-            if re.match(r'viga_fundo_seg_\d+_area_segs', key) and isinstance(val, dict):
-                for lk in val.get('contour', []):
+        for key in sorted(links.keys()):
+            if _re.match(r'viga_fundo_seg_\d+_area_segs', key) and isinstance(links[key], dict):
+                for lk in links[key].get('contour', []):
                     if isinstance(lk, dict) and lk.get('points'):
-                        result.append(lk)
-        return result
+                        result.append({
+                            **lk,
+                            '_field_id': lk.get('_field_id', key),
+                            '_slot_name': lk.get('_slot_name', 'contour'),
+                            'tag': lk.get('tag', 'fundo'),
+                        })
+        if result:
+            return result
+        # Fallback: linhas brutas do seg_bottom (vigas legadas sem area_segs processados)
+        seg_bottom_list = links.get('viga_segs', {}).get('seg_bottom', [])
+        return [
+            {
+                **lk,
+                '_field_id': lk.get('_field_id', 'viga_segs'),
+                '_slot_name': lk.get('_slot_name', 'seg_bottom'),
+                'tag': lk.get('tag', 'fundo'),
+            }
+            for lk in seg_bottom_list
+            if isinstance(lk, dict)
+        ]
 
     def _draw_fundo_polys(self, poly_list: list, pen, store_in_group: bool = True) -> list:
         """Desenha lista de polys na cena com o pen dado. Retorna QGraphicsItems criados."""
@@ -2021,18 +2039,25 @@ class CADCanvas(QGraphicsView):
     def draw_single_beam_fundo(self, beam_data: dict, apply_zoom: bool = True):
         """Destaca polígono de fundo de UMA viga em laranja e aplica zoom."""
         self.clear_beam_fundos()
-        orange_pen = QPen(QColor(255, 120, 0, 220), 3)
-        orange_pen.setCosmetic(True)
-        polys = self._collect_fundo_polys(beam_data)
-        items = self._draw_fundo_polys(polys, orange_pen, store_in_group=True)
-        self.scene.update()
-        if apply_zoom and items:
-            rect = items[0].sceneBoundingRect()
-            for it in items[1:]:
-                rect = rect.united(it.sceneBoundingRect())
-            margin = 500
-            self.fitInView(rect.adjusted(-margin, -margin, margin, margin), Qt.KeepAspectRatio)
-            self.centerOn(rect.center())
+        focus_links = list(self._collect_fundo_polys(beam_data))
+        links = beam_data.get('links', {})
+        for field_id in ('name', 'id_item'):
+            slots = links.get(field_id, {})
+            if isinstance(slots, dict):
+                slot_items = slots.items()
+            else:
+                slot_items = (('label', slots),)
+            for slot_name, slot_links in slot_items:
+                if not isinstance(slot_links, list):
+                    continue
+                for lk in slot_links:
+                    if isinstance(lk, dict) and (lk.get('pos') or lk.get('points')):
+                        focus_links.append({
+                            **lk,
+                            '_field_id': lk.get('_field_id', field_id),
+                            '_slot_name': lk.get('_slot_name', slot_name),
+                        })
+        return self.highlight_multiple_links(focus_links, apply_zoom=apply_zoom)
 
     def draw_focus_beams(self, beams_visual_data: list):
         """Desenha vigas APENAS para o foco atual (pilar selecionado)"""
@@ -2058,6 +2083,11 @@ class CADCanvas(QGraphicsView):
             return QColor(255, 255, 255)
         if 'visao_corte' in field or 'cut_view' in slot or 'cut_view' in role or 'visao' in slot:
             return QColor(255, 152, 0)
+        if 'fundo' in field or 'fundo' in slot or str(link.get('tag', '')).lower() == 'fundo':
+            return QColor(255, 120, 0)
+        if ('viga_a' in field or 'viga_b' in field or 'seg_side' in slot
+                or str(link.get('tag', '')).lower().startswith('lado')):
+            return QColor(255, 105, 180)
         if 'pilares_apoio' in field or 'pillar' in slot or 'pilar' in slot or 'pillar' in role or 'pilar' in target_type:
             return QColor(255, 213, 0)
         if 'laje' in field or 'laje' in target_type or target_name.startswith('l'):
@@ -2108,6 +2138,11 @@ class CADCanvas(QGraphicsView):
                     item.setZValue(100)
             elif l_type == 'circle' and 'pos' in link and 'radius' in link:
                 r = link['radius']
+                px, py = link['pos']
+                item = self.scene.addEllipse(px-r, py-r, r*2, r*2, pen)
+                item.setZValue(100)
+            elif l_type == 'point' and 'pos' in link:
+                r = 5.0
                 px, py = link['pos']
                 item = self.scene.addEllipse(px-r, py-r, r*2, r*2, pen)
                 item.setZValue(100)
@@ -2165,8 +2200,21 @@ class CADCanvas(QGraphicsView):
         pen = QPen(base_color, 2)
         pen.setCosmetic(True)
         
+        # Filtro por sub-tipo de viga (LV-A, LV-B, FV): mostrar apenas links do item selecionado
+        # Mapeamento exato evita falsos positivos por substring em nomes futuros
+        _LV_FV_PREFIX_MAP = {
+            'viga_lateral_a': 'viga_a_',
+            'viga_lateral_b': 'viga_b_',
+            'viga_fundo_c':   'viga_fundo_',
+        }
+        _item_type = target.get('type', '').lower()
+        _lv_fv_prefix = _LV_FV_PREFIX_MAP.get(_item_type)
+
         links = target.get('links', {})
         for field_id, slots in links.items():
+            # Filtrar por prefixo de sub-tipo de viga
+            if _lv_fv_prefix and not field_id.startswith(_lv_fv_prefix):
+                continue
             # FILTRO: Para visÃµes globais (slab/beam), focar apenas no contorno/geometria principal
             # Evita poluiÃ§Ã£o visual de textos de dimensÃ£o/nome em todos os itens
             if destination == 'slab':
@@ -2264,7 +2312,9 @@ class CADCanvas(QGraphicsView):
                                 for p in pts[1:]: path.lineTo(p[0], p[1])
                                 if is_closed: path.closeSubpath()
                                 item = self.scene.addPath(path, local_pen)
-                                item.setZValue(105) # Segmentos (na frente do fundo)
+                                # FV/LV sub-itens recebem zValue mais alto para aparecer sobre linhas DXF
+                                z_val = 200 if _lv_fv_prefix else 105
+                                item.setZValue(z_val)
                                 # print(f"[DEBUG CANVAS] Added Path for {target.get('name')} ({slot_name}) | Type: {l_type}")
 
                     # CÃ­rculos
@@ -2577,55 +2627,9 @@ class CADCanvas(QGraphicsView):
         else:
              self.focus_on_item(beam_data['id'], apply_zoom)
 
-    def highlight_link(self, link_data, color=None):
+    def highlight_link(self, link_data, color=None, apply_zoom=True):
+        return self.highlight_multiple_links([link_data], color=color, apply_zoom=apply_zoom)
         """Destaca geometria especÃ­fica vinculada a um evento de treino e foca nela."""
-        self.clear_beams() # Limpa limpezas anteriores
-        
-        items_to_focus = []
-        l_type = link_data.get('type')
-        
-        # Cor semantica do vinculo quando nenhuma cor explicita for fornecida.
-        target_color = color if color and isinstance(color, QColor) else self._semantic_highlight_color(link_data)
-        
-        pen = QPen(target_color, 2)
-        pen.setCosmetic(True)
-        
-        if l_type == 'text' and 'pos' in link_data:
-            item = self.scene.addSimpleText(link_data.get('text', '?'))
-            item.setPos(link_data['pos'][0], link_data['pos'][1])
-            self._style_highlight_text(item, QColor(255, 255, 255))
-            self.beam_visuals.append(item)
-            items_to_focus.append(item)
-            
-        elif l_type == 'point' and 'pos' in link_data:
-             r = 5.0
-             px, py = link_data['pos']
-             item = self.scene.addEllipse(px-r, py-r, r*2, r*2, pen)
-             item.setZValue(205)
-             self.beam_visuals.append(item)
-             items_to_focus.append(item)
-             
-        elif l_type in ('line', 'poly', 'geometry', 'polygon') and 'points' in link_data:
-             pts = link_data['points']
-             if len(pts) >= 2:
-                 path = QPainterPath()
-                 path.moveTo(pts[0][0], pts[0][1])
-                 for p in pts[1:]: path.lineTo(p[0], p[1])
-                 if l_type in ('poly', 'geometry', 'polygon'): path.closeSubpath()
-
-                 item = self.scene.addPath(path, pen)
-                 item.setZValue(205)
-                 self.beam_visuals.append(item)
-                 items_to_focus.append(item)
-        
-        if items_to_focus:
-            rect = items_to_focus[0].sceneBoundingRect()
-            for i in items_to_focus[1:]: rect = rect.united(i.sceneBoundingRect())
-            
-            # Zoom com margem de 300px
-            margin = 300
-            self.fitInView(rect.adjusted(-margin, -margin, margin, margin), Qt.KeepAspectRatio)
-            self.centerOn(rect.center())
             
     def on_pillar_clicked(self, p_id):
         # [MOD] Seleção Cumulativa para Pilares Interativos
