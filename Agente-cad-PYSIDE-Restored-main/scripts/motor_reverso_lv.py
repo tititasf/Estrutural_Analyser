@@ -34,7 +34,7 @@ _EPS_LINE    = 0.5    # tolerância horizontal/vertical (cm)
 _EPS_Y       = 1.0    # agrupar H-lines pelo mesmo y
 _MIN_FACE_W  = 80     # largura mínima de H-line para ser borda de face (não VC)
 _H_BODY_MIN  = 8      # h_body mínimo válido (cm)
-_H_BODY_MAX  = 130    # h_body máximo válido (cm)
+_H_BODY_MAX  = 200    # h_body máximo válido (cm) — beams can reach 130–200cm in practice
 _MIN_OVERLAP = 40     # sobreposição x mínima entre H-lines do mesmo par (cm)
 _LABEL_Y_GAP = 120    # máximo de distância y abaixo do label para encontrar face (cm)
 _LABEL_X_GAP = 80     # máximo de distância x entre label e face (cm)
@@ -1659,6 +1659,37 @@ def _extract_lv_geom_from_dxf(dxf_path: str, elem_id: str = '') -> dict:
             return units
 
         result['face_units'] = _build_face_units()
+
+        # Corrigir h_A/h_B quando a atribuição por posição (y_top) trocou as faces.
+        # Em DXFs STOG ambas as faces começam no mesmo y_top → assignment ambígua.
+        # Estratégia: usar mediana das face_units com label explícito. Aplicar apenas
+        # quando há evidência de troca consistente (labeled_A.h ≈ current_h_B E
+        # labeled_B.h ≈ current_h_A). Evita sobre-correção em casos onde h_A/h_B já
+        # estão corretos mas um face_unit espúrio tem h_body anômalo.
+        _fu_A_lbl = [u for u in result['face_units'] if u.get('side') == 'A' and u.get('label')]
+        _fu_B_lbl = [u for u in result['face_units'] if u.get('side') == 'B' and u.get('label')]
+        _fu_A_src = _fu_A_lbl or [u for u in result['face_units'] if u.get('side') == 'A']
+        _fu_B_src = _fu_B_lbl or [u for u in result['face_units'] if u.get('side') == 'B']
+        _fu_A_hs = sorted([float(u.get('h_body') or 0) for u in _fu_A_src if float(u.get('h_body') or 0) > 0])
+        _fu_B_hs = sorted([float(u.get('h_body') or 0) for u in _fu_B_src if float(u.get('h_body') or 0) > 0])
+        _h_a_now = result.get('h_A', 0)
+        _h_b_now = result.get('h_B', 0)
+        _h_a_lbl = _fu_A_hs[len(_fu_A_hs) // 2] if _fu_A_hs else 0
+        _h_b_lbl = _fu_B_hs[len(_fu_B_hs) // 2] if _fu_B_hs else 0
+        # Verificar se há troca: labeled_A ≈ h_B_now E labeled_B ≈ h_A_now
+        _swap_A = _h_a_lbl > 0 and _h_a_now > 0 and abs(_h_a_lbl - _h_a_now) > 1.0
+        _swap_B = _h_b_lbl > 0 and _h_b_now > 0 and abs(_h_b_lbl - _h_b_now) > 1.0
+        _consistent_swap = _swap_A and _swap_B and (
+            abs(_h_a_lbl - _h_b_now) <= max(5.0, 0.1 * _h_b_now) or
+            abs(_h_b_lbl - _h_a_now) <= max(5.0, 0.1 * _h_a_now)
+        )
+        _only_A_wrong = _swap_A and not _swap_B
+        if _consistent_swap or _only_A_wrong:
+            if _h_a_lbl > 0 and _swap_A:
+                result['h_A']          = _h_a_lbl
+                result['total_height'] = _h_a_lbl
+            if _h_b_lbl > 0 and _swap_B and _consistent_swap:
+                result['h_B'] = _h_b_lbl
 
         # ── 7b. section_views: múltiplas seções transversais ─────────────────
         # Estratégia A: labels CONT.* no DXF → cada grupo tem faces próprias com h distinto

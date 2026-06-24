@@ -152,9 +152,14 @@ def _enriquecer_lv_campos(campos: dict, elemento_id: str,
         if geom.get('h_A', 0) <= 0:
             return  # extração não produziu dados úteis
 
-        # Enriquecer campos com geometria extraída
-        campos['h_A']           = geom['h_A']
-        campos['h_B']           = geom.get('h_B', geom['h_A'])
+        # h_A/h_B: preservar valor N2 se já existir — o N2 tem a altura total correta
+        # (ex: 71cm). O geom extraído do recorte tem a altura do painel bruto (ex: 44cm).
+        # O patch de h_body nas face_units (em materializar_item) corrige o h_body para
+        # usar o valor N2. Nunca sobrescrever h_A/h_B que já vieram do DB.
+        if not campos.get('h_A'):
+            campos['h_A'] = geom['h_A']
+        if not campos.get('h_B'):
+            campos['h_B'] = geom.get('h_B', campos['h_A'])
         campos['b_geom']        = geom.get('b_geom', campos.get('total_width', 19.0))
         campos['h_section']     = geom.get('h_section', 55.0)
         campos['h_section_all'] = geom.get('h_section_all', [])
@@ -208,8 +213,8 @@ def _criar_fichas_lv_v2(obra_dir: Path, elemento_id: str, campos: dict) -> None:
         return {
             'largura_cm':      w,
             'panel_type':      p.get('panel_type', 'Sarrafeado'),
-            'height1':         float(p.get('height1', h_face) or h_face),
-            'height2':         float(p.get('height2', 0) or 0),
+            'height1':         h_face,
+            'height2':         h_face,
             'grade_h1':        float(p.get('grade_h1', 0) or 0),
             'grade_h2':        float(p.get('grade_h2', 0) or 0),
             'laje_sup_local':  float(p.get('slab_top', p.get('laje_sup_local', 0)) or 0),
@@ -329,6 +334,24 @@ def materializar_item(row: dict, tmp_base: Path | None = None) -> tuple[Path, Pa
     # qualquer JSON, para que _A.json e _B.json já tenham os dados completos.
     if classe == "LV" and (not campos.get("h_A") or not campos.get("face_units")):
         _enriquecer_lv_campos(campos, elemento_id, row=row)
+
+    # Patch h_body/h_total nas face_units com h_A/h_B do N2 (sempre, fora do enricher,
+    # para cobrir face_units que já vêm do DB com h_body do recorte — ex: V301 com 8 units
+    # a h_body=126 no DB mas h_A=132 no N2).
+    if classe == "LV" and campos.get("face_units"):
+        _h_a = float(campos.get("h_A", 0) or 0)
+        _h_b = float(campos.get("h_B", _h_a) or _h_a)
+        if _h_a > 0:
+            for _fu in campos["face_units"]:
+                if isinstance(_fu, dict):
+                    _side = str(_fu.get("side", "A")).upper()
+                    _h    = _h_b if _side == "B" else _h_a
+                    _fu["h_body"]  = _h
+                    _fu["h_total"] = _h
+                    for _fp in _fu.get("panels") or _fu.get("segments") or []:
+                        if isinstance(_fp, dict):
+                            _fp["height1"] = _h
+                            _fp["height2"] = _h
 
     # Arquivo JSON (_A.json para LV, único para PIL/FV/LAJ)
     sufixo   = FASE4_SUFIXO[classe]

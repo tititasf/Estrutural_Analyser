@@ -648,7 +648,7 @@ def _extract_laj_from_dxf(dxf_path: str) -> dict:
         if panel_linhas_v or panel_linhas_h:
             linhas_v = panel_linhas_v
             linhas_h = panel_linhas_h
-        elif cota_nums and comp and larg:
+        if not linhas_v and not linhas_h and cota_nums and comp and larg:
             # Classificacao por soma: valores que somam melhor o eixo X/Y.
             vals = sorted(cota_nums, reverse=True)
             x_vals = []
@@ -662,6 +662,35 @@ def _extract_laj_from_dxf(dxf_path: str) -> dict:
                     y_vals.append(v)
             linhas_v = _canonical_lines_from_lengths(list(reversed(x_vals)), comp)
             linhas_h = _canonical_lines_from_lengths(list(reversed(y_vals)), larg)
+
+        # Fallback final: se ainda sem split lines, procurar LINEs isoladas na layer
+        # Painéis que cruzam a laje (ex: L312 onde a classificação por cota_nums
+        # falha porque o valor da linha não soma ao comprimento corretamente).
+        if not linhas_v and not linhas_h and slab_box and comp and larg:
+            _x0, _y0 = slab_box[0], slab_box[1]
+            _edge_x = min(5.0, comp * 0.03)
+            _edge_y = min(5.0, larg * 0.03)
+            _raw_v: list[float] = []
+            _raw_h: list[float] = []
+            for _e in msp:
+                if _e.dxftype() != 'LINE' or not _is_paineis_layer(str(getattr(_e.dxf, 'layer', ''))):
+                    continue
+                _a = _e.dxf.start; _b = _e.dxf.end
+                _ddx = abs(_b.x - _a.x); _ddy = abs(_b.y - _a.y)
+                if _ddx < 1.0 and _ddy >= larg * 0.75:
+                    rel = round(min(_a.x, _b.x) - _x0, 1)
+                    if _edge_x < rel < comp - _edge_x:
+                        _raw_v.append(rel)
+                elif _ddy < 1.0 and _ddx >= comp * 0.75:
+                    rel = round(min(_a.y, _b.y) - _y0, 1)
+                    if _edge_y < rel < larg - _edge_y:
+                        _raw_h.append(rel)
+            if _raw_v:
+                for _v in _dedupe_positions(_raw_v):
+                    linhas_v.append({'value': _v, 'is_union': UNIAO_MIN <= _v <= UNIAO_MAX})
+            if _raw_h:
+                for _h in _dedupe_positions(_raw_h):
+                    linhas_h.append({'value': _h, 'is_union': UNIAO_MIN <= _h <= UNIAO_MAX})
 
         if hlaz_box and cota_nums and not panel_geom:
             hx0, hy0, hx1, hy1 = hlaz_box
