@@ -2044,7 +2044,8 @@ class CADCanvas(QGraphicsView):
     def draw_single_beam_fundo(self, beam_data: dict, apply_zoom: bool = True):
         """Destaca polígono de fundo de UMA viga em laranja e aplica zoom."""
         self.clear_beam_fundos()
-        focus_links = list(self._collect_fundo_polys(beam_data))
+        fundo_polys = self._collect_fundo_polys(beam_data)
+        focus_links = list(fundo_polys)
         links = beam_data.get('links', {})
         for field_id in ('name', 'id_item'):
             slots = links.get(field_id, {})
@@ -2062,7 +2063,30 @@ class CADCanvas(QGraphicsView):
                             '_field_id': lk.get('_field_id', field_id),
                             '_slot_name': lk.get('_slot_name', slot_name),
                         })
-        return self.highlight_multiple_links(focus_links, apply_zoom=apply_zoom)
+        result = self.highlight_multiple_links(focus_links, apply_zoom=apply_zoom)
+        # Adiciona rótulos de segmento (highlight_multiple_links não chama _draw_fundo_polys)
+        _orange_brush = QBrush(QColor(255, 120, 0))
+        _seg_font = QFont("Arial", 12)
+        _seg_font.setBold(True)
+        for lk in fundo_polys:
+            seg_num = lk.get('_seg_num')
+            if seg_num is None:
+                continue
+            pts = lk.get('points', [])
+            if not pts:
+                continue
+            _pts = [(p[0], p[1]) for p in pts] if len(pts[0]) > 2 else pts
+            xs = [p[0] for p in _pts]
+            ys = [p[1] for p in _pts]
+            x_center = (min(xs) + max(xs)) / 2.0
+            y_top = min(ys) - 30
+            t_item = self.scene.addSimpleText(f"Segmento-{seg_num:02d}", _seg_font)
+            t_item.setPos(x_center, y_top)
+            t_item.setBrush(_orange_brush)
+            t_item.setZValue(15)
+            t_item.setFlag(QGraphicsSimpleTextItem.ItemIgnoresTransformations)
+            self.beam_visuals.append(t_item)
+        return result
 
     def draw_focus_beams(self, beams_visual_data: list):
         """Desenha vigas APENAS para o foco atual (pilar selecionado)"""
