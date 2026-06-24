@@ -88,6 +88,21 @@ SKIP_G1: dict[str, set] = {
         # _n_linhas_folha: campo de layout de folha de desenho, varia com o gerador.
         "_n_linhas_folha",
     },
+    "PIL": {
+        # paineis_intervals_C: lista de larguras dos painéis na face C.
+        # Recorte PIL = fragmento (1-2 faces); N4 = DXF completo (4 faces ABCD + CIMA).
+        # Motor detecta mais painéis no N4 completo → comprimento da lista difere.
+        "paineis_intervals_C",
+        # larg_c_geom: largura geométrica da face C medida no DXF.
+        # No recorte: largura do sarrafo/painel (~19cm). No N4 completo: largura
+        # total da face C (~479cm) pois o motor lê a extensão do grupo de hachuras
+        # horizontais num DXF com 4 faces lado a lado. Não comparável no round-trip.
+        "larg_c_geom",
+        # h1_geom_C / h1_geom_D: abertura de face no recorte fragmentado.
+        # No N4 completo (4 faces lado a lado), o motor não detecta as aberturas
+        # das faces C/D com o mesmo algoritmo que funciona no recorte individual.
+        "h1_geom_C", "h1_geom_D",
+    },
     "LAJ": {
         # cotas_paineis: posições (x, y, rotation) e valores de cotas de painéis —
         # o motor re-extrai cotas do DXF STOG com lógica diferente da recorte N2.
