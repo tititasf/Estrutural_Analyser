@@ -9310,6 +9310,183 @@ class MainWindow(QMainWindow):
                 best = (dist, t)
         return best[1] if best else None
 
+    def _find_cut_view_cotas(self, pts: list, direction: str = '') -> dict:
+        """
+        Varre TODAS as cotas DXF (layer=2, h≈10, número isolado) próximas ao T e
+        classifica cada uma por orientação e papel semântico.
+
+        Classificação:
+        - Texto LATERAL ao T (x fora, y dentro): cota VERTICAL
+          → linhas horiz layer=9 dentro do y-range do T delimitam o span
+          → se span cobre ≥70% da altura do T → beam_height
+        - Texto ACIMA/ABAIXO do T: cota HORIZONTAL
+          → se span ≤ largura do T → bw (largura nervura)
+          → se span > largura do T → slab_extent (ignorar)
+        - Distante ou marginal → unknown
+
+        Retorna:
+          beam_height_cota  – valor anotado da altura real (ex: 120.0)
+          beam_height_span_dxf – span DXF correspondente (ex: 60.0)
+          scale_v           – cota/geo ratio (ex: 2.0)
+          bw_cota           – largura do web anotada (ex: 19.0)
+          all_cotas         – lista completa para debug
+        """
+        import re as _re
+        if not pts or not getattr(self, 'dxf_data', None):
+            return {}
+
+        all_texts = self.dxf_data.get('texts') or []
+        all_lines = self.dxf_data.get('lines') or []
+
+        xs = [float(p[0]) for p in pts]
+        ys = [float(p[1]) for p in pts]
+        tx0, ty0, tx1, ty1 = min(xs), min(ys), max(xs), max(ys)
+        cx, cy = (tx0 + tx1) / 2, (ty0 + ty1) / 2
+        tw, th = tx1 - tx0, ty1 - ty0
+
+        RX = max(tw * 3.0, 200.0)
+        RY = max(th * 3.0, 200.0)
+        _num_re = _re.compile(r'^\d+(?:[.,]\d+)?$')
+
+        cota_texts = []
+        for t in all_texts:
+            if str(t.get('layer', '')) not in ('2', 2):
+                continue
+            h = float(t.get('height') or 0)
+            if not (7.0 <= h <= 14.0):
+                continue
+            txt = str(t.get('text') or '').strip()
+            if not _num_re.match(txt):
+                continue
+            val = float(txt.replace(',', '.'))
+            pos = t.get('pos') or (0, 0)
+            px, py = float(pos[0]), float(pos[1])
+            if abs(px - cx) > RX or abs(py - cy) > RY:
+                continue
+            cota_texts.append({'val': val, 'x': px, 'y': py, 'raw': txt})
+
+        if not cota_texts:
+            return {}
+
+        search_r = max(th, tw, 130.0)
+
+        def _ext_lines(px, py):
+            horiz, vert = [], []
+            for l in all_lines:
+                if str(l.get('layer', '')) not in ('9', 9):
+                    continue
+                s = l.get('start') or (0, 0)
+                e = l.get('end') or (0, 0)
+                sx, sy = float(s[0]), float(s[1])
+                ex, ey = float(e[0]), float(e[1])
+                dx, dy = abs(ex - sx), abs(ey - sy)
+                mcx, mcy = (sx + ex) / 2, (sy + ey) / 2
+                if abs(mcx - px) > search_r or abs(mcy - py) > search_r:
+                    continue
+                if dy < 2.0 and dx > 2.0:
+                    horiz.append({'y': (sy + ey) / 2, 'x0': min(sx, ex), 'x1': max(sx, ex), 'len': dx})
+                elif dx < 2.0 and dy > 2.0:
+                    vert.append({'x': (sx + ex) / 2, 'y0': min(sy, ey), 'y1': max(sy, ey), 'len': dy})
+            return horiz, vert
+
+        classified = []
+        for ct in cota_texts:
+            px, py = ct['x'], ct['y']
+            val = ct['val']
+            horiz_lines, vert_lines = _ext_lines(px, py)
+
+            info = dict(ct)
+            info['n_horiz'] = len(horiz_lines)
+            info['n_vert'] = len(vert_lines)
+
+            left_of_T  = px < tx0 - 5
+            right_of_T = px > tx1 + 5
+            above_T    = py > ty1 + 5
+            below_T    = py < ty0 - 5
+            y_in_T     = ty0 - 12 <= py <= ty1 + 12
+            x_in_T     = tx0 - 12 <= px <= tx1 + 12
+
+            # ── COTA VERTICAL: texto lateral, y dentro do T ──────────────────
+            if (left_of_T or right_of_T) and y_in_T:
+                # Só inclui linhas horizontais que estejam dentro do y-range do T
+                # (± margem estreita). Linhas de cotas de abas acima do T são excluídas.
+                _y_margin = max(th * 0.25, 15.0)
+                ys_span = sorted({
+                    round(h_['y'], 2)
+                    for h_ in horiz_lines
+                    if ty0 - _y_margin <= h_['y'] <= ty1 + _y_margin
+                })
+                if len(ys_span) >= 2:
+                    span_y0, span_y1 = ys_span[0], ys_span[-1]
+                    span_dxf = span_y1 - span_y0
+                    info['orientation'] = 'vertical'
+                    info['span_y0'] = round(span_y0, 2)
+                    info['span_y1'] = round(span_y1, 2)
+                    info['span_dxf'] = round(span_dxf, 2)
+
+                    ov_y0 = max(span_y0, ty0)
+                    ov_y1 = min(span_y1, ty1)
+                    ov_frac = max(0.0, ov_y1 - ov_y0) / max(th, 1)
+
+                    if ov_frac >= 0.70 and 20 <= val <= 600 and span_dxf > 0:
+                        info['role'] = 'beam_height'
+                        info['scale_v'] = round(val / span_dxf, 4)
+                    else:
+                        info['role'] = 'vertical_other'
+                else:
+                    info['orientation'] = 'vertical_no_span'
+                    info['role'] = 'unknown'
+
+            # ── COTA HORIZONTAL: texto acima/abaixo do T ─────────────────────
+            elif above_T or below_T:
+                h_at_level = [h_ for h_ in horiz_lines if abs(h_['y'] - py) < max(th, 60.0)]
+                if h_at_level:
+                    best_h = min(h_at_level, key=lambda h_: abs(h_['len'] - val))
+                    span_dxf = best_h['len']
+                    info['orientation'] = 'horizontal'
+                    info['span_x0'] = round(best_h['x0'], 2)
+                    info['span_x1'] = round(best_h['x1'], 2)
+                    info['span_dxf'] = round(span_dxf, 2)
+
+                    within_T_x = (tx0 - 30 <= best_h['x0'] and best_h['x1'] <= tx1 + 30)
+                    if within_T_x and span_dxf <= tw + 5 and 5 <= val:
+                        info['role'] = 'bw'
+                    elif span_dxf > tw * 0.8:
+                        info['role'] = 'slab_extent'
+                    else:
+                        info['role'] = 'horizontal_other'
+                else:
+                    info['orientation'] = 'horizontal_no_span'
+                    info['role'] = 'unknown'
+
+            elif x_in_T and y_in_T:
+                info['orientation'] = 'internal'
+                info['role'] = 'internal'
+            else:
+                info['orientation'] = 'unknown'
+                info['role'] = 'unknown'
+
+            classified.append(info)
+
+        result = {'all_cotas': classified}
+
+        # Melhor beam_height: cota vertical com maior sobreposição com o T
+        bh_cotas = [c for c in classified if c.get('role') == 'beam_height']
+        if bh_cotas:
+            best_bh = max(bh_cotas, key=lambda c: (
+                max(0.0, min(c.get('span_y1', 0), ty1) - max(c.get('span_y0', 0), ty0)) / max(th, 1)
+            ))
+            result['beam_height_cota'] = best_bh['val']
+            result['beam_height_span_dxf'] = best_bh.get('span_dxf', 0)
+            result['scale_v'] = best_bh.get('scale_v', 1.0)
+
+        # Melhor bw: cota horizontal mais próxima ao topo do T (logo acima da nervura)
+        bw_cotas = [c for c in classified if c.get('role') == 'bw']
+        if bw_cotas:
+            result['bw_cota'] = min(bw_cotas, key=lambda c: abs(c['y'] - (ty1 + 30)))['val']
+
+        return result
+
     def _slab_dim_text(self, slab: Dict) -> str:
         fields = slab.get('fields', {}) if isinstance(slab.get('fields'), dict) else {}
         raw = fields.get('laje_dim') or slab.get('laje_dim')
@@ -9565,22 +9742,83 @@ class MainWindow(QMainWindow):
         ficha.setdefault('own_height', own_h_str)
         ficha.setdefault('neighbor_height', neigh_h_str or 'nulo')
 
-        # --- extrai dimensoes geometricas diretamente do poligono ---
+        # --- COTAS DXF: lê TODAS as cotas anotadas próximas ao T (PRIMÁRIO) --------
+        # Abordagem correta: medidas vêm das cotas anotadas, não da geometria bruta.
+        # Cruzamento: beam_height (cota) × slab_height (laje) → dist_bottom/top.
+        # Fallback: geometria × scale_v para casos sem cotas.
+        cotas = self._find_cut_view_cotas(pts, direction)
+        link['cotas_debug'] = {
+            'n_cotas': len(cotas.get('all_cotas') or []),
+            'beam_height_cota': cotas.get('beam_height_cota'),
+            'scale_v': cotas.get('scale_v', 1.0),
+            'bw_cota': cotas.get('bw_cota'),
+        }
+
+        # --- extrai dimensoes geometricas (FALLBACK / calibração) ----------------
         geo = self._parse_cut_poly_sections(pts, direction)
         if geo:
-            beam_h = geo.get('beam_height', 0.0)
-            bw     = geo.get('bw', 0.0)
-            own_slab_h   = geo.get('own_slab_h', 0.0)
-            neigh_slab_h = geo.get('neigh_slab_h', 0.0)
-            own_dt  = geo.get('own_dist_topo', 0.0)
-            own_df  = geo.get('own_dist_fundo', 0.0)
-            neigh_dt  = geo.get('neigh_dist_topo', 0.0)
-            neigh_df  = geo.get('neigh_dist_fundo', 0.0)
+            beam_h_geo   = geo.get('beam_height', 0.0)
+            bw           = geo.get('bw', 0.0)
+            own_slab_h_geo   = geo.get('own_slab_h', 0.0)
+            neigh_slab_h_geo = geo.get('neigh_slab_h', 0.0)
+            own_dt_geo   = geo.get('own_dist_topo', 0.0)
+            own_df_geo   = geo.get('own_dist_fundo', 0.0)
+            neigh_dt_geo = geo.get('neigh_dist_topo', 0.0)
+            neigh_df_geo = geo.get('neigh_dist_fundo', 0.0)
+
+            # scale_v confirmado: só aplica se razão é coerente (0.5–4×)
+            bh_cota = cotas.get('beam_height_cota')
+            scale_v = 1.0
+            if bh_cota and beam_h_geo > 0:
+                ratio = bh_cota / beam_h_geo
+                if 0.5 <= ratio <= 4.0:
+                    scale_v = ratio
+            link['cotas_debug']['scale_v_confirmed'] = round(scale_v, 4)
+
+            try:
+                own_h_val = float(own_h_str or 0)
+            except Exception:
+                own_h_val = 0.0
+            try:
+                neigh_h_val = float(neigh_h_str or 0)
+            except Exception:
+                neigh_h_val = 0.0
+
+            # ── CRUZAMENTO: usa laje_height + beam_height_cota (mais preciso) ──
+            # dist_top_geo é a posição relativa da laje no T (normalmente 0 para viga T).
+            # dist_bottom = beam_height - slab_height (resíduo abaixo da laje).
+            if bh_cota:
+                beam_h = bh_cota
+                if own_h_val > 0:
+                    own_slab_h = own_h_val
+                    own_dt = own_dt_geo          # posição relativa: 0 p/ T nivelado no topo
+                    own_df = round(bh_cota - own_slab_h - own_dt, 1)
+                else:
+                    own_slab_h = round(own_slab_h_geo * scale_v, 1)
+                    own_dt = round(own_dt_geo * scale_v, 1)
+                    own_df = round(own_df_geo * scale_v, 1)
+
+                if neigh_h_val > 0:
+                    neigh_slab_h = neigh_h_val
+                    neigh_dt = neigh_dt_geo
+                    neigh_df = round(bh_cota - neigh_slab_h - neigh_dt, 1)
+                else:
+                    neigh_slab_h = round(neigh_slab_h_geo * scale_v, 1)
+                    neigh_dt = round(neigh_dt_geo * scale_v, 1)
+                    neigh_df = round(neigh_df_geo * scale_v, 1)
+            else:
+                # sem cota: aplica scale_v a todos os campos verticais
+                beam_h = round(beam_h_geo * scale_v, 1)
+                own_slab_h   = round(own_slab_h_geo * scale_v, 1)
+                neigh_slab_h = round(neigh_slab_h_geo * scale_v, 1)
+                own_dt       = round(own_dt_geo * scale_v, 1)
+                own_df       = round(own_df_geo * scale_v, 1)
+                neigh_dt     = round(neigh_dt_geo * scale_v, 1)
+                neigh_df     = round(neigh_df_geo * scale_v, 1)
 
             ficha.setdefault('beam_height', str(beam_h))
             ficha.setdefault('beam_bottom_dim', str(bw))
-            # dist_top  = distancia laje_topo -> topo_viga (0 se nivelado no topo)
-            # dist_bottom = distancia fundo_viga -> fundo_laje
+            ficha.setdefault('scale_v', str(round(scale_v, 4)))
             ficha.setdefault('own_dist_top',       str(own_dt))
             ficha.setdefault('own_dist_bottom',    str(own_df))
             ficha.setdefault('neighbor_dist_top',  str(neigh_dt))
@@ -9588,18 +9826,9 @@ class MainWindow(QMainWindow):
             ficha.setdefault('own_slab_height',    str(own_slab_h))
             ficha.setdefault('neigh_slab_height',  str(neigh_slab_h) if neigh_slab_h else 'nulo')
 
-            try:
-                own_h_val = float(own_h_str or 0)
-            except Exception:
-                own_h_val = 0.0
-            pos = self._infer_slab_position(own_dt, own_h_val, beam_h)
+            pos = self._infer_slab_position(own_dt, own_h_val or own_slab_h, beam_h)
             ficha.setdefault('own_position', pos)
-            neigh_h_val = 0.0
-            try:
-                neigh_h_val = float(neigh_h_str or 0)
-            except Exception:
-                pass
-            n_pos = self._infer_slab_position(neigh_dt, neigh_h_val, beam_h) if neigh_h_val else 'nulo'
+            n_pos = self._infer_slab_position(neigh_dt, neigh_h_val or neigh_slab_h, beam_h) if (neigh_h_val or neigh_slab_h) else 'nulo'
             ficha.setdefault('neighbor_position', n_pos if neighbor else 'nulo')
         else:
             ficha.setdefault('own_position', 'centro')
