@@ -426,47 +426,107 @@ def comparar_metricas(m_ref: dict, m_n4: dict, skip_layers: set | None = None) -
 # 3. Render PNG side-by-side
 # ═════════════════════════════════════════════════════════════════════════════
 
-def _render_dxf_ax(ax, dxf_path: str | Path, title: str, color_map: dict | None = None):
-    """Renderiza entidades DXF num matplotlib Axes."""
+def _collect_dxf_segments(dxf_path: str | Path):
+    """
+    Coleta todos os segmentos (xs, ys) e textos do DXF.
+    Retorna (segments, texts, bbox) onde:
+      - segments: list of (xs, ys, layer)
+      - texts: list of (x, y, txt)
+      - bbox: (x_min, y_min, x_max, y_max) ou None
+    """
+    if not EZDXF_OK:
+        return [], [], None
+    try:
+        doc = ezdxf.readfile(str(dxf_path))
+        msp = doc.modelspace()
+    except Exception:
+        return [], [], None
+
+    segments = []
+    texts    = []
+    all_xs, all_ys = [], []
+
+    for e in msp:
+        layer = _safe_layer(e)
+        dt    = e.dxftype()
+        try:
+            if dt == "LINE":
+                s, en = e.dxf.start, e.dxf.end
+                xs, ys = [s.x, en.x], [s.y, en.y]
+                segments.append((xs, ys, layer))
+                all_xs.extend(xs); all_ys.extend(ys)
+            elif dt in ("LWPOLYLINE", "POLYLINE"):
+                pts = list(e.get_points())
+                xs  = [p[0] for p in pts]
+                ys  = [p[1] for p in pts]
+                if e.closed and pts:
+                    xs.append(xs[0]); ys.append(ys[0])
+                segments.append((xs, ys, layer))
+                all_xs.extend(xs); all_ys.extend(ys)
+            elif dt in ("TEXT", "MTEXT"):
+                ins = e.dxf.insert
+                txt = e.dxf.text if dt == "TEXT" else e.plain_mtext()
+                texts.append((ins.x, ins.y, txt[:20]))
+                all_xs.append(ins.x); all_ys.append(ins.y)
+        except Exception:
+            pass
+
+    if not all_xs:
+        return segments, texts, None
+    bbox = (min(all_xs), min(all_ys), max(all_xs), max(all_ys))
+    return segments, texts, bbox
+
+
+def _norm_coords(segments, texts, bbox):
+    """
+    Normaliza segmentos e textos para o espaço [0, W] × [0, H] onde
+    W = largura / max(largura, altura) e H = altura / max(largura, altura).
+    Retorna (segments_norm, texts_norm, w_norm, h_norm).
+    """
+    if not bbox:
+        return segments, texts, 1.0, 1.0
+    x0, y0, x1, y1 = bbox
+    w = max(x1 - x0, 1e-6)
+    h = max(y1 - y0, 1e-6)
+    scale = max(w, h)
+    segs_n = [([( x - x0) / scale for x in xs],
+                [(y - y0) / scale for y in ys], layer)
+              for xs, ys, layer in segments]
+    txts_n = [((x - x0) / scale, (y - y0) / scale, t) for x, y, t in texts]
+    return segs_n, txts_n, w / scale, h / scale
+
+
+def _render_dxf_ax(ax, dxf_path: str | Path, title: str, color_map: dict | None = None,
+                   segs_precomp=None, txts_precomp=None, bbox_precomp=None):
+    """
+    Renderiza DXF num Axes com coordenadas normalizadas ao bounding box próprio.
+    Aceita segmentos pré-computados (segs_precomp) para evitar re-leitura.
+    """
     if not EZDXF_OK or not MATPLOTLIB_OK:
         ax.text(0.5, 0.5, "ezdxf/matplotlib\nnão disponível",
                 ha="center", va="center", transform=ax.transAxes, color="red")
         return
 
-    try:
-        doc  = ezdxf.readfile(str(dxf_path))
-        msp  = doc.modelspace()
-    except Exception as exc:
-        ax.text(0.5, 0.5, f"Erro:\n{exc}", ha="center", va="center",
-                transform=ax.transAxes, color="red")
+    if segs_precomp is None:
+        segs_precomp, txts_precomp, bbox_precomp = _collect_dxf_segments(dxf_path)
+
+    if not segs_precomp and not txts_precomp:
+        ax.text(0.5, 0.5, "DXF vazio ou inválido",
+                ha="center", va="center", transform=ax.transAxes, color="red")
+        ax.set_title(title, color="#ccccff", fontsize=8)
         return
+
+    segs_n, txts_n, _, _ = _norm_coords(segs_precomp, txts_precomp, bbox_precomp)
 
     ax.set_facecolor("#0a0a14")
     ax.set_aspect("equal")
 
-    for e in msp:
-        layer = _safe_layer(e)
+    for xs, ys, layer in segs_n:
         color = (color_map or {}).get(layer, "#8888cc")
-        dt    = e.dxftype()
+        ax.plot(xs, ys, color=color, linewidth=0.5)
 
-        try:
-            if dt == "LINE":
-                s, en = e.dxf.start, e.dxf.end
-                ax.plot([s.x, en.x], [s.y, en.y], color=color, linewidth=0.5)
-            elif dt == "LWPOLYLINE":
-                pts = list(e.get_points())
-                xs  = [p[0] for p in pts]
-                ys  = [p[1] for p in pts]
-                if e.closed:
-                    xs.append(xs[0]); ys.append(ys[0])
-                ax.plot(xs, ys, color=color, linewidth=0.5)
-            elif dt in ("TEXT", "MTEXT"):
-                ins = e.dxf.insert
-                txt = e.dxf.text if dt == "TEXT" else e.plain_mtext()
-                ax.text(ins.x, ins.y, txt[:20], fontsize=3,
-                        color="#ffff88", alpha=0.8)
-        except Exception:
-            pass
+    for x, y, txt in txts_n:
+        ax.text(x, y, txt, fontsize=3, color="#ffff88", alpha=0.8)
 
     ax.set_title(title, color="#ccccff", fontsize=8)
     ax.tick_params(colors="#555577", labelsize=6)
@@ -477,6 +537,8 @@ def render_comparacao(recorte_path: str | Path, n4_path: str | Path,
                       diffs: dict | None = None) -> bool:
     """
     Gera PNG side-by-side: recorte | N4 | overlay diff.
+    Cada DXF é normalizado ao próprio bounding box (transladado para origem)
+    para que escala e posição absoluta não distorçam a comparação.
     Returns True se gerado com sucesso.
     """
     if not MATPLOTLIB_OK:
@@ -484,47 +546,39 @@ def render_comparacao(recorte_path: str | Path, n4_path: str | Path,
 
     fig, axes = plt.subplots(1, 3, figsize=(24, 8), facecolor="#0a0a14")
 
-    _render_dxf_ax(axes[0], recorte_path, "Recorte N2 (gabarito)")
-    _render_dxf_ax(axes[1], n4_path,      "N4 gerado")
+    # Coletar segmentos dos dois DXFs
+    segs_ref, txts_ref, bbox_ref = _collect_dxf_segments(recorte_path)
+    segs_n4,  txts_n4,  bbox_n4  = _collect_dxf_segments(n4_path)
 
-    # Painel 3: overlay diff (ambos em cores distintas)
+    # Painel 1: recorte N2 (normalizado ao próprio bbox)
+    _render_dxf_ax(axes[0], recorte_path, "Recorte N2 (gabarito)",
+                   segs_precomp=segs_ref, txts_precomp=txts_ref, bbox_precomp=bbox_ref)
+
+    # Painel 2: N4 gerado (normalizado ao próprio bbox)
+    _render_dxf_ax(axes[1], n4_path, "N4 gerado",
+                   segs_precomp=segs_n4, txts_precomp=txts_n4, bbox_precomp=bbox_n4)
+
+    # Painel 3: overlay — ambos normalizados individualmente para [0,1]×[0,1]
+    # Isso permite comparar forma/proporção independente de escala/posição absoluta.
     axes[2].set_facecolor("#0a0a14")
     axes[2].set_aspect("equal")
-    axes[2].set_title("Overlay (verde=ref, vermelho=N4)", color="#ccccff", fontsize=8)
+    axes[2].set_title("Overlay normalizado (verde=ref, vermelho=N4)", color="#ccccff", fontsize=8)
 
-    try:
-        for dxf_path, color, label in [
-            (recorte_path, "#44ff44", "Recorte"),
-            (n4_path,      "#ff4444", "N4"),
-        ]:
-            doc = ezdxf.readfile(str(dxf_path))
-            msp = doc.modelspace()
-            for e in msp:
-                try:
-                    dt = e.dxftype()
-                    if dt == "LINE":
-                        s, en = e.dxf.start, e.dxf.end
-                        axes[2].plot([s.x, en.x], [s.y, en.y],
-                                     color=color, linewidth=0.4, alpha=0.7)
-                    elif dt == "LWPOLYLINE":
-                        pts = list(e.get_points())
-                        xs  = [p[0] for p in pts]
-                        ys  = [p[1] for p in pts]
-                        if e.closed:
-                            xs.append(xs[0]); ys.append(ys[0])
-                        axes[2].plot(xs, ys, color=color, linewidth=0.4, alpha=0.7)
-                except Exception:
-                    pass
+    segs_ref_n, _, _, _ = _norm_coords(segs_ref, txts_ref, bbox_ref)
+    segs_n4_n,  _, _, _ = _norm_coords(segs_n4,  txts_n4,  bbox_n4)
 
-        legend = [
-            mpatches.Patch(color="#44ff44", label="Recorte N2"),
-            mpatches.Patch(color="#ff4444", label="N4 gerado"),
-        ]
-        axes[2].legend(handles=legend, loc="upper right",
-                       fontsize=6, facecolor="#1a1a2a", labelcolor="white")
-    except Exception as exc:
-        axes[2].text(0.5, 0.5, f"Overlay erro:\n{exc}",
-                     ha="center", va="center", transform=axes[2].transAxes, color="red")
+    for xs, ys, _ in segs_ref_n:
+        axes[2].plot(xs, ys, color="#44ff44", linewidth=0.4, alpha=0.7)
+    for xs, ys, _ in segs_n4_n:
+        axes[2].plot(xs, ys, color="#ff4444", linewidth=0.4, alpha=0.7)
+
+    legend = [
+        mpatches.Patch(color="#44ff44", label="Recorte N2"),
+        mpatches.Patch(color="#ff4444", label="N4 gerado"),
+    ]
+    axes[2].legend(handles=legend, loc="upper right",
+                   fontsize=6, facecolor="#1a1a2a", labelcolor="white")
+    axes[2].tick_params(colors="#555577", labelsize=6)
 
     # Anotação de resultado
     if diffs:
