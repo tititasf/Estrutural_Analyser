@@ -9638,6 +9638,38 @@ class MainWindow(QMainWindow):
                 lk['role'] = 'Ficha_beam_name'
                 fl['beam_name'] = [lk]
 
+        # --- altura da viga via label de cota standalone (ex: "120") ---
+        # Cortes de detalhe desenhados em escala 1:2 têm a altura real anotada
+        # como número isolado dentro ou muito próximo da bbox do T.
+        # Esse label (ex: "120") é a medida real da viga em cm — mais confiável
+        # que o valor geométrico bruto do DXF (que seria metade em escala 1:2).
+        if bb:
+            _tx0, _ty0, _tx1, _ty1 = bb
+            _t_h = _ty1 - _ty0
+            _label_txt = self._nearest_dxf_text(
+                center, r'^\d+(?:[.,]\d+)?$', max_dist=max(80.0, _t_h * 1.5))
+            if _label_txt:
+                _lv = _label_txt.get('text') or ''
+                try:
+                    _lv_f = float(_lv.replace(',', '.'))
+                    _lpos = _label_txt.get('pos') or center
+                    # Aceitar apenas se o label está dentro ou encostado na bbox do T
+                    # e o valor é compatível com altura de viga (20-600 cm)
+                    _in_box = (_tx0 - 80 <= float(_lpos[0]) <= _tx1 + 80 and
+                               _ty0 - 30 <= float(_lpos[1]) <= _ty1 + 30)
+                    if _in_box and 20.0 <= _lv_f <= 600.0:
+                        ficha['beam_height_label'] = str(_lv_f)
+                        # Override beam_height com o valor anotado (mais preciso)
+                        ficha['beam_height'] = str(_lv_f)
+                        fl2 = link.setdefault('ficha_links', {})
+                        fl2.setdefault('beam_height_label', [])
+                        if not fl2['beam_height_label']:
+                            lk2 = dict(_label_txt)
+                            lk2['role'] = 'Ficha_beam_height_label'
+                            fl2['beam_height_label'] = [lk2]
+                except (ValueError, TypeError):
+                    pass
+
     def _pillar_face_from_edge_overlap(self, pillar_pts: list, slab_pts: list, horizontal: bool):
         """
         Determina a face do pilar (A/B/C/D) que coincide com a aresta da laje,
@@ -11386,6 +11418,30 @@ class MainWindow(QMainWindow):
             return {}
         return {}
 
+    def _load_lj_n4_teacher_ficha(self, item_id: str) -> dict:
+        """Extrai ficha professora do DXF N4 quando não existe N2 salvo."""
+        try:
+            obra_nome = self.cmb_works.currentData() or self.cmb_works.currentText()
+        except Exception:
+            obra_nome = None
+        if not obra_nome or not item_id:
+            return {}
+        try:
+            from src.core.laj_n3_learning import extract_n4_dxf_ficha
+            from pathlib import Path as _Path
+            n4_path = (
+                _Path("D:/Agente-cad-PYSIDE/DADOS-OBRAS")
+                / str(obra_nome)
+                / "Fase-6_Execucao_CAD"
+                / "n4"
+                / f"LJ_preview_{item_id}.dxf"
+            )
+            if n4_path.exists():
+                return extract_n4_dxf_ficha(n4_path, item_id)
+        except Exception:
+            return {}
+        return {}
+
     @staticmethod
     def _merge_lj_n3_teacher(base_ficha: dict, teacher: dict) -> dict:
         """Aplica aprendizado N3/Robo treinado por N2/N4 sem alterar N1/slab_elements."""
@@ -11397,6 +11453,12 @@ class MainWindow(QMainWindow):
             out = apply_learning_to_ficha(out, teacher=teacher, record_teacher=bool(teacher))
         except Exception:
             pass
+        if teacher.get("_teacher_kind") == "N4_DXF":
+            for key in ("coordenadas", "comprimento", "largura", "area_cm2",
+                        "linhas_verticais", "linhas_horizontais"):
+                val = teacher.get(key)
+                if val not in (None, "", [], {}):
+                    out[key] = val
         # Campos auxiliares de renderização/aprendizado não pertencem ao N1; ficam só na ficha N3.
         for key in ("_hlaz", "_stog_pose", "unioes_nos_bordes"):
             val = teacher.get(key)
@@ -11405,7 +11467,7 @@ class MainWindow(QMainWindow):
         meta = dict(out.get("_sa_meta") or {})
         if teacher:
             meta.update({
-                "n3_teacher": "N2_N4_validated_training",
+                "n3_teacher": teacher.get("_teacher_kind") or "N2_N4_validated_training",
                 "n3_teacher_fields": [
                     k for k in (
                         "linhas_verticais", "linhas_horizontais", "_hlaz", "_stog_pose",
@@ -11451,7 +11513,8 @@ class MainWindow(QMainWindow):
                 }
                 n3_ficha = self._merge_lj_n3_teacher(
                     ficha,
-                    self._load_lj_n2_teacher_ficha(ficha["nome"]),
+                    self._load_lj_n2_teacher_ficha(ficha["nome"])
+                    or self._load_lj_n4_teacher_ficha(ficha["nome"]),
                 )
                 (json_dir / f"{ficha['nome']}.json").write_text(
                     _json.dumps(n3_ficha, indent=2, ensure_ascii=False),
