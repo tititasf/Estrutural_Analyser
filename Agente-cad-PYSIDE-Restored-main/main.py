@@ -9829,29 +9829,33 @@ class MainWindow(QMainWindow):
                     neigh_dt = 0.0
                     neigh_df = round(beam_h - neigh_slab_h, 1)
 
-            ficha['beam_height']             = str(beam_h)
+            # Regra de proteção: link validado humanamente → preserva com setdefault.
+            # Link não validado → sempre recomputa com atribuição direta.
+            _set = ficha.setdefault if link.get('validated') else ficha.__setitem__
+            _set('beam_height',          str(beam_h))
             ficha.setdefault('beam_bottom_dim', str(bw))
-            ficha['scale_v']                 = str(round(scale_v, 4))
-            ficha['own_dist_top']            = str(own_dt)
-            ficha['own_dist_bottom']         = str(own_df)
-            ficha['neighbor_dist_top']       = str(neigh_dt)
-            ficha['neighbor_dist_bottom']    = str(neigh_df)
-            ficha['own_slab_height']         = str(own_slab_h)
-            ficha['neigh_slab_height']       = str(neigh_slab_h) if neigh_slab_h else 'nulo'
+            _set('scale_v',              str(round(scale_v, 4)))
+            _set('own_dist_top',         str(own_dt))
+            _set('own_dist_bottom',      str(own_df))
+            _set('neighbor_dist_top',    str(neigh_dt))
+            _set('neighbor_dist_bottom', str(neigh_df))
+            _set('own_slab_height',      str(own_slab_h))
+            _set('neigh_slab_height',    str(neigh_slab_h) if neigh_slab_h else 'nulo')
 
             pos = self._infer_slab_position(own_dt, own_h_val or own_slab_h, beam_h)
-            ficha['own_position']      = pos
+            _set('own_position',      pos)
             n_pos = self._infer_slab_position(neigh_dt, neigh_h_val or neigh_slab_h, beam_h) if (neigh_h_val or neigh_slab_h) else 'nulo'
-            ficha['neighbor_position'] = n_pos if neighbor else 'nulo'
+            _set('neighbor_position', n_pos if neighbor else 'nulo')
         else:
-            ficha['own_position']         = 'centro'
-            ficha['neighbor_position']    = 'centro' if neighbor else 'nulo'
-            ficha['own_dist_top']         = ''
-            ficha['own_dist_bottom']      = ''
-            ficha['neighbor_dist_top']    = ''
-            ficha['neighbor_dist_bottom'] = ''
-            ficha['own_slab_height']      = ''
-            ficha['neigh_slab_height']    = 'nulo'
+            _set = ficha.setdefault if link.get('validated') else ficha.__setitem__
+            _set('own_position',         'centro')
+            _set('neighbor_position',    'centro' if neighbor else 'nulo')
+            _set('own_dist_top',         '')
+            _set('own_dist_bottom',      '')
+            _set('neighbor_dist_top',    '')
+            _set('neighbor_dist_bottom', '')
+            _set('own_slab_height',      '')
+            _set('neigh_slab_height',    'nulo')
 
         # --- nome e dimensoes da viga via textos DXF proximos ---
         beam_name = self._nearest_dxf_text(center, r'^(VF?\d+|V\d+)$', max_dist=1400.0)
@@ -9901,20 +9905,21 @@ class MainWindow(QMainWindow):
                                _ty0 - 30 <= float(_lpos[1]) <= _ty1 + 30)
                     if _in_box and 20.0 <= _lv_f <= 600.0:
                         ficha['beam_height_label'] = str(_lv_f)
-                        _old_bh_str = ficha.get('beam_height')
-                        # Override beam_height com o valor anotado (mais preciso).
-                        ficha['beam_height'] = str(_lv_f)
-                        # Se o label mudou o beam_height, recomputa dist_bottom
-                        # pelo cruzamento: dist_bottom = label - own_slab_h - own_dist_top.
-                        try:
-                            _old_bh_f = float(_old_bh_str) if _old_bh_str else None
-                            if _old_bh_f is None or abs(_lv_f - _old_bh_f) > 0.5:
-                                _oh = float(ficha.get('own_slab_height') or 0)
-                                _dt = float(ficha.get('own_dist_top') or 0)
-                                if _oh > 0:
-                                    ficha['own_dist_bottom'] = str(round(_lv_f - _oh - _dt, 1))
-                        except (ValueError, TypeError):
-                            pass
+                        if not link.get('validated'):
+                            _old_bh_str = ficha.get('beam_height')
+                            # Override beam_height com o valor anotado (mais preciso).
+                            ficha['beam_height'] = str(_lv_f)
+                            # Se o label mudou o beam_height, recomputa dist_bottom
+                            # pelo cruzamento: dist_bottom = label - own_slab_h - own_dist_top.
+                            try:
+                                _old_bh_f = float(_old_bh_str) if _old_bh_str else None
+                                if _old_bh_f is None or abs(_lv_f - _old_bh_f) > 0.5:
+                                    _oh = float(ficha.get('own_slab_height') or 0)
+                                    _dt = float(ficha.get('own_dist_top') or 0)
+                                    if _oh > 0:
+                                        ficha['own_dist_bottom'] = str(round(_lv_f - _oh - _dt, 1))
+                            except (ValueError, TypeError):
+                                pass
                         fl2 = link.setdefault('ficha_links', {})
                         fl2.setdefault('beam_height_label', [])
                         if not fl2['beam_height_label']:
