@@ -9894,6 +9894,77 @@ class MainWindow(QMainWindow):
         except (ValueError, TypeError):
             pass
 
+        # --- Campos com painel (2 cm) e fórmulas explicativas ---
+        # A distância TOPO e FUNDO têm como referência a ALTURA DA LAJE (H_laje),
+        # não a espessura bruta do corte.
+        # Fórmula: dist_fundo = beam_height − H_laje − dist_topo
+        # Com painel (2 cm abaixo da laje, dentro da forma): dist_fundo_c_painel = dist_fundo − 2
+        _PAINEL = 2.0
+        ficha['painel_espessura'] = str(_PAINEL)
+        try:
+            _bh_p = float(ficha.get('beam_height') or 0)
+            if _bh_p > 0:
+                # ── Lado próprio ──
+                _oh = 0.0
+                _oh_str = ficha.get('own_slab_height') or ''
+                if _oh_str and _oh_str not in ('nulo', '', 'None'):
+                    try:
+                        _oh = float(_oh_str)
+                    except (ValueError, TypeError):
+                        pass
+                _odt_str = ficha.get('own_dist_top') or '0'
+                _odf_str = ficha.get('own_dist_bottom') or '0'
+                try:
+                    _odt = float(_odt_str)
+                except (ValueError, TypeError):
+                    _odt = 0.0
+                try:
+                    _odf = float(_odf_str)
+                except (ValueError, TypeError):
+                    _odf = 0.0
+                if _oh > 0:
+                    ficha['own_slab_ref_c_painel'] = str(round(_oh + _PAINEL, 1))
+                    ficha['own_dist_top_c_painel'] = _odt_str  # painel é abaixo → topo inalterado
+                    ficha['own_dist_bottom_s_painel'] = _odf_str
+                    ficha['own_dist_bottom_c_painel'] = str(round(_odf - _PAINEL, 1))
+                    ficha['own_dist_topo_formula'] = (
+                        f"bh({_bh_p:.0f}) − H_laje({_oh:.0f}) − d_fundo({_odf:.0f})"
+                        f" = {_odt:.0f} cm"
+                    )
+                    ficha['own_dist_fundo_formula'] = (
+                        f"bh({_bh_p:.0f}) − H_laje({_oh:.0f}) − d_topo({_odt:.0f})"
+                        f" = {_odf:.0f} cm (sem painel)"
+                        f" / {(_odf - _PAINEL):.0f} cm (−{_PAINEL:.0f}cm painel)"
+                    )
+
+                # ── Lado vizinho ──
+                _nh_str = ficha.get('neigh_slab_height') or 'nulo'
+                _ndt_str = ficha.get('neighbor_dist_top') or '0'
+                _ndf_str = ficha.get('neighbor_dist_bottom') or '0'
+                if _nh_str not in ('nulo', '', 'None'):
+                    try:
+                        _nh = float(_nh_str)
+                        _ndt = float(_ndt_str)
+                        _ndf = float(_ndf_str)
+                        if _nh > 0:
+                            ficha['neigh_slab_ref_c_painel'] = str(round(_nh + _PAINEL, 1))
+                            ficha['neighbor_dist_top_c_painel'] = _ndt_str  # topo inalterado
+                            ficha['neighbor_dist_bottom_s_painel'] = _ndf_str
+                            ficha['neighbor_dist_bottom_c_painel'] = str(round(_ndf - _PAINEL, 1))
+                            ficha['neigh_dist_topo_formula'] = (
+                                f"bh({_bh_p:.0f}) − H_laje_viz({_nh:.0f}) − d_fundo({_ndf:.0f})"
+                                f" = {_ndt:.0f} cm"
+                            )
+                            ficha['neigh_dist_fundo_formula'] = (
+                                f"bh({_bh_p:.0f}) − H_laje_viz({_nh:.0f}) − d_topo({_ndt:.0f})"
+                                f" = {_ndf:.0f} cm (sem painel)"
+                                f" / {(_ndf - _PAINEL):.0f} cm (−{_PAINEL:.0f}cm painel)"
+                            )
+                    except (ValueError, TypeError):
+                        pass
+        except (ValueError, TypeError):
+            pass
+
     def _pillar_face_from_edge_overlap(self, pillar_pts: list, slab_pts: list, horizontal: bool):
         """
         Determina a face do pilar (A/B/C/D) que coincide com a aresta da laje,
