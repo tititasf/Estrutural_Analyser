@@ -1051,6 +1051,155 @@ class PreValidationDialog(QDialog):
         d = str(direction or '').upper()
         return 'H' if d in ('NORTE', 'SUL', 'N', 'S') else 'V'
 
+    def _compute_nivel_viga(self, cut: dict) -> str:
+        """
+        Nível da viga = max(nivel_laje + dist_topo) considerando Lado A e Lado B.
+        A laje que atingir o maior nível define o nível da viga.
+        """
+        best: float | None = None
+        for laje_name, dist_top_str in (
+            (cut.get('own_laje', ''), cut.get('own_dist_top', '—')),
+            (cut.get('neigh_laje', ''), cut.get('neigh_dist_top', '—')),
+        ):
+            if not laje_name or laje_name in ('—', 'nulo', 'NULO', ''):
+                continue
+            nivel_str = self._slab_nivel_map.get(laje_name, '')
+            if not nivel_str:
+                continue
+            try:
+                nivel = float(nivel_str)
+                dt = float(dist_top_str) if dist_top_str not in ('—', None, '') else 0.0
+                val = nivel + dt
+                if best is None or val > best:
+                    best = val
+            except (ValueError, TypeError):
+                pass
+        return f"{best:.2f}" if best is not None else '—'
+
+    def _build_segmento_viga_widget(self, cut: dict) -> QLabel:
+        """
+        Fichinha 'Detalhes sobre o Segmento de Viga' exibida na col DIM da tabela.
+        Inclui: nome, segmento (placeholder), largura, altura, nível, e blocos Lado A/B
+        com painéis (H1 = dist_fundo−2, H2 = dist_topo) e posição da laje.
+        """
+        ficha = cut.get('ficha') or {}
+        direction = cut.get('direction') or '—'
+
+        # Resolve Lado A / Lado B
+        own_lado = cut.get('own_lado', 'A')
+        if own_lado != 'B':
+            laje_a  = cut.get('own_laje', '—')
+            laje_b  = cut.get('neigh_laje', '—')
+            sh_a    = cut.get('own_slab_h', '—')
+            dt_a    = cut.get('own_dist_top', '—')
+            df_a    = cut.get('own_dist_bot', '—')
+            df_cp_a = ficha.get('own_dist_bottom_c_painel', '—')
+            scp_a   = ficha.get('own_slab_ref_c_painel', '—')
+            sh_b    = cut.get('neigh_slab_h', '—')
+            dt_b    = cut.get('neigh_dist_top', '—')
+            df_b    = cut.get('neigh_dist_bot', '—')
+            df_cp_b = ficha.get('neighbor_dist_bottom_c_painel', '—')
+            scp_b   = ficha.get('neigh_slab_ref_c_painel', '—')
+        else:
+            laje_a  = cut.get('neigh_laje', '—')
+            laje_b  = cut.get('own_laje', '—')
+            sh_a    = cut.get('neigh_slab_h', '—')
+            dt_a    = cut.get('neigh_dist_top', '—')
+            df_a    = cut.get('neigh_dist_bot', '—')
+            df_cp_a = ficha.get('neighbor_dist_bottom_c_painel', '—')
+            scp_a   = ficha.get('neigh_slab_ref_c_painel', '—')
+            sh_b    = cut.get('own_slab_h', '—')
+            dt_b    = cut.get('own_dist_top', '—')
+            df_b    = cut.get('own_dist_bot', '—')
+            df_cp_b = ficha.get('own_dist_bottom_c_painel', '—')
+            scp_b   = ficha.get('own_slab_ref_c_painel', '—')
+
+        bh = cut.get('beam_h', '—')
+        bw = cut.get('beam_w', '—')
+        tipo = 'Horiz.' if self._dir_beam_type(direction) == 'H' else 'Vert.'
+        beam_name_f = ficha.get('beam_name') or cut.get('beam_name') or '—'
+        nivel_viga  = self._compute_nivel_viga(cut)
+
+        CL = '#90a4ae'   # muted
+        CV = '#e0e0e0'   # valor padrão
+        CM = '#00bcd4'   # mint — Lado A
+        CB = '#90caf9'   # azul — Lado B
+        CG = '#ffc107'   # dourado — nome da viga
+
+        def _kv(k: str, v: str, vc: str = CV, bold: bool = False) -> str:
+            b, eb = ('<b>', '</b>') if bold else ('', '')
+            return (f"<span style='color:{CL}'>{k}</span>"
+                    f"&nbsp;<span style='color:{vc}'>{b}{v}{eb}</span>")
+
+        def _pos_lbl(dt_s, df_s) -> str:
+            try:
+                dt = float(dt_s) if dt_s not in ('—', None, '') else None
+                df = float(df_s) if df_s not in ('—', None, '') else None
+            except (ValueError, TypeError):
+                return '—'
+            if dt is None or df is None:
+                return '—'
+            if abs(dt) < 0.5:
+                return 'Topo'
+            if abs(df) < 0.5:
+                return 'Fundo'
+            return 'Central'
+
+        def _laje_dim(pos: str, sh_s: str, scp_s: str) -> tuple[str, str]:
+            """Retorna (valor, sufixo) para a dimensão da laje."""
+            try:
+                h = float(sh_s) if sh_s not in ('—', '', None, 'nulo') else None
+            except (ValueError, TypeError):
+                h = None
+            if h is None:
+                return '—', ''
+            if pos == 'Fundo':
+                return f"{h:.0f}", 'cm'
+            val = scp_s if scp_s not in ('—', '', None) else f"{h + 2.0:.0f}"
+            return val, 'cm (+2 painel)'
+
+        def _side_html(lado: str, laje: str, sh: str, dt: str, df: str,
+                       df_cp: str, scp: str, color: str) -> str:
+            wall = not laje or laje in ('—', 'nulo', 'NULO', '')
+            title = (f"<b style='color:{color}'>── LADO {lado}</b>"
+                     f"&nbsp;<span style='color:{color}'>{laje if not wall else '(parede)'}</span>")
+            if wall:
+                return title
+            pos = _pos_lbl(dt, df)
+            lv, lsfx = _laje_dim(pos, sh, scp)
+            h1 = df_cp if df_cp not in ('—', '', None) else '—'
+            h2 = dt if dt not in ('—', '', None) else '—'
+            return '<br>'.join([
+                title,
+                f"&nbsp;&nbsp;<b style='color:{color}'>Painéis</b>",
+                f"&nbsp;&nbsp;&nbsp;{_kv('H1 (fundo−2):', str(h1))} cm",
+                f"&nbsp;&nbsp;&nbsp;{_kv('H2 (topo):', str(h2))} cm",
+                f"&nbsp;&nbsp;<b style='color:{color}'>Laje&nbsp;—&nbsp;{pos}</b>",
+                f"&nbsp;&nbsp;&nbsp;{_kv(pos + ':', lv)} {lsfx}",
+            ])
+
+        sep = "<hr style='border:none; border-top:1px solid #2a3050; margin:2px 0;'>"
+        html = (
+            "<div style='font-size:9px; line-height:1.45; padding:3px;'>"
+            f"{_kv('Nome:', beam_name_f, CG, bold=True)}<br>"
+            f"{_kv('Segmento:', '—', CL)}<br>"
+            f"{_kv('Largura:', str(bw))} cm"
+            f"&nbsp;&nbsp;<span style='color:{CL}'>{tipo}</span><br>"
+            f"{_kv('Altura:', str(bh))} cm<br>"
+            f"{_kv('Nível viga:', nivel_viga, CM)}"
+            f"{sep}"
+            f"{_side_html('A', laje_a, sh_a, dt_a, df_a, df_cp_a, scp_a, CM)}"
+            f"{sep}"
+            f"{_side_html('B', laje_b, sh_b, dt_b, df_b, df_cp_b, scp_b, CB)}"
+            "</div>"
+        )
+        lbl = QLabel(html)
+        lbl.setWordWrap(True)
+        lbl.setAlignment(Qt.AlignLeft | Qt.AlignTop)
+        lbl.setStyleSheet('background:transparent;')
+        lbl.setTextFormat(Qt.RichText)
+        return lbl
+
     def _find_neighbor_laje(self, cx: float, cy: float,
                              own_laje: str, direction: str,
                              probe_dist: float = 150.0) -> str:
@@ -1186,6 +1335,7 @@ class PreValidationDialog(QDialog):
                 own_dist_bot   = ficha.get('own_dist_bottom') or '—'
                 neigh_dist_bot = ficha.get('neighbor_dist_bottom') or '—'
 
+                own_lado = self._DIR_TO_LADO.get(direction.upper(), ('A', 'B'))[0]
                 beam_name, conf_pct, candidates = self._associate_beam_name(cx, cy, ficha)
                 cuts.append({
                     '_pos_key':      pos_key,   # chave interna de dedup geométrico
@@ -1198,6 +1348,7 @@ class PreValidationDialog(QDialog):
                     'conf_pct':      conf_pct,
                     'candidates':    candidates,
                     'direction':     direction,
+                    'own_lado':      own_lado,
                     'beam_h':        beam_h_raw,
                     'beam_w':        ficha.get('beam_bottom_dim') or '—',
                     'scale_v':       ficha.get('scale_v') or '1.0',
@@ -1938,13 +2089,17 @@ class PreValidationDialog(QDialog):
         return '\n'.join(lines)
 
     def _build_cut_view_table(self) -> QTableWidget:
-        cols = ["Viga Assoc.", "Conf %", "H × W", "Lajes LADO A", "Lajes LADO B", "Status", "Foto"]
+        cols = ["Viga Assoc.", "Conf %",
+                "Detalhes sobre o Segmento de Viga",
+                "Lajes LADO A", "Lajes LADO B", "Status", "Foto"]
         tbl = QTableWidget(0, len(cols))
         tbl.setHorizontalHeaderLabels(cols)
         hdr = tbl.horizontalHeader()
         hdr.setSectionResizeMode(QHeaderView.ResizeToContents)
         hdr.setSectionResizeMode(self._CUT_COL_VIGA, QHeaderView.Interactive)
         tbl.setColumnWidth(self._CUT_COL_VIGA, 210)
+        hdr.setSectionResizeMode(self._CUT_COL_DIM, QHeaderView.Interactive)
+        tbl.setColumnWidth(self._CUT_COL_DIM, 230)
         for col in (self._CUT_COL_LAJE1, self._CUT_COL_LAJE2):
             hdr.setSectionResizeMode(col, QHeaderView.Interactive)
             tbl.setColumnWidth(col, self._CUT_LAJE_COL_W)
@@ -1977,13 +2132,12 @@ class PreValidationDialog(QDialog):
         tbl = self._cut_table
         bg_hex = self._CUT_ROW_BG.get((status, is_hist), '#0a1a2e')
         bg = QColor(bg_hex)
-        # Células item (Conf, Dim)
-        for col in (self._CUT_COL_CONF, self._CUT_COL_DIM):
-            it = tbl.item(row, col)
-            if it:
-                it.setBackground(QBrush(bg))
-        # Labels de laje (cols Laje A/B)
-        for col in (self._CUT_COL_LAJE1, self._CUT_COL_LAJE2):
+        # Célula item (Conf %)
+        it = tbl.item(row, self._CUT_COL_CONF)
+        if it:
+            it.setBackground(QBrush(bg))
+        # Widgets com fundo dinâmico (Laje A/B e Segmento de Viga)
+        for col in (self._CUT_COL_LAJE1, self._CUT_COL_LAJE2, self._CUT_COL_DIM):
             w = tbl.cellWidget(row, col)
             if isinstance(w, QLabel):
                 ss = re.sub(r'background:[^;]+;', '', w.styleSheet())
@@ -2065,17 +2219,9 @@ class PreValidationDialog(QDialog):
                         _make_item(f"{conf_pct}%", Qt.AlignCenter,
                                    color=_confidence_color(conf_pct)))
 
-            # ── H × W  +  tipo de viga  +  scale_v ─────────────────────────
-            bh = cut['beam_h']; bw = cut['beam_w']
-            laje1_dir = cut['direction']
-            viga_tipo = self._dir_beam_type(laje1_dir)    # 'H' ou 'V'
-            tipo_label = 'Horiz.' if viga_tipo == 'H' else 'Vert.'
-            sv = cut.get('scale_v', '1.0')
-            sv_str = f"  Esc:{sv}" if sv not in ('1.0', '1', '', None) else ''
-            dim_str = (f"{bh} × {bw}  [{tipo_label}]{sv_str}"
-                       if bh not in ('—', '') else '—')
-            tbl.setItem(row, self._CUT_COL_DIM,
-                        _make_item(dim_str, Qt.AlignCenter))
+            # ── Detalhes sobre o Segmento de Viga ───────────────────────────
+            seg_widget = self._build_segmento_viga_widget(cut)
+            tbl.setCellWidget(row, self._CUT_COL_DIM, seg_widget)
 
             # ── Lados A/B da viga para cada laje ────────────────────────────
             own_lado, neigh_lado = self._DIR_TO_LADO.get(
