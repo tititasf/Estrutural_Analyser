@@ -1259,9 +1259,8 @@ class PreValidationDialog(QDialog):
         # Header
         root.addWidget(self._build_header())
 
-        # Tabs
+        # Tabs  (Convenção de Pilares foi movida para ANTES da análise)
         tabs = QTabWidget()
-        tabs.addTab(self._build_convention_tab(), "  Convenção de Pilares  ")
         tabs.addTab(self._build_pillars_tab(), "  Pilares  ")
         tabs.addTab(self._build_cut_views_tab(), "  Visão de Cortes  ")
         root.addWidget(tabs, 1)
@@ -2331,8 +2330,9 @@ class PreValidationDialog(QDialog):
         Quality gate: callers devem excluir invalid_pillar_keys e invalid_cut_uids
         ao propagar vínculos de volta às lajes.
         """
-        # Termo → tipo físico
-        term_map: dict[str, str] = {}
+        # Termo → tipo físico: base = mapa inicializado (inclui defaults + arquivo salvo)
+        # Se combos existem (aba Convenção visível), eles sobrescrevem.
+        term_map: dict[str, str] = dict(self._term_type_map)
         for term, combo in self._term_combos.items():
             phys = PHYSICAL_TYPES[combo.currentIndex()][0]
             term_map[term] = phys
@@ -2396,3 +2396,116 @@ class PreValidationDialog(QDialog):
             'invalid_pillar_keys':  invalid_pillar_keys,
             'invalid_cut_uids':     invalid_cut_uids,
         }
+
+
+# ── Diálogo standalone de Convenção de Pilares (exibido ANTES da análise) ─────
+
+class ConvencaoPilaresDialog(PreValidationDialog):
+    """
+    Diálogo de Convenção de Pilares exibido ANTES da análise geral.
+    Mostra o viewer de referência (recorte PIL do Motor Reverso) e o painel de
+    mapeamento termo → tipo físico.  Não precisa de pillar_report nem slabs.
+    """
+
+    def __init__(
+        self,
+        obra: str,
+        pavimento: str,
+        convention: dict,
+        convention_file: str | None = None,
+        db_path: str | None = None,
+        parent=None,
+    ):
+        super().__init__(
+            pillar_report={},
+            nivel_report={},
+            slabs=[],
+            convention=convention,
+            obra=obra,
+            pavimento=pavimento,
+            beam_texts=[],
+            canvas=None,
+            convention_file=convention_file,
+            db_path=db_path,
+            parent=parent,
+        )
+        self.setWindowTitle(f"Convenção de Pilares — {obra} / {pavimento}")
+        self.setMinimumSize(900, 600)
+        self.showMaximized()
+
+    # ── UI ──────────────────────────────────────────────────────────────────────
+
+    def _build_ui(self):
+        """Mostra apenas o viewer de referência + painel de mapeamento de termos."""
+        root = QVBoxLayout(self)
+        root.setContentsMargins(10, 10, 10, 10)
+        root.setSpacing(8)
+
+        # Cabeçalho
+        hdr = QFrame()
+        hdr.setStyleSheet(
+            f"QFrame {{ background:{Colors.BG_SECONDARY}; border-radius:4px; padding:4px; }}"
+        )
+        hdr_lay = QHBoxLayout(hdr)
+        hdr_lay.setContentsMargins(8, 4, 8, 4)
+        lbl = QLabel(
+            f"<b>Convenção de Pilares</b>  —  {self._obra} / {self._pavimento}"
+            f"  <span style='color:#90a4ae; font-size:9px;'>"
+            f"Defina os tipos antes de iniciar a análise</span>"
+        )
+        lbl.setStyleSheet(f"color:{Colors.TEXT_PRIMARY}; font-size:11px;")
+        hdr_lay.addWidget(lbl)
+        root.addWidget(hdr)
+
+        # Conteúdo com scroll: viewer + painel
+        scroll = QScrollArea()
+        scroll.setWidgetResizable(True)
+        scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAsNeeded)
+        scroll.setStyleSheet("QScrollArea { border: none; }")
+        inner = QWidget()
+        lay = QVBoxLayout(inner)
+        lay.setContentsMargins(6, 6, 6, 6)
+        lay.setSpacing(8)
+
+        gabarito = self._build_detail_reference_viewer()
+        if gabarito:
+            lay.addWidget(gabarito)
+            sep = QFrame()
+            sep.setFrameShape(QFrame.HLine)
+            sep.setStyleSheet(f"color:{Colors.BORDER_DEFAULT};")
+            lay.addWidget(sep)
+
+        lay.addWidget(self._build_convention_panel())
+        lay.addStretch()
+        scroll.setWidget(inner)
+        root.addWidget(scroll, 1)
+
+        root.addWidget(self._build_footer())
+
+    # ── Overrides p/ modo pré-análise ───────────────────────────────────────────
+
+    def _make_conv_viewer_for_term(self, term: str, w: int = 190, h: int = 85) -> QWidget:
+        """Sem dados de pilar pré-análise: usa exemplos salvos ou placeholder."""
+        saved_pts = self._saved_term_examples.get(term.upper())
+        if saved_pts and len(saved_pts) >= 2:
+            try:
+                xs = [float(p[0]) for p in saved_pts]
+                ys = [float(p[1]) for p in saved_pts]
+                bx0, bx1 = min(xs), max(xs)
+                by0, by1 = min(ys), max(ys)
+                margin = max(80.0, max(bx1 - bx0, by1 - by0) * 2.0)
+                vx0, vx1 = bx0 - margin, bx1 + margin
+                vy0, vy1 = by0 - margin, by1 + margin
+                scene = QGraphicsScene()
+                scene.setSceneRect(vx0, vy0, vx1 - vx0, vy1 - vy0)
+                scene.setBackgroundBrush(QColor(Colors.BG_PANEL))
+                viewer = _MiniDXFView(scene, vx0, vy0, vx1, vy1, w, h,
+                                      highlight_pts=saved_pts)
+                viewer.setToolTip("Referência salva de outro pavimento")
+                return viewer
+            except Exception:
+                pass
+        return self._make_conv_placeholder(w, h, "Disponível\napós análise")
+
+    def _refresh_pillar_table_row_for_term(self, term: str) -> None:
+        """No-op: tabela de pilares não existe no modo pré-análise."""

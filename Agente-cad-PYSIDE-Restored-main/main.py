@@ -4,7 +4,13 @@ import os
 
 # ── Diagnóstico de crashes nativos (faulthandler) ─────────────────────────────
 import faulthandler
-faulthandler.enable(file=sys.stderr, all_threads=True)
+_fault_log_path = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                               '..', 'fault_native.log')
+try:
+    _fault_log_file = open(_fault_log_path, 'w', encoding='utf-8', buffering=1)
+    faulthandler.enable(file=_fault_log_file, all_threads=True)
+except Exception:
+    faulthandler.enable(file=sys.stderr, all_threads=True)
 
 import atexit
 import signal
@@ -5021,122 +5027,39 @@ class MainWindow(QMainWindow):
             result['convention'] = self._parse_pillar_convention(path)
         return result
 
-    def _show_preprocess_dialog(self, data: dict) -> None:
-        """Mostra janela de pré-processamento com resultados encontrados."""
-        from PySide6.QtWidgets import (QDialog, QVBoxLayout, QHBoxLayout,
-                                       QLabel, QFrame, QPushButton, QScrollArea,
-                                       QWidget, QGridLayout)
-        from PySide6.QtCore import Qt
+    def _show_convention_dialog(self, data: dict) -> dict:
+        """
+        Abre o diálogo moderno de Convenção de Pilares ANTES da análise.
+        Retorna o term_type_map escolhido pelo usuário.
+        """
+        from src.ui.widgets.pre_validation_dialog import ConvencaoPilaresDialog
+        from PySide6.QtWidgets import QDialog
 
-        dlg = QDialog(self)
-        dlg.setWindowTitle('Pré-Processamento do Pavimento')
-        dlg.setMinimumWidth(520)
-        dlg.setStyleSheet("""
-            QDialog { background: #1a1a2e; color: #e0e0e0; }
-            QLabel { color: #e0e0e0; }
-            QFrame { border-radius: 4px; }
-        """)
+        obra = data.get('obra') or ''
+        pavimento = data.get('pavimento') or ''
+        convention = data.get('convention') or {}
 
-        root = QVBoxLayout(dlg)
-        root.setSpacing(10)
-        root.setContentsMargins(16, 14, 16, 14)
+        _dados_root = os.path.normpath(
+            os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'DADOS-OBRAS')
+        )
+        convention_file: str | None = (
+            os.path.join(_dados_root, obra, 'convencao_pilares.json') if obra else None
+        )
+        db_path = getattr(self.db, 'db_path', None)
 
-        # Cabeçalho
-        hdr = QLabel(f"<b>Obra:</b> {data.get('obra','?')}  |  <b>Pavimento:</b> {data.get('pavimento','?')}")
-        hdr.setStyleSheet('font-size: 11px; color: #90caf9;')
-        root.addWidget(hdr)
+        dlg = ConvencaoPilaresDialog(
+            obra=obra,
+            pavimento=pavimento,
+            convention=convention,
+            convention_file=convention_file,
+            db_path=db_path,
+            parent=self,
+        )
 
-        path = data.get('detalhe_path') or ''
-        path_lbl = QLabel(f"Recorte detalhe: {'✅ ' + __import__('os').path.basename(path) if path else '❌ não encontrado'}")
-        path_lbl.setStyleSheet('font-size: 9px; color: #888;')
-        root.addWidget(path_lbl)
-
-        # ── Convenção de Pilares ──────────────────────────────────────────
-        sec_frame = QFrame()
-        sec_frame.setStyleSheet('QFrame { background: rgba(100,180,255,0.07); border: 1px solid #334; padding: 6px; }')
-        sec_lay = QVBoxLayout(sec_frame)
-        sec_lay.setSpacing(6)
-
-        sec_title = QLabel('CONVENÇÃO DE PILARES')
-        sec_title.setStyleSheet('font-size: 11px; font-weight: bold; color: #64b5f6;')
-        sec_lay.addWidget(sec_title)
-
-        conv = data.get('convention', {})
-        warn = conv.get('_warning') if isinstance(conv, dict) else None
-        err = conv.get('error') if isinstance(conv, dict) else None
-        real_conv = {k: v for k, v in (conv or {}).items()
-                     if isinstance(v, dict) and 'sig' in v}
-
-        if err:
-            msg = QLabel(f"⚠ {err}")
-            msg.setStyleSheet('color: #ff7043; font-size: 10px;')
-            sec_lay.addWidget(msg)
-        elif warn or not real_conv:
-            msg = QLabel(f"⚠ {warn or 'Nenhuma convenção encontrada no recorte de detalhe.'}")
-            msg.setStyleSheet('color: #ffb74d; font-size: 10px;')
-            sec_lay.addWidget(msg)
-        else:
-            # Renderiza dinamicamente — qualquer label que a prancha tiver
-            SIG_ICONS = {'CROSS': '✗ CRUZ', 'DIAG': '/// DIAG', 'EMPTY': '□ VAZIO'}
-            CYCLE_COLORS = ['#81c784', '#64b5f6', '#ef9a9a', '#ffb74d', '#ce93d8']
-            grid = QGridLayout()
-            grid.setSpacing(6)
-            for col, (label_key, info) in enumerate(real_conv.items()):
-                color = CYCLE_COLORS[col % len(CYCLE_COLORS)]
-                display = info.get('label', label_key)
-                name_lbl = QLabel(display)
-                name_lbl.setAlignment(Qt.AlignCenter)
-                name_lbl.setStyleSheet(f'font-weight: bold; font-size: 11px; color: {color};')
-                grid.addWidget(name_lbl, 0, col)
-                sig_lbl = QLabel(SIG_ICONS.get(info.get('sig', ''), info.get('sig', '?')))
-                sig_lbl.setAlignment(Qt.AlignCenter)
-                sig_lbl.setStyleSheet('font-size: 10px; color: #ccc;')
-                grid.addWidget(sig_lbl, 1, col)
-                diag_lbl = QLabel(f"{info.get('diagonal_count', 0)} diag.")
-                diag_lbl.setAlignment(Qt.AlignCenter)
-                diag_lbl.setStyleSheet('font-size: 9px; color: #888;')
-                grid.addWidget(diag_lbl, 2, col)
-                ok_lbl = QLabel('✅ detectado')
-                ok_lbl.setAlignment(Qt.AlignCenter)
-                ok_lbl.setStyleSheet(f'font-size: 9px; color: {color};')
-                grid.addWidget(ok_lbl, 3, col)
-            sec_lay.addLayout(grid)
-            note = QLabel(f'<i style="color:#555">{len(real_conv)} tipo(s) de pilar detectados nesta prancha</i>')
-            note.setTextFormat(Qt.RichText)
-            note.setStyleSheet('font-size: 9px;')
-            sec_lay.addWidget(note)
-        root.addWidget(sec_frame)
-
-        # ── Futuras seções (em desenvolvimento) ──────────────────────────
-        future_items = [
-            ('Nível de chegada / saída do pavimento', False),
-            ('Detalhes especiais para pilares', False),
-            ('Detalhes especiais para vigas', False),
-            ('Detalhes especiais para lajes', False),
-        ]
-        fut_frame = QFrame()
-        fut_frame.setStyleSheet('QFrame { background: rgba(255,255,255,0.03); border: 1px solid #333; padding: 4px; }')
-        fut_lay = QVBoxLayout(fut_frame)
-        fut_lay.setSpacing(3)
-        fut_title = QLabel('OUTROS PRÉ-PROCESSAMENTOS')
-        fut_title.setStyleSheet('font-size: 10px; font-weight: bold; color: #666;')
-        fut_lay.addWidget(fut_title)
-        for item_name, done in future_items:
-            icon = '✅' if done else '🔧'
-            state = '' if done else '  <i style="color:#555">em desenvolvimento</i>'
-            lbl = QLabel(f'{icon} {item_name}{state}')
-            lbl.setStyleSheet('font-size: 9px; color: #666;')
-            lbl.setTextFormat(Qt.RichText)
-            fut_lay.addWidget(lbl)
-        root.addWidget(fut_frame)
-
-        # Botão fechar
-        btn = QPushButton('Continuar Análise Geral  ▶')
-        btn.setStyleSheet('background: #1565c0; color: white; font-size: 11px; padding: 6px 18px; border-radius: 4px; border: none;')
-        btn.clicked.connect(dlg.accept)
-        root.addWidget(btn, alignment=Qt.AlignRight)
-
-        dlg.exec()
+        if dlg.exec() == QDialog.Accepted:
+            result = dlg.get_result()
+            return result.get('term_type_map') or {}
+        return {}
 
     # ──────────────────────────────────────────────────────────────────────
 
@@ -5154,9 +5077,10 @@ class MainWindow(QMainWindow):
             )
             return
 
-        # ── Pré-processamento: convenção do recorte de detalhe ────────────
+        # ── Convenção de Pilares: diálogo moderno ANTES da análise ──────────
         self.pavimento_preprocess = self._run_pavimento_preprocess()
-        self._show_preprocess_dialog(self.pavimento_preprocess)
+        _term_map = self._show_convention_dialog(self.pavimento_preprocess)
+        self.pavimento_preprocess['term_type_map'] = _term_map
         # ──────────────────────────────────────────────────────────────────
 
         import uuid # Garantir import
@@ -10125,6 +10049,7 @@ class MainWindow(QMainWindow):
         )
 
         from PySide6.QtWidgets import QDialog
+        dlg.showMaximized()
         if dlg.exec() != QDialog.Accepted:
             return False
 
@@ -10146,9 +10071,14 @@ class MainWindow(QMainWindow):
         cut_assignments = result.get('cut_view_assignments') or {}
         invalid_cut_uids: set = result.get('invalid_cut_uids') or set()
 
-        # Salva mapeamento de termos no preprocess para uso posterior
+        # Salva mapeamento de termos no preprocess para uso posterior.
+        # Se o diálogo pós-análise não tinha combos (aba Convenção removida),
+        # mantém o term_type_map já definido antes da análise.
         preproc = getattr(self, 'pavimento_preprocess', {}) or {}
-        preproc['term_type_map'] = term_map
+        if term_map:
+            preproc['term_type_map'] = term_map
+        elif not preproc.get('term_type_map'):
+            preproc['term_type_map'] = {}
         self.pavimento_preprocess = preproc
 
         # Aplica overrides de pilares
@@ -11874,7 +11804,7 @@ class MainWindow(QMainWindow):
                     _json.dumps(n3_ficha, indent=2, ensure_ascii=False),
                     encoding="utf-8",
                 )
-                fichas.append((slab, ficha))
+                fichas.append((slab, n3_ficha))
             except Exception as exc:
                 self.log(f"⚠️ Laje {slab.get('name', '?')}: falha ao materializar N3 ({exc})")
 
