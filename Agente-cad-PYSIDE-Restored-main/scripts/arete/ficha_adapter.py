@@ -24,10 +24,10 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from arete_config import (
-    DB_PATH, TMP_DIR, GERADORES, REPO_ROOT,
+    DB_PATH, TMP_DIR, GERADORES, REPO_ROOT, DADOS_OBRAS,
     FASE4_SUBDIR, FASE4_SUFIXO, GERADOR_OUTPUT_PREFIX,
     RECORTES_ROOT, RECORTE_PASTA_PAT, RECORTE_FILE_PREFIX,
-    PAV_13, CAMPOS_OBRIGATORIOS, PD_PAVIMENTO_CM,
+    PAV_13, CAMPOS_OBRIGATORIOS, PD_PAVIMENTO_CM, MOTOR_FUNC,
 )
 
 
@@ -284,7 +284,43 @@ def _criar_fichas_lv_v2(obra_dir: Path, elemento_id: str, campos: dict) -> None:
     )
 
 
-def materializar_item(row: dict, tmp_base: Path | None = None) -> tuple[Path, Path]:
+def extrair_ficha_dinamica(recorte_path: Path, classe: str,
+                           elemento_id: str) -> dict:
+    """
+    Extrai ficha N2 dinamicamente do recorte DXF via motor_reverso — mesmo
+    pipeline que o Comparison Engine usa ao selecionar um item na lista.
+
+    Retorna dict com os campos extraídos, ou {'_extracao_erro': msg} em caso
+    de falha.  Nunca lança exceção.
+    """
+    import importlib
+    scripts_dir = str(REPO_ROOT / "scripts")
+    if scripts_dir not in sys.path:
+        sys.path.insert(0, scripts_dir)
+    mod_name, func_name = MOTOR_FUNC[classe]
+    try:
+        mod  = importlib.import_module(mod_name)
+        func = getattr(mod, func_name)
+        result = func(str(recorte_path), elemento_id)
+        return result or {}
+    except Exception as exc:
+        return {"_extracao_erro": str(exc)}
+
+
+def get_real_n4_path(obra_name: str, classe: str, elemento_id: str) -> Path:
+    """
+    Path canônico do N4 no diretório real da obra — o mesmo arquivo que a CE
+    exibe no viewer após clicar 'Gerar N4'.
+
+    Estrutura: {DADOS_OBRAS}/{obra_name}/Fase-6_Execucao_CAD/n4/{prefix}{id}.dxf
+    """
+    prefix = GERADOR_OUTPUT_PREFIX[classe]
+    return (DADOS_OBRAS / obra_name / "Fase-6_Execucao_CAD" / "n4"
+            / f"{prefix}{elemento_id}.dxf")
+
+
+def materializar_item(row: dict, tmp_base: Path | None = None,
+                      campos_override: dict | None = None) -> tuple[Path, Path]:
     """
     Materializa a ficha N2 em disco no layout esperado pelo gerador.
 
@@ -302,20 +338,26 @@ def materializar_item(row: dict, tmp_base: Path | None = None) -> tuple[Path, Pa
 
     classe      = row["classe"]
     elemento_id = row["elemento_id"]
-    campos      = _clean_campos_json(row["campos_json"])
 
-    # Enriquecimento de pavimento (carimbo, nao do elemento): PD do
-    # cabecalho ABCD, lido do PROPRIO recorte do item (ver _extract_pd_cm —
-    # PD nao e' constante por pavimento, varia por sub-bloco/torre). Fallback
-    # para PD_PAVIMENTO_CM se o recorte nao tiver o cabecalho legivel.
-    pd_cm = None
-    recorte_path = get_recorte_path(elemento_id, classe, row=row)
-    if recorte_path:
-        pd_cm = _extract_pd_cm(recorte_path)
-    if pd_cm is None:
-        pd_cm = PD_PAVIMENTO_CM.get(row.get("pavimento"))
-    if pd_cm is not None:
-        campos.setdefault("pd_pavimento_cm", pd_cm)
+    if campos_override is not None:
+        # Modo dinâmico: ficha extraída ao vivo pelo motor_reverso.
+        # O motor já extraiu pd_pavimento_cm do próprio recorte — não sobrescrever.
+        campos = _clean_campos_json(campos_override)
+    else:
+        # Modo legado: ficha estática do DB.
+        campos = _clean_campos_json(row["campos_json"])
+        # Enriquecimento de pavimento (carimbo, nao do elemento): PD do
+        # cabecalho ABCD, lido do PROPRIO recorte do item (ver _extract_pd_cm —
+        # PD nao e' constante por pavimento, varia por sub-bloco/torre). Fallback
+        # para PD_PAVIMENTO_CM se o recorte nao tiver o cabecalho legivel.
+        pd_cm = None
+        recorte_path = get_recorte_path(elemento_id, classe, row=row)
+        if recorte_path:
+            pd_cm = _extract_pd_cm(recorte_path)
+        if pd_cm is None:
+            pd_cm = PD_PAVIMENTO_CM.get(row.get("pavimento"))
+        if pd_cm is not None:
+            campos.setdefault("pd_pavimento_cm", pd_cm)
 
     # Pasta única por item (idempotente: sobrescreve se já existia).
     # Inclui o pavimento na chave (Fase A, multi-pavimento): elemento_id se

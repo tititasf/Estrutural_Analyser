@@ -35,6 +35,7 @@ from ficha_adapter import (
     query_fichas, query_ficha_item,
     materializar_item, rodar_gerador,
     get_output_dxf_path, get_recorte_path,
+    extrair_ficha_dinamica, get_real_n4_path,
 )
 from roundtrip_ficha import roundtrip_item
 from paridade_visual import paridade_item, render_comparacao
@@ -356,12 +357,30 @@ def processar_item(row: dict, ts_dir: Path,
     # ── Gerar N4 (para G2, se ainda não gerado por G1) ────────────────────────
     n4_path_str = g1.get("n4_path")
     if not n4_path_str:
-        # G1 falhou antes de gerar; tentar gerar mesmo assim para G2
-        obra_dir, _ = materializar_item(row)
+        # G1 BLOCKED antes de gerar (ex: motor falhou, recorte ausente).
+        # Tentar gerar mesmo assim para G2, usando motor dinâmico se possível.
+        recorte_path_fb = g0.get("recorte_path")
+        campos_fb = None
+        if recorte_path_fb:
+            n2_fb = extrair_ficha_dinamica(
+                Path(recorte_path_fb), classe, elemento_id)
+            if "_extracao_erro" not in n2_fb:
+                campos_fb = n2_fb
+        obra_dir, _ = materializar_item(row, campos_override=campos_fb)
         ok_gen, log = rodar_gerador(obra_dir, classe, elemento_id)
         if ok_gen:
             dxf = get_output_dxf_path(obra_dir, classe, elemento_id)
-            n4_path_str = str(dxf) if dxf.exists() else None
+            if dxf.exists():
+                # Copiar para path real da obra
+                obra_name = row.get("obra_name")
+                if obra_name:
+                    real = get_real_n4_path(obra_name, classe, elemento_id)
+                    real.parent.mkdir(parents=True, exist_ok=True)
+                    import shutil as _shutil
+                    _shutil.copy2(dxf, real)
+                    n4_path_str = str(real)
+                else:
+                    n4_path_str = str(dxf)
         if verbose and not ok_gen:
             print(f"  [AVISO] Gerador falhou; G2 será BLOCKED")
 

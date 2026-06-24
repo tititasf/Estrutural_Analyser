@@ -23,6 +23,7 @@ import argparse
 import importlib
 import json
 import math
+import shutil
 import sys
 from pathlib import Path
 
@@ -36,6 +37,7 @@ from arete_config import (
 from ficha_adapter import (
     query_fichas, query_ficha_item,
     materializar_item, rodar_gerador, get_output_dxf_path,
+    get_recorte_path, extrair_ficha_dinamica, get_real_n4_path,
 )
 
 # Tolerancia para campos dimensionais (cm)
@@ -234,7 +236,18 @@ def diff_campos(n2: dict, n2_prime: dict, tol_dim: float = TOL_DIM_CM,
 
 def roundtrip_item(classe: str, elemento_id: str,
                    pavimento: str = PAV_13,
-                   verbose: bool = True) -> dict:
+                   verbose: bool = True,
+                   dinamico: bool = True) -> dict:
+    """
+    Gate G1: round-trip N2 → N4 → N2' → diff campo a campo.
+
+    dinamico=True (padrão): extrai a ficha N2 ao vivo do recorte via
+    motor_reverso — mesmo pipeline que o Comparison Engine usa. O N4 gerado
+    é copiado para o path real da obra (Fase-6/n4/) para que CE e Arete
+    compartilhem o mesmo arquivo.
+
+    dinamico=False: modo legado — lê ficha N2 do DB (estática).
+    """
     result = {
         "gate": "G1",
         "resultado": "FAIL",
@@ -245,6 +258,7 @@ def roundtrip_item(classe: str, elemento_id: str,
         "n4_path": None,
         "log_gerador": "",
         "erro": "",
+        "modo": "dinamico" if dinamico else "db",
     }
 
     row = query_ficha_item(classe, elemento_id, pavimento)
@@ -253,13 +267,31 @@ def roundtrip_item(classe: str, elemento_id: str,
         result["erro"] = f"Ficha nao encontrada: {classe}/{elemento_id}/{pavimento}"
         return result
 
-    n2 = row["campos_json"]
+    # ── Obter ficha N2 ────────────────────────────────────────────────────────
+    campos_override = None
+    if dinamico:
+        recorte_path = get_recorte_path(elemento_id, classe, row=row)
+        if recorte_path and recorte_path.exists():
+            n2_raw = extrair_ficha_dinamica(recorte_path, classe, elemento_id)
+            if "_extracao_erro" in n2_raw:
+                result["resultado"] = "BLOCKED"
+                result["erro"] = f"Motor dinamico falhou: {n2_raw['_extracao_erro']}"
+                return result
+            n2 = n2_raw
+            campos_override = n2_raw
+        else:
+            # Recorte não encontrado — cair para DB com aviso
+            n2 = row["campos_json"]
+            result["modo"] = "db_fallback"
+    else:
+        n2 = row["campos_json"]
+
     if not n2:
         result["resultado"] = "BLOCKED"
-        result["erro"] = "campos_json vazio"
+        result["erro"] = "campos N2 vazios"
         return result
 
-    obra_dir, _ = materializar_item(row)
+    obra_dir, _ = materializar_item(row, campos_override=campos_override)
     ok_gen, log = rodar_gerador(obra_dir, classe, elemento_id)
     result["log_gerador"] = log
 
@@ -272,7 +304,15 @@ def roundtrip_item(classe: str, elemento_id: str,
         result["erro"] = f"DXF nao gerado: {dxf_path}"
         return result
 
-    result["n4_path"] = str(dxf_path)
+    # ── Copiar N4 para path real da obra (mesmo que CE exibe) ─────────────────
+    obra_name = row.get("obra_name")
+    if obra_name:
+        real_path = get_real_n4_path(obra_name, classe, elemento_id)
+        real_path.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(dxf_path, real_path)
+        result["n4_path"] = str(real_path)
+    else:
+        result["n4_path"] = str(dxf_path)
 
     n2_prime = re_extrair(dxf_path, classe, elemento_id, obra_dir)
 
