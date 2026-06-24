@@ -2067,14 +2067,47 @@ class MainWindow(QMainWindow):
             
             # Criar Objeto Laje do Robo
             # IMPORTANTE: area_cm2 no Robo é usada para calculos, aqui convertemos m² -> cm²
+            try:
+                ficha_n1 = self._slab_to_n1_robot_ficha(slab_data)
+                ficha_n3 = self._merge_lj_n3_teacher(
+                    ficha_n1,
+                    self._load_lj_n2_teacher_ficha(ficha_n1.get("nome") or name),
+                )
+                coords = ficha_n3.get("coordenadas") or coords
+                comp = float(ficha_n3.get("comprimento") or 0.0)
+                larg = float(ficha_n3.get("largura") or 0.0)
+                area_robot = float(ficha_n3.get("area_cm2") or (area_m2 * 10000))
+                linhas_v = list(ficha_n3.get("linhas_verticais") or [])
+                linhas_h = list(ficha_n3.get("linhas_horizontais") or [])
+                obstaculos = list(ficha_n3.get("obstaculos") or [])
+                modo = int(float(ficha_n3.get("modo_selecionado") or 0))
+                unioes = bool(ficha_n3.get("unioes_nos_bordes") or False)
+                observacoes = str(ficha_n3.get("observacoes") or "")
+            except Exception:
+                comp = 0.0
+                larg = 0.0
+                area_robot = area_m2 * 10000
+                linhas_v = []
+                linhas_h = []
+                obstaculos = []
+                modo = 0
+                unioes = False
+                observacoes = ""
+
             nova_laje = Laje(
                 numero=numero,
                 nome=name,
-                comprimento=0.0, 
-                largura=0.0,
+                comprimento=comp,
+                largura=larg,
                 pavimento=pavimento_nome,
                 coordenadas=coords,
-                area_cm2=area_m2 * 10000 
+                area_cm2=area_robot,
+                linhas_verticais=linhas_v,
+                linhas_horizontais=linhas_h,
+                obstaculos=obstaculos,
+                modo_selecionado=modo,
+                unioes_nos_bordes=unioes,
+                observacoes=observacoes,
             )
             
             novas_lajes_robo.append(nova_laje)
@@ -5828,12 +5861,14 @@ class MainWindow(QMainWindow):
                 except Exception as _e_lj_mat:
                     self.log(f"⚠️ Falha ao propagar lajes SA→N1/N3/Robo: {_e_lj_mat}")
                 try:
-                    from scripts.analise_geral_headless import process_beam_fv, upsert_beam_element_fv
+                    from scripts.analise_geral_headless import process_beam_fv, upsert_beam_element_fv, apply_fv_trained_overlay
 
                     # FASE 1: Processar dados FV e atualizar links em memória (sem acesso ao DB)
                     _fv_results = []
                     for b in getattr(self, 'beams_found', []):
                         fv_data = process_beam_fv(b, getattr(self, 'spatial_index', None), visual_obstacles)
+                        _obra_overlay = self.cmb_works.currentText() if hasattr(self, "cmb_works") else ""
+                        fv_data = apply_fv_trained_overlay(fv_data, b.get("name", ""), _obra_overlay)
 
                         if 'links' not in b:
                             b['links'] = {}
@@ -9075,15 +9110,155 @@ class MainWindow(QMainWindow):
         except Exception:
             pass
 
-        # Pilares automaticos ficam restritos aos casos quase solidos:
-        # retangulos simples ou formas circulares/compactas com muitos pontos.
-        # Os T de visao de corte vistos no treino tem cerca de 8-9 vertices e
-        # nao devem ser filtrados como pilar.
+        # Polígonos fechados quase sólidos com ≤6 pts são marcadores de apoio
+        # (retângulos simples, incluindo os finos que escapariam do filtro de aspect).
+        # T de visão de corte sempre têm fill ~0.5 (forma côncava) e ≥7 pts.
+        if closed and fill_ratio >= 0.85 and len(pts) <= 6:
+            return 'pillar'
         if closed and aspect <= 4.0 and len(pts) <= 6 and fill_ratio >= 0.70:
             return 'pillar'
         if closed and aspect <= 2.5 and len(pts) >= 10 and fill_ratio >= 0.65:
             return 'pillar'
         return 'cut_view'
+
+    def _find_cut_view_web_extension(self, cut_pts: list) -> list | None:
+        """
+        Busca retângulo companheiro que completa o web do T no visão de corte.
+
+        Visões de corte em T às vezes têm o fundo do web separado por linhas
+        simbólicas da viga. O detector captura apenas a parte superior (T incompleto).
+        Esta função localiza o retângulo compacto adjacente ao extremo do web
+        e retorna os pontos do T estendidos para incluir o companheiro.
+        Gap máximo tolerado: 8 unidades DXF.
+        """
+        if not cut_pts or len(cut_pts) < 7:
+            return None
+        if not getattr(self, 'dxf_data', None):
+            return None
+        try:
+            from shapely.geometry import Polygon as _P
+            xs = [float(p[0]) for p in cut_pts]
+            ys = [float(p[1]) for p in cut_pts]
+            main_minx, main_miny = min(xs), min(ys)
+            main_maxx, main_maxy = max(xs), max(ys)
+            main_w = main_maxx - main_minx
+            main_h = main_maxy - main_miny
+            GAP_MAX = 8.0
+
+            def _edge_range(axis: str, side: str):
+                frac = 0.40
+                if axis == 'y':
+                    lim = (main_miny + main_h * frac) if side == 'min' else (main_maxy - main_h * frac)
+                    ep = [(float(p[0]), float(p[1])) for p in cut_pts
+                          if (float(p[1]) <= lim if side == 'min' else float(p[1]) >= lim)]
+                    if not ep:
+                        return None, None, None
+                    return (min(p[0] for p in ep), max(p[0] for p in ep),
+                            main_miny if side == 'min' else main_maxy)
+                else:
+                    lim = (main_minx + main_w * frac) if side == 'min' else (main_maxx - main_w * frac)
+                    ep = [(float(p[0]), float(p[1])) for p in cut_pts
+                          if (float(p[0]) <= lim if side == 'min' else float(p[0]) >= lim)]
+                    if not ep:
+                        return None, None, None
+                    return (min(p[1] for p in ep), max(p[1] for p in ep),
+                            main_minx if side == 'min' else main_maxx)
+
+            best_comp = None
+            best_gap = float('inf')
+            best_dir = None
+
+            for axis in ('y', 'x'):
+                for side in ('min', 'max'):
+                    wr_min, wr_max, extreme = _edge_range(axis, side)
+                    if wr_min is None:
+                        continue
+                    web_span = wr_max - wr_min
+                    if web_span < 3.0:
+                        continue
+                    for item in self.dxf_data.get('polylines', []) or []:
+                        p2 = item.get('points') or []
+                        if len(p2) < 4 or len(p2) > 8 or p2[0] != p2[-1]:
+                            continue
+                        try:
+                            cx = [float(q[0]) for q in p2]
+                            cy = [float(q[1]) for q in p2]
+                            c_minx, c_miny = min(cx), min(cy)
+                            c_maxx, c_maxy = max(cx), max(cy)
+                            cw, ch = c_maxx - c_minx, c_maxy - c_miny
+                            if cw < 3 or ch < 3:
+                                continue
+                            fill = abs(float(_P(p2).area)) / max(cw * ch, 1.0)
+                            if fill < 0.78:
+                                continue
+                            if axis == 'y':
+                                overlap = min(c_maxx, wr_max) - max(c_minx, wr_min)
+                                if overlap < web_span * 0.40:
+                                    continue
+                                if side == 'min':
+                                    if c_maxy > extreme + 3:
+                                        continue
+                                    gap = extreme - c_maxy
+                                else:
+                                    if c_miny < extreme - 3:
+                                        continue
+                                    gap = c_miny - extreme
+                            else:
+                                overlap = min(c_maxy, wr_max) - max(c_miny, wr_min)
+                                if overlap < web_span * 0.40:
+                                    continue
+                                if side == 'min':
+                                    if c_maxx > extreme + 3:
+                                        continue
+                                    gap = extreme - c_maxx
+                                else:
+                                    if c_minx < extreme - 3:
+                                        continue
+                                    gap = c_minx - extreme
+                            if 0 <= gap <= GAP_MAX and gap < best_gap:
+                                best_gap = gap
+                                best_comp = p2
+                                best_dir = (axis, side)
+                        except Exception:
+                            continue
+            if best_comp is None:
+                return None
+            return self._extend_t_with_companion(cut_pts, best_comp, best_dir)
+        except Exception:
+            return None
+
+    def _extend_t_with_companion(self, t_pts: list, comp_pts: list, direction: tuple) -> list:
+        """
+        Estende os pontos do web do T até o fundo do retângulo companheiro.
+        Substitui os pontos próximos ao extremo do web pela coordenada do companheiro.
+        """
+        try:
+            axis, side = direction
+            t_xs = [float(p[0]) for p in t_pts]
+            t_ys = [float(p[1]) for p in t_pts]
+            c_xs = [float(p[0]) for p in comp_pts]
+            c_ys = [float(p[1]) for p in comp_pts]
+            TOL = 5.0
+            if axis == 'y' and side == 'min':
+                t_ext, new_ext = min(t_ys), min(c_ys)
+                return [[float(p[0]),
+                         new_ext if abs(float(p[1]) - t_ext) < TOL else float(p[1])]
+                        for p in t_pts]
+            elif axis == 'y' and side == 'max':
+                t_ext, new_ext = max(t_ys), max(c_ys)
+                return [[float(p[0]),
+                         new_ext if abs(float(p[1]) - t_ext) < TOL else float(p[1])]
+                        for p in t_pts]
+            elif axis == 'x' and side == 'min':
+                t_ext, new_ext = min(t_xs), min(c_xs)
+                return [[new_ext if abs(float(p[0]) - t_ext) < TOL else float(p[0]),
+                         float(p[1])] for p in t_pts]
+            else:
+                t_ext, new_ext = max(t_xs), max(c_xs)
+                return [[new_ext if abs(float(p[0]) - t_ext) < TOL else float(p[0]),
+                         float(p[1])] for p in t_pts]
+        except Exception:
+            return list(t_pts)
 
     def _points_bbox_tuple(self, pts: list):
         if not pts:
@@ -10208,7 +10383,11 @@ class MainWindow(QMainWindow):
                     continue
                 if w / max(h, 1.0) > 5.0 or h / max(w, 1.0) > 5.0:
                     continue
-                geom = Polygon(pts) if pts[0] == pts[-1] else LineString(pts)
+                # Visões de corte (T-section) são sempre polígonos fechados.
+                # Polylines abertas (zig-zag, marcadores de apoio) são descartadas.
+                if pts[0] != pts[-1]:
+                    continue
+                geom = Polygon(pts)
                 if geom.is_empty:
                     continue
                 bbox = (min(xs), min(ys), max(xs), max(ys))
@@ -10223,6 +10402,13 @@ class MainWindow(QMainWindow):
             existing = cut_links.get('cut_view_geom', []) or []
             existing_pillars = pillar_links.get('pillar_geom', []) or []
             for link in existing:
+                # Tenta completar o T com o retângulo companheiro (fundo do web).
+                if not link.get('extended_by_companion') and len(link.get('points') or []) >= 7:
+                    _ext = self._find_cut_view_web_extension(link.get('points') or [])
+                    if _ext:
+                        link['original_pts'] = list(link.get('points') or [])
+                        link['points'] = _ext
+                        link['extended_by_companion'] = True
                 self._auto_fill_cut_view_ficha(slab, link, slabs, poly_map)
             for link in existing_pillars:
                 self._auto_fill_pillar_ficha(slab, link)
@@ -10288,6 +10474,13 @@ class MainWindow(QMainWindow):
                     'distance_to_slab': round(float(dist), 3),
                     'layer': item.get('layer'),
                 }
+                # Completa o T com o retângulo companheiro do fundo do web, se existir.
+                if len(pts) >= 7:
+                    _ext = self._find_cut_view_web_extension(pts)
+                    if _ext:
+                        new_link['original_pts'] = list(pts)
+                        new_link['points'] = _ext
+                        new_link['extended_by_companion'] = True
                 self._auto_fill_cut_view_ficha(slab, new_link, slabs, poly_map)
                 cut_links['cut_view_geom'].append(new_link)
                 cut_count += 1
@@ -11153,6 +11346,76 @@ class MainWindow(QMainWindow):
 
         return n1_laje_to_robot_ficha(source)
 
+    def _load_lj_n2_teacher_ficha(self, item_id: str) -> dict:
+        """Lê ficha N2 aprovada/cacheada para treinar a ficha N3 da laje."""
+        import json as _json
+        import sqlite3 as _sqlite3
+
+        obra_nome = None
+        pav_nome = None
+        try:
+            obra_nome = self.cmb_works.currentData() or self.cmb_works.currentText()
+            pav_nome = self._current_pavement_name()
+        except Exception:
+            pass
+        if not obra_nome or not item_id:
+            return {}
+
+        try:
+            conn = _sqlite3.connect(r"D:/Agente-cad-PYSIDE/project_data.vision")
+            row = None
+            if pav_nome:
+                row = conn.execute(
+                    "SELECT campos_json FROM reverse_eng_fichas "
+                    "WHERE obra_name=? AND classe='LAJ' AND elemento_id=? AND pavimento LIKE ? "
+                    "ORDER BY ROWID DESC LIMIT 1",
+                    (obra_nome, item_id, f"%{pav_nome}%"),
+                ).fetchone()
+            if not row:
+                row = conn.execute(
+                    "SELECT campos_json FROM reverse_eng_fichas "
+                    "WHERE obra_name=? AND classe='LAJ' AND elemento_id=? "
+                    "ORDER BY ROWID DESC LIMIT 1",
+                    (obra_nome, item_id),
+                ).fetchone()
+            conn.close()
+            if row and row[0]:
+                data = _json.loads(row[0])
+                return data if isinstance(data, dict) else {}
+        except Exception:
+            return {}
+        return {}
+
+    @staticmethod
+    def _merge_lj_n3_teacher(base_ficha: dict, teacher: dict) -> dict:
+        """Aplica aprendizado N3/Robo treinado por N2/N4 sem alterar N1/slab_elements."""
+        if not teacher:
+            teacher = {}
+        out = dict(base_ficha)
+        try:
+            from src.core.laj_n3_learning import apply_learning_to_ficha
+            out = apply_learning_to_ficha(out, teacher=teacher, record_teacher=bool(teacher))
+        except Exception:
+            pass
+        # Campos auxiliares de renderização/aprendizado não pertencem ao N1; ficam só na ficha N3.
+        for key in ("_hlaz", "_stog_pose", "unioes_nos_bordes"):
+            val = teacher.get(key)
+            if val not in (None, "", [], {}):
+                out[key] = val
+        meta = dict(out.get("_sa_meta") or {})
+        if teacher:
+            meta.update({
+                "n3_teacher": "N2_N4_validated_training",
+                "n3_teacher_fields": [
+                    k for k in (
+                        "linhas_verticais", "linhas_horizontais", "_hlaz", "_stog_pose",
+                        "unioes_nos_bordes",
+                    ) if teacher.get(k) not in (None, "", [], {})
+                ],
+            })
+        out["_sa_meta"] = meta
+        return out
+
     def _materialize_slabs_for_n1_n3_and_robo(self) -> tuple[int, int]:
         """Materializa lajes SA em JSON_Lajes e slab_elements para N1/N3/loops."""
         if not getattr(self, "current_project_id", None):
@@ -11186,8 +11449,12 @@ class MainWindow(QMainWindow):
                     "validated_fields": slab.get("validated_fields", []),
                     "validated_link_classes": slab.get("validated_link_classes", {}),
                 }
+                n3_ficha = self._merge_lj_n3_teacher(
+                    ficha,
+                    self._load_lj_n2_teacher_ficha(ficha["nome"]),
+                )
                 (json_dir / f"{ficha['nome']}.json").write_text(
-                    _json.dumps(ficha, indent=2, ensure_ascii=False),
+                    _json.dumps(n3_ficha, indent=2, ensure_ascii=False),
                     encoding="utf-8",
                 )
                 fichas.append((slab, ficha))
@@ -12623,6 +12890,21 @@ class MainWindow(QMainWindow):
             QApplication.processEvents()
 
 def main():
+    # Hook global de exceções: impede que exceções Python não tratadas em slots Qt
+    # fechem o processo silenciosamente. Registra no crash_log.txt e continua.
+    import traceback as _tb, datetime as _dt
+    def _excepthook(exc_type, exc_val, exc_tb):
+        msg = ''.join(_tb.format_exception(exc_type, exc_val, exc_tb))
+        ts  = _dt.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        try:
+            with open('crash_log.txt', 'a', encoding='utf-8') as _f:
+                _f.write(f'\n[{ts}] UNHANDLED EXCEPTION:\n{msg}\n')
+        except Exception:
+            pass
+        print(f'[EXCEPTION] {msg}', file=sys.stderr)
+        # NÃO chamar sys.exit() — app continua rodando
+    sys.excepthook = _excepthook
+
     app = QApplication(sys.argv)
     app.setStyle('Fusion')
 
