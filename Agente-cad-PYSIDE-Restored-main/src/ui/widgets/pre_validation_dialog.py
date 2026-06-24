@@ -23,6 +23,7 @@ from PySide6.QtWidgets import (
     QPushButton, QTabWidget, QTableWidget, QTableWidgetItem, QHeaderView,
     QFrame, QComboBox, QGroupBox, QGridLayout, QAbstractItemView,
     QSizePolicy, QScrollArea, QSplitter, QGraphicsView, QGraphicsScene,
+    QMessageBox,
 )
 from PySide6.QtCore import Qt, QPointF, QRectF, QTimer
 from PySide6.QtGui import (QColor, QFont, QBrush, QPixmap, QPainter,
@@ -279,6 +280,8 @@ class PreValidationDialog(QDialog):
         self._pillar_rows: dict[str, int] = {}           # key → row index
         self._phys_labels: dict[str, QLabel] = {}        # key → QLabel de Tipo Físico
         self._cut_status_combos: dict[str, QComboBox] = {}  # uid → status combobox
+        self._cut_tag_labels: dict[str, QLabel] = {}         # uid → tag QLabel
+        self._cut_migrar_btns: dict[str, QPushButton] = {}   # uid → botão migrar pilar
         self._cut_row_meta: dict[str, dict] = {}             # uid → {'row', 'is_hist'}
         self._cut_view_data: list[dict] = self._collect_cut_views()
 
@@ -911,18 +914,28 @@ class PreValidationDialog(QDialog):
             if not geo:
                 continue
             uid = cut['uid']
-            beam_combo  = self._cut_combos.get(uid)
+            beam_combo   = self._cut_combos.get(uid)
             status_combo = self._cut_status_combos.get(uid)
             beam_name = beam_combo.currentData() if beam_combo else ''
             beam_text = beam_combo.currentText() if beam_combo else ''
             status    = status_combo.currentData() if status_combo else 'ok'
-            cut_views[geo] = {
+            prev_entry = cut_views.get(geo, {})
+            entry = {
                 'geo_key':    geo,
                 'beam_name':  beam_name or beam_text,
                 'status':     status,
                 'own_laje':   cut.get('own_laje', ''),
                 'saved_at':   now,
             }
+            # Preserva dados de migração pilar se já existiam (ou foram recém-gravados)
+            in_mem = self._pf_history.get('cut_views', {}).get(geo, {})
+            if in_mem.get('pillar_migrated'):
+                entry['pillar_migrated'] = True
+                entry['pillar_name']     = in_mem.get('pillar_name', '')
+            elif prev_entry.get('pillar_migrated'):
+                entry['pillar_migrated'] = True
+                entry['pillar_name']     = prev_entry.get('pillar_name', '')
+            cut_views[geo] = entry
 
         data = {
             'version':   2,
@@ -1162,6 +1175,7 @@ class PreValidationDialog(QDialog):
                     'direction':     direction,
                     'beam_h':        beam_h_raw,
                     'beam_w':        ficha.get('beam_bottom_dim') or '—',
+                    'scale_v':       ficha.get('scale_v') or '1.0',
                     'own_laje':      own_laje,
                     'neigh_laje':    neigh_laje,
                     'own_pos':       ficha.get('own_position') or '—',
@@ -1170,6 +1184,8 @@ class PreValidationDialog(QDialog):
                     'own_dist_bot':  own_dist_bot,
                     'neigh_dist_top': neigh_dist_top,
                     'neigh_dist_bot': neigh_dist_bot,
+                    'own_slab_h':    ficha.get('own_slab_height') or '—',
+                    'neigh_slab_h':  ficha.get('neigh_slab_height') or ficha.get('neighbor_slab_height') or '—',
                 })
         return cuts
 
@@ -1821,6 +1837,7 @@ class PreValidationDialog(QDialog):
     _CUT_ST_OK     = '— Válido (é visão de corte) —'
     _CUT_ST_VISUAL = 'NÃO É VISÃO CORTE — Errada Apenas Visual'
     _CUT_ST_SOLIDA = 'NÃO É VISÃO CORTE — Errada Sólida'
+    _CUT_ST_PILAR  = 'NÃO É VISÃO CORTE — É Pilar'
 
     # Opção "nenhuma viga identificada"
     _CUT_NENHUMA   = '— Nenhuma (não identificada) —'
@@ -1833,17 +1850,19 @@ class PreValidationDialog(QDialog):
 
     def _laje_info_text(self, laje_name: str, direction: str,
                         position: str, dist_top, dist_bot,
-                        lado: str = '') -> str:
+                        lado: str = '', slab_h_cut: str = '') -> str:
         """
         Formata o bloco de informacao de uma laje no corte.
 
         Formato:
           Nome: L311
           Altura: 12
+          Espessura no corte: 12.0
           Distancia do topo da viga: 0
           Distancia do fundo da viga: 43
           Nivel da laje: 852.19
           Posicao da viga em relacao a laje: no Sul da laje
+          Classificacao vertical: topo
         """
         if not laje_name or laje_name in ('—', 'nulo', 'NULO'):
             return 'Parede\n(sem laje vizinha)'
@@ -1859,8 +1878,13 @@ class PreValidationDialog(QDialog):
             nome_line += f'  |  Lado {lado}'
         lines.append(nome_line)
 
-        # Altura
+        # Altura cadastrada
         lines.append(f'Altura: {h}' if h else 'Altura:')
+
+        # Espessura detectada no corte (pode diferir do cadastro)
+        slab_h_cut_clean = str(slab_h_cut) if slab_h_cut not in ('—', '', None) else ''
+        if slab_h_cut_clean:
+            lines.append(f'Espessura no corte: {slab_h_cut_clean}')
 
         # Distancias
         def _fmt_dist(v) -> str:
@@ -1920,6 +1944,8 @@ class PreValidationDialog(QDialog):
         ('visual', True):  '#2a1800',
         ('solida', False): '#2a0000',   # vermelho escuro — errata sólida
         ('solida', True):  '#2a0000',
+        ('pilar',  False): '#1a0a2e',   # roxo escuro — é pilar
+        ('pilar',  True):  '#1a0a2e',
     }
 
     def _paint_cut_row(self, row: int, status: str, is_hist: bool) -> None:
@@ -1940,7 +1966,7 @@ class PreValidationDialog(QDialog):
                 w.setStyleSheet(ss + f' background:{bg_hex};')
 
     def _on_cut_status_changed(self, uid: str) -> None:
-        """Repinta a linha quando o usuário muda o status do corte."""
+        """Repinta a linha e controla visibilidade do botão migrar."""
         meta = self._cut_row_meta.get(uid, {})
         row  = meta.get('row', -1)
         is_hist = meta.get('is_hist', False)
@@ -1948,11 +1974,16 @@ class PreValidationDialog(QDialog):
         if combo and row >= 0:
             status = combo.currentData() or 'ok'
             self._paint_cut_row(row, status, is_hist)
+            btn = self._cut_migrar_btns.get(uid)
+            if btn:
+                btn.setVisible(status == 'pilar')
 
     def _populate_cut_view_table(self):
         tbl = self._cut_table
         tbl.setRowCount(0)
         self._cut_status_combos.clear()
+        self._cut_tag_labels.clear()
+        self._cut_migrar_btns.clear()
         self._cut_row_meta.clear()
 
         # ── Ordena por (status_order, is_hist) ──────────────────────────────
@@ -2010,12 +2041,14 @@ class PreValidationDialog(QDialog):
                         _make_item(f"{conf_pct}%", Qt.AlignCenter,
                                    color=_confidence_color(conf_pct)))
 
-            # ── H × W  +  tipo de viga ──────────────────────────────────────
+            # ── H × W  +  tipo de viga  +  scale_v ─────────────────────────
             bh = cut['beam_h']; bw = cut['beam_w']
             laje1_dir = cut['direction']
             viga_tipo = self._dir_beam_type(laje1_dir)    # 'H' ou 'V'
             tipo_label = 'Horiz.' if viga_tipo == 'H' else 'Vert.'
-            dim_str = (f"{bh} × {bw}  [{tipo_label}]"
+            sv = cut.get('scale_v', '1.0')
+            sv_str = f"  Esc:{sv}" if sv not in ('1.0', '1', '', None) else ''
+            dim_str = (f"{bh} × {bw}  [{tipo_label}]{sv_str}"
                        if bh not in ('—', '') else '—')
             tbl.setItem(row, self._CUT_COL_DIM,
                         _make_item(dim_str, Qt.AlignCenter))
@@ -2033,12 +2066,12 @@ class PreValidationDialog(QDialog):
             own_text = self._laje_info_text(
                 cut['own_laje'], laje1_dir,
                 cut['own_pos'], cut['own_dist_top'], cut['own_dist_bot'],
-                own_lado,
+                own_lado, slab_h_cut=cut.get('own_slab_h', ''),
             )
             neigh_text = self._laje_info_text(
                 cut['neigh_laje'], laje2_dir,
                 cut['neigh_pos'], cut['neigh_dist_top'], cut['neigh_dist_bot'],
-                neigh_lado,
+                neigh_lado, slab_h_cut=cut.get('neigh_slab_h', ''),
             )
 
             def _make_laje_lbl(text, is_wall, is_own):
@@ -2071,10 +2104,14 @@ class PreValidationDialog(QDialog):
             st_combo.addItem(self._CUT_ST_OK,     'ok')
             st_combo.addItem(self._CUT_ST_VISUAL,  'visual')
             st_combo.addItem(self._CUT_ST_SOLIDA,  'solida')
+            st_combo.addItem(self._CUT_ST_PILAR,   'pilar')
             mi_v = st_combo.model().item(1)
             mi_s = st_combo.model().item(2)
+            mi_p = st_combo.model().item(3)
             if mi_v: mi_v.setForeground(QBrush(QColor('#ffb74d')))
             if mi_s: mi_s.setForeground(QBrush(QColor('#ff9800')))
+            if mi_p: mi_p.setForeground(QBrush(QColor('#ce93d8')))
+
             # Restaura status do histórico
             hist_status = hist_cv.get('status', '')
             initial_status = 'ok'
@@ -2084,14 +2121,34 @@ class PreValidationDialog(QDialog):
                         st_combo.setCurrentIndex(i)
                         initial_status = hist_status
                         break
-            # Tag visual (DADO-HISTORICO / DADO-NOVO)
-            tag_text  = 'DADO-HISTÓRICO' if is_hist else 'DADO-NOVO'
-            tag_color = '#66bb6a'         if is_hist else '#64b5f6'
+
+            # Tag visual (DADO-HISTORICO / DADO-NOVO / PILAR-MIGRADO)
+            hist_pilar_migrated = hist_cv.get('pillar_migrated', False)
+            hist_pilar_name     = hist_cv.get('pillar_name', '')
+            if hist_pilar_migrated and hist_pilar_name:
+                tag_text  = f'HISTÓRICO | PILAR:{hist_pilar_name}'
+                tag_color = '#ce93d8'
+            elif is_hist:
+                tag_text  = 'DADO-HISTÓRICO'
+                tag_color = '#66bb6a'
+            else:
+                tag_text  = 'DADO-NOVO'
+                tag_color = '#64b5f6'
             tag_lbl = QLabel(f'TAG:{tag_text}')
             tag_lbl.setStyleSheet(
                 f'color:{tag_color}; font-size:7px; font-weight:bold;'
                 f' padding:1px; background:transparent;'
             )
+
+            # Botão "Migrar para Pilares" (visível só quando status == 'pilar')
+            btn_migrar = QPushButton('Buscar pilar e migrar →')
+            btn_migrar.setStyleSheet(
+                'font-size:8px; padding:2px 6px;'
+                ' background:#3a1a5e; color:#ce93d8;'
+                ' border:1px solid #ce93d8; border-radius:3px;'
+            )
+            btn_migrar.setVisible(initial_status == 'pilar')
+
             st_container = QWidget()
             st_container.setStyleSheet('background:transparent;')
             st_lay = QVBoxLayout(st_container)
@@ -2099,13 +2156,20 @@ class PreValidationDialog(QDialog):
             st_lay.setSpacing(1)
             st_lay.addWidget(st_combo)
             st_lay.addWidget(tag_lbl)
+            st_lay.addWidget(btn_migrar)
+            st_lay.addStretch()
             tbl.setCellWidget(row, self._CUT_COL_STATUS, st_container)
             self._cut_status_combos[uid] = st_combo
+            self._cut_tag_labels[uid]    = tag_lbl
+            self._cut_migrar_btns[uid]   = btn_migrar
             self._cut_row_meta[uid] = {'row': row, 'is_hist': is_hist}
 
-            # Conecta repintura dinâmica
+            # Conecta repintura dinâmica + visibilidade botão
+            _cut_ref = cut
             st_combo.currentIndexChanged.connect(
                 lambda _, u=uid: self._on_cut_status_changed(u))
+            btn_migrar.clicked.connect(
+                lambda _, u=uid, c=_cut_ref: self._migrate_cut_to_pilar(u, c))
 
             # ── Mini viewer ──────────────────────────────────────────────────
             viewer = self._make_cut_viewer(cut['pts'])
@@ -2120,6 +2184,106 @@ class PreValidationDialog(QDialog):
             self._paint_cut_row(row, initial_status, is_hist)
 
     # ── Confirmar + persistir histórico ───────────────────────────────────────
+
+    def _migrate_cut_to_pilar(self, uid: str, cut: dict) -> None:
+        """
+        Busca o pilar mais próximo da geometria do corte e registra a migração.
+        Não altera vinculos de lajes — isso é feito em _apply_pre_validation_result
+        ao processar invalid_cut_uids. A migração apenas associa nome+geo ao pilar.
+        """
+        cx, cy = cut.get('center', (0.0, 0.0))
+
+        # Busca no pillar_report pelo centróide de bbox mais próximo
+        best_key = None
+        best_dist = float('inf')
+        for key, pillar in self._pillar_report.items():
+            bbox = pillar.get('bbox') or []
+            if len(bbox) >= 4:
+                px = (float(bbox[0]) + float(bbox[2])) / 2.0
+                py = (float(bbox[1]) + float(bbox[3])) / 2.0
+            else:
+                pts_p = pillar.get('points') or []
+                if not pts_p:
+                    continue
+                px = sum(float(p[0]) for p in pts_p) / len(pts_p)
+                py = sum(float(p[1]) for p in pts_p) / len(pts_p)
+            dist = math.sqrt((px - cx) ** 2 + (py - cy) ** 2)
+            if dist < best_dist:
+                best_dist = dist
+                best_key = key
+
+        # Busca também em _beam_texts por labels do tipo P1, P2 …
+        pilar_re = re.compile(r'^P\d+$', re.IGNORECASE)
+        text_match = None
+        text_best_dist = float('inf')
+        for bt in self._beam_texts:
+            if not pilar_re.match(bt.get('text', '')):
+                continue
+            pos = bt.get('pos') or [0, 0]
+            try:
+                d = math.sqrt((float(pos[0]) - cx) ** 2 + (float(pos[1]) - cy) ** 2)
+            except Exception:
+                continue
+            if d < text_best_dist:
+                text_best_dist = d
+                text_match = bt.get('text', '')
+
+        # Prioriza texto mais próximo se dentro de 400u; caso contrário usa report
+        pilar_name = (text_match if text_match and text_best_dist < 400
+                      else best_key)
+
+        if not pilar_name:
+            QMessageBox.warning(
+                self, 'Migrar para Pilares',
+                'Nenhum pilar encontrado próximo a esta geometria.\n'
+                'Verifique manualmente na aba Pilares.'
+            )
+            return
+
+        # Verifica se já existe na lista de pilares
+        ja_existe = pilar_name in self._pillar_report
+
+        # Verifica se já foi migrado antes
+        geo = self._cv_geo_key(cut.get('pts', []))
+        cv_hist = self._pf_history.setdefault('cut_views', {}).setdefault(geo, {})
+        ja_migrado = cv_hist.get('pillar_migrated', False)
+
+        if ja_migrado:
+            prev_name = cv_hist.get('pillar_name', pilar_name)
+            QMessageBox.information(
+                self, 'Migrar para Pilares',
+                f'Este corte já foi migrado anteriormente para o Pilar "{prev_name}".\n'
+                f'Tag atualizada. Ao confirmar, será removido dos vínculos de laje.'
+            )
+
+        # Registra migração no histórico
+        cv_hist['pillar_migrated'] = True
+        cv_hist['pillar_name']     = pilar_name
+        cv_hist['status']          = 'pilar'
+
+        # Atualiza tag visual da linha
+        tag_lbl = self._cut_tag_labels.get(uid)
+        if tag_lbl:
+            migrado_str = ' | PILAR-MIGRADO' if ja_migrado else ''
+            tag_lbl.setText(f'TAG:HISTÓRICO | PILAR:{pilar_name}{migrado_str}')
+            tag_lbl.setStyleSheet(
+                'color:#ce93d8; font-size:7px; font-weight:bold;'
+                ' padding:1px; background:transparent;'
+            )
+
+        if ja_existe:
+            QMessageBox.information(
+                self, 'Migrar para Pilares',
+                f'Pilar "{pilar_name}" encontrado na lista de pilares.\n'
+                f'O corte será removido dos vínculos de laje ao confirmar.'
+            )
+        else:
+            QMessageBox.warning(
+                self, 'Migrar para Pilares',
+                f'Pilar "{pilar_name}" identificado por texto, mas não está na lista\n'
+                f'automática de pilares. Verifique na aba Pilares.\n'
+                f'O corte será removido dos vínculos de laje ao confirmar.'
+            )
 
     def _confirm_and_save(self) -> None:
         """Salva histórico de pré-ficha (geometria → override) e aceita o diálogo."""

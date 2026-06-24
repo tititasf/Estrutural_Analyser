@@ -10096,10 +10096,13 @@ class MainWindow(QMainWindow):
         - Atualiza pavimento_pillar_report com overrides de classificação
         - Grava term_type_map em pavimento_preprocess
         - Armazena cut_view_assignments nos fichas dos cortes das lajes
+        - Remove de cut_view_geom cortes classificados como inválidos (não é VC)
+          para evitar retrabalho de remoção manual nos vínculos de laje
         """
         term_map = result.get('term_type_map') or {}
         pillar_overrides = result.get('pillar_overrides') or {}
         cut_assignments = result.get('cut_view_assignments') or {}
+        invalid_cut_uids: set = result.get('invalid_cut_uids') or set()
 
         # Salva mapeamento de termos no preprocess para uso posterior
         preproc = getattr(self, 'pavimento_preprocess', {}) or {}
@@ -10114,17 +10117,20 @@ class MainWindow(QMainWindow):
                 entry['physical_type'] = override.get('physical_type', 'unknown')
                 entry['ignore_in_beams'] = bool(override.get('ignore_in_beams', False))
 
-        if not cut_assignments:
+        if not cut_assignments and not invalid_cut_uids:
             return
 
-        # Aplica associações de viga nos fichas dos cortes
+        n_removed = 0
+        # Aplica associações de viga e remove cortes inválidos dos vínculos
         for slab in (self.slabs_found or []):
             slab_name = slab.get('name') or '?'
             links = slab.get('links') or {}
             cut_links = links.get('laje_visao_corte', {})
             if not isinstance(cut_links, dict):
                 continue
-            for cut in cut_links.get('cut_view_geom', []) or []:
+            geom_list = cut_links.get('cut_view_geom', []) or []
+            to_remove = []
+            for i, cut in enumerate(geom_list):
                 if not isinstance(cut, dict):
                     continue
                 pts = cut.get('points') or []
@@ -10136,6 +10142,12 @@ class MainWindow(QMainWindow):
                     uid = f"{slab_name}_{round(cx)}_{round(cy)}"
                 except Exception:
                     continue
+
+                # Cortes classificados como "não é VC" → remover do vínculo
+                if uid in invalid_cut_uids:
+                    to_remove.append(i)
+                    continue
+
                 assign = cut_assignments.get(uid)
                 if assign:
                     ficha = cut.setdefault('ficha', {})
@@ -10144,11 +10156,17 @@ class MainWindow(QMainWindow):
                     # NÃO marca validated_link_classes aqui — apenas ação humana deve
                     # incrementar essa lista (fonte da % de completude da lista esquerda)
 
+            # Remove em ordem reversa para não deslocar índices
+            for i in reversed(to_remove):
+                geom_list.pop(i)
+                n_removed += 1
+
         n_pil = sum(1 for k, v in pillar_overrides.items()
                     if v.get('classification') and v['classification'] != 'INDETERMINADO')
         n_cuts_assigned = sum(1 for a in cut_assignments.values() if a.get('beam_name'))
         self.log(f"✅ Pré-validação aplicada: {n_pil} pilar(es) com classificação, "
-                 f"{n_cuts_assigned} corte(s) com viga associada.")
+                 f"{n_cuts_assigned} corte(s) com viga associada, "
+                 f"{n_removed} corte(s) inválido(s) removido(s) dos vínculos.")
 
     def _apply_preficha_rejections(self, pillar_report: dict) -> None:
         """
@@ -11711,12 +11729,14 @@ class MainWindow(QMainWindow):
             out = apply_learning_to_ficha(out, teacher=teacher, record_teacher=bool(teacher))
         except Exception:
             pass
-        if teacher.get("_teacher_kind") == "N4_DXF":
-            for key in ("coordenadas", "comprimento", "largura", "area_cm2",
-                        "linhas_verticais", "linhas_horizontais"):
-                val = teacher.get(key)
-                if val not in (None, "", [], {}):
-                    out[key] = val
+        # N3/Robo deve renderizar o marco final validado. O N1 continua sendo
+        # a extração SA em slab_elements; quando há N2 humano (ou N4 proxy),
+        # a ficha N3 recebe geometria/marcos e linhas do professor.
+        for key in ("coordenadas", "comprimento", "largura", "area_cm2",
+                    "linhas_verticais", "linhas_horizontais"):
+            val = teacher.get(key)
+            if val not in (None, "", [], {}):
+                out[key] = val
         # Campos auxiliares de renderização/aprendizado não pertencem ao N1; ficam só na ficha N3.
         for key in ("_hlaz", "_stog_pose", "unioes_nos_bordes"):
             val = teacher.get(key)
