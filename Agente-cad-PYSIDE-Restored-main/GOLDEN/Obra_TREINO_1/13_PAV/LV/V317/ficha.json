@@ -1,0 +1,256 @@
+{
+  "number": "317",
+  "name": "V317_A",
+  "floor": "Pavimento",
+  "side": "A",
+  "total_width": 19.0,
+  "total_height": 59.0,
+  "panels": [
+    {
+      "width": 244.0,
+      "height1": 59.0,
+      "height2": 59.0,
+      "grade_h1": 0.0,
+      "grade_h2": 0.0,
+      "laje_central_alt": 0.0,
+      "reuse": false,
+      "panel_type": "Sarrafeado"
+    },
+    {
+      "width": 65.0,
+      "height1": 59.0,
+      "height2": 59.0,
+      "grade_h1": 0.0,
+      "grade_h2": 0.0,
+      "laje_central_alt": 0.0,
+      "reuse": false,
+      "panel_type": "Sarrafeado"
+    },
+    {
+      "width": 106.0,
+      "height1": 59.0,
+      "height2": 59.0,
+      "grade_h1": 0.0,
+      "grade_h2": 0.0,
+      "laje_central_alt": 0.0,
+      "reuse": false,
+      "panel_type": "Sarrafeado"
+    }
+  ],
+  "holes": [
+    {
+      "active": false,
+      "width": 0.0,
+      "height": 0.0,
+      "position": 0.0
+    },
+    {
+      "active": false,
+      "width": 0.0,
+      "height": 0.0,
+      "position": 0.0
+    },
+    {
+      "active": false,
+      "width": 0.0,
+      "height": 0.0,
+      "position": 0.0
+    },
+    {
+      "active": false,
+      "width": 0.0,
+      "height": 0.0,
+      "position": 0.0
+    }
+  ],
+  "pillar_left": {
+    "active": true,
+    "width": 45.3,
+    "length": 24.0
+  },
+  "pillar_right": {
+    "active": true,
+    "width": 28.3,
+    "length": 19.0
+  },
+  "sarrafo_left_id": 0,
+  "sarrafo_right_id": 0,
+  "h_A": 59.0,
+  "h_B": 59.0,
+  "b_geom": 19.0,
+  "h_section": 55.0,
+  "h_section_all": [
+    55.0
+  ],
+  "laje_sup_A": 15.0,
+  "laje_inf_A": 0.0,
+  "laje_sup_B": 12.0,
+  "laje_inf_B": 3.0,
+  "tipo_viga": "sarrafeada",
+  "section_views": [
+    {
+      "h_A": 59.0,
+      "h_B": 59.0,
+      "b": 19.0,
+      "laje_sup_A": 15.0,
+      "laje_inf_A": 0.0,
+      "laje_sup_B": 12.0,
+      "laje_inf_B": 3.0,
+      "h_section": 55.0
+    },
+    {
+      "h_A": 59.0,
+      "h_B": 59.0,
+      "b": 19.0,
+      "laje_sup_A": 3.0,
+      "laje_inf_A": 0.0,
+      "laje_sup_B": 12.0,
+      "laje_inf_B": 3.0,
+      "h_section": 55.0
+    }
+  ],
+  "continuation": "",
+  "text_left": "",
+  "text_right": "",
+  "panels_A": [
+    {
+      "largura_cm": 244.0,
+      "width": 244.0,
+      "panel_type": "Sarrafeado",
+      "height1": 44.0,
+      "height2": 0.0,
+      "grade_h1": 0.0,
+      "grade_h2": 0.0,
+      "laje_central_alt": 0.0,
+      "laje_sup_local": 3.0,
+      "laje_inf_local": 0.0,
+      "slab_top": 3.0,
+      "slab_bottom": 0.0,
+      "slab_center": 0.0,
+      "is_first": true,
+      "is_last": false,
+      "holes": [],
+      "reuse": false,
+      "codigos_forma": [],
+      "_xl": 3577.279874776416,
+      "_xr": 3821.279874776415
+    },
+    {
+      "largura_cm": 65.0,
+      "width": 65.0,
+      "panel_type": "Sarrafeado",
+      "height1": 44.0,
+      "height2": 0.0,
+      "grade_h1": 0.0,
+      "grade_h2": 0.0,
+      "laje_central_alt": 0.0,
+      "laje_sup_local": 15.0,
+      "laje_inf_local": 0.0,
+      "slab_top": 15.0,
+      "slab_bottom": 0.0,
+      "slab_center": 0.0,
+      "is_first": false,
+      "is_last": false,
+      "holes": [],
+      "reuse": false,
+      "codigos_forma": [],
+      "_xl": 3821.279874776415,
+      "_xr": 3886.279874776415
+    },
+    {
+      "largura_cm": 106.0,
+      "width": 106.0,
+      "panel_type": "Sarrafeado",
+      "height1": 44.0,
+      "height2": 0.0,
+      "grade_h1": 0.0,
+      "grade_h2": 0.0,
+      "laje_central_alt": 0.0,
+      "laje_sup_local": 15.0,
+      "laje_inf_local": 0.0,
+      "slab_top": 15.0,
+      "slab_bottom": 0.0,
+      "slab_center": 0.0,
+      "is_first": false,
+      "is_last": true,
+      "holes": [],
+      "reuse": false,
+      "codigos_forma": [],
+      "_xl": 3886.279874776415,
+      "_xr": 3992.279874776416
+    }
+  ],
+  "panels_B": [
+    {
+      "largura_cm": 244.0,
+      "width": 244.0,
+      "panel_type": "Sarrafeado",
+      "height1": 44.0,
+      "height2": 0.0,
+      "grade_h1": 0.0,
+      "grade_h2": 0.0,
+      "laje_central_alt": 0.0,
+      "laje_sup_local": 12.0,
+      "laje_inf_local": 3.0,
+      "slab_top": 12.0,
+      "slab_bottom": 3.0,
+      "slab_center": 0.0,
+      "is_first": true,
+      "is_last": false,
+      "holes": [],
+      "reuse": false,
+      "codigos_forma": [],
+      "_xl": 3577.279874776423,
+      "_xr": 3821.279874776422
+    },
+    {
+      "largura_cm": 63.0,
+      "width": 63.0,
+      "panel_type": "Sarrafeado",
+      "height1": 44.0,
+      "height2": 0.0,
+      "grade_h1": 0.0,
+      "grade_h2": 0.0,
+      "laje_central_alt": 0.0,
+      "laje_sup_local": 12.0,
+      "laje_inf_local": 3.0,
+      "slab_top": 12.0,
+      "slab_bottom": 3.0,
+      "slab_center": 0.0,
+      "is_first": false,
+      "is_last": false,
+      "holes": [],
+      "reuse": false,
+      "codigos_forma": [],
+      "_xl": 3821.279874776422,
+      "_xr": 3884.279874776423
+    },
+    {
+      "largura_cm": 108.0,
+      "width": 108.0,
+      "panel_type": "Sarrafeado",
+      "height1": 44.0,
+      "height2": 0.0,
+      "grade_h1": 0.0,
+      "grade_h2": 0.0,
+      "laje_central_alt": 0.0,
+      "laje_sup_local": 12.0,
+      "laje_inf_local": 3.0,
+      "slab_top": 12.0,
+      "slab_bottom": 3.0,
+      "slab_center": 0.0,
+      "is_first": false,
+      "is_last": true,
+      "holes": [],
+      "reuse": false,
+      "codigos_forma": [],
+      "_xl": 3884.279874776423,
+      "_xr": 3992.279874776423
+    }
+  ],
+  "_er_meta": {
+    "source": "dxf_geom",
+    "dxf_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- LV - R00\\LV_V317_motor_178111332975.dxf",
+    "confianca": 0.93
+  }
+}

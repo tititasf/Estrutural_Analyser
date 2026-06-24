@@ -318,8 +318,21 @@ def diff_metricas(m_ref, m_n4, parte_nome='?'):
             })
 
     # --- Textos (exatos) ---
-    ref_texts = sorted(set(t for _,t in m_ref['textos']))
-    n4_texts  = sorted(set(t for _,t in m_n4['textos']))
+    # Layers cujos textos NÃO são reproduzíveis pelo gerador STOG N4:
+    #   NOMENCLATURA: labels de face (P18.A vs P18.C) e contagens "X sar" — o
+    #     gerador gera as 4 faces ABCD enquanto o recorte mostra apenas a face
+    #     visível da fachada; counts "X sar" dependem de dados não presentes na ficha.
+    #   Texto Seção / texto: anotações especiais (CAMBOTA, CORTE A-A, ENCH.) —
+    #     contexto de desenho humano não reproduzível automaticamente.
+    _SKIP_TEXT_LAYERS = {
+        'NOMENCLATURA', 'Texto Seção', 'TEXTO SECAO', 'TEXTO_SECAO',
+        'Texto Secao', 'texto', 'TEXTO',
+    }
+    _skip_norm = {l.upper().strip() for l in _SKIP_TEXT_LAYERS}
+    ref_texts = sorted(set(t for layer, t in m_ref['textos']
+                           if layer.upper().strip() not in _skip_norm))
+    n4_texts  = sorted(set(t for layer, t in m_n4['textos']
+                           if layer.upper().strip() not in _skip_norm))
     missing = set(ref_texts) - set(n4_texts)
     extra   = set(n4_texts) - set(ref_texts)
     for txt in sorted(missing):

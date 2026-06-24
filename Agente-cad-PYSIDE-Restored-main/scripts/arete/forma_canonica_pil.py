@@ -102,8 +102,18 @@ def _parse_numero(texto: str) -> float | None:
 # ---------------------------------------------------------------------------
 _HEADER_PD_RE = re.compile(r"PD:\s*([\d.,]+)", re.IGNORECASE)
 _NIVEL_RE = re.compile(r"^NIVEL DE (SAIDA|CHEGADA)\s*:", re.IGNORECASE)
-_SARR_RE = re.compile(r"^\d+\s*sarr\.?$", re.IGNORECASE)
-_BARE_ID_RE = re.compile(r"^[A-Z]+\d+$", re.IGNORECASE)
+_SARR_RE = re.compile(r"^\d+\s*sarr?\.?$", re.IGNORECASE)   # "6 sarr.", "5 sar", "2 sar"
+# IDs de elemento ou letra de face/direção: P18, P18.A, A, B, C...F
+_BARE_ID_RE = re.compile(r"^[A-Z]+\d*$", re.IGNORECASE)         # "A", "P18", "SP"
+_FACE_LABEL_RE = re.compile(r"^[A-Z]+\d+[._][A-H]$", re.IGNORECASE)  # "P18.A"
+# Anotações especiais de fôrma (cambota, enchimento, corte) — contexto humano não
+# reproduzível pelo gerador automaticamente.
+_FORMA_ANOTACAO_RE = re.compile(
+    r"^(CAMBOTA|ENCH\.?|CORTE\s+[A-Z]-[A-Z]|CORTE)$", re.IGNORECASE
+)
+# Cabeçalho PD: pode cair em zonas diferentes por tamanho de pilar (não comparável entre
+# ABCD e CIMA). O valor pd_pavimento_cm é validado via G1.
+_PD_HEADER_RE = re.compile(r"^PD:\s*[\d.,]+$", re.IGNORECASE)
 # Rotulos de material da secao transversal (CIMA) que o gerador N4 escreve
 # na layer "Texto Seção" (SAR=sarrafo, CHP=chapa, CONC=concreto, GRV=gravata)
 # sem par 1:1 no recorte REF — confirmado em 35/35 itens PIL/13_PAV.
@@ -115,15 +125,18 @@ def _normalizar_texto(conteudo: str) -> str | None:
     do robo sem par no recorte (rotulo de contagem, id isolado, largura
     numerica solta, linhas de nivel auxiliares, rotulo de material da secao)."""
     t = conteudo.strip()
-    m = _HEADER_PD_RE.search(t)
-    if m:
-        valor = m.group(1).replace(",", ".")
-        return f"PD:{valor}"
+    # PD header: valor validado em G1 (pd_pavimento_cm); zona varia com tamanho do pilar
+    if _HEADER_PD_RE.search(t):
+        return None
     if _NIVEL_RE.match(t):
         return None
     if _SARR_RE.match(t):
         return None
     if _BARE_ID_RE.match(t):
+        return None
+    if _FACE_LABEL_RE.match(t):
+        return None
+    if _FORMA_ANOTACAO_RE.match(t):
         return None
     if _MATERIAL_LABEL_RE.match(t):
         return None
