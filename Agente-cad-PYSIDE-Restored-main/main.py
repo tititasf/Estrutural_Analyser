@@ -9766,13 +9766,16 @@ class MainWindow(QMainWindow):
             neigh_dt_geo = geo.get('neigh_dist_topo', 0.0)
             neigh_df_geo = geo.get('neigh_dist_fundo', 0.0)
 
-            # scale_v confirmado: só aplica se razão é coerente (0.5–4×)
+            # scale_v confirmado: só aplica se razão é coerente (0.5–4×).
+            # Cota com razão > 4 é dimensão de andar/seção, não altura de viga → rejeita.
             bh_cota = cotas.get('beam_height_cota')
             scale_v = 1.0
             if bh_cota and beam_h_geo > 0:
                 ratio = bh_cota / beam_h_geo
                 if 0.5 <= ratio <= 4.0:
                     scale_v = ratio
+                else:
+                    bh_cota = None  # razão incoerente: cota de seção, não de viga
             link['cotas_debug']['scale_v_confirmed'] = round(scale_v, 4)
 
             try:
@@ -9785,13 +9788,13 @@ class MainWindow(QMainWindow):
                 neigh_h_val = 0.0
 
             # ── CRUZAMENTO: usa laje_height + beam_height_cota (mais preciso) ──
-            # dist_top_geo é a posição relativa da laje no T (normalmente 0 para viga T).
             # dist_bottom = beam_height - slab_height (resíduo abaixo da laje).
+            # Atribuição direta (não setdefault) para sempre recompor com dados atuais.
             if bh_cota:
                 beam_h = bh_cota
                 if own_h_val > 0:
                     own_slab_h = own_h_val
-                    own_dt = own_dt_geo          # posição relativa: 0 p/ T nivelado no topo
+                    own_dt = own_dt_geo
                     own_df = round(bh_cota - own_slab_h - own_dt, 1)
                 else:
                     own_slab_h = round(own_slab_h_geo * scale_v, 1)
@@ -9815,30 +9818,40 @@ class MainWindow(QMainWindow):
                 own_df       = round(own_df_geo * scale_v, 1)
                 neigh_dt     = round(neigh_dt_geo * scale_v, 1)
                 neigh_df     = round(neigh_df_geo * scale_v, 1)
+                # Fallback: geo não detectou aba mas temos dimensão real da laje →
+                # usa laje_dim para own_slab_h e cruza para own_dist_bottom.
+                if own_slab_h == 0.0 and own_h_val > 0 and beam_h > 0:
+                    own_slab_h = own_h_val
+                    own_dt = 0.0
+                    own_df = round(beam_h - own_slab_h, 1)
+                if neigh_slab_h == 0.0 and neigh_h_val > 0 and beam_h > 0:
+                    neigh_slab_h = neigh_h_val
+                    neigh_dt = 0.0
+                    neigh_df = round(beam_h - neigh_slab_h, 1)
 
-            ficha.setdefault('beam_height', str(beam_h))
+            ficha['beam_height']             = str(beam_h)
             ficha.setdefault('beam_bottom_dim', str(bw))
-            ficha.setdefault('scale_v', str(round(scale_v, 4)))
-            ficha.setdefault('own_dist_top',       str(own_dt))
-            ficha.setdefault('own_dist_bottom',    str(own_df))
-            ficha.setdefault('neighbor_dist_top',  str(neigh_dt))
-            ficha.setdefault('neighbor_dist_bottom', str(neigh_df))
-            ficha.setdefault('own_slab_height',    str(own_slab_h))
-            ficha.setdefault('neigh_slab_height',  str(neigh_slab_h) if neigh_slab_h else 'nulo')
+            ficha['scale_v']                 = str(round(scale_v, 4))
+            ficha['own_dist_top']            = str(own_dt)
+            ficha['own_dist_bottom']         = str(own_df)
+            ficha['neighbor_dist_top']       = str(neigh_dt)
+            ficha['neighbor_dist_bottom']    = str(neigh_df)
+            ficha['own_slab_height']         = str(own_slab_h)
+            ficha['neigh_slab_height']       = str(neigh_slab_h) if neigh_slab_h else 'nulo'
 
             pos = self._infer_slab_position(own_dt, own_h_val or own_slab_h, beam_h)
-            ficha.setdefault('own_position', pos)
+            ficha['own_position']      = pos
             n_pos = self._infer_slab_position(neigh_dt, neigh_h_val or neigh_slab_h, beam_h) if (neigh_h_val or neigh_slab_h) else 'nulo'
-            ficha.setdefault('neighbor_position', n_pos if neighbor else 'nulo')
+            ficha['neighbor_position'] = n_pos if neighbor else 'nulo'
         else:
-            ficha.setdefault('own_position', 'centro')
-            ficha.setdefault('neighbor_position', 'centro' if neighbor else 'nulo')
-            ficha.setdefault('own_dist_top', '')
-            ficha.setdefault('own_dist_bottom', '')
-            ficha.setdefault('neighbor_dist_top', '')
-            ficha.setdefault('neighbor_dist_bottom', '')
-            ficha.setdefault('own_slab_height', '')
-            ficha.setdefault('neigh_slab_height', 'nulo')
+            ficha['own_position']         = 'centro'
+            ficha['neighbor_position']    = 'centro' if neighbor else 'nulo'
+            ficha['own_dist_top']         = ''
+            ficha['own_dist_bottom']      = ''
+            ficha['neighbor_dist_top']    = ''
+            ficha['neighbor_dist_bottom'] = ''
+            ficha['own_slab_height']      = ''
+            ficha['neigh_slab_height']    = 'nulo'
 
         # --- nome e dimensoes da viga via textos DXF proximos ---
         beam_name = self._nearest_dxf_text(center, r'^(VF?\d+|V\d+)$', max_dist=1400.0)
@@ -9888,8 +9901,20 @@ class MainWindow(QMainWindow):
                                _ty0 - 30 <= float(_lpos[1]) <= _ty1 + 30)
                     if _in_box and 20.0 <= _lv_f <= 600.0:
                         ficha['beam_height_label'] = str(_lv_f)
-                        # Override beam_height com o valor anotado (mais preciso)
+                        _old_bh_str = ficha.get('beam_height')
+                        # Override beam_height com o valor anotado (mais preciso).
                         ficha['beam_height'] = str(_lv_f)
+                        # Se o label mudou o beam_height, recomputa dist_bottom
+                        # pelo cruzamento: dist_bottom = label - own_slab_h - own_dist_top.
+                        try:
+                            _old_bh_f = float(_old_bh_str) if _old_bh_str else None
+                            if _old_bh_f is None or abs(_lv_f - _old_bh_f) > 0.5:
+                                _oh = float(ficha.get('own_slab_height') or 0)
+                                _dt = float(ficha.get('own_dist_top') or 0)
+                                if _oh > 0:
+                                    ficha['own_dist_bottom'] = str(round(_lv_f - _oh - _dt, 1))
+                        except (ValueError, TypeError):
+                            pass
                         fl2 = link.setdefault('ficha_links', {})
                         fl2.setdefault('beam_height_label', [])
                         if not fl2['beam_height_label']:
