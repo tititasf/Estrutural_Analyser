@@ -516,10 +516,12 @@ def _render_dxf_ax(ax, dxf_path: str | Path, title: str, color_map: dict | None 
         ax.set_title(title, color="#ccccff", fontsize=8)
         return
 
-    segs_n, txts_n, _, _ = _norm_coords(segs_precomp, txts_precomp, bbox_precomp)
+    segs_n, txts_n, w_n, h_n = _norm_coords(segs_precomp, txts_precomp, bbox_precomp)
 
     ax.set_facecolor("#0a0a14")
-    ax.set_aspect("equal")
+    # Usar "auto" para formas com proporção extrema (vigas longas, lajes largas).
+    # "equal" colapsaria a altura para formas com aspect ratio > 5:1.
+    ax.set_aspect("auto")
 
     for xs, ys, layer in segs_n:
         color = (color_map or {}).get(layer, "#8888cc")
