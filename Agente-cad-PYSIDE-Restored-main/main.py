@@ -9905,15 +9905,38 @@ class MainWindow(QMainWindow):
                         _old_bh_str = ficha.get('beam_height')
                         # Override beam_height com o valor anotado (mais preciso).
                         ficha['beam_height'] = str(_lv_f)
-                        # Se o label mudou o beam_height, recomputa dist_bottom
-                        # pelo cruzamento: dist_bottom = label - own_slab_h - own_dist_top.
+                        # Se o label mudou o beam_height, recomputa own e neigh dist_bottom.
+                        # Estratégia own: usa height real da laje própria (já em ficha['own_slab_height']).
+                        # Estratégia neigh: prefere height real (neighbor_height) ou, sem vizinho real,
+                        # reescala valores geométricos na proporção label / old_bh.
                         try:
                             _old_bh_f = float(_old_bh_str) if _old_bh_str else None
                             if _old_bh_f is None or abs(_lv_f - _old_bh_f) > 0.5:
+                                # --- own ---
                                 _oh = float(ficha.get('own_slab_height') or 0)
                                 _dt = float(ficha.get('own_dist_top') or 0)
                                 if _oh > 0:
                                     ficha['own_dist_bottom'] = str(round(_lv_f - _oh - _dt, 1))
+                                # --- neigh ---
+                                _nh_real_str = ficha.get('neighbor_height') or ''
+                                _nh_real = (float(_nh_real_str)
+                                            if str(_nh_real_str) not in ('nulo', '', 'None') else 0.0)
+                                _ndt = float(ficha.get('neighbor_dist_top') or 0)
+                                if _nh_real > 0:
+                                    # Laje vizinha real conhecida — apenas corrige dist_bottom
+                                    ficha['neighbor_dist_bottom'] = str(round(_lv_f - _nh_real - _ndt, 1))
+                                else:
+                                    # Sem vizinha real: reescala valores geométricos
+                                    _nh_geo_str = ficha.get('neigh_slab_height') or '0'
+                                    _nh_geo = (float(_nh_geo_str)
+                                               if str(_nh_geo_str) not in ('nulo', '', 'None') else 0.0)
+                                    if _nh_geo > 0 and _old_bh_f and _old_bh_f > 0:
+                                        _sc = _lv_f / _old_bh_f
+                                        _nh_sc = round(_nh_geo * _sc, 1)
+                                        _ndt_sc = round(_ndt * _sc, 1)
+                                        ficha['neigh_slab_height'] = str(_nh_sc)
+                                        ficha['neighbor_dist_top'] = str(_ndt_sc)
+                                        ficha['neighbor_dist_bottom'] = str(round(_lv_f - _nh_sc - _ndt_sc, 1))
                         except (ValueError, TypeError):
                             pass
                         fl2 = link.setdefault('ficha_links', {})
@@ -9924,6 +9947,28 @@ class MainWindow(QMainWindow):
                             fl2['beam_height_label'] = [lk2]
                 except (ValueError, TypeError):
                     pass
+
+        # Consistência final: garante h + dt + df == beam_height para own e neigh.
+        # Necessário quando standalone label muda bh mas neigh_df já estava correto
+        # da execução anterior (abs(old-new)=0 → recompute não disparou).
+        try:
+            _bh_f = float(ficha.get('beam_height') or 0)
+            if _bh_f > 0:
+                for _h_k, _dt_k, _df_k in [
+                    ('own_slab_height', 'own_dist_top', 'own_dist_bottom'),
+                    ('neigh_slab_height', 'neighbor_dist_top', 'neighbor_dist_bottom'),
+                ]:
+                    try:
+                        _h_v = float(ficha.get(_h_k) or 0)
+                        _dt_v = float(ficha.get(_dt_k) or 0)
+                        _df_v = float(ficha.get(_df_k) or 0)
+                        if _h_v > 0 and _dt_v >= 0 and _df_v >= 0:
+                            if abs(_h_v + _dt_v + _df_v - _bh_f) > 1.0:
+                                ficha[_df_k] = str(round(_bh_f - _h_v - _dt_v, 1))
+                    except (ValueError, TypeError):
+                        pass
+        except (ValueError, TypeError):
+            pass
 
     def _pillar_face_from_edge_overlap(self, pillar_pts: list, slab_pts: list, horizontal: bool):
         """
@@ -10724,6 +10769,40 @@ class MainWindow(QMainWindow):
             pillar_links = self._ensure_slab_support_pillar_links(slab)
             existing = cut_links.get('cut_view_geom', []) or []
             existing_pillars = pillar_links.get('pillar_geom', []) or []
+
+            # Dedup existentes por centroide: prioriza versão extended_by_companion.
+            # Rejeita polígonos não-validados com < 8 pontos (retângulos/companion soltos).
+            _seen_cv: dict[tuple, int] = {}  # pos → index in _keep_cv
+            _keep_cv: list = []
+            for _e in existing:
+                if not isinstance(_e, dict):
+                    continue
+                _epts = _e.get('points') or []
+                _orig_epts = _e.get('original_pts') or _epts
+                # Rejeita entradas com pontos insuficientes para T (apenas se não validado)
+                if not _e.get('validated') and len(_epts) < 8 and len(_orig_epts) < 8:
+                    continue
+                try:
+                    _exs = [float(p[0]) for p in _epts]
+                    _eys = [float(p[1]) for p in _epts]
+                    _epos = (round((min(_exs) + max(_exs)) / 2.0), round((min(_eys) + max(_eys)) / 2.0))
+                except Exception:
+                    _keep_cv.append(_e)
+                    continue
+                if _epos in _seen_cv:
+                    prev_idx = _seen_cv[_epos]
+                    prev = _keep_cv[prev_idx]
+                    # Troca se novo é extended e anterior não, ou novo tem mais pontos
+                    if (_e.get('extended_by_companion') and not prev.get('extended_by_companion')) or \
+                       (len(_epts) > len(prev.get('points') or [])):
+                        _keep_cv[prev_idx] = _e
+                else:
+                    _seen_cv[_epos] = len(_keep_cv)
+                    _keep_cv.append(_e)
+            if len(_keep_cv) != len(existing):
+                cut_links['cut_view_geom'] = _keep_cv
+                existing = _keep_cv
+
             for link in existing:
                 # Tenta completar o T com o retângulo companheiro (fundo do web).
                 if not link.get('extended_by_companion') and len(link.get('points') or []) >= 7:
@@ -10758,10 +10837,19 @@ class MainWindow(QMainWindow):
                 probe = {'points': pts}
                 target_existing = existing_pillars if marker_kind == 'pillar' else existing
                 for link in target_existing:
-                    if isinstance(link, dict) and self._same_cut_view_signature(probe, link):
+                    if not isinstance(link, dict):
+                        continue
+                    # Verifica contra pontos atuais E pontos originais (pré-extensão companion)
+                    orig_link = {'points': link.get('original_pts') or link.get('points')}
+                    if (self._same_cut_view_signature(probe, link) or
+                            self._same_cut_view_signature(probe, orig_link)):
                         duplicate = True
                         break
                 if duplicate:
+                    continue
+
+                # Visão de corte (T) precisa de ao menos 8 pontos de contorno
+                if marker_kind != 'pillar' and len(pts) < 8:
                     continue
 
                 if marker_kind == 'pillar':
