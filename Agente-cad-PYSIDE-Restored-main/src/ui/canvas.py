@@ -1978,7 +1978,9 @@ class CADCanvas(QGraphicsView):
         import re as _re
         result = []
         for key in sorted(links.keys()):
-            if _re.match(r'viga_fundo_seg_\d+_area_segs', key) and isinstance(links[key], dict):
+            m = _re.match(r'viga_fundo_seg_(\d+)_area_segs', key)
+            if m and isinstance(links[key], dict):
+                seg_num = int(m.group(1))
                 for lk in links[key].get('contour', []):
                     if isinstance(lk, dict) and lk.get('points'):
                         result.append({
@@ -1986,12 +1988,16 @@ class CADCanvas(QGraphicsView):
                             '_field_id': lk.get('_field_id', key),
                             '_slot_name': lk.get('_slot_name', 'contour'),
                             'tag': lk.get('tag', 'fundo'),
+                            '_seg_num': seg_num,
                         })
         return result
 
     def _draw_fundo_polys(self, poly_list: list, pen, store_in_group: bool = True) -> list:
         """Desenha lista de polys na cena com o pen dado. Retorna QGraphicsItems criados."""
         created = []
+        _orange_brush = QBrush(QColor(255, 120, 0))
+        _seg_font = QFont("Arial", 12)
+        _seg_font.setBold(True)
         for lk in poly_list:
             pts = lk.get('points', [])
             if not pts or len(pts) < 2:
@@ -2007,6 +2013,22 @@ class CADCanvas(QGraphicsView):
             if store_in_group:
                 self.item_groups.setdefault('beam_fundo', []).append(item)
             created.append(item)
+            # Rótulo de segmento 30 unidades acima do polígono
+            seg_num = lk.get('_seg_num')
+            if seg_num is not None:
+                xs = [p[0] for p in pts]
+                ys = [p[1] for p in pts]
+                x_center = (min(xs) + max(xs)) / 2.0
+                y_top = min(ys) - 30
+                label = f"Segmento-{seg_num:02d}"
+                t_item = self.scene.addSimpleText(label, _seg_font)
+                t_item.setPos(x_center, y_top)
+                t_item.setBrush(_orange_brush)
+                t_item.setZValue(15)
+                t_item.setFlag(QGraphicsSimpleTextItem.ItemIgnoresTransformations)
+                if store_in_group:
+                    self.item_groups.setdefault('beam_fundo', []).append(t_item)
+                created.append(t_item)
         return created
 
     def draw_beam_fundos(self, beams_data: list):
@@ -2075,7 +2097,7 @@ class CADCanvas(QGraphicsView):
             return QColor(255, 213, 0)
         if 'laje' in field or 'laje' in target_type or target_name.startswith('l'):
             return QColor(0, 150, 255)
-        return fallback if isinstance(fallback, QColor) else QColor(255, 213, 0)
+        return fallback if isinstance(fallback, QColor) else QColor(255, 120, 0)
 
     def _style_highlight_text(self, item, color=None):
         text_color = color if isinstance(color, QColor) else QColor(255, 255, 255)
