@@ -17,6 +17,7 @@ NÃO usa análise por layer (cada obra tem layers diferentes).
 from __future__ import annotations
 
 from pathlib import Path
+import re
 
 # Paleta (tema escuro, igual fv_render_compare)
 BG = "#0a0a14"
@@ -43,6 +44,28 @@ def _beam_seg_lines(b: dict):
     """Extrai os segmentos de fundo (seg_bottom) de um beam para desenho."""
     classified = b.get("geometry", {}).get("classified", {})
     segs = []
+    coords = classified.get("merged_bottom_groups_coords", []) or []
+    if coords and _is_pt(b.get("pos")):
+        pos = b.get("pos")
+        is_h = b.get("is_h", True)
+        half_h = _beam_half_width(b)
+        for p_min, p_max in coords:
+            if is_h:
+                poly = [
+                    (p_min, pos[1] - half_h),
+                    (p_max, pos[1] - half_h),
+                    (p_max, pos[1] + half_h),
+                    (p_min, pos[1] + half_h),
+                ]
+            else:
+                poly = [
+                    (pos[0] - half_h, p_min),
+                    (pos[0] + half_h, p_min),
+                    (pos[0] + half_h, p_max),
+                    (pos[0] - half_h, p_max),
+                ]
+            segs.extend(_poly_edges(poly))
+        return segs
     for s in classified.get("seg_bottom", []) or []:
         if isinstance(s, (list, tuple)) and len(s) >= 2:
             # s é uma lista de pontos; liga ponto-a-ponto
@@ -51,6 +74,24 @@ def _beam_seg_lines(b: dict):
                 if _is_pt(p0) and _is_pt(p1):
                     segs.append([p0, p1])
     return segs
+
+
+def _beam_half_width(b: dict) -> float:
+    texts = (b.get("geometry", {}) or {}).get("dimension_texts", []) or []
+    dim_text = texts[0].get("text", "") if texts and isinstance(texts[0], dict) else ""
+    nums = [float(n.replace(",", ".")) for n in re.findall(r"\d+(?:[,.]\d+)?", str(dim_text))]
+    width = min(nums) if nums else 20.0
+    return max(width / 2.0, 3.0)
+
+
+def _poly_edges(poly: list) -> list:
+    edges = []
+    for i in range(len(poly)):
+        p0 = poly[i]
+        p1 = poly[(i + 1) % len(poly)]
+        if _is_pt(p0) and _is_pt(p1):
+            edges.append([p0, p1])
+    return edges
 
 
 def _beam_span_lines(b: dict):

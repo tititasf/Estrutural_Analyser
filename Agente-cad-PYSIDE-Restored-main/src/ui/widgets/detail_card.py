@@ -264,6 +264,10 @@ class DetailCard(QWidget):
                 self.fields['viga_count_b'].setText(str(nb))
                 self.fields['viga_count_b'].setStyleSheet(f"background: {Colors.BG_CARD}; color: {Colors.ACCENT_PRIMARY}; font-weight: bold; border: none;")
 
+            if 'viga_count_c' in self.fields:
+                self.fields['viga_count_c'].setText(str(nc))
+                self.fields['viga_count_c'].setStyleSheet(f"background: {Colors.BG_CARD}; color: {Colors.ACCENT_PRIMARY}; font-weight: bold; border: none;")
+
 
     def _add_linked_row(self, layout, label_text, field_id, pick_type='text', is_combo=False, combo_items=None, 
                         show_links=True, show_focus=True, hide_input=False, show_validate=True, show_na=True):
@@ -682,6 +686,7 @@ class DetailCard(QWidget):
         
         # Se foi removida a validação de um vínculo, e o slot também estava validado, removemos a do slot
         if status == 'removed' and slot_id:
+            self._clear_full_validation_state()
             valid_map = self.item_data.get('validated_link_classes', {})
             if field_id in valid_map and slot_id in valid_map[field_id]:
                 valid_map[field_id].remove(slot_id)
@@ -709,6 +714,13 @@ class DetailCard(QWidget):
             })
         else:
             self.refresh_validation_styles()
+
+    def _clear_full_validation_state(self):
+        """Remove o selo de item completo quando uma validação granular é desfeita."""
+        if self.item_data.get('is_fully_validated'):
+            self.item_data['is_fully_validated'] = False
+        if self.item_data.get('is_validated'):
+            self.item_data['is_validated'] = False
 
     def mark_field_validated(self, field_id, is_valid=True, emit_data_changed=True):
         """Aplica estilo visual de validação no widget do campo de forma otimizada"""
@@ -739,6 +751,7 @@ class DetailCard(QWidget):
                 lm.refresh_list()
         else:
             validated.remove(field_id)
+            self._clear_full_validation_state()
             
         self._refresh_link_conf_badge(field_id)
         self.refresh_validation_styles()
@@ -1294,7 +1307,7 @@ class DetailCard(QWidget):
                  na, nb, nc = self._scan_local_segments()
                  
                  if itype == 'viga_fundo_c':
-                     self._add_linked_row(h_layout, "Qtd. Seg. C:", "viga_count_c", "text", show_links=False, show_focus=False, show_validate=False, show_na=False)
+                     self._add_linked_row(h_layout, "Qtd. Seg. C:", "viga_count_c", "text", show_links=False, show_focus=False, show_validate=True, show_na=False)
                      self.fields['viga_count_c'].setText(str(nc))
                      self.fields['viga_count_c'].setReadOnly(True)
                  else:
@@ -1486,7 +1499,10 @@ class DetailCard(QWidget):
         form.setSpacing(5)
         
         # Campos principais movidos para cá
-        self._add_linked_row(form, "Nº Item [id_item]:", "id_item", "text", show_links=False, show_focus=False)
+        self._add_linked_row(
+            form, "Nº Item [id_item]:", "id_item", "text",
+            show_links=False, show_focus=False, show_validate=False, show_na=False
+        )
         self._add_linked_row(form, "Nome [name]:", "name", "text")
         self._add_linked_row(form, "Dimensão C×L cm [laje_dim]:", "laje_dim", "text")
         self._add_linked_row(form, "Visao de Corte [laje_visao_corte]:", "laje_visao_corte", "poly", hide_input=True)
@@ -1508,12 +1524,18 @@ class DetailCard(QWidget):
         f_calc = QFormLayout(grp_calc)
         f_calc.setContentsMargins(2, 4, 2, 4)
         f_calc.setSpacing(1)
-        self._add_linked_row(f_calc, "Área Total m² (calculada) [area]:", "area", "text")
-        self._add_linked_row(f_calc, "Modo de Cálculo 0=normal 1=espelho [modo_selecionado]:", "modo_selecionado", "text")
-        self._add_linked_row(f_calc, "Qtd. Linhas Verticais de Pontalete [laje_linhas_v_count]:", "laje_linhas_v_count", "text")
-        self._add_linked_row(f_calc, "Qtd. Linhas Horizontais de Pontalete [laje_linhas_h_count]:", "laje_linhas_h_count", "text")
-        self._add_linked_row(f_calc, "Uniões nos Bordos (sim/não) [unioes_nos_bordes]:", "unioes_nos_bordes", "text")
-        self._add_linked_row(f_calc, "Observações / Notas [observacoes]:", "observacoes", "text")
+        readonly_row = {
+            "show_links": False,
+            "show_focus": False,
+            "show_validate": False,
+            "show_na": False,
+        }
+        self._add_linked_row(f_calc, "Área Total m² (calculada) [area]:", "area", "text", **readonly_row)
+        self._add_linked_row(f_calc, "Modo de Cálculo 0=normal 1=espelho [modo_selecionado]:", "modo_selecionado", "text", **readonly_row)
+        self._add_linked_row(f_calc, "Qtd. Linhas Verticais de Pontalete [laje_linhas_v_count]:", "laje_linhas_v_count", "text", **readonly_row)
+        self._add_linked_row(f_calc, "Qtd. Linhas Horizontais de Pontalete [laje_linhas_h_count]:", "laje_linhas_h_count", "text", **readonly_row)
+        self._add_linked_row(f_calc, "Uniões nos Bordos (sim/não) [unioes_nos_bordes]:", "unioes_nos_bordes", "text", **readonly_row)
+        self._add_linked_row(f_calc, "Observações / Notas [observacoes]:", "observacoes", "text", **readonly_row)
         l.addWidget(grp_calc)
 
         # ── GRUPO: Pontaletes / Escoras ───────────────────────────────────────
@@ -2958,6 +2980,8 @@ class DetailCard(QWidget):
 
     def undo_slot_validation(self, field_id, slot_id):
         """Remove a validação de um slot e seus vínculos (Undo)"""
+        self._clear_full_validation_state()
+
         # 1. Remover do mapa de validados
         valid_map = self.item_data.get('validated_link_classes', {})
         if field_id in valid_map and slot_id in valid_map[field_id]:
@@ -2976,6 +3000,8 @@ class DetailCard(QWidget):
 
     def undo_field_validation(self, field_id):
         """Desfaz toda a validação de um campo (Undo de alto nível)"""
+        self._clear_full_validation_state()
+
         validated = self.item_data.get('validated_fields', [])
         if field_id in validated:
             validated.remove(field_id)

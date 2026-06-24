@@ -1982,7 +1982,7 @@ class MainWindow(QMainWindow):
         
         return module_container
 
-    def sync_slabs_to_robo_laje_action(self):
+    def sync_slabs_to_robo_laje_action(self, confirm: bool = True, switch_to_tab: bool = True, run_ai: bool = True):
         """Sincroniza as lajes da lista de análise para o Robo Lajes."""
         # 1. Verificar disponibilidade do Robo
         if not hasattr(self, 'robo_laje') or not self.robo_laje:
@@ -2087,14 +2087,17 @@ class MainWindow(QMainWindow):
 
         # 4. Substituir/Popular no Pavimento Alvo
         from PySide6.QtWidgets import QMessageBox
-        reply = QMessageBox.question(
-            self, 
-            "Sincronizar Robo Lajes",
-            f"Isso irá SUBSTITUIR todas as lajes do pavimento '{pavimento_nome}' no Robo Lajes \n"
-            f"pelas {count} lajes da Análise Atual.\n\n"
-            "Deseja continuar?",
-            QMessageBox.Yes | QMessageBox.No
-        )
+        if confirm:
+            reply = QMessageBox.question(
+                self,
+                "Sincronizar Robo Lajes",
+                f"Isso irá SUBSTITUIR todas as lajes do pavimento '{pavimento_nome}' no Robo Lajes \n"
+                f"pelas {count} lajes da Análise Atual.\n\n"
+                "Deseja continuar?",
+                QMessageBox.Yes | QMessageBox.No
+            )
+        else:
+            reply = QMessageBox.Yes
         
         if reply == QMessageBox.Yes:
             pavimento_alvo.lajes = novas_lajes_robo
@@ -2102,9 +2105,9 @@ class MainWindow(QMainWindow):
             # 5. Atualizar UI do Robo Lajes e Iniciar Automação IA
             if hasattr(self, 'robo_laje') and self.robo_laje is not None and hasattr(self.robo_laje, 'laje_tab'):
                 # Trocar para a aba do Robo Laje para visualização do processo
-                if hasattr(self, 'module_tabs'):
+                if switch_to_tab and hasattr(self, 'module_tabs'):
                     self.module_tabs.setCurrentIndex(8)  # Robo Laje é a 9ª aba (índice 8)
-                if hasattr(self, 'module_stack'):
+                if switch_to_tab and hasattr(self, 'module_stack'):
                     self.module_stack.setCurrentIndex(8)  # Robo Laje é o 9º módulo (índice 8)
                 
                 # Forçar atualização da tabela
@@ -2126,7 +2129,8 @@ class MainWindow(QMainWindow):
                 
                 # Iniciar Processamento IA Automatizado (Linhas + Cotas)
                 # A função automate_ai_for_all_lajes já salva no final
-                self.robo_laje.laje_tab.automate_ai_for_all_lajes()
+                if run_ai and hasattr(self.robo_laje.laje_tab, 'automate_ai_for_all_lajes'):
+                    self.robo_laje.laje_tab.automate_ai_for_all_lajes()
                 
                 # SALVAR NOVAMENTE após processamento IA (garantia extra)
                 if hasattr(self.robo_laje, 'save_all_obras_auto'):
@@ -2138,7 +2142,8 @@ class MainWindow(QMainWindow):
                             print(f"[SYNC] ✅ Dados salvos após processamento IA completo")
                     QTimer.singleShot(5000, salvar_apos_ia)  # 5 segundos para garantir que tudo termine
                 
-            QMessageBox.information(self, "Sucesso", f"{count} lajes sincronizadas e processadas pela IA!")
+                if confirm:
+                    QMessageBox.information(self, "Sucesso", f"{count} lajes sincronizadas e processadas pela IA!")
 
         self.statusBar.showMessage(f"Sincronização concluída: {count} lajes enviadas.", 5000)
 
@@ -5489,7 +5494,18 @@ class MainWindow(QMainWindow):
                  # 1. Se VALIDADO, restaura tudo
                  if old.get('is_validated', False):
                      b['is_validated'] = True
+                     # Guardar links LV Para/Passa recém-gerados antes da sobrescrita
+                     _fresh_lv_links = {
+                         k: v for k, v in b.get('links', {}).items()
+                         if ('comprimento_total' in k or 'comp_total_passa' in k) and 'viga_' in k
+                     }
                      b['links'] = old.get('links', {})
+                     # Injetar links LV Para/Passa que estavam ausentes ou vazios no DB antigo
+                     for _lk, _lv in _fresh_lv_links.items():
+                         _old_val = b['links'].get(_lk, {})
+                         _old_has_data = any(bool(v) for v in _old_val.values()) if _old_val else False
+                         if not _old_has_data and any(bool(v) for v in _lv.values()):
+                             b['links'][_lk] = _lv
                      b['confidence_map'] = old.get('confidence_map', {})
                      b['validated_fields'] = old.get('validated_fields', [])
                      
@@ -5800,6 +5816,18 @@ class MainWindow(QMainWindow):
                 for s in getattr(self, 'slabs_found', []):
                     self.db.save_slab(s, self.current_project_id)
                 try:
+                    n_lj_json, n_lj_el = self._materialize_slabs_for_n1_n3_and_robo()
+                    if n_lj_json:
+                        self.log(f"🧩 Lajes SA→N1/N3/Robo: {n_lj_json} JSON_Lajes e {n_lj_el} slab_elements atualizados.")
+                    if getattr(self, 'robo_laje', None):
+                        self.sync_slabs_to_robo_laje_action(
+                            confirm=False,
+                            switch_to_tab=False,
+                            run_ai=True,
+                        )
+                except Exception as _e_lj_mat:
+                    self.log(f"⚠️ Falha ao propagar lajes SA→N1/N3/Robo: {_e_lj_mat}")
+                try:
                     from scripts.analise_geral_headless import process_beam_fv, upsert_beam_element_fv
 
                     # FASE 1: Processar dados FV e atualizar links em memória (sem acesso ao DB)
@@ -5817,6 +5845,37 @@ class MainWindow(QMainWindow):
 
                         segs = fv_data.get('segmentos_fundo', [])
                         print(f"Beam {b.get('name')} FV segments: {len(segs)}")
+
+                        def _is_good_fv_contour(link):
+                            if not isinstance(link, dict):
+                                return False
+                            if link.get('validated'):
+                                return True
+                            pts = link.get('points') or []
+                            uniq = []
+                            for pt in pts:
+                                if not isinstance(pt, (list, tuple)) or len(pt) < 2:
+                                    continue
+                                xy = (round(float(pt[0]), 3), round(float(pt[1]), 3))
+                                if xy not in uniq:
+                                    uniq.append(xy)
+                            if len(uniq) < 4:
+                                return False
+                            xs = [p[0] for p in uniq]
+                            ys = [p[1] for p in uniq]
+                            min_x, max_x = min(xs), max(xs)
+                            min_y, max_y = min(ys), max(ys)
+                            if (max_x - min_x) <= 1.0 or (max_y - min_y) <= 1.0:
+                                return False
+                            tol = 2.0
+                            corners = [
+                                (min_x, min_y), (max_x, min_y),
+                                (max_x, max_y), (min_x, max_y),
+                            ]
+                            return all(
+                                any(abs(px - cx) <= tol and abs(py - cy) <= tol for px, py in uniq)
+                                for cx, cy in corners
+                            )
 
                         for seg in segs:
                             idx = seg.get('seg_index')
@@ -5845,19 +5904,26 @@ class MainWindow(QMainWindow):
                                     b['links'][link_key] = {}
                                 # Não sobrescreve contour já populada por _process_beam_intelligent
                                 existing_contour = b['links'][link_key].get('contour', [])
-                                has_good_pts = any(
-                                    isinstance(lk, dict) and lk.get('points')
-                                    for lk in existing_contour
+                                good_contour = next(
+                                    (lk for lk in existing_contour if _is_good_fv_contour(lk)),
+                                    None
                                 )
-                                if not has_good_pts:
+                                if not good_contour:
                                     b['links'][link_key]['contour'] = [{
                                         'points': geom,
                                         'type': 'polygon',
                                         'tag': 'Fundo',
                                         'ficha': seg.get('ficha', {}),
+                                        'len': seg.get('length'),
                                     }]
                                     print(f" -> Added {link_key} contour (bbox fallback) to Beam {b.get('name')}")
                                 else:
+                                    _ficha = dict(good_contour.get('ficha') or {})
+                                    _ficha.update(seg.get('ficha') or {})
+                                    good_contour['ficha'] = _ficha
+                                    good_contour['tag'] = good_contour.get('tag') or 'Fundo'
+                                    good_contour['len'] = good_contour.get('len') or seg.get('length')
+                                    b['links'][link_key]['contour'] = [good_contour]
                                     print(f" -> Kept existing {link_key} contour for Beam {b.get('name')}")
 
                                 field_prefix = f"viga_fundo_seg_{idx}"
@@ -5886,6 +5952,19 @@ class MainWindow(QMainWindow):
                     with _sq3.connect(self.db.db_path) as _fv_conn:
                         for fv_data in _fv_results:
                             upsert_beam_element_fv(_fv_conn, self.current_project_id, fv_data["viga_nome"], fv_data["panels_n1"], fv_data)
+
+                    try:
+                        from pathlib import Path as _Path
+                        from scripts.motor_fase4 import MotorFase4
+                        _obra_nome = self.cmb_works.currentText() if hasattr(self, "cmb_works") else ""
+                        _pav_nome = self._current_pavement_name() if hasattr(self, "_current_pavement_name") else ""
+                        _obra_path = _Path("D:/Agente-cad-PYSIDE/DADOS-OBRAS") / _obra_nome
+                        _m4 = MotorFase4(str(_obra_path), pavimento=_pav_nome)
+                        _n_fv_json = _m4._write_fv_json_from_beam_elements({})
+                        if _n_fv_json:
+                            self.log(f"🧩 Fundos SA→N1/N3/Robo: {_n_fv_json} JSON_Vigas_Fundo atualizados.")
+                    except Exception as _e_fv_f4:
+                        self.log(f"⚠ Falha ao materializar FV SA→N3/Robo: {_e_fv_f4}")
 
                 except Exception as _fv_err:
                     import traceback
@@ -7986,10 +8065,14 @@ class MainWindow(QMainWindow):
             _expected_segs = len(_lengths_check) if _lengths_check else 1
             _existing_para = [k for k in b.get('links', {}) if 'comprimento_total' in k and 'viga_a' in k]
             if _existing_para:
-                # já tem chaves — verificar se número de segmentos bate com spans do bottom
                 _existing_count = len(_existing_para)
                 if _existing_count == _expected_segs:
-                    return  # número correto de segmentos, não precisa re-rodar
+                    _para_has_data = any(
+                        any(bool(v) for v in b['links'].get(k, {}).values())
+                        for k in _existing_para
+                    )
+                    if _para_has_data:
+                        return  # Para já tem geometria real, não re-rodar
                 # número errado (fallback antigo) — limpar e re-rodar
                 for k in list(b.get('links', {}).keys()):
                     if 'comprimento_total' in k or ('comp_total_passa' in k and 'viga_' in k):
@@ -8056,6 +8139,22 @@ class MainWindow(QMainWindow):
                         b['links'][tkey][sk] = [{'type': 'poly', 'points': best_ln, 'len': sl, 'tag': tag}]
             _run_motor('comprimento_total')
             _run_motor('comp_total_passa')
+            # Fallback: beam de DB com classified vazio → Para ficou sem geometria
+            # mas Passa foi populado pela migração viga_segs. Copiar Passa → Para
+            # (mesmo segmento lateral físico, só sufixo semântico difere).
+            _links_now = b.get('links', {})
+            _para_empty_after = not any(
+                any(bool(v) for v in _links_now.get(k, {}).values())
+                for k in _links_now if 'comprimento_total' in k and 'viga_' in k
+            )
+            if _para_empty_after:
+                for _pk, _sv in list(_links_now.items()):
+                    if 'comp_total_passa' in _pk and 'viga_' in _pk and any(bool(v) for v in _sv.values()):
+                        _para_k = _pk.replace('comp_total_passa', 'comprimento_total')
+                        _old_para = _links_now.get(_para_k, {})
+                        _old_has = any(bool(v) for v in _old_para.values()) if _old_para else False
+                        if not _old_has:
+                            _links_now[_para_k] = {sk: list(sv) for sk, sv in _sv.items()}
             _refresh_fundo_link_fichas()
 
         if has_links and not seg_bottom_empty and has_fundo_contours:
@@ -10652,6 +10751,7 @@ class MainWindow(QMainWindow):
     def _calculate_completion(self, item_data):
         """Calcula % de completude dinâmico baseado no total de campos reais."""
         if not item_data: return 0.0
+        itype = str(item_data.get('type') or '').lower()
         
         # 1. Se validado globalmente, 100%
         if item_data.get('is_fully_validated'):
@@ -10667,6 +10767,24 @@ class MainWindow(QMainWindow):
         
         # Campos principais concluídos (União)
         done_fields = val_fields | na_fields
+
+        if 'laje' in itype:
+            laje_fields = {
+                'name',
+                'laje_dim',
+                'laje_visao_corte',
+                'laje_vizinhas_niveis',
+                'laje_pilares_apoio',
+                'laje_nivel',
+                'laje_outline_segs',
+                'laje_islands',
+            }
+            total_expected = len(laje_fields)
+            total_done = len(done_fields & laje_fields)
+            if total_expected <= 0:
+                return 100.0
+            return max(0.0, min(100.0, (total_done / total_expected) * 100))
+
         total_done = len(done_fields)
         
         # 3. Bônus por Slots — apenas para campos já concluídos pelo humano.
@@ -11002,6 +11120,150 @@ class MainWindow(QMainWindow):
             self.current_project_id = None
             self.meta_widget.setEnabled(False)
         
+
+    def _slab_to_n1_robot_ficha(self, slab_data: dict) -> dict:
+        """Converte uma laje do Structural Analyzer para o contrato do Robo/N3."""
+        from src.core.laje_n1_to_robot_ficha import n1_laje_to_robot_ficha
+
+        source = dict(slab_data or {})
+        unified_poly, area_m2 = self._get_slab_real_geometry(source)
+        if unified_poly:
+            geom = unified_poly
+            if getattr(geom, "geom_type", "") == "MultiPolygon":
+                geom = max(geom.geoms, key=lambda g: g.area)
+            try:
+                coords = [[float(x), float(y)] for x, y in list(geom.exterior.coords)]
+                if len(coords) > 1 and coords[0] == coords[-1]:
+                    coords.pop()
+                source["coordenadas"] = coords
+                source["points"] = coords
+                source["area_cm2"] = round(float(area_m2) * 10000.0, 2)
+            except Exception:
+                pass
+
+        fields = source.get("fields") if isinstance(source.get("fields"), dict) else {}
+        for key in (
+            "laje_dim", "laje_nivel", "laje_linhas_v_count", "laje_linhas_h_count",
+            "modo_selecionado", "unioes_nos_bordes", "observacoes",
+            "pont_total", "pont_meio", "pont_linhas", "pont_colunas", "pont_tipo",
+            "pont_altura_pav", "pont_comp_cm", "pont_larg_cm",
+        ):
+            if key not in source and key in fields:
+                source[key] = fields[key]
+
+        return n1_laje_to_robot_ficha(source)
+
+    def _materialize_slabs_for_n1_n3_and_robo(self) -> tuple[int, int]:
+        """Materializa lajes SA em JSON_Lajes e slab_elements para N1/N3/loops."""
+        if not getattr(self, "current_project_id", None):
+            return 0, 0
+        from pathlib import Path as _Path
+        import json as _json
+        import sqlite3 as _sqlite3
+        from datetime import datetime as _dt
+
+        obra_nome = None
+        try:
+            if hasattr(self, "cmb_works"):
+                obra_nome = self.cmb_works.currentData() or self.cmb_works.currentText()
+        except Exception:
+            obra_nome = None
+        obra_nome = obra_nome or "Obra_TREINO_1"
+        obra_dir = _Path("D:/Agente-cad-PYSIDE/DADOS-OBRAS") / str(obra_nome)
+        json_dir = obra_dir / "Fase-4_Sincronizacao" / "JSON_Lajes"
+        json_dir.mkdir(parents=True, exist_ok=True)
+
+        fichas = []
+        for slab in getattr(self, "slabs_found", []) or []:
+            try:
+                ficha = self._slab_to_n1_robot_ficha(slab)
+                if not ficha.get("nome"):
+                    continue
+                ficha["_sa_meta"] = {
+                    "source": "structural_analyzer",
+                    "project_id": self.current_project_id,
+                    "id_item": slab.get("id_item"),
+                    "validated_fields": slab.get("validated_fields", []),
+                    "validated_link_classes": slab.get("validated_link_classes", {}),
+                }
+                (json_dir / f"{ficha['nome']}.json").write_text(
+                    _json.dumps(ficha, indent=2, ensure_ascii=False),
+                    encoding="utf-8",
+                )
+                fichas.append((slab, ficha))
+            except Exception as exc:
+                self.log(f"⚠️ Laje {slab.get('name', '?')}: falha ao materializar N3 ({exc})")
+
+        if not fichas:
+            return 0, 0
+
+        conn = self.db._get_conn()
+        try:
+            conn.execute(
+                """
+                CREATE TABLE IF NOT EXISTS slab_elements (
+                    id TEXT PRIMARY KEY,
+                    project_id TEXT,
+                    laje_nome TEXT,
+                    classe TEXT DEFAULT 'LAJ',
+                    campos_json TEXT,
+                    n_linhas INTEGER DEFAULT 0,
+                    is_validated BOOLEAN DEFAULT 0,
+                    created_at TEXT,
+                    updated_at TEXT
+                )
+                """
+            )
+            conn.execute(
+                "CREATE INDEX IF NOT EXISTS idx_slab_elements_project "
+                "ON slab_elements(project_id, classe, laje_nome)"
+            )
+            now = _dt.now().isoformat(timespec="seconds")
+            for slab, ficha in fichas:
+                name = ficha["nome"]
+                n_linhas = len(ficha.get("linhas_verticais") or []) + len(ficha.get("linhas_horizontais") or [])
+                el_id = f"BE-LAJ-{self.current_project_id}-{name}"
+                row = conn.execute(
+                    "SELECT is_validated FROM slab_elements WHERE id=?",
+                    (el_id,),
+                ).fetchone()
+                if row and int(row[0] or 0) == 1:
+                    continue
+                campos = dict(ficha)
+                campos.update({
+                    "laje_dim": (slab.get("fields") or {}).get("laje_dim") or slab.get("laje_dim"),
+                    "laje_nivel": (slab.get("fields") or {}).get("laje_nivel") or slab.get("laje_nivel"),
+                    "links": slab.get("links", {}),
+                    "fields": slab.get("fields", {}),
+                })
+                conn.execute(
+                    """
+                    INSERT INTO slab_elements
+                        (id, project_id, laje_nome, classe, campos_json, n_linhas,
+                         is_validated, created_at, updated_at)
+                    VALUES (?, ?, ?, 'LAJ', ?, ?, ?, ?, ?)
+                    ON CONFLICT(id) DO UPDATE SET
+                        campos_json=excluded.campos_json,
+                        n_linhas=excluded.n_linhas,
+                        is_validated=excluded.is_validated,
+                        updated_at=excluded.updated_at
+                    """,
+                    (
+                        el_id,
+                        self.current_project_id,
+                        name,
+                        _json.dumps(campos, ensure_ascii=False),
+                        int(n_linhas),
+                        1 if slab.get("is_validated") else 0,
+                        now,
+                        now,
+                    ),
+                )
+            conn.commit()
+        finally:
+            conn.close()
+
+        return len(fichas), len(fichas)
 
     def _get_slab_real_geometry(self, s):
         """

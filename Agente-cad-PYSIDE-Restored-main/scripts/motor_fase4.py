@@ -834,6 +834,177 @@ class MotorFase4:
     # VIGAS
     # --------------------------------------------------------------------------
 
+    def _project_id_for_beam_elements(self) -> Optional[str]:
+        """Resolve o projeto atual no SQLite para ler beam_elements do SA."""
+        import sqlite3
+        db_path = Path("D:/Agente-cad-PYSIDE/project_data.vision")
+        if not db_path.exists():
+            return None
+        pav = self.pavimento or ""
+        pav_digits = "".join(re.findall(r"\d+", str(pav)))
+        try:
+            conn = sqlite3.connect(str(db_path))
+            if pav_digits:
+                row = conn.execute(
+                    "SELECT id FROM projects WHERE work_name=? AND pavement_name LIKE ? "
+                    "ORDER BY updated_at DESC LIMIT 1",
+                    (self.obra_nome, f"%{pav_digits}%"),
+                ).fetchone()
+            else:
+                row = conn.execute(
+                    "SELECT id FROM projects WHERE work_name=? "
+                    "ORDER BY updated_at DESC LIMIT 1",
+                    (self.obra_nome,),
+                ).fetchone()
+            conn.close()
+            return row[0] if row else None
+        except Exception as exc:
+            log.warning(f"[FV-SA] Falha resolvendo projeto beam_elements: {exc}")
+            return None
+
+    @staticmethod
+    def _seg_len_from_geometry(seg: dict) -> float:
+        pts = seg.get("geometry") or []
+        if not isinstance(pts, list) or len(pts) < 2:
+            return 0.0
+        total = 0.0
+        for a, b in zip(pts, pts[1:]):
+            try:
+                dx = float(b[0]) - float(a[0])
+                dy = float(b[1]) - float(a[1])
+                total += (dx * dx + dy * dy) ** 0.5
+            except Exception:
+                pass
+        return total
+
+    @staticmethod
+    def _parse_dim_pair(dim_text: Any) -> Tuple[float, float]:
+        m = re.search(r"\(?\s*(\d+(?:[.,]\d+)?)\s*[/xX]\s*(\d+(?:[.,]\d+)?)\s*\)?", str(dim_text or ""))
+        if not m:
+            return 0.0, 0.0
+        a = float(m.group(1).replace(",", "."))
+        b = float(m.group(2).replace(",", "."))
+        return min(a, b), max(a, b)
+
+    def _write_fv_json_from_beam_elements(self, vigas_salvos: Dict[str, Any]) -> int:
+        """Sincroniza JSON_Vigas_Fundo a partir da ficha FV persistida pelo SA."""
+        import sqlite3
+        project_id = self._project_id_for_beam_elements()
+        if not project_id:
+            return 0
+        db_path = Path("D:/Agente-cad-PYSIDE/project_data.vision")
+        try:
+            conn = sqlite3.connect(str(db_path))
+            conn.row_factory = sqlite3.Row
+            rows = conn.execute(
+                "SELECT viga_nome, n_segmentos, campos_json FROM beam_elements "
+                "WHERE project_id=? AND classe='FV' "
+                "AND (campos_json LIKE '%n_paineis_logicos%' OR campos_json LIKE '%dim_text%') "
+                "ORDER BY viga_nome",
+                (project_id,),
+            ).fetchall()
+            conn.close()
+        except Exception as exc:
+            log.warning(f"[FV-SA] Falha lendo beam_elements: {exc}")
+            return 0
+
+        count = 0
+        pav = self.pavimento or "Pavimento"
+        for row in rows:
+            nome = str(row["viga_nome"] or "").strip()
+            m_name = re.search(r"(V\d+[A-Z]?)", nome.upper())
+            if not m_name:
+                continue
+            vname = m_name.group(1)
+            try:
+                data = json.loads(row["campos_json"] or "{}")
+            except Exception:
+                data = {}
+            segs = [s for s in (data.get("segmentos_fundo") or []) if isinstance(s, dict)]
+            if not segs:
+                continue
+
+            panels = []
+            dim_w, dim_h = self._parse_dim_pair(data.get("dim"))
+            apoio_ini = apoio_fim = ""
+            for seg in segs:
+                ficha = seg.get("ficha") if isinstance(seg.get("ficha"), dict) else {}
+                length = (
+                    ficha.get("comprimento_total_fundo")
+                    or seg.get("length")
+                    or self._seg_len_from_geometry(seg)
+                )
+                try:
+                    length = float(str(length).replace(",", ".") or 0)
+                except Exception:
+                    length = 0.0
+                if length <= 0:
+                    continue
+                sw = float(seg.get("dim_width") or ficha.get("largura_total_fundo") or dim_w or 0)
+                sh = float(seg.get("dim_height") or ficha.get("altura_total") or dim_h or 0)
+                dim_w = dim_w or sw
+                dim_h = dim_h or sh
+                apoio_ini = apoio_ini or str(seg.get("apoio_inicial") or "")
+                apoio_fim = apoio_fim or str(seg.get("apoio_final") or "")
+                panel = {
+                    "total_width": round(length, 1),
+                    "width": round(length, 1),
+                    "height1": round(sh or dim_h or 0, 1),
+                    "height2": round(sh or dim_h or 0, 1),
+                    "dim_text": seg.get("dim_text") or data.get("dim") or "",
+                    "largura_total_fundo": round(sw or dim_w or 0, 1),
+                    "comprimento_total_fundo": round(length, 1),
+                    "altura_total": round(sh or dim_h or 0, 1),
+                }
+                for k in (
+                    "abertura_especial", "chanfro_esq_top", "chanfro_esq_fun",
+                    "chanfro_dir_top", "chanfro_dir_fun", "abertura_topo_esq",
+                    "abertura_topo_dir", "abertura_fundo_esq", "abertura_fundo_dir",
+                ):
+                    if ficha.get(k) not in (None, ""):
+                        panel[k] = ficha.get(k)
+                panels.append(panel)
+
+            if not panels:
+                continue
+
+            number_match = re.search(r"\d+", vname)
+            out = {
+                "number": number_match.group(0) if number_match else vname,
+                "name": vname,
+                "floor": pav,
+                "side": "C",
+                "total_width": round(dim_w or panels[0].get("largura_total_fundo") or 0, 1),
+                "total_height": str(round(dim_h or panels[0].get("altura_total") or 0, 1)),
+                "panels": panels,
+                "segments_rich": panels,
+                "holes": [],
+                "pillar_left": {"active": bool(apoio_ini), "label": apoio_ini, "width": 0.0, "length": 0.0},
+                "pillar_right": {"active": bool(apoio_fim), "label": apoio_fim, "width": 0.0, "length": 0.0},
+                "apoio_inicial": apoio_ini,
+                "apoio_final": apoio_fim,
+                "observations": "Fonte: Structural Analyzer beam_elements FV",
+            }
+            out.update(_build_sa_meta(
+                "FV", out,
+                ["number", "name", "floor", "total_width", "total_height", "panels",
+                 "segments_rich", "apoio_inicial", "apoio_final"],
+            ))
+            out_path = self.fase4_path / "JSON_Vigas_Fundo" / f"{vname}_fundo.json"
+            with open(out_path, "w", encoding="utf-8") as f:
+                json.dump(out, f, ensure_ascii=False, indent=2)
+            vigas_salvos.setdefault(vname, {})
+            vigas_salvos[vname].update({
+                "b": out["total_width"],
+                "h": float(out["total_height"] or 0),
+                "comprimento": sum(float(p.get("total_width", 0) or 0) for p in panels),
+            })
+            count += 1
+
+        if count:
+            log.info(f"[FV-SA] JSON_Vigas_Fundo sincronizado de beam_elements: {count} fichas")
+        return count
+
     def process_vigas(self) -> Dict[str, Any]:
         """Cada viga Fase3 gera 2 fichas: lado A e lado B."""
         fichas = self._load_fase3_fichas("Vigas", "vigas.json")
@@ -943,6 +1114,10 @@ class MotorFase4:
             except Exception as e:
                 log.error(f"  ❌ Viga {nome}: {e}")
                 self.stats["errors"] += 1
+
+        # FV: quando a Analise Geral ja populou beam_elements, a ficha de fundo
+        # do Robo/N3 deve vir dessa fonte N1, nao do clone simplificado da lateral.
+        self._write_fv_json_from_beam_elements(vigas_salvos)
 
         # Salvar vigas_salvas.json
         salvos_path = self.fase4_path / "vigas_salvas.json"

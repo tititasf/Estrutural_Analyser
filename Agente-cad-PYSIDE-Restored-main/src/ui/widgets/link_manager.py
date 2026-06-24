@@ -773,6 +773,7 @@ class LinkManager(QWidget):
             return [
                 ('largura_total_fundo', 'Largura total do fundo', 'cm', False, 'text'),
                 ('comprimento_total_fundo', 'Comprimento total do fundo', 'cm', False, 'text'),
+                ('altura_total', 'Altura total', 'cm', False, 'text'),
                 ('abertura_especial', 'Abertura especial', 'tipo/posicao/dimensao', False, 'text'),
                 ('chanfro_esq_top', 'Chanfro esquerda topo', 'cm ou N/A', False, 'text'),
                 ('chanfro_esq_fun', 'Chanfro esquerda fundo', 'cm ou N/A', False, 'text'),

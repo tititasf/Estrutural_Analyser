@@ -435,6 +435,7 @@ def process_beam_fv(b: dict, spatial_index=None, visual_obstacles=None) -> dict:
         "comprimento_fundo": round(comprimento, 1),
         "dim_text": dim_text,
         "h_n1": h_n1,
+        "is_horizontal": bool(is_horizontal),
         "merged_groups_count": len(merged_groups),
         "merged_lengths_count": len(merged_lengths),
         "seg_bottom_raw_count": len(seg_bottom_raw),
@@ -560,6 +561,7 @@ def run(
                 "n_paineis_logicos": fv["panels_n1"],
                 "comprimento_total_fundo": fv["comprimento_fundo"],
                 "h_espessura": fv["h_n1"],
+                "is_horizontal": fv.get("is_horizontal", True),
                 "merged_groups_count": fv["merged_groups_count"],
                 "merged_lengths_count": fv["merged_lengths_count"],
                 "seg_bottom_raw_count": fv["seg_bottom_raw_count"],
@@ -574,6 +576,16 @@ def run(
         conn.close()
 
     # 6. Render headless (limpo + vínculos) para inspeção visual
+    try:
+        from scripts.motor_fase4 import MotorFase4
+        obra_path = Path("D:/Agente-cad-PYSIDE/DADOS-OBRAS") / obra_name
+        m4 = MotorFase4(str(obra_path), pavimento=pav_filter or None)
+        n_fv_json = m4._write_fv_json_from_beam_elements({})
+        print(f"  JSON_Vigas_Fundo atualizados pelo SA: {n_fv_json}")
+    except Exception as e:
+        print(f"  [WARN] Propagacao FV para Fase-4/N3 falhou: {e}")
+
+    # 6. Render headless (limpo + vinculos) para inspecao visual
     try:
         from scripts.fv_render_loop import render_pavimento
         render_dir = ROOT / "sandbox_fv_loop"

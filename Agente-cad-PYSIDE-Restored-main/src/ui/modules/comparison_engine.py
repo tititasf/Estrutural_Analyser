@@ -703,6 +703,8 @@ class DXFVectorView(QWidget):
         self._worker: DXFLoadWorker | None = None
         self._retiring_workers: list = []  # mantém refs Python vivas até QThread terminar
         self._dxf_bbox = None   # (x0, y0, x1, y1)
+        self._highlight_bbox = None
+        self._highlight_points = None
 
         self.setMinimumSize(200, 180)
         self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
@@ -785,6 +787,16 @@ class DXFVectorView(QWidget):
         self._fit()
         self.update()
 
+    def set_highlight_bbox(self, bbox):
+        self._highlight_bbox = bbox
+        self._highlight_points = None
+        self.update()
+
+    def set_highlight_geometry(self, points):
+        self._highlight_points = points or None
+        self._highlight_bbox = None
+        self.update()
+
     @property
     def is_loaded(self) -> bool:
         """True se há DXF carregado (ops ou pixmap disponíveis)."""
@@ -794,6 +806,8 @@ class DXFVectorView(QWidget):
         self._ops      = []
         self._pixmap   = None
         self._dxf_bbox = None
+        self._highlight_bbox = None
+        self._highlight_points = None
         self._loading  = False
         self._status_text = msg
         self.update()
@@ -1026,6 +1040,32 @@ class DXFVectorView(QWidget):
                 p.drawText(QPointF(wx, wy), txt)
                 p.translate(ox, oy)
                 p.scale(s, -s)
+
+        if self._highlight_bbox:
+            x0, y0, x1, y1 = self._highlight_bbox
+            pen = QPen(QColor("#ff9800"), 0)
+            pen.setCosmetic(True)
+            p.setPen(pen)
+            p.setBrush(Qt.NoBrush)
+            p.drawRect(QRectF(float(x0), float(y0), float(x1) - float(x0), float(y1) - float(y0)))
+        elif self._highlight_points:
+            try:
+                from PySide6.QtGui import QPolygonF
+                pts = [
+                    QPointF(float(pt[0]), float(pt[1]))
+                    for pt in self._highlight_points
+                    if isinstance(pt, (list, tuple)) and len(pt) >= 2
+                ]
+                if len(pts) >= 3:
+                    pen = QPen(QColor("#ff9800"), 0)
+                    pen.setCosmetic(True)
+                    fill = QColor("#ff9800")
+                    fill.setAlpha(45)
+                    p.setPen(pen)
+                    p.setBrush(fill)
+                    p.drawPolygon(QPolygonF(pts))
+            except Exception:
+                pass
 
         p.resetTransform()
 
@@ -3649,27 +3689,31 @@ class NavSidebar(QFrame):
         prefix    = self._PREVIEW_PFX[cls]
 
         item_ids: list[str] = []
+        db_names = self._db_item_names_for_pav(cls)
+        if cls == "FV" and db_names:
+            item_ids = db_names
+        if cls == "LJ" and db_names:
+            # Lajes N1 vêm do Structural Analyzer/Analise Geral. Não depender de
+            # JSON da Fase 4, pois eles podem ainda não existir ou estar defasados.
+            item_ids = db_names
         if json_dir.exists():
             all_stems = sorted(
                 f.stem for f in json_dir.glob("*.json")
                 if not f.stem.startswith("_") and not f.stem.startswith("vigas")
                    and not f.stem.startswith("fichas")
             )
-            db_names = self._db_item_names_for_pav(cls)
-            if db_names is not None:
+            if db_names is not None and cls not in ("LJ", "FV"):
                 db_set = set(db_names)
                 if cls == "PL":
                     # Pilar: stem do JSON = nome no DB (ex: 'P18' == 'P18.json')
                     item_ids = [s for s in all_stems if s in db_set]
-                elif cls in ("LV", "FV"):
+                elif cls == "LV":
                     # Viga: stem começa com nome no DB (ex: 'V302_A' começa com 'V302')
                     item_ids = [s for s in all_stems if any(s == n or s.startswith(n + "_") for n in db_set)]
-                else:
-                    item_ids = all_stems
-            elif cls == "LJ" and self._lj_filter is not None:
+            elif cls == "LJ" and not item_ids and self._lj_filter is not None:
                 # Laje: filtrar pelos labels do DXF ativo (populado após scan async)
                 item_ids = [s for s in all_stems if s in self._lj_filter]
-            else:
+            elif not item_ids:
                 item_ids = all_stems
         # fallback LV estático
         if not item_ids and cls == "LV":
@@ -3693,36 +3737,74 @@ class NavSidebar(QFrame):
             it.setForeground(color_ok if n3_ok else color_dim)
             self.lst.addItem(it)
 
+    def _project_id_for_current_pav(self, conn):
+        """Resolve o projeto atual por obra+pavimento, aceitando chave curta ou nome completo."""
+        if not self._current_pav or self._current_obra_dir is None:
+            return None
+        import re as _re
+
+        obra_name = self._current_obra_dir.name
+        row = conn.execute(
+            "SELECT id FROM projects WHERE work_name=? AND pavement_name=? LIMIT 1",
+            (obra_name, self._current_pav)
+        ).fetchone()
+        if row:
+            return row[0]
+
+        pav_digits = "".join(_re.findall(r"\d+", str(self._current_pav)))
+        if pav_digits:
+            row = conn.execute(
+                "SELECT id FROM projects WHERE work_name=? AND pavement_name LIKE ? "
+                "ORDER BY updated_at DESC LIMIT 1",
+                (obra_name, f"%{pav_digits}%")
+            ).fetchone()
+            if row:
+                return row[0]
+
+        return None
+
     def _db_item_names_for_pav(self, cls: str) -> "list[str] | None":
         """Retorna prefixos de JSON para filtrar itens do pavimento atual via DB.
 
         Para PL: pillars.name é idêntico ao stem do JSON ('P18' → 'P18.json').
         Para LV/FV: beams.name pode ser 'V302' ou 'F.V303.C-1' — extrai prefixo
             V\\d+[A-Z]? para filtrar stems ('V302_A', 'V302_fundo').
+        Para LJ: retorna diretamente as lajes salvas pelo Structural Analyzer.
         Retorna None se pavimento não selecionado ou DB inacessível.
         """
         import re as _re
         if not self._current_pav or self._current_obra_dir is None:
             return None
-        obra_name = self._current_obra_dir.name
         try:
             import sqlite3 as _sql
             conn = _sql.connect(r"D:/Agente-cad-PYSIDE/project_data.vision")
-            row = conn.execute(
-                "SELECT id FROM projects WHERE work_name=? AND pavement_name=? LIMIT 1",
-                (obra_name, self._current_pav)
-            ).fetchone()
-            if not row:
+            project_id = self._project_id_for_current_pav(conn)
+            if not project_id:
                 conn.close()
                 return None
-            project_id = row[0]
             if cls == "PL":
                 rows = conn.execute(
                     "SELECT DISTINCT name FROM pillars WHERE project_id=? ORDER BY name",
                     (project_id,)
                 ).fetchall()
                 names = [r[0] for r in rows if r[0]]
-            elif cls in ("LV", "FV"):
+            elif cls == "FV":
+                rows = conn.execute(
+                    "SELECT DISTINCT viga_nome FROM beam_elements "
+                    "WHERE project_id=? AND classe='FV' "
+                    "AND (campos_json LIKE '%n_paineis_logicos%' OR campos_json LIKE '%dim_text%') "
+                    "ORDER BY viga_nome",
+                    (project_id,)
+                ).fetchall()
+                prefixes: set[str] = set()
+                for (n,) in rows:
+                    if not n:
+                        continue
+                    m = _re.search(r'(V\d+[A-Z]?)', str(n).upper())
+                    if m:
+                        prefixes.add(m.group(1))
+                names = sorted(prefixes)
+            elif cls == "LV":
                 rows = conn.execute(
                     "SELECT DISTINCT name FROM beams WHERE project_id=? ORDER BY name",
                     (project_id,)
@@ -3737,8 +3819,17 @@ class NavSidebar(QFrame):
                         prefixes.add(m.group(1))
                 names = sorted(prefixes)
             elif cls == 'LJ':
-                # Lajes: sem tabela DB — usa filtro de labels do DXF scan (set_lj_filter)
-                names = None
+                rows = conn.execute(
+                    "SELECT name, id_item FROM slabs WHERE project_id=? ORDER BY "
+                    "CAST(COALESCE(NULLIF(id_item, ''), '999999') AS INTEGER), name",
+                    (project_id,)
+                ).fetchall()
+                names = []
+                seen = set()
+                for name, _id_item in rows:
+                    if name and name not in seen:
+                        seen.add(name)
+                        names.append(name)
             else:
                 names = None
             conn.close()
@@ -4060,6 +4151,7 @@ class TriLevelArea(QWidget):
         self._current_pav:  str = ""
         self._discovery:    dict = {}
         self._scan_worker: "DXFScanWorker | None" = None
+        self._retiring_scan_workers: list = []   # mantém refs até QThread terminar (evita crash ao destruir thread ativa)
         self._load_data(OBRA_TREINO_16)
 
         lay = QVBoxLayout(self)
@@ -4222,6 +4314,11 @@ class TriLevelArea(QWidget):
             fase3 / "Lajes/lajes_meioPont.json",
             fase3 / "lajes_meioPont.json",
         )
+        db_lajes = self._load_n1_lajes_from_db(obra_dir.name)
+        if db_lajes:
+            if not isinstance(self._lajes_fase3, dict):
+                self._lajes_fase3 = {}
+            self._lajes_fase3.update(db_lajes)
 
         # ── KB (Knowledge Base — STOG N2) ───────────────────────────
         self._kb_ents = []
@@ -4236,15 +4333,143 @@ class TriLevelArea(QWidget):
         self._est_ents_raw: list = [] # [(type, x, y, layer)]
         self._start_async_scan(obra_dir)
 
+    def _project_id_for_obra_pav(self, obra_name: str):
+        """Resolve project_id por obra+pavimento atual, incluindo pavimento abreviado."""
+        if not obra_name or not self._current_pav:
+            return None
+        import re as _re
+        import sqlite3 as _sqlite3
+
+        try:
+            conn = _sqlite3.connect(r"D:/Agente-cad-PYSIDE/project_data.vision")
+            row = conn.execute(
+                "SELECT id FROM projects WHERE work_name=? AND pavement_name=? LIMIT 1",
+                (obra_name, self._current_pav)
+            ).fetchone()
+            if row:
+                conn.close()
+                return row[0]
+
+            pav_digits = "".join(_re.findall(r"\d+", str(self._current_pav)))
+            if pav_digits:
+                row = conn.execute(
+                    "SELECT id FROM projects WHERE work_name=? AND pavement_name LIKE ? "
+                    "ORDER BY updated_at DESC LIMIT 1",
+                    (obra_name, f"%{pav_digits}%")
+                ).fetchone()
+                if row:
+                    conn.close()
+                    return row[0]
+            conn.close()
+        except Exception as exc:
+            _ce_log("N1 project lookup error", obra_name, self._current_pav, exc)
+        return None
+
+    def _load_n1_lajes_from_db(self, obra_name: str) -> dict:
+        """Carrega lajes N1 salvas pelo Structural Analyzer para a obra/pav atual."""
+        project_id = self._project_id_for_obra_pav(obra_name)
+        if not project_id:
+            return {}
+        import json as _json
+        import sqlite3 as _sqlite3
+
+        try:
+            conn = _sqlite3.connect(r"D:/Agente-cad-PYSIDE/project_data.vision")
+            conn.row_factory = _sqlite3.Row
+            rows = conn.execute(
+                "SELECT * FROM slabs WHERE project_id=? ORDER BY "
+                "CAST(COALESCE(NULLIF(id_item, ''), '999999') AS INTEGER), name",
+                (project_id,)
+            ).fetchall()
+            conn.close()
+        except Exception as exc:
+            _ce_log("N1 lajes db load error", obra_name, self._current_pav, exc)
+            return {}
+
+        lajes = {}
+        for row in rows:
+            s = dict(row)
+            try:
+                extra = _json.loads(s.get("extra_data_json") or "{}")
+                if isinstance(extra, dict):
+                    s.update(extra)
+            except Exception:
+                pass
+            try:
+                s["points"] = _json.loads(s.get("points_json") or "[]")
+            except Exception:
+                s["points"] = []
+            name = s.get("name")
+            if not name:
+                continue
+            s.setdefault("nome", name)
+            if "area_cm2" not in s and s.get("area") is not None:
+                s["area_cm2"] = s.get("area")
+            if "coordenadas" not in s and s.get("points"):
+                s["coordenadas"] = s["points"]
+            lajes[name] = s
+        return lajes
+
+    @staticmethod
+    def _points_bbox(points: list, pad: float = 35.0):
+        pts = [
+            (float(p[0]), float(p[1]))
+            for p in (points or [])
+            if isinstance(p, (list, tuple)) and len(p) >= 2
+        ]
+        if not pts:
+            return None
+        xs = [p[0] for p in pts]
+        ys = [p[1] for p in pts]
+        return (min(xs) - pad, min(ys) - pad, max(xs) + pad, max(ys) + pad)
+
+    def _get_lj_n1_data(self, item_id: str) -> dict:
+        if not isinstance(self._lajes_fase3, dict):
+            return {}
+        data = self._lajes_fase3.get(item_id, {})
+        return data if isinstance(data, dict) else {}
+
+    def _get_lj_n1_points(self, item_id: str) -> list:
+        lj = self._get_lj_n1_data(item_id)
+        points = lj.get("coordenadas") or lj.get("points") or []
+        if not points:
+            links = (lj.get("links") or {}).get("laje_outline_segs", {})
+            if isinstance(links, dict):
+                for link in links.get("contour", []) or []:
+                    pts = link.get("points") if isinstance(link, dict) else None
+                    if pts and len(pts) >= 3:
+                        points = pts
+                        break
+        return points or []
+
     def _start_async_scan(self, obra_dir: Path):
         """Inicia scan do DXF estrutural em QThread background — sem bloquear UI.
         Cancela scan anterior se ainda em andamento."""
-        # Cancela worker anterior
+        # Retirement seguro: não destruir QThread em execução (causa STATUS_ACCESS_VIOLATION
+        # no Python 3.14/Windows). Manter ref Python viva até o thread terminar sozinho,
+        # igual ao padrão do AnaliseGeralWorker com _retiring_analise_workers.
         if hasattr(self, '_scan_worker') and self._scan_worker is not None:
+            old_sw = self._scan_worker
             try:
-                self._scan_worker.finished.disconnect()
+                old_sw.finished.disconnect()
             except (RuntimeError, TypeError):
                 pass
+            if not hasattr(self, '_retiring_scan_workers'):
+                self._retiring_scan_workers = []
+            self._retiring_scan_workers.append(old_sw)
+            def _retire_sw(w=old_sw, lst=self._retiring_scan_workers):
+                try:
+                    lst.remove(w)
+                except ValueError:
+                    pass
+                try:
+                    w.deleteLater()
+                except RuntimeError:
+                    pass
+            try:
+                old_sw.finished.connect(_retire_sw)
+            except (RuntimeError, TypeError):
+                _retire_sw()
             self._scan_worker = None
 
         dxf_path = self._find_n1_dxf(obra_dir)
@@ -4454,12 +4679,19 @@ class TriLevelArea(QWidget):
                 return p2
         return None
 
-    def _get_n1_bbox_for(self, item_id: str, R: int = 134):
+    def _get_n1_bbox_for(self, item_id: str, classe: str = "", R: int = 134):
         """Retorna bbox do item no DXF estrutural usando labels escaneados.
         R=134 (era 267/2) e pad=34 (era 67/2) → zoom 6x mais perto que original.
         Normaliza sufixos de face: V301_A/V301_fundo → V301."""
         import re as _re
+        if str(classe).upper() == "LJ":
+            lj_bbox = self._points_bbox(self._get_lj_n1_points(item_id), pad=55.0)
+            if lj_bbox:
+                return lj_bbox
         label_id = _re.sub(r'[_.]([A-Da-d]|fundo)$', '', item_id, flags=_re.I)
+        fv_bbox = self._get_n1_fv_bbox_from_db(label_id) if str(classe).upper() == "FV" else None
+        if fv_bbox:
+            return fv_bbox
         pos = self._est_labels.get(label_id) or self._est_labels.get(item_id)
         if not pos:
             return None
@@ -4472,6 +4704,95 @@ class TriLevelArea(QWidget):
             return (cx - R, cy - R, cx + R, cy + R)
         pad = 34
         return (min(xs)-pad, min(ys)-pad, max(xs)+pad, max(ys)+pad)
+
+    def _get_n1_fv_bbox_from_db(self, item_id: str):
+        """BBox do fundo N1 salvo pela Analise Geral em beam_elements."""
+        data = self._get_n1_fv_data_from_db(item_id)
+        if not data:
+            return None
+        import re as _re
+
+        name = _re.sub(r'\.C$', '', str(item_id).strip(), flags=_re.I)
+        pos = self._est_labels.get(name) or self._est_labels.get(f"{name}.C") or self._est_labels.get(item_id)
+        if not pos:
+            return None
+        xs, ys = [], []
+        dim_width = float(data.get("h_n1") or data.get("h_espessura") or 0) or 20.0
+        is_horizontal = bool(data.get("is_horizontal", True))
+        for seg in data.get("segmentos_fundo", []) or []:
+            if not isinstance(seg, dict) or not seg.get("coord"):
+                continue
+            try:
+                c0 = float(seg["coord"][0])
+                c1 = float(seg["coord"][1])
+                ficha = seg.get("ficha") if isinstance(seg.get("ficha"), dict) else {}
+                w = float(ficha.get("largura_total_fundo") or seg.get("dim_width") or dim_width or 20.0)
+                half = max(w / 2.0, 4.0)
+                if is_horizontal:
+                    xs.extend([c0, c1])
+                    ys.extend([float(pos[1]) - half, float(pos[1]) + half])
+                else:
+                    xs.extend([float(pos[0]) - half, float(pos[0]) + half])
+                    ys.extend([c0, c1])
+            except Exception:
+                continue
+        if not xs or not ys:
+            return None
+        pad = 35.0
+        return (min(xs) - pad, min(ys) - pad, max(xs) + pad, max(ys) + pad)
+
+    def _get_n1_fv_data_from_db(self, item_id: str) -> dict:
+        if not self._current_obra or not self._current_pav or not item_id:
+            return {}
+        import json as _json
+        import re as _re
+        import sqlite3 as _sqlite3
+
+        name = str(item_id).strip()
+        name = _re.sub(r'_fundo$', '', name, flags=_re.I)
+        name = _re.sub(r'\.C$', '', name, flags=_re.I)
+        candidates = [name, f"{name}.C", f"{name}_fundo"]
+        pav_digits = "".join(_re.findall(r"\d+", str(self._current_pav)))
+        try:
+            conn = _sqlite3.connect(r"D:/Agente-cad-PYSIDE/project_data.vision")
+            conn.row_factory = _sqlite3.Row
+            if pav_digits:
+                proj = conn.execute(
+                    "SELECT id FROM projects WHERE work_name=? AND pavement_name LIKE ? LIMIT 1",
+                    (self._current_obra, f"%{pav_digits}%"),
+                ).fetchone()
+            else:
+                proj = conn.execute(
+                    "SELECT id FROM projects WHERE work_name=? LIMIT 1",
+                    (self._current_obra,),
+                ).fetchone()
+            if not proj:
+                conn.close()
+                return {}
+            marks = ",".join("?" for _ in candidates)
+            row = conn.execute(
+                f"SELECT campos_json FROM beam_elements "
+                f"WHERE project_id=? AND classe='FV' AND viga_nome IN ({marks}) "
+                f"ORDER BY CASE WHEN campos_json LIKE '%n_paineis_logicos%' THEN 0 "
+                f"WHEN campos_json LIKE '%dim_text%' THEN 1 ELSE 2 END, updated_at DESC LIMIT 1",
+                [proj["id"], *candidates],
+            ).fetchone()
+            if not row:
+                row = conn.execute(
+                    "SELECT campos_json FROM beam_elements "
+                    "WHERE project_id=? AND classe='FV' AND viga_nome LIKE ? "
+                    "ORDER BY CASE WHEN campos_json LIKE '%n_paineis_logicos%' THEN 0 "
+                    "WHEN campos_json LIKE '%dim_text%' THEN 1 ELSE 2 END, updated_at DESC LIMIT 1",
+                    (proj["id"], f"%{name}%"),
+                ).fetchone()
+            conn.close()
+            if not row:
+                return {}
+            data = _json.loads(row["campos_json"] or "{}")
+            return data if isinstance(data, dict) else {}
+        except Exception as exc:
+            _ce_log("N1 FV data db error", item_id, exc)
+            return {}
 
     def _get_n2_bbox_for(self, item_id: str, classe: str = 'LV'):
         """Retorna bbox do item no DXF STOG real.
@@ -4649,7 +4970,7 @@ class TriLevelArea(QWidget):
         n2_dxf = self._find_n2_dxf(self._current_obra, self._current_pav, classe)
         n3_dxf = self._find_n3_dxf(obra_dir, classe, item_id)
 
-        n1_bbox = self._get_n1_bbox_for(item_id)
+        n1_bbox = self._get_n1_bbox_for(item_id, classe)
         n2_bbox = self._get_n2_bbox_for(item_id, classe)
 
         # Fichas (instantâneas) — class-aware para todas as classes
@@ -4805,6 +5126,27 @@ class TriLevelArea(QWidget):
 
         elif classe == 'FV':
             fv = self._vigas_fundo_fase3.get(viga_key) or self._vigas_fundo_fase3.get(item_id, {})
+            fv_db = self._get_n1_fv_data_from_db(viga_key) or {}
+            if fv_db:
+                segs = fv_db.get("segmentos_fundo", []) or []
+                comp = fv_db.get("comprimento_fundo") or fv_db.get("comprimento_total_fundo")
+                rows += [
+                    ("==", "N1 STRUCTURAL ANALYZER - FUNDO"),
+                    ("Qtd. segmentos", _fmt(fv_db.get("panels_n1") or len(segs))),
+                    ("Comprimento total (cm)", _fmt(comp)),
+                    ("Dimensao texto", _fmt(fv_db.get("dim_text"))),
+                    ("Largura/h extraida (cm)", _fmt(fv_db.get("h_n1"))),
+                ]
+                for seg in segs[:6]:
+                    if not isinstance(seg, dict):
+                        continue
+                    ficha = seg.get("ficha") if isinstance(seg.get("ficha"), dict) else {}
+                    rows.append((
+                        f"Seg {seg.get('seg_index', '?')}",
+                        f"comp={_fmt(ficha.get('comprimento_total_fundo') or seg.get('length'))} "
+                        f"larg={_fmt(ficha.get('largura_total_fundo') or seg.get('dim_width'))} "
+                        f"dim={_fmt(seg.get('dim_text'))}"
+                    ))
             rows += [
                 ("==", "CONFIGURAÇÃO DO FUNDO DE VIGA"),
                 ("b (cm)", _fmt(fv.get("b"))),
@@ -4835,6 +5177,32 @@ class TriLevelArea(QWidget):
             # Formatar modo
             modo = lj.get("modo_selecionado")
             modo_str = {0: "Normal (0)", 1: "Espelho (1)"}.get(modo, _fmt(modo))
+            fields = lj.get("fields") if isinstance(lj.get("fields"), dict) else {}
+            links = lj.get("links") if isinstance(lj.get("links"), dict) else {}
+            val_fields = lj.get("validated_fields") or []
+            val_links = lj.get("validated_link_classes") or {}
+
+            def _count_slot(field_id: str, slot_id: str | None = None) -> int:
+                data = links.get(field_id, {})
+                if not isinstance(data, dict):
+                    return 0
+                if slot_id:
+                    return len(data.get(slot_id) or [])
+                return sum(len(v or []) for v in data.values() if isinstance(v, list))
+
+            def _brief(v):
+                if isinstance(v, list):
+                    return f"[{len(v)} itens]"
+                if isinstance(v, dict):
+                    return f"{{{len(v)} chaves}}"
+                return _fmt(v)
+
+            coords = lj.get("coordenadas") or lj.get("points") or []
+            bbox = self._points_bbox(coords, pad=0.0)
+            bbox_str = (
+                f"({bbox[0]:.1f}, {bbox[1]:.1f}) → ({bbox[2]:.1f}, {bbox[3]:.1f})"
+                if bbox else "—"
+            )
             rows += [
                 ("==", "CÁLCULO / MÉTRICAS DA LAJE"),
                 ("Área Total (calculada)", area_str),
@@ -4847,8 +5215,37 @@ class TriLevelArea(QWidget):
                 ("Nome", _fmt(lj.get("nome") or item_id)),
                 ("Comprimento C (cm)", _fmt(lj.get("comprimento"))),
                 ("Largura L (cm)", _fmt(lj.get("largura"))),
+                ("Dimensão C×L [laje_dim]", _fmt(fields.get("laje_dim") or lj.get("laje_dim"))),
+                ("Visão de Corte", f"{_count_slot('laje_visao_corte')} vínculo(s)"),
+                ("Níveis / Vizinhas", f"{_count_slot('laje_vizinhas_niveis')} vínculo(s)"),
+                ("Pilares de Apoio", f"{_count_slot('laje_pilares_apoio')} vínculo(s)"),
+                ("Nível / Pavimento", _fmt(fields.get("laje_nivel") or lj.get("laje_nivel"))),
+                ("Segmentos da Área", f"{_count_slot('laje_outline_segs', 'contour')} contorno(s)"),
+                ("Acréscimos de Borda", f"{_count_slot('laje_outline_segs', 'acrescimo_borda')} extensão(ões)"),
+                ("Ilhas / Obstáculos", f"{_count_slot('laje_islands')} vínculo(s)"),
+                ("Pontos geometria", len(coords) if isinstance(coords, list) else 0),
+                ("BBox geometria", bbox_str),
                 ("Pontaletes total", _fmt(pont.get("total")) if isinstance(pont, dict) else "—"),
+                ("==", "VALIDAÇÃO SA"),
+                ("Campos validados", ", ".join(val_fields) if val_fields else "—"),
+                ("Vínculos validados", _brief(val_links)),
             ]
+            if fields:
+                rows.append(("==", "CAMPOS SA - TODOS"))
+                for k in sorted(fields):
+                    if k in {"laje_dim", "laje_nivel"}:
+                        continue
+                    rows.append((k, _brief(fields.get(k))))
+            extra_keys = [
+                "id_item", "name", "type", "area", "area_cm2", "modo_selecionado",
+                "laje_linhas_v_count", "laje_linhas_h_count", "unioes_nos_bordes",
+                "observacoes", "pont_total", "pont_meio", "pont_linhas", "pont_colunas",
+                "pont_tipo", "pont_altura_pav", "pont_comp_cm", "pont_larg_cm",
+            ]
+            rows.append(("==", "CHAVES SA DIRETAS"))
+            for k in extra_keys:
+                if k in lj:
+                    rows.append((k, _brief(lj.get(k))))
 
         # Checar se todos valores são "—" (ficha vazia)
         data_rows = [v for (k, v) in rows if k not in ("==", "---", "Classe") and k not in (f"{classe}  ·  {item_id}", "Nº Item")]
@@ -5042,10 +5439,19 @@ class TriLevelArea(QWidget):
             return self._ficha_fase4_json('PL', item_id, fase4 / "JSON_Pilares")
 
         elif classe == 'FV':
-            return self._ficha_fase4_json('FV', item_id, fase4 / "JSON_Vigas_Fundo")
+            rows = self._ficha_n1_for('FV', item_id)
+            rows += [("---", ""), ("==", "N3 ROBO FUNDO / FASE 4")]
+            rows += self._ficha_fase4_json('FV', f"{item_id}_fundo", fase4 / "JSON_Vigas_Fundo")
+            return rows
 
         elif classe == 'LJ':
-            return self._ficha_fase4_json('LJ', item_id, fase4 / "JSON_Lajes")
+            rows = [
+                ("==", "N1 STRUCTURAL ANALYZER"),
+                *self._ficha_n1_for("LJ", item_id),
+                ("==", "FICHA N3 / ROBO LAJE"),
+            ]
+            rows.extend(self._ficha_fase4_json('LJ', item_id, fase4 / "JSON_Lajes"))
+            return rows
 
         return self._ficha_generic(classe, item_id)
 
@@ -5457,6 +5863,7 @@ class ComparisonEngineModule(QWidget):
                 obra_dir = DADOS_OBRAS_ROOT / obra
                 if obra_dir.exists():
                     self.tri_level._load_data(obra_dir)
+                    self.nav_sidebar.refresh_tree()
             else:
                 self.nav_sidebar.set_status(f"❌ Análise: {msg[:40]}", Colors.ACCENT_DANGER)
                 self.tri_level.set_pipeline_step('N1', 0, 'error', msg[:30])
@@ -5551,11 +5958,15 @@ class ComparisonEngineModule(QWidget):
 
             # Step 2: zoom no item — sem recarregar DXF se já está carregado
             col.pipeline.set_step(1, 'running', 'Zoom no item...')
-            n1_bbox = self.tri_level._get_n1_bbox_for(item_id)
+            n1_bbox = self.tri_level._get_n1_bbox_for(item_id, classe)
 
             if col.img_widget.is_loaded:
                 # DXF já carregado — só reposiciona viewport
                 if n1_bbox:
+                    if classe == "LJ" and hasattr(col.img_widget, "set_highlight_geometry"):
+                        col.img_widget.set_highlight_geometry(self.tri_level._get_lj_n1_points(item_id))
+                    elif hasattr(col.img_widget, "set_highlight_bbox"):
+                        col.img_widget.set_highlight_bbox(n1_bbox)
                     col.img_widget.zoom_to_bbox(n1_bbox)
                     col.pipeline.set_step(1, 'ok', item_id)
                 else:
@@ -5569,6 +5980,10 @@ class ComparisonEngineModule(QWidget):
                     n1_dxf = self.tri_level._find_n1_clean_dxf(obra_dir, pav)
                 if n1_dxf and n1_dxf.exists():
                     col.load_content(str(n1_dxf), n1_bbox)
+                    if classe == "LJ" and hasattr(col.img_widget, "set_highlight_geometry"):
+                        col.img_widget.set_highlight_geometry(self.tri_level._get_lj_n1_points(item_id))
+                    elif hasattr(col.img_widget, "set_highlight_bbox"):
+                        col.img_widget.set_highlight_bbox(n1_bbox)
                     col.pipeline.set_step(1, 'ok', item_id)
                     self._n1_loaded_pav = f"{obra}/{pav}"
                 else:
@@ -6006,6 +6421,39 @@ class ComparisonEngineModule(QWidget):
         except Exception:
             return None
 
+    def _materialize_lj_n3_json_from_n1(self, obra: str, item_id: str) -> "Path | None":
+        """Escreve JSON_Lajes/{item}.json usando a ficha N1/SA carregada."""
+        if not obra or not item_id:
+            return None
+        try:
+            import json as _json
+            from src.core.laje_n1_to_robot_ficha import n1_laje_to_robot_ficha
+
+            n1_laje = self.tri_level._get_lj_n1_data(item_id)
+            if not n1_laje:
+                return None
+            ficha = n1_laje_to_robot_ficha(n1_laje)
+            if not ficha.get("nome"):
+                return None
+            ficha["_sa_meta"] = {
+                "source": "comparison_engine_n1",
+                "item_id": item_id,
+                "fields": n1_laje.get("fields", {}),
+                "validated_fields": n1_laje.get("validated_fields", []),
+                "validated_link_classes": n1_laje.get("validated_link_classes", {}),
+            }
+            out_dir = DADOS_OBRAS_ROOT / obra / "Fase-4_Sincronizacao" / "JSON_Lajes"
+            out_dir.mkdir(parents=True, exist_ok=True)
+            out_path = out_dir / f"{ficha['nome']}.json"
+            out_path.write_text(
+                _json.dumps(ficha, indent=2, ensure_ascii=False),
+                encoding="utf-8",
+            )
+            return out_path
+        except Exception as exc:
+            print(f"[CE] _materialize_lj_n3_json_from_n1 error: {exc}")
+            return None
+
     def _on_gerar_n3(self, classe: str, item_id: str, auto_chain: bool = False, seq: int = -1):
         """Gerar N3: step 1=conversão, step 2=ficha, step 3=gerar DXF + carregar."""
         try:
@@ -6030,7 +6478,11 @@ class ComparisonEngineModule(QWidget):
 
             col.pipeline.set_step(1, 'running', 'Preenchendo ficha...')
             obra_dir = DADOS_OBRAS_ROOT / obra
+            if classe == "LJ":
+                self._materialize_lj_n3_json_from_n1(obra, item_id)
             n3_dxf   = self.tri_level._find_n3_dxf(obra_dir, classe, item_id)
+            if classe == "LJ":
+                n3_dxf = None
             col.set_ficha(self.tri_level._ficha_n3_for(classe, item_id))
             col.pipeline.set_step(1, 'ok', '')
 
@@ -7183,7 +7635,7 @@ class ComparisonEngineModule(QWidget):
 
         if item_id:
             # Zoom centrado no item selecionado
-            n1_bbox = self.tri_level._get_n1_bbox_for(item_id)
+            n1_bbox = self.tri_level._get_n1_bbox_for(item_id, classe)
             col.load_content(str(n1_dxf), n1_bbox)
             col.pipeline.set_step(0, 'ok', '')
             col.pipeline.set_step(1, 'ok', item_id)

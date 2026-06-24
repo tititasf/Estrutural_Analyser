@@ -27,6 +27,7 @@ sys.path.insert(0, str(ROOT))
 
 DB_PATH = Path("D:/Agente-cad-PYSIDE/project_data.vision")
 LEARNING_DB_PATH = Path("D:/Agente-cad-PYSIDE/engrev_fv_n1_interpretacao_learning.vision")
+DADOS_OBRAS_ROOT = Path("D:/Agente-cad-PYSIDE/DADOS-OBRAS")
 
 
 # ── helpers ──────────────────────────────────────────────────────────────────
@@ -79,6 +80,16 @@ def _support_pair_ok(n1_ini: str | None, n1_fim: str | None, n2_left: str | None
     return bool(n1_pair and n2_pair and n1_pair == n2_pair)
 
 
+def _ratio_similarity(a: float, b: float) -> float:
+    a = float(a or 0)
+    b = float(b or 0)
+    if a <= 0 and b <= 0:
+        return 1.0
+    if a <= 0 or b <= 0:
+        return 0.0
+    return max(0.0, min(a, b) / max(a, b))
+
+
 def _candidate_score(n1: dict, n2: dict) -> float:
     n2_panels = len(n2.get("panels", []))
     n2_comp = float(n2.get("total_height", 0) or 0)
@@ -89,18 +100,18 @@ def _candidate_score(n1: dict, n2: dict) -> float:
     n1_dim = float(n1.get("dim_width_n1") or 0)
 
     checks = [
-        n2_panels > 0 and n1_panels == n2_panels,
-        n2_comp > 0 and abs(n1_comp - n2_comp) / n2_comp < 0.05,
-        n2_h > 0 and abs(n1_h - n2_h) <= 2,
-        n2_h > 0 and n1_dim > 0 and abs(n1_dim - n2_h) <= 2,
-        _support_pair_ok(
+        _ratio_similarity(n1_panels, n2_panels),
+        1.0 if n2_comp > 0 and abs(n1_comp - n2_comp) / n2_comp < 0.05 else 0.0,
+        1.0 if n2_h > 0 and abs(n1_h - n2_h) <= 2 else 0.0,
+        1.0 if n2_h > 0 and n1_dim > 0 and abs(n1_dim - n2_h) <= 2 else 0.0,
+        1.0 if _support_pair_ok(
             n1.get("apoio_inicial_n1"),
             n1.get("apoio_final_n1"),
             n2.get("label_left"),
             n2.get("label_right"),
-        ),
+        ) else 0.0,
     ]
-    return 100.0 * sum(1 for ok in checks if ok) / len(checks)
+    return 100.0 * sum(checks) / len(checks)
 
 
 # ── DB loaders ────────────────────────────────────────────────────────────────
@@ -293,6 +304,63 @@ def load_n1_fv(obra_name: str, pav_filter: str | None, db_path: Path) -> list[di
         conn.close()
 
 
+def load_n3_fv(obra_name: str) -> list[dict]:
+    """Retorna fichas FV N3 geradas em Fase-4/JSON_Vigas_Fundo."""
+    fv_dir = DADOS_OBRAS_ROOT / obra_name / "Fase-4_Sincronizacao" / "JSON_Vigas_Fundo"
+    if not fv_dir.exists():
+        return []
+    result: list[dict] = []
+    for path in sorted(fv_dir.glob("V*_fundo.json")):
+        try:
+            data = json.loads(path.read_text(encoding="utf-8", errors="replace"))
+        except Exception:
+            continue
+        vname = re.sub(r"_fundo$", "", path.stem, flags=re.I)
+        panels = data.get("segments_rich") or data.get("panels") or []
+        panels = [p for p in panels if isinstance(p, dict)]
+        comp = 0.0
+        for p in panels:
+            try:
+                comp += float(p.get("total_width", p.get("width", 0)) or 0)
+            except Exception:
+                pass
+        try:
+            h = float(str(data.get("total_width") or 0).replace(",", ".") or 0)
+        except Exception:
+            h = 0.0
+        dim_text = ""
+        dim_w = h
+        dim_h = 0.0
+        if panels:
+            dim_text = str(panels[0].get("dim_text") or data.get("dim") or "")
+            dim_pair = _parse_dim_pair(dim_text)
+            if dim_pair:
+                dim_w, dim_h = dim_pair
+            else:
+                try:
+                    dim_h = float(str(data.get("total_height") or 0).replace(",", ".") or 0)
+                except Exception:
+                    dim_h = 0.0
+        result.append({
+            "viga_nome": vname,
+            "panels_n1": len(panels),
+            "comprimento_n1": comp,
+            "h_n1": h,
+            "dim_text_n1": dim_text,
+            "dim_width_n1": dim_w,
+            "dim_height_n1": dim_h,
+            "apoio_inicial_n1": data.get("apoio_inicial") or (data.get("pillar_left") or {}).get("label", ""),
+            "apoio_final_n1": data.get("apoio_final") or (data.get("pillar_right") or {}).get("label", ""),
+            "aberturas_n1": len([hh for hh in data.get("holes", []) if isinstance(hh, dict) and hh.get("active")]),
+            "chanfros_n1": sum(
+                1 for p in panels
+                for k in ("chanfro_esq_top", "chanfro_esq_fun", "chanfro_dir_top", "chanfro_dir_fun")
+                if str(p.get(k, "")).strip().lower() not in {"", "n/a", "0"}
+            ),
+        })
+    return result
+
+
 # ── comparação ────────────────────────────────────────────────────────────────
 
 def compare_fv(
@@ -329,6 +397,7 @@ def compare_fv(
         )
 
         segs_ok = n2_panels > 0 and n1_segs == n2_panels
+        segs_similarity = _ratio_similarity(n1_segs, n2_panels)
         comp_ok = (
             n2_comp > 0 and abs(n1_comp - n2_comp) / n2_comp < 0.05
         ) if n2_comp else False
@@ -337,10 +406,15 @@ def compare_fv(
         dim_ok = (n2_h > 0 and n1_dim_width > 0 and abs(n1_dim_width - n2_h) <= 2 and dim_geom_ok) if n2_h else False
         holes_ok = n1_holes == n2_holes if (n1_holes or n2_holes) else None
 
-        checks = [segs_ok, comp_ok, h_ok, dim_ok]
+        checks = [
+            segs_similarity,
+            1.0 if comp_ok else 0.0,
+            1.0 if h_ok else 0.0,
+            1.0 if dim_ok else 0.0,
+        ]
         if holes_ok is not None:
-            checks.append(holes_ok)
-        score = 100.0 * sum(1 for ok in checks if ok) / len(checks)
+            checks.append(1.0 if holes_ok else 0.0)
+        score = 100.0 * sum(checks) / len(checks)
         best_alt_name = ""
         best_alt_score = 0.0
         for cand in n1_list:
@@ -356,6 +430,7 @@ def compare_fv(
             "matched": True,
             "panels_n1": n1_segs,
             "panels_n2": n2_panels,
+            "segs_similarity": round(segs_similarity, 3),
             "comprimento_n1": round(n1_comp, 1),
             "comprimento_n2": round(n2_comp, 1),
             "h_n1": n1_h,
@@ -442,12 +517,13 @@ def record_events(
 
 # ── relatório ─────────────────────────────────────────────────────────────────
 
-def print_report(results: list[dict], obra: str, pav: str | None):
+def print_report(results: list[dict], obra: str, pav: str | None, label: str = "N1 x N2"):
     matched = [r for r in results if r["matched"]]
     total = len(results)
     avg_score = sum(r["score"] for r in matched) / len(matched) if matched else 0
 
     print(f"\n{'='*70}")
+    print(f"Etapa: {label}")
     print(f"FV LOOP REPORT — {obra} | pav={pav or 'TODOS'}")
     print(f"{'='*70}")
     print(f"Vigas N1: {total}  |  Matchadas N2: {len(matched)}  |  Score médio: {avg_score:.1f}%")
@@ -479,9 +555,11 @@ def print_report(results: list[dict], obra: str, pav: str | None):
     h_fail = sum(1 for r in matched if not r["h_ok"])
     dim_fail = sum(1 for r in matched if not r.get("dim_ok"))
     apoio_fail = sum(1 for r in matched if not r.get("apoios_ok"))
+    segs_similarity_avg = sum(float(r.get("segs_similarity") or 0) for r in matched) / len(matched) if matched else 0
     print("DIAGNOSTICO:")
     if matched:
         print(f"  Segmentos (panels) errados: {segs_fail}/{len(matched)} ({100*segs_fail/len(matched):.0f}%)")
+        print(f"  Similaridade qtd. segmentos:{100*segs_similarity_avg:.0f}%")
         print(f"  Comprimento fora +-5%:      {comp_fail}/{len(matched)} ({100*comp_fail/len(matched):.0f}%)")
         print(f"  h fora +-2cm:               {h_fail}/{len(matched)} ({100*h_fail/len(matched):.0f}%)")
         print(f"  Dimensao textual divergente:{dim_fail}/{len(matched)} ({100*dim_fail/len(matched):.0f}%)")
@@ -531,7 +609,19 @@ def run(
     else:
         print("  [dry-run] Sem gravação.")
 
-    print_report(results, obra_name, pav_filter)
+    print_report(results, obra_name, pav_filter, label="N1 x N2")
+
+    n1_names = {_normalize_viga(str(b.get("viga_nome", ""))).upper() for b in n1}
+    n3 = [
+        item for item in load_n3_fv(obra_name)
+        if _normalize_viga(str(item.get("viga_nome", ""))).upper() in n1_names
+    ]
+    print(f"  N3 FV JSONs: {len(n3)}")
+    if n3:
+        results_n3_n4 = compare_fv(n3, n2)
+        print_report(results_n3_n4, obra_name, pav_filter, label="N3 x N4")
+    else:
+        print("  [WARN] Nenhum JSON FV N3 encontrado. Rode Fase-4/Análise Geral primeiro.")
     return results
 
 
