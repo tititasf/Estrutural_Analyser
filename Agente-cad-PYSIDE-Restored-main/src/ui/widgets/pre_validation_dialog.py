@@ -1110,7 +1110,8 @@ class PreValidationDialog(QDialog):
 
         # ── Passagem 2: constrói lista de cortes ──────────────────────────────
         cuts: list[dict] = []
-        seen: set[str] = set()
+        seen: set[str] = set()          # uid = slab_cx_cy (para assignment)
+        pos_seen: set[str] = set()      # cx_cy apenas (dedup de geometria repetida em >1 laje)
 
         for slab in self._slabs:
             slab_name = slab.get('name') or '?'
@@ -1129,25 +1130,48 @@ class PreValidationDialog(QDialog):
                     cy = (min(ys) + max(ys)) / 2.0
                     uid = f"{slab_name}_{round(cx)}_{round(cy)}"
                     ck  = f"{round(cx, -1)}_{round(cy, -1)}"
+                    pos_key = f"{round(cx, 0)}_{round(cy, 0)}"
                 except Exception:
                     cx = cy = 0.0
                     uid = f"{slab_name}_{i}"
                     ck  = uid
+                    pos_key = uid
 
                 if uid in seen:
                     continue
                 seen.add(uid)
 
-                direction = ficha.get('direction') or '—'
-                own_laje  = ficha.get('side_b_laje_name') or slab_name
+                # Mesmo polígono T pode estar em >1 laje — exibe apenas uma vez.
+                # Prefere o que veio da laje cujo slab_name é Lado A (mais informativo).
+                side_a_name = ficha.get('side_a_laje_name') or ''
+                side_b_name = ficha.get('side_b_laje_name') or ''
+                current_is_a = (slab_name == side_a_name)
 
-                # Detecta laje vizinha
-                neigh_laje = ficha.get('side_a_laje_name') or ''
-                if not neigh_laje:
+                if pos_key in pos_seen:
+                    # Já exibido — substitui apenas se este é o lado canônico (A).
+                    if not current_is_a:
+                        continue
+                    # É Lado A: substitui o registro existente (removido ao final).
+                    cuts = [c for c in cuts if c.get('_pos_key') != pos_key]
+                pos_seen.add(pos_key)
+
+                direction = ficha.get('direction') or '—'
+
+                # own_laje é SEMPRE a laje sobre a qual estamos iterando.
+                # neigh_laje é o outro lado.
+                own_laje = slab_name
+                if current_is_a:
+                    neigh_laje = side_b_name or ''
+                else:
+                    neigh_laje = side_a_name or ''
+
+                # Fallback espacial quando a ficha não tem o vizinho preenchido
+                if not neigh_laje or neigh_laje in ('nulo', 'NULO', '—'):
                     others = [s for s in center_to_slabs.get(ck, []) if s != own_laje]
                     if others:
                         neigh_laje = others[0]
-                if not neigh_laje and direction not in ('—', ''):
+                if (not neigh_laje or neigh_laje in ('nulo', 'NULO', '—')) \
+                        and direction not in ('—', ''):
                     neigh_laje = self._find_neighbor_laje(cx, cy, own_laje, direction)
                 if not neigh_laje:
                     neigh_laje = '—'
@@ -1164,6 +1188,7 @@ class PreValidationDialog(QDialog):
 
                 beam_name, conf_pct, candidates = self._associate_beam_name(cx, cy, ficha)
                 cuts.append({
+                    '_pos_key':      pos_key,   # chave interna de dedup geométrico
                     'uid':           uid,
                     'slab_name':     slab_name,
                     'pts':           pts,
@@ -1914,7 +1939,7 @@ class PreValidationDialog(QDialog):
         return '\n'.join(lines)
 
     def _build_cut_view_table(self) -> QTableWidget:
-        cols = ["Viga Assoc.", "Conf %", "H × W", "Laje A", "Laje B", "Status", "Foto"]
+        cols = ["Viga Assoc.", "Conf %", "H × W", "Lajes LADO A", "Lajes LADO B", "Status", "Foto"]
         tbl = QTableWidget(0, len(cols))
         tbl.setHorizontalHeaderLabels(cols)
         hdr = tbl.horizontalHeader()

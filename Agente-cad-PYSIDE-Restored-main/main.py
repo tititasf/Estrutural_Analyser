@@ -2069,10 +2069,7 @@ class MainWindow(QMainWindow):
             # IMPORTANTE: area_cm2 no Robo é usada para calculos, aqui convertemos m² -> cm²
             try:
                 ficha_n1 = self._slab_to_n1_robot_ficha(slab_data)
-                ficha_n3 = self._merge_lj_n3_teacher(
-                    ficha_n1,
-                    self._load_lj_n2_teacher_ficha(ficha_n1.get("nome") or name),
-                )
+                ficha_n3 = self._merge_lj_n3_teacher(ficha_n1, {})
                 coords = ficha_n3.get("coordenadas") or coords
                 comp = float(ficha_n3.get("comprimento") or 0.0)
                 larg = float(ficha_n3.get("largura") or 0.0)
@@ -10120,6 +10117,22 @@ class MainWindow(QMainWindow):
         if not cut_assignments and not invalid_cut_uids:
             return
 
+        # Constrói mapa de posição → assignment para propagar a TODAS as lajes com
+        # o mesmo corte (o mesmo T polygon pode estar em >1 laje).
+        # Chave = (round(cx), round(cy))
+        pos_to_assign: dict[tuple, dict] = {}
+        invalid_positions: set[tuple] = set()
+        for uid, assign in cut_assignments.items():
+            # uid = "slab_cx_cy" — extrai cx,cy como fallback
+            parts = uid.rsplit('_', 2)
+            try:
+                pos = (int(parts[-2]), int(parts[-1]))
+            except (ValueError, IndexError):
+                continue
+            pos_to_assign[pos] = assign
+            if assign.get('is_invalid'):
+                invalid_positions.add(pos)
+
         n_removed = 0
         # Aplica associações de viga e remove cortes inválidos dos vínculos
         for slab in (self.slabs_found or []):
@@ -10140,16 +10153,18 @@ class MainWindow(QMainWindow):
                     cx = (min(xs) + max(xs)) / 2.0
                     cy = (min(ys) + max(ys)) / 2.0
                     uid = f"{slab_name}_{round(cx)}_{round(cy)}"
+                    pos = (round(cx), round(cy))
                 except Exception:
                     continue
 
-                # Cortes classificados como "não é VC" → remover do vínculo
-                if uid in invalid_cut_uids:
+                # Cortes classificados como "não é VC" → remover do vínculo de TODAS as lajes
+                if uid in invalid_cut_uids or pos in invalid_positions:
                     to_remove.append(i)
                     continue
 
-                assign = cut_assignments.get(uid)
-                if assign:
+                # Atribui beam_name via uid exato; fallback por posição geométrica
+                assign = cut_assignments.get(uid) or pos_to_assign.get(pos)
+                if assign and not assign.get('is_invalid'):
                     ficha = cut.setdefault('ficha', {})
                     ficha['beam_name'] = assign.get('beam_name') or ''
                     ficha['beam_name_confidence'] = assign.get('confidence', 0.0)
@@ -11720,39 +11735,16 @@ class MainWindow(QMainWindow):
 
     @staticmethod
     def _merge_lj_n3_teacher(base_ficha: dict, teacher: dict) -> dict:
-        """Aplica aprendizado N3/Robo treinado por N2/N4 sem alterar N1/slab_elements."""
-        if not teacher:
-            teacher = {}
+        """Gera ficha N3/Robo a partir do SA/N1, sem copiar gabarito N2/N4."""
         out = dict(base_ficha)
         try:
             from src.core.laj_n3_learning import apply_learning_to_ficha
-            out = apply_learning_to_ficha(out, teacher=teacher, record_teacher=bool(teacher))
+            out = apply_learning_to_ficha(out, teacher=None, record_teacher=False)
         except Exception:
             pass
-        # N3/Robo deve renderizar o marco final validado. O N1 continua sendo
-        # a extração SA em slab_elements; quando há N2 humano (ou N4 proxy),
-        # a ficha N3 recebe geometria/marcos e linhas do professor.
-        for key in ("coordenadas", "comprimento", "largura", "area_cm2",
-                    "linhas_verticais", "linhas_horizontais"):
-            val = teacher.get(key)
-            if val not in (None, "", [], {}):
-                out[key] = val
-        # Campos auxiliares de renderização/aprendizado não pertencem ao N1; ficam só na ficha N3.
-        for key in ("_hlaz", "_stog_pose", "unioes_nos_bordes"):
-            val = teacher.get(key)
-            if val not in (None, "", [], {}):
-                out[key] = val
         meta = dict(out.get("_sa_meta") or {})
-        if teacher:
-            meta.update({
-                "n3_teacher": teacher.get("_teacher_kind") or "N2_N4_validated_training",
-                "n3_teacher_fields": [
-                    k for k in (
-                        "linhas_verticais", "linhas_horizontais", "_hlaz", "_stog_pose",
-                        "unioes_nos_bordes",
-                    ) if teacher.get(k) not in (None, "", [], {})
-                ],
-            })
+        meta["n3_source"] = "structural_analyzer_n1"
+        meta["n3_teacher"] = None
         out["_sa_meta"] = meta
         return out
 
@@ -11789,11 +11781,7 @@ class MainWindow(QMainWindow):
                     "validated_fields": slab.get("validated_fields", []),
                     "validated_link_classes": slab.get("validated_link_classes", {}),
                 }
-                n3_ficha = self._merge_lj_n3_teacher(
-                    ficha,
-                    self._load_lj_n2_teacher_ficha(ficha["nome"])
-                    or self._load_lj_n4_teacher_ficha(ficha["nome"]),
-                )
+                n3_ficha = self._merge_lj_n3_teacher(ficha, {})
                 (json_dir / f"{ficha['nome']}.json").write_text(
                     _json.dumps(n3_ficha, indent=2, ensure_ascii=False),
                     encoding="utf-8",
