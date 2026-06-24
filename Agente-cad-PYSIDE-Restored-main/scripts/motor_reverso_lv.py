@@ -550,13 +550,16 @@ def _extract_lv_geom_from_dxf(dxf_path: str, elem_id: str = '') -> dict:
         face_A: dict | None = None
         face_B: dict | None = None
 
+        found_by_label = False
         if my_labels:
             for lx, ly, txt, side in my_labels:
                 pair = _find_pair_for_label(lx, ly)
                 if side == 'A' and pair:
                     face_A = pair
+                    found_by_label = True
                 elif side == 'B' and pair:
                     face_B = pair
+                    found_by_label = True
 
         # Fallback: sem labels — usar pares com mesmo x_left (mesma coluna de desenho)
         if face_A is None and face_B is None and all_pairs:
@@ -580,8 +583,9 @@ def _extract_lv_geom_from_dxf(dxf_path: str, elem_id: str = '') -> dict:
             if not secao_txts:
                 return result
 
-        # Garantir que A é a face mais alta
-        if face_A and face_B and face_A['y_top'] < face_B['y_top']:
+        # Garantir que A é a face mais alta — só no fallback (sem labels).
+        # Quando labels identificaram as faces explicitamente, respeitar a identidade.
+        if not found_by_label and face_A and face_B and face_A['y_top'] < face_B['y_top']:
             face_A, face_B = face_B, face_A
 
         # ── 2b. Continuação e labels de pilar ─────────────────────────────────
