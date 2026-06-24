@@ -382,6 +382,7 @@ def processar_item(row: dict, ts_dir: Path,
                 n4_path=n4_path_str,
                 out_png=png_path,
                 verbose=verbose,
+                classe=classe,
             )
     else:
         g2 = {"gate": "G2", "resultado": "BLOCKED",
