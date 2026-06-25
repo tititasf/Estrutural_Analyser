@@ -9,7 +9,9 @@ repository/targets/
 project_data.vision
 project_data.vision-wal
 project_data.vision-shm
-project_data.vision.bak_*
+project_data.vision.bak*
+engrev_*.vision.bak*
+*.bak
 
 # Python bytecode
 __pycache__/
@@ -25,3 +27,4 @@ _ROBOS_ABAS/**/*.rar
 _ROBOS_ABAS/**/*.zip
 _ROBOS_ABAS/**/*.exe
 _ROBOS_ABAS/**/*.pkg
+/DADOS-OBRAS

@@ -1,0 +1,6 @@
+[core]
+    remote = gdrive
+['remote "gdrive"']
+    url = gdrive://16M5RO5VgTlPAAV9ZUFQ12Dg3J-PdubqE
+    gdrive_acknowledge_abuse = true
+    gdrive_user_credentials_file = tmp/gdrive-creds.json

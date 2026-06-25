@@ -1,5 +1,0 @@
-$23762d53-8013-4277-a39b-2378322bdd93²×3vector ÿÿÿÿÿÿÿÿÿ*fixed_size_list:float:409608text ÿÿÿÿÿÿÿÿÿ*string08$	obra_name ÿÿÿÿÿÿÿÿÿ*string08$	file_name ÿÿÿÿÿÿÿÿÿ*string08$	file_type ÿÿÿÿÿÿÿÿÿ*string08"page_num ÿÿÿÿÿÿÿÿÿ*int3208(section_title ÿÿÿÿÿÿÿÿÿ*string08%chunk_index ÿÿÿÿÿÿÿÿÿ*int3208%
-chunk_type ÿÿÿÿÿÿÿÿÿ*string08%
-created_at	 ÿÿÿÿÿÿÿÿÿ*string08"!
-lance.auto_cleanup.interval20"'
-lance.auto_cleanup.older_than14days
