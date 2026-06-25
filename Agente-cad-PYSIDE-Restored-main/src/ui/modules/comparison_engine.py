@@ -2982,15 +2982,21 @@ class LevelColumn(QFrame):
         lay.setContentsMargins(8, 6, 8, 6)
         lay.setSpacing(4)
 
-        # ── Header compacto: [badge+título+desc] | [pipeline inline] ──
+        # ── Header compacto: [badge+título+desc+atenção] | [pipeline inline] ──
+        # Altura fixa: 50px sem atenção, 100px com atenção (3 linhas nota)
+        _HDR_H_NORMAL = 50
+        _HDR_H_ATT    = 100
         hdr = QFrame()
-        hdr.setMinimumHeight(50)
+        hdr.setFixedHeight(_HDR_H_NORMAL)
         hdr.setStyleSheet(f"background: {bg_color}; border-radius: 4px;")
+        self._hdr = hdr
+        self._hdr_h_normal = _HDR_H_NORMAL
+        self._hdr_h_att    = _HDR_H_ATT
         hdr_main = QHBoxLayout(hdr)
         hdr_main.setContentsMargins(10, 5, 10, 5)
         hdr_main.setSpacing(8)
 
-        # Esquerda: badge + título + desc em uma linha
+        # Esquerda: badge + título + desc + [atenção oculta]
         left_lay = QVBoxLayout()
         left_lay.setSpacing(2)
         left_lay.setContentsMargins(0, 0, 0, 0)
@@ -3022,40 +3028,50 @@ class LevelColumn(QFrame):
         )
         left_lay.addWidget(lbl_desc)
 
-        # ── Linha de atenção inline (oculta por padrão) ──────────────
+        # ── Bloco de atenção inline (oculto por padrão) ───────────────
         self._attention_loading = False
         self._attention_callback = None
         self._attention_inline = QWidget()
         self._attention_inline.setVisible(False)
         self._attention_inline.setStyleSheet("background: transparent;")
-        att_inline_lay = QHBoxLayout(self._attention_inline)
-        att_inline_lay.setContentsMargins(0, 0, 0, 0)
-        att_inline_lay.setSpacing(5)
+        att_inline_lay = QVBoxLayout(self._attention_inline)
+        att_inline_lay.setContentsMargins(0, 2, 0, 0)
+        att_inline_lay.setSpacing(3)
 
+        # Linha 1: score + checkbox ⚠
+        att_top = QHBoxLayout()
+        att_top.setSpacing(5)
+        att_top.setContentsMargins(0, 0, 0, 0)
         self._score_label = QLabel("")
         self._score_label.setStyleSheet(
             f"color: {accent}; font-size: 9px; font-weight: bold; background: transparent;"
         )
         self._score_label.setWordWrap(False)
-        self._attention_check = QCheckBox("⚠")
-        self._attention_check.setToolTip("Marcar item para atenção")
+        self._attention_check = QCheckBox("⚠ Atenção")
+        self._attention_check.setToolTip("Marcar item para revisão")
         self._attention_check.setStyleSheet(
-            f"color: {accent}; font-size: 11px; background: transparent;"
+            f"color: {accent}; font-size: 9px; background: transparent;"
         )
-        self._attention_check.setFixedWidth(28)
-        self._attention_text = QLineEdit()
-        self._attention_text.setPlaceholderText("Nota...")
-        self._attention_text.setFixedHeight(18)
+        att_top.addWidget(self._score_label, 1)
+        att_top.addWidget(self._attention_check, 0)
+        att_inline_lay.addLayout(att_top)
+
+        # Linha 2: campo de nota compacto (3 linhas, scroll, max 500 chars)
+        self._attention_text = QTextEdit()
+        self._attention_text.setFixedHeight(46)   # ~3 linhas de 9px
+        self._attention_text.setPlaceholderText("Nota (max 500 chars)...")
+        self._attention_text.document().setMaximumBlockCount(0)
         self._attention_text.setStyleSheet(
-            f"QLineEdit {{ background: rgba(0,0,0,0.35); color: {Colors.TEXT_PRIMARY}; "
+            f"QTextEdit {{ background: rgba(0,0,0,0.35); color: {Colors.TEXT_PRIMARY}; "
             f"border: 1px solid {accent}55; border-radius: 3px; font-size: 9px; "
-            f"padding: 0 4px; }}"
+            f"padding: 2px 4px; }}"
+            f"QScrollBar:vertical {{ background: transparent; width: 5px; }}"
+            f"QScrollBar::handle:vertical {{ background: {accent}55; border-radius: 2px; }}"
         )
-        att_inline_lay.addWidget(self._score_label, 2)
-        att_inline_lay.addWidget(self._attention_check, 0)
-        att_inline_lay.addWidget(self._attention_text, 1)
+        att_inline_lay.addWidget(self._attention_text)
+
         self._attention_check.stateChanged.connect(self._emit_attention_changed)
-        self._attention_text.textChanged.connect(self._emit_attention_changed)
+        self._attention_text.textChanged.connect(self._on_note_changed)
         left_lay.addWidget(self._attention_inline)
 
         hdr_main.addLayout(left_lay, 2)
@@ -3161,21 +3177,37 @@ class LevelColumn(QFrame):
         try:
             self._score_label.setText(score_text or "")
             self._attention_check.setChecked(bool(attention))
-            self._attention_text.setText(note or "")
+            self._attention_text.setPlainText((note or "")[:500])
             self._attention_inline.setVisible(True)
+            self._hdr.setFixedHeight(self._hdr_h_att)
         finally:
             self._attention_loading = False
 
     def clear_attention_context(self):
         self._attention_callback = None
         self._attention_inline.setVisible(False)
+        self._hdr.setFixedHeight(self._hdr_h_normal)
+
+    def _on_note_changed(self):
+        if self._attention_loading or not self._attention_callback:
+            return
+        txt = self._attention_text.toPlainText()
+        if len(txt) > 500:
+            cursor = self._attention_text.textCursor()
+            self._attention_text.setPlainText(txt[:500])
+            self._attention_text.setTextCursor(cursor)
+            return
+        self._attention_callback(
+            bool(self._attention_check.isChecked()),
+            txt,
+        )
 
     def _emit_attention_changed(self, *args):
         if self._attention_loading or not self._attention_callback:
             return
         self._attention_callback(
             bool(self._attention_check.isChecked()),
-            self._attention_text.text(),
+            self._attention_text.toPlainText(),
         )
 
     # ── Conteúdo ─────────────────────────────────────────────────────
@@ -7035,19 +7067,59 @@ class ComparisonEngineModule(QWidget):
         obra = (self.fase8_panel.cmb_obra.currentData() or self.fase8_panel.cmb_obra.currentText())
         if not obra:
             return "Score visual pendente: obra nao selecionada."
-        if scope != "N4":
-            return "Score visual N3 x N4: pendente (nao implementado)."
+        obra_dir = DADOS_OBRAS_ROOT / obra
+        label = "Score visual N3 x N4" if scope == "N3" else "Score visual N4 x recorte N2"
+        detail = "comparacao com N4" if scope == "N3" else "sobre o recorte N2"
         try:
-            obra_dir = DADOS_OBRAS_ROOT / obra
-            recorte  = self._find_n2_recorte_for_item(obra, classe, item_id)
-            n4       = self._find_n4_dxf_strict(obra_dir, classe, item_id)
-            if not recorte or not n4 or not Path(recorte).exists() or not Path(n4).exists():
-                return "Score G2 N4 x recorte N2: DXF ausente."
-
-            arete_dir = str(SCRIPTS_DIR / "arete")
             import sys as _sys
+            scripts_dir = str(SCRIPTS_DIR)
+            arete_dir = str(SCRIPTS_DIR / "arete")
+            if scripts_dir not in _sys.path:
+                _sys.path.insert(0, scripts_dir)
             if arete_dir not in _sys.path:
                 _sys.path.insert(0, arete_dir)
+
+            if scope == "N3":
+                left = self.tri_level._find_n3_dxf(obra_dir, classe, item_id)
+                right = self._find_n4_dxf_strict(obra_dir, classe, item_id)
+            else:
+                left = self._find_n2_recorte_for_item(obra, classe, item_id)
+                right = self._find_n4_dxf_strict(obra_dir, classe, item_id)
+
+            if not left or not right or not Path(left).exists() or not Path(right).exists():
+                return f"{label}: pendente ({detail}; DXF ausente)."
+
+            if classe == "LJ":
+                from scripts.arete_lj_canonico import canonical, diff
+                diffs = diff(canonical(Path(left)), canonical(Path(right))).get("diffs", {})
+                weights = {
+                    "outline": 50,
+                    "linhas_verticais": 20,
+                    "linhas_horizontais": 20,
+                    "hlaz": 5,
+                    "obstaculos": 5,
+                }
+                lost = sum(weight for field, weight in weights.items() if field in diffs)
+                pct = max(0, 100 - lost)
+                fails = [field for field in weights if field in diffs]
+                suffix = "OK" if not fails else "diverge: " + ", ".join(fails)
+                return f"{label}: {pct:.0f}% ({detail}; marco/linhas LAJ; {suffix})."
+
+            from paridade_visual import paridade_item
+            score_cls = "PIL" if classe == "PL" else classe
+            r = paridade_item(str(left), str(right), verbose=False, classe=score_cls)
+            sc = r.get("scores", {})
+            cats = {
+                "entidades": sc.get("entidades_ok"),
+                "geometria": sc.get("geometria_ok"),
+                "textos": sc.get("textos_ok"),
+                "hatches": sc.get("hatches_ok"),
+            }
+            n_ok = sum(1 for v in cats.values() if v is True)
+            fails = [k for k, v in cats.items() if v is False]
+            pct = 100 * n_ok / max(len(cats), 1)
+            status = "OK" if r.get("resultado") == "PASS" else f"falhou: {', '.join(fails) if fails else 'ver diffs'}"
+            return f"{label}: {pct:.0f}% ({detail}; {classe}; {status})."
 
             if classe == "PIL":
                 from partes_pil import comparar_pil_canonico
@@ -7073,7 +7145,7 @@ class ComparisonEngineModule(QWidget):
                 return (f"Score G2 {classe}: FAIL — {pct}% "
                         f"(falhou: {', '.join(fails) if fails else 'ver diffs'}).")
         except Exception as exc:
-            return f"Score G2 N4: erro ({exc})."
+            return f"{label}: erro ({exc})."
 
     def _configure_level_attention(self, scope: str, classe: str, item_id: str):
         try:
@@ -7843,6 +7915,7 @@ class ComparisonEngineModule(QWidget):
             _ce_log(f"N4 set_ficha classe={classe} id={item_id} er_keys={len(er_ficha or {})}")
             col.set_ficha(self._ficha_rows_from_dict(er_ficha, item_id, db_cls))
             self._configure_level_attention("N4", classe, item_id)
+            self._configure_level_attention("N3", classe, item_id)
             col.pipeline.set_step(0, 'ok', '')
             _ce_log(f"N4 step0 ok")
 
@@ -8758,6 +8831,7 @@ class ComparisonEngineModule(QWidget):
                     _col.switch_to_lv_zones(lv_zones, _er_ficha or {})
                     _col.pipeline.set_step(2, 'ok', dxf_path.name[:25])
                     self._configure_level_attention("N4", "LV", _item_id)
+                    self._configure_level_attention("N3", "LV", _item_id)
                     self.nav_sidebar.set_status(f"✅ N4 LV gerado — {_item_id}", Colors.ACCENT_SUCCESS)
                 else:
                     _col.pipeline.set_step(2, 'error', f'código {code}')
@@ -8921,6 +8995,7 @@ class ComparisonEngineModule(QWidget):
                         _col.load_content(str(canon), n4_bbox)
                     _col.pipeline.set_step(2, 'ok', canon.name[:25])
                     self._configure_level_attention("N4", _classe, _item_id)
+                    self._configure_level_attention("N3", _classe, _item_id)
                     self.nav_sidebar.set_status(f"✅ N4 gerado — {_item_id}", Colors.ACCENT_SUCCESS)
                 else:
                     _col.pipeline.set_step(2, 'error', f'código {code}')
