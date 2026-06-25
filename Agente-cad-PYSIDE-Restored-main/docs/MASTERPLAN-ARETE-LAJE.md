@@ -86,6 +86,19 @@ Princípio inegociável (herdado do masterplan global): **o schema do N1 (Struct
 NÃO muda**. A convergência acontece na **camada de conversão** N1→ficha-de-robô. O N2 é
 gabarito de valores, nunca input do caminho N1.
 
+### Trava anti-vazamento N2/N4 -> N3
+
+O N3 de LAJ deve nascer exclusivamente do N1 produzido pelo Structural Analyzer puro. N2 e N4
+podem ser usados para medir score, comparar geometria, diagnosticar gaps e treinar regras do
+motor, mas nunca para preencher a ficha N3/Robo. E proibido copiar para N3 qualquer campo do
+N2/N4 (`coordenadas`, `comprimento`, `largura`, `area_cm2`, `linhas_verticais`,
+`linhas_horizontais`, `_hlaz`, `_stog_pose`, `unioes_nos_bordes`, modo ou equivalentes).
+
+Se uma rodada N3 vs N4 atingir 100% porque a ficha N3 recebeu valores do N2/N4, essa rodada e
+invalida: deve ser registrada como vazamento de gabarito e o motor SA->N1 precisa ser corrigido
+ate reproduzir a geometria dinamicamente. A mesma regra se aplica por analogia a FV, LV, PIL e
+classes futuras.
+
 ---
 
 ## 3. FASE LJ-A — N2 → N4 (Arete de geração)

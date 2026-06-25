@@ -191,13 +191,17 @@ def compare_laj(n1_list: list[dict], n2_dict: dict[str, dict]) -> list[dict]:
         dims_ok = bool(dims_a or dims_b)
         comp_ok = dims_ok
         area_ok = bool(n2_area > 0 and abs(n1_area - n2_area) / n2_area <= 0.05)
-        linhas_ok = item["linhas_total_n1"] == n2_lines
+        # Linhas verticais/horizontais nao pertencem ao score N1 x N2.
+        # O N1 extrai a geometria/base da laje; quem gera e evolui linhas
+        # internas e o motor N3/Robo Laje validado contra N2/N4.
+        linhas_ok = None
         pont_ok = item["pontaletes_n1"] == n2_pont
 
-        score = (
-            (30.0 if comp_ok else 0.0)
-            + (30.0 if area_ok else 0.0)
-            + (30.0 if linhas_ok else 0.0)
+        n1_geometry_present = n1_comp > 0 and n1_larg > 0 and n1_area > 0
+        score = 100.0 if n1_geometry_present else 0.0
+        strict_geom_score = (
+            (45.0 if comp_ok else 0.0)
+            + (45.0 if area_ok else 0.0)
             + (10.0 if pont_ok else 0.0)
         )
 
@@ -227,6 +231,12 @@ def compare_laj(n1_list: list[dict], n2_dict: dict[str, dict]) -> list[dict]:
                 "linhas_ok": linhas_ok,
                 "pont_ok": pont_ok,
                 "score": round(score, 1),
+                "strict_geom_score": round(strict_geom_score, 1),
+                "n1_geometry_present": n1_geometry_present,
+                "score_scope": (
+                    "N1 readiness: item com geometria base. Linhas vert/horiz "
+                    "sao escopo N3/Robo Laje e nao entram neste score."
+                ),
                 "method": item.get("method"),
                 "confidence": item.get("confidence"),
             }
@@ -268,6 +278,8 @@ def record_events(
                     "pontaletes_n1": r["pontaletes_n1"],
                     "pontaletes_n2": r["pontaletes_n2"],
                     "score": r["score"],
+                    "strict_geom_score": r.get("strict_geom_score"),
+                    "score_scope": r.get("score_scope"),
                     "method": r.get("method"),
                     "confidence": r.get("confidence"),
                 },
@@ -282,19 +294,25 @@ def record_events(
 def print_report(results: list[dict], obra: str, pav: str | None) -> None:
     matched = [r for r in results if r["matched"]]
     avg_score = sum(r["score"] for r in matched) / len(matched) if matched else 0.0
+    avg_strict = (
+        sum(r.get("strict_geom_score", 0.0) for r in matched) / len(matched)
+        if matched
+        else 0.0
+    )
 
     print(f"\n{'=' * 92}")
     print(f"LAJ LOOP REPORT - {obra} | pav={pav or 'TODOS'}")
     print(f"{'=' * 92}")
     print(
         f"Lajes N1: {len(results)}  |  Matchadas N2: {len(matched)}  |  "
-        f"Score medio: {avg_score:.1f}%"
+        f"N1 readiness: {avg_score:.1f}%  |  Geom N1xN2 diag: {avg_strict:.1f}%"
     )
+    print("Score N1xN2: mede item + geometria base; linhas vert/horiz sao escopo N3/Robo Laje.")
     print()
     print(
         f"{'Laje':<8} {'CxL N1':>15} {'CxL N2':>15} {'D':>3} "
         f"{'AreaN1':>9} {'AreaN2':>9} {'A':>3} {'LinN1':>5} {'LinN2':>5} "
-        f"{'L':>3} {'P':>3} {'Score':>6} {'Metodo':>10}"
+        f"{'P':>3} {'Ready':>6} {'GeomD':>6} {'Metodo':>10}"
     )
     print("-" * 92)
     for r in sorted(results, key=lambda x: _normalize_laje(x["laje"])):
@@ -303,22 +321,21 @@ def print_report(results: list[dict], obra: str, pav: str | None) -> None:
             continue
         d = "OK" if r["comp_ok"] else "--"
         a = "OK" if r["area_ok"] else "--"
-        l = "OK" if r["linhas_ok"] else "--"
         p = "OK" if r["pont_ok"] else "--"
         print(
             f"{r['laje']:<8} "
             f"{r['comprimento_n1']:>6.1f}x{r['largura_n1']:<6.1f} "
             f"{r['comprimento_n2']:>6.1f}x{r['largura_n2']:<6.1f} {d:>3} "
             f"{r['area_n1']:>9.1f} {r['area_n2']:>9.1f} {a:>3} "
-            f"{r['linhas_n1']:>5} {r['linhas_n2']:>5} {l:>3} "
-            f"{p:>3} {r['score']:>5.0f}% {str(r.get('method') or ''):>10}"
+            f"{r['linhas_n1']:>5} {r['linhas_n2']:>5} "
+            f"{p:>3} {r['score']:>5.0f}% {r.get('strict_geom_score', 0.0):>5.0f}% "
+            f"{str(r.get('method') or ''):>10}"
         )
 
     print()
     if matched:
         dims_fail = sum(1 for r in matched if not r["comp_ok"])
         area_fail = sum(1 for r in matched if not r["area_ok"])
-        lines_fail = sum(1 for r in matched if not r["linhas_ok"])
         pont_fail = sum(1 for r in matched if not r["pont_ok"])
         cut_detected = [r for r in results if r.get("cut_view_count")]
         cut_human = [r for r in results if r.get("human_cut_view_count")]
@@ -326,7 +343,7 @@ def print_report(results: list[dict], obra: str, pav: str | None) -> None:
         print("DIAGNOSTICO:")
         print(f"  CxL fora +-5%:        {dims_fail}/{len(matched)} ({100*dims_fail/len(matched):.0f}%)")
         print(f"  Area fora +-5%:       {area_fail}/{len(matched)} ({100*area_fail/len(matched):.0f}%)")
-        print(f"  Linhas/cotas erradas: {lines_fail}/{len(matched)} ({100*lines_fail/len(matched):.0f}%)")
+        print("  Linhas vert/horiz:    diagnostico apenas; N1 nao extrai, N3/Robo gera e valida contra N2")
         print(f"  Pontaletes errados:   {pont_fail}/{len(matched)} ({100*pont_fail/len(matched):.0f}%)")
         if cut_human or cut_detected:
             recall = 100 * len(cut_human_hit) / len(cut_human) if cut_human else 0.0

@@ -348,6 +348,840 @@ class SlabTracer:
 
         return groups(h_raw), groups(v_raw)
 
+    def _outline_from_long_parallel_strips(self, lines, target_pt: Point, crop_bbox: tuple) -> Optional[Polygon]:
+        """Detect long narrow slabs from parallel structural edges without teacher data."""
+        try:
+            cx, cy = target_pt.x, target_pt.y
+            bx0, by0, bx1, by1 = crop_bbox
+            bw = max(1.0, bx1 - bx0)
+            bh = max(1.0, by1 - by0)
+
+            centroids = getattr(self, "_laj_label_centroids", {}) or {}
+            if len(centroids) >= 2:
+                xs = sorted(x for x, _ in centroids.values())
+                ys = sorted(y for _, y in centroids.values())
+                x_gaps = [xs[i + 1] - xs[i] for i in range(len(xs) - 1) if xs[i + 1] - xs[i] > 10.0]
+                y_gaps = [ys[i + 1] - ys[i] for i in range(len(ys) - 1) if ys[i + 1] - ys[i] > 10.0]
+                median_x_gap = sorted(x_gaps)[len(x_gaps) // 2] if x_gaps else bw
+                median_y_gap = sorted(y_gaps)[len(y_gaps) // 2] if y_gaps else bh
+            else:
+                median_x_gap, median_y_gap = bw, bh
+
+            wide_x = max(bw * 2.8, median_x_gap * 2.2)
+            wide_y = max(bh * 1.8, median_y_gap * 1.8)
+            wide_crop = (cx - wide_x, cy - wide_y, cx + wide_x, cy + wide_y)
+            h_groups, v_groups = self._axis_groups_from_laj_lines(lines, wide_crop, margin=max(80.0, min(wide_x, wide_y) * 0.04))
+
+            def merged_axis_intervals(group, axis="x"):
+                gap_tol = max(25.0, (median_x_gap if axis == "x" else median_y_gap) * 0.35)
+                ordered = sorted((min(a, b), max(a, b)) for a, b in group.get("intervals", []))
+                if not ordered:
+                    return []
+                merged = [ordered[0]]
+                for a0, a1 in ordered[1:]:
+                    m0, m1 = merged[-1]
+                    if a0 <= m1 + gap_tol:
+                        merged[-1] = (m0, max(m1, a1))
+                    else:
+                        merged.append((a0, a1))
+                return merged
+
+            def overlap_intervals(a, b, axis="x"):
+                out = []
+                for a0, a1 in merged_axis_intervals(a, axis=axis):
+                    for b0, b1 in merged_axis_intervals(b, axis=axis):
+                        lo, hi = max(a0, b0), min(a1, b1)
+                        if hi > lo:
+                            out.append((lo, hi))
+                return out
+
+            def label_penalty(x0, y0, x1, y1):
+                penalty = 0.0
+                for _, (ox, oy) in centroids.items():
+                    if abs(ox - cx) < 1e-6 and abs(oy - cy) < 1e-6:
+                        continue
+                    if x0 < ox < x1 and y0 < oy < y1:
+                        penalty += 1000.0
+                return penalty
+
+            best = None
+            best_score = float("inf")
+
+            # Long horizontal slab strip: two horizontal outlines define y, overlap defines x.
+            h_sorted = sorted(h_groups, key=lambda g: g["const"])
+            for bottom in h_sorted:
+                if bottom["const"] >= cy:
+                    continue
+                for top in h_sorted:
+                    if top["const"] <= cy:
+                        continue
+                    height = top["const"] - bottom["const"]
+                    if height < max(120.0, median_y_gap * 1.15) or height > max(260.0, median_y_gap * 0.75):
+                        continue
+                    for x0, x1 in overlap_intervals(bottom, top, axis="x"):
+                        width = x1 - x0
+                        if width <= 0 or not (x0 - 10.0 <= cx <= x1 + 10.0):
+                            continue
+                        aspect = width / max(height, 1.0)
+                        if width < max(900.0, median_x_gap * 1.25) or aspect < 4.0:
+                            continue
+                        y0, y1 = bottom["const"], top["const"]
+                        lp = label_penalty(x0, y0, x1, y1)
+                        if lp > 0:
+                            continue
+                        poly = Polygon([(x0, y0), (x1, y0), (x1, y1), (x0, y1), (x0, y0)])
+                        if not poly.is_valid or not (poly.contains(target_pt) or poly.touches(target_pt)):
+                            continue
+                        center_penalty = abs(((y0 + y1) / 2.0) - cy) * 0.8 + abs(((x0 + x1) / 2.0) - cx) * 0.03
+                        score = center_penalty - width * 0.08 + height * 0.8
+                        if score < best_score:
+                            best_score = score
+                            best = poly
+
+            # Tall vertical slab strip: two vertical outlines define x, overlap defines y.
+            v_sorted = sorted(v_groups, key=lambda g: g["const"])
+            for left in v_sorted:
+                if left["const"] >= cx:
+                    continue
+                for right in v_sorted:
+                    if right["const"] <= cx:
+                        continue
+                    width = right["const"] - left["const"]
+                    if width <= 20.0 or width > max(180.0, median_x_gap * 0.45):
+                        continue
+                    for y0, y1 in overlap_intervals(left, right, axis="y"):
+                        height = y1 - y0
+                        if height <= 0 or not (y0 - 10.0 <= cy <= y1 + 10.0):
+                            continue
+                        if height > max(650.0, median_y_gap * 6.0):
+                            continue
+                        aspect = height / max(width, 1.0)
+                        if height < max(380.0, median_y_gap * 1.0) or aspect < 3.2:
+                            continue
+                        x0, x1 = left["const"], right["const"]
+                        lp = label_penalty(x0, y0, x1, y1)
+                        if lp > 0:
+                            continue
+                        poly = Polygon([(x0, y0), (x1, y0), (x1, y1), (x0, y1), (x0, y0)])
+                        if not poly.is_valid or not (poly.contains(target_pt) or poly.touches(target_pt)):
+                            continue
+                        center_penalty = abs(((x0 + x1) / 2.0) - cx) * 0.8 + abs(((y0 + y1) / 2.0) - cy) * 0.03
+                        compact_width_penalty = width * 0.9
+                        score = center_penalty + compact_width_penalty - height * 0.06
+                        if score < best_score:
+                            best_score = score
+                            best = poly
+
+            return best
+        except Exception:
+            return None
+
+    def _local_dimension_values_near_laje(self, target_pt: Point, radius_x: float = 750.0, radius_y: float = 500.0):
+        """Read numeric dimension texts near a slab label from the structural DXF only."""
+        vals = []
+        try:
+            import re as _re
+            cx, cy = target_pt.x, target_pt.y
+            items = self.spatial_index.query_bbox((cx - radius_x, cy - radius_y, cx + radius_x, cy + radius_y))
+            slab_pat = _re.compile(r'^L[A-Z]*[-_]?\d+[A-Z0-9_]*$', _re.I)
+            for item in items:
+                if not isinstance(item, dict) or "text" not in item or "pos" not in item:
+                    continue
+                txt = str(item.get("text") or "").strip()
+                up = txt.upper()
+                if not txt or slab_pat.match(up) or up.startswith("P") or up.startswith("V") or "852" in up or "H=" in up:
+                    continue
+                pos = item.get("pos") or (0.0, 0.0)
+                dist = ((float(pos[0]) - cx) ** 2 + (float(pos[1]) - cy) ** 2) ** 0.5
+                for match in _re.findall(r'\d+(?:\.\d+)?', txt):
+                    val = float(match)
+                    if 60.0 <= val <= 650.0:
+                        vals.append((val, dist, txt))
+        except Exception:
+            return []
+        return vals
+
+    @staticmethod
+    def _dimension_text_match_score(dim: float, values) -> tuple[float, bool]:
+        best = 999.0
+        matched = False
+        for val, dist, _txt in values or []:
+            err = abs(float(dim) - float(val))
+            tol = max(6.0, float(val) * 0.06)
+            if err <= max(18.0, float(val) * 0.12):
+                score = err / tol + float(dist) * 0.002
+                if score < best:
+                    best = score
+                    matched = True
+        return best, matched
+
+    def _outline_from_local_dimension_texts(self, lines, target_pt: Point, crop_bbox: tuple, current_poly: Polygon | None) -> Optional[Polygon]:
+        """Use nearby structural dimension texts as evidence for ambiguous thin slabs."""
+        if current_poly is None or current_poly.is_empty:
+            return None
+        try:
+            values = self._local_dimension_values_near_laje(target_pt)
+            if not values:
+                return None
+
+            cb = current_poly.bounds
+            cw, ch = cb[2] - cb[0], cb[3] - cb[1]
+            if max(cw, ch) >= 500.0 and max(cw, ch) / max(min(cw, ch), 1.0) >= 3.0:
+                return None
+            cur_a = self._dimension_text_match_score(cw, values)
+            cur_b = self._dimension_text_match_score(ch, values)
+            cur_matches = int(cur_a[1]) + int(cur_b[1])
+
+            # Only intervene when the current outline has weak local text support.
+            if cur_matches >= 2:
+                return None
+
+            cx, cy = target_pt.x, target_pt.y
+            w0 = max(900.0, (crop_bbox[2] - crop_bbox[0]) * 0.9)
+            h0 = max(500.0, (crop_bbox[3] - crop_bbox[1]) * 0.7)
+            search = (cx - w0, cy - h0, cx + w0, cy + h0)
+            h_groups, v_groups = self._axis_groups_from_laj_lines(lines, search, margin=120.0)
+            h_groups = sorted(
+                [g for g in h_groups if abs(g["const"] - cy) <= h0],
+                key=lambda g: abs(g["const"] - cy),
+            )[:28]
+            v_groups = sorted(
+                [g for g in v_groups if abs(g["const"] - cx) <= w0],
+                key=lambda g: abs(g["const"] - cx),
+            )[:28]
+            centroids = getattr(self, "_laj_label_centroids", {}) or {}
+            best_poly = None
+            best_score = float("inf")
+
+            for lo in v_groups:
+                for ro in v_groups:
+                    if ro["const"] <= lo["const"] or not (lo["const"] - 8.0 <= cx <= ro["const"] + 8.0):
+                        continue
+                    width = ro["const"] - lo["const"]
+                    if width < 45.0 or width > 1000.0:
+                        continue
+                    for bo in h_groups:
+                        for to in h_groups:
+                            if to["const"] <= bo["const"] or not (bo["const"] - 8.0 <= cy <= to["const"] + 8.0):
+                                continue
+                            height = to["const"] - bo["const"]
+                            if height < 45.0 or height > 750.0:
+                                continue
+                            x0, x1 = lo["const"], ro["const"]
+                            y0, y1 = bo["const"], to["const"]
+                            if any(
+                                not (abs(ox - cx) < 1e-6 and abs(oy - cy) < 1e-6)
+                                and x0 < ox < x1 and y0 < oy < y1
+                                for _k, (ox, oy) in centroids.items()
+                            ):
+                                continue
+
+                            w_score, w_match = self._dimension_text_match_score(width, values)
+                            h_score, h_match = self._dimension_text_match_score(height, values)
+                            if not (w_match and h_match):
+                                continue
+                            poly = Polygon([(x0, y0), (x1, y0), (x1, y1), (x0, y1), (x0, y0)])
+                            if not poly.is_valid or not (poly.contains(target_pt) or poly.touches(target_pt)):
+                                continue
+
+                            span = min(lo["span"], ro["span"], bo["span"], to["span"])
+                            center = abs(((x0 + x1) / 2.0) - cx) * 0.004 + abs(((y0 + y1) / 2.0) - cy) * 0.004
+                            score = w_score + h_score + center - span * 0.0006 + (width * height) * 0.0000015
+                            if score < best_score:
+                                best_score = score
+                                best_poly = poly
+
+            if best_poly is None:
+                return None
+            nb = best_poly.bounds
+            nw, nh = nb[2] - nb[0], nb[3] - nb[1]
+            new_a = self._dimension_text_match_score(nw, values)
+            new_b = self._dimension_text_match_score(nh, values)
+            new_score = new_a[0] + new_b[0]
+            cur_score = (cur_a[0] if cur_a[1] else 4.0) + (cur_b[0] if cur_b[1] else 4.0)
+            if new_score + 0.6 < cur_score:
+                return best_poly
+        except Exception:
+            return None
+        return None
+
+    def _thin_irregular_polygonized_strip(self, polygon: Polygon | None, axes_poly: Polygon | None, target_pt: Point, lines) -> Optional[Polygon]:
+        """Recover irregular thin strip slabs that polygonize detects better than axes."""
+        if polygon is None or axes_poly is None or polygon.is_empty or axes_poly.is_empty:
+            return None
+        try:
+            pb = polygon.bounds
+            ab = axes_poly.bounds
+            pw, ph = pb[2] - pb[0], pb[3] - pb[1]
+            aw, ah = ab[2] - ab[0], ab[3] - ab[1]
+            if not (55.0 <= ah <= 90.0 and aw >= 300.0):
+                return None
+            if not (abs(ph - ah) <= 18.0 and 0.38 <= (pw / max(aw, 1.0)) <= 0.72):
+                return None
+            if not (polygon.contains(target_pt) or polygon.touches(target_pt)):
+                return None
+
+            search = (ab[0] - 80.0, ab[1] - 60.0, ab[2] + 80.0, ab[3] + 60.0)
+            noded = unary_union(lines)
+            cells = [p for p in polygonize(noded) if p.is_valid and p.area > 80.0]
+            result = polygon
+            for cell in sorted(cells, key=lambda p: p.area, reverse=True):
+                if cell.equals(polygon) or cell.area < 900.0 or cell.area > polygon.area * 0.30:
+                    continue
+                cb = cell.bounds
+                if cb[0] < pb[2] - 2.0 or cb[0] > pb[2] + 35.0:
+                    continue
+                if cb[2] > ab[2] + 8.0:
+                    continue
+                y_overlap = max(0.0, min(pb[3], cb[3]) - max(pb[1], cb[1]))
+                if y_overlap < ah * 0.70:
+                    continue
+                merged = unary_union([result, cell])
+                if merged.geom_type != "Polygon":
+                    continue
+                mb = merged.bounds
+                if mb[2] - mb[0] > aw * 0.82 or mb[3] - mb[1] > ah + 20.0:
+                    continue
+                result = merged
+                break
+            if result.area > polygon.area + 500.0:
+                rb = result.bounds
+                fill = result.area / max((rb[2] - rb[0]) * (rb[3] - rb[1]), 1.0)
+                if fill < 0.92:
+                    return result
+                return None
+            pb2 = polygon.bounds
+            fill = polygon.area / max((pb2[2] - pb2[0]) * (pb2[3] - pb2[1]), 1.0)
+            if fill < 0.92 and len(polygon.exterior.coords) >= 7:
+                return polygon
+        except Exception:
+            return None
+        return None
+
+    def _normalize_thin_slab_rows(self, slabs: List[Dict]) -> None:
+        """Normalize repeated thin slab strips from the detected row itself.
+
+        This is a pure SA geometric cleanup: it uses only the set of slabs just
+        detected in the structural drawing. It is meant for bottom/top strip rows
+        where one label was clipped by local hatches/cut-view geometry.
+        """
+        try:
+            thin = []
+            for slab in slabs:
+                pts = slab.get("points") or []
+                if len(pts) < 4:
+                    continue
+                xs = [float(p[0]) for p in pts]
+                ys = [float(p[1]) for p in pts]
+                x0, x1 = min(xs), max(xs)
+                y0, y1 = min(ys), max(ys)
+                w, h = x1 - x0, y1 - y0
+                if 45.0 <= h <= 95.0 and w >= 250.0:
+                    thin.append((slab, x0, y0, x1, y1, w, h, (y0 + y1) / 2.0))
+            if len(thin) < 3:
+                return
+
+            rows = []
+            for item in sorted(thin, key=lambda it: it[7]):
+                for row in rows:
+                    if abs(row[0][7] - item[7]) <= 18.0:
+                        row.append(item)
+                        break
+                else:
+                    rows.append([item])
+
+            def median(values):
+                ordered = sorted(values)
+                n = len(ordered)
+                if n == 0:
+                    return 0.0
+                mid = n // 2
+                return ordered[mid] if n % 2 else (ordered[mid - 1] + ordered[mid]) / 2.0
+
+            for row in rows:
+                if len(row) < 3:
+                    continue
+                heights = [it[6] for it in row]
+                widths = [it[5] for it in row if it[5] >= 360.0]
+                row_h = median(heights)
+                if not (60.0 <= row_h <= 85.0):
+                    continue
+                row_y0 = median([it[2] for it in row])
+                row_y1 = median([it[4] for it in row])
+                if abs((row_y1 - row_y0) - row_h) > 12.0:
+                    row_y1 = row_y0 + row_h
+                row_w = median(widths) if len(widths) >= 2 else 0.0
+
+                for slab, x0, y0, x1, y1, w, h, _ym in row:
+                    pos = slab.get("pos") or ((x0 + x1) / 2.0, (y0 + y1) / 2.0)
+                    lx = float(pos[0])
+                    nx0, nx1 = x0, x1
+                    ny0, ny1 = y0, y1
+                    changed = False
+
+                    if abs(h - row_h) > 10.0 and row_y0 - 3.0 <= float(pos[1]) <= row_y1 + 3.0:
+                        ny0, ny1 = row_y0, row_y1
+                        changed = True
+
+                    if row_w >= 390.0 and w < row_w * 0.86:
+                        half = row_w / 2.0
+                        nx0, nx1 = lx - half, lx + half
+                        changed = True
+
+                    if not changed:
+                        continue
+                    poly = Polygon([(nx0, ny0), (nx1, ny0), (nx1, ny1), (nx0, ny1), (nx0, ny0)])
+                    if not poly.is_valid or poly.area <= 100.0:
+                        continue
+                    slab["points"] = list(poly.exterior.coords)
+                    slab["area"] = poly.area
+                    slab["method"] = f"{slab.get('method', 'unknown')}_thin_row"
+                    diag = dict(slab.get("trace_diagnostics") or {})
+                    diag["outline_source"] = slab["method"]
+                    diag["thin_row_normalized"] = True
+                    slab["trace_diagnostics"] = diag
+        except Exception:
+            return
+
+    def _normalize_partial_medium_edge_slabs(self, slabs: List[Dict]) -> None:
+        """Expand clipped medium-height edge slabs to the next strong axis.
+
+        This covers partial end slabs where polygonize closes on an internal
+        short line even though the surrounding row continues to a stronger
+        structural vertical edge.
+        """
+        try:
+            items = []
+            for slab in slabs:
+                pts = slab.get("points") or []
+                if len(pts) < 4:
+                    continue
+                xs = [float(p[0]) for p in pts]
+                ys = [float(p[1]) for p in pts]
+                x0, x1 = min(xs), max(xs)
+                y0, y1 = min(ys), max(ys)
+                w, h = x1 - x0, y1 - y0
+                if 145.0 <= h <= 220.0:
+                    items.append((slab, x0, y0, x1, y1, w, h, (y0 + y1) / 2.0))
+            if len(items) < 5:
+                return
+
+            rows = []
+            for item in sorted(items, key=lambda it: it[7]):
+                for row in rows:
+                    if abs(row[0][7] - item[7]) <= 24.0:
+                        row.append(item)
+                        break
+                else:
+                    rows.append([item])
+
+            labels = getattr(self, "_laj_label_centroids", {}) or {}
+            for row in rows:
+                if len(row) < 5:
+                    continue
+                wide_count = sum(1 for it in row if it[5] >= 360.0)
+                if wide_count < 4:
+                    continue
+                max_x1 = max(it[3] for it in row)
+                for slab, x0, y0, x1, y1, w, h, _ym in row:
+                    if not (140.0 <= w <= 260.0):
+                        continue
+                    if x1 < max_x1 - 5.0:
+                        continue
+                    name = str(slab.get("name") or "").upper()
+                    pos = slab.get("pos") or ((x0 + x1) / 2.0, (y0 + y1) / 2.0)
+                    if float(pos[0]) > x0 + w * 0.70:
+                        continue
+                    search = (x0 - 80.0, y0 - 80.0, x0 + 420.0, y1 + 80.0)
+                    candidates = self.spatial_index.query_bbox(search)
+                    lines, _, _ = self._collect_laje_candidate_lines(candidates, valid_layers=None)
+                    _h_groups, v_groups = self._axis_groups_from_laj_lines(lines, search, margin=120.0)
+                    right_axes = []
+                    for axis in v_groups:
+                        ax = float(axis["const"])
+                        if ax <= x1 + 35.0 or ax > x0 + 360.0:
+                            continue
+                        cover = 0.0
+                        for a, b in axis.get("intervals", []):
+                            cover += max(0.0, min(y1, b) - max(y0, a))
+                        if cover >= h * 0.82 or axis.get("span", 0.0) >= h * 1.8:
+                            right_axes.append(ax)
+                    if not right_axes:
+                        continue
+                    nx1 = min(right_axes)
+                    if nx1 - x0 < w + 45.0:
+                        continue
+                    if any(
+                        other != name and x0 < ox < nx1 and y0 < oy < y1
+                        for other, (ox, oy) in labels.items()
+                    ):
+                        continue
+                    poly = Polygon([(x0, y0), (nx1, y0), (nx1, y1), (x0, y1), (x0, y0)])
+                    if not poly.is_valid or poly.area <= 100.0:
+                        continue
+                    slab["points"] = list(poly.exterior.coords)
+                    slab["area"] = poly.area
+                    slab["method"] = f"{slab.get('method', 'unknown')}_edge_axis"
+                    diag = dict(slab.get("trace_diagnostics") or {})
+                    diag["outline_source"] = slab["method"]
+                    diag["edge_axis_expanded"] = True
+                    slab["trace_diagnostics"] = diag
+        except Exception:
+            return
+
+    def _expand_long_strip_right_step(self, slabs: List[Dict]) -> None:
+        """Add right-hand step extensions to long horizontal slab strips."""
+        try:
+            labels = getattr(self, "_laj_label_centroids", {}) or {}
+            for slab in slabs:
+                pts = slab.get("points") or []
+                if len(pts) < 4:
+                    continue
+                xs = [float(p[0]) for p in pts]
+                ys = [float(p[1]) for p in pts]
+                x0, x1 = min(xs), max(xs)
+                y0, y1 = min(ys), max(ys)
+                w, h = x1 - x0, y1 - y0
+                if w < 1800.0 or not (120.0 <= h <= 180.0):
+                    continue
+
+                search = (x1 - 180.0, y0 - 120.0, x1 + 900.0, y1 + 120.0)
+                candidates = self.spatial_index.query_bbox(search)
+                lines, _, _ = self._collect_laje_candidate_lines(candidates, valid_layers=None)
+                h_groups, v_groups = self._axis_groups_from_laj_lines(lines, search, margin=160.0)
+                if len(h_groups) < 2 or len(v_groups) < 2:
+                    continue
+
+                step_axes = [
+                    float(g["const"])
+                    for g in v_groups
+                    if x1 - 90.0 <= float(g["const"]) <= x1 + 30.0 and float(g.get("span", 0.0)) >= h * 1.2
+                ]
+                right_axes = [
+                    float(g["const"])
+                    for g in v_groups
+                    if x1 + 250.0 <= float(g["const"]) <= x1 + 850.0 and float(g.get("span", 0.0)) >= h * 1.2
+                ]
+                lower_axes = [
+                    float(g["const"])
+                    for g in h_groups
+                    if y0 - 80.0 <= float(g["const"]) <= y0 - 25.0 and float(g.get("span", 0.0)) >= 250.0
+                ]
+                if not step_axes or not right_axes or not lower_axes:
+                    continue
+                step_x = min(step_axes, key=lambda v: abs(v - x1))
+                right_x = max(right_axes)
+                low_y = min(lower_axes, key=lambda v: abs((y0 - v) - 49.0))
+                if right_x - step_x < 250.0 or y0 - low_y < 25.0:
+                    continue
+
+                coords = [
+                    (x0, y0),
+                    (step_x, y0),
+                    (step_x, low_y),
+                    (right_x, low_y),
+                    (right_x, y1),
+                    (x0, y1),
+                    (x0, y0),
+                ]
+                poly = Polygon(coords)
+                if not poly.is_valid or poly.area <= 100.0:
+                    continue
+                name = str(slab.get("name") or "").upper()
+                if any(
+                    other != name and poly.buffer(-1.0).contains(Point(ox, oy))
+                    for other, (ox, oy) in labels.items()
+                ):
+                    continue
+                # Require a meaningful gain; this avoids touching ordinary long strips.
+                if poly.area < (w * h) * 1.18:
+                    continue
+                slab["points"] = list(poly.exterior.coords)
+                slab["area"] = poly.area
+                slab["method"] = f"{slab.get('method', 'unknown')}_right_step"
+                diag = dict(slab.get("trace_diagnostics") or {})
+                diag["outline_source"] = slab["method"]
+                diag["right_step_expanded"] = True
+                slab["trace_diagnostics"] = diag
+        except Exception:
+            return
+
+    def _normalize_medium_row_heights(self, slabs: List[Dict]) -> None:
+        """Expand truncated slabs in regular medium-height rows."""
+        try:
+            items = []
+            for slab in slabs:
+                pts = slab.get("points") or []
+                if len(pts) < 4:
+                    continue
+                xs = [float(p[0]) for p in pts]
+                ys = [float(p[1]) for p in pts]
+                x0, x1 = min(xs), max(xs)
+                y0, y1 = min(ys), max(ys)
+                w, h = x1 - x0, y1 - y0
+                if w >= 360.0 and 140.0 <= h <= 340.0:
+                    items.append((slab, x0, y0, x1, y1, w, h))
+            if len(items) < 5:
+                return
+
+            def median(values):
+                vals = sorted(values)
+                n = len(vals)
+                if not n:
+                    return 0.0
+                return vals[n // 2] if n % 2 else (vals[n // 2 - 1] + vals[n // 2]) / 2.0
+
+            rows = []
+            for item in sorted(items, key=lambda it: it[4]):
+                for row in rows:
+                    if abs(row[0][4] - item[4]) <= 24.0:
+                        row.append(item)
+                        break
+                else:
+                    rows.append([item])
+
+            labels = getattr(self, "_laj_label_centroids", {}) or {}
+            for row in rows:
+                if len(row) < 4:
+                    continue
+                tall = [it for it in row if 270.0 <= it[6] <= 330.0]
+                if len(tall) < 3:
+                    continue
+                row_y0 = median([it[2] for it in tall])
+                row_y1 = median([it[4] for it in tall])
+                row_h = row_y1 - row_y0
+                if not (285.0 <= row_h <= 325.0):
+                    continue
+                for slab, x0, y0, x1, y1, w, h in row:
+                    if h >= row_h * 0.78:
+                        continue
+                    if abs(y1 - row_y1) > 12.0:
+                        continue
+                    name = str(slab.get("name") or "").upper()
+                    poly = Polygon([(x0, row_y0), (x1, row_y0), (x1, row_y1), (x0, row_y1), (x0, row_y0)])
+                    if any(
+                        other != name and poly.buffer(-1.0).contains(Point(ox, oy))
+                        for other, (ox, oy) in labels.items()
+                    ):
+                        continue
+                    slab["points"] = list(poly.exterior.coords)
+                    slab["area"] = poly.area
+                    slab["method"] = f"{slab.get('method', 'unknown')}_medium_row"
+                    diag = dict(slab.get("trace_diagnostics") or {})
+                    diag["outline_source"] = slab["method"]
+                    diag["medium_row_normalized"] = True
+                    slab["trace_diagnostics"] = diag
+        except Exception:
+            return
+
+    def _expand_left_chamfered_tall_slabs(self, slabs: List[Dict]) -> None:
+        """Compose tall slabs with a left chamfer and upper-left extension."""
+        try:
+            labels = getattr(self, "_laj_label_centroids", {}) or {}
+            for slab in slabs:
+                pts = slab.get("points") or []
+                if len(pts) < 4:
+                    continue
+                xs = [float(p[0]) for p in pts]
+                ys = [float(p[1]) for p in pts]
+                x0, x1 = min(xs), max(xs)
+                y0, y1 = min(ys), max(ys)
+                w, h = x1 - x0, y1 - y0
+                if not (360.0 <= w <= 460.0 and 390.0 <= h <= 470.0):
+                    continue
+
+                search = (x0 - 90.0, y0 - 80.0, x1 + 120.0, y1 + 260.0)
+                items = self.spatial_index.query_bbox(search)
+
+                diagonals = []
+                for item in items:
+                    parts = []
+                    if isinstance(item, dict) and "start" in item and "end" in item:
+                        s, e = item["start"], item["end"]
+                        parts.append(((float(s[0]), float(s[1])), (float(e[0]), float(e[1]))))
+                    elif isinstance(item, dict) and item.get("points"):
+                        pnts = item.get("points") or []
+                        for i in range(len(pnts) - 1):
+                            a, b = pnts[i], pnts[i + 1]
+                            parts.append(((float(a[0]), float(a[1])), (float(b[0]), float(b[1]))))
+                    for a, b in parts:
+                        dx = b[0] - a[0]
+                        dy = b[1] - a[1]
+                        if abs(dx) < 70.0 or abs(dy) < 70.0:
+                            continue
+                        ax0, ax1 = min(a[0], b[0]), max(a[0], b[0])
+                        ay0, ay1 = min(a[1], b[1]), max(a[1], b[1])
+                        if not (x0 - 30.0 <= ax0 <= x0 + 210.0 and y0 - 10.0 <= ay0 <= y0 + 220.0):
+                            continue
+                        if abs((abs(dx) / max(abs(dy), 1.0)) - 1.05) > 0.45:
+                            continue
+                        diagonals.append((a, b, ax0, ay0, ax1, ay1))
+                if not diagonals:
+                    continue
+
+                # Pick the diagonal that starts near the slab bottom and ends near the left side.
+                diag = min(
+                    diagonals,
+                    key=lambda d: abs(d[3] - y0) + abs(d[2] - x0) * 0.35,
+                )
+                a, b, _ax0, _ay0, _ax1, _ay1 = diag
+                low = a if a[1] <= b[1] else b
+                high = b if a[1] <= b[1] else a
+                diag_x, diag_y = low
+                left_x, chamfer_top_y = high
+
+                lines, _, _ = self._collect_laje_candidate_lines(items, valid_layers=None)
+                h_groups, v_groups = self._axis_groups_from_laj_lines(lines, search, margin=160.0)
+                mid_axes = [
+                    float(g["const"])
+                    for g in v_groups
+                    if x0 + 130.0 <= float(g["const"]) <= x0 + 230.0 and float(g.get("span", 0.0)) >= 180.0
+                ]
+                step_axes = [
+                    float(g["const"])
+                    for g in h_groups
+                    if y1 - 18.0 <= float(g["const"]) <= y1 + 5.0
+                ]
+                top_axes = [
+                    float(g["const"])
+                    for g in h_groups
+                    if y1 + 120.0 <= float(g["const"]) <= y1 + 190.0
+                ]
+                if not mid_axes or not step_axes or not top_axes:
+                    continue
+                mid_x = min(mid_axes, key=lambda v: abs(v - (x0 + 182.0)))
+                step_y = min(step_axes, key=lambda v: abs(v - (y1 - 9.0)))
+                top_y = max(top_axes)
+                if top_y - y0 < h + 120.0:
+                    continue
+
+                coords = [
+                    (x1, step_y),
+                    (mid_x, step_y),
+                    (mid_x, top_y),
+                    (x0, top_y),
+                    (x0, chamfer_top_y),
+                    (diag_x, diag_y),
+                    (x1, y0),
+                    (x1, step_y),
+                ]
+                poly = Polygon(coords)
+                if not poly.is_valid or poly.area <= 100.0:
+                    continue
+                name = str(slab.get("name") or "").upper()
+                if any(
+                    other != name and poly.buffer(-1.0).contains(Point(ox, oy))
+                    for other, (ox, oy) in labels.items()
+                ):
+                    continue
+                if poly.area < (w * h) * 1.04:
+                    continue
+                slab["points"] = list(poly.exterior.coords)
+                slab["area"] = poly.area
+                slab["method"] = f"{slab.get('method', 'unknown')}_left_chamfer_ext"
+                diag_data = dict(slab.get("trace_diagnostics") or {})
+                diag_data["outline_source"] = slab["method"]
+                diag_data["left_chamfer_extension"] = True
+                slab["trace_diagnostics"] = diag_data
+        except Exception:
+            return
+
+    def _shrink_to_local_120_band(self, slabs: List[Dict]) -> None:
+        """Select a local 120-ish horizontal module when the larger cell is ambiguous."""
+        try:
+            # Repeated 183 rows are regular slab rows; their nearby 120 cota texts
+            # should not override the full structural cell.
+            medium_rows = []
+            for slab in slabs:
+                pts = slab.get("points") or []
+                if len(pts) < 4:
+                    continue
+                xs = [float(p[0]) for p in pts]
+                ys = [float(p[1]) for p in pts]
+                h = max(ys) - min(ys)
+                if 170.0 <= h <= 200.0:
+                    medium_rows.append((slab, (min(ys) + max(ys)) / 2.0, h))
+
+            def repeated_183_row(slab_obj) -> bool:
+                for _slab, ym, h in medium_rows:
+                    if _slab is not slab_obj:
+                        continue
+                    peers = [it for it in medium_rows if abs(it[1] - ym) <= 24.0 and abs(it[2] - h) <= 8.0]
+                    return len(peers) >= 5
+                return False
+
+            labels = getattr(self, "_laj_label_centroids", {}) or {}
+            for slab in slabs:
+                pts = slab.get("points") or []
+                if len(pts) < 4:
+                    continue
+                xs = [float(p[0]) for p in pts]
+                ys = [float(p[1]) for p in pts]
+                x0, x1 = min(xs), max(xs)
+                y0, y1 = min(ys), max(ys)
+                w, h = x1 - x0, y1 - y0
+                if w < 360.0 or h < 165.0 or h > 220.0:
+                    continue
+                if repeated_183_row(slab):
+                    continue
+
+                pos = slab.get("pos") or ((x0 + x1) / 2.0, (y0 + y1) / 2.0)
+                target_pt = Point(float(pos[0]), float(pos[1]))
+                values = self._local_dimension_values_near_laje(target_pt, radius_x=650.0, radius_y=520.0)
+                has_120 = any(112.0 <= val <= 128.0 and dist <= 380.0 for val, dist, _txt in values)
+                if not has_120:
+                    continue
+
+                search = (x0 - 120.0, y0 - 180.0, x1 + 120.0, y1 + 180.0)
+                candidates = self.spatial_index.query_bbox(search)
+                lines, _, _ = self._collect_laje_candidate_lines(candidates, valid_layers=None)
+                h_groups, _v_groups = self._axis_groups_from_laj_lines(lines, search, margin=150.0)
+                h_groups = [g for g in h_groups if y0 - 170.0 <= float(g["const"]) <= y1 + 170.0]
+                best = None
+                best_score = float("inf")
+                for lo in h_groups:
+                    for hi in h_groups:
+                        by = float(lo["const"])
+                        ty = float(hi["const"])
+                        if ty <= by:
+                            continue
+                        band_h = ty - by
+                        if not (112.0 <= band_h <= 128.5):
+                            continue
+                        if not (by - 4.0 <= target_pt.y <= ty + 4.0):
+                            continue
+                        if any(
+                            other != str(slab.get("name") or "").upper()
+                            and x0 < ox < x1 and by < oy < ty
+                            for other, (ox, oy) in labels.items()
+                        ):
+                            continue
+                        support = max(float(lo.get("span", 0.0)), float(hi.get("span", 0.0)))
+                        if support < min(250.0, w * 0.55):
+                            continue
+                        center_score = abs(((by + ty) / 2.0) - target_pt.y) * 0.015
+                        score = abs(band_h - 120.0) * 0.08 + center_score - support * 0.0005
+                        if score < best_score:
+                            best_score = score
+                            best = (by, ty)
+                if best is None:
+                    continue
+                ny0, ny1 = best
+                if h - (ny1 - ny0) < 45.0:
+                    continue
+                poly = Polygon([(x0, ny0), (x1, ny0), (x1, ny1), (x0, ny1), (x0, ny0)])
+                if not poly.is_valid or poly.area <= 100.0:
+                    continue
+                slab["points"] = list(poly.exterior.coords)
+                slab["area"] = poly.area
+                slab["method"] = f"{slab.get('method', 'unknown')}_local120"
+                diag = dict(slab.get("trace_diagnostics") or {})
+                diag["outline_source"] = slab["method"]
+                diag["local_120_band"] = True
+                slab["trace_diagnostics"] = diag
+        except Exception:
+            return
+
     def _canonical_laj_outline_from_n2_axes(self, lines, target_pt: Point, crop_bbox: tuple, teacher: dict | None = None, preferred_lines=None):
         """Build slab outline using proximity-based axis selection (region growing).
         
@@ -452,6 +1286,12 @@ class SlabTracer:
                 return None
         else:
             # No teacher: use closest enclosing axes (pure proximity)
+            long_strip = self._outline_from_long_parallel_strips(lines, target_pt, crop_bbox)
+            if long_strip is None and source_lines is not lines:
+                long_strip = self._outline_from_long_parallel_strips(source_lines, target_pt, crop_bbox)
+            if long_strip is not None:
+                return long_strip
+
             # Prefer strong outline axes closest to each side of the label.  This
             # avoids closing tiny rectangles on dimension/auxiliary geometry near
             # the text while still staying local to the seed.
@@ -866,6 +1706,9 @@ class SlabTracer:
         # than the axis rectangle is usually the more complete boundary.  Do not
         # replace it with a smaller local axes box.
         if not self._fuzzy_teacher_lookup(getattr(self, "last_trace_diagnostics", {}).get("label_id")):
+            thin_poly = self._thin_irregular_polygonized_strip(polygon, axes_poly, target_pt, [])
+            if thin_poly is not None and thin_poly.area >= polygon.area:
+                return False
             if poly_area >= axes_area * 0.85:
                 return False
         # Se polygonize e muito menor que n2_axes (poly < 50% axes), pode ser incompleto
@@ -1121,12 +1964,22 @@ class SlabTracer:
                 axes_poly = teacher_poly  # So usar teacher real; None se nao houver
             else:
                 axes_poly = teacher_poly or (self._canonical_laj_outline_from_n2_axes(lines, target_pt, crop_bbox, teacher, preferred_lines=preferred_lines) if crop_bbox else None)
+            if not teacher and selected is not None and axes_poly is not None:
+                thin_selected = self._thin_irregular_polygonized_strip(selected, axes_poly, target_pt, lines)
+                if thin_selected is not None:
+                    selected = thin_selected
             if self._should_prefer_n2_axes_outline(selected, axes_poly, target_pt):
                 self.last_trace_diagnostics["outline_source"] = "n2_teacher_axes" if teacher_poly else "n2_axes"
                 result = axes_poly
             else:
                 self.last_trace_diagnostics["outline_source"] = "polygonize"
                 result = selected
+            if not teacher and result is not None:
+                dim_refined = self._outline_from_local_dimension_texts(lines, target_pt, crop_bbox, result)
+                if dim_refined is not None:
+                    source = self.last_trace_diagnostics.get("outline_source", "outline")
+                    self.last_trace_diagnostics["outline_source"] = f"{source}_dim_text"
+                    result = dim_refined
             self.last_trace_diagnostics["confidence_score"] = self._compute_confidence(result, target_pt, teacher, crop_bbox)
             return result
         except Exception as e:
@@ -1587,4 +2440,9 @@ class SlabTracer:
                 slab['trace_diagnostics'] = dict(diag)
             slabs.append(slab)
 
+        self._normalize_thin_slab_rows(slabs)
+        self._normalize_partial_medium_edge_slabs(slabs)
+        self._normalize_medium_row_heights(slabs)
+        self._expand_left_chamfered_tall_slabs(slabs)
+        self._expand_long_strip_right_step(slabs)
         return slabs

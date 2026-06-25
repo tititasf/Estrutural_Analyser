@@ -4652,12 +4652,20 @@ class NavSidebar(QFrame):
 
     def _reverse_item_rows(self, cls: str) -> dict[str, dict]:
         obra_name = self._current_obra_dir.name if self._current_obra_dir is not None else ""
-        rows = self._load_reverse_items(obra_name, cls, self._current_pav)
+        pav_key   = self._current_pav or ""
+        rows = self._load_reverse_items(obra_name, cls, pav_key)
         out: dict[str, dict] = {}
         for elem_id, conf, status, recorte_path in rows:
+            if cls == "LV":
+                # reverse_eng_recortes guarda só o ID base (sem face); exibe como "LV-V10"
+                pp = load_para_passa(obra_name, pav_key, "LV", str(elem_id).upper())
+                pp_suffix = f"-{pp.capitalize()}" if pp else ""
+                disp = f"LV-{elem_id}{pp_suffix}"
+            else:
+                disp = str(elem_id)
             out[str(elem_id)] = {
                 "id": str(elem_id),
-                "text": str(elem_id),
+                "text": disp,
                 "source": "reverso",
                 "recorte_path": recorte_path or "",
                 "status": status or "",
@@ -7532,6 +7540,18 @@ class ComparisonEngineModule(QWidget):
                 meta.get("human_validated", False),
                 lambda ok, s=scope, c=classe, iid=item_id: self._save_level_human_validation(s, c, iid, ok),
             )
+            # Para LV: exibe Para/Passa em N3 e N4 sincronizado com N2
+            if classe == "LV":
+                import re as _re2
+                viga_base = _re2.sub(r'[_\.][AB]$', '', str(item_id).upper())
+                tipo = load_para_passa(obra, pav, "LV", viga_base)
+                col.set_para_passa(
+                    tipo,
+                    lambda t, b=viga_base: self._save_lv_para_passa_and_sync(b, t),
+                )
+            elif col._para_passa_row.isVisible():
+                # limpa apenas se estava visível (evita ocultar attention_inline por engano)
+                col.clear_para_passa()
         except Exception as exc:
             print(f"[CE] _configure_level_attention error: {exc}")
 
@@ -7558,20 +7578,28 @@ class ComparisonEngineModule(QWidget):
             print(f"[CE] _save_level_human_validation error: {exc}")
 
     def _configure_para_passa_n2(self, classe: str, item_id: str):
-        """Configura widget Para/Passa na coluna N2 para classes PIL e LAJ."""
-        if classe not in ("PL", "LJ"):
-            self.tri_level._columns[1].clear_para_passa()
-            return
+        """Configura widget Para/Passa na coluna N2 para PIL, LAJ e LV."""
         try:
             obra = (self.fase8_panel.cmb_obra.currentData() or self.fase8_panel.cmb_obra.currentText())
             pav = self.fase8_panel.current_pav_key
-            db_cls = "PIL" if classe == "PL" else "LAJ"
-            tipo = load_para_passa(obra, pav, db_cls, item_id)
             col = self.tri_level._columns[1]
-            col.set_para_passa(
-                tipo,
-                lambda t, s=db_cls, iid=item_id: self._save_para_passa_n2(s, iid, t),
-            )
+            if classe in ("PL", "LJ"):
+                db_cls = "PIL" if classe == "PL" else "LAJ"
+                tipo = load_para_passa(obra, pav, db_cls, item_id)
+                col.set_para_passa(
+                    tipo,
+                    lambda t, s=db_cls, iid=item_id: self._save_para_passa_n2(s, iid, t),
+                )
+            elif classe == "LV":
+                import re as _re2
+                viga_base = _re2.sub(r'[_\.][AB]$', '', str(item_id).upper())
+                tipo = load_para_passa(obra, pav, "LV", viga_base)
+                col.set_para_passa(
+                    tipo,
+                    lambda t, b=viga_base: self._save_lv_para_passa_and_sync(b, t),
+                )
+            else:
+                col.clear_para_passa()
         except Exception as exc:
             print(f"[CE] _configure_para_passa_n2 error: {exc}")
 
@@ -7587,6 +7615,31 @@ class ComparisonEngineModule(QWidget):
             self.nav_sidebar.refresh_tree()
         except Exception as exc:
             print(f"[CE] _save_para_passa_n2 error: {exc}")
+
+    def _save_lv_para_passa_and_sync(self, viga_base: str, tipo: str):
+        """Salva Para/Passa para LV e sincroniza todos os headers simultaneamente."""
+        try:
+            obra = (self.fase8_panel.cmb_obra.currentData() or self.fase8_panel.cmb_obra.currentText())
+            pav = self.fase8_panel.current_pav_key
+            save_para_passa(obra, pav, "LV", viga_base, tipo)
+            # sincroniza botões em todos os headers que mostram Para/Passa
+            for col in self.tri_level._columns:
+                if col._para_passa_row.isVisible():
+                    col._attention_loading = True
+                    try:
+                        col._para_btn.setChecked(tipo == "para")
+                        col._passa_btn.setChecked(tipo == "passa")
+                    finally:
+                        col._attention_loading = False
+            suffix = f"-{tipo.capitalize()}" if tipo else ""
+            self.nav_sidebar.set_status(
+                f"LV-{viga_base}{suffix} classificado", Colors.ACCENT_SUCCESS
+            )
+            # atualiza display da lista (sufixos Para/Passa nos nomes)
+            self._populate_list(self._current_classe)
+            self.nav_sidebar.refresh_tree()
+        except Exception as exc:
+            print(f"[CE] _save_lv_para_passa_and_sync error: {exc}")
 
     def _on_item_selected(self, classe: str, item_id: str):
         """Auto-dispara N1 → N2 → N3 em sequência ao selecionar item.
@@ -8523,6 +8576,34 @@ class ComparisonEngineModule(QWidget):
                         return ficha
             except Exception as exc:
                 _ce_log(f"LV ficha live falhou {item_id}: {exc}")
+
+        # FV: motor live no recorte (igual ao LV) — garante fixes de tier e _multiplier
+        if db_cls == "FV":
+            try:
+                import sys as _sys
+                scripts_dir = str(Path(__file__).parent.parent.parent.parent / "scripts")
+                if scripts_dir not in _sys.path:
+                    _sys.path.insert(0, scripts_dir)
+                dxf_path = self._get_recorte_dxf_for_er(
+                    obra, classe, item_id,
+                    pav=self.fase8_panel.current_pav_key,
+                )
+                if dxf_path:
+                    from motor_reverso_fv import extrair_ficha_fundo_viga
+                    ficha = extrair_ficha_fundo_viga(
+                        str(dxf_path),
+                        item_id,
+                        obra_name=obra,
+                        obra_root=DADOS_OBRAS_ROOT / obra,
+                    )
+                    if ficha:
+                        _ce_log(
+                            f"FV ficha live {item_id}: "
+                            f"segments={len(ficha.get('segments_rich') or [])}"
+                        )
+                        return ficha
+            except Exception as exc:
+                _ce_log(f"FV ficha live falhou {item_id}: {exc}")
 
         if db_cls == "LAJ":
             try:

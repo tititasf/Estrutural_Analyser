@@ -1927,6 +1927,10 @@ class CADCanvas(QGraphicsView):
             if pid in self.persistent_links: del self.persistent_links[pid]
             
         self.item_groups['beam'] = []
+        # Restaurar snaps ao estado base — draw_beams adiciona snap_points/segments
+        # por viga; sem essa restauração, snap_points cresce a cada navegação até crash
+        self.snap_points = self.base_snap_points.copy()
+        self.snap_segments = self.base_snap_segments.copy()
         self.scene.update()
 
     def draw_beams(self, beams_data: list):
@@ -1952,11 +1956,10 @@ class CADCanvas(QGraphicsView):
                 item.setToolTip(f"Viga: {text}\nID: {b_data.get('id_item', '??')}")
 
                 self.scene.addItem(item)
-                
-                # Registrar no cache de grupo
+                # Sempre rastrear o label para que clear_beams() possa removê-lo
+                self.item_groups.setdefault('beam', []).append(item)
                 if 'id' in b_data:
                     self.interactive_items[b_data['id']] = item
-                    self.item_groups['beam'].append(item)
                 
                 # AJUSTE 2: Desenhar vínculos de segmentos para a visão global
                 self.draw_item_links(b_data, destination='beam', clear=False)

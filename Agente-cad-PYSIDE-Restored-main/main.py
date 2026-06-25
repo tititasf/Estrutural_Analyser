@@ -97,7 +97,7 @@ from PySide6.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout,
                                QTextEdit, QLabel, QStackedWidget, QListWidget,
                                QListWidgetItem, QTabWidget, QSplitter, QLineEdit, QProgressBar,
                                QTreeWidget, QTreeWidgetItem, QMessageBox, QMenu, QScrollArea, QFrame,
-                               QComboBox, QTabBar, QRadioButton, QButtonGroup)
+                               QComboBox, QTabBar, QRadioButton, QButtonGroup, QSizePolicy)
 from PySide6.QtGui import QColor
 from PySide6.QtCore import Qt, QSize, QTimer
 from src.ui.canvas import CADCanvas
@@ -12688,6 +12688,8 @@ class MainWindow(QMainWindow):
         cls, item_id = self._sa_attention_class_item(display_data, display_data.get("type"))
         meta = load_attention(obra, pav, cls, item_id, "SA")
         box = QFrame()
+        box.setFixedHeight(86)
+        box.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
         box.setStyleSheet(
             "QFrame { background-color: #171717; border: 1px solid #444; border-radius: 3px; }"
             "QLabel { color: #ffb020; font-size: 10px; font-weight: bold; border: none; }"
@@ -12699,7 +12701,8 @@ class MainWindow(QMainWindow):
         lay.setSpacing(3)
         lay.addWidget(QLabel("ATENÇÃO"))
         edit = QTextEdit()
-        edit.setFixedHeight(54)
+        edit.setFixedHeight(46)
+        edit.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
         edit.setPlaceholderText("Mensagem/instrucao persistente deste item para o chat...")
         edit.setPlainText(meta.get("note", ""))
         lay.addWidget(edit)

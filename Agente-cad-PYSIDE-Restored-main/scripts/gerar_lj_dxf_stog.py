@@ -253,6 +253,8 @@ def add_mtext_aux(msp, x, y, text, height=8.0, layer='AUX00'):
 
 
 # -- Planta mode (REAL delivery format) --------------------------------------
+EDGE_DIVISION_MARGIN_CM = 3.0
+INTEGER_SNAP_TOLERANCE_CM = 0.45
 
 def _line_value(item):
     return float(item.get('value', 0)) if isinstance(item, dict) else float(item)
@@ -260,6 +262,14 @@ def _line_value(item):
 
 def _round_panel_cm(value):
     return round(round(float(value) * 2) / 2, 1)
+
+
+def _snap_panel_line(value):
+    value = float(value)
+    nearest_int = round(value)
+    if abs(value - nearest_int) <= INTEGER_SNAP_TOLERANCE_CM:
+        return float(nearest_int)
+    return _round_panel_cm(value)
 
 
 def _format_dim_value(value):
@@ -274,8 +284,8 @@ def _normalize_line_positions(lines, total):
     result = []
     seen = set()
     for item in lines or []:
-        value = _round_panel_cm(_line_value(item))
-        if value <= 0.5 or value >= total - 0.5:
+        value = _snap_panel_line(_line_value(item))
+        if value <= EDGE_DIVISION_MARGIN_CM or value >= total - EDGE_DIVISION_MARGIN_CM:
             continue
         if value in seen:
             continue

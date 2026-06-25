@@ -25,6 +25,8 @@ Fazer o **"Análise Geral"** (motor dinâmico, zero hardcode) **convergir para o
 6. **Nada destrutivo de DB.** Aprendizado grava parâmetros versionados, nunca sobrescreve gabarito nem fichas validadas.
 7. **Humano validado vence sempre.** Campos, recortes, contornos, links e itens com validacao humana (`is_validated=1`, `validated_fields_json`, `status='aprovado'` ou equivalente) sao fonte de verdade operacional. O loop pode ler esses dados como professor, pode registrar divergencias e pode propor ajustes no motor, mas **nunca sobrescreve, apaga ou rebaixa dado validado por humano**. Quando houver conflito entre N1 automatico, N2 reverso e validacao humana, a decisao humana validada prevalece.
 8. **Entrevista e acao manual sao parte do loop.** O agente executor pode fazer perguntas pontuais ao dono ou pedir uma acao manual pequena (ex.: validar um item, marcar um contorno correto, confirmar uma regra de campo, enviar print/PNG ou aprovar/reprovar um caso) quando isso reduzir ambiguidade e aumentar a compreensao do motor. Essas intervencoes devem ser registradas como aprendizado reutilizavel (`training_events`, `engrev_*_learning.vision`, `domain_knowledge` ou documentacao da classe), nao como hardcode silencioso.
+9. **N3 nunca pode ser alimentado por N2/N4.** Para LAJ, FV, LV, PIL e qualquer classe futura, o caminho de producao e validacao e sempre: **Structural Analyzer puro -> N1 -> ficha N3/Robo -> N3**. N2/N4 entram somente como gabarito externo para score, diff, diagnostico e treinamento de regras do motor. E proibido copiar para N3 campos de N2/N4 como `coordenadas`, `comprimento`, `largura`, `linhas_verticais`, `linhas_horizontais`, `_hlaz`, `_stog_pose`, `unioes_nos_bordes` ou equivalentes da classe. Se o N3 bate com N4 porque recebeu dados do N2/N4, o resultado e invalido e deve ser registrado como vazamento de gabarito, nao como Arete.
+10. **Gate humano LAJ/N1 vence N2 legado.** Quando existir `human_laje_outline_validated` em `engrev_laj_n1_interpretacao_learning.vision`, a geometria N1 deve ser julgada pelo gate humano `scripts/laje_human_quality_gate.py`. Eventos numericos do SA mapeiam para a laje pelo item (`08 -> L308`, `15 -> L315`). Se N2 estiver desatualizado frente a uma validacao humana recente, N2 vira diagnostico secundario e nao deve rebaixar o motor.
 
 ---
 
@@ -225,9 +227,10 @@ Iteracoes registradas:
 Estado atual:
 
 - N1 detectado: 31 lajes.
-- N2 comparado: 27 fichas LAJ.
-- Score medio: 85,6%.
-- Falhas restantes principais: L308, L312, L319, L326, L329, L331.
+- Gate humano LAJ/N1: 25/25 amostras humanas aprovadas (100%) em `scripts/laje_human_quality_gate.py`.
+- N2 comparado: 31 fichas LAJ, mas algumas fichas N2 estao legadas/desalinhadas com validacao humana recente (ex.: L312/L315). N2 permanece diagnostico secundario nesses conflitos.
+- Score N1xN2 legado: 86,9% apos as validacoes humanas recentes; nao representa falha do SA quando diverge de humano validado.
+- Falhas restantes contra gate humano: 0 no pavimento 13 validado.
 - Diagnostico agregado: 6/27 fora de CxL/area (+-5%), 1/27 com linhas/cotas divergentes, 0/27 pontaletes divergentes.
 - Renders headless gerados em `sandbox_laje_loop/`: estrutural limpo, overlay da classe LAJ e focos por item (`--debug-laje L319`, `--debug-laje L329`, etc.).
 

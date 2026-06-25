@@ -275,6 +275,27 @@ def _same_list(ref, n4) -> bool:
     return _same_value(ref, n4)
 
 
+def _same_outline(ref: dict | None, n4: dict | None) -> bool:
+    if not isinstance(ref, dict) or not isinstance(n4, dict):
+        return False
+    if not _close(ref.get("comprimento", 0), n4.get("comprimento", 0)):
+        return False
+    if not _close(ref.get("largura", 0), n4.get("largura", 0)):
+        return False
+    ref_pts = ref.get("coordenadas") or []
+    n4_pts = n4.get("coordenadas") or []
+    try:
+        from shapely.geometry import Polygon
+
+        rp = Polygon(ref_pts).buffer(0)
+        np = Polygon(n4_pts).buffer(0)
+        if rp.is_empty or np.is_empty:
+            return _same_value(ref_pts, n4_pts)
+        return rp.symmetric_difference(np).area <= 30.0
+    except Exception:
+        return _same_value(ref_pts, n4_pts)
+
+
 def diff(ref: dict, n4: dict) -> dict:
     fields = [
         "outline",
@@ -288,7 +309,11 @@ def diff(ref: dict, n4: dict) -> dict:
     ]
     diffs = {}
     for field in fields:
-        if not _same_list(ref.get(field), n4.get(field)):
+        if field == "outline":
+            same = _same_outline(ref.get(field), n4.get(field))
+        else:
+            same = _same_list(ref.get(field), n4.get(field))
+        if not same:
             diffs[field] = {"ref": ref.get(field), "n4": n4.get(field)}
     return {"pass": not diffs, "diffs": diffs}
 

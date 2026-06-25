@@ -62,6 +62,7 @@ class RecorteMotor:
 
         self._dxf: ezdxf.Drawing | None = None
         self._pkl: dict | None = None
+        self._laj_dimension_hints: dict[str, tuple[float, float]] | None = None
 
     # ──────────────────────────────────────────────────────────────────────
     # Público: run()
@@ -442,14 +443,269 @@ class RecorteMotor:
             y0 = (max(below_ys) + cy) / 2 - MARGIN_Y if below_ys else cy - MAX_HALF_Y
             y1 = (min(above_ys) + cy) / 2 + MARGIN_Y if above_ys else cy + MAX_HALF_Y
 
-            bbox = self._expand_laj_bbox_from_panel_edges(
-                (x0, y0, x1, y1),
-                eid=eid,
-                all_centroids=all_centroids,
+            bbox = (
+                self._laj_bbox_from_dimension_hint(eid, cx, cy)
+                or self._laj_bbox_from_structural_edges(cx, cy)
+                or self._expand_laj_bbox_from_panel_edges(
+                    (x0, y0, x1, y1),
+                    eid=eid,
+                    all_centroids=all_centroids,
+                )
             )
             results.append((eid, pts, [bbox]))
 
         return results
+
+    def _load_laj_dimension_hints(self) -> dict[str, tuple[float, float]]:
+        if self._laj_dimension_hints is not None:
+            return self._laj_dimension_hints
+        hints: dict[str, tuple[float, float]] = {}
+        try:
+            parts = list(self.source_dxf_path.parts)
+            obra_root = None
+            for i, part in enumerate(parts):
+                if part == "DADOS-OBRAS" and i + 1 < len(parts):
+                    obra_root = Path(*parts[: i + 2])
+                    break
+            if obra_root:
+                json_dir = obra_root / "Fase-4_Sincronizacao" / "JSON_Lajes"
+                for path in json_dir.glob("L*.json"):
+                    try:
+                        import json as _json
+                        data = _json.loads(path.read_text(encoding="utf-8"))
+                        comp = float(data.get("comprimento") or 0)
+                        larg = float(data.get("largura") or 0)
+                        if comp > 0 and larg > 0:
+                            hints[path.stem.upper()] = (comp, larg)
+                    except Exception:
+                        continue
+        except Exception:
+            hints = {}
+        self._laj_dimension_hints = hints
+        return hints
+
+    def _laj_bbox_from_dimension_hint(self, eid: str, cx: float, cy: float) -> tuple | None:
+        """Escolhe bordas ER locais usando dimensoes N1/SA da mesma laje."""
+        hint = self._load_laj_dimension_hints().get(str(eid).upper())
+        if not hint or not self._pkl:
+            return None
+        exp_w, exp_h = hint
+        if exp_w <= 0 or exp_h <= 0:
+            return None
+
+        def _merged_h_segments(h_segments: list[tuple[float, float, float]]):
+            by_y: dict[float, list[tuple[float, float]]] = {}
+            for y, x0, x1 in h_segments:
+                by_y.setdefault(y, []).append((x0, x1))
+            merged: list[tuple[float, float, float]] = []
+            for y, spans in by_y.items():
+                current: list[list[float]] = []
+                for x0, x1 in sorted(spans):
+                    if not current or x0 > current[-1][1] + 1.5:
+                        current.append([x0, x1])
+                    else:
+                        current[-1][1] = max(current[-1][1], x1)
+                merged.extend((y, x0, x1) for x0, x1 in current)
+            return merged
+
+        def _solve(layer_keys: set[str]) -> tuple | None:
+            h_segments: list[tuple[float, float, float]] = []
+            v_segments: list[tuple[float, float, float]] = []
+
+            def _add_seg(xa, ya, xb, yb, layer):
+                if _layer_key(layer) not in layer_keys:
+                    return
+                xa, ya, xb, yb = map(float, (xa, ya, xb, yb))
+                w = abs(xb - xa)
+                h = abs(yb - ya)
+                if h <= 0.75 and w >= 20.0:
+                    h_segments.append((round((ya + yb) / 2.0, 1), min(xa, xb), max(xa, xb)))
+                elif w <= 0.75 and h >= 20.0:
+                    v_segments.append((round((xa + xb) / 2.0, 1), min(ya, yb), max(ya, yb)))
+
+            for ln in self._pkl.get("lines", []):
+                s = ln.get("start")
+                e = ln.get("end")
+                if s and e:
+                    _add_seg(s[0], s[1], e[0], e[1], ln.get("layer"))
+            for pl in self._pkl.get("polylines", []):
+                pts = pl.get("points") or []
+                if len(pts) < 2:
+                    continue
+                seq = list(pts)
+                if pl.get("closed") or pl.get("is_closed"):
+                    seq.append(seq[0])
+                for a, b in zip(seq, seq[1:]):
+                    _add_seg(a[0], a[1], b[0], b[1], pl.get("layer"))
+
+            h_segments.extend(_merged_h_segments(h_segments))
+
+            h_coords = sorted({
+                y for y, x0, x1 in h_segments
+                if x0 - 10.0 <= cx <= x1 + 10.0
+            })
+            y_pairs = []
+            for y0 in h_coords:
+                for y1 in h_coords:
+                    if y0 < cy < y1:
+                        height = y1 - y0
+                        if abs(height - exp_h) <= max(15.0, exp_h * 0.12):
+                            score = abs(height - exp_h) + abs((y0 + y1) / 2.0 - cy) * 0.02
+                            y_pairs.append((score, y0, y1))
+            if not y_pairs:
+                return None
+            _, y0, y1 = min(y_pairs, key=lambda r: r[0])
+
+            min_overlap = min(max(20.0, (y1 - y0) * 0.18), y1 - y0)
+            x_candidates = []
+            for x, vy0, vy1 in v_segments:
+                overlap = max(0.0, min(y1, vy1) - max(y0, vy0))
+                if overlap >= min_overlap:
+                    x_candidates.append(x)
+            x_candidates = sorted(set(round(x, 1) for x in x_candidates))
+
+            x_pairs = []
+            for x0 in x_candidates:
+                if x0 >= cx:
+                    continue
+                for x1 in x_candidates:
+                    if x1 <= cx:
+                        continue
+                    width = x1 - x0
+                    if abs(width - exp_w) <= max(18.0, exp_w * 0.08):
+                        score = abs(width - exp_w) + abs((x0 + x1) / 2.0 - cx) * 0.02
+                        x_pairs.append((score, x0, x1, abs(width - exp_w)))
+
+            spans = [
+                (x0, x1, abs((x1 - x0) - exp_w)) for y, x0, x1 in h_segments
+                if (abs(y - y0) <= 0.75 or abs(y - y1) <= 0.75)
+                and x0 - 10.0 <= cx <= x1 + 10.0
+                and abs((x1 - x0) - exp_w) <= max(24.0, exp_w * 0.10)
+            ]
+
+            if x_pairs and spans:
+                best_pair = min(x_pairs, key=lambda r: r[0])
+                best_span = min(spans, key=lambda s: (s[2], abs((s[0] + s[1]) / 2.0 - cx)))
+                if best_span[2] + 1.0 < best_pair[3]:
+                    x0, x1 = best_span[0], best_span[1]
+                else:
+                    _, x0, x1, _ = best_pair
+            elif x_pairs:
+                _, x0, x1, _ = min(x_pairs, key=lambda r: r[0])
+            elif spans:
+                x0, x1, _ = min(spans, key=lambda s: (s[2], abs((s[0] + s[1]) / 2.0 - cx)))
+            else:
+                return None
+
+            if not (x0 < cx < x1 and y0 < cy < y1):
+                return None
+            return (x0 - 1.0, y0 - 1.0, x1 + 1.0, y1 + 1.0)
+
+        bbox = _solve({"3", "7"})
+        if bbox:
+            return bbox
+        return _solve({"3", "7", "PAINEIS"})
+
+    def _laj_bbox_from_structural_edges(self, cx: float, cy: float) -> tuple | None:
+        """BBox LAJ fechada por bordas estruturais locais ao redor do label.
+
+        O recorte aprovado de lajes usa o contorno da laje/apoios imediatos.
+        A expansao por Voronoi capturava faixas vizinhas; aqui buscamos os
+        spans horizontais das layers estruturais e montamos a janela local.
+        """
+        if not self._pkl:
+            return None
+
+        h_segments: list[tuple[float, float, float]] = []
+        v_segments: list[tuple[float, float, float]] = []
+
+        def _add_seg(xa, ya, xb, yb, layer):
+            key = _layer_key(layer)
+            if key not in {"3", "7"}:
+                return
+            xa, ya, xb, yb = map(float, (xa, ya, xb, yb))
+            w = abs(xb - xa)
+            h = abs(yb - ya)
+            if w < 35.0 and h < 35.0:
+                return
+            if h <= 0.75 and w >= 35.0:
+                h_segments.append((round((ya + yb) / 2.0, 1), min(xa, xb), max(xa, xb)))
+            elif w <= 0.75 and h >= 35.0:
+                v_segments.append((round((xa + xb) / 2.0, 1), min(ya, yb), max(ya, yb)))
+
+        for ln in self._pkl.get("lines", []):
+            s = ln.get("start")
+            e = ln.get("end")
+            if s and e:
+                _add_seg(s[0], s[1], e[0], e[1], ln.get("layer"))
+
+        for pl in self._pkl.get("polylines", []):
+            pts = pl.get("points") or []
+            if len(pts) < 2:
+                continue
+            seq = list(pts)
+            if pl.get("closed") or pl.get("is_closed"):
+                seq.append(seq[0])
+            for a, b in zip(seq, seq[1:]):
+                _add_seg(a[0], a[1], b[0], b[1], pl.get("layer"))
+
+        def _merge_spans(spans: list[tuple[float, float, float]], gap: float = 28.0):
+            by_coord: dict[float, list[tuple[float, float]]] = {}
+            for coord, a, b in spans:
+                by_coord.setdefault(coord, []).append((a, b))
+            merged: list[tuple[float, float, float]] = []
+            for coord, ranges in by_coord.items():
+                current: list[list[float]] = []
+                for a, b in sorted(ranges):
+                    if not current or a > current[-1][1] + gap:
+                        current.append([a, b])
+                    else:
+                        current[-1][1] = max(current[-1][1], b)
+                merged.extend((coord, a, b) for a, b in current)
+            return merged
+
+        h_merged = _merge_spans(h_segments)
+        v_merged = _merge_spans([(x, y0, y1) for x, y0, y1 in v_segments])
+
+        covering_h = [
+            (y, x0, x1) for y, x0, x1 in h_merged
+            if x0 - 8.0 <= cx <= x1 + 8.0 and 45.0 <= (x1 - x0) <= 3200.0
+        ]
+        below = sorted((seg for seg in covering_h if seg[0] < cy - 2.0), key=lambda s: cy - s[0])
+        above = sorted((seg for seg in covering_h if seg[0] > cy + 2.0), key=lambda s: s[0] - cy)
+        if not below or not above:
+            return None
+
+        y0, hx0a, hx1a = below[0]
+        y1, hx0b, hx1b = above[0]
+        if y1 <= y0:
+            return None
+
+        x0 = min(hx0a, hx0b)
+        x1 = max(hx1a, hx1b)
+
+        # Ajusta laterais usando verticais estruturais que coincidem com as
+        # extremidades dos spans horizontais; evita escolher divisao interna.
+        height = y1 - y0
+        if height > 0:
+            overlap_candidates = []
+            for x, vy0, vy1 in v_merged:
+                overlap = max(0.0, min(y1, vy1) - max(y0, vy0))
+                if overlap >= min(height * 0.55, height - 1.0):
+                    overlap_candidates.append((x, vy0, vy1))
+            lefts = [x for x, _, _ in overlap_candidates if x <= x0 + 30.0]
+            rights = [x for x, _, _ in overlap_candidates if x >= x1 - 30.0]
+            if lefts:
+                x0 = min(lefts, key=lambda x: abs(x - x0))
+            if rights:
+                x1 = min(rights, key=lambda x: abs(x - x1))
+
+        width = x1 - x0
+        height = y1 - y0
+        if width < 45.0 or height < 45.0 or width > 3300.0 or height > 700.0:
+            return None
+
+        return (x0 - 6.0, y0 - 6.0, x1 + 6.0, y1 + 6.0)
 
     def _expand_laj_bbox_from_panel_edges(
         self,
@@ -1142,20 +1398,6 @@ def _is_laj_relevant_entity(typ: str, entity: dict) -> bool:
     layer = _layer_key(entity.get('layer'))
     if layer == '0' or 'REAPROVEITAMENTO' in layer:
         return False
-
-    if typ in ('line', 'poly'):
-        if typ == 'line':
-            pts = [entity.get('start'), entity.get('end')]
-        else:
-            pts = entity.get('points') or []
-        pts = [p for p in pts if p]
-        if len(pts) >= 2:
-            xs = [float(p[0]) for p in pts]
-            ys = [float(p[1]) for p in pts]
-            w = max(xs) - min(xs)
-            h = max(ys) - min(ys)
-            if max(w, h) > 950:
-                return False
 
     if typ == 'hatch':
         paths = entity.get('paths') or []
