@@ -54,7 +54,9 @@
       "panels": [
         {
           "width": 244.0,
-          "texts": [],
+          "texts": [
+            "V322"
+          ],
           "vertices": [
             {
               "x": 244.0,
@@ -71,10 +73,6 @@
             {
               "x": 244.0,
               "y": 19.0
-            },
-            {
-              "x": 244.0,
-              "y": 0.0
             }
           ],
           "tiers": [
@@ -102,19 +100,7 @@
             {
               "x": 0.0,
               "y": 0.0
-            },
-            {
-              "x": 0.0,
-              "y": 19.0
             }
-          ],
-          "tiers": [
-            [
-              131.0
-            ],
-            [
-              123.5
-            ]
           ]
         }
       ]
@@ -124,7 +110,9 @@
       "panels": [
         {
           "width": 244.0,
-          "texts": [],
+          "texts": [
+            "V325"
+          ],
           "vertices": [
             {
               "x": 244.0,
@@ -141,16 +129,14 @@
             {
               "x": 244.0,
               "y": 19.0
-            },
-            {
-              "x": 244.0,
-              "y": 0.0
             }
           ]
         },
         {
           "width": 143.5,
-          "texts": [],
+          "texts": [
+            "V330"
+          ],
           "vertices": [
             {
               "x": 0.0,
@@ -167,10 +153,6 @@
             {
               "x": 0.0,
               "y": 0.0
-            },
-            {
-              "x": 0.0,
-              "y": 19.0
             }
           ]
         }
@@ -198,10 +180,6 @@
             {
               "x": 244.0,
               "y": 19.0
-            },
-            {
-              "x": 244.0,
-              "y": 0.0
             }
           ]
         },
@@ -224,14 +202,11 @@
             {
               "x": 0.0,
               "y": 0.0
-            },
-            {
-              "x": 0.0,
-              "y": 19.0
             }
           ]
         }
-      ]
+      ],
+      "_multiplier": 4
     },
     {
       "total_width": 735.0,
@@ -326,14 +301,6 @@
           ],
           "vertices": [
             {
-              "x": 0.0,
-              "y": -0.5
-            },
-            {
-              "x": 0.0,
-              "y": 18.5
-            },
-            {
               "x": 97.5,
               "y": 18.5
             },
@@ -344,6 +311,14 @@
             {
               "x": 0.0,
               "y": -0.5
+            },
+            {
+              "x": 0.0,
+              "y": 18.5
+            },
+            {
+              "x": 97.5,
+              "y": 18.5
             }
           ]
         }
@@ -356,7 +331,7 @@
       "width": 18.3,
       "height": 19.0,
       "position": 375.0,
-      "text": "P11"
+      "text": "V325"
     },
     {
       "active": true,
@@ -370,7 +345,7 @@
       "width": 13.8,
       "height": 19.0,
       "position": 1954.3,
-      "text": "P17"
+      "text": "P11"
     },
     {
       "active": true,
@@ -390,18 +365,19 @@
     "width": 0.0,
     "length": 0.0
   },
-  "label_left": "V309",
+  "label_left": "V322",
   "label_right": "P14",
   "sarrafo_left_id": 0,
   "sarrafo_right_id": 0,
   "_n_linhas_folha": 2,
   "_er_meta": {
     "source": "dxf_geometry",
-    "dxf_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- FV - R00\\FV_V302_motor_178111331098.dxf",
+    "dxf_path": "D:/Agente-cad-PYSIDE/DADOS-OBRAS/Obra_TREINO_1/Fase-2_Triagem/recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- FV - R00_motor\\FV_V302_motor_178105102570.dxf",
     "confianca": 0.9,
     "n_pilar_gaps": 4,
     "n_polys_atribuidos": 10
   },
+  "_confianca": 0.9,
   "_fase4_ref": {
     "number": "302",
     "name": "V302",

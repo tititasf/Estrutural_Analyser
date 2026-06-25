@@ -405,12 +405,25 @@ def draw_viga(msp, x0, y0, panels_json, viga_b, viga_nome,
                 ignore_texts.add(h['text'])
 
     # -- Parse segments (each panel dict = one segment) ------------------------
+    import copy as _copy
     segments = []
     for p in panels_json:
         if isinstance(p, dict) and 'total_width' in p:
             sw = float(p['total_width'])
             if sw > 0:
-                segments.append(p)
+                mult = int(p.get('_multiplier', 1) or 1)
+                if mult > 1:
+                    # Expandir N cópias; só a primeira carrega _mult_label para exibir "NxMMM"
+                    base = _copy.deepcopy(p)
+                    base.pop('_multiplier', None)
+                    base['_mult_label'] = f'{mult}x{round(sw):g}'
+                    segments.append(base)
+                    for _ in range(mult - 1):
+                        other = _copy.deepcopy(base)
+                        other.pop('_mult_label', None)  # cópias não repetem o label
+                        segments.append(other)
+                else:
+                    segments.append(p)
         else:
             sw = float(p.get('width', 0)) if isinstance(p, dict) else float(p)
             if sw > 0:
@@ -543,6 +556,10 @@ def draw_viga(msp, x0, y0, panels_json, viga_b, viga_nome,
             if isinstance(p_item, dict) and 'tiers' in p_item and p_item['tiers']:
                 tiers = p_item['tiers']
                 for t_idx, tier_vals in enumerate(tiers):
+                    # Validar: só renderizar tier se sum(tier_vals) ≈ largura do painel (±1.5cm)
+                    tier_sum = sum(float(tv) for tv in tier_vals)
+                    if abs(tier_sum - pw) > 1.5:
+                        continue
                     t_xp = xp
                     y_off = DIM_BELOW + (t_idx * 15)  # Stack them downwards
                     for tv in tier_vals:
@@ -585,6 +602,12 @@ def draw_viga(msp, x0, y0, panels_json, viga_b, viga_nome,
                 d.render()
             except Exception:
                 pass
+
+        # Texto multiplicador "NxMMM" dentro do painel para segmentos expandidos
+        if isinstance(seg_item, dict) and seg_item.get('_mult_label'):
+            cx = (seg_x0 + seg_x_end) / 2.0
+            cy = y0 + b / 2.0
+            add_text(msp, cx, cy, seg_item['_mult_label'], 10, 'Painéis', halign=1)
 
         # Advance cursor past this segment + gap to next segment
         x_cursor = seg_x_end
@@ -890,10 +913,23 @@ def main():
         y_min = y_row_bottom - DIM_TOTAL_BELOW - 20
         y_cursor = y_row_bottom - GAP_ROW
 
-    # -- Cards above vigas -----------------------------------------------------
-    card_y = CARD_Y_GAP
-    obra_nome = obra_path.name.replace('_', ' ')
-    draw_cards(msp, 0, card_y, obra_nome=obra_nome)
+    # -- Cards above vigas (apenas no modo pavimento completo) -----------------
+    # No modo --item, não gerar cards: eles dominam o bounding-box do DXF e
+    # tornam a comparação visual N4 vs N2 inválida (N2 recorte não tem cards).
+    if not args.item:
+        card_y = CARD_Y_GAP
+        obra_nome = obra_path.name.replace('_', ' ')
+        draw_cards(msp, 0, card_y, obra_nome=obra_nome)
+
+    # ── Sentinels / boost / prune: apenas no modo pavimento completo ──────────
+    # No modo --item, estas camadas invisíveis fora do frame distorcem o
+    # bounding-box e invalidam a comparação visual com o N2 recorte.
+    if args.item:
+        out_name = f'FV_preview_{args.item}.dxf'
+        out_dxf  = out_dir / out_name
+        doc.saveas(str(out_dxf))
+        print(f'\nDXF: {out_dxf}')
+        return
 
     # ── Sentinels: layers STOG universais (>80% obras reais) ─────────────────
     _sx_fv = -9500
@@ -1043,7 +1079,7 @@ def main():
         except Exception as _e:
             print(f'  [CRIT-BOOST-FV] erro: {_e}')
 
-    out_name = f'FV_preview_{args.item}.dxf' if args.item else 'FV_stog_quality.dxf'
+    out_name = 'FV_stog_quality.dxf'
     out_dxf = out_dir / out_name
     doc.saveas(str(out_dxf))
     print(f'\nDXF: {out_dxf}')

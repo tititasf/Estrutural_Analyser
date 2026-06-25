@@ -42,7 +42,7 @@ def query_fichas(classe: str, pavimento: str = PAV_13) -> list[dict]:
                    campos_json (dict Python já parseado), recorte_path,
                    confianca, status.
     """
-    conn = sqlite3.connect(f'file:{DB_PATH}?immutable=1', uri=True)
+    conn = sqlite3.connect(str(DB_PATH))
     conn.row_factory = sqlite3.Row
     cur = conn.cursor()
     cur.execute(
@@ -68,7 +68,7 @@ def query_fichas(classe: str, pavimento: str = PAV_13) -> list[dict]:
 def query_ficha_item(classe: str, elemento_id: str,
                      pavimento: str = PAV_13) -> dict | None:
     """Retorna 1 ficha ou None."""
-    conn = sqlite3.connect(f'file:{DB_PATH}?immutable=1', uri=True)
+    conn = sqlite3.connect(str(DB_PATH))
     conn.row_factory = sqlite3.Row
     cur = conn.cursor()
     cur.execute(

@@ -411,9 +411,9 @@ def _segments_and_holes_for_row(final_polys, msp_texts, nom_y, b_fv_hint=None, l
                 tiers = []
                 for ty in sorted_y:
                     items = sorted(tiers_dict[ty], key=lambda x: x['x'])
-                    # Only add tier if it reasonably sums to the panel width or is a valid sub-division
                     t_vals = [i['val'] for i in items]
-                    if abs(sum(t_vals) - p_dict['width']) < 10.0 or len(t_vals) > 1:
+                    # Só incluir tier se sum(vals) ≈ largura do painel (±2cm)
+                    if abs(sum(t_vals) - p_dict['width']) < 2.0:
                         tiers.append(t_vals)
                 if len(tiers) > 1:
                     # Remove exact duplicates if any
@@ -466,7 +466,22 @@ def _segments_and_holes_for_row(final_polys, msp_texts, nom_y, b_fv_hint=None, l
                             seg_width = round(seg_width + extra, 1)
 
             panels_rich.append(p_dict)
-        return {'total_width': seg_width, 'panels': panels_rich}, seg_width
+
+        # Detectar texto multiplicador "NX" (ex: "4X", "6X") no layer Painéis
+        import re as _re_mult
+        seg_min_x = min(p[0] for p in polys)
+        seg_max_x = max(p[1] for p in polys)
+        _mult = None
+        for _t in msp_texts:
+            if 'PAIN' in _t[3].upper() and seg_min_x - 5 <= _t[1] <= seg_max_x + 5:
+                _m = _re_mult.match(r'^(\d+)[Xx]$', _t[0].strip())
+                if _m:
+                    _mult = int(_m.group(1))
+                    break
+        seg_dict = {'total_width': seg_width, 'panels': panels_rich}
+        if _mult and _mult > 1:
+            seg_dict['_multiplier'] = _mult
+        return seg_dict, seg_width
 
     for i in range(len(final_polys) - 1):
         prev = final_polys[i]
