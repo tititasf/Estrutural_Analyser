@@ -1,5 +1,9 @@
 [core]
     remote = gdrive
+[cache]
+    type = hardlink
+    protected = true
+    shared = group
 ['remote "gdrive"']
     url = gdrive://16M5RO5VgTlPAAV9ZUFQ12Dg3J-PdubqE
     gdrive_acknowledge_abuse = true
