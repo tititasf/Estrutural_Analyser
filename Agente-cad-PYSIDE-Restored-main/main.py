@@ -57,6 +57,7 @@ if robo_lajes_path not in sys.path:
 from tufup.client import Client
 from pathlib import Path
 import requests
+from src.core.item_attention_store import has_attention, load_attention, save_attention
 
 # Tentar importar o robo Lajes (laje_src)
 try:
@@ -5970,12 +5971,17 @@ class MainWindow(QMainWindow):
 
             # Para sub-itens LV-A/LV-B, não chamar focus_on_beam_geometry (desenha tudo em marrom)
             # e usar display_data (com type correto) para filtragem no draw_item_links
-            _is_lv_fv = (override_type in {'viga_lateral_a', 'viga_lateral_b', 'viga_fundo_c'})
-            if not _is_lv_fv:
+            _is_lv = override_type in {'viga_lateral_a', 'viga_lateral_b'}
+            _is_fv = override_type == 'viga_fundo_c'
+            if not (_is_lv or _is_fv):
                 self.canvas.focus_on_beam_geometry(beam)
                 self.canvas.draw_item_links(beam)
+            elif _is_lv:
+                # draw_single_beam_lateral: desenha links filtrados + rótulos Segmento-NN
+                if self.current_card:
+                    self.canvas.draw_single_beam_lateral(self.current_card.item_data, beam)
             else:
-                # draw_item_links usa type do current_card.item_data (que tem override_type como type)
+                # FV: draw_item_links usa type do current_card.item_data
                 if self.current_card:
                     self.canvas.draw_item_links(self.current_card.item_data)
 
@@ -11487,6 +11493,8 @@ class MainWindow(QMainWindow):
             if item_data.get('is_fully_validated'): status_icon = "🔵" # Blue Seal
             elif item_data.get('is_validated'): status_icon = "✅" # Green Seal
             elif item_data.get('issues'): status_icon = "⚠️"
+            if self._sa_attention_has_note(item_type, item_data):
+                status_icon = "⚠"
             
             # 3. % Completitude
             pct = self._calculate_completion(item_data)
@@ -11621,6 +11629,8 @@ class MainWindow(QMainWindow):
                 if b.get('is_fully_validated'): status = "✔️"
                 elif b.get('is_validated'): status = "✔️"
                 elif b.get('issues'): status = "⚠️"
+                if self._sa_attention_has_note("fundo" if list_type == "fundo" else "lateral", b):
+                    status = "⚠"
                 
                 # % Completitude
                 pct = self._calculate_completion(b)
@@ -12618,6 +12628,97 @@ class MainWindow(QMainWindow):
             except Exception as e:
                 self.log(f"⚠️ Erro ao salvar viga migrada: {e}")
 
+    def _attention_current_obra_pav(self):
+        obra = ""
+        pav = ""
+        try:
+            if hasattr(self, "sa_cmb_obras") and self.sa_cmb_obras.currentText():
+                obra = self.sa_cmb_obras.currentText()
+            else:
+                obra = self.current_project_name or getattr(self, "project_name", "") or ""
+        except Exception:
+            pass
+        try:
+            if hasattr(self, "sa_cmb_pavimentos") and self.sa_cmb_pavimentos.currentData():
+                data = self.sa_cmb_pavimentos.currentData()
+                pav = data[1] if isinstance(data, tuple) and len(data) > 1 else self.sa_cmb_pavimentos.currentText()
+            elif hasattr(self, "cmb_pavements"):
+                pav = self._current_pavement_name()
+            elif hasattr(self, "current_pavimento") and self.current_pavimento:
+                pav = str(self.current_pavimento)
+            elif hasattr(self, "pavimento_atual") and self.pavimento_atual:
+                pav = str(self.pavimento_atual)
+            elif hasattr(self, "selected_pavimento") and self.selected_pavimento:
+                pav = str(self.selected_pavimento)
+        except Exception:
+            pass
+        return obra, pav
+
+    def _sa_attention_class_item(self, item_data, item_type_hint=None):
+        typ = str(item_type_hint or item_data.get("type") or "").lower()
+        name = str(item_data.get("name") or item_data.get("parent_name") or item_data.get("id_item") or item_data.get("id") or "")
+        item_id = name
+        if typ in ("pillar", "pilar") or "pilar" in typ:
+            cls = "PL"
+        elif typ in ("slab", "laje") or "laje" in typ:
+            cls = "LJ"
+        elif "fundo" in typ:
+            cls = "FV"
+        elif "lateral" in typ:
+            cls = "LV"
+        elif str(item_data.get("type") or "").lower() == "viga":
+            cls = "FV" if item_type_hint == "fundo" else "LV"
+        else:
+            cls = str(item_data.get("class") or item_data.get("classe") or typ or "SA").upper()
+        import re as _re_att
+        item_id = _re_att.sub(r"^(?:FV-|LV-|F\.|L\.)", "", item_id, flags=_re_att.IGNORECASE)
+        item_id = _re_att.sub(r"\.(?:A|B|C)(?:\s+(?:Para|Passa))?$", "", item_id, flags=_re_att.IGNORECASE)
+        return cls, item_id or str(item_data.get("id") or "")
+
+    def _sa_attention_has_note(self, item_type, item_data):
+        try:
+            obra, pav = self._attention_current_obra_pav()
+            cls, item_id = self._sa_attention_class_item(item_data, item_type)
+            return has_attention(obra, pav, cls, item_id, "SA")
+        except Exception:
+            return False
+
+    def _build_sa_attention_widget(self, display_data):
+        obra, pav = self._attention_current_obra_pav()
+        cls, item_id = self._sa_attention_class_item(display_data, display_data.get("type"))
+        meta = load_attention(obra, pav, cls, item_id, "SA")
+        box = QFrame()
+        box.setStyleSheet(
+            "QFrame { background-color: #171717; border: 1px solid #444; border-radius: 3px; }"
+            "QLabel { color: #ffb020; font-size: 10px; font-weight: bold; border: none; }"
+            "QTextEdit { background-color: #222; color: #f0f0f0; border: 1px solid #555; "
+            "border-radius: 3px; font-size: 10px; }"
+        )
+        lay = QVBoxLayout(box)
+        lay.setContentsMargins(6, 4, 6, 4)
+        lay.setSpacing(3)
+        lay.addWidget(QLabel("ATENÇÃO"))
+        edit = QTextEdit()
+        edit.setFixedHeight(54)
+        edit.setPlaceholderText("Mensagem/instrucao persistente deste item para o chat...")
+        edit.setPlainText(meta.get("note", ""))
+        lay.addWidget(edit)
+
+        def _save():
+            note = edit.toPlainText()
+            save_attention(obra, pav, cls, item_id, "SA", bool(note.strip()), note)
+            try:
+                display_data["attention_note"] = note
+            except Exception:
+                pass
+            try:
+                self._update_all_lists_ui()
+            except Exception:
+                pass
+
+        edit.textChanged.connect(_save)
+        return box
+
     def show_detail(self, item_data, override_type=None, tipo_comp=None):
         """Exibe os detalhes do item no painel direito."""
         # Migração automática se for viga (antes de exibir)
@@ -12675,6 +12776,7 @@ class MainWindow(QMainWindow):
         self.current_card.training_requested.connect(self.on_train_requested)
         self.current_card.log_requested.connect(self.log)
         
+        self.detail_layout.addWidget(self._build_sa_attention_widget(display_data))
         self.detail_layout.addWidget(self.current_card)
         
         # Atualizar título do painel (opcional)

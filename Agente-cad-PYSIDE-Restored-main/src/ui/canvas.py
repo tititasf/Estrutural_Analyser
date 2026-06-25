@@ -1958,8 +1958,10 @@ class CADCanvas(QGraphicsView):
                     self.interactive_items[b_data['id']] = item
                     self.item_groups['beam'].append(item)
                 
-                # AJUSTE 2: Desenhar vÃ­nculos de segmentos para a visÃ£o global
+                # AJUSTE 2: Desenhar vínculos de segmentos para a visão global
                 self.draw_item_links(b_data, destination='beam', clear=False)
+                # Rótulos de segmento para cada span do plano
+                self._add_seg_labels(self._collect_lateral_segs(b_data), store_group='beam')
 
     def clear_beam_fundos(self):
         """Remove visualizações de fundos de viga da cena."""
@@ -2087,6 +2089,58 @@ class CADCanvas(QGraphicsView):
             t_item.setFlag(QGraphicsSimpleTextItem.ItemIgnoresTransformations)
             self.beam_visuals.append(t_item)
         return result
+
+    # ------------------------------------------------------------------
+    # Vigas Laterais — coleta de segmentos e rótulos
+    # ------------------------------------------------------------------
+
+    def _collect_lateral_segs(self, b_data: dict) -> list:
+        """Polígonos de footprint de cada segmento lateral (viga_segs.seg_bottom), 1-indexados."""
+        links = b_data.get('links', {})
+        viga_segs = links.get('viga_segs', {})
+        if not isinstance(viga_segs, dict):
+            return []
+        result = []
+        for i, lk in enumerate(viga_segs.get('seg_bottom', [])):
+            if isinstance(lk, dict) and lk.get('points'):
+                result.append({**lk, '_seg_num': i + 1, '_slot_name': 'seg_bottom'})
+        return result
+
+    def _add_seg_labels(self, seg_list: list, store_group: str = 'beam_visuals') -> list:
+        """Adiciona rótulos laranja 'Segmento-NN' acima dos polígonos/linhas da lista."""
+        created = []
+        _orange_brush = QBrush(QColor(255, 120, 0))
+        _seg_font = QFont("Arial", 12)
+        _seg_font.setBold(True)
+        for lk in seg_list:
+            seg_num = lk.get('_seg_num')
+            if seg_num is None:
+                continue
+            pts = lk.get('points') or []
+            if not pts:
+                continue
+            _pts = [(p[0], p[1]) for p in pts] if len(pts[0]) > 2 else pts
+            xs = [p[0] for p in _pts]
+            ys = [p[1] for p in _pts]
+            x_center = (min(xs) + max(xs)) / 2.0
+            y_top = min(ys) - 30
+            t_item = self.scene.addSimpleText(f"Segmento-{seg_num:02d}", _seg_font)
+            t_item.setPos(x_center, y_top)
+            t_item.setBrush(_orange_brush)
+            t_item.setZValue(15)
+            t_item.setFlag(QGraphicsSimpleTextItem.ItemIgnoresTransformations)
+            if store_group == 'beam_visuals':
+                self.beam_visuals.append(t_item)
+            else:
+                self.item_groups.setdefault(store_group, []).append(t_item)
+            created.append(t_item)
+        return created
+
+    def draw_single_beam_lateral(self, item_data: dict, beam_data: dict):
+        """Destaca LV de UMA viga (lado A ou B) com rótulos de segmento por span."""
+        self.draw_item_links(item_data)  # limpa e redesenha em beam_visuals
+        seg_list = self._collect_lateral_segs(beam_data)
+        self._add_seg_labels(seg_list, store_group='beam_visuals')
 
     def draw_focus_beams(self, beams_visual_data: list):
         """Desenha vigas APENAS para o foco atual (pilar selecionado)"""
