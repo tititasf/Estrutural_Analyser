@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-06-23T17:12:28.193358",
+  "timestamp": "2026-06-24T03:10:26.812523",
   "project_id": "4869be2b-f17c-410b-a9c8-98a887ec1c95",
   "total_slabs": 31,
   "validated_count": 0,
@@ -236,14 +236,14 @@
       "id": "4869be2b-f17c-410b-a9c8-98a887ec1c95_l_1",
       "validated": false,
       "validated_fields": [
-        "laje_visao_corte",
         "name",
+        "laje_visao_corte",
+        "laje_islands",
+        "laje_nivel",
         "laje_pilares_apoio",
         "laje_vizinhas_niveis",
-        "laje_islands",
         "laje_outline_segs",
-        "laje_dim",
-        "laje_nivel"
+        "laje_dim"
       ],
       "area": 74206.5,
       "points_count": 5,
@@ -284,14 +284,14 @@
       "id": "4869be2b-f17c-410b-a9c8-98a887ec1c95_l_2",
       "validated": false,
       "validated_fields": [
-        "laje_visao_corte",
         "name",
+        "laje_visao_corte",
+        "laje_islands",
+        "laje_nivel",
         "laje_pilares_apoio",
         "laje_vizinhas_niveis",
-        "laje_islands",
         "laje_outline_segs",
-        "laje_dim",
-        "laje_nivel"
+        "laje_dim"
       ],
       "area": 76494.0,
       "points_count": 5,
@@ -333,10 +333,10 @@
       "validated": false,
       "validated_fields": [
         "name",
+        "laje_nivel",
         "laje_pilares_apoio",
         "laje_vizinhas_niveis",
-        "laje_dim",
-        "laje_nivel"
+        "laje_dim"
       ],
       "area": 76194.0,
       "points_count": 9,
@@ -377,14 +377,14 @@
       "id": "4869be2b-f17c-410b-a9c8-98a887ec1c95_l_4",
       "validated": false,
       "validated_fields": [
-        "laje_visao_corte",
         "name",
+        "laje_visao_corte",
+        "laje_islands",
+        "laje_nivel",
         "laje_pilares_apoio",
         "laje_vizinhas_niveis",
-        "laje_islands",
         "laje_outline_segs",
-        "laje_dim",
-        "laje_nivel"
+        "laje_dim"
       ],
       "area": 76494.0,
       "points_count": 5,
@@ -425,14 +425,14 @@
       "id": "4869be2b-f17c-410b-a9c8-98a887ec1c95_l_5",
       "validated": false,
       "validated_fields": [
-        "laje_visao_corte",
         "name",
+        "laje_visao_corte",
+        "laje_islands",
+        "laje_nivel",
         "laje_pilares_apoio",
         "laje_vizinhas_niveis",
-        "laje_islands",
         "laje_outline_segs",
-        "laje_dim",
-        "laje_nivel"
+        "laje_dim"
       ],
       "area": 76494.0,
       "points_count": 5,
@@ -473,14 +473,14 @@
       "id": "4869be2b-f17c-410b-a9c8-98a887ec1c95_l_6",
       "validated": false,
       "validated_fields": [
-        "laje_visao_corte",
         "name",
+        "laje_visao_corte",
+        "laje_islands",
+        "laje_nivel",
         "laje_pilares_apoio",
         "laje_vizinhas_niveis",
-        "laje_islands",
         "laje_outline_segs",
-        "laje_dim",
-        "laje_nivel"
+        "laje_dim"
       ],
       "area": 76494.0,
       "points_count": 5,
@@ -520,7 +520,16 @@
       "name": "L307",
       "id": "4869be2b-f17c-410b-a9c8-98a887ec1c95_l_7",
       "validated": false,
-      "validated_fields": [],
+      "validated_fields": [
+        "name",
+        "laje_visao_corte",
+        "laje_islands",
+        "laje_nivel",
+        "laje_pilares_apoio",
+        "laje_vizinhas_niveis",
+        "laje_outline_segs",
+        "laje_dim"
+      ],
       "area": 76494.0,
       "points_count": 5,
       "confidence_score": 0.5,
@@ -559,7 +568,15 @@
       "name": "L308",
       "id": "4869be2b-f17c-410b-a9c8-98a887ec1c95_l_8",
       "validated": false,
-      "validated_fields": [],
+      "validated_fields": [
+        "name",
+        "laje_visao_corte",
+        "laje_islands",
+        "laje_nivel",
+        "laje_pilares_apoio",
+        "laje_vizinhas_niveis",
+        "laje_dim"
+      ],
       "area": 35906.17800900008,
       "points_count": 5,
       "confidence_score": 0.5,
@@ -598,7 +615,16 @@
       "name": "L309",
       "id": "4869be2b-f17c-410b-a9c8-98a887ec1c95_l_9",
       "validated": false,
-      "validated_fields": [],
+      "validated_fields": [
+        "laje_visao_corte",
+        "laje_vizinhas_niveis",
+        "laje_pilares_apoio",
+        "laje_nivel",
+        "laje_outline_segs",
+        "laje_islands",
+        "laje_dim",
+        "name"
+      ],
       "area": 126110.5,
       "points_count": 5,
       "confidence_score": 0.5,
@@ -637,7 +663,10 @@
       "name": "L310",
       "id": "4869be2b-f17c-410b-a9c8-98a887ec1c95_l_10",
       "validated": false,
-      "validated_fields": [],
+      "validated_fields": [
+        "name",
+        "laje_dim"
+      ],
       "area": 129998.0,
       "points_count": 5,
       "confidence_score": 0.5,
