@@ -41,7 +41,10 @@ from PySide6.QtGui import QColor, QFont, QPainter, QPen, QBrush, QPainterPath, Q
 
 from src.ui.components.organisms import DualCanvasManager
 from src.ui.theme import Colors, Fonts, Radius
-from src.core.item_attention_store import has_attention, load_attention, save_attention
+from src.core.item_attention_store import (
+    has_attention, load_attention, save_attention, save_human_validation, is_human_validated,
+    save_para_passa, load_para_passa,
+)
 
 try:
     from src.core.services.comparison_service import ComparisonService, FieldStatus
@@ -2984,14 +2987,16 @@ class LevelColumn(QFrame):
 
         # ── Header compacto: [badge+título+desc+atenção] | [pipeline inline] ──
         # Altura fixa: 50px sem atenção, 100px com atenção (3 linhas nota)
-        _HDR_H_NORMAL = 50
-        _HDR_H_ATT    = 100
+        _HDR_H_NORMAL  = 50
+        _HDR_H_ATT     = 100
+        _HDR_H_ATT_PP  = 120    # +20px para linha Para/Passa
         hdr = QFrame()
         hdr.setFixedHeight(_HDR_H_NORMAL)
         hdr.setStyleSheet(f"background: {bg_color}; border-radius: 4px;")
         self._hdr = hdr
         self._hdr_h_normal = _HDR_H_NORMAL
         self._hdr_h_att    = _HDR_H_ATT
+        self._hdr_h_att_pp = _HDR_H_ATT_PP
         hdr_main = QHBoxLayout(hdr)
         hdr_main.setContentsMargins(10, 5, 10, 5)
         hdr_main.setSpacing(8)
@@ -3031,6 +3036,12 @@ class LevelColumn(QFrame):
         # ── Bloco de atenção inline (oculto por padrão) ───────────────
         self._attention_loading = False
         self._attention_callback = None
+        self._human_validation_callback = None
+        self._attention_dirty = False
+        self._attention_save_timer = QTimer(self)
+        self._attention_save_timer.setSingleShot(True)
+        self._attention_save_timer.setInterval(550)
+        self._attention_save_timer.timeout.connect(self._flush_attention_pending)
         self._attention_inline = QWidget()
         self._attention_inline.setVisible(False)
         self._attention_inline.setStyleSheet("background: transparent;")
@@ -3052,14 +3063,20 @@ class LevelColumn(QFrame):
         self._attention_check.setStyleSheet(
             f"color: {accent}; font-size: 9px; background: transparent;"
         )
+        self._human_validation_check = QCheckBox("Validado Humano")
+        self._human_validation_check.setToolTip("Marcar resultado como conferido e aprovado manualmente")
+        self._human_validation_check.setStyleSheet(
+            f"color: {Colors.ACCENT_SUCCESS}; font-size: 9px; background: transparent;"
+        )
         att_top.addWidget(self._score_label, 1)
+        att_top.addWidget(self._human_validation_check, 0)
         att_top.addWidget(self._attention_check, 0)
         att_inline_lay.addLayout(att_top)
 
-        # Linha 2: campo de nota compacto (3 linhas, scroll, max 500 chars)
+        # Linha 2: campo de nota compacto (3 linhas, scroll, max 3000 chars)
         self._attention_text = QTextEdit()
         self._attention_text.setFixedHeight(46)   # ~3 linhas de 9px
-        self._attention_text.setPlaceholderText("Nota (max 500 chars)...")
+        self._attention_text.setPlaceholderText("Nota (max 3000 chars)...")
         self._attention_text.document().setMaximumBlockCount(0)
         self._attention_text.setStyleSheet(
             f"QTextEdit {{ background: rgba(0,0,0,0.35); color: {Colors.TEXT_PRIMARY}; "
@@ -3070,7 +3087,36 @@ class LevelColumn(QFrame):
         )
         att_inline_lay.addWidget(self._attention_text)
 
+        # Linha 3: Para/Passa (exibido apenas para PIL e LAJ em N2)
+        self._para_passa_row = QWidget()
+        self._para_passa_row.setVisible(False)
+        self._para_passa_row.setStyleSheet("background: transparent;")
+        pp_lay = QHBoxLayout(self._para_passa_row)
+        pp_lay.setContentsMargins(0, 0, 0, 0)
+        pp_lay.setSpacing(4)
+        pp_lbl = QLabel("Viga:")
+        pp_lbl.setStyleSheet(f"color: {Colors.TEXT_SECONDARY}; font-size: 9px; background: transparent;")
+        self._para_btn = QPushButton("Para")
+        self._passa_btn = QPushButton("Passa")
+        self._para_passa_callback = None
+        for _btn, _tipo in ((self._para_btn, "para"), (self._passa_btn, "passa")):
+            _btn.setCheckable(True)
+            _btn.setFixedHeight(16)
+            _btn.setStyleSheet(
+                f"QPushButton {{ background: {Colors.BG_DEEP}; color: {Colors.TEXT_SECONDARY}; "
+                f"border: 1px solid {accent}55; border-radius: 3px; font-size: 9px; padding: 1px 6px; }}"
+                f"QPushButton:checked {{ background: {accent}; color: #000; font-weight: bold; }}"
+                f"QPushButton:hover {{ background: {accent}33; }}"
+            )
+            _btn.clicked.connect(lambda checked, t=_tipo: self._on_para_passa_clicked(t))
+        pp_lay.addWidget(pp_lbl)
+        pp_lay.addWidget(self._para_btn)
+        pp_lay.addWidget(self._passa_btn)
+        pp_lay.addStretch()
+        att_inline_lay.addWidget(self._para_passa_row)
+
         self._attention_check.stateChanged.connect(self._emit_attention_changed)
+        self._human_validation_check.stateChanged.connect(self._emit_human_validation_changed)
         self._attention_text.textChanged.connect(self._on_note_changed)
         left_lay.addWidget(self._attention_inline)
 
@@ -3171,40 +3217,117 @@ class LevelColumn(QFrame):
         self.ficha_table.setVisible(False)
         self.ficha_table.setParent(self)  # filho mas fora do layout
 
-    def set_attention_context(self, score_text: str, attention: bool, note: str, callback=None):
+    def set_attention_context(self, score_text: str, attention: bool, note: str, callback=None,
+                              human_validated: bool = False, human_callback=None):
+        self._flush_attention_pending()
         self._attention_callback = callback
+        self._human_validation_callback = human_callback
         self._attention_loading = True
+        self._attention_dirty = False
         try:
             self._score_label.setText(score_text or "")
             self._attention_check.setChecked(bool(attention))
-            self._attention_text.setPlainText((note or "")[:500])
+            self._human_validation_check.setChecked(bool(human_validated))
+            self._attention_text.setPlainText((note or "")[:3000])
             self._attention_inline.setVisible(True)
-            self._hdr.setFixedHeight(self._hdr_h_att)
+            pp_visible = self._para_passa_row.isVisible()
+            self._hdr.setFixedHeight(self._hdr_h_att_pp if pp_visible else self._hdr_h_att)
         finally:
             self._attention_loading = False
 
     def clear_attention_context(self):
+        self._flush_attention_pending()
         self._attention_callback = None
+        self._human_validation_callback = None
+        self._attention_dirty = False
+        self._attention_save_timer.stop()
+        self._para_passa_row.setVisible(False)
         self._attention_inline.setVisible(False)
         self._hdr.setFixedHeight(self._hdr_h_normal)
+
+    def set_para_passa(self, tipo: str, callback=None):
+        """Mostra e configura a linha Para/Passa no header de atenção.
+        tipo: 'para', 'passa', ou '' (nenhum selecionado).
+        """
+        self._para_passa_callback = callback
+        loading = self._attention_loading
+        self._attention_loading = True
+        try:
+            self._para_btn.setChecked(tipo == "para")
+            self._passa_btn.setChecked(tipo == "passa")
+        finally:
+            self._attention_loading = loading
+        self._para_passa_row.setVisible(True)
+        # Aumenta altura apenas se atenção já está visível
+        if self._attention_inline.isVisible():
+            self._hdr.setFixedHeight(self._hdr_h_att_pp)
+
+    def clear_para_passa(self):
+        """Oculta a linha Para/Passa."""
+        self._para_passa_callback = None
+        self._para_passa_row.setVisible(False)
+        if self._attention_inline.isVisible():
+            self._hdr.setFixedHeight(self._hdr_h_att)
+
+    def _on_para_passa_clicked(self, tipo: str):
+        if self._attention_loading:
+            return
+        # Toggle: clicar no já-selecionado limpa
+        currently = "para" if self._para_btn.isChecked() and tipo != "para" else \
+                    "passa" if self._passa_btn.isChecked() and tipo != "passa" else tipo
+        if tipo == "para" and self._para_btn.isChecked() and \
+                getattr(self, '_pp_last_clicked', None) == "para":
+            tipo = ""
+        elif tipo == "passa" and self._passa_btn.isChecked() and \
+                getattr(self, '_pp_last_clicked', None) == "passa":
+            tipo = ""
+        self._pp_last_clicked = tipo
+        self._attention_loading = True
+        try:
+            self._para_btn.setChecked(tipo == "para")
+            self._passa_btn.setChecked(tipo == "passa")
+        finally:
+            self._attention_loading = False
+        if self._para_passa_callback:
+            self._para_passa_callback(tipo)
 
     def _on_note_changed(self):
         if self._attention_loading or not self._attention_callback:
             return
         txt = self._attention_text.toPlainText()
-        if len(txt) > 500:
+        if len(txt) > 3000:
+            self._attention_loading = True
             cursor = self._attention_text.textCursor()
-            self._attention_text.setPlainText(txt[:500])
+            self._attention_text.setPlainText(txt[:3000])
+            cursor.setPosition(min(cursor.position(), 3000))
             self._attention_text.setTextCursor(cursor)
+            self._attention_loading = False
+            self._attention_dirty = True
+            self._attention_save_timer.start()
             return
-        self._attention_callback(
-            bool(self._attention_check.isChecked()),
-            txt,
-        )
+        self._attention_dirty = True
+        self._attention_save_timer.start()
 
     def _emit_attention_changed(self, *args):
         if self._attention_loading or not self._attention_callback:
             return
+        self._attention_save_timer.stop()
+        self._attention_dirty = False
+        self._attention_callback(
+            bool(self._attention_check.isChecked()),
+            self._attention_text.toPlainText(),
+        )
+
+    def _emit_human_validation_changed(self, *args):
+        if self._attention_loading or not self._human_validation_callback:
+            return
+        self._human_validation_callback(bool(self._human_validation_check.isChecked()))
+
+    def _flush_attention_pending(self):
+        if self._attention_loading or not self._attention_callback or not self._attention_dirty:
+            return
+        self._attention_save_timer.stop()
+        self._attention_dirty = False
         self._attention_callback(
             bool(self._attention_check.isChecked()),
             self._attention_text.toPlainText(),
@@ -3548,7 +3671,8 @@ class LevelColumn(QFrame):
             else:
                 view.clear_image(f"Sem DXF — {zone}")
 
-    def show_n2_above(self, recorte_path, *, title: str | None = None, bbox=None, highlight_points=None):
+    def show_n2_above(self, recorte_path, *, title: str | None = None, bbox=None,
+                      highlight_points=None, cull_to_bbox: bool = True):
         """Insere viewer N2 (recorte) ACIMA do conteúdo N4 existente, sem ficha.
         Toggle: chamar novamente atualiza o DXF; chamar hide_n2_above() remove."""
         from pathlib import Path as _Path
@@ -3560,7 +3684,9 @@ class LevelColumn(QFrame):
                     self._n2_above_view.set_highlight_geometry(highlight_points)
                 elif bbox:
                     self._n2_above_view.set_highlight_bbox(bbox)
-                self._n2_above_view.load_dxf(str(recorte_path), bbox)
+                else:
+                    self._n2_above_view.set_highlight_geometry(None)
+                self._n2_above_view.load_dxf(str(recorte_path), bbox if cull_to_bbox else None)
                 self._n2_above.setVisible(True)
                 self._apply_compare_viewer_y_ratio()
             else:
@@ -3588,7 +3714,7 @@ class LevelColumn(QFrame):
             n2_view.set_highlight_geometry(highlight_points)
         elif bbox:
             n2_view.set_highlight_bbox(bbox)
-        n2_view.load_dxf(str(recorte_path), bbox)
+        n2_view.load_dxf(str(recorte_path), bbox if cull_to_bbox else None)
         self._n2_above = panel
         self._n2_above_hdr = hdr
         self._n2_above_view = n2_view
@@ -4304,10 +4430,10 @@ class NavSidebar(QFrame):
                 }
                 for (elem_id, conf, status, recorte_path) in rows:
                     badge, color = _badges.get(status, (" [N2]", color_dim))
-                    it = QListWidgetItem(f"{elem_id}{badge}")
+                    it = QListWidgetItem(str(elem_id))
                     it.setData(Qt.UserRole, (cls, elem_id))
                     it.setData(Qt.UserRole + 1, recorte_path)
-                    it.setForeground(color)
+                    it.setForeground(QColor(Colors.TEXT_PRIMARY))
                     it.setToolTip(
                         f"Confiança: {conf:.0%} | Status: {status}\nRecorte: {recorte_path}"
                     )
@@ -4369,14 +4495,48 @@ class NavSidebar(QFrame):
 
         color_ok  = QColor(self._CLS_COLORS.get(cls, Colors.ACCENT_SUCCESS))
         color_dim = QColor(Colors.TEXT_PRIMARY)
+        obra_name = self._current_obra_dir.name if self._current_obra_dir is not None else ""
+        pav_key   = self._current_pav or ""
 
         for iid in item_ids:
             n3_ok = (prev_dir / f"{prefix}{iid}.dxf").exists()
-            badge = " [N3]" if n3_ok else ""
-            it = QListWidgetItem(f"{iid}{badge}")
+            if cls == "LV":
+                base = self._lv_base_from_stem(str(iid))
+                pp = load_para_passa(obra_name, pav_key, "LV", base)
+                display = self._lv_stem_to_display(str(iid), pp)
+            else:
+                display = str(iid)
+            it = QListWidgetItem(display)
             it.setData(Qt.UserRole, (cls, iid))
-            it.setForeground(color_ok if n3_ok else color_dim)
+            it.setForeground(QColor(Colors.TEXT_PRIMARY))
             self.lst.addItem(it)
+
+    @staticmethod
+    def _lv_stem_to_display(stem: str, para_passa: str = "") -> str:
+        """Transforma stem de JSON LV em nome padronizado com traços.
+
+        "V10_A" → "LV-V10.A", "V10_A" + "para" → "LV-V10.A-Para"
+        """
+        import re as _re
+        m = _re.match(r'^(V\d+[A-Z]?)_([AB])$', stem, _re.IGNORECASE)
+        if m:
+            base, face = m.group(1).upper(), m.group(2).upper()
+            display = f"LV-{base}.{face}"
+        else:
+            display = f"LV-{stem}" if not stem.startswith("LV-") else stem
+        if para_passa in ("para", "passa"):
+            display = f"{display}-{para_passa.capitalize()}"
+        return display
+
+    @staticmethod
+    def _lv_base_from_stem(stem: str) -> str:
+        """Extrai o ID base da viga (sem face) de um stem de JSON LV.
+
+        "V10_A" → "V10", "V10_B" → "V10"
+        """
+        import re as _re
+        m = _re.match(r'^(V\d+[A-Z]?)_[AB]$', stem, _re.IGNORECASE)
+        return m.group(1).upper() if m else stem
 
     @staticmethod
     def _item_sort_key(value: str):
@@ -4408,6 +4568,13 @@ class NavSidebar(QFrame):
         add(raw)
         add(raw.replace(".C", ""))
         if cls == "LV":
+            # Strip prefixes/suffixes: "LV-V10.A-Para" → "V10_A", "V10.A", "V10"
+            clean = _re.sub(r"^LV-", "", raw)                          # "V10.A-PARA"
+            clean = _re.sub(r"-(PARA|PASSA)$", "", clean)               # "V10.A"
+            add(clean)
+            add(clean.replace(".", "_"))                                 # "V10_A"
+            add(clean.replace("_", "."))                                 # "V10.A"
+            add(_re.sub(r"[_\.][AB]$", "", clean))                      # "V10"
             add(_re.sub(r"_[AB]$", "", raw))
         if cls == "FV":
             add(_re.sub(r"(?:\.C)+$", "", raw))
@@ -4459,12 +4626,20 @@ class NavSidebar(QFrame):
         if not item_ids and cls == "LV":
             item_ids = VIGAS_LV_LIST
 
+        obra_name = self._current_obra_dir.name if self._current_obra_dir is not None else ""
+        pav_key = self._current_pav or ""
         rows: dict[str, dict] = {}
         for iid in item_ids:
             n3_ok = (prev_dir / f"{prefix}{iid}.dxf").exists()
+            if cls == "LV":
+                base = self._lv_base_from_stem(str(iid))
+                pp = load_para_passa(obra_name, pav_key, "LV", base)
+                display_text = self._lv_stem_to_display(str(iid), pp)
+            else:
+                display_text = str(iid)
             rows[str(iid)] = {
                 "id": str(iid),
-                "text": f"{iid}{' [N3]' if n3_ok else ''}",
+                "text": display_text,
                 "source": "estrutural",
                 "recorte_path": "",
                 "ok": n3_ok,
@@ -4476,17 +4651,9 @@ class NavSidebar(QFrame):
         rows = self._load_reverse_items(obra_name, cls, self._current_pav)
         out: dict[str, dict] = {}
         for elem_id, conf, status, recorte_path in rows:
-            badge = {
-                "aprovado": " [aprovado]",
-                "approved": " [aprovado]",
-                "auto_aprovado": " [auto]",
-                "manual_sel": " [manual]",
-                "manual": " [manual]",
-                "motor": " [N2]",
-            }.get(status, " [N2]")
             out[str(elem_id)] = {
                 "id": str(elem_id),
-                "text": f"{elem_id}{badge}",
+                "text": str(elem_id),
                 "source": "reverso",
                 "recorte_path": recorte_path or "",
                 "status": status or "",
@@ -4505,6 +4672,17 @@ class NavSidebar(QFrame):
         except Exception:
             return False
 
+    def _row_human_validated(self, cls: str, row_data: dict | None) -> bool:
+        if not row_data:
+            return False
+        try:
+            obra = self._current_obra_dir.name if self._current_obra_dir is not None else ""
+            pav = self._current_pav or ""
+            scope = "N4" if row_data.get("source") == "reverso" else "N3"
+            return is_human_validated(obra, pav, cls, row_data.get("id", ""), scope)
+        except Exception:
+            return False
+
     def _make_item_cell(self, cls: str, row_data: dict | None) -> QTableWidgetItem:
         if not row_data:
             item = QTableWidgetItem("")
@@ -4512,26 +4690,24 @@ class NavSidebar(QFrame):
             item.setForeground(QColor(Colors.TEXT_DIM))
             return item
         text = row_data.get("text") or row_data.get("id") or ""
+        if self._row_human_validated(cls, row_data) and "✓" not in text:
+            text = f"{text} ✓"
         if self._row_has_attention(cls, row_data) and "⚠" not in text:
             text = f"{text} ⚠"
         item = QTableWidgetItem(text)
         item.setData(Qt.UserRole, (cls, row_data.get("id", ""), row_data.get("source", "estrutural")))
         item.setData(Qt.UserRole + 1, row_data.get("recorte_path", ""))
+        item.setForeground(QColor(Colors.TEXT_PRIMARY))
         if row_data.get("source") == "reverso":
             status = row_data.get("status", "")
-            if status in ("aprovado", "approved"):
-                item.setForeground(QColor(self._CLS_COLORS.get(cls, Colors.ACCENT_SUCCESS)))
-            elif status == "auto_aprovado":
-                item.setForeground(QColor(Colors.ACCENT_WARNING))
-            else:
-                item.setForeground(QColor(Colors.TEXT_PRIMARY))
             item.setToolTip(f"N2/N4: {row_data.get('id')}\nStatus: {status}\nRecorte: {row_data.get('recorte_path', '')}")
         else:
-            item.setForeground(QColor(self._CLS_COLORS.get(cls, Colors.ACCENT_SUCCESS)) if row_data.get("ok") else QColor(Colors.TEXT_PRIMARY))
             item.setToolTip(f"N1/N3: {row_data.get('id')}")
         return item
 
     def _populate_aligned_items(self, cls: str):
+        prev_item = self._selected_item
+        prev_source = self._selected_source
         self.tbl_items.blockSignals(True)
         try:
             self.tbl_items.clearSelection()
@@ -4589,8 +4765,33 @@ class NavSidebar(QFrame):
             self.tbl_items.resizeRowsToContents()
             self.btn_process_all.setEnabled(True)
             self.btn_gerar_n5.setEnabled(cls in ("LJ", "FV"))
+            self._restore_table_selection(prev_item, prev_source, emit=False)
         finally:
             self.tbl_items.blockSignals(False)
+        self._restore_table_selection(prev_item, prev_source, emit=False)
+
+    def _restore_table_selection(self, item_id: str | None = None, source: str | None = None,
+                                 emit: bool = False) -> bool:
+        item_id = item_id or self._selected_item
+        source = source or self._selected_source
+        if not item_id:
+            return False
+        for row in range(self.tbl_items.rowCount()):
+            for col in range(self.tbl_items.columnCount()):
+                item = self.tbl_items.item(row, col)
+                data = item.data(Qt.UserRole) if item else None
+                if not data or len(data) < 2:
+                    continue
+                if str(data[1]) != str(item_id):
+                    continue
+                if source and len(data) >= 3 and data[2] != source:
+                    continue
+                self.tbl_items.setCurrentCell(row, col)
+                self.tbl_items.scrollToItem(item)
+                if emit:
+                    self._on_item_clicked(item)
+                return True
+        return False
 
     def _project_id_for_current_pav(self, conn):
         """Resolve o projeto atual por obra+pavimento, aceitando chave curta ou nome completo."""
@@ -5035,13 +5236,24 @@ class NavSidebar(QFrame):
         if count == 0:
             return
         cur = self.tbl_items.currentRow()
+        if cur < 0 and self._selected_item:
+            self._restore_table_selection(emit=False)
+            cur = self.tbl_items.currentRow()
         if cur < 0:
             new_row = 0 if delta > 0 else count - 1
         else:
             new_row = max(0, min(count - 1, cur + delta))
         if new_row != cur:
             col = self.tbl_items.currentColumn()
-            self.tbl_items.setCurrentCell(new_row, col if col >= 0 else 0)
+            if col < 0:
+                col = 0 if self._selected_source != "reverso" else 1
+            target = self.tbl_items.item(new_row, col)
+            if target is None or not target.data(Qt.UserRole):
+                alt_col = 1 - col if self.tbl_items.columnCount() > 1 else col
+                alt = self.tbl_items.item(new_row, alt_col)
+                if alt is not None and alt.data(Qt.UserRole):
+                    col = alt_col
+            self.tbl_items.setCurrentCell(new_row, col)
             # currentItemChanged dispara → _on_item_clicked → item_selected signal
 
 
@@ -5631,7 +5843,7 @@ class TriLevelArea(QWidget):
         Normaliza sufixos de face: V301_A/V301_fundo → V301."""
         import re as _re
         if str(classe).upper() == "LJ":
-            lj_bbox = self._points_bbox(self._get_lj_n1_points(item_id), pad=55.0)
+            lj_bbox = self._points_bbox(self._get_lj_n1_points(item_id), pad=20.0)
             if lj_bbox:
                 return lj_bbox
         label_id = _re.sub(r'[_.]([A-Da-d]|fundo)$', '', item_id, flags=_re.I)
@@ -6689,6 +6901,10 @@ class ComparisonEngineModule(QWidget):
         _btn_cmp_n1.clicked.connect(self._on_comparar_n1_toggled)
         self._btn_comparar_n1 = _btn_cmp_n1
         self.tri_level._columns[2]._badge_row.addWidget(_btn_cmp_n1)
+        _btn_cmp_n4_on_n3 = _hdr_btn("Comparar com N4", "#cf8a4a", checkable=True)
+        _btn_cmp_n4_on_n3.clicked.connect(self._on_comparar_n4_on_n3_toggled)
+        self._btn_comparar_n4_on_n3 = _btn_cmp_n4_on_n3
+        self.tri_level._columns[2]._badge_row.addWidget(_btn_cmp_n4_on_n3)
         _btn_open_n3 = _hdr_btn("Abrir DXF", "#cf8a4a")
         _btn_open_n3.clicked.connect(lambda: self._on_abrir_dxf(2))
         self.tri_level._columns[2]._badge_row.addWidget(_btn_open_n3)
@@ -6739,6 +6955,13 @@ class ComparisonEngineModule(QWidget):
         """Toggle: mostra/esconde DXF N1 (estrutural) acima do viewer N3."""
         col_n3 = self.tri_level._columns[2]
         if checked:
+            btn_n4 = getattr(self, "_btn_comparar_n4_on_n3", None)
+            if btn_n4 and btn_n4.isChecked():
+                btn_n4.setChecked(False)
+            if not self._refresh_n3_compare_if_active():
+                self.nav_sidebar.set_status("N1 nÃ£o carregado", Colors.TEXT_DIM)
+                self._btn_comparar_n1.setChecked(False)
+            return
             n1_path = self.tri_level._columns[0]._last_loaded_dxf or ""
             if n1_path and Path(n1_path).exists():
                 classe = getattr(self.nav_sidebar, "_selected_classe", "")
@@ -6759,10 +6982,29 @@ class ComparisonEngineModule(QWidget):
         else:
             col_n3.hide_n2_above()
 
+    def _on_comparar_n4_on_n3_toggled(self, checked: bool):
+        """Toggle: mostra/esconde DXF N4 acima do viewer N3."""
+        col_n3 = self.tri_level._columns[2]
+        if checked:
+            btn_n1 = getattr(self, "_btn_comparar_n1", None)
+            if btn_n1 and btn_n1.isChecked():
+                btn_n1.setChecked(False)
+            if not self._refresh_n3_compare_n4_if_active():
+                self.nav_sidebar.set_status("N4 nao encontrado para este item", Colors.TEXT_DIM)
+                self._btn_comparar_n4_on_n3.setChecked(False)
+            return
+        else:
+            col_n3.hide_n2_above()
+
     def _on_comparar_n2_toggled(self, checked: bool):
         """Toggle: mostra/esconde DXF N2 (recorte) acima do viewer N4."""
         col = self.tri_level._columns[3]
         if checked:
+            recorte = getattr(self.nav_sidebar, '_selected_recorte_path', "") or ""
+            if not recorte or not self._refresh_n4_compare_if_active(recorte, cull_to_bbox=False):
+                self.nav_sidebar.set_status("Sem recorte N2 para este item", Colors.TEXT_DIM)
+                self._btn_comparar_n2.setChecked(False)
+            return
             recorte = getattr(self.nav_sidebar, '_selected_recorte_path', "") or ""
             if recorte and Path(recorte).exists():
                 col.show_n2_above(recorte)
@@ -6771,6 +7013,93 @@ class ComparisonEngineModule(QWidget):
                 self._btn_comparar_n2.setChecked(False)
         else:
             col.hide_n2_above()
+
+    def _refresh_n3_compare_if_active(self, classe: str | None = None, item_id: str | None = None) -> bool:
+        """Atualiza o viewer comparativo N1 aberto acima do N3 para o item atual."""
+        btn = getattr(self, "_btn_comparar_n1", None)
+        if not btn or not btn.isChecked():
+            return True
+        n1_path = self.tri_level._columns[0]._last_loaded_dxf or ""
+        if not n1_path or not Path(n1_path).exists():
+            return False
+        classe = classe or getattr(self.nav_sidebar, "_selected_classe", "")
+        item_id = item_id or getattr(self.nav_sidebar, "_selected_item", "")
+        bbox = self.tri_level._get_n1_bbox_for(item_id, classe) if item_id else None
+        points = self.tri_level._get_lj_n1_points(item_id) if classe == "LJ" and item_id else None
+        self.tri_level._columns[2].show_n2_above(
+            n1_path,
+            title=f"DXF N1 - {item_id}" if item_id else "DXF N1",
+            bbox=bbox,
+            highlight_points=points,
+        )
+        return True
+
+    def _refresh_n3_compare_n4_if_active(self, classe: str | None = None,
+                                         item_id: str | None = None) -> bool:
+        """Atualiza o viewer comparativo N4 aberto acima do N3 para o item atual."""
+        btn = getattr(self, "_btn_comparar_n4_on_n3", None)
+        if not btn or not btn.isChecked():
+            return True
+        classe = classe or getattr(self.nav_sidebar, "_selected_classe", "")
+        item_id = item_id or getattr(self.nav_sidebar, "_selected_item", "")
+        if not classe or not item_id:
+            return False
+        obra = (self.fase8_panel.cmb_obra.currentData() or self.fase8_panel.cmb_obra.currentText())
+        obra_dir = DADOS_OBRAS_ROOT / obra
+        n4_path = self._find_n4_dxf_strict(obra_dir, classe, item_id)
+        if not n4_path or not n4_path.exists():
+            return False
+        self.tri_level._columns[2].show_n2_above(
+            n4_path,
+            title=f"DXF N4 - {item_id}",
+            bbox=None,
+        )
+        return True
+
+    def _refresh_n4_compare_if_active(self, n2_path=None, classe: str | None = None,
+                                      item_id: str | None = None, bbox=None,
+                                      cull_to_bbox: bool = True) -> bool:
+        """Atualiza o viewer comparativo N2 aberto acima do N4 para o item atual."""
+        btn = getattr(self, "_btn_comparar_n2", None)
+        if not btn or not btn.isChecked():
+            return True
+        path = n2_path or getattr(self.nav_sidebar, '_selected_recorte_path', "") or ""
+        if not path:
+            path = self.tri_level._columns[1]._last_loaded_dxf or ""
+        if not path or not Path(str(path)).exists():
+            return False
+        classe = classe or getattr(self.nav_sidebar, "_selected_classe", "")
+        item_id = item_id or getattr(self.nav_sidebar, "_selected_item", "")
+        if bbox is None and item_id:
+            bbox = self.tri_level._get_n2_bbox_for(item_id, classe)
+        self.tri_level._columns[3].show_n2_above(
+            path,
+            title=f"DXF N2 - {item_id}" if item_id else "DXF N2",
+            bbox=bbox,
+            cull_to_bbox=cull_to_bbox,
+        )
+        return True
+
+    def _load_recorte_full_with_optional_zoom(self, col, dxf_path, bbox=None):
+        """Carrega recorte individual inteiro; bbox serve apenas para destacar/zoomar."""
+        if bbox:
+            def _after_ready():
+                try:
+                    col.img_widget.ready.disconnect(_after_ready)
+                except (RuntimeError, TypeError):
+                    pass
+                try:
+                    col.img_widget.set_highlight_bbox(bbox)
+                    col.img_widget.zoom_to_bbox(bbox)
+                except Exception:
+                    pass
+            try:
+                col.img_widget.ready.connect(_after_ready)
+            except (RuntimeError, TypeError):
+                pass
+        col.load_content(str(dxf_path), None)
+        if bbox and hasattr(col.img_widget, "set_highlight_bbox"):
+            col.img_widget.set_highlight_bbox(bbox)
 
     def _on_comparar_er_humana_toggled(self, checked: bool):
         """Toggle: mostra/esconde DXF Eng. Reversa Humana (obra_triagem) acima do viewer N5."""
@@ -6887,17 +7216,51 @@ class ComparisonEngineModule(QWidget):
 
     def eventFilter(self, obj, event) -> bool:
         """Intercepta ↑/↓ globalmente para navegar na lista de itens do NavSidebar."""
+        if event.type() == QEvent.MouseButtonPress and self.isVisible():
+            QTimer.singleShot(0, lambda: self.nav_sidebar._restore_table_selection(emit=False))
+        if (
+            event.type() == QEvent.KeyPress
+            and self.isVisible()
+            and event.key() in (Qt.Key_Return, Qt.Key_Enter)
+        ):
+            focused = QApplication.focusWidget()
+            if not isinstance(focused, (QLineEdit, QComboBox)):
+                return self._validate_current_tab_human()
         if (
             event.type() == QEvent.KeyPress
             and self.isVisible()
             and event.key() in (Qt.Key_Up, Qt.Key_Down)
         ):
             focused = QApplication.focusWidget()
-            if not isinstance(focused, (QLineEdit, QTextEdit)):
+            if not isinstance(focused, (QLineEdit, QComboBox)):
                 delta = -1 if event.key() == Qt.Key_Up else 1
                 self.nav_sidebar.navigate(delta)
                 return True
         return super().eventFilter(obj, event)
+
+    def _validate_current_tab_human(self) -> bool:
+        try:
+            tab_idx = self.tri_level._nivel_tabs.currentIndex()
+            scope = "N3" if tab_idx == 2 else "N4" if tab_idx == 3 else ""
+            if not scope:
+                return False
+            classe = getattr(self.nav_sidebar, "_selected_classe", "") or getattr(self.nav_sidebar, "_current_classe", "")
+            item_id = getattr(self.nav_sidebar, "_selected_item", "")
+            if not classe or not item_id:
+                return False
+            self.nav_sidebar._restore_table_selection(emit=False)
+            self._save_level_human_validation(scope, classe, item_id, True)
+            col = self.tri_level._columns[tab_idx]
+            check = getattr(col, "_human_validation_check", None)
+            if check is not None and not check.isChecked():
+                old = getattr(col, "_attention_loading", False)
+                col._attention_loading = True
+                check.setChecked(True)
+                col._attention_loading = old
+            return True
+        except Exception as exc:
+            print(f"[CE] _validate_current_tab_human error: {exc}")
+            return False
 
     def _on_obra_pav_changed(self, _text: str = ""):
         """Propaga mudança de obra/pav do Fase8Panel para o TriLevelArea e main.py.
@@ -7162,6 +7525,8 @@ class ComparisonEngineModule(QWidget):
                 meta.get("attention", False),
                 meta.get("note", ""),
                 lambda att, note, s=scope, c=classe, iid=item_id: self._save_level_attention(s, c, iid, att, note),
+                meta.get("human_validated", False),
+                lambda ok, s=scope, c=classe, iid=item_id: self._save_level_human_validation(s, c, iid, ok),
             )
         except Exception as exc:
             print(f"[CE] _configure_level_attention error: {exc}")
@@ -7174,6 +7539,50 @@ class ComparisonEngineModule(QWidget):
             self.nav_sidebar.refresh_tree()
         except Exception as exc:
             print(f"[CE] _save_level_attention error: {exc}")
+
+    def _save_level_human_validation(self, scope: str, classe: str, item_id: str, human_validated: bool):
+        try:
+            obra = (self.fase8_panel.cmb_obra.currentData() or self.fase8_panel.cmb_obra.currentText())
+            pav = self.fase8_panel.current_pav_key
+            save_human_validation(obra, pav, classe, item_id, scope, human_validated)
+            self.nav_sidebar.set_status(
+                f"{scope} {'validado humano' if human_validated else 'validacao humana removida'} - {item_id}",
+                Colors.ACCENT_SUCCESS if human_validated else Colors.TEXT_DIM,
+            )
+            self.nav_sidebar.refresh_tree()
+        except Exception as exc:
+            print(f"[CE] _save_level_human_validation error: {exc}")
+
+    def _configure_para_passa_n2(self, classe: str, item_id: str):
+        """Configura widget Para/Passa na coluna N2 para classes PIL e LAJ."""
+        if classe not in ("PL", "LJ"):
+            self.tri_level._columns[1].clear_para_passa()
+            return
+        try:
+            obra = (self.fase8_panel.cmb_obra.currentData() or self.fase8_panel.cmb_obra.currentText())
+            pav = self.fase8_panel.current_pav_key
+            db_cls = "PIL" if classe == "PL" else "LAJ"
+            tipo = load_para_passa(obra, pav, db_cls, item_id)
+            col = self.tri_level._columns[1]
+            col.set_para_passa(
+                tipo,
+                lambda t, s=db_cls, iid=item_id: self._save_para_passa_n2(s, iid, t),
+            )
+        except Exception as exc:
+            print(f"[CE] _configure_para_passa_n2 error: {exc}")
+
+    def _save_para_passa_n2(self, db_cls: str, item_id: str, tipo: str):
+        try:
+            obra = (self.fase8_panel.cmb_obra.currentData() or self.fase8_panel.cmb_obra.currentText())
+            pav = self.fase8_panel.current_pav_key
+            save_para_passa(obra, pav, db_cls, item_id, tipo)
+            suffix = f"-{tipo.capitalize()}" if tipo else ""
+            self.nav_sidebar.set_status(
+                f"{db_cls} {item_id}{suffix} classificado", Colors.ACCENT_SUCCESS
+            )
+            self.nav_sidebar.refresh_tree()
+        except Exception as exc:
+            print(f"[CE] _save_para_passa_n2 error: {exc}")
 
     def _on_item_selected(self, classe: str, item_id: str):
         """Auto-dispara N1 → N2 → N3 em sequência ao selecionar item.
@@ -7304,6 +7713,7 @@ class ComparisonEngineModule(QWidget):
             col.pipeline.set_step(2, 'ok', '')
 
             self.nav_sidebar.set_status(f"✅ N1 — {item_id}", Colors.ACCENT_SUCCESS)
+            self._refresh_n3_compare_if_active(classe, item_id)
 
             # Lista 1 (estrutural): N1 → N3 diretamente (N2 só responde à lista 2 / fluxo ER)
             if auto_chain:
@@ -7357,7 +7767,13 @@ class ComparisonEngineModule(QWidget):
 
             if n2_dxf and n2_dxf.exists():
                 _ce_log(f"N2 loading DXF size={n2_dxf.stat().st_size//1024}KB")
-                col.load_content(str(n2_dxf), n2_bbox)
+                if is_er_flow:
+                    self._load_recorte_full_with_optional_zoom(col, n2_dxf, n2_bbox)
+                else:
+                    col.load_content(str(n2_dxf), n2_bbox)
+                self._refresh_n4_compare_if_active(
+                    n2_dxf, classe, item_id, n2_bbox, cull_to_bbox=not is_er_flow
+                )
                 col.pipeline.set_step(0, 'ok', Path(n2_dxf).name[:30] if n2_dxf else '')
             else:
                 _ce_log(f"N2 DXF not found: {n2_dxf}")
@@ -7388,6 +7804,7 @@ class ComparisonEngineModule(QWidget):
             else:
                 col.set_ficha(self.tri_level._ficha_n2_for(classe, item_id))
             col.pipeline.set_step(2, 'ok', '')
+            self._configure_para_passa_n2(classe, item_id)
 
             _ce_log(f"N2 done ok. is_er={is_er_flow} auto_chain={auto_chain}")
             self.nav_sidebar.set_status(f"✅ N2 ok — {item_id}", Colors.ACCENT_SUCCESS)
@@ -7810,6 +8227,7 @@ class ComparisonEngineModule(QWidget):
                 col.load_content(str(n3_dxf), None)
                 col.pipeline.set_step(2, 'ok', 'DXF existente')
                 self.nav_sidebar.set_status(f"✅ N3 ok — {item_id}", Colors.ACCENT_SUCCESS)
+                self._refresh_n3_compare_n4_if_active(classe, item_id)
                 self.nav_sidebar._enable_item_btns()
             else:
                 self._start_n3_generation(classe, item_id, col)
@@ -7877,6 +8295,7 @@ class ComparisonEngineModule(QWidget):
                 col.set_ficha(self.tri_level._ficha_n3_for(classe, item_id))
                 self._configure_level_attention("N3", classe, item_id)
                 self.nav_sidebar.set_status(f"✅ N3 gerado — {item_id}", Colors.ACCENT_SUCCESS)
+                self._refresh_n3_compare_n4_if_active(classe, item_id)
             else:
                 col.pipeline.set_step(2, 'error', f'código {code}')
                 self.nav_sidebar.set_status(f"❌ N3 erro código {code}", Colors.ACCENT_DANGER)
@@ -7973,12 +8392,14 @@ class ComparisonEngineModule(QWidget):
                     col.switch_to_lv_zones(lv_zones, er_ficha or {})
                     col.pipeline.set_step(2, 'ok', Path(n4_dxf).name[:25])
                     self.nav_sidebar.set_status(f"✅ N4 LV — {item_id}", Colors.ACCENT_SUCCESS)
+                    self._refresh_n3_compare_n4_if_active(classe, item_id)
                     self.nav_sidebar._enable_item_btns()
                 else:
                     n4_bbox = self.tri_level._get_n2_bbox_for(item_id, classe) if classe == "LJ" else None
                     col.load_content(str(n4_dxf), n4_bbox)
                     col.pipeline.set_step(2, 'ok', Path(n4_dxf).name[:25])
                     self.nav_sidebar.set_status(f"✅ N4 ok — {item_id}", Colors.ACCENT_SUCCESS)
+                    self._refresh_n3_compare_n4_if_active(classe, item_id)
                     self.nav_sidebar._enable_item_btns()
             else:
                 # Gera DXF via temp JSON (Option B)
@@ -8833,6 +9254,7 @@ class ComparisonEngineModule(QWidget):
                     self._configure_level_attention("N4", "LV", _item_id)
                     self._configure_level_attention("N3", "LV", _item_id)
                     self.nav_sidebar.set_status(f"✅ N4 LV gerado — {_item_id}", Colors.ACCENT_SUCCESS)
+                    self._refresh_n3_compare_n4_if_active("LV", _item_id)
                 else:
                     _col.pipeline.set_step(2, 'error', f'código {code}')
                     self.nav_sidebar.set_status(f"❌ N4 LV falhou — {_item_id}", Colors.ACCENT_ERROR)
@@ -8997,6 +9419,7 @@ class ComparisonEngineModule(QWidget):
                     self._configure_level_attention("N4", _classe, _item_id)
                     self._configure_level_attention("N3", _classe, _item_id)
                     self.nav_sidebar.set_status(f"✅ N4 gerado — {_item_id}", Colors.ACCENT_SUCCESS)
+                    self._refresh_n3_compare_n4_if_active(_classe, _item_id)
                 else:
                     _col.pipeline.set_step(2, 'error', f'código {code}')
                     self.nav_sidebar.set_status(f"❌ N4 erro — {_item_id}", Colors.ACCENT_DANGER)

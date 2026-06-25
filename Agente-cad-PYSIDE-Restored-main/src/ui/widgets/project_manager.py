@@ -1552,6 +1552,8 @@ class ProjectManager(QWidget):
             return [int(t) if t.isdigit() else t.lower() for t in re.split(r'(\d+)', name)]
         items.sort(key=nat_key)
 
+        is_lv = "Lateral" in class_name or "LV" in class_name
+
         for i, item_data in enumerate(items):
             item_id = item_data.get('id_item', f"{i+1:02}")
             name = item_data.get('name', '?')
@@ -1564,6 +1566,37 @@ class ProjectManager(QWidget):
                 status_txt = f"[{pct:.0f}%] {status_label}"
             else:
                 status_txt = status_label
+
+            if is_lv:
+                # LV: mostrar Face A e Face B como sub-itens separados
+                try:
+                    from src.core.item_attention_store import load_para_passa
+                    _proj = next((p for p in self.db.get_projects()
+                                  if str(p.get('id')) == str(self.current_project_id)), {})
+                    _obra = _proj.get('work_name', '')
+                    _pav  = _proj.get('pavement_name', '')
+                    pp = load_para_passa(_obra, _pav, "LV", str(name).upper())
+                except Exception:
+                    pp = ""
+                pp_suffix = f"-{pp.capitalize()}" if pp else ""
+                for face in ("A", "B"):
+                    display = f"LV-{name}.{face}{pp_suffix}"
+                    tree_item = QTreeWidgetItem(tree_widget)
+                    tree_item.setText(0, f"{i+1:02}{face}")
+                    tree_item.setText(1, display)
+                    tree_item.setText(2, status_txt)
+                    if validated:
+                        tree_item.setForeground(2, Qt.green)
+                    elif pct is not None and pct >= 70:
+                        tree_item.setForeground(2, QColor("#80cbc4"))  # hardcoded-ok
+                    else:
+                        tree_item.setForeground(2, QColor(Colors.ACCENT_INFO))
+                    btn = QPushButton("Ver Detalhes")
+                    btn.setCursor(Qt.PointingHandCursor)
+                    btn.setStyleSheet(f"background: {Colors.BG_CARD}; color: {Colors.TEXT_BRIGHT}; border-radius: 4px; padding: 2px; font-size: 10px;")
+                    btn.clicked.connect(lambda checked=False, d=item_data: self._open_detail_dialog(d))
+                    tree_widget.setItemWidget(tree_item, 3, btn)
+                continue
 
             tree_item = QTreeWidgetItem(tree_widget)
             tree_item.setText(0, item_id)
@@ -1687,11 +1720,24 @@ class ProjectManager(QWidget):
             return [int(t) if t.isdigit() else t.lower() for t in re.split(r'(\d+)', name)]
         items.sort(key=nat_key)
 
+        is_lv_phase4 = "Lateral" in class_name or "LV" in class_name
+
         for i, item_data in enumerate(items):
             name = item_data.get('nome', item_data.get('name', f"Item {i+1}"))
+            if is_lv_phase4:
+                # Normaliza "LV V331.B Passa" → "LV-V331.B-Passa" (spaces → dashes)
+                import re as _re
+                name = _re.sub(
+                    r'^LV\s+(V\d+[A-Z]?)\.([AB])\s+(Para|Passa)$',
+                    r'LV-\1.\2-\3', str(name), flags=_re.IGNORECASE
+                )
+                name = _re.sub(
+                    r'^LV\s+(V\d+[A-Z]?)\.([AB])$',
+                    r'LV-\1.\2', str(name), flags=_re.IGNORECASE
+                )
             is_valid = item_data.get('is_validado', item_data.get('is_validated', False))
             status_val = "OK" if is_valid else "Proc."
-            
+
             tree_item = QTreeWidgetItem(tree_widget)
             tree_item.setText(0, f"{i+1:02}")
             tree_item.setText(1, name)
