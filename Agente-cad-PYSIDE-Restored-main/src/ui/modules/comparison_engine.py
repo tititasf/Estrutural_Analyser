@@ -34,13 +34,14 @@ from PySide6.QtWidgets import (
     QTableWidget, QTableWidgetItem, QHeaderView, QMessageBox,
     QScrollArea, QSplitter, QGroupBox, QTextEdit, QTabWidget,
     QTreeWidget, QTreeWidgetItem, QSizePolicy,
-    QListWidget, QListWidgetItem, QApplication, QLineEdit,
+    QListWidget, QListWidgetItem, QApplication, QLineEdit, QDialog,
 )
 from PySide6.QtCore import Qt, QProcess, Signal, QRect, QRectF, QPointF, QThread, QObject, QTimer, QEvent
 from PySide6.QtGui import QColor, QFont, QPainter, QPen, QBrush, QPainterPath, QPixmap, QTransform
 
 from src.ui.components.organisms import DualCanvasManager
 from src.ui.theme import Colors, Fonts, Radius
+from src.core.item_attention_store import has_attention, load_attention, save_attention
 
 try:
     from src.core.services.comparison_service import ComparisonService, FieldStatus
@@ -74,6 +75,7 @@ NIVEL_DEFS = [
     ("N2", "STOG Real DXF",            "#1a4a2a",  "#4acf7a",  "Eng. Reversa · Fase 1\nForms, seções e sarrafos STOG",           'dxf'),
     ("N3", "Robot via Ficha SA",       "#4a2a1a",  "#cf8a4a",  "Robot N3 · Fase 4→6\nDXF gerado via ficha do Structural Analyzer", 'dxf'),
     ("N4", "Robot via Ficha ER",       "#2d1a47",  "#a855f7",  "Robot N4 · Fase 2→6\nDXF gerado via Ficha Eng. Reversa (STOG real)", 'dxf'),
+    ("N5", "Montagem e unificacao dos N3", "#263238", "#00bcd4", "N5 - consolida previews N3\n1 DXF final por classe suportada", 'dxf'),
 ]
 
 TIPOS = ["PL", "LV", "FV", "LJ"]
@@ -603,13 +605,21 @@ class DXFLoadWorker(QThread):
         self._proc      = None       # subprocess.Popen
 
     def cancel(self):
-        """Cancela: sinaliza flag. NÃO mata o subprocess — evita race condition
-        entre kill() na main thread e communicate() no worker thread no Windows.
-        O subprocess termina sozinho; resultado descartado pelo flag _cancelled."""
+        """Cancela: sinaliza flag. O loop de polling no run() detecta e mata o
+        subprocess imediatamente — sem race condition pois kill ocorre na mesma
+        thread que chama poll() (worker thread), não na main thread."""
         self._cancelled[0] = True
 
+    def _emit_ops_temp(self, ops):
+        import os, pickle, tempfile
+        fd, tmp_path = tempfile.mkstemp(suffix='.dxfops.pkl', prefix='ce_')
+        os.close(fd)
+        with open(tmp_path, 'wb') as f:
+            pickle.dump(ops, f, protocol=4)
+        self.loaded.emit(tmp_path)
+
     def run(self):
-        import subprocess, json, pickle
+        import subprocess, json, pickle, time as _time, tempfile as _tempfile
 
         if self._cancelled[0]:
             return
@@ -618,7 +628,7 @@ class DXFLoadWorker(QThread):
         try:
             size_mb = self._dxf_path.stat().st_size / 1024 / 1024
             if size_mb > _MAX_DXF_MB:
-                self.loaded.emit([('too_large', None, size_mb)])
+                self._emit_ops_temp([('too_large', None, size_mb)])
                 return
         except Exception:
             pass
@@ -628,28 +638,67 @@ class DXFLoadWorker(QThread):
 
         # Executar ezdxf em subprocess isolado — sem PySide6, sem GC conflict
         bbox_arg = json.dumps(list(self._bbox)) if self._bbox else 'null'
+        _deadline = _time.monotonic() + 120
+        stdout_file = None
+        stderr_file = None
         try:
+            # stdout=PIPE deadlocka quando o pickle do helper passa do buffer
+            # do pipe. Arquivo temporario deixa o filho terminar normalmente.
+            stdout_file = _tempfile.TemporaryFile()
+            stderr_file = _tempfile.TemporaryFile()
             self._proc = subprocess.Popen(
                 [sys.executable, str(self._HELPER),
                  str(self._dxf_path), bbox_arg],
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
+                stdout=stdout_file,
+                stderr=stderr_file,
             )
-            stdout, stderr = self._proc.communicate(timeout=120)
+            # Polling loop: verifica _cancelled a cada 50ms — permite kill imediato
+            # ao mudar de item, sem acumular subprocessos zumbis na memória.
+            while True:
+                rc_poll = self._proc.poll()
+                if rc_poll is not None:
+                    break
+                if self._cancelled[0]:
+                    try:
+                        self._proc.kill()
+                        self._proc.wait(timeout=2)
+                    except Exception:
+                        pass
+                    self._proc = None
+                    return
+                if _time.monotonic() > _deadline:
+                    try:
+                        self._proc.kill()
+                        self._proc.wait(timeout=2)
+                    except Exception:
+                        pass
+                    self._proc = None
+                    if not self._cancelled[0]:
+                        self.failed.emit('Timeout ao carregar DXF (>120s)')
+                    return
+                _time.sleep(0.05)
+            stdout_file.seek(0)
+            stderr_file.seek(0)
+            stdout = stdout_file.read()
+            stderr = stderr_file.read()
             rc = self._proc.returncode
             self._proc = None
-        except subprocess.TimeoutExpired:
-            try: self._proc.kill()
-            except Exception: pass
-            self._proc = None
-            if not self._cancelled[0]:
-                self.failed.emit('Timeout ao carregar DXF (>120s)')
-            return
         except Exception as e:
             self._proc = None
             if not self._cancelled[0]:
                 self.failed.emit(f'Subprocess error: {e}')
             return
+        finally:
+            try:
+                if stdout_file:
+                    stdout_file.close()
+            except Exception:
+                pass
+            try:
+                if stderr_file:
+                    stderr_file.close()
+            except Exception:
+                pass
 
         if self._cancelled[0]:
             return
@@ -669,13 +718,8 @@ class DXFLoadWorker(QThread):
         if not self._cancelled[0]:
             # Salva ops em arquivo temp para evitar crash STATUS_STACK_BUFFER_OVERRUN
             # ao passar lista grande (>33MB) via Signal(list) cross-thread no Python 3.14.
-            import tempfile, os
             try:
-                fd, tmp_path = tempfile.mkstemp(suffix='.dxfops.pkl', prefix='ce_')
-                os.close(fd)
-                with open(tmp_path, 'wb') as f:
-                    pickle.dump(ops, f, protocol=4)
-                self.loaded.emit(tmp_path)
+                self._emit_ops_temp(ops)
             except Exception as e:
                 self.failed.emit(f'Serialização temp falhou: {e}')
 
@@ -2435,6 +2479,11 @@ _PIPELINE_STEPS = {
         "Conversão ficha → Robot",
         "Gerar DXF N4",
     ],
+    'N5': [
+        "Ordenar itens N3 da classe",
+        "Montar documento consolidado",
+        "Gerar DXF N5",
+    ],
 }
 
 
@@ -2964,6 +3013,7 @@ class LevelColumn(QFrame):
         badge_row.addWidget(badge)
         badge_row.addWidget(lbl_titulo)
         badge_row.addStretch()
+        self._badge_row = badge_row
         left_lay.addLayout(badge_row)
 
         lbl_desc = QLabel(descricao.replace('\n', ' · '))
@@ -3033,6 +3083,35 @@ class LevelColumn(QFrame):
         self.lbl_ficha.setFixedHeight(18)
         bottom_lay.addWidget(self.lbl_ficha)
 
+        self._attention_loading = False
+        self._attention_callback = None
+        self._attention_panel = QFrame()
+        self._attention_panel.setVisible(False)
+        self._attention_panel.setStyleSheet(
+            f"background: {Colors.BG_DEEP}; border: 1px solid {accent}44; border-radius: 3px;"
+        )
+        att_lay = QVBoxLayout(self._attention_panel)
+        att_lay.setContentsMargins(6, 4, 6, 4)
+        att_lay.setSpacing(3)
+        self._score_label = QLabel("")
+        self._score_label.setWordWrap(True)
+        self._score_label.setStyleSheet(f"color: {accent}; font-size: 10px; font-weight: bold;")
+        self._attention_check = QCheckBox("Atenção")
+        self._attention_check.setStyleSheet(f"color: {Colors.TEXT_PRIMARY}; font-size: 10px;")
+        self._attention_text = QTextEdit()
+        self._attention_text.setFixedHeight(48)
+        self._attention_text.setPlaceholderText("Anote divergencias visuais ou instrucoes para este item...")
+        self._attention_text.setStyleSheet(
+            f"QTextEdit {{ background: {Colors.BG_CARD}; color: {Colors.TEXT_PRIMARY}; "
+            f"border: 1px solid {Colors.BORDER_DEFAULT}; border-radius: 3px; font-size: 10px; }}"
+        )
+        att_lay.addWidget(self._score_label)
+        att_lay.addWidget(self._attention_check)
+        att_lay.addWidget(self._attention_text)
+        self._attention_check.stateChanged.connect(self._emit_attention_changed)
+        self._attention_text.textChanged.connect(self._emit_attention_changed)
+        bottom_lay.addWidget(self._attention_panel)
+
         # Ficha SA-style: scroll area com campos por seção
         self._ficha_accent = accent
         ficha_scroll = QScrollArea()
@@ -3059,12 +3138,36 @@ class LevelColumn(QFrame):
         splitter_vf.setStretchFactor(0, 7)
         splitter_vf.setStretchFactor(1, 3)
         self._splitter_vf = splitter_vf
+        self._last_loaded_dxf: str = ""   # rastreia último DXF carregado na coluna
         lay.addWidget(splitter_vf, 1)
 
         # Compat: manter ficha_table como objeto oculto para não quebrar código existente
         self.ficha_table = QTableWidget(0, 2)
         self.ficha_table.setVisible(False)
         self.ficha_table.setParent(self)  # filho mas fora do layout
+
+    def set_attention_context(self, score_text: str, attention: bool, note: str, callback=None):
+        self._attention_callback = callback
+        self._attention_loading = True
+        try:
+            self._score_label.setText(score_text or "")
+            self._attention_check.setChecked(bool(attention))
+            self._attention_text.setPlainText(note or "")
+            self._attention_panel.setVisible(True)
+        finally:
+            self._attention_loading = False
+
+    def clear_attention_context(self):
+        self._attention_callback = None
+        self._attention_panel.setVisible(False)
+
+    def _emit_attention_changed(self, *args):
+        if self._attention_loading or not self._attention_callback:
+            return
+        self._attention_callback(
+            bool(self._attention_check.isChecked()),
+            self._attention_text.toPlainText(),
+        )
 
     # ── Conteúdo ─────────────────────────────────────────────────────
 
@@ -3074,6 +3177,8 @@ class LevelColumn(QFrame):
         mode='dxf': chama load_dxf(path, bbox) no DXFVectorView.
         mode='png': carrega QPixmap no ZoomableImageLabel.
         """
+        if path:
+            self._last_loaded_dxf = str(path)
         if self._mode == 'dxf':
             self.img_widget.load_dxf(path, bbox)
         else:
@@ -3394,11 +3499,94 @@ class LevelColumn(QFrame):
             if entry:
                 path, bbox = entry if isinstance(entry, tuple) else (entry, None)
                 if path and _Path(str(path)).exists():
+                    if not self._last_loaded_dxf:
+                        self._last_loaded_dxf = str(path)
                     view.load_dxf(str(path), bbox)
                 else:
                     view.clear_image(f"Sem DXF — {zone}")
             else:
                 view.clear_image(f"Sem DXF — {zone}")
+
+    def show_n2_above(self, recorte_path, *, title: str | None = None, bbox=None, highlight_points=None):
+        """Insere viewer N2 (recorte) ACIMA do conteúdo N4 existente, sem ficha.
+        Toggle: chamar novamente atualiza o DXF; chamar hide_n2_above() remove."""
+        from pathlib import Path as _Path
+        if hasattr(self, '_n2_above') and self._n2_above is not None:
+            if recorte_path and _Path(str(recorte_path)).exists():
+                if hasattr(self, '_n2_above_hdr') and title:
+                    self._n2_above_hdr.setText(title)
+                if highlight_points:
+                    self._n2_above_view.set_highlight_geometry(highlight_points)
+                elif bbox:
+                    self._n2_above_view.set_highlight_bbox(bbox)
+                self._n2_above_view.load_dxf(str(recorte_path), bbox)
+                self._n2_above.setVisible(True)
+                self._apply_compare_viewer_y_ratio()
+            else:
+                self.hide_n2_above()
+            return
+        if not recorte_path or not _Path(str(recorte_path)).exists():
+            return
+        panel = QWidget()
+        pv = QVBoxLayout(panel)
+        pv.setContentsMargins(2, 2, 2, 2)
+        pv.setSpacing(2)
+        hdr = QLabel("DXF N2 — Recorte")
+        hdr.setAlignment(Qt.AlignCenter)
+        hdr.setFixedHeight(18)
+        hdr.setStyleSheet(
+            "color: #4acf7a; font-weight: bold; font-size: 11px; "
+            f"background: {Colors.BG_DEEP}; border-radius: 3px;"
+        )
+        pv.addWidget(hdr)
+        n2_view = DXFVectorView(bg=Colors.BG_DEEP)
+        n2_view.setMinimumHeight(self.img_widget.minimumHeight())
+        n2_view.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        pv.addWidget(n2_view, 1)
+        if highlight_points:
+            n2_view.set_highlight_geometry(highlight_points)
+        elif bbox:
+            n2_view.set_highlight_bbox(bbox)
+        n2_view.load_dxf(str(recorte_path), bbox)
+        self._n2_above = panel
+        self._n2_above_hdr = hdr
+        self._n2_above_view = n2_view
+        self.layout().insertWidget(1, panel, 2)
+        self._apply_compare_viewer_y_ratio()
+
+    def _apply_compare_viewer_y_ratio(self):
+        """Keep compare:viewer:ficha at 7:7:3, matching the column viewer Y ratio."""
+        try:
+            lay = self.layout()
+            compare = getattr(self, '_n2_above', None)
+            if compare is None:
+                return
+            compare_idx = lay.indexOf(compare)
+            splitter_idx = lay.indexOf(self._splitter_vf)
+            if compare_idx >= 0:
+                lay.setStretch(compare_idx, 7)
+            if splitter_idx >= 0:
+                lay.setStretch(splitter_idx, 10)
+            self._splitter_vf.setSizes([700, 300])
+            self._splitter_vf.setStretchFactor(0, 7)
+            self._splitter_vf.setStretchFactor(1, 3)
+        except Exception:
+            pass
+
+    def hide_n2_above(self):
+        """Remove o viewer N2 inserido acima do N4."""
+        if getattr(self, '_n2_above', None) is not None:
+            self._n2_above.setParent(None)
+            self._n2_above.deleteLater()
+            self._n2_above = None
+            self._n2_above_view = None
+            try:
+                splitter_idx = self.layout().indexOf(self._splitter_vf)
+                if splitter_idx >= 0:
+                    self.layout().setStretch(splitter_idx, 1)
+                self._splitter_vf.setSizes([700, 300])
+            except Exception:
+                pass
 
     def restore_single_view(self):
         """Restore N4 column to single-viewer layout (called on item/classe change)."""
@@ -3407,6 +3595,363 @@ class LevelColumn(QFrame):
         self._pil_splitter.setVisible(False)
         self._splitter_vf.setVisible(True)
         self._pil_mode = False
+
+
+class DxfVisualConfigDialog(QDialog):
+    """Inspeciona configuracoes visuais dos robos e do motor DXF atual."""
+
+    _ROBOT_ROOTS = {
+        "PL": SCRIPTS_DIR.parent / "_ROBOS_ABAS/Robo_Pilares/pilares-atualizado-09-25",
+        "LV": SCRIPTS_DIR.parent / "_ROBOS_ABAS/Robo_Laterais_de_Vigas",
+        "FV": SCRIPTS_DIR.parent / "_ROBOS_ABAS/Robo_Fundos_de_Vigas/compactador-producao",
+        "LJ": SCRIPTS_DIR.parent / "_ROBOS_ABAS/Robo_Lajes",
+    }
+    _COMMON_TEMPLATE_FILE = SCRIPTS_DIR.parent / "config" / "dxf_visual_templates.json"
+
+    def __init__(self, classe: str, script_path: Path, robot_widget=None, parent=None):
+        super().__init__(parent)
+        self.classe = str(classe or "").upper()
+        self.script_path = Path(script_path)
+        self.robot_widget = robot_widget
+        self.setWindowTitle(f"Configuracao Visual DXF - {self.classe}")
+        self.resize(980, 720)
+        self.setStyleSheet(f"""
+            QDialog {{ background:{Colors.BG_PRIMARY}; color:{Colors.TEXT_PRIMARY}; }}
+            QTabWidget::pane {{ border:1px solid {Colors.BORDER_DEFAULT}; }}
+            QTableWidget {{ background:{Colors.BG_DEEP}; color:{Colors.TEXT_PRIMARY}; gridline-color:{Colors.BORDER_DEFAULT}; }}
+            QHeaderView::section {{ background:{Colors.BG_CARD}; color:{Colors.TEXT_SECONDARY}; padding:4px; border:none; }}
+            QTextEdit {{ background:{Colors.BG_DEEP}; color:{Colors.TEXT_PRIMARY}; border:1px solid {Colors.BORDER_DEFAULT}; }}
+        """)
+
+        main = QVBoxLayout(self)
+        main.setContentsMargins(10, 10, 10, 10)
+        main.setSpacing(8)
+
+        hdr = QLabel(f"{self.classe} - templates do robo + template do motor DXF atual")
+        hdr.setStyleSheet(f"color:{Colors.ACCENT_BLUE}; font-weight:bold; font-size:13px;")
+        main.addWidget(hdr)
+
+        self.tabs = QTabWidget()
+        main.addWidget(self.tabs, 1)
+
+        self.current_template = self._extract_current_motor_template()
+        self._persist_current_template_if_supported()
+        self._add_native_config_tab()
+        self._add_current_template_tab()
+        self._add_robot_templates_tab()
+        self._add_robot_config_tab()
+        self._add_extra_params_tab()
+        self._add_source_tab()
+
+        row = QHBoxLayout()
+        row.addStretch()
+        native_actions = self._native_config_actions()
+        if native_actions:
+            for label, callback in native_actions:
+                btn_native = QPushButton(label)
+                btn_native.clicked.connect(callback)
+                row.addWidget(btn_native)
+        else:
+            btn_native = QPushButton("Abrir Config Nativa do Robo")
+            btn_native.clicked.connect(self._open_native_config)
+            btn_native.setEnabled(self._has_native_config())
+            row.addWidget(btn_native)
+        btn_close = QPushButton("Fechar")
+        btn_close.clicked.connect(self.accept)
+        row.addWidget(btn_close)
+        main.addLayout(row)
+
+    def _safe_literal(self, node):
+        import ast
+        try:
+            return ast.literal_eval(node)
+        except Exception:
+            return None
+
+    def _safe_dict_literal(self, node, known_names: dict):
+        import ast
+        if not isinstance(node, ast.Dict):
+            return None
+        out = {}
+        for key_node, val_node in zip(node.keys, node.values):
+            if isinstance(key_node, ast.Name) and key_node.id in known_names:
+                key = known_names[key_node.id]
+            else:
+                key = self._safe_literal(key_node)
+            val = self._safe_literal(val_node)
+            if key is not None and val is not None:
+                out[key] = val
+        return out
+
+    def _extract_current_motor_template(self) -> dict:
+        import ast
+        template = {
+            "classe": self.classe,
+            "script": str(self.script_path),
+            "origem": "motor_dxf_atual",
+            "constantes": {},
+            "layers": {},
+            "dimstyles": [],
+            "blocks": [],
+            "funcoes_setup": [],
+        }
+        try:
+            source = self.script_path.read_text(encoding="utf-8", errors="replace")
+            tree = ast.parse(source)
+        except Exception as exc:
+            template["erro"] = str(exc)
+            return template
+
+        for node in tree.body:
+            if isinstance(node, ast.Assign):
+                names = [t.id for t in node.targets if isinstance(t, ast.Name)]
+                if not names:
+                    continue
+                name = names[0]
+                value = self._safe_literal(node.value)
+                if name == "LAYERS":
+                    layers = value if isinstance(value, dict) else self._safe_dict_literal(node.value, template["constantes"])
+                    if isinstance(layers, dict):
+                        template["layers"] = layers
+                elif name.isupper() and value is not None and isinstance(value, (str, int, float, bool, list, tuple, dict)):
+                    template["constantes"][name] = value
+            elif isinstance(node, ast.FunctionDef):
+                if node.name.startswith("setup") or node.name.startswith("_define"):
+                    template["funcoes_setup"].append(node.name)
+
+        for key, value in template.get("constantes", {}).items():
+            if "DIMSTYLE" in key or key.endswith("_STYLE"):
+                template["dimstyles"].append({key: value})
+            if "BLOCK" in key:
+                template["blocks"].append({key: value})
+        return template
+
+    def _robot_config_manager(self):
+        cm = getattr(self.robot_widget, "config_manager", None)
+        if cm is None and hasattr(self.robot_widget, "vm"):
+            cm = getattr(self.robot_widget.vm, "config_manager", None)
+        return cm
+
+    def _persist_current_template_if_supported(self):
+        try:
+            self._COMMON_TEMPLATE_FILE.parent.mkdir(parents=True, exist_ok=True)
+            all_templates = {}
+            if self._COMMON_TEMPLATE_FILE.exists():
+                all_templates = json.loads(self._COMMON_TEMPLATE_FILE.read_text(encoding="utf-8", errors="replace"))
+                if not isinstance(all_templates, dict):
+                    all_templates = {}
+            all_templates[f"DXF_ATUAL_{self.classe}"] = self.current_template
+            self._COMMON_TEMPLATE_FILE.write_text(
+                json.dumps(all_templates, indent=2, ensure_ascii=False, default=str),
+                encoding="utf-8",
+            )
+        except Exception:
+            pass
+        cm = self._robot_config_manager()
+        if cm is None or not hasattr(cm, "save_template"):
+            return
+        try:
+            cm.save_template(f"DXF_ATUAL_{self.classe}", self.current_template)
+        except Exception:
+            pass
+
+    def _has_native_config(self) -> bool:
+        return bool(self._native_config_actions())
+
+    def _native_config_actions(self) -> list[tuple[str, object]]:
+        rw = self.robot_widget
+        if rw is None:
+            return []
+
+        actions = []
+
+        def add(label, fn):
+            if callable(fn):
+                actions.append((label, lambda _=False, f=fn: self._run_native_config(f)))
+
+        if self.classe == "PL":
+            vm = getattr(rw, "vm", None)
+            add("Abrir Config Robo - CIMA", getattr(vm, "open_config_cima", None))
+            add("Abrir Config Robo - ABCD", getattr(vm, "open_config_abcd", None))
+            add("Abrir Config Robo - GRADES", getattr(vm, "open_config_grades", None))
+            return actions
+
+        if self.classe == "LV":
+            if hasattr(rw, "show_settings"):
+                actions.append(("Abrir Config Robo - A-B", lambda _=False: self._run_native_config(lambda: rw.show_settings(initial_tab=1))))
+                actions.append(("Abrir Config Robo - Visao Corte", lambda _=False: self._run_native_config(lambda: rw.show_settings(initial_tab=2))))
+            return actions
+
+        if self.classe == "FV":
+            add("Abrir Config Robo - Fundo", getattr(rw, "open_config", None))
+            return actions
+
+        if self.classe == "LJ":
+            laje_tab = getattr(rw, "laje_tab", None)
+            add("Abrir Config Robo - Laje", getattr(laje_tab, "abrir_configuracoes", None))
+            return actions
+
+        if hasattr(rw, "open_config"):
+            add("Abrir Config Nativa do Robo", getattr(rw, "open_config", None))
+        return actions
+
+    def _run_native_config(self, callback):
+        try:
+            callback()
+        except TypeError:
+            try:
+                callback(False)
+            except Exception as exc:
+                QMessageBox.warning(self, "Configuracao Visual", f"Nao foi possivel abrir config nativa: {exc}")
+        except Exception as exc:
+            QMessageBox.warning(self, "Configuracao Visual", f"Nao foi possivel abrir config nativa: {exc}")
+
+    def _open_native_config(self):
+        actions = self._native_config_actions()
+        if actions:
+            actions[0][1]()
+            return
+        if self.robot_widget is None:
+            return
+        try:
+            if hasattr(self.robot_widget, "open_config"):
+                self.robot_widget.open_config()
+                return
+            for btn in self.robot_widget.findChildren(QPushButton):
+                if "config" in (btn.text() or "").lower():
+                    btn.click()
+                    return
+        except Exception as exc:
+            QMessageBox.warning(self, "Configuracao Visual", f"Nao foi possivel abrir config nativa: {exc}")
+
+    def _add_dict_table_tab(self, title: str, data: dict):
+        table = QTableWidget(0, 3)
+        table.setHorizontalHeaderLabels(["Grupo", "Parametro", "Valor"])
+        table.horizontalHeader().setSectionResizeMode(0, QHeaderView.ResizeToContents)
+        table.horizontalHeader().setSectionResizeMode(1, QHeaderView.ResizeToContents)
+        table.horizontalHeader().setSectionResizeMode(2, QHeaderView.Stretch)
+        table.verticalHeader().setVisible(False)
+        table.setEditTriggers(QTableWidget.NoEditTriggers)
+
+        def add_row(group, key, value):
+            r = table.rowCount()
+            table.insertRow(r)
+            values = (
+                str(group),
+                str(key),
+                json.dumps(value, ensure_ascii=False) if isinstance(value, (dict, list, tuple)) else str(value),
+            )
+            for c, text in enumerate(values):
+                item = QTableWidgetItem(text)
+                item.setFlags(item.flags() & ~Qt.ItemIsEditable)
+                table.setItem(r, c, item)
+
+        def walk(group, obj):
+            if isinstance(obj, dict):
+                for key, value in obj.items():
+                    if isinstance(value, dict):
+                        walk(str(key), value)
+                    else:
+                        add_row(group, str(key), value)
+            else:
+                add_row(title, "valor", obj)
+
+        walk(title, data or {})
+        self.tabs.addTab(table, title)
+        return table
+
+    def _add_current_template_tab(self):
+        self._add_dict_table_tab("Template Atual", self.current_template)
+
+    def _add_native_config_tab(self):
+        tab = QWidget()
+        lay = QVBoxLayout(tab)
+        lay.setContentsMargins(14, 14, 14, 14)
+        lay.setSpacing(8)
+        lbl = QLabel("Abrir configuracoes originais do robo integrado.")
+        lbl.setStyleSheet(f"color:{Colors.TEXT_SECONDARY}; font-size:12px;")
+        lay.addWidget(lbl)
+        actions = self._native_config_actions()
+        if actions:
+            for label, callback in actions:
+                btn = QPushButton(label)
+                btn.setFixedHeight(30)
+                btn.clicked.connect(callback)
+                lay.addWidget(btn)
+        else:
+            empty = QLabel("Nenhuma configuracao nativa encontrada para esta classe.")
+            empty.setStyleSheet(f"color:{Colors.TEXT_DIM};")
+            lay.addWidget(empty)
+        lay.addStretch()
+        self.tabs.addTab(tab, "Configs Nativas")
+
+    def _load_robot_templates(self) -> dict:
+        templates = {}
+        cm = self._robot_config_manager()
+        if cm is not None and hasattr(cm, "load_templates"):
+            try:
+                loaded = cm.load_templates()
+                if isinstance(loaded, dict):
+                    templates.update(loaded)
+            except Exception:
+                pass
+        root = self._ROBOT_ROOTS.get(self.classe)
+        if root and root.exists():
+            for path in list(root.rglob("templates*.json"))[:20]:
+                try:
+                    templates[path.name] = json.loads(path.read_text(encoding="utf-8", errors="replace"))
+                except Exception:
+                    templates[path.name] = str(path)
+        return templates
+
+    def _add_robot_templates_tab(self):
+        templates = self._load_robot_templates()
+        templates.setdefault(f"DXF_ATUAL_{self.classe}", self.current_template)
+        self._add_dict_table_tab("Templates Robo", templates)
+
+    def _load_robot_config(self) -> dict:
+        cfg = {}
+        cm = self._robot_config_manager()
+        if cm is not None and isinstance(getattr(cm, "config", None), dict):
+            cfg["config_manager"] = cm.config
+        root = self._ROBOT_ROOTS.get(self.classe)
+        if root and root.exists():
+            files = []
+            for pattern in ("config*.json", "*config*.json", "settings*.json"):
+                files.extend(root.rglob(pattern))
+            for path in sorted(set(files))[:35]:
+                try:
+                    cfg[path.name] = json.loads(path.read_text(encoding="utf-8", errors="replace"))
+                except Exception:
+                    cfg[path.name] = str(path)
+        return cfg
+
+    def _add_robot_config_tab(self):
+        self._add_dict_table_tab("Configs Robo", self._load_robot_config())
+
+    def _add_extra_params_tab(self):
+        robot_cfg_text = json.dumps(self._load_robot_config(), ensure_ascii=False).lower()
+        extras = {}
+        for key, value in self.current_template.get("constantes", {}).items():
+            if str(key).lower() not in robot_cfg_text:
+                extras[key] = value
+        for lname, color in self.current_template.get("layers", {}).items():
+            if str(lname).lower() not in robot_cfg_text:
+                extras[f"LAYER::{lname}"] = color
+        self._add_dict_table_tab("Parametros Extras Motor DXF", extras)
+
+    def _add_source_tab(self):
+        text = QTextEdit()
+        text.setReadOnly(True)
+        payload = {
+            "classe": self.classe,
+            "script": str(self.script_path),
+            "template_atual": self.current_template,
+            "templates_robo": self._load_robot_templates(),
+            "configs_robo": self._load_robot_config(),
+        }
+        text.setPlainText(json.dumps(payload, indent=2, ensure_ascii=False, default=str))
+        self.tabs.addTab(text, "JSON Completo")
 
 
 class NavSidebar(QFrame):
@@ -3418,8 +3963,10 @@ class NavSidebar(QFrame):
     gerar_n2_requested  = Signal(str, str)
     gerar_n3_requested  = Signal(str, str)
     gerar_n4_requested  = Signal(str, str)
+    gerar_n5_requested  = Signal(str, list)
     analise_requested   = Signal()
     fase4_requested     = Signal()
+    classe_changed      = Signal(str)        # emitido ao trocar aba de classe
 
     _CLASSES = [("PL", "Pilares"), ("LV", "L.Viga"), ("FV", "F.Viga"), ("LJ", "Lajes")]
     _CLS_COLORS = {
@@ -3445,6 +3992,7 @@ class NavSidebar(QFrame):
         self._current_pav: str = ""       # pav key do discovery.json (ex: "13PAV")
         self._selected_classe = ""
         self._selected_item   = ""
+        self._selected_source  = "estrutural"
         self._selected_recorte_path = ""  # recorte_path do item ER selecionado (Qt.UserRole+1)
         self._tab_btns: dict  = {}
         self._lj_filter: "set[str] | None" = None  # stems LJ válidos do DXF atual
@@ -3497,7 +4045,8 @@ class NavSidebar(QFrame):
 
         flow_row.addWidget(self._btn_flow_estru)
         flow_row.addWidget(self._btn_flow_rev)
-        lay.addLayout(flow_row)
+        self._btn_flow_estru.setVisible(False)
+        self._btn_flow_rev.setVisible(False)
 
         # ── Mini-tabs PL / LV / FV / LJ ──────────────────────────────
         tab_row = QHBoxLayout()
@@ -3514,7 +4063,40 @@ class NavSidebar(QFrame):
         lay.addLayout(tab_row)
 
         # ── Lista de itens (scrollável) ──────────────────────────────
+        self.tbl_items = QTableWidget(0, 2)
+        self.tbl_items.setHorizontalHeaderLabels(["N1/N3 Estrutural", "N2/N4 Eng. Reversa"])
+        self.tbl_items.verticalHeader().setVisible(False)
+        self.tbl_items.setShowGrid(False)
+        self.tbl_items.setAlternatingRowColors(True)
+        self.tbl_items.setSelectionBehavior(QTableWidget.SelectItems)
+        self.tbl_items.setSelectionMode(QTableWidget.SingleSelection)
+        self.tbl_items.setEditTriggers(QTableWidget.NoEditTriggers)
+        self.tbl_items.horizontalHeader().setSectionResizeMode(0, QHeaderView.Stretch)
+        self.tbl_items.horizontalHeader().setSectionResizeMode(1, QHeaderView.Stretch)
+        self.tbl_items.setStyleSheet(f"""
+            QTableWidget {{
+                background: {Colors.BG_DEEP}; color: {Colors.TEXT_PRIMARY};
+                border: 1px solid {Colors.BORDER_DEFAULT}; font-size: 11px;
+                alternate-background-color: {Colors.BG_PANEL};
+            }}
+            QTableWidget::item {{ padding: 2px 4px; border-bottom: 1px solid {Colors.BORDER_DEFAULT}; }}
+            QTableWidget::item:selected {{
+                background: {Colors.ACCENT_BLUE}; color: {Colors.TEXT_BRIGHT};
+            }}
+            QTableWidget::item:hover {{ background: {Colors.BG_CARD}; }}
+            QHeaderView::section {{
+                background: {Colors.BG_CARD}; color: {Colors.TEXT_SECONDARY};
+                border: none; border-right: 1px solid {Colors.BORDER_DEFAULT};
+                padding: 3px 4px; font-size: 9px; font-weight: bold;
+            }}
+        """)
+        self.tbl_items.currentItemChanged.connect(
+            lambda cur, _prev: self._on_item_clicked(cur) if cur is not None else None
+        )
+        lay.addWidget(self.tbl_items, 1)
+
         self.lst = QListWidget()
+        self.lst.setVisible(False)
         self.lst.setStyleSheet(f"""
             QListWidget {{
                 background: {Colors.BG_DEEP}; color: {Colors.TEXT_PRIMARY};
@@ -3530,7 +4112,6 @@ class NavSidebar(QFrame):
         self.lst.currentItemChanged.connect(
             lambda cur, _prev: self._on_item_clicked(cur) if cur is not None else None
         )
-        lay.addWidget(self.lst, 1)
 
         # ── Botões compactos ─────────────────────────────────────────
         def _mbtn(text, bg, hover):
@@ -3552,28 +4133,38 @@ class NavSidebar(QFrame):
         n_row1.setSpacing(3)
         self.btn_gerar_n1 = _mbtn("▶ N1", "#1b3a6b", "#2a5ab0")
         self.btn_gerar_n1.setEnabled(False)
+        self.btn_gerar_n1.setVisible(False)   # dinâmico — funcionalidade mantida
         self.btn_gerar_n1.setToolTip("Gerar N1+N3: estrutural + robot SA (lista 1)")
         self.btn_gerar_n1.clicked.connect(self._on_gerar_n1_clicked)
         n_row1.addWidget(self.btn_gerar_n1)
 
         self.btn_gerar_n2 = _mbtn("▶ N2", "#1a4a2a", "#2a7a4a")
         self.btn_gerar_n2.setEnabled(False)
+        self.btn_gerar_n2.setVisible(False)   # dinâmico — funcionalidade mantida
         self.btn_gerar_n2.setToolTip("Gerar N2+N4: recorte ER + robot ER (lista 2)")
         self.btn_gerar_n2.clicked.connect(self._on_gerar_n2_clicked)
         n_row1.addWidget(self.btn_gerar_n2)
 
         self.btn_gerar_n3 = _mbtn("▶ N3", "#4a2a1a", "#8a4a2a")
         self.btn_gerar_n3.setEnabled(False)
+        self.btn_gerar_n3.setVisible(False)   # dinâmico — funcionalidade mantida
         self.btn_gerar_n3.setToolTip("Gerar N3: robot DXF via ficha SA")
         self.btn_gerar_n3.clicked.connect(self._on_gerar_n3_clicked)
         n_row1.addWidget(self.btn_gerar_n3)
 
         self.btn_gerar_n4 = _mbtn("▶ N4", "#2d1a47", "#5a2a8a")
         self.btn_gerar_n4.setEnabled(False)
+        self.btn_gerar_n4.setVisible(False)   # dinâmico — funcionalidade mantida
         self.btn_gerar_n4.setToolTip("Gerar N4: robot DXF via ficha ER (lista 2)")
         self.btn_gerar_n4.clicked.connect(self._on_gerar_n4_clicked)
         n_row1.addWidget(self.btn_gerar_n4)
         lay.addLayout(n_row1)
+
+        self.btn_gerar_n5 = _mbtn("▶ N5 Montagem", "#263238", "#006978")
+        self.btn_gerar_n5.setToolTip("N5: montar 1 DXF consolidado dos N3 da classe atual (LJ/FV)")
+        self.btn_gerar_n5.clicked.connect(self._on_gerar_n5_clicked)
+        self.btn_gerar_n5.setVisible(False)   # N5 auto-dispara ao selecionar a aba N5
+        lay.addWidget(self.btn_gerar_n5)
 
         crop_row = QHBoxLayout()
         crop_row.setSpacing(3)
@@ -3586,6 +4177,7 @@ class NavSidebar(QFrame):
         self.btn_process_all = _mbtn("⚡ Gerar todos N1,2,3", "#4a2a7a", "#6a3a9a")
         self.btn_process_all.setToolTip("Processa N1 → N2 → N3 para o item selecionado")
         self.btn_process_all.clicked.connect(self._on_process_all_clicked)
+        self.btn_process_all.setVisible(False)   # funcionalidade mantida, botão oculto
         crop_row.addWidget(self.btn_process_all)
         lay.addLayout(crop_row)
 
@@ -3616,6 +4208,7 @@ class NavSidebar(QFrame):
     # ── Classe selecionada ───────────────────────────────────────────
     def _select_class(self, cls: str):
         self._current_classe = cls
+        self.btn_gerar_n5.setEnabled(cls in ("LJ", "FV"))
         color = self._CLS_COLORS.get(cls, Colors.ACCENT_BLUE)
         for c, btn in self._tab_btns.items():
             active = (c == cls)
@@ -3633,9 +4226,13 @@ class NavSidebar(QFrame):
                     QPushButton:hover {{ background:{Colors.BG_PANEL}; }}
                 """)
         self._populate_list(cls)
+        self.classe_changed.emit(cls)   # emit APÓS populate — garante ids disponíveis
 
     # ── Popula lista a partir do JSON dir da obra ─────────────────────
     def _populate_list(self, cls: str):
+        self._populate_aligned_items(cls)
+        return
+
         self.lst.clear()
 
         # ── Fluxo Eng. Reversa N2/N4 ─────────────────────────────────
@@ -3683,6 +4280,9 @@ class NavSidebar(QFrame):
             ph.setFlags(ph.flags() & ~Qt.ItemIsSelectable)
             self.lst.addItem(ph)
             return
+
+        if cls == "LJ" and hasattr(self, "_refresh_lj_n1_latest"):
+            self._refresh_lj_n1_latest()
 
         json_dir  = self._current_obra_dir / self._JSON_DIRS[cls]
         prev_dir  = self._current_obra_dir / self._PREVIEW_DIRS[cls]
@@ -3736,6 +4336,220 @@ class NavSidebar(QFrame):
             it.setData(Qt.UserRole, (cls, iid))
             it.setForeground(color_ok if n3_ok else color_dim)
             self.lst.addItem(it)
+
+    @staticmethod
+    def _item_sort_key(value: str):
+        import re as _re
+        text = str(value or "")
+        parts = _re.split(r"(\d+)", text.upper())
+        out = []
+        for part in parts:
+            out.append(int(part) if part.isdigit() else part)
+        return out
+
+    @staticmethod
+    def _match_aliases(cls: str, item_id: str) -> list[str]:
+        """Aliases usados para alinhar N1/N3 com N2/N4 sem exigir nome literal."""
+        import re as _re
+        raw = str(item_id or "").upper().strip()
+        raw = _re.sub(r"\s+", "", raw)
+        raw = _re.sub(r"_FUNDO$", "", raw)
+        aliases: list[str] = []
+
+        def add(value: str):
+            value = _re.sub(r"\s+", "", str(value or "").upper())
+            value = _re.sub(r"_FUNDO$", "", value)
+            value = _re.sub(r"(?:\.C)+$", ".C", value)
+            value = _re.sub(r"^([VP]\d+)V$", r"\1", value)
+            if value and value not in aliases:
+                aliases.append(value)
+
+        add(raw)
+        add(raw.replace(".C", ""))
+        if cls == "LV":
+            add(_re.sub(r"_[AB]$", "", raw))
+        if cls == "FV":
+            add(_re.sub(r"(?:\.C)+$", "", raw))
+            add(raw if raw.endswith(".C") else f"{raw}.C")
+        for token in _re.findall(r"[VP]\d+[A-Z]?(?:\.C)?", raw):
+            add(token)
+            add(token.replace(".C", ""))
+            if cls == "FV" and not token.endswith(".C"):
+                add(f"{token}.C")
+        return aliases or [raw]
+
+    def _structural_item_rows(self, cls: str) -> dict[str, dict]:
+        if self._current_obra_dir is None:
+            return {}
+        if cls == "LJ":
+            try:
+                parent = self.parent()
+                while parent is not None and not hasattr(parent, "tri_level"):
+                    parent = parent.parent()
+                if parent is not None and hasattr(parent, "tri_level"):
+                    parent.tri_level._refresh_lj_n1_from_latest_sa()
+            except Exception:
+                pass
+
+        json_dir = self._current_obra_dir / self._JSON_DIRS[cls]
+        prev_dir = self._current_obra_dir / self._PREVIEW_DIRS[cls]
+        prefix = self._PREVIEW_PFX[cls]
+
+        item_ids: list[str] = []
+        db_names = self._db_item_names_for_pav(cls)
+        if cls in ("FV", "LJ") and db_names:
+            item_ids = db_names
+        if json_dir.exists():
+            all_stems = sorted(
+                f.stem for f in json_dir.glob("*.json")
+                if not f.stem.startswith("_") and not f.stem.startswith("vigas")
+                   and not f.stem.startswith("fichas")
+            )
+            if db_names is not None and cls not in ("LJ", "FV"):
+                db_set = set(db_names)
+                if cls == "PL":
+                    item_ids = [s for s in all_stems if s in db_set]
+                elif cls == "LV":
+                    item_ids = [s for s in all_stems if any(s == n or s.startswith(n + "_") for n in db_set)]
+            elif cls == "LJ" and not item_ids and self._lj_filter is not None:
+                item_ids = [s for s in all_stems if s in self._lj_filter]
+            elif not item_ids:
+                item_ids = all_stems
+        if not item_ids and cls == "LV":
+            item_ids = VIGAS_LV_LIST
+
+        rows: dict[str, dict] = {}
+        for iid in item_ids:
+            n3_ok = (prev_dir / f"{prefix}{iid}.dxf").exists()
+            rows[str(iid)] = {
+                "id": str(iid),
+                "text": f"{iid}{' [N3]' if n3_ok else ''}",
+                "source": "estrutural",
+                "recorte_path": "",
+                "ok": n3_ok,
+            }
+        return rows
+
+    def _reverse_item_rows(self, cls: str) -> dict[str, dict]:
+        obra_name = self._current_obra_dir.name if self._current_obra_dir is not None else ""
+        rows = self._load_reverse_items(obra_name, cls, self._current_pav)
+        out: dict[str, dict] = {}
+        for elem_id, conf, status, recorte_path in rows:
+            badge = {
+                "aprovado": " [aprovado]",
+                "approved": " [aprovado]",
+                "auto_aprovado": " [auto]",
+                "manual_sel": " [manual]",
+                "manual": " [manual]",
+                "motor": " [N2]",
+            }.get(status, " [N2]")
+            out[str(elem_id)] = {
+                "id": str(elem_id),
+                "text": f"{elem_id}{badge}",
+                "source": "reverso",
+                "recorte_path": recorte_path or "",
+                "status": status or "",
+                "conf": float(conf or 0.0),
+            }
+        return out
+
+    def _row_has_attention(self, cls: str, row_data: dict | None) -> bool:
+        if not row_data:
+            return False
+        try:
+            obra = self._current_obra_dir.name if self._current_obra_dir is not None else ""
+            pav = self._current_pav or ""
+            scope = "N4" if row_data.get("source") == "reverso" else "N3"
+            return has_attention(obra, pav, cls, row_data.get("id", ""), scope)
+        except Exception:
+            return False
+
+    def _make_item_cell(self, cls: str, row_data: dict | None) -> QTableWidgetItem:
+        if not row_data:
+            item = QTableWidgetItem("")
+            item.setFlags(item.flags() & ~Qt.ItemIsSelectable)
+            item.setForeground(QColor(Colors.TEXT_DIM))
+            return item
+        text = row_data.get("text") or row_data.get("id") or ""
+        if self._row_has_attention(cls, row_data) and "⚠" not in text:
+            text = f"{text} ⚠"
+        item = QTableWidgetItem(text)
+        item.setData(Qt.UserRole, (cls, row_data.get("id", ""), row_data.get("source", "estrutural")))
+        item.setData(Qt.UserRole + 1, row_data.get("recorte_path", ""))
+        if row_data.get("source") == "reverso":
+            status = row_data.get("status", "")
+            if status in ("aprovado", "approved"):
+                item.setForeground(QColor(self._CLS_COLORS.get(cls, Colors.ACCENT_SUCCESS)))
+            elif status == "auto_aprovado":
+                item.setForeground(QColor(Colors.ACCENT_WARNING))
+            else:
+                item.setForeground(QColor(Colors.TEXT_PRIMARY))
+            item.setToolTip(f"N2/N4: {row_data.get('id')}\nStatus: {status}\nRecorte: {row_data.get('recorte_path', '')}")
+        else:
+            item.setForeground(QColor(self._CLS_COLORS.get(cls, Colors.ACCENT_SUCCESS)) if row_data.get("ok") else QColor(Colors.TEXT_PRIMARY))
+            item.setToolTip(f"N1/N3: {row_data.get('id')}")
+        return item
+
+    def _populate_aligned_items(self, cls: str):
+        self.tbl_items.blockSignals(True)
+        try:
+            self.tbl_items.clearSelection()
+            self.tbl_items.setCurrentCell(-1, -1)
+            self.tbl_items.setRowCount(0)
+            self.lst.clear()
+
+            structural = self._structural_item_rows(cls)
+            reverse = self._reverse_item_rows(cls)
+            reverse_by_alias: dict[str, dict] = {}
+            for rev_id, rev_data in reverse.items():
+                for alias in self._match_aliases(cls, rev_id):
+                    reverse_by_alias.setdefault(alias, rev_data)
+
+            row_pairs: list[tuple[str, dict | None, dict | None]] = []
+            used_reverse_ids: set[str] = set()
+            for struct_id in sorted(structural, key=self._item_sort_key):
+                rev_data = None
+                for alias in self._match_aliases(cls, struct_id):
+                    rev_data = reverse_by_alias.get(alias)
+                    if rev_data:
+                        break
+                if rev_data:
+                    used_reverse_ids.add(str(rev_data.get("id", "")))
+                row_pairs.append((struct_id, structural.get(struct_id), rev_data))
+
+            for rev_id in sorted(reverse, key=self._item_sort_key):
+                if rev_id not in used_reverse_ids:
+                    row_pairs.append((rev_id, None, reverse.get(rev_id)))
+
+            if not row_pairs:
+                self.tbl_items.setRowCount(1)
+                empty = QTableWidgetItem("sem itens")
+                empty.setFlags(empty.flags() & ~Qt.ItemIsSelectable)
+                empty.setForeground(QColor(Colors.TEXT_DIM))
+                blank = QTableWidgetItem("")
+                blank.setFlags(blank.flags() & ~Qt.ItemIsSelectable)
+                self.tbl_items.setItem(0, 0, empty)
+                self.tbl_items.setItem(0, 1, blank)
+                self._disable_all_btns()
+                return
+
+            self.tbl_items.setRowCount(len(row_pairs))
+            for row, (key, struct_data, rev_data) in enumerate(row_pairs):
+                self.tbl_items.setItem(row, 0, self._make_item_cell(cls, struct_data))
+                self.tbl_items.setItem(row, 1, self._make_item_cell(cls, rev_data))
+
+                legacy_source = struct_data or rev_data
+                if legacy_source:
+                    legacy = QListWidgetItem(legacy_source.get("id", key))
+                    legacy.setData(Qt.UserRole, (cls, legacy_source.get("id", key)))
+                    legacy.setData(Qt.UserRole + 1, legacy_source.get("recorte_path", ""))
+                    self.lst.addItem(legacy)
+
+            self.tbl_items.resizeRowsToContents()
+            self.btn_process_all.setEnabled(True)
+            self.btn_gerar_n5.setEnabled(cls in ("LJ", "FV"))
+        finally:
+            self.tbl_items.blockSignals(False)
 
     def _project_id_for_current_pav(self, conn):
         """Resolve o projeto atual por obra+pavimento, aceitando chave curta ou nome completo."""
@@ -3820,16 +4634,27 @@ class NavSidebar(QFrame):
                 names = sorted(prefixes)
             elif cls == 'LJ':
                 rows = conn.execute(
-                    "SELECT name, id_item FROM slabs WHERE project_id=? ORDER BY "
-                    "CAST(COALESCE(NULLIF(id_item, ''), '999999') AS INTEGER), name",
+                    "SELECT DISTINCT laje_nome FROM slab_elements "
+                    "WHERE project_id=? AND classe='LAJ' ORDER BY "
+                    "CAST(REPLACE(UPPER(laje_nome), 'L', '') AS INTEGER), laje_nome",
                     (project_id,)
                 ).fetchall()
                 names = []
                 seen = set()
-                for name, _id_item in rows:
+                for (name,) in rows:
                     if name and name not in seen:
                         seen.add(name)
                         names.append(name)
+                if not names:
+                    rows = conn.execute(
+                        "SELECT name, id_item FROM slabs WHERE project_id=? ORDER BY "
+                        "CAST(COALESCE(NULLIF(id_item, ''), '999999') AS INTEGER), name",
+                        (project_id,)
+                    ).fetchall()
+                    for name, _id_item in rows:
+                        if name and name not in seen:
+                            seen.add(name)
+                            names.append(name)
             else:
                 names = None
             conn.close()
@@ -4034,6 +4859,16 @@ class NavSidebar(QFrame):
             return []
 
     # ── Set obra (chamado quando troca obra no combo) ─────────────────
+    def _refresh_lj_n1_latest(self):
+        try:
+            parent = self.parent()
+            while parent is not None and not hasattr(parent, "tri_level"):
+                parent = parent.parent()
+            if parent is not None and hasattr(parent, "tri_level"):
+                parent.tri_level._refresh_lj_n1_from_latest_sa()
+        except Exception:
+            pass
+
     def set_obra(self, obra_dir_str: str):
         from pathlib import Path as _P
         self._current_obra_dir = _P(obra_dir_str) if obra_dir_str else None
@@ -4058,14 +4893,21 @@ class NavSidebar(QFrame):
         data = item.data(Qt.UserRole)
         if not data:
             return
-        classe, item_id = data
+        if len(data) >= 3:
+            classe, item_id, source = data
+        else:
+            classe, item_id = data
+            source = self._current_flow
         self._selected_classe = classe
         self._selected_item   = item_id
+        self._selected_source = source
+        self._current_flow = source
         # Captura o recorte_path já salvo no item (estado atual do DB, sem re-consulta)
         self._selected_recorte_path = item.data(Qt.UserRole + 1) or ""
         for btn in (self.btn_process, self.btn_gerar_n1,
                     self.btn_gerar_n2, self.btn_gerar_n3, self.btn_gerar_n4):
             btn.setEnabled(True)
+        self.btn_gerar_n5.setEnabled(self._current_classe in ("LJ", "FV"))
         self.item_selected.emit(classe, item_id)
 
     def _on_process_clicked(self):
@@ -4101,10 +4943,30 @@ class NavSidebar(QFrame):
             self._disable_all_btns()
             self.gerar_n4_requested.emit(self._selected_classe, self._selected_item)
 
+    def _on_gerar_n5_clicked(self):
+        cls = self._current_classe
+        if cls not in ("LJ", "FV"):
+            self.set_status("N5 suporta apenas Lajes e Fundos de Viga neste ciclo", Colors.TEXT_DIM)
+            return
+        self._disable_all_btns()
+        self.gerar_n5_requested.emit(cls, self.current_item_ids())
+
+    def current_item_ids(self) -> list:
+        ids = []
+        for row in range(self.tbl_items.rowCount()):
+            item = self.tbl_items.item(row, 0)
+            data = item.data(Qt.UserRole) if item else None
+            if not data:
+                continue
+            cls, item_id = data[0], data[1]
+            if cls == self._current_classe and item_id:
+                ids.append(item_id)
+        return ids
+
     def _disable_all_btns(self):
         for btn in (self.btn_process, self.btn_gerar_n1,
                     self.btn_gerar_n2, self.btn_gerar_n3, self.btn_gerar_n4,
-                    self.btn_process_all):
+                    self.btn_gerar_n5, self.btn_process_all):
             btn.setEnabled(False)
 
     def _enable_item_btns(self):
@@ -4112,6 +4974,7 @@ class NavSidebar(QFrame):
             for btn in (self.btn_process, self.btn_gerar_n1,
                         self.btn_gerar_n2, self.btn_gerar_n3, self.btn_gerar_n4):
                 btn.setEnabled(True)
+        self.btn_gerar_n5.setEnabled(self._current_classe in ("LJ", "FV"))
         self.btn_process_all.setEnabled(True)
 
     def set_status(self, text: str, color: str = ""):
@@ -4127,16 +4990,17 @@ class NavSidebar(QFrame):
 
     def navigate(self, delta: int):
         """Avança (+1) ou retrocede (-1) na lista de itens."""
-        count = self.lst.count()
+        count = self.tbl_items.rowCount()
         if count == 0:
             return
-        cur = self.lst.currentRow()
+        cur = self.tbl_items.currentRow()
         if cur < 0:
             new_row = 0 if delta > 0 else count - 1
         else:
             new_row = max(0, min(count - 1, cur + delta))
         if new_row != cur:
-            self.lst.setCurrentRow(new_row)
+            col = self.tbl_items.currentColumn()
+            self.tbl_items.setCurrentCell(new_row, col if col >= 0 else 0)
             # currentItemChanged dispara → _on_item_clicked → item_selected signal
 
 
@@ -4213,6 +5077,7 @@ class TriLevelArea(QWidget):
             ("#4acf7a", "#1a4a2a"),   # N2 verde
             ("#cf8a4a", "#4a2a1a"),   # N3 laranja
             ("#a855f7", "#2d1a47"),   # N4 roxo
+            ("#00bcd4", "#263238"),   # N5 ciano
         ]
         for i, (nivel_id, titulo, bg, accent, desc, mode) in enumerate(NIVEL_DEFS):
             col = LevelColumn(nivel_id, titulo, bg, accent, desc, mode)
@@ -4376,6 +5241,34 @@ class TriLevelArea(QWidget):
         try:
             conn = _sqlite3.connect(r"D:/Agente-cad-PYSIDE/project_data.vision")
             conn.row_factory = _sqlite3.Row
+            rows_el = conn.execute(
+                "SELECT laje_nome, campos_json, is_validated, updated_at FROM slab_elements "
+                "WHERE project_id=? AND classe='LAJ' "
+                "ORDER BY updated_at DESC",
+                (project_id,)
+            ).fetchall()
+            lajes = {}
+            for row in rows_el:
+                try:
+                    data = _json.loads(row["campos_json"] or "{}")
+                except Exception:
+                    data = {}
+                if not isinstance(data, dict):
+                    continue
+                name = data.get("nome") or row["laje_nome"]
+                if not name:
+                    continue
+                data.setdefault("nome", name)
+                data.setdefault("name", name)
+                data["_ce_n1_source"] = "slab_elements"
+                data["_ce_n1_updated_at"] = row["updated_at"]
+                if row["is_validated"] is not None:
+                    data.setdefault("is_validated", bool(row["is_validated"]))
+                lajes[str(name)] = data
+            if lajes:
+                conn.close()
+                return lajes
+
             rows = conn.execute(
                 "SELECT * FROM slabs WHERE project_id=? ORDER BY "
                 "CAST(COALESCE(NULLIF(id_item, ''), '999999') AS INTEGER), name",
@@ -4407,8 +5300,19 @@ class TriLevelArea(QWidget):
                 s["area_cm2"] = s.get("area")
             if "coordenadas" not in s and s.get("points"):
                 s["coordenadas"] = s["points"]
+            s["_ce_n1_source"] = "slabs"
             lajes[name] = s
         return lajes
+
+    def _refresh_lj_n1_from_latest_sa(self) -> None:
+        """Recarrega LAJ N1 da fonte persistida mais recente do Structural Analyzer."""
+        if not self._current_obra:
+            return
+        db_lajes = self._load_n1_lajes_from_db(self._current_obra)
+        if db_lajes:
+            if not isinstance(self._lajes_fase3, dict):
+                self._lajes_fase3 = {}
+            self._lajes_fase3.update(db_lajes)
 
     @staticmethod
     def _points_bbox(points: list, pad: float = 35.0):
@@ -4648,6 +5552,7 @@ class TriLevelArea(QWidget):
     def set_obra_pav(self, obra: str, pav: str):
         """Recarrega dados quando obra ou pavimento muda no Fase8Panel."""
         if obra == self._current_obra and pav == self._current_pav:
+            self._refresh_lj_n1_from_latest_sa()
             return
         self._current_obra = obra
         self._current_pav  = pav
@@ -5014,7 +5919,7 @@ class TriLevelArea(QWidget):
 
     # ── Pipeline helpers ─────────────────────────────────────────────
 
-    _NIVEL_IDX = {'N1': 0, 'N2': 1, 'N3': 2, 'N4': 3}
+    _NIVEL_IDX = {'N1': 0, 'N2': 1, 'N3': 2, 'N4': 3, 'N5': 4}
 
     def set_pipeline_step(self, nivel: str, step_idx: int, status: str, msg: str = ''):
         """Atualiza um step do pipeline visual de uma coluna específica."""
@@ -5158,6 +6063,7 @@ class TriLevelArea(QWidget):
             ]
 
         elif classe == 'LJ':
+            self._refresh_lj_n1_from_latest_sa()
             lj = self._lajes_fase3.get(item_id, {})
             pont = self._lajes_pontaletes.get(item_id, {})
             # Fallback Fase-4: schema Fase-3 diferente (comprimento_cm ≠ comprimento)
@@ -5684,6 +6590,7 @@ class ComparisonEngineModule(QWidget):
         self.nav_sidebar.gerar_n2_requested.connect(self._on_gerar_n2)
         self.nav_sidebar.gerar_n3_requested.connect(self._on_gerar_n3)
         self.nav_sidebar.gerar_n4_requested.connect(self._on_gerar_n4)
+        self.nav_sidebar.gerar_n5_requested.connect(self._on_gerar_n5)
         self.nav_sidebar.analise_requested.connect(self._on_iniciar_analise)
         self.nav_sidebar.fase4_requested.connect(self._on_fase4_sync)
         self.nav_sidebar.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Expanding)
@@ -5724,6 +6631,57 @@ class ComparisonEngineModule(QWidget):
         # Disparar carga inicial após construção (500ms delay para event loop estabilizar)
         QTimer.singleShot(500, self._on_obra_pav_changed)
 
+        def _hdr_btn(text, accent, checkable=False):
+            b = QPushButton(text)
+            b.setFixedHeight(18)
+            b.setCheckable(checkable)
+            b.setStyleSheet(
+                f"QPushButton {{ background: rgba(0,0,0,0.3); color: {accent}; border-radius: 3px; "
+                f"padding: 1px 8px; font-size: 10px; font-weight: bold; border: 1px solid {accent}55; }}"
+                f"QPushButton:hover {{ background: {accent}33; color: #fff; }}"
+                f"QPushButton:checked {{ background: {accent}; color: #000; }}"
+            )
+            return b
+
+        # N3 header: Comparar com N1 | Abrir DXF
+        _btn_cmp_n1 = _hdr_btn("Comparar com N1", "#cf8a4a", checkable=True)
+        _btn_cmp_n1.clicked.connect(self._on_comparar_n1_toggled)
+        self._btn_comparar_n1 = _btn_cmp_n1
+        self.tri_level._columns[2]._badge_row.addWidget(_btn_cmp_n1)
+        _btn_open_n3 = _hdr_btn("Abrir DXF", "#cf8a4a")
+        _btn_open_n3.clicked.connect(lambda: self._on_abrir_dxf(2))
+        self.tri_level._columns[2]._badge_row.addWidget(_btn_open_n3)
+        _btn_cfg_n3 = _hdr_btn("Configuracao Visual", "#cf8a4a")
+        _btn_cfg_n3.clicked.connect(lambda: self._on_configuracao_visual(2))
+        self.tri_level._columns[2]._badge_row.addWidget(_btn_cfg_n3)
+
+        # N4 header: Comparar com N2 | Abrir DXF
+        _btn_cmp_n2 = _hdr_btn("Comparar com N2", "#a855f7", checkable=True)
+        _btn_cmp_n2.clicked.connect(self._on_comparar_n2_toggled)
+        self._btn_comparar_n2 = _btn_cmp_n2
+        self.tri_level._columns[3]._badge_row.addWidget(_btn_cmp_n2)
+        _btn_open_n4 = _hdr_btn("Abrir DXF", "#a855f7")
+        _btn_open_n4.clicked.connect(lambda: self._on_abrir_dxf(3))
+        self.tri_level._columns[3]._badge_row.addWidget(_btn_open_n4)
+        _btn_cfg_n4 = _hdr_btn("Configuracao Visual", "#a855f7")
+        _btn_cfg_n4.clicked.connect(lambda: self._on_configuracao_visual(3))
+        self.tri_level._columns[3]._badge_row.addWidget(_btn_cfg_n4)
+
+        # N5 header: Comparar Eng. Reversa Humana | Abrir DXF
+        _btn_cmp_n5 = _hdr_btn("Comparar Eng. Rev. Humana", "#00bcd4", checkable=True)
+        _btn_cmp_n5.clicked.connect(self._on_comparar_er_humana_toggled)
+        self._btn_comparar_n5 = _btn_cmp_n5
+        self.tri_level._columns[4]._badge_row.addWidget(_btn_cmp_n5)
+        _btn_open_n5 = _hdr_btn("Abrir DXF", "#00bcd4")
+        _btn_open_n5.clicked.connect(lambda: self._on_abrir_dxf(4))
+        self.tri_level._columns[4]._badge_row.addWidget(_btn_open_n5)
+        _btn_cfg_n5 = _hdr_btn("Configuracao Visual", "#00bcd4")
+        _btn_cfg_n5.clicked.connect(lambda: self._on_configuracao_visual(4))
+        self.tri_level._columns[4]._badge_row.addWidget(_btn_cfg_n5)
+
+        # Troca de classe → N5 auto-gera | seleção de item → N3 ou N4 auto-exibe
+        self.nav_sidebar.classe_changed.connect(self._on_classe_changed)
+
         self._process        = None
         self._pending_classe = ""
         self._pending_item   = ""
@@ -5735,6 +6693,156 @@ class ComparisonEngineModule(QWidget):
 
         # Setas do teclado navegam na lista mesmo com foco em outro widget
         QApplication.instance().installEventFilter(self)
+
+    def _on_comparar_n1_toggled(self, checked: bool):
+        """Toggle: mostra/esconde DXF N1 (estrutural) acima do viewer N3."""
+        col_n3 = self.tri_level._columns[2]
+        if checked:
+            n1_path = self.tri_level._columns[0]._last_loaded_dxf or ""
+            if n1_path and Path(n1_path).exists():
+                classe = getattr(self.nav_sidebar, "_selected_classe", "")
+                item_id = getattr(self.nav_sidebar, "_selected_item", "")
+                bbox = self.tri_level._get_n1_bbox_for(item_id, classe) if item_id else None
+                points = self.tri_level._get_lj_n1_points(item_id) if classe == "LJ" and item_id else None
+                col_n3.show_n2_above(
+                    n1_path,
+                    title=f"DXF N1 - {item_id}" if item_id else "DXF N1",
+                    bbox=bbox,
+                    highlight_points=points,
+                )
+                if hasattr(col_n3, "_n2_above_hdr"):
+                    col_n3._n2_above_hdr.setText(f"DXF N1 - {item_id}" if item_id else "DXF N1")
+            else:
+                self.nav_sidebar.set_status("N1 não carregado", Colors.TEXT_DIM)
+                self._btn_comparar_n1.setChecked(False)
+        else:
+            col_n3.hide_n2_above()
+
+    def _on_comparar_n2_toggled(self, checked: bool):
+        """Toggle: mostra/esconde DXF N2 (recorte) acima do viewer N4."""
+        col = self.tri_level._columns[3]
+        if checked:
+            recorte = getattr(self.nav_sidebar, '_selected_recorte_path', "") or ""
+            if recorte and Path(recorte).exists():
+                col.show_n2_above(recorte)
+            else:
+                self.nav_sidebar.set_status("Sem recorte N2 para este item", Colors.TEXT_DIM)
+                self._btn_comparar_n2.setChecked(False)
+        else:
+            col.hide_n2_above()
+
+    def _on_comparar_er_humana_toggled(self, checked: bool):
+        """Toggle: mostra/esconde DXF Eng. Reversa Humana (obra_triagem) acima do viewer N5."""
+        col_n5 = self.tri_level._columns[4]
+        if not checked:
+            col_n5.hide_n2_above()
+            return
+        try:
+            import sqlite3 as _sql
+            DB_PATH = Path("D:/Agente-cad-PYSIDE/project_data.vision")
+            obra = (self.fase8_panel.cmb_obra.currentData() or self.fase8_panel.cmb_obra.currentText())
+            cls  = self.nav_sidebar._current_classe  # "LV","FV","LJ","PL"
+            _CLS_ACCEPT = {
+                "LV": {"LV", "VIGAS_LATERAIS", "LATERAL"},
+                "FV": {"FV", "VIGAS_FUNDO", "FUNDO"},
+                "LJ": {"LJ", "LAJ", "LAJES"},
+                "PL": {"PL", "PIL", "PILARES"},
+            }
+            accepted = _CLS_ACCEPT.get(cls, {cls})
+            with _sql.connect(str(DB_PATH)) as con:
+                rows = con.execute(
+                    "SELECT file_name, file_path, notes FROM obra_triagem "
+                    "WHERE obra_name=? AND status='approved' "
+                    "AND (suggested_category LIKE '%Engenharia Reversa%' "
+                    "     OR suggested_category LIKE '%Projetos Finalizados%') "
+                    "ORDER BY suggested_order ASC, file_name ASC",
+                    (obra,)
+                ).fetchall()
+            import json as _json
+            match = None
+            for fname, fpath, notes_text in rows:
+                er_class = ""
+                if notes_text:
+                    try:
+                        er_class = _json.loads(notes_text).get("er_class", "")
+                    except Exception:
+                        pass
+                if not er_class:
+                    # inferência por nome
+                    fn_up = (fname or "").upper()
+                    for tag in accepted:
+                        if tag in fn_up:
+                            er_class = cls
+                            break
+                if er_class.upper() in accepted or er_class == cls:
+                    if fpath and Path(fpath).exists():
+                        match = fpath
+                        break
+            if match:
+                col_n5.show_n2_above(match)
+            else:
+                self.nav_sidebar.set_status(f"DXF Eng. Rev. Humana não encontrado para {cls}", Colors.TEXT_DIM)
+                self._btn_comparar_n5.setChecked(False)
+        except Exception as exc:
+            self.nav_sidebar.set_status(f"Erro ER Humana: {exc}", Colors.ACCENT_DANGER)
+            self._btn_comparar_n5.setChecked(False)
+
+    def _on_abrir_dxf(self, col_index: int):
+        """Abre o último DXF carregado na coluna col_index no aplicativo padrão do SO."""
+        import os as _os
+        path = self.tri_level._columns[col_index]._last_loaded_dxf or ""
+        if path and Path(path).exists():
+            try:
+                _os.startfile(path)
+            except Exception as exc:
+                self.nav_sidebar.set_status(f"Erro ao abrir: {exc}", Colors.ACCENT_DANGER)
+        else:
+            self.nav_sidebar.set_status("Nenhum DXF carregado nesta aba", Colors.TEXT_DIM)
+
+    def _robot_widget_for_classe(self, classe: str):
+        main = self.window()
+        attr = {
+            "PL": "robo_pilares",
+            "LV": "robo_viga",
+            "FV": "robo_fundo",
+            "LJ": "robo_laje",
+        }.get(str(classe or "").upper())
+        return getattr(main, attr, None) if attr else None
+
+    def _script_for_visual_config(self, classe: str, col_index: int) -> Path:
+        classe = str(classe or "").upper()
+        if col_index == 4:
+            return Path(__file__).parent.parent.parent / "core" / "n5_assembler.py"
+        return SCRIPTS_DIR / _N3_SCRIPTS.get(classe, "")
+
+    def _on_configuracao_visual(self, col_index: int):
+        """Abre painel de configuracao visual do DXF para N3/N4/N5."""
+        try:
+            classe = getattr(self.nav_sidebar, "_current_classe", "") or "FV"
+            script = self._script_for_visual_config(classe, col_index)
+            robot = self._robot_widget_for_classe(classe)
+            if not script.exists():
+                self.nav_sidebar.set_status(f"Script DXF nao encontrado: {script.name}", Colors.ACCENT_DANGER)
+                return
+            dlg = DxfVisualConfigDialog(classe, script, robot_widget=robot, parent=self)
+            dlg.exec()
+        except Exception as exc:
+            self.nav_sidebar.set_status(f"Erro Config Visual: {str(exc)[:80]}", Colors.ACCENT_DANGER)
+            print(f"[CE] _on_configuracao_visual error: {exc}")
+
+    def _on_classe_changed(self, cls: str):
+        """Ao trocar aba de classe, gera/exibe dinamicamente o N5 da classe."""
+        try:
+            self.tri_level._nivel_tabs.setCurrentIndex(4)
+            if cls not in ("LJ", "FV"):
+                col = self.tri_level._columns[4]
+                col.img_widget.cancel_load(f"N5 nao disponivel para {cls}")
+                return
+            ids = self.nav_sidebar.current_item_ids()
+            if ids:
+                self._on_gerar_n5(cls, ids)
+        except Exception:
+            pass
 
     def eventFilter(self, obj, event) -> bool:
         """Intercepta ↑/↓ globalmente para navegar na lista de itens do NavSidebar."""
@@ -5762,11 +6870,11 @@ class ComparisonEngineModule(QWidget):
             # Guard: não processar enquanto combo está sendo populado (pav vazio = populate em andamento)
             if not obra or not pav:
                 return
-            # FIX: Cancela workers N2/N3 em andamento antes de mudar pav.
+            # FIX: Cancela workers N2/N3/N4/N5 em andamento antes de mudar pav.
             # Sem isso, um DXF pesado (ex: LV STOG 6.9MB) completando após mudança de pav
             # dispara _on_loaded_file com dado stale, causando STATUS_STACK_BUFFER_OVERRUN
             # no Python 3.14 / Windows quando o resultado chega no meio da transição de estado.
-            for _ci in (1, 2):
+            for _ci in (1, 2, 3, 4):
                 try:
                     self.tri_level._columns[_ci].img_widget.cancel_load("— aguardando seleção —")
                 except Exception:
@@ -5881,17 +6989,135 @@ class ComparisonEngineModule(QWidget):
 
     # ── Handlers Gerar N1 / N2 / N3 ────────────────────────────────
 
+    def _find_n2_recorte_for_item(self, obra: str, classe: str, item_id: str) -> Path | None:
+        try:
+            import sqlite3
+            db_cls = {"PL": "PIL", "LJ": "LAJ"}.get(classe, classe)
+            conn = sqlite3.connect(r"D:/Agente-cad-PYSIDE/project_data.vision")
+            cur = conn.cursor()
+            try:
+                cur.execute(
+                    "SELECT recorte_path FROM reverse_eng_fichas "
+                    "WHERE obra_name=? AND classe=? AND elemento_id=? "
+                    "ORDER BY updated_at DESC, ROWID DESC LIMIT 1",
+                    (obra, db_cls, item_id),
+                )
+            except Exception:
+                cur.execute(
+                    "SELECT recorte_path FROM reverse_eng_fichas "
+                    "WHERE obra_name=? AND classe=? AND elemento_id=? "
+                    "ORDER BY ROWID DESC LIMIT 1",
+                    (obra, db_cls, item_id),
+                )
+            row = cur.fetchone()
+            conn.close()
+            if row and row[0] and Path(row[0]).exists():
+                return Path(row[0])
+        except Exception:
+            pass
+        try:
+            return self.tri_level._find_disk_dxf_for_er(
+                obra, {"PL": "PIL", "LJ": "LAJ"}.get(classe, classe), item_id
+            )
+        except Exception:
+            return None
+
+    def _visual_score_for_level(self, scope: str, classe: str, item_id: str) -> str:
+        obra = (self.fase8_panel.cmb_obra.currentData() or self.fase8_panel.cmb_obra.currentText())
+        if not obra:
+            return "Score visual pendente: obra nao selecionada."
+        if scope != "N4":
+            return "Score visual N3 x N4: pendente (nao implementado)."
+        try:
+            obra_dir = DADOS_OBRAS_ROOT / obra
+            recorte  = self._find_n2_recorte_for_item(obra, classe, item_id)
+            n4       = self._find_n4_dxf_strict(obra_dir, classe, item_id)
+            if not recorte or not n4 or not Path(recorte).exists() or not Path(n4).exists():
+                return "Score G2 N4 x recorte N2: DXF ausente."
+
+            arete_dir = str(SCRIPTS_DIR / "arete")
+            import sys as _sys
+            if arete_dir not in _sys.path:
+                _sys.path.insert(0, arete_dir)
+
+            if classe == "PIL":
+                from partes_pil import comparar_pil_canonico
+                resultados = comparar_pil_canonico(str(recorte), str(n4), verbose=False)
+                partes_pass = [p for p, r in resultados.items() if r.get("resultado") == "PASS"]
+                partes_fail = [p for p, r in resultados.items() if r.get("resultado") == "FAIL"]
+                n_diffs = sum(len(r.get("diffs", [])) for r in resultados.values())
+                if not partes_fail:
+                    return f"Score G2 PIL: PASS — {len(partes_pass)} partes OK, 0 diffs."
+                return (f"Score G2 PIL: FAIL — {len(partes_fail)} parte(s) FAIL "
+                        f"({', '.join(partes_fail)}); {n_diffs} diffs.")
+            else:
+                from paridade_visual import paridade_item
+                r = paridade_item(str(recorte), str(n4), verbose=False, classe=classe)
+                sc = r.get("scores", {})
+                cats = {"ent": sc.get("entidades_ok"), "geom": sc.get("geometria_ok"),
+                        "txt": sc.get("textos_ok"), "hatch": sc.get("hatches_ok")}
+                n_ok = sum(1 for v in cats.values() if v)
+                fails = [k for k, v in cats.items() if v is False]
+                pct = 100 * n_ok // max(len(cats), 1)
+                if r.get("resultado") == "PASS":
+                    return f"Score G2 {classe}: PASS — {pct}% ({n_ok}/4 cats OK)."
+                return (f"Score G2 {classe}: FAIL — {pct}% "
+                        f"(falhou: {', '.join(fails) if fails else 'ver diffs'}).")
+        except Exception as exc:
+            return f"Score G2 N4: erro ({exc})."
+
+    def _configure_level_attention(self, scope: str, classe: str, item_id: str):
+        try:
+            idx = 2 if scope == "N3" else 3 if scope == "N4" else None
+            if idx is None:
+                return
+            obra = (self.fase8_panel.cmb_obra.currentData() or self.fase8_panel.cmb_obra.currentText())
+            pav = self.fase8_panel.current_pav_key
+            meta = load_attention(obra, pav, classe, item_id, scope)
+            score_text = self._visual_score_for_level(scope, classe, item_id)
+            col = self.tri_level._columns[idx]
+            col.set_attention_context(
+                score_text,
+                meta.get("attention", False),
+                meta.get("note", ""),
+                lambda att, note, s=scope, c=classe, iid=item_id: self._save_level_attention(s, c, iid, att, note),
+            )
+        except Exception as exc:
+            print(f"[CE] _configure_level_attention error: {exc}")
+
+    def _save_level_attention(self, scope: str, classe: str, item_id: str, attention: bool, note: str):
+        try:
+            obra = (self.fase8_panel.cmb_obra.currentData() or self.fase8_panel.cmb_obra.currentText())
+            pav = self.fase8_panel.current_pav_key
+            save_attention(obra, pav, classe, item_id, scope, attention, note)
+            self.nav_sidebar.refresh_tree()
+        except Exception as exc:
+            print(f"[CE] _save_level_attention error: {exc}")
+
     def _on_item_selected(self, classe: str, item_id: str):
         """Auto-dispara N1 → N2 → N3 em sequência ao selecionar item.
+        Troca de aba automaticamente: lista esquerda → N3 | lista direita → N4.
         Incrementa _seq_id para cancelar sequências anteriores pendentes nos timers.
         """
         try:
             flow = getattr(self.nav_sidebar, '_current_flow', 'estrutural')
             _ce_log(f"ITEM_SELECTED classe={classe} id={item_id} flow={flow}")
+            if classe == "LJ":
+                self.tri_level._refresh_lj_n1_from_latest_sa()
             self._seq_id += 1
             seq = self._seq_id
+            for _ci in (1, 2, 3):
+                try:
+                    self.tri_level._columns[_ci].img_widget.cancel_load("— aguardando seleção —")
+                except Exception:
+                    pass
             self.tri_level._lbl_item.setText(f"{classe} / {item_id}")
             self.tri_level.reset_all_pipelines()
+            # Auto-switch: esquerda (estrutural) → N3 | direita (reverso) → N4
+            if flow == "reverso":
+                self.tri_level._nivel_tabs.setCurrentIndex(3)
+            else:
+                self.tri_level._nivel_tabs.setCurrentIndex(2)
             self._run_n1_n2_n3_sequence(classe, item_id, seq)
         except Exception as exc:
             print(f"[CE] _on_item_selected error: {exc}")
@@ -5919,6 +7145,8 @@ class ComparisonEngineModule(QWidget):
                 return
 
             # Fluxo ER: N1 estrutural não se aplica — propaga para N2
+            if classe == "LJ":
+                self.tri_level._refresh_lj_n1_from_latest_sa()
             _flow_n1 = getattr(self.nav_sidebar, '_current_flow', 'estrutural')
             _ce_log(f"N1 flow={_flow_n1} classe={classe} id={item_id} auto_chain={auto_chain}")
             if _flow_n1 == "reverso":
@@ -6429,6 +7657,7 @@ class ComparisonEngineModule(QWidget):
             import json as _json
             from src.core.laje_n1_to_robot_ficha import n1_laje_to_robot_ficha
 
+            self.tri_level._refresh_lj_n1_from_latest_sa()
             n1_laje = self.tri_level._get_lj_n1_data(item_id)
             if not n1_laje:
                 return None
@@ -6442,6 +7671,14 @@ class ComparisonEngineModule(QWidget):
                 "validated_fields": n1_laje.get("validated_fields", []),
                 "validated_link_classes": n1_laje.get("validated_link_classes", {}),
             }
+            try:
+                from src.core.laj_n3_learning import apply_learning_to_ficha, normalize_ficha_pose_coords
+                ficha = apply_learning_to_ficha(ficha, teacher=None, record_teacher=False)
+                ficha = normalize_ficha_pose_coords(ficha)
+            except Exception:
+                pass
+            ficha["_sa_meta"]["n3_source"] = "comparison_engine_n1"
+            ficha["_sa_meta"]["n3_teacher"] = None
             out_dir = DADOS_OBRAS_ROOT / obra / "Fase-4_Sincronizacao" / "JSON_Lajes"
             out_dir.mkdir(parents=True, exist_ok=True)
             out_path = out_dir / f"{ficha['nome']}.json"
@@ -6484,6 +7721,7 @@ class ComparisonEngineModule(QWidget):
             if classe == "LJ":
                 n3_dxf = None
             col.set_ficha(self.tri_level._ficha_n3_for(classe, item_id))
+            self._configure_level_attention("N3", classe, item_id)
             col.pipeline.set_step(1, 'ok', '')
 
             col.pipeline.set_step(2, 'running', 'Gerando DXF...')
@@ -6504,10 +7742,19 @@ class ComparisonEngineModule(QWidget):
 
     def _start_n3_generation(self, classe: str, item_id: str, col):
         """Executa o script gerador N3 correto por classe via QProcess."""
-        if self._process and self._process.state() == QProcess.Running:
-            self.nav_sidebar.set_status("Já processando N3...", Colors.ACCENT_WARNING)
-            self.nav_sidebar._enable_item_btns()
-            return
+        if self._process is not None:
+            if self._process.state() == QProcess.Running:
+                try:
+                    self._process.finished.disconnect()
+                except (RuntimeError, TypeError):
+                    pass
+                self._process.kill()
+                self._process.waitForFinished(500)
+            try:
+                self._process.deleteLater()
+            except RuntimeError:
+                pass
+            self._process = None
 
         script_name = _N3_SCRIPTS.get(classe)
         if not script_name:
@@ -6547,6 +7794,7 @@ class ComparisonEngineModule(QWidget):
                 col.load_content(str(n3_dxf), None)
                 col.pipeline.set_step(2, 'ok', '')
                 col.set_ficha(self.tri_level._ficha_n3_for(classe, item_id))
+                self._configure_level_attention("N3", classe, item_id)
                 self.nav_sidebar.set_status(f"✅ N3 gerado — {item_id}", Colors.ACCENT_SUCCESS)
             else:
                 col.pipeline.set_step(2, 'error', f'código {code}')
@@ -6573,6 +7821,7 @@ class ComparisonEngineModule(QWidget):
             return
 
         try:
+            _ce_log(f"N4 start classe={classe} id={item_id}")
             col = self.tri_level._columns[3]
             col.pipeline.reset()
 
@@ -6580,9 +7829,13 @@ class ComparisonEngineModule(QWidget):
             col.pipeline.set_step(0, 'running', 'Lendo ficha ER...')
             _cls_map = {"PL": "PIL", "LV": "LV", "FV": "FV", "LJ": "LAJ"}
             db_cls = _cls_map.get(classe, classe)
+            _ce_log(f"N4 get_er_ficha classe={classe} id={item_id}")
             er_ficha = self._get_er_ficha_dict(obra, classe, item_id)
+            _ce_log(f"N4 set_ficha classe={classe} id={item_id} er_keys={len(er_ficha or {})}")
             col.set_ficha(self._ficha_rows_from_dict(er_ficha, item_id, db_cls))
+            self._configure_level_attention("N4", classe, item_id)
             col.pipeline.set_step(0, 'ok', '')
+            _ce_log(f"N4 step0 ok")
 
             # ── PIL: 3-panel view (CIMA | ABCD | GRADES) ────────────────────────
             if classe == 'PL':
@@ -6624,6 +7877,7 @@ class ComparisonEngineModule(QWidget):
             # LV also regenerates: the selected recorte is extracted with the
             # current motor, so an older cached DXF must not win.
             force_regen = classe in ("LJ", "FV", "LV")
+            _ce_log(f"N4 dxf_check n4_dxf={n4_dxf} force_regen={force_regen}")
             if n4_dxf and n4_dxf.exists() and not force_regen:
                 if classe == 'LV':
                     # 2-panel view: Visão Corte | Lateral A-B
@@ -6647,13 +7901,80 @@ class ComparisonEngineModule(QWidget):
             else:
                 # Gera DXF via temp JSON (Option B)
                 col.pipeline.set_step(2, 'running', 'Gerando via robô...')
+                _ce_log(f"N4 generate classe={classe} id={item_id} via={'lv_gen' if classe=='LV' else 'robot'}")
                 if classe == 'LV':
                     self._start_n4_lv_generation(item_id, er_ficha, obra_dir, col)
                 else:
                     self._start_n4_generation(classe, item_id, er_ficha, obra_dir, script, col)
+                _ce_log(f"N4 generate launched")
 
         except Exception as exc:
             print(f"[CE] _on_gerar_n4 error: {exc}")
+            try:
+                self.nav_sidebar._enable_item_btns()
+            except Exception:
+                pass
+
+    def _on_gerar_n5(self, classe: str, item_ids: list):
+        """N5: monta 1 DXF consolidado da classe a partir dos previews N3."""
+        try:
+            obra = (self.fase8_panel.cmb_obra.currentData() or self.fase8_panel.cmb_obra.currentText())
+            pav = self.fase8_panel.current_pav_key
+            if not obra:
+                self.nav_sidebar._enable_item_btns()
+                return
+
+            col = self.tri_level._columns[4]
+            col.pipeline.reset()
+            col.pipeline.set_step(0, 'running', f'{classe} ({len(item_ids)})')
+            if classe not in ("LJ", "FV"):
+                col.pipeline.set_step(0, 'error', 'classe sem N5')
+                self.nav_sidebar.set_status("N5 suporta apenas LJ e FV neste ciclo", Colors.TEXT_DIM)
+                self.nav_sidebar._enable_item_btns()
+                return
+
+            obra_dir = DADOS_OBRAS_ROOT / obra
+            from src.core.n5_assembler import assemble_n5
+
+            col.pipeline.set_step(0, 'ok', f'{len(item_ids)} itens')
+            col.pipeline.set_step(1, 'running', 'Consolidando...')
+            result = assemble_n5(obra_dir, classe, item_ids=item_ids, pavimento=pav)
+            col.pipeline.set_step(1, 'ok', f'{result.ok_count}/{len(result.items)} ok')
+
+            col.pipeline.set_step(2, 'running', 'Carregando DXF...')
+            rows = [
+                ("Classe", result.classe),
+                ("Obra", result.obra),
+                ("Pavimento", result.pavimento or "GERAL"),
+                ("DXF N5", str(result.output_path)),
+                ("Manifest", str(result.manifest_path)),
+                ("Itens OK", str(result.ok_count)),
+                ("Itens ausentes/erro", str(result.missing_count)),
+                ("Regra", "LJ: coordenadas nativas; FV: grade de folhas ordenada"),
+            ]
+            for n5_item in result.items[:80]:
+                status = n5_item.status.upper()
+                msg = n5_item.message or (Path(n5_item.source).name if n5_item.source else "")
+                rows.append((f"{n5_item.item_id} [{status}]", msg))
+            if len(result.items) > 80:
+                rows.append(("Itens omitidos", str(len(result.items) - 80)))
+
+            col.set_ficha(rows)
+            col.load_content(str(result.output_path), None)
+            col.pipeline.set_step(2, 'ok', result.output_path.name)
+            self.tri_level._nivel_tabs.setCurrentIndex(4)
+            self.nav_sidebar.set_status(
+                f"✅ N5 {classe}: {result.ok_count}/{len(result.items)} itens",
+                Colors.ACCENT_SUCCESS if result.missing_count == 0 else Colors.ACCENT_WARNING,
+            )
+        except Exception as exc:
+            try:
+                self.tri_level._columns[4].pipeline.set_step(2, 'error', str(exc)[:30])
+            except Exception:
+                pass
+            self.nav_sidebar.set_status(f"❌ N5 erro: {str(exc)[:60]}", Colors.ACCENT_DANGER)
+            print(f"[CE] _on_gerar_n5 error: {exc}")
+        finally:
             try:
                 self.nav_sidebar._enable_item_btns()
             except Exception:
@@ -7382,10 +8703,19 @@ class ComparisonEngineModule(QWidget):
     def _start_n4_lv_generation(self, item_id: str, er_ficha: dict,
                                 obra_dir: Path, col):
         """Gera N4 LV via gerar_lv_n4_fichas.py (bypass DB — LV não está no DB)."""
-        if self._process and self._process.state() == QProcess.Running:
-            self.nav_sidebar.set_status("Já processando...", Colors.ACCENT_WARNING)
-            self.nav_sidebar._enable_item_btns()
-            return
+        if self._process is not None:
+            if self._process.state() == QProcess.Running:
+                try:
+                    self._process.finished.disconnect()
+                except (RuntimeError, TypeError):
+                    pass
+                self._process.kill()
+                self._process.waitForFinished(500)
+            try:
+                self._process.deleteLater()
+            except RuntimeError:
+                pass
+            self._process = None
 
         import re as _re, tempfile as _tempfile, uuid as _uuid
         base_id = _re.sub(r'[_\.]([AB])$', '', item_id, flags=_re.IGNORECASE)
@@ -7418,6 +8748,7 @@ class ComparisonEngineModule(QWidget):
                     }
                     _col.switch_to_lv_zones(lv_zones, _er_ficha or {})
                     _col.pipeline.set_step(2, 'ok', dxf_path.name[:25])
+                    self._configure_level_attention("N4", "LV", _item_id)
                     self.nav_sidebar.set_status(f"✅ N4 LV gerado — {_item_id}", Colors.ACCENT_SUCCESS)
                 else:
                     _col.pipeline.set_step(2, 'error', f'código {code}')
@@ -7446,10 +8777,22 @@ class ComparisonEngineModule(QWidget):
                               obra_dir: Path, script: Path, col):
         """Option B: escreve ficha ER como temp JSON em Fase-4, roda script robô,
         move output para Fase-6/n4/, carrega no viewer N4."""
-        if self._process and self._process.state() == QProcess.Running:
-            self.nav_sidebar.set_status("Já processando...", Colors.ACCENT_WARNING)
-            self.nav_sidebar._enable_item_btns()
-            return
+        # Cancela processo anterior se ainda rodando — desconecta sinais para evitar
+        # que o _on_done antigo chame col.load_content depois de item/classe mudarem.
+        # CRÍTICO: não destruir o QProcess com GC enquanto ainda roda (crash C-level).
+        if self._process is not None:
+            if self._process.state() == QProcess.Running:
+                try:
+                    self._process.finished.disconnect()
+                except (RuntimeError, TypeError):
+                    pass
+                self._process.kill()
+                self._process.waitForFinished(500)
+            try:
+                self._process.deleteLater()
+            except RuntimeError:
+                pass
+            self._process = None
 
         import json as _json, time as _time
         _cls_json_dirs = {
@@ -7568,6 +8911,7 @@ class ComparisonEngineModule(QWidget):
                         n4_bbox = self.tri_level._get_n2_bbox_for(_item_id, _classe) if _classe == "LJ" else None
                         _col.load_content(str(canon), n4_bbox)
                     _col.pipeline.set_step(2, 'ok', canon.name[:25])
+                    self._configure_level_attention("N4", _classe, _item_id)
                     self.nav_sidebar.set_status(f"✅ N4 gerado — {_item_id}", Colors.ACCENT_SUCCESS)
                 else:
                     _col.pipeline.set_step(2, 'error', f'código {code}')
