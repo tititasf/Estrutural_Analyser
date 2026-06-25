@@ -3059,7 +3059,11 @@ class MainWindow(QMainWindow):
 
         self._fv_dxf_viewer = DXFVectorView(bg='#0d1117')
         self._fv_dxf_viewer.setMinimumHeight(400)
-        layout.insertWidget(idx, self._fv_dxf_viewer, stretch=1)
+        # idx==-1 significa canvas não é filho direto do layout; adicionar no fim
+        if idx >= 0:
+            layout.insertWidget(idx, self._fv_dxf_viewer, stretch=1)
+        else:
+            layout.addWidget(self._fv_dxf_viewer, stretch=1)
 
         self._fv_current_item = None
 
@@ -3079,26 +3083,45 @@ class MainWindow(QMainWindow):
 
         self.log("[FV Viewer] DXFVectorView instalado no Robô Fundo de Vigas")
 
+    def _fv_obra_atual(self) -> str:
+        """Retorna a obra selecionada no robô FV (ou no combo principal como fallback)."""
+        robo = getattr(self, 'robo_fundo', None)
+        if robo:
+            combo = getattr(robo, 'combo_obra', None)
+            if combo:
+                v = combo.currentText().strip()
+                if v:
+                    return v
+        return (self.cmb_works.currentText() if hasattr(self, 'cmb_works') else '').strip()
+
     def _on_fv_item_loaded(self, item_nome: str):
         """Ao selecionar item no robô FV: carrega DXF N3 no viewer."""
         self._fv_current_item = item_nome
         self._fv_regen_timer.stop()  # cancelar regen pendente
-        # Tentar carregar DXF existente primeiro; se não existir, gerar
-        obra = self.cmb_works.currentText() if hasattr(self, 'cmb_works') else ''
+        obra = self._fv_obra_atual()
         if not obra:
+            self.log("[FV Viewer] obra não identificada — viewer não carregado")
             return
         dados_ext = Path('D:/Agente-cad-PYSIDE/DADOS-OBRAS')
         dados_loc = Path(self.base_dir) / 'DADOS-OBRAS'
         for root in (dados_ext, dados_loc):
             dxf = root / obra / 'Fase-6_Execucao_CAD' / f'FV_preview_{item_nome}.dxf'
             if dxf.exists():
+                self.log(f"[FV Viewer] carregando {dxf.name}")
                 self._fv_dxf_viewer.load_dxf(str(dxf))
                 return
         # DXF não existe ainda → gerar agora
+        self.log(f"[FV Viewer] DXF não encontrado para {item_nome} em {obra} — gerando")
         self._fv_gerar_e_carregar(item_nome)
 
     def _fv_gerar_e_carregar(self, item_nome: str):
-        """Gera DXF N3 para o item e carrega no viewer."""
+        """Gera DXF N3 para o item e carrega no viewer (sincroniza cmb_works com obra do robô)."""
+        obra = self._fv_obra_atual()
+        # garantir que cmb_works aponte para a mesma obra antes de chamar _run_robo_dxf
+        if obra and hasattr(self, 'cmb_works'):
+            idx = self.cmb_works.findText(obra)
+            if idx >= 0:
+                self.cmb_works.setCurrentIndex(idx)
         self._run_robo_dxf(
             'FV', 'gerar_fv_dxf_stog.py',
             item_id=item_nome, open_canvas=False,
