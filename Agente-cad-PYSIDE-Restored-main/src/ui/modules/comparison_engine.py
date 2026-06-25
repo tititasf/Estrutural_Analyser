@@ -3281,24 +3281,19 @@ class LevelColumn(QFrame):
     def _on_para_passa_clicked(self, tipo: str):
         if self._attention_loading:
             return
-        # Toggle: clicar no já-selecionado limpa
-        currently = "para" if self._para_btn.isChecked() and tipo != "para" else \
-                    "passa" if self._passa_btn.isChecked() and tipo != "passa" else tipo
-        if tipo == "para" and self._para_btn.isChecked() and \
-                getattr(self, '_pp_last_clicked', None) == "para":
-            tipo = ""
-        elif tipo == "passa" and self._passa_btn.isChecked() and \
-                getattr(self, '_pp_last_clicked', None) == "passa":
-            tipo = ""
-        self._pp_last_clicked = tipo
+        # Após click o botão já está no novo estado. Determina tipo ativo:
+        # se o botão clicado ficou checked → seleciona; se ficou unchecked → limpa.
+        is_now_checked = (tipo == "para" and self._para_btn.isChecked()) or \
+                         (tipo == "passa" and self._passa_btn.isChecked())
+        new_tipo = tipo if is_now_checked else ""
         self._attention_loading = True
         try:
-            self._para_btn.setChecked(tipo == "para")
-            self._passa_btn.setChecked(tipo == "passa")
+            self._para_btn.setChecked(new_tipo == "para")
+            self._passa_btn.setChecked(new_tipo == "passa")
         finally:
             self._attention_loading = False
         if self._para_passa_callback:
-            self._para_passa_callback(tipo)
+            self._para_passa_callback(new_tipo)
 
     def _on_note_changed(self):
         if self._attention_loading or not self._attention_callback:
