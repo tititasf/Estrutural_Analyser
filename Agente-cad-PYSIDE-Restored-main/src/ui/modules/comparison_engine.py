@@ -3246,28 +3246,37 @@ class LevelColumn(QFrame):
         self._hdr.setFixedHeight(self._hdr_h_normal)
 
     def set_para_passa(self, tipo: str, callback=None):
-        """Mostra e configura a linha Para/Passa no header de atenção.
+        """Mostra e configura a linha Para/Passa no header.
         tipo: 'para', 'passa', ou '' (nenhum selecionado).
         """
         self._para_passa_callback = callback
-        loading = self._attention_loading
         self._attention_loading = True
         try:
             self._para_btn.setChecked(tipo == "para")
             self._passa_btn.setChecked(tipo == "passa")
         finally:
-            self._attention_loading = loading
+            self._attention_loading = False
         self._para_passa_row.setVisible(True)
-        # Aumenta altura apenas se atenção já está visível
-        if self._attention_inline.isVisible():
-            self._hdr.setFixedHeight(self._hdr_h_att_pp)
+        # Expande header: garante que _attention_inline esteja visível para mostrar o widget
+        if not self._attention_inline.isVisible():
+            self._score_label.setText("")
+            self._attention_inline.setVisible(True)
+        self._hdr.setFixedHeight(self._hdr_h_att_pp)
 
     def clear_para_passa(self):
-        """Oculta a linha Para/Passa."""
+        """Oculta a linha Para/Passa e contrai o header se necessário."""
         self._para_passa_callback = None
         self._para_passa_row.setVisible(False)
         if self._attention_inline.isVisible():
-            self._hdr.setFixedHeight(self._hdr_h_att)
+            # Se attention_inline só estava visível por causa do para_passa, ocultá-lo também
+            if not self._score_label.text() and not self._attention_check.isChecked() \
+                    and not self._attention_text.toPlainText():
+                self._attention_inline.setVisible(False)
+                self._hdr.setFixedHeight(self._hdr_h_normal)
+            else:
+                self._hdr.setFixedHeight(self._hdr_h_att)
+        else:
+            self._hdr.setFixedHeight(self._hdr_h_normal)
 
     def _on_para_passa_clicked(self, tipo: str):
         if self._attention_loading:
