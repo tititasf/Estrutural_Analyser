@@ -2984,7 +2984,7 @@ class LevelColumn(QFrame):
 
         # ── Header compacto: [badge+título+desc] | [pipeline inline] ──
         hdr = QFrame()
-        hdr.setFixedHeight(50)
+        hdr.setMinimumHeight(50)
         hdr.setStyleSheet(f"background: {bg_color}; border-radius: 4px;")
         hdr_main = QHBoxLayout(hdr)
         hdr_main.setContentsMargins(10, 5, 10, 5)
@@ -2992,7 +2992,7 @@ class LevelColumn(QFrame):
 
         # Esquerda: badge + título + desc em uma linha
         left_lay = QVBoxLayout()
-        left_lay.setSpacing(1)
+        left_lay.setSpacing(2)
         left_lay.setContentsMargins(0, 0, 0, 0)
 
         badge_row = QHBoxLayout()
@@ -3021,6 +3021,42 @@ class LevelColumn(QFrame):
             "color: rgba(255, 255, 255, 110); font-size: 8px; background: transparent;"
         )
         left_lay.addWidget(lbl_desc)
+
+        # ── Linha de atenção inline (oculta por padrão) ──────────────
+        self._attention_loading = False
+        self._attention_callback = None
+        self._attention_inline = QWidget()
+        self._attention_inline.setVisible(False)
+        self._attention_inline.setStyleSheet("background: transparent;")
+        att_inline_lay = QHBoxLayout(self._attention_inline)
+        att_inline_lay.setContentsMargins(0, 0, 0, 0)
+        att_inline_lay.setSpacing(5)
+
+        self._score_label = QLabel("")
+        self._score_label.setStyleSheet(
+            f"color: {accent}; font-size: 9px; font-weight: bold; background: transparent;"
+        )
+        self._score_label.setWordWrap(False)
+        self._attention_check = QCheckBox("⚠")
+        self._attention_check.setToolTip("Marcar item para atenção")
+        self._attention_check.setStyleSheet(
+            f"color: {accent}; font-size: 11px; background: transparent;"
+        )
+        self._attention_check.setFixedWidth(28)
+        self._attention_text = QLineEdit()
+        self._attention_text.setPlaceholderText("Nota...")
+        self._attention_text.setFixedHeight(18)
+        self._attention_text.setStyleSheet(
+            f"QLineEdit {{ background: rgba(0,0,0,0.35); color: {Colors.TEXT_PRIMARY}; "
+            f"border: 1px solid {accent}55; border-radius: 3px; font-size: 9px; "
+            f"padding: 0 4px; }}"
+        )
+        att_inline_lay.addWidget(self._score_label, 2)
+        att_inline_lay.addWidget(self._attention_check, 0)
+        att_inline_lay.addWidget(self._attention_text, 1)
+        self._attention_check.stateChanged.connect(self._emit_attention_changed)
+        self._attention_text.textChanged.connect(self._emit_attention_changed)
+        left_lay.addWidget(self._attention_inline)
 
         hdr_main.addLayout(left_lay, 2)
 
@@ -3083,34 +3119,7 @@ class LevelColumn(QFrame):
         self.lbl_ficha.setFixedHeight(18)
         bottom_lay.addWidget(self.lbl_ficha)
 
-        self._attention_loading = False
-        self._attention_callback = None
-        self._attention_panel = QFrame()
-        self._attention_panel.setVisible(False)
-        self._attention_panel.setStyleSheet(
-            f"background: {Colors.BG_DEEP}; border: 1px solid {accent}44; border-radius: 3px;"
-        )
-        att_lay = QVBoxLayout(self._attention_panel)
-        att_lay.setContentsMargins(6, 4, 6, 4)
-        att_lay.setSpacing(3)
-        self._score_label = QLabel("")
-        self._score_label.setWordWrap(True)
-        self._score_label.setStyleSheet(f"color: {accent}; font-size: 10px; font-weight: bold;")
-        self._attention_check = QCheckBox("Atenção")
-        self._attention_check.setStyleSheet(f"color: {Colors.TEXT_PRIMARY}; font-size: 10px;")
-        self._attention_text = QTextEdit()
-        self._attention_text.setFixedHeight(48)
-        self._attention_text.setPlaceholderText("Anote divergencias visuais ou instrucoes para este item...")
-        self._attention_text.setStyleSheet(
-            f"QTextEdit {{ background: {Colors.BG_CARD}; color: {Colors.TEXT_PRIMARY}; "
-            f"border: 1px solid {Colors.BORDER_DEFAULT}; border-radius: 3px; font-size: 10px; }}"
-        )
-        att_lay.addWidget(self._score_label)
-        att_lay.addWidget(self._attention_check)
-        att_lay.addWidget(self._attention_text)
-        self._attention_check.stateChanged.connect(self._emit_attention_changed)
-        self._attention_text.textChanged.connect(self._emit_attention_changed)
-        bottom_lay.addWidget(self._attention_panel)
+        # _attention_inline está no header (criado acima) — não precisa de panel no bottom
 
         # Ficha SA-style: scroll area com campos por seção
         self._ficha_accent = accent
@@ -3152,21 +3161,21 @@ class LevelColumn(QFrame):
         try:
             self._score_label.setText(score_text or "")
             self._attention_check.setChecked(bool(attention))
-            self._attention_text.setPlainText(note or "")
-            self._attention_panel.setVisible(True)
+            self._attention_text.setText(note or "")
+            self._attention_inline.setVisible(True)
         finally:
             self._attention_loading = False
 
     def clear_attention_context(self):
         self._attention_callback = None
-        self._attention_panel.setVisible(False)
+        self._attention_inline.setVisible(False)
 
     def _emit_attention_changed(self, *args):
         if self._attention_loading or not self._attention_callback:
             return
         self._attention_callback(
             bool(self._attention_check.isChecked()),
-            self._attention_text.toPlainText(),
+            self._attention_text.text(),
         )
 
     # ── Conteúdo ─────────────────────────────────────────────────────
