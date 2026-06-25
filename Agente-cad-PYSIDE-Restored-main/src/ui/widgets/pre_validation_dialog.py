@@ -783,7 +783,7 @@ class PreValidationDialog(QDialog):
 
         # Viewer de tamanho grande; largura é libertada para expandir
         viewer = _MiniDXFView(scene, x0, y0, x1, y1,
-                              thumb_w=1200, thumb_h=240,
+                              thumb_w=1200, thumb_h=180,
                               highlight_pts=[])
         # Libera restrição de largura fixa → expande horizontalmente
         viewer.setMaximumWidth(16777215)
@@ -1514,10 +1514,11 @@ class PreValidationDialog(QDialog):
         scroll.setWidgetResizable(True)
         scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAsNeeded)
         scroll.setStyleSheet("QScrollArea { border: none; }")
+        scroll.setMinimumHeight(0)
         inner = QWidget()
         lay = QVBoxLayout(inner)
-        lay.setContentsMargins(6, 6, 6, 6)
-        lay.setSpacing(8)
+        lay.setContentsMargins(6, 4, 6, 4)
+        lay.setSpacing(6)
 
         # Viewer central do gabarito (Motor Reverso)
         gabarito = self._build_detail_reference_viewer()
@@ -1544,8 +1545,9 @@ class PreValidationDialog(QDialog):
     def _build_convention_panel(self) -> QGroupBox:
         grp = QGroupBox("Mapeamento de Terminologia da Obra → Tipo Físico")
         grid = QGridLayout(grp)
-        grid.setSpacing(4)
-        grid.setContentsMargins(6, 8, 6, 6)
+        grid.setHorizontalSpacing(6)
+        grid.setVerticalSpacing(2)
+        grid.setContentsMargins(6, 8, 6, 4)
 
         headers = ["Termo (DXF)", "Padrão equivalente", "Tipo Físico", "Efeito nas vigas", "Ref. DXF"]
         for col, h in enumerate(headers):
@@ -1681,6 +1683,7 @@ class PreValidationDialog(QDialog):
         tbl.setEditTriggers(QAbstractItemView.NoEditTriggers)
         tbl.verticalHeader().setVisible(False)
         tbl.setStyleSheet("QTableWidget { font-size:9px; }")
+        tbl.setMinimumHeight(0)  # não trava o layout; footer permanece visível
         self._pillar_table = tbl
         self._populate_pillar_table()
         return tbl
@@ -2122,6 +2125,7 @@ class PreValidationDialog(QDialog):
         tbl.setEditTriggers(QAbstractItemView.NoEditTriggers)
         tbl.verticalHeader().setVisible(False)
         tbl.setStyleSheet("QTableWidget { font-size:9px; }")
+        tbl.setMinimumHeight(0)  # não trava o layout; footer permanece visível
         self._cut_table = tbl
         self._populate_cut_view_table()
         return tbl
@@ -2235,6 +2239,7 @@ class PreValidationDialog(QDialog):
             tbl.setCellWidget(row, self._CUT_COL_DIM, seg_widget)
 
             # ── Lados A/B da viga para cada laje ────────────────────────────
+            laje1_dir = cut.get('direction') or '—'
             own_lado, neigh_lado = self._DIR_TO_LADO.get(
                 laje1_dir.upper(), ('', ''))
 
@@ -2619,10 +2624,11 @@ class ConvencaoPilaresDialog(PreValidationDialog):
         scroll.setWidgetResizable(True)
         scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAsNeeded)
         scroll.setStyleSheet("QScrollArea { border: none; }")
+        scroll.setMinimumHeight(0)  # permite encolher; footer sempre visível abaixo
         inner = QWidget()
         lay = QVBoxLayout(inner)
-        lay.setContentsMargins(6, 6, 6, 6)
-        lay.setSpacing(8)
+        lay.setContentsMargins(6, 4, 6, 4)
+        lay.setSpacing(6)
 
         gabarito = self._build_detail_reference_viewer()
         if gabarito:
