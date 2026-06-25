@@ -578,6 +578,7 @@ class FundoMainWindow(QMainWindow):
         self.selection_manager = AutoCADSelectionManager()
         self.usar_boundary_duplo = False
         self._current_boundary_original = None  # Armazena boundary original para desenho fiel
+        self._current_seg_idx = -1  # -1 = viga inteira; >=0 = segmento selecionado
         
         self.setup_ui()
         self.load_data()
@@ -2474,7 +2475,26 @@ ferramentas_LOAD_LISP
                 item.setData(0, Qt.UserRole, num)
                 item.setData(0, Qt.UserRole + 1, obra_atual)
                 item.setData(0, Qt.UserRole + 2, pav_atual)
+                item.setData(0, Qt.UserRole + 3, -1)  # -1 = viga inteira
                 self.tree_fundos.addTopLevelItem(item)
+                # Filhos: um por segmento em segments_rich
+                segs = dados.get('segments_rich', [])
+                for seg_i, seg in enumerate(segs):
+                    sw = float_safe(seg.get('total_width', seg.get('width', 0)))
+                    np_seg = len(seg.get('panels', []))
+                    seg_item = QTreeWidgetItem([
+                        f"  S{seg_i + 1}",
+                        f"{dados.get('nome', 'V' + str(num))} Seg {seg_i + 1}",
+                        '',
+                        f"{sw:.1f}cm / {np_seg}P",
+                    ])
+                    seg_item.setData(0, Qt.UserRole,     num)
+                    seg_item.setData(0, Qt.UserRole + 1, obra_atual)
+                    seg_item.setData(0, Qt.UserRole + 2, pav_atual)
+                    seg_item.setData(0, Qt.UserRole + 3, seg_i)
+                    item.addChild(seg_item)
+                if segs:
+                    item.setExpanded(True)
         
         self.label_total_m2.setText(f"Total M²: {total_m2:.2f}")
 
@@ -2578,11 +2598,31 @@ ferramentas_LOAD_LISP
         # Garantir estrutura
         if obra not in self.fundos_salvos: self.fundos_salvos[obra] = {}
         if pav not in self.fundos_salvos[obra]: self.fundos_salvos[obra][pav] = {}
-        
-        self.fundos_salvos[obra][pav][num] = dados
-        self.save_data()
-        self.update_list()
-        QMessageBox.information(self, "Sucesso", f"Fundo {num} salvo em {obra}/{pav}!")
+
+        seg_idx = getattr(self, '_current_seg_idx', -1)
+        if seg_idx is None:
+            seg_idx = -1
+
+        if seg_idx >= 0:
+            # Salvar apenas o segmento específico dentro de segments_rich
+            viga_dados = self.fundos_salvos[obra][pav].get(str(num), {})
+            segs = viga_dados.setdefault('segments_rich', [])
+            while len(segs) <= seg_idx:
+                segs.append({})
+            paineis_vals = [float_safe(p) for p in dados.get('paineis', [])]
+            segs[seg_idx]['total_width'] = float_safe(dados.get('largura', 0))
+            segs[seg_idx]['panels'] = [
+                {'width': w} for w in paineis_vals if w > 0
+            ]
+            self.fundos_salvos[obra][pav][str(num)] = viga_dados
+            self.save_data()
+            self.update_list()
+            QMessageBox.information(self, "Sucesso", f"Segmento {seg_idx + 1} da viga {num} salvo!")
+        else:
+            self.fundos_salvos[obra][pav][num] = dados
+            self.save_data()
+            self.update_list()
+            QMessageBox.information(self, "Sucesso", f"Fundo {num} salvo em {obra}/{pav}!")
 
     def action_analisar_boundary(self):
         """
@@ -2947,19 +2987,31 @@ DETALHES DAS ABERTURAS MAPEADAS:"""
         num = item.data(0, Qt.UserRole)
         obra = item.data(0, Qt.UserRole + 1)
         pav = item.data(0, Qt.UserRole + 2)
-        
+        seg_idx = item.data(0, Qt.UserRole + 3)  # -1 = viga inteira; >=0 = segmento
+        if seg_idx is None:
+            seg_idx = -1
+        self._current_seg_idx = seg_idx  # para uso em action_salvar e item_loaded
+
         # Fallback para texto se não tiver dados armazenados
-        if not num: 
+        if not num:
             num = item.text(0)
         if not obra:
             obra = self.combo_obra.currentText()
         if not pav:
             pav = item.text(2)  # Coluna Pavimento na Tree
-        
+
         # Tentar buscar na estrutura nested
         dados = None
         if isinstance(self.fundos_salvos, dict):
             dados = self.fundos_salvos.get(obra, {}).get(pav, {}).get(str(num))
+            # Lazy-load: se viga não tem segments_rich, tentar DB
+            if dados and not dados.get('segments_rich'):
+                segs_db = self._try_load_segments_from_db(obra, dados.get('nome', ''))
+                if segs_db:
+                    dados['segments_rich'] = segs_db
+                    self.fundos_salvos[obra][pav][str(num)]['segments_rich'] = segs_db
+                    self.save_data()
+                    self._refresh_viga_children(item, segs_db, num, obra, pav)
             
             # IMPORTANTE: Se dados têm boundary_original, ele será usado no canvas
             # para desenhar a geometria real com todas as deformidades
@@ -2972,7 +3024,41 @@ DETALHES DAS ABERTURAS MAPEADAS:"""
                 else:
                     self._current_boundary_original = None
                     print(f"[DEBUG] ⚠️ Boundary original não encontrado nos dados carregados")
-                
+
+                # --- Modo segmento: preencher campos com dados deste segmento específico ---
+                if seg_idx >= 0:
+                    segs = dados.get('segments_rich', [])
+                    if seg_idx < len(segs):
+                        seg = segs[seg_idx]
+                        nome_viga = dados.get('nome', 'V' + str(num))
+                        seg_nome = f"{nome_viga}_seg{seg_idx}"
+                        self.fields['numero'].setText(str(num))
+                        self.fields['nome'].setText(seg_nome)
+                        self.fields['obs'].setText(dados.get('obs', ''))
+                        self.fields['pavimento'].setText(dados.get('pavimento', ''))
+                        # largura deste segmento
+                        seg_w = seg.get('total_width', seg.get('width', 0))
+                        self.fields['largura'].setText(str(seg_w))
+                        self.fields['altura'].setText(str(dados.get('altura', dados.get('total_width', '0'))))
+                        self.fields['texto_esq'].setText('')
+                        self.fields['texto_dir'].setText('')
+                        # Painéis deste segmento
+                        panels = seg.get('panels', [])
+                        for i, pf in enumerate(self.paineis_fields):
+                            if i < len(panels):
+                                pf.setText(str(panels[i].get('width', panels[i].get('w', 0))))
+                            else:
+                                pf.setText('0')
+                        # Recuos/aberturas: zerar (por segmento não tem)
+                        for f in self.chanfros_fields: f.setText('0')
+                        for row in self.aberturas_fields:
+                            for f in row: f.setText('0')
+                        self.update_canvas()
+                        # Emitir formato "V301|seg0" para o viewer em main.py
+                        self.item_loaded.emit(f"{nome_viga}|seg{seg_idx}")
+                    return  # não continuar com o carregamento de viga inteira
+
+                # --- Modo viga inteira (comportamento original) ---
                 self.fields['numero'].setText(str(num))
                 self.fields['nome'].setText(dados.get('nome', ''))
                 self.fields['obs'].setText(dados.get('obs', ''))
@@ -3032,6 +3118,57 @@ DETALHES DAS ABERTURAS MAPEADAS:"""
                 
                 self.update_canvas()
                 self.item_loaded.emit(str(self.fields['nome'].text() or num))
+
+    def _try_load_segments_from_db(self, obra: str, elemento_id: str) -> list:
+        """Busca segments_rich do DB SQLite para uma viga FV."""
+        if not elemento_id:
+            return []
+        try:
+            import sqlite3 as _sqlite3, json as _json2
+            _db_candidates = [
+                'D:/Agente-cad-PYSIDE/project_data.vision',
+                os.path.join(os.path.dirname(__file__), '..', '..', '..', 'project_data.vision'),
+            ]
+            for _db in _db_candidates:
+                if not os.path.exists(_db):
+                    continue
+                conn = _sqlite3.connect(_db)
+                cur = conn.cursor()
+                cur.execute(
+                    "SELECT campos_json FROM reverse_eng_fichas "
+                    "WHERE classe='FV' AND elemento_id=?",
+                    (elemento_id,)
+                )
+                row = cur.fetchone()
+                conn.close()
+                if row and row[0]:
+                    ficha = _json2.loads(row[0])
+                    segs = ficha.get('segments_rich', [])
+                    if segs:
+                        print(f"[FV] Segmentos carregados do DB: {elemento_id} → {len(segs)} segmentos")
+                        return segs
+        except Exception as e:
+            print(f"[FV] Erro ao carregar segmentos do DB para {elemento_id}: {e}")
+        return []
+
+    def _refresh_viga_children(self, viga_item, segs: list, num, obra: str, pav: str):
+        """Atualiza filhos do item de viga na árvore com os segmentos carregados."""
+        viga_item.takeChildren()
+        for seg_i, seg in enumerate(segs):
+            sw = float_safe(seg.get('total_width', seg.get('width', 0)))
+            np_seg = len(seg.get('panels', []))
+            seg_item = QTreeWidgetItem([
+                f"  S{seg_i + 1}",
+                f"{viga_item.text(1)} Seg {seg_i + 1}",
+                '',
+                f"{sw:.1f}cm / {np_seg}P",
+            ])
+            seg_item.setData(0, Qt.UserRole,     num)
+            seg_item.setData(0, Qt.UserRole + 1, obra)
+            seg_item.setData(0, Qt.UserRole + 2, pav)
+            seg_item.setData(0, Qt.UserRole + 3, seg_i)
+            viga_item.addChild(seg_item)
+        viga_item.setExpanded(True)
 
     def save_data(self):
         try:

@@ -3094,6 +3094,17 @@ class MainWindow(QMainWindow):
                     return v
         return (self.cmb_works.currentText() if hasattr(self, 'cmb_works') else '').strip()
 
+    @staticmethod
+    def _fv_parse_item(item_nome: str):
+        """Retorna (base_nome, seg_idx). Ex: 'V301|seg2' → ('V301', 2); 'V301' → ('V301', -1)."""
+        if '|seg' in item_nome:
+            base, seg_part = item_nome.split('|seg', 1)
+            try:
+                return base.strip(), int(seg_part.strip())
+            except ValueError:
+                return item_nome, -1
+        return item_nome, -1
+
     def _on_fv_item_loaded(self, item_nome: str):
         """Ao selecionar item no robô FV: carrega DXF N3 no viewer."""
         self._fv_current_item = item_nome
@@ -3102,10 +3113,15 @@ class MainWindow(QMainWindow):
         if not obra:
             self.log("[FV Viewer] obra não identificada — viewer não carregado")
             return
+        base_nome, seg_idx = self._fv_parse_item(item_nome)
+        if seg_idx >= 0:
+            dxf_fname = f'FV_preview_{base_nome}_seg{seg_idx}.dxf'
+        else:
+            dxf_fname = f'FV_preview_{base_nome}.dxf'
         dados_ext = Path('D:/Agente-cad-PYSIDE/DADOS-OBRAS')
         dados_loc = Path(self.base_dir) / 'DADOS-OBRAS'
         for root in (dados_ext, dados_loc):
-            dxf = root / obra / 'Fase-6_Execucao_CAD' / f'FV_preview_{item_nome}.dxf'
+            dxf = root / obra / 'Fase-6_Execucao_CAD' / dxf_fname
             if dxf.exists():
                 self.log(f"[FV Viewer] carregando {dxf.name}")
                 self._fv_dxf_viewer.load_dxf(str(dxf))
@@ -3115,17 +3131,20 @@ class MainWindow(QMainWindow):
         self._fv_gerar_e_carregar(item_nome)
 
     def _fv_gerar_e_carregar(self, item_nome: str):
-        """Gera DXF N3 para o item e carrega no viewer (sincroniza cmb_works com obra do robô)."""
+        """Gera DXF N3 para o item (ou segmento) e carrega no viewer."""
         obra = self._fv_obra_atual()
+        base_nome, seg_idx = self._fv_parse_item(item_nome)
         # garantir que cmb_works aponte para a mesma obra antes de chamar _run_robo_dxf
         if obra and hasattr(self, 'cmb_works'):
             idx = self.cmb_works.findText(obra)
             if idx >= 0:
                 self.cmb_works.setCurrentIndex(idx)
+        extra = ['--seg_idx', str(seg_idx)] if seg_idx >= 0 else []
         self._run_robo_dxf(
             'FV', 'gerar_fv_dxf_stog.py',
-            item_id=item_nome, open_canvas=False,
+            item_id=base_nome, open_canvas=False,
             _after_dxf=lambda p: self._fv_dxf_viewer.load_dxf(p),
+            extra_args=extra,
         )
 
     def _on_fv_fields_regen(self):
@@ -3133,10 +3152,13 @@ class MainWindow(QMainWindow):
         item = self._fv_current_item
         if not item:
             return
+        base_nome, seg_idx = self._fv_parse_item(item)
+        extra = ['--seg_idx', str(seg_idx)] if seg_idx >= 0 else []
         self._run_robo_dxf(
             'FV', 'gerar_fv_dxf_stog.py',
-            item_id=item, open_canvas=False,
+            item_id=base_nome, open_canvas=False,
             _after_dxf=lambda p: self._fv_dxf_viewer.load_dxf(p),
+            extra_args=extra,
         )
 
     def _build_robo_dxf_wrapper(self, robo_widget, tipo, item_prefix, script_name):
@@ -3469,7 +3491,7 @@ class MainWindow(QMainWindow):
         except Exception as _e:
             self.log(f"[SCR {tipo}] Erro ao abrir pasta: {_e}")
 
-    def _run_robo_dxf(self, tipo, script_name, item_id=None, open_canvas=False, _after_dxf=None):
+    def _run_robo_dxf(self, tipo, script_name, item_id=None, open_canvas=False, _after_dxf=None, extra_args=None):
         """Executa gerar_*_dxf_stog.py via QProcess para um item ou o pavimento completo.
 
         Args:
@@ -3535,7 +3557,8 @@ class MainWindow(QMainWindow):
         proc.setProgram(sys.executable)
         proc.setArguments(
             [str(script), '--obra', str(obra_path)] +
-            (['--item', item_id] if item_id else [])
+            (['--item', item_id] if item_id else []) +
+            (extra_args or [])
         )
         proc.setWorkingDirectory(str(Path(self.base_dir)))
 
