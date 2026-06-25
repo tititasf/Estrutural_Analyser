@@ -1,5 +1,5 @@
 {
-  "P128": {
+  "P15": {
     "b": null,
     "h": null,
     "altura": 652.0,
@@ -9,13 +9,17 @@
       "A",
       "B",
       "C",
-      "D"
+      "D",
+      "E",
+      "F",
+      "G",
+      "H"
     ],
     "nota": "B×H extraído por proximidade espacial (dist=None u)",
-    "cx": 4344.69,
-    "cy": -381.75
+    "cx": -7256.47,
+    "cy": 8147.13
   },
-  "P129": {
+  "P16": {
     "b": null,
     "h": null,
     "altura": 652.0,
@@ -25,99 +29,22 @@
       "A",
       "B",
       "C",
-      "D"
+      "D",
+      "E",
+      "F",
+      "H"
     ],
     "nota": "B×H extraído por proximidade espacial (dist=None u)",
-    "cx": 4344.69,
-    "cy": -381.75
-  },
-  "P130": {
-    "b": null,
-    "h": null,
-    "altura": 652.0,
-    "confidence": 0.3,
-    "source": "engenharia-reversa-ezdxf",
-    "faces_encontradas": [
-      "A",
-      "B",
-      "C",
-      "D"
-    ],
-    "nota": "B×H extraído por proximidade espacial (dist=None u)",
-    "cx": 4344.69,
-    "cy": -381.75
-  },
-  "P131": {
-    "b": null,
-    "h": null,
-    "altura": 652.0,
-    "confidence": 0.3,
-    "source": "engenharia-reversa-ezdxf",
-    "faces_encontradas": [
-      "A",
-      "B",
-      "C",
-      "D"
-    ],
-    "nota": "B×H extraído por proximidade espacial (dist=None u)",
-    "cx": 4344.69,
-    "cy": -381.75
-  },
-  "P132": {
-    "b": null,
-    "h": null,
-    "altura": 652.0,
-    "confidence": 0.3,
-    "source": "engenharia-reversa-ezdxf",
-    "faces_encontradas": [
-      "A",
-      "B",
-      "C",
-      "D"
-    ],
-    "nota": "B×H extraído por proximidade espacial (dist=None u)",
-    "cx": 4368.83,
-    "cy": -381.75
-  },
-  "P133": {
-    "b": null,
-    "h": null,
-    "altura": 652.0,
-    "confidence": 0.3,
-    "source": "engenharia-reversa-ezdxf",
-    "faces_encontradas": [
-      "A",
-      "B",
-      "C",
-      "D"
-    ],
-    "nota": "B×H extraído por proximidade espacial (dist=None u)",
-    "cx": 4368.83,
-    "cy": -381.75
-  },
-  "P134": {
-    "b": null,
-    "h": null,
-    "altura": 652.0,
-    "confidence": 0.3,
-    "source": "engenharia-reversa-ezdxf",
-    "faces_encontradas": [
-      "A",
-      "B",
-      "C",
-      "D"
-    ],
-    "nota": "B×H extraído por proximidade espacial (dist=None u)",
-    "cx": 4430.15,
-    "cy": -381.75
+    "cx": -6369.91,
+    "cy": 6998.56
   },
   "_meta": {
-    "total": 7,
-    "bh_extraidos": 7,
+    "total": 2,
+    "bh_extraidos": 2,
     "obra": "engenharia-reversa",
-    "pavimento": "1 SUB - PERIFERIA - TORRE 1 - S01A",
+    "pavimento": "RDD-EST-EXE-301-R00_R2018_ASCII_ODA",
     "pe_direito_cm": 652.0,
-    "extraido_em": "2026-06-11",
+    "extraido_em": "2026-06-20",
     "confidence_nota": "IDs=ALTA | altura=MEDIA | B/H=ESPACIAL(conf≈0.50-0.78) ou BAIXA(conf=0.30)"
   }
 }

@@ -1,0 +1,123 @@
+{
+  "numero": 308,
+  "nome": "L308",
+  "comprimento": 289.0,
+  "largura": 183.0,
+  "pavimento": "Pavimento",
+  "coordenadas": [
+    [
+      0.0,
+      0.0
+    ],
+    [
+      289.0,
+      0.0
+    ],
+    [
+      289.0,
+      183.0
+    ],
+    [
+      0.0,
+      183.0
+    ],
+    [
+      0.0,
+      0.0
+    ]
+  ],
+  "area_cm2": 52887.0,
+  "linhas_verticais": [
+    {
+      "value": 122.0,
+      "is_union": false
+    }
+  ],
+  "linhas_horizontais": [
+    {
+      "value": 102.0,
+      "is_union": false
+    },
+    {
+      "value": 122.0,
+      "is_union": true
+    }
+  ],
+  "obstaculos": [],
+  "modo_selecionado": 1,
+  "unioes_nos_bordes": false,
+  "observacoes": "",
+  "pontaletes": {},
+  "_sa_meta": {
+    "tipo": "LJ",
+    "analisado_em": "2026-06-04 18:15",
+    "campos_extraidos": [
+      "area_cm2",
+      "comprimento",
+      "coordenadas",
+      "largura",
+      "linhas_verticais",
+      "nome",
+      "numero",
+      "pavimento"
+    ],
+    "campos_defaulted": [],
+    "na_fields": [
+      "grade_1",
+      "grade_2",
+      "h1_A",
+      "h2_A",
+      "h3_A",
+      "holes",
+      "panels",
+      "pillar_left",
+      "pillar_right",
+      "side",
+      "total_width"
+    ],
+    "completude_pct": 100.0
+  },
+  "_hlaz": [
+    {
+      "x": 0.0,
+      "y": 102.0,
+      "width": 289.0,
+      "height": 20.0
+    }
+  ],
+  "_forma_canonica": {
+    "cotas_valor": [
+      20.0,
+      61.0,
+      102.0,
+      122.0,
+      167.0
+    ],
+    "textos": [
+      "102",
+      "122",
+      "167",
+      "19/120",
+      "19/120",
+      "19/120",
+      "19/55",
+      "19/66",
+      "19/71",
+      "20",
+      "61",
+      "852.12",
+      "L308",
+      "h=13"
+    ],
+    "textos_contexto": [
+      "P49",
+      "P8"
+    ]
+  },
+  "_er_meta": {
+    "source": "fase4+dxf_extract",
+    "dxf_path": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - 13° PAV.- LJ - R00\\LAJ_L308_sel_1781121913.dxf",
+    "confianca": 0.85
+  },
+  "_confianca": 0.85
+}
