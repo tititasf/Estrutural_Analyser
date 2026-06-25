@@ -152,7 +152,9 @@ class _MiniDXFView(QGraphicsView):
         parent=None,
     ):
         super().__init__(scene, parent)
+        self._scene_ref = scene          # mantém referência Python; evita GC da cena
         self._highlight_pts = highlight_pts or []
+        self._fit_bbox = (x0, y0, x1, y1)  # armazenado para re-fit ao redimensionar
 
         self.setFixedSize(thumb_w, thumb_h)
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
@@ -166,8 +168,17 @@ class _MiniDXFView(QGraphicsView):
         )
         # Flip Y para coordenadas DXF (mesmo que o canvas principal)
         self.scale(1.0, -1.0)
+        self._apply_fit()
+
+    def _apply_fit(self):
+        """Ajusta a visão ao bbox do conteúdo. Chamado no início e ao redimensionar."""
+        x0, y0, x1, y1 = self._fit_bbox
         self.fitInView(QRectF(x0, y0, max(x1 - x0, 1.0), max(y1 - y0, 1.0)),
                        Qt.KeepAspectRatio)
+
+    def resizeEvent(self, event):
+        super().resizeEvent(event)
+        self._apply_fit()
 
     # ── Interação ─────────────────────────────────────────────────────────────
 
