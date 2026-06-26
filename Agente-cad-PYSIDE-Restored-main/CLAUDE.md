@@ -22,6 +22,20 @@ DXF bruto → interpretação (Structural Analyzer) → geradores STOG (robôs P
 **13_PAV da Obra_TREINO_1** (PIL 35 → LV 32 → FV 26 → LAJ 18). Harness em `scripts/arete/`.
 Estado/progresso: `scripts/arete/relatorios/` (relatório mais recente = onde paramos).
 
+## Ambiente Python — OBRIGATÓRIO Python 3.12
+
+> **NUNCA rodar com Python 3.13 ou 3.14.**
+> Python 3.14 causa crash silencioso `STATUS_STACK_BUFFER_OVERRUN (0xC0000409)` no Windows
+> quando QThread é destruído pelo GC — o processo é morto pelo SO antes de qualquer handler.
+> ChromaDB (RAG) também é incompatível com Python 3.14 (Pydantic V1 quebra).
+
+| Item | Valor |
+|------|-------|
+| Python obrigatório | **3.12** — `C:\Users\Thierry\AppData\Local\Programs\Python\Python312\python.exe` |
+| Launcher | `iniciar_dashboard.bat` (já aponta para Python 3.12) |
+| Build | `build_nuitka.bat` (já aponta para Python 3.12) |
+| Pin de versão | `.python-version` na raiz do repo = `3.12` |
+
 ## Fatos do ambiente (verificados — não redescobrir)
 
 | Item | Valor |
