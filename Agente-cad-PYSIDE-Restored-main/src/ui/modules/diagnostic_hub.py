@@ -1938,11 +1938,30 @@ class DiagnosticHubModule(QWidget):
                 ent = item.data(256) # CorrespondingDXFEntity
                 if ent is not None:
                     # Copia perfeita da entidade DXF original
-                    msp.add_entity(ent.copy())
+                    ent_copy = ent.copy()
+                    
+                    # Forçar a cor visual real (True Color) ignorando layers perdidos
+                    try:
+                        import ezdxf.colors
+                        # Tenta pegar a cor real renderizada na tela
+                        qcolor = None
+                        if hasattr(item, 'pen') and item.pen().style() != Qt.NoPen:
+                            qcolor = item.pen().color()
+                        elif hasattr(item, 'brush') and item.brush().style() != Qt.NoBrush:
+                            qcolor = item.brush().color()
+                            
+                        if qcolor is not None:
+                            # Ignorar a cor de seleção do Qt
+                            if qcolor.name() != '#00ffff': 
+                                ent_copy.dxf.true_color = ezdxf.colors.rgb2int((qcolor.red(), qcolor.green(), qcolor.blue()))
+                    except Exception:
+                        pass
+                        
+                    msp.add_entity(ent_copy)
                     n += 1
                     continue
-                
-                # Fallback para itens manuais/custom
+
+            # Fallback para itens manuais/custom
                 data   = item.data(0) or {}
                 layer  = str(data.get('layer', '0') or '0')
                 aci    = data.get('aci', 256)

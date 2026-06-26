@@ -876,6 +876,20 @@ class CADCanvas(QGraphicsView):
         self.tool_buttons = {}
 
         # ── Grupo 1: Navegação ──────────────────────────────────────────────
+        from PySide6.QtWidgets import QCheckBox
+        self.performatic_mode = True
+        self.chk_perf_render = QCheckBox("⚡ Modo Leve")
+        self.chk_perf_render.setChecked(True)
+        self.chk_perf_render.setToolTip("Oculta hachuras pesadas para navegação instantânea")
+        self.chk_perf_render.setStyleSheet("""
+            QCheckBox { color: #00bcd4; font-size: 13px; font-weight: bold; }
+            QCheckBox::indicator { width: 22px; height: 22px; background: #263238; border: 2px solid #00bcd4; border-radius: 4px; }
+            QCheckBox::indicator:checked { background: #00bcd4; image: none; }
+        """)
+        self.chk_perf_render.stateChanged.connect(lambda state: self.apply_performatic_mode(state == 2))
+        layout.addWidget(self.chk_perf_render)
+        layout.addWidget(vsep())
+        
         b_select = QPushButton("▷  SELECT")
         b_select.setToolTip("Selecionar  ·  ESC")
         b_select.setCursor(Qt.PointingHandCursor)
