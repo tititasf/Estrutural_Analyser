@@ -1015,6 +1015,19 @@ class CADCanvas(QGraphicsView):
             curr = curr.parent()
         print(f"Canvas: {msg}")
 
+
+    def apply_performatic_mode(self, enabled):
+        self.performatic_mode = enabled
+        heavy = {'HATCH', 'SOLID', 'WIPEOUT', 'IMAGE'}
+        for item in self.scene.items():
+            ent = item.data(256)
+            if ent is not None and hasattr(ent, 'dxftype'):
+                try:
+                    if ent.dxftype() in heavy:
+                        item.setVisible(not enabled)
+                except Exception:
+                    pass
+
     def resizeEvent(self, event):
         super().resizeEvent(event)
         if hasattr(self, 'toolbar'):
