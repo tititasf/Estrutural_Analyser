@@ -7103,7 +7103,7 @@ class MainWindow(QMainWindow):
             if cache.get('dxf_data'):
                 self.dxf_data = cache['dxf_data']
                 if hasattr(self.canvas, 'add_dxf_entities'):
-                     self.canvas.add_dxf_entities(self.dxf_data)
+                     self.canvas.add_dxf_entities(self.dxf_data, source_dxf_path=dpath)
                      dxf_bg_loaded = True
                      
         # Se não carregou do cache, tentar do DB (Path)
@@ -7118,7 +7118,7 @@ class MainWindow(QMainWindow):
                          from src.core.dxf_loader import DXFLoader
                          self.dxf_data = DXFLoader.load_dxf(dpath)
                          if self.dxf_data and hasattr(self.canvas, 'add_dxf_entities'):
-                             self.canvas.add_dxf_entities(self.dxf_data)
+                             self.canvas.add_dxf_entities(self.dxf_data, source_dxf_path=dpath)
                              
                              # Atualizar Cache
                              if self.current_project_id not in self.loaded_projects_cache:

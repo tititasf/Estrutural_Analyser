@@ -1238,7 +1238,7 @@ class CADCanvas(QGraphicsView):
         if hasattr(self, 'last_entities') and self.last_entities:
             self.add_dxf_entities(self.last_entities, render_mode=getattr(self, 'last_render_mode', RenderMode.TRUE_GEOMETRY))
 
-    def add_dxf_entities(self, entities, progress_callback=None, render_mode=RenderMode.TRUE_GEOMETRY, compute_snaps=True, source_dxf_path=None):
+    def add_dxf_entities(self, entities, progress_callback=None, render_mode=RenderMode.TRUE_GEOMETRY, compute_snaps=True, source_dxf_path=None, color_override=None):
         """Renderiza geometria base (linhas, textos, etc) do DXF"""
         self.last_entities = entities # Cache para troca de estilo
         self.last_render_mode = render_mode
@@ -1288,11 +1288,19 @@ class CADCanvas(QGraphicsView):
                 ctx = RenderContext(doc)
                 out = PyQtBackend(self.scene)
                 
-                config = Configuration(
-                    background_policy=BackgroundPolicy.CUSTOM,
-                    custom_bg_color="#1A1A1A",
-                    color_policy=ColorPolicy.COLOR_SWAP_BW,
-                )
+                if color_override:
+                    config = Configuration(
+                        background_policy=BackgroundPolicy.CUSTOM,
+                        custom_bg_color="#1A1A1A",
+                        color_policy=ColorPolicy.CUSTOM,
+                        custom_fg_color=color_override,
+                    )
+                else:
+                    config = Configuration(
+                        background_policy=BackgroundPolicy.CUSTOM,
+                        custom_bg_color="#1A1A1A",
+                        color_policy=ColorPolicy.COLOR_SWAP_BW,
+                    )
                 
                 # Otimizações Extremas do Scene (Impede congelamento de UI)
                 prev_update_mode = self.viewportUpdateMode()

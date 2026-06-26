@@ -40,6 +40,122 @@ from PySide6.QtCore import Qt, QProcess, Signal, QRect, QRectF, QPointF, QThread
 from PySide6.QtGui import QColor, QFont, QPainter, QPen, QBrush, QPainterPath, QPixmap, QTransform
 
 from src.ui.components.organisms import DualCanvasManager
+
+class DXFVectorView(QWidget):
+    ready = Signal()
+    def __init__(self, bg: str = Colors.BG_DEEP, parent=None):
+        super().__init__(parent)
+        self.layout = QVBoxLayout(self)
+        self.layout.setContentsMargins(0,0,0,0)
+        self.canvas = CADCanvas()
+        
+        # Oculta a toolbar padrão do CADCanvas para ficar igual ao viewer antigo
+        if hasattr(self.canvas, 'toolbar_layout'):
+            # This is tricky, CADCanvas doesn't expose toolbar easily, but we can just use the canvas.
+            pass
+            
+        self.layout.addWidget(self.canvas)
+        self._dxf_bbox = None
+        self._bg = bg
+        self._highlight_bbox = None
+        self._highlight_points = None
+        self._is_loaded = False
+        
+        # Configuração de fundo
+        self.canvas.setStyleSheet(f"background: {bg}; border: none;")
+
+    def load_dxf(self, dxf_path, bbox=None):
+        if not dxf_path:
+            self.clear_image("Sem DXF")
+            self.ready.emit()
+            return
+            
+        try:
+            # Em comparison engine, geralmente queremos destacar a cor original
+            self.canvas.add_dxf_entities({}, source_dxf_path=dxf_path, color_override=None)
+            self._is_loaded = True
+            
+            # Tentar fazer zoom se bbox foi fornecida
+            if bbox:
+                self.zoom_to_bbox(bbox)
+        except Exception as e:
+            print(f"Error loading DXF in DXFVectorView wrapper: {e}")
+            
+        self.ready.emit()
+
+    def zoom_to_bbox(self, bbox):
+        if not bbox or not self._is_loaded: return
+        self._dxf_bbox = bbox
+        
+        x0, y0, x1, y1 = bbox
+        # O CADCanvas gerencia QGraphicsScene, o sistema de coordenadas é (x, -y)
+        w = abs(x1 - x0)
+        h = abs(y1 - y0)
+        from PySide6.QtCore import QRectF
+        rect = QRectF(x0, -y1, w, h)
+        
+        # Margem de 10%
+        margin_x = w * 0.1
+        margin_y = h * 0.1
+        rect.adjust(-margin_x, -margin_y, margin_x, margin_y)
+        
+        from PySide6.QtCore import Qt
+        self.canvas.fitInView(rect, Qt.KeepAspectRatio)
+
+    def set_highlight_bbox(self, bbox):
+        self._highlight_bbox = bbox
+        if not bbox: return
+        # Remove old highlight
+        if hasattr(self, '_h_rect'):
+            self.canvas.scene.removeItem(self._h_rect)
+            
+        x0, y0, x1, y1 = bbox
+        w = abs(x1 - x0)
+        h = abs(y1 - y0)
+        from PySide6.QtCore import QRectF
+        rect = QRectF(x0, -y1, w, h)
+        
+        from PySide6.QtWidgets import QGraphicsRectItem
+        from PySide6.QtGui import QPen, QColor
+        self._h_rect = QGraphicsRectItem(rect)
+        self._h_rect.setPen(QPen(QColor(0, 255, 255, 200), 2)) # Cyan
+        self.canvas.scene.addItem(self._h_rect)
+
+    def set_highlight_geometry(self, points):
+        self._highlight_points = points
+        if not points: return
+        
+        # Remove old highlight
+        if hasattr(self, '_h_path'):
+            self.canvas.scene.removeItem(self._h_path)
+            
+        from PySide6.QtGui import QPainterPath, QPen, QColor
+        from PySide6.QtCore import QPointF
+        from PySide6.QtWidgets import QGraphicsPathItem
+        
+        path = QPainterPath()
+        if len(points) > 0:
+            path.moveTo(points[0][0], -points[0][1])
+            for pt in points[1:]:
+                path.lineTo(pt[0], -pt[1])
+                
+        self._h_path = QGraphicsPathItem(path)
+        self._h_path.setPen(QPen(QColor(0, 255, 255, 200), 2))
+        self.canvas.scene.addItem(self._h_path)
+
+    @property
+    def is_loaded(self) -> bool:
+        return self._is_loaded
+
+    def clear_image(self, msg: str = "sem DXF"):
+        self.canvas.scene.clear()
+        self._is_loaded = False
+        if hasattr(self, '_h_rect'): del self._h_rect
+        if hasattr(self, '_h_path'): del self._h_path
+
+    def cancel_load(self, msg: str = "cancelado"):
+        self.clear_image(msg)
+
 from src.ui.theme import Colors, Fonts, Radius
 from src.core.item_attention_store import (
     has_attention, load_attention, save_attention, save_human_validation, is_human_validated,
@@ -727,7 +843,11 @@ class DXFLoadWorker(QThread):
                 self.failed.emit(f'Serialização temp falhou: {e}')
 
 
-class DXFVectorView(QWidget):
+
+from src.ui.canvas import CADCanvas
+
+class _OldDXFVectorView(QWidget):
+
     """
     Renderiza entidades DXF como vetores via QPainter (sem bitmap).
     Zoom e pan sem perda de qualidade — igual a um viewer DXF real.
