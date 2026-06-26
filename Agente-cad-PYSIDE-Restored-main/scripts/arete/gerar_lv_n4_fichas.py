@@ -66,17 +66,22 @@ def _make_fake_fase4(viga_name: str, entry: dict, fase4_dir: Path) -> None:
     def _panels_to_gerador(segs: list, h_face: float) -> list:
         return [
             {
-                'width':            float(s.get('largura_cm', 0)),
+                'width':            float(s.get('largura_cm', s.get('width', 0)) or 0),
                 'height1':          float(s.get('height1', h_face) or h_face),
                 'height2':          float(s.get('height2', 0) or 0),
                 'grade_h1':         float(s.get('grade_h1', 0) or 0),
                 'grade_h2':         float(s.get('grade_h2', 0) or 0),
                 'laje_central_alt': float(s.get('laje_central_alt', 0) or 0),
+                'laje_sup_local':   float(s.get('laje_sup_local', s.get('slab_top', 0)) or 0),
+                'laje_inf_local':   float(s.get('laje_inf_local', s.get('slab_bottom', 0)) or 0),
+                'slab_top':         float(s.get('slab_top', s.get('laje_sup_local', 0)) or 0),
+                'slab_bottom':      float(s.get('slab_bottom', s.get('laje_inf_local', 0)) or 0),
+                'holes':            s.get('holes', []),
                 'reuse':            bool(s.get('reuse', False)),
                 'reuse_regions':    s.get('reuse_regions', []),
                 'panel_type':       s.get('panel_type', 'Sarrafeado'),
             }
-            for s in segs if float(s.get('largura_cm', 0) or 0) > 0
+            for s in segs if float(s.get('largura_cm', s.get('width', 0)) or 0) > 0
         ]
 
     h_A = float(entry.get('h_cm', 0) or 0)

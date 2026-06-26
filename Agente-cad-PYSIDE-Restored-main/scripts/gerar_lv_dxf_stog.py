@@ -166,7 +166,8 @@ def _define_vc_blocks(doc):
 
 def extract_panels_from_json(panels_json, laje_central_alt_global=0.0):
     """Extrai dados reais dos paineis do JSON.
-    Retorna lista de dicts: [{width, height1, height2, grade_h1, grade_h2, laje_central_alt, reuse, panel_type}, ...]
+    Retorna lista de dicts: [{width, height1, height2, grade_h1, grade_h2, laje_central_alt,
+                               laje_sup_local, laje_inf_local, reuse, reuse_regions, panel_type}, ...]
     """
     panels = []
     for p in (panels_json or []):
@@ -181,6 +182,11 @@ def extract_panels_from_json(panels_json, laje_central_alt_global=0.0):
             'grade_h1':         float(p.get('grade_h1', 0) or 0),
             'grade_h2':         float(p.get('grade_h2', 0) or 0),
             'laje_central_alt': lca,
+            'laje_sup_local':   float(p.get('laje_sup_local', p.get('slab_top', 0)) or 0),
+            'laje_inf_local':   float(p.get('laje_inf_local', p.get('slab_bottom', 0)) or 0),
+            'slab_top':         float(p.get('slab_top', p.get('laje_sup_local', 0)) or 0),
+            'slab_bottom':      float(p.get('slab_bottom', p.get('laje_inf_local', 0)) or 0),
+            'holes':            p.get('holes', []),
             'reuse':            bool(p.get('reuse', False)),
             'reuse_regions':    p.get('reuse_regions', []),
             'panel_type':       str(p.get('panel_type', 'Sarrafeado')),
@@ -1801,7 +1807,13 @@ def main():
                         'grade_h1':         gh,
                         'grade_h2':         gh,
                         'laje_central_alt': float(seg.get('laje_central_alt', 0) or 0),
+                        'laje_sup_local':   float(seg.get('laje_sup_local', seg.get('slab_top', 0)) or 0),
+                        'laje_inf_local':   float(seg.get('laje_inf_local', seg.get('slab_bottom', 0)) or 0),
+                        'slab_top':         float(seg.get('slab_top', seg.get('laje_sup_local', 0)) or 0),
+                        'slab_bottom':      float(seg.get('slab_bottom', seg.get('laje_inf_local', 0)) or 0),
+                        'holes':            seg.get('holes', []),
                         'reuse':            bool(seg.get('reuse', False)),
+                        'reuse_regions':    seg.get('reuse_regions', []),
                         'panel_type':       ptype,
                     })
                 return result

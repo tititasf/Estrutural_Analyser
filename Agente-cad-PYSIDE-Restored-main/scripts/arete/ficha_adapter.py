@@ -227,6 +227,7 @@ def _criar_fichas_lv_v2(obra_dir: Path, elemento_id: str, campos: dict) -> None:
             'is_first':        bool(p.get('is_first', False)),
             'is_last':         bool(p.get('is_last', False)),
             'reuse':           bool(p.get('reuse', False)),
+            'reuse_regions':   p.get('reuse_regions', []),
             'codigos_forma':   p.get('codigos_forma', []),
         }
 
@@ -413,13 +414,19 @@ def materializar_item(row: dict, tmp_base: Path | None = None,
             panels_b_full = []
             for p in campos["panels_B"]:
                 panels_b_full.append({
-                    "width":            float(p.get("width", 0)),
+                    "width":            float(p.get("width", p.get("largura_cm", 0)) or 0),
                     "height1":          h_b,
                     "height2":          h_b,
                     "grade_h1":         float(p.get("grade_h1", 0) or 0),
                     "grade_h2":         float(p.get("grade_h2", 0) or 0),
-                    "laje_central_alt": 0.0,
+                    "laje_central_alt": float(p.get("laje_central_alt", 0) or 0),
+                    "laje_sup_local":   float(p.get("laje_sup_local", p.get("slab_top", 0)) or 0),
+                    "laje_inf_local":   float(p.get("laje_inf_local", p.get("slab_bottom", 0)) or 0),
+                    "slab_top":         float(p.get("slab_top", p.get("laje_sup_local", 0)) or 0),
+                    "slab_bottom":      float(p.get("slab_bottom", p.get("laje_inf_local", 0)) or 0),
+                    "holes":            p.get("holes", []),
                     "reuse":            bool(p.get("reuse", False)),
+                    "reuse_regions":    p.get("reuse_regions", []),
                     "panel_type":       str(p.get("panel_type", "Sarrafeado")),
                 })
             campos_b["panels"] = panels_b_full
