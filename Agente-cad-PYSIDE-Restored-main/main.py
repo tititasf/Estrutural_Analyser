@@ -1426,11 +1426,22 @@ class MainWindow(QMainWindow):
             obra = self.sa_cmb_obras.currentText()
             if not obra:
                 return
-            # Popula SA primeiro, depois sincroniza top bar
-            _sa_populate_pavimentos(obra)
-            top_idx = self.cmb_works.findText(obra)
-            if top_idx >= 0 and self.cmb_works.currentIndex() != top_idx:
-                self.cmb_works.setCurrentIndex(top_idx)
+            
+            # Feedback visual rápido
+            self.sa_cmb_pavimentos.blockSignals(True)
+            self.sa_cmb_pavimentos.clear()
+            self.sa_cmb_pavimentos.addItem("⏳ Carregando pavimentos...")
+            self.sa_cmb_pavimentos.blockSignals(False)
+            
+            def _do_obra():
+                # Popula SA primeiro, depois sincroniza top bar
+                _sa_populate_pavimentos(obra)
+                top_idx = self.cmb_works.findText(obra)
+                if top_idx >= 0 and self.cmb_works.currentIndex() != top_idx:
+                    self.cmb_works.setCurrentIndex(top_idx)
+                    
+            from PySide6.QtCore import QTimer
+            QTimer.singleShot(50, _do_obra)
 
         def _on_sa_pav_changed():
             data = self.sa_cmb_pavimentos.currentData()
@@ -1438,21 +1449,28 @@ class MainWindow(QMainWindow):
                 return
             project_id, raw_name = data
 
-            # Sincroniza top bar pelo nome raw
-            top_idx = self.cmb_pavements.findText(raw_name)
-            if top_idx >= 0:
-                if self.cmb_pavements.currentIndex() != top_idx:
-                    # Signal _on_pavement_changed dispara e carrega DXF
-                    self.cmb_pavements.setCurrentIndex(top_idx)
+            # Exibe feedback na topbar ou log para o usuário saber que começou
+            self.log(f"⏳ Carregando dados do pavimento: {raw_name}...")
+            
+            def _do_pav():
+                # Sincroniza top bar pelo nome raw
+                top_idx = self.cmb_pavements.findText(raw_name)
+                if top_idx >= 0:
+                    if self.cmb_pavements.currentIndex() != top_idx:
+                        # Signal _on_pavement_changed dispara e carrega DXF
+                        self.cmb_pavements.setCurrentIndex(top_idx)
+                    else:
+                        # Mesmo índice: signal não re-dispara, forçar carga
+                        self._open_project_tab(project_id, raw_name)
                 else:
-                    # Mesmo índice: signal não re-dispara, forçar carga
+                    # Não encontrou no top bar — carrega direto pelo project_id
+                    self.log(f"[SA] Forçando carregamento via combo: {raw_name}")
+                    obra = self.sa_cmb_obras.currentText()
+                    self.sync_robots_with_master_context(obra, raw_name, project_id)
                     self._open_project_tab(project_id, raw_name)
-            else:
-                # Não encontrou no top bar — carrega direto pelo project_id
-                self.log(f"[SA] Forçando carregamento via combo: {raw_name}")
-                obra = self.sa_cmb_obras.currentText()
-                self.sync_robots_with_master_context(obra, raw_name, project_id)
-                self._open_project_tab(project_id, raw_name)
+
+            from PySide6.QtCore import QTimer
+            QTimer.singleShot(50, _do_pav)
 
         def _on_sa_nivel_cheg():
             v = self.sa_edit_nivel_cheg.text()
@@ -5361,13 +5379,8 @@ class MainWindow(QMainWindow):
             convention=convention,
             convention_file=convention_file,
             db_path=db_path,
-            parent=None,
+            parent=self,
         )
-        
-        # Para evitar que o dialog fique travado invisivel ao minimizar a janela principal:
-        from PySide6.QtCore import Qt
-        dlg.setWindowModality(Qt.ApplicationModal)
-        dlg.setWindowFlags(Qt.Window)
 
         if dlg.exec() == QDialog.Accepted:
             result = dlg.get_result()
@@ -5578,6 +5591,9 @@ class MainWindow(QMainWindow):
         self.log(f"🔎 Lajes detectadas: {len(self.slabs_found)} (Busca por textos L#)")
         
         for i, s in enumerate(self.slabs_found):
+             from PySide6.QtCore import QCoreApplication
+             QCoreApplication.processEvents()
+             
              s_unique_id = f"{self.current_project_id}_l_{i+1}" if self.current_project_id else str(uuid.uuid4())
              s['id'] = s_unique_id
              s['id_item'] = f"{i+1:02}"
@@ -10565,16 +10581,10 @@ class MainWindow(QMainWindow):
             canvas=getattr(self, 'canvas', None),
             convention_file=_convention_file,
             db_path=_db_path,
-            parent=None,
+            parent=self,
         )
 
         from PySide6.QtWidgets import QDialog
-        from PySide6.QtCore import Qt
-        
-        # Torna a janela independente na taskbar, mas bloqueando a principal (Modal)
-        dlg.setWindowModality(Qt.ApplicationModal)
-        dlg.setWindowFlags(Qt.Window)
-        
         dlg.showMaximized()
         if dlg.exec() != QDialog.Accepted:
             return False

@@ -142,19 +142,12 @@ def _make_item(text: str, align=Qt.AlignLeft, bold: bool = False,
 
 # ── Mini viewer vetorial ───────────────────────────────────────────────────────
 
-class _MiniDXFView(QGraphicsView):
+class _PseudoMiniDXFView(QWidget):
     """
-    Viewer vetorial embutido na célula da tabela.
-    Compartilha a QGraphicsScene do canvas principal — renderização vetorial pura.
-
-
-    Interação:
-      - Scroll do mouse  → zoom centrado na posição do cursor
-      - Clique + arrastar → pan (navegar pela cena)
-
-    Visual:
-      - drawForeground desenha o contorno luminoso + fill translúcido do item
-        para destacá-lo na geometria DXF sem alterar a cena compartilhada.
+    Pseudo-viewer vetorial embutido na célula da tabela.
+    Oculta o uso de um QPixmap estático do usuário, permitindo Pan e Zoom (interatividade)
+    sem usar QGraphicsView (que causa congelamentos catastróficos quando múltiplas
+    instâncias compartilham uma QGraphicsScene de 500.000 itens).
     """
 
     def __init__(
@@ -165,42 +158,135 @@ class _MiniDXFView(QGraphicsView):
         highlight_pts: list | None = None,
         parent=None,
     ):
-        super().__init__(scene, parent)
-        self._scene_ref = scene          # mantém referência Python; evita GC da cena
+        super().__init__(parent)
+        self._scene_ref = scene
         self._highlight_pts = highlight_pts or []
-        self._fit_bbox = (x0, y0, x1, y1)  # armazenado para re-fit ao redimensionar
-
         self.setFixedSize(thumb_w, thumb_h)
-        self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        self.setInteractive(False)                          # cena não recebe eventos
-        self.setDragMode(QGraphicsView.ScrollHandDrag)      # arrastar = pan
-        # [PERFORMANCE] Desativa Antialiasing em mini-viewers para ganho GIGANTE de FPS
-        self.setRenderHints(QPainter.SmoothPixmapTransform)
-        self.setOptimizationFlags(QGraphicsView.DontSavePainterState | QGraphicsView.DontAdjustForAntialiasing)
-        self.setViewportUpdateMode(QGraphicsView.SmartViewportUpdate)
+        
+        # Estado da câmera DXF
+        self._cx = (x0 + x1) / 2.0
+        self._cy = (y0 + y1) / 2.0
+        w = max(x1 - x0, 1.0)
+        h = max(y1 - y0, 1.0)
+        # Calcula qual zoom faz a bbox caber na tela
+        self._zoom = min(thumb_w / w, thumb_h / h)
+        
+        # Estado de interação
+        self._last_mouse_pos = None
+        self._pixmap = None
+        
         self.setStyleSheet(
             f"border:1px solid {Colors.BORDER_DEFAULT}; "
             f"background:{Colors.BG_PANEL};"
         )
-        # Flip Y para coordenadas DXF (mesmo que o canvas principal)
-        self.scale(1.0, -1.0)
-        self._apply_fit()
+        self.setCursor(Qt.OpenHandCursor)
+        self.setMouseTracking(True)
+        
+        self._request_render()
 
-    def _apply_fit(self):
-        """Ajusta a visão ao bbox do conteúdo. Chamado no início e ao redimensionar."""
-        x0, y0, x1, y1 = self._fit_bbox
-        self.fitInView(QRectF(x0, y0, max(x1 - x0, 1.0), max(y1 - y0, 1.0)),
-                       Qt.KeepAspectRatio)
+    def _request_render(self):
+        """Renderiza a cena no pixmap com a câmera atual e solicita paintEvent."""
+        from PySide6.QtGui import QPixmap, QPainter, QColor, QPen, QBrush, QPolygonF
+        from PySide6.QtCore import QRectF, QPointF
+        
+        w, h = self.width(), self.height()
+        pix = QPixmap(w, h)
+        pix.fill(QColor(Colors.BG_PANEL))
+        
+        painter = QPainter(pix)
+        painter.setRenderHint(QPainter.Antialiasing, False)
+        
+        # Dimensões da janela DXF atual baseada no zoom
+        dxf_w = w / self._zoom
+        dxf_h = h / self._zoom
+        scene_rect = QRectF(self._cx - dxf_w/2, self._cy - dxf_h/2, dxf_w, dxf_h)
+        target_rect = QRectF(0, 0, w, h)
+        
+        # Inverte Y para cena principal
+        painter.save()
+        painter.translate(0, h)
+        painter.scale(1.0, -1.0)
+        self._scene_ref.render(painter, target_rect, scene_rect)
+        painter.restore()
+        
+        # Desenha polígono
+        if len(self._highlight_pts) >= 2:
+            poly = QPolygonF([QPointF(float(p[0]), float(p[1])) for p in self._highlight_pts])
+            painter.translate(0, h)
+            painter.scale(1.0, -1.0)
+            sx = target_rect.width() / scene_rect.width()
+            sy = target_rect.height() / scene_rect.height()
+            painter.scale(sx, sy)
+            painter.translate(-scene_rect.left(), -scene_rect.top())
+            
+            fill = QColor(Accent.PRIMARY)
+            fill.setAlpha(40)
+            painter.setBrush(QBrush(fill))
+            pen = QPen(QColor(Accent.BRAND))
+            pen.setCosmetic(True)
+            pen.setWidth(2)
+            painter.setPen(pen)
+            painter.drawPolygon(poly)
+            
+        painter.end()
+        self._pixmap = pix
+        self.update()
 
-    def sizeHint(self):
-        # Prevent fitInView from changing sizeHint and causing infinite layout loops
-        return QSize(100, 100)
+    def paintEvent(self, event):
+        from PySide6.QtGui import QPainter
+        if self._pixmap:
+            painter = QPainter(self)
+            painter.drawPixmap(0, 0, self._pixmap)
+            painter.end()
 
-    def showEvent(self, event):
-        super().showEvent(event)
-        # Apply fit once when shown. No resizeEvent handling to avoid infinite layout loops.
-        self._apply_fit()
+    def wheelEvent(self, event):
+        delta = event.angleDelta().y()
+        if delta == 0:
+            return
+            
+        # Posição do mouse relativa ao centro do widget
+        mx = event.position().x()
+        my = event.position().y()
+        dx = mx - self.width() / 2.0
+        dy = my - self.height() / 2.0
+        
+        # Posição do mouse em coordenadas DXF (Y invertido)
+        dxf_x = self._cx + (dx / self._zoom)
+        dxf_y = self._cy - (dy / self._zoom)
+        
+        factor = 1.25 if delta > 0 else 1.0 / 1.25
+        self._zoom *= factor
+        
+        # Ajusta o centro (cx, cy) para manter a posição sob o cursor parada
+        self._cx = dxf_x - (dx / self._zoom)
+        self._cy = dxf_y + (dy / self._zoom)
+        
+        self._request_render()
+        event.accept()
+
+    def mousePressEvent(self, event):
+        if event.button() == Qt.LeftButton:
+            self._last_mouse_pos = event.position()
+            self.setCursor(Qt.ClosedHandCursor)
+            event.accept()
+
+    def mouseMoveEvent(self, event):
+        if self._last_mouse_pos is not None:
+            delta = event.position() - self._last_mouse_pos
+            self._last_mouse_pos = event.position()
+            # Mapeia pixels da tela para unidades DXF (invertendo Y)
+            dx_dxf = -(delta.x() / self._zoom)
+            dy_dxf = (delta.y() / self._zoom) # inverte Y 
+            self._cx += dx_dxf
+            self._cy += dy_dxf
+            self._request_render()
+            event.accept()
+
+    def mouseReleaseEvent(self, event):
+        if event.button() == Qt.LeftButton:
+            self._last_mouse_pos = None
+            self.setCursor(Qt.OpenHandCursor)
+            event.accept()
 
     # ── Interação ─────────────────────────────────────────────────────────────
 
@@ -282,7 +368,8 @@ class PreValidationDialog(QDialog):
         parent=None,
     ):
         super().__init__(parent)
-        self.setWindowFlags(Qt.Window | Qt.WindowMaximizeButtonHint | Qt.WindowCloseButtonHint)
+        # Qt.Dialog previne o deadlock de foco (soft-lock) no Windows ao usar modality com parent
+        self.setWindowFlags(Qt.Dialog | Qt.WindowMinimizeButtonHint | Qt.WindowMaximizeButtonHint | Qt.WindowCloseButtonHint)
         self.setWindowTitle(f"Pré-validação — {obra} / {pavimento}")
         self.setMinimumSize(1000, 600)
         self.setModal(True)
@@ -350,9 +437,6 @@ class PreValidationDialog(QDialog):
             self._load_saved_convention(convention_file)
 
         self._build_ui()
-
-    # ── Dados iniciais ─────────────────────────────────────────────────────────
-
     def _build_slab_height_map(self) -> dict[str, str]:
         """Extrai espessura (H) de cada laje pelo campo laje_dim."""
         result: dict[str, str] = {}
@@ -596,7 +680,7 @@ class PreValidationDialog(QDialog):
         marg = max(max(dxf_w, dxf_h) * margin_factor, min_margin_dxf)
 
         if self._dxf_scene is not None:
-            return _MiniDXFView(
+            return _PseudoMiniDXFView(
                 self._dxf_scene,
                 minx - marg, miny - marg,
                 maxx + marg, maxy + marg,
@@ -1130,7 +1214,7 @@ class PreValidationDialog(QDialog):
                 scene = QGraphicsScene()
                 scene.setSceneRect(vx0, vy0, vx1 - vx0, vy1 - vy0)
                 scene.setBackgroundBrush(QColor(Colors.BG_PANEL))
-                viewer = _MiniDXFView(scene, vx0, vy0, vx1, vy1, w, h,
+                viewer = _PseudoMiniDXFView(scene, vx0, vy0, vx1, vy1, w, h,
                                       highlight_pts=saved_pts)
                 viewer.setToolTip("Referência salva de outro pavimento")
                 return viewer
@@ -1590,20 +1674,49 @@ class PreValidationDialog(QDialog):
         if not builder:
             return
 
-        new_widget = builder()
         old_widget = self._tabs.widget(index)
         tab_text = self._tabs.tabText(index)
-
-        # Bloqueia sinais durante a troca para evitar recursão
+        
+        # Show a loading placeholder instantly
+        from PySide6.QtWidgets import QLabel
+        from PySide6.QtCore import QTimer, Qt
+        loading_lbl = QLabel("Montando elementos da tabela (isso pode levar alguns segundos)...")
+        loading_lbl.setAlignment(Qt.AlignCenter)
+        loading_lbl.setStyleSheet("font-size: 14px; color: gray;")
+        
         self._tabs.blockSignals(True)
         self._tabs.removeTab(index)
-        self._tabs.insertTab(index, new_widget, tab_text)
+        self._tabs.insertTab(index, loading_lbl, tab_text)
         self._tabs.setCurrentIndex(index)
         self._tabs.blockSignals(False)
-
-        # Limpa placeholder antigo
+        
         if old_widget:
             old_widget.deleteLater()
+
+        def _do_build():
+            try:
+                new_widget = builder()
+                self._tabs.blockSignals(True)
+                self._tabs.removeTab(index)
+                self._tabs.insertTab(index, new_widget, tab_text)
+                self._tabs.setCurrentIndex(index)
+            except Exception as e:
+                import traceback
+                traceback.print_exc()
+                from PySide6.QtWidgets import QLabel
+                error_lbl = QLabel(f"❌ Erro crítico ao montar aba:\n{e}\n\nO erro foi reportado no terminal.")
+                error_lbl.setAlignment(Qt.AlignCenter)
+                error_lbl.setStyleSheet("font-size: 14px; color: red;")
+                self._tabs.blockSignals(True)
+                self._tabs.removeTab(index)
+                self._tabs.insertTab(index, error_lbl, tab_text)
+                self._tabs.setCurrentIndex(index)
+            finally:
+                self._tabs.blockSignals(False)
+                loading_lbl.deleteLater()
+
+        # Defer construction so PySide6 renders the loading label first
+        QTimer.singleShot(50, _do_build)
 
 
     def _build_header(self) -> QFrame:
@@ -1861,6 +1974,10 @@ class PreValidationDialog(QDialog):
         tbl.setStyleSheet("QTableWidget { font-size:9px; }")
         tbl.setMinimumHeight(0)  # não trava o layout; footer permanece visível
         self._pillar_table = tbl
+        self._pillar_viewer_data = {}
+        tbl.verticalScrollBar().valueChanged.connect(
+            lambda _: self._update_dynamic_viewers(self._pillar_table, self._pillar_viewer_data, self._PIL_COL_FOTO, False)
+        )
         self._populate_pillar_table()
         return tbl
 
@@ -1919,6 +2036,7 @@ class PreValidationDialog(QDialog):
 
     def _populate_pillar_table(self):
         tbl = self._pillar_table
+        tbl.setUpdatesEnabled(False)
         tbl.setRowCount(0)
         self._pillar_rows.clear()
         self._phys_labels.clear()
@@ -1931,7 +2049,7 @@ class PreValidationDialog(QDialog):
             return self._natural_sort_key(k) + [0]
 
         sorted_items = sorted(self._pillar_report.items(), key=_pil_sort_key)
-        for key, pillar in sorted_items:
+        for i, (key, pillar) in enumerate(sorted_items):
             row = tbl.rowCount()
             tbl.insertRow(row)
             tbl.setRowHeight(row, self._PIL_ROW_H)
@@ -2041,9 +2159,9 @@ class PreValidationDialog(QDialog):
                     sep_idx += 1
             # Separadores não selecionáveis e cores especiais
             _SEPARADORES = {_SEPARADOR_ITEM, _SEPARADOR_GEOM}
-            for i, opt in enumerate(options):
+            for j, opt in enumerate(options):
                 combo.addItem(opt)
-                mi = combo.model().item(i)
+                mi = combo.model().item(j)
                 if not mi:
                     continue
                 if opt in _SEPARADORES:
@@ -2062,15 +2180,63 @@ class PreValidationDialog(QDialog):
 
             # ── Mini viewer vetorial ─────────────────────────────────────────
             pts = pillar.get('points') or []
-            viewer = self._make_pillar_viewer(pts)
-            if viewer:
-                tbl.setCellWidget(row, self._PIL_COL_FOTO, viewer)
+            if pts:
+                self._pillar_viewer_data[row] = pts
+                lbl = QLabel("⏳ Carregando...")
+                lbl.setAlignment(Qt.AlignCenter)
+                lbl.setStyleSheet(f"color: {Colors.TEXT_MUTED}; font-size: 10px;")
+                tbl.setCellWidget(row, self._PIL_COL_FOTO, lbl)
             else:
                 tbl.setItem(row, self._PIL_COL_FOTO,
                             _make_item('—', Qt.AlignCenter, color=QColor(Colors.TEXT_MUTED)))
 
             # ── Cor da linha baseada na classificação ────────────────────────
             self._paint_row(row, classif)
+            
+        tbl.setUpdatesEnabled(True)
+        # Gatilho para carregar os viewers visíveis inicialmente
+        QTimer.singleShot(150, lambda: self._update_dynamic_viewers(tbl, self._pillar_viewer_data, self._PIL_COL_FOTO, False))
+
+    def _update_dynamic_viewers(self, tbl: QTableWidget, data_dict: dict, col_idx: int, is_cut: bool):
+        if not tbl.isVisible():
+            return
+            
+        vp_height = tbl.viewport().height()
+        top_row = tbl.rowAt(0)
+        bottom_row = tbl.rowAt(vp_height)
+        
+        if top_row == -1:
+            top_row = 0
+        if bottom_row == -1:
+            bottom_row = tbl.rowCount() - 1
+            
+        start_row = max(0, top_row - 1)
+        end_row = min(tbl.rowCount() - 1, bottom_row + 1)
+        
+        # Load visíveis
+        for row in range(start_row, end_row + 1):
+            if row in data_dict:
+                pts = data_dict[row]
+                current_widget = tbl.cellWidget(row, col_idx)
+                if current_widget and isinstance(current_widget, _PseudoMiniDXFView):
+                    continue
+                    
+                viewer = self._make_cut_viewer(pts) if is_cut else self._make_pillar_viewer(pts)
+                if viewer:
+                    tbl.setCellWidget(row, col_idx, viewer)
+                else:
+                    tbl.setItem(row, col_idx, _make_item('—', Qt.AlignCenter, color=QColor(Colors.TEXT_MUTED)))
+                    del data_dict[row]
+                    
+        # Unload invisíveis para salvar memória e rendering
+        for row, pts in list(data_dict.items()):
+            if row < start_row - 2 or row > end_row + 2:
+                current_widget = tbl.cellWidget(row, col_idx)
+                if current_widget and isinstance(current_widget, _PseudoMiniDXFView):
+                    lbl = QLabel("⏳ Rolar para carregar")
+                    lbl.setAlignment(Qt.AlignCenter)
+                    lbl.setStyleSheet(f"color: {Colors.TEXT_MUTED}; font-size: 10px;")
+                    tbl.setCellWidget(row, col_idx, lbl)
 
     def _refresh_side_cells(self, row: int, key: str, classif: str):
         """
@@ -2303,6 +2469,10 @@ class PreValidationDialog(QDialog):
         tbl.setStyleSheet("QTableWidget { font-size:9px; }")
         tbl.setMinimumHeight(0)  # não trava o layout; footer permanece visível
         self._cut_table = tbl
+        self._cut_viewer_data = {}
+        tbl.verticalScrollBar().valueChanged.connect(
+            lambda _: self._update_dynamic_viewers(self._cut_table, self._cut_viewer_data, self._CUT_COL_FOTO, True)
+        )
         self._populate_cut_view_table()
         return tbl
 
@@ -2349,6 +2519,7 @@ class PreValidationDialog(QDialog):
 
     def _populate_cut_view_table(self):
         tbl = self._cut_table
+        tbl.setUpdatesEnabled(False)
         tbl.setRowCount(0)
         self._cut_status_combos.clear()
         self._cut_tag_labels.clear()
@@ -2363,7 +2534,7 @@ class PreValidationDialog(QDialog):
             st = h.get('status', 'ok')
             return (_st_order.get(st, 0), 1 if h else 0)
 
-        for cut in sorted(self._cut_view_data, key=_cut_sort_key):
+        for i, cut in enumerate(sorted(self._cut_view_data, key=_cut_sort_key)):
             row = tbl.rowCount()
             tbl.insertRow(row)
             tbl.setRowHeight(row, self._CUT_ROW_H)
@@ -2392,9 +2563,9 @@ class PreValidationDialog(QDialog):
             if hist_beam:
                 # Tenta achar nos candidatos; senão insere manualmente
                 found = False
-                for i in range(beam_combo.count()):
-                    if beam_combo.itemData(i) == hist_beam or beam_combo.itemText(i).startswith(hist_beam):
-                        beam_combo.setCurrentIndex(i)
+                for j in range(beam_combo.count()):
+                    if beam_combo.itemData(j) == hist_beam or beam_combo.itemText(j).startswith(hist_beam):
+                        beam_combo.setCurrentIndex(j)
                         found = True
                         break
                 if not found:
@@ -2478,9 +2649,9 @@ class PreValidationDialog(QDialog):
             hist_status = hist_cv.get('status', '')
             initial_status = 'ok'
             if hist_status:
-                for i in range(st_combo.count()):
-                    if st_combo.itemData(i) == hist_status:
-                        st_combo.setCurrentIndex(i)
+                for j in range(st_combo.count()):
+                    if st_combo.itemData(j) == hist_status:
+                        st_combo.setCurrentIndex(j)
                         initial_status = hist_status
                         break
 
@@ -2534,9 +2705,13 @@ class PreValidationDialog(QDialog):
                 lambda _, u=uid, c=_cut_ref: self._migrate_cut_to_pilar(u, c))
 
             # ── Mini viewer ──────────────────────────────────────────────────
-            viewer = self._make_cut_viewer(cut['pts'])
-            if viewer:
-                tbl.setCellWidget(row, self._CUT_COL_FOTO, viewer)
+            pts = cut.get('pts') or []
+            if pts:
+                self._cut_viewer_data[row] = pts
+                lbl = QLabel("⏳ Carregando...")
+                lbl.setAlignment(Qt.AlignCenter)
+                lbl.setStyleSheet(f"color: {Colors.TEXT_MUTED}; font-size: 10px;")
+                tbl.setCellWidget(row, self._CUT_COL_FOTO, lbl)
             else:
                 tbl.setItem(row, self._CUT_COL_FOTO,
                             _make_item('—', Qt.AlignCenter,
@@ -2544,6 +2719,10 @@ class PreValidationDialog(QDialog):
 
             # ── Cor de fundo da linha (status + tag) ────────────────────────
             self._paint_cut_row(row, initial_status, is_hist)
+            
+        tbl.setUpdatesEnabled(True)
+        # Gatilho inicial para os cortes visíveis
+        QTimer.singleShot(150, lambda: self._update_dynamic_viewers(tbl, self._cut_viewer_data, self._CUT_COL_FOTO, True))
 
     # ── Confirmar + persistir histórico ───────────────────────────────────────
 
