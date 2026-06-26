@@ -15,7 +15,7 @@ from src.ui.components.organisms import DiagnosticSidebar, TechSheetPanel
 from src.ui.canvas import CADCanvas
 from src.core.dxf_loader import RenderMode
 from src.core.services.data_coordinator import get_coordinator
-from src.ui.theme import Colors, Fonts, Radius
+from src.ui.theme import Colors, Fonts, Radius, Semantic, Contextual, Text, Border, Surface, Accent
 from src.core.services.fase4_importer import Fase4Importer
 
 # Raiz base das obras
@@ -842,14 +842,14 @@ class DiagnosticHubModule(QWidget):
         self._ficha_tab_widget = self._build_ficha_tab()
         self._canvas_tabs.addTab(self._ficha_tab_widget, "📋 Ficha Pré-Pavimentos/Detalhes [F2]")
         self._canvas_tabs.tabBar().setTabTextColor(
-            3, __import__('PySide6.QtGui', fromlist=['QColor']).QColor('#e6b400')
+            3, __import__('PySide6.QtGui', fromlist=['QColor']).QColor(Contextual.GOLD)
         )
 
         # Tab 4 - FICHA GLOBAL [F3]
         self._ficha_f3_tab_widget = self._build_ficha_f3_tab()
         self._canvas_tabs.addTab(self._ficha_f3_tab_widget, "📋 Ficha Global [F3]")
         self._canvas_tabs.tabBar().setTabTextColor(
-            4, __import__('PySide6.QtGui', fromlist=['QColor']).QColor('#b450c8')
+            4, __import__('PySide6.QtGui', fromlist=['QColor']).QColor(Contextual.PURPLE)
         )
 
 
@@ -963,8 +963,8 @@ class DiagnosticHubModule(QWidget):
         )
         self._btn_selection_crop.setStyleSheet(f"""
             QPushButton {{
-                background: rgba(120, 60, 180, 38); color: #c08aff;
-                border: 1px solid #c08aff; border-radius: 4px;
+                background: rgba(120, 60, 180, 38); color: {Contextual.PURPLE};
+                border: 1px solid {Contextual.PURPLE}; border-radius: 4px;
                 font-size: 11px; font-weight: bold; padding: 3px 6px;
             }}
             QPushButton:hover {{ background: rgba(120, 60, 180, 71); }}
@@ -1058,8 +1058,8 @@ class DiagnosticHubModule(QWidget):
         )
         self._btn_save_crop.setStyleSheet(f"""
             QPushButton {{
-                background: rgba(80, 80, 220, 31); color: #8888ff;
-                border: 1px solid #8888ff; border-radius: 4px;
+                background: rgba(80, 80, 220, 31); color: {Accent.INTERACTIVE_HOVER};
+                border: 1px solid {Accent.INTERACTIVE_HOVER}; border-radius: 4px;
                 font-size: 10px; font-weight: bold; padding: 4px 8px;
             }}
             QPushButton:hover {{ background: rgba(80, 80, 220, 71); }}
@@ -1076,9 +1076,9 @@ class DiagnosticHubModule(QWidget):
         vlay.addWidget(lbl_class)
 
         _CROP_CLASSES = [
-            ("detalhe",  "Detalhe",  "#aa88ff"),
+            ("detalhe",  "Detalhe",  Contextual.PURPLE),
             ("torre",    "Torre 1",  Colors.ACCENT_TEAL),
-            ("torre_2",  "Torre 2",  "#44bbdd"),
+            ("torre_2",  "Torre 2",  Accent.PRIMARY),
             ("outro",    "Outro",    Colors.TEXT_SECONDARY),
         ]
 
@@ -1206,13 +1206,13 @@ class DiagnosticHubModule(QWidget):
             "Aciona o motor de compreensão global que analisa todas as fichas granulares N2 "
             "e produz a visão coesa da Ficha Global da Obra (F3)."
         )
-        self._btn_process_f3.setStyleSheet("""
-            QPushButton {
-                background: rgba(180, 80, 200, 31); color: #b450c8;
-                border: 1px solid #b450c8; border-radius: 4px;
+        self._btn_process_f3.setStyleSheet(f"""
+            QPushButton {{
+                background: rgba(180, 80, 200, 31); color: {Contextual.PURPLE};
+                border: 1px solid {Contextual.PURPLE}; border-radius: 4px;
                 padding: 4px; font-weight: bold; font-size: 11px;
-            }
-            QPushButton:hover { background: rgba(180, 80, 200, 64); }
+            }}
+            QPushButton:hover {{ background: rgba(180, 80, 200, 64); }}
         """)
         self._btn_process_f3.setEnabled(False)
         self._btn_process_f3.clicked.connect(self._run_process_f3)
@@ -1237,7 +1237,7 @@ class DiagnosticHubModule(QWidget):
         self._lbl_preprocess_feedback.setWordWrap(True)
         self._lbl_preprocess_feedback.setStyleSheet(f"""
             color: {Colors.TEXT_DIM}; font-size: 10px;
-            background: rgba(0, 0, 0, 46); border: 1px solid #2a2f3d;
+            background: rgba(0, 0, 0, 46); border: 1px solid {Border.SUBTLE};
             border-radius: 4px; padding: 5px 8px;
         """)
         vlay.addWidget(self._lbl_preprocess_feedback)
@@ -1263,7 +1263,7 @@ class DiagnosticHubModule(QWidget):
         self._lbl_rag_feedback.setWordWrap(True)
         self._lbl_rag_feedback.setStyleSheet(f"""
             color: {Colors.TEXT_DIM}; font-size: 10px;
-            background: rgba(0, 0, 0, 46); border: 1px solid #2a2f3d;
+            background: rgba(0, 0, 0, 46); border: 1px solid {Border.SUBTLE};
             border-radius: 4px; padding: 5px 8px;
         """)
         vlay.addWidget(self._lbl_rag_feedback)
@@ -1408,7 +1408,7 @@ class DiagnosticHubModule(QWidget):
             font = QFont()
             font.setBold(True)
             header.setFont(font)
-            header.setForeground(QColor("#00ff9d"))
+            header.setForeground(QColor(Semantic.SUCCESS))
             self._list_brutos.addItem(header)
             
             for row in items:
@@ -2683,7 +2683,7 @@ class DiagnosticHubModule(QWidget):
             self._lbl_preprocess_feedback.setText("—  Ficha não gerada. Clique em ⚡ Interpretar Obra Toda.")
             self._lbl_preprocess_feedback.setStyleSheet(
                 f"color: {Colors.TEXT_DIM}; font-size: 10px; background: rgba(0, 0, 0, 46);"
-                " border: 1px solid #2a2f3d; border-radius: 4px; padding: 5px 8px;"
+                f" border: 1px solid {Border.SUBTLE}; border-radius: 4px; padding: 5px 8px;"
             )
             # Limpa ficha tab
             self._ficha_status_lbl.setText("⏳  Execute '⚡ Interpretar Obra Toda' para gerar a ficha.")
@@ -2705,8 +2705,8 @@ class DiagnosticHubModule(QWidget):
                 f"{totais.get('pilares',0)}P / {totais.get('vigas',0)}V / {totais.get('lajes',0)}L"
             )
             self._lbl_preprocess_feedback.setStyleSheet(
-                "color: #00c864; font-size: 10px; background: rgba(0, 0, 0, 46);"
-                " border: 1px solid #00c864; border-radius: 4px; padding: 5px 8px;"
+                f"color: {Semantic.SUCCESS}; font-size: 10px; background: rgba(0, 0, 0, 46);"
+                f" border: 1px solid {Semantic.SUCCESS}; border-radius: 4px; padding: 5px 8px;"
             )
             self._lbl_preprocess_feedback.setText(fb)
             self.refresh_ficha_tab(ficha)
@@ -2755,15 +2755,15 @@ class DiagnosticHubModule(QWidget):
         self._btn_cancel_preprocess.setVisible(True)
         self._lbl_preprocess_feedback.setText("⏳  Interpretação em andamento…")
         self._lbl_preprocess_feedback.setStyleSheet(
-            "color: #7ab3e0; font-size: 10px; background: rgba(0, 0, 0, 46);"
-            " border: 1px solid #7ab3e0; border-radius: 4px; padding: 5px 8px;"
+            f"color: {Accent.INTERACTIVE_HOVER}; font-size: 10px; background: rgba(0, 0, 0, 46);"
+            f" border: 1px solid {Accent.INTERACTIVE_HOVER}; border-radius: 4px; padding: 5px 8px;"
         )
 
         # Mostrar ficha tab com indicador de progresso
         self._canvas_tabs.setCurrentIndex(3)
         self._ficha_status_lbl.setText("⏳  Interpretando obra… aguarde.")
         self._ficha_status_lbl.setStyleSheet(
-            "color: #7ab3e0; font-size: 11px; background: transparent;"
+            f"color: {Accent.INTERACTIVE_HOVER}; font-size: 11px; background: transparent;"
         )
         # Limpar conteúdo anterior
         while self._ficha_content_lay.count():
@@ -2777,7 +2777,7 @@ class DiagnosticHubModule(QWidget):
         self._inline_progress.setStyleSheet(
             f"QProgressBar {{ border: 1px solid {Colors.BORDER_DEFAULT}; border-radius: 4px;"
             f" background: {Colors.BG_PANEL}; height: 10px; }}"
-            f"QProgressBar::chunk {{ background: #9B59B6; border-radius: 4px; }}"
+            f"QProgressBar::chunk {{ background: {Contextual.PURPLE}; border-radius: 4px; }}"
         )
         self._ficha_content_lay.addWidget(self._inline_progress)
         self._inline_log = QLabel("")
@@ -2798,7 +2798,7 @@ class DiagnosticHubModule(QWidget):
             self._lbl_preprocess_feedback.setText("⏹  Cancelado pelo usuário.")
             self._lbl_preprocess_feedback.setStyleSheet(
                 f"color: {Colors.TEXT_DIM}; font-size: 10px; background: rgba(0, 0, 0, 46);"
-                " border: 1px solid #2a2f3d; border-radius: 4px; padding: 5px 8px;"
+                f" border: 1px solid {Border.SUBTLE}; border-radius: 4px; padding: 5px 8px;"
             )
         self._set_preprocess_buttons_enabled(True)
         self._btn_cancel_preprocess.setVisible(False)
@@ -2821,7 +2821,7 @@ class DiagnosticHubModule(QWidget):
         n_v  = result.get('n_vigas', 0)
         n_l  = result.get('n_lajes', 0)
         st   = result.get('status', 'ok')
-        color = '#00c864' if st == 'ok' else '#e6b400'
+        color = Semantic.SUCCESS if st == 'ok' else Contextual.GOLD
         row_lbl = QLabel(
             f"<span style='color:#7ab3e0'>{pav}/t{tidx+1}</span>  "
             f"<span style='color:#9B59B6'>P:{n_p}</span>  "
@@ -2854,8 +2854,8 @@ class DiagnosticHubModule(QWidget):
             f"{totais.get('pilares',0)}P / {totais.get('vigas',0)}V / {totais.get('lajes',0)}L"
         )
         self._lbl_preprocess_feedback.setStyleSheet(
-            "color: #00c864; font-size: 10px; background: rgba(0, 0, 0, 46);"
-            " border: 1px solid #00c864; border-radius: 4px; padding: 5px 8px;"
+            f"color: {Semantic.SUCCESS}; font-size: 10px; background: rgba(0, 0, 0, 46);"
+            f" border: 1px solid {Semantic.SUCCESS}; border-radius: 4px; padding: 5px 8px;"
         )
         self._lbl_preprocess_feedback.setText(fb)
 
@@ -2875,12 +2875,12 @@ class DiagnosticHubModule(QWidget):
         self._btn_cancel_preprocess.setVisible(False)
         self._preprocess_worker = None
         self._lbl_preprocess_feedback.setStyleSheet(
-            "color: #e74c3c; font-size: 10px; background: rgba(0, 0, 0, 46);"
-            " border: 1px solid #e74c3c; border-radius: 4px; padding: 5px 8px;"
+            f"color: {Semantic.DANGER}; font-size: 10px; background: rgba(0, 0, 0, 46);"
+            f" border: 1px solid {Semantic.DANGER}; border-radius: 4px; padding: 5px 8px;"
         )
         self._lbl_preprocess_feedback.setText(f"❌ Erro: {msg[:120]}")
         self._ficha_status_lbl.setText(f"❌ Erro no processamento.")
-        self._ficha_status_lbl.setStyleSheet("color: #e74c3c; font-size: 11px; background: transparent;")
+        self._ficha_status_lbl.setStyleSheet(f"color: {Semantic.DANGER}; font-size: 11px; background: transparent;")
         QMessageBox.warning(self, "Erro — Interpretar Obra", msg[:400])
 
     # ─────────────────────────────────────────────
@@ -2924,7 +2924,7 @@ class DiagnosticHubModule(QWidget):
         duration  = result.get("duration_s", 0)
         errs      = result.get("errors", [])
 
-        color = "#00c864" if status == "ok" else "#e6b400"
+        color = Semantic.SUCCESS if status == "ok" else Contextual.GOLD
         icon  = "✅" if status == "ok" else "⚠"
         self._lbl_rag_feedback.setStyleSheet(
             f"color: {color}; font-size: 10px; background: rgba(0, 0, 0, 46);"
@@ -2941,8 +2941,8 @@ class DiagnosticHubModule(QWidget):
         self._rag_progress.setVisible(False)
         self._rag_worker = None
         self._lbl_rag_feedback.setStyleSheet(
-            "color: #e74c3c; font-size: 10px; background: rgba(0, 0, 0, 46);"
-            " border: 1px solid #e74c3c; border-radius: 4px; padding: 5px 8px;"
+            f"color: {Semantic.DANGER}; font-size: 10px; background: rgba(0, 0, 0, 46);"
+            f" border: 1px solid {Semantic.DANGER}; border-radius: 4px; padding: 5px 8px;"
         )
         self._lbl_rag_feedback.setText(f"❌ Erro RAG: {msg[:120]}")
         QMessageBox.warning(self, "Erro — RAG Semântico", msg[:400])
@@ -2958,24 +2958,24 @@ class DiagnosticHubModule(QWidget):
         main_lay.setContentsMargins(16, 14, 16, 14)
         main_lay.setSpacing(10)
         hdr = QLabel("📋 Ficha Global [F3]")
-        hdr.setStyleSheet("color: #b450c8; font-size: 13px; font-weight: bold; background: transparent;")
+        hdr.setStyleSheet(f"color: {Contextual.PURPLE}; font-size: 13px; font-weight: bold; background: transparent;")
         main_lay.addWidget(hdr)
         sep = QLabel("━" * 60)
-        sep.setStyleSheet("color: #333333; font-size: 10px; background: transparent;")
+        sep.setStyleSheet(f"color: {Border.DEFAULT}; font-size: 10px; background: transparent;")
         main_lay.addWidget(sep)
         self._ficha_f3_status_lbl = QLabel("⏳  Execute 'Analisar todas fichas e gerar Ficha da Obra [F3]' no menu lateral.")
         self._ficha_f3_status_lbl.setWordWrap(True)
-        self._ficha_f3_status_lbl.setStyleSheet("color: #8a9ab5; font-size: 11px; background: transparent;")
+        self._ficha_f3_status_lbl.setStyleSheet(f"color: {Text.SECONDARY}; font-size: 11px; background: transparent;")
         main_lay.addWidget(self._ficha_f3_status_lbl)
         scroll = QScrollArea()
         scroll.setWidgetResizable(True)
-        scroll.setStyleSheet('''
-            QScrollArea { border: none; background: #1a1a1a; }
-            QScrollBar:vertical { background: #2a2a2a; width: 8px; border-radius: 4px; }
-            QScrollBar::handle:vertical { background: #4a4a4a; border-radius: 4px; }
+        scroll.setStyleSheet(f'''
+            QScrollArea {{ border: none; background: {Surface.DEEP}; }}
+            QScrollBar:vertical {{ background: {Border.SUBTLE}; width: 8px; border-radius: 4px; }}
+            QScrollBar::handle:vertical {{ background: {Border.STRONG}; border-radius: 4px; }}
         ''')
         self._ficha_f3_content = QWidget()
-        self._ficha_f3_content.setStyleSheet("background: #1a1a1a;")
+        self._ficha_f3_content.setStyleSheet(f"background: {Surface.DEEP};")
         self._ficha_f3_content_lay = QVBoxLayout(self._ficha_f3_content)
         self._ficha_f3_content_lay.setContentsMargins(0, 4, 0, 4)
         self._ficha_f3_content_lay.setSpacing(8)
@@ -2993,7 +2993,7 @@ class DiagnosticHubModule(QWidget):
         self._btn_process_limpo.setEnabled(False)
         self._btn_cancel_preprocess.setVisible(True)
         self._ficha_f3_status_lbl.setText("⏳ Gerando Ficha Global F3 (Consolidando fichas granulares N2)...")
-        self._ficha_f3_status_lbl.setStyleSheet("color: #e6b400; font-size: 11px; font-weight: bold; background: transparent;")
+        self._ficha_f3_status_lbl.setStyleSheet(f"color: {Contextual.GOLD}; font-size: 11px; font-weight: bold; background: transparent;")
         
         # Consolida de verdade!
         try:
@@ -3018,7 +3018,7 @@ class DiagnosticHubModule(QWidget):
         self._btn_process_limpo.setEnabled(True)
         self._btn_cancel_preprocess.setVisible(False)
         self._ficha_f3_status_lbl.setText("✅ Ficha Global F3 Carregada!")
-        self._ficha_f3_status_lbl.setStyleSheet("color: #00c864; font-size: 11px; font-weight: bold; background: transparent;")
+        self._ficha_f3_status_lbl.setStyleSheet(f"color: {Semantic.SUCCESS}; font-size: 11px; font-weight: bold; background: transparent;")
         
         # Limpar o conteudo atual da F3
         while self._ficha_f3_content_lay.count():
@@ -3048,12 +3048,12 @@ class DiagnosticHubModule(QWidget):
                 # Montar HTML premium
                 html = f"""
                 <div style="font-family: 'Segoe UI', Arial, sans-serif; color: #E2E8F0; max-width: 800px; padding: 10px;">
-                    <div style="background: rgba(180, 80, 200, 0.15); border-left: 4px solid #b450c8; padding: 15px; border-radius: 4px; margin-bottom: 20px;">
-                        <h2 style="margin: 0 0 10px 0; color: #b450c8; font-size: 18px;">📋 Ficha Global [F3] - Relatório Executivo</h2>
+                    <div style="background: rgba(180, 80, 200, 0.15); border-left: 4px solid {Contextual.PURPLE}; padding: 15px; border-radius: 4px; margin-bottom: 20px;">
+                        <h2 style="margin: 0 0 10px 0; color: {Contextual.PURPLE}; font-size: 18px;">📋 Ficha Global [F3] - Relatório Executivo</h2>
                         <table style="width: 100%; border-collapse: collapse;">
                             <tr>
-                                <td style="padding: 5px 0;"><b>Total de Peças Analisadas (F5):</b> <span style="color:#00c864;">{total_fichas}</span></td>
-                                <td style="padding: 5px 0;"><b>Grau de Confiança (IA):</b> <span style="color:#e6b400;">{conf_media:.1f}%</span></td>
+                                <td style="padding: 5px 0;"><b>Total de Peças Analisadas (F5):</b> <span style="color:{Semantic.SUCCESS};">{total_fichas}</span></td>
+                                <td style="padding: 5px 0;"><b>Grau de Confiança (IA):</b> <span style="color:{Contextual.GOLD};">{conf_media:.1f}%</span></td>
                             </tr>
                             <tr>
                                 <td style="padding: 5px 0;"><b>Pavimentos Cobertos:</b> {len(pavimentos)}</td>
@@ -3091,7 +3091,7 @@ class DiagnosticHubModule(QWidget):
                 self._ficha_f3_content_lay.addWidget(lbl)
             else:
                 lbl = QLabel("Nenhuma Ficha F3 consolidada encontrada para esta obra.")
-                lbl.setStyleSheet("color: #8a9ab5;")
+                lbl.setStyleSheet(f"color: {Text.SECONDARY};")
                 self._ficha_f3_content_lay.addWidget(lbl)
             conn.close()
         except Exception as e:
@@ -3122,7 +3122,7 @@ class DiagnosticHubModule(QWidget):
         # ── Cabeçalho ─────────────────────────────────────────────────────────
         hdr = QLabel("📋 Ficha Pré-Pavimentos/Detalhes [F2]")
         hdr.setStyleSheet(
-            f"color: #e6b400; font-size: 13px; font-weight: bold; background: transparent;"
+            f"color: {Contextual.GOLD}; font-size: 13px; font-weight: bold; background: transparent;"
         )
         main_lay.addWidget(hdr)
 
@@ -3207,7 +3207,7 @@ class DiagnosticHubModule(QWidget):
         # ── Totais globais ───────────────────────────────────────────────
         totais_frame = QFrame()
         totais_frame.setStyleSheet(
-            f"background: {Colors.BG_CARD}; border: 1px solid #e6b400; border-radius: 6px; padding: 8px;"
+            f"background: {Colors.BG_CARD}; border: 1px solid {Contextual.GOLD}; border-radius: 6px; padding: 8px;"
         )
         tf_lay = QHBoxLayout(totais_frame)
         tf_lay.setContentsMargins(12, 8, 12, 8)
@@ -3217,9 +3217,9 @@ class DiagnosticHubModule(QWidget):
             ("Pilares", totais.get("pilares", 0), "#9B59B6"),
             ("Vigas",   totais.get("vigas",   0), "#2980B9"),
             ("Lajes",   totais.get("lajes",   0), "#27AE60"),
-            ("Pavimentos", len(pavs), "#e6b400"),
+            ("Pavimentos", len(pavs), Contextual.GOLD),
         ]:
-            chip = QLabel(f"<b style='color:{color}'>{val}</b><br><span style='font-size:10px;color:#888'>{label}</span>")
+            chip = QLabel(f"<b style='color:{color}'>{val}</b><br><span style='font-size:10px;color:{Text.SECONDARY}'>{label}</span>")
             chip.setAlignment(Qt.AlignCenter)
             chip.setStyleSheet("background: transparent;")
             tf_lay.addWidget(chip)
@@ -3233,14 +3233,14 @@ class DiagnosticHubModule(QWidget):
             rsm_lbl.setWordWrap(True)
             rsm_lbl.setStyleSheet(
                 f"color: {Colors.TEXT_SECONDARY}; font-size: 10px; background: {Colors.BG_PANEL};"
-                " border: 1px solid #333; border-radius: 4px; padding: 8px;"
+                f" border: 1px solid {Border.DEFAULT}; border-radius: 4px; padding: 8px;"
             )
             self._ficha_content_lay.addWidget(rsm_lbl)
 
         # ── Tabela por pavimento ─────────────────────────────────────────
         for pav in pavs:
             status = pav.get("status", "ok")
-            status_color = {"ok": "#00c864", "parcial": "#e6b400", "erro": "#e74c3c"}.get(status, "#888")
+            status_color = {"ok": Semantic.SUCCESS, "parcial": Contextual.GOLD, "erro": Semantic.DANGER}.get(status, Text.SECONDARY)
             status_icon  = {"ok": "✅", "parcial": "⚠", "erro": "❌"}.get(status, "—")
 
             pf = QFrame()
@@ -3254,7 +3254,7 @@ class DiagnosticHubModule(QWidget):
 
             nome_lbl = QLabel(f"<b>{pav.get('nome', '—')}</b>")
             nome_lbl.setFixedWidth(130)
-            nome_lbl.setStyleSheet("color: #00d4ff; font-size: 11px; background: transparent;")
+            nome_lbl.setStyleSheet(f"color: {Accent.PRIMARY}; font-size: 11px; background: transparent;")
             pf_lay.addWidget(nome_lbl)
 
             for lbl, val, color in [
@@ -3263,17 +3263,17 @@ class DiagnosticHubModule(QWidget):
                 (f"LAJ", pav.get("n_lajes",   0), "#27AE60"),
             ]:
                 chip = QLabel(f"<span style='color:{color};font-weight:bold'>{lbl}</span> {val}")
-                chip.setStyleSheet("font-size: 10px; background: transparent; color: #ccc;")
+                chip.setStyleSheet(f"font-size: 10px; background: transparent; color: {Text.PRIMARY};")
                 pf_lay.addWidget(chip)
 
             nivel_txt = f"nível {pav.get('nivel_chegada', 0):.0f}→{pav.get('nivel_saida', 0):.0f} cm"
             nivel_lbl = QLabel(nivel_txt)
-            nivel_lbl.setStyleSheet("color: #888; font-size: 10px; background: transparent;")
+            nivel_lbl.setStyleSheet(f"color: {Text.SECONDARY}; font-size: 10px; background: transparent;")
             pf_lay.addWidget(nivel_lbl)
 
             if pav.get("lajes_nivel_distinto"):
                 dist_lbl = QLabel("↕ lajes distintas")
-                dist_lbl.setStyleSheet("color: #e6b400; font-size: 10px; background: transparent;")
+                dist_lbl.setStyleSheet(f"color: {Contextual.GOLD}; font-size: 10px; background: transparent;")
                 pf_lay.addWidget(dist_lbl)
 
             pf_lay.addStretch()
@@ -3289,7 +3289,7 @@ class DiagnosticHubModule(QWidget):
             f"✅  Ficha de '{obra}' gerada — {len(pavs)} pavimento(s) processado(s)."
         )
         self._ficha_status_lbl.setStyleSheet(
-            "color: #00c864; font-size: 11px; background: transparent;"
+            f"color: {Semantic.SUCCESS}; font-size: 11px; background: transparent;"
         )
         self._ficha_footer_lbl.setText(f"Última geração: {ts}")
 

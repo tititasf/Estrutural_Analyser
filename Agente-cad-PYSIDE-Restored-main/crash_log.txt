@@ -1,20 +1,58 @@
 CRITICAL STARTUP ERROR:
 Traceback (most recent call last):
-  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\main.py", line 13919, in <module>
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\main.py", line 13938, in <module>
     main()
-    ~~~~^^
-  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\main.py", line 13913, in main
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\main.py", line 13932, in main
     start_app(dummy_user)
-    ~~~~~~~~~^^^^^^^^^^^^
-  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\main.py", line 13873, in start_app
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\main.py", line 13892, in start_app
     window = MainWindow()
+             ^^^^^^^^^^^^
   File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\main.py", line 237, in __init__
     self.init_ui()
-    ~~~~~~~~~~~~^^
   File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\main.py", line 2901, in init_ui
     self.diagnostic_reverse_module = DiagnosticReverseHub()
-                                     ~~~~~~~~~~~~~~~~~~~~^^
+                                     ^^^^^^^^^^^^^^^^^^^^^^
   File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\src\ui\modules\diagnostic_reverse_hub.py", line 2697, in __init__
     self._center = _CenterPanel()
-                   ~~~~~~~~~~~~^^
+                   ^^^^^^^^^^^^^^
 TypeError: _CenterPanel.__init__() missing 2 required positional arguments: 'text' and 'status'
+
+[2026-06-26 04:26:23] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\main.py", line 1470, in <lambda>
+    self.sa_cmb_pavimentos.currentIndexChanged.connect(lambda _: _on_sa_pav_changed())
+                                                                 ^^^^^^^^^^^^^^^^^^^^
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\main.py", line 1455, in _on_sa_pav_changed
+    self._open_project_tab(project_id, raw_name)
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\main.py", line 1008, in _open_project_tab
+    self._load_project_into_view(pid_str)
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\main.py", line 1136, in _load_project_into_view
+    self.load_project_action() # Lógica existente de povoar lists/canvas
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\main.py", line 7277, in load_project_action
+    self.canvas.reset_state()
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\src\ui\canvas.py", line 692, in reset_state
+    self.source_dxf_path = source_dxf_path
+                           ^^^^^^^^^^^^^^^
+NameError: name 'source_dxf_path' is not defined
+
+
+[2026-06-26 04:29:59] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\main.py", line 1470, in <lambda>
+    self.sa_cmb_pavimentos.currentIndexChanged.connect(lambda _: _on_sa_pav_changed())
+                                                                 ^^^^^^^^^^^^^^^^^^^^
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\main.py", line 1455, in _on_sa_pav_changed
+    self._open_project_tab(project_id, raw_name)
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\main.py", line 1008, in _open_project_tab
+    self._load_project_into_view(pid_str)
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\main.py", line 1136, in _load_project_into_view
+    self.load_project_action() # Lógica existente de povoar lists/canvas
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\main.py", line 7277, in load_project_action
+    for item in items:
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\src\ui\canvas.py", line 692, in reset_state
+    self.source_dxf_path = source_dxf_path
+                           ^^^^^^^^^^^^^^^
+NameError: name 'source_dxf_path' is not defined
+

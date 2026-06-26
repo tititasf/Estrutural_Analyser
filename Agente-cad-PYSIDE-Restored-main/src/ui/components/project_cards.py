@@ -3,7 +3,7 @@ from PySide6.QtWidgets import (QFrame, QVBoxLayout, QHBoxLayout, QLabel,
                                 QPushButton, QProgressBar, QWidget, QGridLayout, QScrollArea)
 from PySide6.QtCore import Qt, Signal, QSize
 from PySide6.QtGui import QColor, QCursor, QFont
-from src.ui.theme import Colors, Fonts, Radius
+from src.ui.theme import Colors, Fonts, Radius, Surface, Accent, Semantic, Text, Border, Contextual
 
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
@@ -86,9 +86,9 @@ class ProjectCard(BaseCard):
         self.setMaximumHeight(56)
         self.setObjectName("BaseCard")
         self.setStyleSheet(
-            "#BaseCard { background: #12161e; border: 1px solid #2a2f3d;"
-            " border-radius: 5px; }"
-            "#BaseCard:hover { border-color: #00d9ff; }"
+            f"#BaseCard {{ background: {Surface.DEEP}; border: 1px solid {Border.SUBTLE};"
+            f" border-radius: 5px; }}"
+            f"#BaseCard:hover {{ border-color: {Accent.PRIMARY}; }}"
         )
         self._setup_ui()
 
@@ -100,11 +100,11 @@ class ProjectCard(BaseCard):
         # ── Status badge ──────────────────────────────────────────────
         status = (self.data.get('sync_status') or 'pending').upper()
         if status == 'SYNCED':
-            badge_bg, badge_fg = 'rgba(0, 200, 100, 38)', '#00c864'
+            badge_bg, badge_fg = 'rgba(76, 175, 80, 38)', Semantic.SUCCESS
         elif status == 'EXTRACTING':
-            badge_bg, badge_fg = 'rgba(0, 217, 255, 38)', '#00d9ff'
+            badge_bg, badge_fg = 'rgba(0, 212, 255, 38)', Accent.PRIMARY
         else:
-            badge_bg, badge_fg = 'rgba(230, 180, 0, 38)', '#e6b400'
+            badge_bg, badge_fg = 'rgba(230, 180, 0, 38)', Contextual.GOLD
 
         lbl_status = QLabel(status)
         lbl_status.setFixedWidth(72)
@@ -135,7 +135,7 @@ class ProjectCard(BaseCard):
         # Nome completo (legível, tooltip com raw)
         lbl_pav = QLabel(pav_name)
         lbl_pav.setStyleSheet(
-            "color: #00d9ff; font-size: 11px; font-weight: bold;"
+            f"color: {Accent.PRIMARY}; font-size: 11px; font-weight: bold;"
             " background: transparent; border: none;"
         )
         lbl_pav.setToolTip(self.data.get('name', pav_name))
@@ -165,16 +165,16 @@ class ProjectCard(BaseCard):
         if date_upd:
             lbl_date = QLabel(date_upd)
             lbl_date.setStyleSheet(
-                "color: #4a5060; font-size: 9px; background: transparent; border: none;"
+                f"color: {Text.MUTED}; font-size: 9px; background: transparent; border: none;"
             )
             row.addWidget(lbl_date)
 
         # ── Action buttons ────────────────────────────────────────────
         _btn_css = (
-            "QPushButton { background: #1a1f2e; color: #8a9ab5;"
-            " border: 1px solid #2a3040; border-radius: 3px;"
-            " font-size: 10px; font-weight: bold; padding: 1px 8px; }"
-            " QPushButton:hover { color: #ffffff; border-color: #00d9ff; }"
+            f"QPushButton {{ background: {Surface.BASE}; color: {Text.SECONDARY};"
+            f" border: 1px solid {Border.SUBTLE}; border-radius: 3px;"
+            f" font-size: 10px; font-weight: bold; padding: 1px 8px; }}"
+            f" QPushButton:hover {{ color: {Text.BRIGHT}; border-color: {Accent.PRIMARY}; }}"
         )
 
         btn_ficha = QPushButton("📄 Ficha")
@@ -187,10 +187,10 @@ class ProjectCard(BaseCard):
         btn_dxf = QPushButton("👁 Abrir DXF")
         btn_dxf.setFixedHeight(24)
         btn_dxf.setStyleSheet(
-            "QPushButton { background: rgba(0, 217, 255, int(12/100*255)); color: #00d9ff;"
-            " border: 1px solid #00d9ff; border-radius: 3px;"
-            " font-size: 10px; font-weight: bold; padding: 1px 8px; }"
-            " QPushButton:hover { background: rgba(0, 217, 255, int(25/100*255)); }"
+            f"QPushButton {{ background: rgba(0, 212, 255, 31); color: {Accent.PRIMARY};"
+            f" border: 1px solid {Accent.PRIMARY}; border-radius: 3px;"
+            f" font-size: 10px; font-weight: bold; padding: 1px 8px; }}"
+            f" QPushButton:hover {{ background: rgba(0, 212, 255, 64); }}"
         )
         btn_dxf.setCursor(Qt.PointingHandCursor)
         btn_dxf.clicked.connect(lambda: self.action_open_dxf.emit(self.data))
@@ -199,9 +199,9 @@ class ProjectCard(BaseCard):
         btn_del = QPushButton("✕")
         btn_del.setFixedSize(24, 24)
         btn_del.setStyleSheet(
-            "QPushButton { background: transparent; color: #4a3040;"
-            " border: 1px solid #3a2030; border-radius: 3px; font-size: 12px; }"
-            " QPushButton:hover { color: #e74c3c; border-color: #e74c3c; }"
+            f"QPushButton {{ background: transparent; color: {Text.MUTED};"
+            f" border: 1px solid {Border.DEFAULT}; border-radius: 3px; font-size: 12px; }}"
+            f" QPushButton:hover {{ color: {Semantic.DANGER}; border-color: {Semantic.DANGER}; }}"
         )
         btn_del.setCursor(Qt.PointingHandCursor)
         btn_del.clicked.connect(lambda: self.action_delete.emit(self.data))

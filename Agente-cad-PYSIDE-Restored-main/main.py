@@ -1722,9 +1722,27 @@ class MainWindow(QMainWindow):
             layout = QVBoxLayout(container)
             layout.setContentsMargins(0,0,0,0)
             layout.setSpacing(5)
-            
-            # Lista
-            layout.addWidget(list_widget)
+
+            # LV "Análise Atual": substituir lista única por sub-abas Para/Passam
+            if item_type == 'beam' and not is_library:
+                _STYLE_LV_TABS = (
+                    f"QTabBar::tab {{ background:{Colors.BG_CARD}; color:{Colors.TEXT_SECONDARY};"
+                    f" border-radius:3px; padding:3px 10px; margin-right:2px; }}"
+                    f"QTabBar::tab:selected:nth-child(1) {{ background:#1B5E20; color:#fff; font-weight:bold; }}"
+                    f"QTabBar::tab:selected:nth-child(2) {{ background:#4A148C; color:#fff; font-weight:bold; }}"
+                    f"QTabBar::tab:selected {{ background:#1B5E20; color:#fff; font-weight:bold; }}"
+                    f"QTabWidget::pane {{ border:1px solid {Colors.BORDER_DEFAULT}; }}"
+                )
+                lv_analysis_tabs = QTabWidget()
+                lv_analysis_tabs.setStyleSheet(_STYLE_LV_TABS)
+                lv_analysis_tabs.addTab(self.list_beams_para,  "Vigas Para")
+                lv_analysis_tabs.addTab(self.list_beams_passa, "Vigas Passam")
+                lv_analysis_tabs.currentChanged.connect(self._on_lv_analysis_subtab_changed)
+                self._lv_analysis_tabs = lv_analysis_tabs
+                layout.addWidget(lv_analysis_tabs)
+            else:
+                # Lista normal
+                layout.addWidget(list_widget)
             
             # Botões de Ação Básica
             h_layout = QHBoxLayout()
@@ -1808,6 +1826,21 @@ class MainWindow(QMainWindow):
         self.list_beams.setColumnWidth(2, 60)
         self.list_beams.setColumnWidth(3, 40)
 
+        # Sub-listas LV — Vigas Para / Vigas Passam (sub-abas da aba "Lat. de Vigas")
+        self.list_beams_para = QTreeWidget()
+        self.list_beams_para.setHeaderLabels(["Item", "Nome", "Status", "%"])
+        self.list_beams_para.setColumnWidth(0, 50)
+        self.list_beams_para.setColumnWidth(1, 150)
+        self.list_beams_para.setColumnWidth(2, 60)
+        self.list_beams_para.setColumnWidth(3, 40)
+
+        self.list_beams_passa = QTreeWidget()
+        self.list_beams_passa.setHeaderLabels(["Item", "Nome", "Status", "%"])
+        self.list_beams_passa.setColumnWidth(0, 50)
+        self.list_beams_passa.setColumnWidth(1, 150)
+        self.list_beams_passa.setColumnWidth(2, 60)
+        self.list_beams_passa.setColumnWidth(3, 40)
+
         self.list_beams_fundo = QTreeWidget()
         self.list_beams_fundo.setHeaderLabels(["Item", "Nome", "Status", "%"])
         self.list_beams_fundo.setColumnWidth(0, 50)
@@ -1832,7 +1865,11 @@ class MainWindow(QMainWindow):
         
         self.list_beams.itemClicked.connect(self.on_list_beam_clicked)
         self.list_beams.currentItemChanged.connect(lambda curr, prev: self.on_list_beam_clicked(curr, 0) if curr else None)
-        
+        self.list_beams_para.itemClicked.connect(self.on_list_beam_clicked)
+        self.list_beams_para.currentItemChanged.connect(lambda curr, prev: self.on_list_beam_clicked(curr, 0) if curr else None)
+        self.list_beams_passa.itemClicked.connect(self.on_list_beam_clicked)
+        self.list_beams_passa.currentItemChanged.connect(lambda curr, prev: self.on_list_beam_clicked(curr, 0) if curr else None)
+
         self.list_beams_fundo.itemClicked.connect(self.on_list_beam_fundo_clicked)
         self.list_beams_fundo.currentItemChanged.connect(lambda curr, prev: self.on_list_beam_fundo_clicked(curr, 0) if curr else None)
         
@@ -2179,6 +2216,41 @@ class MainWindow(QMainWindow):
                     QMessageBox.information(self, "Sucesso", f"{count} lajes sincronizadas e processadas pela IA!")
 
         self.statusBar.showMessage(f"Sincronização concluída: {count} lajes enviadas.", 5000)
+
+    def _auto_sync_beams_to_laterais_silent(self):
+        """Versão silenciosa (sem dialogs) do sync para Robo LV, chamada após análise."""
+        try:
+            if not getattr(self, 'robo_viga', None):
+                return
+            obra_nome = self.cmb_works.currentText()
+            pavimento_nome = self._current_pavement_name()
+            if not obra_nome or not pavimento_nome:
+                return
+            if not getattr(self, 'beams_found', None):
+                return
+            self.robo_viga.add_global_pavimento(obra_nome, pavimento_nome)
+            import re as _re
+            def _nat(s): return [int(t) if t.isdigit() else t.lower() for t in _re.split(r'(\d+)', str(s))]
+            sorted_beams = sorted(self.beams_found, key=lambda x: _nat(x.get('name', '')))
+            viga_list = []
+            for b in sorted_beams:
+                base_name = b.get('name', '')
+                number = b.get('id_item', base_name)
+                for pp in ("Para", "Passa"):
+                    for face in ("A", "B"):
+                        viga_list.append({
+                            'name': f"{base_name}_{pp}_{face}",
+                            'display_name': f"{base_name}.{face}",
+                            'base_beam': base_name,
+                            'number': number,
+                            'parent_name': pp,
+                            'face': face,
+                        })
+            if viga_list:
+                self.robo_viga.add_viga_bulk(viga_list)
+                self.log(f"🔗 Auto-sync Robo LV: {len(sorted_beams)} vigas → {len(viga_list)} entradas.")
+        except Exception as _e:
+            self.log(f"[auto-sync LV] {_e}")
 
     def sync_beams_to_laterais_action(self):
         """Sincroniza as vigas da análise para o Robo Laterais."""
@@ -3080,6 +3152,20 @@ class MainWindow(QMainWindow):
             fw.textChanged.connect(self._fv_regen_timer.start)
         for pf in getattr(self.robo_fundo, 'paineis_fields', []):
             pf.textChanged.connect(self._fv_regen_timer.start)
+        for cf in getattr(self.robo_fundo, 'chanfros_fields', []):
+            cf.textChanged.connect(self._fv_regen_timer.start)
+        for row in getattr(self.robo_fundo, 'aberturas_fields', []):
+            for af in row:
+                af.textChanged.connect(self._fv_regen_timer.start)
+        for lf in getattr(self.robo_fundo, 'l_fields', {}).values():
+            lf.textChanged.connect(self._fv_regen_timer.start)
+        for cf in getattr(self.robo_fundo, 'l_chanfros_fields', []):
+            cf.textChanged.connect(self._fv_regen_timer.start)
+        for row in getattr(self.robo_fundo, 'l_aberturas_fields', []):
+            for af in row:
+                af.textChanged.connect(self._fv_regen_timer.start)
+        # Botão Atualizar → regen imediato (sem debounce)
+        self.robo_fundo.regen_requested.connect(self._on_fv_fields_regen)
 
         self.log("[FV Viewer] DXFVectorView instalado no Robô Fundo de Vigas")
 
@@ -3109,49 +3195,27 @@ class MainWindow(QMainWindow):
         return Path('D:/Agente-cad-PYSIDE/DADOS-OBRAS') / obra / 'Fase-6_Execucao_CAD' / 'fundo_override'
 
     def _fv_write_override_from_ui(self, obra: str, base_nome: str, seg_idx: int):
-        """Escreve override JSON com dados atuais da UI para regeneração DXF em tempo real."""
+        """Escreve robot_json com TODOS os campos da UI para regeneração DXF em tempo real.
+
+        O arquivo V{n:03d}_robot.json é passado via --robot_json ao gerador,
+        que converte chanfros→vértices, aberturas→loose, painel L→loose, etc.
+        """
         try:
             import re as _re, json as _js
             robo = self.robo_fundo
-
-            def _f(v):
-                try: return float(str(v).replace(',', '.'))
-                except: return 0.0
-
-            paineis_raw = [pf.text() for pf in robo.paineis_fields]
-            panels_ui = [{'width': _f(w)} for w in paineis_raw if _f(w) > 0]
-            seg_total_w = _f(robo.fields['largura'].text())
-            b_val = _f(robo.fields['altura'].text()) or 14.0
-
-            # Pavimento atual no combo do robo
-            combo_pav = robo.combo_pavimento
-            pav = combo_pav.currentData() or combo_pav.currentText()
-
-            # Buscar todos os segmentos do fundos_salvos para mesclar o editado
-            obra_dict = robo.fundos_salvos.get(obra, {}).get(pav, {})
-            viga_dados = next(
-                (vd for vd in obra_dict.values() if isinstance(vd, dict) and vd.get('nome', '') == base_nome),
-                None
-            )
-            segs = list(viga_dados.get('segments_rich', []) if viga_dados else [])
-
-            # Sobrepor o segmento editado com valores da UI
-            while len(segs) <= seg_idx:
-                segs.append({})
-            segs[seg_idx] = {'total_width': seg_total_w, 'panels': panels_ui}
-
+            dados = robo.get_current_data()
+            dados['nome'] = base_nome  # garantir nome correto
             m = _re.search(r'\d+', base_nome)
             if not m:
                 return
             n = int(m.group())
             override_dir = self._fv_override_dir(obra)
             override_dir.mkdir(parents=True, exist_ok=True)
-            (override_dir / f'V{n:03d}_fundo.json').write_text(
-                _js.dumps({'total_width': b_val, 'segments_rich': segs}, ensure_ascii=False, indent=2),
-                encoding='utf-8')
-            self.log(f'[FV] Override escrito para {base_nome} seg{seg_idx}')
+            rj_path = override_dir / f'V{n:03d}_robot.json'
+            rj_path.write_text(_js.dumps(dados, ensure_ascii=False, indent=2), encoding='utf-8')
+            self.log(f'[FV] robot_json escrito: {rj_path.name}')
         except Exception as e:
-            self.log(f'[FV] Erro ao escrever override da UI: {e}')
+            self.log(f'[FV] Erro ao escrever robot_json da UI: {e}')
 
     def _on_fv_save_done(self, item_nome: str):
         """Após salvar segmento/viga no robô: regenera DXF com dados do override."""
@@ -3183,20 +3247,45 @@ class MainWindow(QMainWindow):
         self.log(f"[FV Viewer] DXF não encontrado para {item_nome} em {obra} — gerando")
         self._fv_gerar_e_carregar(item_nome)
 
+    def _fv_robot_json_path(self, obra: str, base_nome: str) -> 'Path | None':
+        """Retorna o caminho do robot_json se existir, None caso contrário."""
+        import re as _re
+        m = _re.search(r'\d+', base_nome)
+        if not m:
+            return None
+        n = int(m.group())
+        p = self._fv_override_dir(obra) / f'V{n:03d}_robot.json'
+        return p if p.exists() else None
+
     def _fv_gerar_e_carregar(self, item_nome: str, use_override: bool = False):
-        """Gera DXF N3 para o item (ou segmento) e carrega no viewer."""
+        """Gera DXF N3 para o item e carrega no viewer.
+
+        Se existir V{n:03d}_robot.json no override_dir, usa --robot_json (modo rico:
+        chanfros, aberturas, painel L, sarrafos condicionais).
+        Caso contrário, usa --override_dir (compatibilidade retroativa) ou Fase-4 JSON.
+        """
         obra = self._fv_obra_atual()
         base_nome, seg_idx = self._fv_parse_item(item_nome)
-        # garantir que cmb_works aponte para a mesma obra antes de chamar _run_robo_dxf
         if obra and hasattr(self, 'cmb_works'):
             idx = self.cmb_works.findText(obra)
             if idx >= 0:
                 self.cmb_works.setCurrentIndex(idx)
-        extra = ['--seg_idx', str(seg_idx)] if seg_idx >= 0 else []
+
+        extra = []
         if obra:
-            override_dir = self._fv_override_dir(obra)
-            if use_override or override_dir.exists():
-                extra += ['--override_dir', str(override_dir)]
+            rj_path = self._fv_robot_json_path(obra, base_nome) if use_override else None
+            if rj_path:
+                extra += ['--robot_json', str(rj_path)]
+            else:
+                if seg_idx >= 0:
+                    extra += ['--seg_idx', str(seg_idx)]
+                override_dir = self._fv_override_dir(obra)
+                if use_override or override_dir.exists():
+                    extra += ['--override_dir', str(override_dir)]
+        else:
+            if seg_idx >= 0:
+                extra += ['--seg_idx', str(seg_idx)]
+
         self._run_robo_dxf(
             'FV', 'gerar_fv_dxf_stog.py',
             item_id=base_nome, open_canvas=False,
@@ -3205,15 +3294,31 @@ class MainWindow(QMainWindow):
         )
 
     def _on_fv_fields_regen(self):
-        """Ao editar campos do robô FV: escreve override da UI, regera DXF e atualiza viewer."""
+        """Ao editar campos do robô FV: escreve robot_json, regera DXF e atualiza viewer."""
         item = self._fv_current_item
         if not item:
             return
         obra = self._fv_obra_atual()
         base_nome, seg_idx = self._fv_parse_item(item)
-        # Escrever override com valores atuais da UI para que a geração use eles
-        if obra and seg_idx >= 0:
+
+        # Sempre escreve robot_json com todos os campos (inclui chanfros, aberturas, L-panel)
+        if obra:
             self._fv_write_override_from_ui(obra, base_nome, seg_idx)
+            import re as _re
+            m = _re.search(r'\d+', base_nome)
+            if m:
+                from pathlib import Path as _Path
+                rj_path = self._fv_override_dir(obra) / f'V{int(m.group()):03d}_robot.json'
+                if rj_path.exists():
+                    self._run_robo_dxf(
+                        'FV', 'gerar_fv_dxf_stog.py',
+                        item_id=base_nome, open_canvas=False,
+                        _after_dxf=lambda p: self._fv_dxf_viewer.load_dxf(p),
+                        extra_args=['--robot_json', str(rj_path)],
+                    )
+                    return
+
+        # Fallback: override_dir legacy
         extra = ['--seg_idx', str(seg_idx)] if seg_idx >= 0 else []
         if obra:
             override_dir = self._fv_override_dir(obra)
@@ -5350,6 +5455,8 @@ class MainWindow(QMainWindow):
         # Limpar Listas
         self.list_pillars.clear()
         self.list_beams.clear()
+        self.list_beams_para.clear()
+        self.list_beams_passa.clear()
         if hasattr(self, "list_beams_fundo"): self.list_beams_fundo.clear()
         self.list_slabs.clear()
         
@@ -5716,6 +5823,14 @@ class MainWindow(QMainWindow):
         # 1.0b Finalizar Lista de Vigas Hierárquica
         self._populate_beam_tree(self.list_beams, self.beams_found, "lateral")
         self._populate_beam_tree(self.list_beams_fundo, self.beams_found, "fundo")
+        # Sub-abas Para/Passam: limpar para populate lazy; popular a aba ativa se houver
+        self.list_beams_para.clear()
+        self.list_beams_passa.clear()
+        if hasattr(self, '_lv_analysis_tabs'):
+            _idx = self._lv_analysis_tabs.currentIndex()
+            _tree = self.list_beams_para if _idx == 0 else self.list_beams_passa
+            _pp   = "para"             if _idx == 0 else "passa"
+            self._populate_beam_tree(_tree, self.beams_found, "lateral", _pp)
 
         # 2. Processar Pilares
         self.update_progress(50, "Analisando Pilares...")
@@ -5981,6 +6096,7 @@ class MainWindow(QMainWindow):
         self.canvas.draw_slabs(self.slabs_found)
         self.canvas.draw_beams(self.beams_found)
         self.hide_progress()
+        self._auto_sync_beams_to_laterais_silent()
         try:
             obra_f7 = self.cmb_works.currentText() if hasattr(self, "cmb_works") else ""
             pav_f7 = self._current_pavement_name() if hasattr(self, "cmb_pavements") else ""
@@ -6296,6 +6412,13 @@ class MainWindow(QMainWindow):
                 # FV: draw_item_links usa type do current_card.item_data
                 if self.current_card:
                     self.canvas.draw_item_links(self.current_card.item_data)
+
+    def _on_lv_analysis_subtab_changed(self, idx: int):
+        """Popula lazy a sub-aba LV ativa (Para=0 / Passa=1) ao primeiro clique."""
+        tree = self.list_beams_para if idx == 0 else self.list_beams_passa
+        pp   = "para"             if idx == 0 else "passa"
+        if not tree.topLevelItemCount() and hasattr(self, "beams_found") and self.beams_found:
+            self._populate_beam_tree(tree, self.beams_found, "lateral", pp)
 
     def on_list_beam_fundo_clicked(self, item, column=0):
         """Clique em item da lista Fun. de Vigas: destaca APENAS o fundo desta viga + zoom."""
@@ -11892,7 +12015,7 @@ class MainWindow(QMainWindow):
             tree_widget.resizeColumnToContents(1)
 
 
-    def _populate_beam_tree(self, tree_widget, beam_list, list_type='lateral'):
+    def _populate_beam_tree(self, tree_widget, beam_list, list_type='lateral', pp_filter: str = ""):
         # Limpar cache de itens deste widget específico
         for iid, widgets in self.tree_item_map.items():
             safe = []
@@ -11952,14 +12075,23 @@ class MainWindow(QMainWindow):
                 pct_str = f"{int(pct)}%"
                 
                 if list_type == 'lateral':
-                    # 3 níveis: pasta-mãe → "LV-V305 Para" / "LV-V305 Passa" → ".A Para" / ".B Para"
-                    for tipo_comp, tipo_suffix in [('para', 'Para'), ('passa', 'Passa')]:
-                        sub_folder = QTreeWidgetItem(parent_item)
-                        sub_folder.setText(1, f"📁 {prefix}{clean_name} {tipo_suffix}")
-                        sub_folder.setExpanded(True)
-                        sub_folder.setFlags(sub_folder.flags() & ~Qt.ItemIsSelectable)
+                    # pp_filter="para"/"passa" → sub-aba; "" → árvore completa (legado)
+                    _pp_pairs = [('para', 'Para'), ('passa', 'Passa')]
+                    if pp_filter:
+                        _pp_pairs = [(tc, ts) for tc, ts in _pp_pairs if tc == pp_filter]
 
-                        child_a = QTreeWidgetItem(sub_folder)
+                    for tipo_comp, tipo_suffix in _pp_pairs:
+                        if pp_filter:
+                            # Sub-aba: sem sub_folder — direto no parent
+                            _parent = parent_item
+                        else:
+                            sub_folder = QTreeWidgetItem(parent_item)
+                            sub_folder.setText(1, f"📁 {prefix}{clean_name} {tipo_suffix}")
+                            sub_folder.setExpanded(True)
+                            sub_folder.setFlags(sub_folder.flags() & ~Qt.ItemIsSelectable)
+                            _parent = sub_folder
+
+                        child_a = QTreeWidgetItem(_parent)
                         child_a.setText(0, str(b.get('id_item', '00')))
                         child_a.setText(1, f"{prefix}{clean_name}.A {tipo_suffix}")
                         child_a.setText(2, str(status))
@@ -11968,7 +12100,7 @@ class MainWindow(QMainWindow):
                         child_a.setData(0, Qt.UserRole + 1, 'viga_lateral_a')
                         child_a.setData(0, Qt.UserRole + 2, tipo_comp)
 
-                        child_b = QTreeWidgetItem(sub_folder)
+                        child_b = QTreeWidgetItem(_parent)
                         child_b.setText(0, str(b.get('id_item', '00')))
                         child_b.setText(1, f"{prefix}{clean_name}.B {tipo_suffix}")
                         child_b.setText(2, str(status))
@@ -12045,6 +12177,8 @@ class MainWindow(QMainWindow):
             self.canvas.scene.clear()
             self.list_pillars.clear()
             self.list_beams.clear()
+            self.list_beams_para.clear()
+            self.list_beams_passa.clear()
             if hasattr(self, "list_beams_fundo"): self.list_beams_fundo.clear()
             self.list_slabs.clear()
             self.current_project_id = None
@@ -12360,7 +12494,8 @@ class MainWindow(QMainWindow):
 
         # Bloquear sinais das tree widgets para evitar selecao automatica
         trees = [self.list_slabs, self.list_slabs_valid, self.list_pillars, self.list_pillars_valid,
-                 self.list_beams, self.list_beams_fundo, self.list_beams_valid, self.list_beams_fundo_valid]
+                 self.list_beams, self.list_beams_para, self.list_beams_passa,
+                 self.list_beams_fundo, self.list_beams_valid, self.list_beams_fundo_valid]
         for tw in trees: tw.blockSignals(True)
         # 1. Limpar TODAS as listas (Já feito dentro dos populates, mas ok garantir)
         
@@ -12381,7 +12516,16 @@ class MainWindow(QMainWindow):
              self.beams_found.sort(key=nat_key)
         self._populate_beam_tree(self.list_beams, self.beams_found, "lateral")
         self._populate_beam_tree(self.list_beams_fundo, self.beams_found, "fundo")
-        
+        # Sub-abas Para/Passam: limpar para forçar populate lazy na próxima seleção
+        self.list_beams_para.clear()
+        self.list_beams_passa.clear()
+        # Se há sub-aba ativa, popular imediatamente
+        if hasattr(self, '_lv_analysis_tabs'):
+            idx = self._lv_analysis_tabs.currentIndex()
+            tree = self.list_beams_para if idx == 0 else self.list_beams_passa
+            pp   = "para"             if idx == 0 else "passa"
+            self._populate_beam_tree(tree, self.beams_found, "lateral", pp)
+
         # Vigas Validadas
         valid_beams = [b for b in self.beams_found if b.get('is_validated')]
         valid_beams.sort(key=nat_key)

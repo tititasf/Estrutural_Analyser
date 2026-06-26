@@ -24,7 +24,7 @@ from PySide6.QtWidgets import (
 )
 from PySide6.QtGui import QColor
 
-from src.ui.theme import Colors, Fonts
+from src.ui.theme import Colors, Fonts, Semantic
 from src.ui.canvas import CADCanvas, RenderMode
 from src.core.ficha_utils import ensure_db_backup, stamp_ficha_json
 
@@ -542,7 +542,7 @@ class _LeftPanel(QFrame):
             font = QFont()
             font.setBold(True)
             header.setFont(font)
-            header.setForeground(QColor("#00ff9d"))
+            header.setForeground(QColor(Semantic.SUCCESS))
             self.lst.addItem(header)
             
             for (row_id, fname, fpath) in items:

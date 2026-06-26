@@ -193,7 +193,7 @@ class DXFVectorView(QWidget):
     def cancel_load(self, msg: str = "cancelado"):
         self.clear_image(msg)
 
-from src.ui.theme import Colors, Fonts, Radius
+from src.ui.theme import Colors, Fonts, Radius, Semantic
 from src.core.item_attention_store import (
     has_attention, load_attention, save_attention, save_human_validation, is_human_validated,
     save_para_passa, load_para_passa,
@@ -1247,7 +1247,7 @@ class _OldDXFVectorView(QWidget):
 
         if self._highlight_bbox:
             x0, y0, x1, y1 = self._highlight_bbox
-            pen = QPen(QColor("#ff9800"), 0)
+            pen = QPen(QColor(Semantic.WARNING), 0)
             pen.setCosmetic(True)
             p.setPen(pen)
             p.setBrush(Qt.NoBrush)
@@ -1261,9 +1261,9 @@ class _OldDXFVectorView(QWidget):
                     if isinstance(pt, (list, tuple)) and len(pt) >= 2
                 ]
                 if len(pts) >= 3:
-                    pen = QPen(QColor("#ff9800"), 0)
+                    pen = QPen(QColor(Semantic.WARNING), 0)
                     pen.setCosmetic(True)
-                    fill = QColor("#ff9800")
+                    fill = QColor(Semantic.WARNING)
                     fill.setAlpha(45)
                     p.setPen(pen)
                     p.setBrush(fill)
@@ -4324,6 +4324,7 @@ class NavSidebar(QFrame):
         self._selected_recorte_path = ""  # recorte_path do item ER selecionado (Qt.UserRole+1)
         self._tab_btns: dict  = {}
         self._lj_filter: "set[str] | None" = None  # stems LJ válidos do DXF atual
+        self._lv_subtab: str = ""  # "Para" | "Passa" | "" (nenhuma selecionada)
 
         self.setStyleSheet(f"background: {Colors.BG_PANEL}; border-top: 1px solid {Colors.BORDER_DEFAULT};")
 
@@ -4389,6 +4390,36 @@ class NavSidebar(QFrame):
             self._tab_btns[cls] = btn
             tab_row.addWidget(btn)
         lay.addLayout(tab_row)
+
+        # ── Sub-abas LV: Vigas Para / Vigas Passam ────────────────────
+        self._lv_subtab_widget = QWidget()
+        _lv_sub_lay = QHBoxLayout(self._lv_subtab_widget)
+        _lv_sub_lay.setContentsMargins(0, 0, 0, 0)
+        _lv_sub_lay.setSpacing(2)
+        self._lv_ss_para_act  = ("QPushButton{background:#1B5E20;color:#fff;border-radius:3px;"
+                                 "font-size:10px;font-weight:bold;border-bottom:2px solid #4caf50;}")
+        self._lv_ss_para_inac = (f"QPushButton{{background:{Colors.BG_CARD};color:{Colors.TEXT_SECONDARY};"
+                                 f"border-radius:3px;font-size:10px;border:1px solid {Colors.BORDER_DEFAULT};}}"
+                                 f"QPushButton:hover{{background:{Colors.BG_PANEL};}}")
+        self._lv_ss_pass_act  = ("QPushButton{background:#4A148C;color:#fff;border-radius:3px;"
+                                 "font-size:10px;font-weight:bold;border-bottom:2px solid #9c27b0;}")
+        self._lv_ss_pass_inac = (f"QPushButton{{background:{Colors.BG_CARD};color:{Colors.TEXT_SECONDARY};"
+                                 f"border-radius:3px;font-size:10px;border:1px solid {Colors.BORDER_DEFAULT};}}"
+                                 f"QPushButton:hover{{background:{Colors.BG_PANEL};}}")
+        self._btn_lv_para = QPushButton("Vigas Para")
+        self._btn_lv_para.setFixedHeight(20)
+        self._btn_lv_para.setCheckable(True)
+        self._btn_lv_para.setStyleSheet(self._lv_ss_para_inac)
+        self._btn_lv_para.clicked.connect(lambda: self._select_lv_subtab("Para"))
+        self._btn_lv_passa = QPushButton("Vigas Passam")
+        self._btn_lv_passa.setFixedHeight(20)
+        self._btn_lv_passa.setCheckable(True)
+        self._btn_lv_passa.setStyleSheet(self._lv_ss_pass_inac)
+        self._btn_lv_passa.clicked.connect(lambda: self._select_lv_subtab("Passa"))
+        _lv_sub_lay.addWidget(self._btn_lv_para)
+        _lv_sub_lay.addWidget(self._btn_lv_passa)
+        self._lv_subtab_widget.setVisible(False)
+        lay.addWidget(self._lv_subtab_widget)
 
         # ── Lista de itens (scrollável) ──────────────────────────────
         self.tbl_items = QTableWidget(0, 2)
@@ -4553,11 +4584,47 @@ class NavSidebar(QFrame):
                         border-radius:3px; font-size:10px; border:1px solid {Colors.BORDER_DEFAULT}; }}
                     QPushButton:hover {{ background:{Colors.BG_PANEL}; }}
                 """)
+        # Sub-abas LV: mostrar apenas quando LV ativo
+        self._lv_subtab_widget.setVisible(cls == "LV")
+        if cls == "LV":
+            # Resetar sub-aba e mostrar placeholder — não carregar ainda
+            self._lv_subtab = ""
+            self._btn_lv_para.setChecked(False)
+            self._btn_lv_passa.setChecked(False)
+            self._btn_lv_para.setStyleSheet(self._lv_ss_para_inac)
+            self._btn_lv_passa.setStyleSheet(self._lv_ss_pass_inac)
+            self.tbl_items.blockSignals(True)
+            self.tbl_items.clearSelection()
+            self.tbl_items.setRowCount(1)
+            _ph = QTableWidgetItem("↑ Selecione Vigas Para ou Vigas Passam")
+            _ph.setFlags(_ph.flags() & ~Qt.ItemIsSelectable)
+            _ph.setForeground(QColor(Colors.TEXT_DIM))
+            _ph2 = QTableWidgetItem("")
+            _ph2.setFlags(_ph2.flags() & ~Qt.ItemIsSelectable)
+            self.tbl_items.setItem(0, 0, _ph)
+            self.tbl_items.setItem(0, 1, _ph2)
+            self.tbl_items.blockSignals(False)
+            self._disable_all_btns()
+            self.classe_changed.emit(cls)
+            return
         self._populate_list(cls)
         self.classe_changed.emit(cls)   # emit APÓS populate — garante ids disponíveis
 
+    # ── Sub-aba LV selecionada (Para / Passa) ────────────────────────
+    def _select_lv_subtab(self, pp: str):
+        self._lv_subtab = pp
+        is_para = (pp == "Para")
+        self._btn_lv_para.setChecked(is_para)
+        self._btn_lv_passa.setChecked(not is_para)
+        self._btn_lv_para.setStyleSheet(self._lv_ss_para_act if is_para else self._lv_ss_para_inac)
+        self._btn_lv_passa.setStyleSheet(self._lv_ss_pass_inac if is_para else self._lv_ss_pass_act)
+        self._populate_list("LV")
+
     # ── Popula lista a partir do JSON dir da obra ─────────────────────
     def _populate_list(self, cls: str):
+        # LV requer que uma sub-aba esteja selecionada antes de popular
+        if cls == "LV" and not self._lv_subtab:
+            return
         self._populate_aligned_items(cls)
         return
 
@@ -4811,6 +4878,7 @@ class NavSidebar(QFrame):
                 disp = f"LV-{elem_id}{pp_suffix}"
             else:
                 disp = str(elem_id)
+                pp = ""
             out[str(elem_id)] = {
                 "id": str(elem_id),
                 "text": disp,
@@ -4818,6 +4886,7 @@ class NavSidebar(QFrame):
                 "recorte_path": recorte_path or "",
                 "status": status or "",
                 "conf": float(conf or 0.0),
+                "pp": (pp or "").lower(),  # "para" | "passa" | ""
             }
         return out
 
@@ -4877,6 +4946,15 @@ class NavSidebar(QFrame):
 
             structural = self._structural_item_rows(cls)
             reverse = self._reverse_item_rows(cls)
+
+            # Filtrar por sub-aba Para/Passa quando LV está ativo
+            if cls == "LV" and self._lv_subtab:
+                pp_lower = self._lv_subtab.lower()
+                structural = {k: v for k, v in structural.items()
+                              if k.lower().endswith(f"_{pp_lower}")}
+                reverse = {k: v for k, v in reverse.items()
+                           if not v.get("pp") or v.get("pp") == pp_lower}
+
             reverse_by_alias: dict[str, dict] = {}
             for rev_id, rev_data in reverse.items():
                 for alias in self._match_aliases(cls, rev_id):

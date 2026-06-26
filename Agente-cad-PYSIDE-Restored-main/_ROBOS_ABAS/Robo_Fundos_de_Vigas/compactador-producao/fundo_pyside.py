@@ -19,7 +19,7 @@ from PySide6.QtWidgets import (
     QGraphicsRectItem, QGraphicsLineItem, QGraphicsTextItem, QButtonGroup
 )
 from PySide6.QtCore import Qt, Signal, Slot, QSize, QTimer, QPointF
-from PySide6.QtGui import QColor, QPen, QBrush, QFont, QPainter, QAction
+from PySide6.QtGui import QColor, QPen, QBrush, QFont, QPainter, QAction, QPolygonF
 from PySide6.QtWidgets import QFileDialog
 
 # Imports adicionais para Excel e AutoCAD
@@ -271,183 +271,308 @@ def alinhar_boundary_horizontal(coords):
     return coords_final
 
 class FundoCanvas(QGraphicsView):
+    # Cores do canvas
+    _C_PANEL_FILL  = QColor(45, 45, 45)
+    _C_PANEL_EDGE  = QColor(220, 220, 220)
+    _C_DIVIDER     = QColor(100, 100, 100)
+    _C_SARR        = QColor(255, 165, 0)      # laranja: sarrafos
+    _C_CHANFRO     = QColor(255, 255, 0)      # amarelo: polígono chanfrado
+    _C_ABERTURA    = QColor(255, 80, 80)      # vermelho: aberturas
+    _C_AB_FILL     = QColor(200, 50, 50, 80)
+    _C_L_PANEL     = QColor(80, 200, 255)     # ciano: painel L
+    _C_L_FILL      = QColor(30, 100, 150, 60)
+    _C_TEXT        = QColor(180, 180, 180)
+    _SARR_RECUO    = 7.0
+
     def __init__(self, parent=None):
         super().__init__(parent)
         self.scene = QGraphicsScene(self)
         self.setScene(self.scene)
         self.setRenderHint(QPainter.Antialiasing)
         self.setBackgroundBrush(QBrush(QColor("#1e1e1e")))
-        
         self.zoom_factor = 1.1
         self.setTransformationAnchor(QGraphicsView.AnchorUnderMouse)
-        
+
+    # ── helpers de geometria ──────────────────────────────────────────────────
+
+    @staticmethod
+    def _chanfro_pts(w, b, te, fe, td, fd):
+        """Vértices do polígono com chanfros (cantos cortados), em espaço local [0,w]×[0,b]."""
+        pts = []
+        if fe > 0: pts += [(0, fe), (fe, fe), (fe, 0)]
+        else:       pts.append((0, 0))
+        if fd > 0: pts += [(w-fd, 0), (w-fd, fd), (w, fd)]
+        else:       pts.append((w, 0))
+        if td > 0: pts += [(w, b-td), (w-td, b-td), (w-td, b)]
+        else:       pts.append((w, b))
+        if te > 0: pts += [(te, b), (te, b-te), (0, b-te)]
+        else:       pts.append((0, b))
+        return pts
+
+    @staticmethod
+    def _sarr_h_offsets(b):
+        """Posições Y das linhas horizontais dos sarrafos (mesmo algoritmo do gerador)."""
+        if b <= 0: return []
+        offsets = []
+        y = 2.2 / 2
+        while y < b:
+            offsets.append(y)
+            y += 2.2 + 7.0  # espessura sarrafo + gap
+            if y + 2.2 / 2 > b: break
+            offsets.append(y)
+            y += 2.2 / 2 + 0.1
+        return offsets[:2]  # sarrafo duplo: borda inferior e borda superior
+
+    def _q(self, x_cad, y_cad, x0, y0_qt, b, scale):
+        """Converte ponto CAD (x_cad,y_cad) em (Qt_x, Qt_y). Y_cad=0 → base, Y_cad=b → topo."""
+        return QPointF(x0 + x_cad * scale, y0_qt + (b - y_cad) * scale)
+
+    # ── desenho principal ────────────────────────────────────────────────────
+
     def draw_fundo(self, dados):
         self.scene.clear()
         if not dados: return
-        
         try:
-            # Escala para exibição
-            scale = 2.0
-            
-            # PRIORIDADE 1: Se existe boundary_original, desenhar ele fielmente (com todas as deformidades)
-            boundary_original = dados.get('boundary_original')
-            if boundary_original and len(boundary_original) >= 6:
-                print(f"[DEBUG Canvas] Desenhando boundary_original com {len(boundary_original)} coordenadas ({len(boundary_original)//2} pontos)")
-                
-                # Calcular limites Y para inversão (sistema CAD Y cresce para cima, PySide6 para baixo)
-                y_coords = [boundary_original[i+1] for i in range(0, len(boundary_original), 2) if i+1 < len(boundary_original)]
-                y_min = min(y_coords) if y_coords else 0
-                y_max = max(y_coords) if y_coords else 0
-                
-                # Converter coordenadas para pontos (invertendo Y em relação ao Y máximo)
-                # No CAD: Y cresce para cima. No PySide6: Y cresce para baixo
-                # Inversão: y_pyside = y_max - (y_cad - y_min) = y_max + y_min - y_cad
-                pontos = []
-                for i in range(0, len(boundary_original), 2):
-                    if i + 1 < len(boundary_original):
-                        x = boundary_original[i] * scale
-                        y_original = boundary_original[i+1]
-                        # Inverter Y: y_invertido = y_max + y_min - y_original
-                        y_invertido = (y_max + y_min - y_original) * scale
-                        pontos.append((x, y_invertido))
-                
-                print(f"[DEBUG Canvas] {len(pontos)} pontos convertidos para desenho")
-                
-                if len(pontos) >= 3:
-                    # Criar polígono com todos os pontos (preserva deformidades)
-                    from PySide6.QtGui import QPolygonF
-                    from PySide6.QtCore import QPointF
-                    
-                    polygon = QPolygonF([QPointF(x, y) for x, y in pontos])
-                    
-                    # Criar cores corretamente para PySide6
-                    cor_amarela = QColor("#ffff00")
-                    cor_preenchimento = QColor("#2d2d2d")
-                    cor_preenchimento.setAlpha(180)  # Semi-transparente
-                    
-                    # Desenhar boundary real com todas as deformidades
-                    fundo_poly = self.scene.addPolygon(
-                        polygon,
-                        QPen(cor_amarela, 3),  # Amarelo para destacar
-                        QBrush(cor_preenchimento)  # Preenchimento semi-transparente
-                    )
-                    
-                    print(f"[DEBUG Canvas] ✅ Boundary desenhado com sucesso! {len(pontos)} pontos preservados")
-                    
-                    # Calcular bounding box para ajustar view
-                    bbox = polygon.boundingRect()
-                    self.setSceneRect(bbox.adjusted(-50, -50, 50, 50))
-                    self.fitInView(self.sceneRect(), Qt.KeepAspectRatio)
-                    
-                    # Desenhar também os outros elementos (painéis, chanfros, etc.) se existirem
-                    self._draw_additional_elements(dados, scale, bbox)
-                    return
-                else:
-                    print(f"[DEBUG Canvas] ⚠️ Boundary tem menos de 3 pontos após conversão: {len(pontos)}")
-            else:
-                if boundary_original:
-                    print(f"[DEBUG Canvas] ⚠️ boundary_original existe mas tem apenas {len(boundary_original)} coordenadas (mínimo 6)")
-                else:
-                    print(f"[DEBUG Canvas] ⚠️ boundary_original não encontrado nos dados")
-            
-            # FALLBACK: Se não tem boundary original, desenhar retângulo simplificado
             largura = float_safe(dados.get('largura', 0))
-            altura = float_safe(dados.get('altura', 0))
-            if largura <= 0 or altura <= 0: return
-            
-            # 1. Desenhar Fundo Principal (retângulo simplificado)
-            fundo_main = self.scene.addRect(0, 0, largura * scale, altura * scale, 
-                                          QPen(QColor("#ffffff"), 2), 
-                                          QBrush(QColor("#2d2d2d")))
-            
-            # 2. Desenhar Painéis (se existirem)
-            paineis = dados.get('paineis', [])
-            x_offset = 0
-            for i, p_val in enumerate(paineis):
-                # Lidar com formato de soma ou valor único
-                p_width = float_safe(p_val)
-                if p_width > 0:
-                    rect = self.scene.addRect(x_offset * scale, 0, p_width * scale, altura * scale,
-                                            QPen(QColor("#4a4a4a"), 1))
-                    text = self.scene.addText(f"P{i+1}\n{p_val}")
-                    text.setDefaultTextColor(QColor("#aaaaaa"))
-                    text.setScale(0.8)
-                    text.setPos(x_offset * scale + 5, 5)
-                    x_offset += p_width
+            altura  = float_safe(dados.get('altura', 0))
 
-            # 3. Desenhar Chanfros e AberturasPrincipal
-            recuos = dados.get('recuos', [0]*4)
-            # T/E, F/E, T/D, F/D
-            self._draw_chamfers(0, 0, largura * scale, altura * scale, recuos, scale)
-            
-            # 4. Desenhar Painel 2 em L (se configurado)
+            # boundary_original: só usar quando não há chanfros/L definidos (modo raw)
+            boundary_original = dados.get('boundary_original')
+            tem_edicoes = (
+                any(float_safe(r) > 0 for r in dados.get('recuos', []))
+                or any(float_safe(dados.get('comprimento_2', 0)) > 0 and float_safe(dados.get('largura_2', 0)) > 0)
+                or any(float_safe(ab[1]) > 0 for ab in dados.get('aberturas', []) if isinstance(ab, list) and len(ab) >= 2)
+            )
+
+            if boundary_original and len(boundary_original) >= 6 and not tem_edicoes:
+                self._draw_boundary(boundary_original, dados)
+                return
+
+            if largura <= 0 or altura <= 0:
+                return
+
+            # Escala adaptativa: manter a viga dentro de ~800px de largura
+            scale = min(3.0, 800.0 / largura) if largura > 0 else 3.0
+            x0, y0 = 0.0, 60.0  # y0 = margem superior para labels
+
+            sub_widths = [float_safe(p) for p in dados.get('paineis', []) if float_safe(p) > 0]
+            if not sub_widths:
+                sub_widths = self._compute_panels(largura)
+            if not sub_widths:
+                sub_widths = [largura]
+
+            recuos = dados.get('recuos', ['0'] * 4)
+            te = float_safe(recuos[0]) if len(recuos) > 0 else 0.0
+            fe = float_safe(recuos[1]) if len(recuos) > 1 else 0.0
+            td = float_safe(recuos[2]) if len(recuos) > 2 else 0.0
+            fd = float_safe(recuos[3]) if len(recuos) > 3 else 0.0
+
+            self._draw_panels(x0, y0, sub_widths, altura, te, fe, td, fd, scale)
+            self._draw_sarrafos(x0, y0, sub_widths, altura, te, fe, td, fd,
+                                dados.get('sarrafo_esq', True), dados.get('sarrafo_dir', True), scale)
+            self._draw_aberturas(x0, y0, sub_widths, altura, dados.get('aberturas', []), scale)
+
             comp2 = float_safe(dados.get('comprimento_2', 0))
             larg2 = float_safe(dados.get('largura_2', 0))
             if comp2 > 0 and larg2 > 0:
-                tipo = dados.get('tipo_painel2', 'E/T')
-                # Lógica de posicionamento do L baseada no tipo
-                # E/T: Esquerda Topo, etc.
-                self._draw_panel_l(largura, altura, comp2, larg2, tipo, scale)
+                tipo = dados.get('tipo_painel2', 'E/T') or 'E/T'
+                pw2  = [float_safe(p) for p in dados.get('paineis_2', []) if float_safe(p) > 0]
+                if not pw2: pw2 = self._compute_panels(comp2)
+                self._draw_panel_l(x0, y0, largura, altura, comp2, larg2, tipo, pw2, scale)
 
-            self.setSceneRect(self.scene.itemsBoundingRect().adjusted(-50, -50, 50, 50))
+            self._draw_labels(x0, y0, largura, altura,
+                              dados.get('texto_esq', ''), dados.get('texto_dir', ''), scale)
+
+            self.setSceneRect(self.scene.itemsBoundingRect().adjusted(-30, -30, 30, 30))
             self.fitInView(self.sceneRect(), Qt.KeepAspectRatio)
-            
+
         except Exception as e:
-            print(f"Erro no desenho do canvas: {e}")
-            import traceback
-            traceback.print_exc()
+            print(f"[FundoCanvas] Erro: {e}")
+            import traceback; traceback.print_exc()
 
-    def _draw_additional_elements(self, dados, scale, bbox):
-        """Desenha elementos adicionais (painéis, chanfros, aberturas) sobre o boundary"""
-        # Desenhar painéis se existirem
-        paineis = dados.get('paineis', [])
-        if paineis:
-            x_offset = bbox.left()
-            for i, p_val in enumerate(paineis):
-                p_width = float_safe(p_val)
-                if p_width > 0:
-                    rect = self.scene.addRect(
-                        x_offset, bbox.top(), 
-                        p_width * scale, bbox.height(),
-                        QPen(QColor("#4a4a4a"), 1)
-                    )
-                    text = self.scene.addText(f"P{i+1}\n{p_val}")
-                    text.setDefaultTextColor(QColor("#aaaaaa"))
-                    text.setScale(0.8)
-                    text.setPos(x_offset + 5, bbox.top() + 5)
-                    x_offset += p_width * scale
-        
-        # Desenhar chanfros (recuos) se existirem
-        recuos = dados.get('recuos', [0]*4)
-        if any(float_safe(r) > 0 for r in recuos):
-            self._draw_chamfers(bbox.left(), bbox.top(), bbox.width(), bbox.height(), recuos, scale)
-        
-        # Desenhar aberturas se existirem
-        aberturas = dados.get('aberturas', [])
-        for ab in aberturas:
-            if isinstance(ab, list) and len(ab) >= 3:
-                dist = float_safe(ab[0])
-                prof = float_safe(ab[1])
-                larg = float_safe(ab[2])
-                if dist > 0 and prof > 0 and larg > 0:
-                    # Desenhar abertura (simplificado)
-                    cor_vermelha = QColor("#ff0000")
-                    cor_vermelha_alpha = QColor("#ff0000")
-                    cor_vermelha_alpha.setAlpha(100)
-                    self.scene.addRect(
-                        bbox.left() + dist * scale, bbox.top(),
-                        larg * scale, prof * scale,
-                        QPen(cor_vermelha, 2),
-                        QBrush(cor_vermelha_alpha)
-                    )
+    # ── sub-rotinas de desenho ────────────────────────────────────────────────
 
-    def _draw_chamfers(self, x, y, w, h, recuos, scale):
-        # Implementação simplificada para visualização
-        pass
+    @staticmethod
+    def _compute_panels(largura, modulo=244.0, minimo=30.0):
+        if largura <= 0: return []
+        if largura <= modulo: return [largura]
+        n = int(largura // modulo)
+        r = largura - n * modulo
+        if r < 0.5: return [modulo] * n
+        if r < minimo: return [modulo] * (n - 1) + [modulo + r]
+        return [modulo] * n + [r]
 
-    def _draw_panel_l(self, w1, h1, l2, w2, tipo, scale):
-        # Desenha a extensão em L
-        pass
+    def _draw_panels(self, x0, y0, sub_widths, b, te, fe, td, fd, scale):
+        pen_edge = QPen(self._C_PANEL_EDGE, 2)
+        pen_div  = QPen(self._C_DIVIDER, 1)
+        brush_fill = QBrush(self._C_PANEL_FILL)
+        pen_chanf  = QPen(self._C_CHANFRO, 2)
+
+        xp = x0
+        for i, pw in enumerate(sub_widths):
+            is_first = (i == 0)
+            is_last  = (i == len(sub_widths) - 1)
+            p_te = te if is_first else 0.0
+            p_fe = fe if is_first else 0.0
+            p_td = td if is_last  else 0.0
+            p_fd = fd if is_last  else 0.0
+
+            if p_te > 0 or p_fe > 0 or p_td > 0 or p_fd > 0:
+                pts_cad = self._chanfro_pts(pw, b, p_te, p_fe, p_td, p_fd)
+                poly = QPolygonF([self._q(x, y, xp, y0, b, scale) for x, y in pts_cad])
+                self.scene.addPolygon(poly, pen_chanf, brush_fill)
+            else:
+                self.scene.addRect(xp, y0, pw * scale, b * scale, pen_edge, brush_fill)
+
+            # Label do painel
+            txt = self.scene.addText(f"P{i+1}\n{round(pw,1)}")
+            txt.setDefaultTextColor(self._C_TEXT)
+            txt.setScale(0.7)
+            txt.setPos(xp + 4, y0 + 4)
+
+            # Divisor (não no último painel)
+            if not is_last:
+                xd = xp + pw * scale
+                self.scene.addLine(xd, y0, xd, y0 + b * scale, pen_div)
+
+            xp += pw * scale
+
+    def _draw_sarrafos(self, x0, y0, sub_widths, b, te, fe, td, fd,
+                       sarr_esq, sarr_dir, scale):
+        if not sub_widths: return
+        pen = QPen(self._C_SARR, 1.5)
+        pen.setStyle(Qt.DashLine)
+
+        total = sum(sub_widths)
+        # Ajuste esquerdo: apenas vértices no topo (y > b/2) do primeiro painel
+        xl_off = self._SARR_RECUO
+        if te > 0:
+            xl_off = te + self._SARR_RECUO
+        # Ajuste direito: apenas vértices no topo do último painel
+        xr_off = self._SARR_RECUO
+        if td > 0:
+            xr_off = td + self._SARR_RECUO
+
+        xl = x0 + xl_off * scale
+        xr = x0 + total * scale - xr_off * scale
+        if xr <= xl: return
+
+        # Verticais
+        if sarr_esq:
+            self.scene.addLine(xl, y0, xl, y0 + b * scale, QPen(self._C_SARR, 1.5))
+        if sarr_dir:
+            self.scene.addLine(xr, y0, xr, y0 + b * scale, QPen(self._C_SARR, 1.5))
+
+        # Horizontais (2 linhas — sarrafo duplo)
+        offsets = self._sarr_h_offsets(b)
+        for off in offsets:
+            yq = y0 + (b - off) * scale
+            self.scene.addLine(xl, yq, xr, yq, pen)
+
+    def _draw_aberturas(self, x0, y0, sub_widths, b, aberturas, scale):
+        if not sub_widths or not aberturas: return
+        pen = QPen(self._C_ABERTURA, 1.5)
+        brush = QBrush(self._C_AB_FILL)
+        pw_first = sub_widths[0]
+        pw_last  = sub_widths[-1]
+        x_last   = x0 + (sum(sub_widths) - pw_last) * scale
+
+        positions = [
+            (x0,     True,  False),  # [0] T/E: painel esquerdo, topo
+            (x0,     False, False),  # [1] F/E: painel esquerdo, fundo
+            (x_last, True,  True),   # [2] T/D: painel direito, topo, from_right
+            (x_last, False, True),   # [3] F/D: painel direito, fundo, from_right
+        ]
+        pws = [pw_first, pw_first, pw_last, pw_last]
+
+        for idx, (ab, (xp, side_top, from_right), pw) in enumerate(
+                zip(aberturas, positions, pws)):
+            if not isinstance(ab, list) or len(ab) < 3: continue
+            dist = float_safe(ab[0]); prof = float_safe(ab[1]); larg = float_safe(ab[2])
+            if dist <= 0 or prof <= 0 or larg <= 0: continue
+
+            x1_cad = (pw - dist - larg) if from_right else dist
+            x1 = xp + x1_cad * scale
+            x2 = x1 + larg * scale
+            if side_top:
+                y1 = y0                        # topo Qt = y0
+                y2 = y0 + prof * scale
+            else:
+                y1 = y0 + (b - prof) * scale   # fundo Qt
+                y2 = y0 + b * scale
+            self.scene.addRect(x1, y1, larg * scale, prof * scale, pen, brush)
+
+    def _draw_panel_l(self, x0, y0, w_main, b, comp2, larg2, tipo, pw2, scale):
+        pen  = QPen(self._C_L_PANEL, 1.5)
+        pen_d = QPen(self._C_L_PANEL, 1)
+        pen_d.setStyle(Qt.DashLine)
+        brush = QBrush(self._C_L_FILL)
+
+        # Posicionar painel L com base no tipo
+        # E/T: esquerda do main, acima (topo Qt = y0 - larg2*scale)
+        # E/F: esquerda do main, abaixo (fundo Qt = y0 + b*scale)
+        # D/T: direita do main, acima
+        # D/F: direita do main, abaixo
+        larg2_qt = larg2 * scale
+        comp2_qt = min(comp2, w_main) * scale  # limitar ao comprimento principal
+
+        if tipo.startswith('E'):
+            x_l = x0
+        else:
+            x_l = x0 + w_main * scale - comp2_qt
+
+        if tipo.endswith('T'):
+            y_l = y0 - larg2_qt
+        else:
+            y_l = y0 + b * scale
+
+        self.scene.addRect(x_l, y_l, comp2_qt, larg2_qt, pen, brush)
+
+        # Divisores internos do painel L
+        xp = x_l
+        for pw in pw2[:-1]:
+            xp += pw * scale
+            if xp < x_l + comp2_qt:
+                self.scene.addLine(xp, y_l, xp, y_l + larg2_qt, pen_d)
+
+        # Label
+        txt = self.scene.addText(f"L {round(comp2)}x{round(larg2)}")
+        txt.setDefaultTextColor(self._C_L_PANEL)
+        txt.setScale(0.7)
+        txt.setPos(x_l + 4, y_l + 4)
+
+    def _draw_labels(self, x0, y0, largura, b, texto_esq, texto_dir, scale):
+        y_label = y0 + b * scale + 10
+        if texto_esq:
+            t = self.scene.addText(texto_esq)
+            t.setDefaultTextColor(self._C_TEXT)
+            t.setScale(0.8)
+            t.setPos(x0, y_label)
+        if texto_dir:
+            t = self.scene.addText(texto_dir)
+            t.setDefaultTextColor(self._C_TEXT)
+            t.setScale(0.8)
+            t.setPos(x0 + largura * scale - 60, y_label)
+
+    def _draw_boundary(self, boundary_original, dados):
+        """Fallback: desenhar boundary bruto do CAD quando não há edições manuais."""
+        scale = 2.0
+        y_coords = [boundary_original[i+1] for i in range(0, len(boundary_original), 2) if i+1 < len(boundary_original)]
+        if not y_coords: return
+        y_min, y_max = min(y_coords), max(y_coords)
+        pontos = []
+        for i in range(0, len(boundary_original), 2):
+            if i + 1 < len(boundary_original):
+                x = boundary_original[i] * scale
+                y = (y_max + y_min - boundary_original[i+1]) * scale
+                pontos.append(QPointF(x, y))
+        if len(pontos) >= 3:
+            poly = QPolygonF(pontos)
+            cor_f = QColor(45, 45, 45, 180)
+            self.scene.addPolygon(poly, QPen(QColor("#ffff00"), 2), QBrush(cor_f))
+            bbox = poly.boundingRect()
+            self.setSceneRect(bbox.adjusted(-50, -50, 50, 50))
+            self.fitInView(self.sceneRect(), Qt.KeepAspectRatio)
 
 class ConfigDialog(QDialog):
     def __init__(self, config_manager, parent=None):
@@ -562,6 +687,8 @@ class FundoMainWindow(QMainWindow):
     item_loaded = Signal(str)
     # Emitido após salvar viga/segmento — formato "V301|seg0" ou "V301"
     save_done = Signal(str)
+    # Emitido ao clicar "Atualizar" — solicita regeneração do DXF
+    regen_requested = Signal()
 
     def log(self, message):
         print(f"[{datetime.now().strftime('%H:%M:%S')}] {message}")
@@ -603,8 +730,9 @@ class FundoMainWindow(QMainWindow):
         # Botão excluir selecionados
         self.btn_delete_sel.clicked.connect(self.action_delete_selected)
         
-        # Botão Salvar (destacado acima das abas)
+        # Botão Salvar e Atualizar
         self.btn_salvar.clicked.connect(self.action_salvar)
+        self.btn_atualizar.clicked.connect(self.regen_requested.emit)
         
         # Botão Analisar Boundary
         self.btn_analisar_boundary.clicked.connect(self.action_analisar_boundary)
@@ -644,6 +772,13 @@ class FundoMainWindow(QMainWindow):
         for cf in self.chanfros_fields:
             cf.textChanged.connect(self._canvas_update_timer.start)
         for row in self.aberturas_fields:
+            for af in row:
+                af.textChanged.connect(self._canvas_update_timer.start)
+        for lf in self.l_fields.values():
+            lf.textChanged.connect(self._canvas_update_timer.start)
+        for cf in self.l_chanfros_fields:
+            cf.textChanged.connect(self._canvas_update_timer.start)
+        for row in self.l_aberturas_fields:
             for af in row:
                 af.textChanged.connect(self._canvas_update_timer.start)
 
@@ -3414,12 +3549,20 @@ DETALHES DAS ABERTURAS MAPEADAS:"""
         self.btn_analisar_boundary = QPushButton("Analisar Boundary")
         self.btn_analisar_boundary.setStyleSheet("background-color: #FF9800; color: white; font-weight: bold; font-size: 12px; padding: 8px; min-height: 30px;")
 
-        # Somente o botão Salvar é exibido
+        # Botões Salvar + Atualizar lado a lado
+        btns_row = QHBoxLayout()
+        btns_row.setSpacing(6)
         self.btn_salvar = QPushButton("Salvar")
         self.btn_salvar.setStyleSheet(
             "background-color: #1976D2; color: white; font-weight: bold; "
-            "font-size: 13px; padding: 8px; min-height: 32px; border-radius: 4px;")
-        cmd_layout.addWidget(self.btn_salvar)
+            "font-size: 11px; padding: 4px 10px; min-height: 26px; border-radius: 4px;")
+        self.btn_atualizar = QPushButton("Atualizar")
+        self.btn_atualizar.setStyleSheet(
+            "background-color: #37474f; color: #90caf9; font-size: 11px; "
+            "padding: 4px 10px; min-height: 26px; border-radius: 4px; border: 1px solid #546e7a;")
+        btns_row.addWidget(self.btn_salvar)
+        btns_row.addWidget(self.btn_atualizar)
+        cmd_layout.addLayout(btns_row)
 
         # GRUPO 4: DETALHES (Tabs)
         # O TabWidget fica como último elemento do scroll
@@ -3753,32 +3896,23 @@ DETALHES DAS ABERTURAS MAPEADAS:"""
             self.save_data()
 
     def _write_fv_override_json(self, obra: str, num_key: str):
-        """Escreve JSON override em Fase-6 para que gerar_fv_dxf_stog.py use dados editados."""
+        """Escreve robot_json completo (get_current_data) para gerar_fv_dxf_stog.py --robot_json."""
         try:
-            pav = _cmb_pav_raw(self.combo_pavimento)
-            viga_dados = self.fundos_salvos.get(obra, {}).get(pav, {}).get(str(num_key), {})
-            segs = viga_dados.get('segments_rich', [])
-            nome = viga_dados.get('nome', '')
+            dados = self.get_current_data()
+            nome = dados.get('nome', '')
             m = re.search(r'\d+', nome)
-            if not m or not segs:
+            if not m:
                 return
             n = int(m.group())
             override_dir = (Path('D:/Agente-cad-PYSIDE/DADOS-OBRAS') / obra
                             / 'Fase-6_Execucao_CAD' / 'fundo_override')
             override_dir.mkdir(parents=True, exist_ok=True)
-            # Formato compatível com Fase-4 JSON
-            b_val = float_safe(viga_dados.get('altura', '14'))
-            override_data = {
-                'total_width': b_val,
-                'segments_rich': segs,
-                'observations': viga_dados.get('obs', ''),
-            }
             import json as _j
-            (override_dir / f'V{n:03d}_fundo.json').write_text(
-                _j.dumps(override_data, ensure_ascii=False, indent=2), encoding='utf-8')
-            print(f'[FV] Override JSON: V{n:03d}_fundo.json em {override_dir}')
+            rj_path = override_dir / f'V{n:03d}_robot.json'
+            rj_path.write_text(_j.dumps(dados, ensure_ascii=False, indent=2), encoding='utf-8')
+            print(f'[FV] robot_json: V{n:03d}_robot.json em {override_dir}')
         except Exception as e:
-            print(f'[FV] Erro ao escrever override JSON: {e}')
+            print(f'[FV] Erro ao escrever robot_json: {e}')
 
     def update_list(self):
         current_obra = self.combo_obra.currentText()
@@ -4308,18 +4442,21 @@ DETALHES DAS ABERTURAS MAPEADAS:"""
         QApplication.processEvents()
 
     def update_calculations(self):
-        # Em modo segmento não resetar painéis — cada segmento tem seus próprios painéis
         seg_idx = getattr(self, '_current_seg_idx', -1)
         if seg_idx is None:
             seg_idx = -1
         if seg_idx < 0:
-            # Apenas no modo viga inteira: sugerir divisão automática
             largura = float_safe(self.fields['largura'].text())
             if largura > 0:
-                paineis = [largura / 2, largura / 2, 0, 0, 0, 0]
-                for i, val in enumerate(paineis):
-                    if i < len(self.paineis_fields):
-                        self.paineis_fields[i].setText(str(round(val, 2)))
+                # Módulo conforme radio selecionado
+                MODULO = 122.0 if getattr(self, 'rad_122', None) and self.rad_122.isChecked() else 244.0
+                MINIMO = 30.0
+                sub = self.canvas._compute_panels(largura, modulo=MODULO, minimo=MINIMO)
+                # Preencher campos de painéis sem disparar loops de signal
+                for i, pf in enumerate(self.paineis_fields):
+                    pf.blockSignals(True)
+                    pf.setText(str(round(sub[i], 2)) if i < len(sub) else '0')
+                    pf.blockSignals(False)
         self.update_canvas()
 
     def update_canvas(self):

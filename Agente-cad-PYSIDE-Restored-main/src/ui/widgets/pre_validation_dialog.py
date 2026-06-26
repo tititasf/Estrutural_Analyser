@@ -25,12 +25,12 @@ from PySide6.QtWidgets import (
     QSizePolicy, QScrollArea, QSplitter, QGraphicsView, QGraphicsScene,
     QMessageBox,
 )
-from PySide6.QtCore import Qt, QPointF, QRectF, QTimer, QSize
+from PySide6.QtCore import Qt, QPointF, QRectF, QTimer, QSize, QThread, Signal
 from PySide6.QtGui import (QColor, QFont, QBrush, QPixmap, QPainter,
                             QPen, QPolygonF, QPainterPath)
 
 try:
-    from src.ui.theme import Colors
+    from src.ui.theme import Colors, Semantic, Accent, Text
 except ImportError:
     class Colors:
         BG_PRIMARY = "#1a1a2e"
@@ -42,6 +42,12 @@ except ImportError:
         BORDER_INPUT = "#3a4060"
         TEXT_PRIMARY = "#e0e0e0"
         TEXT_MUTED = "#90a4ae"
+    class Semantic:
+        SUCCESS = "#4caf50"; WARNING = "#ff9800"; DANGER = "#f44336"
+    class Accent:
+        PRIMARY = "#00d4ff"; BRAND = "#00E5FF"
+    class Text:
+        PRIMARY = "#e0e0e0"; SECONDARY = "#9a9aa6"
 
 # ── Constantes de terminologia ─────────────────────────────────────────────────
 
@@ -109,10 +115,10 @@ BEAM_NAME_RE = re.compile(r'^[Vv]\s*\d{2,}')
 
 def _confidence_color(pct: float) -> QColor:
     if pct >= 75:
-        return QColor('#4caf50')
+        return QColor(Semantic.SUCCESS)
     if pct >= 50:
-        return QColor('#ffc107')
-    return QColor('#f44336')
+        return QColor(Semantic.WARNING)
+    return QColor(Semantic.DANGER)
 
 
 def _make_item(text: str, align=Qt.AlignLeft, bold: bool = False,
@@ -133,6 +139,7 @@ class _MiniDXFView(QGraphicsView):
     """
     Viewer vetorial embutido na célula da tabela.
     Compartilha a QGraphicsScene do canvas principal — renderização vetorial pura.
+
 
     Interação:
       - Scroll do mouse  → zoom centrado na posição do cursor
@@ -219,17 +226,34 @@ class _MiniDXFView(QGraphicsView):
             return
         painter.save()
         # Fill translúcido para marcar a área
-        fill = QColor('#00bcd4')
+        fill = QColor(Accent.PRIMARY)
         fill.setAlpha(40)
         painter.setBrush(QBrush(fill))
         # Borda cosmética: largura fixa em pixels independente do zoom
-        pen = QPen(QColor('#00e5ff'))
+        pen = QPen(QColor(Accent.BRAND))
         pen.setCosmetic(True)
         pen.setWidth(2)
         painter.setPen(pen)
         painter.drawPolygon(poly)
         painter.restore()
 
+
+class _DXFReaderThread(QThread):
+    """Lê um DXF de forma assíncrona com ezdxf.readfile (seguro em background)."""
+    finished = Signal(object)  # Emite o 'doc' lido ou None se falhar
+
+    def __init__(self, dxf_path: str):
+        super().__init__()
+        self.dxf_path = dxf_path
+
+    def run(self):
+        try:
+            import ezdxf
+            doc = ezdxf.readfile(self.dxf_path)
+            self.finished.emit(doc)
+        except Exception as e:
+            print(f"DXFReaderThread erro: {e}")
+            self.finished.emit(None)
 
 # ── Classe principal ───────────────────────────────────────────────────────────
 
@@ -780,7 +804,7 @@ class PreValidationDialog(QDialog):
                 config = Configuration(
                     background_policy=BackgroundPolicy.CUSTOM,
                     custom_bg_color=Colors.BG_PANEL,
-                    color_policy=ColorPolicy.COLOR_SWAP_BW,
+                    color_policy=ColorPolicy.COLOR,
                 )
                 Frontend(ctx, out, config=config).draw_layout(msp)
                 
@@ -817,28 +841,72 @@ class PreValidationDialog(QDialog):
         grp = QGroupBox(title)
         vbox = QVBoxLayout(grp)
         vbox.setContentsMargins(4, 8, 4, 4)
-
-        scene, bbox = self._load_dxf_to_scene(dxf_path)
-        if not scene or not bbox:
-            return None
-
-        x0, y0, x1, y1 = bbox
-        title = f"Gabarito  —  PIL '{elem_id}'  |  {self._obra} / {self._pavimento}"
-        grp = QGroupBox(title)
-        vbox = QVBoxLayout(grp)
-        vbox.setContentsMargins(4, 8, 4, 4)
         
-        # Viewer de tamanho ajustado para não estourar telas menores
-        viewer = _MiniDXFView(scene, x0, y0, x1, y1,
-                              thumb_w=800, thumb_h=250,
-                              highlight_pts=[])
-        
-        # Libera restrição de largura fixa → expande horizontalmente
-        viewer.setMaximumWidth(16777215)
-        viewer.setMinimumWidth(300)
-        viewer.setMinimumHeight(200)
-        viewer.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-        vbox.addWidget(viewer)
+        loading_label = QLabel("Carregando recorte do DXF...\nIsso pode demorar alguns segundos.")
+        loading_label.setAlignment(Qt.AlignCenter)
+        loading_label.setStyleSheet(f"color:{Colors.TEXT_MUTED}; font-size:12px; font-weight:bold;")
+        vbox.addWidget(loading_label)
+
+        def _on_doc_loaded(doc):
+            loading_label.hide()
+            vbox.removeWidget(loading_label)
+            if not doc:
+                err_lbl = QLabel("Falha ao ler o arquivo DXF.")
+                err_lbl.setAlignment(Qt.AlignCenter)
+                vbox.addWidget(err_lbl)
+                return
+
+            try:
+                msp = doc.modelspace()
+                scene = QGraphicsScene()
+                scene.setBackgroundBrush(QColor(Colors.BG_PANEL))
+                
+                from ezdxf.addons.drawing import RenderContext, Frontend
+                from ezdxf.addons.drawing.pyqt import PyQtBackend
+                from ezdxf.addons.drawing.config import Configuration, BackgroundPolicy, ColorPolicy
+                
+                for layer in doc.layers:
+                    layer.on()
+                    layer.thaw()
+                for ent in doc.entitydb.values():
+                    if hasattr(ent, 'dxf') and hasattr(ent.dxf, 'invisible'):
+                        ent.dxf.invisible = 0
+
+                ctx = RenderContext(doc)
+                out = PyQtBackend(scene)
+                config = Configuration(
+                    background_policy=BackgroundPolicy.CUSTOM,
+                    custom_bg_color=Colors.BG_PANEL,
+                    color_policy=ColorPolicy.COLOR,
+                )
+                Frontend(ctx, out, config=config).draw_layout(msp)
+                
+                rect = scene.itemsBoundingRect()
+                if rect.isNull():
+                    raise ValueError("Scene is empty")
+                
+                x0, y0, x1, y1 = rect.left(), rect.top(), rect.right(), rect.bottom()
+                viewer = _MiniDXFView(scene, x0, y0, x1, y1,
+                                      thumb_w=800, thumb_h=250,
+                                      highlight_pts=[])
+                viewer.setMaximumWidth(16777215)
+                viewer.setMinimumWidth(300)
+                viewer.setMinimumHeight(200)
+                viewer.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+                vbox.addWidget(viewer)
+            except Exception as e:
+                err_lbl = QLabel(f"Falha ao renderizar gabarito: {e}")
+                err_lbl.setAlignment(Qt.AlignCenter)
+                vbox.addWidget(err_lbl)
+            finally:
+                # Mantém uma referência para a thread não morrer prematuramente
+                self._dxf_thread = None
+
+        # Carrega o DXF em thread separada para não travar a GUI
+        self._dxf_thread = _DXFReaderThread(dxf_path)
+        self._dxf_thread.finished.connect(_on_doc_loaded)
+        self._dxf_thread.start()
+
         return grp
 
     # ── Convenção salva ────────────────────────────────────────────────────────
@@ -1180,11 +1248,11 @@ class PreValidationDialog(QDialog):
         beam_name_f = ficha.get('beam_name') or cut.get('beam_name') or '—'
         nivel_viga  = self._compute_nivel_viga(cut)
 
-        CL = '#90a4ae'   # muted
-        CV = '#e0e0e0'   # valor padrão
-        CM = '#00bcd4'   # mint — Lado A
-        CB = '#90caf9'   # azul — Lado B
-        CG = '#ffc107'   # dourado — nome da viga
+        CL = Text.SECONDARY   # muted
+        CV = Text.PRIMARY     # valor padrão
+        CM = Accent.PRIMARY   # mint — Lado A
+        CB = '#90caf9'        # azul claro — Lado B (sem equivalente DS)
+        CG = Semantic.WARNING # dourado — nome da viga
 
         def _kv(k: str, v: str, vc: str = CV, bold: bool = False) -> str:
             b, eb = ('<b>', '</b>') if bold else ('', '')
@@ -1470,15 +1538,66 @@ class PreValidationDialog(QDialog):
         # Header
         root.addWidget(self._build_header())
 
-        # Tabs
-        tabs = QTabWidget()
-        tabs.addTab(self._build_convention_tab(), "  Convenção de Pilares  ")
-        tabs.addTab(self._build_pillars_tab(), "  Pilares  ")
-        tabs.addTab(self._build_cut_views_tab(), "  Visão de Cortes  ")
-        root.addWidget(tabs, 1)
+        # Tabs — lazy loading: conteúdo só é construído ao selecionar a aba
+        self._tabs = QTabWidget()
+        self._tab_loaded: dict[int, bool] = {0: False, 1: False, 2: False}
+
+        # Placeholders leves (QWidget vazio com loading label)
+        for idx, title in enumerate([
+            "  Convenção de Pilares  ",
+            "  Pilares  ",
+            "  Visão de Cortes  ",
+        ]):
+            placeholder = QWidget()
+            placeholder_lay = QVBoxLayout(placeholder)
+            placeholder_lay.setContentsMargins(0, 0, 0, 0)
+            loading = QLabel("Carregando...")
+            loading.setAlignment(Qt.AlignCenter)
+            loading.setStyleSheet(
+                f"color:{Colors.TEXT_MUTED}; font-size:14px; font-weight:bold; padding:40px;"
+            )
+            placeholder_lay.addWidget(loading)
+            self._tabs.addTab(placeholder, title)
+
+        self._tabs.currentChanged.connect(self._on_tab_changed)
+        root.addWidget(self._tabs, 1)
 
         # Footer
         root.addWidget(self._build_footer())
+
+        # Carrega tab 0 (Convenção) via QTimer para que o dialog apareça instantaneamente
+        QTimer.singleShot(50, lambda: self._on_tab_changed(0))
+
+    def _on_tab_changed(self, index: int) -> None:
+        """Lazy-load: constrói o conteúdo da aba apenas na primeira vez que é selecionada."""
+        if self._tab_loaded.get(index, True):
+            return  # já carregada
+        self._tab_loaded[index] = True
+
+        builders = {
+            0: self._build_convention_tab,
+            1: self._build_pillars_tab,
+            2: self._build_cut_views_tab,
+        }
+        builder = builders.get(index)
+        if not builder:
+            return
+
+        new_widget = builder()
+        old_widget = self._tabs.widget(index)
+        tab_text = self._tabs.tabText(index)
+
+        # Bloqueia sinais durante a troca para evitar recursão
+        self._tabs.blockSignals(True)
+        self._tabs.removeTab(index)
+        self._tabs.insertTab(index, new_widget, tab_text)
+        self._tabs.setCurrentIndex(index)
+        self._tabs.blockSignals(False)
+
+        # Limpa placeholder antigo
+        if old_widget:
+            old_widget.deleteLater()
+
 
     def _build_header(self) -> QFrame:
         frame = QFrame()
@@ -2648,7 +2767,8 @@ class ConvencaoPilaresDialog(PreValidationDialog):
     # ── UI ──────────────────────────────────────────────────────────────────────
 
     def _build_ui(self):
-        """Mostra apenas o viewer de referência + painel de mapeamento de termos."""
+        """Mostra apenas o viewer de referência + painel de mapeamento de termos.
+        Conteúdo pesado é diferido via QTimer para que a janela apareça instantaneamente."""
         root = QVBoxLayout(self)
         root.setContentsMargins(10, 10, 10, 10)
         root.setSpacing(8)
@@ -2669,12 +2789,27 @@ class ConvencaoPilaresDialog(PreValidationDialog):
         hdr_lay.addWidget(lbl)
         root.addWidget(hdr)
 
-        # Conteúdo com scroll: viewer + painel
-        scroll = QScrollArea()
-        scroll.setWidgetResizable(True)
-        scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAsNeeded)
-        scroll.setStyleSheet("QScrollArea { border: none; }")
-        scroll.setMinimumHeight(0)  # permite encolher; footer sempre visível abaixo
+        # Placeholder de carregamento
+        self._conv_scroll = QScrollArea()
+        self._conv_scroll.setWidgetResizable(True)
+        self._conv_scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAsNeeded)
+        self._conv_scroll.setStyleSheet("QScrollArea { border: none; }")
+        self._conv_scroll.setMinimumHeight(0)
+        loading = QLabel("Carregando conteúdo...")
+        loading.setAlignment(Qt.AlignCenter)
+        loading.setStyleSheet(
+            f"color:{Colors.TEXT_MUTED}; font-size:14px; font-weight:bold; padding:40px;"
+        )
+        self._conv_scroll.setWidget(loading)
+        root.addWidget(self._conv_scroll, 1)
+
+        root.addWidget(self._build_footer())
+
+        # Defere construção pesada para o próximo ciclo de evento
+        QTimer.singleShot(50, self._build_conv_content_deferred)
+
+    def _build_conv_content_deferred(self) -> None:
+        """Constrói o conteúdo pesado (gabarito + painel de termos) de forma diferida."""
         inner = QWidget()
         lay = QVBoxLayout(inner)
         lay.setContentsMargins(6, 4, 6, 4)
@@ -2690,10 +2825,11 @@ class ConvencaoPilaresDialog(PreValidationDialog):
 
         lay.addWidget(self._build_convention_panel())
         lay.addStretch()
-        scroll.setWidget(inner)
-        root.addWidget(scroll, 1)
+        old = self._conv_scroll.widget()
+        self._conv_scroll.setWidget(inner)
+        if old:
+            old.deleteLater()
 
-        root.addWidget(self._build_footer())
 
     # ── Overrides p/ modo pré-análise ───────────────────────────────────────────
 

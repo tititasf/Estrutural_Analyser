@@ -25,7 +25,7 @@ from src.ui.dialogs.project_details_dialog import ProjectDetailsDialog
 from src.ui.dialogs.document_upload_dialog import DocumentUploadDialog
 from src.core.storage.project_storage import ProjectStorageManager
 from src.core.cad_utils import get_cad_version_info
-from src.ui.theme import Colors, Fonts, Radius
+from src.ui.theme import Colors, Fonts, Radius, Contextual, Text, Surface
 
 import re as _css_re
 def _resolve_css(css: str) -> str:
@@ -515,7 +515,7 @@ class ProjectManager(QWidget):
         ficha_tab = self._create_ficha_obra_tab()
         self.phase_tabs.addTab(ficha_tab, "2.1 Ficha Pré-Obra [F1]")
         self.phase_tab_widgets['ficha'] = ficha_tab
-        self.phase_tabs.tabBar().setTabTextColor(_FICHA_IDX, _QColor('#e6b400'))
+        self.phase_tabs.tabBar().setTabTextColor(_FICHA_IDX, _QColor(Contextual.GOLD))
 
         # Fases 3-8
         for phase_num in range(3, 9):
@@ -969,23 +969,23 @@ class ProjectManager(QWidget):
         # ── Header ──────────────────────────────────────────────────────────
         hdr = QHBoxLayout()
         lbl_title = QLabel("📋  Ficha Pré-Obra [F1]")
-        lbl_title.setStyleSheet(_resolve_css(
-            "color: #e6b400; font-size: 15px; font-weight: bold;"
+        lbl_title.setStyleSheet(
+            f"color: {Contextual.GOLD}; font-size: 15px; font-weight: bold;"
             " background: transparent; border: none;"
-        ))
+        )
         hdr.addWidget(lbl_title)
         hdr.addStretch()
 
         btn_refresh_ficha = QPushButton("↻ Atualizar Ficha")
         btn_refresh_ficha.setFixedHeight(26)
-        btn_refresh_ficha.setStyleSheet(_resolve_css("""
-            QPushButton {
-                background: rgba(230, 180, 0, 31); color: #e6b400;
-                border: 1px solid #e6b400; border-radius: 4px;
+        btn_refresh_ficha.setStyleSheet(f"""
+            QPushButton {{
+                background: rgba(230, 180, 0, 31); color: {Contextual.GOLD};
+                border: 1px solid {Contextual.GOLD}; border-radius: 4px;
                 padding: 1px 12px; font-size: 10px; font-weight: bold;
-            }
-            QPushButton:hover { background: rgba(230, 180, 0, 64); }
-        """))
+            }}
+            QPushButton:hover {{ background: rgba(230, 180, 0, 64); }}
+        """)
         btn_refresh_ficha.clicked.connect(self._refresh_ficha_obra)
         hdr.addWidget(btn_refresh_ficha)
         lay.addLayout(hdr)
@@ -1005,13 +1005,13 @@ class ProjectManager(QWidget):
 
         # ── Campos da ficha (labels dinâmicos) ───────────────────────────────
         fields_frame = QFrame()
-        fields_frame.setStyleSheet(_resolve_css("""
-            QFrame {
-                background: {Colors.BG_PANEL};
-                border: 1px solid #3a3000;
+        fields_frame.setStyleSheet(f"""
+            QFrame {{
+                background: {Surface.BASE};
+                border: 1px solid {Contextual.BORDER_GOLD_DARK};
                 border-radius: 8px;
-            }
-        """))
+            }}
+        """)
         fields_lay = QVBoxLayout(fields_frame)
         fields_lay.setContentsMargins(16, 12, 16, 12)
         fields_lay.setSpacing(8)
@@ -1025,12 +1025,12 @@ class ProjectManager(QWidget):
             lbl_k = QLabel(label)
             lbl_k.setFixedWidth(200)
             lbl_k.setStyleSheet(
-                "color: #8a9ab5; font-size: 11px; font-weight: bold;"
+                f"color: {Text.SECONDARY}; font-size: 11px; font-weight: bold;"
                 " background: transparent; border: none;"
             )
             lbl_v = QLabel(default)
             lbl_v.setStyleSheet(
-                "color: #e0e4f0; font-size: 11px;"
+                f"color: {Text.PRIMARY}; font-size: 11px;"
                 " background: transparent; border: none;"
             )
             lbl_v.setWordWrap(True)
@@ -1059,7 +1059,7 @@ class ProjectManager(QWidget):
         # ── Log do último Pré-processar Todos ────────────────────────────────
         lbl_log_title = QLabel("Log — Último Pré-processamento")
         lbl_log_title.setStyleSheet(
-            "color: #e6b400; font-size: 11px; font-weight: bold;"
+            f"color: {Contextual.GOLD}; font-size: 11px; font-weight: bold;"
             " background: transparent; border: none; padding-top: 6px;"
         )
         lay.addWidget(lbl_log_title)
@@ -1071,14 +1071,14 @@ class ProjectManager(QWidget):
         self._ficha_log.setPlaceholderText(
             "Execute ⚡ Pré-processar Todos no Diagnostic Hub para gerar o log aqui."
         )
-        self._ficha_log.setStyleSheet(_resolve_css("""
-            QPlainTextEdit {
-                background: {Colors.BG_DEEP}; color: {Colors.TEXT_SECONDARY};
-                border: 1px solid #3a3000; border-radius: 5px;
+        self._ficha_log.setStyleSheet(f"""
+            QPlainTextEdit {{
+                background: {Surface.DEEP}; color: {Text.SECONDARY};
+                border: 1px solid {Contextual.BORDER_GOLD_DARK}; border-radius: 5px;
                 font-size: 10px; font-family: monospace;
                 padding: 6px;
-            }
-        """))
+            }}
+        """)
         lay.addWidget(self._ficha_log)
         lay.addStretch()
 
@@ -1452,44 +1452,70 @@ class ProjectManager(QWidget):
             db_list_container = QWidget()
             db_layout = QVBoxLayout(db_list_container)
             db_layout.setContentsMargins(0, 10, 0, 0)
-            
+
             lbl_db = QLabel(f"🔢 {class_name} (Dados Vinculados)")
             lbl_db.setStyleSheet(f"color: {Colors.ACCENT_PRIMARY}; font-weight: bold; font-size: 11px;")
             db_layout.addWidget(lbl_db)
-            
-            # Tree Widget parecido com o do main.py
-            tree = QTreeWidget()
-            
-            if class_name == "Scripts Pilares":
-                tree.setHeaderLabels(["Item", "Nome", "Cima", "Grades", "ABCD", "Ação"])
-                tree.setColumnWidth(0, 60)
-                tree.setColumnWidth(1, 150)
-                tree.setColumnWidth(2, 60)  # Cima
-                tree.setColumnWidth(3, 60)  # Grades
-                tree.setColumnWidth(4, 60)  # ABCD
+
+            def _make_tree(cn):
+                t = QTreeWidget()
+                if cn == "Scripts Pilares":
+                    t.setHeaderLabels(["Item", "Nome", "Cima", "Grades", "ABCD", "Ação"])
+                    t.setColumnWidth(0, 60); t.setColumnWidth(1, 150)
+                    t.setColumnWidth(2, 60); t.setColumnWidth(3, 60); t.setColumnWidth(4, 60)
+                else:
+                    t.setHeaderLabels(["Item", "Nome", "Status", "Ação"])
+                    t.setColumnWidth(0, 60); t.setColumnWidth(1, 150); t.setColumnWidth(2, 80)
+                t.setStyleSheet(f"QTreeWidget {{ background: {Colors.BG_DEEP}; border: 1px solid {Colors.BORDER_DEFAULT}; }}")
+                t.setMinimumHeight(200)
+                return t
+
+            # Fase 3 "Vigas" usa sub-abas Para / Passam
+            if phase_num == 3 and class_name == "Vigas":
+                lv_tabs = QTabWidget()
+                lv_tabs.setStyleSheet(
+                    f"QTabBar::tab {{ background:{Colors.BG_CARD}; color:{Colors.TEXT_SECONDARY};"
+                    f" border-radius:3px; padding:3px 10px; margin-right:2px; }}"
+                    f"QTabBar::tab:selected {{ background:#1B5E20; color:#fff; font-weight:bold; }}"
+                    f"QTabWidget::pane {{ border:1px solid {Colors.BORDER_DEFAULT}; }}"
+                )
+                tree_para  = _make_tree(class_name)
+                tree_passa = _make_tree(class_name)
+                lv_tabs.addTab(tree_para,  "Vigas Para")
+                lv_tabs.addTab(tree_passa, "Vigas Passam")
+                # Carregar só ao selecionar a sub-aba
+                lv_tabs.currentChanged.connect(
+                    lambda idx, cn=class_name, tp=tree_para, ts=tree_passa:
+                        self._refresh_phase3_data(cn, tp, "Para") if idx == 0
+                        else self._refresh_phase3_data(cn, ts, "Passa")
+                )
+                db_layout.addWidget(lv_tabs)
+                tree = tree_para  # referência legacy (para refresh btn)
+                class_frame.setProperty("db_tree_para",  tree_para)
+                class_frame.setProperty("db_tree_passa", tree_passa)
+                class_frame.setProperty("db_lv_tabs",    lv_tabs)
+                class_frame.setProperty("db_tree", None)  # sem tree unificada
             else:
-                tree.setHeaderLabels(["Item", "Nome", "Status", "Ação"])
-                tree.setColumnWidth(0, 60)
-                tree.setColumnWidth(1, 150)
-                tree.setColumnWidth(2, 80)
-            
-            tree.setStyleSheet(f"QTreeWidget {{ background: {Colors.BG_DEEP}; border: 1px solid {Colors.BORDER_DEFAULT}; }}")
-            tree.setMinimumHeight(200)
-            db_layout.addWidget(tree)
-            
+                tree = _make_tree(class_name)
+                db_layout.addWidget(tree)
+                class_frame.setProperty("db_tree", tree)
+
             class_layout.addWidget(db_list_container)
-            
-            # Salvar referencia na classe para popular depois
-            class_frame.setProperty("db_tree", tree)
-            
+
             # Botão de Refresh Específico
             btn_refresh = QPushButton("🔄 Atualizar")
             btn_refresh.setCursor(Qt.PointingHandCursor)
             btn_refresh.setStyleSheet(f"background: transparent; color: {Colors.TEXT_SECONDARY}; border: none; font-size: 10px;")
             if phase_num == 3:
-                btn_refresh.clicked.connect(lambda checked=False, cn=class_name, t=tree: self._refresh_phase3_data(cn, t))
+                if class_name == "Vigas":
+                    # Refresh: recarrega a sub-aba ativa
+                    btn_refresh.clicked.connect(
+                        lambda checked=False, cn=class_name, cf=class_frame:
+                            self._refresh_lv_active_tab(cn, cf)
+                    )
+                else:
+                    btn_refresh.clicked.connect(lambda checked=False, cn=class_name, t=tree: self._refresh_phase3_data(cn, t))
             elif phase_num == 5:
-                # Na fase 5, chame o refresh específico de scripts
                 btn_refresh.clicked.connect(lambda checked=False, cn=class_name, t=tree: self._refresh_phase5_data(cn, t))
             else:
                 btn_refresh.clicked.connect(lambda checked=False, cn=class_name, t=tree: self._refresh_phase4_data(cn, t))
@@ -1501,8 +1527,24 @@ class ProjectManager(QWidget):
 
         return class_frame
 
-    def _refresh_phase3_data(self, class_name, tree_widget):
-        """Carrega dados do SQLite para a lista"""
+    def _refresh_lv_active_tab(self, class_name: str, class_frame):
+        """Recarrega a sub-aba LV ativa (Para ou Passa)."""
+        lv_tabs = class_frame.property("db_lv_tabs")
+        tree_para  = class_frame.property("db_tree_para")
+        tree_passa = class_frame.property("db_tree_passa")
+        if lv_tabs is None:
+            return
+        idx = lv_tabs.currentIndex()
+        if idx == 0:
+            self._refresh_phase3_data(class_name, tree_para, "Para")
+        else:
+            self._refresh_phase3_data(class_name, tree_passa, "Passa")
+
+    def _refresh_phase3_data(self, class_name, tree_widget, pp_filter: str = ""):
+        """Carrega dados do SQLite para a lista.
+
+        pp_filter: "Para" | "Passa" | "" (sem filtro — pilares/lajes)
+        """
         if not self.current_project_id: return
 
         tree_widget.clear()
@@ -1568,14 +1610,14 @@ class ProjectManager(QWidget):
                 status_txt = status_label
 
             if is_lv:
-                # LV: 3 níveis — LV-V301 → [LV-V301 Para, LV-V301 Passa] → [.A, .B]
-                # Cada beam sempre aparece como Para E Passa (instâncias independentes)
+                # LV com sub-abas: só mostra a classe Para ou Passa conforme pp_filter
+                pp_classes = [pp_filter] if pp_filter in ("Para", "Passa") else ("Para", "Passa")
                 parent_item = QTreeWidgetItem(tree_widget)
                 parent_item.setText(0, f"{i+1:02}")
                 parent_item.setText(1, f"LV-{name}")
                 parent_item.setText(2, status_txt)
                 parent_item.setExpanded(True)
-                for pp in ("Para", "Passa"):
+                for pp in pp_classes:
                     pp_group = QTreeWidgetItem(parent_item)
                     pp_group.setText(0, "")
                     pp_group.setText(1, f"LV-{name} {pp}")
@@ -1649,6 +1691,33 @@ class ProjectManager(QWidget):
             self._refresh_all_phase3_lists()
         except Exception:
             pass
+
+    def _refresh_all_phase3_lists(self):
+        """Recarrega todas as listas da Fase 3 (após edição/save)."""
+        phase_tab = self.phase_tab_widgets.get(3)
+        if not phase_tab:
+            return
+        container = phase_tab.widget()
+        if not container:
+            return
+        layout = container.layout()
+        if not layout:
+            return
+        for i in range(layout.count()):
+            widget = layout.itemAt(i).widget()
+            if not widget:
+                continue
+            class_name = widget.property("class_name")
+            if not class_name:
+                continue
+            # LV usa duas sub-árvores separadas
+            lv_tabs = widget.property("db_lv_tabs")
+            if lv_tabs is not None:
+                self._refresh_lv_active_tab(class_name, widget)
+                continue
+            tree = widget.property("db_tree")
+            if tree:
+                self._refresh_phase3_data(class_name, tree)
 
     def _refresh_all_phase4_lists(self):
         """Atualiza todas as listas de dados de robôs na Fase 4."""
@@ -2780,7 +2849,7 @@ class ProjectManager(QWidget):
         self._btn_triagem_toggle = QPushButton("▲")
         self._btn_triagem_toggle.setFixedWidth(28)
         self._btn_triagem_toggle.setStyleSheet(
-            "QPushButton { background: transparent; color: #888; border: none; font-size: 11px; }"
+            f"QPushButton {{ background: transparent; color: {Text.SECONDARY}; border: none; font-size: 11px; }}"
         )
 
         header.addWidget(self._lbl_triagem_summary)
@@ -3610,7 +3679,7 @@ class ProjectManager(QWidget):
         self._btn_preprocess_toggle = QPushButton("▲")
         self._btn_preprocess_toggle.setFixedWidth(28)
         self._btn_preprocess_toggle.setStyleSheet(
-            "QPushButton { background: transparent; color: #888; border: none; font-size: 11px; }"
+            f"QPushButton {{ background: transparent; color: {Text.SECONDARY}; border: none; font-size: 11px; }}"
         )
 
         header.addWidget(self._lbl_preprocess_summary)
@@ -3897,7 +3966,7 @@ class ProjectManager(QWidget):
         self._btn_projetos_toggle = QPushButton("▲")
         self._btn_projetos_toggle.setFixedWidth(28)
         self._btn_projetos_toggle.setStyleSheet(
-            "QPushButton { background: transparent; color: #888; border: none; font-size: 11px; }"
+            f"QPushButton {{ background: transparent; color: {Text.SECONDARY}; border: none; font-size: 11px; }}"
         )
 
         header.addWidget(self._lbl_projetos_summary)
@@ -4269,7 +4338,7 @@ class ProjectManager(QWidget):
         self._btn_detalhamentos_toggle = QPushButton("▲")
         self._btn_detalhamentos_toggle.setFixedWidth(28)
         self._btn_detalhamentos_toggle.setStyleSheet(
-            "QPushButton { background: transparent; color: #888; border: none; font-size: 11px; }"
+            f"QPushButton {{ background: transparent; color: {Text.SECONDARY}; border: none; font-size: 11px; }}"
         )
 
         header.addWidget(self._lbl_detalhamentos_summary)

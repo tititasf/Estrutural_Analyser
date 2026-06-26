@@ -153,7 +153,7 @@ from src.core.dxf_loader import RenderMode
 import math
 import os
 import base64
-from src.ui.theme import Colors, Fonts, Radius
+from src.ui.theme import Colors, Fonts, Radius, Accent, Surface
 
 class DXFLineItem(QGraphicsLineItem):
     """Custom Line Item that disables default selection dashed line"""
@@ -689,8 +689,8 @@ class CADCanvas(QGraphicsView):
         self._highlighted_items = set()
         self.filter_indices = {'layer': {}, 'color': {}, 'type': {}}
         self.dxf_metadata = {'layers': set(), 'colors': set(), 'types': set()}
-        self.source_dxf_path = source_dxf_path
-        
+        self.source_dxf_path = None
+
         # Re-inicializar overlays necessÃ¡rios
         self._init_osnap_markers()
         self._init_instruction_overlay()
@@ -883,10 +883,10 @@ class CADCanvas(QGraphicsView):
         self.chk_perf_render = QCheckBox("⚡ Modo Leve")
         self.chk_perf_render.setChecked(True)
         self.chk_perf_render.setToolTip("Oculta hachuras pesadas para navegação instantânea")
-        self.chk_perf_render.setStyleSheet("""
-            QCheckBox { color: #00bcd4; font-size: 13px; font-weight: bold; }
-            QCheckBox::indicator { width: 22px; height: 22px; background: #263238; border: 2px solid #00bcd4; border-radius: 4px; }
-            QCheckBox::indicator:checked { background: #00bcd4; image: none; }
+        self.chk_perf_render.setStyleSheet(f"""
+            QCheckBox {{ color: {Accent.PRIMARY}; font-size: 13px; font-weight: bold; }}
+            QCheckBox::indicator {{ width: 22px; height: 22px; background: {Surface.RAISED}; border: 2px solid {Accent.PRIMARY}; border-radius: 4px; }}
+            QCheckBox::indicator:checked {{ background: {Accent.PRIMARY}; image: none; }}
         """)
         self.chk_perf_render.stateChanged.connect(lambda state: self.apply_performatic_mode(state == 2))
         layout.addWidget(self.chk_perf_render)
@@ -1332,7 +1332,7 @@ class CADCanvas(QGraphicsView):
                     config = Configuration(
                         background_policy=BackgroundPolicy.CUSTOM,
                         custom_bg_color="#1A1A1A",
-                        color_policy=ColorPolicy.COLOR_SWAP_BW,
+                        color_policy=ColorPolicy.COLOR,
                     )
                 
                 # Otimizações Extremas do Scene (Impede congelamento de UI)

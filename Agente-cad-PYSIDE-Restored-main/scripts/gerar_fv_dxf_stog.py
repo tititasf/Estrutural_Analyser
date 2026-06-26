@@ -171,8 +171,189 @@ def _sarr_h_offsets(b):
     return offsets
 
 
-def draw_sarr(msp, x0, y0, b, panel_widths, panel_verts=None):
+def build_chanfro_vertices(w, b, te=0.0, fe=0.0, td=0.0, fd=0.0):
+    """Vertices for a panel (0,0)→(w,b) with rectangular corner notches.
+
+    TE=top-left, FE=bottom-left, TD=top-right, FD=bottom-right.
+    Each notch of size c removes a c×c square from the respective corner.
+    """
+    pts = []
+    # Bottom-left (FE)
+    if fe > 0:
+        pts += [(0, fe), (fe, fe), (fe, 0)]
+    else:
+        pts.append((0, 0))
+    # Bottom-right (FD)
+    if fd > 0:
+        pts += [(w - fd, 0), (w - fd, fd), (w, fd)]
+    else:
+        pts.append((w, 0))
+    # Top-right (TD)
+    if td > 0:
+        pts += [(w, b - td), (w - td, b - td), (w - td, b)]
+    else:
+        pts.append((w, b))
+    # Top-left (TE)
+    if te > 0:
+        pts += [(te, b), (te, b - te), (0, b - te)]
+    else:
+        pts.append((0, b))
+    return [{'x': float(x), 'y': float(y)} for x, y in pts]
+
+
+def build_panel_l_loose(main_comp, main_b, comp2, larg2, tipo, paineis_2):
+    """Build loose LINE entities for an L-shaped secondary panel.
+
+    Coordinates are relative to the first sub-panel (x=0, y=0 at panel bottom).
+    tipo: 'E/T' | 'E/F' | 'D/T' | 'D/F'
+      First letter: E=left (x from 0), D=right (x from main_comp-comp2)
+      Second letter: T=top (y from main_b upward), F=bottom (y going downward)
+    """
+    parts = tipo.replace('-', '/').upper().split('/')
+    side = parts[0] if parts else 'E'
+    vert = parts[1] if len(parts) > 1 else 'T'
+
+    x_l = 0.0 if side == 'E' else float(main_comp - comp2)
+    y_l = float(main_b) if vert == 'T' else -float(larg2)
+    x_r = x_l + float(comp2)
+    y_t = y_l + float(larg2)
+
+    ents = [
+        {'type': 'LINE', 'start': {'x': x_l, 'y': y_l}, 'end': {'x': x_r, 'y': y_l}},
+        {'type': 'LINE', 'start': {'x': x_r, 'y': y_l}, 'end': {'x': x_r, 'y': y_t}},
+        {'type': 'LINE', 'start': {'x': x_r, 'y': y_t}, 'end': {'x': x_l, 'y': y_t}},
+        {'type': 'LINE', 'start': {'x': x_l, 'y': y_t}, 'end': {'x': x_l, 'y': y_l}},
+    ]
+    # Sub-panel dividers within the L-panel
+    xp = x_l
+    for pw2 in (paineis_2 or [])[:-1]:
+        xp += float(pw2)
+        ents.append({'type': 'LINE', 'start': {'x': xp, 'y': y_l}, 'end': {'x': xp, 'y': y_t}})
+    # Horizontal slat lines (same pattern as panel_poly)
+    if larg2 > 6:
+        for frac in (1 / 3, 2 / 3):
+            y_slat = y_l + larg2 * frac
+            ents.append({'type': 'LINE', 'start': {'x': x_l, 'y': y_slat}, 'end': {'x': x_r, 'y': y_slat}})
+    return ents
+
+
+def robot_dados_to_fv_dict(dados, viga_nome='V?'):
+    """Convert robot get_current_data() format to a viga_dict for draw_viga().
+
+    Robot keys used:
+      largura, altura, paineis, recuos [TE,FE,TD,FD], aberturas [[dist,prof,larg]×4],
+      sarrafo_esq, sarrafo_dir, texto_esq, texto_dir,
+      tipo_painel2, comprimento_2, largura_2, paineis_2, obs.
+
+    Returns dict with keys: nome, b, comp, panels, label_left, label_right, obs.
+    Returns None if data is insufficient.
+    """
+    def _f(v):
+        try: return float(str(v).replace(',', '.').strip() or '0')
+        except: return 0.0
+
+    # Sub-panel widths from robot paineis fields
+    sub_widths = [_f(p) for p in dados.get('paineis', []) if _f(p) > 0]
+    if not sub_widths:
+        largura = _f(dados.get('largura', 0))
+        sub_widths = compute_panels(largura) if largura > 0 else []
+    if not sub_widths:
+        return None
+
+    b = _f(dados.get('altura', 14)) or 14.0
+    comp = sum(sub_widths)
+
+    # Chanfros [TE, FE, TD, FD]
+    recuos = dados.get('recuos', ['0', '0', '0', '0'])
+    te = _f(recuos[0]) if len(recuos) > 0 else 0.0
+    fe = _f(recuos[1]) if len(recuos) > 1 else 0.0
+    td = _f(recuos[2]) if len(recuos) > 2 else 0.0
+    fd = _f(recuos[3]) if len(recuos) > 3 else 0.0
+
+    aberturas = dados.get('aberturas', [])
+
+    def _abertura_loose(pw, b_val, ab_row, side_top, from_right=False):
+        if len(ab_row) < 3: return []
+        dist, prof, larg = _f(ab_row[0]), _f(ab_row[1]), _f(ab_row[2])
+        if dist <= 0 or prof <= 0 or larg <= 0: return []
+        x1 = (pw - dist - larg) if from_right else dist
+        x2 = x1 + larg
+        y1 = (b_val - prof) if side_top else 0.0
+        y2 = b_val if side_top else prof
+        return [
+            {'type': 'LINE', 'start': {'x': x1, 'y': y1}, 'end': {'x': x2, 'y': y1}},
+            {'type': 'LINE', 'start': {'x': x2, 'y': y1}, 'end': {'x': x2, 'y': y2}},
+            {'type': 'LINE', 'start': {'x': x2, 'y': y2}, 'end': {'x': x1, 'y': y2}},
+            {'type': 'LINE', 'start': {'x': x1, 'y': y2}, 'end': {'x': x1, 'y': y1}},
+        ]
+
+    # Build sub-panel objects with chanfros and aberturas
+    sub_panel_objs = []
+    for i, pw in enumerate(sub_widths):
+        is_first = (i == 0)
+        is_last  = (i == len(sub_widths) - 1)
+        obj = {'width': pw}
+
+        # Apply chanfros only to the endpoint panels
+        p_te = te if is_first else 0.0
+        p_fe = fe if is_first else 0.0
+        p_td = td if is_last  else 0.0
+        p_fd = fd if is_last  else 0.0
+        if p_te > 0 or p_fe > 0 or p_td > 0 or p_fd > 0:
+            obj['vertices'] = build_chanfro_vertices(pw, b, p_te, p_fe, p_td, p_fd)
+
+        # Aberturas as rectangular notch outlines (TE=0, FE=1, TD=2, FD=3)
+        loose = []
+        if is_first:
+            if len(aberturas) > 0:
+                loose += _abertura_loose(pw, b, aberturas[0], side_top=True,  from_right=False)
+            if len(aberturas) > 1:
+                loose += _abertura_loose(pw, b, aberturas[1], side_top=False, from_right=False)
+        if is_last:
+            if len(aberturas) > 2:
+                loose += _abertura_loose(pw, b, aberturas[2], side_top=True,  from_right=True)
+            if len(aberturas) > 3:
+                loose += _abertura_loose(pw, b, aberturas[3], side_top=False, from_right=True)
+        if loose:
+            obj['loose'] = loose
+
+        sub_panel_objs.append(obj)
+
+    # Painel L: draw as loose entities attached to the first sub-panel
+    comp2 = _f(dados.get('comprimento_2', 0))
+    larg2 = _f(dados.get('largura_2', 0))
+    if comp2 > 0 and larg2 > 0:
+        tipo2  = dados.get('tipo_painel2', 'E/T') or 'E/T'
+        pw2_raw = [_f(p) for p in dados.get('paineis_2', []) if _f(p) > 0]
+        if not pw2_raw:
+            pw2_raw = compute_panels(comp2)
+        l_loose = build_panel_l_loose(comp, b, comp2, larg2, tipo2, pw2_raw)
+        if l_loose:
+            sub_panel_objs[0]['loose'] = sub_panel_objs[0].get('loose', []) + l_loose
+
+    segment = {
+        'total_width': comp,
+        'panels': sub_panel_objs,
+        'sarrafo_esq': bool(dados.get('sarrafo_esq', True)),
+        'sarrafo_dir': bool(dados.get('sarrafo_dir', True)),
+    }
+    return {
+        'nome':        viga_nome,
+        'b':           b,
+        'comp':        comp,
+        'panels':      [segment],
+        'label_left':  dados.get('texto_esq', 'L Esq') or 'L Esq',
+        'label_right': dados.get('texto_dir', 'L Dir') or 'L Dir',
+        'obs':         dados.get('obs', ''),
+    }
+
+
+def draw_sarr(msp, x0, y0, b, panel_widths, panel_verts=None,
+              sarrafo_esq=True, sarrafo_dir=True):
     """Draw SARR_2.2x7 lines for a single contiguous real segment.
+
+    sarrafo_esq/sarrafo_dir: when False, the respective vertical sarrafo
+    line is suppressed (used for robot manual control).
 
     Verified against ground truth (V305 recorte, FV_V305_motor_*.dxf):
     SARR_2.2x7 = exactly 4 LINE entities — 2 vertical recuo-edges (x0+7,
@@ -200,13 +381,18 @@ def draw_sarr(msp, x0, y0, b, panel_widths, panel_verts=None):
     xr_offset = SARR_RECUO
     layer = SARR_LAYER
     
+    # Adjust sarrafo offsets for custom panel shapes (e.g. L-corners), but ONLY for
+    # vertices in the TOP half of the panel (y > b/2).  Bottom-corner chanfros (FE/FD)
+    # must NOT shift the sarrafo because the wood is still present at the top edge.
     if panel_verts and panel_verts[0]:
-        left_verts = [v['x'] for v in panel_verts[0] if v['x'] < panel_widths[0]/2]
+        left_verts = [v['x'] for v in panel_verts[0]
+                      if v['x'] < panel_widths[0] / 2 and v.get('y', b) > b / 2]
         if left_verts:
             xl_offset = max(left_verts) + SARR_RECUO
-            
+
     if panel_verts and panel_verts[-1]:
-        right_verts = [v['x'] for v in panel_verts[-1] if v['x'] > panel_widths[-1]/2]
+        right_verts = [v['x'] for v in panel_verts[-1]
+                       if v['x'] > panel_widths[-1] / 2 and v.get('y', b) > b / 2]
         if right_verts:
             xr_offset = (panel_widths[-1] - min(right_verts)) + SARR_RECUO
 
@@ -215,9 +401,11 @@ def draw_sarr(msp, x0, y0, b, panel_widths, panel_verts=None):
     if xr <= xl:
         return
 
-    # Vertical sarrafos at viga edges (one pair per viga) — layer SARR_2.2x7
-    msp.add_line((xl, y0), (xl, y0 + b), dxfattribs={'layer': layer})
-    msp.add_line((xr, y0), (xr, y0 + b), dxfattribs={'layer': layer})
+    # Vertical sarrafos at viga edges — conditionally per robot sarrafo_esq/dir flags
+    if sarrafo_esq:
+        msp.add_line((xl, y0), (xl, y0 + b), dxfattribs={'layer': layer})
+    if sarrafo_dir:
+        msp.add_line((xr, y0), (xr, y0 + b), dxfattribs={'layer': layer})
 
     # Horizontal sarrafos: one continuous pair spanning the whole recuo-inset
     # width of this real segment (xl to xr) — confirmed against ground truth.
@@ -533,8 +721,11 @@ def draw_viga(msp, x0, y0, panels_json, viga_b, viga_nome,
             if i < len(sub_panels) - 1:
                 panel_divider(msp, xp, y0, b)
 
-        # Draw sarrafos for this segment
-        draw_sarr(msp, seg_x0, y0, b, sub_panels, sub_panel_verts)
+        # Draw sarrafos for this segment (respecting sarrafo_esq/dir flags from robot)
+        seg_sarr_esq = seg_item.get('sarrafo_esq', True) if isinstance(seg_item, dict) else True
+        seg_sarr_dir = seg_item.get('sarrafo_dir', True) if isinstance(seg_item, dict) else True
+        draw_sarr(msp, seg_x0, y0, b, sub_panels, sub_panel_verts,
+                  sarrafo_esq=seg_sarr_esq, sarrafo_dir=seg_sarr_dir)
 
         # Textos de inicio e fim de segmento (Labels ESQ / DIR)
         if seg_idx == 0 and label_left:
@@ -685,6 +876,39 @@ def _contar_ids_stog_fv(obra_path: Path) -> set:
     return ids
 
 
+def _normalize_segments_rich(segments, viga_b):
+    """Normaliza vértices dos panels de segments_rich para espaço local [0,w]×[0,b].
+
+    O motor reverso extrai vértices em coordenadas CAD absolutas da posição
+    da viga no DXF STOG. Cada painel deve ter y ∈ [0, b], mas pode chegar
+    com y em qualquer valor absoluto (ex: y=-24.5 para b=19).
+
+    Estratégia: para cada panel com vértices, transladar y para que y_min=0.
+    Se após a translação y_max ainda divergir muito de b, truncar para b.
+    """
+    for seg in segments:
+        if not isinstance(seg, dict):
+            continue
+        b_seg = float(seg.get('total_width', 0))  # não é b, mas usamos viga_b
+        for p in seg.get('panels', []):
+            verts = p.get('vertices')
+            if not verts or len(verts) < 3:
+                continue
+            y_vals = [float(v.get('y', 0)) for v in verts]
+            y_min  = min(y_vals)
+            if abs(y_min) < 0.01:
+                continue  # já normalizado
+            for v in verts:
+                v['y'] = float(v.get('y', 0)) - y_min
+            # Após translação, limitar a [0, viga_b]
+            y_vals2 = [float(v['y']) for v in verts]
+            y_max2  = max(y_vals2)
+            if y_max2 > viga_b * 1.5:
+                # Provavelmente unidade diferente ou coordenada bugada — resetar
+                p.pop('vertices', None)
+    return segments
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--obra', required=True)
@@ -696,7 +920,50 @@ def main():
     parser.add_argument('--override_dir', type=str, default=None,
                         help='Diretório com JSONs override (V*_fundo.json) editados manualmente. '
                              'Sobrepõe segments_rich do JSON da Fase-4 quando presente.')
+    parser.add_argument('--robot_json', type=str, default=None,
+                        help='Caminho para JSON no formato get_current_data() do robô. '
+                             'Gera DXF preview completo (chanfros, sarrafos, painel L, aberturas) '
+                             'sem precisar de Fase-4 JSON. Requer também --obra e --item.')
     args = parser.parse_args()
+
+    # -- Modo robot_json: geração direta a partir dos dados do robô ---------------
+    if args.robot_json:
+        rj_path = Path(args.robot_json)
+        if not rj_path.exists():
+            print(f'[ERRO] robot_json não encontrado: {rj_path}'); return
+        rdata = json.loads(rj_path.read_text(encoding='utf-8'))
+        viga_nome = rdata.get('nome', '') or (args.item or 'V?')
+        viga_dict = robot_dados_to_fv_dict(rdata, viga_nome=viga_nome)
+        if not viga_dict:
+            print('[ERRO] robot_json: dados insuficientes (paineis ou altura zerados)'); return
+
+        obra_path = Path(args.obra)
+        out_dir   = obra_path / 'Fase-6_Execucao_CAD'
+        out_dir.mkdir(parents=True, exist_ok=True)
+
+        doc = setup_doc()
+        msp = doc.modelspace()
+        x0, y0 = 0.0, 200.0
+        draw_viga(
+            msp, x0, y0,
+            viga_dict['panels'], viga_dict['b'], viga_dict['nome'],
+            obs=viga_dict.get('obs', ''),
+            label_left=viga_dict.get('label_left', 'L Esq'),
+            label_right=viga_dict.get('label_right', 'L Dir'),
+        )
+
+        # Normaliza o nome para FV_preview_V001.dxf
+        m_n = re.search(r'\d+', viga_nome)
+        if m_n:
+            prefix_str = re.sub(r'\d+', '', viga_nome.upper())
+            out_name = f'FV_preview_{prefix_str}{int(m_n.group()):03d}.dxf'
+        else:
+            out_name = f'FV_preview_{viga_nome}.dxf'
+
+        out_path = out_dir / out_name
+        doc.saveas(str(out_path))
+        print(f'[FV] robot_json DXF → {out_path}')
+        return
 
     obra_path = Path(args.obra)
     fv_dir    = obra_path / 'Fase-4_Sincronizacao' / 'JSON_Vigas_Fundo'
@@ -759,8 +1026,9 @@ def main():
             v_b = vigas_salvas.get(vname, {}).get('b', 14)
         viga_b = float(v_b)
         
-        # Priority: segments_rich -> panels
+        # Priority: segments_rich -> panels (com normalização de vértices)
         panels = d.get('segments_rich', d.get('panels', []))
+        panels = _normalize_segments_rich(panels, viga_b)
         
         comp   = sum(float(p.get('total_width', p.get('width', 0))) for p in panels)
         if comp > 0 and viga_b > 0:
