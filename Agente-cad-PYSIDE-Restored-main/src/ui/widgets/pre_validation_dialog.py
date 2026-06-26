@@ -30,24 +30,31 @@ from PySide6.QtGui import (QColor, QFont, QBrush, QPixmap, QPainter,
                             QPen, QPolygonF, QPainterPath)
 
 try:
-    from src.ui.theme import Colors, Semantic, Accent, Text
+    from src.ui.theme import Colors, Semantic, Accent, Text, Surface, Border, Contextual
 except ImportError:
+    class Surface:
+        BASE = "#1a1a2e"; RAISED = "#16213e"; DEEP = "#121212"; CARD = "#252525"; ELEVATED = "#2a2a3e"
+    class Border:
+        DEFAULT = "#333333"; STRONG = "#444444"; SUBTLE = "#2a2a2a"
+    class Contextual:
+        DANGER_DARK = "#332222"; FOREST = "rgba(26, 74, 26, 1)"; PURPLE = "#a070ff"; GOLD = "#e6b400"
     class Colors:
-        BG_PRIMARY = "#1a1a2e"
-        BG_SECONDARY = "#16213e"
-        BG_PANEL = "#1e1e1e"
-        ACCENT_MINT = "#00bcd4"
-        ACCENT_WARNING_ALT = "#ffc107"
-        BORDER_DEFAULT = "#2a3050"
-        BORDER_INPUT = "#3a4060"
-        TEXT_PRIMARY = "#e0e0e0"
-        TEXT_MUTED = "#90a4ae"
+        BG_PRIMARY        = Surface.BASE
+        BG_SECONDARY      = Surface.RAISED
+        BG_PANEL          = Surface.BASE
+        ACCENT_MINT       = "#4caf50"   # = Semantic.SUCCESS
+        ACCENT_WARNING_ALT = "#ff9800"  # = Semantic.WARNING
+        BORDER_DEFAULT    = Border.DEFAULT
+        BORDER_INPUT      = Border.STRONG
+        TEXT_PRIMARY      = "#e0e0e0"
+        TEXT_MUTED        = "#666666"
     class Semantic:
         SUCCESS = "#4caf50"; WARNING = "#ff9800"; DANGER = "#f44336"
+        SUCCESS_BG_DARK = "#1a3320"; WARNING_BG_DARK = "#332900"; DANGER_BG_DARK = "#330d00"
     class Accent:
-        PRIMARY = "#00d4ff"; BRAND = "#00E5FF"
+        PRIMARY = "#00d4ff"; BRAND = "#00E5FF"; INTERACTIVE = "#0078d4"
     class Text:
-        PRIMARY = "#e0e0e0"; SECONDARY = "#9a9aa6"
+        PRIMARY = "#e0e0e0"; SECONDARY = "#9a9aa6"; MUTED = "#666666"; BRIGHT = "#ffffff"
 
 # ── Constantes de terminologia ─────────────────────────────────────────────────
 
@@ -563,7 +570,7 @@ class PreValidationDialog(QDialog):
         margin_factor: float = 3.0,
         min_margin_dxf: float = 120.0,
         fallback_line: str = Colors.ACCENT_MINT,
-        fallback_fill: str = '#0d3045',
+        fallback_fill: str = Surface.RAISED,
     ) -> QWidget | None:
         """
         Cria um _MiniDXFView que compartilha a cena DXF do canvas principal,
@@ -610,7 +617,7 @@ class PreValidationDialog(QDialog):
     def _render_polygon_geometric(self, pts: list,
                                    thumb_w: int = 440, thumb_h: int = 210,
                                    line_color: str = Colors.ACCENT_MINT,
-                                   fill_color: str = '#0d3045') -> QPixmap | None:
+                                   fill_color: str = Surface.RAISED) -> QPixmap | None:
         """
         Fallback: desenha o polígono geometricamente (sem canvas disponível).
         Respeita dimensões retangulares thumb_w × thumb_h.
@@ -663,7 +670,7 @@ class PreValidationDialog(QDialog):
             pts,
             thumb_w=self._PIL_THUMB_W, thumb_h=self._PIL_THUMB_H,
             margin_factor=2.5, min_margin_dxf=100.0,
-            fallback_line=Colors.ACCENT_MINT, fallback_fill='#0d3045',
+            fallback_line=Colors.ACCENT_MINT, fallback_fill=Surface.RAISED,
         )
 
     def _make_cut_viewer(self, pts: list) -> QWidget | None:
@@ -1106,7 +1113,7 @@ class PreValidationDialog(QDialog):
             return self._make_mini_viewer(
                 pts, thumb_w=w, thumb_h=h,
                 margin_factor=2.0, min_margin_dxf=80.0,
-                fallback_line=Colors.ACCENT_MINT, fallback_fill='#0d3045',
+                fallback_line=Colors.ACCENT_MINT, fallback_fill=Surface.RAISED,
             ) or self._make_conv_placeholder(w, h, "Sem canvas")
 
         # 2. Exemplo salvo (outro pavimento) — cena autônoma
@@ -1251,7 +1258,7 @@ class PreValidationDialog(QDialog):
         CL = Text.SECONDARY   # muted
         CV = Text.PRIMARY     # valor padrão
         CM = Accent.PRIMARY   # mint — Lado A
-        CB = '#90caf9'        # azul claro — Lado B (sem equivalente DS)
+        CB = Accent.INTERACTIVE  # azul — Lado B
         CG = Semantic.WARNING # dourado — nome da viga
 
         def _kv(k: str, v: str, vc: str = CV, bold: bool = False) -> str:
@@ -1306,7 +1313,7 @@ class PreValidationDialog(QDialog):
                 f"&nbsp;&nbsp;&nbsp;{_kv(pos + ':', lv)} {lsfx}",
             ])
 
-        sep = "<hr style='border:none; border-top:1px solid #2a3050; margin:2px 0;'>"
+        sep = f"<hr style='border:none; border-top:1px solid {Border.DEFAULT}; margin:2px 0;'>"
         html = (
             "<div style='font-size:9px; line-height:1.45; padding:3px;'>"
             f"{_kv('Nome:', beam_name_f, CG, bold=True)}<br>"
@@ -1637,8 +1644,8 @@ class PreValidationDialog(QDialog):
 
         btn_cancel = QPushButton("Cancelar")
         btn_cancel.setStyleSheet(
-            f"QPushButton {{ color:#f44336; border-color:#f44336; }}"
-            f"QPushButton:hover {{ background:#2d1010; }}"
+            f"QPushButton {{ color:{Semantic.DANGER}; border-color:{Semantic.DANGER}; }}"
+            f"QPushButton:hover {{ background:{Contextual.DANGER_DARK}; }}"
         )
         btn_cancel.clicked.connect(self.reject)
 
@@ -1648,19 +1655,19 @@ class PreValidationDialog(QDialog):
             btn_save.setEnabled(False)
             btn_save.setToolTip("convention_file não configurado — salvar indisponível")
         btn_save.setStyleSheet(
-            f"QPushButton {{ color:{Colors.ACCENT_WARNING_ALT}; "
-            f"  border-color:{Colors.ACCENT_WARNING_ALT}; padding:6px 14px; }}"
-            f"QPushButton:hover {{ background:#2d2000; }}"
-            f"QPushButton:disabled {{ color:#555; border-color:#444; }}"
+            f"QPushButton {{ color:{Semantic.WARNING}; "
+            f"  border-color:{Semantic.WARNING}; padding:6px 14px; }}"
+            f"QPushButton:hover {{ background:{Semantic.WARNING_BG_DARK}; }}"
+            f"QPushButton:disabled {{ color:{Text.MUTED}; border-color:{Border.STRONG}; }}"
         )
         btn_save.clicked.connect(self._save_convention)
         self._btn_save_conv = btn_save
 
         btn_confirm = QPushButton("  Confirmar e Prosseguir  ▶")
         btn_confirm.setStyleSheet(
-            f"QPushButton {{ background:{Colors.ACCENT_MINT}; color:#000; font-weight:bold; "
+            f"QPushButton {{ background:{Accent.PRIMARY}; color:{Surface.DEEP}; font-weight:bold; "
             f"  border:none; padding:6px 16px; }}"
-            f"QPushButton:hover {{ background:#00e5ff; }}"
+            f"QPushButton:hover {{ background:{Accent.BRAND}; }}"
         )
         btn_confirm.clicked.connect(self._confirm_and_save)
 
@@ -1765,7 +1772,7 @@ class PreValidationDialog(QDialog):
 
             effect_lbl = QLabel(effect)
             effect_lbl.setStyleSheet(
-                f"font-size:9px; color:{'#80cbc4' if PHYS_IGNORE.get(current_phys) else '#ef9a9a'};"
+                f"font-size:9px; color:{Text.SECONDARY if PHYS_IGNORE.get(current_phys) else Semantic.DANGER};"
             )
 
             def _make_on_change(t=term, eff_lb=effect_lbl):
@@ -1775,7 +1782,7 @@ class PreValidationDialog(QDialog):
                     ignore = PHYS_IGNORE.get(phys, False)
                     lb.setText("ignora como obstáculo" if ignore else "conta como obstáculo")
                     lb.setStyleSheet(
-                        f"font-size:9px; color:{'#80cbc4' if ignore else '#ef9a9a'};"
+                        f"font-size:9px; color:{Text.SECONDARY if ignore else Semantic.DANGER};"
                     )
                     # Propaga para pilares com esse termo
                     self._refresh_pillar_table_row_for_term(tm)
@@ -1868,14 +1875,14 @@ class PreValidationDialog(QDialog):
         """
         cu = (classif or '').upper()
         if cu == 'INDETERMINADO':
-            return QColor('#2d1a1a')
+            return QColor(Semantic.DANGER_BG_DARK)
         if cu in (_NAO_PILAR_SOLIDO.upper(), _NAO_PILAR_VISUAL.upper()):
-            return QColor('#2a2700')
+            return QColor(Semantic.WARNING_BG_DARK)
         if cu in (_GEOM_ERRADA_SOLIDA.upper(), _GEOM_ERRADA_VISUAL.upper()):
-            return QColor('#2a1800')   # laranja escuro — erro de geometria
+            return QColor(Semantic.WARNING_BG_DARK)
         phys = self._physical_type_for(classif)
         if phys == 'visual_only':
-            return QColor('#0d2214')
+            return QColor(Semantic.SUCCESS_BG_DARK)
         return None
 
     def _paint_row(self, row: int, classif: str):
@@ -1899,7 +1906,7 @@ class PreValidationDialog(QDialog):
             lbl = self._phys_labels[key]
             phys = self._physical_type_for(classif)
             ignore = PHYS_IGNORE.get(phys, False)
-            txt = '#80cbc4' if ignore else '#ef9a9a'
+            txt = Text.SECONDARY if ignore else Semantic.DANGER
             bg_css = bg.name() if bg else 'transparent'
             lbl.setStyleSheet(
                 f"color:{txt}; font-size:9px; padding:3px; background:{bg_css};"
@@ -1971,7 +1978,7 @@ class PreValidationDialog(QDialog):
             f.setBold(True)
             nome_item.setFont(f)
             if geo_is_alt:
-                nome_item.setForeground(QBrush(QColor('#00e5ff')))
+                nome_item.setForeground(QBrush(QColor(Accent.BRAND)))
                 nome_item.setToolTip(
                     f'↺ Candidato de geometria alternativa para "{alt_original_key}".\n'
                     f'A bbox original foi rejeitada — esta pode ser a geometria correta.\n'
@@ -1993,7 +2000,7 @@ class PreValidationDialog(QDialog):
                         _make_item(nivel_str, Qt.AlignCenter))
 
             # ── Tipo Físico: QLabel com word wrap ────────────────────────────
-            txt_color = '#80cbc4' if ignore else '#ef9a9a'
+            txt_color = Text.SECONDARY if ignore else Semantic.DANGER
             phys_lbl = QLabel(phys_label_text)
             phys_lbl.setWordWrap(True)
             phys_lbl.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
@@ -2043,7 +2050,7 @@ class PreValidationDialog(QDialog):
                     mi.setEnabled(False)
                     mi.setForeground(QBrush(QColor(Colors.TEXT_MUTED)))
                 elif opt in (_NAO_PILAR_SOLIDO, _NAO_PILAR_VISUAL):
-                    mi.setForeground(QBrush(QColor('#ffb74d')))   # amarelo
+                    mi.setForeground(QBrush(QColor(Contextual.GOLD)))   # amarelo
                 elif opt in (_GEOM_ERRADA_SOLIDA, _GEOM_ERRADA_VISUAL):
                     mi.setForeground(QBrush(QColor('#ff9800')))   # laranja
             idx = next((i for i, o in enumerate(options) if o == classif), 0)
@@ -2147,7 +2154,7 @@ class PreValidationDialog(QDialog):
                 lbl.setText(phys_label_text)
                 bg = self._row_bg_for_classif(classif_item.text())
                 bg_css = bg.name() if bg else 'transparent'
-                txt = '#80cbc4' if ignore else '#ef9a9a'
+                txt = Text.SECONDARY if ignore else Semantic.DANGER
                 lbl.setStyleSheet(
                     f"color:{txt}; font-size:9px; padding:3px; background:{bg_css};"
                 )
@@ -2301,20 +2308,20 @@ class PreValidationDialog(QDialog):
 
     # Mapa de cor de fundo da linha por (status_data, is_hist)
     _CUT_ROW_BG: dict[tuple, str] = {
-        ('ok',     False): '#0a1a2e',   # azul escuro — válido novo
-        ('ok',     True):  '#0a2010',   # verde escuro — válido histórico
-        ('visual', False): '#2a1800',   # laranja escuro — errata visual
-        ('visual', True):  '#2a1800',
-        ('solida', False): '#2a0000',   # vermelho escuro — errata sólida
-        ('solida', True):  '#2a0000',
-        ('pilar',  False): '#1a0a2e',   # roxo escuro — é pilar
-        ('pilar',  True):  '#1a0a2e',
+        ('ok',     False): Surface.RAISED,           # azul escuro — válido novo
+        ('ok',     True):  Semantic.SUCCESS_BG_DARK, # verde escuro — válido histórico
+        ('visual', False): Semantic.WARNING_BG_DARK, # laranja escuro — errata visual
+        ('visual', True):  Semantic.WARNING_BG_DARK,
+        ('solida', False): Semantic.DANGER_BG_DARK,  # vermelho escuro — errata sólida
+        ('solida', True):  Semantic.DANGER_BG_DARK,
+        ('pilar',  False): Surface.BASE,             # roxo-navy — é pilar
+        ('pilar',  True):  Surface.BASE,
     }
 
     def _paint_cut_row(self, row: int, status: str, is_hist: bool) -> None:
         """Pinta fundo da linha com base no status + tag histórico/novo."""
         tbl = self._cut_table
-        bg_hex = self._CUT_ROW_BG.get((status, is_hist), '#0a1a2e')
+        bg_hex = self._CUT_ROW_BG.get((status, is_hist), Surface.RAISED)
         bg = QColor(bg_hex)
         # Célula item (Conf %)
         it = tbl.item(row, self._CUT_COL_CONF)
@@ -2463,9 +2470,9 @@ class PreValidationDialog(QDialog):
             mi_v = st_combo.model().item(1)
             mi_s = st_combo.model().item(2)
             mi_p = st_combo.model().item(3)
-            if mi_v: mi_v.setForeground(QBrush(QColor('#ffb74d')))
+            if mi_v: mi_v.setForeground(QBrush(QColor(Contextual.GOLD)))
             if mi_s: mi_s.setForeground(QBrush(QColor('#ff9800')))
-            if mi_p: mi_p.setForeground(QBrush(QColor('#ce93d8')))
+            if mi_p: mi_p.setForeground(QBrush(QColor(Contextual.PURPLE)))
 
             # Restaura status do histórico
             hist_status = hist_cv.get('status', '')

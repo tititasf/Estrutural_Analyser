@@ -24,7 +24,7 @@ from PySide6.QtWidgets import (
 )
 from PySide6.QtGui import QColor
 
-from src.ui.theme import Colors, Fonts, Semantic
+from src.ui.theme import Colors, Fonts, Semantic, Accent, Contextual, Text, Surface, Border
 from src.ui.canvas import CADCanvas, RenderMode
 from src.core.ficha_utils import ensure_db_backup, stamp_ficha_json
 
@@ -48,7 +48,7 @@ _CLASSES = [
     ("LAJ", "Lajes"),
 ]
 _CLS_COLORS = {
-    "PIL": "#7ab3e0", "LV": "#4caf50", "FV": "#ff9800", "LAJ": "#e91e63"
+    "PIL": Accent.PRIMARY, "LV": Semantic.SUCCESS, "FV": Semantic.WARNING, "LAJ": Contextual.MAGENTA
 }
 
 # Valores aceitos por chave de classe (short + full, ambos podem aparecer em notes)
@@ -469,14 +469,14 @@ class _LeftPanel(QFrame):
             btn.setChecked(active)
             if active:
                 btn.setStyleSheet(
-                    f"QPushButton {{ background:{color}; color:#fff; border-radius:3px; "
-                    f"font-size:9px; font-weight:bold; border-bottom:2px solid white; }}"
+                    f"QPushButton {{ background:{color}; color:{Text.BRIGHT}; border-radius:3px; "
+                    f"font-size:9px; font-weight:bold; border-bottom:2px solid {Text.BRIGHT}; }}"
                 )
             else:
                 btn.setStyleSheet(
-                    f"QPushButton {{ background:{Colors.BG_CARD}; color:{Colors.TEXT_SECONDARY}; "
-                    f"border-radius:3px; font-size:9px; border:1px solid {Colors.BORDER_DEFAULT}; }} "
-                    f"QPushButton:hover {{ background:{Colors.BG_PANEL}; }}"
+                    f"QPushButton {{ background:{Surface.CARD}; color:{Text.SECONDARY}; "
+                    f"border-radius:3px; font-size:9px; border:1px solid {Border.DEFAULT}; }} "
+                    f"QPushButton:hover {{ background:{Surface.BASE}; }}"
                 )
         self.class_changed.emit(cls)
         self._refresh_list()

@@ -42,6 +42,8 @@ _PREFIX = {
     "FV": "FV_preview_",
 }
 
+_SENTINEL_X = -5000.0
+
 
 def natural_key(value: str) -> list[object]:
     parts = re.split(r"(\d+)", str(value).upper())
@@ -53,12 +55,71 @@ def _safe_name(value: str) -> str:
     return safe.strip("_") or "GERAL"
 
 
-def _entity_bbox(doc) -> tuple[float, float, float, float] | None:
+def _entity_extents(entity) -> tuple[float, float, float, float] | None:
     try:
-        ext = bbox.extents(doc.modelspace(), fast=True)
-        if not ext.has_data:
+        ext = bbox.extents([entity], fast=True)
+        if ext.has_data:
+            return (float(ext.extmin.x), float(ext.extmin.y), float(ext.extmax.x), float(ext.extmax.y))
+    except Exception:
+        pass
+
+    try:
+        t = entity.dxftype()
+        if t == "LINE":
+            return (
+                min(float(entity.dxf.start.x), float(entity.dxf.end.x)),
+                min(float(entity.dxf.start.y), float(entity.dxf.end.y)),
+                max(float(entity.dxf.start.x), float(entity.dxf.end.x)),
+                max(float(entity.dxf.start.y), float(entity.dxf.end.y)),
+            )
+        if t == "LWPOLYLINE":
+            pts = list(entity.vertices())
+            if pts:
+                xs = [float(p[0]) for p in pts]
+                ys = [float(p[1]) for p in pts]
+                return (min(xs), min(ys), max(xs), max(ys))
+        if t in ("TEXT", "MTEXT", "INSERT") and hasattr(entity.dxf, "insert"):
+            return (
+                float(entity.dxf.insert.x),
+                float(entity.dxf.insert.y),
+                float(entity.dxf.insert.x),
+                float(entity.dxf.insert.y),
+            )
+        if t in ("CIRCLE", "ARC") and hasattr(entity.dxf, "center"):
+            radius = float(getattr(entity.dxf, "radius", 0.0) or 0.0)
+            cx = float(entity.dxf.center.x)
+            cy = float(entity.dxf.center.y)
+            return (cx - radius, cy - radius, cx + radius, cy + radius)
+    except Exception:
+        return None
+    return None
+
+
+def _is_fv_helper_entity(entity) -> bool:
+    """FV previews may contain off-frame sentinels/boost lines used only for scoring layers."""
+    ext = _entity_extents(entity)
+    if not ext:
+        return False
+    return ext[2] < _SENTINEL_X
+
+
+def _entity_bbox(doc, skip_fv_helpers: bool = False) -> tuple[float, float, float, float] | None:
+    try:
+        boxes = []
+        for entity in doc.modelspace():
+            if skip_fv_helpers and _is_fv_helper_entity(entity):
+                continue
+            ext = _entity_extents(entity)
+            if ext:
+                boxes.append(ext)
+        if not boxes:
             return None
-        return (float(ext.extmin.x), float(ext.extmin.y), float(ext.extmax.x), float(ext.extmax.y))
+        return (
+            min(b[0] for b in boxes),
+            min(b[1] for b in boxes),
+            max(b[2] for b in boxes),
+            max(b[3] for b in boxes),
+        )
     except Exception:
         return None
 
@@ -69,7 +130,13 @@ def _new_doc_like() -> ezdxf.EzDxf:
     return doc
 
 
-def _import_doc_entities(src_doc, dst_doc, dx: float = 0.0, dy: float = 0.0) -> int:
+def _import_doc_entities(
+    src_doc,
+    dst_doc,
+    dx: float = 0.0,
+    dy: float = 0.0,
+    skip_fv_helpers: bool = False,
+) -> int:
     importer = Importer(src_doc, dst_doc)
     try:
         importer.import_tables(["layers", "linetypes", "styles", "dimstyles"], replace=False)
@@ -85,6 +152,8 @@ def _import_doc_entities(src_doc, dst_doc, dx: float = 0.0, dy: float = 0.0) -> 
     copies = []
     for entity in src_doc.modelspace():
         try:
+            if skip_fv_helpers and _is_fv_helper_entity(entity):
+                continue
             copied = entity.copy()
             if dx or dy:
                 copied.translate(dx, dy, 0)
@@ -97,16 +166,27 @@ def _import_doc_entities(src_doc, dst_doc, dx: float = 0.0, dy: float = 0.0) -> 
     return len(copies)
 
 
+def _fv_aliases(item_id: str) -> list[str]:
+    value = str(item_id).strip()
+    aliases = [value]
+    clean = re.sub(r"_(Para|Passa)$", "", value, flags=re.I)
+    aliases.append(clean)
+    aliases.append(re.sub(r"[_\.]([A-D])$", "", clean, flags=re.I))
+    aliases.append(re.sub(r"_fundo$", "", clean, flags=re.I))
+    aliases.append(re.sub(r"[_\.]C[-_]\d+$", "", clean, flags=re.I))
+    aliases.append(re.sub(r"[-_]\d+$", "", clean, flags=re.I))
+    for alias in list(aliases):
+        if alias and not alias.upper().endswith("_FUNDO"):
+            aliases.append(f"{alias}_fundo")
+    return aliases
+
+
 def _find_n3_preview(obra_dir: Path, classe: str, item_id: str) -> Path | None:
     fase6 = obra_dir / "Fase-6_Execucao_CAD"
     pfx = _PREFIX.get(classe)
     if not pfx:
         return None
-    candidates = [item_id]
-    if classe == "FV" and not item_id.upper().endswith("_FUNDO"):
-        candidates.append(f"{item_id}_fundo")
-    if classe == "FV":
-        candidates.append(re.sub(r"[_\.]([ABCD])$", "", item_id, flags=re.I))
+    candidates = _fv_aliases(item_id) if classe == "FV" else [item_id]
     seen: set[str] = set()
     for cand in candidates:
         if not cand or cand in seen:
@@ -192,7 +272,7 @@ def assemble_n5(
                 continue
             try:
                 src_doc = ezdxf.readfile(str(src_path))
-                bb = _entity_bbox(src_doc)
+                bb = _entity_bbox(src_doc, skip_fv_helpers=True)
                 if not bb:
                     items.append(N5ItemResult(item_id, str(src_path), "error", "bbox vazio"))
                     continue
@@ -205,7 +285,7 @@ def assemble_n5(
                     row_h = 0.0
                 dx = x_cursor - min_x
                 dy = y_cursor - max_y
-                count = _import_doc_entities(src_doc, dst, dx=dx, dy=dy)
+                count = _import_doc_entities(src_doc, dst, dx=dx, dy=dy, skip_fv_helpers=True)
                 items.append(
                     N5ItemResult(
                         item_id,

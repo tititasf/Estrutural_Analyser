@@ -80,6 +80,11 @@ class Semantic:
     DANGER         = "#f44336"
     DANGER_SUBTLE  = "rgba(244, 67, 54, 36)"
 
+    SUCCESS_BG_DARK = "#1a3320"  # dark green bg (table cells, row highlights)
+    WARNING_BG_DARK = "#332900"  # dark amber bg
+    DANGER_BG_DARK  = "#330d00"  # dark red bg
+    NEUTRAL_BG_DARK = "#1a1a1a"  # neutral dark bg for absent/N.A.
+
     INFO           = "#00d4ff"   # mesmo que Accent.PRIMARY — dica neutra
 
 

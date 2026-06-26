@@ -30,16 +30,29 @@ except ImportError:
 if _QT_AVAILABLE:
     from src.core.services.dxf_generator import DXFGeneratorService, _GENERATOR_MAP
     try:
-        from src.ui.theme import Colors
+        from src.ui.theme import Colors, Accent, Semantic, Text, Border, Surface
     except ImportError:
+        class Accent:
+            PRIMARY = "#00d4ff"
+        class Semantic:
+            SUCCESS = "#4caf50"
+            WARNING = "#ff9800"
+            DANGER = "#f44336"
+        class Text:
+            PRIMARY = "#e0e0e0"
+        class Border:
+            DEFAULT = "#333333"
+        class Surface:
+            CARD = "#252525"
+            DEEP = "#121212"
         class Colors:
-            ACCENT_MINT     = '#00e5cc'
-            ACCENT_WARNING_ALT = '#ffb347'
-            SUCCESS         = '#4caf50'
-            DANGER          = '#f44336'
-            BG_CARD         = '#1a1a2e'
-            TEXT_PRIMARY    = '#e0e0e0'
-            BORDER_DEFAULT  = '#333355'
+            ACCENT_MINT        = Semantic.SUCCESS
+            ACCENT_WARNING_ALT = Semantic.WARNING
+            SUCCESS            = Semantic.SUCCESS
+            DANGER             = Semantic.DANGER
+            BG_CARD            = Surface.CARD
+            TEXT_PRIMARY       = Text.PRIMARY
+            BORDER_DEFAULT     = Border.DEFAULT
 
 
 # ── Type labels shown in UI ───────────────────────────────────────────────────

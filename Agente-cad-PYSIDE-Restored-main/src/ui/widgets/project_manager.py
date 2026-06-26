@@ -25,7 +25,7 @@ from src.ui.dialogs.project_details_dialog import ProjectDetailsDialog
 from src.ui.dialogs.document_upload_dialog import DocumentUploadDialog
 from src.core.storage.project_storage import ProjectStorageManager
 from src.core.cad_utils import get_cad_version_info
-from src.ui.theme import Colors, Fonts, Radius, Contextual, Text, Surface
+from src.ui.theme import Colors, Fonts, Radius, Contextual, Text, Surface, Accent, Semantic, Border
 
 import re as _css_re
 def _resolve_css(css: str) -> str:
@@ -726,7 +726,7 @@ class ProjectManager(QWidget):
                 background-color: {Colors.ACCENT_BLUE}; color: {Colors.TEXT_BRIGHT};
                 border-radius: 3px; font-size: 10px; font-weight: 600; padding: 0 10px;
             }
-            QPushButton:hover { background-color: #1a8fe3; }
+            QPushButton:hover { background-color: {Colors.ACCENT_BLUE_HOVER}; }
             QPushButton:disabled { background-color: {Colors.BG_SURFACE}; color: {Colors.TEXT_MUTED}; }
         """))
         self.btn_save_work_specs.clicked.connect(self.save_work_metadata)
@@ -1476,7 +1476,7 @@ class ProjectManager(QWidget):
                 lv_tabs.setStyleSheet(
                     f"QTabBar::tab {{ background:{Colors.BG_CARD}; color:{Colors.TEXT_SECONDARY};"
                     f" border-radius:3px; padding:3px 10px; margin-right:2px; }}"
-                    f"QTabBar::tab:selected {{ background:#1B5E20; color:#fff; font-weight:bold; }}"
+                    f"QTabBar::tab:selected {{ background:{Contextual.FOREST}; color:{Text.BRIGHT}; font-weight:bold; }}"
                     f"QTabWidget::pane {{ border:1px solid {Colors.BORDER_DEFAULT}; }}"
                 )
                 tree_para  = _make_tree(class_name)
@@ -2371,10 +2371,10 @@ class ProjectManager(QWidget):
         btn_consolidar.setFixedHeight(24)
         btn_consolidar.setStyleSheet(f"""
             QPushButton {{
-                background: #4a2a7a; color: {Colors.TEXT_BRIGHT};
-                border-radius: 3px; padding: 2px 8px; font-size: 10px; font-weight: bold;
+                background: rgba(160, 112, 255, 46); color: {Contextual.PURPLE};
+                border: 1px solid {Contextual.PURPLE}; border-radius: 3px; padding: 2px 8px; font-size: 10px; font-weight: bold;
             }}
-            QPushButton:hover {{ background: #6a3a9a; }}
+            QPushButton:hover {{ background: rgba(160, 112, 255, 66); }}
         """)
         btn_consolidar.clicked.connect(
             lambda _, sp=script_path, wn=work_name: self._run_generator_script(sp, wn)
@@ -3029,12 +3029,12 @@ class ProjectManager(QWidget):
 
     # Cor de fundo distinta por classe ER
     _ER_CLASS_COLORS: dict = {
-        "Pilares":         "#9B59B6",   # roxo
-        "Lateral de Viga": "#2980B9",   # azul
-        "Fundos de Viga":  "#D35400",   # laranja
-        "Lajes":           "#27AE60",   # verde
-        "GF":              "#C0392B",   # vermelho
-        "Outros":          "#607D8B",   # cinza azul
+        "Pilares":         Contextual.PURPLE,
+        "Lateral de Viga": Accent.INTERACTIVE,
+        "Fundos de Viga":  Semantic.WARNING,
+        "Lajes":           Semantic.SUCCESS,
+        "GF":              Semantic.DANGER,
+        "Outros":          Text.SECONDARY,
     }
 
     def _make_combo_chip(

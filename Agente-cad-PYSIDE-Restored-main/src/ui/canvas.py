@@ -153,7 +153,7 @@ from src.core.dxf_loader import RenderMode
 import math
 import os
 import base64
-from src.ui.theme import Colors, Fonts, Radius, Accent, Surface
+from src.ui.theme import Colors, Fonts, Radius, Accent, Surface, Semantic, Contextual
 
 class DXFLineItem(QGraphicsLineItem):
     """Custom Line Item that disables default selection dashed line"""
@@ -794,15 +794,15 @@ class CADCanvas(QGraphicsView):
         self.toolbar = QWidget(self)
         self.toolbar.setObjectName("CADToolbar")
 
-        self.toolbar.setStyleSheet("""
-            QWidget#CADToolbar {
-                background: qlineargradient(x1:0,y1:0,x2:0,y2:1,
+        self.toolbar.setStyleSheet(f"""
+            QWidget#CADToolbar {{
+                background: qlineargradient(x1:0,y1:0,x2:1,y2:0,
                     stop:0 rgba(24, 24, 30, 255), stop:1 rgba(16, 16, 20, 255));
-                border-bottom: 1px solid rgba(0, 188, 212, 45);
-            }
+                border-right: 1px solid rgba(0, 188, 212, 45);
+            }}
 
             /* ── Base: ghost ── */
-            QPushButton {
+            QPushButton {{
                 background: transparent;
                 border: 1px solid transparent;
                 border-radius: 5px;
@@ -810,69 +810,73 @@ class CADCanvas(QGraphicsView):
                 font-family: 'Segoe UI Semibold', 'Segoe UI', Arial;
                 font-size: 11px;
                 font-weight: 600;
-                
-                padding: 0px 12px;
-                min-width: 68px;
-                height: 28px;
-            }
-            QPushButton:hover {
+
+                padding: 0px 8px;
+                min-width: 90px;
+                height: 26px;
+                text-align: left;
+            }}
+            QPushButton:hover {{
                 background: rgba(255, 255, 255, 18);
                 border: 1px solid rgba(255, 255, 255, 36);
                 color: rgba(230, 235, 255, 255);
-            }
-            QPushButton:pressed {
+            }}
+            QPushButton:pressed {{
                 background: rgba(255, 255, 255, 10);
-            }
+            }}
 
             /* ── Ferramenta ativa ── */
-            QPushButton[active="true"] {
+            QPushButton[active="true"] {{
                 background: rgba(0, 188, 212, 41);
                 border: 1px solid rgba(0, 188, 212, 140);
-                color: #00d4ff;
-            }
-            QPushButton[active="true"]:hover {
+                color: {Accent.PRIMARY};
+            }}
+            QPushButton[active="true"]:hover {{
                 background: rgba(0, 188, 212, 61);
                 border: 1px solid rgba(0, 188, 212, 191);
-            }
+            }}
 
             /* ── EXCLUIR (danger) ── */
-            QPushButton#danger_btn {
+            QPushButton#danger_btn {{
                 color: rgba(200, 80, 80, 200);
-            }
-            QPushButton#danger_btn:hover {
+            }}
+            QPushButton#danger_btn:hover {{
                 background: rgba(244, 67, 54, 46);
                 border: 1px solid rgba(244, 67, 54, 140);
-                color: #ff6b6b;
-            }
+                color: {Semantic.DANGER};
+            }}
 
             /* ── ORTHO ativo — roxo ── */
-            QPushButton#ortho_btn[active="true"] {
+            QPushButton#ortho_btn[active="true"] {{
                 background: rgba(160, 112, 255, 46);
                 border: 1px solid rgba(160, 112, 255, 140);
-                color: #b388ff;
-            }
-            QPushButton#ortho_btn[active="true"]:hover {
+                color: {Contextual.PURPLE};
+            }}
+            QPushButton#ortho_btn[active="true"]:hover {{
                 background: rgba(160, 112, 255, 66);
-            }
+            }}
 
-            /* ── Separador vertical ── */
-            QFrame#vsep {
+            /* ── Separador horizontal ── */
+            QFrame#vsep {{
                 background: rgba(255, 255, 255, 23);
-                min-width: 1px;
-                max-width: 1px;
-                min-height: 18px;
-                max-height: 18px;
-            }
+                min-width: 90px;
+                max-width: 90px;
+                min-height: 1px;
+                max-height: 1px;
+                margin-left: 5px;
+            }}
         """)
 
-        layout = QHBoxLayout(self.toolbar)
-        layout.setContentsMargins(14, 0, 14, 0)
-        layout.setSpacing(3)
+        from PySide6.QtWidgets import QVBoxLayout
+        layout = QVBoxLayout(self.toolbar)
+        layout.setContentsMargins(6, 14, 6, 14)
+        layout.setSpacing(6)
+        layout.setAlignment(Qt.AlignTop)
 
         def vsep():
             s = QFrame()
             s.setObjectName("vsep")
-            s.setFrameShape(QFrame.VLine)
+            s.setFrameShape(QFrame.HLine)
             return s
 
         self.tool_buttons = {}
@@ -899,9 +903,9 @@ class CADCanvas(QGraphicsView):
         self.tool_buttons["select"] = b_select
         layout.addWidget(b_select)
 
-        layout.addSpacing(4)
+        layout.addSpacing(2)
         layout.addWidget(vsep())
-        layout.addSpacing(4)
+        layout.addSpacing(2)
 
         # ── Grupo 2: Desenho ────────────────────────────────────────────────
         for label, mode, tip in [
@@ -917,9 +921,9 @@ class CADCanvas(QGraphicsView):
             self.tool_buttons[mode] = btn
             layout.addWidget(btn)
 
-        layout.addSpacing(4)
+        layout.addSpacing(2)
         layout.addWidget(vsep())
-        layout.addSpacing(4)
+        layout.addSpacing(2)
 
         # ── Grupo 3: Transformar ────────────────────────────────────────────
         b_move = QPushButton("⊕  MOVER")
@@ -929,9 +933,9 @@ class CADCanvas(QGraphicsView):
         self.tool_buttons["move"] = b_move
         layout.addWidget(b_move)
 
-        layout.addSpacing(4)
+        layout.addSpacing(2)
         layout.addWidget(vsep())
-        layout.addSpacing(4)
+        layout.addSpacing(2)
 
         # ── Excluir (ação destrutiva) ───────────────────────────────────────
         b_del = QPushButton("✕  EXCLUIR")
@@ -941,9 +945,9 @@ class CADCanvas(QGraphicsView):
         b_del.clicked.connect(self._delete_selection)
         layout.addWidget(b_del)
 
-        layout.addSpacing(4)
+        layout.addSpacing(2)
         layout.addWidget(vsep())
-        layout.addSpacing(4)
+        layout.addSpacing(2)
 
         # ── Ortho (toggle) ──────────────────────────────────────────────────
         b_ortho = QPushButton("⊥  ORTHO")
@@ -959,7 +963,7 @@ class CADCanvas(QGraphicsView):
         # Modo inicial
         self.set_edit_mode('select')
 
-        self.toolbar.setGeometry(0, 0, self.width(), 40)
+        self.toolbar.setGeometry(0, 0, 135, self.height())
 
     def toggle_ortho(self):
         """Liga/Desliga modo ortogonal"""
@@ -1050,7 +1054,7 @@ class CADCanvas(QGraphicsView):
     def resizeEvent(self, event):
         super().resizeEvent(event)
         if hasattr(self, 'toolbar'):
-            self.toolbar.setGeometry(0, 0, self.width(), 40)
+            self.toolbar.setGeometry(0, 0, 135, self.height())
         if hasattr(self, 'input_label'):
             self.input_label.move(10, self.height() - 50)
         if hasattr(self, 'loading_label') and self.loading_label.isVisible():

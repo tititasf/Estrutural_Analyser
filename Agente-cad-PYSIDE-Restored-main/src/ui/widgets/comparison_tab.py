@@ -15,17 +15,17 @@ from PySide6.QtGui import QColor, QBrush, QFont
 from src.core.services.comparison_service import (
     ComparisonService, FieldStatus, _fmt, _empty,
 )
-from src.ui.theme import Colors
+from src.ui.theme import Colors, Semantic, Text, Surface, Border, Contextual
 
 
 # ─── Paleta de status ─────────────────────────────────────────────────────────
 
 _STATUS_COLOR = {
-    FieldStatus.IGUAL:      ('#1a3320', '#4caf50'),  # bg_dark, fg  # hardcoded-ok
-    FieldStatus.DIFERENTE:  ('#332900', '#ffc107'),  # hardcoded-ok
-    FieldStatus.AUSENTE_GT: ('#1a1a1a', '#9e9e9e'),  # hardcoded-ok
-    FieldStatus.AUSENTE_F4: ('#1a1a1a', '#9e9e9e'),  # hardcoded-ok
-    FieldStatus.CONFLITO:   ('#330d00', '#f44336'),  # hardcoded-ok
+    FieldStatus.IGUAL:      (Semantic.SUCCESS_BG_DARK, Semantic.SUCCESS),
+    FieldStatus.DIFERENTE:  (Semantic.WARNING_BG_DARK, Semantic.WARNING),
+    FieldStatus.AUSENTE_GT: (Semantic.NEUTRAL_BG_DARK, Text.SECONDARY),
+    FieldStatus.AUSENTE_F4: (Semantic.NEUTRAL_BG_DARK, Text.SECONDARY),
+    FieldStatus.CONFLITO:   (Semantic.DANGER_BG_DARK,  Semantic.DANGER),
 }
 
 _STATUS_ICON = {
@@ -37,7 +37,7 @@ _STATUS_ICON = {
 }
 
 
-def _make_cell(text: str, fg: str = Colors.TEXT_PRIMARY,
+def _make_cell(text: str, fg: str = Text.PRIMARY,
                bg: str | None = None, bold: bool = False) -> QTableWidgetItem:
     item = QTableWidgetItem(str(text) if text else '—')
     item.setForeground(QBrush(QColor(fg)))
@@ -109,16 +109,16 @@ class ComparisonTab(QWidget):
         self._btn_refresh = QPushButton("↺ Atualizar")
         self._btn_refresh.setFixedHeight(26)
         self._btn_refresh.setStyleSheet(
-            f"background: rgba(0, 80, 80, 1); color: {Colors.TEXT_BRIGHT};"
-            "border: 1px solid #006666; border-radius: 4px; font-size: 11px;"  # hardcoded-ok
+            f"background: {Surface.ELEVATED}; color: {Text.BRIGHT};"
+            f" border: 1px solid {Border.STRONG}; border-radius: 4px; font-size: 11px;"
         )
         self._btn_refresh.clicked.connect(self._load_data)
 
         self._btn_accept_all = QPushButton("✓ Aceitar Todos (Sem Conflito)")
         self._btn_accept_all.setFixedHeight(26)
         self._btn_accept_all.setStyleSheet(
-            f"background: rgba(0, 80, 20, 1); color: #4caf50;"  # hardcoded-ok
-            "border: 1px solid #4caf50; border-radius: 4px; font-size: 11px;"  # hardcoded-ok
+            f"background: {Contextual.FOREST}; color: {Semantic.SUCCESS};"
+            f" border: 1px solid {Semantic.SUCCESS}; border-radius: 4px; font-size: 11px;"
         )
         self._btn_accept_all.clicked.connect(self._on_accept_all)
 
@@ -224,7 +224,7 @@ class ComparisonTab(QWidget):
             self._table.insertRow(row_idx)
             self._table.setRowHeight(row_idx, 26)
 
-            bg_dark, fg = _STATUS_COLOR.get(row.status, ('#1a1a1a', '#9e9e9e'))  # hardcoded-ok
+            bg_dark, fg = _STATUS_COLOR.get(row.status, (Semantic.NEUTRAL_BG_DARK, Text.SECONDARY))
 
             # Campo
             self._table.setItem(row_idx, self.COL_FIELD,
@@ -269,8 +269,8 @@ class ComparisonTab(QWidget):
             btn_acc.setFixedSize(28, 22)
             btn_acc.setToolTip("Aceitar valor Fase-4")
             btn_acc.setStyleSheet(
-                "background: rgba(0, 80, 20, 1); color: #4caf50;"  # hardcoded-ok
-                "border: 1px solid #4caf50; border-radius: 3px; font-size: 12px;"  # hardcoded-ok
+                f"background: {Contextual.FOREST}; color: {Semantic.SUCCESS};"
+                f" border: 1px solid {Semantic.SUCCESS}; border-radius: 3px; font-size: 12px;"
             )
             fid = row.field_id
             btn_acc.clicked.connect(lambda checked=False, f=fid: self._on_accept(f))
@@ -286,8 +286,8 @@ class ComparisonTab(QWidget):
             btn_save.setFixedSize(28, 22)
             btn_save.setToolTip("Salvar valor DB → Fase-4 (correção)")
             btn_save.setStyleSheet(
-                "background: rgba(80, 30, 0, 1); color: #ff9800;"  # hardcoded-ok
-                "border: 1px solid #ff9800; border-radius: 3px; font-size: 12px;"  # hardcoded-ok
+                f"background: {Semantic.WARNING_BG_DARK}; color: {Semantic.WARNING};"
+                f" border: 1px solid {Semantic.WARNING}; border-radius: 3px; font-size: 12px;"
             )
             fid = row.field_id
             db_val = row.db_value

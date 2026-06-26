@@ -5,7 +5,7 @@ from PySide6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel,
                                QPushButton, QFrame, QScrollArea, QInputDialog, QMessageBox, QLineEdit)
 from PySide6.QtCore import Qt, Signal
 from src.ui.widgets.interpretation_dialog import InterpretationDialog
-from src.ui.theme import Colors, Fonts, Radius
+from src.ui.theme import Colors, Fonts, Radius, Semantic, Text, Border, Surface, Contextual
 
 class LinkManager(QWidget):
     """
@@ -578,14 +578,14 @@ class LinkManager(QWidget):
             btn_val_class.setToolTip(f"Validar todo o grupo '{slot['name']}' (Clique para desfazer)")
             
             if is_class_validated:
-                btn_val_class.setStyleSheet("""
-                    QPushButton { background: rgba(27, 58, 36, 1); color: {Colors.ACCENT_SUCCESS_ALT}; border: 1px solid {Colors.ACCENT_SUCCESS_ALT}; border-radius: 4px; }
-                    QPushButton:hover { background: {Colors.ACCENT_SUCCESS_ALT}; color: {Colors.TEXT_BRIGHT}; }
+                btn_val_class.setStyleSheet(f"""
+                    QPushButton {{ background: {Contextual.FOREST}; color: {Semantic.SUCCESS}; border: 1px solid {Semantic.SUCCESS}; border-radius: 4px; }}
+                    QPushButton:hover {{ background: {Semantic.SUCCESS}; color: {Text.BRIGHT}; }}
                 """)
             else:
-                btn_val_class.setStyleSheet("""
-                    QPushButton { background: transparent; color: {Colors.ACCENT_SUCCESS_ALT}; border: 1px solid {Colors.BORDER_DEFAULT}; border-radius: 4px; }
-                    QPushButton:hover { background: {Colors.ACCENT_SUCCESS_ALT}; color: {Colors.BG_DEEP}; border: 1px solid {Colors.ACCENT_SUCCESS_ALT}; }
+                btn_val_class.setStyleSheet(f"""
+                    QPushButton {{ background: transparent; color: {Semantic.SUCCESS}; border: 1px solid {Border.DEFAULT}; border-radius: 4px; }}
+                    QPushButton:hover {{ background: {Semantic.SUCCESS}; color: {Surface.DEEP}; border: 1px solid {Semantic.SUCCESS}; }}
                 """)
                 
             btn_val_class.clicked.connect(lambda checked, s_id=slot_id, sf=slot_frame: self._on_slot_class_validated(s_id, checked, sf))
@@ -613,9 +613,9 @@ class LinkManager(QWidget):
             btn_interp = QPushButton("Info")
             btn_interp.setCursor(Qt.PointingHandCursor)
             btn_interp.setToolTip(f"Detalhamento e Padrões para {slot['name']}")
-            btn_interp.setStyleSheet("""
-                QPushButton { background: transparent; color: #b388ff; border: 1px solid {Colors.BORDER_INPUT}; border-radius: 4px; }
-                QPushButton:hover { background: #b388ff; color: {Colors.TEXT_BRIGHT}; border: 1px solid #b388ff; }
+            btn_interp.setStyleSheet(f"""
+                QPushButton {{ background: transparent; color: {Contextual.PURPLE}; border: 1px solid {Border.STRONG}; border-radius: 4px; }}
+                QPushButton:hover {{ background: {Contextual.PURPLE}; color: {Text.BRIGHT}; border: 1px solid {Contextual.PURPLE}; }}
             """)
             btn_interp.clicked.connect(lambda checked=False, s_id=slot_id, s_name=slot['name']: self._open_slot_interpretation(s_id, s_name))
             header_layout.addWidget(btn_interp)
@@ -661,11 +661,11 @@ class LinkManager(QWidget):
                         _lc = 0.65
                     _lc_pct = int(_lc * 100)
                     if _lc_pct > 80:
-                        _lc_col = '#66bb6a'
+                        _lc_col = Semantic.SUCCESS
                     elif _lc_pct > 40:
-                        _lc_col = '#ffa726'
+                        _lc_col = Semantic.WARNING
                     else:
-                        _lc_col = '#ef5350'
+                        _lc_col = Semantic.DANGER
                     conf_lbl = QLabel(f'{_lc_pct}%')
                     conf_lbl.setStyleSheet(
                         f'color:{_lc_col}; font-size:9px; font-weight:bold;'
@@ -973,11 +973,11 @@ class LinkManager(QWidget):
             # Forca o estado checked visual
             sender.setChecked(status != 'removed')
             if status == 'valid':
-                sender.setStyleSheet(f"background: rgba(27, 58, 36, 1); color: #4caf50; border: 1px solid #4caf50; font-weight: bold;")
+                sender.setStyleSheet(f"background: {Contextual.FOREST}; color: {Semantic.SUCCESS}; border: 1px solid {Semantic.SUCCESS}; font-weight: bold;")
             elif status == 'fail':
-                sender.setStyleSheet(f"background: rgba(58, 27, 27, 1); color: #f44336; border: 1px solid #f44336; font-weight: bold;")
+                sender.setStyleSheet(f"background: {Contextual.DANGER_DARK}; color: {Semantic.DANGER}; border: 1px solid {Semantic.DANGER}; font-weight: bold;")
             else:
-                sender.setStyleSheet(f"background: transparent; color: #888; border: 1px solid #444; font-weight: bold;")
+                sender.setStyleSheet(f"background: transparent; color: {Text.MUTED}; border: 1px solid {Border.STRONG}; font-weight: bold;")
         
         # ATUALIZA LINK FRAME (cor de fundo)
         parent_frame = sender.parent().parent() if sender and sender.parent() else None

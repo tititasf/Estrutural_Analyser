@@ -46,7 +46,7 @@ from PySide6.QtGui import QPainter, QLinearGradient, QColor, QGradient
 from src.ui.dialogs.project_details_dialog import ProjectDetailsDialog
 from src.ui.components.project_cards import CuradoriaCard
 from src.ui.widgets.data_pipeline import DataPipelineView
-from src.ui.theme import Colors, Fonts, Radius
+from src.ui.theme import Colors, Fonts, Radius, Accent, Text, Border, Surface
 
 class DashboardCard(QFrame):
     def __init__(self, title: str, value: str, subtext: str = "", color: str = Colors.ACCENT_BLUE):
@@ -99,10 +99,10 @@ class AdminDashboard(QWidget):
         layout.addWidget(header)
         
         self.tabs = QTabWidget()
-        self.tabs.setStyleSheet("""
-            QTabWidget::pane { border: 1px solid {Colors.BORDER_DEFAULT}; background: {Colors.BG_DEEP}; border-radius: 8px; }
-            QTabBar::tab { background: {Colors.BG_CARD}; padding: 12px 25px; color: {Colors.TEXT_SECONDARY}; font-weight: bold; }
-            QTabBar::tab:selected { background: {Colors.ACCENT_BLUE}; color: {Colors.TEXT_BRIGHT}; border-bottom: 2px solid #fff; }
+        self.tabs.setStyleSheet(f"""
+            QTabWidget::pane {{ border: 1px solid {Border.DEFAULT}; background: {Surface.DEEP}; border-radius: 8px; }}
+            QTabBar::tab {{ background: {Surface.CARD}; padding: 12px 25px; color: {Text.SECONDARY}; font-weight: bold; }}
+            QTabBar::tab:selected {{ background: {Accent.INTERACTIVE}; color: {Text.BRIGHT}; border-bottom: 2px solid {Text.BRIGHT}; }}
         """)
         
         # 0. Community Projects List (Existing logic moved here)
@@ -148,28 +148,28 @@ class AdminDashboard(QWidget):
         left_layout.addWidget(lbl_works)
         
         self.list_cloud_works = QListWidget()
-        self.list_cloud_works.setStyleSheet("""
-            QListWidget { background: {Colors.BG_CARD}; border: 1px solid {Colors.BORDER_DEFAULT}; border-radius: 4px; padding: 5px; }
-            QListWidget::item { padding: 10px; color: {Colors.TEXT_PRIMARY}; border-bottom: 1px solid {Colors.BORDER_DEFAULT}; }
-            QListWidget::item:selected { background: {Colors.ACCENT_BLUE}; color: {Colors.TEXT_BRIGHT}; border-radius: 4px; }
+        self.list_cloud_works.setStyleSheet(f"""
+            QListWidget {{ background: {Surface.CARD}; border: 1px solid {Border.DEFAULT}; border-radius: 4px; padding: 5px; }}
+            QListWidget::item {{ padding: 10px; color: {Text.PRIMARY}; border-bottom: 1px solid {Border.DEFAULT}; }}
+            QListWidget::item:selected {{ background: {Accent.INTERACTIVE}; color: {Text.BRIGHT}; border-radius: 4px; }}
         """)
         self.list_cloud_works.itemClicked.connect(self.on_cloud_work_selected)
         left_layout.addWidget(self.list_cloud_works)
         
         btn_layout = QHBoxLayout()
         self.btn_refresh_cloud = QPushButton("🔄 Atualizar Lista")
-        self.btn_refresh_cloud.setStyleSheet("""
-            QPushButton { background: {Colors.BG_CARD}; color: {Colors.TEXT_BRIGHT}; border: 1px solid {Colors.BORDER_INPUT}; padding: 6px; border-radius: 4px; }
-            QPushButton:hover { background: {Colors.BORDER_INPUT}; }
+        self.btn_refresh_cloud.setStyleSheet(f"""
+            QPushButton {{ background: {Surface.CARD}; color: {Text.BRIGHT}; border: 1px solid {Border.STRONG}; padding: 6px; border-radius: 4px; }}
+            QPushButton:hover {{ background: {Border.STRONG}; }}
         """)
         self.btn_refresh_cloud.clicked.connect(self.load_community_projects)
         btn_layout.addWidget(self.btn_refresh_cloud)
         
         self.btn_sync_full_work = QPushButton("☁️ Baixar Obra Completa")
         self.btn_sync_full_work.setToolTip("Baixa todos os itens desta obra para o PC local.")
-        self.btn_sync_full_work.setStyleSheet("""
-            QPushButton { background: rgba(26, 50, 75, 1); color: {Colors.ACCENT_PRIMARY}; border: 1px solid {Colors.ACCENT_PRIMARY}; padding: 6px; border-radius: 4px; font-weight: bold;}
-            QPushButton:hover { background: {Colors.ACCENT_PRIMARY}; color: {Colors.BG_DEEP}; }
+        self.btn_sync_full_work.setStyleSheet(f"""
+            QPushButton {{ background: rgba(26, 50, 75, 1); color: {Accent.PRIMARY}; border: 1px solid {Accent.PRIMARY}; padding: 6px; border-radius: 4px; font-weight: bold; }}
+            QPushButton:hover {{ background: {Accent.PRIMARY}; color: {Surface.DEEP}; }}
         """)
         self.btn_sync_full_work.clicked.connect(self.download_full_work)
         self.btn_sync_full_work.setVisible(False)
@@ -189,10 +189,10 @@ class AdminDashboard(QWidget):
         
         # Abas de Detalhes
         self.work_tabs = QTabWidget()
-        self.work_tabs.setStyleSheet("""
-            QTabWidget::pane { border: 1px solid {Colors.BORDER_DEFAULT}; background: {Colors.BG_DEEP}; }
-            QTabBar::tab { background: {Colors.BG_PANEL}; color: {Colors.TEXT_SECONDARY}; padding: 8px 16px; margin-right: 2px; }
-            QTabBar::tab:selected { background: {Colors.ACCENT_BLUE}; color: {Colors.TEXT_BRIGHT}; }
+        self.work_tabs.setStyleSheet(f"""
+            QTabWidget::pane {{ border: 1px solid {Border.DEFAULT}; background: {Surface.DEEP}; }}
+            QTabBar::tab {{ background: {Surface.BASE}; color: {Text.SECONDARY}; padding: 8px 16px; margin-right: 2px; }}
+            QTabBar::tab:selected {{ background: {Accent.INTERACTIVE}; color: {Text.BRIGHT}; }}
         """)
         
         # Aba 1: Pavimentos (Cards)

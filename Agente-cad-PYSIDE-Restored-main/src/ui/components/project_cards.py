@@ -22,29 +22,28 @@ def _extract_pav_class(name: str) -> tuple[str, str]:
 
     # Mapa classe → (label legível, cor)
     _MAP = {
-        "FUN":  ("FUN",   "#e67e22"),   # laranja — fundação
-        "TER":  ("TER",   "#f1c40f"),   # amarelo — térreo
-        "TIP":  ("TIPO",  "#00d9ff"),   # ciano   — tipo
-        "COB":  ("COB",   "#9b59b6"),   # roxo    — cobertura
-        "ATC":  ("ÁTC",   "#e91e8c"),   # pink    — ático
-        "LOC":  ("LOC",   "#7f8c8d"),   # cinza   — localização
-        "BAR":  ("BAR",   "#7f8c8d"),   # cinza   — barrilete
-        "DEC":  ("DECK",  "#7f8c8d"),   # cinza
+        "FUN":  ("FUN",   Semantic.WARNING),     # laranja — fundação
+        "TER":  ("TER",   Contextual.GOLD),      # âmbar   — térreo
+        "TIP":  ("TIPO",  Accent.PRIMARY),        # ciano   — tipo
+        "COB":  ("COB",   Contextual.PURPLE),     # roxo    — cobertura
+        "ATC":  ("ÁTC",   Contextual.MAGENTA),   # pink    — ático
+        "LOC":  ("LOC",   Text.SECONDARY),        # cinza   — localização
+        "BAR":  ("BAR",   Text.SECONDARY),        # cinza   — barrilete
+        "DEC":  ("DECK",  Text.SECONDARY),        # cinza
     }
     if raw in _MAP:
         return _MAP[raw]
 
     # Pavimento numerado: 1PV, 2PV, 13P, 14P, SS, etc.
     if _re.match(r'^\d+PV?$', raw):
-        # 1PV → "1PV", 13P → "13P"
-        return (raw, "#00c864")   # verde
+        return (raw, Semantic.SUCCESS)   # verde
 
     if raw.startswith("SS") or "SUB" in raw:
-        return ("SS", "#3498db")
+        return ("SS", Accent.INTERACTIVE)
 
     # fallback — primeiros 6 chars do raw ou do nome original
     label = raw[:6] if raw else name.split("-")[-1][:6]
-    return (label, "#8a9ab5")  # cinza neutro
+    return (label, Text.SECONDARY)
 
 class BaseCard(QFrame):
     clicked = Signal(object) # Emits project data on click
@@ -156,9 +155,9 @@ class ProjectCard(BaseCard):
             )
             return chip
 
-        row.addWidget(_stat_chip("PIL", "pil",  "#9B59B6"))
-        row.addWidget(_stat_chip("VIG", "beam", "#2980B9"))
-        row.addWidget(_stat_chip("LAJ", "slab", "#27AE60"))
+        row.addWidget(_stat_chip("PIL", "pil",  Contextual.PURPLE))
+        row.addWidget(_stat_chip("VIG", "beam", Accent.INTERACTIVE))
+        row.addWidget(_stat_chip("LAJ", "slab", Semantic.SUCCESS))
 
         # ── Date ──────────────────────────────────────────────────────
         date_upd = str(self.data.get('updated_at') or '')[:16].replace('T', ' ')
@@ -232,7 +231,7 @@ class CuradoriaCard(BaseCard):
         lbl_id.setAlignment(Qt.AlignCenter)
         lbl_id.setFixedSize(70, 24)
         lbl_id.setStyleSheet(f"""
-            background-color: {Colors.BG_HOVER}; color: #8890B0; 
+            background-color: {Colors.BG_HOVER}; color: {Text.SECONDARY}; 
             border-radius: 4px; font-family: monospace; font-size: 11px; font-weight: bold;
         """)
         header.addWidget(lbl_id)
@@ -262,7 +261,7 @@ class CuradoriaCard(BaseCard):
         
         work_name = self.data.get('metadata', {}).get('work_name') or self.data.get('work_name') or 'OBRA DESCONHECIDA'
         lbl_work = QLabel(work_name.upper())
-        lbl_work.setStyleSheet("color: #8890B0; font-size: 10px; font-weight: 600; ")
+        lbl_work.setStyleSheet(f"color: {Text.SECONDARY}; font-size: 10px; font-weight: 600;")
         status_row.addWidget(lbl_work)
         
         status_row.addStretch()
@@ -394,7 +393,7 @@ class CuradoriaCard(BaseCard):
     def _add_doc_row(self, layout, name, count):
         row = QHBoxLayout()
         name_l = QLabel(name)
-        name_l.setStyleSheet("color: #8890B0; font-size: 10px;")
+        name_l.setStyleSheet(f"color: {Text.SECONDARY}; font-size: 10px;")
         row.addWidget(name_l)
         row.addStretch()
         

@@ -16,14 +16,20 @@ from PySide6.QtWidgets import QWidget, QHBoxLayout, QLabel
 from PySide6.QtCore import Qt, Property
 from PySide6.QtGui import QFont
 
+from src.ui.theme import Semantic, Text
+
 
 # Estilos QSS (ASCII-clean, sem UTF-8 multibyte)
-_STYLE_HIGH = "color: #22c55e; font-weight: bold;"
-_STYLE_MEDIUM = "color: #eab308; font-weight: bold;"
-_STYLE_LOW = "color: #ef4444; font-weight: bold;"
-_STYLE_NO_DATA = "color: #94a3b8;"
+_STYLE_HIGH    = f"color: {Semantic.SUCCESS}; font-weight: bold;"
+_STYLE_MEDIUM  = f"color: {Semantic.WARNING}; font-weight: bold;"
+_STYLE_LOW     = f"color: {Semantic.DANGER}; font-weight: bold;"
+_STYLE_NO_DATA = f"color: {Text.SECONDARY};"
 
-_STYLE_BADGE = "color: #ef4444; font-size: 10px; font-weight: normal; background-color: #fef2f2; border: 1px solid #fecaca; border-radius: 3px; padding: 1px 4px;"
+_STYLE_BADGE = (
+    f"color: {Semantic.DANGER}; font-size: 10px; font-weight: normal;"
+    f" background-color: {Semantic.DANGER_SUBTLE}; border: 1px solid {Semantic.DANGER};"
+    f" border-radius: 3px; padding: 1px 4px;"
+)
 
 
 class ConfidenceIndicator(QWidget):

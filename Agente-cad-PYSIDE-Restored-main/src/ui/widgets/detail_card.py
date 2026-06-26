@@ -159,7 +159,7 @@ from PySide6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel,
 from PySide6.QtCore import Qt, Signal
 from .link_manager import LinkManager
 from src.ui.widgets.interpretation_dialog import InterpretationDialog
-from src.ui.theme import Colors, Fonts, Radius
+from src.ui.theme import Colors, Fonts, Radius, Semantic, Text, Surface, Border, Accent
 
 try:
     from src.ui.widgets.comparison_tab import ComparisonTab
@@ -417,13 +417,13 @@ class DetailCard(QWidget):
             _lc = self._calc_field_links_confidence(field_id)
             _lc_pct = int(_lc * 100)
             if _lc_pct > 80:
-                _lc_color = '#66bb6a'   # verde
+                _lc_color = Semantic.SUCCESS
                 _lc_tip   = 'Alta confiança'
             elif _lc_pct > 40:
-                _lc_color = '#ffa726'   # amarelo/laranja
+                _lc_color = Semantic.WARNING
                 _lc_tip   = 'Confiança média — revisar'
             else:
-                _lc_color = '#ef5350'   # vermelho
+                _lc_color = Semantic.DANGER
                 _lc_tip   = 'Baixa confiança — verificar vínculos'
             _lc_lbl = QLabel(f'{_lc_pct}%')
             _lc_lbl.setFixedHeight(22)
@@ -2329,13 +2329,13 @@ class DetailCard(QWidget):
             lc = self._calc_field_links_confidence(field_id)
             lc_pct = int(lc * 100)
             if lc_pct > 80:
-                color = '#66bb6a'
+                color = Semantic.SUCCESS
                 tip   = 'Alta confiança'
             elif lc_pct > 40:
-                color = '#ffa726'
+                color = Semantic.WARNING
                 tip   = 'Confiança média — revisar'
             else:
-                color = '#ef5350'
+                color = Semantic.DANGER
                 tip   = 'Baixa confiança — verificar vínculos'
             badge.setText(f'{lc_pct}%')
             badge.setStyleSheet(
@@ -2371,10 +2371,10 @@ class DetailCard(QWidget):
         btn_dxf.setCursor(Qt.PointingHandCursor)
         btn_dxf.setFixedHeight(35)
         btn_dxf.setStyleSheet(
-            f"QPushButton {{ background: #1a3a5c; color: #00bcd4; border: 1px solid #00bcd4; "  # hardcoded-ok
+            f"QPushButton {{ background: {Surface.RAISED}; color: {Accent.PRIMARY}; border: 1px solid {Accent.PRIMARY}; "
             f"border-radius: 4px; font-weight: bold; }} "
-            f"QPushButton:hover {{ background: #1e4a7a; }} "  # hardcoded-ok
-            f"QPushButton:disabled {{ color: #555; border-color: #555; }}"  # hardcoded-ok
+            f"QPushButton:hover {{ background: {Surface.BASE}; }} "
+            f"QPushButton:disabled {{ color: {Text.MUTED}; border-color: {Text.MUTED}; }}"
         )
         btn_dxf.setToolTip("Gera o DXF STOG deste item a partir dos dados de Fase-4")
         btn_dxf.clicked.connect(self._on_gerar_dxf)
@@ -2630,12 +2630,12 @@ class DetailCard(QWidget):
 
         def _conf_color(conf: float) -> str:
             if conf >= 0.9:
-                return '#4caf50'   # verde
+                return Semantic.SUCCESS
             if conf >= 0.7:
-                return '#ffc107'   # amarelo
+                return Semantic.WARNING
             if conf >= 0.5:
-                return '#ff9800'   # laranja
-            return '#f44336'       # vermelho
+                return Semantic.WARNING
+            return Semantic.DANGER
 
         SOURCE_LABELS = {
             'human_direct': 'Texto humano vinculado diretamente',
@@ -2662,12 +2662,12 @@ class DetailCard(QWidget):
         panel_layout.addWidget(_lbl(f"Nível: {level_str}   |   Confiança: {conf_pct}", conf_color))
 
         if status and status not in ('inferred',):
-            panel_layout.addWidget(_lbl(f"Status: {status}", '#90a4ae'))
+            panel_layout.addWidget(_lbl(f"Status: {status}", Text.SECONDARY))
 
         # Detalhes da inferência
         inf_reason = inference.get('reason') or ''
         if inf_reason:
-            panel_layout.addWidget(_lbl(f"Razão: {inf_reason}", '#90a4ae'))
+            panel_layout.addWidget(_lbl(f"Razão: {inf_reason}", Text.SECONDARY))
 
         inf_sources = inference.get('sources') or []
         if inf_sources:
@@ -2677,13 +2677,13 @@ class DetailCard(QWidget):
                 if isinstance(s, dict)
             )
             if src_names:
-                panel_layout.addWidget(_lbl(f"Lajes usadas: {src_names}", '#b0bec5'))
+                panel_layout.addWidget(_lbl(f"Lajes usadas: {src_names}", Text.SECONDARY))
 
         # Vizinhas
         if neighbors:
             DIR_MAP = {'north': 'N', 'south': 'S', 'east': 'L', 'west': 'O'}
             nb_parts = [f"{DIR_MAP.get(d, d)}: {v}" for d, v in neighbors.items()]
-            panel_layout.addWidget(_lbl("Vizinhas: " + ' | '.join(nb_parts), '#78909c'))
+            panel_layout.addWidget(_lbl("Vizinhas: " + ' | '.join(nb_parts), Text.MUTED))
 
         # Warnings
         for w in warnings:
@@ -2691,7 +2691,7 @@ class DetailCard(QWidget):
             sep.setFrameShape(QFrame.HLine)
             sep.setStyleSheet(f"color:{Colors.BORDER_DEFAULT};")
             panel_layout.addWidget(sep)
-            panel_layout.addWidget(_lbl(f"⚠  {w}", '#ef9a9a'))
+            panel_layout.addWidget(_lbl(f"⚠  {w}", Semantic.DANGER))
 
         container_layout.addWidget(panel)
 

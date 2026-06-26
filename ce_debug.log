@@ -14679,3 +14679,243 @@ Current thread's C stack trace (most recent call first):
 [11:44:33.584] N4 dxf_check n4_dxf=D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-6_Execucao_CAD\n4\FV_preview_V301.dxf force_regen=True
 [11:44:33.585] N4 generate classe=FV id=V301 via=robot
 [11:44:33.589] N4 generate launched
+[11:45:47.875] ITEM_SELECTED classe=FV id=V304 flow=reverso
+[11:45:47.885] N1 flow=reverso classe=FV id=V304 auto_chain=True
+[11:45:47.888] N1 ER shortcircuit → chaining N2
+[11:45:47.956] N2 is_er_flow=True obra=Obra_TREINO_1 classe=FV id=V304
+[11:45:47.959] N2 recorte via fichas recente: FV_V304_motor_178111331103.dxf
+[11:45:47.959] N2 recorte_path=D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-2_Triagem\recortes_reversos\ALIMONTI - PARAISO - 13° PAV.- FV - R00\FV_V304_motor_178111331103.dxf
+[11:45:47.959] N2 loading DXF size=36KB
+[11:45:48.078] N2 done ok. is_er=True auto_chain=True
+[11:45:48.139] N4 start classe=FV id=V304
+[11:45:48.141] N4 get_er_ficha classe=FV id=V304
+[11:45:48.146] N2 recorte via fichas recente: FV_V304_motor_178111331103.dxf
+[11:45:48.160] FV ficha live V304: segments=3
+[11:45:48.160] N4 set_ficha classe=FV id=V304 er_keys=18
+[11:45:48.234] N4 step0 ok
+[11:45:48.235] N4 dxf_check n4_dxf=D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-6_Execucao_CAD\n4\FV_preview_V304.dxf force_regen=True
+[11:45:48.237] N4 generate classe=FV id=V304 via=robot
+[11:45:48.239] N4 generate launched
+[11:45:49.106] ITEM_SELECTED classe=FV id=V303 flow=reverso
+[11:45:49.113] N1 flow=reverso classe=FV id=V303 auto_chain=True
+[11:45:49.115] N1 ER shortcircuit → chaining N2
+[11:45:49.175] N2 is_er_flow=True obra=Obra_TREINO_1 classe=FV id=V303
+[11:45:49.179] N2 recorte via fichas recente: FV_V303_motor_178111331100.dxf
+[11:45:49.179] N2 recorte_path=D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-2_Triagem\recortes_reversos\ALIMONTI - PARAISO - 13° PAV.- FV - R00\FV_V303_motor_178111331100.dxf
+[11:45:49.179] N2 loading DXF size=63KB
+[11:45:49.346] N2 done ok. is_er=True auto_chain=True
+[11:45:49.404] N4 start classe=FV id=V303
+[11:45:49.406] N4 get_er_ficha classe=FV id=V303
+[11:45:49.411] N2 recorte via fichas recente: FV_V303_motor_178111331100.dxf
+[11:45:49.436] FV ficha live V303: segments=5
+[11:45:49.436] N4 set_ficha classe=FV id=V303 er_keys=18
+[11:45:49.579] N4 step0 ok
+[11:45:49.581] N4 dxf_check n4_dxf=D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-6_Execucao_CAD\n4\FV_preview_V303.dxf force_regen=True
+[11:45:49.581] N4 generate classe=FV id=V303 via=robot
+[11:45:49.585] N4 generate launched
+[11:48:08.715] ITEM_SELECTED classe=FV id=V304 flow=reverso
+[11:48:08.724] N1 flow=reverso classe=FV id=V304 auto_chain=True
+[11:48:08.727] N1 ER shortcircuit → chaining N2
+[11:48:08.793] N2 is_er_flow=True obra=Obra_TREINO_1 classe=FV id=V304
+[11:48:08.796] N2 recorte via fichas recente: FV_V304_motor_178111331103.dxf
+[11:48:08.797] N2 recorte_path=D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-2_Triagem\recortes_reversos\ALIMONTI - PARAISO - 13° PAV.- FV - R00\FV_V304_motor_178111331103.dxf
+[11:48:08.797] N2 loading DXF size=36KB
+[11:48:08.911] N2 done ok. is_er=True auto_chain=True
+[11:48:08.963] N4 start classe=FV id=V304
+[11:48:08.965] N4 get_er_ficha classe=FV id=V304
+[11:48:08.968] N2 recorte via fichas recente: FV_V304_motor_178111331103.dxf
+[11:48:08.982] FV ficha live V304: segments=3
+[11:48:08.982] N4 set_ficha classe=FV id=V304 er_keys=18
+[11:48:09.059] N4 step0 ok
+[11:48:09.061] N4 dxf_check n4_dxf=D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-6_Execucao_CAD\n4\FV_preview_V304.dxf force_regen=True
+[11:48:09.061] N4 generate classe=FV id=V304 via=robot
+[11:48:09.064] N4 generate launched
+[11:49:27.452] ITEM_SELECTED classe=FV id=V305 flow=reverso
+[11:49:27.459] N1 flow=reverso classe=FV id=V305 auto_chain=True
+[11:49:27.461] N1 ER shortcircuit → chaining N2
+[11:49:27.529] N2 is_er_flow=True obra=Obra_TREINO_1 classe=FV id=V305
+[11:49:27.533] N2 recorte via fichas recente: FV_V305_motor_178111331105.dxf
+[11:49:27.533] N2 recorte_path=D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-2_Triagem\recortes_reversos\ALIMONTI - PARAISO - 13° PAV.- FV - R00\FV_V305_motor_178111331105.dxf
+[11:49:27.533] N2 loading DXF size=24KB
+[11:49:27.626] N2 done ok. is_er=True auto_chain=True
+[11:49:27.682] N4 start classe=FV id=V305
+[11:49:27.685] N4 get_er_ficha classe=FV id=V305
+[11:49:27.688] N2 recorte via fichas recente: FV_V305_motor_178111331105.dxf
+[11:49:27.699] FV ficha live V305: segments=1
+[11:49:27.699] N4 set_ficha classe=FV id=V305 er_keys=18
+[11:49:27.800] N4 step0 ok
+[11:49:27.801] N4 dxf_check n4_dxf=D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-6_Execucao_CAD\n4\FV_preview_V305.dxf force_regen=True
+[11:49:27.802] N4 generate classe=FV id=V305 via=robot
+[11:49:27.808] N4 generate launched
+[11:49:33.139] ITEM_SELECTED classe=FV id=V306 flow=reverso
+[11:49:33.145] N1 flow=reverso classe=FV id=V306 auto_chain=True
+[11:49:33.148] N1 ER shortcircuit → chaining N2
+[11:49:33.199] N2 is_er_flow=True obra=Obra_TREINO_1 classe=FV id=V306
+[11:49:33.203] N2 recorte via fichas recente: FV_V306_motor_178111331106.dxf
+[11:49:33.203] N2 recorte_path=D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-2_Triagem\recortes_reversos\ALIMONTI - PARAISO - 13° PAV.- FV - R00\FV_V306_motor_178111331106.dxf
+[11:49:33.204] N2 loading DXF size=33KB
+[11:49:33.307] N2 done ok. is_er=True auto_chain=True
+[11:49:33.369] N4 start classe=FV id=V306
+[11:49:33.370] N4 get_er_ficha classe=FV id=V306
+[11:49:33.373] N2 recorte via fichas recente: FV_V306_motor_178111331106.dxf
+[11:49:33.388] FV ficha live V306: segments=2
+[11:49:33.388] N4 set_ficha classe=FV id=V306 er_keys=18
+[11:49:33.518] N4 step0 ok
+[11:49:33.520] N4 dxf_check n4_dxf=D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-6_Execucao_CAD\n4\FV_preview_V306.dxf force_regen=True
+[11:49:33.520] N4 generate classe=FV id=V306 via=robot
+[11:49:33.526] N4 generate launched
+[11:50:22.155] ITEM_SELECTED classe=FV id=V307 flow=reverso
+[11:50:22.163] N1 flow=reverso classe=FV id=V307 auto_chain=True
+[11:50:22.165] N1 ER shortcircuit → chaining N2
+[11:50:22.233] N2 is_er_flow=True obra=Obra_TREINO_1 classe=FV id=V307
+[11:50:22.237] N2 recorte via fichas recente: FV_V307_motor_178111331108.dxf
+[11:50:22.237] N2 recorte_path=D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-2_Triagem\recortes_reversos\ALIMONTI - PARAISO - 13° PAV.- FV - R00\FV_V307_motor_178111331108.dxf
+[11:50:22.237] N2 loading DXF size=35KB
+[11:50:22.351] N2 done ok. is_er=True auto_chain=True
+[11:50:22.420] N4 start classe=FV id=V307
+[11:50:22.421] N4 get_er_ficha classe=FV id=V307
+[11:50:22.424] N2 recorte via fichas recente: FV_V307_motor_178111331108.dxf
+[11:50:22.440] FV ficha live V307: segments=1
+[11:50:22.440] N4 set_ficha classe=FV id=V307 er_keys=18
+[11:50:22.537] N4 step0 ok
+[11:50:22.540] N4 dxf_check n4_dxf=D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-6_Execucao_CAD\n4\FV_preview_V307.dxf force_regen=True
+[11:50:22.540] N4 generate classe=FV id=V307 via=robot
+[11:50:22.546] N4 generate launched
+[11:52:36.810] ITEM_SELECTED classe=FV id=V308 flow=reverso
+[11:52:36.817] N1 flow=reverso classe=FV id=V308 auto_chain=True
+[11:52:36.820] N1 ER shortcircuit → chaining N2
+[11:52:36.895] N2 is_er_flow=True obra=Obra_TREINO_1 classe=FV id=V308
+[11:52:36.899] N2 recorte via fichas recente: FV_V308_motor_178111331109.dxf
+[11:52:36.899] N2 recorte_path=D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-2_Triagem\recortes_reversos\ALIMONTI - PARAISO - 13° PAV.- FV - R00\FV_V308_motor_178111331109.dxf
+[11:52:36.899] N2 loading DXF size=31KB
+[11:52:37.006] N2 done ok. is_er=True auto_chain=True
+[11:52:37.080] N4 start classe=FV id=V308
+[11:52:37.082] N4 get_er_ficha classe=FV id=V308
+[11:52:37.085] N2 recorte via fichas recente: FV_V308_motor_178111331109.dxf
+[11:52:37.098] FV ficha live V308: segments=2
+[11:52:37.098] N4 set_ficha classe=FV id=V308 er_keys=18
+[11:52:37.217] N4 step0 ok
+[11:52:37.219] N4 dxf_check n4_dxf=D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-6_Execucao_CAD\n4\FV_preview_V308.dxf force_regen=True
+[11:52:37.219] N4 generate classe=FV id=V308 via=robot
+[11:52:37.226] N4 generate launched
+[11:52:40.667] ITEM_SELECTED classe=FV id=V309 flow=reverso
+[11:52:40.674] N1 flow=reverso classe=FV id=V309 auto_chain=True
+[11:52:40.677] N1 ER shortcircuit → chaining N2
+[11:52:40.734] N2 is_er_flow=True obra=Obra_TREINO_1 classe=FV id=V309
+[11:52:40.739] N2 recorte via fichas recente: FV_V309_motor_178111331111.dxf
+[11:52:40.739] N2 recorte_path=D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-2_Triagem\recortes_reversos\ALIMONTI - PARAISO - 13° PAV.- FV - R00\FV_V309_motor_178111331111.dxf
+[11:52:40.739] N2 loading DXF size=25KB
+[11:52:40.832] N2 done ok. is_er=True auto_chain=True
+[11:52:40.889] N4 start classe=FV id=V309
+[11:52:40.891] N4 get_er_ficha classe=FV id=V309
+[11:52:40.894] N2 recorte via fichas recente: FV_V309_motor_178111331111.dxf
+[11:52:40.904] FV ficha live V309: segments=1
+[11:52:40.904] N4 set_ficha classe=FV id=V309 er_keys=18
+[11:52:41.009] N4 step0 ok
+[11:52:41.010] N4 dxf_check n4_dxf=D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-6_Execucao_CAD\n4\FV_preview_V309.dxf force_regen=True
+[11:52:41.011] N4 generate classe=FV id=V309 via=robot
+[11:52:41.016] N4 generate launched
+[11:52:43.138] ITEM_SELECTED classe=FV id=V309A flow=reverso
+[11:52:43.145] N1 flow=reverso classe=FV id=V309A auto_chain=True
+[11:52:43.148] N1 ER shortcircuit → chaining N2
+[11:52:43.219] N2 is_er_flow=True obra=Obra_TREINO_1 classe=FV id=V309A
+[11:52:43.223] N2 recorte via fichas recente: FV_V309A_motor_178111331131.dxf
+[11:52:43.223] N2 recorte_path=D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-2_Triagem\recortes_reversos\ALIMONTI - PARAISO - 13° PAV.- FV - R00\FV_V309A_motor_178111331131.dxf
+[11:52:43.223] N2 loading DXF size=26KB
+[11:52:43.320] N2 done ok. is_er=True auto_chain=True
+[11:52:43.389] N4 start classe=FV id=V309A
+[11:52:43.391] N4 get_er_ficha classe=FV id=V309A
+[11:52:43.394] N2 recorte via fichas recente: FV_V309A_motor_178111331131.dxf
+[11:52:43.411] FV ficha live V309A: segments=1
+[11:52:43.411] N4 set_ficha classe=FV id=V309A er_keys=18
+[11:52:43.514] N4 step0 ok
+[11:52:43.516] N4 dxf_check n4_dxf=D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-6_Execucao_CAD\n4\FV_preview_V309A.dxf force_regen=True
+[11:52:43.516] N4 generate classe=FV id=V309A via=robot
+[11:52:43.522] N4 generate launched
+[11:52:45.155] ITEM_SELECTED classe=FV id=V310 flow=reverso
+[11:52:45.161] N1 flow=reverso classe=FV id=V310 auto_chain=True
+[11:52:45.164] N1 ER shortcircuit → chaining N2
+[11:52:45.238] N2 is_er_flow=True obra=Obra_TREINO_1 classe=FV id=V310
+[11:52:45.244] N2 recorte via fichas recente: FV_V310_motor_178111331113.dxf
+[11:52:45.244] N2 recorte_path=D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-2_Triagem\recortes_reversos\ALIMONTI - PARAISO - 13° PAV.- FV - R00\FV_V310_motor_178111331113.dxf
+[11:52:45.244] N2 loading DXF size=23KB
+[11:52:45.332] N2 done ok. is_er=True auto_chain=True
+[11:52:45.394] N4 start classe=FV id=V310
+[11:52:45.396] N4 get_er_ficha classe=FV id=V310
+[11:52:45.399] N2 recorte via fichas recente: FV_V310_motor_178111331113.dxf
+[11:52:45.409] FV ficha live V310: segments=1
+[11:52:45.409] N4 set_ficha classe=FV id=V310 er_keys=18
+[11:52:45.507] N4 step0 ok
+[11:52:45.509] N4 dxf_check n4_dxf=D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-6_Execucao_CAD\n4\FV_preview_V310.dxf force_regen=True
+[11:52:45.509] N4 generate classe=FV id=V310 via=robot
+[11:52:45.515] N4 generate launched
+[11:56:45.717] ITEM_SELECTED classe=FV id=V311 flow=reverso
+[11:56:45.724] N1 flow=reverso classe=FV id=V311 auto_chain=True
+[11:56:45.726] N1 ER shortcircuit → chaining N2
+[11:56:45.798] N2 is_er_flow=True obra=Obra_TREINO_1 classe=FV id=V311
+[11:56:45.802] N2 recorte via fichas recente: FV_V311_motor_178111331114.dxf
+[11:56:45.802] N2 recorte_path=D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-2_Triagem\recortes_reversos\ALIMONTI - PARAISO - 13° PAV.- FV - R00\FV_V311_motor_178111331114.dxf
+[11:56:45.802] N2 loading DXF size=33KB
+[11:56:45.908] N2 done ok. is_er=True auto_chain=True
+[11:56:45.967] N4 start classe=FV id=V311
+[11:56:45.969] N4 get_er_ficha classe=FV id=V311
+[11:56:45.972] N2 recorte via fichas recente: FV_V311_motor_178111331114.dxf
+[11:56:45.984] FV ficha live V311: segments=1
+[11:56:45.984] N4 set_ficha classe=FV id=V311 er_keys=18
+[11:56:46.087] N4 step0 ok
+[11:56:46.088] N4 dxf_check n4_dxf=D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-6_Execucao_CAD\n4\FV_preview_V311.dxf force_regen=True
+[11:56:46.089] N4 generate classe=FV id=V311 via=robot
+[11:56:46.095] N4 generate launched
+[11:56:47.989] ITEM_SELECTED classe=FV id=V312 flow=reverso
+[11:56:47.995] N1 flow=reverso classe=FV id=V312 auto_chain=True
+[11:56:47.998] N1 ER shortcircuit → chaining N2
+[11:56:48.070] N2 is_er_flow=True obra=Obra_TREINO_1 classe=FV id=V312
+[11:56:48.075] N2 recorte via fichas recente: FV_V312_motor_178111331115.dxf
+[11:56:48.075] N2 recorte_path=D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-2_Triagem\recortes_reversos\ALIMONTI - PARAISO - 13° PAV.- FV - R00\FV_V312_motor_178111331115.dxf
+[11:56:48.075] N2 loading DXF size=26KB
+[11:56:48.165] N2 done ok. is_er=True auto_chain=True
+[11:56:48.238] N4 start classe=FV id=V312
+[11:56:48.240] N4 get_er_ficha classe=FV id=V312
+[11:56:48.243] N2 recorte via fichas recente: FV_V312_motor_178111331115.dxf
+[11:56:48.255] FV ficha live V312: segments=1
+[11:56:48.256] N4 set_ficha classe=FV id=V312 er_keys=18
+[11:56:48.358] N4 step0 ok
+[11:56:48.359] N4 dxf_check n4_dxf=D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-6_Execucao_CAD\n4\FV_preview_V312.dxf force_regen=True
+[11:56:48.360] N4 generate classe=FV id=V312 via=robot
+[11:56:48.366] N4 generate launched
+[11:56:49.745] ITEM_SELECTED classe=FV id=V313-V315V-V317 flow=reverso
+[11:56:49.752] N1 flow=reverso classe=FV id=V313-V315V-V317 auto_chain=True
+[11:56:49.754] N1 ER shortcircuit → chaining N2
+[11:56:49.811] N2 is_er_flow=True obra=Obra_TREINO_1 classe=FV id=V313-V315V-V317
+[11:56:49.817] N2 recorte via recortes: FV_V313-V315V-V317_sel_1782065269.dxf
+[11:56:49.818] N2 recorte_path=D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-2_Triagem\recortes_reversos\ALIMONTI - PARAISO - 13° PAV.- FV - R00\FV_V313-V315V-V317_sel_1782065269.dxf
+[11:56:49.818] N2 loading DXF size=26KB
+[11:56:49.878] N2 done ok. is_er=True auto_chain=True
+[11:56:49.935] N4 start classe=FV id=V313-V315V-V317
+[11:56:49.937] N4 get_er_ficha classe=FV id=V313-V315V-V317
+[11:56:49.943] N2 recorte via recortes: FV_V313-V315V-V317_sel_1782065269.dxf
+[11:56:49.960] FV ficha live V313-V315V-V317: segments=0
+[11:56:49.960] N4 set_ficha classe=FV id=V313-V315V-V317 er_keys=15
+[11:56:50.001] N4 step0 ok
+[11:56:50.002] N4 dxf_check n4_dxf=None force_regen=True
+[11:56:50.003] N4 generate classe=FV id=V313-V315V-V317 via=robot
+[11:56:50.009] N4 generate launched
+[11:56:52.229] ITEM_SELECTED classe=FV id=V314-V316-V318 flow=reverso
+[11:56:52.237] N1 flow=reverso classe=FV id=V314-V316-V318 auto_chain=True
+[11:56:52.240] N1 ER shortcircuit → chaining N2
+[11:56:52.298] N2 is_er_flow=True obra=Obra_TREINO_1 classe=FV id=V314-V316-V318
+[11:56:52.304] N2 recorte via recortes: FV_V314-V316-V318_sel_1782065293.dxf
+[11:56:52.304] N2 recorte_path=D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-2_Triagem\recortes_reversos\ALIMONTI - PARAISO - 13° PAV.- FV - R00\FV_V314-V316-V318_sel_1782065293.dxf
+[11:56:52.304] N2 loading DXF size=26KB
+[11:56:52.364] N2 done ok. is_er=True auto_chain=True
+[11:56:52.422] N4 start classe=FV id=V314-V316-V318
+[11:56:52.424] N4 get_er_ficha classe=FV id=V314-V316-V318
+[11:56:52.429] N2 recorte via recortes: FV_V314-V316-V318_sel_1782065293.dxf
+[11:56:52.448] FV ficha live V314-V316-V318: segments=0
+[11:56:52.448] N4 set_ficha classe=FV id=V314-V316-V318 er_keys=15
+[11:56:52.487] N4 step0 ok
+[11:56:52.488] N4 dxf_check n4_dxf=None force_regen=True
+[11:56:52.489] N4 generate classe=FV id=V314-V316-V318 via=robot
+[11:56:52.496] N4 generate launched
+[12:05:59.304] [CE] _on_obra_pav_changed obra='Obra_TREINO_1' pav='TMC-EST-EX-1000-FUN-R01_R2018_ASCII_ODA'
+[12:09:53.872] [CE] _on_obra_pav_changed obra='Obra_TREINO_1' pav='TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA'
