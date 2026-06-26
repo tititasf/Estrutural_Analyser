@@ -161,7 +161,8 @@ class _MiniDXFView(QGraphicsView):
         self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.setInteractive(False)                          # cena não recebe eventos
         self.setDragMode(QGraphicsView.ScrollHandDrag)      # arrastar = pan
-        self.setRenderHints(QPainter.Antialiasing | QPainter.SmoothPixmapTransform)
+        # [PERFORMANCE] Desativa Antialiasing em mini-viewers para ganho GIGANTE de FPS
+        self.setRenderHints(QPainter.SmoothPixmapTransform)
         self.setOptimizationFlags(QGraphicsView.DontSavePainterState | QGraphicsView.DontAdjustForAntialiasing)
         self.setViewportUpdateMode(QGraphicsView.SmartViewportUpdate)
         self.setStyleSheet(

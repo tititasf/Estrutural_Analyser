@@ -144,6 +144,75 @@
         "presence_pts": 50
       },
       "ts": "2026-06-25T21:19:19"
+    },
+    {
+      "id": "V302",
+      "tipo": "FV",
+      "obra": "Obra_TREINO_1",
+      "modo": "item=V302",
+      "sem": {
+        "b": 19.0,
+        "comprimento": 2251.5,
+        "n_paineis": 6,
+        "has_holes": true
+      },
+      "score": {
+        "score": 78,
+        "ratio": 0.105,
+        "gen_struct": 73,
+        "stog_struct": 694,
+        "missing_layers": 4,
+        "extra_layers": 0,
+        "item_mode": true,
+        "presence_pts": 50
+      },
+      "ts": "2026-06-26T02:17:59"
+    },
+    {
+      "id": "V303",
+      "tipo": "FV",
+      "obra": "Obra_TREINO_1",
+      "modo": "item=V303",
+      "sem": {
+        "b": 19.0,
+        "comprimento": 1872.0,
+        "n_paineis": 5,
+        "has_holes": true
+      },
+      "score": {
+        "score": 78,
+        "ratio": 0.081,
+        "gen_struct": 56,
+        "stog_struct": 694,
+        "missing_layers": 4,
+        "extra_layers": 0,
+        "item_mode": true,
+        "presence_pts": 50
+      },
+      "ts": "2026-06-26T02:18:21"
+    },
+    {
+      "id": "V304",
+      "tipo": "FV",
+      "obra": "Obra_TREINO_1",
+      "modo": "item=V304",
+      "sem": {
+        "b": 19.0,
+        "comprimento": 707.0,
+        "n_paineis": 2,
+        "has_holes": true
+      },
+      "score": {
+        "score": 75,
+        "ratio": 0.012,
+        "gen_struct": 8,
+        "stog_struct": 694,
+        "missing_layers": 5,
+        "extra_layers": 0,
+        "item_mode": true,
+        "presence_pts": 50
+      },
+      "ts": "2026-06-26T02:18:57"
     }
   ],
   "summary": {
@@ -197,20 +266,20 @@
       ]
     },
     "FV": {
-      "count": 2,
-      "score_avg": 84.0,
-      "score_min": 78,
+      "count": 5,
+      "score_avg": 79.8,
+      "score_min": 75,
       "score_max": 90,
       "score_dist": {
         "0-40": 0,
         "40-70": 0,
-        "70-100": 2
+        "70-100": 5
       },
       "comp_range": [
         518.0,
         3202.0
       ],
-      "with_holes": 2
+      "with_holes": 5
     }
   }
 }

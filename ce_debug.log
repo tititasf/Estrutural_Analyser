@@ -14348,3 +14348,5 @@ Thread 0x000033cc (most recent call first):
 Current thread's C stack trace (most recent call first):
   <cannot get C stack on this system>
 [02:01:29.824] [CE] _on_obra_pav_changed obra='Obra_TREINO_1' pav='TMC-EST-EX-1000-FUN-R01_R2018_ASCII_ODA'
+[02:09:27.775] [CE] _on_obra_pav_changed obra='Obra_TREINO_1' pav='TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA'
+[02:16:05.374] [CE] _on_obra_pav_changed obra='Obra_TREINO_1' pav='TMC-EST-EX-1000-FUN-R01_R2018_ASCII_ODA'

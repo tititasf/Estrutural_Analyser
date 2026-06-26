@@ -145,7 +145,7 @@ def _get_obf_str(key):
     return _obf_map.get(key, key)
 
 from PySide6.QtWidgets import QGraphicsView, QGraphicsScene, QGraphicsItem, QGraphicsSimpleTextItem, QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QLabel, QInputDialog, QLineEdit, QGraphicsLineItem, QGraphicsPathItem, QGraphicsEllipseItem, QStyle, QStyleOptionGraphicsItem, QApplication, QFrame
-from PySide6.QtCore import Qt, Signal, QMarginsF, QRectF, QPointF, QLineF, QEventLoop
+from PySide6.QtCore import QTimer, Qt, Signal, QMarginsF, QRectF, QPointF, QLineF, QEventLoop
 from PySide6.QtGui import QPainter, QWheelEvent, QTransform, QPen, QColor, QBrush, QPainterPath, QFont, QCursor
 from src.ui.overlays import PillarGraphicsItem, SlabGraphicsItem
 from src.ui.overlays_beams import BeamGraphicsItem
@@ -623,7 +623,7 @@ class CADCanvas(QGraphicsView):
                     self.setSceneRect(QRectF()) # Reset to follows-scene
 
             # Agenda para o prÃ³ximo ciclo do loop de eventos - AUMENTADO PARA 50ms
-            from PySide6.QtCore import QTimer
+            from PySide6.QtCore import QTimer, QTimer
             QTimer.singleShot(50, do_center)
             
         elif 'h_scroll' in state: # Fallback legado
@@ -1835,7 +1835,7 @@ class CADCanvas(QGraphicsView):
 
         # Midpoint: TriÃ¢ngulo Ciano
         from PySide6.QtGui import QPolygonF
-        from PySide6.QtCore import QPointF
+        from PySide6.QtCore import QTimer, QPointF
         tri_poly = QPolygonF([QPointF(0, -6), QPointF(-5, 4), QPointF(5, 4)])
         tri = self.scene.addPolygon(tri_poly, QPen(QColor(0, 255, 255), 2))
         tri.setZValue(200); tri.hide(); tri.setFlag(QGraphicsItem.ItemIgnoresTransformations)
@@ -2661,7 +2661,7 @@ class CADCanvas(QGraphicsView):
         if not points: return
         
         from PySide6.QtGui import QPolygonF
-        from PySide6.QtCore import QPointF
+        from PySide6.QtCore import QTimer, QPointF
         
         poly = QPolygonF()
         for x, y in points: poly.append(QPointF(x, y))
@@ -3442,9 +3442,15 @@ class CADCanvas(QGraphicsView):
                 best_item = item
         return best_item
 
+    def _restore_aa(self):
+        self.setRenderHint(QPainter.Antialiasing, True)
+        self.viewport().update()
+
     def mouseMoveEvent(self, event):
         # 1. Handle Pan
         if self._is_panning and self._last_pan_pos:
+            self.setRenderHint(QPainter.Antialiasing, False)
+            if hasattr(self, '_aa_timer'): self._aa_timer.start(250)
             delta = event.position().toPoint() - self._last_pan_pos
             self._last_pan_pos = event.position().toPoint()
             h_bar = self.horizontalScrollBar()
@@ -3958,6 +3964,9 @@ class CADCanvas(QGraphicsView):
         """Zoom in/out com scroll do mouse"""
         zoom_in_factor = 1.15
         zoom_out_factor = 1 / zoom_in_factor
+
+        self.setRenderHint(QPainter.Antialiasing, False)
+        if hasattr(self, '_aa_timer'): self._aa_timer.start(250)
 
         # Se houver scroll vertical
         if event.angleDelta().y() > 0:
