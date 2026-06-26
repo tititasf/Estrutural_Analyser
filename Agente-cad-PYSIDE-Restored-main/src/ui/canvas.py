@@ -683,8 +683,11 @@ class CADCanvas(QGraphicsView):
         self.dxf_entities = []
         self.snap_points = []
         self.snap_segments = []
+        self.snap_grid = {}
         self.persistent_links = {}
         self._highlighted_items = set()
+        self.filter_indices = {'layer': {}, 'color': {}, 'type': {}}
+        self.dxf_metadata = {'layers': set(), 'colors': set(), 'types': set()}
         
         # Re-inicializar overlays necessÃ¡rios
         self._init_osnap_markers()
@@ -1822,7 +1825,6 @@ class CADCanvas(QGraphicsView):
         # RESTAURAR ESTADO APÃ”S BATCH LOADING
         # -------------------------------------------------------------
         # Reativar índice BSP para hit-testing eficiente após inserção completa
-        self.scene.setItemIndexMethod(QGraphicsScene.ItemIndexMethod.BspTreeIndex)
         self.scene.setItemIndexMethod(QGraphicsScene.ItemIndexMethod.BspTreeIndex)
         self.scene.blockSignals(False)
         self.setViewportUpdateMode(prev_update_mode)
