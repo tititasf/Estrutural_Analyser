@@ -2153,31 +2153,19 @@ class MainWindow(QMainWindow):
                 
                 self.robo_laje.laje_tab.atualizar_tabela_lajes()
                 
-                # SALVAR DADOS IMEDIATAMENTE após sincronização (antes do processamento IA)
-                # Isso garante que as lajes sejam persistidas mesmo se o processamento IA falhar
-                if hasattr(self.robo_laje, 'save_all_obras_auto'):
-                    self.robo_laje.save_all_obras_auto()
-                    print(f"[SYNC] ✅ Dados salvos imediatamente após sincronização de {count} lajes")
-                
-                # Emitir sinal obra_changed para garantir que a UI seja atualizada
-                # Isso também dispara salvamento automático via on_obra_changed
+                # Emitir sinal obra_changed para atualizar a UI
                 if hasattr(self.robo_laje.laje_tab, 'obra_changed'):
                     self.robo_laje.laje_tab.obra_changed.emit(obra_robo)
-                
+
                 # Iniciar Processamento IA Automatizado (Linhas + Cotas)
-                # A função automate_ai_for_all_lajes já salva no final
+                # automate_ai_for_all_lajes faz um save final ao terminar
                 if run_ai and hasattr(self.robo_laje.laje_tab, 'automate_ai_for_all_lajes'):
                     self.robo_laje.laje_tab.automate_ai_for_all_lajes()
-                
-                # SALVAR NOVAMENTE após processamento IA (garantia extra)
-                if hasattr(self.robo_laje, 'save_all_obras_auto'):
-                    # Usar QTimer para salvar após um delay, garantindo que o processamento IA termine
-                    from PySide6.QtCore import QTimer
-                    def salvar_apos_ia():
-                        if hasattr(self.robo_laje, 'save_all_obras_auto'):
-                            self.robo_laje.save_all_obras_auto()
-                            print(f"[SYNC] ✅ Dados salvos após processamento IA completo")
-                    QTimer.singleShot(5000, salvar_apos_ia)  # 5 segundos para garantir que tudo termine
+                else:
+                    # Sem IA: salvar uma vez após sincronização
+                    if hasattr(self.robo_laje, 'save_all_obras_auto'):
+                        self.robo_laje.save_all_obras_auto()
+                        print(f"[SYNC] ✅ Dados salvos após sincronização de {count} lajes")
                 
                 if confirm:
                     QMessageBox.information(self, "Sucesso", f"{count} lajes sincronizadas e processadas pela IA!")
@@ -10046,13 +10034,16 @@ class MainWindow(QMainWindow):
         except (ValueError, TypeError):
             pass
 
-        # --- Campos com painel (2 cm) e fórmulas explicativas ---
+        # --- Campos com painel (2 cm), sarrafo de fundo (+4 cm) e fórmulas explicativas ---
         # A distância TOPO e FUNDO têm como referência a ALTURA DA LAJE (H_laje),
         # não a espessura bruta do corte.
         # Fórmula: dist_fundo = beam_height − H_laje − dist_topo
-        # Com painel (2 cm abaixo da laje, dentro da forma): dist_fundo_c_painel = dist_fundo − 2
+        # Com painel (2 cm) e sarrafo+painel do fundo da viga (4 cm):
+        # dist_fundo_c_painel = dist_fundo − 2 + 4
         _PAINEL = 2.0
+        _FUNDO_VIGA = 4.0
         ficha['painel_espessura'] = str(_PAINEL)
+        ficha['fundo_viga_acrescimo'] = str(_FUNDO_VIGA)
         try:
             _bh_p = float(ficha.get('beam_height') or 0)
             if _bh_p > 0:
@@ -10078,7 +10069,7 @@ class MainWindow(QMainWindow):
                     ficha['own_slab_ref_c_painel'] = str(round(_oh + _PAINEL, 1))
                     ficha['own_dist_top_c_painel'] = _odt_str  # painel é abaixo → topo inalterado
                     ficha['own_dist_bottom_s_painel'] = _odf_str
-                    ficha['own_dist_bottom_c_painel'] = str(round(_odf - _PAINEL, 1))
+                    ficha['own_dist_bottom_c_painel'] = str(round(_odf - _PAINEL + _FUNDO_VIGA, 1))
                     ficha['own_dist_topo_formula'] = (
                         f"bh({_bh_p:.0f}) − H_laje({_oh:.0f}) − d_fundo({_odf:.0f})"
                         f" = {_odt:.0f} cm"
@@ -10086,7 +10077,7 @@ class MainWindow(QMainWindow):
                     ficha['own_dist_fundo_formula'] = (
                         f"bh({_bh_p:.0f}) − H_laje({_oh:.0f}) − d_topo({_odt:.0f})"
                         f" = {_odf:.0f} cm (sem painel)"
-                        f" / {(_odf - _PAINEL):.0f} cm (−{_PAINEL:.0f}cm painel)"
+                        f" / {(_odf - _PAINEL + _FUNDO_VIGA):.0f} cm (−{_PAINEL:.0f}cm painel da laje + {_FUNDO_VIGA:.0f}cm sarrafo/fundo viga)"
                     )
 
                 # ── Lado vizinho ──
@@ -10102,7 +10093,7 @@ class MainWindow(QMainWindow):
                             ficha['neigh_slab_ref_c_painel'] = str(round(_nh + _PAINEL, 1))
                             ficha['neighbor_dist_top_c_painel'] = _ndt_str  # topo inalterado
                             ficha['neighbor_dist_bottom_s_painel'] = _ndf_str
-                            ficha['neighbor_dist_bottom_c_painel'] = str(round(_ndf - _PAINEL, 1))
+                            ficha['neighbor_dist_bottom_c_painel'] = str(round(_ndf - _PAINEL + _FUNDO_VIGA, 1))
                             ficha['neigh_dist_topo_formula'] = (
                                 f"bh({_bh_p:.0f}) − H_laje_viz({_nh:.0f}) − d_fundo({_ndf:.0f})"
                                 f" = {_ndt:.0f} cm"
@@ -10110,7 +10101,7 @@ class MainWindow(QMainWindow):
                             ficha['neigh_dist_fundo_formula'] = (
                                 f"bh({_bh_p:.0f}) − H_laje_viz({_nh:.0f}) − d_topo({_ndt:.0f})"
                                 f" = {_ndf:.0f} cm (sem painel)"
-                                f" / {(_ndf - _PAINEL):.0f} cm (−{_PAINEL:.0f}cm painel)"
+                                f" / {(_ndf - _PAINEL + _FUNDO_VIGA):.0f} cm (−{_PAINEL:.0f}cm painel da laje + {_FUNDO_VIGA:.0f}cm sarrafo/fundo viga)"
                             )
                     except (ValueError, TypeError):
                         pass

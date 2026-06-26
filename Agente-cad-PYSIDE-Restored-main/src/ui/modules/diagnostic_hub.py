@@ -1914,6 +1914,14 @@ class DiagnosticHubModule(QWidget):
             n = 0
 
             for item in selected:
+                ent = item.data(256) # CorrespondingDXFEntity
+                if ent is not None:
+                    # Copia perfeita da entidade DXF original
+                    msp.add_entity(ent.copy())
+                    n += 1
+                    continue
+                
+                # Fallback para itens manuais/custom
                 data   = item.data(0) or {}
                 layer  = str(data.get('layer', '0') or '0')
                 aci    = data.get('aci', 256)

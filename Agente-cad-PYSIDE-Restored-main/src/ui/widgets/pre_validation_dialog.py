@@ -162,6 +162,8 @@ class _MiniDXFView(QGraphicsView):
         self.setInteractive(False)                          # cena não recebe eventos
         self.setDragMode(QGraphicsView.ScrollHandDrag)      # arrastar = pan
         self.setRenderHints(QPainter.Antialiasing | QPainter.SmoothPixmapTransform)
+        self.setOptimizationFlags(QGraphicsView.DontSavePainterState | QGraphicsView.DontAdjustForAntialiasing)
+        self.setViewportUpdateMode(QGraphicsView.SmartViewportUpdate)
         self.setStyleSheet(
             f"border:1px solid {Colors.BORDER_DEFAULT}; "
             f"background:{Colors.BG_PANEL};"
@@ -451,7 +453,16 @@ class PreValidationDialog(QDialog):
     @staticmethod
     def _side_cell_laje_block(ln: str, h: str, nivel: str) -> str:
         """Formata um bloco multi-linha para uma laje em célula Lado-A/B/C/D."""
-        lines = [f'Laje: {ln}', f'Altura: {h}' if h else 'Altura:', f'Nivel: {nivel}' if nivel else 'Nivel:']
+        is_beam = ln.upper().startswith('V') or ln.upper().startswith('FV') or ln.upper().startswith('LV')
+        lines = []
+        if is_beam:
+            lines.append(f'Viga: {ln}')
+            lines.append('Largura:')
+        else:
+            lines.append(f'Laje: {ln}')
+        
+        lines.append(f'Altura: {h}' if h else 'Altura:')
+        lines.append(f'Nivel: {nivel}' if nivel else 'Nivel:')
         return '\n'.join(lines)
 
     _VIGA_CELL_TEXT = 'Viga:\nLargura:\nAltura:\nNivel:'
@@ -561,7 +572,7 @@ class PreValidationDialog(QDialog):
                 highlight_pts=pts,
             )
 
-        # Fallback geométrico
+        # Fallback geométrico se não houver cena
         pix = self._render_polygon_geometric(pts, thumb_w, thumb_h, fallback_line, fallback_fill)
         if pix is None:
             return None
@@ -1121,7 +1132,7 @@ class PreValidationDialog(QDialog):
         """
         Fichinha 'Detalhes sobre o Segmento de Viga' exibida na col DIM da tabela.
         Inclui: nome, segmento (placeholder), largura, altura, nível, e blocos Lado A/B
-        com painéis (H1 = dist_fundo−2, H2 = dist_topo) e posição da laje.
+        com painéis (H1 = dist_fundo−2+4, H2 = dist_topo) e posição da laje.
         """
         ficha = cut.get('ficha') or {}
         direction = cut.get('direction') or '—'
@@ -1213,7 +1224,7 @@ class PreValidationDialog(QDialog):
             return '<br>'.join([
                 title,
                 f"&nbsp;&nbsp;<b style='color:{color}'>Painéis</b>",
-                f"&nbsp;&nbsp;&nbsp;{_kv('H1 (fundo−2):', str(h1))} cm",
+                f"&nbsp;&nbsp;&nbsp;{_kv('H1 (fundo−2+4):', str(h1))} cm",
                 f"&nbsp;&nbsp;&nbsp;{_kv('H2 (topo):', str(h2))} cm",
                 f"&nbsp;&nbsp;<b style='color:{color}'>Laje&nbsp;—&nbsp;{pos}</b>",
                 f"&nbsp;&nbsp;&nbsp;{_kv(pos + ':', lv)} {lsfx}",
