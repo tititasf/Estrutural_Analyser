@@ -1310,6 +1310,30 @@ class CADCanvas(QGraphicsView):
                 
                 Frontend(ctx, out, config=config).draw_layout(msp)
                 
+                # [FIX] Make ezdxf items selectable and populate data(0) for cutout logic
+                import ezdxf.addons.drawing.pyqt as pyqt
+                from PySide6.QtWidgets import QGraphicsItem
+                for item in self.scene.items():
+                    ent = item.data(pyqt.CorrespondingDXFEntity)
+                    if ent is not None:
+                        item.setFlag(QGraphicsItem.ItemIsSelectable, True)
+                        data = {}
+                        if hasattr(ent, 'dxf'):
+                            lay = getattr(ent.dxf, 'layer', '0')
+                            aci = getattr(ent.dxf, 'color', 256)
+                            etype = ent.dxftype()
+                            data['layer'] = lay
+                            data['aci'] = aci
+                            data['type'] = etype
+                            
+                            self.filter_indices['layer'].setdefault(lay, []).append(item)
+                            self.filter_indices['color'].setdefault(aci, []).append(item)
+                            self.filter_indices['type'].setdefault(etype, []).append(item)
+                            self.dxf_metadata['layers'].add(lay)
+                            self.dxf_metadata['colors'].add(aci)
+                            self.dxf_metadata['types'].add(etype)
+                        item.setData(0, data)
+                
                 # Force update scene rect
                 self.scene.setSceneRect(self.scene.itemsBoundingRect())
                 rect = self.scene.sceneRect()
