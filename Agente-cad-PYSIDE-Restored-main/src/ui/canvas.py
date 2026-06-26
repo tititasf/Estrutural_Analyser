@@ -884,7 +884,6 @@ class CADCanvas(QGraphicsView):
         # ── Grupo 1: Navegação ──────────────────────────────────────────────
         from PySide6.QtWidgets import QCheckBox
         self.performatic_mode = True
-        from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QCheckBox
         self.chk_perf_container = QWidget()
         perf_layout = QVBoxLayout(self.chk_perf_container)
         perf_layout.setContentsMargins(0, 0, 0, 0)
@@ -1361,14 +1360,14 @@ class CADCanvas(QGraphicsView):
                 if color_override:
                     config = Configuration(
                         background_policy=BackgroundPolicy.CUSTOM,
-                        custom_bg_color="#1A1A1A",
+                        custom_bg_color="#1A1A1A",  # hardcoded-ok — arg literal para ezdxf BackgroundPolicy
                         color_policy=ColorPolicy.CUSTOM,
                         custom_fg_color=color_override,
                     )
                 else:
                     config = Configuration(
                         background_policy=BackgroundPolicy.CUSTOM,
-                        custom_bg_color="#1A1A1A",
+                        custom_bg_color="#1A1A1A",  # hardcoded-ok — arg literal para ezdxf BackgroundPolicy
                         color_policy=ColorPolicy.COLOR,
                     )
                 

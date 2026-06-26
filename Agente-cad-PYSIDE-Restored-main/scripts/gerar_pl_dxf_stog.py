@@ -830,6 +830,7 @@ def draw_abcd(msp, base_x, base_y, comp, larg, altura, nome, pj):
         _intervals = pj.get(f'paineis_intervals_{fid}')
         # Face C usa modelo 262 apenas como fallback quando N2 não tem intervals
         face_uses_262 = (fid == 'C') and not (_intervals and len(_intervals) >= 1)
+        _aberturas: list[dict] = []
 
         if face_uses_262:
             y_mid_face     = y_low + H_PAR_C
@@ -862,7 +863,6 @@ def draw_abcd(msp, base_x, base_y, comp, larg, altura, nome, pj):
                     _ai += 1
 
             # Pré-computa coordenadas de cada abertura
-            _aberturas: list[dict] = []
             for _ab_r in _aberturas_raw:
                 _al  = _ab_r.get('lado', '')
                 _alg = float(_ab_r.get('largura', 0))

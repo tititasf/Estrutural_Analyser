@@ -15385,3 +15385,4 @@ Current thread 0x000029f8 (most recent call first):
 [18:08:51.546] N4 generate classe=FV id=V319 via=robot
 [18:08:51.551] N4 generate launched
 [18:31:51.284] [CE] _on_obra_pav_changed obra='Obra_TREINO_1' pav='TMC-EST-EX-1000-FUN-R01_R2018_ASCII_ODA'
+[18:34:00.877] [CE] _on_obra_pav_changed obra='Obra_TREINO_1' pav='TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA'

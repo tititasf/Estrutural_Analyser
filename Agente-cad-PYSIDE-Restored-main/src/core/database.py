@@ -472,6 +472,41 @@ class DatabaseManager:
                 created_at           DATETIME DEFAULT CURRENT_TIMESTAMP,
                 UNIQUE(obra_name, pavimento)
             );
+
+            CREATE TABLE IF NOT EXISTS crop_learning_events (
+                id TEXT PRIMARY KEY,
+                created_at TEXT NOT NULL,
+                updated_at TEXT,
+                status TEXT NOT NULL DEFAULT 'validated',
+                obra_name TEXT NOT NULL,
+                pavimento TEXT,
+                classe TEXT NOT NULL,
+                elemento_id TEXT NOT NULL,
+                source_dxf TEXT,
+                source_layer TEXT,
+                source_color TEXT,
+                recorte_path TEXT NOT NULL,
+                recorte_hash TEXT,
+                bbox_json TEXT,
+                polygon_json TEXT,
+                margin_profile_json TEXT,
+                nearby_entities_json TEXT,
+                method_version TEXT NOT NULL,
+                approved_by TEXT,
+                approved_at TEXT,
+                revoked_by TEXT,
+                revoked_at TEXT,
+                revoked_reason TEXT,
+                notes TEXT,
+                metadata_json TEXT
+            );
+
+            CREATE INDEX IF NOT EXISTS idx_crop_learning_active_class
+                ON crop_learning_events(classe, status, created_at);
+            CREATE INDEX IF NOT EXISTS idx_crop_learning_item
+                ON crop_learning_events(obra_name, pavimento, classe, elemento_id);
+            CREATE INDEX IF NOT EXISTS idx_crop_learning_recorte
+                ON crop_learning_events(recorte_path, status);
         """)
 
         # reverse_eng_recortes — colunas adicionadas no sprint ER-2

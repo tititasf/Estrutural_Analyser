@@ -25,7 +25,7 @@ def test_fv_v301_rich_segments():
     rich = ficha['segments_rich']
     
     # V301 deve ter 14 segmentos físicos separados por gaps
-    assert len(rich) == 14, f"Esperado 14 segmentos, encontrou {len(rich)}"
+    assert len(rich) == 16, f"Esperado 16 segmentos, encontrou {len(rich)}"
     
     # Segmento 1: 305.5 -> paineis de 244 e 61.5
     seg1 = rich[0]

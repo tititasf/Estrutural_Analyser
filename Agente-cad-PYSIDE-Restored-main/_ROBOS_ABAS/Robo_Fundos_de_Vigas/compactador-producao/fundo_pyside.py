@@ -272,26 +272,40 @@ def alinhar_boundary_horizontal(coords):
 
 
 class _DS:
-    """Design System tokens — espelho portátil (standalone, sem import de src.ui.theme)."""
-    DEEP        = "#121212"
-    BASE        = "#1a1a2e"
-    RAISED      = "#16213e"
-    CARD        = "#252525"
-    ELEVATED    = "#2a2a3e"
+    """Design System tokens — espelho portátil (standalone). Sincronizado via sync_ds_tokens.py."""
+    # ── Surfaces ──────────────────────────────────────────────────────────────
+    DEEP     = "#121212"
+    BASE     = "#1a1a2e"
+    RAISED   = "#16213e"
+    CARD     = "#252525"
+    ELEVATED = "#2a2a3e"
+    # ── Accent ────────────────────────────────────────────────────────────────
     PRIMARY     = "#00d4ff"
     INTERACTIVE = "#0078d4"
-    SUCCESS     = "#4caf50"
-    SUCCESS_DK  = "#1a3320"
-    WARNING     = "#ff9800"
-    DANGER      = "#f44336"
-    PURPLE      = "#a070ff"
-    GOLD        = "#e6b400"
-    TEXT        = "#e0e0e0"
-    WHITE       = "#ffffff"
-    MUTED       = "#666666"
-    BORDER      = "#333333"
-    BORDER_STR  = "#444444"
-
+    # ── Semantic ──────────────────────────────────────────────────────────────
+    SUCCESS         = "#4caf50"
+    SUCCESS_DK      = "#1a3320"  # alias histórico
+    SUCCESS_BG_DARK = "#1a3320"
+    WARNING         = "#ff9800"
+    WARNING_BG_DARK = "#332900"
+    DANGER          = "#f44336"
+    DANGER_BG_DARK  = "#330d00"
+    # ── Contextual ────────────────────────────────────────────────────────────
+    PURPLE  = "#a070ff"
+    MAGENTA = "#d63384"
+    GOLD    = "#e6b400"
+    # ── Text ──────────────────────────────────────────────────────────────────
+    TEXT      = "#e0e0e0"
+    WHITE     = "#ffffff"    # alias histórico
+    TEXT_BRIGHT = "#ffffff"
+    SECONDARY = "#9a9aa6"
+    MUTED     = "#666666"
+    # ── Border ────────────────────────────────────────────────────────────────
+    BORDER_STR     = "#444444"   # alias histórico
+    BORDER_STRONG  = "#444444"
+    BORDER         = "#333333"  # alias histórico
+    BORDER_DEFAULT = "#333333"
+    BORDER_SUBTLE  = "#2a2a2a"
 
 class FundoCanvas(QGraphicsView):
     # Cores do canvas

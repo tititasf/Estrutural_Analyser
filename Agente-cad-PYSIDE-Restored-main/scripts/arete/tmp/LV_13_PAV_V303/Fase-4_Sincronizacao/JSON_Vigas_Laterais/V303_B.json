@@ -13,7 +13,20 @@
       "grade_h1": 0.0,
       "grade_h2": 0.0,
       "laje_central_alt": 0.0,
+      "laje_sup_local": 0.0,
+      "laje_inf_local": 0.0,
+      "slab_top": 0.0,
+      "slab_bottom": 0.0,
+      "holes": [],
       "reuse": true,
+      "reuse_regions": [
+        {
+          "x_offset": 0.0,
+          "y_offset": 0.0,
+          "width": 244.0,
+          "height": 43.7
+        }
+      ],
       "panel_type": "Sarrafeado"
     },
     {
@@ -23,7 +36,20 @@
       "grade_h1": 0.0,
       "grade_h2": 0.0,
       "laje_central_alt": 0.0,
+      "laje_sup_local": 0.0,
+      "laje_inf_local": 0.0,
+      "slab_top": 0.0,
+      "slab_bottom": 0.0,
+      "holes": [],
       "reuse": true,
+      "reuse_regions": [
+        {
+          "x_offset": 0.0,
+          "y_offset": 0.0,
+          "width": 244.0,
+          "height": 43.7
+        }
+      ],
       "panel_type": "Sarrafeado"
     },
     {
@@ -33,7 +59,20 @@
       "grade_h1": 0.0,
       "grade_h2": 0.0,
       "laje_central_alt": 0.0,
+      "laje_sup_local": 0.0,
+      "laje_inf_local": 0.0,
+      "slab_top": 0.0,
+      "slab_bottom": 0.0,
+      "holes": [],
       "reuse": true,
+      "reuse_regions": [
+        {
+          "x_offset": 0.0,
+          "y_offset": 0.0,
+          "width": 66.5,
+          "height": 43.7
+        }
+      ],
       "panel_type": "Sarrafeado"
     },
     {
@@ -43,7 +82,20 @@
       "grade_h1": 0.0,
       "grade_h2": 0.0,
       "laje_central_alt": 0.0,
+      "laje_sup_local": 0.0,
+      "laje_inf_local": 0.0,
+      "slab_top": 0.0,
+      "slab_bottom": 0.0,
+      "holes": [],
       "reuse": true,
+      "reuse_regions": [
+        {
+          "x_offset": 0.0,
+          "y_offset": 0.0,
+          "width": 244.0,
+          "height": 43.7
+        }
+      ],
       "panel_type": "Sarrafeado"
     }
   ],

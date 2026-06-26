@@ -3132,6 +3132,14 @@
         "is_first": true,
         "is_last": false,
         "reuse": true,
+        "reuse_regions": [
+          {
+            "x_offset": 0.0,
+            "y_offset": 0.3,
+            "width": 178.5,
+            "height": 42.7
+          }
+        ],
         "codigos_forma": []
       },
       {
@@ -3151,6 +3159,7 @@
         "is_first": false,
         "is_last": false,
         "reuse": false,
+        "reuse_regions": [],
         "codigos_forma": []
       },
       {
@@ -3170,6 +3179,14 @@
         "is_first": false,
         "is_last": false,
         "reuse": true,
+        "reuse_regions": [
+          {
+            "x_offset": 0.0,
+            "y_offset": 0.3,
+            "width": 159.5,
+            "height": 42.7
+          }
+        ],
         "codigos_forma": []
       },
       {
@@ -3189,6 +3206,14 @@
         "is_first": false,
         "is_last": true,
         "reuse": true,
+        "reuse_regions": [
+          {
+            "x_offset": 0.0,
+            "y_offset": 0.3,
+            "width": 110.0,
+            "height": 42.7
+          }
+        ],
         "codigos_forma": []
       }
     ],
@@ -3210,6 +3235,14 @@
         "is_first": true,
         "is_last": false,
         "reuse": true,
+        "reuse_regions": [
+          {
+            "x_offset": 0.0,
+            "y_offset": 0.0,
+            "width": 244.0,
+            "height": 43.6
+          }
+        ],
         "codigos_forma": []
       },
       {
@@ -3229,6 +3262,7 @@
         "is_first": false,
         "is_last": true,
         "reuse": false,
+        "reuse_regions": [],
         "codigos_forma": []
       }
     ],

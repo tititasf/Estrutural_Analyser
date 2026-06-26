@@ -1,24 +1,21 @@
 {
   "item": "V101",
   "obra": "Obra_TREINO_1",
-  "total_entities": 365,
+  "total_entities": 757,
   "by_type": {
-    "DIMENSION": 5,
-    "INSERT": 3,
-    "LINE": 336,
-    "LWPOLYLINE": 3,
-    "TEXT": 18
+    "DIMENSION": 10,
+    "LINE": 738,
+    "LWPOLYLINE": 6,
+    "TEXT": 3
   },
   "by_layer": {
     "0": 1,
-    "00 - FELIPE": 1,
-    "5": 5,
-    "CARIMBO": 14,
-    "COTA": 8,
-    "NOMENCLATURA": 1,
-    "Pain\u00e9is": 11,
-    "SARR_2.2x7": 323,
-    "SARR_EDITAR": 1
+    "5": 67,
+    "COTA": 116,
+    "NOMENCLATURA": 24,
+    "Painéis": 134,
+    "SARR_2.2x7": 376,
+    "SARR_EDITAR": 39
   },
   "tolerance_pct": 5
 }

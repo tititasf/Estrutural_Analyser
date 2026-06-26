@@ -164,7 +164,7 @@ if _QT_AVAILABLE:
             self._log.setReadOnly(True)
             self._log.setMinimumHeight(160)
             self._log.setStyleSheet(
-                f"background: #0d0d1a; color: {Colors.TEXT_PRIMARY}; "
+                f"background: #0d0d1a; color: {Colors.TEXT_PRIMARY}; "  # hardcoded-ok — console terminal dark navy
                 f"font-family: Consolas, monospace; font-size: 10px; "
                 f"border: 1px solid {Colors.BORDER_DEFAULT};"
             )

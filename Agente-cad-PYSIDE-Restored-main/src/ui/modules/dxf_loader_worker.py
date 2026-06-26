@@ -87,7 +87,7 @@ def _color_hex(color_str: str) -> str:
     """Normaliza cor: '#rrggbb' ou fallback branco."""
     if color_str and color_str.startswith('#') and len(color_str) >= 7:
         return color_str[:7].upper()
-    return '#FFFFFF'
+    return '#FFFFFF'  # hardcoded-ok — subprocess isolado sem imports de UI
 
 
 def _path_to_cmds(path):

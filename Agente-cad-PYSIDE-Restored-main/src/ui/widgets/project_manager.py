@@ -3217,7 +3217,7 @@ class ProjectManager(QWidget):
             # Converter short code → label completo para exibição
             er_class_display = self._ER_SHORT_TO_FULL.get(er_class_current, er_class_current)
             # Cor distinta por classe
-            er_class_color = self._ER_CLASS_COLORS.get(er_class_display, "#607D8B")
+            er_class_color = self._ER_CLASS_COLORS.get(er_class_display, Contextual.SLATE)
             cls_conf = float(notes.get('class_confidence', inferred['class_conf']))
 
             def _on_class_change(opt, _notes=notes):
@@ -4146,7 +4146,7 @@ class ProjectManager(QWidget):
         if show_er_class:
             er_class_current = notes.get('er_class') or inferred['er_class']
             er_class_display  = self._ER_SHORT_TO_FULL.get(er_class_current, er_class_current)
-            er_class_color    = self._ER_CLASS_COLORS.get(er_class_display, "#607D8B")
+            er_class_color    = self._ER_CLASS_COLORS.get(er_class_display, Contextual.SLATE)
 
             def _on_class_change(opt, _rid=row_id, _notes=notes):
                 _notes['class_confidence'] = 1.0
@@ -4448,15 +4448,15 @@ class ProjectManager(QWidget):
                     self._detalhamentos_list_layout.addWidget(card)
 
         _add_section(
-            "Detalhes Recortados", "#E8A000",
+            "Detalhes Recortados", Contextual.GOLD,
             recortados, "✂"
         )
         _add_section(
-            "Documentos de Ingestão", "#2980B9",
+            "Documentos de Ingestão", Accent.INTERACTIVE,
             ingestao, "📄"
         )
         _add_section(
-            "Detalhes de Ingestão (DXF completos)", "#27AE60",
+            "Detalhes de Ingestão (DXF completos)", Semantic.SUCCESS,
             triagem, "📐"
         )
 
@@ -4498,7 +4498,7 @@ class ProjectManager(QWidget):
             lbl_ext.setFixedWidth(32)
             lbl_ext.setAlignment(Qt.AlignCenter)
             lbl_ext.setStyleSheet(
-                "background: rgba(120, 120, 120, 46); color: #aaa;"
+                f"background: rgba(120, 120, 120, 46); color: {Text.SECONDARY};"
                 " font-size: 9px; border-radius: 3px; border: none; padding: 1px 2px;"
             )
         else:
@@ -6165,6 +6165,7 @@ class ProjectManager(QWidget):
             ("tier_t2", "T2 Consolidados", "Padroes validados em mais de uma obra."),
             ("tier_tx", "TX Revogados", "Desvalidacoes humanas/tombstones. Ficam fora das consultas."),
             ("semantic_total", "Regras Semanticas", "semantic_rag_kb populada a partir do domain_knowledge."),
+            ("crop_learning_total", "Recortes CROP-T1", "Recortes aprovados por humano. Ensinam crop, nao F5/N4."),
             ("training_events", "Training Events", "Historico de validacoes, rejeicoes e sinais de treino."),
             ("obra_rag_snapshots", "RAG por-obra", "Snapshots locais em DADOS-OBRAS/*/obra_rag."),
         ]
@@ -6181,6 +6182,7 @@ class ProjectManager(QWidget):
             "STOG humano -> Motor Reverso (N2/F5) --------/\n\n"
             "Regras/semantica: podem entrar agora via domain_knowledge -> semantic_rag_kb.\n"
             "Instancias/fichas: so entram apos validacao humana (T1/T2).\n"
+            "Recorte aprovado: alimenta CROP-T1 e melhora recorte por classe; nao valida F5/N2 nem N4.\n"
             "Desvalidacao humana: vira TX/tombstone, sai das consultas e permanece auditavel."
         )
         pipeline.setStyleSheet(_resolve_css("""
@@ -6349,6 +6351,7 @@ class ProjectManager(QWidget):
             "tier_t2": metrics["tiers"].get("T2", 0),
             "tier_tx": metrics["tiers"].get("TX", 0),
             "semantic_total": metrics["semantic_total"],
+            "crop_learning_total": metrics["table_counts"].get("crop_learning_events", 0),
             "training_events": metrics["table_counts"].get("training_events", 0),
             "obra_rag_snapshots": metrics["obra_rag_snapshots"],
             "reverse_total": metrics["table_counts"].get("reverse_eng_fichas", 0),
@@ -6494,6 +6497,7 @@ class ProjectManager(QWidget):
                     "reverse_eng_fichas",
                     "fase3_fichas",
                     "semantic_rag_kb",
+                    "crop_learning_events",
                     "training_events",
                     "transformation_rules",
                     "cache_fichas",
@@ -6589,6 +6593,15 @@ class ProjectManager(QWidget):
                         "Motor puro; revisao humana vira T1",
                     ],
                     [
+                        "crop_learning_events",
+                        metrics["table_counts"].get("crop_learning_events", 0),
+                        0,
+                        metrics["table_counts"].get("crop_learning_events", 0),
+                        0,
+                        0,
+                        "Recortes aprovados: ensinam crop, nao validam F5/N4",
+                    ],
+                    [
                         "semantic_rag_kb",
                         metrics["semantic_total"],
                         0,
@@ -6606,6 +6619,8 @@ class ProjectManager(QWidget):
                     status = "OK"
                     if table == "semantic_rag_kb" and count == 0:
                         status, alert = "ATENCAO", "Bridge semantica vazia"
+                    elif table == "crop_learning_events" and count == 0:
+                        status, alert = "INFO", "Sem recortes humanos CROP-T1 ainda"
                     elif table == "cache_fichas" and count == 0:
                         status, alert = "INFO", "Cache vazio"
                     elif table == "reverse_eng_fichas" and metrics["reverse_indexed"] == 0:

@@ -28,6 +28,10 @@ from PySide6.QtGui import QColor
 from src.ui.theme import Colors, Fonts, Semantic, Accent, Contextual, Text, Surface, Border
 from src.ui.canvas import CADCanvas, RenderMode
 from src.core.ficha_utils import ensure_db_backup, stamp_ficha_json
+from src.core.crop_learning_store import (
+    ensure_crop_learning_schema as _crop_learning_ensure_schema,
+    record_crop_learning_event as _record_crop_learning_event,
+)
 
 try:
     from src.core.engrev_laj_recorte_learning_store import (
@@ -54,10 +58,6 @@ _CLS_COLORS = {
 SCRIPTS_DIR = Path(__file__).resolve().parents[4] / "scripts"
 if SCRIPTS_DIR.exists() and str(SCRIPTS_DIR) not in sys.path:
     sys.path.insert(0, str(SCRIPTS_DIR))
-try:
-    from rag_validation_events import record_reverse_hub_approval
-except Exception:  # pragma: no cover - RAG hook is optional at UI import time
-    record_reverse_hub_approval = None
 
 # Valores aceitos por chave de classe (short + full, ambos podem aparecer em notes)
 _CLS_FILTER: dict[str, set] = {
@@ -178,6 +178,10 @@ def _db_ensure_schema():
             _engrev_laj_recorte_learning_ensure_schema()
     except Exception:
         pass
+    try:
+        _crop_learning_ensure_schema(DB_PATH)
+    except Exception:
+        pass
 
 _db_ensure_schema()
 
@@ -238,6 +242,40 @@ def _record_laj_learning_event(
         )
     except Exception:
         pass
+
+
+def _record_generic_crop_learning_event(
+    *,
+    obra_name: str,
+    elemento_id: str,
+    classe: str,
+    recorte_path: str,
+    notes: str | None = None,
+    metadata: dict | None = None,
+) -> str | None:
+    """Registra aprendizado de recorte sem validar/promover ficha F5/N2."""
+    try:
+        row = _db_query(
+            "SELECT bbox_json, projeto_id FROM reverse_eng_recortes WHERE recorte_path=? "
+            "ORDER BY id DESC LIMIT 1",
+            (recorte_path,),
+        )
+        bbox_json = row[0][0] if row else None
+        pavimento = row[0][1] if row else None
+        return _record_crop_learning_event(
+            obra_name=obra_name,
+            pavimento=pavimento,
+            classe=classe,
+            elemento_id=elemento_id,
+            recorte_path=recorte_path,
+            bbox_json=bbox_json,
+            notes=notes,
+            metadata=metadata,
+            db_path=DB_PATH,
+        )
+    except Exception as exc:
+        print(f"[CROP-LEARNING] approval hook failed: {exc}")
+        return None
 
 
 def _migrate_fichas_unique_constraint() -> None:
@@ -1058,7 +1096,7 @@ def _render_obra_html(data: dict) -> str:
                          f'<span style="color:{Text.SECONDARY};display:inline-block;min-width:50px;">{item["valor"]}</span>'
                          f'<span style="background:{col}44;display:inline-block;height:8px;width:{bar_w}px;'
                          f'border-radius:2px;vertical-align:middle;margin:0 4px;"></span>'
-                         f'<span style="color:#64748b;">{item["count"]}× ({item["pct"]}%)</span>'
+                         f'<span style="color:{Contextual.SLATE};">{item["count"]}× ({item["pct"]}%)</span>'
                          f'</div>')
             return html
 
@@ -2235,7 +2273,10 @@ class _RightPanel(QFrame):
 
         # ✅ Aprovar (largura total)
         btn_aprovar = _btn("✅ Aprovar", Colors.ACCENT_SUCCESS, "rgba(67, 160, 71, 1)")
-        btn_aprovar.setToolTip("Aprova este recorte com revisão humana — gera dado de treino autêntico.")
+        btn_aprovar.setToolTip(
+            "Aprova somente o recorte com revisão humana.\n"
+            "Ensina o recortador por classe; não valida F5/N2 nem N4."
+        )
         btn_aprovar.clicked.connect(self._on_aprovar)
         lay.addWidget(btn_aprovar)
 
@@ -3124,7 +3165,11 @@ class DiagnosticReverseHub(QWidget):
         )
 
     def _on_aprovar(self):
-        """Aprova 1-a-1 com revisão humana — este recorte ENTRA nos dados de treino."""
+        """Aprova 1-a-1 com revisão humana.
+
+        Este ato valida somente o recorte e alimenta crop learning. Ele nao
+        valida campos F5/N2, nao valida N4 e nao promove ficha para T1.
+        """
         lst = self._right.lst_recortes
         current = lst.currentItem()
         if current is None:
@@ -3142,7 +3187,8 @@ class DiagnosticReverseHub(QWidget):
             return
         self._current_obra = obra_name
 
-        # status='aprovado' = revisão humana autêntica → usado em treino
+        # status='aprovado' = revisão humana autentica do recorte.
+        # Nao implica validacao de F5/N2 nem promocao para RAG global de fichas.
         _db_execute(
             "UPDATE reverse_eng_recortes SET status='aprovado', obra_name=? WHERE recorte_path=?",
             (obra_name, recorte_path)
@@ -3154,6 +3200,16 @@ class DiagnosticReverseHub(QWidget):
 
         elem_id = current.data(Qt.UserRole + 2) or ""
         classe = current.data(Qt.UserRole + 1) or ""
+        crop_event_id = _record_generic_crop_learning_event(
+            obra_name=obra_name,
+            elemento_id=elem_id,
+            classe=classe,
+            recorte_path=recorte_path,
+            notes="human_reviewed_crop_approval",
+            metadata={"source": "diagnostic_reverse_hub._on_aprovar"},
+        )
+        if crop_event_id:
+            print(f"[CROP-LEARNING] approved crop event: {crop_event_id}")
         _record_laj_learning_event(
             "human_approved",
             obra_name=obra_name,
@@ -3163,19 +3219,6 @@ class DiagnosticReverseHub(QWidget):
             notes="human_reviewed_approval",
             features_extra={"source": "diagnostic_reverse_hub._on_aprovar"},
         )
-        if record_reverse_hub_approval:
-            try:
-                result = record_reverse_hub_approval(
-                    obra_name=obra_name,
-                    elemento_id=elem_id,
-                    classe=classe,
-                    recorte_path=recorte_path,
-                    db_path=DB_PATH,
-                    auto_index=True,
-                )
-                print(f"[RAG] reverse_hub approval hook: {result}")
-            except Exception as exc:
-                print(f"[RAG] reverse_hub approval hook failed: {exc}")
 
         widget = lst.itemWidget(current)
         if isinstance(widget, _RecorteItemWidget):

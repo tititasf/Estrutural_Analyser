@@ -1911,10 +1911,10 @@ class PreValidationDialog(QDialog):
     def _row_bg_for_classif(self, classif: str) -> QColor | None:
         """
         Retorna a cor de fundo da linha baseada na classificação:
-          INDETERMINADO          → vermelho escuro  #2d1a1a
-          visual_only (ex NASCE) → verde escuro     #0d2214
-          NÃO PILAR …            → amarelo escuro   #2a2700
-          GEOMETRIA ERRADA …     → laranja escuro   #2a1800
+          INDETERMINADO          → Semantic.DANGER_BG_DARK
+          visual_only (ex NASCE) → Semantic.SUCCESS_BG_DARK
+          NÃO PILAR …            → Semantic.WARNING_BG_DARK
+          GEOMETRIA ERRADA …     → Semantic.WARNING_BG_DARK
           outros (solid)         → None (padrão)
         """
         cu = (classif or '').upper()

@@ -13,7 +13,13 @@
       "grade_h1": 0.0,
       "grade_h2": 0.0,
       "laje_central_alt": 0.0,
+      "laje_sup_local": 0.0,
+      "laje_inf_local": 0.0,
+      "slab_top": 0.0,
+      "slab_bottom": 0.0,
+      "holes": [],
       "reuse": false,
+      "reuse_regions": [],
       "panel_type": "Grade"
     },
     {
@@ -23,7 +29,13 @@
       "grade_h1": 104.8,
       "grade_h2": 0.0,
       "laje_central_alt": 0.0,
+      "laje_sup_local": 0.0,
+      "laje_inf_local": 0.0,
+      "slab_top": 0.0,
+      "slab_bottom": 0.0,
+      "holes": [],
       "reuse": false,
+      "reuse_regions": [],
       "panel_type": "Grade"
     },
     {
@@ -33,7 +45,13 @@
       "grade_h1": 104.8,
       "grade_h2": 0.0,
       "laje_central_alt": 0.0,
+      "laje_sup_local": 0.0,
+      "laje_inf_local": 0.0,
+      "slab_top": 0.0,
+      "slab_bottom": 0.0,
+      "holes": [],
       "reuse": false,
+      "reuse_regions": [],
       "panel_type": "Grade"
     },
     {
@@ -43,7 +61,13 @@
       "grade_h1": 104.8,
       "grade_h2": 0.0,
       "laje_central_alt": 0.0,
+      "laje_sup_local": 0.0,
+      "laje_inf_local": 0.0,
+      "slab_top": 0.0,
+      "slab_bottom": 0.0,
+      "holes": [],
       "reuse": false,
+      "reuse_regions": [],
       "panel_type": "Grade"
     },
     {
@@ -53,7 +77,13 @@
       "grade_h1": 104.8,
       "grade_h2": 0.0,
       "laje_central_alt": 0.0,
+      "laje_sup_local": 0.0,
+      "laje_inf_local": 0.0,
+      "slab_top": 0.0,
+      "slab_bottom": 0.0,
+      "holes": [],
       "reuse": false,
+      "reuse_regions": [],
       "panel_type": "Grade"
     },
     {
@@ -63,7 +93,13 @@
       "grade_h1": 104.8,
       "grade_h2": 0.0,
       "laje_central_alt": 0.0,
+      "laje_sup_local": 0.0,
+      "laje_inf_local": 0.0,
+      "slab_top": 0.0,
+      "slab_bottom": 0.0,
+      "holes": [],
       "reuse": false,
+      "reuse_regions": [],
       "panel_type": "Grade"
     },
     {
@@ -73,7 +109,13 @@
       "grade_h1": 104.8,
       "grade_h2": 0.0,
       "laje_central_alt": 0.0,
+      "laje_sup_local": 0.0,
+      "laje_inf_local": 0.0,
+      "slab_top": 0.0,
+      "slab_bottom": 0.0,
+      "holes": [],
       "reuse": false,
+      "reuse_regions": [],
       "panel_type": "Grade"
     }
   ],

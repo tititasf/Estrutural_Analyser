@@ -1624,6 +1624,7 @@
         "is_first": true,
         "is_last": false,
         "reuse": false,
+        "reuse_regions": [],
         "codigos_forma": []
       },
       {
@@ -1643,6 +1644,7 @@
         "is_first": false,
         "is_last": false,
         "reuse": false,
+        "reuse_regions": [],
         "codigos_forma": []
       },
       {
@@ -1662,6 +1664,7 @@
         "is_first": false,
         "is_last": true,
         "reuse": false,
+        "reuse_regions": [],
         "codigos_forma": []
       }
     ],
@@ -1683,6 +1686,7 @@
         "is_first": true,
         "is_last": false,
         "reuse": false,
+        "reuse_regions": [],
         "codigos_forma": []
       },
       {
@@ -1702,6 +1706,7 @@
         "is_first": false,
         "is_last": false,
         "reuse": false,
+        "reuse_regions": [],
         "codigos_forma": []
       },
       {
@@ -1721,6 +1726,7 @@
         "is_first": false,
         "is_last": true,
         "reuse": false,
+        "reuse_regions": [],
         "codigos_forma": []
       }
     ],
