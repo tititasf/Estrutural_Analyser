@@ -520,6 +520,7 @@ class CADCanvas(QGraphicsView):
         self.snap_markers = {}
         self.filter_indices = {'layer': {}, 'color': {}, 'type': {}}
         self.dxf_metadata = {'layers': set(), 'colors': set(), 'types': set()}
+        self.source_dxf_path = source_dxf_path
 
         self.selected_items = []      # [Sincronização] Limpar seleção
         self._highlighted_items = set() # [Sincronização] Limpar destaque
@@ -688,6 +689,7 @@ class CADCanvas(QGraphicsView):
         self._highlighted_items = set()
         self.filter_indices = {'layer': {}, 'color': {}, 'type': {}}
         self.dxf_metadata = {'layers': set(), 'colors': set(), 'types': set()}
+        self.source_dxf_path = source_dxf_path
         
         # Re-inicializar overlays necessÃ¡rios
         self._init_osnap_markers()
@@ -1294,6 +1296,7 @@ class CADCanvas(QGraphicsView):
         # [NOVO] Ãndices para filtragem instantÃ¢nea
         self.filter_indices = {'layer': {}, 'color': {}, 'type': {}}
         self.dxf_metadata = {'layers': set(), 'colors': set(), 'types': set()}
+        self.source_dxf_path = source_dxf_path
 
         if source_dxf_path and render_mode == RenderMode.TRUE_GEOMETRY:
             print(f"[CADCanvas] Using ezdxf.addons.drawing for {source_dxf_path}")

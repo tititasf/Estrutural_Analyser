@@ -818,16 +818,6 @@ class PreValidationDialog(QDialog):
         vbox = QVBoxLayout(grp)
         vbox.setContentsMargins(4, 8, 4, 4)
 
-        # Viewer funcional com Modo Leve e performance máxima
-        from src.ui.canvas import CADCanvas
-        viewer = CADCanvas()
-        viewer.setMinimumHeight(280)
-        
-        # Load asynchronously to NOT freeze the UI!
-        viewer.load_dxf_async(dxf_path)
-        vbox.addWidget(viewer)
-        return grp
-
         scene, bbox = self._load_dxf_to_scene(dxf_path)
         if not scene or not bbox:
             return None
@@ -837,15 +827,17 @@ class PreValidationDialog(QDialog):
         grp = QGroupBox(title)
         vbox = QVBoxLayout(grp)
         vbox.setContentsMargins(4, 8, 4, 4)
-
+        
         # Viewer de tamanho ajustado para não estourar telas menores
         viewer = _MiniDXFView(scene, x0, y0, x1, y1,
-                              thumb_w=800, thumb_h=220,
+                              thumb_w=800, thumb_h=250,
                               highlight_pts=[])
+        
         # Libera restrição de largura fixa → expande horizontalmente
         viewer.setMaximumWidth(16777215)
-        viewer.setMinimumWidth(500)
-        viewer.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
+        viewer.setMinimumWidth(300)
+        viewer.setMinimumHeight(200)
+        viewer.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         vbox.addWidget(viewer)
         return grp
 
