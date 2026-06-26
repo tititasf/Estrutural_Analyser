@@ -19,6 +19,35 @@ Os loopers produzem eventos, scores, exemplos e evidencias. O RAG guarda apenas 
 - T2: consolidado em mais de uma obra.
 - TX: desvalidado/revogado.
 
+## Trava anti-validacao sintetica
+Nenhum fluxo CLI, script, looper, agente, batch, headless ou avaliador sintetico pode gravar
+algo como validacao humana.
+
+Permitido para CLI/looper:
+- gerar candidato;
+- medir score;
+- comparar N3/N4;
+- registrar `machine_candidate`;
+- registrar evento em `quarantine`;
+- sugerir correcao para o humano revisar.
+
+Proibido para CLI/looper:
+- marcar T1/T2;
+- setar `status='aprovado'` como fonte de verdade;
+- setar `is_validated=1`;
+- chamar indexacao global;
+- tombstonar/desvalidar como se fosse humano.
+
+Promocao efetiva exige origem explicita de UI humana:
+
+```text
+validation_origin = "human_ui"
+```
+
+Qualquer origem como `cli`, `script`, `looper`, `agent`, `auto`, `batch`, `headless`,
+`synthetic` ou origem ausente deve permanecer T0/quarentena, mesmo se o payload vier com
+texto "aprovado".
+
 ## Ciclo CROP - aprender a recortar
 Professor: recorte aprovado por humano.
 
@@ -127,10 +156,11 @@ O chat/CLI deve operar em iteracoes curtas:
 1. Selecionar classe, obra, pavimento e item.
 2. Rodar o looper correspondente em modo auditavel.
 3. Mostrar diff/score/artefatos.
-4. Receber decisao humana: aprovar, rejeitar, N/A, desvalidar ou anotar.
-5. Gravar evento com proveniencia completa.
-6. Atualizar Curadoria e Comparison Engine.
-7. Repetir ate bater gate da classe.
+4. Mostrar decisao recomendada, mas nao aplicar como validacao humana.
+5. Receber decisao humana real pela UI ou por comando que exija `validation_origin="human_ui"`.
+6. Gravar evento com proveniencia completa.
+7. Atualizar Curadoria e Comparison Engine.
+8. Repetir ate bater gate da classe.
 
 ## Aba Curadoria - Pipelines de Treino
 Esta aba deve ser read-only:
@@ -140,4 +170,3 @@ Esta aba deve ser read-only:
 - mostra lacunas por classe.
 
 Ela nao executa treino, nao indexa dados e nao promove regra.
-

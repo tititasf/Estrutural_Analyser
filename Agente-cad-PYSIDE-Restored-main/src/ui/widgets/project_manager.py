@@ -6242,7 +6242,7 @@ class ProjectManager(QWidget):
         badge.setStyleSheet(f"""
             QLabel {{
                 background: {accent};
-                color: #050505;
+                color: #050505;  /* hardcoded-ok — near-black contraste sobre badge colorido */
                 border-radius: 4px;
                 padding: 2px 8px;
                 font-size: 10px;

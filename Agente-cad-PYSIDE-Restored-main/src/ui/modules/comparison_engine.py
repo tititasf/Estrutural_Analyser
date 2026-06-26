@@ -7912,6 +7912,7 @@ class ComparisonEngineModule(QWidget):
                     item_id=item_id,
                     scope=scope,
                     human_validated=human_validated,
+                    validation_origin="human_ui",
                 )
                 print(f"[RAG] comparison human validation hook: {result}")
             except Exception as hook_exc:
