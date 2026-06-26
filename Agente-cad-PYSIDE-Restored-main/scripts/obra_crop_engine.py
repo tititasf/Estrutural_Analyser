@@ -32,6 +32,16 @@ from datetime import datetime
 from pathlib import Path
 from typing import Optional
 
+def _force_write_text(path_obj, text):
+    import stat
+    if path_obj.exists():
+        try:
+            path_obj.chmod(stat.S_IWRITE)
+        except Exception:
+            pass
+    path_obj.write_text(text, encoding="utf-8")
+
+
 # ─── Dependências ────────────────────────────────────────────────────────────
 try:
     import numpy as np
@@ -538,9 +548,7 @@ def process_pavimento_crops(
         result["detalhes"].append(entry)
 
     # 4. Salvar resultado
-    (out_dir / "crop_result.json").write_text(
-        json.dumps(result, ensure_ascii=False, indent=2), encoding="utf-8"
-    )
+    _force_write_text(out_dir / "crop_result.json", json.dumps(result, ensure_ascii=False, indent=2))
 
     # 5. Atualizar log global da obra (dataset de aprendizado)
     _append_to_recortes_log(obra_name, result)
@@ -569,7 +577,7 @@ def _append_to_recortes_log(obra_name: str, crop_result: dict):
             "approved_bboxes": None,   # preenchido quando usuário aprovar
             "processed_at":    crop_result["processed_at"],
         })
-        log_path.write_text(json.dumps(log, ensure_ascii=False, indent=2), encoding="utf-8")
+        _force_write_text(log_path, json.dumps(log, ensure_ascii=False, indent=2))
     except Exception as e:
         print(f"[crop_engine] Aviso: falha ao gravar recortes_log.json: {e}")
 
@@ -604,7 +612,7 @@ def approve_recorte(
                     entry["approved_bbox"] = final_bbox
                 break
 
-        result_file.write_text(json.dumps(result, ensure_ascii=False, indent=2), encoding="utf-8")
+        _force_write_text(result_file, json.dumps(result, ensure_ascii=False, indent=2))
 
         # Atualizar log de aprendizado
         _update_learning_log(obra_name, pavimento_name, recorte_type, final_bbox)
@@ -631,7 +639,7 @@ def _update_learning_log(obra_name, pavimento_name, recorte_type, approved_bbox)
                 else:
                     entry["approved_bboxes"][recorte_type] = "auto_accepted"
                 break
-        log_path.write_text(json.dumps(log, ensure_ascii=False, indent=2), encoding="utf-8")
+        _force_write_text(log_path, json.dumps(log, ensure_ascii=False, indent=2))
     except Exception:
         pass
 
@@ -704,7 +712,7 @@ def record_approval_bbox(obra_name: str, pavimento_name: str,
 
             break
 
-        log_path.write_text(json.dumps(log, ensure_ascii=False, indent=2), encoding="utf-8")
+        _force_write_text(log_path, json.dumps(log, ensure_ascii=False, indent=2))
     except Exception as e:
         print(f"[crop_engine] Aviso record_approval_bbox: {e}")
 
@@ -790,7 +798,7 @@ def compute_learned_params(obra_name: str) -> dict:
     }
 
     out_path = DADOS_ROOT / obra_name / LEARNED_PARAMS_FILE
-    out_path.write_text(json.dumps(params, ensure_ascii=False, indent=2), encoding="utf-8")
+    _force_write_text(out_path, json.dumps(params, ensure_ascii=False, indent=2))
     print(f"[crop_engine] Parâmetros aprendidos salvos: {out_path}")
     return params
 
