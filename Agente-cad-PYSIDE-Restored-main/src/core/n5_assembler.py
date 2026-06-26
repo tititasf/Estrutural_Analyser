@@ -163,6 +163,12 @@ def _import_doc_entities(
     if copies:
         importer.import_entities(copies, dst_doc.modelspace())
     importer.finalize()
+    for dim in dst_doc.modelspace().query("DIMENSION"):
+        try:
+            if not getattr(dim.dxf, "geometry", None):
+                dim.render()
+        except Exception:
+            continue
     return len(copies)
 
 

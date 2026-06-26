@@ -7889,7 +7889,7 @@ class ComparisonEngineModule(QWidget):
         try:
             obra = (self.fase8_panel.cmb_obra.currentData() or self.fase8_panel.cmb_obra.currentText())
             pav = self.fase8_panel.current_pav_key
-            save_attention(obra, pav, classe, item_id, scope, attention, note)
+            save_attention(obra, pav, classe, item_id, scope, attention, note, note_origin="human_ui")
             self.nav_sidebar.refresh_tree()
         except Exception as exc:
             print(f"[CE] _save_level_attention error: {exc}")
@@ -7898,7 +7898,15 @@ class ComparisonEngineModule(QWidget):
         try:
             obra = (self.fase8_panel.cmb_obra.currentData() or self.fase8_panel.cmb_obra.currentText())
             pav = self.fase8_panel.current_pav_key
-            save_human_validation(obra, pav, classe, item_id, scope, human_validated)
+            save_human_validation(
+                obra,
+                pav,
+                classe,
+                item_id,
+                scope,
+                human_validated,
+                validation_origin="human_ui",
+            )
             try:
                 import sys as _sys
                 scripts_dir = Path(__file__).resolve().parents[4] / "scripts"

@@ -444,6 +444,8 @@ def robot_dados_to_fv_dict(dados, viga_nome='V?'):
         'panels': sub_panel_objs,
         'sarrafo_esq': bool(dados.get('sarrafo_esq', True)),
         'sarrafo_dir': bool(dados.get('sarrafo_dir', True)),
+        'texto_esq': dados.get('texto_esq', ''),
+        'texto_dir': dados.get('texto_dir', ''),
     }
     return {
         'nome':        viga_nome,
@@ -948,21 +950,48 @@ def draw_viga(msp, x0, y0, panels_json, viga_b, viga_nome,
                   panel_openings=panel_openings,
                   sarrafo_esq=seg_sarr_esq, sarrafo_dir=seg_sarr_dir)
 
-        # STOG posiciona os textos de extremidade acima do painel.
-        label_y = y0 + b + LABEL_ABOVE
-        if seg_idx == 0 and label_left:
-            add_text(msp, seg_x0, label_y, label_left, LABEL_H, '5',
-                     halign=0, rotation=0)
-        
-        if seg_idx == len(segments) - 1 and label_right:
-            add_text(msp, seg_x_end, label_y, label_right, LABEL_H, '5',
-                     halign=0, rotation=0)
+        # Acha o nível mais abaixo de cota (começa com DIM_BELOW)
+        lowest_cota_y = y0 - DIM_BELOW
+        if len(sub_panels) > 1:
+            lowest_cota_y = min(lowest_cota_y, y0 - DIM_TOTAL_BELOW)
             
+        for i, pw in enumerate(sub_panels):
+            if isinstance(seg_item, dict) and isinstance(seg_item.get('panels'), list) and i < len(seg_item['panels']):
+                p_item = seg_item['panels'][i]
+                if isinstance(p_item, dict) and 'tiers' in p_item and p_item['tiers']:
+                    for t_idx, tier_vals in enumerate(p_item['tiers']):
+                        tier_sum = sum(float(tv) for tv in tier_vals)
+                        if abs(tier_sum - pw) <= 1.5:
+                            lowest_cota_y = min(lowest_cota_y, y0 - (DIM_BELOW + t_idx * 15))
+
+        # Posiciona textos 10cm abaixo da cota mais baixa
+        label_y = lowest_cota_y - 10
+        
+        seg_label_left = ''
+        seg_label_right = ''
+        if isinstance(seg_item, dict):
+            seg_label_left = seg_item.get('texto_esq', seg_item.get('label_left', ''))
+            seg_label_right = seg_item.get('texto_dir', seg_item.get('label_right', ''))
+
+        # Fallback global para o primeiro e último segmento, se não estiver definido
+        if seg_idx == 0 and not seg_label_left and label_left:
+            seg_label_left = label_left
+        if seg_idx == len(segments) - 1 and not seg_label_right and label_right:
+            seg_label_right = label_right
+
+        if str(seg_label_left).strip() and str(seg_label_left).strip().lower() not in ('none', 'null', 'nan'):
+            add_text(msp, seg_x0 - 10, label_y, str(seg_label_left).strip(), LABEL_H, '5',
+                     halign=2, rotation=0)
+        
+        if str(seg_label_right).strip() and str(seg_label_right).strip().lower() not in ('none', 'null', 'nan'):
+            add_text(msp, seg_x_end + 10, label_y, str(seg_label_right).strip(), LABEL_H, '5',
+                     halign=0, rotation=0)
+
         if seg_idx < len(gaps):
             gap_label = gaps[seg_idx][1]
             if gap_label and gap_label != 'Pilar Cruzado':
                 gap_center = seg_x_end + gaps[seg_idx][0] / 2
-                add_text(msp, gap_center, label_y, gap_label, LABEL_H, '5',
+                add_text(msp, gap_center, y0 + b + LABEL_ABOVE, gap_label, LABEL_H, '5',
                          halign=1, rotation=0)
 
         # Draw individual sub-panel dims (1st level, and tiers if present)

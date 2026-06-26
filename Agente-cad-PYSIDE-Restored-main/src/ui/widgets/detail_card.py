@@ -1350,8 +1350,8 @@ class DetailCard(QWidget):
                  self._update_header_counts()
                  
             else: # Pilar (default)
-                self._add_info_row(h_layout, "Dimensão B×H [dim]:", "dim")
-                self._add_info_row(h_layout, "Segmentos Geometria [pilar_segs]:", "pilar_segs")
+                self._add_linked_row(h_layout, "Dimensão B×H [dim]:", "dim", "text")
+                self._add_linked_row(h_layout, "Segmentos Geometria [pilar_segs]:", "pilar_segs", "text")
 
                 # Formato (Apenas Pilar)
                 self.fields['format'] = QComboBox()
@@ -1375,52 +1375,6 @@ class DetailCard(QWidget):
                 self._add_info_row(f_dim, "Nível de Chegada cm [nivel_chegada]:", "nivel_chegada")
                 self._add_info_row(f_dim, "Nível de Saída cm [nivel_saida]:", "nivel_saida")
                 layout.addWidget(grp_dim)
-
-                # ── GRUPO: Assembly / Grades ─────────────────────────
-                grp_grade = QGroupBox("Assembly — Grades e Distâncias")
-                grp_grade.setStyleSheet(f"QGroupBox {{ font-size: 10px; font-weight: bold; color: {Colors.TEXT_SECONDARY}; border: 1px solid {Colors.BORDER_DEFAULT}; margin-top: 4px; padding-top: 8px; }}")
-                grid_grade = QGridLayout(grp_grade)
-                grid_grade.setContentsMargins(2, 4, 2, 4)
-                grid_grade.setSpacing(4)
-                
-                headers = ["Grade 1", "Dist 1", "Grade 2", "Dist 2", "Grade 3"]
-                fields = ["grade_1", "distancia_1", "grade_2", "distancia_2", "grade_3"]
-                
-                for col, (h, f) in enumerate(zip(headers, fields)):
-                    lb = QLabel(h)
-                    lb.setStyleSheet(f"color: {Colors.TEXT_MUTED}; font-size: 9px;")
-                    grid_grade.addWidget(lb, 0, col, alignment=Qt.AlignCenter)
-                    le = QLineEdit()
-                    le.setStyleSheet(f"background: {Colors.BG_CARD}; border: 1px solid {Colors.BORDER_INPUT}; border-radius: 3px; color: {Colors.TEXT_BRIGHT};")
-                    le.setFixedHeight(20)
-                    le.setAlignment(Qt.AlignCenter)
-                    le.textChanged.connect(lambda txt, fn=f: self._on_field_changed(fn, txt))
-                    self.fields[f] = le
-                    grid_grade.addWidget(le, 1, col)
-                layout.addWidget(grp_grade)
-
-                # ── GRUPO: Assembly / Parafusos ─────────────────────────
-                grp_par = QGroupBox("Assembly — Parafusos entre Hachuras")
-                grp_par.setStyleSheet(f"QGroupBox {{ font-size: 10px; font-weight: bold; color: {Colors.TEXT_SECONDARY}; border: 1px solid {Colors.BORDER_DEFAULT}; margin-top: 4px; padding-top: 8px; }}")
-                grid_par = QGridLayout(grp_par)
-                grid_par.setContentsMargins(2, 4, 2, 4)
-                grid_par.setSpacing(4)
-                
-                par_headers = ["1-2", "2-3", "3-4", "4-5", "5-6", "6-7", "7-8", "8-9"]
-                par_fields = ["par_1_2", "par_2_3", "par_3_4", "par_4_5", "par_5_6", "par_6_7", "par_7_8", "par_8_9"]
-                
-                for col, (h, f) in enumerate(zip(par_headers, par_fields)):
-                    lb = QLabel(h)
-                    lb.setStyleSheet(f"color: {Colors.TEXT_MUTED}; font-size: 9px;")
-                    grid_par.addWidget(lb, 0, col, alignment=Qt.AlignCenter)
-                    le = QLineEdit()
-                    le.setStyleSheet(f"background: {Colors.BG_CARD}; border: 1px solid {Colors.BORDER_INPUT}; border-radius: 3px; color: {Colors.TEXT_BRIGHT};")
-                    le.setFixedHeight(20)
-                    le.setAlignment(Qt.AlignCenter)
-                    le.textChanged.connect(lambda txt, fn=f: self._on_field_changed(fn, txt))
-                    self.fields[f] = le
-                    grid_par.addWidget(le, 1, col)
-                layout.addWidget(grp_par)
 
         # Container para conteúdo dinâmico (Abas que mudam com o formato)
         self.dynamic_container = QWidget()
@@ -1789,23 +1743,6 @@ class DetailCard(QWidget):
             tab_l.setContentsMargins(5, 5, 5, 5)
             tab_l.setSpacing(2)
 
-            # ── GRUPO: Chapa / Forma da Peça (dados do robô / motor_fase4) ──────
-            grp_chapa = QGroupBox(f"Chapa / Forma da Peça — Lado {side}")
-            grp_chapa.setStyleSheet(f"QGroupBox {{ font-size: {Fonts.SIZE_SM}; font-weight: bold; color: {Colors.ACCENT_PRIMARY}; border: 1px solid {Colors.BORDER_DEFAULT}; margin-top: 5px; padding-top: 6px; }}")
-            f_chapa = QFormLayout(grp_chapa)
-            f_chapa.setContentsMargins(2, 4, 2, 4)
-            f_chapa.setSpacing(1)
-            # H1..H5: alturas das seções da chapa de forma (barriga superior/medio/inferior etc.)
-            self._add_info_row(f_chapa, f"H1 Altura Seção Superior Chapa cm [p_s{side}_c_h1]:", f'p_s{side}_c_h1')
-            self._add_info_row(f_chapa, f"H2 Altura Seção Principal Chapa cm [p_s{side}_c_h2]:", f'p_s{side}_c_h2')
-            self._add_info_row(f_chapa, f"H3 Altura Seção Inferior Chapa cm [p_s{side}_c_h3]:", f'p_s{side}_c_h3')
-            self._add_info_row(f_chapa, f"H4 Altura Seção Extra 4 Chapa cm [p_s{side}_c_h4]:", f'p_s{side}_c_h4')
-            self._add_info_row(f_chapa, f"H5 Altura Seção Extra 5 Chapa cm [p_s{side}_c_h5]:", f'p_s{side}_c_h5')
-            # Larg1..3: larguras das chapas de forma
-            self._add_info_row(f_chapa, f"Larg1 Largura Principal Chapa mm [p_s{side}_c_larg1]:", f'p_s{side}_c_larg1')
-            self._add_info_row(f_chapa, f"Larg2 Largura Secundária Chapa mm [p_s{side}_c_larg2]:", f'p_s{side}_c_larg2')
-            self._add_info_row(f_chapa, f"Larg3 Largura Terciária Chapa mm [p_s{side}_c_larg3]:", f'p_s{side}_c_larg3')
-            tab_l.addWidget(grp_chapa)
 
             # Lajes - Layout Vertical (Laje 2 abaixo da Laje 1) para compactar largura
             for i in [1, 2]:

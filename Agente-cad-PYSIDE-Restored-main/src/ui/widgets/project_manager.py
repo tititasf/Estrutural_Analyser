@@ -6418,11 +6418,12 @@ class ProjectManager(QWidget):
         for index, args in enumerate([
             ("train_docs_arete", "Docs Arete", "Masterplans e docs de treino encontrados."),
             ("train_scripts", "Loopers/Scripts", "Scripts de loop, runner e auditoria Arete."),
+            ("train_runs", "Runs/Artefatos", "Artefatos de execucao encontrados em modo observador."),
             ("train_events", "Training Events", "Sinais humanos para treino supervisionado."),
             ("train_crop_events", "CROP-T1", "Recortes aprovados que ensinam crop por classe."),
             ("train_human_notes", "Notas humanas", "Alertas/atencoes humanas registrados para revisao."),
         ]):
-            grid.addWidget(self._make_curadoria_compact_metric_card(*args), index // 5, index % 5)
+            grid.addWidget(self._make_curadoria_compact_metric_card(*args), index // 3, index % 3)
         layout.addLayout(grid)
 
         flow = QGridLayout()
@@ -6506,6 +6507,11 @@ class ProjectManager(QWidget):
             "training_classes",
             ["Classe", "Partes", "Docs", "Loopers/Scripts", "Estado", "Proximo gate"],
         ))
+        layout.addWidget(QLabel("Artefatos de execucao observados"))
+        layout.addWidget(self._make_curadoria_table(
+            "training_runs",
+            ["Fonte", "Classe", "Artefatos", "Ultima atualizacao", "Status"],
+        ))
         return page
 
     def _build_curadoria_pending_tab(self):
@@ -6587,6 +6593,7 @@ class ProjectManager(QWidget):
             "learning_accuracy": metrics["learning_accuracy"],
             "train_docs_arete": metrics["train_docs_arete"],
             "train_scripts": metrics["train_scripts"],
+            "train_runs": metrics["train_runs"],
             "train_events": metrics["table_counts"].get("training_events", 0),
             "train_crop_events": metrics["table_counts"].get("crop_learning_events", 0),
             "train_human_notes": metrics["train_human_notes"],
@@ -6607,6 +6614,7 @@ class ProjectManager(QWidget):
         self._fill_curadoria_table("learning_rules", metrics["rule_rows"])
         self._fill_curadoria_table("training_pipelines", metrics["training_pipeline_rows"])
         self._fill_curadoria_table("training_classes", metrics["training_class_rows"])
+        self._fill_curadoria_table("training_runs", metrics["training_run_rows"])
         self._fill_curadoria_table("pending", metrics["pending_rows"])
         self._fill_curadoria_table("faiss_stores", metrics["faiss_rows"])
         self._fill_curadoria_table("db_tables", metrics["db_rows"])
@@ -6632,7 +6640,7 @@ class ProjectManager(QWidget):
                     font = item.font()
                     font.setBold(True)
                     item.setFont(font)
-                elif key in {"training_pipelines", "training_classes"} and col_idx == 0:
+                elif key in {"training_pipelines", "training_classes", "training_runs"} and col_idx == 0:
                     item.setForeground(QColor(Colors.ACCENT_PRIMARY))
                     font = item.font()
                     font.setBold(True)
@@ -6690,6 +6698,58 @@ class ProjectManager(QWidget):
                     loop_scripts.extend(scripts_root.glob(pattern))
         loop_scripts = sorted({path.resolve() for path in loop_scripts})
 
+        def _latest_mtime(paths):
+            latest = 0
+            for path in paths:
+                try:
+                    latest = max(latest, int(path.stat().st_mtime))
+                except OSError:
+                    pass
+            return latest
+
+        def _fmt_mtime(timestamp):
+            if not timestamp:
+                return "-"
+            return datetime.fromtimestamp(timestamp).strftime("%Y-%m-%d %H:%M")
+
+        def _collect_arete_artifacts():
+            rows = []
+            tmp_dir = app_root / "scripts" / "arete" / "tmp"
+            if tmp_dir.exists():
+                children = [p for p in tmp_dir.iterdir() if p.is_dir()]
+                for classe in ["PIL", "LV", "FV", "LAJ"]:
+                    class_dirs = [p for p in children if p.name.upper().startswith(f"{classe}_")]
+                    if class_dirs:
+                        rows.append([
+                            "scripts/arete/tmp",
+                            classe,
+                            len(class_dirs),
+                            _fmt_mtime(_latest_mtime(class_dirs)),
+                            "Observado: resultado de looper, nao validacao humana",
+                        ])
+            lv_runs = app_root / "sandbox_lv_loop" / "runs"
+            if lv_runs.exists():
+                children = [p for p in lv_runs.iterdir()]
+                rows.append([
+                    "sandbox_lv_loop/runs",
+                    "LV",
+                    len(children),
+                    _fmt_mtime(_latest_mtime(children)),
+                    "Sandbox read-only na Curadoria",
+                ])
+            screenshots = app_root / "tests" / "screenshots"
+            if screenshots.exists():
+                pngs = list(screenshots.glob("*.png"))
+                if pngs:
+                    rows.append([
+                        "tests/screenshots",
+                        "QA",
+                        len(pngs),
+                        _fmt_mtime(_latest_mtime(pngs)),
+                        "Evidencia visual; nao promove tier",
+                    ])
+            return rows
+
         metrics = {
             "tiers": Counter(),
             "faiss_tiers": Counter(),
@@ -6714,13 +6774,18 @@ class ProjectManager(QWidget):
             "rule_rows": [],
             "training_pipeline_rows": [],
             "training_class_rows": [],
+            "training_run_rows": _collect_arete_artifacts(),
             "train_docs_arete": len(arete_docs),
             "train_scripts": len(loop_scripts),
+            "train_runs": 0,
             "train_human_notes": 0,
             "obra_rag_snapshots": 0,
             "latest_obra_rag": "",
             "registry_error": registry_error,
         }
+        metrics["train_runs"] = sum(
+            int(row[2]) for row in metrics["training_run_rows"] if str(row[2]).isdigit()
+        )
 
         def table_exists(conn, table):
             return conn.execute(
@@ -7020,10 +7085,10 @@ class ProjectManager(QWidget):
             [
                 "PIL",
                 "CIMA / GRADES / ABCD",
-                "SEMANTICA-PILAR-NOVA + testes Arete; masterplan PIL consolidado pendente",
+                "MASTERPLAN-ARETE-PILAR.md + SEMANTICA-PILAR-NOVA + testes Arete",
                 "; ".join(matching_scripts("pil")[:4]) or "scripts/arete/test_n2_n4_abcd.py",
                 "Loop existe em testes/scripts, mas precisa documento canônico A/B/C",
-                "Consolidar MASTERPLAN-ARETE-PILAR.md e gates por campo",
+                "Validar gates por campo com T1 humano e comparar N3 vs N4 sem vazamento",
             ],
             [
                 "LAJ",
