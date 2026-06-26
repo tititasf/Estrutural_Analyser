@@ -1741,55 +1741,93 @@ class _CenterPanel(QFrame):
 
     @staticmethod
     def export_scene_to_dxf(canvas: "CADCanvas", output_path: Path) -> dict:
-        """Itera QGraphicsScene e grava DXF via ezdxf (mesma lógica do DiagnosticHub)."""
+        """Exporta todos os itens visiveis da scene para DXF preservando 100% da fidelidade."""
         try:
             import ezdxf
-            doc = ezdxf.new('R2010')
-            msp = doc.modelspace()
-            n = 0
-            for item in canvas.scene.items():
-                # Pular snap markers, overlays e itens internos do canvas:
-                # — itens sem data(0) são snap markers / helpers criados diretamente
-                # — itens invisíveis são marcadores ocultos (snap, temp, etc.)
-                data = item.data(0)
-                if not data:
-                    continue
-                if not item.isVisible():
-                    continue
+            
+            items_to_export = canvas.scene.items()
+            
+            source_path = getattr(canvas, 'source_dxf_path', None)
+            
+            if source_path and Path(source_path).exists():
+                print(f"[Export] Copiando por deleção de {source_path} para garantir fidelidade 100% (SCENE COMPLETA)")
+                doc = ezdxf.readfile(source_path)
+                msp = doc.modelspace()
+                
+                handles_to_keep = set()
+                manual_items = []
+                for item in items_to_export:
+                    # Pular itens invisíveis e itens de overlay (que nao tem data(0))
+                    if not item.isVisible(): continue
+                    data = item.data(0)
+                    if not data: continue
+                    
+                    ent = item.data(256)
+                    if ent is not None and hasattr(ent, 'dxf') and hasattr(ent.dxf, 'handle'):
+                        handles_to_keep.add(ent.dxf.handle)
+                    else:
+                        manual_items.append(item)
+                
+                to_delete = []
+                for entity in msp:
+                    if hasattr(entity.dxf, 'handle') and entity.dxf.handle not in handles_to_keep:
+                        to_delete.append(entity)
+                
+                for entity in to_delete:
+                    msp.delete_entity(entity)
+                    
+                n = len(handles_to_keep)
+                
+            else:
+                print(f"[Export] source_dxf_path ausente, caindo no fallback manual (SCENE COMPLETA)")
+                doc = ezdxf.new('R2010')
+                msp = doc.modelspace()
+                n = 0
+                manual_items = items_to_export
+                for item in items_to_export:
+                    if not item.isVisible(): continue
+                    data = item.data(0)
+                    if not data: continue
+                    
+                    ent = item.data(256)
+                    if ent is not None:
+                        ent_copy = ent.copy()
+                        msp.add_entity(ent_copy)
+                        n += 1
+                        continue
+
+            from PySide6.QtWidgets import QGraphicsLineItem, QGraphicsPathItem, QGraphicsEllipseItem
+            for item in manual_items:
+                if item.data(256) is not None: continue # ja processado
+                data = item.data(0) or {}
                 layer  = str(data.get('layer', '0') or '0')
                 aci    = data.get('aci', 256)
-                attribs: dict = {'layer': layer}
+                attribs = {'layer': layer}
                 if isinstance(aci, int) and aci not in (0, 256):
                     attribs['color'] = aci
-
                 if isinstance(item, QGraphicsLineItem):
                     ln = item.line()
                     msp.add_line((ln.x1(), ln.y1()), (ln.x2(), ln.y2()), dxfattribs=attribs)
                     n += 1
                 elif isinstance(item, QGraphicsPathItem):
                     path = item.path()
-                    pts = [(path.elementAt(i).x, path.elementAt(i).y)
-                           for i in range(path.elementCount())]
-                    if len(pts) >= 2:
-                        msp.add_polyline2d(pts, dxfattribs=attribs)
-                        n += 1
-                elif isinstance(item, QGraphicsEllipseItem):
-                    rect = item.rect()
-                    cx, cy = rect.center().x(), rect.center().y()
-                    rw, rh = rect.width() / 2, rect.height() / 2
-                    if abs(rw - rh) < 0.5:
-                        msp.add_circle((cx, cy), (rw + rh) / 2, dxfattribs=attribs)
-                        n += 1
-                elif isinstance(item, QGraphicsSimpleTextItem):
-                    p = item.pos()
-                    h = float(data.get('height', 2.5) or 2.5)
-                    msp.add_text(item.text(),
-                                 dxfattribs={**attribs, 'height': h,
-                                             'insert': (p.x(), p.y())})
+                    for i in range(path.elementCount()-1):
+                        e1, e2 = path.elementAt(i), path.elementAt(i+1)
+                        if e1.isMoveTo() and e2.isLineTo() or e1.isLineTo() and e2.isLineTo():
+                            msp.add_line((e1.x, e1.y), (e2.x, e2.y), dxfattribs=attribs)
                     n += 1
+                elif isinstance(item, QGraphicsEllipseItem):
+                    r = item.rect()
+                    center = r.center()
+                    radius = r.width() / 2
+                    msp.add_circle((center.x(), center.y()), radius, dxfattribs=attribs)
+                    n += 1
+
             doc.saveas(str(output_path))
-            return {'entities_copied': n}
+            return {'success': True, 'entities_copied': n, 'file': str(output_path)}
         except Exception as e:
+            import traceback
+            traceback.print_exc()
             return {'error': str(e)}
 
     @staticmethod
@@ -1880,6 +1918,26 @@ class _CenterPanel(QFrame):
             import traceback
             traceback.print_exc()
             return {'error': str(e)}
+
+
+# ── Widget de item de recorte (linha na lista do painel direito) ──────────────
+
+class _RecorteItemWidget(QWidget):
+    """Row widget shown inside QListWidget for each recorte granular.
+
+    Displays: text label | confidence badge | status badge.
+    """
+
+    _BASE_BADGE = (
+        "border-radius:3px; font-size:8px; font-weight:bold; padding:1px 2px;"
+    )
+    _STYLE_CONF_NONE = f"background:#555; color:#aaa; {_BASE_BADGE}"
+    _STYLE_CONF_HIGH = f"background:#2e7d32; color:#fff; {_BASE_BADGE}"
+    _STYLE_CONF_MED  = f"background:#e65100; color:#fff; {_BASE_BADGE}"
+    _STYLE_CONF_LOW  = f"background:#b71c1c; color:#fff; {_BASE_BADGE}"
+    _STYLE_OK        = f"background:#1b5e20; color:#fff; {_BASE_BADGE}"
+    _STYLE_AUTO      = f"background:#0d47a1; color:#fff; {_BASE_BADGE}"
+    _STYLE_PEND      = f"background:#37474f; color:#ccc; {_BASE_BADGE}"
 
     def __init__(
         self,

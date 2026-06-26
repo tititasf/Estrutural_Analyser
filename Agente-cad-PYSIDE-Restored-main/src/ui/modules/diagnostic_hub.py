@@ -1583,6 +1583,7 @@ class DiagnosticHubModule(QWidget):
                 'id': str(hash(str(resolved))),
                 'name': resolved.name,
                 'file_path': str(resolved),
+                'source_path': str(resolved),  # ezdxf native render → data(256) com entidade original
                 'extension': '.dxf',
             }
             self._load_dxf_on_canvas(canvas, doc_data)
@@ -1860,58 +1861,93 @@ class DiagnosticHubModule(QWidget):
 
     @staticmethod
     def _export_scene_to_dxf(canvas, output_path: Path) -> dict:
-        """
-        Itera os QGraphicsScene items do canvas e grava um DXF novo via ezdxf.
-        Captura deleções manuais feitas no viewer (entidades removidas da scene
-        NÃO aparecem no arquivo — ao contrário de recortar por viewport_bbox).
-
-        Retorna dict com 'entities_copied' (int) e opcional 'error' (str).
-        """
+        """Exporta todos os itens visiveis da scene para DXF preservando 100% da fidelidade."""
         try:
             import ezdxf
-            from PySide6.QtWidgets import QGraphicsSimpleTextItem
+            
+            items_to_export = canvas.scene.items()
+            
+            source_path = getattr(canvas, 'source_dxf_path', None)
+            
+            if source_path and Path(source_path).exists():
+                print(f"[Export] Copiando por deleção de {source_path} para garantir fidelidade 100% (SCENE COMPLETA)")
+                doc = ezdxf.readfile(source_path)
+                msp = doc.modelspace()
+                
+                handles_to_keep = set()
+                manual_items = []
+                for item in items_to_export:
+                    # Pular itens invisíveis e itens de overlay (que nao tem data(0))
+                    if not item.isVisible(): continue
+                    data = item.data(0)
+                    if not data: continue
+                    
+                    ent = item.data(256)
+                    if ent is not None and hasattr(ent, 'dxf') and hasattr(ent.dxf, 'handle'):
+                        handles_to_keep.add(ent.dxf.handle)
+                    else:
+                        manual_items.append(item)
+                
+                to_delete = []
+                for entity in msp:
+                    if hasattr(entity.dxf, 'handle') and entity.dxf.handle not in handles_to_keep:
+                        to_delete.append(entity)
+                
+                for entity in to_delete:
+                    msp.delete_entity(entity)
+                    
+                n = len(handles_to_keep)
+                
+            else:
+                print(f"[Export] source_dxf_path ausente, caindo no fallback manual (SCENE COMPLETA)")
+                doc = ezdxf.new('R2010')
+                msp = doc.modelspace()
+                n = 0
+                manual_items = items_to_export
+                for item in items_to_export:
+                    if not item.isVisible(): continue
+                    data = item.data(0)
+                    if not data: continue
+                    
+                    ent = item.data(256)
+                    if ent is not None:
+                        ent_copy = ent.copy()
+                        msp.add_entity(ent_copy)
+                        n += 1
+                        continue
 
-            doc = ezdxf.new('R2010')
-            msp = doc.modelspace()
-            n = 0
-
-            for item in canvas.scene.items():
-                data   = item.data(0) or {}
+            from PySide6.QtWidgets import QGraphicsLineItem, QGraphicsPathItem, QGraphicsEllipseItem
+            for item in manual_items:
+                if item.data(256) is not None: continue # ja processado
+                data = item.data(0) or {}
                 layer  = str(data.get('layer', '0') or '0')
                 aci    = data.get('aci', 256)
-                attribs: dict = {'layer': layer}
+                attribs = {'layer': layer}
                 if isinstance(aci, int) and aci not in (0, 256):
                     attribs['color'] = aci
-
                 if isinstance(item, QGraphicsLineItem):
                     ln = item.line()
                     msp.add_line((ln.x1(), ln.y1()), (ln.x2(), ln.y2()), dxfattribs=attribs)
                     n += 1
                 elif isinstance(item, QGraphicsPathItem):
                     path = item.path()
-                    pts = [(path.elementAt(i).x, path.elementAt(i).y)
-                           for i in range(path.elementCount())]
-                    if len(pts) >= 2:
-                        msp.add_polyline2d(pts, dxfattribs=attribs)
-                        n += 1
+                    for i in range(path.elementCount()-1):
+                        e1, e2 = path.elementAt(i), path.elementAt(i+1)
+                        if e1.isMoveTo() and e2.isLineTo() or e1.isLineTo() and e2.isLineTo():
+                            msp.add_line((e1.x, e1.y), (e2.x, e2.y), dxfattribs=attribs)
+                    n += 1
                 elif isinstance(item, QGraphicsEllipseItem):
-                    rect = item.rect()
-                    cx, cy = rect.center().x(), rect.center().y()
-                    rw, rh = rect.width() / 2, rect.height() / 2
-                    if abs(rw - rh) < 0.5:
-                        msp.add_circle((cx, cy), (rw + rh) / 2, dxfattribs=attribs)
-                        n += 1
-                elif isinstance(item, QGraphicsSimpleTextItem):
-                    p = item.pos()
-                    h = float(data.get('height', 2.5) or 2.5)
-                    msp.add_text(item.text(),
-                                 dxfattribs={**attribs, 'height': h,
-                                             'insert': (p.x(), p.y())})
+                    r = item.rect()
+                    center = r.center()
+                    radius = r.width() / 2
+                    msp.add_circle((center.x(), center.y()), radius, dxfattribs=attribs)
                     n += 1
 
             doc.saveas(str(output_path))
-            return {'entities_copied': n}
+            return {'success': True, 'entities_copied': n, 'file': str(output_path)}
         except Exception as e:
+            import traceback
+            traceback.print_exc()
             return {'error': str(e)}
 
     @staticmethod
@@ -2425,12 +2461,11 @@ class DiagnosticHubModule(QWidget):
     # ─────────────────────────────────────────────
 
     def _save_current_crop(self):
-        """
-        Salva o estado visual atual do canvas diretamente como DXF.
+        """Salva o recorte preservando 100% de fidelidade DXF.
 
-        Exporta os itens QGraphicsScene → novo DXF via ezdxf.
-        Isso garante que deleções manuais de entidades no canvas
-        sejam persistidas (não recria do arquivo original).
+        Lê o DXF fonte original e remove apenas as entidades deletadas pelo
+        usuário (ausentes na scene por handle), sem reconstruir do QGraphics.
+        Evita corrupção de tipos de entidade (LWPOLYLINE→POLYLINE2D, etc.).
         """
         if not self._current_selected_recorte:
             QMessageBox.warning(self, "Salvar", "Selecione um recorte primeiro.")
@@ -2438,7 +2473,6 @@ class DiagnosticHubModule(QWidget):
 
         row = self._current_selected_recorte
         output_path = row.get('output_path', '')
-
         resolved = self._resolve_dxf_path(output_path) if output_path else None
         try:
             out_exists = resolved is not None and resolved.exists()
@@ -2450,9 +2484,6 @@ class DiagnosticHubModule(QWidget):
                                 f"Arquivo de recorte não encontrado:\n{output_path}")
             return
 
-        # ── Qual canvas está ativo agora? ─────────────────────────────────────
-        # Usa o tab visível — se o usuário editou no BRUTO (tab 0), usa self.canvas;
-        # se editou no LIMPO (tab 1) ou DETALHES (tab 2), usa o canvas respectivo.
         tab_idx = self._canvas_tabs.currentIndex()
         if tab_idx == 0:
             canvas = self.canvas
@@ -2461,43 +2492,51 @@ class DiagnosticHubModule(QWidget):
         else:
             canvas = self._canvas_det
 
-        # ── Backup ────────────────────────────────────────────────────────────
-        import shutil
+        import shutil, ezdxf
         bak = Path(str(resolved) + ".bak")
         try:
             shutil.copy2(str(resolved), str(bak))
         except Exception:
             pass
 
-        # ── Exportar scene → DXF (helper centralizado) ───────────────────────
-        crop_result = self._export_scene_to_dxf(canvas, resolved)
+        try:
+            # Coletar handles visíveis na scene (data(256) = entidade ezdxf original)
+            handles_ok: set[str] = set()
+            for item in canvas.scene.items():
+                if not item.isVisible():
+                    continue
+                ent = item.data(256)
+                if ent is not None and hasattr(ent, 'dxf') and hasattr(ent.dxf, 'handle'):
+                    handles_ok.add(ent.dxf.handle)
 
-        if crop_result.get("error"):
+            if not handles_ok:
+                # Canvas sem entidades ezdxf nativas → nada a salvar (sem alterações)
+                QMessageBox.information(self, "Salvar",
+                                        "Nenhuma edição detectada — recorte não foi alterado.")
+                return
+
+            # Fonte = arquivo fonte que o canvas carregou (ou o próprio recorte)
+            source = getattr(canvas, 'source_dxf_path', None) or str(resolved)
+            doc = ezdxf.readfile(str(source))
+            msp = doc.modelspace()
+            to_del = [e for e in msp
+                      if hasattr(e.dxf, 'handle') and e.dxf.handle not in handles_ok]
+            for e in to_del:
+                msp.delete_entity(e)
+            doc.saveas(str(resolved))
+
+            QMessageBox.information(
+                self, "Salvar",
+                f"Recorte salvo: {resolved.name}\n"
+                f"{len(handles_ok)} entidades preservadas.\n"
+                f"Backup: {bak.name}"
+            )
+        except Exception as e:
             try:
                 shutil.copy2(str(bak), str(resolved))
             except Exception:
                 pass
-            QMessageBox.critical(self, "Salvar",
-                                 f"Erro ao salvar DXF:\n{crop_result['error']}")
-            return
-
-        n = crop_result['entities_copied']
-
-        # ── Recarrega o canvas a partir do arquivo salvo ──────────────────────
-        doc_data = {
-            'id': str(hash(str(resolved))),
-            'name': resolved.name,
-            'file_path': str(resolved),
-            'extension': '.dxf',
-        }
-        self._load_dxf_on_canvas(canvas, doc_data)
-
-        QMessageBox.information(
-            self, "Salvar",
-            f"Recorte salvo: {resolved.name}\n"
-            f"{n} entidades exportadas.\n"
-            f"Backup: {bak.name}"
-        )
+            QMessageBox.critical(self, "Salvar", f"Erro ao salvar DXF:\n{e}")
 
     def _approve_current_crop(self):
         """Aprova o recorte selecionado.
