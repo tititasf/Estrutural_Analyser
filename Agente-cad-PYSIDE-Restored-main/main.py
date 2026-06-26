@@ -5361,8 +5361,13 @@ class MainWindow(QMainWindow):
             convention=convention,
             convention_file=convention_file,
             db_path=db_path,
-            parent=self,
+            parent=None,
         )
+        
+        # Para evitar que o dialog fique travado invisivel ao minimizar a janela principal:
+        from PySide6.QtCore import Qt
+        dlg.setWindowModality(Qt.ApplicationModal)
+        dlg.setWindowFlags(Qt.Window)
 
         if dlg.exec() == QDialog.Accepted:
             result = dlg.get_result()
@@ -10560,10 +10565,16 @@ class MainWindow(QMainWindow):
             canvas=getattr(self, 'canvas', None),
             convention_file=_convention_file,
             db_path=_db_path,
-            parent=self,
+            parent=None,
         )
 
         from PySide6.QtWidgets import QDialog
+        from PySide6.QtCore import Qt
+        
+        # Torna a janela independente na taskbar, mas bloqueando a principal (Modal)
+        dlg.setWindowModality(Qt.ApplicationModal)
+        dlg.setWindowFlags(Qt.Window)
+        
         dlg.showMaximized()
         if dlg.exec() != QDialog.Accepted:
             return False

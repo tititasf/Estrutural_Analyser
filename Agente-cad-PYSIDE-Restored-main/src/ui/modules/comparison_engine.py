@@ -41,7 +41,7 @@ from PySide6.QtGui import QColor, QFont, QPainter, QPen, QBrush, QPainterPath, Q
 
 from src.ui.components.organisms import DualCanvasManager
 
-from src.ui.theme import Colors
+from src.ui.theme import Colors, Semantic, Contextual, Text, Surface, Border, Accent
 
 # ── Helpers LV (acesso por todas as classes do módulo) ─────────────────────
 import re as _lv_re
@@ -193,7 +193,7 @@ class DXFVectorView(QWidget):
     def cancel_load(self, msg: str = "cancelado"):
         self.clear_image(msg)
 
-from src.ui.theme import Colors, Fonts, Radius, Semantic
+from src.ui.theme import Colors, Fonts, Radius, Semantic, Contextual, Text, Surface, Border, Accent
 from src.core.item_attention_store import (
     has_attention, load_attention, save_attention, save_human_validation, is_human_validated,
     save_para_passa, load_para_passa,
@@ -225,16 +225,23 @@ _N3_SCRIPTS = {
     'LJ': 'gerar_lj_dxf_stog.py',
 }
 
-NIVEL_DEFS = [
-    # (id,  titulo,                    bg_color,   accent,     descricao,                                                       mode)
-    ("N1", "Estrutura Real",           "#1b3a6b",  "#4a9eff",  "DXF Estrutural · Fase 1\nPosição e dimensões reais do elemento", 'dxf'),
-    ("N2", "STOG Real DXF",            "#1a4a2a",  "#4acf7a",  "Eng. Reversa · Fase 1\nForms, seções e sarrafos STOG",           'dxf'),
-    ("N3", "Robot via Ficha SA",       "#4a2a1a",  "#cf8a4a",  "Robot N3 · Fase 4→6\nDXF gerado via ficha do Structural Analyzer", 'dxf'),
-    ("N4", "Robot via Ficha ER",       "#2d1a47",  "#a855f7",  "Robot N4 · Fase 2→6\nDXF gerado via Ficha Eng. Reversa (STOG real)", 'dxf'),
-    ("N5", "Montagem e unificacao dos N3", "#263238", "#00bcd4", "N5 - consolida previews N3\n1 DXF final por classe suportada", 'dxf'),
-]
-
 TIPOS = ["PL", "LV", "FV", "LJ"]
+
+# N-level panel identity colors (DS-compliant)
+_N1_BG, _N1_FG, _N1_HOV = Surface.RAISED,              Accent.INTERACTIVE,    Surface.BASE
+_N2_BG, _N2_FG, _N2_HOV = Semantic.SUCCESS_BG_DARK,    Semantic.SUCCESS,      "rgba(31, 94, 48, 1)"
+_N3_BG, _N3_FG, _N3_HOV = Semantic.WARNING_BG_DARK,    Semantic.WARNING,      "rgba(90, 58, 26, 1)"
+_N4_BG, _N4_FG, _N4_HOV = "rgba(160, 112, 255, 0.18)", Contextual.PURPLE,    "rgba(160, 112, 255, 0.28)"
+_N5_BG, _N5_FG, _N5_HOV = Surface.ELEVATED,            Accent.PRIMARY,        Surface.CARD
+
+NIVEL_DEFS = [
+    # (id,  titulo,                          bg_color,  accent,  descricao,                                                         mode)
+    ("N1", "Estrutura Real",                 _N1_BG,    _N1_FG,  "DXF Estrutural · Fase 1\nPosição e dimensões reais do elemento",  'dxf'),
+    ("N2", "STOG Real DXF",                  _N2_BG,    _N2_FG,  "Eng. Reversa · Fase 1\nForms, seções e sarrafos STOG",            'dxf'),
+    ("N3", "Robot via Ficha SA",             _N3_BG,    _N3_FG,  "Robot N3 · Fase 4→6\nDXF gerado via ficha do Structural Analyzer", 'dxf'),
+    ("N4", "Robot via Ficha ER",             _N4_BG,    _N4_FG,  "Robot N4 · Fase 2→6\nDXF gerado via Ficha Eng. Reversa (STOG real)", 'dxf'),
+    ("N5", "Montagem e unificacao dos N3",   _N5_BG,    _N5_FG,  "N5 - consolida previews N3\n1 DXF final por classe suportada",   'dxf'),
+]
 
 # ── ACI Color map (AutoCAD Color Index → QColor) ─────────────────────────────
 _ACI: dict[int, str] = {
@@ -1815,11 +1822,11 @@ class Fase8Panel(QFrame):
                 lbl.setText(text)
             if dot:
                 if ok:
-                    color = "#4acf7a"   # green
+                    color = Semantic.SUCCESS
                 elif partial:
-                    color = "#cfb84a"   # amber
+                    color = Contextual.GOLD
                 else:
-                    color = "#555566"   # dim gray
+                    color = Text.MUTED
                 dot.setStyleSheet(f"color: {color}; font-size: 10px;")
 
         # N1 — DXFs limpos de Fase-2_Triagem (preferencial) ou brutos de Fase-1
@@ -2252,16 +2259,16 @@ class Fase8Panel(QFrame):
         btn_load_all = QPushButton("📊 Calcular Todos")
         btn_load_all.setFixedHeight(24)
         btn_load_all.setStyleSheet(
-            f"background: rgba(0, 60, 80, 1); color: {Colors.ACCENT_TEAL};"
-            "border: 1px solid #006666; border-radius: 3px; font-size: 10px;"  # hardcoded-ok
+            f"background: rgba(0, 60, 80, 1); color: {Accent.PRIMARY};"
+            f" border: 1px solid {Accent.PRIMARY}; border-radius: 3px; font-size: 10px;"
         )
         btn_load_all.clicked.connect(self._on_comp_load_all_scores)
 
         self._btn_export_audit = QPushButton("⬇ Exportar Auditoria")
         self._btn_export_audit.setFixedHeight(24)
         self._btn_export_audit.setStyleSheet(
-            f"background: rgba(60, 40, 0, 1); color: {Colors.ACCENT_WARNING};"
-            "border: 1px solid #aa6600; border-radius: 3px; font-size: 10px;"  # hardcoded-ok
+            f"background: rgba(60, 40, 0, 1); color: {Semantic.WARNING};"
+            f" border: 1px solid {Semantic.WARNING}; border-radius: 3px; font-size: 10px;"
         )
         self._btn_export_audit.clicked.connect(self._on_export_audit)
 
@@ -2359,11 +2366,11 @@ class Fase8Panel(QFrame):
         )
 
         _STATUS_COLOR = {
-            FieldStatus.IGUAL:      ('#1a3320', '#4caf50'),  # hardcoded-ok
-            FieldStatus.DIFERENTE:  ('#332900', '#ffc107'),  # hardcoded-ok
-            FieldStatus.AUSENTE_GT: ('#1a1a1a', '#9e9e9e'),  # hardcoded-ok
-            FieldStatus.AUSENTE_F4: ('#1a1a1a', '#9e9e9e'),  # hardcoded-ok
-            FieldStatus.CONFLITO:   ('#330d00', '#f44336'),  # hardcoded-ok
+            FieldStatus.IGUAL:      (Semantic.SUCCESS_BG_DARK, Semantic.SUCCESS),
+            FieldStatus.DIFERENTE:  (Semantic.WARNING_BG_DARK, Semantic.WARNING),
+            FieldStatus.AUSENTE_GT: (Semantic.NEUTRAL_BG_DARK, Text.SECONDARY),
+            FieldStatus.AUSENTE_F4: (Semantic.NEUTRAL_BG_DARK, Text.SECONDARY),
+            FieldStatus.CONFLITO:   (Semantic.DANGER_BG_DARK,  Semantic.DANGER),
         }
         _STATUS_ICON = {
             FieldStatus.IGUAL: '✓', FieldStatus.DIFERENTE: '≠',
@@ -2375,7 +2382,7 @@ class Fase8Panel(QFrame):
         for row_idx, row in enumerate(rows):
             self._comp_table.insertRow(row_idx)
             self._comp_table.setRowHeight(row_idx, 22)
-            bg, fg = _STATUS_COLOR.get(row.status, ('#1a1a1a', '#9e9e9e'))  # hardcoded-ok
+            bg, fg = _STATUS_COLOR.get(row.status, (Semantic.NEUTRAL_BG_DARK, Text.SECONDARY))
 
             def _cell(text, tfg=Colors.TEXT_PRIMARY, tbg=None):
                 it = QTableWidgetItem(str(text) if text else '—')
@@ -3171,7 +3178,7 @@ class LevelColumn(QFrame):
         badge.setFixedHeight(20)
         badge.setAlignment(Qt.AlignCenter)
         badge.setStyleSheet(
-            f"background: {accent}; color: #000; font-weight: bold;"
+            f"background: {accent}; color: {Surface.DEEP}; font-weight: bold;"
             "font-size: 12px; padding: 1px 4px; border-radius: 3px;"
         )
         lbl_titulo = QLabel(titulo)
@@ -3540,8 +3547,8 @@ class LevelColumn(QFrame):
                    f"padding: 0 8px; min-width: 140px; max-width: 180px;")
         _VAL_SS = (f"color: {Colors.TEXT_PRIMARY}; font-size: 11px; "
                    f"padding: 0 6px; border: none; background: transparent;")
-        _WARN_SS = (f"color: #f59e0b; font-size: 10px; padding: 2px 8px; "
-                    f"background: rgba(245,158,11,0.08);")
+        _WARN_SS = (f"color: {Contextual.GOLD}; font-size: 10px; padding: 2px 8px; "
+                    f"background: rgba(230,180,0,0.08);")
 
         row_idx = 0
         for label, value in rows:
@@ -3750,7 +3757,7 @@ class LevelColumn(QFrame):
         er_ficha:   full LV ficha dict (campos: h_cm, h_B_cm, b_cm, tipo_viga,
                     segmentos, segmentos_B, laje_sup_cm, laje_inf_cm, ...)
         """
-        ACCENT = "#4caf50"
+        ACCENT = Semantic.SUCCESS
         ZONES = ['Visão Corte', 'Lateral A-B']
         lay = self.layout()
         from pathlib import Path as _Path

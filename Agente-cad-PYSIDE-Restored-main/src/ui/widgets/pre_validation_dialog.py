@@ -679,7 +679,7 @@ class PreValidationDialog(QDialog):
             pts,
             thumb_w=self._CUT_THUMB_W, thumb_h=self._CUT_THUMB_H,
             margin_factor=3.0, min_margin_dxf=130.0,
-            fallback_line='#4caf50', fallback_fill='#0d2010',
+            fallback_line=Semantic.SUCCESS, fallback_fill=Semantic.SUCCESS_BG_DARK,
         )
 
     # ── Gabarito — recorte PIL do Motor Reverso ───────────────────────────────
@@ -1627,12 +1627,12 @@ class PreValidationDialog(QDialog):
             lb.setStyleSheet(f"color:{color}; font-size:10px; font-weight:bold; padding:2px 8px;")
             return lb
 
-        lay.addWidget(_chip(f"{n_lajes} lajes", Colors.ACCENT_MINT))
-        lay.addWidget(_chip(f"{n_conf} níveis confirmados / {n_inf} inferidos", '#4caf50'))
+        lay.addWidget(_chip(f"{n_lajes} lajes", Semantic.SUCCESS))
+        lay.addWidget(_chip(f"{n_conf} níveis confirmados / {n_inf} inferidos", Semantic.SUCCESS))
         if n_hall:
-            lay.addWidget(_chip(f"{n_hall} suspeitos de alucinação", '#f44336'))
-        lay.addWidget(_chip(f"{n_pilares} pilares", Colors.ACCENT_WARNING_ALT))
-        lay.addWidget(_chip(f"{n_cuts} cortes de viga", '#90a4ae'))
+            lay.addWidget(_chip(f"{n_hall} suspeitos de alucinação", Semantic.DANGER))
+        lay.addWidget(_chip(f"{n_pilares} pilares", Semantic.WARNING))
+        lay.addWidget(_chip(f"{n_cuts} cortes de viga", Text.SECONDARY))
         lay.addStretch()
         return frame
 
@@ -1758,7 +1758,7 @@ class PreValidationDialog(QDialog):
 
             term_lbl = QLabel(term)
             term_lbl.setStyleSheet(
-                f"font-size:9px; font-weight:bold; color:{'#b0bec5' if is_std else Colors.ACCENT_WARNING_ALT};"
+                f"font-size:9px; font-weight:bold; color:{Text.SECONDARY if is_std else Semantic.WARNING};"
             )
             std_lbl = QLabel(std_equiv)
             std_lbl.setStyleSheet(f"font-size:9px; color:{Colors.TEXT_MUTED};")
@@ -1985,7 +1985,7 @@ class PreValidationDialog(QDialog):
                     f'Classifique conforme o tipo real do pilar.'
                 )
             elif geo_foi_rejeitada:
-                nome_item.setForeground(QBrush(QColor('#ff9800')))
+                nome_item.setForeground(QBrush(QColor(Semantic.WARNING)))
                 nome_item.setToolTip(
                     f'⚠ Geometria desta bbox foi rejeitada anteriormente para "{name}".\n'
                     f'Sem alternativa disponível nesta análise.'
@@ -2052,7 +2052,7 @@ class PreValidationDialog(QDialog):
                 elif opt in (_NAO_PILAR_SOLIDO, _NAO_PILAR_VISUAL):
                     mi.setForeground(QBrush(QColor(Contextual.GOLD)))   # amarelo
                 elif opt in (_GEOM_ERRADA_SOLIDA, _GEOM_ERRADA_VISUAL):
-                    mi.setForeground(QBrush(QColor('#ff9800')))   # laranja
+                    mi.setForeground(QBrush(QColor(Semantic.WARNING)))   # laranja
             idx = next((i for i, o in enumerate(options) if o == classif), 0)
             combo.setCurrentIndex(idx)
             combo.currentIndexChanged.connect(
@@ -2169,10 +2169,10 @@ class PreValidationDialog(QDialog):
 
         # Legenda de score
         leg = QLabel(
-            "Score de associação: "
-            "<span style='color:#4caf50'>■ ≥75% confiante</span>  "
-            "<span style='color:#ffc107'>■ 50–74% moderado</span>  "
-            "<span style='color:#f44336'>■ &lt;50% incerto — revisar</span>"
+            f"Score de associação: "
+            f"<span style='color:{Semantic.SUCCESS}'>■ ≥75% confiante</span>  "
+            f"<span style='color:{Semantic.WARNING}'>■ 50–74% moderado</span>  "
+            f"<span style='color:{Semantic.DANGER}'>■ &lt;50% incerto — revisar</span>"
         )
         leg.setStyleSheet("font-size:9px;")
         lay.addWidget(leg)
@@ -2445,7 +2445,7 @@ class PreValidationDialog(QDialog):
                 elif is_wall:
                     color = Colors.TEXT_MUTED
                 else:
-                    color = '#90caf9'
+                    color = Accent.INTERACTIVE
                 lbl.setStyleSheet(
                     f"color:{color}; font-size:9px; padding:4px; background:transparent;"
                 )
@@ -2471,7 +2471,7 @@ class PreValidationDialog(QDialog):
             mi_s = st_combo.model().item(2)
             mi_p = st_combo.model().item(3)
             if mi_v: mi_v.setForeground(QBrush(QColor(Contextual.GOLD)))
-            if mi_s: mi_s.setForeground(QBrush(QColor('#ff9800')))
+            if mi_s: mi_s.setForeground(QBrush(QColor(Semantic.WARNING)))
             if mi_p: mi_p.setForeground(QBrush(QColor(Contextual.PURPLE)))
 
             # Restaura status do histórico
@@ -2489,13 +2489,13 @@ class PreValidationDialog(QDialog):
             hist_pilar_name     = hist_cv.get('pillar_name', '')
             if hist_pilar_migrated and hist_pilar_name:
                 tag_text  = f'HISTÓRICO | PILAR:{hist_pilar_name}'
-                tag_color = '#ce93d8'
+                tag_color = Contextual.PURPLE
             elif is_hist:
                 tag_text  = 'DADO-HISTÓRICO'
-                tag_color = '#66bb6a'
+                tag_color = Semantic.SUCCESS
             else:
                 tag_text  = 'DADO-NOVO'
-                tag_color = '#64b5f6'
+                tag_color = Accent.INTERACTIVE
             tag_lbl = QLabel(f'TAG:{tag_text}')
             tag_lbl.setStyleSheet(
                 f'color:{tag_color}; font-size:7px; font-weight:bold;'
@@ -2505,9 +2505,9 @@ class PreValidationDialog(QDialog):
             # Botão "Migrar para Pilares" (visível só quando status == 'pilar')
             btn_migrar = QPushButton('Buscar pilar e migrar →')
             btn_migrar.setStyleSheet(
-                'font-size:8px; padding:2px 6px;'
-                ' background:#3a1a5e; color:#ce93d8;'
-                ' border:1px solid #ce93d8; border-radius:3px;'
+                f'font-size:8px; padding:2px 6px;'
+                f' background:rgba(160, 112, 255, 0.18); color:{Contextual.PURPLE};'
+                f' border:1px solid {Contextual.PURPLE}; border-radius:3px;'
             )
             btn_migrar.setVisible(initial_status == 'pilar')
 
@@ -2629,7 +2629,7 @@ class PreValidationDialog(QDialog):
             migrado_str = ' | PILAR-MIGRADO' if ja_migrado else ''
             tag_lbl.setText(f'TAG:HISTÓRICO | PILAR:{pilar_name}{migrado_str}')
             tag_lbl.setStyleSheet(
-                'color:#ce93d8; font-size:7px; font-weight:bold;'
+                f'color:{Contextual.PURPLE}; font-size:7px; font-weight:bold;'
                 ' padding:1px; background:transparent;'
             )
 
@@ -2789,7 +2789,7 @@ class ConvencaoPilaresDialog(PreValidationDialog):
         hdr_lay.setContentsMargins(8, 4, 8, 4)
         lbl = QLabel(
             f"<b>Convenção de Pilares</b>  —  {self._obra} / {self._pavimento}"
-            f"  <span style='color:#90a4ae; font-size:9px;'>"
+            f"  <span style='color:{Text.SECONDARY}; font-size:9px;'>"
             f"Defina os tipos antes de iniciar a análise</span>"
         )
         lbl.setStyleSheet(f"color:{Colors.TEXT_PRIMARY}; font-size:11px;")

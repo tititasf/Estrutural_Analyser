@@ -1104,7 +1104,7 @@ class DiagnosticHubModule(QWidget):
                 }}
                 QPushButton:checked {{
                     background: {cls_color};
-                    color: #111;
+                    color: {Surface.DEEP};
                 }}
                 QPushButton:hover:!checked {{ background: rgba(255, 255, 255, 18); }}
                 QPushButton:disabled {{
@@ -2823,10 +2823,10 @@ class DiagnosticHubModule(QWidget):
         st   = result.get('status', 'ok')
         color = Semantic.SUCCESS if st == 'ok' else Contextual.GOLD
         row_lbl = QLabel(
-            f"<span style='color:#7ab3e0'>{pav}/t{tidx+1}</span>  "
-            f"<span style='color:#9B59B6'>P:{n_p}</span>  "
-            f"<span style='color:#2980B9'>V:{n_v}</span>  "
-            f"<span style='color:#27AE60'>L:{n_l}</span>  "
+            f"<span style='color:{Accent.INTERACTIVE}'>{pav}/t{tidx+1}</span>  "
+            f"<span style='color:{Contextual.PURPLE}'>P:{n_p}</span>  "
+            f"<span style='color:{Accent.INTERACTIVE}'>V:{n_v}</span>  "
+            f"<span style='color:{Semantic.SUCCESS}'>L:{n_l}</span>  "
             f"<span style='color:{color}'>{'✅' if st=='ok' else '⚠'}</span>"
         )
         row_lbl.setStyleSheet(
@@ -3047,7 +3047,7 @@ class DiagnosticHubModule(QWidget):
                 
                 # Montar HTML premium
                 html = f"""
-                <div style="font-family: 'Segoe UI', Arial, sans-serif; color: #E2E8F0; max-width: 800px; padding: 10px;">
+                <div style="font-family: 'Segoe UI', Arial, sans-serif; color: {Text.PRIMARY}; max-width: 800px; padding: 10px;">
                     <div style="background: rgba(180, 80, 200, 0.15); border-left: 4px solid {Contextual.PURPLE}; padding: 15px; border-radius: 4px; margin-bottom: 20px;">
                         <h2 style="margin: 0 0 10px 0; color: {Contextual.PURPLE}; font-size: 18px;">📋 Ficha Global [F3] - Relatório Executivo</h2>
                         <table style="width: 100%; border-collapse: collapse;">
@@ -3061,8 +3061,8 @@ class DiagnosticHubModule(QWidget):
                             </tr>
                         </table>
                     </div>
-                    
-                    <h3 style="color: #94A3B8; font-size: 14px; border-bottom: 1px solid #334155; padding-bottom: 5px;">⚠️ Insights do Structural Analyzer</h3>
+
+                    <h3 style="color: {Text.SECONDARY}; font-size: 14px; border-bottom: 1px solid {Border.DEFAULT}; padding-bottom: 5px;">⚠️ Insights do Structural Analyzer</h3>
                     <ul style="margin: 10px 0; padding-left: 20px; line-height: 1.6;">
                 """
                 
@@ -3070,18 +3070,18 @@ class DiagnosticHubModule(QWidget):
                     for insight in insights:
                         html += f"<li>{insight}</li>"
                 else:
-                    html += "<li style='color: #64748B;'>Nenhum desvio crítico ou outlier foi encontrado pelo motor.</li>"
+                    html += f"<li style='color: {Text.MUTED};'>Nenhum desvio crítico ou outlier foi encontrado pelo motor.</li>"
                     
-                html += """
+                html += f"""
                     </ul>
-                    
-                    <h3 style="color: #94A3B8; font-size: 14px; border-bottom: 1px solid #334155; padding-bottom: 5px; margin-top: 20px;">📦 Distribuição Granular (Resumo Bruto)</h3>
+
+                    <h3 style="color: {Text.SECONDARY}; font-size: 14px; border-bottom: 1px solid {Border.DEFAULT}; padding-bottom: 5px; margin-top: 20px;">📦 Distribuição Granular (Resumo Bruto)</h3>
                     <div style="background: rgba(15, 23, 42, 0.6); padding: 10px; border-radius: 4px;">
                 """
                 
                 # Montar um mini json das stats para nao poluir
                 stats = f3_data.get('por_classe_stats', {})
-                html += f'<pre style="color:#8b9eb3; font-family: monospace; font-size: 11px; margin: 0;">{json.dumps(stats, indent=2, ensure_ascii=False)}</pre>'
+                html += f'<pre style="color:{Text.SECONDARY}; font-family: monospace; font-size: 11px; margin: 0;">{json.dumps(stats, indent=2, ensure_ascii=False)}</pre>'
                 
                 html += "</div></div>"
                 
@@ -3214,9 +3214,9 @@ class DiagnosticHubModule(QWidget):
         tf_lay.setSpacing(24)
 
         for label, val, color in [
-            ("Pilares", totais.get("pilares", 0), "#9B59B6"),
-            ("Vigas",   totais.get("vigas",   0), "#2980B9"),
-            ("Lajes",   totais.get("lajes",   0), "#27AE60"),
+            ("Pilares", totais.get("pilares", 0), Contextual.PURPLE),
+            ("Vigas",   totais.get("vigas",   0), Accent.INTERACTIVE),
+            ("Lajes",   totais.get("lajes",   0), Semantic.SUCCESS),
             ("Pavimentos", len(pavs), Contextual.GOLD),
         ]:
             chip = QLabel(f"<b style='color:{color}'>{val}</b><br><span style='font-size:10px;color:{Text.SECONDARY}'>{label}</span>")
@@ -3258,9 +3258,9 @@ class DiagnosticHubModule(QWidget):
             pf_lay.addWidget(nome_lbl)
 
             for lbl, val, color in [
-                (f"PIL", pav.get("n_pilares", 0), "#9B59B6"),
-                (f"VIG", pav.get("n_vigas",   0), "#2980B9"),
-                (f"LAJ", pav.get("n_lajes",   0), "#27AE60"),
+                ("PIL", pav.get("n_pilares", 0), Contextual.PURPLE),
+                ("VIG", pav.get("n_vigas",   0), Accent.INTERACTIVE),
+                ("LAJ", pav.get("n_lajes",   0), Semantic.SUCCESS),
             ]:
                 chip = QLabel(f"<span style='color:{color};font-weight:bold'>{lbl}</span> {val}")
                 chip.setStyleSheet(f"font-size: 10px; background: transparent; color: {Text.PRIMARY};")
@@ -3469,10 +3469,10 @@ class DiagnosticHubModule(QWidget):
 
         self._btn_gerar_dxf = QPushButton("Gerar DXF STOG (Obra)")
         self._btn_gerar_dxf.setStyleSheet(
-            f"QPushButton {{ background: #1a3a5c; color: {Colors.ACCENT_TEAL}; border: 1px solid {Colors.ACCENT_TEAL}; "
-            "border-radius: 4px; font-weight: bold; padding: 4px 10px; } "
-            "QPushButton:hover { background: #1e4a7a; } "
-            f"QPushButton:disabled {{ color: {Colors.TEXT_MUTED}; border-color: {Colors.TEXT_MUTED}; }}"
+            f"QPushButton {{ background: {Surface.RAISED}; color: {Accent.PRIMARY}; border: 1px solid {Accent.PRIMARY}; "
+            f"border-radius: 4px; font-weight: bold; padding: 4px 10px; }} "
+            f"QPushButton:hover {{ background: {Surface.BASE}; }} "
+            f"QPushButton:disabled {{ color: {Text.MUTED}; border-color: {Text.MUTED}; }}"
         )
         self._btn_gerar_dxf.setToolTip(
             "Gera DXFs STOG de toda a obra (PL+LV+FV+LJ) a partir dos JSONs de Fase-4.\n"
@@ -3484,10 +3484,10 @@ class DiagnosticHubModule(QWidget):
         # CAD-12: Entregar Obra
         self._btn_entregar = QPushButton("Entregar Obra")
         self._btn_entregar.setStyleSheet(
-            f"QPushButton {{ background: #1a4a1a; color: {Colors.ACCENT_SUCCESS}; border: 1px solid {Colors.ACCENT_SUCCESS}; "
-            "border-radius: 4px; font-weight: bold; padding: 4px 10px; } "
-            "QPushButton:hover { background: #1e6a1e; } "
-            f"QPushButton:disabled {{ color: {Colors.TEXT_MUTED}; border-color: {Colors.TEXT_MUTED}; }}"
+            f"QPushButton {{ background: {Contextual.FOREST}; color: {Semantic.SUCCESS}; border: 1px solid {Semantic.SUCCESS}; "
+            f"border-radius: 4px; font-weight: bold; padding: 4px 10px; }} "
+            f"QPushButton:hover {{ background: rgba(30, 106, 30, 1); }} "
+            f"QPushButton:disabled {{ color: {Text.MUTED}; border-color: {Text.MUTED}; }}"
         )
         self._btn_entregar.setToolTip("CAD-12: Gera DXFs + converte para DWG via ODA (1 clique)")
         self._btn_entregar.clicked.connect(self._on_entregar_obra)
@@ -3496,10 +3496,10 @@ class DiagnosticHubModule(QWidget):
         # CAD-13: Exportar Dados Treino
         self._btn_ml_export = QPushButton("Exportar Dados Treino")
         self._btn_ml_export.setStyleSheet(
-            f"QPushButton {{ background: #3a1a5c; color: {Colors.ACCENT_PURPLE}; border: 1px solid {Colors.ACCENT_PURPLE}; "
-            "border-radius: 4px; font-weight: bold; padding: 4px 10px; } "
-            "QPushButton:hover { background: #4a1a7a; } "
-            f"QPushButton:disabled {{ color: {Colors.TEXT_MUTED}; border-color: {Colors.TEXT_MUTED}; }}"
+            f"QPushButton {{ background: rgba(160, 112, 255, 0.18); color: {Contextual.PURPLE}; border: 1px solid {Contextual.PURPLE}; "
+            f"border-radius: 4px; font-weight: bold; padding: 4px 10px; }} "
+            f"QPushButton:hover {{ background: rgba(160, 112, 255, 0.28); }} "
+            f"QPushButton:disabled {{ color: {Text.MUTED}; border-color: {Text.MUTED}; }}"
         )
         self._btn_ml_export.setToolTip("CAD-13: Exporta training_data.json + insights do correction_log")
         self._btn_ml_export.clicked.connect(self._on_ml_export)
@@ -3508,10 +3508,10 @@ class DiagnosticHubModule(QWidget):
         # CAD-14: Importar Todos Pavimentos
         self._btn_multi_pav = QPushButton("Importar Pavimentos")
         self._btn_multi_pav.setStyleSheet(
-            f"QPushButton {{ background: #3a2a1a; color: {Colors.ACCENT_WARNING_ALT}; border: 1px solid {Colors.ACCENT_WARNING_ALT}; "
-            "border-radius: 4px; font-weight: bold; padding: 4px 10px; } "
-            "QPushButton:hover { background: #5a3a1a; } "
-            f"QPushButton:disabled {{ color: {Colors.TEXT_MUTED}; border-color: {Colors.TEXT_MUTED}; }}"
+            f"QPushButton {{ background: {Semantic.WARNING_BG_DARK}; color: {Semantic.WARNING}; border: 1px solid {Semantic.WARNING}; "
+            f"border-radius: 4px; font-weight: bold; padding: 4px 10px; }} "
+            f"QPushButton:hover {{ background: rgba(90, 58, 26, 1); }} "
+            f"QPushButton:disabled {{ color: {Text.MUTED}; border-color: {Text.MUTED}; }}"
         )
         self._btn_multi_pav.setToolTip("CAD-14: Importa todos os pavimentos da obra via Fase4Importer")
         self._btn_multi_pav.clicked.connect(self._on_multi_pav_import)

@@ -3,7 +3,7 @@ from PySide6.QtWidgets import (QDialog, QVBoxLayout, QHBoxLayout, QLabel,
                                 QPushButton, QGroupBox)
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QColor
-from src.ui.theme import Colors, Fonts, Radius
+from src.ui.theme import Colors, Fonts, Radius, Accent, Text, Surface, Border
 
 class RobotFichaDialog(QDialog):
     """
@@ -18,17 +18,17 @@ class RobotFichaDialog(QDialog):
         
         self.setWindowTitle(f"Ficha do Robô: {self.item_name}")
         self.resize(500, 750)
-        self.setStyleSheet("""
-            QDialog { background-color: {Colors.BG_DEEP}; color: {Colors.TEXT_PRIMARY}; font-family: 'Segoe UI', Arial; }
-            QLabel { color: {Colors.TEXT_SECONDARY}; font-size: 11px; }
-            QLineEdit { 
-                background: {Colors.BG_PANEL}; border: 1px solid {Colors.BORDER_DEFAULT}; border-radius: 4px; 
-                padding: 6px; color: {Colors.ACCENT_PRIMARY}; font-weight: bold; font-size: 13px;
-            }
-            QGroupBox {
-                border: 1px solid {Colors.BORDER_DEFAULT}; border-radius: 8px; margin-top: 15px;
-                font-weight: bold; color: {Colors.ACCENT_PRIMARY}; padding-top: 10px;
-            }
+        self.setStyleSheet(f"""
+            QDialog {{ background-color: {Surface.DEEP}; color: {Text.PRIMARY}; font-family: 'Segoe UI', Arial; }}
+            QLabel {{ color: {Text.SECONDARY}; font-size: 11px; }}
+            QLineEdit {{
+                background: {Surface.BASE}; border: 1px solid {Border.DEFAULT}; border-radius: 4px;
+                padding: 6px; color: {Accent.PRIMARY}; font-weight: bold; font-size: 13px;
+            }}
+            QGroupBox {{
+                border: 1px solid {Border.DEFAULT}; border-radius: 8px; margin-top: 15px;
+                font-weight: bold; color: {Accent.PRIMARY}; padding-top: 10px;
+            }}
         """)
         
         self.setup_ui()
@@ -41,7 +41,7 @@ class RobotFichaDialog(QDialog):
         # Header Premium
         header = QFrame()
         header.setFixedHeight(70)
-        header.setStyleSheet(f"background: {Colors.BG_DEEP}; border-bottom: 2px solid #00d4ff;")
+        header.setStyleSheet(f"background: {Surface.DEEP}; border-bottom: 2px solid {Accent.PRIMARY};")
         h_layout = QVBoxLayout(header)
         
         title = QLabel(self.type_str.upper())
