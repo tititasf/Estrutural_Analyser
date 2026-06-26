@@ -190,53 +190,22 @@ def _sarr_h_offsets(b):
 
 
 def build_chanfro_vertices(w, b, te=0.0, fe=0.0, td=0.0, fd=0.0):
-    """Vertices for a panel (0,0)→(w,b) with rectangular corner notches.
-
-    TE=top-left, FE=bottom-left, TD=top-right, FD=bottom-right.
-    Each notch of size c removes a c×c square from the respective corner.
-    """
-    pts = []
-    # Bottom-left (FE)
-    if fe > 0:
-        pts += [(0, fe), (fe, fe), (fe, 0)]
-    else:
-        pts.append((0, 0))
-    # Bottom-right (FD)
-    if fd > 0:
-        pts += [(w - fd, 0), (w - fd, fd), (w, fd)]
-    else:
-        pts.append((w, 0))
-    # Top-right (TD)
-    if td > 0:
-        pts += [(w, b - td), (w - td, b - td), (w - td, b)]
-    else:
-        pts.append((w, b))
-    # Top-left (TE)
-    if te > 0:
-        pts += [(te, b), (te, b - te), (0, b - te)]
-    else:
-        pts.append((0, b))
+    """Boundary whose end edges connect the bottom and top setbacks."""
+    te = max(0.0, min(float(te), float(w)))
+    fe = max(0.0, min(float(fe), float(w)))
+    td = max(0.0, min(float(td), float(w)))
+    fd = max(0.0, min(float(fd), float(w)))
+    pts = [(fe, 0.0), (w - fd, 0.0), (w - td, b), (te, b)]
     return [{'x': float(x), 'y': float(y)} for x, y in pts]
 
 
-def build_panel_l_loose(main_comp, main_b, comp2, larg2, tipo, paineis_2, angulo_l=90.0):
-    """Build loose LINE entities for an L-shaped secondary panel.
-
-    Coordinates are relative to the first sub-panel (x=0, y=0 at panel bottom).
-    tipo: 'E/T' | 'E/F' | 'D/T' | 'D/F'
-      First letter: E=left (x from 0), D=right (x from main_comp-comp2)
-      Second letter: T=top (y from main_b upward), F=bottom (y going downward)
-    angulo_l: angle in degrees between the main panel baseline and the L-panel
-      outward side. 90 keeps the classic rectangular L; other values create a
-      parallelogram-like angled L panel.
-    """
+def build_panel_l_loose(main_comp, main_b, comp2, larg2, tipo, paineis_2,
+                        angulo_l=90.0, recuos_2=None, aberturas_2=None):
+    """Build a complete secondary leaf in its perpendicular local system."""
     parts = tipo.replace('-', '/').upper().split('/')
     side = parts[0] if parts else 'E'
     vert = parts[1] if len(parts) > 1 else 'T'
 
-    x_l = 0.0 if side == 'E' else float(main_comp - comp2)
-    y_l = float(main_b) if vert == 'T' else 0.0
-    x_r = x_l + float(comp2)
     try:
         angle = float(angulo_l)
     except Exception:
@@ -246,31 +215,105 @@ def build_panel_l_loose(main_comp, main_b, comp2, larg2, tipo, paineis_2, angulo
 
     side_sign = 1.0 if side == 'E' else -1.0
     vert_sign = 1.0 if vert == 'T' else -1.0
-    dx_o = side_sign * float(larg2) * math.cos(math.radians(angle))
-    dy_o = vert_sign * float(larg2) * math.sin(math.radians(angle))
+    length_vec = (
+        side_sign * math.cos(math.radians(angle)),
+        vert_sign * math.sin(math.radians(angle)),
+    )
+    width_vec = (1.0, 0.0) if side == 'E' else (-1.0, 0.0)
+    outer_x = -float(larg2) if side == 'E' else float(main_comp + larg2)
+    outer_y = 0.0 if vert == 'T' else float(main_b)
 
-    p0 = (x_l, y_l)
-    p1 = (x_r, y_l)
-    p2 = (x_r + dx_o, y_l + dy_o)
-    p3 = (x_l + dx_o, y_l + dy_o)
+    def _pt(u, v):
+        return (
+            outer_x + length_vec[0] * float(u) + width_vec[0] * float(v),
+            outer_y + length_vec[1] * float(u) + width_vec[1] * float(v),
+        )
 
-    ents = [
-        {'type': 'LINE', 'start': {'x': p0[0], 'y': p0[1]}, 'end': {'x': p1[0], 'y': p1[1]}},
-        {'type': 'LINE', 'start': {'x': p1[0], 'y': p1[1]}, 'end': {'x': p2[0], 'y': p2[1]}},
-        {'type': 'LINE', 'start': {'x': p2[0], 'y': p2[1]}, 'end': {'x': p3[0], 'y': p3[1]}},
-        {'type': 'LINE', 'start': {'x': p3[0], 'y': p3[1]}, 'end': {'x': p0[0], 'y': p0[1]}},
-    ]
-    # Sub-panel dividers within the L-panel
-    xp = x_l
+    vals = list(recuos_2 or [0, 0, 0, 0]) + [0, 0, 0, 0]
+    te, fe, td, fd = (max(0.0, float(vals[i] or 0)) for i in range(4))
+    local_poly = build_chanfro_vertices(comp2, larg2, te, fe, td, fd)
+    poly = [_pt(v['x'], v['y']) for v in local_poly]
+    ents = [{
+        'type': 'LWPOLYLINE',
+        'points': [{'x': x, 'y': y} for x, y in poly],
+        'layer': LY_PAINEIS,
+    }]
+
+    u = 0.0
     for pw2 in (paineis_2 or [])[:-1]:
-        xp += float(pw2)
-        ents.append({'type': 'LINE', 'start': {'x': xp, 'y': y_l}, 'end': {'x': xp + dx_o, 'y': y_l + dy_o}})
-    # Horizontal slat lines (same pattern as panel_poly)
-    if larg2 > 6:
-        for frac in (1 / 3, 2 / 3):
-            sx = dx_o * frac
-            sy = dy_o * frac
-            ents.append({'type': 'LINE', 'start': {'x': x_l + sx, 'y': y_l + sy}, 'end': {'x': x_r + sx, 'y': y_l + sy}})
+        u += float(pw2)
+        if 0 < u < float(comp2):
+            a, z = _pt(u, 0.0), _pt(u, larg2)
+            ents.append({
+                'type': 'LINE', 'start': {'x': a[0], 'y': a[1]},
+                'end': {'x': z[0], 'y': z[1]}, 'layer': LY_PAINEIS,
+            })
+
+    for frac in (1 / 3, 2 / 3):
+        v = float(larg2) * frac
+        left = fe + (te - fe) * frac
+        right = float(comp2) - (fd + (td - fd) * frac)
+        if right > left:
+            a, z = _pt(left, v), _pt(right, v)
+            ents.append({
+                'type': 'LINE', 'start': {'x': a[0], 'y': a[1]},
+                'end': {'x': z[0], 'y': z[1]}, 'layer': LY_PAINEIS,
+            })
+
+    openings = []
+    for idx, row in enumerate(list(aberturas_2 or [])[:4]):
+        if not isinstance(row, (list, tuple)) or len(row) < 3:
+            continue
+        dist, prof, width = (float(row[i] or 0) for i in range(3))
+        if dist <= 0 or prof <= 0 or width <= 0:
+            continue
+        x1 = float(comp2) - dist - width if idx >= 2 else dist
+        x1 = max(0.0, min(x1, float(comp2)))
+        x2 = max(x1, min(x1 + width, float(comp2)))
+        top = idx in (0, 2)
+        y1 = max(0.0, float(larg2) - prof) if top else 0.0
+        y2 = float(larg2) if top else min(prof, float(larg2))
+        openings.append((x1, x2, y1, y2))
+        rect = [_pt(x1, y1), _pt(x2, y1), _pt(x2, y2), _pt(x1, y2)]
+        ents.append({
+            'type': 'LWPOLYLINE',
+            'points': [{'x': x, 'y': y} for x, y in rect],
+            'layer': LY_PAINEIS,
+        })
+
+    if larg2 >= 10:
+        sarr_layer = 'SARR_5cm' if larg2 <= 14 else SARR_LAYER
+        for a, z in (
+            (_pt(fe + SARR_RECUO, 0), _pt(te + SARR_RECUO, larg2)),
+            (_pt(comp2 - fd - SARR_RECUO, 0),
+             _pt(comp2 - td - SARR_RECUO, larg2)),
+        ):
+            ents.append({
+                'type': 'LINE', 'start': {'x': a[0], 'y': a[1]},
+                'end': {'x': z[0], 'y': z[1]}, 'layer': sarr_layer,
+            })
+        for v in _sarr_h_offsets(float(larg2)):
+            frac = v / float(larg2)
+            left = fe + (te - fe) * frac + SARR_RECUO
+            right = float(comp2) - fd - (td - fd) * frac - SARR_RECUO
+            cuts = sorted(
+                (x1, x2) for x1, x2, y1, y2 in openings if y1 <= v <= y2
+            )
+            cursor = left
+            for x1, x2 in cuts:
+                if x1 > cursor:
+                    a, z = _pt(cursor, v), _pt(min(x1, right), v)
+                    ents.append({
+                        'type': 'LINE', 'start': {'x': a[0], 'y': a[1]},
+                        'end': {'x': z[0], 'y': z[1]}, 'layer': sarr_layer,
+                    })
+                cursor = max(cursor, x2)
+            if cursor < right:
+                a, z = _pt(cursor, v), _pt(right, v)
+                ents.append({
+                    'type': 'LINE', 'start': {'x': a[0], 'y': a[1]},
+                    'end': {'x': z[0], 'y': z[1]}, 'layer': sarr_layer,
+                })
     return ents
 
 
@@ -309,14 +352,24 @@ def robot_dados_to_fv_dict(dados, viga_nome='V?'):
 
     aberturas = dados.get('aberturas', [])
 
-    def _abertura_loose(pw, b_val, ab_row, side_top, from_right=False):
+    def _abertura_rect(pw, b_val, ab_row, side_top, from_right=False):
         if len(ab_row) < 3: return []
         dist, prof, larg = _f(ab_row[0]), _f(ab_row[1]), _f(ab_row[2])
         if dist <= 0 or prof <= 0 or larg <= 0: return []
         x1 = (pw - dist - larg) if from_right else dist
-        x2 = x1 + larg
+        x1 = max(0.0, min(x1, pw))
+        x2 = max(x1, min(x1 + larg, pw))
         y1 = (b_val - prof) if side_top else 0.0
-        y2 = b_val if side_top else prof
+        y1 = max(0.0, min(y1, b_val))
+        y2 = b_val if side_top else min(prof, b_val)
+        return {'x1': x1, 'x2': x2, 'y1': y1, 'y2': y2}
+
+    def _abertura_loose(pw, b_val, ab_row, side_top, from_right=False):
+        rect = _abertura_rect(pw, b_val, ab_row, side_top, from_right)
+        if not rect:
+            return []
+        x1, x2 = rect['x1'], rect['x2']
+        y1, y2 = rect['y1'], rect['y2']
         return [
             {'type': 'LINE', 'start': {'x': x1, 'y': y1}, 'end': {'x': x2, 'y': y1}},
             {'type': 'LINE', 'start': {'x': x2, 'y': y1}, 'end': {'x': x2, 'y': y2}},
@@ -342,18 +395,29 @@ def robot_dados_to_fv_dict(dados, viga_nome='V?'):
 
         # Aberturas as rectangular notch outlines (TE=0, FE=1, TD=2, FD=3)
         loose = []
+        panel_openings = []
         if is_first:
             if len(aberturas) > 0:
                 loose += _abertura_loose(pw, b, aberturas[0], side_top=True,  from_right=False)
+                rect = _abertura_rect(pw, b, aberturas[0], side_top=True, from_right=False)
+                if rect: panel_openings.append(rect)
             if len(aberturas) > 1:
                 loose += _abertura_loose(pw, b, aberturas[1], side_top=False, from_right=False)
+                rect = _abertura_rect(pw, b, aberturas[1], side_top=False, from_right=False)
+                if rect: panel_openings.append(rect)
         if is_last:
             if len(aberturas) > 2:
                 loose += _abertura_loose(pw, b, aberturas[2], side_top=True,  from_right=True)
+                rect = _abertura_rect(pw, b, aberturas[2], side_top=True, from_right=True)
+                if rect: panel_openings.append(rect)
             if len(aberturas) > 3:
                 loose += _abertura_loose(pw, b, aberturas[3], side_top=False, from_right=True)
+                rect = _abertura_rect(pw, b, aberturas[3], side_top=False, from_right=True)
+                if rect: panel_openings.append(rect)
         if loose:
             obj['loose'] = loose
+        if panel_openings:
+            obj['aberturas'] = panel_openings
 
         sub_panel_objs.append(obj)
 
@@ -366,7 +430,12 @@ def robot_dados_to_fv_dict(dados, viga_nome='V?'):
         pw2_raw = [_f(p) for p in dados.get('paineis_2', []) if _f(p) > 0]
         if not pw2_raw:
             pw2_raw = compute_panels(comp2)
-        l_loose = build_panel_l_loose(comp, b, comp2, larg2, tipo2, pw2_raw, angulo_l=angulo_l)
+        l_loose = build_panel_l_loose(
+            comp, b, comp2, larg2, tipo2, pw2_raw,
+            angulo_l=angulo_l,
+            recuos_2=dados.get('recuos_2'),
+            aberturas_2=dados.get('aberturas_2'),
+        )
         if l_loose:
             sub_panel_objs[0]['loose'] = sub_panel_objs[0].get('loose', []) + l_loose
 
@@ -388,6 +457,7 @@ def robot_dados_to_fv_dict(dados, viga_nome='V?'):
 
 
 def draw_sarr(msp, x0, y0, b, panel_widths, panel_verts=None,
+              panel_chanfros=None, panel_openings=None,
               sarrafo_esq=True, sarrafo_dir=True):
     """Draw SARR_2.2x7 lines for a single contiguous real segment.
 
@@ -430,47 +500,72 @@ def draw_sarr(msp, x0, y0, b, panel_widths, panel_verts=None,
         return
     layer = 'SARR_5cm' if b <= 14 else SARR_LAYER
 
-    xl_offset = SARR_RECUO
-    xr_offset = SARR_RECUO
-    
-    # Adjust sarrafo offsets for custom panel shapes (e.g. L-corners), but ONLY for
-    # vertices in the TOP half of the panel (y > b/2).  Bottom-corner chanfros (FE/FD)
-    # must NOT shift the sarrafo because the wood is still present at the top edge.
-    if panel_verts and panel_verts[0]:
-        left_verts = [v['x'] for v in panel_verts[0]
-                      if v['x'] < panel_widths[0] / 2 and v.get('y', b) > b / 2]
-        if left_verts:
-            xl_offset = max(left_verts) + SARR_RECUO
+    ch_left = panel_chanfros[0] if panel_chanfros else {}
+    ch_right = panel_chanfros[-1] if panel_chanfros else {}
+    te = float((ch_left or {}).get('te', 0.0))
+    fe = float((ch_left or {}).get('fe', 0.0))
+    td = float((ch_right or {}).get('td', 0.0))
+    fd = float((ch_right or {}).get('fd', 0.0))
 
-    if panel_verts and panel_verts[-1]:
-        right_verts = [v['x'] for v in panel_verts[-1]
-                       if v['x'] > panel_widths[-1] / 2 and v.get('y', b) > b / 2]
-        if right_verts:
-            xr_offset = (panel_widths[-1] - min(right_verts)) + SARR_RECUO
-
-    xl = x0 + xl_offset
-    xr = x0 + total_width - xr_offset
-    if xr <= xl:
-        return
-
-    # Vertical sarrafos at viga edges — conditionally per robot sarrafo_esq/dir flags
+    # End sarrafos stay parallel to the inclined formwork edges.
     if sarrafo_esq:
-        msp.add_line((xl, y0), (xl, y0 + b), dxfattribs={'layer': layer})
+        msp.add_line(
+            (x0 + fe + SARR_RECUO, y0),
+            (x0 + te + SARR_RECUO, y0 + b),
+            dxfattribs={'layer': layer},
+        )
     if sarrafo_dir:
-        msp.add_line((xr, y0), (xr, y0 + b), dxfattribs={'layer': layer})
+        msp.add_line(
+            (x0 + total_width - fd - SARR_RECUO, y0),
+            (x0 + total_width - td - SARR_RECUO, y0 + b),
+            dxfattribs={'layer': layer},
+        )
 
-    # Horizontal sarrafos: one continuous pair spanning the whole recuo-inset
-    # width of this real segment (xl to xr) — confirmed against ground truth.
     h_offsets = _sarr_h_offsets(b)
     if not h_offsets:
         return
 
+    openings = []
+    panel_x = 0.0
+    for idx, pw in enumerate(panel_widths):
+        for opening in (
+            panel_openings[idx]
+            if panel_openings and idx < len(panel_openings)
+            else []
+        ):
+            openings.append({
+                **opening,
+                'x1': panel_x + float(opening['x1']),
+                'x2': panel_x + float(opening['x2']),
+            })
+        panel_x += pw
+
     for offset in h_offsets:
-        msp.add_line(
-            (xl, y0 + offset),
-            (xr, y0 + offset),
-            dxfattribs={'layer': layer}
+        frac = offset / b
+        xl = fe + (te - fe) * frac + SARR_RECUO
+        xr = total_width - fd - (td - fd) * frac - SARR_RECUO
+        if xr <= xl:
+            continue
+        cuts = sorted(
+            (float(op['x1']), float(op['x2']))
+            for op in openings
+            if float(op['y1']) <= offset <= float(op['y2'])
         )
+        cursor = xl
+        for cut_start, cut_end in cuts:
+            if cut_start > cursor:
+                msp.add_line(
+                    (x0 + cursor, y0 + offset),
+                    (x0 + min(cut_start, xr), y0 + offset),
+                    dxfattribs={'layer': layer},
+                )
+            cursor = max(cursor, cut_end)
+        if cursor < xr:
+            msp.add_line(
+                (x0 + cursor, y0 + offset),
+                (x0 + xr, y0 + offset),
+                dxfattribs={'layer': layer},
+            )
 
 
 def draw_escoras(msp, x0, y0, comprimento):
@@ -609,11 +704,7 @@ DIM_OVERALL_BELOW   = 60  # nível 3: total geral multi-segmento
 
 
 def draw_chanfro_cotas(msp, xp, y0, pw, b, chanfros):
-    """Adiciona cotas pequenas (texto simples) nos cantos com chanfro.
-
-    Para cada chanfro não-nulo, desenha o valor em cm próximo ao canto
-    usando linear dim compacto no layer COTA.
-    """
+    """Dimension each longitudinal setback on its corresponding edge."""
     te = chanfros.get('te', 0.0)
     fe = chanfros.get('fe', 0.0)
     td = chanfros.get('td', 0.0)
@@ -631,25 +722,18 @@ def draw_chanfro_cotas(msp, xp, y0, pw, b, chanfros):
         except Exception:
             pass
 
-    # TE — canto top-esq: cota horizontal (largura) e vertical (altura) do chanfro
+    # Each value is a horizontal setback, not a square notch size.
     if te > 0:
         _lin(xp, y0 + b, xp + te, y0 + b, xp + te / 2, y0 + b + OFFS)
-        _lin(xp, y0 + b - te, xp, y0 + b, xp - OFFS, y0 + b - te / 2)
 
-    # FE — canto bot-esq
     if fe > 0:
         _lin(xp, y0, xp + fe, y0, xp + fe / 2, y0 - OFFS)
-        _lin(xp, y0, xp, y0 + fe, xp - OFFS, y0 + fe / 2)
 
-    # TD — canto top-dir
     if td > 0:
         _lin(xp + pw - td, y0 + b, xp + pw, y0 + b, xp + pw - td / 2, y0 + b + OFFS)
-        _lin(xp + pw, y0 + b - td, xp + pw, y0 + b, xp + pw + OFFS, y0 + b - td / 2)
 
-    # FD — canto bot-dir
     if fd > 0:
         _lin(xp + pw - fd, y0, xp + pw, y0, xp + pw - fd / 2, y0 - OFFS)
-        _lin(xp + pw, y0, xp + pw, y0 + fd, xp + pw + OFFS, y0 + fd / 2)
 
 
 def draw_viga(msp, x0, y0, panels_json, viga_b, viga_nome,
@@ -779,21 +863,46 @@ def draw_viga(msp, x0, y0, panels_json, viga_b, viga_nome,
         xp = seg_x0
         for i, (pw, p_texts, p_verts, p_loose) in enumerate(zip(sub_panels, sub_panel_texts, sub_panel_verts, sub_panel_loose)):
             if p_verts:
-                # Custom polygon (e.g. chamfers, L-shapes)
+                # Custom trapezoid defined by top/bottom end setbacks.
                 pts = [(xp + v['x'], y0 + v['y']) for v in p_verts]
                 msp.add_lwpolyline(pts, close=True, dxfattribs={'layer': LY_PAINEIS, 'lineweight': -1})
+                p_obj = seg_item['panels'][i]
+                ch = p_obj.get('chanfros', {})
+                for frac in (1 / 3, 2 / 3):
+                    y_line = b * frac
+                    left = float(ch.get('fe', 0)) + (
+                        float(ch.get('te', 0)) - float(ch.get('fe', 0))
+                    ) * frac
+                    right = pw - float(ch.get('fd', 0)) - (
+                        float(ch.get('td', 0)) - float(ch.get('fd', 0))
+                    ) * frac
+                    if right > left:
+                        msp.add_line(
+                            (xp + left, y0 + y_line),
+                            (xp + right, y0 + y_line),
+                            dxfattribs={'layer': LY_PAINEIS},
+                        )
             else:
                 # Standard rectangular module
                 panel_poly(msp, xp, y0, pw, b)
             
             # Draw loose attached entities (L-corners, etc.)
             for le in p_loose:
+                le_layer = le.get('layer', LY_PAINEIS)
                 if le['type'] == 'LINE':
                     msp.add_line((xp + le['start']['x'], y0 + le['start']['y']),
                                  (xp + le['end']['x'], y0 + le['end']['y']),
-                                 dxfattribs={'layer': LY_PAINEIS, 'lineweight': -1})
+                                 dxfattribs={'layer': le_layer, 'lineweight': -1})
+                elif le['type'] == 'LWPOLYLINE':
+                    points = [
+                        (xp + p['x'], y0 + p['y']) for p in le['points']
+                    ]
+                    msp.add_lwpolyline(
+                        points, close=True,
+                        dxfattribs={'layer': le_layer, 'lineweight': -1},
+                    )
                 elif le['type'] == 'TEXT':
-                    t = msp.add_text(le['text'], dxfattribs={'layer': LY_PAINEIS, 'height': 8})
+                    t = msp.add_text(le['text'], dxfattribs={'layer': le_layer, 'height': 8})
                     t.dxf.insert = (xp + le['insert']['x'], y0 + le['insert']['y'])
                     
             all_subpanel_edges.append((xp, xp + pw))
@@ -828,7 +937,15 @@ def draw_viga(msp, x0, y0, panels_json, viga_b, viga_nome,
         # Draw sarrafos for this segment (respecting sarrafo_esq/dir flags from robot)
         seg_sarr_esq = seg_item.get('sarrafo_esq', True) if isinstance(seg_item, dict) else True
         seg_sarr_dir = seg_item.get('sarrafo_dir', True) if isinstance(seg_item, dict) else True
+        panel_chanfros = [
+            p.get('chanfros', {}) for p in seg_item.get('panels', [])
+        ] if isinstance(seg_item, dict) else None
+        panel_openings = [
+            p.get('aberturas', []) for p in seg_item.get('panels', [])
+        ] if isinstance(seg_item, dict) else None
         draw_sarr(msp, seg_x0, y0, b, sub_panels, sub_panel_verts,
+                  panel_chanfros=panel_chanfros,
+                  panel_openings=panel_openings,
                   sarrafo_esq=seg_sarr_esq, sarrafo_dir=seg_sarr_dir)
 
         # STOG posiciona os textos de extremidade acima do painel.

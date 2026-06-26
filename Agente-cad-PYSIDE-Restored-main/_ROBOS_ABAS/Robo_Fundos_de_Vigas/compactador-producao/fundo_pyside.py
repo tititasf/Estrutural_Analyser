@@ -320,31 +320,30 @@ class FundoCanvas(QGraphicsView):
 
     @staticmethod
     def _chanfro_pts(w, b, te, fe, td, fd):
-        """Vértices do polígono com chanfros (cantos cortados), em espaço local [0,w]×[0,b]."""
-        pts = []
-        if fe > 0: pts += [(0, fe), (fe, fe), (fe, 0)]
-        else:       pts.append((0, 0))
-        if fd > 0: pts += [(w-fd, 0), (w-fd, fd), (w, fd)]
-        else:       pts.append((w, 0))
-        if td > 0: pts += [(w, b-td), (w-td, b-td), (w-td, b)]
-        else:       pts.append((w, b))
-        if te > 0: pts += [(te, b), (te, b-te), (0, b-te)]
-        else:       pts.append((0, b))
-        return pts
+        """Borda com recuos longitudinais independentes no topo e fundo."""
+        te = max(0.0, min(float(te), float(w)))
+        fe = max(0.0, min(float(fe), float(w)))
+        td = max(0.0, min(float(td), float(w)))
+        fd = max(0.0, min(float(fd), float(w)))
+        return [(fe, 0.0), (w - fd, 0.0), (w - td, b), (te, b)]
 
     @staticmethod
     def _sarr_h_offsets(b):
         """Posições Y das linhas horizontais dos sarrafos (mesmo algoritmo do gerador)."""
-        if b <= 0: return []
-        offsets = []
-        y = 2.2 / 2
-        while y < b:
-            offsets.append(y)
-            y += 2.2 + 7.0  # espessura sarrafo + gap
-            if y + 2.2 / 2 > b: break
-            offsets.append(y)
-            y += 2.2 / 2 + 0.1
-        return offsets[:2]  # sarrafo duplo: borda inferior e borda superior
+        if b == 14:
+            return [5.0, 9.0]
+        sarr_h = 7.0
+        if b < 2 * sarr_h + 1:
+            return []
+        n_interior = max(0, int((b - 2 * sarr_h) / (21.0 + sarr_h)))
+        n_gaps = n_interior + 1
+        gap_size = (b - (n_interior + 2) * sarr_h) / n_gaps
+        offsets = [sarr_h]
+        for _ in range(n_interior):
+            offsets.append(offsets[-1] + gap_size)
+            offsets.append(offsets[-1] + sarr_h)
+        offsets.append(b - sarr_h)
+        return offsets
 
     def _q(self, x_cad, y_cad, x0, y0_qt, b, scale):
         """Converte ponto CAD (x_cad,y_cad) em (Qt_x, Qt_y). Y_cad=0 → base, Y_cad=b → topo."""
@@ -363,7 +362,10 @@ class FundoCanvas(QGraphicsView):
             boundary_original = dados.get('boundary_original')
             tem_edicoes = (
                 any(float_safe(r) > 0 for r in dados.get('recuos', []))
-                or any(float_safe(dados.get('comprimento_2', 0)) > 0 and float_safe(dados.get('largura_2', 0)) > 0)
+                or (
+                    float_safe(dados.get('comprimento_2', 0)) > 0
+                    and float_safe(dados.get('largura_2', 0)) > 0
+                )
                 or any(float_safe(ab[1]) > 0 for ab in dados.get('aberturas', []) if isinstance(ab, list) and len(ab) >= 2)
             )
 
@@ -392,7 +394,9 @@ class FundoCanvas(QGraphicsView):
 
             self._draw_panels(x0, y0, sub_widths, altura, te, fe, td, fd, scale)
             self._draw_sarrafos(x0, y0, sub_widths, altura, te, fe, td, fd,
-                                dados.get('sarrafo_esq', True), dados.get('sarrafo_dir', True), scale)
+                                dados.get('sarrafo_esq', True),
+                                dados.get('sarrafo_dir', True), scale,
+                                dados.get('aberturas', []))
             self._draw_aberturas(x0, y0, sub_widths, altura, dados.get('aberturas', []), scale)
 
             comp2 = float_safe(dados.get('comprimento_2', 0))
@@ -402,7 +406,11 @@ class FundoCanvas(QGraphicsView):
                 angulo_l = float_safe(dados.get('angulo_l', dados.get('angulo_2', 90))) or 90.0
                 pw2  = [float_safe(p) for p in dados.get('paineis_2', []) if float_safe(p) > 0]
                 if not pw2: pw2 = self._compute_panels(comp2)
-                self._draw_panel_l(x0, y0, largura, altura, comp2, larg2, tipo, pw2, scale, angulo_l)
+                self._draw_panel_l(
+                    x0, y0, largura, altura, comp2, larg2, tipo, pw2,
+                    scale, angulo_l, dados.get('recuos_2', []),
+                    dados.get('aberturas_2', []),
+                )
 
             self._draw_labels(x0, y0, largura, altura,
                               dados.get('texto_esq', ''), dados.get('texto_dir', ''), scale)
@@ -445,6 +453,13 @@ class FundoCanvas(QGraphicsView):
                 pts_cad = self._chanfro_pts(pw, b, p_te, p_fe, p_td, p_fd)
                 poly = QPolygonF([self._q(x, y, xp, y0, b, scale) for x, y in pts_cad])
                 self.scene.addPolygon(poly, pen_chanf, brush_fill)
+                for frac in (1 / 3, 2 / 3):
+                    y_cad = b * frac
+                    left = p_fe + (p_te - p_fe) * frac
+                    right = pw - p_fd - (p_td - p_fd) * frac
+                    a = self._q(left, y_cad, xp, y0, b, scale)
+                    z = self._q(right, y_cad, xp, y0, b, scale)
+                    self.scene.addLine(a.x(), a.y(), z.x(), z.y(), pen_div)
             else:
                 self.scene.addRect(xp, y0, pw * scale, b * scale, pen_edge, brush_fill)
 
@@ -462,36 +477,62 @@ class FundoCanvas(QGraphicsView):
             xp += pw * scale
 
     def _draw_sarrafos(self, x0, y0, sub_widths, b, te, fe, td, fd,
-                       sarr_esq, sarr_dir, scale):
+                       sarr_esq, sarr_dir, scale, aberturas=None):
         if not sub_widths: return
         pen = QPen(self._C_SARR, 1.5)
         pen.setStyle(Qt.DashLine)
 
         total = sum(sub_widths)
-        # Ajuste esquerdo: apenas vértices no topo (y > b/2) do primeiro painel
-        xl_off = self._SARR_RECUO
-        if te > 0:
-            xl_off = te + self._SARR_RECUO
-        # Ajuste direito: apenas vértices no topo do último painel
-        xr_off = self._SARR_RECUO
-        if td > 0:
-            xr_off = td + self._SARR_RECUO
 
-        xl = x0 + xl_off * scale
-        xr = x0 + total * scale - xr_off * scale
-        if xr <= xl: return
-
-        # Verticais
+        # Sarrafos de extremidade acompanham as bordas inclinadas.
         if sarr_esq:
-            self.scene.addLine(xl, y0, xl, y0 + b * scale, QPen(self._C_SARR, 1.5))
+            a = self._q(fe + self._SARR_RECUO, 0, x0, y0, b, scale)
+            z = self._q(te + self._SARR_RECUO, b, x0, y0, b, scale)
+            self.scene.addLine(a.x(), a.y(), z.x(), z.y(), QPen(self._C_SARR, 1.5))
         if sarr_dir:
-            self.scene.addLine(xr, y0, xr, y0 + b * scale, QPen(self._C_SARR, 1.5))
+            a = self._q(total - fd - self._SARR_RECUO, 0, x0, y0, b, scale)
+            z = self._q(total - td - self._SARR_RECUO, b, x0, y0, b, scale)
+            self.scene.addLine(a.x(), a.y(), z.x(), z.y(), QPen(self._C_SARR, 1.5))
 
-        # Horizontais (2 linhas — sarrafo duplo)
         offsets = self._sarr_h_offsets(b)
         for off in offsets:
+            frac = off / b
+            left = fe + (te - fe) * frac + self._SARR_RECUO
+            right = total - fd - (td - fd) * frac - self._SARR_RECUO
+            if right <= left:
+                continue
             yq = y0 + (b - off) * scale
-            self.scene.addLine(xl, yq, xr, yq, pen)
+            cuts = []
+            rows = list(aberturas or [])
+            for idx, ab in enumerate(rows[:4]):
+                if not isinstance(ab, list) or len(ab) < 3:
+                    continue
+                dist, prof, width = (float_safe(ab[i]) for i in range(3))
+                if dist <= 0 or prof <= 0 or width <= 0:
+                    continue
+                top = idx in (0, 2)
+                from_right = idx >= 2
+                pw = sub_widths[-1] if from_right else sub_widths[0]
+                panel_x = total - pw if from_right else 0.0
+                x1 = pw - dist - width if from_right else dist
+                x1 += panel_x
+                x2 = x1 + width
+                y1, y2 = ((b - prof, b) if top else (0.0, prof))
+                if y1 <= off <= y2:
+                    cuts.append((x1, x2))
+            cursor = left
+            for cut_start, cut_end in sorted(cuts):
+                if cut_start > cursor:
+                    self.scene.addLine(
+                        x0 + cursor * scale, yq,
+                        x0 + min(cut_start, right) * scale, yq, pen,
+                    )
+                cursor = max(cursor, cut_end)
+            if cursor < right:
+                self.scene.addLine(
+                    x0 + cursor * scale, yq,
+                    x0 + right * scale, yq, pen,
+                )
 
     def _draw_aberturas(self, x0, y0, sub_widths, b, aberturas, scale):
         if not sub_widths or not aberturas: return
@@ -526,13 +567,16 @@ class FundoCanvas(QGraphicsView):
                 y2 = y0 + b * scale
             self.scene.addRect(x1, y1, larg * scale, prof * scale, pen, brush)
 
-    def _draw_panel_l(self, x0, y0, w_main, b, comp2, larg2, tipo, pw2, scale, angulo_l=90.0):
+    def _draw_panel_l(self, x0, y0, w_main, b, comp2, larg2, tipo, pw2,
+                      scale, angulo_l=90.0, recuos_2=None,
+                      aberturas_2=None):
         pen  = QPen(self._C_L_PANEL, 1.5)
         pen_d = QPen(self._C_L_PANEL, 1)
         pen_d.setStyle(Qt.DashLine)
+        pen_s = QPen(self._C_SARR, 1.5)
+        pen_s.setStyle(Qt.DashLine)
         brush = QBrush(self._C_L_FILL)
 
-        comp2 = min(comp2, w_main)
         try:
             angle = float(angulo_l)
         except Exception:
@@ -540,38 +584,107 @@ class FundoCanvas(QGraphicsView):
         if angle <= 0 or angle >= 180:
             angle = 90.0
 
-        if tipo.startswith('E'):
-            x_l_cad = 0.0
-            side_sign = 1.0
-        else:
-            x_l_cad = w_main - comp2
-            side_sign = -1.0
+        side = 'E' if tipo.startswith('E') else 'D'
+        vert = 'T' if tipo.endswith('T') else 'F'
+        side_sign = 1.0 if side == 'E' else -1.0
+        vert_sign = 1.0 if vert == 'T' else -1.0
+        length_vec = (
+            side_sign * math.cos(math.radians(angle)),
+            vert_sign * math.sin(math.radians(angle)),
+        )
+        width_vec = (1.0, 0.0) if side == 'E' else (-1.0, 0.0)
+        outer_x = -larg2 if side == 'E' else w_main + larg2
+        outer_y = 0.0 if vert == 'T' else b
 
-        if tipo.endswith('T'):
-            y_l_cad = b
-            vert_sign = 1.0
-        else:
-            y_l_cad = 0.0
-            vert_sign = -1.0
+        def point(u, v):
+            return (
+                outer_x + length_vec[0] * u + width_vec[0] * v,
+                outer_y + length_vec[1] * u + width_vec[1] * v,
+            )
 
-        dx_o = side_sign * larg2 * math.cos(math.radians(angle))
-        dy_o = vert_sign * larg2 * math.sin(math.radians(angle))
-        p0 = (x_l_cad, y_l_cad)
-        p1 = (x_l_cad + comp2, y_l_cad)
-        p2 = (x_l_cad + comp2 + dx_o, y_l_cad + dy_o)
-        p3 = (x_l_cad + dx_o, y_l_cad + dy_o)
-
-        poly = QPolygonF([self._q(x, y, x0, y0, b, scale) for x, y in (p0, p1, p2, p3)])
+        vals = list(recuos_2 or ['0'] * 4) + ['0'] * 4
+        te, fe, td, fd = (float_safe(vals[i]) for i in range(4))
+        local_poly = self._chanfro_pts(comp2, larg2, te, fe, td, fd)
+        poly = QPolygonF([
+            self._q(x, y, x0, y0, b, scale)
+            for x, y in (point(u, v) for u, v in local_poly)
+        ])
         self.scene.addPolygon(poly, pen, brush)
 
-        # Divisores internos do painel L
-        xp_cad = x_l_cad
+        # Divisores seguem o comprimento perpendicular, não a largura de união.
+        u = 0.0
         for pw in pw2[:-1]:
-            xp_cad += pw
-            if xp_cad < x_l_cad + comp2:
-                p_a = self._q(xp_cad, y_l_cad, x0, y0, b, scale)
-                p_b = self._q(xp_cad + dx_o, y_l_cad + dy_o, x0, y0, b, scale)
+            u += pw
+            if 0 < u < comp2:
+                a, z = point(u, 0), point(u, larg2)
+                p_a = self._q(a[0], a[1], x0, y0, b, scale)
+                p_b = self._q(z[0], z[1], x0, y0, b, scale)
                 self.scene.addLine(p_a.x(), p_a.y(), p_b.x(), p_b.y(), pen_d)
+
+        for frac in (1 / 3, 2 / 3):
+            v = larg2 * frac
+            left = fe + (te - fe) * frac
+            right = comp2 - fd - (td - fd) * frac
+            a, z = point(left, v), point(right, v)
+            qa = self._q(a[0], a[1], x0, y0, b, scale)
+            qz = self._q(z[0], z[1], x0, y0, b, scale)
+            self.scene.addLine(qa.x(), qa.y(), qz.x(), qz.y(), pen_d)
+
+        openings = []
+        for idx, row in enumerate(list(aberturas_2 or [])[:4]):
+            if not isinstance(row, list) or len(row) < 3:
+                continue
+            dist, prof, width = (float_safe(row[i]) for i in range(3))
+            if dist <= 0 or prof <= 0 or width <= 0:
+                continue
+            x1 = comp2 - dist - width if idx >= 2 else dist
+            x1 = max(0.0, min(x1, comp2))
+            x2 = max(x1, min(x1 + width, comp2))
+            top = idx in (0, 2)
+            y1 = max(0.0, larg2 - prof) if top else 0.0
+            y2 = larg2 if top else min(prof, larg2)
+            openings.append((x1, x2, y1, y2))
+            rect = [point(x1, y1), point(x2, y1),
+                    point(x2, y2), point(x1, y2)]
+            qrect = QPolygonF([
+                self._q(x, y, x0, y0, b, scale) for x, y in rect
+            ])
+            self.scene.addPolygon(
+                qrect, QPen(self._C_ABERTURA, 1.5),
+                QBrush(self._C_AB_FILL),
+            )
+
+        if larg2 >= 10:
+            for a, z in (
+                (point(fe + self._SARR_RECUO, 0),
+                 point(te + self._SARR_RECUO, larg2)),
+                (point(comp2 - fd - self._SARR_RECUO, 0),
+                 point(comp2 - td - self._SARR_RECUO, larg2)),
+            ):
+                qa = self._q(a[0], a[1], x0, y0, b, scale)
+                qz = self._q(z[0], z[1], x0, y0, b, scale)
+                self.scene.addLine(qa.x(), qa.y(), qz.x(), qz.y(), pen_s)
+            for v in self._sarr_h_offsets(larg2):
+                frac = v / larg2
+                left = fe + (te - fe) * frac + self._SARR_RECUO
+                right = comp2 - fd - (td - fd) * frac - self._SARR_RECUO
+                cuts = sorted(
+                    (x1, x2) for x1, x2, y1, y2 in openings
+                    if y1 <= v <= y2
+                )
+                cursor = left
+                for cut_start, cut_end in cuts:
+                    if cut_start > cursor:
+                        a, z = point(cursor, v), point(min(cut_start, right), v)
+                        qa = self._q(a[0], a[1], x0, y0, b, scale)
+                        qz = self._q(z[0], z[1], x0, y0, b, scale)
+                        self.scene.addLine(qa.x(), qa.y(), qz.x(), qz.y(), pen_s)
+                    cursor = max(cursor, cut_end)
+                if cursor < right:
+                    a, z = point(cursor, v), point(right, v)
+                    qa = self._q(a[0], a[1], x0, y0, b, scale)
+                    qz = self._q(z[0], z[1], x0, y0, b, scale)
+                    self.scene.addLine(qa.x(), qa.y(), qz.x(), qz.y(), pen_s)
 
         # Label
         txt = self.scene.addText(f"L {round(comp2)}x{round(larg2)}")

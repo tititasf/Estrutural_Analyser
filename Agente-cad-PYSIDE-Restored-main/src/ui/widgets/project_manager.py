@@ -6033,6 +6033,7 @@ class ProjectManager(QWidget):
         self.curadoria_rag_tabs.addTab(self._build_curadoria_map_tab(), "Mapa RAG")
         self.curadoria_rag_tabs.addTab(self._build_curadoria_encyclopedia_tab(), "Enciclopedia")
         self.curadoria_rag_tabs.addTab(self._build_curadoria_corpus_tab(), "Corpus")
+        self.curadoria_rag_tabs.addTab(self._build_curadoria_pending_tab(), "Pendencias")
         self.curadoria_rag_tabs.addTab(self._build_curadoria_learning_tab(), "Aprendizado")
         self.curadoria_rag_tabs.addTab(self._build_curadoria_vector_tab(), "Memoria Vetorial")
         self.curadoria_rag_tabs.addTab(self._build_curadoria_db_tab(), "Banco de Dados")
@@ -6287,6 +6288,28 @@ class ProjectManager(QWidget):
         ))
         return page
 
+    def _build_curadoria_pending_tab(self):
+        page, layout = self._make_curadoria_scroll_page()
+        layout.addWidget(self._make_curadoria_header(
+            "Pendencias de consolidacao",
+            "Fila deterministica do que precisa de validacao ou harmonizacao. Nao corrige, promove ou indexa dados automaticamente."
+        ))
+
+        grid = QGridLayout()
+        grid.setSpacing(10)
+        for index, args in enumerate([
+            ("pending_high", "Prioridade alta", "Exige decisao ou validacao humana."),
+            ("pending_medium", "Prioridade media", "Lacuna relevante para consolidacao."),
+            ("pending_info", "Informativo", "Cobertura incompleta durante o desenvolvimento."),
+        ]):
+            grid.addWidget(self._make_curadoria_metric_card(*args), 0, index)
+        layout.addLayout(grid)
+        layout.addWidget(self._make_curadoria_table(
+            "pending",
+            ["Prioridade", "Area", "Achado", "Acao recomendada"],
+        ))
+        return page
+
     def _build_curadoria_vector_tab(self):
         page, layout = self._make_curadoria_scroll_page()
         layout.addWidget(self._make_curadoria_header(
@@ -6341,6 +6364,9 @@ class ProjectManager(QWidget):
             "learning_rejections": metrics["learning_counts"].get("user_rejection", 0),
             "learning_na": metrics["learning_counts"].get("user_na", 0),
             "learning_accuracy": metrics["learning_accuracy"],
+            "pending_high": metrics["pending_counts"].get("ALTA", 0),
+            "pending_medium": metrics["pending_counts"].get("MEDIA", 0),
+            "pending_info": metrics["pending_counts"].get("INFO", 0),
         }
         for key, value in values.items():
             label = self._curadoria_metric_labels.get(key)
@@ -6353,6 +6379,7 @@ class ProjectManager(QWidget):
         self._fill_curadoria_table("learning_event_types", metrics["learning_event_rows"])
         self._fill_curadoria_table("learning_roles", metrics["learning_role_rows"])
         self._fill_curadoria_table("learning_rules", metrics["rule_rows"])
+        self._fill_curadoria_table("pending", metrics["pending_rows"])
         self._fill_curadoria_table("faiss_stores", metrics["faiss_rows"])
         self._fill_curadoria_table("db_tables", metrics["db_rows"])
         self._fill_curadoria_table("rules", metrics["rule_rows"])
@@ -6366,6 +6393,16 @@ class ProjectManager(QWidget):
             for col_idx, value in enumerate(row):
                 item = QTableWidgetItem(str(value))
                 item.setFlags(item.flags() & ~Qt.ItemIsEditable)
+                if key == "pending" and col_idx == 0:
+                    priority_colors = {
+                        "ALTA": Colors.ACCENT_DANGER,
+                        "MEDIA": Colors.ACCENT_WARNING,
+                        "INFO": Colors.ACCENT_INFO,
+                    }
+                    item.setForeground(QColor(priority_colors.get(str(value), Colors.TEXT_PRIMARY)))
+                    font = item.font()
+                    font.setBold(True)
+                    item.setFont(font)
                 table.setItem(row_idx, col_idx, item)
 
     def _collect_curadoria_rag_metrics(self):
@@ -6409,6 +6446,8 @@ class ProjectManager(QWidget):
             "learning_event_rows": [],
             "learning_role_rows": [],
             "learning_accuracy": "-",
+            "pending_counts": Counter(),
+            "pending_rows": [],
             "faiss_rows": [],
             "db_rows": [],
             "rule_rows": [],
@@ -6639,6 +6678,86 @@ class ProjectManager(QWidget):
                 "OK",
                 f"ultimo: {metrics['latest_obra_rag']}",
             ])
+
+        pending = []
+
+        def add_pending(priority, area, finding, action):
+            pending.append([priority, area, finding, action])
+            metrics["pending_counts"][priority] += 1
+
+        canonical_classes = {"PIL", "LV", "FV", "LAJ"}
+        encyclopedia_by_class = {
+            str(row[0]).upper(): row for row in metrics["encyclopedia_rows"]
+        }
+        for classe in sorted(canonical_classes):
+            row = encyclopedia_by_class.get(classe)
+            if row is None:
+                add_pending(
+                    "ALTA",
+                    f"Classe {classe}",
+                    "Nenhuma fonte materializada na Enciclopedia.",
+                    "Revisar mapeamento N1/N2 e regras antes de criar conhecimento.",
+                )
+                continue
+            if int(row[4]) + int(row[5]) == 0:
+                add_pending(
+                    "ALTA",
+                    f"Classe {classe}",
+                    "Nenhuma instancia T1/T2 validada por humano.",
+                    "Validar casos dourados no fluxo operacional; nao fazer bulk.",
+                )
+            if int(row[7]) == 0:
+                add_pending(
+                    "MEDIA",
+                    f"Classe {classe}",
+                    "Sem regras em semantic_rag_kb.",
+                    "Harmonizar domain_knowledge com o dono antes de publicar regras.",
+                )
+            coverage = int(str(row[9]).split("/", 1)[0])
+            if coverage < 8:
+                add_pending(
+                    "INFO",
+                    f"Classe {classe}",
+                    f"{8 - coverage} das 8 dimensoes ainda sem evidencia materializada.",
+                    "Completar com exemplos reais; nao inferir conteudo ausente.",
+                )
+
+        for classe in sorted(set(encyclopedia_by_class) - canonical_classes):
+            add_pending(
+                "MEDIA",
+                "Taxonomia",
+                f"Classe/categoria '{classe}' nao esta no registro canonico PIL/LV/FV/LAJ.",
+                "Decidir se e alias, subclasse ou nova classe antes de consolidar.",
+            )
+
+        legacy_t0 = metrics["faiss_tiers"].get("T0", 0)
+        if legacy_t0:
+            add_pending(
+                "MEDIA",
+                "Memoria Vetorial",
+                f"{legacy_t0} metadados FAISS legados estao em T0.",
+                "Manter ocultos de T1+; revisar individualmente quando necessario.",
+            )
+        if metrics["semantic_total"] == 0:
+            add_pending(
+                "ALTA",
+                "Semantica",
+                "semantic_rag_kb esta vazia.",
+                "Popular somente regras confirmadas do domain_knowledge.",
+            )
+        if not manifests:
+            add_pending(
+                "INFO",
+                "RAG por obra",
+                "Nenhum snapshot local foi encontrado.",
+                "Gerar ao iniciar uma obra, sem promocao global.",
+            )
+
+        severity_order = {"ALTA": 0, "MEDIA": 1, "INFO": 2}
+        metrics["pending_rows"] = sorted(
+            pending,
+            key=lambda row: (severity_order.get(row[0], 9), row[1], row[2]),
+        )
 
         return metrics
 
