@@ -121,6 +121,29 @@
         "presence_pts": 50
       },
       "ts": "2026-05-21T21:16:59"
+    },
+    {
+      "id": "V301",
+      "tipo": "FV",
+      "obra": "Obra_TREINO_1",
+      "modo": "item=V301",
+      "sem": {
+        "b": 19.0,
+        "comprimento": 3202.0,
+        "n_paineis": 16,
+        "has_holes": true
+      },
+      "score": {
+        "score": 78,
+        "ratio": 0.013,
+        "gen_struct": 9,
+        "stog_struct": 694,
+        "missing_layers": 4,
+        "extra_layers": 0,
+        "item_mode": true,
+        "presence_pts": 50
+      },
+      "ts": "2026-06-25T21:19:19"
     }
   ],
   "summary": {
@@ -174,20 +197,20 @@
       ]
     },
     "FV": {
-      "count": 1,
-      "score_avg": 90.0,
-      "score_min": 90,
+      "count": 2,
+      "score_avg": 84.0,
+      "score_min": 78,
       "score_max": 90,
       "score_dist": {
         "0-40": 0,
         "40-70": 0,
-        "70-100": 1
+        "70-100": 2
       },
       "comp_range": [
         518.0,
-        518.0
+        3202.0
       ],
-      "with_holes": 1
+      "with_holes": 2
     }
   }
 }

@@ -14048,3 +14048,107 @@ Current thread's C stack trace (most recent call first):
 [13:10:47.383] N4 dxf_check n4_dxf=D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-6_Execucao_CAD\n4\LJ_preview_L319.dxf force_regen=True
 [13:10:47.383] N4 generate classe=LJ id=L319 via=robot
 [13:10:47.389] N4 generate launched
+[17:47:22.228] [CE] _on_obra_pav_changed obra='Obra_TREINO_1' pav='TMC-EST-EX-1000-FUN-R01_R2018_ASCII_ODA'
+[17:56:43.774] [CE] _on_obra_pav_changed obra='Obra_TREINO_1' pav='TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA'
+[17:56:48.735] ITEM_SELECTED classe=FV id=V301 flow=estrutural
+[17:56:48.745] N1 flow=estrutural classe=FV id=V301 auto_chain=True
+[17:57:16.306] [CE] _on_obra_pav_changed obra='Obra_TREINO_1' pav='TMC-EST-EX-1000-FUN-R01_R2018_ASCII_ODA'
+[18:00:05.638] [CE] _on_obra_pav_changed obra='Obra_TREINO_1' pav='TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA'
+[18:00:15.538] ITEM_SELECTED classe=FV id=V301 flow=estrutural
+[18:00:15.547] N1 flow=estrutural classe=FV id=V301 auto_chain=True
+[18:06:02.747] [CE] _on_obra_pav_changed obra='Obra_TREINO_1' pav='TMC-EST-EX-1000-FUN-R01_R2018_ASCII_ODA'
+[18:11:37.022] [CE] _on_obra_pav_changed obra='Obra_TREINO_1' pav='TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA'
+[18:11:43.834] ITEM_SELECTED classe=LV id=V301_A flow=estrutural
+[18:11:43.843] N1 flow=estrutural classe=LV id=V301_A auto_chain=True
+[18:12:42.838] ITEM_SELECTED classe=LV id=V301_B flow=estrutural
+[18:12:42.847] N1 flow=estrutural classe=LV id=V301_B auto_chain=True
+[18:23:04.583] ITEM_SELECTED classe=LV id=V302_A flow=estrutural
+[18:23:04.597] N1 flow=estrutural classe=LV id=V302_A auto_chain=True
+[18:25:09.479] ITEM_SELECTED classe=LV id=V302 flow=reverso
+[18:25:09.490] N1 flow=reverso classe=LV id=V302 auto_chain=True
+[18:25:09.492] N1 ER shortcircuit → chaining N2
+[18:25:09.545] N2 is_er_flow=True obra=Obra_TREINO_1 classe=LV id=V302
+[18:25:09.551] N2 recorte via fichas recente: LV_V302_motor_178111332849.dxf
+[18:25:09.551] N2 recorte_path=D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-2_Triagem\recortes_reversos\ALIMONTI - PARAISO - 13° PAV.- LV - R00\LV_V302_motor_178111332849.dxf
+[18:25:09.551] N2 loading DXF size=254KB
+[18:25:09.626] N2 recorte via fichas recente: LV_V302_motor_178111332849.dxf
+[18:25:09.712] LV ficha live V302: face_units=15 sections=1
+[18:25:10.567] N2 done ok. is_er=True auto_chain=True
+[18:25:10.619] N4 start classe=LV id=V302
+[18:25:10.621] N4 get_er_ficha classe=LV id=V302
+[18:25:10.624] N2 recorte via fichas recente: LV_V302_motor_178111332849.dxf
+[18:25:10.697] LV ficha live V302: face_units=15 sections=1
+[18:25:10.697] N4 set_ficha classe=LV id=V302 er_keys=31
+[18:25:10.968] N4 step0 ok
+[18:25:10.970] N4 dxf_check n4_dxf=D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-6_Execucao_CAD\n4\LV_preview_V302_A.dxf force_regen=True
+[18:25:10.971] N4 generate classe=LV id=V302 via=lv_gen
+[18:25:10.981] N4 generate launched
+[18:34:08.332] [CE] _on_obra_pav_changed obra='Obra_TREINO_1' pav='TMC-EST-EX-1000-FUN-R01_R2018_ASCII_ODA'
+[18:36:19.902] [CE] _on_obra_pav_changed obra='Obra_TREINO_1' pav='TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA'
+[18:52:42.701] [CE] _on_obra_pav_changed obra='Obra_TREINO_1' pav='TMC-EST-EX-1000-FUN-R01_R2018_ASCII_ODA'
+[18:57:49.150] [CE] _on_obra_pav_changed obra='Obra_TREINO_1' pav='TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA'
+[18:57:53.849] ITEM_SELECTED classe=LV id=V301_A_Para flow=estrutural
+[18:57:53.860] N1 flow=estrutural classe=LV id=V301_A_Para auto_chain=True
+[18:57:58.775] ITEM_SELECTED classe=LV id=V301_A_Passa flow=estrutural
+[18:57:58.784] N1 flow=estrutural classe=LV id=V301_A_Passa auto_chain=True
+[18:58:05.439] ITEM_SELECTED classe=LV id=V301 flow=reverso
+[18:58:05.452] N1 flow=reverso classe=LV id=V301 auto_chain=True
+[18:58:05.455] N1 ER shortcircuit → chaining N2
+[18:58:05.513] N2 is_er_flow=True obra=Obra_TREINO_1 classe=LV id=V301
+[18:58:05.513] N2 EXCEPTION: 'ComparisonEngineModule' object has no attribute '_lv_elem_id'
+[18:58:18.878] ITEM_SELECTED classe=LV id=V301 flow=reverso
+[18:58:18.886] N1 flow=reverso classe=LV id=V301 auto_chain=True
+[18:58:18.889] N1 ER shortcircuit → chaining N2
+[18:58:18.890] ITEM_SELECTED classe=LV id=V301 flow=reverso
+[18:58:18.897] N1 flow=reverso classe=LV id=V301 auto_chain=True
+[18:58:18.900] N1 ER shortcircuit → chaining N2
+[18:58:18.963] N2 is_er_flow=True obra=Obra_TREINO_1 classe=LV id=V301
+[18:58:18.964] N2 EXCEPTION: 'ComparisonEngineModule' object has no attribute '_lv_elem_id'
+[18:58:22.069] ITEM_SELECTED classe=LV id=V301 flow=reverso
+[18:58:22.076] N1 flow=reverso classe=LV id=V301 auto_chain=True
+[18:58:22.079] N1 ER shortcircuit → chaining N2
+[18:58:22.080] ITEM_SELECTED classe=LV id=V301 flow=reverso
+[18:58:22.086] N1 flow=reverso classe=LV id=V301 auto_chain=True
+[18:58:22.089] N1 ER shortcircuit → chaining N2
+[18:58:22.150] N2 is_er_flow=True obra=Obra_TREINO_1 classe=LV id=V301
+[18:58:22.151] N2 EXCEPTION: 'ComparisonEngineModule' object has no attribute '_lv_elem_id'
+[18:58:23.654] ITEM_SELECTED classe=LV id=V303 flow=reverso
+[18:58:23.661] N1 flow=reverso classe=LV id=V303 auto_chain=True
+[18:58:23.664] N1 ER shortcircuit → chaining N2
+[18:58:23.665] ITEM_SELECTED classe=LV id=V303 flow=reverso
+[18:58:23.672] N1 flow=reverso classe=LV id=V303 auto_chain=True
+[18:58:23.676] N1 ER shortcircuit → chaining N2
+[18:58:23.730] N2 is_er_flow=True obra=Obra_TREINO_1 classe=LV id=V303
+[18:58:23.731] N2 EXCEPTION: 'ComparisonEngineModule' object has no attribute '_lv_elem_id'
+[18:58:25.581] ITEM_SELECTED classe=LV id=V301 flow=reverso
+[18:58:25.589] N1 flow=reverso classe=LV id=V301 auto_chain=True
+[18:58:25.592] N1 ER shortcircuit → chaining N2
+[18:58:25.593] ITEM_SELECTED classe=LV id=V301 flow=reverso
+[18:58:25.599] N1 flow=reverso classe=LV id=V301 auto_chain=True
+[18:58:25.602] N1 ER shortcircuit → chaining N2
+[18:58:25.668] N2 is_er_flow=True obra=Obra_TREINO_1 classe=LV id=V301
+[18:58:25.669] N2 EXCEPTION: 'ComparisonEngineModule' object has no attribute '_lv_elem_id'
+[18:58:26.269] ITEM_SELECTED classe=LV id=V301 flow=reverso
+[18:58:26.277] N1 flow=reverso classe=LV id=V301 auto_chain=True
+[18:58:26.280] N1 ER shortcircuit → chaining N2
+[18:58:26.280] ITEM_SELECTED classe=LV id=V301 flow=reverso
+[18:58:26.287] N1 flow=reverso classe=LV id=V301 auto_chain=True
+[18:58:26.290] N1 ER shortcircuit → chaining N2
+[18:58:26.359] N2 is_er_flow=True obra=Obra_TREINO_1 classe=LV id=V301
+[18:58:26.360] N2 EXCEPTION: 'ComparisonEngineModule' object has no attribute '_lv_elem_id'
+[18:58:26.846] ITEM_SELECTED classe=LV id=V301 flow=reverso
+[18:58:26.853] N1 flow=reverso classe=LV id=V301 auto_chain=True
+[18:58:26.855] N1 ER shortcircuit → chaining N2
+[18:58:26.856] ITEM_SELECTED classe=LV id=V301 flow=reverso
+[18:58:26.863] N1 flow=reverso classe=LV id=V301 auto_chain=True
+[18:58:26.866] N1 ER shortcircuit → chaining N2
+[18:58:26.916] N2 is_er_flow=True obra=Obra_TREINO_1 classe=LV id=V301
+[18:58:26.917] N2 EXCEPTION: 'ComparisonEngineModule' object has no attribute '_lv_elem_id'
+[19:03:33.271] [CE] _on_obra_pav_changed obra='Obra_TREINO_1' pav='TMC-EST-EX-1000-FUN-R01_R2018_ASCII_ODA'
+[19:24:31.111] [CE] _on_obra_pav_changed obra='Obra_TREINO_1' pav='TMC-EST-EX-1000-FUN-R01_R2018_ASCII_ODA'
+[19:54:37.642] [CE] _on_obra_pav_changed obra='Obra_TREINO_1' pav='TMC-EST-EX-1000-FUN-R01_R2018_ASCII_ODA'
+[20:07:33.493] [CE] _on_obra_pav_changed obra='Obra_TREINO_1' pav='TMC-EST-EX-1000-FUN-R01_R2018_ASCII_ODA'
+[20:15:55.190] [CE] _on_obra_pav_changed obra='Obra_TREINO_1' pav='TMC-EST-EX-1000-FUN-R01_R2018_ASCII_ODA'
+[20:42:07.371] [CE] _on_obra_pav_changed obra='Obra_TREINO_1' pav='TMC-EST-EX-1000-FUN-R01_R2018_ASCII_ODA'
+[21:06:48.056] [CE] _on_obra_pav_changed obra='Obra_TREINO_1' pav='TMC-EST-EX-1000-FUN-R01_R2018_ASCII_ODA'
+[23:59:15.645] [CE] _on_obra_pav_changed obra='Obra_TREINO_1' pav='TMC-EST-EX-1000-FUN-R01_R2018_ASCII_ODA'

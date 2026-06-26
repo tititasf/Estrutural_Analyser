@@ -41,6 +41,8 @@ from PySide6.QtGui import QColor, QFont, QPainter, QPen, QBrush, QPainterPath, Q
 
 from src.ui.components.organisms import DualCanvasManager
 
+from src.ui.theme import Colors
+
 class DXFVectorView(QWidget):
     ready = Signal()
     def __init__(self, bg: str = Colors.BG_DEEP, parent=None):
