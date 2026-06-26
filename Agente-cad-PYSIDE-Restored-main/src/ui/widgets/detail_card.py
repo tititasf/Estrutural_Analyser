@@ -269,6 +269,22 @@ class DetailCard(QWidget):
                 self.fields['viga_count_c'].setStyleSheet(f"background: {Colors.BG_CARD}; color: {Colors.ACCENT_PRIMARY}; font-weight: bold; border: none;")
 
 
+    def _add_info_row(self, layout, label_text, field_id, is_combo=False, combo_items=None):
+        if is_combo:
+            w = QComboBox()
+            w.setStyleSheet(f"background: {Colors.BG_CARD}; border: 1px solid {Colors.BORDER_INPUT}; border-radius: 3px; color: {Colors.TEXT_BRIGHT};")
+            if combo_items:
+                w.addItems(combo_items)
+            w.currentTextChanged.connect(lambda txt: self._on_field_changed(field_id, txt))
+        else:
+            w = QLineEdit()
+            w.setStyleSheet(f"background: {Colors.BG_CARD}; border: 1px solid {Colors.BORDER_INPUT}; border-radius: 3px; color: {Colors.TEXT_BRIGHT};")
+            w.textChanged.connect(lambda txt: self._on_field_changed(field_id, txt))
+        
+        w.setFixedHeight(24)
+        self.fields[field_id] = w
+        layout.addRow(label_text, w)
+
     def _add_linked_row(self, layout, label_text, field_id, pick_type='text', is_combo=False, combo_items=None, 
                         show_links=True, show_focus=True, hide_input=False, show_validate=True, show_na=True):
         
@@ -1344,33 +1360,56 @@ class DetailCard(QWidget):
                 f_dim = QFormLayout(grp_dim)
                 f_dim.setContentsMargins(2, 4, 2, 4)
                 f_dim.setSpacing(1)
-                self._add_linked_row(f_dim, "Altura Total do Pilar cm [altura]:", "altura", "text")
-                self._add_linked_row(f_dim, "Nível de Chegada cm [nivel_chegada]:", "nivel_chegada", "text")
-                self._add_linked_row(f_dim, "Nível de Saída cm [nivel_saida]:", "nivel_saida", "text")
-                self._add_linked_row(f_dim, "Pavimento [pavimento]:", "pavimento", "text")
-                self._add_linked_row(f_dim, "Modo de Distribuição Hachuras [modo_distribuicao]:", "modo_distribuicao", "text")
+                self._add_info_row(f_dim, "Altura Total do Pilar cm [altura]:", "altura")
+                self._add_info_row(f_dim, "Nível de Chegada cm [nivel_chegada]:", "nivel_chegada")
+                self._add_info_row(f_dim, "Nível de Saída cm [nivel_saida]:", "nivel_saida")
                 layout.addWidget(grp_dim)
 
-                # ── GRUPO: Assembly / Grades e Parafusos ─────────────────────────
-                grp_asm = QGroupBox("Assembly — Grades, Distâncias e Parafusos")
-                grp_asm.setStyleSheet(f"QGroupBox {{ font-size: 10px; font-weight: bold; color: {Colors.TEXT_SECONDARY}; border: 1px solid {Colors.BORDER_DEFAULT}; margin-top: 4px; padding-top: 8px; }}")
-                f_asm = QFormLayout(grp_asm)
-                f_asm.setContentsMargins(2, 4, 2, 4)
-                f_asm.setSpacing(1)
-                self._add_linked_row(f_asm, "Grade Principal 1 mm [grade_1]:", "grade_1", "text")
-                self._add_linked_row(f_asm, "Grade Secundária 2 mm [grade_2]:", "grade_2", "text")
-                self._add_linked_row(f_asm, "Grade Terciária 3 mm [grade_3]:", "grade_3", "text")
-                self._add_linked_row(f_asm, "Distância entre Grades 1 mm [distancia_1]:", "distancia_1", "text")
-                self._add_linked_row(f_asm, "Distância entre Grades 2 mm [distancia_2]:", "distancia_2", "text")
-                self._add_linked_row(f_asm, "Parafuso entre Hachuras 1-2 mm [par_1_2]:", "par_1_2", "text")
-                self._add_linked_row(f_asm, "Parafuso entre Hachuras 2-3 mm [par_2_3]:", "par_2_3", "text")
-                self._add_linked_row(f_asm, "Parafuso entre Hachuras 3-4 mm [par_3_4]:", "par_3_4", "text")
-                self._add_linked_row(f_asm, "Parafuso entre Hachuras 4-5 mm [par_4_5]:", "par_4_5", "text")
-                self._add_linked_row(f_asm, "Parafuso entre Hachuras 5-6 mm [par_5_6]:", "par_5_6", "text")
-                self._add_linked_row(f_asm, "Parafuso entre Hachuras 6-7 mm [par_6_7]:", "par_6_7", "text")
-                self._add_linked_row(f_asm, "Parafuso entre Hachuras 7-8 mm [par_7_8]:", "par_7_8", "text")
-                self._add_linked_row(f_asm, "Parafuso entre Hachuras 8-9 mm [par_8_9]:", "par_8_9", "text")
-                layout.addWidget(grp_asm)
+                # ── GRUPO: Assembly / Grades ─────────────────────────
+                grp_grade = QGroupBox("Assembly — Grades e Distâncias")
+                grp_grade.setStyleSheet(f"QGroupBox {{ font-size: 10px; font-weight: bold; color: {Colors.TEXT_SECONDARY}; border: 1px solid {Colors.BORDER_DEFAULT}; margin-top: 4px; padding-top: 8px; }}")
+                grid_grade = QGridLayout(grp_grade)
+                grid_grade.setContentsMargins(2, 4, 2, 4)
+                grid_grade.setSpacing(4)
+                
+                headers = ["Grade 1", "Dist 1", "Grade 2", "Dist 2", "Grade 3"]
+                fields = ["grade_1", "distancia_1", "grade_2", "distancia_2", "grade_3"]
+                
+                for col, (h, f) in enumerate(zip(headers, fields)):
+                    lb = QLabel(h)
+                    lb.setStyleSheet(f"color: {Colors.TEXT_MUTED}; font-size: 9px;")
+                    grid_grade.addWidget(lb, 0, col, alignment=Qt.AlignCenter)
+                    le = QLineEdit()
+                    le.setStyleSheet(f"background: {Colors.BG_CARD}; border: 1px solid {Colors.BORDER_INPUT}; border-radius: 3px; color: {Colors.TEXT_BRIGHT};")
+                    le.setFixedHeight(20)
+                    le.setAlignment(Qt.AlignCenter)
+                    le.textChanged.connect(lambda txt, fn=f: self._on_field_changed(fn, txt))
+                    self.fields[f] = le
+                    grid_grade.addWidget(le, 1, col)
+                layout.addWidget(grp_grade)
+
+                # ── GRUPO: Assembly / Parafusos ─────────────────────────
+                grp_par = QGroupBox("Assembly — Parafusos entre Hachuras")
+                grp_par.setStyleSheet(f"QGroupBox {{ font-size: 10px; font-weight: bold; color: {Colors.TEXT_SECONDARY}; border: 1px solid {Colors.BORDER_DEFAULT}; margin-top: 4px; padding-top: 8px; }}")
+                grid_par = QGridLayout(grp_par)
+                grid_par.setContentsMargins(2, 4, 2, 4)
+                grid_par.setSpacing(4)
+                
+                par_headers = ["1-2", "2-3", "3-4", "4-5", "5-6", "6-7", "7-8", "8-9"]
+                par_fields = ["par_1_2", "par_2_3", "par_3_4", "par_4_5", "par_5_6", "par_6_7", "par_7_8", "par_8_9"]
+                
+                for col, (h, f) in enumerate(zip(par_headers, par_fields)):
+                    lb = QLabel(h)
+                    lb.setStyleSheet(f"color: {Colors.TEXT_MUTED}; font-size: 9px;")
+                    grid_par.addWidget(lb, 0, col, alignment=Qt.AlignCenter)
+                    le = QLineEdit()
+                    le.setStyleSheet(f"background: {Colors.BG_CARD}; border: 1px solid {Colors.BORDER_INPUT}; border-radius: 3px; color: {Colors.TEXT_BRIGHT};")
+                    le.setFixedHeight(20)
+                    le.setAlignment(Qt.AlignCenter)
+                    le.textChanged.connect(lambda txt, fn=f: self._on_field_changed(fn, txt))
+                    self.fields[f] = le
+                    grid_par.addWidget(le, 1, col)
+                layout.addWidget(grp_par)
 
         # Container para conteúdo dinâmico (Abas que mudam com o formato)
         self.dynamic_container = QWidget()
@@ -1391,6 +1430,155 @@ class DetailCard(QWidget):
         
         # Garante aplicação de estilos de validação após toda UI estar pronta
         self.refresh_validation_styles()
+        
+        # Conecta os signals para cálculo dinâmico (Grades, Parafusos, Chapas)
+        if 'dim' in self.fields:
+            self.fields['dim'].textChanged.connect(lambda _: self._recalc_pilar_geometry_if_needed())
+        if 'altura' in self.fields:
+            self.fields['altura'].textChanged.connect(lambda _: self._recalc_pilar_geometry_if_needed())
+            
+        # Trigger initial calculation
+        self._recalc_pilar_geometry_if_needed()
+
+    def _recalc_pilar_geometry_if_needed(self):
+        import re, math
+        if 'dim' not in self.fields or 'altura' not in self.fields:
+            return
+            
+        dim_str = self.fields['dim'].text()
+        alt_str = self.fields['altura'].text()
+        if not dim_str or not alt_str: return
+        
+        nums = [float(n.replace(',', '.')) for n in re.findall(r'\d+[.,]?\d*', dim_str)]
+        if len(nums) < 2: return
+        comp = max(nums)
+        larg = min(nums)
+        
+        try:
+            alt = float(alt_str.replace(',', '.'))
+        except Exception:
+            return
+            
+        # 1. Calc Parafusos
+        comp_adj = comp + 24.0
+        qtd_par = int(math.ceil(comp_adj / 72.0))
+        if qtd_par > 8: qtd_par = 8
+        
+        if qtd_par == 2:
+            val = round(comp_adj / 2.0, 1)
+            parafusos = [val, val] + [0]*(8-2)
+        elif qtd_par > 2:
+            base = int(math.floor(comp_adj / qtd_par))
+            resto = int(round(comp_adj - (base * qtd_par)))
+            par = [base] * qtd_par
+            l, r = 0, qtd_par - 1
+            for i in range(resto):
+                if i % 2 == 0:
+                    par[l] += 1
+                    l += 1
+                else:
+                    par[r] += 1
+                    r -= 1
+            parafusos = par + [0]*(8-qtd_par)
+        else:
+            parafusos = [0]*8
+            
+        for i in range(8):
+            fname = f"par_{i+1}_{i+2}"
+            if fname in self.fields and not self.fields[fname].hasFocus():
+                self.fields[fname].setText(str(float(parafusos[i])))
+                self.item_data.setdefault('fields', {})[fname] = float(parafusos[i])
+                
+        # 2. Calc Grades
+        comp_grade = comp + 22.0
+        grades, dists = [0]*3, [0]*2
+        if comp_grade <= 106:
+            grades[0] = comp_grade
+        elif comp_grade <= 259:
+            tg = min(106, comp_grade/2)
+            tg_menor = int(tg/5)*5
+            tg_maior = tg_menor + 5
+            d_menor = comp_grade - 2*tg_menor
+            d_maior = comp_grade - 2*tg_maior
+            if tg_maior <= 106 and 1 <= d_maior <= 15:
+                t, d = tg_maior, d_maior
+            elif 1 <= d_menor <= 15:
+                t, d = tg_menor, d_menor
+            else:
+                d = max(1, min(15, d_menor))
+                t = (comp_grade - d)/2
+            t = round(t)
+            d = comp_grade - 2*t
+            if d < 1: d = 1
+            elif d > 15: d = 15
+            grades[0] = grades[1] = t
+            dists[0] = d
+        else:
+            tg = min(106, comp_grade/3)
+            tg_menor = int(tg/5)*5
+            tg_maior = tg_menor + 5
+            d_menor = (comp_grade - 3*tg_menor)/2
+            d_maior = (comp_grade - 3*tg_maior)/2
+            if tg_maior <= 106 and 1 <= d_maior <= 15:
+                t, d = tg_maior, d_maior
+            elif 1 <= d_menor <= 15:
+                t, d = tg_menor, d_menor
+            else:
+                d = max(1, min(15, d_menor))
+                t = (comp_grade - 2*d)/3
+            t = round(t)
+            d = (comp_grade - 3*t)/2
+            if d < 1: d = 1
+            elif d > 15: d = 15
+            grades = [t, t, t]
+            dists = [d, d]
+            
+        for i, val in enumerate(grades):
+            f = f"grade_{i+1}"
+            if f in self.fields and not self.fields[f].hasFocus():
+                self.fields[f].setText(str(float(val)))
+                self.item_data.setdefault('fields', {})[f] = float(val)
+                
+        for i, val in enumerate(dists):
+            f = f"distancia_{i+1}"
+            if f in self.fields and not self.fields[f].hasFocus():
+                self.fields[f].setText(str(float(val)))
+                self.item_data.setdefault('fields', {})[f] = float(val)
+                
+        # 3. Calc Chapa/Forma
+        shape = self.item_data.get('format', 'Retangular')
+        sides = ['A', 'B', 'C', 'D']
+        if shape == "Circular": sides = ["Superior", "Inferior"]
+        elif shape == "Em L": sides = ['A', 'B', 'C', 'D', 'E', 'F']
+        elif shape in ["Em T", "Em U"]: sides = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H']
+        
+        for side in sides:
+            h1 = 2.0
+            laje_h = 0.0
+            if f"p_s{side}_l1_h" in self.fields:
+                try: laje_h = float(self.fields[f"p_s{side}_l1_h"].text().replace(',', '.'))
+                except: pass
+            
+            alt_util = alt - laje_h - h1
+            if alt_util > 244:
+                h2 = 244.0
+                h3 = max(0.0, alt_util - h2)
+            else:
+                h2 = max(0.0, alt_util)
+                h3 = 0.0
+                
+            for h_idx, h_val in enumerate([h1, h2, h3, 0.0, 0.0]):
+                f = f"p_s{side}_c_h{h_idx+1}"
+                if f in self.fields and not self.fields[f].hasFocus():
+                    self.fields[f].setText(str(float(h_val)))
+                    self.item_data.setdefault('fields', {})[f] = float(h_val)
+                    
+            larg_val = comp if side in ['A', 'B'] else larg
+            for larg_idx, l_val in enumerate([larg_val, 0.0, 0.0]):
+                f = f"p_s{side}_c_larg{larg_idx+1}"
+                if f in self.fields and not self.fields[f].hasFocus():
+                    self.fields[f].setText(str(float(l_val)))
+                    self.item_data.setdefault('fields', {})[f] = float(l_val)
 
     # ... (keeps existing helper methods until _setup_laje_complex_view)
 
@@ -1597,15 +1785,15 @@ class DetailCard(QWidget):
             f_chapa.setContentsMargins(2, 4, 2, 4)
             f_chapa.setSpacing(1)
             # H1..H5: alturas das seções da chapa de forma (barriga superior/medio/inferior etc.)
-            self._add_linked_row(f_chapa, f"H1 Altura Seção Superior Chapa cm [p_s{side}_c_h1]:", f'p_s{side}_c_h1', "text")
-            self._add_linked_row(f_chapa, f"H2 Altura Seção Principal Chapa cm [p_s{side}_c_h2]:", f'p_s{side}_c_h2', "text")
-            self._add_linked_row(f_chapa, f"H3 Altura Seção Inferior Chapa cm [p_s{side}_c_h3]:", f'p_s{side}_c_h3', "text")
-            self._add_linked_row(f_chapa, f"H4 Altura Seção Extra 4 Chapa cm [p_s{side}_c_h4]:", f'p_s{side}_c_h4', "text")
-            self._add_linked_row(f_chapa, f"H5 Altura Seção Extra 5 Chapa cm [p_s{side}_c_h5]:", f'p_s{side}_c_h5', "text")
+            self._add_info_row(f_chapa, f"H1 Altura Seção Superior Chapa cm [p_s{side}_c_h1]:", f'p_s{side}_c_h1')
+            self._add_info_row(f_chapa, f"H2 Altura Seção Principal Chapa cm [p_s{side}_c_h2]:", f'p_s{side}_c_h2')
+            self._add_info_row(f_chapa, f"H3 Altura Seção Inferior Chapa cm [p_s{side}_c_h3]:", f'p_s{side}_c_h3')
+            self._add_info_row(f_chapa, f"H4 Altura Seção Extra 4 Chapa cm [p_s{side}_c_h4]:", f'p_s{side}_c_h4')
+            self._add_info_row(f_chapa, f"H5 Altura Seção Extra 5 Chapa cm [p_s{side}_c_h5]:", f'p_s{side}_c_h5')
             # Larg1..3: larguras das chapas de forma
-            self._add_linked_row(f_chapa, f"Larg1 Largura Principal Chapa mm [p_s{side}_c_larg1]:", f'p_s{side}_c_larg1', "text")
-            self._add_linked_row(f_chapa, f"Larg2 Largura Secundária Chapa mm [p_s{side}_c_larg2]:", f'p_s{side}_c_larg2', "text")
-            self._add_linked_row(f_chapa, f"Larg3 Largura Terciária Chapa mm [p_s{side}_c_larg3]:", f'p_s{side}_c_larg3', "text")
+            self._add_info_row(f_chapa, f"Larg1 Largura Principal Chapa mm [p_s{side}_c_larg1]:", f'p_s{side}_c_larg1')
+            self._add_info_row(f_chapa, f"Larg2 Largura Secundária Chapa mm [p_s{side}_c_larg2]:", f'p_s{side}_c_larg2')
+            self._add_info_row(f_chapa, f"Larg3 Largura Terciária Chapa mm [p_s{side}_c_larg3]:", f'p_s{side}_c_larg3')
             tab_l.addWidget(grp_chapa)
 
             # Lajes - Layout Vertical (Laje 2 abaixo da Laje 1) para compactar largura
@@ -1621,20 +1809,38 @@ class DetailCard(QWidget):
                 
                 # Ajuste Laje 2: Pos. -> Laje central e opções Esquerda/Direita
                 if i == 2:
-                    self._add_linked_row(f, "Posição da Laje C:", f'p_s{side}_l{i}_p', "text", is_combo=True, combo_items=["Esquerda", "Direita"])
+                    self._add_info_row(f, "Posição da Laje C:", f'p_s{side}_l{i}_p', is_combo=True, combo_items=["Esquerda", "Direita"])
                 else:
-                    self._add_linked_row(f, "Posição da Laje:", f'p_s{side}_l{i}_p', "text", is_combo=True, combo_items=["Topo", "Centro", "Fundo"])
+                    self._add_info_row(f, "Posição da Laje:", f'p_s{side}_l{i}_p', is_combo=True, combo_items=["Topo", "Centro", "Fundo"])
                 
-                self._add_linked_row(f, "Distância ao Centro:", f'p_s{side}_l{i}_dist_c', "poly")
+                self._add_info_row(f, "Distância ao Centro:", f'p_s{side}_l{i}_dist_c')
+                self._add_info_row(f, "Distância ao Topo:", f'p_s{side}_l{i}_dist_t')
+                self._add_info_row(f, "Distância Parede Esquerda:", f'p_s{side}_l{i}_dist_esq')
+                self._add_info_row(f, "Distância Parede Direita:", f'p_s{side}_l{i}_dist_dir')
                 
-                # Novo Campo Laje 2: Dist. do Topo
-                if i == 2:
-                    self._add_linked_row(f, "Distância ao Topo:", f'p_s{side}_l{i}_dist_t', "poly") 
-                
-                # Inicialização de visibilidade
-                self._on_position_changed(f'p_s{side}_l{i}_p', self.fields[f'p_s{side}_l{i}_p'].currentText())
+                # Inicialização de valores padrão se vazio
+                for fd in ['dist_esq', 'dist_dir']:
+                    fw = self.fields.get(f'p_s{side}_l{i}_{fd}')
+                    if fw and fw.text() == "":
+                        fw.setText("0")
                 
                 tab_l.addWidget(grp)
+
+            # ── Nova classe: Vigas Internas / Vigas que passam ──
+            v_int_grp = QGroupBox(f"Vigas que Passam ou Internas — Lado {side}")
+            v_int_grp.setStyleSheet(f"QGroupBox {{ font-size: 10px; font-weight: bold; color: {Colors.ACCENT_MINT}; border: 1px solid {Colors.BORDER_DEFAULT}; margin-top: 10px; padding-top: 5px; }}")
+            f_v_int = QFormLayout(v_int_grp)
+            f_v_int.setSpacing(1)
+            f_v_int.setContentsMargins(2, 5, 2, 2)
+            
+            id_v_int = f'p_s{side}_v_int'
+            self._add_linked_row(f_v_int, "Nome da Viga:", f'{id_v_int}_n', "text")
+            self._add_linked_row(f_v_int, "Dimensão (B x H):", f'{id_v_int}_d', "text")
+            self._add_linked_row(f_v_int, "Nível da Viga:", f'{id_v_int}_v', "text")
+            self._add_info_row(f_v_int, "Distância ao Topo:", f'{id_v_int}_dist_t')
+            self._add_info_row(f_v_int, "Distância Parede Esquerda:", f'{id_v_int}_dist_esq')
+            self._add_info_row(f_v_int, "Distância Parede Direita:", f'{id_v_int}_dist_dir')
+            tab_l.addWidget(v_int_grp)
 
             # Categorias de Vigas
             beam_categories = [
@@ -1656,18 +1862,20 @@ class DetailCard(QWidget):
                 self._add_linked_row(vf, "Nome da Viga:", f'{id_pref}_n', "text")
                 self._add_linked_row(vf, "Dimensão (B x H):", f'{id_pref}_d', "text")
                 self._add_linked_row(vf, "Segmentos Geometria:", f'{id_pref}_segs', "poly", hide_input=True)
-                if is_arrival:
-                    self._add_linked_row(vf, "Distância Face:", f'{id_pref}_dist', "poly")
                 
-                # Profundidade sem link, auto-calculado
-                self._add_linked_row(vf, "Profundidade (Auto):", f'{id_pref}_prof', "text", show_links=False)
+                if is_arrival:
+                    self._add_info_row(vf, "Distância Parede Esquerda:", f'{id_pref}_dist_esq')
+                    self._add_info_row(vf, "Distância Parede Direita:", f'{id_pref}_dist_dir')
+                
+                # Distância Topo sem link, auto-calculado
+                self._add_info_row(vf, "Distância Topo (Auto):", f'{id_pref}_prof')
                 
                 # Auto-update logic
                 dim_widget = self.fields[f'{id_pref}_d']
                 prof_widget = self.fields[f'{id_pref}_prof']
                 dim_widget.textChanged.connect(lambda t, w=prof_widget: self._update_depth_from_dim(t, w))
                 
-                self._add_linked_row(vf, "Dif. Nível:", f'{id_pref}_diff_v', "text")
+                self._add_linked_row(vf, "Nível Viga:", f'{id_pref}_diff_v', "text")
                 tab_l.addWidget(v_grp)
                 
             tabs.addTab(tab, f"Lado {side}")
