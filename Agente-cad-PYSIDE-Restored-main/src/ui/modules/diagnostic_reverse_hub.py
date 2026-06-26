@@ -1781,9 +1781,16 @@ class _CenterPanel(QFrame):
             msp = doc.modelspace()
             n = 0
             for item in selected:
-                data = item.data(0)
-                if not data or not item.isVisible():
+                if not item.isVisible(): continue
+
+                ent = item.data(256)
+                if ent is not None:
+                    # Cópia perfeita e fiel da entidade DXF original (cores, layers, geometrias complexas)
+                    msp.add_entity(ent.copy())
+                    n += 1
                     continue
+
+                data = item.data(0) or {}
                 layer  = str(data.get('layer', '0') or '0')
                 aci    = data.get('aci', 256)
                 attribs: dict = {'layer': layer}
