@@ -7554,8 +7554,9 @@ class ComparisonEngineModule(QWidget):
             self._retiring_analise_workers.append(old_aw)
             def _retire_aw(w=old_aw, lst=self._retiring_analise_workers):
                 try:
-                    lst.remove(w)
-                except ValueError:
+                    if isinstance(lst, list):
+                        lst.remove(w)
+                except (ValueError, AttributeError):
                     pass
                 try:
                     w.deleteLater()

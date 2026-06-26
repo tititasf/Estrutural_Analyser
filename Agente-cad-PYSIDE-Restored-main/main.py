@@ -7877,9 +7877,9 @@ class MainWindow(QMainWindow):
             self.canvas.draw_marco_dxf(self.db.load_pre_processing(self.current_project_id))
             return
 
-        for i in range(self.list_pillars.count()):
-            it = self.list_pillars.item(i)
-            if it.data(Qt.UserRole) == p_id:
+        for i in range(self.list_pillars.topLevelItemCount()):
+            it = self.list_pillars.topLevelItem(i)
+            if it and it.data(0, Qt.UserRole) == p_id:
                 self.list_pillars.setCurrentItem(it)
                 self.on_list_pillar_clicked(it)
                 break
