@@ -3251,8 +3251,7 @@ DETALHES DAS ABERTURAS MAPEADAS:"""
         
         row_obra.addWidget(lbl_obra)
         row_obra.addWidget(self.combo_obra)
-        row_obra.addWidget(self.btn_add_obra)
-        row_obra.addWidget(self.btn_rem_obra)
+        # btn_add_obra e btn_rem_obra criados mas NÃO exibidos (sync gerencia obras)
         filter_layout_main.addLayout(row_obra)
 
         # Linha 2: Pavimento
@@ -3323,9 +3322,7 @@ DETALHES DAS ABERTURAS MAPEADAS:"""
         
         row_pav.addWidget(lbl_pav)
         row_pav.addWidget(self.combo_pavimento)
-        row_pav.addWidget(self.btn_add_pav)
-        row_pav.addWidget(self.btn_paste_pav)
-        row_pav.addWidget(self.btn_rem_pav)
+        # btn_add_pav, btn_paste_pav, btn_rem_pav criados mas NÃO exibidos (sync gerencia pavimentos)
         filter_layout_main.addLayout(row_pav)
 
         # Total M2 dentro do container ou logo abaixo
@@ -3367,30 +3364,17 @@ DETALHES DAS ABERTURAS MAPEADAS:"""
         left_layout.addLayout(left_actions)
         
         splitter.addWidget(left_widget)
-        
-        # --- COLUNA 2: VISUALIZAÇÃO (Centro) ---
-        center_widget = QWidget()
-        center_layout = QVBoxLayout(center_widget)
-        center_layout.setContentsMargins(5, 5, 5, 5)
-        
-        lbl_view_header = QLabel("VISUALIZAÇÃO")
-        lbl_view_header.setStyleSheet("font-size: 14px; font-weight: bold; color: #4fc3f7; margin-bottom: 5px;")
-        center_layout.addWidget(lbl_view_header)
-        
-        self.canvas = FundoCanvas()
-        self.canvas.setMinimumHeight(400)
-        center_layout.addWidget(self.canvas)
-        
-        splitter.addWidget(center_widget)
-        
-        # --- COLUNA 3: COMANDOS (Direita) ---
+
+        # --- COLUNA 2: VISUALIZAÇÃO + FICHA (Direita, layout vertical) ---
         right_container = QWidget()
         right_layout = QVBoxLayout(right_container)
         right_layout.setContentsMargins(5, 5, 5, 5)
-        
-        lbl_cmd_header = QLabel("COMANDOS")
-        lbl_cmd_header.setStyleSheet("font-size: 14px; font-weight: bold; color: #4fc3f7; margin-bottom: 5px;")
-        right_layout.addWidget(lbl_cmd_header)
+        right_layout.setSpacing(4)
+
+        # Canvas (viewer) horizontal no topo — ocupa a maior parte vertical
+        self.canvas = FundoCanvas()
+        self.canvas.setMinimumHeight(300)
+        right_layout.addWidget(self.canvas, stretch=3)
 
         # ScrollArea para comandos se a tela for pequena
         scroll_cmds = QScrollArea()
@@ -3405,68 +3389,54 @@ DETALHES DAS ABERTURAS MAPEADAS:"""
         # grp_main = QGroupBox("Principal")
         # ... (Código removido a pedido do usuário)
 
-        # GRUPO 2: PRODUÇÃO (Botões Coloridos)
+        # Botões de Produção/Geração/Ferramentas: criados mas NÃO exibidos no painel
         grp_prod = QGroupBox("Produção")
         prod_grid = QGridLayout(grp_prod)
         self.btns_prod = [
             QPushButton("Próxima Viga"), QPushButton("Próximo Segmento"),
             QPushButton("Extensão L"), QPushButton("Cancelar")
         ]
-        colors = ["#2E7D32", "#2E7D32", "#ff9800", "#f44336"]  # Verde para os dois primeiros
+        colors = ["#2E7D32", "#2E7D32", "#ff9800", "#f44336"]
         for i, b in enumerate(self.btns_prod):
             b.setStyleSheet(f"background-color: {colors[i]}; font-weight: bold; color: white; padding: 4px; font-size: 11px;")
             prod_grid.addWidget(b, i // 2, i % 2)
-        cmd_layout.addWidget(grp_prod)
+        # grp_prod NÃO adicionado ao layout
 
-        # GRUPO 2.5: GERAÇÃO (Botões de Geração)
         grp_geracao = QGroupBox("Geração")
         geracao_grid = QGridLayout(grp_geracao)
         self.btn_gerar_segmento = QPushButton("Gerar Segmento")
         self.btn_gerar_conjunto = QPushButton("Gerar conjunto de Viga")
         self.btn_gerar_pavimento = QPushButton("Gerar Pavimento")
-        
-        # Estilização similar ao Robo Laterais
         self.btn_gerar_segmento.setStyleSheet("background-color: #FFEB3B; color: black; font-weight: bold; padding: 4px; font-size: 11px;")
         self.btn_gerar_conjunto.setStyleSheet("background-color: #1976D2; color: white; font-weight: bold; padding: 4px; font-size: 11px;")
         self.btn_gerar_pavimento.setStyleSheet("background-color: #C62828; color: white; font-weight: bold; padding: 4px; font-size: 11px;")
-        
         geracao_grid.addWidget(self.btn_gerar_segmento, 0, 0)
         geracao_grid.addWidget(self.btn_gerar_conjunto, 0, 1)
-        geracao_grid.addWidget(self.btn_gerar_pavimento, 1, 0, 1, 2)  # Ocupa 2 colunas
-        cmd_layout.addWidget(grp_geracao)
+        geracao_grid.addWidget(self.btn_gerar_pavimento, 1, 0, 1, 2)
+        # grp_geracao NÃO adicionado ao layout
 
-        # GRUPO 3: FERRAMENTAS (Ex-Footer)
         grp_tools = QGroupBox("Ferramentas")
         tools_grid = QGridLayout(grp_tools)
         self.btn_config_desenho = QPushButton("Configuração Desenho")
         self.btn_config_ordenador = QPushButton("Configuração Ordenador")
         self.btn_lisp_fd = QPushButton("Criar comando lisp FD")
-        
-        # Aplicar estilo compacto aos botões de ferramentas com cor lilás
         for btn in [self.btn_config_desenho, self.btn_config_ordenador, self.btn_lisp_fd]:
             btn.setStyleSheet("background-color: #BA68C8; color: white; padding: 4px; font-size: 11px;")
-        
         tools_grid.addWidget(self.btn_config_desenho, 0, 0)
         tools_grid.addWidget(self.btn_config_ordenador, 0, 1)
-        tools_grid.addWidget(self.btn_lisp_fd, 1, 0, 1, 2)  # Ocupa 2 colunas
-        cmd_layout.addWidget(grp_tools)
+        tools_grid.addWidget(self.btn_lisp_fd, 1, 0, 1, 2)
+        # grp_tools NÃO adicionado ao layout
 
-        # Botão Salvar e Analisar Boundary (abaixo do box das ferramentas)
-        btn_salvar_container = QHBoxLayout()
-        btn_salvar_container.addStretch()
-        self.btn_salvar = QPushButton("Salvar")
-        self.btn_salvar.setStyleSheet("background-color: #1976D2; color: white; font-weight: bold; font-size: 12px; padding: 8px; min-height: 30px;")
-        self.btn_salvar.setMinimumWidth(250)
-        btn_salvar_container.addWidget(self.btn_salvar)
-        
-        # Botão Analisar Boundary (ao lado do Salvar)
+        # btn_analisar_boundary: criado mas NÃO exibido
         self.btn_analisar_boundary = QPushButton("Analisar Boundary")
         self.btn_analisar_boundary.setStyleSheet("background-color: #FF9800; color: white; font-weight: bold; font-size: 12px; padding: 8px; min-height: 30px;")
-        self.btn_analisar_boundary.setMinimumWidth(250)
-        btn_salvar_container.addWidget(self.btn_analisar_boundary)
-        
-        btn_salvar_container.addStretch()
-        cmd_layout.addLayout(btn_salvar_container)
+
+        # Somente o botão Salvar é exibido
+        self.btn_salvar = QPushButton("Salvar")
+        self.btn_salvar.setStyleSheet(
+            "background-color: #1976D2; color: white; font-weight: bold; "
+            "font-size: 13px; padding: 8px; min-height: 32px; border-radius: 4px;")
+        cmd_layout.addWidget(self.btn_salvar)
 
         # GRUPO 4: DETALHES (Tabs)
         # O TabWidget fica como último elemento do scroll
@@ -3671,16 +3641,15 @@ DETALHES DAS ABERTURAS MAPEADAS:"""
         cmd_layout.addStretch() # Empurrar tudo pra cima
 
         scroll_cmds.setWidget(cmd_widget)
-        right_layout.addWidget(scroll_cmds)
-        
+        # Scroll de campos abaixo do canvas — stretch menor
+        right_layout.addWidget(scroll_cmds, stretch=2)
+
         splitter.addWidget(right_container)
-        
-        # Ajustar proporções do splitter: Esquerda (1), Centro (4), Direita (2)
+
+        # Splitter 2 colunas: Lista (1) | Viewer+Ficha (4)
         splitter.setStretchFactor(0, 1)
         splitter.setStretchFactor(1, 4)
-        splitter.setStretchFactor(2, 2)
-        # Tamanhos proporcionais — não hardcoded para 1300px
-        splitter.setSizes([140, 560, 300])
+        splitter.setSizes([260, 1040])
         
         main_layout.addWidget(splitter)
 
