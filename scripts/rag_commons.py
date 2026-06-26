@@ -9,6 +9,7 @@ from pathlib import Path
 import numpy as np
 import faiss
 from sentence_transformers import SentenceTransformer
+from rag_tier import is_indexable, load_tombstones
 
 sys.stdout.reconfigure(encoding='utf-8', errors='replace')
 
@@ -131,7 +132,7 @@ def fmt_element(id_: str, tipo: str, data: dict, obra: str, pav: str = '1_PAV') 
 # ── QUERY SEMÂNTICA ──────────────────────────────────────────────────────────
 
 def query(text: str, tipo: str = None, obra: str = None,
-          k: int = 5, threshold: float = 0.20) -> list:
+          k: int = 5, threshold: float = 0.20, min_tier: str = 'T1') -> list:
     """
     Busca semântica no corpus RAG.
 
@@ -141,17 +142,19 @@ def query(text: str, tipo: str = None, obra: str = None,
         obra: Filtrar por obra específica
         k: Número de resultados
         threshold: Score mínimo de similaridade
+        min_tier: Tier mínimo retornado no RAG global (default T1)
 
     Returns:
         Lista de dicts: [{'score': float, 'meta': dict}, ...]
     """
     model = load_model()
     index, meta = load_index(tipo)
+    tombstones = load_tombstones()
 
     vec = model.encode([text], show_progress_bar=False)
     vec = normalize(vec)
 
-    k_search = min(k * 5 if obra else k, index.ntotal)
+    k_search = min(k * 20 if (obra or min_tier) else k, index.ntotal)
     scores, ids = index.search(vec, k_search)
     scores = scores[0]
     ids    = ids[0]
@@ -169,6 +172,8 @@ def query(text: str, tipo: str = None, obra: str = None,
             m = meta[fid] if 0 <= fid < len(meta) else None
 
         if m is None:
+            continue
+        if not is_indexable(m, min_tier=min_tier, tombstones=tombstones):
             continue
         if obra and m.get('obra') != obra:
             continue

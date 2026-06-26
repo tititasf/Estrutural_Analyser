@@ -88,18 +88,18 @@
               "area_cm2": 74206.5,
               "linhas_verticais": [
                 {
-                  "is_union": false,
-                  "value": 244.0
+                  "value": 244.0,
+                  "is_union": false
                 }
               ],
               "linhas_horizontais": [
                 {
-                  "is_union": false,
-                  "value": 102.0
+                  "value": 102.0,
+                  "is_union": false
                 },
                 {
-                  "is_union": false,
-                  "value": 122.0
+                  "value": 122.0,
+                  "is_union": false
                 }
               ],
               "obstaculos": [],
@@ -945,6 +945,10 @@
                 {
                   "value": 122.0,
                   "is_union": false
+                },
+                {
+                  "value": 87.0,
+                  "is_union": false
                 }
               ],
               "obstaculos": [],
@@ -999,6 +1003,10 @@
                 },
                 {
                   "value": 122.0,
+                  "is_union": false
+                },
+                {
+                  "value": 289.0,
                   "is_union": false
                 }
               ],
@@ -1110,6 +1118,10 @@
                 {
                   "value": 122.0,
                   "is_union": false
+                },
+                {
+                  "value": 334.07,
+                  "is_union": false
                 }
               ],
               "obstaculos": [],
@@ -1164,6 +1176,10 @@
                 },
                 {
                   "value": 122.0,
+                  "is_union": false
+                },
+                {
+                  "value": 199.0,
                   "is_union": false
                 }
               ],
@@ -1220,6 +1236,10 @@
                 {
                   "value": 122.0,
                   "is_union": false
+                },
+                {
+                  "value": 199.0,
+                  "is_union": false
                 }
               ],
               "obstaculos": [],
@@ -1274,6 +1294,10 @@
                 },
                 {
                   "value": 122.0,
+                  "is_union": false
+                },
+                {
+                  "value": 198.96,
                   "is_union": false
                 }
               ],
@@ -1330,6 +1354,10 @@
                 {
                   "value": 122.0,
                   "is_union": false
+                },
+                {
+                  "value": 199.0,
+                  "is_union": false
                 }
               ],
               "obstaculos": [],
@@ -1385,6 +1413,10 @@
                 {
                   "value": 122.0,
                   "is_union": false
+                },
+                {
+                  "value": 199.0,
+                  "is_union": false
                 }
               ],
               "obstaculos": [],
@@ -1439,6 +1471,10 @@
                 },
                 {
                   "value": 122.0,
+                  "is_union": false
+                },
+                {
+                  "value": 235.0,
                   "is_union": false
                 }
               ],
@@ -1923,18 +1959,18 @@
               "area_cm2": 74206.5,
               "linhas_verticais": [
                 {
-                  "is_union": false,
-                  "value": 244.0
+                  "value": 244.0,
+                  "is_union": false
                 }
               ],
               "linhas_horizontais": [
                 {
-                  "is_union": false,
-                  "value": 102.0
+                  "value": 102.0,
+                  "is_union": false
                 },
                 {
-                  "is_union": false,
-                  "value": 122.0
+                  "value": 122.0,
+                  "is_union": false
                 }
               ],
               "obstaculos": [],

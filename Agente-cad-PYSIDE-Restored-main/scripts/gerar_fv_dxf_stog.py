@@ -27,8 +27,10 @@ GAP_VIGAS       = 47     # gap between vigas in same row (cm)
 GAP_ROW         = 115    # gap viga_top_inferior -> viga_bottom_superior (cm)
 NOM_ABOVE       = 9      # y = viga_top + NOM_ABOVE for NOMENCLATURA
 NOM_H           = 12.0   # NOMENCLATURA text height (SCR: -STYLE Standard, height 12)
-DIM_BELOW       = 37     # y = viga_bottom - DIM_BELOW for individual panel dims
-DIM_TOTAL_BELOW = 69     # y = viga_bottom - DIM_TOTAL_BELOW for total viga dim
+LABEL_ABOVE     = 40     # y = viga_top + LABEL_ABOVE for endpoint/gap labels
+LABEL_H         = 12.0   # endpoint/gap label height (layer 5)
+DIM_BELOW       = 20     # y = viga_bottom - DIM_BELOW  (nível 1: cota individual)
+DIM_TOTAL_BELOW = 40     # y = viga_bottom - DIM_TOTAL_BELOW (nível 2: total segmento)
 DIM_B_RIGHT     = 28     # x = viga_right + DIM_B_RIGHT for vertical b dim
 PID_H           = 12.0   # panel-ID text height (layer '5')
 SARR_RECUO      = 7      # recuo offset for sarrafos from viga edges (cm)
@@ -58,6 +60,8 @@ LAYERS = {
     'Madeira':                  126,
     'SARRAFO DE PRESSAO':       251,
     'SARR_2.2x7':                40,
+    'SARR_5cm':                   4,   # azul-esverdeado; vigas com 10≤b≤14cm
+    'SARR_CONTORNO_10cm':         3,   # verde; vigas com b<10cm
     'SARR_EDITAR':              141,
     'Perfil Met\u00e1lico':     224,
     'REAPROVEITAMENTO':         251,
@@ -71,6 +75,20 @@ LAYERS = {
 
 # Layer name constant (avoids encoding issues in code)
 LY_PAINEIS = 'Pain\u00e9is'
+
+
+def normalize_viga_name(value):
+    """Remove internal pipeline marks and an existing drawing suffix."""
+    name = str(value or '').strip()
+    name = re.sub(r'^\s*CONT\.\s*', '', name, flags=re.IGNORECASE)
+    name = re.sub(
+        r'(?<![A-Z0-9])N4ER(?![A-Z0-9])',
+        '',
+        name,
+        flags=re.IGNORECASE,
+    )
+    name = re.sub(r'\.C\s*$', '', name, flags=re.IGNORECASE)
+    return name.strip(' _.-')
 
 
 def create_nf_blocks(doc, max_n=10):
@@ -201,39 +219,58 @@ def build_chanfro_vertices(w, b, te=0.0, fe=0.0, td=0.0, fd=0.0):
     return [{'x': float(x), 'y': float(y)} for x, y in pts]
 
 
-def build_panel_l_loose(main_comp, main_b, comp2, larg2, tipo, paineis_2):
+def build_panel_l_loose(main_comp, main_b, comp2, larg2, tipo, paineis_2, angulo_l=90.0):
     """Build loose LINE entities for an L-shaped secondary panel.
 
     Coordinates are relative to the first sub-panel (x=0, y=0 at panel bottom).
     tipo: 'E/T' | 'E/F' | 'D/T' | 'D/F'
       First letter: E=left (x from 0), D=right (x from main_comp-comp2)
       Second letter: T=top (y from main_b upward), F=bottom (y going downward)
+    angulo_l: angle in degrees between the main panel baseline and the L-panel
+      outward side. 90 keeps the classic rectangular L; other values create a
+      parallelogram-like angled L panel.
     """
     parts = tipo.replace('-', '/').upper().split('/')
     side = parts[0] if parts else 'E'
     vert = parts[1] if len(parts) > 1 else 'T'
 
     x_l = 0.0 if side == 'E' else float(main_comp - comp2)
-    y_l = float(main_b) if vert == 'T' else -float(larg2)
+    y_l = float(main_b) if vert == 'T' else 0.0
     x_r = x_l + float(comp2)
-    y_t = y_l + float(larg2)
+    try:
+        angle = float(angulo_l)
+    except Exception:
+        angle = 90.0
+    if angle <= 0 or angle >= 180:
+        angle = 90.0
+
+    side_sign = 1.0 if side == 'E' else -1.0
+    vert_sign = 1.0 if vert == 'T' else -1.0
+    dx_o = side_sign * float(larg2) * math.cos(math.radians(angle))
+    dy_o = vert_sign * float(larg2) * math.sin(math.radians(angle))
+
+    p0 = (x_l, y_l)
+    p1 = (x_r, y_l)
+    p2 = (x_r + dx_o, y_l + dy_o)
+    p3 = (x_l + dx_o, y_l + dy_o)
 
     ents = [
-        {'type': 'LINE', 'start': {'x': x_l, 'y': y_l}, 'end': {'x': x_r, 'y': y_l}},
-        {'type': 'LINE', 'start': {'x': x_r, 'y': y_l}, 'end': {'x': x_r, 'y': y_t}},
-        {'type': 'LINE', 'start': {'x': x_r, 'y': y_t}, 'end': {'x': x_l, 'y': y_t}},
-        {'type': 'LINE', 'start': {'x': x_l, 'y': y_t}, 'end': {'x': x_l, 'y': y_l}},
+        {'type': 'LINE', 'start': {'x': p0[0], 'y': p0[1]}, 'end': {'x': p1[0], 'y': p1[1]}},
+        {'type': 'LINE', 'start': {'x': p1[0], 'y': p1[1]}, 'end': {'x': p2[0], 'y': p2[1]}},
+        {'type': 'LINE', 'start': {'x': p2[0], 'y': p2[1]}, 'end': {'x': p3[0], 'y': p3[1]}},
+        {'type': 'LINE', 'start': {'x': p3[0], 'y': p3[1]}, 'end': {'x': p0[0], 'y': p0[1]}},
     ]
     # Sub-panel dividers within the L-panel
     xp = x_l
     for pw2 in (paineis_2 or [])[:-1]:
         xp += float(pw2)
-        ents.append({'type': 'LINE', 'start': {'x': xp, 'y': y_l}, 'end': {'x': xp, 'y': y_t}})
+        ents.append({'type': 'LINE', 'start': {'x': xp, 'y': y_l}, 'end': {'x': xp + dx_o, 'y': y_l + dy_o}})
     # Horizontal slat lines (same pattern as panel_poly)
     if larg2 > 6:
         for frac in (1 / 3, 2 / 3):
-            y_slat = y_l + larg2 * frac
-            ents.append({'type': 'LINE', 'start': {'x': x_l, 'y': y_slat}, 'end': {'x': x_r, 'y': y_slat}})
+            sx = dx_o * frac
+            sy = dy_o * frac
+            ents.append({'type': 'LINE', 'start': {'x': x_l + sx, 'y': y_l + sy}, 'end': {'x': x_r + sx, 'y': y_l + sy}})
     return ents
 
 
@@ -243,7 +280,7 @@ def robot_dados_to_fv_dict(dados, viga_nome='V?'):
     Robot keys used:
       largura, altura, paineis, recuos [TE,FE,TD,FD], aberturas [[dist,prof,larg]×4],
       sarrafo_esq, sarrafo_dir, texto_esq, texto_dir,
-      tipo_painel2, comprimento_2, largura_2, paineis_2, obs.
+      tipo_painel2, comprimento_2, largura_2, paineis_2, angulo_l, obs.
 
     Returns dict with keys: nome, b, comp, panels, label_left, label_right, obs.
     Returns None if data is insufficient.
@@ -301,6 +338,7 @@ def robot_dados_to_fv_dict(dados, viga_nome='V?'):
         p_fd = fd if is_last  else 0.0
         if p_te > 0 or p_fe > 0 or p_td > 0 or p_fd > 0:
             obj['vertices'] = build_chanfro_vertices(pw, b, p_te, p_fe, p_td, p_fd)
+            obj['chanfros'] = {'te': p_te, 'fe': p_fe, 'td': p_td, 'fd': p_fd}
 
         # Aberturas as rectangular notch outlines (TE=0, FE=1, TD=2, FD=3)
         loose = []
@@ -324,10 +362,11 @@ def robot_dados_to_fv_dict(dados, viga_nome='V?'):
     larg2 = _f(dados.get('largura_2', 0))
     if comp2 > 0 and larg2 > 0:
         tipo2  = dados.get('tipo_painel2', 'E/T') or 'E/T'
+        angulo_l = _f(dados.get('angulo_l', dados.get('angulo_2', 90))) or 90.0
         pw2_raw = [_f(p) for p in dados.get('paineis_2', []) if _f(p) > 0]
         if not pw2_raw:
             pw2_raw = compute_panels(comp2)
-        l_loose = build_panel_l_loose(comp, b, comp2, larg2, tipo2, pw2_raw)
+        l_loose = build_panel_l_loose(comp, b, comp2, larg2, tipo2, pw2_raw, angulo_l=angulo_l)
         if l_loose:
             sub_panel_objs[0]['loose'] = sub_panel_objs[0].get('loose', []) + l_loose
 
@@ -377,9 +416,22 @@ def draw_sarr(msp, x0, y0, b, panel_widths, panel_verts=None,
     if total_width <= 0 or b <= 0:
         return
 
+    # V310: b<10cm recebe contorno verde no painel; 10≤b≤14cm usa sarrafo 5cm.
+    if b < 10:
+        xp = x0
+        for idx, pw in enumerate(panel_widths):
+            verts = panel_verts[idx] if panel_verts and idx < len(panel_verts) else None
+            if verts:
+                pts = [(xp + float(v.get('x', 0.0)), y0 + float(v.get('y', 0.0))) for v in verts]
+            else:
+                pts = [(xp, y0), (xp + pw, y0), (xp + pw, y0 + b), (xp, y0 + b)]
+            msp.add_lwpolyline(pts, close=True, dxfattribs={'layer': 'SARR_CONTORNO_10cm'})
+            xp += pw
+        return
+    layer = 'SARR_5cm' if b <= 14 else SARR_LAYER
+
     xl_offset = SARR_RECUO
     xr_offset = SARR_RECUO
-    layer = SARR_LAYER
     
     # Adjust sarrafo offsets for custom panel shapes (e.g. L-corners), but ONLY for
     # vertices in the TOP half of the panel (y > b/2).  Bottom-corner chanfros (FE/FD)
@@ -552,8 +604,52 @@ def _parse_active_holes(holes):
 
 
 # Deeper dim level for segment totals (between sub-panel dims and overall total)
-DIM_SEG_TOTAL_BELOW = 53  # between DIM_BELOW(37) and DIM_TOTAL_BELOW(69)
-DIM_OVERALL_BELOW   = 85  # deepest level for overall viga total (multi-segment)
+DIM_SEG_TOTAL_BELOW = 40  # nível 2 (mesmo que DIM_TOTAL_BELOW — padrão 20/40/60)
+DIM_OVERALL_BELOW   = 60  # nível 3: total geral multi-segmento
+
+
+def draw_chanfro_cotas(msp, xp, y0, pw, b, chanfros):
+    """Adiciona cotas pequenas (texto simples) nos cantos com chanfro.
+
+    Para cada chanfro não-nulo, desenha o valor em cm próximo ao canto
+    usando linear dim compacto no layer COTA.
+    """
+    te = chanfros.get('te', 0.0)
+    fe = chanfros.get('fe', 0.0)
+    td = chanfros.get('td', 0.0)
+    fd = chanfros.get('fd', 0.0)
+    OFFS = 5.0  # distância do canto para o texto
+
+    def _lin(x1, y1, x2, y2, bx, by):
+        try:
+            d = msp.add_linear_dim(
+                base=(bx, by), p1=(x1, y1), p2=(x2, y2),
+                angle=0 if abs(x2 - x1) >= abs(y2 - y1) else 90,
+                dimstyle='PAINEL', dxfattribs={'layer': 'COTA'}
+            )
+            d.render()
+        except Exception:
+            pass
+
+    # TE — canto top-esq: cota horizontal (largura) e vertical (altura) do chanfro
+    if te > 0:
+        _lin(xp, y0 + b, xp + te, y0 + b, xp + te / 2, y0 + b + OFFS)
+        _lin(xp, y0 + b - te, xp, y0 + b, xp - OFFS, y0 + b - te / 2)
+
+    # FE — canto bot-esq
+    if fe > 0:
+        _lin(xp, y0, xp + fe, y0, xp + fe / 2, y0 - OFFS)
+        _lin(xp, y0, xp, y0 + fe, xp - OFFS, y0 + fe / 2)
+
+    # TD — canto top-dir
+    if td > 0:
+        _lin(xp + pw - td, y0 + b, xp + pw, y0 + b, xp + pw - td / 2, y0 + b + OFFS)
+        _lin(xp + pw, y0 + b - td, xp + pw, y0 + b, xp + pw + OFFS, y0 + b - td / 2)
+
+    # FD — canto bot-dir
+    if fd > 0:
+        _lin(xp + pw - fd, y0, xp + pw, y0, xp + pw - fd / 2, y0 - OFFS)
+        _lin(xp + pw, y0, xp + pw, y0 + fd, xp + pw + OFFS, y0 + fd / 2)
 
 
 def draw_viga(msp, x0, y0, panels_json, viga_b, viga_nome,
@@ -681,7 +777,7 @@ def draw_viga(msp, x0, y0, panels_json, viga_b, viga_nome,
 
         # Draw panel outlines (LWPOLYLINE) for each sub-panel
         xp = seg_x0
-        for pw, p_texts, p_verts, p_loose in zip(sub_panels, sub_panel_texts, sub_panel_verts, sub_panel_loose):
+        for i, (pw, p_texts, p_verts, p_loose) in enumerate(zip(sub_panels, sub_panel_texts, sub_panel_verts, sub_panel_loose)):
             if p_verts:
                 # Custom polygon (e.g. chamfers, L-shapes)
                 pts = [(xp + v['x'], y0 + v['y']) for v in p_verts]
@@ -708,7 +804,15 @@ def draw_viga(msp, x0, y0, panels_json, viga_b, viga_nome,
                     if txt in ignore_texts: continue
                     t = msp.add_text(txt, dxfattribs={'layer': '5', 'height': 8})
                     t.dxf.insert = (xp + pw/2 - 5, y0 + b/2 + (idx * 10))
-                    
+
+            # Draw chanfro cotas se painel tem 'chanfros' explícito
+            if isinstance(seg_item, dict):
+                _seg_panels = seg_item.get('panels', [])
+                if i < len(_seg_panels) and isinstance(_seg_panels[i], dict):
+                    _ch = _seg_panels[i].get('chanfros')
+                    if _ch and any(_ch.get(k, 0) > 0 for k in ('te', 'fe', 'td', 'fd')):
+                        draw_chanfro_cotas(msp, xp, y0, pw, b, _ch)
+
             xp += pw
 
         seg_x_end = seg_x0 + seg_width
@@ -727,23 +831,30 @@ def draw_viga(msp, x0, y0, panels_json, viga_b, viga_nome,
         draw_sarr(msp, seg_x0, y0, b, sub_panels, sub_panel_verts,
                   sarrafo_esq=seg_sarr_esq, sarrafo_dir=seg_sarr_dir)
 
-        # Textos de inicio e fim de segmento (Labels ESQ / DIR)
+        # STOG posiciona os textos de extremidade acima do painel.
+        label_y = y0 + b + LABEL_ABOVE
         if seg_idx == 0 and label_left:
-            add_text(msp, seg_x0, y0 - 30.0, label_left, 8, '5', halign=0, rotation=0)
+            add_text(msp, seg_x0, label_y, label_left, LABEL_H, '5',
+                     halign=0, rotation=0)
         
         if seg_idx == len(segments) - 1 and label_right:
-            add_text(msp, seg_x_end, y0 - 30.0, label_right, 8, '5', halign=2, rotation=0)
+            add_text(msp, seg_x_end, label_y, label_right, LABEL_H, '5',
+                     halign=0, rotation=0)
             
         if seg_idx < len(gaps):
             gap_label = gaps[seg_idx][1]
             if gap_label and gap_label != 'Pilar Cruzado':
                 gap_center = seg_x_end + gaps[seg_idx][0] / 2
-                add_text(msp, gap_center, y0 - 30.0, gap_label, 8, '5', halign=1, rotation=0)
+                add_text(msp, gap_center, label_y, gap_label, LABEL_H, '5',
+                         halign=1, rotation=0)
 
         # Draw individual sub-panel dims (1st level, and tiers if present)
         xp = seg_x0
         for i, pw in enumerate(sub_panels):
-            p_item = seg_item['panels'][i] if isinstance(seg_item.get('panels'), list) and i < len(seg_item['panels']) else {}
+            if isinstance(seg_item, dict) and isinstance(seg_item.get('panels'), list) and i < len(seg_item['panels']):
+                p_item = seg_item['panels'][i]
+            else:
+                p_item = {}
             if isinstance(p_item, dict) and 'tiers' in p_item and p_item['tiers']:
                 tiers = p_item['tiers']
                 for t_idx, tier_vals in enumerate(tiers):
@@ -794,11 +905,16 @@ def draw_viga(msp, x0, y0, panels_json, viga_b, viga_nome,
             except Exception:
                 pass
 
-        # Texto multiplicador "NxMMM" dentro do painel para segmentos expandidos
+        # Texto multiplicador "NxMMM" — só quando painéis não têm geometria explícita
         if isinstance(seg_item, dict) and seg_item.get('_mult_label'):
-            cx = (seg_x0 + seg_x_end) / 2.0
-            cy = y0 + b / 2.0
-            add_text(msp, cx, cy, seg_item['_mult_label'], 10, 'Painéis', halign=1)
+            has_verts = any(
+                isinstance(pp, dict) and pp.get('vertices')
+                for pp in seg_item.get('panels', [])
+            )
+            if not has_verts:
+                cx = (seg_x0 + seg_x_end) / 2.0
+                cy = y0 + b / 2.0
+                add_text(msp, cx, cy, seg_item['_mult_label'], 10, 'Painéis', halign=1)
 
         # Advance cursor past this segment + gap to next segment
         x_cursor = seg_x_end
@@ -806,7 +922,7 @@ def draw_viga(msp, x0, y0, panels_json, viga_b, viga_nome,
             x_cursor += gaps[seg_idx][0]
 
     # -- NOMENCLATURA text (once, above full viga) -----------------------------
-    nom_text = f'{viga_nome}.C'
+    nom_text = f'{normalize_viga_name(viga_nome)}.C'
     if obs:
         nom_text = f'{nom_text} {obs}'
     add_text(msp, x0 + 3, y0 + b + NOM_ABOVE, nom_text,
@@ -900,10 +1016,11 @@ def _normalize_segments_rich(segments, viga_b):
                 continue  # já normalizado
             for v in verts:
                 v['y'] = float(v.get('y', 0)) - y_min
-            # Após translação, limitar a [0, viga_b]
+            # Após translação, verificar se dimensão é razoável
+            # L-panels podem ter y_max = b + comp2 (ala perpendicular), usar limite 3x
             y_vals2 = [float(v['y']) for v in verts]
             y_max2  = max(y_vals2)
-            if y_max2 > viga_b * 1.5:
+            if y_max2 > viga_b * 3.0:
                 # Provavelmente unidade diferente ou coordenada bugada — resetar
                 p.pop('vertices', None)
     return segments
@@ -1019,7 +1136,9 @@ def main():
                     print(f'[FV] Override aplicado: {override_f.name}')
                 except Exception as _ov_e:
                     print(f'[FV] Override inválido {override_f.name}: {_ov_e}')
-        vname  = re.sub(r'_fundo', '', f.stem, flags=re.IGNORECASE)
+        vname = normalize_viga_name(
+            re.sub(r'_fundo', '', f.stem, flags=re.IGNORECASE)
+        )
         # Priority: extracted formwork width (total_width), then vigas_salvas
         v_b = d.get('total_width')
         if not v_b or v_b <= 0:
@@ -1042,8 +1161,9 @@ def main():
                 'label_right': d.get('label_right', 'L Dir'),
             }
             has_row_break = any(isinstance(p, dict) and p.get('row_break') for p in panels)
-            # Quebra se exceder MAX_ROW_W ou se o motor de extração detectou uma quebra de fileira (ex: chanfro em L)
-            if (comp > MAX_ROW_W or has_row_break) and len(panels) > 1:
+            # Em modo --item não limita por MAX_ROW_W (a viga cabe inteira na prancha)
+            _over_max = (comp > MAX_ROW_W) and not args.item
+            if (_over_max or has_row_break) and len(panels) > 1:
                 parts = []
                 c_panels, c_holes = [], []
                 c_comp = 0.0
@@ -1068,8 +1188,9 @@ def main():
                     is_break = isinstance(p, dict) and p.get('row_break')
                     
                     # Se estourar o limite OU se o próprio painel pede quebra, e já temos painéis na fileira atual
-                    if (c_comp + w > MAX_ROW_W or is_break) and c_panels:
-                        nm = viga_dict['nome'] if not parts else f"CONT. {viga_dict['nome']}"
+                    _exceeds = (c_comp + w > MAX_ROW_W) and not args.item
+                    if (_exceeds or is_break) and c_panels:
+                        nm = viga_dict['nome']
                         parts.append({
                             **viga_dict, 'nome': nm, 'comp': c_comp,
                             'panels': c_panels, 'holes': c_holes,
@@ -1085,8 +1206,8 @@ def main():
                     if gw > 0:
                         if i + 1 < len(panels):
                             next_w = float(panels[i+1].get('total_width', panels[i+1].get('width', 0))) if isinstance(panels[i+1], dict) else float(panels[i+1])
-                            # Only add the hole if it and the next panel fit in the current row
-                            if c_comp + gw + next_w <= MAX_ROW_W:
+                            # Only add the hole if it and the next panel fit in the current row (skip limit for --item)
+                            if args.item or c_comp + gw + next_w <= MAX_ROW_W:
                                 c_holes.append({
                                     'active': True,
                                     'width': gw,
@@ -1098,7 +1219,7 @@ def main():
                     abs_pos += gw
                 
                 if c_panels:
-                    nm = viga_dict['nome'] if not parts else f"CONT. {viga_dict['nome']}"
+                    nm = viga_dict['nome']
                     parts.append({
                         **viga_dict, 'nome': nm, 'comp': c_comp,
                         'panels': c_panels, 'holes': c_holes
@@ -1176,13 +1297,16 @@ def main():
             print(f'[FV-FILTER] Apenas 1 valor de b={list(b_counts.keys())[0]}cm — sem filtro.')
 
     # -- Sort and pack into rows -----------------------------------------------
-    vigas.sort(key=lambda v: (-v['b'], -v['comp']))
+    # Em modo --item não reordena (preserva ordem original dos segmentos)
+    if not args.item:
+        vigas.sort(key=lambda v: (-v['b'], -v['comp']))
 
     rows = []
     cur_row, cur_w = [], 0.0
     for v in vigas:
         need = v['comp'] + (GAP_VIGAS if cur_row else 0)
-        if cur_row and cur_w + need > MAX_ROW_W:
+        # Em modo --item coloca tudo na mesma fileira independente do tamanho
+        if cur_row and cur_w + need > MAX_ROW_W and not args.item:
             rows.append(cur_row); cur_row = [v]; cur_w = v['comp']
         else:
             cur_row.append(v); cur_w += need
@@ -1318,7 +1442,8 @@ def main():
     # Layers core — nunca podar (sempre presentes em qualquer FV válido)
     # SARR_EDITAR NÃO está aqui: é condicional (prune correto para obras sem ele)
     _FV_REQUIRED_LAYERS = {
-        'SARR_2.2x7', 'NOMENCLATURA', 'Painéis', 'PAINEIS',
+        'SARR_2.2x7', 'SARR_5cm', 'SARR_CONTORNO_10cm',
+        'NOMENCLATURA', 'Painéis', 'PAINEIS',
         'COTA', '5', 'REAPROVEITAMENTO',
     }
     if _stog_layers_ref:

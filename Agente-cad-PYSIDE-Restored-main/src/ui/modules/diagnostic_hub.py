@@ -583,7 +583,7 @@ class RagPipelineWorker(QThread):
         try:
             import sys
             from pathlib import Path
-            _ROOT = Path(__file__).resolve().parent.parent.parent.parent
+            _ROOT = Path(__file__).resolve().parents[4]
             if str(_ROOT) not in sys.path:
                 sys.path.insert(0, str(_ROOT))
 
@@ -2863,7 +2863,7 @@ class DiagnosticHubModule(QWidget):
         print(f"[DiagnosticHub] PreProcess concluído — {n_pav} pavimento(s)", flush=True)
 
         # Dispara RAG automaticamente (fase 2 implícita)
-        self._lbl_rag_feedback.setText("⏳ Indexando RAG semântico...")
+        self._lbl_rag_feedback.setText("⏳ Gerando RAG local...")
         self._run_rag_pipeline()
 
         # Notifica main.py para refreshar combos e abrir Structural Analyzer
@@ -2900,7 +2900,7 @@ class DiagnosticHubModule(QWidget):
         self._set_preprocess_buttons_enabled(False)
         self._rag_progress.setValue(0)
         self._rag_progress.setVisible(True)
-        self._lbl_rag_feedback.setText(f"⏳ Indexando RAG para {obra}...")
+        self._lbl_rag_feedback.setText(f"⏳ Gerando snapshot RAG local para {obra}...")
 
         self._rag_worker = RagPipelineWorker(obra, force=force, parent=self)
         self._rag_worker.progress.connect(self._on_rag_progress)
@@ -2919,8 +2919,8 @@ class DiagnosticHubModule(QWidget):
 
         status    = result.get("status", "ok")
         chunks    = result.get("doc_chunks", 0)
-        dxfs      = result.get("dxf_indexed", 0)
-        triagem   = result.get("triagem_rows", 0)
+        fichas    = result.get("dxf_indexed", 0)
+        recortes  = result.get("triagem_rows", 0)
         duration  = result.get("duration_s", 0)
         errs      = result.get("errors", [])
 
@@ -2931,8 +2931,8 @@ class DiagnosticHubModule(QWidget):
             " border: 1px solid; border-radius: 4px; padding: 5px 8px;"
         )
         self._lbl_rag_feedback.setText(
-            f"{icon} RAG concluído em {duration:.0f}s\n"
-            f"Docs: {chunks} chunks | DXFs: {dxfs} | Triagem: {triagem}"
+            f"{icon} RAG local concluído em {duration:.0f}s\n"
+            f"Docs: {chunks} | F5 locais: {fichas} | Recortes da obra: {recortes}"
             + (f"\n⚠ {len(errs)} erro(s)" if errs else "")
         )
 
@@ -2944,8 +2944,8 @@ class DiagnosticHubModule(QWidget):
             f"color: {Semantic.DANGER}; font-size: 10px; background: rgba(0, 0, 0, 46);"
             f" border: 1px solid {Semantic.DANGER}; border-radius: 4px; padding: 5px 8px;"
         )
-        self._lbl_rag_feedback.setText(f"❌ Erro RAG: {msg[:120]}")
-        QMessageBox.warning(self, "Erro — RAG Semântico", msg[:400])
+        self._lbl_rag_feedback.setText(f"❌ Erro no RAG local: {msg[:120]}")
+        QMessageBox.warning(self, "Erro — RAG Local", msg[:400])
 
     # ─────────────────────────────────────────────
     # Ficha da Obra tab (Tab 3 do _canvas_tabs)

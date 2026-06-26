@@ -1209,12 +1209,12 @@ class ProjectManager(QWidget):
             ingest_row.setSpacing(10)
             ingest_row.setContentsMargins(0, 0, 0, 0)
 
-            self._btn_ingest_all = QPushButton("⚡ Indexar Obra (DB + RAG + Triagem)")
+            self._btn_ingest_all = QPushButton("⚡ Atualizar Obra (DB + RAG Local)")
             self._btn_ingest_all.setToolTip(
-                "Executa as duas etapas de ingestão em sequência:\n"
+                "Executa duas etapas seguras em sequência:\n"
                 "① Fase 1 → DB: registra arquivos físicos novos no banco\n"
-                "② RAG + Triagem: indexa vetorialmente e gera sugestões de triagem\n\n"
-                "Incremental — arquivos já processados são ignorados."
+                "② RAG local: atualiza o snapshot de contexto desta obra\n\n"
+                "Dados em quarentena permanecem locais e nunca ensinam o RAG global."
             )
             self._btn_ingest_all.setStyleSheet(f"""
                 QPushButton {{
@@ -2568,9 +2568,9 @@ class ProjectManager(QWidget):
 
             def run(self):
                 try:
-                    _scripts = Path("D:/Agente-cad-PYSIDE/Agente-cad-PYSIDE-Restored-main/scripts")
-                    if str(_scripts.parent) not in sys.path:
-                        sys.path.insert(0, str(_scripts.parent))
+                    _root = Path("D:/Agente-cad-PYSIDE")
+                    if str(_root) not in sys.path:
+                        sys.path.insert(0, str(_root))
                     from scripts.obra_rag_pipeline import run_pipeline
                     result = run_pipeline(
                         self._obra,
@@ -2613,7 +2613,7 @@ class ProjectManager(QWidget):
             # Restaurar botão unificado se existir
             if hasattr(self, '_btn_ingest_all'):
                 self._btn_ingest_all.setEnabled(True)
-                self._btn_ingest_all.setText("⚡ Indexar Obra (DB + RAG + Triagem)")
+                self._btn_ingest_all.setText("⚡ Atualizar Obra (DB + RAG Local)")
             if result.get("errors"):
                 errs = "\n".join(result["errors"][:5])
                 QMessageBox.warning(self, "RAG — Avisos", f"Pipeline concluído com avisos:\n\n{errs}")
@@ -2725,12 +2725,12 @@ class ProjectManager(QWidget):
         )
 
     def _get_rag_counts(self, work_name: str) -> tuple[int, int, int]:
-        """Retorna (triagem_total, triagem_pending, dxf_indexed) para a obra."""
+        """Retorna triagem legada e itens presentes no snapshot RAG local."""
         import sqlite3 as _sq3
         DB = Path("D:/Agente-cad-PYSIDE/project_data.vision")
         triagem_total   = 0
         triagem_pending = 0
-        dxf_indexed     = 0
+        local_items     = 0
         if not work_name:
             return 0, 0, 0
         try:
@@ -2747,38 +2747,42 @@ class ProjectManager(QWidget):
             conn.close()
         except Exception:
             pass
-        # LanceDB — contagem rápida (sem embedding)
+        # Snapshot local por obra. T0 pode aparecer aqui como contexto de trabalho,
+        # mas nunca é promovido automaticamente ao RAG global.
         try:
-            from scripts.obra_rag_utils import get_obra_db
-            db = get_obra_db(work_name)
-            tables = db.table_names() if hasattr(db, 'table_names') else []
-            if "obra_dxf_inventory" in tables:
-                tbl = db.open_table("obra_dxf_inventory")
-                dxf_indexed = tbl.count_rows()
+            manifest_path = (
+                Path("D:/Agente-cad-PYSIDE/DADOS-OBRAS")
+                / work_name
+                / "obra_rag"
+                / "manifest.json"
+            )
+            if manifest_path.exists():
+                manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+                local_items = int(manifest.get("counts", {}).get("reverse_fichas", 0))
         except Exception:
             pass
-        return triagem_total, triagem_pending, dxf_indexed
+        return triagem_total, triagem_pending, local_items
 
     def _refresh_rag_badge(self):
-        """Atualiza o badge de estado RAG/Triagem ao lado do botão Indexar Obra."""
+        """Atualiza o badge do RAG local e da triagem legada."""
         if not hasattr(self, '_lbl_rag_status'):
             return
         work_name = self.current_work_name or ""
-        triagem_total, triagem_pending, dxf_indexed = self._get_rag_counts(work_name)
+        triagem_total, triagem_pending, local_items = self._get_rag_counts(work_name)
 
-        if triagem_total == 0 and dxf_indexed == 0:
+        if triagem_total == 0 and local_items == 0:
             text  = "—"
             color = Colors.TEXT_DIM
         elif triagem_pending > 0:
             text  = f"⏳ {triagem_pending} pendentes / {triagem_total} triagem"
-            if dxf_indexed:
-                text += f" / {dxf_indexed} DXFs"
+            if local_items:
+                text += f" / {local_items} itens locais"
             color = Colors.ACCENT_WARNING
         else:
             # Tudo classificado
             text  = f"✅ {triagem_total} triagem"
-            if dxf_indexed:
-                text += f" / {dxf_indexed} DXFs"
+            if local_items:
+                text += f" / {local_items} itens locais"
             color = Colors.ACCENT_SUCCESS_ALT
 
         self._lbl_rag_status.setText(text)
@@ -2954,7 +2958,7 @@ class ProjectManager(QWidget):
             work = self.current_work_name or "..."
             msg = (
                 f"Nenhuma sugestão para {work}.\n"
-                "Execute '🧠 Indexar Obra (RAG + Triagem)' na Fase 1 para gerar sugestões automáticas."
+                "A atualização do RAG local não gera triagem automaticamente."
             )
             summary_txt = "🧠 Sugestões IA — nenhuma pendente"
             lbl = QLabel(msg)
@@ -4575,7 +4579,7 @@ class ProjectManager(QWidget):
         # Fase 2: RAG (após badge refresh)
         def _start_rag():
             if hasattr(self, '_btn_ingest_all'):
-                self._btn_ingest_all.setText("⏳ Indexando RAG...")
+                self._btn_ingest_all.setText("⏳ Gerando RAG Local...")
             self._on_rag_pipeline_clicked()
         QTimer.singleShot(3500, _start_rag)
 
@@ -5997,9 +6001,646 @@ class ProjectManager(QWidget):
 
     def setup_community_tab(self):
         layout = QVBoxLayout(self.community_tab)
-        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setContentsMargins(10, 10, 10, 10)
+        layout.setSpacing(10)
+
+        self.curadoria_rag_tabs = QTabWidget()
+        self.curadoria_rag_tabs.setObjectName("CuradoriaRagTabs")
+        self.curadoria_rag_tabs.setStyleSheet(_resolve_css("""
+            QTabWidget::pane {
+                border: 1px solid {Colors.BORDER_DEFAULT};
+                border-radius: 6px;
+                background: {Colors.BG_PANEL};
+            }
+            QTabBar::tab {
+                background: {Colors.BG_DEEP};
+                color: {Colors.TEXT_SECONDARY};
+                padding: 7px 14px;
+                border: none;
+                border-right: 1px solid {Colors.BORDER_DEFAULT};
+                min-width: 96px;
+            }
+            QTabBar::tab:selected {
+                background: {Colors.BG_SECONDARY};
+                color: {Colors.ACCENT_PRIMARY};
+                border-bottom: 2px solid {Colors.ACCENT_PRIMARY};
+            }
+        """))
+
+        self._curadoria_metric_labels = {}
+        self._curadoria_tables = {}
+
+        self.curadoria_rag_tabs.addTab(self._build_curadoria_map_tab(), "Mapa RAG")
+        self.curadoria_rag_tabs.addTab(self._build_curadoria_encyclopedia_tab(), "Enciclopedia")
+        self.curadoria_rag_tabs.addTab(self._build_curadoria_corpus_tab(), "Corpus")
+        self.curadoria_rag_tabs.addTab(self._build_curadoria_learning_tab(), "Aprendizado")
+        self.curadoria_rag_tabs.addTab(self._build_curadoria_vector_tab(), "Memoria Vetorial")
+        self.curadoria_rag_tabs.addTab(self._build_curadoria_db_tab(), "Banco de Dados")
+
         self.admin_dashboard = AdminDashboard(self.db, self.memory)
-        layout.addWidget(self.admin_dashboard)
+        self.curadoria_rag_tabs.addTab(self.admin_dashboard, "Admin Legado")
+
+        layout.addWidget(self.curadoria_rag_tabs)
+        self._refresh_curadoria_rag_observer()
+
+    def _make_curadoria_scroll_page(self):
+        page = QWidget()
+        root = QVBoxLayout(page)
+        root.setContentsMargins(0, 0, 0, 0)
+        root.setSpacing(0)
+
+        scroll = QScrollArea()
+        scroll.setWidgetResizable(True)
+        scroll.setFrameShape(QFrame.NoFrame)
+        scroll.setStyleSheet("QScrollArea { border: none; background: transparent; }")
+
+        content = QWidget()
+        layout = QVBoxLayout(content)
+        layout.setContentsMargins(16, 16, 16, 16)
+        layout.setSpacing(12)
+        scroll.setWidget(content)
+
+        root.addWidget(scroll)
+        return page, layout
+
+    def _make_curadoria_header(self, title, subtitle):
+        header = QFrame()
+        header.setObjectName("CuradoriaHeader")
+        header.setStyleSheet(_resolve_css("""
+            #CuradoriaHeader {
+                background: {Colors.BG_CARD};
+                border: 1px solid {Colors.BORDER_DEFAULT};
+                border-radius: 6px;
+            }
+        """))
+        layout = QHBoxLayout(header)
+        layout.setContentsMargins(14, 12, 14, 12)
+        layout.setSpacing(12)
+
+        text_box = QVBoxLayout()
+        title_label = QLabel(title)
+        title_label.setStyleSheet(f"font-size: 16px; font-weight: bold; color: {Colors.TEXT_BRIGHT};")
+        subtitle_label = QLabel(subtitle)
+        subtitle_label.setWordWrap(True)
+        subtitle_label.setStyleSheet(f"font-size: 11px; color: {Colors.TEXT_SECONDARY};")
+        text_box.addWidget(title_label)
+        text_box.addWidget(subtitle_label)
+
+        refresh_btn = QPushButton("Atualizar")
+        refresh_btn.setFixedHeight(28)
+        refresh_btn.setToolTip("Recarrega metricas de leitura. Nao escreve no banco nem indexa fichas.")
+        refresh_btn.clicked.connect(self._refresh_curadoria_rag_observer)
+        refresh_btn.setStyleSheet(_resolve_css("""
+            QPushButton {
+                background: {Colors.BG_SECONDARY};
+                color: {Colors.TEXT_PRIMARY};
+                border: 1px solid {Colors.BORDER_DEFAULT};
+                border-radius: 5px;
+                padding: 4px 12px;
+                font-weight: 600;
+            }
+            QPushButton:hover { border-color: {Colors.ACCENT_PRIMARY}; }
+        """))
+
+        layout.addLayout(text_box, 1)
+        layout.addWidget(refresh_btn)
+        return header
+
+    def _make_curadoria_metric_card(self, key, title, subtitle):
+        card = QFrame()
+        card.setObjectName("CuradoriaMetricCard")
+        card.setMinimumHeight(92)
+        card.setStyleSheet(_resolve_css("""
+            #CuradoriaMetricCard {
+                background: {Colors.BG_CARD};
+                border: 1px solid {Colors.BORDER_DEFAULT};
+                border-radius: 6px;
+            }
+        """))
+        layout = QVBoxLayout(card)
+        layout.setContentsMargins(12, 10, 12, 10)
+        layout.setSpacing(4)
+
+        title_label = QLabel(title)
+        title_label.setStyleSheet(f"font-size: 10px; font-weight: bold; color: {Colors.TEXT_SECONDARY};")
+        value_label = QLabel("-")
+        value_label.setStyleSheet(f"font-size: 22px; font-weight: bold; color: {Colors.ACCENT_PRIMARY};")
+        value_label.setTextInteractionFlags(Qt.TextSelectableByMouse)
+        subtitle_label = QLabel(subtitle)
+        subtitle_label.setWordWrap(True)
+        subtitle_label.setStyleSheet(f"font-size: 10px; color: {Colors.TEXT_MUTED};")
+
+        layout.addWidget(title_label)
+        layout.addWidget(value_label)
+        layout.addWidget(subtitle_label)
+        self._curadoria_metric_labels[key] = value_label
+        return card
+
+    def _make_curadoria_table(self, key, headers):
+        table = QTableWidget(0, len(headers))
+        table.setHorizontalHeaderLabels(headers)
+        table.setEditTriggers(QAbstractItemView.NoEditTriggers)
+        table.setSelectionBehavior(QAbstractItemView.SelectRows)
+        table.setAlternatingRowColors(True)
+        table.verticalHeader().setVisible(False)
+        table.horizontalHeader().setStretchLastSection(True)
+        for idx in range(len(headers)):
+            table.horizontalHeader().setSectionResizeMode(idx, QHeaderView.Stretch)
+        self._curadoria_tables[key] = table
+        return table
+
+    def _build_curadoria_map_tab(self):
+        page, layout = self._make_curadoria_scroll_page()
+        layout.addWidget(self._make_curadoria_header(
+            "Mapa RAG - Cerebro com barreira de confianca",
+            "Fluxo observador: N1/N2/N3/N4 alimentam hipoteses, mas so T1/T2 entram no RAG global. TX representa conhecimento desvalidado por humano."
+        ))
+
+        grid = QGridLayout()
+        grid.setSpacing(10)
+        cards = [
+            ("tier_t0", "T0 Quarentena", "Hipoteses em desenvolvimento. Nao entram no RAG global."),
+            ("tier_t1", "T1 Validados", "Itens aprovados por humano. Podem ensinar o RAG."),
+            ("tier_t2", "T2 Consolidados", "Padroes validados em mais de uma obra."),
+            ("tier_tx", "TX Revogados", "Desvalidacoes humanas/tombstones. Ficam fora das consultas."),
+            ("semantic_total", "Regras Semanticas", "semantic_rag_kb populada a partir do domain_knowledge."),
+            ("training_events", "Training Events", "Historico de validacoes, rejeicoes e sinais de treino."),
+            ("obra_rag_snapshots", "RAG por-obra", "Snapshots locais em DADOS-OBRAS/*/obra_rag."),
+        ]
+        for index, args in enumerate(cards):
+            grid.addWidget(self._make_curadoria_metric_card(*args), index // 3, index % 3)
+        layout.addLayout(grid)
+
+        pipeline = QTextEdit()
+        pipeline.setReadOnly(True)
+        pipeline.setMinimumHeight(170)
+        pipeline.setPlainText(
+            "DXF bruto -> Structural Analyzer (N1/F7) ----\\\n"
+            "                                               > Comparison Engine -> validacao humana -> BARREIRA DE TIER -> RAG Global\n"
+            "STOG humano -> Motor Reverso (N2/F5) --------/\n\n"
+            "Regras/semantica: podem entrar agora via domain_knowledge -> semantic_rag_kb.\n"
+            "Instancias/fichas: so entram apos validacao humana (T1/T2).\n"
+            "Desvalidacao humana: vira TX/tombstone, sai das consultas e permanece auditavel."
+        )
+        pipeline.setStyleSheet(_resolve_css("""
+            QTextEdit {
+                background: {Colors.BG_CARD};
+                color: {Colors.TEXT_PRIMARY};
+                border: 1px solid {Colors.BORDER_DEFAULT};
+                border-radius: 6px;
+                padding: 10px;
+                font-family: Consolas, monospace;
+                font-size: 11px;
+            }
+        """))
+        layout.addWidget(pipeline)
+        layout.addStretch()
+        return page
+
+    def _build_curadoria_encyclopedia_tab(self):
+        page, layout = self._make_curadoria_scroll_page()
+        layout.addWidget(self._make_curadoria_header(
+            "Enciclopedia de Classes - 8 dimensoes",
+            "Cobertura baseada em evidencias presentes no N1/F7, N2/F5 e nas regras semanticas. Ausencia de evidencia nao e preenchida por inferencia."
+        ))
+
+        layout.addWidget(self._make_curadoria_table(
+            "encyclopedia",
+            ["Classe", "F5/N2", "F7/N1", "T0", "T1", "T2", "TX", "Regras", "Dimensoes com evidencia", "Cobertura"],
+        ))
+
+        dimensions = QTextEdit()
+        dimensions.setReadOnly(True)
+        dimensions.setMinimumHeight(145)
+        dimensions.setPlainText(
+            "DIM-1 Visual estrutural N1  | DIM-2 Desenho dos robos N3/N4\n"
+            "DIM-3 Dados e fichas        | DIM-4 Descricao, geometria e logica\n"
+            "DIM-5 Obra/pavimento/item   | DIM-6 Engenharia reversa N2\n"
+            "DIM-7 Layers/cores/historico| DIM-8 Corpus global entre obras\n\n"
+            "A cobertura indica apenas fontes materializadas. Nao declara que a compreensao da classe esta correta."
+        )
+        dimensions.setStyleSheet(_resolve_css("""
+            QTextEdit {
+                background: {Colors.BG_CARD};
+                color: {Colors.TEXT_PRIMARY};
+                border: 1px solid {Colors.BORDER_DEFAULT};
+                border-radius: 6px;
+                padding: 10px;
+                font-family: Consolas, monospace;
+                font-size: 11px;
+            }
+        """))
+        layout.addWidget(dimensions)
+        return page
+
+    def _build_curadoria_corpus_tab(self):
+        page, layout = self._make_curadoria_scroll_page()
+        layout.addWidget(self._make_curadoria_header(
+            "Corpus & Cobertura",
+            "Visao das fichas F5/F7, tiers e cobertura. Esta aba nao valida, nao desvalida e nao indexa."
+        ))
+
+        grid = QGridLayout()
+        grid.setSpacing(10)
+        for index, args in enumerate([
+            ("reverse_total", "F5/N2 Reverse", "Fichas granulares da engenharia reversa."),
+            ("reverse_indexed", "F5 rag_indexed", "Quantidade marcada como indexada no banco."),
+            ("fase3_total", "F7/N1 Structural", "Fichas do Structural Analyzer."),
+            ("fase3_reviewed", "F7 revisadas", "Itens revisados por humano."),
+        ]):
+            grid.addWidget(self._make_curadoria_metric_card(*args), index // 4, index % 4)
+        layout.addLayout(grid)
+
+        layout.addWidget(QLabel("Cobertura por tabela / tier"))
+        layout.addWidget(self._make_curadoria_table("coverage", ["Fonte", "Total", "T0", "T1", "T2", "TX", "Observacao"]))
+        layout.addWidget(QLabel("semantic_rag_kb por classe"))
+        layout.addWidget(self._make_curadoria_table("semantic_by_class", ["Classe", "Regras", "Contexto"]))
+        return page
+
+    def _build_curadoria_learning_tab(self):
+        page, layout = self._make_curadoria_scroll_page()
+        layout.addWidget(self._make_curadoria_header(
+            "Aprendizado supervisionado por humano",
+            "Historico observador dos sinais de treino. T0 e TX nunca contam como professores nem entram em retraining."
+        ))
+
+        grid = QGridLayout()
+        grid.setSpacing(10)
+        for index, args in enumerate([
+            ("learning_total", "Eventos", "Total de training_events auditaveis."),
+            ("learning_validations", "Validacoes", "Confirmacoes humanas registradas."),
+            ("learning_rejections", "Rejeicoes", "Correcoes e recusas humanas."),
+            ("learning_na", "N/A", "Campos marcados como nao aplicaveis."),
+            ("learning_accuracy", "Accuracy media", "Media das transformation_rules existentes."),
+        ]):
+            grid.addWidget(self._make_curadoria_metric_card(*args), index // 5, index % 5)
+        layout.addLayout(grid)
+
+        layout.addWidget(QLabel("Eventos por tipo"))
+        layout.addWidget(self._make_curadoria_table("learning_event_types", ["Tipo", "Eventos"]))
+        layout.addWidget(QLabel("Campos com mais sinais humanos"))
+        layout.addWidget(self._make_curadoria_table("learning_roles", ["Campo / role", "Eventos"]))
+        layout.addWidget(QLabel("Regras de transformacao"))
+        layout.addWidget(self._make_curadoria_table(
+            "learning_rules",
+            ["Tipo", "Regras", "Accuracy media", "Menor accuracy"],
+        ))
+        return page
+
+    def _build_curadoria_vector_tab(self):
+        page, layout = self._make_curadoria_scroll_page()
+        layout.addWidget(self._make_curadoria_header(
+            "Memoria Vetorial",
+            "Stores FAISS e tombstones. Vetores antigos sem validacao aparecem como T0 e ficam ocultos nas consultas T1+."
+        ))
+        grid = QGridLayout()
+        grid.setSpacing(10)
+        for index, args in enumerate([
+            ("faiss_total", "FAISS meta", "Total de metadados nos arquivos *_meta.json."),
+            ("faiss_t1_visible", "FAISS visivel T1+", "Vetores que podem responder como professor."),
+            ("tombstones", "Tombstones", "Itens desvalidados humanamente."),
+            ("legacy_t0", "FAISS legado T0", "Vetores existentes sem selo de validacao."),
+        ]):
+            grid.addWidget(self._make_curadoria_metric_card(*args), index // 4, index % 4)
+        layout.addLayout(grid)
+        layout.addWidget(self._make_curadoria_table("faiss_stores", ["Store", "Metas", "T0", "T1", "T2", "TX", "Arquivo"]))
+        return page
+
+    def _build_curadoria_db_tab(self):
+        page, layout = self._make_curadoria_scroll_page()
+        layout.addWidget(self._make_curadoria_header(
+            "Banco de Dados",
+            "Leitura direta de project_data.vision com alertas de integridade para o plano RAG."
+        ))
+        layout.addWidget(self._make_curadoria_table("db_tables", ["Tabela", "Rows", "Status", "Alerta"]))
+        layout.addWidget(QLabel("Transformation rules"))
+        layout.addWidget(self._make_curadoria_table("rules", ["Tipo", "Regras", "Accuracy media", "Menor accuracy"]))
+        return page
+
+    def _refresh_curadoria_rag_observer(self):
+        metrics = self._collect_curadoria_rag_metrics()
+
+        values = {
+            "tier_t0": metrics["tiers"].get("T0", 0),
+            "tier_t1": metrics["tiers"].get("T1", 0),
+            "tier_t2": metrics["tiers"].get("T2", 0),
+            "tier_tx": metrics["tiers"].get("TX", 0),
+            "semantic_total": metrics["semantic_total"],
+            "training_events": metrics["table_counts"].get("training_events", 0),
+            "obra_rag_snapshots": metrics["obra_rag_snapshots"],
+            "reverse_total": metrics["table_counts"].get("reverse_eng_fichas", 0),
+            "reverse_indexed": metrics["reverse_indexed"],
+            "fase3_total": metrics["table_counts"].get("fase3_fichas", 0),
+            "fase3_reviewed": metrics["fase3_reviewed"],
+            "faiss_total": metrics["faiss_total"],
+            "faiss_t1_visible": metrics["faiss_visible"],
+            "tombstones": metrics["tombstones"],
+            "legacy_t0": metrics["faiss_tiers"].get("T0", 0),
+            "learning_total": metrics["table_counts"].get("training_events", 0),
+            "learning_validations": metrics["learning_counts"].get("user_validation", 0),
+            "learning_rejections": metrics["learning_counts"].get("user_rejection", 0),
+            "learning_na": metrics["learning_counts"].get("user_na", 0),
+            "learning_accuracy": metrics["learning_accuracy"],
+        }
+        for key, value in values.items():
+            label = self._curadoria_metric_labels.get(key)
+            if label:
+                label.setText(str(value))
+
+        self._fill_curadoria_table("coverage", metrics["coverage_rows"])
+        self._fill_curadoria_table("encyclopedia", metrics["encyclopedia_rows"])
+        self._fill_curadoria_table("semantic_by_class", metrics["semantic_rows"])
+        self._fill_curadoria_table("learning_event_types", metrics["learning_event_rows"])
+        self._fill_curadoria_table("learning_roles", metrics["learning_role_rows"])
+        self._fill_curadoria_table("learning_rules", metrics["rule_rows"])
+        self._fill_curadoria_table("faiss_stores", metrics["faiss_rows"])
+        self._fill_curadoria_table("db_tables", metrics["db_rows"])
+        self._fill_curadoria_table("rules", metrics["rule_rows"])
+
+    def _fill_curadoria_table(self, key, rows):
+        table = self._curadoria_tables.get(key)
+        if not table:
+            return
+        table.setRowCount(len(rows))
+        for row_idx, row in enumerate(rows):
+            for col_idx, value in enumerate(row):
+                item = QTableWidgetItem(str(value))
+                item.setFlags(item.flags() & ~Qt.ItemIsEditable)
+                table.setItem(row_idx, col_idx, item)
+
+    def _collect_curadoria_rag_metrics(self):
+        import sqlite3
+        import sys
+        from collections import Counter, defaultdict
+
+        repo_root = Path(getattr(self.db, "db_path", "D:/Agente-cad-PYSIDE/project_data.vision")).resolve().parent
+        scripts_dir = repo_root / "scripts"
+        if str(scripts_dir) not in sys.path:
+            sys.path.insert(0, str(scripts_dir))
+
+        try:
+            from rag_tier import get_tier, load_tombstones, tier_at_least
+        except Exception:
+            def get_tier(row, tombstones=None):
+                return "T0"
+            def load_tombstones(path=None):
+                return {}
+            def tier_at_least(tier, min_tier="T1"):
+                return tier in {"T1", "T2"}
+
+        db_path = Path(getattr(self.db, "db_path", repo_root / "project_data.vision"))
+        faiss_dir = repo_root / "data" / "vectors" / "faiss"
+        tombstones = load_tombstones(faiss_dir / "rag_tombstones.json")
+
+        metrics = {
+            "tiers": Counter(),
+            "faiss_tiers": Counter(),
+            "table_counts": {},
+            "semantic_total": 0,
+            "reverse_indexed": 0,
+            "fase3_reviewed": 0,
+            "faiss_total": 0,
+            "faiss_visible": 0,
+            "tombstones": len(tombstones),
+            "coverage_rows": [],
+            "encyclopedia_rows": [],
+            "semantic_rows": [],
+            "learning_counts": Counter(),
+            "learning_event_rows": [],
+            "learning_role_rows": [],
+            "learning_accuracy": "-",
+            "faiss_rows": [],
+            "db_rows": [],
+            "rule_rows": [],
+            "obra_rag_snapshots": 0,
+            "latest_obra_rag": "",
+        }
+
+        def table_exists(conn, table):
+            return conn.execute(
+                "SELECT 1 FROM sqlite_master WHERE type='table' AND name=?",
+                (table,),
+            ).fetchone() is not None
+
+        def table_columns(conn, table):
+            return [row[1] for row in conn.execute(f"PRAGMA table_info({table})").fetchall()]
+
+        def fetch_rows(conn, table):
+            if not table_exists(conn, table):
+                return []
+            conn.row_factory = sqlite3.Row
+            return [dict(row) for row in conn.execute(f"SELECT * FROM {table}").fetchall()]
+
+        if db_path.exists():
+            conn = sqlite3.connect(str(db_path))
+            try:
+                tracked_tables = [
+                    "reverse_eng_fichas",
+                    "fase3_fichas",
+                    "semantic_rag_kb",
+                    "training_events",
+                    "transformation_rules",
+                    "cache_fichas",
+                ]
+                for table in tracked_tables:
+                    if table_exists(conn, table):
+                        count = conn.execute(f"SELECT COUNT(*) FROM {table}").fetchone()[0]
+                        metrics["table_counts"][table] = count
+                    else:
+                        metrics["table_counts"][table] = 0
+
+                reverse_rows = fetch_rows(conn, "reverse_eng_fichas")
+                reverse_tiers = Counter(get_tier(row, tombstones=tombstones) for row in reverse_rows)
+                metrics["tiers"].update(reverse_tiers)
+                if table_exists(conn, "reverse_eng_fichas") and "rag_indexed" in table_columns(conn, "reverse_eng_fichas"):
+                    metrics["reverse_indexed"] = conn.execute(
+                        "SELECT COUNT(*) FROM reverse_eng_fichas WHERE COALESCE(rag_indexed, 0) != 0"
+                    ).fetchone()[0]
+
+                fase3_rows = fetch_rows(conn, "fase3_fichas")
+                fase3_tiers = Counter(get_tier(row, tombstones=tombstones) for row in fase3_rows)
+                metrics["tiers"].update(fase3_tiers)
+                if table_exists(conn, "fase3_fichas") and "revisado" in table_columns(conn, "fase3_fichas"):
+                    metrics["fase3_reviewed"] = conn.execute(
+                        "SELECT COUNT(*) FROM fase3_fichas WHERE COALESCE(revisado, 0) != 0"
+                    ).fetchone()[0]
+
+                metrics["semantic_total"] = metrics["table_counts"].get("semantic_rag_kb", 0)
+                if table_exists(conn, "semantic_rag_kb"):
+                    semantic_by_class = Counter()
+                    for classe, count in conn.execute(
+                        "SELECT classe, COUNT(*) FROM semantic_rag_kb GROUP BY classe ORDER BY classe"
+                    ).fetchall():
+                        metrics["semantic_rows"].append([classe or "?", count, "domain_knowledge:field_semantics"])
+                        semantic_by_class[str(classe or "?").upper()] = count
+                else:
+                    semantic_by_class = Counter()
+
+                def canonical_class(value):
+                    raw = str(value or "?").strip().upper()
+                    return {"PILAR": "PIL", "LAJE": "LAJ"}.get(raw, raw)
+
+                reverse_by_class = defaultdict(list)
+                for row in reverse_rows:
+                    reverse_by_class[canonical_class(row.get("classe"))].append(row)
+                fase3_by_class = defaultdict(list)
+                for row in fase3_rows:
+                    fase3_by_class[canonical_class(row.get("tipo"))].append(row)
+
+                classes = sorted(set(reverse_by_class) | set(fase3_by_class) | set(semantic_by_class))
+                for classe in classes:
+                    class_rows = reverse_by_class[classe] + fase3_by_class[classe]
+                    class_tiers = Counter(get_tier(row, tombstones=tombstones) for row in class_rows)
+                    evidence = set()
+                    if fase3_by_class[classe]:
+                        evidence.update({1, 3})
+                    if reverse_by_class[classe]:
+                        evidence.update({3, 5, 6})
+                    if semantic_by_class.get(classe, 0):
+                        evidence.add(4)
+                    evidence_text = ", ".join(str(dim) for dim in sorted(evidence)) or "-"
+                    metrics["encyclopedia_rows"].append([
+                        classe,
+                        len(reverse_by_class[classe]),
+                        len(fase3_by_class[classe]),
+                        class_tiers.get("T0", 0),
+                        class_tiers.get("T1", 0),
+                        class_tiers.get("T2", 0),
+                        class_tiers.get("TX", 0),
+                        semantic_by_class.get(classe, 0),
+                        evidence_text,
+                        f"{len(evidence)}/8",
+                    ])
+
+                metrics["coverage_rows"] = [
+                    [
+                        "F5/N2 reverse_eng_fichas",
+                        len(reverse_rows),
+                        reverse_tiers.get("T0", 0),
+                        reverse_tiers.get("T1", 0),
+                        reverse_tiers.get("T2", 0),
+                        reverse_tiers.get("TX", 0),
+                        "Instancias so indexam se T1/T2",
+                    ],
+                    [
+                        "F7/N1 fase3_fichas",
+                        len(fase3_rows),
+                        fase3_tiers.get("T0", 0),
+                        fase3_tiers.get("T1", 0),
+                        fase3_tiers.get("T2", 0),
+                        fase3_tiers.get("TX", 0),
+                        "Motor puro; revisao humana vira T1",
+                    ],
+                    [
+                        "semantic_rag_kb",
+                        metrics["semantic_total"],
+                        0,
+                        metrics["semantic_total"],
+                        0,
+                        0,
+                        "Regras semanticas, nao fichas draft",
+                    ],
+                ]
+
+                metrics["db_rows"] = []
+                for table in tracked_tables:
+                    count = metrics["table_counts"].get(table, 0)
+                    alert = ""
+                    status = "OK"
+                    if table == "semantic_rag_kb" and count == 0:
+                        status, alert = "ATENCAO", "Bridge semantica vazia"
+                    elif table == "cache_fichas" and count == 0:
+                        status, alert = "INFO", "Cache vazio"
+                    elif table == "reverse_eng_fichas" and metrics["reverse_indexed"] == 0:
+                        status, alert = "OK", "Correto por enquanto: sem bulk de T0"
+                    metrics["db_rows"].append([table, count, status, alert])
+
+                if table_exists(conn, "transformation_rules"):
+                    cols = table_columns(conn, "transformation_rules")
+                    if "entity_type" in cols and "accuracy_pct" in cols:
+                        rows = conn.execute(
+                            """
+                            SELECT entity_type, COUNT(*), AVG(accuracy_pct), MIN(accuracy_pct)
+                            FROM transformation_rules
+                            GROUP BY entity_type
+                            ORDER BY entity_type
+                            """
+                        ).fetchall()
+                        for entity_type, count, avg_acc, min_acc in rows:
+                            metrics["rule_rows"].append([
+                                entity_type or "?",
+                                count,
+                                f"{(avg_acc or 0):.1f}%",
+                                f"{(min_acc or 0):.1f}%",
+                            ])
+                        accuracies = [
+                            row[0] for row in conn.execute(
+                                "SELECT accuracy_pct FROM transformation_rules WHERE accuracy_pct IS NOT NULL"
+                            ).fetchall()
+                        ]
+                        if accuracies:
+                            metrics["learning_accuracy"] = f"{sum(accuracies) / len(accuracies):.1f}%"
+
+                if table_exists(conn, "training_events"):
+                    for event_type, count in conn.execute(
+                        "SELECT type, COUNT(*) FROM training_events GROUP BY type ORDER BY COUNT(*) DESC"
+                    ).fetchall():
+                        key = str(event_type or "?")
+                        metrics["learning_counts"][key] = count
+                        metrics["learning_event_rows"].append([key, count])
+                    for role, count in conn.execute(
+                        """
+                        SELECT role, COUNT(*) FROM training_events
+                        GROUP BY role ORDER BY COUNT(*) DESC LIMIT 20
+                        """
+                    ).fetchall():
+                        metrics["learning_role_rows"].append([role or "?", count])
+            except Exception as exc:
+                metrics["db_rows"].append(["project_data.vision", 0, "ERRO", str(exc)])
+            finally:
+                conn.close()
+        else:
+            metrics["db_rows"].append([str(db_path), 0, "ERRO", "Banco nao encontrado"])
+
+        store_totals = defaultdict(Counter)
+        for meta_path in sorted(faiss_dir.glob("*_meta.json")):
+            if meta_path.name == "REGISTRY.json":
+                continue
+            try:
+                data = json.loads(meta_path.read_text(encoding="utf-8"))
+            except Exception:
+                data = []
+            rows = data if isinstance(data, list) else list(data.values()) if isinstance(data, dict) else []
+            counts = Counter(get_tier(row if isinstance(row, dict) else {}, tombstones=tombstones) for row in rows)
+            visible = sum(1 for row in rows if isinstance(row, dict) and tier_at_least(get_tier(row, tombstones=tombstones), "T1"))
+            metrics["faiss_total"] += len(rows)
+            metrics["faiss_visible"] += visible
+            metrics["faiss_tiers"].update(counts)
+            store_name = meta_path.name.replace("_meta.json", "")
+            store_totals[store_name].update(counts)
+            metrics["faiss_rows"].append([
+                store_name,
+                len(rows),
+                counts.get("T0", 0),
+                counts.get("T1", 0),
+                counts.get("T2", 0),
+                counts.get("TX", 0),
+                meta_path.name,
+            ])
+
+        obras_root = repo_root / "DADOS-OBRAS"
+        manifests = sorted(obras_root.glob("*/obra_rag/manifest.json"), key=lambda p: p.stat().st_mtime if p.exists() else 0)
+        metrics["obra_rag_snapshots"] = len(manifests)
+        if manifests:
+            metrics["latest_obra_rag"] = manifests[-1].parent.parent.name
+            metrics["db_rows"].append([
+                "obra_rag snapshots",
+                len(manifests),
+                "OK",
+                f"ultimo: {metrics['latest_obra_rag']}",
+            ])
+
+        return metrics
 
     # --- Interaction Logic ---
 

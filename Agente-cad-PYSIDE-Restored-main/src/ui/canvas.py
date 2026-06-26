@@ -808,11 +808,11 @@ class CADCanvas(QGraphicsView):
                 border-radius: 5px;
                 color: rgba(160, 165, 185, 255);
                 font-family: 'Segoe UI Semibold', 'Segoe UI', Arial;
-                font-size: 9px;
+                font-size: 7px;
                 font-weight: 600;
 
-                padding: 0px 8px;
-                min-width: 58px;
+                padding: 0px 1px;
+                min-width: 32px;
                 height: 26px;
                 text-align: center;
             }}
@@ -859,8 +859,8 @@ class CADCanvas(QGraphicsView):
             /* ── Separador horizontal ── */
             QFrame#vsep {{
                 background: rgba(255, 255, 255, 23);
-                min-width: 58px;
-                max-width: 58px;
+                min-width: 32px;
+                max-width: 32px;
                 min-height: 1px;
                 max-height: 1px;
                 margin-left: 5px;
@@ -869,7 +869,7 @@ class CADCanvas(QGraphicsView):
 
         from PySide6.QtWidgets import QVBoxLayout
         layout = QVBoxLayout(self.toolbar)
-        layout.setContentsMargins(6, 14, 6, 14)
+        layout.setContentsMargins(2, 8, 2, 8)
         layout.setSpacing(6)
         layout.setAlignment(Qt.AlignTop)
 
@@ -896,7 +896,7 @@ class CADCanvas(QGraphicsView):
         layout.addWidget(self.chk_perf_render)
         layout.addWidget(vsep())
         
-        b_select = QPushButton("SELECT")
+        b_select = QPushButton("SEL")
         b_select.setToolTip("Selecionar  ·  ESC")
         b_select.setCursor(Qt.PointingHandCursor)
         b_select.clicked.connect(lambda: self.set_edit_mode("select"))
@@ -909,9 +909,9 @@ class CADCanvas(QGraphicsView):
 
         # ── Grupo 2: Desenho ────────────────────────────────────────────────
         for label, mode, tip in [
-            ("LINHA",  "line",   "Linha  ·  L"),
+            ("LIN",  "line",   "Linha  ·  L"),
             ("CIRC",   "circle", "Círculo  ·  C"),
-            ("TEXTO",  "text",   "Texto  ·  T"),
+            ("TXT",  "text",   "Texto  ·  T"),
             ("COTA",   "dim",    "Cota  ·  D"),
         ]:
             btn = QPushButton(label)
@@ -926,7 +926,7 @@ class CADCanvas(QGraphicsView):
         layout.addSpacing(2)
 
         # ── Grupo 3: Transformar ────────────────────────────────────────────
-        b_move = QPushButton("MOVER")
+        b_move = QPushButton("MOV")
         b_move.setToolTip("Mover  ·  M")
         b_move.setCursor(Qt.PointingHandCursor)
         b_move.clicked.connect(lambda: self.set_edit_mode("move"))
@@ -938,7 +938,7 @@ class CADCanvas(QGraphicsView):
         layout.addSpacing(2)
 
         # ── Excluir (ação destrutiva) ───────────────────────────────────────
-        b_del = QPushButton("EXCLUIR")
+        b_del = QPushButton("DEL")
         b_del.setObjectName("danger_btn")
         b_del.setToolTip("Excluir seleção  ·  DEL")
         b_del.setCursor(Qt.PointingHandCursor)
@@ -950,7 +950,7 @@ class CADCanvas(QGraphicsView):
         layout.addSpacing(2)
 
         # ── Ortho (toggle) ──────────────────────────────────────────────────
-        b_ortho = QPushButton("ORTHO")
+        b_ortho = QPushButton("ORT")
         b_ortho.setObjectName("ortho_btn")
         b_ortho.setToolTip("Ortogonal  ·  F8")
         b_ortho.setCursor(Qt.PointingHandCursor)
@@ -963,7 +963,7 @@ class CADCanvas(QGraphicsView):
         # Modo inicial
         self.set_edit_mode('select')
 
-        self.toolbar.setGeometry(0, 0, 75, self.height())
+        self.toolbar.setGeometry(0, 0, 40, self.height())
 
     def toggle_ortho(self):
         """Liga/Desliga modo ortogonal"""
@@ -1054,7 +1054,7 @@ class CADCanvas(QGraphicsView):
     def resizeEvent(self, event):
         super().resizeEvent(event)
         if hasattr(self, 'toolbar'):
-            self.toolbar.setGeometry(0, 0, 75, self.height())
+            self.toolbar.setGeometry(0, 0, 40, self.height())
         if hasattr(self, 'input_label'):
             self.input_label.move(10, self.height() - 50)
         if hasattr(self, 'loading_label') and self.loading_label.isVisible():
@@ -1918,7 +1918,7 @@ class CADCanvas(QGraphicsView):
             border: 1px solid {Colors.ACCENT_BLUE};
             border-radius: 6px;
             font-family: Arial;
-            font-size: 9px;
+            font-size: 7px;
         """)
         self.instruction_label.move(20, 20)
         self.instruction_label.hide()

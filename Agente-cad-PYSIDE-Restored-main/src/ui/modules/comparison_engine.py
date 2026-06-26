@@ -1405,10 +1405,10 @@ class ScoreSparkline(QWidget):
         self.setMinimumHeight(80)
         self._points = []   # list of (x_norm, score)  0..1 each
         self._colors = {
-            "PL": QColor("#7ab3e0"),  # hardcoded-ok: cor de série de gráfico, sem token equivalente
-            "LV": QColor(Colors.ACCENT_SUCCESS),
-            "FV": QColor(Colors.ACCENT_WARNING),
-            "LJ": QColor("#e91e63"),  # hardcoded-ok: cor de série de gráfico, sem token equivalente
+            "PL": QColor(Accent.INTERACTIVE),
+            "LV": QColor(Semantic.SUCCESS),
+            "FV": QColor(Semantic.WARNING),
+            "LJ": QColor(Semantic.DANGER),
         }
         self._series = {}   # tipo → list of (x_norm, score)
 
@@ -2724,7 +2724,7 @@ class PipelineStepsWidget(QFrame):
 
 # ── LV ficha helpers (reutilizados em N2 e N4) ───────────────────────────────
 
-def _lv_section_widget(er_ficha: dict, accent: str = "#4caf50") -> "QWidget":
+def _lv_section_widget(er_ficha: dict, accent: str = Semantic.SUCCESS) -> "QWidget":
     """Widget de seções transversais numeradas para LV.
     Mostra cada section_view como um card; se vazia, usa campos globais."""
     from PySide6.QtWidgets import QScrollArea, QVBoxLayout, QHBoxLayout, QWidget as _QW, QLabel as _QL, QFrame as _QF
@@ -2832,7 +2832,7 @@ def _lv_section_widget(er_ficha: dict, accent: str = "#4caf50") -> "QWidget":
     return scroll
 
 
-def _lv_segs_table_legacy(er_ficha: dict, accent: str = "#4caf50",
+def _lv_segs_table_legacy(er_ficha: dict, accent: str = Semantic.SUCCESS,
                           tbl_style: str = "") -> "QTableWidget":
     """Tabela de segmentos por face (A+B) com 7 colunas: # Larg Tipo H1 L↑ L↓ ⚑."""
     COLS = ["#", "Larg", "Tipo", "H1", "L↑", "L↓", "⚑"]
@@ -2890,7 +2890,7 @@ def _lv_segs_table_legacy(er_ficha: dict, accent: str = "#4caf50",
     _face_bg   = QColor(Colors.BG_DEEP)
     _face_fg   = QColor(accent)
     _alt_bg    = QColor(Colors.BG_PANEL)
-    _alt2_bg   = QColor("#1a2a1a")
+    _alt2_bg   = QColor(Semantic.SUCCESS_BG_DARK)
 
     _TYPE_SHORT = {'Sarrafeado': 'Sarf.', 'Grade': 'Grade', 'Misto': 'Misto',
                    'gradeada': 'Grade', 'sarrafeada': 'Sarf.', 'invertida': 'Inv.'}
@@ -2965,7 +2965,7 @@ def _lv_segs_table_legacy(er_ficha: dict, accent: str = "#4caf50",
     return tbl
 
 
-def _lv_segs_table(er_ficha: dict, accent: str = "#4caf50",
+def _lv_segs_table(er_ficha: dict, accent: str = Semantic.SUCCESS,
                    tbl_style: str = "") -> "QWidget":
     """Cards de segmentos LV agrupados exclusivamente pelo lado A/B."""
     import re as _re
@@ -3269,7 +3269,7 @@ class LevelColumn(QFrame):
             _btn.setStyleSheet(
                 f"QPushButton {{ background: {Colors.BG_DEEP}; color: {Colors.TEXT_SECONDARY}; "
                 f"border: 1px solid {accent}55; border-radius: 3px; font-size: 9px; padding: 1px 6px; }}"
-                f"QPushButton:checked {{ background: {accent}; color: #000; font-weight: bold; }}"
+                f"QPushButton:checked {{ background: {accent}; color: {Surface.DEEP}; font-weight: bold; }}"
                 f"QPushButton:hover {{ background: {accent}33; }}"
             )
             _btn.clicked.connect(lambda checked, t=_tipo: self._on_para_passa_clicked(t))
@@ -3600,7 +3600,7 @@ class LevelColumn(QFrame):
 
         self._ficha_vlay.addStretch()
 
-    def set_lv_ficha(self, er_ficha: dict, accent: str = "#4caf50"):
+    def set_lv_ficha(self, er_ficha: dict, accent: str = Semantic.SUCCESS):
         """Layout estruturado LV (seções + segmentos) na área de ficha (30% inferior).
         Mantém viewer DXF visível no topo (70%) — NÃO esconde _splitter_vf.
           - Esquerda: seções transversais numeradas (scroll cards)
@@ -3645,7 +3645,7 @@ class LevelColumn(QFrame):
 
     def switch_to_pil_zones(self, zone_paths: dict, er_ficha: dict,
                              zone_fichas: "dict | None" = None,
-                             accent: str = "#a855f7"):
+                             accent: str = Contextual.PURPLE):
         """Replace viewer+ficha with 3-or-4-panel layout for PIL.
 
         zone_paths:  {'ABCD': Path|None, 'CIMA': Path|None, 'GRADES': Path|None[, 'EFGH': Path|None]}
@@ -3870,7 +3870,7 @@ class LevelColumn(QFrame):
         hdr.setAlignment(Qt.AlignCenter)
         hdr.setFixedHeight(18)
         hdr.setStyleSheet(
-            "color: #4acf7a; font-weight: bold; font-size: 11px; "
+            f"color: {Semantic.SUCCESS}; font-weight: bold; font-size: 11px; "
             f"background: {Colors.BG_DEEP}; border-radius: 3px;"
         )
         pv.addWidget(hdr)
@@ -4300,12 +4300,13 @@ class NavSidebar(QFrame):
     gerar_n4_requested  = Signal(str, str)
     gerar_n5_requested  = Signal(str, list)
     analise_requested   = Signal()
+    rag_context_requested = Signal(str, str)
     fase4_requested     = Signal()
     classe_changed      = Signal(str)        # emitido ao trocar aba de classe
 
     _CLASSES = [("PL", "Pilares"), ("LV", "L.Viga"), ("FV", "F.Viga"), ("LJ", "Lajes")]
     _CLS_COLORS = {
-        "PL": "#7ab3e0", "LV": "#4caf50", "FV": "#ff9800", "LJ": "#e91e63"
+        "PL": Accent.INTERACTIVE, "LV": Semantic.SUCCESS, "FV": Semantic.WARNING, "LJ": Semantic.DANGER
     }
     _JSON_DIRS = {
         "PL": "Fase-4_Sincronizacao/JSON_Pilares",
@@ -4353,8 +4354,8 @@ class NavSidebar(QFrame):
         flow_row.setContentsMargins(0, 0, 0, 0)
 
         _FLOW_SS_ACTIVE = (
-            f"QPushButton {{ background:#1b3a6b; color:#fff; border-radius:3px; "
-            f"font-size:9px; font-weight:bold; border-bottom:2px solid {Colors.ACCENT_BLUE}; }}"
+            f"QPushButton {{ background:{_N1_BG}; color:{Text.BRIGHT}; border-radius:3px; "
+            f"font-size:9px; font-weight:bold; border-bottom:2px solid {Accent.INTERACTIVE}; }}"
         )
         _FLOW_SS_INACTIVE = (
             f"QPushButton {{ background:{Colors.BG_CARD}; color:{Colors.TEXT_SECONDARY}; "
@@ -4403,13 +4404,13 @@ class NavSidebar(QFrame):
         _lv_sub_lay = QHBoxLayout(self._lv_subtab_widget)
         _lv_sub_lay.setContentsMargins(0, 0, 0, 0)
         _lv_sub_lay.setSpacing(2)
-        self._lv_ss_para_act  = ("QPushButton{background:#1B5E20;color:#fff;border-radius:3px;"
-                                 "font-size:10px;font-weight:bold;border-bottom:2px solid #4caf50;}")
+        self._lv_ss_para_act  = (f"QPushButton{{background:{Contextual.FOREST};color:{Text.BRIGHT};border-radius:3px;"
+                                 f"font-size:10px;font-weight:bold;border-bottom:2px solid {Semantic.SUCCESS};}}")
         self._lv_ss_para_inac = (f"QPushButton{{background:{Colors.BG_CARD};color:{Colors.TEXT_SECONDARY};"
                                  f"border-radius:3px;font-size:10px;border:1px solid {Colors.BORDER_DEFAULT};}}"
                                  f"QPushButton:hover{{background:{Colors.BG_PANEL};}}")
-        self._lv_ss_pass_act  = ("QPushButton{background:#4A148C;color:#fff;border-radius:3px;"
-                                 "font-size:10px;font-weight:bold;border-bottom:2px solid #9c27b0;}")
+        self._lv_ss_pass_act  = (f"QPushButton{{background:rgba(160, 112, 255, 0.18);color:{Text.BRIGHT};border-radius:3px;"
+                                 f"font-size:10px;font-weight:bold;border-bottom:2px solid {Contextual.PURPLE};}}")
         self._lv_ss_pass_inac = (f"QPushButton{{background:{Colors.BG_CARD};color:{Colors.TEXT_SECONDARY};"
                                  f"border-radius:3px;font-size:10px;border:1px solid {Colors.BORDER_DEFAULT};}}"
                                  f"QPushButton:hover{{background:{Colors.BG_PANEL};}}")
@@ -4497,28 +4498,28 @@ class NavSidebar(QFrame):
         # ── Botões individuais N1 / N2 / N3 / N4 ────────────────────
         n_row1 = QHBoxLayout()
         n_row1.setSpacing(3)
-        self.btn_gerar_n1 = _mbtn("▶ N1", "#1b3a6b", "#2a5ab0")
+        self.btn_gerar_n1 = _mbtn("▶ N1", _N1_BG, _N1_HOV)
         self.btn_gerar_n1.setEnabled(False)
         self.btn_gerar_n1.setVisible(False)   # dinâmico — funcionalidade mantida
         self.btn_gerar_n1.setToolTip("Gerar N1+N3: estrutural + robot SA (lista 1)")
         self.btn_gerar_n1.clicked.connect(self._on_gerar_n1_clicked)
         n_row1.addWidget(self.btn_gerar_n1)
 
-        self.btn_gerar_n2 = _mbtn("▶ N2", "#1a4a2a", "#2a7a4a")
+        self.btn_gerar_n2 = _mbtn("▶ N2", _N2_BG, _N2_HOV)
         self.btn_gerar_n2.setEnabled(False)
         self.btn_gerar_n2.setVisible(False)   # dinâmico — funcionalidade mantida
         self.btn_gerar_n2.setToolTip("Gerar N2+N4: recorte ER + robot ER (lista 2)")
         self.btn_gerar_n2.clicked.connect(self._on_gerar_n2_clicked)
         n_row1.addWidget(self.btn_gerar_n2)
 
-        self.btn_gerar_n3 = _mbtn("▶ N3", "#4a2a1a", "#8a4a2a")
+        self.btn_gerar_n3 = _mbtn("▶ N3", _N3_BG, _N3_HOV)
         self.btn_gerar_n3.setEnabled(False)
         self.btn_gerar_n3.setVisible(False)   # dinâmico — funcionalidade mantida
         self.btn_gerar_n3.setToolTip("Gerar N3: robot DXF via ficha SA")
         self.btn_gerar_n3.clicked.connect(self._on_gerar_n3_clicked)
         n_row1.addWidget(self.btn_gerar_n3)
 
-        self.btn_gerar_n4 = _mbtn("▶ N4", "#2d1a47", "#5a2a8a")
+        self.btn_gerar_n4 = _mbtn("▶ N4", _N4_BG, _N4_HOV)
         self.btn_gerar_n4.setEnabled(False)
         self.btn_gerar_n4.setVisible(False)   # dinâmico — funcionalidade mantida
         self.btn_gerar_n4.setToolTip("Gerar N4: robot DXF via ficha ER (lista 2)")
@@ -4526,7 +4527,7 @@ class NavSidebar(QFrame):
         n_row1.addWidget(self.btn_gerar_n4)
         lay.addLayout(n_row1)
 
-        self.btn_gerar_n5 = _mbtn("▶ N5 Montagem", "#263238", "#006978")
+        self.btn_gerar_n5 = _mbtn("▶ N5 Montagem", _N5_BG, _N5_HOV)
         self.btn_gerar_n5.setToolTip("N5: montar 1 DXF consolidado dos N3 da classe atual (LJ/FV)")
         self.btn_gerar_n5.clicked.connect(self._on_gerar_n5_clicked)
         self.btn_gerar_n5.setVisible(False)   # N5 auto-dispara ao selecionar a aba N5
@@ -4540,7 +4541,7 @@ class NavSidebar(QFrame):
         self.btn_process.clicked.connect(self._on_process_clicked)
         crop_row.addWidget(self.btn_process)
 
-        self.btn_process_all = _mbtn("⚡ Gerar todos N1,2,3", "#4a2a7a", "#6a3a9a")
+        self.btn_process_all = _mbtn("⚡ Gerar todos N1,2,3", _N4_BG, _N4_HOV)
         self.btn_process_all.setToolTip("Processa N1 → N2 → N3 para o item selecionado")
         self.btn_process_all.clicked.connect(self._on_process_all_clicked)
         self.btn_process_all.setVisible(False)   # funcionalidade mantida, botão oculto
@@ -4555,6 +4556,11 @@ class NavSidebar(QFrame):
         self.btn_analise.setToolTip("Processa o DXF estrutural N1 e preenche a lista de itens")
         self.btn_analise.clicked.connect(lambda: self.analise_requested.emit())
         lay.addWidget(self.btn_analise)
+
+        self.btn_rag_context = _mbtn("Consultar RAG", Colors.BG_CARD, Colors.BG_PANEL)
+        self.btn_rag_context.setToolTip("Consulta read-only do RAG global. Usa apenas T1/T2 e regras semanticas; nao escreve nem autocompleta.")
+        self.btn_rag_context.clicked.connect(self._on_rag_context_clicked)
+        lay.addWidget(self.btn_rag_context)
 
         self.btn_fase4 = _mbtn("⚙ Fase 4 — Sync", Colors.ACCENT_WARNING, "rgba(245, 124, 0, 1)")
         self.btn_fase4.setToolTip("Executa motor_fase4.py para o pavimento selecionado")
@@ -4581,9 +4587,9 @@ class NavSidebar(QFrame):
             btn.setChecked(active)
             if active:
                 btn.setStyleSheet(f"""
-                    QPushButton {{ background:{color}; color:#fff;
+                    QPushButton {{ background:{color}; color:{Text.BRIGHT};
                         border-radius:3px; font-size:10px; font-weight:bold;
-                        border-bottom: 2px solid white; }}
+                        border-bottom: 2px solid {Text.BRIGHT}; }}
                 """)
             else:
                 btn.setStyleSheet(f"""
@@ -5438,6 +5444,12 @@ class NavSidebar(QFrame):
         self._disable_all_btns()
         self.gerar_n5_requested.emit(cls, self.current_item_ids())
 
+    def _on_rag_context_clicked(self):
+        if self._selected_classe and self._selected_item:
+            self.rag_context_requested.emit(self._selected_classe, self._selected_item)
+        else:
+            self.set_status("Selecione um item antes de consultar o RAG", Colors.TEXT_DIM)
+
     def current_item_ids(self) -> list:
         ids = []
         for row in range(self.tbl_items.rowCount()):
@@ -5560,7 +5572,7 @@ class TriLevelArea(QWidget):
                 min-width: 80px;
             }}
             QTabBar::tab:selected {{
-                color: #000;
+                color: {Surface.DEEP};
                 border-bottom: none;
             }}
             QTabBar::tab:hover {{
@@ -5571,11 +5583,11 @@ class TriLevelArea(QWidget):
         # Criar LevelColumns (mantém self._columns para compatibilidade total)
         self._columns = []
         _tab_colors = [
-            ("#4a9eff", "#1b3a6b"),   # N1 azul
-            ("#4acf7a", "#1a4a2a"),   # N2 verde
-            ("#cf8a4a", "#4a2a1a"),   # N3 laranja
-            ("#a855f7", "#2d1a47"),   # N4 roxo
-            ("#00bcd4", "#263238"),   # N5 ciano
+            (_N1_FG, _N1_BG),   # N1 azul
+            (_N2_FG, _N2_BG),   # N2 verde
+            (_N3_FG, _N3_BG),   # N3 laranja
+            (_N4_FG, _N4_BG),   # N4 roxo
+            (_N5_FG, _N5_BG),   # N5 ciano
         ]
         for i, (nivel_id, titulo, bg, accent, desc, mode) in enumerate(NIVEL_DEFS):
             col = LevelColumn(nivel_id, titulo, bg, accent, desc, mode)
@@ -7096,6 +7108,7 @@ class ComparisonEngineModule(QWidget):
         self.nav_sidebar.gerar_n4_requested.connect(self._on_gerar_n4)
         self.nav_sidebar.gerar_n5_requested.connect(self._on_gerar_n5)
         self.nav_sidebar.analise_requested.connect(self._on_iniciar_analise)
+        self.nav_sidebar.rag_context_requested.connect(self._on_rag_context_requested)
         self.nav_sidebar.fase4_requested.connect(self._on_fase4_sync)
         self.nav_sidebar.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Expanding)
         left_inner_lay.addWidget(self.nav_sidebar, 1)
@@ -7142,51 +7155,51 @@ class ComparisonEngineModule(QWidget):
             b.setStyleSheet(
                 f"QPushButton {{ background: rgba(0,0,0,0.3); color: {accent}; border-radius: 3px; "
                 f"padding: 1px 8px; font-size: 10px; font-weight: bold; border: 1px solid {accent}55; }}"
-                f"QPushButton:hover {{ background: {accent}33; color: #fff; }}"
-                f"QPushButton:checked {{ background: {accent}; color: #000; }}"
+                f"QPushButton:hover {{ background: {accent}33; color: {Text.BRIGHT}; }}"
+                f"QPushButton:checked {{ background: {accent}; color: {Surface.DEEP}; }}"
             )
             return b
 
         # N3 header: Comparar com N1 | Abrir DXF
-        _btn_cmp_n1 = _hdr_btn("Comparar com N1", "#cf8a4a", checkable=True)
+        _btn_cmp_n1 = _hdr_btn("Comparar com N1", _N3_FG, checkable=True)
         _btn_cmp_n1.clicked.connect(self._on_comparar_n1_toggled)
         self._btn_comparar_n1 = _btn_cmp_n1
         self.tri_level._columns[2]._badge_row.addWidget(_btn_cmp_n1)
-        _btn_cmp_n4_on_n3 = _hdr_btn("Comparar com N4", "#cf8a4a", checkable=True)
+        _btn_cmp_n4_on_n3 = _hdr_btn("Comparar com N4", _N3_FG, checkable=True)
         _btn_cmp_n4_on_n3.clicked.connect(self._on_comparar_n4_on_n3_toggled)
         self._btn_comparar_n4_on_n3 = _btn_cmp_n4_on_n3
         self.tri_level._columns[2]._badge_row.addWidget(_btn_cmp_n4_on_n3)
-        _btn_open_n3 = _hdr_btn("Abrir DXF", "#cf8a4a")
+        _btn_open_n3 = _hdr_btn("Abrir DXF", _N3_FG)
         _btn_open_n3.clicked.connect(lambda: self._on_abrir_dxf(2))
         self.tri_level._columns[2]._badge_row.addWidget(_btn_open_n3)
-        _btn_pdf_n3 = _hdr_btn("Criar Ficha PDF", "#cf8a4a")
+        _btn_pdf_n3 = _hdr_btn("Criar Ficha PDF", _N3_FG)
         _btn_pdf_n3.clicked.connect(self._on_criar_ficha_pdf)
         self.tri_level._columns[2]._badge_row.addWidget(_btn_pdf_n3)
-        _btn_cfg_n3 = _hdr_btn("Configuracao Visual", "#cf8a4a")
+        _btn_cfg_n3 = _hdr_btn("Configuracao Visual", _N3_FG)
         _btn_cfg_n3.clicked.connect(lambda: self._on_configuracao_visual(2))
         self.tri_level._columns[2]._badge_row.addWidget(_btn_cfg_n3)
 
         # N4 header: Comparar com N2 | Abrir DXF
-        _btn_cmp_n2 = _hdr_btn("Comparar com N2", "#a855f7", checkable=True)
+        _btn_cmp_n2 = _hdr_btn("Comparar com N2", _N4_FG, checkable=True)
         _btn_cmp_n2.clicked.connect(self._on_comparar_n2_toggled)
         self._btn_comparar_n2 = _btn_cmp_n2
         self.tri_level._columns[3]._badge_row.addWidget(_btn_cmp_n2)
-        _btn_open_n4 = _hdr_btn("Abrir DXF", "#a855f7")
+        _btn_open_n4 = _hdr_btn("Abrir DXF", _N4_FG)
         _btn_open_n4.clicked.connect(lambda: self._on_abrir_dxf(3))
         self.tri_level._columns[3]._badge_row.addWidget(_btn_open_n4)
-        _btn_cfg_n4 = _hdr_btn("Configuracao Visual", "#a855f7")
+        _btn_cfg_n4 = _hdr_btn("Configuracao Visual", _N4_FG)
         _btn_cfg_n4.clicked.connect(lambda: self._on_configuracao_visual(3))
         self.tri_level._columns[3]._badge_row.addWidget(_btn_cfg_n4)
 
         # N5 header: Comparar Eng. Reversa Humana | Abrir DXF
-        _btn_cmp_n5 = _hdr_btn("Comparar Eng. Rev. Humana", "#00bcd4", checkable=True)
+        _btn_cmp_n5 = _hdr_btn("Comparar Eng. Rev. Humana", _N5_FG, checkable=True)
         _btn_cmp_n5.clicked.connect(self._on_comparar_er_humana_toggled)
         self._btn_comparar_n5 = _btn_cmp_n5
         self.tri_level._columns[4]._badge_row.addWidget(_btn_cmp_n5)
-        _btn_open_n5 = _hdr_btn("Abrir DXF", "#00bcd4")
+        _btn_open_n5 = _hdr_btn("Abrir DXF", _N5_FG)
         _btn_open_n5.clicked.connect(lambda: self._on_abrir_dxf(4))
         self.tri_level._columns[4]._badge_row.addWidget(_btn_open_n5)
-        _btn_cfg_n5 = _hdr_btn("Configuracao Visual", "#00bcd4")
+        _btn_cfg_n5 = _hdr_btn("Configuracao Visual", _N5_FG)
         _btn_cfg_n5.clicked.connect(lambda: self._on_configuracao_visual(4))
         self.tri_level._columns[4]._badge_row.addWidget(_btn_cfg_n5)
 
@@ -7688,6 +7701,38 @@ class ComparisonEngineModule(QWidget):
         self._analise_cache.clear()
         self._auto_analise_geral(obra, pav)
 
+    def _on_rag_context_requested(self, classe: str, item_id: str):
+        """Consulta RAG read-only. Nao altera Analise Geral, fichas ou DXFs."""
+        try:
+            import sys as _sys
+            scripts_dir = Path(__file__).resolve().parents[4] / "scripts"
+            if scripts_dir.exists() and str(scripts_dir) not in _sys.path:
+                _sys.path.insert(0, str(scripts_dir))
+            from rag_context_service import get_rag_context_for_item, format_context_text
+
+            obra = (self.fase8_panel.cmb_obra.currentData() or self.fase8_panel.cmb_obra.currentText())
+            pav = self.fase8_panel.current_pav_key
+            context = get_rag_context_for_item(
+                classe=classe,
+                item_id=item_id,
+                obra=obra,
+                pavimento=pav,
+                min_tier="T1",
+            )
+            self.nav_sidebar.set_status(
+                f"RAG: {len(context.get('rules') or [])} regras, "
+                f"{len(context.get('validated_examples') or [])} exemplos T1+",
+                Colors.ACCENT_SUCCESS,
+            )
+            QMessageBox.information(
+                self,
+                "Contexto RAG read-only",
+                format_context_text(context),
+            )
+        except Exception as exc:
+            self.nav_sidebar.set_status(f"Erro RAG: {str(exc)[:80]}", Colors.ACCENT_DANGER)
+            print(f"[RAG] context query failed: {exc}")
+
     # ── Handlers Gerar N1 / N2 / N3 ────────────────────────────────
 
     def _find_n2_recorte_for_item(self, obra: str, classe: str, item_id: str) -> Path | None:
@@ -7854,6 +7899,23 @@ class ComparisonEngineModule(QWidget):
             obra = (self.fase8_panel.cmb_obra.currentData() or self.fase8_panel.cmb_obra.currentText())
             pav = self.fase8_panel.current_pav_key
             save_human_validation(obra, pav, classe, item_id, scope, human_validated)
+            try:
+                import sys as _sys
+                scripts_dir = Path(__file__).resolve().parents[4] / "scripts"
+                if scripts_dir.exists() and str(scripts_dir) not in _sys.path:
+                    _sys.path.insert(0, str(scripts_dir))
+                from rag_validation_events import record_comparison_human_validation
+                result = record_comparison_human_validation(
+                    obra_name=obra,
+                    pavimento=pav,
+                    classe=classe,
+                    item_id=item_id,
+                    scope=scope,
+                    human_validated=human_validated,
+                )
+                print(f"[RAG] comparison human validation hook: {result}")
+            except Exception as hook_exc:
+                print(f"[RAG] comparison human validation hook failed: {hook_exc}")
             self.nav_sidebar.set_status(
                 f"{scope} {'validado humano' if human_validated else 'validacao humana removida'} - {item_id}",
                 Colors.ACCENT_SUCCESS if human_validated else Colors.TEXT_DIM,

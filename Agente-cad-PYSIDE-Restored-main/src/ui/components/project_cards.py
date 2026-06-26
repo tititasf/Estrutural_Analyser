@@ -421,7 +421,7 @@ class CuradoriaCard(BaseCard):
         else:
              btn.setStyleSheet(f"""
                 QPushButton {{
-                    background-color: #252630; border: 1px solid {Colors.BORDER_INPUT};
+                    background-color: {Surface.CARD}; border: 1px solid {Colors.BORDER_INPUT};
                     color: {Colors.TEXT_SECONDARY}; font-weight: bold; font-size: 10px; border-radius: 4px;
                 }}
                 QPushButton:hover {{ background-color: {Colors.BG_HOVER}; color: {Colors.TEXT_PRIMARY}; }}

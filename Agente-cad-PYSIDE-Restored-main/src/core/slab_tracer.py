@@ -1,4 +1,4 @@
-﻿from shapely.geometry import Point, LineString, Polygon, MultiLineString
+from shapely.geometry import Point, LineString, Polygon, MultiLineString
 from shapely.ops import polygonize, unary_union
 from typing import List, Tuple, Optional, Dict
 import math
@@ -2351,6 +2351,12 @@ class SlabTracer:
         teacher_count = len(self._laj_teacher_dims)
         print(f"[DEBUG] SlabTracer cascade on {len(texts)} texts. N2 teacher={teacher_count}")
         for t in texts:
+            try:
+                from PySide6.QtCore import QCoreApplication
+                QCoreApplication.processEvents()
+            except ImportError:
+                pass
+                
             txt = t.get('text', '').strip()
             if not slab_pattern.match(txt):
                 continue

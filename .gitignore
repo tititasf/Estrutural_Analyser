@@ -18,6 +18,8 @@ __pycache__/
 *.pyc
 *.pyo
 *.pyd
+.pytest_cache/
+.pytest-tmp/
 
 # Build/dist artifacts (todos ROBOS_ABAS - executaveis e compactados >80MB)
 _ROBOS_ABAS/**/build/

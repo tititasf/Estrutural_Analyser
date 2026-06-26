@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import json
 import sqlite3
+import sys
 from pathlib import Path
 
 from PySide6.QtCore import Qt, Signal, QThread, QObject, QSize, QEvent
@@ -50,6 +51,13 @@ _CLASSES = [
 _CLS_COLORS = {
     "PIL": Accent.PRIMARY, "LV": Semantic.SUCCESS, "FV": Semantic.WARNING, "LAJ": Contextual.MAGENTA
 }
+SCRIPTS_DIR = Path(__file__).resolve().parents[4] / "scripts"
+if SCRIPTS_DIR.exists() and str(SCRIPTS_DIR) not in sys.path:
+    sys.path.insert(0, str(SCRIPTS_DIR))
+try:
+    from rag_validation_events import record_reverse_hub_approval
+except Exception:  # pragma: no cover - RAG hook is optional at UI import time
+    record_reverse_hub_approval = None
 
 # Valores aceitos por chave de classe (short + full, ambos podem aparecer em notes)
 _CLS_FILTER: dict[str, set] = {
@@ -723,42 +731,42 @@ def _render_ficha_html(data: dict, classe: str = '', confianca: float = 0.0, ele
         elemento_id = str(data.get('name', data.get('nome', data.get('number', data.get('numero', '')))))
 
     if confianca >= 0.85:
-        conf_color, conf_label = '#16a34a', f'{confianca*100:.0f}%'
+        conf_color, conf_label = Semantic.SUCCESS, f'{confianca*100:.0f}%'
     elif confianca >= 0.6:
-        conf_color, conf_label = '#d97706', f'{confianca*100:.0f}%'
+        conf_color, conf_label = Contextual.GOLD, f'{confianca*100:.0f}%'
     elif confianca > 0.0:
-        conf_color, conf_label = '#dc2626', f'{confianca*100:.0f}%'
+        conf_color, conf_label = Semantic.DANGER, f'{confianca*100:.0f}%'
     else:
-        conf_color, conf_label = '#64748b', 'N/A'
+        conf_color, conf_label = Text.MUTED, 'N/A'
 
-    cls_colors = {'PIL': '#3b82f6', 'LV': '#8b5cf6', 'FV': '#06b6d4', 'LAJ': '#10b981'}
-    cls_color = cls_colors.get(str(classe).upper(), '#64748b')
+    cls_colors = {'PIL': Accent.INTERACTIVE, 'LV': Contextual.PURPLE, 'FV': Accent.PRIMARY, 'LAJ': Semantic.SUCCESS}
+    cls_color = cls_colors.get(str(classe).upper(), Text.MUTED)
 
-    def _sec(title: str, kv: dict, color: str = '#3b82f6') -> str:
+    def _sec(title: str, kv: dict, color: str = Accent.INTERACTIVE) -> str:
         if not kv:
             return ''
         rows = ''
         for k, v in kv.items():
             vstr = json.dumps(v, ensure_ascii=False) if isinstance(v, (dict, list)) else str(v)
-            rows += (f'<tr><td style="color:#94a3b8;padding:2px 8px;white-space:nowrap;'
+            rows += (f'<tr><td style="color:{Text.SECONDARY};padding:2px 8px;white-space:nowrap;'
                      f'font-size:10px;">{k}</td>'
-                     f'<td style="color:#e2e8f0;padding:2px 8px;font-size:10px;">{vstr}</td></tr>')
+                     f'<td style="color:{Text.PRIMARY};padding:2px 8px;font-size:10px;">{vstr}</td></tr>')
         return (f'<div style="background:{color}22;color:{color};padding:3px 8px;margin-top:7px;'
                 f'border-left:3px solid {color};font-size:9px;text-transform:uppercase;'
                 f'">{title}</div>'
                 f'<table width="100%" style="border-collapse:collapse;">{rows}</table>')
 
-    def _sec_list(title: str, items: list, color: str = '#f59e0b') -> str:
+    def _sec_list(title: str, items: list, color: str = Contextual.GOLD) -> str:
         if not items:
             return ''
         if items and isinstance(items[0], dict):
             cols = list(items[0].keys())
-            hdrs = ''.join(f'<th style="color:#94a3b8;padding:2px 6px;border-bottom:1px solid #30363d;'
+            hdrs = ''.join(f'<th style="color:{Text.SECONDARY};padding:2px 6px;border-bottom:1px solid {Border.STRONG};'
                            f'text-align:left;font-size:9px;">{c}</th>' for c in cols)
             drows = ''
             for item in items:
                 drows += '<tr>' + ''.join(
-                    f'<td style="color:#e2e8f0;padding:2px 6px;border-bottom:1px solid #21262d;'
+                    f'<td style="color:{Text.PRIMARY};padding:2px 6px;border-bottom:1px solid {Border.DEFAULT};'
                     f'font-size:10px;">{item.get(c, "")}</td>' for c in cols
                 ) + '</tr>'
             tbl = f'<table width="100%" style="border-collapse:collapse;"><tr>{hdrs}</tr>{drows}</table>'
@@ -766,7 +774,7 @@ def _render_ficha_html(data: dict, classe: str = '', confianca: float = 0.0, ele
             vals = ', '.join(str(x) for x in items[:30])
             if len(items) > 30:
                 vals += f' … ({len(items)} total)'
-            tbl = f'<div style="color:#e2e8f0;padding:4px 8px;font-size:10px;">{vals}</div>'
+            tbl = f'<div style="color:{Text.PRIMARY};padding:4px 8px;font-size:10px;">{vals}</div>'
         return (f'<div style="background:{color}22;color:{color};padding:3px 8px;margin-top:7px;'
                 f'border-left:3px solid {color};font-size:9px;text-transform:uppercase;">'
                 f'{title} ({len(items)})</div>{tbl}')
@@ -797,11 +805,11 @@ def _render_ficha_html(data: dict, classe: str = '', confianca: float = 0.0, ele
     others = {k: v for k, v in scalars.items()
               if k not in ident and k not in dims and k not in grades and k not in bolts}
 
-    cls_badge = (f'<span style="background:{cls_color};color:white;padding:2px 8px;'
+    cls_badge = (f'<span style="background:{cls_color};color:{Text.BRIGHT};padding:2px 8px;'
                  f'border-radius:3px;font-size:11px;font-weight:bold;">{classe}</span>') if classe else ''
-    elem_span = (f'<span style="margin-left:8px;font-size:12px;color:#e2e8f0;'
+    elem_span = (f'<span style="margin-left:8px;font-size:12px;color:{Text.PRIMARY};'
                  f'font-weight:bold;">{elemento_id}</span>') if elemento_id else ''
-    conf_badge = (f'<span style="background:{conf_color};color:white;padding:2px 7px;'
+    conf_badge = (f'<span style="background:{conf_color};color:{Text.BRIGHT};padding:2px 7px;'
                   f'border-radius:3px;font-size:10px;">{conf_label} confiança</span>')
 
     # Exceções G2 (Arete) pendentes para este item — ver
@@ -824,16 +832,16 @@ def _render_ficha_html(data: dict, classe: str = '', confianca: float = 0.0, ele
     exc_badge = ''
     if item_exceptions:
         exc_badge = (
-            '<span style="margin-left:8px;background:#f59e0b;color:#1a1300;padding:2px 8px;'
+            f'<span style="margin-left:8px;background:{Contextual.GOLD};color:{Surface.DEEP};padding:2px 8px;'
             'border-radius:3px;font-size:10px;font-weight:bold;" '
             f'title="{len(item_exceptions)} exceção(ões) G2 pendente(s)">⚠ EXCEÇÃO</span>'
         )
 
     parts = [
         '<html><head><meta charset="utf-8"></head>',
-        '<body style="background:#0d1117;color:#c9d1d9;font-family:monospace;margin:0;padding:0;">',
+        f'<body style="background:{Surface.DEEP};color:{Text.PRIMARY};font-family:monospace;margin:0;padding:0;">',
         '<div style="padding:8px 10px;">',
-        f'<div style="background:#161b22;padding:7px 10px;border-radius:5px;margin-bottom:8px;">',
+        f'<div style="background:{Surface.BASE};padding:7px 10px;border-radius:5px;margin-bottom:8px;">',
         f'  {cls_badge}{elem_span}{exc_badge}',
         f'  <span style="float:right;">{conf_badge}</span>',
         f'</div>',
@@ -844,27 +852,27 @@ def _render_ficha_html(data: dict, classe: str = '', confianca: float = 0.0, ele
         for exc in item_exceptions:
             cats = ', '.join(exc.get('categorias_afetadas', []))
             exc_rows += (
-                '<tr><td style="color:#f59e0b;padding:2px 8px;white-space:nowrap;'
+                f'<tr><td style="color:{Contextual.GOLD};padding:2px 8px;white-space:nowrap;'
                 f'font-size:10px;font-weight:bold;">{exc["id"]}</td>'
-                '<td style="color:#e2e8f0;padding:2px 8px;font-size:10px;">'
+                f'<td style="color:{Text.PRIMARY};padding:2px 8px;font-size:10px;">'
                 f'[{exc.get("status")}] categorias: {cats}<br>{exc["motivo"]}</td></tr>'
             )
         parts.append(
-            '<div style="background:rgba(245, 158, 11, 34);color:#f59e0b;padding:3px 8px;margin-top:0;'
-            'border-left:3px solid #f59e0b;font-size:9px;text-transform:uppercase;'
-            '">⚠ Exceção G2 Pendente — gate canônico FAIL, causa raiz '
+            f'<div style="background:rgba(230, 180, 0, 0.13);color:{Contextual.GOLD};padding:3px 8px;margin-top:0;'
+            f'border-left:3px solid {Contextual.GOLD};font-size:9px;text-transform:uppercase;'
+            '>⚠ Exceção G2 Pendente — gate canônico FAIL, causa raiz '
             'investigada (avaliação caso a caso futura)</div>'
             f'<table width="100%" style="border-collapse:collapse;">{exc_rows}</table>'
         )
 
-    parts.append(_sec('Identificação', ident, '#3b82f6'))
-    parts.append(_sec('Dimensões', dims, '#06b6d4'))
+    parts.append(_sec('Identificação', ident, Accent.INTERACTIVE))
+    parts.append(_sec('Dimensões', dims, Accent.PRIMARY))
     if grades:
-        parts.append(_sec('Grades / Armação', grades, '#8b5cf6'))
+        parts.append(_sec('Grades / Armação', grades, Contextual.PURPLE))
     if bolts:
-        parts.append(_sec('Parafusos / Furação', bolts, '#f59e0b'))
+        parts.append(_sec('Parafusos / Furação', bolts, Contextual.GOLD))
     if others:
-        parts.append(_sec('Outros Campos', others, '#64748b'))
+        parts.append(_sec('Outros Campos', others, Text.MUTED))
 
     # Dicionários (faces A-H, pilares, etc.)
     for dk, dv in dicts_.items():
@@ -873,7 +881,7 @@ def _render_ficha_html(data: dict, classe: str = '', confianca: float = 0.0, ele
         if isinstance(dv.get('active'), bool) and not dv['active']:
             continue
         sub = {sk: sv for sk, sv in dv.items() if sk != 'active'}
-        parts.append(_sec(dk, sub, '#10b981'))
+        parts.append(_sec(dk, sub, Semantic.SUCCESS))
 
     # Listas (panels, holes, pontaletes, etc.)
     for lk, lv in lists_.items():
@@ -884,7 +892,7 @@ def _render_ficha_html(data: dict, classe: str = '', confianca: float = 0.0, ele
             filtered = [x for x in lv if isinstance(x, dict) and x.get('active', False)]
             if not filtered:
                 continue
-        parts.append(_sec_list(lk, filtered, '#f59e0b'))
+        parts.append(_sec_list(lk, filtered, Contextual.GOLD))
 
     # Metadados ao final
     meta_filtered = {k: v for k, v in metas.items() if k != '_confianca'}
@@ -894,11 +902,11 @@ def _render_ficha_html(data: dict, classe: str = '', confianca: float = 0.0, ele
             meta_kv[k] = json.dumps(v, ensure_ascii=False) if isinstance(v, (dict, list)) else str(v)
         meta_rows = ''
         for k, v in meta_kv.items():
-            meta_rows += (f'<tr><td style="color:#4a5568;padding:2px 8px;font-size:9px;">{k}</td>'
-                          f'<td style="color:#718096;padding:2px 8px;font-size:9px;">{v}</td></tr>')
+            meta_rows += (f'<tr><td style="color:{Text.MUTED};padding:2px 8px;font-size:9px;">{k}</td>'
+                          f'<td style="color:{Text.SECONDARY};padding:2px 8px;font-size:9px;">{v}</td></tr>')
         parts.append(
-            '<div style="background:#1a202c;color:#4a5568;padding:3px 8px;margin-top:8px;'
-            'border-left:3px solid #2d3748;font-size:9px;text-transform:uppercase;">Metadados</div>'
+            f'<div style="background:{Surface.BASE};color:{Text.MUTED};padding:3px 8px;margin-top:8px;'
+            f'border-left:3px solid {Border.DEFAULT};font-size:9px;text-transform:uppercase;">Metadados</div>'
             f'<table width="100%" style="border-collapse:collapse;">{meta_rows}</table>'
         )
 
@@ -922,9 +930,9 @@ def _render_obra_html(data: dict) -> str:
 
     # Cores de confiança
     def _conf_color(c: float) -> str:
-        if c >= 0.85: return '#16a34a'
-        if c >= 0.65: return '#d97706'
-        return '#dc2626'
+        if c >= 0.85: return Semantic.SUCCESS
+        if c >= 0.65: return Contextual.GOLD
+        return Semantic.DANGER
 
     def _conf_label(c: float) -> str:
         if c >= 0.85: return 'Excelente'
@@ -933,13 +941,13 @@ def _render_obra_html(data: dict) -> str:
         return 'Baixa'
 
     NIVEL_CFG = {
-        'sucesso': ('#16a34a', '#052e16', '✅'),
-        'info':    ('#3b82f6', '#0c1a3a', 'ℹ'),
-        'aviso':   ('#d97706', '#2d1a06', '⚠'),
-        'alerta':  ('#dc2626', '#2d0806', '✗'),
+        'sucesso': (Semantic.SUCCESS,    Semantic.SUCCESS_BG_DARK, '✅'),
+        'info':    (Accent.INTERACTIVE,  Surface.RAISED,           'ℹ'),
+        'aviso':   (Contextual.GOLD,     Semantic.WARNING_BG_DARK, '⚠'),
+        'alerta':  (Semantic.DANGER,     Semantic.DANGER_BG_DARK,  '✗'),
     }
 
-    CLS_COLOR  = {'PIL': '#3b82f6', 'LV': '#8b5cf6', 'FV': '#06b6d4', 'LAJ': '#10b981'}
+    CLS_COLOR  = {'PIL': Accent.INTERACTIVE, 'LV': Contextual.PURPLE, 'FV': Accent.PRIMARY, 'LAJ': Semantic.SUCCESS}
     CLS_ICON   = {'PIL': '🧱', 'LV': '🔷', 'FV': '🔹', 'LAJ': '⬛'}
     CLS_LABEL  = {'PIL': 'Pilares', 'LV': 'Vigas Laterais', 'FV': 'Fundos de Viga', 'LAJ': 'Lajes'}
 
@@ -947,19 +955,19 @@ def _render_obra_html(data: dict) -> str:
 
     parts = [
         '<html><head><meta charset="utf-8"></head>',
-        '<body style="background:#0d1117;color:#c9d1d9;font-family:monospace;margin:0;padding:0;">',
+        f'<body style="background:{Surface.DEEP};color:{Text.PRIMARY};font-family:monospace;margin:0;padding:0;">',
         '<div style="padding:10px 12px;">',
     ]
 
     # ── Cabeçalho da obra ──
     parts.append(f'''
-<div style="background:#161b22;border-radius:6px;padding:10px 14px;margin-bottom:10px;">
-  <div style="font-size:15px;font-weight:bold;color:#e2e8f0;">{obra_name}</div>
-  <div style="font-size:10px;color:#64748b;margin-top:2px;">
+<div style="background:{Surface.BASE};border-radius:6px;padding:10px 14px;margin-bottom:10px;">
+  <div style="font-size:15px;font-weight:bold;color:{Text.PRIMARY};">{obra_name}</div>
+  <div style="font-size:10px;color:{Text.MUTED};margin-top:2px;">
     Ficha da Obra ER · {total} fichas · {len(pavimentos)} pavimento(s) · Gerado {gerado_em}
   </div>
   <div style="margin-top:6px;display:inline-block;">
-    <span style="background:{cc};color:white;padding:2px 10px;border-radius:3px;font-size:11px;font-weight:bold;">
+    <span style="background:{cc};color:{Text.BRIGHT};padding:2px 10px;border-radius:3px;font-size:11px;font-weight:bold;">
       {conf_geral*100:.0f}% confiança média — {_conf_label(conf_geral)}
     </span>
   </div>
@@ -976,14 +984,14 @@ def _render_obra_html(data: dict) -> str:
             cm = s.get('confianca_media', 0)
             baixa = s.get('baixa_confianca_count', 0)
             pavs_cob = len(s.get('pavimentos_cobertos', []))
-            col = CLS_COLOR.get(cls, '#64748b')
+            col = CLS_COLOR.get(cls, Text.SECONDARY)
             icon = CLS_ICON.get(cls, '●')
             lbl = CLS_LABEL.get(cls, cls)
 
             # Badge de baixa confiança
             badge_baixa = ''
             if baixa > 0:
-                badge_baixa = (f'<span style="background:#7c2d12;color:#fca5a5;padding:1px 5px;'
+                badge_baixa = (f'<span style="background:{Semantic.DANGER_BG_DARK};color:{Semantic.DANGER};padding:1px 5px;'
                                f'border-radius:2px;font-size:9px;margin-left:5px;">'
                                f'{baixa} baixa conf.</span>')
 
@@ -998,17 +1006,17 @@ def _render_obra_html(data: dict) -> str:
 
             parts.append(f'''
 <div style="display:table-cell;width:50%;padding:4px;">
-  <div style="background:#161b22;border-left:3px solid {col};border-radius:4px;padding:8px 10px;">
+  <div style="background:{Surface.BASE};border-left:3px solid {col};border-radius:4px;padding:8px 10px;">
     <div style="font-size:12px;font-weight:bold;color:{col};">{icon} {lbl}</div>
-    <div style="font-size:20px;color:#e2e8f0;font-weight:bold;margin-top:2px;">
+    <div style="font-size:20px;color:{Text.PRIMARY};font-weight:bold;margin-top:2px;">
       {n}
-      <span style="font-size:10px;color:#64748b;font-weight:normal;">elementos</span>
+      <span style="font-size:10px;color:{Text.MUTED};font-weight:normal;">elementos</span>
       {badge_baixa}
     </div>
-    <div style="background:#21262d;border-radius:2px;height:4px;margin-top:5px;">
+    <div style="background:{Border.DEFAULT};border-radius:2px;height:4px;margin-top:5px;">
       <div style="background:{bar_color};width:{bar_w}%;height:4px;border-radius:2px;"></div>
     </div>
-    <div style="font-size:9px;color:#64748b;margin-top:2px;">{cm*100:.0f}% conf. média · {pavs_cob} pavimento(s)</div>
+    <div style="font-size:9px;color:{Text.MUTED};margin-top:2px;">{cm*100:.0f}% conf. média · {pavs_cob} pavimento(s)</div>
   </div>
 </div>''')
 
@@ -1017,13 +1025,13 @@ def _render_obra_html(data: dict) -> str:
     # ── Pavimentos cobertos ──
     if pavimentos:
         pav_cells = ''.join(
-            f'<span style="background:#1f2937;color:#94a3b8;padding:2px 7px;border-radius:3px;'
+            f'<span style="background:{Surface.CARD};color:{Text.SECONDARY};padding:2px 7px;border-radius:3px;'
             f'font-size:10px;margin:2px;display:inline-block;">{p}</span>'
             for p in sorted(pavimentos)
         )
         parts.append(f'''
-<div style="background:#0f172a;border-radius:4px;padding:8px 10px;margin-top:8px;">
-  <div style="font-size:9px;color:#475569;text-transform:uppercase;margin-bottom:4px;">
+<div style="background:{Surface.RAISED};border-radius:4px;padding:8px 10px;margin-top:8px;">
+  <div style="font-size:9px;color:{Text.MUTED};text-transform:uppercase;margin-bottom:4px;">
     Pavimentos Processados
   </div>
   <div>{pav_cells}</div>
@@ -1037,7 +1045,7 @@ def _render_obra_html(data: dict) -> str:
         analise = por_classe[cls].get('analise', {})
         if not analise:
             continue
-        col = CLS_COLOR.get(cls, '#64748b')
+        col = CLS_COLOR.get(cls, Text.SECONDARY)
         lbl = CLS_LABEL.get(cls, cls)
 
         rows_html = ''
@@ -1047,7 +1055,7 @@ def _render_obra_html(data: dict) -> str:
             for item in dist[:5]:
                 bar_w = int(item['pct'] / max_pct * 90) if max_pct else 0
                 html += (f'<div style="margin-top:2px;font-size:9px;">'
-                         f'<span style="color:#94a3b8;display:inline-block;min-width:50px;">{item["valor"]}</span>'
+                         f'<span style="color:{Text.SECONDARY};display:inline-block;min-width:50px;">{item["valor"]}</span>'
                          f'<span style="background:{col}44;display:inline-block;height:8px;width:{bar_w}px;'
                          f'border-radius:2px;vertical-align:middle;margin:0 4px;"></span>'
                          f'<span style="color:#64748b;">{item["count"]}× ({item["pct"]}%)</span>'
@@ -1064,11 +1072,11 @@ def _render_obra_html(data: dict) -> str:
                 dom_pct = info.get('dominante_pct', 0)
                 mn, mx, med = info.get('min', 0), info.get('max', 0), info.get('media', 0)
                 rows_html += (
-                    f'<tr><td style="color:#64748b;padding:2px 6px;font-size:9px;white-space:nowrap;">'
+                    f'<tr><td style="color:{Text.SECONDARY};padding:2px 6px;font-size:9px;white-space:nowrap;">'
                     f'{campo.title()}</td>'
                     f'<td style="padding:2px 6px;">'
-                    f'<span style="color:#e2e8f0;font-size:10px;">dom: <b>{dom}</b> cm ({dom_pct}%)</span>'
-                    f'<span style="color:#64748b;font-size:9px;margin-left:8px;">min {mn} · max {mx} · méd {med}</span>'
+                    f'<span style="color:{Text.PRIMARY};font-size:10px;">dom: <b>{dom}</b> cm ({dom_pct}%)</span>'
+                    f'<span style="color:{Text.SECONDARY};font-size:9px;margin-left:8px;">min {mn} · max {mx} · méd {med}</span>'
                     f'</td></tr>'
                 )
                 if campo == 'comprimento' and info.get('distribuicao'):
@@ -1077,15 +1085,15 @@ def _render_obra_html(data: dict) -> str:
 
             g2_taxa = analise.get('grade_2_taxa_presenca')
             if g2_taxa is not None:
-                rows_html += (f'<tr><td style="color:#64748b;padding:2px 6px;font-size:9px;">Grade 2</td>'
-                              f'<td style="color:#94a3b8;padding:2px 6px;font-size:9px;">'
+                rows_html += (f'<tr><td style="color:{Text.SECONDARY};padding:2px 6px;font-size:9px;">Grade 2</td>'
+                              f'<td style="color:{Text.SECONDARY};padding:2px 6px;font-size:9px;">'
                               f'presente em {g2_taxa}% dos pilares</td></tr>')
 
             anom = analise.get('anomalias_comprimento', [])
             if anom:
                 nomes = ', '.join(a['elemento'] for a in anom)
-                rows_html += (f'<tr><td style="color:#d97706;padding:2px 6px;font-size:9px;">Outliers</td>'
-                              f'<td style="color:#fbbf24;padding:2px 6px;font-size:9px;">{nomes}</td></tr>')
+                rows_html += (f'<tr><td style="color:{Semantic.WARNING};padding:2px 6px;font-size:9px;">Outliers</td>'
+                              f'<td style="color:{Contextual.GOLD};padding:2px 6px;font-size:9px;">{nomes}</td></tr>')
 
         # LV / FV
         elif cls in ('LV', 'FV'):
@@ -1097,10 +1105,10 @@ def _render_obra_html(data: dict) -> str:
                 dom_pct = info.get('dominante_pct', 0)
                 mn, mx, med = info.get('min', 0), info.get('max', 0), info.get('media', 0)
                 rows_html += (
-                    f'<tr><td style="color:#64748b;padding:2px 6px;font-size:9px;">{campo.title()}</td>'
+                    f'<tr><td style="color:{Text.SECONDARY};padding:2px 6px;font-size:9px;">{campo.title()}</td>'
                     f'<td style="padding:2px 6px;">'
-                    f'<span style="color:#e2e8f0;font-size:10px;">dom: <b>{dom}</b> cm ({dom_pct}%)</span>'
-                    f'<span style="color:#64748b;font-size:9px;margin-left:8px;">min {mn} · max {mx} · méd {med}</span>'
+                    f'<span style="color:{Text.PRIMARY};font-size:10px;">dom: <b>{dom}</b> cm ({dom_pct}%)</span>'
+                    f'<span style="color:{Text.SECONDARY};font-size:9px;margin-left:8px;">min {mn} · max {mx} · méd {med}</span>'
                     f'</td></tr>'
                 )
                 if campo == 'altura' and info.get('distribuicao'):
@@ -1109,9 +1117,9 @@ def _render_obra_html(data: dict) -> str:
 
             np_ = analise.get('num_paineis')
             if np_:
-                rows_html += (f'<tr><td style="color:#64748b;padding:2px 6px;font-size:9px;">Painéis</td>'
+                rows_html += (f'<tr><td style="color:{Text.SECONDARY};padding:2px 6px;font-size:9px;">Painéis</td>'
                               f'<td style="padding:2px 6px;">'
-                              f'<span style="color:#e2e8f0;font-size:10px;">dom: <b>{np_["dominante"]}</b> painéis ({np_["dominante_pct"]}%)</span>'
+                              f'<span style="color:{Text.PRIMARY};font-size:10px;">dom: <b>{np_["dominante"]}</b> painéis ({np_["dominante_pct"]}%)</span>'
                               f'</td></tr>')
                 if np_.get('distribuicao'):
                     rows_html += (f'<tr><td></td><td style="padding:1px 6px;">'
@@ -1119,26 +1127,26 @@ def _render_obra_html(data: dict) -> str:
 
             lp = analise.get('larguras_paineis', {})
             if lp.get('distribuicao'):
-                rows_html += f'<tr><td style="color:#64748b;padding:2px 6px;font-size:9px;">Larg. painéis</td>'
+                rows_html += f'<tr><td style="color:{Text.SECONDARY};padding:2px 6px;font-size:9px;">Larg. painéis</td>'
                 rows_html += f'<td style="padding:1px 6px;">{_dist_bar(lp["distribuicao"], 80)}</td></tr>'
 
             fp = analise.get('furos_presentes_pct', 0)
             if fp > 0:
-                rows_html += (f'<tr><td style="color:#64748b;padding:2px 6px;font-size:9px;">Furos</td>'
-                              f'<td style="color:#94a3b8;padding:2px 6px;font-size:9px;">{fp}% dos elementos com furos ativos</td></tr>')
+                rows_html += (f'<tr><td style="color:{Text.SECONDARY};padding:2px 6px;font-size:9px;">Furos</td>'
+                              f'<td style="color:{Text.SECONDARY};padding:2px 6px;font-size:9px;">{fp}% dos elementos com furos ativos</td></tr>')
 
             ple = analise.get('pilar_esq_pct', 0)
             pld = analise.get('pilar_dir_pct', 0)
             if ple > 0 or pld > 0:
-                rows_html += (f'<tr><td style="color:#64748b;padding:2px 6px;font-size:9px;">Pilares ext.</td>'
-                              f'<td style="color:#94a3b8;padding:2px 6px;font-size:9px;">'
+                rows_html += (f'<tr><td style="color:{Text.SECONDARY};padding:2px 6px;font-size:9px;">Pilares ext.</td>'
+                              f'<td style="color:{Text.SECONDARY};padding:2px 6px;font-size:9px;">'
                               f'esq: {ple}% · dir: {pld}%</td></tr>')
 
             anom = analise.get('anomalias_altura', [])
             if anom:
                 nomes = ', '.join(a['elemento'] for a in anom[:4])
-                rows_html += (f'<tr><td style="color:#d97706;padding:2px 6px;font-size:9px;">Outliers</td>'
-                              f'<td style="color:#fbbf24;padding:2px 6px;font-size:9px;">{nomes}'
+                rows_html += (f'<tr><td style="color:{Semantic.WARNING};padding:2px 6px;font-size:9px;">Outliers</td>'
+                              f'<td style="color:{Contextual.GOLD};padding:2px 6px;font-size:9px;">{nomes}'
                               f'{"…" if len(anom) > 4 else ""}</td></tr>')
 
         # LAJ
@@ -1148,8 +1156,8 @@ def _render_obra_html(data: dict) -> str:
                 if not info:
                     continue
                 mn, mx, med = info.get('min', 0), info.get('max', 0), info.get('media', 0)
-                rows_html += (f'<tr><td style="color:#64748b;padding:2px 6px;font-size:9px;">{campo}</td>'
-                              f'<td style="color:#e2e8f0;padding:2px 6px;font-size:9px;">'
+                rows_html += (f'<tr><td style="color:{Text.SECONDARY};padding:2px 6px;font-size:9px;">{campo}</td>'
+                              f'<td style="color:{Text.PRIMARY};padding:2px 6px;font-size:9px;">'
                               f'min {mn} · max {mx} · méd {med}</td></tr>')
                 if info_key == 'area' and info.get('distribuicao'):
                     rows_html += (f'<tr><td></td><td style="padding:1px 6px;">'
@@ -1157,8 +1165,8 @@ def _render_obra_html(data: dict) -> str:
 
             pont = analise.get('pontaletes_por_laje', {})
             if pont:
-                rows_html += (f'<tr><td style="color:#64748b;padding:2px 6px;font-size:9px;">Pontaletes</td>'
-                              f'<td style="color:#94a3b8;padding:2px 6px;font-size:9px;">'
+                rows_html += (f'<tr><td style="color:{Text.SECONDARY};padding:2px 6px;font-size:9px;">Pontaletes</td>'
+                              f'<td style="color:{Text.SECONDARY};padding:2px 6px;font-size:9px;">'
                               f'dom: {pont["dominante"]} por laje ({pont["dominante_pct"]}%)</td></tr>')
 
         if rows_html:
@@ -1176,9 +1184,9 @@ def _render_obra_html(data: dict) -> str:
         sorted_insights = sorted(insights, key=lambda x: NIVEL_ORDER.index(x.get('nivel', 'info'))
                                  if x.get('nivel', 'info') in NIVEL_ORDER else 99)
 
-        parts.append('''
+        parts.append(f'''
 <div style="margin-top:10px;">
-  <div style="background:#1f2937;color:#94a3b8;padding:4px 8px;border-radius:4px 4px 0 0;
+  <div style="background:{Surface.BASE};color:{Text.SECONDARY};padding:4px 8px;border-radius:4px 4px 0 0;
               font-size:9px;text-transform:uppercase;">
     Insights &amp; Conclusões
   </div>
@@ -1188,13 +1196,13 @@ def _render_obra_html(data: dict) -> str:
             cfg = NIVEL_CFG.get(nivel, NIVEL_CFG['info'])
             col_ins, bg_ins, icon_ins = cfg
             cat = ins.get('categoria', '')
-            cat_badge = (f'<span style="background:#1e293b;color:#475569;padding:1px 5px;'
+            cat_badge = (f'<span style="background:{Surface.RAISED};color:{Text.MUTED};padding:1px 5px;'
                          f'border-radius:2px;font-size:8px;margin-left:6px;">{cat}</span>') if cat else ''
             parts.append(
                 f'<div style="background:{bg_ins};border-left:3px solid {col_ins};'
                 f'padding:5px 8px;margin-top:2px;">'
                 f'<span style="color:{col_ins};font-size:10px;">{icon_ins}</span>'
-                f'<span style="color:#e2e8f0;font-size:10px;margin-left:6px;">{ins["texto"]}</span>'
+                f'<span style="color:{Text.PRIMARY};font-size:10px;margin-left:6px;">{ins["texto"]}</span>'
                 f'{cat_badge}'
                 f'</div>'
             )
@@ -1264,7 +1272,7 @@ class _CenterPanel(QFrame):
                 f"border:1px solid {Colors.BORDER_DEFAULT}; border-radius:3px; "
                 f"font-size:9px; padding:0 7px; }} "
                 f"QPushButton:hover {{ background:{Colors.BG_PANEL}; color:{Colors.TEXT_BRIGHT}; }} "
-                f"QPushButton:checked {{ background:{Colors.ACCENT_BLUE}; color:#fff; }}"
+                f"QPushButton:checked {{ background:{Colors.ACCENT_BLUE}; color:{Text.BRIGHT}; }}"
             )
             b.setCheckable(True)
             return b
@@ -1342,7 +1350,7 @@ class _CenterPanel(QFrame):
                 f"border:1px solid {Colors.BORDER_DEFAULT}; border-radius:3px; "
                 f"font-size:9px; padding:0 7px; }} "
                 f"QPushButton:hover {{ background:{Colors.BG_PANEL}; color:{Colors.TEXT_BRIGHT}; }} "
-                f"QPushButton:checked {{ background:{Colors.ACCENT_BLUE}; color:#fff; }}"
+                f"QPushButton:checked {{ background:{Colors.ACCENT_BLUE}; color:{Text.BRIGHT}; }}"
             )
             return b
 
@@ -1407,7 +1415,7 @@ class _CenterPanel(QFrame):
         self._ficha_table = QTextEdit()
         self._ficha_table.setReadOnly(True)
         self._ficha_table.setStyleSheet(
-            f"background:#0d1117; color:#c9d1d9; border:none;"
+            f"background:{Surface.DEEP}; color:{Text.PRIMARY}; border:none;"
         )
         self._tabs.addTab(self._ficha_table, "Fichas Granulares [F5]")
         
@@ -1687,10 +1695,10 @@ class _CenterPanel(QFrame):
                              classe: str = '', confianca: float = 0.0, elemento_id: str = ''):
         if not campos_json:
             self._ficha_table.setHtml(
-                '<html><body style="background:#0d1117;color:#4a5568;font-family:monospace;padding:16px;">'
-                'Nenhuma ficha disponível.<br>'
-                'Execute <b style="color:#60a5fa;">Gerar Fichas</b> para processar os recortes aprovados.'
-                '</body></html>'
+                f'<html><body style="background:{Surface.DEEP};color:{Text.MUTED};font-family:monospace;padding:16px;">'
+                f'Nenhuma ficha disponível.<br>'
+                f'Execute <b style="color:{Accent.INTERACTIVE};">Gerar Fichas</b> para processar os recortes aprovados.'
+                f'</body></html>'
             )
             return
         try:
@@ -1704,10 +1712,10 @@ class _CenterPanel(QFrame):
     def load_ficha_pavimento_classe(self, resumo_json: str | None):
         if not resumo_json:
             self._pav_text.setHtml(
-                '<html><body style="background:#0d1117;color:#4a5568;font-family:monospace;padding:16px;">'
-                'Nenhuma ficha F4 disponível para este pavimento/classe.<br>'
-                'Execute <b style="color:#60a5fa;">Gerar Fichas</b> para compilar os recortes.'
-                '</body></html>'
+                f'<html><body style="background:{Surface.DEEP};color:{Text.MUTED};font-family:monospace;padding:16px;">'
+                f'Nenhuma ficha F4 disponível para este pavimento/classe.<br>'
+                f'Execute <b style="color:{Accent.INTERACTIVE};">Gerar Fichas</b> para compilar os recortes.'
+                f'</body></html>'
             )
             return
         # Apenas joga o JSON parseado de forma visual
@@ -1716,7 +1724,7 @@ class _CenterPanel(QFrame):
             data = json.loads(resumo_json)
             formatted = json.dumps(data, indent=2, ensure_ascii=False)
             self._pav_text.setHtml(
-                f'<html><body style="background:#0d1117;color:#c9d1d9;font-family:monospace;padding:16px;"><pre>{formatted}</pre></body></html>'
+                f'<html><body style="background:{Surface.DEEP};color:{Text.PRIMARY};font-family:monospace;padding:16px;"><pre>{formatted}</pre></body></html>'
             )
         except:
             self._pav_text.setPlainText(resumo_json)
@@ -1724,10 +1732,10 @@ class _CenterPanel(QFrame):
     def load_ficha_obra(self, resumo_json: str | None):
         if not resumo_json:
             self._obra_text.setHtml(
-                '<html><body style="background:#0d1117;color:#4a5568;font-family:monospace;padding:16px;">'
-                'Nenhuma ficha da obra gerada.<br>'
-                'Execute <b style="color:#60a5fa;">Gerar Fichas</b> para processar todos os recortes aprovados.'
-                '</body></html>'
+                f'<html><body style="background:{Surface.DEEP};color:{Text.MUTED};font-family:monospace;padding:16px;">'
+                f'Nenhuma ficha da obra gerada.<br>'
+                f'Execute <b style="color:{Accent.INTERACTIVE};">Gerar Fichas</b> para processar todos os recortes aprovados.'
+                f'</body></html>'
             )
             return
         try:
@@ -1931,13 +1939,13 @@ class _RecorteItemWidget(QWidget):
     _BASE_BADGE = (
         "border-radius:3px; font-size:8px; font-weight:bold; padding:1px 2px;"
     )
-    _STYLE_CONF_NONE = f"background:#555; color:#aaa; {_BASE_BADGE}"
-    _STYLE_CONF_HIGH = f"background:#2e7d32; color:#fff; {_BASE_BADGE}"
-    _STYLE_CONF_MED  = f"background:#e65100; color:#fff; {_BASE_BADGE}"
-    _STYLE_CONF_LOW  = f"background:#b71c1c; color:#fff; {_BASE_BADGE}"
-    _STYLE_OK        = f"background:#1b5e20; color:#fff; {_BASE_BADGE}"
-    _STYLE_AUTO      = f"background:#0d47a1; color:#fff; {_BASE_BADGE}"
-    _STYLE_PEND      = f"background:#37474f; color:#ccc; {_BASE_BADGE}"
+    _STYLE_CONF_NONE = f"background:{Border.STRONG}; color:{Text.SECONDARY}; {_BASE_BADGE}"
+    _STYLE_CONF_HIGH = f"background:{Semantic.SUCCESS_BG_DARK}; color:{Text.BRIGHT}; {_BASE_BADGE}"
+    _STYLE_CONF_MED  = f"background:{Semantic.WARNING_BG_DARK}; color:{Text.BRIGHT}; {_BASE_BADGE}"
+    _STYLE_CONF_LOW  = f"background:{Semantic.DANGER_BG_DARK}; color:{Text.BRIGHT}; {_BASE_BADGE}"
+    _STYLE_OK        = f"background:{Semantic.SUCCESS_BG_DARK}; color:{Text.BRIGHT}; {_BASE_BADGE}"
+    _STYLE_AUTO      = f"background:{Accent.INTERACTIVE}; color:{Text.BRIGHT}; {_BASE_BADGE}"
+    _STYLE_PEND      = f"background:{Border.DEFAULT}; color:{Text.SECONDARY}; {_BASE_BADGE}"
 
     def __init__(
         self,
@@ -1956,7 +1964,7 @@ class _RecorteItemWidget(QWidget):
 
         self._lbl_text = QLabel(text)
         self._lbl_text.setStyleSheet(
-            "color:#cccccc; font-size:9px; background:transparent;"
+            f"color:{Text.SECONDARY}; font-size:9px; background:transparent;"
         )
         self._lbl_text.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
         h.addWidget(self._lbl_text, 1)
@@ -2061,7 +2069,7 @@ class _RightPanel(QFrame):
             b = QPushButton(text)
             b.setFixedHeight(h)
             b.setStyleSheet(
-                f"QPushButton {{ background:{bg}; color:#fff; border-radius:3px; "
+                f"QPushButton {{ background:{bg}; color:{Text.BRIGHT}; border-radius:3px; "
                 f"font-size:9px; font-weight:bold; padding:2px 4px; }} "
                 f"QPushButton:hover {{ background:{hover}; }} "
                 f"QPushButton:disabled {{ background:{Colors.BORDER_DEFAULT}; color:{Colors.TEXT_DIM}; }}"
@@ -2113,11 +2121,11 @@ class _RightPanel(QFrame):
             return fr
 
         # [✂ Recortar | ✂ Rec. Seleção]
-        btn_rec = _btn("✂ Recortar", "#1b3a6b", "#2a5ab0")
+        btn_rec = _btn("✂ Recortar", Surface.RAISED, Accent.INTERACTIVE)
         btn_rec.setToolTip("Recortar — exporta todas as entidades visíveis do canvas")
         btn_rec.clicked.connect(self._on_recortar)
 
-        btn_rec_sel = _btn("✂ Rec. Seleção", "#4a1a7a", "#7a3ab0")
+        btn_rec_sel = _btn("✂ Rec. Seleção", "rgba(160, 112, 255, 0.22)", Contextual.PURPLE)
         btn_rec_sel.setToolTip(
             "Recortar Seleção — exporta apenas os itens selecionados (box select) do canvas"
         )
@@ -2132,10 +2140,10 @@ class _RightPanel(QFrame):
 
         # [▶ Pilares | ▶ L.Vigas]  e  [▶ F.Vigas | ▶ Lajes]
         _cls_defs = [
-            ("PIL", "Pilares",  "#1b3a6b", "#2a5ab0"),
-            ("LV",  "L.Vigas",  "#1a4a2a", "#2a7a4a"),
-            ("FV",  "F.Vigas",  "#4a2a00", "#8a5a00"),
-            ("LAJ", "Lajes",    "#4a002a", "#8a0050"),
+            ("PIL", "Pilares",  Surface.RAISED,              Accent.INTERACTIVE),
+            ("LV",  "L.Vigas",  Semantic.SUCCESS_BG_DARK,    "rgba(31, 94, 48, 1)"),
+            ("FV",  "F.Vigas",  Semantic.WARNING_BG_DARK,    "rgba(90, 58, 26, 1)"),
+            ("LAJ", "Lajes",    "rgba(214, 51, 132, 0.18)",  Contextual.MAGENTA),
         ]
         for (k0, l0, bg0, hv0), (k1, l1, bg1, hv1) in zip(_cls_defs[::2], _cls_defs[1::2]):
             b0 = _btn(f"▶ {l0}", bg0, hv0)
@@ -2147,7 +2155,7 @@ class _RightPanel(QFrame):
             lay.addWidget(_row(b0, b1))
 
         # ⚡ Processar toda a Obra (largura total)
-        btn_tudo = _btn("⚡ Processar toda a Obra\n(todos pavs × classes)", "#3a1a5a", "#5a2a8a", h=32)
+        btn_tudo = _btn("⚡ Processar toda a Obra\n(todos pavs × classes)", "rgba(160, 112, 255, 0.22)", Contextual.PURPLE, h=32)
         btn_tudo.setToolTip(
             "Roda PIL/LV/FV/LAJ em todos os pavimentos aprovados da obra.\n"
             "Cada classe usa o DXF correto automaticamente."
@@ -2157,7 +2165,7 @@ class _RightPanel(QFrame):
 
         # 📋 Gerar Fichas (largura total)
         btn_ficha = _btn(
-            "📋 Gerar Fichas\n[F4-Pavimentos] [F5-Granulares]\ne [F6-Obra ER]", "#1a3a1a", "#2a6a2a", h=50
+            "📋 Gerar Fichas\n[F4-Pavimentos] [F5-Granulares]\ne [F6-Obra ER]", Semantic.SUCCESS_BG_DARK, "rgba(31, 94, 48, 1)", h=50
         )
         btn_ficha.setToolTip(
             "Processa todos os itens aprovados para gerar simultaneamente:\n"
@@ -2216,7 +2224,7 @@ class _RightPanel(QFrame):
         lay.addWidget(_row(btn_salvar, btn_excluir))
 
         # ⚡ Aprovar tudo ≥ 90% (largura total)
-        btn_auto_aprovar = _btn("⚡ Aprovar tudo ≥ 90%", "#1a4a1a", "#2a7a2a", h=26)
+        btn_auto_aprovar = _btn("⚡ Aprovar tudo ≥ 90%", Semantic.SUCCESS_BG_DARK, "rgba(31, 94, 48, 1)", h=26)
         btn_auto_aprovar.setToolTip(
             "Aprova automaticamente todos os recortes com confiança ≥ 90%.\n"
             "⚠️ Estes NÃO são usados como dados de treino.\n"
@@ -2396,7 +2404,7 @@ class _RightPanel(QFrame):
         cls_row.setContentsMargins(8, 6, 8, 6)
         cls_row.setSpacing(12)
 
-        _cls_colors = {"PIL": "#7ab3e0", "LV": "#4caf50", "FV": "#ff9800", "LAJ": "#e91e63"}
+        _cls_colors = {"PIL": Accent.INTERACTIVE, "LV": Semantic.SUCCESS, "FV": Semantic.WARNING, "LAJ": Contextual.MAGENTA}
         rb_group = QButtonGroup(dialog)
         radios = {}
         for i, (key, label) in enumerate(_CLASSES):
@@ -3155,6 +3163,19 @@ class DiagnosticReverseHub(QWidget):
             notes="human_reviewed_approval",
             features_extra={"source": "diagnostic_reverse_hub._on_aprovar"},
         )
+        if record_reverse_hub_approval:
+            try:
+                result = record_reverse_hub_approval(
+                    obra_name=obra_name,
+                    elemento_id=elem_id,
+                    classe=classe,
+                    recorte_path=recorte_path,
+                    db_path=DB_PATH,
+                    auto_index=True,
+                )
+                print(f"[RAG] reverse_hub approval hook: {result}")
+            except Exception as exc:
+                print(f"[RAG] reverse_hub approval hook failed: {exc}")
 
         widget = lst.itemWidget(current)
         if isinstance(widget, _RecorteItemWidget):

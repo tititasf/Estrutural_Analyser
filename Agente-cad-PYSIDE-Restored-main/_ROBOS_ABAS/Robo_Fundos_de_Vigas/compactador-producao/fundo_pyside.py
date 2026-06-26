@@ -270,6 +270,29 @@ def alinhar_boundary_horizontal(coords):
         coords_final.extend([float(x), float(y)])
     return coords_final
 
+
+class _DS:
+    """Design System tokens — espelho portátil (standalone, sem import de src.ui.theme)."""
+    DEEP        = "#121212"
+    BASE        = "#1a1a2e"
+    RAISED      = "#16213e"
+    CARD        = "#252525"
+    ELEVATED    = "#2a2a3e"
+    PRIMARY     = "#00d4ff"
+    INTERACTIVE = "#0078d4"
+    SUCCESS     = "#4caf50"
+    SUCCESS_DK  = "#1a3320"
+    WARNING     = "#ff9800"
+    DANGER      = "#f44336"
+    PURPLE      = "#a070ff"
+    GOLD        = "#e6b400"
+    TEXT        = "#e0e0e0"
+    WHITE       = "#ffffff"
+    MUTED       = "#666666"
+    BORDER      = "#333333"
+    BORDER_STR  = "#444444"
+
+
 class FundoCanvas(QGraphicsView):
     # Cores do canvas
     _C_PANEL_FILL  = QColor(45, 45, 45)
@@ -289,7 +312,7 @@ class FundoCanvas(QGraphicsView):
         self.scene = QGraphicsScene(self)
         self.setScene(self.scene)
         self.setRenderHint(QPainter.Antialiasing)
-        self.setBackgroundBrush(QBrush(QColor("#1e1e1e")))
+        self.setBackgroundBrush(QBrush(QColor(_DS.DEEP)))
         self.zoom_factor = 1.1
         self.setTransformationAnchor(QGraphicsView.AnchorUnderMouse)
 
@@ -376,9 +399,10 @@ class FundoCanvas(QGraphicsView):
             larg2 = float_safe(dados.get('largura_2', 0))
             if comp2 > 0 and larg2 > 0:
                 tipo = dados.get('tipo_painel2', 'E/T') or 'E/T'
+                angulo_l = float_safe(dados.get('angulo_l', dados.get('angulo_2', 90))) or 90.0
                 pw2  = [float_safe(p) for p in dados.get('paineis_2', []) if float_safe(p) > 0]
                 if not pw2: pw2 = self._compute_panels(comp2)
-                self._draw_panel_l(x0, y0, largura, altura, comp2, larg2, tipo, pw2, scale)
+                self._draw_panel_l(x0, y0, largura, altura, comp2, larg2, tipo, pw2, scale, angulo_l)
 
             self._draw_labels(x0, y0, largura, altura,
                               dados.get('texto_esq', ''), dados.get('texto_dir', ''), scale)
@@ -502,44 +526,60 @@ class FundoCanvas(QGraphicsView):
                 y2 = y0 + b * scale
             self.scene.addRect(x1, y1, larg * scale, prof * scale, pen, brush)
 
-    def _draw_panel_l(self, x0, y0, w_main, b, comp2, larg2, tipo, pw2, scale):
+    def _draw_panel_l(self, x0, y0, w_main, b, comp2, larg2, tipo, pw2, scale, angulo_l=90.0):
         pen  = QPen(self._C_L_PANEL, 1.5)
         pen_d = QPen(self._C_L_PANEL, 1)
         pen_d.setStyle(Qt.DashLine)
         brush = QBrush(self._C_L_FILL)
 
-        # Posicionar painel L com base no tipo
-        # E/T: esquerda do main, acima (topo Qt = y0 - larg2*scale)
-        # E/F: esquerda do main, abaixo (fundo Qt = y0 + b*scale)
-        # D/T: direita do main, acima
-        # D/F: direita do main, abaixo
-        larg2_qt = larg2 * scale
-        comp2_qt = min(comp2, w_main) * scale  # limitar ao comprimento principal
+        comp2 = min(comp2, w_main)
+        try:
+            angle = float(angulo_l)
+        except Exception:
+            angle = 90.0
+        if angle <= 0 or angle >= 180:
+            angle = 90.0
 
         if tipo.startswith('E'):
-            x_l = x0
+            x_l_cad = 0.0
+            side_sign = 1.0
         else:
-            x_l = x0 + w_main * scale - comp2_qt
+            x_l_cad = w_main - comp2
+            side_sign = -1.0
 
         if tipo.endswith('T'):
-            y_l = y0 - larg2_qt
+            y_l_cad = b
+            vert_sign = 1.0
         else:
-            y_l = y0 + b * scale
+            y_l_cad = 0.0
+            vert_sign = -1.0
 
-        self.scene.addRect(x_l, y_l, comp2_qt, larg2_qt, pen, brush)
+        dx_o = side_sign * larg2 * math.cos(math.radians(angle))
+        dy_o = vert_sign * larg2 * math.sin(math.radians(angle))
+        p0 = (x_l_cad, y_l_cad)
+        p1 = (x_l_cad + comp2, y_l_cad)
+        p2 = (x_l_cad + comp2 + dx_o, y_l_cad + dy_o)
+        p3 = (x_l_cad + dx_o, y_l_cad + dy_o)
+
+        poly = QPolygonF([self._q(x, y, x0, y0, b, scale) for x, y in (p0, p1, p2, p3)])
+        self.scene.addPolygon(poly, pen, brush)
 
         # Divisores internos do painel L
-        xp = x_l
+        xp_cad = x_l_cad
         for pw in pw2[:-1]:
-            xp += pw * scale
-            if xp < x_l + comp2_qt:
-                self.scene.addLine(xp, y_l, xp, y_l + larg2_qt, pen_d)
+            xp_cad += pw
+            if xp_cad < x_l_cad + comp2:
+                p_a = self._q(xp_cad, y_l_cad, x0, y0, b, scale)
+                p_b = self._q(xp_cad + dx_o, y_l_cad + dy_o, x0, y0, b, scale)
+                self.scene.addLine(p_a.x(), p_a.y(), p_b.x(), p_b.y(), pen_d)
 
         # Label
         txt = self.scene.addText(f"L {round(comp2)}x{round(larg2)}")
         txt.setDefaultTextColor(self._C_L_PANEL)
         txt.setScale(0.7)
-        txt.setPos(x_l + 4, y_l + 4)
+        label_x = sum(pt.x() for pt in poly) / 4.0
+        label_y = sum(pt.y() for pt in poly) / 4.0
+        txt.setPos(label_x, label_y)
 
     def _draw_labels(self, x0, y0, largura, b, texto_esq, texto_dir, scale):
         y_label = y0 + b * scale + 10
@@ -569,7 +609,7 @@ class FundoCanvas(QGraphicsView):
         if len(pontos) >= 3:
             poly = QPolygonF(pontos)
             cor_f = QColor(45, 45, 45, 180)
-            self.scene.addPolygon(poly, QPen(QColor("#ffff00"), 2), QBrush(cor_f))
+            self.scene.addPolygon(poly, QPen(QColor(_DS.GOLD), 2), QBrush(cor_f))
             bbox = poly.boundingRect()
             self.setSceneRect(bbox.adjusted(-50, -50, 50, 50))
             self.fitInView(self.sceneRect(), Qt.KeepAspectRatio)
@@ -644,25 +684,25 @@ class FloatingComment(QDialog):
     def setup_ui(self, message):
         layout = QVBoxLayout(self)
         self.frame = QFrame()
-        self.frame.setStyleSheet("""
-            QFrame {
+        self.frame.setStyleSheet(f"""
+            QFrame {{
                 background-color: #fff8b0;
-                border: 2px solid #fbc02d;
+                border: 2px solid {_DS.GOLD};
                 border-radius: 10px;
-            }
-            QLabel {
-                color: #333;
+            }}
+            QLabel {{
+                color: {_DS.BORDER};
                 font-size: 16px;
                 font-weight: bold;
                 padding: 10px;
-            }
-            QPushButton {
+            }}
+            QPushButton {{
                 background-color: #ffb0b0;
-                border: 1px solid #d32f2f;
+                border: 1px solid {_DS.DANGER};
                 border-radius: 5px;
                 padding: 5px;
-                color: #333;
-            }
+                color: {_DS.BORDER};
+            }}
         """)
         f_layout = QVBoxLayout(self.frame)
         
@@ -983,6 +1023,7 @@ class FundoMainWindow(QMainWindow):
             "aberturas": self._holes_from_n3_fv(data),
             "comprimento_2": "0",
             "largura_2": "0",
+            "angulo_l": "90",
             "paineis_2": ["0", "0", "0"],
             "tipo_painel2": "E/T",
             "recuos_2": ["0", "0", "0", "0"],
@@ -1967,6 +2008,7 @@ class FundoMainWindow(QMainWindow):
                     'aberturas': [[str(a) for a in ab] for ab in dados_fundo.get('aberturas', [['0', '0', '0']] * 4)],
                     'comprimento_2': str(dados_fundo.get('comprimento_2', '0')),
                     'largura_2': str(dados_fundo.get('largura_2', '0')),
+                    'angulo_l': str(dados_fundo.get('angulo_l', dados_fundo.get('angulo_2', '90'))),
                     'paineis_2': [str(p) for p in dados_fundo.get('paineis_2', ['0', '0', '0'])],
                     'tipo_painel2': dados_fundo.get('tipo_painel2', 'E/T'),
                     'recuos_2': [str(r) for r in dados_fundo.get('recuos_2', ['0', '0', '0', '0'])],
@@ -2542,6 +2584,7 @@ ferramentas_LOAD_LISP
             elif campo == 'tipo_painel2': valor = dados.get('tipo_painel2', 'E/T')
             elif campo == 'comprimento_2': valor = float_safe(dados.get('comprimento_2', 0))
             elif campo == 'largura_2': valor = float_safe(dados.get('largura_2', 0))
+            elif campo == 'angulo_l': valor = float_safe(dados.get('angulo_l', dados.get('angulo_2', 90)))
             elif campo.startswith('p') and '_2' in campo:
                 idx = int(campo.replace('p', '').replace('_2', '')) - 1
                 paineis2 = dados.get('paineis_2', ["0"]*3)
@@ -2595,6 +2638,7 @@ ferramentas_LOAD_LISP
             'aberturas': aberturas,
             'comprimento_2': str(dados_chapados.get('comprimento_2', '0')),
             'largura_2': str(dados_chapados.get('largura_2', '0')),
+            'angulo_l': str(dados_chapados.get('angulo_l', dados_chapados.get('angulo_2', '90'))),
             'paineis_2': paineis2,
             'tipo_painel2': dados_chapados.get('tipo_painel2', 'E/T'),
             'recuos_2': recuos2,
@@ -2643,6 +2687,7 @@ ferramentas_LOAD_LISP
             'tipo_painel2': l_type,
             'comprimento_2': self.l_fields['comp2'].text(),
             'largura_2': self.l_fields['larg2'].text(),
+            'angulo_l': self.l_fields.get('angulo_l').text() if self.l_fields.get('angulo_l') else '90',
             'paineis_2': paineis2,
             'recuos_2': recuos2,
             'aberturas_2': aberturas2,
@@ -3309,12 +3354,12 @@ DETALHES DAS ABERTURAS MAPEADAS:"""
         left_layout.setContentsMargins(5, 5, 5, 5)
         
         lbl_list_header = QLabel("LISTA DE VIGAS")
-        lbl_list_header.setStyleSheet("font-size: 14px; font-weight: bold; color: #4fc3f7; margin-bottom: 5px;")
+        lbl_list_header.setStyleSheet(f"font-size: 14px; font-weight: bold; color: {_DS.PRIMARY}; margin-bottom: 5px;")
         left_layout.addWidget(lbl_list_header)
         
         # Container de Filtros (Estilo "Dark Box" opcional ou apenas Layout)
         filter_container = QWidget()
-        filter_container.setStyleSheet("background-color: #252526; border-radius: 5px; border: 1px solid #333;")
+        filter_container.setStyleSheet(f"background-color: {_DS.CARD}; border-radius: 5px; border: 1px solid {_DS.BORDER};")
         filter_layout_main = QVBoxLayout(filter_container)
         filter_layout_main.setSpacing(5)
         filter_layout_main.setContentsMargins(5, 5, 5, 5)
@@ -3329,41 +3374,41 @@ DETALHES DAS ABERTURAS MAPEADAS:"""
         self.btn_add_obra.setFixedWidth(35)
         self.btn_add_obra.setFixedHeight(25)
         self.btn_add_obra.setToolTip("Adicionar Nova Obra")
-        self.btn_add_obra.setStyleSheet("""
-            QPushButton {
-                background-color: #4caf50;
-                color: white;
+        self.btn_add_obra.setStyleSheet(f"""
+            QPushButton {{
+                background-color: {_DS.SUCCESS};
+                color: {_DS.WHITE};
                 font-size: 14px;
                 font-weight: bold;
                 border-radius: 3px;
-                border: 1px solid #388e3c;
-            }
-            QPushButton:hover {
-                background-color: #45a049;
-            }
-            QPushButton:pressed {
-                background-color: #388e3c;
-            }
+                border: 1px solid rgba(67, 160, 71, 0.7);
+            }}
+            QPushButton:hover {{
+                background-color: rgba(67, 160, 71, 0.8);
+            }}
+            QPushButton:pressed {{
+                background-color: rgba(67, 160, 71, 0.6);
+            }}
         """)
         self.btn_rem_obra = QPushButton("🗑️")
         self.btn_rem_obra.setFixedWidth(35)
         self.btn_rem_obra.setFixedHeight(25)
         self.btn_rem_obra.setToolTip("Remover Obra (exclui todos os pavimentos e itens)")
-        self.btn_rem_obra.setStyleSheet("""
-            QPushButton {
-                background-color: #f44336;
-                color: white;
+        self.btn_rem_obra.setStyleSheet(f"""
+            QPushButton {{
+                background-color: {_DS.DANGER};
+                color: {_DS.WHITE};
                 font-size: 12px;
                 font-weight: bold;
                 border-radius: 3px;
-                border: 1px solid #d32f2f;
-            }
-            QPushButton:hover {
-                background-color: #e53935;
-            }
-            QPushButton:pressed {
-                background-color: #d32f2f;
-            }
+                border: 1px solid rgba(244, 67, 54, 0.7);
+            }}
+            QPushButton:hover {{
+                background-color: rgba(244, 67, 54, 0.8);
+            }}
+            QPushButton:pressed {{
+                background-color: rgba(244, 67, 54, 0.6);
+            }}
         """)
         
         row_obra.addWidget(lbl_obra)
@@ -3381,60 +3426,60 @@ DETALHES DAS ABERTURAS MAPEADAS:"""
         self.btn_add_pav.setFixedWidth(35)
         self.btn_add_pav.setFixedHeight(25)
         self.btn_add_pav.setToolTip("Adicionar Novo Pavimento")
-        self.btn_add_pav.setStyleSheet("""
-            QPushButton {
-                background-color: #4caf50;
-                color: white;
+        self.btn_add_pav.setStyleSheet(f"""
+            QPushButton {{
+                background-color: {_DS.SUCCESS};
+                color: {_DS.WHITE};
                 font-size: 14px;
                 font-weight: bold;
                 border-radius: 3px;
-                border: 1px solid #388e3c;
-            }
-            QPushButton:hover {
-                background-color: #45a049;
-            }
-            QPushButton:pressed {
-                background-color: #388e3c;
-            }
+                border: 1px solid rgba(67, 160, 71, 0.7);
+            }}
+            QPushButton:hover {{
+                background-color: rgba(67, 160, 71, 0.8);
+            }}
+            QPushButton:pressed {{
+                background-color: rgba(67, 160, 71, 0.6);
+            }}
         """)
         self.btn_paste_pav = QPushButton("📋") # Paste icon
         self.btn_paste_pav.setToolTip("Colar/Editar")
         self.btn_paste_pav.setFixedWidth(35)
         self.btn_paste_pav.setFixedHeight(25)
-        self.btn_paste_pav.setStyleSheet("""
-            QPushButton {
-                background-color: #2196f3;
-                color: white;
+        self.btn_paste_pav.setStyleSheet(f"""
+            QPushButton {{
+                background-color: {_DS.INTERACTIVE};
+                color: {_DS.WHITE};
                 font-size: 12px;
                 border-radius: 3px;
-                border: 1px solid #1976d2;
-            }
-            QPushButton:hover {
-                background-color: #1e88e5;
-            }
-            QPushButton:pressed {
-                background-color: #1976d2;
-            }
+                border: 1px solid rgba(0, 120, 212, 0.7);
+            }}
+            QPushButton:hover {{
+                background-color: rgba(0, 120, 212, 0.8);
+            }}
+            QPushButton:pressed {{
+                background-color: rgba(0, 120, 212, 0.6);
+            }}
         """)
         self.btn_rem_pav = QPushButton("🗑️")
         self.btn_rem_pav.setFixedWidth(35)
         self.btn_rem_pav.setFixedHeight(25)
         self.btn_rem_pav.setToolTip("Remover Pavimento (exclui todos os itens do pavimento)")
-        self.btn_rem_pav.setStyleSheet("""
-            QPushButton {
-                background-color: #f44336;
-                color: white;
+        self.btn_rem_pav.setStyleSheet(f"""
+            QPushButton {{
+                background-color: {_DS.DANGER};
+                color: {_DS.WHITE};
                 font-size: 12px;
                 font-weight: bold;
                 border-radius: 3px;
-                border: 1px solid #d32f2f;
-            }
-            QPushButton:hover {
-                background-color: #e53935;
-            }
-            QPushButton:pressed {
-                background-color: #d32f2f;
-            }
+                border: 1px solid rgba(244, 67, 54, 0.7);
+            }}
+            QPushButton:hover {{
+                background-color: rgba(244, 67, 54, 0.8);
+            }}
+            QPushButton:pressed {{
+                background-color: rgba(244, 67, 54, 0.6);
+            }}
         """)
         
         row_pav.addWidget(lbl_pav)
@@ -3444,7 +3489,7 @@ DETALHES DAS ABERTURAS MAPEADAS:"""
 
         # Total M2 dentro do container ou logo abaixo
         self.label_total_m2 = QLabel("Total m²: 0.00")
-        self.label_total_m2.setStyleSheet("font-weight: bold; color: #4fc3f7; margin-top: 5px;")
+        self.label_total_m2.setStyleSheet(f"font-weight: bold; color: {_DS.PRIMARY}; margin-top: 5px;")
         filter_layout_main.addWidget(self.label_total_m2)
 
         left_layout.addWidget(filter_container)
@@ -3455,27 +3500,27 @@ DETALHES DAS ABERTURAS MAPEADAS:"""
         self.tree_fundos.header().setSectionResizeMode(QHeaderView.ResizeToContents)
         # Habilitar seleção múltipla com Shift/Ctrl
         self.tree_fundos.setSelectionMode(QTreeWidget.ExtendedSelection)
-        self.tree_fundos.setStyleSheet("QTreeWidget { background-color: #1e1e1e; border: 1px solid #333; } QHeaderView::section { background-color: #2d2d2d; }")
+        self.tree_fundos.setStyleSheet(f"QTreeWidget {{ background-color: {_DS.DEEP}; border: 1px solid {_DS.BORDER}; }} QHeaderView::section {{ background-color: {_DS.ELEVATED}; }}")
         left_layout.addWidget(self.tree_fundos)
 
         # Botões de ação secundária no footer da esquerda
         left_actions = QHBoxLayout()
         self.btn_delete_sel = QPushButton("🗑️ Excluir Selecionados")
-        self.btn_delete_sel.setStyleSheet("""
-            QPushButton {
-                background-color: #d32f2f; 
-                color: white; 
+        self.btn_delete_sel.setStyleSheet(f"""
+            QPushButton {{
+                background-color: {_DS.DANGER};
+                color: {_DS.WHITE};
                 font-weight: bold;
                 padding: 8px 15px;
                 border-radius: 4px;
-                border: 1px solid #b71c1c;
-            }
-            QPushButton:hover {
-                background-color: #c62828;
-            }
-            QPushButton:pressed {
-                background-color: #b71c1c;
-            }
+                border: 1px solid rgba(244, 67, 54, 0.7);
+            }}
+            QPushButton:hover {{
+                background-color: rgba(244, 67, 54, 0.8);
+            }}
+            QPushButton:pressed {{
+                background-color: rgba(244, 67, 54, 0.6);
+            }}
         """)
         left_actions.addWidget(self.btn_delete_sel)
         left_layout.addLayout(left_actions)
@@ -3514,9 +3559,9 @@ DETALHES DAS ABERTURAS MAPEADAS:"""
             QPushButton("Próxima Viga"), QPushButton("Próximo Segmento"),
             QPushButton("Extensão L"), QPushButton("Cancelar")
         ]
-        colors = ["#2E7D32", "#2E7D32", "#ff9800", "#f44336"]
+        colors = [_DS.SUCCESS_DK, _DS.SUCCESS_DK, _DS.WARNING, _DS.DANGER]
         for i, b in enumerate(self.btns_prod):
-            b.setStyleSheet(f"background-color: {colors[i]}; font-weight: bold; color: white; padding: 4px; font-size: 11px;")
+            b.setStyleSheet(f"background-color: {colors[i]}; font-weight: bold; color: {_DS.WHITE}; padding: 4px; font-size: 11px;")
             prod_grid.addWidget(b, i // 2, i % 2)
         # self.grp_prod NÃO adicionado ao layout
 
@@ -3525,9 +3570,9 @@ DETALHES DAS ABERTURAS MAPEADAS:"""
         self.btn_gerar_segmento = QPushButton("Gerar Segmento")
         self.btn_gerar_conjunto = QPushButton("Gerar conjunto de Viga")
         self.btn_gerar_pavimento = QPushButton("Gerar Pavimento")
-        self.btn_gerar_segmento.setStyleSheet("background-color: #FFEB3B; color: black; font-weight: bold; padding: 4px; font-size: 11px;")
-        self.btn_gerar_conjunto.setStyleSheet("background-color: #1976D2; color: white; font-weight: bold; padding: 4px; font-size: 11px;")
-        self.btn_gerar_pavimento.setStyleSheet("background-color: #C62828; color: white; font-weight: bold; padding: 4px; font-size: 11px;")
+        self.btn_gerar_segmento.setStyleSheet(f"background-color: {_DS.GOLD}; color: {_DS.BORDER}; font-weight: bold; padding: 4px; font-size: 11px;")
+        self.btn_gerar_conjunto.setStyleSheet(f"background-color: {_DS.INTERACTIVE}; color: {_DS.WHITE}; font-weight: bold; padding: 4px; font-size: 11px;")
+        self.btn_gerar_pavimento.setStyleSheet(f"background-color: {_DS.DANGER}; color: {_DS.WHITE}; font-weight: bold; padding: 4px; font-size: 11px;")
         geracao_grid.addWidget(self.btn_gerar_segmento, 0, 0)
         geracao_grid.addWidget(self.btn_gerar_conjunto, 0, 1)
         geracao_grid.addWidget(self.btn_gerar_pavimento, 1, 0, 1, 2)
@@ -3539,7 +3584,7 @@ DETALHES DAS ABERTURAS MAPEADAS:"""
         self.btn_config_ordenador = QPushButton("Configuração Ordenador")
         self.btn_lisp_fd = QPushButton("Criar comando lisp FD")
         for btn in [self.btn_config_desenho, self.btn_config_ordenador, self.btn_lisp_fd]:
-            btn.setStyleSheet("background-color: #BA68C8; color: white; padding: 4px; font-size: 11px;")
+            btn.setStyleSheet(f"background-color: {_DS.PURPLE}; color: {_DS.WHITE}; padding: 4px; font-size: 11px;")
         tools_grid.addWidget(self.btn_config_desenho, 0, 0)
         tools_grid.addWidget(self.btn_config_ordenador, 0, 1)
         tools_grid.addWidget(self.btn_lisp_fd, 1, 0, 1, 2)
@@ -3547,19 +3592,19 @@ DETALHES DAS ABERTURAS MAPEADAS:"""
 
         # btn_analisar_boundary: criado mas NÃO exibido
         self.btn_analisar_boundary = QPushButton("Analisar Boundary")
-        self.btn_analisar_boundary.setStyleSheet("background-color: #FF9800; color: white; font-weight: bold; font-size: 12px; padding: 8px; min-height: 30px;")
+        self.btn_analisar_boundary.setStyleSheet(f"background-color: {_DS.WARNING}; color: {_DS.WHITE}; font-weight: bold; font-size: 12px; padding: 8px; min-height: 30px;")
 
         # Botões Salvar + Atualizar lado a lado
         btns_row = QHBoxLayout()
         btns_row.setSpacing(6)
         self.btn_salvar = QPushButton("Salvar")
         self.btn_salvar.setStyleSheet(
-            "background-color: #1976D2; color: white; font-weight: bold; "
-            "font-size: 11px; padding: 4px 10px; min-height: 26px; border-radius: 4px;")
+            f"background-color: {_DS.INTERACTIVE}; color: {_DS.WHITE}; font-weight: bold; "
+            f"font-size: 11px; padding: 4px 10px; min-height: 26px; border-radius: 4px;")
         self.btn_atualizar = QPushButton("Atualizar")
         self.btn_atualizar.setStyleSheet(
-            "background-color: #37474f; color: #90caf9; font-size: 11px; "
-            "padding: 4px 10px; min-height: 26px; border-radius: 4px; border: 1px solid #546e7a;")
+            f"background-color: {_DS.RAISED}; color: {_DS.PRIMARY}; font-size: 11px; "
+            f"padding: 4px 10px; min-height: 26px; border-radius: 4px; border: 1px solid {_DS.BORDER_STR};")
         btns_row.addWidget(self.btn_salvar)
         btns_row.addWidget(self.btn_atualizar)
         cmd_layout.addLayout(btns_row)
@@ -3718,11 +3763,12 @@ DETALHES DAS ABERTURAS MAPEADAS:"""
         self.l_fields = {}
         l_basic_configs = [
             ("Comp:", "comp2", 0, 0), ("Larg:", "larg2", 0, 2),
+            ("Ang:", "angulo_l", 0, 4),
             ("P1:", "p1_2", 1, 0), ("P2:", "p2_2", 1, 2), ("P3:", "p3_2", 1, 4)
         ]
         for label, key, r, c in l_basic_configs:
             l_basic_grid.addWidget(QLabel(label), r, c)
-            edit = QLineEdit("0")
+            edit = QLineEdit("90" if key == "angulo_l" else "0")
             edit.setFixedWidth(50)
             l_basic_grid.addWidget(edit, r, c+1)
             self.l_fields[key] = edit
@@ -3780,17 +3826,17 @@ DETALHES DAS ABERTURAS MAPEADAS:"""
         main_layout.addWidget(splitter)
 
     def apply_theme(self):
-        self.setStyleSheet("""
-            QMainWindow, QWidget { background-color: #1e1e1e; color: #e0e0e0; font-family: 'Segoe UI', Arial; }
-            QGroupBox { border: 1px solid #333; border-radius: 5px; margin-top: 10px; font-weight: bold; color: #4fc3f7; }
-            QGroupBox::title { subcontrol-origin: margin; left: 10px; padding: 0 3px 0 3px; }
-            QLineEdit { background-color: #252526; border: 1px solid #333; color: #ffffff; padding: 4px; border-radius: 3px; }
-            QPushButton { background-color: #333; border: 1px solid #444; color: #ffffff; padding: 6px 12px; border-radius: 4px; }
-            QPushButton:hover { background-color: #444; border: 1px solid #4fc3f7; }
-            QTreeWidget { background-color: #252526; border: 1px solid #333; alternate-background-color: #2d2d2d; }
-            QHeaderView::section { background-color: #333; color: white; border: 1px solid #222; }
-            QScrollBar:vertical { border: none; background: #2d2d2d; width: 10px; }
-            QScrollBar::handle:vertical { background: #444; min-height: 20px; }
+        self.setStyleSheet(f"""
+            QMainWindow, QWidget {{ background-color: {_DS.DEEP}; color: {_DS.TEXT}; font-family: 'Segoe UI', Arial; }}
+            QGroupBox {{ border: 1px solid {_DS.BORDER}; border-radius: 5px; margin-top: 10px; font-weight: bold; color: {_DS.PRIMARY}; }}
+            QGroupBox::title {{ subcontrol-origin: margin; left: 10px; padding: 0 3px 0 3px; }}
+            QLineEdit {{ background-color: {_DS.CARD}; border: 1px solid {_DS.BORDER}; color: {_DS.WHITE}; padding: 4px; border-radius: 3px; }}
+            QPushButton {{ background-color: {_DS.BORDER}; border: 1px solid {_DS.BORDER_STR}; color: {_DS.WHITE}; padding: 6px 12px; border-radius: 4px; }}
+            QPushButton:hover {{ background-color: {_DS.BORDER_STR}; border: 1px solid {_DS.PRIMARY}; }}
+            QTreeWidget {{ background-color: {_DS.CARD}; border: 1px solid {_DS.BORDER}; alternate-background-color: {_DS.ELEVATED}; }}
+            QHeaderView::section {{ background-color: {_DS.BORDER}; color: white; border: 1px solid {_DS.DEEP}; }}
+            QScrollBar:vertical {{ border: none; background: {_DS.ELEVATED}; width: 10px; }}
+            QScrollBar::handle:vertical {{ background: {_DS.BORDER_STR}; min-height: 20px; }}
         """)
 
     def load_data(self):
@@ -3973,7 +4019,7 @@ DETALHES DAS ABERTURAS MAPEADAS:"""
             items = clusters[cluster_name]
 
             parent = QTreeWidgetItem([cluster_name, "", "", ""])
-            parent.setBackground(0, QBrush(QColor("#333")))
+            parent.setBackground(0, QBrush(QColor(_DS.BORDER)))
             parent.setExpanded(True)
             self.tree_fundos.addTopLevelItem(parent)
 
@@ -4401,6 +4447,8 @@ DETALHES DAS ABERTURAS MAPEADAS:"""
         # Painel 2 em L
         self.l_fields['comp2'].setText(str(l.get('largura', 0)))
         self.l_fields['larg2'].setText(str(l.get('altura', 0)))
+        if 'angulo_l' in self.l_fields:
+            self.l_fields['angulo_l'].setText(str(l.get('angulo_l', l.get('angulo_2', 90))))
         
         # Painéis do L (P1-P3)
         paineis_l = l.get('paineis', [])
@@ -4487,6 +4535,7 @@ DETALHES DAS ABERTURAS MAPEADAS:"""
             'aberturas': [[f.text() for f in row] for row in self.aberturas_fields],
             'comprimento_2': self.l_fields['comp2'].text(),
             'largura_2': self.l_fields['larg2'].text(),
+            'angulo_l': self.l_fields.get('angulo_l').text() if self.l_fields.get('angulo_l') else '90',
             'paineis_2': [self.l_fields[f'p{i}_2'].text() for i in range(1, 4)], # TODO: add p4-p6 to UI if needed
             'tipo_painel2': l_type,
             'recuos_2': [f.text() for f in self.l_chanfros_fields],

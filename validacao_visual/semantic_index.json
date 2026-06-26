@@ -203,16 +203,16 @@
         "has_holes": true
       },
       "score": {
-        "score": 75,
-        "ratio": 0.023,
-        "gen_struct": 16,
+        "score": 78,
+        "ratio": 0.035,
+        "gen_struct": 24,
         "stog_struct": 694,
-        "missing_layers": 5,
+        "missing_layers": 4,
         "extra_layers": 0,
         "item_mode": true,
         "presence_pts": 50
       },
-      "ts": "2026-06-26T11:10:01"
+      "ts": "2026-06-26T18:10:10"
     }
   ],
   "summary": {
@@ -267,7 +267,7 @@
     },
     "FV": {
       "count": 5,
-      "score_avg": 79.2,
+      "score_avg": 79.8,
       "score_min": 75,
       "score_max": 90,
       "score_dist": {

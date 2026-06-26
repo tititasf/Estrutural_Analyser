@@ -56,3 +56,251 @@ Traceback (most recent call last):
                            ^^^^^^^^^^^^^^^
 NameError: name 'source_dxf_path' is not defined
 
+
+[2026-06-26 15:35:56] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\src\ui\widgets\pre_validation_dialog.py", line 286, in wheelEvent
+    scene_before = self.mapToScene(anchor)
+                   ^^^^^^^^^^^^^^^
+AttributeError: '_PseudoMiniDXFView' object has no attribute 'mapToScene'. Did you mean: 'mapToParent'?
+
+
+[2026-06-26 15:35:56] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\src\ui\widgets\pre_validation_dialog.py", line 286, in wheelEvent
+    scene_before = self.mapToScene(anchor)
+                   ^^^^^^^^^^^^^^^
+AttributeError: '_PseudoMiniDXFView' object has no attribute 'mapToScene'. Did you mean: 'mapToParent'?
+
+
+[2026-06-26 15:35:56] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\src\ui\widgets\pre_validation_dialog.py", line 286, in wheelEvent
+    scene_before = self.mapToScene(anchor)
+                   ^^^^^^^^^^^^^^^
+AttributeError: '_PseudoMiniDXFView' object has no attribute 'mapToScene'. Did you mean: 'mapToParent'?
+
+
+[2026-06-26 15:35:57] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\src\ui\widgets\pre_validation_dialog.py", line 286, in wheelEvent
+    scene_before = self.mapToScene(anchor)
+                   ^^^^^^^^^^^^^^^
+AttributeError: '_PseudoMiniDXFView' object has no attribute 'mapToScene'. Did you mean: 'mapToParent'?
+
+
+[2026-06-26 15:35:57] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\src\ui\widgets\pre_validation_dialog.py", line 286, in wheelEvent
+    scene_before = self.mapToScene(anchor)
+                   ^^^^^^^^^^^^^^^
+AttributeError: '_PseudoMiniDXFView' object has no attribute 'mapToScene'. Did you mean: 'mapToParent'?
+
+
+[2026-06-26 15:35:57] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\src\ui\widgets\pre_validation_dialog.py", line 286, in wheelEvent
+    scene_before = self.mapToScene(anchor)
+                   ^^^^^^^^^^^^^^^
+AttributeError: '_PseudoMiniDXFView' object has no attribute 'mapToScene'. Did you mean: 'mapToParent'?
+
+
+[2026-06-26 15:35:57] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\src\ui\widgets\pre_validation_dialog.py", line 286, in wheelEvent
+    scene_before = self.mapToScene(anchor)
+                   ^^^^^^^^^^^^^^^
+AttributeError: '_PseudoMiniDXFView' object has no attribute 'mapToScene'. Did you mean: 'mapToParent'?
+
+
+[2026-06-26 15:35:57] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\src\ui\widgets\pre_validation_dialog.py", line 286, in wheelEvent
+    scene_before = self.mapToScene(anchor)
+                   ^^^^^^^^^^^^^^^
+AttributeError: '_PseudoMiniDXFView' object has no attribute 'mapToScene'. Did you mean: 'mapToParent'?
+
+
+[2026-06-26 15:35:57] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\src\ui\widgets\pre_validation_dialog.py", line 286, in wheelEvent
+    scene_before = self.mapToScene(anchor)
+                   ^^^^^^^^^^^^^^^
+AttributeError: '_PseudoMiniDXFView' object has no attribute 'mapToScene'. Did you mean: 'mapToParent'?
+
+
+[2026-06-26 15:35:59] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\src\ui\widgets\pre_validation_dialog.py", line 286, in wheelEvent
+    scene_before = self.mapToScene(anchor)
+                   ^^^^^^^^^^^^^^^
+AttributeError: '_PseudoMiniDXFView' object has no attribute 'mapToScene'. Did you mean: 'mapToParent'?
+
+
+[2026-06-26 15:35:59] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\src\ui\widgets\pre_validation_dialog.py", line 286, in wheelEvent
+    scene_before = self.mapToScene(anchor)
+                   ^^^^^^^^^^^^^^^
+AttributeError: '_PseudoMiniDXFView' object has no attribute 'mapToScene'. Did you mean: 'mapToParent'?
+
+
+[2026-06-26 15:35:59] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\src\ui\widgets\pre_validation_dialog.py", line 286, in wheelEvent
+    scene_before = self.mapToScene(anchor)
+                   ^^^^^^^^^^^^^^^
+AttributeError: '_PseudoMiniDXFView' object has no attribute 'mapToScene'. Did you mean: 'mapToParent'?
+
+
+[2026-06-26 15:35:59] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\src\ui\widgets\pre_validation_dialog.py", line 286, in wheelEvent
+    scene_before = self.mapToScene(anchor)
+                   ^^^^^^^^^^^^^^^
+AttributeError: '_PseudoMiniDXFView' object has no attribute 'mapToScene'. Did you mean: 'mapToParent'?
+
+
+[2026-06-26 15:35:59] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\src\ui\widgets\pre_validation_dialog.py", line 286, in wheelEvent
+    scene_before = self.mapToScene(anchor)
+                   ^^^^^^^^^^^^^^^
+AttributeError: '_PseudoMiniDXFView' object has no attribute 'mapToScene'. Did you mean: 'mapToParent'?
+
+
+[2026-06-26 15:35:59] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\src\ui\widgets\pre_validation_dialog.py", line 286, in wheelEvent
+    scene_before = self.mapToScene(anchor)
+                   ^^^^^^^^^^^^^^^
+AttributeError: '_PseudoMiniDXFView' object has no attribute 'mapToScene'. Did you mean: 'mapToParent'?
+
+
+[2026-06-26 15:35:59] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\src\ui\widgets\pre_validation_dialog.py", line 286, in wheelEvent
+    scene_before = self.mapToScene(anchor)
+                   ^^^^^^^^^^^^^^^
+AttributeError: '_PseudoMiniDXFView' object has no attribute 'mapToScene'. Did you mean: 'mapToParent'?
+
+
+[2026-06-26 15:35:59] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\src\ui\widgets\pre_validation_dialog.py", line 286, in wheelEvent
+    scene_before = self.mapToScene(anchor)
+                   ^^^^^^^^^^^^^^^
+AttributeError: '_PseudoMiniDXFView' object has no attribute 'mapToScene'. Did you mean: 'mapToParent'?
+
+
+[2026-06-26 15:35:59] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\src\ui\widgets\pre_validation_dialog.py", line 286, in wheelEvent
+    scene_before = self.mapToScene(anchor)
+                   ^^^^^^^^^^^^^^^
+AttributeError: '_PseudoMiniDXFView' object has no attribute 'mapToScene'. Did you mean: 'mapToParent'?
+
+
+[2026-06-26 15:35:59] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\src\ui\widgets\pre_validation_dialog.py", line 286, in wheelEvent
+    scene_before = self.mapToScene(anchor)
+                   ^^^^^^^^^^^^^^^
+AttributeError: '_PseudoMiniDXFView' object has no attribute 'mapToScene'. Did you mean: 'mapToParent'?
+
+
+[2026-06-26 15:36:15] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\src\ui\widgets\pre_validation_dialog.py", line 286, in wheelEvent
+    scene_before = self.mapToScene(anchor)
+                   ^^^^^^^^^^^^^^^
+AttributeError: '_PseudoMiniDXFView' object has no attribute 'mapToScene'. Did you mean: 'mapToParent'?
+
+
+[2026-06-26 15:36:15] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\src\ui\widgets\pre_validation_dialog.py", line 286, in wheelEvent
+    scene_before = self.mapToScene(anchor)
+                   ^^^^^^^^^^^^^^^
+AttributeError: '_PseudoMiniDXFView' object has no attribute 'mapToScene'. Did you mean: 'mapToParent'?
+
+
+[2026-06-26 15:36:15] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\src\ui\widgets\pre_validation_dialog.py", line 286, in wheelEvent
+    scene_before = self.mapToScene(anchor)
+                   ^^^^^^^^^^^^^^^
+AttributeError: '_PseudoMiniDXFView' object has no attribute 'mapToScene'. Did you mean: 'mapToParent'?
+
+
+[2026-06-26 15:36:15] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\src\ui\widgets\pre_validation_dialog.py", line 286, in wheelEvent
+    scene_before = self.mapToScene(anchor)
+                   ^^^^^^^^^^^^^^^
+AttributeError: '_PseudoMiniDXFView' object has no attribute 'mapToScene'. Did you mean: 'mapToParent'?
+
+
+[2026-06-26 15:36:16] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\src\ui\widgets\pre_validation_dialog.py", line 286, in wheelEvent
+    scene_before = self.mapToScene(anchor)
+                   ^^^^^^^^^^^^^^^
+AttributeError: '_PseudoMiniDXFView' object has no attribute 'mapToScene'. Did you mean: 'mapToParent'?
+
+
+[2026-06-26 15:36:16] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\src\ui\widgets\pre_validation_dialog.py", line 286, in wheelEvent
+    scene_before = self.mapToScene(anchor)
+                   ^^^^^^^^^^^^^^^
+AttributeError: '_PseudoMiniDXFView' object has no attribute 'mapToScene'. Did you mean: 'mapToParent'?
+
+
+[2026-06-26 15:36:16] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\src\ui\widgets\pre_validation_dialog.py", line 286, in wheelEvent
+    scene_before = self.mapToScene(anchor)
+                   ^^^^^^^^^^^^^^^
+AttributeError: '_PseudoMiniDXFView' object has no attribute 'mapToScene'. Did you mean: 'mapToParent'?
+
+
+[2026-06-26 15:36:21] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\src\ui\widgets\pre_validation_dialog.py", line 286, in wheelEvent
+    scene_before = self.mapToScene(anchor)
+                   ^^^^^^^^^^^^^^^
+AttributeError: '_PseudoMiniDXFView' object has no attribute 'mapToScene'. Did you mean: 'mapToParent'?
+
+
+[2026-06-26 15:36:21] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\src\ui\widgets\pre_validation_dialog.py", line 286, in wheelEvent
+    scene_before = self.mapToScene(anchor)
+                   ^^^^^^^^^^^^^^^
+AttributeError: '_PseudoMiniDXFView' object has no attribute 'mapToScene'. Did you mean: 'mapToParent'?
+
+
+[2026-06-26 15:36:21] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\src\ui\widgets\pre_validation_dialog.py", line 286, in wheelEvent
+    scene_before = self.mapToScene(anchor)
+                   ^^^^^^^^^^^^^^^
+AttributeError: '_PseudoMiniDXFView' object has no attribute 'mapToScene'. Did you mean: 'mapToParent'?
+
+
+[2026-06-26 15:36:21] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\src\ui\widgets\pre_validation_dialog.py", line 286, in wheelEvent
+    scene_before = self.mapToScene(anchor)
+                   ^^^^^^^^^^^^^^^
+AttributeError: '_PseudoMiniDXFView' object has no attribute 'mapToScene'. Did you mean: 'mapToParent'?
+
+
+[2026-06-26 15:36:21] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\src\ui\widgets\pre_validation_dialog.py", line 286, in wheelEvent
+    scene_before = self.mapToScene(anchor)
+                   ^^^^^^^^^^^^^^^
+AttributeError: '_PseudoMiniDXFView' object has no attribute 'mapToScene'. Did you mean: 'mapToParent'?
+
