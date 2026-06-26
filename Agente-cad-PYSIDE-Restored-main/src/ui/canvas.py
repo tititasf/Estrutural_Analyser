@@ -1312,7 +1312,6 @@ class CADCanvas(QGraphicsView):
                 
                 # [FIX] Make ezdxf items selectable and populate data(0) for cutout logic
                 import ezdxf.addons.drawing.pyqt as pyqt
-                from PySide6.QtWidgets import QGraphicsItem
                 for item in self.scene.items():
                     ent = item.data(pyqt.CorrespondingDXFEntity)
                     if ent is not None:

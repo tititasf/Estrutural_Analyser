@@ -14271,3 +14271,54 @@ Current thread's C stack trace (most recent call first):
 [01:20:34.426] N1 ER shortcircuit → chaining N2
 [01:20:34.478] N2 is_er_flow=True obra=Obra_TREINO_1 classe=LV id=V301
 [01:20:34.479] N2 EXCEPTION: 'ComparisonEngineModule' object has no attribute '_lv_elem_id'
+[01:21:34.714] ITEM_SELECTED classe=LV id=V301_A_Passa flow=estrutural
+[01:21:34.725] N1 flow=estrutural classe=LV id=V301_A_Passa auto_chain=True
+[01:21:38.510] ITEM_SELECTED classe=LV id=V301 flow=reverso
+[01:21:38.531] N1 flow=reverso classe=LV id=V301 auto_chain=True
+[01:21:38.534] N1 ER shortcircuit → chaining N2
+[01:21:38.535] ITEM_SELECTED classe=LV id=V301 flow=reverso
+[01:21:38.541] N1 flow=reverso classe=LV id=V301 auto_chain=True
+[01:21:38.544] N1 ER shortcircuit → chaining N2
+[01:21:38.611] N2 is_er_flow=True obra=Obra_TREINO_1 classe=LV id=V301
+[01:21:38.612] N2 EXCEPTION: 'ComparisonEngineModule' object has no attribute '_lv_elem_id'
+[01:21:43.495] ITEM_SELECTED classe=LV id=V301 flow=reverso
+[01:21:43.504] N1 flow=reverso classe=LV id=V301 auto_chain=True
+[01:21:43.507] N1 ER shortcircuit → chaining N2
+[01:21:43.508] ITEM_SELECTED classe=LV id=V301 flow=reverso
+[01:21:43.515] N1 flow=reverso classe=LV id=V301 auto_chain=True
+[01:21:43.517] N1 ER shortcircuit → chaining N2
+[01:21:43.574] N2 is_er_flow=True obra=Obra_TREINO_1 classe=LV id=V301
+[01:21:43.575] N2 EXCEPTION: 'ComparisonEngineModule' object has no attribute '_lv_elem_id'
+[01:21:51.271] ITEM_SELECTED classe=FV id=V304 flow=reverso
+[01:21:51.283] N1 flow=reverso classe=FV id=V304 auto_chain=True
+[01:21:51.286] N1 ER shortcircuit → chaining N2
+[01:21:51.340] N2 is_er_flow=True obra=Obra_TREINO_1 classe=FV id=V304
+[01:21:51.345] N2 recorte via fichas recente: FV_V304_motor_178111331103.dxf
+[01:21:51.346] N2 recorte_path=D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-2_Triagem\recortes_reversos\ALIMONTI - PARAISO - 13° PAV.- FV - R00\FV_V304_motor_178111331103.dxf
+[01:21:51.346] N2 loading DXF size=36KB
+[01:21:51.430] N2 done ok. is_er=True auto_chain=True
+[01:21:51.496] N4 start classe=FV id=V304
+[01:21:51.498] N4 get_er_ficha classe=FV id=V304
+[01:21:51.503] N2 recorte via fichas recente: FV_V304_motor_178111331103.dxf
+[01:21:51.530] FV ficha live V304: segments=3
+[01:21:51.530] N4 set_ficha classe=FV id=V304 er_keys=18
+[01:21:51.674] N4 step0 ok
+[01:21:51.675] N4 dxf_check n4_dxf=D:\Agente-cad-PYSIDE\DADOS-OBRAS\Obra_TREINO_1\Fase-6_Execucao_CAD\n4\FV_preview_V304.dxf force_regen=True
+[01:21:51.676] N4 generate classe=FV id=V304 via=robot
+[01:21:51.683] N4 generate launched
+[01:22:08.744] ITEM_SELECTED classe=LV id=V302 flow=reverso
+[01:22:08.758] N1 flow=reverso classe=LV id=V302 auto_chain=True
+[01:22:08.761] N1 ER shortcircuit → chaining N2
+[01:22:08.762] ITEM_SELECTED classe=LV id=V302 flow=reverso
+[01:22:08.769] N1 flow=reverso classe=LV id=V302 auto_chain=True
+[01:22:08.771] N1 ER shortcircuit → chaining N2
+[01:22:08.799] ITEM_SELECTED classe=LV id=V302 flow=reverso
+[01:22:08.806] N1 flow=reverso classe=LV id=V302 auto_chain=True
+[01:22:08.808] N1 ER shortcircuit → chaining N2
+[01:22:08.880] N2 is_er_flow=True obra=Obra_TREINO_1 classe=LV id=V302
+[01:22:08.881] N2 EXCEPTION: 'ComparisonEngineModule' object has no attribute '_lv_elem_id'
+[01:22:40.143] ITEM_SELECTED classe=LV id=V302 flow=reverso
+[01:22:40.149] N1 flow=reverso classe=LV id=V302 auto_chain=True
+[01:22:40.152] N1 ER shortcircuit → chaining N2
+[01:22:40.224] N2 is_er_flow=True obra=Obra_TREINO_1 classe=LV id=V302
+[01:22:40.224] N2 EXCEPTION: 'ComparisonEngineModule' object has no attribute '_lv_elem_id'

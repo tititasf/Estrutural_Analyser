@@ -25,7 +25,7 @@ from PySide6.QtWidgets import (
 from PySide6.QtGui import QColor
 
 from src.ui.theme import Colors, Fonts
-from src.ui.canvas import CADCanvas
+from src.ui.canvas import CADCanvas, RenderMode
 from src.core.ficha_utils import ensure_db_backup, stamp_ficha_json
 
 try:
@@ -693,7 +693,7 @@ class _DXFRenderProxy(QObject):
                     vp.setUpdatesEnabled(False)
                 try:
                     canvas.add_dxf_entities(entities,
-                                            render_mode=dd.get('render_mode', 'TRUE_GEOMETRY'),
+                                            render_mode=dd.get('render_mode', RenderMode.TRUE_GEOMETRY),
                                             compute_snaps=False, source_dxf_path=dd.get('source_path'))
                 finally:
                     if vp is not None:

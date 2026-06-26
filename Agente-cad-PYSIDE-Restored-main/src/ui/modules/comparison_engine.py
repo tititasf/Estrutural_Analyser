@@ -43,6 +43,41 @@ from src.ui.components.organisms import DualCanvasManager
 
 from src.ui.theme import Colors
 
+# ── Helpers LV (acesso por todas as classes do módulo) ─────────────────────
+import re as _lv_re
+
+def _lv_strip_pp(item_id: str) -> str:
+    """'V301_A_Para' → 'V301_A'"""
+    return _lv_re.sub(r'_(Para|Passa)$', '', str(item_id), flags=_lv_re.IGNORECASE)
+
+def _lv_elem_id(item_id: str) -> str:
+    """'V301_A_Para' → 'V301' (sem face, sem pp)"""
+    clean = _lv_re.sub(r'_(Para|Passa)$', '', str(item_id), flags=_lv_re.IGNORECASE)
+    return _lv_re.sub(r'[_\.][AB]$', '', clean)
+
+def _lv_pp_from_id(item_id: str) -> str:
+    """'V301_A_Para' → 'para'"""
+    m = _lv_re.search(r'_(Para|Passa)$', str(item_id), _lv_re.IGNORECASE)
+    return m.group(1).lower() if m else ""
+
+def _lv_stem_to_display(stem: str, para_passa: str = "") -> str:
+    """'V10_A' → 'LV-V10.A';  com para_passa='para' → 'LV-V10.A-Para'"""
+    m = _lv_re.match(r'^(V\d+[A-Z]?)_([AB])$', stem, _lv_re.IGNORECASE)
+    if m:
+        display = f"LV-{m.group(1).upper()}.{m.group(2).upper()}"
+    else:
+        display = f"LV-{stem}" if not stem.startswith("LV-") else stem
+    if para_passa in ("para", "passa"):
+        display = f"{display}-{para_passa.capitalize()}"
+    return display
+
+def _lv_base_from_stem(stem: str) -> str:
+    """'V10_A' → 'V10'"""
+    m = _lv_re.match(r'^(V\d+[A-Z]?)_[AB]$', stem, _lv_re.IGNORECASE)
+    return m.group(1).upper() if m else stem
+
+# ───────────────────────────────────────────────────────────────────────────
+
 class DXFVectorView(QWidget):
     ready = Signal()
     def __init__(self, bg: str = Colors.BG_DEEP, parent=None):
@@ -4627,62 +4662,15 @@ class NavSidebar(QFrame):
         for iid in item_ids:
             n3_ok = (prev_dir / f"{prefix}{iid}.dxf").exists()
             if cls == "LV":
-                base = self._lv_base_from_stem(str(iid))
+                base = _lv_base_from_stem(str(iid))
                 pp = load_para_passa(obra_name, pav_key, "LV", base)
-                display = self._lv_stem_to_display(str(iid), pp)
+                display = _lv_stem_to_display(str(iid), pp)
             else:
                 display = str(iid)
             it = QListWidgetItem(display)
             it.setData(Qt.UserRole, (cls, iid))
             it.setForeground(QColor(Colors.TEXT_PRIMARY))
             self.lst.addItem(it)
-
-    @staticmethod
-    def _lv_strip_pp(item_id: str) -> str:
-        """Strip sufixo virtual Para/Passa de item_id LV: 'V301_A_Para' → 'V301_A'."""
-        import re as _re
-        return _re.sub(r'_(Para|Passa)$', '', str(item_id), flags=_re.IGNORECASE)
-
-    @staticmethod
-    def _lv_elem_id(item_id: str) -> str:
-        """Extrai elem_id de DB para LV: 'V301_A_Para' → 'V301' (sem face, sem pp)."""
-        import re as _re
-        clean = _re.sub(r'_(Para|Passa)$', '', str(item_id), flags=_re.IGNORECASE)
-        return _re.sub(r'[_\.][AB]$', '', clean)
-
-    @staticmethod
-    def _lv_pp_from_id(item_id: str) -> str:
-        """Extrai 'para' ou 'passa' do ID virtual LV: 'V301_A_Para' → 'para'."""
-        import re as _re
-        m = _re.search(r'_(Para|Passa)$', str(item_id), _re.IGNORECASE)
-        return m.group(1).lower() if m else ""
-
-    @staticmethod
-    def _lv_stem_to_display(stem: str, para_passa: str = "") -> str:
-        """Transforma stem de JSON LV em nome padronizado com traços.
-
-        "V10_A" → "LV-V10.A", "V10_A" + "para" → "LV-V10.A-Para"
-        """
-        import re as _re
-        m = _re.match(r'^(V\d+[A-Z]?)_([AB])$', stem, _re.IGNORECASE)
-        if m:
-            base, face = m.group(1).upper(), m.group(2).upper()
-            display = f"LV-{base}.{face}"
-        else:
-            display = f"LV-{stem}" if not stem.startswith("LV-") else stem
-        if para_passa in ("para", "passa"):
-            display = f"{display}-{para_passa.capitalize()}"
-        return display
-
-    @staticmethod
-    def _lv_base_from_stem(stem: str) -> str:
-        """Extrai o ID base da viga (sem face) de um stem de JSON LV.
-
-        "V10_A" → "V10", "V10_B" → "V10"
-        """
-        import re as _re
-        m = _re.match(r'^(V\d+[A-Z]?)_[AB]$', stem, _re.IGNORECASE)
-        return m.group(1).upper() if m else stem
 
     @staticmethod
     def _item_sort_key(value: str):
@@ -4790,7 +4778,7 @@ class NavSidebar(QFrame):
                 # Cada face LV gera DUAS instâncias independentes: Para e Passa
                 for pp in ("para", "passa"):
                     virt_id = f"{iid}_{pp.capitalize()}"
-                    display_text = self._lv_stem_to_display(str(iid), pp)
+                    display_text = _lv_stem_to_display(str(iid), pp)
                     rows[virt_id] = {
                         "id": virt_id,
                         "text": display_text,
@@ -6156,7 +6144,7 @@ class TriLevelArea(QWidget):
         if not self._kb_ents:
             return None
         # IDs virtuais: strip Para/Passa antes de buscar no KB
-        lv_stem = self._lv_strip_pp(item_id)   # "V301_A_Para" → "V301_A"
+        lv_stem = _lv_strip_pp(item_id)   # "V301_A_Para" → "V301_A"
         # KB usa ponto (V4.A), NavSidebar usa underscore (V4_A) — normalizar
         kb_id = lv_stem.replace('_', '.')
         cx = cy = None
@@ -7753,9 +7741,9 @@ class ComparisonEngineModule(QWidget):
             )
             # Para LV: exibe Para/Passa em N3 e N4 sincronizado com N2
             if classe == "LV":
-                tipo = self._lv_pp_from_id(item_id) or load_para_passa(
-                    obra, pav, "LV", self._lv_elem_id(item_id))
-                viga_base = self._lv_elem_id(item_id)
+                tipo = _lv_pp_from_id(item_id) or load_para_passa(
+                    obra, pav, "LV", _lv_elem_id(item_id))
+                viga_base = _lv_elem_id(item_id)
                 col.set_para_passa(
                     tipo,
                     lambda t, b=viga_base: self._save_lv_para_passa_and_sync(b, t),
@@ -7803,9 +7791,9 @@ class ComparisonEngineModule(QWidget):
                 )
             elif classe == "LV":
                 # Para IDs virtuais "V301_A_Para", extrai pp do ID e viga_base sem face/pp
-                tipo = self._lv_pp_from_id(item_id) or load_para_passa(
-                    obra, pav, "LV", self._lv_elem_id(item_id))
-                viga_base = self._lv_elem_id(item_id)
+                tipo = _lv_pp_from_id(item_id) or load_para_passa(
+                    obra, pav, "LV", _lv_elem_id(item_id))
+                viga_base = _lv_elem_id(item_id)
                 col.set_para_passa(
                     tipo,
                     lambda t, b=viga_base: self._save_lv_para_passa_and_sync(b, t),
@@ -8193,7 +8181,7 @@ class ComparisonEngineModule(QWidget):
         """
         # LV: IDs virtuais "V301_A_Para" → elem_id no DB é "V301"
         if classe == "LV":
-            item_id = self._lv_elem_id(item_id)
+            item_id = _lv_elem_id(item_id)
         _cls_map = {"PL": "PIL", "LV": "LV", "FV": "FV", "LJ": "LAJ"}
         db_cls = _cls_map.get(classe, classe)
 
@@ -8282,7 +8270,7 @@ class ComparisonEngineModule(QWidget):
         import json as _json
         # LV: IDs virtuais "V301_A_Para" → elem_id no DB é "V301"
         if classe == "LV":
-            item_id = self._lv_elem_id(item_id)
+            item_id = _lv_elem_id(item_id)
         _cls_map = {"PL": "PIL", "LV": "LV", "FV": "FV", "LJ": "LAJ"}
         db_cls = _cls_map.get(classe, classe)
 
@@ -8547,7 +8535,7 @@ class ComparisonEngineModule(QWidget):
         obra = (self.fase8_panel.cmb_obra.currentData() or self.fase8_panel.cmb_obra.currentText())
         obra_dir = str(DADOS_OBRAS_ROOT / obra)
         # LV: script espera stem real (ex: "V301_A"), não ID virtual "V301_A_Para"
-        script_item_id = self._lv_strip_pp(item_id) if classe == "LV" else item_id
+        script_item_id = _lv_strip_pp(item_id) if classe == "LV" else item_id
 
         self._process = QProcess(self)
         self._process.setProcessChannelMode(QProcess.MergedChannels)
@@ -8766,7 +8754,7 @@ class ComparisonEngineModule(QWidget):
         import json as _json, re as _re
         # LV: IDs virtuais "V301_A_Para" → elem_id no DB/motor é "V301"
         if classe == "LV":
-            item_id = self._lv_elem_id(item_id)
+            item_id = _lv_elem_id(item_id)
         _cls_map = {"PL": "PIL", "LV": "LV", "FV": "FV", "LJ": "LAJ"}
         db_cls = _cls_map.get(classe, classe)
 
