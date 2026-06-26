@@ -989,6 +989,22 @@ class DiagnosticHubModule(QWidget):
         self._btn_process_crops.clicked.connect(self._run_crop_engine)
         vlay.addWidget(self._btn_process_crops)
 
+        # Botão processar ALL
+        self._btn_process_all_crops = QPushButton("⚡ Processar Todos Pav. Auto")
+        self._btn_process_all_crops.setStyleSheet(f"""
+            QPushButton {{
+                background: rgba(0, 180, 180, 38); color: {Colors.ACCENT_TEAL};
+                border: 1px solid {Colors.ACCENT_TEAL}; border-radius: 4px;
+                font-size: 11px; font-weight: bold; padding: 3px 6px;
+            }}
+            QPushButton:hover {{ background: rgba(0, 180, 180, 71); }}
+            QPushButton:disabled {{ color: {Colors.TEXT_DIM}; border-color: {Colors.TEXT_DIM}; }}
+        """)
+        self._btn_process_all_crops.setEnabled(False)
+        self._btn_process_all_crops.clicked.connect(self._run_crop_engine_all)
+        vlay.addWidget(self._btn_process_all_crops)
+
+
         # Progress bar
         self._crop_progress = QProgressBar()
         self._crop_progress.setRange(0, 100)
@@ -1463,6 +1479,7 @@ class DiagnosticHubModule(QWidget):
 
         # Ativar controles
         self._btn_process_crops.setEnabled(bool(file_path))
+        self._btn_process_all_crops.setEnabled(bool(self._current_obra))
         self._btn_manual_crop.setEnabled(bool(file_path))
         self._btn_selection_crop.setEnabled(bool(file_path))
         self._lbl_recortes_status.setText(f"DXF: {file_name}")
@@ -1798,6 +1815,7 @@ class DiagnosticHubModule(QWidget):
                 hub._refresh_recortes_list(self._bruto)
                 hub._refresh_brutos_list(hub._current_obra)
                 hub._btn_process_crops.setEnabled(True)
+                hub._btn_process_all_crops.setEnabled(True)
                 self._thread.quit()
 
             def on_error(self, msg: str):
@@ -1806,6 +1824,7 @@ class DiagnosticHubModule(QWidget):
                 hub._lbl_recortes_status.setText(f"⚠ Erro: {msg}")
                 QMessageBox.critical(hub, "Crop Engine", f"Erro ao processar recortes:\n{msg}")
                 hub._btn_process_crops.setEnabled(True)
+                hub._btn_process_all_crops.setEnabled(True)
                 self._thread.quit()
 
         crop_proxy = _CropProxy(self, bruto_str, thread, parent=self)
@@ -4451,3 +4470,152 @@ class DiagnosticHubModule(QWidget):
         print(f"[DiagnosticHub] Project Switched: {pname}")
         self.sidebar.refresh()
 
+
+
+    def _run_crop_engine_all(self):
+        """Roda obra_crop_engine para TODOS os brutos da obra (em QThread). Pula manuais/aprovados."""
+        if not self._current_obra:
+            QMessageBox.warning(self, "Crop", "Selecione uma obra primeiro.")
+            return
+
+        obra_name = self._current_obra
+        from src.core.config import DADOS_ROOT
+        brutos_dir = DADOS_ROOT / obra_name / "Fase-1_Ingestao" / "Estruturais_dos_Pavimentos_Estado_Bruto_DWG_DXF"
+        if not brutos_dir.exists():
+            QMessageBox.warning(self, "Crop", "Nenhum pavimento bruto encontrado na obra.")
+            return
+
+        all_dxf_paths = list(brutos_dir.glob("*.dxf")) + list(brutos_dir.glob("*.dwg"))
+        if not all_dxf_paths:
+            QMessageBox.warning(self, "Crop", "Nenhum arquivo DXF/DWG encontrado.")
+            return
+
+        # Obter lista de pavimentos que já tem recortes manuais ou aprovados
+        import sqlite3
+        from src.core.config import DB_SQLITE
+        manual_pavs = set()
+        if DB_SQLITE.exists():
+            try:
+                conn = sqlite3.connect(str(DB_SQLITE))
+                cur = conn.cursor()
+                cur.execute("SELECT DISTINCT pavimento_name FROM obra_recortes WHERE obra_name=? AND status IN ('manual', 'approved')", (obra_name,))
+                for row in cur.fetchall():
+                    manual_pavs.add(row[0])
+                conn.close()
+            except Exception as e:
+                print("Erro ao ler DB manual_pavs:", e)
+
+        to_process = []
+        for path in all_dxf_paths:
+            if path.stem not in manual_pavs:
+                to_process.append(path)
+
+        if not to_process:
+            QMessageBox.information(self, "Crop All", "Todos os pavimentos já possuem validações humanas. Nenhum pavimento será sobrescrito.")
+            return
+
+        reply = QMessageBox.question(
+            self, "Processar Todos", 
+            f"Deseja iniciar o processamento de recortes para {len(to_process)} pavimento(s)?\n(Pavimentos com recortes validados por humanos serão pulados).",
+            QMessageBox.Yes | QMessageBox.No
+        )
+        if reply != QMessageBox.Yes:
+            return
+
+        self._btn_process_crops.setEnabled(False)
+        self._btn_process_all_crops.setEnabled(False)
+        self._crop_progress.setVisible(True)
+        self._crop_progress.setValue(0)
+        self._lbl_recortes_status.setText(f"⚙ Processando {len(to_process)} pavimentos...")
+
+        from PySide6.QtCore import QObject, Signal as QSignal
+
+        class _CropAllWorker(QObject):
+            finished = QSignal(dict)
+            progress = QSignal(int, str)
+            error    = QSignal(str)
+
+            def __init__(self, obra, paths):
+                super().__init__()
+                self._obra = obra
+                self._paths = paths
+
+            def run(self):
+                try:
+                    import sys
+                    scripts_dir = Path(__file__).parent.parent.parent.parent / "scripts"
+                    if str(scripts_dir.parent) not in sys.path:
+                        sys.path.insert(0, str(scripts_dir.parent))
+                    from scripts.obra_crop_engine import process_pavimento_crops, ensure_recortes_in_db
+                    
+                    results = []
+                    total = len(self._paths)
+                    for i, path in enumerate(self._paths):
+                        self.progress.emit(int((i / total) * 100), f"Processando {path.stem}...")
+                        res = process_pavimento_crops(
+                            obra_name=self._obra,
+                            pavimento_name=path.stem,
+                            dxf_bruto_path=str(path),
+                            n_torres=1,
+                            force=True,
+                        )
+                        try:
+                            ensure_recortes_in_db(self._obra, path.stem, str(path), res)
+                        except Exception as ex:
+                            print(f"[crop_all] Erro DB {path.stem}: {ex}")
+                        results.append(res)
+                    
+                    self.progress.emit(100, "Concluído")
+                    self.finished.emit({"total": total, "results": results})
+                except Exception as e:
+                    import traceback
+                    traceback.print_exc()
+                    self.error.emit(str(e))
+
+        class _CropAllProxy(QObject):
+            def __init__(self, hub, thread, parent=None):
+                super().__init__(parent)
+                self._hub = hub
+                self._thread = thread
+            
+            def on_progress(self, val: int, msg: str):
+                hub = self._hub
+                hub._crop_progress.setValue(val)
+                hub._lbl_recortes_status.setText(f"⚙ {msg}")
+
+            def on_done(self, result: dict):
+                hub = self._hub
+                hub._crop_progress.setVisible(False)
+                total = result.get("total", 0)
+                hub._lbl_recortes_status.setText(f"✅ {total} pavimentos processados.")
+                if hub._current_bruto_path:
+                    hub._refresh_recortes_list(hub._current_bruto_path)
+                hub._refresh_brutos_list(hub._current_obra)
+                hub._btn_process_crops.setEnabled(True)
+                hub._btn_process_all_crops.setEnabled(True)
+                self._thread.quit()
+
+            def on_error(self, msg: str):
+                hub = self._hub
+                hub._crop_progress.setVisible(False)
+                hub._lbl_recortes_status.setText(f"❌ Erro: {msg}")
+                QMessageBox.critical(hub, "Crop All Engine", f"Erro ao processar recortes:\n{msg}")
+                hub._btn_process_crops.setEnabled(True)
+                hub._btn_process_all_crops.setEnabled(True)
+                self._thread.quit()
+
+        thread = QThread(self)
+        worker = _CropAllWorker(obra_name, to_process)
+        worker.moveToThread(thread)
+        thread.started.connect(worker.run)
+
+        proxy = _CropAllProxy(self, thread, parent=self)
+        worker.progress.connect(proxy.on_progress)
+        worker.finished.connect(proxy.on_done)
+        worker.error.connect(proxy.on_error)
+
+        worker.setParent(None)
+        self._retiring_crop_workers.append((thread, worker, proxy))
+        thread.finished.connect(lambda: self._retiring_crop_workers.remove((thread, worker, proxy)) if (thread, worker, proxy) in self._retiring_crop_workers else None)
+        
+        thread.start()

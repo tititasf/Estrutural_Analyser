@@ -3960,6 +3960,11 @@ class CADCanvas(QGraphicsView):
         else:
             print("Item selecionado nÃ£o Ã© compatÃ­vel para busca de similares.")
 
+    def scrollContentsBy(self, dx, dy):
+        self.setRenderHint(QPainter.Antialiasing, False)
+        if hasattr(self, '_aa_timer'): self._aa_timer.start(250)
+        super().scrollContentsBy(dx, dy)
+
     def wheelEvent(self, event):
         """Zoom in/out com scroll do mouse"""
         zoom_in_factor = 1.15

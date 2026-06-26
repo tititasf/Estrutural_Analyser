@@ -5783,6 +5783,66 @@ class MainWindow(QMainWindow):
                     'material': 'C30', 'level': 'Pavimento 1'
                 }
                 
+                # --- ENRIQUECIMENTO COM DADOS DA PRÉ-ANÁLISE ---
+                # Puxa os vínculos de lajes, nível e nome que foram mapeados perfeitamente 
+                # pela _build_pillar_report na fase de pré-análise
+                pre_pillar = None
+                p_rep = getattr(self, 'pavimento_preprocess', {}).get('pillar_report', {})
+                n_rep = getattr(self, 'pavimento_preprocess', {}).get('nivel_report', {}).get('pilares', {})
+                
+                cx, cy = poly_shape.centroid.x, poly_shape.centroid.y
+                # Tenta match geométrico (se o centroide cai na bbox da pre-análise)
+                for pk, pv in p_rep.items():
+                    bbox = pv.get('bbox')
+                    if bbox:
+                        minx, miny, maxx, maxy = bbox
+                        if minx <= cx <= maxx and miny <= cy <= maxy:
+                            pre_pillar = pv
+                            break
+                
+                if not pre_pillar and pillar_name in p_rep:
+                    pre_pillar = p_rep[pillar_name]
+                
+                if pre_pillar:
+                    # Atualiza com o nome exato detectado
+                    if pre_pillar.get('name') and pre_pillar['name'] != pillar_name:
+                        pillar_name = pre_pillar['name']
+                        p_data['name'] = pillar_name
+                    
+                    # Adiciona classificação
+                    p_data['classification'] = pre_pillar.get('classification', 'INDETERMINADO')
+                    
+                    # Vincula lajes associadas ao pilar no Structural Analyzer
+                    adj_lajes = pre_pillar.get('lajes', [])
+                    if adj_lajes:
+                        p_data['lajes_adjacentes'] = adj_lajes
+                        
+                        laje_str = ", ".join(set([l['laje'] for l in adj_lajes]))
+                        if 'connections' not in p_data['links']: p_data['links']['connections'] = {}
+                        
+                        p_data['links']['connections']['lajes_conectadas'] = {
+                            'value': laje_str,
+                            'details': adj_lajes
+                        }
+                        
+                        # Adiciona no fields para aparecer direto na ficha do pilar
+                        if 'fields' not in p_data: p_data['fields'] = {}
+                        p_data['fields']['Lajes Adjacentes'] = laje_str
+                        
+                        # Pegar medidas das lajes conectadas se possível para facilitar vínculos manuais futuros
+                        medidas = []
+                        for l in adj_lajes:
+                            for sl in self.slabs_found:
+                                if sl['name'] == l['laje'] and 'dim' in sl:
+                                    medidas.append(f"{l['laje']}: {sl['dim']}")
+                        if medidas:
+                            p_data['fields']['Medidas das Lajes'] = ", ".join(set(medidas))
+
+                # Extrai nível exato da pré-análise
+                if pillar_name in n_rep:
+                    p_data['level'] = str(n_rep[pillar_name].get('level_str') or 'Pavimento 1')
+                # ------------------------------------------------
+                
                 # Análise Contextual (Initial)
                 if self.pillar_analyzer:
                     self.pillar_analyzer.analyze(p_data)

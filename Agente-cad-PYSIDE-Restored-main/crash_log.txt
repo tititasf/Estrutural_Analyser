@@ -1034,3 +1034,11 @@ TypeError: 'PySide6.QtWidgets.QAbstractButton.setChecked' called with wrong argu
 Supported signatures:
   PySide6.QtWidgets.QAbstractButton.setChecked(arg__1: bool, /)
 
+
+[2026-06-26 02:27:39] UNHANDLED EXCEPTION:
+Traceback (most recent call last):
+  File "D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\src\ui\modules\comparison_engine.py", line 7557, in _retire_aw
+    lst.remove(w)
+    ^^^^^^^^^^
+AttributeError: 'str' object has no attribute 'remove'
+
