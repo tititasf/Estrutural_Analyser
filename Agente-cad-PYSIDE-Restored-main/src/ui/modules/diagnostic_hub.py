@@ -2124,7 +2124,17 @@ class DiagnosticHubModule(QWidget):
             QMessageBox.warning(self, "Recortar Seleção", "Selecione um bruto primeiro.")
             return
 
-        selected = self.canvas.scene.selectedItems()
+        tab_idx = self._canvas_tabs.currentIndex()
+        if tab_idx == 0:
+            target_canvas = self.canvas
+        elif tab_idx == 1:
+            target_canvas = self._canvas_limpo
+        elif tab_idx == 2:
+            target_canvas = self._canvas_det
+        else:
+            target_canvas = self.canvas
+
+        selected = target_canvas.scene.selectedItems()
         if not selected:
             QMessageBox.warning(
                 self, "Recortar Seleção",
@@ -2219,7 +2229,7 @@ class DiagnosticHubModule(QWidget):
             out_path = out_dir / f"{stem}_{ts}.dxf"
 
         # ── Exportar apenas selecionados → DXF ───────────────────────────────
-        crop_result = self._export_selection_to_dxf(self.canvas, out_path)
+        crop_result = self._export_selection_to_dxf(target_canvas, out_path)
 
         if crop_result.get("error"):
             QMessageBox.critical(self, "Recortar Seleção",
@@ -4432,3 +4442,4 @@ class DiagnosticHubModule(QWidget):
     def _on_project_changed(self, pid, pname):
         print(f"[DiagnosticHub] Project Switched: {pname}")
         self.sidebar.refresh()
+

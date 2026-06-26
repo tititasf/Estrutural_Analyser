@@ -14263,3 +14263,11 @@ Current thread's C stack trace (most recent call first):
 [00:44:37.630] [CE] _on_obra_pav_changed obra='Obra_TREINO_1' pav='TMC-EST-EX-1000-FUN-R01_R2018_ASCII_ODA'
 [00:49:35.511] [CE] _on_obra_pav_changed obra='Obra_TREINO_1' pav='TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA'
 [00:54:43.848] [CE] _on_obra_pav_changed obra='Obra_TREINO_1' pav='TMC-EST-EX-1000-FUN-R01_R2018_ASCII_ODA'
+[00:57:55.431] [CE] _on_obra_pav_changed obra='Obra_TREINO_1' pav='TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA'
+[01:13:41.698] [CE] _on_obra_pav_changed obra='Obra_TREINO_1' pav='TMC-EST-EX-1000-FUN-R01_R2018_ASCII_ODA'
+[01:20:25.959] [CE] _on_obra_pav_changed obra='Obra_TREINO_1' pav='TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA'
+[01:20:34.407] ITEM_SELECTED classe=LV id=V301 flow=reverso
+[01:20:34.422] N1 flow=reverso classe=LV id=V301 auto_chain=True
+[01:20:34.426] N1 ER shortcircuit → chaining N2
+[01:20:34.478] N2 is_er_flow=True obra=Obra_TREINO_1 classe=LV id=V301
+[01:20:34.479] N2 EXCEPTION: 'ComparisonEngineModule' object has no attribute '_lv_elem_id'

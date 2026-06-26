@@ -25,7 +25,7 @@ from PySide6.QtWidgets import (
     QSizePolicy, QScrollArea, QSplitter, QGraphicsView, QGraphicsScene,
     QMessageBox,
 )
-from PySide6.QtCore import Qt, QPointF, QRectF, QTimer
+from PySide6.QtCore import Qt, QPointF, QRectF, QTimer, QSize
 from PySide6.QtGui import (QColor, QFont, QBrush, QPixmap, QPainter,
                             QPen, QPolygonF, QPainterPath)
 
@@ -176,8 +176,13 @@ class _MiniDXFView(QGraphicsView):
         self.fitInView(QRectF(x0, y0, max(x1 - x0, 1.0), max(y1 - y0, 1.0)),
                        Qt.KeepAspectRatio)
 
-    def resizeEvent(self, event):
-        super().resizeEvent(event)
+    def sizeHint(self):
+        # Prevent fitInView from changing sizeHint and causing infinite layout loops
+        return QSize(100, 100)
+
+    def showEvent(self, event):
+        super().showEvent(event)
+        # Apply fit once when shown. No resizeEvent handling to avoid infinite layout loops.
         self._apply_fit()
 
     # ── Interação ─────────────────────────────────────────────────────────────
@@ -243,9 +248,9 @@ class PreValidationDialog(QDialog):
         parent=None,
     ):
         super().__init__(parent)
-        self.setWindowFlags(self.windowFlags() | Qt.Window)
+        self.setWindowFlags(Qt.Window | Qt.WindowMaximizeButtonHint | Qt.WindowCloseButtonHint)
         self.setWindowTitle(f"Pré-validação — {obra} / {pavimento}")
-        self.setMinimumSize(1300, 700)
+        self.setMinimumSize(1000, 600)
         self.setModal(True)
         self.setStyleSheet(
             f"QDialog {{ background:{Colors.BG_PRIMARY}; color:{Colors.TEXT_PRIMARY}; }}"
