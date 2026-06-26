@@ -6425,6 +6425,22 @@ class ProjectManager(QWidget):
             def tier_at_least(tier, min_tier="T1"):
                 return tier in {"T1", "T2"}
 
+        registry_error = ""
+        try:
+            from classe_registry import canonicalize_class, load_registry, registered_classes
+            class_registry = load_registry(repo_root / "data" / "classe_registry.json")
+            canonical_classes = registered_classes(class_registry)
+
+            def canonical_class(value):
+                return canonicalize_class(value, class_registry)[0]
+        except Exception as exc:
+            registry_error = str(exc)
+            canonical_classes = {"PIL", "LV", "FV", "LAJ"}
+
+            def canonical_class(value):
+                raw = str(value or "?").strip().upper()
+                return {"PILAR": "PIL", "LAJE": "LAJ"}.get(raw, raw)
+
         db_path = Path(getattr(self.db, "db_path", repo_root / "project_data.vision"))
         faiss_dir = repo_root / "data" / "vectors" / "faiss"
         tombstones = load_tombstones(faiss_dir / "rag_tombstones.json")
@@ -6453,6 +6469,7 @@ class ProjectManager(QWidget):
             "rule_rows": [],
             "obra_rag_snapshots": 0,
             "latest_obra_rag": "",
+            "registry_error": registry_error,
         }
 
         def table_exists(conn, table):
@@ -6511,13 +6528,9 @@ class ProjectManager(QWidget):
                         "SELECT classe, COUNT(*) FROM semantic_rag_kb GROUP BY classe ORDER BY classe"
                     ).fetchall():
                         metrics["semantic_rows"].append([classe or "?", count, "domain_knowledge:field_semantics"])
-                        semantic_by_class[str(classe or "?").upper()] = count
+                        semantic_by_class[canonical_class(classe)] += count
                 else:
                     semantic_by_class = Counter()
-
-                def canonical_class(value):
-                    raw = str(value or "?").strip().upper()
-                    return {"PILAR": "PIL", "LAJE": "LAJ"}.get(raw, raw)
 
                 reverse_by_class = defaultdict(list)
                 for row in reverse_rows:
@@ -6526,7 +6539,12 @@ class ProjectManager(QWidget):
                 for row in fase3_rows:
                     fase3_by_class[canonical_class(row.get("tipo"))].append(row)
 
-                classes = sorted(set(reverse_by_class) | set(fase3_by_class) | set(semantic_by_class))
+                classes = sorted(
+                    set(reverse_by_class)
+                    | set(fase3_by_class)
+                    | set(semantic_by_class)
+                    | set(canonical_classes)
+                )
                 for classe in classes:
                     class_rows = reverse_by_class[classe] + fase3_by_class[classe]
                     class_tiers = Counter(get_tier(row, tombstones=tombstones) for row in class_rows)
@@ -6685,7 +6703,6 @@ class ProjectManager(QWidget):
             pending.append([priority, area, finding, action])
             metrics["pending_counts"][priority] += 1
 
-        canonical_classes = {"PIL", "LV", "FV", "LAJ"}
         encyclopedia_by_class = {
             str(row[0]).upper(): row for row in metrics["encyclopedia_rows"]
         }
@@ -6728,6 +6745,14 @@ class ProjectManager(QWidget):
                 "Taxonomia",
                 f"Classe/categoria '{classe}' nao esta no registro canonico PIL/LV/FV/LAJ.",
                 "Decidir se e alias, subclasse ou nova classe antes de consolidar.",
+            )
+
+        if metrics["registry_error"]:
+            add_pending(
+                "ALTA",
+                "Registro de classes",
+                f"classe_registry indisponivel ou invalido: {metrics['registry_error']}",
+                "Corrigir o registro antes de consolidar aliases ou novas classes.",
             )
 
         legacy_t0 = metrics["faiss_tiers"].get("T0", 0)

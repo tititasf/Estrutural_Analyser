@@ -450,8 +450,8 @@ def robot_dados_to_fv_dict(dados, viga_nome='V?'):
         'b':           b,
         'comp':        comp,
         'panels':      [segment],
-        'label_left':  dados.get('texto_esq', 'L Esq') or 'L Esq',
-        'label_right': dados.get('texto_dir', 'L Dir') or 'L Dir',
+        'label_left':  dados.get('texto_esq', 'L Esq'),
+        'label_right': dados.get('texto_dir', 'L Dir'),
         'obs':         dados.get('obs', ''),
     }
 
@@ -1042,7 +1042,16 @@ def draw_viga(msp, x0, y0, panels_json, viga_b, viga_nome,
     nom_text = f'{normalize_viga_name(viga_nome)}.C'
     if obs:
         nom_text = f'{nom_text} {obs}'
-    add_text(msp, x0 + 3, y0 + b + NOM_ABOVE, nom_text,
+    nom_left_clearance = 0.0
+    if segments and isinstance(segments[0], dict):
+        first_panels = segments[0].get('panels', [])
+        if first_panels and isinstance(first_panels[0], dict):
+            first_ch = first_panels[0].get('chanfros', {})
+            nom_left_clearance = max(
+                float(first_ch.get('te', 0.0)),
+                float(first_ch.get('fe', 0.0)),
+            )
+    add_text(msp, x0 + nom_left_clearance + 3, y0 + b + NOM_ABOVE, nom_text,
              NOM_H, 'NOMENCLATURA', style='Standard')
 
 

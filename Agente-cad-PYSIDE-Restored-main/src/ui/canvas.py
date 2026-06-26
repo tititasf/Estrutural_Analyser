@@ -884,16 +884,49 @@ class CADCanvas(QGraphicsView):
         # ── Grupo 1: Navegação ──────────────────────────────────────────────
         from PySide6.QtWidgets import QCheckBox
         self.performatic_mode = True
-        self.chk_perf_render = QCheckBox("Leve")
+        from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QCheckBox
+        self.chk_perf_container = QWidget()
+        perf_layout = QVBoxLayout(self.chk_perf_container)
+        perf_layout.setContentsMargins(0, 0, 0, 0)
+        perf_layout.setSpacing(2)
+        perf_layout.setAlignment(Qt.AlignCenter)
+
+        self.chk_perf_render = QCheckBox()
         self.chk_perf_render.setChecked(True)
         self.chk_perf_render.setToolTip("Oculta hachuras pesadas para navegação instantânea")
+        self.chk_perf_render.setCursor(Qt.PointingHandCursor)
         self.chk_perf_render.setStyleSheet(f"""
-            QCheckBox {{ color: {Accent.PRIMARY}; font-size: 13px; font-weight: bold; }}
-            QCheckBox::indicator {{ width: 22px; height: 22px; background: {Surface.RAISED}; border: 2px solid {Accent.PRIMARY}; border-radius: 4px; }}
-            QCheckBox::indicator:checked {{ background: {Accent.PRIMARY}; image: none; }}
+            QCheckBox {{
+                spacing: 0px;
+            }}
+            QCheckBox::indicator {{ 
+                width: 14px; 
+                height: 14px; 
+                background: {Surface.RAISED}; 
+                border: 1px solid {Accent.PRIMARY}; 
+                border-radius: 3px; 
+            }}
+            QCheckBox::indicator:checked {{ 
+                background: {Accent.PRIMARY}; 
+                image: none; 
+            }}
         """)
         self.chk_perf_render.stateChanged.connect(lambda state: self.apply_performatic_mode(state == 2))
-        layout.addWidget(self.chk_perf_render)
+        
+        lbl_perf = QLabel("LEVE")
+        lbl_perf.setAlignment(Qt.AlignCenter)
+        lbl_perf.setStyleSheet(f"color: {Accent.PRIMARY}; font-size: 8px; font-weight: bold;")
+        
+        # Centralizar a checkbox no layout
+        chk_wrapper = QHBoxLayout()
+        chk_wrapper.setContentsMargins(0, 0, 0, 0)
+        chk_wrapper.setAlignment(Qt.AlignCenter)
+        chk_wrapper.addWidget(self.chk_perf_render)
+        
+        perf_layout.addLayout(chk_wrapper)
+        perf_layout.addWidget(lbl_perf)
+
+        layout.addWidget(self.chk_perf_container)
         layout.addWidget(vsep())
         
         b_select = QPushButton("SEL")
