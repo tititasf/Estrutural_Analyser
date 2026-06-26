@@ -797,10 +797,13 @@ class MainWindow(QMainWindow):
         # Reverse sync: SA sidebar combo de obras
         if hasattr(self, 'sa_cmb_obras'):
             sa_idx = self.sa_cmb_obras.findText(work_name)
-            if sa_idx >= 0 and self.sa_cmb_obras.currentIndex() != sa_idx:
+            if sa_idx >= 0:
                 self.sa_cmb_obras.blockSignals(True)
                 self.sa_cmb_obras.setCurrentIndex(sa_idx)
                 self.sa_cmb_obras.blockSignals(False)
+            # Sempre repopula os pavimentos do SA ao mudar obra (sinal foi bloqueado)
+            if hasattr(self, '_sa_populate_pavimentos'):
+                self._sa_populate_pavimentos(work_name)
 
         # Auto-selecionar primeiro pavimento (blockSignals impediu que currentIndexChanged fosse emitido)
         if self.cmb_pavements.count() > 0:
@@ -1467,6 +1470,11 @@ class MainWindow(QMainWindow):
         self.sa_cmb_pavimentos.currentIndexChanged.connect(lambda _: _on_sa_pav_changed())
         self.sa_edit_nivel_cheg.editingFinished.connect(_on_sa_nivel_cheg)
         self.sa_edit_nivel_saida.editingFinished.connect(_on_sa_nivel_saida)
+
+        # Popula pavimentos para a obra já selecionada no combo (items foram adicionados
+        # antes da conexão do sinal, então currentIndexChanged nunca disparou)
+        if self.sa_cmb_obras.count() > 0:
+            _on_sa_obra_changed()
 
         # ── Separador visual ──────────────────────────────────────────────────
         _sep = QFrame()
@@ -3067,6 +3075,9 @@ class MainWindow(QMainWindow):
         # Seleção de item → carregar DXF N3 existente
         self.robo_fundo.item_loaded.connect(self._on_fv_item_loaded)
 
+        # Salvar segmento → regenerar DXF com dados override
+        self.robo_fundo.save_done.connect(self._on_fv_save_done)
+
         # Debounce: edição de campos → regenerar DXF → recarregar viewer (1.5s)
         self._fv_regen_timer = QTimer(self)
         self._fv_regen_timer.setSingleShot(True)
@@ -3102,6 +3113,59 @@ class MainWindow(QMainWindow):
                 return item_nome, -1
         return item_nome, -1
 
+    def _fv_override_dir(self, obra: str) -> Path:
+        return Path('D:/Agente-cad-PYSIDE/DADOS-OBRAS') / obra / 'Fase-6_Execucao_CAD' / 'fundo_override'
+
+    def _fv_write_override_from_ui(self, obra: str, base_nome: str, seg_idx: int):
+        """Escreve override JSON com dados atuais da UI para regeneração DXF em tempo real."""
+        try:
+            import re as _re, json as _js
+            robo = self.robo_fundo
+
+            def _f(v):
+                try: return float(str(v).replace(',', '.'))
+                except: return 0.0
+
+            paineis_raw = [pf.text() for pf in robo.paineis_fields]
+            panels_ui = [{'width': _f(w)} for w in paineis_raw if _f(w) > 0]
+            seg_total_w = _f(robo.fields['largura'].text())
+            b_val = _f(robo.fields['altura'].text()) or 14.0
+
+            # Pavimento atual no combo do robo
+            combo_pav = robo.combo_pavimento
+            pav = combo_pav.currentData() or combo_pav.currentText()
+
+            # Buscar todos os segmentos do fundos_salvos para mesclar o editado
+            obra_dict = robo.fundos_salvos.get(obra, {}).get(pav, {})
+            viga_dados = next(
+                (vd for vd in obra_dict.values() if isinstance(vd, dict) and vd.get('nome', '') == base_nome),
+                None
+            )
+            segs = list(viga_dados.get('segments_rich', []) if viga_dados else [])
+
+            # Sobrepor o segmento editado com valores da UI
+            while len(segs) <= seg_idx:
+                segs.append({})
+            segs[seg_idx] = {'total_width': seg_total_w, 'panels': panels_ui}
+
+            m = _re.search(r'\d+', base_nome)
+            if not m:
+                return
+            n = int(m.group())
+            override_dir = self._fv_override_dir(obra)
+            override_dir.mkdir(parents=True, exist_ok=True)
+            (override_dir / f'V{n:03d}_fundo.json').write_text(
+                _js.dumps({'total_width': b_val, 'segments_rich': segs}, ensure_ascii=False, indent=2),
+                encoding='utf-8')
+            self.log(f'[FV] Override escrito para {base_nome} seg{seg_idx}')
+        except Exception as e:
+            self.log(f'[FV] Erro ao escrever override da UI: {e}')
+
+    def _on_fv_save_done(self, item_nome: str):
+        """Após salvar segmento/viga no robô: regenera DXF com dados do override."""
+        self._fv_regen_timer.stop()
+        self._fv_gerar_e_carregar(item_nome, use_override=True)
+
     def _on_fv_item_loaded(self, item_nome: str):
         """Ao selecionar item no robô FV: carrega DXF N3 no viewer."""
         self._fv_current_item = item_nome
@@ -3127,7 +3191,7 @@ class MainWindow(QMainWindow):
         self.log(f"[FV Viewer] DXF não encontrado para {item_nome} em {obra} — gerando")
         self._fv_gerar_e_carregar(item_nome)
 
-    def _fv_gerar_e_carregar(self, item_nome: str):
+    def _fv_gerar_e_carregar(self, item_nome: str, use_override: bool = False):
         """Gera DXF N3 para o item (ou segmento) e carrega no viewer."""
         obra = self._fv_obra_atual()
         base_nome, seg_idx = self._fv_parse_item(item_nome)
@@ -3137,6 +3201,10 @@ class MainWindow(QMainWindow):
             if idx >= 0:
                 self.cmb_works.setCurrentIndex(idx)
         extra = ['--seg_idx', str(seg_idx)] if seg_idx >= 0 else []
+        if obra:
+            override_dir = self._fv_override_dir(obra)
+            if use_override or override_dir.exists():
+                extra += ['--override_dir', str(override_dir)]
         self._run_robo_dxf(
             'FV', 'gerar_fv_dxf_stog.py',
             item_id=base_nome, open_canvas=False,
@@ -3145,12 +3213,20 @@ class MainWindow(QMainWindow):
         )
 
     def _on_fv_fields_regen(self):
-        """Ao editar campos do robô FV: regera DXF e atualiza viewer + N3."""
+        """Ao editar campos do robô FV: escreve override da UI, regera DXF e atualiza viewer."""
         item = self._fv_current_item
         if not item:
             return
+        obra = self._fv_obra_atual()
         base_nome, seg_idx = self._fv_parse_item(item)
+        # Escrever override com valores atuais da UI para que a geração use eles
+        if obra and seg_idx >= 0:
+            self._fv_write_override_from_ui(obra, base_nome, seg_idx)
         extra = ['--seg_idx', str(seg_idx)] if seg_idx >= 0 else []
+        if obra:
+            override_dir = self._fv_override_dir(obra)
+            if override_dir.exists():
+                extra += ['--override_dir', str(override_dir)]
         self._run_robo_dxf(
             'FV', 'gerar_fv_dxf_stog.py',
             item_id=base_nome, open_canvas=False,

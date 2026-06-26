@@ -560,6 +560,8 @@ class FloatingComment(QDialog):
 class FundoMainWindow(QMainWindow):
     # Emitido ao selecionar item na lista — carrega DXF N3 no viewer integrado
     item_loaded = Signal(str)
+    # Emitido após salvar viga/segmento — formato "V301|seg0" ou "V301"
+    save_done = Signal(str)
 
     def log(self, message):
         print(f"[{datetime.now().strftime('%H:%M:%S')}] {message}")
@@ -625,13 +627,26 @@ class FundoMainWindow(QMainWindow):
         self.btn_gerar_conjunto.clicked.connect(self.generate_conjunto_scripts)
         self.btn_gerar_pavimento.clicked.connect(self.generate_pavimento_scripts)
         
-        # Auto calculations
+        # Auto calculations (largura/altura)
         for field in [self.fields['largura'], self.fields['altura']]:
             field.textChanged.connect(self.update_calculations)
-        
+
         self.rad_122.toggled.connect(self.update_calculations)
         self.rad_307.toggled.connect(self.update_calculations)
-        
+
+        # Timer de debounce para atualizar o canvas ao editar painéis/chanfros (80ms)
+        self._canvas_update_timer = QTimer(self)
+        self._canvas_update_timer.setSingleShot(True)
+        self._canvas_update_timer.setInterval(80)
+        self._canvas_update_timer.timeout.connect(self.update_canvas)
+        for pf in self.paineis_fields:
+            pf.textChanged.connect(self._canvas_update_timer.start)
+        for cf in self.chanfros_fields:
+            cf.textChanged.connect(self._canvas_update_timer.start)
+        for row in self.aberturas_fields:
+            for af in row:
+                af.textChanged.connect(self._canvas_update_timer.start)
+
         # AutoCAD selector integration
         self.fields['numero'].mouseDoubleClickEvent = lambda e: self.select_from_autocad('numero')
         self.fields['nome'].mouseDoubleClickEvent = lambda e: self.select_from_autocad('nome')
@@ -2457,47 +2472,6 @@ ferramentas_LOAD_LISP
         diag = ConfigDialog(self.config_manager, self)
         diag.exec()
 
-    def update_list(self):
-        """Atualiza a lista de fundos filtrando por obra e pavimento atuais"""
-        self.tree_fundos.clear()
-        total_m2 = 0
-        
-        obra_atual = self.combo_obra.currentText()
-        pav_atual = _cmb_pav_raw(self.combo_pavimento)
-        
-        if obra_atual and pav_atual and obra_atual in self.fundos_salvos and pav_atual in self.fundos_salvos[obra_atual]:
-            items_dict = self.fundos_salvos[obra_atual][pav_atual]
-            for num, dados in items_dict.items():
-                m2 = float_safe(dados.get('m2', 0))
-                total_m2 += m2
-                item = QTreeWidgetItem([str(num), dados.get('nome', ''), dados.get('pavimento', ''), f"{m2:.4f}"])
-                # Armazenar número e dados no item para facilitar exclusão
-                item.setData(0, Qt.UserRole, num)
-                item.setData(0, Qt.UserRole + 1, obra_atual)
-                item.setData(0, Qt.UserRole + 2, pav_atual)
-                item.setData(0, Qt.UserRole + 3, -1)  # -1 = viga inteira
-                self.tree_fundos.addTopLevelItem(item)
-                # Filhos: um por segmento em segments_rich
-                segs = dados.get('segments_rich', [])
-                for seg_i, seg in enumerate(segs):
-                    sw = float_safe(seg.get('total_width', seg.get('width', 0)))
-                    np_seg = len(seg.get('panels', []))
-                    seg_item = QTreeWidgetItem([
-                        f"  S{seg_i + 1}",
-                        f"{dados.get('nome', 'V' + str(num))} Seg {seg_i + 1}",
-                        '',
-                        f"{sw:.1f}cm / {np_seg}P",
-                    ])
-                    seg_item.setData(0, Qt.UserRole,     num)
-                    seg_item.setData(0, Qt.UserRole + 1, obra_atual)
-                    seg_item.setData(0, Qt.UserRole + 2, pav_atual)
-                    seg_item.setData(0, Qt.UserRole + 3, seg_i)
-                    item.addChild(seg_item)
-                if segs:
-                    item.setExpanded(True)
-        
-        self.label_total_m2.setText(f"Total M²: {total_m2:.2f}")
-
     def get_current_data(self):
         """Coleta todos os dados atuais da interface para um dicionário."""
         paineis = [f.text() for f in self.paineis_fields]
@@ -2616,12 +2590,20 @@ ferramentas_LOAD_LISP
             ]
             self.fundos_salvos[obra][pav][str(num)] = viga_dados
             self.save_data()
+            # Escrever override JSON para que a regeneração DXF use os dados editados
+            self._write_fv_override_json(obra, str(num))
             self.update_list()
+            # Emitir sinal para main.py regenerar o DXF com os dados atualizados
+            nome_viga = viga_dados.get('nome', f'V{num}')
+            self.save_done.emit(f"{nome_viga}|seg{seg_idx}")
             QMessageBox.information(self, "Sucesso", f"Segmento {seg_idx + 1} da viga {num} salvo!")
         else:
             self.fundos_salvos[obra][pav][num] = dados
             self.save_data()
+            # Escrever override JSON para viga inteira (com todos os segmentos)
+            self._write_fv_override_json(obra, str(num))
             self.update_list()
+            self.save_done.emit(dados.get('nome', str(num)))
             QMessageBox.information(self, "Sucesso", f"Fundo {num} salvo em {obra}/{pav}!")
 
     def action_analisar_boundary(self):
@@ -3734,87 +3716,160 @@ DETALHES DAS ABERTURAS MAPEADAS:"""
         self.sync_n3_fundos_to_current_context()
         self.update_list()
 
+    def _try_load_segments_from_n3(self, obra: str, nome: str) -> list:
+        """Lê segments_rich do JSON Fase-4 (V*_fundo.json) para uma viga FV."""
+        try:
+            m = re.search(r'\d+', nome)
+            if not m:
+                return []
+            n = int(m.group())
+            n3_dir = self._n3_fv_dir_for_obra(obra)
+            for fname in (f'V{n:03d}_fundo.json', f'V{n}_fundo.json'):
+                p = n3_dir / fname
+                if p.exists():
+                    import json as _j
+                    d = _j.loads(p.read_text(encoding='utf-8'))
+                    segs = d.get('segments_rich', d.get('panels', []))
+                    if segs and isinstance(segs, list):
+                        return segs
+        except Exception as e:
+            print(f'[FV] Erro ao ler N3 JSON para {nome}: {e}')
+        return []
+
+    def _ensure_segments_loaded(self, obra: str, pav: str):
+        """Garante que todos os itens do pav atual tenham segments_rich carregados (sem recursão)."""
+        if not obra or not pav or pav == 'Todos':
+            return
+        items = self.fundos_salvos.get(obra, {}).get(pav, {})
+        changed = False
+        for num_key, viga_data in items.items():
+            if isinstance(viga_data, dict) and not viga_data.get('segments_rich'):
+                nome = viga_data.get('nome', '')
+                segs = self._try_load_segments_from_db(obra, nome) or self._try_load_segments_from_n3(obra, nome)
+                if segs:
+                    viga_data['segments_rich'] = segs
+                    changed = True
+        if changed:
+            self.save_data()
+
+    def _write_fv_override_json(self, obra: str, num_key: str):
+        """Escreve JSON override em Fase-6 para que gerar_fv_dxf_stog.py use dados editados."""
+        try:
+            pav = _cmb_pav_raw(self.combo_pavimento)
+            viga_dados = self.fundos_salvos.get(obra, {}).get(pav, {}).get(str(num_key), {})
+            segs = viga_dados.get('segments_rich', [])
+            nome = viga_dados.get('nome', '')
+            m = re.search(r'\d+', nome)
+            if not m or not segs:
+                return
+            n = int(m.group())
+            override_dir = (Path('D:/Agente-cad-PYSIDE/DADOS-OBRAS') / obra
+                            / 'Fase-6_Execucao_CAD' / 'fundo_override')
+            override_dir.mkdir(parents=True, exist_ok=True)
+            # Formato compatível com Fase-4 JSON
+            b_val = float_safe(viga_dados.get('altura', '14'))
+            override_data = {
+                'total_width': b_val,
+                'segments_rich': segs,
+                'observations': viga_dados.get('obs', ''),
+            }
+            import json as _j
+            (override_dir / f'V{n:03d}_fundo.json').write_text(
+                _j.dumps(override_data, ensure_ascii=False, indent=2), encoding='utf-8')
+            print(f'[FV] Override JSON: V{n:03d}_fundo.json em {override_dir}')
+        except Exception as e:
+            print(f'[FV] Erro ao escrever override JSON: {e}')
+
     def update_list(self):
-        self.tree_fundos.clear()
-        total_m2 = 0
-        
         current_obra = self.combo_obra.currentText()
         current_pav = _cmb_pav_raw(self.combo_pavimento)
 
+        # Garantir segments_rich carregados antes de popular a árvore
+        self._ensure_segments_loaded(current_obra, current_pav)
+
+        self.tree_fundos.clear()
+        total_m2 = 0
+
         # Filtros
         if not current_obra or current_obra not in self.fundos_salvos: return
-        
+
         # Coletar itens baseado no pavimento selecionado
         items_to_process = []
         if current_pav == "Todos":
-             # Todos os pavimentos da obra atual
              for pav_name, items_dict in self.fundos_salvos[current_obra].items():
                  for num, dados in items_dict.items():
-                     items_to_process.append((num, dados))
+                     items_to_process.append((num, dados, pav_name))
         else:
-             # Pavimento específico
              items_pav = self.fundos_salvos[current_obra].get(current_pav, {})
              for num, dados in items_pav.items():
-                 items_to_process.append((num, dados))
+                 items_to_process.append((num, dados, current_pav))
 
         # Agrupamento (Clusters)
-        clusters = {} # Chave -> [Items]
-        
-        for num, dados in items_to_process:
+        clusters = {}
+
+        for num, dados, pav_item in items_to_process:
             m2 = float_safe(dados.get('m2', 0))
             total_m2 += m2
-            
-            # Lógica de Cluster / Classes (suporta formato simplificado V1a, V1b, V1c)
+
             parent_name = dados.get('parent_name')
             nome = str(dados.get('nome', ''))
-            key_num = str(num).split('.')[0] # 1.1 -> 1
-            
+            key_num = str(num).split('.')[0]
+
             if parent_name:
                 cluster_key = parent_name
             elif nome.upper().startswith("V"):
-                # Extrair prefixo base (V1 de V1a, V1b, etc)
-                import re
-                match = re.match(r'^([Vv]?\d+[a-zA-Z]*)', nome)
-                if match:
-                    cluster_key = match.group(1)
-                else:
-                    # Fallback: usar nome completo
-                    cluster_key = nome
+                import re as _re
+                match = _re.match(r'^([Vv]?\d+[a-zA-Z]*)', nome)
+                cluster_key = match.group(1) if match else nome
             elif key_num:
-                cluster_key = f"V{key_num}" # Fallback
+                cluster_key = f"V{key_num}"
             else:
                 cluster_key = "Outros"
-                
-            if cluster_key not in clusters: clusters[cluster_key] = []
-            clusters[cluster_key].append((num, dados, m2))
 
+            if cluster_key not in clusters: clusters[cluster_key] = []
+            clusters[cluster_key].append((num, dados, m2, pav_item))
 
         # Adicionar à Tree
-        import re
+        import re as _re2
         def natural_key(text):
             if not text: return []
-            return [int(c) if c.isdigit() else c.lower() for c in re.split(r'(\d+)', str(text))]
+            return [int(c) if c.isdigit() else c.lower() for c in _re2.split(r'(\d+)', str(text))]
 
         for cluster_name in sorted(clusters.keys(), key=natural_key):
             items = clusters[cluster_name]
-            
-            # Criar Parent Item
+
             parent = QTreeWidgetItem([cluster_name, "", "", ""])
             parent.setBackground(0, QBrush(QColor("#333")))
             parent.setExpanded(True)
             self.tree_fundos.addTopLevelItem(parent)
-            
-            for num, dados, m2 in sorted(items, key=lambda x: natural_key(x[0])): # Sort by num (Natural)
-                child = QTreeWidgetItem([str(num), dados.get('nome', ''), dados.get('pavimento', ''), f"{m2:.4f}"])
-                # Armazenar número, obra e pavimento para facilitar exclusão
-                child.setData(0, Qt.UserRole, str(num))  # Guardar a chave original (numero)
-                child.setData(0, Qt.UserRole + 1, current_obra)  # Obra
-                # Obter pavimento do dado ou do contexto atual
-                pav_item = dados.get('pavimento', current_pav)
-                child.setData(0, Qt.UserRole + 2, pav_item)  # Pavimento
+
+            for num, dados, m2, pav_item in sorted(items, key=lambda x: natural_key(x[0])):
+                nome_viga = dados.get('nome', str(num))
+                child = QTreeWidgetItem([str(num), nome_viga, dados.get('pavimento', ''), f"{m2:.4f}"])
+                child.setData(0, Qt.UserRole,     str(num))
+                child.setData(0, Qt.UserRole + 1, current_obra)
+                child.setData(0, Qt.UserRole + 2, pav_item)
+                child.setData(0, Qt.UserRole + 3, -1)  # -1 = viga inteira
                 parent.addChild(child)
 
-
+                # Filhos: um por segmento em segments_rich
+                segs = dados.get('segments_rich', [])
+                for seg_i, seg in enumerate(segs):
+                    sw = float_safe(seg.get('total_width', seg.get('width', 0)))
+                    np_seg = len(seg.get('panels', []))
+                    seg_child = QTreeWidgetItem([
+                        f"  S{seg_i + 1}",
+                        f"{nome_viga} Seg {seg_i + 1}",
+                        '',
+                        f"{sw:.1f}cm / {np_seg}P",
+                    ])
+                    seg_child.setData(0, Qt.UserRole,     str(num))
+                    seg_child.setData(0, Qt.UserRole + 1, current_obra)
+                    seg_child.setData(0, Qt.UserRole + 2, pav_item)
+                    seg_child.setData(0, Qt.UserRole + 3, seg_i)
+                    child.addChild(seg_child)
+                if segs:
+                    child.setExpanded(True)
 
         self.label_total_m2.setText(f"Total M²: {total_m2:.2f}")
 
@@ -4253,15 +4308,18 @@ DETALHES DAS ABERTURAS MAPEADAS:"""
         QApplication.processEvents()
 
     def update_calculations(self):
-        # Triggered when width/height changes
-        largura = float_safe(self.fields['largura'].text())
-        if largura > 0:
-            # Mock de cálculo automático de painéis
-            paineis = [largura/2, largura/2, 0, 0, 0, 0] # Simplificado
-            for i, val in enumerate(paineis):
-                if i < len(self.paineis_fields):
-                    self.paineis_fields[i].setText(str(round(val, 2)))
-        
+        # Em modo segmento não resetar painéis — cada segmento tem seus próprios painéis
+        seg_idx = getattr(self, '_current_seg_idx', -1)
+        if seg_idx is None:
+            seg_idx = -1
+        if seg_idx < 0:
+            # Apenas no modo viga inteira: sugerir divisão automática
+            largura = float_safe(self.fields['largura'].text())
+            if largura > 0:
+                paineis = [largura / 2, largura / 2, 0, 0, 0, 0]
+                for i, val in enumerate(paineis):
+                    if i < len(self.paineis_fields):
+                        self.paineis_fields[i].setText(str(round(val, 2)))
         self.update_canvas()
 
     def update_canvas(self):

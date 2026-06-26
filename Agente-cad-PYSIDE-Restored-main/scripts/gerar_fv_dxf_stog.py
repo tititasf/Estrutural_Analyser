@@ -693,6 +693,9 @@ def main():
                         help='Gerar só esta viga (ex: V001). Output: FV_preview_V001.dxf')
     parser.add_argument('--seg_idx', type=int, default=-1,
                         help='Com --item: gera só o segmento N (0-based). Output: FV_preview_V001_segN.dxf')
+    parser.add_argument('--override_dir', type=str, default=None,
+                        help='Diretório com JSONs override (V*_fundo.json) editados manualmente. '
+                             'Sobrepõe segments_rich do JSON da Fase-4 quando presente.')
     args = parser.parse_args()
 
     obra_path = Path(args.obra)
@@ -728,6 +731,7 @@ def main():
         print(f'[ERRO] Nenhum V*_fundo.json em {fv_dir}'); return
 
     # -- Load vigas ------------------------------------------------------------
+    override_dir_path = Path(args.override_dir) if args.override_dir else None
     vigas_raw = []
     for f in fv_files:
         try:
@@ -735,6 +739,19 @@ def main():
         except (json.JSONDecodeError, OSError) as e:
             print(f'[ERRO] JSON inválido ou ilegível: {f.name} — {e}')
             continue
+        # Aplicar override manual se existir
+        if override_dir_path:
+            override_f = override_dir_path / f.name
+            if override_f.exists():
+                try:
+                    d_ov = json.loads(override_f.read_text(encoding='utf-8'))
+                    if 'segments_rich' in d_ov:
+                        d['segments_rich'] = d_ov['segments_rich']
+                    if 'total_width' in d_ov and d_ov['total_width'] > 0:
+                        d['total_width'] = d_ov['total_width']
+                    print(f'[FV] Override aplicado: {override_f.name}')
+                except Exception as _ov_e:
+                    print(f'[FV] Override inválido {override_f.name}: {_ov_e}')
         vname  = re.sub(r'_fundo', '', f.stem, flags=re.IGNORECASE)
         # Priority: extracted formwork width (total_width), then vigas_salvas
         v_b = d.get('total_width')
