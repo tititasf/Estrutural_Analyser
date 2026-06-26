@@ -136,6 +136,48 @@ def _infer_cls_from_filename(fname: str) -> str:
     if _re.search(r'[-\s]PL[-\s.]|[-\s]PL$', stem): return "PIL"
     return "OUTROS"
 
+_ELEM_ID_RE: dict = {
+    "PIL": _re.compile(r'(?:^|_)(P\d+)(?:_|$)', _re.IGNORECASE),
+    "LV":  _re.compile(r'(?:^|_)(V\d+)(?:_|$)', _re.IGNORECASE),
+    "FV":  _re.compile(r'(?:^|_)(V\d+)(?:_|$)', _re.IGNORECASE),
+    "LAJ": _re.compile(r'(?:^|_)(L\d+)(?:_|$)', _re.IGNORECASE),
+}
+
+def _extract_elem_id(stem: str, cls: str) -> str:
+    """Extrai elemento_id (ex: 'P18', 'V13') de um stem de filename."""
+    pat = _ELEM_ID_RE.get((cls or "").upper())
+    if not pat:
+        return ""
+    m = pat.search(stem)
+    return m.group(1).upper() if m else ""
+
+
+_exc_mod = None  # cache do módulo exception_registry
+
+def _get_pending_exceptions(cls: str, elem_id: str, pav: str | None = None) -> list:
+    """Retorna exceções G2 PENDENTE para (cls, elem_id). Silencia erros de import."""
+    global _exc_mod
+    if not elem_id:
+        return []
+    if _exc_mod is None:
+        try:
+            import sys as _sys
+            arete_dir = str(Path(__file__).resolve().parent.parent.parent / "scripts" / "arete")
+            if arete_dir not in _sys.path:
+                _sys.path.insert(0, arete_dir)
+            import exception_registry as _exc_mod_tmp
+            _exc_mod = _exc_mod_tmp
+        except Exception:
+            _exc_mod = False
+    if not _exc_mod:
+        return []
+    try:
+        return [e for e in _exc_mod.get_item_exceptions(cls, elem_id, pav)
+                if e.get("status") == "PENDENTE"]
+    except Exception:
+        return []
+
+
 def _obra_name_from_path(path: str | Path) -> str:
     """Resolve obra_name from a path under DADOS-OBRAS."""
     try:
@@ -593,9 +635,17 @@ class _LeftPanel(QFrame):
             
             for (row_id, fname, fpath) in items:
                 label = Path(fname).stem if fname else str(row_id)
-                it = QListWidgetItem(label)
+                elem_id = _extract_elem_id(label, self._current_cls)
+                pending = _get_pending_exceptions(self._current_cls, elem_id)
+                display = ("⚠ " + label) if pending else label
+                it = QListWidgetItem(display)
                 it.setData(Qt.UserRole, (str(row_id), fpath or ""))
-                it.setForeground(color)
+                if pending:
+                    it.setForeground(QColor(Contextual.GOLD))
+                    ids = ", ".join(e["id"] for e in pending)
+                    it.setToolTip(f"Exceção G2 pendente: {ids}")
+                else:
+                    it.setForeground(color)
                 self.lst.addItem(it)
 
     def _on_item_clicked(self, item: QListWidgetItem):
@@ -852,20 +902,9 @@ def _render_ficha_html(data: dict, classe: str = '', confianca: float = 0.0, ele
 
     # Exceções G2 (Arete) pendentes para este item — ver
     # scripts/arete/exception_registry.py e
-    # scripts/arete/relatorios/AR-1prime-canonico/EXCECOES-FRONTEND.md
-    item_exceptions = []
-    if classe and elemento_id:
-        try:
-            import sys as _sys
-            from pathlib import Path as _Path
-            arete_dir = str(_Path(__file__).resolve().parent.parent.parent.parent / "scripts" / "arete")
-            if arete_dir not in _sys.path:
-                _sys.path.insert(0, arete_dir)
-            from exception_registry import get_item_exceptions
-            pavimento = data.get('pavimento') or data.get('floor') or None
-            item_exceptions = get_item_exceptions(classe, elemento_id, pavimento)
-        except Exception:
-            item_exceptions = []
+    # scripts/arete/exception_registry.py — apenas PENDENTE (SUPERSEDED excluído)
+    pavimento = data.get('pavimento') or data.get('floor') or None
+    item_exceptions = _get_pending_exceptions(classe, elemento_id, pavimento) if (classe and elemento_id) else []
 
     exc_badge = ''
     if item_exceptions:

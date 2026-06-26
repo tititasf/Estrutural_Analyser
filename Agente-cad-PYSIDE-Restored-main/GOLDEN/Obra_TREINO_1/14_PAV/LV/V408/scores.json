@@ -1,0 +1,24 @@
+{
+  "g1": {
+    "resultado": "PASS",
+    "campos_comparados": 35,
+    "n_diffs": 0
+  },
+  "g2": {
+    "resultado": "PASS",
+    "scores": {
+      "entidades_ok": true,
+      "geometria_ok": true,
+      "textos_ok": true,
+      "hatches_ok": true,
+      "total_ref": 364,
+      "total_n4": 299
+    },
+    "n_diffs_ent": 0,
+    "n_diffs_geom": 0,
+    "n_diffs_txt": 0
+  },
+  "n4_sha256": "cace10c496a7adffe0c96e91a9f8459ce4c66b548245f40248703d548afc859d",
+  "selado_em": "2026-06-26T19:42:33.223449",
+  "proveniencia": "draft"
+}

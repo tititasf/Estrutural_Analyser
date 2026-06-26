@@ -1,0 +1,38 @@
+         1984 function calls (1952 primitive calls) in 0.018 seconds
+
+   Ordered by: cumulative time
+   List reduced from 136 to 30 due to restriction <30>
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+        1    0.000    0.000    0.018    0.018 D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\scratch\profile_tab_switch.py:14(run)
+        1    0.000    0.000    0.012    0.012 D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\src\ui\widgets\pre_validation_dialog.py:270(__init__)
+        1    0.001    0.001    0.011    0.011 D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\src\ui\widgets\pre_validation_dialog.py:1538(_build_ui)
+        3    0.007    0.002    0.007    0.002 {method 'addTab' of 'PySide6.QtWidgets.QTabWidget' objects}
+      2/1    0.002    0.001    0.003    0.003 {method 'setCurrentIndex' of 'PySide6.QtWidgets.QTabWidget' objects}
+        1    0.001    0.001    0.002    0.002 {method 'findChildren' of 'PySide6.QtCore.QObject' objects}
+       13    0.002    0.000    0.002    0.000 {method 'addWidget' of 'PySide6.QtWidgets.QBoxLayout' objects}
+        1    0.000    0.000    0.001    0.001 D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\src\ui\widgets\pre_validation_dialog.py:1576(_on_tab_changed)
+       13    0.001    0.000    0.001    0.000 {method 'setStyleSheet' of 'PySide6.QtWidgets.QWidget' objects}
+        9    0.000    0.000    0.001    0.000 C:\Python314\Lib\enum.py:677(__call__)
+        1    0.000    0.000    0.001    0.001 D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\src\ui\widgets\pre_validation_dialog.py:1623(_build_header)
+        5    0.000    0.000    0.001    0.000 C:\Python314\Lib\enum.py:824(_create_)
+        1    0.001    0.001    0.001    0.001 {built-in method processEvents}
+        1    0.000    0.000    0.001    0.001 D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\src\ui\widgets\pre_validation_dialog.py:1653(_build_footer)
+        5    0.000    0.000    0.001    0.000 C:\Python314\Lib\enum.py:480(__new__)
+        1    0.000    0.000    0.000    0.000 {method 'removeTab' of 'PySide6.QtWidgets.QTabWidget' objects}
+        1    0.000    0.000    0.000    0.000 D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\src\ui\widgets\pre_validation_dialog.py:354(_build_slab_height_map)
+        4    0.000    0.000    0.000    0.000 D:\Agente-cad-PYSIDE\Agente-cad-PYSIDE-Restored-main\src\ui\widgets\pre_validation_dialog.py:1639(_chip)
+        9    0.000    0.000    0.000    0.000 C:\Python314\Lib\re\__init__.py:174(search)
+     26/8    0.000    0.000    0.000    0.000 {built-in method __new__ of type object at 0x00007FF82CB74D90}
+        9    0.000    0.000    0.000    0.000 C:\Python314\Lib\re\__init__.py:330(_compile)
+        1    0.000    0.000    0.000    0.000 C:\Python314\Lib\re\_compiler.py:757(compile)
+       18    0.000    0.000    0.000    0.000 C:\Python314\Lib\enum.py:239(__set_name__)
+       28    0.000    0.000    0.000    0.000 C:\Python314\Lib\enum.py:342(__setitem__)
+        3    0.000    0.000    0.000    0.000 C:\Python314\Lib\enum.py:1583(__or__)
+        1    0.000    0.000    0.000    0.000 C:\Python314\Lib\re\_parser.py:963(parse)
+      2/1    0.000    0.000    0.000    0.000 C:\Python314\Lib\re\_parser.py:452(_parse_sub)
+        4    0.000    0.000    0.000    0.000 C:\Python314\Lib\enum.py:1146(__new__)
+        1    0.000    0.000    0.000    0.000 C:\Python314\Lib\re\_compiler.py:590(_code)
+        2    0.000    0.000    0.000    0.000 {built-in method singleShot}
+
+

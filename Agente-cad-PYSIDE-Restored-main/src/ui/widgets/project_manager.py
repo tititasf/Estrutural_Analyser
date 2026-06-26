@@ -6111,17 +6111,17 @@ class ProjectManager(QWidget):
     def _make_curadoria_metric_card(self, key, title, subtitle):
         card = QFrame()
         card.setObjectName("CuradoriaMetricCard")
-        card.setMinimumHeight(92)
+        card.setMinimumHeight(78)
         card.setStyleSheet(_resolve_css("""
             #CuradoriaMetricCard {
-                background: {Colors.BG_CARD};
+                background: {Colors.BG_PANEL};
                 border: 1px solid {Colors.BORDER_DEFAULT};
                 border-radius: 6px;
             }
         """))
         layout = QVBoxLayout(card)
-        layout.setContentsMargins(12, 10, 12, 10)
-        layout.setSpacing(4)
+        layout.setContentsMargins(12, 8, 12, 8)
+        layout.setSpacing(3)
 
         title_label = QLabel(title)
         title_label.setStyleSheet(f"font-size: 10px; font-weight: bold; color: {Colors.TEXT_SECONDARY};")
@@ -6138,6 +6138,42 @@ class ProjectManager(QWidget):
         self._curadoria_metric_labels[key] = value_label
         return card
 
+    def _make_curadoria_compact_metric_card(self, key, title, subtitle):
+        card = QFrame()
+        card.setObjectName("CuradoriaCompactMetricCard")
+        card.setFixedHeight(64)
+        card.setStyleSheet(_resolve_css("""
+            #CuradoriaCompactMetricCard {
+                background: {Colors.BG_PANEL};
+                border: 1px solid {Colors.BORDER_DEFAULT};
+                border-radius: 6px;
+            }
+        """))
+        layout = QHBoxLayout(card)
+        layout.setContentsMargins(12, 8, 12, 8)
+        layout.setSpacing(10)
+
+        value_label = QLabel("-")
+        value_label.setMinimumWidth(44)
+        value_label.setAlignment(Qt.AlignCenter)
+        value_label.setStyleSheet(f"font-size: 20px; font-weight: bold; color: {Colors.ACCENT_PRIMARY};")
+        value_label.setTextInteractionFlags(Qt.TextSelectableByMouse)
+
+        text_box = QVBoxLayout()
+        text_box.setSpacing(2)
+        title_label = QLabel(title)
+        title_label.setStyleSheet(f"font-size: 11px; font-weight: bold; color: {Colors.TEXT_BRIGHT};")
+        subtitle_label = QLabel(subtitle)
+        subtitle_label.setWordWrap(True)
+        subtitle_label.setStyleSheet(f"font-size: 10px; color: {Colors.TEXT_SECONDARY};")
+        text_box.addWidget(title_label)
+        text_box.addWidget(subtitle_label)
+
+        layout.addWidget(value_label)
+        layout.addLayout(text_box, 1)
+        self._curadoria_metric_labels[key] = value_label
+        return card
+
     def _make_curadoria_table(self, key, headers):
         table = QTableWidget(0, len(headers))
         table.setHorizontalHeaderLabels(headers)
@@ -6145,11 +6181,90 @@ class ProjectManager(QWidget):
         table.setSelectionBehavior(QAbstractItemView.SelectRows)
         table.setAlternatingRowColors(True)
         table.verticalHeader().setVisible(False)
+        table.setShowGrid(False)
+        table.setWordWrap(False)
+        table.verticalHeader().setDefaultSectionSize(34)
         table.horizontalHeader().setStretchLastSection(True)
         for idx in range(len(headers)):
             table.horizontalHeader().setSectionResizeMode(idx, QHeaderView.Stretch)
+        table.setStyleSheet(_resolve_css("""
+            QTableWidget {
+                background: {Colors.BG_DEEP};
+                alternate-background-color: {Colors.BG_PANEL};
+                color: {Colors.TEXT_PRIMARY};
+                border: 1px solid {Colors.BORDER_DEFAULT};
+                border-radius: 6px;
+                gridline-color: transparent;
+                selection-background-color: rgba(0, 212, 255, 34);
+                selection-color: {Colors.TEXT_BRIGHT};
+            }
+            QTableWidget::item {
+                padding: 7px 10px;
+                border-bottom: 1px solid {Colors.BORDER_SUBTLE};
+            }
+            QTableWidget::item:hover {
+                background: rgba(0, 212, 255, 22);
+            }
+            QHeaderView::section {
+                background: {Colors.BG_SURFACE};
+                color: {Colors.TEXT_SECONDARY};
+                border: none;
+                border-bottom: 2px solid {Colors.ACCENT_PRIMARY};
+                padding: 7px 10px;
+                font-size: 10px;
+                font-weight: bold;
+            }
+        """))
         self._curadoria_tables[key] = table
         return table
+
+    def _make_training_cycle_card(self, code, title, subtitle, body, accent):
+        card = QFrame()
+        card.setObjectName("TrainingCycleCard")
+        card.setMinimumHeight(148)
+        card.setStyleSheet(f"""
+            QFrame#TrainingCycleCard {{
+                background: {Colors.BG_CARD};
+                border: 1px solid {Colors.BORDER_DEFAULT};
+                border-top: 3px solid {accent};
+                border-radius: 6px;
+            }}
+        """)
+        layout = QVBoxLayout(card)
+        layout.setContentsMargins(12, 10, 12, 10)
+        layout.setSpacing(7)
+
+        top = QHBoxLayout()
+        top.setSpacing(8)
+        badge = QLabel(code)
+        badge.setFixedHeight(22)
+        badge.setAlignment(Qt.AlignCenter)
+        badge.setStyleSheet(f"""
+            QLabel {{
+                background: {accent};
+                color: #050505;
+                border-radius: 4px;
+                padding: 2px 8px;
+                font-size: 10px;
+                font-weight: bold;
+            }}
+        """)
+        title_label = QLabel(title)
+        title_label.setStyleSheet(f"font-size: 13px; font-weight: bold; color: {Colors.TEXT_BRIGHT};")
+        title_label.setWordWrap(True)
+        top.addWidget(badge)
+        top.addWidget(title_label, 1)
+        layout.addLayout(top)
+
+        subtitle_label = QLabel(subtitle)
+        subtitle_label.setWordWrap(True)
+        subtitle_label.setStyleSheet(f"font-size: 10px; color: {Colors.ACCENT_PRIMARY}; font-weight: 600;")
+        body_label = QLabel(body)
+        body_label.setWordWrap(True)
+        body_label.setStyleSheet(f"font-size: 11px; color: {Colors.TEXT_PRIMARY}; line-height: 135%;")
+        layout.addWidget(subtitle_label)
+        layout.addWidget(body_label, 1)
+        return card
 
     def _build_curadoria_map_tab(self):
         page, layout = self._make_curadoria_scroll_page()
@@ -6299,7 +6414,7 @@ class ProjectManager(QWidget):
         ))
 
         grid = QGridLayout()
-        grid.setSpacing(10)
+        grid.setSpacing(8)
         for index, args in enumerate([
             ("train_docs_arete", "Docs Arete", "Masterplans e docs de treino encontrados."),
             ("train_scripts", "Loopers/Scripts", "Scripts de loop, runner e auditoria Arete."),
@@ -6307,41 +6422,79 @@ class ProjectManager(QWidget):
             ("train_crop_events", "CROP-T1", "Recortes aprovados que ensinam crop por classe."),
             ("train_human_notes", "Notas humanas", "Alertas/atencoes humanas registrados para revisao."),
         ]):
-            grid.addWidget(self._make_curadoria_metric_card(*args), index // 5, index % 5)
+            grid.addWidget(self._make_curadoria_compact_metric_card(*args), index // 5, index % 5)
         layout.addLayout(grid)
 
-        map_text = QTextEdit()
-        map_text.setReadOnly(True)
-        map_text.setMinimumHeight(220)
-        map_text.setPlainText(
-            "CICLO CROP - aprender a recortar\n"
-            "  Recorte aprovado -> crop_learning_events -> perfis por classe/layer/pavimento -> proximo recorte melhor.\n"
-            "  Aprovar recorte nao valida F5/N2 nem N4; valida somente que a janela/seleção estava correta.\n\n"
-            "CICLO A - N2 -> N4 (engenharia reversa)\n"
-            "  STOG humano + recorte correto -> motor_reverso_* gera F5/N2 -> robo gera N4 -> Comparison valida visualmente.\n"
-            "  O aprendizado melhora extrator reverso, leitura de layers/campos e gerador N4 daquela classe.\n\n"
-            "CICLO B - N2 <-> N1 (interpretacao estrutural)\n"
-            "  F5/N2 validado atua como professor externo; F7/N1 do Structural Analyzer e comparado campo a campo.\n"
-            "  O aprendizado melhora interpretacao do SA e conversao N1 -> ficha de robo, sem copiar gabarito.\n\n"
-            "CICLO C - N1 -> N3 (producao)\n"
-            "  N1 gera N3 sozinho. N4 validado e juiz visual/semantico externo. Se N3 ~= N4 sem vazamento, o motor evoluiu.\n"
-            "  N3 nunca pode receber dados de N2/N4 como entrada; eles so julgam o resultado.\n\n"
-            "RAG/DADOS\n"
-            "  RAG nao e o treinador. Ele e memoria consultavel: regras, exemplos T1/T2, notas e historico.\n"
-            "  O treino escreve eventos auditaveis; consultas leem apenas conhecimento confiavel. T0 fica em quarentena; TX fica revogado."
-        )
-        map_text.setStyleSheet(_resolve_css("""
-            QTextEdit {
-                background: {Colors.BG_CARD};
-                color: {Colors.TEXT_PRIMARY};
+        flow = QGridLayout()
+        flow.setSpacing(10)
+        cycle_cards = [
+            (
+                "CROP",
+                "Aprender a recortar",
+                "Professor: recorte aprovado",
+                "Ajusta janela, margem, classe, layers e falsos positivos. Nao valida ficha F5/N2 nem desenho N4.",
+                Colors.ACCENT_SUCCESS,
+            ),
+            (
+                "A",
+                "N2 -> N4",
+                "Professor: STOG humano + F5 validada",
+                "Treina motor reverso e robo N4 ate o DXF gerado reproduzir o desenho humano validado.",
+                Colors.ACCENT_PURPLE,
+            ),
+            (
+                "B",
+                "N2 <-> N1",
+                "Professor externo: N2/F5",
+                "Treina interpretacao do Structural Analyzer e o mapeamento N1 -> ficha de robo, sem copiar gabarito.",
+                Colors.ACCENT_BLUE,
+            ),
+            (
+                "C",
+                "N1 -> N3",
+                "Juiz externo: N4 validado",
+                "N1 gera N3 sozinho. Comparison Engine mede N3 contra N4 e bloqueia qualquer vazamento de N2/N4.",
+                Colors.ACCENT_WARNING,
+            ),
+            (
+                "NOTAS",
+                "Humano no loop",
+                "Professor: decisao e atencao humana",
+                "Aprovacao, rejeicao, N/A, desvalidacao e notas viram eventos auditaveis antes de qualquer regra global.",
+                Colors.ACCENT_INFO,
+            ),
+        ]
+        for index, args in enumerate(cycle_cards):
+            flow.addWidget(self._make_training_cycle_card(*args), index // 3, index % 3)
+        layout.addLayout(flow)
+
+        contract = QFrame()
+        contract.setObjectName("TrainingContract")
+        contract.setStyleSheet(_resolve_css("""
+            QFrame#TrainingContract {
+                background: {Colors.BG_PANEL};
                 border: 1px solid {Colors.BORDER_DEFAULT};
                 border-radius: 6px;
-                padding: 10px;
-                font-family: Consolas, monospace;
-                font-size: 11px;
             }
         """))
-        layout.addWidget(map_text)
+        contract_layout = QHBoxLayout(contract)
+        contract_layout.setContentsMargins(14, 10, 14, 10)
+        contract_layout.setSpacing(16)
+        for title, body, color in [
+            ("RAG", "Memoria consultavel. Nao e o treinador.", Colors.ACCENT_PRIMARY),
+            ("Tiers", "T0 quarentena | T1 validado | T2 consolidado | TX revogado.", Colors.ACCENT_GOLD),
+            ("Anti-vazamento", "N3 nunca recebe N2/N4 como entrada.", Colors.ACCENT_DANGER),
+        ]:
+            box = QVBoxLayout()
+            label = QLabel(title)
+            label.setStyleSheet(f"font-size: 12px; font-weight: bold; color: {color};")
+            text = QLabel(body)
+            text.setWordWrap(True)
+            text.setStyleSheet(f"font-size: 11px; color: {Colors.TEXT_PRIMARY};")
+            box.addWidget(label)
+            box.addWidget(text)
+            contract_layout.addLayout(box, 1)
+        layout.addWidget(contract)
 
         layout.addWidget(QLabel("Ciclos operacionais"))
         layout.addWidget(self._make_curadoria_table(
@@ -6468,6 +6621,7 @@ class ProjectManager(QWidget):
             for col_idx, value in enumerate(row):
                 item = QTableWidgetItem(str(value))
                 item.setFlags(item.flags() & ~Qt.ItemIsEditable)
+                item.setToolTip(str(value))
                 if key == "pending" and col_idx == 0:
                     priority_colors = {
                         "ALTA": Colors.ACCENT_DANGER,
@@ -6475,6 +6629,11 @@ class ProjectManager(QWidget):
                         "INFO": Colors.ACCENT_INFO,
                     }
                     item.setForeground(QColor(priority_colors.get(str(value), Colors.TEXT_PRIMARY)))
+                    font = item.font()
+                    font.setBold(True)
+                    item.setFont(font)
+                elif key in {"training_pipelines", "training_classes"} and col_idx == 0:
+                    item.setForeground(QColor(Colors.ACCENT_PRIMARY))
                     font = item.font()
                     font.setBold(True)
                     item.setFont(font)
