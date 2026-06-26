@@ -282,6 +282,17 @@ class DetailCard(QWidget):
             w.textChanged.connect(lambda txt: self._on_field_changed(field_id, txt))
         
         w.setFixedHeight(24)
+        
+        # Populate initial value
+        initial_val = str(self.item_data.get('fields', {}).get(field_id, self.item_data.get(field_id, '')))
+        if initial_val and initial_val != 'None':
+            if is_combo:
+                idx = w.findText(initial_val)
+                if idx >= 0:
+                    w.setCurrentIndex(idx)
+            else:
+                w.setText(initial_val)
+                
         self.fields[field_id] = w
         layout.addRow(label_text, w)
 
@@ -1339,8 +1350,8 @@ class DetailCard(QWidget):
                  self._update_header_counts()
                  
             else: # Pilar (default)
-                self._add_linked_row(h_layout, "Dimensão B×H [dim]:", "dim", "text")
-                self._add_linked_row(h_layout, "Segmentos Geometria [pilar_segs]:", "pilar_segs", "poly", hide_input=True)
+                self._add_info_row(h_layout, "Dimensão B×H [dim]:", "dim")
+                self._add_info_row(h_layout, "Segmentos Geometria [pilar_segs]:", "pilar_segs")
 
                 # Formato (Apenas Pilar)
                 self.fields['format'] = QComboBox()

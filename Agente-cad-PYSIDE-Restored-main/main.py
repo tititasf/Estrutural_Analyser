@@ -1427,11 +1427,15 @@ class MainWindow(QMainWindow):
             if not obra:
                 return
             
+            import PySide6.QtWidgets
+            PySide6.QtWidgets.QApplication.processEvents()
+            
             # Feedback visual rápido
             self.sa_cmb_pavimentos.blockSignals(True)
             self.sa_cmb_pavimentos.clear()
             self.sa_cmb_pavimentos.addItem("⏳ Carregando pavimentos...")
             self.sa_cmb_pavimentos.blockSignals(False)
+            PySide6.QtWidgets.QApplication.processEvents()
             
             def _do_obra():
                 # Popula SA primeiro, depois sincroniza top bar
@@ -1441,7 +1445,7 @@ class MainWindow(QMainWindow):
                     self.cmb_works.setCurrentIndex(top_idx)
                     
             from PySide6.QtCore import QTimer
-            QTimer.singleShot(50, _do_obra)
+            QTimer.singleShot(150, _do_obra)
 
         def _on_sa_pav_changed():
             data = self.sa_cmb_pavimentos.currentData()
@@ -1449,10 +1453,24 @@ class MainWindow(QMainWindow):
                 return
             project_id, raw_name = data
 
+            import PySide6.QtWidgets
+            PySide6.QtWidgets.QApplication.processEvents()
+
+            # Exibe feedback na própria combobox para clareza
+            idx = self.sa_cmb_pavimentos.currentIndex()
+            if idx >= 0:
+                self.sa_cmb_pavimentos.setItemText(idx, f"⏳ Lendo {raw_name}...")
+            
             # Exibe feedback na topbar ou log para o usuário saber que começou
             self.log(f"⏳ Carregando dados do pavimento: {raw_name}...")
+            PySide6.QtWidgets.QApplication.processEvents()
             
             def _do_pav():
+                # Restaura texto normal
+                if idx >= 0 and getattr(self, '_sa_populate_pavimentos', None):
+                    display = _pav_card_label(raw_name)
+                    self.sa_cmb_pavimentos.setItemText(idx, display)
+
                 # Sincroniza top bar pelo nome raw
                 top_idx = self.cmb_pavements.findText(raw_name)
                 if top_idx >= 0:
@@ -1470,7 +1488,7 @@ class MainWindow(QMainWindow):
                     self._open_project_tab(project_id, raw_name)
 
             from PySide6.QtCore import QTimer
-            QTimer.singleShot(50, _do_pav)
+            QTimer.singleShot(150, _do_pav)
 
         def _on_sa_nivel_cheg():
             v = self.sa_edit_nivel_cheg.text()

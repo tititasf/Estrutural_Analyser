@@ -142,14 +142,11 @@ def _make_item(text: str, align=Qt.AlignLeft, bold: bool = False,
 
 # ── Mini viewer vetorial ───────────────────────────────────────────────────────
 
-class _PseudoMiniDXFView(QWidget):
+class _MiniDXFView(QGraphicsView):
     """
-    Pseudo-viewer vetorial embutido na célula da tabela.
-    Oculta o uso de um QPixmap estático do usuário, permitindo Pan e Zoom (interatividade)
-    sem usar QGraphicsView (que causa congelamentos catastróficos quando múltiplas
-    instâncias compartilham uma QGraphicsScene de 500.000 itens).
+    Mini viewer vetorial embutido na célula da tabela usando QGraphicsView real.
+    Carregamento lazy garante que poucas instâncias existam simultaneamente, evitando travamentos.
     """
-
     def __init__(
         self,
         scene,
@@ -158,67 +155,33 @@ class _PseudoMiniDXFView(QWidget):
         highlight_pts: list | None = None,
         parent=None,
     ):
-        super().__init__(parent)
-        self._scene_ref = scene
-        self._highlight_pts = highlight_pts or []
+        super().__init__(scene, parent)
         self.setFixedSize(thumb_w, thumb_h)
-        
-        # Estado da câmera DXF
-        self._cx = (x0 + x1) / 2.0
-        self._cy = (y0 + y1) / 2.0
-        w = max(x1 - x0, 1.0)
-        h = max(y1 - y0, 1.0)
-        # Calcula qual zoom faz a bbox caber na tela
-        self._zoom = min(thumb_w / w, thumb_h / h)
-        
-        # Estado de interação
-        self._last_mouse_pos = None
-        self._pixmap = None
+        self._highlight_pts = highlight_pts or []
         
         self.setStyleSheet(
             f"border:1px solid {Colors.BORDER_DEFAULT}; "
             f"background:{Colors.BG_PANEL};"
         )
-        self.setCursor(Qt.OpenHandCursor)
-        self.setMouseTracking(True)
+        self.setRenderHint(QPainter.Antialiasing, False)
+        self.setDragMode(QGraphicsView.ScrollHandDrag)
+        self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         
-        self._request_render()
-
-    def _request_render(self):
-        """Renderiza a cena no pixmap com a câmera atual e solicita paintEvent."""
-        from PySide6.QtGui import QPixmap, QPainter, QColor, QPen, QBrush, QPolygonF
-        from PySide6.QtCore import QRectF, QPointF
+        # Invert Y to match DXF coordinates
+        self.scale(1, -1)
         
-        w, h = self.width(), self.height()
-        pix = QPixmap(w, h)
-        pix.fill(QColor(Colors.BG_PANEL))
+        w = max(x1 - x0, 1.0)
+        h = max(y1 - y0, 1.0)
+        cx = (x0 + x1) / 2.0
+        cy = (y0 + y1) / 2.0
         
-        painter = QPainter(pix)
-        painter.setRenderHint(QPainter.Antialiasing, False)
-        
-        # Dimensões da janela DXF atual baseada no zoom
-        dxf_w = w / self._zoom
-        dxf_h = h / self._zoom
-        scene_rect = QRectF(self._cx - dxf_w/2, self._cy - dxf_h/2, dxf_w, dxf_h)
-        target_rect = QRectF(0, 0, w, h)
-        
-        # Inverte Y para cena principal
-        painter.save()
-        painter.translate(0, h)
-        painter.scale(1.0, -1.0)
-        self._scene_ref.render(painter, target_rect, scene_rect)
-        painter.restore()
-        
-        # Desenha polígono
+        dxf_rect = QRectF(cx - w/2, cy - h/2, w, h)
+        self.fitInView(dxf_rect, Qt.KeepAspectRatio)
+            
+    def drawForeground(self, painter, rect):
         if len(self._highlight_pts) >= 2:
             poly = QPolygonF([QPointF(float(p[0]), float(p[1])) for p in self._highlight_pts])
-            painter.translate(0, h)
-            painter.scale(1.0, -1.0)
-            sx = target_rect.width() / scene_rect.width()
-            sy = target_rect.height() / scene_rect.height()
-            painter.scale(sx, sy)
-            painter.translate(-scene_rect.left(), -scene_rect.top())
-            
             fill = QColor(Accent.PRIMARY)
             fill.setAlpha(40)
             painter.setBrush(QBrush(fill))
@@ -227,66 +190,19 @@ class _PseudoMiniDXFView(QWidget):
             pen.setWidth(2)
             painter.setPen(pen)
             painter.drawPolygon(poly)
-            
-        painter.end()
-        self._pixmap = pix
-        self.update()
-
-    def paintEvent(self, event):
-        from PySide6.QtGui import QPainter
-        if self._pixmap:
-            painter = QPainter(self)
-            painter.drawPixmap(0, 0, self._pixmap)
-            painter.end()
 
     def wheelEvent(self, event):
-        delta = event.angleDelta().y()
-        if delta == 0:
-            return
-            
-        # Posição do mouse relativa ao centro do widget
-        mx = event.position().x()
-        my = event.position().y()
-        dx = mx - self.width() / 2.0
-        dy = my - self.height() / 2.0
+        # Zoom in and zoom out mantendo integridade da funcao de arraste
+        zoom_in_factor = 1.25
+        zoom_out_factor = 1 / zoom_in_factor
+        if event.angleDelta().y() > 0:
+            zoom_factor = zoom_in_factor
+        else:
+            zoom_factor = zoom_out_factor
         
-        # Posição do mouse em coordenadas DXF (Y invertido)
-        dxf_x = self._cx + (dx / self._zoom)
-        dxf_y = self._cy - (dy / self._zoom)
-        
-        factor = 1.25 if delta > 0 else 1.0 / 1.25
-        self._zoom *= factor
-        
-        # Ajusta o centro (cx, cy) para manter a posição sob o cursor parada
-        self._cx = dxf_x - (dx / self._zoom)
-        self._cy = dxf_y + (dy / self._zoom)
-        
-        self._request_render()
+        self.setTransformationAnchor(QGraphicsView.AnchorUnderMouse)
+        self.scale(zoom_factor, zoom_factor)
         event.accept()
-
-    def mousePressEvent(self, event):
-        if event.button() == Qt.LeftButton:
-            self._last_mouse_pos = event.position()
-            self.setCursor(Qt.ClosedHandCursor)
-            event.accept()
-
-    def mouseMoveEvent(self, event):
-        if self._last_mouse_pos is not None:
-            delta = event.position() - self._last_mouse_pos
-            self._last_mouse_pos = event.position()
-            # Mapeia pixels da tela para unidades DXF (invertendo Y)
-            dx_dxf = -(delta.x() / self._zoom)
-            dy_dxf = (delta.y() / self._zoom) # inverte Y 
-            self._cx += dx_dxf
-            self._cy += dy_dxf
-            self._request_render()
-            event.accept()
-
-    def mouseReleaseEvent(self, event):
-        if event.button() == Qt.LeftButton:
-            self._last_mouse_pos = None
-            self.setCursor(Qt.OpenHandCursor)
-            event.accept()
 
     # ── Interação ─────────────────────────────────────────────────────────────
 
@@ -680,7 +596,7 @@ class PreValidationDialog(QDialog):
         marg = max(max(dxf_w, dxf_h) * margin_factor, min_margin_dxf)
 
         if self._dxf_scene is not None:
-            return _PseudoMiniDXFView(
+            return _MiniDXFView(
                 self._dxf_scene,
                 minx - marg, miny - marg,
                 maxx + marg, maxy + marg,
@@ -976,7 +892,6 @@ class PreValidationDialog(QDialog):
                 if rect.isNull():
                     raise ValueError("Scene is empty")
                 
-                x0, y0, x1, y1 = rect.left(), rect.top(), rect.right(), rect.bottom()
                 viewer = _MiniDXFView(scene, x0, y0, x1, y1,
                                       thumb_w=800, thumb_h=250,
                                       highlight_pts=[])
@@ -1214,7 +1129,7 @@ class PreValidationDialog(QDialog):
                 scene = QGraphicsScene()
                 scene.setSceneRect(vx0, vy0, vx1 - vx0, vy1 - vy0)
                 scene.setBackgroundBrush(QColor(Colors.BG_PANEL))
-                viewer = _PseudoMiniDXFView(scene, vx0, vy0, vx1, vy1, w, h,
+                viewer = _MiniDXFView(scene, vx0, vy0, vx1, vy1, w, h,
                                       highlight_pts=saved_pts)
                 viewer.setToolTip("Referência salva de outro pavimento")
                 return viewer
@@ -1700,6 +1615,9 @@ class PreValidationDialog(QDialog):
                 self._tabs.removeTab(index)
                 self._tabs.insertTab(index, new_widget, tab_text)
                 self._tabs.setCurrentIndex(index)
+                
+                # Trigger lazy loader after a short delay so layout is done
+                QTimer.singleShot(100, self._trigger_dynamic_viewers_for_visible_tab)
             except Exception as e:
                 import traceback
                 traceback.print_exc()
@@ -1717,6 +1635,15 @@ class PreValidationDialog(QDialog):
 
         # Defer construction so PySide6 renders the loading label first
         QTimer.singleShot(50, _do_build)
+
+    def _trigger_dynamic_viewers_for_visible_tab(self):
+        # Dispara o recarregamento dos miniviewers (5 por vez baseados no scroll)
+        # Pilares
+        if getattr(self, '_pillar_table', None) and self._pillar_table.isVisible():
+            self._update_dynamic_viewers(self._pillar_table, getattr(self, '_pillar_viewer_data', {}), self._PIL_COL_FOTO, False)
+        # Visão de Corte
+        if getattr(self, '_cut_table', None) and self._cut_table.isVisible():
+            self._update_dynamic_viewers(self._cut_table, getattr(self, '_cut_viewer_data', {}), self._CUT_COL_FOTO, True)
 
 
     def _build_header(self) -> QFrame:
@@ -2218,7 +2145,7 @@ class PreValidationDialog(QDialog):
             if row in data_dict:
                 pts = data_dict[row]
                 current_widget = tbl.cellWidget(row, col_idx)
-                if current_widget and isinstance(current_widget, _PseudoMiniDXFView):
+                if current_widget and isinstance(current_widget, _MiniDXFView):
                     continue
                     
                 viewer = self._make_cut_viewer(pts) if is_cut else self._make_pillar_viewer(pts)
@@ -2232,7 +2159,7 @@ class PreValidationDialog(QDialog):
         for row, pts in list(data_dict.items()):
             if row < start_row - 2 or row > end_row + 2:
                 current_widget = tbl.cellWidget(row, col_idx)
-                if current_widget and isinstance(current_widget, _PseudoMiniDXFView):
+                if current_widget and isinstance(current_widget, _MiniDXFView):
                     lbl = QLabel("⏳ Rolar para carregar")
                     lbl.setAlignment(Qt.AlignCenter)
                     lbl.setStyleSheet(f"color: {Colors.TEXT_MUTED}; font-size: 10px;")
