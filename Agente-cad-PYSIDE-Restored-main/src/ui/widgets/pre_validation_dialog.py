@@ -29,32 +29,7 @@ from PySide6.QtCore import Qt, QPointF, QRectF, QTimer, QSize, QThread, Signal
 from PySide6.QtGui import (QColor, QFont, QBrush, QPixmap, QPainter,
                             QPen, QPolygonF, QPainterPath)
 
-try:
-    from src.ui.theme import Colors, Semantic, Accent, Text, Surface, Border, Contextual
-except ImportError:
-    class Surface:
-        BASE = "#1a1a2e"; RAISED = "#16213e"; DEEP = "#121212"; CARD = "#252525"; ELEVATED = "#2a2a3e"
-    class Border:
-        DEFAULT = "#333333"; STRONG = "#444444"; SUBTLE = "#2a2a2a"
-    class Contextual:
-        DANGER_DARK = "#332222"; FOREST = "rgba(26, 74, 26, 1)"; PURPLE = "#a070ff"; GOLD = "#e6b400"
-    class Colors:
-        BG_PRIMARY        = Surface.BASE
-        BG_SECONDARY      = Surface.RAISED
-        BG_PANEL          = Surface.BASE
-        ACCENT_MINT       = "#4caf50"   # = Semantic.SUCCESS
-        ACCENT_WARNING_ALT = "#ff9800"  # = Semantic.WARNING
-        BORDER_DEFAULT    = Border.DEFAULT
-        BORDER_INPUT      = Border.STRONG
-        TEXT_PRIMARY      = "#e0e0e0"
-        TEXT_MUTED        = "#666666"
-    class Semantic:
-        SUCCESS = "#4caf50"; WARNING = "#ff9800"; DANGER = "#f44336"
-        SUCCESS_BG_DARK = "#1a3320"; WARNING_BG_DARK = "#332900"; DANGER_BG_DARK = "#330d00"
-    class Accent:
-        PRIMARY = "#00d4ff"; BRAND = "#00E5FF"; INTERACTIVE = "#0078d4"
-    class Text:
-        PRIMARY = "#e0e0e0"; SECONDARY = "#9a9aa6"; MUTED = "#666666"; BRIGHT = "#ffffff"
+from src.ui.theme import Colors, Semantic, Accent, Text, Surface, Border, Contextual
 
 # ── Constantes de terminologia ─────────────────────────────────────────────────
 

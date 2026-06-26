@@ -21,28 +21,7 @@ except ImportError:
     _QT_AVAILABLE = False
 
 if _QT_AVAILABLE:
-    try:
-        from src.ui.theme import Colors, Accent, Semantic, Text, Border, Surface
-    except ImportError:
-        class Accent:
-            PRIMARY = "#00d4ff"
-        class Semantic:
-            SUCCESS = "#4caf50"
-            DANGER = "#f44336"
-        class Text:
-            PRIMARY = "#e0e0e0"
-        class Border:
-            DEFAULT = "#333333"
-        class Surface:
-            CARD = "#252525"
-            DEEP = "#121212"
-        class Colors:
-            ACCENT_MINT    = Semantic.SUCCESS
-            SUCCESS        = Semantic.SUCCESS
-            DANGER         = Semantic.DANGER
-            BG_CARD        = Surface.CARD
-            TEXT_PRIMARY   = Text.PRIMARY
-            BORDER_DEFAULT = Border.DEFAULT
+    from src.ui.theme import Colors, Accent, Semantic, Text, Border, Surface
 
 
 if _QT_AVAILABLE:

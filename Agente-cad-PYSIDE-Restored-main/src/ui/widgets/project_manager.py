@@ -6035,6 +6035,7 @@ class ProjectManager(QWidget):
         self.curadoria_rag_tabs.addTab(self._build_curadoria_corpus_tab(), "Corpus")
         self.curadoria_rag_tabs.addTab(self._build_curadoria_pending_tab(), "Pendencias")
         self.curadoria_rag_tabs.addTab(self._build_curadoria_learning_tab(), "Aprendizado")
+        self.curadoria_rag_tabs.addTab(self._build_curadoria_training_pipelines_tab(), "Pipelines de Treino")
         self.curadoria_rag_tabs.addTab(self._build_curadoria_vector_tab(), "Memoria Vetorial")
         self.curadoria_rag_tabs.addTab(self._build_curadoria_db_tab(), "Banco de Dados")
 
@@ -6290,6 +6291,70 @@ class ProjectManager(QWidget):
         ))
         return page
 
+    def _build_curadoria_training_pipelines_tab(self):
+        page, layout = self._make_curadoria_scroll_page()
+        layout.addWidget(self._make_curadoria_header(
+            "Pipelines de Treino - Arete por classe",
+            "Mapa mental dos ciclos que melhoram recorte, N2->N4, N2<->N1 e N1->N3. Esta aba e observadora: nao treina, nao indexa e nao promove dado."
+        ))
+
+        grid = QGridLayout()
+        grid.setSpacing(10)
+        for index, args in enumerate([
+            ("train_docs_arete", "Docs Arete", "Masterplans e docs de treino encontrados."),
+            ("train_scripts", "Loopers/Scripts", "Scripts de loop, runner e auditoria Arete."),
+            ("train_events", "Training Events", "Sinais humanos para treino supervisionado."),
+            ("train_crop_events", "CROP-T1", "Recortes aprovados que ensinam crop por classe."),
+            ("train_human_notes", "Notas humanas", "Alertas/atencoes humanas registrados para revisao."),
+        ]):
+            grid.addWidget(self._make_curadoria_metric_card(*args), index // 5, index % 5)
+        layout.addLayout(grid)
+
+        map_text = QTextEdit()
+        map_text.setReadOnly(True)
+        map_text.setMinimumHeight(220)
+        map_text.setPlainText(
+            "CICLO CROP - aprender a recortar\n"
+            "  Recorte aprovado -> crop_learning_events -> perfis por classe/layer/pavimento -> proximo recorte melhor.\n"
+            "  Aprovar recorte nao valida F5/N2 nem N4; valida somente que a janela/seleção estava correta.\n\n"
+            "CICLO A - N2 -> N4 (engenharia reversa)\n"
+            "  STOG humano + recorte correto -> motor_reverso_* gera F5/N2 -> robo gera N4 -> Comparison valida visualmente.\n"
+            "  O aprendizado melhora extrator reverso, leitura de layers/campos e gerador N4 daquela classe.\n\n"
+            "CICLO B - N2 <-> N1 (interpretacao estrutural)\n"
+            "  F5/N2 validado atua como professor externo; F7/N1 do Structural Analyzer e comparado campo a campo.\n"
+            "  O aprendizado melhora interpretacao do SA e conversao N1 -> ficha de robo, sem copiar gabarito.\n\n"
+            "CICLO C - N1 -> N3 (producao)\n"
+            "  N1 gera N3 sozinho. N4 validado e juiz visual/semantico externo. Se N3 ~= N4 sem vazamento, o motor evoluiu.\n"
+            "  N3 nunca pode receber dados de N2/N4 como entrada; eles so julgam o resultado.\n\n"
+            "RAG/DADOS\n"
+            "  RAG nao e o treinador. Ele e memoria consultavel: regras, exemplos T1/T2, notas e historico.\n"
+            "  O treino escreve eventos auditaveis; consultas leem apenas conhecimento confiavel. T0 fica em quarentena; TX fica revogado."
+        )
+        map_text.setStyleSheet(_resolve_css("""
+            QTextEdit {
+                background: {Colors.BG_CARD};
+                color: {Colors.TEXT_PRIMARY};
+                border: 1px solid {Colors.BORDER_DEFAULT};
+                border-radius: 6px;
+                padding: 10px;
+                font-family: Consolas, monospace;
+                font-size: 11px;
+            }
+        """))
+        layout.addWidget(map_text)
+
+        layout.addWidget(QLabel("Ciclos operacionais"))
+        layout.addWidget(self._make_curadoria_table(
+            "training_pipelines",
+            ["Ciclo", "Professor / juiz", "Motor treinado", "Gate humano / metrica", "Alimenta RAG/Dados", "Nao fazer"],
+        ))
+        layout.addWidget(QLabel("Cobertura por classe"))
+        layout.addWidget(self._make_curadoria_table(
+            "training_classes",
+            ["Classe", "Partes", "Docs", "Loopers/Scripts", "Estado", "Proximo gate"],
+        ))
+        return page
+
     def _build_curadoria_pending_tab(self):
         page, layout = self._make_curadoria_scroll_page()
         layout.addWidget(self._make_curadoria_header(
@@ -6367,6 +6432,11 @@ class ProjectManager(QWidget):
             "learning_rejections": metrics["learning_counts"].get("user_rejection", 0),
             "learning_na": metrics["learning_counts"].get("user_na", 0),
             "learning_accuracy": metrics["learning_accuracy"],
+            "train_docs_arete": metrics["train_docs_arete"],
+            "train_scripts": metrics["train_scripts"],
+            "train_events": metrics["table_counts"].get("training_events", 0),
+            "train_crop_events": metrics["table_counts"].get("crop_learning_events", 0),
+            "train_human_notes": metrics["train_human_notes"],
             "pending_high": metrics["pending_counts"].get("ALTA", 0),
             "pending_medium": metrics["pending_counts"].get("MEDIA", 0),
             "pending_info": metrics["pending_counts"].get("INFO", 0),
@@ -6382,6 +6452,8 @@ class ProjectManager(QWidget):
         self._fill_curadoria_table("learning_event_types", metrics["learning_event_rows"])
         self._fill_curadoria_table("learning_roles", metrics["learning_role_rows"])
         self._fill_curadoria_table("learning_rules", metrics["rule_rows"])
+        self._fill_curadoria_table("training_pipelines", metrics["training_pipeline_rows"])
+        self._fill_curadoria_table("training_classes", metrics["training_class_rows"])
         self._fill_curadoria_table("pending", metrics["pending_rows"])
         self._fill_curadoria_table("faiss_stores", metrics["faiss_rows"])
         self._fill_curadoria_table("db_tables", metrics["db_rows"])
@@ -6414,6 +6486,7 @@ class ProjectManager(QWidget):
         from collections import Counter, defaultdict
 
         repo_root = Path(getattr(self.db, "db_path", "D:/Agente-cad-PYSIDE/project_data.vision")).resolve().parent
+        app_root = Path(__file__).resolve().parents[3]
         scripts_dir = repo_root / "scripts"
         if str(scripts_dir) not in sys.path:
             sys.path.insert(0, str(scripts_dir))
@@ -6447,6 +6520,16 @@ class ProjectManager(QWidget):
         db_path = Path(getattr(self.db, "db_path", repo_root / "project_data.vision"))
         faiss_dir = repo_root / "data" / "vectors" / "faiss"
         tombstones = load_tombstones(faiss_dir / "rag_tombstones.json")
+        docs_dir = app_root / "docs"
+        app_scripts_dir = app_root / "scripts"
+        arete_docs = sorted(docs_dir.glob("*ARETE*.md")) if docs_dir.exists() else []
+        loop_script_patterns = ["*loop*.py", "*runner*.py", "*arete*.py", "*audit*.py"]
+        loop_scripts = []
+        for scripts_root in {scripts_dir, app_scripts_dir}:
+            if scripts_root.exists():
+                for pattern in loop_script_patterns:
+                    loop_scripts.extend(scripts_root.glob(pattern))
+        loop_scripts = sorted({path.resolve() for path in loop_scripts})
 
         metrics = {
             "tiers": Counter(),
@@ -6470,6 +6553,11 @@ class ProjectManager(QWidget):
             "faiss_rows": [],
             "db_rows": [],
             "rule_rows": [],
+            "training_pipeline_rows": [],
+            "training_class_rows": [],
+            "train_docs_arete": len(arete_docs),
+            "train_scripts": len(loop_scripts),
+            "train_human_notes": 0,
             "obra_rag_snapshots": 0,
             "latest_obra_rag": "",
             "registry_error": registry_error,
@@ -6500,6 +6588,7 @@ class ProjectManager(QWidget):
                     "crop_learning_events",
                     "training_events",
                     "transformation_rules",
+                    "item_attention_notes",
                     "cache_fichas",
                 ]
                 for table in tracked_tables:
@@ -6667,6 +6756,7 @@ class ProjectManager(QWidget):
                         """
                     ).fetchall():
                         metrics["learning_role_rows"].append([role or "?", count])
+                metrics["train_human_notes"] = metrics["table_counts"].get("item_attention_notes", 0)
             except Exception as exc:
                 metrics["db_rows"].append(["project_data.vision", 0, "ERRO", str(exc)])
             finally:
@@ -6711,6 +6801,105 @@ class ProjectManager(QWidget):
                 "OK",
                 f"ultimo: {metrics['latest_obra_rag']}",
             ])
+
+        metrics["training_pipeline_rows"] = [
+            [
+                "CROP - recorte",
+                "Recorte aprovado por humano",
+                "Detector/perfil de recorte por classe, layer e pavimento",
+                "CROP-T1: janela correta, classe correta, contexto correto",
+                "crop_learning_events; exemplos visuais locais",
+                "Nao validar F5/N2 nem N4 no clique de recorte",
+            ],
+            [
+                "A - N2 -> N4",
+                "F5/N2 validado + visual STOG humano",
+                "motor_reverso_* + gerar_*_dxf_stog",
+                "N4 visual/semantico passa no Comparison Engine",
+                "training_events; FAISS/Chroma so T1+; domain_knowledge",
+                "Nao copiar resultado para N1/N3; nao promover T0",
+            ],
+            [
+                "B - N2 <-> N1",
+                "N2/F5 como professor externo",
+                "Structural Analyzer + conversor N1->ficha robo",
+                "F7/N1 converge para F5/N2 por campo/geometria",
+                "transformation_rules; eventos por role; notas humanas",
+                "Nao sobrescrever validacao humana; nao usar N2 como input do N3",
+            ],
+            [
+                "C - N1 -> N3",
+                "N4 validado como juiz externo",
+                "Conversor N1->N3 + robos por classe",
+                "N3 ~= N4 sem vazamento de gabarito",
+                "pares N3/N4 validados; scores; regressao visual",
+                "Nao alimentar N3 com campos de N2/N4",
+            ],
+            [
+                "Notas humanas",
+                "Atencoes, rejeicoes e decisoes do operador",
+                "Fila de revisao semantica e calibradores",
+                "Nota vira regra so apos consenso/validacao",
+                "item_attention_notes; domain_knowledge; pendencias",
+                "Nao tratar nota solta como verdade global",
+            ],
+        ]
+
+        def has_doc(*needles):
+            names = [path.name.upper() for path in arete_docs]
+            return any(all(needle.upper() in name for needle in needles) for name in names)
+
+        def matching_scripts(*needles):
+            matches = []
+            for path in loop_scripts:
+                name = path.name.lower()
+                if all(needle.lower() in name for needle in needles):
+                    matches.append(path.name)
+            return matches
+
+        class_rows = [
+            [
+                "PIL",
+                "CIMA / GRADES / ABCD",
+                "SEMANTICA-PILAR-NOVA + testes Arete; masterplan PIL consolidado pendente",
+                "; ".join(matching_scripts("pil")[:4]) or "scripts/arete/test_n2_n4_abcd.py",
+                "Loop existe em testes/scripts, mas precisa documento canônico A/B/C",
+                "Consolidar MASTERPLAN-ARETE-PILAR.md e gates por campo",
+            ],
+            [
+                "LAJ",
+                "Painel / outlines / aberturas / cotas",
+                "MASTERPLAN-ARETE-LAJE.md" if has_doc("ARETE", "LAJE") else "Doc Arete LAJ nao encontrado",
+                "; ".join((matching_scripts("laj") + matching_scripts("lj"))[:5]) or "laje_loop_runner.py",
+                "A/B/C documentado: N2->N4, N2<->N1, N1->N3",
+                "Rodar ciclos com T1+ e comparar N3 vs N4 sem vazamento",
+            ],
+            [
+                "LV",
+                "VC / lado A / lado B",
+                "MASTERPLAN-ARETE-LATERAL-VIGA.md + MASTERPLAN-LOOP-LV-N2-VISION-N4.md",
+                "; ".join(matching_scripts("lv")[:5]) or "lv_*_loop_runner.py",
+                "A/B/C documentado com subdivisoes visuais",
+                "Fechar equivalencia de vocabulario N1<->N2 por lado",
+            ],
+            [
+                "FV",
+                "Fundo / seções / eixo visual",
+                "MASTERPLAN-ARETE-FUNDO-VIGA.md" if has_doc("ARETE", "FUNDO", "VIGA") else "Doc Arete FV nao encontrado",
+                "; ".join(matching_scripts("fv")[:5]) or "fv_loop_runner.py",
+                "A/B/C documentado; render/loop existem",
+                "Validar N4 contra N2 antes de usar como juiz do N3",
+            ],
+            [
+                "Nova classe",
+                "Definir no classe_registry",
+                "docs/ENCICLOPEDIA-SCHEMA.md + MASTERPLAN-ARETE-{CLASSE}.md",
+                "motor_reverso_{classe}.py; gerar_{classe}_dxf_stog.py; loop_runner",
+                "Precisa nascer com CROP, A, B e C separados",
+                "Criar seed T1, gates e notas humanas antes de generalizar",
+            ],
+        ]
+        metrics["training_class_rows"] = class_rows
 
         pending = []
 
