@@ -1986,11 +1986,14 @@ class DiagnosticHubModule(QWidget):
         btn_group = QButtonGroup(dialog)
         rb_torre   = QRadioButton("🏛 Pavimento Limpo (Torre)")
         rb_detalhe = QRadioButton("📐 Detalhes")
+        rb_conv_pil = QRadioButton("📖 Convenção de Pilares")
         rb_torre.setChecked(True)
         btn_group.addButton(rb_torre,   0)
         btn_group.addButton(rb_detalhe, 1)
+        btn_group.addButton(rb_conv_pil, 2)
         dlg_layout.addWidget(rb_torre)
         dlg_layout.addWidget(rb_detalhe)
+        dlg_layout.addWidget(rb_conv_pil)
 
         # Número da torre (visível apenas para Pavimento Limpo)
         torre_row = QHBoxLayout()
@@ -2008,6 +2011,7 @@ class DiagnosticHubModule(QWidget):
 
         rb_torre.toggled.connect(_toggle_torre)
         rb_detalhe.toggled.connect(_toggle_torre)
+        rb_conv_pil.toggled.connect(_toggle_torre)
 
         buttons = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
         buttons.accepted.connect(dialog.accept)
@@ -2018,9 +2022,13 @@ class DiagnosticHubModule(QWidget):
             return
 
         is_detalhe = rb_detalhe.isChecked()
+        is_conv_pil = rb_conv_pil.isChecked()
         torre_num  = int(self._sb_torre_num.currentText())
 
-        if is_detalhe:
+        if is_conv_pil:
+            rtype    = "convencao_pilares"
+            filename = "convencao_pilares_manual.dxf"
+        elif is_detalhe:
             rtype    = "detalhe"
             filename = "detalhes_manual.dxf"
         else:
@@ -2077,7 +2085,7 @@ class DiagnosticHubModule(QWidget):
             """, (
                 row_id, self._current_obra, pav_name, str(bruto_path),
                 rtype, next_idx, str(out_path), None, n_ent,
-                0.0, "manual", torre_num if not is_detalhe else 1, now,
+                0.0, "manual", 1 if (is_detalhe or is_conv_pil) else torre_num, now,
             ))
             conn.commit()
             conn.close()
@@ -2147,11 +2155,14 @@ class DiagnosticHubModule(QWidget):
         btn_group = QButtonGroup(dialog)
         rb_torre   = QRadioButton("🏛 Pavimento Limpo (Torre)")
         rb_detalhe = QRadioButton("📐 Detalhes")
+        rb_conv_pil = QRadioButton("📖 Convenção de Pilares")
         rb_torre.setChecked(True)
         btn_group.addButton(rb_torre,   0)
         btn_group.addButton(rb_detalhe, 1)
+        btn_group.addButton(rb_conv_pil, 2)
         dlg_layout.addWidget(rb_torre)
         dlg_layout.addWidget(rb_detalhe)
+        dlg_layout.addWidget(rb_conv_pil)
 
         torre_row = QHBoxLayout()
         lbl_torre = QLabel("Número da torre:")
@@ -2168,6 +2179,7 @@ class DiagnosticHubModule(QWidget):
 
         rb_torre.toggled.connect(_toggle_torre)
         rb_detalhe.toggled.connect(_toggle_torre)
+        rb_conv_pil.toggled.connect(_toggle_torre)
 
         buttons = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
         buttons.accepted.connect(dialog.accept)
@@ -2178,9 +2190,13 @@ class DiagnosticHubModule(QWidget):
             return
 
         is_detalhe = rb_detalhe.isChecked()
+        is_conv_pil = rb_conv_pil.isChecked()
         torre_num  = int(sb_torre_num.currentText())
 
-        if is_detalhe:
+        if is_conv_pil:
+            rtype    = "convencao_pilares"
+            filename = "convencao_pilares_selecao.dxf"
+        elif is_detalhe:
             rtype    = "detalhe"
             filename = "detalhes_selecao.dxf"
         else:
@@ -2233,7 +2249,7 @@ class DiagnosticHubModule(QWidget):
             """, (
                 row_id, self._current_obra, pav_name, str(bruto_path),
                 rtype, next_idx, str(out_path), None, n_ent,
-                0.0, "manual", torre_num if not is_detalhe else 1, now,
+                0.0, "manual", 1 if (is_detalhe or is_conv_pil) else torre_num, now,
             ))
             conn.commit()
             conn.close()

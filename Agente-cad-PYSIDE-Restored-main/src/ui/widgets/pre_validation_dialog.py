@@ -652,11 +652,26 @@ class PreValidationDialog(QDialog):
             conn.row_factory = sqlite3.Row
             cur = conn.cursor()
 
-            # 0ª — Tenta pegar o recorte de detalhe aprovado no Diagnostic Pre Hub
+            # 0ª — Tenta pegar o recorte da convencao de pilares
             try:
                 cur.execute(
                     "SELECT output_path FROM obra_recortes "
-                    "WHERE obra_name=? AND pavimento_name=? AND recorte_type='detalhe' AND status='approved' "
+                    "WHERE obra_name=? AND pavimento_name=? AND recorte_type='convencao_pilares' AND status IN ('approved', 'manual') "
+                    "ORDER BY recorte_index DESC LIMIT 1",
+                    (self._obra, self._pavimento)
+                )
+                row = cur.fetchone()
+                if row and row['output_path'] and os.path.isfile(row['output_path']):
+                    conn.close()
+                    return row['output_path'], "Convenção de Pilares"
+            except Exception:
+                pass
+
+            # 0.5ª — Tenta pegar o recorte de detalhe aprovado no Diagnostic Pre Hub
+            try:
+                cur.execute(
+                    "SELECT output_path FROM obra_recortes "
+                    "WHERE obra_name=? AND pavimento_name=? AND recorte_type='detalhe' AND status IN ('approved', 'manual') "
                     "ORDER BY recorte_index LIMIT 1",
                     (self._obra, self._pavimento)
                 )
